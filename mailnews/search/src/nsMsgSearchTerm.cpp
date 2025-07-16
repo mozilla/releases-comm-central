@@ -1351,9 +1351,7 @@ nsresult nsMsgSearchTerm::MatchKeyword(const nsACString& keywordList,
   nsresult rv = NS_OK;
   nsTArray<nsCString> keywordArray;
   ParseString(keywordList, ' ', keywordArray);
-  nsCOMPtr<nsIMsgTagService> tagService(
-      do_GetService("@mozilla.org/messenger/tagservice;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgTagService> tagService = mozilla::components::Tag::Service();
 
   // Loop through tokens in keywords
   uint32_t count = keywordArray.Length();

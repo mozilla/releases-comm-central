@@ -6,12 +6,14 @@
 /*
   Outlook (Win32) import mail and addressbook interfaces
 */
+#include "nsOutlookImport.h"
+
+#include "mozilla/Components.h"
 #include "nscore.h"
 #include "nsString.h"
 #include "nsLocalFile.h"
 #include "nsMsgUtils.h"
 #include "nsIImportService.h"
-#include "nsOutlookImport.h"
 #include "nsIImportService.h"
 #include "nsIImportMail.h"
 #include "nsIImportMailboxDescriptor.h"
@@ -140,22 +142,20 @@ NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char* pImportType,
     nsCOMPtr<nsIImportGeneric> pGeneric;
     rv = ImportOutlookMailImpl::Create(getter_AddRefs(pMail));
     if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIImportService> impSvc(
-          do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+      nsCOMPtr<nsIImportService> impSvc =
+          mozilla::components::Import::Service();
+      rv = impSvc->CreateNewGenericMail(getter_AddRefs(pGeneric));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericMail(getter_AddRefs(pGeneric));
+        pGeneric->SetData("mailInterface", pMail);
+        nsString name;
+        nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_NAME, name);
+        nsCOMPtr<nsISupportsString> nameString(
+            do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
         if (NS_SUCCEEDED(rv)) {
-          pGeneric->SetData("mailInterface", pMail);
-          nsString name;
-          nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_NAME, name);
-          nsCOMPtr<nsISupportsString> nameString(
-              do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
-          if (NS_SUCCEEDED(rv)) {
-            nameString->SetData(name);
-            pGeneric->SetData("name", nameString);
-            nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
-            pInterface.forget(ppInterface);
-          }
+          nameString->SetData(name);
+          pGeneric->SetData("name", nameString);
+          nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+          pInterface.forget(ppInterface);
         }
       }
     }
@@ -168,15 +168,13 @@ NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char* pImportType,
     nsCOMPtr<nsIImportGeneric> pGeneric;
     rv = ImportOutlookAddressImpl::Create(getter_AddRefs(pAddress));
     if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIImportService> impSvc(
-          do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+      nsCOMPtr<nsIImportService> impSvc =
+          mozilla::components::Import::Service();
+      rv = impSvc->CreateNewGenericAddressBooks(getter_AddRefs(pGeneric));
       if (NS_SUCCEEDED(rv)) {
-        rv = impSvc->CreateNewGenericAddressBooks(getter_AddRefs(pGeneric));
-        if (NS_SUCCEEDED(rv)) {
-          pGeneric->SetData("addressInterface", pAddress);
-          nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
-          pInterface.forget(ppInterface);
-        }
+        pGeneric->SetData("addressInterface", pAddress);
+        nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pGeneric));
+        pInterface.forget(ppInterface);
       }
     }
     return rv;

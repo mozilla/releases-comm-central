@@ -7,6 +7,9 @@
   Outlook mail import
 */
 
+#include "nsOutlookMail.h"
+
+#include "mozilla/Components.h"
 #include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsMsgUtils.h"
@@ -15,7 +18,6 @@
 #include "nsIImportABDescriptor.h"
 #include "nsIAbCard.h"
 #include "ImportDebug.h"
-#include "nsOutlookMail.h"
 #include "nsIOutputStream.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgPluggableStore.h"
@@ -100,12 +102,9 @@ nsresult nsOutlookMail::GetMailFolders(
     IMPORT_LOG0("GetMailFolders called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
-  nsresult rv;
   boxes.Clear();
 
-  nsCOMPtr<nsIImportService> impSvc(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return rv;
+  nsCOMPtr<nsIImportService> impSvc = mozilla::components::Import::Service();
 
   m_gotFolders = true;
 
@@ -145,7 +144,7 @@ nsresult nsOutlookMail::GetMailFolders(
 
   for (i = 0; i < m_folderList.GetSize(); i++) {
     pFolder = m_folderList.GetItem(i);
-    rv = impSvc->CreateNewMailboxDescriptor(getter_AddRefs(pID));
+    nsresult rv = impSvc->CreateNewMailboxDescriptor(getter_AddRefs(pID));
     if (NS_SUCCEEDED(rv)) {
       pID->SetDepth(pFolder->GetDepth());
       pID->SetIdentifier(i);
@@ -194,10 +193,7 @@ nsresult nsOutlookMail::GetAddressBooks(
     IMPORT_LOG0("GetAddressBooks called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
-  nsresult rv;
-  nsCOMPtr<nsIImportService> impSvc(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return rv;
+  nsCOMPtr<nsIImportService> impSvc = mozilla::components::Import::Service();
 
   m_gotAddresses = true;
 
@@ -236,7 +232,7 @@ nsresult nsOutlookMail::GetAddressBooks(
   for (i = 0; i < m_addressList.GetSize(); i++) {
     pFolder = m_addressList.GetItem(i);
     if (!pFolder->IsStore()) {
-      rv = impSvc->CreateNewABDescriptor(getter_AddRefs(pID));
+      nsresult rv = impSvc->CreateNewABDescriptor(getter_AddRefs(pID));
       if (NS_SUCCEEDED(rv)) {
         pID->SetIdentifier(i);
         pFolder->GetDisplayName(name);

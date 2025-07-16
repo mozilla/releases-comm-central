@@ -3388,9 +3388,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                                    getter_AddRefs(dstFolder));
             if (NS_FAILED(rv)) break;
 
-            nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(
-                "@mozilla.org/messenger/messagecopyservice;1", &rv);
-            if (NS_FAILED(rv)) break;
+            nsCOMPtr<nsIMsgCopyService> copyService =
+                mozilla::components::Copy::Service();
             rv = copyService->CopyMessages(this, {&*msgHdr}, dstFolder, false,
                                            nullptr, msgWindow, false);
             if (NS_FAILED(rv)) {
@@ -5097,9 +5096,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         case nsIImapUrl::nsImapMoveFolderHierarchy:
           if (m_copyState)  // delete folder gets here, but w/o an m_copyState
           {
-            nsCOMPtr<nsIMsgCopyService> copyService = do_GetService(
-                "@mozilla.org/messenger/messagecopyservice;1", &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
+            nsCOMPtr<nsIMsgCopyService> copyService =
+                mozilla::components::Copy::Service();
             nsCOMPtr<nsIMsgFolder> srcFolder =
                 do_QueryInterface(m_copyState->m_srcSupport);
             if (srcFolder) {

@@ -295,9 +295,8 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       mozilla::components::AccountManager::Service();
-  nsCOMPtr<nsIImportService> importService(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImportService> importService =
+      mozilla::components::Import::Service();
 
   // nsIImportService.createRFC822Message creates a runnable and dispatches to
   // the main thread.

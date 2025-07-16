@@ -64,26 +64,24 @@ NS_IMETHODIMP nsAppleMailImportModule::GetImportInterface(
     nsCOMPtr<nsIImportMail> mail(
         do_CreateInstance(NS_APPLEMAILIMPL_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIImportService> impSvc(
-          do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
+      nsCOMPtr<nsIImportService> impSvc =
+          mozilla::components::Import::Service();
+      nsCOMPtr<nsIImportGeneric> generic;
+      rv = impSvc->CreateNewGenericMail(getter_AddRefs(generic));
       if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIImportGeneric> generic;
-        rv = impSvc->CreateNewGenericMail(getter_AddRefs(generic));
-        if (NS_SUCCEEDED(rv)) {
-          nsAutoString name;
-          rv = mBundle->GetStringFromName("ApplemailImportName", name);
-          NS_ENSURE_SUCCESS(rv, rv);
+        nsAutoString name;
+        rv = mBundle->GetStringFromName("ApplemailImportName", name);
+        NS_ENSURE_SUCCESS(rv, rv);
 
-          nsCOMPtr<nsISupportsString> nameString(
-              do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
-          NS_ENSURE_SUCCESS(rv, rv);
-          nameString->SetData(name);
+        nsCOMPtr<nsISupportsString> nameString(
+            do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
+        NS_ENSURE_SUCCESS(rv, rv);
+        nameString->SetData(name);
 
-          generic->SetData("name", nameString);
-          generic->SetData("mailInterface", mail);
+        generic->SetData("name", nameString);
+        generic->SetData("mailInterface", mail);
 
-          generic.forget(aInterface);
-        }
+        generic.forget(aInterface);
       }
     }
   }
@@ -141,9 +139,8 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(
   nsresult rv = aMailboxFile->Exists(&exists);
   if (NS_FAILED(rv) || !exists) return NS_ERROR_FAILURE;
 
-  nsCOMPtr<nsIImportService> importService(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImportService> importService =
+      mozilla::components::Import::Service();
 
   mCurDepth = 1;
 

@@ -468,17 +468,15 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager* aMgr,
                                         nsIMsgIdentity* aId,
                                         const nsString& aServer,
                                         const nsString& aUser) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
-      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService =
+      mozilla::components::OutgoingServer::Service();
 
   nsAutoCString nativeUserName;
   NS_CopyUnicodeToNative(aUser, nativeUserName);
   nsAutoCString nativeServerName;
   NS_CopyUnicodeToNative(aServer, nativeServerName);
   nsCOMPtr<nsIMsgOutgoingServer> foundServer;
-  rv = outgoingServerService->FindServer(
+  nsresult rv = outgoingServerService->FindServer(
       nativeUserName, nativeServerName, "smtp"_ns, getter_AddRefs(foundServer));
   if (NS_SUCCEEDED(rv) && foundServer) {
     if (aId) SetSmtpServerKey(aId, foundServer);

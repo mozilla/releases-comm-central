@@ -745,25 +745,20 @@ nsresult nsMsgMdnGenerator::OutputAllHeaders() {
 }
 
 nsresult nsMsgMdnGenerator::SendMdnMsg() {
-  nsresult rv;
-  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService = do_GetService(
-      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService =
+      mozilla::components::OutgoingServer::Service();
   nsCOMPtr<nsIRequest> aRequest;
   nsCString identEmail;
   m_identity->GetEmail(identEmail);
 
   nsCOMPtr<nsIMsgOutgoingServer> outgoingServer;
-  rv = outgoingServerService->GetServerByIdentity(
+  nsresult rv = outgoingServerService->GetServerByIdentity(
       m_identity, getter_AddRefs(outgoingServer));
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(outgoingServer, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr<nsIMsgHeaderParser> parserService =
-      do_GetService("@mozilla.org/messenger/headerparser;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+      mozilla::components::HeaderParser::Service();
   nsTArray<RefPtr<msgIAddressObject>> recipients;
   rv = parserService->ParseEncodedHeader(m_dntRrt, "utf-8", false, recipients);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -962,9 +957,8 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnSendStop(nsIURI* aServerURI,
       break;
   }
 
-  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
-      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService =
+      mozilla::components::OutgoingServer::Service();
 
   // Get the display name for the outgoing server and format the string.
   nsCString outgoingDisplayName;

@@ -199,8 +199,7 @@ nsresult nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
   // Get the top most keyword's CSS selector and append that as a property.
   nsresult rv;
   if (!mTagService) {
-    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mTagService = mozilla::components::Tag::Service();
   }
 
   nsCString topKey;
@@ -718,10 +717,8 @@ nsresult nsMsgDBView::FetchPriority(nsIMsgDBHdr* aHdr,
 nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr* aHdr,
                                     nsACString& keywordString) {
   NS_ENSURE_ARG_POINTER(aHdr);
-  nsresult rv = NS_OK;
   if (!mTagService) {
-    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mTagService = mozilla::components::Tag::Service();
   }
   nsCString keywords;
   aHdr->GetStringProperty("keywords", keywords);
@@ -771,8 +768,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   NS_ENSURE_ARG_POINTER(aHdr);
   nsresult rv = NS_OK;
   if (!mTagService) {
-    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mTagService = mozilla::components::Tag::Service();
   }
 
   nsString tags;
@@ -798,10 +794,8 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
 
 nsresult nsMsgDBView::FetchTagKeys(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   NS_ENSURE_ARG_POINTER(aHdr);
-  nsresult rv = NS_OK;
   if (!mTagService) {
-    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mTagService = mozilla::components::Tag::Service();
   }
 
   nsString tags;

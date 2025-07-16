@@ -5,11 +5,6 @@
 
 #include "nsISupports.idl"
 
-%{C++
-#define NS_MAILNEWS_MIME_HEADER_PARSER_CONTRACTID \
-  "@mozilla.org/messenger/headerparser;1"
-%}
-
 /**
  * A structured representation of an address.
  *

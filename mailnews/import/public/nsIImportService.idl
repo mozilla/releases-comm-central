@@ -19,10 +19,6 @@ interface nsIMsgCompFields;
 interface nsIMsgAttachedFile;
 interface nsIMsgEmbeddedImageData;
 
-%{ C++
-#define NS_IMPORTSERVICE_CONTRACTID "@mozilla.org/import/import-service;1"
-%}
-
 [scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports {
   nsIImportMailboxDescriptor createNewMailboxDescriptor();

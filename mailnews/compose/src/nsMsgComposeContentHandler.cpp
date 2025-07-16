@@ -22,14 +22,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 
-#define NS_MSGCOMPOSESERVICE_CID              \
-  {/* 588595FE-1ADA-11d3-A715-0060B0EB39B5 */ \
-   0x588595fe,                                \
-   0x1ada,                                    \
-   0x11d3,                                    \
-   {0xa7, 0x15, 0x0, 0x60, 0xb0, 0xeb, 0x39, 0xb5}}
-static NS_DEFINE_CID(kMsgComposeServiceCID, NS_MSGCOMPOSESERVICE_CID);
-
 nsMsgComposeContentHandler::nsMsgComposeContentHandler() {}
 
 // The following macro actually implement addref, release and query interface
@@ -106,9 +98,8 @@ NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(
     rv = aChannel->GetURI(getter_AddRefs(aUri));
     if (aUri) {
       nsCOMPtr<nsIMsgComposeService> composeService =
-          do_GetService(kMsgComposeServiceCID, &rv);
-      if (NS_SUCCEEDED(rv))
-        rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity);
+          mozilla::components::Compose::Service();
+      rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity);
     }
   } else {
     // The content-type was not application/x-mailto...
