@@ -61,9 +61,9 @@ git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/application-services?rev=1bff9b9844bdce7111fff10e9c06bbbfe4a4a15c"]
+[source."git+https://github.com/mozilla/application-services?rev=f1ee0a01164344c701b3e46c0cb1b58223219ba7"]
 git = "https://github.com/mozilla/application-services"
-rev = "1bff9b9844bdce7111fff10e9c06bbbfe4a4a15c"
+rev = "f1ee0a01164344c701b3e46c0cb1b58223219ba7"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/audioipc?rev=e6f44a2bd1e57d11dfc737632a9e849077632330"]
