@@ -6421,7 +6421,11 @@ async function CompleteGenericSendMessage(msgType) {
     }
 
     if (gSelectedTechnologyIsPGP) {
-      if (!(await Enigmail.msg.onSendOpenPGP(msgType))) {
+      let pgpSuccess = false;
+      try {
+        pgpSuccess = await Enigmail.msg.onSendOpenPGP(msgType);
+      } catch (ex) {}
+      if (!pgpSuccess) {
         Enigmail.msg.resetUpdatedFields();
         return;
       }
