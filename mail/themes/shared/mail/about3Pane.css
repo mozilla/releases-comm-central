@@ -609,7 +609,8 @@ body {
     background-color: var(--folderpane-unread-new-count-background);
   }
 
-  .unread.children.collapsed:has(ul > .unread) > .container > & {
+  .unread.children.collapsed:has(ul > .unread) > .container > &,
+  .new-messages.unread.children.collapsed:has(ul > .new-messages) > .container > & {
     color: var(--folderpane-unread-count-background);
     background-color: transparent;
     border: 1px solid var(--folderpane-unread-count-background);
