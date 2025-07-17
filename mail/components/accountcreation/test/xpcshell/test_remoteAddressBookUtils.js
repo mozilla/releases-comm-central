@@ -57,8 +57,8 @@ add_setup(async () => {
     CardDAVServer.origin,
     null,
     "test",
-    "test@test.invalid",
-    "bob",
+    CardDAVServer.username,
+    CardDAVServer.password,
     "",
     ""
   );
@@ -70,6 +70,7 @@ add_setup(async () => {
     "test.invalid",
     "imap"
   );
+  abAccount.incomingServer.password = CardDAVServer.password;
   const identity = MailServices.accounts.createIdentity();
   identity.email = "test@test.invalid";
   abAccount.addIdentity(identity);
@@ -380,13 +381,13 @@ add_task(
     Assert.equal(results.length, 1, "Should get one account object");
     Assert.equal(
       accountQuerySpy.callCount,
-      2,
-      "Should only call getAddressBooksForAccount twice"
+      1,
+      "Should only call getAddressBooksForAccount once"
     );
     Assert.ok(
       accountQuerySpy.calledWith(
         CardDAVServer.username,
-        "",
+        CardDAVServer.password,
         "https://test.invalid",
         true
       ),
@@ -435,6 +436,69 @@ add_task(
       "Should find expected amount of address books for accounts"
     );
     CardDAVServer.username = "test@test.invalid";
+    abAccount.incomingServer.username = CardDAVServer.username;
+    abAccount.incomingServer.password = CardDAVServer.password;
+  }
+);
+
+add_task(
+  async function test_getAddressBooksForExistingAccounts_passwordPrompt() {
+    const abAccount = MailServices.accounts.accounts.find(
+      account => account.incomingServer.username == CardDAVServer.username
+    );
+
+    const imapLogin = Cc[
+      "@mozilla.org/login-manager/loginInfo;1"
+    ].createInstance(Ci.nsILoginInfo);
+    const imapUri = `${abAccount.incomingServer.localStoreType}://${abAccount.incomingServer.hostName}`;
+    imapLogin.init(
+      imapUri,
+      null,
+      imapUri,
+      CardDAVServer.username,
+      CardDAVServer.password,
+      "",
+      ""
+    );
+    await Services.logins.addLoginAsync(imapLogin);
+
+    abAccount.incomingServer.forgetSessionPassword(false);
+    Assert.ok(
+      !abAccount.incomingServer.password,
+      "Should clear cached password"
+    );
+
+    const results =
+      await RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
+    Assert.ok(Array.isArray(results), "Should get an array of results");
+    Assert.equal(results.length, 1, "Should get one account object");
+    const [firstResult] = results;
+    Assert.ok(
+      firstResult.account instanceof Ci.nsIMsgAccount,
+      "Should get the account"
+    );
+    Assert.equal(
+      firstResult.account.key,
+      abAccount.key,
+      "Should find results for the account without host in the username"
+    );
+
+    Services.logins.removeLogin(imapLogin);
+    abAccount.incomingServer.username = "other@test.invalid";
+    abAccount.incomingServer.forgetSessionPassword(false);
+    Assert.ok(
+      !abAccount.incomingServer.password,
+      "Should clear cached password again"
+    );
+
+    const emptyResults =
+      await RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
+    Assert.deepEqual(
+      emptyResults,
+      [],
+      "Should not get any results when no account has a password available"
+    );
+
     abAccount.incomingServer.username = CardDAVServer.username;
     abAccount.incomingServer.password = CardDAVServer.password;
   }

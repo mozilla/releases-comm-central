@@ -123,6 +123,10 @@ export const RemoteAddressBookUtils = {
           ) {
             return null;
           }
+        } else if (account.incomingServer.passwordPromptRequired) {
+          // Can't retrieve the password for this account without a password
+          // prompt, so skip it here.
+          return null;
         }
         try {
           let hostname = account.incomingServer.username.split("@", 2)[1];
