@@ -342,4 +342,7 @@ account-hub-simple-configuration-button = Simple Configuration
 
 address-book-finding-remote-address-books = Searching for address books…
 
+# $url (String) - URL of CardDAV endpoint we don't support.
+address-book-carddav-known-incompatible = { $url } is known to be incompatible with { -brand-short-name }.
+
 address-book-carddav-connection-error = Failed to connect.

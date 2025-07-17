@@ -457,6 +457,17 @@ class AccountHubAddressBook extends HTMLElement {
       }
       //TODO username?
     } catch (error) {
+      if (error.result == Cr.NS_ERROR_NOT_AVAILABLE) {
+        this.#currentSubview.showNotification({
+          fluentTitleId: "address-book-carddav-known-incompatible",
+          fluentTitleArguments: {
+            url: new URL(this.#remoteAddressBookState.server).hostname,
+          },
+          error,
+          type: "error",
+        });
+        return;
+      }
       this.#currentSubview.showNotification({
         fluentTitleId: "address-book-carddav-connection-error",
         error,

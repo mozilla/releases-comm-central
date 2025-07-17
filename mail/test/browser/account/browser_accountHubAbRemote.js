@@ -543,6 +543,26 @@ add_task(async function test_remoteAddressBookRememberPassword() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function test_unsupportedCardDAVServer() {
+  const login = await createLogin("https://bad.invalid");
+
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await goToRemoteForm(dialog);
+  const loading = waitDuringBusy(dialog);
+  await fillInForm(dialog, "https://bad.invalid/", false);
+
+  await loading;
+  await showingError(
+    dialog,
+    "addressBookRemoteAccountFormSubview",
+    "address-book-carddav-known-incompatible"
+  );
+
+  Services.logins.removeLogin(login);
+  CardDAVServer.resetHandlers();
+  await dialog.querySelector("account-hub-address-book").reset();
+});
+
 /**
  * Open the remote address book form in the account hub dialog.
  *
