@@ -23,6 +23,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  *  is stored on.
  * @property {string} [password] - If the address book server doesn't use oauth,
  *   the password to login.
+ * @property {boolean} [rememberPassword] - If the password should be stored.
  */
 
 class AccountHubAddressBook extends HTMLElement {
@@ -387,10 +388,19 @@ class AccountHubAddressBook extends HTMLElement {
           }
           // Since we found a login we can complete the state already.
           this.#remoteAddressBookState.password = login.password;
+          // We retrieved it from the password store, so no need to store it
+          // again.
+          this.#remoteAddressBookState.rememberPassword = false;
         }
         //TODO all set, show sync subview
         break;
       }
+      case "remotePasswordSubview":
+        this.#remoteAddressBookState.password = stateData.password;
+        this.#remoteAddressBookState.rememberPassword =
+          stateData.rememberPassword;
+        //TODO all set, show sync subview
+        break;
       case "syncAddressBooksSubview":
         // The state data returned from this subview is a list of available
         // address books that have a create function.
@@ -404,15 +414,6 @@ class AccountHubAddressBook extends HTMLElement {
             bubbles: true,
           })
         );
-        break;
-      case "remotePasswordSubview":
-        // TODO: Add remote address book account address book fetch logic to
-        // grab address books.
-
-        // Go to sync address books subview.
-        // TODO: replace empty array with fetched address books.
-        await this.#initUI("syncAddressBooksSubview");
-        this.#currentSubview.setState([]);
         break;
       default:
         break;

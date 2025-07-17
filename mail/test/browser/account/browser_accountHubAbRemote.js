@@ -17,6 +17,11 @@ add_task(async function test_remoteAddressBookFormGoesToPwForm() {
     "Should show password entry step"
   );
 
+  EventUtils.sendString("hunter2");
+
+  const forward = dialog.querySelector("#addressBookFooter #forward");
+  EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+
   await dialog.querySelector("account-hub-address-book").reset();
 });
 
