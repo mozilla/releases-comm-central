@@ -105,6 +105,12 @@ export const RemoteAddressBookUtils = {
     const accounts = lazy.MailServices.accounts.accounts;
     const results = await Promise.all(
       accounts.map(async account => {
+        // Skip non-mail account types.
+        if (
+          ["none", "rss", "nntp", "im"].includes(account.incomingServer.type)
+        ) {
+          return null;
+        }
         // If auth method is OAuth, and CardDAV scope wasn't granted, bail out.
         if (account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2) {
           const oAuth2 = new lazy.OAuth2Module();
@@ -119,7 +125,16 @@ export const RemoteAddressBookUtils = {
           }
         }
         try {
-          const hostname = account.incomingServer.username.split("@")[1];
+          let hostname = account.incomingServer.username.split("@", 2)[1];
+          // Try the hostname from the default identity's email if the username
+          // has no hostname.
+          if (!hostname) {
+            hostname = account.defaultIdentity.email?.split("@", 2)[1];
+          }
+          // If we still have no hostname, give up.
+          if (!hostname) {
+            return null;
+          }
           // Tell discovery code to store the password, since we retrieved it
           // from storage anyway.
           const addressBooks =
@@ -129,6 +144,11 @@ export const RemoteAddressBookUtils = {
               `https://${hostname}`,
               true
             );
+          // If we found no address books, handle it the same as if we couldn't
+          // check for address books for this account.
+          if (!addressBooks?.length) {
+            return null;
+          }
           return {
             account,
             addressBooks,

@@ -537,6 +537,19 @@ async function loginToAddressBookAccount() {
     "imap.test",
     "imap"
   );
+  const emailLoginInfo = Cc[
+    "@mozilla.org/login-manager/loginInfo;1"
+  ].createInstance(Ci.nsILoginInfo);
+  emailLoginInfo.init(
+    "imap://imap.test",
+    null,
+    "imap://imap.test",
+    "john.doe@imap.test",
+    "abc12345",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(emailLoginInfo);
 
   const identity = MailServices.accounts.createIdentity();
   identity.email = "john.doe@imap.test";

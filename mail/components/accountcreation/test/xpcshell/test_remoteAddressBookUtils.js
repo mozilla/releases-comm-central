@@ -12,12 +12,20 @@ const { CardDAVServer } = ChromeUtils.importESModule(
   "resource://testing-common/CardDAVServer.sys.mjs"
 );
 
+const { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
+
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
 const { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
+);
+
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
 );
 
 const { TestUtils } = ChromeUtils.importESModule(
@@ -62,6 +70,10 @@ add_setup(async () => {
     "test.invalid",
     "imap"
   );
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "test@test.invalid";
+  abAccount.addIdentity(identity);
+  abAccount.defaultIdentity = identity;
 
   // Oauth with server that's not supported.
   const oauthAccount = MailServices.accounts.createAccount();
@@ -346,3 +358,84 @@ add_task(async function test_getAddressBooksForAccountStorePassword() {
     "Should have password provided in the search"
   );
 });
+
+add_task(
+  async function test_getAddressBooksForExistingAccounts_ignoreNonMail() {
+    const accountQuerySpy = sinon.spy(
+      RemoteAddressBookUtils,
+      "getAddressBooksForAccount"
+    );
+    try {
+      if (!MailServices.accounts.localFoldersServer) {
+        throw new Error("Need local folders");
+      }
+    } catch {
+      MailServices.accounts.createLocalMailAccount();
+    }
+    const feedAccount = FeedUtils.createRssAccount("remoteAddressBookUtils");
+
+    const results =
+      await RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
+    Assert.ok(Array.isArray(results), "Should get an array of results");
+    Assert.equal(results.length, 1, "Should get one account object");
+    Assert.equal(
+      accountQuerySpy.callCount,
+      2,
+      "Should only call getAddressBooksForAccount twice"
+    );
+    Assert.ok(
+      accountQuerySpy.calledWith(
+        CardDAVServer.username,
+        "",
+        "https://test.invalid",
+        true
+      ),
+      "Should have called getAddressBooksForAccount for the test CardDAV account"
+    );
+
+    accountQuerySpy.restore();
+    MailServices.accounts.removeAccount(feedAccount, true);
+  }
+);
+
+add_task(
+  async function test_getAddressBooksForExistingAccounts_fallbackToIdentity() {
+    const abAccount = MailServices.accounts.accounts.find(
+      account => account.incomingServer.username == CardDAVServer.username
+    );
+    CardDAVServer.username = "neo";
+    abAccount.incomingServer.username = CardDAVServer.username;
+    abAccount.incomingServer.password = CardDAVServer.password;
+    const results =
+      await RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
+    Assert.ok(Array.isArray(results), "Should get an array of results");
+    Assert.equal(results.length, 1, "Should get one account object");
+    const [firstResult] = results;
+    Assert.ok(
+      firstResult.account instanceof Ci.nsIMsgAccount,
+      "Should get the account"
+    );
+    Assert.equal(
+      firstResult.account.key,
+      abAccount.key,
+      "Should find results for the account without host in the username"
+    );
+    Assert.equal(
+      firstResult.existingAddressBookCount,
+      1,
+      "Should have an existing address book"
+    );
+    Assert.ok(
+      Array.isArray(firstResult.addressBooks),
+      "Should get an array of address book results"
+    );
+    Assert.equal(
+      firstResult.addressBooks.length,
+      expectedBooks.length,
+      "Should find expected amount of address books for accounts"
+    );
+    CardDAVServer.username = "test@test.invalid";
+    abAccount.incomingServer.username = CardDAVServer.username;
+    abAccount.incomingServer.password = CardDAVServer.password;
+  }
+);
