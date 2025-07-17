@@ -195,6 +195,7 @@
 @RESPATH@/chrome/messenger.manifest
 @RESPATH@/chrome/pdfjs.manifest
 @RESPATH@/chrome/pdfjs/*
+@RESPATH@/defaults/pref/PdfJsDefaultPrefs.js
 #ifndef XP_UNIX
 @RESPATH@/chrome/icons/default/messengerWindow.ico
 @RESPATH@/chrome/icons/default/msgcomposeWindow.ico

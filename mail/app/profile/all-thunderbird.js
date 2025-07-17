@@ -1386,6 +1386,9 @@ pref("pdfjs.firstRun", true);
 pref("pdfjs.previousHandler.preferredAction", 0);
 pref("pdfjs.previousHandler.alwaysAskBeforeHandling", false);
 
+// Enable signatures in PDF.js viewer in Thunderbird.
+pref("pdfjs.enableSignatureEditor", true);
+
 pref("mail.activity.loglevel", "Warn");
 
 // The number of public recipients before we offer BCC addressing.
