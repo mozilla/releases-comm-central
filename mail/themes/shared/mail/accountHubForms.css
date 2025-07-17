@@ -19,6 +19,8 @@ form {
   --hub-menuitem-color-selected: var(--color-neutral-base);
   --hub-menuitem-background-color-selected: var(--color-primary-default);
   --hub-form-input-line-height: 1em;
+  --hub-form-label-font-size: 1rem;
+  --hub-form-input-block-padding: 12px;
 
   grid-row: header / footer;
 
@@ -66,7 +68,7 @@ form {
   }
 
   label {
-    font-size: 1rem;
+    font-size: var(--hub-form-label-font-size);
     font-weight: 600;
     color: var(--hub-menulist-label-color);
 
@@ -107,7 +109,7 @@ form {
     font-size: 1.2rem;
     line-height: var(--hub-form-input-line-height);
     margin-inline: 0;
-    padding-block: 12px;
+    padding-block: var(--hub-form-input-block-padding);
     padding-inline: 9px 30px;
     border: 1px solid var(--color-neutral-border);
     background-color: var(--hub-input-bg-color);
@@ -309,6 +311,10 @@ div:has(legend) {
   display: flex;
   align-items: center;
   position: relative;
+
+  &:has(label.animated) {
+    padding-block-start: calc(var(--hub-form-label-font-size) - var(--hub-form-input-block-padding));
+  }
 
   &:has(.security-warning) {
     flex-wrap: wrap;
