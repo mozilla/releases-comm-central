@@ -8,9 +8,22 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-f
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.sys.mjs",
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   RemoteAddressBookUtils:
     "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
 });
+
+/**
+ * To some extent this is an extension of AddressBookLogin from the
+ * address-book-remote-account-form.
+ *
+ * @typedef {object} RemoteAddressBookState
+ * @property {string} username - Username to log in to the address book with
+ * @property {string} server - The URL or domain of the server the address book
+ *  is stored on.
+ * @property {string} [password] - If the address book server doesn't use oauth,
+ *   the password to login.
+ */
 
 class AccountHubAddressBook extends HTMLElement {
   static get observedAttributes() {
@@ -34,7 +47,7 @@ class AccountHubAddressBook extends HTMLElement {
   /**
    * @typedef {object} AddressBookAccounts
    * @property {nsIMsgAccount} account - A user account.
-   * @property {foundBook} addressBooks - An address book linked to the user account.
+   * @property {foundBook[]} addressBooks - A address books linked to the user account.
    * @property {number} existingAddressBookCount - Already synced address books
    *  count.
    */
@@ -53,6 +66,13 @@ class AccountHubAddressBook extends HTMLElement {
    * @type {AddressBookAccounts[]}
    */
   #accounts = [];
+
+  /**
+   * Remote address book setup state persisted between steps.
+   *
+   * @type {RemoteAddressBookState}
+   */
+  #remoteAddressBookState = {};
 
   /**
    * States of the email setup flow, based on the ID's of the steps in the
@@ -131,9 +151,8 @@ class AccountHubAddressBook extends HTMLElement {
     const template = document.getElementById("accountHubAddressBookSetup");
     this.appendChild(template.content.cloneNode(true));
 
-    for (const state in this.#states) {
-      const subviewId = this.#states[state].id;
-      this.#states[state].subview = this.querySelector(`#${subviewId}`);
+    for (const state of Object.values(this.#states)) {
+      state.subview = this.querySelector(`#${state.id}`);
     }
 
     this.#footer = this.querySelector("#addressBookFooter");
@@ -309,8 +328,7 @@ class AccountHubAddressBook extends HTMLElement {
    * button is pressed.
    *
    * @param {string} currentState - The current state of the address book flow.
-   * @param {object} stateData - The current state data of the address book
-   *  flow.
+   * @param {object} stateData - The state data from the step.
    */
   async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
@@ -339,6 +357,40 @@ class AccountHubAddressBook extends HTMLElement {
 
         break;
       }
+      case "remoteAccountSubview": {
+        // Normalize server to a URI (there is no protocol if we extracted it
+        // from the username)
+        if (!URL.canParse(stateData.server)) {
+          stateData.server = `https://${stateData.server}`;
+        }
+        this.#remoteAddressBookState = stateData;
+        const oAuth = new lazy.OAuth2Module();
+        if (
+          !oAuth.initFromHostname(
+            stateData.server,
+            stateData.username,
+            "carddav"
+          )
+        ) {
+          // See if we already have the password stored.
+          const logins = await Services.logins.searchLoginsAsync({
+            origin: new URL(stateData.server).origin,
+          });
+          const login = logins.find(
+            loginInfo => loginInfo.username === stateData.username
+          );
+          // If we can't find credentials, ask for the password.
+          if (!login) {
+            await this.#initUI("remotePasswordSubview");
+            this.#currentSubview.setState();
+            break;
+          }
+          // Since we found a login we can complete the state already.
+          this.#remoteAddressBookState.password = login.password;
+        }
+        //TODO all set, show sync subview
+        break;
+      }
       case "syncAddressBooksSubview":
         // The state data returned from this subview is a list of available
         // address books that have a create function.
@@ -352,12 +404,6 @@ class AccountHubAddressBook extends HTMLElement {
             bubbles: true,
           })
         );
-        break;
-      case "remoteAccountSubview":
-        // TODO: Determine whether account needs OAuth, and if it doesn't show
-        // remotePassword Subview.
-        await this.#initUI(this.#states[this.currentState].nextStep);
-        this.#currentSubview.setState();
         break;
       case "remotePasswordSubview":
         // TODO: Add remote address book account address book fetch logic to
@@ -399,6 +445,7 @@ class AccountHubAddressBook extends HTMLElement {
    */
   async reset() {
     this.#hideSubviews();
+    this.#remoteAddressBookState = {};
     await this.#initUI("optionSelectSubview");
     this.#setFooterButtons();
     // Reset all subviews that require a reset.

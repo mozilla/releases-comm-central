@@ -60,6 +60,9 @@ support-files = ["xml/**"]
 
 ["browser_accountHubAb.js"]
 
+["browser_accountHubAbRemote.js"]
+tags = ["addrbook", "carddav"]
+
 ["browser_accountHubConfigSelect.js"]
 
 ["browser_accountHubExchange.js"]
