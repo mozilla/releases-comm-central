@@ -2180,7 +2180,7 @@ var FeedSubscriptions = {
     aEvent.stopPropagation();
   },
 
-  addCertExceptionDialog() {
+  async addCertExceptionDialog() {
     const locationValue = document.getElementById("locationValue");
     const feedURL = locationValue.value.trim();
     const params = {
@@ -2188,12 +2188,26 @@ var FeedSubscriptions = {
       location: feedURL,
       prefetchCert: true,
     };
-    window.openDialog(
+
+    const deferred = Promise.withResolvers();
+    const dialog = window.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",
       "",
-      "chrome,centerscreen,modal",
+      "chrome,centerscreen,dependent",
       params
     );
+    function onWindowClosed(win) {
+      if (win == dialog) {
+        Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+        deferred.resolve();
+      } else if (win == dialog.opener) {
+        // Avoid leaking if this window closes before the exception dialog.
+        dialog.close();
+      }
+    }
+    Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+    await deferred.promise;
+
     if (params.exceptionAdded) {
       this.clearStatusInfo();
     }

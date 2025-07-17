@@ -200,19 +200,30 @@ export var provider = {
 
       const timerCallback = {
         calendar: this.calendar,
-        notify() {
+        async notify() {
           const params = {
             exceptionAdded: false,
             securityInfo: secInfo,
             prefetchCert: true,
             location: targetSite,
           };
-          calWindow.openDialog(
+
+          const deferred = Promise.withResolvers();
+          const dialog = calWindow.openDialog(
             "chrome://pippki/content/exceptionDialog.xhtml",
             "",
-            "chrome,centerscreen,modal",
+            "chrome,centerscreen,dependent",
             params
           );
+          function onWindowClosed(win) {
+            if (win == dialog) {
+              Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+              deferred.resolve();
+            }
+          }
+          Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+          await deferred.promise;
+
           if (this.calendar && this.calendar.canRefresh && params.exceptionAdded) {
             // Refresh the calendar if the exception certificate was added
             this.calendar.refresh();

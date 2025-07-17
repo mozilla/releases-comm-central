@@ -215,7 +215,7 @@ export class ConfigVerifier {
    * @param {nsITransportSecurityInfo} secInfo
    * @param {string} location - "host:port" that had the problem.
    */
-  informUserOfCertError(secInfo, location) {
+  async informUserOfCertError(secInfo, location) {
     this._log.debug(`Informing user about cert error for ${location}`);
     const params = {
       exceptionAdded: false,
@@ -223,14 +223,25 @@ export class ConfigVerifier {
       prefetchCert: true,
       location,
     };
-    Services.wm
+
+    const deferred = Promise.withResolvers();
+    const dialog = Services.wm
       .getMostRecentWindow("mail:3pane")
-      .browsingContext.topChromeWindow.openDialog(
+      .openDialog(
         "chrome://pippki/content/exceptionDialog.xhtml",
         "exceptionDialog",
-        "chrome,centerscreen,modal",
+        "chrome,centerscreen,dependent",
         params
       );
+    function onWindowClosed(win) {
+      if (win == dialog) {
+        Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+        deferred.resolve();
+      }
+    }
+    Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+    await deferred.promise;
+
     if (!params.exceptionAdded) {
       this._log.debug(`Did not accept exception for ${location}`);
       this.cleanup();

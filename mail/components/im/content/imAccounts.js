@@ -278,7 +278,7 @@ var gAccountManager = {
       account.disconnect();
     }
   },
-  addException() {
+  async addException() {
     const account = this.accountList.selectedItem.account;
     const prplAccount = account.prplAccount;
     if (!prplAccount.connectionTarget) {
@@ -292,12 +292,26 @@ var gAccountManager = {
       prefetchCert: true,
       location: prplAccount.connectionTarget,
     };
-    window.openDialog(
+
+    const deferred = Promise.withResolvers();
+    const dialog = window.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",
       "",
-      "chrome,centerscreen,modal",
+      "chrome,centerscreen,dependent",
       params
     );
+    function onWindowClosed(win) {
+      if (win == dialog) {
+        Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+        deferred.resolve();
+      } else if (win == dialog.opener) {
+        // Avoid leaking if this window closes before the exception dialog.
+        dialog.close();
+      }
+    }
+    Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+    await deferred.promise;
+
     // Reconnect the account if an exception was added.
     if (params.exceptionAdded) {
       account.disconnect();

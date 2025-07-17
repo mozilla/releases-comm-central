@@ -113,7 +113,7 @@ async function subtestExpiredCertNoException({ type, port }) {
       emailAddress: "test@test.test",
     },
   };
-  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     "cancel",
     "chrome://pippki/content/exceptionDialog.xhtml"
   );

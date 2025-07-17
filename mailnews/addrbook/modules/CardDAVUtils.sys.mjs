@@ -153,7 +153,7 @@ export var CardDAVUtils = {
         "@mozilla.org/network/stream-loader;1"
       ].createInstance(Ci.nsIStreamLoader);
       listener.init({
-        onStreamComplete(loader, context, status, resultLength, result) {
+        async onStreamComplete(loader, context, status, resultLength, result) {
           const finalChannel = loader.request.QueryInterface(Ci.nsIHttpChannel);
           if (!Components.isSuccessCode(status)) {
             let isCertError = false;
@@ -177,14 +177,26 @@ export var CardDAVUtils = {
                 prefetchCert: true,
                 location: finalChannel.originalURI.displayHostPort,
               };
-              Services.wm
+              const deferred = Promise.withResolvers();
+              const dialog = Services.wm
                 .getMostRecentWindow("")
                 .openDialog(
                   "chrome://pippki/content/exceptionDialog.xhtml",
                   "",
-                  "chrome,centerscreen,modal",
+                  "chrome,centerscreen,dependent",
                   params
                 );
+              function onWindowClosed(win) {
+                if (win == dialog) {
+                  Services.obs.removeObserver(
+                    onWindowClosed,
+                    "domwindowclosed"
+                  );
+                  deferred.resolve();
+                }
+              }
+              Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+              await deferred.promise;
 
               if (params.exceptionAdded) {
                 // Try again now that an exception has been added.

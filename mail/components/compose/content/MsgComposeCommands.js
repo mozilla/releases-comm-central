@@ -849,7 +849,7 @@ var gSendListener = {
     window.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",
       "",
-      "chrome,centerscreen,modal",
+      "chrome,centerscreen,dependent",
       params
     );
     // params.exceptionAdded will be set if the user added an exception.

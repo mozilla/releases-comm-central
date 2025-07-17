@@ -134,7 +134,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
     // Instead of duplicating the insertion code below, just call it.
     this.observe(card, "addrbook-contact-created", this.directory?.UID);
   }
-  onSearchFinished(resultStatus, complete, secInfo, requestLocation) {
+  async onSearchFinished(resultStatus, complete, secInfo, requestLocation) {
     // Special handling for Bad Cert errors.
     let offerCertException = false;
     try {
@@ -156,12 +156,31 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         prefetchCert: true,
         location: requestLocation,
       };
-      window.browsingContext.topChromeWindow.openDialog(
+
+      const deferred = Promise.withResolvers();
+      const dialog = window.browsingContext.topChromeWindow.openDialog(
         "chrome://pippki/content/exceptionDialog.xhtml",
         "",
-        "chrome,centerscreen,modal",
+        "chrome,centerscreen,dependent",
         params
       );
+      function onWindowClosed(win) {
+        if (win == dialog) {
+          Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+          window.removeEventListener("unload", onWindowUnloaded);
+          deferred.resolve();
+        } else if (win == dialog.opener) {
+          // Avoid leaking if this window closes before the exception dialog.
+          dialog.close();
+        }
+      }
+      function onWindowUnloaded() {
+        // If we're in about:addressbook and the tab is closed.
+        onWindowClosed(dialog.opener);
+      }
+      Services.obs.addObserver(onWindowClosed, "domwindowclosed");
+      window.addEventListener("unload", onWindowUnloaded);
+      await deferred.promise;
       // params.exceptionAdded will be set if the user added an exception.
     }
 

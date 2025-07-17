@@ -32,7 +32,8 @@ const certOverrideService = Cc[
 const generator = new MessageGenerator();
 let localAccount, localRootFolder;
 
-const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
 const getMessagesButton = about3Pane.document.getElementById(
   "folderPaneGetMessages"
 );
@@ -54,7 +55,13 @@ add_setup(async function () {
 });
 
 add_task(async function testDomainMismatch() {
-  await subtest("tls", "mitm.test.test", "not valid for", "valid");
+  await subtest(
+    "tls",
+    "mitm.test.test",
+    "not valid for",
+    "The certificate belongs to a different site",
+    "valid"
+  );
 });
 
 add_task(async function testExpired() {
@@ -63,6 +70,7 @@ add_task(async function testExpired() {
     "expiredTLS",
     "expired.test.test",
     `expired on ${formatter.format(new Date(Date.UTC(2010, 0, 6)))}`,
+    "The certificate is not currently valid",
     "expired"
   );
 });
@@ -73,6 +81,7 @@ add_task(async function testNotYetValid() {
     "notYetValidTLS",
     "notyetvalid.test.test",
     `not be valid until ${formatter.format(new Date(Date.UTC(2090, 0, 5)))}`,
+    "The certificate is not currently valid",
     "notyetvalid"
   );
 });
@@ -82,11 +91,18 @@ add_task(async function testSelfSigned() {
     "selfSignedTLS",
     "selfsigned.test.test",
     "does not come from a trusted source",
+    "The certificate is not trusted",
     "selfsigned"
   );
 });
 
-async function subtest(serverDef, hostname, expectedAlertText, expectedCert) {
+async function subtest(
+  serverDef,
+  hostname,
+  expectedAlertText,
+  expectedDialogText,
+  expectedCert
+) {
   const [imapServer, pop3Server] = await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap[serverDef],
     ServerTestUtils.serverDefs.pop3[serverDef],
@@ -156,6 +172,7 @@ async function subtest(serverDef, hostname, expectedAlertText, expectedCert) {
         await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "hidden");
       },
       expectedAlertText,
+      expectedDialogText,
       expectedCert
     );
   }
@@ -170,6 +187,7 @@ async function subtest(serverDef, hostname, expectedAlertText, expectedCert) {
         about3Pane.displayFolder(inbox);
       },
       expectedAlertText,
+      expectedDialogText,
       expectedCert
     );
   }
@@ -182,13 +200,60 @@ async function subsubtest(
   inbox,
   testCallback,
   expectedAlertText,
+  expectedDialogText,
   expectedCert
 ) {
   info(`getting messages for ${inbox.server.type} inbox`);
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    "extra1",
-    "chrome://pippki/content/exceptionDialog.xhtml"
+    undefined,
+    "chrome://pippki/content/exceptionDialog.xhtml",
+    {
+      async callback(win) {
+        const location = win.document.getElementById("locationTextBox").value;
+        if (inbox.server.port == 443) {
+          Assert.equal(
+            location,
+            inbox.server.hostName,
+            "the exception dialog should show the hostname of the server"
+          );
+        } else {
+          Assert.equal(
+            location,
+            `${inbox.server.hostName}:${inbox.server.port}`,
+            "the exception dialog should show the hostname and port of the server"
+          );
+        }
+        const text = win.document.getElementById(
+          "statusLongDescription"
+        ).textContent;
+        Assert.stringContains(
+          text,
+          expectedDialogText,
+          "the exception dialog should state the problem"
+        );
+
+        const viewButton = win.document.getElementById("viewCertButton");
+        const tabPromise = BrowserTestUtils.waitForEvent(
+          tabmail.tabContainer,
+          "TabOpen"
+        );
+        viewButton.click();
+        const {
+          detail: { tabInfo },
+        } = await tabPromise;
+        await BrowserTestUtils.browserLoaded(tabInfo.browser, false, url =>
+          url.startsWith("about:certificate?cert=")
+        );
+        tabmail.closeTab(tabInfo);
+
+        EventUtils.synthesizeMouseAtCenter(
+          win.document.querySelector("dialog").getButton("extra1"),
+          {},
+          win
+        );
+      },
+    }
   );
 
   await testCallback();
