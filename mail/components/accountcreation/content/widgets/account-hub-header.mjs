@@ -209,8 +209,10 @@ class AccountHubHeader extends HTMLElement {
       "#emailFormNotificationText"
     );
 
-    delete notificationTitle.querySelector(".localized-title").dataset.l10nId;
-    notificationTitle.querySelector(".localized-title").textContent = "";
+    const localizedTitle = notificationTitle.querySelector(".localized-title");
+    delete localizedTitle.dataset.l10nId;
+    delete localizedTitle.dataset.l10nArgs;
+    localizedTitle.textContent = "";
     delete notificationText.querySelector(".localized-description").dataset
       .l10nId;
     notificationText.querySelector(".localized-description").textContent = "";

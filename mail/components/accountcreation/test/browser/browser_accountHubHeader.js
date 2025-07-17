@@ -83,3 +83,54 @@ add_task(async function test_subheader_hidden_by_default() {
     "Subheader should be shown when showSubheader is called"
   );
 });
+
+add_task(async function test_subheader_showNotification_fluent_title() {
+  header.showNotification({
+    fluentTitleId: "fake-title-for-test",
+    fluentTitleArguments: { foo: "bar" },
+    type: "info",
+  });
+
+  const notification = header.shadowRoot.querySelector(
+    "#emailFormNotification"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(notification),
+    "Should show notification"
+  );
+
+  const localizedTitle = notification.querySelector(".localized-title");
+  const rawTitle = notification.querySelector(".raw-title");
+
+  Assert.equal(rawTitle.textContent, "", "Should not have a raw title");
+
+  const l10nState = document.l10n.getAttributes(localizedTitle);
+
+  Assert.deepEqual(
+    l10nState,
+    {
+      id: "fake-title-for-test",
+      args: { foo: "bar" },
+    },
+    "Should apply expected l10n attributes to title"
+  );
+
+  header.clearNotifications();
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(notification),
+    "Notification should be hidden"
+  );
+
+  const hiddenL10nState = document.l10n.getAttributes(localizedTitle);
+
+  Assert.deepEqual(
+    hiddenL10nState,
+    {
+      id: null,
+      args: null,
+    },
+    "Clear should reset the l10n state of the title"
+  );
+});
