@@ -103,7 +103,7 @@ export const RemoteAddressBookUtils = {
    */
   async getAddressBooksForExistingAccounts() {
     const accounts = lazy.MailServices.accounts.accounts;
-    const results = await Promise.all(
+    const results = await Promise.allSettled(
       accounts.map(async account => {
         // Skip non-mail account types.
         if (
@@ -128,47 +128,48 @@ export const RemoteAddressBookUtils = {
           // prompt, so skip it here.
           return null;
         }
-        try {
-          let hostname = account.incomingServer.username.split("@", 2)[1];
-          // Try the hostname from the default identity's email if the username
-          // has no hostname.
-          if (!hostname) {
-            hostname = account.defaultIdentity.email?.split("@", 2)[1];
-          }
-          // If we still have no hostname, give up.
-          if (!hostname) {
-            return null;
-          }
-          // Tell discovery code to store the password, since we retrieved it
-          // from storage anyway.
-          const addressBooks =
-            await RemoteAddressBookUtils.getAddressBooksForAccount(
-              account.incomingServer.username,
-              account.incomingServer.password,
-              `https://${hostname}`,
-              true
-            );
-          // If we found no address books, handle it the same as if we couldn't
-          // check for address books for this account.
-          if (!addressBooks?.length) {
-            return null;
-          }
-          return {
-            account,
-            addressBooks,
-            existingAddressBookCount: addressBooks.reduce(
-              (count, book) => count + (book.existing ? 1 : 0),
-              0
-            ),
-          };
-        } catch (error) {
-          // Continue if no address books exist.
-          console.warn(error);
+        let hostname = account.incomingServer.username.split("@", 2)[1];
+        // Try the hostname from the default identity's email if the username
+        // has no hostname.
+        if (!hostname) {
+          hostname = account.defaultIdentity.email?.split("@", 2)[1];
         }
-        return null;
+        // If we still have no hostname, give up.
+        if (!hostname) {
+          return null;
+        }
+        // Tell discovery code to store the password, since we retrieved it
+        // from storage anyway.
+        const addressBooks =
+          await RemoteAddressBookUtils.getAddressBooksForAccount(
+            account.incomingServer.username,
+            account.incomingServer.password,
+            `https://${hostname}`,
+            true
+          );
+        // If we found no address books, handle it the same as if we couldn't
+        // check for address books for this account.
+        if (!addressBooks?.length) {
+          return null;
+        }
+        return {
+          account,
+          addressBooks,
+          existingAddressBookCount: addressBooks.reduce(
+            (count, book) => count + (book.existing ? 1 : 0),
+            0
+          ),
+        };
       })
     );
-    return results.filter(Boolean);
+    return results
+      .filter(result => {
+        if (result.status == "rejected") {
+          console.warn(result.reason);
+        }
+        return result.status == "fulfilled" && result.value;
+      })
+      .map(result => result.value);
   },
 
   /**

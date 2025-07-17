@@ -503,3 +503,22 @@ add_task(
     abAccount.incomingServer.password = CardDAVServer.password;
   }
 );
+
+add_task(async function test_getAddressBooksForExistingAccounts_error() {
+  const abAccount = MailServices.accounts.accounts.find(
+    account => account.incomingServer.username == CardDAVServer.username
+  );
+  abAccount.incomingServer.password = "boo";
+
+  const loggedError = TestUtils.consoleMessageObserved(msg =>
+    msg.wrappedJSObject.arguments?.[0]
+      .toString()
+      .includes("Authorization failure")
+  );
+  const results =
+    await RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
+  await loggedError;
+  Assert.deepEqual(results, [], "Should get an empty array");
+
+  abAccount.incomingServer.password = CardDAVServer.password;
+});
