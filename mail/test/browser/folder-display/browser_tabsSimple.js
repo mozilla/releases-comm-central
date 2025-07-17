@@ -26,7 +26,6 @@ var {
   focus_folder_tree,
   focus_message_pane,
   focus_thread_tree,
-  make_message_sets_in_folders,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -34,6 +33,9 @@ var {
   wait_for_blank_content_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folderA, folderB, setA, setB;

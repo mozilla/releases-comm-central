@@ -9,10 +9,12 @@
 // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
 // your command. You won't hear the system sound as nsISound is mocked out.
 
-const { create_folder, make_message_sets_in_folders } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+const { create_folder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+const { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 const { MockSound } = ChromeUtils.importESModule(
   "resource://testing-common/MockSound.sys.mjs"
 );

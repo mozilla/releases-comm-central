@@ -14,12 +14,14 @@ var {
   assert_messages_not_in_view,
   be_in_folder,
   create_folder,
-  delete_messages,
   get_about_3pane,
-  make_message_sets_in_folders,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+var { delete_messages, make_message_sets_in_folders } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var {
   assert_results_label_count,
   assert_text_constraints_checked,

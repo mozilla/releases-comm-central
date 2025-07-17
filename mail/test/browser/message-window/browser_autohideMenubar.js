@@ -11,13 +11,14 @@
 var {
   be_in_folder,
   create_folder,
-  inboxFolder,
-  make_message_sets_in_folders,
   open_selected_message_in_new_window,
   select_click_row,
   toggle_main_menu,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { inboxFolder, make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var menuFolder;

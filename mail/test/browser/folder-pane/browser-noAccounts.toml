@@ -1,0 +1,13 @@
+[DEFAULT]
+prefs = [
+  "app.use_without_mail_account=true",
+  "mail.shell.checkDefaultClient=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  "ui.prefersReducedMotion=1",
+]
+subsuite = "thunderbird"
+
+["browser_folderPaneHeader_noAccounts.js"]

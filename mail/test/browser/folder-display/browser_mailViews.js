@@ -8,11 +8,13 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
-  make_message_sets_in_folders,
   wait_for_all_messages_to_load,
   get_about_3pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { promise_modal_dialog } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"

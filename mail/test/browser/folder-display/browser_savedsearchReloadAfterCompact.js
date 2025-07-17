@@ -18,12 +18,13 @@ var {
   create_folder,
   create_virtual_folder,
   get_about_3pane,
-  inboxFolder,
-  make_message_sets_in_folders,
   press_delete,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { inboxFolder, make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var otherFolder;
@@ -34,7 +35,7 @@ var folderVirtual;
  * search over the inbox and the folder. Then, compact folders.
  */
 add_task(async function test_setup_virtual_folder_and_compact() {
-  otherFolder = await create_folder();
+  otherFolder = await create_folder("otherFolder");
   await make_message_sets_in_folders([otherFolder], [{ count: 2 }]);
 
   /**
@@ -48,12 +49,10 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   await select_click_row(0);
   await press_delete();
 
-  folderVirtual = create_virtual_folder(
-    [inboxFolder, otherFolder],
-    {},
-    true,
-    "SavedSearch"
-  );
+  folderVirtual = create_virtual_folder("SavedSearch", [
+    inboxFolder,
+    otherFolder,
+  ]);
 
   await be_in_folder(folderVirtual);
   await select_click_row(0);

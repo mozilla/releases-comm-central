@@ -15,29 +15,23 @@ for (let stack = Components.stack; stack; stack = stack.caller) {
   }
 }
 
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+import { MailConsts } from "resource:///modules/MailConsts.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
+import { SmartMailboxUtils } from "resource:///modules/SmartMailboxUtils.sys.mjs";
+import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
+
+import { Assert } from "resource://testing-common/Assert.sys.mjs";
+import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
+import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
+
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
+import { dump_view_state } from "resource://testing-common/mail/ViewHelpers.sys.mjs";
 import {
   promise_new_window,
   wait_for_window_focused,
 } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
-
-import { Assert } from "resource://testing-common/Assert.sys.mjs";
-import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
-import { SmartMailboxUtils } from "resource:///modules/SmartMailboxUtils.sys.mjs";
-import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
-
-import { MailConsts } from "resource:///modules/MailConsts.sys.mjs";
-import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
-import {
-  MessageGenerator,
-  MessageScenarioFactory,
-  SyntheticMessageSet,
-} from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
-import { MessageInjection } from "resource://testing-common/mailnews/MessageInjection.sys.mjs";
-import { dump_view_state } from "resource://testing-common/mail/ViewHelpers.sys.mjs";
 
 var nsMsgViewIndex_None = 0xffffffff;
 
@@ -59,11 +53,6 @@ export function set_mc(value) {
 
 /** the index of the current 'other' tab */
 var otherTab;
-
-export var msgGen = new MessageGenerator();
-var msgGenFactory = new MessageScenarioFactory(msgGen);
-var messageInjection = new MessageInjection({ mode: "local" }, msgGen);
-export var inboxFolder = messageInjection.getInboxFolder();
 
 // Default size of the main Thunderbird window in which the tests will run.
 export var gDefaultWindowWidth = 1024;
@@ -116,41 +105,47 @@ function get_db_view(win = mc) {
   return get_about_3pane_or_about_message(win).gDBView;
 }
 
-/*
- * Although we all agree that the use of generators when dealing with async
- *  operations is awesome, the mozmill idiom is for calls to be synchronous and
- *  just spin event loops when they need to wait for things to happen.  This
- *  does make the test code significantly less confusing, so we do it too.
- * All of our operations are synchronous and just spin until they are happy.
- */
-
 /**
- * Create a folder and rebuild the folder tree view.
+ * Create a folder.
  *
- * @param {string} aFolderName - A folder name with no support for hierarchy at this time.
- * @param {nsMsgFolderFlags} [aSpecialFlags] An optional list of nsMsgFolderFlags bits to set.
+ * @param {string} folderName - A folder name.
+ * @param {nsMsgFolderFlags[]} [specialFlags] - An optional list of flags to set.
  * @returns {nsIMsgFolder}
  */
-export async function create_folder(aFolderName, aSpecialFlags) {
-  await wait_for_message_display_completion();
+export function create_folder(folderName, specialFlags) {
+  const localRoot = MailServices.accounts.localFoldersServer.rootFolder;
+  localRoot.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  const folder = await messageInjection.makeEmptyFolder(
-    aFolderName,
-    aSpecialFlags
-  );
+  const folder = localRoot.createLocalSubfolder(folderName);
+  folder.setFlag(Ci.nsMsgFolderFlags.Mail);
+  if (specialFlags) {
+    for (const flag of specialFlags) {
+      folder.setFlag(flag);
+    }
+  }
   return folder;
 }
 
 /**
- * Create a virtual folder by deferring to |MessageInjection.makeVirtualFolder| and making
- *  sure to rebuild the folder tree afterwards.
+ * Create and return a virtual folder.
  *
- * @see MessageInjection.makeVirtualFolder
- * @returns {nsIMsgFolder}
+ * @param {string} folderName - Name to use.
+ * @param {nsIMsgFolder[]} searchFolders - The real folders this virtual folder
+ *   should draw from.
+ * @returns {nsIMsgFolder} In local usage returns a nsIMsgFolder
+ *   in imap usage returns a Folder URI.
  */
-export function create_virtual_folder(...aArgs) {
-  const folder = messageInjection.makeVirtualFolder(...aArgs);
-  return folder;
+export function create_virtual_folder(folderName, searchFolders) {
+  const localRoot = MailServices.accounts.localFoldersServer.rootFolder;
+
+  const wrapped = VirtualFolderHelper.createNewVirtualFolder(
+    folderName,
+    localRoot,
+    searchFolders,
+    "ALL",
+    /* online */ false
+  );
+  return wrapped.virtualFolder;
 }
 
 /**
@@ -193,72 +188,6 @@ export async function get_special_folder(
   }
 
   return folder;
-}
-
-/**
- * Create a thread with the specified number of messages in it.
- *
- * @param {number} aCount
- * @returns {SyntheticMessageSet}
- */
-export function create_thread(aCount) {
-  return new SyntheticMessageSet(msgGenFactory.directReply(aCount));
-}
-
-/**
- * Create and return a SyntheticMessage object.
- *
- * @param {MakeMessageOptions} aArgs An arguments object to be passed to
- *                                   MessageGenerator.makeMessage()
- * @returns {SyntheticMessage}
- */
-export function create_message(aArgs) {
-  return msgGen.makeMessage(aArgs);
-}
-
-/**
- * Adds a SyntheticMessage as a SyntheticMessageSet to a folder or folders.
- *
- * @see MessageInjection.addSetsToFolders
- * @param {nsIMsgFolder[]} aFolder
- * @param {SyntheticMessage} aMsg
- */
-export async function add_message_to_folder(aFolder, aMsg) {
-  await messageInjection.addSetsToFolders(aFolder, [
-    new SyntheticMessageSet([aMsg]),
-  ]);
-}
-
-/**
- * Adds SyntheticMessageSets to a folder or folders.
- *
- * @see MessageInjection.addSetsToFolders
- * @param {nsIMsgLocalMailFolder[]} aFolders
- * @param {SyntheticMessageSet[]} aMsg
- */
-export async function add_message_sets_to_folders(aFolders, aMsg) {
-  await messageInjection.addSetsToFolders(aFolders, aMsg);
-}
-
-/**
- * Makes SyntheticMessageSets in aFolders
- *
- * @param {nsIMsgFolder[]} aFolders
- * @param {MakeMessageOptions[]} aOptions
- * @returns {SyntheticMessageSet[]}
- */
-export async function make_message_sets_in_folders(aFolders, aOptions) {
-  return messageInjection.makeNewSetsInFolders(aFolders, aOptions);
-}
-
-/**
- * @param {SyntheticMessageSet} aSynMessageSet The set of messages
- *     to delete.  The messages do not all
- *     have to be in the same folder, but we have to delete them folder by
- *     folder if they are not.
- */
-export async function delete_messages(aSynMessageSet) {
-  await MessageInjection.deleteMessages(aSynMessageSet);
 }
 
 /**

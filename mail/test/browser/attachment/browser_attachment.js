@@ -16,16 +16,13 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 var {
-  add_message_to_folder,
   assert_attachment_list_focused,
   assert_message_pane_focused,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  create_message,
   get_about_message,
   get_about_3pane,
-  msgGen,
   select_click_row,
   select_none,
   wait_for_message_display_completion,
@@ -35,7 +32,10 @@ var {
 var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-
+var { add_message_to_folder, create_message, msgGen } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var { promise_modal_dialog, promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );

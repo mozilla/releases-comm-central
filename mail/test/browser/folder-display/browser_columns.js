@@ -10,37 +10,36 @@
 
 "use strict";
 
+const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 var {
   be_in_folder,
   close_tab,
   create_folder,
   create_virtual_folder,
   enter_folder,
-  inboxFolder,
-  make_message_sets_in_folders,
   open_folder_in_new_tab,
   switch_tab,
   select_click_row,
-  delete_messages,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+var { delete_messages, inboxFolder, make_message_sets_in_folders } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
-
-// needed to zero inter-folder processing delay
-var { MailUtils } = ChromeUtils.importESModule(
-  "resource:///modules/MailUtils.sys.mjs"
-);
-const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
 );
 
 var { GlodaSyntheticView } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaSyntheticView.sys.mjs"
 );
-
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { ThreadPaneColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
@@ -359,12 +358,10 @@ add_task(async function test_column_defaults_sent() {
  * Make sure we set the proper defaults for a multi-folder virtual folder.
  */
 add_task(async function test_column_defaults_cross_folder_virtual_folder() {
-  folderVirtual = create_virtual_folder(
-    [inboxFolder, folderSent],
-    {},
-    true,
-    "ColumnsVirtual"
-  );
+  folderVirtual = create_virtual_folder("ColumnsVirtual", [
+    inboxFolder,
+    folderSent,
+  ]);
 
   await be_in_folder(folderVirtual);
   assert_visible_columns(VIRTUAL_DEFAULTS);

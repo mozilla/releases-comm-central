@@ -21,15 +21,12 @@ var { promise_content_tab_load } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
   close_popup,
   create_folder,
-  create_message,
   get_about_3pane,
   get_about_message,
-  msgGen,
   select_click_row,
   select_none,
   wait_for_message_display_completion,
@@ -39,6 +36,10 @@ var {
 const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
   "resource://testing-common/MailViewHelpers.sys.mjs"
 );
+var { add_message_to_folder, create_message, msgGen } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 
 const about3Pane = get_about_3pane();
 const aboutMessage = get_about_message();

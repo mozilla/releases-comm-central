@@ -12,14 +12,12 @@ var { close_compose_window, open_compose_with_reply } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
-var {
-  add_message_to_folder,
-  assert_selected_and_displayed,
-  be_in_folder,
-  create_message,
-  select_click_row,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+var { assert_selected_and_displayed, be_in_folder, select_click_row } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

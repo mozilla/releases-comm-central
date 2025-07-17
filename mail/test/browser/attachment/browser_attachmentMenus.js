@@ -15,16 +15,17 @@ var {
   "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var {
-  add_message_to_folder,
   be_in_folder,
   close_popup,
   create_folder,
-  create_message,
   get_about_message,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+const { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var aboutMessage = get_about_message();

@@ -14,10 +14,12 @@ const { IMServices } = ChromeUtils.importESModule(
 const { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
 );
-const { add_message_to_folder, msgGen, get_special_folder, create_folder } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+const { get_special_folder, create_folder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+const { add_message_to_folder, msgGen } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 
 /**
  * Check that we are counting account types.

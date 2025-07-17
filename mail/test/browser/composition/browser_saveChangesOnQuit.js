@@ -20,24 +20,25 @@ var {
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  create_message,
   get_about_message,
   get_special_folder,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { get_notification, wait_for_notification_to_show } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
   );
+var { gMockPromptService } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
+);
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );

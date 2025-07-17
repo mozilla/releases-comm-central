@@ -4,18 +4,19 @@
 
 "use strict";
 
-const {
-  add_message_sets_to_folders,
-  be_in_folder,
-  create_folder,
-  create_thread,
-  delete_messages,
-  inboxFolder,
-} = ChromeUtils.importESModule(
+const { be_in_folder, create_folder } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 const { SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+const {
+  add_message_sets_to_folders,
+  create_thread,
+  delete_messages,
+  inboxFolder,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 const { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"

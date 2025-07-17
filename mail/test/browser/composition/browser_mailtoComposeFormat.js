@@ -14,16 +14,16 @@ var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
 );
 
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
-  create_message,
   get_about_message,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );

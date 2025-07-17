@@ -14,21 +14,22 @@ var {
   assert_tab_titled_from,
   be_in_folder,
   create_folder,
+  get_about_3pane,
+  get_about_message,
   get_smart_folder_named,
-  inboxFolder,
-  make_message_sets_in_folders,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
   select_click_row,
   switch_tab,
   wait_for_all_messages_to_load,
-  get_about_3pane,
-  get_about_message,
-  delete_messages,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+var { delete_messages, inboxFolder, make_message_sets_in_folders } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var { promise_modal_dialog } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );

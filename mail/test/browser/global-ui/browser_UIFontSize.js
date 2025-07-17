@@ -12,17 +12,18 @@ const { UIFontSize } = ChromeUtils.importESModule(
 );
 
 const {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
   close_popup,
   create_folder,
-  create_message,
   get_about_3pane,
   get_about_message,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 const about3Pane = get_about_3pane();

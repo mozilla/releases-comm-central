@@ -11,13 +11,11 @@ var { assert_element_visible, assert_element_not_visible } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/DOMHelpers.sys.mjs"
   );
-
-var { be_in_folder, inboxFolder } = ChromeUtils.importESModule(
+var { be_in_folder, close_popup } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-
-var { close_popup } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+var { inboxFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var url =

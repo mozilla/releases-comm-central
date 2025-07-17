@@ -9,13 +9,12 @@
 
 "use strict";
 
-var {
-  assert_messages_in_view,
-  be_in_folder,
-  create_folder,
-  make_message_sets_in_folders,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+var { assert_messages_in_view, be_in_folder, create_folder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var {
   assert_constraints_expressed,

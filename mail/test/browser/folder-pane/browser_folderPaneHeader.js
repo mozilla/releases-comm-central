@@ -5,14 +5,19 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { SmartMailboxUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartMailboxUtils.sys.mjs"
+);
 const { XULStoreUtils } = ChromeUtils.importESModule(
   "resource:///modules/XULStoreUtils.sys.mjs"
 );
 
-var { add_message_sets_to_folders, be_in_folder, create_thread } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var { be_in_folder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_sets_to_folders, create_thread } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 
 let tabmail,
   about3Pane,
@@ -51,6 +56,7 @@ add_setup(async function () {
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"
     );
+    SmartMailboxUtils.removeAll();
   });
 });
 
@@ -868,43 +874,4 @@ add_task(async function testAddFolderToFavorites() {
     `Inbox, 9 unread messages, 10 total messages, ${row.folderSize}`
   );
   await assertColumns(row, 9, 10, row.folderSize);
-});
-
-add_task(async function testActionButtonsState() {
-  // Delete all accounts to start clean.
-  for (const account of MailServices.accounts.accounts) {
-    MailServices.accounts.removeAccount(account, true);
-  }
-
-  // Confirm that we don't have any account in our test run.
-  Assert.equal(
-    MailServices.accounts.accounts.length,
-    0,
-    "No account currently configured"
-  );
-
-  Assert.ok(fetchButton.disabled, "The Get Messages button is disabled");
-  Assert.ok(newButton.disabled, "The New Message button is disabled");
-
-  // Create a POP server.
-  const popServer = MailServices.accounts
-    .createIncomingServer("nobody", "foo.invalid", "pop3")
-    .QueryInterface(Ci.nsIPop3IncomingServer);
-
-  const identity = MailServices.accounts.createIdentity();
-  identity.email = "tinderbox@foo.invalid";
-
-  const account = MailServices.accounts.createAccount();
-  account.addIdentity(identity);
-  account.incomingServer = popServer;
-
-  await BrowserTestUtils.waitForCondition(
-    () => !fetchButton.disabled,
-    "The Get Messages button is enabled"
-  );
-
-  await BrowserTestUtils.waitForCondition(
-    () => !newButton.disabled,
-    "The New Message button is enabled"
-  );
 });

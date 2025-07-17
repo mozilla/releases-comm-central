@@ -11,7 +11,6 @@
 requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 3 : 2);
 
 var {
-  add_message_sets_to_folders,
   assert_message_pane_focused,
   assert_nothing_selected,
   assert_number_of_tabs_open,
@@ -23,12 +22,10 @@ var {
   close_tab,
   collapse_all_threads,
   create_folder,
-  create_thread,
   expand_all_threads,
   focus_thread_tree,
   get_about_3pane,
   make_display_threaded,
-  make_message_sets_in_folders,
   middle_click_on_row,
   reset_context_menu_background_tabs,
   reset_open_message_behavior,
@@ -41,6 +38,13 @@ var {
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var {
+  add_message_sets_to_folders,
+  create_thread,
+  make_message_sets_in_folders,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder, threadedFolder;

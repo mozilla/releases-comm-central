@@ -27,7 +27,6 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
-  make_message_sets_in_folders,
   open_selected_message,
   open_selected_messages,
   reset_open_message_behavior,
@@ -39,6 +38,9 @@ var {
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"

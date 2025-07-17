@@ -5,7 +5,6 @@
 "use strict";
 
 var {
-  add_message_sets_to_folders,
   archive_messages,
   assert_message_not_in_view,
   assert_nothing_selected,
@@ -13,7 +12,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  create_thread,
   expand_all_threads,
   get_about_3pane,
   select_click_row,
@@ -22,6 +20,9 @@ var {
   toggle_thread_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_sets_to_folders, create_thread } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder;

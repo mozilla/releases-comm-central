@@ -10,7 +10,6 @@ var {
   be_in_folder,
   create_folder,
   create_virtual_folder,
-  make_message_sets_in_folders,
   select_click_row,
   select_control_click_row,
   select_none,
@@ -22,6 +21,9 @@ var { delete_mail_marked_as_junk, mark_selected_messages_as_junk } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/JunkHelpers.sys.mjs"
   );
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -45,12 +47,7 @@ add_setup(async function () {
   folderE = await create_folder("JunkCommandsE");
   folderE.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  virtualFolder = create_virtual_folder(
-    [folderD, folderE],
-    {},
-    undefined,
-    "JunkCommandsV"
-  );
+  virtualFolder = create_virtual_folder("JunkCommandsV", [folderD, folderE]);
 
   await make_message_sets_in_folders([folderA], [{ count: 30 }]);
   await make_message_sets_in_folders([folderD], [{ count: 3 }]);

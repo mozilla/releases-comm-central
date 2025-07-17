@@ -25,7 +25,6 @@ var {
   be_in_folder,
   close_popup,
   create_folder,
-  make_message_sets_in_folders,
   open_folder_in_new_window,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -33,6 +32,9 @@ var {
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var {
   drag_n_drop_element,

@@ -15,6 +15,7 @@ TESTING_JS_MODULES.mail += [
     "FolderDisplayHelpers.sys.mjs",
     "JunkHelpers.sys.mjs",
     "KeyboardHelpers.sys.mjs",
+    "MessageInjectionHelpers.sys.mjs",
     "MouseEventHelpers.sys.mjs",
     "NNTPHelpers.sys.mjs",
     "NotificationBoxHelpers.sys.mjs",

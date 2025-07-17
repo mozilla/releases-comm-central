@@ -10,16 +10,14 @@
 
 "use strict";
 
-var {
-  assert_folder_visible,
-  be_in_folder,
-  delete_messages,
-  get_about_3pane,
-  inboxFolder,
-  make_message_sets_in_folders,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-);
+var { assert_folder_visible, be_in_folder, get_about_3pane } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
+var { delete_messages, inboxFolder, make_message_sets_in_folders } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 
 var about3Pane;
 var inboxSubfolder;

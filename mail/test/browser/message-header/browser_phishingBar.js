@@ -15,18 +15,19 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 );
 
 var {
-  add_message_to_folder,
   be_in_folder,
   create_folder,
-  create_message,
   get_about_message,
-  inboxFolder,
   open_message_from_file,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+var { add_message_to_folder, create_message, inboxFolder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var {
   assert_notification_displayed,
   get_notification_button,

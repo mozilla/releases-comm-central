@@ -9,15 +9,16 @@
 "use strict";
 
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  create_message,
   select_click_row,
   open_message_from_file,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder = null;

@@ -17,7 +17,6 @@ var {
   make_display_grouped,
   make_display_threaded,
   make_display_unthreaded,
-  make_message_sets_in_folders,
   open_folder_in_new_tab,
   press_delete,
   right_click_on_row,
@@ -30,6 +29,9 @@ var {
   wait_for_blank_content_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 // let us have 2 folders

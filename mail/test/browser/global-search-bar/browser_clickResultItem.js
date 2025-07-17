@@ -7,14 +7,13 @@
 if (AppConstants.platform == "macosx") {
   requestLongerTimeout(2);
 }
-const {
-  be_in_folder,
-  create_folder,
-  inboxFolder,
-  make_message_sets_in_folders,
-} = ChromeUtils.importESModule(
+const { be_in_folder, create_folder } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+const { inboxFolder, make_message_sets_in_folders } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 
 const { GlodaIndexer } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaIndexer.sys.mjs"

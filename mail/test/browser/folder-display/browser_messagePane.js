@@ -13,11 +13,13 @@ var {
   assert_message_pane_visible,
   be_in_folder,
   create_folder,
-  make_message_sets_in_folders,
   select_click_row,
   select_shift_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 let about3Pane, folderSingle, folderMulti;

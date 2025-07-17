@@ -16,10 +16,12 @@ var {
   be_in_folder,
   create_folder,
   get_about_3pane,
-  make_message_sets_in_folders,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder;

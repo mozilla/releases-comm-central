@@ -9,13 +9,12 @@
 
 "use strict";
 
-var {
-  assert_folder_collapsed,
-  assert_folder_expanded,
-  collapse_folder,
-  inboxFolder,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+var { assert_folder_collapsed, assert_folder_expanded, collapse_folder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
+var { inboxFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var childFolder, dragFolder;

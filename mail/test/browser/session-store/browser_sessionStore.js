@@ -18,11 +18,13 @@ var {
   assert_message_pane_visible,
   be_in_folder,
   create_folder,
-  make_message_sets_in_folders,
   set_mc,
   toggle_message_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"

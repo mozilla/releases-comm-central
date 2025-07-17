@@ -17,6 +17,7 @@ BROWSER_CHROME_MANIFESTS += [
     "cookies/browser.toml",
     "downloads/browser.toml",
     "folder-display/browser.toml",
+    "folder-pane/browser-noAccounts.toml",
     "folder-pane/browser.toml",
     "folder-tree-modes/browser.toml",
     "folder-widget/browser.toml",

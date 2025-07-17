@@ -56,6 +56,9 @@ add_setup(async function () {
   gLocalAccount = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
+  if (gLocalAccount.identities.length == 0) {
+    gLocalAccount.addIdentity(MailServices.accounts.createIdentity());
+  }
 
   Assert.equal(
     MailServices.accounts.allServers.length,

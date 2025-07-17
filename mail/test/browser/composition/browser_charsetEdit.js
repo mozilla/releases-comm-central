@@ -18,10 +18,8 @@ var {
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
-  create_message,
   get_about_message,
   get_special_folder,
   make_display_unthreaded,
@@ -32,6 +30,9 @@ var {
 );
 var { SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { get_notification, wait_for_notification_to_show } =
   ChromeUtils.importESModule(

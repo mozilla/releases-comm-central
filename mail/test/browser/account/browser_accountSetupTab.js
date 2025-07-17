@@ -9,11 +9,6 @@
  * generation of a local folders account nor the update of the mail UI.
  */
 add_task(async function test_use_thunderbird_without_email() {
-  // Delete all accounts to start clean.
-  for (const account of MailServices.accounts.accounts) {
-    MailServices.accounts.removeAccount(account, true);
-  }
-
   // Confirm that we don't have any account in our test run.
   Assert.equal(
     MailServices.accounts.accounts.length,
@@ -80,7 +75,4 @@ add_task(async function test_use_thunderbird_without_email() {
 registerCleanupFunction(function () {
   // Reset the changed pref.
   Services.prefs.setBoolPref("app.use_without_mail_account", false);
-
-  // Restore the local folders account.
-  MailServices.accounts.createLocalMailAccount();
 });

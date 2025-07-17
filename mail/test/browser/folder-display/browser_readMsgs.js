@@ -16,10 +16,12 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  inboxFolder,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { inboxFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 /**

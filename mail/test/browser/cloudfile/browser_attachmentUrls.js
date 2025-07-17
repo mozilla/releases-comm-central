@@ -34,16 +34,16 @@ var { assert_next_nodes, assert_previous_nodes, promise_element } =
     "resource://testing-common/mail/DOMHelpers.sys.mjs"
   );
 var {
-  add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
-  create_message,
   FAKE_SERVER_HOSTNAME,
   get_special_folder,
-
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

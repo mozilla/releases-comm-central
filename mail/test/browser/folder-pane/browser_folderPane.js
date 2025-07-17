@@ -77,10 +77,8 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   const folderA = await create_folder("FolderPaneA");
   await be_in_folder(folderA);
 
-  // After creating our first folder we should have 6 rows visible
-  assert_folder_tree_view_row_count(
-    accounts + inbox + trash + outbox + folderPaneA
-  );
+  // After creating our first folder we should have 5 rows visible.
+  assert_folder_tree_view_row_count(accounts + trash + outbox + folderPaneA);
 
   const about3Pane = get_about_3pane();
   const oneFolderCount = about3Pane.folderTree.rowCount;

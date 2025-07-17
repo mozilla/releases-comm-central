@@ -13,11 +13,13 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  make_message_sets_in_folders,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 // Get original preference value.

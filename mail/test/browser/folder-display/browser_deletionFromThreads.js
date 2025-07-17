@@ -21,13 +21,15 @@ var {
   get_about_3pane,
   make_display_grouped,
   make_display_threaded,
-  make_message_sets_in_folders,
   open_folder_in_new_tab,
   press_delete,
   select_click_row,
   switch_tab,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var singleFolder, folderA, folderB, multiFolder;
@@ -58,7 +60,7 @@ add_setup(async function () {
     () => [...folderB.messages].length == 3,
     "folderB should have 3 messages"
   );
-  multiFolder = create_virtual_folder([folderA, folderB], {});
+  multiFolder = create_virtual_folder("multiFolder", [folderA, folderB]);
 
   tab1 = await be_in_folder(singleFolder);
   tab2 = await open_folder_in_new_tab(singleFolder);

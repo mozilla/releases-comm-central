@@ -8,21 +8,20 @@
 
 "use strict";
 
-var {
-  assert_folder_visible,
-  inboxFolder,
-  make_message_sets_in_folders,
-  toggle_main_menu,
-} = ChromeUtils.importESModule(
+var { assert_folder_visible, toggle_main_menu } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-var { MailTelemetryForTests } = ChromeUtils.importESModule(
-  "resource:///modules/MailGlue.sys.mjs"
+var { inboxFolder, make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { click_menus_in_sequence, click_through_appmenu, close_popup_sequence } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
+
+var { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
+);
 
 var unreadFolder;
 var favoriteFolder;

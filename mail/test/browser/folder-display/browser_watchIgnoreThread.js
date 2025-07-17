@@ -9,20 +9,21 @@
 "use strict";
 
 var {
-  add_message_sets_to_folders,
   assert_not_shown,
   assert_selected_and_displayed,
   assert_visible,
   be_in_folder,
   create_folder,
-  create_thread,
   expand_all_threads,
-  inboxFolder,
   make_display_threaded,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
+var { add_message_sets_to_folders, create_thread, inboxFolder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+  );
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );

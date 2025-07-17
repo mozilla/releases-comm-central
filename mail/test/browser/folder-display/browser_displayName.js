@@ -12,14 +12,12 @@
 var { ensure_card_exists } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
-var {
-  add_message_to_folder,
-  be_in_folder,
-  create_folder,
-  create_message,
-  get_about_3pane,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+var { be_in_folder, create_folder, get_about_3pane } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+  );
+var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder;

@@ -13,9 +13,11 @@ var {
   assert_folder_mode,
   assert_folder_tree_view_row_count,
   be_in_folder,
-  make_message_sets_in_folders,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

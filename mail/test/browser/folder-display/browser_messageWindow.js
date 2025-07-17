@@ -10,17 +10,18 @@
 "use strict";
 
 var {
-  add_message_sets_to_folders,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  create_thread,
   open_selected_message_in_new_window,
   press_delete,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_sets_to_folders, create_thread } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folderA, folderB;

@@ -15,7 +15,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   close_tab,
-  make_message_sets_in_folders,
   create_folder,
   open_folder_in_new_tab,
   select_click_row,
@@ -23,6 +22,9 @@ var {
   toggle_message_pane,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folder;

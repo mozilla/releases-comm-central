@@ -20,7 +20,6 @@ var {
   close_popup,
   close_tab,
   create_folder,
-  make_message_sets_in_folders,
   middle_click_on_folder,
   reset_context_menu_background_tabs,
   right_click_on_folder,
@@ -30,6 +29,9 @@ var {
   switch_tab,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 
 var folderA, folderB, folderC;

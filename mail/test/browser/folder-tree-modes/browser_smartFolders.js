@@ -15,11 +15,12 @@ var {
   get_about_3pane,
   get_smart_folder_named,
   get_special_folder,
-  inboxFolder,
-  make_message_sets_in_folders,
   select_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { inboxFolder, make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"

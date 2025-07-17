@@ -18,10 +18,8 @@ var {
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
-  add_message_sets_to_folders,
   be_in_folder,
   create_folder,
-  create_thread,
   get_special_folder,
   make_display_unthreaded,
   press_delete,
@@ -29,6 +27,9 @@ var {
   select_shift_click_row,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { add_message_sets_to_folders, create_thread } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
   "resource:///modules/gloda/MimeMessage.sys.mjs"

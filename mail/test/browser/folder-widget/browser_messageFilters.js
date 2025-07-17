@@ -11,10 +11,12 @@
 var { create_ldap_address_book } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
-var { be_in_folder, create_folder, make_message_sets_in_folders } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+var { be_in_folder, create_folder } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
 var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NNTPHelpers.sys.mjs"

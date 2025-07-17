@@ -15,11 +15,13 @@ var {
   close_tab,
   create_folder,
   get_about_message,
-  make_message_sets_in_folders,
   select_click_row,
   switch_tab,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { make_message_sets_in_folders } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
 var { click_menus_in_sequence, wait_for_browser_load } =
   ChromeUtils.importESModule(
