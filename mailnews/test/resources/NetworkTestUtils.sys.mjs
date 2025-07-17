@@ -259,7 +259,10 @@ export var NetworkTestUtils = {
         if (url.startsWith("http://mochi.test")) {
           return "PROXY 127.0.0.1:8888";
         }
-        if (url.startsWith("https://example.org")) {
+        if (
+          url.startsWith("https://example.org") ||
+          url.startsWith("https://expired.example.com")
+        ) {
           return "PROXY 127.0.0.1:4443";
         }
         return "SOCKS5 127.0.0.1:${gSocksServer.port}";
