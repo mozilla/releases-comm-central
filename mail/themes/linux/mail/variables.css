@@ -10,4 +10,17 @@
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --autocomplete-popup-url-color: LinkText;
+
+  /* Used for Breeze titlebar-button buttons */
+  --toolbox-bgcolor: -moz-headerbar;
+  --toolbox-textcolor: -moz-headerbartext;
+  --toolbox-bgcolor-inactive: -moz-headerbarinactive;
+  --toolbox-textcolor-inactive: -moz-headerbarinactivetext;
+
+  &[lwtheme] {
+    --toolbox-bgcolor: var(--lwt-accent-color);
+    --toolbox-bgcolor-inactive: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    --toolbox-textcolor: var(--lwt-text-color, currentColor);
+    --toolbox-textcolor-inactive: var(--lwt-text-color, currentColor);
+  }
 }

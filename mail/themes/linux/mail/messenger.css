@@ -122,6 +122,23 @@
   position: relative;
   z-index: 1;
   align-items: stretch;
+  /* In libadwaita buttons are 24px big and spacing is
+   * 3px of gap + 5px * 2 of padding = 13px / 2, see:
+   * https://gitlab.gnome.org/GNOME/libadwaita/-/blob/fe21c3c823443a8f2333cf3cc09ba3d0fa753228/src/stylesheet/widgets/_header-bar.scss#L164
+   * We want a contiguous hit region so we use 6.5px of padding instead. */
+  --titlebar-button-size: 24px;
+  --titlebar-button-spacing: 6.5px;
+  --titlebar-button-end-spacing: 10px;
+  @media (-moz-gtk-theme-family: breeze) {
+    --titlebar-button-size: 18px;
+    --titlebar-button-spacing: 3px;
+    --titlebar-button-end-spacing: 10px;
+  }
+  --max-titlebar-button-position: max(
+    env(-moz-gtk-csd-maximize-button-position),
+    env(-moz-gtk-csd-minimize-button-position),
+    env(-moz-gtk-csd-close-button-position)
+  );
 }
 
 .titlebar-button {
@@ -129,7 +146,16 @@
   color: inherit;
   align-items: center;
   padding: 0;
-  padding-inline: calc(env(-moz-gtk-csd-titlebar-button-spacing) / 2);
+  padding-inline: var(--titlebar-button-spacing);
+  padding-inline-end: max(
+    var(--titlebar-button-spacing),
+    var(--titlebar-button-end-spacing) *
+    (var(--titlebar-button-position) -
+    var(--max-titlebar-button-position) + 1)
+  );
+  order: var(--titlebar-button-position);
+  /* In GTK applications, you can drag the window by titlebar buttons */
+  -moz-window-dragging: drag;
 
   > .toolbarbutton-icon {
     appearance: auto;
@@ -138,11 +164,18 @@
     background-repeat: no-repeat;
     -moz-context-properties: stroke;
     stroke: currentColor;
-    /* Roughly the Adwaita size */
-    width: 24px;
-    height: 24px;
-    /* Matches the libadwaita transition */
-    transition: background-color .2s ease;
+    width: var(--titlebar-button-size);
+    height: var(--titlebar-button-size);
+
+    @media not (-moz-gtk-theme-family: breeze) {
+      /* Matches the libadwaita transition */
+      transition: background-color .2s ease;
+    }
+
+    @media (-moz-gtk-theme-family: adwaita) or (-moz-gtk-theme-family: yaru) {
+      /* On Adwaita / Yaru, the titlebar buttons have a background by default */
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+    }
   }
 
   &:hover > .toolbarbutton-icon {
@@ -157,10 +190,30 @@
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-inset);
   }
+
+  @media (-moz-gtk-theme-family: breeze) {
+    &:hover > .toolbarbutton-icon {
+      color: var(--toolbox-bgcolor);
+      background-color: var(--toolbox-textcolor);
+      &:-moz-window-inactive {
+        color: var(--toolbox-bgcolor-inactive);
+        background-color: var(--toolbox-textcolor-inactive);
+      }
+    }
+    &:hover:active > .toolbarbutton-icon {
+      background-color: color-mix(in srgb, var(--toolbox-textcolor) 50%, transparent);
+    }
+    &.titlebar-close:hover > .toolbarbutton-icon {
+      background-color: #ff98a2;
+    }
+    &.titlebar-close:hover:active > .toolbarbutton-icon {
+      background-color: #6d2229;
+    }
+  }
 }
 
 .titlebar-min {
-  order: env(-moz-gtk-csd-minimize-button-position);
+  --titlebar-button-position: env(-moz-gtk-csd-minimize-button-position);
 
   > .toolbarbutton-icon {
     background-image: -moz-symbolic-icon(window-minimize-symbolic);
@@ -171,31 +224,25 @@
   }
 }
 
-.titlebar-max {
-  order: env(-moz-gtk-csd-maximize-button-position);
+.titlebar-max,
+.titlebar-restore {
+  --titlebar-button-position: env(-moz-gtk-csd-maximize-button-position);
 
   > .toolbarbutton-icon {
     background-image: -moz-symbolic-icon(window-maximize-symbolic);
   }
-}
 
-.titlebar-restore {
-  order: env(-moz-gtk-csd-maximize-button-position);
-
-  > .toolbarbutton-icon {
-    background-image: -moz-symbolic-icon(window-restore-symbolic);
-  }
-}
-
-@media not (-moz-gtk-csd-maximize-button) {
-  .titlebar-max,
-  .titlebar-restore {
+  @media not (-moz-gtk-csd-maximize-button) {
     display: none;
   }
 }
 
+.titlebar-restore > .toolbarbutton-icon {
+  background-image: -moz-symbolic-icon(window-restore-symbolic);
+}
+
 .titlebar-close {
-  order: env(-moz-gtk-csd-close-button-position);
+  --titlebar-button-position: env(-moz-gtk-csd-close-button-position);
 
   > .toolbarbutton-icon {
     background-image: -moz-symbolic-icon(window-close-symbolic);
