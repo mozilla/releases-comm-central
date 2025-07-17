@@ -5008,6 +5008,21 @@ var threadPane = {
     }
 
     const numSelected = gDBView?.numSelected || 0;
+
+    // Prevent Grouped By Sort header rows and messages from being selected
+    // simultaneously.
+    if (
+      gViewWrapper?.showGroupedBySort &&
+      numSelected > 0 &&
+      threadTree.selectedIndices.length > 1
+    ) {
+      const savedIndex = threadTree.currentIndex;
+      threadTree.selectedIndices
+        .filter(i => gViewWrapper.isExpandedGroupedByHeaderAtIndex(i))
+        .forEach(i => threadTree.toggleSelectionAtIndex(i, false, false));
+      threadTree.currentIndex = savedIndex;
+    }
+
     switch (numSelected) {
       case 0:
         messagePane.displayMessage();
@@ -5025,13 +5040,6 @@ var threadPane = {
         break;
       }
       default:
-        if (gViewWrapper.showGroupedBySort) {
-          const savedIndex = threadTree.currentIndex;
-          threadTree.selectedIndices
-            .filter(i => gViewWrapper.isExpandedGroupedByHeaderAtIndex(i))
-            .forEach(i => threadTree.toggleSelectionAtIndex(i, false, false));
-          threadTree.currentIndex = savedIndex;
-        }
         messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
         break;
     }

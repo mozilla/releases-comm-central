@@ -1615,7 +1615,7 @@ export class TreeView extends HTMLElement {
    */
   get selectedIndices() {
     const indices = [];
-    const rangeCount = this._selection.getRangeCount();
+    const rangeCount = this._selection?.getRangeCount();
 
     for (let range = 0; range < rangeCount; range++) {
       const min = {};

@@ -36,18 +36,36 @@ add_setup(async function () {
     .createLocalSubfolder("dummyRowFolderA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  folderB = rootFolder.createLocalSubfolder("dummyRowFolderB");
-
-  // Make some messages.
-  const syntheticMessages = generator.makeMessages({
-    count: 5,
-    msgsPerThread: 1,
-  });
+  folderB = rootFolder
+    .createLocalSubfolder("dummyRowFolderB")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   folderA.addMessageBatch(
-    syntheticMessages.map(message => message.toMessageString())
+    generator
+      .makeMessages({
+        count: 5,
+        msgsPerThread: 1,
+      })
+      .map(message => message.toMessageString())
   );
 
+  for (let i = 1; i <= 3; i++) {
+    folderB.addMessageBatch(
+      generator
+        .makeMessages({
+          count: i,
+          msgsPerThread: i,
+        })
+        .map(message => message.toMessageString())
+    );
+  }
+
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, false);
+  });
+});
+
+add_task(async function test_dummy_row_in_table_view() {
   about3Pane.restoreState({
     messagePaneVisible: true,
     folderURI: folderA.URI,
@@ -60,16 +78,10 @@ add_setup(async function () {
   );
   threadTree.scrollToIndex(0, true);
 
-  registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(account, false);
-  });
-});
-
-add_task(async function test_dummy_row_in_table_view() {
-  const folderAMessages = [...folderA.messages];
-
   await ensure_table_view(document);
   await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+  const folderAMessages = [...folderA.messages];
 
   Assert.equal(
     threadTree.getRowAtIndex(0).querySelector(".subject-line span").textContent,
@@ -102,3 +114,79 @@ add_task(async function test_dummy_row_in_table_view() {
 
 // TODO: Implement after bug 1894591.
 // add_task(async function test_dummy_row_in_cards_view() {});
+
+add_task(async function test_dummy_row_selection() {
+  about3Pane.restoreState({
+    messagePaneVisible: true,
+    folderURI: folderB.URI,
+  });
+
+  about3Pane.sortController.sortThreadPane("subjectCol");
+  about3Pane.sortController.groupBySort();
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.dataset.showGroupedBySort == "true",
+    "The tree view should be grouped by sort"
+  );
+
+  // Test that several collapsed dummy rows can be selected at the same time.
+
+  await mouseSelect(0);
+  checkSelection([0]);
+  await mouseSelect(1, true);
+  checkSelection([0, 1]);
+  await mouseSelect(2, true);
+  checkSelection([0, 1, 2]);
+
+  await testSelectAll([0, 1, 2]);
+
+  // Test that only one expanded dummy row can be selected if any other message
+  // is selected.
+
+  goDoCommand("cmd_expandAllThreads");
+
+  await mouseSelect(0);
+  checkSelection([0]);
+  await mouseSelect(1, true);
+  checkSelection([1]);
+  await mouseSelect(2, true);
+  checkSelection([1, 2]);
+  await mouseSelect(5, true);
+  checkSelection([1, 2]);
+  await mouseSelect(4);
+  checkSelection([4]);
+  await mouseSelect(3, true);
+  checkSelection([4]);
+  await mouseSelect(2, true);
+  checkSelection([2, 4]);
+  await mouseSelect(5, true);
+  checkSelection([2, 4]);
+  await mouseSelect(6, true);
+  checkSelection([2, 4, 6]);
+
+  await testSelectAll([1, 2, 4, 6, 7, 8]);
+});
+
+async function mouseSelect(row, ctrlKeyPressed = false) {
+  const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(row),
+    { accelKey: ctrlKeyPressed },
+    about3Pane
+  );
+  await selectPromise;
+}
+
+function checkSelection(expectedIndices) {
+  Assert.deepEqual(
+    threadTree.selectedIndices,
+    expectedIndices,
+    "The correct rows should be selected."
+  );
+}
+
+async function testSelectAll(expectedIndices) {
+  await mouseSelect(0);
+  checkSelection(0);
+  EventUtils.synthesizeKey("a", { accelKey: true }, about3Pane);
+  checkSelection(expectedIndices);
+}
