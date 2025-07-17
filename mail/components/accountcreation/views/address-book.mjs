@@ -390,9 +390,9 @@ class AccountHubAddressBook extends HTMLElement {
           }
           // Since we found a login we can complete the state already.
           this.#remoteAddressBookState.password = login.password;
-          // We retrieved it from the password store, so no need to store it
-          // again.
-          this.#remoteAddressBookState.rememberPassword = false;
+          // We retrieved it from the password store, so we should remember it
+          // if we need it for a different origin.
+          this.#remoteAddressBookState.rememberPassword = true;
         }
         await this.#initializeSyncSubview(currentState);
         break;
@@ -443,7 +443,8 @@ class AccountHubAddressBook extends HTMLElement {
       const books = await lazy.RemoteAddressBookUtils.getAddressBooksForAccount(
         this.#remoteAddressBookState.username,
         this.#remoteAddressBookState.password,
-        this.#remoteAddressBookState.server
+        this.#remoteAddressBookState.server,
+        this.#remoteAddressBookState.rememberPassword
       );
       this.#currentSubview.clearNotifications();
       await this.#initUI("syncAddressBooksSubview");
@@ -454,7 +455,6 @@ class AccountHubAddressBook extends HTMLElement {
           type: "info",
         });
       }
-      //TODO save password
       //TODO username?
     } catch (error) {
       this.#currentSubview.showNotification({

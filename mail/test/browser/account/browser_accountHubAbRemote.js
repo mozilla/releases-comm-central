@@ -75,12 +75,6 @@ add_task(async function test_remoteAddressBookPassword() {
 
   await checkSyncSubview(dialog);
 
-  const logins = await Services.logins.searchLoginsAsync({
-    origin: "https://carddav.test",
-  });
-  Assert.equal(logins.length, 1, "One login should be saved after sync");
-  Services.logins.removeLogin(logins[0]);
-
   await dialog.querySelector("account-hub-address-book").reset();
 });
 
@@ -326,12 +320,6 @@ add_task(async function test_wrongPassword() {
 
   await checkSyncSubview(dialog);
 
-  const logins = await Services.logins.searchLoginsAsync({
-    origin: "https://carddav.test",
-  });
-  Assert.equal(logins.length, 1, "One login should be saved after sync");
-  Services.logins.removeLogin(logins[0]);
-
   await dialog.querySelector("account-hub-address-book").reset();
 });
 
@@ -508,6 +496,51 @@ add_task(async function test_invalidCertificate() {
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
   await dialog.querySelector("account-hub-address-book").reset();
+});
+
+add_task(async function test_remoteAddressBookRememberPassword() {
+  // Enable password remembering.
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
+
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await goToRemoteForm(dialog);
+  await fillInForm(dialog, "https://carddav.test/");
+
+  const passwordStep = dialog.querySelector("#addressBookPasswordSubview");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordStep),
+    "Should show password entry step"
+  );
+
+  EventUtils.sendString(CardDAVServer.password);
+
+  const forward = dialog.querySelector("#addressBookFooter #forward");
+  EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+
+  await checkSyncSubview(dialog);
+
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "https://carddav.test",
+  });
+  Assert.equal(logins.length, 1, "Should have one login stored for the origin");
+  Assert.equal(
+    logins[0].username,
+    CardDAVServer.username,
+    "Should store the expected username"
+  );
+  Assert.equal(
+    logins[0].password,
+    CardDAVServer.password,
+    "Should store the expected password"
+  );
+  Services.logins.removeLogin(logins[0]);
+
+  await dialog.querySelector("account-hub-address-book").reset();
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

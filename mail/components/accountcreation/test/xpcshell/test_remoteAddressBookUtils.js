@@ -16,10 +16,20 @@ const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
 let expectedBooks;
 
 add_setup(async () => {
   do_get_profile();
+  // Initialize the AB manager.
+  MailServices.ab.directories;
   // Port 9999 is special and makes this work with an email account.
   CardDAVServer.open("test@test.invalid", "bob", 9999);
   const uid = MailServices.ab.newAddressBook(
@@ -98,8 +108,7 @@ add_setup(async () => {
 
   registerCleanupFunction(async () => {
     MailServices.ab.deleteAddressBook(book.URI);
-    Services.logins.removeLogin(login);
-    Services.logins.removeLogin(secondLogin);
+    Services.logins.removeAllLogins();
     MailServices.accounts.removeAccount(abAccount, true);
     MailServices.accounts.removeAccount(oauthAccount, true);
     MailServices.accounts.removeAccount(secondAccount, true);
@@ -262,4 +271,78 @@ add_task(async function test_getAddressBooksForExistingAccounts() {
   for (const [index, book] of firstResult.addressBooks.entries()) {
     checkFoundBook(book, index);
   }
+});
+
+add_task(async function test_getAddressBooksForAccountStorePassword() {
+  const initialLogins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
+  Assert.equal(
+    initialLogins.length,
+    1,
+    "Should already have one login at the start of the test"
+  );
+  for (const login of initialLogins) {
+    Services.logins.removeLogin(login);
+  }
+
+  const books = await RemoteAddressBookUtils.getAddressBooksForAccount(
+    CardDAVServer.username,
+    "bob",
+    CardDAVServer.origin
+  );
+  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  let directory = await books[0].create();
+
+  const firstLogins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
+  Assert.equal(firstLogins.length, 0, "Should not store a login by default");
+
+  let [rawDirectory] = await syncPromise;
+
+  let removePromise = TestUtils.topicObserved(
+    "addrbook-directory-deleted",
+    subject => subject == rawDirectory
+  );
+  MailServices.ab.deleteAddressBook(directory.URI);
+  await removePromise;
+
+  info("This time we'll tell it to save the password");
+
+  const moreBooks = await RemoteAddressBookUtils.getAddressBooksForAccount(
+    CardDAVServer.username,
+    CardDAVServer.password,
+    CardDAVServer.origin,
+    true
+  );
+
+  syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  directory = await moreBooks[0].create();
+
+  const secondLogins = await Services.logins.searchLoginsAsync({
+    origin: CardDAVServer.origin,
+  });
+  Assert.equal(firstLogins.length, 0, "Should not store a login by default");
+
+  [rawDirectory] = await syncPromise;
+
+  removePromise = TestUtils.topicObserved(
+    "addrbook-directory-deleted",
+    subject => subject == rawDirectory
+  );
+  MailServices.ab.deleteAddressBook(directory.URI);
+  await removePromise;
+
+  Assert.equal(secondLogins.length, 1, "Should store a login when told to");
+  Assert.equal(
+    secondLogins[0].username,
+    CardDAVServer.username,
+    "Should have username provided in the search"
+  );
+  Assert.equal(
+    secondLogins[0].password,
+    CardDAVServer.password,
+    "Should have password provided in the search"
+  );
 });

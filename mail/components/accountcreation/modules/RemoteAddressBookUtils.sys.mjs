@@ -120,11 +120,14 @@ export const RemoteAddressBookUtils = {
         }
         try {
           const hostname = account.incomingServer.username.split("@")[1];
+          // Tell discovery code to store the password, since we retrieved it
+          // from storage anyway.
           const addressBooks =
             await RemoteAddressBookUtils.getAddressBooksForAccount(
               account.incomingServer.username,
               account.incomingServer.password,
-              `https://${hostname}`
+              `https://${hostname}`,
+              true
             );
           return {
             account,
@@ -151,13 +154,22 @@ export const RemoteAddressBookUtils = {
    * @param {string} username - Username for the CardDAV endpoint.
    * @param {string} password - Password for the CardDAV endpoint.
    * @param {string} server - URL to search the CardDAV endpoint on.
+   * @param {boolean} [storePassword = false] - If the password should be stored
+   *   if necessary.
    * @returns {AccountAddressBooks} Address books found for the given account.
    */
-  async getAddressBooksForAccount(username, password, server) {
+  async getAddressBooksForAccount(
+    username,
+    password,
+    server,
+    storePassword = false
+  ) {
     const foundBooks = await lazy.CardDAVUtils.detectAddressBooks(
       username,
       password,
-      server
+      server,
+      false,
+      storePassword
     );
     return this.markExistingAddressBooks(foundBooks);
   },
