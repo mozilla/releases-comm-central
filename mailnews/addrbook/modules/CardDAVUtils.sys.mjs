@@ -263,7 +263,8 @@ export var CardDAVUtils = {
     });
 
     // Use a unique context for each attempt, so a prompt is always shown.
-    const userContextId = Math.floor(Date.now() / 1000);
+    // Needs to be a new ID fairly frequently for tests.
+    const userContextId = Math.floor(Date.now() / 10);
 
     let url = new URL(location);
 

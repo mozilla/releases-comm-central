@@ -339,3 +339,7 @@ account-hub-address-book-login-simple-label =
 account-hub-address-book-search-label = Search filter
 
 account-hub-simple-configuration-button = Simple Configuration
+
+address-book-finding-remote-address-books = Searching for address books…
+
+address-book-carddav-connection-error = Failed to connect.

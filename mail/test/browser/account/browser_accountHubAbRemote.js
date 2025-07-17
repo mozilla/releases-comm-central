@@ -4,10 +4,63 @@
 
 "use strict";
 
-add_task(async function test_remoteAddressBookFormGoesToPwForm() {
+const { CardDAVDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/CardDAVDirectory.sys.mjs"
+);
+const { CardDAVServer } = ChromeUtils.importESModule(
+  "resource://testing-common/CardDAVServer.sys.mjs"
+);
+const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
+const { HttpsProxy } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+);
+const { OAuth2TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+);
+const { RemoteAddressBookUtils } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs"
+);
+
+add_setup(async () => {
+  CardDAVServer.open("test@example.com", "hunter2");
+  const proxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "dav",
+    "carddav.test"
+  );
+  Services.fog.testResetFOG();
+  // Replace method for discovering address books for existing accounts with a
+  // mock so that search doesn't influence the tests in this file.
+  const gABFEA = RemoteAddressBookUtils.getAddressBooksForExistingAccounts;
+  RemoteAddressBookUtils.getAddressBooksForExistingAccounts = async () => [];
+
+  registerCleanupFunction(async () => {
+    CardDAVServer.reset();
+    await CardDAVServer.close();
+    proxy.destroy();
+
+    const dialog = document.querySelector("account-hub-container").modal;
+    if (dialog?.open) {
+      const subview = dialog.querySelector(
+        "account-hub-address-book > :not([hidden], #addressBookFooter)"
+      );
+      await subtest_close_account_hub_dialog(dialog, subview);
+    }
+    Assert.ok(!dialog?.open, "Account hub dialog should be closed");
+
+    const logins = await Services.logins.getAllLogins();
+    Assert.equal(logins.length, 0, "no faulty logins were saved");
+    Services.logins.removeAllLogins();
+    RemoteAddressBookUtils.getAddressBooksForExistingAccounts = gABFEA;
+  });
+});
+
+//TODO and add all the odd cases from carddav_init like certs
+
+add_task(async function test_remoteAddressBookPassword() {
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   await goToRemoteForm(dialog);
-  await fillInForm(dialog, "test@example.com", "https://example.com/");
+  await fillInForm(dialog, "https://carddav.test/");
 
   const passwordStep = dialog.querySelector("#addressBookPasswordSubview");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
@@ -17,31 +70,27 @@ add_task(async function test_remoteAddressBookFormGoesToPwForm() {
     "Should show password entry step"
   );
 
-  EventUtils.sendString("hunter2");
+  EventUtils.sendString(CardDAVServer.password);
 
   const forward = dialog.querySelector("#addressBookFooter #forward");
   EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+
+  await checkSyncSubview(dialog);
+
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "https://carddav.test",
+  });
+  Assert.equal(logins.length, 1, "One login should be saved after sync");
+  Services.logins.removeLogin(logins[0]);
 
   await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_remoteAddressBookFormPwFromStorage() {
-  const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  login.init(
-    "https://example.com",
-    null,
-    "",
-    "test@example.com",
-    "hunter2",
-    "",
-    ""
-  );
-  await Services.logins.addLoginAsync(login);
+  const login = await createLogin("https://carddav.test");
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   await goToRemoteForm(dialog);
-  await fillInForm(dialog, "test@example.com", "https://example.com/", false);
+  await fillInForm(dialog, "https://carddav.test/", false);
 
   Assert.ok(
     BrowserTestUtils.isHidden(
@@ -49,6 +98,8 @@ add_task(async function test_remoteAddressBookFormPwFromStorage() {
     ),
     "Should not get password entry step"
   );
+
+  await checkSyncSubview(dialog);
 
   Services.logins.removeLogin(login);
 
@@ -57,25 +108,19 @@ add_task(async function test_remoteAddressBookFormPwFromStorage() {
 
 add_task(
   async function test_remoteAddressBookFormInferHostFromUsernamePwFromStorage() {
-    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
-    login.init(
-      "https://example.com",
-      null,
-      "",
-      "test@example.com",
-      "hunter2",
-      "",
-      ""
-    );
-    await Services.logins.addLoginAsync(login);
+    const login = await createLogin("https://example.com");
+    const _srv = DNS.srv;
+    DNS.srv = name => {
+      if (name != "_carddavs._tcp.example.com") {
+        return [];
+      }
+      return [{ prio: 0, weight: 0, host: "carddav.test", port: 443 }];
+    };
+
     const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
     await goToRemoteForm(dialog);
-    await fillInForm(dialog, "test@example.com", "", false);
+    await fillInForm(dialog, "", false);
 
-    // We are using the login being found as implicit check that the URL got
-    // properly expanded from the username field.
     Assert.ok(
       BrowserTestUtils.isHidden(
         dialog.querySelector("#addressBookPasswordSubview")
@@ -83,16 +128,37 @@ add_task(
       "Should not get password entry step"
     );
 
-    Services.logins.removeLogin(login);
+    await checkSyncSubview(dialog);
 
+    Services.logins.removeLogin(login);
+    const logins = await Services.logins.searchLoginsAsync({
+      origin: "https://carddav.test",
+    });
+    Assert.equal(
+      logins.length,
+      1,
+      "Login should be duplicated to redirected origin"
+    );
+    Services.logins.removeLogin(logins[0]);
+    DNS.srv = _srv;
     await dialog.querySelector("account-hub-address-book").reset();
   }
 );
 
 add_task(async function test_remoteAddressBookFormOauth() {
+  await OAuth2TestUtils.startServer({
+    username: CardDAVServer.username,
+    password: "oat",
+  });
+  CardDAVServer.password = "access_token";
+  const proxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "valid",
+    "test.test"
+  );
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   await goToRemoteForm(dialog);
-  await fillInForm(dialog, "test@mochi.test", "https://mochi.test/", false);
+  await fillInForm(dialog, "https://test.test/", false);
 
   Assert.ok(
     BrowserTestUtils.isHidden(
@@ -101,8 +167,58 @@ add_task(async function test_remoteAddressBookFormOauth() {
     "Should not get password entry step"
   );
 
+  const oauthWindowOpen = OAuth2TestUtils.promiseOAuthWindow();
+  const synced = checkSyncSubview(dialog, "https://test.test");
+  const oAuthWindow = await oauthWindowOpen;
+  await SpecialPowers.spawn(
+    oAuthWindow.getBrowser(),
+    [{ username: CardDAVServer.username, password: "oat" }],
+    OAuth2TestUtils.submitOAuthLogin
+  );
+  await synced;
+
+  const logins = await Services.logins.searchLoginsAsync({
+    origin: "oauth://test.test",
+  });
+  Assert.equal(logins.length, 1, "Should have one oauth credential");
+  Assert.equal(
+    logins[0].httpRealm,
+    "test_mail test_addressbook test_calendar",
+    "Oauth credential should have correct scopes"
+  );
+  Assert.equal(
+    logins[0].username,
+    "test@example.com",
+    "OAuth credential should have expected username"
+  );
+  Assert.equal(
+    logins[0].password,
+    "refresh_token",
+    "OAuth credential should have refresh token as password"
+  );
+
   await dialog.querySelector("account-hub-address-book").reset();
+  Services.logins.removeLogin(logins[0]);
+  proxy.destroy();
+  OAuth2TestUtils.stopServer();
+  OAuth2TestUtils.checkTelemetry([
+    {
+      issuer: "test.test",
+      reason: "no refresh token",
+      result: "succeeded",
+    },
+  ]);
+  CardDAVServer.password = "hunter2";
 });
+
+//TODO test bad SSL
+//TODO test not carddav server
+//TODO test no well known
+//TODO test apple carddav server
+//TODO test bad password
+//TODO test email without carddav server
+//TODO test DNS with TXT
+//TODO test no name addrbook
 
 /**
  * Open the remote address book form in the account hub dialog.
@@ -133,12 +249,18 @@ async function goToRemoteForm(dialog) {
  * Fill in the remote address book form and submit it.
  *
  * @param {HTMLDialogElement} dialog - The account hub dialog.
- * @param {string} username - The username for the address book.
  * @param {string} [server] - The server URL, can be omitted for auto detection.
  * @param {boolean} [shouldContinue=true] - If we're expecting form submission
  *   to advance.
+ * @param {string} [username=CardDAVServer.username] - The username to enter,
+ *   defaults to the username the CardDAVServer expects.
  */
-async function fillInForm(dialog, username, server, shouldContinue = true) {
+async function fillInForm(
+  dialog,
+  server,
+  shouldContinue = true,
+  username = CardDAVServer.username
+) {
   const remoteAccountFormSubview = dialog.querySelector(
     "#addressBookRemoteAccountFormSubview"
   );
@@ -165,4 +287,90 @@ async function fillInForm(dialog, username, server, shouldContinue = true) {
     },
     () => BrowserTestUtils.isHidden(remoteAccountFormSubview)
   );
+}
+
+/**
+ * Handle the address book sync subview and add all available address books.
+ * Then verify they're added and remove them again.
+ *
+ * @param {HTMLDialogElement} dialog - Reference to the account hub dialog.
+ * @param {string} [origin="https://carddav.test"] - The origin for the CardDAV
+ *   server. Should match the origin of the proxy we discover the books on.
+ */
+async function checkSyncSubview(dialog, origin = "https://carddav.test") {
+  const forward = dialog.querySelector("#addressBookFooter #forward");
+  const syncSubview = dialog.querySelector("#addressBookSyncSubview");
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", syncSubview);
+
+  const addressBooks = syncSubview.querySelectorAll(
+    "#addressBookAccountsContainer input"
+  );
+  Assert.equal(addressBooks.length, 2, "Should find two remote address books");
+
+  const otherAb = syncSubview.querySelector(
+    `#addressBookAccountsContainer input[data-url="${origin}${CardDAVServer.altPath}"]`
+  );
+  EventUtils.synthesizeMouseAtCenter(otherAb, {}, window);
+
+  const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  EventUtils.synthesizeMouseAtCenter(forward, {}, window);
+
+  Assert.equal(
+    MailServices.ab.directories.length,
+    3,
+    "Should now have one more address books"
+  );
+
+  const [directory] = await syncPromise;
+  Assert.equal(
+    directory.getStringValue("carddav.url", ""),
+    `${origin}${CardDAVServer.path}`,
+    "Synced directory should be from our server"
+  );
+  Assert.equal(
+    directory.dirName,
+    "CardDAV Test",
+    "Directory should have expected name"
+  );
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
+  Assert.notEqual(
+    davDirectory._syncTimer,
+    null,
+    "Should have scheduled a sync"
+  );
+
+  const removePromise = TestUtils.topicObserved(
+    "addrbook-directory-deleted",
+    subject => subject == directory
+  );
+  MailServices.ab.deleteAddressBook(directory.URI);
+  await removePromise;
+
+  Assert.equal(
+    MailServices.ab.directories.length,
+    2,
+    "Should be back to the initial directory count"
+  );
+}
+
+/**
+ * Create and store a new login. All parameters default to the values from the
+ * CardDAVServer config.
+ *
+ * @param {string} [origin] - Origin for the login.
+ * @param {string} [username] - Username in the login.
+ * @param {string} [password] - Password of the login.
+ * @returns {Promise<nsILoginInfo>} - Resolves to the stored login instance.
+ */
+function createLogin(
+  origin = CardDAVServer.origin,
+  username = CardDAVServer.username,
+  password = CardDAVServer.password
+) {
+  const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  login.init(origin, null, "test", username, password, "", "");
+  return Services.logins.addLoginAsync(login);
 }

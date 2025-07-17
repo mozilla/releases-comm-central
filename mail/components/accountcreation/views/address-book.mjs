@@ -249,6 +249,8 @@ class AccountHubAddressBook extends HTMLElement {
         }
 
         if (this.#currentState === "accountSelectSubview") {
+          this.#states.syncAddressBooksSubview.previousStep =
+            this.#currentState;
           await this.#initUI("syncAddressBooksSubview");
           const account = this.#accounts.find(
             addressBookAccount =>
@@ -368,7 +370,7 @@ class AccountHubAddressBook extends HTMLElement {
         const oAuth = new lazy.OAuth2Module();
         if (
           !oAuth.initFromHostname(
-            stateData.server,
+            new URL(stateData.server).hostname,
             stateData.username,
             "carddav"
           )
@@ -392,14 +394,14 @@ class AccountHubAddressBook extends HTMLElement {
           // again.
           this.#remoteAddressBookState.rememberPassword = false;
         }
-        //TODO all set, show sync subview
+        await this.#initializeSyncSubview(currentState);
         break;
       }
       case "remotePasswordSubview":
         this.#remoteAddressBookState.password = stateData.password;
         this.#remoteAddressBookState.rememberPassword =
           stateData.rememberPassword;
-        //TODO all set, show sync subview
+        await this.#initializeSyncSubview(currentState);
         break;
       case "syncAddressBooksSubview":
         // The state data returned from this subview is a list of available
@@ -417,6 +419,52 @@ class AccountHubAddressBook extends HTMLElement {
         break;
       default:
         break;
+    }
+  }
+
+  /**
+   * Show the sync subview and set it up with address books based on the
+   * #remoteAddressBookState. Might trigger an OAuth prompt.
+   *
+   * @param {string} previousStep - The previous step the syncAddressBookSubview
+   *  should go back to.
+   */
+  async #initializeSyncSubview(previousStep) {
+    this.#states.syncAddressBooksSubview.previousStep = previousStep;
+    this.classList.add("busy");
+    this.#footer.disabled = true;
+    this.#currentSubview.showNotification({
+      fluentTitleId: "address-book-finding-remote-address-books",
+      type: "info",
+    });
+    try {
+      // This will prompt for oauth, and if authentication is complete fetch the
+      // available address books.
+      const books = await lazy.RemoteAddressBookUtils.getAddressBooksForAccount(
+        this.#remoteAddressBookState.username,
+        this.#remoteAddressBookState.password,
+        this.#remoteAddressBookState.server
+      );
+      this.#currentSubview.clearNotifications();
+      await this.#initUI("syncAddressBooksSubview");
+      this.#currentSubview.setState(books);
+      if (books.length === 0) {
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-no-address-books",
+          type: "info",
+        });
+      }
+      //TODO save password
+      //TODO username?
+    } catch (error) {
+      this.#currentSubview.showNotification({
+        fluentTitleId: "address-book-carddav-connection-error",
+        error,
+        type: "error",
+      });
+    } finally {
+      this.#footer.disabled = false;
+      this.classList.remove("busy");
     }
   }
 
