@@ -55,8 +55,8 @@ class nsMsgComposeService : public nsIMsgComposeService,
   // When doing a reply and the settings are enabled, get the HTML of the
   // selected text in the original message window so that it can be quoted
   // instead of the entire message.
-  nsresult GetOrigWindowSelection(mozilla::dom::Selection* selection,
-                                  nsACString& aSelHTML);
+  nsresult GetHTMLForSelection(mozilla::dom::Selection* selection,
+                               nsACString& aSelHTML);
 };
 
 #endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSESERVICE_H_
