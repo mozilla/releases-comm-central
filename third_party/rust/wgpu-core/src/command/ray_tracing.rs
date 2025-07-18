@@ -7,6 +7,7 @@ use core::{
 
 use wgt::{math::align_to, BufferUsages, BufferUses, Features};
 
+use crate::lock::RwLockWriteGuard;
 use crate::ray_tracing::{AsAction, AsBuild, TlasBuild, ValidateAsActionsError};
 use crate::{
     command::CommandBufferMutable,
@@ -20,13 +21,14 @@ use crate::{
         TlasInstance, TlasPackage, TraceBlasBuildEntry, TraceBlasGeometries,
         TraceBlasTriangleGeometry, TraceTlasInstance, TraceTlasPackage,
     },
-    resource::{Blas, BlasCompactState, Buffer, Labeled, StagingBuffer, Tlas},
+    resource::{
+        AccelerationStructure, Blas, BlasCompactState, Buffer, Labeled, StagingBuffer, Tlas,
+    },
     scratch::ScratchBuffer,
     snatch::SnatchGuard,
     track::PendingTransition,
 };
 use crate::{command::EncoderStateError, device::resource::CommandIndices};
-use crate::{lock::RwLockWriteGuard, resource::RawResourceAccess};
 
 use crate::id::{BlasId, TlasId};
 

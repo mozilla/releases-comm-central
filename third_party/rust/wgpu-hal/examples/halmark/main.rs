@@ -14,9 +14,7 @@ use winit::{
 
 use std::{
     borrow::{Borrow, Cow},
-    iter,
-    num::NonZeroU64,
-    ptr,
+    iter, ptr,
     time::Instant,
 };
 
@@ -447,12 +445,11 @@ impl<A: hal::Api> Example<A> {
         let texture_view = unsafe { device.create_texture_view(&texture, &view_desc).unwrap() };
 
         let global_group = {
-            // SAFETY: This is the same size that was specified for buffer creation.
-            let global_buffer_binding = hal::BufferBinding::new_unchecked(
-                &global_buffer,
-                0,
-                NonZeroU64::new(global_buffer_desc.size),
-            );
+            let global_buffer_binding = hal::BufferBinding {
+                buffer: &global_buffer,
+                offset: 0,
+                size: None,
+            };
             let texture_binding = hal::TextureBinding {
                 view: &texture_view,
                 usage: wgpu_types::TextureUses::RESOURCE,
@@ -486,12 +483,11 @@ impl<A: hal::Api> Example<A> {
         };
 
         let local_group = {
-            // SAFETY: The size must fit within the buffer.
-            let local_buffer_binding = hal::BufferBinding::new_unchecked(
-                &local_buffer,
-                0,
-                wgpu_types::BufferSize::new(size_of::<Locals>() as _),
-            );
+            let local_buffer_binding = hal::BufferBinding {
+                buffer: &local_buffer,
+                offset: 0,
+                size: wgpu_types::BufferSize::new(size_of::<Locals>() as _),
+            };
             let local_group_desc = hal::BindGroupDescriptor {
                 label: Some("local"),
                 layout: &local_group_layout,

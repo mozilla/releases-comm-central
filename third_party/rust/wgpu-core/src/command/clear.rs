@@ -13,7 +13,7 @@ use crate::{
     init_tracker::{MemoryInitKind, TextureInitRange},
     resource::{
         DestroyedResourceError, InvalidResourceError, Labeled, MissingBufferUsageError,
-        ParentDevice, RawResourceAccess, ResourceErrorIdent, Texture, TextureClearMode,
+        ParentDevice, ResourceErrorIdent, Texture, TextureClearMode,
     },
     snatch::SnatchGuard,
     track::TextureTrackerSetSingle,

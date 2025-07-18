@@ -14,6 +14,7 @@ use wgt::{
 };
 
 use super::{life::LifetimeTracker, Device};
+use crate::device::resource::CommandIndices;
 #[cfg(feature = "trace")]
 use crate::device::trace::Action;
 use crate::{
@@ -32,8 +33,8 @@ use crate::{
     lock::{rank, Mutex, MutexGuard, RwLock, RwLockWriteGuard},
     ray_tracing::{BlasCompactReadyPendingClosure, CompactBlasError},
     resource::{
-        Blas, BlasCompactState, Buffer, BufferAccessError, BufferMapState, DestroyedBuffer,
-        DestroyedResourceError, DestroyedTexture, Fallible, FlushedStagingBuffer,
+        AccelerationStructure, Blas, BlasCompactState, Buffer, BufferAccessError, BufferMapState,
+        DestroyedBuffer, DestroyedResourceError, DestroyedTexture, Fallible, FlushedStagingBuffer,
         InvalidResourceError, Labeled, ParentDevice, ResourceErrorIdent, StagingBuffer, Texture,
         TextureInner, Trackable, TrackingData,
     },
@@ -43,7 +44,6 @@ use crate::{
     track::{self, Tracker, TrackerIndex},
     FastHashMap, SubmissionIndex,
 };
-use crate::{device::resource::CommandIndices, resource::RawResourceAccess};
 
 pub struct Queue {
     raw: Box<dyn hal::DynQueue>,
