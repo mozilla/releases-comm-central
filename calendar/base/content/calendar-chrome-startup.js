@@ -15,7 +15,6 @@
    refreshUnifinderFilterInterval, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
    onCommandCustomize, CustomizeMailToolbar */
 
-var { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { calendarDeactivator } = ChromeUtils.importESModule(
@@ -44,8 +43,6 @@ async function loadCalendarComponent() {
         "3pane window. This should not happen."
     );
   }
-
-  await uninstallLightningAddon();
 
   // load locale specific default values for preferences
   setLocaleDefaultPreferences();
@@ -168,19 +165,6 @@ function unloadCalendarComponent() {
   CalMetronome.off("day", doMidnightUpdate);
 }
 
-/**
- * Uninstall the Lightning calendar addon, now that calendar is in Thunderbird.
- */
-async function uninstallLightningAddon() {
-  try {
-    const addon = await AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
-    if (addon) {
-      await addon.uninstall();
-    }
-  } catch (err) {
-    console.error("Error while attempting to uninstall Lightning addon:", err);
-  }
-}
 /**
  * Migrate calendar UI. This function is called at each startup and can be used
  * to change UI items that require js code intervention

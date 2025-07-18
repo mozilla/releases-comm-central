@@ -12,9 +12,6 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { AddonManager } = ChromeUtils.importESModule(
-  "resource://gre/modules/AddonManager.sys.mjs"
-);
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
