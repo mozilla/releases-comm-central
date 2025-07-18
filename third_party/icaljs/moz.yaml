@@ -65,6 +65,7 @@ vendoring:
     - package-lock.json
     - package.json
     - rollup.config.js
+    - tsconfig.json
 
   keep:
     - make_bundle.sh
@@ -101,3 +102,6 @@ vendoring:
 
     - action: delete-path
       path: 'rollup.config.js'
+
+    - action: delete-path
+      path: 'tsconfig.json'
