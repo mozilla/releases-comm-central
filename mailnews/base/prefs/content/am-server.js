@@ -97,6 +97,8 @@ function onInit(aPageId, aServerId) {
     .getAttribute("value");
   if (serverType == "imap") {
     setupImapDeleteUI(aServerId);
+  } else if (serverType == "ews") {
+    setupEwsDeleteUI(aServerId);
   }
   // OAuth2 is only supported on certain servers.
   const details = OAuth2Providers.getHostnameDetails(
@@ -510,14 +512,17 @@ function setupImapDeleteUI(aServerId) {
     .getAttribute("value");
   selectImapDeleteModel(deleteModel);
 
-  // read trash folder path preference
-  const trashFolderName = getTrashFolderName();
+  // Get trash_folder_name from prefs. Despite its name this returns a folder
+  // path, e.g., "INBOX/Deleted" and "[Gmail]/Trash". If pref not set just
+  // return empty string and leave pref not set. This avoids showing a default
+  // name (e.g., "Trash") in trash folder picker when trash folder is something
+  // else or has yet to be determined.
+  const trashFolderName = document
+    .getElementById("imap.trashFolderName")
+    .getAttribute("value");
 
   // set folderPicker menulist
-  const trashPopup = document.getElementById("msgTrashFolderPopup");
-  trashPopup._teardown();
-  trashPopup._parentFolder = MailUtils.getOrCreateFolder(aServerId);
-  trashPopup._ensureInitialized();
+  const trashPopup = setupFolderPicker("msgTrashFolderPopup", aServerId);
 
   // Escape backslash and double-quote with another backslash before encoding.
   const trashEscaped = trashFolderName.replace(/([\\"])/g, "\\$1");
@@ -547,64 +552,50 @@ function setupImapDeleteUI(aServerId) {
 function selectImapDeleteModel(choice) {
   // set deleteModel to selected mode
   document.getElementById("imap.deleteModel").setAttribute("value", choice);
+  document.getElementById("msgTrashFolderPicker").disabled = choice != "1";
+}
 
-  switch (choice) {
-    case "0": // markDeleted
-      // disable folderPicker
-      document
-        .getElementById("msgTrashFolderPicker")
-        .setAttribute("disabled", "true");
-      break;
-    case "1": // moveToTrashFolder
-      // enable folderPicker
-      document
-        .getElementById("msgTrashFolderPicker")
-        .removeAttribute("disabled");
-      break;
-    case "2": // deleteImmediately
-      // disable folderPicker
-      document
-        .getElementById("msgTrashFolderPicker")
-        .setAttribute("disabled", "true");
-      break;
-    default:
-      dump("Error in enabling/disabling server.TrashFolderPicker\n");
-      break;
-  }
+function setupEwsDeleteUI(serverId) {
+  const deleteModel = document
+    .getElementById("ews.deleteModel")
+    .getAttribute("value");
+  selectEwsDeleteModel(deleteModel);
+
+  // read trash folder path preference
+  const trashFolderPath = document
+    .getElementById("ews.trashFolderPath")
+    .getAttribute("value");
+
+  const escapedPath = Services.io.escapeString(
+    trashFolderPath.replace(/([\\"])/g, "\\$1"),
+    Services.io.ESCAPE_URL_PATH
+  );
+
+  // set folderPicker menulist
+  const trashPopup = setupFolderPicker("ewsMsgTrashFolderPopup", serverId);
+
+  const trashFolder = MailUtils.getExistingFolder(serverId + "/" + escapedPath);
+
+  trashPopup.selectFolder(trashFolder);
+  trashPopup.parentNode.folder = trashFolder;
+}
+
+function selectEwsDeleteModel(choice) {
+  document.getElementById("ews.deleteModel").setAttribute("value", choice);
+  document.getElementById("ewsMsgTrashFolderPicker").disabled = choice == "0";
 }
 
 // Capture any menulist changes from folderPicker
 function folderPickerChange(aEvent) {
   const folder = aEvent.target._folder;
-  // Since we need to deal with localised folder names, we simply use
-  // the path of the URI like we do in nsImapIncomingServer::DiscoveryDone().
-  // Note that the path is returned with a leading slash which we need to remove.
-  const folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
-  const folderPathUnescaped = Services.io.unescapeString(
-    folderPath,
-    Ci.nsINetUtil.ESCAPE_URL_PATH
-  );
-
-  // Convert the folder path from MUTF-7 or UTF-8 to Unicode.
+  // If the server does not support ACCEPT=UTF-8, convert the folder path from
+  // MUTF-7 or UTF-8 to Unicode.
   const imapServer = folder.server.QueryInterface(Ci.nsIImapIncomingServer);
 
-  let trashUnicode;
-  if (imapServer.utf8AcceptEnabled) {
-    // UTF8=ACCEPT capability in effect. Unescaping has brought back
-    // raw UTF-8 bytes, so convert them to JS Unicode.
-    const typedarray = new Uint8Array(folderPathUnescaped.length);
-    for (let i = 0; i < folderPathUnescaped.length; i++) {
-      typedarray[i] = folderPathUnescaped.charCodeAt(i);
-    }
-    const utf8Decoder = new TextDecoder("utf-8");
-    trashUnicode = utf8Decoder.decode(typedarray);
-  } else {
-    // We need to convert that from MUTF-7 to Unicode.
-    const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
-      Ci.nsICharsetConverterManager
-    );
-    trashUnicode = manager.mutf7ToUnicode(folderPathUnescaped);
-  }
+  const trashUnicode = localisedUnicodePath(
+    folder,
+    !imapServer.utf8AcceptEnabled
+  );
 
   // Set the value to be persisted.
   document
@@ -617,15 +608,79 @@ function folderPickerChange(aEvent) {
 }
 
 /**
- * Get trash_folder_name from prefs. Despite its name this returns a folder
- * path, e.g., "INBOX/Deleted" and "[Gmail]/Trash". If pref not set just return
- * empty string and leave pref not set. This avoids showing a default name
- * (e.g., "Trash") in trash folder picker when trash folder is something else or
- * has yet to be determined.
+ * Handle a change to the EWS trash folder picker.
+ *
+ * This will set the value of the trash folder to be persisted in the preference
+ * value.
+ *
+ * @param {Event} event
  */
-function getTrashFolderName() {
-  const trashFolderName = document
-    .getElementById("imap.trashFolderName")
-    .getAttribute("value");
-  return trashFolderName;
+function ewsFolderPickerChange(event) {
+  const folder = event.target._folder;
+  const trashUnicode = localisedUnicodePath(folder, false);
+
+  // Set the value to be persisted.
+  document
+    .getElementById("ews.trashFolderPath")
+    .setAttribute("value", trashUnicode);
+
+  // Update the widget to show/do correct things even for subfolders.
+  const trashFolderPicker = document.getElementById("ewsMsgTrashFolderPicker");
+  trashFolderPicker.menupopup.selectFolder(folder);
+}
+
+/**
+ * Set up a folder picker with the given `elementId` to list the folders for the
+ * server with the given `serverId`.
+ *
+ * @param {string} elementId
+ * @param {string} serverId
+ * @returns {MozFolderMenuPopup}
+ */
+function setupFolderPicker(elementId, serverId) {
+  const folderPicker = document.getElementById(elementId);
+  folderPicker._teardown();
+  folderPicker._parentFolder = MailUtils.getExistingFolder(serverId);
+  folderPicker._ensureInitialized();
+  return folderPicker;
+}
+
+/**
+ * Return the localised unicode path of a folder relative to its server.
+ *
+ * If `convertFromImapMutf7` is `true`, then it is assumed that the folder's
+ * path contains MUTF-7 characters that must be converted to javascript unicode.
+ * Otherwise, the decoded path will be converted to javascript unicode from
+ * UTF-8
+ *
+ * @param {nsIMsgFolder} folder
+ * @param {boolean} convertFromImapMutf7
+ * @returns {string}
+ */
+function localisedUnicodePath(folder, convertFromImapMutf7) {
+  // Since we need to deal with localised folder names, we simply use
+  // the path of the URI like we do in nsImapIncomingServer::DiscoveryDone().
+  // Note that the path is returned with a leading slash which we need to remove.
+  const folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
+  const folderPathUnescaped = Services.io.unescapeString(
+    folderPath,
+    Ci.nsINetUtil.ESCAPE_URL_PATH
+  );
+
+  if (convertFromImapMutf7) {
+    // We need to convert that from MUTF-7 to Unicode.
+    const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+      Ci.nsICharsetConverterManager
+    );
+    return manager.mutf7ToUnicode(folderPathUnescaped);
+  }
+
+  // If input was not MUTF-7, then unescaping has brought back raw UTF-8 bytes,
+  // so convert them to JS Unicode.
+  const typedarray = new Uint8Array(folderPathUnescaped.length);
+  for (let i = 0; i < folderPathUnescaped.length; i++) {
+    typedarray[i] = folderPathUnescaped.charCodeAt(i);
+  }
+  const utf8Decoder = new TextDecoder("utf-8");
+  return utf8Decoder.decode(typedarray);
 }

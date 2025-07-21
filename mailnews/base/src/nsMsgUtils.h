@@ -110,6 +110,15 @@ nsresult FindFolder(const nsACString& aFolderURI, nsIMsgFolder** aFolder);
 nsresult GetExistingFolder(const nsACString& aFolderURI,
                            nsIMsgFolder** aFolder);
 
+/// Get an existing folder given its parent and its path within the parent.
+///
+/// This will return a non-null folder if and only if the folder exists.  To
+/// decide if the folder exists, the given `folderPath` will be URI encoded and
+/// will be appended to the given `parent` folder's URI. A non-null folder will
+/// be returned if and only if the result is `NS_OK`.
+nsresult GetExistingFolder(nsIMsgFolder* parent, const nsACString& folderPath,
+                           nsIMsgFolder** folder);
+
 // DEPRECATED (Bug 1679333): Use GetExistingFolder or CreateFolder instead.  Get
 // a folder by Uri, creating it if it doesn't already exist.  An error is
 // returned if a folder cannot be found or created.  Created folders will be
@@ -130,6 +139,12 @@ nsresult GetOrCreateFolder(const nsACString& aFolderURI,
 nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
                               const nsACString& folderName,
                               nsIMsgFolder** folder);
+
+/// Return the path to a folder from the server root.
+///
+/// This returns a `/`-separated path to the folder as referenced from
+/// the server root folder.
+nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path);
 
 // Escape lines starting with "From ", ">From ", etc. in a buffer.
 nsresult EscapeFromSpaceLine(nsIOutputStream* ouputStream, char* start,

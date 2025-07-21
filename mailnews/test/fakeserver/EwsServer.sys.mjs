@@ -180,6 +180,19 @@ const UPDATE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
   </m:UpdateItemResponse>
   ${EWS_SOAP_FOOT}`;
 
+const DELETE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+  <DeleteItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+    <m:ResponseMessages>
+      <m:DeleteItemResponseMessage ResponseClass="Success">
+        <m:ResponseCode>NoError</m:ResponseCode>
+      </m:DeleteItemResponseMessage>
+    </m:ResponseMessages>
+  </DeleteItemResponse>
+  ${EWS_SOAP_FOOT}`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -662,6 +675,8 @@ export class EwsServer {
       resBytes = this.#generateUpdateItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetItem").length) {
       resBytes = this.#generateGetItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("DeleteItem").length) {
+      resBytes = this.#generateDeleteItemResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -1194,6 +1209,30 @@ export class EwsServer {
 
       itemsEl.appendChild(messageEl);
     });
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Return a response to a `DeleteItem` request.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateDeleteItemResponse(reqDoc) {
+    const resDoc = this.#parser.parseFromString(
+      DELETE_ITEM_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    const reqItemIds = [...reqDoc.getElementsByTagName("t:ItemId")].map(id =>
+      id.getAttribute("Id")
+    );
+
+    for (const id of reqItemIds) {
+      this.#itemIdToItemInfo.delete(id);
+    }
 
     return this.#serializer.serializeToString(resDoc);
   }

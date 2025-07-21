@@ -66,6 +66,9 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD CompactAll(nsIUrlListener* aListener,
                         nsIMsgWindow* aMsgWindow) override;
 
+  NS_IMETHOD AddSubfolder(const nsACString& name,
+                          nsIMsgFolder** newFolder) override;
+
  private:
   friend class ItemCopyMoveCallbacks;
 

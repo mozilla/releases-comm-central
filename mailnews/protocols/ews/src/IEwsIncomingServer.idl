@@ -18,8 +18,27 @@ interface IEwsClient;
  * not possible to give the folder a direct handle to its associated server, so
  * we are forced to go through XPCOM.
  */
-[uuid(3b22cadc-da49-11ee-99b2-b42e99ed15ca)]
+[scriptable, uuid(3b22cadc-da49-11ee-99b2-b42e99ed15ca)]
 interface IEwsIncomingServer : nsISupports
 {
   IEwsClient getEwsClient();
+
+  /**
+   * An enumeration of what to do when we delete an item.
+   *
+   * For a value of 0, we permanently remove the item.
+   * For a value of 1, we move the item to the trash folder.
+   *
+   * The value of 1 is used for move to trash to align defaults with
+   * nsIImapIncomingServer.
+   */
+  cenum DeleteModel : 8 {
+    PERMANENTLY_DELETE,
+    MOVE_TO_TRASH,
+  };
+
+  /** The action to be taken upon message delete. */
+  attribute IEwsIncomingServer_DeleteModel deleteModel;
+  /** The server path to use as the trash folder. */
+  attribute AUTF8String trashFolderPath;
 };

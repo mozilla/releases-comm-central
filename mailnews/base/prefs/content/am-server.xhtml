@@ -372,7 +372,7 @@
 
           <separator class="thin" />
 
-          <hbox align="center" hidefor="pop3,nntp">
+          <hbox align="center" hidefor="pop3,nntp,ews">
             <label
               value="&deleteMessagePrefix.label;"
               align="start"
@@ -383,7 +383,7 @@
             <hbox
               align="center"
               id="imap.deleteModel.box"
-              hidefor="pop3,nntp"
+              hidefor="pop3,nntp,ews"
               flex="1"
             >
               <radiogroup
@@ -495,6 +495,77 @@
               prefstring="mail.server.%serverkey%.override_namespaces"
             />
           </hbox>
+
+          <!-- EWS -->
+          <label
+            hidden="true"
+            wsm_persist="true"
+            id="ews.trashFolderPath"
+            prefattribute="value"
+            prefstring="mail.server.%serverkey%.trash_folder_path"
+          />
+
+          <separator class="thin" />
+          <hbox align="center" hidefor="pop3,nntp,imap">
+            <label
+              value="&deleteMessagePrefix.label;"
+              align="start"
+              control="ews.deleteModel"
+            />
+          </hbox>
+          <vbox>
+            <hbox
+              align="center"
+              id="ews.deleteModel.box"
+              hidefor="pop3,nntp,imap"
+              flex="1"
+            >
+              <radiogroup
+                id="ews.deleteModel"
+                wsm_persist="true"
+                oncommand="selectEwsDeleteModel(this.value);"
+                prefstring="mail.server.%serverkey%.delete_model"
+              >
+                <hbox class="specialFolderPickerGrid">
+                  <vbox>
+                    <hbox flex="1" align="center">
+                      <radio
+                        id="ewsModelMoveToTrash"
+                        value="1"
+                        label="&modelMoveToTrash.label;"
+                        accesskey="&modelMoveToTrash.accesskey;"
+                      />
+                      <menulist
+                        id="ewsMsgTrashFolderPicker"
+                        class="folderMenuItem"
+                        style="max-width: 300px"
+                        flex="1"
+                        crop="center"
+                        aria-labelledby="ewsModelMoveToTrash"
+                        displayformat="verbose"
+                      >
+                        <menupopup
+                          is="folder-menupopup"
+                          id="ewsMsgTrashFolderPopup"
+                          mode="filing"
+                          showFileHereLabel="true"
+                          oncommand="ewsFolderPickerChange(event);"
+                        />
+                      </menulist>
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <radio
+                        id="ewsModelDeleteImmediately"
+                        value="0"
+                        label="&modelDeleteImmediately.label;"
+                        accesskey="&modelDeleteImmediately.accesskey;"
+                      />
+                    </hbox>
+                  </vbox>
+                </hbox>
+              </radiogroup>
+            </hbox>
+          </vbox>
 
           <!-- NNTP -->
           <hbox hidefor="pop3,imap" align="center">

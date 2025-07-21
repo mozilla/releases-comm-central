@@ -1277,18 +1277,7 @@ NS_IMETHODIMP nsImapIncomingServer::FolderVerifiedOnline(
 /*static*/
 nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
                                               nsACString& shortPath) {
-  nsresult rv;
-  nsAutoCString folderURI;
-  rv = folder->GetURI(folderURI);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), folderURI);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsAutoCString fullfolderPath;
-  uri->GetPathQueryRef(fullfolderPath);
-  MsgUnescapeString(Substring(fullfolderPath, 1),  // Skip leading slash.
-                    nsINetUtil::ESCAPE_URL_PATH, shortPath);
-  return NS_OK;
+  return FolderPathInServer(folder, shortPath);
 }
 
 NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {

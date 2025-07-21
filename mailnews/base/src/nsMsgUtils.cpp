@@ -629,6 +629,25 @@ nsresult GetExistingFolder(const nsACString& aFolderURI,
   return *aFolder ? NS_OK : NS_MSG_ERROR_FOLDER_MISSING;
 }
 
+nsresult GetExistingFolder(nsIMsgFolder* parent, const nsACString& folderPath,
+                           nsIMsgFolder** folder) {
+  NS_ENSURE_ARG(parent);
+  NS_ENSURE_ARG_POINTER(folder);
+
+  nsAutoCString encodedPath;
+  nsresult rv = NS_MsgEscapeEncodeURLPath(folderPath, encodedPath);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString folderUri;
+  rv = parent->GetURI(folderUri);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  folderUri.Append("/");
+  folderUri.Append(encodedPath);
+
+  return GetExistingFolder(folderUri, folder);
+}
+
 nsresult GetOrCreateFolder(const nsACString& aFolderURI,
                            nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
@@ -685,6 +704,22 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return *folder ? NS_OK : NS_ERROR_FAILURE;
+}
+
+nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path) {
+  nsresult rv;
+  nsAutoCString folderURI;
+  rv = folder->GetURI(folderURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIURI> uri;
+  rv = NS_NewURI(getter_AddRefs(uri), folderURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString fullfolderPath;
+  uri->GetFilePath(fullfolderPath);
+  return MsgUnescapeString(Substring(fullfolderPath, 1),  // Skip leading slash.
+                           nsINetUtil::ESCAPE_URL_PATH, path);
 }
 
 bool IsAFromSpaceLine(char* start, const char* end) {

@@ -78,6 +78,9 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   RefPtr<msgIOAuth2Module> mOAuth2Module;
 
   friend class FolderSyncListener;
+
+  nsresult GetTrashFolder(nsIMsgFolder** trashFolder);
+  nsresult UpdateTrashFolder();
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_
