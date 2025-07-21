@@ -48,12 +48,14 @@ tasks:
                     thunderbird-msix-latest-ssl: msix
                 esr128:
                     # when there is one ESR branch both sets of aliases work
+                    # when there are two ESR branches ...
+                    # ... these always point to the older branch
                     thunderbird-esr-latest-ssl: installer-ssl
                     thunderbird-esr-latest: installer
                     thunderbird-esr-msi-latest-ssl: msi
                     thunderbird-esr-msix-latest-ssl: msix
-                    # when there are two ESR branches ...
-                    # ... these always point to the older branch
+                esr140:
+                    # ... these point to the newer branch
                     thunderbird-esr-next-latest-ssl: installer-ssl
                     thunderbird-esr-next-latest: installer
                     thunderbird-esr-next-msi-latest-ssl: msi
