@@ -161,6 +161,25 @@ const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
     </m:ResponseMessages>
   </m:GetItemResponse>
   ${EWS_SOAP_FOOT}`;
+
+const UPDATE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+  <m:UpdateItemResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+    <m:ResponseMessages>
+      <m:UpdateItemResponseMessage ResponseClass="Success">
+        <m:ResponseCode>NoError</m:ResponseCode>
+        <m:Items>
+        </m:Items>
+        <m:ConflictResults>
+          <t:Count>0</t:Count>
+        </m:ConflictResults>
+      </m:UpdateItemResponseMessage>
+    </m:ResponseMessages>
+  </m:UpdateItemResponse>
+  ${EWS_SOAP_FOOT}`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -639,7 +658,9 @@ export class EwsServer {
       resBytes = this.#generateCopyItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MoveFolder").length) {
       resBytes = this.#generateMoveFolderResponse(reqDoc);
-    } else if (reqDoc.getElementsByTagName("GetItem")) {
+    } else if (reqDoc.getElementsByTagName("UpdateItem").length) {
+      resBytes = this.#generateUpdateItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("GetItem").length) {
       resBytes = this.#generateGetItemResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
@@ -778,6 +799,16 @@ export class EwsServer {
         messageEl
           .appendChild(resDoc.createElement("t:ParentFolderId"))
           .setAttribute("Id", parentId);
+      } else if (changeType == "readflag") {
+        const item = this.#itemIdToItemInfo.get(itemId);
+        const changeEl = changesEl.appendChild(
+          resDoc.createElement("t:ReadFlagChange")
+        );
+        const itemEl = changeEl.appendChild(resDoc.createElement("t:ItemId"));
+        itemEl.setAttribute("Id", itemId);
+        itemEl.setAttribute("ChangeKey", "abc12345");
+        changeEl.appendChild(resDoc.createElement("t:IsRead")).textContent =
+          item.syntheticMessage.metaState.read;
       } else if (changeType == "delete") {
         changesEl
           .appendChild(resDoc.createElement("t:Delete"))
@@ -970,7 +1001,9 @@ export class EwsServer {
   /**
    * Generate a response to a MoveItem operation.
    *
-   * @param {XMLDocument} reqDoc
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
    */
   #generateMoveItemResponse(reqDoc) {
     const [destinationFolderId, itemIds] = extractMoveObjects(
@@ -998,7 +1031,9 @@ export class EwsServer {
   /**
    * Generate a response to a CopyItem operation.
    *
-   * @param {XMLDocument} reqDoc
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
    */
   #generateCopyItemResponse(reqDoc) {
     const [destinationFolderId, itemIds] = extractMoveObjects(
@@ -1026,7 +1061,9 @@ export class EwsServer {
   /**
    * Return a response to a `MoveFolder` request.
    *
-   * @param {XMLDocument} reqDoc
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
    */
   #generateMoveFolderResponse(reqDoc) {
     const [destinationFolderId, folderIds] = extractMoveObjects(
@@ -1050,9 +1087,48 @@ export class EwsServer {
   }
 
   /**
+   * Return a response to an `UpdateItem` request.
+   *
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
+   */
+  #generateUpdateItemResponse(reqDoc) {
+    const resDoc = this.#parser.parseFromString(
+      UPDATE_ITEM_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
+    for (const itemChange of reqDoc.getElementsByTagName("t:ItemChange")) {
+      const itemId = itemChange
+        .getElementsByTagName("t:ItemId")[0]
+        .getAttribute("Id");
+      const item = this.#itemIdToItemInfo.get(itemId);
+      const isReadEl = itemChange.getElementsByTagName("t:IsRead")[0];
+      if (isReadEl) {
+        item.syntheticMessage.metaState.read = isReadEl.textContent == "true";
+        this.itemChanges.push(["readflag", item.parentId, itemId]);
+      }
+
+      const itemEl = itemsEl
+        .appendChild(resDoc.createElement("t:Message"))
+        .appendChild(resDoc.createElement("t:ItemId"));
+      itemEl.setAttribute("Id", itemId);
+      itemEl.setAttribute("ChangeKey", "abc12345");
+    }
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
    * Return a response to a `GetItem` request.
    *
-   * @param {XMLDocument} reqDoc
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
    */
   #generateGetItemResponse(reqDoc) {
     const resDoc = this.#parser.parseFromString(
@@ -1106,7 +1182,7 @@ export class EwsServer {
         messageEl.appendChild(subjectEl);
 
         const isReadEl = resDoc.createElement("t:IsRead");
-        isReadEl.textContent = "false";
+        isReadEl.textContent = item.syntheticMessage.metaState.read;
         messageEl.appendChild(isReadEl);
 
         if (includeContent) {
@@ -1248,6 +1324,16 @@ export class EwsServer {
       this.itemChanges.push(["delete", itemInfo.parentId, itemId]);
       this.#itemIdToItemInfo.delete(itemId);
     }
+  }
+
+  /**
+   * Get the item with the given id.
+   *
+   * @param {string} itemId
+   * @returns {ItemInfo}
+   */
+  getItem(itemId) {
+    return this.#itemIdToItemInfo.get(itemId);
   }
 
   /**

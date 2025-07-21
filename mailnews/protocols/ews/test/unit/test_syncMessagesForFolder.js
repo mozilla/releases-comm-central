@@ -125,6 +125,11 @@ add_task(async function testNonCreateUpdate() {
     "no items should have been deleted"
   );
   Assert.deepEqual(
+    listener._readStatusUpdates,
+    [],
+    "no items should have been marked as read"
+  );
+  Assert.deepEqual(
     listener._savedHeaders.map(h => h.subject),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
@@ -134,7 +139,7 @@ add_task(async function testNonCreateUpdate() {
     "the sync token should have been recorded"
   );
 
-  // Move a message, delete a message.
+  // Move a message, delete a message, mark a message read.
 
   const itemIdToMove = btoa(messages[3].messageId);
   ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
@@ -142,6 +147,9 @@ add_task(async function testNonCreateUpdate() {
   const itemIdToDelete = btoa(messages[1].messageId);
   ewsServer.deleteItem(itemIdToDelete);
   messages.splice(1, 1);
+  const itemIdToMarkRead = btoa(messages[0].messageId);
+  ewsServer.getItem(itemIdToMarkRead).syntheticMessage.metaState.read = true;
+  ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   // Sync again to pick up the changes.
 
@@ -159,6 +167,11 @@ add_task(async function testNonCreateUpdate() {
     listener._deletedItemIds,
     [itemIdToMove, itemIdToDelete],
     "the moved and deleted items should have been deleted"
+  );
+  Assert.deepEqual(
+    listener._readStatusUpdates,
+    [{ ewsId: itemIdToMarkRead, readStatus: true }],
+    "the read message should have been updated"
   );
   Assert.deepEqual(
     listener._savedHeaders.map(h => h.subject),
@@ -192,6 +205,11 @@ add_task(async function testNonCreateUpdate() {
     "no items should have been removed"
   );
   Assert.deepEqual(
+    listener._readStatusUpdates,
+    [],
+    "no items should have been marked as read"
+  );
+  Assert.deepEqual(
     listener._savedHeaders.map(h => h.subject),
     [movedMessage.subject],
     "a header with the correct value should have been created"
@@ -208,6 +226,7 @@ class EwsMessageCallbackListener {
   constructor() {
     this._createdItemIds = [];
     this._deletedItemIds = [];
+    this._readStatusUpdates = [];
     this._savedHeaders = [];
     this._deferred = Promise.withResolvers();
   }
@@ -242,8 +261,8 @@ class EwsMessageCallbackListener {
   onSyncComplete() {
     this._deferred.resolve();
   }
-  updateReadStatus(_ewsId, _readStatus) {
-    Assert.ok(false, "unexpected call to updateReadStatus");
+  updateReadStatus(ewsId, readStatus) {
+    this._readStatusUpdates.push({ ewsId, readStatus });
   }
   onError(_err, _desc) {
     this._deferred.reject();

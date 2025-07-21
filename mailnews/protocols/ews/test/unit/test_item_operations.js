@@ -2,17 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
-);
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
+var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
-var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var incomingServer;
@@ -193,6 +197,93 @@ add_task(async function test_copy_item() {
     ewsServer.getContainingFolderId("copy_b_copy"),
     folder2Name,
     `Item copy_b_copy should be in ${folder2Name}`
+  );
+});
+
+add_task(async function test_mark_as_read() {
+  const folderName = "markRead";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, null)
+  );
+
+  const generator = new MessageGenerator();
+  const syntheticMessages = generator.makeMessages({ count: 3 });
+  ewsServer.addMessages(folderName, syntheticMessages);
+
+  const rootFolder = incomingServer.rootFolder;
+  incomingServer.getNewMessages(rootFolder, null, null);
+
+  const folder = await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderName),
+    "waiting for folder to exist"
+  );
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 3,
+    "waiting for messages to exist"
+  );
+
+  Assert.equal(
+    folder.getNumUnread(false),
+    3,
+    "all messages should be unread at the start"
+  );
+  const messages = [...folder.messages];
+
+  const serverMessage0 = ewsServer.getItem(
+    btoa(syntheticMessages[0].messageId)
+  );
+  Assert.ok(!serverMessage0.syntheticMessage.metaState.read);
+  const serverMessage1 = ewsServer.getItem(
+    btoa(syntheticMessages[1].messageId)
+  );
+  Assert.ok(!serverMessage1.syntheticMessage.metaState.read);
+  const serverMessage2 = ewsServer.getItem(
+    btoa(syntheticMessages[2].messageId)
+  );
+  Assert.ok(!serverMessage2.syntheticMessage.metaState.read);
+
+  // Mark some messages as read.
+
+  folder.markMessagesRead([messages[0], messages[2]], true);
+
+  Assert.equal(
+    folder.getNumUnread(false),
+    1,
+    "two messages should be marked as read"
+  );
+  await TestUtils.waitForCondition(
+    () => serverMessage0.syntheticMessage.metaState.read,
+    "waiting for message 0 to be marked as read on the server"
+  );
+  Assert.ok(
+    !serverMessage1.syntheticMessage.metaState.read,
+    "message 1 should still be marked as unread on the server"
+  );
+  Assert.ok(
+    serverMessage2.syntheticMessage.metaState.read,
+    "message 2 should be marked as read on the server"
+  );
+
+  // Mark a message as unread.
+
+  folder.markMessagesRead([messages[2]], false);
+
+  Assert.equal(
+    folder.getNumUnread(false),
+    2,
+    "one message should be marked as read"
+  );
+  await TestUtils.waitForCondition(
+    () => !serverMessage2.syntheticMessage.metaState.read,
+    "waiting for message 2 to be marked as unread on the server"
+  );
+  Assert.ok(
+    !serverMessage1.syntheticMessage.metaState.read,
+    "message 1 should still be marked as unread on the server"
+  );
+  Assert.ok(
+    serverMessage0.syntheticMessage.metaState.read,
+    "message 0 should still be marked as read on the server"
   );
 });
 

@@ -7,14 +7,15 @@
  * background tab.
  */
 
-const { IMAPServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/IMAPServer.sys.mjs"
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-let localTestFolder, imapTestFolder;
+let imapServer, ewsServer;
+let localTestFolder, imapTestFolder, ewsTestFolder;
 
 add_setup(async function () {
   // We need to get messages directly from the server when displaying them,
@@ -35,7 +36,11 @@ add_setup(async function () {
     generator.makeMessages({}).map(message => message.toMessageString())
   );
 
-  const imapServer = new IMAPServer();
+  [imapServer, ewsServer] = await ServerTestUtils.createServers([
+    ServerTestUtils.serverDefs.imap.plain,
+    ServerTestUtils.serverDefs.ews.plain,
+  ]);
+
   const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -46,14 +51,41 @@ add_setup(async function () {
   imapAccount.incomingServer.port = imapServer.port;
   imapAccount.incomingServer.username = "user";
   imapAccount.incomingServer.password = "password";
+  imapAccount.incomingServer.prettyName = "IMAP Account";
   const imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapTestFolder = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   await imapServer.addMessages(imapTestFolder, generator.makeMessages({}));
 
+  const ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test.test",
+    "ews"
+  );
+  ewsAccount.incomingServer.setStringValue(
+    "ews_url",
+    `http://localhost:${ewsServer.port}/EWS/Exchange.asmx`
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+  ewsAccount.incomingServer.username = "user";
+  ewsAccount.incomingServer.password = "password";
+  const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
+  ewsAccount.incomingServer.performExpand(null);
+  ewsTestFolder = await TestUtils.waitForCondition(
+    () => ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+    "waiting for EWS folders to sync"
+  );
+  await ewsServer.addMessages("inbox", generator.makeMessages({}));
+  ewsAccount.incomingServer.getNewMessages(ewsRootFolder, null, null);
+  await TestUtils.waitForCondition(
+    () => ewsTestFolder.getTotalMessages(false) == 10
+  );
+
   registerCleanupFunction(async function () {
-    await promiseServerIdle(imapAccount.incomingServer);
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(imapAccount, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
     Services.prefs.clearUserPref("mail.server.default.offline_download");
     Services.prefs.clearUserPref("mailnews.mark_message_read.auto");
     Services.prefs.clearUserPref("mailnews.mark_message_read.delay");
@@ -69,6 +101,10 @@ add_task(async function testIMAP() {
   // Our IMAP code marks a message as read if we have to fetch it from the
   // server for display, unless we tell it not to. Check we didn't break that.
   await subtest(imapTestFolder);
+});
+
+add_task(async function testEWS() {
+  await subtest(ewsTestFolder);
 });
 
 async function subtest(testFolder) {
