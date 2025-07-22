@@ -96,12 +96,6 @@ function menu_new_init() {
     );
   }
 
-  const accountHubAB = Services.prefs.getBoolPref(
-    "mail.accounthub.addressbook.enabled"
-  );
-  ShowMenuItem("menu_newAddressbook", !accountHubAB);
-  ShowMenuItem("menu_newAccountHubAddressbook", accountHubAB);
-
   goUpdateCommand("cmd_newMessage");
 }
 

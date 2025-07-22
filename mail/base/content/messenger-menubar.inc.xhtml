@@ -43,29 +43,6 @@
           <menuitem id="newMailAccountMenuItem"
                     data-l10n-id="file-new-email-account"
                     oncommand="openAccountSetup();"/>
-#ifdef MAIN_WINDOW
-          <menuitem id="calendar-new-calendar-menuitem"
-                    label="&lightning.menupopup.new.calendar.label;"
-                    command="calendar_new_calendar_command"
-                    accesskey="&lightning.menupopup.new.calendar.accesskey;"/>
-          <menu id="menu_newAddressbook"
-                data-l10n-id="file-new-addressbook">
-            <menupopup id="menu_AbPopup">
-              <menuitem id="menu_newLocalAddressbook"
-                        data-l10n-id="file-new-local-addressbook"
-                        oncommand="openNewABDialog();"/>
-              <menuitem id="menu_newCarddavAddressbook"
-                        data-l10n-id="file-new-carddav-addressbook"
-                        oncommand="openNewABDialog('CARDDAV');"/>
-              <menuitem id="menu_newLdapAddressbook"
-                        data-l10n-id="file-new-ldap-addressbook"
-                        oncommand="openNewABDialog('LDAP');"/>
-            </menupopup>
-          </menu>
-          <menuitem id="menu_newAccountHubAddressbook"
-                    data-l10n-id="file-new-addressbook"
-                    oncommand="openAccountHubABDialog();"/>
-#endif
           <menuitem id="newIMAccountMenuItem"
                     label="&newIMAccountCmd.label;"
                     accesskey="&newIMAccountCmd.accesskey;"
@@ -77,6 +54,12 @@
           <menuitem id="newNewsgroupAccountMenuItem"
                     data-l10n-id="file-new-newsgroup-account"
                     oncommand="openNewsgroupAccountWizard();"/>
+#ifdef MAIN_WINDOW
+          <menuitem id="calendar-new-calendar-menuitem"
+                    label="&lightning.menupopup.new.calendar.label;"
+                    command="calendar_new_calendar_command"
+                    accesskey="&lightning.menupopup.new.calendar.accesskey;"/>
+#endif
           <menuseparator id="newPopupMenuSeparator"/>
           <menuitem id="menu_newCard"
                     label="&newContactCmd.label;"
