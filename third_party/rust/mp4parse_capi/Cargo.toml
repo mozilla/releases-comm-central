@@ -81,6 +81,10 @@ path = "tests/test_sample_table.rs"
 name = "test_workaround_stsc"
 path = "tests/test_workaround_stsc.rs"
 
+[[test]]
+name = "test_xhe_aac"
+path = "tests/test_xhe_aac.rs"
+
 [dependencies]
 byteorder = "1.2.1"
 log = "0.4"
