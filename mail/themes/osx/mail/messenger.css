@@ -85,6 +85,7 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 }
 
 .toolbarbutton-menubutton-button {
+  appearance: none;
   text-shadow: inherit;
 }
 
@@ -99,6 +100,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 /* ::::: primary toolbar buttons ::::: */
 
 .toolbarbutton-1 {
+  appearance: none;
+
   &[open],
   &[open] > .toolbarbutton-menubutton-button {
     text-shadow: none;
