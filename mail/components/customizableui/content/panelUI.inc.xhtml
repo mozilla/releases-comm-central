@@ -20,7 +20,7 @@
             class="panel-subview-body">
         <vbox id="appMenu-addon-banners"/>
         <toolbarbutton class="panel-banner-item"
-                       oncommand="PanelUI._onBannerItemSelected(event)"
+                       oncommand="PanelUI._onBannerItemSelected(event);"
                        hidden="true"/>
 #ifdef MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_signin"
@@ -33,7 +33,7 @@
                        hidden="true"
                        align="center"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-syncView', this)">
+                       oncommand="PanelUI.showSubView('appMenu-syncView', this);">
           <hbox flex="1">
             <html:img id="appmenu-sync-icon"
                       class="toolbarbutton-icon"
@@ -55,24 +55,24 @@
                        data-l10n-id="appmenu-new-account-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-newView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-newView', this);"/>
         <toolbarbutton id="appmenu_create"
                        data-l10n-id="appmenu-create-panel"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-createView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-createView', this);"/>
         <toolbarseparator id="appmenu_createPopupMenuSeparator"/>
         <toolbarbutton id="appmenu_open"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="appmenu-open-file-panel"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-openView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-openView', this);"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_View"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="appmenu-view-panel"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-viewView', this);"/>
         <toolbaritem id="appMenu-uiDensity-controls"
                      class="subviewbutton subviewbutton-iconic toolbaritem-combined-buttons"
                      closemenu="none">
@@ -130,12 +130,12 @@
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="appmenu-tools-panel"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-toolsView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-toolsView', this);"/>
         <toolbarbutton id="appmenu_help"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="menu-help-help-title"
                        closemenu="none"
-                       oncommand="buildHelpMenu(); PanelUI.showSubView('appMenu-helpView', this)"/>
+                       oncommand="buildHelpMenu(); PanelUI.showSubView('appMenu-helpView', this);"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu-quit"
                        class="subviewbutton subviewbutton-iconic"
@@ -208,11 +208,11 @@
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        data-l10n-id="appmenu-newab-panel"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-newabView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-newabView', this);"/>
         <toolbarbutton id="appmenu_newAccountHubAB"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-newab-panel"
-                       oncommand="openAccountHubABDialog()"
+                       oncommand="openAccountHubABDialog();"
                        hidden="true"/>
         <toolbarbutton id="appmenu_newIMAccountMenuItem"
                        class="subviewbutton subviewbutton-iconic"
@@ -318,7 +318,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&showTaskbarCmd.label;"
-                       oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"
+                       oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar');"
                        closemenu="none"
                        checked="true"
                        observes="menu_showTaskbar"/>
@@ -394,17 +394,17 @@
                        label="&viewToolbarsMenu.label;"
                        accesskey="&viewToolbarsMenu.accesskey;"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-toolbarsView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-toolbarsView', this);"/>
         <toolbarbutton id="appmenu_MessagePaneLayout"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&messagePaneLayoutStyle.label;"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this);"/>
         <toolbarbutton id="appmenu_FolderViews"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
                        label="&folderView.label;"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
+                       oncommand="PanelUI.showSubView('appMenu-foldersView', this);"/>
       </vbox>
     </panelview>
 
@@ -479,7 +479,7 @@
                        type="checkbox"
                        name="viewmessages"
                        closemenu="none"
-                       oncommand="PanelUI.folderCompactMenuOnCommand(event)"/>
+                       oncommand="PanelUI.folderCompactMenuOnCommand(event);"/>
         <toolbarseparator id="appmenu_favoritePropertiesSeparator"/>
         <toolbarbutton id="appmenu_favoriteFolder"
                        class="subviewbutton subviewbutton-iconic"
@@ -533,7 +533,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-tools-message-search"
                        data-l10n-attrs="acceltext,accesskey"
-                       oncommand="searchAllMessages()"/>
+                       oncommand="searchAllMessages();"/>
         <toolbarbutton id="appmenu_filtersCmd"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-tools-message-filters"
@@ -541,7 +541,7 @@
         <toolbarbutton id="appmenu_manageKeysOpenPGP"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="openpgp-manage-keys-openpgp-cmd"
-                       oncommand="openKeyManager()"/>
+                       oncommand="openKeyManager();"/>
         <toolbarbutton id="appmenu_openSavedFilesWnd"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-tools-download-manager"

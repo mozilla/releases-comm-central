@@ -174,3 +174,19 @@ file-new-email-account =
 file-new-newsgroup-account =
     .label = Newsgroup Account…
     .accesskey = N
+
+file-new-addressbook =
+    .label = Address Book
+    .accesskey = A
+
+file-new-local-addressbook =
+    .label = Local Address Book
+    .accesskey = A
+
+file-new-carddav-addressbook =
+    .label = CardDav Address Book
+    .accesskey = C
+
+file-new-ldap-addressbook =
+    .label = LDAP Address Book
+    .accesskey = L
