@@ -572,6 +572,10 @@ nsresult EwsMessageChannel::StartMessageReadFromStore() {
                                           getter_AddRefs(mReadRequest));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // We no longer need the listener. Clean it up so both it and this channel can
+  // be collected.
+  mStreamListener = nullptr;
+
   // Apply the same load flags and group that were previously set.
   MOZ_TRY(mReadRequest->SetLoadFlags(mLoadFlags));
   MOZ_TRY(mReadRequest->SetLoadGroup(mLoadGroup));

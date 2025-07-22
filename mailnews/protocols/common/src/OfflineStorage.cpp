@@ -45,6 +45,9 @@ NS_IMETHODIMP OfflineMessageReadListener::OnStopRequest(nsIRequest* request,
     // be downloaded again later.
     mFolder->DiscardOfflineMsg(mMsgKey);
   }
+  // We no longer need the channel. Clean it up so both it and this listener can
+  // be collected.
+  mChannel = nullptr;
   return rv;
 }
 NS_IMETHODIMP OfflineMessageReadListener::OnDataAvailable(
