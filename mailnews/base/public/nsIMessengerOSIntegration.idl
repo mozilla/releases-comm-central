@@ -27,7 +27,8 @@ interface nsIMessengerOSIntegration : nsISupports {
   /**
    * Is the OS in Do Not Disturb mode?
    * - Windows: true for Priority Only and Alarms Only modes.
-   * - Mac: not yet implemented.
+   * - Mac: true if in `com.apple.notificationcenterui` `doNotDisturb` is true
+   *   or the time is between `dndStart` and `dndEnd`.
    * - Linux: true if `org.freedesktop.Notifications.Inhibited` is true or
    *   `org.gnome.desktop.notifications.show-banners` is false.
    */
