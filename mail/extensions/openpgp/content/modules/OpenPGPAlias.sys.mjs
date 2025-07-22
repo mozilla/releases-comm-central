@@ -2,6 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * The Thunderbird OpenPGP Alias Keys feature is used for sending an encrypted
+ * email using a public key that does not contain (or does not match) the email
+ * address of a message recipient.
+ *
+ * For example, a correspondent might ask you to use a particular public key for
+ * sending them encrypted email, but that public key doesn't contain their email
+ * address.
+ *
+ * Another example is a company that might have published a single public key
+ * for sending encrypted email to any employee of the company, and the public
+ * key doesn't contain any email address. When receiving an email that was
+ * encrypted with that key, the company might then decrypt the email, and then
+ * forward the decrypted email to the intended recipient. While this isn't
+ * complete End-To-End Encryption, at least the email will be encrypted while
+ * passing through the public Internet, until it arrives at the company's email server.
+ *
+ * Usually, Thunderbird refuses to use a key with a mismatching email address.
+ * By using the Alias Keys Feature, you can override Thunderbird's usual checks,
+ * and tell Thunderbird to use a public key anyway.
+ */
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
+});
 export var OpenPGPAlias = {
   _aliasDomains: null,
   _aliasEmails: null,
@@ -21,7 +51,11 @@ export var OpenPGPAlias = {
       return;
     }
 
-    await this._loadFromFile(path);
+    try {
+      await this._loadFromFile(path);
+    } catch (e) {
+      lazy.log.warn(`Loading alias_rules_file from ${path} FAILED!`, e);
+    }
   },
 
   _clear() {
@@ -43,6 +77,11 @@ export var OpenPGPAlias = {
     }
   },
 
+  /**
+   * Load alias rules from file.
+   *
+   * @param {string} src - Filename of json file in profile, or file:// URL.
+   */
   async _loadFromFile(src) {
     this._clear();
 
@@ -69,11 +108,11 @@ export var OpenPGPAlias = {
 
     for (const entry of aliasRules) {
       if (!("keys" in entry) || !entry.keys || !entry.keys.length) {
-        console.warn("Ignoring invalid alias rule without keys");
+        lazy.log.warn("Ignoring invalid alias rule without keys");
         continue;
       }
       if ("email" in entry && "domain" in entry) {
-        console.warn("Ignoring invalid alias rule with both email and domain");
+        lazy.log.warn("Ignoring invalid alias rule with both email and domain");
         continue;
       }
       // Ignore duplicate rules, only use first rule per key.
@@ -81,15 +120,15 @@ export var OpenPGPAlias = {
       if ("email" in entry) {
         const email = entry.email.toLowerCase();
         if (!email.includes("@")) {
-          console.warn("Ignoring invalid email alias rule: " + email);
+          lazy.log.warn("Ignoring invalid email alias rule: " + email);
           continue;
         }
         if (this._aliasEmails.get(email)) {
-          console.warn("Ignoring duplicate email alias rule: " + email);
+          lazy.log.warn("Ignoring duplicate email alias rule: " + email);
           continue;
         }
         if (!this._hasExpectedKeysStructure(entry.keys)) {
-          console.warn(
+          lazy.log.warn(
             "Ignoring alias rule with invalid key entries for email " + email
           );
           continue;
@@ -98,22 +137,22 @@ export var OpenPGPAlias = {
       } else if ("domain" in entry) {
         const domain = entry.domain.toLowerCase();
         if (domain.includes("@")) {
-          console.warn("Ignoring invalid domain alias rule: " + domain);
+          lazy.log.warn("Ignoring invalid domain alias rule: " + domain);
           continue;
         }
         if (this._aliasDomains.get(domain)) {
-          console.warn("Ignoring duplicate domain alias rule: " + domain);
+          lazy.log.warn("Ignoring duplicate domain alias rule: " + domain);
           continue;
         }
         if (!this._hasExpectedKeysStructure(entry.keys)) {
-          console.warn(
+          lazy.log.warn(
             "Ignoring alias rule with invalid key entries for domain " + domain
           );
           continue;
         }
         this._aliasDomains.set(domain, entry.keys);
       } else {
-        console.warn(
+        lazy.log.warn(
           "Ignoring invalid alias rule without domain and without email"
         );
       }
