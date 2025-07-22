@@ -81,10 +81,8 @@ var kHostnames = new Map([
   ["imap.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
   ["pop.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
   ["smtp.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
-  [
-    "carddav.fastmail.com",
-    ["www.fastmail.com", "https://www.fastmail.com/dev/protocol-carddav"],
-  ],
+  ["carddav.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES.carddav]],
+  ["caldav.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES.caldav]],
 
   ["imap.comcast.net", ["comcast.net", COMCAST_SCOPES]],
   ["pop.comcast.net", ["comcast.net", COMCAST_SCOPES]],
