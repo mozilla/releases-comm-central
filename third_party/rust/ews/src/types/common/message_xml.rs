@@ -22,7 +22,7 @@ use std::marker::PhantomData;
 // attribute, most new variants will require manual Deserialize implementations,
 // though quick_xml's impl_deserialize_for_internally_tagged_enum may work for
 // this one day.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(untagged)]
 #[non_exhaustive]
 pub enum MessageXml {
@@ -33,7 +33,7 @@ pub enum MessageXml {
 }
 
 /// One of the two observed kinds of MessageXml elements: a Value named via the @Name attribute.
-#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct MessageXmlValue {
     #[serde(rename = "@Name")]
     pub name: String,
@@ -42,25 +42,25 @@ pub struct MessageXmlValue {
 }
 
 /// One of the two observed kinds of MessageXml elements: a tag with a single text value.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageXmlTagged {
     pub name: String,
     pub value: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageXmlElements {
     pub elements: Vec<MessageXmlElement>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MessageXmlElement {
     MessageXmlTagged(MessageXmlTagged),
     MessageXmlValue(MessageXmlValue),
 }
 
-/// Data associated with a [`ResponseCode::ErrorServerBusy`].
-#[derive(Debug, Clone, PartialEq)]
+/// Data associated with a [`ResponseCode::ErrorServerBusy`](crate::response::ResponseCode::ErrorServerBusy).
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ServerBusy {
     /// The duration in milliseconds to wait before making additional requests.
     pub back_off_milliseconds: u32,
@@ -68,14 +68,6 @@ pub struct ServerBusy {
 
 struct ServerBusyVisitor {
     marker: PhantomData<fn() -> ServerBusy>,
-}
-
-impl ServerBusyVisitor {
-    fn new() -> Self {
-        ServerBusyVisitor {
-            marker: PhantomData,
-        }
-    }
 }
 
 impl<'de> Visitor<'de> for ServerBusyVisitor {
@@ -111,7 +103,9 @@ impl<'de> Deserialize<'de> for ServerBusy {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_map(ServerBusyVisitor::new())
+        deserializer.deserialize_map(ServerBusyVisitor {
+            marker: PhantomData,
+        })
     }
 }
 
@@ -128,7 +122,7 @@ impl MessageXmlElementsVisitor {
 }
 
 /// An internal helper type used in the [`MessageXmlElementsVisitor`] to extract the
-/// text of an element while discarding the [`TYPES_NS_URI`] XML namespace declaration.
+/// text of an element while discarding the [`TYPES_NS_URI`](crate::TYPES_NS_URI) XML namespace declaration.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 enum Text {
     #[serde(rename = "$text")]

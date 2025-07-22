@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseItemId, ItemShape, Items, Operation,
-    OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    OperationResponse, ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request for the properties of one or more Exchange items, e.g. messages,
@@ -59,20 +59,11 @@ impl EnvelopeBodyContents for GetItemResponse {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub get_item_response_message: Vec<GetItemResponseMessage>,
+    pub get_item_response_message: Vec<ResponseClass<GetItemResponseMessage>>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct GetItemResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
-    pub response_code: Option<ResponseCode>,
-
-    pub message_text: Option<String>,
-
     pub items: Items,
 }

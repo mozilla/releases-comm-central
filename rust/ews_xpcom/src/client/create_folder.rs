@@ -68,13 +68,8 @@ where
         let response_messages = response.response_messages.create_folder_response_message;
         validate_response_message_count(&response_messages, 1)?;
 
-        let response_message = response_messages.into_iter().next().unwrap();
-        process_response_message_class(
-            "CreateFolder",
-            &response_message.response_class,
-            &response_message.response_code,
-            &response_message.message_text,
-        )?;
+        let response_class = response_messages.into_iter().next().unwrap();
+        let response_message = process_response_message_class("CreateFolder", response_class)?;
 
         let folders = response_message.folders.inner;
         if folders.len() != 1 {

@@ -5,7 +5,7 @@
 use crate::types::common::{BaseItemId, Message, MessageDisposition, PathToElement};
 use crate::{
     types::sealed::EnvelopeBodyContents, Items, Operation, OperationResponse, ResponseClass,
-    ResponseCode, MESSAGES_NS_URI,
+    MESSAGES_NS_URI,
 };
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
@@ -71,21 +71,12 @@ impl EnvelopeBodyContents for UpdateItemResponse {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub update_item_response_message: Vec<UpdateItemResponseMessage>,
+    pub update_item_response_message: Vec<ResponseClass<UpdateItemResponseMessage>>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct UpdateItemResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
-    pub response_code: Option<ResponseCode>,
-
-    pub message_text: Option<String>,
-
     pub items: Items,
 }
 

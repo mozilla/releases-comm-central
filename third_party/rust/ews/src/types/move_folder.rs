@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, FolderResponseMessage, Operation,
-    OperationResponse, MESSAGES_NS_URI,
+    OperationResponse, ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request to move one or more Exchange folders.
@@ -32,7 +32,7 @@ pub struct MoveFolderResponse {
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct MoveFolderResponseMessages {
-    pub move_folder_response_message: Vec<FolderResponseMessage>,
+    pub move_folder_response_message: Vec<ResponseClass<FolderResponseMessage>>,
 }
 
 impl Operation for MoveFolder {
@@ -59,7 +59,6 @@ mod test {
         move_folder::{MoveFolder, MoveFolderResponse, MoveFolderResponseMessages},
         test_utils::{assert_deserialized_content, assert_serialized_content},
         BaseFolderId, Folder, FolderId, FolderResponseMessage, Folders, ResponseClass,
-        ResponseCode,
     };
 
     #[test]
@@ -99,10 +98,7 @@ mod test {
 
         let response = MoveFolderResponse {
             response_messages: MoveFolderResponseMessages {
-                move_folder_response_message: vec![FolderResponseMessage {
-                    response_class: ResponseClass::Success,
-                    response_code: Some(ResponseCode::NoError),
-                    message_text: None,
+                move_folder_response_message: vec![ResponseClass::Success(FolderResponseMessage {
                     folders: Folders {
                         inner: vec![Folder::Folder {
                             folder_id: Some(FolderId {
@@ -118,7 +114,7 @@ mod test {
                             unread_count: None,
                         }],
                     },
-                }],
+                })],
             },
         };
 

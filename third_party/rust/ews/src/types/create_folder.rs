@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, FolderResponseMessage, Operation,
-    OperationResponse, MESSAGES_NS_URI,
+    OperationResponse, ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request to create a new folder.
@@ -50,5 +50,5 @@ impl EnvelopeBodyContents for CreateFolderResponse {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub create_folder_response_message: Vec<FolderResponseMessage>,
+    pub create_folder_response_message: Vec<ResponseClass<FolderResponseMessage>>,
 }

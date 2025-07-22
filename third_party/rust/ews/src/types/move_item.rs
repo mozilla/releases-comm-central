@@ -8,7 +8,7 @@ use xml_struct::XmlSerialize;
 use crate::CopyMoveItemData;
 
 use super::{
-    sealed::EnvelopeBodyContents, ItemResponseMessage, Operation, OperationResponse,
+    sealed::EnvelopeBodyContents, ItemResponseMessage, Operation, OperationResponse, ResponseClass,
     MESSAGES_NS_URI,
 };
 
@@ -34,7 +34,7 @@ pub struct MoveItemResponse {
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct MoveItemResponseMessages {
-    pub move_item_response_message: Vec<ItemResponseMessage>,
+    pub move_item_response_message: Vec<ResponseClass<ItemResponseMessage>>,
 }
 
 impl Operation for MoveItem {
@@ -61,7 +61,7 @@ mod test {
         test_utils::{assert_deserialized_content, assert_serialized_content},
         types::common::ItemResponseMessage,
         BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, Items, Message, RealItem,
-        ResponseClass, ResponseCode,
+        ResponseClass,
     };
 
     use super::{MoveItem, MoveItemResponse, MoveItemResponseMessages};
@@ -106,10 +106,7 @@ mod test {
 
         let response = MoveItemResponse {
             response_messages: MoveItemResponseMessages {
-                move_item_response_message: vec![ItemResponseMessage {
-                    response_class: ResponseClass::Success,
-                    response_code: Some(ResponseCode::NoError),
-                    message_text: None,
+                move_item_response_message: vec![ResponseClass::Success(ItemResponseMessage {
                     items: Items {
                         inner: vec![RealItem::Message(Message {
                             item_id: Some(ItemId {
@@ -119,7 +116,7 @@ mod test {
                             ..Default::default()
                         })],
                     },
-                }],
+                })],
             },
         };
 

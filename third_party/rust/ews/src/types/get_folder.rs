@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, FolderShape, Folders, Operation,
-    OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    OperationResponse, ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request to get information on one or more folders.
@@ -57,7 +57,7 @@ impl EnvelopeBodyContents for GetFolderResponse {
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub get_folder_response_message: Vec<GetFolderResponseMessage>,
+    pub get_folder_response_message: Vec<ResponseClass<GetFolderResponseMessage>>,
 }
 
 /// A response to a request for an individual folder within a [`GetFolder`] operation.
@@ -66,15 +66,6 @@ pub struct ResponseMessages {
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct GetFolderResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
-    pub response_code: Option<ResponseCode>,
-
-    pub message_text: Option<String>,
-
     /// A collection of the retrieved folders.
     pub folders: Folders,
 }

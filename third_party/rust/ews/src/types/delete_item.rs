@@ -6,10 +6,7 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::types::sealed::EnvelopeBodyContents;
-use crate::{
-    BaseItemId, DeleteType, Operation, OperationResponse, ResponseClass, ResponseCode,
-    MESSAGES_NS_URI,
-};
+use crate::{BaseItemId, DeleteType, Operation, OperationResponse, ResponseClass, MESSAGES_NS_URI};
 
 /// Whether to send meeting cancellations when deleting a calendar item.
 ///
@@ -102,18 +99,11 @@ impl EnvelopeBodyContents for DeleteItemResponse {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub delete_item_response_message: Vec<DeleteItemResponseMessage>,
+    pub delete_item_response_message: Vec<ResponseClass<DeleteItemResponseMessage>>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeleteItemResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
-    pub response_code: Option<ResponseCode>,
-
     pub message_text: Option<String>,
 }

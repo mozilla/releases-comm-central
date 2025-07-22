@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, Operation, OperationResponse, ResponseClass,
-    ResponseCode, MESSAGES_NS_URI,
+    MESSAGES_NS_URI,
 };
 
 use super::{Folder, Folders, PathToElement};
@@ -102,18 +102,12 @@ impl EnvelopeBodyContents for UpdateFolderResponse {
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub update_folder_response_message: Vec<UpdateFolderResponseMessage>,
+    pub update_folder_response_message: Vec<ResponseClass<UpdateFolderResponseMessage>>,
 }
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct UpdateFolderResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-    pub response_code: Option<ResponseCode>,
-    pub message_text: Option<String>,
     pub folders: Folders,
 }
 
@@ -177,26 +171,25 @@ mod tests {
 
         let expected = UpdateFolderResponse {
             response_messages: ResponseMessages {
-                update_folder_response_message: vec![UpdateFolderResponseMessage {
-                    response_class: ResponseClass::Success,
-                    response_code: Some(ResponseCode::NoError),
-                    message_text: None,
-                    folders: Folders {
-                        inner: vec![Folder::Folder {
-                            folder_id: Some(FolderId {
-                                id: "AAAlAFVz".to_string(),
-                                change_key: Some("AQAAAB".to_string()),
-                            }),
-                            parent_folder_id: None,
-                            folder_class: None,
-                            display_name: None,
-                            total_count: None,
-                            child_folder_count: None,
-                            extended_property: None,
-                            unread_count: None,
-                        }],
+                update_folder_response_message: vec![ResponseClass::Success(
+                    UpdateFolderResponseMessage {
+                        folders: Folders {
+                            inner: vec![Folder::Folder {
+                                folder_id: Some(FolderId {
+                                    id: "AAAlAFVz".to_string(),
+                                    change_key: Some("AQAAAB".to_string()),
+                                }),
+                                parent_folder_id: None,
+                                folder_class: None,
+                                display_name: None,
+                                total_count: None,
+                                child_folder_count: None,
+                                extended_property: None,
+                                unread_count: None,
+                            }],
+                        },
                     },
-                }],
+                )],
             },
         };
 

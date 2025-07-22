@@ -10,6 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
 
 jobs:
   build:
@@ -41,12 +42,17 @@ jobs:
       run: cargo build
 
     - name: Test project
-      run: cargo test --all
+      run: cargo test --workspace
 
     - name: Run clippy
       uses: giraffate/clippy-action@v1
       with:
         reporter: 'github-pr-check'
-        clippy_flags: --no-deps
+        clippy_flags: --no-deps --tests
         filter_mode: nofilter
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build docs
+      env:
+        RUSTDOCFLAGS: -D warnings
+      run: cargo doc --no-deps --workspace --document-private-items

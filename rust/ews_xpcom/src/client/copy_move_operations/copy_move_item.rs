@@ -5,6 +5,7 @@
 use ews::{
     copy_item::{CopyItem, CopyItemResponse},
     move_item::{MoveItem, MoveItemResponse},
+    response::ResponseClass,
     server_version::ExchangeServerVersion,
     BaseItemId, CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
 };
@@ -13,7 +14,7 @@ use nsstring::nsCString;
 use thin_vec::ThinVec;
 use xpcom::{interfaces::IEwsItemCopyMoveCallbacks, RefCounted, RefPtr};
 
-use crate::client::{XpComEwsClient, XpComEwsError};
+use crate::client::{process_response_message_class, XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
@@ -44,7 +45,7 @@ where
             Wrapper<InputT> + From<CopyMoveItemData> + Into<CopyMoveItemData>,
         <InputT as Wrapped>::Wrapper: Wrapper<InputT> + Into<CopyMoveItemData>,
         <<InputT as Operation>::Response as Wrapped>::Wrapper:
-            From<<InputT as Operation>::Response> + Into<Vec<ItemResponseMessage>>,
+            From<<InputT as Operation>::Response> + Into<Vec<ResponseClass<ItemResponseMessage>>>,
     {
         move_generic(
             self,
@@ -92,7 +93,7 @@ where
                 change_key: None,
             })
             .collect(),
-        return_new_item_ids: return_new_item_ids,
+        return_new_item_ids,
     })
     .unwrap()
 }
@@ -117,13 +118,21 @@ where
 fn get_new_ews_ids_from_response<T, W>(response: T) -> ThinVec<nsCString>
 where
     T: OperationResponse + Into<W>,
-    W: Into<Vec<ItemResponseMessage>>,
+    W: Into<Vec<ResponseClass<ItemResponseMessage>>>,
 {
     response
         .into()
         .into()
-        .iter()
-        .filter_map(|response_message| {
+        .into_iter()
+        .filter_map(|response_class| {
+            let response_message =
+                match process_response_message_class("Copy/MoveItem", response_class) {
+                    Ok(message) => message,
+                    Err(err) => {
+                        log::warn!("ignoring error response: {err}");
+                        return None;
+                    }
+                };
             response_message
                 .items
                 .inner
@@ -207,7 +216,7 @@ impl From<CopyItemWrapper> for CopyMoveItemData {
     }
 }
 
-impl From<CopyItemResponseWrapper> for Vec<ItemResponseMessage> {
+impl From<CopyItemResponseWrapper> for Vec<ResponseClass<ItemResponseMessage>> {
     fn from(value: CopyItemResponseWrapper) -> Self {
         value.0.response_messages.copy_item_response_message
     }
@@ -231,7 +240,7 @@ impl From<MoveItemWrapper> for CopyMoveItemData {
     }
 }
 
-impl From<MoveItemResponseWrapper> for Vec<ItemResponseMessage> {
+impl From<MoveItemResponseWrapper> for Vec<ResponseClass<ItemResponseMessage>> {
     fn from(value: MoveItemResponseWrapper) -> Self {
         value.0.response_messages.move_item_response_message
     }

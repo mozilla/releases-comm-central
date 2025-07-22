@@ -11,8 +11,8 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed, types::server_version, Error, MessageXml, Operation, OperationResponse,
-    ResponseCode, SOAP_NS_URI, TYPES_NS_URI,
+    response::ResponseCode, types::sealed, types::server_version, Error, MessageXml, Operation,
+    OperationResponse, SOAP_NS_URI, TYPES_NS_URI,
 };
 
 mod de;
@@ -190,7 +190,9 @@ mod tests {
     use serde::Deserialize;
 
     use crate::{
-        get_folder::{GetFolderResponse, GetFolderResponseMessage, ResponseMessages},
+        get_folder::{self, GetFolderResponse, GetFolderResponseMessage},
+        response::{ResponseCode, ResponseError},
+        sync_folder_items::{self, SyncFolderItemsResponse},
         types::{
             common::message_xml::{
                 MessageXmlElement, MessageXmlElements, MessageXmlTagged, MessageXmlValue,
@@ -199,7 +201,6 @@ mod tests {
             sealed::EnvelopeBodyContents,
         },
         Error, Folder, FolderId, Folders, MessageXml, OperationResponse, ResponseClass,
-        ResponseCode,
     };
 
     use super::Envelope;
@@ -435,6 +436,56 @@ mod tests {
         }
     }
 
+    #[test]
+    fn deserialize_envelope_with_server_busy_error() {
+        // Similar to the above, except instead of a fault, the server
+        // busy message is sent in the body of a response as an error.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+                     <s:Envelope
+                         xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+                         <s:Header>
+                             <h:ServerVersionInfo MajorVersion="15" MinorVersion="20" MajorBuildNumber="8769" MinorBuildNumber="35" Version="V2018_01_08"
+                                                  xmlns:h="http://schemas.microsoft.com/exchange/services/2006/types"
+                                                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                         </s:Header>
+                         <s:Body>
+                             <m:SyncFolderItemsResponse
+                                 xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+                                 <m:ResponseMessages>
+                                     <m:SyncFolderItemsResponseMessage ResponseClass="Error">
+                                         <m:MessageText>The server cannot service this request right now. Try again later., This operation exceeds the throttling budget for policy part 'ConcurrentSyncCalls', policy value '5',  Budget type: 'Ews'.  Suggested backoff time 5000 ms.</m:MessageText>
+                                         <m:ResponseCode>ErrorServerBusy</m:ResponseCode>
+                                         <m:DescriptiveLinkKey>0</m:DescriptiveLinkKey>
+                                         <m:MessageXml>
+                                             <t:Value Name="BackOffMilliseconds">5000</t:Value>
+                                         </m:MessageXml>
+                                         <m:SyncState/>
+                                         <m:IncludesLastItemInRange>true</m:IncludesLastItemInRange>
+                                     </m:SyncFolderItemsResponseMessage>
+                                 </m:ResponseMessages>
+                             </m:SyncFolderItemsResponse>
+                         </s:Body>
+                     </s:Envelope>"#;
+
+        let expected_resp = SyncFolderItemsResponse {
+            response_messages: sync_folder_items::ResponseMessages { sync_folder_items_response_message: vec![
+                ResponseClass::Error(ResponseError {
+                    message_text: "The server cannot service this request right now. Try again later., This operation exceeds the throttling budget for policy part 'ConcurrentSyncCalls', policy value '5',  Budget type: 'Ews'.  Suggested backoff time 5000 ms.".to_string(),
+                    response_code: ResponseCode::ErrorServerBusy,
+                    message_xml: Some(MessageXml::ServerBusy(ServerBusy { back_off_milliseconds: 5000 }))
+                })
+            ] }
+        };
+
+        let envelope: Envelope<SyncFolderItemsResponse> =
+            Envelope::from_xml_document(xml.as_bytes()).expect("deserialization should succeed");
+        assert_eq!(envelope.body, expected_resp);
+    }
+
     /// Test that deserializing succeeds when the SOAP body includes attributes.
     /// Serde considers attributes to be the same as nested elements, so our
     /// deserialization code for SOAP bodies needs to explicitly ignore them.
@@ -443,41 +494,38 @@ mod tests {
         // This XML comes from a real life request against one of our test
         // accounts, using an Exchange Server 2016 instance.
         let xml = r#"<?xml version="1.0" encoding="utf-8"?>
-                                <s:Envelope
-                                    xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
-                                    <s:Header>
-                                        <h:ServerVersionInfo MajorVersion="15" MinorVersion="1" MajorBuildNumber="2507" MinorBuildNumber="57" Version="V2017_07_11"
-                                            xmlns:h="http://schemas.microsoft.com/exchange/services/2006/types"
-                                            xmlns="http://schemas.microsoft.com/exchange/services/2006/types"
-                                            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-                                        </s:Header>
-                                        <s:Body
-                                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                                            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-                                            <m:GetFolderResponse
-                                                xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
-                                                xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
-                                                <m:ResponseMessages>
-                                                    <m:GetFolderResponseMessage ResponseClass="Success">
-                                                        <m:ResponseCode>NoError</m:ResponseCode>
-                                                        <m:Folders>
-                                                            <t:Folder>
-                                                                <t:FolderId Id="AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==" ChangeKey="AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW"/>
-                                                            </t:Folder>
-                                                        </m:Folders>
-                                                    </m:GetFolderResponseMessage>
-                                                </m:ResponseMessages>
-                                            </m:GetFolderResponse>
-                                        </s:Body>
-                                    </s:Envelope>"#;
+                     <s:Envelope
+                         xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+                         <s:Header>
+                             <h:ServerVersionInfo MajorVersion="15" MinorVersion="1" MajorBuildNumber="2507" MinorBuildNumber="57" Version="V2017_07_11"
+                                 xmlns:h="http://schemas.microsoft.com/exchange/services/2006/types"
+                                 xmlns="http://schemas.microsoft.com/exchange/services/2006/types"
+                                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                             </s:Header>
+                             <s:Body
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                 <m:GetFolderResponse
+                                     xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                                     xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+                                     <m:ResponseMessages>
+                                         <m:GetFolderResponseMessage ResponseClass="Success">
+                                             <m:ResponseCode>NoError</m:ResponseCode>
+                                             <m:Folders>
+                                                 <t:Folder>
+                                                     <t:FolderId Id="AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==" ChangeKey="AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW"/>
+                                                 </t:Folder>
+                                             </m:Folders>
+                                         </m:GetFolderResponseMessage>
+                                     </m:ResponseMessages>
+                                 </m:GetFolderResponse>
+                             </s:Body>
+                         </s:Envelope>"#;
 
         let expected_resp = GetFolderResponse {
-            response_messages: ResponseMessages {
-                get_folder_response_message: vec![GetFolderResponseMessage {
-                    response_class: ResponseClass::Success,
-                    response_code: Some(ResponseCode::NoError),
-                    message_text: None,
+            response_messages: get_folder::ResponseMessages {
+                get_folder_response_message: vec![ResponseClass::Success(GetFolderResponseMessage {
                     folders: Folders { inner: vec![
                         Folder::Folder {
                             folder_id: Some(FolderId {
@@ -493,13 +541,83 @@ mod tests {
                             unread_count: None
                         }
                     ]},
-                }],
+                })],
             },
         };
 
         // Check that the XML is successfully deserialized in the first place,
         // with no error caused by the presence of attributes in the `s:Body`
         // element.
+        let envelope: Envelope<GetFolderResponse> =
+            Envelope::from_xml_document(xml.as_bytes()).expect("deserialization should succeed");
+
+        // Check that the parsed body is in line with what we expect.
+        assert_eq!(envelope.body, expected_resp);
+    }
+
+    #[test]
+    fn deserialize_envelope_with_warning() {
+        // This is a fake envelope, because the only warnings known are for types we don't support
+        // yet (this one is based on `ResolveNamesResponseMessage` and the XML from
+        // deserialize_envelope_with_attributes_in_body above). It's also currently subject to the
+        // problems with our Warning variant of ResponseClass (namely, that it can't convey the
+        // error fields).
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+                     <s:Envelope
+                         xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+                         <s:Header>
+                             <h:ServerVersionInfo MajorVersion="15" MinorVersion="1" MajorBuildNumber="2507" MinorBuildNumber="57" Version="V2017_07_11"
+                                 xmlns:h="http://schemas.microsoft.com/exchange/services/2006/types"
+                                 xmlns="http://schemas.microsoft.com/exchange/services/2006/types"
+                                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                             </s:Header>
+                             <s:Body
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                 <m:GetFolderResponse
+                                     xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                                     xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+                                     <m:ResponseMessages>
+                                         <m:GetFolderResponseMessage ResponseClass="Warning">
+                                           <m:MessageText>Multiple results were found.</m:MessageText>
+                                           <m:ResponseCode>ErrorNameResolutionMultipleResults</m:ResponseCode>
+                                           <m:DescriptiveLinkKey>0</m:DescriptiveLinkKey>
+                                           <m:Folders>
+                                               <t:Folder>
+                                                   <t:FolderId Id="AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==" ChangeKey="AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW"/>
+                                               </t:Folder>
+                                           </m:Folders>
+                                        </m:GetFolderResponseMessage>
+                                     </m:ResponseMessages>
+                                 </m:GetFolderResponse>
+                             </s:Body>
+                         </s:Envelope>"#;
+
+        let expected_resp = GetFolderResponse {
+            response_messages: get_folder::ResponseMessages {
+                get_folder_response_message: vec![ResponseClass::Warning(GetFolderResponseMessage {
+                    folders: Folders { inner: vec![
+                        Folder::Folder {
+                            folder_id: Some(FolderId {
+                                id: "AQMkADRiZGNhMWIxLWIwOGMtNDQAZjktODk3OS0zZWIxODJjNmI4NWYALgAAA8ZmIFRjoG9PpiagjztHaIcBAFSUeaisgPtKo3c6hV+VzpcAAAIBCAAAAA==".to_owned(),
+                                change_key: Some("AQAAABYAAABUlHmorID7SqN3OoVflc6XAAAAAACW".to_owned())
+                            }),
+                            parent_folder_id: None,
+                            folder_class: None,
+                            display_name: None,
+                            total_count: None,
+                            child_folder_count: None,
+                            extended_property: None,
+                            unread_count: None
+                        }
+                    ]},
+                })],
+            },
+        };
+
+        // Check that the XML is successfully deserialized in the first place,
+        // with no error caused by use of the Warning variant.
         let envelope: Envelope<GetFolderResponse> =
             Envelope::from_xml_document(xml.as_bytes()).expect("deserialization should succeed");
 

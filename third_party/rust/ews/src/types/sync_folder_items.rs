@@ -60,7 +60,7 @@ impl EnvelopeBodyContents for SyncFolderItems {
 /// A response to a [`SyncFolderItems`] request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitemsresponse>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderItemsResponse {
     pub response_messages: ResponseMessages,
@@ -77,20 +77,15 @@ impl EnvelopeBodyContents for SyncFolderItemsResponse {
 /// A collection of responses for individual entities within a request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub sync_folder_items_response_message: Vec<SyncFolderItemsResponseMessage>,
+    pub sync_folder_items_response_message: Vec<ResponseClass<SyncFolderItemsResponseMessage>>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderItemsResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
     /// An identifier for the synchronization state following application of the
     /// changes included in this response.
     pub sync_state: String,
@@ -116,7 +111,7 @@ pub enum SyncScope {
     NormalAndAssociatedItems,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 pub struct Changes {
     #[serde(default, rename = "$value")]
     pub inner: Vec<Change>,
@@ -125,7 +120,7 @@ pub struct Changes {
 /// A server-side change to an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-items>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 pub enum Change {
     /// A creation of an item.
     ///

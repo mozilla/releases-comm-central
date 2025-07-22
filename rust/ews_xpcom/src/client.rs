@@ -20,6 +20,7 @@ use ews::{
     delete_item::DeleteItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
+    response::{ResponseClass, ResponseCode, ResponseError},
     server_version::ExchangeServerVersion,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
@@ -30,8 +31,7 @@ use ews::{
     },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
     ExtendedProperty, Folder, FolderId, FolderShape, ItemResponseMessage, ItemShape, Message,
-    MessageDisposition, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
-    ResponseCode,
+    MessageDisposition, MimeContent, Operation, PathToElement, RealItem, Recipient,
 };
 use fxhash::FxHashMap;
 use itertools::Itertools;
@@ -160,28 +160,17 @@ where
             }],
         };
 
-        let res = self
+        let response_message = self
             // Make authentication failure silent, since all we want to know is
             // whether our credentials are valid.
             .make_operation_request(get_root_folder, AuthFailureBehavior::Silent)
-            .await?;
-
-        let response_message_count = res.response_messages.get_folder_response_message.len();
-        if response_message_count != 1 {
-            return Err(XpComEwsError::Processing {
-                message: format!("expected 1 response message, got {response_message_count}"),
-            });
-        }
+            .await?
+            .response_messages
+            .get_folder_response_message;
 
         // Get the first (and only) response message so we can inspect it.
-        // Unwrapping is fine here, because we've already made sure there's one
-        // message.
-        let message = res
-            .response_messages
-            .get_folder_response_message
-            .into_iter()
-            .next()
-            .unwrap();
+        let response_class = single_response_or_error(response_message)?;
+        let message = process_response_message_class("GetFolder", response_class)?;
 
         // Any error fetching the root folder is fatal, since it likely means
         // all subsequent request will fail, and that we won't manage to sync
@@ -249,13 +238,11 @@ where
 
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
-                .await?;
-            let message = response
+                .await?
                 .response_messages
-                .sync_folder_hierarchy_response_message
-                .into_iter()
-                .next()
-                .unwrap();
+                .sync_folder_hierarchy_response_message;
+            let response = single_response_or_error(response)?;
+            let message = process_response_message_class("SyncFolderHierarchy", response)?;
 
             let mut create_ids = Vec::new();
             let mut update_ids = Vec::new();
@@ -346,7 +333,7 @@ where
                     id: folder_id.clone(),
                     change_key: None,
                 },
-                sync_state: sync_state_token,
+                sync_state: sync_state_token.clone(),
                 ignore: None,
                 max_changes_returned: 100,
                 sync_scope: None,
@@ -354,13 +341,30 @@ where
 
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
-                .await?;
-            let message = response
+                .await?
                 .response_messages
-                .sync_folder_items_response_message
-                .into_iter()
-                .next()
-                .unwrap();
+                .sync_folder_items_response_message;
+            let response_class = single_response_or_error(response)?;
+
+            let message = match response_class {
+                ResponseClass::Success(message) => message,
+                ResponseClass::Error(ResponseError {
+                    message_xml: Some(ews::MessageXml::ServerBusy(server_busy)),
+                    ..
+                }) => {
+                    let delay_ms = server_busy.back_off_milliseconds;
+                    log::debug!("sync request throttled, will retry after {delay_ms} milliseconds");
+                    xpcom_async::sleep(delay_ms).await?;
+                    continue;
+                }
+                ResponseClass::Error(err) => {
+                    return Err(err.into());
+                }
+                ResponseClass::Warning(message) => {
+                    log::warn!("sync request returned a warning!");
+                    message
+                }
+            };
 
             // We only fetch unique messages, as we ignore the `ChangeKey` and
             // simply fetch the latest version.
@@ -741,7 +745,8 @@ where
         // responses. We're okay to unwrap since we request a static number of
         // folders and we've already checked that we have that number of
         // responses.
-        let (_, message) = message_iter.next().unwrap();
+        let (_, response_class) = message_iter.next().unwrap();
+        let message = process_response_message_class("GetFolder", response_class)?;
 
         // Any error fetching the root folder is fatal, since we can't correctly
         // set the parents of any folders it contains without knowing its ID.
@@ -750,7 +755,13 @@ where
 
         // Build the mapping for the remaining folders.
         message_iter
-            .filter_map(|(&distinguished_id, message)| {
+            .filter_map(|(&distinguished_id, response_class)| {
+                let message = match process_response_message_class("GetFolder", response_class) {
+                    Ok(message) => message,
+                    Err(err) => {
+                        return Some(Err(err));
+                    }
+                };
                 match validate_get_folder_response_message(&message) {
                     // Map from EWS folder ID to distinguished ID.
                     Ok(folder_id) => Some(Ok((folder_id.id, distinguished_id))),
@@ -760,10 +771,10 @@ where
                             // Not every Exchange account will have all queried
                             // well-known folders, so we skip any which were not
                             // found.
-                            XpComEwsError::ResponseError {
-                                code: ResponseCode::ErrorFolderNotFound,
+                            XpComEwsError::ResponseError(ResponseError {
+                                response_code: ResponseCode::ErrorFolderNotFound,
                                 ..
-                            } => None,
+                            }) => None,
 
                             // Propagate any other error.
                             _ => Some(Err(err)),
@@ -872,7 +883,11 @@ where
 
             let mut fetched = messages
                 .into_iter()
-                .filter_map(|message| {
+                .filter_map(|response_class| {
+                    let message = match process_response_message_class("GetFolder", response_class) {
+                        Ok(message) => message,
+                        Err(err) => {return Some(Err(err));}
+                    };
                     if let Err(err) = validate_get_folder_response_message(&message) {
                         return Some(Err(err));
                     }
@@ -995,19 +1010,14 @@ where
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
                 .await?;
             for response_message in response.response_messages.get_item_response_message {
-                process_response_message_class(
-                    "GetItem",
-                    &response_message.response_class,
-                    &response_message.response_code,
-                    &response_message.message_text,
-                )?;
+                let message = process_response_message_class("GetItem", response_message)?;
 
                 // The expected shape of the list of response messages is
                 // underspecified, but EWS always seems to return one message
                 // per requested ID, containing the item corresponding to that
                 // ID. However, it allows for multiple items per message, so we
                 // need to be sure we aren't throwing some away.
-                let items_len = response_message.items.inner.len();
+                let items_len = message.items.inner.len();
                 if items_len != 1 {
                     log::warn!(
                         "GetItemResponseMessage contained {} items, only 1 expected",
@@ -1015,7 +1025,7 @@ where
                     );
                 }
 
-                items.extend(response_message.items.inner.into_iter());
+                items.extend(message.items.inner.into_iter());
             }
         }
 
@@ -1247,14 +1257,7 @@ where
         // Get the first (and only) response message, and check if there's a
         // warning or an error we should handle.
         let response_message = response_messages.into_iter().next().unwrap();
-        process_response_message_class(
-            "CreateItem",
-            &response_message.response_class,
-            &response_message.response_code,
-            &response_message.message_text,
-        )?;
-
-        Ok(response_message)
+        process_response_message_class("CreateItem", response_message)
     }
 
     /// Mark a message as read or unread by performing an [`UpdateItem`] operation via EWS.
@@ -1334,17 +1337,9 @@ where
             .into_iter()
             .enumerate()
             .filter_map(|(index, response_message)| {
-                match process_response_message_class(
-                    "UpdateItem",
-                    &response_message.response_class,
-                    &response_message.response_code,
-                    &response_message.message_text,
-                ) {
+                match process_response_message_class("UpdateItem", response_message) {
                     Ok(_) => None,
-                    Err(err) => Some(format!(
-                        "failed to process message #{} ({:?}): {}",
-                        index, response_message, err
-                    )),
+                    Err(err) => Some(format!("failed to process message #{}: {}", index, err)),
                 }
             })
             .collect();
@@ -1410,11 +1405,9 @@ where
             .map(|(response_message, ews_id)| {
                 if let Err(err) = process_response_message_class(
                     "DeleteItem",
-                    &response_message.response_class,
-                    &response_message.response_code,
-                    &response_message.message_text,
+                    response_message
                 ) {
-                    if matches!(err, XpComEwsError::ResponseError { code: ResponseCode::ErrorItemNotFound, .. }) {
+                    if matches!(err, XpComEwsError::ResponseError( ResponseError { response_code: ResponseCode::ErrorItemNotFound, .. })) {
                         // Something happened in a previous attempt that caused
                         // the message to be deleted on the EWS server but not
                         // in the database. In this case, we don't want to force
@@ -1479,12 +1472,7 @@ where
         // Get the first (and only) response message, and check if there's a
         // warning or an error we should handle.
         let response_message = response_messages.into_iter().next().unwrap();
-        process_response_message_class(
-            "DeleteFolder",
-            &response_message.response_class,
-            &response_message.response_code,
-            &response_message.message_text,
-        )?;
+        process_response_message_class("DeleteFolder", response_message)?;
 
         // Delete the folder from the server's database.
         unsafe { callbacks.OnRemoteDeleteFolderSuccessful() }
@@ -1547,12 +1535,7 @@ where
         validate_response_message_count(&response_messages, 1)?;
 
         let response_message = response_messages.into_iter().next().unwrap();
-        process_response_message_class(
-            "UpdateFolder",
-            &response_message.response_class,
-            &response_message.response_code,
-            &response_message.message_text,
-        )?;
+        process_response_message_class("UpdateFolder", response_message)?;
 
         unsafe { callbacks.OnRemoteFolderUpdateSuccessful() }
             .to_result()
@@ -1839,11 +1822,8 @@ pub(crate) enum XpComEwsError {
     #[error("an error occurred while (de)serializing JSON")]
     JSON(#[from] serde_json::Error),
 
-    #[error("request resulted in error with code {code:?} and message {message:?}")]
-    ResponseError {
-        code: ResponseCode,
-        message: Option<String>,
-    },
+    #[error("request resulted in an error: {0:?}")]
+    ResponseError(#[from] ResponseError),
 
     #[error("error in processing response")]
     Processing { message: String },
@@ -1928,41 +1908,19 @@ where
 
 /// Look at the response class of a response message, and do nothing, warn or
 /// return an error accordingly.
-fn process_response_message_class(
+fn process_response_message_class<T>(
     op_name: &str,
-    response_class: &ResponseClass,
-    response_code: &Option<ResponseCode>,
-    message_text: &Option<String>,
-) -> Result<(), XpComEwsError> {
+    response_class: ResponseClass<T>,
+) -> Result<T, XpComEwsError> {
     match response_class {
-        ResponseClass::Success => Ok(()),
+        ResponseClass::Success(message) => Ok(message),
 
-        ResponseClass::Warning => {
-            let message = if let Some(code) = response_code {
-                if let Some(text) = message_text {
-                    format!("{op_name} operation encountered `{code:?}' warning: {text}")
-                } else {
-                    format!("{op_name} operation encountered `{code:?}' warning")
-                }
-            } else if let Some(text) = message_text {
-                format!("{op_name} operation encountered warning: {text}")
-            } else {
-                format!("{op_name} operation encountered unknown warning")
-            };
-
-            log::warn!("{message}");
-
-            Ok(())
+        ResponseClass::Warning(message) => {
+            log::warn!("{op_name} operation encountered unknown warning");
+            Ok(message)
         }
 
-        ResponseClass::Error => {
-            let code = response_code.unwrap_or_default();
-
-            Err(XpComEwsError::ResponseError {
-                code,
-                message: message_text.clone(),
-            })
-        }
+        ResponseClass::Error(err) => Err(err.to_owned().into()),
     }
 }
 
@@ -1973,13 +1931,6 @@ fn process_response_message_class(
 fn validate_get_folder_response_message(
     message: &GetFolderResponseMessage,
 ) -> Result<FolderId, XpComEwsError> {
-    process_response_message_class(
-        "GetFolder",
-        &message.response_class,
-        &message.response_code,
-        &message.message_text,
-    )?;
-
     if message.folders.inner.len() != 1 {
         return Err(XpComEwsError::Processing {
             message: format!(
@@ -2061,4 +2012,20 @@ fn validate_response_message_count<T>(
     }
 
     Ok(())
+}
+
+/// For responses where we expect a single message, extract that message. Returns
+/// [`XpComEwsError::Processing`] if no messages are available, prints a warning but succesfully
+/// returns the first messageif more than one message is available.
+fn single_response_or_error<T>(responses: Vec<T>) -> Result<T, XpComEwsError> {
+    let responses_len = responses.len();
+    let Some(message) = responses.into_iter().next() else {
+        return Err(XpComEwsError::Processing {
+            message: "expected 1 response message, got none".to_string(),
+        });
+    };
+    if responses_len != 1 {
+        log::warn!("expected 1 response message, got {responses_len}");
+    }
+    Ok(message)
 }

@@ -66,7 +66,8 @@ impl EnvelopeBodyContents for SyncFolderHierarchyResponse {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub sync_folder_hierarchy_response_message: Vec<SyncFolderHierarchyResponseMessage>,
+    pub sync_folder_hierarchy_response_message:
+        Vec<ResponseClass<SyncFolderHierarchyResponseMessage>>,
 }
 
 /// A response to a request for an individual folder within a [`SyncFolderHierarchy`] operation.
@@ -75,11 +76,6 @@ pub struct ResponseMessages {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderHierarchyResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
     /// An identifier for the synchronization state following application of the
     /// changes included in this response.
     pub sync_state: String,

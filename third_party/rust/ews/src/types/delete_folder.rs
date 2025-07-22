@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, DeleteType, Operation, OperationResponse,
-    ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request to delete one or more folders.
@@ -58,18 +58,11 @@ impl EnvelopeBodyContents for DeleteFolderResponse {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub delete_folder_response_message: Vec<DeleteFolderResponseMessage>,
+    pub delete_folder_response_message: Vec<ResponseClass<DeleteFolderResponseMessage>>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeleteFolderResponseMessage {
-    /// The status of the corresponding request, i.e. whether it succeeded or
-    /// resulted in an error.
-    #[serde(rename = "@ResponseClass")]
-    pub response_class: ResponseClass,
-
-    pub response_code: Option<ResponseCode>,
-
     pub message_text: Option<String>,
 }

@@ -10,7 +10,7 @@ use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsFolderMoveCallbacks;
 use xpcom::{RefCounted, RefPtr};
 
-use crate::client::{XpComEwsClient, XpComEwsError};
+use crate::client::{process_response_message_class, XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
@@ -52,7 +52,7 @@ where
         folder_ids: folder_ids
             .into_iter()
             .map(|id| BaseFolderId::FolderId {
-                id: id,
+                id,
                 change_key: None,
             })
             .collect(),
@@ -81,7 +81,15 @@ fn get_new_ews_ids_from_response(response: MoveFolderResponse) -> ThinVec<nsCStr
         .response_messages
         .move_folder_response_message
         .into_iter()
-        .filter_map(|response_message| {
+        .filter_map(|response_class| {
+            let response_message =
+                match process_response_message_class("MoveFolder", response_class) {
+                    Ok(response_message) => response_message,
+                    Err(err) => {
+                        log::warn!("ignoring error response: {err}");
+                        return None;
+                    }
+                };
             response_message.folders.inner.first().map(|folder| {
                 match folder {
                     Folder::Folder { folder_id, .. } => folder_id,
@@ -91,6 +99,6 @@ fn get_new_ews_ids_from_response(response: MoveFolderResponse) -> ThinVec<nsCStr
                 .map(|x| nsCString::from(&x.id))
             })
         })
-        .filter_map(|id| id)
+        .flatten()
         .collect()
 }

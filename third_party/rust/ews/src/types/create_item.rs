@@ -7,7 +7,7 @@ use xml_struct::XmlSerialize;
 
 use crate::{
     types::sealed::EnvelopeBodyContents, BaseFolderId, ItemResponseMessage, MessageDisposition,
-    Operation, OperationResponse, RealItem, MESSAGES_NS_URI,
+    Operation, OperationResponse, RealItem, ResponseClass, MESSAGES_NS_URI,
 };
 
 /// A request to create (and optionally send) one or more Exchange items.
@@ -69,14 +69,14 @@ impl EnvelopeBodyContents for CreateItemResponse {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
-    pub create_item_response_message: Vec<ItemResponseMessage>,
+    pub create_item_response_message: Vec<ResponseClass<ItemResponseMessage>>,
 }
 
 #[cfg(test)]
 mod test {
     use crate::{
         test_utils::assert_deserialized_content, types::common::ItemResponseMessage, Items,
-        ResponseCode,
+        ResponseClass,
     };
 
     use super::CreateItemResponse;
@@ -96,12 +96,9 @@ mod test {
 
         let expected = CreateItemResponse {
             response_messages: super::ResponseMessages {
-                create_item_response_message: vec![ItemResponseMessage {
-                    response_class: crate::ResponseClass::Success,
-                    response_code: Some(ResponseCode::NoError),
-                    message_text: None,
+                create_item_response_message: vec![ResponseClass::Success(ItemResponseMessage {
                     items: Items { inner: vec![] },
-                }],
+                })],
             },
         };
 
