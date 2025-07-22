@@ -11,9 +11,13 @@ var { localAccountUtils } = ChromeUtils.importESModule(
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
-// TODO: Figure out inclusion of support files for providing responses to
-// requests.
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 /**
  * An EWS client implementation against which we will test.
@@ -29,28 +33,37 @@ var client;
  */
 var ewsServer;
 
+/**
+ * @type {nsIMsgIncomingServer}
+ */
+var incomingServer;
+
 const generator = new MessageGenerator();
 
-add_setup(() => {
+add_setup(async () => {
+  do_get_profile();
+
   ewsServer = new EwsServer();
   ewsServer.start();
 
   // Create and configure the EWS incoming server.
-  const server = localAccountUtils.create_incoming_server(
+  incomingServer = localAccountUtils.create_incoming_server(
     "ews",
     ewsServer.port,
     "user",
     "password"
   );
-  server.setStringValue(
+  incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+  incomingServer.setStringValue(
     "ews_url",
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
   );
+  await syncFolder(incomingServer, incomingServer.rootFolder);
 
   client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
     Ci.IEwsClient
   );
-  client.initialize(server.getStringValue("ews_url"), server);
+  client.initialize(incomingServer.getStringValue("ews_url"), incomingServer);
 
   registerCleanupFunction(() => {
     // We need to stop the mock server, but the client has no additional
@@ -101,7 +114,7 @@ add_task(async function testMessageBatching() {
 /**
  * Test what happens if an item is moved or deleted.
  */
-add_task(async function testNonCreateUpdate() {
+add_task(async function testSyncChangesWithClient() {
   ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
   ewsServer.clearItems();
 
@@ -268,3 +281,93 @@ class EwsMessageCallbackListener {
     this._deferred.reject();
   }
 }
+
+/**
+ * The same as above, but using folders, to check the changes make it all the
+ * way to the database.
+ */
+add_task(async function testSyncChangesWithRealFolder() {
+  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+  ewsServer.clearItems();
+
+  const inbox = incomingServer.rootFolder.getChildNamed("Inbox");
+  const junk = incomingServer.rootFolder.getChildNamed("Junk");
+
+  const messages = generator.makeMessages({ count: 5 });
+  ewsServer.addMessages("inbox", messages);
+
+  // Initial sync.
+
+  await syncFolder(incomingServer, inbox);
+  const syncStateToken = inbox.getStringProperty("ewsSyncStateToken");
+  Assert.ok(
+    syncStateToken,
+    "the sync token should have been saved in the database"
+  );
+  Assert.equal(
+    inbox.getTotalMessages(false),
+    5,
+    "there should be 5 messages in the inbox at the start"
+  );
+  Assert.equal(
+    inbox.getNumUnread(false),
+    5,
+    "5 messages should be unread at the start"
+  );
+
+  // Move a message, delete a message, mark a message read.
+
+  const itemIdToMove = btoa(messages[3].messageId);
+  ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
+  const [movedMessage] = messages.splice(3, 1);
+  const itemIdToDelete = btoa(messages[1].messageId);
+  ewsServer.deleteItem(itemIdToDelete);
+  messages.splice(1, 1);
+  const itemIdToMarkRead = btoa(messages[0].messageId);
+  ewsServer.getItem(itemIdToMarkRead).syntheticMessage.metaState.read = true;
+  ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+
+  // Sync again to pick up the changes.
+
+  await syncFolder(incomingServer, inbox);
+  Assert.equal(
+    inbox.getTotalMessages(false),
+    3,
+    "there should be 3 messages remaining in the inbox"
+  );
+  Assert.notEqual(
+    inbox.getStringProperty("ewsSyncStateToken"),
+    syncStateToken,
+    "the sync token should differ from the previous one"
+  );
+  Assert.equal(inbox.getNumUnread(false), 2, "2 messages should be unread");
+
+  // Check that the moved message arrives at its destination.
+
+  await syncFolder(incomingServer, junk);
+  Assert.equal(
+    junk.getTotalMessages(false),
+    1,
+    "there should be 1 message in the junk folder"
+  );
+  Assert.ok(
+    junk.getStringProperty("ewsSyncStateToken"),
+    "the sync token should have been saved in the database"
+  );
+  Assert.equal(junk.getNumUnread(false), 1, "the message should be unread");
+  Assert.equal(
+    junk.messages.getNext().subject,
+    movedMessage.subject,
+    "the message should be the right message"
+  );
+
+  // Remove the messages from these real folders to return to a clean slate.
+
+  incomingServer.deleteModel = Ci.IEwsIncomingServer.DELETE_PERMANENTLY;
+  inbox.deleteMessages([...inbox.messages], null, true, false, null, false);
+  junk.deleteMessages([...junk.messages], null, true, false, null, false);
+  await TestUtils.waitForCondition(
+    () => incomingServer.rootFolder.getTotalMessages(true) == 0,
+    "waiting for messages to be deleted"
+  );
+});

@@ -186,9 +186,6 @@ const DELETE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
                    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                    xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <m:ResponseMessages>
-      <m:DeleteItemResponseMessage ResponseClass="Success">
-        <m:ResponseCode>NoError</m:ResponseCode>
-      </m:DeleteItemResponseMessage>
     </m:ResponseMessages>
   </DeleteItemResponse>
   ${EWS_SOAP_FOOT}`;
@@ -1231,8 +1228,17 @@ export class EwsServer {
       id.getAttribute("Id")
     );
 
+    const responseMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
     for (const id of reqItemIds) {
-      this.#itemIdToItemInfo.delete(id);
+      this.deleteItem(id);
+      const responseMessageEl = responseMessagesEl.appendChild(
+        resDoc.createElement("m:DeleteItemResponseMessage")
+      );
+      responseMessageEl.setAttribute("ResponseClass", "Success");
+      responseMessageEl.appendChild(
+        resDoc.createElement("m:ResponseCode")
+      ).textContent = "NoError";
     }
 
     return this.#serializer.serializeToString(resDoc);
