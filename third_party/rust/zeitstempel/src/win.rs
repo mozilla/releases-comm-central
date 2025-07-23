@@ -1,42 +1,53 @@
-//! Timestamp implementation for Windows 10+ or Windows Server 2016+.
-//!
-//! Lower versions don't have the necessary API and should use the fallback.
+//! Timestamp implementation for Windows based on `QueryPerformanceCounter`
 
-#![cfg(feature = "win10plus")]
+use std::mem;
+use std::sync::OnceLock;
 
-/// [PULONGLONG] is a pointer to [ULONGLONG], a 64-bit unsigned integer.
-///
-/// [PULONGLONG]: https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types#PULONGLONG
-/// [ULONGLONG]: https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types#ulonglong
-type PULONGLONG = *mut u64;
+use winapi::um::profileapi::{QueryPerformanceCounter, QueryPerformanceFrequency};
+use winapi::um::winnt::LARGE_INTEGER;
 
-/// Link against Windows' `mincore`.
-#[link(name = "mincore")]
-extern "system" {
-    /// Gets the current interrupt-time count.
-    ///
-    /// See [`QueryInterruptTime`].
-    ///
-    /// [`QueryInterruptTime`]: https://docs.microsoft.com/en-us/windows/win32/api/realtimeapiset/nf-realtimeapiset-queryinterrupttime
-    ///
-    /// Note: we define it ourselves, because it's not actually included in `winapi`.
-    fn QueryInterruptTime(InterruptTime: PULONGLONG);
+fn i64_to_large_integer(i: i64) -> LARGE_INTEGER {
+    unsafe {
+        let mut large_integer: LARGE_INTEGER = mem::zeroed();
+        *large_integer.QuadPart_mut() = i;
+        large_integer
+    }
 }
 
-/// Windows counts time in a system time unit of 100 nanoseconds.
-const SYSTEM_TIME_UNIT: u64 = 100;
+fn large_integer_to_i64(l: LARGE_INTEGER) -> i64 {
+    unsafe { *l.QuadPart() }
+}
 
-/// The time based on the current interrupt-time count.
+fn frequency() -> i64 {
+    static FREQUENCY: OnceLock<i64> = OnceLock::new();
+
+    *FREQUENCY.get_or_init(|| unsafe {
+        let mut l = i64_to_large_integer(0);
+        QueryPerformanceFrequency(&mut l);
+        large_integer_to_i64(l)
+    })
+}
+
+// Computes (value*numer)/denom without overflow, as long as both
+// (numer*denom) and the overall result fit into i64 (which is the case
+// for our time conversions).
+fn mul_div_i64(value: i64, numer: i64, denom: i64) -> i64 {
+    let q = value / denom;
+    let r = value % denom;
+    // Decompose value as (value/denom*denom + value%denom),
+    // substitute into (value*numer)/denom and simplify.
+    // r < denom, so (denom*numer) is the upper bound of (r*numer)
+    q * numer + r * numer / denom
+}
+
+/// The time based on [`QueryPerformanceCounter`].
 /// This includes the suspend time.
 ///
-/// See [`QueryInterruptTime`].
-///
-/// [`QueryInterruptTime`]: https://docs.microsoft.com/en-us/windows/win32/api/realtimeapiset/nf-realtimeapiset-queryinterrupttime
+/// [QueryPerformanceCounter]: https://docs.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter
 pub fn now_including_suspend() -> u64 {
-    let mut interrupt_time = 0;
+    let mut ticks = i64_to_large_integer(0);
     unsafe {
-        QueryInterruptTime(&mut interrupt_time);
+        assert!(QueryPerformanceCounter(&mut ticks) == 1);
     }
-
-    interrupt_time * SYSTEM_TIME_UNIT
+    mul_div_i64(large_integer_to_i64(ticks), 1000000000, frequency()) as u64
 }

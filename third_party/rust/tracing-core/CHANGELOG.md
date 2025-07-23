@@ -1,3 +1,82 @@
+# 0.1.33 (November 25, 2024)
+
+### Added
+
+- Add index API for `Field` ([#2820])
+- allow `&[u8]` to be recorded as event/span field ([#2954])
+
+### Changed
+
+- Bump MSRV to 1.63 ([#2793])
+- Use const `thread_local`s when possible ([#2838])
+
+### Fixed
+
+- Fix missed `register_callsite` error ([#2938])
+- Do not add `valuable/std` feature as dependency unless `valuable` is used ([#3002])
+- prefix macro calls with ::core to avoid clashing with local macros ([#3024])
+
+### Documented
+
+- Fix incorrect (incorrectly updated) docs for LevelFilter ([#2767])
+
+Thanks to new contributor @maddiemort for contributing to this release!
+
+[#2767]: https://github.com/tokio-rs/tracing/pull/2767
+[#2793]: https://github.com/tokio-rs/tracing/pull/2793
+[#2820]: https://github.com/tokio-rs/tracing/pull/2820
+[#2838]: https://github.com/tokio-rs/tracing/pull/2838
+[#2938]: https://github.com/tokio-rs/tracing/pull/2938
+[#2954]: https://github.com/tokio-rs/tracing/pull/2954
+[#3002]: https://github.com/tokio-rs/tracing/pull/3002
+[#3024]: https://github.com/tokio-rs/tracing/pull/3024
+
+# 0.1.32 (October 13, 2023)
+
+### Documented
+
+- Fix typo in `field` docs ([#2611])
+- Remove duplicate wording ([#2674])
+
+### Changed
+
+- Allow `ValueSet`s of any length ([#2508])
+
+[#2611]: https://github.com/tokio-rs/tracing/pull/2611
+[#2674]: https://github.com/tokio-rs/tracing/pull/2674
+[#2508]: https://github.com/tokio-rs/tracing/pull/2508
+
+# 0.1.31 (May 11, 2023)
+
+This release of `tracing-core` fixes a bug that caused threads which call
+`dispatcher::get_default` _before_ a global default subscriber is set to never
+see the global default once it is set. In addition, it includes improvements for
+instrumentation performance in some cases, especially when using a global
+default dispatcher.
+
+### Fixed
+
+- Fixed incorrect thread-local caching of `Dispatch::none` if
+  `dispatcher::get_default` is called before `dispatcher::set_global_default`
+  ([#2593])
+
+### Changed
+
+- Cloning a `Dispatch` that points at a global default subscriber no longer
+  requires an `Arc` reference count increment, improving performance
+  substantially ([#2593])
+- `dispatcher::get_default` no longer attempts to access a thread local if the
+  scoped dispatcher is not in use, improving performance when the default
+  dispatcher is global ([#2593])
+- Added `#[inline]` annotations called by the `event!` and `span!` macros to
+  reduce the size of macro-generated code and improve recording performance
+  ([#2555])
+
+Thanks to new contributor @ldm0 for contributing to this release!
+
+[#2593]: https://github.com/tokio-rs/tracing/pull/2593
+[#2555]: https://github.com/tokio-rs/tracing/pull/2555
+
 # 0.1.30 (October 6, 2022)
 
 This release of `tracing-core` adds a new `on_register_dispatch` method to the

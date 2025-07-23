@@ -14,35 +14,28 @@ where
 
 #[test]
 fn default_parent_test() {
-    let contextual_parent = span::mock().named("contextual_parent");
-    let child = span::mock().named("with_default_parent");
+    let contextual_parent = expect::span().named("contextual_parent");
+    let child = expect::span().named("with_default_parent");
 
     let (subscriber, handle) = subscriber::mock()
         .new_span(
             contextual_parent
                 .clone()
-                .with_contextual_parent(None)
-                .with_explicit_parent(None),
+                .with_ancestry(expect::is_contextual_root()),
         )
-        .new_span(
-            child
-                .clone()
-                .with_contextual_parent(Some("contextual_parent"))
-                .with_explicit_parent(None),
-        )
+        .new_span(child.clone().with_ancestry(expect::is_contextual_root()))
         .enter(child.clone())
         .exit(child.clone())
         .enter(contextual_parent.clone())
         .new_span(
             child
                 .clone()
-                .with_contextual_parent(Some("contextual_parent"))
-                .with_explicit_parent(None),
+                .with_ancestry(expect::has_contextual_parent("contextual_parent")),
         )
         .enter(child.clone())
         .exit(child)
         .exit(contextual_parent)
-        .done()
+        .only()
         .run_with_handle();
 
     with_default(subscriber, || {
@@ -60,33 +53,27 @@ fn default_parent_test() {
 
 #[test]
 fn explicit_parent_test() {
-    let contextual_parent = span::mock().named("contextual_parent");
-    let explicit_parent = span::mock().named("explicit_parent");
-    let child = span::mock().named("with_explicit_parent");
+    let contextual_parent = expect::span().named("contextual_parent");
+    let explicit_parent = expect::span().named("explicit_parent");
+    let child = expect::span().named("with_explicit_parent");
 
     let (subscriber, handle) = subscriber::mock()
         .new_span(
             contextual_parent
                 .clone()
-                .with_contextual_parent(None)
-                .with_explicit_parent(None),
+                .with_ancestry(expect::is_contextual_root()),
         )
-        .new_span(
-            explicit_parent
-                .with_contextual_parent(None)
-                .with_explicit_parent(None),
-        )
+        .new_span(explicit_parent.with_ancestry(expect::is_contextual_root()))
         .enter(contextual_parent.clone())
         .new_span(
             child
                 .clone()
-                .with_contextual_parent(Some("contextual_parent"))
-                .with_explicit_parent(Some("explicit_parent")),
+                .with_ancestry(expect::has_explicit_parent("explicit_parent")),
         )
         .enter(child.clone())
         .exit(child)
         .exit(contextual_parent)
-        .done()
+        .only()
         .run_with_handle();
 
     with_default(subscriber, || {

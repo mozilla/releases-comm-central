@@ -3,7 +3,6 @@
 [![Crates.io version](https://img.shields.io/crates/v/zeitstempel.svg?style=flat-square)](https://crates.io/crates/zeitstempel)
 [![docs.rs docs](https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square)](https://docs.rs/zeitstempel)
 [![License: MPL 2.0](https://img.shields.io/github/license/badboy/zeitstempel?style=flat-square)](LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/badboy/zeitstempel/CI?style=flat-square)](https://github.com/badboy/zeitstempel/actions?query=workflow%3ACI)
 
 zeitstempel is German for "timestamp".
 
@@ -60,7 +59,7 @@ For other operating systems there's a fallback to `std::time::Instant`,
 compared against a process-global fixed reference point.
 We don't guarantee that measured time includes time the system spends in sleep or hibernation.
 
-\* To use native Windows 10 functionality enable the `win10plus` feature. Otherwise it will use the fallback.
+\* To use native Windows 10 functionality enable the `win10plus` feature. Otherwise it will use `QueryPerformanceCounter`.
 
 # License
 

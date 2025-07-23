@@ -47,7 +47,7 @@ data as well as textual messages.
 The `tracing` crate provides the APIs necessary for instrumenting libraries
 and applications to emit trace data.
 
-*Compiler support: [requires `rustc` 1.49+][msrv]*
+*Compiler support: [requires `rustc` 1.63+][msrv]*
 
 [msrv]: #supported-rust-versions
 
@@ -98,7 +98,7 @@ fn main() {
 ```toml
 [dependencies]
 tracing = "0.1"
-tracing-subscriber = "0.2.0"
+tracing-subscriber = "0.3.0"
 ```
 
 This subscriber will be used as the default in all threads for the remainder of the duration
@@ -145,7 +145,7 @@ use tracing::{debug, error, info, span, warn, Level};
 
 // the `#[tracing::instrument]` attribute creates and enters a span
 // every time the instrumented function is called. The span is named after the
-// the function or method. Paramaters passed to the function are recorded as fields.
+// the function or method. Parameters passed to the function are recorded as fields.
 #[tracing::instrument]
 pub fn shave(yak: usize) -> Result<(), Box<dyn Error + 'static>> {
     // this creates an event at the DEBUG level with two fields:
@@ -185,7 +185,7 @@ pub fn shave_all(yaks: usize) -> usize {
 
         if let Err(ref error) = res {
             // Like spans, events can also use the field initialization shorthand.
-            // In this instance, `yak` is the field being initalized.
+            // In this instance, `yak` is the field being initialized.
             error!(yak, error = error.as_ref(), "failed to shave yak!");
         } else {
             yaks_shaved += 1;
@@ -250,7 +250,7 @@ my_future
 is as long as the future's.
 
 The second, and preferred, option is through the
-[`#[instrument]`](https://docs.rs/tracing/0.1.37/tracing/attr.instrument.html)
+[`#[instrument]`](https://docs.rs/tracing/0.1.41/tracing/attr.instrument.html)
 attribute:
 
 ```rust
@@ -297,7 +297,7 @@ span.in_scope(|| {
 // Dropping the span will close it, indicating that it has ended.
 ```
 
-The [`#[instrument]`](https://docs.rs/tracing/0.1.37/tracing/attr.instrument.html) attribute macro
+The [`#[instrument]`](https://docs.rs/tracing/0.1.41/tracing/attr.instrument.html) attribute macro
 can reduce some of this boilerplate:
 
 ```rust
@@ -379,6 +379,7 @@ maintained by the `tokio` project. These include:
 - [`tracing-distributed`] Provides a generic implementation of a layer that reports traces spanning multiple machines to some backend.
 - [`tracing-actix`] provides `tracing` integration for the `actix` actor
   framework.
+- [`axum-insights`] provides `tracing` integration and Application insights export for the `axum` web framework.
 - [`tracing-gelf`] implements a subscriber for exporting traces in Greylog
   GELF format.
 - [`tracing-coz`] provides integration with the [coz] causal profiler
@@ -396,6 +397,7 @@ maintained by the `tokio` project. These include:
 - [`sentry-tracing`] provides a layer for reporting events and traces to [Sentry].
 - [`tracing-loki`] provides a layer for shipping logs to [Grafana Loki].
 - [`tracing-logfmt`] provides a layer that formats events and spans into the logfmt format.
+- [`json-subscriber`] provides a layer for emitting JSON logs. The output can be customized much more than with [`FmtSubscriber`]'s JSON output.
 
 If you're the maintainer of a `tracing` ecosystem crate not listed above,
 please let us know! We'd love to add your project to the list!
@@ -407,6 +409,7 @@ please let us know! We'd love to add your project to the list!
 [`tracing-distributed`]: https://crates.io/crates/tracing-distributed
 [honeycomb.io]: https://www.honeycomb.io/
 [`tracing-actix`]: https://crates.io/crates/tracing-actix
+[`axum-insights`]: https://crates.io/crates/axum-insights
 [`tracing-gelf`]: https://crates.io/crates/tracing-gelf
 [`tracing-coz`]: https://crates.io/crates/tracing-coz
 [coz]: https://github.com/plasma-umass/coz
@@ -426,6 +429,7 @@ please let us know! We'd love to add your project to the list!
 [`tracing-loki`]: https://crates.io/crates/tracing-loki
 [Grafana Loki]: https://grafana.com/oss/loki/
 [`tracing-logfmt`]: https://crates.io/crates/tracing-logfmt
+[`json-subscriber`]: https://crates.io/crates/json-subscriber
 
 **Note:** that some of the ecosystem crates are currently unreleased and
 undergoing active development. They may be less stable than `tracing` and
@@ -443,14 +447,14 @@ undergoing active development. They may be less stable than `tracing` and
 ## Supported Rust Versions
 
 Tracing is built against the latest stable release. The minimum supported
-version is 1.49. The current Tracing version is not guaranteed to build on Rust
+version is 1.63. The current Tracing version is not guaranteed to build on Rust
 versions earlier than the minimum supported version.
 
 Tracing follows the same compiler support policies as the rest of the Tokio
 project. The current stable Rust compiler and the three most recent minor
 versions before it will always be supported. For example, if the current stable
-compiler version is 1.45, the minimum supported version will not be increased
-past 1.42, three minor versions prior. Increasing the minimum supported compiler
+compiler version is 1.69, the minimum supported version will not be increased
+past 1.66, three minor versions prior. Increasing the minimum supported compiler
 version is not considered a semver breaking change as long as doing so complies
 with this policy.
 

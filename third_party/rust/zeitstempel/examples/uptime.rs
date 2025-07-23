@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 fn main() {
     let start = zeitstempel::now();
-    println!("Now: {}", start);
+    println!("Now: {start}");
 
     thread::sleep(Duration::from_secs(2));
 
