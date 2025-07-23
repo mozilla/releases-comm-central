@@ -165,12 +165,11 @@ nsresult nsMsgAccountManager::Init() {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
-  nsresult rv;
 #ifdef MOZ_PANORAMA
   if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
     // Replace the database service with the Panorama database.
     nsCOMPtr<nsIComponentRegistrar> componentRegistrar;
-    rv = NS_GetComponentRegistrar(getter_AddRefs(componentRegistrar));
+    nsresult rv = NS_GetComponentRegistrar(getter_AddRefs(componentRegistrar));
     NS_ENSURE_SUCCESS(rv, rv);
 
     componentRegistrar->RegisterFactory(
