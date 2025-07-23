@@ -200,15 +200,22 @@ class MessageOperationCallbacks : public IEwsMessageCallbacks {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_IEWSMESSAGECALLBACKS
 
-  MessageOperationCallbacks(EwsFolder* folder, nsIMsgWindow* window)
-      : mFolder(folder), mWindow(window) {}
+  MessageOperationCallbacks(EwsFolder* folder, nsIMsgWindow* window,
+                            nsCOMPtr<nsIUrlListener> urlListener)
+      : mFolder(folder),
+        mWindow(window),
+        mUrlListener(std::move(urlListener)) {}
 
  protected:
   virtual ~MessageOperationCallbacks() = default;
 
  private:
+  nsresult NotifyListener(nsresult rv);
+
+ private:
   RefPtr<EwsFolder> mFolder;
   RefPtr<nsIMsgWindow> mWindow;
+  nsCOMPtr<nsIUrlListener> mUrlListener;
 };
 
 NS_IMPL_ISUPPORTS(MessageOperationCallbacks, IEwsMessageCallbacks)
@@ -348,7 +355,18 @@ NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
   return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
+nsresult MessageOperationCallbacks::NotifyListener(nsresult rv) {
+  if (mUrlListener) {
+    nsCOMPtr<nsIURI> folderUri;
+    nsresult rv = FolderUri(mFolder, getter_AddRefs(folderUri));
+    NS_ENSURE_SUCCESS(rv, rv);
+    mUrlListener->OnStopRunningUrl(folderUri, rv);
+  }
+  return NS_OK;
+}
+
 NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
+  NotifyListener(NS_OK);
   mFolder->NotifyFolderEvent(kFolderLoaded);
   return NS_OK;
 }
@@ -356,7 +374,7 @@ NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
 NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
                                                  const nsACString& desc) {
   NS_ERROR("Error occurred while syncing EWS messages");
-
+  NotifyListener(NS_ERROR_UNEXPECTED);
   return NS_OK;
 }
 
@@ -455,7 +473,7 @@ NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
   auto listenerExitGuard = GuardCopyServiceListener(mListener, rv);
 
   if (syncMessages) {
-    rv = mDestinationFolder->SyncMessages(mWindow);
+    rv = mDestinationFolder->SyncMessages(mWindow, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // The new IDs were returned from the server. In this case, the order of the
@@ -490,10 +508,6 @@ NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
     mSourceFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
   }
 
-  if (mListener) {
-    mListener->OnStopCopy(NS_OK);
-  }
-
   rv = NotifyMessageCopyServiceComplete(mSourceFolder, mDestinationFolder,
                                         NS_OK);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -503,6 +517,9 @@ NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
 
 NS_IMETHODIMP ItemCopyMoveCallbacks::OnError(IEwsClient::Error error,
                                              const nsACString& description) {
+  if (mListener) {
+    mListener->OnStopCopy(NS_ERROR_UNEXPECTED);
+  }
   return HandleMoveError(mSourceFolder, mDestinationFolder, error, description);
 }
 
@@ -513,10 +530,12 @@ class FolderMoveCallbacks : public IEwsFolderMoveCallbacks {
 
   FolderMoveCallbacks(nsCOMPtr<nsIMsgFolder> sourceFolder,
                       RefPtr<nsIMsgFolder> destinationFolder,
-                      nsCOMPtr<nsIMsgWindow> window)
+                      nsCOMPtr<nsIMsgWindow> window,
+                      nsCOMPtr<nsIMsgCopyServiceListener> listener)
       : mSourceFolder(std::move(sourceFolder)),
         mDestinationFolder(std::move(destinationFolder)),
-        mWindow(std::move(window)) {}
+        mWindow(std::move(window)),
+        mListener(std::move(listener)) {}
 
  protected:
   virtual ~FolderMoveCallbacks() = default;
@@ -525,6 +544,7 @@ class FolderMoveCallbacks : public IEwsFolderMoveCallbacks {
   nsCOMPtr<nsIMsgFolder> mSourceFolder;
   RefPtr<nsIMsgFolder> mDestinationFolder;
   nsCOMPtr<nsIMsgWindow> mWindow;
+  nsCOMPtr<nsIMsgCopyServiceListener> mListener;
 };
 
 NS_IMPL_ISUPPORTS(FolderMoveCallbacks, IEwsFolderMoveCallbacks);
@@ -533,8 +553,12 @@ NS_IMETHODIMP FolderMoveCallbacks::OnRemoteMoveSuccessful(
     const nsTArray<nsCString>& newIds) {
   NS_ENSURE_TRUE(newIds.Length() == 1, NS_ERROR_UNEXPECTED);
 
+  nsresult rv = NS_OK;
+
+  auto listenerExitGuard = GuardCopyServiceListener(mListener, rv);
+
   nsAutoCString name;
-  nsresult rv = mSourceFolder->GetName(name);
+  rv = mSourceFolder->GetName(name);
   NS_ENSURE_SUCCESS(rv, rv);
 
   LocalRenameOrReparentFolder(mSourceFolder, mDestinationFolder, name, mWindow);
@@ -557,6 +581,9 @@ NS_IMETHODIMP FolderMoveCallbacks::OnRemoteMoveSuccessful(
 
 NS_IMETHODIMP FolderMoveCallbacks::OnError(IEwsClient::Error error,
                                            const nsACString& description) {
+  if (mListener) {
+    mListener->OnStopCopy(NS_ERROR_UNEXPECTED);
+  }
   return HandleMoveError(mSourceFolder, mDestinationFolder, error, description);
 }
 
@@ -662,7 +689,7 @@ NS_IMETHODIMP EwsFolder::GetNewMessages(nsIMsgWindow* aWindow,
   // Sync the message list. We don't need to sync the folder tree, because the
   // only likely consumer of this method is `EwsIncomingServer`, which does this
   // before asking folders to sync their message lists.
-  return SyncMessages(aWindow);
+  return SyncMessages(aWindow, aListener);
 }
 
 NS_IMETHODIMP EwsFolder::GetSubFolders(
@@ -737,7 +764,7 @@ NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // and we already sync it in a couple of occurrences (when getting new
   // messages, performing biff, etc.), it's likely fine to leave this as a
   // future improvement.
-  return SyncMessages(aWindow);
+  return SyncMessages(aWindow, nullptr);
 }
 
 NS_IMETHODIMP EwsFolder::Rename(const nsACString& aNewName,
@@ -914,7 +941,7 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     NS_ENSURE_SUCCESS(rv, rv);
 
     RefPtr<FolderMoveCallbacks> callbacks{
-        new FolderMoveCallbacks(srcFolder, this, window)};
+        new FolderMoveCallbacks(srcFolder, this, window, listener)};
     client->MoveFolders(callbacks, destinationEwsId, {sourceEwsId});
   } else {
     // Cross-server folder move (or copy). Instantiate a `FolderCopyHandler` for
@@ -1102,7 +1129,8 @@ nsresult EwsFolder::GetTrashFolder(nsIMsgFolder** result) {
   return NS_OK;
 }
 
-nsresult EwsFolder::SyncMessages(nsIMsgWindow* window) {
+nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
+                                 nsIUrlListener* urlListener) {
   // EWS provides us an opaque value which specifies the last version of
   // upstream messages we received. Provide that to simplify sync.
   nsCString syncStateToken;
@@ -1119,7 +1147,16 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window) {
   nsCOMPtr<IEwsClient> client;
   MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
 
-  auto listener = RefPtr(new MessageOperationCallbacks(this, window));
+  auto listener =
+      RefPtr(new MessageOperationCallbacks(this, window, urlListener));
+
+  if (urlListener) {
+    nsCOMPtr<nsIURI> folderUri;
+    rv = FolderUri(this, getter_AddRefs(folderUri));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = urlListener->OnStartRunningUrl(folderUri);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
   return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
 }
 

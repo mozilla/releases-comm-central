@@ -327,7 +327,8 @@ nsresult EwsIncomingServer::SyncFolderList(
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
 
-nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow) {
+nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
+                                           nsIUrlListener* urlListener) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
 
@@ -340,7 +341,7 @@ nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow) {
   // though, the EWS client should handle any kind of rate limiting well enough,
   // so this improvement can come later.
   for (const auto& folder : msgFolders) {
-    nsresult rv = folder->GetNewMessages(aMsgWindow, nullptr);
+    nsresult rv = folder->GetNewMessages(aMsgWindow, urlListener);
     if (NS_FAILED(rv)) {
       // If we encounter an error, just log it rather than fail the whole sync.
       nsCString name;
@@ -413,7 +414,7 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
         NS_ENSURE_SUCCESS(rv, rv);
 
         if (isServer) {
-          return self->SyncAllFolders(window);
+          return self->SyncAllFolders(window, urlListener);
         }
 
         // Synchronizing the folder list may have invalidated the folder that
@@ -439,7 +440,7 @@ NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   // Sync the folder list for the account. Then sync the message list of each
   // folder in the tree.
   return SyncFolderList(aMsgWindow, [self = RefPtr(this), window]() {
-    return self->SyncAllFolders(window);
+    return self->SyncAllFolders(window, nullptr);
   });
 }
 

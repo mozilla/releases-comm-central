@@ -1,4 +1,5 @@
 [DEFAULT]
+head = "head.js"
 prefs = ["experimental.mail.ews.enabled=true"]
 support-files = ["data/*"]
 

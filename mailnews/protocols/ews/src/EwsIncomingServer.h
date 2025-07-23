@@ -73,7 +73,8 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   /**
    * Synchronize the message list for every folder in the account.
    */
-  nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow);
+  nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow,
+                          nsIUrlListener* urlListener);
 
   RefPtr<msgIOAuth2Module> mOAuth2Module;
 

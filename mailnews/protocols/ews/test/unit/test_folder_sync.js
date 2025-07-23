@@ -47,49 +47,6 @@ add_setup(async function () {
 });
 
 /**
- * Wait for the final create operation given the mock server data.
- *
- * @param {nsIMsgFolder} folder - The direct parent of the last folder to be created.
- */
-async function waitForFinalCreate(folder) {
-  // Wait for the folders list to finish being synchronised.
-  await TestUtils.waitForCondition(() => {
-    // Folders are created in the order we give them to the EWS server in.
-    // Therefore if the last one in the array has been created, we can safely
-    // assume all of the folders have been correctly synchronised.
-    const lastFolder = ewsServer.folders.at(-1);
-    return !!folder.getChildNamed(lastFolder.displayName);
-  }, "waiting for subfolders to populate");
-}
-
-/**
- * Wait for the final delete operation given the mock server data.
- *
- * @param {nsIMsgFolder} folder - The direct parent of the last folder to be deleted.
- */
-async function waitForFinalDelete(folder) {
-  await TestUtils.waitForCondition(() => {
-    const lastDelete = ewsServer.deletedFolders.at(-1);
-    return !folder.getChildNamed(lastDelete.displayName);
-  }, "waiting for subfolders to be deleted");
-}
-
-/**
- * Wait for a child with the specified name to exist.
- *
- * @param {nsIMsgFolder} folder - The direct parent of the child to check for.
- * @param {*} childName - The name of the child to check for.
- *
- * @returns {nsIMsgFolder} The child folder, once it exists.
- */
-async function waitForChildToExist(folder, childName) {
-  await TestUtils.waitForCondition(() => {
-    return !!folder.getChildNamed(childName);
-  }, `waiting for child "${childName}" to exist in "${folder.name}"`);
-  return folder.getChildNamed(childName);
-}
-
-/**
  * Tests that triggering a folder hierarchy sync via
  * `nsIMsgFolder::GetNewMessages` correctly populates subfolders.
  */
@@ -97,8 +54,7 @@ add_task(async function test_get_new_messages() {
   // Populate the mock EWS server with all base folders.
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
 
   // Check that all of the subfolders have been created.
   for (const folder of ewsServer.folders) {
@@ -124,8 +80,7 @@ add_task(async function test_create_folder() {
   const newFolderName = "created_folder";
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const childShouldNotExist = rootFolder.getChildNamed(newFolderName);
   Assert.ok(!childShouldNotExist, `${newFolderName} should not exist.`);
 
@@ -133,8 +88,7 @@ add_task(async function test_create_folder() {
     new RemoteFolder(newFolderName, "root", newFolderName, newFolderName)
   );
 
-  rootFolder.getNewMessages(null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const child = rootFolder.getChildNamed(newFolderName);
   Assert.ok(!!child, `${newFolderName} should exist.`);
 });
@@ -156,15 +110,13 @@ add_task(async function test_delete_folder() {
   );
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const child = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!!child, `${folderToDeleteName} should exist.`);
 
   ewsServer.deleteRemoteFolderById(folderToDeleteName);
   Assert.equal(1, ewsServer.deletedFolders.length);
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalDelete(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const deletedChild = rootFolder.getChildNamed(folderToDeleteName);
   Assert.ok(!deletedChild, `${folderToDeleteName} should not exist.`);
 });
@@ -183,15 +135,14 @@ add_task(async function test_rename_folder() {
   );
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const child = rootFolder.getChildNamed(initialFolderName);
   Assert.ok(!!child, `${initialFolderName} should exist.`);
   const initialEwsId = child.getStringProperty(ewsIdPropertyName);
 
   ewsServer.renameFolderById(initialFolderName, finalFolderName);
-  incomingServer.getNewMessages(rootFolder, null, null);
-  const renamedChild = await waitForChildToExist(rootFolder, finalFolderName);
+  await syncFolder(incomingServer, rootFolder);
+  const renamedChild = rootFolder.getChildNamed(finalFolderName);
   Assert.ok(!!renamedChild, `${finalFolderName} should exist.`);
   const finalEwsId = renamedChild.getStringProperty(ewsIdPropertyName);
   Assert.equal(
@@ -212,8 +163,7 @@ add_task(async function test_reparent_folder() {
   });
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const parent1 = rootFolder.getChildNamed(parent1Name);
   Assert.ok(!!parent1, `${parent1Name} should exist.`);
   const parent2 = rootFolder.getChildNamed(parent2Name);
@@ -224,8 +174,8 @@ add_task(async function test_reparent_folder() {
     new RemoteFolder(childName, parent1Name, childName, childName)
   );
 
-  incomingServer.getNewMessages(rootFolder, null, null);
-  const child = await waitForChildToExist(parent1, childName);
+  await syncFolder(incomingServer, parent1);
+  const child = parent1.getChildNamed(childName);
   Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
   Assert.ok(
     !parent2.getChildNamed(childName),
@@ -235,8 +185,9 @@ add_task(async function test_reparent_folder() {
 
   ewsServer.reparentFolderById(childName, parent2Name);
 
-  incomingServer.getNewMessages(rootFolder, null, null);
-  const renamedChild = await waitForChildToExist(parent2, childName);
+  await syncFolder(incomingServer, parent1);
+  await syncFolder(incomingServer, parent2);
+  const renamedChild = parent2.getChildNamed(childName);
   Assert.ok(!!renamedChild, `${childName} should exist in ${parent2Name}`);
   Assert.ok(
     !parent1.getChildNamed(childName),
@@ -263,8 +214,7 @@ add_task(async function test_reparent_folder_tree() {
     ewsServer.appendRemoteFolder(new RemoteFolder(name, "root", name, name));
   });
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-  await waitForFinalCreate(rootFolder);
+  await syncFolder(incomingServer, rootFolder);
   const parentFolders = parentNames.map(name => {
     const parentFolder = rootFolder.getChildNamed(name);
     Assert.ok(!!parentFolder, `${name} should exist in root folder.`);
@@ -282,8 +232,8 @@ add_task(async function test_reparent_folder_tree() {
     ewsServer.appendRemoteFolder(
       new RemoteFolder(childName, parentFolder.name, childName, childName)
     );
-    incomingServer.getNewMessages(rootFolder, null, null);
-    const newChild = await waitForChildToExist(parentFolder, childName);
+    await syncFolder(incomingServer, parentFolder);
+    const newChild = parentFolder.getChildNamed(childName);
     Assert.ok(!!newChild, `${childName} should exist in ${parentFolder.name}`);
     return newChild;
   };
@@ -311,22 +261,14 @@ add_task(async function test_reparent_folder_tree() {
   // Reparent the entire hierarchy at once and wait for
   // the full operation to complete.
   ewsServer.reparentFolderById(child1Name, parent2Name);
-  incomingServer.getNewMessages(rootFolder, null, null);
-
-  const child1Reparented = await waitForChildToExist(
-    parentFolders[1],
-    child1Name
-  );
-  const child2Reparented = await waitForChildToExist(
-    child1Reparented,
-    child2Name
-  );
-  const child3Reparented = await waitForChildToExist(
-    child2Reparented,
-    child3Name
-  );
+  await syncFolder(incomingServer, parentFolders[0]);
+  await syncFolder(incomingServer, parentFolders[1]);
 
   assertHierarchy(parent2Name);
+
+  const child1Reparented = parentFolders[1].getChildNamed(child1Name);
+  const child2Reparented = child1Reparented.getChildNamed(child2Name);
+  const child3Reparented = child2Reparented.getChildNamed(child3Name);
 
   Assert.equal(
     child1Reparented.getStringProperty(ewsIdPropertyName),

@@ -79,12 +79,7 @@ async function setup_item_copymove_structure(prefix) {
   );
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
-
-  await TestUtils.waitForCondition(
-    () => rootFolder.getChildNamed(folder2Name),
-    "waiting for folders to exist."
-  );
+  await syncFolder(incomingServer, rootFolder);
 
   const folder1 = rootFolder.getChildNamed(folder1Name);
   Assert.ok(!!folder1, `${folder1Name} should exist.`);
@@ -94,11 +89,12 @@ async function setup_item_copymove_structure(prefix) {
   ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_a`, folder1Name);
   ewsServer.addNewItemOrMoveItemToFolder(`${prefix}_b`, folder1Name);
 
-  incomingServer.getNewMessages(folder1, null, null);
+  await syncFolder(incomingServer, folder1);
 
-  await TestUtils.waitForCondition(
-    () => folder1.getTotalMessages(false) == 2,
-    `Waiting for messages to appear in ${folder1Name}`
+  Assert.equal(
+    folder1.getTotalMessages(false),
+    2,
+    `${folder1Name} should have 2 messages`
   );
   Assert.equal(
     folder2.getTotalMessages(false),
@@ -107,6 +103,54 @@ async function setup_item_copymove_structure(prefix) {
   );
 
   return [folder1Name, folder2Name, folder1, folder2];
+}
+
+/**
+ * Copy or move items between folders.
+ *
+ * This function initiates a copy of the items represented by the given
+ * `headers` from the `sourceFolder` to the `destinationFolder`.  The `isMove`
+ * parameter specifies whether this is a move or a copy operation.  Returns a
+ * promise that can be awaited to guarantee the async copy operation has
+ * finished.
+ *
+ * @param {nsIMsgFolder} sourceFolder
+ * @param {nsIMsgFolder} destinationFolder
+ * @param {[nsIMsgDBHdr]} headers
+ * @param {boolean} isMove
+ * @returns {Promise}
+ */
+async function copyItems(sourceFolder, destinationFolder, headers, isMove) {
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  destinationFolder.copyMessages(
+    sourceFolder,
+    headers,
+    isMove,
+    null,
+    copyListener,
+    true,
+    false
+  );
+  return copyListener.promise;
+}
+
+/**
+ * Copy or move a folder.
+ *
+ * This function initiates a copy of move of the given `sourceFolder` to the
+ * given `destinationFolder`.  The `isMove` parameters specifies whether this is
+ * a copy or a move operation. Returns a promise that can be awaited to
+ * guarantee the async copy operation has finished.
+ *
+ * @param {nsIMsgFolder} sourceFolder
+ * @param {nsIMsgFolder} destinationFolder
+ * @param {nsIMsgFolder} isMove
+ * @returns {Promise}
+ */
+async function copyFolder(sourceFolder, destinationFolder, isMove) {
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  destinationFolder.copyFolder(sourceFolder, isMove, null, copyListener);
+  return copyListener.promise;
 }
 
 add_task(async function test_move_item() {
@@ -118,17 +162,7 @@ add_task(async function test_move_item() {
 
   // Initiate the move operation.
   const isMove = true;
-  folder2.copyMessages(folder1, headers, isMove, null, null, true, false);
-
-  await TestUtils.waitForCondition(
-    () => folder2.getTotalMessages(false) == 2,
-    `Waiting for messages to appear in ${folder2Name}`
-  );
-
-  await TestUtils.waitForCondition(
-    () => folder1.getTotalMessages(false) == 0,
-    `Waiting for messages to disappear in ${folder1Name}`
-  );
+  await copyItems(folder1, folder2, headers, isMove);
 
   Assert.equal(
     ewsServer.getContainingFolderId("move_a"),
@@ -161,12 +195,7 @@ add_task(async function test_copy_item() {
 
   // Initiate the copy operation.
   const isMove = false;
-  folder2.copyMessages(folder1, headers, isMove, null, null, true, false);
-
-  await TestUtils.waitForCondition(
-    () => folder2.getTotalMessages(false) == 2,
-    `Waiting for messages to appear in ${folder2Name}`
-  );
+  await copyItems(folder1, folder2, headers, isMove);
 
   Assert.equal(
     folder1.getTotalMessages(false),
@@ -303,32 +332,20 @@ add_task(async function test_move_folder() {
   );
 
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
 
-  await TestUtils.waitForCondition(
-    () => !!rootFolder.getChildNamed(parent2Name),
-    "Waiting for parent folders to exist"
-  );
+  await syncFolder(incomingServer, rootFolder);
 
   const parent1 = rootFolder.getChildNamed(parent1Name);
   Assert.ok(!!parent1, `${parent1Name} should exist.`);
   const parent2 = rootFolder.getChildNamed(parent2Name);
   Assert.ok(!!parent2, `${parent2Name} should exist.`);
 
-  await TestUtils.waitForCondition(
-    () => !!parent1.getChildNamed(childName),
-    "Waiting for child folder to exist."
-  );
+  await syncFolder(incomingServer, parent1);
 
   const child = parent1.getChildNamed(childName);
   Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
 
-  parent2.copyFolder(child, true, null, null);
-
-  await TestUtils.waitForCondition(
-    () => !!parent2.getChildNamed(childName),
-    `Waiting for ${childName} to exist in ${parent2Name}`
-  );
+  await copyFolder(child, parent2, true);
 
   Assert.ok(
     !parent1.getChildNamed(childName),

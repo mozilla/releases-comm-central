@@ -93,7 +93,7 @@ class EwsFolder : public nsMsgDBFolder {
   /**
    * Synchronize the message list for the current folder.
    */
-  nsresult SyncMessages(nsIMsgWindow* window);
+  nsresult SyncMessages(nsIMsgWindow* window, nsIUrlListener* urlListener);
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_

@@ -10,10 +10,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-const { PromiseTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
-);
-
 // The mock EWS server to direct our traffic to.
 var ewsServer;
 

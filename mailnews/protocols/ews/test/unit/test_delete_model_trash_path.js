@@ -14,9 +14,6 @@ var { localAccountUtils } = ChromeUtils.importESModule(
 var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
-const { PromiseTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
-);
 
 var incomingServer;
 var ewsServer;
@@ -73,12 +70,8 @@ async function deleteItems(folder, headersToDelete) {
 
 add_task(async function test_delete_model() {
   const rootFolder = incomingServer.rootFolder;
-  incomingServer.getNewMessages(rootFolder, null, null);
 
-  // Wait for the default EWS trash folder, called "Deleted Items", to exist.
-  await TestUtils.waitForCondition(() => {
-    return !!rootFolder.getChildNamed("Deleted Items");
-  }, "Waiting for 'Deleted Items' folder to exist.");
+  await syncFolder(incomingServer, rootFolder);
 
   const deletedItemsFolder = rootFolder.getChildNamed("Deleted Items");
   Assert.ok(!!deletedItemsFolder, "Deleted Items folder should exist.");
@@ -109,12 +102,9 @@ add_task(async function test_delete_model() {
   ewsServer.addNewItemOrMoveItemToFolder("item2", "inbox");
   ewsServer.addNewItemOrMoveItemToFolder("item3", "inbox");
 
-  incomingServer.getNewMessages(rootFolder, null, null);
+  await syncFolder(incomingServer, inboxFolder);
 
-  await TestUtils.waitForCondition(
-    () => inboxFolder.getTotalMessages(false) == 3,
-    "Waiting for messages to appear in inbox."
-  );
+  Assert.equal(inboxFolder.getTotalMessages(false), 3);
 
   const headersToDelete1 = [[...inboxFolder.messages][0]];
 
@@ -136,14 +126,10 @@ add_task(async function test_delete_model() {
     new RemoteFolder("delete2", "root", "delete2", "delete2")
   );
 
-  incomingServer.getNewMessages(rootFolder, null, null);
-
-  await TestUtils.waitForCondition(
-    () => !!rootFolder.getChildNamed("delete2"),
-    "waiting for new delete folder."
-  );
+  await syncFolder(incomingServer, rootFolder);
 
   const newDeleteFolder = rootFolder.getChildNamed("delete2");
+  Assert.ok(!!newDeleteFolder, "New delete folder should exist.");
 
   ewsIncomingServer.trashFolderPath = "delete2";
 

@@ -140,6 +140,11 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
                               const nsACString& folderName,
                               nsIMsgFolder** folder);
 
+/**
+ * Return the URI object for a folder on a server.
+ */
+nsresult FolderUri(nsIMsgFolder* folder, nsIURI** uri);
+
 /// Return the path to a folder from the server root.
 ///
 /// This returns a `/`-separated path to the folder as referenced from

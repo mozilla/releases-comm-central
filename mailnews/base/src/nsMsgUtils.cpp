@@ -707,14 +707,17 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
   return *folder ? NS_OK : NS_ERROR_FAILURE;
 }
 
-nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path) {
-  nsresult rv;
-  nsAutoCString folderURI;
-  rv = folder->GetURI(folderURI);
+nsresult FolderUri(nsIMsgFolder* folder, nsIURI** uri) {
+  nsAutoCString folderUri;
+  nsresult rv = folder->GetURI(folderUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  return NS_NewURI(uri, folderUri);
+}
+
+nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path) {
   nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), folderURI);
+  nsresult rv = FolderUri(folder, getter_AddRefs(uri));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString fullfolderPath;
