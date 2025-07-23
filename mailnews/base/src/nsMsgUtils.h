@@ -145,6 +145,10 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
  */
 nsresult FolderUri(nsIMsgFolder* folder, nsIURI** uri);
 
+/// Create the root folder for a server and store it in the lookup cache.
+nsresult CreateRootFolderAndCache(const nsACString& folderName,
+                                  nsIMsgFolder** folder);
+
 /// Return the path to a folder from the server root.
 ///
 /// This returns a `/`-separated path to the folder as referenced from

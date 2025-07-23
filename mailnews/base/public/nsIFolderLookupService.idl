@@ -40,6 +40,8 @@ interface nsIFolderLookupService : nsISupports
    */
   nsIMsgFolder createFolderAndCache(in nsIMsgFolder parentFolder, in AUTF8String urlEncodedName);
 
+  nsIMsgFolder createRootFolderAndCache(in AUTF8String urlEncodedName);
+
   /**
    * @deprecated (Bug 1679333). Use either `getFolderForURL` or
    * `createFolderAndCache` to explicitly get an existing folder or create a new

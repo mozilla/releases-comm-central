@@ -7,6 +7,7 @@
    Class for handling Berkeley Mailbox stores.
 */
 
+#include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "prlog.h"
 #include "msgCore.h"
@@ -63,11 +64,13 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
   bool exists;
   path->Exists(&exists);
   if (!exists) {
+    // This code is executed only for the root folder, which needs to be a
+    // directory, unlike the MBOX file for all other folders.
     rv = path->Create(nsIFile::DIRECTORY_TYPE, 0755);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return AddSubFolders(aParentFolder, path, aDeep);
+  return PopulateFolderHierarchy(aParentFolder, this, aDeep);
 }
 
 // Given a directory structure:
@@ -1023,76 +1026,6 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
 NS_IMETHODIMP nsMsgBrkMBoxStore::GetStoreType(nsACString& aType) {
   aType.AssignLiteral("mbox");
   return NS_OK;
-}
-
-// Iterates over the files in the "path" directory, and adds subfolders to
-// parent for each mailbox file found.
-nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder* parent,
-                                          nsCOMPtr<nsIFile>& path, bool deep) {
-  nsresult rv;
-  nsCOMPtr<nsIFile> tmp;  // at top level so we can safely assign to path
-  bool isDirectory;
-  path->IsDirectory(&isDirectory);
-  if (!isDirectory) {
-    rv = path->Clone(getter_AddRefs(tmp));
-    path = tmp;
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoString leafName;
-    path->GetLeafName(leafName);
-    leafName.AppendLiteral(FOLDER_SUFFIX);
-    path->SetLeafName(leafName);
-    path->IsDirectory(&isDirectory);
-  }
-  if (!isDirectory) return NS_OK;
-  // first find out all the current subfolders and files, before using them
-  // while creating new subfolders; we don't want to modify and iterate the same
-  // directory at once.
-  nsCOMArray<nsIFile> currentDirEntries;
-  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
-  rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool hasMore;
-  while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
-         hasMore) {
-    nsCOMPtr<nsIFile> currentFile;
-    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
-    if (NS_SUCCEEDED(rv) && currentFile) {
-      currentDirEntries.AppendObject(currentFile);
-    }
-  }
-
-  // add the folders
-  int32_t count = currentDirEntries.Count();
-  for (int32_t i = 0; i < count; ++i) {
-    nsCOMPtr<nsIFile> currentFile(currentDirEntries[i]);
-
-    // here we should handle the case where the current file is a .sbd directory
-    // w/o a matching folder file, or a directory w/o the name .sbd
-    if (nsShouldIgnoreFile(currentFile)) continue;
-
-    nsAutoString leafName;
-    currentFile->GetLeafName(leafName);
-    nsCOMPtr<nsIMsgFolder> child;
-    rv = parent->AddSubfolder(NS_ConvertUTF16toUTF8(leafName),
-                              getter_AddRefs(child));
-    if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
-      return rv;
-    }
-    if (child) {
-      nsAutoCString folderName;
-      child->GetName(folderName);  // try to get it from cache/db
-      if (folderName.IsEmpty()) child->SetName(NS_ConvertUTF16toUTF8(leafName));
-      if (deep) {
-        nsCOMPtr<nsIFile> path;
-        rv = child->GetFilePath(getter_AddRefs(path));
-        NS_ENSURE_SUCCESS(rv, rv);
-        rv = AddSubFolders(child, path, true);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-    }
-  }
-  return rv == NS_MSG_FOLDER_EXISTS ? NS_OK : rv;
 }
 
 /* Finds the directory associated with this folder.  That is if the path is

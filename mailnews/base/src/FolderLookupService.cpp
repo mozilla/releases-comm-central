@@ -147,6 +147,11 @@ NS_IMETHODIMP FolderLookupService::CreateFolderAndCache(
   return NS_OK;
 }
 
+NS_IMETHODIMP FolderLookupService::CreateRootFolderAndCache(
+    const nsACString& urlEncodedName, nsIMsgFolder** folder) {
+  return CreateDangling(urlEncodedName, folder);
+}
+
 NS_IMETHODIMP FolderLookupService::GetOrCreateFolderForURL(
     const nsACString& url, nsIMsgFolder** folder) {
   NS_ENSURE_ARG_POINTER(folder);

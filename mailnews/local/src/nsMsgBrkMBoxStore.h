@@ -34,8 +34,6 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
   nsresult InternalGetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          int64_t& filePos,
                                          nsIOutputStream** aResult);
-  nsresult AddSubFolders(nsIMsgFolder* parent, nsCOMPtr<nsIFile>& path,
-                         bool deep);
   nsresult CreateDirectoryForFolder(nsIFile* path);
   void GetMailboxModProperties(nsIMsgFolder* aFolder, int64_t* aSize,
                                uint32_t* aDate);

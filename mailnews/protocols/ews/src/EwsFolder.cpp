@@ -12,6 +12,7 @@
 
 #include "ErrorList.h"
 #include "FolderCompactor.h"
+#include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"

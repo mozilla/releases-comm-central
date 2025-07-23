@@ -7,6 +7,7 @@
    Class for handling Maildir stores.
 */
 
+#include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "nsMsgMessageFlags.h"
 #include "prprf.h"
@@ -226,64 +227,6 @@ nsCString nsMsgMaildirStore::UniqueName() {
                          mHostname.get());
 }
 
-// Iterates over the folders in the "path" directory, and adds subfolders to
-// parent for each Maildir folder found.
-nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder* parent, nsIFile* path,
-                                          bool deep) {
-  nsCOMArray<nsIFile> currentDirEntries;
-
-  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
-  nsresult rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool hasMore;
-  while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
-         hasMore) {
-    nsCOMPtr<nsIFile> currentFile;
-    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
-    if (NS_SUCCEEDED(rv) && currentFile) {
-      bool isDirectory = false;
-      currentFile->IsDirectory(&isDirectory);
-      // Make sure this really is a mail folder dir (i.e., a directory that
-      // contains cur and tmp sub-dirs, and not a .sbd or .mozmsgs dir).
-      if (isDirectory && !nsShouldIgnoreFile(currentFile))
-        currentDirEntries.AppendObject(currentFile);
-    }
-  }
-
-  // add the folders
-  int32_t count = currentDirEntries.Count();
-  for (int32_t i = 0; i < count; ++i) {
-    nsCOMPtr<nsIFile> currentFile(currentDirEntries[i]);
-
-    nsAutoString leafName;
-    currentFile->GetLeafName(leafName);
-
-    nsCOMPtr<nsIMsgFolder> child;
-    rv = parent->AddSubfolder(NS_ConvertUTF16toUTF8(leafName),
-                              getter_AddRefs(child));
-    if (child) {
-      nsAutoCString folderName;
-      child->GetName(folderName);  // try to get it from cache/db
-      if (folderName.IsEmpty()) child->SetName(NS_ConvertUTF16toUTF8(leafName));
-      if (deep) {
-        nsCOMPtr<nsIFile> path;
-        rv = child->GetFilePath(getter_AddRefs(path));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        // Construct the .sbd directory path for the possible children of the
-        // folder.
-        GetDirectoryForFolder(path);
-        bool directory = false;
-        // Check that <folder>.sbd really is a directory.
-        path->IsDirectory(&directory);
-        if (directory) AddSubFolders(child, path, true);
-      }
-    }
-  }
-  return rv == NS_MSG_FOLDER_EXISTS ? NS_OK : rv;
-}
-
 NS_IMETHODIMP nsMsgMaildirStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
                                                     bool aDeep) {
   NS_ENSURE_ARG_POINTER(aParentFolder);
@@ -297,7 +240,7 @@ NS_IMETHODIMP nsMsgMaildirStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
   if (!isServer) GetDirectoryForFolder(path);
 
   path->IsDirectory(&directory);
-  if (directory) rv = AddSubFolders(aParentFolder, path, aDeep);
+  if (directory) rv = PopulateFolderHierarchy(aParentFolder, this, true);
 
   return (rv == NS_MSG_FOLDER_EXISTS) ? NS_OK : rv;
 }

@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "msgCore.h"
 #include "nsLocalFile.h"
@@ -3403,16 +3404,22 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
     NS_ENSURE_SUCCESS(rv, rv);
 
     folder->SetParent(this);
+    mSubFolders.AppendObject(folder);
   } else {
 #endif  // MOZ_PANORAMA
     rv = CreateFolderAndCache(this, actualName, getter_AddRefs(folder));
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
+      return rv;
+    }
+
+    if (NS_SUCCEEDED(rv)) {
+      mSubFolders.AppendObject(folder);
+    }
 #ifdef MOZ_PANORAMA
   }
 #endif  // MOZ_PANORAMA
   MOZ_ASSERT(folder, "there must be a folder");
 
-  mSubFolders.AppendObject(folder);
   folder->SetFlag(flags | nsMsgFolderFlags::Mail);
   folder.forget(child);
   return NS_OK;

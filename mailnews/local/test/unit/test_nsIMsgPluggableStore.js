@@ -29,39 +29,66 @@ function readAll(inStream) {
 }
 
 /**
+ * Create a store directory based on the message store type.
+ *
+ * @param {nsIMsgFolder} rootFolder
+ * @param {string} folderPath
+ */
+async function createStoreFolder(rootFolder, folderPath) {
+  const parts = folderPath.split("/");
+  const p = PathUtils.join(rootFolder.filePath.path, ...parts);
+  const storeType = rootFolder.msgStore.storeType;
+  if (storeType == "maildir") {
+    await IOUtils.makeDirectory(p);
+    await IOUtils.makeDirectory(PathUtils.join(p, "new"));
+    await IOUtils.makeDirectory(PathUtils.join(p, "cur"));
+  } else if (storeType == "mbox") {
+    await IOUtils.writeUTF8(p, "");
+  } else {
+    throw new Error(`Unexpected storeType: ${storeType}`);
+  }
+}
+
+/**
+ * Create a dummy summary file.
+ *
+ * @param {nsIMsgFolder} rootFolder
+ * @param {string} folderPath
+ */
+async function createDatabaseFile(rootFolder, folderPath) {
+  const parts = folderPath.split("/");
+  parts[parts.length - 1] = parts[parts.length - 1] + ".msf";
+  const p = PathUtils.join(rootFolder.filePath.path, ...parts);
+  await IOUtils.writeUTF8(p, "");
+}
+
+/**
  * nsIMsgPluggableStore interface tests
  */
 
-function test_discoverSubFolders() {
-  const directory = create_temporary_directory();
+async function test_discoverSubFolders() {
+  const tmp = create_temporary_directory();
+  const rootFolder = setup_mailbox("none", tmp);
 
   // Just an ordinary folder with an ordinary name.
-  const file = directory.clone();
-  // Create a directory for maildir stores to find.
-  file.append("file");
-  file.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-  // And a summary file.
-  file.leafName += ".msf";
-  file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+  await createStoreFolder(rootFolder, "file");
+  await createDatabaseFile(rootFolder, "file");
 
   // A folder with a name that once was hashed by NS_MsgHashIfNecessary.
   // This name no longer needs hashing but this test is making sure it still
   // works with the hashed file names.
-  const hashedFile = directory.clone();
-  hashedFile.append("1ad41a64");
-  hashedFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  await createStoreFolder(rootFolder, "1ad41a64");
   // Copy the summary file containing the folder's real name.
-  do_get_file("data/hashedFolder.msf").copyTo(directory, "1ad41a64.msf");
+  do_get_file("data/hashedFolder.msf").copyTo(
+    rootFolder.filePath,
+    "1ad41a64.msf"
+  );
 
   // A folder with a name that used to require hashing (on Windows).
   // This is only really here for completeness.
-  const unhashedFile = directory.clone();
-  unhashedFile.append("test π");
-  unhashedFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-  unhashedFile.leafName += ".msf";
-  unhashedFile.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+  await createStoreFolder(rootFolder, "test π");
+  await createDatabaseFile(rootFolder, "test π");
 
-  const rootFolder = setup_mailbox("none", directory);
   rootFolder.msgStore.discoverSubFolders(rootFolder, true);
 
   const prefix = rootFolder.URI;
@@ -98,19 +125,8 @@ function test_discoverSubFolders() {
 async function test_discoverChildFolders() {
   // Helper to create raw subfolders to discover.
   async function createTestStoreFolders(rootFolder, dirs) {
-    const storeType = rootFolder.msgStore.storeType;
     for (const dir of dirs) {
-      const parts = dir.split("/");
-      const p = PathUtils.join(rootFolder.filePath.path, ...parts);
-      if (storeType == "maildir") {
-        await IOUtils.makeDirectory(p);
-        await IOUtils.makeDirectory(PathUtils.join(p, "new"));
-        await IOUtils.makeDirectory(PathUtils.join(p, "cur"));
-      } else if (storeType == "mbox") {
-        await IOUtils.writeUTF8(p, "");
-      } else {
-        throw new Error(`Unexpected storeType: ${storeType}`);
-      }
+      await createStoreFolder(rootFolder, dir);
     }
   }
 

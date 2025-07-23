@@ -3,11 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    "FolderPopulation.h",
     "mailnews_ui_glue.h",
     "OfflineStorage.h",
 ]
 
 SOURCES += [
+    "FolderPopulation.cpp",
     "OfflineStorage.cpp",
 ]
 

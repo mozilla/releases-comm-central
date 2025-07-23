@@ -667,6 +667,7 @@ nsresult GetOrCreateFolder(const nsACString& aFolderURI,
 nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
                               const nsACString& folderName,
                               nsIMsgFolder** folder) {
+  NS_ENSURE_ARG(parentFolder);
   NS_ENSURE_ARG_POINTER(folder);
 
   *folder = nullptr;
@@ -698,6 +699,7 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
   }
 
   if (existingFolder) {
+    existingFolder.forget(folder);
     return NS_MSG_FOLDER_EXISTS;
   }
 
@@ -705,6 +707,15 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return *folder ? NS_OK : NS_ERROR_FAILURE;
+}
+
+nsresult CreateRootFolderAndCache(const nsACString& name,
+                                  nsIMsgFolder** folder) {
+  nsresult rv;
+  nsCOMPtr<nsIFolderLookupService> fls(
+      do_GetService(NS_FOLDERLOOKUPSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return fls->CreateRootFolderAndCache(name, folder);
 }
 
 nsresult FolderUri(nsIMsgFolder* folder, nsIURI** uri) {
