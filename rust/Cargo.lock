@@ -721,7 +721,7 @@ dependencies = [
  "storage_variant",
  "tempfile",
  "thin-vec",
- "time 0.1.45",
+ "time",
  "wr_malloc_size_of",
  "xpcom",
 ]
@@ -776,9 +776,9 @@ dependencies = [
 
 [[package]]
 name = "chrono"
-version = "0.4.40"
+version = "0.4.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a7964611d71df112cb1730f2ee67324fcf4d0fc6606acbbe9bfe06df124637c"
+checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
@@ -1397,9 +1397,9 @@ dependencies = [
 
 [[package]]
 name = "deranged"
-version = "0.3.11"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
+checksum = "9c9e6a11ca8224451684bc0d7d5a7adbf8f2fd6887261a1cfc3c0432f9d4068e"
 dependencies = [
  "powerfmt",
  "serde",
@@ -1743,7 +1743,7 @@ dependencies = [
  "serde",
  "serde_path_to_error",
  "thiserror 1.999.999",
- "time 0.3.36",
+ "time",
  "xml_struct",
 ]
 
@@ -1868,7 +1868,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thin-vec",
- "time 0.1.45",
  "uuid",
  "wr_malloc_size_of",
 ]
@@ -2587,9 +2586,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "64.5.1"
+version = "64.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebccab975e944c0f4993135d7edb62b3a249b06dbd614b6d544d59588cf76f14"
+checksum = "7b6452ff6beb4f45f49bc48cec2c62d6b1c93036e09afa646c033009a98bab9a"
 dependencies = [
  "android_logger",
  "bincode",
@@ -2604,7 +2603,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.999.999",
- "time 0.1.45",
+ "time",
  "uniffi",
  "uuid",
  "wr_malloc_size_of",
@@ -5955,20 +5954,9 @@ checksum = "06638f039e6c49cd649d92e0e792f665d088bece8eba4c99c6fdfc2776b4ddb0"
 
 [[package]]
 name = "time"
-version = "0.1.45"
+version = "0.3.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b797afad3f312d1c66a56d11d0316f916356d11bd158fbc6ca6389ff6bf805a"
-dependencies = [
- "libc",
- "wasi 0.10.0+wasi-snapshot-preview999",
- "winapi",
-]
-
-[[package]]
-name = "time"
-version = "0.3.36"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dfd88e563464686c916c7e46e623e520ddc6d79fa6641390f2e3fa86e83e885"
+checksum = "8a7619e19bc266e0f9c5e6686659d394bc57973859340060a69221e57dbc0c40"
 dependencies = [
  "deranged",
  "itoa",
@@ -5981,15 +5969,15 @@ dependencies = [
 
 [[package]]
 name = "time-core"
-version = "0.1.2"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef927ca75afb808a4d64dd374f00a2adf8d0fcff8e7b184af886c3c87ec4a3f3"
+checksum = "c9e9a38711f559d9e3ce1cdb06dd7c5b8ea546bc90052da6d06bb76da74bb07c"
 
 [[package]]
 name = "time-macros"
-version = "0.2.18"
+version = "0.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f252a68540fde3a3877aeea552b832b40ab9a69e318efd078774a01ddee1ccf"
+checksum = "3526739392ec93fd8b359c8e98514cb3e8e021beb4e5f597b00a0221f8ed8a49"
 dependencies = [
  "num-conv",
  "time-core",
@@ -6479,13 +6467,6 @@ dependencies = [
 
 [[package]]
 name = "wasi"
-version = "0.10.0+wasi-snapshot-preview999"
-dependencies = [
- "wasi 0.14.2+wasi-0.2.4",
-]
-
-[[package]]
-name = "wasi"
 version = "0.11.999"
 dependencies = [
  "wasi 0.14.2+wasi-0.2.4",
@@ -6560,7 +6541,7 @@ dependencies = [
  "smallvec",
  "svg_fmt",
  "swgl",
- "time 0.1.45",
+ "time",
  "topological-sort",
  "tracy-rs",
  "webrender_api",
@@ -6583,7 +6564,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_derive",
- "time 0.1.45",
+ "time",
  "wr_malloc_size_of",
 ]
 

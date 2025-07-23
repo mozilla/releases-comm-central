@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean-core"
-version = "64.5.1"
+version = "64.5.2"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -134,7 +134,7 @@ path = "tests/uuid.rs"
 version = "1.2.1"
 
 [dependencies.chrono]
-version = "0.4.10"
+version = "0.4.41"
 features = ["serde"]
 
 [dependencies.crossbeam-channel]
@@ -178,7 +178,7 @@ version = "1.0.44"
 version = "1.0.4"
 
 [dependencies.time]
-version = "0.1.40"
+version = "0.3"
 
 [dependencies.uniffi]
 version = "0.29.0"
