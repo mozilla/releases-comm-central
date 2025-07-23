@@ -136,10 +136,12 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Rob Lemley (rjl)](https://people.mozilla.org/s?query=rjl)
+    * [Daniel Darnell (dandarnell)](https://people.mozilla.org/s?query=dandarnell)
 * - Peer(s)
   -
-    * [Daniel Darnell (dandarnell)](https://people.mozilla.org/s?query=dandarnell)
+    * [Corey Bryant (coreycb)](https://people.mozilla.org/s?query=coreycb)
+* - Owner(s) Emeritus
+  - Rob Lemley
 * - Peer(s) Emeritus
   - Mark Banner, Siddharth Agarwal, Justin Wood, Joshua Cranmer, Tom Prince, aleth, Philipp Kewisch
 * - Includes
@@ -637,7 +639,12 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Rob Lemley (rjl)](https://people.mozilla.org/s?query=rjl)
+    * [Daniel Darnell (dandarnell)](https://people.mozilla.org/s?query=dandarnell)
+* - Peer(s)
+  -
+    * [Corey Bryant (coreycb)](https://people.mozilla.org/s?query=coreycb)
+* - Owner(s) Emeritus
+  - Rob Lemley
 * - Includes
   -
     * mots.yaml

@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-07-11T17:16:44.033267+00:00'
+updated_at: '2025-07-21T19:06:52.299459+00:00'
 hashes:
-  config: fddb88600c38f6d8b5b8d2979f435476b3bab007
-  export: 74b42a3203de5b5f68f2fabea8408f6518318710
+  config: 805435385a2031b80b637d39761efda5b6cb4943
+  export: 2ed9d2bcf2dcfab8c656eb68221d3a9741160b53
 export:
   path: ./docs/mots/index.md
   format: md
@@ -96,6 +96,10 @@ people:
     bmo_id: 227224
     name: Patrick Cloke
     nick: clokep
+  - &coreycb
+    bmo_id: 754531
+    name: Corey Bryant
+    nick: coreycb
   - &ctalbert
     bmo_id: 250777
     name: Clint Talbert
@@ -356,9 +360,10 @@ modules:
           - build/**
           - mail/config/**
           - taskcluster/**
-        owners: [*rjl]
-        peers: [*dandarnell]
+        owners: [*dandarnell]
+        peers: [*coreycb]
         meta:
+          owners_emeritus: [*rjl]
           peers_emeritus:
             - *standard8
             - Siddharth Agarwal
@@ -639,6 +644,8 @@ modules:
   - name: mots config
     includes:
       - mots.yaml
-    owners:
-      - *rjl
+    owners: [*dandarnell]
+    peers: [*coreycb]
     machine_name: mots
+    meta:
+      owners_emeritus: [*rjl]
