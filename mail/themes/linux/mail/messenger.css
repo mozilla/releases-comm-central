@@ -130,9 +130,19 @@
   --titlebar-button-spacing: 6.5px;
   --titlebar-button-end-spacing: 10px;
   @media (-moz-gtk-theme-family: breeze) {
-    --titlebar-button-size: 18px;
-    --titlebar-button-spacing: 3px;
-    --titlebar-button-end-spacing: 10px;
+    /* On breeze, titlebar button size and spacing depends on the font, see:
+     *  * https://invent.kde.org/plasma/kdecoration/-/blob/28898c2492708f6a1603458baa535a8504e8d638/src/decorationsettings.cpp#L18-33
+     *  * https://invent.kde.org/plasma/breeze/-/blob/156193c14942cbc836cf131e92e16fc3310513ed/kdecoration/breezedecoration.cpp#L734-750
+     *  * https://invent.kde.org/plasma/breeze/-/blob/156193c14942cbc836cf131e92e16fc3310513ed/kdecoration/breeze.h#L34
+     * Since we don't have the height of the "M" glyph, we approximate using
+     * ems snapped to device pixels for crisp rendering. */
+    /* The button size is also the grid unit */
+    --titlebar-button-size: round(1.3em, 2 * env(hairline));
+    /* The spacing is half the button size. Since we apply it to each side,
+     * it's that divided by 2 */
+    --titlebar-button-spacing: calc(var(--titlebar-button-size) / 4);
+    /* End spacing is 2 * smallSpacing, which is max(2px, clamp(grid-unit / 4)). */
+    --titlebar-button-end-spacing: calc(2 * max(2px, round(down, var(--titlebar-button-size) / 4, env(hairline))));
   }
   --max-titlebar-button-position: max(
     env(-moz-gtk-csd-maximize-button-position),
@@ -161,6 +171,7 @@
     appearance: auto;
     border-radius: 100%;
     background-position: center center;
+    background-size: min(16px, var(--titlebar-button-size) - 2 * env(hairline));
     background-repeat: no-repeat;
     -moz-context-properties: stroke;
     stroke: currentColor;
