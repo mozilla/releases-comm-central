@@ -48,4 +48,4 @@ EXPORTS += [
     "ImportDebug.h",
 ]
 
-FINAL_LIBRARY = "import"
+FINAL_LIBRARY = "mail"
