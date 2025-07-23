@@ -28,7 +28,7 @@
               <button id="openpgpImportButton"
                       class="button-focusable"
                       data-l10n-id="openpgp-import-sender-key"
-                      oncommand="Enigmail.msg.importAttachedSenderKey();"/>
+                      oncommand="event.target.closest('panel').hidePopup(); Enigmail.msg.importAttachedSenderKey();"/>
             </hbox>
           </hbox>
 
@@ -42,7 +42,7 @@
               <description data-l10n-id="openpgp-missing-signature-key"/>
               <button data-l10n-id="openpgp-search-signature-key"
                       class="button-focusable"
-                      oncommand="Enigmail.msg.searchSignatureKey();"/>
+                      oncommand="event.target.closest('panel').hidePopup(); Enigmail.msg.searchSignatureKey();"/>
             </hbox>
           </hbox>
         </vbox>
@@ -70,7 +70,7 @@
           <hbox pack="end">
             <button id="signatureCertView" label="&signatureCert.label;"
                     class="button-focusable"
-                    oncommand="viewSignatureCert()" />
+                    oncommand="viewSignatureCert(event.target.closest('panel'))" />
           </hbox>
         </vbox>
 
@@ -79,7 +79,7 @@
           <label id="signatureKeyId" flex="1" context="simpleCopyPopup"/>
           <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
                   class="button-focusable"
-                  oncommand="viewSignatureKey()" collapsed="true"/>
+                  oncommand="viewSignatureKey(event.target.closest('panel'))" collapsed="true"/>
         </hbox>
 
         <label id="encryptionLabel" class="message-security-label"/>
@@ -91,7 +91,7 @@
                   hidden="true"
                   data-l10n-id="debug-log-title"
                   class="button-focusable"
-                  oncommand="Enigmail.msg.viewPacketDump()" />
+                  oncommand="event.target.closest('panel').hidePopup(); Enigmail.msg.viewPacketDump()" />
         </hbox>
 
         <vbox id="encryptionCert" class="message-security-container"
@@ -114,7 +114,7 @@
           <hbox pack="end">
             <button id="encryptionCertView" label="&encryptionCert.label;"
                     class="button-focusable"
-                    oncommand="viewEncryptionCert()" />
+                    oncommand="viewEncryptionCert(event.target.closest('panel'))" />
           </hbox>
         </vbox>
 
@@ -125,7 +125,7 @@
             <button id="viewEncryptionKey"
                     data-l10n-id="openpgp-view-your-encryption-key"
                     class="button-focusable"
-                    oncommand="viewEncryptionKey()"
+                    oncommand="viewEncryptionKey(event.target.closest('panel'))"
                     collapsed="true"/>
           </hbox>
         </vbox>

@@ -242,13 +242,21 @@ async function viewCert(cert) {
   mail3PaneWindow.switchToTabHavingURI(url, true, {});
 }
 
-async function viewSignatureCert() {
+async function viewSignatureCert(popupToHide) {
+  if (popupToHide) {
+    popupToHide.hidePopup();
+  }
+
   if (gSignerCert) {
     viewCert(gSignerCert);
   }
 }
 
-function viewEncryptionCert() {
+function viewEncryptionCert(popupToHide) {
+  if (popupToHide) {
+    popupToHide.hidePopup();
+  }
+
   if (gEncryptionCert) {
     viewCert(gEncryptionCert);
   }

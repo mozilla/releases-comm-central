@@ -21,9 +21,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 
-var gSigKeyId = null;
-var gEncKeyId = null;
-
 /**
  * Reveal message security popup panel with updated OpenPGP or S/MIME info.
  */
@@ -69,10 +66,6 @@ function showMessageSecurityPanel() {
  * Reset all values and clear the text of the message security popup panel.
  */
 function onMessageSecurityPopupHidden() {
-  // Clear the variables for signature and encryption.
-  gSigKeyId = null;
-  gEncKeyId = null;
-
   // Hide the UI elements.
   document.getElementById("signatureHeader").collapsed = true;
   document.getElementById("encryptionHeader").collapsed = true;
@@ -91,21 +84,31 @@ function onMessageSecurityPopupHidden() {
   }
 }
 
-async function viewSignatureKey() {
-  if (!gSigKeyId) {
-    return;
+async function viewSignatureKey(popupToHide) {
+  if (popupToHide) {
+    popupToHide.hidePopup();
   }
 
   // If the signature acceptance was edited, reload the current message.
-  if (await EnigmailWindows.openKeyDetails(window, gSigKeyId, false)) {
+  if (
+    await EnigmailWindows.openKeyDetails(
+      window,
+      Enigmail.hdrView.msgSignatureKeyId,
+      false
+    )
+  ) {
     ReloadMessage();
   }
 }
 
-function viewEncryptionKey() {
-  if (!gEncKeyId) {
-    return;
+function viewEncryptionKey(popupToHide) {
+  if (popupToHide) {
+    popupToHide.hidePopup();
   }
 
-  EnigmailWindows.openKeyDetails(window, gEncKeyId, false);
+  EnigmailWindows.openKeyDetails(
+    window,
+    Enigmail.hdrView.msgEncryptionKeyId.keyId,
+    false
+  );
 }

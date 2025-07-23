@@ -2683,7 +2683,6 @@ Enigmail.msg = {
 
       if (sigKeyInfo) {
         document.getElementById("viewSignatureKey").collapsed = false;
-        gSigKeyId = Enigmail.hdrView.msgSignatureKeyId;
       }
     }
 
@@ -2721,7 +2720,6 @@ Enigmail.msg = {
         EnigmailKeyRing.getKeyById(Enigmail.hdrView.msgEncryptionKeyId.keyId)
       ) {
         document.getElementById("viewEncryptionKey").collapsed = false;
-        gEncKeyId = Enigmail.hdrView.msgEncryptionKeyId.keyId;
       }
     }
 
