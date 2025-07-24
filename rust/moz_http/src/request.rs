@@ -190,8 +190,30 @@ impl<'rb> RequestBuilder<'rb> {
                     "failed to get service nsINSSErrorsService",
                 ))?;
 
-                let sec_info: RefPtr<nsITransportSecurityInfo> =
-                    getter_addrefs(|p| unsafe { channel.GetSecurityInfo(p) })?;
+                let sec_info: Option<RefPtr<nsITransportSecurityInfo>> =
+                    match getter_addrefs(|p| unsafe { channel.GetSecurityInfo(p) }) {
+                        Ok(sec_info) => Some(sec_info),
+                        Err(err) => match err {
+                            // A null pointer will cause `getter_addrefs` to
+                            // return `Err(NS_OK)`. This might be expected here
+                            // if e.g. a secure connection couldn't be
+                            // established due to the server not being
+                            // available.
+                            nserror::NS_OK => None,
+                            _ => return Err(err.into()),
+                        },
+                    };
+
+                // If there isn't an `nsITransportSecurityInfo` attached to the
+                // channel, then the error is probably not security-related but
+                // rather represents a connectivity issue.
+                if sec_info.is_none() {
+                    return Err(err.into());
+                }
+
+                // We'll always return if `sec_info` is `None`, so unwrapping
+                // should be fine here.
+                let sec_info = sec_info.unwrap();
 
                 let mut err_code: i32 = 0;
                 unsafe { sec_info.GetErrorCode(&mut err_code) }.to_result()?;

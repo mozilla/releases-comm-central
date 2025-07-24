@@ -8,12 +8,9 @@ use nsstring::{nsACString, nsCString};
 use thin_vec::ThinVec;
 use xpcom::{RefCounted, RefPtr};
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    client::{
-        process_error_with_cb_cpp, response_into_messages, AuthFailureBehavior, XpComEwsClient,
-        XpComEwsError,
-    },
+use crate::authentication::credentials::AuthenticationProvider;
+use crate::client::{
+    process_error_with_cb_cpp, response_into_messages, XpComEwsClient, XpComEwsError,
 };
 
 /// Trait to adapt varying completion reporting interfaces to a common interface.
@@ -104,7 +101,7 @@ where
     let operation_data = operation_builder(client, destination_folder_id, ids);
 
     let response = client
-        .make_operation_request(operation_data.clone(), AuthFailureBehavior::ReAuth)
+        .make_operation_request(operation_data.clone(), Default::default())
         .await?;
 
     let messages = response_into_messages(response)?;

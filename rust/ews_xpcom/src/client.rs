@@ -37,7 +37,10 @@ use ews::{
 use fxhash::FxHashMap;
 use itertools::Itertools;
 use mail_parser::MessageParser;
-use mailnews_ui_glue::{handle_auth_failure, AuthErrorOutcome, UserInteractiveServer};
+use mailnews_ui_glue::{
+    handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
+    AuthErrorOutcome, UserInteractiveServer,
+};
 use moz_http::{Response, StatusCode};
 use nserror::nsresult;
 use nsstring::nsCString;
@@ -86,15 +89,42 @@ const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 // specific value.
 const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
 
+/// Options to to control the behavior of
+/// [`XpComEwsClient::make_operation_request`].
+#[derive(Debug, Clone, Copy, Default)]
+struct OperationRequestOptions {
+    /// Behavior to follow when an authentication failure arises.
+    auth_failure_behavior: AuthFailureBehavior,
+
+    /// Behavior to follow when a transport security failure arises.
+    transport_sec_failure_behavior: TransportSecFailureBehavior,
+}
+
 /// The behavior to follow when an operation request results in an
 /// authentication failure.
+#[derive(Debug, Clone, Copy, Default)]
 enum AuthFailureBehavior {
+    /// Attempt to authenticate again or ask the user for new credentials.
+    #[default]
+    ReAuth,
+
     /// Fail immediately without attempting to authenticate again or asking the
     /// user for new credentials.
     Silent,
+}
 
-    /// Attempt to authenticate again or ask the user for new credentials.
-    ReAuth,
+/// The behavior to follow when an operation request results in a transport
+/// security failure (e.g. because of an invalid certificate). This specifically
+/// controls the behaviour of `XpComEwsClient::make_operation_request`.
+#[derive(Debug, Clone, Copy, Default)]
+enum TransportSecFailureBehavior {
+    /// Immediately alert the user about the security failure.
+    #[default]
+    Alert,
+
+    /// Don't alert the user and propagate the failure to the consumer (which
+    /// might or might not alert the user).
+    Silent,
 }
 
 pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
@@ -167,7 +197,13 @@ where
         let response_messages = self
             // Make authentication failure silent, since all we want to know is
             // whether our credentials are valid.
-            .make_operation_request(get_root_folder, AuthFailureBehavior::Silent)
+            .make_operation_request(
+                get_root_folder,
+                OperationRequestOptions {
+                    auth_failure_behavior: AuthFailureBehavior::Silent,
+                    ..Default::default()
+                },
+            )
             .await?
             .into_response_messages();
 
@@ -240,7 +276,7 @@ where
             };
 
             let response = self
-                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .make_operation_request(op, Default::default())
                 .await?
                 .into_response_messages();
             let response = single_response_or_error(response)?;
@@ -342,7 +378,7 @@ where
             };
 
             let response = self
-                .make_operation_request(op, AuthFailureBehavior::ReAuth)
+                .make_operation_request(op, Default::default())
                 .await?
                 .into_response_messages();
             let response_class = single_response_or_error(response)?;
@@ -716,9 +752,7 @@ where
             folder_ids: ids,
         };
 
-        let response = self
-            .make_operation_request(op, AuthFailureBehavior::ReAuth)
-            .await?;
+        let response = self.make_operation_request(op, Default::default()).await?;
 
         let response_messages = response.into_response_messages();
         validate_response_message_count(&response_messages, DISTINGUISHED_IDS.len())?;
@@ -864,9 +898,7 @@ where
                 folder_ids: to_fetch,
             };
 
-            let response = self
-                .make_operation_request(op, AuthFailureBehavior::ReAuth)
-                .await?;
+            let response = self.make_operation_request(op, Default::default()).await?;
             let messages = response.into_response_messages();
 
             let mut fetched = messages
@@ -994,9 +1026,7 @@ where
                 item_ids: batch_ids,
             };
 
-            let response = self
-                .make_operation_request(op, AuthFailureBehavior::ReAuth)
-                .await?;
+            let response = self.make_operation_request(op, Default::default()).await?;
             for response_message in response.into_response_messages() {
                 let message = process_response_message_class("GetItem", response_message)?;
 
@@ -1120,7 +1150,8 @@ where
             saved_item_folder_id: None,
         };
 
-        self.make_create_item_request(create_item).await?;
+        self.make_create_item_request(create_item, TransportSecFailureBehavior::Silent)
+            .await?;
 
         Ok(())
     }
@@ -1213,7 +1244,9 @@ where
             }),
         };
 
-        let response_message = self.make_create_item_request(create_item).await?;
+        let response_message = self
+            .make_create_item_request(create_item, Default::default())
+            .await?;
 
         let hdr =
             create_and_populate_header_from_create_response(response_message, &content, callbacks)?;
@@ -1232,9 +1265,16 @@ where
     async fn make_create_item_request(
         &self,
         create_item: CreateItem,
+        transport_sec_failure_behavior: TransportSecFailureBehavior,
     ) -> Result<ItemResponseMessage, XpComEwsError> {
         let response = self
-            .make_operation_request(create_item, AuthFailureBehavior::ReAuth)
+            .make_operation_request(
+                create_item,
+                OperationRequestOptions {
+                    transport_sec_failure_behavior,
+                    ..Default::default()
+                },
+            )
             .await?;
 
         // We have only sent one message, therefore the response should only
@@ -1309,7 +1349,7 @@ where
     async fn make_update_item_request(&self, update_item: UpdateItem) -> Result<(), XpComEwsError> {
         // Make the operation request using the provided parameters.
         let response = self
-            .make_operation_request(update_item.clone(), AuthFailureBehavior::ReAuth)
+            .make_operation_request(update_item.clone(), Default::default())
             .await?;
 
         // Get all response messages.
@@ -1374,7 +1414,7 @@ where
         };
 
         let response = self
-            .make_operation_request(delete_item, AuthFailureBehavior::ReAuth)
+            .make_operation_request(delete_item, Default::default())
             .await?;
 
         // Make sure we got the amount of response messages matches the amount
@@ -1445,7 +1485,7 @@ where
             delete_type: DeleteType::HardDelete,
         };
         let response = self
-            .make_operation_request(delete_folder, AuthFailureBehavior::ReAuth)
+            .make_operation_request(delete_folder, Default::default())
             .await?;
 
         // We have only sent one message, therefore the response should only
@@ -1509,7 +1549,7 @@ where
         };
 
         let response = self
-            .make_operation_request(update_folder, AuthFailureBehavior::ReAuth)
+            .make_operation_request(update_folder, Default::default())
             .await?;
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
@@ -1528,7 +1568,7 @@ where
     async fn make_operation_request<Op>(
         &self,
         op: Op,
-        auth_failure_behavior: AuthFailureBehavior,
+        options: OperationRequestOptions,
     ) -> Result<Op::Response, XpComEwsError>
     where
         Op: Operation,
@@ -1550,26 +1590,64 @@ where
             {
                 Ok(response) => response,
                 Err(err) => {
-                    if matches!(err, XpComEwsError::Authentication)
-                        && matches!(auth_failure_behavior, AuthFailureBehavior::ReAuth)
-                    {
-                        let outcome = handle_auth_failure(self.server.clone())?;
+                    // Handle authentication, network and transport security
+                    // failures early because we know how to process them
+                    // without requiring more data from the response body.
+                    match err {
+                        // If the error is an authentication failure, try to
+                        // authenticate again (by asking the user for new
+                        // credentials if relevant), but only if the consumer
+                        // asked us to.
+                        XpComEwsError::Authentication
+                            if matches!(
+                                options.auth_failure_behavior,
+                                AuthFailureBehavior::ReAuth
+                            ) =>
+                        {
+                            let outcome = handle_auth_failure(self.server.clone())?;
 
-                        // Refresh the credentials before potentially retrying,
-                        // because they might have changed (e.g. if the user
-                        // entered a new password after being prompted for one),
-                        // and should we emit more requests using this client,
-                        // we should be using up to date credentials.
-                        let credentials = self.server.get_credentials()?;
-                        self.credentials.replace(credentials);
+                            // Refresh the credentials before potentially retrying,
+                            // because they might have changed (e.g. if the user
+                            // entered a new password after being prompted for one),
+                            // and should we emit more requests using this client,
+                            // we should be using up to date credentials.
+                            let credentials = self.server.get_credentials()?;
+                            self.credentials.replace(credentials);
 
-                        match outcome {
-                            AuthErrorOutcome::RETRY => continue,
-                            AuthErrorOutcome::ABORT => return Err(err),
+                            match outcome {
+                                AuthErrorOutcome::RETRY => continue,
+                                AuthErrorOutcome::ABORT => return Err(err),
+                            }
                         }
-                    } else {
-                        return Err(err);
-                    }
+
+                        // If the error is a transport security failure (e.g. an
+                        // invalid certificate), handle it here by alerting the
+                        // user, but only if the consumer asked us to.
+                        XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
+                            status: _,
+                            ref transport_security_info,
+                        }) if matches!(
+                            options.transport_sec_failure_behavior,
+                            TransportSecFailureBehavior::Alert
+                        ) =>
+                        {
+                            handle_transport_sec_failure(
+                                self.server.clone(),
+                                transport_security_info.0.clone(),
+                            )?;
+                            return Err(err);
+                        }
+
+                        // If the error is network-related, optionally alert the
+                        // user (depending on which specific error it is) before
+                        // propagating it.
+                        XpComEwsError::Http(ref http_error) => {
+                            maybe_handle_connection_error(http_error.into(), self.server.clone())?;
+                            return Err(err);
+                        }
+
+                        _ => return Err(err),
+                    };
                 }
             };
 

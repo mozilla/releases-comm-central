@@ -7,7 +7,7 @@
 
 #include "ErrorList.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIURI.h"
+#include "nsITransportSecurityInfo.h"
 
 /**
  * The symbols in this header file are implemented in Rust as part of the crate
@@ -38,8 +38,25 @@ extern "C" {
  * is that we failed to authenticate against the remote server.
  */
 nsresult handle_auth_failure_from_incoming_server(
-    const nsIMsgIncomingServer* incoming_server, const nsIURI* uri,
-    AuthErrorOutcome* action);
+    const nsIMsgIncomingServer* incoming_server, AuthErrorOutcome* action);
+
+/**
+ * Handle a transport security failure (e.g. bad certificate) that came from the
+ * given `nsIMsgIncomingServer`.
+ */
+nsresult handle_transport_sec_failure_from_incoming_server(
+    const nsIMsgIncomingServer* incoming_server,
+    const nsITransportSecurityInfo* sec_info);
+
+/**
+ * Handle a possible connection error that came from the given
+ * `nsIMsgIncomingServer`.
+ *
+ * If the error matches a known connection error, the user is shown an alert
+ * notification/modal. Otherwise, this does nothing.
+ */
+nsresult maybe_handle_connection_error_from_incoming_server(
+    nsresult error, const nsIMsgIncomingServer* incoming_server);
 
 }  // extern "C"
 

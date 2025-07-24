@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::ffi::CStr;
 use std::ptr;
 
 use thin_vec::thin_vec;
@@ -13,10 +12,10 @@ use xpcom::interfaces::{nsIMsgIncomingServer, nsIPrompt, nsIPromptService, nsMsg
 use xpcom::{get_service, RefCounted, RefPtr};
 
 use crate::user_interactive_server::UserInteractiveServer;
-use crate::{get_formatted_string, get_string, get_string_bundle, register_alert};
-
-const IMAP_MSG_STRING_BUNDLE: &CStr = c"chrome://messenger/locale/imapMsgs.properties";
-const MESSENGER_STRING_BUNDLE: &CStr = c"chrome://messenger/locale/messenger.properties";
+use crate::{
+    get_formatted_string, get_string, get_string_bundle, register_alert, IMAP_MSG_STRING_BUNDLE,
+    MESSENGER_STRING_BUNDLE,
+};
 
 /// The outcome of the handling of an authentication error, and the action that
 /// should be taken next.
@@ -71,7 +70,7 @@ pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
 /// is that we failed to authenticate against the remote server.
 pub fn handle_auth_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
 where
-    ServerT: UserInteractiveServer + RefCounted + 'static,
+    ServerT: UserInteractiveServer + RefCounted,
 {
     match server.auth_method()? {
         nsMsgAuthMethod::OAuth2 => notify_oauth_failure(server),
@@ -87,13 +86,13 @@ where
 /// occurs while notifying).
 fn notify_oauth_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
 where
-    ServerT: UserInteractiveServer + RefCounted + 'static,
+    ServerT: UserInteractiveServer + RefCounted,
 {
     let host_name = server.host_name()?;
     let uri = server.uri()?;
     let bundle = get_string_bundle(IMAP_MSG_STRING_BUNDLE)?;
     let message = get_formatted_string(&bundle, c"imapOAuth2Error", thin_vec![host_name])?;
-    register_alert(nsString::from(&message), uri)?;
+    register_alert(message, uri)?;
     Ok(AuthErrorOutcome::ABORT)
 }
 
@@ -109,7 +108,7 @@ where
 ///  * cancel: [`AuthErrorOutcome::ABORT`] is returned immediately.
 fn notify_password_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
 where
-    ServerT: UserInteractiveServer + RefCounted + 'static,
+    ServerT: UserInteractiveServer + RefCounted,
 {
     // If there isn't a password set on the server, there's no point asking the
     // user if they want to retry, so we skip straight to prompting for a new
@@ -201,7 +200,7 @@ fn prompt_for_password<ServerT>(
     old_password: String,
 ) -> Result<(), nsresult>
 where
-    ServerT: UserInteractiveServer + RefCounted + 'static,
+    ServerT: UserInteractiveServer + RefCounted,
 {
     let host_name = server.host_name()?;
     let username = server.username()?;

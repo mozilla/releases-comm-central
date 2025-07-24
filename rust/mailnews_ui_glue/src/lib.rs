@@ -13,10 +13,17 @@ use xpcom::interfaces::{
 use xpcom::{get_service, getter_addrefs, RefPtr, XpCom};
 
 mod authentication_alerts;
+mod connection_alerts;
+mod transport_sec_alerts;
 mod user_interactive_server;
 
 pub use authentication_alerts::*;
+pub use connection_alerts::*;
+pub use transport_sec_alerts::*;
 pub use user_interactive_server::*;
+
+const IMAP_MSG_STRING_BUNDLE: &CStr = c"chrome://messenger/locale/imapMsgs.properties";
+const MESSENGER_STRING_BUNDLE: &CStr = c"chrome://messenger/locale/messenger.properties";
 
 /// Get the [`nsIStringBundle`] at the given URL.
 fn get_string_bundle(bundle_url: &CStr) -> Result<RefPtr<nsIStringBundle>, nsresult> {
@@ -65,7 +72,7 @@ fn get_formatted_string(
 /// A notification will also be shown to the user (either through a modal or via
 /// a native OS notification, depending on the platform) unless the `uri` is an
 /// `nsIMsgMailNewsUrl` without an `nsIMsgWindow` attached to it.
-pub fn register_alert(message: nsString, uri: RefPtr<nsIURI>) -> Result<(), nsresult> {
+pub fn register_alert(message: String, uri: RefPtr<nsIURI>) -> Result<(), nsresult> {
     let mail_session =
         get_service::<nsIMsgMailSession>(c"@mozilla.org/messenger/services/session;1")
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
@@ -82,6 +89,7 @@ pub fn register_alert(message: nsString, uri: RefPtr<nsIURI>) -> Result<(), nsre
         None => false,
     };
 
+    let message = nsString::from(&message);
     unsafe { mail_session.AlertUser(&*message, &*uri, silent) }.to_result()?;
 
     Ok(())

@@ -106,19 +106,25 @@ impl From<nsresult> for Error {
     }
 }
 
-impl From<Error> for nsresult {
-    fn from(value: Error) -> Self {
+impl From<&Error> for nsresult {
+    fn from(value: &Error) -> Self {
         match value {
             Error::UnsupportedScheme(_) => nserror::NS_ERROR_UNKNOWN_PROTOCOL,
             Error::TimedOut => nserror::NS_ERROR_NET_TIMEOUT,
             Error::UnknownHost => nserror::NS_ERROR_UNKNOWN_HOST,
-            Error::UnknownNetworkError(result) => result,
+            Error::UnknownNetworkError(result) => result.clone(),
             Error::RedirectLoop => nserror::NS_ERROR_REDIRECT_LOOP,
-            Error::TransportSecurityFailure { status, .. } => status,
-            Error::Unknown(result) => result,
+            Error::TransportSecurityFailure { status, .. } => status.clone(),
+            Error::Unknown(result) => result.clone(),
 
             _ => nserror::NS_ERROR_FAILURE,
         }
+    }
+}
+
+impl From<Error> for nsresult {
+    fn from(value: Error) -> Self {
+        (&value).into()
     }
 }
 
