@@ -1,7 +1,6 @@
 [DEFAULT]
 head = "head.js"
 prefs = [
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
   "mail.account.account1.server=server1",
   "mail.account.account2.identities=id1,id2",
   "mail.account.account2.server=server2",

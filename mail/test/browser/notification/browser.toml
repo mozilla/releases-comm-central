@@ -1,7 +1,16 @@
 [DEFAULT]
 head = "head.js"
 prefs = [
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
+  "mail.account.account1.identities=id1",
+  "mail.account.account1.server=server1",
+  "mail.accountmanager.accounts=account1",
+  "mail.accountmanager.defaultaccount=account1",
+  "mail.accountmanager.localfoldersserver=server1",
+  "mail.server.server1.hostname=Local Folders",
+  "mail.server.server1.name=Local Folders",
+  "mail.server.server1.type=none",
+  "mail.server.server1.userName=nobody",
+
   "mail.notification.loglevel=Debug",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spotlight.firstRunDone=true",

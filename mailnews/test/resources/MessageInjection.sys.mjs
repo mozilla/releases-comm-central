@@ -120,24 +120,25 @@ export class MessageInjection {
     if (this._mis.injectionConfig.mode == "local") {
       // This does createIncomingServer() and createAccount(), sets the server as
       //  the account's server, then sets the server.
+      let localAccount;
       try {
-        MailServices.accounts.createLocalMailAccount();
+        localAccount = MailServices.accounts.findAccountForServer(
+          MailServices.accounts.localFoldersServer
+        );
       } catch (ex) {
-        // This will fail if someone already called this.  Like in the mozmill
-        //  case.
+        localAccount = MailServices.accounts.createLocalMailAccount();
       }
 
-      const localAccount = MailServices.accounts.findAccountForServer(
-        MailServices.accounts.localFoldersServer
-      );
-
       // We need an identity or we get angry warnings.
-      const identity = MailServices.accounts.createIdentity();
-      // We need an email to protect against random code assuming it exists and
-      // throwing exceptions.
-      identity.email = "sender@nul.invalid";
-      localAccount.addIdentity(identity);
-      localAccount.defaultIdentity = identity;
+      let identity = localAccount.defaultIdentity;
+      if (!identity) {
+        identity = MailServices.accounts.createIdentity();
+        // We need an email to protect against random code assuming it exists and
+        // throwing exceptions.
+        identity.email = "sender@nul.invalid";
+        localAccount.addIdentity(identity);
+        localAccount.defaultIdentity = identity;
+      }
 
       this._mis.incomingServer = MailServices.accounts.localFoldersServer;
       // Note: Inbox is not created automatically when there is no deferred server,

@@ -16,7 +16,6 @@ prefs = [
   "mail.server.server1.type=im",
   "mail.server.server1.hostname=prpl-irc",
   "mail.server.server1.userName=mozmilltest@irc.mozilla.invalid",
-  "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
 ]
 subsuite = "thunderbird"
 

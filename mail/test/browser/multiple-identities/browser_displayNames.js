@@ -28,7 +28,7 @@ var folder;
 var decoyFolder;
 var localAccount;
 var secondIdentity;
-var myEmail = "sender@nul.invalid"; // Dictated by messagerInjector.js
+var myEmail = "sender@nul.invalid";
 var friendEmail = "carl@sagan.invalid";
 var friendName = "Carl Sagan";
 var headertoFieldMe;

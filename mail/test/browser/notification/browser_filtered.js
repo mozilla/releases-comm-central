@@ -21,8 +21,6 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 );
 
 add_task(async function () {
-  const localAccount = MailServices.accounts.createLocalMailAccount();
-
   const server = await ServerTestUtils.createServer(
     ServerTestUtils.serverDefs.imap.plain
   );
@@ -95,7 +93,6 @@ add_task(async function () {
       "waiting for IMAP connection to become idle"
     );
 
-    MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(account, false);
     MockAlertsService.cleanup();
   });
