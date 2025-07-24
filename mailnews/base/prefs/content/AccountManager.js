@@ -973,7 +973,7 @@ function saveAccount(accountValues, account) {
   }
 
   for (var type in accountValues) {
-    var dest;
+    let dest = null;
     try {
       if (type == "identity") {
         dest = identity;
@@ -994,8 +994,9 @@ function saveAccount(accountValues, account) {
       }
     } catch (ex) {
       // don't do anything, just means we don't support that
+      dest = null;
     }
-    if (dest == undefined) {
+    if (!dest) {
       continue;
     }
     var typeArray = accountValues[type];

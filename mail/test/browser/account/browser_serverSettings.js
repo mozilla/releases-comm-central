@@ -7,25 +7,38 @@ const { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
     "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 
-// The account to use in tests.
-var account;
+// The accounts to use in tests.
+var ewsAccount;
+var imapAccount;
 
 add_setup(() => {
-  account = MailServices.accounts.createAccount();
+  ewsAccount = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
-  account.addIdentity(identity);
+  ewsAccount.addIdentity(identity);
 
   // Create an EWS server and attach it to the account.
-  account.incomingServer = MailServices.accounts.createIncomingServer(
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "test.test",
     "ews"
   );
 
+  imapAccount = MailServices.accounts.createAccount();
+  imapAccount.addIdentity(MailServices.accounts.createIdentity());
+
+  // Create an IMAP server and attach it to the account.
+  imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "imap"
+  );
+
   registerCleanupFunction(() => {
     // Make sure the account doesn't persist beyond the test.
-    account.incomingServer.closeCachedConnections();
-    MailServices.accounts.removeAccount(account, false);
+    ewsAccount.incomingServer.closeCachedConnections();
+    imapAccount.incomingServer.closeCachedConnections();
+    MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(imapAccount, false);
   });
 });
 
@@ -33,12 +46,13 @@ add_setup(() => {
  * Open the server settings dialog and return its top level iframe.
  *
  * @param {HTMLElement} accountSettingsTab
+ * @param {string} serverKey
  * @returns {HTMLIFrameElement}
  */
-async function selectAccountInSettings(accountSettingsTab) {
+async function selectAccountInSettings(accountSettingsTab, serverKey) {
   // Navigate to the server settings for the account created in the setup.
   const accountRow = get_account_tree_row(
-    account.key,
+    serverKey,
     "am-server.xhtml",
     accountSettingsTab
   );
@@ -57,7 +71,10 @@ async function selectAccountInSettings(accountSettingsTab) {
  */
 add_task(async function test_ews_auth_methods() {
   await open_advanced_settings(async accountSettingsTab => {
-    const iframe = await selectAccountInSettings(accountSettingsTab);
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
 
     const authMethodMenu = iframe.getElementById("server.authMethod");
 
@@ -94,7 +111,7 @@ add_task(async function test_ews_auth_methods() {
 });
 
 add_task(async function test_ews_trash_settings() {
-  const incomingServer = account.incomingServer;
+  const incomingServer = ewsAccount.incomingServer;
 
   Assert.ok(
     incomingServer instanceof Ci.IEwsIncomingServer,
@@ -107,7 +124,10 @@ add_task(async function test_ews_trash_settings() {
   rootFolder.addSubfolder("trash2");
 
   await open_advanced_settings(async accountSettingsTab => {
-    const iframe = await selectAccountInSettings(accountSettingsTab);
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
 
     // Get the label specifying the EWS trash path.
     const trashPathElement = iframe.getElementById("ews.trashFolderPath");
@@ -162,6 +182,101 @@ add_task(async function test_ews_trash_settings() {
     Assert.ok(
       trashFolderPickerElement.disabled,
       "Trash folder picker should be disabled."
+    );
+  });
+});
+
+add_task(async function test_imap_trash_settings() {
+  const incomingServer = imapAccount.incomingServer;
+
+  Assert.ok(
+    incomingServer instanceof Ci.nsIImapIncomingServer,
+    "Incoming server should be an IMAP incoming server."
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  rootFolder.addSubfolder("trash1");
+  incomingServer.trashFolderName = "trash1";
+  rootFolder.addSubfolder("trash2");
+
+  await open_advanced_settings(async accountSettingsTab => {
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      imapAccount.key
+    );
+
+    // Get the label specifying the IMAP trash path.
+    const trashPathElement = iframe.getElementById("imap.trashFolderName");
+    Assert.ok(
+      BrowserTestUtils.isHidden(trashPathElement),
+      "Should have an element containing the trash path."
+    );
+
+    const deleteModelElement = iframe.getElementById("imap.deleteModel");
+    Assert.ok(
+      BrowserTestUtils.isVisible(deleteModelElement),
+      "Should have the element specifying the delete model."
+    );
+
+    const trashFolderPickerElement = iframe.getElementById(
+      "msgTrashFolderPicker"
+    );
+    Assert.ok(
+      BrowserTestUtils.isVisible(trashFolderPickerElement),
+      "Should have the trash folder picker popup element."
+    );
+
+    // Check the default values.
+    Assert.equal(
+      deleteModelElement.getAttribute("value"),
+      Ci.nsMsgImapDeleteModels.MoveToTrash,
+      "Default delete model should be move to trash (1)"
+    );
+
+    // Make sure the folder picker is enabled.
+    Assert.ok(
+      !trashFolderPickerElement.disabled,
+      "Trash folder picker should be enabled."
+    );
+
+    // Change the UI and make sure the server updates.
+    const deleteImmediatelyElement = iframe.getElementById(
+      "modelDeleteImmediately"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      deleteImmediatelyElement,
+      {},
+      deleteImmediatelyElement.ownerGlobal
+    );
+    Assert.equal(
+      incomingServer.deleteModel,
+      Ci.nsMsgImapDeleteModels.DeleteNoTrash,
+      "Changing the delete model in the UI should update the server state."
+    );
+
+    // Make sure the trash folder picker was disabled.
+    Assert.ok(
+      trashFolderPickerElement.disabled,
+      "Trash folder picker should be disabled."
+    );
+
+    // Change the UI and make sure the server updates.
+    const markDeletedElement = iframe.getElementById("modelMarkDeleted");
+    EventUtils.synthesizeMouseAtCenter(
+      markDeletedElement,
+      {},
+      markDeletedElement.ownerGlobal
+    );
+    Assert.equal(
+      incomingServer.deleteModel,
+      Ci.nsMsgImapDeleteModels.IMAPDelete,
+      "Changing the delete model in the UI should update the server state."
+    );
+
+    // Make sure the trash folder picker was disabled.
+    Assert.ok(
+      trashFolderPickerElement.disabled,
+      "Trash folder picker should still be disabled."
     );
   });
 });
