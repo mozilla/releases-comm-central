@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+// Writing the fake zip and deleting it can take some time.
+requestLongerTimeout(2);
+
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
 );
@@ -106,7 +110,7 @@ add_task(async function testProfileImport() {
   checkVisiblePane(importDocument, "tabPane-start", "start-sources");
   ok(
     importDocument.querySelector('#start-sources input[value="Thunderbird"]')
-      .value,
+      .checked,
     "Thunderbird profile is selected by default"
   );
   ok(
@@ -235,8 +239,6 @@ add_task(async function testProfileImport() {
 });
 
 add_task(async function testImportLargeZIP() {
-  // Writing the fake zip and deleting it can take some time.
-  requestLongerTimeout(2);
   const profileDir = await IOUtils.createUniqueDirectory(
     PathUtils.tempDir,
     "profile-tmp"
@@ -284,7 +286,7 @@ add_task(async function testImportLargeZIP() {
   checkVisiblePane(importDocument, "tabPane-start", "start-sources");
   ok(
     importDocument.querySelector('#start-sources input[value="Thunderbird"]')
-      .value,
+      .checked,
     "Thunderbird profile is selected by default"
   );
   ok(
@@ -332,6 +334,79 @@ add_task(async function testImportLargeZIP() {
     },
     () => notificationBox.childElementCount > 0
   );
+
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+/**
+ * Open the second pane for each of the options listed in the first pane.
+ * This loads the each importer's module and calls `getSourceProfiles()`
+ * which, if nothing else, proves the module loads and the function works
+ * without error.
+ */
+add_task(async function testImportModules() {
+  const tab = await new Promise(resolve => {
+    const newTab = window.openTab("contentTab", {
+      url: "about:import",
+      onLoad() {
+        resolve(newTab);
+      },
+    });
+  });
+  const importDocument = tab.browser.contentDocument;
+
+  checkVisiblePane(importDocument, "tabPane-start", "start-sources");
+  const sources = importDocument.querySelectorAll("#start-sources input");
+  for (const source of sources) {
+    if (source.value == "Outlook") {
+      // We can't load the Outlook importer in a CI test, because it will
+      // trigger the MAPI code, display an error message from Windows, and
+      // never return.
+      continue;
+    }
+
+    info(`Opening ${source.value} pane.`);
+    await BrowserTestUtils.synthesizeMouseAtCenter(
+      `#start-sources input[value="${source.value}"]`,
+      {},
+      tab.browser
+    );
+    await BrowserTestUtils.synthesizeMouseAtCenter(
+      "#tabPane-start .continue",
+      {},
+      tab.browser
+    );
+
+    if (source.value != "file") {
+      checkVisiblePane(importDocument, "tabPane-app", "app-profiles");
+      Assert.ok(
+        BrowserTestUtils.isVisible(
+          importDocument.getElementById("profileBackButton")
+        ),
+        "Back button is visible"
+      );
+      await BrowserTestUtils.synthesizeMouseAtCenter(
+        "#profileBackButton",
+        {},
+        tab.browser
+      );
+    } else {
+      checkVisiblePane(importDocument, "tabPane-start", "start-file");
+      Assert.ok(
+        BrowserTestUtils.isVisible(
+          importDocument.getElementById("startBackButton")
+        ),
+        "Back button is visible"
+      );
+      await BrowserTestUtils.synthesizeMouseAtCenter(
+        "#startBackButton",
+        {},
+        tab.browser
+      );
+    }
+
+    checkVisiblePane(importDocument, "tabPane-start", "start-sources");
+  }
 
   document.getElementById("tabmail").closeTab(tab);
 });
