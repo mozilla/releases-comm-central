@@ -24,6 +24,11 @@ const fileMenuData = {
     disabled: ["mailMessageWindow"],
   },
   newMailAccountMenuItem: {},
+  menu_newAddressbook: {},
+  menu_newLocalAddressbook: {},
+  menu_newCarddavAddressbook: {},
+  menu_newLdapAddressbook: {},
+  menu_newAccountHubAddressbook: { hidden: true },
   newIMAccountMenuItem: {},
   newFeedAccountMenuItem: {},
   newNewsgroupAccountMenuItem: {},
@@ -68,6 +73,11 @@ const nonMainWindowData = Object.fromEntries(
   Object.entries(fileMenuData).filter(
     ([id]) =>
       ![
+        "menu_newAddressbook",
+        "menu_newLocalAddressbook",
+        "menu_newCarddavAddressbook",
+        "menu_newLdapAddressbook",
+        "menu_newAccountHubAddressbook",
         "calendar-new-event-menuitem",
         "calendar-new-task-menuitem",
         "calendar-new-calendar-menuitem",
