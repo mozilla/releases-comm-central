@@ -4248,6 +4248,7 @@ dependencies = [
  "uuid",
  "winapi",
  "xpcom",
+ "zlib-rs",
 ]
 
 [[package]]
