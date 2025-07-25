@@ -141,7 +141,7 @@ fn distinguished_id_to_flag(id: &&str) -> nsMsgFolderFlagType {
         "outbox" => nsMsgFolderFlags::Queue,
         "sentitems" => nsMsgFolderFlags::SentMail,
         "junkemail" => nsMsgFolderFlags::Junk,
-        "archiveinbox" => nsMsgFolderFlags::Archive,
+        "archive" => nsMsgFolderFlags::Archive,
         _ => Default::default(),
     }
 }

@@ -67,7 +67,15 @@ add_task(async function testSimpleSync() {
 
   Assert.deepEqual(
     [...listener._createdFolderIds],
-    ["inbox", "deleteditems", "drafts", "outbox", "sentitems", "junkemail"],
+    [
+      "inbox",
+      "deleteditems",
+      "drafts",
+      "outbox",
+      "sentitems",
+      "junkemail",
+      "archive",
+    ],
     "all folders should have synced"
   );
   Assert.ok(listener._syncStateToken, "sync token should exist");
@@ -99,6 +107,7 @@ add_task(async function testSecondSyncRequired() {
       "outbox",
       "sentitems",
       "junkemail",
+      "archive",
       "test1",
       "test2",
       "test3",

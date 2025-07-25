@@ -705,6 +705,12 @@ where
             "outbox",
             "sentitems",
             "junkemail",
+            // The `archive` distinguished id isn't documented at
+            // https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid
+            // but it does provide the Exchange account's archive folder when
+            // requested, while the other documented `archive*` distinguished
+            // ids result in folder not found errors.
+            "archive",
         ];
 
         // We should always request the root folder first to simplify processing

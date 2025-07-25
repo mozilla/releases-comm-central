@@ -596,6 +596,7 @@ export class EwsServer {
       new RemoteFolder("outbox", "root", "Outbox", "outbox"),
       new RemoteFolder("sentitems", "root", "Sent", "sentitems"),
       new RemoteFolder("junkemail", "root", "Junk", "junkemail"),
+      new RemoteFolder("archive", "root", "Archives", "archive"),
     ];
   }
 
