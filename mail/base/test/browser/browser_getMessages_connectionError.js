@@ -17,12 +17,9 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
 );
 
 const generator = new MessageGenerator();
-let localAccount, localRootFolder;
-let imapAccount, imapRootFolder, imapInbox;
-let pop3Account, pop3RootFolder, pop3Inbox;
-let nntpAccount, nntpRootFolder, nntpFolder;
+let localAccount, imapAccount, pop3Account, ewsAccount, nntpAccount;
 
-const allInboxes = [];
+const allServers = [];
 
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 const getMessagesButton = about3Pane.document.getElementById(
@@ -38,7 +35,6 @@ const fileMenuGetMessagesPopup = fileMenuGetMessages.menupopup;
 
 add_setup(async function () {
   localAccount = MailServices.accounts.createLocalMailAccount();
-  localRootFolder = localAccount.incomingServer.rootFolder;
 
   imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
@@ -50,9 +46,7 @@ add_setup(async function () {
   imapAccount.incomingServer.prettyName = "IMAP Account";
   imapAccount.incomingServer.port = 10000;
   imapAccount.incomingServer.password = "password";
-  imapRootFolder = imapAccount.incomingServer.rootFolder;
-  imapInbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  allInboxes.push(imapInbox);
+  allServers.push(imapAccount.incomingServer);
 
   pop3Account = MailServices.accounts.createAccount();
   pop3Account.addIdentity(MailServices.accounts.createIdentity());
@@ -64,9 +58,21 @@ add_setup(async function () {
   pop3Account.incomingServer.prettyName = "POP3 Account";
   pop3Account.incomingServer.port = 10000;
   pop3Account.incomingServer.password = "password";
-  pop3RootFolder = pop3Account.incomingServer.rootFolder;
-  pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-  allInboxes.push(pop3Inbox);
+  allServers.push(pop3Account.incomingServer);
+
+  ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "localhost",
+    "ews"
+  );
+  ewsAccount.incomingServer.setStringValue(
+    "ews_url",
+    "http://localhost:10000/EWS/Exchange.asmx"
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+  allServers.push(ewsAccount.incomingServer);
 
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -76,12 +82,13 @@ add_setup(async function () {
   );
   nntpAccount.incomingServer.prettyName = "NNTP Account";
   nntpAccount.incomingServer.port = 10000;
-  nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("getmessages.newsgroup", null);
-  nntpFolder = nntpRootFolder.getChildNamed("getmessages.newsgroup");
-  allInboxes.push(nntpFolder);
+  nntpAccount.incomingServer.rootFolder.createSubfolder(
+    "getmessages.newsgroup",
+    null
+  );
+  allServers.push(nntpAccount.incomingServer);
 
-  about3Pane.displayFolder(localRootFolder);
+  about3Pane.displayFolder(localAccount.incomingServer.rootFolder);
 
   MockAlertsService.init();
 
@@ -89,22 +96,15 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(localAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
+    MailServices.accounts.removeAccount(ewsAccount, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     MockAlertsService.cleanup();
   });
 });
 
 add_task(async function testConnectionRefused() {
-  for (const inbox of allInboxes) {
-    Assert.equal(
-      inbox.getNumUnread(false),
-      0,
-      `${inbox.server.type} inbox should start with no messages`
-    );
-  }
-
-  for (const inbox of allInboxes) {
-    info(`getting messages for ${inbox.server.type} inbox`);
+  for (const server of allServers) {
+    info(`getting messages for ${server.type}`);
     EventUtils.synthesizeMouseAtCenter(
       getMessagesButton,
       { type: "contextmenu" },
@@ -112,9 +112,7 @@ add_task(async function testConnectionRefused() {
     );
     await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "shown");
     getMessagesContext.activateItem(
-      getMessagesContext.querySelector(
-        `[data-server-key="${inbox.server.key}"]`
-      )
+      getMessagesContext.querySelector(`[data-server-key="${server.key}"]`)
     );
     await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "hidden");
 
@@ -142,7 +140,7 @@ add_task(async function testConnectionRefused() {
 
     // There could be multiple alerts for the same problem. These are swallowed
     // while the first alert is open, but we should wait a while for them.
-    await promiseServerIdle(inbox.server);
+    await promiseServerIdle(server);
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 1000));
 
