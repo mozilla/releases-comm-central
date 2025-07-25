@@ -4238,25 +4238,64 @@ var folderPane = {
     // it is inserted before the target. And the order of subsequent folders
     // must be increased by 2.
     const targetOrder = target.sortOrder;
-    const folderOrder = targetOrder + 1;
+    let folderOrder = targetOrder + 1;
     // Start at the end, so we can stop once we've reached the insertion point.
     const folders = subFolders
       .filter(sf => sf != folder)
       .sort(FolderUtils.compareFolders)
       .reverse();
-    for (const sibling of folders) {
-      // If we've reached the target and we're inserting after it, we've done
-      // all the necessary moving.
-      if (insertAfter && sibling == target) {
-        break;
+    const targetIndex = folders.indexOf(target);
+    let needsSpace = true;
+    // Check if we need to create space to insert the folder into.
+    if (targetIndex > -1) {
+      // If we're inserting the folder after the target and the existing folder
+      // after the target (before because of the reverse above) already has a
+      // bigger sort order than what we'll be inserting at, we don't need to
+      // increase the sort of the folders after. Of course if there's no folder
+      // after the target, we can just append the folder and don't need to
+      // increase any indexes.
+      if (
+        insertAfter &&
+        (targetIndex == 0 ||
+          folders.at(targetIndex - 1).sortOrder > folderOrder)
+      ) {
+        needsSpace = false;
+        // If we're inserting before the target and the existing folder before
+        // the target has a sort order smaller than what we'll be inserting at,
+        // we don't need to increase the sort order of any folder after our
+        // insertion point, since there is already a sort order space. Readjust
+        // the expected order for our folder to fit there instead. The special
+        // case here is if we're inserting at the very beginning and the target
+        // (which would currently be the first folder, last because reverse) has
+        // a sort order bigger than zero, meaning we can fit in front of it
+        // without incrementing the sort order of all other folders.
+      } else if (
+        !insertAfter &&
+        targetOrder > 0 &&
+        (targetIndex + 1 === folders.length ||
+          folders.at(targetIndex + 1).sortOrder < targetOrder - 1)
+      ) {
+        needsSpace = false;
+        folderOrder = targetOrder - 1;
       }
-      const order = sibling.sortOrder + 2;
-      sibling.userSortOrder = order; // Update DB.
-      folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
-      // If we're inserting before the target and we've just updated the target
-      // we can now insert the folder itself.
-      if (!insertAfter && sibling == target) {
-        break;
+    }
+    if (needsSpace) {
+      for (const sibling of folders) {
+        // If we've reached the target and we're inserting after it, we've done
+        // all the necessary moving.
+        if (insertAfter && sibling == target) {
+          break;
+        }
+        // This will sometimes make the hole one index bigger than needed,
+        // however this didn't seem like useful complexity for the gains.
+        const order = sibling.sortOrder + 2;
+        sibling.userSortOrder = order; // Update DB
+        folderPane.setOrderToRowInAllModes(sibling, order); // Update row info.
+        // If we're inserting before the target and we've just updated the target
+        // we can now insert the folder itself.
+        if (!insertAfter && sibling == target) {
+          break;
+        }
       }
     }
     folder.userSortOrder = folderOrder; // Update DB.
