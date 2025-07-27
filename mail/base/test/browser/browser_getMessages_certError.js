@@ -103,10 +103,12 @@ async function subtest(
   expectedDialogText,
   expectedCert
 ) {
-  const [imapServer, pop3Server] = await ServerTestUtils.createServers([
-    ServerTestUtils.serverDefs.imap[serverDef],
-    ServerTestUtils.serverDefs.pop3[serverDef],
-  ]);
+  const [imapServer, pop3Server, ewsServer] =
+    await ServerTestUtils.createServers([
+      ServerTestUtils.serverDefs.imap[serverDef],
+      ServerTestUtils.serverDefs.pop3[serverDef],
+      ServerTestUtils.serverDefs.ews[serverDef],
+    ]);
 
   const imapAccount = MailServices.accounts.createAccount();
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
@@ -140,10 +142,36 @@ async function subtest(
     Ci.nsMsgFolderFlags.Inbox
   );
 
+  const ewsAccount = MailServices.accounts.createAccount();
+  ewsAccount.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    hostname,
+    "ews"
+  );
+  ewsAccount.incomingServer.port = 443;
+  ewsAccount.incomingServer.password = "password";
+  ewsAccount.incomingServer.setStringValue(
+    "ews_url",
+    `https://${hostname}/EWS/Exchange.asmx`
+  );
+  ewsAccount.incomingServer.prettyName = "EWS Account";
+  const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
+  await subsubtest(
+    ewsRootFolder,
+    async () => {
+      ewsAccount.incomingServer.performExpand(null);
+    },
+    expectedAlertText,
+    expectedDialogText,
+    expectedCert
+  );
+  const ewsInbox = ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+
   // TODO: Add NNTP to this test. The certificate exception dialog for NNTP is
   // completely broken – bug 1192098.
 
-  for (const inbox of [imapInbox, pop3Inbox]) {
+  for (const inbox of [imapInbox, pop3Inbox, ewsInbox]) {
     Assert.equal(
       inbox.getNumUnread(false),
       0,
@@ -153,8 +181,9 @@ async function subtest(
 
   await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
   pop3Server.addMessages(generator.makeMessages({}));
+  ewsServer.addMessages("inbox", generator.makeMessages({}));
 
-  for (const inbox of [imapInbox, pop3Inbox]) {
+  for (const inbox of [imapInbox, pop3Inbox, ewsInbox]) {
     await subsubtest(
       inbox,
       async function () {
@@ -178,8 +207,9 @@ async function subtest(
   }
 
   await imapServer.addMessages(imapInbox, generator.makeMessages({}), false);
+  ewsServer.addMessages("inbox", generator.makeMessages({}));
 
-  for (const inbox of [imapInbox]) {
+  for (const inbox of [imapInbox, ewsInbox]) {
     await subsubtest(
       inbox,
       function () {
@@ -194,16 +224,18 @@ async function subtest(
 
   MailServices.accounts.removeAccount(imapAccount, false);
   MailServices.accounts.removeAccount(pop3Account, false);
+  MailServices.accounts.removeAccount(ewsAccount, false);
 }
 
 async function subsubtest(
-  inbox,
+  folder,
   testCallback,
   expectedAlertText,
   expectedDialogText,
   expectedCert
 ) {
-  info(`getting messages for ${inbox.server.type} inbox`);
+  const server = folder.server;
+  info(`getting messages for ${server.type}`);
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     undefined,
@@ -211,16 +243,16 @@ async function subsubtest(
     {
       async callback(win) {
         const location = win.document.getElementById("locationTextBox").value;
-        if (inbox.server.port == 443) {
+        if (server.port == 443) {
           Assert.equal(
             location,
-            inbox.server.hostName,
+            server.hostName,
             "the exception dialog should show the hostname of the server"
           );
         } else {
           Assert.equal(
             location,
-            `${inbox.server.hostName}:${inbox.server.port}`,
+            `${server.hostName}:${server.port}`,
             "the exception dialog should show the hostname and port of the server"
           );
         }
@@ -271,7 +303,7 @@ async function subsubtest(
   );
   Assert.stringContains(
     alert.text,
-    inbox.server.hostName,
+    server.hostName,
     "the alert text should include the hostname of the server"
   );
   Assert.stringContains(
@@ -282,7 +314,7 @@ async function subsubtest(
 
   // There could be multiple alerts for the same problem. These are swallowed
   // while the first alert is open, but we should wait a while for them.
-  await promiseServerIdle(inbox.server);
+  await promiseServerIdle(server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -291,7 +323,7 @@ async function subsubtest(
     updatePromise = new Promise(resolve => {
       const folderListener = {
         onFolderEvent(aEventFolder, aEvent) {
-          if (aEvent == "FolderLoaded" && inbox.URI == aEventFolder.URI) {
+          if (aEvent == "FolderLoaded" && folder.URI == aEventFolder.URI) {
             MailServices.mailSession.RemoveFolderListener(folderListener);
             resolve();
           }
@@ -316,30 +348,40 @@ async function subsubtest(
     const isTemporary = {};
     Assert.ok(
       certOverrideService.hasMatchingOverride(
-        inbox.server.hostName,
-        inbox.server.port,
+        server.hostName,
+        server.port,
         {},
         await getCertificate(expectedCert),
         isTemporary
       ),
-      `certificate exception should exist for ${inbox.server.hostName}:${inbox.server.port}`
+      `certificate exception should exist for ${server.hostName}:${server.port}`
     );
     // The checkbox in the dialog was checked, so this exception is permanent.
     Assert.ok(!isTemporary.value, "certificate exception should be permanent");
 
-    // Force update of inbox.
-    inbox.updateFolder(null);
-    inbox.getNewMessages(null, null);
-    await updatePromise;
+    if (folder.isServer) {
+      // If folder is the root folder (EWS), we don't have an inbox yet, so
+      // this is an additional operation to fetch it. Do that now.
+      server.performExpand(null);
+      await TestUtils.waitForCondition(
+        () => folder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox),
+        "waiting for folders to sync"
+      );
+    } else {
+      // Force update of inbox.
+      folder.updateFolder(null);
+      folder.getNewMessages(null, null);
+      await updatePromise;
 
-    await TestUtils.waitForCondition(
-      () => inbox.getNumUnread(false) - inbox.numPendingUnread == 10,
-      `waiting for new ${inbox.server.type} messages to be received`
-    );
-    inbox.markAllMessagesRead(window.msgWindow);
+      await TestUtils.waitForCondition(
+        () => folder.getNumUnread(false) - folder.numPendingUnread == 10,
+        `waiting for new ${server.type} messages to be received`
+      );
+      folder.markAllMessagesRead(window.msgWindow);
+    }
   }
 
-  await promiseServerIdle(inbox.server);
-  inbox.server.closeCachedConnections();
+  await promiseServerIdle(server);
+  server.closeCachedConnections();
   certOverrideService.clearAllOverrides();
 }

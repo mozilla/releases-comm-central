@@ -333,6 +333,7 @@ async function messageLoadedIn(aboutMessageBrowser) {
  */
 async function promiseServerIdle(server) {
   if (server.type == "imap") {
+    server.QueryInterface(Ci.nsIImapIncomingServer);
     await TestUtils.waitForCondition(
       () => server.allConnectionsIdle,
       "waiting for IMAP connection to become idle"
