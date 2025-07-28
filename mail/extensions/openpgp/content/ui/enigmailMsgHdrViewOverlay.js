@@ -581,12 +581,19 @@ var openpgpSink = {
    * @param {string} mimePartNumber - MIME part number.
    */
   modifyMessageHeaders(uri, headerData, mimePartNumber) {
-    const msgURI = Services.io.newURI(uri).QueryInterface(Ci.nsIMsgMessageUrl);
-    if (!this.displaySubPart(mimePartNumber, msgURI.spec)) {
+    if (!this.displaySubPart(mimePartNumber, uri)) {
       return;
     }
 
-    let msg = msgURI.messageHeader;
+    // Attempt to get a message header from the relevant message service. This
+    // might fail in some cases, e.g. when viewing a message from an .eml file,
+    // which we handle a bit further down.
+    let msg = null;
+    try {
+      const service = MailServices.messageServiceFromURI(uri);
+      msg = service.messageURIToMsgHdr(uri);
+    } catch {}
+
     if (!msg && EnigmailFuncs.isCurrentMessage(gMessageURI, uri)) {
       // .eml messages opened from file://
       msg = gMessage;

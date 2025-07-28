@@ -259,7 +259,7 @@ export var EnigmailFuncs = {
    *
    * @param {string} uriSpec - URL spec of the desired message.
    *
-   * @returns {nsIURI|nsIMsgMailNewsUrl|null} The necko url.
+   * @returns {nsIURI|null} The necko url.
    */
   getUrlFromUriSpec(uriSpec) {
     try {
@@ -269,11 +269,7 @@ export var EnigmailFuncs = {
       const url =
         MailServices.messageServiceFromURI(uriSpec).getUrlForUri(uriSpec);
 
-      if (url.scheme == "file") {
-        return url;
-      }
-
-      return url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      return url;
     } catch (ex) {
       return null;
     }
@@ -293,7 +289,7 @@ export var EnigmailFuncs = {
     // mailbox:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display&number=0 vs.
     // file:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display
 
-    const uri = Services.io.newURI(spec).QueryInterface(Ci.nsIMsgMessageUrl);
+    const uri = Services.io.newURI(spec);
     const uri2 = this.getUrlFromUriSpec(current);
     if (uri.host != uri2.host) {
       return false;
