@@ -503,3 +503,34 @@ PromiseTestUtils.PromiseMsgOperationListener = class {
     return this._promise;
   }
 };
+
+/**
+ * Adapter to turn a `nsIWebProgressListener` into a promise.
+ */
+PromiseTestUtils.WebProgressListener = function () {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
+};
+
+PromiseTestUtils.WebProgressListener.prototype = {
+  onStateChange(aWebProgress, aRequest, aStateFlags) {
+    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      this._resolve();
+    }
+  },
+
+  onProgressChange() {},
+  onLocationChange() {},
+  onStatusChange() {},
+  onSecurityChange() {},
+  onContentBlockingEvent() {},
+
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
+  get promise() {
+    return this._promise;
+  },
+};

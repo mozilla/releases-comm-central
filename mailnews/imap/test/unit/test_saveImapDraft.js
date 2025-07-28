@@ -61,7 +61,7 @@ add_task(async function saveDraft() {
   const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  const progressListener = new ProgressListener();
+  const progressListener = new PromiseTestUtils.WebProgressListener();
   progress.registerListener(progressListener);
   msgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
@@ -89,31 +89,3 @@ add_task(function checkResult() {
 add_task(function endTest() {
   teardownIMAPPump();
 });
-
-function ProgressListener() {
-  this._promise = new Promise(resolve => {
-    this._resolve = resolve;
-  });
-}
-
-ProgressListener.prototype = {
-  onStateChange(aWebProgress, aRequest, aStateFlags) {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      this._resolve();
-    }
-  },
-
-  onProgressChange() {},
-  onLocationChange() {},
-  onStatusChange() {},
-  onSecurityChange() {},
-  onContentBlockingEvent() {},
-
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIWebProgressListener",
-    "nsISupportsWeakReference",
-  ]),
-  get promise() {
-    return this._promise;
-  },
-};

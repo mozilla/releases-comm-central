@@ -359,6 +359,13 @@ export class EwsServer {
   itemChanges = [];
 
   /**
+   * The total number of items created by this server.
+   *
+   * @type {number}
+   */
+  #itemsCreated = 0;
+
+  /**
    * The parser to use for parsing XML documents.
    *
    * @type {DOMParser}
@@ -459,7 +466,7 @@ export class EwsServer {
     username = "user",
     password = "password",
   } = {}) {
-    this.version = version;
+    this.version = version ?? "Exchange2013";
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
       "/EWS/Exchange.asmx",
@@ -1002,11 +1009,31 @@ export class EwsServer {
       "text/xml"
     );
 
+    this.#setVersion(resDoc);
+
     const message =
       reqDoc.getElementsByTagName("t:MimeContent")[0].firstChild.nodeValue;
     this.#lastSentMessage = atob(message);
 
-    this.#setVersion(resDoc);
+    // Check if the created item is being saved to a folder.
+    const savedItemFolderId = reqDoc.getElementsByTagName("SavedItemFolderId");
+
+    if (savedItemFolderId.length) {
+      const folderId = savedItemFolderId[0]
+        .getElementsByTagName("t:FolderId")[0]
+        .getAttribute("Id");
+
+      const newItemId = "created-item-" + this.#itemsCreated;
+      this.addNewItemOrMoveItemToFolder(newItemId, folderId);
+      this.#itemsCreated += 1;
+
+      const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
+      const messageEl = resDoc.createElement("t:Message");
+      const itemIdEl = resDoc.createElement("t:ItemId");
+      itemIdEl.setAttribute("Id", newItemId);
+      messageEl.appendChild(itemIdEl);
+      itemsEl.appendChild(messageEl);
+    }
 
     return this.#serializer.serializeToString(resDoc);
   }

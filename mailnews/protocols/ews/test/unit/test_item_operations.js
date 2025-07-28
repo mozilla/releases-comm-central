@@ -29,29 +29,7 @@ var ewsServer;
 const ewsIdPropertyName = "ewsId";
 
 add_setup(async function () {
-  // Ensure we have an on-disk profile.
-  do_get_profile();
-
-  // Create a new mock EWS server, and start it.
-  ewsServer = new EwsServer({ version: "Exchange2013" });
-  ewsServer.start();
-
-  // Create and configure the EWS incoming server.
-  incomingServer = localAccountUtils.create_incoming_server(
-    "ews",
-    ewsServer.port,
-    "user",
-    "password"
-  );
-  incomingServer.setStringValue(
-    "ews_url",
-    `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
-  );
-
-  registerCleanupFunction(() => {
-    ewsServer.stop();
-    incomingServer.closeCachedConnections();
-  });
+  [ewsServer, incomingServer] = setupBasicEwsTestServer();
 });
 
 /**

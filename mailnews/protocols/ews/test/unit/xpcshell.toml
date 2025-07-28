@@ -9,6 +9,8 @@ support-files = ["data/*"]
 
 ["test_item_operations.js"]
 
+["test_saveDraft.js"]
+
 ["test_send.js"]
 
 ["test_server_version.js"]

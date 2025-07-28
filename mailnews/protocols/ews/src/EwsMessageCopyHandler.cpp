@@ -255,10 +255,6 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
     }
   }
 
-  if (mCopyServiceListener) {
-    mCopyServiceListener->OnStopCopy(status);
-  }
-
   if (mSrcFolder) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier =
         mozilla::components::FolderNotification::Service();
@@ -278,6 +274,8 @@ nsresult MessageCopyHandler::OnCopyCompleted(nsresult status) {
     return NS_ERROR_UNEXPECTED;
   }
 
+  // We do not need to call `mCopyServiceListener->OnStopCopy()` in this
+  // method because it is called in `nsMsgCopyService::NotifyCompletion`.
   return copyService->NotifyCompletion(srcSupports, mDstFolder, status);
 }
 
