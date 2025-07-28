@@ -374,3 +374,81 @@ add_task(function testFoldersPresetUsesExistingFolders() {
   MailServices.accounts.removeAccount(pop3Account, false);
   MailServices.accounts.removeAccount(localAccount, false);
 });
+
+/**
+ * Tests that changing an identity's special folder removes the flag from the
+ * old folder, but only if no other identity is using the folder.
+ */
+add_task(function testOldFolderFlagIsReset() {
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRoot = localAccount.incomingServer.rootFolder;
+  localRoot.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  const drafts1 = localRoot.createLocalSubfolder("drafts 1");
+  const drafts2 = localRoot.createLocalSubfolder("drafts 2");
+  Assert.ok(
+    !drafts1.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "first folder should start without the flag"
+  );
+  Assert.ok(
+    !drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should start without the flag"
+  );
+
+  const identity1 = MailServices.accounts.createIdentity();
+  localAccount.addIdentity(identity1);
+  identity1.draftsFolderURI = drafts1.URI;
+  Assert.ok(
+    drafts1.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "first folder should now have the flag"
+  );
+  Assert.ok(
+    !drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should still not have the flag"
+  );
+
+  const identity2 = MailServices.accounts.createIdentity();
+  localAccount.addIdentity(identity2);
+  identity2.draftsFolderURI = drafts1.URI;
+  Assert.ok(
+    drafts1.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "first folder should still have the flag"
+  );
+  Assert.ok(
+    !drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should still not have the flag"
+  );
+
+  identity1.draftsFolderURI = drafts2.URI;
+  Assert.ok(
+    drafts1.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "first folder should still have the flag"
+  );
+  Assert.ok(
+    drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should now have the flag"
+  );
+
+  identity2.draftsFolderURI = drafts2.URI;
+  Assert.ok(
+    !drafts1.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "first folder should have lost the flag"
+  );
+  Assert.ok(
+    drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should still have the flag"
+  );
+
+  identity1.draftsFolderURI = "";
+  Assert.ok(
+    drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should still have the flag"
+  );
+  identity2.draftsFolderURI = "";
+  Assert.ok(
+    !drafts2.getFlag(Ci.nsMsgFolderFlags.Drafts),
+    "second folder should have lost the flag"
+  );
+
+  MailServices.accounts.removeAccount(localAccount, false);
+});

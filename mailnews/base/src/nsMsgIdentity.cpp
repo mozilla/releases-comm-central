@@ -471,6 +471,71 @@ nsresult nsMsgIdentity::getOrCreateFolder(const char* prefName,
   return NS_OK;
 }
 
+nsresult nsMsgIdentity::setFolderPref(const char* prefName,
+                                      const nsACString& value,
+                                      uint32_t folderFlag) {
+  if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
+
+  nsresult rv;
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
+
+  if (folderFlag == nsMsgFolderFlags::SentMail) {
+    // Clear the temporary return receipt filter so that the new filter
+    // rule can be recreated (by ConfigureTemporaryFilters()).
+    nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+    rv = accountManager->GetServersForIdentity(this, servers);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!servers.IsEmpty()) {
+      servers[0]->ClearTemporaryReturnReceiptsFilter();
+      // Okay to fail; no need to check for return code.
+    }
+  }
+
+  // Get the old folder, and clear the special folder flag on it, but only if no
+  // other identity is using it.
+  nsAutoCString oldValue;
+  rv = GetCharAttribute(prefName, oldValue);
+  if (NS_SUCCEEDED(rv) && !oldValue.IsEmpty() && !oldValue.Equals(value)) {
+    nsTArray<RefPtr<nsIMsgIdentity>> identities;
+    rv = accountManager->GetAllIdentities(identities);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    bool shouldRemove = true;
+    for (auto identity : identities) {
+      if (identity == this) {
+        continue;
+      }
+      nsAutoCString identityValue;
+      rv = identity->GetCharAttribute(prefName, identityValue);
+      if (NS_SUCCEEDED(rv) && identityValue.Equals(oldValue)) {
+        shouldRemove = false;
+        break;
+      }
+    }
+
+    if (shouldRemove) {
+      nsCOMPtr<nsIMsgFolder> folder;
+      rv = FindFolder(oldValue, getter_AddRefs(folder));
+      if (NS_SUCCEEDED(rv) && folder) {
+        folder->ClearFlag(folderFlag);
+      }
+    }
+  }
+
+  // Set the new folder, and set the special folder flags on it.
+  rv = SetCharAttribute(prefName, value);
+  if (NS_SUCCEEDED(rv) && !value.IsEmpty()) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = FindFolder(value, getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv) && folder) {
+      rv = folder->SetFlag(folderFlag);
+    }
+  }
+
+  return rv;
+}
+
 NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char* aName,
                                                  const nsAString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;

@@ -30,6 +30,8 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   nsresult getOrCreateFolder(const char* prefName, uint32_t folderFlag,
                              const nsACString& folderName,
                              nsIMsgFolder** retval);
+  nsresult setFolderPref(const char* pref, const nsACString& retval,
+                         uint32_t folderFlag);
 };
 
 #define NS_IMPL_IDPREF_STR(_postfix, _prefname)           \
@@ -79,7 +81,7 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   }                                                                           \
   NS_IMETHODIMP                                                               \
   nsMsgIdentity::Set##_postfix##URI(const nsACString& value) {                \
-    return SetCharAttribute(_prefName, value);                                \
+    return setFolderPref(_prefName, value, _folderFlag);                      \
   }                                                                           \
   NS_IMETHODIMP                                                               \
   nsMsgIdentity::GetOrCreate##_postfix(nsIMsgFolder** retval) {               \
