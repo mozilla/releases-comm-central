@@ -233,9 +233,13 @@ function AbPanelLoad() {
     gAbResultsTree.view.selectionChanged();
     document.commandDispatcher.updateCommands("addrbook-select");
   });
-  gAbResultsTree.table.addEventListener("dragstart", event =>
-    abResultsPaneObserver.onDragStart(event)
-  );
+  gAbResultsTree.table.addEventListener("dragstart", event => {
+    const row = event.target.closest(`tr[is="auto-tree-view-table-row"]`);
+    if (!gAbResultsTree.selectedIndices.includes(row.index)) {
+      gAbResultsTree.selectedIndex = row.index;
+    }
+    abResultsPaneObserver.onDragStart(event);
+  });
   gAbResultsTree.addEventListener("columns-changed", event => {
     if (event.detail.value == "addrbook") {
       abColumnHidden = !event.detail.target.hasAttribute("checked");

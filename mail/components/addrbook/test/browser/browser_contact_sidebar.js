@@ -493,29 +493,44 @@ add_task(async function testSidebar() {
   if (dragService) {
     // Check that drag and drop to the recipients section works.
 
+    const dragAndDropRow = (row, target) => {
+      dragService.startDragSessionForTests(
+        sidebarWindow,
+        Ci.nsIDragService.DRAGDROP_ACTION_NONE
+      );
+      const [result, dataTransfer] = EventUtils.synthesizeDragOver(
+        cardsList.getRowAtIndex(row),
+        target,
+        null,
+        null,
+        sidebarWindow,
+        composeWindow
+      );
+      EventUtils.synthesizeDropAfterDragOver(
+        result,
+        dataTransfer,
+        target,
+        composeWindow
+      );
+
+      dragService.getCurrentSession().endDragSession(true);
+    };
+
     clickOnRow(5, {});
-
-    dragService.startDragSessionForTests(
-      sidebarWindow,
-      Ci.nsIDragService.DRAGDROP_ACTION_NONE
-    );
-    const [result, dataTransfer] = EventUtils.synthesizeDragOver(
-      cardsList.getRowAtIndex(5),
-      toAddrInput,
-      null,
-      null,
-      sidebarWindow,
-      composeWindow
-    );
-    EventUtils.synthesizeDropAfterDragOver(
-      result,
-      dataTransfer,
-      toAddrInput,
-      composeWindow
-    );
-
-    dragService.getCurrentSession().endDragSession(true);
+    dragAndDropRow(5, toAddrInput);
     checkPills(toAddrRow, ["năthån test <năthån.test@invalid>"]);
+
+    // Test that dragging an unselected row also works correctly.
+    dragAndDropRow(3, toAddrInput);
+    checkPills(toAddrRow, [
+      "năthån test <năthån.test@invalid>",
+      "katherine test <katherine.test@invalid>",
+    ]);
+    Assert.equal(
+      cardsList.selectedIndex,
+      3,
+      "Dragging a contact should select it as well."
+    );
 
     clearPills();
   }
