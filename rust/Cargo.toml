@@ -42,6 +42,8 @@ gkrust-gtest = ["gkrust"]
 
 
 
+
+
 [workspace]
 members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue']
 
@@ -50,7 +52,7 @@ uniffi = { version = "0.29.3" }
 uniffi_bindgen = { version = "0.29.3" }
 uniffi_pipeline = { version = "0.29.3" }
 rusqlite = { version = "0.33.0" }
-glean = { version = "=64.5.2" }
+glean = { version = "=64.5.4" }
 
 [target."cfg(windows)".dependencies.scopeguard]
 version = "1"
