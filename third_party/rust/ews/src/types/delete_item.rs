@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use crate::types::sealed::EnvelopeBodyContents;
-use crate::{BaseItemId, DeleteType, Operation, OperationResponse, ResponseClass, MESSAGES_NS_URI};
+use crate::{BaseItemId, DeleteType, MESSAGES_NS_URI};
 
 /// Whether to send meeting cancellations when deleting a calendar item.
 ///
@@ -34,6 +34,7 @@ pub enum AffectedTaskOccurrences {
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/deleteitem>
 #[derive(Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(DeleteItemResponseMessage)]
 pub struct DeleteItem {
     /// The method the EWS server will use to perform the deletion.
     ///
@@ -69,40 +70,7 @@ pub struct DeleteItem {
     pub item_ids: Vec<BaseItemId>,
 }
 
-impl Operation for DeleteItem {
-    type Response = DeleteItemResponse;
-}
-
-impl EnvelopeBodyContents for DeleteItem {
-    fn name() -> &'static str {
-        "DeleteItem"
-    }
-}
-
-/// A response to a [`DeleteItem`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/deleteitemresponse>
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct DeleteItemResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for DeleteItemResponse {}
-
-impl EnvelopeBodyContents for DeleteItemResponse {
-    fn name() -> &'static str {
-        "DeleteItemResponse"
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub delete_item_response_message: Vec<ResponseClass<DeleteItemResponseMessage>>,
-}
-
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct DeleteItemResponseMessage {
     pub message_text: Option<String>,

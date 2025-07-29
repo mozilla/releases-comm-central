@@ -2,64 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, CopyMoveItemData, ItemResponseMessage, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{CopyMoveItemData, ItemResponseMessage, MESSAGES_NS_URI};
 
 /// A request to copy one or more Exchange items.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/copyitem>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(ItemResponseMessage)]
 pub struct CopyItem {
     #[xml_struct(flatten)]
     pub inner: CopyMoveItemData,
 }
 
-/// A response to a `CopyItem` operation.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/copyitemresponse>
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct CopyItemResponse {
-    pub response_messages: CopyItemResponseMessages,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct CopyItemResponseMessages {
-    pub copy_item_response_message: Vec<ResponseClass<ItemResponseMessage>>,
-}
-
-impl Operation for CopyItem {
-    type Response = CopyItemResponse;
-}
-
-impl EnvelopeBodyContents for CopyItem {
-    fn name() -> &'static str {
-        "CopyItem"
-    }
-}
-
-impl OperationResponse for CopyItemResponse {}
-
-impl EnvelopeBodyContents for CopyItemResponse {
-    fn name() -> &'static str {
-        "CopyItemResponse"
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
-        copy_item::{CopyItem, CopyItemResponse, CopyItemResponseMessages},
+        copy_item::{CopyItem, CopyItemResponse},
         test_utils::{assert_deserialized_content, assert_serialized_content},
         BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, ItemResponseMessage, Items, Message,
-        RealItem, ResponseClass,
+        RealItem, ResponseClass, ResponseMessages,
     };
 
     #[test]
@@ -101,8 +66,8 @@ mod test {
                     </CopyItemResponse>"#;
 
         let expected = CopyItemResponse {
-            response_messages: CopyItemResponseMessages {
-                copy_item_response_message: vec![ResponseClass::Success(ItemResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Success(ItemResponseMessage {
                     items: Items {
                         inner: vec![RealItem::Message(Message {
                             item_id: Some(ItemId {

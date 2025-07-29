@@ -11,7 +11,7 @@
 
 [package]
 edition = "2021"
-name = "ews"
+name = "ews_proc_macros"
 version = "0.1.0"
 build = false
 autolib = false
@@ -22,40 +22,10 @@ autobenches = false
 readme = false
 
 [lib]
-name = "ews"
+name = "ews_proc_macros"
 path = "src/lib.rs"
+proc-macro = true
 
 [dependencies]
-serde_path_to_error = "0.1.11"
-thiserror = "1.0.57"
-
-[dependencies.ews_proc_macros]
-path = "../ews_proc_macros"
-
-[dependencies.log]
-version = "0.4.21"
-features = ["std"]
-
-[dependencies.quick-xml]
-version = "0.31.0"
-features = [
-    "serde",
-    "serialize",
-]
-
-[dependencies.serde]
-version = "1.0.196"
-features = ["derive"]
-
-[dependencies.time]
-version = "0.3.36"
-features = [
-    "formatting",
-    "parsing",
-    "serde",
-]
-
-[dependencies.xml_struct]
-version = "0.1.0"
-git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "87723b90425d474fd29095d8b710baefd7c9b13a"
+quote = "1.0"
+syn = "2.0"

@@ -2,57 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
 use crate::CopyMoveItemData;
 
-use super::{
-    sealed::EnvelopeBodyContents, ItemResponseMessage, Operation, OperationResponse, ResponseClass,
-    MESSAGES_NS_URI,
-};
+use super::{ItemResponseMessage, MESSAGES_NS_URI};
 
 /// A request to move one or more Exchange items.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/moveitem>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(ItemResponseMessage)]
 pub struct MoveItem {
     #[xml_struct(flatten)]
     pub inner: CopyMoveItemData,
-}
-
-/// A response to a `MoveItem` operation.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/moveitemresponse>
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct MoveItemResponse {
-    pub response_messages: MoveItemResponseMessages,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct MoveItemResponseMessages {
-    pub move_item_response_message: Vec<ResponseClass<ItemResponseMessage>>,
-}
-
-impl Operation for MoveItem {
-    type Response = MoveItemResponse;
-}
-
-impl EnvelopeBodyContents for MoveItem {
-    fn name() -> &'static str {
-        "MoveItem"
-    }
-}
-
-impl OperationResponse for MoveItemResponse {}
-
-impl EnvelopeBodyContents for MoveItemResponse {
-    fn name() -> &'static str {
-        "MoveItemResponse"
-    }
 }
 
 #[cfg(test)]
@@ -61,10 +26,10 @@ mod test {
         test_utils::{assert_deserialized_content, assert_serialized_content},
         types::common::ItemResponseMessage,
         BaseFolderId, BaseItemId, CopyMoveItemData, ItemId, Items, Message, RealItem,
-        ResponseClass,
+        ResponseClass, ResponseMessages,
     };
 
-    use super::{MoveItem, MoveItemResponse, MoveItemResponseMessages};
+    use super::{MoveItem, MoveItemResponse};
 
     #[test]
     fn test_serialize_move_item() {
@@ -105,8 +70,8 @@ mod test {
             </MoveItemResponse>"#;
 
         let response = MoveItemResponse {
-            response_messages: MoveItemResponseMessages {
-                move_item_response_message: vec![ResponseClass::Success(ItemResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Success(ItemResponseMessage {
                     items: Items {
                         inner: vec![RealItem::Message(Message {
                             item_id: Some(ItemId {

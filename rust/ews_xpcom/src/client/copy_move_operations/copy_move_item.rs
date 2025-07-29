@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    copy_item::{CopyItem, CopyItemResponse},
-    move_item::{MoveItem, MoveItemResponse},
-    response::ResponseClass,
-    server_version::ExchangeServerVersion,
-    BaseItemId, CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
+    copy_item::CopyItem, move_item::MoveItem, server_version::ExchangeServerVersion, BaseItemId,
+    CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
@@ -16,7 +13,7 @@ use xpcom::{interfaces::IEwsItemCopyMoveCallbacks, RefCounted, RefPtr};
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
-    client::{process_response_message_class, XpComEwsClient, XpComEwsError},
+    client::{XpComEwsClient, XpComEwsError},
 };
 
 use super::move_generic::{move_generic, MoveCallbacks};
@@ -43,22 +40,17 @@ where
         callbacks: RefPtr<IEwsItemCopyMoveCallbacks>,
     ) where
         InputT: Clone + Operation + Wrapped,
-        <InputT as Operation>::Response: Wrapped,
+        <InputT as Operation>::Response: OperationResponse<Message = ItemResponseMessage>,
         <InputT as Wrapped>::Wrapper:
             Wrapper<InputT> + From<CopyMoveItemData> + Into<CopyMoveItemData>,
         <InputT as Wrapped>::Wrapper: Wrapper<InputT> + Into<CopyMoveItemData>,
-        <<InputT as Operation>::Response as Wrapped>::Wrapper:
-            From<<InputT as Operation>::Response> + Into<Vec<ResponseClass<ItemResponseMessage>>>,
     {
         move_generic(
             self,
             destination_folder_id,
             item_ids,
             construct_request::<InputT, <InputT as Wrapped>::Wrapper, ServerT>,
-            get_new_ews_ids_from_response::<
-                <InputT as Operation>::Response,
-                <<InputT as Operation>::Response as Wrapped>::Wrapper,
-            >,
+            get_new_ews_ids_from_response,
             callbacks,
         )
         .await;
@@ -118,24 +110,10 @@ where
     }
 }
 
-fn get_new_ews_ids_from_response<T, W>(response: T) -> ThinVec<nsCString>
-where
-    T: OperationResponse + Into<W>,
-    W: Into<Vec<ResponseClass<ItemResponseMessage>>>,
-{
+fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> ThinVec<nsCString> {
     response
-        .into()
-        .into()
         .into_iter()
-        .filter_map(|response_class| {
-            let response_message =
-                match process_response_message_class("Copy/MoveItem", response_class) {
-                    Ok(message) => message,
-                    Err(err) => {
-                        log::warn!("ignoring error response: {err}");
-                        return None;
-                    }
-                };
+        .filter_map(|response_message| {
             response_message
                 .items
                 .inner
@@ -165,10 +143,6 @@ where
 pub(crate) struct CopyItemWrapper(CopyItem);
 #[derive(Debug, Clone)]
 pub(crate) struct MoveItemWrapper(MoveItem);
-#[derive(Debug, Clone)]
-pub(crate) struct CopyItemResponseWrapper(CopyItemResponse);
-#[derive(Debug, Clone)]
-pub(crate) struct MoveItemResponseWrapper(MoveItemResponse);
 
 pub(crate) trait Wrapped {
     type Wrapper;
@@ -219,18 +193,6 @@ impl From<CopyItemWrapper> for CopyMoveItemData {
     }
 }
 
-impl From<CopyItemResponseWrapper> for Vec<ResponseClass<ItemResponseMessage>> {
-    fn from(value: CopyItemResponseWrapper) -> Self {
-        value.0.response_messages.copy_item_response_message
-    }
-}
-
-impl From<CopyItemResponse> for CopyItemResponseWrapper {
-    fn from(value: CopyItemResponse) -> Self {
-        Self(value)
-    }
-}
-
 impl From<CopyMoveItemData> for MoveItemWrapper {
     fn from(value: CopyMoveItemData) -> Self {
         MoveItemWrapper(MoveItem { inner: value })
@@ -241,24 +203,4 @@ impl From<MoveItemWrapper> for CopyMoveItemData {
     fn from(value: MoveItemWrapper) -> Self {
         value.0.inner
     }
-}
-
-impl From<MoveItemResponseWrapper> for Vec<ResponseClass<ItemResponseMessage>> {
-    fn from(value: MoveItemResponseWrapper) -> Self {
-        value.0.response_messages.move_item_response_message
-    }
-}
-
-impl From<MoveItemResponse> for MoveItemResponseWrapper {
-    fn from(value: MoveItemResponse) -> Self {
-        Self(value)
-    }
-}
-
-impl Wrapped for CopyItemResponse {
-    type Wrapper = CopyItemResponseWrapper;
-}
-
-impl Wrapped for MoveItemResponse {
-    type Wrapper = MoveItemResponseWrapper;
 }

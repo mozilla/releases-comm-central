@@ -187,12 +187,14 @@ pub struct FaultDetail {
 
 #[cfg(test)]
 mod tests {
+    use ews_proc_macros::operation_response;
     use serde::Deserialize;
+    use xml_struct::XmlSerialize;
 
     use crate::{
-        get_folder::{self, GetFolderResponse, GetFolderResponseMessage},
-        response::{ResponseCode, ResponseError},
-        sync_folder_items::{self, SyncFolderItemsResponse},
+        get_folder::{GetFolderResponse, GetFolderResponseMessage},
+        response::{ResponseClass, ResponseCode, ResponseError, ResponseMessages},
+        sync_folder_items::SyncFolderItemsResponse,
         types::{
             common::message_xml::{
                 MessageXmlElement, MessageXmlElements, MessageXmlTagged, MessageXmlValue,
@@ -200,7 +202,7 @@ mod tests {
             },
             sealed::EnvelopeBodyContents,
         },
-        Error, Folder, FolderId, Folders, MessageXml, OperationResponse, ResponseClass,
+        Error, Folder, FolderId, Folders, MessageXml, OperationResponse,
     };
 
     use super::Envelope;
@@ -210,12 +212,18 @@ mod tests {
         #[derive(Clone, Debug, Deserialize)]
         struct SomeStruct {
             text: String,
-
-            #[serde(rename = "other_field")]
-            _other_field: (),
+            other_field: ResponseMessages<()>,
         }
 
-        impl OperationResponse for SomeStruct {}
+        impl OperationResponse for SomeStruct {
+            type Message = ();
+            fn response_messages(&self) -> &[ResponseClass<Self::Message>] {
+                &self.other_field.response_messages
+            }
+            fn into_response_messages(self) -> Vec<ResponseClass<Self::Message>> {
+                self.other_field.response_messages
+            }
+        }
 
         impl EnvelopeBodyContents for SomeStruct {
             fn name() -> &'static str {
@@ -237,16 +245,14 @@ mod tests {
         );
     }
 
-    #[derive(Clone, Debug, Deserialize)]
-    struct Foo;
+    /// A meaningless struct.
+    #[derive(Clone, Debug, XmlSerialize)]
+    #[operation_response(Bar)]
+    struct Foo {}
 
-    impl OperationResponse for Foo {}
-
-    impl EnvelopeBodyContents for Foo {
-        fn name() -> &'static str {
-            "Foo"
-        }
-    }
+    /// A meaningless struct.
+    #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+    pub struct Bar {}
 
     #[test]
     fn deserialize_envelope_with_schema_fault() {
@@ -257,7 +263,7 @@ mod tests {
         // This XML is drawn from testing data for `evolution-ews`.
         let xml = r#"<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><s:Fault><faultcode xmlns:a="http://schemas.microsoft.com/exchange/services/2006/types">a:ErrorSchemaValidation</faultcode><faultstring xml:lang="en-US">The request failed schema validation: The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.</faultstring><detail><e:ResponseCode xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">ErrorSchemaValidation</e:ResponseCode><e:Message xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">The request failed schema validation.</e:Message><t:MessageXml xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"><t:LineNumber>2</t:LineNumber><t:LinePosition>630</t:LinePosition><t:Violation>The 'Id' attribute is invalid - The value 'invalidparentid' is invalid according to its datatype 'http://schemas.microsoft.com/exchange/services/2006/types:DistinguishedFolderIdNameType' - The Enumeration constraint failed.</t:Violation></t:MessageXml></detail></s:Fault></s:Body></s:Envelope>"#;
 
-        let err = <Envelope<Foo>>::from_xml_document(xml.as_bytes())
+        let err = <Envelope<FooResponse>>::from_xml_document(xml.as_bytes())
             .expect_err("should return error when body contains fault");
 
         if let Error::RequestFault(fault) = err {
@@ -339,7 +345,7 @@ mod tests {
   </s:Body>
 </s:Envelope>"#;
 
-        let err = <Envelope<Foo>>::from_xml_document(xml.as_bytes())
+        let err = <Envelope<FooResponse>>::from_xml_document(xml.as_bytes())
             .expect_err("should return error when body contains fault");
 
         // The testing here isn't as thorough as the invalid schema test due to
@@ -400,7 +406,7 @@ mod tests {
         // real-life examples.
         let xml = r#"<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><s:Fault><faultcode xmlns:a="http://schemas.microsoft.com/exchange/services/2006/types">a:ErrorServerBusy</faultcode><faultstring xml:lang="en-US">I made this up because I don't have real testing data. 🙃</faultstring><detail><e:ResponseCode xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">ErrorServerBusy</e:ResponseCode><e:Message xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">Who really knows?</e:Message><t:MessageXml xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types"><t:Value Name="BackOffMilliseconds">25</t:Value></t:MessageXml></detail></s:Fault></s:Body></s:Envelope>"#;
 
-        let err = <Envelope<Foo>>::from_xml_document(xml.as_bytes())
+        let err = <Envelope<FooResponse>>::from_xml_document(xml.as_bytes())
             .expect_err("should return error when body contains fault");
 
         // The testing here isn't as thorough as the invalid schema test due to
@@ -472,7 +478,7 @@ mod tests {
                      </s:Envelope>"#;
 
         let expected_resp = SyncFolderItemsResponse {
-            response_messages: sync_folder_items::ResponseMessages { sync_folder_items_response_message: vec![
+            response_messages: ResponseMessages { response_messages: vec![
                 ResponseClass::Error(ResponseError {
                     message_text: "The server cannot service this request right now. Try again later., This operation exceeds the throttling budget for policy part 'ConcurrentSyncCalls', policy value '5',  Budget type: 'Ews'.  Suggested backoff time 5000 ms.".to_string(),
                     response_code: ResponseCode::ErrorServerBusy,
@@ -524,8 +530,8 @@ mod tests {
                          </s:Envelope>"#;
 
         let expected_resp = GetFolderResponse {
-            response_messages: get_folder::ResponseMessages {
-                get_folder_response_message: vec![ResponseClass::Success(GetFolderResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Success(GetFolderResponseMessage {
                     folders: Folders { inner: vec![
                         Folder::Folder {
                             folder_id: Some(FolderId {
@@ -595,8 +601,8 @@ mod tests {
                          </s:Envelope>"#;
 
         let expected_resp = GetFolderResponse {
-            response_messages: get_folder::ResponseMessages {
-                get_folder_response_message: vec![ResponseClass::Warning(GetFolderResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Warning(GetFolderResponseMessage {
                     folders: Folders { inner: vec![
                         Folder::Folder {
                             folder_id: Some(FolderId {

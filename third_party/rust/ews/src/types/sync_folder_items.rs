@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, BaseItemId, ItemId, ItemShape, Operation,
-    OperationResponse, RealItem, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, BaseItemId, ItemId, ItemShape, RealItem, MESSAGES_NS_URI};
 
 /// A request for a list of items which have been created, updated, or deleted
 /// server-side.
@@ -16,6 +14,7 @@ use crate::{
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitems>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(SyncFolderItemsResponseMessage)]
 pub struct SyncFolderItems {
     /// A description of the information to be included in the response for each
     /// changed item.
@@ -47,43 +46,7 @@ pub struct SyncFolderItems {
     pub sync_scope: Option<SyncScope>,
 }
 
-impl Operation for SyncFolderItems {
-    type Response = SyncFolderItemsResponse;
-}
-
-impl EnvelopeBodyContents for SyncFolderItems {
-    fn name() -> &'static str {
-        "SyncFolderItems"
-    }
-}
-
-/// A response to a [`SyncFolderItems`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitemsresponse>
-#[derive(Clone, Debug, Deserialize, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct SyncFolderItemsResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for SyncFolderItemsResponse {}
-
-impl EnvelopeBodyContents for SyncFolderItemsResponse {
-    fn name() -> &'static str {
-        "SyncFolderItemsResponse"
-    }
-}
-
-/// A collection of responses for individual entities within a request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
-#[derive(Clone, Debug, Deserialize, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub sync_folder_items_response_message: Vec<ResponseClass<SyncFolderItemsResponseMessage>>,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderItemsResponseMessage {
     /// An identifier for the synchronization state following application of the
@@ -111,7 +74,7 @@ pub enum SyncScope {
     NormalAndAssociatedItems,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 pub struct Changes {
     #[serde(default, rename = "$value")]
     pub inner: Vec<Change>,
@@ -120,7 +83,7 @@ pub struct Changes {
 /// A server-side change to an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-items>
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 pub enum Change {
     /// A creation of an item.
     ///

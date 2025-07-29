@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Operation, OperationResponse, ResponseClass,
-    MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, MESSAGES_NS_URI};
 
 use super::{Folder, Folders, PathToElement};
 
@@ -68,44 +66,12 @@ pub struct FolderChange {
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updatefolder>.
 #[derive(Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(UpdateFolderResponseMessage)]
 pub struct UpdateFolder {
     pub folder_changes: FolderChanges,
 }
 
-impl Operation for UpdateFolder {
-    type Response = UpdateFolderResponse;
-}
-
-impl EnvelopeBodyContents for UpdateFolder {
-    fn name() -> &'static str {
-        "UpdateFolder"
-    }
-}
-
-/// A response to a [`UpdateFolder`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updatefolderresponsemessage>
-#[derive(Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct UpdateFolderResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for UpdateFolderResponse {}
-
-impl EnvelopeBodyContents for UpdateFolderResponse {
-    fn name() -> &'static str {
-        "UpdateFolderResponse"
-    }
-}
-
-#[derive(Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub update_folder_response_message: Vec<ResponseClass<UpdateFolderResponseMessage>>,
-}
-
-#[derive(Debug, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct UpdateFolderResponseMessage {
     pub folders: Folders,
@@ -116,8 +82,7 @@ mod tests {
     use super::*;
     use crate::test_utils::assert_deserialized_content;
     use crate::test_utils::assert_serialized_content;
-    use crate::BaseFolderId;
-    use crate::FolderId;
+    use crate::{BaseFolderId, FolderId, ResponseClass, ResponseMessages};
 
     #[test]
     fn serialize_update_request() {
@@ -171,25 +136,23 @@ mod tests {
 
         let expected = UpdateFolderResponse {
             response_messages: ResponseMessages {
-                update_folder_response_message: vec![ResponseClass::Success(
-                    UpdateFolderResponseMessage {
-                        folders: Folders {
-                            inner: vec![Folder::Folder {
-                                folder_id: Some(FolderId {
-                                    id: "AAAlAFVz".to_string(),
-                                    change_key: Some("AQAAAB".to_string()),
-                                }),
-                                parent_folder_id: None,
-                                folder_class: None,
-                                display_name: None,
-                                total_count: None,
-                                child_folder_count: None,
-                                extended_property: None,
-                                unread_count: None,
-                            }],
-                        },
+                response_messages: vec![ResponseClass::Success(UpdateFolderResponseMessage {
+                    folders: Folders {
+                        inner: vec![Folder::Folder {
+                            folder_id: Some(FolderId {
+                                id: "AAAlAFVz".to_string(),
+                                change_key: Some("AQAAAB".to_string()),
+                            }),
+                            parent_folder_id: None,
+                            folder_class: None,
+                            display_name: None,
+                            total_count: None,
+                            child_folder_count: None,
+                            extended_property: None,
+                            unread_count: None,
+                        }],
                     },
-                )],
+                })],
             },
         };
 

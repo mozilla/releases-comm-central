@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, FolderId, FolderShape, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, Folder, FolderId, FolderShape, MESSAGES_NS_URI};
 
 /// A request for a list of folders which have been created, updated, or deleted
 /// server-side.
@@ -16,6 +14,7 @@ use crate::{
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(SyncFolderHierarchyResponseMessage)]
 pub struct SyncFolderHierarchy {
     /// A description of the information to be included in the response for each
     /// changed folder.
@@ -33,47 +32,10 @@ pub struct SyncFolderHierarchy {
     pub sync_state: Option<String>,
 }
 
-impl Operation for SyncFolderHierarchy {
-    type Response = SyncFolderHierarchyResponse;
-}
-
-impl EnvelopeBodyContents for SyncFolderHierarchy {
-    fn name() -> &'static str {
-        "SyncFolderHierarchy"
-    }
-}
-
-/// A response to a [`SyncFolderHierarchy`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchyresponse>
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct SyncFolderHierarchyResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for SyncFolderHierarchyResponse {}
-
-impl EnvelopeBodyContents for SyncFolderHierarchyResponse {
-    fn name() -> &'static str {
-        "SyncFolderHierarchyResponse"
-    }
-}
-
-/// A collection of responses for individual entities within a request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub sync_folder_hierarchy_response_message:
-        Vec<ResponseClass<SyncFolderHierarchyResponseMessage>>,
-}
-
 /// A response to a request for an individual folder within a [`SyncFolderHierarchy`] operation.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchyresponsemessage>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderHierarchyResponseMessage {
     /// An identifier for the synchronization state following application of the
@@ -93,7 +55,7 @@ pub struct SyncFolderHierarchyResponseMessage {
 /// deletions.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-hierarchy>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 pub struct Changes {
     #[serde(default, rename = "$value")]
     pub inner: Vec<Change>,
@@ -102,7 +64,7 @@ pub struct Changes {
 /// A server-side change to a folder.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-hierarchy>
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 pub enum Change {
     /// A creation of a folder.
     ///

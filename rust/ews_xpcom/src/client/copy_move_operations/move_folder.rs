@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::move_folder::{MoveFolder, MoveFolderResponse};
-use ews::{BaseFolderId, Folder};
+use ews::move_folder::MoveFolder;
+use ews::{BaseFolderId, Folder, FolderResponseMessage};
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
@@ -11,7 +11,7 @@ use xpcom::interfaces::IEwsFolderMoveCallbacks;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::authentication::credentials::AuthenticationProvider;
-use crate::client::{process_response_message_class, XpComEwsClient, XpComEwsError};
+use crate::client::{XpComEwsClient, XpComEwsError};
 
 use super::move_generic::{move_generic, MoveCallbacks};
 
@@ -77,20 +77,10 @@ impl MoveCallbacks<MoveFolder> for IEwsFolderMoveCallbacks {
     }
 }
 
-fn get_new_ews_ids_from_response(response: MoveFolderResponse) -> ThinVec<nsCString> {
+fn get_new_ews_ids_from_response(response: Vec<FolderResponseMessage>) -> ThinVec<nsCString> {
     response
-        .response_messages
-        .move_folder_response_message
         .into_iter()
-        .filter_map(|response_class| {
-            let response_message =
-                match process_response_message_class("MoveFolder", response_class) {
-                    Ok(response_message) => response_message,
-                    Err(err) => {
-                        log::warn!("ignoring error response: {err}");
-                        return None;
-                    }
-                };
+        .filter_map(|response_message| {
             response_message.folders.inner.first().map(|folder| {
                 match folder {
                     Folder::Folder { folder_id, .. } => folder_id,

@@ -2,19 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, ItemResponseMessage, MessageDisposition,
-    Operation, OperationResponse, RealItem, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, ItemResponseMessage, MessageDisposition, RealItem, MESSAGES_NS_URI};
 
 /// A request to create (and optionally send) one or more Exchange items.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(ItemResponseMessage)]
 pub struct CreateItem {
     /// The action the Exchange server will take upon creating this item.
     ///
@@ -39,44 +37,11 @@ pub struct CreateItem {
     pub items: Vec<RealItem>,
 }
 
-impl Operation for CreateItem {
-    type Response = CreateItemResponse;
-}
-
-impl EnvelopeBodyContents for CreateItem {
-    fn name() -> &'static str {
-        "CreateItem"
-    }
-}
-
-/// A response to a [`CreateItem`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitemresponse>
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct CreateItemResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for CreateItemResponse {}
-
-impl EnvelopeBodyContents for CreateItemResponse {
-    fn name() -> &'static str {
-        "CreateItemResponse"
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub create_item_response_message: Vec<ResponseClass<ItemResponseMessage>>,
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
         test_utils::assert_deserialized_content, types::common::ItemResponseMessage, Items,
-        ResponseClass,
+        ResponseClass, ResponseMessages,
     };
 
     use super::CreateItemResponse;
@@ -95,8 +60,8 @@ mod test {
                     </CreateItemResponse>"#;
 
         let expected = CreateItemResponse {
-            response_messages: super::ResponseMessages {
-                create_item_response_message: vec![ResponseClass::Success(ItemResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Success(ItemResponseMessage {
                     items: Items { inner: vec![] },
                 })],
             },

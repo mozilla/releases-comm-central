@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use crate::types::common::{BaseItemId, Message, MessageDisposition, PathToElement};
-use crate::{
-    types::sealed::EnvelopeBodyContents, Items, Operation, OperationResponse, ResponseClass,
-    MESSAGES_NS_URI,
-};
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
+
+use crate::types::common::{BaseItemId, Message, MessageDisposition, PathToElement};
+use crate::{Items, MESSAGES_NS_URI};
 
 /// A request to update properties of one or more Exchange items.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(UpdateItemResponseMessage)]
 pub struct UpdateItem {
     /// The action the Exchange server will take upon updating this item.
     ///
@@ -41,40 +41,7 @@ pub struct UpdateItem {
     pub item_changes: Vec<ItemChange>,
 }
 
-impl Operation for UpdateItem {
-    type Response = UpdateItemResponse;
-}
-
-impl EnvelopeBodyContents for UpdateItem {
-    fn name() -> &'static str {
-        "UpdateItem"
-    }
-}
-
-/// A response to an [`UpdateItem`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitemresponse>
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct UpdateItemResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for UpdateItemResponse {}
-
-impl EnvelopeBodyContents for UpdateItemResponse {
-    fn name() -> &'static str {
-        "UpdateItemResponse"
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub update_item_response_message: Vec<ResponseClass<UpdateItemResponseMessage>>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct UpdateItemResponseMessage {
     pub items: Items,

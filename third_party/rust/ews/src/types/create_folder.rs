@@ -2,53 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, Folder, FolderResponseMessage, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, Folder, FolderResponseMessage, MESSAGES_NS_URI};
 
 /// A request to create a new folder.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createfolder>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(FolderResponseMessage)]
 pub struct CreateFolder {
     pub parent_folder_id: BaseFolderId,
     pub folders: Vec<Folder>,
-}
-
-impl Operation for CreateFolder {
-    type Response = CreateFolderResponse;
-}
-
-impl EnvelopeBodyContents for CreateFolder {
-    fn name() -> &'static str {
-        "CreateFolder"
-    }
-}
-
-/// A response to a [`CreateFolder`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createfolderresponse>
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct CreateFolderResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for CreateFolderResponse {}
-
-impl EnvelopeBodyContents for CreateFolderResponse {
-    fn name() -> &'static str {
-        "CreateFolderResponse"
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub create_folder_response_message: Vec<ResponseClass<FolderResponseMessage>>,
 }

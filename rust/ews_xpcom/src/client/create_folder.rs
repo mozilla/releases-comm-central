@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::{create_folder::CreateFolder, BaseFolderId, Folder};
+use ews::{create_folder::CreateFolder, BaseFolderId, Folder, OperationResponse};
 
 use mailnews_ui_glue::UserInteractiveServer;
 
@@ -14,7 +14,7 @@ use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::AuthFailureBehavior;
 
 use super::{
-    process_error_with_cb_cpp, process_response_message_class, validate_response_message_count,
+    process_error_with_cb_cpp, process_response_message_class, single_response_or_error,
     XpComEwsClient, XpComEwsError,
 };
 
@@ -66,10 +66,8 @@ where
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.
-        let response_messages = response.response_messages.create_folder_response_message;
-        validate_response_message_count(&response_messages, 1)?;
-
-        let response_class = response_messages.into_iter().next().unwrap();
+        let response_messages = response.into_response_messages();
+        let response_class = single_response_or_error(response_messages)?;
         let response_message = process_response_message_class("CreateFolder", response_class)?;
 
         let folders = response_message.folders.inner;

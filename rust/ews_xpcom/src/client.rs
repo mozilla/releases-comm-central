@@ -31,7 +31,8 @@ use ews::{
     },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
     ExtendedProperty, Folder, FolderId, FolderShape, ItemResponseMessage, ItemShape, Message,
-    MessageDisposition, MimeContent, Operation, PathToElement, RealItem, Recipient,
+    MessageDisposition, MimeContent, Operation, OperationResponse, PathToElement, RealItem,
+    Recipient,
 };
 use fxhash::FxHashMap;
 use itertools::Itertools;
@@ -163,16 +164,15 @@ where
             }],
         };
 
-        let response_message = self
+        let response_messages = self
             // Make authentication failure silent, since all we want to know is
             // whether our credentials are valid.
             .make_operation_request(get_root_folder, AuthFailureBehavior::Silent)
             .await?
-            .response_messages
-            .get_folder_response_message;
+            .into_response_messages();
 
         // Get the first (and only) response message so we can inspect it.
-        let response_class = single_response_or_error(response_message)?;
+        let response_class = single_response_or_error(response_messages)?;
         let message = process_response_message_class("GetFolder", response_class)?;
 
         // Any error fetching the root folder is fatal, since it likely means
@@ -242,8 +242,7 @@ where
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
                 .await?
-                .response_messages
-                .sync_folder_hierarchy_response_message;
+                .into_response_messages();
             let response = single_response_or_error(response)?;
             let message = process_response_message_class("SyncFolderHierarchy", response)?;
 
@@ -345,29 +344,9 @@ where
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
                 .await?
-                .response_messages
-                .sync_folder_items_response_message;
+                .into_response_messages();
             let response_class = single_response_or_error(response)?;
-
-            let message = match response_class {
-                ResponseClass::Success(message) => message,
-                ResponseClass::Error(ResponseError {
-                    message_xml: Some(ews::MessageXml::ServerBusy(server_busy)),
-                    ..
-                }) => {
-                    let delay_ms = server_busy.back_off_milliseconds;
-                    log::debug!("sync request throttled, will retry after {delay_ms} milliseconds");
-                    xpcom_async::sleep(delay_ms).await?;
-                    continue;
-                }
-                ResponseClass::Error(err) => {
-                    return Err(err.into());
-                }
-                ResponseClass::Warning(message) => {
-                    log::warn!("sync request returned a warning!");
-                    message
-                }
-            };
+            let message = process_response_message_class("SyncFolderItems", response_class)?;
 
             // We only fetch unique messages, as we ignore the `ChangeKey` and
             // simply fetch the latest version.
@@ -741,7 +720,7 @@ where
             .make_operation_request(op, AuthFailureBehavior::ReAuth)
             .await?;
 
-        let response_messages = response.response_messages.get_folder_response_message;
+        let response_messages = response.into_response_messages();
         validate_response_message_count(&response_messages, DISTINGUISHED_IDS.len())?;
 
         // We expect results from EWS to be in the same order as given in the
@@ -888,7 +867,7 @@ where
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
                 .await?;
-            let messages = response.response_messages.get_folder_response_message;
+            let messages = response.into_response_messages();
 
             let mut fetched = messages
                 .into_iter()
@@ -1018,7 +997,7 @@ where
             let response = self
                 .make_operation_request(op, AuthFailureBehavior::ReAuth)
                 .await?;
-            for response_message in response.response_messages.get_item_response_message {
+            for response_message in response.into_response_messages() {
                 let message = process_response_message_class("GetItem", response_message)?;
 
                 // The expected shape of the list of response messages is
@@ -1260,12 +1239,8 @@ where
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
-        let response_messages = response.response_messages.create_item_response_message;
-        validate_response_message_count(&response_messages, 1)?;
-
-        // Get the first (and only) response message, and check if there's a
-        // warning or an error we should handle.
-        let response_message = response_messages.into_iter().next().unwrap();
+        let response_messages = response.into_response_messages();
+        let response_message = single_response_or_error(response_messages)?;
         process_response_message_class("CreateItem", response_message)
     }
 
@@ -1338,7 +1313,7 @@ where
             .await?;
 
         // Get all response messages.
-        let response_messages = response.response_messages.update_item_response_message;
+        let response_messages = response.into_response_messages();
         validate_response_message_count(&response_messages, update_item.item_changes.len())?;
 
         // Process each response message, checking for errors or warnings.
@@ -1404,7 +1379,7 @@ where
 
         // Make sure we got the amount of response messages matches the amount
         // of messages we requested to have deleted.
-        let response_messages = response.response_messages.delete_item_response_message;
+        let response_messages = response.into_response_messages();
         validate_response_message_count(&response_messages, ews_ids.len())?;
 
         // Check every response message for an error.
@@ -1475,12 +1450,8 @@ where
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
-        let response_messages = response.response_messages.delete_folder_response_message;
-        validate_response_message_count(&response_messages, 1)?;
-
-        // Get the first (and only) response message, and check if there's a
-        // warning or an error we should handle.
-        let response_message = response_messages.into_iter().next().unwrap();
+        let response_messages = response.into_response_messages();
+        let response_message = single_response_or_error(response_messages)?;
         process_response_message_class("DeleteFolder", response_message)?;
 
         // Delete the folder from the server's database.
@@ -1540,10 +1511,8 @@ where
         let response = self
             .make_operation_request(update_folder, AuthFailureBehavior::ReAuth)
             .await?;
-        let response_messages = response.response_messages.update_folder_response_message;
-        validate_response_message_count(&response_messages, 1)?;
-
-        let response_message = response_messages.into_iter().next().unwrap();
+        let response_messages = response.into_response_messages();
+        let response_message = single_response_or_error(response_messages)?;
         process_response_message_class("UpdateFolder", response_message)?;
 
         unsafe { callbacks.OnRemoteFolderUpdateSuccessful() }
@@ -1553,8 +1522,9 @@ where
 
     /// Makes a request to the EWS endpoint to perform an operation.
     ///
-    /// If the request is throttled, it will be retried after the delay given in
-    /// the response.
+    /// If the entire request or first response is throttled, the request will
+    /// be repeatedly retried (after the delay given in the response) until it
+    /// succeeds or some other error occurs.
     async fn make_operation_request<Op>(
         &self,
         op: Op,
@@ -1628,6 +1598,21 @@ where
                         None => {}
                     };
 
+                    // Check if the first response is a back off message, and
+                    // retry if so.
+                    if let Some(ResponseClass::Error(ResponseError {
+                        message_xml: Some(ews::MessageXml::ServerBusy(server_busy)),
+                        ..
+                    })) = envelope.body.response_messages().first()
+                    {
+                        let delay_ms = server_busy.back_off_milliseconds;
+                        log::debug!(
+                            "{op_name} returned busy message, will retry after {delay_ms} milliseconds"
+                        );
+                        xpcom_async::sleep(delay_ms).await?;
+                        continue;
+                    }
+
                     Ok(envelope.body)
                 }
                 Err(err) => {
@@ -1636,7 +1621,7 @@ where
                     let backoff_delay_ms = maybe_get_backoff_delay_ms(&err);
                     if let Some(backoff_delay_ms) = backoff_delay_ms {
                         log::debug!(
-                            "request throttled, will retry after {backoff_delay_ms} milliseconds"
+                            "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
                         );
 
                         xpcom_async::sleep(backoff_delay_ms).await?;
@@ -2018,7 +2003,7 @@ fn create_and_populate_header_from_create_response(
 }
 
 fn validate_response_message_count<T>(
-    response_messages: &[T],
+    response_messages: &[ResponseClass<T>],
     expected_len: usize,
 ) -> Result<(), XpComEwsError> {
     if response_messages.len() != expected_len {
@@ -2033,7 +2018,7 @@ fn validate_response_message_count<T>(
 
 /// For responses where we expect a single message, extract that message. Returns
 /// [`XpComEwsError::Processing`] if no messages are available, prints a warning but succesfully
-/// returns the first messageif more than one message is available.
+/// returns the first message if more than one message is available.
 fn single_response_or_error<T>(responses: Vec<T>) -> Result<T, XpComEwsError> {
     let responses_len = responses.len();
     let Some(message) = responses.into_iter().next() else {
@@ -2045,4 +2030,23 @@ fn single_response_or_error<T>(responses: Vec<T>) -> Result<T, XpComEwsError> {
         log::warn!("expected 1 response message, got {responses_len}");
     }
     Ok(message)
+}
+
+/// Convert the response into a vector of its message type, or return the first error
+/// encountered. Warnings are logged but otherwise considered successes.
+fn response_into_messages<OpResponse: OperationResponse>(
+    response: OpResponse,
+) -> Result<Vec<OpResponse::Message>, ResponseError> {
+    response
+        .into_response_messages()
+        .into_iter()
+        .map(|response_class| match response_class {
+            ResponseClass::Success(message) => Ok(message),
+            ResponseClass::Error(err) => Err(err),
+            ResponseClass::Warning(message) => {
+                log::warn!("into_messages found a warning!");
+                Ok(message)
+            }
+        })
+        .collect()
 }

@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews_proc_macros::operation_response;
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseItemId, ItemShape, Items, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseItemId, ItemShape, Items, MESSAGES_NS_URI};
 
 /// A request for the properties of one or more Exchange items, e.g. messages,
 /// calendar events, or contacts.
@@ -16,6 +14,7 @@ use crate::{
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/getitem>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(GetItemResponseMessage)]
 pub struct GetItem {
     /// A description of the information to be included in the response for each
     /// item.
@@ -29,40 +28,7 @@ pub struct GetItem {
     pub item_ids: Vec<BaseItemId>,
 }
 
-impl Operation for GetItem {
-    type Response = GetItemResponse;
-}
-
-impl EnvelopeBodyContents for GetItem {
-    fn name() -> &'static str {
-        "GetItem"
-    }
-}
-
-/// A response to a [`GetItem`] request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/getitemresponse>
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct GetItemResponse {
-    pub response_messages: ResponseMessages,
-}
-
-impl OperationResponse for GetItemResponse {}
-
-impl EnvelopeBodyContents for GetItemResponse {
-    fn name() -> &'static str {
-        "GetItemResponse"
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ResponseMessages {
-    pub get_item_response_message: Vec<ResponseClass<GetItemResponseMessage>>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
 pub struct GetItemResponseMessage {
     pub items: Items,

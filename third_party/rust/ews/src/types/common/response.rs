@@ -7,6 +7,24 @@ use serde::{Deserialize, Deserializer};
 use std::fmt;
 use std::marker::PhantomData;
 
+/// A generic representation of a response message from a request.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(default)]
+pub struct ResponseMessages<T> {
+    #[serde(rename = "$value")]
+    pub response_messages: Vec<ResponseClass<T>>,
+}
+
+impl<T> Default for ResponseMessages<T> {
+    fn default() -> Self {
+        Self {
+            response_messages: vec![],
+        }
+    }
+}
+
 /// A fallible response to an operation.
 ///
 /// For a list of upstream types that use this sort of structuring, you can see [`ResponseCode`]'s

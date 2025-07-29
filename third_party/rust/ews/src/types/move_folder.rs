@@ -2,63 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
-use crate::{
-    types::sealed::EnvelopeBodyContents, BaseFolderId, FolderResponseMessage, Operation,
-    OperationResponse, ResponseClass, MESSAGES_NS_URI,
-};
+use crate::{BaseFolderId, FolderResponseMessage, MESSAGES_NS_URI};
 
 /// A request to move one or more Exchange folders.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/movefolder>
 #[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
+#[operation_response(FolderResponseMessage)]
 pub struct MoveFolder {
     pub to_folder_id: BaseFolderId,
     pub folder_ids: Vec<BaseFolderId>,
 }
 
-/// A response to a `[MoveFolder]` operation.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/movefolderresponse>
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct MoveFolderResponse {
-    pub response_messages: MoveFolderResponseMessages,
-}
-
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "PascalCase")]
-pub struct MoveFolderResponseMessages {
-    pub move_folder_response_message: Vec<ResponseClass<FolderResponseMessage>>,
-}
-
-impl Operation for MoveFolder {
-    type Response = MoveFolderResponse;
-}
-
-impl EnvelopeBodyContents for MoveFolder {
-    fn name() -> &'static str {
-        "MoveFolder"
-    }
-}
-
-impl OperationResponse for MoveFolderResponse {}
-
-impl EnvelopeBodyContents for MoveFolderResponse {
-    fn name() -> &'static str {
-        "MoveFolderResponse"
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
-        move_folder::{MoveFolder, MoveFolderResponse, MoveFolderResponseMessages},
+        move_folder::{MoveFolder, MoveFolderResponse},
         test_utils::{assert_deserialized_content, assert_serialized_content},
         BaseFolderId, Folder, FolderId, FolderResponseMessage, Folders, ResponseClass,
+        ResponseMessages,
     };
 
     #[test]
@@ -97,8 +63,8 @@ mod test {
                     </MoveFolderResponse>"#;
 
         let response = MoveFolderResponse {
-            response_messages: MoveFolderResponseMessages {
-                move_folder_response_message: vec![ResponseClass::Success(FolderResponseMessage {
+            response_messages: ResponseMessages {
+                response_messages: vec![ResponseClass::Success(FolderResponseMessage {
                     folders: Folders {
                         inner: vec![Folder::Folder {
                             folder_id: Some(FolderId {

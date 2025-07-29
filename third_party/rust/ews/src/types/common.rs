@@ -9,7 +9,7 @@ use time::format_description::well_known::Iso8601;
 use xml_struct::XmlSerialize;
 
 pub mod response;
-pub use self::response::ResponseClass;
+pub use self::response::{ResponseClass, ResponseMessages};
 pub mod message_xml;
 pub use self::message_xml::MessageXml;
 

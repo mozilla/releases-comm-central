@@ -42,6 +42,15 @@ pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents + std::fmt::Deb
 pub trait OperationResponse:
     for<'de> Deserialize<'de> + sealed::EnvelopeBodyContents + std::fmt::Debug
 {
+    /// The type of the messages in the response.
+    type Message;
+
+    /// In practice, every operation response contains a single `response_messages` field. This
+    /// returns that field.
+    fn response_messages(&self) -> &[crate::ResponseClass<Self::Message>];
+
+    /// Convert the response into its internal type.
+    fn into_response_messages(self) -> Vec<crate::ResponseClass<Self::Message>>;
 }
 
 pub(super) mod sealed {

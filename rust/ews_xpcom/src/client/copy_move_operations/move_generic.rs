@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::Operation;
+use ews::{Operation, OperationResponse};
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::{nsACString, nsCString};
 use thin_vec::ThinVec;
@@ -10,7 +10,10 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
-    client::{process_error_with_cb_cpp, AuthFailureBehavior, XpComEwsClient, XpComEwsError},
+    client::{
+        process_error_with_cb_cpp, response_into_messages, AuthFailureBehavior, XpComEwsClient,
+        XpComEwsError,
+    },
 };
 
 /// Trait to adapt varying completion reporting interfaces to a common interface.
@@ -60,7 +63,9 @@ pub(super) async fn move_generic<ServerT, OperationDataT, CallbacksT>(
     destination_folder_id: String,
     ids: Vec<String>,
     operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
-    response_to_ids: fn(OperationDataT::Response) -> ThinVec<nsCString>,
+    response_to_ids: fn(
+        Vec<<OperationDataT::Response as OperationResponse>::Message>,
+    ) -> ThinVec<nsCString>,
     callbacks: RefPtr<CallbacksT>,
 ) where
     ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
@@ -86,7 +91,9 @@ async fn move_generic_inner<ServerT, OperationDataT, CallbacksT>(
     destination_folder_id: String,
     ids: Vec<String>,
     operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
-    response_to_ids: fn(OperationDataT::Response) -> ThinVec<nsCString>,
+    response_to_ids: fn(
+        Vec<<OperationDataT::Response as OperationResponse>::Message>,
+    ) -> ThinVec<nsCString>,
     callbacks: &CallbacksT,
 ) -> Result<(), XpComEwsError>
 where
@@ -100,7 +107,9 @@ where
         .make_operation_request(operation_data.clone(), AuthFailureBehavior::ReAuth)
         .await?;
 
-    let new_ids = response_to_ids(response);
+    let messages = response_into_messages(response)?;
+
+    let new_ids = response_to_ids(messages);
 
     callbacks.on_success(operation_data, new_ids)?;
 
