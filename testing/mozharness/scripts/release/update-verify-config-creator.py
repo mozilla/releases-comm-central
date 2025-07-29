@@ -14,9 +14,7 @@ from urllib.parse import urljoin
 
 import aiohttp
 
-sys.path.insert(
-    0, os.path.join(os.getcwd(), "comm", "third_party", "python", "python-hglib")
-)
+sys.path.insert(0, os.path.join(os.getcwd(), "comm", "third_party", "python", "python-hglib"))
 import hglib
 from hglib.util import cmdbuilder
 from looseversion import LooseVersion
@@ -372,9 +370,7 @@ class UpdateVerifyConfigCreator(BaseScript):
 
         return branch
 
-    async def _download_build_info(
-        self, semaphore, session, product, version, info_file_url
-    ):
+    async def _download_build_info(self, semaphore, session, product, version, info_file_url):
         """Async download and parse build info file for given url
 
         Args:
@@ -430,14 +426,9 @@ class UpdateVerifyConfigCreator(BaseScript):
 
         async def _run_semaphore():
             async with aiohttp.ClientSession() as session:
-                self.log(
-                    f"Starting async download. Semaphore with {CONCURRENCY} concurrencies."
-                )
+                self.log(f"Starting async download. Semaphore with {CONCURRENCY} concurrencies.")
                 semaphore = asyncio.Semaphore(CONCURRENCY)
-                tasks = [
-                    self._download_build_info(semaphore, session, *info)
-                    for info in filelist
-                ]
+                tasks = [self._download_build_info(semaphore, session, *info) for info in filelist]
                 return await asyncio.gather(*tasks)
 
         return loop.run_until_complete(_run_semaphore())
@@ -485,22 +476,19 @@ class UpdateVerifyConfigCreator(BaseScript):
             # product line, too old, etc.
             if self.config["stage_product"] != product:
                 self.log(
-                    "Skipping release that doesn't match product name: %s"
-                    % release_name,
+                    "Skipping release that doesn't match product name: %s" % release_name,
                     level=INFO,
                 )
                 continue
             if MozillaVersion(version) < MozillaVersion(self.config["last_watershed"]):
                 self.log(
-                    "Skipping release that's behind the last watershed: %s"
-                    % release_name,
+                    "Skipping release that's behind the last watershed: %s" % release_name,
                     level=INFO,
                 )
                 continue
             if version == self.config["to_version"]:
                 self.log(
-                    "Skipping release that is the same as to version: %s"
-                    % release_name,
+                    "Skipping release that is the same as to version: %s" % release_name,
                     level=INFO,
                 )
                 continue
@@ -528,9 +516,7 @@ class UpdateVerifyConfigCreator(BaseScript):
 
         for build in build_info_list:
             if build.version in self.update_paths:
-                raise Exception(
-                    "Found duplicate release for version: %s", build.version
-                )
+                raise Exception("Found duplicate release for version: %s", build.version)
 
             shipped_locales, app_version = self._get_files_from_repo_tag(
                 build.product,
@@ -544,9 +530,7 @@ class UpdateVerifyConfigCreator(BaseScript):
                 "locales": getPlatformLocales(shipped_locales, self.config["platform"]),
                 "buildID": build.buildID,
             }
-            for pattern, mar_channel_ids in self.config[
-                "mar_channel_id_overrides"
-            ].items():
+            for pattern, mar_channel_ids in self.config["mar_channel_id_overrides"].items():
                 if re.match(pattern, build.version):
                     self.update_paths[build.version]["marChannelIds"] = mar_channel_ids
 
@@ -555,9 +539,7 @@ class UpdateVerifyConfigCreator(BaseScript):
             try:
                 return self._get_files_from_local_repo(rev, path)[0]
             except Exception:
-                self.log(
-                    "Unable to get file from local repo, trying from remote instead."
-                )
+                self.log("Unable to get file from local repo, trying from remote instead.")
         return self._get_files_from_remote_repo(rev, branch, path)[0]
 
     def _get_files_from_repo_tag(self, product, version, *paths):
@@ -609,9 +591,7 @@ class UpdateVerifyConfigCreator(BaseScript):
     def _get_files_from_remote_repo(self, rev, branch, *paths):
         files = []
         for path in paths:
-            hg_url = urljoin(
-                self.config["hg_server"], f"{branch}/raw-file/{rev}/{path}"
-            )
+            hg_url = urljoin(self.config["hg_server"], f"{branch}/raw-file/{rev}/{path}")
             # we're going to waste time retrying on 404s here...meh
             # at least we can lower sleep time to minimize that
             ret = self._retry_download(
@@ -697,9 +677,7 @@ class UpdateVerifyConfigCreator(BaseScript):
             self.config["repo_path"],
             "{}/locales/shipped-locales".format(self.config["app_name"]),
         )
-        to_locales = set(
-            getPlatformLocales(to_shipped_locales, self.config["platform"])
-        )
+        to_locales = set(getPlatformLocales(to_shipped_locales, self.config["platform"]))
 
         completes_only_index = 0
         for fromVersion in reversed(sorted(self.update_paths, key=CompareVersion)):
@@ -751,9 +729,7 @@ class UpdateVerifyConfigCreator(BaseScript):
             ]
 
             if fromVersion in self.config["partial_versions"]:
-                self.info(
-                    "Generating configs for partial update checks for %s" % fromVersion
-                )
+                self.info("Generating configs for partial update checks for %s" % fromVersion)
                 self.update_verify_config.addRelease(
                     release=appVersion,
                     build_id=build_id,
