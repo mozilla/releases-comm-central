@@ -207,6 +207,65 @@ add_task(async function test_copy_item() {
   );
 });
 
+add_task(async function test_copy_file_message() {
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(
+      "copyFileMessage",
+      "root",
+      "copyFileMessage",
+      "copyFileMessage"
+    )
+  );
+
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const folder = rootFolder.getChildNamed("copyFileMessage");
+
+  // Copy the message.
+
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFileMessage(
+    do_get_file("../../../../test/data/bugmail11"),
+    folder,
+    null,
+    false,
+    0, // message flags
+    "$label4", // keywords
+    copyListener,
+    null // window
+  );
+  const copied = await copyListener.promise;
+
+  // Check the copied message.
+
+  const header = folder.GetMessageHeader(copied.messageKeys[0]);
+  Assert.equal(
+    header.messageId,
+    "200804111417.m3BEHTk4030129@mrapp51.mozilla.org",
+    "copied message's Message-ID is set from the message"
+  );
+  Assert.ok(
+    header.getStringProperty("ewsId"),
+    "copied message should have been assigned an EWS ID"
+  );
+  Assert.ok(
+    header.storeToken,
+    "copied message should have been stored on disk"
+  );
+  // TODO:
+  // Assert.equal(
+  //   header.getStringProperty("keywords"),
+  //   "$label4",
+  //   "keywords should have been set in the database"
+  // );
+
+  // Check the message is on the server;
+
+  const serverMessage = ewsServer.getItem(header.getStringProperty("ewsId"));
+  Assert.ok(serverMessage);
+  Assert.equal(serverMessage.parentId, "copyFileMessage");
+});
+
 add_task(async function test_mark_as_read() {
   const folderName = "markRead";
   ewsServer.appendRemoteFolder(
