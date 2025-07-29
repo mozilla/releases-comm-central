@@ -1486,7 +1486,7 @@ export class EwsServer {
  * @param {string} collectionElementName The name of the XML element that contains the id collection.
  * @param {string} objectElementName The name of the XML element that contains each individual object.
  *
- * @returns {[string, [string]]} a pair containing the destination folder id in
+ * @returns {[string, string[]]} a pair containing the destination folder id in
  *                               the first element and the list of object IDs to
  *                               move in the second element.
  */

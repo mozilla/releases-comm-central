@@ -853,7 +853,7 @@ export async function right_click_on_row(aViewIndex) {
  *
  * @param {integer} aViewIndex - The index of a selected row.
  * @param {boolean} shiftPressed - Whether the shift key has been pressed.
- * @returns {[]} a tuple of [The new tab, the message that you clicked on.]
+ * @returns {any[]} a tuple of [The new tab, the message that you clicked on.]
  */
 export async function middle_click_on_row(aViewIndex, shiftPressed) {
   aViewIndex = _normalize_view_index(aViewIndex);
@@ -1071,7 +1071,7 @@ export async function right_click_on_folder(aFolder) {
  *
  * NOTE: The argument is a folder here, unlike in the message case, so beware.
  *
- * @returns {[]} A tuple of [The new tab, the view index that you clicked on.]
+ * @returns {any[]} A tuple of [The new tab, the view index that you clicked on.]
  */
 export function middle_click_on_folder(aFolder, shiftPressed) {
   const win = get_about_3pane();
@@ -1573,7 +1573,7 @@ export function toggle_message_pane() {
  * Helper function for use by assert_selected / assert_selected_and_displayed /
  *  assert_displayed.
  *
- * @returns {[]} A list of two elements: [Window, [list of view indices]].
+ * @returns {any[]} A list of two elements: [Window, [list of view indices]].
  */
 function _process_row_message_arguments(...aArgs) {
   let troller = mc;

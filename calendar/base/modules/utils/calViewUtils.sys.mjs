@@ -257,7 +257,7 @@ export var view = {
    *
    * @param {calIItemBase} a - The first item.
    * @param {calIItemBase} b - The second item.
-   * @returns {-1|0|1}
+   * @returns {number} Comparison number for sorting.
    */
   compareItems(a, b) {
     if (!a) {

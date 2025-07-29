@@ -469,7 +469,7 @@ export function closeLogWriter(aConversation) {
  * YYYY-MM-DD.HHmmSS+ZZzz.format
  *
  * @param {string} aFilename - The name of the file.
- * @returns {[]} an Array, where the first element is a Date object for the date
+ * @returns {any[]} an Array, where the first element is a Date object for the date
  *   that the log file represents, and the file type as a string.
  */
 function getDateFromFilename(aFilename) {

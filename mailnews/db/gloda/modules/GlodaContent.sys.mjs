@@ -7,7 +7,7 @@
  *
  * @param {MimeMessage} aMimeMsg - The MimeMessage instance.
  * @param {nsIMsgFolder} folder - The folder the message is in.
- * @returns {[]} an array containing the GlodaContent instance, and the meta
+ * @returns {any[]} an array containing the GlodaContent instance, and the meta
  *   dictionary that the Gloda content providers may have filled with useful data.
  */
 export function mimeMsgToContentAndMeta(aMimeMsg, folder) {
@@ -32,7 +32,7 @@ export function mimeMsgToContentAndMeta(aMimeMsg, folder) {
  *   content. If the actual length of the message is greater than |length|,
  *   then the return value is the first (length-1) characters with an ellipsis
  *   appended.
- * @returns {[]} an array containing the text of the snippet, and the meta dictionary
+ * @returns {any[]} an array containing the text of the snippet, and the meta dictionary
  *   that the Gloda content providers may have filled with useful data.
  */
 export function mimeMsgToContentSnippetAndMeta(aMimeMsg, folder, length) {

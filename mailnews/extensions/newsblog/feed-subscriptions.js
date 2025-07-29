@@ -2559,7 +2559,7 @@ var FeedSubscriptions = {
   /**
    * Import feeds opml file Open filepicker function.
    *
-   * @returns {Promise<?[]>} an array [{nsIFile} file, {String} fileUrl] or null.
+   * @returns {Promise<any[]|null>} an array [{nsIFile} file, {String} fileUrl] or null.
    */
   opmlPickOpenFile() {
     const title = FeedUtils.strings.GetStringFromName(

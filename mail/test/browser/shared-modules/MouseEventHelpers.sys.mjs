@@ -95,7 +95,7 @@ export function synthesize_drag_start(aWindow, aDispatcher, aListener) {
  * @param {Window} aWindow
  * @param {Element} aDispatcher - The element from which the drag session should be started.
  * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
- * @param {[]} aArgs - Arguments passed to the mouse event.
+ * @param {any[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("dragover", aWindow, aDispatcher, aDt, aArgs);
@@ -109,7 +109,7 @@ export function synthesize_drag_over(aWindow, aDispatcher, aDt, aArgs) {
  *   be started.
  * @param {Element} aListener
  * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
- * @param {[]} aArgs - Arguments passed to the mouse event.
+ * @param {any[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drag_end(
   aWindow,
@@ -139,7 +139,7 @@ export function synthesize_drag_end(
  * @param {Element} aDispatcher - The element from which the drag session should
  *   be started.
  * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
- * @param {[]} aArgs - Arguments passed to the mouse event.
+ * @param {any[]} aArgs - Arguments passed to the mouse event.
  */
 export function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
   _synthesizeDragEvent("drop", aWindow, aDispatcher, aDt, aArgs);
@@ -164,7 +164,7 @@ export function synthesize_drop(aWindow, aDispatcher, aDt, aArgs) {
  * @param {Element} aDispatcher - The element from which the drag session should
  *   be started.
  * @param {nsIDataTransfer} aDt - The DataTransfer Object of captured by listener.
- * @param {[]} aArgs - Arguments passed to the mouse event.
+ * @param {any[]} aArgs - Arguments passed to the mouse event.
  */
 function _synthesizeDragEvent(aType, aWindow, aDispatcher, aDt, aArgs) {
   let screenX;

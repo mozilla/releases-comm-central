@@ -208,7 +208,7 @@ var PendingCommitTracker = {
    *  looking at the header's properties because we defer setting those
    *  until the SQLite commit happens.
    *
-   * @returns {[]} Tuple of [gloda id, dirty status].
+   * @returns {number[]} Tuple of [gloda id, dirty status].
    */
   getGlodaState(aMsgHdr) {
     // If it's in the pending commit table, then the message is basically
@@ -2042,7 +2042,7 @@ export var GlodaMsgIndexer = {
   /**
    * Queue a list of messages for indexing.
    *
-   * @param {[]} aFoldersAndMessages - List of [nsIMsgFolder, message key] tuples.
+   * @param {any[]} aFoldersAndMessages - List of [nsIMsgFolder, message key] tuples.
    */
   indexMessages(aFoldersAndMessages) {
     const job = new IndexingJob("message", null);

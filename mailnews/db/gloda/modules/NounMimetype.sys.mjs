@@ -531,7 +531,7 @@ export var MimeTypeNoun = {
      *  category.
      *
      * @param {object} aAttrDef - The attribute that is using us. See Gloda.defineAttribute()
-     * @param {[]} aArguments - The actual arguments object.
+     * @param {any[]} aArguments - The actual arguments object.
      */
     Category(aAttrDef, aArguments) {
       const rangePairs = [];

@@ -321,7 +321,7 @@ function setupTitle() {
  *   start date property.
  * @param {MozCalendarAlarmWidgetRichlistitem} aWidgetItem - The alarm widget
  *   item for the start date comparison with the given calendar item.
- * @returns {1|0|-1} 1 if the calendar item starts before the
+ * @returns {number} 1 if the calendar item starts before the
  *   calendar-alarm-widget.
  *  -1 if the calendar-alarm-widget starts before the calendar item.
  *  0 otherwise.

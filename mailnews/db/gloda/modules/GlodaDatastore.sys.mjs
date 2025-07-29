@@ -3169,13 +3169,13 @@ export var GlodaDatastore = {
    *
    * @param {GlodaMessage} aMessage - The GlodaMessage the attributes belong to.
    *   This is used to provide the message id and conversation id.
-   * @param {[]} aAddDBAttributes - A list of attribute tuples to add, where each tuple
+   * @param {any[]} aAddDBAttributes - A list of attribute tuples to add, where each tuple
    *     contains an attribute ID and a value.  Lest you forget, an attribute ID
    *     corresponds to a row in the attribute definition table.  The attribute
    *     definition table stores the 'parameter' for the attribute, if any.
    *     (Which is to say, our frequent Attribute-Parameter-Value triple has
    *     the Attribute-Parameter part distilled to a single attribute id.)
-   * @param {[]} aRemoveDBAttributes -  A list of attribute tuples to remove.
+   * @param {any[]} aRemoveDBAttributes -  A list of attribute tuples to remove.
    */
   adjustMessageAttributes(aMessage, aAddDBAttributes, aRemoveDBAttributes) {
     const imas = this._insertMessageAttributeStatement;

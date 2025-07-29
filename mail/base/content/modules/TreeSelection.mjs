@@ -534,7 +534,7 @@ export class TreeSelection {
    * Find the index of the range, if any, that contains the given index, and
    *  the index at which to insert a range if one does not exist.
    *
-   * @returns {[]} A tuple containing:
+   * @returns {?number[]} A tuple containing:
    *    1) the index if there is one, null otherwise,
    *    2) the index at which to insert a range that would contain the point.
    */

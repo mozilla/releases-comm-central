@@ -58,7 +58,10 @@ myst_linkify_fuzzy_links = False
 myst_heading_anchors = 2
 
 templates_path = ["_templates"]
-source_suffix = [".rst", ".md"]
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 exclude_patterns = [
     "_build",
     "Thumbs.db",

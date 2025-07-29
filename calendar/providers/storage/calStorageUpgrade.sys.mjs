@@ -707,7 +707,7 @@ function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
  * Maps a mozIStorageValueArray to a JS array, converting types correctly.
  *
  * @param {mozIStorageValueArray} storArgs - The storage value array to convert.
- * @returns {[]} An array with the arguments as js values.
+ * @returns {any[]} An array with the arguments as js values.
  */
 function mapStorageArgs(storArgs) {
   const mappedArgs = [];

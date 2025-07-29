@@ -4,6 +4,10 @@
 
 import { SAX } from "resource:///modules/sax.sys.mjs";
 
+/**
+ * @typedef {XMLNode|TextNode} ChildNode
+ */
+
 var NS = {
   xml: "http://www.w3.org/XML/1998/namespace",
   xhtml: "http://www.w3.org/1999/xhtml",
@@ -274,7 +278,7 @@ TextNode.prototype = {
  * @property {string} localName
  * @property {string} qName
  * @property {Record<string, string>} attributes
- * @property {(XMLNode | TextNode)[]} children
+ * @property {ChildNode[]} children
  */
 function XMLNode(
   aParentNode,
@@ -315,7 +319,7 @@ XMLNode.prototype = {
   /**
    * Add a new child node.
    *
-   * @param {XMLNode | TextNode} aNode - The new child node.
+   * @param {ChildNode} aNode - The new child node.
    */
   addChild(aNode) {
     this.children.push(aNode);

@@ -239,7 +239,7 @@ dump("  bailing! (bail was: " + bail + ")\n");
    *  whether it already possesses a transition corresponding to the provided
    *  character.
    *
-   * @returns {[]} A list of: whether we had to make it explicit, the (potentially)
+   * @returns {any[]} A list of: whether we had to make it explicit, the (potentially)
    *   new explicit state.
    */
   _testAndSplit(aState, aStart, aEnd, aChar) {

@@ -21,7 +21,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 /**
  * @class IndexingJob - Capture the indexing batch concept explicitly.
  *
- * @property {[]} items - The list of items to process during this job/batch.  (For
+ * @property {any[]|null} items - The list of items to process during this job/batch.  (For
  *   example, if this is a "messages" job, this would be the list of messages
  *   to process, although the specific representation is determined by the
  *   job.) The list will only be mutated through the addition of extra items.
@@ -438,7 +438,7 @@ export var GlodaIndexer = {
    * @param {Function} aIndexer.disable - Your disable function.
    *   This will be called when indexing is disabled or we are shutting down.
    *   This will only be called if enable has already been called.
-   * @param {[]} aIndexer.workers - A list of tuples of the form [worker type code,
+   * @param {any[]} aIndexer.workers - A list of tuples of the form [worker type code,
    *   worker generator function, optional scheduling trigger function].  The
    *   type code is the string used to uniquely identify the job type.  If you
    *   are not core gloda, your job type must start with your extension's name

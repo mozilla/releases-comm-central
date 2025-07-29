@@ -179,7 +179,7 @@ export const Sanitizer = {
    * Allows only certain values as input, otherwise throw.
    *
    * @param {*} unchecked - The value to check.
-   * @param {[]} allowedValues - List of values that |unchecked| may have.
+   * @param {any[]} allowedValues - List of values that |unchecked| may have.
    * @param {*} [defaultValue] - If |unchecked| does not match
    *   anything in |mapping|, a |defaultValue| can be returned instead of
    *   throwing an exception. The latter is the default and happens when
