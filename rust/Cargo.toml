@@ -40,6 +40,8 @@ gkrust-gtest = ["gkrust"]
 
 
 
+
+
 [workspace]
 members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue']
 
@@ -270,6 +272,7 @@ malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 context_id = { git = "https://github.com/mozilla/application-services", rev = "365edb4392e621ede6c3daf9c8d80505d3a9c4aa" }
+error-support = { git = "https://github.com/mozilla/application-services", rev = "365edb4392e621ede6c3daf9c8d80505d3a9c4aa" }
 filter_adult = { git = "https://github.com/mozilla/application-services", rev = "365edb4392e621ede6c3daf9c8d80505d3a9c4aa" }
 interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "365edb4392e621ede6c3daf9c8d80505d3a9c4aa" }
 relevancy = { git = "https://github.com/mozilla/application-services", rev = "365edb4392e621ede6c3daf9c8d80505d3a9c4aa" }

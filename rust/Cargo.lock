@@ -119,19 +119,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
-name = "app_services_logger"
-version = "0.1.0"
-dependencies = [
- "cstr",
- "golden_gate",
- "log",
- "nserror",
- "nsstring",
- "once_cell",
- "xpcom",
-]
-
-[[package]]
 name = "app_units"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1699,6 +1686,8 @@ dependencies = [
  "lazy_static",
  "log",
  "parking_lot",
+ "tracing",
+ "tracing-support",
  "uniffi",
 ]
 
@@ -2262,7 +2251,6 @@ dependencies = [
 name = "gecko_logger"
 version = "0.1.0"
 dependencies = [
- "app_services_logger",
  "env_logger",
  "lazy_static",
  "log",
@@ -2272,6 +2260,7 @@ dependencies = [
 name = "gecko_tracing"
 version = "0.1.0"
 dependencies = [
+ "error-support",
  "tracing",
  "tracing-subscriber",
  "tracing-support",
@@ -2339,7 +2328,6 @@ version = "0.1.0"
 dependencies = [
  "aa-stroke",
  "abridged_certs",
- "app_services_logger",
  "audio_thread_priority",
  "audioipc2-client",
  "audioipc2-server",
@@ -2465,7 +2453,6 @@ version = "0.1.0"
 dependencies = [
  "aa-stroke",
  "abridged_certs",
- "app_services_logger",
  "audio_thread_priority",
  "authrs_bridge",
  "binary_http",
@@ -2679,25 +2666,6 @@ dependencies = [
  "log",
  "plain",
  "scroll",
-]
-
-[[package]]
-name = "golden_gate"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "atomic_refcell",
- "cstr",
- "interrupt-support",
- "log",
- "moz_task",
- "nserror",
- "nsstring",
- "serde_json",
- "storage_variant",
- "sync15",
- "thin-vec",
- "xpcom",
 ]
 
 [[package]]
