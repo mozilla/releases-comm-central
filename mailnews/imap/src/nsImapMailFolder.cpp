@@ -4255,6 +4255,8 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
     rv = GetMessageHeader(uidOfMessage, getter_AddRefs(m_offlineHeader));
     if (NS_SUCCEEDED(rv) && !m_offlineHeader) rv = NS_ERROR_UNEXPECTED;
     NS_ENSURE_SUCCESS(rv, rv);
+    // StartNewOfflineMessage() sets up m_tempMessageStream and
+    // m_tempMessageStreamBytesWritten.
     rv = StartNewOfflineMessage();
     NS_ENSURE_SUCCESS(rv, rv);
     m_curMsgUid = uidOfMessage;

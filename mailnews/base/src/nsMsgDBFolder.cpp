@@ -1446,6 +1446,9 @@ NS_IMETHODIMP nsMsgDBFolder::IsCommandEnabled(const nsACString& command,
   return NS_OK;
 }
 
+// Only news and IMAP folders use this.
+// It sets m_tempMessageStream, which those implementations just write to
+// directly, updating m_tempMessageStreamBytesWritten as they go.
 nsresult nsMsgDBFolder::StartNewOfflineMessage() {
   MOZ_ASSERT(m_offlineHeader);  // Caller must have set m_offlineHeader.
   bool isLocked;
@@ -1492,6 +1495,7 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
   return NS_OK;
 }
 
+// Only news and IMAP folders use this.
 nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
   // Whatever happens, we want to unlock the folder, release the output
   // stream and offlineHeader objects.
