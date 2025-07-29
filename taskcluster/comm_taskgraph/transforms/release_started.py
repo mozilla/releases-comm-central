@@ -11,6 +11,8 @@ from shlex import quote as shell_quote
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 
+from gecko_taskgraph.util.scriptworker import get_release_config
+
 transforms = TransformSequence()
 
 
@@ -19,12 +21,19 @@ def add_notifications(config, jobs):
     for job in jobs:
         label = "{}-{}".format(config.kind, job["name"])
 
+        release_config = get_release_config(config)
+        format_kwargs = dict(
+            config=config.__dict__,
+            release_config=release_config,
+        )
+
         resolve_keyed_by(job, "emails", label, project=config.params["project"])
         emails = [email.format(config=config.__dict__) for email in job.pop("emails")]
 
         resolve_keyed_by(job, "prefix-message", label, project=config.params["project"])
         prefix_message = ""
         if msg := job.pop("prefix-message"):
+            msg = msg.format(**format_kwargs)
             prefix_message = base64.b64encode(bytes(msg.encode("utf-8"))).decode()
 
         command = [

@@ -26,8 +26,8 @@ task-defaults:
             default: []
     prefix-message:
         by-project:
-            comm-(beta|release|esr.*): |
-                "Thunderbird {release_config[version]} for the {config[params][project]} channel"
+            comm-(beta|release|esr.*): "Thunderbird {release_config[version]} for the {config[params][project]} channel"
+            try-comm-central: "Thunderbird {release_config[version]} for the {config[params][project]} channel"
             default: null
 
 tasks:
