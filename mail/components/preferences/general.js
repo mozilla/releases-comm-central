@@ -1074,7 +1074,7 @@ var gGeneralPane = {
 
   initPrimaryMessengerLanguageUI() {
     gGeneralPane.updatePrimaryMessengerLanguageUI(
-      Services.locale.requestedLocale
+      Services.locale.appLocaleAsBCP47
     );
   },
 
