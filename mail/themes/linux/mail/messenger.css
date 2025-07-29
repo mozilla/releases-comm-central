@@ -108,12 +108,6 @@
   }
 }
 
-
-
-.titlebar-buttonbox-container {
-  margin-inline-end: 3px;
-}
-
 /* The button box must appear on top of the navigation-toolbox in order for
  * click and hover mouse events to work properly for the button in the restored
  * window state. Otherwise, elements in the navigation-toolbox, like the menubar,
