@@ -70,7 +70,7 @@ def add_command(config, tasks):
 
         command = [
             "python",
-            "testing/mozharness/scripts/release/update-verify-config-creator.py",
+            "comm/testing/mozharness/scripts/release/update-verify-config-creator.py",
             "--product",
             task["extra"]["product"],
             "--stage-product",
