@@ -501,16 +501,16 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 .cui-widget-panel toolbarseparator {
   appearance: none;
   min-height: 0;
-  border-top: 1px solid var(--panel-separator-color);
-  border-bottom: none;
   margin: var(--panel-separator-margin);
   padding: 0;
+
+  &:before {
+    color: var(--panel-separator-color);
+  }
 }
 
 .PanelUI-subView toolbarseparator[orient="vertical"] {
   height: 24px;
-  border-inline-start: 1px solid var(--panel-separator-color);
-  border-top: none;
   margin: 0;
   margin-inline: 6px 7px;
 }

@@ -74,6 +74,7 @@ toolbarpaletteitem {
 
     & toolbarseparator {
       background-color: currentColor;
+      padding: 0;
     }
   }
 
