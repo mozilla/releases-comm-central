@@ -5,7 +5,8 @@
 /* import-globals-from am-identity-edit.js */
 
 ChromeUtils.defineESModuleGetters(this, {
-  AccountManagerUtils: "resource:///modules/AccountManagerUtils.sys.mjs",
+  AccountManagerUtils:
+    "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs",
 });
 
 var gAccount;

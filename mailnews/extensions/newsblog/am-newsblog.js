@@ -9,7 +9,8 @@ var { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
 ChromeUtils.defineESModuleGetters(this, {
-  AccountManagerUtils: "resource:///modules/AccountManagerUtils.sys.mjs",
+  AccountManagerUtils:
+    "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs",
 });
 
 var gAccount,

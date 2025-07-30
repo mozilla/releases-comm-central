@@ -8,7 +8,7 @@
 do_get_profile();
 
 const { AccountManagerUtils } = ChromeUtils.importESModule(
-  "resource:///modules/AccountManagerUtils.sys.mjs"
+  "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs"
 );
 const { FolderTreeProperties } = ChromeUtils.importESModule(
   "resource:///modules/FolderTreeProperties.sys.mjs"

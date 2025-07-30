@@ -4,11 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 MOZ_SRC_FILES += [
+    "AccountManagerUtils.sys.mjs",
     "QRExport.sys.mjs",
 ]
 
 EXTRA_JS_MODULES += [
-    "AccountManagerUtils.sys.mjs",
     "AttachmentChecker.worker.js",
     "AttachmentInfo.sys.mjs",
     "BrowserWindowTracker.sys.mjs",

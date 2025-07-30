@@ -15,7 +15,7 @@ var { click_menus_in_sequence, promise_new_window } =
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 var { AccountManagerUtils } = ChromeUtils.importESModule(
-  "resource:///modules/AccountManagerUtils.sys.mjs"
+  "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs"
 );
 
 var gPopAccount,
