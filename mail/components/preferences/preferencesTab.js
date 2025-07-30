@@ -64,7 +64,7 @@ var preferencesTabType = {
       .firstElementChild.cloneNode(true);
 
     clone.setAttribute("id", "preferencesTab" + this.lastBrowserId);
-    clone.setAttribute("collapsed", false);
+    clone.setAttribute("tabtoolbar", "false");
 
     aTab.panel.setAttribute("id", "preferencesTabWrapper" + this.lastBrowserId);
     aTab.panel.appendChild(clone);

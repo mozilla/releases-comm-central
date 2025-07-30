@@ -112,7 +112,7 @@ class CustomizationPalette extends ListBoxSelection {
     const addEverywhereItem = document.getElementById(
       "customizationPaletteAddEverywhere"
     );
-    addEverywhereItem.setAttribute("hidden", (!this.#allSpaces).toString());
+    addEverywhereItem.toggleAttribute("hidden", (!this.#allSpaces).toString());
     const menuItems = Array.from(targets, target => {
       const menuItem = document.createXULElement("menuitem");
       document.l10n.setAttributes(menuItem, "customize-palette-add-to", {

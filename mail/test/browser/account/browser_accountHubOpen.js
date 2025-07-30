@@ -21,7 +21,7 @@ const ACCOUNT_HUB_ENABLED = Services.prefs.getBoolPref(
 
 add_task(async function test_open_account_hub_menubar() {
   const menubar = document.getElementById("toolbar-menubar");
-  menubar.setAttribute("autohide", "false");
+  menubar.removeAttribute("autohide");
 
   document.getElementById("menu_File").openMenu(true);
   await BrowserTestUtils.waitForPopupEvent(
@@ -39,7 +39,7 @@ add_task(async function test_open_account_hub_menubar() {
     dialog,
     dialog.querySelector("email-auto-form")
   );
-  menubar.setAttribute("autohide", "true");
+  menubar.toggleAttribute("autohide", true);
 }).skip(!ACCOUNT_HUB_ENABLED || AppConstants.platform === "macosx");
 
 add_task(async function test_open_account_hub_appmenu() {

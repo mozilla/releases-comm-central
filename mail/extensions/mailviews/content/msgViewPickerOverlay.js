@@ -177,7 +177,7 @@ function RefreshViewPopup(viewPopup) {
     const imapServer = server.QueryInterface(Ci.nsIImapIncomingServer);
 
     if (imapServer.deleteModel == Ci.nsMsgImapDeleteModels.IMAPDelete) {
-      viewNotDeleted.setAttribute("hidden", false);
+      viewNotDeleted.removeAttribute("hidden");
       viewNotDeleted.setAttribute(
         "checked",
         currentViewValue == kViewItemNotDeleted

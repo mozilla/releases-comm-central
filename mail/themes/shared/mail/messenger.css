@@ -55,7 +55,7 @@ hr {
   display: none;
 }
 
-#toolbar-menubar[autohide="true"] {
+#toolbar-menubar[autohide] {
   overflow: hidden;
 
   &[inactive="true"]:not([customizing="true"]) {
@@ -277,7 +277,7 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
 
 /* toolbar */
 
-toolbar[type="menubar"][autohide="true"] {
+toolbar[type="menubar"][autohide] {
   overflow: hidden;
 
   &[inactive="true"]:not([customizing="true"]) {
@@ -288,7 +288,7 @@ toolbar[type="menubar"][autohide="true"] {
 }
 
 /* Show hidden toolbars in customize mode */
-toolbar[customizing="true"][collapsed="true"] {
+toolbar[customizing="true"][collapsed] {
   visibility: visible;
 }
 

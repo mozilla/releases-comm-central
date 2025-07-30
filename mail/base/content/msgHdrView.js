@@ -4493,7 +4493,7 @@ var headerToolbarNavigation = {
    */
   get headerButtons() {
     return this.headerToolbar.querySelectorAll(
-      `toolbarbutton:not([hidden="true"],[disabled="true"],[is="toolbarbutton-menu-button"]),toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`
+      `toolbarbutton:not([hidden],[disabled="true"],[is="toolbarbutton-menu-button"]),toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden])>dropmarker, button:not([hidden])`
     );
   },
 

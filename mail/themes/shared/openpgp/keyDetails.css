@@ -83,7 +83,7 @@ button {
 }
 
 /* from accountManage.css */
-.input-container:not([hidden="true"]) {
+.input-container:not([hidden]) {
   display: flex;
   align-items: center;
 

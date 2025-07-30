@@ -285,7 +285,7 @@
   min-height: 160px;
 }
 
-#today-pane-splitter[hidden="true"] + #todo-tab-panel {
+#today-pane-splitter[hidden] + #todo-tab-panel {
   height: 100%;
 }
 

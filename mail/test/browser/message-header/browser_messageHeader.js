@@ -316,7 +316,7 @@ add_task(async function enter_msg_hdr_toolbar() {
     aboutMessage.document.getElementById("hdrArchiveButton");
   archiveButton.disabled = true;
 
-  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[disabled="true"],[is="toolbarbutton-menu-button"]), toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden],[disabled="true"],[is="toolbarbutton-menu-button"]), toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden])>dropmarker, button:not([hidden])`;
   const headerToolbar = aboutMessage.document.getElementById(
     "header-view-toolbar"
   );

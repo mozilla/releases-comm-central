@@ -111,8 +111,8 @@ class CustomizationTarget extends ListBoxSelection {
     const addEverywhereItem = document.getElementById(
       "customizationTargetAddEverywhere"
     );
-    addEverywhereItem.setAttribute("hidden", notForAllSpaces.toString());
-    removeEverywhereItem.setAttribute("hidden", notForAllSpaces.toString());
+    addEverywhereItem.toggleAttribute("hidden", notForAllSpaces.toString());
+    removeEverywhereItem.toggleAttribute("hidden", notForAllSpaces.toString());
     if (!notForAllSpaces) {
       const customization = this.getRootNode().host.closest(
         "unified-toolbar-customization"

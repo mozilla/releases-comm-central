@@ -249,7 +249,7 @@ add_task(async function test_add_item_context_menu() {
     type: "contextmenu",
   });
   await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
-  const menuItem = contextMenu.querySelector('menuitem:not([hidden="true"])');
+  const menuItem = contextMenu.querySelector("menuitem:not([hidden])");
 
   contextMenu.activateItem(menuItem);
   await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");

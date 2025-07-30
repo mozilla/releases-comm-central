@@ -71,7 +71,7 @@ var addressBookTabType = {
       .firstElementChild.cloneNode(true);
 
     clone.setAttribute("id", "addressBookTab" + this.lastBrowserId);
-    clone.setAttribute("collapsed", false);
+    clone.setAttribute("tabtoolbar", "false");
 
     aTab.panel.setAttribute("id", "addressBookTabWrapper" + this.lastBrowserId);
     aTab.panel.appendChild(clone);

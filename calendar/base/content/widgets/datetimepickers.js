@@ -543,9 +543,9 @@
 
       if (view == this.kMINUTE_VIEW_ONE) {
         fiveMinuteBox.setAttribute("hidden", true);
-        oneMinuteBox.setAttribute("hidden", false);
+        oneMinuteBox.removeAttribute("hidden");
       } else {
-        fiveMinuteBox.setAttribute("hidden", false);
+        fiveMinuteBox.removeAttribute("hidden");
         oneMinuteBox.setAttribute("hidden", true);
       }
     }

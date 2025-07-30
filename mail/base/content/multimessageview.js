@@ -742,7 +742,7 @@ const headerToolbarNavigation = {
    */
   get headerButtons() {
     return this.headerToolbar.querySelectorAll(
-      `toolbarbutton:not([hidden="true"],[disabled="true"])`
+      `toolbarbutton:not([hidden],[disabled="true"])`
     );
   },
 

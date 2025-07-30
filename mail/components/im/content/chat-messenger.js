@@ -64,7 +64,7 @@ function openChatContextMenu(popup) {
     .setAttribute("checked", spellchecker.enabled);
   document
     .getElementById("spellCheckDictionaries")
-    .setAttribute("hidden", !spellchecker.enabled);
+    .toggleAttribute("hidden", !spellchecker.enabled);
 
   goUpdateCommand("cmd_undo");
   goUpdateCommand("cmd_copy");
@@ -109,7 +109,7 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
     .setAttribute("checked", aEnableInlineSpellCheck);
   document
     .getElementById("spellCheckDictionaries")
-    .setAttribute("hidden", !aEnableInlineSpellCheck);
+    .toggleAttribute("hidden", !aEnableInlineSpellCheck);
 }
 
 function buddyListContextMenu(aXulMenu) {
@@ -1029,7 +1029,7 @@ var chatHandler = {
       document
         .querySelectorAll("#contextPaneFlexibleBox .conv-chat")
         .forEach(e => {
-          e.setAttribute("hidden", !item.conv.isChat);
+          e.toggleAttribute("hidden", !item.conv.isChat);
         });
       if (item.conv.isChat) {
         item.convView.showParticipants();

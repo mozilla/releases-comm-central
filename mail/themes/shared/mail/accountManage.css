@@ -87,7 +87,7 @@ fieldset {
   padding-bottom: 0;
 }
 
-.input-container:not([hidden="true"]) {
+.input-container:not([hidden]) {
   display: flex;
   align-items: center;
 
@@ -96,7 +96,7 @@ fieldset {
   }
 }
 
-.input-container-column:not([hidden="true"]) {
+.input-container-column:not([hidden]) {
   display: flex;
   flex-direction: column;
 

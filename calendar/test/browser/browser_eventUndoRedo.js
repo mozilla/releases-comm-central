@@ -233,7 +233,7 @@ add_setup(async function () {
   });
 
   clearTransactions();
-  document.getElementById("toolbar-menubar").setAttribute("autohide", null);
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(cal.dtz.now());
 });

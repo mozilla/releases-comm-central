@@ -792,9 +792,9 @@ var gSpacesToolbar = {
   /**
    * Toggle the spaces toolbar and toolbar buttons visibility.
    *
-   * @param {boolean} state - The visibility state to update the elements.
+   * @param {boolean} isHidden - The visibility state to update the elements.
    */
-  toggleToolbar(state) {
+  toggleToolbar(isHidden) {
     // Prevent the visibility change state of the spaces toolbar if we're
     // currently customizing it, in order to avoid weird positioning outcomes
     // with the customize popup panel.
@@ -802,24 +802,24 @@ var gSpacesToolbar = {
       return;
     }
 
-    this.isHidden = state;
+    this.isHidden = isHidden;
 
     // The focused element, prior to toggling.
     const activeElement = document.activeElement;
 
     const pinnedButton = document.getElementById("spacesPinnedButton");
-    pinnedButton.hidden = !state;
+    pinnedButton.hidden = !isHidden;
     const revealButton = document.getElementById("spacesToolbarReveal");
-    revealButton.hidden = !state;
-    this.element.hidden = state;
+    revealButton.hidden = !isHidden;
+    this.element.hidden = isHidden;
 
-    if (state && this.element.contains(activeElement)) {
+    if (isHidden && this.element.contains(activeElement)) {
       // If the toolbar is being hidden and one of its child element was
       // focused, move the focus to the pinned button without changing the
       // focusButton attribute of this object.
       pinnedButton.focus();
     } else if (
-      !state &&
+      !isHidden &&
       (activeElement == pinnedButton || activeElement == revealButton)
     ) {
       // If the the toolbar is being shown and the focus is on the pinned or

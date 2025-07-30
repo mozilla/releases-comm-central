@@ -112,9 +112,9 @@ tabProgressListener.prototype = {
         this.mTab.backButton.disabled = !this.mBrowser.canGoBack;
         this.mTab.forwardButton.disabled = !this.mBrowser.canGoForward;
         this.mTab.urlbar.value = location;
-        this.mTab.root.removeAttribute("collapsed");
+        this.mTab.root.setAttribute("tabtoolbar", "true");
       } else {
-        this.mTab.root.setAttribute("collapsed", "false");
+        this.mTab.root.setAttribute("tabtoolbar", "false");
       }
 
       // Although we're unlikely to be loading about:blank, we'll check it
@@ -794,7 +794,7 @@ var specialTabs = {
         .firstElementChild.cloneNode(true);
 
       clone.setAttribute("id", "contentTab" + this.lastBrowserId);
-      clone.setAttribute("collapsed", false);
+      clone.removeAttribute("collapsed");
 
       const toolbox = clone.firstElementChild;
       toolbox.setAttribute("id", "contentTabToolbox" + this.lastBrowserId);

@@ -877,12 +877,7 @@ customElements.whenDefined("tree-listbox").then(() => {
     }
 
     _onCollapsed(event) {
-      XULStoreUtils.setValue(
-        "addressBook",
-        event.target.id,
-        "collapsed",
-        "true"
-      );
+      XULStoreUtils.setValue("addressBook", event.target.id, "collapsed", true);
     }
 
     _onExpanded(event) {

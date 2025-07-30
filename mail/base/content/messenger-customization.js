@@ -59,7 +59,7 @@ var AutoHideMenubar = {
   },
 
   _updateState() {
-    if (this._node.getAttribute("autohide") == "true") {
+    if (this._node.hasAttribute("autohide")) {
       this._enable();
     } else {
       this._disable();
@@ -111,7 +111,7 @@ var AutoHideMenubar = {
 
   _setInactiveAsync() {
     this._inactiveTimeout = setTimeout(() => {
-      if (this._node.getAttribute("autohide") == "true") {
+      if (this._node.hasAttribute("autohide")) {
         this._inactiveTimeout = null;
         this._node.setAttribute("inactive", "true");
       }

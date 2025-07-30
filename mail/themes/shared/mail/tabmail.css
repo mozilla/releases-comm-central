@@ -375,8 +375,8 @@ button.tab-close-button {
 }
 
 /* Content Tabs */
-.chromeTabInstance[collapsed="false"] .contentTabToolbox,
-.contentTabInstance[collapsed="false"] .contentTabToolbox {
+.chromeTabInstance[tabtoolbar="false"] .contentTabToolbox,
+.contentTabInstance[tabtoolbar="false"] .contentTabToolbox {
   display: none;
 }
 

@@ -233,7 +233,7 @@ class UnifiedToolbar extends HTMLElement {
       const menubarToolbar = document.getElementById("toolbar-menubar");
       menuBarMenuItem.setAttribute(
         "checked",
-        menubarToolbar.getAttribute("autohide") != "true"
+        !menubarToolbar.hasAttribute("autohide")
       );
     } else if (menuBarMenuItem) {
       menuBarMenuItem.remove();
@@ -265,12 +265,12 @@ class UnifiedToolbar extends HTMLElement {
     const menubarToolbar = document.getElementById("toolbar-menubar");
     const menuItem = document.getElementById("menuBarToggleVisible");
 
-    if (menubarToolbar.getAttribute("autohide") != "true") {
-      menubarToolbar.setAttribute("autohide", "true");
+    if (!menubarToolbar.hasAttribute("autohide")) {
+      menubarToolbar.toggleAttribute("autohide", true);
       menuItem.removeAttribute("checked");
     } else {
       menuItem.setAttribute("checked", true);
-      menubarToolbar.setAttribute("autohide", "false");
+      menubarToolbar.removeAttribute("autohide");
     }
     Services.xulStore.persist(menubarToolbar, "autohide");
   };

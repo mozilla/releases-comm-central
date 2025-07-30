@@ -447,8 +447,8 @@ function cleanupItemForToolbar(aItem, aWrapper) {
   }
 
   if (aItem.hasAttribute("collapsed")) {
-    aWrapper.setAttribute("itemcollapsed", aItem.getAttribute("collapsed"));
-    aItem.removeAttribute("collapsed");
+    aWrapper.setAttribute("itemcollapsed", aItem.hasAttribute("collapsed"));
+    aItem.toggleAttribute("collapsed");
   }
 
   if (aItem.checked) {
@@ -476,7 +476,7 @@ function restoreItemForToolbar(aItem, aWrapper) {
 
   if (aWrapper.hasAttribute("itemcollapsed")) {
     const collapsed = aWrapper.getAttribute("itemcollapsed");
-    aItem.setAttribute("collapsed", collapsed);
+    aItem.toggleAttribute("collapsed", collapsed);
   }
 
   if (aWrapper.hasAttribute("itemcommand")) {

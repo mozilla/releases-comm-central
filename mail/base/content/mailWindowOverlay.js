@@ -709,9 +709,13 @@ function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
     aCommandIds = [aCommandIds];
   }
 
-  aCommandIds.forEach(cmdId =>
-    document.getElementById(cmdId).setAttribute("hidden", !inSpecialFolder)
-  );
+  aCommandIds.forEach(cmdId => {
+    document.getElementById(cmdId).toggleAttribute("hidden", !inSpecialFolder);
+    // Changing the command's attribute doesn't propagate to the menu items.
+    document
+      .querySelectorAll(`[command="${cmdId}"]`)
+      .forEach(i => i.toggleAttribute("hidden", !inSpecialFolder));
+  });
 }
 
 /**

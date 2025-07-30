@@ -350,10 +350,7 @@ function onViewToolbarsPopupShowing(
       menuItem.setAttribute("toolbarid", toolbar.id);
       menuItem.setAttribute("label", toolbarName);
       menuItem.setAttribute("accesskey", toolbar.getAttribute("accesskey"));
-      menuItem.setAttribute(
-        "checked",
-        toolbar.getAttribute(hidingAttribute) != "true"
-      );
+      menuItem.setAttribute("checked", !toolbar.hasAttribute(hidingAttribute));
       if (classes) {
         menuItem.setAttribute("class", classes);
       }
@@ -363,16 +360,12 @@ function onViewToolbarsPopupShowing(
       popup.insertBefore(menuItem, firstMenuItem);
 
       menuItem.addEventListener("command", () => {
-        if (toolbar.getAttribute(hidingAttribute) != "true") {
-          toolbar.setAttribute(hidingAttribute, "true");
+        if (!toolbar.hasAttribute(hidingAttribute)) {
+          toolbar.setAttribute(hidingAttribute, "");
           menuItem.removeAttribute("checked");
         } else {
           menuItem.setAttribute("checked", "true");
-          if (hidingAttribute == "autohide") {
-            toolbar.setAttribute(hidingAttribute, "false");
-          } else {
-            toolbar.removeAttribute(hidingAttribute);
-          }
+          toolbar.removeAttribute(hidingAttribute);
         }
         Services.xulStore.persist(toolbar, hidingAttribute);
       });

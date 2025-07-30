@@ -2310,8 +2310,8 @@ export function throw_and_dump_view_state(aMessage, aWin) {
  */
 export async function toggle_main_menu(aEnabled = true) {
   const menubar = mc.document.getElementById("toolbar-menubar");
-  const state = menubar.getAttribute("autohide") != "true";
-  menubar.setAttribute("autohide", !aEnabled);
+  const state = !menubar.hasAttribute("autohide");
+  menubar.toggleAttribute("autohide", !aEnabled);
   await TestUtils.waitForTick();
   return state;
 }

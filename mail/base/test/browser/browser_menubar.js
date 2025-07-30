@@ -29,14 +29,14 @@ registerCleanupFunction(function () {
 async function assertVisible(win) {
   const menubar = win.document.getElementById(menubarID);
   Assert.equal(
-    menubar.getAttribute("autohide"),
-    "false",
-    `menu bar should have autohide="false" attribute`
+    menubar.hasAttribute("autohide"),
+    false,
+    `menu bar should not have autohide attribute`
   );
   Assert.equal(
     Services.xulStore.getValue(xulStoreURL, menubarID, "autohide"),
-    "false",
-    `xul store should have autohide="false" value`
+    "-moz-missing\n",
+    `xul store should have autohide=-moz-missing value`
   );
   await TestUtils.waitForCondition(
     () => menubar.clientHeight > 0,
@@ -47,14 +47,14 @@ async function assertVisible(win) {
 async function assertHidden(win) {
   const menubar = win.document.getElementById(menubarID);
   Assert.equal(
-    menubar.getAttribute("autohide"),
-    "true",
-    `menu bar should have autohide="true" attribute`
+    menubar.hasAttribute("autohide"),
+    true,
+    `menu bar should have autohide attribute`
   );
   if (Services.xulStore.hasValue(xulStoreURL, menubarID, "autohide")) {
     Assert.equal(
       Services.xulStore.getValue(xulStoreURL, menubarID, "autohide"),
-      "true",
+      "",
       `xul store should have autohide="true" value, or no value`
     );
   }
@@ -135,7 +135,7 @@ add_task(async function testToolbarPopup() {
 add_task(async function testViewMenu() {
   await subtestAutohidePersists(async function (win, expectChecked) {
     const menubar = win.document.getElementById(menubarID);
-    if (menubar.getAttribute("autohide") == "true") {
+    if (menubar.hasAttribute("autohide")) {
       EventUtils.synthesizeKey("KEY_Alt", {}, win);
       await TestUtils.waitForCondition(
         () => menubar.clientHeight > 0,

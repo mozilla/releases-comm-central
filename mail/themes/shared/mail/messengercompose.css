@@ -605,7 +605,7 @@
 /* :::: Format toolbar :::: */
 
 #FormatToolbar {
-  &:not([hidden="true"]) {
+  &:not([hidden]) {
     display: flex;
   }
 
@@ -1172,7 +1172,7 @@ toolbarbutton.formatting-button {
     pointer-events: none;
   }
 
-  & hbox:not([hidden="true"]) {
+  & hbox:not([hidden]) {
     display: flex;
   }
 
@@ -1417,7 +1417,7 @@ button:is(
   margin-inline: 0.2em -0.2em;
 }
 
-.statusbar:not([hidden="true"]) {
+.statusbar:not([hidden]) {
   display: flex;
   align-items: center;
   min-width: 0;

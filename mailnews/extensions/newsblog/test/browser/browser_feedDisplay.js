@@ -90,7 +90,7 @@ async function subscribeToFeed(feedURL) {
         const feedButtonHiddenPromise = BrowserTestUtils.waitForAttribute(
           "hidden",
           addFeedButton,
-          "true"
+          ""
         );
         EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
         await feedButtonHiddenPromise;

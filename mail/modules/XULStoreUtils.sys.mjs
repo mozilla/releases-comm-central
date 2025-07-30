@@ -66,7 +66,12 @@ export const XULStoreUtils = {
    * @returns {boolean}
    */
   isItemHidden(url, item) {
-    return Services.xulStore.getValue(this._url(url), item, "hidden") == "true";
+    return (
+      Services.xulStore.hasValue(this._url(url), item, "hidden") &&
+      ["true", ""].includes(
+        Services.xulStore.getValue(this._url(url), item, "hidden")
+      )
+    );
   },
 
   /**
@@ -91,7 +96,10 @@ export const XULStoreUtils = {
    */
   isItemCollapsed(url, item) {
     return (
-      Services.xulStore.getValue(this._url(url), item, "collapsed") == "true"
+      Services.xulStore.hasValue(this._url(url), item, "collapsed") &&
+      ["true", ""].includes(
+        Services.xulStore.getValue(this._url(url), item, "collapsed")
+      )
     );
   },
 

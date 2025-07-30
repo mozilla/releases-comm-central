@@ -154,7 +154,7 @@
   height: 4px;
 }
 
-mail-tagfield[collapsed="true"] {
+mail-tagfield[collapsed] {
   display: none;
 }
 

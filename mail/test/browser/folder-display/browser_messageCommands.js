@@ -424,7 +424,7 @@ add_task(async function roving_multi_message_buttons() {
   await assert_selected_and_displayed(curMessages);
 
   const multiMsgView = get_about_3pane().multiMessageBrowser;
-  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"]`;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden]`;
   const headerToolbar = multiMsgView.contentDocument.getElementById(
     "header-view-toolbar"
   );

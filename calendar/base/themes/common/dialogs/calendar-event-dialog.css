@@ -554,7 +554,7 @@ label.label {
   margin: 2px;
 }
 
-#recurrencePreview calendar-minimonth[hidden="true"] {
+#recurrencePreview calendar-minimonth[hidden] {
   display: none;
 }
 
