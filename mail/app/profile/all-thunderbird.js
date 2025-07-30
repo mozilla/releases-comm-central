@@ -975,10 +975,6 @@ pref("devtools.browsertoolbox.scope", "everything");
 // This preference will enable watching top-level targets from the server side.
 pref("devtools.target-switching.server.enabled", true);
 
-// In DevTools, create a target for each frame (i.e. not only for top-level document and
-// remote frames).
-pref("devtools.every-frame-target.enabled", true);
-
 // Controls the hability to debug popups from the same DevTools
 // of the original tab the popups are coming from
 pref("devtools.popups.debug", false);
