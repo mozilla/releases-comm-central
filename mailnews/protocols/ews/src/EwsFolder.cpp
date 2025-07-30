@@ -439,7 +439,7 @@ class ItemCopyMoveCallbacks : public IEwsItemCopyMoveCallbacks {
                         nsTArray<RefPtr<nsIMsgDBHdr>> originalMessages,
                         nsCOMPtr<nsIMsgWindow> window,
                         nsCOMPtr<nsIMsgCopyServiceListener> listener,
-                        bool deleteSourceItemsWhenComplete);
+                        bool deleteSourceItemsWhenComplete, bool isMove);
 
  protected:
   virtual ~ItemCopyMoveCallbacks() = default;
@@ -451,6 +451,7 @@ class ItemCopyMoveCallbacks : public IEwsItemCopyMoveCallbacks {
   nsCOMPtr<nsIMsgWindow> mWindow;
   nsCOMPtr<nsIMsgCopyServiceListener> mListener;
   bool mDeleteSourceItemsWhenComplete;
+  bool mIsMove;
 };
 
 NS_IMPL_ISUPPORTS(ItemCopyMoveCallbacks, IEwsItemCopyMoveCallbacks)
@@ -459,13 +460,14 @@ ItemCopyMoveCallbacks::ItemCopyMoveCallbacks(
     nsCOMPtr<nsIMsgFolder> sourceFolder, RefPtr<EwsFolder> destinationFolder,
     nsTArray<RefPtr<nsIMsgDBHdr>> originalMessages,
     nsCOMPtr<nsIMsgWindow> window, nsCOMPtr<nsIMsgCopyServiceListener> listener,
-    bool deleteSourceItemsWhenComplete)
+    bool deleteSourceItemsWhenComplete, bool isMove)
     : mSourceFolder(std::move(sourceFolder)),
       mDestinationFolder(std::move(destinationFolder)),
       mOriginalMessages(std::move(originalMessages)),
       mWindow(std::move(window)),
       mListener(std::move(listener)),
-      mDeleteSourceItemsWhenComplete(deleteSourceItemsWhenComplete) {}
+      mDeleteSourceItemsWhenComplete(deleteSourceItemsWhenComplete),
+      mIsMove(isMove) {}
 
 NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
     bool syncMessages, const nsTArray<nsCString>& newIds) {
@@ -497,7 +499,7 @@ NS_IMETHODIMP ItemCopyMoveCallbacks::OnRemoteCopyMoveSuccessful(
 
     nsCOMPtr<nsIMsgFolderNotificationService> notifier =
         mozilla::components::FolderNotification::Service();
-    notifier->NotifyMsgsMoveCopyCompleted(true, mOriginalMessages,
+    notifier->NotifyMsgsMoveCopyCompleted(mIsMove, mOriginalMessages,
                                           mDestinationFolder, newHeaders);
   }
 
@@ -874,9 +876,9 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
     NS_ENSURE_SUCCESS(rv, rv);
 
     const bool deleteSourceItemsWhenComplete = isMove;
-    RefPtr<ItemCopyMoveCallbacks> callbacks{
-        new ItemCopyMoveCallbacks(srcFolder, this, srcHdrs.Clone(), msgWindow,
-                                  listener, deleteSourceItemsWhenComplete)};
+    RefPtr<ItemCopyMoveCallbacks> callbacks{new ItemCopyMoveCallbacks(
+        srcFolder, this, srcHdrs.Clone(), msgWindow, listener,
+        deleteSourceItemsWhenComplete, isMove)};
 
     if (isMove) {
       rv = client->MoveItems(callbacks, destinationFolderId, ewsIds);

@@ -376,6 +376,9 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   AUTO_PROFILER_LABEL("nsMsgCopyService::CopyMessages", MAILNEWS);
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
+  for (auto message : messages) {
+    NS_ENSURE_ARG(message);
+  }
 
   MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Debug, ("CopyMessages"));
 

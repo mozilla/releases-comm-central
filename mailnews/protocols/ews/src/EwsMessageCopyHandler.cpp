@@ -190,13 +190,6 @@ NS_IMETHODIMP MessageCopyHandler::EndMove(bool aMoveSucceeded) {
 // Additional public methods on `MessageCopyHandler`.
 
 nsresult MessageCopyHandler::StartCopyingNextMessage() {
-  if (mCurIndex == 0 && mCopyServiceListener) {
-    // This is the first item of the batch (or we're copying a message from a
-    // file, in which case there's only one message to copy and `mCurIndex` is
-    // always `0`), so we signal the start of the operation to the listener.
-    mCopyServiceListener->OnStartCopy();
-  }
-
   if (mCopyServiceListener && mHeaders.Length() > 1) {
     // This is one of multiple messages, so inform the listener which message
     // we're currently on.

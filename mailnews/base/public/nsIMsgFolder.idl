@@ -512,6 +512,7 @@ interface nsIMsgFolder : nsISupports {
                       in boolean deleteStorage, in boolean isMove,
                       in nsIMsgCopyServiceListener listener, in boolean allowUndo);
 
+  [noscript]
   void copyMessages(in nsIMsgFolder srcFolder, in Array<nsIMsgDBHdr> messages,
                     in boolean isMove, in nsIMsgWindow msgWindow,
                     in nsIMsgCopyServiceListener listener, in boolean isFolder,

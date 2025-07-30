@@ -27,6 +27,7 @@ var incomingServer;
 var ewsServer;
 
 const ewsIdPropertyName = "ewsId";
+const generator = new MessageGenerator();
 
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer();
@@ -99,17 +100,55 @@ async function setup_item_copymove_structure(prefix) {
  * @returns {Promise}
  */
 async function copyItems(sourceFolder, destinationFolder, headers, isMove) {
+  let eventHappened = false;
+  const eventPromise = PromiseTestUtils.promiseFolderEvent(
+    sourceFolder,
+    "DeleteOrMoveMsgCompleted"
+  ).then(() => (eventHappened = true));
+
+  const notificationPromise = PromiseTestUtils.promiseFolderNotification(
+    destinationFolder,
+    "msgsMoveCopyCompleted"
+  );
+
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  destinationFolder.copyMessages(
+  MailServices.copy.copyMessages(
     sourceFolder,
     headers,
+    destinationFolder,
     isMove,
-    null,
     copyListener,
-    true,
-    false
+    null, // msgWindow
+    false // allowUndo
   );
-  return copyListener.promise;
+  await copyListener.promise;
+
+  if (isMove) {
+    await eventPromise;
+  } else {
+    Assert.ok(
+      !eventHappened,
+      "there should not be a DeleteOrMoveMsgCompleted event for a copy operation"
+    );
+  }
+
+  const notificationArgs = await notificationPromise;
+  Assert.equal(notificationArgs[0], isMove, "notification is move");
+  Assert.equal(
+    notificationArgs[1].length,
+    headers.length,
+    "notification source message count"
+  );
+  Assert.equal(
+    notificationArgs[2],
+    destinationFolder,
+    "notification destination folder"
+  );
+  Assert.equal(
+    notificationArgs[3].length,
+    headers.length,
+    "notification destination message count"
+  );
 }
 
 /**
@@ -207,19 +246,186 @@ add_task(async function test_copy_item() {
   );
 });
 
-add_task(async function test_copy_file_message() {
+add_task(async function test_move_copy_messages_from_another_server() {
   ewsServer.appendRemoteFolder(
-    new RemoteFolder(
-      "copyFileMessage",
-      "root",
-      "copyFileMessage",
-      "copyFileMessage"
-    )
+    new RemoteFolder("copyFromAnotherServer", "root")
   );
 
+  const ewsRootFolder = incomingServer.rootFolder;
+  incomingServer.performExpand(null);
+  const ewsDestFolder = await TestUtils.waitForCondition(
+    () => ewsRootFolder.getChildNamed("copyFromAnotherServer"),
+    "waiting for test folder to exist"
+  );
+  await syncFolder(incomingServer, ewsDestFolder);
+  Assert.equal(
+    ewsDestFolder.getTotalMessages(false),
+    0,
+    "ewsDestFolder should start with no messages"
+  );
+
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRootFolder = localAccount.incomingServer.rootFolder;
+  localRootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localSourceFolder = localRootFolder.createLocalSubfolder(
+    "copyToAnotherServer"
+  );
+  localSourceFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  localSourceFolder.addMessageBatch(
+    generator.makeMessages({}).map(message => message.toMessageString())
+  );
+  const localHeaders = [...localSourceFolder.messages];
+
+  await copyItems(
+    localSourceFolder,
+    ewsDestFolder,
+    localHeaders.slice(2, 4),
+    false
+  );
+
+  Assert.equal(
+    ewsDestFolder.getTotalMessages(false),
+    2,
+    "ewsDestFolder should contain two copied messages"
+  );
+  Assert.equal(
+    localSourceFolder.getTotalMessages(false),
+    10,
+    "localSourceFolder should still have the copied messages"
+  );
+
+  await copyItems(
+    localSourceFolder,
+    ewsDestFolder,
+    localHeaders.slice(8, 9),
+    true
+  );
+
+  Assert.equal(
+    ewsDestFolder.getTotalMessages(false),
+    3,
+    "ewsDestFolder should contain the moved message"
+  );
+  Assert.equal(
+    localSourceFolder.getTotalMessages(false),
+    9,
+    "localSourceFolder should not still have the moved message"
+  );
+
+  Assert.throws(
+    () =>
+      MailServices.copy.copyMessages(
+        localSourceFolder,
+        [undefined],
+        ewsDestFolder,
+        true, // isMove
+        null, // listener
+        null, // msgWindow
+        false // allowUndo
+      ),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "moving an undefined message should throw"
+  );
+
+  MailServices.accounts.removeAccount(localAccount, false);
+});
+
+add_task(async function test_move_copy_messages_to_another_server() {
+  ewsServer.appendRemoteFolder(new RemoteFolder("copyToAnotherServer", "root"));
+  ewsServer.addMessages("copyToAnotherServer", generator.makeMessages({}));
+
+  const ewsRootFolder = incomingServer.rootFolder;
+  incomingServer.performExpand(null);
+  const ewsSourceFolder = await TestUtils.waitForCondition(
+    () => ewsRootFolder.getChildNamed("copyToAnotherServer"),
+    "waiting for test folder to exist"
+  );
+  await syncFolder(incomingServer, ewsSourceFolder);
+  Assert.equal(
+    ewsSourceFolder.getTotalMessages(false),
+    10,
+    "ewsSourceFolder should start with 10 messages"
+  );
+  const ewsHeaders = [...ewsSourceFolder.messages];
+
+  const localAccount = MailServices.accounts.createLocalMailAccount();
+  const localRootFolder = localAccount.incomingServer.rootFolder;
+  localRootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  const localDestFolder = localRootFolder.createLocalSubfolder(
+    "copyFromAnotherServer"
+  );
+
+  await copyItems(
+    ewsSourceFolder,
+    localDestFolder,
+    ewsHeaders.slice(5, 7),
+    false
+  );
+
+  Assert.equal(
+    localDestFolder.getTotalMessages(false),
+    2,
+    "localDestFolder should contain the copied messages"
+  );
+  Assert.equal(
+    ewsSourceFolder.getTotalMessages(false),
+    10,
+    "ewsSourceFolder should still have the copied messages"
+  );
+
+  await copyItems(
+    ewsSourceFolder,
+    localDestFolder,
+    ewsHeaders.slice(1, 2),
+    true
+  );
+
+  Assert.equal(
+    localDestFolder.getTotalMessages(false),
+    3,
+    "localDestFolder should contain the moved message"
+  );
+  // This should have happened already. But move operations typically call
+  // DeleteMessages without waiting for it to happen.
+  await TestUtils.waitForCondition(
+    () => ewsSourceFolder.getTotalMessages(false) == 9,
+    "waiting for ewsSourceFolder to delete the moved message"
+  );
+  Assert.equal(
+    ewsSourceFolder.getTotalMessages(false),
+    9,
+    "ewsSourceFolder should not still have the moved message"
+  );
+
+  Assert.throws(
+    () =>
+      MailServices.copy.copyMessages(
+        ewsSourceFolder,
+        [undefined],
+        localDestFolder,
+        true, // isMove
+        null, // listener
+        null, // msgWindow
+        false // allowUndo
+      ),
+    /NS_ERROR_ILLEGAL_VALUE/,
+    "moving an undefined message should throw"
+  );
+
+  MailServices.accounts.removeAccount(localAccount, false);
+
+  ewsServer.clearItems();
+});
+
+add_task(async function test_copy_file_message() {
+  ewsServer.appendRemoteFolder(new RemoteFolder("copyFileMessage", "root"));
+
   const rootFolder = incomingServer.rootFolder;
-  await syncFolder(incomingServer, rootFolder);
-  const folder = rootFolder.getChildNamed("copyFileMessage");
+  incomingServer.performExpand(null);
+  const folder = await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed("copyFileMessage"),
+    "waiting for test folder to exist"
+  );
 
   // Copy the message.
 
@@ -268,11 +474,8 @@ add_task(async function test_copy_file_message() {
 
 add_task(async function test_mark_as_read() {
   const folderName = "markRead";
-  ewsServer.appendRemoteFolder(
-    new RemoteFolder(folderName, "root", folderName, null)
-  );
+  ewsServer.appendRemoteFolder(new RemoteFolder(folderName, "root"));
 
-  const generator = new MessageGenerator();
   const syntheticMessages = generator.makeMessages({ count: 3 });
   ewsServer.addMessages(folderName, syntheticMessages);
 

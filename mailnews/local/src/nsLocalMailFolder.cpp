@@ -2388,12 +2388,6 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
 
         // enable the dest folder
         EnableNotifications(allMessageCountNotifications, true);
-        if (srcFolder && !mCopyState->m_isFolder) {
-          // I'm not too sure of the proper location of this event. It seems to
-          // need to be after the EnableNotifications, or the folder counts can
-          // be incorrect during the kDeleteOrMoveMsgCompleted call.
-          srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
-        }
         (void)OnCopyCompleted(mCopyState->m_srcSupport, true);
       }
     }

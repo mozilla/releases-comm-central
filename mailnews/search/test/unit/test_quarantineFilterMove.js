@@ -75,6 +75,10 @@ add_task(async function copyMovedMessages() {
   const firstMsgHdr = msgs[0];
   const secondMsgHdr = msgs[1];
   const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  const promiseMoveMsg = PromiseTestUtils.promiseFolderNotification(
+    gMoveFolder2,
+    "msgsMoveCopyCompleted"
+  );
   MailServices.copy.copyMessages(
     gMoveFolder,
     [firstMsgHdr, secondMsgHdr],
@@ -83,10 +87,6 @@ add_task(async function copyMovedMessages() {
     promiseCopyListener,
     null,
     false
-  );
-  const promiseMoveMsg = PromiseTestUtils.promiseFolderEvent(
-    gMoveFolder,
-    "DeleteOrMoveMsgCompleted"
   );
   await Promise.all([promiseCopyListener.promise, promiseMoveMsg]);
 });
