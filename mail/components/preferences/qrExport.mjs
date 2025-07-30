@@ -18,7 +18,7 @@ defineLazyCustomElement(
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  QRExport: "resource:///modules/QRExport.sys.mjs",
+  QRExport: "moz-src:///comm/mail/modules/QRExport.sys.mjs",
   LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
   OSKeyStore: "resource://gre/modules/OSKeyStore.sys.mjs",
 });

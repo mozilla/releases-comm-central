@@ -4,7 +4,7 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  QRExport: "resource:///modules/QRExport.sys.mjs",
+  QRExport: "moz-src:///comm/mail/modules/QRExport.sys.mjs",
 });
 
 /**

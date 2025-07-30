@@ -11,7 +11,7 @@ const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 const { QRExport } = ChromeUtils.importESModule(
-  "resource:///modules/QRExport.sys.mjs"
+  "moz-src:///comm/mail/modules/QRExport.sys.mjs"
 );
 
 const DATA_URI_REGEXP = /^data:image\/bmp;base64,[a-zA-Z0-9%-.\/]+=*$/;
