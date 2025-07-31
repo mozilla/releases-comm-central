@@ -358,9 +358,8 @@
   <xul:browser id="accountCentralBrowser" hidden="true"/>
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <menupopup id="folderPaneContext">
+  <menupopup id="folderPaneContext" class="gutter-popup">
     <menuitem id="folderPaneContext-getMessages"
-              class="menuitem-iconic"
               label="&folderContextGetMessages.label;"
               accesskey="&folderContextGetMessages.accesskey;"/>
     <menuitem id="folderPaneContext-pauseAllUpdates"
@@ -373,41 +372,32 @@
               accesskey="&folderContextPauseUpdates.accesskey;"/>
     <menuseparator/>
     <menuitem id="folderPaneContext-openNewTab"
-              class="menuitem-iconic"
               label="&folderContextOpenNewTab.label;"
               accesskey="&folderContextOpenNewTab.accesskey;"/>
     <menuitem id="folderPaneContext-openNewWindow"
-              class="menuitem-iconic"
               label="&folderContextOpenInNewWindow.label;"
               accesskey="&folderContextOpenInNewWindow.accesskey;"/>
     <menuitem id="folderPaneContext-searchMessages"
-              class="menuitem-iconic"
               label="&folderContextSearchForMessages.label;"
               accesskey="&folderContextSearchForMessages.accesskey;"/>
     <menuitem id="folderPaneContext-subscribe"
-              class="menuitem-iconic"
               label="&folderContextSubscribe.label;"
               accesskey="&folderContextSubscribe.accesskey;"/>
     <menuitem id="folderPaneContext-newsUnsubscribe"
-              class="menuitem-iconic"
               label="&folderContextUnsubscribe.label;"
               accesskey="&folderContextUnsubscribe.accesskey;"/>
     <menuseparator/>
     <menuitem id="folderPaneContext-new"
-              class="menuitem-iconic"
               label="&folderContextNew.label;"
               accesskey="&folderContextNew.accesskey;"/>
     <menuitem id="folderPaneContext-remove"
-              class="menuitem-iconic"
               label="&folderContextRemove.label;"
               accesskey="&folderContextRemove.accesskey;"/>
     <menuitem id="folderPaneContext-rename"
-              class="menuitem-iconic"
               label="&folderContextRename.label;"
               accesskey="&folderContextRename.accesskey;"/>
     <menuseparator/>
     <menu id="folderPaneContext-moveMenu"
-              class="menu-iconic"
               label="&moveMsgToMenu.label;"
               accesskey="&moveMsgToMenu.accesskey;">
       <menupopup is="folder-menupopup" id="folderContext-movePopup"
@@ -423,7 +413,6 @@
                  showLast="true"/>
     </menu>
     <menu id="folderPaneContext-copyMenu"
-          class="menu-iconic"
           label="&copyMsgToMenu.label;"
           accesskey="&copyMsgToMenu.accesskey;">
       <menupopup is="folder-menupopup" id="folderContext-copyPopup"
@@ -440,11 +429,9 @@
     </menu>
     <menuseparator/>
     <menuitem id="folderPaneContext-compact"
-              class="menuitem-iconic"
               label="&folderContextCompact.label;"
               accesskey="&folderContextCompact.accesskey;"/>
     <menuitem id="folderPaneContext-markMailFolderAllRead"
-              class="menuitem-iconic"
               data-l10n-id="folder-pane-context-mark-folder-read"
               data-l10n-args='{"count": 1}'/>
     <!--
@@ -454,19 +441,15 @@
       trigger the same command so we shouldn't need both menuitems.
     -->
     <menuitem id="folderPaneContext-markNewsgroupAllRead"
-              class="menuitem-iconic"
               label="&folderContextMarkNewsgroupRead.label;"
               accesskey="&folderContextMarkNewsgroupRead.accesskey;"/>
     <menuitem id="folderPaneContext-emptyTrash"
-              class="menuitem-iconic"
               label="&folderContextEmptyTrash.label;"
               accesskey="&folderContextEmptyTrash.accesskey;"/>
     <menuitem id="folderPaneContext-emptyJunk"
-              class="menuitem-iconic"
               label="&folderContextEmptyJunk.label;"
               accesskey="&folderContextEmptyJunk.accesskey;"/>
     <menuitem id="folderPaneContext-sendUnsentMessages"
-              class="menuitem-iconic"
               label="&folderContextSendUnsentMessages.label;"
               accesskey="&folderContextSendUnsentMessages.accesskey;"/>
     <menuseparator/>
@@ -475,27 +458,21 @@
               label="&folderContextFavoriteFolder.label;"
               accesskey="&folderContextFavoriteFolder.accesskey;"/>
     <menuitem id="folderPaneContext-properties"
-              class="menuitem-iconic"
               label="&folderContextProperties2.label;"
               accesskey="&folderContextProperties2.accesskey;"/>
     <menuitem id="folderPaneContext-markAllFoldersRead"
-              class="menuitem-iconic"
               label="&folderContextMarkAllFoldersRead.label;"/>
     <menuseparator/>
     <menuitem id="folderPaneContext-settings"
-              class="menuitem-iconic"
               label="&folderContextSettings2.label;"
               accesskey="&folderContextSettings2.accesskey;"/>
     <menuitem id="folderPaneContext-filters"
-              class="menuitem-iconic"
               label="&filtersCmd2.label;"
               accesskey="&filtersCmd2.accesskey;"/>
     <menuitem id="folderPaneContext-manageTags"
-              class="menuitem-iconic"
               label="&manageTags.label;"
               accesskey="&manageTags.accesskey;"/>
     <menuitem id="folderPaneContext-resetSort"
-              class="menuitem-iconic"
               data-l10n-id="folder-pane-context-reset-sort"/>
     <menuseparator/>
   </menupopup>

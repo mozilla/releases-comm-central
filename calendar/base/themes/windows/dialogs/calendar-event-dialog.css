@@ -6,8 +6,8 @@
   margin-inline-end: 6px;
 }
 
-#item-categories > menupopup > menuitem .menu-icon {
-  display: inline;
+#item-categories > menupopup > menuitem:not([checked]) .menu-icon {
+  visibility: hidden;
 }
 
 /*--------------------------------------------------------------------

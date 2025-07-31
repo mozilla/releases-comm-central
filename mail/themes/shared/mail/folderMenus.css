@@ -18,84 +18,84 @@
 
 /* Folders */
 .folderMenuItem {
-  list-style-image: var(--icon-folder);
+  --menuitem-icon: var(--icon-folder);
 
   /* Newsgroup */
   &[ServerType="nntp"] {
-    list-style-image: var(--icon-newsletter);
+    --menuitem-icon: var(--icon-newsletter);
   }
 
   /* Feed folder */
   &[IsFeedFolder="true"] {
-    list-style-image: var(--icon-folder-rss);
+    --menuitem-icon: var(--icon-folder-rss);
   }
 
   /* Special folders */
 
   &[SpecialFolder="Inbox"] {
-    list-style-image: var(--icon-inbox);
+    --menuitem-icon: var(--icon-inbox);
   }
 
   &[SpecialFolder="Sent"] {
-    list-style-image: var(--icon-sent);
+    --menuitem-icon: var(--icon-sent);
   }
 
   &[SpecialFolder="Outbox"] {
-    list-style-image: var(--icon-outbox);
+    --menuitem-icon: var(--icon-outbox);
   }
 
   &[SpecialFolder="Drafts"] {
-    list-style-image: var(--icon-draft);
+    --menuitem-icon: var(--icon-draft);
   }
 
   &[SpecialFolder="Templates"] {
-    list-style-image: var(--icon-template);
+    --menuitem-icon: var(--icon-template);
   }
 
   &[SpecialFolder="Junk"] {
-    list-style-image: var(--icon-spam);
+    --menuitem-icon: var(--icon-spam);
   }
 
   &[SpecialFolder="Trash"] {
-    list-style-image: var(--icon-trash);
+    --menuitem-icon: var(--icon-trash);
   }
 
   &[SpecialFolder="Archive"] {
-    list-style-image: var(--icon-archive);
+    --menuitem-icon: var(--icon-archive);
   }
 
   &[SpecialFolder="Virtual"] {
-    list-style-image: var(--icon-folder-filter);
+    --menuitem-icon: var(--icon-folder-filter);
 
   }
 
   /* IMAP/POP server */
   &[IsServer="true"] {
-    list-style-image: var(--icon-mail);
+    --menuitem-icon: var(--icon-mail);
 
     /* IMAP/POP secure server */
     &:is([ServerType="imap"], [ServerType="pop3"])[IsSecure="true"] {
-      list-style-image: var(--icon-mail-secure);
+      --menuitem-icon: var(--icon-mail-secure);
     }
 
     /* Local server */
     &[ServerType="none"] {
-      list-style-image: var(--icon-folder);
+      --menuitem-icon: var(--icon-folder);
     }
 
     /* News server */
     &[ServerType="nntp"] {
-      list-style-image: var(--icon-globe);
+      --menuitem-icon: var(--icon-globe);
 
       /* Secure news server */
       &[IsSecure="true"] {
-        list-style-image: var(--icon-globe-secure);
+        --menuitem-icon: var(--icon-globe-secure);
       }
     }
 
     /* Feed server */
     &[ServerType="rss"] {
-      list-style-image: var(--icon-rss);
+      --menuitem-icon: var(--icon-rss);
     }
   }
 

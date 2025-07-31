@@ -7,7 +7,7 @@
 menupopup {
 
   &:not([type="arrow"]) {
-    margin: -4px;
+    margin-top: -1px;
   }
 
   @media (prefers-contrast) {
@@ -30,6 +30,8 @@ menupopup {
 
   &.webextension-menupopup > menu:not([icon], .menu-iconic),
   &.webextension-menupopup > menuitem:not([checked="true"], [icon], .menuitem-iconic),
+  &.gutter-popup:not([needsgutter]) >
+    :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])),
   menubar > menu
     &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
     padding-inline-start: 32px;

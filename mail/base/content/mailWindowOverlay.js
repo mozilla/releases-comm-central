@@ -1908,10 +1908,7 @@ function addAttachmentToPopup(
   // Insert the item just before the separator. The separator is the 2nd to
   // last element in the popup.
   item.classList.add("menu-iconic");
-  item.setAttribute(
-    "style",
-    "list-style-image: " + getIconForAttachment(attachment)
-  );
+  item.setAttribute("image", getIconForAttachment(attachment));
 
   const separator = popup.querySelector("menuseparator");
 
@@ -2031,7 +2028,7 @@ function addAttachmentToPopup(
 function getIconForAttachment(attachment) {
   return attachment.isDeleted
     ? "url(chrome://messenger/skin/icons/attachment-deleted.svg)"
-    : `image-set("moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=1" 1x, "moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=2" 2x, "moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=3" 3x)`;
+    : `moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=1 1x, moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=2 2x, moz-icon://${attachment.name}?size=16&contentType=${attachment.contentType}&scale=3 3x`;
 }
 
 /**

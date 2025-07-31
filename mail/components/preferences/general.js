@@ -2158,7 +2158,7 @@ var gGeneralPane = {
       .QueryInterface(Ci.nsIFileProtocolHandler)
       .getURLSpecFromActualFile(aFile);
 
-    return "moz-icon://" + urlSpec + "?size=16";
+    return `moz-icon://${urlSpec}?size=16&scale=1 1x, moz-icon://${urlSpec}?size=16&scale=2 2x, moz-icon://${urlSpec}?size=16&scale=3 3x`;
   },
 
   _getIconURLForWebApp(aWebAppURITemplate) {
@@ -2825,7 +2825,7 @@ class HandlerInfoWrapper {
           "defaultApplicationIconURL"
         );
         if (url) {
-          return url + "?size=16";
+          return `${url}?size=16&scale=1 1x, ${url}?size=16&scale=2 2x, ${url}?size=16&scale=3 3x`;
         }
       } catch (ex) {}
     }

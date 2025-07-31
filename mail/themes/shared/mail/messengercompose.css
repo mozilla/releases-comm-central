@@ -1314,12 +1314,24 @@ button:is(
   list-style-image: url("chrome://messenger/skin/icons/image.svg");
 }
 
-#AlignPopupButton {
-  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
-}
-
 #smileButtonMenu {
   list-style-image: url("chrome://messenger/skin/icons/smiley.svg");
+}
+
+#AlignPopupButton {
+  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+
+  &[state="center"] {
+    list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+  }
+
+  &[state="right"] {
+    list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+  }
+
+  &[state="justify"] {
+    list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+  }
 }
 
 /* ..... align menu ..... */
@@ -1329,24 +1341,20 @@ button:is(
   fill: currentColor;
 }
 
-#AlignLeftItem,
-#AlignPopupButton[state="left"] {
-  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+#AlignLeftItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/left-align.svg");
 }
 
-#AlignCenterItem,
-#AlignPopupButton[state="center"] {
-  list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+#AlignCenterItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/center-align.svg");
 }
 
-#AlignRightItem,
-#AlignPopupButton[state="right"] {
-  list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+#AlignRightItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/right-align.svg");
 }
 
-#AlignJustifyItem,
-#AlignPopupButton[state="justify"] {
-  list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+#AlignJustifyItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/justify.svg");
 }
 
 /* ..... insert menu ..... */
@@ -1357,23 +1365,23 @@ button:is(
 }
 
 #InsertLinkItem {
-  list-style-image: url("chrome://global/skin/icons/link.svg");
+  --menuitem-icon: url("chrome://global/skin/icons/link.svg");
 }
 
 #InsertAnchorItem {
-  list-style-image: url("chrome://messenger/skin/icons/anchor.svg");
+  --menuitem-icon: url("chrome://messenger/skin/icons/anchor.svg");
 }
 
 #InsertImageItem {
-  list-style-image: url("chrome://messenger/skin/icons/image.svg");
+  --menuitem-icon: url("chrome://messenger/skin/icons/image.svg");
 }
 
 #InsertHRuleItem {
-  list-style-image: url("chrome://messenger/skin/icons/hline.svg");
+  --menuitem-icon: url("chrome://messenger/skin/icons/hline.svg");
 }
 
 #InsertTableItem {
-  list-style-image: url("chrome://messenger/skin/icons/table.svg");
+  --menuitem-icon: url("chrome://messenger/skin/icons/table.svg");
 }
 
 #findbar-replaceButton {

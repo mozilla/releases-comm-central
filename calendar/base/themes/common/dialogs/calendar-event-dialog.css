@@ -370,6 +370,18 @@ label.label {
 
 #AlignPopupButton {
   list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+
+  &[state="center"] {
+    list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+  }
+
+  &[state="right"] {
+    list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+  }
+
+  &[state="justify"] {
+    list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+  }
 }
 
 #AlignPopup > menuitem {
@@ -377,24 +389,20 @@ label.label {
   fill: currentColor;
 }
 
-#AlignLeftItem,
-#AlignPopupButton[state="left"] {
-  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+#AlignLeftItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/left-align.svg");
 }
 
-#AlignCenterItem,
-#AlignPopupButton[state="center"] {
-  list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+#AlignCenterItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/center-align.svg");
 }
 
-#AlignRightItem,
-#AlignPopupButton[state="right"] {
-  list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+#AlignRightItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/right-align.svg");
 }
 
-#AlignJustifyItem,
-#AlignPopupButton[state="justify"] {
-  list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+#AlignJustifyItem {
+  --menuitem-icon: url("chrome://messenger/skin/icons/justify.svg");
 }
 
 #paragraphButton {

@@ -1863,7 +1863,9 @@
                    type="menu"
                    class="toolbarbutton-1"
                    command="cmd_attachFile">
-      <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
+      <menupopup id="button-attachPopup"
+                 class="gutter-popup"
+                 onpopupshowing="updateAttachmentItems();">
         <menuitem id="button-attachPopup_attachFileItem"
                   data-l10n-id="menuitem-attach-files"
                   data-l10n-attrs="acceltext"

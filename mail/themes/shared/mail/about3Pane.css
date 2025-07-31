@@ -215,7 +215,7 @@ body {
 }
 
 #itemGetAllNewMessages {
-  list-style-image: var(--folder-pane-icon-download);
+  --menuitem-icon: var(--folder-pane-icon-download);
 }
 
 #folderPaneMoreButton {

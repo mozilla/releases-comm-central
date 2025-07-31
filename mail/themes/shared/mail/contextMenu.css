@@ -58,7 +58,7 @@ menupopup {
 
     &[checked="true"],
     &[selected="true"] {
-      list-style-image: var(--icon-check);
+      --menuitem-icon: var(--icon-check);
       -moz-context-properties: fill, stroke;
       stroke: currentColor;
       color: inherit;
@@ -185,10 +185,9 @@ menupopup {
   --indicator-background: transparent;
 
   & > .menuitem-iconic {
-    -moz-box-flex: 1;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-    flex: 1 0 auto;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
     margin: var(--menu-item-margin);
     padding: 0;
     border-radius: var(--button-border-radius);
@@ -207,8 +206,6 @@ menupopup {
 
     & > .menu-icon {
       appearance: none;
-      position: relative;
-      flex-direction: column;
       padding: 0;
       margin: 7px;
       -moz-context-properties: fill, stroke;
@@ -240,7 +237,7 @@ menupopup {
 
 #navContext-markRead,
 #navContext-markUnread {
-  list-style-image: var(--icon-unread);
+  --menuitem-icon: var(--icon-unread);
 
   &[disabled="true"] {
     display: none;
@@ -248,16 +245,16 @@ menupopup {
 }
 
 #navContext-reply {
-  list-style-image: var(--icon-reply);
+  --menuitem-icon: var(--icon-reply);
 }
 
 #navContext-archive {
-  list-style-image: var(--icon-archive);
+  --menuitem-icon: var(--icon-archive);
 }
 
 #navContext-markAsJunk,
 #navContext-markAsNotJunk {
-  list-style-image: var(--icon-spam);
+  --menuitem-icon: var(--icon-spam);
 
   &[disabled="true"] {
     display: none;
@@ -265,23 +262,23 @@ menupopup {
 }
 
 #navContext-delete {
-  list-style-image: var(--icon-trash);
+  --menuitem-icon: var(--icon-trash);
 }
 
 #browserContext-back {
-  list-style-image: var(--icon-nav-back);
+  --menuitem-icon: var(--icon-nav-back);
 }
 
 #browserContext-forward {
-  list-style-image: var(--icon-nav-forward);
+  --menuitem-icon: var(--icon-nav-forward);
 }
 
 #browserContext-reload {
-  list-style-image: var(--icon-restore);
+  --menuitem-icon: var(--icon-restore);
 }
 
 #browserContext-stop {
-  list-style-image: var(--icon-close);
+  --menuitem-icon: var(--icon-close);
 }
 
 #browserContext-back:-moz-locale-dir(rtl),

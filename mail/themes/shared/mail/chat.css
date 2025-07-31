@@ -442,10 +442,13 @@ richlistitem:not([selected]) .protoIconDimmed {
   }
 }
 
-#statusTypeIcon[status="available"],
+#statusTypeIcon[status="available"] {
+  list-style-image: var(--icon-status-online);
+}
+
 #statusTypeAvailable,
 #imStatusAvailable {
-  list-style-image: var(--icon-status-online);
+  --menuitem-icon: var(--icon-status-online);
 }
 
 #statusTypeIcon[status="idle"] {
@@ -453,17 +456,23 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 #statusTypeIcon[status="offline"],
-#statusTypeIcon[status="invisible"],
-#statusTypeOffline,
-#imStatusOffline {
+#statusTypeIcon[status="invisible"] {
   list-style-image: var(--icon-status-offline);
 }
 
+#statusTypeOffline,
+#imStatusOffline {
+  --menuitem-icon: var(--icon-status-offline);
+}
+
 #statusTypeIcon[status="unavailable"],
-#statusTypeIcon[status="away"],
+#statusTypeIcon[status="away"] {
+  list-style-image: var(--icon-status-away);
+}
+
 #statusTypeUnavailable,
 #imStatusUnavailable {
-  list-style-image: var(--icon-status-away);
+  --menuitem-icon: var(--icon-status-away);
 }
 
 /* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
