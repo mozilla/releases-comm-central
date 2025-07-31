@@ -273,31 +273,31 @@ img {
 }
 
 #spacesPopupButtonMail {
-  list-style-image: var(--icon-mail);
+  --menuitem-icon: var(--icon-mail);
 }
 
 #spacesPopupButtonAddressBook {
-  list-style-image: var(--icon-address-book);
+  --menuitem-icon: var(--icon-address-book);
 }
 
 #spacesPopupButtonCalendar {
-  list-style-image: var(--icon-calendar);
+  --menuitem-icon: var(--icon-calendar);
 }
 
 #spacesPopupButtonTasks {
-  list-style-image: var(--icon-tasks);
+  --menuitem-icon: var(--icon-tasks);
 }
 
 #spacesPopupButtonChat {
-  list-style-image: var(--icon-chat);
+  --menuitem-icon: var(--icon-chat);
 }
 
 #spacesPopupButtonSettings {
-  list-style-image: var(--icon-settings);
+  --menuitem-icon: var(--icon-settings);
 }
 
 #spacesPopupButtonReveal {
-  list-style-image: var(--icon-collapse);
+  --menuitem-icon: var(--icon-collapse);
 }
 
 #chatButton > img,
