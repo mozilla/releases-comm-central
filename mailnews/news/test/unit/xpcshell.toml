@@ -40,6 +40,8 @@ disabled = "The server doesn't support returning sizes! (bug 782629)"
 
 ["test_nntpPost.js"]
 
+["test_nntpPostAuthRequired.js"]
+
 ["test_nntpProtocols.js"]
 
 ["test_nntpProxy.js"]

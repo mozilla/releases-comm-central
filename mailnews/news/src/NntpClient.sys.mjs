@@ -89,6 +89,9 @@ export class NntpClient {
     this._msgWindow = null;
     this._newsFolder = null;
     this._nextAction = null;
+    this._currentAction = null;
+    this._messageId = null;
+    this._articleNumber = null;
   }
 
   /**
@@ -540,8 +543,8 @@ export class NntpClient {
       this._nextAction = this._actionHandlePost;
       this._sendCommand("POST");
     };
+    this._currentAction = action;
     if (this._server.pushAuth && !this._authenticated) {
-      this._currentAction = action;
       this._actionAuthUser();
     } else {
       action();

@@ -616,4 +616,10 @@ export class NNTP_RFC4643_extension extends NNTP_RFC2980_handler {
     }
     return "480 Authentication required";
   }
+  POST() {
+    if (this.authenticated) {
+      return super.POST();
+    }
+    return "480 Authentication required";
+  }
 }
