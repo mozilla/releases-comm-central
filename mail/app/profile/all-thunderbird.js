@@ -279,6 +279,12 @@ pref("security.osclientcerts.autoload", false);
   pref("security.sandbox.content.syscall_whitelist", "");
 #endif
 
+// about:neterror
+pref("security.certerrors.permanentOverride", true);
+pref("security.certerrors.mitm.priming.enabled", false);
+pref("security.certerrors.mitm.auto_enable_enterprise_roots", true);
+pref("security.certerrors.felt-privacy-v1", false);
+
 // Symmetric (can be overridden by individual extensions) update preferences.
 // e.g.
 //  extensions.{GUID}.update.enabled

@@ -258,6 +258,29 @@ const JSWINDOWACTORS = {
     messageManagerGroups: ["single-page"],
   },
 
+  NetError: {
+    parent: {
+      esModuleURI: "resource://gre/actors/NetErrorParent.sys.mjs",
+    },
+    child: {
+      esModuleURI: "resource://gre/actors/NetErrorChild.sys.mjs",
+      events: {
+        DOMDocElementInserted: {},
+        click: {},
+      },
+    },
+
+    matches: ["about:certerror?*", "about:neterror?*"],
+    allFrames: true,
+    messageManagerGroups: [
+      "browsers",
+      "single-site",
+      "single-page",
+      "test",
+      "",
+    ],
+  },
+
   Pdfjs: {
     parent: {
       esModuleURI: "resource://pdf.js/PdfjsParent.sys.mjs",
@@ -384,6 +407,7 @@ MailGlue.prototype = {
     // First we must unregister them to avoid errors.
     ChromeUtils.unregisterWindowActor("FindBar");
     ChromeUtils.unregisterWindowActor("LoginManager");
+    ChromeUtils.unregisterWindowActor("NetError");
 
     lazy.ActorManagerParent.addJSProcessActors(JSPROCESSACTORS);
     lazy.ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
