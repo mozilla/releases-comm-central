@@ -5,6 +5,7 @@
 @import url("chrome://messenger/skin/shared/threadPane.css");
 @import url("chrome://messenger/skin/shared/list-container.css");
 @import url("chrome://messenger/skin/shared/serverMenuItems.css");
+@import url("chrome://messenger/skin/widgets.css");
 
 :root {
   --folder-mode-name-padding: 6px;
@@ -267,7 +268,26 @@ body {
     stroke: var(--icon-color, var(--folder-color-folder));
   }
 
+  & .status-icon {
+    margin: 0;
+  }
+
   & li {
+    &.tls-error > .container {
+      & > .icon {
+        --icon-color: var(--color-text-critical) !important;
+      }
+
+      & > .name {
+        color: var(--color-text-critical);
+      }
+
+      & > .status-icon {
+        display: unset;
+        background-image: var(--icon-warning);
+        color: var(--color-text-critical);
+      }
+    }
 
     &[data-server-type] > .container > .icon {
       --icon-color: var(--primary);

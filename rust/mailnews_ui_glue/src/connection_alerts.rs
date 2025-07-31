@@ -5,8 +5,9 @@
 use thin_vec::thin_vec;
 
 use nserror::nsresult;
-use xpcom::interfaces::nsIMsgIncomingServer;
-use xpcom::{RefCounted, RefPtr};
+use std::ptr;
+use xpcom::interfaces::{nsIMsgIncomingServer, nsIObserverService};
+use xpcom::{components, RefCounted, RefPtr};
 
 use crate::{
     get_formatted_string, get_string_bundle, register_alert, UserInteractiveServer,
@@ -74,4 +75,21 @@ where
 
     let uri = server.uri()?;
     register_alert(message, uri)
+}
+
+pub fn report_connection_success<ServerT>(server: RefPtr<ServerT>) -> Result<(), nsresult>
+where
+    ServerT: UserInteractiveServer + RefCounted,
+{
+    let obs_svc: RefPtr<nsIObserverService> = components::Observer::service()?;
+    let uri = server.uri()?;
+    unsafe {
+        obs_svc
+            .NotifyObservers(
+                uri.coerce(),
+                c"server-connection-succeeded".as_ptr(),
+                ptr::null(),
+            )
+            .to_result()
+    }
 }

@@ -278,6 +278,10 @@ export class Pop3Client {
    */
   _onOpen = () => {
     this._logger.debug("Connected");
+    Services.obs.notifyObservers(
+      this.runningUri,
+      "server-connection-succeeded"
+    );
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
     this._nextAction = res => {

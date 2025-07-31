@@ -40,7 +40,7 @@ use itertools::Itertools;
 use mail_parser::MessageParser;
 use mailnews_ui_glue::{
     handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
-    AuthErrorOutcome, UserInteractiveServer,
+    report_connection_success, AuthErrorOutcome, UserInteractiveServer,
 };
 use moz_http::Response;
 use nserror::nsresult;
@@ -1665,6 +1665,8 @@ where
                     };
                 }
             };
+
+            report_connection_success(self.server.clone())?;
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.

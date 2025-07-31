@@ -67,6 +67,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.unreadCountLabel = this.querySelector(".unread-count");
     this.totalCountLabel = this.querySelector(".total-count");
     this.folderSizeLabel = this.querySelector(".folder-size");
+    this.statusIcon = this.querySelector(".status-icon");
     this.childList = this.querySelector("ul");
   }
 

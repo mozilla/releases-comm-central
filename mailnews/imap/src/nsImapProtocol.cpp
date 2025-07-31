@@ -1012,6 +1012,9 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
                                        getter_AddRefs(m_outputStream));
     if (NS_FAILED(rv)) return rv;
     SetFlag(IMAP_CONNECTION_IS_OPEN);
+
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    obs->NotifyObservers(m_runningUrl, "server-connection-succeeded", nullptr);
   }
 
   return rv;

@@ -214,6 +214,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 window.addEventListener("unload", () => {
   CalMetronome.off("day", refreshGroupedBySortView);
   MailServices.mailSession.RemoveFolderListener(folderListener);
+  MailServices.mailSession.removeUserFeedbackListener(userFeedbackListener);
   gViewWrapper?.close();
   folderPane.uninit();
   threadPane.uninit();
@@ -1606,6 +1607,7 @@ var folderPane = {
       folderListener,
       Ci.nsIFolderListener.all
     );
+    MailServices.mailSession.addUserFeedbackListener(userFeedbackListener);
 
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
     Services.prefs.addObserver("mailnews.tags.", this);
@@ -1618,6 +1620,7 @@ var folderPane = {
     Services.obs.addObserver(this, "folder-properties-changed");
     Services.obs.addObserver(this, "folder-needs-repair");
     Services.obs.addObserver(this, "folder-strings-changed");
+    Services.obs.addObserver(this, "server-connection-succeeded");
 
     folderTree.addEventListener("auxclick", this);
     folderTree.addEventListener("contextmenu", this);
@@ -1691,6 +1694,7 @@ var folderPane = {
     Services.obs.removeObserver(this, "folder-properties-changed");
     Services.obs.removeObserver(this, "folder-needs-repair");
     Services.obs.removeObserver(this, "folder-strings-changed");
+    Services.obs.removeObserver(this, "server-connection-succeeded");
   },
 
   handleEvent(event) {
@@ -1777,6 +1781,19 @@ var folderPane = {
           row.updateFolderNames();
         }
         break;
+      case "server-connection-succeeded": {
+        let server;
+        try {
+          server = MailServices.accounts.findServerByURI(subject);
+        } catch (ex) {
+          console.error(ex);
+          return;
+        }
+        folderPane._changeRows(server.rootFolder, row =>
+          row.classList.remove("tls-error")
+        );
+        break;
+      }
     }
   },
 
@@ -6728,6 +6745,60 @@ var folderListener = {
         folderPane.addFolder(f.parent, f);
       }
     }
+  },
+};
+
+var userFeedbackListener = {
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgUserFeedbackListener"]),
+  onAlert() {
+    return false;
+  },
+  async onCertError(securityInfo, uri) {
+    let server;
+    try {
+      server = MailServices.accounts.findServerByURI(uri);
+    } catch (ex) {
+      console.error(ex);
+      return;
+    }
+
+    let errorString;
+    const errorArgs = { hostname: uri.host };
+
+    switch (securityInfo?.overridableErrorCategory) {
+      case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
+        errorString = "cert-error-inline-domain-mismatch";
+        break;
+      case Ci.nsITransportSecurityInfo.ERROR_TIME: {
+        const cert = securityInfo.serverCert;
+        const notBefore = cert.validity.notBefore / 1000;
+        const notAfter = cert.validity.notAfter / 1000;
+        const formatter = new Intl.DateTimeFormat();
+
+        if (notBefore && Date.now() < notAfter) {
+          errorString = "cert-error-inline-not-yet-valid";
+          errorArgs["not-before"] = formatter.format(new Date(notBefore));
+        } else {
+          errorString = "cert-error-inline-expired";
+          errorArgs["not-after"] = formatter.format(new Date(notAfter));
+        }
+        break;
+      }
+      default:
+        errorString = "cert-error-inline-untrusted-default";
+        break;
+    }
+
+    window.MozXULElement.insertFTLIfNeeded("messenger/certError.ftl");
+
+    folderPane._changeRows(server.rootFolder, row => {
+      row.classList.add("tls-error");
+      document.l10n.setAttributes(row.statusIcon, errorString, errorArgs);
+      // Click handler set directly (rather than as a listener) so that we
+      // don't have to mess around clearing previous handlers.
+      row.statusIcon.onclick = () =>
+        top.MsgAccountManager("am-server.xhtml", server);
+    });
   },
 };
 
