@@ -149,6 +149,17 @@ NS_IMETHODIMP FolderLookupService::CreateFolderAndCache(
 
 NS_IMETHODIMP FolderLookupService::CreateRootFolderAndCache(
     const nsACString& urlEncodedName, nsIMsgFolder** folder) {
+  nsCOMPtr<nsIMsgFolder> existing = GetExisting(urlEncodedName);
+  if (existing) {
+    // Invalidate all previous URLs under this root.
+    for (auto iter = mFolderCache.Iter(); !iter.Done(); iter.Next()) {
+      const auto& key = iter.Key();
+      if (StringHead(key, urlEncodedName.Length()).Equals(urlEncodedName)) {
+        iter.Remove();
+      }
+    }
+  }
+
   return CreateDangling(urlEncodedName, folder);
 }
 

@@ -442,7 +442,7 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
     return NS_OK;
   }
 #endif  // MOZ_PANORAMA
-  return GetOrCreateFolder(serverUri, getter_AddRefs(m_rootFolder));
+  return CreateRootFolderAndCache(serverUri, getter_AddRefs(m_rootFolder));
 }
 
 NS_IMETHODIMP
