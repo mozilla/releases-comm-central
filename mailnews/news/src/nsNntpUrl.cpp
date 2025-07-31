@@ -8,7 +8,6 @@
 #include "nsNntpUrl.h"
 
 #include "nsString.h"
-#include "nsNewsUtils.h"
 #include "nsMsgUtils.h"
 
 #include "nsCOMPtr.h"
@@ -19,6 +18,12 @@
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
+
+#define kNewsURIGroupQuery "?group="
+#define kNewsURIKeyQuery "&key="
+
+#define kNewsURIGroupQueryLen 7
+#define kNewsURIKeyQueryLen 5
 
 nsNntpUrl::nsNntpUrl() {
   m_newsAction = nsINntpUrl::ActionUnknown;
@@ -94,13 +99,10 @@ nsresult nsNntpUrl::SetSpecInternal(const nsACString& aSpec) {
   else if (scheme.EqualsLiteral("nntp") || scheme.EqualsLiteral("nntps"))
     rv = ParseNntpURL();
   else if (scheme.EqualsLiteral("news-message")) {
-    nsAutoCString spec;
-    rv = GetSpec(spec);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = nsParseNewsMessageURI(spec, m_group, &m_key);
-    NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
-  } else
+    rv = ParseNewsMessageURL();
+  } else {
     return NS_ERROR_MALFORMED_URI;
+  }
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = DetermineNewsAction();
@@ -166,6 +168,34 @@ nsresult nsNntpUrl::ParseNntpURL() {
   }
 
   return NS_OK;
+}
+
+nsresult nsNntpUrl::ParseNewsMessageURL() {
+  nsAutoCString spec;
+  nsresult rv = GetSpec(spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  int32_t keySeparator = spec.FindChar('#');
+  if (keySeparator == -1) return NS_ERROR_MALFORMED_URI;
+  int32_t keyEndSeparator = MsgFindCharInSet(spec, "?&", keySeparator);
+
+  // Grab between the last '/' and the '#' for the key
+  nsAutoCString escapedGroup;
+  escapedGroup = StringHead(spec, keySeparator);
+  int32_t groupSeparator = escapedGroup.RFind("/");
+  if (groupSeparator == -1) return NS_ERROR_MALFORMED_URI;
+
+  MsgUnescapeString(Substring(escapedGroup, groupSeparator + 1), 0, m_group);
+
+  nsAutoCString keyStr;
+  if (keyEndSeparator != -1) {
+    keyStr =
+        Substring(spec, keySeparator + 1, keyEndSeparator - (keySeparator + 1));
+  } else {
+    keyStr = Substring(spec, keySeparator + 1);
+  }
+  m_key = keyStr.ToInteger(&rv);
+  return NS_FAILED(rv) ? NS_ERROR_MALFORMED_URI : NS_OK;
 }
 
 nsresult nsNntpUrl::DetermineNewsAction() {

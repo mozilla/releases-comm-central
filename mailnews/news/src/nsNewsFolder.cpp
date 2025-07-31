@@ -19,7 +19,6 @@
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
-#include "nsNewsUtils.h"
 
 #include "nsIMsgIncomingServer.h"
 #include "nsINntpIncomingServer.h"
@@ -45,6 +44,9 @@
 #include "mozilla/Preferences.h"
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"
+
+#define kNewsRootURI "news:/"
+#define kNewsMessageRootURI "news-message:/"
 
 using mozilla::Preferences;
 
@@ -1061,7 +1063,17 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
 }
 
 nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString& aURI) {
-  return nsCreateNewsBaseMessageURI(aURI, mBaseMessageURI);
+  nsAutoCString tailURI(aURI);
+
+  // chop off news:/
+  if (tailURI.Find(kNewsRootURI) == 0) {
+    tailURI.Cut(0, PL_strlen(kNewsRootURI));
+  };
+
+  mBaseMessageURI = kNewsMessageRootURI;
+  mBaseMessageURI += tailURI;
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetCharset(nsACString& charset) {

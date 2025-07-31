@@ -6,7 +6,6 @@
 SOURCES += [
     "nsNewsDownloadDialogArgs.cpp",
     "nsNewsFolder.cpp",
-    "nsNewsUtils.cpp",
     "nsNntpUrl.cpp",
 ]
 

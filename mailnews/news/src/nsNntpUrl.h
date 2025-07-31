@@ -41,6 +41,7 @@ class nsNntpUrl : public nsINntpUrl,
   nsresult DetermineNewsAction();
   nsresult ParseNewsURL();
   nsresult ParseNntpURL();
+  nsresult ParseNewsMessageURL();
 
   nsNewsAction m_newsAction;  // the action this url represents...parse mailbox,
                               // display messages, etc.

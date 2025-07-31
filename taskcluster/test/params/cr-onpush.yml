@@ -1107,7 +1107,6 @@ files_changed:
   - comm/mailnews/news/src/nsNewsDownloader.h
   - comm/mailnews/news/src/nsNewsFolder.cpp
   - comm/mailnews/news/src/nsNewsFolder.h
-  - comm/mailnews/news/src/nsNewsUtils.cpp
   - comm/mailnews/news/src/nsNntpUrl.cpp
   - comm/mailnews/news/test/unit/test_bug540288.js
   - comm/mailnews/nss-extra.symbols
