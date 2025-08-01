@@ -252,8 +252,14 @@ void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs) {
         do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv)) {
       nsAutoCString fileExtension;
-      rv = mimeFinder->GetPrimaryExtension(contentType, EmptyCString(),
-                                           fileExtension);
+      if (contentType.Equals("text/plain")) {
+        // Short-circuit, since for some reason the other path is absurdly slow
+        // on macOS 14 and it's breaking our tests.
+        fileExtension = "txt";
+      } else {
+        rv = mimeFinder->GetPrimaryExtension(contentType, EmptyCString(),
+                                             fileExtension);
+      }
 
       if (NS_SUCCEEDED(rv) && !fileExtension.IsEmpty()) {
         aAttach->m_realName.Append('.');

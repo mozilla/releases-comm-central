@@ -7,11 +7,15 @@
  * thread tree.
  */
 
-const { ConversationOpener } = ChromeUtils.importESModule(
-  "resource:///modules/ConversationOpener.sys.mjs"
+const GlodaTestHelper = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+
+const { ConversationOpener } = ChromeUtils.importESModule(
+  "resource:///modules/ConversationOpener.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");
@@ -43,6 +47,10 @@ add_setup(async function () {
     folderURI: testFolder.URI,
     messagePaneVisible: true,
   });
+
+  // Fool Gloda into thinking the user is always idle. This makes it index
+  // changes straight away and we don't have to wait ages for it.
+  GlodaTestHelper.prepareIndexerForTesting();
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
@@ -105,8 +113,7 @@ add_task(async function testOpenNewWindow() {
 add_task(async function testOpenConversation() {
   await TestUtils.waitForCondition(
     () => testMessages.every(m => ConversationOpener.isMessageIndexed(m)),
-    "waiting for Gloda to finish indexing",
-    500
+    "waiting for Gloda to finish indexing"
   );
 
   const tabPromise = BrowserTestUtils.waitForEvent(

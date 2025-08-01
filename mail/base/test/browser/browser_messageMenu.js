@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { GlodaIndexer } = ChromeUtils.importESModule(
-  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+const GlodaTestHelper = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
+
+const { GlodaIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
 );
 
 const nothingSelected = ["rootFolder", "noSelection", "contentTab"];
@@ -173,10 +177,12 @@ add_setup(async function () {
     background: true,
   });
 
+  // Fool Gloda into thinking the user is always idle. This makes it index
+  // changes straight away and we don't have to wait ages for it.
+  GlodaTestHelper.prepareIndexerForTesting();
   await TestUtils.waitForCondition(
     () => !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing",
-    500
+    "waiting for Gloda to finish indexing"
   );
 
   registerCleanupFunction(() => {

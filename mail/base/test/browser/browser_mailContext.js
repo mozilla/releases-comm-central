@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-requestLongerTimeout(
-  AppConstants.MOZ_CODE_COVERAGE || AppConstants.DEBUG ? 4 : 3
-);
-
 /**
  * Tests that items on the mail context menu are correctly shown in context.
  */
+
+var GlodaTestHelper = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+);
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 
 var { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
@@ -33,9 +36,6 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
-);
-var { MessageGenerator } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
@@ -393,6 +393,10 @@ add_setup(async function () {
   // Enable home calendar.
   cal.manager.getCalendars()[0].setProperty("disabled", false);
 
+  // Fool Gloda into thinking the user is always idle. This makes it index
+  // changes straight away and we don't have to wait ages for it.
+  GlodaTestHelper.prepareIndexerForTesting();
+
   registerCleanupFunction(() => {
     for (const folder of MailServices.accounts.allFolders) {
       Gloda.setFolderIndexingPriority(folder, -1);
@@ -452,8 +456,7 @@ add_task(async function testSingleMessage() {
     () =>
       ConversationOpener.isMessageIndexed(testMessages[0]) &&
       !GlodaIndexer.indexing,
-    "waiting for Gloda to finish indexing",
-    1000
+    "waiting for Gloda to finish indexing"
   );
 
   const about3Pane = tabmail.currentAbout3Pane;
