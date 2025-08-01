@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
 var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
@@ -82,17 +80,7 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
  */
 async function open_about_support() {
   const openAboutSupport = async function () {
-    if (AppConstants.platform == "macosx") {
-      document.getElementById("aboutsupport_open").click();
-    } else {
-      // Show menubar so we can click it.
-      document.getElementById("toolbar-menubar").removeAttribute("autohide");
-      const helpMenu = document.getElementById("helpMenu");
-      EventUtils.synthesizeMouseAtCenter(helpMenu, {}, helpMenu.ownerGlobal);
-      await click_menus_in_sequence(document.getElementById("menu_HelpPopup"), [
-        { id: "aboutsupport_open" },
-      ]);
-    }
+    document.getElementById("aboutsupport_open").click();
   };
   const tab = await open_content_tab_with_click(
     openAboutSupport,
@@ -100,16 +88,7 @@ async function open_about_support() {
   );
 
   // Make sure L10n is done.
-  let l10nDone = false;
-  tab.browser.contentDocument.l10n.ready.then(
-    () => (l10nDone = true),
-    console.error
-  );
-  await TestUtils.waitForCondition(
-    () => l10nDone,
-    "Timeout waiting for L10n to complete."
-  );
-
+  await tab.browser.contentDocument.l10n.ready;
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
   await TestUtils.waitForCondition(
