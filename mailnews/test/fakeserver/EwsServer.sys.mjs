@@ -829,6 +829,12 @@ export class EwsServer {
         itemEl.setAttribute("ChangeKey", "abc12345");
         changeEl.appendChild(resDoc.createElement("t:IsRead")).textContent =
           item.syntheticMessage.metaState.read;
+      } else if (changeType == "update") {
+        changesEl
+          .appendChild(resDoc.createElement("t:Update"))
+          .appendChild(resDoc.createElement("t:Message"))
+          .appendChild(resDoc.createElement("t:ItemId"))
+          .setAttribute("Id", itemId);
       } else if (changeType == "delete") {
         changesEl
           .appendChild(resDoc.createElement("t:Delete"))
@@ -1198,6 +1204,10 @@ export class EwsServer {
       messageEl.appendChild(parentFolderIdEl);
 
       if (item.syntheticMessage) {
+        const messageIdEl = resDoc.createElement("t:InternetMessageId");
+        messageIdEl.textContent = item.syntheticMessage.messageId;
+        messageEl.appendChild(messageIdEl);
+
         const dateEl = resDoc.createElement("t:DateTimeSent");
         dateEl.textContent = item.syntheticMessage.date.toISOString();
         messageEl.appendChild(dateEl);

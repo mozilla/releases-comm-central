@@ -8,7 +8,7 @@ var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
-var { MessageGenerator } = ChromeUtils.importESModule(
+var { MessageGenerator, SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { TestUtils } = ChromeUtils.importESModule(
@@ -17,6 +17,9 @@ var { TestUtils } = ChromeUtils.importESModule(
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+var { NetUtil } = ChromeUtils.importESModule(
+  "resource://gre/modules/NetUtil.sys.mjs"
 );
 
 /**
@@ -99,6 +102,11 @@ add_task(async function testMessageBatching() {
     "no items should have been deleted"
   );
   Assert.deepEqual(
+    listener._savedHeaders.map(h => h.messageId),
+    messages.map(m => m.messageId),
+    "headers with the correct values should have been created"
+  );
+  Assert.deepEqual(
     listener._savedHeaders.map(h => h.subject),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
@@ -143,25 +151,42 @@ add_task(async function testSyncChangesWithClient() {
     "no items should have been marked as read"
   );
   Assert.deepEqual(
+    listener._savedHeaders.map(h => h.messageId),
+    messages.map(m => m.messageId),
+    "headers with the correct values should have been created"
+  );
+  Assert.deepEqual(
     listener._savedHeaders.map(h => h.subject),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
+  );
+  Assert.deepEqual(
+    listener._deletedMessages.map(h => h.messageId),
+    [],
+    "no stored message should have been deleted from the store"
   );
   Assert.ok(
     listener._syncStateToken,
     "the sync token should have been recorded"
   );
 
-  // Move a message, delete a message, mark a message read.
+  // Change a message, move a message, delete a message, mark a message read.
+
+  const messageIdToUpdate = messages[4].messageId;
+  const itemIdToUpdate = btoa(messages[4].messageId);
+  messages[4].subject = "Scary Monster Under Your Bed";
+  ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = btoa(messages[3].messageId);
   ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(3, 1);
+
   const itemIdToDelete = btoa(messages[1].messageId);
   ewsServer.deleteItem(itemIdToDelete);
   messages.splice(1, 1);
+
   const itemIdToMarkRead = btoa(messages[0].messageId);
-  ewsServer.getItem(itemIdToMarkRead).syntheticMessage.metaState.read = true;
+  messages[0].metaState.read = true;
   ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   // Sync again to pick up the changes.
@@ -187,9 +212,19 @@ add_task(async function testSyncChangesWithClient() {
     "the read message should have been updated"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.subject),
+    listener._savedHeaders.map(h => h.messageId),
     [],
     "no headers should have been created"
+  );
+  Assert.deepEqual(
+    listener._deletedMessages.map(h => h.messageId),
+    [messageIdToUpdate],
+    "the updated message should have been deleted from the store"
+  );
+  Assert.deepEqual(
+    listener._deletedMessages.map(h => h.subject),
+    ["Scary Monster Under Your Bed"],
+    "the updated message header should have been updated"
   );
   Assert.ok(
     listener._syncStateToken,
@@ -223,9 +258,14 @@ add_task(async function testSyncChangesWithClient() {
     "no items should have been marked as read"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.subject),
-    [movedMessage.subject],
+    listener._savedHeaders.map(h => h.messageId),
+    [movedMessage.messageId],
     "a header with the correct value should have been created"
+  );
+  Assert.deepEqual(
+    listener._deletedMessages.map(h => h.messageId),
+    [],
+    "no stored message should have been deleted from the store"
   );
   Assert.ok(
     listener._syncStateToken,
@@ -241,6 +281,7 @@ class EwsMessageCallbackListener {
     this._deletedItemIds = [];
     this._readStatusUpdates = [];
     this._savedHeaders = [];
+    this._deletedMessages = [];
     this._deferred = Promise.withResolvers();
   }
 
@@ -257,16 +298,25 @@ class EwsMessageCallbackListener {
     this._deletedItemIds.push(ewsId);
   }
   getHeaderForItem(_ewsId) {
-    Assert.ok(false, "unexpected call to getHeaderForItem");
+    return {
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
+      // Just enough to stop the test breaking.
+      markHasAttachments() {},
+      markRead() {},
+    };
   }
-  maybeDeleteMessageFromStore(_hdr) {
-    Assert.ok(false, "unexpected call to maybeDeleteMessageFromStore");
+  maybeDeleteMessageFromStore(hdr) {
+    this._deletedMessages.push(hdr);
   }
   saveNewHeader(hdr) {
     this._savedHeaders.push(hdr);
   }
   commitChanges() {
-    Assert.ok(false, "unexpected call to commitChanges");
+    Assert.greater(
+      this._deletedMessages.length,
+      0,
+      "commitChanges should only be called if there are updated messages"
+    );
   }
   updateSyncState(syncStateToken) {
     this._syncStateToken = syncStateToken;
@@ -315,16 +365,33 @@ add_task(async function testSyncChangesWithRealFolder() {
     "5 messages should be unread at the start"
   );
 
-  // Move a message, delete a message, mark a message read.
+  const messageIdToUpdate = messages[4].messageId;
+  const originalMessage = inbox.msgDatabase.getMsgHdrForMessageID(
+    messages[4].messageId
+  );
+  const originalMessageText = await getMessageText(originalMessage);
+  const originalGreeting = originalMessageText.match(/Hello (\w+ \w+)!/);
+  Assert.ok(originalGreeting, "the message content should contain a greeting");
+  const originalStoreToken = originalMessage.storeToken;
+  Assert.ok(originalStoreToken, "the message should have been stored");
+
+  // Change a message, move a message, delete a message, mark a message read.
+
+  const itemIdToUpdate = btoa(messages[4].messageId);
+  messages[4].subject = "Scary Monster Under Your Bed";
+  messages[4].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
+  ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
   const itemIdToMove = btoa(messages[3].messageId);
   ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
   const [movedMessage] = messages.splice(3, 1);
+
   const itemIdToDelete = btoa(messages[1].messageId);
   ewsServer.deleteItem(itemIdToDelete);
   messages.splice(1, 1);
+
   const itemIdToMarkRead = btoa(messages[0].messageId);
-  ewsServer.getItem(itemIdToMarkRead).syntheticMessage.metaState.read = true;
+  messages[0].metaState.read = true;
   ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
 
   // Sync again to pick up the changes.
@@ -342,6 +409,25 @@ add_task(async function testSyncChangesWithRealFolder() {
   );
   Assert.equal(inbox.getNumUnread(false), 2, "2 messages should be unread");
 
+  const updatedMessage =
+    inbox.msgDatabase.getMsgHdrForMessageID(messageIdToUpdate);
+  Assert.equal(
+    updatedMessage.subject,
+    "Scary Monster Under Your Bed",
+    "the updated message should have an updated subject"
+  );
+  const updatedMessageText = await getMessageText(updatedMessage);
+  const updatedGreeting = updatedMessageText.match(/Kia ora \w+ \w+!/);
+  Assert.ok(
+    updatedGreeting,
+    "the updated message content should contain a different greeting"
+  );
+  Assert.notEqual(
+    updatedMessage.storeToken,
+    originalStoreToken,
+    "the updated message should have been stored"
+  );
+
   // Check that the moved message arrives at its destination.
 
   await syncFolder(incomingServer, junk);
@@ -356,8 +442,8 @@ add_task(async function testSyncChangesWithRealFolder() {
   );
   Assert.equal(junk.getNumUnread(false), 1, "the message should be unread");
   Assert.equal(
-    junk.messages.getNext().subject,
-    movedMessage.subject,
+    junk.messages.getNext().messageId,
+    movedMessage.messageId,
     "the message should be the right message"
   );
 
@@ -371,3 +457,27 @@ add_task(async function testSyncChangesWithRealFolder() {
     "waiting for messages to be deleted"
   );
 });
+
+/**
+ * Fetch the full message from the message service. If necessary, from the server.
+ *
+ * @param {nsIMsgDBHdr} header
+ */
+async function getMessageText(header) {
+  const uri = header.folder.generateMessageURI(header.messageKey);
+  const service = MailServices.messageServiceFromURI(uri);
+
+  const deferred = Promise.withResolvers();
+  NetUtil.asyncFetch(
+    {
+      uri: service.getUrlForUri(uri),
+      loadUsingSystemPrincipal: true,
+    },
+    stream => {
+      deferred.resolve(
+        NetUtil.readInputStreamToString(stream, stream.available())
+      );
+    }
+  );
+  return deferred.promise;
+}
