@@ -20,16 +20,36 @@ menupopup {
     line-height: 0;
   }
 
+  & > menuitem:is([type="checkbox"], [type="radio"]) {
+
+    &:before {
+      display: none;
+    }
+
+    &:not([image]) > .menu-icon {
+      display: flex;
+      content: var(--menuitem-icon);
+    }
+
+    &[checked="true"] > .menu-icon {
+      visibility: inherit;
+    }
+  }
+
   &[needsgutter] > :is(menu, menuitem, menucaption) {
     padding-inline-start: 8px;
 
     &:before {
-      content: var(--icon-check);
-      padding-inline: 0 8px;
+      display: none;
     }
 
-    &:not([image]) > .menu-icon {
-      display: none;
+    & > .menu-icon {
+      display: flex;
+    }
+
+    &[selected="true"] > .menu-icon {
+      visibility: inherit;
+      content: var(--menuitem-icon);
     }
   }
 
@@ -60,11 +80,11 @@ menupopup {
 
   menulist > & > menuitem {
     &::before {
-      margin-inline: 0 -10px;
+      display: hidden;
     }
 
-    &:is([checked="true"], [selected="true"])::before {
-      visibility: hidden;
+    &[checked="true"] > .menu-icon {
+      visibility: inherit;
     }
 
     &.menuitem-iconic::before {

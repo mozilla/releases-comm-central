@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#item-categories > menupopup > menuitem:not([checked]) .menu-icon {
+  visibility: hidden;
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/
