@@ -8,9 +8,6 @@ const { GmailServer } = ChromeUtils.importESModule(
 const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { MessageInjection } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageInjection.sys.mjs"
-);
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -35,21 +32,13 @@ let account,
   moreButton,
   moreContext;
 const generator = new MessageGenerator();
-const messageInjection = new MessageInjection(
-  {
-    mode: "local",
-  },
-  generator
-);
 
 add_setup(async function () {
-  account = MailServices.accounts.accounts[0];
-  rootFolder = account.incomingServer.rootFolder.QueryInterface(
-    Ci.nsIMsgLocalMailFolder
-  );
-  inboxFolder = rootFolder
-    .getChildNamed("Inbox")
-    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  account = MailServices.accounts.createLocalMailAccount();
+  rootFolder = account.incomingServer.rootFolder;
+  rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  inboxFolder = rootFolder.createLocalSubfolder("Inbox");
+  inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getChildNamed("Trash");
   outboxFolder = rootFolder.getChildNamed("Unsent Messages");
   folderA = rootFolder
@@ -65,14 +54,18 @@ add_setup(async function () {
   moreButton = about3Pane.document.querySelector("#folderPaneMoreButton");
   moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
 
-  await messageInjection.addSetsToFolders(
-    [folderA, folderB, folderC],
-    [
-      new SyntheticMessageSet(generator.makeMessages({ read: true })),
-      new SyntheticMessageSet(generator.makeMessages({ read: true })),
-      new SyntheticMessageSet(generator.makeMessages({ read: true })),
-    ]
+  folderA.addMessageBatch(
+    generator.makeMessages({}).map(message => message.toMessageString())
   );
+  folderA.markAllMessagesRead(null);
+  folderB.addMessageBatch(
+    generator.makeMessages({}).map(message => message.toMessageString())
+  );
+  folderB.markAllMessagesRead(null);
+  folderC.addMessageBatch(
+    generator.makeMessages({}).map(message => message.toMessageString())
+  );
+  folderC.markAllMessagesRead(null);
 
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   about3Pane.paneLayout.messagePaneVisible = false;
