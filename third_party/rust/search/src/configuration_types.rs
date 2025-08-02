@@ -60,6 +60,15 @@ pub(crate) struct JSONEngineUrl {
     /// URL. The client will fall back to the special locale code "default" when
     /// its locale is not present in the map.
     pub display_name_map: Option<HashMap<String, String>>,
+
+    /// Indicates the date until which the URL is considered new
+    /// (format: YYYY-MM-DD).
+    pub is_new_until: Option<String>,
+
+    /// Whether the engine's partner code should be excluded from telemetry when
+    /// this URL is visited.
+    #[serde(default)]
+    pub exclude_partner_code_from_telemetry: bool,
 }
 
 /// Reflects `types::SearchEngineUrls`, but using `EngineUrl`.
