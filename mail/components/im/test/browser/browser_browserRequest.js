@@ -60,7 +60,7 @@ add_task(async function testWaitForRedirect() {
 
   const closedWindow = BrowserTestUtils.domWindowClosed(requestWindow);
   const browser = requestWindow.document.getElementById("requestFrame");
-  await BrowserTestUtils.browserLoaded(browser);
+  await BrowserTestUtils.browserLoaded(browser, { wantLoad: "about:blank" });
   BrowserTestUtils.startLoadingURIString(browser, completionUrl);
   const result = await request;
   is(result, completionUrl, "finished with correct URL");
