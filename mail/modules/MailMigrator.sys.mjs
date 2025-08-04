@@ -29,7 +29,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 51;
+    const UI_VERSION = 52;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -283,6 +283,21 @@ export var MailMigrator = {
           );
           Services.xulStore.removeValue(docURL, "threadPane", "view");
         }
+      }
+
+      if (currentUIVersion < 52) {
+        // Preset the user sort order of all NNTP folders in a way so that they
+        // keep their existing order.
+        MailServices.accounts.accounts
+          .filter(a => a.incomingServer.type == "nntp")
+          .forEach(a => {
+            const folders = MailServices.folderLookup.getFolderForURL(
+              a.incomingServer.serverURI
+            ).subFolders;
+            for (let i = 0; i < folders.length; i++) {
+              folders[i].userSortOrder = i + 1;
+            }
+          });
       }
 
       // Migration tasks that may take a long time are not run immediately, but
