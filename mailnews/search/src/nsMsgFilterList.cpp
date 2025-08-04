@@ -1199,4 +1199,26 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
                "failed to write out end log tag");
   return NS_OK;
 }
+
+NS_IMETHODIMP nsMsgFilterList::DoFiltersNeedMessageBody(
+    nsMsgFilterTypeType filterType, bool* needsBody) {
+  NS_ENSURE_ARG_POINTER(needsBody);
+
+  *needsBody = false;
+  for (auto filter : m_filters) {
+    nsMsgFilterTypeType t;
+    nsresult rv = filter->GetFilterType(&t);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!(t & filterType)) {
+      continue;
+    }
+    rv = filter->GetNeedsMessageBody(needsBody);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (*needsBody) {
+      return NS_OK;
+    }
+  }
+  return NS_OK;
+}
+
 // ------------ End FilterList methods ------------------

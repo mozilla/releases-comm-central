@@ -646,24 +646,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
 
     m_filterListRequiresBody = false;
     if (mFlags & nsMsgFolderFlags::Offline) {
-      uint32_t filterCount = 0;
-      m_filterList->GetFilterCount(&filterCount);
-      for (uint32_t index = 0; index < filterCount; ++index) {
-        nsCOMPtr<nsIMsgFilter> filter;
-        m_filterList->GetFilterAt(index, getter_AddRefs(filter));
-        if (!filter) {
-          continue;
-        }
-        nsMsgFilterTypeType filterType;
-        filter->GetFilterType(&filterType);
-        if (!(filterType & nsMsgFilterType::Incoming)) continue;
-
-        rv = filter->GetNeedsMessageBody(&m_filterListRequiresBody);
-        NS_ENSURE_SUCCESS(rv, rv);
-        if (m_filterListRequiresBody) {
-          break;
-        }
-      }
+      rv = m_filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
+                                                  &m_filterListRequiresBody);
+      NS_ENSURE_SUCCESS(rv, rv);
     }
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
             ("(Imap) Filters require the message body: %s",

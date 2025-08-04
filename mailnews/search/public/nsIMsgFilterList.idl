@@ -104,6 +104,12 @@ interface nsIMsgFilterList : nsISupports {
      * @param filter   Optional filter object that reports the message.
      */
     void logFilterMessage(in AString message, [optional] in nsIMsgFilter filter);
+
+    /**
+     * Returns true if any filters matching `filterType` require the
+     * message body, either for matching or for the resulting action.
+     */
+    boolean doFiltersNeedMessageBody(in nsMsgFilterTypeType filterType);
 };
 
 
