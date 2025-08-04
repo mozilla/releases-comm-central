@@ -322,10 +322,13 @@ interface IEwsSimpleOperationListener : nsISupports {
    * @param newIds - If the operation involves generating new EWS identifiers
    *   for one or serveral entities, they are included in this array. Otherwise,
    *   this is an emtpy array.
-   * @param resyncNeeded - Whether a the current folder or account (depending on
-   *   the operation) should be resync'd (when relevant).
+   * @param useLegacyFallback - Whether the client has decided the Exchange
+   *   server is too old to perform the operation the "normal" way and we need
+   *   to fall back to a "legacy" behaviour. What the normal and legacy
+   *   behaviours are, and whether there's even a difference in behaviour
+   *   depending on the server version, depends on the specific operation.
    */
-  void onOperationSuccess(in Array<AUTF8String> newIds, in boolean resyncNeeded);
+  void onOperationSuccess(in Array<AUTF8String> newIds, in boolean useLegacyFallback);
 };
 
 /**

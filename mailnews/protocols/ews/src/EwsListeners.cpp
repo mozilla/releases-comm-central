@@ -9,8 +9,8 @@
 NS_IMPL_ISUPPORTS(EwsSimpleListener, IEwsSimpleOperationListener)
 
 NS_IMETHODIMP EwsSimpleListener::OnOperationSuccess(
-    const nsTArray<nsCString>& newIds, bool resyncNeeded) {
-  return mOnSuccess(std::move(newIds), resyncNeeded);
+    const nsTArray<nsCString>& newIds, bool useLegacyFallback) {
+  return mOnSuccess(std::move(newIds), useLegacyFallback);
 };
 
 // Implementation of EwsSimpleMessageListener
@@ -18,8 +18,8 @@ NS_IMETHODIMP EwsSimpleListener::OnOperationSuccess(
 NS_IMPL_ISUPPORTS(EwsSimpleMessageListener, IEwsSimpleOperationListener)
 
 NS_IMETHODIMP EwsSimpleMessageListener::OnOperationSuccess(
-    const nsTArray<nsCString>& newIds, bool resyncNeeded) {
-  return mOnSuccess(mHeaders, std::move(newIds), resyncNeeded);
+    const nsTArray<nsCString>& newIds, bool useLegacyFallback) {
+  return mOnSuccess(mHeaders, std::move(newIds), useLegacyFallback);
 };
 
 // Implementation of EwsFallibleListener

@@ -104,7 +104,7 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   const RefPtr<EwsSimpleFailibleListener> listener =
       new EwsSimpleFailibleListener(
           [self = RefPtr(this), parentFolder, folderName](
-              const nsTArray<nsCString>& ids, bool resyncNeeded) {
+              const nsTArray<nsCString>& ids, bool useLegacyFallback) {
             NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
             nsCOMPtr<nsIMsgFolder> newFolder;

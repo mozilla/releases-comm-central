@@ -388,7 +388,7 @@ NS_IMETHODIMP EwsFolder::CreateSubfolder(const nsACString& aFolderName,
 
   RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
       [self = RefPtr(this), folderName](const nsTArray<nsCString>& ids,
-                                        bool resyncNeeded) {
+                                        bool useLegacyFallback) {
         NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
         nsCOMPtr<nsIMsgFolder> newFolder;
@@ -542,7 +542,7 @@ NS_IMETHODIMP EwsFolder::Rename(const nsACString& aNewName,
 
   RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
       [self = RefPtr(this), newName, window](const nsTArray<nsCString>& ids,
-                                             bool resyncNeeded) {
+                                             bool useLegacyFallback) {
         nsCOMPtr<nsIMsgFolder> parentFolder;
         nsresult rv = self->GetParent(getter_AddRefs(parentFolder));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -630,13 +630,13 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
             aSrcHdrs,
             [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener](
                 const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-                const nsTArray<nsCString>& ids, bool resyncNeeded) {
+                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
               nsresult rv = NS_OK;
 
               auto listenerExitGuard =
                   GuardCopyServiceListener(copyListener, rv);
 
-              if (resyncNeeded) {
+              if (useLegacyFallback) {
                 rv = self->SyncMessages(msgWindow, nullptr);
                 NS_ENSURE_SUCCESS(rv, rv);
               } else {
@@ -754,7 +754,7 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
     const RefPtr<EwsSimpleFailibleListener> listener =
         new EwsSimpleFailibleListener(
             [self = RefPtr(this), srcFolder, copyListener, msgWindow](
-                const nsTArray<nsCString>& ids, bool resyncNeeded) {
+                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
               NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
 
               nsresult rv = NS_OK;
@@ -836,9 +836,10 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
     const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
 
     RefPtr<EwsSimpleMessageListener> listener = new EwsSimpleMessageListener(
-        aMsgHeaders, [self = RefPtr(this), copyListener](
-                         const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-                         const nsTArray<nsCString>& ids, bool resyncNeeded) {
+        aMsgHeaders,
+        [self = RefPtr(this), copyListener](
+            const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
+            const nsTArray<nsCString>& ids, bool useLegacyFallback) {
           nsresult rv = NS_OK;
           auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
           return LocalDeleteMessages(self, srcHdrs);
@@ -885,7 +886,7 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
 
   RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
       [self = RefPtr(this), window](const nsTArray<nsCString>& ids,
-                                    bool resyncNeeded) {
+                                    bool useLegacyFallback) {
         return self->nsMsgDBFolder::DeleteSelf(window);
       });
 
