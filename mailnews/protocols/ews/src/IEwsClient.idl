@@ -50,11 +50,6 @@ interface IEwsClient : nsISupports
    */
   void initialize(in AUTF8String endpoint, in nsIMsgIncomingServer server);
 
-  cenum Error : 8 {
-    EWS_ERR_AUTHENTICATION_FAILED,
-    EWS_ERR_UNEXPECTED,
-  };
-
   /**
    * Checks that the current client configuration is able to connect and
    * authenticate against an EWS server.
@@ -172,7 +167,6 @@ interface IEwsFolderCallbacks : nsISupports
   /** Called after all sync items have been processed. */
   void updateSyncState(in AUTF8String syncStateToken);
   void onSuccess();
-  void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 
 /**
@@ -255,14 +249,6 @@ interface IEwsMessageCallbacks : nsISupports
    * read/unread status of the existing message in the current folder's database.
    */
   void updateReadStatus(in AUTF8String ewsId, in boolean readStatus);
-
-  /**
-   * Signals that an error has happened during the current operation.
-   *
-   * @param err - The machine-readable error code.
-   * @param desc - A human-readable description of the error.
-   */
-  void onError(in IEwsClient_Error err, in AUTF8String desc);
 };
 
 /**

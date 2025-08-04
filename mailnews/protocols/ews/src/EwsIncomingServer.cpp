@@ -78,15 +78,6 @@ NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
 
 NS_IMETHODIMP FolderSyncListener::OnSuccess() { return mDoneCallback(); }
 
-NS_IMETHODIMP FolderSyncListener::OnError(IEwsClient::Error err,
-                                          const nsACString& desc) {
-  NS_ERROR(nsPrintfCString("Error occurred while syncing EWS folders: %s",
-                           PromiseFlatCString(desc).get())
-               .get());
-
-  return NS_OK;
-}
-
 NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_RELEASE_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_QUERY_HEAD(EwsIncomingServer)

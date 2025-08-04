@@ -41,7 +41,7 @@ use mailnews_ui_glue::{
     handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
     AuthErrorOutcome, UserInteractiveServer,
 };
-use moz_http::{Response, StatusCode};
+use moz_http::Response;
 use nserror::nsresult;
 use nsstring::nsCString;
 use server_version::read_server_version;
@@ -65,7 +65,7 @@ use crate::{
 };
 use crate::{
     headers::{Mailbox, MessageHeaders},
-    safe_xpcom::{EwsClientError, SafeEwsFolderCallbacks},
+    safe_xpcom::SafeEwsFolderCallbacks,
 };
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
@@ -234,11 +234,19 @@ where
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        self.sync_folder_hierarchy_inner(&callbacks, sync_state_token)
+        match self
+            .sync_folder_hierarchy_inner(&callbacks, sync_state_token)
             .await
-            .unwrap_or_else(process_error_with_cb(move |client_err, desc| {
-                let _ = callbacks.on_error(client_err, &*desc);
-            }));
+        {
+            Ok(_) => {
+                let _ = callbacks.on_success();
+            }
+            Err(err) => handle_error(
+                "SyncFolderHierarchy",
+                err,
+                callbacks.into_unsafe_fallible_listener(),
+            ),
+        };
     }
 
     async fn sync_folder_hierarchy_inner(
@@ -329,24 +337,31 @@ where
             sync_state_token = Some(message.sync_state);
         }
 
-        callbacks.on_success()?;
-
         Ok(())
     }
 
     pub(crate) async fn sync_messages_for_folder(
         self,
-        callbacks: RefPtr<IEwsMessageCallbacks>,
+        listener: RefPtr<IEwsMessageCallbacks>,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        self.sync_messages_for_folder_inner(&callbacks, folder_id, sync_state_token)
+
+        match self
+            .sync_messages_for_folder_inner(&listener, folder_id, sync_state_token)
             .await
-            .unwrap_or_else(process_error_with_cb_cpp(move |client_err, desc| unsafe {
-                callbacks.OnError(client_err, &*desc);
-            }));
+        {
+            Ok(_) => unsafe {
+                listener.OnSyncComplete();
+            },
+            Err(err) => handle_error(
+                "SyncFolderItems",
+                err,
+                listener.query_interface::<IEwsFallibleOperationListener>(),
+            ),
+        }
     }
 
     async fn sync_messages_for_folder_inner(
@@ -613,7 +628,6 @@ where
             sync_state_token = Some(message.sync_state);
         }
 
-        unsafe { callbacks.OnSyncComplete() }.to_result()?;
         Ok(())
     }
 
@@ -1943,61 +1957,6 @@ fn handle_error(
             Err(err) => log::error!("the error callback returned a failure ({err})"),
         }
     }
-}
-
-/// Returns a function for processing an error and providing it to the provided
-/// error-handling callback. This version allows only safe Rust types as input.
-fn process_error_with_cb<Cb>(handler: Cb) -> impl FnOnce(XpComEwsError)
-where
-    Cb: FnOnce(EwsClientError, &str),
-{
-    |err| {
-        let (client_err, desc) = match err {
-            XpComEwsError::Http(moz_http::Error::StatusCode {
-                status: StatusCode(401),
-                ..
-            }) => {
-                // Authentication failed. Let Thunderbird know so we can
-                // handle it appropriately.
-                log::error!("an authentication error occurred: {err:?}");
-                (EwsClientError::AuthenticationFailed, "")
-            }
-
-            _ => {
-                log::error!("an unexpected error occurred: {err:?}");
-
-                match err {
-                    XpComEwsError::Http(moz_http::Error::StatusCode { response, .. }) => {
-                        match std::str::from_utf8(response.body()) {
-                            Ok(body) => eprintln!("body in UTF-8: {body}"),
-                            Err(_) => (),
-                        }
-                    }
-
-                    _ => (),
-                }
-
-                (EwsClientError::Unexpected, "an unexpected error occurred")
-            }
-        };
-
-        handler(client_err, desc);
-    }
-}
-
-/// Returns a function for processing an error and providing it to the provided
-/// error-handling callback. This version allows unsafe C++ types as input.
-/// This version is provided for compatibility until other callback interface
-/// implementations are given safe Rust wrappers.
-fn process_error_with_cb_cpp<Cb>(handler: Cb) -> impl FnOnce(XpComEwsError)
-where
-    Cb: FnOnce(u8, nsCString),
-{
-    process_error_with_cb(|error, description| {
-        let error_code = error.into();
-        let desc = nsCString::from(description);
-        handler(error_code, desc);
-    })
 }
 
 /// Look at the response class of a response message, and do nothing, warn or

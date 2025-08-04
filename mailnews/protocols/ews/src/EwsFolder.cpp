@@ -134,10 +134,12 @@ static nsresult HandleMoveError(nsIMsgFolder* sourceFolder,
   });
 }
 
-class MessageOperationCallbacks : public IEwsMessageCallbacks {
+class MessageOperationCallbacks : public IEwsMessageCallbacks,
+                                  public IEwsFallibleOperationListener {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_IEWSMESSAGECALLBACKS
+  NS_DECL_IEWSFALLIBLEOPERATIONLISTENER
 
   MessageOperationCallbacks(EwsFolder* folder, nsIMsgWindow* window,
                             nsCOMPtr<nsIUrlListener> urlListener)
@@ -310,10 +312,8 @@ NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
   return NS_OK;
 }
 
-NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
-                                                 const nsACString& desc) {
-  NS_ERROR("Error occurred while syncing EWS messages");
-  NotifyListener(NS_ERROR_UNEXPECTED);
+NS_IMETHODIMP MessageOperationCallbacks::OnOperationFailure(nsresult status) {
+  NotifyListener(status);
   return NS_OK;
 }
 

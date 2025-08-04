@@ -6,13 +6,13 @@ use ews::FolderId;
 use fxhash::FxHashMap;
 use nsstring::nsCString;
 use xpcom::{
-    interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderCallbacks},
-    RefPtr,
+    interfaces::{
+        nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFallibleOperationListener, IEwsFolderCallbacks,
+    },
+    RefPtr, XpCom,
 };
 
 use crate::client::XpComEwsError;
-
-use super::EwsClientError;
 
 /// Wrapper newtype for [`IEwsFolderCallbacks`] that utilizes only safe Rust
 /// types in its public interface and handles converting to unsafe types and
@@ -119,14 +119,11 @@ impl SafeEwsFolderCallbacks {
         Ok(())
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::OnError`]
-    pub fn on_error(&self, error: EwsClientError, description: &str) -> Result<(), XpComEwsError> {
-        let error_code = error.into();
-        let desc = nsCString::from(description);
-        // SAFETY: We have converted all of the inputs into the appropriate types
-        // to cross the Rust/C++ boundary.
-        unsafe { self.0.OnError(error_code, &*desc) }.to_result()?;
-        Ok(())
+    /// Convert the wrapped [`IEwsFolderCallbacks`] into an instance of
+    /// [`IEwsFallibleOperationListener`], if it implements the latter
+    /// interface.
+    pub fn into_unsafe_fallible_listener(self) -> Option<RefPtr<IEwsFallibleOperationListener>> {
+        self.0.query_interface::<IEwsFallibleOperationListener>()
     }
 }
 
