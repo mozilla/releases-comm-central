@@ -254,10 +254,10 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
 
     const engineName = searchProvider.name.trim();
     const result = await Services.search.maybeSetAndOverrideDefault(extension);
-    // This will only be set to true when the specified engine is an app-provided
+    // This will only be set to true when the specified engine is a config
     // engine, or when it is an allowed add-on defined in the list stored in
     // SearchDefaultOverrideAllowlistHandler.
-    if (result.canChangeToAppProvided) {
+    if (result.canChangeToConfigEngine) {
       await this.setDefault(engineName, true);
     }
     if (!result.canInstallEngine) {
@@ -277,7 +277,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   async setDefault(engineName, skipEnablePrompt = false) {
     const { extension } = this;
     if (extension.startupReason === "ADDON_INSTALL") {
-      // We should only get here if an extension is setting an app-provided
+      // We should only get here if an extension is setting a config search
       // engine to default and we are ignoring the addons other engine settings.
       // In this case we do not show the prompt to the user.
       const item = await this.ensureSetting(engineName);
@@ -335,7 +335,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
         );
       } else if (control === "controllable_by_this_extension") {
         if (skipEnablePrompt) {
-          // For overriding app-provided engines, we don't prompt, so set
+          // For overriding config engines, we don't prompt, so set
           // the default straight away.
           await chrome_settings_overrides.processDefaultSearchSetting(
             "enable",
