@@ -54,6 +54,12 @@ interface nsIMsgFilter : nsISupports {
     attribute ACString unparsedBuffer; //holds the entire filter if we don't know how to handle it
     attribute boolean unparseable;  //whether we could parse the filter or not
 
+    /**
+     * Does this filter require the message body?
+     * This could be for matching or for a custom action.
+     */
+    readonly attribute boolean needsMessageBody;
+
     attribute nsIMsgFilterList filterList; // owning filter list
 
     void AddTerm(in nsMsgSearchAttribValue attrib,

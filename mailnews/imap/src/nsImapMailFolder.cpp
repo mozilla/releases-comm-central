@@ -643,67 +643,25 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
 
     // If a body filter is enabled for an offline folder, delay the filter
     // application until after message has been downloaded.
-    m_filterListRequiresBody = false;
 
+    m_filterListRequiresBody = false;
     if (mFlags & nsMsgFolderFlags::Offline) {
-      nsCOMPtr<nsIMsgFilterService> filterService =
-          mozilla::components::Filter::Service();
       uint32_t filterCount = 0;
       m_filterList->GetFilterCount(&filterCount);
-      for (uint32_t index = 0; index < filterCount && !m_filterListRequiresBody;
-           ++index) {
+      for (uint32_t index = 0; index < filterCount; ++index) {
         nsCOMPtr<nsIMsgFilter> filter;
         m_filterList->GetFilterAt(index, getter_AddRefs(filter));
-        if (!filter) continue;
+        if (!filter) {
+          continue;
+        }
         nsMsgFilterTypeType filterType;
         filter->GetFilterType(&filterType);
         if (!(filterType & nsMsgFilterType::Incoming)) continue;
-        bool enabled = false;
-        filter->GetEnabled(&enabled);
-        if (!enabled) continue;
-        nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
-        filter->GetSearchTerms(searchTerms);
-        for (nsIMsgSearchTerm* term : searchTerms) {
-          nsMsgSearchAttribValue attrib;
-          rv = term->GetAttrib(&attrib);
-          NS_ENSURE_SUCCESS(rv, rv);
-          if (attrib == nsMsgSearchAttrib::Body)
-            m_filterListRequiresBody = true;
-          else if (attrib == nsMsgSearchAttrib::Custom) {
-            nsAutoCString customId;
-            rv = term->GetCustomId(customId);
-            nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;
-            if (NS_SUCCEEDED(rv) && filterService)
-              rv = filterService->GetCustomTerm(customId,
-                                                getter_AddRefs(customTerm));
-            bool needsBody = false;
-            if (NS_SUCCEEDED(rv) && customTerm)
-              rv = customTerm->GetNeedsBody(&needsBody);
-            if (NS_SUCCEEDED(rv) && needsBody) m_filterListRequiresBody = true;
-          }
-          if (m_filterListRequiresBody) {
-            break;
-          }
-        }
 
-        // Also check if filter actions need the body, as this
-        // is supported in custom actions.
-        uint32_t numActions = 0;
-        filter->GetActionCount(&numActions);
-        for (uint32_t actionIndex = 0;
-             actionIndex < numActions && !m_filterListRequiresBody;
-             actionIndex++) {
-          nsCOMPtr<nsIMsgRuleAction> action;
-          rv = filter->GetActionAt(actionIndex, getter_AddRefs(action));
-          if (NS_FAILED(rv) || !action) continue;
-
-          nsCOMPtr<nsIMsgFilterCustomAction> customAction;
-          rv = action->GetCustomAction(getter_AddRefs(customAction));
-          if (NS_FAILED(rv) || !customAction) continue;
-
-          bool needsBody = false;
-          customAction->GetNeedsBody(&needsBody);
-          if (needsBody) m_filterListRequiresBody = true;
+        rv = filter->GetNeedsMessageBody(&m_filterListRequiresBody);
+        NS_ENSURE_SUCCESS(rv, rv);
+        if (m_filterListRequiresBody) {
+          break;
         }
       }
     }

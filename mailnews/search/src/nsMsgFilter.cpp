@@ -3,27 +3,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// this file implements the nsMsgFilter interface
+// this file implements the nsMsgIFilter interface
 
-#include "msgCore.h"
-#include "nsIMsgHdr.h"
-#include "nsMsgFilterList.h"  // for kFileVersion
 #include "nsMsgFilter.h"
-#include "nsMsgUtils.h"
-#include "nsMsgLocalSearch.h"
-#include "nsMsgSearchTerm.h"
-#include "nsIMsgAccountManager.h"
-#include "nsIMsgIncomingServer.h"
-#include "nsMsgI18N.h"
-#include "nsNativeCharsetUtils.h"
-#include "nsIOutputStream.h"
-#include "nsIStringBundle.h"
-#include "nsServiceManagerUtils.h"
-#include "nsIMsgFilterService.h"
-#include "nsIMsgNewsFolder.h"
-#include "prmem.h"
+
 #include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
+#include "msgCore.h"
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgFilterService.h"
+#include "nsIMsgHdr.h"
+#include "nsIMsgIncomingServer.h"
+#include "nsIMsgNewsFolder.h"
+#include "nsIMsgSearchCustomTerm.h"
+#include "nsIOutputStream.h"
+#include "nsIStringBundle.h"
+#include "nsMsgFilterList.h"  // for kFileVersion
+#include "nsMsgI18N.h"
+#include "nsMsgLocalSearch.h"
+#include "nsMsgSearchTerm.h"
+#include "nsMsgUtils.h"
+#include "nsNativeCharsetUtils.h"
+#include "nsServiceManagerUtils.h"
+#include "prmem.h"
 
 static const char* kImapPrefix = "//imap:";
 static const char* kWhitespace = "\b\t\r\n ";
@@ -578,6 +580,59 @@ NS_IMETHODIMP
 nsMsgFilter::GetFilterList(nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_IF_ADDREF(*aResult = m_filterList);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFilter::GetNeedsMessageBody(bool* needsBody) {
+  NS_ENSURE_ARG_POINTER(needsBody);
+
+  *needsBody = false;
+  if (!m_enabled) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFilterService> filterService =
+      mozilla::components::Filter::Service();
+
+  // Do any of the terms require the message body?
+  for (nsIMsgSearchTerm* term : m_termList) {
+    nsMsgSearchAttribValue attrib;
+    nsresult rv = term->GetAttrib(&attrib);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (attrib == nsMsgSearchAttrib::Body) {
+      *needsBody = true;
+      return NS_OK;
+    }
+
+    if (attrib == nsMsgSearchAttrib::Custom) {
+      nsAutoCString customId;
+      rv = term->GetCustomId(customId);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;
+      rv = filterService->GetCustomTerm(customId, getter_AddRefs(customTerm));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = customTerm->GetNeedsBody(needsBody);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (*needsBody) {
+        return NS_OK;
+      }
+    }
+  }
+
+  // Also check if filter actions need the body, as this
+  // is supported in custom actions.
+  for (auto action : m_actionList) {
+    nsCOMPtr<nsIMsgFilterCustomAction> customAction;
+    nsresult rv = action->GetCustomAction(getter_AddRefs(customAction));
+    // Accept failure here. Custom actions may be uninitialised.
+    if (NS_SUCCEEDED(rv) && customAction) {
+      customAction->GetNeedsBody(needsBody);
+      if (*needsBody) {
+        return NS_OK;
+      }
+    }
+  }
+
   return NS_OK;
 }
 
