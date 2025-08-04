@@ -118,8 +118,7 @@ if (AppConstants.platform == "win") {
 var ICON_URL_APP = "";
 
 if (AppConstants.MOZ_WIDGET_GTK) {
-  ICON_URL_APP =
-    `moz-icon://dummy.exe?size=16&scale=1 1x, moz-icon://dummy.exe?size=16&scale=2 2x, moz-icon://dummy.exe?size=16&scale=3 3x`;
+  ICON_URL_APP = `moz-icon://dummy.exe?size=16&scale=1 1x, moz-icon://dummy.exe?size=16&scale=2 2x, moz-icon://dummy.exe?size=16&scale=3 3x`;
 } else {
   ICON_URL_APP = "chrome://messenger/skin/preferences/application.png";
 }
