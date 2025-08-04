@@ -318,7 +318,7 @@ body {
 }
 
 #searchInput {
-  height: var(--in-content-button-height);
+  height: var(--button-height);
   flex: 1;
   margin-block: 0;
   margin-inline: 0 6px;
@@ -530,7 +530,7 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 
   & menulist:not([hidden]) {
     margin-inline: 4px;
-    min-height: var(--in-content-button-height);
+    min-height: var(--button-height);
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
@@ -591,7 +591,7 @@ body:not(.is-editing) #editContactForm {
   border-radius: 100%;
   object-fit: cover;
   object-position: center;
-  background-color: var(--in-content-button-background);
+  background-color: var(--button-background-color);
   -moz-context-properties: stroke;
   stroke: color-mix(in srgb, transparent 50%, var(--recipient-avatar-color));
 
@@ -683,7 +683,7 @@ body:not(.is-editing) #editContactForm {
 
   & section {
     padding: var(--ab-detail-section-padding);
-    border-radius: var(--in-content-button-border-radius);
+    border-radius: var(--button-border-radius);
     border: 1px solid var(--in-content-box-info-border);
     background-color: var(--in-content-box-info-background);
     font-size: 1.1rem;
@@ -815,7 +815,7 @@ section#selectedCards {
 input[type="number"] {
   min-height: 28px;
   padding: 1px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
   &.size3 {
@@ -835,7 +835,7 @@ input[type="number"] {
     min-width: 25px;
     border: 1px solid var(--in-content-box-border-color);
     border-radius: 0;
-    background-color: var(--in-content-button-background);
+    background-color: var(--button-background-color);
     background-position: center;
     background-repeat: no-repeat;
     -moz-context-properties: stroke;
@@ -844,20 +844,20 @@ input[type="number"] {
 
   &::-moz-number-spin-up:hover,
   &::-moz-number-spin-down:hover {
-    background-color: var(--in-content-button-background-hover);
+    background-color: var(--button-background-color-hover);
   }
 
   &::-moz-number-spin-up {
-    min-height: calc(var(--in-content-button-height) * 0.5 - 2px);
+    min-height: calc(var(--button-height) * 0.5 - 2px);
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-start-end-radius: var(--in-content-button-border-radius);
+    border-start-end-radius: var(--button-border-radius);
     background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
   }
 
   &::-moz-number-spin-down {
-    min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
-    border-end-end-radius: var(--in-content-button-border-radius);
+    min-height: calc(var(--button-height) * 0.5 - 3px);
+    border-end-end-radius: var(--button-border-radius);
     background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   }
 }
@@ -871,7 +871,7 @@ input[type="number"] {
 
 #photoDropTarget {
   height: 100px;
-  background-color: var(--in-content-button-background);
+  background-color: var(--button-background-color);
   background-image: var(--icon-user);
   background-size: 80px;
   background-position: center;

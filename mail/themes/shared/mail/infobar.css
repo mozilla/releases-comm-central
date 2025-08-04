@@ -18,27 +18,27 @@
   --panel-border-radius: 3px;
 
   @media not (prefers-contrast) {
-    --in-content-button-color: light-dark(#0c0c0d, #f9f9fa);
-    --in-content-button-border: light-dark(#c2c2c3, #828283);
-    --in-content-button-background: light-dark(#e2e2e3, #636364);
-    --in-content-button-color-hover: light-dark(#0c0c0d, #f9f9fa);
-    --in-content-button-background-hover: light-dark(#d2d2d3, #777778);
-    --in-content-button-border-active: light-dark(#a2a2a3, #878788);
-    --in-content-button-color-active: light-dark(#0c0c0d, #f9f9fa);
-    --in-content-button-background-active: light-dark(#c2c2c3, #878788);
+    --button-text-color: light-dark(#0c0c0d, #f9f9fa);
+    --button-border-color: light-dark(#c2c2c3, #828283);
+    --button-background-color: light-dark(#e2e2e3, #636364);
+    --button-text-color-hover: light-dark(#0c0c0d, #f9f9fa);
+    --button-background-color-hover: light-dark(#d2d2d3, #777778);
+    --button-border-color-active: light-dark(#a2a2a3, #878788);
+    --button-text-color-active: light-dark(#0c0c0d, #f9f9fa);
+    --button-background-color-active: light-dark(#c2c2c3, #878788);
     --in-content-box-info-background: light-dark(var(--layout-background-0), var(--layout-background-2));
   }
 
   @media (prefers-contrast) {
+    --button-text-color: ButtonText;
+    --button-border-color: ThreeDLightShadow;
+    --button-background-color: ButtonFace;
+    --button-text-color-hover: SelectedItemText;
+    --button-background-color-hover: SelectedItem;
+    --button-border-color-active: ThreeDFace;
+    --button-text-color-active: SelectedItemText;
+    --button-background-color-active: SelectedItem;
     --in-content-box-info-background: hsla(0, 0%, 50%, 0.15);
-    --in-content-button-color: ButtonText;
-    --in-content-button-border: ThreeDLightShadow;
-    --in-content-button-background: ButtonFace;
-    --in-content-button-color-hover: SelectedItemText;
-    --in-content-button-background-hover: SelectedItem;
-    --in-content-button-border-active: ThreeDFace;
-    --in-content-button-color-active: SelectedItemText;
-    --in-content-button-background-active: SelectedItem;
   }
 }
 
@@ -182,18 +182,18 @@ moz-button::part(button) {
 
 @media (prefers-contrast) {
   moz-button::part(button) {
-    color: var(--in-content-button-color);
+    color: var(--button-text-color);
   }
 
   moz-button::part(button):hover {
-    color: var(--in-content-button-color-hover);
-    --button-background-color-ghost-hover: var(--in-content-button-background-hover);
+    color: var(--button-text-color-hover);
+    --button-background-color-ghost-hover: var(--button-background-color-hover);
   }
 
   moz-button::part(button):hover:active {
-    color: var(--in-content-button-color-hover);
-    --button-background-color-ghost-active: var(--in-content-button-background-hover);
-    --button-border-color-ghost-active: var(--in-content-button-color-hover);
+    color: var(--button-text-color-hover);
+    --button-background-color-ghost-active: var(--button-background-color-hover);
+    --button-border-color-ghost-active: var(--button-text-color-hover);
   }
 }
 

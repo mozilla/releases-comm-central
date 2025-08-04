@@ -117,8 +117,8 @@ header {
     margin-inline: 0;
     padding-block: 0;
     padding-inline-end: 33px;
-    min-height: var(--in-content-button-height);
-    border-radius: var(--in-content-button-border-radius);
+    min-height: var(--button-height);
+    border-radius: var(--button-border-radius);
 
     &[type="password"] {
       padding-inline-end: 10px;
@@ -197,7 +197,7 @@ input:user-invalid ~ .form-icon {
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
 
   &:hover {
     color: var(--link-color-hover) !important;
@@ -218,7 +218,7 @@ input:user-invalid ~ .form-icon {
 }
 
 .password-toggled {
-  color: var(--in-content-primary-button-background);
+  color: var(--button-background-color-primary);
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 }
@@ -240,7 +240,7 @@ input:user-invalid ~ .form-icon {
   }
 
   & button {
-    border-radius: var(--in-content-button-border-radius);
+    border-radius: var(--button-border-radius);
   }
 }
 
@@ -410,12 +410,12 @@ input:user-invalid ~ .form-icon {
 
   & legend {
     margin-top: 0;
-    background-color: var(--in-content-primary-button-background);
-    border-radius: var(--in-content-button-border-radius);
+    background-color: var(--button-background-color-primary);
+    border-radius: var(--button-border-radius);
     padding: 2px 6px;
     font-size: 0.9rem;
     text-transform: uppercase;
-    color: var(--in-content-primary-button-text-color);
+    color: var(--button-text-color-primary);
   }
 
   & input[type="number"] {
@@ -499,12 +499,12 @@ input:user-invalid ~ .form-icon {
   font-size: 0.8rem;
   font-weight: bold;
   border-radius: 2px;
-  background-color: var(--in-content-primary-button-background);
-  color: var(--in-content-primary-button-text-color);
+  background-color: var(--button-background-color-primary);
+  color: var(--button-text-color-primary);
 
   &.insecure {
     background-color: var(--red-70);
-    color: var(--in-content-primary-button-text-color);
+    color: var(--button-text-color-primary);
   }
 }
 
@@ -516,7 +516,7 @@ input:user-invalid ~ .form-icon {
 #installAddonInfo {
   background-color: var(--addon-bg);
   padding: 3px 6px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
   border: 1px solid var(--addon-border);
 }
 
@@ -561,7 +561,7 @@ select[disabled] {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
   column-gap: 6px;
   padding: 3px 9px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
   min-height: 39px;
   line-height: 1em;
   -moz-context-properties: fill, stroke;
@@ -730,7 +730,7 @@ button.linked-services-button {
     align-items: center;
     justify-content: space-between;
     padding-inline-start: 4px;
-    border-radius: var(--in-content-button-border-radius);
+    border-radius: var(--button-border-radius);
   }
 
   & button.small-button {
@@ -821,7 +821,7 @@ button.existing {
   & select {
     padding-inline-start: 9px;
     padding-block: 0;
-    line-height: var(--in-content-button-height);
+    line-height: var(--button-height);
 
     &:not([size], [multiple]) {
       background-position-x: right 10px;

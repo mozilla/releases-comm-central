@@ -41,7 +41,7 @@ body {
   :root:not([lwt-tree]) & > .download[selected] {
     color: var(--selected-item-text-color);
     background-color: var(--selected-item-color);
-    --in-content-button-text-color-hover: var(--selected-item-text-color);
+    --button-text-color-hover: var(--selected-item-text-color);
   }
 }
 
@@ -110,11 +110,11 @@ body {
   }
 
   &:hover > .button-box {
-    background-color: var(--in-content-button-background-hover);
+    background-color: var(--button-background-color-hover);
     border-radius: 50%;
   }
 
   &:hover:active > .button-box {
-    background-color: var(--in-content-button-background-active);
+    background-color: var(--button-background-color-active);
   }
 }

@@ -22,7 +22,7 @@ body {
     padding-inline-end: 0;
 
     & > .category {
-      border-radius: var(--in-content-button-border-radius);
+      border-radius: var(--button-border-radius);
       -moz-context-properties: fill, fill-opacity, stroke;
       fill: color-mix(in srgb, currentColor 20%, transparent);
       stroke: currentColor;
@@ -69,7 +69,7 @@ button[name="plugin"] {
 
 .sidebar-footer-list > li {
   margin-inline: 6px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 @media (max-width: 830px) {

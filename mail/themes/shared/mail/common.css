@@ -7,10 +7,10 @@
 
 :host,
 :root {
-  --in-content-button-height: 2.2em;
-  --in-content-button-border-radius: 3px;
-  --in-content-button-border-color: color-mix(in srgb, currentColor 9%, transparent);
-  --in-content-button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
+  --button-height: 2.2em;
+  --button-border-radius: 3px;
+  --button-border-color: color-mix(in srgb, currentColor 9%, transparent);
+  --button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
   --in-content-deemphasized-text: color-mix(in srgb, currentColor 60%, transparent);
   --in-content-sidebar-width: auto;
   --menu-item-margin: 0 3px;
@@ -18,19 +18,19 @@
   @media not (forced-colors) {
     --in-content-box-info-background: light-dark(var(--layout-background-1), var(--layout-background-2));
     --in-content-box-info-border: light-dark(var(--layout-border-0), transparent);
-    --in-content-button-background: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
-    --in-content-button-background-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
-    --in-content-button-background-active: light-dark(var(--grey-90-a30), rgba(249, 249, 250, 0.2));
+    --button-background-color: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
+    --button-background-color-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
+    --button-background-color-active: light-dark(var(--grey-90-a30), rgba(249, 249, 250, 0.2));
     --in-content-categories-background: var(--layout-background-2);
     --in-content-categories-border: var(--in-content-categories-background);
     --in-content-item-selected-unfocused: light-dark(var(--color-gray-20), rgba(249, 249, 250, 0.05));
     --in-content-item-hover: color-mix(in srgb, currentColor 12%, transparent);
     --in-content-item-selected: color-mix(in srgb, currentColor 20%, transparent);
     --in-content-item-selected-text: var(--in-content-page-color);
-    --in-content-primary-button-background: AccentColor;
-    --in-content-primary-button-background-hover: color-mix(in srgb, AccentColor 80%, black);
-    --in-content-primary-button-background-active: color-mix(in srgb, AccentColor 70%, black);
-    --in-content-primary-button-text-color: AccentColorText;
+    --button-background-color-primary: AccentColor;
+    --button-background-color-primary-hover: color-mix(in srgb, AccentColor 80%, black);
+    --button-background-color-primary-active: color-mix(in srgb, AccentColor 70%, black);
+    --button-text-color-primary: AccentColorText;
     --in-content-focus-outline-color: AccentColor;
     --in-content-accent-color: AccentColor;
     --focus-outline-color: AccentColor;
@@ -41,11 +41,11 @@
     --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
     --in-content-categories-border: currentColor;
-    --in-content-primary-button-background: SelectedItem;
-    --in-content-primary-button-background-hover: SelectedItem;
-    --in-content-primary-button-background-active: SelectedItem;
-    --in-content-primary-button-text-color: SelectedItemText;
-    --in-content-primary-button-text-color-active: SelectedItemText;
+    --button-background-color-primary: SelectedItem;
+    --button-background-color-primary-hover: SelectedItem;
+    --button-background-color-primary-active: SelectedItem;
+    --button-text-color-primary: SelectedItemText;
+    --button-text-color-primary-active: SelectedItemText;
     --in-content-accent-color: SelectedItem;
   }
 }
@@ -70,7 +70,7 @@
 
   @media not (forced-colors) {
     & > .category[selected] {
-      background-color: var(--in-content-button-background) !important;
+      background-color: var(--button-background-color) !important;
       color: unset;
     }
 
@@ -137,8 +137,8 @@ menupopup {
 }
 
 tab[selected] {
-  color: var(--in-content-button-text-color);
-  background-color: var(--in-content-button-background);
+  color: var(--button-text-color);
+  background-color: var(--button-background-color);
   border-bottom-color: var(--in-content-accent-color);
 }
 
@@ -167,4 +167,12 @@ input::-moz-search-clear-button {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
+}
+
+:host(dialog[subdialog]) .dialog-button-box > button {
+  min-height: var(--button-height);
+  padding-block: initial;
+  padding-inline: 15px;
+  border-color: transparent;
+  border-radius: var(--button-border-radius);
 }

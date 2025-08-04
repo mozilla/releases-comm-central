@@ -5,8 +5,8 @@
 button {
   margin: 0;
   padding: 0 12px;
-  border-radius: var(--in-content-button-border-radius);
-  min-height: var(--in-content-button-height);
+  border-radius: var(--button-border-radius);
+  min-height: var(--button-height);
 
   & + & {
     margin-inline-start: 6px;
@@ -14,9 +14,9 @@ button {
 }
 
 input[type="number"] {
-  min-height: calc(var(--in-content-button-height) - 4px);
+  min-height: calc(var(--button-height) - 4px);
   padding: 1px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
   input[type="number"].size3 {
@@ -36,7 +36,7 @@ input[type="number"] {
     min-width: 25px;
     border: 1px solid var(--in-content-box-border-color);
     border-radius: 0;
-    background-color: var(--in-content-button-background);
+    background-color: var(--button-background-color);
     background-position: center;
     background-repeat: no-repeat;
     -moz-context-properties: stroke;
@@ -45,28 +45,28 @@ input[type="number"] {
 
   &::-moz-number-spin-up:hover,
   &::-moz-number-spin-down:hover {
-    background-color: var(--in-content-button-background-hover);
+    background-color: var(--button-background-color-hover);
   }
 
   &::-moz-number-spin-up {
-    min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
+    min-height: calc(var(--button-height) * 0.5 - 3px);
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-start-end-radius: var(--in-content-button-border-radius);
+    border-start-end-radius: var(--button-border-radius);
     background-image: var(--icon-nav-up-sm);
   }
 
   &::-moz-number-spin-down {
-    min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
-    border-end-end-radius: var(--in-content-button-border-radius);
+    min-height: calc(var(--button-height) * 0.5 - 4px);
+    border-end-end-radius: var(--button-border-radius);
     background-image: var(--icon-nav-down-sm);
   }
 }
 
 input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   border: 1px solid var(--toolbar-field-border-color);
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
   padding-block: initial;
-  /* it should be --in-content-button-height but input doesn't include the border */
-  min-height: calc(var(--in-content-button-height) - 2px);
+  /* it should be --button-height but input doesn't include the border */
+  min-height: calc(var(--button-height) - 2px);
 }

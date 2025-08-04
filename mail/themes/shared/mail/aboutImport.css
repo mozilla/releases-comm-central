@@ -144,7 +144,7 @@ dd {
 .tabPane {
   & > section {
     background-color: var(--background-color-box);
-    border-radius: var(--in-content-button-border-radius);
+    border-radius: var(--button-border-radius);
     padding: 2em calc(var(--main-title-size) + var(--title-icon-margin) + 1em);
   }
 
@@ -379,7 +379,7 @@ calendar-item-summary {
   margin: 0;
   margin-block-end: 2em;
   margin-inline: 1em;
-  --step-size: var(--in-content-button-height);
+  --step-size: var(--button-height);
 
   & button {
     border-radius: var(--step-size);
@@ -405,7 +405,7 @@ calendar-item-summary {
 
     &:not(:first-child)::before {
       content: "";
-      border-block-start: 2px dashed var(--in-content-button-background);
+      border-block-start: 2px dashed var(--button-background-color);
       display: block;
       margin-block-start: 1px;
       flex-grow: 1;
@@ -430,7 +430,7 @@ calendar-item-summary {
 }
 
 #navConfirm button {
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
   width: auto;
   font-size: 1rem;
   padding-inline: 0.5em;

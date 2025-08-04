@@ -114,9 +114,9 @@ fieldset {
 }
 
 #deleteAccount {
-  --in-content-button-background: light-dark(var(--color-red-60), var(--color-red-50));
-  --in-content-button-background-hover: light-dark(var(--color-red-70), var(--color-red-40));
-  --in-content-button-background-active: light-dark(var(--color-red-80), var(--color-red-30));
+  --button-background-color: light-dark(var(--color-red-60), var(--color-red-50));
+  --button-background-color-hover: light-dark(var(--color-red-70), var(--color-red-40));
+  --button-background-color-active: light-dark(var(--color-red-80), var(--color-red-30));
   color: var(--color-white);
   list-style-image: var(--icon-trash);
   -moz-context-properties: fill, stroke;

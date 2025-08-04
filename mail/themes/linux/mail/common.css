@@ -46,11 +46,3 @@ html|button {
 xul|tab {
   min-height: 2.5em;
 }
-
-:host(dialog[subdialog]) .dialog-button-box > button {
-  min-height: var(--in-content-button-height);
-  padding-block: initial;
-  padding-inline: 15px;
-  border-color: transparent;
-  border-radius: var(--in-content-button-border-radius);
-}

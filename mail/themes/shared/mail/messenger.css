@@ -1366,19 +1366,19 @@ panel[type="arrow"].panel-block-padding::part(content) {
 
 .notification-button {
   margin: 4px;
-  border: 1px solid var(--in-content-button-border);
+  border: 1px solid var(--button-border-color);
   border-radius: 3px;
-  color: var(--in-content-button-color);
-  background-color: var(--in-content-button-background);
+  color: var(--button-text-color);
+  background-color: var(--button-background-color);
 
   &:not([disabled]):hover {
-    color: var(--in-content-button-color-hover);
-    background-color: var(--in-content-button-background-hover);
+    color: var(--button-text-color-hover);
+    background-color: var(--button-background-color-hover);
 
     &:active {
-      border-color: var(--in-content-button-border-active);
-      color: var(--in-content-button-color-active);
-      background-color: var(--in-content-button-background-active);
+      border-color: var(--button-border-color-active);
+      color: var(--button-text-color-active);
+      background-color: var(--button-background-color-active);
     }
   }
 
@@ -1415,7 +1415,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
     align-items: center;
     margin: 4px 6px;
     padding-block: 0;
-    background-color: var(--in-content-button-background);
+    background-color: var(--button-background-color);
 
     & > toolbarbutton {
       margin-block: 0;
@@ -1427,20 +1427,20 @@ panel[type="arrow"].panel-block-padding::part(content) {
       border-end-end-radius: 0;
       padding: 2px 15px;
       font-weight: inherit;
-      background-color: var(--in-content-button-background);
+      background-color: var(--button-background-color);
       border-width: 0;
-      border-inline-end: 1px solid var(--in-content-button-border);
+      border-inline-end: 1px solid var(--button-border-color);
     }
 
     &:hover,
     & > toolbarbutton:hover {
-      background-color: var(--in-content-button-background-hover);
-      color: var(--in-content-button-color-hover);
+      background-color: var(--button-background-color-hover);
+      color: var(--button-text-color-hover);
 
       &:active {
-        background-color: var(--in-content-button-background-active);
-        color: var(--in-content-button-color-active);
-        border-color: var(--in-content-button-border-active);
+        background-color: var(--button-background-color-active);
+        color: var(--button-text-color-active);
+        border-color: var(--button-border-color-active);
       }
     }
 

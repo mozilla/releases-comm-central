@@ -239,7 +239,7 @@ body {
 
 .sidebar-footer-link {
   margin-inline: 6px;
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: var(--button-border-radius);
 }
 
 #contentFrame {

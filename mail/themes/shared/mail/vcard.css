@@ -36,7 +36,7 @@ vcard-special-date select:not([size], [multiple]) {
   border: var(--input-border-density) solid var(--toolbar-field-border-color);
   padding-block: 0;
   min-height: initial;
-  height: calc(var(--in-content-button-height) - 2px);
+  height: calc(var(--button-height) - 2px);
   margin-block-end: 3px;
   margin-inline-end: 3px;
   font-weight: normal;
@@ -78,7 +78,7 @@ vcard-edit {
   }
 
   & select:not([size], [multiple]) {
-    border-color: var(--in-content-button-border-color);
+    border-color: var(--button-border-color);
     -moz-context-properties: stroke;
     stroke: currentColor;
     background-position-x: right 6px;
@@ -249,17 +249,17 @@ vcard-nickname {
     &:checked {
       background-image: none;
       background-color: transparent;
-      border-color: var(--in-content-primary-button-background);
+      border-color: var(--button-background-color-primary);
       position: relative;
 
       &:enabled {
         &:hover {
           background-color: transparent;
-          border-color: var(--in-content-primary-button-background-hover);
+          border-color: var(--button-background-color-primary-hover);
         }
 
         &:active {
-          border-color: var(--in-content-primary-button-background-active);
+          border-color: var(--button-background-color-primary-active);
         }
       }
 
@@ -268,18 +268,18 @@ vcard-nickname {
         display: block;
         height: 8px;
         width: 8px;
-        background-color: var(--in-content-primary-button-background);
+        background-color: var(--button-background-color-primary);
         border-radius: 50%;
         position: absolute;
         inset: 3px;
 
         &:enabled {
           &:hover {
-            background-color: var(--in-content-primary-button-background-hover);
+            background-color: var(--button-background-color-primary-hover);
           }
 
           &:active {
-            background-color: var(--in-content-primary-button-background-active);
+            background-color: var(--button-background-color-primary-active);
           }
         }
       }
@@ -390,7 +390,7 @@ vcard-adr select {
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
-      background-color: var(--in-content-button-background);
+      background-color: var(--button-background-color);
     }
   }
 
@@ -403,13 +403,13 @@ vcard-adr select {
 
   &.button {
     -moz-context-properties: fill;
-    color: var(--in-content-primary-button-background);
-    fill: var(--in-content-primary-button-text-color);
+    color: var(--button-background-color-primary);
+    fill: var(--button-text-color-primary);
   }
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
-      color: var(--in-content-primary-button-background);
+      color: var(--button-background-color-primary);
     }
   }
 
@@ -418,7 +418,7 @@ vcard-adr select {
     display: block;
     content: "";
     border-radius: 8px;
-    background-color: var(--in-content-primary-button-background);
+    background-color: var(--button-background-color-primary);
     width: 13px;
     height: 13px;
     background-image: url("chrome://global/skin/icons/add.svg");
