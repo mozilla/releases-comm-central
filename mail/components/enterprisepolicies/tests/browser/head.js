@@ -33,7 +33,9 @@ function checkUnlockedPref(prefName, prefValue) {
 
 async function withNewTab(options, taskFn) {
   const tab = window.openContentTab(options.url);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, {
+    wantLoad: options.url,
+  });
 
   const result = await taskFn(tab.browser);
 
