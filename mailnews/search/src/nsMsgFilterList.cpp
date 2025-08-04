@@ -918,6 +918,7 @@ nsresult nsMsgFilterList::GetFilterNamed(const nsAString& aName,
 
 nsresult nsMsgFilterList::SetFilterAt(uint32_t filterIndex,
                                       nsIMsgFilter* filter) {
+  NS_ENSURE_ARG(filter);
   m_filters[filterIndex] = filter;
   return NS_OK;
 }
@@ -928,12 +929,14 @@ nsresult nsMsgFilterList::RemoveFilterAt(uint32_t filterIndex) {
 }
 
 nsresult nsMsgFilterList::RemoveFilter(nsIMsgFilter* aFilter) {
+  NS_ENSURE_ARG(aFilter);
   m_filters.RemoveElement(aFilter);
   return NS_OK;
 }
 
 nsresult nsMsgFilterList::InsertFilterAt(uint32_t filterIndex,
                                          nsIMsgFilter* aFilter) {
+  NS_ENSURE_ARG(aFilter);
   if (!m_temporaryList) aFilter->SetFilterList(this);
   m_filters.InsertElementAt(filterIndex, aFilter);
 
@@ -984,6 +987,7 @@ nsresult nsMsgFilterList::MoveFilterAt(uint32_t filterIndex,
 
 nsresult nsMsgFilterList::MoveFilter(nsIMsgFilter* aFilter,
                                      nsMsgFilterMotionValue motion) {
+  NS_ENSURE_ARG(aFilter);
   size_t filterIndex = m_filters.IndexOf(aFilter, 0);
   NS_ENSURE_ARG(filterIndex != m_filters.NoIndex);
 
