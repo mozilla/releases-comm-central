@@ -80,7 +80,7 @@ menupopup {
 
   menulist > & > menuitem {
     &::before {
-      display: hidden;
+      display: none;
     }
 
     &[checked="true"] > .menu-icon {
