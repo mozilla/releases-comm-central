@@ -27,7 +27,7 @@ fi
 if [ -n "${TOKEN}" ]; then
   curl \
     -X POST \
-    -d "branches=latest" \
+    -d "branches=master" \
     -d "token=${TOKEN}" \
     https://readthedocs.com/api/v2/webhook/thunderbird-thunderbird-source-docs/9778/
 fi
