@@ -50,6 +50,8 @@ gkrust-gtest = ["gkrust"]
 
 
 
+
+
 [workspace]
 members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue']
 
@@ -293,3 +295,4 @@ tracing-support = { git = "https://github.com/mozilla/application-services", rev
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "09ad5d683b4b09c745011e5b75d76368b1008221" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "09ad5d683b4b09c745011e5b75d76368b1008221" }
 allocator-api2 = { path = "../../third_party/rust/allocator-api2" }
+zip = { path = "../../third_party/rust/zip" }

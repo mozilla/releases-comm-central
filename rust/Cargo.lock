@@ -3114,7 +3114,6 @@ dependencies = [
  "byteorder",
  "pkcs11-bindings",
  "rsclientcerts",
- "sha2",
 ]
 
 [[package]]
@@ -4438,7 +4437,6 @@ dependencies = [
  "nserror",
  "pkcs11-bindings",
  "rsclientcerts",
- "sha2",
  "winapi",
  "xpcom",
 ]
@@ -7240,3 +7238,7 @@ version = "2.0.0"
 [[patch.unused]]
 name = "terminal_size"
 version = "0.3.999"
+
+[[patch.unused]]
+name = "zip"
+version = "2.4.2"
