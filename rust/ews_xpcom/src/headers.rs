@@ -129,12 +129,10 @@ impl MessageHeaders for &ews::Message {
     }
 
     fn priority(&self) -> Option<nsMsgPriorityValue> {
-        self.importance.and_then(|importance| {
-            Some(match importance {
-                ews::Importance::Low => nsMsgPriority::low,
-                ews::Importance::Normal => nsMsgPriority::normal,
-                ews::Importance::High => nsMsgPriority::high,
-            })
+        self.importance.map(|importance| match importance {
+            ews::Importance::Low => nsMsgPriority::low,
+            ews::Importance::Normal => nsMsgPriority::normal,
+            ews::Importance::High => nsMsgPriority::high,
         })
     }
 
@@ -164,7 +162,7 @@ impl MessageHeaders for mail_parser::Message<'_> {
                 None => {
                     log::warn!(
                         "message with ID {item_id} sent date {date_time:?} too big for `i64`, ignoring",
-                        item_id=self.message_id().or(Some("<none>")).unwrap()
+                        item_id=self.message_id().unwrap_or("<none>")
                     );
 
                     None
@@ -205,8 +203,8 @@ impl MessageHeaders for mail_parser::Message<'_> {
         self.header("X-Priority")
             .and_then(|value| value.as_text())
             .and_then(|value| value.trim().chars().nth(0))
-            .and_then(|first_char| {
-                Some(match first_char {
+            .map(|first_char| {
+                match first_char {
                     // Annoyingly, the indices in nsMsgPriority don't match with the
                     // integer values in the header. These pairings come from
                     // https://people.dsv.su.se/~jpalme/ietf/ietf-mail-attributes.html#Heading14,
@@ -217,7 +215,7 @@ impl MessageHeaders for mail_parser::Message<'_> {
                     '4' => nsMsgPriority::low,
                     '5' => nsMsgPriority::lowest,
                     _ => nsMsgPriority::Default,
-                })
+                }
             })
     }
 
@@ -254,7 +252,7 @@ pub struct Mailbox<'a> {
 impl<'a> From<&'a ews::Mailbox> for Mailbox<'a> {
     fn from(value: &'a ews::Mailbox) -> Self {
         Mailbox {
-            name: value.name.as_ref().map(|name| name.as_str()),
+            name: value.name.as_deref(),
             email_address: &value.email_address,
         }
     }
@@ -275,24 +273,20 @@ impl std::fmt::Display for Mailbox<'_> {
     /// Writes the contents of the mailbox in a format suitable for use in an
     /// Internet Message Format header.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let email_address = self.email_address;
         if let Some(name) = self.name {
             let mut buf: Vec<u8> = Vec::new();
 
             // TODO: It may not be okay to unwrap here (could hit OOM, mainly), but
             // it isn't clear how we can handle that appropriately.
-            mail_builder::encoders::encode::rfc2047_encode(&name, &mut buf).unwrap();
+            mail_builder::encoders::encode::rfc2047_encode(name, &mut buf).unwrap();
 
             // It's okay to unwrap here, as successful RFC 2047 encoding implies the
             // result is ASCII.
             let name = std::str::from_utf8(&buf).unwrap();
-
-            write!(
-                f,
-                "{name} <{email_address}>",
-                email_address = self.email_address
-            )
+            write!(f, "{name} <{email_address}>")
         } else {
-            write!(f, "{}", self.email_address)
+            write!(f, "{email_address}")
         }
     }
 }

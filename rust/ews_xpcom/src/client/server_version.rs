@@ -25,7 +25,7 @@ const DEFAULT_EWS_SERVER_VERSION: ExchangeServerVersion = ExchangeServerVersion:
 
 /// The name of the pref in which we store the map associating an EWS endpoint
 /// with its version. This map is stored as a string-ified JSON.
-const EWS_SERVER_VERSIONS_PREF: &'static CStr = c"mail.ews.server_versions";
+const EWS_SERVER_VERSIONS_PREF: &CStr = c"mail.ews.server_versions";
 
 /// Retrieve the "root" pref branch, i.e. the one from which all prefs are
 /// defined (as opposed to one retrieved from `nsIPrefService::GetBranch()` with
@@ -80,10 +80,7 @@ fn parse_server_version_pref() -> Result<Option<HashMap<String, String>>, XpComE
             // The entire content of the pref cannot be parsed from JSON. In
             // this case, we replicate the same behaviour as if the pref was
             // empty.
-            log::error!(
-                "failed to parse the Exchange server versions pref: {}",
-                err.to_string()
-            );
+            log::error!("failed to parse the Exchange server versions pref: {err}");
 
             return Ok(None);
         }
@@ -133,7 +130,7 @@ where
         header: ServerVersionInfo,
     ) -> Result<(), XpComEwsError> {
         let version = match header.version {
-            Some(version) if version.len() > 0 => version,
+            Some(version) if !version.is_empty() => version,
             // If the server did not include a version identifier in the
             // response header (either by not including a `Version` attribute,
             // or by setting it to an empty string), there's nothing to do here.
@@ -153,11 +150,7 @@ where
         // the client will be reused later.
         self.server_version.set(version);
 
-        let mut known_versions = match parse_server_version_pref()? {
-            Some(known_versions) => known_versions,
-            None => HashMap::new(),
-        };
-
+        let mut known_versions = parse_server_version_pref()?.unwrap_or_default();
         let endpoint = self.endpoint.to_string();
         let version: String = version.into();
 

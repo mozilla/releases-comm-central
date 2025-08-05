@@ -43,6 +43,11 @@ mod safe_xpcom;
 mod xpcom_io;
 
 /// Creates a new instance of the XPCOM/EWS bridge interface [`XpcomEwsBridge`].
+///
+/// # SAFETY
+/// `iid` must be a reference to a valid `nsIID` object, `result` must point to
+/// valid memory, and `result` must not be used until the return value is
+/// checked.
 #[allow(non_snake_case)]
 #[no_mangle]
 pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
@@ -57,7 +62,7 @@ pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_voi
 /// `XpcomEwsBridge` provides an XPCOM interface implementation for mediating
 /// between C++ consumers and an async Rust EWS client.
 #[xpcom::xpcom(implement(IEwsClient), atomic)]
-struct XpcomEwsBridge {
+pub struct XpcomEwsBridge {
     server: OnceCell<Box<dyn UserInteractiveServer>>,
     details: OnceCell<EwsConnectionDetails>,
 }

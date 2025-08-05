@@ -92,7 +92,7 @@ pub(crate) trait AuthenticationProvider {
                         log::error!(
                             "preferred auth method is set to OAuth2, but it is not supported for this domain"
                         );
-                        return Err(nserror::NS_ERROR_FAILURE);
+                        Err(nserror::NS_ERROR_FAILURE)
                     }
                 }
             }

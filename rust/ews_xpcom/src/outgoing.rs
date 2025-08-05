@@ -89,6 +89,7 @@ pub struct EwsOutgoingServer {
     pref_branch: OnceCell<RefPtr<nsIPrefBranch>>,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl EwsOutgoingServer {
     pub fn new() -> RefPtr<Self> {
         EwsOutgoingServer::allocate(InitEwsOutgoingServer {
@@ -110,7 +111,7 @@ impl EwsOutgoingServer {
     /// server's key, so this function will error with
     /// [`NS_ERROR_NOT_INITIALIZED`] if the key isn't set yet.
     ///
-    /// [`nserror::NS_ERROR_NOT_INITIALIZED`]: nserror::NS_ERROR_NOT_INITIALIZED
+    /// [`NS_ERROR_NOT_INITIALIZED`]: nserror::NS_ERROR_NOT_INITIALIZED
     fn pref_branch(&self) -> Result<RefPtr<nsIPrefBranch>, nsresult> {
         // In the future we should be able to do this with `get_or_try_init`,
         // once it has stabilized and we have a suitable MSRV.
@@ -192,11 +193,11 @@ impl EwsOutgoingServer {
         field_type: FieldType,
     ) -> Result<i32, nsresult> {
         if let Some(value) = field.borrow().as_ref() {
-            return Ok(value.clone());
+            return Ok(*value);
         }
 
         if let Some(value) = self.read_int_pref(pref_name)? {
-            field.replace(Some(value.clone()));
+            field.replace(Some(value));
             return Ok(value);
         }
 
@@ -387,7 +388,7 @@ impl EwsOutgoingServer {
                         // return it.
                         let uid = Uuid::new_v4().hyphenated().to_string();
                         let uid = nsCString::from(uid);
-                        self.store_string_pref(PrefName::Uid, &*uid)?;
+                        self.store_string_pref(PrefName::Uid, &uid)?;
                         uid
                     }
                 };
@@ -452,7 +453,7 @@ impl EwsOutgoingServer {
         // The URI we use to store logins into the login manager uses the format
         // "protocol://hostname", so start by building one that matches.
         let login_uri = match ews_url.host() {
-            Some(host) => nsString::from(format!("ews://{}", host).as_str()),
+            Some(host) => nsString::from(format!("ews://{host}").as_str()),
             None => {
                 log::error!("cannot get host from invalid EWS URI: {}", ews_url.as_str());
                 return Err(nserror::NS_ERROR_FAILURE);
@@ -475,7 +476,7 @@ impl EwsOutgoingServer {
         let logins = logins
             .into_iter()
             // Filter out empty options.
-            .filter_map(|login| login)
+            .flatten()
             // Filter out logins that don't match the correct username.
             .filter(|login| {
                 let mut username = nsString::new();
@@ -485,7 +486,7 @@ impl EwsOutgoingServer {
             .collect::<Vec<_>>();
 
         // If we got at least one match, use the first one.
-        let password = if let Some(login) = logins.get(0) {
+        let password = if let Some(login) = logins.first() {
             let mut password = nsString::new();
             unsafe { login.GetPassword(&mut *password) }.to_result()?;
             password
@@ -711,7 +712,7 @@ impl EwsOutgoingServer {
     xpcom_method!(initialize => Initialize(ews_url: *const nsACString));
     fn initialize(&self, ews_url: &nsACString) -> Result<(), nsresult> {
         let url = ews_url.to_string();
-        let url = Url::parse(&url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
+        let url = Url::parse(url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
 
         self.ews_url
             .set(url)

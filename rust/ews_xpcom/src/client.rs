@@ -219,14 +219,14 @@ where
         Ok(())
     }
 
-    /// Performs a [`SyncFolderHierarchy`] operation via EWS.
+    /// Performs a [`SyncFolderHierarchy` operation] via EWS.
     ///
     /// This will fetch a list of remote changes since the specified sync state,
     /// fetch any folder details needed for creating or updating local folders,
     /// and notify the Thunderbird protocol implementation of these changes via
     /// the provided callbacks.
     ///
-    /// [`SyncFolderHierarchy`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
+    /// [`SyncFolderHierarchy` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
     pub(crate) async fn sync_folder_hierarchy(
         self,
         listener: SafeEwsFolderListener,
@@ -679,7 +679,7 @@ where
             &raw_mime.content
         } else {
             return Err(XpComEwsError::Processing {
-                message: format!("item has no content"),
+                message: "item has no content".to_string(),
             });
         };
 
@@ -689,7 +689,7 @@ where
             BASE64_STANDARD
                 .decode(raw_mime)
                 .map_err(|_| XpComEwsError::Processing {
-                    message: format!("MIME content for item is not validly base64 encoded"),
+                    message: "MIME content for item is not validly base64 encoded".to_string(),
                 })?;
 
         let len: i32 = mime_content
@@ -713,7 +713,7 @@ where
         let mime_content = nsCString::from(mime_content);
         unsafe { stream.SetByteStringData(&*mime_content) }.to_result()?;
 
-        unsafe { callbacks.OnFetchedDataAvailable(&*stream.coerce(), len as u32) }.to_result()?;
+        unsafe { callbacks.OnFetchedDataAvailable(stream.coerce(), len as u32) }.to_result()?;
 
         Ok(())
     }
@@ -843,7 +843,7 @@ where
                         folder_id,
                         parent_folder_id,
                         display_name,
-                        &well_known_map,
+                        well_known_map,
                     )?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
@@ -1014,7 +1014,7 @@ where
             .collect();
 
             let additional_properties: Vec<_> = fields
-                .into_iter()
+                .iter()
                 .map(|&field| PathToElement::FieldURI {
                     field_URI: String::from(field),
                 })
@@ -1035,7 +1035,6 @@ where
                     base_shape: BaseShape::IdOnly,
                     additional_properties,
                     include_mime_content: Some(include_mime_content),
-                    ..Default::default()
                 },
                 item_ids: batch_ids,
             };
@@ -1064,12 +1063,12 @@ where
         Ok(items)
     }
 
-    /// Send a message by performing a [`CreateItem`] operation via EWS.
+    /// Send a message by performing a [`CreateItem` operation] via EWS.
     ///
     /// All headers except for Bcc are expected to be included in the provided
     /// MIME content.
     ///
-    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
+    /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
     pub async fn send_message(
         self,
         mime_content: String,
@@ -1170,12 +1169,12 @@ where
         Ok(())
     }
 
-    /// Create a message on the server by performing a [`CreateItem`] operation
+    /// Create a message on the server by performing a [`CreateItem` operation]
     /// via EWS.
     ///
     /// All headers are expected to be included in the provided MIME content.
     ///
-    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
+    /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
     pub async fn create_message(
         self,
         folder_id: String,
@@ -1273,9 +1272,9 @@ where
         Ok(())
     }
 
-    /// Performs a [`CreateItem`] operation and processes its response.
+    /// Performs a [`CreateItem` operation] and processes its response.
     ///
-    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
+    /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
     async fn make_create_item_request(
         &self,
         create_item: CreateItem,
@@ -1298,9 +1297,9 @@ where
         process_response_message_class("CreateItem", response_message)
     }
 
-    /// Mark a message as read or unread by performing an [`UpdateItem`] operation via EWS.
+    /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
     ///
-    /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
+    /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
     pub async fn change_read_status(self, message_ids: Vec<String>, is_read: bool) {
         // Send the request, using an inner method to more easily handle errors.
         if let Err(err) = self.change_read_status_inner(message_ids, is_read).await {
@@ -1357,9 +1356,9 @@ where
         Ok(())
     }
 
-    /// Performs an [`UpdateItem`] operation and processes its response.
+    /// Performs an [`UpdateItem` operation] and processes its response.
     ///
-    /// [`UpdateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
+    /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
     async fn make_update_item_request(&self, update_item: UpdateItem) -> Result<(), XpComEwsError> {
         // Make the operation request using the provided parameters.
         let response = self
@@ -1377,7 +1376,7 @@ where
             .filter_map(|(index, response_message)| {
                 match process_response_message_class("UpdateItem", response_message) {
                     Ok(_) => None,
-                    Err(err) => Some(format!("failed to process message #{}: {}", index, err)),
+                    Err(err) => Some(format!("failed to process message #{index}: {err}")),
                 }
             })
             .collect();
@@ -1385,7 +1384,7 @@ where
         // If there were errors, return an aggregated error.
         if !errors.is_empty() {
             return Err(XpComEwsError::Processing {
-                message: format!("response contained errors: {:?}", errors),
+                message: format!("response contained errors: {errors:?}"),
             });
         }
 
@@ -1441,7 +1440,7 @@ where
         response_messages
             .into_iter()
             .zip(ews_ids.iter())
-            .map(|(response_message, ews_id)| {
+            .try_for_each(|(response_message, ews_id)| {
                 if let Err(err) = process_response_message_class(
                     "DeleteItem",
                     response_message
@@ -1467,7 +1466,7 @@ where
                 } else {
                     Ok(())
                 }
-            }).collect::<Result<(), _>>()?;
+            })?;
 
         Ok(())
     }
@@ -1673,7 +1672,7 @@ where
                 Ok(envelope) => {
                     // If the server responded with a version identifier, store
                     // it so we can use it later.
-                    match envelope
+                    if let Some(header) = envelope
                         .headers
                         .into_iter()
                         // Filter out headers we don't care about.
@@ -1685,9 +1684,8 @@ where
                         })
                         .next()
                     {
-                        Some(header) => self.update_server_version(header)?,
-                        None => {}
-                    };
+                        self.update_server_version(header)?;
+                    }
 
                     // Check if the first response is a back off message, and
                     // retry if so.
@@ -1745,7 +1743,8 @@ where
     ) -> Result<Response, XpComEwsError> {
         // Fetch the Authorization header value for each request in case of
         // token expiration between requests.
-        let auth_header_value = match self.credentials.borrow().to_auth_header_value().await {
+        let credentials = self.credentials.borrow().clone();
+        let auth_header_value = match credentials.to_auth_header_value().await {
             Ok(value) => value,
             // The OAuth2 module will return `NS_ERROR_ABORT` if it's failed
             // to get credentials even after prompting the user again. We
@@ -1763,7 +1762,7 @@ where
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
             // Also log the request body if requested.
-            log::info!("C: {}", String::from_utf8_lossy(&request_body));
+            log::info!("C: {}", String::from_utf8_lossy(request_body));
         }
 
         let response = self
@@ -1782,7 +1781,7 @@ where
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
             // Also log the response body if requested.
-            log::info!("S: {}", String::from_utf8_lossy(&response_body));
+            log::info!("S: {}", String::from_utf8_lossy(response_body));
         }
 
         // Catch authentication errors quickly so we can react to them
@@ -1913,7 +1912,7 @@ pub(crate) enum XpComEwsError {
     Ews(#[from] ews::Error),
 
     #[error("an error occurred while (de)serializing JSON")]
-    JSON(#[from] serde_json::Error),
+    Json(#[from] serde_json::Error),
 
     #[error("request resulted in an error: {0:?}")]
     ResponseError(#[from] ResponseError),
@@ -1994,11 +1993,10 @@ fn validate_get_folder_response_message(
     }
 
     // Okay to unwrap as we've verified the length.
-    match message.folders.inner.iter().next().unwrap() {
-        Folder::Folder { folder_id, .. } => folder_id
-            .as_ref()
-            .map(|id| id.clone())
-            .ok_or(XpComEwsError::MissingIdInResponse),
+    match message.folders.inner.first().unwrap() {
+        Folder::Folder { folder_id, .. } => {
+            folder_id.clone().ok_or(XpComEwsError::MissingIdInResponse)
+        }
 
         _ => Err(XpComEwsError::Processing {
             message: String::from("expected folder to be of type Folder"),

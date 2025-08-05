@@ -32,77 +32,77 @@ impl CancellableRequest {
         Ok(())
     }
 
-    ///////////////////////////////////
-    /// Rest of the nsIRequest impl ///
-    ///////////////////////////////////
+    /////////////////////////////////
+    // Rest of the nsIRequest impl //
+    /////////////////////////////////
 
     #[allow(non_snake_case)]
     unsafe fn CancelWithReason(&self, _aStatus: nsresult, _aReason: *const nsACString) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetCanceledReason(&self, _aCanceledReason: *mut nsACString) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetLoadFlags(&self, _aLoadFlags: *mut nsLoadFlags) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetLoadGroup(&self, _aLoadGroup: *mut *const nsILoadGroup) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetName(&self, _aName: *mut nsACString) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetStatus(&self, _aStatus: *mut nsresult) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn GetTRRMode(&self, _retval: *mut u32) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn IsPending(&self, _retval: *mut bool) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn Resume(&self) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn SetCanceledReason(&self, _aCanceledReason: *const nsACString) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn SetLoadFlags(&self, _aLoadFlags: nsLoadFlags) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn SetLoadGroup(&self, _aLoadGroup: *const nsILoadGroup) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn SetTRRMode(&self, _mode: u32) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 
     #[allow(non_snake_case)]
     unsafe fn Suspend(&self) -> nsresult {
-        return nserror::NS_ERROR_NOT_IMPLEMENTED;
+        nserror::NS_ERROR_NOT_IMPLEMENTED
     }
 }
