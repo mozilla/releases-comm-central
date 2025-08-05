@@ -6,6 +6,7 @@ use cstr::cstr;
 use fluent_ffi::{adapt_bundle_for_gecko, FluentBundleRc};
 use ksni::Handle;
 use nserror::{nsresult, NS_OK};
+use nsstring::nsCString;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::rc::Rc;
@@ -15,6 +16,14 @@ use xpcom::interfaces::nsIPrefBranch;
 use xpcom::{get_service, nsIID, xpcom_method, RefPtr};
 
 use crate::{locales, Action};
+
+extern "C" {
+    pub fn nsGNOMEShellService_GetGSettingsBoolean(
+        schema: &nsCString,
+        key: &nsCString,
+        default: bool,
+    ) -> bool;
+}
 
 pub mod system_tray;
 
@@ -133,45 +142,30 @@ impl LinuxSysTrayHandler {
     // `org.gnome.desktop.notifications.show-banners` is false.
     xpcom_method!(get_is_in_do_not_disturb_mode => GetIsInDoNotDisturbMode() -> bool);
     fn get_is_in_do_not_disturb_mode(&self) -> Result<bool, nsresult> {
-        /*
-        let gsettings_service =
-            get_service::<nsIGSettingsService>(c"@mozilla.org/gsettings-service;1")
-                .ok_or(NS_ERROR_FAILURE)?;
-
-        // GetCollectionForSchema will return an error if `org.freedesktop.Notifications`
-        // doesn't exist.
-        let result = getter_addrefs(|p| unsafe {
-            gsettings_service
-                .GetCollectionForSchema(&*nsCString::from("org.freedesktop.Notifications"), p)
-        });
-
-        if let Ok(gcollection) = result {
-            let mut value = false;
-            unsafe {
-                gcollection.GetBoolean(&*nsCString::from("Inhibited"), &mut value);
-            }
-            if value {
-                return Ok(true);
-            }
+        let value;
+        unsafe {
+            value = nsGNOMEShellService_GetGSettingsBoolean(
+                &nsCString::from("org.freedesktop.Notifications"),
+                &nsCString::from("Inhibited"),
+                false,
+            );
+        }
+        if value {
+            return Ok(true);
         }
 
-        // GetCollectionForSchema will return an error if `org.gnome.desktop.notifications`
-        // doesn't exist.
-        let result = getter_addrefs(|p| unsafe {
-            gsettings_service
-                .GetCollectionForSchema(&*nsCString::from("org.gnome.desktop.notifications"), p)
-        });
-
-        if let Ok(gcollection) = result {
-            let mut value = false;
-            unsafe {
-                gcollection.GetBoolean(&*nsCString::from("show-banners"), &mut value);
-            }
-            if !value {
-                return Ok(true);
-            }
+        let value;
+        unsafe {
+            value = nsGNOMEShellService_GetGSettingsBoolean(
+                &nsCString::from("org.gnome.desktop.notifications"),
+                &nsCString::from("show-banners"),
+                true,
+            );
         }
-        */
+        if !value {
+            return Ok(true);
+        }
+
         Ok(false)
     }
 }

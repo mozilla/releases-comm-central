@@ -12,9 +12,6 @@
 
 #define BRAND_PROPERTIES "chrome://branding/locale/brand.properties"
 
-#define NS_MAILGNOMEINTEGRATION_CID \
-  {0xbddef0f4, 0x5e2d, 0x4846, {0xbd, 0xec, 0x86, 0xd0, 0x78, 0x1d, 0x8d, 0xed}}
-
 class nsGNOMEShellService : public nsIShellService,
                             public nsToolkitShellService {
  public:

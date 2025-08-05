@@ -18,6 +18,7 @@
 #include "nsDirectoryServiceUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/widget/GSettings.h"
 
 using mozilla::Preferences;
 
@@ -332,4 +333,11 @@ nsresult nsGNOMEShellService::MakeDefault(const char* const* aProtocols,
   }
 
   return NS_OK;
+}
+
+extern "C" bool nsGNOMEShellService_GetGSettingsBoolean(
+    const nsACString& aSchema, const nsACString& aKey, bool aDefault) {
+  return mozilla::widget::GSettings::GetBoolean(PromiseFlatCString(aSchema),
+                                                PromiseFlatCString(aKey))
+      .valueOr(aDefault);
 }
