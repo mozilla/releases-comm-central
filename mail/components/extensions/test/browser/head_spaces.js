@@ -190,11 +190,13 @@ async function test_space(background, config = {}) {
       // Check menuitem icon.
       const menuitemStyles = window.getComputedStyle(menuitem);
       Assert.equal(
-        menuitemStyles.listStyleImage,
+        menuitemStyles
+          .getPropertyValue("--menuitem-icon")
+          .replaceAll(/\s+/g, ""),
         makeIconSet(
           icons[config.selectedTheme],
           icons.default || icons[config.selectedTheme]
-        ),
+        ).replaceAll(/\s+/g, ""),
         `Icon of menuitem for space ${name} with theme ${config.selectedTheme} should be correct.`
       );
 

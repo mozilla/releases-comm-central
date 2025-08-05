@@ -95,8 +95,8 @@ export function getIconData(icons, extension) {
 
   const style = [];
   const getImageSet = (imgSize, theme) => `image-set(
-    url("${getIcon(imgSize, theme)}"),
-    url("${getIcon(imgSize * 2, theme)}") 2x
+    url("${getIcon(imgSize, theme)}") 1dppx,
+    url("${getIcon(imgSize * 2, theme)}") 2dppx
   )`;
   const getStyle = (name, imgSize) => {
     style.push([`--webextension-${name}`, getImageSet(imgSize, "default")]);

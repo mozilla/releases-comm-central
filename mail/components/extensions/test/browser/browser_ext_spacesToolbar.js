@@ -179,11 +179,13 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       // Check menuitem icon.
       const menuitemStyles = window.getComputedStyle(menuitem);
       Assert.equal(
-        menuitemStyles.listStyleImage,
+        menuitemStyles
+          .getPropertyValue("--menuitem-icon")
+          .replaceAll(/\s+/g, ""),
         makeIconSet(
           icons[selectedTheme],
           icons.default || icons[selectedTheme]
-        ),
+        ).replaceAll(/\s+/g, ""),
         `Icon of menuitem ${id} with theme ${selectedTheme} should be correct.`
       );
 
