@@ -625,19 +625,33 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   nsresult rv;
   nsCOMPtr<nsIMsgMessageUrl> msgUrl(
       do_QueryInterface(aRequestingLocation, &rv));
-  if (NS_FAILED(rv)) {
-    // It isn't a mailnews url - so we accept the load here, and let other
-    // content policies make the decision if we should be loading it or not.
-    *aDecision = nsIContentPolicy::ACCEPT;
-    return;
-  }
 
   nsCString resourceURI;
-  rv = msgUrl->GetUri(resourceURI);
+  if (NS_SUCCEEDED(rv)) {
+    rv = msgUrl->GetUri(resourceURI);
+    NS_ENSURE_SUCCESS_VOID(rv);
+  } else {
+    rv = aRequestingLocation->GetSpec(resourceURI);
+    NS_ENSURE_SUCCESS_VOID(rv);
+  }
+
+  nsCString scheme;
+  rv = aRequestingLocation->GetScheme(scheme);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
+
+  // Check if we have an entry in the relevant message DB for the URI. If the
+  // URI's scheme is `mailbox`, we carry on regardless, because such URIs can
+  // refer to messages read from a file rather than from a specific folder (in
+  // which case they won't have a message DB entry). Otherwise, if the URI isn't
+  // for a message we know of, we accept the load here, and let other content
+  // policies make the decision if we should be loading it or not.
+  if (!scheme.EqualsLiteral("mailbox") && (NS_FAILED(rv) || !msgHdr)) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return;
+  }
 
   // Get a decision on whether or not to allow remote content for this message
   // header.

@@ -474,11 +474,11 @@ export class EwsServer {
     hostname,
     port,
     tlsCert,
-    version,
+    version = "Exchange2013",
     username = "user",
     password = "password",
   } = {}) {
-    this.version = version ?? "Exchange2013";
+    this.version = version;
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPathHandler(
       "/EWS/Exchange.asmx",

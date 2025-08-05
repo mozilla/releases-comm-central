@@ -9,3 +9,5 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_openPGP.js"]
+
+["browser_remote_content_blocking.js"]
