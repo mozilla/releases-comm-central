@@ -11,6 +11,9 @@ mod types;
 
 pub use types::*;
 
+#[cfg(feature = "interop")]
+pub mod interop;
+
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("failed to serialize structure as XML")]

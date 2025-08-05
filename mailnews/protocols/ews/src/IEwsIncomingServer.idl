@@ -5,6 +5,8 @@
 #include "nsISupports.idl"
 
 interface IEwsClient;
+interface IEwsSimpleOperationListener;
+interface nsIMsgWindow;
 
 /**
  * IEwsIncomingServer is intended as a workaround for limitations in the folder
@@ -41,4 +43,13 @@ interface IEwsIncomingServer : nsISupports
   attribute IEwsIncomingServer_DeleteModel deleteModel;
   /** The server path to use as the trash folder. */
   attribute AUTF8String trashFolderPath;
+
+  /**
+   * Perform a sync for the full folder hierarchy.
+   *
+   * The specified `listener` will be notified when the sync operation has
+   * completed. The `window` provides the window context (if available) for
+   * updates.
+   */
+  void syncFolderHierarchy(in IEwsSimpleOperationListener listener, in nsIMsgWindow window);
 };

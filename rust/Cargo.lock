@@ -1725,7 +1725,7 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=14c291a9e77c3dbf0ad30d53090a637f5593ac74#14c291a9e77c3dbf0ad30d53090a637f5593ac74"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=212005209355ce323958ba3d7b1cdd31861da5b3#212005209355ce323958ba3d7b1cdd31861da5b3"
 dependencies = [
  "ews_proc_macros",
  "log",
@@ -1740,7 +1740,7 @@ dependencies = [
 [[package]]
 name = "ews_proc_macros"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=14c291a9e77c3dbf0ad30d53090a637f5593ac74#14c291a9e77c3dbf0ad30d53090a637f5593ac74"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=212005209355ce323958ba3d7b1cdd31861da5b3#212005209355ce323958ba3d7b1cdd31861da5b3"
 dependencies = [
  "quote",
  "syn",

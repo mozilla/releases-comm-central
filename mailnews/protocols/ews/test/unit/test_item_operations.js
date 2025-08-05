@@ -556,10 +556,21 @@ add_task(async function test_mark_as_read() {
   );
 });
 
-add_task(async function test_move_folder() {
-  const parent1Name = "parent1";
-  const parent2Name = "parent2";
-  const childName = "child";
+/**
+ * Set up the structure required for the folder copy/move tests.
+ *
+ * This creates `<prefix>_parent1` and `<prefix>_parent2` in the root folder,
+ * and `<prefix>_child` inside of `<prefix>_parent1`. Returns a tuple continaing
+ * the first parent folder, the second parent folder, and the child folder in
+ * that order.
+ *
+ * @param {string} prefix
+ * @returns {[nsIMsgFolder, nsIMsgFolder, nsIMsgFolder]}
+ */
+async function setup_folder_copymove_structure(prefix) {
+  const parent1Name = `${prefix}_parent1`;
+  const parent2Name = `${prefix}_parent2`;
+  const childName = `${prefix}_child`;
 
   ewsServer.appendRemoteFolder(
     new RemoteFolder(parent1Name, "root", parent1Name, parent1Name)
@@ -585,14 +596,37 @@ add_task(async function test_move_folder() {
   const child = parent1.getChildNamed(childName);
   Assert.ok(!!child, `${childName} should exist in ${parent1Name}`);
 
+  return [parent1, parent2, child];
+}
+
+add_task(async function test_move_folder() {
+  const [parent1, parent2, child] =
+    await setup_folder_copymove_structure("folder_move");
+
   await copyFolder(child, parent2, true);
 
   Assert.ok(
-    !parent1.getChildNamed(childName),
-    `${childName} should not exist in ${parent1Name}`
+    !parent1.getChildNamed(child.name),
+    `${child.name} should not exist in ${parent1.name}`
   );
   Assert.ok(
-    !!parent2.getChildNamed(childName),
-    `${childName} should exist in ${parent2Name}`
+    !!parent2.getChildNamed(child.name),
+    `${child.name} should exist in ${parent2.name}`
+  );
+});
+
+add_task(async function test_copy_folder() {
+  const [parent1, parent2, child] =
+    await setup_folder_copymove_structure("folder_copy");
+
+  await copyFolder(child, parent2, false);
+
+  Assert.ok(
+    !!parent1.getChildNamed(child.name),
+    `${child.name} should exist in ${parent1.name}`
+  );
+  Assert.ok(
+    !!parent2.getChildNamed(child.name),
+    `${child.name} should exist in ${parent2.name}`
   );
 });

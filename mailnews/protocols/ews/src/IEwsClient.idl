@@ -153,6 +153,15 @@ interface IEwsClient : nsISupports
    * @param itemIds - A list of the EWS IDs of the folders to be moved.
    */
   void moveFolders(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
+
+  /**
+   * Copies folders on the Exchange server.
+   *
+   * @param listener - Callbacks to indicate the success of failure of the copy operation.
+   * @param destinationFolderId - The EWS ID of the destination folder.
+   * @param itemIds - A list of the EWS IDs of the folders to be copied.
+   */
+  void copyFolders(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]

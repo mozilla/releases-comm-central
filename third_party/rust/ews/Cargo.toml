@@ -21,6 +21,9 @@ autotests = false
 autobenches = false
 readme = false
 
+[features]
+interop = []
+
 [lib]
 name = "ews"
 path = "src/lib.rs"

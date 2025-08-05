@@ -5,7 +5,7 @@
 use ews_proc_macros::operation_response;
 use xml_struct::XmlSerialize;
 
-use crate::{BaseFolderId, FolderResponseMessage, MESSAGES_NS_URI};
+use crate::{CopyMoveFolderData, FolderResponseMessage, MESSAGES_NS_URI};
 
 /// A request to move one or more Exchange folders.
 ///
@@ -14,8 +14,8 @@ use crate::{BaseFolderId, FolderResponseMessage, MESSAGES_NS_URI};
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
 #[operation_response(FolderResponseMessage)]
 pub struct MoveFolder {
-    pub to_folder_id: BaseFolderId,
-    pub folder_ids: Vec<BaseFolderId>,
+    #[xml_struct(flatten)]
+    pub inner: CopyMoveFolderData,
 }
 
 #[cfg(test)]
@@ -23,21 +23,23 @@ mod test {
     use crate::{
         move_folder::{MoveFolder, MoveFolderResponse},
         test_utils::{assert_deserialized_content, assert_serialized_content},
-        BaseFolderId, Folder, FolderId, FolderResponseMessage, Folders, ResponseClass,
-        ResponseMessages,
+        BaseFolderId, CopyMoveFolderData, Folder, FolderId, FolderResponseMessage, Folders,
+        ResponseClass, ResponseMessages,
     };
 
     #[test]
     fn test_serialize_move_folder() {
         let move_folder = MoveFolder {
-            to_folder_id: BaseFolderId::DistinguishedFolderId {
-                id: "junkemail".to_string(),
-                change_key: None,
+            inner: CopyMoveFolderData {
+                to_folder_id: BaseFolderId::DistinguishedFolderId {
+                    id: "junkemail".to_string(),
+                    change_key: None,
+                },
+                folder_ids: vec![BaseFolderId::FolderId {
+                    id: "AScAc".to_string(),
+                    change_key: None,
+                }],
             },
-            folder_ids: vec![BaseFolderId::FolderId {
-                id: "AScAc".to_string(),
-                change_key: None,
-            }],
         };
 
         let expected = r#"<MoveFolder xmlns="http://schemas.microsoft.com/exchange/services/2006/messages"><ToFolderId><t:DistinguishedFolderId Id="junkemail"/></ToFolderId><FolderIds><t:FolderId Id="AScAc"/></FolderIds></MoveFolder>"#;

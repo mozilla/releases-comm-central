@@ -6,6 +6,8 @@ import { HttpServer } from "resource://testing-common/httpd.sys.mjs";
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 
+import { SyntheticMessage } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
+
 /**
  * This file provides a mock/fake EWS (Exchange Web Services) server to run our
  * unit tests against.
@@ -145,6 +147,16 @@ const MOVE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
       <m:ResponseMessages>
       </m:ResponseMessages>
     </m:MoveFolderResponse>
+${EWS_SOAP_FOOT}`;
+
+const COPY_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+    <m:CopyFolderResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+      <m:ResponseMessages>
+      </m:ResponseMessages>
+    </m:CopyFolderResponse>
 ${EWS_SOAP_FOOT}`;
 
 const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
@@ -676,6 +688,8 @@ export class EwsServer {
       resBytes = this.#generateCopyItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("MoveFolder").length) {
       resBytes = this.#generateMoveFolderResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("CopyFolder").length) {
+      resBytes = this.#generateCopyFolderResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("UpdateItem").length) {
       resBytes = this.#generateUpdateItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetItem").length) {
@@ -1123,6 +1137,64 @@ export class EwsServer {
     const resDoc = this.#buildGenericMoveResponse(
       MOVE_FOLDER_RESPONSE_BASE,
       "m:MoveFolderResponseMessage",
+      "m:Folders",
+      "t:Folder",
+      "t:FolderId",
+      folderIds
+    );
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Return a response to a `CopyFolder` request.
+   *
+   * @param {XMLDocument} reqDoc - The parsed document for the request to
+   * respond to.
+   * @returns {string} A serialized XML document.
+   */
+  #generateCopyFolderResponse(reqDoc) {
+    const [destinationFolderId, folderIds] = extractMoveObjects(
+      reqDoc,
+      "FolderIds",
+      "t:FolderId"
+    );
+
+    folderIds.forEach(sourceFolderId => {
+      const sourceFolder = this.#idToFolder.get(sourceFolderId);
+      if (sourceFolder) {
+        const newFolderId = `${sourceFolderId}_copy`;
+        const folderCopy = new RemoteFolder(
+          newFolderId,
+          destinationFolderId,
+          sourceFolder.displayName,
+          newFolderId
+        );
+        this.appendRemoteFolder(folderCopy);
+        // Make copies of the items that belong to the source folder
+        // and place them in the destination folder.
+        for (const [itemId, itemInfo] of this.#itemIdToItemInfo) {
+          if (itemInfo.parentId === sourceFolderId) {
+            const newItemId = `${itemId}_copy`;
+            this.addNewItemOrMoveItemToFolder(
+              newItemId,
+              newFolderId,
+              itemInfo.syntheticMessage
+                ? new SyntheticMessage(
+                    itemInfo.syntheticMessage.headers,
+                    itemInfo.syntheticMessage.bodyPart,
+                    itemInfo.syntheticMessage.metaState
+                  )
+                : null
+            );
+          }
+        }
+      }
+    });
+
+    const resDoc = this.#buildGenericMoveResponse(
+      COPY_FOLDER_RESPONSE_BASE,
+      "m:CopyFolderResponseMessage",
       "m:Folders",
       "t:Folder",
       "t:FolderId",

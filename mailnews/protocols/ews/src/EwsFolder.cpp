@@ -716,6 +716,30 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   return NS_OK;
 }
 
+static nsresult CompleteCopyMoveFolderOperation(
+    nsIMsgFolder* srcFolder, nsIMsgFolder* destinationFolder,
+    nsIMsgCopyServiceListener* copyListener, const nsACString& name,
+    const nsCString& newEwsId) {
+  nsresult rv = NS_OK;
+
+  auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
+
+  nsCOMPtr<nsIMsgFolder> newFolder;
+  rv = destinationFolder->GetChildNamed(name, getter_AddRefs(newFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!newFolder) {
+    // Ensure the exit error state is set appropriately for the listener exit
+    // guard.
+    rv = NS_ERROR_UNEXPECTED;
+    return rv;
+  }
+
+  newFolder->SetStringProperty(kEwsIdProperty, newEwsId);
+
+  return NotifyMessageCopyServiceComplete(srcFolder, destinationFolder, NS_OK);
+}
+
 NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
                                     bool aIsMoveFolder,
                                     nsIMsgWindow* aMsgWindow,
@@ -733,8 +757,8 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
   rv = FoldersOnSameServer(aSrcFolder, this, &isSameServer);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (isSameServer && aIsMoveFolder) {
-    // Same server move.
+  if (isSameServer) {
+    // Same server move or copy.
     nsAutoCString sourceEwsId;
     rv = aSrcFolder->GetStringProperty(kEwsIdProperty, sourceEwsId);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -751,47 +775,74 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
     const nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
     const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
 
-    const RefPtr<EwsSimpleFailibleListener> listener =
-        new EwsSimpleFailibleListener(
-            [self = RefPtr(this), srcFolder, copyListener, msgWindow](
-                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
-              NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
+    RefPtr<EwsSimpleFailibleListener> listener = new EwsSimpleFailibleListener(
+        [self = RefPtr(this), srcFolder, copyListener, msgWindow,
+         aIsMoveFolder](const nsTArray<nsCString>& ids,
+                        bool useLegacyFallback) {
+          NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
+          const auto& newEwsId = ids[0];
 
-              nsresult rv = NS_OK;
+          nsAutoCString name;
+          nsresult rv = srcFolder->GetName(name);
+          NS_ENSURE_SUCCESS(rv, rv);
 
-              auto listenerExitGuard =
-                  GuardCopyServiceListener(copyListener, rv);
+          // For a move, the EWS IDs of any subfolders or items of the moved
+          // folder or subfolder are stable (no known documentation, so this is
+          // through observation), so we can move in local storage to avoid a
+          // sync. When copying, however, new EWS IDs must be created for any
+          // subfolders or items of the copied folder or its subfolders, and we
+          // have no way to obtain the new IDs other than performing a sync of
+          // the folder hierarchy.
+          if (aIsMoveFolder) {
+            rv = LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
+            NS_ENSURE_SUCCESS(rv, rv);
+            rv = CompleteCopyMoveFolderOperation(srcFolder, self, copyListener,
+                                                 name, newEwsId);
+            return rv;
+          }
 
-              nsAutoCString name;
-              rv = srcFolder->GetName(name);
-              NS_ENSURE_SUCCESS(rv, rv);
+          nsCOMPtr<nsIMsgIncomingServer> server;
+          rv = self->GetServer(getter_AddRefs(server));
+          NS_ENSURE_SUCCESS(rv, rv);
 
-              LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
+          const nsCOMPtr<IEwsIncomingServer> ewsServer{
+              do_QueryInterface(server, &rv)};
+          NS_ENSURE_SUCCESS(rv, rv);
 
-              nsCOMPtr<nsIMsgFolder> newFolder;
-              rv = self->GetChildNamed(name, getter_AddRefs(newFolder));
-              NS_ENSURE_SUCCESS(rv, rv);
+          // Limiting granularity of the folder hierarchy update to only the
+          // destination folder is not possible due to our current strategy of
+          // managing the EWS sync token at the server level for folder updates,
+          // so we have to sync the entire hierarchy. In addition, for the
+          // copied folder messages to appear, an additional message sync will
+          // be required for the newly copied folder. However, to limit the
+          // complexity of this callback chain, we don't perform that step here,
+          // instead relying on external processes (such as folder
+          // expansion/selection) to perform that operation in the future.
+          // See https://bugzilla.mozilla.org/show_bug.cgi?id=1980963
+          // for the enhancement to improve hierarchy update granularity.
+          const RefPtr<EwsSimpleListener> listener = new EwsSimpleListener{
+              [self, srcFolder, msgWindow, copyListener, newEwsId, name](
+                  const auto& ids, bool resyncRequired) {
+                nsresult rv = NS_OK;
+                rv = CompleteCopyMoveFolderOperation(
+                    srcFolder, self, copyListener, name, newEwsId);
+                return rv;
+              }};
+          return ewsServer->SyncFolderHierarchy(listener, msgWindow);
+        },
+        [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
+          if (copyListener) {
+            copyListener->OnStopCopy(status);
+          }
 
-              if (!newFolder) {
-                return rv = NS_ERROR_UNEXPECTED;
-              }
+          return HandleMoveError(srcFolder, self, status);
+        });
 
-              newFolder->SetStringProperty(kEwsIdProperty, ids[0]);
-
-              rv = NotifyMessageCopyServiceComplete(srcFolder, self, NS_OK);
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              return NS_OK;
-            },
-            [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
-              if (copyListener) {
-                copyListener->OnStopCopy(status);
-              }
-
-              return HandleMoveError(srcFolder, self, status);
-            });
-
-    client->MoveFolders(listener, destinationEwsId, {sourceEwsId});
+    if (aIsMoveFolder) {
+      client->MoveFolders(listener, destinationEwsId, {sourceEwsId});
+    } else {
+      client->CopyFolders(listener, destinationEwsId, {sourceEwsId});
+    }
   } else {
     // Cross-server folder move (or copy). Instantiate a `FolderCopyHandler` for
     // this operation.

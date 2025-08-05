@@ -4,7 +4,9 @@
 
 extern crate xpcom;
 
+use ews::copy_folder::CopyFolder;
 use ews::copy_item::CopyItem;
+use ews::move_folder::MoveFolder;
 use ews::move_item::MoveItem;
 use mailnews_ui_glue::UserInteractiveServer;
 use nserror::{
@@ -383,7 +385,29 @@ impl XpcomEwsBridge {
 
         moz_task::spawn_local(
             "move_folders",
-            client.move_folder(
+            client.copy_move_folder::<MoveFolder>(
+                RefPtr::new(listener),
+                destination_folder_id.to_string(),
+                folder_ids.iter().map(|id| id.to_string()).collect(),
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(copy_folders => CopyFolders(callbacks: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, folder_ids: *const ThinVec<nsCString>));
+    fn copy_folders(
+        &self,
+        listener: &IEwsSimpleOperationListener,
+        destination_folder_id: &nsACString,
+        folder_ids: &ThinVec<nsCString>,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        moz_task::spawn_local(
+            "copy_folders",
+            client.copy_move_folder::<CopyFolder>(
                 RefPtr::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(|id| id.to_string()).collect(),

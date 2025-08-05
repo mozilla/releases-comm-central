@@ -300,6 +300,14 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
   return failureStatus;
 }
 
+NS_IMETHODIMP EwsIncomingServer::SyncFolderHierarchy(
+    IEwsSimpleOperationListener* listener, nsIMsgWindow* window) {
+  const auto refListener = RefPtr{listener};
+  return SyncFolderList(window, [refListener]() {
+    return refListener->OnOperationSuccess({}, false);
+  });
+}
+
 nsresult EwsIncomingServer::SyncFolderList(
     nsIMsgWindow* aMsgWindow, std::function<nsresult()> postSyncCallback) {
   // EWS provides us an opaque value which specifies the last version of
