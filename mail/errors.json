@@ -2,6 +2,162 @@
   "MAILNEWS": {
     "description": "Error codes for comm/mail",
     "code": 16,
-    "members": {}
+    "members": {
+      "NS_MSG_PASSWORD_PROMPT_CANCELLED": {
+        "severity": "SUCCESS",
+        "code": 1,
+        "description": ""
+      },
+      "NS_MSG_SEARCH_INTERRUPTED": {
+        "severity": "SUCCESS",
+        "code": 2,
+        "description": "A search is done/terminated because it was interrupted."
+      },
+      "NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE": {
+        "severity": "FAILURE",
+        "code": 5,
+        "description": ""
+      },
+      "NS_MSG_ERROR_FOLDER_SUMMARY_MISSING": {
+        "severity": "FAILURE",
+        "code": 6,
+        "description": ""
+      },
+      "NS_MSG_ERROR_FOLDER_MISSING": {
+        "severity": "FAILURE",
+        "code": 7,
+        "description": ""
+      },
+      "NS_MSG_MESSAGE_NOT_FOUND": {
+        "severity": "FAILURE",
+        "code": 8,
+        "description": ""
+      },
+      "NS_MSG_NOT_A_MAIL_FOLDER": {
+        "severity": "FAILURE",
+        "code": 9,
+        "description": ""
+      },
+      "NS_MSG_FOLDER_BUSY": {
+        "severity": "FAILURE",
+        "code": 10,
+        "description": ""
+      },
+      "NS_MSG_COULD_NOT_CREATE_DIRECTORY": {
+        "severity": "FAILURE",
+        "code": 11,
+        "description": ""
+      },
+      "NS_MSG_CANT_CREATE_FOLDER": {
+        "severity": "FAILURE",
+        "code": 12,
+        "description": ""
+      },
+      "NS_MSG_FILTER_PARSE_ERROR": {
+        "severity": "FAILURE",
+        "code": 13,
+        "description": ""
+      },
+      "NS_MSG_FOLDER_UNREADABLE": {
+        "severity": "FAILURE",
+        "code": 14,
+        "description": ""
+      },
+      "NS_MSG_ERROR_WRITING_MAIL_FOLDER": {
+        "severity": "FAILURE",
+        "code": 15,
+        "description": ""
+      },
+      "NS_MSG_ERROR_NO_SEARCH_VALUES": {
+        "severity": "FAILURE",
+        "code": 16,
+        "description": ""
+      },
+      "NS_MSG_ERROR_INVALID_SEARCH_SCOPE": {
+        "severity": "FAILURE",
+        "code": 17,
+        "description": ""
+      },
+      "NS_MSG_ERROR_INVALID_SEARCH_TERM": {
+        "severity": "FAILURE",
+        "code": 18,
+        "description": ""
+      },
+      "NS_MSG_FOLDER_EXISTS": {
+        "severity": "FAILURE",
+        "code": 19,
+        "description": ""
+      },
+      "NS_MSG_ERROR_OFFLINE": {
+        "severity": "FAILURE",
+        "code": 20,
+        "description": ""
+      },
+      "NS_MSG_POP_FILTER_TARGET_ERROR": {
+        "severity": "FAILURE",
+        "code": 21,
+        "description": ""
+      },
+      "NS_MSG_INVALID_OR_MISSING_SERVER": {
+        "severity": "FAILURE",
+        "code": 22,
+        "description": ""
+      },
+      "NS_MSG_INVALID_DBVIEW_INDEX": {
+        "severity": "FAILURE",
+        "code": 24,
+        "description": ""
+      },
+      "NS_MSG_ERROR_COPY_FOLDER_ABORTED": {
+        "severity": "FAILURE",
+        "code": 26,
+        "description": ""
+      },
+      "NS_MSG_ERROR_URL_ABORTED": {
+        "severity": "FAILURE",
+        "code": 27,
+        "description": "A URL was queued but never run because a preceding URL failed."
+      },
+      "NS_MSG_INVALID_CUSTOM_HEADER": {
+        "severity": "FAILURE",
+        "code": 29,
+        "description": "Custom header has invalid characters (as per rfc 2822)"
+      },
+      "NS_MSG_USER_NOT_AUTHENTICATED": {
+        "severity": "FAILURE",
+        "code": 30,
+        "description": "Local caches are password protect and user isn't auth"
+      },
+      "NS_MSG_ERROR_MSG_NOT_OFFLINE": {
+        "severity": "FAILURE",
+        "code": 32,
+        "description": "Message was not cached locally"
+      },
+      "NS_MSG_ERROR_IMAP_COMMAND_FAILED": {
+        "severity": "FAILURE",
+        "code": 33,
+        "description": "IMAP server returned NO or BAD from an IMAP command"
+      },
+      "NS_MSG_ERROR_INVALID_FOLDER_NAME": {
+        "severity": "FAILURE",
+        "code": 34,
+        "description": ""
+      },
+      "NS_MSG_ERROR_UNEXPECTED_SIZE": {
+        "severity": "FAILURE",
+        "code": 35,
+        "description": "Mbox message deviates too far from expected size"
+      },
+      "NS_MSG_ERROR_MBOX_MALFORMED": {
+        "severity": "FAILURE",
+        "code": 36,
+        "description": "Mbox message doesn't start with 'From ' separator line."
+      },
+      "NS_MSG_ERROR_BLOCKED_COMPACTION": {
+        "severity": "FAILURE",
+        "code": 37,
+        "description": "Folder compaction could not proceed because of pending offline/pseudo ops"
+      }
+    }
   }
 }
