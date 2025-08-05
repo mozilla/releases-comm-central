@@ -5,16 +5,14 @@
 use cstr::cstr;
 use fluent_ffi::{adapt_bundle_for_gecko, FluentBundleRc};
 use ksni::Handle;
-use nserror::{nsresult, NS_ERROR_FAILURE, NS_OK};
-use nsstring::nsCString;
+use nserror::{nsresult, NS_OK};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::rc::Rc;
 use std::thread;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
-use xpcom::interfaces::nsIGSettingsService;
 use xpcom::interfaces::nsIPrefBranch;
-use xpcom::{get_service, getter_addrefs, nsIID, xpcom_method, RefPtr};
+use xpcom::{get_service, nsIID, xpcom_method, RefPtr};
 
 use crate::{locales, Action};
 
@@ -133,8 +131,9 @@ impl LinuxSysTrayHandler {
     // This is done by reading GSettings and checking if either
     // `org.freedesktop.Notifications.Inhibited` is true, or if
     // `org.gnome.desktop.notifications.show-banners` is false.
-    xpcom_method!(get_is_in_do_not_distub_mode => GetIsInDoNotDisturbMode() -> bool);
-    fn get_is_in_do_not_distub_mode(&self) -> Result<bool, nsresult> {
+    xpcom_method!(get_is_in_do_not_disturb_mode => GetIsInDoNotDisturbMode() -> bool);
+    fn get_is_in_do_not_disturb_mode(&self) -> Result<bool, nsresult> {
+        /*
         let gsettings_service =
             get_service::<nsIGSettingsService>(c"@mozilla.org/gsettings-service;1")
                 .ok_or(NS_ERROR_FAILURE)?;
@@ -172,7 +171,7 @@ impl LinuxSysTrayHandler {
                 return Ok(true);
             }
         }
-
+        */
         Ok(false)
     }
 }
