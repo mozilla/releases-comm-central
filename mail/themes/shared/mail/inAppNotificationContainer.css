@@ -4,19 +4,21 @@
 
 :host {
   color-scheme: light dark;
+  --active-color: light-dark(var(--color-gray-90), var(--color-gray-05));
+  --active-background-color: light-dark(var(--color-gray-05), var(--color-gray-90));
   --container-border: none;
-  --text: light-dark(#18181b, #fafafa);
-  --content-border: light-dark(#ffffff, #4f5683);
+  --text: var(--active-color);
+  --content-border: light-dark(var(--color-white), #4f5683);
 
   /* Close button colors */
-  --close-button-background: light-dark(#fafafa, #18181b);
-  --close-button-background-active: light-dark(#18181b, #fafafa);
+  --close-button-background: var(--active-background-color);
+  --close-button-background-active: var(--active-color);
   --close-button-background-hover: var(--close-button-background);
   --close-button-text: var(--text);
-  --close-button-text-active: light-dark(#fafafa, #18181b);
+  --close-button-text-active: var(--active-background-color);
   --close-button-border: transparent;
-  --close-button-border-hover: light-dark(#777580, #fafafa);
-  --close-button-border-active: light-dark(#18181b, #fafafa);
+  --close-button-border-hover: light-dark(#777580, var(--color-gray-05));
+  --close-button-border-active: var(--active-color);
   --close-button-outline: currentColor;
 
   --illustration-light: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default.svg");
@@ -174,17 +176,17 @@
 
   /* Styles for the donation notification type */
   &.in-app-notification-donation {
-    --title-text: light-dark(#6b21a8, #f5e8ff);
-    --button-background: linear-gradient(#6b21a8, #571c87);
-    --button-stroke: light-dark(#3a0764, #ddb4fe);
+    --title-text: var(--color-secondary-default);
+    --button-background: linear-gradient(var(--color-purple-80), #571c87);
+    --button-stroke: var(--color-secondary-pressed);
     --button-background-hover: var(--button-background);
-    --button-background-active: light-dark(#3a0764, #ddb4fe);
-    --button-focus-ring: light-dark(#3a0764, #ddb4fe);
-    --button-text: light-dark(#fafafa, #18181b);
-    --container-background: linear-gradient(135deg, #0db7bd, #6b21a8);
+    --button-background-active: var(--color-secondary-pressed);
+    --button-focus-ring: var(--color-secondary-pressed);
+    --button-text: var(--active-background-color);
+    --container-background: linear-gradient(135deg, var(--color-teal-50), var(--color-purple-80));
     --icon-url: url("chrome://messenger/skin/illustrations/in-app-notification-heart.svg");
-    --icon-fill: #fca5a5;
-    --icon-stroke: #dc2626;
+    --icon-fill: var(--color-red-30);
+    --icon-stroke: var(--color-red-60);
 
     padding: 1px;
 
@@ -192,7 +194,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-color: light-dark(#ffffff, #18181b);
+      background-color: light-dark(var(--color-white), var(--color-gray-90));
       background-image: var(--illustration);
       background-size: calc(100% + 2px); /* This accounts for the border */
       background-position: bottom 0 left -1px;
@@ -228,17 +230,19 @@
 
   /* Styles for the blog notification type */
   &.in-app-notification-blog {
-    --title-text: light-dark(#1373d9, #eeeef0);
-    --button-background: linear-gradient(#1373d9, #175fb6);
-    --button-stroke: light-dark(#19518f, #32aeff);
+    --title-text: light-dark(var(--color-blue-60), #eeeef0);
+    --button-background: linear-gradient(var(--color-blue-60), #175fb6);
+    --stroke-dark: #32aeff;
+    --stroke: light-dark(#19518f, var(--stroke-dark));
+    --button-stroke: var(--stroke);
     --button-background-hover: var(--button-background);
-    --button-background-active: light-dark(#19518f, #32aeff);
-    --button-focus-ring: light-dark(#19518f, #32aeff);
-    --button-text: light-dark(#fafafa, #18181b);
-    --content-border: light-dark(#1373d9, #58c9ff);
+    --button-background-active: var(--stroke);
+    --button-focus-ring: var(--stroke);
+    --button-text: var(--active-background-color);
+    --content-border: var(--color-primary-default);
     --icon-url: url("chrome://messenger/skin/icons/sm/circle-question.svg");
     --icon-fill: light-dark(#c4ddf6, #263a47);
-    --icon-stroke: light-dark(#1373d9, #58c9ff);
+    --icon-stroke: var(--color-primary-default);
     --content-background: linear-gradient(#f0f8ff, #f7f7f7);
 
     @media (prefers-color-scheme: dark) {
@@ -246,8 +250,8 @@
     }
 
     @media (prefers-contrast: more) {
-      --content-border: #32aeff;
-      --icon-stroke: #32aeff;
+      --content-border: var(--stroke-dark);
+      --icon-stroke: var(--stroke-dark);
       --icon-fill: transparent;
     }
 
@@ -263,52 +267,53 @@
 
   /* Colors for the message notification type */
   &.in-app-notification-message {
-    --title-text: light-dark(#713f12, #fee78a);
-    --button-background: linear-gradient(#facc15, #eabd08);
-    --button-stroke: light-dark(#caa204, #caa204);
+    --title-text: var(--color-text-warning);
+    --border-color: #caa204;
+    --button-background: linear-gradient(var(--color-yellow-40), #eabd08);
+    --button-stroke: var(--border-color);
     --button-background-hover: var(--button-background);
-    --button-background-active: light-dark(#caa204, #caa204);
-    --button-focus-ring: light-dark(#caa204, #caa204);
-    --button-text: #18181b;
-    --content-border: #caa204;
-    --container-border: #caa204;
+    --button-background-active: var(--border-color);
+    --button-focus-ring: var(--border-color);
+    --button-text: var(--color-gray-90);
+    --content-border: var(--border-color);
+    --container-border: var(--border-color);
     --icon-url: url("chrome://messenger/skin/icons/new/compact/error-circle.svg");
     --icon-fill: #e1b555;
-    --icon-stroke: #713f12;
+    --icon-stroke: var(--color-yellow-90);
     --container-background: linear-gradient(#ffdf8d, #fac439);
     --content-background: linear-gradient(#fefae8, #f7f7f7);
 
     @media (prefers-contrast: more) {
-      --content-border: #eabd08;;
-      --icon-stroke: #eabd08;;
+      --content-border: #eabd08;
+      --icon-stroke: #eabd08;
       --icon-fill: transparent;
     }
   }
 
   /* Colors for the security notification type */
   &.in-app-notification-security {
-    --title-text: light-dark(#dc2626, #ef4444);
-    --button-stroke: #7f1d1d;
-    --button-background: linear-gradient(#cb1f1f, #7f1d1d);
-    --button-background-active: #7f1d1d;
+    --title-text: var(--color-text-critical);
+    --button-stroke: var(--color-red-90);
+    --button-background: linear-gradient(#cb1f1f, var(--color-red-90));
+    --button-background-active: var(--color-red-90);
     --button-background-hover: var(--button-background);
-    --button-text: #fafafa;
-    --button-focus-ring: #ef4444;
-    --content-border: light-dark(#7f1d1d, #ef4444);
-    --container-border: light-dark(#7f1d1d, #ef4444);
+    --button-text: var(--color-gray-05);
+    --button-focus-ring: var(--color-red-50);
+    --content-border: light-dark(var(--color-red-90), var(--color-red-50));
+    --container-border: light-dark(var(--color-red-90), var(--color-red-50));
     --icon-url: url("chrome://messenger/skin/icons/new/compact/warning.svg");
     --icon-fill: #c7484a;
-    --icon-stroke: #ffffff;
-    --container-background: linear-gradient(#b91c1c, #991b1b);
+    --icon-stroke: var(--color-white);
+    --container-background: linear-gradient(var(--color-red-70), var(--color-red-80));
     --content-background: linear-gradient(#fef2f2, #f7f7f7);
 
     @media (prefers-color-scheme: dark) {
-      --container-background: linear-gradient(#b91c1c, #fca5a5);
+      --container-background: linear-gradient(var(--color-red-70), var(--color-red-30));
     }
 
     @media (prefers-contrast: more) {
-      --content-border: #ef4444;
-      --icon-stroke: #ef4444;
+      --content-border: var(--color-red-50);
+      --icon-stroke: var(--color-red-50);
       --icon-fill: transparent;
     }
   }
@@ -343,7 +348,7 @@
   &.in-app-notification-message,
   &.in-app-notification-security {
     @media (prefers-color-scheme: dark) {
-      --content-background: #18181b;
+      --content-background: var(--color-gray-90);
     }
   }
 
