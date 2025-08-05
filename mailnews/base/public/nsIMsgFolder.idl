@@ -512,7 +512,21 @@ interface nsIMsgFolder : nsISupports {
                       in boolean deleteStorage, in boolean isMove,
                       in nsIMsgCopyServiceListener listener, in boolean allowUndo);
 
-  [noscript]
+  /**
+   * Called by the message copy service to initiate message copying into this
+   * folder. This method should NOT be called directly from JS. Instead use
+   * `MailServices.copy.copyMessages`.
+   *
+   * @param srcFolder - Source folder of an operation.
+   * @param messages - The array of nsIMsgHdrs in source folder which will be
+   *   moved/copied.
+   * @param isMove - false for copy operation, true for move operation.
+   * @param msgWindow - Window for notification callbacks, can be null.
+   * @param listener - Listener which receive operation notifications
+   * @param isFolder - Used internally by some implementations.
+   * @param allowUndo - Specifies if this operation will be done as an
+   *   transaction that can be undone.
+   */
   void copyMessages(in nsIMsgFolder srcFolder, in Array<nsIMsgDBHdr> messages,
                     in boolean isMove, in nsIMsgWindow msgWindow,
                     in nsIMsgCopyServiceListener listener, in boolean isFolder,
