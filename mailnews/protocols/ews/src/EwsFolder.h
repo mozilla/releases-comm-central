@@ -83,10 +83,21 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD AddSubfolder(const nsACString& name,
                           nsIMsgFolder** newFolder) override;
 
+  NS_IMETHOD OnMessageClassified(const nsACString& aMsgURI,
+                                 nsMsgJunkStatus aClassification,
+                                 uint32_t aJunkPercent) override;
+
  private:
   friend class ItemCopyMoveCallbacks;
 
   bool mHasLoadedSubfolders;
+
+  // The OnMessageClassified() implementation uses this to accumulate the
+  // list of messages to move to the junk folder.
+  // OnMessageClassified() is called once per message, then one last time
+  // to indicate the end of the batch. At that point it performs a move
+  // of the accumulated messages.
+  nsTArray<nsMsgKey> mSpamKeysToMove;
 
   /**
    * Generate or retrieve an EWS API client capable of interacting with the EWS

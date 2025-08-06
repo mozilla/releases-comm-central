@@ -14,20 +14,23 @@
 #include "FolderCompactor.h"
 #include "FolderPopulation.h"
 #include "MailNewsTypes.h"
+#include "MsgOperationListener.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDatabase.h"
+#include "nsIMsgFilterService.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsISpamSettings.h"
+#include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIMsgCopyService.h"
-#include "nsIMsgWindow.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
 #include "nscore.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
+#include "mozilla/Logging.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -157,19 +160,34 @@ class MessageOperationCallbacks : public IEwsMessageCallbacks,
   RefPtr<EwsFolder> mFolder;
   RefPtr<nsIMsgWindow> mWindow;
   nsCOMPtr<nsIUrlListener> mUrlListener;
+  // Keep track of all the messages added via SaveNewHeader, in order to
+  // apply filters when OnSyncComplete() is called.
+  nsTArray<RefPtr<nsIMsgDBHdr>> mNewMessages;
 };
 
 NS_IMPL_ISUPPORTS(MessageOperationCallbacks, IEwsMessageCallbacks)
 
 NS_IMETHODIMP MessageOperationCallbacks::SaveNewHeader(nsIMsgDBHdr* hdr) {
-  RefPtr<nsIMsgDatabase> db;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgDatabase> db;
+  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
+
+  // If New flag is not set, it won't be added to the databases list of new
+  // messages (and so won't be filtered/classified). But we'll treat read
+  // messages as old.
+  uint32_t flags;
+  MOZ_TRY(hdr->GetFlags(&flags));
+  if (!(flags & nsMsgMessageFlags::Read)) {
+    flags |= nsMsgMessageFlags::New;
+    hdr->SetFlags(flags);
+    mNewMessages.AppendElement(hdr);
+  }
 
   MOZ_TRY(db->AddNewHdrToDB(hdr, true));
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
       mozilla::components::FolderNotification::Service();
+
+  // Remember message for filtering at end of sync operation.
   notifier->NotifyMsgAdded(hdr);
 
   return NS_OK;
@@ -307,6 +325,49 @@ nsresult MessageOperationCallbacks::NotifyListener(nsresult rv) {
 }
 
 NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
+  // If some new messages arrived, apply filters to them now.
+  if (!mNewMessages.IsEmpty()) {
+    nsCOMPtr<nsIMsgFilterService> filterService(
+        mozilla::components::Filter::Service());
+
+    nsCOMPtr<nsIMsgFilterList> filterList;
+    nsresult rv = mFolder->GetFilterList(nullptr, getter_AddRefs(filterList));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Can we run the filters? Or will they require the full message first?
+    bool incomingFiltersRequireBody;
+    rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
+                                              &incomingFiltersRequireBody);
+
+    if (!incomingFiltersRequireBody) {
+      // Once the filtering is complete, `doneFunc` will run.
+      auto doneFunc = [folder = mFolder](nsresult status) -> nsresult {
+        folder->NotifyFolderEvent(kFiltersApplied);
+        // Now run the spam classification.
+        // This will invoke OnMessageClassified().
+        // TODO:
+        // CallFilterPlugins() should take a nsIJunkMailClassificationListener
+        // param instead of relying on folder inheritance.
+        bool filtersRun;
+        nsresult rv = folder->CallFilterPlugins(nullptr, &filtersRun);
+        NS_ENSURE_SUCCESS(rv, rv);
+        return NS_OK;
+      };
+
+      // Run the filters upon the new messages. Note, by this time, the
+      // messages have already been added to the folders database.
+      // This means we can use ApplyFilters, which handles all the filter
+      // actions - it uses the protocol-agnostic code, as if the filters had
+      // been manually trggered ("run filters now").
+      // This is in contrast to POP3 and IMAP, which run the filters _before_
+      // adding the messages to the database, but then have to implement all
+      // their own filter actions.
+      rv = filterService->ApplyFilters(nsMsgFilterType::Inbox, mNewMessages,
+                                       mFolder, nullptr /*window*/,
+                                       new MsgOperationListener(doneFunc));
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
   NotifyListener(NS_OK);
   mFolder->NotifyFolderEvent(kFolderLoaded);
   return NS_OK;
@@ -1125,5 +1186,141 @@ NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,
     }
   }
 
+  return NS_OK;
+}
+
+// This callback is invoked for spam handling, by CallFilterPlugins().
+// Really, CallFilterPlugins should be altered to take a listener rather than
+// relying on the folder implementation... but for now, this implementation
+// is pure cut&paste from nsLocalMailFolder. The IMAP one is similar, but
+// coalleses server move operations.
+//
+// This function is called once per message, then once again with
+// an empty URI to mark the end of the batch.
+// It accumulates the messages to move to the junk folder using the
+// mSpamKeysToMove array, then performs the move at the end of the batch.
+NS_IMETHODIMP EwsFolder::OnMessageClassified(const nsACString& aMsgURI,
+                                             nsMsgJunkStatus aClassification,
+                                             uint32_t aJunkPercent) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsISpamSettings> spamSettings;
+  rv = server->GetSpamSettings(getter_AddRefs(spamSettings));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString spamFolderURI;
+  rv = spamSettings->GetSpamFolderURI(spamFolderURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Empty URI indicates end of batch.
+  if (!aMsgURI.IsEmpty()) {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsMsgKey msgKey;
+    rv = msgHdr->GetMessageKey(&msgKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // check if this message needs junk classification
+    uint32_t processingFlags;
+    GetProcessingFlags(msgKey, &processingFlags);
+
+    if (processingFlags & nsMsgProcessingFlags::ClassifyJunk) {
+      nsMsgDBFolder::OnMessageClassified(aMsgURI, aClassification,
+                                         aJunkPercent);
+
+      if (aClassification == nsIJunkMailPlugin::JUNK) {
+        bool willMoveMessage = false;
+
+        // don't do the move when we are opening up
+        // the junk mail folder or the trash folder
+        // or when manually classifying messages in those folders
+        if (!(mFlags & nsMsgFolderFlags::Junk ||
+              mFlags & nsMsgFolderFlags::Trash)) {
+          bool moveOnSpam = false;
+          rv = spamSettings->GetMoveOnSpam(&moveOnSpam);
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (moveOnSpam) {
+            nsCOMPtr<nsIMsgFolder> folder;
+            rv = FindFolder(spamFolderURI, getter_AddRefs(folder));
+            NS_ENSURE_SUCCESS(rv, rv);
+            if (folder) {
+              rv = folder->SetFlag(nsMsgFolderFlags::Junk);
+              NS_ENSURE_SUCCESS(rv, rv);
+              mSpamKeysToMove.AppendElement(msgKey);
+              willMoveMessage = true;
+            } else {
+              // XXX TODO
+              // JUNK MAIL RELATED
+              // the listener should do
+              // rv = folder->SetFlag(nsMsgFolderFlags::Junk);
+              // NS_ENSURE_SUCCESS(rv,rv);
+              // mSpamKeysToMove.AppendElement(msgKey);
+              // willMoveMessage = true;
+              rv =
+                  GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
+              NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
+            }
+          }
+        }
+        rv = spamSettings->LogJunkHit(msgHdr, willMoveMessage);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+    }
+  } else {
+    // URI is empty, indicating end of batch.
+
+    // Parent will apply post bayes filters.
+    nsMsgDBFolder::OnMessageClassified(EmptyCString(),
+                                       nsIJunkMailPlugin::UNCLASSIFIED, 0);
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+    if (!mSpamKeysToMove.IsEmpty()) {
+      nsCOMPtr<nsIMsgFolder> folder;
+      if (!spamFolderURI.IsEmpty()) {
+        rv = FindFolder(spamFolderURI, getter_AddRefs(folder));
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+      for (uint32_t keyIndex = 0; keyIndex < mSpamKeysToMove.Length();
+           keyIndex++) {
+        // If an upstream filter moved this message, don't move it here.
+        nsMsgKey msgKey = mSpamKeysToMove.ElementAt(keyIndex);
+        nsMsgProcessingFlagType processingFlags;
+        GetProcessingFlags(msgKey, &processingFlags);
+        if (folder && !(processingFlags & nsMsgProcessingFlags::FilterToMove)) {
+          nsCOMPtr<nsIMsgDBHdr> mailHdr;
+          rv = GetMessageHeader(msgKey, getter_AddRefs(mailHdr));
+          if (NS_SUCCEEDED(rv) && mailHdr) messages.AppendElement(mailHdr);
+        } else {
+          // We don't need the processing flag any more.
+          AndProcessingFlags(msgKey, ~nsMsgProcessingFlags::FilterToMove);
+        }
+      }
+
+      if (folder) {
+        nsCOMPtr<nsIMsgCopyService> copySvc =
+            mozilla::components::Copy::Service();
+        rv = copySvc->CopyMessages(
+            this, messages, folder, true,
+            /*nsIMsgCopyServiceListener* listener*/ nullptr, nullptr,
+            false /*allowUndo*/);
+        NS_ASSERTION(NS_SUCCEEDED(rv), "CopyMessages failed");
+        if (NS_FAILED(rv)) {
+          nsAutoCString logMsg(
+              "failed to copy junk messages to junk folder rv = ");
+          logMsg.AppendInt(static_cast<uint32_t>(rv), 16);
+          spamSettings->LogJunkString(logMsg.get());
+        }
+      }
+    }
+    int32_t numNewMessages;
+    GetNumNewMessages(false, &numNewMessages);
+    SetNumNewMessages(numNewMessages - messages.Length());
+    mSpamKeysToMove.Clear();
+    // check if this is the inbox first...
+    if (mFlags & nsMsgFolderFlags::Inbox) PerformBiffNotifications();
+  }
   return NS_OK;
 }
