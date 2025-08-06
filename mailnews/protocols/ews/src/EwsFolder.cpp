@@ -30,7 +30,6 @@
 #include "nscore.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
-#include "mozilla/Logging.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"

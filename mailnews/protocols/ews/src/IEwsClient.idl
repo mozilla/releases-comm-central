@@ -17,9 +17,9 @@ interface nsIURI;
 interface nsIUrlListener;
 
 // Forward declarations of callback classes defined later in this file.
-interface IEwsFolderCallbacks;
+interface IEwsFolderListener;
 interface IEwsMessageCallbacks;
-interface IEwsMessageCreateCallbacks;
+interface IEwsMessageCreateListener;
 interface IEwsMessageFetchCallbacks;
 
 interface IEwsSimpleOperationListener;
@@ -59,7 +59,7 @@ interface IEwsClient : nsISupports
    * folder, since it results in a fairly small request and represents the first
    * operation performed when adding the account to Thunderbird.
    *
-   * @param callbacks - Callbacks to communicate the success or failure of the
+   * @param listener - Listener to communicate the success or failure of the
    *   check.
    * @returns The client's EWS endpoint's URL.
    */
@@ -69,22 +69,23 @@ interface IEwsClient : nsISupports
    * Synchronizes the local folder listing with changes made on the remote
    * Exchange server.
    *
-   * @param callbacks - Callbacks for updating the local folder listing and the
-   *   recorded synchronization state.
-   * @param syncState - A synchronization state token provided by a prior sync
-   *   request, or an empty string to indicate that this is the initial sync.
+   * @param listener - Listener for communicating changes to the folder list and
+   *   to the recorded synchronization state.
+   * @param syncStateToken - A synchronization state token provided by a prior
+   *   sync request, or an empty string to indicate that this is the initial
+   *   sync.
    */
-  void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
+  void syncFolderHierarchy(in IEwsFolderListener listener, in AUTF8String syncStateToken);
 
   /**
    * Creates a new folder on the Exchange server as a child of the specified
    * parent.
    *
-   * @param listener  Listener that propagates the success or failure of the
-   *                  folder creation operation to the consumer.
-   * @param parentId  The EWS ID of the folder under which to create the new
-   *                  folder.
-   * @param name      The name to use for the new folder.
+   * @param listener - Listener that propagates the success or failure of the
+   *   folder creation operation to the consumer.
+   * @param parentId - The EWS ID of the folder under which to create the new
+   *   folder.
+   * @param name - The name to use for the new folder.
    */
   void createFolder(in IEwsSimpleOperationListener listener, in AUTF8String parentId, in AUTF8String name);
 
@@ -95,24 +96,31 @@ interface IEwsClient : nsISupports
   /**
    * Creates a new message on the server using the data read from the stream.
    *
+   * @param listener - Listener to indicate operation state and status.
    * @param folderId - The EWS ID of the folder.
    * @param isDraft - Whether the message being created is an unsent draft.
    * @param isRead - Whether the message has already been read.
    * @param messageStream - The input stream to read the message from.
-   * @param callbacks - Callbacks for indicating operation state and status.
    */
-  void createMessage(in AUTF8String folderId,
+  void createMessage(in IEwsMessageCreateListener listener,
+                     in AUTF8String folderId,
                      in boolean isDraft,
                      in boolean isRead,
-                     in nsIInputStream messageStream,
-                     in IEwsMessageCreateCallbacks callbacks);
+                     in nsIInputStream messageStream);
 
+  /**
+   * Deletes the messages with the given EWS IDs from the server.
+   *
+   * @param listener - Listener to indicate the success or failure of the
+   *   message deletion operation.
+   * @param messageEwsIds - The EWS IDs of the messages to delete.
+   */
   void deleteMessages(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageEwsIds);
 
   /**
    * Deletes a folder on the Exchange server.
    *
-   * @param callbacks - Callbacks to indicate the success or failure of the
+   * @param listener - Listener to indicate the success or failure of the
    *   folder deletion operation.
    * @param folderId - The EWS ID of the folder to delete.
    */
@@ -121,7 +129,7 @@ interface IEwsClient : nsISupports
   /**
    * Renames a folder on the Exchange server.
    *
-   * @param callbacks - Callbacks to indicate the success or failure of the
+   * @param listener - Listener to indicate the success or failure of the
    *   folder update operation to rename the folder.
    * @param folderId - The EWS ID of the folder to rename.
    */
@@ -130,7 +138,8 @@ interface IEwsClient : nsISupports
   /**
    * Moves items on the Exchange server.
    *
-   * @param callbacks - Callbacks to indicate the success of failure of the move operation.
+   * @param listener - Listener to indicate the success of failure of the move
+   * operation.
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the items to be moved.
    */
@@ -139,7 +148,8 @@ interface IEwsClient : nsISupports
   /**
    * Copies items on the Exchange server.
    *
-   * @param callbacks - Callbacks to indicate the success of failure of the copy operation.
+   * @param listener - Listener to indicate the success of failure of the copy
+   * operation.
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the items to be copied.
    */
@@ -148,7 +158,8 @@ interface IEwsClient : nsISupports
   /**
    * Moves folders on the Exchange server.
    *
-   * @param callbacks - Callbacks to indicate the success of failure of the move operation.
+   * @param listener - Listener to indicate the success of failure of the move
+   * operation.
    * @param destinationFolderId - The EWS ID of the destination folder.
    * @param itemIds - A list of the EWS IDs of the folders to be moved.
    */
@@ -165,16 +176,76 @@ interface IEwsClient : nsISupports
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
-interface IEwsFolderCallbacks : nsISupports
+interface IEwsFolderListener : nsISupports
 {
-  void recordRootFolder(in AUTF8String id);
+  /**
+   * Called on the first sync when we have requested and received the EWS ID for
+   * the account's root folder.
+   *
+   * The EWS client is responsible for ensuring this is only called in the first
+   * sync.
+   *
+   * @param id - The root folder's EWS ID.
+   */
+  void onNewRootFolder(in AUTF8String id);
 
-  void create(in AUTF8String id, in AUTF8String parentId, in AUTF8String name, in unsigned long flags);
-  void update(in AUTF8String id, in AUTF8String parentId, in AUTF8String name);
-  void delete(in AUTF8String id);
+  /**
+   * Called if a folder has been created on the server.
+   *
+   * This may be called multiple times in a single sync if multiple folders
+   * have been created since the last sync.
+   *
+   * @param id - The new folder's EWS ID.
+   * @param parentId - The EWS ID for the new folder's parent folder.
+   * @param name - The new folder's name.
+   * @param flags - The `nsMsgFolderFlags` for the new folder.
+   */
+  void onFolderCreated(in AUTF8String id, in AUTF8String parentId, in AUTF8String name, in unsigned long flags);
 
-  /** Called after all sync items have been processed. */
-  void updateSyncState(in AUTF8String syncStateToken);
+  /**
+   * Called if an existing folder has been updated on the server.
+   *
+   * An update can mean the folder has been either renamed or moved to a new
+   * parent.
+   *
+   * This may be called multiple times in a single sync if multiple folders
+   * have been created since the last sync.
+   *
+   * @param id - The folder's EWS ID.
+   * @param parentId - The EWS ID for the folder's parent folder.
+   * @param name - The folder's name.
+   */
+  void onFolderUpdated(in AUTF8String id, in AUTF8String parentId, in AUTF8String name);
+
+  /**
+   * Called if an existing folder has been deleted on the server.
+   *
+   * This may be called multiple times in a single sync if multiple folders
+   * have been created since the last sync.
+   *
+   * @param id - The folder's EWS ID.
+   */
+  void onFolderDeleted(in AUTF8String id);
+
+  /**
+   * Called after a sync has completed.
+   *
+   * In this context, a sync having completed does not necessarily mean the
+   * client has stopped syncing, because the server might have told it there is
+   * more data to sync than what could be included in one sync. In this case,
+   * the client will sync again (and call this method again).
+   *
+   * @param syncStateToken - The new sync state token to use in future syncs.
+   */
+  void onSyncStateTokenChanged(in AUTF8String syncStateToken);
+
+  /**
+   * Called after processing everything there was to sync from the server.
+   *
+   * Unlike `onSyncStateTokenChanged`, this will only be called after all the
+   * necessary sync operations have completed (rather than at the end of each
+   * one).
+   */
   void onSuccess();
 };
 
@@ -265,42 +336,55 @@ interface IEwsMessageCallbacks : nsISupports
  * server.
  */
 [scriptable, uuid(ff45569f-d618-4bb0-9686-6cb24b92b02b)]
-interface IEwsMessageCreateCallbacks : nsISupports
+interface IEwsMessageCreateListener : nsISupports
 {
   /**
    * Inform consumers that the message creation has finished, both on the server
    * and the relevant local database and message store, with the provided
    * status.
+   *
+   * This will still be called if `onRemoteCreateSuccessful` is.
+   *
+   * @param status - The status describing the operation's outcome.
    */
-
   void onStopCreate(in nsresult status);
 
   /**
    * Inform consumers of the key for the newly-created message in the local
    * message database.
+   *
+   * @param msgKey - The key for the new message.
    */
-  void setMessageKey(in nsMsgKey aKey);
+  void onNewMessageKey(in nsMsgKey msgKey);
 
   /**
-   * Signals that the message was correctly created on the server.
+   * Signal that the message was correctly created on the server.
    *
-   * Returns the header object to update with the message's metadata and to
-   * commit to the message database.
+   * This does not signal the end of the message creation operation (as the
+   * client still has some processing to work through at this point), just the
+   * remote part.
    *
    * `nsIMsgDBHdr` is a type quite strongly associated with the message database
    * and storage, and, going forwards, we'll want to decouple these interfaces
    * from local storage management. We use currently use it because we don't
    * have a better way to represent structured headers over the XPCOM boundary,
    * and parsing RFC822 messages is easier in Rust than using the C++ message
-   * parser. We should revisit our use of `nsIMsgDBHdr` in client code the
+   * parser. We should revisit our use of `nsIMsgDBHdr` in client code when the
    * situation improves.
+   *
+   * @param ewsId - The EWS ID of the new message.
+   * @returns A new `nsIMsgDBHdr` object to update with the message's metadata
+   *   and to commit to the message database
    */
   nsIMsgDBHdr onRemoteCreateSuccessful(in AUTF8String ewsId);
 
   /**
-   * Writes the provided message entry to the database.
+   * Inform consumers that the provided `nsIMsgDBHdr` has been fully populated
+   * and is ready to be persisted.
+   *
+   * @param hdr - The `nsIMsgDBHdr` that has been populated.
    */
-  void commitHeader(in nsIMsgDBHdr hdr);
+  void onHdrPopulated(in nsIMsgDBHdr hdr);
 };
 
 /**

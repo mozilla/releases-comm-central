@@ -17,8 +17,6 @@
 #include "nsIMsgWindow.h"
 #include "nsTArray.h"
 
-class MessageCreateCallbacks;
-
 /**
  * A handler for a single message copy/move operation, the source for which can
  * be either a file or a folder.
@@ -138,8 +136,6 @@ class MessageCopyHandler : public nsICopyMessageListener {
    * which the handler itself will call it for any subsequent messages.
    */
   nsresult StartCopyingNextMessage();
-
-  friend class MessageCreateCallbacks;
 
  protected:
   virtual ~MessageCopyHandler() = default;

@@ -53,7 +53,7 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCallbacks, IEwsMessageCreateCallbacks,
+        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCallbacks, IEwsMessageCreateListener,
         IEwsMessageFetchCallbacks, IEwsSimpleOperationListener,
     },
     RefCounted, RefPtr, XpCom,
@@ -65,7 +65,7 @@ use crate::{
 };
 use crate::{
     headers::{Mailbox, MessageHeaders},
-    safe_xpcom::SafeEwsFolderCallbacks,
+    safe_xpcom::SafeEwsFolderListener,
 };
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
@@ -229,29 +229,29 @@ where
     /// [`SyncFolderHierarchy`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
     pub(crate) async fn sync_folder_hierarchy(
         self,
-        callbacks: SafeEwsFolderCallbacks,
+        listener: SafeEwsFolderListener,
         sync_state_token: Option<String>,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         match self
-            .sync_folder_hierarchy_inner(&callbacks, sync_state_token)
+            .sync_folder_hierarchy_inner(&listener, sync_state_token)
             .await
         {
             Ok(_) => {
-                let _ = callbacks.on_success();
+                let _ = listener.on_success();
             }
             Err(err) => handle_error(
                 "SyncFolderHierarchy",
                 err,
-                callbacks.into_unsafe_fallible_listener(),
+                listener.into_unsafe_fallible_listener(),
             ),
         };
     }
 
     async fn sync_folder_hierarchy_inner(
         self,
-        callbacks: &SafeEwsFolderCallbacks,
+        listener: &SafeEwsFolderListener,
         mut sync_state_token: Option<String>,
     ) -> Result<(), XpComEwsError> {
         // If we have received no sync state, assume that this is the first time
@@ -259,7 +259,7 @@ where
         // folders are "well-known" (e.g., inbox, trash, etc.) so we can flag
         // them.
         let well_known = if sync_state_token.is_none() {
-            Some(self.get_well_known_folder_map(callbacks).await?)
+            Some(self.get_well_known_folder_map(listener).await?)
         } else {
             None
         };
@@ -319,7 +319,7 @@ where
             }
 
             self.push_sync_state_to_ui(
-                callbacks,
+                listener,
                 create_ids,
                 update_ids,
                 delete_ids,
@@ -724,7 +724,7 @@ where
     /// calls and well-known IDs associated with special folders.
     async fn get_well_known_folder_map(
         &self,
-        callbacks: &SafeEwsFolderCallbacks,
+        listener: &SafeEwsFolderListener,
     ) -> Result<FxHashMap<String, &str>, XpComEwsError> {
         const DISTINGUISHED_IDS: &[&str] = &[
             EWS_ROOT_FOLDER,
@@ -787,7 +787,7 @@ where
         // Any error fetching the root folder is fatal, since we can't correctly
         // set the parents of any folders it contains without knowing its ID.
         let root_folder_id = validate_get_folder_response_message(&message)?;
-        callbacks.record_root_folder(root_folder_id)?;
+        listener.on_new_root_folder(root_folder_id)?;
 
         // Build the mapping for the remaining folders.
         message_iter
@@ -823,7 +823,7 @@ where
 
     async fn push_sync_state_to_ui(
         &self,
-        callbacks: &SafeEwsFolderCallbacks,
+        listener: &SafeEwsFolderListener,
         create_ids: Vec<String>,
         update_ids: Vec<String>,
         delete_ids: Vec<String>,
@@ -839,7 +839,7 @@ where
                         parent_folder_id,
                         display_name,
                         ..
-                    } => callbacks.create(
+                    } => listener.on_folder_created(
                         folder_id,
                         parent_folder_id,
                         display_name,
@@ -859,17 +859,17 @@ where
                         parent_folder_id,
                         display_name,
                         ..
-                    } => callbacks.update(folder_id, parent_folder_id, display_name)?,
+                    } => listener.on_folder_updated(folder_id, parent_folder_id, display_name)?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
         }
 
         for id in delete_ids {
-            callbacks.delete(id)?;
+            listener.on_folder_deleted(id)?;
         }
 
-        callbacks.update_sync_state(sync_state)?;
+        listener.on_sync_state_token_changed(sync_state)?;
 
         Ok(())
     }
@@ -1182,13 +1182,13 @@ where
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        callbacks: RefPtr<IEwsMessageCreateCallbacks>,
+        listener: RefPtr<IEwsMessageCreateListener>,
     ) {
         // Send the request, using an inner method to more easily handle errors.
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
         let status = match self
-            .create_message_inner(folder_id, is_draft, is_read, content, &callbacks)
+            .create_message_inner(folder_id, is_draft, is_read, content, &listener)
             .await
         {
             Ok(_) => nserror::NS_OK,
@@ -1199,7 +1199,7 @@ where
             }
         };
 
-        if let Err(err) = unsafe { callbacks.OnStopCreate(status) }.to_result() {
+        if let Err(err) = unsafe { listener.OnStopCreate(status) }.to_result() {
             log::error!("aborting copy: an error occurred while stopping the listener: {err}")
         }
     }
@@ -1210,7 +1210,7 @@ where
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        callbacks: &IEwsMessageCreateCallbacks,
+        listener: &IEwsMessageCreateListener,
     ) -> Result<(), XpComEwsError> {
         // Create a new message from the binary content we got.
         let mut message = Message {
@@ -1263,12 +1263,12 @@ where
             .await?;
 
         let hdr =
-            create_and_populate_header_from_create_response(response_message, &content, callbacks)?;
+            create_and_populate_header_from_create_response(response_message, &content, listener)?;
 
         // Let the listeners know of the local key for the newly created message.
         let mut key: nsMsgKey = 0;
         unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
-        unsafe { callbacks.SetMessageKey(key) }.to_result()?;
+        unsafe { listener.OnNewMessageKey(key) }.to_result()?;
 
         Ok(())
     }
@@ -2011,7 +2011,7 @@ fn validate_get_folder_response_message(
 fn create_and_populate_header_from_create_response(
     response_message: ItemResponseMessage,
     content: &[u8],
-    callbacks: &IEwsMessageCreateCallbacks,
+    listener: &IEwsMessageCreateListener,
 ) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
@@ -2034,7 +2034,7 @@ fn create_and_populate_header_from_create_response(
 
     // Signal that copying the message to the server has succeeded, which will
     // trigger its content to be streamed to the relevant message store.
-    let hdr = getter_addrefs(|hdr| unsafe { callbacks.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
+    let hdr = getter_addrefs(|hdr| unsafe { listener.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
 
     // Parse the message and use its headers to populate the `nsIMsgDBHdr`
     // before committing it to the database. We parse the original content
@@ -2048,7 +2048,7 @@ fn create_and_populate_header_from_create_response(
         })?;
 
     populate_db_message_header_from_message_headers(&hdr, message)?;
-    unsafe { callbacks.CommitHeader(&*hdr) }.to_result()?;
+    unsafe { listener.OnHdrPopulated(&*hdr) }.to_result()?;
 
     Ok(hdr)
 }

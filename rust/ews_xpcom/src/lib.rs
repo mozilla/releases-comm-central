@@ -24,15 +24,15 @@ use xpcom::interfaces::nsIIOService;
 use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{
     interfaces::{
-        nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderCallbacks,
-        IEwsMessageCallbacks, IEwsMessageCreateCallbacks, IEwsMessageFetchCallbacks,
+        nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderListener,
+        IEwsMessageCallbacks, IEwsMessageCreateListener, IEwsMessageFetchCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
-use safe_xpcom::SafeEwsFolderCallbacks;
+use safe_xpcom::SafeEwsFolderListener;
 
 mod authentication;
 mod cancellable_request;
@@ -124,10 +124,10 @@ impl XpcomEwsBridge {
         Ok(uri)
     }
 
-    xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(callbacks: *const IEwsFolderCallbacks, sync_state: *const nsACString));
+    xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(listener: *const IEwsFolderListener, sync_state: *const nsACString));
     fn sync_folder_hierarchy(
         &self,
-        callbacks: &IEwsFolderCallbacks,
+        listener: &IEwsFolderListener,
         sync_state: &nsACString,
     ) -> Result<(), nsresult> {
         // We can't use `Option` across XPCOM, but we want to use one internally
@@ -144,7 +144,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "sync_folder_hierarchy",
-            client.sync_folder_hierarchy(SafeEwsFolderCallbacks::new(callbacks), sync_state),
+            client.sync_folder_hierarchy(SafeEwsFolderListener::new(listener), sync_state),
         )
         .detach();
 
@@ -300,14 +300,14 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_message => CreateMessage(folder_id: *const nsACString, is_draft: bool, is_read: bool, message_stream: *const nsIInputStream, callbacks: *const IEwsMessageCreateCallbacks));
+    xpcom_method!(create_message => CreateMessage(listener: *const IEwsMessageCreateListener, folder_id: *const nsACString, is_draft: bool, is_read: bool, message_stream: *const nsIInputStream));
     fn create_message(
         &self,
+        listener: &IEwsMessageCreateListener,
         folder_id: &nsACString,
         is_draft: bool,
         is_read: bool,
         message_stream: &nsIInputStream,
-        callbacks: &IEwsMessageCreateCallbacks,
     ) -> Result<(), nsresult> {
         let content = crate::xpcom_io::read_stream(message_stream)?;
 
@@ -322,7 +322,7 @@ impl XpcomEwsBridge {
                 is_draft,
                 is_read,
                 content,
-                RefPtr::new(callbacks),
+                RefPtr::new(listener),
             ),
         )
         .detach();

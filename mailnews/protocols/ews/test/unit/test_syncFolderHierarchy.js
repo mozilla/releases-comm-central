@@ -122,38 +122,39 @@ add_task(async function testSecondSyncRequired() {
 });
 
 class EwsFolderCallbackListener {
-  QueryInterface = ChromeUtils.generateQI(["IEwsFolderCallbacks"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "IEwsFolderListener",
+    "IEwsFallibleOperationListener",
+  ]);
 
   constructor() {
     this._createdFolderIds = new Set();
     this._deferred = Promise.withResolvers();
   }
 
-  recordRootFolder(id) {
+  onNewRootFolder(id) {
     Assert.equal(id, "root", "root folder id should be 'root'");
   }
-  create(id, _parentId, _name, _flags) {
+  onFolderCreated(id, _parentId, _name, _flags) {
     Assert.ok(
       !this._createdFolderIds.has(id),
       `should not already have created folder: ${id}`
     );
     this._createdFolderIds.add(id);
   }
-  update(id, _name) {
+  onFolderUpdated(id, _name) {
     Assert.ok(false, `should not update ${id} on initial sync`);
   }
-  delete(id) {
+  onFolderDeleted(id) {
     Assert.ok(false, `should not delete ${id} on initial sync`);
   }
-  updateSyncState(syncStateToken) {
+  onSyncStateTokenChanged(syncStateToken) {
     this._syncStateToken = syncStateToken;
   }
   onSuccess() {
     this._deferred.resolve();
   }
-  onError(err, desc) {
-    this._deferred.reject(
-      new Error(`syncFolderHierarchy FAILED; ${err} - ${desc}`)
-    );
+  onOperationFailure(err) {
+    this._deferred.reject(new Error(`syncFolderHierarchy FAILED: ${err}`));
   }
 }

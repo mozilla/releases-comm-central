@@ -10,8 +10,6 @@
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
-class EwsFolder;
-
 /**
  * Create a new local folder with the given EWS ID and name under the given
  * parent.
@@ -88,8 +86,6 @@ class EwsFolder : public nsMsgDBFolder {
                                  uint32_t aJunkPercent) override;
 
  private:
-  friend class ItemCopyMoveCallbacks;
-
   bool mHasLoadedSubfolders;
 
   // The OnMessageClassified() implementation uses this to accumulate the

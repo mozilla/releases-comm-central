@@ -5,6 +5,8 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_
 
+#include <utility>
+
 #include "IEwsClient.h"
 #include "nsIMsgHdr.h"
 
@@ -142,6 +144,78 @@ class EwsSimpleFailibleMessageListener : public EwsSimpleMessageListener,
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;
+};
+
+/**
+ * A listener for EWS message creation operations.
+ */
+class EwsMessageCreateListener : public IEwsMessageCreateListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSMESSAGECREATELISTENER
+
+  EwsMessageCreateListener(
+      std::function<nsresult(nsIMsgDBHdr*)> onHdrPopulated,
+      std::function<nsresult(nsMsgKey)> onNewMessageKey,
+      std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
+          onRemoteCreateSuccessful,
+      std::function<nsresult(nsresult)> onStopCreate)
+      : mOnHdrPopulated(std::move(onHdrPopulated)),
+        mOnNewMessageKey(std::move(onNewMessageKey)),
+        mOnRemoteCreateSuccessful(std::move(onRemoteCreateSuccessful)),
+        mOnStopCreate(std::move(onStopCreate)) {}
+
+ protected:
+  virtual ~EwsMessageCreateListener() = default;
+
+ private:
+  std::function<nsresult(nsIMsgDBHdr*)> mOnHdrPopulated;
+  std::function<nsresult(nsMsgKey)> mOnNewMessageKey;
+  std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
+      mOnRemoteCreateSuccessful;
+  std::function<nsresult(nsresult)> mOnStopCreate;
+};
+
+/**
+ * A listener for EWS folder sync operations.
+ */
+class EwsFolderSyncListener : public IEwsFolderListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSFOLDERLISTENER
+
+  EwsFolderSyncListener(
+      std::function<nsresult(const nsACString&)> onNewRootFolder,
+      std::function<nsresult(const nsACString&, const nsACString&,
+                             const nsACString&, uint32_t)>
+          onFolderCreated,
+      std::function<nsresult(const nsACString&, const nsACString&,
+                             const nsACString&)>
+          onFolderUpdated,
+      std::function<nsresult(const nsACString&)> onFolderDeleted,
+      std::function<nsresult(const nsACString&)> onSyncStateTokenChanged,
+      std::function<nsresult()> onSuccess)
+      : mOnNewRootFolder(std::move(onNewRootFolder)),
+        mOnFolderCreated(std::move(onFolderCreated)),
+        mOnFolderUpdated(std::move(onFolderUpdated)),
+        mOnFolderDeleted(std::move(onFolderDeleted)),
+        mOnSyncStateTokenChanged(std::move(onSyncStateTokenChanged)),
+        mOnSuccess(std::move(onSuccess)) {}
+
+ protected:
+  virtual ~EwsFolderSyncListener() = default;
+
+ private:
+  std::function<nsresult(const nsACString&)> mOnNewRootFolder;
+  std::function<nsresult(const nsACString&, const nsACString&,
+                         const nsACString&, uint32_t)>
+      mOnFolderCreated;
+  std::function<nsresult(const nsACString&, const nsACString&,
+                         const nsACString&)>
+      mOnFolderUpdated;
+  std::function<nsresult(const nsACString&)> mOnFolderDeleted;
+  std::function<nsresult(const nsACString&)> mOnSyncStateTokenChanged;
+  std::function<nsresult()> mOnSuccess;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_

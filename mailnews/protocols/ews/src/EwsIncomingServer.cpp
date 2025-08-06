@@ -4,6 +4,9 @@
 
 #include "EwsIncomingServer.h"
 
+#include <utility>
+
+#include "EwsListeners.h"
 #include "IEwsClient.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgWindow.h"
@@ -15,68 +18,11 @@
 #include "plbase64.h"
 #include "mozilla/Components.h"
 
-#define SYNC_STATE_PROPERTY "ewsSyncStateToken"
-
 static constexpr auto kDeleteModelPreferenceName = "delete_model";
 static constexpr auto kTrashFolderPreferenceName = "trash_folder_path";
 
+constexpr auto kSyncStateTokenProperty = "ewsSyncStateToken";
 constexpr auto kEwsIdProperty = "ewsId";
-
-class FolderSyncListener : public IEwsFolderCallbacks {
- public:
-  NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_IEWSFOLDERCALLBACKS
-
-  FolderSyncListener(RefPtr<EwsIncomingServer> server,
-                     RefPtr<nsIMsgWindow> window,
-                     std::function<nsresult()> doneCallback)
-      : mServer(std::move(server)),
-        mWindow(std::move(window)),
-        mDoneCallback(std::move(doneCallback)) {}
-
- protected:
-  virtual ~FolderSyncListener() = default;
-
- private:
-  RefPtr<EwsIncomingServer> mServer;
-  RefPtr<nsIMsgWindow> mWindow;
-
-  std::function<nsresult()> mDoneCallback;
-};
-
-NS_IMPL_ISUPPORTS(FolderSyncListener, IEwsFolderCallbacks)
-
-NS_IMETHODIMP FolderSyncListener::RecordRootFolder(const nsACString& id) {
-  RefPtr<nsIMsgFolder> root;
-  nsresult rv = mServer->GetRootFolder(getter_AddRefs(root));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return root->SetStringProperty(kEwsIdProperty, id);
-}
-
-NS_IMETHODIMP FolderSyncListener::Create(const nsACString& id,
-                                         const nsACString& parentId,
-                                         const nsACString& name,
-                                         uint32_t flags) {
-  return mServer->MaybeCreateFolderWithDetails(id, parentId, name, flags);
-}
-
-NS_IMETHODIMP FolderSyncListener::Update(const nsACString& id,
-                                         const nsACString& parentId,
-                                         const nsACString& name) {
-  return mServer->UpdateFolderWithDetails(id, parentId, name, mWindow);
-}
-
-NS_IMETHODIMP FolderSyncListener::Delete(const nsACString& id) {
-  return mServer->DeleteFolderWithId(id);
-}
-
-NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
-    const nsACString& syncStateToken) {
-  return mServer->SetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
-}
-
-NS_IMETHODIMP FolderSyncListener::OnSuccess() { return mDoneCallback(); }
 
 NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_RELEASE_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
@@ -313,16 +259,49 @@ nsresult EwsIncomingServer::SyncFolderList(
   // EWS provides us an opaque value which specifies the last version of
   // upstream folders we received. Provide that to simplify sync.
   nsCString syncStateToken;
-  nsresult rv = GetStringValue(SYNC_STATE_PROPERTY, syncStateToken);
+  nsresult rv = GetStringValue(kSyncStateTokenProperty, syncStateToken);
   if (NS_FAILED(rv)) {
     syncStateToken = EmptyCString();
   }
 
+  // Define the listener and its callbacks.
+  auto onNewRootFolder = [self = RefPtr(this)](const nsACString& id) {
+    RefPtr<nsIMsgFolder> root;
+    nsresult rv = self->GetRootFolder(getter_AddRefs(root));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return root->SetStringProperty(kEwsIdProperty, id);
+  };
+
+  auto onFolderCreated = [self = RefPtr(this)](
+                             const nsACString& id, const nsACString& parentId,
+                             const nsACString& name, uint32_t flags) {
+    return self->MaybeCreateFolderWithDetails(id, parentId, name, flags);
+  };
+
+  nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
+  auto onFolderUpdated = [self = RefPtr(this), msgWindow](
+                             const nsACString& id, const nsACString& parentId,
+                             const nsACString& name) {
+    return self->UpdateFolderWithDetails(id, parentId, name, msgWindow);
+  };
+
+  auto onFolderDeleted = [self = RefPtr(this)](const nsACString& id) {
+    return self->DeleteFolderWithId(id);
+  };
+
+  auto onSyncStateTokenChanged =
+      [self = RefPtr(this)](const nsACString& syncStateToken) {
+        return self->SetStringValue(kSyncStateTokenProperty, syncStateToken);
+      };
+
+  RefPtr<EwsFolderSyncListener> listener = new EwsFolderSyncListener(
+      onNewRootFolder, onFolderCreated, onFolderUpdated, onFolderDeleted,
+      onSyncStateTokenChanged, std::move(postSyncCallback));
+
   // Sync the folder tree for the whole account.
   RefPtr<IEwsClient> client;
   MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
-  auto listener = RefPtr(new FolderSyncListener(this, RefPtr(aMsgWindow),
-                                                std::move(postSyncCallback)));
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
 

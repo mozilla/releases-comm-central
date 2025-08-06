@@ -40,3 +40,56 @@ NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFailibleMessageListener,
                             EwsSimpleMessageListener, EwsFallibleListener,
                             IEwsSimpleOperationListener,
                             IEwsFallibleOperationListener)
+
+// Implementation of EwsMessageCreateListener
+
+NS_IMPL_ISUPPORTS(EwsMessageCreateListener, IEwsMessageCreateListener)
+
+NS_IMETHODIMP EwsMessageCreateListener::OnHdrPopulated(nsIMsgDBHdr* hdr) {
+  return mOnHdrPopulated(hdr);
+}
+
+NS_IMETHODIMP EwsMessageCreateListener::OnNewMessageKey(nsMsgKey msgKey) {
+  return mOnNewMessageKey(msgKey);
+}
+
+NS_IMETHODIMP EwsMessageCreateListener::OnRemoteCreateSuccessful(
+    const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
+  return mOnRemoteCreateSuccessful(ewsId, newHdr);
+}
+
+NS_IMETHODIMP EwsMessageCreateListener::OnStopCreate(nsresult status) {
+  return mOnStopCreate(status);
+}
+
+// Implementation of EwsFolderSyncListener
+
+NS_IMPL_ISUPPORTS(EwsFolderSyncListener, IEwsFolderListener)
+
+NS_IMETHODIMP EwsFolderSyncListener::OnNewRootFolder(const nsACString& id) {
+  return mOnNewRootFolder(id);
+}
+
+NS_IMETHODIMP EwsFolderSyncListener::OnFolderCreated(const nsACString& id,
+                                                     const nsACString& parentId,
+                                                     const nsACString& name,
+                                                     uint32_t flags) {
+  return mOnFolderCreated(id, parentId, name, flags);
+}
+
+NS_IMETHODIMP EwsFolderSyncListener::OnFolderUpdated(const nsACString& id,
+                                                     const nsACString& parentId,
+                                                     const nsACString& name) {
+  return mOnFolderUpdated(id, parentId, name);
+}
+
+NS_IMETHODIMP EwsFolderSyncListener::OnFolderDeleted(const nsACString& id) {
+  return mOnFolderDeleted(id);
+}
+
+NS_IMETHODIMP EwsFolderSyncListener::OnSyncStateTokenChanged(
+    const nsACString& syncStateToken) {
+  return mOnSyncStateTokenChanged(syncStateToken);
+}
+
+NS_IMETHODIMP EwsFolderSyncListener::OnSuccess() { return mOnSuccess(); }

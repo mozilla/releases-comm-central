@@ -7,38 +7,38 @@ use fxhash::FxHashMap;
 use nsstring::nsCString;
 use xpcom::{
     interfaces::{
-        nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFallibleOperationListener, IEwsFolderCallbacks,
+        nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFallibleOperationListener, IEwsFolderListener,
     },
     RefPtr, XpCom,
 };
 
 use crate::client::XpComEwsError;
 
-/// Wrapper newtype for [`IEwsFolderCallbacks`] that utilizes only safe Rust
+/// Wrapper newtype for [`IEwsFolderListener`] that utilizes only safe Rust
 /// types in its public interface and handles converting to unsafe types and
 /// call to the underlying unsafe C++ callbacks with validated data.
-pub struct SafeEwsFolderCallbacks(RefPtr<IEwsFolderCallbacks>);
+pub struct SafeEwsFolderListener(RefPtr<IEwsFolderListener>);
 
-impl SafeEwsFolderCallbacks {
-    /// Return a new wrapper for the given [`IEwsFolderCallbacks`].  Will place
+impl SafeEwsFolderListener {
+    /// Return a new wrapper for the given [`IEwsFolderListener`].  Will place
     /// the given borrow into a [`RefPtr`] to ensure the memory management of
     /// the inner callbacks is done correctly across the XPCOM boundary and
-    /// guarantee that the lifetime of the borrowed inner
-    /// [`IEwsFolderCallbacks`] meets or exceeds the lifetime of the returned
-    /// [`SafeEwsFolderCallbacks`] for use in asynchronous operations.
-    pub fn new(unsafe_callbacks: &IEwsFolderCallbacks) -> Self {
-        SafeEwsFolderCallbacks(RefPtr::new(unsafe_callbacks))
+    /// guarantee that the lifetime of the borrowed inner [`IEwsFolderListener`]
+    /// meets or exceeds the lifetime of the returned [`SafeEwsFolderListener`]
+    /// for use in asynchronous operations.
+    pub fn new(unsafe_callbacks: &IEwsFolderListener) -> Self {
+        SafeEwsFolderListener(RefPtr::new(unsafe_callbacks))
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::RecordRootFolder`]
-    pub fn record_root_folder(&self, root_folder_id: FolderId) -> Result<(), XpComEwsError> {
+    /// Convert types and forward to [`IEwsFolderListener::OnNewRootFolder`]
+    pub fn on_new_root_folder(&self, root_folder_id: FolderId) -> Result<(), XpComEwsError> {
         let folder_id = nsCString::from(root_folder_id.id);
-        unsafe { self.0.RecordRootFolder(&*folder_id) }.to_result()?;
+        unsafe { self.0.OnNewRootFolder(&*folder_id) }.to_result()?;
         Ok(())
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::Create`]
-    pub fn create(
+    /// Convert types and forward to [`IEwsFolderListener::OnFolderCreated`]
+    pub fn on_folder_created(
         &self,
         folder_id: Option<FolderId>,
         parent_folder_id: Option<FolderId>,
@@ -66,15 +66,15 @@ impl SafeEwsFolderCallbacks {
         // types to cross the Rust/C++ boundary.
         unsafe {
             self.0
-                .Create(&*id, &*parent_folder_id, &*display_name, flags)
+                .OnFolderCreated(&*id, &*parent_folder_id, &*display_name, flags)
         }
         .to_result()?;
 
         Ok(())
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::Update`]
-    pub fn update(
+    /// Convert types and forward to [`IEwsFolderListener::OnFolderUpdated`]
+    pub fn on_folder_updated(
         &self,
         folder_id: Option<FolderId>,
         parent_folder_id: Option<FolderId>,
@@ -90,36 +90,36 @@ impl SafeEwsFolderCallbacks {
 
         // SAFETY: We have converted all of the inputs into the appropriate types
         // to cross the Rust/C++ boundary.
-        unsafe { self.0.Update(&*id, &*parent_id, &*display_name) }.to_result()?;
+        unsafe { self.0.OnFolderUpdated(&*id, &*parent_id, &*display_name) }.to_result()?;
 
         Ok(())
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::Delete`]
-    pub fn delete(&self, id: String) -> Result<(), XpComEwsError> {
+    /// Convert types and forward to [`IEwsFolderListener::OnFolderDeleted`]
+    pub fn on_folder_deleted(&self, id: String) -> Result<(), XpComEwsError> {
         let id = nsCString::from(id);
         // SAFETY: We have converted all of the inputs into the appropriate types
         // to cross the Rust/C++ boundary.
-        unsafe { self.0.Delete(&*id) }.to_result()?;
+        unsafe { self.0.OnFolderDeleted(&*id) }.to_result()?;
         Ok(())
     }
 
-    /// Convert types and forward to [`IEwsFolderCallbacks::UpdateSyncState`]
-    pub fn update_sync_state(&self, sync_state_token: &str) -> Result<(), XpComEwsError> {
+    /// Convert types and forward to [`IEwsFolderListener::OnSyncStateTokenChanged`]
+    pub fn on_sync_state_token_changed(&self, sync_state_token: &str) -> Result<(), XpComEwsError> {
         let sync_state = nsCString::from(sync_state_token);
         // SAFETY: We have converted all of the inputs into the appropriate types
         // to cross the Rust/C++ boundary.
-        unsafe { self.0.UpdateSyncState(&*sync_state) }.to_result()?;
+        unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()?;
         Ok(())
     }
 
-    /// Forward to [`IEwsFolderCallbacks::OnSuccess`].
+    /// Forward to [`IEwsFolderListener::OnSuccess`].
     pub fn on_success(&self) -> Result<(), XpComEwsError> {
         unsafe { self.0.OnSuccess() }.to_result()?;
         Ok(())
     }
 
-    /// Convert the wrapped [`IEwsFolderCallbacks`] into an instance of
+    /// Convert the wrapped [`IEwsFolderListener`] into an instance of
     /// [`IEwsFallibleOperationListener`], if it implements the latter
     /// interface.
     pub fn into_unsafe_fallible_listener(self) -> Option<RefPtr<IEwsFallibleOperationListener>> {

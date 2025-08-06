@@ -2,6 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-pub use folder_callbacks::*;
+pub use folder_listener::*;
 
-mod folder_callbacks;
+mod folder_listener;

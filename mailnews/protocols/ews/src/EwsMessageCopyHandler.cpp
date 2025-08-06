@@ -5,6 +5,7 @@
 #include "EwsMessageCopyHandler.h"
 
 #include "CopyMessageStreamListener.h"
+#include "EwsListeners.h"
 #include "nsIInputStream.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -17,102 +18,6 @@
 #include "mozilla/Components.h"
 
 constexpr auto kEwsIdProperty = "ewsId";
-
-///////////////////////////////////////////////////////////////////////////////
-// Definition of `MessageCreateCallbacks`, which implements
-// `IEWSMessageCreateCallbacks` and is used with an EWS client to signal
-// progress when creating a new message on an EWS server.
-///////////////////////////////////////////////////////////////////////////////
-
-class MessageCreateCallbacks : public IEwsMessageCreateCallbacks {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_IEWSMESSAGECREATECALLBACKS
-
-  MessageCreateCallbacks(EwsFolder* folder, nsISeekableStream* msgInputStream,
-                         MessageCopyHandler* copyHandler)
-      : mFolder(folder),
-        mMsgInputStream(msgInputStream),
-        mCopyHandler(copyHandler) {}
-
- protected:
-  virtual ~MessageCreateCallbacks() = default;
-
- private:
-  // The folder in which the message should be created.
-  RefPtr<EwsFolder> mFolder;
-
-  // A seekable input stream that contains the message's content.
-  RefPtr<nsISeekableStream> mMsgInputStream;
-
-  // A copy handler, if we're copying from another folder. If this is set to
-  // `Some(...)`, then `mFileCopyListener` is set to `Nothing()`.
-  RefPtr<MessageCopyHandler> mCopyHandler;
-};
-
-NS_IMPL_ISUPPORTS(MessageCreateCallbacks, IEwsMessageCreateCallbacks)
-
-NS_IMETHODIMP MessageCreateCallbacks::OnRemoteCreateSuccessful(
-    const nsACString& ewsId, nsIMsgDBHdr** newHdr) {
-  nsresult rv;
-  // Rewind the message stream to the start, because at this point the stream
-  // has already been read in its entirety in order to create the message on the
-  // remote server.
-  MOZ_TRY(mMsgInputStream->Seek(0, nsISeekableStream::NS_SEEK_SET));
-
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  nsCOMPtr<nsIInputStream> inputStream{do_QueryInterface(mMsgInputStream, &rv)};
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = LocalCopyMessage(mFolder, inputStream, getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hdr->SetStringProperty(kEwsIdProperty, ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Return the newly-created header so that the consumer can update it with
-  // metadata from the message headers before adding it to the message database.
-  hdr.forget(newHdr);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
-  nsresult rv = NS_OK;
-  if (auto currHdr = mCopyHandler->GetCurrentMessageHeader()) {
-    // If there's a source message header (which is always the case when copying
-    // from another folder, but never when copying from a file), then copy some
-    // of its properties onto the new one.
-    bool isMove = mCopyHandler->GetIsMove();
-    nsCOMPtr<nsIMsgDBHdr> srcHdr = currHdr.value();
-    nsTArray<nsCString> excludedProperties;
-    excludedProperties.AppendElement(kEwsIdProperty);
-    rv = LocalCopyHeaders(srcHdr, hdr, excludedProperties, isMove);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  rv = mFolder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgDB->AddNewHdrToDB(hdr, true);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  mCopyHandler->RecordNewHdr(hdr);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::SetMessageKey(nsMsgKey aKey) {
-  return mCopyHandler->SetMessageKey(aKey);
-}
-
-NS_IMETHODIMP MessageCreateCallbacks::OnStopCreate(nsresult status) {
-  return mCopyHandler->OnCreateFinished(status);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Definition of `MessageCopyHandler`, which handles a single copy operation
@@ -382,9 +287,78 @@ nsresult MessageCopyHandler::CreateRemoteMessage() {
   nsCOMPtr<nsISeekableStream> seekable = do_QueryInterface(inputStream, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<MessageCreateCallbacks> callbacks =
-      new MessageCreateCallbacks(mDstFolder, seekable, this);
+  RefPtr<EwsFolder> dstFolder = mDstFolder;
 
-  return mClient->CreateMessage(mDstFolderId, mIsDraft, isRead, inputStream,
-                                callbacks);
+  // Define the callbacks the listener needs.
+  auto commitHeader = [self = RefPtr(this), dstFolder](nsIMsgDBHdr* hdr) {
+    nsresult rv = NS_OK;
+    if (auto currHdr = self->GetCurrentMessageHeader()) {
+      // If there's a source message header (which is always the case when
+      // copying from another folder, but never when copying from a file), then
+      // copy some of its properties onto the new one.
+      bool isMove = self->GetIsMove();
+      nsCOMPtr<nsIMsgDBHdr> srcHdr = currHdr.value();
+      nsTArray<nsCString> excludedProperties;
+      excludedProperties.AppendElement(kEwsIdProperty);
+      rv = LocalCopyHeaders(srcHdr, hdr, excludedProperties, isMove);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    nsCOMPtr<nsIMsgDatabase> msgDB;
+    rv = dstFolder->GetMsgDatabase(getter_AddRefs(msgDB));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = msgDB->AddNewHdrToDB(hdr, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    self->RecordNewHdr(hdr);
+
+    return NS_OK;
+  };
+
+  auto setMessageKey = [self = RefPtr(this)](nsMsgKey msgKey) {
+    return self->SetMessageKey(msgKey);
+  };
+
+  auto onRemoteCreateSuccessful = [self = RefPtr(this), seekable, dstFolder](
+                                      const nsACString& ewsId,
+                                      nsIMsgDBHdr** newHdr) {
+    nsresult rv;
+    // Rewind the message stream to the start, because at this point the stream
+    // has already been read in its entirety in order to create the message on
+    // the remote server.
+    rv = seekable->Seek(0, nsISeekableStream::NS_SEEK_SET);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    nsCOMPtr<nsIInputStream> inputStream{do_QueryInterface(seekable, &rv)};
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = LocalCopyMessage(dstFolder, inputStream, getter_AddRefs(hdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = hdr->SetStringProperty(kEwsIdProperty, ewsId);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Return the newly-created header so that the consumer can update it with
+    // metadata from the message headers before adding it to the message
+    // database.
+    hdr.forget(newHdr);
+
+    return NS_OK;
+  };
+
+  auto onStopCreate = [self = RefPtr(this)](nsresult status) {
+    return self->OnCreateFinished(status);
+  };
+
+  // Instantiate the listener with our callbacks and send the operation.
+  RefPtr<EwsMessageCreateListener> listener = new EwsMessageCreateListener(
+      commitHeader, setMessageKey, onRemoteCreateSuccessful, onStopCreate);
+
+  return mClient->CreateMessage(listener, mDstFolderId, mIsDraft, isRead,
+                                inputStream);
 }
