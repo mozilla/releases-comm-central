@@ -229,7 +229,7 @@ optional = true
 default-features = false
 
 [dependencies.thiserror]
-version = "2.0.3"
+version = "2.0.11"
 default-features = false
 
 [dependencies.wgpu-types]
@@ -346,7 +346,7 @@ version = "1"
 optional = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies.smallvec]
-version = "1.9"
+version = "1.13.1"
 features = ["union"]
 optional = true
 

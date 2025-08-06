@@ -56,6 +56,21 @@ pub enum DrawError {
     },
     #[error(transparent)]
     BindingSizeTooSmall(#[from] LateMinBufferBindingSizeMismatch),
+
+    #[error(
+        "Wrong pipeline type for this draw command. Attempted to call {} draw command on {} pipeline",
+        if *wanted_mesh_pipeline {"mesh shader"} else {"standard"},
+        if *wanted_mesh_pipeline {"standard"} else {"mesh shader"},
+    )]
+    WrongPipelineType { wanted_mesh_pipeline: bool },
+    #[error(
+        "Each current draw group size dimension ({current:?}) must be less or equal to {limit}, and the product must be less or equal to {max_total}"
+    )]
+    InvalidGroupSize {
+        current: [u32; 3],
+        limit: u32,
+        max_total: u32,
+    },
 }
 
 impl WebGpuError for DrawError {
@@ -73,6 +88,12 @@ pub enum RenderCommandError {
     BindGroupIndexOutOfRange(#[from] pass::BindGroupIndexOutOfRange),
     #[error("Vertex buffer index {index} is greater than the device's requested `max_vertex_buffers` limit {max}")]
     VertexBufferIndexOutOfRange { index: u32, max: u32 },
+    #[error(
+        "Offset {offset} for vertex buffer in slot {slot} is not a multiple of `VERTEX_ALIGNMENT`"
+    )]
+    UnalignedVertexBuffer { slot: u32, offset: u64 },
+    #[error("Offset {offset} for index buffer is not a multiple of {alignment}")]
+    UnalignedIndexBuffer { offset: u64, alignment: usize },
     #[error("Render pipeline targets are incompatible with render pass")]
     IncompatiblePipelineTargets(#[from] crate::device::RenderPassCompatibilityError),
     #[error("{0} writes to depth, while the pass has read-only depth access")]
@@ -116,6 +137,8 @@ impl WebGpuError for RenderCommandError {
 
             Self::BindGroupIndexOutOfRange { .. }
             | Self::VertexBufferIndexOutOfRange { .. }
+            | Self::UnalignedIndexBuffer { .. }
+            | Self::UnalignedVertexBuffer { .. }
             | Self::IncompatibleDepthAccess(..)
             | Self::IncompatibleStencilAccess(..)
             | Self::InvalidViewportRectSize { .. }

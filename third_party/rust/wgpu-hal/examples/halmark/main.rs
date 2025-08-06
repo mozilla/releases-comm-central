@@ -123,7 +123,7 @@ impl<A: hal::Api> Example<A> {
 
         let surface_caps = unsafe { adapter.surface_capabilities(&surface) }
             .ok_or("failed to get surface capabilities")?;
-        log::info!("Surface caps: {:#?}", surface_caps);
+        log::info!("Surface caps: {surface_caps:#?}");
 
         let hal::OpenDevice { device, queue } = unsafe {
             adapter
@@ -254,13 +254,15 @@ impl<A: hal::Api> Example<A> {
         let pipeline_desc = hal::RenderPipelineDescriptor {
             label: None,
             layout: &pipeline_layout,
-            vertex_stage: hal::ProgrammableStage {
-                module: &shader,
-                entry_point: "vs_main",
-                constants: &constants,
-                zero_initialize_workgroup_memory: true,
+            vertex_processor: hal::VertexProcessor::Standard {
+                vertex_stage: hal::ProgrammableStage {
+                    module: &shader,
+                    entry_point: "vs_main",
+                    constants: &constants,
+                    zero_initialize_workgroup_memory: true,
+                },
+                vertex_buffers: &[],
             },
-            vertex_buffers: &[],
             fragment_stage: Some(hal::ProgrammableStage {
                 module: &shader,
                 entry_point: "fs_main",
@@ -464,6 +466,7 @@ impl<A: hal::Api> Example<A> {
                 samplers: &[&sampler],
                 textures: &[texture_binding],
                 acceleration_structures: &[],
+                external_textures: &[],
                 entries: &[
                     hal::BindGroupEntry {
                         binding: 0,
@@ -499,6 +502,7 @@ impl<A: hal::Api> Example<A> {
                 samplers: &[],
                 textures: &[],
                 acceleration_structures: &[],
+                external_textures: &[],
                 entries: &[hal::BindGroupEntry {
                     binding: 0,
                     resource_index: 0,

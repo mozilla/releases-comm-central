@@ -31,6 +31,8 @@ pub struct Fence {
 type DeviceResult<T> = Result<T, crate::DeviceError>;
 
 impl crate::Api for Api {
+    const VARIANT: wgt::Backend = wgt::Backend::Noop;
+
     type Instance = Context;
     type Surface = Context;
     type Adapter = Context;
@@ -177,6 +179,12 @@ const CAPABILITIES: crate::Capabilities = {
             max_subgroup_size: ALLOC_MAX_U32,
             max_push_constant_size: ALLOC_MAX_U32,
             max_non_sampler_bindings: ALLOC_MAX_U32,
+
+            max_task_workgroup_total_count: 0,
+            max_task_workgroups_per_dimension: 0,
+            max_mesh_multiview_count: 0,
+            max_mesh_output_layers: 0,
+
             max_blas_primitive_count: ALLOC_MAX_U32,
             max_blas_geometry_count: ALLOC_MAX_U32,
             max_tlas_instance_count: ALLOC_MAX_U32,
@@ -371,16 +379,6 @@ impl crate::Device for Context {
         &self,
         desc: &crate::RenderPipelineDescriptor<Resource, Resource, Resource>,
     ) -> Result<Resource, crate::PipelineError> {
-        Ok(Resource)
-    }
-    unsafe fn create_mesh_pipeline(
-        &self,
-        desc: &crate::MeshPipelineDescriptor<
-            <Self::A as crate::Api>::PipelineLayout,
-            <Self::A as crate::Api>::ShaderModule,
-            <Self::A as crate::Api>::PipelineCache,
-        >,
-    ) -> Result<<Self::A as crate::Api>::RenderPipeline, crate::PipelineError> {
         Ok(Resource)
     }
     unsafe fn destroy_render_pipeline(&self, pipeline: Resource) {}

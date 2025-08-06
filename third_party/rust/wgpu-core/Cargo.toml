@@ -80,10 +80,7 @@ serde = [
     "arrayvec/serde",
     "hashbrown/serde",
 ]
-spirv = [
-    "naga/spv-in",
-    "dep:bytemuck",
-]
+spirv = ["naga/spv-in"]
 static-dxc = ["wgpu-hal/static-dxc"]
 std = []
 strict_asserts = ["wgpu-types/strict_asserts"]
@@ -93,7 +90,6 @@ trace = [
     "dep:ron",
     "naga/serialize",
     "wgpu-types/trace",
-    "dep:bytemuck",
 ]
 vulkan = ["wgpu-core-deps-windows-linux-android/vulkan"]
 vulkan-portability = ["wgpu-core-deps-apple/vulkan-portability"]
@@ -128,7 +124,6 @@ features = [
     "extern_crate_alloc",
     "min_const_generics",
 ]
-optional = true
 
 [dependencies.document-features]
 version = "0.2.10"
@@ -187,10 +182,10 @@ optional = true
 default-features = false
 
 [dependencies.smallvec]
-version = "1.9"
+version = "1.13.1"
 
 [dependencies.thiserror]
-version = "2.0.3"
+version = "2.0.11"
 default-features = false
 
 [dependencies.wgpu-hal]

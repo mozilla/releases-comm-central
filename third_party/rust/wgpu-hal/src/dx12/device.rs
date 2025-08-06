@@ -342,10 +342,7 @@ impl super::Device {
                     (source, entry_point)
                 };
                 log::info!(
-                    "Naga generated shader for {:?} at {:?}:\n{}",
-                    entry_point,
-                    naga_stage,
-                    source
+                    "Naga generated shader for {entry_point:?} at {naga_stage:?}:\n{source}"
                 );
 
                 ShaderCacheKey {
@@ -1584,7 +1581,7 @@ impl crate::Device for super::Device {
             let buffer_size = (sampler_indexes.len() * size_of::<u32>()) as u64;
 
             let label = if let Some(label) = desc.label {
-                Cow::Owned(format!("{} (Internal Sampler Index Buffer)", label))
+                Cow::Owned(format!("{label} (Internal Sampler Index Buffer)"))
             } else {
                 Cow::Borrowed("Internal Sampler Index Buffer")
             };
@@ -1750,8 +1747,16 @@ impl crate::Device for super::Device {
         let (topology_class, topology) = conv::map_topology(desc.primitive.topology);
         let mut shader_stages = wgt::ShaderStages::VERTEX;
 
+        let (vertex_stage_desc, vertex_buffers_desc) = match &desc.vertex_processor {
+            crate::VertexProcessor::Standard {
+                vertex_buffers,
+                vertex_stage,
+            } => (vertex_stage, *vertex_buffers),
+            crate::VertexProcessor::Mesh { .. } => unreachable!(),
+        };
+
         let blob_vs = self.load_shader(
-            &desc.vertex_stage,
+            vertex_stage_desc,
             desc.layout,
             naga::ShaderStage::Vertex,
             desc.fragment_stage.as_ref(),
@@ -1768,7 +1773,7 @@ impl crate::Device for super::Device {
         let mut input_element_descs = Vec::new();
         for (i, (stride, vbuf)) in vertex_strides
             .iter_mut()
-            .zip(desc.vertex_buffers)
+            .zip(vertex_buffers_desc)
             .enumerate()
         {
             *stride = NonZeroU32::new(vbuf.array_stride as u32);
@@ -1920,17 +1925,6 @@ impl crate::Device for super::Device {
             topology,
             vertex_strides,
         })
-    }
-
-    unsafe fn create_mesh_pipeline(
-        &self,
-        _desc: &crate::MeshPipelineDescriptor<
-            <Self::A as crate::Api>::PipelineLayout,
-            <Self::A as crate::Api>::ShaderModule,
-            <Self::A as crate::Api>::PipelineCache,
-        >,
-    ) -> Result<<Self::A as crate::Api>::RenderPipeline, crate::PipelineError> {
-        unreachable!()
     }
 
     unsafe fn destroy_render_pipeline(&self, _pipeline: super::RenderPipeline) {
@@ -2123,11 +2117,7 @@ impl crate::Device for super::Device {
                 }
             };
 
-            log::trace!(
-                "Waiting for fence value {} for {:?}",
-                value,
-                remaining_wait_duration
-            );
+            log::trace!("Waiting for fence value {value} for {remaining_wait_duration:?}");
 
             match unsafe {
                 Threading::WaitForSingleObject(
@@ -2145,13 +2135,13 @@ impl crate::Device for super::Device {
                     break Ok(false);
                 }
                 other => {
-                    log::error!("Unexpected wait status: 0x{:?}", other);
+                    log::error!("Unexpected wait status: 0x{other:?}");
                     break Err(crate::DeviceError::Lost);
                 }
             };
 
             fence_value = unsafe { fence.raw.GetCompletedValue() };
-            log::trace!("Wait complete! Fence actual value: {}", fence_value);
+            log::trace!("Wait complete! Fence actual value: {fence_value}");
 
             if fence_value >= value {
                 break Ok(true);

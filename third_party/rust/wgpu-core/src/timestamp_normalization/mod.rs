@@ -36,6 +36,7 @@ use wgt::PushConstantRange;
 
 use crate::{
     device::{Device, DeviceError},
+    hal_label,
     pipeline::{CreateComputePipelineError, CreateShaderModuleError},
     resource::Buffer,
     snatch::SnatchGuard,
@@ -112,7 +113,10 @@ impl TimestampNormalizer {
             let temporary_bind_group_layout = device
                 .raw()
                 .create_bind_group_layout(&hal::BindGroupLayoutDescriptor {
-                    label: Some("Timestamp Normalization Bind Group Layout"),
+                    label: hal_label(
+                        Some("Timestamp Normalization Bind Group Layout"),
+                        device.instance_flags,
+                    ),
                     flags: hal::BindGroupLayoutFlags::empty(),
                     entries: &[wgt::BindGroupLayoutEntry {
                         binding: 0,
@@ -177,7 +181,7 @@ impl TimestampNormalizer {
                         CreateShaderModuleError::Device(device.handle_hal_error(error))
                     }
                     hal::ShaderError::Compilation(ref msg) => {
-                        log::error!("Shader error: {}", msg);
+                        log::error!("Shader error: {msg}");
                         CreateShaderModuleError::Generation
                     }
                 })?;
@@ -274,8 +278,7 @@ impl TimestampNormalizer {
             let bg_label_alloc;
             let label = match buffer_label {
                 Some(label) => {
-                    bg_label_alloc =
-                        alloc::format!("Timestamp normalization bind group ({})", label);
+                    bg_label_alloc = alloc::format!("Timestamp normalization bind group ({label})");
                     &*bg_label_alloc
                 }
                 None => "Timestamp normalization bind group",
@@ -284,12 +287,13 @@ impl TimestampNormalizer {
             let bg = device
                 .raw()
                 .create_bind_group(&hal::BindGroupDescriptor {
-                    label: Some(label),
+                    label: hal_label(Some(label), device.instance_flags),
                     layout: &*state.temporary_bind_group_layout,
                     buffers: &[hal::BufferBinding::new_unchecked(buffer, 0, buffer_size)],
                     samplers: &[],
                     textures: &[],
                     acceleration_structures: &[],
+                    external_textures: &[],
                     entries: &[hal::BindGroupEntry {
                         binding: 0,
                         resource_index: 0,
@@ -331,7 +335,10 @@ impl TimestampNormalizer {
         unsafe {
             encoder.transition_buffers(barrier.as_slice());
             encoder.begin_compute_pass(&hal::ComputePassDescriptor {
-                label: Some("Timestamp normalization pass"),
+                label: hal_label(
+                    Some("Timestamp normalization pass"),
+                    buffer.device.instance_flags,
+                ),
                 timestamp_writes: None,
             });
             encoder.set_compute_pipeline(&*state.pipeline);
