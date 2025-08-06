@@ -83,6 +83,8 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     ewsServer.stop();
     incomingServer.closeCachedConnections();
+    MailServices.accounts.removeAccount(ewsAccount, false);
+    Services.logins.removeAllLogins();
   });
 });
 
