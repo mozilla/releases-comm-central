@@ -201,6 +201,8 @@ add_task(async function test_address_book_sync_account() {
     "address-book-option-select"
   );
 
+  const tabmail = document.getElementById("tabmail");
+
   await BrowserTestUtils.waitForMutationCondition(
     optionSelectTemplate,
     { childList: true },
@@ -309,10 +311,31 @@ add_task(async function test_address_book_sync_account() {
     "addrbook-directory-synced"
   );
   const dialogClosePromise = BrowserTestUtils.waitForEvent(dialog, "close");
+  const addressBookTabOpen = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen",
+    false,
+    event => event.detail.tabInfo.mode.type == "addressBookTab"
+  );
   EventUtils.synthesizeMouseAtCenter(
     dialog.querySelector("#addressBookFooter #forward"),
     {}
   );
+
+  info("Opening address book tab...");
+  const {
+    detail: { tabInfo: addressBookTab },
+  } = await addressBookTabOpen;
+
+  info("Waiting for address book to be ready...");
+  await BrowserTestUtils.waitForEvent(
+    addressBookTab.browser,
+    "about-addressbook-ready",
+    true
+  );
+
+  info("Waiting for account hub to close...");
+  await dialogClosePromise;
 
   // Check existance of address book and calendar.
   const [addressBookDirectory] = await addressBookDirectoryPromise;
@@ -326,11 +349,26 @@ add_task(async function test_address_book_sync_account() {
     "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs"
   );
 
+  const addressBookDocument = addressBookTab.browser.contentDocument;
+  const booksList = addressBookDocument.getElementById("books");
+
+  const index = booksList.getIndexForUID(addressBookDirectory.UID);
+  Assert.equal(
+    booksList.selectedIndex,
+    index,
+    "The new address book should be selected"
+  );
+  Assert.equal(
+    addressBookDocument.activeElement.id,
+    "searchInput",
+    "Search input should have focus"
+  );
+
+  tabmail.closeOtherTabs(0);
+
   // Remove the address book.
   MailServices.ab.deleteAddressBook(addressBookDirectory.URI);
 
-  // The dialog should automatically close after clicking next
-  await dialogClosePromise;
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
   IMAPServer.close();

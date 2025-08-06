@@ -327,6 +327,21 @@ class AccountHubAddressBook extends HTMLElement {
   }
 
   /**
+   * Closes Account Hub and opens an address book in the address book tab.
+   *
+   * @param {string} directoryUID - The UID of the directory to open.
+   */
+  async #openAddressBook(directoryUID) {
+    this.dispatchEvent(
+      new CustomEvent("request-close", {
+        bubbles: true,
+      })
+    );
+
+    await window.toAddressBook(["cmd_displayAddressBook", directoryUID]);
+  }
+
+  /**
    * Calls the appropriate method for the current state when the forward
    * button is pressed.
    *
@@ -345,12 +360,7 @@ class AccountHubAddressBook extends HTMLElement {
 
           const directory = lazy.MailServices.ab.getDirectoryFromId(dirPrefId);
 
-          this.dispatchEvent(
-            new CustomEvent("request-close", {
-              bubbles: true,
-            })
-          );
-          await window.toAddressBook(["cmd_displayAddressBook", directory.UID]);
+          await this.#openAddressBook(directory.UID);
           await this.reset();
         } catch (error) {
           throw new Error("Local address book creation failed", {
@@ -403,20 +413,20 @@ class AccountHubAddressBook extends HTMLElement {
           stateData.rememberPassword;
         await this.#initializeSyncSubview(currentState);
         break;
-      case "syncAddressBooksSubview":
+      case "syncAddressBooksSubview": {
         // The state data returned from this subview is a list of available
         // address books that have a create function.
+        let directory;
         for (const addressBook of stateData) {
-          addressBook.create();
+          if (!directory) {
+            directory = await addressBook.create();
+            continue;
+          }
+          await addressBook.create();
         }
-
-        // Close account hub dialog.
-        this.dispatchEvent(
-          new CustomEvent("request-close", {
-            bubbles: true,
-          })
-        );
+        await this.#openAddressBook(directory?.UID);
         break;
+      }
       default:
         break;
     }

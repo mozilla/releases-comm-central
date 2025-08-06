@@ -466,6 +466,9 @@ add_task(async function test_directoryWithNoName() {
     "Should be back to the initial directory count"
   );
 
+  const tabmail = document.getElementById("tabmail");
+  tabmail.closeOtherTabs(0);
+
   Services.logins.removeLogin(login);
   CardDAVServer.books = books;
   CardDAVServer.resetHandlers();
@@ -657,6 +660,16 @@ async function checkSyncSubview(dialog, origin = "https://carddav.test") {
   EventUtils.synthesizeMouseAtCenter(otherAb, {}, window);
 
   const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  const tabmail = document.getElementById("tabmail");
+  const addressBookDirectoryPromise = TestUtils.topicObserved(
+    "addrbook-directory-synced"
+  );
+  const addressBookTabOpen = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen",
+    false,
+    event => event.detail.tabInfo.mode.type == "addressBookTab"
+  );
   EventUtils.synthesizeMouseAtCenter(forward, {}, window);
 
   Assert.equal(
@@ -682,6 +695,15 @@ async function checkSyncSubview(dialog, origin = "https://carddav.test") {
     null,
     "Should have scheduled a sync"
   );
+
+  await addressBookTabOpen;
+
+  // We have to wait until the address book has been synced
+  // before we delete it.
+  await addressBookDirectoryPromise;
+
+  // Close the address book tab and delete the address book.
+  tabmail.closeOtherTabs(0);
 
   const removePromise = TestUtils.topicObserved(
     "addrbook-directory-deleted",
