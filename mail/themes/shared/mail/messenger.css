@@ -371,7 +371,7 @@ toolbar[customizing="true"][collapsed] {
   :root[uidensity="touch"] &:not([is="toolbarbutton-menu-button"]),
   :root[uidensity="touch"] & > .toolbarbutton-menubutton-button,
   :root[uidensity="touch"] & > .toolbarbutton-menubutton-dropmarker {
-    padding: 5px !important;
+    padding: 5px;
   }
 
   toolbar[mode="full"] &:not([hideWebExtensionLabel="true"]) {
@@ -449,6 +449,11 @@ toolbar[customizing="true"][collapsed] {
   }
 }
 
+toolbarbutton[is="toolbarbutton-menu-button"] {
+  align-items: stretch;
+  flex-direction: row;
+}
+
 .toolbarbutton-menubutton-button {
   align-items: center;
   justify-content: center;
@@ -456,11 +461,16 @@ toolbar[customizing="true"][collapsed] {
   min-height: 24px;
   min-width: 32px;
   margin: 4px 1px;
-  padding: 1px 5px !important;
+  padding: 1px 5px;
 
   & > .toolbarbutton-icon {
     padding: 1px;
   }
+}
+
+.toolbarbutton-1:not(.qfb-tag-button),
+.toolbarbutton-menubutton-button {
+  color: inherit;
 }
 
 toolbox[labelalign="end"] .toolbarbutton-1,
@@ -787,11 +797,6 @@ html|ul.addon-installed-list {
 
 .button-more {
   list-style-image: var(--icon-more);
-}
-
-.toolbarbutton-1:not(.qfb-tag-button),
-.toolbarbutton-menubutton-button {
-  color: inherit !important;
 }
 
 /* Don't show a menupopup in customize mode */
@@ -1390,6 +1395,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
   &.small-button {
     font-size: inherit;
     font-weight: 400;
+    max-height: 1.8em;
     min-height: 24px;
     margin: 4px;
   }
@@ -1412,6 +1418,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
   }
 
   toolbarbutton&[is="toolbarbutton-menu-button"] {
+    appearance: none;
     align-items: center;
     margin: 4px 6px;
     padding-block: 0;
@@ -1420,12 +1427,11 @@ panel[type="arrow"].panel-block-padding::part(content) {
     & > toolbarbutton {
       margin-block: 0;
       margin-inline: 0 2px;
-      min-height: 22px;
       border-start-start-radius: 2px;
       border-start-end-radius: 2px;
       border-start-end-radius: 0;
       border-end-end-radius: 0;
-      padding: 2px 15px;
+      padding: 0 15px;
       font-weight: inherit;
       background-color: var(--button-background-color);
       border-width: 0;

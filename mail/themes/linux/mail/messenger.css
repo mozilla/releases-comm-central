@@ -301,9 +301,7 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
-  align-items: stretch;
-  flex-direction: row !important;
-  padding: 0 !important;
+  padding: 0;
 }
 
 /* .......... dropmarker .......... */
@@ -438,8 +436,12 @@ treechildren::-moz-tree-row {
 /* Infobar styles */
 
 toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
-  appearance: none;
-  padding-inline: 6px 12px !important;
+  padding-inline: 0 12px;
+
+  & > .toolbarbutton-menubutton-button {
+    min-height: calc(1.8em - 2px);
+    padding-top: 1px;
+  }
 }
 
 #reminderBarPopup {

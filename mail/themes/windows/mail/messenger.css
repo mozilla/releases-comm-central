@@ -56,9 +56,7 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
-  align-items: stretch;
-  flex-direction: row !important;
-  padding: 0 !important;
+  padding: 0;
 }
 
 /* .......... dropmarker .......... */
@@ -327,10 +325,11 @@ treechildren::-moz-tree-row {
 /* Infobar styles */
 
 toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
-  padding-inline-end: 3px !important;
+  padding-inline-end: 3px;
 
-  & > toolbarbutton {
+  & > .toolbarbutton-menubutton-button {
     appearance: none;
+    min-height: calc(1.8em - 2px);
   }
 }
 

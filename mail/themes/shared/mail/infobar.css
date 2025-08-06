@@ -170,6 +170,10 @@ img.icon {
 
 /* Close icon styles */
 
+.close {
+  display: flex;
+}
+
 moz-button::part(button) {
   color: var(--message-bar-text-color);
   background-image: var(--icon-close) !important;

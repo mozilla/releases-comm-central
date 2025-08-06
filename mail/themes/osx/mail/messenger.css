@@ -79,8 +79,6 @@
 /* ::::: toolbarbutton menu-button ::::: */
 
 toolbarbutton[is="toolbarbutton-menu-button"] {
-  align-items: stretch;
-  flex-direction: row !important;
   background-color: transparent;
 }
 
@@ -430,4 +428,13 @@ treechildren::-moz-tree-row {
 
 .notification-button.small-button {
   padding-block: 4px;
+}
+
+toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
+  padding-inline: 0 6px;
+
+  & > .toolbarbutton-menubutton-button {
+    min-height: 1.8em;
+    padding-top: 1px;
+  }
 }
