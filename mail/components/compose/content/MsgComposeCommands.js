@@ -6087,7 +6087,10 @@ function SetComposeDetails(newValues) {
     if (!IsHTMLEditor()) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
-    editor.rebuildDocumentFromSource(newValues.body);
+    // eslint-disable-next-line no-unsanitized/property
+    editor.document.documentElement.innerHTML = newValues.body;
+    editor.beginningOfDocument(); // Move caret to the first editable point.
+    editor.clearUndoRedo();
     gMsgCompose.bodyModified = true;
   }
   if (typeof newValues.plainTextBody == "string") {
