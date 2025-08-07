@@ -6,14 +6,13 @@
 #include "msgCore.h"
 #include "nsMailDatabase.h"
 #include "nsDBFolderInfo.h"
+#include "nsError.h"
 #include "nsNetUtil.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"
 #include "mozilla/Logging.h"
-#include "prprf.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsSimpleEnumerator.h"
 
 using namespace mozilla;
 
@@ -231,18 +230,18 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
 
       err = rowCursor->NextRowOid(GetEnv(), &outOid, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
-      if (outPos < 0 || outOid.mOid_Id == (mdb_id)-1) break;
-      if (NS_SUCCEEDED(err)) {
-        offlineOpIds.AppendElement(outOid.mOid_Id);
-        if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info)) {
-          nsCOMPtr<nsIMsgOfflineImapOperation> offlineOp;
-          GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));
-          if (offlineOp) {
-            nsMsgOfflineImapOperation* logOp =
-                static_cast<nsMsgOfflineImapOperation*>(
-                    static_cast<nsIMsgOfflineImapOperation*>(offlineOp.get()));
-            if (logOp) logOp->Log();
-          }
+      if (NS_FAILED(err) || outPos < 0 || outOid.mOid_Id == (mdb_id)-1) {
+        break;
+      }
+      offlineOpIds.AppendElement(outOid.mOid_Id);
+      if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info)) {
+        nsCOMPtr<nsIMsgOfflineImapOperation> offlineOp;
+        GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));
+        if (offlineOp) {
+          nsMsgOfflineImapOperation* logOp =
+              static_cast<nsMsgOfflineImapOperation*>(
+                  static_cast<nsIMsgOfflineImapOperation*>(offlineOp.get()));
+          if (logOp) logOp->Log();
         }
       }
     }
@@ -270,23 +269,23 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
 
       err = rowCursor->NextRow(GetEnv(), &offlineOpRow, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
-      if (outPos < 0 || offlineOpRow == nullptr) break;
-      if (NS_SUCCEEDED(err)) {
-        offlineOpRow->GetOid(GetEnv(), &outOid);
-        RefPtr<nsIMsgOfflineImapOperation> offlineOp =
-            new nsMsgOfflineImapOperation(this, offlineOpRow);
-        imapMessageFlagsType newFlags;
-        nsOfflineImapOperationType opType;
-
-        offlineOp->GetOperation(&opType);
-        offlineOp->GetNewFlags(&newFlags);
-        if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
-            ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) &&
-             (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
-          offlineDeletes.AppendElement(outOid.mOid_Id);
-
-        offlineOpRow->Release();
+      if (NS_FAILED(err) || outPos < 0 || offlineOpRow == nullptr) {
+        break;
       }
+      offlineOpRow->GetOid(GetEnv(), &outOid);
+      RefPtr<nsIMsgOfflineImapOperation> offlineOp =
+          new nsMsgOfflineImapOperation(this, offlineOpRow);
+      imapMessageFlagsType newFlags;
+      nsOfflineImapOperationType opType;
+
+      offlineOp->GetOperation(&opType);
+      offlineOp->GetNewFlags(&newFlags);
+      if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
+          ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) &&
+           (newFlags & nsIMsgOfflineImapOperation::kMsgMarkedDeleted)))
+        offlineDeletes.AppendElement(outOid.mOid_Id);
+
+      offlineOpRow->Release();
     }
     // TODO: would it cause a problem to replace this with "rv = err;" ?
     rv = (NS_SUCCEEDED(err)) ? NS_OK : NS_ERROR_FAILURE;

@@ -8,6 +8,7 @@
 #include "nsMsgDatabase.h"
 
 #include "MailNewsTypes.h"
+#include "nsError.h"
 #include "nscore.h"
 #include "msgCore.h"
 #include "nsIFile.h"
@@ -2866,13 +2867,11 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsTArray<nsMsgKey>& keys) {
 
       rv = rowCursor->NextRowOid(GetEnv(), &outOid, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
-      if (outPos < 0 || outOid.mOid_Id == (mdb_id)-1) {
+      if (NS_FAILED(rv) || outPos < 0 || outOid.mOid_Id == (mdb_id)-1) {
         break;
       }
 
-      if (NS_SUCCEEDED(rv)) {
-        keys.AppendElement(outOid.mOid_Id);
-      }
+      keys.AppendElement(outOid.mOid_Id);
     }
   }
   return rv;
