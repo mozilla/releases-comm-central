@@ -67,6 +67,8 @@ add_task(async function test_compose_body_context_scrolled() {
 
   extension.onMessage("scrollAndContextClick", async elementId => {
     const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    await new Promise(resolve => composeWindow.setTimeout(resolve, 1000));
+
     const editor = composeWindow.GetCurrentEditorElement();
     const element = editor.contentDocument.getElementById(elementId);
     element.scrollIntoView({ behavior: "instant" });
