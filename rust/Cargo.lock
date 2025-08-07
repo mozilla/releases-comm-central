@@ -4597,9 +4597,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkcs11-bindings"
-version = "0.1.5"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0fabbdbe64b22820753da90995b3a73d02907eaeeac6f2414962a566aaa18ea"
+checksum = "77f2b11de4fec7f1e085891d4a4bf16a8b1beb49978837a80d4e9e705b99295c"
 dependencies = [
  "bindgen",
 ]
@@ -6131,6 +6131,7 @@ dependencies = [
  "mozbuild",
  "nom",
  "pkcs11-bindings",
+ "sha2",
  "smallvec",
 ]
 

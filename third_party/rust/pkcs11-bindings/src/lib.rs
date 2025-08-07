@@ -39,4 +39,19 @@ pub mod nss {
     pub const CKO_NSS: CK_ULONG = CKO_VENDOR_DEFINED | NSSCK_VENDOR_NSS;
     pub const CKO_NSS_TRUST: CK_ULONG = CKO_NSS + 3;
     pub const CKO_NSS_BUILTIN_ROOT_LIST: CK_ULONG = CKO_NSS + 4;
+
+    // The following CKA_PKCS_* values are NSS-specific aliases for constants that were defined in
+    // PKCS#11 3.2. The PKCS#11 names for these constants collide with names that were previously
+    // used in NSS, e.g. "CKA_TRUST_SERVER_AUTH".
+    //
+    // It is important that we keep the nss::CKA_TRUST_SERVER_AUTH value in place. This will cause
+    // a compiler error for any application that did
+    //      use pkcs11_bindings::nss::*;
+    //      use pkcs11_bindings::*;
+    // and then used CKA_TRUST_SERVER_AUTH. This error prevents applications from confusing the two
+    // values.
+    pub const CKA_PKCS_TRUST_SERVER_AUTH: CK_ULONG = 0x0000062c;
+    pub const CKA_PKCS_TRUST_CLIENT_AUTH: CK_ULONG = 0x0000062d;
+    pub const CKA_PKCS_TRUST_CODE_SIGNING: CK_ULONG = 0x0000062e;
+    pub const CKA_PKCS_TRUST_EMAIL_PROTECTION: CK_ULONG = 0x0000062f;
 }

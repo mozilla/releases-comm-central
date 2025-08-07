@@ -12,15 +12,25 @@
 [package]
 edition = "2018"
 name = "pkcs11-bindings"
-version = "0.1.5"
+version = "0.1.7"
 authors = [
     "Dana Keeler <dkeeler@mozilla.com>",
     "John Schanck <jschanck@mozilla.com>",
 ]
 build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Rust bindings for the PKCS#11 specification"
+readme = false
 license = "MIT"
 repository = "https://github.com/mozilla/pkcs11-bindings"
+
+[lib]
+name = "pkcs11_bindings"
+path = "src/lib.rs"
 
 [build-dependencies.bindgen]
 version = ">= 0.59.2"
