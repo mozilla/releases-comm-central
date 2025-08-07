@@ -8,6 +8,7 @@ var { cloudFileAccounts } = ChromeUtils.importESModule(
   "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
+// eslint-disable-next-line mozilla/no-redeclare-with-import-autofix
 var { ExtensionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionUtils.sys.mjs"
 );
