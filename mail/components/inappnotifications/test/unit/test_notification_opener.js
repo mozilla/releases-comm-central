@@ -15,10 +15,10 @@ const { TestUtils } = ChromeUtils.importESModule(
 );
 
 const { NotificationOpener } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationOpener.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationOpener.sys.mjs"
 );
 const { NotificationScheduler } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationScheduler.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationScheduler.sys.mjs"
 );
 const { clearTimeout, setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"

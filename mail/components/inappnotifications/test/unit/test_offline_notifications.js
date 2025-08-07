@@ -5,7 +5,7 @@
 "use strict";
 
 const { OfflineNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/OfflineNotifications.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/OfflineNotifications.sys.mjs"
 );
 
 // Properties required in the main notification object by the schema:

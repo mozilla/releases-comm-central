@@ -5,13 +5,13 @@
 "use strict";
 
 const { InAppNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/InAppNotifications.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs"
 );
 const { NotificationManager } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationManager.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs"
 );
 const { NotificationScheduler } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationScheduler.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationScheduler.sys.mjs"
 );
 
 let count = 0;

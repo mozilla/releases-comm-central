@@ -5,10 +5,10 @@
 "use strict";
 
 const { InAppNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/InAppNotifications.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs"
 );
 const { NotificationManager } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationManager.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs"
 );
 const { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
@@ -23,7 +23,7 @@ const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 const { NotificationUpdater } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationUpdater.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs"
 );
 
 const SAFETY_MARGIN_MS = 100000;

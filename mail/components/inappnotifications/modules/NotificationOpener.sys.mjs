@@ -5,7 +5,8 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  NotificationScheduler: "resource:///modules/NotificationScheduler.sys.mjs",
+  NotificationScheduler:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationScheduler.sys.mjs",
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 

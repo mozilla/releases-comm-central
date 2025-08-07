@@ -15,7 +15,7 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 );
 
 const { NotificationFilter } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationFilter.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationFilter.sys.mjs"
 );
 
 const tabmail = document.getElementById("tabmail");

@@ -3,7 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NotificationManager } from "resource:///modules/NotificationManager.sys.mjs";
+// TODO: Update once linting is updated to handle moz-src
+/* eslint-disable-next-line import/no-unresolved */
+import { NotificationManager } from "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs";
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 const lazy = {};

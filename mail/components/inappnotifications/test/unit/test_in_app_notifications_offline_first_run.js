@@ -9,16 +9,16 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 );
 
 const { InAppNotifications } = ChromeUtils.importESModule(
-  "resource:///modules/InAppNotifications.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs"
 );
 const { NotificationManager } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationManager.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs"
 );
 const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 const { NotificationUpdater } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationUpdater.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs"
 );
 const { PlacesUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/PlacesUtils.sys.mjs"

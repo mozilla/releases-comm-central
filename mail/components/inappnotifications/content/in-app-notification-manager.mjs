@@ -6,15 +6,18 @@ import { defineLazyCustomElement } from "chrome://messenger/content/CustomElemen
 
 defineLazyCustomElement(
   "in-app-notification",
-  "chrome://messenger/content/in-app-notification.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/content/in-app-notification.mjs"
 );
 
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
-  NotificationManager: "resource:///modules/NotificationManager.sys.mjs",
-  NotificationScheduler: "resource:///modules/NotificationScheduler.sys.mjs",
+  InAppNotifications:
+    "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs",
+  NotificationManager:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs",
+  NotificationScheduler:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationScheduler.sys.mjs",
 });
 
 /**

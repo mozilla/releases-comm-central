@@ -5,7 +5,7 @@
 "use strict";
 
 const { InAppNotificationEvent } = ChromeUtils.importESModule(
-  "chrome://messenger/content/InAppNotificationEvent.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/content/InAppNotificationEvent.mjs"
 );
 
 add_task(function test_eventInit() {

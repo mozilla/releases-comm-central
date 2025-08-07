@@ -8,7 +8,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
   requestIdleCallback: "resource://gre/modules/Timer.sys.mjs",
-  NotificationOpener: "resource:///modules/NotificationOpener.sys.mjs",
+  NotificationOpener:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationOpener.sys.mjs",
   cancelIdleCallback: "resource://gre/modules/Timer.sys.mjs",
 });
 

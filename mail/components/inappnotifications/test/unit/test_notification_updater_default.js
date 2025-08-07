@@ -5,7 +5,7 @@
 "use strict";
 
 const { NotificationUpdater } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationUpdater.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs"
 );
 const { clearInterval } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"

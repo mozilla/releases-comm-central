@@ -5,7 +5,7 @@
 "use strict";
 
 const { InAppNotificationManager } = ChromeUtils.importESModule(
-  "chrome://messenger/content/in-app-notification-manager.mjs",
+  "moz-src:///comm/mail/components/inappnotifications/content/in-app-notification-manager.mjs",
   { global: "current" }
 );
 

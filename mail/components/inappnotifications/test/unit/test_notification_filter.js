@@ -5,7 +5,7 @@
 "use strict";
 
 const { NotificationFilter } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationFilter.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationFilter.sys.mjs"
 );
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"

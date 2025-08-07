@@ -3,17 +3,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NotificationManager } from "resource:///modules/NotificationManager.sys.mjs";
+// TODO: Update once linting is updated to handle moz-src
+/* eslint-disable-next-line import/no-unresolved */
+import { NotificationManager } from "moz-src:///comm/mail/components/inappnotifications/modules/NotificationManager.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
-  NotificationFilter: "resource:///modules/NotificationFilter.sys.mjs",
-  NotificationScheduler: "resource:///modules/NotificationScheduler.sys.mjs",
-  NotificationUpdater: "resource:///modules/NotificationUpdater.sys.mjs",
+  NotificationFilter:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationFilter.sys.mjs",
+  NotificationScheduler:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationScheduler.sys.mjs",
+  NotificationUpdater:
+    "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
-  OfflineNotifications: "resource:///modules/OfflineNotifications.sys.mjs",
+  OfflineNotifications:
+    "moz-src:///comm/mail/components/inappnotifications/modules/OfflineNotifications.sys.mjs",
 });
 
 const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];

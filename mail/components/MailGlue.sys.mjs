@@ -37,7 +37,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
   checkInstalledExtensions: "resource:///modules/ExtensionUtilities.sys.mjs",
-  InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
+  InAppNotifications:
+    "moz-src:///comm/mail/components/inappnotifications/modules/InAppNotifications.sys.mjs",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
   MailMigrator: "resource:///modules/MailMigrator.sys.mjs",

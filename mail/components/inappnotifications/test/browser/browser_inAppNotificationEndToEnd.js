@@ -12,7 +12,7 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 );
 
 const { NotificationUpdater } = ChromeUtils.importESModule(
-  "resource:///modules/NotificationUpdater.sys.mjs"
+  "moz-src:///comm/mail/components/inappnotifications/modules/NotificationUpdater.sys.mjs"
 );
 
 /**
