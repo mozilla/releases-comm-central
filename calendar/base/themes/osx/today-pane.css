@@ -32,7 +32,3 @@
 #today-pane-splitter {
   min-height: 5px;
 }
-
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  appearance: none;
-}

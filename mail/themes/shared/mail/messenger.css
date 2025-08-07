@@ -299,7 +299,7 @@ toolbar[customizing="true"][collapsed] {
   min-height: 24px;
   min-width: 32px;
   margin: 4px 1px;
-  padding: 1px 5px !important;
+  padding: 1px 5px;
   -moz-context-properties: fill, stroke, fill-opacity;
   fill: color-mix(in srgb, var(--toolbarbutton-icon-fill, currentColor) 20%, transparent);
   stroke: var(--toolbarbutton-icon-fill, currentColor);
@@ -351,11 +351,15 @@ toolbar[customizing="true"][collapsed] {
     stroke: currentColor;
   }
 
-  & .toolbarbutton-menu-dropmarker {
-    flex: 0;
-    content: var(--icon-nav-down-sm);
-    -moz-context-properties: stroke;
-    stroke: currentColor;
+  &[wantdropmarker="true"] {
+    background-image: var(--icon-nav-down-sm);
+    background-repeat: no-repeat;
+    background-position: calc(100% - 6px) center;
+    padding-inline-end: 22px;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: 6px;
+    }
   }
 
   & > .toolbarbutton-menubutton-button {
@@ -433,10 +437,6 @@ toolbar[customizing="true"][collapsed] {
     &[disabled="true"] .toolbarbutton-icon,
     &[disabled="true"] .toolbarbutton-text {
       opacity: 1;
-    }
-
-    & > .toolbarbutton-menu-dropmarker {
-      display: none;
     }
   }
 

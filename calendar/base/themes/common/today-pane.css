@@ -153,6 +153,14 @@
   list-style-image: var(--icon-nav-right-sm);
   stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+
+  &[disabled] {
+    opacity: .3;
+  }
+
+  & > .toolbarbutton-icon {
+    margin: 1px;
+  }
 }
 
 .miniday-nav-buttons,
@@ -161,23 +169,21 @@
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--button-border-radius);
-}
 
-.miniday-nav-buttons:not([disabled="true"]):hover,
-#miniday-dropdown-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  color: inherit;
-  outline: none;
-}
+  &:not([disabled="true"]):hover {
+    background-color: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    box-shadow: var(--toolbarbutton-hover-boxshadow);
+    color: inherit;
+    outline: none;
 
-.miniday-nav-buttons:not([disabled="true"]):hover:active,
-#miniday-dropdown-button:not([disabled="true"]):hover:active {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-  transition-duration: 10ms;
+    &:active {
+      background-color: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+      transition-duration: 10ms;
+    }
+  }
 }
 
 #previous-day-button:-moz-locale-dir(ltr),
@@ -195,36 +201,26 @@
   list-style-image: var(--icon-nav-today);
 }
 
-.miniday-nav-buttons[disabled] {
-  opacity: .3;
-}
-
-.miniday-nav-buttons > .toolbarbutton-icon {
-  margin: 1px;
-}
-
 #miniday-dropdown-button {
-  max-width: 18px;
+  width: 18px;
   margin: 2px;
   -moz-user-focus: normal;
-}
-
-#miniday-dropdown-button > .toolbarbutton-icon,
-#miniday-dropdown-button > .toolbarbutton-text,
-.miniday-nav-buttons > .toolbarbutton-text {
-  display: none;
-}
-
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  padding-inline-start: 0;
-  list-style-image: var(--icon-nav-down-sm);
+  background-image: var(--icon-nav-down-sm);
+  background-repeat: no-repeat;
+  background-position: center;
   -moz-context-properties: stroke;
   stroke: currentColor;
-}
 
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker::part(icon) {
-  width: 12px;
-  height: 12px;
+  #miniday-dropdown-button > .toolbarbutton-icon,
+  #miniday-dropdown-button > .toolbarbutton-text,
+  .miniday-nav-buttons > .toolbarbutton-text {
+    display: none;
+  }
+
+  #miniday-dropdown-button > .toolbarbutton-menu-dropmarker::part(icon) {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 #agenda-toolbar {
@@ -243,30 +239,30 @@
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
 
-#todaypane-new-event-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  color: inherit;
-  outline: none;
-}
+  &:not([disabled="true"]):hover {
+    background: var(--toolbarbutton-hover-background);
+    border-color: var(--toolbarbutton-hover-bordercolor);
+    box-shadow: var(--toolbarbutton-hover-boxshadow);
+    color: inherit;
+    outline: none;
 
-#todaypane-new-event-button:not([disabled="true"]):hover:active {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-  transition-duration: 10ms;
-}
+    &:active {
+      background: var(--toolbarbutton-active-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+      transition-duration: 10ms;
+    }
+  }
 
-#todaypane-new-event-button:focus-visible:not(:hover) {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: var(--focus-outline-offset);
-}
+  &:focus-visible:not(:hover) {
+    outline: 2px solid var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
+  }
 
-#todaypane-new-event-button > .toolbarbutton-text {
- padding-inline-start: 5px;
+  & > .toolbarbutton-text {
+   padding-inline-start: 5px;
+  }
 }
 
 #today-pane-splitter {

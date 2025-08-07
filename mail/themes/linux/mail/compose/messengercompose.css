@@ -128,11 +128,6 @@
 
 toolbarbutton.formatting-button {
   margin: 1px;
-
-  & > .toolbarbutton-menu-dropmarker {
-    appearance: none !important;
-    margin-inline-start: 3px;
-  }
 }
 
 /* ::::: address book sidebar ::::: */

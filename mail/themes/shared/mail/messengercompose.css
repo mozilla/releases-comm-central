@@ -665,30 +665,34 @@ toolbarbutton.formatting-button {
 
   &:not([disabled="true"]) {
     &:hover {
-      background: var(--toolbarbutton-hover-background);
+      background-color: var(--toolbarbutton-hover-background);
       border-color: var(--toolbarbutton-hover-bordercolor);
       box-shadow: var(--toolbarbutton-hover-boxshadow);
     }
 
     &:is([open="true"],[checked="true"],:hover:active) {
-      background: var(--toolbarbutton-checked-background);
+      background-color: var(--toolbarbutton-checked-background);
       border-color: var(--toolbarbutton-active-bordercolor);
       box-shadow: var(--toolbarbutton-active-boxshadow);
     }
 
     &:is([open="true"],:hover:active) {
-      background: var(--toolbarbutton-active-background) !important;
+      background-color: var(--toolbarbutton-active-background) !important;
     }
   }
 
-  & > .toolbarbutton-menu-dropmarker {
-    list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
-    -moz-context-properties: fill;
-    fill: currentColor;
-    display: inline-flex;
+  &[wantdropmarker="true"] {
+    background-image: var(--icon-nav-down-sm);
+    background-repeat: no-repeat;
+    background-position: calc(100% - 3px) center;
+    padding-inline-end: 18px;
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: 3px;
+    }
   }
 
-  &[disabled="true"] > :where(.toolbarbutton-icon, .toolbarbutton-menu-dropmarker) {
+  &[disabled="true"] {
     opacity: 0.4;
   }
 }

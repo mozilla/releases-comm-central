@@ -315,13 +315,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1[is="toolbarbutton-menu-button"],
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   appearance: none;
-}
-
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker {
-  margin-inline-start: 3px;
 }
 
 toolbar[mode="text"] .toolbarbutton-text {
@@ -331,7 +326,6 @@ toolbar[mode="text"] .toolbarbutton-text {
 
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
 .toolbarbutton-1[disabled=true] .toolbarbutton-text,
-.toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker {
   opacity: .4;
 }

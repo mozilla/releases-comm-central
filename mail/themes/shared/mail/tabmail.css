@@ -344,8 +344,7 @@ button.tab-close-button {
     height: 16px;
   }
 
-  & > .toolbarbutton-text,
-  & > .toolbarbutton-menu-dropmarker {
+  & > .toolbarbutton-text {
     display: none;
   }
 }

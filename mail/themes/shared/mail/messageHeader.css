@@ -166,18 +166,18 @@ mail-tagfield[collapsed] {
 
 .message-header-view-button {
   flex-direction: row;
-  min-width: 1em;
+  min-width: 24px;
   margin: 0;
-  padding-inline: 3px !important;
+  padding-inline: 3px;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 
   &[is="toolbarbutton-menu-button"] {
-    padding: 0 !important;
+    padding: 0;
 
     & > .toolbarbutton-menubutton-button {
       flex-direction: row;
-      padding-inline: 3px !important;
+      padding-inline: 3px;
     }
   }
 
@@ -211,15 +211,8 @@ mail-tagfield[collapsed] {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
-#msgHeaderView[shrink] {
-
-  & .message-header-view-button .toolbarbutton-text {
-    display: none;
-  }
-
-  & .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
-    margin-inline: 3px;
-  }
+#msgHeaderView[shrink] .message-header-view-button .toolbarbutton-text {
+  display: none;
 }
 
 .hdrReplyToSenderButton,
@@ -791,10 +784,6 @@ button.email-action-flagged {
 .message-header-buttons-only-text .toolbarbutton-text {
   margin: 0 !important;
   padding-inline: 2px !important;
-}
-
-.message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
-  margin-inline: 3px;
 }
 
 /* Header row widgets */

@@ -227,8 +227,7 @@
   list-style-image: var(--icon-spaces-menu);
   min-width: auto;
 
-  & .toolbarbutton-text,
-  &[type="menu"] > .toolbarbutton-menu-dropmarker {
+  & .toolbarbutton-text {
     display: none;
   }
 }

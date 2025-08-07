@@ -73,10 +73,6 @@ tabpanels {
   padding-inline: 3px !important;
 }
 
-.tabs-alltabs-button > hbox > .toolbarbutton-menu-dropmarker {
-  display: none;
-}
-
 /* Content Tabs */
 .contentTabAddress {
   height: 34px;

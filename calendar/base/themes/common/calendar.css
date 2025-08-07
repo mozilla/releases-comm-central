@@ -136,7 +136,15 @@
 }
 
 #imip-view-toolbar {
-  --imip-button-background: var(--layout-background-1);
+  --imip-button-background: linear-gradient(var(--layout-background-1), var(--layout-background-1));
+  --imip-button-background-hover: linear-gradient(var(--toolbarbutton-hover-background),
+                                                  var(--toolbarbutton-hover-background)),
+                                  linear-gradient(var(--layout-background-1),
+                                                  var(--layout-background-1));
+  --imip-button-background-active: linear-gradient(var(--toolbarbutton-active-background),
+                                                   var(--toolbarbutton-active-background)),
+                                   linear-gradient(var(--layout-background-1),
+                                                   var(--layout-background-1));
 }
 
 #imip-bar > img {
@@ -155,35 +163,56 @@
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   margin-inline-start: 6px;
-}
-
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button {
-  background-image: linear-gradient(var(--imip-button-background), var(--imip-button-background));
+  background-image: var(--imip-button-background);
   border-color: var(--toolbarbutton-header-bordercolor);
-}
 
-#imip-view-toolbar >
-  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
-#imip-view-toolbar >
-  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
-  border-color: var(--toolbarbutton-header-bordercolor);
-}
+  &:not(.imipMoreButton, :active):hover {
+    background-image: var(--imip-button-background-hover);
+  }
 
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not(:active):hover {
-  background-image: linear-gradient(var(--toolbarbutton-hover-background),
-                                    var(--toolbarbutton-hover-background)),
-                    linear-gradient(var(--imip-button-background), var(--imip-button-background));
-}
+  &:not([is="toolbarbutton-menu-button"], .imipMoreButton):hover:active {
+    background-image: var(--imip-button-background-active);
+  }
 
-#imip-view-toolbar >
-  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"]):hover:active {
-  background-image: linear-gradient(var(--toolbarbutton-active-background),
-                                    var(--toolbarbutton-active-background)),
-                    linear-gradient(var(--imip-button-background), var(--imip-button-background));
-}
+  & > .toolbarbutton-menubutton-button,
+  & > .toolbarbutton-menubutton-dropmarker {
+    border-color: var(--toolbarbutton-header-bordercolor);
+  }
 
-.imipMoreButton > .toolbarbutton-icon {
-  display: none;
+  &.imipMoreButton {
+    padding-inline-end: 22px;
+    background-image: var(--icon-nav-down-sm), var(--imip-button-background);
+    background-position: calc(100% - 6px) center, 0%;
+    background-repeat: no-repeat, repeat;
+
+    &:hover {
+      background-image: var(--icon-nav-down-sm), var(--imip-button-background-hover);
+      background-position: calc(100% - 6px) center, 0%, 0%;
+      background-repeat: no-repeat, repeat, repeat;
+    }
+
+    &[open="true"] {
+      background-image: var(--icon-nav-down-sm), var(--imip-button-background-active);
+      background-position: calc(100% - 6px) center, 0%, 0%;
+      background-repeat: no-repeat, repeat, repeat;
+    }
+
+    &:-moz-locale-dir(rtl) {
+      background-position-x: 6px, 0%;
+
+      &:hover {
+        background-position-x: 6px, 0%, 0%;
+      }
+
+      &[open="true"] {
+        background-position-x: 6px, 0%, 0%;
+      }
+    }
+
+    & > .toolbarbutton-icon {
+      display: none;
+    }
+  }
 }
 
 .imipAcceptRecurrencesButton,

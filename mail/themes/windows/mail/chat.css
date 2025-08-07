@@ -97,10 +97,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
     border-bottom-color: var(--color-gray-30);
   }
 
-  #statusTypeIcon > .toolbarbutton-menu-dropmarker {
-    padding: 1px 3px;
-  }
-
   #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
     appearance: none;
     padding-inline: 2px;

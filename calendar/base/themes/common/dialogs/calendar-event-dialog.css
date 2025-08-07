@@ -422,34 +422,39 @@ label.label {
   fill: currentColor;
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
-}
 
-.formatting-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-}
+  &:not([disabled="true"]) {
+    &:hover {
+      background-color: var(--toolbarbutton-hover-background);
+      border-color: var(--toolbarbutton-hover-bordercolor);
+      box-shadow: var(--toolbarbutton-hover-boxshadow);
+    }
 
-.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
-  background: var(--toolbarbutton-checked-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
+    &:is([open="true"],[checked="true"],:hover:active) {
+      background-color: var(--toolbarbutton-checked-background);
+      border-color: var(--toolbarbutton-active-bordercolor);
+      box-shadow: var(--toolbarbutton-active-boxshadow);
+    }
 
-.formatting-button:not([disabled="true"]):is([open="true"],:hover:active) {
-  background: var(--toolbarbutton-active-background) !important;
-}
+    &:is([open="true"],:hover:active) {
+      background-color: var(--toolbarbutton-active-background) !important;
+    }
+  }
 
-.formatting-button > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  display: inline-block;
-}
+  &[wantdropmarker="true"] {
+    background-image: var(--icon-nav-down-sm);
+    background-repeat: no-repeat;
+    background-position: calc(100% - 3px) center;
+    padding-inline-end: 18px;
 
-.formatting-button[disabled="true"] > .toolbarbutton-icon,
-.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
-  opacity: 0.4;
+    &:-moz-locale-dir(rtl) {
+      background-position-x: 3px;
+    }
+  }
+
+  &[disabled="true"] {
+    opacity: 0.4;
+  }
 }
 
 #item-description {

@@ -71,10 +71,6 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   margin-inline-end: 0;
 }
 
-.toolbarbutton-menu-dropmarker {
-  padding-inline-start: 3px;
-}
-
 .sidebar-header .toolbarbutton-text:not([value]) {
   display: none;
 }
@@ -198,10 +194,6 @@ button.notification-button[is="toolbarbutton-menu-button"] {
   margin-inline-end: 12px;
 }
 
-.toolbarbutton-menu-dropmarker {
-  margin-top: 0;
-}
-
 @media (prefers-contrast) {
   :root:not([lwtheme]) #tabmail {
     background-color: ActiveCaption;
@@ -223,7 +215,6 @@ button.notification-button[is="toolbarbutton-menu-button"] {
 
   &[disabled=true] .toolbarbutton-icon,
   &[disabled=true] .toolbarbutton-text,
-  &[disabled=true] .toolbarbutton-menu-dropmarker,
   &[disabled=true] > .toolbarbutton-menubutton-dropmarker {
     opacity: .4;
   }

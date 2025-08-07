@@ -124,10 +124,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   &[disabled="true"] .toolbarbutton-icon,
   &[is="toolbarbutton-menu-button"]
     > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
-  &[disabled="true"] > .toolbarbutton-menu-dropmarker,
   &[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
   &:not(:hover):-moz-window-inactive .toolbarbutton-icon,
-  &:not(:hover):-moz-window-inactive > .toolbarbutton-menu-dropmarker,
   &:not(:hover):-moz-window-inactive > .toolbarbutton-menubutton-dropmarker {
     opacity: .5;
   }
@@ -136,11 +134,6 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   &:-moz-window-inactive[is="toolbarbutton-menu-button"]
     > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
     opacity: .25;
-  }
-
-  & > .toolbarbutton-menu-dropmarker {
-    margin-inline-end: 1px;
-    padding-inline-start: 4px;
   }
 }
 

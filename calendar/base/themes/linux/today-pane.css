@@ -21,10 +21,6 @@
   max-width: none;
 }
 
-#miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  appearance: none;
-}
-
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
   opacity: 0.4;
 }

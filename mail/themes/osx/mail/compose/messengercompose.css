@@ -189,10 +189,6 @@ toolbar[nowindowdrag="true"] {
 toolbarbutton.formatting-button {
   margin-inline: 1px;
   padding-inline: 4px;
-
-  & > .toolbarbutton-menu-dropmarker {
-    margin-inline-start: 3px;
-  }
 }
 
 #FontFaceSelect {

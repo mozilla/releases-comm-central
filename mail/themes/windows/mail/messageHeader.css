@@ -11,9 +11,3 @@
 .inline-toolbox {
   padding-inline-end: 2px;
 }
-
-/* Customization options */
-
-.message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
-  padding-inline-start: 0;
-}
