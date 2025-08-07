@@ -1,7 +1,6 @@
 //! [Unlock Notification](http://sqlite.org/unlock_notify.html)
 
-use std::os::raw::c_int;
-use std::os::raw::c_void;
+use std::ffi::{c_int, c_void};
 use std::panic::catch_unwind;
 use std::sync::{Condvar, Mutex};
 
@@ -109,8 +108,7 @@ mod test {
             tx2.commit().unwrap();
         });
         assert_eq!(tx.recv().unwrap(), 1);
-        let the_answer: i64 = db1.one_column("SELECT x FROM foo")?;
-        assert_eq!(42i64, the_answer);
+        assert_eq!(42, db1.one_column::<i64, _>("SELECT x FROM foo", [])?);
         child.join().unwrap();
         Ok(())
     }

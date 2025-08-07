@@ -1,4 +1,4 @@
-use crate::{Result, Statement, ToSql};
+use crate::{BindIndex, Result, Statement, ToSql};
 
 mod sealed {
     /// This trait exists just to ensure that the only impls of `trait Params`
@@ -33,10 +33,9 @@ use sealed::Sealed;
 ///
 /// - For small lists of parameters up to 16 items, they may alternatively be
 ///   passed as a tuple, as in `thing.query((1, "foo"))`.
-///
-///     This is somewhat inconvenient for a single item, since you need a
-///     weird-looking trailing comma: `thing.query(("example",))`. That case is
-///     perhaps more cleanly expressed as `thing.query(["example"])`.
+///   This is somewhat inconvenient for a single item, since you need a
+///   weird-looking trailing comma: `thing.query(("example",))`. That case is
+///   perhaps more cleanly expressed as `thing.query(["example"])`.
 ///
 /// - Using the [`rusqlite::params!`](crate::params!) macro, e.g.
 ///   `thing.query(rusqlite::params![1, "foo", bar])`. This is mostly useful for
@@ -50,16 +49,15 @@ use sealed::Sealed;
 ///
 ///     - a reference to an array of references, as in `thing.query(&["foo",
 ///       "bar", "baz"])` or `thing.query(&[&1i32, &2, &3])`.
+///       (Note: in this case we don't implement this for slices for coherence
+///       reasons, so it really is only for the "reference to array" types —
+///       hence why the number of parameters must be <= 32, or you need to
+///       reach for `rusqlite::params!`)
 ///
-///         (Note: in this case we don't implement this for slices for coherence
-///         reasons, so it really is only for the "reference to array" types —
-///         hence why the number of parameters must be <= 32, or you need to
-///         reach for `rusqlite::params!`)
-///
-///     Unfortunately, in the current design it's not possible to allow this for
-///     references to arrays of non-references (e.g. `&[1i32, 2, 3]`). Code like
-///     this should instead either use `params!`, an array literal, a `&[&dyn
-///     ToSql]` or if none of those work, [`ParamsFromIter`].
+///   Unfortunately, in the current design it's not possible to allow this for
+///   references to arrays of non-references (e.g. `&[1i32, 2, 3]`). Code like
+///   this should instead either use `params!`, an array literal, a `&[&dyn
+///   ToSql]` or if none of those work, [`ParamsFromIter`].
 ///
 /// - As a slice of `ToSql` trait object references, e.g. `&[&dyn ToSql]`. This
 ///   is mostly useful for passing parameter lists around as arguments without
@@ -219,8 +217,8 @@ impl Params for &[&dyn ToSql] {
     }
 }
 
-impl Sealed for &[(&str, &dyn ToSql)] {}
-impl Params for &[(&str, &dyn ToSql)] {
+impl<S: BindIndex, T: ToSql> Sealed for &[(S, T)] {}
+impl<S: BindIndex, T: ToSql> Params for &[(S, T)] {
     #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.bind_parameters_named(self)
@@ -300,8 +298,8 @@ macro_rules! impl_for_array_ref {
                 stmt.bind_parameters(self)
             }
         }
-        impl<T: ToSql + ?Sized> Sealed for &[(&str, &T); $N] {}
-        impl<T: ToSql + ?Sized> Params for &[(&str, &T); $N] {
+        impl<S: BindIndex, T: ToSql + ?Sized> Sealed for &[(S, &T); $N] {}
+        impl<S: BindIndex, T: ToSql + ?Sized> Params for &[(S, &T); $N] {
             fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
                 stmt.bind_parameters_named(self)
             }

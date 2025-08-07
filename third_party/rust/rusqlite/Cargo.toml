@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "rusqlite"
-version = "0.33.0"
+version = "0.37.0"
 authors = ["The rusqlite developers"]
 build = false
 exclude = [
@@ -67,7 +67,10 @@ repository = "rusqlite/rusqlite"
 status = "actively-developed"
 
 [features]
-array = ["vtab"]
+array = [
+    "vtab",
+    "modern_sqlite",
+]
 backup = []
 blob = []
 buildtime_bindgen = ["libsqlite3-sys/buildtime_bindgen"]
@@ -90,6 +93,7 @@ bundled-sqlcipher-vendored-openssl = [
 bundled-windows = ["libsqlite3-sys/bundled-windows"]
 collation = []
 column_decltype = []
+column_metadata = ["libsqlite3-sys/column_metadata"]
 csvtab = [
     "csv",
     "vtab",
@@ -112,6 +116,7 @@ modern-full = [
     "modern_sqlite",
     "chrono",
     "collation",
+    "column_metadata",
     "column_decltype",
     "csvtab",
     "extra_check",
@@ -148,7 +153,10 @@ trace = []
 unlock_notify = ["libsqlite3-sys/unlock_notify"]
 vtab = []
 wasm32-wasi-vfs = ["libsqlite3-sys/wasm32-wasi-vfs"]
-window = ["functions"]
+window = [
+    "functions",
+    "modern_sqlite",
+]
 with-asan = ["libsqlite3-sys/with-asan"]
 
 [lib]
@@ -178,10 +186,6 @@ required-features = [
 [[example]]
 name = "owning_rows"
 path = "examples/owning_rows.rs"
-
-[[example]]
-name = "owning_rows_self_cell"
-path = "examples/owning_rows_self_cell.rs"
 
 [[example]]
 name = "owning_statement"
@@ -241,16 +245,16 @@ version = "0.1"
 version = "0.10"
 
 [dependencies.jiff]
-version = "0.1"
+version = "0.2"
 features = ["std"]
 optional = true
 default-features = false
 
 [dependencies.libsqlite3-sys]
-version = "0.31.0"
+version = "0.35.0"
 
 [dependencies.rusqlite-macros]
-version = "0.4.0"
+version = "0.4.1"
 optional = true
 
 [dependencies.serde_json]
@@ -282,9 +286,6 @@ version = "0.1"
 
 [dev-dependencies.doc-comment]
 version = "0.3"
-
-[dev-dependencies.ouroboros]
-version = "0.18"
 
 [dev-dependencies.regex]
 version = "1.5.5"

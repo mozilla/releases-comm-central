@@ -21,17 +21,17 @@
 //!     Ok(())
 //! }
 //! ```
+use std::ffi::c_int;
 use std::fs::File;
 use std::marker::PhantomData;
-use std::os::raw::c_int;
 use std::path::Path;
 use std::str;
 
 use crate::ffi;
 use crate::types::Null;
 use crate::vtab::{
-    escape_double_quote, parse_boolean, read_only_module, Context, CreateVTab, IndexInfo, VTab,
-    VTabConfig, VTabConnection, VTabCursor, VTabKind, Values,
+    escape_double_quote, parse_boolean, read_only_module, Context, CreateVTab, Filters, IndexInfo,
+    VTab, VTabConfig, VTabConnection, VTabCursor, VTabKind,
 };
 use crate::{Connection, Error, Result};
 
@@ -48,7 +48,7 @@ use crate::{Connection, Error, Result};
 /// ```
 pub fn load_module(conn: &Connection) -> Result<()> {
     let aux: Option<()> = None;
-    conn.create_module("csv", read_only_module::<CsvTab>(), aux)
+    conn.create_module(c"csv", read_only_module::<CsvTab>(), aux)
 }
 
 /// An instance of the CSV virtual table
@@ -287,7 +287,7 @@ unsafe impl VTabCursor for CsvTabCursor<'_> {
         &mut self,
         _idx_num: c_int,
         _idx_str: Option<&str>,
-        _args: &Values<'_>,
+        _args: &Filters<'_>,
     ) -> Result<()> {
         {
             let offset_first_row = self.vtab().offset_first_row.clone();

@@ -1,13 +1,13 @@
 //! Commit, Data Change and Rollback Notification Callbacks
 #![expect(non_camel_case_types)]
 
-use std::os::raw::{c_char, c_int, c_void};
+use std::ffi::{c_char, c_int, c_void, CStr};
 use std::panic::catch_unwind;
 use std::ptr;
 
 use crate::ffi;
 
-use crate::{error::decode_result_raw, Connection, DatabaseName, InnerConnection, Result};
+use crate::{error::decode_result_raw, Connection, InnerConnection, Result};
 
 #[cfg(feature = "preupdate_hook")]
 pub use preupdate_hook::*;
@@ -487,8 +487,8 @@ impl Wal {
     }
 
     /// Name of the database that was written to
-    pub fn name(&self) -> DatabaseName<'_> {
-        DatabaseName::from_cstr(unsafe { std::ffi::CStr::from_ptr(self.db_name) })
+    pub fn name(&self) -> &CStr {
+        unsafe { CStr::from_ptr(self.db_name) }
     }
 }
 
@@ -538,34 +538,23 @@ impl InnerConnection {
             c_int::from(r.unwrap_or_default())
         }
 
-        // unlike `sqlite3_create_function_v2`, we cannot specify a `xDestroy` with
-        // `sqlite3_commit_hook`. so we keep the `xDestroy` function in
-        // `InnerConnection.free_boxed_hook`.
-        let free_commit_hook = if hook.is_some() {
-            Some(free_boxed_hook::<F> as unsafe fn(*mut c_void))
-        } else {
-            None
-        };
-
-        let previous_hook = match hook {
+        match hook {
             Some(hook) => {
-                let boxed_hook: *mut F = Box::into_raw(Box::new(hook));
+                let boxed_hook = Box::new(hook);
                 unsafe {
                     ffi::sqlite3_commit_hook(
                         self.db(),
                         Some(call_boxed_closure::<F>),
-                        boxed_hook.cast(),
+                        &*boxed_hook as *const F as *mut _,
                     )
-                }
+                };
+                self.commit_hook = Some(boxed_hook);
             }
-            _ => unsafe { ffi::sqlite3_commit_hook(self.db(), None, ptr::null_mut()) },
-        };
-        if !previous_hook.is_null() {
-            if let Some(free_boxed_hook) = self.free_commit_hook {
-                unsafe { free_boxed_hook(previous_hook) };
+            _ => {
+                unsafe { ffi::sqlite3_commit_hook(self.db(), None, ptr::null_mut()) };
+                self.commit_hook = None;
             }
         }
-        self.free_commit_hook = free_commit_hook;
     }
 
     /// ```compile_fail
@@ -602,31 +591,23 @@ impl InnerConnection {
             }));
         }
 
-        let free_rollback_hook = if hook.is_some() {
-            Some(free_boxed_hook::<F> as unsafe fn(*mut c_void))
-        } else {
-            None
-        };
-
-        let previous_hook = match hook {
+        match hook {
             Some(hook) => {
-                let boxed_hook: *mut F = Box::into_raw(Box::new(hook));
+                let boxed_hook = Box::new(hook);
                 unsafe {
                     ffi::sqlite3_rollback_hook(
                         self.db(),
                         Some(call_boxed_closure::<F>),
-                        boxed_hook.cast(),
+                        &*boxed_hook as *const F as *mut _,
                     )
-                }
+                };
+                self.rollback_hook = Some(boxed_hook);
             }
-            _ => unsafe { ffi::sqlite3_rollback_hook(self.db(), None, ptr::null_mut()) },
-        };
-        if !previous_hook.is_null() {
-            if let Some(free_boxed_hook) = self.free_rollback_hook {
-                unsafe { free_boxed_hook(previous_hook) };
+            _ => {
+                unsafe { ffi::sqlite3_rollback_hook(self.db(), None, ptr::null_mut()) };
+                self.rollback_hook = None;
             }
         }
-        self.free_rollback_hook = free_rollback_hook;
     }
 
     /// ```compile_fail
@@ -667,31 +648,23 @@ impl InnerConnection {
             }));
         }
 
-        let free_update_hook = if hook.is_some() {
-            Some(free_boxed_hook::<F> as unsafe fn(*mut c_void))
-        } else {
-            None
-        };
-
-        let previous_hook = match hook {
+        match hook {
             Some(hook) => {
-                let boxed_hook: *mut F = Box::into_raw(Box::new(hook));
+                let boxed_hook = Box::new(hook);
                 unsafe {
                     ffi::sqlite3_update_hook(
                         self.db(),
                         Some(call_boxed_closure::<F>),
-                        boxed_hook.cast(),
+                        &*boxed_hook as *const F as *mut _,
                     )
-                }
+                };
+                self.update_hook = Some(boxed_hook);
             }
-            _ => unsafe { ffi::sqlite3_update_hook(self.db(), None, ptr::null_mut()) },
-        };
-        if !previous_hook.is_null() {
-            if let Some(free_boxed_hook) = self.free_update_hook {
-                unsafe { free_boxed_hook(previous_hook) };
+            _ => {
+                unsafe { ffi::sqlite3_update_hook(self.db(), None, ptr::null_mut()) };
+                self.update_hook = None;
             }
         }
-        self.free_update_hook = free_update_hook;
     }
 
     /// ```compile_fail
@@ -829,10 +802,6 @@ impl InnerConnection {
     }
 }
 
-unsafe fn free_boxed_hook<F>(p: *mut c_void) {
-    drop(Box::from_raw(p.cast::<F>()));
-}
-
 unsafe fn expect_utf8<'a>(p_str: *const c_char, description: &'static str) -> &'a str {
     expect_optional_utf8(p_str, description)
         .unwrap_or_else(|| panic!("received empty {description}"))
@@ -845,7 +814,7 @@ unsafe fn expect_optional_utf8<'a>(
     if p_str.is_null() {
         return None;
     }
-    std::ffi::CStr::from_ptr(p_str)
+    CStr::from_ptr(p_str)
         .to_str()
         .unwrap_or_else(|_| panic!("received non-utf8 string as {description}"))
         .into()
@@ -854,7 +823,7 @@ unsafe fn expect_optional_utf8<'a>(
 #[cfg(test)]
 mod test {
     use super::Action;
-    use crate::{Connection, DatabaseName, Result};
+    use crate::{Connection, Result, MAIN_DB};
     use std::sync::atomic::{AtomicBool, Ordering};
 
     #[test]
@@ -993,7 +962,7 @@ mod test {
 
         static CALLED: AtomicBool = AtomicBool::new(false);
         db.wal_hook(Some(|wal, pages| {
-            assert_eq!(wal.name(), DatabaseName::Main);
+            assert_eq!(wal.name(), MAIN_DB);
             assert!(pages > 0);
             CALLED.swap(true, Ordering::Relaxed);
             wal.checkpoint()

@@ -56,7 +56,7 @@ path = "../support/interrupt"
 path = "../remote_settings"
 
 [dependencies.rusqlite]
-version = "0.33.0"
+version = "0.37.0"
 features = ["bundled"]
 
 [dependencies.serde]

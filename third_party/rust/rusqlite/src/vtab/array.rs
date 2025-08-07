@@ -26,15 +26,15 @@
 //! }
 //! ```
 
+use std::ffi::{c_char, c_int, c_void};
 use std::marker::PhantomData;
-use std::os::raw::{c_char, c_int, c_void};
 use std::rc::Rc;
 
 use crate::ffi;
 use crate::types::{ToSql, ToSqlOutput, Value};
 use crate::vtab::{
-    eponymous_only_module, Context, IndexConstraintOp, IndexInfo, VTab, VTabConnection, VTabCursor,
-    Values,
+    eponymous_only_module, Context, Filters, IndexConstraintOp, IndexInfo, VTab, VTabConnection,
+    VTabCursor,
 };
 use crate::{Connection, Result};
 
@@ -43,7 +43,7 @@ use crate::{Connection, Result};
 pub(crate) const ARRAY_TYPE: *const c_char = c"rarray".as_ptr();
 
 pub(crate) unsafe extern "C" fn free_array(p: *mut c_void) {
-    drop(Rc::from_raw(p as *const Vec<Value>));
+    Rc::decrement_strong_count(p as *const Vec<Value>);
 }
 
 /// Array parameter / pointer
@@ -59,7 +59,7 @@ impl ToSql for Array {
 /// Register the "rarray" module.
 pub fn load_module(conn: &Connection) -> Result<()> {
     let aux: Option<()> = None;
-    conn.create_module("rarray", eponymous_only_module::<ArrayTab>(), aux)
+    conn.create_module(c"rarray", eponymous_only_module::<ArrayTab>(), aux)
 }
 
 // Column numbers
@@ -151,7 +151,7 @@ impl ArrayTabCursor<'_> {
     }
 }
 unsafe impl VTabCursor for ArrayTabCursor<'_> {
-    fn filter(&mut self, idx_num: c_int, _idx_str: Option<&str>, args: &Values<'_>) -> Result<()> {
+    fn filter(&mut self, idx_num: c_int, _idx_str: Option<&str>, args: &Filters<'_>) -> Result<()> {
         if idx_num > 0 {
             self.ptr = args.get_array(0);
         } else {

@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "libsqlite3-sys"
-version = "0.31.0"
+version = "0.35.0"
 authors = ["The rusqlite developers"]
 build = "build.rs"
 links = "sqlite3"
@@ -52,6 +52,7 @@ bundled-windows = [
     "bundled_bindings",
 ]
 bundled_bindings = []
+column_metadata = []
 default = ["min_sqlite_version_3_14_0"]
 in_gecko = []
 loadable_extension = [
@@ -82,7 +83,7 @@ version = "0.9.103"
 optional = true
 
 [build-dependencies.bindgen]
-version = "0.71"
+version = "0.72"
 features = ["runtime"]
 optional = true
 default-features = false

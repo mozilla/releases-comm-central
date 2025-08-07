@@ -5,7 +5,7 @@ use std::ffi::{CStr, CString, NulError};
 /// small enough. Also guarantees it's input is UTF-8 -- used for cases where we
 /// need to pass a NUL-terminated string to SQLite, and we have a `&str`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct SmallCString(SmallVec<[u8; 16]>);
+pub struct SmallCString(SmallVec<[u8; 16]>);
 
 impl SmallCString {
     #[inline]
@@ -104,20 +104,6 @@ impl std::ops::Deref for SmallCString {
     #[inline]
     fn deref(&self) -> &CStr {
         self.as_cstr()
-    }
-}
-
-impl PartialEq<SmallCString> for str {
-    #[inline]
-    fn eq(&self, s: &SmallCString) -> bool {
-        s.as_bytes_without_nul() == self.as_bytes()
-    }
-}
-
-impl PartialEq<str> for SmallCString {
-    #[inline]
-    fn eq(&self, s: &str) -> bool {
-        self.as_bytes_without_nul() == s.as_bytes()
     }
 }
 

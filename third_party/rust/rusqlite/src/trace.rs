@@ -1,16 +1,15 @@
 //! Tracing and profiling functions. Error and warning log.
 
 use std::borrow::Cow;
-use std::ffi::{CStr, CString};
+use std::ffi::{c_char, c_int, c_uint, c_void, CStr, CString};
 use std::marker::PhantomData;
 use std::mem;
-use std::os::raw::{c_char, c_int, c_uint, c_void};
 use std::panic::catch_unwind;
 use std::ptr;
 use std::time::Duration;
 
 use super::ffi;
-use crate::{Connection, DatabaseName, StatementStatus};
+use crate::{Connection, StatementStatus, MAIN_DB};
 
 /// Set up the process-wide SQLite error logging callback.
 ///
@@ -68,7 +67,7 @@ bitflags::bitflags! {
     #[derive(Clone, Copy, Debug, Eq, PartialEq)]
     #[non_exhaustive]
     #[repr(C)]
-    pub struct TraceEventCodes: ::std::os::raw::c_uint {
+    pub struct TraceEventCodes: c_uint {
         /// when a prepared statement first begins running and possibly at other times during the execution
         /// of the prepared statement, such as at the start of each trigger subprogram
         const SQLITE_TRACE_STMT = ffi::SQLITE_TRACE_STMT;
@@ -137,7 +136,7 @@ impl ConnRef<'_> {
     }
     /// the path to the database file, if one exists and is known.
     pub fn db_filename(&self) -> Option<&str> {
-        unsafe { crate::inner_connection::db_filename(self.ptr, DatabaseName::Main) }
+        unsafe { crate::inner_connection::db_filename(self.phantom, self.ptr, MAIN_DB) }
     }
 }
 
@@ -330,7 +329,7 @@ mod test {
             }),
         );
 
-        db.one_column::<u32>("PRAGMA user_version")?;
+        db.one_column::<u32, _>("PRAGMA user_version", [])?;
         drop(db);
 
         let db = Connection::open_in_memory()?;
