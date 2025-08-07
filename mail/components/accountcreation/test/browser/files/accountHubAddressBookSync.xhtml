@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Account Hub Address Book Sync Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css" />
-    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css" />
     <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
     <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
     <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/address-book-sync.mjs"></script>
@@ -110,12 +110,17 @@
                 >
                 </h1>
                 <span id="selectedAddressBooks" class="subtitle"></span>
-                <button
-                  id="selectAllAddressBooks"
-                  type="button"
-                  class="button primary-button button-sm select-all"
+                <label
+                  class="button primary-button button-sm select-all select-all-button"
+                  for="selectAllAddressBooks"
+                  tabindex="0"
                 >
-                </button>
+                  <input
+                    id="selectAllAddressBooks"
+                    type="checkbox"
+                  />
+                  <span></span>
+                </label>
               </div>
             </div>
             <div

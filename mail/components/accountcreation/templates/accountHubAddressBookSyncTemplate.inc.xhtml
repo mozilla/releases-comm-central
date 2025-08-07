@@ -7,9 +7,9 @@
   xmlns="http://www.w3.org/1999/xhtml"
 >
   <form
-    id="addressBookSyncForm"
-    class="account-hub-address-book-form"
-    slot="content"
+  id="addressBookSyncForm"
+  class="account-hub-address-book-form"
+  slot="content"
   >
     <div class="hub-body sync-accounts-form-body">
       <div id="addressBooks" class="sync-type-container">
@@ -22,12 +22,17 @@
             >
             </h1>
             <span id="selectedAddressBooks" class="subtitle"></span>
-            <button
-              id="selectAllAddressBooks"
-              type="button"
-              class="button primary-button button-sm select-all"
+            <label
+              class="button primary-button button-sm select-all select-all-button"
+              for="selectAllAddressBooks"
+              tabindex="0"
             >
-            </button>
+              <input
+                id="selectAllAddressBooks"
+                type="checkbox"
+              />
+              <span></span>
+            </label>
           </div>
         </div>
         <div

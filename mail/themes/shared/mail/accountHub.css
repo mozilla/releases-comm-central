@@ -10,6 +10,9 @@
 @import url("chrome://messenger/skin/inContentDialog.css");
 @import url("chrome://messenger/skin/accountHubForms.css");
 
+/* `:root` is needed to make styles work in tests, but will not work for the
+ * application because some elements are within the shadow dom. */
+:root,
 dialog {
   --hub-button-color: light-dark(var(--color-gray-90), var(--color-gray-05));
   --hub-button-background: light-dark(var(--color-white), var(--color-gray-90));

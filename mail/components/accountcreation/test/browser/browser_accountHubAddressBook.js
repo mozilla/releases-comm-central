@@ -279,7 +279,15 @@ add_task(async function test_configUpdatedEvent() {
 add_task(async function test_syncAllAddressBooks() {
   setTestAccountWithAddressBookStubs();
   const accountSelectSubview = await subtest_viewAccountOptions();
-  await subtest_viewSyncAddressBooks(accountSelectSubview);
+  const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+  const selectAllInput = syncSubview.querySelector("#selectAllAddressBooks");
+
+  Assert.ok(selectAllInput.checked, "Select all input should be checked");
+  Assert.ok(
+    !selectAllInput.indeterminate,
+    "Select all input should not be indeterminate"
+  );
+
   await subtest_clickContinue();
 
   // Check if create() was called for each address book.
@@ -291,7 +299,7 @@ add_task(async function test_syncAllAddressBooks() {
   Assert.equal(
     testAccount.addressBooks[1].create.callCount,
     1,
-    "Second address booko should have called create"
+    "Second address book should have called create"
   );
 
   abView.removeTestAccount(testAccount);
@@ -302,13 +310,27 @@ add_task(async function test_syncOneAddressBook() {
   setTestAccountWithAddressBookStubs();
   const accountSelectSubview = await subtest_viewAccountOptions();
   const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+  const selectAllInput = syncSubview.querySelector("#selectAllAddressBooks");
+
+  Assert.ok(selectAllInput.checked, "Select all input should be checked");
+  Assert.ok(
+    !selectAllInput.indeterminate,
+    "Select all input should not be indeterminate"
+  );
 
   // Uncheck the first address book.
   EventUtils.synthesizeMouseAtCenter(
-    syncSubview.querySelector("input"),
+    syncSubview.querySelector("#addressBookAccountsContainer input"),
     {},
     abView.ownerGlobal
   );
+
+  Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
+  Assert.ok(
+    selectAllInput.indeterminate,
+    "Select all input should be indeterminate"
+  );
+
   await subtest_clickContinue();
 
   // Check if create() was called for the second address book.
@@ -320,7 +342,7 @@ add_task(async function test_syncOneAddressBook() {
   Assert.equal(
     testAccount.addressBooks[1].create.callCount,
     1,
-    "Second address booko should have called create"
+    "Second address book should have called create"
   );
 
   abView.removeTestAccount(testAccount);
@@ -331,13 +353,23 @@ add_task(async function test_syncNoAddressBooks() {
   setTestAccountWithAddressBookStubs();
   const accountSelectSubview = await subtest_viewAccountOptions();
   const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
+  const selectAllInput = syncSubview.querySelector("#selectAllAddressBooks");
+
+  Assert.ok(selectAllInput.checked, "Select all input should be checked");
+  Assert.ok(
+    !selectAllInput.indeterminate,
+    "Select all input should not be indeterminate"
+  );
 
   // Uncheck the first address book.
-  EventUtils.synthesizeMouseAtCenter(
-    syncSubview.querySelector("#selectAllAddressBooks"),
-    {},
-    abView.ownerGlobal
+  EventUtils.synthesizeMouseAtCenter(selectAllInput, {}, abView.ownerGlobal);
+
+  Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
+  Assert.ok(
+    !selectAllInput.indeterminate,
+    "Select all input should not be indeterminate"
   );
+
   await subtest_clickContinue();
 
   // Check if create() wasn't called for either address book.
@@ -349,7 +381,7 @@ add_task(async function test_syncNoAddressBooks() {
   Assert.equal(
     testAccount.addressBooks[1].create.callCount,
     0,
-    "Second address booko should have called create"
+    "Second address book should have called create"
   );
 
   abView.removeTestAccount(testAccount);

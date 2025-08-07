@@ -11,6 +11,13 @@ import { AccountHubStep } from "./account-hub-step.mjs";
  */
 class AddressBookSync extends AccountHubStep {
   /**
+   * Accounts container element.
+   *
+   * @type {HTMLElement}
+   */
+  #accountsContainer;
+
+  /**
    * Array of address book objects.
    *
    * @type {object[]}
@@ -25,11 +32,18 @@ class AddressBookSync extends AccountHubStep {
   #selectedAddressBooks;
 
   /**
-   * Select all address books button.
+   * Select all address books label (the visual button).
    *
-   * @type {HTMLButtonElement}
+   * @type {HTMLLabelElement}
    */
-  #selectAllAddressBooks;
+  #selectAllAddressBooksLabel;
+
+  /**
+   * Select all address books input.
+   *
+   * @type {HTMLInputElement}
+   */
+  #selectAllAddressBooksInput;
 
   /**
    * The current count of address books selected.
@@ -60,10 +74,17 @@ class AddressBookSync extends AccountHubStep {
     this.appendChild(template);
 
     this.showBrandingHeader();
+    this.#accountsContainer = this.querySelector(
+      "#addressBookAccountsContainer"
+    );
     this.#selectedAddressBooks = this.querySelector("#selectedAddressBooks");
-    this.#selectAllAddressBooks = this.querySelector("#selectAllAddressBooks");
-    this.#selectAllAddressBooks.addEventListener("click", this);
-    this.querySelector("#addressBookSyncForm").addEventListener("change", this);
+    this.#selectAllAddressBooksLabel = this.querySelector(
+      `[for="selectAllAddressBooks"]`
+    );
+    this.#selectAllAddressBooksInput =
+      this.#selectAllAddressBooksLabel.querySelector("input");
+    this.#selectAllAddressBooksInput.addEventListener("click", this);
+    this.#accountsContainer.addEventListener("change", this);
 
     this.counterObserver = new Proxy(this.counter, {
       set: (counter, key, count) => {
@@ -74,6 +95,15 @@ class AddressBookSync extends AccountHubStep {
     });
   }
 
+  /**
+   * The current set of account inputs.
+   *
+   * @type {NodeList}
+   */
+  get inputs() {
+    return this.#accountsContainer.querySelectorAll("input");
+  }
+
   handleEvent(event) {
     switch (event.type) {
       case "click":
@@ -81,10 +111,28 @@ class AddressBookSync extends AccountHubStep {
         break;
       case "change":
         this.counterObserver.addressBooks += event.target.checked ? 1 : -1;
+        this.#updateSelectAll();
         break;
       default:
         break;
     }
+  }
+
+  async #updateSelectAll() {
+    const allSelected =
+      this.counter.addressBooks === this.#availableAddressBooks.length;
+
+    this.#selectAllAddressBooksInput.checked = allSelected;
+    this.#selectAllAddressBooksInput.indeterminate =
+      !allSelected && this.counter.addressBooks !== 0;
+
+    const toggleFluentID = allSelected
+      ? "account-hub-deselect-all"
+      : "account-hub-select-all";
+    this.l10n.setAttributes(
+      this.#selectAllAddressBooksLabel.querySelector("span"),
+      toggleFluentID
+    );
   }
 
   /**
@@ -99,10 +147,14 @@ class AddressBookSync extends AccountHubStep {
 
     // Create the address book inputs.
     for (const addressBook of addressBooks) {
-      this.querySelector("#addressBookAccountsContainer").append(
-        this.#createInput(addressBook)
-      );
+      this.#accountsContainer.append(this.#createInput(addressBook));
     }
+
+    this.#selectAllAddressBooksInput.setAttribute(
+      "aria-controls",
+      [...this.inputs].map(input => input.id).join(" ")
+    );
+    this.#updateSelectAll();
   }
 
   /**
@@ -112,7 +164,7 @@ class AddressBookSync extends AccountHubStep {
    */
   captureState() {
     const checkedAddressBookUrls = Array.from(
-      this.querySelectorAll("#addressBooks input:checked:enabled"),
+      this.#accountsContainer.querySelectorAll("input:checked:enabled"),
       checkedAddressBook => checkedAddressBook.dataset.url
     );
 
@@ -125,7 +177,10 @@ class AddressBookSync extends AccountHubStep {
    * Removes all of the input labels.
    */
   resetState() {
-    this.querySelectorAll("label").forEach(label => label.remove());
+    this.#accountsContainer
+      .querySelectorAll("label")
+      .forEach(label => label.remove());
+    this.#updateSelectAll();
   }
 
   /**
@@ -160,17 +215,18 @@ class AddressBookSync extends AccountHubStep {
    * Selects/Deselects all address book checkboxes.
    */
   #toggleSelectAllInputs() {
-    const inputs = this.querySelectorAll("input");
     const allSelected =
       this.counter.addressBooks === this.#availableAddressBooks.length;
 
-    inputs.forEach(checkbox => {
+    this.inputs.forEach(checkbox => {
       checkbox.checked = !allSelected;
     });
 
     this.counterObserver.addressBooks = allSelected
       ? 0
       : this.#availableAddressBooks.length;
+
+    this.#updateSelectAll();
   }
 
   /**
@@ -186,12 +242,6 @@ class AddressBookSync extends AccountHubStep {
         count,
       }
     );
-
-    const toggleFluentID =
-      count === this.#availableAddressBooks.length
-        ? "account-hub-deselect-all"
-        : "account-hub-select-all";
-    this.l10n.setAttributes(this.#selectAllAddressBooks, toggleFluentID);
   }
 }
 

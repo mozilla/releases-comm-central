@@ -43,7 +43,7 @@ form {
     }
 
     &:checked {
-      -moz-context-properties: fill;
+      -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
       content: url("chrome://messenger/skin/overrides/check.svg");
       background-color: var(--color-primary-default);
       border-color: var(--color-primary-hover);
@@ -992,6 +992,34 @@ button.account-hub-option-button {
     background-color: var(--color-primary-hover);
     border-radius: 3px;
     color: var(--color-primary-soft);
+  }
+}
+
+.select-all-button {
+  display: flex;
+  align-items: center;
+  user-select: none;
+
+  & input[type="checkbox"] {
+    content: var(--icon-checkbox) !important;
+    background: none;
+    color: currentColor;
+    fill: currentColor;
+    stroke: currentColor;
+    fill-opacity: 0;
+    stroke-opacity: 0;
+    -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+    border: none;
+
+    &:checked {
+      fill-opacity: 1;
+      background: none;
+    }
+
+    &:indeterminate {
+      stroke-opacity: 1;
+      background: none;
+    }
   }
 }
 
