@@ -423,7 +423,7 @@ NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
 }
 
 NS_IMETHODIMP EwsIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
-  // Sync the folder list; we don't want to do antyhing after that so we just
+  // Sync the folder list; we don't want to do anything after that so we just
   // pass a no-op lambda.
   return SyncFolderList(aMsgWindow, []() { return NS_OK; });
 }
