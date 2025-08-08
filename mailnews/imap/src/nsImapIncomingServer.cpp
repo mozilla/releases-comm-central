@@ -2209,24 +2209,30 @@ nsImapIncomingServer::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
       case nsIImapUrl::nsImapDiscoverAllBoxesUrl:
         if (NS_SUCCEEDED(exitCode)) DiscoveryDone();
         break;
+      case nsIImapUrl::nsImapSelectFolder:
       case nsIImapUrl::nsImapFolderStatus: {
+        // These occur after doing GetNewMessagesForNonInboxFolders().
         nsCOMPtr<nsIMsgFolder> msgFolder;
         nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(imapUrl);
         mailUrl->GetFolder(getter_AddRefs(msgFolder));
         if (msgFolder) {
+          // These URLs caused the folder DB to be opened, so close it.
+          // Note: If folder is in view in window or tab, closing the db seems
+          // to causes no problem.
+          msgFolder->SetMsgDatabase(nullptr);
+          if (imapAction == nsIImapUrl::nsImapSelectFolder) break;
+          // Below here, only do for folderstatus URL.
           nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
               do_QueryInterface(msgFolder);
           m_foldersToStat.RemoveObject(imapFolder);
-          // This command is used for folders that are not opened.
-          // We need to close after we're done.
-          msgFolder->SetMsgDatabase(nullptr);
         }
-        // if we get an error running the url, it's better
-        // not to chain the next url.
+        // If we get an error running the url, it's better not to run the
+        // remaining URLs in the chain.
         if (NS_FAILED(exitCode) && exitCode != NS_MSG_ERROR_IMAP_COMMAND_FAILED)
           m_foldersToStat.Clear();
-        if (m_foldersToStat.Count() > 0)
+        if (m_foldersToStat.Count() > 0) {
           m_foldersToStat[0]->UpdateStatus(this, nullptr);
+        }
         break;
       }
       default:
@@ -2659,8 +2665,13 @@ nsImapIncomingServer::GetSearchScope(nsMsgSearchScopeValue* searchScope) {
   return NS_OK;
 }
 
-// This is a recursive function. It gets new messages for current folder
-// first if it is marked, then calls itself recursively for each subfolder.
+// This is a recursive function with initial call for the root folder (root
+// never has messages). It calls itself recursively for all message folders and
+// checks for new messages for every non-special folder if forceAllFolders is
+// true or just folders with ::CheckNew flag set if forceAllFolders is false.
+// Note: forceAllFolders is based on pref
+// mail.server.default.check_all_folders_for_new or on "legacy" pref
+// mail.check_all_imap_folders_for_new. These prefs default to false.
 NS_IMETHODIMP
 nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
                                                        nsIMsgWindow* aWindow,
@@ -2670,8 +2681,8 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
   static bool gGotStatusPref = false;
   static bool gUseStatus = false;
 
-  bool isServer;
-  (void)aFolder->GetIsServer(&isServer);
+  bool isRootFolder;
+  (void)aFolder->GetIsServer(&isRootFolder);
   // Check this folder for new messages if it is marked to be checked
   // or if we are forced to check all folders
   uint32_t flags = 0;
@@ -2681,7 +2692,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   bool canOpen;
   imapFolder->GetCanOpenFolder(&canOpen);
-  if (canOpen &&
+  if (!isRootFolder && canOpen &&
       ((forceAllFolders &&
         !(flags & (nsMsgFolderFlags::Inbox | nsMsgFolderFlags::Trash |
                    nsMsgFolderFlags::Junk | nsMsgFolderFlags::Virtual))) ||
@@ -2689,10 +2700,6 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     // Get new messages for this folder.
     aFolder->SetGettingNewMessages(true);
     if (performingBiff) imapFolder->SetPerformingBiff(true);
-    bool isOpen = false;
-    if (aFolder) {
-      aFolder->GetDatabaseOpen(&isOpen);
-    }
 
     // eventually, the gGotStatusPref should go away, once we work out the kinks
     // from using STATUS.
@@ -2700,11 +2707,20 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
       Preferences::GetBool("mail.imap.use_status_for_biff", &gUseStatus);
       gGotStatusPref = true;
     }
-    if (gUseStatus && !isOpen) {
-      if (!isServer && m_foldersToStat.IndexOf(imapFolder) == -1)
+
+    if (gUseStatus) {
+      if (m_foldersToStat.IndexOf(imapFolder) == -1) {
+        // Prepare to do folderstatus URL. If folder not imap SELECTed, this
+        // results in imap STATUS sent. If SELECTed, this result in imap NOOP.
+        // This just adds the folder to the list (just once) to run the URL
+        // sequentially.
         m_foldersToStat.AppendObject(imapFolder);
-    } else
-      aFolder->UpdateFolder(aWindow);
+      }
+    } else {
+      // This ONLY occurs when use_status_for_biff is false.
+      // Do select URL for folder now.
+      imapFolder->UpdateFolderWithListener(aWindow, this);
+    }
   }
 
   // Loop through all subfolders to get new messages for them.
@@ -2715,8 +2731,12 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     GetNewMessagesForNonInboxFolders(msgFolder, aWindow, forceAllFolders,
                                      performingBiff);
   }
-  if (isServer && m_foldersToStat.Count() > 0)
+  if (isRootFolder && m_foldersToStat.Count() > 0) {
+    // This occurs only on 1st call (for root folder) when list (which never
+    // contains root folder) is not empty. UpdateStatus() for remaining folders
+    // occurs sequentially in listener onStopRunningUrl().
     m_foldersToStat[0]->UpdateStatus(this, nullptr);
+  }
   return NS_OK;
 }
 

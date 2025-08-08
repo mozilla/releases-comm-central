@@ -6766,6 +6766,7 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
   // "the STATUS command SHOULD NOT be used on the currently selected mailbox",
   // so use NOOP instead if mailboxName is the selected folder on this
   // connection.
+  // XXX: what if folder (mailboxName) is selected on another connection/thread?
   if (FolderIsSelected(mailboxName)) {
     Noop();
     // Did untagged responses occur during the NOOP response? If so, this
@@ -6823,8 +6824,15 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
   if (untaggedResponse && GetServerStateParser().LastCommandSuccessful()) {
     RefPtr<nsImapMailboxSpec> new_spec =
         GetServerStateParser().CreateCurrentMailboxSpec(mailboxName);
-    if (new_spec && m_imapMailFolderSink)
+    if (new_spec && m_imapMailFolderSink) {
+      if (new_spec->mFolderSelected)
+        Log("OnStatusForFolder", nullptr,
+            "call UpdateImapMailboxStatus did SELECT/noop");
+      else
+        Log("OnStatusForFolder", nullptr,
+            "call UpdateImapMailboxStatus did STATUS");
       m_imapMailFolderSink->UpdateImapMailboxStatus(this, new_spec);
+    }
   }
 }
 

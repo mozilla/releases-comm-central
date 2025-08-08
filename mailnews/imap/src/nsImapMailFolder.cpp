@@ -2674,7 +2674,28 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxStatus(
     m_numServerUnseenMessages = numUnread;
     m_numServerTotalMessages = numTotal;
   }
-  if (summaryChanged) SummaryChanged();
+  if (summaryChanged) {
+    SummaryChanged();
+    // Do UpdateFolder() below if folder not selected.
+    bool folderSelected;
+    nsresult rv = aSpec->GetFolderSelected(&folderSelected);
+    NS_ENSURE_SUCCESS(rv, rv);
+    // folderSelected false means folderstatus URL caused imap STATUS to be
+    // sent by an imap connection not imap SELECTed on the URL target folder.
+    // folderSected true means NOOP was sent to the target folder for URL
+    // folderstatus because the target folder is already selected on the
+    // imap connection doing the URL, so UpdateFolder() is not needed.
+    if (!folderSelected) {
+      MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+              ("%s: folder=%s, do UpdateFolder(), summary change after STATUS",
+               __func__, m_onlineFolderName.get()));
+      UpdateFolder(nullptr);
+    } else {
+      MOZ_LOG(IMAP, mozilla::LogLevel::Debug,
+              ("%s: folder=%s, do NOTHING, summary change after SELECT",
+               __func__, m_onlineFolderName.get()));
+    }
+  }
 
   return NS_OK;
 }
