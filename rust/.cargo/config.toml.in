@@ -31,9 +31,9 @@ git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=36ae215e9cfb0defb94f889f55edc18c5b87f150"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "36ae215e9cfb0defb94f889f55edc18c5b87f150"
+rev = "1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/rust-objc?rev=4de89f5aa9851ceca4d40e7ac1e2759410c04324"]
@@ -46,14 +46,14 @@ git = "https://github.com/hsivonen/any_all_workaround"
 rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/hsivonen/chardetng?rev=3484d3e3ebdc8931493aa5df4d7ee9360a90e76b"]
+[source."git+https://github.com/hsivonen/chardetng?rev=a07d20273ce36146adaf76bd667dd57bd7b3508b"]
 git = "https://github.com/hsivonen/chardetng"
-rev = "3484d3e3ebdc8931493aa5df4d7ee9360a90e76b"
+rev = "a07d20273ce36146adaf76bd667dd57bd7b3508b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/hsivonen/chardetng_c?rev=ed8a4c6f900a90d4dbc1d64b856e61490a1c3570"]
+[source."git+https://github.com/hsivonen/chardetng_c?rev=2f0aba284677d098de14f91ffe5a9e5b9a4922c2"]
 git = "https://github.com/hsivonen/chardetng_c"
-rev = "ed8a4c6f900a90d4dbc1d64b856e61490a1c3570"
+rev = "2f0aba284677d098de14f91ffe5a9e5b9a4922c2"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/jfkthame/mapped_hyph.git?rev=eff105f6ad7ec9b79816cfc1985a28e5340ad14b"]

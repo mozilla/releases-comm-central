@@ -76,24 +76,89 @@ pub(crate) struct CommandIndices {
     pub(crate) next_acceleration_structure_build_command_index: u64,
 }
 
-/// Parameters provided to shaders via a uniform buffer, describing a
-/// [`binding_model::BindingResource::ExternalTexture`] resource binding.
+/// Parameters provided to shaders via a uniform buffer of the type
+/// [`NagaExternalTextureParams`], describing an [`ExternalTexture`] resource
+/// binding.
+///
+/// [`NagaExternalTextureParams`]: naga::SpecialTypes::external_texture_params
+/// [`ExternalTexture`]: binding_model::BindingResource::ExternalTexture
 #[repr(C)]
 #[derive(Copy, Clone, bytemuck::Zeroable, bytemuck::Pod)]
 pub struct ExternalTextureParams {
     /// 4x4 column-major matrix with which to convert sampled YCbCr values
     /// to RGBA.
+    ///
     /// This is ignored when `num_planes` is 1.
     pub yuv_conversion_matrix: [f32; 16],
-    /// 3x2 column-major matrix with which to multiply texture coordinates
-    /// prior to sampling from the external texture.
+
+    /// 3x3 column-major matrix to transform linear RGB values in the source
+    /// color space to linear RGB values in the destination color space. In
+    /// combination with [`Self::src_transfer_function`] and
+    /// [`Self::dst_transfer_function`] this can be used to ensure that
+    /// [`ImageSample`] and [`ImageLoad`] operations return values in the
+    /// desired destination color space rather than the source color space of
+    /// the underlying planes.
+    ///
+    /// Includes a padding element after each column.
+    ///
+    /// [`ImageSample`]: naga::ir::Expression::ImageSample
+    /// [`ImageLoad`]: naga::ir::Expression::ImageLoad
+    pub gamut_conversion_matrix: [f32; 12],
+
+    /// Transfer function for the source color space. The *inverse* of this
+    /// will be applied to decode non-linear RGB to linear RGB in the source
+    /// color space.
+    pub src_transfer_function: wgt::ExternalTextureTransferFunction,
+
+    /// Transfer function for the destination color space. This will be applied
+    /// to encode linear RGB to non-linear RGB in the destination color space.
+    pub dst_transfer_function: wgt::ExternalTextureTransferFunction,
+
+    /// Transform to apply to [`ImageSample`] coordinates.
+    ///
+    /// This is a 3x2 column-major matrix representing an affine transform from
+    /// normalized texture coordinates to the normalized coordinates that should
+    /// be sampled from the external texture's underlying plane(s).
+    ///
+    /// This transform may scale, translate, flip, and rotate in 90-degree
+    /// increments, but the result of transforming the rectangle (0,0)..(1,1)
+    /// must be an axis-aligned rectangle that falls within the bounds of
+    /// (0,0)..(1,1).
+    ///
+    /// [`ImageSample`]: naga::ir::Expression::ImageSample
     pub sample_transform: [f32; 6],
+
+    /// Transform to apply to [`ImageLoad`] coordinates.
+    ///
+    /// This is a 3x2 column-major matrix representing an affine transform from
+    /// non-normalized texel coordinates to the non-normalized coordinates of
+    /// the texel that should be loaded from the external texture's underlying
+    /// plane 0. For planes 1 and 2, if present, plane 0's coordinates are
+    /// scaled according to the textures' relative sizes.
+    ///
+    /// This transform may scale, translate, flip, and rotate in 90-degree
+    /// increments, but the result of transforming the rectangle (0,0)..[`size`]
+    /// must be an axis-aligned rectangle that falls within the bounds of
+    /// (0,0)..[`size`].
+    ///
+    /// [`ImageLoad`]: naga::ir::Expression::ImageLoad
+    /// [`size`]: Self::size
     pub load_transform: [f32; 6],
-    /// Size of the external texture. This value should be returned by size
-    /// queries in shader code. Note that this may not match the dimensions of
-    /// the underlying texture(s). A value of [0, 0] indicates that the actual
-    /// size of plane 0 should be used.
+
+    /// Size of the external texture.
+    ///
+    /// This is the value that should be returned by size queries in shader
+    /// code; it does not necessarily match the dimensions of the underlying
+    /// texture(s). As a special case, if this is `[0, 0]`, the actual size of
+    /// plane 0 should be used instead.
+    ///
+    /// This must be consistent with [`sample_transform`]: it should be the size
+    /// in texels of the rectangle covered by the square (0,0)..(1,1) after
+    /// [`sample_transform`] has been applied to it.
+    ///
+    /// [`sample_transform`]: Self::sample_transform
     pub size: [u32; 2],
+
     /// Number of planes. 1 indicates a single RGBA plane. 2 indicates a Y
     /// plane and an interleaved CbCr plane. 3 indicates separate Y, Cb, and Cr
     /// planes.
@@ -102,8 +167,26 @@ pub struct ExternalTextureParams {
 
 impl ExternalTextureParams {
     pub fn from_desc<L>(desc: &wgt::ExternalTextureDescriptor<L>) -> Self {
+        let gamut_conversion_matrix = [
+            desc.gamut_conversion_matrix[0],
+            desc.gamut_conversion_matrix[1],
+            desc.gamut_conversion_matrix[2],
+            0.0, // padding
+            desc.gamut_conversion_matrix[3],
+            desc.gamut_conversion_matrix[4],
+            desc.gamut_conversion_matrix[5],
+            0.0, // padding
+            desc.gamut_conversion_matrix[6],
+            desc.gamut_conversion_matrix[7],
+            desc.gamut_conversion_matrix[8],
+            0.0, // padding
+        ];
+
         Self {
             yuv_conversion_matrix: desc.yuv_conversion_matrix,
+            gamut_conversion_matrix,
+            src_transfer_function: desc.src_transfer_function,
+            dst_transfer_function: desc.dst_transfer_function,
             size: [desc.width, desc.height],
             sample_transform: desc.sample_transform,
             load_transform: desc.load_transform,
@@ -407,6 +490,14 @@ impl Device {
                 0.0, 0.0, 1.0, 0.0,
                 0.0, 0.0, 0.0, 1.0,
             ],
+            #[rustfmt::skip]
+            gamut_conversion_matrix: [
+                1.0, 0.0, 0.0, /* padding */ 0.0,
+                0.0, 1.0, 0.0, /* padding */ 0.0,
+                0.0, 0.0, 1.0, /* padding */ 0.0,
+            ],
+            src_transfer_function: Default::default(),
+            dst_transfer_function: Default::default(),
             size: [0, 0],
             #[rustfmt::skip]
             sample_transform: [
@@ -755,6 +846,13 @@ impl Device {
                 requested: desc.size,
                 maximum: self.limits.max_buffer_size,
             });
+        }
+
+        if desc
+            .usage
+            .intersects(wgt::BufferUsages::BLAS_INPUT | wgt::BufferUsages::TLAS_INPUT)
+        {
+            self.require_features(wgt::Features::EXPERIMENTAL_RAY_QUERY)?;
         }
 
         if desc.usage.contains(wgt::BufferUsages::INDEX)
@@ -2265,7 +2363,22 @@ impl Device {
                         },
                     )
                 }
-                Bt::AccelerationStructure { .. } => (None, WritableStorage::No),
+                Bt::AccelerationStructure { vertex_return } => {
+                    self.require_features(wgt::Features::EXPERIMENTAL_RAY_QUERY)
+                        .map_err(|e| binding_model::CreateBindGroupLayoutError::Entry {
+                            binding: entry.binding,
+                            error: e.into(),
+                        })?;
+                    if vertex_return {
+                        self.require_features(wgt::Features::EXPERIMENTAL_RAY_HIT_VERTEX_RETURN)
+                            .map_err(|e| binding_model::CreateBindGroupLayoutError::Entry {
+                                binding: entry.binding,
+                                error: e.into(),
+                            })?;
+                    }
+
+                    (None, WritableStorage::No)
+                }
                 Bt::ExternalTexture => {
                     self.require_features(wgt::Features::EXTERNAL_TEXTURE)
                         .map_err(|e| binding_model::CreateBindGroupLayoutError::Entry {
@@ -2429,6 +2542,19 @@ impl Device {
         buffer.check_usage(pub_usage)?;
 
         let (bb, bind_size) = buffer.binding(bb.offset, bb.size, snatch_guard)?;
+
+        if matches!(binding_ty, wgt::BufferBindingType::Storage { .. }) {
+            let storage_buf_size_alignment = 4;
+
+            let aligned = bind_size % u64::from(storage_buf_size_alignment) == 0;
+            if !aligned {
+                return Err(Error::UnalignedEffectiveBufferBindingSizeForStorage {
+                    alignment: storage_buf_size_alignment,
+                    size: bind_size,
+                });
+            }
+        }
+
         let bind_end = bb.offset + bind_size;
 
         if bind_size > range_limit as u64 {

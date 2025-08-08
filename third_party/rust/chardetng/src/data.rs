@@ -1038,6 +1038,11 @@ impl SingleByteData {
                     0
                 }
             } else {
+                // I tried factoring the tail of this function out into an
+                // #[inline(never)] function, but it had no binary size effect
+                // in a Rust toy app and made the binary size larger in Firefox
+                // in Linux x86_64 shippable config.
+
                 // Current below stored, prev above
                 if current_usize == 0
                     || current_usize == ASCII_DIGIT

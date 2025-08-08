@@ -37,7 +37,7 @@ categories = [
     "internationalization",
 ]
 license = "Apache-2.0 OR MIT"
-repository = "https://github.com/hsivonen/chardetng-c"
+repository = "https://github.com/hsivonen/chardetng_c"
 
 [lib]
 name = "chardetng_c"

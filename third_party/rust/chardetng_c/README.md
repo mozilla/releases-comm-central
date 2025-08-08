@@ -1,6 +1,6 @@
 # chardetng_c
 
-[![crates.io](https://meritbadge.herokuapp.com/chardetng_c)](https://crates.io/crates/chardetng_c)
+[![crates.io](https://img.shields.io/crates/v/chardetng_c.svg)](https://crates.io/crates/chardetng_c)
 [![docs.rs](https://docs.rs/chardetng_c/badge.svg)](https://docs.rs/chardetng_c/)
 [![Apache 2 / MIT dual-licensed](https://img.shields.io/badge/license-Apache%202%20%2F%20MIT-blue.svg)](https://github.com/hsivonen/chardetng_c/blob/master/COPYRIGHT)
 

@@ -1,6 +1,6 @@
 # chardetng
 
-[![crates.io](https://meritbadge.herokuapp.com/chardetng)](https://crates.io/crates/chardetng)
+[![crates.io](https://img.shields.io/crates/v/chardetng.svg)](https://crates.io/crates/chardetng)
 [![docs.rs](https://docs.rs/chardetng/badge.svg)](https://docs.rs/chardetng/)
 [![Apache 2 / MIT dual-licensed](https://img.shields.io/badge/license-Apache%202%20%2F%20MIT-blue.svg)](https://github.com/hsivonen/chardetng/blob/master/COPYRIGHT)
 
@@ -16,6 +16,9 @@ Please see the file named
 Generated [API documentation](https://docs.rs/chardetng/) is available
 online.
 
+There is a [long-form write-up](https://hsivonen.fi/chardetng/) about the
+design and motivation of the crate.
+
 ## Purpose
 
 The purpose of this detector is user retention for Firefox by ensuring that the long tail of the legacy Web is not more convenient to use in Chrome than in Firefox. (Chrome deployed [ced](https://github.com/google/compact_enc_det/), which left Firefox less convenient to use until the deployment of this detector.)
@@ -27,6 +30,14 @@ The purpose of this detector is user retention for Firefox by ensuring that the 
 ## Optimization Goals
 
 This crate aims to be more accurate than ICU, more complete than `chardet`, more explainable and modifiable than `compact_enc_det` (aka. ced), and, in an application that already depends on `encoding_rs` for other reasons, smaller in added binary footprint than `compact_enc_det`.
+
+## Rayon support
+
+Enabling the optional feature `multithreading` makes `chardetng` run the detectors for individual encodings in parallel. Unfortunately, the performance doesn't scale linearly with CPU cores, but it's still better than single-threaded performance in terms of wall-clock time if a single instance of `chardetng` is running. In terms of combined CPU core usage, the `multithreading` mode is quite a bit worse than the single-threaded more, so if you can find a parallelization point at some higher-level task such that you could have multiple instances of `chardetng` running in paraller each on a single thread, you'll get better results doing that.
+
+## `no_std` support
+
+`chardetng` works in a `no_std` environment that does not have an allocator.
 
 ## Principle of Operation
 
@@ -42,6 +53,9 @@ In general `chardetng` prefers to do negative matching (rule out possibilities f
    - For Latin encodings, having three non-ASCII letters in a row is penalized a little and having four or more is penalized a lot.
    - For non-Latin encodings, having a non-Latin letter right next to a Latin letter is penalized.
    - For single-byte encodings, having a character pair (excluding pairs where both characters are ASCII) that never occurs in the Wikipedias for the applicable languages is heavily penalized.
+   - Turkish I paired with a space-like character does not get a score to avoid detecting English as Turkish.
+   - There's a dedicated state machine for giving score to windows-1252 ordinal indicators, which would otherwise be hard to give score to without breaking windows-1250 Romanian detection.
+   - 0xA0, which is no-break space in most single-byte encodings, is special-cased in IBM866 and CJK encodings to avoid misdetection.
 
 ## Notes About Encodings
 
@@ -109,20 +123,69 @@ In general `chardetng` prefers to do negative matching (rule out possibilities f
 * windows-1257 detection is very inaccurate. (This detector currently doesn't use trigrams. ced uses 8 KB of trigram data to solve this.)
 * On non-generic domains, some encodings that are confusable with the legacy encodings native to the TLD are excluded from guesses outright unless the input is invalid according to all the TLD-native encodings.
 
+## Associated tools
+
+* [traindet](https://github.com/hsivonen/traindet) tool for computing the statistics for the generated code
+* [detector_char_classes](https://github.com/hsivonen/detector_char_classes/) classification of characters in the single-byte encodings
+* [charcounts](https://github.com/hsivonen/charcounts) intermediate files for traindet that make it possible to rerun the code generation without rerunning the statistic gathering
+* [testdet](https://github.com/hsivonen/testdet) testing tool
+
 ## Roadmap
 
-- [ ] Investigate parallelizing the `feed` method using Rayon.
+No planned improvements.
+
+- [x] Investigate parallelizing the `feed` method using Rayon.
 - [x] Improve windows-874 detection for short inputs.
-- [ ] Improve GBK detection for short inputs.
-- [ ] Reorganize the frequency data for telling short GBK, EUC-JP, and EUC-KR inputs apart.
-- [ ] Make Lithuanian and Latvian detection on generic domains a lot more accurate (likely requires looking at trigrams).
+- [ ] ~Improve GBK detection for short inputs.~
+- [ ] ~Reorganize the frequency data for telling short GBK, EUC-JP, and EUC-KR inputs apart.~
+- [ ] ~Make Lithuanian and Latvian detection on generic domains a lot more accurate (likely requires looking at trigrams).~
 - [x] Tune Central European detection.
-- [ ] Tune the penalties applied to confusable encodings on non-generic TLDs to make detection of confusable encodings possible on non-generic TLDs.
+- [ ] ~Tune the penalties applied to confusable encodings on non-generic TLDs to make detection of confusable encodings possible on non-generic TLDs.~
 - [x] Reduce the binary size by not storing the scoring for implausible-next-to-alphabetic character classes.
 - [ ] ~Reduce the binary size by classifying ASCII algorithmically.~
-- [ ] Reduce the binary size by not storing the scores for C1 controls.
+- [ ] ~Reduce the binary size by not storing the scores for C1 controls.~
 
 ## Release Notes
+
+### 1.0.0
+
+* Add method `tld_may_affect_guess`.
+
+### 0.1.17
+
+* Handle non-space space-like bytes following a windows-1252 copyright sign.
+
+### 0.1.16
+
+* Detect windows-1252 copyright sign surrounded by spaces as windows-1252.
+
+### 0.1.15
+
+* Make the crate work in `no_std` without an allocator.
+
+### 0.1.14
+
+* Add `guess_assess` that provides more information about the guess.
+* Upgrade the `cfg-if` dependency to 1.0.
+
+### 0.1.13
+
+* Undo the limit on CJK extra scoring (from version 0.1.10). This change never made it to Gecko and, therefore, wasn't validated with in-practice telemetry.
+* Detect inputs that have a lot of half-width katakana.
+
+### 0.1.12
+
+* Fix edge case oversights in code added in the previous release.
+
+### 0.1.11
+
+* Tolerate Windows and Classic Mac OS extensions to legacy CJK encodings and tolerate JIS X 0213 extensions to Shift_JIS and EUC-JP (not ISO-2022-JP).
+
+### 0.1.10
+
+* Stop computing extra scores for common CJK characters after enough extra-score-eligible characters have been seen. (Improves performance with long CJK inputs.)
+* Add Rayon support.
+* Avoid detecting windows-1252 euro sign as GBK.
 
 ### 0.1.9
 

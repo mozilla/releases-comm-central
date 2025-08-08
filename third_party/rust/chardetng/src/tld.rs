@@ -42,7 +42,7 @@ pub fn classify_tld(tld: &[u8]) -> Tld {
             _ => Tld::Generic,
         }
     } else if tld.starts_with(b"xn--") && tld.len() >= 8 {
-        // It's unclear is including the IDNs here is a good idea.
+        // It's unclear if including the IDNs here is a good idea.
         // Clearly, they are an anachronism relative to the era
         // of legacy encodings. The idea, consistent with previous
         // approach in Firefox is to address the case where one

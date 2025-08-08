@@ -51,6 +51,16 @@ pub unsafe extern "C" fn chardetng_encoding_detector_free(detector: *mut Encodin
 
 /// Queries whether the TLD is considered non-generic and could affect the guess.
 ///
+/// # Panics
+///
+/// If `tld` is `NULL` but `tld_len` is not zero.
+///
+/// If `tld` contains non-ASCII, period, or upper-case letters. (The panic
+/// condition is intentionally limited to signs of failing to extract the
+/// label correctly, failing to provide it in its Punycode form, and failure
+/// to lower-case it. Full DNS label validation is intentionally not performed
+/// to avoid panics when the reality doesn't match the specs.)
+///
 /// # Undefined Behavior
 ///
 /// UB ensues if
