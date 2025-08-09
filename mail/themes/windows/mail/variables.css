@@ -7,8 +7,6 @@
 :root {
   --autocomplete-popup-url-color: LinkText;
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
-  --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
-                                             rgba(255, 255, 255, 0.15));
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
 
@@ -24,7 +22,6 @@
   }
 
   @media not (prefers-contrast) {
-    --toolbar-non-lwt-bgimage: none;
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   }
 

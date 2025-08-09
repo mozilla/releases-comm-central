@@ -5,8 +5,6 @@
 @import url("chrome://messenger/skin/shared/variables.css");
 
 :root {
-  --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
-                                             rgba(255, 255, 255, 0.15));
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --autocomplete-popup-url-color: LinkText;

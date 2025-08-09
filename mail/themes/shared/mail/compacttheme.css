@@ -9,7 +9,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwtheme] {
-  --toolbar-non-lwt-bgimage: none;
   --new-focused-folder-color: var(--sidebar-highlight-text-color);
 
   @media (prefers-color-scheme: dark) {
