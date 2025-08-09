@@ -570,13 +570,23 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
       bool stripConditionalCSS =
           Preferences::GetBool("mail.html_sanitize.drop_conditional_css", true);
 
+      nsString newBody;
       if (stripConditionalCSS) {
-        nsString newBody;
         remove_conditional_CSS(aBuf, newBody);
-        htmlEditor->RebuildDocumentFromSource(newBody);
       } else {
-        htmlEditor->RebuildDocumentFromSource(aBuf);
+        newBody = aBuf;
       }
+      nsCOMPtr<Document> document;
+      nsresult rv = htmlEditor->GetDocument(getter_AddRefs(document));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      mozilla::IgnoredErrorResult error;
+      document->GetDocumentElement()->SetInnerHTMLTrusted(
+          newBody, document->NodePrincipal(), error);
+      NS_ENSURE_FALSE(error.Failed(), NS_ERROR_FAILURE);
+
+      htmlEditor->BeginningOfDocument();
+      htmlEditor->ClearUndoRedo();
 
       // When forwarding a message as inline, or editing as new (which could
       // contain unsanitized remote content), tag any embedded objects
