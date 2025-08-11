@@ -505,10 +505,9 @@ static void ImportMailThread(void* stuff) {
       rv = NS_OK;
       while ((newDepth < depth) && NS_SUCCEEDED(rv)) {
         rv = curFolder->GetParent(getter_AddRefs(curFolder));
-        if (NS_FAILED(rv)) {
+        if (NS_FAILED(rv) || !curFolder) {
           IMPORT_LOG1(
-              "*** ImportMailThread: Failed to get the interface for parent "
-              "folder '%s'.",
+              "*** ImportMailThread: Failed to get parent folder for '%s'.",
               NS_ConvertUTF16toUTF8(lastName).get());
           nsImportGenericMail::ReportError(IMPORT_ERROR_MB_FINDCHILD,
                                            lastName.get(), &error,
