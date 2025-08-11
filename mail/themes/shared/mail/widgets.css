@@ -412,7 +412,7 @@
 
     & > option {
       background-color: var(--background-color-box);
-      color: var(--in-content-text-color);
+      color: var(--text-color);
     }
   }
 }

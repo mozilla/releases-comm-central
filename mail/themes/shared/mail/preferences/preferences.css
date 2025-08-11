@@ -225,7 +225,7 @@ menulist::part(dropmarker-icon) {
 
 .sticky-container {
   position: sticky;
-  background-color: var(--in-content-page-background);
+  background-color: var(--background-color-canvas);
   top: 0;
   z-index: 1;
   /* The sticky-container should have the capability to cover all spotlight area. */
@@ -654,7 +654,7 @@ treechildren::-moz-tree-cell-text(selected) {
 #preferencesContainer richlistbox {
   appearance: none;
   background-color: var(--background-color-box);
-  color: var(--in-content-text-color);
+  color: var(--text-color);
 
   & richlistitem {
     padding: 0.3em;

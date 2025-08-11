@@ -5,8 +5,8 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 body {
-  color: var(--in-content-page-color);
-  background: var(--in-content-page-background);
+  color: var(--text-color);
+  background: var(--background-color-canvas);
   text-shadow: none;
 }
 
@@ -29,7 +29,7 @@ body {
 
   & > .download {
     min-height: 5em;
-    border-bottom: 1px solid hsla(0, 0%, 50%, .3);
+    border-bottom: 1px solid hsla(0, 0%, 50%, 0.3);
     border-radius: 3px;
   }
 

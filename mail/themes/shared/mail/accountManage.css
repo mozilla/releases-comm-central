@@ -41,12 +41,12 @@ fieldset {
   --panel-border-color: var(--in-content-box-border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
-  --panel-color: var(--in-content-text-color);
+  --panel-color: var(--text-color);
   --panel-padding: 3px 0;
 
   & > menuitem {
     appearance: none;
-    color: var(--in-content-text-color);
+    color: var(--text-color);
     padding-block: 0.2em;
     padding-inline: 10px 30px;
 
@@ -153,7 +153,7 @@ menulist > menupopup {
       border: 1px solid transparent;
 
       &:not([disabled="true"])[_moz-menuactive="true"] {
-        color: var(--in-content-text-color);
+        color: var(--text-color);
         background-color: var(--in-content-item-hover);
       }
 
@@ -325,7 +325,7 @@ richlistitem[default="true"],
   font-size: 1.46em;
   font-weight: 300;
   line-height: 1.3em;
-  color: var(--in-content-text-color);
+  color: var(--text-color);
 
   &::before {
     overflow: hidden;
@@ -577,7 +577,7 @@ richlistitem[default="true"],
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 4px;
   overflow: hidden;
-  background-color: var(--in-content-page-background);
+  background-color: var(--background-color-canvas);
 
   & tabs {
     border-top: none;

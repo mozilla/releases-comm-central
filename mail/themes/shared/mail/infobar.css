@@ -13,7 +13,7 @@
   --button-background-color-ghost-active: color-mix(in srgb, currentColor 25%, transparent);
   --close-icon-size: 32px;
   --message-bar-background-color: var(--in-content-box-info-background);
-  --message-bar-text-color: var(--in-content-text-color);
+  --message-bar-text-color: var(--text-color);
   --message-bar-icon-url: var(--icon-info);
   --panel-border-radius: 3px;
 

@@ -23,8 +23,8 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 
 .dialogBox {
   appearance: none;
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
+  background-color: var(--background-color-canvas);
+  color: var(--text-color);
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;
@@ -46,7 +46,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   :root[dialogroot],
   body > xul|dialog,
   .dialogBox {
-    --in-content-page-background: #2a2a2e !important;
+    --background-color-canvas: #2a2a2e !important;
   }
 }
 
@@ -87,5 +87,5 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 }
 
 #selectOffline {
-  background-color: var(--in-content-page-background);
+  background-color: var(--background-color-canvas);
 }

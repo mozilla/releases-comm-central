@@ -40,7 +40,7 @@ description {
   position: fixed;
   flex-direction: column;
   justify-content: start;
-  background-color: var(--in-content-page-background, -moz-dialog);
+  background-color: var(--background-color-canvas, -moz-dialog);
   inset: 0;
   z-index: 1;
 }

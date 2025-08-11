@@ -200,12 +200,12 @@ body {
   --panel-border-color: var(--in-content-box-border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
-  --panel-color: var(--in-content-text-color);
+  --panel-color: var(--text-color);
   --panel-padding: 3px 0;
 
   & > menuitem {
     appearance: none;
-    color: var(--in-content-text-color);
+    color: var(--text-color);
     padding-block: 0.2em;
     padding-inline: 10px 30px;
 

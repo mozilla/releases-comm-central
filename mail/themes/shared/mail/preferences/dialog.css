@@ -6,7 +6,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root > * {
-    --in-content-page-background: #2a2a2e;
+    --background-color-canvas: #2a2a2e;
   }
 }
 
@@ -14,8 +14,8 @@ dialog,
 window,
 .windowDialog {
   appearance: none;
-  background-color: var(--in-content-page-background);
-  color: var(--in-content-page-color);
+  background-color: var(--background-color-canvas);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
 }
