@@ -6,29 +6,29 @@
 <!ENTITY calendar.calendar.label     "Calendar">
 <!ENTITY calendar.calendar.accesskey "C">
 
-<!ENTITY calendar.newevent.button.tooltip         "Create a new event" >
-<!ENTITY calendar.newtask.button.tooltip          "Create a new task" >
+<!ENTITY calendar.newevent.button.tooltip         "Create a new event">
+<!ENTITY calendar.newtask.button.tooltip          "Create a new task">
 
 <!ENTITY calendar.unifinder.showcompletedtodos.label "Show completed Tasks">
 
 <!ENTITY calendar.today.button.label          "Today">
 <!ENTITY calendar.tomorrow.button.label       "Tomorrow">
 
-<!ENTITY calendar.today.button.tooltip          "Go to Today" >
-<!ENTITY calendar.todaypane.button.tooltip      "Show Today Pane" >
+<!ENTITY calendar.today.button.tooltip          "Go to Today">
+<!ENTITY calendar.todaypane.button.tooltip      "Show Today Pane">
 
-<!ENTITY calendar.newevent.button.label         "New Event" >
-<!ENTITY calendar.newtask.button.label          "New Task" >
+<!ENTITY calendar.newevent.button.label         "New Event">
+<!ENTITY calendar.newtask.button.label          "New Task">
 
-<!ENTITY calendar.onlyworkday.checkbox.label    "Workweek days only" >
-<!ENTITY calendar.onlyworkday.checkbox.accesskey  "r" >
-<!ENTITY calendar.displaytodos.checkbox.label   "Tasks in View" >
-<!ENTITY calendar.displaytodos.checkbox.accesskey "k" >
-<!ENTITY calendar.completedtasks.checkbox.label     "Show completed Tasks" >
-<!ENTITY calendar.completedtasks.checkbox.accesskey "c" >
+<!ENTITY calendar.onlyworkday.checkbox.label    "Workweek days only">
+<!ENTITY calendar.onlyworkday.checkbox.accesskey  "r">
+<!ENTITY calendar.displaytodos.checkbox.label   "Tasks in View">
+<!ENTITY calendar.displaytodos.checkbox.accesskey "k">
+<!ENTITY calendar.completedtasks.checkbox.label     "Show completed Tasks">
+<!ENTITY calendar.completedtasks.checkbox.accesskey "c">
 
-<!ENTITY calendar.orientation.label "Rotate View" >
-<!ENTITY calendar.orientation.accesskey "o" >
+<!ENTITY calendar.orientation.label "Rotate View">
+<!ENTITY calendar.orientation.accesskey "o">
 
 <!ENTITY calendar.search.options.searchfor " contain">
 
@@ -99,7 +99,7 @@
 <!ENTITY calendar.context.pasteevent.label            "Paste">
 <!ENTITY calendar.context.pasteevent.accesskey        "P">
 <!ENTITY calendar.context.button.label                "Today Pane">
-<!ENTITY calendar.context.button.accesskey            "T">
+<!ENTITY calendar.context.button.accesskey            "P">
 
 <!ENTITY calendar.context.attendance.menu.label                 "Attendance">
 <!ENTITY calendar.context.attendance.menu.accesskey             "d">
@@ -148,7 +148,7 @@
 <!ENTITY calendar.context.postpone.label              "Postpone Task">
 <!ENTITY calendar.context.postpone.accesskey          "s">
 
-<!ENTITY percnt "&#38;#37;" ><!--=percent sign-->
+<!ENTITY percnt "&#38;#37;"><!--=percent sign-->
 
 <!ENTITY calendar.context.markcompleted.label     "Mark Completed">
 <!ENTITY calendar.context.markcompleted.accesskey "o">
@@ -191,8 +191,8 @@
 <!-- Server Context Menu -->
 <!ENTITY calendar.context.newserver.label              "New Calendar…">
 <!ENTITY calendar.context.newserver.accesskey          "N">
-<!ENTITY calendar.context.findcalendar.label           "Find Calendar…" >
-<!ENTITY calendar.context.findcalendar.accesskey       "F" >
+<!ENTITY calendar.context.findcalendar.label           "Find Calendar…">
+<!ENTITY calendar.context.findcalendar.accesskey       "F">
 <!ENTITY calendar.context.deleteserver2.label          "Delete Calendar…">
 <!ENTITY calendar.context.deleteserver2.accesskey      "D">
 
@@ -246,23 +246,23 @@
 
 <!-- Calendar Alarm Dialog -->
 
-<!ENTITY calendar.alarm.location.label              "Location:" >
-<!ENTITY calendar.alarm.details.label               "Details…" >
+<!ENTITY calendar.alarm.location.label              "Location:">
+<!ENTITY calendar.alarm.details.label               "Details…">
 
-<!ENTITY calendar.alarm.snoozefor.label             "Snooze for" >
-<!ENTITY calendar.alarm.snoozeallfor.label          "Snooze All for" >
-<!ENTITY calendar.alarm.title.label                 "Calendar Reminders" >
-<!ENTITY calendar.alarm.dismiss.label               "Dismiss" >
-<!ENTITY calendar.alarm.dismissall.label            "Dismiss All" >
+<!ENTITY calendar.alarm.snoozefor.label             "Snooze for">
+<!ENTITY calendar.alarm.snoozeallfor.label          "Snooze All for">
+<!ENTITY calendar.alarm.title.label                 "Calendar Reminders">
+<!ENTITY calendar.alarm.dismiss.label               "Dismiss">
+<!ENTITY calendar.alarm.dismissall.label            "Dismiss All">
 
-<!ENTITY calendar.alarm.snooze.5minutes.label       "5 Minutes" >
-<!ENTITY calendar.alarm.snooze.10minutes.label      "10 Minutes" >
-<!ENTITY calendar.alarm.snooze.15minutes.label      "15 Minutes" >
-<!ENTITY calendar.alarm.snooze.30minutes.label      "30 Minutes" >
-<!ENTITY calendar.alarm.snooze.45minutes.label      "45 Minutes" >
-<!ENTITY calendar.alarm.snooze.1hour.label          "1 Hour" >
-<!ENTITY calendar.alarm.snooze.2hours.label         "2 Hours" >
-<!ENTITY calendar.alarm.snooze.1day.label           "1 Day" >
+<!ENTITY calendar.alarm.snooze.5minutes.label       "5 Minutes">
+<!ENTITY calendar.alarm.snooze.10minutes.label      "10 Minutes">
+<!ENTITY calendar.alarm.snooze.15minutes.label      "15 Minutes">
+<!ENTITY calendar.alarm.snooze.30minutes.label      "30 Minutes">
+<!ENTITY calendar.alarm.snooze.45minutes.label      "45 Minutes">
+<!ENTITY calendar.alarm.snooze.1hour.label          "1 Hour">
+<!ENTITY calendar.alarm.snooze.2hours.label         "2 Hours">
+<!ENTITY calendar.alarm.snooze.1day.label           "1 Day">
 
 <!-- LOCALIZATION NOTE (calendar.alarm.snooze.cancel)
      This string is not seen in the UI, it is read by screen readers when the
