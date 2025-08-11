@@ -106,6 +106,10 @@ tasks:
                                   - - suite/config/version_display.txt
                                     - a1
                                     - b1
+                              regex-replacements:
+                                  - - mail/confvars.sh
+                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=.*$'
+                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/tb_beta'
                               merge-old-head: true
                               base-tag: 'BETA_{major_version}_BASE'
                               end-tag: 'BETA_{major_version}_END'
@@ -123,6 +127,10 @@ tasks:
                                   - - suite/config/version_display.txt
                                     - b1
                                     - ''
+                              regex-replacements:
+                                  - - mail/confvars.sh
+                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=.*$'
+                                    - 'MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird'
                               merge-old-head: true
                               base-tag: 'RELEASE_{major_version}_BASE'
                               end-tag: 'RELEASE_{major_version}_END'

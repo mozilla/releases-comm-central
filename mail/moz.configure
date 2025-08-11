@@ -181,11 +181,14 @@ def thunderbird_official_branding_directory(thunderbird_official_branding):
     return f"comm/mail/branding/{thunderbird_official_branding}"
 
 
-imply_option(
-    "MOZ_OFFICIAL_BRANDING_DIRECTORY",
-    thunderbird_official_branding_directory,
-    reason=thunderbird_official_branding,
-)
+# This is disabled in favor of MOZ_OFFICIAL_BRANDING_DIRECTORY being defined in
+# confvars.h, as MSIX repackaging does not support reading values from
+# moz.configure.
+# imply_option(
+#    "MOZ_OFFICIAL_BRANDING_DIRECTORY",
+#    thunderbird_official_branding_directory,
+#    reason=thunderbird_official_branding,
+# )
 
 # Thunderbird Rust code is now the only way to compile
 set_config("MOZ_THUNDERBIRD_RUST", True)
