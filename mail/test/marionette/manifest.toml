@@ -3,4 +3,7 @@ support-files = ["data/**", "scripts/**"]
 
 ["test_commandline.py"]
 
+["test_menubar_migration.py"]
+skip-if = ["os == 'mac'"]
+
 ["test_sessionstore.py"]

@@ -9,6 +9,7 @@
  * a module makes unit testing much easier.
  */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
@@ -236,6 +237,25 @@ export var MailMigrator = {
           Services.prefs.setBoolPref("mail.prompt_purge_threshold", old);
           Services.prefs.clearUserPref("mail.prompt_purge_threshhold");
         } catch (ex) {}
+
+        // This is the first migration of ESR 140. If we're here and there's
+        // no value for this attribute, set the value of the attribute to
+        // match the default behaviour in ESR 128.
+        if (
+          AppConstants.platform != "macosx" &&
+          !Services.xulStore.hasValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "toolbar-menubar",
+            "autohide"
+          )
+        ) {
+          Services.xulStore.setValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "toolbar-menubar",
+            "autohide",
+            "false"
+          );
+        }
       }
 
       if (currentUIVersion < 48) {
