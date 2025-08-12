@@ -780,3 +780,48 @@ modify-conflict-prompt-button2 = Discard these changes
 # Accessible description of a grid calendar with no selected date
 minimonth-no-selected-date =
     .aria-label = No date selected
+
+# Used in the main menu and contextual menus.
+calendar-context-today-pane =
+    .label = Today Pane
+    .accesskey = P
+
+calendar-context-open-event =
+    .label = Open
+    .accesskey = O
+
+calendar-context-open-task =
+    .label = Open Task…
+    .accesskey = O
+
+calendar-context-new-event =
+    .label = New Event…
+    .accesskey = N
+
+calendar-context-new-task =
+    .label = New Task…
+    .accesskey = k
+
+calendar-context-delete-task =
+    .label = Delete Task
+    .accesskey = l
+
+calendar-context-delete-event =
+    .label = Delete Event
+    .accesskey = l
+
+calendar-context-cut =
+    .label = Cut
+    .accesskey = t
+
+calendar-context-copy =
+    .label = Copy
+    .accesskey = C
+
+calendar-context-paste =
+    .label = Paste
+    .accesskey = P
+
+calendar-taskview-delete =
+    .label = Delete
+    .tooltiptext = Delete Task

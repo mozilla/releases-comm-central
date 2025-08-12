@@ -17,8 +17,7 @@
 
   <menupopup id="agenda-menupopup"
              class="no-icon-menupopup">
-    <menuitem label="&calendar.context.modifyorviewitem.label;"
-              accesskey="&calendar.context.modifyorviewitem.accesskey;"
+    <menuitem data-l10n-id="calendar-context-open-event"
               command="agenda_edit_event_command"/>
     <menu id="agenda-context-menu-convert-menu"
           class="no-icon-menupopup"
@@ -38,8 +37,7 @@
       </menupopup>
     </menu>
     <menuseparator id="calendar-today-pane-menuseparator-before-delete"/>
-    <menuitem label="&calendar.context.deleteevent.label;"
-              accesskey="&calendar.context.deleteevent.accesskey;"
+    <menuitem data-l10n-id="calendar-context-delete-event"
               key="calendar-delete-item-key"
               command="agenda_delete_event_command"/>
     <menu id="calendar-today-pane-menu-attendance-menu"
@@ -274,37 +272,31 @@
              class="no-icon-menupopup"
              onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems());">
     <menuitem id="calendar-item-context-menu-view-menuitem"
-              label="&calendar.context.modifyorviewitem.label;"
-              accesskey="&calendar.context.modifyorviewitem.accesskey;"
+              data-l10n-id="calendar-context-open-event"
               command="calendar_view_event_command"/>
     <menuitem id="calendar-item-context-menu-modify-menuitem"
               data-l10n-id="calendar-item-context-menu-modify-menuitem"
               command="calendar_modify_event_command"
               disabled="true" />
     <menuitem id="calendar-item-context-menu-newevent-menutitem"
-              label="&calendar.context.newevent.label;"
-              accesskey="&calendar.context.newevent.accesskey;"
+              data-l10n-id="calendar-context-new-event"
               key="calendar-new-event-key"
               command="calendar_new_event_context_command"/>
     <menuitem id="calendar-item-context-menu-newtodo-menuitem"
-              label="&calendar.context.newtodo.label;"
-              accesskey="&calendar.context.newtodo.accesskey;"
+              data-l10n-id="calendar-context-new-task"
               key="calendar-new-todo-key"
               command="calendar_new_todo_context_command"/>
     <menuseparator id="calendar-item-context-menuseparator-adddeletemodify"/>
     <menuitem id="calendar-item-context-menu-cut-menuitem"
-              label="&calendar.context.cutevent.label;"
-              accesskey="&calendar.context.cutevent.accesskey;"
+              data-l10n-id="calendar-context-cut"
               key="key_cut"
               command="cmd_cut"/>
     <menuitem id="calendar-item-context-menu-copy-menuitem"
-              label="&calendar.context.copyevent.label;"
-              accesskey="&calendar.context.copyevent.accesskey;"
+              data-l10n-id="calendar-context-copy"
               key="key_copy"
               command="cmd_copy"/>
     <menuitem id="calendar-item-context-menu-paste-menuitem"
-              label="&calendar.context.pasteevent.label;"
-              accesskey="&calendar.context.pasteevent.accesskey;"
+              data-l10n-id="calendar-context-paste"
               key="key_paste"
               command="cmd_paste"/>
     <menuseparator id="calendar-item-context-separator-cutcopypaste"/>
@@ -509,14 +501,12 @@
   <menupopup id="calendar-view-context-menu"
              class="no-icon-menupopup">
     <menuitem id="calendar-view-context-menu-newevent"
-              label="&calendar.context.newevent.label;"
+              data-l10n-id="calendar-context-new-event"
               command="calendar_new_event_context_command"
-              accesskey="&calendar.context.newevent.accesskey;"
               key="calendar-new-event-key"/>
     <menuitem id="calendar-view-context-menu-newtodo"
-              label="&calendar.context.newtodo.label;"
+              data-l10n-id="calendar-context-new-task"
               command="calendar_new_todo_context_command"
-              accesskey="&calendar.context.newtodo.accesskey;"
               key="calendar-new-todo-key"/>
     <!-- These labels are set dynamically, based on the current view -->
     <menuitem id="calendar-view-context-menu-previous"
@@ -527,18 +517,15 @@
     <!-- Cut and copy doesn't make sense in the views, but only showing paste
         makes it look like something is missing. Disable by default. -->
     <menuitem id="calendar-view-context-menu-cut-menuitem"
-              label="&calendar.context.cutevent.label;"
-              accesskey="&calendar.context.cutevent.accesskey;"
+              data-l10n-id="calendar-context-cut"
               key="key_cut"
               disabled="true"/>
     <menuitem id="calendar-view-context-menu-copy-menuitem"
-              label="&calendar.context.copyevent.label;"
-              accesskey="&calendar.context.copyevent.accesskey;"
+              data-l10n-id="calendar-context-copy"
               key="key_copy"
               disabled="true"/>
     <menuitem id="calendar-view-context-menu-paste-menuitem"
-              label="&calendar.context.pasteevent.label;"
-              accesskey="&calendar.context.pasteevent.accesskey;"
+              data-l10n-id="calendar-context-paste"
               key="key_paste"
               command="cmd_paste"/>
   </menupopup>
@@ -549,37 +536,30 @@
              onpopupshowing="changeContextMenuForTask(event);"
              onpopuphiding="handleTaskContextMenuStateChange(event);">
     <menuitem id="task-context-menu-modify"
-              label="&calendar.context.modifyorviewtask.label;"
-              accesskey="&calendar.context.modifyorviewtask.accesskey;"
+              data-l10n-id="calendar-context-open-task"
               command="calendar_modify_todo_command"/>
     <menuitem id="task-context-menu-modify-todaypane"
-              label="&calendar.context.modifyorviewtask.label;"
-              accesskey="&calendar.context.modifyorviewtask.accesskey;"
+              data-l10n-id="calendar-context-open-task"
               command="calendar_modify_todo_todaypane_command"/>
     <menuitem id="task-context-menu-new"
-              label="&calendar.context.newtodo.label;"
-              accesskey="&calendar.context.newtodo.accesskey;"
+              data-l10n-id="calendar-context-new-task"
               key="calendar-new-todo-key"
               command="calendar_new_todo_command"/>
     <menuitem id="task-context-menu-new-todaypane"
-              label="&calendar.context.newtodo.label;"
-              accesskey="&calendar.context.newtodo.accesskey;"
+              data-l10n-id="calendar-context-new-task"
               key="calendar-new-todo-key"
               command="calendar_new_todo_todaypane_command"/>
     <menuseparator id="task-context-menuseparator-cutcopypaste"/>
     <menuitem id="task-context-menu-cut-menuitem"
-              label="&calendar.context.cutevent.label;"
-              accesskey="&calendar.context.cutevent.accesskey;"
+              data-l10n-id="calendar-context-cut"
               key="key_cut"
               command="cmd_cut"/>
     <menuitem id="task-context-menu-copy-menuitem"
-              label="&calendar.context.copyevent.label;"
-              accesskey="&calendar.context.copyevent.accesskey;"
+              data-l10n-id="calendar-context-copy"
               key="key_copy"
               command="cmd_copy"/>
     <menuitem id="task-context-menu-paste-menuitem"
-              label="&calendar.context.pasteevent.label;"
-              accesskey="&calendar.context.pasteevent.accesskey;"
+              data-l10n-id="calendar-context-paste"
               key="key_paste"
               command="cmd_paste"/>
     <menuseparator id="calendar-menuseparator-beforemarkcompleted"/>
@@ -643,8 +623,7 @@
     </menu>
     <menuseparator/>
     <menuitem id="task-context-menu-delete"
-              label="&calendar.context.deletetask.label;"
-              accesskey="&calendar.context.deletetask.accesskey;"
+              data-l10n-id="calendar-context-delete-task"
               command="calendar_delete_todo_command"/>
     <menu id="task-context-menu-attendance-menu"
           label="&calendar.context.attendance.menu.label;"
