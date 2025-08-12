@@ -577,6 +577,12 @@ nsresult nsMsgFilterList::LoadTextFilters(
       {
         if (m_curFilter) {
           int32_t nextFilterStartPos = m_unparsedFilterBuffer.RFind("name");
+          if (nextFilterStartPos < 0) {
+            m_curFilter->SetUnparseable(true);
+            m_curFilter->SetEnabled(false);
+            err = NS_ERROR_ABORT;
+            break;
+          }
 
           nsAutoCString nextFilterPart;
           nextFilterPart = Substring(m_unparsedFilterBuffer, nextFilterStartPos,
@@ -592,11 +598,7 @@ nsresult nsMsgFilterList::LoadTextFilters(
           }
           m_unparsedFilterBuffer = nextFilterPart;
         }
-        nsMsgFilter* filter = new nsMsgFilter;
-        if (filter == nullptr) {
-          err = NS_ERROR_OUT_OF_MEMORY;
-          break;
-        }
+        nsMsgFilter* filter = new nsMsgFilter();
         filter->SetFilterList(static_cast<nsIMsgFilterList*>(this));
         nsAutoString unicodeStr;
         if (m_fileVersion == k45Version) {
