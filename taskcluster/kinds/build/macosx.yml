@@ -6,6 +6,17 @@ task-defaults:
     index:
         product: thunderbird
     worker-type: b-linux-gcp
+    worker:
+        artifacts:
+            - name: public/build/security/browser.xml
+              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/{browser_entitlement}.xml
+              type: file
+            - name: public/build/security/media-plugin-helper.xml
+              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/media-plugin-helper.xml
+              type: file
+            - name: public/build/security/plugin-container.xml
+              path: checkouts/comm/build/macosx/hardenedruntime/{entitlement_directory}/plugin-container.xml
+              type: file
     run:
         using: mozharness
         comm-checkout: true
