@@ -115,7 +115,7 @@ var addressBookTabType = {
         if ("onLoad" in aArgs) {
           // Let selection of the initial pane complete before selecting another.
           // Otherwise we can end up with two panes selected at once.
-          aTab.browser.contentWindow.setTimeout(() => {
+          setTimeout(() => {
             // By now, the tab could already be closed. Check that it isn't.
             if (aTab.panel) {
               aArgs.onLoad(event, aTab.browser);
