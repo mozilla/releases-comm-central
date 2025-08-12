@@ -65,13 +65,13 @@
       color: var(--in-content-item-selected-text);
     }
 
-    &:not(:focus-within) .actionsMenu {
+    &:not(:hover, :focus-within) .actionsMenu {
       background-color: transparent;
-      --button-border-color: transparent;
-    }
+      --button-border: var(--border-width) solid transparent;
 
-    &:not(:is(:hover,:focus-within)) .actionsMenu::part(dropmarker) {
-      display: none;
+      &::part(dropmarker) {
+        display: none;
+      }
     }
   }
 
