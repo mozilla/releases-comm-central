@@ -682,11 +682,15 @@ export class VCardProperties {
         // violation of RFC6350. Removing the escaping at this point means no
         // other code requires a special case for it.
         if (Array.isArray(value)) {
-          value = value.map(v => v.replace(/\\r/g, "\r").replace(/\\:/g, ":"));
+          value = value.map(v =>
+            v.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":")
+          );
         } else {
-          value = value.replace(/\\r/g, "\r").replace(/\\:/g, ":");
+          value = value.replaceAll(/\\r/g, "\r").replaceAll(/\\:/g, ":");
           if (["phone-number", "uri"].includes(type)) {
-            value = value.replace(/\\([,;\\])/g, "$1");
+            value = value.replaceAll(/\\([,;\\])/g, "$1");
+          } else if (["text"].includes(type)) {
+            value = value.replaceAll(/\\;/g, ";");
           }
         }
       }

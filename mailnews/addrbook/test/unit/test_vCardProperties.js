@@ -831,10 +831,10 @@ add_task(function testGoogleEscaping() {
     VERSION:3.0
     N:test;en\\\\c:oding;;;
     FN:en\\\\c:oding test
-    TITLE:title:title\\;title\\,title\\\\title\\\\:title\\\\\\;title\\\\\\,title\\\\\\\\
+    TITLE:title:title;title\\,title\\\\title\\\\:title\\\\;title\\\\\\,title\\\\\\\\
     TEL:tel:01234567
     EMAIL:test\\\\test@invalid
-    NOTE:notes:\\nnotes\\;\\nnotes\\,\\nnotes\\\\
+    NOTE:notes:\\nnotes;\\nnotes\\,\\nnotes\\\\
     URL:http://host/url:url;url,url\\url
     END:VCARD`;
 
