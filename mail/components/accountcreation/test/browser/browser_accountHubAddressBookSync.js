@@ -217,12 +217,12 @@ add_task(async function test_inputChangeAndToggleAll() {
   );
   await checkEvent;
 
-  const selectAllAddressBooks = abSyncSubview.querySelector(
+  const selectAllAddressBooksLabel = abSyncSubview.querySelector(
     `[for="selectAllAddressBooks"] span`
   );
 
   Assert.equal(
-    abSyncSubview.l10n.getAttributes(selectAllAddressBooks).id,
+    abSyncSubview.l10n.getAttributes(selectAllAddressBooksLabel).id,
     "account-hub-select-all",
     "Address book select toggle should be select all"
   );
@@ -243,7 +243,7 @@ add_task(async function test_inputChangeAndToggleAll() {
 
   // Toggle select all.
   EventUtils.synthesizeMouseAtCenter(
-    selectAllAddressBooks,
+    selectAllAddressBooksLabel,
     {},
     abSyncSubview.ownerGlobal
   );
@@ -262,7 +262,7 @@ add_task(async function test_inputChangeAndToggleAll() {
   );
 
   Assert.equal(
-    abSyncSubview.l10n.getAttributes(selectAllAddressBooks).id,
+    abSyncSubview.l10n.getAttributes(selectAllAddressBooksLabel).id,
     "account-hub-deselect-all",
     "Address book select toggle should be select all"
   );
@@ -280,21 +280,20 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Select all input should not be indeterminate"
   );
 
-  const uncheckEvent = BrowserTestUtils.waitForEvent(
-    selectAllAddressBooks,
-    "click"
-  );
-
   EventUtils.synthesizeMouseAtCenter(
-    selectAllAddressBooks,
+    selectAllAddressBooksLabel,
     {},
     abSyncSubview.ownerGlobal
   );
 
-  await uncheckEvent;
+  await BrowserTestUtils.waitForMutationCondition(
+    selectAllInput,
+    { attributes: true },
+    () => !selectAllInput.checked
+  );
 
   Assert.equal(
-    abSyncSubview.l10n.getAttributes(selectAllAddressBooks).id,
+    abSyncSubview.l10n.getAttributes(selectAllAddressBooksLabel).id,
     "account-hub-select-all",
     "Address book select toggle should be select all"
   );
