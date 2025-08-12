@@ -809,7 +809,8 @@ export class AttachmentInfo {
           );
           return;
         }
-        resolve(this._data.join(""));
+        // We got the data. Ensure CRLF line endings.
+        resolve(this._data.join("").replace(/\r\n?|\n/g, "\r\n"));
       },
     };
 
