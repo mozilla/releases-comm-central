@@ -426,10 +426,7 @@ function readAutoDiscoverResponse(
   assert(typeof errorCallback == "function");
 
   // redirect to other email address
-  if (
-    "Account" in autoDiscoverXML.Autodiscover.Response &&
-    "RedirectAddr" in autoDiscoverXML.Autodiscover.Response.Account
-  ) {
+  if (autoDiscoverXML?.Autodiscover?.Response?.Account?.RedirectAddr) {
     // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
     const redirectEmailAddress = lazy.Sanitizer.emailAddress(
       autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
@@ -452,8 +449,15 @@ function readAutoDiscoverResponse(
     return;
   }
 
-  const config = readAutoDiscoverXML(autoDiscoverXML, username);
-  if (config.isComplete()) {
+  let success = false;
+  let config;
+  try {
+    config = readAutoDiscoverXML(autoDiscoverXML, username);
+    success = config.isComplete();
+  } catch (error) {
+    gAccountSetupLogger.log(error);
+  }
+  if (success) {
     successCallback(config);
   } else {
     errorCallback(new Exception("No valid configs found in AutoDiscover XML"));
