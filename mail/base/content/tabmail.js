@@ -141,10 +141,7 @@ ChromeUtils.defineESModuleGetters(this, {
     _createTabMenuItem(aTab) {
       const menuItem = document.createXULElement("menuitem");
 
-      menuItem.setAttribute(
-        "class",
-        "menuitem-iconic alltabs-item menuitem-with-favicon"
-      );
+      menuItem.setAttribute("class", "alltabs-item");
 
       this._setMenuitemAttributes(menuItem, aTab);
 
@@ -162,24 +159,15 @@ ChromeUtils.defineESModuleGetters(this, {
     _setMenuitemAttributes(aMenuitem, aTab) {
       aMenuitem.setAttribute("label", aTab.label);
       aMenuitem.setAttribute("crop", "end");
+      aMenuitem.setAttribute(
+        "image",
+        aTab.querySelector(".tab-icon-image").src
+      );
 
       if (aTab.hasAttribute("busy")) {
         aMenuitem.setAttribute("busy", aTab.getAttribute("busy"));
-        aMenuitem.removeAttribute("image");
       } else {
-        aMenuitem.setAttribute("image", aTab.getAttribute("image"));
         aMenuitem.removeAttribute("busy");
-      }
-
-      // Change the tab icon accordingly.
-      const style = window.getComputedStyle(aTab);
-      aMenuitem.style.listStyleImage = style.listStyleImage;
-      aMenuitem.style.MozImageRegion = style.MozImageRegion;
-
-      if (aTab.hasAttribute("pending")) {
-        aMenuitem.setAttribute("pending", aTab.getAttribute("pending"));
-      } else {
-        aMenuitem.removeAttribute("pending");
       }
 
       if (aTab.selected) {
