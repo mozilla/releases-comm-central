@@ -85,6 +85,11 @@ class EwsFolder : public nsMsgDBFolder {
                                  nsMsgJunkStatus aClassification,
                                  uint32_t aJunkPercent) override;
 
+  NS_IMETHOD HandleViewCommand(nsMsgViewCommandTypeValue command,
+                               const nsTArray<nsMsgKey>& messageKeys,
+                               nsIMsgWindow* window,
+                               nsIMsgCopyServiceListener* listener) override;
+
  private:
   bool mHasLoadedSubfolders;
 

@@ -4,6 +4,7 @@
 
 pub(crate) mod copy_move_operations;
 mod create_folder;
+mod mark_as_junk;
 mod server_version;
 
 use std::{

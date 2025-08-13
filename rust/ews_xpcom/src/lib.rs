@@ -442,6 +442,23 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
+    xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>, is_junk: bool));
+    fn mark_items_as_junk(
+        &self,
+        listener: &IEwsSimpleOperationListener,
+        ews_ids: &ThinVec<nsCString>,
+        is_junk: bool,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        moz_task::spawn_local(
+            "mark_items_as_junk",
+            client.mark_as_junk(RefPtr::new(listener), ews_ids.clone(), is_junk),
+        )
+        .detach();
+        Ok(())
+    }
+
     /// Gets a new EWS client if initialized.
     fn try_new_client(&self) -> Result<XpComEwsClient<nsIMsgIncomingServer>, nsresult> {
         // We only get a reference out of the cell, but we need ownership in

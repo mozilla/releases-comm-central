@@ -7,6 +7,7 @@
 #define COMM_MAILNEWS_IMAP_SRC_NSIMAPMAILFOLDER_H_
 
 #include "mozilla/Attributes.h"
+#include "nsIMsgDBView.h"
 #include "nsMsgDBFolder.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapMessageSink.h"
@@ -314,6 +315,11 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD HasMsgOffline(nsMsgKey msgKey, bool* _retval) override;
   NS_IMETHOD GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                nsIInputStream** stream) override;
+
+  NS_IMETHOD HandleViewCommand(nsMsgViewCommandTypeValue command,
+                               const nsTArray<nsMsgKey>& messageKeys,
+                               nsIMsgWindow* window,
+                               nsIMsgCopyServiceListener* listener) override;
 
   NS_DECL_NSIMSGIMAPMAILFOLDER
   NS_DECL_NSIIMAPMAILFOLDERSINK

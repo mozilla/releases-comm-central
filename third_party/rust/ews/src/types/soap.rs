@@ -248,6 +248,9 @@ mod tests {
     /// A meaningless struct.
     #[derive(Clone, Debug, XmlSerialize)]
     #[operation_response(Bar)]
+    // We never construct `Foo` directly, but we rely on the generated
+    // `FooResponse` class in the tests below.
+    #[allow(dead_code)]
     struct Foo {}
 
     /// A meaningless struct.

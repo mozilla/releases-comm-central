@@ -16,6 +16,7 @@
 #include "MailNewsTypes.h"
 #include "MsgOperationListener.h"
 #include "nsIMsgCopyService.h"
+#include "nsIMsgDBView.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -79,7 +80,13 @@ static nsresult GetEwsIdsForMessageHeaders(
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (ewsId.IsEmpty()) {
-      NS_WARNING("Skipping header without EWS ID");
+      nsMsgKey messageKey;
+      rv = header->GetMessageKey(&messageKey);
+      NS_ENSURE_SUCCESS(rv, rv);
+      NS_WARNING(
+          nsPrintfCString("Skipping header without EWS ID. messageKey=%d",
+                          messageKey)
+              .get());
       continue;
     }
 
@@ -1321,5 +1328,101 @@ NS_IMETHODIMP EwsFolder::OnMessageClassified(const nsACString& aMsgURI,
     // check if this is the inbox first...
     if (mFlags & nsMsgFolderFlags::Inbox) PerformBiffNotifications();
   }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::HandleViewCommand(
+    int32_t command, const nsTArray<nsMsgKey>& messageKeys,
+    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+  nsresult rv;
+  if (command == nsMsgViewCommandType::junk ||
+      command == nsMsgViewCommandType::unjunk) {
+    const bool isJunk = command == nsMsgViewCommandType::junk;
+    // Get the EWS IDs for the message keys.
+    nsTArray<RefPtr<nsIMsgDBHdr>> headers;
+    headers.SetCapacity(messageKeys.Length());
+    for (auto&& messageKey : messageKeys) {
+      nsCOMPtr<nsIMsgDBHdr> header;
+      rv = GetMessageHeader(messageKey, getter_AddRefs(header));
+      NS_ENSURE_SUCCESS(rv, rv);
+      headers.AppendElement(header);
+    }
+
+    nsTArray<nsCString> ewsIds;
+    rv = GetEwsIdsForMessageHeaders(headers, ewsIds);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<IEwsClient> client;
+    rv = GetEwsClient(getter_AddRefs(client));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    RefPtr<EwsSimpleMessageListener> operationListener =
+        new EwsSimpleMessageListener{
+            headers, [self = RefPtr(this), window = RefPtr(window),
+                      listener = RefPtr(listener),
+                      isJunk](const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
+                              const nsTArray<nsCString>& movedItemIds, bool) {
+              nsresult rv = NS_OK;
+              auto notifyCopyServiceOnExit =
+                  GuardCopyServiceListener(listener, rv);
+
+              if (movedItemIds.Length() != headers.Length()) {
+                // Make sure the copy service listener is appropriately
+                // notified.
+                rv = NS_ERROR_UNEXPECTED;
+                NS_ENSURE_SUCCESS(rv, rv);
+              }
+
+              nsCOMPtr<nsIMsgIncomingServer> server;
+              rv = self->GetServer(getter_AddRefs(server));
+              NS_ENSURE_SUCCESS(rv, rv);
+
+              nsCOMPtr<nsIMsgFolder> rootFolder;
+              rv = server->GetRootFolder(getter_AddRefs(rootFolder));
+              NS_ENSURE_SUCCESS(rv, rv);
+
+              // According to the documentation at
+              // https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markasjunk-operation
+              // If an item is marked as junk, it is moved from the source
+              // folder to the junk folder. If an item is marked as not junk, it
+              // is moved from the source folder to the *inbox*.
+              nsCOMPtr<nsIMsgFolder> destinationFolder;
+              if (isJunk) {
+                rv = rootFolder->GetFolderWithFlags(
+                    nsMsgFolderFlags::Junk, getter_AddRefs(destinationFolder));
+                NS_ENSURE_SUCCESS(rv, rv);
+              } else {
+                rv = rootFolder->GetFolderWithFlags(
+                    nsMsgFolderFlags::Inbox, getter_AddRefs(destinationFolder));
+                NS_ENSURE_SUCCESS(rv, rv);
+              }
+
+              // Copy the input messages to the destination folder.
+              if (destinationFolder) {
+                nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
+                rv = LocalCopyMessages(self, destinationFolder, headers,
+                                       newHeaders);
+                NS_ENSURE_SUCCESS(rv, rv);
+                NS_ENSURE_TRUE(newHeaders.Length() == headers.Length(),
+                               NS_ERROR_UNEXPECTED);
+                for (auto i = 0u; i < movedItemIds.Length(); ++i) {
+                  rv = newHeaders[i]->SetStringProperty(kEwsIdProperty,
+                                                        movedItemIds[i]);
+                  NS_ENSURE_SUCCESS(rv, rv);
+                }
+              }
+
+              // Delete the messages from this folder.
+              rv = LocalDeleteMessages(self, headers);
+              NS_ENSURE_SUCCESS(rv, rv);
+
+              return NS_OK;
+            }};
+
+    rv = client->MarkItemsAsJunk(operationListener, ewsIds, isJunk);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   return NS_OK;
 }

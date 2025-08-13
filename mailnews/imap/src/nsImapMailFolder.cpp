@@ -8801,6 +8801,52 @@ NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
+    nsMsgViewCommandTypeValue command, const nsTArray<nsMsgKey>& messageKeys,
+    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+  imapMessageFlagsType flags = kNoImapMsgFlag;
+  bool addFlags = false;
+  switch (command) {
+    case nsMsgViewCommandType::markThreadRead:
+      flags |= kImapMsgSeenFlag;
+      addFlags = true;
+      break;
+    case nsMsgViewCommandType::undeleteMsg:
+      flags = kImapMsgDeletedFlag;
+      addFlags = false;
+      break;
+    case nsMsgViewCommandType::junk:
+      return StoreCustomKeywords(window, "Junk"_ns, "NonJunk"_ns, messageKeys,
+                                 nullptr);
+    case nsMsgViewCommandType::unjunk: {
+      uint32_t msgFlags = 0;
+      if (!messageKeys.IsEmpty()) {
+        nsCOMPtr<nsIMsgDBHdr> msgHdr;
+        MOZ_TRY(GetMessageHeader(messageKeys[0], getter_AddRefs(msgHdr)));
+        if (msgHdr) {
+          msgHdr->GetFlags(&msgFlags);
+        }
+      }
+
+      if (msgFlags & nsMsgMessageFlags::IMAPDeleted) {
+        StoreImapFlags(kImapMsgDeletedFlag, false, messageKeys, nullptr);
+      }
+
+      return StoreCustomKeywords(window, "NonJunk"_ns, "Junk"_ns, messageKeys,
+                                 nullptr);
+    }
+    default:
+      break;
+  }
+
+  // Can't get here without thisIsImapThreadPane == TRUE.
+  if (flags != kNoImapMsgFlag) {
+    StoreImapFlags(flags, addFlags, messageKeys, nullptr);
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapMailFolder::GetShouldUseUtf8FolderName(bool* aUseUTF8) {
   *aUseUTF8 = false;
   nsCOMPtr<nsIMsgIncomingServer> server;

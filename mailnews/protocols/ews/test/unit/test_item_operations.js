@@ -630,3 +630,94 @@ add_task(async function test_copy_folder() {
     `${child.name} should exist in ${parent2.name}`
   );
 });
+
+add_task(async function test_mark_as_junk() {
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const inboxFolder = rootFolder.getChildNamed("Inbox");
+  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+  const junkFolder = rootFolder.getChildNamed("Junk");
+  Assert.ok(!!junkFolder, "Junk folder should exist");
+
+  // Add messages to the inbox.
+  const junkMessages = generator.makeMessages({ count: 2 });
+  ewsServer.addNewItemOrMoveItemToFolder(
+    "junk_message_1",
+    "inbox",
+    junkMessages[0]
+  );
+  ewsServer.addNewItemOrMoveItemToFolder(
+    "junk_message_2",
+    "inbox",
+    junkMessages[1]
+  );
+
+  await syncFolder(incomingServer, inboxFolder);
+  await syncFolder(incomingServer, junkFolder);
+
+  Assert.equal(
+    inboxFolder.getTotalMessages(false),
+    2,
+    "Should start with two messages."
+  );
+
+  const findJunkMessages = folder => {
+    const messages = [...folder.messages];
+    return messages.filter(header =>
+      header.getStringProperty("ewsId").startsWith("junk_message_")
+    );
+  };
+
+  const junkMessageKeys = findJunkMessages(inboxFolder).map(
+    header => header.messageKey
+  );
+  Assert.equal(
+    junkMessageKeys.length,
+    2,
+    "Should have found two junk messages."
+  );
+
+  const junkListener = new PromiseTestUtils.PromiseCopyListener();
+  inboxFolder.handleViewCommand(
+    Ci.nsMsgViewCommandType.junk,
+    junkMessageKeys,
+    null,
+    junkListener
+  );
+  await junkListener.promise;
+
+  Assert.equal(
+    findJunkMessages(inboxFolder).length,
+    0,
+    "Should be no junk messages in the inbox."
+  );
+
+  Assert.equal(
+    findJunkMessages(junkFolder).length,
+    2,
+    "Should have two junk messages in the Junk folder."
+  );
+
+  // Unjunk the first message and make sure it moved back to the inbox.
+  const newMessageKeys = findJunkMessages(junkFolder).map(m => m.messageKey);
+  const unjunkListener = new PromiseTestUtils.PromiseCopyListener();
+  junkFolder.handleViewCommand(
+    Ci.nsMsgViewCommandType.unjunk,
+    [newMessageKeys[0]],
+    null,
+    unjunkListener
+  );
+  await unjunkListener.promise;
+
+  Assert.equal(
+    findJunkMessages(inboxFolder).length,
+    1,
+    "Should be one unjunked message in the inbox."
+  );
+  Assert.equal(
+    findJunkMessages(junkFolder).length,
+    1,
+    "Should still be one junked message in junk folder."
+  );
+});

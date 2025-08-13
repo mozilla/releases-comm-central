@@ -173,6 +173,15 @@ interface IEwsClient : nsISupports
    * @param itemIds - A list of the EWS IDs of the folders to be copied.
    */
   void copyFolders(in IEwsSimpleOperationListener listener, in AUTF8String destinationFolderId, in Array<AUTF8String> folderIds);
+
+  /**
+   * Mark an item as Junk or not junk.
+   *
+   * @param listener - Callbacks to indicate the success or failure of the operation.
+   * @param itemIds - The EWS IDs for the items to mark as junk or not junk.
+   * @param isJunk - Whether to mark as junk or not junk.
+   */
+  void markItemsAsJunk(in IEwsSimpleOperationListener listener, in Array<AUTF8String> itemIds, in boolean isJunk);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]

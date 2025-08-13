@@ -36,6 +36,7 @@
 #include "nsIMIMEHeaderParam.h"
 #include "plbase64.h"
 #include <time.h>
+#include "nsIMsgDBView.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMimeHeaders.h"
 #include "nsDirectoryServiceDefs.h"
@@ -5607,6 +5608,12 @@ NS_IMETHODIMP nsMsgDBFolder::GetIncomingServerType(
     nsACString& aIncomingServerType) {
   NS_ASSERTION(false, "subclasses need to override this");
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::HandleViewCommand(
+    nsMsgViewCommandTypeValue command, const nsTArray<nsMsgKey>& messageKeys,
+    nsIMsgWindow* window, nsIMsgCopyServiceListener* listener) {
+  return NS_OK;
 }
 
 void nsMsgDBFolder::ClearProcessingFlags() {

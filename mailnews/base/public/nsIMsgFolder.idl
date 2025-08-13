@@ -7,6 +7,7 @@
 #include "nsIFolderListener.idl"
 #include "nsIMsgIncomingServer.idl"
 #include "nsIMsgCopyServiceListener.idl"
+#include "nsIMsgDBView.idl"
 #include "nsIUrlListener.idl"
 #include "nsIMsgEnumerator.idl"
 
@@ -960,4 +961,17 @@ interface nsIMsgFolder : nsISupports {
    * used to construct URLs for this account type.
    */
   readonly attribute ACString incomingServerType;
+
+  /**
+   * Handle any protocol-specific operations that are required for the given `command`.
+   *
+   * @param command The command to handle.
+   * @param messageKeys The collection of message keys the command corresponds to.
+   * @param window The window used for signaling progress.
+   */
+  void handleViewCommand(
+    in nsMsgViewCommandTypeValue command,
+    in Array<nsMsgKey> messageKeys,
+    in nsIMsgWindow window,
+    in nsIMsgCopyServiceListener listener);
 };

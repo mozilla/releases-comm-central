@@ -202,6 +202,16 @@ const DELETE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
   </DeleteItemResponse>
   ${EWS_SOAP_FOOT}`;
 
+const MARK_AS_JUNK_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+  <MarkAsJunkResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+    <m:ResponseMessages>
+    </m:ResponseMessages>
+  </MarkAsJunkResponse>
+  ${EWS_SOAP_FOOT}`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -696,6 +706,8 @@ export class EwsServer {
       resBytes = this.#generateGetItemResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("DeleteItem").length) {
       resBytes = this.#generateDeleteItemResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("MarkAsJunk").length) {
+      resBytes = this.#generateMarkAsJunkResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -1348,6 +1360,50 @@ export class EwsServer {
       responseMessageEl.appendChild(
         resDoc.createElement("m:ResponseCode")
       ).textContent = "NoError";
+    }
+
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
+   * Return a response to a `MarkAsJunk` request.
+   *
+   * @param {XMLDocument} reqDoc
+   */
+  #generateMarkAsJunkResponse(reqDoc) {
+    const resDoc = this.#parser.parseFromString(
+      MARK_AS_JUNK_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    const markAsJunkEl = reqDoc.getElementsByTagName("MarkAsJunk")[0];
+    const isJunk = markAsJunkEl.getAttribute("IsJunk") === "true";
+
+    const itemIds = [...reqDoc.getElementsByTagName("t:ItemId")].map(id =>
+      id.getAttribute("Id")
+    );
+
+    const responseMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
+    for (const id of itemIds) {
+      if (isJunk) {
+        this.addNewItemOrMoveItemToFolder(id, "junkemail");
+      } else {
+        this.addNewItemOrMoveItemToFolder(id, "inbox");
+      }
+      const responseMessageEl = resDoc.createElement(
+        "m:MarkAsJunkResponseMessage"
+      );
+      responseMessageEl.setAttribute("ResponseClass", "Success");
+      const responseCodeEl = resDoc.createElement("m:ResponseCode");
+      responseCodeEl.textContent = "NoError";
+      const movedItemIdEl = resDoc.createElement("m:MovedItemId");
+      movedItemIdEl.setAttribute("Id", id);
+      responseMessageEl.appendChild(responseCodeEl);
+      responseMessageEl.appendChild(movedItemIdEl);
+      responseMessagesEl.appendChild(responseMessageEl);
     }
 
     return this.#serializer.serializeToString(resDoc);
