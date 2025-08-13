@@ -938,7 +938,6 @@ add_task(
     const extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          const { os } = await browser.runtime.getPlatformInfo();
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
@@ -986,7 +985,7 @@ add_task(
             1.2: {
               contentType: "text/x-moz-deleted",
               name: "Deleted: test.txt",
-              size: os == "win" ? 268 : 261,
+              size: 268,
             },
           });
 
@@ -1003,7 +1002,7 @@ add_task(
             1.2: {
               contentType: "text/x-moz-deleted",
               name: "Deleted: test",
-              size: os == "win" ? 276 : 269,
+              size: 276,
             },
           });
 
@@ -1024,12 +1023,12 @@ add_task(
             1.2: {
               contentType: "text/x-moz-deleted",
               name: "Deleted: test",
-              size: os == "win" ? 276 : 269,
+              size: 276,
             },
             1.3: {
               contentType: "text/x-moz-deleted",
               name: "Deleted: test.txt",
-              size: os == "win" ? 268 : 261,
+              size: 268,
             },
           });
 
