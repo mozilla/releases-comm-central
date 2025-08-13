@@ -31,12 +31,12 @@ async function syncFolder(incomingServer, folder) {
  *
  * @returns {[EwsServer, nsIMsgIncomingServer]}
  */
-function setupBasicEwsTestServer() {
+function setupBasicEwsTestServer({ version = "Exchange2013" }) {
   // Ensure we have an on-disk profile.
   do_get_profile();
 
   // Create a new mock EWS server, and start it.
-  const ewsServer = new EwsServer();
+  const ewsServer = new EwsServer({ version });
   ewsServer.start();
 
   // Create and configure the EWS incoming server.

@@ -442,18 +442,24 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>, is_junk: bool));
+    xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>, is_junk: bool, legacyDestinationFolderId: *const nsACString));
     fn mark_items_as_junk(
         &self,
         listener: &IEwsSimpleOperationListener,
         ews_ids: &ThinVec<nsCString>,
         is_junk: bool,
+        legacy_destination_folder_id: &nsACString,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
         moz_task::spawn_local(
             "mark_items_as_junk",
-            client.mark_as_junk(RefPtr::new(listener), ews_ids.clone(), is_junk),
+            client.mark_as_junk(
+                RefPtr::new(listener),
+                ews_ids.clone(),
+                is_junk,
+                legacy_destination_folder_id.to_string(),
+            ),
         )
         .detach();
         Ok(())

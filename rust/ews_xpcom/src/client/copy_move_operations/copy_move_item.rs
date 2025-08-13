@@ -9,14 +9,14 @@ use ews::{
     Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
-use nsstring::nsCString;
-use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::authentication::credentials::AuthenticationProvider;
-use crate::client::copy_move_operations::move_generic::CopyMoveOperation;
-use crate::client::XpComEwsClient;
+use crate::client::copy_move_operations::move_generic::{
+    move_generic_functional, CopyMoveOperation,
+};
+use crate::client::{XpComEwsClient, XpComEwsError};
 
 use super::move_generic::move_generic;
 
@@ -33,7 +33,7 @@ where
     ///
     /// The `destination_folder_id` is the EWS ID of the destination folder for
     /// the move or copy operation. The `item_ids` parameter contains the
-    /// collection of EWS item IDs to copy or move. The `callbacks` parameter
+    /// collection of EWS item IDs to copy or move. The `listener` parameter
     /// contains the callbacks to execute upon success or failure.
     pub(crate) async fn copy_move_item<RequestT>(
         self,
@@ -53,6 +53,43 @@ where
             get_new_ews_ids_from_response,
         )
         .await;
+    }
+
+    /// Copy or move a collection of EWS items (functional version).
+    ///
+    /// The `RequestT` generic parameter indicates which EWS operation to perform
+    /// based on its request input type. The trait bounds on `RequestT` enforce
+    /// the required available operations to be generic over copy or move
+    /// operations.
+    ///
+    /// The `destination_folder_id` is the EWS ID of the destination folder for
+    /// the move or copy operation. The `item_ids` parameter contains the
+    /// collection of EWS item IDs to copy or move.
+    ///
+    /// Return a result containing a pair with the new ids (if available)
+    /// and a boolean indicating whether or not a resync is required or
+    /// an [`XpComEwsError`]
+    ///
+    /// This version is suitable for use when a larger operation requires item
+    /// copy or move operations as part of its orchestration.
+    pub(crate) async fn copy_move_item_functional<RequestT>(
+        self,
+        destination_folder_id: String,
+        item_ids: Vec<String>,
+    ) -> Result<(Vec<String>, bool), XpComEwsError>
+    where
+        RequestT: CopyMoveOperation + From<CopyMoveItemData> + Into<CopyMoveItemData>,
+        <RequestT as Operation>::Response: OperationResponse<Message = ItemResponseMessage>,
+    {
+        let (_, result) = move_generic_functional(
+            self,
+            destination_folder_id,
+            item_ids,
+            construct_request::<RequestT, ServerT>,
+            get_new_ews_ids_from_response,
+        )
+        .await;
+        result
     }
 }
 
@@ -91,7 +128,7 @@ where
     .into()
 }
 
-fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> ThinVec<nsCString> {
+fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> Vec<String> {
     response
         .into_iter()
         .filter_map(|response_message| {
@@ -99,12 +136,7 @@ fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> ThinVec<
                 .items
                 .inner
                 .first()
-                .map(|item| {
-                    item.inner_message()
-                        .item_id
-                        .as_ref()
-                        .map(|x| nsCString::from(&x.id))
-                })
+                .map(|item| item.inner_message().item_id.as_ref().map(|x| x.id.clone()))
                 .unwrap_or(None)
         })
         .collect()

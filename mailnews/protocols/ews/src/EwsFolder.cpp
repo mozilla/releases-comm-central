@@ -1353,48 +1353,63 @@ NS_IMETHODIMP EwsFolder::HandleViewCommand(
     rv = GetEwsIdsForMessageHeaders(headers, ewsIds);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<IEwsClient> client;
-    rv = GetEwsClient(getter_AddRefs(client));
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = GetServer(getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    rv = server->GetRootFolder(getter_AddRefs(rootFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // According to the documentation at
+    // https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markasjunk-operation
+    // If an item is marked as junk, it is moved from the source
+    // folder to the junk folder. If an item is marked as not junk, it
+    // is moved from the source folder to the *inbox*.
+    nsCOMPtr<nsIMsgFolder> destinationFolder;
+    if (isJunk) {
+      rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Junk,
+                                          getter_AddRefs(destinationFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+    } else {
+      rv = rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
+                                          getter_AddRefs(destinationFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    nsAutoCString legacyDestinationEwsId;
+    if (destinationFolder) {
+      rv = destinationFolder->GetStringProperty(kEwsIdProperty,
+                                                legacyDestinationEwsId);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
 
     RefPtr<EwsSimpleMessageListener> operationListener =
         new EwsSimpleMessageListener{
             headers, [self = RefPtr(this), window = RefPtr(window),
-                      listener = RefPtr(listener),
-                      isJunk](const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
-                              const nsTArray<nsCString>& movedItemIds, bool) {
+                      listener = RefPtr(listener), destinationFolder](
+                         const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
+                         const nsTArray<nsCString>& movedItemIds,
+                         bool useLegacyFallback) {
               nsresult rv = NS_OK;
               auto notifyCopyServiceOnExit =
                   GuardCopyServiceListener(listener, rv);
+
+              if (useLegacyFallback) {
+                // We didn't get new IDs from the operation, so just trigger
+                // a sync on the destination folder.
+                if (destinationFolder) {
+                  // Best we can do is a sync of the supposed destination.
+                  rv = destinationFolder->GetNewMessages(window, nullptr);
+                  NS_ENSURE_SUCCESS(rv, rv);
+                }
+                return NS_OK;
+              }
 
               if (movedItemIds.Length() != headers.Length()) {
                 // Make sure the copy service listener is appropriately
                 // notified.
                 rv = NS_ERROR_UNEXPECTED;
-                NS_ENSURE_SUCCESS(rv, rv);
-              }
-
-              nsCOMPtr<nsIMsgIncomingServer> server;
-              rv = self->GetServer(getter_AddRefs(server));
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              nsCOMPtr<nsIMsgFolder> rootFolder;
-              rv = server->GetRootFolder(getter_AddRefs(rootFolder));
-              NS_ENSURE_SUCCESS(rv, rv);
-
-              // According to the documentation at
-              // https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markasjunk-operation
-              // If an item is marked as junk, it is moved from the source
-              // folder to the junk folder. If an item is marked as not junk, it
-              // is moved from the source folder to the *inbox*.
-              nsCOMPtr<nsIMsgFolder> destinationFolder;
-              if (isJunk) {
-                rv = rootFolder->GetFolderWithFlags(
-                    nsMsgFolderFlags::Junk, getter_AddRefs(destinationFolder));
-                NS_ENSURE_SUCCESS(rv, rv);
-              } else {
-                rv = rootFolder->GetFolderWithFlags(
-                    nsMsgFolderFlags::Inbox, getter_AddRefs(destinationFolder));
                 NS_ENSURE_SUCCESS(rv, rv);
               }
 
@@ -1420,7 +1435,12 @@ NS_IMETHODIMP EwsFolder::HandleViewCommand(
               return NS_OK;
             }};
 
-    rv = client->MarkItemsAsJunk(operationListener, ewsIds, isJunk);
+    nsCOMPtr<IEwsClient> client;
+    rv = GetEwsClient(getter_AddRefs(client));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = client->MarkItemsAsJunk(operationListener, ewsIds, isJunk,
+                                 legacyDestinationEwsId);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

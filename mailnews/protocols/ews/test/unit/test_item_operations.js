@@ -30,7 +30,7 @@ const ewsIdPropertyName = "ewsId";
 const generator = new MessageGenerator();
 
 add_setup(async function () {
-  [ewsServer, incomingServer] = setupBasicEwsTestServer();
+  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
 });
 
 /**

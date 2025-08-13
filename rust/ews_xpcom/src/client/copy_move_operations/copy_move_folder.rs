@@ -8,8 +8,6 @@ use ews::{
     BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
-use nsstring::nsCString;
-use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{RefCounted, RefPtr};
 
@@ -97,7 +95,7 @@ impl CopyMoveOperation for CopyFolder {
     }
 }
 
-fn get_new_ews_ids_from_response(response: Vec<FolderResponseMessage>) -> ThinVec<nsCString> {
+fn get_new_ews_ids_from_response(response: Vec<FolderResponseMessage>) -> Vec<String> {
     response
         .into_iter()
         .filter_map(|response_message| {
@@ -107,7 +105,7 @@ fn get_new_ews_ids_from_response(response: Vec<FolderResponseMessage>) -> ThinVe
                     _ => &None,
                 }
                 .as_ref()
-                .map(|x| nsCString::from(&x.id))
+                .map(|x| x.id.clone())
             })
         })
         .flatten()

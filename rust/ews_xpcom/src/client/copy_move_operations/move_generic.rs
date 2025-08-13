@@ -21,7 +21,7 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
     fn requires_resync(&self) -> bool;
 }
 
-/// Perform a generic move operation.
+/// Perform a generic copy/move operation.
 ///
 /// A move operation can apply to multiple EWS types, including EWS items
 /// (messages, calendar items, meetings, ...) and EWS folders. This function
@@ -49,28 +49,73 @@ pub(super) async fn move_generic<ServerT, OperationDataT>(
     operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
     response_to_ids: fn(
         Vec<<OperationDataT::Response as OperationResponse>::Message>,
-    ) -> ThinVec<nsCString>,
+    ) -> Vec<String>,
 ) where
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+    OperationDataT: CopyMoveOperation,
+{
+    match move_generic_functional(
+        client,
+        destination_folder_id,
+        ids,
+        operation_builder,
+        response_to_ids,
+    )
+    .await
+    {
+        (_, Ok((new_ids, requires_resync))) => unsafe {
+            let converted_new_ids = new_ids
+                .iter()
+                .map(|id| nsCString::from(id))
+                .collect::<ThinVec<nsCString>>();
+            listener.OnOperationSuccess(&converted_new_ids, requires_resync);
+        },
+        (operation_name, Err(err)) => handle_error(
+            operation_name,
+            err,
+            listener.query_interface::<IEwsFallibleOperationListener>(),
+        ),
+    };
+}
+
+/// Perform a generic copy/move operation (functional version).
+///
+/// The EWS client to use for the operation is given by the `client` parameter.
+/// The `destination_folder_id` parameter specifies the destination folder for
+/// the generic move operation, and the `ids` parameter specifies the the
+/// collection of EWS IDs to move. The `operation_builder` function specifies
+/// the mapping from the available input data, including the EWS client, the
+/// destination EWS ID, and the input collection of EWS IDs to be moved, to the
+/// input to the EWS operation. The `response_to_ids` function maps from the EWS
+/// response object to the collection of EWS IDs for the moved objects.
+///
+/// This version is suitable for use when a larger operation requires item
+/// copy or move operations as part of its orchestration.
+pub(super) async fn move_generic_functional<ServerT, OperationDataT>(
+    client: XpComEwsClient<ServerT>,
+    destination_folder_id: String,
+    ids: Vec<String>,
+    operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
+    response_to_ids: fn(
+        Vec<<OperationDataT::Response as OperationResponse>::Message>,
+    ) -> Vec<String>,
+) -> (&'static str, Result<(Vec<String>, bool), XpComEwsError>)
+where
     ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     OperationDataT: CopyMoveOperation,
 {
     let operation_data = operation_builder(&client, destination_folder_id, ids);
 
-    match move_generic_inner(client, operation_data.clone()).await {
-        Ok(messages) => {
-            let new_ids = response_to_ids(messages);
-            let requires_resync = operation_data.requires_resync();
-
-            unsafe {
-                listener.OnOperationSuccess(&new_ids, requires_resync);
-            }
-        }
-        Err(err) => handle_error(
-            operation_data.name(),
-            err,
-            listener.query_interface::<IEwsFallibleOperationListener>(),
-        ),
-    };
+    (
+        operation_data.name(),
+        move_generic_inner(client, operation_data.clone())
+            .await
+            .map(|messages| {
+                let new_ids = response_to_ids(messages);
+                let requires_resync = operation_data.requires_resync();
+                (new_ids, requires_resync)
+            }),
+    )
 }
 
 async fn move_generic_inner<ServerT, OperationDataT>(

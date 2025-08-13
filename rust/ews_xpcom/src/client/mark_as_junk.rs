@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    mark_as_junk::MarkAsJunk, server_version::ExchangeServerVersion, BaseItemId, OperationResponse,
+    mark_as_junk::MarkAsJunk, move_item::MoveItem, server_version::ExchangeServerVersion,
+    BaseItemId, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
@@ -26,18 +27,22 @@ impl<ServerT> XpComEwsClient<ServerT>
 where
     ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
 {
-    /// Mark the items with the specified `ews_ids` as junk.
     pub async fn mark_as_junk(
         self,
         listener: RefPtr<IEwsSimpleOperationListener>,
         ews_ids: ThinVec<nsCString>,
         is_junk: bool,
+        legacy_destination_folder_id: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        match self.mark_as_junk_inner(ews_ids, is_junk).await {
+        match self
+            .mark_as_junk_inner(ews_ids, is_junk, legacy_destination_folder_id)
+            .await
+        {
             Ok(ids) => unsafe {
-                listener.OnOperationSuccess(&ids, false);
+                listener
+                    .OnOperationSuccess(ids.as_ref().unwrap_or(&ThinVec::new()), !ids.is_some());
             },
             Err(err) => handle_error(
                 "MarkAsJunk",
@@ -48,10 +53,11 @@ where
     }
 
     async fn mark_as_junk_inner(
-        self: XpComEwsClient<ServerT>,
+        self,
         ews_ids: ThinVec<nsCString>,
         is_junk: bool,
-    ) -> Result<ThinVec<nsCString>, XpComEwsError>
+        legacy_destination_folder_id: String,
+    ) -> Result<Option<ThinVec<nsCString>>, XpComEwsError>
     where
         ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     {
@@ -90,12 +96,22 @@ where
                 .map(|response| response.map(|v| nsCString::from(v.moved_item_id.id)))
                 .collect::<Result<ThinVec<nsCString>, _>>()?;
 
-            Ok(new_ids)
-        } else {
-            // See https://bugzilla.mozilla.org/show_bug.cgi?id=1981835
-            Err(XpComEwsError::Processing {
-                message: "MarkAsJunk not supported for this Exchange version.".to_string(),
+            Ok(Some(new_ids))
+        } else if !legacy_destination_folder_id.is_empty() {
+            // We have to move the items to the junk folder using a regular move operation.
+            let (new_ids, sync_required) = self
+                .copy_move_item_functional::<MoveItem>(
+                    legacy_destination_folder_id.to_string(),
+                    ews_ids.iter().map(|s| s.to_string()).collect(),
+                )
+                .await?;
+            Ok(if sync_required {
+                None
+            } else {
+                Some(new_ids.iter().map(|id| nsCString::from(id)).collect())
             })
+        } else {
+            Err(XpComEwsError::Processing { message: "Unable to determine junk folder and Exchange version is too old for `MarkAsJunk` operation.".to_string() })
         }
     }
 }

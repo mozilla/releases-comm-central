@@ -9,7 +9,7 @@ var { MailServices } = ChromeUtils.importESModule(
 let ewsServer, incomingServer, ewsAccount, identity;
 
 add_setup(async function () {
-  [ewsServer, incomingServer] = setupBasicEwsTestServer();
+  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
   ewsAccount = MailServices.accounts.createAccount();
   identity = MailServices.accounts.createIdentity();
   ewsAccount.addIdentity(identity);

@@ -180,8 +180,14 @@ interface IEwsClient : nsISupports
    * @param listener - Callbacks to indicate the success or failure of the operation.
    * @param itemIds - The EWS IDs for the items to mark as junk or not junk.
    * @param isJunk - Whether to mark as junk or not junk.
+   * @param legacyDestinationFolderId - The EWS ID as the folder to use as the junk folder for
+   *        older versions of Exchange that do not support the `MarkAsJunk` operation.
    */
-  void markItemsAsJunk(in IEwsSimpleOperationListener listener, in Array<AUTF8String> itemIds, in boolean isJunk);
+  void markItemsAsJunk(
+    in IEwsSimpleOperationListener listener,
+    in Array<AUTF8String> itemIds,
+    in boolean isJunk,
+    in AUTF8String legacyDestinationFolderId);
 };
 
 [scriptable, uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
