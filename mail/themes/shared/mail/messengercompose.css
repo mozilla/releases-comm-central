@@ -93,33 +93,9 @@
 }
 
 #attachmentBucket {
-  grid-area: attachment-list;
+  height: var(--attachmentSplitter-height);
   border-block: 1px solid var(--splitter-color); /* The same color as the splitters */
   padding: 1px;
-}
-
-#attachmentArea > summary {
-  grid-area: attachment-header;
-  padding: 6px;
-  /* Position self for the #newAttachmentIndicator. */
-  position: relative;
-  display: flex;
-  gap: 6px;
-  align-items: baseline;
-
-  :root[lwt-tree] & {
-    background-color: var(--toolbar-bgcolor);
-    color: var(--toolbar-color);
-  }
-
-  &:focus-visible {
-    outline-style: auto;
-    outline-offset: -1px;
-  }
-
-  & > * {
-    flex: 0 0 auto;
-  }
 }
 
 #newAttachmentIndicator {
@@ -372,18 +348,13 @@
                  "contacts contacts-splitter headers-splitter" min-content
                  "contacts contacts-splitter message" minmax(33%, 1fr)
                  "contacts contacts-splitter attachment-splitter" min-content
-                 "contacts contacts-splitter attachment-header" min-content
-                 "contacts contacts-splitter attachment-list" var(--attachment-list-track-size)
+                 "contacts contacts-splitter attachment-area" min-content
                  / minmax(auto, var(--contactsSplitter-width)) min-content minmax(auto, 1fr);
   /* If the splitter is not used, the header and attachment areas will try and
    * grow to their content size. */
   --headersSplitter-height: min-content;
   --attachmentSplitter-height: min-content;
   --contactsSplitter-width: 200px;
-  /* NOTE: We specify the sizing of the attachment list using a variable because
-   * when the attachment area is hidden or the attachment list is closed, we
-   * want to adjust the sizing so that we can ignore the splitter height. */
-  --attachment-list-track-size:  minmax(auto, var(--attachmentSplitter-height));
   /* The parent body uses the -moz-box display, which does not take into account
    * the natural minimum height this element can take due to its grid display.
    * So we need to explicitly set the minimum height so that the body's layout
@@ -392,13 +363,6 @@
   min-height: 0;
   flex: 1;
   overflow: clip;
-
-  /* When the attachment area is hidden, or the visibility of the attachmentBucket
-   * is toggled by the summary element. */
-  &:is(.attachment-area-hidden, .attachment-bucket-closed) {
-    /* We adjust the track sizing so it no longer takes up any grid space. */
-    --attachment-list-track-size: 0;
-  }
 
   &.attachment-bucket-closed #attachmentSplitter {
     /* NOTE: When the bucket is closed, we do not consider it "collapsed" by the
@@ -423,6 +387,39 @@
 
   &.attachment-bucket-closed #attachmentBucket {
     display: none;
+  }
+}
+
+#attachmentSplitter {
+  grid-area: attachment-splitter;
+}
+
+#attachmentArea {
+  grid-area: attachment-area;
+  display: flex;
+  flex-direction: column;
+
+  & > summary {
+    padding: 6px;
+    /* Position self for the #newAttachmentIndicator. */
+    position: relative;
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+
+    :root[lwt-tree] & {
+      background-color: var(--toolbar-bgcolor);
+      color: var(--toolbar-color);
+    }
+
+    &:focus-visible {
+      outline-style: auto;
+      outline-offset: -1px;
+    }
+
+    & > * {
+      flex: 0 0 auto;
+    }
   }
 }
 
@@ -517,15 +514,6 @@
 
 #FindToolbar {
   flex: 0 0 auto;
-}
-
-#attachmentSplitter {
-  grid-area: attachment-splitter;
-}
-
-#attachmentArea {
-  /* Children are grid items. */
-  display: contents;
 }
 
 /* :::: primary toolbar buttons :::: */
