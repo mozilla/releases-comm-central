@@ -15,6 +15,9 @@ DIRS += [
 
 TEST_DIRS += ["test"]
 
+if CONFIG["FUZZING_INTERFACES"]:
+    DIRS += ["fuzz"]
+
 EXTRA_JS_MODULES.jsmime += [
     "jsmime/jsmime.mjs",
 ]

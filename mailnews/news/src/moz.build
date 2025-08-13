@@ -28,3 +28,6 @@ XPCOM_MANIFESTS += [
 ]
 
 FINAL_LIBRARY = "mail"
+
+# Add libFuzzer configuration directives
+include("/tools/fuzzing/libfuzzer-config.mozbuild")

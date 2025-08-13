@@ -40,3 +40,6 @@ LOCAL_INCLUDES += [
 ]
 
 XPCOM_MANIFESTS += ["components.conf"]
+
+# Add libFuzzer configuration directives
+include("/tools/fuzzing/libfuzzer-config.mozbuild")

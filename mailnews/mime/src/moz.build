@@ -83,3 +83,6 @@ XPCOM_MANIFESTS += [
 FINAL_LIBRARY = "mail"
 
 DEFINES["ENABLE_SMIME"] = True
+
+# Add libFuzzer configuration directives
+include("/tools/fuzzing/libfuzzer-config.mozbuild")
