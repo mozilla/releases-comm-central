@@ -506,7 +506,11 @@ def regen_toml_files(command_context, workspace):
                 dependencies="\n".join(workspace_dependencies),
                 target_dependencies=target_deps.strip(),
                 members=workspace_members,
-                features=tomlkit.dumps(features),
+                # tomlkit preserves the line breaks that separate the
+                # `[features]` and `[workspace]` sections, but since we already
+                # have them in the template we need to strip them out so we
+                # don't end up with extraneous empty lines.
+                features=tomlkit.dumps(features).strip(),
                 patches=workspace_patches,
             ).strip()
             + "\n"
