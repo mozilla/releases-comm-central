@@ -40,6 +40,7 @@ class ThreadCard extends TreeViewTableRow {
     this.senderLine = this.querySelector(".sender");
     this.subjectLine = this.querySelector(".subject");
     this.dateLine = this.querySelector(".date");
+    this.messageSizeLine = this.querySelector(".message-size");
     this.starButton = this.querySelector(".button-star");
     this.threadCardTagsInfo = this.querySelector(".thread-card-tags-info");
     this.tagIcons = this.querySelectorAll(".tag-icon");
@@ -68,7 +69,7 @@ class ThreadCard extends TreeViewTableRow {
     const ariaLabelPromises = [];
     // Use static mapping instead of threadPane.cardColumns since the name of
     // the sender column changes. (see getProperSenderForCardsView)
-    const KEYS = ["subject", "sender", "date", "tagKeys", "total", "unread"];
+    const KEYS = ["subject", "sender", "date", "size", "tagKeys", "total", "unread"];
     const data = Object.fromEntries(KEYS.map((key, i) => [key, cellTexts[i]]));
 
     if (threadLevel.value) {
@@ -110,6 +111,19 @@ class ThreadCard extends TreeViewTableRow {
     this.senderLine.textContent = data.sender;
     this.senderLine.title = data.sender;
     this.dateLine.textContent = data.date;
+    
+    // Format and display message size
+    const sizeInBytes = Number(data.size);
+    let formattedSize;
+    if (sizeInBytes >= 1024 * 1024) {
+      formattedSize = `${(sizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
+    } else if (sizeInBytes >= 1024) {
+      formattedSize = `${Math.round(sizeInBytes / 1024)} KB`;
+    } else {
+      formattedSize = `${sizeInBytes} B`;
+    }
+    this.messageSizeLine.textContent = formattedSize;
+    this.messageSizeLine.title = formattedSize;
 
     const matchedKeys = [];
     const matchedTags = [];
