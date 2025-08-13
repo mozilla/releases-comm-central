@@ -99,7 +99,8 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   Assert.ok(
     !composeDocument
       .getElementById("dropAttachmentOverlay")
-      .classList.contains("show")
+      .classList.contains("show"),
+    "#dropAttachmentOverlay should not show"
   );
   EventUtils.synthesizeDropAfterDragOver(
     result,
@@ -111,10 +112,23 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   dragService.getCurrentSession().endDragSession(true);
 
   const pills = toAddrRow.querySelectorAll("mail-address-pill");
-  Assert.equal(pills.length, expectedPills.length);
+  Assert.equal(
+    pills.length,
+    expectedPills.length,
+    "should have expected number of pills"
+  );
   for (let i = 0; i < expectedPills.length; i++) {
-    Assert.equal(pills[i].label, expectedPills[i]);
+    Assert.equal(
+      pills[i].label,
+      expectedPills[i],
+      `pill label ${i} should be correct`
+    );
   }
+
+  await BrowserTestUtils.waitForCondition(
+    () => composeWindow.gContentChanged,
+    "Waiting for compose window to become dirty"
+  );
 
   const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   composeWindow.goDoCommand("cmd_close");
