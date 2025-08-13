@@ -238,13 +238,17 @@ async function showEvent({
     1
   );
 
+  const { promise, resolve } = Promise.withResolvers();
+  eventBox.ownerDocument.addEventListener("scrollend", resolve, true);
+
   eventBox.scrollIntoView({ behavior: "instant", block, inline });
 
-  await TestUtils.waitForCondition(() => {
-    const boxRect = eventBox.getBoundingClientRect();
+  const timeout = setTimeout(resolve, 50);
 
-    return boxRect.width !== 0 && boxRect.height !== 0;
-  }, `event box is visible with dimensions`);
+  await promise;
+
+  clearTimeout(timeout);
+  eventBox.ownerDocument.removeEventListener("scrollend", resolve, true);
 
   await new Promise(eventBox.ownerGlobal.requestAnimationFrame);
 
