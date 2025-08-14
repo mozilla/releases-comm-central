@@ -66,6 +66,7 @@ add_task(async function testDomainMismatch() {
     "mitm.test.test",
     "not valid for",
     "The certificate belongs to a different site",
+    "SSL_ERROR_BAD_CERT_DOMAIN",
     "valid"
   );
 });
@@ -77,6 +78,7 @@ add_task(async function testExpired() {
     "expired.test.test",
     `expired on ${formatter.format(new Date(Date.UTC(2010, 0, 6)))}`,
     "The certificate is not currently valid",
+    "SEC_ERROR_EXPIRED_CERTIFICATE",
     "expired"
   );
 });
@@ -88,6 +90,7 @@ add_task(async function testNotYetValid() {
     "notyetvalid.test.test",
     `not be valid until ${formatter.format(new Date(Date.UTC(2090, 0, 5)))}`,
     "The certificate is not currently valid",
+    "MOZILLA_PKIX_ERROR_NOT_YET_VALID_CERTIFICATE",
     "notyetvalid"
   );
 });
@@ -98,6 +101,7 @@ add_task(async function testSelfSigned() {
     "selfsigned.test.test",
     "does not come from a trusted source",
     "The certificate is not trusted",
+    "MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT",
     "selfsigned"
   );
 });
@@ -107,6 +111,7 @@ async function subtest(
   hostname,
   expectedAlertText,
   expectedDialogText,
+  expectedErrorCategory,
   expectedCert
 ) {
   const [imapServer, pop3Server, ewsServer] =
@@ -170,6 +175,7 @@ async function subtest(
     },
     expectedAlertText,
     expectedDialogText,
+    expectedErrorCategory,
     expectedCert
   );
   const ewsInbox = ewsRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
@@ -208,6 +214,7 @@ async function subtest(
       },
       expectedAlertText,
       expectedDialogText,
+      expectedErrorCategory,
       expectedCert
     );
   }
@@ -224,6 +231,7 @@ async function subtest(
       },
       expectedAlertText,
       expectedDialogText,
+      expectedErrorCategory,
       expectedCert
     );
   }
@@ -238,8 +246,10 @@ async function subsubtest(
   testCallback,
   expectedAlertText,
   expectedDialogText,
+  expectedErrorCategory,
   expectedCert
 ) {
+  Services.fog.testResetFOG();
   const server = folder.server;
   info(`getting messages for ${server.type}`);
 
@@ -391,6 +401,7 @@ async function subsubtest(
   MockAlertsService.reset();
 
   await dialogPromise;
+  await TestUtils.waitForTick(); // Ensure Telemetry callback runs.
   await SimpleTest.promiseFocus(window);
 
   // Check the certificate exception was created.
@@ -408,6 +419,15 @@ async function subsubtest(
   );
   // The checkbox in the dialog was checked, so this exception is permanent.
   Assert.ok(!isTemporary.value, "certificate exception should be permanent");
+
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: expectedErrorCategory,
+    protocol: server.type,
+    port: server.port,
+    ui: "certificate-error-notification",
+  });
 
   // Now that we have an exception, connect to the server again.
 

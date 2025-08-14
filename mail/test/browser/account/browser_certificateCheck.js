@@ -261,6 +261,7 @@ add_task(async function testValidCertificate() {
  * certificate exception.
  */
 add_task(async function testInvalidCertificate() {
+  Services.fog.testResetFOG();
   const accountsTab = await openTab(imapExpired, null, undefined, ["fetch"]);
 
   const certCheck = getCertificateCheck(accountsTab);
@@ -284,6 +285,15 @@ add_task(async function testInvalidCertificate() {
   await removeException(certCheck, expiredCertificate);
 
   tabmail.closeTab(accountsTab);
+
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: "SEC_ERROR_EXPIRED_CERTIFICATE",
+    protocol: "imap",
+    port: "993",
+    ui: "certificate-check",
+  });
 });
 
 /**

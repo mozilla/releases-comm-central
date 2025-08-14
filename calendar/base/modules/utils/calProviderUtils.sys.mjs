@@ -241,9 +241,22 @@ export var provider = {
           Services.obs.addObserver(onWindowClosed, "domwindowclosed");
           await deferred.promise;
 
-          if (this.calendar && this.calendar.canRefresh && params.exceptionAdded) {
+          if (params.exceptionAdded) {
+            let port = requestURI.port;
+            if (port == -1) {
+              port = Services.io.getDefaultPort(requestURI.scheme);
+            }
+            Glean.mail.certificateExceptionAdded.record({
+              error_category: secInfo.errorCodeString,
+              protocol: this.calendar?.type ?? requestURI.scheme,
+              port,
+              ui: "calendar-provider",
+            });
+
             // Refresh the calendar if the exception certificate was added
-            this.calendar.refresh();
+            if (this.calendar?.canRefresh) {
+              this.calendar.refresh();
+            }
           }
 
           provider.BadCertHandler.#reported.delete(requestURI.asciiHostPort);

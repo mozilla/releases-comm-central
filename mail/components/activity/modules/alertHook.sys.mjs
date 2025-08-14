@@ -122,14 +122,14 @@ export var alertHook = {
     return true;
   },
 
-  async onCertError(securityInfo, url) {
-    const cookie = `${url.hostPort} certError`;
+  async onCertError(securityInfo, uri) {
+    const cookie = `${uri.hostPort} certError`;
     if (activeAlerts.has(cookie)) {
       return;
     }
 
     let errorString;
-    const errorArgs = { hostname: url.host };
+    const errorArgs = { hostname: uri.host };
 
     switch (securityInfo.overridableErrorCategory) {
       case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
@@ -162,9 +162,9 @@ export var alertHook = {
         exceptionAdded: false,
         securityInfo,
         prefetchCert: true,
-        location: url.asciiHostPort,
+        location: uri.asciiHostPort,
       };
-      Services.wm
+      const dialog = Services.wm
         .getMostRecentWindow("")
         .openDialog(
           "chrome://pippki/content/exceptionDialog.xhtml",
@@ -172,6 +172,39 @@ export var alertHook = {
           "chrome,centerscreen,dependent",
           params
         );
+      function onWindowClosed(win) {
+        if (win != dialog) {
+          return;
+        }
+        Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+        if (!params.exceptionAdded) {
+          return;
+        }
+        let server, protocol, port;
+        try {
+          // If it's an incoming server reporting the error, record the
+          // protocol and port of the server...
+          server = MailServices.accounts.findServerByURI(uri);
+          protocol = server.type;
+          port = server.port;
+        } catch (ex) {
+          // ... otherwise use the protocol and port of the URI itself.
+          // (If we start using this for outgoing servers we'll need to deal
+          // with them separately.)
+          protocol = uri.scheme;
+          port = uri.port;
+          if (port == -1) {
+            port = Services.io.getDefaultPort(uri.scheme);
+          }
+        }
+        Glean.mail.certificateExceptionAdded.record({
+          error_category: securityInfo.errorCodeString,
+          protocol,
+          port,
+          ui: "certificate-error-notification",
+        });
+      }
+      Services.obs.addObserver(onWindowClosed, "domwindowclosed");
     }
 
     try {

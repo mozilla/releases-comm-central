@@ -66,6 +66,8 @@ class CertificateCheck extends HTMLElement {
   #inStream;
   /** @type {nsIOutputStream} */
   #outStream;
+  /** @type {nsITransportSecurityInfo} */
+  #securityInfo;
   /** @type {nsIX509Certificate} */
   #certificate;
 
@@ -282,6 +284,7 @@ class CertificateCheck extends HTMLElement {
    * @param {nsITransportSecurityInfo} securityInfo
    */
   #handleSecurityInfo(reqStatus, securityInfo) {
+    this.#securityInfo = securityInfo;
     this.#certificate = securityInfo.serverCert;
     this.viewButton.hidden = false;
     const l10nArgs = {
@@ -380,6 +383,12 @@ class CertificateCheck extends HTMLElement {
       this.#certificate,
       !Services.prefs.getBoolPref("security.certerrors.permanentOverride", true)
     );
+    Glean.mail.certificateExceptionAdded.record({
+      error_category: this.#securityInfo.errorCodeString,
+      protocol: this.type,
+      port: this.port,
+      ui: "certificate-check",
+    });
 
     document.l10n.setAttributes(
       this.statusLabel,

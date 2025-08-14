@@ -850,13 +850,38 @@ var gSendListener = {
       prefetchCert: true,
       location,
     };
-    window.openDialog(
+    const dialog = window.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",
       "",
       "chrome,centerscreen,dependent",
       params
     );
-    // params.exceptionAdded will be set if the user added an exception.
+    function onWindowClosed(win) {
+      if (win != dialog) {
+        return;
+      }
+      Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+      if (!params.exceptionAdded) {
+        return;
+      }
+      const server = MailServices.outgoingServer.getServerByKey(
+        gCurrentIdentity.smtpServerKey
+      );
+      if (!server) {
+        return;
+      }
+      let port = server.serverURI.port;
+      if (port == -1) {
+        port = Services.io.getDefaultPort(server.serverURI.scheme);
+      }
+      Glean.mail.certificateExceptionAdded.record({
+        error_category: secInfo.errorCodeString,
+        protocol: server.type,
+        port,
+        ui: "compose-send-listener",
+      });
+    }
+    Services.obs.addObserver(onWindowClosed, "domwindowclosed");
   },
 };
 

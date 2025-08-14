@@ -605,3 +605,35 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  certificate_exception_added:
+    type: event
+    description: >
+      Tracks each time a TLS certificate exception is created, what the problem
+      with the certificate is, and what code is using the certificate.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983982
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983982#c4
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      error_category:
+        description: >
+          The reported certificate error that required an exception, e.g.
+          MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT.
+          From nsITransportSecurityInfo.errorCodeString.
+        type: string
+      protocol:
+        description: >
+          The protocol trying to use the certificate, e.g. "imap" or "caldav".
+        type: string
+      port:
+        description: The network port in use.
+        type: string
+      ui:
+        description: Identifies the code handling the certificate exception.
+        type: string

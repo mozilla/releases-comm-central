@@ -64,6 +64,7 @@ add_task(async function testDomainMismatchSMTP() {
     ServerTestUtils.serverDefs.smtp.tls,
     "mitm.test.test",
     "The certificate belongs to a different site",
+    "SSL_ERROR_BAD_CERT_DOMAIN",
     "valid"
   );
 });
@@ -73,6 +74,7 @@ add_task(async function testExpiredSMTP() {
     ServerTestUtils.serverDefs.smtp.expiredTLS,
     "expired.test.test",
     "The certificate is not currently valid",
+    "SEC_ERROR_EXPIRED_CERTIFICATE",
     "expired"
   );
 });
@@ -82,6 +84,7 @@ add_task(async function testNotYetValidSMTP() {
     ServerTestUtils.serverDefs.smtp.notYetValidTLS,
     "notyetvalid.test.test",
     "The certificate is not currently valid",
+    "MOZILLA_PKIX_ERROR_NOT_YET_VALID_CERTIFICATE",
     "notyetvalid"
   );
 });
@@ -91,6 +94,7 @@ add_task(async function testSelfSignedSMTP() {
     ServerTestUtils.serverDefs.smtp.selfSignedTLS,
     "selfsigned.test.test",
     "The certificate is not trusted",
+    "MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT",
     "selfsigned"
   );
 });
@@ -100,6 +104,7 @@ add_task(async function testDomainMismatchEWS() {
     ServerTestUtils.serverDefs.ews.tls,
     "mitm.test.test",
     "The certificate belongs to a different site",
+    "SSL_ERROR_BAD_CERT_DOMAIN",
     "valid"
   );
 });
@@ -109,6 +114,7 @@ add_task(async function testExpiredEWS() {
     ServerTestUtils.serverDefs.ews.expiredTLS,
     "expired.test.test",
     "The certificate is not currently valid",
+    "SEC_ERROR_EXPIRED_CERTIFICATE",
     "expired"
   );
 });
@@ -118,6 +124,7 @@ add_task(async function testNotYetValidEWS() {
     ServerTestUtils.serverDefs.ews.notYetValidTLS,
     "notyetvalid.test.test",
     "The certificate is not currently valid",
+    "MOZILLA_PKIX_ERROR_NOT_YET_VALID_CERTIFICATE",
     "notyetvalid"
   );
 });
@@ -127,6 +134,7 @@ add_task(async function testSelfSignedEWS() {
     ServerTestUtils.serverDefs.ews.selfSignedTLS,
     "selfsigned.test.test",
     "The certificate is not trusted",
+    "MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT",
     "selfsigned"
   );
 });
@@ -135,10 +143,18 @@ add_task(async function testSelfSignedEWS() {
  * @param {ServerDef} serverDef - From ServerTestUtils
  * @param {string} hostname - The hostname to attempt connection to.
  * @param {string} expectedDialogText - This text should appear in the dialog.
+ * @param {string} expectedErrorCategory - See nsITransportSecurityInfo.errorCodeString.
  * @param {nsIX509Cert} [expectedCert] - If given, a certificate exception
  *   should be added for this certificate.
  */
-async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
+async function subtest(
+  serverDef,
+  hostname,
+  expectedDialogText,
+  expectedErrorCategory,
+  expectedCert
+) {
+  Services.fog.testResetFOG();
   const smtpServer = await ServerTestUtils.createServer(serverDef);
 
   const outgoingServer = MailServices.outgoingServer.createServer(
@@ -229,6 +245,12 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
   );
 
   await dialogPromise;
+  // Try to solve strange focus issues.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  EventUtils.synthesizeKey("KEY_Tab", {}, composeWindow);
+  await SimpleTest.promiseFocus(composeWindow);
+
   if (expectedCert) {
     // Check the certificate exception was created.
     const isTemporary = {};
@@ -244,13 +266,16 @@ async function subtest(serverDef, hostname, expectedDialogText, expectedCert) {
     );
     // The checkbox in the dialog was checked, so this exception is permanent.
     Assert.ok(!isTemporary.value, "certificate exception should be permanent");
-  }
 
-  // Try to solve strange focus issues.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
-  EventUtils.synthesizeKey("KEY_Tab", {}, composeWindow);
-  await SimpleTest.promiseFocus(composeWindow);
+    const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+    Assert.equal(telemetryEvents.length, 1);
+    Assert.deepEqual(telemetryEvents[0].extra, {
+      error_category: expectedErrorCategory,
+      protocol: serverDef.type,
+      port,
+      ui: "compose-send-listener",
+    });
+  }
 
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),

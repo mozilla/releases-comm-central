@@ -126,6 +126,8 @@ async function subtestExpiredCertNoException({ type, port }) {
 }
 
 async function subtestExpiredCertException({ type, port }) {
+  Services.fog.testResetFOG();
+
   const config = {
     incoming: {
       type,
@@ -161,6 +163,15 @@ async function subtestExpiredCertException({ type, port }) {
   );
 
   certOverrideService.clearAllOverrides();
+
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: "SEC_ERROR_EXPIRED_CERTIFICATE",
+    protocol: type,
+    port,
+    ui: "config-verifier",
+  });
 }
 
 add_task(async function testIMAPWrongPassword() {

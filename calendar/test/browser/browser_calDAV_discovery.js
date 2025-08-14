@@ -493,5 +493,13 @@ add_task(async function testCertificateErrorWithException() {
     "certificate exception should exist for wrong.test:443"
   );
 
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: "SSL_ERROR_BAD_CERT_DOMAIN",
+    protocol: "https",
+    port: 443,
+    ui: "calendar-provider",
+  });
   certOverrideService.clearAllOverrides();
 });

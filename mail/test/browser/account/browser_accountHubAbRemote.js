@@ -20,6 +20,13 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
 const { RemoteAddressBookUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs"
 );
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
+
+const certOverrideService = Cc[
+  "@mozilla.org/security/certoverride;1"
+].getService(Ci.nsICertOverrideService);
 
 add_setup(async () => {
   CardDAVServer.open("test@example.com", "hunter2");
@@ -27,6 +34,11 @@ add_setup(async () => {
     CardDAVServer.port,
     "dav",
     "carddav.test"
+  );
+  const mitmProxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "dav",
+    "wrong.test"
   );
   Services.fog.testResetFOG();
   // Replace method for discovering address books for existing accounts with a
@@ -38,6 +50,7 @@ add_setup(async () => {
     CardDAVServer.reset();
     await CardDAVServer.close();
     proxy.destroy();
+    mitmProxy.destroy();
 
     const dialog = document.querySelector("account-hub-container").modal;
     if (dialog?.open) {
@@ -476,7 +489,7 @@ add_task(async function test_directoryWithNoName() {
 });
 
 add_task(async function test_invalidCertificate() {
-  const login = await createLogin("https://expired.example.com");
+  const login = await createLogin("https://wrong.test");
 
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   await goToRemoteForm(dialog);
@@ -485,7 +498,7 @@ add_task(async function test_invalidCertificate() {
     "chrome://pippki/content/exceptionDialog.xhtml"
   );
   const loading = waitDuringBusy(dialog);
-  await fillInForm(dialog, "https://expired.example.com/", false);
+  await fillInForm(dialog, "https://wrong.test/", false);
   info("Waiting for cert override dialog...");
   await certErrorPromise;
   info("Waiting for loading to stop...");
@@ -499,6 +512,52 @@ add_task(async function test_invalidCertificate() {
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
   await dialog.querySelector("account-hub-address-book").reset();
+});
+
+add_task(async function test_invalidCertificateWithException() {
+  Services.fog.testResetFOG();
+
+  const login = await createLogin("https://wrong.test");
+
+  const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await goToRemoteForm(dialog);
+  const certErrorPromise = BrowserTestUtils.promiseAlertDialog(
+    "extra1",
+    "chrome://pippki/content/exceptionDialog.xhtml"
+  );
+  const loading = waitDuringBusy(dialog);
+  await fillInForm(dialog, "https://wrong.test/", false);
+  info("Waiting for cert override dialog...");
+  await certErrorPromise;
+  info("Waiting for loading to stop...");
+  await loading;
+  await checkSyncSubview(dialog, "https://wrong.test");
+
+  const isTemporary = {};
+  Assert.ok(
+    certOverrideService.hasMatchingOverride(
+      "wrong.test",
+      443,
+      {},
+      await ServerTestUtils.getCertificate("dav"),
+      isTemporary
+    ),
+    "certificate exception should exist for wrong.test:443"
+  );
+
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: "SSL_ERROR_BAD_CERT_DOMAIN",
+    protocol: "carddav",
+    port: 443,
+    ui: "carddav-utils",
+  });
+
+  Services.logins.removeLogin(login);
+  CardDAVServer.resetHandlers();
+  await dialog.querySelector("account-hub-address-book").reset();
+  certOverrideService.clearAllOverrides();
 });
 
 add_task(async function test_remoteAddressBookRememberPassword() {

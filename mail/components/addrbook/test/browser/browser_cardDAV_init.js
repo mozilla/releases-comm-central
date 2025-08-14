@@ -15,6 +15,13 @@ const { HttpsProxy } = ChromeUtils.importESModule(
 const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );
+const { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
+
+const certOverrideService = Cc[
+  "@mozilla.org/security/certoverride;1"
+].getService(Ci.nsICertOverrideService);
 
 // A list of books returned by CardDAVServer unless changed.
 const DEFAULT_BOOKS = [
@@ -95,7 +102,7 @@ async function attemptInit(
   }
 
   const certPromise =
-    certError === undefined ? Promise.resolve() : handleCertError();
+    certError === undefined ? Promise.resolve() : handleCertError(certError);
   let promptPromise;
   if (oAuth !== undefined) {
     promptPromise = OAuth2TestUtils.promiseOAuthWindow().then(oAuthWindow =>
@@ -148,9 +155,9 @@ async function attemptInit(
   }
 }
 
-function handleCertError() {
+function handleCertError(buttonToPress) {
   return BrowserTestUtils.promiseAlertDialog(
-    "cancel",
+    buttonToPress,
     "chrome://pippki/content/exceptionDialog.xhtml"
   );
 }
@@ -206,8 +213,66 @@ add_task(function testBadURLs() {
 add_task(function testBadSSL() {
   return wrappedTest(null, {
     url: "https://expired.example.com/",
-    certError: true,
+    certError: "cancel",
   });
+});
+
+/**
+ * Test a server with a certificate problem, but this time we accept the
+ * exception dialog and try again.
+ */
+add_task(async function testBadSSLWithException() {
+  Services.fog.testResetFOG();
+
+  CardDAVServer.open();
+  const proxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "dav",
+    "wrong.test"
+  );
+
+  await wrappedTest(null, {
+    url: "https://wrong.test/",
+    certError: "extra1",
+    username: "alice",
+    password: "alice",
+    expectedStatus: null,
+    expectedBooks: [
+      {
+        label: "Not This One",
+        url: "https://wrong.test/addressbooks/me/default/",
+      },
+      {
+        label: "CardDAV Test",
+        url: "https://wrong.test/addressbooks/me/test/",
+      },
+    ],
+  });
+
+  proxy.destroy();
+  CardDAVServer.close();
+
+  const isTemporary = {};
+  Assert.ok(
+    certOverrideService.hasMatchingOverride(
+      "wrong.test",
+      443,
+      {},
+      await ServerTestUtils.getCertificate("dav"),
+      isTemporary
+    ),
+    "certificate exception should exist for wrong.test:443"
+  );
+
+  const telemetryEvents = Glean.mail.certificateExceptionAdded.testGetValue();
+  Assert.equal(telemetryEvents.length, 1);
+  Assert.deepEqual(telemetryEvents[0].extra, {
+    error_category: "SSL_ERROR_BAD_CERT_DOMAIN",
+    protocol: "carddav",
+    port: 443,
+    ui: "carddav-utils",
+  });
+  certOverrideService.clearAllOverrides();
 });
 
 /** Test an ordinary HTTP server that doesn't support CardDAV. */
