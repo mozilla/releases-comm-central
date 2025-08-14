@@ -53,8 +53,8 @@ path = "../viaduct"
 [dev-dependencies]
 mockito = "0.31"
 
-[dev-dependencies.viaduct-reqwest]
-path = "../support/viaduct-reqwest"
+[dev-dependencies.viaduct-dev]
+path = "../support/viaduct-dev"
 
 [build-dependencies.uniffi]
 version = "0.29.0"

@@ -238,18 +238,18 @@ midir = { git = "https://github.com/mozilla/midir.git", rev = "37ad39de3382c2aad
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
-context_id = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-error-support = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-filter_adult = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-search = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-tracing-support = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "724f165c31adb85bad94ada2e3f8621481a74754" }
+context_id = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+error-support = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+filter_adult = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+relevancy = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+search = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+tracing-support = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "e88505b99a7355dcb5121ec68eec8e6e97657330" }
 allocator-api2 = { path = "../../third_party/rust/allocator-api2" }
 zip = { path = "../../third_party/rust/zip" }

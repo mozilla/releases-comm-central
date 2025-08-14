@@ -57,8 +57,8 @@ once_cell = "1.18.0"
 path = "../support/error"
 features = ["testing"]
 
-[dev-dependencies.viaduct-reqwest]
-path = "../support/viaduct-reqwest"
+[dev-dependencies.viaduct-dev]
+path = "../support/viaduct-dev"
 
 [build-dependencies.uniffi]
 version = "0.29.0"

@@ -42,8 +42,12 @@ thiserror = "1.0"
 
 [dependencies.clap]
 version = "4.5.36"
-features = ["derive"]
+features = [
+    "std",
+    "derive",
+]
 optional = true
+default-features = false
 
 [dependencies.error-support]
 path = "../support/error"

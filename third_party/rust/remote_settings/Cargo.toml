@@ -63,7 +63,7 @@ path = "../support/error"
 path = "../support/firefox-versioning"
 
 [dependencies.jexl-eval]
-version = "0.3.0"
+version = "0.4.0"
 
 [dependencies.rc_crypto]
 path = "../support/rc_crypto"
@@ -88,7 +88,7 @@ path = "../viaduct"
 
 [dev-dependencies]
 expect-test = "1.4"
-mockall = "0.11"
+mockall = "0.12"
 mockito = "0.31"
 
 [dev-dependencies.nss]
@@ -98,8 +98,8 @@ path = "../support/rc_crypto/nss"
 version = "1"
 features = ["preserve_order"]
 
-[dev-dependencies.viaduct-reqwest]
-path = "../support/viaduct-reqwest"
+[dev-dependencies.viaduct-dev]
+path = "../support/viaduct-dev"
 
 [build-dependencies.uniffi]
 version = "0.29.0"

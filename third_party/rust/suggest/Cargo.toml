@@ -30,7 +30,7 @@ license = "MPL-2.0"
 [features]
 benchmark_api = [
     "tempfile",
-    "viaduct-reqwest",
+    "viaduct-dev",
 ]
 
 [lib]
@@ -101,12 +101,12 @@ features = ["serde"]
 [dependencies.viaduct]
 path = "../viaduct"
 
-[dependencies.viaduct-reqwest]
-path = "../support/viaduct-reqwest"
+[dependencies.viaduct-dev]
+path = "../support/viaduct-dev"
 optional = true
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.7"
 expect-test = "1.4"
 hex = "0.4"
 itertools = "0.14"
