@@ -57,25 +57,17 @@ class EwsMessageChannel : public nsMailChannel,
  protected:
   virtual ~EwsMessageChannel();
 
-  /**
-   * Notifies the channel that the download of the message has finished.
-   *
-   * If the status is a success, the message is read from the offline store and
-   * streamed to `mStreamListener`. If not, the consumer is notified of the
-   * failure and no read is performed.
-   */
-  nsresult OnDownloadFinished(nsresult status);
-
-  /**
-   * Notifies the channel that the download of the mesage has started.
-   */
-  nsresult OnDownloadStart();
-
  private:
   /**
    * Starts asynchronously reading the message from the offline store.
    */
   nsresult StartMessageReadFromStore();
+
+  /**
+   * Fetches the message's content from the server, stores it in the relevant
+   * message store, then feeds it to the consumer.
+   */
+  nsresult FetchAndReadMessage();
 
   // The stream listener to use to stream the message's content to the consumer.
   nsCOMPtr<nsIStreamListener> mStreamListener;

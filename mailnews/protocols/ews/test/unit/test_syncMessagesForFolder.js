@@ -274,7 +274,7 @@ add_task(async function testSyncChangesWithClient() {
 });
 
 class EwsMessageCallbackListener {
-  QueryInterface = ChromeUtils.generateQI(["IEwsMessageCallbacks"]);
+  QueryInterface = ChromeUtils.generateQI(["IEwsMessageSyncListener"]);
 
   constructor() {
     this._createdItemIds = [];
@@ -285,7 +285,7 @@ class EwsMessageCallbackListener {
     this._deferred = Promise.withResolvers();
   }
 
-  createNewHeaderForItem(ewsId) {
+  onMessageCreated(ewsId) {
     this._createdItemIds.push(ewsId);
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
@@ -294,40 +294,41 @@ class EwsMessageCallbackListener {
       markRead() {},
     };
   }
-  deleteHeaderFromDB(ewsId) {
-    this._deletedItemIds.push(ewsId);
-  }
-  getHeaderForItem(_ewsId) {
-    return {
+  onMessageUpdated(_ewsId) {
+    const hdr = {
       QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
       // Just enough to stop the test breaking.
       markHasAttachments() {},
       markRead() {},
     };
-  }
-  maybeDeleteMessageFromStore(hdr) {
+
     this._deletedMessages.push(hdr);
+
+    return hdr;
   }
-  saveNewHeader(hdr) {
+  onReadStatusChanged(ewsId, readStatus) {
+    this._readStatusUpdates.push({ ewsId, readStatus });
+  }
+  onMessageDeleted(ewsId) {
+    this._deletedItemIds.push(ewsId);
+  }
+  onDetachedHdrPopulated(hdr) {
     this._savedHeaders.push(hdr);
   }
-  commitChanges() {
+  onExistingHdrChanged() {
     Assert.greater(
       this._deletedMessages.length,
       0,
       "commitChanges should only be called if there are updated messages"
     );
   }
-  updateSyncState(syncStateToken) {
+  onSyncStateTokenChanged(syncStateToken) {
     this._syncStateToken = syncStateToken;
   }
   onSyncComplete() {
     this._deferred.resolve();
   }
-  updateReadStatus(ewsId, readStatus) {
-    this._readStatusUpdates.push({ ewsId, readStatus });
-  }
-  onError(_err, _desc) {
+  onOperationError(_status) {
     this._deferred.reject();
   }
 }

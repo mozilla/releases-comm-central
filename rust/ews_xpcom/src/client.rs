@@ -54,8 +54,8 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCallbacks, IEwsMessageCreateListener,
-        IEwsMessageFetchCallbacks, IEwsSimpleOperationListener,
+        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCreateListener,
+        IEwsMessageFetchListener, IEwsMessageSyncListener, IEwsSimpleOperationListener,
     },
     RefCounted, RefPtr, XpCom,
 };
@@ -343,7 +343,7 @@ where
 
     pub(crate) async fn sync_messages_for_folder(
         self,
-        listener: RefPtr<IEwsMessageCallbacks>,
+        listener: RefPtr<IEwsMessageSyncListener>,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {
@@ -367,7 +367,7 @@ where
 
     async fn sync_messages_for_folder_inner(
         self,
-        callbacks: &IEwsMessageCallbacks,
+        listener: &IEwsMessageSyncListener,
         folder_id: String,
         mut sync_state_token: Option<String>,
     ) -> Result<(), XpComEwsError> {
@@ -519,7 +519,7 @@ where
                         // header we get back will have its EWS ID already set.
                         let ews_id = nsCString::from(item_id);
                         let result = getter_addrefs(|hdr| unsafe {
-                            callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
+                            listener.OnMessageCreated(&*ews_id, hdr)
                         });
 
                         if let Err(nserror::NS_ERROR_ILLEGAL_VALUE) = result {
@@ -536,7 +536,7 @@ where
                         let header = result?;
                         populate_db_message_header_from_message_headers(&header, msg)?;
 
-                        unsafe { callbacks.SaveNewHeader(&*header) }.to_result()?;
+                        unsafe { listener.OnDetachedHdrPopulated(&*header) }.to_result()?;
                     }
 
                     sync_folder_items::Change::Update { item } => {
@@ -557,20 +557,23 @@ where
 
                         let ews_id = nsCString::from(item_id);
                         let mut result =
-                            getter_addrefs(|p| unsafe { callbacks.GetHeaderForItem(&*ews_id, p) });
+                            getter_addrefs(|p| unsafe { listener.OnMessageUpdated(&*ews_id, p) });
 
+                        let mut hdr_is_detached = false;
                         if let Err(nserror::NS_ERROR_NOT_AVAILABLE) = result {
                             // Something has gone wrong, probably in a previous
                             // sync, and we've missed a new item. So let's try
-                            // to gracefully recover from this and add it to the
-                            // database.
+                            // to gracefully recover from this and create a new
+                            // detached entry.
                             log::warn!(
                                 "Cannot find existing item to update with ID {item_id}, creating it instead"
                             );
 
                             result = getter_addrefs(|hdr| unsafe {
-                                callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
+                                listener.OnMessageCreated(&*ews_id, hdr)
                             });
+
+                            hdr_is_detached = true;
                         }
 
                         let header = result?;
@@ -586,13 +589,16 @@ where
                         // the database entry and commit.
                         populate_db_message_header_from_message_headers(&header, msg)?;
 
-                        // It's possible the message's content itself has
-                        // changed (e.g. if a draft was updated). In which case,
-                        // the easiest approach is deleting the local copy so
-                        // that the new content is downloaded when needed.
-                        unsafe { callbacks.MaybeDeleteMessageFromStore(&*header) }.to_result()?;
-
-                        unsafe { callbacks.CommitChanges() }.to_result()?;
+                        // Persist the database entry. If it's a new one
+                        // (because we've missed the creation event), then we
+                        // need to do this as if we're dealing with the
+                        // still-detached entry from a `Created` change (which
+                        // we kind of are).
+                        if hdr_is_detached {
+                            unsafe { listener.OnDetachedHdrPopulated(&*header) }.to_result()?;
+                        } else {
+                            unsafe { listener.OnExistingHdrChanged() }.to_result()?;
+                        }
                     }
 
                     sync_folder_items::Change::Delete { item_id } => {
@@ -601,7 +607,7 @@ where
 
                         // Delete the messages from the folder's database.
                         let ews_id = nsCString::from(id);
-                        unsafe { callbacks.DeleteHeaderFromDB(&*ews_id) }.to_result()?;
+                        unsafe { listener.OnMessageDeleted(&*ews_id) }.to_result()?;
                     }
 
                     sync_folder_items::Change::ReadFlagChange { item_id, is_read } => {
@@ -610,7 +616,7 @@ where
 
                         // Mark the messages as read in the folder's database.
                         let ews_id = nsCString::from(id);
-                        unsafe { callbacks.UpdateReadStatus(&*ews_id, is_read) }.to_result()?;
+                        unsafe { listener.OnReadStatusChanged(&*ews_id, is_read) }.to_result()?;
                     }
                 }
             }
@@ -618,7 +624,7 @@ where
             // Update sync state after pushing each batch of messages so that,
             // if we're interrupted, we resume from roughly the same place.
             let new_sync_state = nsCString::from(&message.sync_state);
-            unsafe { callbacks.UpdateSyncState(&*new_sync_state) }.to_result()?;
+            unsafe { listener.OnSyncStateTokenChanged(&*new_sync_state) }.to_result()?;
 
             if message.includes_last_item_in_range {
                 // EWS has signaled to us that there are no more changes at this
@@ -632,16 +638,12 @@ where
         Ok(())
     }
 
-    pub(crate) async fn get_message(
-        self,
-        id: String,
-        callbacks: RefPtr<IEwsMessageFetchCallbacks>,
-    ) {
-        unsafe { callbacks.OnFetchStart() };
+    pub(crate) async fn get_message(self, listener: RefPtr<IEwsMessageFetchListener>, id: String) {
+        unsafe { listener.OnFetchStart() };
 
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        let result = self.get_message_inner(id.clone(), &callbacks).await;
+        let result = self.get_message_inner(&listener, id.clone()).await;
 
         let status = match result {
             Ok(_) => nserror::NS_OK,
@@ -652,13 +654,13 @@ where
             }
         };
 
-        unsafe { callbacks.OnFetchStop(status) };
+        unsafe { listener.OnFetchStop(status) };
     }
 
     async fn get_message_inner(
         self,
+        listener: &IEwsMessageFetchListener,
         id: String,
-        callbacks: &IEwsMessageFetchCallbacks,
     ) -> Result<(), XpComEwsError> {
         let items = self.get_items([id], &[], true).await?;
         if items.len() != 1 {
@@ -714,7 +716,7 @@ where
         let mime_content = nsCString::from(mime_content);
         unsafe { stream.SetByteStringData(&*mime_content) }.to_result()?;
 
-        unsafe { callbacks.OnFetchedDataAvailable(stream.coerce(), len as u32) }.to_result()?;
+        unsafe { listener.OnFetchedDataAvailable(stream.coerce(), len as u32) }.to_result()?;
 
         Ok(())
     }

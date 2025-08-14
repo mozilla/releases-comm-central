@@ -93,3 +93,67 @@ NS_IMETHODIMP EwsFolderSyncListener::OnSyncStateTokenChanged(
 }
 
 NS_IMETHODIMP EwsFolderSyncListener::OnSuccess() { return mOnSuccess(); }
+
+// Implementation of EwsMessageFetchListener
+
+NS_IMPL_ISUPPORTS(EwsMessageFetchListener, IEwsMessageFetchListener)
+
+NS_IMETHODIMP EwsMessageFetchListener::OnFetchStart() {
+  return mOnFetchStart();
+}
+
+NS_IMETHODIMP EwsMessageFetchListener::OnFetchedDataAvailable(
+    nsIInputStream* stream, uint32_t count) {
+  uint64_t bytesFetched = 0;
+  nsresult rv = mOnFetchedDataAvailable(stream, count, &bytesFetched);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mTotalFetchedBytesCount += bytesFetched;
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsMessageFetchListener::OnFetchStop(nsresult status) {
+  return mOnFetchStop(status, mTotalFetchedBytesCount);
+}
+
+// Implementation of EwsMessageSyncListener
+
+NS_IMPL_ISUPPORTS(EwsMessageSyncListener, IEwsMessageSyncListener)
+
+NS_IMETHODIMP EwsMessageSyncListener::OnMessageCreated(const nsACString& ewsId,
+                                                       nsIMsgDBHdr** newHdr) {
+  return mOnMessageCreated(ewsId, newHdr);
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnMessageUpdated(const nsACString& ewsId,
+                                                       nsIMsgDBHdr** hdr) {
+  return mOnMessageUpdated(ewsId, hdr);
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnReadStatusChanged(
+    const nsACString& ewsId, bool isRead) {
+  return mOnReadStatusChanged(ewsId, isRead);
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnMessageDeleted(
+    const nsACString& ewsId) {
+  return mOnMessageDeleted(ewsId);
+}
+NS_IMETHODIMP EwsMessageSyncListener::OnDetachedHdrPopulated(
+    nsIMsgDBHdr* msgHdr) {
+  return mOnDetachedHdrPopulated(msgHdr, mNewMessages);
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnExistingHdrChanged() {
+  return mOnExistingHdrChanged();
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnSyncStateTokenChanged(
+    const nsACString& syncStateToken) {
+  return mOnSyncStateTokenChanged(syncStateToken);
+}
+
+NS_IMETHODIMP EwsMessageSyncListener::OnSyncComplete() {
+  return mOnSyncComplete(mNewMessages);
+}

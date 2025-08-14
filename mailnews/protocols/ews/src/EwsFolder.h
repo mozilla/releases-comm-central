@@ -112,7 +112,7 @@ class EwsFolder : public nsMsgDBFolder {
   nsresult GetEwsId(nsACString& ewsId);
 
   /**
-   * Looks up the trash folder for the current account.
+   * Look up the trash folder for the current account.
    */
   nsresult GetTrashFolder(nsIMsgFolder** result);
 
@@ -120,6 +120,18 @@ class EwsFolder : public nsMsgDBFolder {
    * Synchronize the message list for the current folder.
    */
   nsresult SyncMessages(nsIMsgWindow* window, nsIUrlListener* urlListener);
+
+  /**
+   * Look up the message database entry matching a given EWS ID.
+   *
+   * `NS_ERROR_NOT_AVAILABLE` is returned if no such database entry was found.
+   */
+  nsresult GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr);
+
+  /**
+   * Apply the current filters to a list of new messages.
+   */
+  nsresult ApplyFilters(const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages);
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_

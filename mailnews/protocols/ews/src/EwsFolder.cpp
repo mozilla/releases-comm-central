@@ -143,247 +143,6 @@ static nsresult HandleMoveError(nsIMsgFolder* sourceFolder,
   });
 }
 
-class MessageOperationCallbacks : public IEwsMessageCallbacks,
-                                  public IEwsFallibleOperationListener {
- public:
-  NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_IEWSMESSAGECALLBACKS
-  NS_DECL_IEWSFALLIBLEOPERATIONLISTENER
-
-  MessageOperationCallbacks(EwsFolder* folder, nsIMsgWindow* window,
-                            nsCOMPtr<nsIUrlListener> urlListener)
-      : mFolder(folder),
-        mWindow(window),
-        mUrlListener(std::move(urlListener)) {}
-
- protected:
-  virtual ~MessageOperationCallbacks() = default;
-
- private:
-  nsresult NotifyListener(nsresult rv);
-
- private:
-  RefPtr<EwsFolder> mFolder;
-  RefPtr<nsIMsgWindow> mWindow;
-  nsCOMPtr<nsIUrlListener> mUrlListener;
-  // Keep track of all the messages added via SaveNewHeader, in order to
-  // apply filters when OnSyncComplete() is called.
-  nsTArray<RefPtr<nsIMsgDBHdr>> mNewMessages;
-};
-
-NS_IMPL_ISUPPORTS(MessageOperationCallbacks, IEwsMessageCallbacks)
-
-NS_IMETHODIMP MessageOperationCallbacks::SaveNewHeader(nsIMsgDBHdr* hdr) {
-  nsCOMPtr<nsIMsgDatabase> db;
-  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
-
-  // If New flag is not set, it won't be added to the databases list of new
-  // messages (and so won't be filtered/classified). But we'll treat read
-  // messages as old.
-  uint32_t flags;
-  MOZ_TRY(hdr->GetFlags(&flags));
-  if (!(flags & nsMsgMessageFlags::Read)) {
-    flags |= nsMsgMessageFlags::New;
-    hdr->SetFlags(flags);
-    mNewMessages.AppendElement(hdr);
-  }
-
-  MOZ_TRY(db->AddNewHdrToDB(hdr, true));
-
-  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-      mozilla::components::FolderNotification::Service();
-
-  // Remember message for filtering at end of sync operation.
-  notifier->NotifyMsgAdded(hdr);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::CommitChanges() {
-  RefPtr<nsIMsgDatabase> db;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return db->Commit(nsMsgDBCommitType::kLargeCommit);
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::CreateNewHeaderForItem(
-    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
-  // Check if a header already exists for this EWS ID. `GetHeaderForItem`
-  // returns `NS_ERROR_NOT_AVAILABLE` when no header exists, so we only want to
-  // move forward with creating one in this case.
-  RefPtr<nsIMsgDBHdr> existingHeader;
-  nsresult rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
-
-  // If we could retrieve a header for this item, error immediately.
-  if (NS_SUCCEEDED(rv)) {
-    return NS_ERROR_ILLEGAL_VALUE;
-  }
-
-  // We already know that `rv` is a failure at this point, so we just need to
-  // check it's not the one failure we want.
-  if (rv != NS_ERROR_NOT_AVAILABLE) {
-    return rv;
-  }
-
-  RefPtr<nsIMsgDatabase> db;
-  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
-
-  RefPtr<nsIMsgDBHdr> newHeader;
-  MOZ_TRY(db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader)));
-
-  MOZ_TRY(newHeader->SetStringProperty(kEwsIdProperty, ewsId));
-
-  newHeader.forget(_retval);
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::GetHeaderForItem(
-    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
-  RefPtr<nsIMsgDatabase> db;
-  MOZ_TRY(mFolder->GetMsgDatabase(getter_AddRefs(db)));
-
-  RefPtr<nsIMsgDBHdr> existingHeader;
-  MOZ_TRY(db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader)));
-
-  // Make sure we managed to get a header from the database.
-  if (!existingHeader) {
-    return NS_ERROR_NOT_AVAILABLE;
-  }
-
-  existingHeader.forget(_retval);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::DeleteHeaderFromDB(
-    const nsACString& ewsId) {
-  // Delete the message headers from the database.
-  RefPtr<nsIMsgDatabase> db;
-  nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  RefPtr<nsIMsgDBHdr> existingHeader;
-  rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!existingHeader) {
-    // If we don't have a header for this message ID, it means we have already
-    // deleted it locally. This can happen in legitimate situations, e.g. when
-    // syncing the message list after deleting a message from Thunderbird (in
-    // which case, the server's sync response will include a `Delete` change for
-    // the message we've just deleted).
-    return NS_OK;
-  }
-
-  return LocalDeleteMessages(mFolder, {existingHeader});
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::MaybeDeleteMessageFromStore(
-    nsIMsgDBHdr* hdr) {
-  NS_ENSURE_ARG_POINTER(hdr);
-
-  uint32_t flags;
-  MOZ_TRY(hdr->GetFlags(&flags));
-
-  if (!(flags & nsMsgMessageFlags::Offline)) {
-    // Bail early if there's nothing to remove.
-    return NS_OK;
-  }
-
-  // Delete the message content from the local store.
-  nsCOMPtr<nsIMsgPluggableStore> store;
-  MOZ_TRY(mFolder->GetMsgStore(getter_AddRefs(store)));
-  MOZ_TRY(store->DeleteMessages({hdr}));
-
-  // Update the flags on the database entry to reflect its content is *not*
-  // stored offline anymore. We don't commit right now, but the expectation is
-  // that the consumer will call `CommitChanges()` once it's done processing the
-  // current change.
-  uint32_t unused;
-  return hdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::UpdateReadStatus(
-    const nsACString& ewsId, bool is_read) {
-  // Get the header for the message with ewsId and update its read flag in the
-  // database.
-  RefPtr<nsIMsgDBHdr> existingHeader;
-  nsresult rv = GetHeaderForItem(ewsId, getter_AddRefs(existingHeader));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return existingHeader->MarkRead(is_read);
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
-    const nsACString& syncStateToken) {
-  return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
-}
-
-nsresult MessageOperationCallbacks::NotifyListener(nsresult rv) {
-  if (mUrlListener) {
-    nsCOMPtr<nsIURI> folderUri;
-    nsresult rv = FolderUri(mFolder, getter_AddRefs(folderUri));
-    NS_ENSURE_SUCCESS(rv, rv);
-    mUrlListener->OnStopRunningUrl(folderUri, rv);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::OnSyncComplete() {
-  // If some new messages arrived, apply filters to them now.
-  if (!mNewMessages.IsEmpty()) {
-    nsCOMPtr<nsIMsgFilterService> filterService(
-        mozilla::components::Filter::Service());
-
-    nsCOMPtr<nsIMsgFilterList> filterList;
-    nsresult rv = mFolder->GetFilterList(nullptr, getter_AddRefs(filterList));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Can we run the filters? Or will they require the full message first?
-    bool incomingFiltersRequireBody;
-    rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
-                                              &incomingFiltersRequireBody);
-
-    if (!incomingFiltersRequireBody) {
-      // Once the filtering is complete, `doneFunc` will run.
-      auto doneFunc = [folder = mFolder](nsresult status) -> nsresult {
-        folder->NotifyFolderEvent(kFiltersApplied);
-        // Now run the spam classification.
-        // This will invoke OnMessageClassified().
-        // TODO:
-        // CallFilterPlugins() should take a nsIJunkMailClassificationListener
-        // param instead of relying on folder inheritance.
-        bool filtersRun;
-        nsresult rv = folder->CallFilterPlugins(nullptr, &filtersRun);
-        NS_ENSURE_SUCCESS(rv, rv);
-        return NS_OK;
-      };
-
-      // Run the filters upon the new messages. Note, by this time, the
-      // messages have already been added to the folders database.
-      // This means we can use ApplyFilters, which handles all the filter
-      // actions - it uses the protocol-agnostic code, as if the filters had
-      // been manually trggered ("run filters now").
-      // This is in contrast to POP3 and IMAP, which run the filters _before_
-      // adding the messages to the database, but then have to implement all
-      // their own filter actions.
-      rv = filterService->ApplyFilters(nsMsgFilterType::Inbox, mNewMessages,
-                                       mFolder, nullptr /*window*/,
-                                       new MsgOperationListener(doneFunc));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-  NotifyListener(NS_OK);
-  mFolder->NotifyFolderEvent(kFolderLoaded);
-  return NS_OK;
-}
-
-NS_IMETHODIMP MessageOperationCallbacks::OnOperationFailure(nsresult status) {
-  NotifyListener(status);
-  return NS_OK;
-}
-
 NS_IMPL_ADDREF_INHERITED(EwsFolder, nsMsgDBFolder)
 NS_IMPL_RELEASE_INHERITED(EwsFolder, nsMsgDBFolder)
 NS_IMPL_QUERY_HEAD(EwsFolder)
@@ -1125,12 +884,190 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
   nsCString ewsId;
   MOZ_TRY(GetEwsId(ewsId));
 
-  // Sync the message list for the current folder.
-  nsCOMPtr<IEwsClient> client;
-  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+  // Define the callbacks for the EWS operation.
+  auto onMessageCreated = [self = RefPtr(this)](const nsACString& ewsId,
+                                                nsIMsgDBHdr** newHdr) {
+    // Check if a header already exists for this EWS ID. `GetHeaderForItem`
+    // returns `NS_ERROR_NOT_AVAILABLE` when no header exists, so we only want
+    // to move forward with creating one in this case.
+    RefPtr<nsIMsgDBHdr> existingHeader;
+    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHeader));
 
-  auto listener =
-      RefPtr(new MessageOperationCallbacks(this, window, urlListener));
+    // If we could retrieve a header for this item, error immediately.
+    if (NS_SUCCEEDED(rv)) {
+      return NS_ERROR_ILLEGAL_VALUE;
+    }
+
+    // We already know that `rv` is a failure at this point, so we just need to
+    // check it's not the one failure we want.
+    if (rv != NS_ERROR_NOT_AVAILABLE) {
+      return rv;
+    }
+
+    nsCOMPtr<nsIMsgDatabase> db;
+    rv = self->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<nsIMsgDBHdr> newHeader;
+    rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = newHeader->SetStringProperty(kEwsIdProperty, ewsId);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    newHeader.forget(newHdr);
+    return NS_OK;
+  };
+
+  auto onMessageDeleted = [self = RefPtr(this)](const nsACString& ewsId) {
+    // Delete the message headers from the database.
+    nsCOMPtr<nsIMsgDatabase> db;
+    nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    RefPtr<nsIMsgDBHdr> existingHeader;
+    rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (!existingHeader) {
+      // If we don't have a header for this message ID, it means we have already
+      // deleted it locally. This can happen in legitimate situations, e.g. when
+      // syncing the message list after deleting a message from Thunderbird (in
+      // which case, the server's sync response will include a `Delete` change
+      // for the message we've just deleted).
+      return NS_OK;
+    }
+
+    return LocalDeleteMessages(self, {existingHeader});
+  };
+
+  auto onMessageUpdated = [self = RefPtr(this)](const nsACString& ewsId,
+                                                nsIMsgDBHdr** hdr) {
+    RefPtr<nsIMsgDBHdr> existingHdr;
+    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // The message content might have changed (e.g. if a draft was updated), and
+    // there's no way for us to know for sure without re-downloading it. So
+    // let's delete its content from the message store so it can be
+    // re-downloaded later.
+    uint32_t flags;
+    rv = existingHdr->GetFlags(&flags);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (!(flags & nsMsgMessageFlags::Offline)) {
+      // Bail early if there's nothing to remove.
+      return NS_OK;
+    }
+
+    // Delete the message content from the local store.
+    nsCOMPtr<nsIMsgPluggableStore> store;
+    rv = self->GetMsgStore(getter_AddRefs(store));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = store->DeleteMessages({existingHdr});
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Update the flags on the database entry to reflect its content is *not*
+    // stored offline anymore. We don't commit right now, but the expectation is
+    // that the consumer will call `CommitChanges()` once it's done processing
+    // the current change.
+    uint32_t unused;
+    rv = existingHdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    existingHdr.forget(hdr);
+
+    return NS_OK;
+  };
+
+  auto onReadStatusChanged = [self = RefPtr(this)](const nsACString& ewsId,
+                                                   bool is_read) {
+    // Get the header for the message with ewsId and update its read flag in the
+    // database.
+    RefPtr<nsIMsgDBHdr> existingHeader;
+    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHeader));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return existingHeader->MarkRead(is_read);
+  };
+
+  auto onDetachedHdrPopulated =
+      [self = RefPtr(this)](nsIMsgDBHdr* hdr,
+                            nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
+        nsCOMPtr<nsIMsgDatabase> db;
+        nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // If New flag is not set, it won't be added to the databases list of
+        // new messages (and so won't be filtered/classified). But we'll treat
+        // read messages as old.
+        uint32_t flags;
+        rv = hdr->GetFlags(&flags);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (!(flags & nsMsgMessageFlags::Read)) {
+          flags |= nsMsgMessageFlags::New;
+          hdr->SetFlags(flags);
+          newMessages.AppendElement(hdr);
+        }
+
+        nsCOMPtr<nsIMsgDBHdr> liveHdr;
+        rv = db->AttachHdr(hdr, true, getter_AddRefs(liveHdr));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+            mozilla::components::FolderNotification::Service();
+
+        // Remember message for filtering at end of sync operation.
+        notifier->NotifyMsgAdded(liveHdr);
+
+        return NS_OK;
+      };
+
+  auto onExistingHdrChanged = [self = RefPtr(this)]() {
+    RefPtr<nsIMsgDatabase> db;
+    nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return db->Commit(nsMsgDBCommitType::kLargeCommit);
+  };
+
+  auto onSyncStateTokenChanged =
+      [self = RefPtr(this)](const nsACString& syncStateToken) {
+        return self->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+      };
+
+  // This lambda will both be called at the end of `onSyncComplete`, and used as
+  // the listener's `OnOperationFailure` callback.
+  nsCOMPtr<nsIUrlListener> syncUrlListener = urlListener;
+  auto notifyListener = [self = RefPtr(this),
+                         syncUrlListener](nsresult status) {
+    if (syncUrlListener) {
+      nsCOMPtr<nsIURI> folderUri;
+      nsresult rv = FolderUri(self, getter_AddRefs(folderUri));
+      NS_ENSURE_SUCCESS(rv, rv);
+      syncUrlListener->OnStopRunningUrl(folderUri, rv);
+    }
+
+    return NS_OK;
+  };
+
+  auto onSyncComplete = [self = RefPtr(this), notifyListener](
+                            const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
+    // If some new messages arrived, apply filters to them now.
+    if (!newMessages.IsEmpty()) {
+      self->ApplyFilters(newMessages);
+    }
+    notifyListener(NS_OK);
+    self->NotifyFolderEvent(kFolderLoaded);
+    return NS_OK;
+  };
+
+  RefPtr<EwsMessageSyncListener> listener = new EwsMessageSyncListener(
+      onMessageCreated, onMessageDeleted, onMessageUpdated,
+      onDetachedHdrPopulated, onExistingHdrChanged, onSyncStateTokenChanged,
+      onSyncComplete, onReadStatusChanged, notifyListener);
 
   if (urlListener) {
     nsCOMPtr<nsIURI> folderUri;
@@ -1139,7 +1076,82 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     rv = urlListener->OnStartRunningUrl(folderUri);
     NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  // Sync the message list for the current folder.
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
   return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
+}
+
+nsresult EwsFolder::GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr) {
+  nsCOMPtr<nsIMsgDatabase> db;
+  nsresult rv = GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgDBHdr> existingHdr;
+  rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Make sure we managed to get a header from the database.
+  if (!existingHdr) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  existingHdr.forget(hdr);
+
+  return NS_OK;
+}
+
+nsresult EwsFolder::ApplyFilters(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
+  nsCOMPtr<nsIMsgFilterService> filterService(
+      mozilla::components::Filter::Service());
+
+  nsCOMPtr<nsIMsgFilterList> filterList;
+  nsresult rv = GetFilterList(nullptr, getter_AddRefs(filterList));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Can we run the filters? Or will they require the full message
+  // first?
+  bool incomingFiltersRequireBody;
+  rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
+                                            &incomingFiltersRequireBody);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!incomingFiltersRequireBody) {
+    // Once the filtering is complete, `doneFunc` will run.
+    auto doneFunc =
+        [self = RefPtr(this)](
+            nsresult status,
+            const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) -> nsresult {
+      self->NotifyFolderEvent(kFiltersApplied);
+      // Now run the spam classification.
+      // This will invoke OnMessageClassified().
+      // TODO:
+      // CallFilterPlugins() should take a
+      // nsIJunkMailClassificationListener param instead of relying on
+      // folder inheritance.
+      bool filtersRun;
+      nsresult rv = self->CallFilterPlugins(nullptr, &filtersRun);
+      NS_ENSURE_SUCCESS(rv, rv);
+      return NS_OK;
+    };
+
+    // Run the filters upon the new messages. Note, by this time, the
+    // messages have already been added to the folders database.
+    // This means we can use ApplyFilters, which handles all the filter
+    // actions - it uses the protocol-agnostic code, as if the filters
+    // had been manually trggered ("run filters now"). This is in
+    // contrast to POP3 and IMAP, which run the filters _before_ adding
+    // the messages to the database, but then have to implement all
+    // their own filter actions.
+    rv = filterService->ApplyFilters(
+        nsMsgFilterType::Inbox, newMessages, this, nullptr /*window*/,
+        new MsgOperationListener(newMessages, doneFunc));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,

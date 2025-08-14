@@ -25,7 +25,7 @@ use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderListener,
-        IEwsMessageCallbacks, IEwsMessageCreateListener, IEwsMessageFetchCallbacks,
+        IEwsMessageCreateListener, IEwsMessageFetchListener, IEwsMessageSyncListener,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -227,10 +227,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(callbacks: *const IEwsMessageCallbacks, folder_id: *const nsACString, sync_state: *const nsACString));
+    xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(listener: *const IEwsMessageSyncListener, folder_id: *const nsACString, sync_state: *const nsACString));
     fn sync_messages_for_folder(
         &self,
-        callbacks: &IEwsMessageCallbacks,
+        listener: &IEwsMessageSyncListener,
         folder_id: &nsACString,
         sync_state: &nsACString,
     ) -> Result<(), nsresult> {
@@ -249,7 +249,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_messages_for_folder",
             client.sync_messages_for_folder(
-                RefPtr::new(callbacks),
+                RefPtr::new(listener),
                 folder_id.to_utf8().into_owned(),
                 sync_state,
             ),
@@ -259,11 +259,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(get_message => GetMessage(id: *const nsACString, callbacks: *const IEwsMessageFetchCallbacks));
+    xpcom_method!(get_message => GetMessage(callbacks: *const IEwsMessageFetchListener, id: *const nsACString));
     fn get_message(
         &self,
+        listener: &IEwsMessageFetchListener,
         id: &nsACString,
-        callbacks: &IEwsMessageFetchCallbacks,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
@@ -271,7 +271,7 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "get_message",
-            client.get_message(id.to_utf8().into(), RefPtr::new(callbacks)),
+            client.get_message(RefPtr::new(listener), id.to_utf8().into()),
         )
         .detach();
 
