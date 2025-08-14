@@ -45,12 +45,10 @@ const TBPRO_SCOPES = "openid profile email offline_access";
  * Map of hostnames to [issuer, scope].
  */
 var kHostnames = new Map([
-  ["imap.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
-  ["smtp.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
-  ["pop.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
-  ["imap.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
-  ["smtp.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
-  ["pop.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  // imap.googlemail.com, pop.googlemail.com, smtp.googlemail.com
+  ["googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  // imap.gmail.com, pop.gmail.com, smtp.gmail.com, smtp-relay.gmail.com
+  ["gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
   ["www.googleapis.com", ["accounts.google.com", GOOGLE_SCOPES.carddav]],
   [
     "apidata.googleusercontent.com",
