@@ -99,18 +99,13 @@ add_task(async function testImportApple() {
     OpenPGPTestUtils.ACCEPTANCE_VERIFIED
   );
 
-  const primaryKey = await RNP.findKeyByEmail(
-    "<product-security@apple.com>",
+  // Note: the key we're testing has expired in Aug 2025.
+  const primaryKeyId = EnigmailKeyRing.getKeysByEmail(
+    "product-security@apple.com",
+    true,
     true
-  );
-  Assert.ok(primaryKey, "should find primary key");
-  const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
-  const keyId = RNP.getKeyIDFromHandle(encSubKey);
-  Assert.equal(
-    keyId,
-    "747D1BD8BE393896",
-    "should find correct encryption subkey"
-  );
+  )[0].keyId;
+  Assert.equal(primaryKeyId, "5FEE5DD535DA22FA", "should find primary key");
 });
 
 /**

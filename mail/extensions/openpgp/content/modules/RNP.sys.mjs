@@ -3486,11 +3486,10 @@ export var RNP = {
 
   _getKeyHandleByKeyIdOrFingerprint(ffi, id, findPrimary) {
     if (!id.startsWith("0x")) {
-      throw new Error("unexpected identifier " + id);
-    } else {
-      // remove 0x
-      id = id.substring(2);
+      throw new Error(`id should be 0x prefixed; got id ${id}`);
     }
+    // remove 0x
+    id = id.substring(2);
 
     let type = null;
     if (id.length == 16) {
