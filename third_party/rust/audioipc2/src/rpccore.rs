@@ -7,7 +7,7 @@ use crossbeam_queue::ArrayQueue;
 use mio::Token;
 use std::cell::UnsafeCell;
 use std::collections::VecDeque;
-use std::io::{self, Error, ErrorKind, Result};
+use std::io::{self, Error, Result};
 use std::marker::PhantomPinned;
 use std::mem::ManuallyDrop;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -166,7 +166,7 @@ impl<Request, Response> Proxy<Request, Response> {
         self.wake_connection();
         match response.wait() {
             Some(resp) => Ok(resp),
-            None => Err(Error::new(ErrorKind::Other, "proxy recv error")),
+            None => Err(Error::other("proxy recv error")),
         }
     }
 
@@ -245,7 +245,7 @@ impl<C: Client> Handler for ClientHandler<C> {
         if let Some(response_writer) = self.in_flight.pop_front() {
             response_writer.set(response);
         } else {
-            return Err(Error::new(ErrorKind::Other, "request/response mismatch"));
+            return Err(Error::other("request/response mismatch"));
         }
 
         Ok(())
@@ -311,13 +311,13 @@ impl<T> RequestQueueSender<T> {
     pub(crate) fn push(&self, request: T) -> Result<()> {
         if let Some(consumer) = self.inner.upgrade() {
             if consumer.queue.push(request).is_err() {
-                debug!("Proxy[{:p}]: call failed - CH::requests full", self);
+                debug!("Proxy[{self:p}]: call failed - CH::requests full");
                 return Err(io::ErrorKind::ConnectionAborted.into());
             }
             return Ok(());
         }
-        debug!("Proxy[{:p}]: call failed - CH::requests dropped", self);
-        Err(Error::new(ErrorKind::Other, "proxy send error"))
+        debug!("Proxy[{self:p}]: call failed - CH::requests dropped");
+        Err(Error::other("proxy send error"))
     }
 
     pub(crate) fn live_proxies(&self) -> usize {

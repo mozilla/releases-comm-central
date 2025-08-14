@@ -14,7 +14,7 @@ trait AsBytes {
     fn as_bytes(&self) -> &[u8];
 }
 
-impl<'a, T: Sized> AsBytes for &'a [T] {
+impl<T: Sized> AsBytes for &[T] {
     fn as_bytes(&self) -> &[u8] {
         // TODO: This should account for the alignment of T
         let byte_count = std::mem::size_of_val(*self);
@@ -87,7 +87,7 @@ pub fn decode_handles(buf: &mut BytesMut) -> arrayvec::ArrayVec<RawFd, HANDLE_QU
             fds.try_extend_from_slice(slice).unwrap();
         }
         (level, kind) => {
-            trace!("Skipping cmsg level, {}, type={}...", level, kind);
+            trace!("Skipping cmsg level, {level}, type={kind}...");
         }
     }
 

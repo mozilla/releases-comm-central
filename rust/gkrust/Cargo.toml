@@ -22,8 +22,8 @@ sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "a821fa621c2def48e90c82774b4c6563b5a8ea4a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 audio_thread_priority = { version = "0.32" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "e6f44a2bd1e57d11dfc737632a9e849077632330", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "e6f44a2bd1e57d11dfc737632a9e849077632330", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "cff5afde0e93782765cf31c3c6d5d63778f3260d", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "cff5afde0e93782765cf31c3c6d5d63778f3260d", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
@@ -35,9 +35,9 @@ chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "2407441a2f67341a0e13b4ba6547555e387c671c", optional = true }
-cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8678dcab1c287de79c4c184ccc2e065bc62b70e2", optional = true, features = ['pulse-dlopen'] }
-cubeb-sys = { version = "0.13", optional = true, features = ['gecko-in-tree'] }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "5f12ec4065de7c532c483cdad93b7f50cca67e7d", optional = true, features = ['vpio-forcelist'] }
+cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "e0ddf430162f9113a9a90dc52b349d273baa3ec5", optional = true, features = ['pulse-dlopen'] }
+cubeb-sys = { version = "0.29", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }

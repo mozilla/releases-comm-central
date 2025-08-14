@@ -1,3 +1,16 @@
+# Release 0.1.46 (2024-02-07)
+
+- [Upgrade to 2018 edition, **MSRV 1.31**][51]
+- [The `Integer::divides` method is now properly deprecated][42],
+  rather than just documented so.
+- [The new `Integer::dec` and `inc` methods change the value by one.][53]
+
+**Contributors**: @aobatact, @cuviper, @hkBst, @MiguelX413
+
+[42]: https://github.com/rust-num/num-integer/pull/42
+[51]: https://github.com/rust-num/num-integer/pull/51
+[53]: https://github.com/rust-num/num-integer/pull/53
+
 # Release 0.1.45 (2022-04-29)
 
 - [`Integer::next_multiple_of` and `prev_multiple_of` no longer overflow -1][45].

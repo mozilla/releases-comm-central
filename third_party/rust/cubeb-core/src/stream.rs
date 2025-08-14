@@ -111,6 +111,10 @@ impl StreamParamsRef {
     pub fn prefs(&self) -> StreamPrefs {
         StreamPrefs::from_bits_truncate(self.get_ref().prefs)
     }
+
+    pub fn input_params(&self) -> InputProcessingParams {
+        InputProcessingParams::from_bits_truncate(self.get_ref().input_params)
+    }
 }
 
 unsafe fn wrapped_cubeb_stream_destroy(stream: *mut ffi::cubeb_stream) {
@@ -239,7 +243,7 @@ impl StreamRef {
 #[cfg(test)]
 mod tests {
     use std::mem;
-    use {StreamParams, StreamParamsRef, StreamPrefs};
+    use {InputProcessingParams, StreamParams, StreamParamsRef, StreamPrefs};
 
     #[test]
     fn stream_params_default() {
@@ -350,6 +354,17 @@ mod tests {
         raw.prefs = super::ffi::CUBEB_STREAM_PREF_LOOPBACK;
         let params = unsafe { StreamParamsRef::from_ptr(&mut raw) };
         assert_eq!(params.prefs(), StreamPrefs::LOOPBACK);
+    }
+
+    #[test]
+    fn stream_params_raw_input_params() {
+        let mut raw: super::ffi::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.input_params = super::ffi::CUBEB_INPUT_PROCESSING_PARAM_ECHO_CANCELLATION;
+        let params = unsafe { StreamParamsRef::from_ptr(&mut raw) };
+        assert_eq!(
+            params.input_params(),
+            InputProcessingParams::ECHO_CANCELLATION
+        );
     }
 
     #[test]

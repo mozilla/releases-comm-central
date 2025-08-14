@@ -3,10 +3,12 @@ extern crate itertools;
 use self::itertools::iproduct;
 use super::utils::{
     draining_data_callback, get_devices_info_in_scope, noop_data_callback, state_tracking_cb,
-    test_device_channels_in_scope, test_get_default_device, test_ops_context_operation,
-    test_ops_stream_operation, test_ops_stream_operation_on_context, Scope, StateCallbackData,
+    test_device_channels_in_scope, test_get_default_device, test_object_id_to_devid,
+    test_ops_context_operation, test_ops_stream_operation, test_ops_stream_operation_on_context,
+    Scope, StateCallbackData,
 };
 use super::*;
+use std::mem::ManuallyDrop;
 use std::thread;
 
 // Context Operations
@@ -115,8 +117,6 @@ fn test_ops_context_enumerate_devices_unknown() {
             },
             ffi::CUBEB_OK
         );
-        assert_eq!(coll.count, 0);
-        assert_eq!(coll.device, ptr::null_mut());
         assert_eq!(
             unsafe { OPS.device_collection_destroy.unwrap()(context_ptr, &mut coll) },
             ffi::CUBEB_OK
@@ -194,9 +194,11 @@ fn test_ops_context_enumerate_devices_output() {
 fn test_ops_context_device_collection_destroy() {
     // Destroy a dummy device collection, without calling enumerate_devices to allocate memory for the device collection
     test_ops_context_operation("context: device collection destroy", |context_ptr| {
+        let mut device_infos = ManuallyDrop::new(Box::new([DeviceInfo::default().into()]));
+
         let mut coll = ffi::cubeb_device_collection {
-            device: ptr::null_mut(),
-            count: 0,
+            device: device_infos.as_mut_ptr(),
+            count: device_infos.len(),
         };
         assert_eq!(
             unsafe { OPS.device_collection_destroy.unwrap()(context_ptr, &mut coll) },
@@ -523,13 +525,15 @@ fn test_ops_context_stream_init_no_input_stream_params() {
     test_ops_context_operation(name, |context_ptr| {
         let mut stream: *mut ffi::cubeb_stream = ptr::null_mut();
         let stream_name = CString::new(name).expect("Failed to create stream name");
+        let input_device =
+            test_object_id_to_devid(context_ptr, input_device.unwrap(), DeviceType::INPUT);
         assert_eq!(
             unsafe {
                 OPS.stream_init.unwrap()(
                     context_ptr,
                     &mut stream,
                     stream_name.as_ptr(),
-                    input_device.unwrap() as ffi::cubeb_devid,
+                    input_device,
                     ptr::null_mut(), // No input parameters.
                     ptr::null_mut(), // Use default output device.
                     ptr::null_mut(), // No output parameters.
@@ -822,10 +826,12 @@ fn test_stereo_input_duplex_stream_operation_on_context_with_callback<F>(
     output_params.layout = ffi::CUBEB_LAYOUT_UNDEFINED;
     output_params.prefs = ffi::CUBEB_STREAM_PREF_NONE;
 
+    let input_device = test_object_id_to_devid(context_ptr, input_devices[0].id, DeviceType::INPUT);
+
     test_ops_stream_operation_on_context(
         name,
         context_ptr,
-        input_devices[0].id as ffi::cubeb_devid,
+        input_device,
         &mut input_params,
         ptr::null_mut(), // Use default output device.
         &mut output_params,
@@ -1172,7 +1178,7 @@ fn test_ops_stream_device_destroy() {
     test_default_output_stream_operation("stream: destroy null device", |stream| {
         assert_eq!(
             unsafe { OPS.stream_device_destroy.unwrap()(stream, ptr::null_mut()) },
-            ffi::CUBEB_OK // It returns OK anyway.
+            ffi::CUBEB_ERROR_INVALID_PARAMETER
         );
     });
 }
@@ -1741,7 +1747,7 @@ fn test_ops_duplex_voice_stream_set_input_mute_before_start_with_reinit() {
                 assert_eq!(r, NO_ERR);
                 mute_after_reinit = mute == 1;
             });
-            assert_eq!(mute_after_reinit, true);
+            assert!(mute_after_reinit);
         },
     );
 }
@@ -1847,7 +1853,7 @@ fn test_ops_duplex_voice_stream_set_input_processing_params_before_start_with_re
                 );
                 assert_eq!(r, NO_ERR);
                 if agc == 1 {
-                    params = params | ffi::CUBEB_INPUT_PROCESSING_PARAM_AUTOMATIC_GAIN_CONTROL;
+                    params |= ffi::CUBEB_INPUT_PROCESSING_PARAM_AUTOMATIC_GAIN_CONTROL;
                 }
                 let mut bypass: u32 = 0;
                 let r = audio_unit_get_property(

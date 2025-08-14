@@ -15,4 +15,4 @@ extern crate semver;
 mod backend;
 mod capi;
 
-pub use capi::pulse_rust_init;
+pub use crate::capi::pulse_rust_init;

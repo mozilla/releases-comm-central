@@ -68,7 +68,7 @@ pub fn cubeb_log_internal_buf_fmt(
         .to_str()
         .unwrap();
     let mut buf = StaticCString::<LOG_LIMIT>::new();
-    let _ = std::fmt::write(&mut buf, format_args!("{}:{}: {}\n", filename, line, msg));
+    let _ = std::fmt::write(&mut buf, format_args!("{filename}:{line}: {msg}\n"));
     unsafe {
         log_callback(buf.as_cstr().as_ptr());
     };

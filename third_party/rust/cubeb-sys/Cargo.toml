@@ -11,23 +11,37 @@
 
 [package]
 name = "cubeb-sys"
-version = "0.13.0"
+version = "0.29.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 build = "build.rs"
 links = "cubeb"
-exclude = ["libcubeb/googletest/"]
+exclude = ["libcubeb/googletest"]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Native bindings to the cubeb library"
+readme = false
 license = "ISC"
 repository = "https://github.com/mozilla/cubeb-rs"
+resolver = "2"
+
+[badges.circle-ci]
+repository = "mozilla/cubeb-rs"
+
+[features]
+gecko-in-tree = []
+unittest-build = []
+
+[lib]
+name = "cubeb_sys"
+path = "src/lib.rs"
+
+[dev-dependencies]
 
 [build-dependencies.cmake]
 version = "0.1.2"
 
 [build-dependencies.pkg-config]
 version = "0.3"
-
-[features]
-gecko-in-tree = []
-
-[badges.circle-ci]
-repository = "mozilla/cubeb-rs"

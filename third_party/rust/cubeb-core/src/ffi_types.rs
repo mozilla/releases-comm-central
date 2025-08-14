@@ -170,6 +170,12 @@ macro_rules! ffi_type_stack {
             }
         }
 
+        impl From<$owned> for $ctype {
+            fn from(x: $owned) -> $ctype {
+                x.0
+            }
+        }
+
         impl ::std::ops::Deref for $owned {
             type Target = $borrowed;
 

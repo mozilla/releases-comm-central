@@ -1,7 +1,8 @@
 # TODO
 # - backend selection via command line, rather than simply detecting headers.
 
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+cmake_policy(SET CMP0091 NEW)
 project(cubeb
   VERSION 0.0.0)
 
@@ -12,10 +13,25 @@ option(BUILD_TOOLS "Build tools" ON)
 option(BUNDLE_SPEEX "Bundle the speex library" OFF)
 option(LAZY_LOAD_LIBS "Lazily load shared libraries" ON)
 option(USE_SANITIZERS "Use sanitizers" ON)
+option(USE_STATIC_MSVC_RUNTIME "Use /MT instead of /MD in MSVC" OFF)
+if(USE_STATIC_MSVC_RUNTIME)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif()
+
+set(private_requires)
+set(private_libs)
+set(private_libs_flags)
+if(UNIX AND NOT APPLE)
+  if(BSD OR ANDROID)
+    list(APPEND private_libs c++)
+  else()
+    list(APPEND private_libs stdc++)
+  endif()
 endif()
 
 set(CMAKE_C_STANDARD 99)
@@ -86,7 +102,7 @@ add_library(cubeb
   src/cubeb_utils.cpp
 )
 target_include_directories(cubeb
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 set_target_properties(cubeb PROPERTIES
   VERSION ${cubeb_VERSION}
@@ -136,6 +152,7 @@ if(NOT BUNDLE_SPEEX)
     pkg_check_modules(speexdsp IMPORTED_TARGET speexdsp)
     if(speexdsp_FOUND)
       add_library(speex ALIAS PkgConfig::speexdsp)
+      list(APPEND private_requires speexdsp)
     endif()
   endif()
 endif()
@@ -150,6 +167,7 @@ if(NOT TARGET speex)
     EXPORT=
     RANDOM_PREFIX=speex
   )
+  list(APPEND private_libs speex)
 endif()
 
 # $<BUILD_INTERFACE:> required because of https://gitlab.kitware.com/cmake/cmake/-/issues/15415
@@ -161,6 +179,7 @@ include(CheckIncludeFiles)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 target_link_libraries(cubeb PRIVATE Threads::Threads)
+list(APPEND private_libs ${CMAKE_THREAD_LIBS_INIT})
 
 if(LAZY_LOAD_LIBS)
   check_include_files(pulse/pulseaudio.h USE_PULSE)
@@ -171,6 +190,7 @@ if(LAZY_LOAD_LIBS)
 
   if(USE_PULSE OR USE_ALSA OR USE_JACK OR USE_SNDIO OR USE_AAUDIO)
     target_link_libraries(cubeb PRIVATE ${CMAKE_DL_LIBS})
+    list(APPEND private_libs ${CMAKE_DL_LIBS})
 
     if(ANDROID)
       target_compile_definitions(cubeb PRIVATE __ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
@@ -186,6 +206,7 @@ else()
     set(USE_PULSE ON)
     target_compile_definitions(cubeb PRIVATE DISABLE_LIBPULSE_DLOPEN)
     target_link_libraries(cubeb PRIVATE PkgConfig::libpulse)
+    list(APPEND private_requires libpulse)
   endif()
 
   pkg_check_modules(alsa IMPORTED_TARGET alsa)
@@ -193,6 +214,7 @@ else()
     set(USE_ALSA ON)
     target_compile_definitions(cubeb PRIVATE DISABLE_LIBASOUND_DLOPEN)
     target_link_libraries(cubeb PRIVATE PkgConfig::alsa)
+    list(APPEND private_requires alsa)
   endif()
 
   pkg_check_modules(jack IMPORTED_TARGET jack)
@@ -200,18 +222,21 @@ else()
     set(USE_JACK ON)
     target_compile_definitions(cubeb PRIVATE DISABLE_LIBJACK_DLOPEN)
     target_link_libraries(cubeb PRIVATE PkgConfig::jack)
+    list(APPEND private_requires jack)
   endif()
 
   check_include_files(sndio.h USE_SNDIO)
   if(USE_SNDIO)
     target_compile_definitions(cubeb PRIVATE DISABLE_LIBSNDIO_DLOPEN)
     target_link_libraries(cubeb PRIVATE sndio)
+    list(APPEND private_libs sndio)
   endif()
 
   check_include_files(aaudio/AAudio.h USE_AAUDIO)
   if(USE_AAUDIO)
     target_compile_definitions(cubeb PRIVATE DISABLE_LIBAAUDIO_DLOPEN)
     target_link_libraries(cubeb PRIVATE aaudio)
+    list(APPEND private_libs aaudio)
   endif()
 endif()
 
@@ -258,6 +283,7 @@ if(USE_AUDIOUNIT)
     src/cubeb_osx_run_loop.cpp)
   target_compile_definitions(cubeb PRIVATE USE_AUDIOUNIT)
   target_link_libraries(cubeb PRIVATE "-framework AudioUnit" "-framework CoreAudio" "-framework CoreServices")
+  list(APPEND private_libs_flags "-framework AudioUnit" "-framework CoreAudio" "-framework CoreServices")
 endif()
 
 check_include_files(audioclient.h USE_WASAPI)
@@ -265,7 +291,8 @@ if(USE_WASAPI)
   target_sources(cubeb PRIVATE
     src/cubeb_wasapi.cpp)
   target_compile_definitions(cubeb PRIVATE USE_WASAPI)
-  target_link_libraries(cubeb PRIVATE ole32 ksuser)
+  target_link_libraries(cubeb PRIVATE avrt ole32 ksuser)
+  list(APPEND private_libs avrt ole32 ksuser)
 endif()
 
 check_include_files("windows.h;mmsystem.h" USE_WINMM)
@@ -274,6 +301,7 @@ if(USE_WINMM)
     src/cubeb_winmm.c)
   target_compile_definitions(cubeb PRIVATE USE_WINMM)
   target_link_libraries(cubeb PRIVATE winmm)
+  list(APPEND private_libs winmm)
 endif()
 
 check_include_files(SLES/OpenSLES.h USE_OPENSL)
@@ -283,6 +311,7 @@ if(USE_OPENSL)
     src/cubeb-jni.cpp)
   target_compile_definitions(cubeb PRIVATE USE_OPENSL)
   target_link_libraries(cubeb PRIVATE OpenSLES)
+  list(APPEND private_libs OpenSLES)
 endif()
 
 check_include_files(sys/soundcard.h HAVE_SYS_SOUNDCARD_H)
@@ -298,6 +327,7 @@ if(HAVE_SYS_SOUNDCARD_H)
       pkg_check_modules(libbsd-overlay IMPORTED_TARGET libbsd-overlay)
       if(libbsd-overlay_FOUND)
         target_link_libraries(cubeb PRIVATE PkgConfig::libbsd-overlay)
+        list(APPEND private_requires libbsd-overlay)
         set(HAVE_STRLCPY true)
       endif()
     endif()
@@ -315,6 +345,7 @@ if(USE_AUDIOTRACK)
     src/cubeb_audiotrack.c)
   target_compile_definitions(cubeb PRIVATE USE_AUDIOTRACK)
   target_link_libraries(cubeb PRIVATE log)
+  list(APPEND private_libs log)
 endif()
 
 check_include_files(sys/audioio.h USE_SUN)
@@ -330,6 +361,7 @@ if(USE_KAI)
     src/cubeb_kai.c)
   target_compile_definitions(cubeb PRIVATE USE_KAI)
   target_link_libraries(cubeb PRIVATE kai)
+  list(APPEND private_libs kai)
 endif()
 
 if(USE_PULSE AND USE_PULSE_RUST)
@@ -339,11 +371,12 @@ if(USE_PULSE AND USE_PULSE_RUST)
     cubeb_pulse_rs
     DOWNLOAD_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND cargo build COMMAND cargo build --release
+    BUILD_COMMAND cargo build --features=gecko-in-tree "$<IF:$<CONFIG:Release,RelWithDebInfo,MinSizeRel>,--release,>"
     BUILD_ALWAYS ON
     BINARY_DIR "${PROJECT_SOURCE_DIR}/src/cubeb-pulse-rs"
     INSTALL_COMMAND ""
-    LOG_BUILD ON)
+    LOG_BUILD ON
+    LOG_OUTPUT_ON_FAILURE ON)
   add_dependencies(cubeb cubeb_pulse_rs)
   target_compile_definitions(cubeb PRIVATE USE_PULSE_RUST)
   target_link_libraries(cubeb PRIVATE
@@ -358,11 +391,12 @@ if(USE_AUDIOUNIT AND USE_AUDIOUNIT_RUST)
     cubeb_coreaudio_rs
     DOWNLOAD_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND cargo build COMMAND cargo build --release
+    BUILD_COMMAND cargo build --features=gecko-in-tree "$<IF:$<CONFIG:Release,RelWithDebInfo,MinSizeRel>,--release,>"
     BUILD_ALWAYS ON
     BINARY_DIR "${PROJECT_SOURCE_DIR}/src/cubeb-coreaudio-rs"
     INSTALL_COMMAND ""
-    LOG_BUILD ON)
+    LOG_BUILD ON
+    LOG_OUTPUT_ON_FAILURE ON)
   add_dependencies(cubeb cubeb_coreaudio_rs)
   target_compile_definitions(cubeb PRIVATE USE_AUDIOUNIT_RUST)
   target_link_libraries(cubeb PRIVATE
@@ -445,4 +479,26 @@ add_custom_target(clang-format-check
   | xargs -0 ${CLANG_FORMAT_BINARY} -Werror -n
   COMMENT "Check formatting with clang-format"
   VERBATIM)
+
+
+list(TRANSFORM private_libs PREPEND "-l")
+string(JOIN " " CUBEB_PC_PRIVATE_LIBS ${private_libs} ${private_libs_flags})
+
+string(JOIN " " CUBEB_PC_PRIVATE_REQUIRES ${private_requires})
+
+if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+  set(CUBEB_PC_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+  set(CUBEB_PC_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
+if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+  set(CUBEB_PC_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+else()
+  set(CUBEB_PC_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
+
+configure_file(libcubeb.pc.in libcubeb.pc @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libcubeb.pc"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
 

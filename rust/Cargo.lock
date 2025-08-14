@@ -279,7 +279,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=e6f44a2bd1e57d11dfc737632a9e849077632330#e6f44a2bd1e57d11dfc737632a9e849077632330"
+source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -290,7 +290,6 @@ dependencies = [
  "cc",
  "crossbeam-queue",
  "cubeb",
- "error-chain",
  "iovec",
  "libc",
  "log",
@@ -307,7 +306,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=e6f44a2bd1e57d11dfc737632a9e849077632330#e6f44a2bd1e57d11dfc737632a9e849077632330"
+source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -318,12 +317,11 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=e6f44a2bd1e57d11dfc737632a9e849077632330#e6f44a2bd1e57d11dfc737632a9e849077632330"
+source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
  "cubeb-core",
- "error-chain",
  "log",
  "once_cell",
  "slab",
@@ -958,7 +956,7 @@ dependencies = [
 [[package]]
 name = "coreaudio-sys-utils"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=2407441a2f67341a0e13b4ba6547555e387c671c#2407441a2f67341a0e13b4ba6547555e387c671c"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5f12ec4065de7c532c483cdad93b7f50cca67e7d#5f12ec4065de7c532c483cdad93b7f50cca67e7d"
 dependencies = [
  "core-foundation-sys",
  "coreaudio-sys",
@@ -1170,36 +1168,37 @@ dependencies = [
 
 [[package]]
 name = "cubeb"
-version = "0.13.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d105547cf8036cdb30e796ce0d06832af4766106a44574402fa2fd3c861a042"
+checksum = "6a71f1a5b49e6d12a1f5d67eb2967038fe0279f045985f31985a093a0c65a063"
 dependencies = [
  "cubeb-core",
 ]
 
 [[package]]
 name = "cubeb-backend"
-version = "0.13.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67361fe9b49b4599e2a230ce322529b6ddd91df14897c872dcede716f8fbca81"
+checksum = "103e9b6237ab786f07d6e6033649665fc846881b55785704b9934f79c29c5694"
 dependencies = [
  "cubeb-core",
 ]
 
 [[package]]
 name = "cubeb-core"
-version = "0.13.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac08d314dd1ec6d41d9ccdeec70899c98ed3b89845367000dd6096099481bc73"
+checksum = "e7f731ed86a6336633539a69397343b9f9091e241e6ac0bd70bd6f7dd3761413"
 dependencies = [
  "bitflags 1.999.999",
+ "cc",
  "cubeb-sys",
 ]
 
 [[package]]
 name = "cubeb-coreaudio"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=2407441a2f67341a0e13b4ba6547555e387c671c#2407441a2f67341a0e13b4ba6547555e387c671c"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5f12ec4065de7c532c483cdad93b7f50cca67e7d#5f12ec4065de7c532c483cdad93b7f50cca67e7d"
 dependencies = [
  "atomic",
  "audio-mixer",
@@ -1208,7 +1207,8 @@ dependencies = [
  "cubeb-backend",
  "float-cmp",
  "libc",
- "mach",
+ "mach2",
+ "num",
  "ringbuf",
  "triple_buffer",
  "whatsys",
@@ -1217,7 +1217,7 @@ dependencies = [
 [[package]]
 name = "cubeb-pulse"
 version = "0.5.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=8678dcab1c287de79c4c184ccc2e065bc62b70e2#8678dcab1c287de79c4c184ccc2e065bc62b70e2"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=e0ddf430162f9113a9a90dc52b349d273baa3ec5#e0ddf430162f9113a9a90dc52b349d273baa3ec5"
 dependencies = [
  "cubeb-backend",
  "pulse",
@@ -1228,9 +1228,9 @@ dependencies = [
 
 [[package]]
 name = "cubeb-sys"
-version = "0.13.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26073cd50c7b6ba4272204839f56921557609a0d67e092882cbb903df94cab39"
+checksum = "2cce622a64ea9b5e8e52904799f3bf6a220ce2c38402c320358f30cc0571a798"
 dependencies = [
  "cmake",
  "pkg-config",
@@ -1657,15 +1657,6 @@ checksum = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245"
 dependencies = [
  "libc",
  "windows-sys",
-]
-
-[[package]]
-name = "error-chain"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2f06b9cac1506ece98fe3231e3cc9c4410ec3d5b1f24ae1c8946f0742cdefc"
-dependencies = [
- "version_check",
 ]
 
 [[package]]
@@ -4089,7 +4080,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -4314,6 +4305,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "num"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35bd024e8b2ff75562e5f34e7f4905839deb4b22955ef5e73d2fea1b9813cb23"
+dependencies = [
+ "num-bigint",
+ "num-complex",
+ "num-integer",
+ "num-iter",
+ "num-rational",
+ "num-traits",
+]
+
+[[package]]
+name = "num-bigint"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-complex"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "num-conv"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4332,11 +4356,32 @@ dependencies = [
 
 [[package]]
 name = "num-integer"
+version = "0.1.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-iter"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9"
+checksum = "1429034a0490724d0075ebb2bc9e875d6503c3cf69e235a8941aa757d83ef5bf"
 dependencies = [
  "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824"
+dependencies = [
+ "num-bigint",
+ "num-integer",
  "num-traits",
 ]
 
@@ -4782,7 +4827,7 @@ dependencies = [
 [[package]]
 name = "pulse"
 version = "0.3.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=8678dcab1c287de79c4c184ccc2e065bc62b70e2#8678dcab1c287de79c4c184ccc2e065bc62b70e2"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=e0ddf430162f9113a9a90dc52b349d273baa3ec5#e0ddf430162f9113a9a90dc52b349d273baa3ec5"
 dependencies = [
  "bitflags 2.9.0",
  "pulse-ffi",
@@ -4791,7 +4836,7 @@ dependencies = [
 [[package]]
 name = "pulse-ffi"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=8678dcab1c287de79c4c184ccc2e065bc62b70e2#8678dcab1c287de79c4c184ccc2e065bc62b70e2"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=e0ddf430162f9113a9a90dc52b349d273baa3ec5#e0ddf430162f9113a9a90dc52b349d273baa3ec5"
 dependencies = [
  "libc",
 ]
@@ -6702,7 +6747,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6732,7 +6777,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6740,7 +6785,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6748,7 +6793,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -6785,7 +6830,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7#1bf1671ed877a6a9ccf5f1a349ec167cd28af3d7"
+source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",

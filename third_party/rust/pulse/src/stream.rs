@@ -3,18 +3,20 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use context;
-use ffi;
-use operation;
+use crate::context;
+use crate::operation;
+use crate::util::*;
+use crate::*;
 use std::ffi::CStr;
 use std::mem::{self, forget, MaybeUninit};
 use std::os::raw::{c_int, c_void};
 use std::ptr;
-use util::*;
-use *;
 
 #[derive(Debug)]
 pub struct Stream(*mut ffi::pa_stream);
+
+// Note: For all clippy allowed warnings, see https://github.com/mozilla/cubeb-pulse-rs/issues/95
+// for the effort to fix them.
 
 impl Stream {
     pub fn new<'a, CM>(
@@ -42,6 +44,7 @@ impl Stream {
     }
 
     #[doc(hidden)]
+    #[allow(clippy::mut_from_ref)]
     pub fn raw_mut(&self) -> &mut ffi::pa_stream {
         unsafe { &mut *self.0 }
     }
@@ -71,7 +74,7 @@ impl Stream {
         unsafe { ffi::pa_stream_get_index(self.raw_mut()) }
     }
 
-    pub fn get_device_name<'a>(&'a self) -> Result<&'a CStr> {
+    pub fn get_device_name(&self) -> Result<&CStr> {
         let r = unsafe { ffi::pa_stream_get_device_name(self.raw_mut()) };
         if r.is_null() {
             let err = if let Some(c) = self.get_context() {
@@ -154,6 +157,7 @@ impl Stream {
         error_result!((), r)
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn write(
         &self,
         data: *const c_void,
@@ -167,6 +171,7 @@ impl Stream {
         error_result!((), r)
     }
 
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn peek(&self, data: *mut *const c_void, length: *mut usize) -> Result<()> {
         let r = ffi::pa_stream_peek(self.raw_mut(), data, length);
         error_result!((), r)
@@ -179,7 +184,7 @@ impl Stream {
 
     pub fn writable_size(&self) -> Result<usize> {
         let r = unsafe { ffi::pa_stream_writable_size(self.raw_mut()) };
-        if r == ::std::usize::MAX {
+        if r == usize::MAX {
             let err = if let Some(c) = self.get_context() {
                 c.errno()
             } else {
@@ -192,7 +197,7 @@ impl Stream {
 
     pub fn readable_size(&self) -> Result<usize> {
         let r = unsafe { ffi::pa_stream_readable_size(self.raw_mut()) };
-        if r == ::std::usize::MAX {
+        if r == usize::MAX {
             let err = if let Some(c) = self.get_context() {
                 c.errno()
             } else {
@@ -203,6 +208,7 @@ impl Stream {
         Ok(r)
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn update_timing_info<CB>(&self, _: CB, userdata: *mut c_void) -> Result<Operation>
     where
         CB: Fn(&Stream, i32, *mut c_void),
@@ -219,10 +225,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, success, userdata);
+            (*cb.as_ptr())(&mut stm, success, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         let r = unsafe {
@@ -245,6 +250,7 @@ impl Stream {
         }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn set_state_callback<CB>(&self, _: CB, userdata: *mut c_void)
     where
         CB: Fn(&Stream, *mut c_void),
@@ -258,10 +264,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, userdata);
+            (*cb.as_ptr())(&mut stm, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         unsafe {
@@ -275,6 +280,7 @@ impl Stream {
         }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn set_write_callback<CB>(&self, _: CB, userdata: *mut c_void)
     where
         CB: Fn(&Stream, usize, *mut c_void),
@@ -291,10 +297,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, nbytes, userdata);
+            (*cb.as_ptr())(&mut stm, nbytes, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         unsafe {
@@ -308,6 +313,7 @@ impl Stream {
         }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn set_read_callback<CB>(&self, _: CB, userdata: *mut c_void)
     where
         CB: Fn(&Stream, usize, *mut c_void),
@@ -324,10 +330,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, nbytes, userdata);
+            (*cb.as_ptr())(&mut stm, nbytes, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         unsafe {
@@ -335,6 +340,7 @@ impl Stream {
         }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn cork<CB>(&self, b: i32, _: CB, userdata: *mut c_void) -> Result<Operation>
     where
         CB: Fn(&Stream, i32, *mut c_void),
@@ -351,10 +357,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, success, userdata);
+            (*cb.as_ptr())(&mut stm, success, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         let r = unsafe { ffi::pa_stream_cork(self.raw_mut(), b, Some(wrapped::<CB>), userdata) };
@@ -413,6 +418,7 @@ impl Stream {
         }
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub fn set_name<CB>(&self, name: &CStr, _: CB, userdata: *mut c_void) -> Result<Operation>
     where
         CB: Fn(&Stream, i32, *mut c_void),
@@ -429,10 +435,9 @@ impl Stream {
         {
             let mut stm = stream::from_raw_ptr(s);
             let cb = MaybeUninit::<F>::uninit();
-            let result = (*cb.as_ptr())(&mut stm, success, userdata);
+            (*cb.as_ptr())(&mut stm, success, userdata);
+            #[allow(clippy::forget_non_drop)]
             forget(stm);
-
-            result
         }
 
         let r = unsafe {

@@ -3,12 +3,12 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
-
 #[derive(Debug)]
 pub struct Operation(*mut ffi::pa_operation);
 
 impl Operation {
+    // See https://github.com/mozilla/cubeb-pulse-rs/issues/95
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn from_raw_ptr(raw: *mut ffi::pa_operation) -> Operation {
         Operation(raw)
     }

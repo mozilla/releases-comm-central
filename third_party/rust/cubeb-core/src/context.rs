@@ -130,7 +130,7 @@ impl ContextRef {
         Ok(Stream::from_ptr(stm))
     }
 
-    pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection> {
+    pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection<'_>> {
         let mut coll = ffi::cubeb_device_collection::default();
         unsafe {
             call!(ffi::cubeb_enumerate_devices(

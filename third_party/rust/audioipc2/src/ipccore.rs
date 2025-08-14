@@ -70,7 +70,7 @@ impl EventLoopHandle {
         let (handler, mut proxy) = make_client::<C>()?;
         let driver = Box::new(FramedDriver::new(handler));
         let r = self.add_connection(connection, driver);
-        trace!("EventLoop::bind_client {:?}", r);
+        trace!("EventLoop::bind_client {r:?}");
         r.map(|token| {
             proxy.connect_event_loop(self.clone(), token);
             proxy
@@ -89,7 +89,7 @@ impl EventLoopHandle {
         let handler = make_server::<S>(server);
         let driver = Box::new(FramedDriver::new(handler));
         let r = self.add_connection(connection, driver);
-        trace!("EventLoop::bind_server {:?}", r);
+        trace!("EventLoop::bind_server {r:?}");
         r.map(|_| ())
     }
 
@@ -598,7 +598,7 @@ where
 {
     // Caller passes `inbound` data, this function will trim any complete messages from `inbound` and pass them to the handler for processing.
     fn process_inbound(&mut self, inbound: &mut sys::ConnectionBuffer) -> Result<bool> {
-        debug!("process_inbound: {:?}", inbound);
+        debug!("process_inbound: {inbound:?}");
 
         // Repeatedly call `decode` as long as it produces items, passing each produced item to the handler to action.
         #[allow(unused_mut)]

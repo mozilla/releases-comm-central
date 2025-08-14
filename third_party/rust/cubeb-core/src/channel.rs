@@ -8,7 +8,6 @@ use ffi;
 bitflags! {
     /// Some common layout definitions
     pub struct ChannelLayout: ffi::cubeb_channel_layout {
-        ///
         const FRONT_LEFT = ffi::CHANNEL_FRONT_LEFT;
         const FRONT_RIGHT = ffi::CHANNEL_FRONT_RIGHT;
         const FRONT_CENTER = ffi::CHANNEL_FRONT_CENTER;

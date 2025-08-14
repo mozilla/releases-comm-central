@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
@@ -21,7 +21,7 @@ jobs:
         submodules: recursive
 
     - name: Install Rust
-      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt clippy
+      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt,clippy
 
     - name: Install Dependencies (Linux)
       run: sudo apt-get update && sudo apt-get install libpulse-dev

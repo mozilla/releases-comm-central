@@ -8,10 +8,7 @@ use std::os::raw::c_int;
 use Error;
 
 pub fn cvt_r(ret: c_int) -> Result<(), Error> {
-    match ret {
-        n if n < 0 => Err(Error::from_raw(n)),
-        _ => Ok(()),
-    }
+    Error::wrap(ret)
 }
 
 macro_rules! call {

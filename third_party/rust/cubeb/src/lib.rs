@@ -4,12 +4,14 @@
 //! is used to interact with system audio.  The library itself is a
 //! work in progress and is likely lacking documentation and test.
 //!
-//! [1]: https://github.com/kinetiknz/cubeb/
+//! [1]: https://github.com/mozilla/cubeb/
 //!
 //! The cubeb-rs library exposes the user API of libcubeb.  It doesn't
 //! expose the internal interfaces, so isn't suitable for extending
 //! libcubeb. See [cubeb-pulse-rs][2] for an example of extending
 //! libcubeb via implementing a cubeb backend in rust.
+//!
+//! [2]: https://github.com/mozilla/cubeb-pulse-rs/
 //!
 //! To get started, have a look at the [`StreamBuilder`]
 
@@ -30,8 +32,8 @@ pub use context::*;
 pub use cubeb_core::{
     ffi, ChannelLayout, Context, ContextRef, Device, DeviceCollection, DeviceCollectionRef,
     DeviceFormat, DeviceId, DeviceInfo, DeviceInfoRef, DeviceRef, DeviceState, DeviceType, Error,
-    ErrorCode, LogLevel, Result, SampleFormat, State, StreamParams, StreamParamsBuilder,
-    StreamParamsRef, StreamPrefs, StreamRef,
+    LogLevel, Result, SampleFormat, State, StreamParams, StreamParamsBuilder, StreamParamsRef,
+    StreamPrefs, StreamRef,
 };
 pub use frame::*;
 pub use sample::*;

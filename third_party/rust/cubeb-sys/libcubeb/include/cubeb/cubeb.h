@@ -279,7 +279,10 @@ typedef struct {
   cubeb_channel_layout
       layout; /**< Requested channel layout. This must be consistent with the
                  provided channels. CUBEB_LAYOUT_UNDEFINED if unknown */
-  cubeb_stream_prefs prefs; /**< Requested preferences. */
+  cubeb_stream_prefs prefs;                   /**< Requested preferences. */
+  cubeb_input_processing_params input_params; /**< Requested input processing
+     params. Ignored for output streams. At present, only supported on the
+     WASAPI backend; others should use cubeb_set_input_processing_params.  */
 } cubeb_stream_params;
 
 /** Audio device description */
@@ -414,6 +417,13 @@ typedef struct {
   size_t count;               /**< Device count in collection. */
 } cubeb_device_collection;
 
+/** Array of compiled backends returned by `cubeb_get_backend_names`. */
+typedef struct {
+  const char * const *
+      names;    /**< Array of strings representing backend names. */
+  size_t count; /**< Length of the array. */
+} cubeb_backend_names;
+
 /** User supplied data callback.
     - Calling other cubeb functions from this callback is unsafe.
     - The code in the callback should be non-blocking.
@@ -490,6 +500,12 @@ cubeb_init(cubeb ** context, char const * context_name,
     @retval Read-only string identifying current backend. */
 CUBEB_EXPORT char const *
 cubeb_get_backend_id(cubeb * context);
+
+/** Get a read-only array of strings identifying available backends.
+    These can be passed as `backend_name` parameter to `cubeb_init`.
+    @retval Struct containing the array with backend names. */
+CUBEB_EXPORT cubeb_backend_names
+cubeb_get_backend_names();
 
 /** Get the maximum possible number of channels.
     @param context A pointer to the cubeb context.
@@ -669,7 +685,7 @@ cubeb_stream_get_current_device(cubeb_stream * stm,
     application is accessing audio input. When all inputs are muted they can
     prove to the user that the application is not actively capturing any input.
     @param stream the stream for which to set input mute state
-    @param muted whether the input should mute or not
+    @param mute whether the input should mute or not
     @retval CUBEB_OK
     @retval CUBEB_ERROR_INVALID_PARAMETER if this stream does not have an input
             device

@@ -9,9 +9,9 @@ fn bench(c: &mut Criterion, name: &str, msg: impl Fn() -> ClientMessage) {
     let mut codec: LengthDelimitedCodec<ClientMessage, ClientMessage> =
         LengthDelimitedCodec::default();
     let mut buf = BytesMut::with_capacity(8192);
-    c.bench_function(&format!("encode/{}", name), |b| {
+    c.bench_function(&format!("encode/{name}"), |b| {
         b.iter_batched(
-            || msg(),
+            &msg,
             |msg| {
                 codec.encode(msg, &mut buf).unwrap();
                 buf.clear();
@@ -24,7 +24,7 @@ fn bench(c: &mut Criterion, name: &str, msg: impl Fn() -> ClientMessage) {
         LengthDelimitedCodec::default();
     let mut buf = BytesMut::with_capacity(8192);
     codec.encode(msg(), &mut buf).unwrap();
-    c.bench_function(&format!("decode/{}", name), |b| {
+    c.bench_function(&format!("decode/{name}"), |b| {
         b.iter_batched_ref(
             || buf.clone(),
             |buf| {
@@ -37,9 +37,9 @@ fn bench(c: &mut Criterion, name: &str, msg: impl Fn() -> ClientMessage) {
     let mut codec: LengthDelimitedCodec<ClientMessage, ClientMessage> =
         LengthDelimitedCodec::default();
     let mut buf = BytesMut::with_capacity(8192);
-    c.bench_function(&format!("roundtrip/{}", name), |b| {
+    c.bench_function(&format!("roundtrip/{name}"), |b| {
         b.iter_batched(
-            || msg(),
+            &msg,
             |msg| {
                 codec.encode(msg, &mut buf).unwrap();
                 codec.decode(&mut buf).unwrap().unwrap();

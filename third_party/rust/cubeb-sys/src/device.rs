@@ -5,8 +5,9 @@
 
 use callbacks::cubeb_device_collection_changed_callback;
 use context::cubeb;
+use std::ffi::CStr;
 use std::os::raw::{c_char, c_int, c_uint, c_void};
-use std::{fmt, mem};
+use std::{fmt, mem, ptr};
 
 cubeb_enum! {
     pub enum cubeb_device_fmt {
@@ -33,6 +34,19 @@ pub const CUBEB_DEVICE_FMT_F32_MASK: cubeb_device_fmt =
 pub const CUBEB_DEVICE_FMT_ALL: cubeb_device_fmt =
     CUBEB_DEVICE_FMT_S16_MASK | CUBEB_DEVICE_FMT_F32_MASK;
 
+fn fmt_device_fmt(f: &cubeb_device_fmt) -> &'static str {
+    match *f {
+        CUBEB_DEVICE_FMT_S16LE => "S16LE",
+        CUBEB_DEVICE_FMT_S16BE => "S16BE",
+        CUBEB_DEVICE_FMT_F32LE => "F32LE",
+        CUBEB_DEVICE_FMT_F32BE => "F32BE",
+        CUBEB_DEVICE_FMT_S16_MASK => "S16LE | S16BE",
+        CUBEB_DEVICE_FMT_F32_MASK => "F32LE | F32BE",
+        CUBEB_DEVICE_FMT_ALL => "S16LE | S16BE | F32LE | F32BE",
+        _ => "Unexpected device format",
+    }
+}
+
 cubeb_enum! {
     pub enum cubeb_device_pref  {
         CUBEB_DEVICE_PREF_NONE          = 0x00,
@@ -43,6 +57,17 @@ cubeb_enum! {
     }
 }
 
+fn fmt_device_pref(p: &cubeb_device_pref) -> &'static str {
+    match *p {
+        CUBEB_DEVICE_PREF_NONE => "None",
+        CUBEB_DEVICE_PREF_MULTIMEDIA => "Multimedia",
+        CUBEB_DEVICE_PREF_VOICE => "Voice",
+        CUBEB_DEVICE_PREF_NOTIFICATION => "Notification",
+        CUBEB_DEVICE_PREF_ALL => "All",
+        _ => "Unexpected",
+    }
+}
+
 cubeb_enum! {
     pub enum cubeb_device_state {
         CUBEB_DEVICE_STATE_DISABLED,
@@ -50,11 +75,31 @@ cubeb_enum! {
         CUBEB_DEVICE_STATE_ENABLED,
     }
 }
+
+fn fmt_device_state(s: &cubeb_device_state) -> &'static str {
+    match *s {
+        CUBEB_DEVICE_STATE_DISABLED => "Disabled",
+        CUBEB_DEVICE_STATE_UNPLUGGED => "Unplugged",
+        CUBEB_DEVICE_STATE_ENABLED => "Enabled",
+        _ => "Unexpected",
+    }
+}
+
 cubeb_enum! {
     pub enum cubeb_device_type {
         CUBEB_DEVICE_TYPE_UNKNOWN,
         CUBEB_DEVICE_TYPE_INPUT,
         CUBEB_DEVICE_TYPE_OUTPUT,
+    }
+}
+
+fn fmt_device_type(t: &cubeb_device_type) -> &'static str {
+    match *t {
+        CUBEB_DEVICE_TYPE_UNKNOWN => "Unknown",
+        CUBEB_DEVICE_TYPE_INPUT => "Input",
+        CUBEB_DEVICE_TYPE_OUTPUT => "Output",
+        t if t == CUBEB_DEVICE_TYPE_INPUT | CUBEB_DEVICE_TYPE_OUTPUT => "Input+Output",
+        _ => "Unexpected",
     }
 }
 
@@ -96,10 +141,13 @@ impl Default for cubeb_device_collection {
 
 impl fmt::Debug for cubeb_device_collection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("cubeb_device_collection")
-            .field("device", &self.device)
-            .field("count", &self.count)
-            .finish()
+        let devices = ptr::slice_from_raw_parts(self.device, self.count);
+        let devices = unsafe { &*devices };
+        let mut dbg = f.debug_list();
+        for d in devices {
+            dbg.entry(d);
+        }
+        dbg.finish()
     }
 }
 
@@ -134,17 +182,32 @@ impl Default for cubeb_device_info {
 
 impl fmt::Debug for cubeb_device_info {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn optional_c_str(c_str: *const c_char) -> Option<*const c_char> {
+            (unsafe { c_str.as_ref() }).map(ptr::from_ref)
+        }
         f.debug_struct("cubeb_device_info")
-            .field("devid", &self.devid)
-            .field("device_id", &self.device_id)
-            .field("friendly_name", &self.friendly_name)
-            .field("group_id", &self.group_id)
-            .field("vendor_name", &self.vendor_name)
-            .field("device_type", &self.device_type)
-            .field("state", &self.state)
-            .field("preferred", &self.preferred)
-            .field("format", &self.format)
-            .field("default_format", &self.default_format)
+            .field("devid", &(self.devid as u32))
+            .field(
+                "device_id",
+                &optional_c_str(self.device_id).map(|p| unsafe { CStr::from_ptr(p) }),
+            )
+            .field(
+                "friendly_name",
+                &optional_c_str(self.friendly_name).map(|p| unsafe { CStr::from_ptr(p) }),
+            )
+            .field(
+                "group_id",
+                &optional_c_str(self.group_id).map(|p| unsafe { CStr::from_ptr(p) }),
+            )
+            .field(
+                "vendor_name",
+                &optional_c_str(self.vendor_name).map(|p| unsafe { CStr::from_ptr(p) }),
+            )
+            .field("device_type", &fmt_device_type(&self.device_type))
+            .field("state", &fmt_device_state(&self.state))
+            .field("preferred", &fmt_device_pref(&self.preferred))
+            .field("format", &fmt_device_fmt(&self.format))
+            .field("default_format", &fmt_device_fmt(&self.default_format))
             .field("max_channels", &self.max_channels)
             .field("default_rate", &self.default_rate)
             .field("max_rate", &self.max_rate)

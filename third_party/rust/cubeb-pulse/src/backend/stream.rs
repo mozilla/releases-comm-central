@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use backend::cork_state::CorkState;
-use backend::*;
+use crate::backend::cork_state::CorkState;
+use crate::backend::*;
 use cubeb_backend::{
     ffi, log_enabled, ChannelLayout, DeviceId, DeviceRef, Error, InputProcessingParams, Result,
     SampleFormat, StreamOps, StreamParamsRef, StreamPrefs,
@@ -545,7 +545,7 @@ impl<'ctx> PulseStream<'ctx> {
             if !r {
                 stm.destroy();
                 cubeb_log!("Error while waiting for the stream to be ready");
-                return Err(Error::error());
+                return Err(Error::Error);
             }
 
             // TODO:
@@ -609,13 +609,13 @@ impl<'ctx> PulseStream<'ctx> {
     }
 }
 
-impl<'ctx> Drop for PulseStream<'ctx> {
+impl Drop for PulseStream<'_> {
     fn drop(&mut self) {
         self.destroy();
     }
 }
 
-impl<'ctx> StreamOps for PulseStream<'ctx> {
+impl StreamOps for PulseStream<'_> {
     fn start(&mut self) -> Result<()> {
         fn output_preroll(_: &pulse::MainloopApi, u: *mut c_void) {
             let stm = unsafe { &mut *(u as *mut PulseStream) };
@@ -671,7 +671,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
 
         if self.output_stream.is_none() {
             cubeb_log!("Calling position() on an input-only stream");
-            return Err(Error::error());
+            return Err(Error::Error);
         }
 
         let stm = self.output_stream.as_ref().unwrap();
@@ -682,7 +682,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
             }
             Err(_) => {
                 cubeb_log!("Error: stm.get_time failed");
-                Err(Error::error())
+                Err(Error::Error)
             }
         };
 
@@ -697,7 +697,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
         match self.output_stream {
             None => {
                 cubeb_log!("Error: calling latency() on an input-only stream");
-                Err(Error::error())
+                Err(Error::Error)
             }
             Some(ref stm) => match stm.get_latency() {
                 Ok(StreamLatency::Positive(r_usec)) => {
@@ -710,7 +710,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
                 }
                 Err(_) => {
                     cubeb_log!("Error: get_latency() failed for an output stream");
-                    Err(Error::error())
+                    Err(Error::Error)
                 }
             },
         }
@@ -720,7 +720,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
         match self.input_stream {
             None => {
                 cubeb_log!("Error: calling input_latency() on an output-only stream");
-                Err(Error::error())
+                Err(Error::Error)
             }
             Some(ref stm) => match stm.get_latency() {
                 Ok(StreamLatency::Positive(w_usec)) => {
@@ -733,7 +733,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
                 Ok(StreamLatency::Negative(_)) => Ok(0),
                 Err(_) => {
                     cubeb_log!("Error: stm.get_latency() failed for an input stream");
-                    Err(Error::error())
+                    Err(Error::Error)
                 }
             },
         }
@@ -743,7 +743,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
         match self.output_stream {
             None => {
                 cubeb_log!("Error: can't set volume on an input-only stream");
-                Err(Error::error())
+                Err(Error::Error)
             }
             Some(ref stm) => {
                 if let Some(ref context) = self.context.context {
@@ -785,7 +785,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
                     Ok(())
                 } else {
                     cubeb_log!("Error: set_volume: no context?");
-                    Err(Error::error())
+                    Err(Error::Error)
                 }
             }
         }
@@ -795,7 +795,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
         match self.output_stream {
             None => {
                 cubeb_log!("Error: can't set the name on a input-only stream.");
-                Err(Error::error())
+                Err(Error::Error)
             }
             Some(ref stm) => {
                 self.context.mainloop.lock();
@@ -817,7 +817,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
                     Ok(name) => name.to_owned().into_raw(),
                     Err(_) => {
                         cubeb_log!("Error: couldn't get the input stream's device name");
-                        return Err(Error::error());
+                        return Err(Error::Error);
                     }
                 }
             }
@@ -827,7 +827,7 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
                     Ok(name) => name.to_owned().into_raw(),
                     Err(_) => {
                         cubeb_log!("Error: couldn't get the output stream's device name");
-                        return Err(Error::error());
+                        return Err(Error::Error);
                     }
                 }
             }
@@ -835,22 +835,22 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
             Ok(unsafe { DeviceRef::from_ptr(Box::into_raw(dev) as *mut _) })
         } else {
             cubeb_log!("Error: PulseAudio context too old");
-            Err(not_supported())
+            Err(Error::NotSupported)
         }
     }
 
     fn set_input_mute(&mut self, _mute: bool) -> Result<()> {
-        Err(not_supported())
+        Err(Error::NotSupported)
     }
 
     fn set_input_processing_params(&mut self, _params: InputProcessingParams) -> Result<()> {
-        Err(not_supported())
+        Err(Error::NotSupported)
     }
 
     fn device_destroy(&mut self, device: &DeviceRef) -> Result<()> {
         if device.as_ptr().is_null() {
             cubeb_log!("Error: can't destroy null device");
-            Err(Error::error())
+            Err(Error::Error)
         } else {
             unsafe {
                 let _: Box<Device> = Box::from_raw(device.as_ptr() as *mut _);
@@ -864,11 +864,11 @@ impl<'ctx> StreamOps for PulseStream<'ctx> {
         _: ffi::cubeb_device_changed_callback,
     ) -> Result<()> {
         cubeb_log!("Error: register_device_change_callback unimplemented");
-        Err(Error::error())
+        Err(Error::Error)
     }
 }
 
-impl<'ctx> PulseStream<'ctx> {
+impl PulseStream<'_> {
     fn stream_init(
         context: &pulse::Context,
         stream_params: &StreamParamsRef,
@@ -876,7 +876,7 @@ impl<'ctx> PulseStream<'ctx> {
     ) -> Result<pulse::Stream> {
         if stream_params.prefs() == StreamPrefs::LOOPBACK {
             cubeb_log!("Error: StreamPref::LOOPBACK unimplemented");
-            return Err(not_supported());
+            return Err(Error::NotSupported);
         }
 
         fn to_pulse_format(format: SampleFormat) -> pulse::SampleFormat {
@@ -892,7 +892,7 @@ impl<'ctx> PulseStream<'ctx> {
         let fmt = to_pulse_format(stream_params.format());
         if fmt == pulse::SampleFormat::Invalid {
             cubeb_log!("Error: invalid sample format");
-            return Err(invalid_format());
+            return Err(Error::InvalidFormat);
         }
 
         let ss = pulse::SampleSpec {
@@ -927,7 +927,7 @@ impl<'ctx> PulseStream<'ctx> {
         match stream {
             None => {
                 cubeb_log!("Error: pulse::Stream::new failure");
-                Err(Error::error())
+                Err(Error::Error)
             }
             Some(stm) => Ok(stm),
         }
@@ -1062,7 +1062,7 @@ impl<'ctx> PulseStream<'ctx> {
                 match stm.begin_write(towrite) {
                     Err(e) => {
                         cubeb_logv!("Error: failure to write data");
-                        panic!("Failed to write data: {}", e);
+                        panic!("Failed to write data: {e}");
                     }
                     Ok((buffer, size)) => {
                         debug_assert!(size > 0);
@@ -1217,14 +1217,6 @@ fn context_success(_: &pulse::Context, success: i32, u: *mut c_void) {
         cubeb_log!("context_success ignored failure: {}", success);
     }
     ctx.mainloop.signal();
-}
-
-fn invalid_format() -> Error {
-    Error::from_raw(ffi::CUBEB_ERROR_INVALID_FORMAT)
-}
-
-fn not_supported() -> Error {
-    Error::from_raw(ffi::CUBEB_ERROR_NOT_SUPPORTED)
 }
 
 #[cfg(all(test, not(feature = "pulse-dlopen")))]

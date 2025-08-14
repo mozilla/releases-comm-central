@@ -7,113 +7,59 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// An enumeration of possible errors that can happen when working with cubeb.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
-pub enum ErrorCode {
+pub enum Error {
     /// GenericError
-    Error,
+    Error = ffi::CUBEB_ERROR as isize,
     /// Requested format is invalid
-    InvalidFormat,
+    InvalidFormat = ffi::CUBEB_ERROR_INVALID_FORMAT as isize,
     /// Requested parameter is invalid
-    InvalidParameter,
+    InvalidParameter = ffi::CUBEB_ERROR_INVALID_PARAMETER as isize,
     /// Requested operation is not supported
-    NotSupported,
+    NotSupported = ffi::CUBEB_ERROR_NOT_SUPPORTED as isize,
     /// Requested device is unavailable
-    DeviceUnavailable,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Error {
-    code: ErrorCode,
+    DeviceUnavailable = ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE as isize,
 }
 
 impl Error {
-    #[allow(clippy::self_named_constructors)]
-    pub fn error() -> Self {
-        Error {
-            code: ErrorCode::Error,
-        }
-    }
-    pub fn invalid_format() -> Self {
-        Error {
-            code: ErrorCode::InvalidFormat,
-        }
-    }
-    pub fn invalid_parameter() -> Self {
-        Error {
-            code: ErrorCode::InvalidParameter,
-        }
-    }
-    pub fn not_supported() -> Self {
-        Error {
-            code: ErrorCode::NotSupported,
-        }
-    }
-    pub fn device_unavailable() -> Self {
-        Error {
-            code: ErrorCode::DeviceUnavailable,
-        }
-    }
-
-    pub fn from_raw(code: c_int) -> Error {
-        let code = match code {
-            ffi::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
-            ffi::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
-            ffi::CUBEB_ERROR_NOT_SUPPORTED => ErrorCode::NotSupported,
-            ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => ErrorCode::DeviceUnavailable,
+    pub fn wrap(code: c_int) -> Result<()> {
+        let inner = match code {
+            ffi::CUBEB_OK => return Ok(()),
+            ffi::CUBEB_ERROR_INVALID_FORMAT => Error::InvalidFormat,
+            ffi::CUBEB_ERROR_INVALID_PARAMETER => Error::InvalidParameter,
+            ffi::CUBEB_ERROR_NOT_SUPPORTED => Error::NotSupported,
+            ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => Error::DeviceUnavailable,
             // Everything else is just the generic error
-            _ => ErrorCode::Error,
+            _ => {
+                debug_assert!(code == Error::Error as c_int);
+                Error::Error
+            }
         };
 
-        Error { code }
-    }
-
-    pub fn code(&self) -> ErrorCode {
-        self.code
-    }
-
-    pub fn raw_code(&self) -> c_int {
-        match self.code {
-            ErrorCode::Error => ffi::CUBEB_ERROR,
-            ErrorCode::InvalidFormat => ffi::CUBEB_ERROR_INVALID_FORMAT,
-            ErrorCode::InvalidParameter => ffi::CUBEB_ERROR_INVALID_PARAMETER,
-            ErrorCode::NotSupported => ffi::CUBEB_ERROR_NOT_SUPPORTED,
-            ErrorCode::DeviceUnavailable => ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE,
-        }
-    }
-}
-
-impl Default for Error {
-    fn default() -> Self {
-        Error::error()
+        Err(inner)
     }
 }
 
 impl error::Error for Error {
     fn description(&self) -> &str {
-        match self.code {
-            ErrorCode::Error => "Error",
-            ErrorCode::InvalidFormat => "Invalid format",
-            ErrorCode::InvalidParameter => "Invalid parameter",
-            ErrorCode::NotSupported => "Not supported",
-            ErrorCode::DeviceUnavailable => "Device unavailable",
+        match self {
+            Error::Error => "Error",
+            Error::InvalidFormat => "Invalid format",
+            Error::InvalidParameter => "Invalid parameter",
+            Error::NotSupported => "Not supported",
+            Error::DeviceUnavailable => "Device unavailable",
         }
     }
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-impl From<ErrorCode> for Error {
-    fn from(code: ErrorCode) -> Error {
-        Error { code }
+        write!(f, "{self:?}")
     }
 }
 
 impl From<NulError> for Error {
     fn from(_: NulError) -> Error {
-        Error::from_raw(ffi::CUBEB_ERROR)
+        Error::Error
     }
 }
 
@@ -127,28 +73,8 @@ mod tests {
         macro_rules! test {
             ( $($raw:ident => $err:ident),* ) => {{
                 $(
-                    let e = Error::from_raw(ffi::$raw);
-                    assert_eq!(e.raw_code(), ffi::$raw);
-                    assert_eq!(e.code(), ErrorCode::$err);
-                )*
-            }};
-        }
-        test!(CUBEB_ERROR => Error,
-              CUBEB_ERROR_INVALID_FORMAT => InvalidFormat,
-              CUBEB_ERROR_INVALID_PARAMETER => InvalidParameter,
-              CUBEB_ERROR_NOT_SUPPORTED => NotSupported,
-              CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable
-        );
-    }
-
-    #[test]
-    fn test_from_error_code() {
-        macro_rules! test {
-            ( $($raw:ident => $err:ident),* ) => {{
-                $(
-                    let e = Error::from(ErrorCode::$err);
-                    assert_eq!(e.raw_code(), ffi::$raw);
-                    assert_eq!(e.code(), ErrorCode::$err);
+                    let e = Error::wrap(ffi::$raw);
+                    assert_eq!(e.unwrap_err() as c_int, ffi::$raw);
                 )*
             }};
         }

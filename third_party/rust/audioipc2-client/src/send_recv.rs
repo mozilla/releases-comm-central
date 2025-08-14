@@ -12,8 +12,8 @@ where
     E: Into<Option<c_int>>,
 {
     match e.into() {
-        Some(e) => Error::from_raw(e),
-        None => Error::error(),
+        Some(e) => Error::wrap(e).unwrap_err(),
+        None => Error::Error,
     }
 }
 

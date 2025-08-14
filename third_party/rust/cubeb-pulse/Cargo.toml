@@ -10,6 +10,7 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
+edition = "2021"
 name = "cubeb-pulse"
 version = "0.5.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
@@ -24,6 +25,7 @@ readme = "README.md"
 license = "ISC"
 
 [features]
+gecko-in-tree = ["cubeb-backend/gecko-in-tree"]
 pulse-dlopen = ["pulse-ffi/dlopen"]
 
 [lib]
@@ -35,7 +37,7 @@ crate-type = [
 path = "src/lib.rs"
 
 [dependencies]
-cubeb-backend = "0.13"
+cubeb-backend = "0.29"
 ringbuf = "0.2"
 semver = "1.0"
 
@@ -44,3 +46,5 @@ path = "pulse-rs"
 
 [dependencies.pulse-ffi]
 path = "pulse-ffi"
+
+[workspace]

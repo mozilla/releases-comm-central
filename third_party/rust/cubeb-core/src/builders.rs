@@ -4,7 +4,7 @@
 // accompanying file LICENSE for details.
 
 use ffi;
-use {ChannelLayout, SampleFormat, StreamParams, StreamPrefs};
+use {ChannelLayout, InputProcessingParams, SampleFormat, StreamParams, StreamPrefs};
 
 #[derive(Debug)]
 pub struct StreamParamsBuilder(ffi::cubeb_stream_params);
@@ -48,6 +48,11 @@ impl StreamParamsBuilder {
         self
     }
 
+    pub fn input_params(mut self, input_params: InputProcessingParams) -> Self {
+        self.0.input_params = input_params.bits();
+        self
+    }
+
     pub fn take(&self) -> StreamParams {
         StreamParams::from(self.0)
     }
@@ -56,7 +61,7 @@ impl StreamParamsBuilder {
 #[cfg(test)]
 mod tests {
     use SampleFormat;
-    use {ffi, StreamParamsBuilder, StreamPrefs};
+    use {ffi, InputProcessingParams, StreamParamsBuilder, StreamPrefs};
 
     #[test]
     fn stream_params_builder_channels() {
@@ -255,5 +260,16 @@ mod tests {
             .prefs(StreamPrefs::LOOPBACK)
             .take();
         assert_eq!(params.prefs(), StreamPrefs::LOOPBACK);
+    }
+
+    #[test]
+    fn stream_params_builder_input_params() {
+        let params = StreamParamsBuilder::new()
+            .input_params(InputProcessingParams::NOISE_SUPPRESSION)
+            .take();
+        assert_eq!(
+            params.input_params(),
+            InputProcessingParams::NOISE_SUPPRESSION
+        );
     }
 }

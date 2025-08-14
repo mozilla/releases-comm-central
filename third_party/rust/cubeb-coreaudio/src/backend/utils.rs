@@ -15,19 +15,6 @@ pub fn allocate_array<T: Clone + Default>(elements: usize) -> Vec<T> {
     vec![T::default(); elements]
 }
 
-pub fn forget_vec<T>(v: Vec<T>) -> (*mut T, usize) {
-    // Drop any excess capacity by into_boxed_slice.
-    let mut slice = v.into_boxed_slice();
-    let ptr_and_len = (slice.as_mut_ptr(), slice.len());
-    mem::forget(slice); // Leak the memory to the external code.
-    ptr_and_len
-}
-
-#[inline]
-pub fn retake_forgotten_vec<T>(ptr: *mut T, len: usize) -> Vec<T> {
-    unsafe { Vec::from_raw_parts(ptr, len, len) }
-}
-
 pub fn cubeb_sample_size(format: fmt) -> usize {
     match format {
         fmt::S16LE | fmt::S16BE | fmt::S16NE => mem::size_of::<i16>(),
@@ -54,17 +41,6 @@ impl<F: FnOnce()> Drop for Finalizer<F> {
 
 pub fn finally<F: FnOnce()>(f: F) -> Finalizer<F> {
     Finalizer(Some(f))
-}
-
-#[test]
-fn test_forget_vec_and_retake_it() {
-    let expected: Vec<u32> = (10..20).collect();
-    let leaked = expected.clone();
-    let (ptr, len) = forget_vec(leaked);
-    let retaken = retake_forgotten_vec(ptr, len);
-    for (idx, data) in retaken.iter().enumerate() {
-        assert_eq!(*data, expected[idx]);
-    }
 }
 
 #[test]

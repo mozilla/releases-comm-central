@@ -75,7 +75,7 @@ impl RecvMsg for Pipe {
         };
         match r {
             Ok((n, cmsg_n, msg_flags)) => unsafe {
-                trace!("recv_msg_with_flags flags={}", msg_flags);
+                trace!("recv_msg_with_flags flags={msg_flags}");
                 buf.buf.advance_mut(n);
                 self.cmsg.advance_mut(cmsg_n);
                 let handles = cmsg::decode_handles(&mut self.cmsg);

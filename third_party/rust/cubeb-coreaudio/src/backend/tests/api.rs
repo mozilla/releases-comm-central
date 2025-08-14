@@ -1,3 +1,5 @@
+use std::ffi::c_char;
+
 use super::utils::{
     test_audiounit_get_buffer_frame_size, test_audiounit_scope_is_enabled, test_create_audiounit,
     test_device_channels_in_scope, test_device_in_scope, test_get_all_devices,
@@ -1151,11 +1153,61 @@ fn get_nonvpio_input_channel_counts() -> Vec<u32> {
         .collect()
 }
 
+extern "C" {
+    fn sysctlbyname(
+        name: *const c_char,
+        oldp: *mut std::os::raw::c_void,
+        oldlenp: *mut libc::size_t,
+        newp: *mut std::os::raw::c_void,
+        newlen: libc::size_t,
+    ) -> std::os::raw::c_int;
+}
+
+fn get_sysctl_string(name: &str) -> Option<String> {
+    let name_cstr = std::ffi::CString::new(name).ok()?;
+    let mut size: libc::size_t = 0;
+
+    unsafe {
+        if sysctlbyname(
+            name_cstr.as_ptr(),
+            std::ptr::null_mut(),
+            &mut size,
+            std::ptr::null_mut(),
+            0,
+        ) != 0
+        {
+            return None;
+        }
+
+        let mut buffer = vec![0u8; size];
+        if sysctlbyname(
+            name_cstr.as_ptr(),
+            buffer.as_mut_ptr() as *mut _,
+            &mut size,
+            std::ptr::null_mut(),
+            0,
+        ) != 0
+        {
+            return None;
+        }
+
+        buffer.truncate(size - 1);
+        String::from_utf8(buffer).ok()
+    }
+}
+
+fn is_m4_macbook() -> bool {
+    if let Some(model) = get_sysctl_string("hw.model") {
+        // Apple Silicon devices aren't e.g. MacBookProXX,Y, they are MacXX,Y
+        return model.starts_with("Mac16,"); // All M4-based computers
+    }
+    false
+}
+
 #[test]
 #[ignore]
 fn test_get_channel_count_of_input_devices_with_vpio() {
-    let non_vpio_channel_counts =
-        run_serially_forward_panics(|| get_nonvpio_input_channel_counts());
+    let non_vpio_channel_counts = run_serially_forward_panics(get_nonvpio_input_channel_counts);
 
     let queue = Queue::new_with_target(
         "test_get_channel_count_of_input_devices_with_vpio",
@@ -1164,8 +1216,12 @@ fn test_get_channel_count_of_input_devices_with_vpio() {
     let mut shared = SharedVoiceProcessingUnitManager::new(queue.clone());
     let _vpio = queue.run_sync(|| shared.take_or_create()).unwrap().unwrap();
 
-    let vpio_channel_counts = run_serially_forward_panics(|| get_nonvpio_input_channel_counts());
-    assert_eq!(non_vpio_channel_counts, vpio_channel_counts);
+    let vpio_channel_counts = run_serially_forward_panics(get_nonvpio_input_channel_counts);
+    // https://github.com/mozilla/cubeb-coreaudio-rs/issues/255
+    // Maybe M3 also ? Sometimes this passes, but it's fairly inconsistent.
+    if !is_m4_macbook() {
+        assert_eq!(non_vpio_channel_counts, vpio_channel_counts);
+    }
 }
 
 #[test]
@@ -1197,7 +1253,7 @@ fn test_get_channel_count_of_input_devices_with_aggregate_device_and_vpio() {
     let state = Arc::new(Mutex::new(State::default()));
 
     // Set up an AggregateDevice with input and output.
-    let initial_channel_counts = run_serially_forward_panics(|| get_nonvpio_input_channel_counts());
+    let initial_channel_counts = run_serially_forward_panics(get_nonvpio_input_channel_counts);
     let s1 = state.clone();
     let aggr_channel_counts = run_serially_forward_panics(|| {
         let mut state = s1.lock().unwrap();
@@ -1223,7 +1279,11 @@ fn test_get_channel_count_of_input_devices_with_aggregate_device_and_vpio() {
 
         get_nonvpio_input_channel_counts()
     });
-    assert_eq!(aggr_channel_counts, aggr_vpio_channel_counts);
+
+    // https://github.com/mozilla/cubeb-coreaudio-rs/issues/255
+    if !is_m4_macbook() {
+        assert_eq!(aggr_channel_counts, aggr_vpio_channel_counts);
+    }
 }
 
 // get_range_of_sample_rates
@@ -1326,37 +1386,37 @@ fn test_get_same_group_id_for_builtin_device_pairs() {
     let mut input_group_ids = HashMap::<u32, String>::new();
     let input_devices = test_get_devices_in_scope(Scope::Input);
     for device in input_devices.iter() {
-        match run_serially_forward_panics(|| get_device_source(*device, DeviceType::INPUT)) {
-            Ok(source) => match run_serially_forward_panics(|| {
-                get_device_group_id(*device, DeviceType::INPUT)
-            }) {
+        if let Ok(source) =
+            run_serially_forward_panics(|| get_device_source(*device, DeviceType::INPUT))
+        {
+            match run_serially_forward_panics(|| get_device_group_id(*device, DeviceType::INPUT)) {
                 Ok(id) => assert!(input_group_ids
                     .insert(source, id.into_string().unwrap())
                     .is_none()),
                 Err(e) => assert!(input_group_ids
                     .insert(source, format!("Error {}", e))
                     .is_none()),
-            },
-            _ => {} // do nothing when failing to get source.
+            }
         }
+        // else do nothing when failing to get source.
     }
 
     let mut output_group_ids = HashMap::<u32, String>::new();
     let output_devices = test_get_devices_in_scope(Scope::Output);
     for device in output_devices.iter() {
-        match run_serially_forward_panics(|| get_device_source(*device, DeviceType::OUTPUT)) {
-            Ok(source) => match run_serially_forward_panics(|| {
-                get_device_group_id(*device, DeviceType::OUTPUT)
-            }) {
+        if let Ok(source) =
+            run_serially_forward_panics(|| get_device_source(*device, DeviceType::OUTPUT))
+        {
+            match run_serially_forward_panics(|| get_device_group_id(*device, DeviceType::OUTPUT)) {
                 Ok(id) => assert!(output_group_ids
                     .insert(source, id.into_string().unwrap())
                     .is_none()),
                 Err(e) => assert!(output_group_ids
                     .insert(source, format!("Error {}", e))
                     .is_none()),
-            },
-            _ => {} // do nothing when failing to get source.
+            }
         }
+        // else do nothing when failing to get source.
     }
 
     for (input, output) in pairs.iter() {
@@ -1446,14 +1506,16 @@ fn test_get_device_global_uid_by_unknwon_device() {
 fn test_create_cubeb_device_info() {
     use std::collections::VecDeque;
 
-    test_create_device_from_hwdev_in_scope(Scope::Input);
-    test_create_device_from_hwdev_in_scope(Scope::Output);
+    let intern = Arc::new(Mutex::new(intern::Intern::new()));
 
-    fn test_create_device_from_hwdev_in_scope(scope: Scope) {
+    test_create_device_from_hwdev_in_scope(&intern, Scope::Input);
+    test_create_device_from_hwdev_in_scope(&intern, Scope::Output);
+
+    fn test_create_device_from_hwdev_in_scope(intern: &Arc<Mutex<intern::Intern>>, scope: Scope) {
         if let Some(device) = test_get_default_device(scope.clone()) {
             let is_input = test_device_in_scope(device, Scope::Input);
             let is_output = test_device_in_scope(device, Scope::Output);
-            let mut results = test_create_device_infos_by_device(device);
+            let mut results = test_create_device_infos_by_device(intern, device);
             assert_eq!(results.len(), 2);
             // Input device type:
             let input_result = results.pop_front().unwrap();
@@ -1462,7 +1524,7 @@ fn test_create_cubeb_device_info() {
                 check_device_info_by_device(&input_device_info, device, Scope::Input);
                 run_serially(|| destroy_cubeb_device_info(&mut input_device_info));
             } else {
-                assert_eq!(input_result.unwrap_err(), Error::error());
+                assert_eq!(input_result.unwrap_err(), Error::Error);
             }
             // Output device type:
             let output_result = results.pop_front().unwrap();
@@ -1471,7 +1533,7 @@ fn test_create_cubeb_device_info() {
                 check_device_info_by_device(&output_device_info, device, Scope::Output);
                 run_serially(|| destroy_cubeb_device_info(&mut output_device_info));
             } else {
-                assert_eq!(output_result.unwrap_err(), Error::error());
+                assert_eq!(output_result.unwrap_err(), Error::Error);
             }
         } else {
             println!("No device for {:?}.", scope);
@@ -1479,13 +1541,14 @@ fn test_create_cubeb_device_info() {
     }
 
     fn test_create_device_infos_by_device(
+        intern: &Arc<Mutex<intern::Intern>>,
         id: AudioObjectID,
     ) -> VecDeque<std::result::Result<ffi::cubeb_device_info, Error>> {
         let dev_types = [DeviceType::INPUT, DeviceType::OUTPUT];
         let mut results = VecDeque::new();
         for dev_type in dev_types.iter() {
             results.push_back(run_serially_forward_panics(|| {
-                create_cubeb_device_info(id, *dev_type)
+                create_cubeb_device_info(intern, id, *dev_type)
             }));
         }
         results
@@ -1493,8 +1556,7 @@ fn test_create_cubeb_device_info() {
 
     fn check_device_info_by_device(info: &ffi::cubeb_device_info, id: AudioObjectID, scope: Scope) {
         assert!(!info.devid.is_null());
-        assert!(mem::size_of_val(&info.devid) >= mem::size_of::<AudioObjectID>());
-        assert_eq!(info.devid as AudioObjectID, id);
+        assert_ne!(info.devid, info.device_id as _);
         assert!(!info.device_id.is_null());
         assert!(!info.friendly_name.is_null());
         assert!(!info.group_id.is_null());
@@ -1536,7 +1598,8 @@ fn test_create_cubeb_device_info() {
 #[test]
 #[should_panic]
 fn test_create_device_info_by_unknown_device() {
-    assert!(create_cubeb_device_info(kAudioObjectUnknown, DeviceType::OUTPUT).is_err());
+    let intern = Arc::new(Mutex::new(intern::Intern::new()));
+    assert!(create_cubeb_device_info(&intern, kAudioObjectUnknown, DeviceType::OUTPUT).is_err());
 }
 
 #[test]
@@ -1545,8 +1608,10 @@ fn test_create_device_info_with_unknown_type() {
     test_create_device_info_with_unknown_type_by_scope(Scope::Output);
 
     fn test_create_device_info_with_unknown_type_by_scope(scope: Scope) {
+        let intern = Arc::new(Mutex::new(intern::Intern::new()));
         if let Some(device) = test_get_default_device(scope.clone()) {
             assert!(run_serially_forward_panics(|| create_cubeb_device_info(
+                &intern,
                 device,
                 DeviceType::UNKNOWN
             ))
@@ -1556,33 +1621,16 @@ fn test_create_device_info_with_unknown_type() {
 }
 
 #[test]
-#[should_panic]
-fn test_device_destroy_empty_device() {
-    let mut device = ffi::cubeb_device_info::default();
-
-    assert!(device.device_id.is_null());
-    assert!(device.group_id.is_null());
-    assert!(device.friendly_name.is_null());
-    assert!(device.vendor_name.is_null());
-
-    // `friendly_name` must be set.
-    destroy_cubeb_device_info(&mut device);
-
-    assert!(device.device_id.is_null());
-    assert!(device.group_id.is_null());
-    assert!(device.friendly_name.is_null());
-    assert!(device.vendor_name.is_null());
-}
-
-#[test]
 fn test_create_device_from_hwdev_with_inout_type() {
     test_create_device_from_hwdev_with_inout_type_by_scope(Scope::Input);
     test_create_device_from_hwdev_with_inout_type_by_scope(Scope::Output);
 
     fn test_create_device_from_hwdev_with_inout_type_by_scope(scope: Scope) {
         if let Some(device) = test_get_default_device(scope.clone()) {
+            let intern = Arc::new(Mutex::new(intern::Intern::new()));
             // Get a kAudioHardwareUnknownPropertyError in get_channel_count actually.
             assert!(run_serially_forward_panics(|| create_cubeb_device_info(
+                &intern,
                 device,
                 DeviceType::INPUT | DeviceType::OUTPUT
             ))

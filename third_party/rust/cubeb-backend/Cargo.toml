@@ -11,22 +11,38 @@
 
 [package]
 name = "cubeb-backend"
-version = "0.13.0"
+version = "0.29.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = """
 Bindings to libcubeb internals to facilitate implementing cubeb backends in rust.
 """
 homepage = "https://github.com/mozilla/cubeb-rs"
+readme = false
 keywords = ["cubeb"]
 categories = ["api-bindings"]
 license = "ISC"
 repository = "https://github.com/mozilla/cubeb-rs"
+resolver = "2"
 
-[dependencies.cubeb-core]
-version = "0.13.0"
+[badges.circle-ci]
+repository = "mozilla/cubeb-rs"
 
 [features]
 gecko-in-tree = ["cubeb-core/gecko-in-tree"]
 
-[badges.circle-ci]
-repository = "mozilla/cubeb-rs"
+[lib]
+name = "cubeb_backend"
+path = "src/lib.rs"
+
+[[test]]
+name = "test_capi"
+path = "tests/test_capi.rs"
+
+[dependencies.cubeb-core]
+version = "0.29.0"

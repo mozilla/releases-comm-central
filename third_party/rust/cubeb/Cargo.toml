@@ -11,8 +11,14 @@
 
 [package]
 name = "cubeb"
-version = "0.13.0"
+version = "0.29.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = """
 Bindings to libcubeb for interacting with system audio from rust.
 """
@@ -22,12 +28,25 @@ keywords = ["cubeb"]
 categories = ["api-bindings"]
 license = "ISC"
 repository = "https://github.com/mozilla/cubeb-rs"
+resolver = "2"
 
-[dependencies.cubeb-core]
-version = "0.13.0"
+[badges.circle-ci]
+repository = "mozilla/cubeb-rs"
 
 [features]
 gecko-in-tree = ["cubeb-core/gecko-in-tree"]
 
-[badges.circle-ci]
-repository = "mozilla/cubeb-rs"
+[lib]
+name = "cubeb"
+path = "src/lib.rs"
+
+[[example]]
+name = "devices"
+path = "examples/devices.rs"
+
+[[example]]
+name = "tone"
+path = "examples/tone.rs"
+
+[dependencies.cubeb-core]
+version = "0.29.0"
