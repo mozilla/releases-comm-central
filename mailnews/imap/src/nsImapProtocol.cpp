@@ -3011,7 +3011,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             // notice we don't wait for this to finish...
 
             // Only when pref "expunge_after_delete" is set: if server is
-            // IMAPPLUS capable, expunge the UIDs just marked deleted;
+            // UIDPLUS capable, expunge the UIDs just marked deleted;
             // otherwise, go ahead and expunge the full mailbox of ALL
             // emails marked as deleted in mailbox, not just the ones
             // marked as deleted here.
@@ -3129,18 +3129,54 @@ void nsImapProtocol::ProcessSelectedStateURL() {
               }
             }
           }
+
+          // This sets the flag(s) on the message. The message or whole folder
+          // may be expunged below if \deleted flag is set.
           ProcessStoreFlags(messageIdString, bMessageIdsAreUids, msgFlags,
                             true);
-          // If flags contain \deleted and pref "expunge_after_delete" is set,
-          // if server is IMAPPLUS capable, expunge the UIDs just marked
+
+          // Nothing more to do if \deleted flag was not set.
+          if (!(msgFlags & kImapMsgDeletedFlag)) break;
+
+          bool uidPlusCapable =
+              GetServerStateParser().GetCapabilityFlag() & kUidplusCapability;
+          // Flags contain \deleted so if pref "expunge_after_delete" is set,
+          // and if server is UIDPLUS capable, then expunge the UIDs just marked
           // deleted; otherwise, go ahead and expunge the full mailbox of ALL
-          // emails marked as deleted in mailbox, not just the ones
-          // marked as deleted here.
-          if ((msgFlags & kImapMsgDeletedFlag) && gExpungeAfterDelete) {
-            if (GetServerStateParser().GetCapabilityFlag() & kUidplusCapability)
-              UidExpunge(messageIdString);
+          // emails marked as deleted in mailbox, not just the ones marked as
+          // deleted here.
+          if (gExpungeAfterDelete) {
+            if (uidPlusCapable)
+              UidExpunge(messageIdString);  // Expunge just the target message
             else
-              Expunge();
+              Expunge();  // Expunge all messages in folder marked imap \deleted
+            break;
+          }
+
+          // If reached, gExpungeAfterDelete is false (the default).  If server
+          // is UIDPLUS capable AND user not using "just mark as deleted" delete
+          // method and URL has just marked a draft message deleted, then
+          // expunge just the target message using imap command "uid expunge".
+          // Otherwise, old versions of drafts marked deleted remain until
+          // Drafts folder is expunged (compacted) or the old draft messages are
+          // deleted and expunged by other means.
+          // Note: All "well known" imap servers support UIDPLUS so accumulation
+          // of old and deleted drafts should be unusual. So for rare servers
+          // not supporting UIDPLUS, users may want to enable pref
+          // expunge_after_delete to trigger full folder Expunge() above.
+          if (uidPlusCapable && !GetShowDeletedMessages()) {
+            // Determine if we just marked \deleted a draft message.
+            uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
+            int32_t index;
+            bool foundIt = false;
+            imapMessageFlagsType flags =
+                m_flagState->GetMessageFlagsFromUID(uid, &foundIt, &index);
+            if (foundIt && (flags & kImapMsgDraftFlag)) {
+              MOZ_ASSERT(flags & kImapMsgDeletedFlag,
+                         "expunging a not deleted msg");
+              UidExpunge(messageIdString);
+            } else
+              MOZ_ASSERT(foundIt, "deleted msg not found in flagState");
           }
         } break;
         case nsIImapUrl::nsImapSubtractMsgFlags: {
@@ -3214,7 +3250,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             if (storeSuccessful) {
               // We are simulating a imap MOVE (on the same server). The
               // message(s) has/(have) been COPY'd and marked deleted. Only when
-              // pref "expunge_after_delete" is set: if server is IMAPPLUS
+              // pref "expunge_after_delete" is set: if server is UIDPLUS
               // capable, expunge the UIDs just marked \deleted; otherwise, go
               // ahead and expunge the full mailbox of ALL emails marked as
               // deleted in mailbox, not just the ones copied.
@@ -3282,7 +3318,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                 if (GetServerStateParser().LastCommandSuccessful()) {
                   copyStatus = ImapOnlineCopyStateType::kSuccessfulDelete;
                   // Only when pref "expunge_after_delete" is set: if server is
-                  // IMAPPLUS capable, expunge the UIDs just marked deleted;
+                  // UIDPLUS capable, expunge the UIDs just marked deleted;
                   // otherwise, go ahead and expunge the full mailbox of ALL
                   // emails marked as deleted in mailbox, not just the ones
                   // marked as deleted here.
@@ -6281,15 +6317,6 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
           // appended messages. Noop seems to clear its confusion.
           if (FolderIsSelected(mailboxName)) Noop();
 
-          nsCString oldMsgId;
-          rv = m_runningUrl->GetListOfMessageIds(oldMsgId);
-          if (NS_SUCCEEDED(rv) && !oldMsgId.IsEmpty()) {
-            bool idsAreUids = true;
-            m_runningUrl->MessageIdsAreUids(&idsAreUids);
-            Store(oldMsgId, "+FLAGS (\\Deleted)", idsAreUids);
-            UidExpunge(oldMsgId);
-          }
-          // Only checks the last imap command in sequence above.
           if (!GetServerStateParser().LastCommandSuccessful()) urlOk = false;
         } else if (m_imapMailFolderSink &&
                    imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
