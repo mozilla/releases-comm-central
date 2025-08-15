@@ -37,7 +37,6 @@ class nsIMsgFolder;
 
 /*
  * These are folder property strings, which are used in several places.
-
  */
 // Most recently used (opened, moved to, got new messages)
 #define MRU_TIME_PROPERTY "MRUTime"
@@ -55,15 +54,6 @@ class nsIMsgFolder;
     ((((unsigned int)(VAL)) > 0x7f) ? (int)0 : isalpha((int)(VAL)))
 #endif
 
-/* Error codes for message compose are defined in
-   compose\src\nsMsgComposeStringBundle.h. Message compose use the same error
-   code space as other mailnews modules. To avoid any conflict, values between
-   12500 and 12999 are reserved.
-*/
-#define NS_MSGCOMP_ERROR_BEGIN 12500
-
-#define NS_MSGCOMP_ERROR_END 12999
-
 #if defined(XP_WIN)
 #  define MSG_LINEBREAK "\015\012"
 #  define MSG_LINEBREAK_LEN 2
@@ -71,19 +61,6 @@ class nsIMsgFolder;
 #  define MSG_LINEBREAK "\012"
 #  define MSG_LINEBREAK_LEN 1
 #endif
-
-/*
- * On Windows, we use \r\n as the line terminator in mbox files. On
- * other platforms, we use \n. However, we need to be able to
- * recognize line terminators produced on any platform, because we
- * allow profiles (including the mbox files they contain) to be shared
- * between platforms.
- *
- * Returns 0 (i.e., false) if the line is not blank, or otherwise the
- * length of the line terminator, i.e., 1 for \n or 2 for \r\n.
- */
-#define IS_MSG_LINEBREAK(line) \
-  (line[0] == '\012' ? 1 : ((line[0] == '\015' && line[1] == '\012') ? 2 : 0))
 
 /// The number of microseconds in a day. This comes up a lot.
 #define PR_USEC_PER_DAY (PRTime(PR_USEC_PER_SEC) * 60 * 60 * 24)
