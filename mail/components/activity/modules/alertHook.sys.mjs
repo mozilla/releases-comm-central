@@ -10,8 +10,9 @@ var nsActWarning = Components.Constructor(
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { setTimeout } from "resource:///modules/Timer.sys.mjs";
 
-const activeAlerts = new Map();
+const activeAlerts = new Set();
 const l10n = new Localization([
   "branding/brand.ftl",
   "messenger/certError.ftl",
@@ -25,10 +26,7 @@ const l10n = new Localization([
  * @implements {nsIObserver}
  */
 export var alertHook = {
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIMsgUserFeedbackListener",
-    "nsIObserver",
-  ]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgUserFeedbackListener"]),
 
   get activityMgr() {
     delete this.activityMgr;
@@ -85,9 +83,8 @@ export var alertHook = {
       return true;
     }
 
-    activeAlerts.set(cookie, { url });
-
     try {
+      const deferred = Promise.withResolvers();
       const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
         Ci.nsIAlertNotification
       );
@@ -102,10 +99,23 @@ export var alertHook = {
         false,
         cookie
       );
-      this.alertService.showAlert(alert, this);
+      this.alertService.showAlert(alert, {
+        QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+        observe(subject, topic) {
+          if (topic == "alertfinished") {
+            deferred.resolve();
+          }
+        },
+      });
+
+      // Block identical alerts (with the same cookie) for 5 seconds, or until
+      // the old alert is finished.
+      activeAlerts.add(cookie);
+      deferred.promise.then(() => activeAlerts.delete(cookie));
+      setTimeout(() => deferred.resolve(), 5000);
     } catch (ex) {
-      // XXX On Linux, if libnotify isn't supported, showAlert
-      // can throw an error, so fall-back to the old method of modal dialogs.
+      // `showAlert` can throw an error if there's no system notification back
+      // end, so fall-back to the old method of modal dialogs.
       return false;
     }
 
@@ -117,8 +127,6 @@ export var alertHook = {
     if (activeAlerts.has(cookie)) {
       return;
     }
-
-    activeAlerts.set(cookie, { securityInfo, url });
 
     let errorString;
     const errorArgs = { hostname: url.host };
@@ -147,28 +155,9 @@ export var alertHook = {
         break;
     }
 
-    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-      Ci.nsIAlertNotification
-    );
-    alert.init(
-      "" /* name */,
-      // Don't add an icon on macOS, the app icon is already shown.
-      AppConstants.platform == "macosx"
-        ? ""
-        : "chrome://branding/content/icon48.png",
-      this.brandShortName,
-      await l10n.formatValue(errorString, errorArgs),
-      true /* clickable */,
-      cookie
-    );
-    this.alertService.showAlert(alert, this);
-  },
-
-  // nsIObserver
-
-  observe(subject, topic, data) {
-    if (topic == "alertclickcallback") {
-      const { securityInfo, url } = activeAlerts.get(data);
+    const formattedString = await l10n.formatValue(errorString, errorArgs);
+    const deferred = Promise.withResolvers();
+    function showExceptionDialog() {
       const params = {
         exceptionAdded: false,
         securityInfo,
@@ -183,10 +172,51 @@ export var alertHook = {
           "chrome,centerscreen,dependent",
           params
         );
-      activeAlerts.delete(data);
-    } else if (topic == "alertfinished") {
-      activeAlerts.delete(data);
     }
+
+    try {
+      const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+        Ci.nsIAlertNotification
+      );
+      alert.init(
+        "" /* name */,
+        // Don't add an icon on macOS, the app icon is already shown.
+        AppConstants.platform == "macosx"
+          ? ""
+          : "chrome://branding/content/icon48.png",
+        this.brandShortName,
+        formattedString,
+        true /* clickable */,
+        cookie,
+        undefined /* dir */,
+        undefined /* lang */,
+        undefined /* data */,
+        undefined /* principal */,
+        undefined /* inPrivateBrowsing */,
+        true /* requireInteraction */
+      );
+      this.alertService.showAlert(alert, {
+        QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+        observe(subject, topic) {
+          if (topic == "alertclickcallback") {
+            showExceptionDialog();
+          } else if (topic == "alertfinished") {
+            deferred.resolve();
+          }
+        },
+      });
+    } catch (ex) {
+      // `showAlert` can throw an error if there's no system notification back
+      // end, so fall-back to the old method of modal dialogs.
+      Services.prompt.alert(null, null, formattedString);
+      showExceptionDialog();
+    }
+
+    // Block identical alerts (with the same cookie) for 5 seconds, or until
+    // the old alert is finished.
+    activeAlerts.add(cookie);
+    deferred.promise.then(() => activeAlerts.delete(cookie));
+    setTimeout(() => deferred.resolve(), 5000);
   },
 
   init() {
