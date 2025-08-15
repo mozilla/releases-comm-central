@@ -21,7 +21,7 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
-["browser_filtered.js"]
+["browser_collection.js"]
 
 ["browser_notification.js"]
 

@@ -830,7 +830,7 @@ export class EwsServer {
     }
 
     const resSyncStateEl = resDoc.createElement("m:SyncState");
-    resSyncStateEl.textContent = offset + changes.length;
+    resSyncStateEl.textContent = this.itemChanges.indexOf(changes.at(-1)) + 1;
     responseMessageEl.appendChild(resSyncStateEl);
 
     const changesEl = resDoc.getElementsByTagName("m:Changes")[0];
