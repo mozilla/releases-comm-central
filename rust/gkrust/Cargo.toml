@@ -93,7 +93,7 @@ profiler_helper = { path = "../../../tools/profiler/rust-helper", optional = tru
 qcms = { path = "../../../gfx/qcms", features = ['c_bindings', 'neon'] }
 rsdparsa_capi = { path = "../../../dom/media/webrtc/sdp/rsdparsa_capi" }
 rure = { version = "0.2.2" }
-rusqlite = { workspace = true, features = ['modern_sqlite', 'in_gecko'] }
+rusqlite = { workspace = true, features = ['modern_sqlite'] }
 rust_minidump_writer_linux = { path = "../../../toolkit/crashreporter/rust_minidump_writer_linux", optional = true }
 signature_cache = { path = "../../../security/certverifier/signature_cache" }
 static_prefs = { path = "../../../modules/libpref/init/static_prefs" }
