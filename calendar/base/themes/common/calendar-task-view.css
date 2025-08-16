@@ -147,6 +147,7 @@
   background-color: var(--layout-background-0);
   color: var(--layout-color-1);
   min-height: 98px;
+  margin-inline: 1px;
 }
 
 #calendar-task-tree-detail {

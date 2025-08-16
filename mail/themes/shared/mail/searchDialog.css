@@ -7,6 +7,7 @@
 
 #threadTree {
   flex: 1;
+  margin: 0;
 }
 
 #searchTerms {
@@ -114,6 +115,12 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 /* ::::: theme support ::::: */
 
+:root[lwt-tree] #threadTree {
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
+  border-color: var(--field-border-color);
+}
+
 :root[lwtheme]:not([lwt-tree]) #searchTermBox,
 :root[lwtheme]:not([lwt-tree]) #searchResults {
   background-color: -moz-Dialog;
@@ -130,5 +137,5 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 :root[lwtheme] #gray_horizontal_splitter {
   background-color: var(--toolbar-bgcolor);
-  border-color: hsla(0, 0%, 50%, .3);
+  border-color: hsla(0, 0%, 50%, 0.3);
 }

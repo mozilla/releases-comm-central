@@ -231,18 +231,10 @@ treechildren::-moz-tree-line(selected, focus) {
 
 /* message column icons */
 
-:root:not([lwtheme]) {
+:root:not([lwtheme]) tree {
   & treecol:not([hideheader="true"]),
   & .tree-columnpicker-button:not([hideheader="true"]) {
-    appearance: none;
     color: inherit;
-    background-color: transparent;
-    padding-block: 2px;
-    border-bottom: 1px solid ThreeDShadow;
-  }
-
-  & treecol {
-    border-inline-end: 1px solid ThreeDShadow;
   }
 
   & treecol:hover:active,

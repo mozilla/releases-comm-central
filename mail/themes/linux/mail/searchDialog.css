@@ -8,6 +8,10 @@
 
 @import url("chrome://messenger/skin/shared/searchDialog.css");
 
+#searchTermList {
+  appearance: none;
+}
+
 .search-menulist,
 .search-value-menulist {
   width: 16em;

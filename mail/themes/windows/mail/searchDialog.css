@@ -8,12 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/searchDialog.css");
 
-:root:not([lwt-tree]) #threadTree,
-:root:not([lwt-tree]) #abResultsTree {
-  appearance: auto;
-  -moz-default-appearance: listbox;
-}
-
 .search-menulist,
 .search-value-menulist {
   width: 11em;

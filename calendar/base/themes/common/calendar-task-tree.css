@@ -5,6 +5,7 @@
 .calendar-task-tree {
   appearance: none;
   margin: 0;
+  border: none;
 }
 
 /* align the treechildren text */

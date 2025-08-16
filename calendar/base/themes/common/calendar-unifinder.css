@@ -30,6 +30,7 @@
 #unifinder-search-results-tree {
   appearance: none;
   margin: 0;
+  border: none;
 }
 
 :root[lwt-tree] #unifinder-searchBox {
