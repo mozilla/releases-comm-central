@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const cICL = Ci.calIChangeLog;
-
 /**
  * CalStorageStatements contains the mozIStorageBaseStatements used by the
  * various storage calendar models. Remember to call the finalize() method when
@@ -355,7 +353,7 @@ export class CalStorageStatements {
           AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
           AND ((:offline_journal IS NULL
           AND  (offline_journal IS NULL
-           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+           OR   offline_journal != ${Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD}))
            OR (offline_journal == :offline_journal))`
     );
 
@@ -397,7 +395,7 @@ export class CalStorageStatements {
           AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
           AND ((:offline_journal IS NULL
           AND  (offline_journal IS NULL
-           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+           OR   offline_journal != ${Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD}))
            OR (offline_journal == :offline_journal))`
     );
 
