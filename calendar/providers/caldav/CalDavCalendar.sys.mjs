@@ -28,7 +28,6 @@ var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
 var FORBIDDEN_PATH_CHARACTERS = /[^a-zA-Z0-9_\-\.]/g;
 
-var cIOL = Ci.calIOperationListener;
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalDavCalendar() {
@@ -568,7 +567,7 @@ CalDavCalendar.prototype = {
   doAdoptItem(aItem, aListener, aIgnoreEtag) {
     const notifyListener = (status, detail, pure = false) => {
       const method = pure ? "notifyPureOperationComplete" : "notifyOperationComplete";
-      this[method](aListener, status, cIOL.ADD, aItem.id, detail);
+      this[method](aListener, status, Ci.calIOperationListener.ADD, aItem.id, detail);
     };
     if (aItem.id == null && aItem.isMutable) {
       aItem.id = cal.getUUID();
@@ -697,7 +696,7 @@ CalDavCalendar.prototype = {
   doModifyItem(aNewItem, aOldItem, aListener, aIgnoreEtag) {
     const notifyListener = (status, detail, pure = false) => {
       const method = pure ? "notifyPureOperationComplete" : "notifyOperationComplete";
-      this[method](aListener, status, cIOL.MODIFY, aNewItem.id, detail);
+      this[method](aListener, status, Ci.calIOperationListener.MODIFY, aNewItem.id, detail);
     };
     if (aNewItem.id == null) {
       notifyListener(Cr.NS_ERROR_FAILURE, "ID for modifyItem doesn't exist or is null");
@@ -803,7 +802,7 @@ CalDavCalendar.prototype = {
       if (!this.isCached) {
         this.reportDavError(Ci.calIErrors.DAV_REMOVE_ERROR, status, detail);
       }
-      this.notifyOperationComplete(null, status, cIOL.DELETE, null, detail);
+      this.notifyOperationComplete(null, status, Ci.calIOperationListener.DELETE, null, detail);
       return Promise.reject(new Components.Exception(detail, status));
     };
 
@@ -849,7 +848,7 @@ CalDavCalendar.prototype = {
         cal.LOG("CalDAV: Item deleted successfully from calendar " + this.name);
 
         if (this.isCached) {
-          this.notifyOperationComplete(null, Cr.NS_OK, cIOL.DELETE, null, null);
+          this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.DELETE, null, null);
           return null;
         }
         // If the calendar is not cached, we need to remove
@@ -866,7 +865,13 @@ CalDavCalendar.prototype = {
 
       if (headResponse.notFound) {
         // Nothing to do. Someone else has already deleted it
-        this.notifyPureOperationComplete(null, Cr.NS_OK, cIOL.DELETE, null, null);
+        this.notifyPureOperationComplete(
+          null,
+          Cr.NS_OK,
+          Ci.calIOperationListener.DELETE,
+          null,
+          null
+        );
         return null;
       } else if (headResponse.serverError) {
         return onError(Cr.NS_ERROR_NOT_AVAILABLE, "Server Replied with " + headResponse.status);
@@ -1005,9 +1010,21 @@ CalDavCalendar.prototype = {
 
           // In the cached case, notifying operation complete will add the item to the cache
           if (this.mItemInfoCache[item.id].isNew) {
-            this.notifyOperationComplete(wrappedListener, Cr.NS_OK, cIOL.ADD, item.id, item);
+            this.notifyOperationComplete(
+              wrappedListener,
+              Cr.NS_OK,
+              Ci.calIOperationListener.ADD,
+              item.id,
+              item
+            );
           } else {
-            this.notifyOperationComplete(wrappedListener, Cr.NS_OK, cIOL.MODIFY, item.id, item);
+            this.notifyOperationComplete(
+              wrappedListener,
+              Cr.NS_OK,
+              Ci.calIOperationListener.MODIFY,
+              item.id,
+              item
+            );
           }
         });
         return;
@@ -1018,7 +1035,14 @@ CalDavCalendar.prototype = {
 
     if (this.mItemInfoCache[item.id].isNew) {
       await this.mOfflineStorage.adoptItem(item).then(
-        () => aListener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+        () =>
+          aListener?.onOperationComplete(
+            item.calendar,
+            Cr.NS_OK,
+            Ci.calIOperationListener.ADD,
+            item.id,
+            item
+          ),
         e => aListener?.onOperationComplete(null, e.result, null, null, e)
       );
     } else {
@@ -1027,7 +1051,7 @@ CalDavCalendar.prototype = {
           aListener?.onOperationComplete(
             modItem.calendar,
             Cr.NS_OK,
-            cIOL.MODIFY,
+            Ci.calIOperationListener.MODIFY,
             modItem.id,
             modItem
           ),
@@ -1115,7 +1139,13 @@ CalDavCalendar.prototype = {
     }
 
     // Notify operation listener
-    this.notifyOperationComplete(aListener, Cr.NS_ERROR_FAILURE, cIOL.GET, null, errorMsg);
+    this.notifyOperationComplete(
+      aListener,
+      Cr.NS_ERROR_FAILURE,
+      Ci.calIOperationListener.GET,
+      null,
+      errorMsg
+    );
     // If an error occurs here, we also need to unqueue the
     // requests previously queued.
     while (this.mQueuedQueries.length) {
@@ -1137,7 +1167,7 @@ CalDavCalendar.prototype = {
       this.notifyOperationComplete(
         aListener,
         Cr.NS_ERROR_FAILURE,
-        cIOL.GET,
+        Ci.calIOperationListener.GET,
         null,
         "passed in null item"
       );
