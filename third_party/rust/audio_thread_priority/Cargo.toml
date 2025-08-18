@@ -12,12 +12,23 @@
 [package]
 edition = "2018"
 name = "audio_thread_priority"
-version = "0.32.0"
+version = "0.34.0"
 authors = ["Paul Adenot <paul@paul.cx>"]
-description = "Bump a thread to real-time priority, for audio work, on Linux, Windows and macOS"
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+description = "Bump a thread to real-time priority, for audio work, on Linux, Android, Windows and macOS"
 readme = "README.md"
 license = "MPL-2.0"
 repository = "https://github.com/padenot/audio_thread_priority"
+
+[features]
+default = ["with_dbus"]
+terminal-logging = ["simple_logger"]
+with_dbus = ["dbus"]
 
 [lib]
 name = "audio_thread_priority"
@@ -25,6 +36,7 @@ crate-type = [
     "staticlib",
     "rlib",
 ]
+path = "src/lib.rs"
 
 [dependencies.cfg-if]
 version = "1.0"
@@ -39,25 +51,23 @@ optional = true
 [dev-dependencies.nix]
 version = "0.26"
 
-[features]
-default = ["with_dbus"]
-terminal-logging = ["simple_logger"]
-with_dbus = ["dbus"]
+[target.'cfg(target_os = "android")'.dependencies.libc]
+version = "0.2"
 
-[target."cfg(target_os = \"linux\")".dependencies.dbus]
+[target.'cfg(target_os = "linux")'.dependencies.dbus]
 version = "0.6.4"
 optional = true
 
-[target."cfg(target_os = \"linux\")".dependencies.libc]
+[target.'cfg(target_os = "linux")'.dependencies.libc]
 version = "0.2"
 
-[target."cfg(target_os = \"macos\")".dependencies.libc]
+[target.'cfg(target_os = "macos")'.dependencies.libc]
 version = "0.2"
 
-[target."cfg(target_os = \"macos\")".dependencies.mach]
-version = "0.3"
+[target.'cfg(target_os = "macos")'.dependencies.mach2]
+version = "0.4"
 
-[target."cfg(target_os = \"windows\")".dependencies.windows-sys]
+[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
 version = "0.52"
 features = [
     "Win32_Foundation",

@@ -264,22 +264,22 @@ dependencies = [
 
 [[package]]
 name = "audio_thread_priority"
-version = "0.32.0"
+version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3632611da7e79f8fc8fd75840f1ccfa7792dbf1e25d00791344a4450dd8834f"
+checksum = "7203799cd8063907524460aa8b632a46baba80c50947295aa6b92d7793c26447"
 dependencies = [
  "cfg-if",
  "dbus 0.6.5",
  "libc",
  "log",
- "mach",
+ "mach2",
  "windows-sys",
 ]
 
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
+source = "git+https://github.com/mozilla/audioipc?rev=ec44d33e5924f6618467fdb18010d626701fd110#ec44d33e5924f6618467fdb18010d626701fd110"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -306,7 +306,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
+source = "git+https://github.com/mozilla/audioipc?rev=ec44d33e5924f6618467fdb18010d626701fd110#ec44d33e5924f6618467fdb18010d626701fd110"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -317,7 +317,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=cff5afde0e93782765cf31c3c6d5d63778f3260d#cff5afde0e93782765cf31c3c6d5d63778f3260d"
+source = "git+https://github.com/mozilla/audioipc?rev=ec44d33e5924f6618467fdb18010d626701fd110#ec44d33e5924f6618467fdb18010d626701fd110"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -3476,15 +3476,6 @@ name = "log"
 version = "0.4.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
-
-[[package]]
-name = "mach"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b823e83b2affd8f40a9ee8c29dbc56404c1e34cd2710921f2801e2cf29527afa"
-dependencies = [
- "libc",
-]
 
 [[package]]
 name = "mach2"

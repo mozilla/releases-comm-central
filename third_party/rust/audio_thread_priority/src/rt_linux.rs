@@ -80,8 +80,7 @@ fn item_as_i64(i: MessageItem) -> Result<i64, AudioThreadPriorityError> {
         MessageItem::Int32(i) => Ok(i as i64),
         MessageItem::Int64(i) => Ok(i),
         _ => Err(AudioThreadPriorityError::new(&format!(
-            "Property is not integer ({:?})",
-            i
+            "Property is not integer ({i:?})"
         ))),
     }
 }

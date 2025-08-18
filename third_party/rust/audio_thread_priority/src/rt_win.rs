@@ -94,14 +94,16 @@ mod avrt_lib {
         pub(super) fn try_new() -> Result<Self, WIN32_ERROR> {
             let module = OwnedLibrary::try_new(w!("avrt.dll"))?;
             let av_set_mm_thread_characteristics_w = unsafe {
-                std::mem::transmute::<_, AvSetMmThreadCharacteristicsWFn>(
-                    module.get_proc(s!("AvSetMmThreadCharacteristicsW"))?,
-                )
+                std::mem::transmute::<
+                    unsafe extern "system" fn() -> isize,
+                    AvSetMmThreadCharacteristicsWFn,
+                >(module.get_proc(s!("AvSetMmThreadCharacteristicsW"))?)
             };
             let av_revert_mm_thread_characteristics = unsafe {
-                std::mem::transmute::<_, AvRevertMmThreadCharacteristicsFn>(
-                    module.get_proc(s!("AvRevertMmThreadCharacteristics"))?,
-                )
+                std::mem::transmute::<
+                    unsafe extern "system" fn() -> isize,
+                    AvRevertMmThreadCharacteristicsFn,
+                >(module.get_proc(s!("AvRevertMmThreadCharacteristics"))?)
             };
             Ok(Self {
                 module,

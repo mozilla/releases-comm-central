@@ -21,9 +21,9 @@ mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "a821fa621c2def48e90c82774b4c6563b5a8ea4a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
-audio_thread_priority = { version = "0.32" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "cff5afde0e93782765cf31c3c6d5d63778f3260d", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "cff5afde0e93782765cf31c3c6d5d63778f3260d", optional = true }
+audio_thread_priority = { version = "0.34" }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "ec44d33e5924f6618467fdb18010d626701fd110", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "ec44d33e5924f6618467fdb18010d626701fd110", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
