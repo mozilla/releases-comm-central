@@ -7,3 +7,5 @@ support-files = ["data/**", "scripts/**"]
 skip-if = ["os == 'mac'"]
 
 ["test_sessionstore.py"]
+
+["test_toolbar_migration.py"]

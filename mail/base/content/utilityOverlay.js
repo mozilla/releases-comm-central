@@ -129,18 +129,32 @@ function validateFileName(aFileName) {
   return aFileName.replace(re, "_");
 }
 
+/**
+ * Toggle the hidden attribute of an element and keeps the checked status of the
+ * menuitem controlling it in sync, if present.
+ *
+ * @param {string} id - The id of the element to toggle.
+ * @param {string} [elementID] - The id of the menuitem associated with the
+ *   toggled element, if available.
+ */
 function goToggleToolbar(id, elementID) {
-  var toolbar = document.getElementById(id);
-  var element = document.getElementById(elementID);
-  if (toolbar) {
-    const isHidden = toolbar.hasAttribute("hidden");
-    toolbar.toggleAttribute("hidden", !isHidden);
-    Services.xulStore.persist(toolbar, "hidden");
-    if (element) {
-      element.setAttribute("checked", isHidden);
-      Services.xulStore.persist(element, "checked");
-    }
+  const toolbar = document.getElementById(id);
+  if (!toolbar) {
+    return;
   }
+  const isHidden = toolbar.toggleAttribute("hidden");
+  Services.xulStore.persist(toolbar, "hidden");
+
+  if (!elementID) {
+    return;
+  }
+
+  const element = document.getElementById(elementID);
+  if (!element) {
+    return;
+  }
+  element.setAttribute("checked", !isHidden);
+  Services.xulStore.persist(element, "checked");
 }
 
 /**
