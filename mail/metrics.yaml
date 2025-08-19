@@ -185,6 +185,8 @@ mail:
       - layers.acceleration.disabled
       - layout.css.always_underline_links
       - ldap_2.autoComplete.useDirectory
+      - mail.accounthub.enabled
+      - mail.accounthub.addressbook.enabled
       - mail.biff.alert.show_preview
       - mail.biff.alert.show_sender
       - mail.biff.alert.show_subject
