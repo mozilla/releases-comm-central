@@ -100,6 +100,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  TaskbarProgress: "resource:///modules/TaskbarProgress.sys.mjs",
 });
 
 /**
@@ -929,9 +930,19 @@ var progressListener = {
 
       // Advance progress meter.
       document.getElementById("compose-progressmeter").value = percent;
+      lazy.TaskbarProgress.showProgress(
+        window,
+        Ci.nsITaskbarProgress.STATE_NORMAL,
+        aCurTotalProgress,
+        aMaxTotalProgress
+      );
     } else {
       // Progress meter should be barber-pole in this case.
       document.getElementById("compose-progressmeter").removeAttribute("value");
+      lazy.TaskbarProgress.showProgress(
+        window,
+        Ci.nsITaskbarProgress.STATE_NO_PROGRESS
+      );
     }
   },
 

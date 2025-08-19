@@ -19,6 +19,8 @@ subsuite = "thunderbird"
 ["browser_sendMessage_certError.js"]
 
 ["browser_sendMessage_oAuth2.js"]
+tags = "oauth"
+
+["browser_sendMessage_progress.js"]
 
 ["browser_sendMessage_spellCheck.js"]
-tags = "oauth"

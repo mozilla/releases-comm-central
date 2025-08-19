@@ -40,6 +40,7 @@ EXTRA_JS_MODULES += [
     "SmartMailboxUtils.sys.mjs",
     "SummaryFrameManager.sys.mjs",
     "TagUtils.sys.mjs",
+    "TaskbarProgress.sys.mjs",
     "TBDistCustomizer.sys.mjs",
     "UIDensity.sys.mjs",
     "UIFontSize.sys.mjs",
