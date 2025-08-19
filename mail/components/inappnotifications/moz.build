@@ -7,6 +7,12 @@ with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
 MOZ_SRC_FILES += [
+    "content/in-app-notification-button.mjs",
+    "content/in-app-notification-close-button.mjs",
+    "content/in-app-notification-container.mjs",
+    "content/in-app-notification-manager.mjs",
+    "content/in-app-notification.mjs",
+    "content/InAppNotificationEvent.mjs",
     "modules/InAppNotifications.sys.mjs",
     "modules/NotificationFilter.sys.mjs",
     "modules/NotificationManager.sys.mjs",
@@ -14,12 +20,6 @@ MOZ_SRC_FILES += [
     "modules/NotificationScheduler.sys.mjs",
     "modules/NotificationUpdater.sys.mjs",
     "modules/OfflineNotifications.sys.mjs",
-    "content/in-app-notification.mjs",
-    "content/in-app-notification-button.mjs",
-    "content/in-app-notification-close-button.mjs",
-    "content/in-app-notification-container.mjs",
-    "content/in-app-notification-manager.mjs",
-    "content/InAppNotificationEvent.mjs",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml", "test/unit/xpcshell_default.toml"]
