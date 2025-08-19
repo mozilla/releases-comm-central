@@ -355,3 +355,163 @@ add_task(async function test_maxResultsValidity() {
 
   subview.resetState();
 });
+
+add_task(async function test_captureStateSimple() {
+  subview.setState();
+  hostname.value = "example.com";
+  const updateEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated",
+    false,
+    () => directoryName.value === "test"
+  );
+  EventUtils.sendString("test", subview.ownerGlobal);
+  await updateEvent;
+
+  const bindDnInput = subview.querySelector("#bindDN");
+  const baseDnInput = subview.querySelector("#baseDN");
+  const sslSwitch = subview.querySelector("#enableSSL");
+
+  let capturedState = subview.captureState();
+  const expectedState = {
+    name: directoryName.value,
+    hostname: hostname.value,
+    port: 389,
+    baseDn: "",
+    bindDn: "",
+    ssl: false,
+    isAdvanced: false,
+    maxResults: 0,
+    scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+    loginMethod: "",
+    searchFilter: "",
+  };
+
+  Assert.deepEqual(
+    capturedState,
+    expectedState,
+    "The captured state should have the correct data"
+  );
+
+  bindDnInput.value = "Test Bind DN";
+  baseDnInput.value = "Test Base DN";
+  const checkEvent = BrowserTestUtils.waitForEvent(
+    sslSwitch,
+    "change",
+    false,
+    event => event.target.checked
+  );
+  EventUtils.synthesizeMouseAtCenter(sslSwitch, {}, subview.ownerGlobal);
+  await checkEvent;
+
+  capturedState = subview.captureState();
+  expectedState.bindDn = bindDnInput.value;
+  expectedState.baseDn = baseDnInput.value;
+  expectedState.ssl = true;
+
+  Assert.deepEqual(
+    capturedState,
+    expectedState,
+    "The captured state should have the correct data"
+  );
+  subview.resetState();
+});
+
+add_task(async function test_captureStateAdvanced() {
+  subview.setState();
+  const advancedConfigButton = subview.querySelector(
+    "#advancedConfigurationLdap"
+  );
+  // Show advanced configuration
+  EventUtils.synthesizeMouseAtCenter(
+    advancedConfigButton,
+    {},
+    subview.ownerGlobal
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    subview.querySelector("#ldapFormBody"),
+    {
+      attributes: true,
+      attributeFilter: ["class"],
+    },
+    () => subview.querySelector("#ldapFormBody").classList.contains("advanced")
+  );
+
+  let capturedState = subview.captureState();
+  const expectedState = {
+    name: "",
+    hostname: "",
+    port: 389,
+    baseDn: "",
+    bindDn: "",
+    ssl: false,
+    isAdvanced: true,
+    maxResults: 0,
+    scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+    loginMethod: "",
+    searchFilter: "",
+  };
+
+  Assert.deepEqual(
+    capturedState,
+    expectedState,
+    "The captured state should have the correct advanced data"
+  );
+
+  // Scroll the advanced form inputs into view.
+  const simpleConfigButton = subview.querySelector("#simpleConfigurationLdap");
+  simpleConfigButton.scrollIntoView({
+    behavior: "instant",
+  });
+
+  const maxResultsInput = subview.querySelector("#maxResults");
+  const scopeDropdown = subview.querySelector("#scope");
+  const loginMethodDropdown = subview.querySelector("#loginMethod");
+  // Select scope level one from the dropdown.
+  scopeDropdown.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "shown");
+  scopeDropdown.menupopup.activateItem(
+    scopeDropdown.querySelector("#scopeOne")
+  );
+  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "hidden");
+
+  // Select GSSAPI login method from the dropdown.
+  loginMethodDropdown.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(
+    loginMethodDropdown.menupopup,
+    "shown"
+  );
+  loginMethodDropdown.menupopup.activateItem(
+    loginMethodDropdown.querySelector("#loginGSSAPI")
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    loginMethodDropdown.menupopup,
+    "hidden"
+  );
+  const searchFilterInput = subview.querySelector("#search");
+  searchFilterInput.value = "Test Filter";
+
+  EventUtils.synthesizeMouseAtCenter(maxResultsInput, {}, subview.ownerGlobal);
+  const updateEvent = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated",
+    false,
+    () => maxResultsInput.valueAsNumber === 100
+  );
+  EventUtils.sendString("100", subview.ownerGlobal);
+  await updateEvent;
+
+  capturedState = subview.captureState();
+  expectedState.maxResults = 100;
+  expectedState.scope = Ci.nsILDAPURL.SCOPE_ONELEVEL;
+  expectedState.loginMethod = "GSSAPI";
+  expectedState.searchFilter = searchFilterInput.value;
+
+  Assert.deepEqual(
+    capturedState,
+    expectedState,
+    "The captured state should have the correct advanced data"
+  );
+
+  subview.resetState();
+});

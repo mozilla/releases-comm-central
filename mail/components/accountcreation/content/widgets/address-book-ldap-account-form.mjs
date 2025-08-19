@@ -32,6 +32,15 @@ ChromeUtils.defineESModuleGetters(lazy, {
  */
 
 /**
+ * @typedef {LDAPCredentials} LDAPStateData
+ * @property {number} maxResults - The max results for the LDAP Directory.
+ * @property {number} scope - The scope (number value) of the LDAP Directory.
+ * @property {string} loginMethod - The login method of the LDAP directory.
+ * @property {string} searchFilter - The search filter on the LDAP Directory.
+ * @property {boolean} isAdvanced - Boolean to determine if state is advanced.
+ */
+
+/**
  * Account Hub LDAP Account Form Template
  * Template ID: #accountHubAddressBookLdapAccountFormTemplate
  * (from accountHubAddressBookLdapAccountFormTemplate.inc.xhtml)
@@ -193,6 +202,38 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     );
   }
 
+  /**
+   * Returns the state data for the LDAP form, including advanced form data.
+   *
+   * @returns {LDAPFormData}
+   */
+  captureState() {
+    this.#stateData.baseDn = this.querySelector("#baseDN").value;
+    this.#stateData.bindDn = this.querySelector("#bindDN").value;
+    this.#stateData.ssl = this.querySelector("#enableSSL").checked;
+
+    if (this.#isAdvanced) {
+      this.#advancedStateData.scope = this.querySelector("#scope").value;
+      this.#advancedStateData.loginMethod =
+        this.querySelector("#loginMethod").value;
+      this.#advancedStateData.searchFilter =
+        this.querySelector("#search").value;
+    } else {
+      this.#advancedStateData = {
+        maxResults: 0,
+        scope: Ci.nsILDAPURL.SCOPE_SUBTREE,
+        loginMethod: "",
+        searchFilter: "",
+      };
+    }
+
+    return {
+      ...this.#stateData,
+      ...this.#advancedStateData,
+      isAdvanced: this.#isAdvanced,
+    };
+  }
+
   #formUpdated() {
     const nameValidity = this.#name.checkValidity();
     let hostnameValidity = false;
@@ -200,10 +241,12 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     let maxResultsValidity = true;
 
     this.#name.ariaInvalid = !nameValidity;
+
     if (!nameValidity) {
       this.#name.setAttribute("aria-described", "nameErrorMessage");
     } else {
       this.#name.removeAttribute("aria-describedby");
+      this.#stateData.name = this.#name.value;
     }
 
     try {
@@ -234,7 +277,10 @@ class AddressBookLdapAccountForm extends AccountHubStep {
       this.#port.setAttribute("aria-describedby", "portErrorMessage");
     }
 
-    if (this.#isAdvanced) {
+    // Set maxResults in credentials if the input is valid and the form
+    // is the advanced form. If credentials value is set and the form is no
+    // longer advanced, capture state resets the credentials value.
+    if (this.#isAdvanced && this.#maxResults.value) {
       try {
         this.#advancedStateData.maxResults = Sanitizer.integerRange(
           this.#maxResults.valueAsNumber,
