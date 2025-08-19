@@ -131,6 +131,36 @@ add_task(async function test_createAdvancedLDAPDirectory() {
   await deleteDirectory(directory);
 });
 
+add_task(async function test_isDuplicate() {
+  const credentials = makeCredentials();
+  const directory = await createDirectory(credentials);
+
+  Assert.ok(
+    LDAPDirectoryUtils.isDuplicate(directory.dirName),
+    `isDuplicate should indicate ${directory.dirName} already exists`
+  );
+
+  Assert.ok(
+    !LDAPDirectoryUtils.isDuplicate("Testing Directory"),
+    "isDuplicate should indicate that new name is available"
+  );
+  await deleteDirectory(directory);
+});
+
+add_task(async function test_createDuplicateLDAPDirectory() {
+  const credentials = makeCredentials();
+  const directory = await createDirectory(credentials);
+
+  // Try creating directory again with same credentials.
+  Assert.throws(
+    () => LDAPDirectoryUtils.createDirectory(credentials),
+    LDAPDirectoryUtils.DuplicateNameError,
+    "createDirectory should throw when trying to create the directory a second time"
+  );
+
+  await deleteDirectory(directory);
+});
+
 /**
  * Returns fresh credentials, using optional override properties as a param.
  *

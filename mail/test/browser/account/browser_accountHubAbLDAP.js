@@ -127,6 +127,52 @@ add_task(async function test_advancedLDAPDirectoryCreation() {
   await deleteDirectory(addressBookDirectory);
 });
 
+add_task(async function test_duplicateDirectoryNameError() {
+  let dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await fillSimpleLDAPConfigDetails(dialog);
+  const addressBookDirectory = await createDirectory(dialog);
+
+  // Open account hub again and use the same details.
+  dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+  await fillSimpleLDAPConfigDetails(dialog);
+  const ldapFormSubview = dialog.querySelector(
+    "address-book-ldap-account-form"
+  );
+
+  // Click continue to show error notification.
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#addressBookFooter #forward"),
+    {}
+  );
+
+  const header = ldapFormSubview.shadowRoot.querySelector("account-hub-header");
+  const errorTitle = header.shadowRoot.querySelector(
+    "#emailFormNotificationTitle"
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    header.shadowRoot.querySelector("#emailFormNotification"),
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isVisible(errorTitle)
+  );
+  await TestUtils.waitForTick();
+
+  Assert.equal(
+    document.l10n.getAttributes(errorTitle.querySelector(".localized-title"))
+      .id,
+    "address-book-ldap-duplicate-error",
+    "Should display duplicate name error"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, ldapFormSubview);
+
+  // Delete address book and close the address book tab.
+  await deleteDirectory(addressBookDirectory);
+});
+
 /**
  * Fills in the simple config information in the LDAP creation form.
  *

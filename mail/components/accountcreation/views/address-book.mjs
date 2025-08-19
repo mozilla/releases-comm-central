@@ -430,8 +430,28 @@ class AccountHubAddressBook extends HTMLElement {
         break;
       }
       case "ldapAccountSubview": {
-        const directory =
-          await lazy.LDAPDirectoryUtils.createDirectory(stateData);
+        let directory;
+        try {
+          directory = await lazy.LDAPDirectoryUtils.createDirectory(stateData);
+        } catch (error) {
+          if (error instanceof lazy.LDAPDirectoryUtils.DuplicateNameError) {
+            this.#currentSubview.showNotification({
+              fluentTitleId: "address-book-ldap-duplicate-error",
+              type: "error",
+            });
+
+            break;
+          }
+
+          this.#currentSubview.showNotification({
+            fluentTitleId: "address-book-ldap-creation-error",
+            error,
+            type: "error",
+          });
+
+          break;
+        }
+
         await this.#openAddressBook(directory.UID);
 
         break;
@@ -523,6 +543,7 @@ class AccountHubAddressBook extends HTMLElement {
    * @returns {boolean} - If the account hub can remove this view.
    */
   async reset() {
+    this.#currentSubview.clearNotifications?.();
     this.#hideSubviews();
     this.#remoteAddressBookState = {};
     await this.#initUI("optionSelectSubview");

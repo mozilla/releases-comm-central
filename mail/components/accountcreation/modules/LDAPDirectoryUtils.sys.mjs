@@ -16,6 +16,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @property {boolean} isAdvanced - Boolean to determine if state is advanced.
  */
 
+class DuplicateNameError extends Error {}
+
 export const LDAPDirectoryUtils = {
   /**
    * Creates LDAP directory, and returns the directory.
@@ -24,6 +26,12 @@ export const LDAPDirectoryUtils = {
    * @returns {nsIAbDirectory} LDAP directory.
    */
   createDirectory(credentials) {
+    // Throw an error if the user tries to create an LDAP directory that has an
+    // existing name.
+    if (this.isDuplicate(credentials.name)) {
+      throw new DuplicateNameError();
+    }
+
     let hostname = credentials.hostname;
 
     if (
@@ -62,4 +70,20 @@ export const LDAPDirectoryUtils = {
 
     return ldapDirectory;
   },
+
+  /**
+   * Checks whether an existing directory exists with the provided name.
+   *
+   * @param {string} newName - Direcotry name.
+   * @returns {boolean} Existence of directory with same name.
+   */
+  isDuplicate(newName) {
+    // Do not allow an already existing name.
+    const normalizedNewName = newName.toLowerCase();
+    return lazy.MailServices.ab.directories.some(
+      directory => directory.dirName.toLowerCase() == normalizedNewName
+    );
+  },
+
+  DuplicateNameError,
 };
