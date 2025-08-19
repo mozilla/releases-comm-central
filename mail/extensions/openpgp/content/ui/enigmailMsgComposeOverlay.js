@@ -1548,7 +1548,7 @@ Enigmail.msg = {
       return true;
     }
     try {
-      return this.prepareSendMsg(mode);
+      return await this.prepareSendMsg(mode);
     } catch (e) {
       console.error(`Prepare send msg FAILED: ${e.message}`, e);
       return false;
