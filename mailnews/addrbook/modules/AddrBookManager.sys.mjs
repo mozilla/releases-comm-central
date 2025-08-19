@@ -599,7 +599,7 @@ AddrBookManager.prototype = {
     if (!emailAddress) {
       return null;
     }
-    emailAddress = emailAddress.toLowerCase();
+    emailAddress = emailAddress.trim().toLowerCase();
 
     if (!addressCache) {
       addressCache = new Map();
@@ -610,7 +610,7 @@ AddrBookManager.prototype = {
         try {
           for (const card of directory.childCards.toReversed()) {
             for (const _emailAddress of card.emailAddresses) {
-              addressCache.set(_emailAddress, card);
+              addressCache.set(_emailAddress.trim().toLowerCase(), card);
             }
           }
         } catch (ex) {

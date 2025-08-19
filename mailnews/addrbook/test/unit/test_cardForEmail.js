@@ -12,6 +12,14 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
+function bumpDisplayNameVersion() {
+  // Invalidate the AddrBookManager email->card cache.
+  Services.prefs.setIntPref(
+    "mail.displayname.version",
+    Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+  );
+}
+
 function check_correct_card(card) {
   Assert.ok(!!card);
 
@@ -43,7 +51,7 @@ function run_test() {
 
   // Test - Check that we match this email and some of the fields
   // of the card are correct.
-  var card = AB.cardForEmailAddress("PrimaryEmail1@test.invalid");
+  let card = AB.cardForEmailAddress("PrimaryEmail1@test.invalid");
 
   check_correct_card(card);
 
@@ -79,10 +87,6 @@ function run_test() {
   Assert.equal(card.UID, "f68fbac4-158b-4bdc-95c6-592a5f93cfa1");
   Assert.equal(card.displayName, "A vCard!");
 
-  // Test nsIAbManager.cardForEmailAddress as well.
-  card = MailServices.ab.cardForEmailAddress("fourth@SOMETHING.invalid");
-  Assert.ok(card, "Should find card case-insensitive");
-
   card = AB.cardForEmailAddress("A vCard!");
   Assert.equal(card, null);
 
@@ -101,19 +105,89 @@ function run_test() {
   card = AB.getCardFromProperty("NickName", "nickName1", false);
   check_correct_card(card);
 
-  var cards = AB.getCardsFromProperty("LastName", "DOE", true);
+  let cards = AB.getCardsFromProperty("LastName", "DOE", true);
   Assert.equal(cards.length, 0);
 
   cards = AB.getCardsFromProperty("LastName", "Doe", true);
-  var i = 0;
-  var data = ["John", "Jane"];
+  let i = 0;
+  const data = ["John", "Jane"];
 
   for (card of cards) {
     i++;
     Assert.equal(card.lastName, "Doe");
-    var index = data.indexOf(card.firstName);
+    const index = data.indexOf(card.firstName);
     Assert.notEqual(index, -1);
     delete data[index];
   }
   Assert.equal(i, 2);
+
+  // Test cardForEmailAddress on the address book manager.
+
+  // Build the manager's cache with one case, then look up with another.
+  let mgrCard = MailServices.ab.cardForEmailAddress(
+    "PRIMARYEMAIL1@TEST.INVALID"
+  );
+  check_correct_card(mgrCard);
+
+  mgrCard = MailServices.ab.cardForEmailAddress("primaryemail1@test.invalid");
+  check_correct_card(mgrCard);
+
+  // Clear cache; verify trimming on lookup (leading/trailing spaces).
+  bumpDisplayNameVersion();
+  mgrCard = MailServices.ab.cardForEmailAddress(
+    "   PrimaryEmail1@test.invalid   "
+  );
+  check_correct_card(mgrCard);
+
+  // Clear cache again; check second email with mixed case + U+00D0 (ETH) in local-part.
+  bumpDisplayNameVersion();
+  mgrCard = MailServices.ab.cardForEmailAddress(
+    "SECondEMail1\u00D0@TEST.inValid"
+  );
+  check_correct_card(mgrCard);
+
+  // Build the manager's cache for the *old* email.
+  const oldEmail = "PrimaryEmail1@test.invalid";
+  const oldCard = MailServices.ab.cardForEmailAddress(oldEmail);
+  check_correct_card(oldCard);
+
+  // Test that the manager's cache is cleared and rebuilt when a card changes.
+
+  // Change that card's PrimaryEmail and fetch the same card via NickName1.
+  const editable = AB.getCardFromProperty("NickName", "NickName1", false);
+  Assert.ok(editable);
+  const newEmail = "PrimaryEmail1Changed@test.invalid";
+  const cardProperties = editable.vCardProperties;
+  const existingEmails = cardProperties.getAllValuesSorted("email");
+  const secondEmail = existingEmails[1];
+  const originalVCard = editable.vCardProperties.toVCard();
+
+  cardProperties.clearValues("email");
+  cardProperties.addValue("email", newEmail);
+  if (secondEmail) {
+    cardProperties.addValue("email", secondEmail);
+  }
+
+  // Write the updated vCard back to the card and save.
+  editable.setProperty("_vCard", cardProperties.toVCard());
+  AB.modifyCard(editable);
+
+  // After modifyCard(), the manager cache has been invalidated.
+  // The *new* email should resolve now, and the *old* email should not.
+  const updated = MailServices.ab.cardForEmailAddress(newEmail);
+  Assert.ok(updated, "After invalidation, new email should resolve");
+  Assert.equal(
+    updated.UID,
+    editable.UID,
+    "Resolved card should be the edited one"
+  );
+  Assert.equal(
+    MailServices.ab.cardForEmailAddress(oldEmail),
+    null,
+    "Old email should no longer resolve after cache rebuild"
+  );
+
+  // Restore original vCard for future tests after this point
+  editable.setProperty("_vCard", originalVCard);
+  AB.modifyCard(editable); // bumps cache version again
 }
