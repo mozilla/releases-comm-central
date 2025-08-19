@@ -17,5 +17,8 @@ tags = ["oauth"]
 
 ["test_guessConfig.js"]
 
+["test_ldapDirectoryUtils.js"]
+tags = ["addrbook"]
+
 ["test_remoteAddressBookUtils.js"]
 tags = ["addrbook", "carddav"]

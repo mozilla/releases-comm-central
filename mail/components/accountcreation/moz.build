@@ -18,6 +18,7 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/FetchHTTP.sys.mjs",
     "modules/FindConfig.sys.mjs",
     "modules/GuessConfig.sys.mjs",
+    "modules/LDAPDirectoryUtils.sys.mjs",
     "modules/readFromXML.sys.mjs",
     "modules/RemoteAddressBookUtils.sys.mjs",
     "modules/Sanitizer.sys.mjs",

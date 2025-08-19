@@ -11,6 +11,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   RemoteAddressBookUtils:
     "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
+  LDAPDirectoryUtils:
+    "resource:///modules/accountcreation/LDAPDirectoryUtils.sys.mjs",
 });
 
 /**
@@ -428,7 +430,8 @@ class AccountHubAddressBook extends HTMLElement {
         break;
       }
       case "ldapAccountSubview": {
-        const directory = await this.#createLdapDirectory(stateData);
+        const directory =
+          await lazy.LDAPDirectoryUtils.createDirectory(stateData);
         await this.#openAddressBook(directory.UID);
 
         break;
@@ -502,57 +505,6 @@ class AccountHubAddressBook extends HTMLElement {
   async #fetchAccounts() {
     this.#accounts =
       await lazy.RemoteAddressBookUtils.getAddressBooksForExistingAccounts();
-  }
-
-  /**
-   * Creates LDAP directory and return it.
-   *
-   * @param {LDAPStateData} ldapCredentials - LDAP form state data.
-   * @returns {nsIAbDirectory} LDAP directory.
-   */
-  async #createLdapDirectory(ldapCredentials) {
-    // Make copy of credentials.
-    const credentials = { ...ldapCredentials };
-    const hostname = credentials.hostname;
-
-    if (
-      hostname.includes(":") &&
-      hostname[0] != "[" &&
-      hostname.at(-1) != "]"
-    ) {
-      // Wrap IPv6 address in [].
-      credentials.hostname = `[${hostname}]`;
-    }
-    const ldapURL = Services.io
-      .newURI(
-        `${credentials.ssl ? "ldaps" : "ldap"}://${credentials.hostname}:${credentials.port}`
-      )
-      .QueryInterface(Ci.nsILDAPURL);
-
-    ldapURL.dn = credentials.baseDn;
-
-    if (credentials.isAdvanced) {
-      ldapURL.scope = credentials.scope;
-      ldapURL.filter = credentials.searchFilter;
-    }
-
-    const directoryID = lazy.MailServices.ab.newAddressBook(
-      credentials.name,
-      ldapURL.spec,
-      Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
-    );
-
-    const ldapDirectory = lazy.MailServices.ab
-      .getDirectoryFromId(directoryID)
-      .QueryInterface(Ci.nsIAbLDAPDirectory);
-    ldapDirectory.authDn = credentials.bindDn;
-
-    if (credentials.isAdvanced) {
-      ldapDirectory.maxHits = credentials.maxResults;
-      ldapDirectory.saslMechanism = credentials.loginMethod;
-    }
-
-    return ldapDirectory;
   }
 
   /**

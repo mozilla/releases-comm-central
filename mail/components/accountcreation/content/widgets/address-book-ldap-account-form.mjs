@@ -32,15 +32,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
  */
 
 /**
- * @typedef {LDAPCredentials} LDAPStateData
- * @property {number} maxResults - The max results for the LDAP Directory.
- * @property {number} scope - The scope (number value) of the LDAP Directory.
- * @property {string} loginMethod - The login method of the LDAP directory.
- * @property {string} searchFilter - The search filter on the LDAP Directory.
- * @property {boolean} isAdvanced - Boolean to determine if state is advanced.
- */
-
-/**
  * Account Hub LDAP Account Form Template
  * Template ID: #accountHubAddressBookLdapAccountFormTemplate
  * (from accountHubAddressBookLdapAccountFormTemplate.inc.xhtml)
