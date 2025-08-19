@@ -131,9 +131,9 @@ unable-to-create-provider = An error was encountered preparing the calendar loca
 
 # Sample: Unknown timezone "USPacific" in "Dentist Appt".  Using the 'floating' local timezone instead: 2008/02/28 14:00:00
 # $timezone timezone name, $title item title, $datetime date-time
-unknown-timezone-in-item = Unknown timezone "{ $timezone }" in "{ $title }".  Treated as 'floating' local timezone instead: { $datetime }
+unknown-timezone-in-item = Unknown timezone “{ $timezone }” in “{ $title }”. Treated as ‘floating’ local timezone instead: { $datetime }
 timezone-errors-alert-title = Timezone Errors
-timezone-errors-see-console = See Error Console: Unknown timezones are treated as the 'floating' local timezone.
+timezone-errors-see-console = See Error Console: Unknown timezones are treated as the ‘floating’ local timezone.
 
 # The following strings are for the prompt to delete/unsubscribe from the calendar
 remove-calendar-title = Remove Calendar
@@ -143,20 +143,21 @@ remove-calendar-button-unsubscribe = Unsubscribe
 # LOCALIZATION NOTE (remove-calendar-message-delete-or-unsubscribe): Shown for
 # calendar where both deleting and unsubscribing is possible.
 # $name:  The name of a calendar
-remove-calendar-message-delete-or-unsubscribe = Do you want to remove the calendar "{ $name }"? Unsubscribing will remove the calendar from the list, deleting will also permanently purge its data.
+remove-calendar-message-delete-or-unsubscribe = Do you want to remove the calendar “{ $name }”? Unsubscribing will remove the calendar from the list, deleting will also permanently purge its data.
 
 # LOCALIZATION NOTE (remove-calendar-message-delete): Shown for calendar where
 # deleting is the only option.
 # $name:  The name of a calendar
-remove-calendar-message-delete = Do you want to permanently delete the calendar "{ $name }"?
+remove-calendar-message-delete = Do you want to permanently delete the calendar “{ $name }”?
 
 # LOCALIZATION NOTE (remove-calendar-message-unsubscribe): Shown for calendar
 # where unsubscribing is the only option.
 # $name:  The name of a calendar
-remove-calendar-message-unsubscribe = Do you want to unsubscribe from the calendar "{ $name }"?
+remove-calendar-message-unsubscribe = Do you want to unsubscribe from the calendar “{ $name }”?
 
 # $title title
 week-title = Week { $title }
+# $title title
 week-title-label =
     .aria-label = Week { $title }
 calendar-none =
@@ -168,7 +169,7 @@ calendar-none =
 # LOCALIZATION NOTE (too-new-schema-error-text):
 #    $hostApplication will be replaced with the name of the host application, e.g. 'Thunderbird'
 #    $fileName will be replaced with the name of the new copy of the file, e.g. 'local-2020-05-11T21-30-17.sqlite'
-too-new-schema-error-text = Your calendar data is not compatible with this version of { $hostApplication }. The calendar data in your profile was updated by a newer version of { $hostApplication }. A backup of the data file has been created, named "{ $fileName }". Continuing with a newly created data file.
+too-new-schema-error-text = Your calendar data is not compatible with this version of { $hostApplication }. The calendar data in your profile was updated by a newer version of { $hostApplication }. A backup of the data file has been created, named “{ $fileName }”. Continuing with a newly created data file.
 
 # List of events or todos (unifinder)
 event-untitled = Untitled
@@ -221,7 +222,7 @@ other-put-error =
 # LOCALIZATION NOTE (read-only-mode):
 # used for an message like 'There has been an error reading data for calendar: Home. It has been...'
 #    $name will be replaced with the name of a calendar
-read-only-mode = There has been an error reading data for calendar: { $name }. It has been placed in read-only mode, since changes to this calendar will likely result in data-loss.  You may change this setting by choosing 'Edit Calendar'.
+read-only-mode = There has been an error reading data for calendar: { $name }. It has been placed in read-only mode, since changes to this calendar will likely result in data-loss.  You may change this setting by choosing ‘Edit Calendar’.
 
 # LOCALIZATION NOTE (disabled-mode):
 # used for an message like 'There has been an error reading data for calendar: Home. It has been...'
@@ -324,8 +325,8 @@ likely-timezone = America/New_York, America/Chicago, America/Denver, America/Pho
 # $timezone OS timezone id
 # $zoneInfoTimezoneId ZoneInfo timezone id
 warning-os-tz-no-match =
-    Warning: Operating system timezone "{ $timezone }"
-    no longer matches the internal ZoneInfo timezone "{ $zoneInfoTimezoneId }".
+    Warning: Operating system timezone “{ $timezone }”
+    no longer matches the internal ZoneInfo timezone “{ $zoneInfoTimezoneId }”.
 
 # "Skipping Operating System timezone 'Pacific/New_Country'."
 # Testing note: not easily testable.  May occur someday if (non-windows)
@@ -344,7 +345,7 @@ skipping-locale-timezone = Skipping locale timezone '{ $timezone }'.
 # Brazil timezones may be "No match" (change every year, so often out of date,
 # and changes are often more than a week different).
 warning-using-floating-tz-no-match =
-    Warning: Using "floating" timezone.
+    Warning: Using “floating” timezone.
     No ZoneInfo timezone data matched the operating system timezone data.
 
 # "Warning:  Using guessed timezone
@@ -374,7 +375,7 @@ tz-seems-to-matchos = This ZoneInfo timezone seems to match the operating system
 #    $timezone will be replaced with the name of a timezone
 tz-fromos =
     This ZoneInfo timezone was chosen based on the operating system timezone
-    identifier "{ $timezone }".
+    identifier “{ $timezone }”.
 
 # Localization note (tz-from-locale): Substitute name of your locale language.
 tz-from-locale =
@@ -511,7 +512,7 @@ error-writing2 = An error occurred when writing to the calendar { $name }! Pleas
 
 # LOCALIZATION NOTE (error-writing-details):
 # This will be displayed in the detail section of the error dialog
-error-writing-details = If you're seeing this message after snoozing or dismissing a reminder and this is for a calendar you do not want to add or edit events for, you can mark this calendar as read-only to avoid such experience in future. To do so, get to the calendar properties by right-clicking on this calendar in the list in the calendar or task view.
+error-writing-details = If you’re seeing this message after snoozing or dismissing a reminder and this is for a calendar you do not want to add or edit events for, you can mark this calendar as read-only to avoid such experience in future. To do so, get to the calendar properties by right-clicking on this calendar in the list in the calendar or task view.
 
 # LOCALIZATION NOTE (tooltip-calendar-disabled):
 # used for an alert-message like 'The calendar Home is momentarily not available'
@@ -755,13 +756,16 @@ event-duration-label-weeks =
 show-calendar = Show { $name }
 # $name calendar name
 hide-calendar = Hide { $name }
-
+# $name calendar name
 hide-calendar-title =
     .title = Show { $name }
+# $name calendar name
 show-calendar-title =
     .title = Hide { $name }
+# $name calendar name
 show-calendar-label =
     .label = Show { $name }
+# $name calendar name
 hide-calendar-label =
     .label = Hide { $name }
 
