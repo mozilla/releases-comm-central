@@ -7,6 +7,7 @@
 #include "EwsFolderCopyHandler.h"
 #include "EwsListeners.h"
 #include "EwsMessageCopyHandler.h"
+#include "EwsMoveTransaction.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 
@@ -15,6 +16,7 @@
 #include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "MsgOperationListener.h"
+#include "nsIMessenger.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDBView.h"
 #include "nsIMsgDatabase.h"
@@ -22,6 +24,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsISpamSettings.h"
+#include "nsITransactionManager.h"
 #include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsMsgFolderFlags.h"
@@ -143,10 +146,7 @@ static nsresult HandleMoveError(nsIMsgFolder* sourceFolder,
   });
 }
 
-NS_IMPL_ADDREF_INHERITED(EwsFolder, nsMsgDBFolder)
-NS_IMPL_RELEASE_INHERITED(EwsFolder, nsMsgDBFolder)
-NS_IMPL_QUERY_HEAD(EwsFolder)
-NS_IMPL_QUERY_TAIL_INHERITING(nsMsgDBFolder)
+NS_IMPL_ISUPPORTS_INHERITED(EwsFolder, nsMsgDBFolder, IEwsFolder);
 
 EwsFolder::EwsFolder() : mHasLoadedSubfolders(false) {}
 
@@ -421,9 +421,6 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
 
   auto notifyFailureOnExit = GuardCopyServiceExit(aSrcFolder, this, rv);
 
-  nsCOMPtr<IEwsClient> client;
-  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
-
   // Make sure we're not moving/copying to the root folder for the server,
   // since it cannot hold messages.
   bool isServer;
@@ -438,81 +435,13 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (isSameServer) {
-    // Same server copy or move, perform operation remotely.
-    nsTArray<nsCString> ewsIds;
-    rv = GetEwsIdsForMessageHeaders(aSrcHdrs, ewsIds);
+    // Since the folders are on the same (EWS) server, the other folder must
+    // also be an EWS Folder.
+    nsCOMPtr<IEwsFolder> ewsSourceFolder{do_QueryInterface(aSrcFolder, &rv)};
     NS_ENSURE_SUCCESS(rv, rv);
-
-    nsAutoCString destinationFolderId;
-    rv = GetEwsId(destinationFolderId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    const nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-    const nsCOMPtr<nsIMsgFolder> srcFolder = aSrcFolder;
-    const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
-
-    const RefPtr<EwsSimpleFailibleMessageListener> listener =
-        new EwsSimpleFailibleMessageListener(
-            aSrcHdrs,
-            [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener](
-                const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
-              nsresult rv = NS_OK;
-
-              auto listenerExitGuard =
-                  GuardCopyServiceListener(copyListener, rv);
-
-              if (useLegacyFallback) {
-                rv = self->SyncMessages(msgWindow, nullptr);
-                NS_ENSURE_SUCCESS(rv, rv);
-              } else {
-                // The new IDs were returned from the server. In this case, the
-                // order of the new IDs will correspond to the order of the
-                // input IDs specified in the initial request.
-                NS_ENSURE_TRUE(ids.Length() == srcHdrs.Length(),
-                               NS_ERROR_UNEXPECTED);
-
-                /// Copy the messages into the destination folder.
-                nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
-                rv = LocalCopyMessages(srcFolder, self, srcHdrs, newHeaders);
-                NS_ENSURE_SUCCESS(rv, rv);
-                NS_ENSURE_TRUE(newHeaders.Length() == ids.Length(),
-                               NS_ERROR_UNEXPECTED);
-
-                // Set the EWS ID property for each of the new headers.
-                for (std::size_t i = 0; i < ids.Length(); ++i) {
-                  newHeaders[i]->SetStringProperty(kEwsIdProperty, ids[i]);
-                }
-
-                nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-                    mozilla::components::FolderNotification::Service();
-                rv = notifier->NotifyMsgsMoveCopyCompleted(aIsMove, srcHdrs,
-                                                           self, newHeaders);
-                NS_ENSURE_SUCCESS(rv, rv);
-              }
-
-              // If required, delete the original items from the source folder.
-              if (aIsMove) {
-                rv = LocalDeleteMessages(srcFolder, srcHdrs);
-                NS_ENSURE_SUCCESS(rv, rv);
-
-                srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
-              }
-
-              return NotifyMessageCopyServiceComplete(srcFolder, self, NS_OK);
-            },
-            [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
-              if (copyListener) {
-                copyListener->OnStopCopy(status);
-              }
-              return HandleMoveError(srcFolder, self, status);
-            });
-
-    if (aIsMove) {
-      rv = client->MoveItems(listener, destinationFolderId, ewsIds);
-    } else {
-      rv = client->CopyItems(listener, destinationFolderId, ewsIds);
-    }
+    nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
+    rv = CopyItemsOnSameServer(ewsSourceFolder, aSrcHdrs, aIsMove, aMsgWindow,
+                               aCopyListener, aAllowUndo, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // Cross-server copy or move. Instantiate a `MessageCopyHandler` for this
@@ -520,6 +449,9 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
     nsCString ewsId;
     nsresult rv = GetEwsId(ewsId);
     NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCOMPtr<IEwsClient> client;
+    MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
 
     RefPtr<MessageCopyHandler> handler =
         new MessageCopyHandler(aSrcFolder, this, aSrcHdrs, aIsMove, aMsgWindow,
@@ -538,6 +470,125 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
 
     NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
+    IEwsFolder* aSrcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& aSrcHdrs,
+    bool aIsMove, nsIMsgWindow* aMsgWindow,
+    nsIMsgCopyServiceListener* aCopyListener, bool aAllowUndo,
+    IEwsFolderOperationListener* aOperationListener) {
+  // Same server copy or move, perform operation remotely.
+  nsTArray<nsCString> ewsIds;
+  nsresult rv = GetEwsIdsForMessageHeaders(aSrcHdrs, ewsIds);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString destinationFolderId;
+  rv = GetEwsId(destinationFolderId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  const nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
+  const nsCOMPtr<IEwsFolder> srcFolder = aSrcFolder;
+  const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
+  const nsCOMPtr<IEwsFolderOperationListener> operationListener =
+      aOperationListener;
+
+  const RefPtr<EwsSimpleFailibleMessageListener> listener =
+      new EwsSimpleFailibleMessageListener(
+          aSrcHdrs,
+          [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener,
+           aAllowUndo, operationListener](
+              const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
+              const nsTArray<nsCString>& ids,
+              bool useLegacyFallback) MOZ_CAN_RUN_SCRIPT_BOUNDARY_LAMBDA {
+            nsresult rv = NS_OK;
+
+            auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
+
+            nsCOMPtr<nsIMsgFolder> genericFolder{
+                do_QueryInterface(srcFolder, &rv)};
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
+            if (useLegacyFallback) {
+              rv = self->SyncMessages(msgWindow, nullptr);
+              NS_ENSURE_SUCCESS(rv, rv);
+            } else {
+              // The new IDs were returned from the server. In this case,
+              // the order of the new IDs will correspond to the order of
+              // the input IDs specified in the initial request.
+              NS_ENSURE_TRUE(ids.Length() == srcHdrs.Length(),
+                             NS_ERROR_UNEXPECTED);
+
+              /// Copy the messages into the destination folder.
+              rv = LocalCopyMessages(genericFolder, self, srcHdrs, newHeaders);
+              NS_ENSURE_SUCCESS(rv, rv);
+              NS_ENSURE_TRUE(newHeaders.Length() == ids.Length(),
+                             NS_ERROR_UNEXPECTED);
+
+              // Set the EWS ID property for each of the new headers.
+              for (std::size_t i = 0; i < ids.Length(); ++i) {
+                newHeaders[i]->SetStringProperty(kEwsIdProperty, ids[i]);
+              }
+
+              nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+                  mozilla::components::FolderNotification::Service();
+              rv = notifier->NotifyMsgsMoveCopyCompleted(aIsMove, srcHdrs, self,
+                                                         newHeaders);
+              NS_ENSURE_SUCCESS(rv, rv);
+            }
+
+            // If required, delete the original items from the source
+            // folder.
+            if (aIsMove) {
+              rv = LocalDeleteMessages(genericFolder, srcHdrs);
+              NS_ENSURE_SUCCESS(rv, rv);
+
+              genericFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
+            }
+
+            if (aAllowUndo && msgWindow && aIsMove) {
+              nsCOMPtr<nsITransactionManager> transactionManager;
+              rv = msgWindow->GetTransactionManager(
+                  getter_AddRefs(transactionManager));
+              NS_ENSURE_SUCCESS(rv, rv);
+
+              RefPtr<EwsMoveTransaction> undoTransaction =
+                  new EwsMoveTransaction(srcFolder, self.get(), msgWindow,
+                                         std::move(newHeaders));
+              undoTransaction->SetTransactionType(nsIMessenger::eMoveMsg);
+              rv = transactionManager->DoTransaction(undoTransaction);
+              NS_ENSURE_SUCCESS(rv, rv);
+            }
+
+            if (operationListener) {
+              rv = operationListener->OnComplete(newHeaders);
+              NS_ENSURE_SUCCESS(rv, rv);
+            }
+
+            return NotifyMessageCopyServiceComplete(genericFolder, self, NS_OK);
+          },
+          [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
+            if (copyListener) {
+              copyListener->OnStopCopy(status);
+            }
+            nsresult rv;
+            nsCOMPtr<nsIMsgFolder> genericFolder{
+                do_QueryInterface(srcFolder, &rv)};
+            NS_ENSURE_SUCCESS(rv, rv);
+            return HandleMoveError(genericFolder, self, status);
+          });
+
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
+  if (aIsMove) {
+    rv = client->MoveItems(listener, destinationFolderId, ewsIds);
+  } else {
+    rv = client->CopyItems(listener, destinationFolderId, ewsIds);
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
 }

@@ -1,0 +1,54 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIMsgCopyServiceListener;
+interface nsIMsgDBHdr;
+interface nsIMsgFolder;
+interface nsIMsgWindow;
+
+interface IEwsFolderOperationListener;
+
+/**
+ * Specialized interface to folders on an EWS server.
+ */
+[scriptable, uuid(56dd52a2-ce37-4999-91d0-ff5dd6487981)]
+interface IEwsFolder : nsISupports {
+
+/**
+ * Copy a collection of items from another folder on the same server to this
+ * folder.
+ *
+ * @param sourceFolder The folder that the items are being copied from.
+ * @param headers The headers for the items that are to be copied.
+ * @param isMove Whether or not this is a move operation.
+ * @param window A context window for the operation.
+ * @param copyListener The copy listener for the operation.
+ * @param allowUndo Whether or not to generate an undo transaction.
+ * @param listener A listener to perform any operations on the new headers.
+ */
+void copyItemsOnSameServer(
+    in IEwsFolder sourceFolder,
+    in Array<nsIMsgDBHdr> headers,
+    in boolean isMove,
+    in nsIMsgWindow window,
+    in nsIMsgCopyServiceListener copyListener,
+    in boolean allowUndo,
+    in IEwsFolderOperationListener listener);
+
+};
+
+/**
+ * An interface for listeners for intra-EWS server operations.
+ */
+[scriptable, uuid(f54907ed-03f1-4c18-b3e9-0688885f261d)]
+interface IEwsFolderOperationListener : nsISupports {
+    /**
+     * Signal that the operation has completed.
+     *
+     * @param headers The headers for newly created items on the server.
+     */
+    void OnComplete(in Array<nsIMsgDBHdr> headers);
+};

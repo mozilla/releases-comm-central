@@ -6,6 +6,7 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_
 
 #include "IEwsClient.h"
+#include "IEwsFolder.h"
 #include "nsICopyMessageListener.h"
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
@@ -22,8 +23,9 @@ nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
  * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
  * account.
  */
-class EwsFolder : public nsMsgDBFolder {
+class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
  public:
+  NS_DECL_IEWSFOLDER
   NS_DECL_ISUPPORTS_INHERITED
 
   EwsFolder();

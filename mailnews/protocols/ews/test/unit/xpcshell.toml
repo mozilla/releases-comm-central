@@ -22,3 +22,5 @@ support-files = ["data/*"]
 ["test_syncFolderHierarchy.js"]
 
 ["test_syncMessagesForFolder.js"]
+
+["test_undo.js"]

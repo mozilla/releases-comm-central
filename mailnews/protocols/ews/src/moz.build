@@ -9,6 +9,7 @@ SOURCES += [
     "EwsListeners.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
+    "EwsMoveTransaction.cpp",
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
@@ -26,6 +27,7 @@ XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
     "IEwsClient.idl",
+    "IEwsFolder.idl",
     "IEwsIncomingServer.idl",
 ]
 
