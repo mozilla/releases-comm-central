@@ -59,7 +59,7 @@ function PopupNotification(
   this._dismissed = false;
   // Will become a boolean when manually toggled by the user.
   this._checkboxChecked = null;
-  this.timeCreated = Cu.now();
+  this.timeCreated = ChromeUtils.now();
 }
 
 PopupNotification.prototype = {
@@ -483,7 +483,7 @@ PopupNotifications.prototype = {
       case "activate":
         if (this.isPanelOpen) {
           for (const elt of this.panel.children) {
-            const now = Cu.now();
+            const now = ChromeUtils.now();
             elt.notification.timeShown = Math.max(
               now,
               elt.notification.timeShown ?? 0
@@ -872,7 +872,7 @@ PopupNotifications.prototype = {
       notificationsToShow.forEach(function (n) {
         // If the panel is already open remember the time the notification was
         // shown for the security delay.
-        n.timeShown = Math.max(Cu.now(), n.timeShown ?? 0);
+        n.timeShown = Math.max(ChromeUtils.now(), n.timeShown ?? 0);
         this._fireCallback(n, NOTIFICATION_EVENT_SHOWN);
       }, this);
 
@@ -934,7 +934,7 @@ PopupNotifications.prototype = {
         notificationsToShow.forEach(function (n) {
           // The panel has been opened, remember the time the notification was
           // shown for the security delay.
-          n.timeShown = Math.max(Cu.now(), n.timeShown ?? 0);
+          n.timeShown = Math.max(ChromeUtils.now(), n.timeShown ?? 0);
           this._fireCallback(n, NOTIFICATION_EVENT_SHOWN);
         }, this);
         // These notifications are used by tests to know when all the processing
@@ -1394,7 +1394,7 @@ PopupNotifications.prototype = {
         "_onButtonEvent: notification.timeShown is unset. Setting to now.",
         notification
       );
-      notification.timeShown = Cu.now();
+      notification.timeShown = ChromeUtils.now();
     }
 
     if (type == "dropmarkerpopupshown") {
@@ -1415,7 +1415,7 @@ PopupNotifications.prototype = {
         return;
       }
 
-      const now = Cu.now();
+      const now = ChromeUtils.now();
       const timeSinceShown = now - notification.timeShown;
       if (timeSinceShown < lazy.buttonDelay) {
         Services.console.logStringMessage(

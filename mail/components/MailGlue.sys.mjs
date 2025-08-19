@@ -948,7 +948,7 @@ MailGlue.prototype = {
       ChromeUtils.idleDispatch(
         () => {
           if (!Services.startup.shuttingDown) {
-            const startTime = Cu.now();
+            const startTime = ChromeUtils.now();
             try {
               task.task();
             } catch (ex) {
@@ -999,7 +999,7 @@ MailGlue.prototype = {
     for (const task of idleTasks) {
       ChromeUtils.idleDispatch(async () => {
         if (!Services.startup.shuttingDown) {
-          const startTime = Cu.now();
+          const startTime = ChromeUtils.now();
           try {
             await task();
           } catch (ex) {

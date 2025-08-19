@@ -493,10 +493,10 @@
         // should take no more than 100ms to feel 'immediate', but the perceived
         // performance if we flicker is likely even worse than having a barely
         // perceptible delay.
-        const deadline = Cu.now() + 200;
+        const deadline = ChromeUtils.now() + 200;
         this.displayPendingMessages({
           timeRemaining() {
-            return deadline - Cu.now();
+            return deadline - ChromeUtils.now();
           },
         });
       }
