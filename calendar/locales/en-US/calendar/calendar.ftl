@@ -825,3 +825,77 @@ calendar-context-paste =
 calendar-taskview-delete =
     .label = Delete
     .tooltiptext = Delete Task
+
+calendar-context-attendance-menu =
+    .label = Attendance
+    .accesskey = d
+
+calendar-context-attendance-occurrence =
+    .label = This Occurrence
+
+calendar-context-attendance-all-series =
+    .label = Complete Series
+
+calendar-context-attendance-send =
+    .label = Send a notification now
+    .accesskey = S
+
+calendar-context-attendance-dontsend =
+    .label = Do not send a notification
+    .accesskey = D
+
+calendar-context-attendance-occ-accepted =
+    .label = Accepted
+    .accesskey = A
+
+calendar-context-attendance-occ-tentative =
+    .label = Accepted tentatively
+    .accesskey = y
+
+calendar-context-attendance-occ-declined =
+    .label = Declined
+    .accesskey = c
+
+calendar-context-attendance-occ-delegated =
+    .label = Delegated
+    .accesskey = g
+
+calendar-context-attendance-occ-needs-action =
+    .label = Still needs action
+    .accesskey = S
+
+calendar-context-attendance-occ-in-progress =
+    .label = In progress
+    .accesskey = I
+
+calendar-context-attendance-occ-completed =
+    .label = Completed
+    .accesskey = C
+
+calendar-context-attendance-all-accepted =
+    .label = Accepted
+    .accesskey = e
+
+calendar-context-attendance-all-tentative =
+    .label = Accepted tentatively
+    .accesskey = v
+
+calendar-context-attendance-all-declined =
+    .label = Declined
+    .accesskey = d
+
+calendar-context-attendance-all-delegated =
+    .label = Delegated
+    .accesskey = l
+
+calendar-context-attendance-all-needs-action =
+    .label = Still needs action
+    .accesskey = l
+
+calendar-context-attendance-all-in-progress =
+    .label = In progress
+    .accesskey = p
+
+calendar-context-attendance-all-completed =
+    .label = Completed
+    .accesskey = m
