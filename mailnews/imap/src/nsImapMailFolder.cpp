@@ -4091,6 +4091,8 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol* aProtocol,
   }
 }
 
+// nsIImapMessageSink.setupMsgWriteStream() implementation.
+// The protocol calls this to start downloading a message to disk.
 NS_IMETHODIMP
 nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope) {
   nsresult rv;
@@ -4186,6 +4188,9 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
   return rv;
 }
 
+// nsIImapMessageSink.parseAdoptedMsgLine() implementation.
+// Called one or more times to deliver raw message data to the folder,
+// for writing to the local store.
 NS_IMETHODIMP
 nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
                                       nsMsgKey uidOfMessage,
@@ -4256,6 +4261,12 @@ void nsImapMailFolder::EndOfflineDownload() {
   m_offlineHeader = nullptr;
 }
 
+// nsIImapMessageSink.NormalEndMsgWriteStream() implementation.
+// Called by nsImapProtocol to complete a message write begun with
+// parseAdoptedMsgLine().
+// Updates the database (sets the storeToken etc).
+// If any of the filters require the full message body, this function will
+// then apply them. And junk filtering.
 NS_IMETHODIMP
 nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
                                           nsIImapUrl* imapUrl,
@@ -4337,6 +4348,8 @@ nsImapMailFolder::NormalEndMsgWriteStream(nsMsgKey uidOfMessage, bool markRead,
   return NS_OK;
 }
 
+// nsIImapMessageSink.abortMsgWriteStream() implementation.
+// Called by protocol to abort a write begin with parseAdoptedMsgLine().
 NS_IMETHODIMP
 nsImapMailFolder::AbortMsgWriteStream() {
   if (m_offlineHeader) {
@@ -4578,8 +4591,9 @@ nsresult nsImapMailFolder::NotifyMessageFlagsFromHdr(nsIMsgDBHdr* dbHdr,
   return NS_OK;
 }
 
-// message flags operation - this is called from the imap protocol,
-// proxied over from the imap thread to the ui thread, when a flag changes
+// nsIImapMessageSink.notifyMessageFlags() implementation.
+// This is called from the imap protocol when the message flags
+// or keywords are changed.
 NS_IMETHODIMP
 nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
                                      const nsACString& aKeywords,
@@ -4628,6 +4642,9 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
   return NS_OK;
 }
 
+// nsIImapMessageSink.notifyMessageDeleted() implementation.
+// The protocol calls this to indicate a message has been deleted on
+// the server.
 NS_IMETHODIMP
 nsImapMailFolder::NotifyMessageDeleted(const char* onlineFolderName,
                                        bool deleteAllMsgs,
@@ -4705,6 +4722,9 @@ void nsImapMailFolder::SetIMAPDeletedFlag(nsIMsgDatabase* mailDB,
         mailDB->MarkImapDeleted(msgids[msgIndex], markDeleted, nullptr);
 }
 
+// nsIImapMessageSink.getMessageSizeFromDB() implementation.
+// Protocol uses this to get the message size as stored in the database,
+// which it uses when sending a request to fetch the message.
 NS_IMETHODIMP
 nsImapMailFolder::GetMessageSizeFromDB(const char* id, uint32_t* size) {
   NS_ENSURE_ARG_POINTER(size);
@@ -4721,6 +4741,7 @@ nsImapMailFolder::GetMessageSizeFromDB(const char* id, uint32_t* size) {
   return rv;
 }
 
+// nsIImapMessageSink.getCurMoveCopyMessageInfo() implementation.
 NS_IMETHODIMP
 nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
                                             PRTime* aDate,
@@ -4791,7 +4812,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
   return NS_OK;
 }
 
-// nsIUrlListener implementation.
+// nsIUrlListener.onStartRunningUrl() implementation.
 NS_IMETHODIMP
 nsImapMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
   NS_ASSERTION(aUrl, "sanity check - need to be be running non-null url");
@@ -4805,7 +4826,7 @@ nsImapMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
   return NS_OK;
 }
 
-// nsIUrlListener implementation.
+// nsIUrlListener.onStopRunningUrl() implementation.
 // nsImapMailFolder passes itself as a listener when it kicks off operations
 // on the nsIImapService. So, when the operation completes, this gets called
 // to handle all the different operations, using a big switch statement.

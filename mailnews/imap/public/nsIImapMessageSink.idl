@@ -23,7 +23,10 @@ interface nsIFile;
  *    call the methods across thread boundaries (see ImapMessageSinkProxy).
  */
 interface nsIImapMessageSink : nsISupports {
-  // set up message download output stream
+  /**
+   * Set up for downloading a message to disk.
+   * TODO: what is the sequence of calls after this?
+   */
   void setupMsgWriteStream(in nsIFile aFile, in boolean aAppendDummyEnvelope);
 
   /**
@@ -52,10 +55,14 @@ interface nsIImapMessageSink : nsISupports {
                                in boolean aMarkMsgRead, in nsIImapUrl aImapUrl,
                                in long aUpdatedMessageSize);
 
+  /**
+   * Notify the backend that a message download has failed.
+   */
   void abortMsgWriteStream();
 
   /**
-   *  Notify the message sink that one or more flags have changed
+   *  Notify the message sink that one or more flags or keywords have
+   *  changed.
    *  For Condstore servers, also update the highestMod Sequence
    *  @param   aFlags         - The new flags for the message
    *  @param   aKeywords        keywords for the message
@@ -67,8 +74,15 @@ interface nsIImapMessageSink : nsISupports {
                           in nsMsgKey aMessageKey,
                           in unsigned long long aHighestModSeq);
 
+  /**
+   * The protocol calls this when a message is deleted on the server.
+   */
   void notifyMessageDeleted(in string aOnlineFolderName,in boolean aDeleteAllMsgs,in string aMsgIdString);
 
+  /**
+   * The protocol uses this to query the database for the size of a
+   * message.
+   */
   void getMessageSizeFromDB(in string aId, out unsigned long aSize);
 
   /**
