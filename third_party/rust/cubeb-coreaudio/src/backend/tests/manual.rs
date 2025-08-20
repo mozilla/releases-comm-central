@@ -1,6 +1,6 @@
 use super::utils::{
-    test_get_devices_in_scope, test_ops_context_operation, test_ops_stream_operation, Scope,
-    StreamType, TestDeviceInfo, TestDeviceSwitcher,
+    test_get_devices_in_scope, test_object_id_to_devid, test_ops_context_operation,
+    test_ops_stream_operation, Scope, StreamType, TestDeviceInfo, TestDeviceSwitcher,
 };
 use super::*;
 use std::io;
@@ -654,6 +654,7 @@ fn test_stream_tester() {
                 ptr::null_mut(),
             )
         };
+        let input_device = test_object_id_to_devid(context_ptr, input_device, DeviceType::INPUT);
 
         let (output_device, output_stream_params) = if stream_type.contains(StreamType::OUTPUT) {
             (
@@ -666,6 +667,7 @@ fn test_stream_tester() {
                 ptr::null_mut(),
             )
         };
+        let output_device = test_object_id_to_devid(context_ptr, output_device, DeviceType::OUTPUT);
 
         let stream_name = CString::new("stream tester").unwrap();
 

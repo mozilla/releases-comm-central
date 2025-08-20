@@ -3790,15 +3790,18 @@ impl<'ctx> CoreStreamData<'ctx> {
                 self.stm_ptr,
                 input_hw_desc
             );
-            // Notice: when we are using aggregate device, input_hw_desc.mChannelsPerFrame is the
-            // total of all the input channel count of the devices added in the aggregate device.
+            // Notice: when we are using an aggregate device, input_hw_desc.mChannelsPerFrame is the
+            // sum of all input channels of all devices added to the aggregate device.
             // Because we set the input device first on the aggregate device, the input device's
             // input channels will also be first among all the aggregate device's channels, when
             // accessed in the input callback. By requesting only the input device's channels here,
             // any other input channels, i.e. from the output device, will be truncated away.
+            // Conversely, a VPIO unit downmixes the device's input channels to MONO, making
+            // device_channel_count too large for stereo input devices.
+            // We solve this with min().
             let params = unsafe {
                 let mut p = *self.input_stream_params.as_ptr();
-                p.channels = device_channel_count;
+                p.channels = cmp::min(input_hw_desc.mChannelsPerFrame, device_channel_count);
                 // Input AudioUnit must be configured with device's sample rate.
                 // we will resample inside input callback.
                 p.rate = input_hw_desc.mSampleRate as _;

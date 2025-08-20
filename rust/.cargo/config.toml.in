@@ -11,6 +11,11 @@ git = "https://github.com/FirefoxGraphics/wpf-gpu-raster"
 rev = "99979da091fd58fba8477e7fcdf5ec0727102916"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/Gankra/thin-vec?rev=3b4d5c838eacf5e2156d89bfdb559b6377bd6c39"]
+git = "https://github.com/Gankra/thin-vec"
+rev = "3b4d5c838eacf5e2156d89bfdb559b6377bd6c39"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/beurdouche/mls-platform-api?rev=5d88241b9765cae3669aba21f0946bd3700f7db1"]
 git = "https://github.com/beurdouche/mls-platform-api"
 rev = "5d88241b9765cae3669aba21f0946bd3700f7db1"
@@ -61,9 +66,9 @@ git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/application-services?rev=e88505b99a7355dcb5121ec68eec8e6e97657330"]
+[source."git+https://github.com/mozilla/application-services?rev=2f3f9cd624cc6f1e08b7540407e953daae602b82"]
 git = "https://github.com/mozilla/application-services"
-rev = "e88505b99a7355dcb5121ec68eec8e6e97657330"
+rev = "2f3f9cd624cc6f1e08b7540407e953daae602b82"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/audioipc?rev=ec44d33e5924f6618467fdb18010d626701fd110"]
@@ -71,9 +76,9 @@ git = "https://github.com/mozilla/audioipc"
 rev = "ec44d33e5924f6618467fdb18010d626701fd110"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5f12ec4065de7c532c483cdad93b7f50cca67e7d"]
+[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=721b915d12dd899a67596cd3d9357a31c0af45b5"]
 git = "https://github.com/mozilla/cubeb-coreaudio-rs"
-rev = "5f12ec4065de7c532c483cdad93b7f50cca67e7d"
+rev = "721b915d12dd899a67596cd3d9357a31c0af45b5"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=e0ddf430162f9113a9a90dc52b349d273baa3ec5"]

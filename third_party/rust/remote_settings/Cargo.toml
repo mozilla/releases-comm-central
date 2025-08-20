@@ -63,7 +63,7 @@ path = "../support/error"
 path = "../support/firefox-versioning"
 
 [dependencies.jexl-eval]
-version = "0.4.0"
+version = "0.3.0"
 
 [dependencies.rc_crypto]
 path = "../support/rc_crypto"
