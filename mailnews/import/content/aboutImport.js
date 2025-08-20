@@ -453,6 +453,7 @@ class ProfileImporterController extends ImporterController {
     document.getElementById("profileNextButton").disabled = false;
 
     this.showPane("profiles");
+    delete this._importingFromZip; // Clear any previous value.
   }
 
   /**
