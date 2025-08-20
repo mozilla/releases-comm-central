@@ -4,6 +4,7 @@ prefs = [
   "calendar.debug.log=true",
   "carddav.setup.loglevel=Debug",
   "carddav.sync.loglevel=Debug",
+  "certificate-check.loglevel=All",
   "chat.otr.enable=false",
   "mail.account.account1.server=server1",
   "mail.account.account2.identities=id1,id2",
@@ -88,6 +89,8 @@ tags = ["oauth"]
 
 ["browser_archiveOptions.js"]
 tags = ["archive"]
+
+["browser_certificateCheck.js"]
 
 ["browser_deletion.js"]
 

@@ -436,6 +436,20 @@ function secureSelect(aLoading) {
       ? "authPasswordCleartextViaSSL"
       : "authPasswordCleartextInsecurely"
   );
+
+  const certCheck = document.getElementById("certCheck");
+  if (gServer.type == "nntp" || socketType == Ci.nsMsgSocketType.plain) {
+    certCheck.hidden = true;
+  } else {
+    certCheck.init(
+      document.getElementById("server.hostName").value,
+      document.getElementById("server.port").value,
+      document.getElementById("server.type").value,
+      document.getElementById("server.socketType").value ==
+        Ci.nsMsgSocketType.alwaysSTARTTLS
+    );
+    certCheck.hidden = false;
+  }
 }
 
 function setupMailOnServerUI() {

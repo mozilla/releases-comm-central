@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
+
+    <link rel="localization" href="messenger/certError.ftl" />
+
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -27,6 +30,10 @@
     <script
       defer="defer"
       src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      type="module"
+      src="chrome://messenger/content/certificate-check.mjs"
     ></script>
     <script
       defer="defer"
@@ -153,36 +160,34 @@
           <html:legend>&securitySettings.label;</html:legend>
           <html:table>
             <html:tr>
-              <html:td>
+              <html:td style="vertical-align: baseline">
                 <label
                   value="&connectionSecurity.label;"
                   accesskey="&connectionSecurity.accesskey;"
-                  control="server."
+                  control="server.socketType"
                 />
               </html:td>
-              <html:td>
-                <menulist
+              <html:td style="vertical-align: baseline">
+                <html:select
                   wsm_persist="true"
                   id="server.socketType"
-                  oncommand="secureSelect();"
-                  style="width: 100%"
+                  onchange="secureSelect();"
                 >
-                  <menupopup id="server.socketTypePopup">
-                    <menuitem
-                      value="0"
-                      label="&connectionSecurityType-0.label;"
-                    />
-                    <menuitem
-                      value="2"
-                      label="&connectionSecurityType-2.label;"
-                      hidefor="nntp"
-                    />
-                    <menuitem
-                      value="3"
-                      label="&connectionSecurityType-3.label;"
-                    />
-                  </menupopup>
-                </menulist>
+                  <html:option
+                    value="0"
+                    label="&connectionSecurityType-0.label;"
+                  />
+                  <html:option
+                    value="2"
+                    label="&connectionSecurityType-2.label;"
+                    hidefor="nntp"
+                  />
+                  <html:option
+                    value="3"
+                    label="&connectionSecurityType-3.label;"
+                  />
+                </html:select>
+                <html:certificate-check id="certCheck"></html:certificate-check>
               </html:td>
             </html:tr>
             <html:tr>
@@ -195,27 +200,24 @@
                 />
               </html:td>
               <html:td>
-                <menulist
+                <html:select
                   id="server.authMethod"
                   wsm_persist="true"
                   preftype="int"
                   prefstring="mail.server.%serverkey%.authMethod"
                   hidefor="nntp"
-                  style="width: 100%"
                 >
-                  <menupopup id="server.authMethodPopup">
-                    <menuitem id="authMethod-no" value="1" />
-                    <menuitem id="authMethod-old" value="2" />
-                    <menuitem id="authMethod-password-cleartext" value="3" />
-                    <menuitem id="authMethod-password-encrypted" value="4" />
-                    <menuitem id="authMethod-kerberos" value="5" />
-                    <menuitem id="authMethod-ntlm" value="6" />
-                    <menuitem id="authMethod-external" value="7" />
-                    <menuitem id="authMethod-oauth2" value="10" />
-                    <menuitem id="authMethod-anysecure" value="8" />
-                    <menuitem id="authMethod-any" value="9" />
-                  </menupopup>
-                </menulist>
+                  <html:option id="authMethod-no" value="1" />
+                  <html:option id="authMethod-old" value="2" />
+                  <html:option id="authMethod-password-cleartext" value="3" />
+                  <html:option id="authMethod-password-encrypted" value="4" />
+                  <html:option id="authMethod-kerberos" value="5" />
+                  <html:option id="authMethod-ntlm" value="6" />
+                  <html:option id="authMethod-external" value="7" />
+                  <html:option id="authMethod-oauth2" value="10" />
+                  <html:option id="authMethod-anysecure" value="8" />
+                  <html:option id="authMethod-any" value="9" />
+                </html:select>
               </html:td>
             </html:tr>
           </html:table>

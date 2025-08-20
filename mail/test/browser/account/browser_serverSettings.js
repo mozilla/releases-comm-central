@@ -81,7 +81,7 @@ add_task(async function test_ews_auth_methods() {
     // Gather the items in the authentication methods menu and filter out the
     // ones that are hidden.
     const visibleItems = Array.from(
-      authMethodMenu.getElementsByTagName("menuitem")
+      authMethodMenu.getElementsByTagName("html:option")
     ).filter(item => !item.hidden);
 
     // Make sure we have the right number of authentication methods.

@@ -153,6 +153,18 @@ var gSmtpServerListWindow = {
       this.mBundle.getString(
         "smtpServer-ConnectionSecurityType-" + aServer.socketType
       );
+    if (aServer.socketType != Ci.nsMsgSocketType.plain) {
+      const certCheck = document.createElement("certificate-check");
+      document
+        .getElementById("useSecureConnectionValue")
+        .appendChild(certCheck);
+      certCheck.init(
+        aServer.serverURI.host,
+        aServer.serverURI.port,
+        "smtp",
+        aServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
+      );
+    }
 
     var authStr = "";
     switch (aServer.authMethod) {

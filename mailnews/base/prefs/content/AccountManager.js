@@ -179,13 +179,13 @@ function onLoad() {
         event.preventDefault();
       });
     const inputElements = contentFrame.contentDocument.querySelectorAll(
-      "checkbox, input, menulist, textarea, radiogroup, richlistbox"
+      "checkbox, input, menulist, radiogroup, richlistbox, select, textarea"
     );
     contentFrame.contentDocument.addEventListener("prefchange", () => {
       onAccept(true);
     });
     for (const input of inputElements) {
-      if (input.localName == "input" || input.localName == "textarea") {
+      if (["input", "select", "textarea"].includes(input.localName)) {
         input.addEventListener("change", () => {
           onAccept(true);
         });
