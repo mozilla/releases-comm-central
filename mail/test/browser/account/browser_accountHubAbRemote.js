@@ -664,12 +664,19 @@ async function checkSyncSubview(dialog, origin = "https://carddav.test") {
   const addressBookDirectoryPromise = TestUtils.topicObserved(
     "addrbook-directory-synced"
   );
-  const addressBookTabOpen = BrowserTestUtils.waitForEvent(
-    tabmail.tabContainer,
-    "TabOpen",
-    false,
-    event => event.detail.tabInfo.mode.type == "addressBookTab"
-  );
+  const addressBookTabOpen = (async () => {
+    const tabEvent = await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabOpen",
+      false,
+      event => event.detail.tabInfo.mode.type == "addressBookTab"
+    );
+    await BrowserTestUtils.waitForEvent(
+      tabEvent.detail.tabInfo.browser,
+      "about-addressbook-ready",
+      true
+    );
+  })();
   EventUtils.synthesizeMouseAtCenter(forward, {}, window);
 
   Assert.equal(
