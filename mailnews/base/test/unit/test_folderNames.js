@@ -58,12 +58,12 @@ add_task(function () {
   const sentFolder2 = rootFolder.createLocalSubfolder("Sent Mail");
   sentFolder2.setFlag(Ci.nsMsgFolderFlags.SentMail);
   Assert.equal(sentFolder2.name, "Sent Mail");
-  Assert.equal(sentFolder2.localizedName, "Sent");
+  Assert.equal(sentFolder2.localizedName, "Sent Mail");
 
   const sentFolder3 = rootFolder.createLocalSubfolder("Outbox");
   sentFolder3.setFlag(Ci.nsMsgFolderFlags.SentMail);
   Assert.equal(sentFolder3.name, "Outbox");
-  Assert.equal(sentFolder3.localizedName, "Sent");
+  Assert.equal(sentFolder3.localizedName, "Outbox");
 
   // Normal drafts folder as created by us, but with weird capitalisation to
   // prove it works. The case is "corrected" by nsMsgDBFolder::AddSubfolder.
@@ -80,7 +80,7 @@ add_task(function () {
   const draftsFolder2 = rootFolder.createLocalSubfolder("Draft");
   draftsFolder2.setFlag(Ci.nsMsgFolderFlags.Drafts);
   Assert.equal(draftsFolder2.name, "Draft");
-  Assert.equal(draftsFolder2.localizedName, "Drafts");
+  Assert.equal(draftsFolder2.localizedName, "Draft");
   Assert.equal(
     draftsFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Draft" : ""
@@ -106,7 +106,7 @@ add_task(function () {
   const trashFolder2 = rootFolder.createLocalSubfolder("Bin");
   trashFolder2.setFlag(Ci.nsMsgFolderFlags.Trash);
   Assert.equal(trashFolder2.name, "Bin");
-  Assert.equal(trashFolder2.localizedName, trashFolderName);
+  Assert.equal(trashFolder2.localizedName, "Bin");
   Assert.equal(
     trashFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Bin" : ""
@@ -115,7 +115,7 @@ add_task(function () {
   const trashFolder3 = rootFolder.createLocalSubfolder("Deleted");
   trashFolder3.setFlag(Ci.nsMsgFolderFlags.Trash);
   Assert.equal(trashFolder3.name, "Deleted");
-  Assert.equal(trashFolder3.localizedName, "Trash");
+  Assert.equal(trashFolder3.localizedName, "Deleted");
   Assert.equal(
     trashFolder3.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Deleted" : ""
@@ -151,7 +151,7 @@ add_task(function () {
   const archivesFolder2 = rootFolder.createLocalSubfolder("Archive");
   archivesFolder2.setFlag(Ci.nsMsgFolderFlags.Archive);
   Assert.equal(archivesFolder2.name, "Archive");
-  Assert.equal(archivesFolder2.localizedName, archivesFolderName);
+  Assert.equal(archivesFolder2.localizedName, "Archive");
   Assert.equal(
     archivesFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Archive" : ""

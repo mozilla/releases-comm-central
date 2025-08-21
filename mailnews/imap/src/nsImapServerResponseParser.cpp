@@ -805,7 +805,8 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
   const char* serverKey = fServerConnection.GetImapServerKey();
   bool xlistInbox = boxSpec->mBoxFlags & kImapInbox;
 
-  if (!PL_strcasecmp(fNextToken, "INBOX") || xlistInbox) {
+  if (!PL_strcasecmp(fNextToken, "INBOX") ||
+      !PL_strcasecmp(fNextToken, "\"INBOX\"") || xlistInbox) {
     boxname = "INBOX"_ns;
     if (xlistInbox) PR_Free(CreateAstring());
     AdvanceToNextToken();

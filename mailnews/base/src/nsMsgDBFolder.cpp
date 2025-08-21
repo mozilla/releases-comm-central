@@ -3043,19 +3043,30 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
 }
 
 nsString nsMsgDBFolder::GetLocalizedNameInternal() {
+  // INBOX is special...
   if (mFlags & nsMsgFolderFlags::Inbox &&
       mName.LowerCaseEqualsLiteral("inbox")) {
     return kLocalizedInboxName;
   }
+
+  nsAutoCString serverType;
+  GetIncomingServerType(serverType);
+  if (!serverType.Equals("none")) {
+    // Only Local Folders acccounts should have special treatment of name.
+    // For other accounts, the name may or may not be localized to the
+    // user server side settings. But we must match what's shown to the
+    // user on the server to avoid confusion about what folder it is and
+    // potential duplication (e.g. name + localized name both showing "Sent").
+    // See nsMsgDBFolder::AddSubfolder
+    return u""_ns;
+  }
+
   if (mFlags & nsMsgFolderFlags::SentMail &&
-      (mName.LowerCaseEqualsLiteral("sent") ||
-       mName.LowerCaseEqualsLiteral("sent mail") ||
-       mName.LowerCaseEqualsLiteral("outbox"))) {
+      mName.LowerCaseEqualsLiteral("sent")) {
     return kLocalizedSentName;
   }
   if (mFlags & nsMsgFolderFlags::Drafts &&
-      (mName.LowerCaseEqualsLiteral("drafts") ||
-       mName.LowerCaseEqualsLiteral("draft"))) {
+      mName.LowerCaseEqualsLiteral("drafts")) {
     return kLocalizedDraftsName;
   }
   if (mFlags & nsMsgFolderFlags::Templates &&
@@ -3063,24 +3074,19 @@ nsString nsMsgDBFolder::GetLocalizedNameInternal() {
     return kLocalizedTemplatesName;
   }
   if (mFlags & nsMsgFolderFlags::Trash &&
-      (mName.LowerCaseEqualsLiteral("trash") ||
-       mName.LowerCaseEqualsLiteral("bin") ||
-       mName.LowerCaseEqualsLiteral("deleted"))) {
+      mName.LowerCaseEqualsLiteral("trash")) {
     return kLocalizedTrashName;
   }
   if (mFlags & nsMsgFolderFlags::Queue &&
       mName.LowerCaseEqualsLiteral("unsent messages")) {
     return kLocalizedUnsentName;
   }
-  if (mFlags & nsMsgFolderFlags::Junk &&
-      (mName.LowerCaseEqualsLiteral("junk") ||
-       mName.LowerCaseEqualsLiteral("spam") ||
-       mName.LowerCaseEqualsLiteral("bulk"))) {
+  if (mFlags & nsMsgFolderFlags::Junk && mName.LowerCaseEqualsLiteral("junk")) {
     return kLocalizedJunkName;
   }
   if (mFlags & nsMsgFolderFlags::Archive &&
-      (mName.LowerCaseEqualsLiteral("archive") ||
-       mName.LowerCaseEqualsLiteral("archives"))) {
+
+      mName.LowerCaseEqualsLiteral("archives")) {
     return kLocalizedArchivesName;
   }
   return u""_ns;
