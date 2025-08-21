@@ -8,7 +8,7 @@ set -xe
 echo "Checking if repo is pinned to an upstream tag..."
 
 # Extract GECKO_HEAD_REF from YAML file
-GECKO_HEAD_REF=$(awk -F': ' '/^GECKO_HEAD_REF:/ {print $2}' ../../.gecko_rev.yml | xargs)
+GECKO_HEAD_REF=$(awk -F': ' '/^GECKO_HEAD_REF:/ {print $2}' comm/.gecko_rev.yml | xargs)
 
 if [[ -z "$GECKO_HEAD_REF" || "$GECKO_HEAD_REF" == "default" ]]; then  # If GECKO_HEAD_REF is not set or is set to 'default'
     echo "GECKO_HEAD_REF is not pinned to a tag or a commit hash; was this on purpose?"
