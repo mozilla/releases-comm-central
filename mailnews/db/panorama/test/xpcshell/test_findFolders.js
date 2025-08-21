@@ -60,8 +60,8 @@ async function testFolderDiscovery(server) {
     ["test2"]
   );
   Assert.deepEqual(rootFolder.descendants.map(f => f.prettyPath).toSorted(), [
+    "Outbox",
     "Trash",
-    "Unsent Messages",
     "test1",
     "test1/test2",
     "test3",

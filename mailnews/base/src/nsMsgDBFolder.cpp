@@ -3035,10 +3035,10 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
       aPath.AppendLiteral("/");
     }
   }
-  nsCString name;
-  rv = GetName(name);
+  nsCString localizedName;
+  rv = GetLocalizedName(localizedName);
   NS_ENSURE_SUCCESS(rv, rv);
-  aPath.Append(name);
+  aPath.Append(localizedName);
   return NS_OK;
 }
 
