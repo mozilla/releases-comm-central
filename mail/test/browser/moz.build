@@ -24,7 +24,6 @@ BROWSER_CHROME_MANIFESTS += [
     "global-search-bar/browser.toml",
     "global-ui/browser.toml",
     "im/browser.toml",
-    "import/browser.toml",
     "junk-commands/browser.toml",
     "keyboard/browser.toml",
     "message-header/browser.toml",
