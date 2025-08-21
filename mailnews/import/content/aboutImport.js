@@ -255,6 +255,7 @@ class ImporterController {
     if (this._inProgress) {
       this._toggleBackButton(true);
       this._el.classList.remove("progress");
+      this._el.querySelector(".before-progress").disabled = true;
       this._restartOnOk = false;
       this._inProgress = false;
     }
@@ -521,7 +522,7 @@ class ProfileImporterController extends ImporterController {
    *
    * @param {SourceProfile} profile - The profile to import from.
    */
-  _showItems(profile) {
+  async _showItems(profile) {
     Steps.updateSteps(
       {
         returnTo: () => {
@@ -532,13 +533,11 @@ class ProfileImporterController extends ImporterController {
       1
     );
     this._el.classList.remove("final-step", "progress");
-    this._sourceProfile = profile;
     document.l10n.setAttributes(
       this._el.querySelector("#app-items h1"),
       `from-app-${this._sourceAppName}`
     );
-    document.getElementById("appSourceProfilePath").textContent =
-      profile.dir.path;
+    this._sourceProfile = profile;
     document.getElementById("appSourceProfilePath").textContent =
       this._sourceProfile.dir.path;
     document.getElementById("appSourceProfileNameWrapper").hidden =
@@ -547,10 +546,19 @@ class ProfileImporterController extends ImporterController {
       document.getElementById("appSourceProfileName").textContent =
         this._sourceProfile.name;
     }
-    this._setItemsChecked(this._importer.SUPPORTED_ITEMS);
-    document.getElementById("profileNextButton").disabled = Object.values(
-      this._importer.SUPPORTED_ITEMS
-    ).every(isChecked => !isChecked);
+
+    if (this._importer.validateSource(this._sourceProfile.dir)) {
+      this._setItemsChecked(this._importer.SUPPORTED_ITEMS);
+    } else {
+      this._setItemsChecked({});
+    }
+
+    const nothingChecked = Object.keys(profileController._itemCheckboxes).every(
+      k => !document.getElementById(k).checked
+    );
+    document.getElementById("appSourceInvalid").hidden = !nothingChecked;
+    document.getElementById("appSourceItems").hidden = nothingChecked;
+    document.getElementById("profileNextButton").disabled = nothingChecked;
 
     this.showPane("items");
   }
@@ -639,6 +647,7 @@ class ProfileImporterController extends ImporterController {
           return li;
         })
     );
+    this._el.querySelector(".before-progress").disabled = false;
     this.showPane("summary");
   }
 
@@ -971,6 +980,7 @@ class AddrBookImporterController extends ImporterController {
         addressBookName: targetAddressBook,
       }
     );
+    this._el.querySelector(".before-progress").disabled = false;
     this.showPane("summary");
   }
 
@@ -1368,6 +1378,7 @@ class CalendarImporterController extends ImporterController {
         targetCalendar,
       }
     );
+    this._el.querySelector(".before-progress").disabled = false;
     this.showPane("summary");
   }
 

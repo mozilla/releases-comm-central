@@ -77,12 +77,17 @@ add_task(async function testProfileImport() {
       )
       .join("\n")
   );
-  const filePath = Services.io
-    .newURI(PathUtils.toFileURI(profileDir))
-    .QueryInterface(Ci.nsIFileURL);
-  MockFilePicker.setFiles([filePath.file]);
+
+  const badProfileDir = await IOUtils.createUniqueDirectory(
+    PathUtils.tempDir,
+    "profile-bad"
+  );
+
   registerCleanupFunction(async () => {
     await IOUtils.remove(profileDir, {
+      recursive: true,
+    });
+    await IOUtils.remove(badProfileDir, {
       recursive: true,
     });
   });
@@ -139,6 +144,10 @@ add_task(async function testProfileImport() {
     ),
     "Back button is visible"
   );
+
+  // Try to import from a source that doesn't contain a profile.
+
+  MockFilePicker.setFiles([await IOUtils.getFile(badProfileDir)]);
   await BrowserTestUtils.synthesizeMouseAtCenter(
     '#filePickerList [value="file-picker-dir"]',
     {},
@@ -160,6 +169,67 @@ add_task(async function testProfileImport() {
 
   checkSteps(importDocument, 3, 4);
   checkVisiblePane(importDocument, "tabPane-app", "app-items");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      importDocument.getElementById("appSourceInvalid")
+    ),
+    "invalid source message should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(importDocument.getElementById("appSourceItems")),
+    "item selection should be hidden"
+  );
+  Assert.ok(
+    importDocument.getElementById("profileNextButton").disabled,
+    "forward button should be disabled"
+  );
+
+  // Go back, and try to import from a source that does contain a profile.
+
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#profileBackButton",
+    {},
+    tab.browser
+  );
+
+  MockFilePicker.setFiles([await IOUtils.getFile(profileDir)]);
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    '#filePickerList [value="file-picker-dir"]',
+    {},
+    tab.browser
+  );
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#profileNextButton",
+    {},
+    tab.browser
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    itemsStep,
+    {
+      attributes: true,
+    },
+    () => BrowserTestUtils.isVisible(itemsStep)
+  );
+
+  checkSteps(importDocument, 3, 4);
+  checkVisiblePane(importDocument, "tabPane-app", "app-items");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      importDocument.getElementById("appSourceInvalid")
+    ),
+    "invalid source message should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(importDocument.getElementById("appSourceItems")),
+    "item selection should be visible"
+  );
+  Assert.ok(
+    !importDocument.getElementById("profileNextButton").disabled,
+    "forward button should not be disabled"
+  );
+
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "#profileNextButton",
     {},

@@ -152,37 +152,45 @@
           <dt data-l10n-id="items-pane-directory"></dt>
           <dd id="appSourceProfilePath"></dd>
         </dl>
-        <h2 data-l10n-id="items-pane-title2" class="light-heading"></h2>
-        <p>
-          <img src="chrome://messenger/skin/icons/new/compact/info.svg"
-               class="info icon"
-               alt=""/>
-          <span data-l10n-id="items-pane-override"></span>
-        </p>
-        <div class="option-list indent" id="appItemsList">
-          <label class="toggle-container-with-text">
-            <input type="checkbox" id="checkAccounts"/>
-            <span data-l10n-id="items-pane-checkbox-accounts"></span>
-          </label>
-          <label class="toggle-container-with-text">
-            <input type="checkbox" id="checkAddressBooks"/>
-            <span data-l10n-id="items-pane-checkbox-address-books"></span>
-          </label>
-          <label class="toggle-container-with-text">
-            <input type="checkbox" id="checkCalendars"/>
-            <span data-l10n-id="items-pane-checkbox-calendars"></span>
-          </label>
-          <label class="toggle-container-with-text">
-            <input type="checkbox" id="checkMailMessages"/>
-            <span data-l10n-id="items-pane-checkbox-mail-messages"></span>
-          </label>
-        </div>
-        <p class="center">
+        <p id="appSourceInvalid" class="center">
           <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
                class="icon warn"
                alt=""/>
-          <span data-l10n-id="summary-pane-warning"></span>
+          <span data-l10n-id="items-pane-nothing-to-import"></span>
         </p>
+        <div id="appSourceItems">
+          <h2 data-l10n-id="items-pane-title2" class="light-heading"></h2>
+          <p>
+            <img src="chrome://messenger/skin/icons/new/compact/info.svg"
+                 class="info icon"
+                 alt=""/>
+            <span data-l10n-id="items-pane-override"></span>
+          </p>
+          <div id="appItemsList" class="option-list indent">
+            <label class="toggle-container-with-text">
+              <input type="checkbox" id="checkAccounts"/>
+              <span data-l10n-id="items-pane-checkbox-accounts"></span>
+            </label>
+            <label class="toggle-container-with-text">
+              <input type="checkbox" id="checkAddressBooks"/>
+              <span data-l10n-id="items-pane-checkbox-address-books"></span>
+            </label>
+            <label class="toggle-container-with-text">
+              <input type="checkbox" id="checkCalendars"/>
+              <span data-l10n-id="items-pane-checkbox-calendars"></span>
+            </label>
+            <label class="toggle-container-with-text">
+              <input type="checkbox" id="checkMailMessages"/>
+              <span data-l10n-id="items-pane-checkbox-mail-messages"></span>
+            </label>
+          </div>
+          <p class="center">
+            <img src="chrome://messenger/skin/icons/new/compact/warning.svg"
+                 class="icon warn"
+                 alt=""/>
+            <span data-l10n-id="summary-pane-warning"></span>
+          </p>
+        </div>
       </section>
       <section id="app-summary">
         <h1 data-l10n-id="import-from-app"></h1>

@@ -1,5 +1,6 @@
 [DEFAULT]
 prefs = [
+  "mail.import.loglevel=All",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spellcheck.inline=false",
   "mail.spotlight.firstRunDone=true",

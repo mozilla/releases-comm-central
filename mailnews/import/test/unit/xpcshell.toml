@@ -1,5 +1,8 @@
 [DEFAULT]
 head = "head_import.js"
+prefs = [
+  "mail.import.loglevel=All",
+]
 support-files = ["resources/*"]
 tags = ["import"]
 

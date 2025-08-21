@@ -58,6 +58,18 @@ export class BaseProfileImporter {
   }
 
   /**
+   * Test `sourceProfileDir` for required files and prevent progress if they
+   * are not present. Override this in subclasses.
+   *
+   * @param {nsIFile} _sourceProfileDir - A directory or file (likely but not
+   *   necessarily a zip file) to be imported.
+   * @returns {boolean} False if importing this source should not continue.
+   */
+  validateSource(_sourceProfileDir) {
+    return true;
+  }
+
+  /**
    * Actually start importing things to the current profile.
    *
    * @param {nsIFile} _sourceProfileDir - The source location to import from.

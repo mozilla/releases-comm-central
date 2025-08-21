@@ -129,6 +129,8 @@ items-pane-checkbox-mail-messages = Mail Messages
 
 items-pane-override = Any existing or identical data will not be overwritten.
 
+items-pane-nothing-to-import = Nothing can be imported from the selected source.
+
 ## Import from address book file steps
 
 import-from-addr-book-file-description = Choose the file format containing your Address Book data.

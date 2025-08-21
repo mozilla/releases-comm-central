@@ -54,6 +54,145 @@ async function createTmpProfileWithPrefs(prefs) {
 }
 
 /**
+ * Create a zip file from tmpProfileDir.
+ *
+ * @param {string[]} entries
+ * @returns {nsIFile}
+ */
+function createZipProfile(entries) {
+  const tmpZipFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  tmpZipFile.append("profile.zip");
+  tmpZipFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+  tmpZipFile.remove(false);
+  info(`Created a temporary zip file at ${tmpZipFile.path}`);
+
+  const zipWriter = Cc["@mozilla.org/zipwriter;1"].createInstance(
+    Ci.nsIZipWriter
+  );
+  // MODE_WRONLY (0x02) and MODE_CREATE (0x08)
+  zipWriter.open(tmpZipFile, 0x02 | 0x08);
+  for (const entry of entries) {
+    const stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+      Ci.nsIStringInputStream
+    );
+    stream.setByteStringData("this content doesn't matter");
+    zipWriter.addEntryStream(
+      entry,
+      Date.now() * 1000,
+      Ci.nsIZipWriter.COMPRESSION_NONE,
+      stream,
+      false
+    );
+  }
+  zipWriter.close();
+
+  return tmpZipFile;
+}
+
+/**
+ * Test that we correctly identify a directory containing, or not containing,
+ * Thunderbird profile files.
+ */
+add_task(async function test_validateSourceDirectory() {
+  await createTmpProfileWithPrefs([]);
+
+  const importer = new ThunderbirdProfileImporter();
+  Assert.ok(
+    importer.validateSource(tmpProfileDir),
+    "profile with a prefs.js file should be valid"
+  );
+
+  await IOUtils.remove(PathUtils.join(tmpProfileDir.path, "prefs.js"));
+  Assert.ok(
+    !importer.validateSource(tmpProfileDir),
+    "profile without prefs.js file should be invalid"
+  );
+
+  for (const candidate of ["ImapMail", "News", "Mail"]) {
+    await IOUtils.writeUTF8(
+      PathUtils.join(tmpProfileDir.path, candidate, "test"),
+      "pretend mail file"
+    );
+    Assert.ok(
+      importer.validateSource(tmpProfileDir),
+      `profile with ${candidate} directory should be valid`
+    );
+    await IOUtils.remove(PathUtils.join(tmpProfileDir.path, candidate), {
+      recursive: true,
+    });
+  }
+
+  Assert.ok(
+    !importer.validateSource(tmpProfileDir),
+    "profile without prefs.js file or mail directory should be invalid"
+  );
+
+  await IOUtils.writeUTF8(
+    PathUtils.join(tmpProfileDir.path, "nothing important.txt"),
+    "there's nothing interesting here"
+  );
+  Assert.ok(
+    !importer.validateSource(tmpProfileDir),
+    "profile without prefs.js file or mail directory should be invalid"
+  );
+});
+
+/**
+ * Test that we correctly identify a zip file containing, or not containing,
+ * Thunderbird profile files at the top level. This doesn't work yet, but we
+ * want it to work.
+ */
+add_task(async function test_validateSourceZipAtRoot() {
+  const importer = new ThunderbirdProfileImporter();
+  Assert.ok(
+    !importer.validateSource(createZipProfile([])),
+    "zipped profile without prefs.js file should be invalid"
+  );
+  Assert.ok(
+    importer.validateSource(createZipProfile(["prefs.js"])),
+    "zipped profile with a prefs.js file should be valid"
+  );
+  for (const candidate of ["ImapMail", "News", "Mail"]) {
+    Assert.ok(
+      importer.validateSource(createZipProfile([`${candidate}/`])),
+      `zipped profile with ${candidate} directory should be valid`
+    );
+    Assert.ok(
+      importer.validateSource(createZipProfile([`${candidate}/test`])),
+      `zipped profile with ${candidate} directory should be valid`
+    );
+  }
+}).skip(); // Bug 1985421.
+
+/**
+ * Test that we correctly identify a zip file containing, or not containing,
+ * Thunderbird profile files inside a top-level directory.
+ */
+add_task(async function test_validateSourceZipAtLevel1() {
+  const importer = new ThunderbirdProfileImporter();
+  Assert.ok(
+    !importer.validateSource(createZipProfile([])),
+    "zipped profile without prefs.js file should be invalid"
+  );
+  Assert.ok(
+    importer.validateSource(createZipProfile(["foo1234.bar/prefs.js"])),
+    "zipped profile with a prefs.js file should be valid"
+  );
+  for (const candidate of ["ImapMail", "News", "Mail"]) {
+    Assert.ok(
+      importer.validateSource(createZipProfile([`foo1234.bar/${candidate}/`])),
+      `zipped profile with ${candidate} directory should be valid`
+    );
+    Assert.ok(
+      importer.validateSource(
+        createZipProfile([`foo1234.bar/${candidate}/test`])
+      ),
+      `zipped profile with ${candidate} directory should be valid`
+    );
+  }
+});
+
+/**
  * Construct a temporary profile dir with prefs, import into the current
  * profile, then check the values of prefs related to mail accounts.
  */
