@@ -3233,8 +3233,9 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
       if (listener->m_folderWatching == parent) {
         nsCOMPtr<nsIMsgDatabase> db;
         nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-        listener->m_virtualFolder->GetDBFolderInfoAndDB(
+        rv = listener->m_virtualFolder->GetDBFolderInfoAndDB(
             getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
+        NS_ENSURE_SUCCESS(rv, rv);
 
         uint32_t vfFolderFlag;
         dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
