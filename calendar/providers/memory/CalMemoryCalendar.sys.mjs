@@ -6,7 +6,6 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
-var cICL = Ci.calIChangeLog;
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalMemoryCalendar() {
@@ -377,11 +376,11 @@ CalMemoryCalendar.prototype = {
 
     let requestedFlag = 0;
     if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
-      requestedFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
     } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
-      requestedFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
     } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
-      requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD;
     }
 
     const matchOffline = function (itemFlag, reqFlag) {
@@ -391,11 +390,11 @@ CalMemoryCalendar.prototype = {
       // ...
       // AND (:offline_journal IS NULL
       // AND  (offline_journal IS NULL
-      //  OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+      //  OR   offline_journal != ${Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD}))
       //  OR offline_journal == :offline_journal
 
       return (
-        (!reqFlag && (!itemFlag || itemFlag != cICL.OFFLINE_FLAG_DELETED_RECORD)) ||
+        (!reqFlag && (!itemFlag || itemFlag != Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD)) ||
         itemFlag == reqFlag
       );
     };
@@ -478,16 +477,16 @@ CalMemoryCalendar.prototype = {
   // calIOfflineStorage interface
   //
   async addOfflineItem(aItem) {
-    this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    this.mOfflineFlags[aItem.id] = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
   },
 
   async modifyOfflineItem(aItem) {
     const oldFlag = this.mOfflineFlags[aItem.id];
     if (
-      oldFlag != cICL.OFFLINE_FLAG_CREATED_RECORD &&
-      oldFlag != cICL.OFFLINE_FLAG_DELETED_RECORD
+      oldFlag != Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD &&
+      oldFlag != Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD
     ) {
-      this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      this.mOfflineFlags[aItem.id] = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
     }
 
     this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.MODIFY, aItem.id, aItem);
@@ -496,11 +495,11 @@ CalMemoryCalendar.prototype = {
 
   async deleteOfflineItem(aItem) {
     const oldFlag = this.mOfflineFlags[aItem.id];
-    if (oldFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
+    if (oldFlag == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD) {
       delete this.mItems[aItem.id];
       delete this.mOfflineFlags[aItem.id];
     } else {
-      this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      this.mOfflineFlags[aItem.id] = Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD;
     }
 
     // notify observers
