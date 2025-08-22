@@ -7,11 +7,13 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-#![allow(clippy::from_over_into)] // TODO: `Into` implementations in [safe/lmdb]/flags.rs
+#![allow(clippy::uninlined_format_args)] // This is old code, we won't convert it
+#![allow(clippy::from_over_into)]
+#![allow(unknown_lints)] // allow the `mismatched_lifetime_syntaxes` (nightly only right now)
+#![allow(mismatched_lifetime_syntaxes)]
 
-//! A simple, humane, typed key-value storage solution. It supports multiple backend
-//! engines with varying guarantees, such as [LMDB](http://www.lmdb.tech/doc/) for
-//! performance, or "SafeMode" for reliability.
+//! A simple, humane, typed key-value storage solution.
+//! It only has a single backend engine: "SafeMode".
 //!
 //! It aims to achieve the following:
 //!
@@ -209,8 +211,6 @@ mod manager;
 mod readwrite;
 
 pub mod backend;
-#[cfg(feature = "lmdb")]
-pub mod migrator;
 pub mod store;
 pub mod value;
 
@@ -218,8 +218,6 @@ pub use backend::{DatabaseFlags, EnvironmentFlags, WriteFlags};
 pub use env::Rkv;
 pub use error::{DataError, MigrateError, StoreError};
 pub use manager::Manager;
-#[cfg(feature = "lmdb")]
-pub use migrator::Migrator;
 pub use readwrite::{Readable, Reader, Writer};
 pub use store::{keys::EncodableKey, single::SingleStore, CloseOptions, Options as StoreOptions};
 pub use value::{OwnedValue, Value};

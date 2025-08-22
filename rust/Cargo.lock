@@ -2573,9 +2573,9 @@ dependencies = [
 
 [[package]]
 name = "glean"
-version = "64.5.4"
+version = "65.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bf2558246f4fd84569c31c8a7eff74873d8cc5daa2be706c45e21e39b1f9174"
+checksum = "c8d41bdd64c3c8afdd53e179241ea9271f4b43e29e6be4ff87442d308203c98a"
 dependencies = [
  "crossbeam-channel",
  "glean-core",
@@ -2588,9 +2588,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "64.5.4"
+version = "65.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28f32c68128f09d44d0c6a32399c8e501b852a54eeda582482317a15491cfd15"
+checksum = "761c6d956c3988c6a21312c531b11de34b18c23a5ffeac2895b89334b59f0bfd"
 dependencies = [
  "android_logger",
  "bincode",
@@ -2604,8 +2604,7 @@ dependencies = [
  "rkv",
  "serde",
  "serde_json",
- "thiserror 1.999.999",
- "time",
+ "thiserror 2.0.12",
  "uniffi",
  "uuid",
  "wr_malloc_size_of",
@@ -5087,24 +5086,24 @@ dependencies = [
 
 [[package]]
 name = "rkv"
-version = "0.19.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c6d906922d99c677624d2042a93f89b2b7df0f6411032237d5d99a602c2487c"
+checksum = "0f67a9dbc634fcd36a2d1d800ca818065dcf71a1d907dc35130c2d1552c6e1dc"
 dependencies = [
  "arrayref",
  "bincode",
  "bitflags 2.9.0",
- "byteorder",
  "id-arena",
  "lazy_static",
  "log",
+ "malloc_size_of_derive",
  "ordered-float",
- "paste",
  "serde",
  "serde_derive",
- "thiserror 1.999.999",
+ "thiserror 2.0.12",
  "url",
  "uuid",
+ "wr_malloc_size_of",
 ]
 
 [[package]]
