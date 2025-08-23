@@ -10,8 +10,6 @@ import { CalStorageModelFactory } from "resource:///modules/calendar/CalStorageM
 import { CalStorageStatements } from "resource:///modules/calendar/CalStorageStatements.sys.mjs";
 import { upgradeDB } from "resource:///modules/calendar/calStorageUpgrade.sys.mjs";
 
-const kCalICalendar = Ci.calICalendar;
-const cICL = Ci.calIChangeLog;
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalStorageCalendar() {
@@ -385,16 +383,16 @@ CalStorageCalendar.prototype = {
       rangeEnd,
       filters: {
         wantUnrespondedInvitations:
-          (itemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0 &&
+          (itemFilter & Ci.calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0 &&
           this.superCalendar.supportsScheduling,
-        wantEvents: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0,
-        wantTodos: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0,
-        asOccurrences: (itemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0,
-        wantOfflineDeletedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0,
-        wantOfflineCreatedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0,
-        wantOfflineModifiedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0,
-        itemCompletedFilter: (itemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0,
-        itemNotCompletedFilter: (itemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0,
+        wantEvents: (itemFilter & Ci.calICalendar.ITEM_FILTER_TYPE_EVENT) != 0,
+        wantTodos: (itemFilter & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) != 0,
+        asOccurrences: (itemFilter & Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0,
+        wantOfflineDeletedItems: (itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0,
+        wantOfflineCreatedItems: (itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0,
+        wantOfflineModifiedItems: (itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0,
+        itemCompletedFilter: (itemFilter & Ci.calICalendar.ITEM_FILTER_COMPLETED_YES) != 0,
+        itemNotCompletedFilter: (itemFilter & Ci.calICalendar.ITEM_FILTER_COMPLETED_NO) != 0,
       },
       count,
     };
@@ -416,16 +414,16 @@ CalStorageCalendar.prototype = {
   // calIOfflineStorage interface
   //
   async addOfflineItem(aItem) {
-    const newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    const newOfflineJournalFlag = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
     await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
   },
 
   async modifyOfflineItem(aItem) {
     const oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
-    const newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+    const newOfflineJournalFlag = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
     if (
-      oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-      oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD
+      oldOfflineJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD ||
+      oldOfflineJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD
     ) {
       // Do nothing since a flag of "created" or "deleted" exists
     } else {
@@ -438,13 +436,19 @@ CalStorageCalendar.prototype = {
     const oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
     if (oldOfflineJournalFlag) {
       // Delete item if flag is set
-      if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
+      if (oldOfflineJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD) {
         await this.mItemModel.deleteItemById(aItem.id);
-      } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-        await this.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+      } else if (oldOfflineJournalFlag == Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD) {
+        await this.mOfflineModel.setOfflineJournalFlag(
+          aItem,
+          Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD
+        );
       }
     } else {
-      await this.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+      await this.mOfflineModel.setOfflineJournalFlag(
+        aItem,
+        Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD
+      );
     }
 
     // notify observers
