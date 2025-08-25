@@ -1134,7 +1134,7 @@ add_task(async function test_placeholders() {
 });
 
 /**
- * Checks that mailling lists address books are shown in the table layout.
+ * Checks that mailing lists address books are shown in the table layout.
  */
 add_task(async function test_list_table_layout() {
   const book = createAddressBook("Book");

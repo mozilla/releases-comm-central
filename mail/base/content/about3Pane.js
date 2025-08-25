@@ -195,7 +195,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   // to avoid unnecessarily loading the thread tree or Account Central.
   folderTree.addEventListener("select", folderPane);
 
-  // Delay inital folder selection until after the message list's resize
+  // Delay initial folder selection until after the message list's resize
   // observer has had a chance to respond to layout changes. Otherwise we
   // might end up scrolling to the wrong part of the list.
   await new Promise(resolve => setTimeout(resolve));
@@ -2084,7 +2084,7 @@ var folderPane = {
       try {
         mode.init();
       } catch (e) {
-        console.warn(`Error intiating ${mode.name} mode.`, e);
+        console.warn(`Error initiating ${mode.name} mode.`, e);
         if (typeof mode.regenerateMode != "function") {
           return;
         }
@@ -2382,7 +2382,7 @@ var folderPane = {
   },
 
   /**
-   * Get the first row inside a specifc mode, even if it is hidden.
+   * Get the first row inside a specific mode, even if it is hidden.
    *
    * @param {string} modeName
    * @returns {FolderTreeRow}
@@ -5878,7 +5878,7 @@ var threadPane = {
   /**
    * Removes a custom column from the thread pane.
    *
-   * @param {string} columnID - uniqe id of the custom column
+   * @param {string} columnID - unique id of the custom column
    */
   onCustomColumnRemoved(columnID) {
     if (this.rowTemplate) {

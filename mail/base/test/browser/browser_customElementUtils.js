@@ -44,7 +44,7 @@ add_task(async function test_defineLazyCustomElement() {
   const testElementFactory = win.customElements.get("test-element");
   Assert.ok(
     testElementFactory,
-    "test-element should be defined after instatiating one"
+    "test-element should be defined after instantiating one"
   );
   Assert.ok(
     testElement instanceof testElementFactory,

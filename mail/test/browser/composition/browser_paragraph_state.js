@@ -408,7 +408,7 @@ add_task(async function test_convert_from_body_paragraph_state() {
   const secondText = "second line";
   // Plus newline break.
   const fullLength = firstText.length + 1 + secondText.length;
-  // The full first + second line as HTML, separater by a <br> tag.
+  // The full first + second line as HTML, separated by a <br> tag.
   const fullTextHTML = firstText + "<BR>" + secondText;
 
   formatHelper.focusMessage();

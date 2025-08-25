@@ -12,7 +12,7 @@
 // Map<Extension, Map<scriptId, ExtensionScript>>
 const gExtensionScripts = new Map();
 
-// A Set with all registered ExtensionScript, accross all types and all extensions.
+// A Set with all registered ExtensionScript, across all types and all extensions.
 const registeredScripts = new Set();
 
 ExtensionSupport.registerWindowListener("ext-scripting-compose", {

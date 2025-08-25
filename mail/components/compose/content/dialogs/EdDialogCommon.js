@@ -320,7 +320,7 @@ function getColor(ColorPickerID) {
       return null;
     }
     // Clear color so next if it's called again before
-    //  color picker is actually used, we dedect the "don't set color" state
+    //  color picker is actually used, we detect the "don't set color" state
     colorPicker.setAttribute("color", "");
   }
 

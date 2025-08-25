@@ -52,7 +52,7 @@ class InAppNotification extends HTMLElement {
    * @param {object} notification  - Notification data from the back-end.
    */
   setNotificationData(notification) {
-    // If the element is not yet connected we cant set the attributes. Instead
+    // If the element is not yet connected we can't set the attributes. Instead
     // save the data to use once we connect.
     this.#data = notification;
     if (!this.shadowRoot) {

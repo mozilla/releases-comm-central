@@ -1826,7 +1826,7 @@ var chatHandler = {
 
     window.addEventListener("unload", this._removeObservers.bind(this));
 
-    // initialize the customizeDone method on the customizeable toolbar
+    // initialize the customizeDone method on the customizable toolbar
     var toolbox = document.getElementById("chat-view-toolbox");
     toolbox.customizeDone = function (aEvent) {
       MailToolboxCustomizeDone(aEvent, "CustomizeChatToolbar");

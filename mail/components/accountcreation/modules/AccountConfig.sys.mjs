@@ -104,7 +104,7 @@ AccountConfig.prototype = {
       auth: 0,
       /**
        * Other auth methods that we think the server supports.
-       * They are ordered by descreasing preference.
+       * They are ordered by decreasing preference.
        * (|auth| itself is not included in |authAlternatives|)
        * {Array of Ci.nsMsgAuthMethod} (same as .auth)
        */

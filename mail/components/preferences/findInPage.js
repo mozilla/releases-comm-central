@@ -101,7 +101,7 @@ var gSearchResultsPane = {
 
   /**
    * Finds and returns text nodes within node and all descendants.
-   * Iterates through all the sibilings of the node object and adds the sibilings
+   * Iterates through all the siblings of the node object and adds the siblings
    * to an array if sibling is a TEXT_NODE else checks the text nodes with in current node.
    * Source - http://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
    *
@@ -146,7 +146,7 @@ var gSearchResultsPane = {
    *    This is used when executing the regular expression.
    * @param {string} searchPhrase word or words to search for.
    *
-   * @returns {boolean} Returns true when atleast one instance of search phrase is found, otherwise false.
+   * @returns {boolean} Returns true when at least one instance of search phrase is found, otherwise false.
    */
   highlightMatches(textNodes, nodeSizes, textSearch, searchPhrase) {
     if (!searchPhrase) {
@@ -575,7 +575,7 @@ var gSearchResultsPane = {
   },
 
   /**
-   * Inserting a div structure infront of the DOM element matched textContent.
+   * Inserting a div structure in front of the DOM element matched textContent.
    * Then calculation the offsets to position the tooltip in the correct place.
    *
    * @param {Node} anchorNode DOM Element.

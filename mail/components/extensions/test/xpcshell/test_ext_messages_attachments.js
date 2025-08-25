@@ -583,7 +583,7 @@ add_task(
           for (const msg of testMessages) {
             let fileCounts = 0;
             for (const test of fileTests) {
-              // The fileTest array has the partNames as seen from the outer
+              // The `fileTests` array has the partNames as seen from the outer
               // message and we need to rebase them to the current message, in
               // order to get something back. Negative X-Ray is not possible.
               if (msg.subPart && msg.subPart.length > test.partName.length) {

@@ -675,7 +675,7 @@ add_task(async function test_palette_contents() {
   );
   /**
    * Check if an item is offered in a customization pane. Switches to the pane,
-   * so the item should be visibile if it exists.
+   * so the item should be visible if it exists.
    *
    * @param {string} itemId - ID of the item.
    * @param {UnifiedToolbarCustomizationPane} pane - The pane to check.
@@ -701,7 +701,7 @@ add_task(async function test_palette_contents() {
         Assert.equal(
           inPaneOrTarget(item.id, pane, true),
           item.spaces.includes(space),
-          `${item.id} availablility should match for space ${space}`
+          `${item.id} availability should match for space ${space}`
         );
       } else {
         Assert.ok(

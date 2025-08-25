@@ -734,7 +734,7 @@ var openpgpSink = {
     ) {
       if (mimeSubTree.partNum === parentOfMimePartToCheck) {
         // If this is an encrypted message that is the parent of mimePartToCheck,
-        // then we know that all its childs (including mimePartToCheck) are authenticated.
+        // then we know that all its children (including mimePartToCheck) are authenticated.
         if (
           mimeSubTree.fullContentType.search(
             /^multipart\/encrypted.{1,255}protocol="?application\/pgp-encrypted"?/i

@@ -172,7 +172,7 @@ function isDefaultIcon(icon) {
  *   for the item (e.g., "webext-perms-description-foo") for permission foo
  *   and an optional formatting parameter.
  * @param {boolean} sideloaded - Whether the notification is for a sideloaded
- *   extenion.
+ *   extension.
  * @param {boolean} [warning=false] Whether the experiments warning should be
  *   visible.
  */

@@ -471,7 +471,7 @@ function getDefaultColumnsForCardsView(folder) {
 /**
  * Register a custom column.
  *
- * @param {string} id - uniqe id of the custom column
+ * @param {string} id - unique id of the custom column
  * @param {CustomColumnProperties} properties
  */
 function addCustomColumn(id, properties) {
@@ -544,7 +544,7 @@ function addCustomColumn(id, properties) {
 /**
  * Unregister a custom column.
  *
- * @param {string} id - uniqe id of the custom column
+ * @param {string} id - unique id of the custom column
  */
 function removeCustomColumn(id) {
   const index = DEFAULT_COLUMNS.findIndex(column => column.id == id);
@@ -558,7 +558,7 @@ function removeCustomColumn(id) {
 /**
  * Refresh display of a custom column.
  *
- * @param {string} id - uniqe id of the custom column
+ * @param {string} id - unique id of the custom column
  */
 function refreshCustomColumn(id) {
   Services.obs.notifyObservers(null, "custom-column-refreshed", id);
@@ -567,7 +567,7 @@ function refreshCustomColumn(id) {
 /**
  * Retrieve the registered column information for the column with the given id.
  *
- * @param {string} id - uniqe id of the custom column
+ * @param {string} id - unique id of the custom column
  * @returns {object} Entry of the DEFAULT_COLUMNS array with the given id, or null.
  */
 function getColumn(id) {

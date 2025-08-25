@@ -345,7 +345,7 @@ function removeDirRecursive(aDir) {
   }
 
   if (!aDir.isDirectory()) {
-    throw new Error("Only a directory can be passed to this funtion!");
+    throw new Error("Only a directory can be passed to this function!");
   }
 
   try {

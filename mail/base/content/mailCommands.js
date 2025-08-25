@@ -365,7 +365,7 @@ async function ComposeMessage(
 
                 // The found identity might have no catchAll enabled.
                 if (hdrIdentity.catchAll && matchingHint) {
-                  // If name is not set in matchingHint, search trough other hints.
+                  // If name is not set in matchingHint, search through other hints.
                   if (matchingHint.email && !matchingHint.name) {
                     const hints =
                       MailServices.headerParser.makeFromDisplayAddress(

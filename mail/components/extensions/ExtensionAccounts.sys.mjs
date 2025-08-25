@@ -412,7 +412,7 @@ export class FolderManager {
   }
 
   /**
-   * Supress folder.deleteable of smart folders for the WebExtension APIs.
+   * Suppress folder.deletable of smart folders for the WebExtension APIs.
    *
    * @param {nsIMsgFolder} folder
    * @returns {boolean}
@@ -422,7 +422,7 @@ export class FolderManager {
   }
 
   /**
-   * Supress folder.canRename of smart folders for the WebExtension APIs.
+   * Suppress folder.canRename of smart folders for the WebExtension APIs.
    *
    * @param {nsIMsgFolder} folder
    * @returns {boolean}
@@ -501,7 +501,7 @@ export class FolderManager {
   }
 
   /**
-   * Returns the direct subfolders of the specifed nsIMsgFolder. Individual search
+   * Returns the direct subfolders of the specified nsIMsgFolder. Individual search
    * folders of virtual folders are usually not returned as subfolders, except for
    * unified folders.
    *

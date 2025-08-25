@@ -287,7 +287,7 @@ class AccountHubAddressBook extends HTMLElement {
   /**
    * Initialize the UI of one of the address book subviews.
    *
-   * @param {string} subview - Subview for which the UI is being inititialized.
+   * @param {string} subview - Subview for which the UI is being initialized.
    */
   async #initUI(subview) {
     this.#hideSubviews();

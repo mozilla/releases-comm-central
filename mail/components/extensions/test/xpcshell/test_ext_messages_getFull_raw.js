@@ -96,7 +96,7 @@ add_task(async function test_encoding() {
               partName: "",
               rawHeaders: {
                 from: ["Bug Reporter <new@thunderbird.bug>"],
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 subject: ["=?UTF-8?B?zrHOu8+GzqzOss63z4TOvw==?="],
                 date: ["Thu, 27 May 2021 21:23:35 +0100"],
                 "message-id": ["<01.eml@mime.sample>"],
@@ -117,7 +117,7 @@ add_task(async function test_encoding() {
             },
             raw: [
               "From: Bug Reporter <new@thunderbird.bug>",
-              "Newsgroups: gmane.comp.mozilla.thundebird.user",
+              "Newsgroups: gmane.comp.mozilla.thunderbird.user",
               "Subject: =?UTF-8?B?zrHOu8+GzqzOss63z4TOvw==?=",
               "Date: Thu, 27 May 2021 21:23:35 +0100",
               "Message-Id: <01.eml@mime.sample>",
@@ -436,7 +436,7 @@ add_task(async function test_encoding() {
               contentType: "message/rfc822",
               partName: "",
               rawHeaders: {
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 from: ["Bug Reporter <new@thunderbird.bug>"],
                 subject: ["=?koi8-r?B?4czGwdfJ1Ao=?="],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
@@ -456,7 +456,7 @@ add_task(async function test_encoding() {
               ],
             },
             raw: [
-              "Newsgroups: gmane.comp.mozilla.thundebird.user",
+              "Newsgroups: gmane.comp.mozilla.thunderbird.user",
               "From: Bug Reporter <new@thunderbird.bug>",
               "Subject: =?koi8-r?B?4czGwdfJ1Ao=?=",
               "Date: Sun, 27 May 2001 21:23:35 +0100",
@@ -479,7 +479,7 @@ add_task(async function test_encoding() {
               contentType: "message/rfc822",
               partName: "",
               rawHeaders: {
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 from: ["Bug Reporter <new@thunderbird.bug>"],
                 subject: ["=?windows-1251?B?wOv04OLo8go=?="],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
@@ -499,7 +499,7 @@ add_task(async function test_encoding() {
               ],
             },
             raw: [
-              "Newsgroups: gmane.comp.mozilla.thundebird.user",
+              "Newsgroups: gmane.comp.mozilla.thunderbird.user",
               "From: Bug Reporter <new@thunderbird.bug>",
               "Subject: =?windows-1251?B?wOv04OLo8go=?=",
               "Date: Sun, 27 May 2001 21:23:35 +0100",
@@ -522,7 +522,7 @@ add_task(async function test_encoding() {
               contentType: "message/rfc822",
               partName: "",
               rawHeaders: {
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 from: ["Bug Reporter <new@thunderbird.bug>"],
                 subject: ["I have no content type"],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
@@ -539,7 +539,7 @@ add_task(async function test_encoding() {
               ],
             },
             raw: [
-              "Newsgroups: gmane.comp.mozilla.thundebird.user",
+              "Newsgroups: gmane.comp.mozilla.thunderbird.user",
               "From: Bug Reporter <new@thunderbird.bug>",
               "Subject: I have no content type",
               "Date: Sun, 27 May 2001 21:23:35 +0100",

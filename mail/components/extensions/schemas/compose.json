@@ -15,7 +15,7 @@
   },
   {
     "namespace": "compose",
-    "describtion": "The compose API allows to interact with the message composition window.",
+    "description": "The compose API allows to interact with the message composition window.",
     "types": [
       {
         "id": "ComposeRecipient",

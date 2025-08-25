@@ -128,7 +128,7 @@ menupopup {
     display: none;
   }
 
-  /* Allways show the extension icons. */
+  /* Always show the extension icons. */
   &.no-icon-menupopup > :is(menu, menuitem).webextension-rootElement > .menu-icon {
     display: flex;
   }

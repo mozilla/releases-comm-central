@@ -106,7 +106,7 @@ class AccountHubStart extends HTMLElement {
   }
 
   /**
-   * Populate the main container fo the start view with all the available
+   * Populate the main container for the start view with all the available
    * account creation flows.
    */
   setupAccountFlows() {

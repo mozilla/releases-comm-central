@@ -1021,7 +1021,7 @@ SearchFolderDisplayWidget.prototype = {
 
       // update our toolbar equivalent
       UpdateMailSearch("done-search");
-      // stop spining the meteors
+      // stop spinning the meteors
       gStatusFeedback._stopMeteors();
       // set the result test
       this.updateStatusResultText();

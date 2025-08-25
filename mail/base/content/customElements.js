@@ -33,7 +33,7 @@
       ["", "chrome://messenger/content/toolbarbutton-menu-button.js"],
     ]) {
       // Immediately load scripts that either define multiple custom elements or
-      // are always used in most doucments this is loaded in.
+      // are always used in most documents this is loaded in.
       if (!tag) {
         Services.scriptloader.loadSubScript(script, window);
         continue;

@@ -3171,7 +3171,7 @@ function ComposeFieldsReady() {
   updateEditableFields(false);
   gLoadingComplete = true;
 
-  // Set up observers to recheck limit and encyption on recipients change.
+  // Set up observers to recheck limit and encryption on recipients change.
   observeRecipientsChange();
 
   // Perform the initial checks.
@@ -3180,7 +3180,7 @@ function ComposeFieldsReady() {
 }
 
 /**
- * Set up observers to recheck limit and encyption on recipients change.
+ * Set up observers to recheck limit and encryption on recipients change.
  */
 function observeRecipientsChange() {
   // Observe childList changes of `To` and `Cc` address rows to check if we need
@@ -3275,7 +3275,7 @@ function manageAttachmentNotification(force = false) {
   // not having keywords.
   let removeNotification = attachmentNotificationSupressed();
 
-  // If not supressed, we need to look at the state of keywords.
+  // If not suppressed, we need to look at the state of keywords.
   if (!removeNotification) {
     if (attachmentWorker.lastMessage) {
       // We know the state of keywords, so process them.
@@ -3641,7 +3641,7 @@ var gCheckEncryptionStateNeedsRestart = false;
  * checkEncryptionState() (and all related async calls) is complete,
  * which means all automatic adjustments to the global encryption state
  * are done, and the automated test code may proceed to compare the
- * state to our exptectations.
+ * state to our expectations.
  * We want that event to be sent after modifications were made to the
  * composer window itself, such as sender identity and recipients.
  * However, we want to ignore calls to checkEncryptionState() that
@@ -3671,7 +3671,7 @@ var gWasCESTriggeredByComposerChange = false;
  * @param {string} [trigger] - A string that gives information about
  *   the reason why this function is being called.
  *   This parameter is intended to help with automated testing.
- *   If the trigger string starts with "openpgp-" then no completition
+ *   If the trigger string starts with "openpgp-" then no completion
  *   event will be dispatched. This allows the automated test code to
  *   wait for events that are directly related to properties of the
  *   composer window, only.
@@ -5546,7 +5546,7 @@ async function ComposeLoad() {
 
   ToolbarIconColor.init();
 
-  // initialize the customizeDone method on the customizeable toolbar
+  // initialize the customizeDone method on the customizable toolbar
   var toolbox = document.getElementById("compose-toolbox");
   toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar");
@@ -6178,7 +6178,7 @@ async function GenericSendMessage(msgType) {
           false
         );
         // Opening a dialog as dependent doesn't wait until it's closed again,
-        // so we have to do that explicitily.
+        // so we have to do that explicitly.
         if (spellCheckDialog.document.readyState != "complete") {
           await new Promise(resolve =>
             spellCheckDialog.addEventListener("load", resolve, { once: true })
@@ -10187,7 +10187,7 @@ var envelopeDragObserver = {
     // image, so we always default to clickable link.
     // We can later explore adding some UI choice to allow controlling the
     // outcome of this drop action, but users can still copy and paste the image
-    // in the editor to cirumvent this potential issue.
+    // in the editor to circumvent this potential issue.
     const editor = GetCurrentEditor();
     const attachments = this.getValidAttachments(event);
 

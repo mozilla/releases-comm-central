@@ -118,7 +118,7 @@ class AccountHubEmail extends HTMLElement {
   #currentConfig;
 
   /**
-   * A Config Verifier object that verfies the currentConfig.
+   * A Config Verifier object that verifies the currentConfig.
    *
    * @type {ConfigVerifier}
    */
@@ -335,7 +335,7 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Initialize the UI of one of the email setup subviews.
    *
-   * @param {string} subview - Subview for which the UI is being inititialized.
+   * @param {string} subview - Subview for which the UI is being initialized.
    */
   async #initUI(subview) {
     this.#hideSubviews();
@@ -1256,7 +1256,7 @@ class AccountHubEmail extends HTMLElement {
    *
    * @param {string} password - The password for the current account.
    *
-   * @returns {Array} - The address books assoicated with the account.
+   * @returns {Array} - The address books associated with the account.
    */
   async #getAddressBooks(password) {
     let addressBooks = [];
@@ -1300,7 +1300,7 @@ class AccountHubEmail extends HTMLElement {
    * @param {string} password - The password for the current account.
    * @param {boolean} rememberPassword - The remember password choice.
    *
-   * @returns {Array} - The calendars assoicated with the account.
+   * @returns {Array} - The calendars associated with the account.
    */
   async #getCalendars(password, rememberPassword) {
     let calendarEntries = null;
@@ -1400,7 +1400,7 @@ class AccountHubEmail extends HTMLElement {
       },
       error => {
         // We reject here, but this will silently fail as we don't need to
-        // show the user if we were unable to find add-ons for the conifg.
+        // show the user if we were unable to find add-ons for the config.
         gAccountSetupLogger.error(`getExchangeAddons failed:`, error);
         reject(error);
       }

@@ -39,11 +39,11 @@ function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  const wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wrapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
-  wapper.data = html;
-  trans.setTransferData("text/html", wapper);
+  wrapper.data = html;
+  trans.setTransferData("text/html", wrapper);
 
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }

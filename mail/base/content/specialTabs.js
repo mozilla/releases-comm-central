@@ -418,7 +418,7 @@ var contentTabBaseType = {
       ++selectedIndex
     ) {
       // Reuse the same tab, if only the anchors differ - especially for the
-      // about: pages, we just want to re-use the same tab.
+      // about: pages, we just want to reuse the same tab.
       if (
         tabInfo[selectedIndex].mode.name == this.name &&
         tabInfo[selectedIndex].browser.currentURI?.specIgnoringRef ==

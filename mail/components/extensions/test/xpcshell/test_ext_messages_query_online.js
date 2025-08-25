@@ -72,7 +72,7 @@ add_task(async function test_query_online() {
 
         const originalMessage = [
           "From: Bug Reporter <new@thunderbird.bug>",
-          "Newsgroups: gmane.comp.mozilla.thundebird.user",
+          "Newsgroups: gmane.comp.mozilla.thunderbird.user",
           "Subject: =?UTF-8?B?zrHOu8+GzqzOss63z4TOvw==?=",
           "Date: Thu, 27 May 2021 21:23:35 +0100",
           "Message-ID: <01.eml@mime.sample>",

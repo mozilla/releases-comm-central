@@ -256,7 +256,7 @@ add_task(async function test_accounts() {
 
       // Lazy check for accounts.getDefault(): It should return at least the same
       // values as accounts.getDefault(false). The additional folder and subFolder
-      // properties are checked seperatly.
+      // properties are checked separately.
       const defaultAccountTrue = await browser.accounts.getDefault();
       window.assertDeepEqual(
         defaultAccountFalse,

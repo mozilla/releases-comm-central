@@ -10,7 +10,7 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
  *
  * @param {DBViewWrapper} dbView
  * @param {integer} idx - the row index of the view
- * @param {boolean} includeCollapsedThreads - wether to include messages in
+ * @param {boolean} includeCollapsedThreads - whether to include messages in
  *    collapsed threads as well
  *
  * @returns {nsIMsgDBHdr[]} The message(s) belonging to the specified row index.
@@ -46,9 +46,9 @@ export function getActualSelectedMessages(about3PaneWindow) {
     return [];
   }
 
-  // Get the indicies which are considered to be selected by the UI, which
+  // Get the indices which are considered to be selected by the UI, which
   // could be the ones we are *not* interested in, if a context menu is
-  // opened and the UI is supressing the selection.
+  // opened and the UI is suppressing the selection.
   const selectedIndices = about3PaneWindow.threadTree.selectedIndices;
 
   if (!about3PaneWindow.threadTree._selection._selectEventsSuppressed) {
@@ -57,9 +57,9 @@ export function getActualSelectedMessages(about3PaneWindow) {
     );
   }
 
-  // Get the indicies, which are considered to be invalid by the UI, which
-  // includes *all* selected indices, if the UI is supressing the selection.
-  // Filter out the indicies we are not interested in.
+  // Get the indices, which are considered to be invalid by the UI, which
+  // includes *all* selected indices, if the UI is suppressing the selection.
+  // Filter out the indices we are not interested in.
   const invalidIndices = [
     ...about3PaneWindow.threadTree._selection._invalidIndices,
   ];

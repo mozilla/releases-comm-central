@@ -287,7 +287,7 @@ export var MailMigrator = {
       }
 
       if (currentUIVersion < 51) {
-        // Bug 1968963: Re-run migration 48 and 49 becasue they were skipped on
+        // Bug 1968963: Re-run migration 48 and 49 because they were skipped on
         // release due to the uplifting of the patch containing migration 50.
         Services.prefs.setBoolPref(
           "searchintegration.enable",

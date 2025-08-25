@@ -318,7 +318,7 @@ export var autosyncModule = {
         }
 
         if (process instanceof Ci.nsIActivityProcess) {
-          // if the process has not beed added to activity manager already, add now
+          // if the process has not been added to activity manager already, add now
           if (!this.activityMgr.containsActivity(process.id)) {
             this.log.info(
               "Auto_Sync OnDownloadStarted: No process, adding a new process"

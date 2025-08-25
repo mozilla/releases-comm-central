@@ -196,7 +196,7 @@ add_task(async function test_WhatsNewPage() {
   });
 
   // Simulate an update where the appVersion is newer than the appVersion of the running Firefox instance
-  // This ensures if the user downgrades, we don't show an inappropriate Whats New Page.
+  // This ensures if the user downgrades, we don't show an inappropriate What's New Page.
   logTestInfo("Test that a downgraded browser won't show a stale WNP");
   await WnpTest({
     origAppVersion: "1.0",

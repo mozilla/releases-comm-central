@@ -341,7 +341,7 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
     return;
   }
   info(
-    `Checking standalong msg win; test=${test.type}; shouldLoad=${loadAllowed}`
+    `Checking standalone msg win; test=${test.type}; shouldLoad=${loadAllowed}`
   );
   const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   // Open it
@@ -791,11 +791,11 @@ async function putHTMLOnClipboard(html) {
   trans.init(null);
   trans.addDataFlavor("text/html");
 
-  const wapper = Cc["@mozilla.org/supports-string;1"].createInstance(
+  const wrapper = Cc["@mozilla.org/supports-string;1"].createInstance(
     Ci.nsISupportsString
   );
-  wapper.data = html;
-  trans.setTransferData("text/html", wapper);
+  wrapper.data = html;
+  trans.setTransferData("text/html", wrapper);
 
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
   // NOTE: this doesn't seem to work in headless mode.

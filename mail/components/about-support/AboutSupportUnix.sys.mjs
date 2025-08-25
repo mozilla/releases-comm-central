@@ -99,7 +99,7 @@ export var AboutSupportPlatform = {
         null
       );
       if (glibFileInfo.isNull()) {
-        throw new Error("Unabled to retrieve GLib file info for " + aFile.path);
+        throw new Error("Unable to retrieve GLib file info for " + aFile.path);
       }
 
       const g_file_info_get_attribute_string = gio.declare(

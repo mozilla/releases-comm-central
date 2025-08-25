@@ -100,7 +100,7 @@ add_task(async function test_context_click_in_threadpane() {
         "The rv of getSelectedMessages() should be correct"
       );
 
-      // The dispayed messages should be the collapsed thread from row #0.
+      // The displayed messages should be the collapsed thread from row #0.
       window.assertDeepEqual(
         {
           id: null,
@@ -144,7 +144,7 @@ add_task(async function test_context_click_in_threadpane() {
         "The rv of getSelectedMessages() should be correct"
       );
 
-      // The dispayed messages should still be the collapsed thread from row #0.
+      // The displayed messages should still be the collapsed thread from row #0.
       window.assertDeepEqual(
         {
           id: null,
@@ -246,7 +246,7 @@ add_task(async function test_context_click_in_threadpane() {
         "The rv of getSelectedMessages() should be correct"
       );
 
-      // The dispayed messages should still be the single message from row #1.
+      // The displayed messages should still be the single message from row #1.
       window.assertDeepEqual(
         {
           id: null,

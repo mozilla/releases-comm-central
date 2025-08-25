@@ -64,7 +64,7 @@ add_setup(async function () {
 
 /**
  * Tests the keyboard navigation on the message filters window, ensures that the
- * new fitler toolbarbutton and it's dropdown work correctly.
+ * new filter toolbarbutton and it's dropdown work correctly.
  */
 add_task(async function key_navigation_test() {
   const filterc = await openFiltersDialogs();

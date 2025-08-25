@@ -78,7 +78,7 @@ registerCleanupFunction(async function () {
  */
 add_task(async function test_tab_reorder_tabbar() {
   const tabmail = document.getElementById("tabmail");
-  // Ensure only one tab is open, otherwise our test most likey fail anyway.
+  // Ensure only one tab is open, otherwise our test most likely fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
@@ -171,7 +171,7 @@ add_task(async function test_tab_reorder_tabbar() {
  */
 add_task(async function test_tab_reorder_window() {
   const tabmail = document.getElementById("tabmail");
-  // Ensure only one tab is open, otherwise our test most likey fail anyway.
+  // Ensure only one tab is open, otherwise our test most likely fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
@@ -240,7 +240,7 @@ add_task(async function test_tab_reorder_window() {
  */
 add_task(async function test_tab_reorder_detach() {
   const tabmail = document.getElementById("tabmail");
-  // Ensure only one tab is open, otherwise our test most likey fail anyway.
+  // Ensure only one tab is open, otherwise our test most likely fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
@@ -312,7 +312,7 @@ add_task(async function test_tab_reorder_detach() {
  */
 add_task(async function test_tab_undo() {
   const tabmail = document.getElementById("tabmail");
-  // Ensure only one tab is open, otherwise our test most likey fail anyway.
+  // Ensure only one tab is open, otherwise our test most likely fail anyway.
   tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
@@ -386,7 +386,7 @@ async function _teardownRecentlyClosedMenu() {
  */
 add_task(async function test_tab_recentlyClosed() {
   const tabmail = document.getElementById("tabmail");
-  // Ensure only one tab is open, otherwise our test most likey fail anyway.
+  // Ensure only one tab is open, otherwise our test most likely fail anyway.
   tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
 
@@ -487,7 +487,7 @@ add_task(async function test_tab_recentlyClosed() {
   Assert.equal(
     tabTitles[7],
     menu.getItemAtIndex(5).label,
-    "Eigth tab title does not match menu item"
+    "Eighth tab title does not match menu item"
   );
 
   tabOpenPromise = BrowserTestUtils.waitForEvent(

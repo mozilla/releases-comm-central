@@ -276,7 +276,7 @@ add_task(async function test_edit_draft_mime_from() {
         "Content-Type: text/plain; charset=utf-8\n" +
         "Content-Transfer-Encoding: 8bit\n" +
         "\n" +
-        "Identitiy names should not show quotes!.\n"
+        "Identity names should not show quotes!.\n"
     );
   await be_in_folder(draftsFolder);
 

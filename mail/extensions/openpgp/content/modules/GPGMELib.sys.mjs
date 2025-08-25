@@ -251,7 +251,7 @@ function enableGPGMELibJS() {
     },
 
     /**
-     * Export key blocks from GnuPG that match the given paramters.
+     * Export key blocks from GnuPG that match the given parameters.
      *
      * @param {string} pattern - A pattern given to GnuPG for listing keys.
      * @param {boolean} secret - If true, retrieve secret keys.

@@ -318,7 +318,7 @@ function EditorRemoveTextProperty(property, attribute) {
   } catch (e) {}
 }
 
-/** *********** Element enbabling/disabling */
+/** *********** Element enabling/disabling */
 
 // this function takes an elementID and a flag
 // if the element can be found by ID, then it is either enabled (by removing "disabled" attr)
@@ -688,7 +688,7 @@ function Clone(obj) {
 }
 
 /**
- * Utility functions to handle shortended data: URLs in EdColorProps.js and EdImageOverlay.js.
+ * Utility functions to handle shortened data: URLs in EdColorProps.js and EdImageOverlay.js.
  */
 
 /**

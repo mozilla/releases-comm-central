@@ -447,7 +447,7 @@ Enigmail.msg = {
         */
 
         // HACK for Zimbra OpenPGP Zimlet
-        // Zimbra illegally changes attachment content-type to application/pgp-encrypted which interfers with below
+        // Zimbra illegally changes attachment content-type to application/pgp-encrypted which interferes with below
         // see https://sourceforge.net/p/enigmail/bugs/600/
 
         try {

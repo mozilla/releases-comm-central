@@ -244,7 +244,7 @@ export const ShortcutsManager = {
     const normalizedKey = event.key.toLowerCase();
     for (const shortcut of this.shortcuts) {
       // No need to run any other condition if the base key doesn't match.
-      // Compare case insensative because this is not consistent across
+      // Compare case insensitive because this is not consistent across
       // platforms. We check for the shift key specficly below anyway.
       if (shortcut.key?.toLowerCase() != normalizedKey) {
         continue;

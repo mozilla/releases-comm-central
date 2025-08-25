@@ -643,7 +643,7 @@ add_task(async function test_getSelectedMessagesWithOpenContextMenu() {
     browser.test.assertEq(
       10,
       listedMessages.length,
-      "Number of listed messages shold be correct"
+      "Number of listed messages should be correct"
     );
 
     async function testSelection(description, selectedIds, shownIds) {

@@ -147,7 +147,7 @@ const startupPhases = {
         "resource:///modules/ImapMessageService.sys.mjs",
         // Skipped due to the way ImapModuleLoader and registerProtocolHandler
         // works, uncomment once ImapModuleLoader is removed and imap-js becomes
-        // the only IMAP implemention.
+        // the only IMAP implementation.
         // "resource:///modules/ImapProtocolHandler.sys.mjs",
         "resource:///modules/ImapService.sys.mjs",
         "resource:///modules/NntpIncomingServer.sys.mjs",

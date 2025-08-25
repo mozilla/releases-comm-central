@@ -171,7 +171,7 @@ var gSpacesToolbar = {
   _rgbToHex(color) {
     const rgb = color.split("(")[1].split(")")[0].split(",");
 
-    // For each array element convert ot a base16 string and add zero if we get
+    // For each array element convert to a base16 string and add zero if we get
     // only one character.
     const hash = rgb.map(x => parseInt(x).toString(16).padStart(2, "0"));
 

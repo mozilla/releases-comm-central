@@ -111,7 +111,7 @@ add_task(async function test_local_account_color() {
 /**
  *
  * @param {XULElement} tab - The account settings tab.
- * @param {msIMsgAccount} account - The account ot test.
+ * @param {msIMsgAccount} account - The account to test.
  * @param {boolean} [skipCompose=false] - If the test should skip checking for
  *   the account color in the compose windows.
  */

@@ -38,7 +38,7 @@ export class PositionedDialog extends HTMLDialogElement {
   triggerSelector;
 
   /**
-   * Modifies the default `show` method of the dialog to absolutely postion the
+   * Modifies the default `show` method of the dialog to absolutely position the
    * dialog relative to a trigger element, restricted by a container element.
    *
    * The trigger element is determined by passing the trigger-selector to the
@@ -58,7 +58,7 @@ export class PositionedDialog extends HTMLDialogElement {
       return;
     }
 
-    //  If we have not yet stored a refrence to the container element do so.
+    //  If we have not yet stored a reference to the container element do so.
     if (!this.container) {
       this.container = document.getElementById(
         this.getAttribute("container-id")

@@ -69,7 +69,7 @@ export const isTransparent = color => {
 };
 
 /**
- * Check if the various color customization fo the current style are suitable
+ * Check if the various color customization for the current style are suitable
  * for dark mode, and sanitize them if not.
  *
  * @param {CSSStyleDeclaration} style - The style to sanitize.

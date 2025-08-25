@@ -237,7 +237,7 @@ window.addEventListener("unload", () => {
  * @param {?DBViewWrapper} viewWrapper - View wrapper.
  */
 function displayMessage(uri, viewWrapper) {
-  // Clear the state flags, if this window is re-used.
+  // Clear the state flags, if this window is reused.
   window.msgLoaded = false;
   window.msgLoading = false;
 
@@ -579,7 +579,7 @@ var messageHistory = {
    *
    * If the history is growing larger than what we want to keep, it is trimmed.
    *
-   * Assumes the view is currently in the folder that should be comitted to
+   * Assumes the view is currently in the folder that should be committed to
    * history.
    *
    * @param {string} messageURI - Message to add to the history.
@@ -662,7 +662,7 @@ var messageHistory = {
     return { entries: this._history.slice(), currentIndex: this._currentIndex };
   },
   /**
-   * Get a specific history entry relative to the current positon.
+   * Get a specific history entry relative to the current position.
    *
    * @param {number} delta - Relative index to get the value of.
    * @returns {?MessageHistoryEntry} If found, the message and

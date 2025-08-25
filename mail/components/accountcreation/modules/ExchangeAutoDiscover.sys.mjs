@@ -790,7 +790,7 @@ function detectStandardProtocols(config, domain, successCallback) {
   gAccountSetupLogger.info("Exchange Autodiscover gave some results.");
   const alts = [config.incoming, ...config.incomingAlternatives];
   if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
-    // Autodiscover found an exchange server with advertized IMAP and/or
+    // Autodiscover found an exchange server with advertised IMAP and/or
     // POP3 support. We're done then.
     config.preferStandardProtocols();
     successCallback(config);

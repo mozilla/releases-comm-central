@@ -318,7 +318,7 @@ add_task(async function testRegisterBeforeCompose() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": () => {
-        // Keep track of registered scrips being executed and ready.
+        // Keep track of registered scripts being executed and ready.
         browser.runtime.onMessage.addListener(message => {
           if (message == "LOADED") {
             browser.test.sendMessage("ScriptLoaded");

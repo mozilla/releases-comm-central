@@ -3075,7 +3075,7 @@ const gMessageHeader = {
         value = value.replace(/.*(<mailto:[^>]+>).*/, "$1");
         if (menu.dataset.headerName == "list-post") {
           // See https://datatracker.ietf.org/doc/html/rfc2369#section-3.4
-          // The list many not allow posting, e.g. an announcments list.
+          // The list many not allow posting, e.g. an announcements list.
           menu.disabled = value.includes("NO");
         }
         menu.setAttribute(

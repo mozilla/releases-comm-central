@@ -375,7 +375,7 @@ PopupNotifications.prototype = {
    *                     otherwise the hostPort will be displayed.
    *        name:
    *                     An optional string formatted to look bold and used in the
-   *                     notifiation description header text. Usually a host name or
+   *                     notification description header text. Usually a host name or
    *                     addon name.
    * @returns {PopupNotification} the Notification object corresponding to the added notification.
    */

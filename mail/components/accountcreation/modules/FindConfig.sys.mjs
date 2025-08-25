@@ -117,7 +117,7 @@ async function parallelAutoDiscovery(
       } else {
         // This needs to resolve here so the logic for having all of the
         // priority calls completed can run. Even if the autodiscover fails,
-        // we need to check the status of the priorty calls below. The outside
+        // we need to check the status of the priority calls below. The outside
         // function can throw an error for the other instances of autodiscover
         // failing (the two instances above).
         resolve();

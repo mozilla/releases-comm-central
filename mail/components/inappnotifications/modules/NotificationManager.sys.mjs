@@ -56,7 +56,7 @@ export class NotificationManager extends EventTarget {
   /**
    * Milliseconds between the next attempt of showing a notification after the
    * user interacted with a notification. If the application is idle before that
-   * or we refresh the information from the server we might show a notifiation
+   * or we refresh the information from the server we might show a notification
    * earlier.
    *
    * @type {number}

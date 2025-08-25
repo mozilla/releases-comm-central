@@ -84,7 +84,7 @@ export const QRExport = {
         lazy.log.debug(`${account.key} ineligible: no default identity`);
         return false;
       }
-      // For each account we want ingoing and outgoing and the default identiy.
+      // For each account we want ingoing and outgoing and the default identity.
       const incomingServer = account.incomingServer;
       if (!INCOMING_SERVER_TYPES.has(incomingServer.type)) {
         lazy.log.debug(
@@ -189,7 +189,7 @@ export const QRExport = {
       : MailServices.outgoingServer.defaultServer;
 
     outgoingServer.QueryInterface(Ci.nsISmtpServer);
-    const identites = account.identities.filter(
+    const identities = account.identities.filter(
       identity =>
         (!identity.smtpServerKey ||
           identity.smtpServerKey == defaultSmtpServerKey) &&
@@ -223,7 +223,7 @@ export const QRExport = {
                 outgoingServer.wrappedJSObject._getPasswordWithoutUI())) ||
               "",
           ],
-          ...identites.map(identity => [identity.email, identity.fullName]),
+          ...identities.map(identity => [identity.email, identity.fullName]),
         ],
       ],
     ];

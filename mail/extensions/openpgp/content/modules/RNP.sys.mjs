@@ -3792,7 +3792,7 @@ export var RNP = {
         args.encrypt = orgEncrypt;
       } else {
         // We aren't asked to encrypt, but sign only. That means the
-        // caller needs the detatched signature, either for MIME
+        // caller needs the detached signature, either for MIME
         // mime encoding with separate signature part, or for the nested
         // approach with separate signing and encryption layers.
         const signResult = lazy.GPGME.signDetached(

@@ -117,7 +117,7 @@ add_setup(async function () {
 
   SessionStoreManager.stopPeriodicSave();
 
-  // Opt out of calendar promotion so we don't show the "ligthing now
+  // Opt out of calendar promotion so we don't show the "lighting now
   // integrated" notification bar (which gives us unexpected heights).
   Services.prefs.setBoolPref("calendar.integration.notify", false);
 });

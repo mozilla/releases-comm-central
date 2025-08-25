@@ -140,7 +140,7 @@ function convertHeaders(mimeTreePart) {
  *
  * @param {MimeTreePart} mimeTreePart
  * @param {boolean} isRoot - If this is the root part, while working through the
- *   tree recursivly.
+ *   tree recursively.
  * @param {boolean} decodeHeaders - If decoded or raw headers should be returned.
  * @param {boolean} decodeContent - If decoded or raw content should be returned,
  *   this determines if a "body" member only for text/* parts, or if a "rawBody"
@@ -1368,7 +1368,7 @@ this.messages = class extends ExtensionAPIPersistent {
               Ci.nsIFolderListener.added
             );
           } else {
-            // IMAP: Fires after the message is truely added to the server, but
+            // IMAP: Fires after the message is truly added to the server, but
             // does not fire if offline.
             MailServices.mfn.addListener(
               folderListener,

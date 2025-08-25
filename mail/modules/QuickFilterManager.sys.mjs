@@ -61,7 +61,7 @@ export class QuickFilterState {
   filterValues = null;
   /**
    * Is the filter bar visible? Always inherited from the template regardless
-   * of stickyness.
+   * of stickiness.
    *
    * @type {?boolean}
    */
@@ -672,7 +672,7 @@ var TagFacetingFilter = {
   callID: "",
 
   /**
-   * @returns {boolean} true if the constaint is only on has tags/does not have
+   * @returns {boolean} true if the constraint is only on has tags/does not have
    *   tags, false if there are specific tag constraints in play.
    */
   isSimple(aFilterValue) {

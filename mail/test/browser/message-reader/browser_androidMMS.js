@@ -7,7 +7,7 @@
 /**
  * Tests that opening a message with bad Content-Location is able to show
  * images correctly.
- * The test messsage has a bad Content-Location. This should not prevent
+ * The test message has a bad Content-Location. This should not prevent
  * the html part from referring to the image parts by cid: correctly.
  */
 

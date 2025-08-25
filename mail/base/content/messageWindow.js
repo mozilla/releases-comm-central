@@ -130,7 +130,7 @@ function delayedOnLoadMessageWindow() {
 
   InitMsgWindow();
 
-  // initialize the customizeDone method on the customizeable toolbar
+  // initialize the customizeDone method on the customizable toolbar
   var toolbox = document.getElementById("mail-toolbox");
   toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");

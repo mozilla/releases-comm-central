@@ -304,7 +304,7 @@ export const NotificationScheduler = {
       currentWindow.removeEventListener("resize", callback);
     }
 
-    // If we get a bew notifiction before the only one is dismissed update state.
+    // If we get a bew notification before the only one is dismissed update state.
     if (this.id && this.id !== id) {
       this.reset();
       this.id = id;

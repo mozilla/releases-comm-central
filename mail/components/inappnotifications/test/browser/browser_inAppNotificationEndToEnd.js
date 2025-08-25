@@ -16,9 +16,9 @@ const { NotificationUpdater } = ChromeUtils.importESModule(
 );
 
 /**
- * This test injects a notifiation like we do "in the real world", by providing
+ * This test injects a notification like we do "in the real world", by providing
  * it on the server. We then check the user-facing contents of the notification.
- * Everything else that happens inbetween is not relevant to this test.
+ * Everything else that happens in between is not relevant to this test.
  * Since we're testing three distinct types of dispatch systems (notification,
  * tab, and browser), we also have some expectations on the ordering of the
  * notifications returned by the server.
@@ -172,7 +172,7 @@ add_task(async function test_notificationEndToEnd() {
   Assert.equal(
     ctaButton.textContent.trim(),
     notifications[0].CTA,
-    "The call to action label should match what the server specificies"
+    "The call to action label should match what the server specifies"
   );
 
   const formattedURLNotification = Services.urlFormatter.formatURL(

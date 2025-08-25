@@ -689,7 +689,7 @@ async function openPgpKeygenConfirm() {
   gKeygenRequest = null;
   kGenerating = false;
 
-  // For wathever reason, the key wasn't generated. Show an error message and
+  // For whatever reason, the key wasn't generated. Show an error message and
   // hide the processing overlay.
   if (!gGeneratedKey) {
     openPgpWarning.collapsed = false;
@@ -943,7 +943,7 @@ async function openPgpImportStart() {
   // Clear and hide the warning notification section.
   clearImportWarningNotifications();
 
-  // Clear the list of any previously improted keys from the DOM.
+  // Clear the list of any previously imported keys from the DOM.
   const keyList = document.getElementById("importKeyListRecap");
   while (keyList.lastChild) {
     keyList.lastChild.remove();

@@ -425,7 +425,7 @@ class UnifiedToolbar extends HTMLElement {
     const elementTypeOffset = {};
     let focusableElementSet = false;
     const wantedElements = itemIds.map(itemId => {
-      // We want to re-use existing elements to reduce flicker when switching
+      // We want to reuse existing elements to reduce flicker when switching
       // spaces and to preserve widget specific state, like a search string.
       const existingElements = this.#toolbarContent.querySelectorAll(
         `[item-id="${CSS.escape(itemId)}"]`

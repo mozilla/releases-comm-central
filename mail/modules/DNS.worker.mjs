@@ -20,7 +20,7 @@ class load_libresolv {
   library = null;
 
   /**
-   * Constuctor.
+   * Constructor.
    *
    * @param {string} os - The OS - from AppConstants.unixstyle.
    */

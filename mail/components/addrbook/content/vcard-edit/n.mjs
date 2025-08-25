@@ -52,7 +52,7 @@ export class VCardNComponent extends HTMLElement {
    * TODO: sort-as param should be used for the order.
    * The use-case is that not every language has the order of
    * prefix, firstName, middleName, lastName, suffix.
-   * Aswell that the user is able to change the sorting as he like
+   * As well that the user is able to change the sorting as he like
    * on a per contact base.
    */
   sortAsOrder() {

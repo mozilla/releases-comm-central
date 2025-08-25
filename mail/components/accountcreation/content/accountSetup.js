@@ -1148,7 +1148,7 @@ var gAccountSetup = {
     this._currentConfig = config;
     const configFilledIn = this.getConcreteConfig();
 
-    // Filter out Protcols we don't currently support
+    // Filter out Protocols we don't currently support
     let protocols = config.incomingAlternatives.filter(protocol =>
       ["imap", "pop3", "exchange", "ews"].includes(protocol.type)
     );
@@ -2565,7 +2565,7 @@ var gAccountSetup = {
       button.setAttribute("type", "button");
 
       if (existing.includes(book.url.href)) {
-        // This address book aready exists for some reason, so disable the
+        // This address book already exists for some reason, so disable the
         // button and mark it as existing.
         button.classList.add("existing", "small-button");
         document.l10n.setAttributes(
@@ -2703,7 +2703,7 @@ var gAccountSetup = {
         button.setAttribute("type", "button");
 
         if (existing.has(calendar.uri.spec)) {
-          // This calendar aready exists for some reason, so disable the button
+          // This calendar already exists for some reason, so disable the button
           // and mark it as existing.
           button.classList.add("existing", "small-button");
           document.l10n.setAttributes(

@@ -494,8 +494,8 @@ export class MsgHdrProcessor {
       // this if there have not been any changes due to the decryption process.
       this.#hasEncryptedParts = false;
       mimeTree.decryptionStatus = "none";
-      // Note: We have a successfully parsed mimeTree, which could be re-used for
-      //       getOriginalTree(). However, the decrypter is modifiying the tree
+      // Note: We have a successfully parsed mimeTree, which could be reused for
+      //       getOriginalTree(). However, the decrypter is modifying the tree
       //       while walking through, even if nothing is decrypted. How bad is it?
       // TODO: Change decrypter to not modify mimeTree and strip attachments.
       // this.#originalTree = mimeTree;
@@ -550,7 +550,7 @@ export class MsgHdrProcessor {
     const msgUri = this.#msgUri;
     const service = MailServices.messageServiceFromURI(msgUri);
 
-    // Setup a connection timout of 20s, to be able to fail if streaming stalls.
+    // Setup a connection timeout of 20s, to be able to fail if streaming stalls.
     let connectionSuccess = false;
     const connectionPromise = Promise.withResolvers();
     const connectionTimeout = setTimeout(() => {
@@ -1500,7 +1500,7 @@ export class MessageTracker extends EventEmitter {
           const cachedHdr = this._msgHdrCache.get(hash);
           // Manually add the cached header to the tracker, which was skipped
           // during its creation to prevent needlessly tracked headers. If the
-          // message is already known, the existing ID is re-used. This must be
+          // message is already known, the existing ID is reused. This must be
           // done before the information of the deleted message is purged from
           // the tracker, otherwise a new message ID will be assigned.
           cachedHdr.addToMessageTracker();

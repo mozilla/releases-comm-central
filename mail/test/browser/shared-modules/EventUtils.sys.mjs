@@ -116,7 +116,7 @@ export function sendString(aStr, aWindow) {
 
 /**
  * Synthesize a mouse event on a target. The actual client point is determined
- * by taking the aTarget's client box and offseting it by aOffsetX and
+ * by taking the aTarget's client box and offsetting it by aOffsetX and
  * aOffsetY. This allows mouse clicks to be simulated by calling this method.
  *
  * aEvent is an object which may contain the properties:

@@ -432,7 +432,7 @@ add_task(async function test_encoding() {
               decryptionStatus: "none",
               headers: {
                 from: ["Bug Reporter <new@thunderbird.bug>"],
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 subject: ["αλφάβητο"],
                 date: ["Thu, 27 May 2021 21:23:35 +0100"],
                 "message-id": ["<01.eml@mime.sample>"],
@@ -598,7 +598,7 @@ add_task(async function test_encoding() {
               decryptionStatus: "none",
               headers: {
                 from: ["Bug Reporter <new@thunderbird.bug>"],
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 subject: ["Алфавит"],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
                 "message-id": ["<04.eml@mime.sample>"],
@@ -631,7 +631,7 @@ add_task(async function test_encoding() {
               decryptionStatus: "none",
               headers: {
                 from: ["Bug Reporter <new@thunderbird.bug>"],
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 subject: ["Алфавит"],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
                 "message-id": ["<05.eml@mime.sample>"],
@@ -664,7 +664,7 @@ add_task(async function test_encoding() {
               decryptionStatus: "none",
               headers: {
                 from: ["Bug Reporter <new@thunderbird.bug>"],
-                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                newsgroups: ["gmane.comp.mozilla.thunderbird.user"],
                 subject: ["I have no content type"],
                 date: ["Sun, 27 May 2001 21:23:35 +0100"],
                 "message-id": ["<06.eml@mime.sample>"],

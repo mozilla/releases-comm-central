@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests for the "navigation" butttons at the top of the mail context menu.
+ * Tests for the "navigation" buttons at the top of the mail context menu.
  */
 
 const { MessageGenerator } = ChromeUtils.importESModule(

@@ -328,7 +328,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
-  // Check existance of address book and calendar.
+  // Check existence of address book and calendar.
   const [addressBookDirectory] = await addressBookDirectoryPromise;
   Assert.equal(addressBookDirectory.dirName, "You found me!");
   Assert.equal(

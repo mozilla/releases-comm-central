@@ -140,7 +140,7 @@ add_task(async function test_query() {
           ],
         },
         {
-          description: "#9 (folderIds and accountId, with supression)",
+          description: "#9 (folderIds and accountId, with suppression)",
           queryInfo: {
             accountId: [folder3.accountId],
             folderId: [folder3.id, folder1.id],
@@ -148,7 +148,7 @@ add_task(async function test_query() {
           expected: [...msgs[folder3.id]],
         },
         {
-          description: "#10 (folderIds and accountId, without supression)",
+          description: "#10 (folderIds and accountId, without suppression)",
           queryInfo: {
             accountId: [folder3.accountId],
             folderId: [folder3.id, folder4.id],

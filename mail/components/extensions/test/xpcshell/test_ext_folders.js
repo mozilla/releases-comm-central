@@ -454,7 +454,7 @@ add_task(
         window.assertDeepEqual(
           expectedNestedRootFolder,
           nestedRootFolder,
-          "browser.accounts.get() sould return the correct subfolders",
+          "browser.accounts.get() should return the correct subfolders",
           {
             strict: true,
           }

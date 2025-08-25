@@ -770,7 +770,7 @@
       //  to actually build the labels, we must build the short string and
       //  then re-call for the long name.  We could be smarter by building
       //  a list of the input values that resulted in the output string and
-      //  then using that to back-update the id map, but it's more compelx and
+      //  then using that to back-update the id map, but it's more complex and
       //  the performance difference is unlikely to be meaningful.
       let ambiguousKeyValues;
       if ("userVisibleString" in nounDef) {

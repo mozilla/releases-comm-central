@@ -294,7 +294,7 @@ async function waitForCalendarReady() {
 }
 
 /**
- * Check that the dialog falls within the expected tollerances of the target
+ * Check that the dialog falls within the expected tolerances of the target
  * and the container elements.
  *
  * @param {HTMLElement} target - The target element to compare against.
@@ -350,17 +350,17 @@ function checkTollerance(target, message) {
 
   Assert.ok(
     horizontalContainer,
-    `${message} - within horizontal container tollerance`
+    `${message} - within horizontal container tolerance`
   );
   Assert.ok(
     horizontalTarget,
-    `${message} - within horizontal target tollerance`
+    `${message} - within horizontal target tolerance`
   );
   Assert.ok(
     verticalContainer,
-    `${message} - within vertical container tollerance`
+    `${message} - within vertical container tolerance`
   );
-  Assert.ok(verticalTarget, `${message} - within vertical  target tollerance`);
+  Assert.ok(verticalTarget, `${message} - within vertical  target tolerance`);
 }
 
 const originalWidth = window.outerWidth;

@@ -40,7 +40,7 @@ _url: url => {
     case "messenger":
         return "chrome://messenger/content/messenger.xhtml";
     default:
-        console.debug(`Unkown xulStore document URL: ${url}`);
+        console.debug(`Unknown xulStore document URL: ${url}`);
         return url;
     }
 },

@@ -21,7 +21,7 @@ ChromeUtils.defineLazyGetter(lazy, "console", () =>
 const MAX_UPDATES_PER_DAY = 24;
 
 /**
- * Regularily check the in-app notification server for the latest notifications.
+ * Regularly check the in-app notification server for the latest notifications.
  */
 export const NotificationUpdater = {
   /**
@@ -294,7 +294,7 @@ export const NotificationUpdater = {
       this._updateHistory.shift();
     }
 
-    // Get the remining time on the cache, if it returns anything falsey
+    // Get the remaining time on the cache, if it returns anything falsey
     // including zero use the default interval. We should never fetch again
     // without a delay
     const time =

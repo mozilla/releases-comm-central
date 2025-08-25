@@ -186,7 +186,7 @@ pref("app.support.baseURL", "https://support.thunderbird.net/%APP%/%VERSION%/%OS
 // Base url for web-based feedback pages.
 pref("app.feedback.baseURL", "https://connect.mozilla.org/");
 
-// Allows using Thundebird without a configured email account, blocking the
+// Allows using Thunderbird without a configured email account, blocking the
 // account setup prompt at startup.
 pref("app.use_without_mail_account", false);
 
@@ -981,7 +981,7 @@ pref("devtools.browsertoolbox.scope", "everything");
 // This preference will enable watching top-level targets from the server side.
 pref("devtools.target-switching.server.enabled", true);
 
-// Controls the hability to debug popups from the same DevTools
+// Controls the ability to debug popups from the same DevTools
 // of the original tab the popups are coming from
 pref("devtools.popups.debug", false);
 
@@ -1035,7 +1035,7 @@ pref("devtools.gridinspector.maxHighlighters", 3);
 // Whether or not simplified highlighters should be used when
 // prefers-reduced-motion is enabled.
 pref("devtools.inspector.simple-highlighters-reduced-motion", false);
-// Wheter or not Enter on inplace editor in the Rules view moves focus and activates
+// Whether or not Enter on inplace editor in the Rules view moves focus and activates
 // next inplace editor.
 pref("devtools.inspector.rule-view.focusNextOnEnter", true);
 
@@ -1106,7 +1106,7 @@ pref("devtools.application.enabled", true);
 
 // Enable the custom formatters feature
 // This preference represents the user's choice to enable the custom formatters feature.
-// While the preference above will be removed once the feature is stable, this one is menat to stay.
+// While the preference above will be removed once the feature is stable, this one is meant to stay.
 pref("devtools.custom-formatters.enabled", false);
 
 // The default Network Monitor UI settings
@@ -1417,7 +1417,7 @@ pref("identity.fxaccounts.log.sensitive", true);
 pref("services.sync.log.appender.console", "Info");
 // Auto-config URL for FxA self-hosters, makes an HTTP request to
 // [identity.fxaccounts.autoconfig.uri]/.well-known/fxa-client-configuration
-// This is now the prefered way of pointing to a custom FxA server, instead
+// This is now the preferred way of pointing to a custom FxA server, instead
 // of making changes to "identity.fxaccounts.*.uri".
 pref("identity.fxaccounts.autoconfig.uri", "https://accounts.stage.mozaws.net");
 // The remote FxA root content URL. Must use HTTPS.

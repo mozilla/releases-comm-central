@@ -174,7 +174,7 @@ MimeVerify.prototype = {
    * @param {integer} offset - Number of bytes that were sent in previous
    *   onDataAvailable calls for this request. In other words, the sum of all
    *   previous count parameters.
-   * @param {integer} count - Nmber of bytes available in the stream.
+   * @param {integer} count - Number of bytes available in the stream.
    */
   onDataAvailable(req, stream, offset, count) {
     if (count > 0) {
@@ -358,7 +358,7 @@ MimeVerify.prototype = {
   /**
    * @param {string} queryMimePartNumber - MIME part number, e.g. "1", "1.1.1".
    * @param {string} loadedUriSpec - The URI spec loaded.
-   * @returns {boolean} true if the part is an allow siganture part.
+   * @returns {boolean} true if the part is an allow signature part.
    */
   isAllowedSigPart(queryMimePartNumber, loadedUriSpec) {
     // allowed are:

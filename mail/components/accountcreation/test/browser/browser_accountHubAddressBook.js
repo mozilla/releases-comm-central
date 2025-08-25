@@ -105,7 +105,7 @@ add_task(async function test_reset() {
   abView.insertTestState("resetState", testState);
 
   // Call reset on the address book view, making the address book option select
-  // subview visible, and reseting the footer buttons (this subview has both
+  // subview visible, and resetting the footer buttons (this subview has both
   // hidden).
   await abView.reset();
   Assert.ok(
@@ -416,7 +416,7 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
   abView.querySelector("#addressBookFooter").addEventListener(
     "forward",
     () => {
-      Assert.ok(true, "Forward event emmited");
+      Assert.ok(true, "Forward event emitted");
       resolve();
     },
     { once: true }

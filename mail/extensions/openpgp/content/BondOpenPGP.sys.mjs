@@ -4,7 +4,7 @@
 
 /**
  * This file is a thin interface on top of the rest of the OpenPGP
- * integration ot minimize the amount of code that must be
+ * integration to minimize the amount of code that must be
  * included in files outside the extensions/openpgp directory.
  */
 

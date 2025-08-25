@@ -761,7 +761,7 @@ async function checkComposeHeaders(expected) {
  * @param {Browser} browser - The browser which has the element to be clicked on.
  *
  * @returns {Promise} A promise that resolves once the click was observed. Rejects
- *   if unsucessfull for more then 3 tries.
+ *   if unsuccessful for more then 3 tries.
  */
 async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
   let success = false;
@@ -819,7 +819,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
  *   current window.
  *
  * @returns {Promise} A promise that resolves once the click was observed. Rejects
- *   if unsucessfull for more then 3 tries.
+ *   if unsuccessful for more then 3 tries.
  */
 async function clickElementInActionPopup(extension, selector, win = window) {
   const stack = getBrowserActionPopup(extension, win);
@@ -879,7 +879,7 @@ async function openBrowserContextMenuInActionPopup(
  * @param {string} selector - A CSS selector to identify the element which should
  *   be clicked on, inside the browser.
  * @returns {Promise} A promise that resolves once the menu was opened. Rejects
- *   if unsucessfull for more then 3 tries.
+ *   if unsuccessful for more then 3 tries.
  */
 async function openMenuPopupInBrowser(browser, menu, selector) {
   await BrowserTestUtils.waitForPopupEvent(menu, "hidden");

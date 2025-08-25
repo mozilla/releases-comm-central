@@ -293,7 +293,7 @@
 @RESPATH@/chrome/openpgp@JAREXT@
 @RESPATH@/chrome/openpgp.manifest
 
-; misson control, autoconfig
+; mission control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS
 @RESPATH@/defaults/autoconfig/prefcalls.js
 #endif

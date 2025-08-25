@@ -695,7 +695,7 @@ add_task(
           let currentSubs = subFolders;
 
           // If subfolders are present, the folder has a nested subFolder structure
-          // fom leveli ... level9.
+          // from leveli ... level9.
           for (let i = expected.depth + 1; i < 10; i++) {
             if (!expectedSubFolders) {
               break;

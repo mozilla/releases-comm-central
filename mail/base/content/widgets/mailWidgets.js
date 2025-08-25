@@ -952,7 +952,7 @@
       this.addEventListener("blur", event => {
         // Prevent deselecting a pill on blur if:
         // - The related target is null (context menu was opened, bug 1729741).
-        // - The related target is another pill (multi selection and deslection
+        // - The related target is another pill (multi selection and deselection
         //   are handled by the click event listener added on pill creation).
         if (
           !event.relatedTarget ||

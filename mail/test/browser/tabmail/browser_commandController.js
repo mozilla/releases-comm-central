@@ -77,7 +77,7 @@ add_task(async function test_disabledCommand() {
   );
   Assert.ok(
     !event.detail.enabled,
-    "The registred command isn't enabled per the event"
+    "The registered command isn't enabled per the event"
   );
 
   Assert.ok(
@@ -105,7 +105,7 @@ add_task(function test_enabledCommand() {
 
   Assert.ok(
     commandController.supportsCommand(command),
-    "cmd_enabledCommand is supported becuase we registered it"
+    "cmd_enabledCommand is supported because we registered it"
   );
   Assert.ok(
     commandController.isCommandEnabled(command),

@@ -335,7 +335,7 @@ add_task(async function test_folder_isTag() {
         );
 
         // Test folders.copy(). Probably not that useful, as the copied folders
-        // are no longer virtual search folders and therfore end up being empty.
+        // are no longer virtual search folders and therefore end up being empty.
         // The destination folder is checked at the end of this task.
         await browser.folders.copy(virtualTagFolder.id, testFolder1.id);
 

@@ -128,7 +128,7 @@
             "type": "boolean",
             "name": "preserveGroups",
             "optional": true,
-            "description": "Keep grouped hierachies. Groups may be specified in a mailbox string as follows: <var>GroupName : user1 <user1@example.com>, user2@example,com ;</var>."
+            "description": "Keep grouped hierarchies. Groups may be specified in a mailbox string as follows: <var>GroupName : user1 <user1@example.com>, user2@example,com ;</var>."
           },
           {
             "type": "function",

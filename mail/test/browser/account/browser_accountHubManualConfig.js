@@ -287,7 +287,7 @@ add_task(async function test_account_email_manual_form() {
 
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
 
-  // Delete the invalid character should renable the continue button.
+  // Delete the invalid character should re-enable the continue button.
   const deleteEvent = BrowserTestUtils.waitForEvent(
     incomingHostname,
     "input",
@@ -304,7 +304,7 @@ add_task(async function test_account_email_manual_form() {
     () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
     "The outgoing config template should be in view"
   );
-  // Continuing on to outgoing should reveal a disbaled continue button and an
+  // Continuing on to outgoing should reveal a disabled continue button and an
   // enabled test button.
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
   await isOutgoingVisible;

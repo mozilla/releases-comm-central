@@ -143,7 +143,7 @@ add_task(async function test_root_icon() {
   );
   await openSubMenuPopup(extensionMenu);
 
-  // Check icon which was specifed as a relative url.
+  // Check icon which was specified as a relative url.
   const relativeUrlMenuEntry = menu.querySelector(
     "#menu-icons_mochi_test-menuitem-_relativeUrl"
   );
@@ -157,7 +157,7 @@ add_task(async function test_root_icon() {
     "The relative-url icon should be correct"
   );
 
-  // Check icon which was specifed as a remote url.
+  // Check icon which was specified as a remote url.
   const remoteUrlMenuEntry = menu.querySelector(
     "#menu-icons_mochi_test-menuitem-_remoteUrl"
   );
@@ -172,7 +172,7 @@ add_task(async function test_root_icon() {
     "The remote-url icon should be correct"
   );
 
-  // Check icon which was specifed as a data url.
+  // Check icon which was specified as a data url.
   const dataUrlMenuEntry = menu.querySelector(
     "#menu-icons_mochi_test-menuitem-_dataUrl"
   );

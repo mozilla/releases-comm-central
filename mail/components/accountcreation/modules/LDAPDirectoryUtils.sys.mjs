@@ -74,7 +74,7 @@ export const LDAPDirectoryUtils = {
   /**
    * Checks whether an existing directory exists with the provided name.
    *
-   * @param {string} newName - Direcotry name.
+   * @param {string} newName - Directory name.
    * @returns {boolean} Existence of directory with same name.
    */
   isDuplicate(newName) {

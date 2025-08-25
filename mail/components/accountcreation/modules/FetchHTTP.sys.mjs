@@ -81,7 +81,7 @@ const {
  * @param {function(string):void} successCallback - Success callback.
  *   Called when the server call worked (no errors).
  *   |result| will contain the body of the HTTP response, as string.
- * @param {function(Error):void} errorCallback - Error callack.
+ * @param {function(Error):void} errorCallback - Error callback.
  *   Called in case of error. ex contains the error
  *   with a user-displayable but not localized |.message| and maybe a
  *   |.code|, which can be either

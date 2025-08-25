@@ -276,7 +276,7 @@ add_task(async function test_addressBooks() {
           vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:SomethingNew\r\nEND:VCARD\r\n`,
         });
         browser.test.fail(
-          `Updating a contact with a vCard with a differnt UID should throw`
+          `Updating a contact with a vCard with a different UID should throw`
         );
       } catch (ex) {
         browser.test.assertEq(

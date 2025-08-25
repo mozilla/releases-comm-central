@@ -20,13 +20,13 @@ add_task(async function test_formatFileSize() {
           { sizeInBytes: 2344234234, expectedFormat: "2.2 GB" },
         ];
         for (const { sizeInBytes, expectedFormat } of tests) {
-          const formated =
+          const formatted =
             await browser.messengerUtilities.formatFileSize(sizeInBytes);
-          // On some systems we get a , seperator.
+          // On some systems we get a , separator.
           browser.test.assertEq(
-            formated.replaceAll(",", "."),
+            formatted.replaceAll(",", "."),
             expectedFormat,
-            `Formated file size for ${sizeInBytes} bytes should show correctly`
+            `Formatted file size for ${sizeInBytes} bytes should show correctly`
           );
         }
         browser.test.notifyPass("finished");

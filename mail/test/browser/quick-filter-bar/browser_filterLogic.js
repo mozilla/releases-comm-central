@@ -421,7 +421,7 @@ add_task(async function test_filter_text_constraints_propagate() {
 /**
  * The loading icon appears when a "searching" classname is attached to the
  * quick filter bar. It should disappear when the results are found. This test
- * runs successfully when there are messsages in the folder being searched.
+ * runs successfully when there are messages in the folder being searched.
  */
 add_task(async function test_loading_icon() {
   const folder = await create_folder("QuickFilterBarTextSingleWordLoading");

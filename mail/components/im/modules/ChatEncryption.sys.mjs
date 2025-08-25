@@ -113,7 +113,7 @@ export const ChatEncryption = {
     }
   },
   /**
-   * Hide the encryption selector in the converstaion UI.
+   * Hide the encryption selector in the conversation UI.
    *
    * @param {DOMDocument} document
    */

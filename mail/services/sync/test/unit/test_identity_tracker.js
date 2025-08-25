@@ -88,7 +88,7 @@ add_task(async function testIdentity() {
 });
 
 /**
- * Test the store methods on identites. The tracker should ignore them.
+ * Test the store methods on identities. The tracker should ignore them.
  */
 add_task(async function testIncomingChanges() {
   const id = newUID();

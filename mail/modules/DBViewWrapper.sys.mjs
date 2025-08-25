@@ -586,7 +586,7 @@ DBViewWrapper.prototype = {
   kUnderlyingSearchView: 4,
 
   /**
-   * Returns the sortType of the column assoziated with the given columnId.
+   * Returns the sortType of the column associated with the given columnId.
    *
    * @param {string} columnId
    * @returns {nsMsgViewSortType|undefined} the sort type as defined by Ci.nsMsgViewSortType, if any
@@ -2046,7 +2046,7 @@ DBViewWrapper.prototype = {
    * @param {integer|string} aMailViewIndex - The view to use, one of the
    *   kViewItem* constants from msgViewPickerOverlay.js OR the name of a
    *   custom view.  (It's really up to MailViewManager.getMailViewByIndex...)
-   * @param {srting} aData - Some piece of data appropriate to the mail view,
+   * @param {string} aData - Some piece of data appropriate to the mail view,
    *    currently this is only used for the tag name for kViewItemTags (sans the ":").
    * @param {boolean} aDoNotPersist If true, we don't save this change to the
    *   db folderinfo. This is intended for internal use only.

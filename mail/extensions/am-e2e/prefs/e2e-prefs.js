@@ -151,7 +151,7 @@ pref("mail.openpgp.keyserver_list", "vks://keys.openpgp.org, hkps://keys.mailvel
 pref("temp.openpgp.maxIdleMinutes", 5);
 
 // GnuPG hash algorithm
-// 0: automatic seletion (i.e. let GnuPG choose)
+// 0: automatic selection (i.e. let GnuPG choose)
 // 1: SHA1, 2: RIPEMD160, 3: SHA256, 4: SHA384, 5: SHA512, 6: SHA224
 pref("temp.openpgp.mimeHashAlgorithm", 0);
 

@@ -13,7 +13,7 @@ properties:
 - `hint` - hint string
 - `note` - note string
 - `warning` - warning string
-- `version_added` - a boolean value indicating wether the specified API or property
+- `version_added` - a boolean value indicating whether the specified API or property
 is supported by Thunderbird, overriding automatically generated compat data from
 the schema files (schemas read from mail/ default to `true`, schemas read from
 browser/ and toolkit/ default to `false`), can also be an string with a version
