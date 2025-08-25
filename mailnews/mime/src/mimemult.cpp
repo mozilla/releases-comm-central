@@ -378,7 +378,7 @@ static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject* obj,
     if (kid)
       if (mime_typep(kid, (MimeObjectClass*)&mimeMultipartClass)) {
         // Don't ask the kid to check the boundary if it has already detected a
-        // Teminator
+        // Terminator
         MimeMultipart* mult = (MimeMultipart*)kid;
         if (mult->state != MimeMultipartEpilogue)
           if (MimeMultipart_check_boundary(kid, line, length) !=

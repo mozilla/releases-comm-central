@@ -231,7 +231,7 @@ struct RawHdr {
                         // stripped. e.g."1234@local.machine.example"
   nsCString references; // should be array?
   PRTime date{0};       // From "Date:" header.
-  PRTime dateReceived{0}; // From closest "Recieved:" header, if available.
+  PRTime dateReceived{0}; // From closest "Received:" header, if available.
   nsCString subject;
   nsCString sender;    // AKA nsIMsgDBHdr.author. Usually "From:" header.
   nsCString recipients; // format?    (can be newsgroups)

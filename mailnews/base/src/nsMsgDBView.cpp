@@ -2697,7 +2697,7 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
   nsTArray<nsMsgKey> messageKeys;
 
-  // No sense going through the code that handles messages in collasped threads
+  // No sense going through the code that handles messages in collapsed threads
   // for mark thread read.
   if (command == nsMsgViewCommandType::markThreadRead) {
     for (nsMsgViewIndex viewIndex : selection) {
@@ -4236,7 +4236,7 @@ nsresult nsMsgDBView::ToggleExpansion(nsMsgViewIndex index,
   else
     rv = CollapseByIndex(threadIndex, numChanged);
 
-  // If we collaps/uncollapse a thread, this changes the selected URIs.
+  // If we collapse/uncollapse a thread, this changes the selected URIs.
   SelectionChangedXPCOM();
   return rv;
 }

@@ -108,10 +108,10 @@ interface nsIMsgMailNewsUrl : nsIURL {
    * error has the same code, but a different error has a different code.
    * This allows to recover from specific errors programmatically,
    * or to keep error statistics.
-   * If the error comes from a server, the implementor should make
+   * If the error comes from a server, the implementer should make
    * efforts to pass on comparable server error identifiers and include
    * them here, e.g. as suffixes. Example: "imap-sasl-S474", where-as "S474"
-   * comes from the server annd "imap-sasl-" is the prefix for where the
+   * comes from the server and "imap-sasl-" is the prefix for where the
    * server reports appears.
    */
   attribute ACString errorCode;

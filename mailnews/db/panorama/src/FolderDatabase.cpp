@@ -780,7 +780,7 @@ FolderDatabase::EnsureFolderCached(uint64_t folderId) {
 
 void FolderDatabase::TrimCache() {
   // Standin cache policy:
-  // Grow to maxEntries, then discard an abitrary 25%.
+  // Grow to maxEntries, then discard an arbitrary 25%.
   // Probably no point being too clever here.
   constexpr uint32_t maxEntries = 512;
   if (mFolderCache.count() < maxEntries) {

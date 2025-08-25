@@ -305,7 +305,7 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
   }
 
   /**
-   * Import mail identites.
+   * Import mail identities.
    *
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_IDENTITY branch.
    * @param {SmtpServerKeyMap} smtpServerKeyMap - A map from the source SMTP

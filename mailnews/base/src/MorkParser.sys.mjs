@@ -284,7 +284,7 @@ export class MorkParser {
     while ((m = regex.exec(table_part)) != null) {
       let hash = {};
 
-      // Break up the table - each line cosists of a $id and the rest are
+      // Break up the table - each line consists of a $id and the rest are
       // records.
       const parts = m[1].split(/[()]+/);
       let id = parts[0];

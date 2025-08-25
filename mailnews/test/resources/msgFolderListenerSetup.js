@@ -344,7 +344,7 @@ function verify(event) {
         // IMAP; message id strings
         // The IMAP case has additional complexity in that the 'new message'
         // list is not tailored to our needs and so may over-report about
-        // new messagse.  So to deal with this we make sure the msgsClassified
+        // new messages.  So to deal with this we make sure the msgsClassified
         // event is telling us about at least the N expected events and that
         // the last N of these events match
         if (event[1].length < expected[1].length) {

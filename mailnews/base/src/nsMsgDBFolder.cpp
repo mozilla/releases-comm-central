@@ -5063,7 +5063,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyAboutToCompact() {
   return NS_OK;
 }
 
-// NOTE: local folder overides this to clear some state.
+// NOTE: local folder overrides this to clear some state.
 NS_IMETHODIMP nsMsgDBFolder::NotifyCompactCompleted() {
   NotifyFolderEvent(kCompactCompleted);
   return NS_OK;

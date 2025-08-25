@@ -118,7 +118,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
         }
 
         if (!allowed) {
-          // Not explicitely allowd.
+          // Not explicitly allowed.
           // Then check if FQDN or IPv4/v6 and deny if it is.
           if (uncPath.FindChar('.') != -1 || uncPath.FindChar(':') != -1) {
             // Disallow remote UNC mailbox:// access.

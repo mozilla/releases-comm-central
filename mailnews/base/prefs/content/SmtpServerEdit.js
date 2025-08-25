@@ -202,7 +202,7 @@ function authMethodChanged() {
 }
 
 /**
- * Resets the default port to SMTP or SMTPS, dependending on
+ * Resets the default port to SMTP or SMTPS, depending on
  * the |gSmtpSocketType| value, and sets the port to use to this default,
  * if that's appropriate.
  *

@@ -227,7 +227,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   // Number of bytes added due to add X-Mozilla-* headers.
   int32_t m_bytesAddedToLocalMsg;
   // This is currently used when we do a save as of an imap or news message..
-  // Also used by IMAP/News offline messsage writing.
+  // Also used by IMAP/News offline message writing.
   nsCOMPtr<nsIOutputStream> m_tempMessageStream;
   // The number of bytes written to m_tempMessageStream so far.
   uint32_t m_tempMessageStreamBytesWritten;

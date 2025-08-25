@@ -61,7 +61,7 @@ interface nsIImapMailFolderSink : nsISupports {
    * @param aFolderQuotaRoot    The IMAP quotaroot and resource names for this
    *                            folder separated by a slash as obtained from the
    *                            GETQUOTAROOT IMAP command response.
-   * @param aFolderQuotaUsage   Amount of resourse in use, in KB for STORAGE
+   * @param aFolderQuotaUsage   Amount of resource in use, in KB for STORAGE
    *                            resource.
    * @param aFolderQuotaLimit   Maximum usage allowed for this resource.
    **/

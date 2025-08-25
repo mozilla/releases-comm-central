@@ -742,7 +742,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
         if (!paragraphMode || !aHTMLEditor) htmlEditor->InsertLineBreak();
 
         // i'm not sure if you need to move the selection back to before the
-        // break. expirement.
+        // break. experiment.
         selection->CollapseInLimiter(parent, offset + 1);
 
         break;
@@ -1748,7 +1748,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
         case nsIMsgCompType::Template:
         case nsIMsgCompType::EditTemplate:
         case nsIMsgCompType::EditAsNew: {
-          // If opening from file, preseve the subject already present, since
+          // If opening from file, preserve the subject already present, since
           // we can't get a subject from db there.
           if (mOriginalMsgURI.Find("&realtype=message/rfc822") != -1) {
             break;

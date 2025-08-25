@@ -70,7 +70,7 @@ class nsMsgProtocol : public nsIStreamListener,
 
   // methods for opening and closing a socket with core netlib....
   // mscott -okay this is lame. I should break this up into a file protocol and
-  // a socket based protocool class instead of cheating and putting both methods
+  // a socket based protocol class instead of cheating and putting both methods
   // here...
 
   // helper routine

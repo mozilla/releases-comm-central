@@ -18,7 +18,7 @@
  * nsLDAPURL uses an nsStandardURL stored in mBaseURL as its main url formatter.
  *
  * This is done to ensure that the pre-path sections of the URI are correctly
- * formatted and to re-use the functions for nsIURI as appropriate.
+ * formatted and to reuse the functions for nsIURI as appropriate.
  *
  * Handling of the path sections of the URI are done within nsLDAPURL/parts of
  * the LDAP c-sdk. nsLDAPURL holds the individual sections of the path of the

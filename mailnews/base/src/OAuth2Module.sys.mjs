@@ -159,7 +159,7 @@ OAuth2Module.prototype = {
         } else {
           // We've got a new token for this scope, remove the existing one.
           log.debug(
-            `Removing superceded token for ${this._loginOrigin} with scope "${login.httpRealm}"`
+            `Removing superseded token for ${this._loginOrigin} with scope "${login.httpRealm}"`
           );
           Services.logins.removeLogin(login);
         }

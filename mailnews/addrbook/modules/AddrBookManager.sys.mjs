@@ -192,7 +192,7 @@ Services.prefs.addObserver("mail.displayname.version", () => {
   Services.obs.notifyObservers(null, "addrbook-displayname-changed");
 });
 
-// When this prefence has been updated, we need to update the
+// When this preference has been updated, we need to update the
 // mail.displayname.version, which notifies its preference observer (above).
 // This will then notify the addrbook-displayname-changed observer, and change
 // the displayname in the thread tree and message header.

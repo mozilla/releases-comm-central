@@ -37,7 +37,7 @@ static const char kBlockRemoteImages[] =
     "mailnews.message_display.disable_remote_image";
 static const char kTrustedDomains[] = "mail.trusteddomains";
 
-// Per message headder flags to keep track of whether the user is allowing
+// Per message header flags to keep track of whether the user is allowing
 // remote content for a particular message. if you change or add more values to
 // these constants, be sure to modify the corresponding definitions in
 // mailWindowOverlay.js

@@ -48,7 +48,7 @@ class StoreIndexer : public nsIStoreScanListener {
    *
    * Once this function is called, StoreIndex is self-sustaining - you don't
    * need to hold an external RefPtr<> on it to keep it from being deleted.
-   * It will keep itself in existance until completion, so it can be used in
+   * It will keep itself in existence until completion, so it can be used in
    * a "fire-and-forget" manner.
    *
    * If this function returns an error, no callbacks will be invoked.

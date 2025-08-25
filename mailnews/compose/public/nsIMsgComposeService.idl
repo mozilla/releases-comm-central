@@ -128,7 +128,7 @@ interface nsIMsgComposeService : nsISupports {
    * Allow filters to automatically reply to a message. The reply message is
    * based on the given template.
    * @param msgHdr the header of the message being replied to
-   * @param templateUri uri of the template to base ther reply on
+   * @param templateUri uri of the template to base their reply on
    * @param msgWindow message window to use
    * @param server server to use for determining which account to send from
    */

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the new database's implemention of the old database's interfaces.
+ * Tests the new database's implementation of the old database's interfaces.
  */
 
 const { ProfileCreator } = ChromeUtils.importESModule(

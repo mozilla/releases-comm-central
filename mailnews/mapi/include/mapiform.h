@@ -67,7 +67,7 @@ STDAPI MAPIOpenLocalFormContainer(LPMAPIFORMCONTAINER FAR * ppfcnt);
 
 /*-- GetLastError ----------------------------------------------------------*/
 /* This defines the GetLastError method held in common by most mapiform
- * interfaces.  It is defined separately so that an implementor may include
+ * interfaces.  It is defined separately so that an implementer may include
  * more than one mapiform interface in a class.
  */
 

@@ -34,7 +34,7 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
   uint32_t m_operationFlags;        // what to do on sync
   imapMessageFlagsType m_newFlags;  // used for kFlagsChanged
 
-  // these are URI's, and are escaped. Thus, we can use a delimter like ' '
+  // these are URI's, and are escaped. Thus, we can use a delimiter like ' '
   // because the real spaces should be escaped.
   nsCString m_sourceFolder;
   nsCString m_moveDestination;

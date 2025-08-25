@@ -477,7 +477,7 @@ NS_IMETHODIMP nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow,
 
   NS_ASSERTION(m_newMailParser, "could not get m_newMailParser");
 
-  // If line separators in server response are just LF instead of stardard CRLF,
+  // If line separators in server response are just LF instead of standard CRLF,
   // the blank line between the headers and the message body will not be
   // detected. The detection of this blank line causes the header content to
   // be parsed to correctly display the message list information. Send parser an

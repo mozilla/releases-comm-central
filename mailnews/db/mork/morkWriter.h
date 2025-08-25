@@ -213,7 +213,7 @@ class morkWriter : public morkNode {  // row iterator
   static void NilWriterFileError(morkEnv* ev);
   static void UnsupportedPhaseError(morkEnv* ev);
 
- public:  // utitlities
+ public:  // utilities
   void ChangeRowForm(morkEnv* ev, mork_cscode inNewForm);
   void ChangeDictForm(morkEnv* ev, mork_cscode inNewForm);
   void ChangeDictAtomScope(morkEnv* ev, mork_scope inScope);

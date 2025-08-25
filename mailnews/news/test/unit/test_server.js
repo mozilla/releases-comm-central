@@ -17,7 +17,7 @@ var daemon = setupNNTPDaemon();
 // would be expected to be used in a session. If more URL types are modified,
 // please add a corresponding type to the following tests.
 // When adding new servers, only test the commands that become different for
-// each specified server, to keep down redudant tests.
+// each specified server, to keep down redundant tests.
 
 function testRFC977() {
   var server = makeServer(NNTP_RFC977_handler, daemon);

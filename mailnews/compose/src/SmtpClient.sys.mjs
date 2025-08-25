@@ -40,7 +40,7 @@ export class SmtpClient {
 
   /**
    * Creates a connection object to a SMTP server and allows to send mail through it.
-   * Call `connect` method to inititate the actual connection, the constructor only
+   * Call `connect` method to initiate the actual connection, the constructor only
    * defines the properties but does not actually connect.
    *
    * @class
@@ -693,7 +693,7 @@ export class SmtpClient {
   }
 
   /**
-   * Intitiate authentication sequence if needed
+   * Initiate authentication sequence if needed
    *
    * @param {boolean} _forceNewPassword - Discard cached password.
    */

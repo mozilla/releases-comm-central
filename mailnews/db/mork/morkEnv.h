@@ -77,7 +77,7 @@ class morkEnv : public morkObject, public nsIMdbEnv {
   nsIMdbEnv* mEnv_SelfAsMdbEnv;
   nsIMdbErrorHook* mEnv_ErrorHook;
 
-  morkPool* mEnv_HandlePool;  // pool for re-using handles
+  morkPool* mEnv_HandlePool;  // pool for reusing handles
 
   mork_u2 mEnv_ErrorCount;
   mork_u2 mEnv_WarningCount;

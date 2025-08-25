@@ -39,7 +39,7 @@ interface nsIMsgSendReport : nsISupports {
 
   nsIMsgProcessReport getProcessReport(in long process);
 
-  /* Display Report will ananlyze data collected during the send and will show the most appropriate error.
+  /* Display Report will analyze data collected during the send and will show the most appropriate error.
      Also it will return the error code. In case of no error or if the error has been canceld, it will return
      NS_OK.
   */

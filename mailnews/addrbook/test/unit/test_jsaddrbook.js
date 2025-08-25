@@ -99,7 +99,7 @@ add_setup(function () {
 
   const dirs = MailServices.ab.directories;
   // On Mac we might be loading the OS X Address Book. If we are, then we
-  // need to take acccount of that here, so that the test still pass on
+  // need to take account of that here, so that the test still pass on
   // development machines.
   if (
     AppConstants.platform == "macosx" &&

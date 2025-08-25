@@ -195,7 +195,7 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
   }
 
   // If we are moving to a new parent, we need to check that there isn't
-  // alredy a folder with the requested name.
+  // already a folder with the requested name.
   if ((currentParent != newParentFolder) && potentialNameConflict) {
     return NS_MSG_FOLDER_EXISTS;
   }

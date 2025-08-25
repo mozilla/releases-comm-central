@@ -606,7 +606,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     client.onIdle = () => {
       this._busyConnections = this._busyConnections.filter(c => c != client);
       this._idleConnections.push(client);
-      // Resovle the first waiting in queue.
+      // Resolve the first waiting in queue.
       this._connectionWaitingQueue.shift()?.();
     };
     handler(client);

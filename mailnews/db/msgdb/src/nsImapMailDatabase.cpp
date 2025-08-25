@@ -11,7 +11,7 @@
 #include "nsMsgMessageFlags.h"
 
 const char* kPendingHdrsScope =
-    "ns:msg:db:row:scope:pending:all";  // scope for all offine ops table
+    "ns:msg:db:row:scope:pending:all";  // scope for all offline ops table
 const char* kPendingHdrsTableKind = "ns:msg:db:table:kind:pending";
 struct mdbOid gAllPendingHdrsTableOID;
 

@@ -176,7 +176,8 @@ bool nsMsgMdnGenerator::ProcessSendMode() {
     // Unfortunately, there is nothing we can do. It's out of our control.
     // *********
     // starting from lowest denominator to highest
-    if (!miscState) {  // under normal situation: recipent is in to and cc list,
+    if (!miscState) {
+      // under normal situation: recipient is in to and cc list,
       // and the sender is from the same domain
       switch (m_otherOp) {
         default:

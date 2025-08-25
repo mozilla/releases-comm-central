@@ -1969,7 +1969,7 @@ int mime_decompose_file_close_fn(MimeClosure stream_closure) {
   if (!mdd->tmpFileStream) {
     // it's ok to have a null tmpFileStream if there's no tmpFile.
     // This happens for cloud file attachments.
-    NS_ASSERTION(!mdd->tmpFile, "shouldn't have a tmp file bu no stream");
+    NS_ASSERTION(!mdd->tmpFile, "shouldn't have a tmp file but no stream");
     return 0;
   }
   mdd->tmpFileStream->Close();

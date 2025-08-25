@@ -73,7 +73,7 @@ add_task(async function loadImapMessage() {
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 });
 
-// move the message to a diffent folder
+// move the message to a different folder
 add_task(async function moveMessageToTargetFolder() {
   const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   // This should cause the move to be done as an offline imap operation

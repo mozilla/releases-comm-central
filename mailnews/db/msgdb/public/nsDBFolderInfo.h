@@ -101,7 +101,7 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   int32_t m_numUnreadMessages;
   int32_t m_numMessages;  // includes expunged and ignored messages
 
-  int32_t m_flags;  // folder specific flags. This holds things like re-use
+  int32_t m_flags;  // folder specific flags. This holds things like reuse
                     // thread pane,
   // configured for off-line use, use default retrieval, purge article/header
   // options

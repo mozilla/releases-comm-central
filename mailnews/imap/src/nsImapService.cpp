@@ -1022,7 +1022,7 @@ NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI* aUrl,
     int32_t uidValidity = -1;
     folderSink->GetUidValidity(&uidValidity);
     // stick the uid validity in front of the url, so that if the uid validity
-    // changes, we won't re-use the wrong cache entries.
+    // changes, we won't reuse the wrong cache entries.
     nsAutoCString extension;
     extension.AppendInt(uidValidity, 16);
 

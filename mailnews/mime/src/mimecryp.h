@@ -90,7 +90,7 @@
    int (*parse_decoded_buffer) (const char *buf, int32 size, MimeObject *obj)
 
      This method, of the same name as one in MimeLeaf, is a part of the
-   afforementioned leaf/container hybridization.  This method is invoked
+   aforementioned leaf/container hybridization.  This method is invoked
    with the content-transfer-decoded body of this part (without line
    buffering.)  The default behavior of this method is to simply invoke
    `crypto_write' on the data with which it is called.  It's unlikely that

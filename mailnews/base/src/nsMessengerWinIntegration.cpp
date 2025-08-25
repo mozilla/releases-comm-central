@@ -126,7 +126,7 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
           }
         }
 
-        // No minimzed window, bring the most recent 3pane window to the front.
+        // No minimized window, bring the most recent 3pane window to the front.
         if (sHiddenWindows.Length() == 0) {
           nsCOMPtr<nsIWindowMediator> windowMediator =
               do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);

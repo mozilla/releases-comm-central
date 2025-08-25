@@ -136,7 +136,7 @@ class MboxParser {
         }
         if (!endOfMbox) {
           // We know there's more data to come, so go away and come back
-          // when theres >=MinChunk.
+          // when there's >=MinChunk.
           break;
         }
       }
@@ -347,7 +347,7 @@ class MboxParser {
   span handle_eExpectFromLine(span data) {
     if (IsFromLine(data)) {
       // The "From " line could have an email address (up to 254 bytes) and a
-      // date string (24 bytes). MinChunk is tuned to avoid spliting up long
+      // date string (24 bytes). MinChunk is tuned to avoid splitting up long
       // (but plausible) "From " lines.
       auto eol = std::find(data.begin(), data.end(), '\n');
       if (eol != data.end()) {

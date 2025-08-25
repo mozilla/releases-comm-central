@@ -71,7 +71,7 @@ add_task(function test_triggerAutoSyncIdle() {
   observer.observe(null, "mail:appIdle", "idle");
 });
 
-// move the message to a diffent folder
+// move the message to a different folder
 add_task(async function test_moveMessageToTargetFolder() {
   const observer = gAutoSyncManager.QueryInterface(Ci.nsIObserver);
   observer.observe(null, "mail:appIdle", "back");

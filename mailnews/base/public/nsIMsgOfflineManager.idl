@@ -14,7 +14,7 @@ interface nsIMsgWindow;
 interface nsIMsgOfflineManager : nsISupports
 {
   attribute nsIMsgWindow window; // should be a progress window.
-  attribute boolean inProgress;  // an online->offine or online->offline operation in progress.
+  attribute boolean inProgress;  // an online->offline or online->offline operation in progress.
                                  // the offline menu should be disabled.
   void goOnline(in boolean sendUnsentMessages, in boolean playbackOfflineImapOperations, in nsIMsgWindow aMsgWindow);
   void synchronizeForOffline(in boolean downloadNews, in boolean downloadMail, in boolean sendUnsentMessages,

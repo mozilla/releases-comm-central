@@ -726,7 +726,7 @@ export class EwsServer {
     // Retrieve the parent's folder ID. At some point we might want to match it
     // with an existing folder in `this.folders`, but this is not a requirement
     // right now.
-    // TODO: Support referring to the parent with its distinguised folder ID
+    // TODO: Support referring to the parent with its distinguished folder ID
     // (when relevant). It's not necessary currently because the EWS client will
     // always use `FolderId`.
     const parentFolderId = reqDoc

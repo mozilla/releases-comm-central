@@ -91,7 +91,7 @@ add_task(function testListSelectSubscribed() {
   Assert.ok(!response.includes("Corn"));
 });
 
-// test that 'LIST "" "%" RETURN (CHILDEREN)' returns the proper responses
+// test that 'LIST "" "%" RETURN (CHILDREN)' returns the proper responses
 add_task(function testListReturnChilderen() {
   const response = handler.onError("4", 'LIST "" "%" RETURN (CHILDREN)');
 

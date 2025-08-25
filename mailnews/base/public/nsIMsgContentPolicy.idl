@@ -9,7 +9,7 @@
 
 /**
  * This interface provide functions which help extension developers
- * add their customized schema to the exposed protocls of nsMsgContentPolicy.
+ * add their customized schema to the exposed protocols of nsMsgContentPolicy.
  * By default, a list of existing protocols (such as imap and nntp)
  * are allowed to process urls locally, while non-matching urls are required
  * to be processed as external.

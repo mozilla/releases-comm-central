@@ -293,7 +293,7 @@ int morkParser::eat_comment(morkEnv* ev)  // last char was '/'
             c = s->Getc(ev);  // return the byte after end of comment
         } else if (c != EOF)  // need to put the char back?
           s->Ungetc(c);       // especially need to put back '*', 0xA, or 0xD
-      } else if (c == '/')    // maybe nested comemnt, if next char is '*'?
+      } else if (c == '/')    // maybe nested comment, if next char is '*'?
       {
         if ((c = s->Getc(ev)) == '*')  // nested comment?
           ++depth;                     // depth of comments has increased by one

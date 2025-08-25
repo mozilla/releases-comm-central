@@ -1192,7 +1192,7 @@ nsresult EwsFolder::ApplyFilters(
     // messages have already been added to the folders database.
     // This means we can use ApplyFilters, which handles all the filter
     // actions - it uses the protocol-agnostic code, as if the filters
-    // had been manually trggered ("run filters now"). This is in
+    // had been manually triggered ("run filters now"). This is in
     // contrast to POP3 and IMAP, which run the filters _before_ adding
     // the messages to the database, but then have to implement all
     // their own filter actions.
@@ -1262,7 +1262,7 @@ NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,
 // Really, CallFilterPlugins should be altered to take a listener rather than
 // relying on the folder implementation... but for now, this implementation
 // is pure cut&paste from nsLocalMailFolder. The IMAP one is similar, but
-// coalleses server move operations.
+// coalesces server move operations.
 //
 // This function is called once per message, then once again with
 // an empty URI to mark the end of the batch.

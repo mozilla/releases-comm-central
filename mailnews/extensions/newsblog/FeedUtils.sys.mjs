@@ -636,7 +636,7 @@ export var FeedUtils = {
 
   /**
    * Determine if a message is a feed message. Prior to Tb15, a message had to
-   * be in an rss acount type folder. In Tb15 and later, a flag is set on the
+   * be in an rss account type folder. In Tb15 and later, a flag is set on the
    * message itself upon initial store; the message can be moved to any folder.
    *
    * @param {nsIMsgDBHdr} aMsgHdr - The message.
@@ -652,7 +652,7 @@ export var FeedUtils = {
   },
 
   /**
-   * Determine if a folder is a feed acount folder. Trash or a folder in Trash
+   * Determine if a folder is a feed account folder. Trash or a folder in Trash
    * should be checked with FeedUtils.isInTrash() if required.
    *
    * @param {nsIMsgFolder} aFolder - The folder.

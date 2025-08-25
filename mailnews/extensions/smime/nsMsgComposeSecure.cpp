@@ -829,7 +829,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
               certBytes, mozilla::psm::VerifyUsage::EmailRecipient,
               mozilla::pkix::Now(), nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
-              // Skipping OCSP for the user's own cert seems accaptable.
+              // Skipping OCSP for the user's own cert seems acceptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
         // not suitable for encryption, so unset cert and clear pref
         mSelfEncryptionCert = nullptr;
@@ -853,7 +853,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
               certBytes, mozilla::psm::VerifyUsage::EmailSigner,
               mozilla::pkix::Now(), nullptr, nullptr, builtChain,
               // Only local checks can run on the main thread.
-              // Skipping OCSP for the user's own cert seems accaptable.
+              // Skipping OCSP for the user's own cert seems acceptable.
               CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
         // not suitable for signing, so unset cert and clear pref
         mSelfSigningCert = nullptr;

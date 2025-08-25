@@ -103,7 +103,7 @@ var addEmailChecks =
 // Source fields (emailHeader) and expected results for use for
 // testing the modification of cards in the database.
 //
-// Note: these sets re-use some of the ones for ease of definition.
+// Note: these sets reuse some of the ones for ease of definition.
 var modifyEmailChecks =
   // No display name/other details. Add details and modify mail format.
   [
@@ -252,7 +252,7 @@ var collectChecker = {
 };
 
 function run_test() {
-  // Test - Get the address collecter
+  // Test - Get the address collector
 
   // Get the actual AB for the collector so we can check cards have been
   // added.
@@ -260,7 +260,7 @@ function run_test() {
     Services.prefs.getCharPref("mail.collect_addressbook")
   );
 
-  // Get the actual collecter
+  // Get the actual collector
   const collectAddress = (addresses, addCard) => {
     const parsedAddresses =
       MailServices.headerParser.parseEncodedHeaderW(addresses);

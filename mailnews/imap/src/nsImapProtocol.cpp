@@ -3069,7 +3069,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           // and expunge from trash only these messages. With default gmail.com
           // imap setting this completely removes the deleted messages, even
           // from All Mail. Gmail supports UIDPLUS so no check of imap
-          // capabilites is needed, but if a command fails or is not supported
+          // capabilities is needed, but if a command fails or is not supported
           // below, the added flags (including \deleted) are set for the folder.
           if (m_isGmailServer && !GetShowDeletedMessages() &&
               (msgFlags & kImapMsgDeletedFlag) && gExpungeAfterDelete) {
@@ -6829,7 +6829,7 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
     // folder. Handle as though this were an IDLE response. Can't check for any
     // untagged as for Noop() above since STATUS always produces an untagged
     // response for the target mailbox and possibly also for the SELECTed box.
-    // Of cource, this won't occur if imap connection is not in selected state.
+    // Of course, this won't occur if imap connection is not in selected state.
     if (GetServerStateParser().GetIMAPstate() ==
             nsImapServerResponseParser::kFolderSelected &&
         m_imapMailFolderSinkSelected &&
@@ -9434,7 +9434,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
   // clang-format on
 
   // Use the uid validity as part of the cache key, so that if the uid validity
-  // changes, we won't re-use the wrong cache entries.
+  // changes, we won't reuse the wrong cache entries.
   nsAutoCString extension;
   extension.AppendInt(uidValidity, 16);
 
@@ -9540,7 +9540,7 @@ nsresult nsImapMockChannel::ReadFromCache2(nsICacheEntry* entry) {
       // since only async access occurs) so don't check it.
       if (NS_FAILED(rv)) {
         MOZ_LOG(IMAPCache, LogLevel::Debug,
-                ("%s: Input stream for disk cache not useable", __func__));
+                ("%s: Input stream for disk cache not usable", __func__));
         useCacheEntry = false;
       }
     }

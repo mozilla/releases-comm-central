@@ -54,7 +54,7 @@
 
   The display_cached_part function is what actually adds a MIME part to the
   in-memory MIME structure. There is one complication there which forces us to
-  violate abstrations... Even if we set output_p on a child before adding it to
+  violate abstractions... Even if we set output_p on a child before adding it to
   the parent, the parse_begin function resets it. The kluge I came up with to
   prevent that was to give the child a separate options object and set
   output_fn to nullptr in it, because that causes parse_begin to set output_p to

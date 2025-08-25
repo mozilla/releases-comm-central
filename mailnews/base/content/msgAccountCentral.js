@@ -159,8 +159,8 @@ function updateAccountCentralUI() {
 }
 
 /**
- * For the selected server, check for new messges and display first
- * suitable folder (genrally Inbox) for reading.
+ * For the selected server, check for new messages and display first
+ * suitable folder (generally Inbox) for reading.
  */
 function readMessages() {
   const folder = getReadMessagesFolder();

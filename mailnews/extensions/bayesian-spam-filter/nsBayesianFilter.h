@@ -58,7 +58,7 @@ struct TraitPerToken {
   uint32_t mCount;     // count of messages with this token and trait
   uint32_t mNextLink;  // index in mTraitStore for the next trait, or 0
                        // for none
-  TraitPerToken(uint32_t aId, uint32_t aCount);  // inititializer
+  TraitPerToken(uint32_t aId, uint32_t aCount);  // initializer
 };
 
 // An Analysis is the statistical results for a particular message, a
@@ -68,7 +68,7 @@ struct TraitPerToken {
 // Analyses per token are maintained as a linked list.
 //
 struct AnalysisPerToken {
-  uint32_t mTraitIndex;  // index representing a protrait/antitrait pair.
+  uint32_t mTraitIndex;  // index representing a pro-trait/anti-trait pair.
                          // So if we are analyzing 3 different traits, then
                          // the first trait is 0, the second 1, etc.
   double mDistance;      // absolute value of mProbability - 0.5

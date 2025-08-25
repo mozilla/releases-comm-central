@@ -92,7 +92,7 @@ nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header,
                                             nsDependentCString(value));
   }
 
-  // Not on the structurd header object, so save it locally.
+  // Not on the structured header object, so save it locally.
   m_headers[header] = value;
 
   return NS_OK;

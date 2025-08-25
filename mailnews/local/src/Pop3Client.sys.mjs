@@ -30,7 +30,7 @@ ChromeUtils.defineLazyGetter(lazy, "messengerStrings", () =>
  *
  * @typedef {object} Pop3Response
  * @property {boolean} success - True for a positive status indicator, "+OK", or
- *   for an authorization challenge respone "+".
+ *   for an authorization challenge response "+".
  * @property {string} status - This is the status indicator. Will be either
  *   "+OK", "-ERR" or, for server authorization challenges, "+".
  * @property {string} statusText - The optional text following the status
@@ -344,7 +344,7 @@ export class Pop3Client {
         // NOOP response received. Just reset the flag and return so response
         // is ignored. NOOP is sent only when no other POP3 command is
         // currently sent and waiting on its response. So no parsing for a
-        // specfic response is needed here.
+        // specific response is needed here.
         this._noopRespPending = false;
         return;
       }

@@ -251,7 +251,7 @@ class morkZone : public morkNode, public nsIMdbHeap {
   // allocation size equal to sizeof(morkRun) + (i * kRoundSize), so
   // that callers can be given a piece of memory with (i * kRoundSize)
   // bytes of writeable space while reserving the first sizeof(morkRun)
-  // bytes to keep track of size information for later re-use.  Note
+  // bytes to keep track of size information for later reuse.  Note
   // that mZone_FreeRuns[ 0 ] is unused because no run will be zero
   // bytes in size (and morkZone plans to complain about zero sizes).
 

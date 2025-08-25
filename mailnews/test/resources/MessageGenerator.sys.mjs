@@ -1120,7 +1120,7 @@ MessageGenerator.prototype = {
    * @param {integer} aNameNumber - The optional 'number' of the name and mail
    *   address you  want. If you do not provide a value, we will increment an
    *   internal counter to ensure that a new name is allocated and that will not
-   *   be re-used. If you use our automatic number once, you must use it
+   *   be reused. If you use our automatic number once, you must use it
    *   always, unless you don't mind or can ensure no collisions occur between
    *   our number allocation and your uses. If provided, the number must be
    *   less than MAX_VALID_NAMES.

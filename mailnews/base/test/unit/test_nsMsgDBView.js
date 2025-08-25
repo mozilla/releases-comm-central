@@ -733,7 +733,7 @@ function test_expand_collapse() {
   gTestFolder.msgDatabase.markKilled(thirdChild.messageKey, true, null);
   gDBView.toggleOpenState(0);
   if (gDBView.rowCount != oldRowCount + 2) {
-    view_throw("expanding first item should have aded 2 items");
+    view_throw("expanding first item should have added 2 items");
   }
   gTestFolder.msgDatabase.markKilled(thirdChild.messageKey, false, null);
   oldRowCount = gDBView.rowCount;

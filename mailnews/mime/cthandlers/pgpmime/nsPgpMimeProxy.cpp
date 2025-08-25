@@ -40,7 +40,7 @@ using mozilla::Preferences;
  * MIME creates and initialises the proxy object in nsPgpMimeProxy::Init(). This
  * creates a decryption object, for example EnigmailMimeDecrypt. When MIME wants
  * to decode something, it calls the Write() method of the proxy, which in turn
- * calls OnDataAvailable() on the decryptor. The decryptor optains the encrypted
+ * calls OnDataAvailable() on the decryptor. The decryptor obtains the encrypted
  * data form the proxy via the proxy's Read() method. The decryptor decrypts the
  * data and passes the result back to the proxy, using the OutputDecryptedData()
  * method or by passing a stream to the proxy's OnDataAvailable() method, in

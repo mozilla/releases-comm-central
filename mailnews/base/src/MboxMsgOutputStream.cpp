@@ -402,7 +402,7 @@ NS_IMETHODIMP MboxMsgOutputStream::Finish() {
     return mStatus;
   }
 
-  // If the messsage was written with no final EOL, add one.
+  // If the message was written with no final EOL, add one.
   // NOTE:
   // This is the one case where the message written into the mbox is
   // not byte-exact with the one you'd read out.

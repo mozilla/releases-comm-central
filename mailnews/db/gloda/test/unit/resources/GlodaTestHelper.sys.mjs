@@ -789,7 +789,7 @@ export function nukeGlodaCachesAndCollections() {
   // Explode if the GlodaCollectionManager somehow doesn't work like we think it
   //  should.  (I am reluctant to put this logic in there, especially because
   //  knowledge of the Gloda contact/identity collections simply can't be known
-  //  by the colleciton manager.)
+  //  by the collection manager.)
   if (
     GlodaCollectionManager._collectionsByNoun === undefined ||
     GlodaCollectionManager._cachesByNoun === undefined

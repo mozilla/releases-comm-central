@@ -1288,7 +1288,7 @@ var FeedSubscriptions = {
       }
       case "locationValue": {
         const updateFeedButton = document.getElementById("updateFeed");
-        // Change label based on whether feed url has beed edited.
+        // Change label based on whether feed url has been edited.
         updateFeedButton.label =
           aNode.value == item.url
             ? updateFeedButton.getAttribute("verifylabel")

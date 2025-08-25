@@ -70,7 +70,7 @@ nsresult nsMsgSearchOnlineMail::Encode(
 
   // check if searchTerms are ascii only
   bool asciiOnly = true;
-  // ### what's this mean in the NWO?????
+  // ### what's this mean in the NOW?????
 
   if (true)  // !(srcCharset & CODESET_MASK == STATEFUL || srcCharset &
              // CODESET_MASK == WIDECHAR) )

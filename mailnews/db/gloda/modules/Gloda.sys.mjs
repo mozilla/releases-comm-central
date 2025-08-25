@@ -1250,7 +1250,7 @@ export var Gloda = {
     );
 
     // parameterized identity is just two identities; we store the first one
-    //  (whose value set must be very constrainted, like the 'me' identities)
+    //  (whose value set must be very constrained, like the 'me' identities)
     //  as the parameter, the second (which does not need to be constrained)
     //  as the value.
     this.defineNoun(

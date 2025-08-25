@@ -66,7 +66,7 @@ add_task(function test_uid_functions() {
   const missingKey = 9999; // A key which definitely isn't in DB.
   const noUIDKey = allKeys[0]; // A valid key, but with no UID assigned.
 
-  // Make sure we can't get non-existant messages.
+  // Make sure we can't get non-existent messages.
   Assert.throws(function () {
     db.getMsgHdrForKey(missingKey);
   }, /NS_ERROR/);
@@ -208,11 +208,11 @@ add_task(function test_deletion() {
     Assert.deepEqual(
       db.listAllKeys().toSorted(),
       keep.toSorted(),
-      "deleted messsages should be gone from db"
+      "deleted messages should be gone from db"
     );
 
     // NOTE: The legacy db deleteMessages() doesn't actually seem to prevent
-    // deleted messages from being retreived by getMsgHdrForKey().
+    // deleted messages from being retrieved by getMsgHdrForKey().
     // Bug 1971647.
     // This fails on legacy db (but is fine when run on Panorama db):
     /*

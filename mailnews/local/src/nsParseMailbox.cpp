@@ -46,7 +46,7 @@ using namespace mozilla;
 
 extern LazyLogModule FILTERLOGMODULE;
 
-// Attempt to extract a timestamp from a "Recieved:" header value, e.g:
+// Attempt to extract a timestamp from a "Received:" header value, e.g:
 // "from bar.com by foo.com ; Thu, 21 May 1998 05:33:29 -0700".
 // Returns 0 if no timestamp could be extracted.
 static PRTime TimestampFromReceived(nsACString const& received) {
@@ -116,7 +116,7 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
       if (hasCharset) {
         out.charset = charset;
       }
-      if (contentType.LowerCaseEqualsLiteral("multpart/mixed")) {
+      if (contentType.LowerCaseEqualsLiteral("multipart/mixed")) {
         out.flags |= nsMsgMessageFlags::Attachment;
       }
     } else if (n.LowerCaseEqualsLiteral("date")) {
@@ -1850,7 +1850,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
 
   for (i = 0; i < count; i++) {
     if (!m_replyTemplateUri[i].IsEmpty()) {
-      // copy this and truncate the original, so we don't accidentally re-use it
+      // copy this and truncate the original, so we don't accidentally reuse it
       // on the next hdr.
       rv = m_rootFolder->GetServer(getter_AddRefs(server));
       if (server) {

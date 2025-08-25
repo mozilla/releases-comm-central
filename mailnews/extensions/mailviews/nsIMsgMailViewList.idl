@@ -7,7 +7,7 @@
 #include "nsIMsgMailView.idl"
 
 ///////////////////////////////////////////////////////////////////////////////
-// A mail view list is a list of mail views a particular implementor provides
+// A mail view list is a list of mail views a particular implementer provides
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef long nsMsgMailViewListFileAttribValue;

@@ -1989,7 +1989,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
   }
   // The output stream may or may not be set already, depending upon all kinds
   // of inscrutable conditions. This needs cleaning up (see Bug 1731177). E.g.,
-  // when transfering from imap folder without offline store requiring each
+  // when transferring from imap folder without offline store requiring each
   // message to be fetched from server and streamed to Local Folders storage,
   // m_fileStream is null.
   if (!mCopyState->m_fileStream) return NS_OK;

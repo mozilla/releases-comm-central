@@ -31,8 +31,8 @@ typedef enum _tagMethods
 {
 /* IUnknown */
 	MAKE_ENUM(QueryInterface, IUnknown) = 0,
-	MAKE_ENUM(AddRef, IUnknown),			/* For completness */
-	MAKE_ENUM(Release, IUnknown),			/* For completness */
+	MAKE_ENUM(AddRef, IUnknown),			/* For completeness */
+	MAKE_ENUM(Release, IUnknown),			/* For completeness */
 	
 /* IMAPIProps */
 	MAKE_ENUM(GetLastError, IMAPIProp),
@@ -499,7 +499,7 @@ FBadColumnSet( LPSPropTagArray lpptaCols );
 	The ppThis parameter tells us where the stack is, so we can access the other
 	parameters.
 	
-	Becuase of this *magic* we MUST obtain the pointer to the This pointer in
+	Because of this *magic* we MUST obtain the pointer to the This pointer in
 	the method function.
 	
 */

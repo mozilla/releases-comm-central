@@ -1498,7 +1498,7 @@ const JsMIMEheaderparser = function () {
    * A large set of headers have pre-defined structured decoders; these decoders
    * cannot be overridden with addStructuredDecoder, as doing so could prevent the
    * MIME or message parsers from working properly. The pre-defined structured
-   * headers break down into five clases of results, plus some ad-hoc
+   * headers break down into five classes of results, plus some ad-hoc
    * representations. They are:
    *
    * Addressing headers (results are the same as parseAddressingHeader):
@@ -2565,7 +2565,7 @@ const JsMIMEmimeparser = function () {
       return;
     }
 
-    // The output depents on the content-type. Basic rule of thumb:
+    // The output depends on the content-type. Basic rule of thumb:
     // 1. Discrete media types (text, video, audio, image, application) are passed
     //    through with no alterations beyond Content-Transfer-Encoding unpacking.
     // 2. Everything with a media type of multipart is treated the same.

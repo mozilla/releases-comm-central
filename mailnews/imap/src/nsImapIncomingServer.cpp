@@ -445,7 +445,7 @@ NS_IMETHODIMP
 nsImapIncomingServer::RetryUrl(nsIImapUrl* aImapUrl,
                                nsIImapMockChannel* aChannel) {
   nsresult rv;
-  // Get current thread envent queue
+  // Get current thread event queue
   aImapUrl->SetMockChannel(aChannel);
   nsCOMPtr<nsIImapProtocol> protocolInstance;
   nsImapProtocol::LogImapUrl("creating protocol instance to retry queued url",
@@ -668,7 +668,7 @@ nsresult nsImapIncomingServer::GetImapConnection(
     if (!canRunUrlImmediately && !canRunButBusy && connection) {
       rv = connection->IsBusy(&isBusy, &isInboxConnection);
       if (NS_FAILED(rv)) continue;
-      // if max connections is <= 1, we have to re-use the inbox connection.
+      // if max connections is <= 1, we have to reuse the inbox connection.
       if (!isBusy && (!isInboxConnection || maxConnections <= 1)) {
         if (!freeConnection)
           freeConnection = connection;
@@ -1503,7 +1503,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
           } else {
             // No special-use trash found.
             // Clear the trash flag unless folder has the default name "Trash",
-            // ignorng case. If folder matches default name, set that folder's
+            // ignoring case. If folder matches default name, set that folder's
             // name as the pref.
             nsAutoCString trashFolderPath;
             rv = PathFromFolder(trashFolder, trashFolderPath);

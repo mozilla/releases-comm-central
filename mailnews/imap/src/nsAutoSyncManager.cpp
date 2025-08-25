@@ -608,7 +608,7 @@ NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
   } else  // we've gone system idle
   {
     // Check if we were already idle. We may have gotten
-    // multiple system idle notificatons. In that case,
+    // multiple system idle notifications. In that case,
     // just remember that we're systemIdle and return;
     if (GetIdleState() != notIdle) return NS_OK;
 

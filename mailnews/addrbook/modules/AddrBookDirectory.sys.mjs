@@ -32,7 +32,7 @@ export class AddrBookDirectory {
   _initialized = false;
 
   /**
-   * Intializes a directory, pointing to a particular URI.
+   * Initializes a directory, pointing to a particular URI.
    *
    * @param {string} uri
    */

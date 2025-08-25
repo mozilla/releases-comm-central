@@ -77,7 +77,7 @@ DatabaseCore::DatabaseCore() {
 NS_IMETHODIMP
 DatabaseCore::Startup() {
   if (sConnection) {
-    MOZ_LOG(gPanoramaLog, LogLevel::Error, ("DatabaseCore is alread started"));
+    MOZ_LOG(gPanoramaLog, LogLevel::Error, ("DatabaseCore is already started"));
     return NS_ERROR_FAILURE;
   }
 

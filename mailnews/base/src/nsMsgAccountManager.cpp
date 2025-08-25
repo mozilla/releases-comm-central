@@ -1101,7 +1101,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
 
   if (!mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
-    // TODO: Reenable this.
+    // TODO: Re-enable this.
     nsCOMPtr<nsIMsgMailSession> mailSession =
         mozilla::components::MailSession::Service();
     mailSession->AddFolderListener(
@@ -1805,7 +1805,7 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
       }
     }
 
-    // Extracting the account key of the last mail acoount.
+    // Extracting the account key of the last mail account.
     for (int32_t index = m_accounts.Length() - 1; index >= 0; index--) {
       nsCOMPtr<nsIMsgIncomingServer> server;
       rv = m_accounts[index]->GetIncomingServer(getter_AddRefs(server));

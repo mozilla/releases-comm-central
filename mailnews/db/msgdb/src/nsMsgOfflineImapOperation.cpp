@@ -15,7 +15,7 @@ LazyLogModule IMAPOffline("IMAPOffline");
 /* Implementation file */
 NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
 
-// property names for offine imap operation fields.
+// property names for offline imap operation fields.
 #define PROP_OPERATION "op"
 #define PROP_OPERATION_FLAGS "opFlags"
 #define PROP_NEW_FLAGS "newFlags"

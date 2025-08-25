@@ -428,7 +428,7 @@
 //Read only, available only for public folder favorites
 #define PR_PUBLIC_FOLDER_ENTRYID	PROP_TAG( PT_BINARY, pidFolderMin+0x04)
 
-//Read only. changes everytime a subfolder is created or deleted
+//Read only. changes every time a subfolder is created or deleted
 #define PR_HIERARCHY_CHANGE_NUM		PROP_TAG( PT_LONG, pidFolderMin+0x06)
 
 // For IFS/OLEDB to set and get user sid in LOGON
@@ -515,7 +515,7 @@
 
 // those two are pseudo-properties on folder. calling OFOLD::EcGetProps(PR_RESERVE_RANGE_OF_IDS) is
 // equivalent to calling EcGetLocalRepIdsOp(), calling OFOLD::EcSetProps(PR_MERGE_MIDSET_DELETED)
-// is equivalen to calling OFOLD::EcSetLocalRepMidsetDeleted()
+// is equivalent to calling OFOLD::EcSetLocalRepMidsetDeleted()
 #define PR_MERGE_MIDSET_DELETED						PROP_TAG(PT_BINARY,	pidStoreNonTransMin+0x3a)  // 0x0E7A0102
 #define PR_RESERVE_RANGE_OF_IDS						PROP_TAG(PT_BINARY,	pidStoreNonTransMin+0x3b)  // 0x0E7B0102
 
@@ -1171,7 +1171,7 @@ typedef DWORD SDRIGHTS;
 
 //
 //	These access rights are ignored in the determination of a canonical ACL.  Since the exchange store ignores
-//	these rights, their presence or absense doesn't make an ACL canonical.
+//	these rights, their presence or absence doesn't make an ACL canonical.
 //
 
 #define	sdrightsIgnored		(fsdrightExecute | fsdrightAppendMsg | fsdrightContact | fsdrightReserved1)
@@ -1515,7 +1515,7 @@ HrDeserializeActions(IMAPIProp * pprop, BYTE * pbActions, ULONG cbActions, ACTIO
 #define RULE_ERR_NO_TEMPLATE		10			//reply template is missing
 #define RULE_ERR_EXECUTION			11			//error in rule execution
 #define RULE_ERR_QUOTA_EXCEEDED		12			//mailbox quota size exceeded
-#define RULE_ERR_TOO_MANY_RECIPS	13			//number of recips exceded upper limit
+#define RULE_ERR_TOO_MANY_RECIPS	13			//number of recips exceeded upper limit
 
 #define RULE_ERR_FIRST		RULE_ERR_UNKNOWN
 #define RULE_ERR_LAST		RULE_ERR_TOO_MANY_RECIPS
@@ -1724,7 +1724,7 @@ DECLARE_MAPI_INTERFACE_PTR(IExchangeNntpNewsfeed, LPEXCHANGENNTPNEWSFEED);
 #define PR_INTERNET_MDNS						PROP_TAG(PT_BOOLEAN,	PROP_ID(PR_NEWSGROUP_COMPONENT))
 
 // properties for mailbox quota info - reusing properties from folder table -
-// folder pathname, owner, and contacts re-used.
+// folder pathname, owner, and contacts reused.
 #define PR_QUOTA_WARNING_THRESHOLD              PROP_TAG(PT_LONG, pidAdminMin+0x91)
 #define PR_QUOTA_SEND_THRESHOLD                 PROP_TAG(PT_LONG, pidAdminMin+0x92)
 #define PR_QUOTA_RECEIVE_THRESHOLD              PROP_TAG(PT_LONG, pidAdminMin+0x93)
@@ -1786,7 +1786,7 @@ DECLARE_MAPI_INTERFACE_PTR(IExchangeNntpNewsfeed, LPEXCHANGENNTPNEWSFEED);
 #define MDB_LIMIT_NO_CHECK				0x8
 #define MDB_LIMIT_DISABLED				0x10
 
-/* A define for "no quota infomation" when retrieving the quota information */
+/* A define for "no quota information" when retrieving the quota information */
 #define MDB_QUOTA_NOQUOTA				0xFFFFFFFF
 
 /*------------------------------------------------------------------------
@@ -2606,7 +2606,7 @@ DECLARE_MAPI_INTERFACE_PTR(IExchangeMessageConversion, LPEXCHANGEMESSAGECONVERSI
 
 // Ptags used between EXOLEDB and LSCache on client machine to pass
 // along the actual client SQL query from EXOLEDB to LSCache in the RES_COMMENT
-// prop val array of an SRestriction.  These ptags are never actually sent accross the
+// prop val array of an SRestriction.  These ptags are never actually sent across the
 // wire or stored as properties on objects in the cache.
 //
 // ptagSql =	The identifying property for the SQL restriction.

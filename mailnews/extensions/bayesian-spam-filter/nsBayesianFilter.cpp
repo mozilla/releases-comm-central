@@ -149,7 +149,7 @@ TokenHash::TokenHash(uint32_t aEntrySize)
 TokenHash::~TokenHash() {}
 
 nsresult TokenHash::clearTokens() {
-  // we re-use the tokenizer when classifying multiple messages,
+  // we reuse the tokenizer when classifying multiple messages,
   // so this gets called after every message classification.
   mTokenTable.ClearAndPrepareForLength(128);
   mWordPool.Clear();
@@ -562,7 +562,7 @@ void Tokenizer::tokenize_ascii_word(char* aWord) {
   ((' ' == (c)) || ('\t' == (c)) || ('\r' == (c)) || ('\n' == (c)))
 #define IS_ALPHABETICAL_SCRIPT(c) ((c) < 0x2E80)
 
-// we change the beginning of IS_HAN from 0x4e00 to 0x3400 to relfect
+// we change the beginning of IS_HAN from 0x4e00 to 0x3400 to reflect
 // Unicode 3.0
 #define IS_HAN(c) \
   ((0x3400 <= (c)) && ((c) <= 0x9fff)) || ((0xf900 <= (c)) && ((c) <= 0xfaff))

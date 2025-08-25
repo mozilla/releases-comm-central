@@ -8,7 +8,7 @@
 namespace testing {
 
 // Each test case is an mboxrd and an array of messages it contains.
-// Our mbox input and output code perform perfectly reversable transformations
+// Our mbox input and output code perform perfectly reversible transformations
 // on these. So tests for both MboxMsgInputStream and MboxMsgOutputStream use
 // these test cases.
 MOZ_RUNINIT nsTArray<MboxCase> mboxValidCases({
@@ -455,7 +455,7 @@ MOZ_RUNINIT nsTArray<MboxCase> mboxOddCases({
      }},
 });
 
-// Handle "From " separators with no blank line preceeding them, as per
+// Handle "From " separators with no blank line preceding them, as per
 // qmail (http://qmail.org/qmail-manual-html/man5/mbox.html):
 // ```
 // The reader should not attempt to take advantage of the fact that every
@@ -467,10 +467,10 @@ MOZ_RUNINIT nsTArray<MboxCase> mboxOddCases({
 // to see if they look like mail headers.
 //
 // NOTE: these mbox tests have unquoted "From " lines, and so are not
-// reversable. We aim to be tolerant in reading, but strict in writing. We'd
+// reversible. We aim to be tolerant in reading, but strict in writing. We'd
 // _never_ write out unquoted "From " lines.
 MOZ_RUNINIT nsTArray<MboxCase> mboxAmbiguities({
-    // "From " separator with no preceeding blank line.
+    // "From " separator with no preceding blank line.
     {"From \r\n"
      "To: bob@invalid\r\n"
      "From: alice@invalid\r\n"

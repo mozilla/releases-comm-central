@@ -2409,7 +2409,7 @@ export var GlodaMsgIndexer = {
      *  anything and the gloda database still thinks the message lives in our
      *  folder.  The compaction pass will deal with this by marking the message
      *  as deleted.  The rationale being that marking it deleted allows the
-     *  message to be re-used if it gets indexed in the target location, or if
+     *  message to be reused if it gets indexed in the target location, or if
      *  the target location has already been indexed, we no longer need the
      *  duplicate and it should be deleted.  (Also, it is unable to distinguish
      *  between a case where the message got deleted versus moved.)

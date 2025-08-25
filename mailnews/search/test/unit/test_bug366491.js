@@ -23,7 +23,7 @@ var kGood = MailServices.junk.GOOD;
  * but only that the junk percent is transmitted (particularly
  * for intermediate values). The test
  * junkPercent values below were calculated by the plugin,
- * not indepedently verified.
+ * not independently verified.
  */
 
 var tests = [

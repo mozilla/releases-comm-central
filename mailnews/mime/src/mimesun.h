@@ -19,7 +19,7 @@
   = parts are separated by lines of exactly ten dashes
   = just after the dashes comes a block of headers, including:
 
-      X-Sun-Data-Type: (manditory)
+      X-Sun-Data-Type: (mandatory)
       Values are Text, Postscript, Scribe, SGML, TeX, Troff, DVI,
       and Message.
 
@@ -32,11 +32,11 @@
       X-Sun-Data-Description: (optional)
       Longer text.
 
-      X-Sun-Content-Lines: (manditory, unless Length is present)
+      X-Sun-Content-Lines: (mandatory, unless Length is present)
       Number of lines in the body, not counting headers and the blank
       line that follows them.
 
-      X-Sun-Content-Length: (manditory, unless Lines is present)
+      X-Sun-Content-Length: (mandatory, unless Lines is present)
         Bytes, presumably using Unix line terminators.
  */
 

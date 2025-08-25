@@ -79,7 +79,7 @@ pref("mailnews.headers.showArchivedAt", false);
 pref("mailnews.messageid.openInNewWindow", false);
 
 // hidden pref for url which will be used to open  message-ids
-// in browser (%mid ist replaced with the message-id)
+// in browser (%mid is replaced with the message-id)
 pref("mailnews.messageid_browser.url", "https://groups.google.com/search?q=messageid%3A%mid");
 
 // hidden pref for whether or not to warn when deleting filters. Default YES

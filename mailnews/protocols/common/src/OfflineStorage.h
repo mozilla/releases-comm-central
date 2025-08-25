@@ -30,7 +30,7 @@
  * fail.
  *
  * Therefore we need this "proxy" listener to forward the method calls to the
- * listener `AsyncOpen` is originally provided with, while subsituting the
+ * listener `AsyncOpen` is originally provided with, while substituting the
  * request arguments with an actual channel.
  *
  * Additionally, it's a good place to check for read errors when streaming a

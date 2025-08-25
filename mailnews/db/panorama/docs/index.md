@@ -135,7 +135,7 @@ through function calls on this object
 [Message.cpp](https://searchfox.org/comm-central/source/mailnews/db/panorama/src/Message.cpp)
 
 Unlike `Folder`, `Message` objects implement an existing interface and can cause changes in the
-datbase. This is likely to change once the old databases are switched off.
+database. This is likely to change once the old databases are switched off.
 
 ### PerFolderDatabase and FolderInfo
 

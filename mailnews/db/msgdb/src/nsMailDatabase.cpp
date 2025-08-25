@@ -18,7 +18,7 @@ using namespace mozilla;
 
 extern LazyLogModule IMAPOffline;  // defined in nsMsgOfflineImapOperation.cpp
 
-// scope for all offine ops table
+// scope for all offline ops table
 const char* kOfflineOpsScope = "ns:msg:db:row:scope:ops:all";
 const char* kOfflineOpsTableKind = "ns:msg:db:table:kind:ops";
 struct mdbOid gAllOfflineOpsTableOID;

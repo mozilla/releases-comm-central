@@ -51,7 +51,7 @@ function onLoad() {
   // Handle enabling/disabling of the OK button.
   dialog.nameField.addEventListener("input", event => {
     const childName = event.target.value;
-    // Disable if no value set, or if child folder with that name alredy exists.
+    // Disable if no value set, or if child folder with that name already exists.
     document.querySelector("dialog").getButton("accept").disabled =
       !childName || dialog.folder.getChildNamed(childName);
   });

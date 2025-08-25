@@ -13,7 +13,7 @@ import {
 } from "resource://testing-common/mailnews/Auth.sys.mjs";
 import { mailTestUtils } from "resource://testing-common/mailnews/MailTestUtils.sys.mjs";
 
-// Since we don't really need to worry about peristence, we can just
+// Since we don't really need to worry about persistence, we can just
 // use a UIDL counter.
 var gUIDLCount = 1;
 

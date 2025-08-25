@@ -156,7 +156,7 @@ typedef unsigned char u8;
       }                                                 \
     }
 
-/* end of compatible block to complie codes */
+/* end of compatible block to compile codes */
 
 /*
 ** Class derived from sqlite3_tokenizer

@@ -49,7 +49,7 @@ export class MessageSend {
    * @param {?nsIMsgProgress} progress - Where to send progress info.
    * @param {?nsIMsgSendListener} listener - Optional listener for send progress.
    * @param {?string} smtpPassword - Optional smtp server password
-   * @param {?string} originalMsgURI - URI of original messsage.
+   * @param {?string} originalMsgURI - URI of original message.
    * @param {nsIMsgCompType} compType - Compose type.
    */
   async createAndSendMessage(
@@ -1149,7 +1149,7 @@ export class MessageSend {
     } catch (e) {
       // Db access issues, etc. Not fatal for sending.
       lazy.MsgUtils.sendLogger.warn(
-        `Collecting outging addresses FAILED: ${e.message}`,
+        `Collecting outgoing addresses FAILED: ${e.message}`,
         e
       );
     }

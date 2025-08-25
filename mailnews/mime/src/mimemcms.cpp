@@ -180,7 +180,7 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
     // have integrity protection).
     // Also we don't want to support sign-then-sign, that's misleading,
     // which part would be shown as having a signature?
-    // We skip signature verfication, and return bad signature status.
+    // We skip signature verification, and return bad signature status.
 
     // Note: We must return a valid pointer to ourselve's data,
     // otherwise the parent will attempt to re-init us.

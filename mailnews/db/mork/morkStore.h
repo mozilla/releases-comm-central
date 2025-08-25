@@ -568,7 +568,7 @@ class morkStore : public morkObject, public nsIMdbStore {
 
   // mStore_CanDirty should be FALSE when parsing a file while building the
   // content going into the store, because such data structure modifications
-  // are actuallly in sync with the file.  So content read from a file must
+  // are actually in sync with the file.  So content read from a file must
   // be clean with respect to the file.  After a file is finished parsing,
   // the mStore_CanDirty slot should become TRUE, so that any additional
   // changes at runtime cause structures to be marked dirty with respect to

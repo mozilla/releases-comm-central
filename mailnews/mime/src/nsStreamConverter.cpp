@@ -462,7 +462,7 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   nsCString contentTypeToUse;
   GetContentType(getter_Copies(contentTypeToUse));
   // mscott --> my theory is that we don't need this fake outgoing channel.
-  // Let's use the original channel and just set our content type ontop of the
+  // Let's use the original channel and just set our content type on top of the
   // original channel...
 
   aChannel->SetContentType(contentTypeToUse);

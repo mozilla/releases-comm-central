@@ -85,7 +85,7 @@ class nsMsgImapHdrXferInfo : public nsIImapHeaderXferInfo {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPHEADERXFERINFO
   nsMsgImapHdrXferInfo();
-  void ResetAll();    // reset HeaderInfos for re-use
+  void ResetAll();    // reset HeaderInfos for reuse
   void ReleaseAll();  // release HeaderInfos (frees up memory)
   // this will return null if we're full, in which case the client code
   // should transfer the headers and retry.

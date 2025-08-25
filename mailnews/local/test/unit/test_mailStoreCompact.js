@@ -107,7 +107,7 @@ async function test_listenerErrors() {
   const checksumBefore = await fileChecksum(inbox.filePath.path);
 
   // Run compaction, failing listener callback in turn.
-  // We'll use an arbitrary but identifable code: NS_ERROR_CRYPTOMINING_URI.
+  // We'll use an arbitrary but identifiable code: NS_ERROR_CRYPTOMINING_URI.
   {
     // Check that onCompactionBegin() can abort.
     const l = new PromiseStoreCompactListener();

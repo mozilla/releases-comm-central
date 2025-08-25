@@ -553,7 +553,7 @@ interface nsIStoreCompactListener : nsISupports
    * As soon as this callback returns, the lower level commit will be
    * performed (e.g. rename the new mbox into the live location).
    * We want to minimise the delay between the two commits as much as possible to
-   * reduce the likelyhood of, say, losing power after the callback has updated
+   * reduce the likelihood of, say, losing power after the callback has updated
    * the database, but before the new mbox can be made live.
    *
    * If the listener needs to perform any other notifications or GUI updates

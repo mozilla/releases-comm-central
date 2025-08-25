@@ -348,7 +348,7 @@ async function testMessageIdUseIdentityAddress() {
 
 /**
  * Tests that if a custom address (with a custom domain) is used when composing a
- * message, the domain in this address takes precendence over the domain of the
+ * message, the domain in this address takes precedence over the domain of the
  * identity's address to generate the value for the Message-Id header.
  */
 async function testMessageIdUseFromDomain() {

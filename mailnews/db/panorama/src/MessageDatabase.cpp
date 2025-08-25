@@ -409,7 +409,7 @@ Result<MessageDatabase::CachedMsg*, nsresult> MessageDatabase::EnsureCached(
 
 void MessageDatabase::TrimCache() {
   // Standin cache policy:
-  // Grow to maxEntries, then discard an abitrary 25%.
+  // Grow to maxEntries, then discard an arbitrary 25%.
   // Could be waaaay more clever here, but let do some real-world
   // profiling before getting cute.
   constexpr uint32_t maxEntries = 512;  // (roughly 256KB).

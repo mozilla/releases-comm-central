@@ -166,7 +166,7 @@ NS_IMETHODIMP EwsMessageChannel::CancelWithReason(nsresult aStatus,
                                                   const nsACString& aReason) {
   // While we could forward this call to the read request if we have it, the
   // only important action we want to perform on it is cancel it, which
-  // `CancelWithReasonImpl` does. It also stores the cancelation reason on the
+  // `CancelWithReasonImpl` does. It also stores the cancellation reason on the
   // current channel, which is fine since consumers will always try to read it
   // from here.
   return CancelWithReasonImpl(aStatus, aReason);

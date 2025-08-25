@@ -397,7 +397,7 @@ export var CardDAVUtils = {
         </prop>
       </propfind>`;
       await tryURL(`${url.origin}/.well-known/carddav`);
-      // The request may have been successfull, returning a 207 status, but it
+      // The request may have been successful, returning a 207 status, but it
       // could still not contain any useful information.
       if (
         !response?.dom?.querySelector("resourcetype addressbook") &&

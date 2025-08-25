@@ -43,7 +43,7 @@
     The configuration routine will look for the PR_DISPLAY_NAME_A and
     PR_COMMENT_A properties and set them in the message store object.  Then it
     will look for the PR_PST_REMEMBER_PW property to decide if it should
-    remember the password in the profile. (If not found then it will defaut to
+    remember the password in the profile. (If not found then it will default to
     the current status of the profile password.)  Then if it is supposed to
     use UI, it will display the configuration property sheet to the user.  After
     all has succeeded, it will update the profile.
