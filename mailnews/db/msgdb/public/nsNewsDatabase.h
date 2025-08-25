@@ -25,10 +25,8 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
   NS_IMETHOD Commit(nsMsgDBCommit commitType) override;
   virtual uint32_t GetCurVersion() override;
 
-  // methods to get and set docsets for ids.
-  NS_IMETHOD IsRead(nsMsgKey key, bool* pRead) override;
-  virtual nsresult IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) override;
-  virtual bool SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) override;
+  virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
+                               nsIDBChangeListener* instigator) override;
 
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) override;
   nsresult SyncWithReadSet();

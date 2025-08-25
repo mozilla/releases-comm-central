@@ -252,7 +252,6 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   virtual nsresult SetKeyFlag(nsMsgKey key, bool set, nsMsgMessageFlagType flag,
                               nsIDBChangeListener* instigator = nullptr);
   virtual bool SetHdrFlag(nsIMsgDBHdr*, bool bSet, nsMsgMessageFlagType flag);
-  virtual bool SetHdrReadFlag(nsIMsgDBHdr*, bool bRead);
   virtual uint32_t GetStatusFlags(nsIMsgDBHdr* msgHdr,
                                   nsMsgMessageFlagType origFlags);
   // helper function which doesn't involve thread object

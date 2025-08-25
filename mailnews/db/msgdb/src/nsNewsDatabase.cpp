@@ -61,29 +61,6 @@ nsresult nsNewsDatabase::Commit(nsMsgDBCommit commitType) {
 
 uint32_t nsNewsDatabase::GetCurVersion() { return kMsgDBVersion; }
 
-NS_IMETHODIMP nsNewsDatabase::IsRead(nsMsgKey key, bool* pRead) {
-  NS_ASSERTION(pRead, "null out param in IsRead");
-  if (!pRead) return NS_ERROR_NULL_POINTER;
-
-  if (!m_readSet) return NS_ERROR_FAILURE;
-
-  *pRead = m_readSet->IsMember(key);
-  return NS_OK;
-}
-
-nsresult nsNewsDatabase::IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) {
-  nsresult rv;
-  nsMsgKey messageKey;
-
-  if (!msgHdr || !pRead) return NS_ERROR_NULL_POINTER;
-
-  rv = msgHdr->GetMessageKey(&messageKey);
-  if (NS_FAILED(rv)) return rv;
-
-  rv = IsRead(messageKey, pRead);
-  return rv;
-}
-
 NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet** pSet) {
   if (!pSet) return NS_ERROR_NULL_POINTER;
   *pSet = m_readSet;
@@ -105,39 +82,31 @@ NS_IMETHODIMP nsNewsDatabase::SetReadSet(nsMsgKeySet* pSet) {
   return NS_OK;
 }
 
-bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
-  nsresult rv;
-  bool isRead;
-  rv = IsHeaderRead(msgHdr, &isRead);
+nsresult nsNewsDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
+                                     nsIDBChangeListener* instigator) {
+  nsresult rv = nsMsgDatabase::MarkHdrRead(msgHdr, bRead, instigator);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (isRead == bRead) {
-    // give the base class a chance to update m_flags.
-    nsMsgDatabase::SetHdrReadFlag(msgHdr, bRead);
-    return false;
-  } else {
-    nsMsgKey messageKey;
+  nsMsgKey msgKey;
+  rv = msgHdr->GetMessageKey(&msgKey);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    // give the base class a chance to update m_flags.
-    nsMsgDatabase::SetHdrReadFlag(msgHdr, bRead);
-    rv = msgHdr->GetMessageKey(&messageKey);
-    if (NS_FAILED(rv)) return false;
-
-    NS_ASSERTION(m_readSet, "m_readSet is null");
-    if (!m_readSet) return false;
-
+  // Also update the read set that is persisted in the db folder info as well
+  // as in the newsrc file.
+  NS_ENSURE_STATE(m_readSet);
+  bool isReadInNewsrc = m_readSet->IsMember(msgKey);
+  if (bRead != isReadInNewsrc) {
     if (!bRead) {
-      m_readSet->Remove(messageKey);
-
-      rv = NotifyReadChanged(nullptr);
-      if (NS_FAILED(rv)) return false;
+      m_readSet->Remove(msgKey);
     } else {
-      if (m_readSet->Add(messageKey) < 0) return false;
-
-      rv = NotifyReadChanged(nullptr);
-      if (NS_FAILED(rv)) return false;
+      m_readSet->Add(msgKey);
     }
+    // This is being listened to by nsMsgNewsFolder, which in turn notifies
+    // the nsINntpIncomingServer about the change for the newsrc file.
+    NotifyReadChanged(nullptr);
   }
-  return true;
+
+  return NS_OK;
 }
 
 nsresult nsNewsDatabase::SyncWithReadSet() {
@@ -148,6 +117,7 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
   nsCOMPtr<nsIMsgEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
   NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_STATE(m_readSet);
 
   bool hasMore = false, readInNewsrc, isReadInDB, changed = false;
   int32_t numMessages = 0, numUnreadMessages = 0;
@@ -158,12 +128,12 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
     rv = hdrs->GetNext(getter_AddRefs(header));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = nsMsgDatabase::IsHeaderRead(header, &isReadInDB);
+    rv = IsHeaderRead(header, &isReadInDB);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgKey messageKey;
     header->GetMessageKey(&messageKey);
-    IsRead(messageKey, &readInNewsrc);
+    readInNewsrc = m_readSet->IsMember(messageKey);
 
     numMessages++;
     if (!readInNewsrc) numUnreadMessages++;

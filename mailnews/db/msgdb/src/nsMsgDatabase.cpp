@@ -2223,10 +2223,6 @@ nsresult nsMsgDatabase::HasAttachments(nsMsgKey key, bool* _retval) {
   return NS_OK;
 }
 
-bool nsMsgDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
-  return SetHdrFlag(msgHdr, bRead, nsMsgMessageFlags::Read);
-}
-
 nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
                                         nsIDBChangeListener* instigator) {
   nsresult rv;
@@ -2248,7 +2244,7 @@ nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
 
   // This will cause a commit, at least for local mail, so do it after we change
   // the folder counts above, so they will get committed too.
-  SetHdrReadFlag(msgHdr, bRead);
+  SetHdrFlag(msgHdr, bRead, nsMsgMessageFlags::Read);
 
   uint32_t flags;
   rv = msgHdr->GetFlags(&flags);
@@ -2615,29 +2611,13 @@ bool nsMsgDatabase::SetHdrFlag(nsIMsgDBHdr* msgHdr, bool bSet,
 nsresult nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
                                     nsIDBChangeListener* instigator) {
   bool isReadInDB = true;
-  nsresult rv = nsMsgDatabase::IsHeaderRead(msgHdr, &isReadInDB);
+  nsresult rv = IsHeaderRead(msgHdr, &isReadInDB);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool isRead = true;
-  rv = IsHeaderRead(msgHdr, &isRead);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // if the flag is already correct in the db, don't change it.
-  // Check msg flags as well as IsHeaderRead in case it's a newsgroup
-  // and the msghdr flags are out of sync with the newsrc settings.
-  // (we could override this method for news db's, but it's a trivial fix here.
-  if (bRead != isRead || isRead != isReadInDB) {
-    nsMsgKey msgKey;
-    msgHdr->GetMessageKey(&msgKey);
-
-    bool inDB = false;
-    (void)ContainsKey(msgKey, &inDB);
-
-    if (inDB) {
-      nsCOMPtr<nsIMsgThread> threadHdr;
-      rv = GetThreadForMsgKey(msgKey, getter_AddRefs(threadHdr));
-      if (threadHdr) threadHdr->MarkChildRead(bRead);
-    }
+  if (bRead != isReadInDB) {
+    nsCOMPtr<nsIMsgThread> threadHdr;
+    rv = GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(threadHdr));
+    if (threadHdr) threadHdr->MarkChildRead(bRead);
 
 #ifndef MOZ_SUITE
     if (bRead) {
