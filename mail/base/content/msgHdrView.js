@@ -607,6 +607,16 @@ var messageProgressListener = {
     if (!this._channelIsCurrent(mailChannel)) {
       return;
     }
+
+    if (
+      mailChannel.URI instanceof Ci.nsIMsgMailNewsUrl &&
+      mailChannel.URI.errorCode
+    ) {
+      // This appears to be an NNTP message that couldn't be successfully
+      // retrieved from the server.
+      return;
+    }
+
     autoMarkAsRead();
   },
 
