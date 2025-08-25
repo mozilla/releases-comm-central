@@ -243,16 +243,15 @@ export var itip = {
    */
   getCompleteText(aStatus, aOperationType) {
     let text = "";
-    const cIOL = Ci.calIOperationListener;
     if (Components.isSuccessCode(aStatus)) {
       switch (aOperationType) {
-        case cIOL.ADD:
+        case Ci.calIOperationListener.ADD:
           text = lazy.cal.l10n.getLtnString("imipAddedItemToCal2");
           break;
-        case cIOL.MODIFY:
+        case Ci.calIOperationListener.MODIFY:
           text = lazy.cal.l10n.getLtnString("imipUpdatedItem2");
           break;
-        case cIOL.DELETE:
+        case Ci.calIOperationListener.DELETE:
           text = lazy.cal.l10n.getLtnString("imipCanceledItem2");
           break;
       }
