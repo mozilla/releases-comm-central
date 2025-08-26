@@ -54,6 +54,18 @@ export class CalDavSession {
    * @returns {Promise} A promise resolved when the preparations are complete
    */
   async prepareRequest(aChannel) {
+    if (!("_oAuth" in this)) {
+      for (const login of await Services.logins.searchLoginsAsync({
+        origin: aChannel.URI.prePath,
+      })) {
+        // If we have a saved login, it might be a Fastmail user with an app password,
+        // in which case we want to use it for authentication instead of OAuth2.
+        if (login.username == this.username) {
+          this._oAuth = null; // Use this saved login instead of OAuth.
+          break;
+        }
+      }
+    }
     // Set up oAuth. We could do this in the constructor but we need to have a hostname,
     // which is fine in the normal case but difficult when detecting calendars.
     if (!("_oAuth" in this)) {

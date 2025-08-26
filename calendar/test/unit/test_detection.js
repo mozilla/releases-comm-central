@@ -14,6 +14,8 @@ var { detection } = ChromeUtils.importESModule(
 );
 
 add_setup(async () => {
+  do_get_profile();
+
   ICSServer.open();
   ICSServer.putICSInternal(
     CalendarTestUtils.dedent`

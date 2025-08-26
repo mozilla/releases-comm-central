@@ -197,15 +197,24 @@ export class CardDAVDirectory extends SQLiteDirectory {
   async _makeRequest(path, details = {}) {
     const serverURI = Services.io.newURI(this._serverURL);
     const uri = serverURI.resolve(path);
+    const username = this.getStringValue("carddav.username", "");
 
+    if (!("_oAuth" in this)) {
+      for (const login of await Services.logins.searchLoginsAsync({
+        origin: serverURI.prePath,
+      })) {
+        // If we have a saved login, it might be a Fastmail user with an app password,
+        // in which case we want to use it for authentication instead of OAuth2.
+        if (login.username == username) {
+          this._oAuth = null; // Use this saved login instead of OAuth.
+          break;
+        }
+      }
+    }
     if (!("_oAuth" in this)) {
       const oAuth = new lazy.OAuth2Module();
       if (
-        oAuth.initFromHostname(
-          serverURI.host,
-          this.getStringValue("carddav.username", "") || this.UID,
-          "carddav"
-        )
+        oAuth.initFromHostname(serverURI.host, username || this.UID, "carddav")
       ) {
         this._oAuth = oAuth;
       } else {
@@ -214,7 +223,6 @@ export class CardDAVDirectory extends SQLiteDirectory {
     }
     details.oAuth = this._oAuth;
 
-    const username = this.getStringValue("carddav.username", "");
     const callbacks = new lazy.NotificationCallbacks(username);
     details.callbacks = callbacks;
 
