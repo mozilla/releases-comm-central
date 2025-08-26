@@ -769,7 +769,15 @@ async function checkSyncSubview(dialog, origin = "https://carddav.test") {
   await addressBookDirectoryPromise;
 
   // Close the address book tab and delete the address book.
+  const closePromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabClose",
+    false,
+    event => event.detail.tabInfo.mode.type == "addressBookTab"
+  );
   tabmail.closeOtherTabs(0);
+  // Wait for the address book tab to close.
+  await closePromise;
 
   const removePromise = TestUtils.topicObserved(
     "addrbook-directory-deleted",

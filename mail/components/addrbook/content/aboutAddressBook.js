@@ -83,6 +83,14 @@ UIFontSize.registerWindow(window);
 
 var booksList;
 
+/**
+ * UID of address book to select during load if any is desired. Gets set to
+ * false once initial load is complete.
+ *
+ * @type {string|boolean|undefined}
+ */
+let initialAddressBook;
+
 window.addEventListener("load", () => {
   document
     .getElementById("booksPaneCreateBook")
@@ -168,7 +176,9 @@ window.addEventListener("load", () => {
     "mail.addr_book.view.startupURI",
     ""
   );
-  if (startupURI) {
+  if (initialAddressBook) {
+    booksList.selectedIndex = booksList.getIndexForUID(initialAddressBook);
+  } else if (startupURI) {
     for (let index = 0; index < booksList.rows.length; index++) {
       const row = booksList.rows[index];
       if (row._book?.URI == startupURI || row._list?.URI == startupURI) {
@@ -186,6 +196,7 @@ window.addEventListener("load", () => {
   cardsPane.searchInput.focus();
 
   window.dispatchEvent(new CustomEvent("about-addressbook-ready"));
+  initialAddressBook = false;
 });
 
 window.addEventListener("unload", () => {
@@ -301,6 +312,10 @@ function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
  * @param {string} UID - The UID for the address book.
  */
 async function displayAddressBook(UID) {
+  if (initialAddressBook !== false) {
+    initialAddressBook = UID;
+    return;
+  }
   booksList.selectedIndex = booksList.getIndexForUID(UID);
   if (booksList.selectedIndex == 0) {
     // Index 0 was selected before we started listening.
@@ -308,8 +323,6 @@ async function displayAddressBook(UID) {
   }
 
   cardsPane.searchInput.focus();
-
-  window.dispatchEvent(new CustomEvent("about-addressbook-ready"));
 }
 
 /**
