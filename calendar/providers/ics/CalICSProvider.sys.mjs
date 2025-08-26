@@ -81,6 +81,12 @@ export var CalICSProvider = {
           throw new cal.provider.detection.AuthFailedError();
         }
 
+        // Sometimes e is a CalDavResponseBase that is a certificate error, so throw it.
+        if (e.certError) {
+          cal.WARN(message + responseDetails(e));
+          throw new cal.provider.detection.CertError();
+        }
+
         if (e instanceof Error) {
           cal.WARN(message + errorDetails(e));
         } else if (typeof e.status == "number") {

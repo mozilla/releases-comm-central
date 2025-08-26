@@ -6,6 +6,16 @@ var { CalDAVServer } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalDAVServer.sys.mjs"
 );
 var { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
+var { HttpsProxy } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+);
+var { ServerTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
+);
+
+var certOverrideService = Cc["@mozilla.org/security/certoverride;1"].getService(
+  Ci.nsICertOverrideService
+);
 
 async function openWizard(...args) {
   await CalendarTestUtils.openCalendarTab(window);
@@ -24,7 +34,10 @@ async function openWizard(...args) {
   return wizardPromise;
 }
 
-async function handleWizard(wizardWindow, { username, url, password, expectedCalendars }) {
+async function handleWizard(
+  wizardWindow,
+  { url, certError, username, password, expectedCalendars }
+) {
   const wizardDocument = wizardWindow.document;
   const acceptButton = wizardDocument.querySelector("dialog").getButton("accept");
   const cancelButton = wizardDocument.querySelector("dialog").getButton("cancel");
@@ -61,9 +74,30 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
 
   Assert.ok(!acceptButton.disabled);
 
-  const promptPromise = handlePasswordPrompt(password);
+  const certPromise = certError ? handleCertError(certError) : Promise.resolve();
+  const promptPromise = certError != "cancel" ? handlePasswordPrompt(password) : Promise.resolve();
   EventUtils.synthesizeKey("VK_RETURN", {}, wizardWindow);
+  await certPromise;
+  if (certError == "cancel") {
+    const status = wizardDocument.querySelector(".network-status-row");
+    Assert.equal(status.getAttribute("status"), "certerror");
+    Assert.ok(BrowserTestUtils.isVisible(wizardDocument.querySelector(".network-certerror-label")));
+    EventUtils.synthesizeMouseAtCenter(cancelButton, {}, wizardWindow);
+    return;
+  }
+  if (certError == "extra1") {
+    // If we added a certificate exception, retry calendar discovery.
+    EventUtils.synthesizeKey("VK_RETURN", {}, wizardWindow);
+  }
   await promptPromise;
+
+  if (expectedCalendars.length == 0) {
+    const status = wizardDocument.querySelector(".network-status-row");
+    Assert.equal(status.getAttribute("status"), "notfound");
+    Assert.ok(BrowserTestUtils.isVisible(wizardDocument.querySelector(".network-notfound-label")));
+    EventUtils.synthesizeMouseAtCenter(cancelButton, {}, wizardWindow);
+    return;
+  }
 
   // Select calendars.
 
@@ -113,6 +147,24 @@ async function handlePasswordPrompt(password) {
   });
 }
 
+async function handleCertError(buttonToPress) {
+  await BrowserTestUtils.promiseAlertDialog(
+    buttonToPress,
+    "chrome://pippki/content/exceptionDialog.xhtml",
+    {
+      async callback(win) {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        win.document.getElementById("exceptiondialog").getButton(buttonToPress).click();
+      },
+    }
+  );
+  Assert.ok(
+    !Services.wm.getMostRecentWindow("mozilla:exceptiondialog"),
+    "no more exception dialogs should be open"
+  );
+}
+
 /**
  * Test that we correctly use DNS discovery. This uses the mochitest server
  * (files in the data directory) instead of CalDAVServer because the latter
@@ -158,8 +210,8 @@ add_task(async function testWellKnown() {
   CalDAVServer.open("alice", "alice");
 
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -222,8 +274,8 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
     );
   });
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -301,8 +353,8 @@ add_task(async function testWellKnown_noResourceType() {
   });
 
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -324,8 +376,8 @@ add_task(async function testCalendarWithOnlyReadPriv() {
   CalDAVServer.open("alice", "alice");
   CalDAVServer.privileges = "<d:privilege><d:read/></d:privilege>";
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -347,8 +399,8 @@ add_task(async function testCalendarWithoutPrivs() {
   CalDAVServer.open("alice", "alice");
   CalDAVServer.privileges = "";
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -370,8 +422,8 @@ add_task(async function testCalendarWithNoPrivSupport() {
   CalDAVServer.open("alice", "alice");
   CalDAVServer.privileges = null;
   await openWizard({
-    username: "alice",
     url: CalDAVServer.origin,
+    username: "alice",
     password: "alice",
     expectedCalendars: [
       {
@@ -383,4 +435,63 @@ add_task(async function testCalendarWithNoPrivSupport() {
     ],
   });
   CalDAVServer.close();
+});
+
+/**
+ * Test a server with a certificate problem.
+ */
+add_task(async function testCertificateError() {
+  CalDAVServer.open("alice", "alice");
+  const proxy = await HttpsProxy.create(CalDAVServer.port, "dav", "wrong.test");
+
+  await openWizard({
+    url: "https://wrong.test/",
+    certError: "cancel",
+    username: "alice",
+    password: "alice",
+    expectedCalendars: [],
+  });
+
+  proxy.destroy();
+  CalDAVServer.close();
+});
+
+/**
+ * Test a server with a certificate problem, but this time we accept the
+ * exception dialog and try again.
+ */
+add_task(async function testCertificateErrorWithException() {
+  CalDAVServer.open("alice", "alice");
+  const proxy = await HttpsProxy.create(CalDAVServer.port, "dav", "wrong.test");
+
+  await openWizard({
+    url: "https://wrong.test/",
+    certError: "extra1",
+    username: "alice",
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: "https://wrong.test/calendars/alice/test/",
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+      },
+    ],
+  });
+
+  proxy.destroy();
+  CalDAVServer.close();
+
+  const isTemporary = {};
+  Assert.ok(
+    certOverrideService.hasMatchingOverride(
+      "wrong.test",
+      443,
+      {},
+      await ServerTestUtils.getCertificate("dav"),
+      isTemporary
+    ),
+    "certificate exception should exist for wrong.test:443"
+  );
+
+  certOverrideService.clearAllOverrides();
 });

@@ -170,6 +170,9 @@ export var detection = {
   /** An error that can be thrown if authentication failed */
   AuthFailedError: DetectionErrorClass("AuthFailedError"),
 
+  /** An error that can be thrown if there's a certificate error. */
+  CertError: DetectionErrorClass("CertError"),
+
   /** An error that can be thrown if the location is invalid or has no calendars */
   NoneFoundError: DetectionErrorClass("NoneFoundError"),
 

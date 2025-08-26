@@ -46,6 +46,7 @@
 <!ENTITY network.loading.description "Please wait while your calendars are being discovered.">
 <!ENTITY network.notfound.description "Could not find calendars at this location. Please check your settings.">
 <!ENTITY network.authfail.description "The credentials you have entered were not accepted. Please check your settings.">
+<!ENTITY network.certerror.description "Could not find calendars at this location because of a certificate problem.">
 
 <!ENTITY network.subscribe.single.description "Please select the calendars you would like to subscribe to.">
 <!ENTITY network.subscribe.multiple.description "Multiple calendar types are available for this location. Please select the calendar type, then mark the calendars you would like to subscribe to.">

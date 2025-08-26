@@ -423,9 +423,20 @@ class CalDavSimpleResponse extends CalDavResponseBase {
       // this.request is CalDavRequestBase instance and it contains calICalendar property
       // which is needed for checkBadCertStatus. CalDavRequestBase.calendar can be null,
       // this possibility is handled in BadCertHandler.
-      cal.provider.checkBadCertStatus(aLoader.request, aStatus, this.request.calendar);
+      this.#certError = cal.provider.checkBadCertStatus(
+        aLoader.request,
+        aStatus,
+        this.request.calendar
+      );
       this._onrespondederror(this);
     }
+  }
+
+  #certError = false;
+
+  /** If the response had a certificate error. */
+  get certError() {
+    return this.#certError;
   }
 }
 

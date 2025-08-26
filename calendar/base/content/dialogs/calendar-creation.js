@@ -747,6 +747,8 @@ function onDetectionError(password, location, error) {
       findCalendarsWithPassword(location);
       return;
     }
+  } else if (error instanceof cal.provider.detection.CertError) {
+    selectNetworkStatus("certerror");
   } else if (error instanceof cal.provider.detection.CanceledError) {
     selectNetworkStatus("none");
   } else {

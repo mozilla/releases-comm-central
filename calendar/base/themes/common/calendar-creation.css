@@ -39,13 +39,10 @@ td {
 .network-status-row .status-label {
   display: none;
 }
-.network-status-row[status="loading"] .network-loading-label {
-  display: flex;
-}
-.network-status-row[status="notfound"] .network-notfound-label {
-  display: flex;
-}
-.network-status-row[status="authfail"] .network-authfail-label {
+.network-status-row[status="loading"] .network-loading-label,
+.network-status-row[status="notfound"] .network-notfound-label,
+.network-status-row[status="authfail"] .network-authfail-label,
+.network-status-row[status="certerror"] .network-certerror-label {
   display: flex;
 }
 

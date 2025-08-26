@@ -53,6 +53,7 @@ export var CalDAVServer = {
   open(username, password) {
     this.server = new HttpServer();
     this.server.start(-1);
+    this.port = this.server.identity.primaryPort;
     this.isOpen = true;
 
     this.users.set(username, password);

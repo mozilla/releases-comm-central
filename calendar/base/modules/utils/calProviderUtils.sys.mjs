@@ -191,7 +191,24 @@ export var provider = {
       this.timer = null;
     }
 
-    notifyCertProblem(secInfo, targetSite) {
+    static #reported = new Map();
+
+    /**
+     * Open a certificate exception dialog, unless there's already one opened in the last 5s.
+     *
+     * @param {nsITransportSecurityInfo} secInfo
+     * @param {nsIURI} requestURI
+     */
+    notifyCertProblem(secInfo, requestURI) {
+      console.warn(`Certificate error (${secInfo.errorCodeString}) for ${requestURI.spec}`);
+      if (
+        provider.BadCertHandler.#reported.has(requestURI.asciiHostPort) &&
+        Date.now() - provider.BadCertHandler.#reported.get(requestURI.asciiHostPort) < 5000
+      ) {
+        return;
+      }
+      provider.BadCertHandler.#reported.set(requestURI.asciiHostPort, Date.now());
+
       // Unfortunately we can't pass js objects using the window watcher, so
       // we'll just take the first available calendar window. We also need to
       // do this on a timer so that the modal window doesn't block the
@@ -205,7 +222,7 @@ export var provider = {
             exceptionAdded: false,
             securityInfo: secInfo,
             prefetchCert: true,
-            location: targetSite,
+            location: requestURI.asciiHostPort,
           };
 
           const deferred = Promise.withResolvers();
@@ -228,11 +245,12 @@ export var provider = {
             // Refresh the calendar if the exception certificate was added
             this.calendar.refresh();
           }
+
+          provider.BadCertHandler.#reported.delete(requestURI.asciiHostPort);
         },
       };
       this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       this.timer.initWithCallback(timerCallback, 0, Ci.nsITimer.TYPE_ONE_SHOT);
-      return true;
     }
   },
 
@@ -242,6 +260,7 @@ export var provider = {
    * @param {nsIRequest} request - request from the Stream loader.
    * @param {number} status - A Components.results result.
    * @param {calICalendar} [calendar] - A calendar associated with the request, may be null.
+   * @returns {boolean} True if there is a certificate error.
    */
   checkBadCertStatus(request, status, calendar) {
     const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
@@ -260,8 +279,10 @@ export var provider = {
     if (isCertError && request.securityInfo) {
       const secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
       const badCertHandler = new provider.BadCertHandler(calendar);
-      badCertHandler.notifyCertProblem(secInfo, request.originalURI.displayHostPort);
+      badCertHandler.notifyCertProblem(secInfo, request.originalURI);
     }
+
+    return isCertError;
   },
 
   /**
