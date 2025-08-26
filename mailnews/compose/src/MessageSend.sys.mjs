@@ -603,7 +603,7 @@ export class MessageSend {
    *
    * @param {nsIURI} serverURI - The URI of the server used for the delivery.
    * @param {nsresult} exitCode - The exit code of message delivery.
-   * @param {nsITransportSecurityInfo} secInfo - The info to use in case of a security error.
+   * @param {?nsITransportSecurityInfo} secInfo - The info to use in case of a security error.
    * @param {string} errMsg - A localized error message.
    * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
    */
@@ -619,58 +619,88 @@ export class MessageSend {
     );
     if (!Components.isSuccessCode(exitCode)) {
       let isNSSError = false;
-      const errorName = lazy.MsgUtils.getErrorStringName(exitCode);
-      let errorMsg;
-      if (exitCode == Cr.NS_ERROR_FAILURE) {
-        errorMsg = errMsg;
-      } else if (
-        [
-          Cr.NS_ERROR_UNKNOWN_HOST,
-          Cr.NS_ERROR_UNKNOWN_PROXY_HOST,
-          Cr.NS_ERROR_CONNECTION_REFUSED,
-          Cr.NS_ERROR_PROXY_CONNECTION_REFUSED,
-          Cr.NS_ERROR_NET_INTERRUPT,
-          Cr.NS_ERROR_NET_TIMEOUT,
-          Cr.NS_ERROR_NET_RESET,
-        ].includes(exitCode)
-      ) {
-        errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(
-          this._userIdentity,
-          this._composeBundle,
-          errorName
-        );
-      } else {
-        const nssErrorsService = Cc[
-          "@mozilla.org/nss_errors_service;1"
-        ].getService(Ci.nsINSSErrorsService);
-        try {
-          // This is a server security issue as determined by the Mozilla
-          // platform. To the Mozilla security message string, appended a string
-          // having additional information with the server name encoded.
-          errorMsg = nssErrorsService.getErrorMessage(exitCode);
-          errorMsg +=
-            "\n" +
-            lazy.MsgUtils.formatStringWithSMTPHostName(
-              this._userIdentity,
-              this._composeBundle,
-              "smtpSecurityIssue"
-            );
+      let isOverridable = false;
+
+      const nssErrorsService = Cc[
+        "@mozilla.org/nss_errors_service;1"
+      ].getService(Ci.nsINSSErrorsService);
+
+      if (secInfo?.errorCode) {
+        if (nssErrorsService.isNSSErrorCode(secInfo.errorCode)) {
           isNSSError = true;
-        } catch (e) {
-          if (errMsg) {
-            // errMsg is an already localized message, usually combined with the
-            // error message from SMTP server.
-            errorMsg = errMsg;
-          } else {
-            // May be the default string "sendFailed". Should be and error that
-            //  does require the server name to be encoded.
-            errorMsg = this._composeBundle.GetStringFromName(errorName);
+          exitCode = nssErrorsService.getXPCOMFromNSSError(secInfo.errorCode);
+
+          if (
+            [
+              "MOZILLA_PKIX_ERROR_ADDITIONAL_POLICY_CONSTRAINT_FAILED",
+              "MOZILLA_PKIX_ERROR_CA_CERT_USED_AS_END_ENTITY",
+              "MOZILLA_PKIX_ERROR_EMPTY_ISSUER_NAME",
+              "MOZILLA_PKIX_ERROR_INADEQUATE_KEY_SIZE",
+              "MOZILLA_PKIX_ERROR_MITM_DETECTED",
+              "MOZILLA_PKIX_ERROR_NOT_YET_VALID_CERTIFICATE",
+              "MOZILLA_PKIX_ERROR_NOT_YET_VALID_ISSUER_CERTIFICATE",
+              "MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT",
+              "MOZILLA_PKIX_ERROR_V1_CERT_USED_AS_CA",
+              "SEC_ERROR_CA_CERT_INVALID",
+              "SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED",
+              "SEC_ERROR_EXPIRED_CERTIFICATE",
+              "SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE",
+              "SEC_ERROR_INVALID_TIME",
+              "SEC_ERROR_UNKNOWN_ISSUER",
+              "SSL_ERROR_BAD_CERT_DOMAIN",
+            ].includes(secInfo?.errorCodeString)
+          ) {
+            isOverridable = true;
           }
         }
       }
+
+      let errorMsg;
+      if (!isNSSError) {
+        const errorName = lazy.MsgUtils.getErrorStringName(exitCode);
+        if (exitCode == Cr.NS_ERROR_FAILURE) {
+          errorMsg = errMsg;
+        } else if (
+          [
+            Cr.NS_ERROR_UNKNOWN_HOST,
+            Cr.NS_ERROR_UNKNOWN_PROXY_HOST,
+            Cr.NS_ERROR_CONNECTION_REFUSED,
+            Cr.NS_ERROR_PROXY_CONNECTION_REFUSED,
+            Cr.NS_ERROR_NET_INTERRUPT,
+            Cr.NS_ERROR_NET_TIMEOUT,
+            Cr.NS_ERROR_NET_RESET,
+          ].includes(exitCode)
+        ) {
+          errorMsg = lazy.MsgUtils.formatStringWithSMTPHostName(
+            this._userIdentity,
+            this._composeBundle,
+            errorName
+          );
+        } else if (errMsg) {
+          // errMsg is an already localized message, usually combined with the
+          // error message from SMTP server.
+          errorMsg = errMsg;
+        } else {
+          // May be the default string "sendFailed". Should be and error that
+          //  does require the server name to be encoded.
+          errorMsg = this._composeBundle.GetStringFromName(errorName);
+        }
+      } else {
+        // This is a server security issue as determined by the Mozilla
+        // platform. To the Mozilla security message string, appended a string
+        // having additional information with the server name encoded.
+        errorMsg = nssErrorsService.getErrorMessage(exitCode);
+        errorMsg +=
+          "\n" +
+          lazy.MsgUtils.formatStringWithSMTPHostName(
+            this._userIdentity,
+            this._composeBundle,
+            "smtpSecurityIssue"
+          );
+      }
       this.notifyListenerOnStopSending(null, exitCode, null, null);
       this.fail(exitCode, errorMsg);
-      if (isNSSError) {
+      if (isNSSError && isOverridable) {
         this.notifyListenerOnTransportSecurityError(
           null,
           exitCode,
