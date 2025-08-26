@@ -58,7 +58,7 @@ class GetMessagesButton extends UnifiedToolbarButton {
       });
 
     const allMessagesItem = this.#contextMenu.querySelector(
-      "#tolbarContextGetAllNewMessages"
+      "#toolbarContextGetAllNewMessages"
     );
     allMessagesItem.disabled = !serverItems.length;
     const separator = this.#contextMenu.querySelector(
