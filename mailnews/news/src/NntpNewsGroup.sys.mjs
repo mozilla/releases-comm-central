@@ -393,6 +393,7 @@ export class NntpNewsGroup {
   cleanUp() {
     if (this._commitReadKeySet) {
       this._folder.setReadSetFromStr(this._readKeySet);
+      this._commitReadKeySet = false;
     }
     this._folder.notifyFinishedDownloadinghdrs();
     this._db.commit(Ci.nsMsgDBCommitType.kSessionCommit);
