@@ -18,6 +18,9 @@ let aboutMessage, msgc, lightTheme, darkTheme;
 add_setup(async function () {
   // Disable dark message mode before setting up anything else.
   Services.prefs.setBoolPref("mail.dark-reader.enabled", false);
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.useAccessibilityTheme", 0]],
+  });
 
   const file = new FileUtils.File(getTestFilePath("data/dark_mode_test.eml"));
   msgc = await open_message_from_file(file);
@@ -231,6 +234,56 @@ add_task(async function test_message_scroll_position() {
   );
 
   await assert_light_style();
+});
+
+add_task(async function test_darkReaderToggleVisibility() {
+  info("Wait for light mode");
+  let msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.useAccessibilityTheme", 0]],
+  });
+  await toggle_theme(lightTheme, true);
+
+  await msgLoaded;
+
+  const toggle = aboutMessage.document.querySelector("#darkReaderToggle");
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(toggle),
+    "Dark reader toggle is hidden in light theme"
+  );
+
+  // Enable high contrast mode
+  info("wait for high contrast mode");
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.useAccessibilityTheme", 1]],
+  });
+  await new Promise(aboutMessage.requestAnimationFrame);
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(toggle),
+    "Dark reader toggle is hidden in light theme with high contrast enabled"
+  );
+
+  info("wait for dark mode");
+  msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await toggle_theme(darkTheme, true);
+  await msgLoaded;
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(toggle),
+    "Dark reader toggle is hidden in dark theme with high contrast enabled"
+  );
+
+  await SpecialPowers.popPrefEnv();
+  await new Promise(aboutMessage.requestAnimationFrame);
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(toggle),
+    "Dark reader toggle is vidible in dark theme with high contrast disabled"
+  );
+
+  await SpecialPowers.popPrefEnv();
 });
 
 async function assert_light_style() {
