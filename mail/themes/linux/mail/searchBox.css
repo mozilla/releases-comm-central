@@ -11,3 +11,9 @@
 .autocomplete-richlistitem[type^="gloda-"] {
   padding-inline-start: 10px;
 }
+
+.searchBox,
+.themeableSearchBox {
+  /* Override global-shared.css. */
+  padding: 2px 5px;
+}

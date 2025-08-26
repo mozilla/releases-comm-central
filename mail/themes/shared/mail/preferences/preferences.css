@@ -350,8 +350,7 @@ tabpanel > hbox > description {
 
 html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   padding-block: initial;
-  /* it should be --button-height but input doesn't include the border */
-  min-height: calc(var(--button-height) - 2px);
+  min-height: var(--button-height);
 }
 
 html|input[type="number"] {

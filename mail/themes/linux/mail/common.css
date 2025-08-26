@@ -6,6 +6,7 @@
 
 @namespace html "http://www.w3.org/1999/xhtml";
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 @media not (prefers-contrast) {
   @media (prefers-color-scheme: dark) {
     :host,
@@ -45,4 +46,9 @@ html|button {
 
 xul|tab {
   min-height: 2.5em;
+}
+
+input[type="search"] {
+  padding-block: initial;
+  min-height: var(--button-height);
 }
