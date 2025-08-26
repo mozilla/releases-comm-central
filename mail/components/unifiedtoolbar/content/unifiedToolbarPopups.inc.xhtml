@@ -46,6 +46,7 @@
            mode="notDeferred"
            showFileHereLabel="true"/>
 <menupopup id="toolbarTagPopup"
+           class="gutter-popup"
            onpopupshowing="InitMessageTags(this);">
   <menuitem id="button-addNewTag"
             label="&addNewTag.label;"
@@ -60,7 +61,9 @@
             command="cmd_removeTags"/>
   <menuseparator id="button-afterTagRemoveAllSeparator"/>
 </menupopup>
-<menupopup id="toolbarMarkPopup" onpopupshowing="InitMessageMark()">
+<menupopup id="toolbarMarkPopup"
+           class="gutter-popup"
+           onpopupshowing="InitMessageMark()">
   <menuitem id="markReadToolbarItem"
             label="&markAsReadCmd.label;"
             accesskey="&markAsReadCmd.accesskey;"
@@ -95,7 +98,8 @@
             command="cmd_markAsFlagged"/>
 </menupopup>
 <menupopup id="toolbarViewPickerPopup"
-            onpopupshowing="RefreshViewPopup(this);">
+           class="gutter-popup"
+           onpopupshowing="RefreshViewPopup(this);">
   <menuitem id="viewPickerAll" value="0"
             label="&viewAll.label;"
             type="radio"
@@ -111,13 +115,13 @@
   <menuseparator id="afterViewPickerUnreadSeparator"/>
   <menu id="viewPickerTags" label="&viewTags.label;">
     <menupopup id="viewPickerTagsPopup"
-                class="menulist-menupopup"
-                onpopupshowing="RefreshTagsPopup(this);"/>
+               class="menulist-menupopup"
+               onpopupshowing="RefreshTagsPopup(this);"/>
   </menu>
   <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
     <menupopup id="viewPickerCustomViewsPopup"
-                class="menulist-menupopup"
-                onpopupshowing="RefreshCustomViewsPopup(this);"/>
+               class="menulist-menupopup"
+               onpopupshowing="RefreshCustomViewsPopup(this);"/>
   </menu>
   <menuseparator id="afterViewPickerCustomViewsSeparator"/>
   <menuitem id="viewPickerVirtualFolder"
@@ -132,8 +136,8 @@
 <menupopup id="messageHistoryPopup">
 </menupopup>
 <menupopup id="toolbarGetMessagesContext"
-             class="no-accel-menupopup"
-             position="bottomleft topleft">
+           class="no-accel-menupopup"
+           position="bottomleft topleft">
     <menuitem id="tolbarContextGetAllNewMessages"
               class="menuitem-iconic"
               data-l10n-id="toolbar-get-all-messages-menuitem"

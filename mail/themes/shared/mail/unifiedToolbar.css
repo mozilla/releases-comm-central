@@ -254,5 +254,5 @@ unified-toolbar-tab {
 }
 
 #tolbarContextGetAllNewMessages {
-  list-style-image: var(--icon-cloud-download);
+  --menuitem-icon: var(--icon-cloud-download);
 }
