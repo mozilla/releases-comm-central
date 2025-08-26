@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 menuitem.server {
-  &:is([data-server-type="imap"], [data-server-type="pop3"]) {
+  &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"]) {
     --menuitem-icon: var(--icon-mail);
   }
 
-  &:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"] {
+  &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"] {
     --menuitem-icon: var(--icon-mail-secure);
   }
 

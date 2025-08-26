@@ -273,11 +273,11 @@ body {
       --icon-color: var(--primary);
     }
 
-    &:is([data-server-type="imap"], [data-server-type="pop3"]) > .container > .icon {
+    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"]) > .container > .icon {
       background-image: var(--icon-mail);
     }
 
-    &:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
+    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"]
       > .container > .icon {
       background-image: var(--icon-mail-secure);
     }
