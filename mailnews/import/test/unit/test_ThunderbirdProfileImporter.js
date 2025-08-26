@@ -381,6 +381,65 @@ add_task(async function test_importCalendars() {
 });
 
 /**
+ * Test that address books are correctly imported, and Mork address books are
+ * migrated to SQLite.
+ */
+add_task(async function test_importAddressBooks() {
+  MailServices.ab.directories;
+  await createTmpProfileWithPrefs([
+    ["ldap_2.servers.import.description", "Import SQLite"],
+    ["ldap_2.servers.import.dirType", 101],
+    ["ldap_2.servers.import.filename", "abook.sqlite"],
+    ["ldap_2.servers.import.uid", "ce290bfd-49fa-4e13-90f3-98b41653282d"],
+    ["ldap_2.servers.mab.description", "Import Mork"],
+    ["ldap_2.servers.mab.dirType", 2],
+    ["ldap_2.servers.mab.filename", "mork.mab"],
+    ["ldap_2.servers.mab.uid", "236b82fe-27a0-475b-a742-d22b1a74c7e2"],
+  ]);
+  const sqliteFile = tmpProfileDir.clone();
+  sqliteFile.append("abook.sqlite");
+  const conn = Services.storage.openDatabase(sqliteFile);
+  conn.executeSimpleSQL(await IOUtils.readUTF8(do_get_file("import.sql").path));
+  conn.close();
+  do_get_file("import.mab").copyTo(tmpProfileDir, "mork.mab");
+
+  const importer = new ThunderbirdProfileImporter();
+  await importer.startImport(tmpProfileDir, { addressBooks: true });
+
+  for (const [name, expectedValue] of [
+    ["ldap_2.servers.import.description", "Import SQLite"],
+    ["ldap_2.servers.import.dirType", 101],
+    ["ldap_2.servers.import.filename", "abook-1.sqlite"], // New name.
+    ["ldap_2.servers.mab.description", "Import Mork"],
+    ["ldap_2.servers.mab.dirType", 101], // Migrated to SQLite.
+    ["ldap_2.servers.mab.filename", "mork.sqlite"], // New name.
+  ]) {
+    let actualValue;
+    if (typeof expectedValue == "number") {
+      actualValue = Services.prefs.getIntPref(name, 9999);
+    } else {
+      actualValue = Services.prefs.getStringPref(name, "");
+    }
+    Assert.equal(actualValue, expectedValue, `${name} should be correct`);
+  }
+
+  const importedSqlite = do_get_profile().clone();
+  importedSqlite.append("abook-1.sqlite");
+  Assert.ok(
+    importedSqlite.exists(),
+    "imported sqlite book should have been copied"
+  );
+  const importedMab = do_get_profile().clone();
+  importedMab.append("mork.sqlite");
+  Assert.ok(
+    importedMab.exists(),
+    "imported mork book should have been migrated"
+  );
+
+  Services.prefs.resetPrefs();
+});
+
+/**
  * Test that tags can be correctly imported.
  */
 add_task(async function test_importTags() {

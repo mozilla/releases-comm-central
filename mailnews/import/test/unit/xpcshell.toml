@@ -10,6 +10,10 @@ tags = ["import"]
 tags = ["vcard"]
 
 ["test_ThunderbirdProfileImporter.js"]
+support-files = [
+  "../../../../mail/components/addrbook/test/browser/data/import.mab",
+  "../../../../mail/components/addrbook/test/browser/data/import.sql",
+]
 
 ["test_outlook_settings.js"]
 run-if = ["os == 'win'"]
