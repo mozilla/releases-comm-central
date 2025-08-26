@@ -10,17 +10,26 @@ var markreadElement = null;
 var numberElement = null;
 
 var nntpServer = null;
-var args = null;
+var propBag, args;
 
-window.addEventListener("load", OnLoad);
-document.addEventListener("dialogaccept", OkButtonCallback);
-document.addEventListener("dialogcancel", CancelButtonCallback);
+window.addEventListener("load", onLoad);
+window.addEventListener("unload", onUnload);
+document.addEventListener("dialogaccept", onOK);
+document.addEventListener("dialogcancel", onCancel);
 
-function OnLoad() {
+function onLoad() {
   const newsBundle = document.getElementById("bundle_news");
 
   if ("arguments" in window && window.arguments[0]) {
-    args = window.arguments[0].QueryInterface(Ci.nsINewsDownloadDialogArgs);
+    propBag = window.arguments[0]
+      .QueryInterface(Ci.nsIWritablePropertyBag2)
+      .QueryInterface(Ci.nsIWritablePropertyBag);
+    // Convert to a JS object.
+    args = {};
+    for (const prop of propBag.enumerator) {
+      args[prop.name] = prop.value;
+    }
+
     /* by default, act like the user hit cancel */
     args.hitOK = false;
     /* by default, act like the user did not select download all */
@@ -54,6 +63,13 @@ function OnLoad() {
   return true;
 }
 
+function onUnload() {
+  // Convert args back into property bag.
+  for (const propName in args) {
+    propBag.setProperty(propName, args[propName]);
+  }
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (!element) {
@@ -67,7 +83,7 @@ function setText(id, value) {
   element.appendChild(textNode);
 }
 
-function OkButtonCallback() {
+function onOK() {
   nntpServer.maxArticles = numberElement.value;
   nntpServer.markOldRead = markreadElement.checked;
 
@@ -79,7 +95,7 @@ function OkButtonCallback() {
   args.hitOK = true;
 }
 
-function CancelButtonCallback() {
+function onCancel() {
   args.hitOK = false;
 }
 

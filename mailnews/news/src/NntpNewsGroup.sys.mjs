@@ -82,22 +82,25 @@ export class NntpNewsGroup {
         this._server.notifyOn
       ) {
         // Show a dialog to let user decide how many articles to download.
-        const args = Cc[
-          "@mozilla.org/messenger/newsdownloaddialogargs;1"
-        ].createInstance(Ci.nsINewsDownloadDialogArgs);
-        args.articleCount = end - start + 1;
-        args.groupName = this._folder.name;
-        args.serverKey = this._server.key;
+
+        const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+          Ci.nsIWritablePropertyBag2
+        );
+        propBag.setPropertyAsInt32("articleCount", end - start + 1);
+        propBag.setPropertyAsAString("groupName", this._folder.name);
+        propBag.setPropertyAsACString("serverKey", this._server.key);
         this._msgWindow.domWindow.openDialog(
           "chrome://messenger/content/downloadheaders.xhtml",
           "_blank",
           "centerscreen,chrome,modal,titlebar",
-          args
+          propBag
         );
-        if (!args.hitOK) {
+        if (!propBag.getPropertyAsBool("hitOK")) {
           return [];
         }
-        start = args.downloadAll ? start : end - this._server.maxArticles + 1;
+        start = propBag.getPropertyAsBool("downloadAll")
+          ? start
+          : end - this._server.maxArticles + 1;
         if (this._server.markOldRead) {
           this._readKeySet.addRange(firstPossible, start - 1);
           this._commitReadKeySet = true;
