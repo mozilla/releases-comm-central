@@ -314,7 +314,7 @@ mapping:
         description: "Debian package for Linux platforms"
         all_locales: true
         from:
-            - repackage
+            - release-deb-repackage
         only_for_platforms:
             - linux-shippable
             - linux64-shippable
