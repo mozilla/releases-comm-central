@@ -1243,7 +1243,7 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
       while (end + 1 < count) {
         nsAutoString curarg;
         aCmdLine->GetArgument(end + 1, curarg);
-        if (curarg.First() == '-') break;
+        if (!curarg.IsEmpty() && curarg.First() == '-') break;
 
         uristr.Append(' ');
         uristr.Append(curarg);
