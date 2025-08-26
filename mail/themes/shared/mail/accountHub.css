@@ -20,7 +20,7 @@ dialog {
   --hub-account-button-background-hover: light-dark(var(--color-ink-10), var(--color-gray-80));
   --hub-account-button-background-hover-active: light-dark(var(--color-gray-10), var(--color-gray-90));
   --hub-account-button-border-color: light-dark(var(--color-gray-30), var(--color-gray-60));
-  --hub-account-primary-button-color: var(--color-neutral-base);
+  --hub-account-primary-button-color: var(--color-surface-base);
   --hub-account-primary-button-background: var(--color-primary-default);
   --hub-account-primary-button-background-hover: var(--color-primary-hover);
   --hub-account-primary-button-background-active: var(--color-primary-pressed);
@@ -28,18 +28,19 @@ dialog {
   --hub-account-primary-button-border: var(--color-primary-hover);
   --hub-account-primary-button-border-active: var(--color-primary-pressed);
   --hub-account-secondary-button-color: light-dark(#18181b, #eeeef0);
-  --hub-account-secondary-button-background: var(--color-neutral-subtle);
-  --hub-account-secondary-button-background-hover: light-dark(var(--color-neutral-subtle), var(--color-neutral-base));
-  --hub-account-secondary-button-background-active: light-dark(var(--color-neutral-border), var(--color-neutral-lower));
-  --hub-account-secondary-button-background-focus: light-dark(var(--color-neutral-subtle), var(--color-neutral-base));
-  --hub-account-secondary-button-border: var(--color-neutral-border);
-  --hub-account-secondary-button-border-active: var(--color-neutral-border-intense);
+  --hub-account-secondary-button-background: var(--color-surface-subtle);
+  /* TODO: Update to use proper defined light-dark varients from colors.css */
+  --hub-account-secondary-button-background-hover: light-dark(var(--color-surface-subtle), var(--color-surface-base));
+  --hub-account-secondary-button-background-active: light-dark(var(--color-surface-border), var(--color-surface-lower));
+  --hub-account-secondary-button-background-focus: light-dark(var(--color-surface-subtle), var(--color-surface-base));
+  --hub-account-secondary-button-border: var(--color-surface-border);
+  --hub-account-secondary-button-border-active: var(--color-surface-border-intense);
   --hub-account-button-outline-focus: var(--color-primary-hover);
-  --hub-account-button-hover-active-color:  light-dark(var(--color-neutral-border), var(--color-neutral-lower));
+  --hub-account-button-hover-active-color:  light-dark(var(--color-surface-border), var(--color-surface-lower));
   --hub-account-footer-link-color: var(--color-primary-default);
   --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
-  --hub-divider-color: var(--color-neutral-base);
-  --hub-loader-background: var(--color-neutral-base);
+  --hub-divider-color: var(--color-surface-base);
+  --hub-loader-background: var(--color-surface-base);
   --hub-loader-color: var(--color-primary-default);
   --hub-floating-button-line-height: 1.3em;
   --hub-width: 500px;
@@ -49,10 +50,10 @@ dialog {
   --hub-input-border-radius: 3px;
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
   --hub-close-button-color: light-dark(#18181b, #eeeef0);
-  --hub-close-button-hover-background: var(--color-neutral-subtle);
+  --hub-close-button-hover-background: var(--color-surface-subtle);
   --hub-close-button-active-background:var(--color-text-muted);
-  --hub-close-button-focus-background: var(--color-neutral-subtle);
-  --hub-close-button-focus-outline-color: var(--color-neutral-border-intense);
+  --hub-close-button-focus-background: var(--color-surface-subtle);
+  --hub-close-button-focus-outline-color: var(--color-surface-border-intense);
 
   --success-illustration: var(--hub-success-illustration);
   /* TODO: apply dark mode styling */
@@ -142,7 +143,7 @@ dialog {
   border-radius: inherit;
   border: 1px solid var(--hub-border-color);
   /* Background color to better hide loading of the webp (>=100ms) */
-  background-color: var(--color-neutral-base);
+  background-color: var(--color-surface-base);
   background-image: url("chrome://messenger/skin/images/accounthub-bg-light.webp");
   background-position: center center;
   background-repeat: no-repeat;

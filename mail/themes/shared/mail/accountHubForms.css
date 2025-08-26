@@ -5,18 +5,18 @@
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 form {
-  --hub-input-bg-color: light-dark(var(--color-neutral-base), #18181b);
+  --hub-input-bg-color: light-dark(var(--color-surface-base), #18181b);
   --hub-select-color: light-dark(var(--color-text-base), currentColor);
   --hub-floating-button-inset-block-end: 168px;
   --hub-menulist-color: var(--color-text-base);
-  --hub-menulist-background-color: var(--color-neutral-subtle);
-  --hub-menulist-background-color-hover-focus-open: var(--color-neutral-base);
-  --hub-menulist-border-color: var(--color-neutral-border);
-  --hub-menulist-border-color-hover-focus-open: var(--color-neutral-border-intense);
+  --hub-menulist-background-color: var(--color-surface-subtle);
+  --hub-menulist-background-color-hover-focus-open: var(--color-surface-base);
+  --hub-menulist-border-color: var(--color-surface-border);
+  --hub-menulist-border-color-hover-focus-open: var(--color-surface-border-intense);
   --hub-menulist-outline-offset-color: var(--color-primary-default);
   --hub-menulist-label-color: var(--color-text-base);
-  --hub-menupopup-border-color: var(--color-neutral-border);
-  --hub-menuitem-color-selected: var(--color-neutral-base);
+  --hub-menupopup-border-color: var(--color-surface-border);
+  --hub-menuitem-color-selected: var(--color-surface-base);
   --hub-menuitem-background-color-selected: var(--color-primary-default);
   --hub-form-input-line-height: 1em;
   --hub-form-label-font-size: 1rem;
@@ -28,14 +28,14 @@ form {
     box-sizing: border-box;
     width: 16px;
     height: 16px;
-    border: 1px solid var(--color-neutral-border-intense);
+    border: 1px solid var(--color-surface-border-intense);
     border-radius: 4px;
     appearance: none;
-    background-color: var(--color-neutral-lower);
+    background-color: var(--color-surface-lower);
 
     &:disabled {
-      border: 1px solid var(--color-neutral-border);
-      background-color: var(--color-neutral-subtle);
+      border: 1px solid var(--color-surface-border);
+      background-color: var(--color-surface-subtle);
 
       &+.checkbox-label {
         color: var(--color-text-muted);
@@ -47,11 +47,11 @@ form {
       content: url("chrome://messenger/skin/overrides/check.svg");
       background-color: var(--color-primary-default);
       border-color: var(--color-primary-hover);
-      fill: var(--color-neutral-base);
+      fill: var(--color-surface-base);
 
       &:disabled {
-        background-color: var(--color-neutral-border);
-        border-color: var(--color-neutral-border);
+        background-color: var(--color-surface-border);
+        border-color: var(--color-surface-border);
         fill: var(--color-text-muted);
       }
     }
@@ -92,8 +92,8 @@ form {
   .selected-option {
     padding-block: 13px;
     padding-inline: 10px;
-    background: var(--color-neutral-subtle);
-    border: 1px solid var(--color-neutral-border);
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-surface-border);
     margin-block-start: 5px;
     border-radius: 2px;
     color: var(--hub-select-color);
@@ -111,7 +111,7 @@ form {
     margin-inline: 0;
     padding-block: var(--hub-form-input-block-padding);
     padding-inline: 9px 30px;
-    border: 1px solid var(--color-neutral-border);
+    border: 1px solid var(--color-surface-border);
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
     max-width: 100%;
@@ -144,7 +144,7 @@ form {
       transform: translateY(-102%);
       font-weight: 600;
       cursor: default;
-      background-color: var(--color-neutral-base);
+      background-color: var(--color-surface-base);
     }
 
     &.number-input {
@@ -155,9 +155,9 @@ form {
       &::-moz-number-spin-box {
         height: 100%;
         width: 22px;
-        border-inline-start: 1px solid var(--color-neutral-border);
+        border-inline-start: 1px solid var(--color-surface-border);
         border-inline-end: 0;
-        background: var(--color-neutral-subtle);
+        background: var(--color-surface-subtle);
         align-items: center;
         cursor: pointer;
       }
@@ -173,7 +173,7 @@ form {
       }
 
       &::-moz-number-spin-up {
-        border-block-end: 1px solid var(--color-neutral-border);
+        border-block-end: 1px solid var(--color-surface-border);
         content: var(--icon-nav-up-sm);
       }
 
@@ -213,7 +213,7 @@ form {
   .menulist,
   .input-field {
      & ~ .input-error-message {
-      color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       display: none;
       position: absolute;
       bottom: calc(-1 * var(--hub-form-input-line-height) - 5px);
@@ -230,7 +230,7 @@ form {
         margin-block: 2px -15px;
 
         & #moreInfoLink {
-          color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+          color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
           text-decoration: underline;
         }
       }
@@ -243,16 +243,16 @@ form {
     &:user-invalid,
     &.manual-input:invalid,
     &.warning {
-      border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
-      outline: 1px solid light-dark(var(--color-danger-default), var(--color-danger-pressed));
+      border-color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+      outline: 1px solid light-dark(var(--color-critical-default), var(--color-critical-pressed));
       outline-offset: 0;
 
       &:focus {
-        border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+        border-color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       }
 
       & ~ label {
-        color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
+        color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       }
 
       & ~ .input-error-message {
@@ -268,7 +268,7 @@ form {
   xul|menupopup.menupopup {
     --arrowpanel-padding: 3px 0;
     --arrowpanel-border-radius: 6px;
-    --panel-background: var(--color-neutral-base);
+    --panel-background: var(--color-surface-base);
     --panel-color: var(--arrowpanel-color);
     --panel-border-color: var(--hub-menupopup-border-color);
     --panel-border-radius: var(--hub-input-border-radius);
@@ -429,9 +429,9 @@ div:has(legend) {
   }
 
   &.error {
-    background-color: var(--color-danger-soft);
-    color: var(--color-danger-pressed);
-    border-color: var(--color-danger-default);
+    background-color: var(--color-critical-soft);
+    color: var(--color-critical-pressed);
+    border-color: var(--color-critical-default);
   }
 
   &.warning {
@@ -552,7 +552,7 @@ div:has(legend) {
         margin-inline-end: 8px;
         width: 15px;
         height: 15px;
-        border: 1px solid var(--color-neutral-border-intense);
+        border: 1px solid var(--color-surface-border-intense);
         border-radius: 50%;
         display: grid;
         place-content: center;
@@ -563,7 +563,7 @@ div:has(legend) {
           height: 5px;
           border-radius: 50%;
           transform: scale(0);
-          box-shadow: inset 1em 1em var(--color-neutral-base);
+          box-shadow: inset 1em 1em var(--color-surface-base);
         }
 
         &:checked::before {
@@ -586,13 +586,13 @@ div:has(legend) {
 
       & .config-title {
         background-color: var(--color-primary-default);
-        color: var(--color-neutral-base);
+        color: var(--color-surface-base);
         padding-block: var(--hub-config-option-padding-block);
       }
 
       & .config-text {
         color: light-dark(#15427c, var(--color-text-base));
-        background-color: var(--color-neutral-base);
+        background-color: var(--color-surface-base);
         padding-block: var(--hub-config-option-padding-block);
       }
 
@@ -608,7 +608,7 @@ div:has(legend) {
 
       & input[type="radio"]:checked {
         border-width: 2px;
-        border-color: var(--color-neutral-base);
+        border-color: var(--color-surface-base);
       }
     }
   }
@@ -619,7 +619,7 @@ div:has(legend) {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background-color: var(--color-neutral-base);
+    background-color: var(--color-surface-base);
     padding: 6px;
     border: 1px solid var(--color-primary-default);
     border-radius: 10px;
@@ -721,13 +721,13 @@ div:has(legend) {
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-neutral-border);
+  border: 1px solid var(--color-surface-border);
   border-radius: 8px;
   height: 240px;
   font-size: 1.1rem;
   margin: 0;
   padding: 0;
-  background-color: var(--color-neutral-base);
+  background-color: var(--color-surface-base);
   overflow: hidden;
   min-width: 0;
 
@@ -738,8 +738,8 @@ div:has(legend) {
     gap: var(--hub-sync-list-title-gap);
     padding: var(--hub-sync-list-title-padding);
     font-weight: bold;
-    background-color: var(--color-neutral-lower);
-    border-bottom: 1px solid var(--color-neutral-border);
+    background-color: var(--color-surface-lower);
+    border-bottom: 1px solid var(--color-surface-border);
     border-radius: 8px 8px 0 0;
 
     & .sync-details {
@@ -796,7 +796,7 @@ div:has(legend) {
     line-height: normal;
 
     &:nth-child(even) {
-      background-color: var(--color-neutral-lower);
+      background-color: var(--color-surface-lower);
     }
 
     & span {
@@ -845,7 +845,7 @@ button.account-hub-option-button {
   padding: var(--hub-address-book-option-padding);
   margin: 0;
   border: none;
-  background-color: var(--color-neutral-base);
+  background-color: var(--color-surface-base);
   width: 100%;
   box-shadow: 0 12px 10px -10px rgba(0, 79, 155, 0.25),
     0 0 5px 0 rgba(23, 95, 182, 0.1);
@@ -881,7 +881,7 @@ button.account-hub-option-button {
   }
 
   &:disabled {
-    background-color: var(--color-neutral-border);
+    background-color: var(--color-surface-border);
 
     & .option-title.account-title,
     & .option-data.account-data {
@@ -903,7 +903,7 @@ button.account-hub-option-button {
     grid-row: 1 / span 2;
     -moz-context-properties: fill, stroke;
     fill: light-dark(color-mix(in srgb, #feffff 20%, transparent), color-mix(in srgb, #1a202c 20%, transparent));
-    stroke: var(--color-neutral-base);
+    stroke: var(--color-surface-base);
     align-self: center;
     line-height: 0;
 
