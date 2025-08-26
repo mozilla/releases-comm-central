@@ -118,7 +118,7 @@
   --toolbar-field-highlight-color: var(--selected-item-text-color);
   --item-focus-selected-border-color: light-dark(#0060df, #bebebf);
   --default: light-dark(#4f526d, #dcdcdc);
-  --primary: light-dark(#0a84ff, #45b1ff);
+  --primary: var(--color-primary-default);
   --select-focus-text-color: var(--selected-item-text-color);
   --select-focus-background-color: var(--selected-item-color);
   /* Wrapper for toolkit variables */
