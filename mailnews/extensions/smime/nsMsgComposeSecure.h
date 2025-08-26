@@ -54,7 +54,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport* sendReport);
   nsresult MimeFinishMultipartSigned(bool aOuter, nsIMsgSendReport* sendReport);
   nsresult MimeFinishEncryption(bool aSign, nsIMsgSendReport* sendReport);
-  nsresult MimeCryptoHackCerts(const char* aRecipients,
+  nsresult MimeCryptoHackCerts(const nsACString& aRecipients,
                                nsIMsgSendReport* sendReport, bool aEncrypt,
                                bool aSign, nsIMsgIdentity* aIdentity);
   bool InitializeSMIMEBundle();

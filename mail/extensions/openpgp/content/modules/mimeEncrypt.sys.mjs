@@ -35,6 +35,7 @@ function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.bccRecipients = "";
   this.originalSubject = null;
   this.autocryptGossipHeaders = "";
+  this.headers = "";
 
   try {
     if (sMimeSecurityInfo) {
@@ -114,6 +115,7 @@ PgpMimeEncrypt.prototype = {
     outStream,
     recipientList,
     msgCompFields,
+    headers,
     msgIdentity,
     sendReport,
     isDraft
@@ -124,6 +126,7 @@ PgpMimeEncrypt.prototype = {
 
     this.outStream = outStream;
     this.isDraft = isDraft;
+    this.headers = headers;
 
     this.msgCompFields = msgCompFields;
     this.outStringStream = Cc[
@@ -177,103 +180,14 @@ PgpMimeEncrypt.prototype = {
   writeSecureHeaders() {
     this.encHeader = lazy.EnigmailMime.createBoundary();
 
-    let allHdr = "";
-
-    const addrParser = lazy.jsmime.headerparser.parseAddressingHeader;
-    const newsParser = function (s) {
-      return lazy.jsmime.headerparser.parseStructuredHeader("Newsgroups", s);
-    };
-    const noParser = function (s) {
-      return s;
-    };
-
-    const h = {
-      from: {
-        field: "From",
-        parser: addrParser,
-      },
-      replyTo: {
-        field: "Reply-To",
-        parser: addrParser,
-      },
-      to: {
-        field: "To",
-        parser: addrParser,
-      },
-      cc: {
-        field: "Cc",
-        parser: addrParser,
-      },
-      newsgroups: {
-        field: "Newsgroups",
-        parser: newsParser,
-      },
-      followupTo: {
-        field: "Followup-To",
-        parser: addrParser,
-      },
-      messageId: {
-        field: "Message-Id",
-        parser: noParser,
-      },
-      subject: {
-        field: "Subject",
-        parser: noParser,
-      },
-    };
-
-    let alreadyAddedSubject = false;
-
-    if (
-      (this.mimeStructure == MIME_ENCRYPTED ||
-        this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
-      this.originalSubject &&
-      this.originalSubject.length > 0
-    ) {
-      alreadyAddedSubject = true;
-      allHdr += lazy.jsmime.headeremitter.emitStructuredHeader(
-        "subject",
-        this.originalSubject,
-        {}
-      );
-    }
-
-    for (const i in h) {
-      if (h[i].field == "Subject" && alreadyAddedSubject) {
-        continue;
-      }
-      if (this.msgCompFields[i] && this.msgCompFields[i].length > 0) {
-        allHdr += lazy.jsmime.headeremitter.emitStructuredHeader(
-          h[i].field,
-          h[i].parser(this.msgCompFields[i]),
-          {}
-        );
-      }
-    }
-
-    // special handling for references and in-reply-to
-
-    if (this.originalReferences && this.originalReferences.length > 0) {
-      allHdr += lazy.jsmime.headeremitter.emitStructuredHeader(
-        "references",
-        this.originalReferences,
-        {}
-      );
-
-      const bracket = this.originalReferences.lastIndexOf("<");
-      if (bracket >= 0) {
-        allHdr += lazy.jsmime.headeremitter.emitStructuredHeader(
-          "in-reply-to",
-          this.originalReferences.substr(bracket),
-          {}
-        );
-      }
+    if (!this.headers) {
+      throw new Error("OpenPGP message creation requires prepared headers");
     }
 
     let w = `Content-Type: multipart/mixed; boundary="${this.encHeader}"`;
 
-    if (allHdr.length > 0) {
-      w += `;\r\n protected-headers="v1"\r\n${allHdr}`;
+    if (this.headers) {
+      w += `;\r\n protected-headers="v1"\r\n${this.headers}`;
     } else {
       w += "\r\n";
     }

@@ -323,11 +323,10 @@ static nsresult GetSigningHashFunction(nsIX509Cert* aSigningCert,
   return NS_OK;
 }
 
-/* void beginCryptoEncapsulation (in nsOutputFileStream aStream, in boolean
- * aEncrypt, in boolean aSign, in string aRecipeints, in boolean aIsDraft); */
 NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(
-    nsIOutputStream* aStream, const char* aRecipients,
-    nsIMsgCompFields* aCompFields, nsIMsgIdentity* aIdentity,
+    nsIOutputStream* aStream, const nsACString& aRecipients,
+    nsIMsgCompFields* aCompFields,
+    const nsACString& aOptionalPrepreparedHeaders, nsIMsgIdentity* aIdentity,
     nsIMsgSendReport* sendReport, bool aIsDraft) {
   mErrorAlreadyReported = false;
   nsresult rv = NS_OK;
@@ -786,7 +785,7 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
 
 /* Used to figure out what certs should be used when encrypting this message.
  */
-nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
+nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const nsACString& aRecipients,
                                                  nsIMsgSendReport* sendReport,
                                                  bool aEncrypt, bool aSign,
                                                  nsIMsgIdentity* aIdentity) {
@@ -890,8 +889,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
   /* If the message is to be encrypted, then get the recipient certs */
   if (aEncrypt) {
     nsTArray<nsCString> mailboxes;
-    ExtractEmails(EncodedHeader(nsDependentCString(aRecipients)),
-                  UTF16ArrayAdapter<>(mailboxes));
+    ExtractEmails(EncodedHeader(aRecipients), UTF16ArrayAdapter<>(mailboxes));
     uint32_t count = mailboxes.Length();
 
     bool already_added_self_cert = false;

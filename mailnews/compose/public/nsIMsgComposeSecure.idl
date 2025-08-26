@@ -72,11 +72,18 @@ interface nsIMsgComposeSecure : nsISupports
      * @param aRecipients - RFC 2047-encoded list of all recipients (To:, Cc:, Bcc:, ... fields), separated by "," or ", "
      *                      Recipients contain name and email addresses, just like they will be put into the message headers
      * @param compFields  - Attributes of the composed message
+     * @param headers     - All top level message headers as a string
      * @param aIdentity   - The sender's identity
      * @param sendReport  - Report feedback to the user
      * @param aIsDraft    - True if send operation saves draft/template/etc., false if message is really sent (or sent later)
      */
-    void beginCryptoEncapsulation(in nsIOutputStream aStream, in string aRecipients, in nsIMsgCompFields aCompFields, in nsIMsgIdentity aIdentity, in nsIMsgSendReport sendReport, in boolean aIsDraft);
+    void beginCryptoEncapsulation(in nsIOutputStream aStream,
+                                  in AUTF8String aRecipients,
+                                  in nsIMsgCompFields aCompFields,
+                                  in AUTF8String headers,
+                                  in nsIMsgIdentity aIdentity,
+                                  in nsIMsgSendReport sendReport,
+                                  in boolean aIsDraft);
 
     /**
      * Process a part of the message data. Called multiple times, usually for every

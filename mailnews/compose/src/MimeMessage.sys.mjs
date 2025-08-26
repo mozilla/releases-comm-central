@@ -474,8 +474,10 @@ export class MimeMessage {
   /**
    * Pass a stream and other params to this._composeSecure to start crypto
    * encapsulation.
+   *
+   * @param {?string} headers - Top level headers to protect, if any.
    */
-  _startCryptoEncapsulation() {
+  _startCryptoEncapsulation(headers) {
     const recipients = [
       this._compFields.to,
       this._compFields.cc,
@@ -489,6 +491,7 @@ export class MimeMessage {
       this._fstream,
       recipients,
       this._compFields,
+      headers,
       this._userIdentity,
       this._sendReport,
       this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft
@@ -527,13 +530,15 @@ export class MimeMessage {
       }
     }
 
+    const allHdrsStr = curPart.getHeaderString();
+
     // Write out headers, there could be non-ASCII in the headers
     // which we need to encode into UTF-8.
-    this._writeString(curPart.getHeaderString());
+    this._writeString(allHdrsStr);
 
     // Start crypto encapsulation if needed.
     if (depth == 0 && this._composeSecure) {
-      this._startCryptoEncapsulation();
+      this._startCryptoEncapsulation(allHdrsStr);
     }
 
     // Recursively write out parts.
