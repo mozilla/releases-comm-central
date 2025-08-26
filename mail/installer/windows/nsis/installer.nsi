@@ -36,6 +36,7 @@ Var InstallMaintenanceService
 Var InstallOptionalExtensions
 Var PageName
 Var PreventRebootRequired
+Var RegHive
 Var RegisterDefaultAgent
 
 ; By defining NO_STARTMENU_DIR an installer that doesn't provide an option for
@@ -394,11 +395,11 @@ Section "-Application" APP_IDX
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
-    StrCpy $TmpVal "HKCU" ; used primarily for logging
+    StrCpy $RegHive "HKCU" ; used primarily for logging
   ${Else}
     SetShellVarContext all  ; Set SHCTX to HKLM
     DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
-    StrCpy $TmpVal "HKLM" ; used primarily for logging
+    StrCpy $RegHive "HKLM" ; used primarily for logging
     ${RegCleanMain} "Software\Mozilla"
     ${RegCleanUninstall}
     ${UpdateProtocolHandlers}
@@ -448,7 +449,7 @@ Section "-Application" APP_IDX
                       "${AppRegNameCalendar} Document" "" ""
 
   ; The keys below can be set in HKCU if needed.
-  ${If} $TmpVal == "HKLM"
+  ${If} $RegHive == "HKLM"
     ; Set the Start Menu Mail/News and Registered App HKLM registry keys.
     ${SetClientsMail} "HKLM"
     ${SetClientsNews} "HKLM"
@@ -471,7 +472,7 @@ Section "-Application" APP_IDX
     Pop $R0
     ${If} $R0 == "true"
     ; Only proceed if we have HKLM write access
-    ${AndIf} $TmpVal == "HKLM"
+    ${AndIf} $RegHive == "HKLM"
       ; The user is an admin, so we should default to installing the service.
       StrCpy $InstallMaintenanceService "1"
     ${Else}
@@ -492,10 +493,10 @@ Section "-Application" APP_IDX
   ; These need special handling on uninstall since they may be overwritten by
   ; an install into a different location.
   StrCpy $0 "Software\Microsoft\Windows\CurrentVersion\App Paths\${FileMainEXE}"
-  ${WriteRegStr2} $TmpVal "$0" "" "$INSTDIR\${FileMainEXE}" 0
-  ${WriteRegStr2} $TmpVal "$0" "Path" "$INSTDIR" 0
+  ${WriteRegStr2} $RegHive "$0" "" "$INSTDIR\${FileMainEXE}" 0
+  ${WriteRegStr2} $RegHive "$0" "Path" "$INSTDIR" 0
 
-  ${WriteToastNotificationRegistration} $TmpVal
+  ${WriteToastNotificationRegistration} $RegHive
 
   ; Create shortcuts
   ${LogHeader} "Adding Shortcuts"
@@ -519,7 +520,7 @@ Section "-Application" APP_IDX
   Call FixShortcutAppModelIDs
   ; If the current context is all also perform Win7 taskbar and start menu link
   ; maintenance for the current user context.
-  ${If} $TmpVal == "HKLM"
+  ${If} $RegHive == "HKLM"
     SetShellVarContext current  ; Set SHCTX to HKCU
     Call FixShortcutAppModelIDs
     SetShellVarContext all  ; Set SHCTX to HKLM
@@ -562,9 +563,9 @@ Section "-Application" APP_IDX
   ${TouchStartMenuShortcut}
   SetShellVarContext current
   ${TouchStartMenuShortcut}
-  ${If} $TmpVal == "HKLM"
+  ${If} $RegHive == "HKLM"
     SetShellVarContext all
-  ${ElseIf} $TmpVal == "HKCU"
+  ${ElseIf} $RegHive == "HKCU"
     SetShellVarContext current
   ${EndIf}
 
@@ -584,7 +585,7 @@ Section "-Application" APP_IDX
   ${EndIf}
 
 !ifdef MOZ_MAINTENANCE_SERVICE
-  ${If} $TmpVal == "HKLM"
+  ${If} $RegHive == "HKLM"
     ; Add the registry keys for allowed certificates.
     ${AddMaintCertKeys}
   ${EndIf}

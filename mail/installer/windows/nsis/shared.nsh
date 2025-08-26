@@ -28,11 +28,11 @@
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
-    StrCpy $TmpVal "HKCU"
+    StrCpy $RegHive "HKCU"
   ${Else}
     SetShellVarContext all    ; Set SHCTX to all users (e.g. HKLM)
     DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
-    StrCpy $TmpVal "HKLM"
+    StrCpy $RegHive "HKLM"
     ${RegCleanMain} "Software\Mozilla"
     ${RegCleanUninstall}
     ${UpdateProtocolHandlers}
@@ -87,9 +87,9 @@
   ${UpdateShortcutsBranding}
   ${TouchStartMenuShortcut}
   Call FixShortcutAppModelIDs
-  ${If} $TmpVal == "HKLM"
+  ${If} $RegHive == "HKLM"
     SetShellVarContext all
-  ${ElseIf} $TmpVal == "HKCU"
+  ${ElseIf} $RegHive == "HKCU"
     SetShellVarContext current
   ${EndIf}
 
@@ -116,7 +116,7 @@
   Pop $R0
   ${If} $R0 == "true"
   ; Only proceed if we have HKLM write access
-  ${AndIf} $TmpVal == "HKLM"
+  ${AndIf} $RegHive == "HKLM"
     ; We check to see if the maintenance service install was already attempted.
     ; Since the Maintenance service can be installed either x86 or x64,
     ; always use the 64-bit registry for checking if an attempt was made.
@@ -156,7 +156,7 @@
   ${EndIf}
 !endif
 
-  ${WriteToastNotificationRegistration} $TmpVal
+  ${WriteToastNotificationRegistration} $RegHive
 !macroend
 !define PostUpdate "!insertmacro PostUpdate"
 
@@ -690,30 +690,40 @@
   ${EndIf}
 
   ${GetLongPath} "$INSTDIR" $8
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion} (${AB_CD})\Main"
-  ${WriteRegStr2} $TmpVal "$0" "Install Directory" "$8" 0
-  ${WriteRegStr2} $TmpVal "$0" "PathToExe" "$8\${FileMainEXE}" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion}$3 (${ARCH} ${AB_CD})\Main"
+  ${WriteRegStr2} $RegHive "$0" "Install Directory" "$8" 0
+  ${WriteRegStr2} $RegHive "$0" "PathToExe" "$8\${FileMainEXE}" 0
 
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion} (${AB_CD})\Uninstall"
-  ${WriteRegStr2} $TmpVal "$0" "Description" "${BrandFullNameInternal} ${AppVersion} (${ARCH} ${AB_CD})" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion}$3 (${ARCH} ${AB_CD})\Uninstall"
+  ${WriteRegStr2} $RegHive "$0" "Description" "${BrandFullNameInternal} ${AppVersion}$3 (${ARCH} ${AB_CD})" 0
 
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion} (${AB_CD})"
-  ${WriteRegStr2} $TmpVal  "$0" "" "${AppVersion} (${AB_CD})" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion}$3 (${ARCH} ${AB_CD})"
+  ${WriteRegStr2} $RegHive  "$0" "" "${AppVersion}$3 (${ARCH} ${AB_CD})" 0
+  ${If} "$3" == ""
+    DeleteRegValue SHCTX "$0" "ESR"
+  ${Else}
+    ${WriteRegDWORD2} $RegHive "$0" "ESR" 1 0
+  ${EndIf}
 
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}\bin"
-  ${WriteRegStr2} $TmpVal "$0" "PathToExe" "$8\${FileMainEXE}" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}$3\bin"
+  ${WriteRegStr2} $RegHive "$0" "PathToExe" "$8\${FileMainEXE}" 0
 
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}\extensions"
-  ${WriteRegStr2} $TmpVal "$0" "Components" "$8\components" 0
-  ${WriteRegStr2} $TmpVal "$0" "Plugins" "$8\plugins" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}$3\extensions"
+  ${WriteRegStr2} $RegHive "$0" "Components" "$8\components" 0
+  ${WriteRegStr2} $RegHive "$0" "Plugins" "$8\plugins" 0
 
-  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}"
-  ${WriteRegStr2} $TmpVal "$0" "GeckoVer" "${GREVersion}" 0
+  StrCpy $0 "Software\Mozilla\${BrandFullNameInternal} ${AppVersion}$3"
+  ${WriteRegStr2} $RegHive "$0" "GeckoVer" "${GREVersion}" 0
+  ${If} "$3" == ""
+    DeleteRegValue SHCTX "$0" "ESR"
+  ${Else}
+    ${WriteRegDWORD2} $RegHive "$0" "ESR" 1 0
+  ${EndIf}
 
   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}"
-  ${WriteRegStr2} $TmpVal "$0" "" "${AppVersion}" 0
-  ${WriteRegStr2} $TmpVal "$0" "CurrentVersion" "${AppVersion} (${AB_CD})" 0
-  ${WriteRegStr2} $TmpVal "$0" "GeckoVersion" "${GREVersion}" 0
+  ${WriteRegStr2} $RegHive "$0" "" "${AppVersion}" 0
+  ${WriteRegStr2} $RegHive "$0" "CurrentVersion" "${AppVersion}$3 (${ARCH} ${AB_CD})" 0
+  ${WriteRegStr2} $RegHive "$0" "GeckoVersion" "${GREVersion}" 0
 !macroend
 !define SetAppKeys "!insertmacro SetAppKeys"
 
@@ -730,7 +740,7 @@
     StrCpy $3 " ESR"
   ${EndIf}
 
-  StrCpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${BrandFullNameInternal} ${AppVersion} (${ARCH} ${AB_CD})"
+  StrCpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${BrandFullNameInternal} ${AppVersion}$3 (${ARCH} ${AB_CD})"
 
   StrCpy $2 ""
   ClearErrors
@@ -758,9 +768,9 @@
 
 
     ; Write the uninstall registry keys
-    ${WriteRegStr2} $1 "$0" "Comments" "${BrandFullNameInternal} ${AppVersion} (${ARCH} ${AB_CD})" 0
+    ${WriteRegStr2} $1 "$0" "Comments" "${BrandFullNameInternal} ${AppVersion}$3 (${ARCH} ${AB_CD})" 0
     ${WriteRegStr2} $1 "$0" "DisplayIcon" "$8\${FileMainEXE},0" 0
-    ${WriteRegStr2} $1 "$0" "DisplayName" "${BrandFullNameInternal} (${ARCH} ${AB_CD})" 0
+    ${WriteRegStr2} $1 "$0" "DisplayName" "${BrandFullNameInternal}$3 (${ARCH} ${AB_CD})" 0
     ${WriteRegStr2} $1 "$0" "DisplayVersion" "${AppVersion}" 0
     ${WriteRegStr2} $1 "$0" "InstallLocation" "$8" 0
     ${WriteRegStr2} $1 "$0" "Publisher" "Mozilla" 0
@@ -773,7 +783,7 @@
     ${GetSize} "$8" "/S=0K" $R2 $R3 $R4
     ${WriteRegDWORD2} $1 "$0" "EstimatedSize" $R2 0
 
-    ${If} "$TmpVal" == "HKLM"
+    ${If} "$RegHive" == "HKLM"
       SetShellVarContext all     ; Set SHCTX to all users (e.g. HKLM)
     ${Else}
       SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
@@ -1234,7 +1244,7 @@
           ${EndIf}
         ${EndIf}
 
-        ${If} $TmpVal == "HKCU"
+        ${If} $RegHive == "HKCU"
           SetShellVarContext current ; Set SHCTX to the current user
         ${Else}
           SetShellVarContext all ; Set SHCTX to all users
