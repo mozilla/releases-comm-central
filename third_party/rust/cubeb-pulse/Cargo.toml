@@ -37,7 +37,7 @@ crate-type = [
 path = "src/lib.rs"
 
 [dependencies]
-cubeb-backend = "0.29"
+cubeb-backend = "0.30.1"
 ringbuf = "0.2"
 semver = "1.0"
 

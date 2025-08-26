@@ -78,7 +78,11 @@ pub fn set_logging(level: LogLevel, f: Option<fn(s: &CStr)>) -> Result<()> {
     unsafe {
         call!(ffi::cubeb_set_log_callback(
             level.into(),
-            Some(cubeb_write_log)
+            if level == LogLevel::Disabled {
+                None
+            } else {
+                Some(cubeb_write_log)
+            }
         ))
     }
 }
