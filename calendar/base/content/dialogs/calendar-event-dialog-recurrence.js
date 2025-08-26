@@ -284,7 +284,7 @@ const RecurrencePreview = {
  */
 const DaypickerWeekday = {
   /**
-   * Method intitializing DaypickerWeekday.
+   * Method initializing DaypickerWeekday.
    */
   init() {
     this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
@@ -346,7 +346,7 @@ const DaypickerWeekday = {
  */
 const DaypickerMonthday = {
   /**
-   * Method intitializing DaypickerMonthday.
+   * Method initializing DaypickerMonthday.
    */
   init() {
     const mainbox = document.querySelector(".daypicker-monthday-mainbox");

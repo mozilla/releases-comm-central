@@ -43,7 +43,7 @@ function createStorageCalendar(id) {
  *
  * @param {number} filterType - Number indicating the filter type.
  * @param {calIITemBase} originalItem - The original item to add to the calendar.
- * @param {object} originalProps - The initial properites of originalItem to
+ * @param {object} originalProps - The initial properties of originalItem to
  *  expect.
  * @param {object[]} changedPropList - A list containing property values to update
  *  each occurrence with or null. The length indicates how many occurrences to

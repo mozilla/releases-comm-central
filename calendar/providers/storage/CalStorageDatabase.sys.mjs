@@ -203,7 +203,7 @@ export class CalStorageDatabase {
   }
 
   /**
-   * Executes one or more SQL statemets.
+   * Executes one or more SQL statements.
    *
    * @param {mozIStorageAsyncStatement|mozIStorageAsyncStatement[]} aStmts
    * @param {Function} aCallback

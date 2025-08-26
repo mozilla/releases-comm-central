@@ -301,7 +301,7 @@ export var itip = {
    * This returns a JS object with the following structure:
    *
    * {
-   *    label: "This is a desciptive text about the itip item",
+   *    label: "This is a descriptive text about the itip item",
    *    showItems: ["imipXXXButton", ...],
    *    hideItems: ["imipXXXButton_Option", ...]
    * }
@@ -595,7 +595,7 @@ export var itip = {
   },
 
   /**
-   * Executes an action from a calandar message.
+   * Executes an action from a calendar message.
    *
    * @param {nsIWindow} aWindow - The current window
    * @param {string} aParticipantStatus - A partstat string as per RfC 5545

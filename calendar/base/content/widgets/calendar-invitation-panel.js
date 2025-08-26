@@ -666,37 +666,37 @@
 
     getChanges(oldValue, newValue) {
       const diff = [];
-      for (const attch of newValue) {
-        if (!attch.uri) {
+      for (const attach of newValue) {
+        if (!attach.uri) {
           continue;
         }
-        const oldAttch = oldValue.find(v => v.uri?.spec == attch.uri.spec);
+        const oldAttch = oldValue.find(v => v.uri?.spec == attach.uri.spec);
 
         if (!oldAttch) {
           // New attachment.
-          diff.push([attch, PROPERTY_ADDED]);
+          diff.push([attach, PROPERTY_ADDED]);
           continue;
         }
         if (
-          attch.hashId != oldAttch.hashId ||
-          attch.getParameter("FILENAME") != oldAttch.getParameter("FILENAME")
+          attach.hashId != oldAttch.hashId ||
+          attach.getParameter("FILENAME") != oldAttch.getParameter("FILENAME")
         ) {
           // Contents changed or renamed.
-          diff.push([attch, PROPERTY_MODIFIED]);
+          diff.push([attach, PROPERTY_MODIFIED]);
           continue;
         }
         // No change.
-        diff.push([attch, PROPERTY_UNCHANGED]);
+        diff.push([attach, PROPERTY_UNCHANGED]);
       }
 
       // Insert removed attachments into the diff.
-      for (const [idx, attch] of oldValue.entries()) {
-        if (!attch.uri) {
+      for (const [idx, attach] of oldValue.entries()) {
+        if (!attach.uri) {
           continue;
         }
-        const found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attch.uri.spec);
+        const found = newValue.find(newAtt => newAtt.uri && newAtt.uri.spec == attach.uri.spec);
         if (!found) {
-          diff.splice(idx, 0, [attch, PROPERTY_REMOVED]);
+          diff.splice(idx, 0, [attach, PROPERTY_REMOVED]);
         }
       }
       return diff;

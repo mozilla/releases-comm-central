@@ -246,7 +246,7 @@ function populateTime(guess, now, prop) {
 }
 
 /**
- * Coverts an hour using the Meridiem to a 24 hour value.
+ * Converts an hour using the Meridiem to a 24 hour value.
  *
  * @param {number} hour - The hour value.
  * @param {"am"|"pm"} meridiem - "am" or "pm"

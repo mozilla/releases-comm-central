@@ -55,7 +55,7 @@ async function onLoad() {
   }
 
   // This class is added to ensure the height of the dialog is correct once
-  // everthing has loaded.
+  // everything has loaded.
   dialog.classList.add("resize");
 
   // Start setting up the item summary custom element.
@@ -366,7 +366,7 @@ function openDescriptionContextMenu(event) {
 }
 
 /**
- * Copies the link text in a calender event description
+ * Copies the link text in a calendar event description
  *
  * @param {Event} event
  */

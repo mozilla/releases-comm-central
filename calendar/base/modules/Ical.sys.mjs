@@ -2377,7 +2377,7 @@ parse._handleContentLine = function(line, state) {
       throw new ParserError("Missing parameter value in '" + line + "'");
     }
   } else if (valuePos !== -1) {
-    // without parmeters (BEGIN:VCAENDAR, CLASS:PUBLIC)
+    // without parameters (BEGIN:VCAENDAR, CLASS:PUBLIC)
     name = line.slice(0, Math.max(0, valuePos)).toLowerCase();
     value = line.slice(Math.max(0, valuePos + 1));
 
@@ -2517,7 +2517,7 @@ parse._parseValue = function(value, type, designSet, structuredValue) {
  * @param {String} line               A single unfolded line
  * @param {Number} start              Position to start looking for properties
  * @param {Object} designSet          The design data to use for this property
- * @return {Array}                    Array containing key/valye pairs of parsed parameters, the
+ * @return {Array}                    Array containing key/value pairs of parsed parameters, the
  *                                      parsed value, and the position of the last parameter found
  */
 parse._parseParameters = function(line, start, designSet) {
@@ -2580,7 +2580,7 @@ parse._parseParameters = function(line, start, designSet) {
       value = line.slice(valuePos, pos);
       lastParam = line.indexOf(PARAM_DELIMITER, pos);
       let propValuePos = line.indexOf(VALUE_DELIMITER, pos);
-      // if either no next parameter or delimeter in property value, let's stop here
+      // if either no next parameter or delimiter in property value, let's stop here
       if (lastParam === -1 || (propValuePos !== -1 && lastParam > propValuePos)) {
         pos = false;
       }
@@ -3872,7 +3872,7 @@ class UtcOffset {
   }
 
   _normalize() {
-    // Range: 97200 seconds (with 1 hour inbetween)
+    // Range: 97200 seconds (with 1 hour in between)
     let secs = this.toSeconds();
     let factor = this.factor;
     while (secs < -43200) { // = UTC-12:00
@@ -4102,7 +4102,7 @@ class VCardTime extends Time {
  */
 
 /**
- * An iterator for a single recurrence rule. This class usually doesn't have to be instanciated
+ * An iterator for a single recurrence rule. This class usually doesn't have to be instantiated
  * directly, the convenience method {@link ICAL.Recur#iterator} can be used.
  *
  * @memberof ICAL

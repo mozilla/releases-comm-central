@@ -232,7 +232,7 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
  * see also
  * http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSview-getComputedStyle
  *
- * @param {Elemen} aXULElement - The element to be inspected.
+ * @param {Element} aXULElement - The element to be inspected.
  * @param {string[]} aStyleProps - The css style properties for which values
  *   are to be retrieved, e.g. 'font-size', 'min-width" etc.
  * @returns {integer} An integer value denoting the optimal minimum width.

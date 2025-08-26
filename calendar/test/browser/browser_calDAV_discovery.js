@@ -176,7 +176,7 @@ add_task(async function testWellKnown() {
 /**
  * Test that the magic URL /.well-known/caldav works, even if the server returns
  * a 404 status for the resourcetype property (as done by iCloud.com).
- * Verify successfull discovery, if current-user-principal and calendar-home-set
+ * Verify successful discovery, if current-user-principal and calendar-home-set
  * are returned by the principal request.
  */
 add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
@@ -240,7 +240,7 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
 /**
  * Test that the magic URL /.well-known/caldav works, even if the server returns
  * a 404 status for the resourcetype property (as done by iCloud.com).
- * Verify successfull discovery, if only the current-user-principal is returned
+ * Verify successful discovery, if only the current-user-principal is returned
  * by the principal request.
  */
 add_task(async function testWellKnown_noResourceType() {

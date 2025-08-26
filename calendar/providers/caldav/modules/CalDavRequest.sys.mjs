@@ -137,8 +137,8 @@ class CalDavRequestBase {
      */
     function tryGetInterface(aObj) {
       try {
-        const requestor = aObj.QueryInterface(Ci.nsIInterfaceRequestor);
-        return requestor.getInterface(aIID);
+        const requester = aObj.QueryInterface(Ci.nsIInterfaceRequestor);
+        return requester.getInterface(aIID);
       } catch (e) {
         return null;
       }
@@ -1088,7 +1088,7 @@ class FreeBusyResponse extends CalDavSimpleResponse {
      * Helper to get the trimmed text content
      *
      * @param {Element} aParent - The parent node to search in
-     * @param {string} aPath - The css query path to serch
+     * @param {string} aPath - The css query path to search
      * @returns {string} The trimmed text content
      */
     function querySelectorText(aParent, aPath) {

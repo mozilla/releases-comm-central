@@ -3594,7 +3594,7 @@ function updateDateTime() {
  * This function initializes the following controls:
  * - 'timezone-starttime'
  * - 'timezone-endtime'
- * the timezone-links show the corrosponding names of the
+ * the timezone-links show the corresponding names of the
  * start/end times. If 'cmd_timezone' is not checked
  * the links will be collapsed.
  */

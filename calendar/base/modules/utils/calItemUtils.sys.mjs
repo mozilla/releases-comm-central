@@ -15,7 +15,7 @@ import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs
 
 export var item = {
   /**
-   * Calculcate difference between items.
+   * Calculate difference between items.
    *
    * @param {calIItemBase[]} oldItems - Old items.
    * @param {calIItemBase[]} newItems - New items.

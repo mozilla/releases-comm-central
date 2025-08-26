@@ -515,7 +515,7 @@ add_task(async function test_notificationTimers() {
     "should have no notification timer"
   );
 
-  // Set the pref to have one notifiaction.
+  // Set the pref to have one notification.
   Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
   let oldItem = item.clone();
   date.hour += 1;
@@ -525,7 +525,7 @@ add_task(async function test_notificationTimers() {
   // Should have one notification timer
   matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
 
-  // Set the pref to have three notifiactions.
+  // Set the pref to have three notifications.
   Services.prefs.setCharPref("calendar.notifications.times", "END:PT2M,PT0M,END:-PT30M,-PT5M");
   oldItem = item.clone();
   date.hour -= 1;
@@ -570,7 +570,7 @@ add_task(async function test_calendarLevelNotificationTimers() {
 
   if (!loaded) {
     loaded = true;
-    // Set the global pref to have one notifiaction.
+    // Set the global pref to have one notification.
     Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
 
     // Add an item.

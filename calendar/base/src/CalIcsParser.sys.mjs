@@ -314,7 +314,7 @@ parserState.prototype = {
       // and use the thread manager to dispatch the above runner
       Services.tm.currentThread.dispatch(runner, Ci.nsIEventTarget.DISPATCH_NORMAL);
     } else {
-      // No listener means synchonous. Just run the runner instead
+      // No listener means synchronous. Just run the runner instead
       runner.run();
     }
   },

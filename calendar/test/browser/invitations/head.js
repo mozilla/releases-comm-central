@@ -304,7 +304,7 @@ async function doImipBarActionTest(conf, event) {
       cal.createDateTime("30000101"),
       Infinity
     );
-    Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
+    Assert.equal(events.length, 3, "recurring event has 3 occurrences");
   }
 
   info("Verifying relevant properties of each event occurrence");
@@ -396,7 +396,7 @@ async function doMinorUpdateTest(conf) {
       cal.createDateTime("30000101"),
       Infinity
     );
-    Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
+    Assert.equal(events.length, 3, "recurring event has 3 occurrences");
   }
 
   info("Verifying relevant properties of each event occurrence");
@@ -512,7 +512,7 @@ async function doMajorUpdateTest(conf) {
       cal.createDateTime("30000101"),
       Infinity
     );
-    Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
+    Assert.equal(events.length, 3, "recurring event has 3 occurrences");
   }
 
   for (const [index, occurrence] of events.entries()) {
@@ -626,7 +626,7 @@ async function doMinorExceptionTest(conf) {
     cal.createDateTime("30000101"),
     Infinity
   );
-  Assert.equal(occurrences.length, 3, "reccurring event still has 3 occurrences");
+  Assert.equal(occurrences.length, 3, "recurring event still has 3 occurrences");
 
   info("Verifying relevant properties of the other occurrences");
 
@@ -748,7 +748,7 @@ async function doMajorExceptionTest(conf) {
     cal.createDateTime("30000101"),
     Infinity
   );
-  Assert.equal(occurrences.length, 3, "reccurring event still has 3 occurrences");
+  Assert.equal(occurrences.length, 3, "recurring event still has 3 occurrences");
 
   info("Verifying relevant properties of the other occurrences");
 

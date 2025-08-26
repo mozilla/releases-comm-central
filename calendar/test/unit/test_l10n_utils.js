@@ -80,7 +80,7 @@ add_task(async function calendarInfo_test() {
           "caching test - value for " + prop + " is equal in both objects (test #" + i + ")"
         );
       }
-      // we reset the cache and test again - it's suffient here to find one changed property,
+      // we reset the cache and test again - it's sufficient here to find one changed property,
       // so we use locale since that must change always in that scenario
       // info2 = cal.l10n.calendarInfo(null, true);
       Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", useOSLocaleFormat);

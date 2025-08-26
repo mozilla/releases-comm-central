@@ -598,7 +598,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
     );
   }
 
-  await TestUtils.waitForCondition(() => !label.disabled, "Tiemzone label should become enabled");
+  await TestUtils.waitForCondition(() => !label.disabled, "Timezone label should become enabled");
 
   const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,

@@ -97,7 +97,7 @@ interface calIErrors : nsISupports
   const unsigned long ICS_UNKNOWN = ICS_ERROR_BASE + 10;
 
   /**
-   * Range for former WCAP provider. This could be re-used now in theory, but
+   * Range for former WCAP provider. This could be reused now in theory, but
    * you might as well just add to the end.
    * Range previously claimed is [ERROR_BASE + 0x200, ERROR_BASE + 0x300)
    */

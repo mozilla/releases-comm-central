@@ -26,7 +26,7 @@ export var dtz = {
   },
 
   /**
-   * Shorcut to the UTC timezone.
+   * Shortcut to the UTC timezone.
    *
    * @returns {calITimezoneService}
    */

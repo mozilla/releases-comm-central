@@ -825,7 +825,7 @@ Extractor.prototype = {
           cal.LOG(
             "[calExtract] " +
               this.collected[outer].str +
-              " found as well, disgarding " +
+              " found as well, discarding " +
               this.collected[inner].str
           );
           this.collected[inner].relation = "notadatetime";

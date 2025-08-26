@@ -792,7 +792,7 @@ add_task(function test_getImipTransport() {
       switch (key) {
         case "itip.transport":
           return calendarTransport;
-        case "imip.idenity":
+        case "imip.identity":
           return identity1;
         default:
           return null;
