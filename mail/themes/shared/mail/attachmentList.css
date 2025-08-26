@@ -30,6 +30,7 @@
 }
 
 .attachmentItem {
+  position: relative;
   border: 1px solid transparent;
   min-width: 10em;
   padding: 1px 3px;

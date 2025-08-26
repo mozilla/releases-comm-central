@@ -593,3 +593,34 @@
   --panel-border-color: var(--in-content-box-border-color);
   appearance: none;
 }
+
+/* Drag and Drop indicator */
+
+[is="drop-indicator"] {
+  -moz-context-properties: fill, stroke;
+  fill: var(--selected-item-color);
+  stroke: var(--selected-item-text-color);
+  pointer-events: none;
+  content: url("chrome://messenger/skin/icons/drop-indicator.svg");
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  /* The z-index needs to be big enough to trump other positioned UI pieces
+     that we want to overlay. The selected tab uses 2. */
+  z-index: var(--drop-indicator-z-index);
+  margin: 0;
+  padding: 0;
+  /* The custom element depends on fixed width and height values. */
+  width: 12px;
+  height: 29px;
+
+  &[horizontal] {
+    content: url("chrome://messenger/skin/icons/drop-indicator-horizontal.svg");
+    width: 29px;
+    height: 12px;
+
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+}

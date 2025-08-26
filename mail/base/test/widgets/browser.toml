@@ -14,6 +14,9 @@ support-files = ["files/**"]
 ["browser_autoTreeView.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
 
+["browser_dropIndicator.js"]
+skip-if = ["headless"]
+
 ["browser_formPickers.js"]
 
 ["browser_formPickers_webextensions.js"]

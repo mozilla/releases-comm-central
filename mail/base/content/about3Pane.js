@@ -925,7 +925,19 @@ var folderPaneContextMenu = {
 };
 
 var folderPane = {
+  /**
+   * If the folder pane has been initialized.
+   *
+   * @type {boolean}
+   */
   _initialized: false,
+
+  /**
+   * The drop indicator used when manually sorting folders.
+   *
+   * @type {?HTMLImageElement}
+   */
+  _dropIndicator: null,
 
   /**
    * If the local folders should be hidden.
@@ -1578,6 +1590,7 @@ var folderPane = {
 
     await FolderTreeProperties.ready;
 
+    this._dropIndicator = document.getElementById("dropIndicator");
     this._modeTemplate = document.getElementById("modeTemplate");
     this._folderTemplate = document.getElementById("folderTemplate");
 
@@ -2958,10 +2971,10 @@ var folderPane = {
     // If the currently dragged row is not part of the selection map, use it
     // instead of the current selection entries.
     const rows = folderTree.selection.has(folderTree.rows.indexOf(draggedRow))
-      ? folderTree.selection.values()
+      ? [...folderTree.selection.values()]
       : [draggedRow];
 
-    const folders = [...rows].map(row =>
+    const folders = rows.map(row =>
       MailServices.folderLookup.getFolderForURL(row.uri)
     );
 
@@ -2979,6 +2992,10 @@ var folderPane = {
     ) {
       event.preventDefault();
       return;
+    }
+
+    for (const row of rows) {
+      row.classList.add("drag-target");
     }
 
     for (const [index, folder] of folders.entries()) {
@@ -3074,22 +3091,28 @@ var folderPane = {
         event.dataTransfer.mozItemCount == 1 &&
         row.modeName == "all"
       ) {
-        const { center, quarterOfHeight } = this._calculateElementHeight(row);
-        if (event.clientY < center - quarterOfHeight) {
+        const {
+          targetCenter,
+          quarterOfHeight,
+          targetTop,
+          targetBottom,
+          targetInline,
+        } = this._calculateElementPosition(row);
+        if (event.clientY < targetCenter - quarterOfHeight) {
           // Insert before the target.
           this._clearDropTarget();
-          row.classList.add("reorder-target-before");
+          this._dropIndicator.show(targetTop, targetInline);
           event.dataTransfer.dropEffect = "move";
           return;
         }
         if (
-          event.clientY > center + quarterOfHeight &&
+          event.clientY > targetCenter + quarterOfHeight &&
           (!row.classList.contains("children") ||
             row.classList.contains("collapsed"))
         ) {
           // Insert after the target.
           this._clearDropTarget();
-          row.classList.add("reorder-target-after");
+          this._dropIndicator.show(targetBottom, targetInline);
           event.dataTransfer.dropEffect = "move";
           return;
         }
@@ -3190,14 +3213,23 @@ var folderPane = {
     }
   },
 
+  /**
+   * Clear the visual indicators for drag and drop operations on the folder
+   * pane.
+   */
   _clearDropTarget() {
     folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
-    folderTree
-      .querySelector(".reorder-target-before")
-      ?.classList.remove("reorder-target-before");
-    folderTree
-      .querySelector(".reorder-target-after")
-      ?.classList.remove("reorder-target-after");
+    this._dropIndicator.hide();
+  },
+
+  /**
+   * Clear the visual indicators for drag and drop operations on the folder
+   * pane.
+   */
+  _clearDragTarget() {
+    for (const row of folderTree.querySelectorAll(".drag-target")) {
+      row.classList.remove("drag-target");
+    }
   },
 
   _collapseAutoExpandedRows() {
@@ -3211,24 +3243,56 @@ var folderPane = {
   },
 
   /**
-   * Calculate the center point of a row element related to the client height
-   * and returns it alongside a quarter of its height.
+   * @typedef {object} ElementPosition
+   * @property {number} targetCenter - The center value of the element relative
+   *   to the parent container.
+   * @property {number} quarterOfHeight - The 1/4 of height of the element.
+   * @property {number} targetTop - The top value of the element relative
+   *   to the parent container.
+   * @property {number} targetBottom - The bottom value of the element relative
+   *   to the parent container.
+   * @property {number} targetInline - The inline value of folder icon relative
+   *   to the parent container.
+   */
+  /**
+   * Calculate the needed values to properly position a drop target during
+   * folders reordering.
    *
    * @param {FolderTreeRow} row
-   * @returns {object}
+   * @returns {ElementPosition}
    */
-  _calculateElementHeight(row) {
+  _calculateElementPosition(row) {
     const targetElement = row.querySelector(".container") ?? row;
     const targetRect = targetElement.getBoundingClientRect();
-    const center =
-      targetRect.top + targetElement.clientTop + targetElement.clientHeight / 2;
-    const quarterOfHeight = targetElement.clientHeight / 4;
-    return { center, quarterOfHeight };
+    // Include the top border width for the position since this could be changed
+    // by themes or userChrome.
+    const targetTop = targetRect.top + targetElement.clientTop;
+    // Add 1/2 of the top border to the bottom value in order to account for the
+    // half a pixel shift that can manifest between 2 elements with borders.
+    const targetBottom =
+      targetTop + targetElement.offsetHeight + targetElement.clientTop / 2;
+    const targetCenter = targetTop + targetElement.offsetHeight / 2;
+    const quarterOfHeight = targetElement.offsetHeight / 4;
+
+    const iconRect = targetElement
+      .querySelector(".icon")
+      .getBoundingClientRect();
+    const targetInline =
+      document.dir == "rtl" ? targetRect.right - iconRect.right : iconRect.left;
+
+    return {
+      targetCenter,
+      quarterOfHeight,
+      targetTop,
+      targetBottom,
+      targetInline,
+    };
   },
 
   _onDrop(event) {
     this._timedExpand();
     this._clearDropTarget();
+    this._clearDragTarget();
     this._autoExpandedRows.length = 0;
     if (event.dataTransfer.dropEffect == "none") {
       // Somehow this is possible. It should not be possible.
@@ -3306,10 +3370,12 @@ var folderPane = {
           !targetFolder.isServer &&
           row.modeName == "all"
         ) {
-          const { center, quarterOfHeight } = this._calculateElementHeight(row);
-          const upperElementEnd = event.clientY < center - quarterOfHeight;
+          const { targetCenter, quarterOfHeight } =
+            this._calculateElementPosition(row);
+          const upperElementEnd =
+            event.clientY < targetCenter - quarterOfHeight;
           const lowerElementEndWithoutChildren =
-            event.clientY > center + quarterOfHeight &&
+            event.clientY > targetCenter + quarterOfHeight &&
             (!row.classList.contains("children") ||
               row.classList.contains("collapsed"));
           isReordering = upperElementEnd || lowerElementEndWithoutChildren;
@@ -3423,6 +3489,8 @@ var folderPane = {
   },
 
   _onDragEnd(event) {
+    this._clearDragTarget();
+    this._clearDropTarget();
     if (event.dataTransfer.dropEffect != "none") {
       return;
     }

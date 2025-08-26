@@ -153,7 +153,6 @@
         event.stopPropagation();
 
         const ltr = window.getComputedStyle(this).direction == "ltr";
-        const ind = this._tabDropIndicator;
         const arrowScrollbox = this.arrowScrollbox;
 
         // Let's scroll
@@ -174,7 +173,7 @@
 
           if (pixelsToScroll) {
             // Hide Indicator while Scrolling
-            ind.hidden = true;
+            this._tabDropIndicator.hide();
             arrowScrollbox.scrollByPixels(pixelsToScroll);
             return;
           }
@@ -225,11 +224,7 @@
           }
         }
 
-        ind.hidden = false;
-
-        newMargin -= ind.clientWidth / 2;
-
-        ind.style.insetInlineStart = `${Math.round(newMargin)}px`;
+        this._tabDropIndicator.show(0, newMargin);
       });
 
       this.addEventListener("drop", event => {
@@ -246,7 +241,7 @@
         }
 
         event.stopPropagation();
-        this._tabDropIndicator.hidden = true;
+        this._tabDropIndicator.hide();
 
         // Is the tab one of our children?
         if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1) {
@@ -343,7 +338,7 @@
       this.addEventListener("dragleave", event => {
         this._dragTime = 0;
 
-        this._tabDropIndicator.hidden = true;
+        this._tabDropIndicator.hide();
         event.stopPropagation();
       });
     }
@@ -374,7 +369,7 @@
         }
       };
 
-      this._tabDropIndicator = this.querySelector(".tab-drop-indicator");
+      this._tabDropIndicator = this.querySelector(`[is="drop-indicator"]`);
 
       this._dragOverDelay = 350;
 

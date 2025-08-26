@@ -1252,7 +1252,7 @@ button:is(
   outline-offset: 0;
 }
 
-.drop-indicator::before {
+.drop-address-indicator::before {
   transform: scaleY(1);
 }
 

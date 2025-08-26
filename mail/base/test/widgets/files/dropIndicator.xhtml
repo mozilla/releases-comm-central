@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the drop-indicator custom element</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+  <style>
+    :focus {
+      outline: 3px blue solid;
+    }
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      margin: 0;
+    }
+    .boxes {
+      position: relative;
+      flex: 1 0 auto;
+      padding: 20px;
+      border: 1px solid black;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: start;
+      gap: 3px;
+    }
+    .boxes.stacked {
+      flex-direction: column;
+    }
+    .boxes span {
+      padding: 6px;
+      background: #ccc;
+      border: 1px solid #999;
+      cursor: pointer;
+    }
+    .marker {
+      position: absolute;
+      display: block;
+      width: 100%;
+      height: 2px;
+      top: 0;
+      left: 0;
+      background-color: red;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .marker.vertical {
+      width: 2px;
+      height: 100%;
+    }
+  </style>
+  <script type="module" src="chrome://messenger/content/drop-indicator.mjs"></script>
+  <script>
+    /**
+     * Partial duplicate of folderPane::_calculateElementPosition().
+     */
+    function calculateElementPosition(targetElement) {
+      const targetRect = targetElement.getBoundingClientRect();
+      const targetTop = Math.round(targetRect.top + targetElement.clientTop);
+      const targetInline = Math.round(targetRect.left);
+      return { targetTop, targetInline };
+    }
+
+    function onDragStart(event) {
+      event.dataTransfer.dropEffect = "move";
+    }
+
+    function onDragOver(event) {
+      if (!event.target.closest("[draggable]")) {
+        return;
+      }
+
+      const element = event.target;
+      const indicator = event.target.closest(".boxes").querySelector("img");
+      const { targetTop, targetInline } = calculateElementPosition(element);
+      indicator.show(targetTop, targetInline);
+      moveMarker(event, targetTop, targetInline);
+      event.preventDefault();
+    }
+
+    function onDrop(event) {
+      const indicator = event.target.closest(".boxes").querySelector("img");
+      indicator.hide();
+    }
+
+    function moveMarker(event, targetTop, targetInline) {
+      const marker = event.target.closest(".boxes").querySelector(".marker");
+      marker.style.top = `${targetTop}px`;
+      marker.style.left = `${targetInline}px`;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("draggableBoxes").addEventListener("dragstart", onDragStart);
+      document.getElementById("draggableBoxes").addEventListener("dragover", onDragOver);
+      document.getElementById("draggableBoxes").addEventListener("dragend", onDrop);
+      document.getElementById("draggableBoxes").addEventListener("drop", onDrop);
+
+      document.getElementById("draggableBoxes1").addEventListener("dragstart", onDragStart);
+      document.getElementById("draggableBoxes1").addEventListener("dragover", onDragOver);
+      document.getElementById("draggableBoxes1").addEventListener("dragend", onDrop);
+      document.getElementById("draggableBoxes1").addEventListener("drop", onDrop);
+    });
+  </script>
+</head>
+<body>
+  <div id="draggableBoxes" class="boxes">
+    <div class="marker vertical"></div>
+    <img is="drop-indicator" id="indicator" />
+    <span id="box1" draggable="true">Box 1</span>
+    <span id="box2" draggable="true">Box 2</span>
+    <span id="box3" draggable="true">Box 3</span>
+    <span id="box4" draggable="true">Box 4</span>
+  </div>
+
+  <div id="draggableBoxes1" class="boxes stacked">
+    <div class="marker"></div>
+    <img is="drop-indicator" id="indicator1" horizontal="horizontal" />
+    <span id="boxStacked1" draggable="true">Box Stacked 1</span>
+    <span id="boxStacked2" draggable="true">Box Stacked 2</span>
+    <span id="boxStacked3" draggable="true">Box Stacked 3</span>
+    <span id="boxStacked4" draggable="true">Box Stacked 4</span>
+  </div>
+</body>
+</html>

@@ -28,14 +28,6 @@
   }
 }
 
-.tab-drop-indicator {
-  position: absolute;
-  top: 0;
-  /* The z-index needs to be big enough to trump other positioned UI pieces
-     that we want to overlay. The selected tab uses 2. */
-  z-index: 3;
-}
-
 #tabs-toolbar {
   appearance: none;
   --tabs-top-border-width: 1px;

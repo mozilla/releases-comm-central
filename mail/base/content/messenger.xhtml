@@ -217,6 +217,7 @@
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-minidate.js"></script>
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
   <script defer="defer" src="chrome://calendar/content/widgets/calendar-modebox.js"></script>
+  <script type="module" src="chrome://messenger/content/drop-indicator.mjs"></script>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
   <script defer="defer" src="chrome://calendar/content/calendar-task-editing.js"></script>
@@ -533,10 +534,7 @@
             alltabsbutton="alltabs-button"
             context="toolbar-context-menu"
             collapsetoolbar="tabs-toolbar">
-        <html:img class="tab-drop-indicator"
-                  src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
-                  alt=""
-                  hidden="hidden" />
+        <html:img is="drop-indicator" />
         <arrowscrollbox id="tabmail-arrowscrollbox"
                         orient="horizontal"
                         flex="1"

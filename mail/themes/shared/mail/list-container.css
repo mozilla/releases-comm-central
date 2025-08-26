@@ -188,4 +188,9 @@
       color: var(--selected-item-text-color);
     }
   }
+
+  & li[role="treeitem"].drag-target > .container {
+    color: color-mix(in srgb, currentColor 50%, transparent);
+    border-style: dashed;
+  }
 }

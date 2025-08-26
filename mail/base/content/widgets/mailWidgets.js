@@ -488,12 +488,7 @@
       });
 
       const makeDropIndicator = placementClass => {
-        const img = document.createElement("img");
-        img.setAttribute(
-          "src",
-          "chrome://messenger/skin/icons/tab-drag-indicator.svg"
-        );
-        img.setAttribute("alt", "");
+        const img = document.createElement("img", { is: "drop-indicator" });
         img.classList.add("attach-drop-indicator", placementClass);
         return img;
       };
@@ -1306,7 +1301,7 @@
         // If the current drop target is a pill, add drop indicator style to it.
         event.target
           .closest("mail-address-pill")
-          ?.classList.add("drop-indicator");
+          ?.classList.add("drop-address-indicator");
 
         // If the current drop target is inside an address row, add the
         // indicator style for the row's address container.
@@ -1323,7 +1318,7 @@
         // If dragleave from pill, remove its drop indicator style.
         event.target
           .closest("mail-address-pill")
-          ?.classList.remove("drop-indicator");
+          ?.classList.remove("drop-address-indicator");
 
         // If dragleave from address row, remove the indicator style of its
         // address container.

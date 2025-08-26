@@ -53,12 +53,11 @@ add_setup(async function () {
 });
 
 async function dragAndDropFolder(element, target, below = false) {
+  const dropIndicator = about3Pane.document.getElementById("dropIndicator");
   const elementRow = about3Pane.folderPane.getRowForFolder(element);
   const targetRow = about3Pane.folderPane.getRowForFolder(target);
   const targetRect = targetRow.getBoundingClientRect();
-  const toY = below
-    ? targetRect.top + targetRow.clientHeight * 0.8
-    : targetRect.top + targetRow.clientHeight / 4;
+  const toY = below ? targetRect.top + targetRow.offsetHeight : targetRect.top;
 
   dragService.startDragSessionForTests(
     about3Pane,
@@ -91,6 +90,37 @@ async function dragAndDropFolder(element, target, below = false) {
   );
   Assert.equal(dataTransfer.dropEffect, "move", "dropEffect of drag operation");
   await new Promise(resolve => setTimeout(resolve));
+  await BrowserTestUtils.waitForMutationCondition(
+    dropIndicator,
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isVisible(dropIndicator)
+  );
+  Assert.ok(
+    elementRow.classList.contains("drag-target"),
+    "The dragged folder should have the proper class applied"
+  );
+
+  const rowContainer = targetRow.querySelector(".container");
+  const rowRectTop = targetRect.top + rowContainer.clientTop;
+  const rowRectBottom =
+    rowRectTop + rowContainer.offsetHeight + rowContainer.clientTop / 2;
+  const indicatorRect = dropIndicator.getBoundingClientRect();
+  // We use Math.round() to avoid annoying issues with subdecimal test failures.
+  Assert.equal(
+    Math.round(indicatorRect.left + dropIndicator.inlineCorrection),
+    Math.round(
+      rowContainer.querySelector(".icon").getBoundingClientRect().left
+    ),
+    "The drop indicator left position should match the folder icon left position"
+  );
+  Assert.equal(
+    Math.round(indicatorRect.top + dropIndicator.blockCorrection),
+    Math.round(below ? rowRectBottom : rowRectTop),
+    `The drop indicator top position should match the folder ${below ? `bottom` : `top`} position`
+  );
 
   EventUtils.synthesizeDropAfterDragOver(
     result,
@@ -101,6 +131,23 @@ async function dragAndDropFolder(element, target, below = false) {
   );
   dragService.getCurrentSession().endDragSession(true);
   await new Promise(resolve => setTimeout(resolve));
+
+  Assert.ok(
+    !elementRow.classList.contains("drag-target"),
+    "The dragged folder should have cleared the dragged class"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(dropIndicator),
+    "The drop indicator should be hidden"
+  );
+  Assert.ok(
+    !dropIndicator.style.insetBlockStart,
+    "The inset-block style should have been cleared"
+  );
+  Assert.ok(
+    !dropIndicator.style.insetInlineStart,
+    "The inset-inline style should have been cleared"
+  );
 }
 
 add_task(async function test_sort_single_folder() {
@@ -178,8 +225,8 @@ add_task(async function test_sort_single_folder() {
     "Dragging folderC below folderB should order folderC between folderB and folderA."
   );
 
-  // Test dragging folderB below folderD and making it a child of folderD.
-  await dragAndDropFolder(folderB, folderD, true);
+  // Test dragging folderB below folderD_1 and making it a child of folderD.
+  await dragAndDropFolder(folderB, folderD_1, true);
 
   // folderB should now be a child of folderD.
   folderB = folderD.getChildNamed("folderB");
@@ -196,12 +243,12 @@ add_task(async function test_sort_single_folder() {
       folderC,
       folderA,
       folderD,
-      folderB,
       folderD_1,
+      folderB,
       folderD_2,
       folderD_3,
     ].map(folder => folder.URI),
-    "Dragging folderB below and into folderD should make it a child of folderD."
+    "Dragging folderB below folderD_1 should make it a child of folderD."
   );
 
   // Test dragging folderB above folderC and making it a child of rootFolder.

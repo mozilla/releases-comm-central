@@ -388,6 +388,11 @@ body {
       font-weight: bold;
     }
 
+    &.selected.drag-target > .container {
+      color: color-mix(in srgb, currentColor 50%, transparent);
+      border-style: dashed;
+    }
+
     @media (prefers-contrast) {
       &:focus-within li.selected > .container,
       & li.drop-target > .container {
@@ -523,30 +528,6 @@ body {
 
   .new-messages > .container > & {
     color: var(--new-folder-color);
-  }
-}
-
-:is(.reorder-target-before, .reorder-target-after) > .container > .icon {
-  position: relative;
-
-  &::before,
-  &::after {
-    position: absolute;
-    content: '';
-    display: block;
-    background-color: var(--selected-item-color);
-    pointer-events: none;
-  }
-
-  &::before {
-    width: 6px;
-    height: 6px;
-    border-radius: 9px;
-  }
-
-  &::after {
-    width: 100vw;
-    height: 2px;
   }
 }
 

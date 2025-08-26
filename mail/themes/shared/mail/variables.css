@@ -129,6 +129,8 @@
 
   --tabline-color: var(--selected-item-color);
 
+  --drop-indicator-z-index: 3;
+
   /* LW-themes enabled */
 
   &[lwtheme] {

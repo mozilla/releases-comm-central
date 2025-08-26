@@ -102,6 +102,7 @@ messenger.jar:
     content/messenger/auto-tree-view.mjs            (content/widgets/auto-tree-view.mjs)
     content/messenger/browserPopups.js              (content/widgets/browserPopups.js)
     content/messenger/customizable-toolbar.js       (content/widgets/customizable-toolbar.js)
+    content/messenger/drop-indicator.mjs            (content/widgets/drop-indicator.mjs)
     content/messenger/folder-tree-row.mjs           (content/widgets/folder-tree-row.mjs)
     content/messenger/foldersummary.js              (content/widgets/foldersummary.js)
     content/messenger/gloda-autocomplete-input.js   (content/widgets/gloda-autocomplete-input.js)
