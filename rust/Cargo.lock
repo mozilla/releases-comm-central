@@ -5958,7 +5958,6 @@ dependencies = [
 [[package]]
 name = "thin-vec"
 version = "0.2.14"
-source = "git+https://github.com/Gankra/thin-vec?rev=3b4d5c838eacf5e2156d89bfdb559b6377bd6c39#3b4d5c838eacf5e2156d89bfdb559b6377bd6c39"
 
 [[package]]
 name = "thiserror"

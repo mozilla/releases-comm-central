@@ -11,11 +11,6 @@ git = "https://github.com/FirefoxGraphics/wpf-gpu-raster"
 rev = "99979da091fd58fba8477e7fcdf5ec0727102916"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/Gankra/thin-vec?rev=3b4d5c838eacf5e2156d89bfdb559b6377bd6c39"]
-git = "https://github.com/Gankra/thin-vec"
-rev = "3b4d5c838eacf5e2156d89bfdb559b6377bd6c39"
-replace-with = "vendored-sources"
-
 [source."git+https://github.com/beurdouche/mls-platform-api?rev=5d88241b9765cae3669aba21f0946bd3700f7db1"]
 git = "https://github.com/beurdouche/mls-platform-api"
 rev = "5d88241b9765cae3669aba21f0946bd3700f7db1"
