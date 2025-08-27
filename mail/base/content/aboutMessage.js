@@ -146,6 +146,7 @@ window.addEventListener("DOMContentLoaded", event => {
 
   preferenceObserver.init();
   Services.obs.addObserver(msgObserver, "message-content-updated");
+  Services.obs.addObserver(msgObserver, "ipc:network:set-offline");
 
   const browser = getMessagePaneBrowser();
 
@@ -225,6 +226,7 @@ window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
   Services.obs.removeObserver(msgObserver, "message-content-updated");
+  Services.obs.removeObserver(msgObserver, "ipc:network:set-offline");
   window.removeEventListener("MsgLoaded", msgObserver);
   prefersDarkQuery.removeEventListener("change", msgObserver);
   gViewWrapper?.close();
@@ -445,6 +447,20 @@ var msgObserver = {
       // fully downloaded. The old message URI is now gone. To reload the
       // message, we display it with its new URI.
       displayMessage(data, gViewWrapper);
+      return;
+    }
+
+    // Check if the 'Try again' button in 'about:neterror' (displayed for NNTP
+    // connection issues) has been pressed. Since this button only enables
+    // online mode, we act on observing the corresponding notification when not
+    // offline.
+    if (
+      topic == "ipc:network:set-offline" &&
+      data == "false" &&
+      gMessageURI?.startsWith("news-message://") &&
+      !Services.io.offline
+    ) {
+      ReloadMessage();
     }
   },
 
