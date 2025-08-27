@@ -83,11 +83,13 @@ function createEWSAccount() {
 /**
  * Open a compose window with generated content and wait for it to be ready.
  *
- * @param {nsIMsgIdentity} identity - The identity to use, otherwise the
+ * @param {nsIMsgIdentity} [identity] - The identity to use, otherwise the
  *   default identity of the default account will be used.
+ * @param {string} [body] - The message body. If not provided a body is
+ *   generated.
  * @returns {object} Details of the opened compose window.
  */
-async function newComposeWindow(identity) {
+async function newComposeWindow(identity, body) {
   if (!identity) {
     Assert.ok(
       MailServices.accounts.defaultAccount?.defaultIdentity,
@@ -107,7 +109,7 @@ async function newComposeWindow(identity) {
   const subject = generator.makeSubject();
   params.composeFields.to = `"${name}" <${address}>`;
   params.composeFields.subject = subject;
-  params.composeFields.body = `Hello ${name}!`;
+  params.composeFields.body = body || `Hello ${name}!`;
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   const composeWindow = await composeWindowPromise;
   if (!composeWindow.composeEditorReady) {
