@@ -3543,7 +3543,8 @@ function UpdateReplyButtons() {
     if (FeedUtils.isFeedMessage(gMessage)) {
       replyToSenderButton.hidden = true;
     } else if (smartReplyButton) {
-      replyToSenderButton.hidden = buttonToShow == "reply";
+      replyToSenderButton.hidden =
+        buttonToShow == "reply" || buttonToShow == "followup";
     } else {
       replyToSenderButton.hidden = false;
     }
