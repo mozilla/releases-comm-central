@@ -6,7 +6,7 @@ import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
-import { CryptoUtils } from "resource://services-crypto/utils.sys.mjs";
+import { CryptoUtils } from "moz-src:///services/crypto/modules/utils.sys.mjs";
 import { LineReader } from "resource:///modules/LineReader.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";

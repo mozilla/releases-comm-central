@@ -7,7 +7,7 @@
  *
  * @see RFC 6749
  */
-import { CryptoUtils } from "resource://services-crypto/utils.sys.mjs";
+import { CryptoUtils } from "moz-src:///services/crypto/modules/utils.sys.mjs";
 
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
