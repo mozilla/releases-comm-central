@@ -9,6 +9,8 @@ tags = ["import"]
 ["test_AddrBookFileImporter.js"]
 tags = ["vcard"]
 
+["test_SeamonkeyProfileImporter.js"]
+
 ["test_ThunderbirdProfileImporter.js"]
 support-files = [
   "../../../../mail/components/addrbook/test/browser/data/import.mab",
