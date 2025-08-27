@@ -3565,9 +3565,9 @@ var folderPane = {
         );
       });
       parentFolder.createSubfolder(subfolderName, top.msgWindow);
+      const newFolder = await promiseNewFolder;
       if (!parentFolder.isServer) {
         // Inherit view/sort/columns from parent folder.
-        const newFolder = await promiseNewFolder;
         const parentInfo = parentFolder.msgDatabase.dBFolderInfo;
         const newInfo = newFolder.msgDatabase.dBFolderInfo;
         newInfo.viewFlags = parentInfo.viewFlags;
@@ -3578,6 +3578,7 @@ var folderPane = {
           parentInfo.getCharProperty("columnStates")
         );
       }
+      newFolder.updateTimestamps(true);
     };
 
     window.openDialog(

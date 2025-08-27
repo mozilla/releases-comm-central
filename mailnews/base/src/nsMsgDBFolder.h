@@ -182,8 +182,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
       void);  // if there are new, non spam messages, do biff
   nsresult CloseDB();
 
-  // Helper function for Move code to call to update the MRU and MRM time.
-  void UpdateTimestamps(bool allowUndo);
   void SetMRUTime();
   void SetMRMTime();
   /**

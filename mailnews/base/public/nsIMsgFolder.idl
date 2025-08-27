@@ -974,4 +974,11 @@ interface nsIMsgFolder : nsISupports {
     in Array<nsMsgKey> messageKeys,
     in nsIMsgWindow window,
     in nsIMsgCopyServiceListener listener);
+
+  /**
+   * Set the MRUTime property of the folder, and if userInitiated is true, set
+   * the MRMTime property as well. The latter should only be updated when the
+   * user moves or copies new messages into the folder.
+   */
+  void updateTimestamps(in boolean userInitiated);
 };

@@ -1342,6 +1342,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     return OnCopyCompleted(srcSupport, false);
   }
 
+  // If allowUndo is true, this should be a user-initiated action.
   UpdateTimestamps(allowUndo);
   nsCString protocolType;
   rv = srcFolder->GetURI(protocolType);

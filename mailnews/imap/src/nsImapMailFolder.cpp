@@ -6838,6 +6838,7 @@ nsImapMailFolder::CopyMessages(
     bool isFolder,  // isFolder for future use when we do cross-server folder
                     // move/copy
     bool allowUndo) {
+  // If allowUndo is true, this should be a user-initiated action.
   UpdateTimestamps(allowUndo);
 
   nsresult rv;

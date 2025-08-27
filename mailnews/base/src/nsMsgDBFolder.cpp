@@ -5451,11 +5451,10 @@ nsresult nsMsgDBFolder::GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
   return rv;
 }
 
-void nsMsgDBFolder::UpdateTimestamps(bool allowUndo) {
+NS_IMETHODIMP nsMsgDBFolder::UpdateTimestamps(bool userInitiated) {
   if (!(mFlags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
     SetMRUTime();
-    if (allowUndo)  // This is a proxy for a user-initiated act.
-    {
+    if (userInitiated) {
       bool isArchive;
       IsSpecialFolder(nsMsgFolderFlags::Archive, true, &isArchive);
       if (!isArchive) {
@@ -5463,6 +5462,7 @@ void nsMsgDBFolder::UpdateTimestamps(bool allowUndo) {
       }
     }
   }
+  return NS_OK;
 }
 
 void nsMsgDBFolder::SetMRUTime() {
