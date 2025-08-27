@@ -183,7 +183,6 @@
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.
-@RESPATH@/components/MailComponents.manifest
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 @RESPATH@/chrome/comm@JAREXT@
@@ -315,30 +314,14 @@
 #endif
 #endif
 
-; toolkit
-@RESPATH@/components/extensions.manifest
-#ifdef MOZ_UPDATER
-@RESPATH@/components/nsUpdateService.manifest
-#endif
-@RESPATH@/components/ProcessSingleton.manifest
-
 [calendar]
 @RESPATH@/chrome/calendar@JAREXT@
 @RESPATH@/chrome/calendar.manifest
 
 @RESPATH@/@PREF_DIR@/calendar.js
 
-# Files added to components directory via `FINAL_TARGET_FILES.components`.
-
-#ifdef MOZ_SERVICES_SYNC
-@RESPATH@/components/SyncComponents.manifest
-#endif
-@RESPATH@/components/servicesComponents.manifest
-@RESPATH@/components/servicesSettings.manifest
-@RESPATH@/components/TelemetryStartup.manifest
-@RESPATH@/components/Push.manifest
-
-@RESPATH@/components/l10n-registry.manifest
+; JavaScript components
+@RESPATH@/components/*.manifest
 
 ; WebDriver (Marionette, Remote Agent) remote protocols
 #ifdef ENABLE_WEBDRIVER
@@ -412,10 +395,6 @@
 
 ; svg
 @RESPATH@/res/svg.css
-
-; [Extensions]
-@RESPATH@/components/extensions-toolkit.manifest
-@RESPATH@/components/extensions-mail.manifest
 
 ; [Personal Security Manager]
 ;
@@ -494,9 +473,6 @@
 #if defined(MOZ_NOTIFICATION_SERVER)
 @BINPATH@/@DLL_PREFIX@notificationserver@DLL_SUFFIX@
 #endif
-
-; Shutdown Terminator
-@RESPATH@/components/terminator.manifest
 
 ; Shipped so that Glean tests are enabled on CI even if we have disabled
 ; them during regular usage.
