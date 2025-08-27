@@ -280,3 +280,21 @@ add_task(async function test_imap_trash_settings() {
     );
   });
 });
+
+/**
+ * Tests that the IMAP server settings are correctly hidden for EWS accounts.
+ */
+add_task(async function test_ews_advanced_imap_settings() {
+  await open_advanced_settings(async accountSettingsTab => {
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
+
+    const advancedImapSettingsButton = iframe.getElementById(
+      "server.imapAdvancedButton"
+    );
+
+    Assert.ok(advancedImapSettingsButton.hidden);
+  });
+});
