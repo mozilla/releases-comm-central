@@ -46,13 +46,10 @@ void MimeHeaders_convert_header_value(MimeDisplayOptions* opt, nsCString& value,
   }
 
   if (opt && opt->rfc1522_conversion_p) {
-    nsAutoCString temporary;
+    nsAutoCString decoded;
     MIME_DecodeMimeHeader(value.get(), opt->default_charset,
-                          opt->override_charset, true, temporary);
-
-    if (!temporary.IsEmpty()) {
-      value = temporary;
-    }
+                          opt->override_charset, true, decoded);
+    value = decoded;
   } else {
     // This behavior, though highly unusual, was carefully preserved
     // from the previous implementation.  It may be that this is dead

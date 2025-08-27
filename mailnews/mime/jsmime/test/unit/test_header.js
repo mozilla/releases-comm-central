@@ -1037,7 +1037,10 @@ define(function (require) {
 
         // Simple 2047 decodings
         ["=?UTF-8?Q?Encoded?=", "Encoded"],
+        ["=?utf-8?Q??=", ""],
+        ["=?utf-8?Q??=  ", ""], // FWS (folding white space) is semantically insignificant.
         ["=?UTF-8?q?Encoded?=", "Encoded"],
+        [" =?UTF-8?q?EncodedFWS?= ", "EncodedFWS"], // FWS is semantically insignificant.
         ["=?ISO-8859-1?Q?oxyg=e8ne?=", "oxyg\u00e8ne"],
         ["=?UTF-8?B?QmFzZTY0?=", "Base64"],
         ["=?UTF-8?b?QmFzZTY0?=", "Base64"],
