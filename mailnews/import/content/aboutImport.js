@@ -659,16 +659,29 @@ class ProfileImporterController extends ImporterController {
     const targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
     targetDir.append("tmp-profile");
     targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-    const ZipReader = Components.Constructor(
-      "@mozilla.org/libjar/zip-reader;1",
-      "nsIZipReader",
-      "open"
+
+    const zipReader = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+      Ci.nsIZipReader
     );
-    const zip = ZipReader(this._sourceProfile.dir);
-    for (const entry of zip.findEntries(null)) {
-      const parts = entry.split("/");
+    zipReader.open(this._sourceProfile.dir);
+
+    // The profile data could be at the top level, or inside a lone folder at
+    // the top level. Find out which.
+    let depth = 0;
+    const entries = [...zipReader.findEntries(null)];
+    const rootDirs = entries.filter(e => e.match(/^[^\/]*\/$/));
+    if (
+      entries.length > 1 &&
+      rootDirs.length == 1 &&
+      this._importer.validateZipSource(zipReader, rootDirs[0])
+    ) {
+      depth = 1;
+    }
+
+    for (const entry of entries) {
+      const parts = entry.split("/").slice(depth);
       if (
-        this._importer.IGNORE_DIRS.includes(parts[1]) ||
+        this._importer.IGNORE_DIRS.includes(parts[0]) ||
         entry.endsWith("/")
       ) {
         continue;
@@ -676,7 +689,7 @@ class ProfileImporterController extends ImporterController {
       // Folders can not be unzipped recursively, have to iterate and
       // extract all file entries one by one.
       const target = targetDir.clone();
-      for (const part of parts.slice(1)) {
+      for (const part of parts) {
         // Drop the root folder name in the zip file.
         target.append(part);
       }
@@ -685,7 +698,7 @@ class ProfileImporterController extends ImporterController {
       }
       try {
         this._logger.debug(`Extracting ${entry} to ${target.path}`);
-        zip.extract(entry, target);
+        zipReader.extract(entry, target);
         this._extractedFileCount++;
         if (this._extractedFileCount % 10 == 0) {
           const progress = Math.min(

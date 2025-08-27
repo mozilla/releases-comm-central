@@ -123,6 +123,19 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
       );
       return false;
     }
+
+    // The profile data could be at the top level, or inside a lone folder at
+    // the top level. Find out which.
+    const entries = [...zipReader.findEntries(null)];
+    const rootDirs = entries.filter(e => /^[^\/]*\/$/.test(e));
+    if (
+      entries.length > 1 &&
+      rootDirs.length == 1 &&
+      this.validateZipSource(zipReader, rootDirs[0])
+    ) {
+      return true;
+    }
+
     return this.validateZipSource(zipReader);
   }
 
@@ -155,22 +168,18 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
    *
    * @param {nsIZipReader} zipReader - A reader already opened on the file
    *   to be imported.
+   * @param {string} [prefix=""] - A prefix to apply to all paths being checked.
    * @returns {boolean} False if importing this source should not continue.
    */
-  validateZipSource(zipReader) {
+  validateZipSource(zipReader, prefix = "") {
     // Directory entries are optional and end with a slash. Helpfully
     // our zip reader says there ARE entries (for non-empty directories)
     // even if there are not.
     const candidates = ["prefs.js", "ImapMail/", "Mail/", "News/"];
-    const entries = [...zipReader.findEntries(null)];
-    const rootDirs = entries.filter(e => e.match(/^[^\/]*\/$/));
-    if (rootDirs.length != 1) {
-      this._logger.debug(
-        `${zipReader.file.leafName} is a zip file with multiple top-level directories, it is not a Thunderbird profile`
-      );
+    if (prefix && candidates.includes(prefix)) {
       return false;
     }
-    const prefix = rootDirs[0];
+
     for (const candidate of candidates) {
       if (zipReader.hasEntry(prefix + candidate)) {
         this._logger.debug(
@@ -179,7 +188,6 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
         return true;
       }
     }
-    zipReader.close();
     this._logger.debug(
       `${zipReader.file.leafName} contains none of the candidate files, it is not a Thunderbird profile`
     );

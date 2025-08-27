@@ -162,7 +162,7 @@ add_task(async function test_validateSourceZipAtRoot() {
       `zipped profile with ${candidate} directory should be valid`
     );
   }
-}).skip(); // Bug 1985421.
+});
 
 /**
  * Test that we correctly identify a zip file containing, or not containing,

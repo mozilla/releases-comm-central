@@ -70,6 +70,18 @@ export class BaseProfileImporter {
   }
 
   /**
+   * Test a zip file for required files.
+   *
+   * @param {nsIZipReader} _zipReader - A reader already opened on the file
+   *   to be imported.
+   * @param {string} [_prefix=""] - A prefix to apply to all paths being checked.
+   * @returns {boolean} False if importing this source should not continue.
+   */
+  validateZipSource(_zipReader, _prefix = "") {
+    return true;
+  }
+
+  /**
    * Actually start importing things to the current profile.
    *
    * @param {nsIFile} _sourceProfileDir - The source location to import from.
