@@ -62,7 +62,10 @@ export default [
     name: "import-plugin-settings",
     settings: {
       "import/extensions": [".mjs"],
-      //TODO port moz-src resolver from mozilla-central
+      "import/resolver": {
+        [path.resolve(import.meta.dirname, "../srcdir-resolver.js")]: {},
+        node: {},
+      },
     },
   },
   {
