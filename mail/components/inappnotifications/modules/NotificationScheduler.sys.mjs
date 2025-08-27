@@ -58,7 +58,14 @@ export const NotificationScheduler = {
    *
    * @type {Promise<null>}
    */
-  _ready: null,
+  _startupDelayPromise: null,
+
+  /**
+   * If notifications are ready to be shown after startup delay.
+   *
+   * @type {boolean}
+   */
+  _ready: false,
 
   /**
    * The amount of time in milleseconds to delay the first notification after
@@ -66,7 +73,7 @@ export const NotificationScheduler = {
    *
    * @type {number}
    */
-  _startupDelay: 1000 * 60 * 2,
+  _startupDelayTime: 1000 * 60 * 2,
 
   /**
    * Initialize the notification scheduler with the current notificationManager
@@ -77,6 +84,24 @@ export const NotificationScheduler = {
    */
 
   init(notificationManager) {
+    const { promise, resolve } = Promise.withResolvers();
+    this._startupDelayPromise = promise;
+    this._resolveStartupDelay = resolve;
+
+    lazy.setTimeout(resolve, this._startupDelayTime);
+
+    this.bindGlobals(notificationManager);
+  },
+
+  /**
+   * Bind global event handlers.
+   *
+   * @param {NotificationManager} notificationManager
+   */
+  async bindGlobals(notificationManager) {
+    await this._startupDelayPromise;
+    this._ready = true;
+
     try {
       this._idleService = Cc[
         "@mozilla.org/widget/useridleservice;1"
@@ -100,11 +125,6 @@ export const NotificationScheduler = {
       NotificationManager.CLEAR_NOTIFICATION_EVENT,
       this
     );
-
-    const { promise, resolve } = Promise.withResolvers();
-    this._ready = promise;
-
-    lazy.setTimeout(resolve, this._startupDelay);
 
     Services.obs.addObserver(this, "xul-window-visible");
     Services.obs.addObserver(this, "document-shown");
@@ -263,7 +283,6 @@ export const NotificationScheduler = {
         lazy.clearInterval(interval);
         interval = undefined;
       }
-
       // Check if all the listeners are true resolve the promise to show the
       // notification, then delete this promise from the active ones.
       if (Object.values(currentState).every(value => value)) {
@@ -277,9 +296,12 @@ export const NotificationScheduler = {
       }
     };
 
+    let unloaded;
+
     function cleanup() {
-      reject(new Error(`Cleaning up active user lock for ${id}`));
-      skipReady();
+      if (!unloaded) {
+        reject(new Error(`Cleaning up active user lock for ${id}`));
+      }
 
       if (timeout) {
         lazy.clearTimeout(timeout);
@@ -304,7 +326,36 @@ export const NotificationScheduler = {
       currentWindow.removeEventListener("resize", callback);
     }
 
-    // If we get a bew notification before the only one is dismissed update state.
+    const handleUnload = () => {
+      unloaded = true;
+      if (!this._ready) {
+        currentWindow.removeEventListener("unload", handleUnload);
+        skipReady();
+        return;
+      }
+      cleanup();
+      this._callbacks.delete(callback);
+    };
+
+    function debounceCallback() {
+      lazy.clearTimeout(timeout);
+
+      timeout = lazy.setTimeout(callback, 1000);
+    }
+
+    if (currentWindow) {
+      currentWindow.addEventListener("unload", handleUnload);
+    }
+
+    // Don't await the _startupDelayPromise directly so we can skip this if `promise`
+    // has been rejected while maintaining the original _ready promise.
+    await Promise.race([this._startupDelayPromise, rejection]);
+
+    if (unloaded) {
+      return;
+    }
+
+    // If we get a new notification before the old one is dismissed update state.
     if (this.id && this.id !== id) {
       this.reset();
       this.id = id;
@@ -319,21 +370,9 @@ export const NotificationScheduler = {
       return;
     }
 
-    const handleUnload = () => {
-      cleanup();
-      this._callbacks.delete(callback);
-    };
-
-    function debounceCallback() {
-      lazy.clearTimeout(timeout);
-
-      timeout = lazy.setTimeout(callback, 1000);
-    }
-
     // If we have a currentWindow listen for events on it
     // Monitor if the window has become active
     currentWindow.addEventListener("activate", callback);
-    currentWindow.addEventListener("unload", handleUnload);
 
     // Monitor for changes from the visibility api
     currentWindow.document.addEventListener("visibilitychange", callback);
@@ -344,13 +383,6 @@ export const NotificationScheduler = {
       "MozUpdateWindowPos",
       debounceCallback
     );
-
-    // This allows the delay to be bypassed for tests.
-    if (this._startupDelay) {
-      // Don't await the _ready promise directly so we can skip this if `promise`
-      // has been rejected while maintaining the original _ready promise.
-      await Promise.race([this._ready, rejection]);
-    }
 
     callback();
 

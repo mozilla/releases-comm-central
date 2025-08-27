@@ -16,7 +16,9 @@ let manager;
 add_setup(async function () {
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
-  NotificationScheduler._startupDelay = 0;
+  NotificationScheduler._resolveStartupDelay();
+  await NotificationScheduler._startupDelayPromise;
+  await TestUtils.waitForTick();
   NotificationScheduler._idleService.disabled = true;
   manager = document.querySelector("in-app-notification-manager");
 
