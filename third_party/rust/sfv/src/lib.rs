@@ -1,440 +1,635 @@
 /*!
-`sfv` crate is an implementation of *Structured Field Values for HTTP* as specified in [RFC 8941](https://httpwg.org/specs/rfc8941.html) for parsing and serializing HTTP field values.
+`sfv` is an implementation of *Structured Field Values for HTTP*, as specified in [RFC 9651](https://httpwg.org/specs/rfc9651.html) for parsing and serializing HTTP field values.
 It also exposes a set of types that might be useful for defining new structured fields.
 
 # Data Structures
 
 There are three types of structured fields:
 
-- `Item` - can be an `Integer`, `Decimal`, `String`, `Token`, `Byte Sequence`, or `Boolean`. It can have associated `Parameters`.
-- `List` - array of zero or more members, each of which can be an `Item` or an `InnerList`, both of which can be `Parameterized`.
-- `Dictionary` - ordered map of name-value pairs, where the names are short textual strings and the values are `Items` or arrays of `Items` (represented with `InnerList`), both of which can be `Parameterized`. There can be zero or more members, and their names are unique in the scope of the `Dictionary` they occur within.
+- `Item` -- an `Integer`, `Decimal`, `String`, `Token`, `Byte Sequence`, `Boolean`, `Date`, or `Display String`. It can have associated `Parameters`.
+- `List` -- an array of zero or more members, each of which can be an `Item` or an `InnerList`, both of which can have `Parameters`.
+- `Dictionary` -- an ordered map of name-value pairs, where the names are short textual strings and the values are `Item`s or arrays of `Items` (represented with `InnerList`), both of which can have associated parameters. There can be zero or more members, and their names are unique in the scope of the `Dictionary` they occur within.
 
-There's also a few primitive types used to construct structured field values:
-- `BareItem` used as `Item`'s value or as a parameter value in `Parameters`.
+There are also a few lower-level types used to construct structured field values:
+- `BareItem` is used as `Item`'s value or as a parameter value in `Parameters`.
 - `Parameters` are an ordered map of key-value pairs that are associated with an `Item` or `InnerList`. The keys are unique within the scope the `Parameters` they occur within, and the values are `BareItem`.
-- `InnerList` is an array of zero or more `Items`. Can have `Parameters`.
+- `InnerList` is an array of zero or more `Items`. Can have associated `Parameters`.
 - `ListEntry` represents either `Item` or `InnerList` as a member of `List` or as member-value in `Dictionary`.
 
 # Examples
 
+*/
+#![cfg_attr(
+    feature = "parsed-types",
+    doc = r##"
 ### Parsing
 
 ```
-use sfv::Parser;
-
-// Parsing structured field value of Item type.
-let item_header_input = "12.445;foo=bar";
-let item = Parser::parse_item(item_header_input.as_bytes());
-assert!(item.is_ok());
+# use sfv::{Dictionary, Item, List, Parser};
+# fn main() -> Result<(), sfv::Error> {
+// Parsing a structured field value of Item type.
+let input = "12.445;foo=bar";
+let item: Item = Parser::new(input).parse()?;
 println!("{:#?}", item);
 
-// Parsing structured field value of List type.
-let list_header_input = "1;a=tok, (\"foo\" \"bar\");baz, ()";
-let list = Parser::parse_list(list_header_input.as_bytes());
-assert!(list.is_ok());
+// Parsing a structured field value of List type.
+let input = r#"1;a=tok, ("foo" "bar");baz, ()"#;
+let list: List = Parser::new(input).parse()?;
 println!("{:#?}", list);
 
-// Parsing structured field value of Dictionary type.
-let dict_header_input = "a=?0, b, c; foo=bar, rating=1.5, fruits=(apple pear)";
-let dict = Parser::parse_dictionary(dict_header_input.as_bytes());
-assert!(dict.is_ok());
+// Parsing a structured field value of Dictionary type.
+let input = "a=?0, b, c; foo=bar, rating=1.5, fruits=(apple pear)";
+let dict: Dictionary = Parser::new(input).parse()?;
 println!("{:#?}", dict);
+# Ok(())
+# }
 ```
 
 ### Getting Parsed Value Members
 ```
-use sfv::*;
+# use sfv::*;
+# fn main() -> Result<(), sfv::Error> {
+let input = "u=2, n=(* foo 2)";
+let dict: Dictionary = Parser::new(input).parse()?;
 
-let dict_header = "u=2, n=(* foo 2)";
-    let dict = Parser::parse_dictionary(dict_header.as_bytes()).unwrap();
+match dict.get("u") {
+    Some(ListEntry::Item(item)) => match &item.bare_item {
+        BareItem::Token(val) => { /* ... */ }
+        BareItem::Integer(val) => { /* ... */ }
+        BareItem::Boolean(val) => { /* ... */ }
+        BareItem::Decimal(val) => { /* ... */ }
+        BareItem::String(val) => { /* ... */ }
+        BareItem::ByteSequence(val) => { /* ... */ }
+        BareItem::Date(val) => { /* ... */ }
+        BareItem::DisplayString(val) => { /* ... */ }
+    },
+    Some(ListEntry::InnerList(inner_list)) => { /* ... */ }
+    None => { /* ... */ }
+}
+# Ok(())
+# }
+```
+"##
+)]
+/*!
+### Serialization
+Serializes an `Item`:
+```
+use sfv::{Decimal, ItemSerializer, KeyRef, StringRef};
 
-    // Case 1 - handling value if it's an Item of Integer type
-    let u_val = match dict.get("u") {
-        Some(ListEntry::Item(item)) => item.bare_item.as_int(),
-        _ => None,
-    };
+# fn main() -> Result<(), sfv::Error> {
+let serialized_item = ItemSerializer::new()
+    .bare_item(StringRef::from_str("foo")?)
+    .parameter(KeyRef::from_str("key")?, Decimal::try_from(13.45655)?)
+    .finish();
 
-    if let Some(u_val) = u_val {
-        println!("{}", u_val);
-    }
-
-    // Case 2 - matching on all possible types
-    match dict.get("u") {
-        Some(ListEntry::Item(item)) => match &item.bare_item {
-            BareItem::Token(val) => {
-                // do something if it's a Token
-                println!("{}", val);
-            }
-            BareItem::Integer(val) => {
-                // do something if it's an Integer
-                println!("{}", val);
-            }
-            BareItem::Boolean(val) => {
-                // do something if it's a Boolean
-                println!("{}", val);
-            }
-            BareItem::Decimal(val) => {
-                // do something if it's a Decimal
-                println!("{}", val);
-            }
-            BareItem::String(val) => {
-                // do something if it's a String
-                println!("{}", val);
-            }
-            BareItem::ByteSeq(val) => {
-                // do something if it's a ByteSeq
-                println!("{:?}", val);
-            }
-        },
-        Some(ListEntry::InnerList(inner_list)) => {
-            // do something if it's an InnerList
-            println!("{:?}", inner_list.items);
-        }
-        None => panic!("key not found"),
-    }
+assert_eq!(serialized_item, r#""foo";key=13.457"#);
+# Ok(())
+# }
 ```
 
-### Structured Field Value Construction and Serialization
-Creates `Item` with empty parameters:
+Serializes a `List`:
 ```
-use sfv::{Item, BareItem, SerializeValue};
+use sfv::{KeyRef, ListSerializer, StringRef, TokenRef};
 
-let str_item = Item::new(BareItem::String(String::from("foo")));
-assert_eq!(str_item.serialize_value().unwrap(), "\"foo\"");
-```
+# fn main() -> Result<(), sfv::Error> {
+let mut ser = ListSerializer::new();
 
+ser.bare_item(TokenRef::from_str("tok")?);
 
-Creates `Item` field value with parameters:
-```
-use sfv::{Item, BareItem, SerializeValue, Parameters, Decimal, FromPrimitive};
+{
+    let mut ser = ser.inner_list();
 
-let mut params = Parameters::new();
-let decimal = Decimal::from_f64(13.45655).unwrap();
-params.insert("key".into(), BareItem::Decimal(decimal));
-let int_item = Item::with_params(BareItem::Integer(99), params);
-assert_eq!(int_item.serialize_value().unwrap(), "99;key=13.457");
-```
+    ser.bare_item(99).parameter(KeyRef::from_str("key")?, false);
 
-Creates `List` field value with `Item` and parametrized `InnerList` as members:
-```
-use sfv::{Item, BareItem, InnerList, List, SerializeValue, Parameters};
+    ser.bare_item(StringRef::from_str("foo")?);
 
-let tok_item = BareItem::Token("tok".into());
-
-// Creates Item.
-let str_item = Item::new(BareItem::String(String::from("foo")));
-
-// Creates InnerList members.
-let mut int_item_params = Parameters::new();
-int_item_params.insert("key".into(), BareItem::Boolean(false));
-let int_item = Item::with_params(BareItem::Integer(99), int_item_params);
-
-// Creates InnerList.
-let mut inner_list_params = Parameters::new();
-inner_list_params.insert("bar".into(), BareItem::Boolean(true));
-let inner_list = InnerList::with_params(vec![int_item, str_item], inner_list_params);
-
-
-let list: List = vec![Item::new(tok_item).into(), inner_list.into()];
-assert_eq!(
-    list.serialize_value().unwrap(),
-    "tok, (99;key=?0 \"foo\");bar"
-);
-```
-
-Creates `Dictionary` field value:
-```
-use sfv::{Parser, Item, BareItem, SerializeValue, ParseValue, Dictionary};
-
-let member_value1 = Item::new(BareItem::String(String::from("apple")));
-let member_value2 = Item::new(BareItem::Boolean(true));
-let member_value3 = Item::new(BareItem::Boolean(false));
-
-let mut dict = Dictionary::new();
-dict.insert("key1".into(), member_value1.into());
-dict.insert("key2".into(), member_value2.into());
-dict.insert("key3".into(), member_value3.into());
+    ser.finish().parameter(KeyRef::from_str("bar")?, true);
+}
 
 assert_eq!(
-    dict.serialize_value().unwrap(),
-    "key1=\"apple\", key2, key3=?0"
+    ser.finish().as_deref(),
+    Some(r#"tok, (99;key=?0 "foo");bar"#),
 );
-
+# Ok(())
+# }
 ```
+
+Serializes a `Dictionary`:
+```
+use sfv::{DictSerializer, KeyRef, StringRef};
+
+# fn main() -> Result<(), sfv::Error> {
+let mut ser = DictSerializer::new();
+
+ser.bare_item(KeyRef::from_str("key1")?, StringRef::from_str("apple")?);
+
+ser.bare_item(KeyRef::from_str("key2")?, true);
+
+ser.bare_item(KeyRef::from_str("key3")?, false);
+
+assert_eq!(
+    ser.finish().as_deref(),
+    Some(r#"key1="apple", key2, key3=?0"#),
+);
+# Ok(())
+# }
+```
+
+# Crate features
+
+- `parsed-types` (enabled by default) -- When enabled, exposes fully owned types
+  `Item`, `Dictionary`, `List`, and their components, which can be obtained from
+  `Parser::parse_item`, etc. These types are implemented using the
+  [`indexmap`](https://crates.io/crates/indexmap) crate, so disabling this
+  feature can avoid that dependency if parsing using a visitor
+  ([`Parser::parse_item_with_visitor`], etc.) is sufficient.
+
+- `arbitrary` -- Implements the
+  [`Arbitrary`](https://docs.rs/arbitrary/1.4.1/arbitrary/trait.Arbitrary.html)
+  trait for this crate's types, making them easier to use with fuzzing.
 */
 
+#![deny(missing_docs)]
+
+mod date;
+mod decimal;
+mod error;
+mod integer;
+mod key;
+#[cfg(feature = "parsed-types")]
+mod parsed;
 mod parser;
 mod ref_serializer;
 mod serializer;
+mod string;
+mod token;
 mod utils;
+pub mod visitor;
 
+#[cfg(test)]
+mod test_decimal;
+#[cfg(test)]
+mod test_integer;
+#[cfg(test)]
+mod test_key;
 #[cfg(test)]
 mod test_parser;
 #[cfg(test)]
+mod test_ref_serializer;
+#[cfg(test)]
 mod test_serializer;
-use indexmap::IndexMap;
+#[cfg(test)]
+mod test_string;
+#[cfg(test)]
+mod test_token;
 
-pub use rust_decimal::{
-    prelude::{FromPrimitive, FromStr},
-    Decimal,
+use std::borrow::{Borrow, Cow};
+use std::fmt;
+use std::string::String as StdString;
+
+pub use date::Date;
+pub use decimal::Decimal;
+pub use error::Error;
+pub use integer::{integer, Integer};
+pub use key::{key_ref, Key, KeyRef};
+#[cfg(feature = "parsed-types")]
+pub use parsed::{Dictionary, FieldType, InnerList, Item, List, ListEntry, Parameters};
+pub use parser::Parser;
+pub use ref_serializer::{
+    DictSerializer, InnerListSerializer, ItemSerializer, ListSerializer, ParameterSerializer,
 };
+pub use string::{string_ref, String, StringRef};
+pub use token::{token_ref, Token, TokenRef};
 
-pub use parser::{ParseMore, ParseValue, Parser};
-pub use ref_serializer::{RefDictSerializer, RefItemSerializer, RefListSerializer};
-pub use serializer::SerializeValue;
+type SFVResult<T> = std::result::Result<T, Error>;
 
-type SFVResult<T> = std::result::Result<T, &'static str>;
-
-/// Represents `Item` type structured field value.
-/// Can be used as a member of `List` or `Dictionary`.
-// sf-item   = bare-item parameters
-// bare-item = sf-integer / sf-decimal / sf-string / sf-token
-//             / sf-binary / sf-boolean
-#[derive(Debug, PartialEq, Clone)]
-pub struct Item {
-    /// Value of `Item`.
-    pub bare_item: BareItem,
-    /// `Item`'s associated parameters. Can be empty.
-    pub params: Parameters,
-}
-
-impl Item {
-    /// Returns new `Item` with empty `Parameters`.
-    pub fn new(bare_item: BareItem) -> Item {
-        Item {
-            bare_item,
-            params: Parameters::new(),
-        }
-    }
-    /// Returns new `Item` with specified `Parameters`.
-    pub fn with_params(bare_item: BareItem, params: Parameters) -> Item {
-        Item { bare_item, params }
-    }
-}
-
-/// Represents `Dictionary` type structured field value.
-// sf-dictionary  = dict-member *( OWS "," OWS dict-member )
-// dict-member    = member-name [ "=" member-value ]
-// member-name    = key
-// member-value   = sf-item / inner-list
-pub type Dictionary = IndexMap<String, ListEntry>;
-
-/// Represents `List` type structured field value.
-// sf-list       = list-member *( OWS "," OWS list-member )
-// list-member   = sf-item / inner-list
-pub type List = Vec<ListEntry>;
-
-/// Parameters of `Item` or `InnerList`.
-// parameters    = *( ";" *SP parameter )
-// parameter     = param-name [ "=" param-value ]
-// param-name    = key
-// key           = ( lcalpha / "*" )
-//                 *( lcalpha / DIGIT / "_" / "-" / "." / "*" )
-// lcalpha       = %x61-7A ; a-z
-// param-value   = bare-item
-pub type Parameters = IndexMap<String, BareItem>;
-
-/// Represents a member of `List` or `Dictionary` structured field value.
-#[derive(Debug, PartialEq, Clone)]
-pub enum ListEntry {
-    /// Member of `Item` type.
-    Item(Item),
-    /// Member of `InnerList` (array of `Items`) type.
-    InnerList(InnerList),
-}
-
-impl From<Item> for ListEntry {
-    fn from(item: Item) -> Self {
-        ListEntry::Item(item)
-    }
-}
-
-impl From<InnerList> for ListEntry {
-    fn from(item: InnerList) -> Self {
-        ListEntry::InnerList(item)
-    }
-}
-
-/// Array of `Items` with associated `Parameters`.
-// inner-list    = "(" *SP [ sf-item *( 1*SP sf-item ) *SP ] ")"
-//                 parameters
-#[derive(Debug, PartialEq, Clone)]
-pub struct InnerList {
-    /// `Items` that `InnerList` contains. Can be empty.
-    pub items: Vec<Item>,
-    /// `InnerList`'s associated parameters. Can be empty.
-    pub params: Parameters,
-}
-
-impl InnerList {
-    /// Returns new `InnerList` with empty `Parameters`.
-    pub fn new(items: Vec<Item>) -> InnerList {
-        InnerList {
-            items,
-            params: Parameters::new(),
-        }
-    }
-
-    /// Returns new `InnerList` with specified `Parameters`.
-    pub fn with_params(items: Vec<Item>, params: Parameters) -> InnerList {
-        InnerList { items, params }
-    }
-}
-
-/// `BareItem` type is used to construct `Items` or `Parameters` values.
-#[derive(Debug, PartialEq, Clone)]
-pub enum BareItem {
-    /// Decimal number
+/// An abstraction over multiple kinds of ownership of a [bare item].
+///
+/// In general most users will be interested in:
+/// - [`BareItem`], for completely owned data
+/// - [`RefBareItem`], for completely borrowed data
+/// - [`BareItemFromInput`], for data borrowed from input when possible
+///
+/// [bare item]: <https://httpwg.org/specs/9651.html#item>
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub enum GenericBareItem<S, B, T, D> {
+    /// A [decimal](https://httpwg.org/specs/rfc9651.html#decimal).
     // sf-decimal  = ["-"] 1*12DIGIT "." 1*3DIGIT
     Decimal(Decimal),
-    /// Integer number
+    /// An [integer](https://httpwg.org/specs/rfc9651.html#integer).
     // sf-integer = ["-"] 1*15DIGIT
-    Integer(i64),
+    Integer(Integer),
+    /// A [string](https://httpwg.org/specs/rfc9651.html#string).
     // sf-string = DQUOTE *chr DQUOTE
     // chr       = unescaped / escaped
     // unescaped = %x20-21 / %x23-5B / %x5D-7E
     // escaped   = "\" ( DQUOTE / "\" )
-    String(String),
+    String(S),
+    /// A [byte sequence](https://httpwg.org/specs/rfc9651.html#binary).
     // ":" *(base64) ":"
     // base64    = ALPHA / DIGIT / "+" / "/" / "="
-    ByteSeq(Vec<u8>),
+    ByteSequence(B),
+    /// A [boolean](https://httpwg.org/specs/rfc9651.html#boolean).
     // sf-boolean = "?" boolean
     // boolean    = "0" / "1"
     Boolean(bool),
+    /// A [token](https://httpwg.org/specs/rfc9651.html#token).
     // sf-token = ( ALPHA / "*" ) *( tchar / ":" / "/" )
-    Token(String),
+    Token(T),
+    /// A [date](https://httpwg.org/specs/rfc9651.html#date).
+    ///
+    /// [`Parser`] will never produce this variant when used with
+    /// [`Version::Rfc8941`].
+    // sf-date = "@" sf-integer
+    Date(Date),
+    /// A [display string](https://httpwg.org/specs/rfc9651.html#displaystring).
+    ///
+    /// Display Strings are similar to [`String`]s, in that they consist of zero
+    /// or more characters, but they allow Unicode scalar values (i.e., all
+    /// Unicode code points except for surrogates), unlike [`String`]s.
+    ///
+    /// [`Parser`] will never produce this variant when used with
+    /// [`Version::Rfc8941`].
+    ///
+    /// [display string]: <https://httpwg.org/specs/rfc9651.html#displaystring>
+    // sf-displaystring = "%" DQUOTE *( unescaped / "\" / pct-encoded ) DQUOTE
+    // pct-encoded      = "%" lc-hexdig lc-hexdig
+    // lc-hexdig        = DIGIT / %x61-66 ; 0-9, a-f
+    DisplayString(D),
 }
 
-impl BareItem {
-    /// If `BareItem` is a decimal, returns `Decimal`, otherwise returns `None`.
-    /// ```
-    /// # use sfv::{BareItem, Decimal, FromPrimitive};
-    /// let decimal_number = Decimal::from_f64(415.566).unwrap();
-    /// let bare_item: BareItem = decimal_number.into();
-    /// assert_eq!(bare_item.as_decimal().unwrap(), decimal_number);
-    /// ```
+impl<S, B, T, D> GenericBareItem<S, B, T, D> {
+    /// If the bare item is a decimal, returns it; otherwise returns `None`.
+    #[must_use]
     pub fn as_decimal(&self) -> Option<Decimal> {
         match *self {
-            BareItem::Decimal(val) => Some(val),
+            Self::Decimal(val) => Some(val),
             _ => None,
         }
     }
-    /// If `BareItem` is an integer, returns `i64`, otherwise returns `None`.
-    /// ```
-    /// # use sfv::BareItem;
-    /// let bare_item: BareItem = 100.into();
-    /// assert_eq!(bare_item.as_int().unwrap(), 100);
-    /// ```
-    pub fn as_int(&self) -> Option<i64> {
+
+    /// If the bare item is an integer, returns it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_integer(&self) -> Option<Integer> {
         match *self {
-            BareItem::Integer(val) => Some(val),
+            Self::Integer(val) => Some(val),
             _ => None,
         }
     }
-    /// If `BareItem` is `String`, returns `&str`, otherwise returns `None`.
-    /// ```
-    /// # use sfv::BareItem;
-    /// let bare_item = BareItem::String("foo".into());
-    /// assert_eq!(bare_item.as_str().unwrap(), "foo");
-    /// ```
-    pub fn as_str(&self) -> Option<&str> {
+
+    /// If the bare item is a string, returns a reference to it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_string(&self) -> Option<&StringRef>
+    where
+        S: Borrow<StringRef>,
+    {
         match *self {
-            BareItem::String(ref val) => Some(val),
+            Self::String(ref val) => Some(val.borrow()),
             _ => None,
         }
     }
-    /// If `BareItem` is a `ByteSeq`, returns `&Vec<u8>`, otherwise returns `None`.
-    /// ```
-    /// # use sfv::BareItem;
-    /// let bare_item = BareItem::ByteSeq("foo".to_owned().into_bytes());
-    /// assert_eq!(bare_item.as_byte_seq().unwrap().as_slice(), "foo".as_bytes());
-    /// ```
-    pub fn as_byte_seq(&self) -> Option<&Vec<u8>> {
+
+    /// If the bare item is a byte sequence, returns a reference to it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_byte_sequence(&self) -> Option<&[u8]>
+    where
+        B: Borrow<[u8]>,
+    {
         match *self {
-            BareItem::ByteSeq(ref val) => Some(val),
+            Self::ByteSequence(ref val) => Some(val.borrow()),
             _ => None,
         }
     }
-    /// If `BareItem` is a `Boolean`, returns `bool`, otherwise returns `None`.
-    /// ```
-    /// # use sfv::{BareItem, Decimal, FromPrimitive};
-    /// let bare_item = BareItem::Boolean(true);
-    /// assert_eq!(bare_item.as_bool().unwrap(), true);
-    /// ```
-    pub fn as_bool(&self) -> Option<bool> {
+
+    /// If the bare item is a boolean, returns it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_boolean(&self) -> Option<bool> {
         match *self {
-            BareItem::Boolean(val) => Some(val),
+            Self::Boolean(val) => Some(val),
             _ => None,
         }
     }
-    /// If `BareItem` is a `Token`, returns `&str`, otherwise returns `None`.
-    /// ```
-    /// use sfv::BareItem;
-    ///
-    /// let bare_item = BareItem::Token("*bar".into());
-    /// assert_eq!(bare_item.as_token().unwrap(), "*bar");
-    /// ```
-    pub fn as_token(&self) -> Option<&str> {
+
+    /// If the bare item is a token, returns a reference to it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_token(&self) -> Option<&TokenRef>
+    where
+        T: Borrow<TokenRef>,
+    {
         match *self {
-            BareItem::Token(ref val) => Some(val),
+            Self::Token(ref val) => Some(val.borrow()),
+            _ => None,
+        }
+    }
+
+    /// If the bare item is a date, returns it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_date(&self) -> Option<Date> {
+        match *self {
+            Self::Date(val) => Some(val),
+            _ => None,
+        }
+    }
+
+    /// If the bare item is a display string, returns a reference to it; otherwise returns `None`.
+    #[must_use]
+    pub fn as_display_string(&self) -> Option<&D> {
+        match *self {
+            Self::DisplayString(ref val) => Some(val),
             _ => None,
         }
     }
 }
 
-impl From<i64> for BareItem {
-    /// Converts `i64` into `BareItem::Integer`.
-    /// ```
-    /// # use sfv::BareItem;
-    /// let bare_item: BareItem = 456.into();
-    /// assert_eq!(bare_item.as_int().unwrap(), 456);
-    /// ```
-    fn from(item: i64) -> Self {
-        BareItem::Integer(item)
+impl<S, B, T, D> From<Integer> for GenericBareItem<S, B, T, D> {
+    fn from(val: Integer) -> Self {
+        Self::Integer(val)
     }
 }
 
-impl From<Decimal> for BareItem {
-    /// Converts `Decimal` into `BareItem::Decimal`.
-    /// ```
-    /// # use sfv::{BareItem, Decimal, FromPrimitive};
-    /// let decimal_number = Decimal::from_f64(48.01).unwrap();
-    /// let bare_item: BareItem = decimal_number.into();
-    /// assert_eq!(bare_item.as_decimal().unwrap(), decimal_number);
-    /// ```
-    fn from(item: Decimal) -> Self {
-        BareItem::Decimal(item)
+impl<S, B, T, D> From<bool> for GenericBareItem<S, B, T, D> {
+    fn from(val: bool) -> Self {
+        Self::Boolean(val)
+    }
+}
+
+impl<S, B, T, D> From<Decimal> for GenericBareItem<S, B, T, D> {
+    fn from(val: Decimal) -> Self {
+        Self::Decimal(val)
+    }
+}
+
+impl<S, B, T, D> From<Date> for GenericBareItem<S, B, T, D> {
+    fn from(val: Date) -> Self {
+        Self::Date(val)
+    }
+}
+
+impl<S, B, T, D> TryFrom<f32> for GenericBareItem<S, B, T, D> {
+    type Error = Error;
+
+    fn try_from(val: f32) -> Result<Self, Error> {
+        Decimal::try_from(val).map(Self::Decimal)
+    }
+}
+
+impl<S, B, T, D> TryFrom<f64> for GenericBareItem<S, B, T, D> {
+    type Error = Error;
+
+    fn try_from(val: f64) -> Result<Self, Error> {
+        Decimal::try_from(val).map(Self::Decimal)
+    }
+}
+
+impl<S, T, D> From<Vec<u8>> for GenericBareItem<S, Vec<u8>, T, D> {
+    fn from(val: Vec<u8>) -> Self {
+        Self::ByteSequence(val)
+    }
+}
+
+impl<S, B, D> From<Token> for GenericBareItem<S, B, Token, D> {
+    fn from(val: Token) -> Self {
+        Self::Token(val)
+    }
+}
+
+impl<B, T, D> From<String> for GenericBareItem<String, B, T, D> {
+    fn from(val: String) -> Self {
+        Self::String(val)
+    }
+}
+
+impl<'a, S, T, D> From<&'a [u8]> for GenericBareItem<S, Vec<u8>, T, D> {
+    fn from(val: &'a [u8]) -> Self {
+        Self::ByteSequence(val.to_owned())
+    }
+}
+
+impl<'a, S, B, D> From<&'a TokenRef> for GenericBareItem<S, B, Token, D> {
+    fn from(val: &'a TokenRef) -> Self {
+        Self::Token(val.to_owned())
+    }
+}
+
+impl<'a, B, T, D> From<&'a StringRef> for GenericBareItem<String, B, T, D> {
+    fn from(val: &'a StringRef) -> Self {
+        Self::String(val.to_owned())
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Num {
     Decimal(Decimal),
-    Integer(i64),
+    Integer(Integer),
 }
 
-/// Similar to `BareItem`, but used to serialize values via `RefItemSerializer`, `RefListSerializer`, `RefDictSerializer`.
-#[derive(Debug, PartialEq, Clone)]
-pub enum RefBareItem<'a> {
-    Integer(i64),
-    Decimal(Decimal),
-    String(&'a str),
-    ByteSeq(&'a [u8]),
-    Boolean(bool),
-    Token(&'a str),
-}
+/// A [bare item] that owns its data.
+///
+/// [bare item]: <https://httpwg.org/specs/rfc9651.html#item>
+#[cfg_attr(
+    feature = "parsed-types",
+    doc = "Used to construct an [`Item`] or [`Parameters`] values."
+)]
+///
+/// Note: This type deliberately does not implement `From<StdString>` as a
+/// shorthand for [`BareItem::DisplayString`] because it is too easy to confuse
+/// with conversions from [`String`]:
+///
+/// ```compile_fail
+/// # use sfv::BareItem;
+/// let _: BareItem = "x".to_owned().into();
+/// ```
+///
+/// Instead, use:
+///
+/// ```
+/// # use sfv::BareItem;
+/// let _ = BareItem::DisplayString("x".to_owned());
+/// ```
+pub type BareItem = GenericBareItem<String, Vec<u8>, Token, StdString>;
 
-impl BareItem {
-    /// Converts `BareItem` into `RefBareItem`.
-    fn to_ref_bare_item(&self) -> RefBareItem {
-        match self {
-            BareItem::Integer(val) => RefBareItem::Integer(*val),
-            BareItem::Decimal(val) => RefBareItem::Decimal(*val),
-            BareItem::String(val) => RefBareItem::String(val),
-            BareItem::ByteSeq(val) => RefBareItem::ByteSeq(val.as_slice()),
-            BareItem::Boolean(val) => RefBareItem::Boolean(*val),
-            BareItem::Token(val) => RefBareItem::Token(val),
+/// A [bare item] that borrows its data.
+///
+/// Used to serialize values via [`ItemSerializer`], [`ListSerializer`], and [`DictSerializer`].
+///
+/// [bare item]: <https://httpwg.org/specs/rfc9651.html#item>
+///
+/// Note: This type deliberately does not implement `From<&str>` as a shorthand
+/// for [`RefBareItem::DisplayString`] because it is too easy to confuse with
+/// conversions from [`StringRef`]:
+///
+/// ```compile_fail
+/// # use sfv::RefBareItem;
+/// let _: RefBareItem = "x".into();
+/// ```
+///
+/// Instead, use:
+///
+/// ```
+/// # use sfv::RefBareItem;
+/// let _ = RefBareItem::DisplayString("x");
+/// ```
+pub type RefBareItem<'a> = GenericBareItem<&'a StringRef, &'a [u8], &'a TokenRef, &'a str>;
+
+/// A [bare item] that borrows data from input when possible.
+///
+/// Used to parse input incrementally in the [`visitor`] module.
+///
+/// [bare item]: <https://httpwg.org/specs/rfc9651.html#item>
+///
+/// Note: This type deliberately does not implement `From<Cow<str>>` as a
+/// shorthand for [`BareItemFromInput::DisplayString`] because it is too easy to
+/// confuse with conversions from [`Cow<StringRef>`]:
+///
+/// ```compile_fail
+/// # use sfv::BareItemFromInput;
+/// # use std::borrow::Cow;
+/// let _: BareItemFromInput = "x".to_owned().into();
+/// ```
+///
+/// Instead, use:
+///
+/// ```
+/// # use sfv::BareItemFromInput;
+/// # use std::borrow::Cow;
+/// let _ = BareItemFromInput::DisplayString(Cow::Borrowed("x"));
+/// ```
+pub type BareItemFromInput<'a> =
+    GenericBareItem<Cow<'a, StringRef>, Vec<u8>, &'a TokenRef, Cow<'a, str>>;
+
+impl<'a, S, B, T, D> From<&'a GenericBareItem<S, B, T, D>> for RefBareItem<'a>
+where
+    S: Borrow<StringRef>,
+    B: Borrow<[u8]>,
+    T: Borrow<TokenRef>,
+    D: Borrow<str>,
+{
+    fn from(val: &'a GenericBareItem<S, B, T, D>) -> RefBareItem<'a> {
+        match val {
+            GenericBareItem::Integer(val) => RefBareItem::Integer(*val),
+            GenericBareItem::Decimal(val) => RefBareItem::Decimal(*val),
+            GenericBareItem::String(val) => RefBareItem::String(val.borrow()),
+            GenericBareItem::ByteSequence(val) => RefBareItem::ByteSequence(val.borrow()),
+            GenericBareItem::Boolean(val) => RefBareItem::Boolean(*val),
+            GenericBareItem::Token(val) => RefBareItem::Token(val.borrow()),
+            GenericBareItem::Date(val) => RefBareItem::Date(*val),
+            GenericBareItem::DisplayString(val) => RefBareItem::DisplayString(val.borrow()),
         }
     }
+}
+
+impl<'a> From<BareItemFromInput<'a>> for BareItem {
+    fn from(val: BareItemFromInput<'a>) -> BareItem {
+        match val {
+            BareItemFromInput::Integer(val) => BareItem::Integer(val),
+            BareItemFromInput::Decimal(val) => BareItem::Decimal(val),
+            BareItemFromInput::String(val) => BareItem::String(val.into_owned()),
+            BareItemFromInput::ByteSequence(val) => BareItem::ByteSequence(val),
+            BareItemFromInput::Boolean(val) => BareItem::Boolean(val),
+            BareItemFromInput::Token(val) => BareItem::Token(val.to_owned()),
+            BareItemFromInput::Date(val) => BareItem::Date(val),
+            BareItemFromInput::DisplayString(val) => BareItem::DisplayString(val.into_owned()),
+        }
+    }
+}
+
+impl<'a> From<RefBareItem<'a>> for BareItem {
+    fn from(val: RefBareItem<'a>) -> BareItem {
+        match val {
+            RefBareItem::Integer(val) => BareItem::Integer(val),
+            RefBareItem::Decimal(val) => BareItem::Decimal(val),
+            RefBareItem::String(val) => BareItem::String(val.to_owned()),
+            RefBareItem::ByteSequence(val) => BareItem::ByteSequence(val.to_owned()),
+            RefBareItem::Boolean(val) => BareItem::Boolean(val),
+            RefBareItem::Token(val) => BareItem::Token(val.to_owned()),
+            RefBareItem::Date(val) => BareItem::Date(val),
+            RefBareItem::DisplayString(val) => BareItem::DisplayString(val.to_owned()),
+        }
+    }
+}
+
+impl<'a, S, T, D> From<&'a [u8]> for GenericBareItem<S, &'a [u8], T, D> {
+    fn from(val: &'a [u8]) -> Self {
+        Self::ByteSequence(val)
+    }
+}
+
+impl<'a, S, B, D> From<&'a Token> for GenericBareItem<S, B, &'a TokenRef, D> {
+    fn from(val: &'a Token) -> Self {
+        Self::Token(val)
+    }
+}
+
+impl<'a, S, B, D> From<&'a TokenRef> for GenericBareItem<S, B, &'a TokenRef, D> {
+    fn from(val: &'a TokenRef) -> Self {
+        Self::Token(val)
+    }
+}
+
+impl<'a, B, T, D> From<&'a String> for GenericBareItem<&'a StringRef, B, T, D> {
+    fn from(val: &'a String) -> Self {
+        Self::String(val)
+    }
+}
+
+impl<'a, B, T, D> From<&'a StringRef> for GenericBareItem<&'a StringRef, B, T, D> {
+    fn from(val: &'a StringRef) -> Self {
+        Self::String(val)
+    }
+}
+
+impl<S1, B1, T1, D1, S2, B2, T2, D2> PartialEq<GenericBareItem<S2, B2, T2, D2>>
+    for GenericBareItem<S1, B1, T1, D1>
+where
+    for<'a> RefBareItem<'a>: From<&'a Self>,
+    for<'a> RefBareItem<'a>: From<&'a GenericBareItem<S2, B2, T2, D2>>,
+{
+    fn eq(&self, other: &GenericBareItem<S2, B2, T2, D2>) -> bool {
+        match (RefBareItem::from(self), RefBareItem::from(other)) {
+            (RefBareItem::Integer(a), RefBareItem::Integer(b)) => a == b,
+            (RefBareItem::Decimal(a), RefBareItem::Decimal(b)) => a == b,
+            (RefBareItem::String(a), RefBareItem::String(b)) => a == b,
+            (RefBareItem::ByteSequence(a), RefBareItem::ByteSequence(b)) => a == b,
+            (RefBareItem::Boolean(a), RefBareItem::Boolean(b)) => a == b,
+            (RefBareItem::Token(a), RefBareItem::Token(b)) => a == b,
+            (RefBareItem::Date(a), RefBareItem::Date(b)) => a == b,
+            (RefBareItem::DisplayString(a), RefBareItem::DisplayString(b)) => a == b,
+            _ => false,
+        }
+    }
+}
+
+/// A version for serialized structured field values.
+///
+/// Each HTTP specification that uses structured field values must indicate
+/// which version it uses. See [the guidance from RFC 9651] for details.
+///
+/// [RFC 9651]: <https://httpwg.org/specs/rfc9651.html#using-new-structured-types-in-extensions>
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub enum Version {
+    /// [RFC 8941], which does not support dates or display strings.
+    ///
+    /// [RFC 8941]: <https://httpwg.org/specs/rfc8941.html>
+    Rfc8941,
+    /// [RFC 9651], which supports dates and display strings.
+    ///
+    /// [RFC 9651]: <https://httpwg.org/specs/rfc9651.html>
+    Rfc9651,
+}
+
+impl fmt::Display for Version {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(match self {
+            Self::Rfc8941 => "RFC 8941",
+            Self::Rfc9651 => "RFC 9651",
+        })
+    }
+}
+
+mod private {
+    #[allow(unused)]
+    pub trait Sealed {}
 }

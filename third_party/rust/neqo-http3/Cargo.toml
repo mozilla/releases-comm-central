@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-http3"
-version = "0.14.1"
+version = "0.15.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -76,12 +76,6 @@ path = "tests/send_message.rs"
 name = "webtransport"
 path = "tests/webtransport.rs"
 
-[[bench]]
-name = "streams"
-path = "benches/streams.rs"
-harness = false
-required-features = ["bench"]
-
 [dependencies.enumset]
 version = "1.1"
 default-features = false
@@ -112,7 +106,8 @@ features = ["std"]
 default-features = false
 
 [dependencies.sfv]
-version = "0.9"
+version = "0.14"
+features = ["parsed-types"]
 default-features = false
 
 [dependencies.strum]
@@ -187,7 +182,6 @@ return_and_then = "warn"
 self_named_module_files = "warn"
 semicolon_inside_block = "warn"
 string_lit_chars_any = "warn"
-string_to_string = "warn"
 suspicious_xor_used_as_pow = "warn"
 try_err = "warn"
 unnecessary_safety_comment = "warn"

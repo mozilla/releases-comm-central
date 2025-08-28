@@ -26,19 +26,12 @@ use crate::{
     },
     tracking::DEFAULT_LOCAL_ACK_DELAY,
     version::{self, Version},
-    CongestionControlAlgorithm, Res,
+    CongestionControlAlgorithm, Res, DEFAULT_INITIAL_RTT,
 };
 
 const LOCAL_MAX_DATA: u64 = MAX_VARINT;
 const LOCAL_STREAM_LIMIT_BIDI: u64 = 16;
 const LOCAL_STREAM_LIMIT_UNI: u64 = 16;
-/// See `ConnectionParameters.ack_ratio` for a discussion of this value.
-pub const ACK_RATIO_SCALE: u8 = 10;
-/// By default, aim to have the peer acknowledge 4 times per round trip time.
-/// See `ConnectionParameters.ack_ratio` for more.
-pub const DEFAULT_ACK_RATIO: u8 = 4 * ACK_RATIO_SCALE;
-/// The local value for the idle timeout period.
-const DEFAULT_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 const MAX_QUEUED_DATAGRAMS_DEFAULT: usize = 10;
 
 /// What to do with preferred addresses.
@@ -88,6 +81,7 @@ pub struct ConnectionParameters {
     datagram_size: u64,
     outgoing_datagram_queue: usize,
     incoming_datagram_queue: usize,
+    initial_rtt: Duration,
     fast_pto: u8,
     grease: bool,
     disable_migration: bool,
@@ -116,12 +110,13 @@ impl Default for ConnectionParameters {
                 .expect("usize fits in u64"),
             max_streams_bidi: LOCAL_STREAM_LIMIT_BIDI,
             max_streams_uni: LOCAL_STREAM_LIMIT_UNI,
-            ack_ratio: DEFAULT_ACK_RATIO,
-            idle_timeout: DEFAULT_IDLE_TIMEOUT,
+            ack_ratio: Self::DEFAULT_ACK_RATIO,
+            idle_timeout: Self::DEFAULT_IDLE_TIMEOUT,
             preferred_address: PreferredAddressConfig::Default,
             datagram_size: 0,
             outgoing_datagram_queue: MAX_QUEUED_DATAGRAMS_DEFAULT,
             incoming_datagram_queue: MAX_QUEUED_DATAGRAMS_DEFAULT,
+            initial_rtt: DEFAULT_INITIAL_RTT,
             fast_pto: FAST_PTO_SCALE,
             grease: true,
             disable_migration: false,
@@ -135,6 +130,14 @@ impl Default for ConnectionParameters {
 }
 
 impl ConnectionParameters {
+    /// See `ConnectionParameters.ack_ratio` for a discussion of this value.
+    pub const ACK_RATIO_SCALE: u8 = 10;
+    /// By default, aim to have the peer acknowledge 4 times per round trip time.
+    /// See `ConnectionParameters.ack_ratio` for more.
+    pub const DEFAULT_ACK_RATIO: u8 = 4 * Self::ACK_RATIO_SCALE;
+    /// The local value for the idle timeout period.
+    pub const DEFAULT_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
+
     #[must_use]
     pub const fn get_versions(&self) -> &version::Config {
         &self.versions
@@ -199,23 +202,6 @@ impl ConnectionParameters {
             }
         }
         self
-    }
-
-    /// Get the maximum stream data that we will accept on different types of streams.
-    ///
-    /// # Panics
-    ///
-    /// If `StreamType::UniDi` and `false` are passed as that is not a valid combination.
-    #[must_use]
-    pub fn get_max_stream_data(&self, stream_type: StreamType, remote: bool) -> u64 {
-        match (stream_type, remote) {
-            (StreamType::BiDi, false) => self.max_stream_data_bidi_local,
-            (StreamType::BiDi, true) => self.max_stream_data_bidi_remote,
-            (StreamType::UniDi, false) => {
-                panic!("Can't get receive limit on a stream that can only be sent")
-            }
-            (StreamType::UniDi, true) => self.max_stream_data_uni,
-        }
     }
 
     /// Set the maximum stream data that we will accept on different types of streams.
@@ -287,6 +273,17 @@ impl ConnectionParameters {
     #[must_use]
     pub const fn get_idle_timeout(&self) -> Duration {
         self.idle_timeout
+    }
+
+    #[must_use]
+    pub const fn get_initial_rtt(&self) -> Duration {
+        self.initial_rtt
+    }
+
+    #[must_use]
+    pub const fn initial_rtt(mut self, init_rtt: Duration) -> Self {
+        self.initial_rtt = init_rtt;
+        self
     }
 
     #[must_use]
@@ -395,6 +392,7 @@ impl ConnectionParameters {
         self.pmtud_iface_mtu
     }
 
+    // TODO: Not used in neqo, but Gecko calls it. Needs a test to call it.
     #[must_use]
     pub const fn pmtud_iface_mtu(mut self, pmtud_iface_mtu: bool) -> Self {
         self.pmtud_iface_mtu = pmtud_iface_mtu;

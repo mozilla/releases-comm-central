@@ -1,310 +1,446 @@
-use crate::serializer::Serializer;
-use crate::{RefBareItem, SFVResult};
-use std::marker::PhantomData;
+use std::borrow::BorrowMut;
+
+use crate::{serializer::Serializer, KeyRef, RefBareItem};
+#[cfg(feature = "parsed-types")]
+use crate::{Item, ListEntry};
 
 /// Serializes `Item` field value components incrementally.
-/// ```
-/// use sfv::{RefBareItem, RefItemSerializer};
 ///
-/// let mut serialized_item = String::new();
-/// let serializer = RefItemSerializer::new(&mut serialized_item);
-/// serializer
-/// .bare_item(&RefBareItem::Integer(11))
-/// .unwrap()
-/// .parameter("foo", &RefBareItem::Boolean(true))
-/// .unwrap();
-/// assert_eq!(serialized_item, "11;foo");
+/// Note: The serialization conforms to [RFC 9651], meaning that
+/// [`Dates`][crate::Date] and [`Display Strings`][RefBareItem::DisplayString],
+/// which cause parsing errors under [RFC 8941], will be serialized
+/// unconditionally. The consumer of this API is responsible for determining
+/// whether it is valid to serialize these bare items for any specific field.
+///
+/// [RFC 8941]: <https://httpwg.org/specs/rfc8941.html>
+/// [RFC 9651]: <https://httpwg.org/specs/rfc9651.html>
 /// ```
+/// use sfv::{KeyRef, ItemSerializer};
+///
+/// # fn main() -> Result<(), sfv::Error> {
+/// let serialized_item = ItemSerializer::new()
+///     .bare_item(11)
+///     .parameter(KeyRef::from_str("foo")?, true)
+///     .finish();
+///
+/// assert_eq!(serialized_item, "11;foo");
+/// # Ok(())
+/// # }
+/// ```
+// https://httpwg.org/specs/rfc9651.html#ser-item
 #[derive(Debug)]
-pub struct RefItemSerializer<'a> {
-    pub buffer: &'a mut String,
+#[must_use]
+pub struct ItemSerializer<W> {
+    buffer: W,
 }
 
-impl<'a> RefItemSerializer<'a> {
-    pub fn new(buffer: &'a mut String) -> Self {
-        RefItemSerializer { buffer }
+impl Default for ItemSerializer<String> {
+    fn default() -> Self {
+        Self::new()
     }
+}
 
-    pub fn bare_item(self, bare_item: &RefBareItem) -> SFVResult<RefParameterSerializer<'a>> {
-        Serializer::serialize_ref_bare_item(bare_item, self.buffer)?;
-        Ok(RefParameterSerializer {
+impl ItemSerializer<String> {
+    /// Creates a serializer that writes into a new string.
+    pub fn new() -> Self {
+        Self {
+            buffer: String::new(),
+        }
+    }
+}
+
+impl<'a> ItemSerializer<&'a mut String> {
+    /// Creates a serializer that writes into the given string.
+    pub fn with_buffer(buffer: &'a mut String) -> Self {
+        Self { buffer }
+    }
+}
+
+impl<W: BorrowMut<String>> ItemSerializer<W> {
+    /// Serializes the given bare item.
+    ///
+    /// Returns a serializer for the item's parameters.
+    pub fn bare_item<'b>(
+        mut self,
+        bare_item: impl Into<RefBareItem<'b>>,
+    ) -> ParameterSerializer<W> {
+        Serializer::serialize_bare_item(bare_item, self.buffer.borrow_mut());
+        ParameterSerializer {
             buffer: self.buffer,
-        })
+        }
     }
 }
 
-/// Used by `RefItemSerializer`, `RefListSerializer`, `RefDictSerializer` to serialize a single `Parameter`.
+/// Serializes parameters incrementally.
 #[derive(Debug)]
-pub struct RefParameterSerializer<'a> {
-    buffer: &'a mut String,
+#[must_use]
+pub struct ParameterSerializer<W> {
+    buffer: W,
 }
 
-impl<'a> RefParameterSerializer<'a> {
-    pub fn parameter(self, name: &str, value: &RefBareItem) -> SFVResult<Self> {
-        Serializer::serialize_ref_parameter(name, value, self.buffer)?;
-        Ok(self)
+impl<W: BorrowMut<String>> ParameterSerializer<W> {
+    /// Serializes a parameter with the given name and value.
+    ///
+    /// Returns the serializer.
+    pub fn parameter<'b>(mut self, name: &KeyRef, value: impl Into<RefBareItem<'b>>) -> Self {
+        Serializer::serialize_parameter(name, value, self.buffer.borrow_mut());
+        self
+    }
+
+    /// Serializes the given parameters.
+    ///
+    /// Returns the serializer.
+    pub fn parameters<'b>(
+        mut self,
+        params: impl IntoIterator<Item = (impl AsRef<KeyRef>, impl Into<RefBareItem<'b>>)>,
+    ) -> Self {
+        for (name, value) in params {
+            Serializer::serialize_parameter(name.as_ref(), value, self.buffer.borrow_mut());
+        }
+        self
+    }
+
+    /// Finishes parameter serialization and returns the serializer's output.
+    #[must_use]
+    pub fn finish(self) -> W {
+        self.buffer
+    }
+}
+
+fn maybe_write_separator(buffer: &mut String, first: &mut bool) {
+    if *first {
+        *first = false;
+    } else {
+        buffer.push_str(", ");
     }
 }
 
 /// Serializes `List` field value components incrementally.
-/// ```
-/// use sfv::{RefBareItem, RefListSerializer};
 ///
-/// let mut serialized_item = String::new();
-/// let serializer = RefListSerializer::new(&mut serialized_item);
-/// serializer
-///     .bare_item(&RefBareItem::Integer(11))
-///     .unwrap()
-///     .parameter("foo", &RefBareItem::Boolean(true))
-///     .unwrap()
-///     .open_inner_list()
-///     .inner_list_bare_item(&RefBareItem::Token("abc"))
-///     .unwrap()
-///     .inner_list_parameter("abc_param", &RefBareItem::Boolean(false))
-///     .unwrap()
-///     .inner_list_bare_item(&RefBareItem::Token("def"))
-///     .unwrap()
-///     .close_inner_list()
-///     .parameter("bar", &RefBareItem::String("val"))
-///     .unwrap();
-/// assert_eq!(
-///     serialized_item,
-///     "11;foo, (abc;abc_param=?0 def);bar=\"val\""
-/// );
+/// Note: The serialization conforms to [RFC 9651], meaning that
+/// [`Dates`][crate::Date] and [`Display Strings`][RefBareItem::DisplayString],
+/// which cause parsing errors under [RFC 8941], will be serialized
+/// unconditionally. The consumer of this API is responsible for determining
+/// whether it is valid to serialize these bare items for any specific field.
+///
+/// [RFC 8941]: <https://httpwg.org/specs/rfc8941.html>
+/// [RFC 9651]: <https://httpwg.org/specs/rfc9651.html>
 /// ```
+/// use sfv::{KeyRef, StringRef, TokenRef, ListSerializer};
+///
+/// # fn main() -> Result<(), sfv::Error> {
+/// let mut ser = ListSerializer::new();
+///
+/// ser.bare_item(11)
+///     .parameter(KeyRef::from_str("foo")?, true);
+///
+/// {
+///     let mut ser = ser.inner_list();
+///
+///     ser.bare_item(TokenRef::from_str("abc")?)
+///         .parameter(KeyRef::from_str("abc_param")?, false);
+///
+///     ser.bare_item(TokenRef::from_str("def")?);
+///
+///     ser.finish()
+///         .parameter(KeyRef::from_str("bar")?, StringRef::from_str("val")?);
+/// }
+///
+/// assert_eq!(
+///     ser.finish().as_deref(),
+///     Some(r#"11;foo, (abc;abc_param=?0 def);bar="val""#),
+/// );
+/// # Ok(())
+/// # }
+/// ```
+// https://httpwg.org/specs/rfc9651.html#ser-list
 #[derive(Debug)]
-pub struct RefListSerializer<'a> {
-    buffer: &'a mut String,
+#[must_use]
+pub struct ListSerializer<W> {
+    buffer: W,
+    first: bool,
 }
 
-impl<'a> RefListSerializer<'a> {
-    pub fn new(buffer: &'a mut String) -> Self {
-        RefListSerializer { buffer }
+impl Default for ListSerializer<String> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ListSerializer<String> {
+    /// Creates a serializer that writes into a new string.
+    pub fn new() -> Self {
+        Self {
+            buffer: String::new(),
+            first: true,
+        }
+    }
+}
+
+impl<'a> ListSerializer<&'a mut String> {
+    /// Creates a serializer that writes into the given string.
+    pub fn with_buffer(buffer: &'a mut String) -> Self {
+        Self {
+            buffer,
+            first: true,
+        }
+    }
+}
+
+impl<W: BorrowMut<String>> ListSerializer<W> {
+    /// Serializes the given bare item as a member of the list.
+    ///
+    /// Returns a serializer for the item's parameters.
+    pub fn bare_item<'b>(
+        &mut self,
+        bare_item: impl Into<RefBareItem<'b>>,
+    ) -> ParameterSerializer<&mut String> {
+        let buffer = self.buffer.borrow_mut();
+        maybe_write_separator(buffer, &mut self.first);
+        Serializer::serialize_bare_item(bare_item, buffer);
+        ParameterSerializer { buffer }
     }
 
-    pub fn bare_item(self, bare_item: &RefBareItem) -> SFVResult<Self> {
-        if !self.buffer.is_empty() {
-            self.buffer.push_str(", ");
+    /// Opens an inner list, returning a serializer to be used for its items and
+    /// parameters.
+    pub fn inner_list(&mut self) -> InnerListSerializer {
+        let buffer = self.buffer.borrow_mut();
+        maybe_write_separator(buffer, &mut self.first);
+        buffer.push('(');
+        InnerListSerializer {
+            buffer: Some(buffer),
         }
-        Serializer::serialize_ref_bare_item(bare_item, self.buffer)?;
-        Ok(RefListSerializer {
-            buffer: self.buffer,
-        })
     }
 
-    pub fn parameter(self, name: &str, value: &RefBareItem) -> SFVResult<Self> {
-        if self.buffer.is_empty() {
-            return Err("parameters must be serialized after bare item or inner list");
+    /// Serializes the given members of the list.
+    #[cfg(feature = "parsed-types")]
+    pub fn members<'b>(&mut self, members: impl IntoIterator<Item = &'b ListEntry>) {
+        for value in members {
+            match value {
+                ListEntry::Item(value) => {
+                    _ = self.bare_item(&value.bare_item).parameters(&value.params);
+                }
+                ListEntry::InnerList(value) => {
+                    let mut ser = self.inner_list();
+                    ser.items(&value.items);
+                    _ = ser.finish().parameters(&value.params);
+                }
+            }
         }
-        Serializer::serialize_ref_parameter(name, value, self.buffer)?;
-        Ok(RefListSerializer {
-            buffer: self.buffer,
-        })
     }
-    pub fn open_inner_list(self) -> RefInnerListSerializer<'a, Self> {
-        if !self.buffer.is_empty() {
-            self.buffer.push_str(", ");
-        }
-        self.buffer.push('(');
-        RefInnerListSerializer::<RefListSerializer> {
-            buffer: self.buffer,
-            caller_type: PhantomData,
+
+    /// Finishes serialization of the list and returns the underlying output.
+    ///
+    /// Returns `None` if and only if no members were serialized, as [empty
+    /// lists are not meant to be serialized at
+    /// all](https://httpwg.org/specs/rfc9651.html#text-serialize).
+    #[must_use]
+    pub fn finish(self) -> Option<W> {
+        if self.first {
+            None
+        } else {
+            Some(self.buffer)
         }
     }
 }
 
 /// Serializes `Dictionary` field value components incrementally.
-/// ```
-/// use sfv::{RefBareItem, RefDictSerializer, Decimal, FromPrimitive};
 ///
-/// let mut serialized_item = String::new();
-/// let serializer = RefDictSerializer::new(&mut serialized_item);
-/// serializer
-///    .bare_item_member("member1", &RefBareItem::Integer(11))
-///    .unwrap()
-///    .parameter("foo", &RefBareItem::Boolean(true))
-///    .unwrap()
-///    .open_inner_list("member2")
-///    .unwrap()
-///    .inner_list_bare_item(&RefBareItem::Token("abc"))
-///    .unwrap()
-///    .inner_list_parameter("abc_param", &RefBareItem::Boolean(false))
-///    .unwrap()
-///    .inner_list_bare_item(&RefBareItem::Token("def"))
-///    .unwrap()
-///    .close_inner_list()
-///    .parameter("bar", &RefBareItem::String("val"))
-///    .unwrap()
-///    .bare_item_member(
-///         "member3",
-///         &RefBareItem::Decimal(Decimal::from_f64(12.34566).unwrap()),
-///    )
-///    .unwrap();
-/// assert_eq!(
-///    serialized_item,
-///    "member1=11;foo, member2=(abc;abc_param=?0 def);bar=\"val\", member3=12.346"
-/// );
+/// Note: The serialization conforms to [RFC 9651], meaning that
+/// [`Dates`][crate::Date] and [`Display Strings`][RefBareItem::DisplayString],
+/// which cause parsing errors under [RFC 8941], will be serialized
+/// unconditionally. The consumer of this API is responsible for determining
+/// whether it is valid to serialize these bare items for any specific field.
+///
+/// [RFC 8941]: <https://httpwg.org/specs/rfc8941.html>
+/// [RFC 9651]: <https://httpwg.org/specs/rfc9651.html>
+///
 /// ```
+/// use sfv::{KeyRef, StringRef, TokenRef, DictSerializer, Decimal};
+///
+/// # fn main() -> Result<(), sfv::Error> {
+/// let mut ser = DictSerializer::new();
+///
+/// ser.bare_item(KeyRef::from_str("member1")?, 11)
+///     .parameter(KeyRef::from_str("foo")?, true);
+///
+/// {
+///   let mut ser = ser.inner_list(KeyRef::from_str("member2")?);
+///
+///   ser.bare_item(TokenRef::from_str("abc")?)
+///       .parameter(KeyRef::from_str("abc_param")?, false);
+///
+///   ser.bare_item(TokenRef::from_str("def")?);
+///
+///   ser.finish()
+///      .parameter(KeyRef::from_str("bar")?, StringRef::from_str("val")?);
+/// }
+///
+/// ser.bare_item(KeyRef::from_str("member3")?, Decimal::try_from(12.34566)?);
+///
+/// assert_eq!(
+///     ser.finish().as_deref(),
+///     Some(r#"member1=11;foo, member2=(abc;abc_param=?0 def);bar="val", member3=12.346"#),
+/// );
+/// # Ok(())
+/// # }
+/// ```
+// https://httpwg.org/specs/rfc9651.html#ser-dictionary
 #[derive(Debug)]
-pub struct RefDictSerializer<'a> {
-    buffer: &'a mut String,
+#[must_use]
+pub struct DictSerializer<W> {
+    buffer: W,
+    first: bool,
 }
 
-impl<'a> RefDictSerializer<'a> {
-    pub fn new(buffer: &'a mut String) -> Self {
-        RefDictSerializer { buffer }
-    }
-
-    pub fn bare_item_member(self, name: &str, value: &RefBareItem) -> SFVResult<Self> {
-        if !self.buffer.is_empty() {
-            self.buffer.push_str(", ");
-        }
-        Serializer::serialize_key(name, self.buffer)?;
-        if value != &RefBareItem::Boolean(true) {
-            self.buffer.push('=');
-            Serializer::serialize_ref_bare_item(value, self.buffer)?;
-        }
-        Ok(self)
-    }
-
-    pub fn parameter(self, name: &str, value: &RefBareItem) -> SFVResult<Self> {
-        if self.buffer.is_empty() {
-            return Err("parameters must be serialized after bare item or inner list");
-        }
-        Serializer::serialize_ref_parameter(name, value, self.buffer)?;
-        Ok(RefDictSerializer {
-            buffer: self.buffer,
-        })
-    }
-
-    pub fn open_inner_list(self, name: &str) -> SFVResult<RefInnerListSerializer<'a, Self>> {
-        if !self.buffer.is_empty() {
-            self.buffer.push_str(", ");
-        }
-        Serializer::serialize_key(name, self.buffer)?;
-        self.buffer.push_str("=(");
-        Ok(RefInnerListSerializer::<RefDictSerializer> {
-            buffer: self.buffer,
-            caller_type: PhantomData,
-        })
+impl Default for DictSerializer<String> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-/// Used by `RefItemSerializer`, `RefListSerializer`, `RefDictSerializer` to serialize `InnerList`.
+impl DictSerializer<String> {
+    /// Creates a serializer that writes into a new string.
+    pub fn new() -> Self {
+        Self {
+            buffer: String::new(),
+            first: true,
+        }
+    }
+}
+
+impl<'a> DictSerializer<&'a mut String> {
+    /// Creates a serializer that writes into the given string.
+    pub fn with_buffer(buffer: &'a mut String) -> Self {
+        Self {
+            buffer,
+            first: true,
+        }
+    }
+}
+
+impl<W: BorrowMut<String>> DictSerializer<W> {
+    /// Serializes the given bare item as a member of the dictionary with the
+    /// given key.
+    ///
+    /// Returns a serializer for the item's parameters.
+    pub fn bare_item<'b>(
+        &mut self,
+        name: &KeyRef,
+        value: impl Into<RefBareItem<'b>>,
+    ) -> ParameterSerializer<&mut String> {
+        let buffer = self.buffer.borrow_mut();
+        maybe_write_separator(buffer, &mut self.first);
+        Serializer::serialize_key(name, buffer);
+        let value = value.into();
+        if value != RefBareItem::Boolean(true) {
+            buffer.push('=');
+            Serializer::serialize_bare_item(value, buffer);
+        }
+        ParameterSerializer { buffer }
+    }
+
+    /// Opens an inner list with the given key, returning a serializer to be
+    /// used for its items and parameters.
+    pub fn inner_list(&mut self, name: &KeyRef) -> InnerListSerializer {
+        let buffer = self.buffer.borrow_mut();
+        maybe_write_separator(buffer, &mut self.first);
+        Serializer::serialize_key(name, buffer);
+        buffer.push_str("=(");
+        InnerListSerializer {
+            buffer: Some(buffer),
+        }
+    }
+
+    /// Serializes the given members of the dictionary.
+    #[cfg(feature = "parsed-types")]
+    pub fn members<'b>(
+        &mut self,
+        members: impl IntoIterator<Item = (impl AsRef<KeyRef>, &'b ListEntry)>,
+    ) {
+        for (name, value) in members {
+            match value {
+                ListEntry::Item(value) => {
+                    _ = self
+                        .bare_item(name.as_ref(), &value.bare_item)
+                        .parameters(&value.params);
+                }
+                ListEntry::InnerList(value) => {
+                    let mut ser = self.inner_list(name.as_ref());
+                    ser.items(&value.items);
+                    _ = ser.finish().parameters(&value.params);
+                }
+            }
+        }
+    }
+
+    /// Finishes serialization of the dictionary and returns the underlying output.
+    ///
+    /// Returns `None` if and only if no members were serialized, as [empty
+    /// dictionaries are not meant to be serialized at
+    /// all](https://httpwg.org/specs/rfc9651.html#text-serialize).
+    #[must_use]
+    pub fn finish(self) -> Option<W> {
+        if self.first {
+            None
+        } else {
+            Some(self.buffer)
+        }
+    }
+}
+
+/// Serializes inner lists incrementally.
+///
+/// The inner list will be closed automatically when the serializer is dropped.
+/// To set the inner list's parameters, call [`InnerListSerializer::finish`].
+///
+/// Failing to drop the serializer or call its `finish` method will result in
+/// an invalid serialization that lacks a closing `)` character.
+// https://httpwg.org/specs/rfc9651.html#ser-innerlist
 #[derive(Debug)]
-pub struct RefInnerListSerializer<'a, T> {
-    buffer: &'a mut String,
-    caller_type: PhantomData<T>,
+#[must_use]
+pub struct InnerListSerializer<'a> {
+    buffer: Option<&'a mut String>,
 }
 
-impl<'a, T: Container<'a>> RefInnerListSerializer<'a, T> {
-    pub fn inner_list_bare_item(self, bare_item: &RefBareItem) -> SFVResult<Self> {
-        if !self.buffer.is_empty() & !self.buffer.ends_with('(') {
-            self.buffer.push(' ');
+impl Drop for InnerListSerializer<'_> {
+    fn drop(&mut self) {
+        if let Some(ref mut buffer) = self.buffer {
+            buffer.push(')');
         }
-        Serializer::serialize_ref_bare_item(bare_item, self.buffer)?;
-        Ok(RefInnerListSerializer {
-            buffer: self.buffer,
-            caller_type: PhantomData,
-        })
     }
+}
 
-    pub fn inner_list_parameter(self, name: &str, value: &RefBareItem) -> SFVResult<Self> {
-        if self.buffer.is_empty() {
-            return Err("parameters must be serialized after bare item or inner list");
+impl<'a> InnerListSerializer<'a> {
+    /// Serializes the given bare item as a member of the inner list.
+    ///
+    /// Returns a serializer for the item's parameters.
+    #[allow(clippy::missing_panics_doc)] // The unwrap is safe by construction.
+    pub fn bare_item<'b>(
+        &mut self,
+        bare_item: impl Into<RefBareItem<'b>>,
+    ) -> ParameterSerializer<&mut String> {
+        let buffer = self.buffer.as_mut().unwrap();
+        if !buffer.is_empty() && !buffer.ends_with('(') {
+            buffer.push(' ');
         }
-        Serializer::serialize_ref_parameter(name, value, self.buffer)?;
-        Ok(RefInnerListSerializer {
-            buffer: self.buffer,
-            caller_type: PhantomData,
-        })
+        Serializer::serialize_bare_item(bare_item, buffer);
+        ParameterSerializer { buffer }
     }
 
-    pub fn close_inner_list(self) -> T {
-        self.buffer.push(')');
-        T::new(self.buffer)
-    }
-}
-
-pub trait Container<'a> {
-    fn new(buffer: &'a mut String) -> Self;
-}
-
-impl<'a> Container<'a> for RefListSerializer<'a> {
-    fn new(buffer: &mut String) -> RefListSerializer {
-        RefListSerializer { buffer }
-    }
-}
-
-impl<'a> Container<'a> for RefDictSerializer<'a> {
-    fn new(buffer: &mut String) -> RefDictSerializer {
-        RefDictSerializer { buffer }
-    }
-}
-
-#[cfg(test)]
-mod alternative_serializer_tests {
-    use super::*;
-    use crate::{Decimal, FromPrimitive};
-
-    #[test]
-    fn test_fast_serialize_item() -> SFVResult<()> {
-        let mut output = String::new();
-        let ser = RefItemSerializer::new(&mut output);
-        ser.bare_item(&RefBareItem::Token("hello"))?
-            .parameter("abc", &RefBareItem::Boolean(true))?;
-        assert_eq!("hello;abc", output);
-        Ok(())
+    /// Serializes the given items as members of the inner list.
+    #[cfg(feature = "parsed-types")]
+    pub fn items<'b>(&mut self, items: impl IntoIterator<Item = &'b Item>) {
+        for item in items {
+            _ = self.bare_item(&item.bare_item).parameters(&item.params);
+        }
     }
 
-    #[test]
-    fn test_fast_serialize_list() -> SFVResult<()> {
-        let mut output = String::new();
-        let ser = RefListSerializer::new(&mut output);
-        ser.bare_item(&RefBareItem::Token("hello"))?
-            .parameter("key1", &RefBareItem::Boolean(true))?
-            .parameter("key2", &RefBareItem::Boolean(false))?
-            .open_inner_list()
-            .inner_list_bare_item(&RefBareItem::String("some_string"))?
-            .inner_list_bare_item(&RefBareItem::Integer(12))?
-            .inner_list_parameter("inner-member-key", &RefBareItem::Boolean(true))?
-            .close_inner_list()
-            .parameter("inner-list-param", &RefBareItem::Token("*"))?;
-        assert_eq!(
-            "hello;key1;key2=?0, (\"some_string\" 12;inner-member-key);inner-list-param=*",
-            output
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn test_fast_serialize_dict() -> SFVResult<()> {
-        let mut output = String::new();
-        let ser = RefDictSerializer::new(&mut output);
-        ser.bare_item_member("member1", &RefBareItem::Token("hello"))?
-            .parameter("key1", &RefBareItem::Boolean(true))?
-            .parameter("key2", &RefBareItem::Boolean(false))?
-            .bare_item_member("member2", &RefBareItem::Boolean(true))?
-            .parameter(
-                "key3",
-                &RefBareItem::Decimal(Decimal::from_f64(45.4586).unwrap()),
-            )?
-            .parameter("key4", &RefBareItem::String("str"))?
-            .open_inner_list("key5")?
-            .inner_list_bare_item(&RefBareItem::Integer(45))?
-            .inner_list_bare_item(&RefBareItem::Integer(0))?
-            .close_inner_list()
-            .bare_item_member("key6", &RefBareItem::String("foo"))?
-            .open_inner_list("key7")?
-            .inner_list_bare_item(&RefBareItem::ByteSeq("some_string".as_bytes()))?
-            .inner_list_bare_item(&RefBareItem::ByteSeq("other_string".as_bytes()))?
-            .close_inner_list()
-            .parameter("lparam", &RefBareItem::Integer(10))?
-            .bare_item_member("key8", &RefBareItem::Boolean(true))?;
-        assert_eq!(
-            "member1=hello;key1;key2=?0, member2;key3=45.459;key4=\"str\", key5=(45 0), key6=\"foo\", key7=(:c29tZV9zdHJpbmc=: :b3RoZXJfc3RyaW5n:);lparam=10, key8",
-            output
-        );
-        Ok(())
+    /// Closes the inner list and returns a serializer for its parameters.
+    #[allow(clippy::missing_panics_doc)]
+    pub fn finish(mut self) -> ParameterSerializer<&'a mut String> {
+        let buffer = self.buffer.take().unwrap();
+        buffer.push(')');
+        ParameterSerializer { buffer }
     }
 }

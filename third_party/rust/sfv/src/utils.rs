@@ -1,44 +1,46 @@
-use data_encoding::{Encoding, Specification};
-use std::iter::Peekable;
-use std::str::Chars;
+use base64::engine;
 
-pub(crate) fn base64() -> Result<Encoding, &'static str> {
-    let mut spec = Specification::new();
-    spec.check_trailing_bits = false;
-    spec.symbols
-        .push_str("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-    spec.padding = None;
-    spec.ignore = "=".to_owned();
-    spec.encoding()
-        .map_err(|_err| "invalid base64 specification")
-}
+pub(crate) const BASE64: engine::GeneralPurpose = engine::GeneralPurpose::new(
+    &base64::alphabet::STANDARD,
+    engine::GeneralPurposeConfig::new()
+        .with_decode_allow_trailing_bits(true)
+        .with_decode_padding_mode(engine::DecodePaddingMode::Indifferent)
+        .with_encode_padding(true),
+);
 
-pub(crate) fn is_tchar(c: char) -> bool {
+const fn is_tchar(c: u8) -> bool {
     // See tchar values list in https://tools.ietf.org/html/rfc7230#section-3.2.6
-    let tchars = "!#$%&'*+-.^_`|~";
-    tchars.contains(c) || c.is_ascii_alphanumeric()
+    matches!(
+        c,
+        b'!' | b'#'
+            | b'$'
+            | b'%'
+            | b'&'
+            | b'\''
+            | b'*'
+            | b'+'
+            | b'-'
+            | b'.'
+            | b'^'
+            | b'_'
+            | b'`'
+            | b'|'
+            | b'~'
+    ) || c.is_ascii_alphanumeric()
 }
 
-pub(crate) fn is_allowed_b64_content(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '+' || c == '=' || c == '/'
+pub(crate) const fn is_allowed_start_token_char(c: u8) -> bool {
+    c.is_ascii_alphabetic() || c == b'*'
 }
 
-pub(crate) fn consume_ows_chars(input_chars: &mut Peekable<Chars>) {
-    while let Some(c) = input_chars.peek() {
-        if c == &' ' || c == &'\t' {
-            input_chars.next();
-        } else {
-            break;
-        }
-    }
+pub(crate) const fn is_allowed_inner_token_char(c: u8) -> bool {
+    is_tchar(c) || c == b':' || c == b'/'
 }
 
-pub(crate) fn consume_sp_chars(input_chars: &mut Peekable<Chars>) {
-    while let Some(c) = input_chars.peek() {
-        if c == &' ' {
-            input_chars.next();
-        } else {
-            break;
-        }
-    }
+pub(crate) const fn is_allowed_start_key_char(c: u8) -> bool {
+    c.is_ascii_lowercase() || c == b'*'
+}
+
+pub(crate) const fn is_allowed_inner_key_char(c: u8) -> bool {
+    c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, b'_' | b'-' | b'*' | b'.')
 }

@@ -6,7 +6,7 @@
 
 # Structured Field Values for HTTP
 
-`sfv` crate is an implementation of *Structured Field Values for HTTP* as specified in [RFC 8941](https://httpwg.org/specs/rfc8941.html) for parsing and serializing HTTP field values (also known as "structured headers" or "structured trailers").
+`sfv` is an implementation of *Structured Field Values for HTTP* as specified in [RFC 9651](https://httpwg.org/specs/rfc9651.html) for parsing and serializing HTTP field values (also known as "structured headers" or "structured trailers").
 
 It also exposes a set of types that might be useful for defining new structured fields.
 
