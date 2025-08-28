@@ -796,31 +796,30 @@ where
         message_iter
             .filter_map(|(&distinguished_id, response_class)| {
                 let message = match process_response_message_class("GetFolder", response_class) {
-                    Ok(message) => Some(message),
-
-                    // Not every Exchange account will have all queried
-                    // well-known folders, so we skip any which were not
-                    // found.
-                    Err(XpComEwsError::ResponseError(ResponseError {
-                        response_code: ResponseCode::ErrorFolderNotFound,
-                        ..
-                    })) => None,
-
-                    // Return any other error.
+                    Ok(message) => message,
                     Err(err) => {
                         return Some(Err(err));
                     }
                 };
+                match validate_get_folder_response_message(&message) {
+                    // Map from EWS folder ID to distinguished ID.
+                    Ok(folder_id) => Some(Ok((folder_id.id, distinguished_id))),
 
-                message.and_then(|message| {
-                    // Validate the message (and propagate any error) if it's
-                    // not `None`.
-                    match validate_get_folder_response_message(&message) {
-                        // Map from EWS folder ID to distinguished ID.
-                        Ok(folder_id) => Some(Ok((folder_id.id, distinguished_id))),
-                        Err(err) => Some(Err(err)),
+                    Err(err) => {
+                        match err {
+                            // Not every Exchange account will have all queried
+                            // well-known folders, so we skip any which were not
+                            // found.
+                            XpComEwsError::ResponseError(ResponseError {
+                                response_code: ResponseCode::ErrorFolderNotFound,
+                                ..
+                            }) => None,
+
+                            // Propagate any other error.
+                            _ => Some(Err(err)),
+                        }
                     }
-                })
+                }
             })
             .collect()
     }

@@ -9,9 +9,7 @@
 #include "EwsListeners.h"
 #include "IEwsClient.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIMsgWindow.h"
-#include "nsIProgressEventSink.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
@@ -19,9 +17,6 @@
 #include "OfflineStorage.h"
 #include "plbase64.h"
 #include "mozilla/Components.h"
-#include "mozilla/intl/Localization.h"
-
-using namespace mozilla;
 
 static constexpr auto kDeleteModelPreferenceName = "delete_model";
 static constexpr auto kTrashFolderPreferenceName = "trash_folder_path";
@@ -269,49 +264,6 @@ nsresult EwsIncomingServer::SyncFolderList(
     syncStateToken = EmptyCString();
   }
 
-  nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
-  if (aMsgWindow) {
-    // Format the message we'll show the user while we wait for the remote
-    // operation to complete.
-    //
-    // If `postSyncCallback` also involves syncing the message list of each
-    // folder, we'll also trigger messages for individual folders, but the
-    // status bar implementation ensures messages stay up long enough that they
-    // don't "flicker" too quickly. So the resulting UX will be the following
-    // messages appearing ~1s apart:
-    //  * Looking for new messages for [account name]…
-    //  * Looking for new messages in [folder 1 name]…
-    //  * Looking for new messages in [folder 2 name]…
-    //  * etc.
-    RefPtr<intl::Localization> l10n =
-        intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
-
-    auto l10nArgs = dom::Optional<intl::L10nArgs>();
-    l10nArgs.Construct();
-
-    nsCString accountName;
-    rv = GetPrettyName(accountName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    auto idArg = l10nArgs.Value().Entries().AppendElement();
-    idArg->mKey = "accountName"_ns;
-    idArg->mValue.SetValue().SetAsUTF8String().Assign(accountName);
-
-    ErrorResult error;
-    nsCString message;
-    l10n->FormatValueSync("looking-for-messages-account"_ns, l10nArgs, message,
-                          error);
-
-    // Show the message in the status bar.
-    rv = aMsgWindow->GetStatusFeedback(getter_AddRefs(feedback));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = feedback->StartMeteors();
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   // Define the listener and its callbacks.
   auto onNewRootFolder = [self = RefPtr(this)](const nsACString& id) {
     RefPtr<nsIMsgFolder> root;
@@ -343,28 +295,9 @@ nsresult EwsIncomingServer::SyncFolderList(
         return self->SetStringValue(kSyncStateTokenProperty, syncStateToken);
       };
 
-  auto onSuccess = [feedback, postSyncCallback]() {
-    if (feedback) {
-      // Reset the status bar since the remote operation has finished.
-      nsresult rv = feedback->StopMeteors();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    return postSyncCallback();
-  };
-
-  auto onError = [feedback](nsresult _status) {
-    if (feedback) {
-      // Reset the status bar since the remote operation has finished.
-      return feedback->StopMeteors();
-    }
-
-    return NS_OK;
-  };
-
   RefPtr<EwsFolderSyncListener> listener = new EwsFolderSyncListener(
       onNewRootFolder, onFolderCreated, onFolderUpdated, onFolderDeleted,
-      onSyncStateTokenChanged, onSuccess, onError);
+      onSyncStateTokenChanged, std::move(postSyncCallback));
 
   // Sync the folder tree for the whole account.
   RefPtr<IEwsClient> client;

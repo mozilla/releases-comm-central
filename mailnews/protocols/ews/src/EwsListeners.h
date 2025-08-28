@@ -179,8 +179,7 @@ class EwsMessageCreateListener : public IEwsMessageCreateListener {
 /**
  * A listener for EWS folder sync operations.
  */
-class EwsFolderSyncListener : public IEwsFolderListener,
-                              public EwsFallibleListener {
+class EwsFolderSyncListener : public IEwsFolderListener {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_IEWSFOLDERLISTENER
@@ -195,10 +194,8 @@ class EwsFolderSyncListener : public IEwsFolderListener,
           onFolderUpdated,
       std::function<nsresult(const nsACString&)> onFolderDeleted,
       std::function<nsresult(const nsACString&)> onSyncStateTokenChanged,
-      std::function<nsresult()> onSuccess,
-      std::function<nsresult(nsresult)> onError)
-      : EwsFallibleListener(std::move(onError)),
-        mOnNewRootFolder(std::move(onNewRootFolder)),
+      std::function<nsresult()> onSuccess)
+      : mOnNewRootFolder(std::move(onNewRootFolder)),
         mOnFolderCreated(std::move(onFolderCreated)),
         mOnFolderUpdated(std::move(onFolderUpdated)),
         mOnFolderDeleted(std::move(onFolderDeleted)),

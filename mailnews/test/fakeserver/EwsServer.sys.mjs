@@ -946,9 +946,7 @@ export class EwsServer {
       ...reqDoc.getElementsByTagName("FolderIds")[0].children,
     ].map(c => c.getAttribute("Id"));
 
-    // Map the requested IDs to actual folders if we have them. A `null` folder
-    // in the resulting array means the folder couldn't be found on the server,
-    // and the relevant response message should reflect this.
+    // Map the requested IDs to actual folders if we have them.
     const responseFolders = requestedFolderIds.map(id => {
       // Try to match against a known distinguished ID.
       if (this.#distinguishedIdToFolder.has(id)) {
@@ -960,7 +958,9 @@ export class EwsServer {
         return this.#idToFolder.get(id);
       }
 
-      return null;
+      // TODO: At some point we will likely want to return a
+      // m:GetFolderResponseMessage with an error rather than throwing here.
+      throw new Error(`Client requested unknown folder ${id}`);
     });
 
     // Generate a base document for the response.
@@ -975,70 +975,49 @@ export class EwsServer {
 
     // Add each folder to the response document.
     responseFolders.forEach(folder => {
-      if (folder) {
-        const folderEl = resDoc.createElement("t:Folder");
-        // Add folder class.
-        const folderClassEl = resDoc.createElement("t:FolderClass");
-        // TODO: Allow the value to be configured, to test we correctly filter out
-        // unsupported classes.
-        folderClassEl.appendChild(resDoc.createTextNode("IPF.Note"));
-        folderEl.appendChild(folderClassEl);
+      const folderEl = resDoc.createElement("t:Folder");
+      // Add folder class.
+      const folderClassEl = resDoc.createElement("t:FolderClass");
+      // TODO: Allow the value to be configured, to test we correctly filter out
+      // unsupported classes.
+      folderClassEl.appendChild(resDoc.createTextNode("IPF.Note"));
+      folderEl.appendChild(folderClassEl);
 
-        // Add parent if available.
-        if (folder.parentId) {
-          const parentIdEl = resDoc.createElement("t:ParentFolderId");
-          parentIdEl.setAttribute("Id", folder.parentId);
-          folderEl.appendChild(parentIdEl);
-        }
-
-        // Add folder ID.
-        const folderIdEl = resDoc.createElement("t:FolderId");
-        folderIdEl.setAttribute("Id", folder.id);
-        folderEl.appendChild(folderIdEl);
-
-        // Add display name (defaults to the folder ID in folder constructor).
-        const folderNameEl = resDoc.createElement("t:DisplayName");
-        folderNameEl.appendChild(resDoc.createTextNode(folder.displayName));
-        folderEl.appendChild(folderNameEl);
-
-        // Add the folder element to t:Folders. Note that, in GetFolders
-        // responses, each t:Folders element only contains one folder.
-        const foldersEl = resDoc.createElement("t:Folders");
-        foldersEl.appendChild(folderEl);
-
-        // Indicate that no error happened when retrieving this message.
-        const resCodeEl = resDoc.createElement("m:ResponseCode");
-        resCodeEl.appendChild(resDoc.createTextNode("NoError"));
-
-        // Build the m:GetFolderResponseMessage element, which is parent to both
-        // t:Folders and m:ResponseCode.
-        const messageEl = resDoc.createElement("m:GetFolderResponseMessage");
-        messageEl.setAttribute("ResponseClass", "Success");
-        messageEl.appendChild(resCodeEl);
-        messageEl.appendChild(foldersEl);
-
-        // Add the message to the document.
-        resMsgsEl.appendChild(messageEl);
-      } else {
-        // We couldn't find a folder with this ID, so format the response
-        // message as an `ErrorFolderNotFound` error.
-        const messageEl = resDoc.createElement("m:GetFolderResponseMessage");
-        messageEl.setAttribute("ResponseClass", "Error");
-
-        // Add the response code to the response message.
-        const resCodeEl = resDoc.createElement("m:ResponseCode");
-        resCodeEl.appendChild(resDoc.createTextNode("ErrorFolderNotFound"));
-        messageEl.appendChild(resCodeEl);
-
-        // Add a human-readable representation of the error to the response
-        // message.
-        const errMessageEl = resDoc.createElement("m:MessageText");
-        errMessageEl.appendChild(resDoc.createTextNode("Folder not found"));
-        messageEl.appendChild(errMessageEl);
-
-        // Append the message to the document.
-        resMsgsEl.appendChild(messageEl);
+      // Add parent if available.
+      if (folder.parentId) {
+        const parentIdEl = resDoc.createElement("t:ParentFolderId");
+        parentIdEl.setAttribute("Id", folder.parentId);
+        folderEl.appendChild(parentIdEl);
       }
+
+      // Add folder ID.
+      const folderIdEl = resDoc.createElement("t:FolderId");
+      folderIdEl.setAttribute("Id", folder.id);
+      folderEl.appendChild(folderIdEl);
+
+      // Add display name (defaults to the folder ID in folder constructor).
+      const folderNameEl = resDoc.createElement("t:DisplayName");
+      folderNameEl.appendChild(resDoc.createTextNode(folder.displayName));
+      folderEl.appendChild(folderNameEl);
+
+      // Add the folder element to t:Folders. Note that, in GetFolders
+      // responses, each t:Folders element only contains one folder.
+      const foldersEl = resDoc.createElement("t:Folders");
+      foldersEl.appendChild(folderEl);
+
+      // Indicate that no error happened when retrieving this message.
+      const resCodeEl = resDoc.createElement("m:ResponseCode");
+      resCodeEl.appendChild(resDoc.createTextNode("NoError"));
+
+      // Build the m:GetFolderResponseMessage element, which is parent to both
+      // t:Folders and m:ResponseCode.
+      const messageEl = resDoc.createElement("m:GetFolderResponseMessage");
+      messageEl.setAttribute("ResponseClass", "Success");
+      messageEl.appendChild(resCodeEl);
+      messageEl.appendChild(foldersEl);
+
+      // Add the message to the document.
+      resMsgsEl.appendChild(messageEl);
     });
 
     // Serialize the response to a string that the consumer can return in a response.
