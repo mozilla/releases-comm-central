@@ -463,17 +463,21 @@ function calendarListSetupContextMenu(event) {
   }
   if (calendar) {
     const stringName = composite.getCalendarById(calendar.id)
-      ? "hide-calendar-name"
-      : "show-calendar-name";
+      ? "hide-calendar-label"
+      : "show-calendar-label";
     document.l10n.setAttributes(
       document.getElementById("list-calendars-context-togglevisible"),
       stringName,
       { name: calendar.name }
     );
 
+    const accessKey = document
+      .getElementById("list-calendars-context-togglevisible")
+      .getAttribute(composite.getCalendarById(calendar.id) ? "accesskeyhide" : "accesskeyshow");
+    document.getElementById("list-calendars-context-togglevisible").accessKey = accessKey;
     document.l10n.setAttributes(
       document.getElementById("list-calendars-context-showonly"),
-      "show-only-calendar-name",
+      "show-only-calendar",
       { name: calendar.name }
     );
     setupDeleteMenuitem("list-calendars-context-delete", calendar);
@@ -520,11 +524,10 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
   }
 
   const deleteItem = document.getElementById(aDeleteId);
-  // Dynamically set labels and accesskeys for:
-  // - calendar-context-delete-server
-  // - calendar-context-remove-server
-  // - calendar-context-unsubscribe-server
-  document.l10n.setAttributes(deleteItem, `calendar-context-${type}-server`);
+  // Dynamically set labelremove, labeldelete, labelunsubscribe
+  deleteItem.label = deleteItem.getAttribute("label" + type);
+  // Dynamically set accesskeyremove, accesskeydelete, accesskeyunsubscribe
+  deleteItem.accessKey = deleteItem.getAttribute("accesskey" + type);
 }
 
 /**
