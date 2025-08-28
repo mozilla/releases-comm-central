@@ -149,98 +149,143 @@ function simulateGripbarDrag(eventBox, side, day, hour) {
 }
 
 /**
+ * Assert the event data matches the expected values.
+ *
+ * @param {calEvent} eventItem - The event item to check.
+ * @param {string} expId - The expected ID.
+ * @param {string} expTitle - The expected title.
+ * @param {string} expStartDateString - The expected start date.
+ * @param {string} expEndDateString - The expected end date.
+ */
+function checkOccurrence(eventItem, expId, expTitle, expStartDateString, expEndDateString) {
+  const { id, title, startDate, endDate } = eventItem.occurrence;
+  Assert.equal(id, expId, "id is correct");
+  Assert.equal(title, expTitle, "title is correct");
+  Assert.equal(startDate.icalString, expStartDateString, "startDate is correct");
+  Assert.equal(endDate.icalString, expEndDateString, "endDate is correct");
+}
+
+/**
  * Tests dragging an event item updates the event in the month view.
  */
 add_task(async function testMonthViewDragEventItem() {
-  const event = new CalEvent();
-  event.id = "1";
-  event.title = "Month View Event";
-  event.startDate = cal.createDateTime("20210316T000000Z");
-  event.endDate = cal.createDateTime("20210316T110000Z");
+  const monthViewDragEventItem = async ctrlDrag => {
+    const event = new CalEvent();
+    event.id = "1";
+    event.title = "Month View Event";
+    event.startDate = cal.createDateTime("20210316T000000Z");
+    event.endDate = cal.createDateTime("20210316T110000Z");
 
-  await CalendarTestUtils.setCalendarView(window, "month");
-  await calendar.addItem(event);
-  await resetView(event.startDate);
+    await CalendarTestUtils.setCalendarView(window, "month");
+    await calendar.addItem(event);
+    await resetView(event.startDate);
 
-  // Hide the spaces toolbar since it interferes with the calendar
-  window.gSpacesToolbar.toggleToolbar(true);
+    // Hide the spaces toolbar since it interferes with the calendar
+    window.gSpacesToolbar.toggleToolbar(true);
 
-  let eventItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 3, 1);
-  const dayBox = await CalendarTestUtils.monthView.getDayBox(window, 3, 2);
-  const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragService.startDragSessionForTests(window, Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+    let sourceItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 3, 1);
+    const dayBox = await CalendarTestUtils.monthView.getDayBox(window, 3, 2);
+    const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+    dragService.startDragSessionForTests(
+      window,
+      ctrlDrag ? Ci.nsIDragService.DRAGDROP_ACTION_COPY : Ci.nsIDragService.DRAGDROP_ACTION_MOVE
+    );
 
-  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
-    eventItem,
-    dayBox,
-    undefined,
-    undefined,
-    eventItem.ownerGlobal,
-    dayBox.ownerGlobal
-  );
-  EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
-  dragService.getCurrentSession().endDragSession(true);
+    const [result, dataTransfer] = EventUtils.synthesizeDragOver(
+      sourceItem,
+      dayBox,
+      undefined,
+      ctrlDrag ? "copy" : "move",
+      sourceItem.ownerGlobal,
+      dayBox.ownerGlobal
+    );
+    EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
+    dragService.getCurrentSession().endDragSession(true);
 
-  Assert.ok(
-    !CalendarTestUtils.monthView.getItemAt(window, 3, 3, 1),
-    "item removed from initial date"
-  );
+    if (ctrlDrag) {
+      sourceItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 3, 1);
+      checkOccurrence(sourceItem, event.id, event.title, "20210316T000000Z", "20210316T110000Z");
+    } else {
+      Assert.ok(
+        !CalendarTestUtils.monthView.getItemAt(window, 3, 3, 1),
+        "item removed from initial date"
+      );
+    }
 
-  eventItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 2, 1);
-  Assert.ok(eventItem, "item moved to new date");
+    const destItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 2, 1);
+    Assert.ok(destItem, "item moved/copied to new date");
+    const destId = ctrlDrag ? destItem.occurrence.id : event.id;
+    // A copied event will get a new ID.
+    checkOccurrence(destItem, destId, event.title, "20210315T000000Z", "20210315T110000Z");
 
-  const { id, title, startDate, endDate } = eventItem.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210315T000000Z", "startDate is correct");
-  Assert.equal(endDate.icalString, "20210315T110000Z", "endDate is correct");
-  await calendar.deleteItem(eventItem.occurrence);
+    await calendar.deleteItem(destItem.occurrence);
+    if (ctrlDrag) {
+      await calendar.deleteItem(sourceItem.occurrence);
+    }
+  };
+
+  await monthViewDragEventItem(true);
+  await monthViewDragEventItem(false);
 });
 
 /**
  * Tests dragging an event item updates the event in the multiweek view.
  */
 add_task(async function testMultiWeekViewDragEventItem() {
-  const event = new CalEvent();
-  event.id = "2";
-  event.title = "Multiweek View Event";
-  event.startDate = cal.createDateTime("20210316T000000Z");
-  event.endDate = cal.createDateTime("20210316T110000Z");
+  const multiWeekViewDragEventItem = async ctrlDrag => {
+    const event = new CalEvent();
+    event.id = "2";
+    event.title = "Multiweek View Event";
+    event.startDate = cal.createDateTime("20210316T000000Z");
+    event.endDate = cal.createDateTime("20210316T110000Z");
 
-  await CalendarTestUtils.setCalendarView(window, "multiweek");
-  await calendar.addItem(event);
-  await resetView(event.startDate);
+    await CalendarTestUtils.setCalendarView(window, "multiweek");
+    await calendar.addItem(event);
+    await resetView(event.startDate);
 
-  let eventItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 3, 1);
-  const dayBox = await CalendarTestUtils.multiweekView.getDayBox(window, 1, 2);
-  const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragService.startDragSessionForTests(window, Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+    let sourceItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 3, 1);
+    const dayBox = await CalendarTestUtils.multiweekView.getDayBox(window, 1, 2);
+    const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+    dragService.startDragSessionForTests(
+      window,
+      ctrlDrag ? Ci.nsIDragService.DRAGDROP_ACTION_COPY : Ci.nsIDragService.DRAGDROP_ACTION_MOVE
+    );
 
-  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
-    eventItem,
-    dayBox,
-    undefined,
-    undefined,
-    eventItem.ownerGlobal,
-    dayBox.ownerGlobal
-  );
-  EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
-  dragService.getCurrentSession().endDragSession(true);
+    const [result, dataTransfer] = EventUtils.synthesizeDragOver(
+      sourceItem,
+      dayBox,
+      undefined,
+      ctrlDrag ? "copy" : "move",
+      sourceItem.ownerGlobal,
+      dayBox.ownerGlobal
+    );
+    EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
+    dragService.getCurrentSession().endDragSession(true);
 
-  Assert.ok(
-    !CalendarTestUtils.multiweekView.getItemAt(window, 1, 3, 1),
-    "item removed from initial date"
-  );
+    if (ctrlDrag) {
+      sourceItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 3, 1);
+      checkOccurrence(sourceItem, event.id, event.title, "20210316T000000Z", "20210316T110000Z");
+    } else {
+      Assert.ok(
+        !CalendarTestUtils.multiweekView.getItemAt(window, 1, 3, 1),
+        "item removed from initial date"
+      );
+    }
 
-  eventItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 2, 1);
-  Assert.ok(eventItem, "item moved to new date");
+    const destItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 2, 1);
+    Assert.ok(destItem, "item moved/copied to new date");
+    const destId = ctrlDrag ? destItem.occurrence.id : event.id;
+    // A copied event will get a new ID.
 
-  const { id, title, startDate, endDate } = eventItem.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210315T000000Z", "startDate is correct");
-  Assert.equal(endDate.icalString, "20210315T110000Z", "endDate is correct");
-  await calendar.deleteItem(eventItem.occurrence);
+    checkOccurrence(destItem, destId, event.title, "20210315T000000Z", "20210315T110000Z");
+    await calendar.deleteItem(destItem.occurrence);
+    if (ctrlDrag) {
+      await calendar.deleteItem(sourceItem.occurrence);
+    }
+  };
+
+  await multiWeekViewDragEventItem(true);
+  await multiWeekViewDragEventItem(false);
 });
 
 /**
@@ -267,11 +312,7 @@ add_task(async function testWeekViewDragEventBoxToPreviousDay() {
     "Old position is empty"
   );
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210315T020000Z", "startDate is correct");
-  Assert.equal(endDate.icalString, "20210315T030000Z", "endDate is correct");
+  checkOccurrence(eventBox, event.id, event.title, "20210315T020000Z", "20210315T030000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });
 
@@ -299,11 +340,7 @@ add_task(async function testWeekViewDragEventBoxToFollowingDay() {
     "Old position is empty"
   );
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210317T020000Z", "startDate is correct");
-  Assert.equal(endDate.icalString, "20210317T030000Z", "endDate is correct");
+  checkOccurrence(eventBox, event.id, event.title, "20210317T020000Z", "20210317T030000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });
 
@@ -326,11 +363,7 @@ add_task(async function testWeekViewDragEventBoxStartTime() {
   simulateGripbarDrag(eventBox, "start", 3, 1);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210316T010000Z", "startDate was changed");
-  Assert.equal(endDate.icalString, "20210316T030000Z", "endDate did not change");
+  checkOccurrence(eventBox, event.id, event.title, "20210316T010000Z", "20210316T030000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });
 
@@ -352,11 +385,7 @@ add_task(async function testWeekViewDragEventBoxEndTime() {
   simulateGripbarDrag(eventBox, "end", 3, 6);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210316T020000Z", "startDate did not change");
-  Assert.equal(endDate.icalString, "20210316T060000Z", "endDate was changed");
+  checkOccurrence(eventBox, event.id, event.title, "20210316T020000Z", "20210316T060000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });
 
@@ -378,11 +407,7 @@ add_task(async function testDayViewDragEventBoxStartTime() {
   simulateGripbarDrag(eventBox, "start", 1, 1);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210316T010000Z", "startDate was changed");
-  Assert.equal(endDate.icalString, "20210316T030000Z", "endDate did not change");
+  checkOccurrence(eventBox, event.id, event.title, "20210316T010000Z", "20210316T030000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });
 
@@ -405,10 +430,6 @@ add_task(async function testDayViewDragEventBoxEndTime() {
   simulateGripbarDrag(eventBox, "end", 1, 4);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
-  const { id, title, startDate, endDate } = eventBox.occurrence;
-  Assert.equal(id, event.id, "id is correct");
-  Assert.equal(title, event.title, "title is correct");
-  Assert.equal(startDate.icalString, "20210316T020000Z", "startDate did not change");
-  Assert.equal(endDate.icalString, "20210316T040000Z", "endDate was changed");
+  checkOccurrence(eventBox, event.id, event.title, "20210316T020000Z", "20210316T040000Z");
   await calendar.deleteItem(eventBox.occurrence);
 });

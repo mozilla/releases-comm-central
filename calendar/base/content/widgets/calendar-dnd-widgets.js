@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals currentView MozElements MozXULElement */
+/* globals currentView MozElements MozXULElement doTransaction */
 
 "use strict";
 
@@ -173,12 +173,14 @@
       const item = event.dataTransfer.mozGetDataAt("application/vnd.x-moz-cal-item", 0);
       this.setAttribute("dropbox", "false");
       const newItem = this.onDropItem(item).clone();
-      const newStart = newItem.startDate || newItem.entryDate || newItem.dueDate;
-      const newEnd = newItem.endDate || newItem.dueDate || newItem.entryDate;
-      const offset = this.calendarView.mShadowOffset;
-      newStart.addDuration(offset);
-      newEnd.addDuration(offset);
-      this.calendarView.controller.modifyOccurrence(item, newStart, newEnd);
+      cal.item.shiftOffset(newItem, this.calendarView.mShadowOffset);
+
+      if (event.dataTransfer.dropEffect == "copy") {
+        newItem.id = cal.getUUID();
+        doTransaction("add", newItem, newItem.calendar, null, null);
+      } else {
+        doTransaction("modify", newItem, newItem.calendar, item, null);
+      }
 
       // We handled the event.
       event.stopPropagation();
