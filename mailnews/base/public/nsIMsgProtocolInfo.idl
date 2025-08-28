@@ -58,7 +58,7 @@ interface nsIMsgProtocolInfo : nsISupports
     readonly attribute boolean canDuplicate;
 
     /* the default port
-       This is similar to nsIProtocolHanderl.defaultPort,
+       This is similar to nsIProtocolHandler.defaultPort,
        but for architectural reasons, there is a mail-specific interface to this.
        When the input param isSecure is set to true, for all supported protocols,
        the secure port value is returned. If isSecure is set to false the default
