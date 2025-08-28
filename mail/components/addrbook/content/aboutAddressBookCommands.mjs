@@ -2,9 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ./aboutAddressBook.js */
-
+// Globals from aboutAddressBook.js. This should use import-globals-from
+// but the linter is unhappy.
+/* globals booksList, cardsPane, createBook, createList, detailsPane,
+   displayAddressBook, importBook, SubDialog */
 import commandController from "resource:///modules/CommandController.mjs";
+
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 const noOverlays = () => !detailsPane.isEditing && !SubDialog.hasDialogs;
 
