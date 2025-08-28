@@ -601,10 +601,9 @@ export class AttachmentInfo {
       // Confirm to proceed.
       const message = Services.strings
         .createBundle("chrome://messenger/locale/messenger.properties")
-        .formatStringFromName(
-          "deleteAttachments",
-          attachments.map(a => a.name)
-        );
+        .formatStringFromName("deleteAttachments", [
+          attachments.map(a => a.name).join("\n"),
+        ]);
       if (!Services.prompt.confirm(null, null, message)) {
         return;
       }
@@ -694,10 +693,9 @@ export class AttachmentInfo {
       // Non-silent mode. Confirm before delete.
       const message = Services.strings
         .createBundle("chrome://messenger/locale/messenger.properties")
-        .formatStringFromName(
-          "detachAttachments",
-          attachments.map(a => a.name)
-        );
+        .formatStringFromName("detachAttachments", [
+          attachments.map(a => a.name).join("\n"),
+        ]);
       if (!Services.prompt.confirm(null, null, message)) {
         return;
       }
