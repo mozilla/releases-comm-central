@@ -87,10 +87,6 @@ class GlobalSearchBar extends SearchBar {
     super.connectedCallback();
     this.addEventListener("search", this);
     this.addEventListener("autocomplete", this);
-    // Capturing to avoid the default cursor movements inside the input.
-    this.addEventListener("keydown", this, {
-      capture: true,
-    });
     this.addEventListener("focus", this);
     this.addEventListener("blur", this);
     this.addEventListener("drop", this, { capture: true });
