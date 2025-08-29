@@ -263,7 +263,7 @@
               value="&biffEnd.label;"
             />
           </hbox>
-          <vbox align="start" hidefor="pop3,nntp">
+          <vbox id="server.useIdle.box" align="start" hidefor="pop3,nntp,ews">
             <checkbox
               wsm_persist="true"
               id="imap.useIdle"
@@ -276,7 +276,11 @@
 
           <!-- Necessary for POP3 (Bug 480945) -->
           <!-- https://bugzilla.mozilla.org/show_bug.cgi?id=480945 -->
-          <vbox align="start" hidefor="imap,nntp">
+          <vbox
+            id="pop3.downloadOnBiff.box"
+            align="start"
+            hidefor="imap,nntp,ews"
+          >
             <checkbox
               wsm_persist="true"
               id="server.downloadOnBiff"
@@ -287,7 +291,7 @@
             />
           </vbox>
           <!-- POP3 -->
-          <vbox align="start" hidefor="imap,nntp">
+          <vbox id="pop3.settings.box" align="start" hidefor="imap,nntp,ews">
             <checkbox
               wsm_persist="true"
               id="pop3.headersOnly"
@@ -570,7 +574,7 @@
           </vbox>
 
           <!-- NNTP -->
-          <hbox hidefor="pop3,imap" align="center">
+          <hbox id="nntp.articles.box" hidefor="pop3,imap,ews" align="center">
             <checkbox
               id="nntp.notifyOn"
               wsm_persist="true"
@@ -597,7 +601,7 @@
             />
           </hbox>
           <checkbox
-            hidefor="pop3,imap"
+            hidefor="pop3,imap,ews"
             wsm_persist="true"
             id="nntp.pushAuth"
             label="&alwaysAuthenticate.label;"
@@ -668,7 +672,7 @@
             </menulist>
           </hbox>
 
-          <hbox align="center" hidefor="imap,pop3">
+          <hbox id="nntp.settings.box" align="center" hidefor="imap,pop3,ews">
             <label
               id="nntp.newsrcFilePath.label"
               value="&newsrcFilePath1.label;"
@@ -726,14 +730,19 @@
         </html:fieldset>
       </html:div>
 
-      <hbox hidefor="imap,pop3" align="center" iscontrolcontainer="true">
+      <hbox
+        id="nntp.charset.box"
+        hidefor="imap,pop3,ews"
+        align="center"
+        iscontrolcontainer="true"
+      >
         <separator class="thin" />
         <label value="&serverDefaultCharset2.label;" control="nntp.charset" />
         <menulist
           is="menulist-charsetpicker-viewing"
           id="nntp.charset"
           hidable="true"
-          hidefor="imap,pop3"
+          hidefor="imap,pop3,ews"
           wsm_persist="true"
           preftype="string"
           prefstring="mail.server.%serverkey%.charset"

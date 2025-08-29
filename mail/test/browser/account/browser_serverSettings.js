@@ -295,6 +295,41 @@ add_task(async function test_ews_advanced_imap_settings() {
       "server.imapAdvancedButton"
     );
 
-    Assert.ok(advancedImapSettingsButton.hidden);
+    Assert.ok(
+      BrowserTestUtils.isHidden(advancedImapSettingsButton),
+      `Expected advancedImapSettingsButton to be hidden for EWS`
+    );
+  });
+});
+
+/**
+ * Tests that inapplicable server settings are correctly hidden for EWS accounts.
+ */
+add_task(async function test_ews_advanced_settings_hidden_boxes() {
+  await open_advanced_settings(async accountSettingsTab => {
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
+
+    const hiddenContainerIds = [
+      "server.useIdle.box",
+      "pop3.downloadOnBiff.box",
+      "pop3.settings.box",
+      "nntp.articles.box",
+      "nntp.pushAuth",
+      "nntp.settings.box",
+      "nntp.charset.box",
+    ];
+
+    for (const elementId of hiddenContainerIds) {
+      const element = iframe.getElementById(elementId);
+
+      Assert.ok(element, `Expected element #${elementId} to exist`);
+      Assert.ok(
+        BrowserTestUtils.isHidden(element),
+        `Expected element #${elementId} to be hidden for EWS`
+      );
+    }
   });
 });
