@@ -60,37 +60,30 @@
     <menuseparator id="calBeforeTaskActions"/>
     <menuitem id="calTaskActionsMarkCompletedMenuitem"
               type="checkbox"
-              label="&calendar.context.markcompleted.label;"
-              accesskey="&calendar.context.markcompleted.accesskey;"
+              data-l10n-id="calendar-context-mark-completed"
               command="calendar_toggle_completed_command"/>
     <menu id="calTaskActionsProgressMenuitem"
-          label="&calendar.context.progress.label;"
-          accesskey="&calendar.context.progress.accesskey;"
+          data-l10n-id="calendar-context-progress"
           command="calendar_general-progress_command">
       <menupopup is="calendar-task-progress-menupopup"/>
     </menu>
     <menu id="calTaskActionsPriorityMenuitem"
-          label="&calendar.context.priority.label;"
-          accesskey="&calendar.context.priority.accesskey;"
+          data-l10n-id="calendar-context-priority"
           command="calendar_general-priority_command">
       <menupopup is="calendar-task-priority-menupopup"/>
     </menu>
     <menu id="calTaskActionsPostponeMenuitem"
-          label="&calendar.context.postpone.label;"
-          accesskey="&calendar.context.postpone.accesskey;"
+          data-l10n-id="calendar-context-postpone"
           command="calendar_general-postpone_command">
       <menupopup id="calTaskActionsPostponeMenuPopup">
         <menuitem id="calTaskActionsPostponeMenu-1hour"
-                  label="&calendar.context.postpone.1hour.label;"
-                  accesskey="&calendar.context.postpone.1hour.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1hour"
                   command="calendar_postpone-1hour_command"/>
         <menuitem id="calTaskActionsPostponeMenu-1day"
-                  label="&calendar.context.postpone.1day.label;"
-                  accesskey="&calendar.context.postpone.1day.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1day"
                   command="calendar_postpone-1day_command"/>
         <menuitem id="calTaskActionsPostponeMenu-1week"
-                  label="&calendar.context.postpone.1week.label;"
-                  accesskey="&calendar.context.postpone.1week.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1week"
                   command="calendar_postpone-1week_command"/>
       </menupopup>
     </menu>

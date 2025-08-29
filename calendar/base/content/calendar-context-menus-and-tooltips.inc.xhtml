@@ -21,18 +21,15 @@
               command="agenda_edit_event_command"/>
     <menu id="agenda-context-menu-convert-menu"
           class="no-icon-menupopup"
-          label="&calendar.context.convertmenu.label;"
-          accesskey="&calendar.context.convertmenu.accesskey.calendar;">
+          data-l10n-id="calendar-context-convert-menu">
       <menupopup id="agenda-context-menu-convert-menupopup"
                  class="no-icon-menupopup">
         <menuitem id="agenda-context-menu-convert-message-menuitem"
-                  label="&calendar.context.convertmenu.message.label;"
-                  accesskey="&calendar.context.convertmenu.message.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-message"
                   oncommand="calendarMailButtonDNDObserver.onDropItems([TodayPane.agenda.selectedItem])"/>
         <menuitem id="agenda-context-menu-convert-task-menuitem"
                   class="event-only"
-                  label="&calendar.context.convertmenu.task.label;"
-                  accesskey="&calendar.context.convertmenu.task.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-task"
                   oncommand="calendarTaskButtonDNDObserver.onDropItems([TodayPane.agenda.selectedItem])"/>
       </menupopup>
     </menu>
@@ -196,42 +193,30 @@
              class="no-icon-menupopup">
     <menuitem id="list-calendars-context-togglevisible"
               class="needs-calendar"
-              accesskeyshow="&calendar.context.showcalendar.accesskey;"
-              accesskeyhide="&calendar.context.hidecalendar.accesskey;"
               oncommand="toggleCalendarVisible(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
     <menuitem id="list-calendars-context-showonly"
               class="needs-calendar"
-              accesskey="&calendar.context.showonly.accesskey;"
               oncommand="showOnlyCalendar(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
     <menuitem id="list-calendars-context-showall"
-              label="&calendar.context.showall.label;"
-              accesskey="&calendar.context.showall.accesskey;"
+              data-l10n-id="calendar-context-showall"
               oncommand="showAllCalendars();"/>
     <menuseparator id="list-calendars-context-showops-menuseparator"/>
     <menuitem id="list-calendars-context-new"
-              label="&calendar.context.newserver.label;"
-              accesskey="&calendar.context.newserver.accesskey;"
+              data-l10n-id="calendar-context-new-server"
               command="calendar_new_calendar_command"/>
     <menuitem id="list-calendars-context-delete"
               class="needs-calendar"
-              labeldelete="&calendar.context.deleteserver2.label;"
-              labelremove="&calendar.context.removeserver.label;"
-              labelunsubscribe="&calendar.context.unsubscribeserver.label;"
-              accesskeydelete="&calendar.context.deleteserver2.accesskey;"
-              accesskeyremove="&calendar.context.removeserver.accesskey;"
-              accesskeyunsubscribe="&calendar.context.unsubscribeserver.accesskey;"
+              data-l10n-id="calendar-context-remove-server"
               command="calendar_delete_calendar_command"/>
     <menuseparator id="list-calendars-context-itemops-menuseparator"
                    class="needs-calendar"/>
     <menuitem id="list-calendars-context-export"
               class="needs-calendar"
-              label="&calendar.context.export.label;"
-              accesskey="&calendar.context.export.accesskey;"
+              data-l10n-id="calendar-context-export"
               oncommand="exportEntireCalendar(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
     <menuitem id="list-calendars-context-publish"
               class="needs-calendar"
-              label="&calendar.context.publish.label;"
-              accesskey="&calendar.context.publish.accesskey;"
+              data-l10n-id="calendar-context-publish"
               command="calendar_publish_selected_calendar_command"/>
     <menuseparator id="list-calendars-context-export-menuseparator"
               class="needs-calendar"/>
@@ -243,8 +228,7 @@
                    class="needs-calendar"/>
     <menuitem id="list-calendars-context-edit"
               class="needs-calendar"
-              label="&calendar.context.properties.label;"
-              accesskey="&calendar.context.properties.accesskey;"
+              data-l10n-id="calendar-context-properties"
               command="calendar_edit_calendar_command"/>
   </menupopup>
 
@@ -282,23 +266,19 @@
               command="cmd_paste"/>
     <menuseparator id="calendar-item-context-separator-cutcopypaste"/>
     <menu id="calendar-item-context-menu-convert-menu"
-          label="&calendar.context.convertmenu.label;"
-          accesskey="&calendar.context.convertmenu.accesskey.calendar;">
+          data-l10n-id="calendar-context-convert-menu">
       <menupopup id="calendar-item-context-menu-convert-menupopup"
                  class="no-icon-menupopup">
         <menuitem id="calendar-view-context-menu-convert-message-menuitem"
-                  label="&calendar.context.convertmenu.message.label;"
-                  accesskey="&calendar.context.convertmenu.message.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-message"
                   oncommand="calendarMailButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
         <menuitem id="calendar-item-context-menu-convert-event-menuitem"
                   class="todo-only"
-                  label="&calendar.context.convertmenu.event.label;"
-                  accesskey="&calendar.context.convertmenu.event.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-event"
                   oncommand="calendarCalendarButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
         <menuitem id="calendar-item-context-menu-convert-task-menuitem"
                   class="event-only"
-                  label="&calendar.context.convertmenu.task.label;"
-                  accesskey="&calendar.context.convertmenu.task.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-task"
                   oncommand="calendarTaskButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
       </menupopup>
     </menu>
@@ -526,38 +506,31 @@
               command="cmd_paste"/>
     <menuseparator id="calendar-menuseparator-beforemarkcompleted"/>
     <menuitem id="calendar-context-markcompleted"
-              label="&calendar.context.markcompleted.label;"
-              accesskey="&calendar.context.markcompleted.accesskey;"
+              data-l10n-id="calendar-context-mark-completed"
               command="calendar_toggle_completed_command"/>
     <menu id="task-context-menu-progress"
-          label="&calendar.context.progress.label;"
-          accesskey="&calendar.context.progress.accesskey;"
+          data-l10n-id="calendar-context-progress"
           command="calendar_general-progress_command">
       <menupopup is="calendar-task-progress-menupopup"/>
     </menu>
     <menu id="task-context-menu-priority"
-          label="&calendar.context.priority.label;"
-          accesskey="&calendar.context.priority.accesskey;"
+          data-l10n-id="calendar-context-priority"
           command="calendar_general-priority_command">
       <menupopup is="calendar-task-priority-menupopup"/>
     </menu>
     <menu id="task-context-menu-postpone"
-          label="&calendar.context.postpone.label;"
-          accesskey="&calendar.context.postpone.accesskey;"
+          data-l10n-id="calendar-context-postpone"
           command="calendar_general-postpone_command">
       <menupopup id="task-context-postpone-menupopup"
                  class="no-icon-menupopup">
         <menuitem id="task-context-postpone-1hour"
-                  label="&calendar.context.postpone.1hour.label;"
-                  accesskey="&calendar.context.postpone.1hour.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1hour"
                   command="calendar_postpone-1hour_command"/>
         <menuitem id="task-context-postpone-1day"
-                  label="&calendar.context.postpone.1day.label;"
-                  accesskey="&calendar.context.postpone.1day.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1day"
                   command="calendar_postpone-1day_command"/>
         <menuitem id="task-context-postpone-1week"
-                  label="&calendar.context.postpone.1week.label;"
-                  accesskey="&calendar.context.postpone.1week.accesskey;"
+                  data-l10n-id="calendar-context-postpone-1week"
                   command="calendar_postpone-1week_command"/>
       </menupopup>
     </menu>
@@ -569,17 +542,14 @@
     </menu>
     <menuseparator id="task-context-menu-separator-conversion"/>
     <menu id="task-context-menu-convert"
-          label="&calendar.context.convertmenu.label;"
-          accesskey="&calendar.context.convertmenu.accesskey.calendar;">
+          data-l10n-id="calendar-context-convert-menu">
       <menupopup id="task-context-convert-menupopup"
                  class="no-icon-menupopup">
         <menuitem id="calendar-context-converttomessage"
-                  label="&calendar.context.convertmenu.message.label;"
-                  accesskey="&calendar.context.convertmenu.message.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-message"
                   oncommand="tasksToMail()"/>
         <menuitem id="calendar-context-converttoevent"
-                  label="&calendar.context.convertmenu.event.label;"
-                  accesskey="&calendar.context.convertmenu.event.accesskey;"
+                  data-l10n-id="calendar-context-convert-to-event"
                   oncommand="tasksToEvents()"/>
       </menupopup>
     </menu>

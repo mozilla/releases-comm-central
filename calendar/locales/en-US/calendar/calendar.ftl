@@ -762,17 +762,24 @@ hide-calendar-title =
 # $name calendar name
 show-calendar-title =
     .title = Hide { $name }
-# $name calendar name
-show-calendar-label =
-    .label = Show { $name }
-# $name calendar name
-hide-calendar-label =
-    .label = Hide { $name }
 
-# uses the access key calendar.context.showonly.accesskey
-# $name calendar name
-show-only-calendar =
+# Variables:
+# $name (String) - The calendar name
+show-calendar-name =
+    .label = Show { $name }
+    .accesskey = h
+
+# Variables:
+# $name (String) - The calendar name
+hide-calendar-name =
+    .label = Hide { $name }
+    .accesskey = H
+
+# Variables:
+# $name (String) - The calendar name
+show-only-calendar-name =
     .label = Show Only { $name }
+    .accesskey = O
 
 # LOCALIZATION NOTE (modify-conflict-*)
 # Used by the event dialog to resolve item modification conflicts.
@@ -903,3 +910,79 @@ calendar-context-attendance-all-in-progress =
 calendar-context-attendance-all-completed =
     .label = Completed
     .accesskey = m
+
+calendar-context-progress =
+    .label = Progress
+    .accesskey = P
+
+calendar-context-priority =
+    .label = Priority
+    .accesskey = r
+
+calendar-context-postpone =
+    .label = Postpone Task
+    .accesskey = s
+
+calendar-context-mark-completed =
+    .label = Mark Completed
+    .accesskey = o
+
+calendar-context-postpone-1hour =
+    .label = 1 Hour
+    .accesskey = H
+
+calendar-context-postpone-1day =
+    .label = 1 Day
+    .accesskey = D
+
+calendar-context-postpone-1week =
+    .label = 1 Week
+    .accesskey = W
+
+calendar-context-new-server =
+    .label = New Calendar…
+    .accesskey = N
+
+calendar-context-delete-server =
+    .label = Delete Calendar…
+    .accesskey = D
+
+calendar-context-remove-server =
+    .label = Remove Calendar…
+    .accesskey = R
+
+calendar-context-unsubscribe-server =
+    .label = Unsubscribe Calendar…
+    .accesskey = U
+
+calendar-context-publish =
+    .label = Publish Calendar…
+    .accesskey = b
+
+calendar-context-export =
+    .label = Export Calendar…
+    .accesskey = E
+
+calendar-context-properties =
+    .label = Properties
+    .accesskey = P
+
+calendar-context-showall =
+    .label = Show All Calendars
+    .accesskey = A
+
+calendar-context-convert-menu =
+    .label = Convert To
+    .accesskey = v
+
+calendar-context-convert-to-event =
+    .label = Event…
+    .accesskey = E
+
+calendar-context-convert-to-message =
+    .label = Message…
+    .accesskey = M
+
+calendar-context-convert-to-task =
+    .label = Task…
+    .accesskey = T
