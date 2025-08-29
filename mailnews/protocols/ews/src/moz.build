@@ -3,13 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
+    "EwsCopyMoveTransaction.cpp",
     "EwsFolder.cpp",
     "EwsFolderCopyHandler.cpp",
     "EwsIncomingServer.cpp",
     "EwsListeners.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
-    "EwsMoveTransaction.cpp",
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",

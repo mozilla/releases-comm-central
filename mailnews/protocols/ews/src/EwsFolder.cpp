@@ -7,7 +7,7 @@
 #include "EwsFolderCopyHandler.h"
 #include "EwsListeners.h"
 #include "EwsMessageCopyHandler.h"
-#include "EwsMoveTransaction.h"
+#include "EwsCopyMoveTransaction.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 
@@ -548,16 +548,21 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
               genericFolder->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
             }
 
-            if (aAllowUndo && msgWindow && aIsMove) {
+            if (aAllowUndo && msgWindow) {
               nsCOMPtr<nsITransactionManager> transactionManager;
               rv = msgWindow->GetTransactionManager(
                   getter_AddRefs(transactionManager));
               NS_ENSURE_SUCCESS(rv, rv);
 
-              RefPtr<EwsMoveTransaction> undoTransaction =
-                  new EwsMoveTransaction(srcFolder, self.get(), msgWindow,
-                                         std::move(newHeaders));
-              undoTransaction->SetTransactionType(nsIMessenger::eMoveMsg);
+              RefPtr<EwsCopyMoveTransaction> undoTransaction =
+                  aIsMove ? EwsCopyMoveTransaction::ForMove(
+                                srcFolder, self.get(), msgWindow,
+                                newHeaders.Clone())
+                          : EwsCopyMoveTransaction::ForCopy(
+                                srcFolder, self.get(), msgWindow,
+                                srcHdrs.Clone(), newHeaders.Clone());
+              undoTransaction->SetTransactionType(
+                  aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg);
               rv = transactionManager->DoTransaction(undoTransaction);
               NS_ENSURE_SUCCESS(rv, rv);
             }
