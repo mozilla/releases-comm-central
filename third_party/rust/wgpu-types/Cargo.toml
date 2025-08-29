@@ -100,7 +100,7 @@ features = ["derive"]
 default-features = false
 
 [dev-dependencies.serde_json]
-version = "1.0.118"
+version = "1.0.143"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.js-sys]
 version = "0.3.77"

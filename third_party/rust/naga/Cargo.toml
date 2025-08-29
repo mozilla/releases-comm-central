@@ -91,7 +91,7 @@ name = "naga"
 path = "src/lib.rs"
 
 [dependencies.arbitrary]
-version = "1.4"
+version = "1.4.2"
 features = ["derive"]
 optional = true
 

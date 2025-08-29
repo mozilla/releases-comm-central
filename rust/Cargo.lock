@@ -2413,6 +2413,7 @@ dependencies = [
  "unic-langid-ffi",
  "unicode-bidi",
  "unicode-bidi-ffi",
+ "uritemplate_glue",
  "url",
  "urlpattern",
  "urlpattern_glue",
@@ -2521,6 +2522,7 @@ dependencies = [
  "unic-langid-ffi",
  "unicode-bidi",
  "unicode-bidi-ffi",
+ "uritemplate_glue",
  "url",
  "urlpattern",
  "urlpattern_glue",
@@ -4070,7 +4072,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6478,6 +6480,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "uritemplate-next"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcde98d1fc3f528255b1ecb22fb688ee0d23deb672a8c57127df10b98b4bd18c"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "uritemplate_glue"
+version = "0.1.0"
+dependencies = [
+ "nserror",
+ "nsstring",
+ "uritemplate-next",
+ "xpcom",
+]
+
+[[package]]
 name = "url"
 version = "2.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6743,7 +6764,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6773,7 +6794,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6781,7 +6802,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6789,7 +6810,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -6826,7 +6847,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=54be6a2b5b780e356976ef7e30d00244f2bad651#54be6a2b5b780e356976ef7e30d00244f2bad651"
+source = "git+https://github.com/gfx-rs/wgpu?rev=1301f80688cca5add83d9d12af00c9d5510a9d24#1301f80688cca5add83d9d12af00c9d5510a9d24"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",
