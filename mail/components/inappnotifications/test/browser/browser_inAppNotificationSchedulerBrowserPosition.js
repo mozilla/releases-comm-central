@@ -15,9 +15,7 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 const expectedURI = "https://example.com/notificationTarget";
 
 add_setup(async function () {
-  NotificationScheduler._resolveStartupDelay();
-  await NotificationScheduler._startupDelayPromise;
-  await TestUtils.waitForTick();
+  NotificationScheduler._startupDelay = 0;
   NotificationScheduler._idleService.disabled = true;
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
