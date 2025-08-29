@@ -27,6 +27,8 @@ interface IEwsFolder : nsISupports {
  * @param window A context window for the operation.
  * @param copyListener The copy listener for the operation.
  * @param allowUndo Whether or not to generate an undo transaction.
+ * @param undoOperationType An enumeration value from `nsIMessenger` to indicate
+ *   what kind of operation the corresponding undo should be.
  * @param listener A listener to perform any operations on the new headers.
  */
 void copyItemsOnSameServer(
@@ -36,6 +38,7 @@ void copyItemsOnSameServer(
     in nsIMsgWindow window,
     in nsIMsgCopyServiceListener copyListener,
     in boolean allowUndo,
+    in long undoOperationType,
     in IEwsFolderOperationListener listener);
 
 };

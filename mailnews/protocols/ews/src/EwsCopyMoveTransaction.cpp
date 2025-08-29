@@ -4,6 +4,7 @@
 
 #include "EwsCopyMoveTransaction.h"
 
+#include "nsIMessenger.h"
 #include "nsIMsgFolder.h"
 
 namespace {
@@ -106,9 +107,11 @@ nsresult EwsCopyMoveTransaction::PerformOperation(IEwsFolder* fromFolder,
   RefPtr<UpdateHeaderSetListener> listener = new UpdateHeaderSetListener(this);
   const auto& transactionHeaders =
       mIsMove ? mCurrentHeaderSet : mOriginalHeaderSet;
-  nsresult rv;
-  rv = toFolder->CopyItemsOnSameServer(fromFolder, transactionHeaders, mIsMove,
-                                       mWindow, nullptr, false, listener);
+  // We can pass `eUnknown` as the undo operation type because we're passing
+  // another argument to disallow undo for this operation.
+  nsresult rv = toFolder->CopyItemsOnSameServer(
+      fromFolder, transactionHeaders, mIsMove, mWindow, nullptr, false,
+      nsIMessenger::eUnknown, listener);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;

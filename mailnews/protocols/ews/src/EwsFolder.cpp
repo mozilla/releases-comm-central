@@ -439,9 +439,10 @@ NS_IMETHODIMP EwsFolder::CopyMessages(
     // also be an EWS Folder.
     nsCOMPtr<IEwsFolder> ewsSourceFolder{do_QueryInterface(aSrcFolder, &rv)};
     NS_ENSURE_SUCCESS(rv, rv);
-    nsTArray<RefPtr<nsIMsgDBHdr>> newHeaders;
+    const auto undoType =
+        aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg;
     rv = CopyItemsOnSameServer(ewsSourceFolder, aSrcHdrs, aIsMove, aMsgWindow,
-                               aCopyListener, aAllowUndo, nullptr);
+                               aCopyListener, aAllowUndo, undoType, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // Cross-server copy or move. Instantiate a `MessageCopyHandler` for this
@@ -478,6 +479,7 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
     IEwsFolder* aSrcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& aSrcHdrs,
     bool aIsMove, nsIMsgWindow* aMsgWindow,
     nsIMsgCopyServiceListener* aCopyListener, bool aAllowUndo,
+    int32_t undoOperationType,
     IEwsFolderOperationListener* aOperationListener) {
   // Same server copy or move, perform operation remotely.
   nsTArray<nsCString> ewsIds;
@@ -498,7 +500,7 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
       new EwsSimpleFailibleMessageListener(
           aSrcHdrs,
           [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener,
-           aAllowUndo, operationListener](
+           aAllowUndo, operationListener, undoOperationType](
               const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
               const nsTArray<nsCString>& ids,
               bool useLegacyFallback) MOZ_CAN_RUN_SCRIPT_BOUNDARY_LAMBDA {
@@ -562,7 +564,7 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
                                 srcFolder, self.get(), msgWindow,
                                 srcHdrs.Clone(), newHeaders.Clone());
               undoTransaction->SetTransactionType(
-                  aIsMove ? nsIMessenger::eMoveMsg : nsIMessenger::eCopyMsg);
+                  static_cast<uint32_t>(undoOperationType));
               rv = transactionManager->DoTransaction(undoTransaction);
               NS_ENSURE_SUCCESS(rv, rv);
             }
@@ -794,8 +796,12 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
     return NS_ERROR_UNEXPECTED;
   }
 
-  return trashFolder->CopyMessages(this, aMsgHeaders, true, aMsgWindow,
-                                   aCopyListener, false, false);
+  nsCOMPtr<IEwsFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return ewsTrashFolder->CopyItemsOnSameServer(
+      this, aMsgHeaders, true, aMsgWindow, aCopyListener, true,
+      nsIMessenger::eDeleteMsg, nullptr);
 }
 
 NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {

@@ -31,7 +31,7 @@ var ewsServer;
  */
 var msgWindow;
 
-var rootFolder, inboxFolder, archiveFolder;
+var rootFolder, inboxFolder, archiveFolder, trashFolder;
 
 const ewsIdPropertyName = "ewsId";
 const generator = new MessageGenerator();
@@ -55,9 +55,11 @@ add_setup(async function () {
 
   inboxFolder = rootFolder.getChildNamed("Inbox");
   archiveFolder = rootFolder.getChildNamed("Archives");
+  trashFolder = rootFolder.getChildNamed("Deleted Items");
 
   Assert.ok(!!inboxFolder, "Inbox folder should exist.");
   Assert.ok(!!archiveFolder, "Archive folder should exist.");
+  Assert.ok(!!trashFolder, "Trash folder should exist.");
 });
 
 function findTestMessages(folder, prefix) {
@@ -106,9 +108,11 @@ add_task(async function test_undo_move() {
   await setupCopyMoveTest(testItemPrefix, true);
   checkFolders(testItemPrefix, 0, 1);
 
-  Assert.ok(
-    !!msgWindow.transactionManager.peekUndoStack(),
-    "Should have one transaction on the undo stack."
+  const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
+  Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
+  Assert.equal(
+    currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eMoveMsg
   );
 
   msgWindow.transactionManager.undoTransaction();
@@ -118,9 +122,11 @@ add_task(async function test_undo_move() {
 
   checkFolders(testItemPrefix, 1, 0);
 
-  Assert.ok(
-    !!msgWindow.transactionManager.peekRedoStack(),
-    "Should have one transaction on the redo stack."
+  const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
+  Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
+  Assert.equal(
+    currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eMoveMsg
   );
 
   msgWindow.transactionManager.redoTransaction();
@@ -138,9 +144,11 @@ add_task(async function test_undo_copy() {
   await setupCopyMoveTest(testItemPrefix, false);
   checkFolders(testItemPrefix, 1, 1);
 
-  Assert.ok(
-    !!msgWindow.transactionManager.peekUndoStack(),
-    "Should have one transaction on the undo stack."
+  const currentUndoItem = msgWindow.transactionManager.peekUndoStack();
+  Assert.ok(!!currentUndoItem, "Should have a transaction on the undo stack.");
+  Assert.equal(
+    currentUndoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eCopyMsg
   );
 
   msgWindow.transactionManager.undoTransaction();
@@ -150,9 +158,11 @@ add_task(async function test_undo_copy() {
 
   checkFolders(testItemPrefix, 1, 0);
 
-  Assert.ok(
-    !!msgWindow.transactionManager.peekRedoStack(),
-    "Should have one transaction on the redo stack."
+  const currentRedoItem = msgWindow.transactionManager.peekRedoStack();
+  Assert.ok(!!currentRedoItem, "Should have a transaction on the redo stack.");
+  Assert.equal(
+    currentRedoItem.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eCopyMsg
   );
 
   msgWindow.transactionManager.redoTransaction();
@@ -161,6 +171,80 @@ add_task(async function test_undo_copy() {
   }, "Waiting for redo operation to complete.");
 
   checkFolders(testItemPrefix, 1, 1);
+
+  msgWindow.transactionManager.clear();
+});
+
+/**
+ * This test tests undoing of soft delete operations, in which the item is moved
+ * to the trash. There is no way to undo a hard delete in which the item is
+ * permanently deleted.
+ */
+add_task(async function test_undo_delete() {
+  const testItemPrefix = "undo_delete_test";
+  ewsServer.addNewItemOrMoveItemToFolder(testItemPrefix, "inbox");
+  await syncFolder(incomingServer, inboxFolder);
+
+  const messagesToDelete = findTestMessages(inboxFolder, "undo_delete_test");
+  Assert.equal(
+    messagesToDelete.length,
+    1,
+    "Should have a delete test message in inbox."
+  );
+
+  const listener = new PromiseTestUtils.PromiseCopyListener();
+  inboxFolder.deleteMessages(
+    messagesToDelete,
+    msgWindow,
+    false,
+    false,
+    listener,
+    true
+  );
+  await listener.promise;
+
+  const checkCounts = (inboxCount, trashCount) => {
+    Assert.equal(
+      findTestMessages(inboxFolder, testItemPrefix).length,
+      inboxCount,
+      `Inbox should have ${inboxCount} messages.`
+    );
+    Assert.equal(
+      findTestMessages(trashFolder, testItemPrefix).length,
+      trashCount,
+      `Trash should have ${trashCount} messages.`
+    );
+  };
+
+  checkCounts(0, 1);
+
+  const undoTransaction = msgWindow.transactionManager.peekUndoStack();
+  Assert.ok(!!undoTransaction, "Should have an undo transaction.");
+  Assert.equal(
+    undoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eDeleteMsg
+  );
+
+  msgWindow.transactionManager.undoTransaction();
+  await TestUtils.waitForCondition(() => {
+    return findTestMessages(inboxFolder, testItemPrefix).length > 0;
+  }, "Waiting for message to reappear in inbox.");
+
+  checkCounts(1, 0);
+
+  const redoTransaction = msgWindow.transactionManager.peekRedoStack();
+  Assert.ok(!!redoTransaction, "Should have a redo transaction.");
+  Assert.equal(
+    redoTransaction.QueryInterface(Ci.nsIMsgTxn).txnType,
+    Ci.nsIMessenger.eDeleteMsg
+  );
+
+  msgWindow.transactionManager.redoTransaction();
+  await TestUtils.waitForCondition(() => {
+    return findTestMessages(inboxFolder, testItemPrefix).length == 0;
+  }, "Waiting for message to disappear from inbox.");
+
+  checkCounts(0, 1);
 
   msgWindow.transactionManager.clear();
 });
