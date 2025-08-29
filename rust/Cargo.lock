@@ -439,18 +439,24 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.69.4"
+version = "0.69.999"
+dependencies = [
+ "bindgen 0.72.0",
+]
+
+[[package]]
+name = "bindgen"
+version = "0.72.0"
+source = "git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c#9366e0af8da529c958b4cd4fcbe492d951c86f5c"
 dependencies = [
  "bitflags 2.9.0",
  "cexpr",
  "clang-sys",
- "itertools 0.10.999",
- "lazy_static",
- "lazycell",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "regex",
- "rustc-hash 1.999.999",
+ "rustc-hash 2.1.1",
  "shlex",
  "syn",
 ]
@@ -950,7 +956,7 @@ version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3120ebb80a9de008e638ad833d4127d50ea3d3a960ea23ea69bc66d9358a028"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.999",
 ]
 
 [[package]]
@@ -2231,7 +2237,7 @@ name = "gecko-profiler"
 version = "0.1.0"
 dependencies = [
  "bincode",
- "bindgen",
+ "bindgen 0.69.999",
  "lazy_static",
  "mozbuild",
  "profiler-macros",
@@ -2573,9 +2579,9 @@ dependencies = [
 
 [[package]]
 name = "glean"
-version = "65.0.1"
+version = "65.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8d41bdd64c3c8afdd53e179241ea9271f4b43e29e6be4ff87442d308203c98a"
+checksum = "c164f2581a679ecc27e242027124319dc6f60a0e8d116025234781c93d3a625f"
 dependencies = [
  "crossbeam-channel",
  "glean-core",
@@ -2588,9 +2594,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "65.0.1"
+version = "65.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "761c6d956c3988c6a21312c531b11de34b18c23a5ffeac2895b89334b59f0bfd"
+checksum = "3164939bb79fc5e578b03cc55764399ec9ca778208482f050961c2c770c9f7ef"
 dependencies = [
  "android_logger",
  "bincode",
@@ -3321,12 +3327,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
-name = "lazycell"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
-
-[[package]]
 name = "leak"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4053,7 +4053,7 @@ version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e3124fb16267c5a77ce8cd015bcb5bb3f8aab28ec32d89d65f6a31c5c1306a0"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.999",
  "cfg_aliases",
  "libc",
  "mozbuild",
@@ -4096,7 +4096,6 @@ dependencies = [
 [[package]]
 name = "neqo-common"
 version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -4109,9 +4108,8 @@ dependencies = [
 [[package]]
 name = "neqo-crypto"
 version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.999",
  "enum-map",
  "log",
  "mozbuild",
@@ -4269,7 +4267,7 @@ name = "nss-gk-api"
 version = "0.3.0"
 source = "git+https://github.com/beurdouche/nss-gk-api?rev=e48a946811ffd64abc78de3ee284957d8d1c0d63#e48a946811ffd64abc78de3ee284957d8d1c0d63"
 dependencies = [
- "bindgen",
+ "bindgen 0.72.0",
  "log",
  "mozbuild",
  "once_cell",
@@ -4420,7 +4418,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4a87f4e4cd78d1619b98b6119cde887d20489f70339b9425af080b00db714b6"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.999",
  "byteorder",
  "hex",
  "log",
@@ -4644,7 +4642,7 @@ version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77f2b11de4fec7f1e085891d4a4bf16a8b1beb49978837a80d4e9e705b99295c"
 dependencies = [
- "bindgen",
+ "bindgen 0.72.0",
 ]
 
 [[package]]
@@ -5705,7 +5703,7 @@ dependencies = [
  "app_units",
  "arrayvec",
  "atomic_refcell",
- "bindgen",
+ "bindgen 0.69.999",
  "bitflags 2.9.0",
  "byteorder",
  "cssparser",
@@ -6178,7 +6176,7 @@ dependencies = [
 name = "trust-anchors"
 version = "0.1.0"
 dependencies = [
- "bindgen",
+ "bindgen 0.69.999",
  "mozbuild",
  "nom",
  "pkcs11-bindings",

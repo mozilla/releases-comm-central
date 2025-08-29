@@ -16,7 +16,7 @@ uniffi = { version = "0.29.3" }
 uniffi_bindgen = { version = "0.29.3" }
 uniffi_pipeline = { version = "0.29.3" }
 rusqlite = { version = "0.37" }
-glean = { version = "=65.0.1" }
+glean = { version = "=65.0.2" }
 
 [target."cfg(windows)".dependencies.scopeguard]
 version = "1"
@@ -202,7 +202,8 @@ hermit-abi = { path = "../../build/rust/hermit-abi" }
 base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
-bindgen = { path = "../../third_party/rust/bindgen" }
+bindgen_0_72 = { package = "bindgen", git = "https://github.com/rust-lang/rust-bindgen", rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c" }
+bindgen = { path = "../../build/rust/bindgen" }
 nix = { path = "../../build/rust/nix" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
@@ -254,3 +255,7 @@ viaduct = { git = "https://github.com/mozilla/application-services", rev = "2f3f
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "2f3f9cd624cc6f1e08b7540407e953daae602b82" }
 allocator-api2 = { path = "../../third_party/rust/allocator-api2" }
 zip = { path = "../../third_party/rust/zip" }
+
+[patch."https://github.com/mozilla/neqo"]
+neqo-crypto = { path = "../../third_party/rust/neqo-crypto" }
+neqo-common = { path = "../../third_party/rust/neqo-common" }
