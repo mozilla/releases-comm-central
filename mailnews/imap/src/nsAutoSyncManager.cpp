@@ -221,7 +221,7 @@ void nsAutoSyncManager::InitTimer() {
     MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Starting timer"));
     nsresult rv = NS_NewTimerWithFuncCallback(
         getter_AddRefs(mTimer), TimerCallback, (void*)this, kTimerIntervalInMs,
-        nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback",
+        nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback"_ns,
         nullptr);
     if (NS_FAILED(rv)) {
       NS_WARNING("Could not start nsAutoSyncManager timer");

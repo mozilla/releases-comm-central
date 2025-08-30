@@ -1902,7 +1902,7 @@ void nsBayesianFilter::observeMessage(
     nsresult rv = NS_NewTimerWithFuncCallback(
         getter_AddRefs(mTimer), nsBayesianFilter::TimerCallback, (void*)this,
         mMinFlushInterval, nsITimer::TYPE_ONE_SHOT,
-        "nsBayesianFilter::TimerCallback", nullptr);
+        "nsBayesianFilter::TimerCallback"_ns, nullptr);
     if (NS_FAILED(rv)) {
       NS_WARNING("Could not start nsBayesianFilter timer");
     }

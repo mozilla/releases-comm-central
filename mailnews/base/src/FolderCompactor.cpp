@@ -931,7 +931,7 @@ void BatchCompactor::StartNext() {
            mAttempt, (int)mQueue.Length(), kRetryDelayMs));
       nsresult rv = mRetryTimer->InitWithNamedFuncCallback(
           RetryTimerCallback, (void*)this, kRetryDelayMs,
-          nsITimer::TYPE_ONE_SHOT, "BatchCompactor RetryTimer");
+          nsITimer::TYPE_ONE_SHOT, "BatchCompactor RetryTimer"_ns);
       if (NS_SUCCEEDED(rv)) {
         // Time to wait.
         return;

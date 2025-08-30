@@ -6884,7 +6884,7 @@ nsImapMailFolder::CopyMessages(
         getter_AddRefs(srcImapFolder->m_playbackTimer), PlaybackTimerCallback,
         (void*)srcImapFolder->m_pendingPlaybackReq,
         PLAYBACK_TIMER_INTERVAL_IN_MS, nsITimer::TYPE_ONE_SHOT,
-        "nsImapMailFolder::PlaybackTimerCallback", nullptr);
+        "nsImapMailFolder::PlaybackTimerCallback"_ns, nullptr);
     if (NS_FAILED(rv)) {
       NS_WARNING("Could not start m_playbackTimer timer");
     }

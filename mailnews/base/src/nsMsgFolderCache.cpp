@@ -353,7 +353,7 @@ void nsMsgFolderCache::SetModified() {
   }
   nsresult rv = mSaveTimer->InitWithNamedFuncCallback(
       doSave, (void*)this, kSaveDelayMs, nsITimer::TYPE_ONE_SHOT,
-      "msgFolderCache::doSave");
+      "msgFolderCache::doSave"_ns);
   if (NS_SUCCEEDED(rv)) {
     MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
             ("AutoSave in %ds", kSaveDelayMs / 1000));

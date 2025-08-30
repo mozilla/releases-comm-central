@@ -94,7 +94,7 @@ nsresult nsMsgPurgeService::SetupNextPurge() {
 
   nsresult rv = NS_NewTimerWithFuncCallback(
       getter_AddRefs(mPurgeTimer), OnPurgeTimer, (void*)this, timeInMSUint32,
-      nsITimer::TYPE_ONE_SHOT, "nsMsgPurgeService::OnPurgeTimer", nullptr);
+      nsITimer::TYPE_ONE_SHOT, "nsMsgPurgeService::OnPurgeTimer"_ns, nullptr);
   if (NS_FAILED(rv)) {
     NS_WARNING("Could not start mPurgeTimer timer");
   }

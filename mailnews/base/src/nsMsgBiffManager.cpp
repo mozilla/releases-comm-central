@@ -100,7 +100,7 @@ NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports* aSubject,
     // wait 10 seconds after waking up to start biffing again.
     nsresult rv = NS_NewTimerWithFuncCallback(
         getter_AddRefs(mBiffTimer), OnBiffTimer, (void*)this, 10000,
-        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer", nullptr);
+        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer"_ns, nullptr);
     if (NS_FAILED(rv)) {
       NS_WARNING("Could not start mBiffTimer timer");
     }
@@ -248,7 +248,7 @@ nsresult nsMsgBiffManager::SetupNextBiff() {
 
     nsresult rv = NS_NewTimerWithFuncCallback(
         getter_AddRefs(mBiffTimer), OnBiffTimer, (void*)this, timeInMSUint32,
-        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer", nullptr);
+        nsITimer::TYPE_ONE_SHOT, "nsMsgBiffManager::OnBiffTimer"_ns, nullptr);
     if (NS_FAILED(rv)) {
       NS_WARNING("Could not start mBiffTimer timer");
     }

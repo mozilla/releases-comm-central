@@ -423,7 +423,7 @@ nsresult nsMsgSearchSession::StartTimer() {
   NS_ENSURE_SUCCESS(rv, rv);
   m_backgroundTimer->InitWithNamedFuncCallback(
       TimerCallback, (void*)this, 0, nsITimer::TYPE_REPEATING_SLACK,
-      "nsMsgSearchSession::TimerCallback");
+      "nsMsgSearchSession::TimerCallback"_ns);
   TimerCallback(m_backgroundTimer, this);
   return NS_OK;
 }
