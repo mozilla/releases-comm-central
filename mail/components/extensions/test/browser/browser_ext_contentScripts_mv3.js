@@ -341,6 +341,7 @@ add_task(async function testRegister() {
             runAt: "document_idle",
             world: "ISOLATED",
             persistAcrossSessions: true,
+            cssOrigin: "author",
             css: ["test.css"],
             js: ["test.js"],
           },
