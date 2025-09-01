@@ -97,9 +97,6 @@ __attribute__((constructor)) static void SSE2Check() {
 
 using namespace mozilla;
 
-#ifdef XP_MACOSX
-#  define kOSXResourcesFolder "Resources"
-#endif
 #define kDesktopFolder ""
 
 static MOZ_FORMAT_PRINTF(1, 2) void Output(const char* fmt, ...) {
