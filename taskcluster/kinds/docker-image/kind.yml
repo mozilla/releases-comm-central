@@ -14,6 +14,8 @@ reference-tasks:
     - debian8-i386-raw
     - debian8-packages
     - debian8-raw
+    - debian10-arm64-packages
+    - debian10-arm64-raw
     - deb12-toolchain-build
     - debian12-amd64-build
     - debian12-base
@@ -24,6 +26,7 @@ reference-tasks:
     - fetch-more
     - funsize-update-generator
     - image_builder
+    - image_builder_arm64
     - index-task
     - lint
     - push-to-try

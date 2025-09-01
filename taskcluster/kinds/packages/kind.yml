@@ -11,4 +11,3 @@ reference-tasks:
     - "*"
     - "!ub22-arm64*"
     - "!ub24-arm64*"
-    - "!deb10-arm64*"
