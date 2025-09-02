@@ -4,6 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { PluralForm } = ChromeUtils.importESModule(
+  "resource:///modules/PluralForm.sys.mjs"
+);
 ChromeUtils.defineModuleGetter(
   this,
   "AppConstants",
@@ -1580,7 +1583,8 @@ function updateSecurityIcon() {
     case "IRCClient":
       let k = Object.keys(client.networks).length;
       let c = client.getConnectionCount();
-      label = client.bundle.getFormattedString("clientNetworks", [k, c]);
+      let m = client.bundle.getString("knownNetworks");
+      label = PluralForm.get(k, m).replace("#1", k).replace("#2", c);
       showCondition = false;
       break;
     case "IRCNetwork":
