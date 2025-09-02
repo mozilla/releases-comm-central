@@ -26,13 +26,9 @@ registerCleanupFunction(() => {
 });
 
 /**
- * Create a temporary dir to use as the source profile dir. Write a prefs.js
- * into it.
- *
- * @param {Array<[string, string]>} prefs - An array of tuples, each tuple is
- *   a pref represented as [prefName, prefValue].
+ * Create a temporary dir to use as the source profile dir.
  */
-async function createTmpProfileWithPrefs(prefs) {
+async function createTmpProfile() {
   tmpProfileDir?.remove(true);
 
   // Create a temporary dir.
@@ -40,6 +36,17 @@ async function createTmpProfileWithPrefs(prefs) {
   tmpProfileDir.append("profile-tmp");
   tmpProfileDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
   info(`Created a temporary profile at ${tmpProfileDir.path}`);
+}
+
+/**
+ * Create a temporary dir to use as the source profile dir. Write a prefs.js
+ * into it.
+ *
+ * @param {Array<[string, string]>} prefs - An array of tuples, each tuple is
+ *   a pref represented as [prefName, prefValue].
+ */
+async function createTmpProfileWithPrefs(prefs) {
+  createTmpProfile();
 
   // Write prefs to prefs.js.
   const prefsFile = tmpProfileDir.clone();
@@ -338,6 +345,51 @@ add_task(async function test_mergeLocalFolders() {
   importedFolder.append("Local Folders.sbd");
   importedFolder.append("folder-xpcshell");
   ok(importedFolder.exists(), "Source Local Folders should be merged in.");
+});
+
+/**
+ * Test importing mail files (no preferences) into the local mail account.
+ */
+add_task(async function test_importMailOnly() {
+  createTmpProfile();
+  const mailRoot = PathUtils.join(tmpProfileDir.path, "Mail", "test.invalid");
+  await IOUtils.makeDirectory(mailRoot);
+  await IOUtils.writeUTF8(PathUtils.join(mailRoot, "Inbox"), "fake mail file");
+  await IOUtils.writeUTF8(
+    PathUtils.join(mailRoot, "Inbox.msf"),
+    "fake summary file"
+  );
+  await IOUtils.makeDirectory(PathUtils.join(mailRoot, "Inbox.sbd"));
+  await IOUtils.writeUTF8(
+    PathUtils.join(mailRoot, "Inbox.sbd", "subfolder"),
+    "fake mail file"
+  );
+  await IOUtils.writeUTF8(
+    PathUtils.join(mailRoot, "Inbox.sbd", "subfolder.msf"),
+    "fake summary file"
+  );
+
+  const importer = new ThunderbirdProfileImporter();
+  await importer.startImport(tmpProfileDir, { mailMessages: true });
+
+  const localServer = MailServices.accounts.localFoldersServer;
+  const importFolder =
+    localServer.rootFolder.getChildNamed("Thunderbird Import");
+  const importRoot = importFolder.getChildNamed("test.invalid");
+  Assert.ok(importRoot, "imported root folder should exist");
+  const importPath = importRoot.filePath;
+  importPath.leafName += ".sbd";
+  importPath.append("Inbox");
+  Assert.ok(importPath.exists(), "inbox mail file should exist");
+  importPath.leafName += ".msf";
+  Assert.ok(!importPath.exists(), "inbox summary file should not exist");
+  importPath.leafName = "Inbox.sbd";
+  importPath.append("subfolder");
+  Assert.ok(importPath.exists(), "subfolder mail file should exist");
+  importPath.leafName += ".msf";
+  Assert.ok(!importPath.exists(), "subfolder summary file should not exist");
+
+  Services.prefs.resetPrefs();
 });
 
 /**

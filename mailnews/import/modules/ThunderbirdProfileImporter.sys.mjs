@@ -762,7 +762,7 @@ export class ThunderbirdProfileImporter extends BaseProfileImporter {
         const newFolder = targetDir.clone();
         newFolder.append(entry.leafName);
         newFolder.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-        this._recursivelyCopyMsgFolder(entry, newFolder);
+        this._recursivelyCopyMsgFolder(entry, newFolder, isTargetLocal);
       } else {
         const leafName = entry.leafName;
         const extName = leafName.slice(leafName.lastIndexOf(".") + 1);
