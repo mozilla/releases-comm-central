@@ -439,6 +439,14 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
                         size_t bufSize = FILE_IO_BUFFER_SIZE);
 
 /**
+ * Synchronously copy exactly `count` bytes of data from `src` stream to
+ * `dest` stream. This function will fail if it can't copy the exact
+ * number of bytes.
+ */
+nsresult SyncCopyStreamN(nsIInputStream* src, nsIOutputStream* dest,
+                         uint32_t count);
+
+/**
  * Synchronously write data to the destination stream, returning only when
  * all the data is written or if an error occurs.
  * This is a helper function to handle the fact that nsIOutputStream.write()

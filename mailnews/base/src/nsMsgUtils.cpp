@@ -73,6 +73,7 @@
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 #include "mozilla/intl/Localization.h"
+#include <algorithm>
 #include <limits.h>
 
 /* for logging to Error Console */
@@ -1769,6 +1770,26 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
       pos += n;
       bytesCopied += n;
     }
+  }
+  return NS_OK;
+}
+
+nsresult SyncCopyStreamN(nsIInputStream* src, nsIOutputStream* dest,
+                         uint32_t count) {
+  mozilla::Buffer<char> buf(FILE_IO_BUFFER_SIZE);
+  nsresult rv;
+
+  while (count > 0) {
+    uint32_t numWanted = std::min(count, (uint32_t)buf.Length());
+    uint32_t numRead;
+    rv = src->Read(buf.Elements(), numWanted, &numRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (numRead == 0) {
+      return NS_ERROR_UNEXPECTED;  // We should _not_ be hitting EOF.
+    }
+    rv = SyncWriteAll(dest, buf.Elements(), numRead);
+    NS_ENSURE_SUCCESS(rv, rv);
+    count -= numRead;
   }
   return NS_OK;
 }
