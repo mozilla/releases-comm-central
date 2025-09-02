@@ -209,6 +209,7 @@ function onEnterInSearchTerm(event) {
   } else {
     // If only plain Enter was pressed, add a new rule line.
     onMore(event);
+    event.preventDefault();
   }
 }
 
