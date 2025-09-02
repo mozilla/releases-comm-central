@@ -644,7 +644,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   return NS_OK;
 }
 
-// If the given folder has an write in progress, discard it.
+// If the given folder has a write in progress, discard it.
 // NOTE: in theory, we could have multiple writes going if we were using
 // Quarantining. But in practice the protocol => folder interfaces assume a
 // single message at a time for now.
@@ -653,8 +653,11 @@ nsresult nsMsgBrkMBoxStore::InvalidateOngoingWrite(nsIMsgFolder* folder) {
   auto existing = mOngoingWrites.lookup(folder->URI());
   if (existing) {
     // boooo....
-    MOZ_LOG(gMboxLog, LogLevel::Error,
-            ("Already writing to folder '%s'", folder->URI().get()));
+    MOZ_LOG(gMboxLog, LogLevel::Warning,
+            ("PREEMPTING WRITE stream=0x%p folder='%s' (roll back to filepos "
+             "%" PRIu64 ")",
+             existing->value().stream.get(), folder->URI().get(),
+             existing->value().filePos));
     NS_WARNING(
         nsPrintfCString("Already writing to folder '%s'", folder->URI().get())
             .get());
@@ -796,24 +799,26 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIMsgFolder* folder,
   NS_ENSURE_ARG(outStream);
 
   auto details = mOngoingWrites.lookup(folder->URI());
-  if (!details) {
-    // We should have a record of the write!
-    return NS_ERROR_UNEXPECTED;
+  // Ideally, the stream we're discarding is the one in mOngoingWrites, in
+  // which case we can just remove it.
+  // BUT.
+  // If the write was preempted, this stream will already have been
+  // discarded and the mOngoingWrites table will refer to the more recent
+  // write. We don't want to blat over that, so check first.
+  if (details && outStream == details->value().stream) {
+    mOngoingWrites.remove(details);
+    MOZ_LOG(gMboxLog, LogLevel::Info,
+            ("DISCARD MSG stream=0x%p folder=%s filePos=%" PRId64 "", outStream,
+             folder->URI().get(), details->value().filePos));
+
+  } else {
+    MOZ_LOG(gMboxLog, LogLevel::Warning,
+            ("DISCARD MSG (preempted) stream=0x%p folder=%s", outStream,
+             folder->URI().get()));
   }
 
-  MOZ_LOG(gMboxLog, LogLevel::Info,
-          ("DISCARD MSG stream=0x%p folder=%s filePos=%" PRId64 "", outStream,
-           folder->URI().get(), details->value().filePos));
-
-  // Should be the stream we issued originally!
-  MOZ_ASSERT(outStream == details->value().stream);
-
-  // nsISafeOutputStream only writes upon finish(), so no cleanup required.
-  nsresult rv = outStream->Close();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Done with the write now.
-  mOngoingWrites.remove(details);
+  // Safe to close the stream in any case.
+  outStream->Close();
 
   return NS_OK;
 }
