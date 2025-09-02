@@ -998,22 +998,31 @@ async function test_thread_sorting() {
   let messages = [];
   // build a hierarchy like this (the UID order corresponds to the date order)
   //  1
-  //   4
-  //  2
+  //   4 (read)
+  //  2 (read)
   //   5
   //  3
+  //  6 (read)
   const msg1 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 10 } });
-  const msg2 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 9 } });
+  const msg2 = gMessageGenerator.makeMessage({
+    age: { days: 1, hours: 9 },
+    read: true,
+  });
   const msg3 = gMessageGenerator.makeMessage({ age: { days: 1, hours: 8 } });
   const msg4 = gMessageGenerator.makeMessage({
     age: { days: 1, hours: 7 },
     inReplyTo: msg1,
+    read: true,
   });
   const msg5 = gMessageGenerator.makeMessage({
     age: { days: 1, hours: 6 },
     inReplyTo: msg2,
   });
-  messages = messages.concat([msg1, msg2, msg3, msg4, msg5]);
+  const msg6 = gMessageGenerator.makeMessage({
+    age: { days: 1, hours: 5 },
+    read: true,
+  });
+  messages = messages.concat([msg1, msg2, msg3, msg4, msg5, msg6]);
 
   const msgSet = new SyntheticMessageSet(messages);
 
@@ -1030,15 +1039,29 @@ async function test_thread_sorting() {
     {}
   );
 
-  assert_view_row_count(3);
+  assert_view_row_count(4);
   assert_view_message_at_indices(msg1, 0);
   assert_view_message_at_indices(msg2, 1);
   assert_view_message_at_indices(msg3, 2);
+  assert_view_message_at_indices(msg6, 3);
 
   gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
-  assert_view_message_at_indices(msg3, 0);
+  assert_view_message_at_indices(msg6, 0);
+  assert_view_message_at_indices(msg3, 1);
+  assert_view_message_at_indices(msg2, 2);
+  assert_view_message_at_indices(msg1, 3);
+
+  gDBView.sort(Ci.nsMsgViewSortType.byUnread, Ci.nsMsgViewSortOrder.ascending);
+  assert_view_message_at_indices(msg6, 0);
   assert_view_message_at_indices(msg2, 1);
-  assert_view_message_at_indices(msg1, 2);
+  assert_view_message_at_indices(msg3, 2);
+  assert_view_message_at_indices(msg1, 3);
+
+  gDBView.sort(Ci.nsMsgViewSortType.byUnread, Ci.nsMsgViewSortOrder.descending);
+  assert_view_message_at_indices(msg3, 0);
+  assert_view_message_at_indices(msg1, 1);
+  assert_view_message_at_indices(msg6, 2);
+  assert_view_message_at_indices(msg2, 3);
 
   Services.prefs.clearUserPref("mailnews.sort_threads_by_root");
   gDBView.open(
@@ -1049,15 +1072,29 @@ async function test_thread_sorting() {
     {}
   );
 
-  assert_view_row_count(3);
+  assert_view_row_count(4);
   assert_view_message_at_indices(msg3, 0);
   assert_view_message_at_indices(msg1, 1);
   assert_view_message_at_indices(msg2, 2);
+  assert_view_message_at_indices(msg6, 3);
 
   gDBView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
+  assert_view_message_at_indices(msg6, 0);
+  assert_view_message_at_indices(msg2, 1);
+  assert_view_message_at_indices(msg1, 2);
+  assert_view_message_at_indices(msg3, 3);
+
+  gDBView.sort(Ci.nsMsgViewSortType.byUnread, Ci.nsMsgViewSortOrder.ascending);
+  assert_view_message_at_indices(msg6, 0);
+  assert_view_message_at_indices(msg2, 1);
+  assert_view_message_at_indices(msg1, 2);
+  assert_view_message_at_indices(msg3, 3);
+
+  gDBView.sort(Ci.nsMsgViewSortType.byUnread, Ci.nsMsgViewSortOrder.descending);
   assert_view_message_at_indices(msg2, 0);
   assert_view_message_at_indices(msg1, 1);
   assert_view_message_at_indices(msg3, 2);
+  assert_view_message_at_indices(msg6, 3);
 
   gDBView.close();
   gTestFolder = save_gTestFolder;

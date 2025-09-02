@@ -3259,7 +3259,6 @@ nsresult nsMsgDBView::GetLongField(nsIMsgDBHdr* msgHdr,
   NS_ENSURE_ARG_POINTER(msgHdr);
   NS_ENSURE_ARG_POINTER(result);
 
-  bool isRead;
   uint32_t bits;
 
   switch (sortType) {
@@ -3297,11 +3296,31 @@ nsresult nsMsgDBView::GetLongField(nsIMsgDBHdr* msgHdr,
       // Make flagged come out on top.
       *result = !(bits & nsMsgMessageFlags::Marked);
       break;
-    case nsMsgViewSortType::byUnread:
+    case nsMsgViewSortType::byUnread: {
+      bool isRead = false;
       rv = msgHdr->GetIsRead(&isRead);
       if (NS_SUCCEEDED(rv)) *result = !isRead;
-
+      if (isRead && m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay &&
+          !(m_viewFlags & nsMsgViewFlagsType::kGroupBySort) &&
+          !mSortThreadsByRoot) {
+        nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
+        if (!dbToUse || GetFolders()) {
+          // This is a search or cross-folder view. Since cross-folder threads
+          // may not be completely assembled at this point, we fall back to the
+          // message thread from the database (which is not optimal).
+          rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
+          if (NS_FAILED(rv) || !dbToUse) break;
+        }
+        nsCOMPtr<nsIMsgThread> thread;
+        rv = dbToUse->GetThreadContainingMsgHdr(msgHdr, getter_AddRefs(thread));
+        if (NS_SUCCEEDED(rv)) {
+          uint32_t numUnreadChildren;
+          thread->GetNumUnreadChildren(&numUnreadChildren);
+          *result = numUnreadChildren > 0;
+        }
+      }
       break;
+    }
     case nsMsgViewSortType::byJunkStatus: {
       nsCString junkScoreStr;
       rv = msgHdr->GetStringProperty("junkscore", junkScoreStr);
