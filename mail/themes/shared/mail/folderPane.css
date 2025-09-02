@@ -157,7 +157,8 @@ treechildren::-moz-tree-image(folderNameCol, isBusy) {
 
 treechildren::-moz-tree-image(folderNameCol, hasError) {
   list-style-image: url("chrome://global/skin/icons/warning.svg");
-  fill: #e62117;
+  fill: color-mix(in srgb, var(--folder-color-warning) 20%, transparent);
+  stroke: var(--folder-color-warning);
 }
 
 /* ..... Local folders ..... */
