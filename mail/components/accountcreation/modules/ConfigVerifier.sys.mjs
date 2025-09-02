@@ -85,14 +85,25 @@ export class ConfigVerifier {
     } else if (this.alter) {
       // Try other variations.
       this.server.closeCachedConnections();
-      this.tryNextLogon(url);
+      try {
+        this.tryNextLogon(url);
+      } catch (e) {
+        this._log.error("Logon for alternative FAILED!", e);
+        this._failed(url);
+      }
     } else {
       // Logon failed, and we aren't supposed to try other variations.
       this._failed(url);
     }
   }
 
-  tryNextLogon(aPreviousUrl) {
+  /**
+   * Try next logon variation.
+   *
+   * @param {nsIURI} url - The URL being processed.
+   * @throws {Error} in some cases where verifyLogon fails.
+   */
+  tryNextLogon(url) {
     this._log.debug("Trying next logon variation");
     // check if we tried full email address as username
     if (this.config.incoming.username != this.config.identity.emailAddress) {
@@ -156,7 +167,7 @@ export class ConfigVerifier {
 
     // Tried all variations we can. Give up.
     this._log.debug("Have tried all variations. Giving up.");
-    this._failed(aPreviousUrl);
+    this._failed(url);
   }
 
   /**
