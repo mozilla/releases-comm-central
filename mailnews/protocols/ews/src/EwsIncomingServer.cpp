@@ -15,7 +15,6 @@
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
 #include "OfflineStorage.h"
-#include "plbase64.h"
 #include "mozilla/Components.h"
 
 static constexpr auto kDeleteModelPreferenceName = "delete_model";
@@ -23,6 +22,81 @@ static constexpr auto kTrashFolderPreferenceName = "trash_folder_path";
 
 constexpr auto kSyncStateTokenProperty = "ewsSyncStateToken";
 constexpr auto kEwsIdProperty = "ewsId";
+
+namespace {
+
+class EwsBiffUrlListener : public nsIUrlListener {
+ public:
+  static nsresult ForFolders(RefPtr<EwsIncomingServer> server,
+                             nsTArray<RefPtr<nsIMsgFolder>> folders,
+                             EwsBiffUrlListener** newListener) {
+    NS_ENSURE_ARG_POINTER(newListener);
+    nsresult rv = NS_OK;
+    nsTArray<nsCString> uris(folders.Length());
+    for (auto&& folder : folders) {
+      nsAutoCString folderUri;
+      rv = folder->GetURI(folderUri);
+      NS_ENSURE_SUCCESS(rv, rv);
+      uris.AppendElement(std::move(folderUri));
+    }
+
+    RefPtr<EwsBiffUrlListener> listener =
+        new EwsBiffUrlListener(std::move(server), std::move(uris));
+    listener.forget(newListener);
+    return NS_OK;
+  }
+
+  NS_DECL_ISUPPORTS;
+  NS_DECL_NSIURLLISTENER;
+
+ protected:
+  virtual ~EwsBiffUrlListener() = default;
+
+ private:
+  EwsBiffUrlListener(RefPtr<EwsIncomingServer> server,
+                     nsTArray<nsCString> syncFolderUris)
+      : mServer(std::move(server)) {
+    for (auto&& folderUri : syncFolderUris) {
+      mCompletionStates.InsertOrUpdate(folderUri, false);
+    }
+  }
+
+  RefPtr<EwsIncomingServer> mServer;
+  nsTHashMap<nsCString, bool> mCompletionStates;
+};
+
+NS_IMPL_ISUPPORTS(EwsBiffUrlListener, nsIUrlListener);
+
+NS_IMETHODIMP EwsBiffUrlListener::OnStartRunningUrl(nsIURI* uri) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsBiffUrlListener::OnStopRunningUrl(nsIURI* uri,
+                                                   nsresult exitCode) {
+  nsAutoCString uriString;
+  nsresult rv = uri->GetSpec(uriString);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (auto lookup = mCompletionStates.Lookup(uriString); lookup) {
+    lookup.Data() = true;
+  }
+
+  bool allDone = true;
+  for (auto&& entry : mCompletionStates) {
+    if (!entry.GetData()) {
+      allDone = false;
+      break;
+    }
+  }
+
+  if (allDone) {
+    mServer->SetPerformingBiff(false);
+  }
+
+  return NS_OK;
+}
+
+}  // namespace
 
 NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_RELEASE_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
@@ -305,20 +379,15 @@ nsresult EwsIncomingServer::SyncFolderList(
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
 
-nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
-                                           nsIUrlListener* urlListener) {
-  nsCOMPtr<nsIMsgFolder> rootFolder;
-  MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
-
-  nsTArray<RefPtr<nsIMsgFolder>> msgFolders;
-  MOZ_TRY(rootFolder->GetDescendants(msgFolders));
-
+nsresult EwsIncomingServer::SyncFolders(
+    const nsTArray<RefPtr<nsIMsgFolder>>& folders, nsIMsgWindow* aMsgWindow,
+    nsIUrlListener* urlListener) {
   // TODO: For now, we sync every folder at once, but obviously that's not an
   // amazing solution. In the future, we should probably try to maintain some
   // kind of queue so we can properly batch and sync folders. In the meantime,
   // though, the EWS client should handle any kind of rate limiting well enough,
   // so this improvement can come later.
-  for (const auto& folder : msgFolders) {
+  for (const auto& folder : folders) {
     nsresult rv = folder->GetNewMessages(aMsgWindow, urlListener);
     if (NS_FAILED(rv)) {
       // If we encounter an error, just log it rather than fail the whole sync.
@@ -331,6 +400,17 @@ nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
   }
 
   return NS_OK;
+}
+
+nsresult EwsIncomingServer::SyncAllFolders(nsIMsgWindow* aMsgWindow,
+                                           nsIUrlListener* urlListener) {
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  MOZ_TRY(GetRootFolder(getter_AddRefs(rootFolder)));
+
+  nsTArray<RefPtr<nsIMsgFolder>> msgFolders;
+  MOZ_TRY(rootFolder->GetDescendants(msgFolders));
+
+  return SyncFolders(msgFolders, aMsgWindow, urlListener);
 }
 
 NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
@@ -415,10 +495,26 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
 NS_IMETHODIMP EwsIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsIMsgWindow> window = aMsgWindow;
 
+  nsresult rv = SetPerformingBiff(true);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // Sync the folder list for the account. Then sync the message list of each
   // folder in the tree.
   return SyncFolderList(aMsgWindow, [self = RefPtr(this), window]() {
-    return self->SyncAllFolders(window, nullptr);
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    nsresult rv = self->GetRootFolder(getter_AddRefs(rootFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsTArray<RefPtr<nsIMsgFolder>> msgFolders;
+    rv = rootFolder->GetDescendants(msgFolders);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    RefPtr<EwsBiffUrlListener> listener;
+    rv = EwsBiffUrlListener::ForFolders(self, msgFolders.Clone(),
+                                        getter_AddRefs(listener));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    return self->SyncFolders(msgFolders, window, listener);
   });
 }
 

@@ -16,6 +16,7 @@
 #include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "MsgOperationListener.h"
+#include "nsIInputStream.h"
 #include "nsIMessenger.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDBView.h"
@@ -1117,12 +1118,20 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
 
   auto onSyncComplete = [self = RefPtr(this), notifyListener](
                             const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
+    // Trigger notifications for new messages.
+    if (!newMessages.IsEmpty()) {
+      self->SetHasNewMessages(true);
+      self->SetNumNewMessages(static_cast<int32_t>(newMessages.Length()));
+      self->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
+    }
+
     // If some new messages arrived, apply filters to them now.
     if (!newMessages.IsEmpty()) {
       self->ApplyFilters(newMessages);
     }
     notifyListener(NS_OK);
     self->NotifyFolderEvent(kFolderLoaded);
+
     return NS_OK;
   };
 
@@ -1186,7 +1195,8 @@ nsresult EwsFolder::ApplyFilters(
         [self = RefPtr(this)](
             nsresult status,
             const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) -> nsresult {
-      self->NotifyFolderEvent(kFiltersApplied);
+      nsresult rv = self->NotifyFolderEvent(kFiltersApplied);
+      NS_ENSURE_SUCCESS(rv, rv);
       // Now run the spam classification.
       // This will invoke OnMessageClassified().
       // TODO:
@@ -1194,8 +1204,9 @@ nsresult EwsFolder::ApplyFilters(
       // nsIJunkMailClassificationListener param instead of relying on
       // folder inheritance.
       bool filtersRun;
-      nsresult rv = self->CallFilterPlugins(nullptr, &filtersRun);
+      rv = self->CallFilterPlugins(nullptr, &filtersRun);
       NS_ENSURE_SUCCESS(rv, rv);
+
       return NS_OK;
     };
 
@@ -1518,5 +1529,43 @@ NS_IMETHODIMP EwsFolder::HandleViewCommand(
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::FetchMsgPreviewText(
+    nsTArray<nsMsgKey> const& aKeysToFetch, nsIUrlListener* aUrlListener,
+    bool* aAsyncResults) {
+  NS_ENSURE_ARG(aAsyncResults);
+
+  // This implementation currently only provides preview content if we have an
+  // offline copy of the message. See
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1985878 for fetching remote
+  // content for notification previews.
+  *aAsyncResults = false;
+
+  nsresult rv = NS_OK;
+  for (auto&& key : aKeysToFetch) {
+    nsCOMPtr<nsIMsgDBHdr> header;
+    rv = GetMessageHeader(key, getter_AddRefs(header));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Check to see if there's already a preview.
+    nsCString previewText;
+    rv = header->GetStringProperty("preview", previewText);
+    if (!previewText.IsEmpty()) {
+      continue;
+    }
+
+    uint32_t flags;
+    rv = header->GetFlags(&flags);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (flags & nsMsgMessageFlags::Offline) {
+      nsCOMPtr<nsIInputStream> inputStream;
+      rv = GetLocalMsgStream(header, getter_AddRefs(inputStream));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = GetMsgPreviewTextFromStream(header, inputStream);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
   return NS_OK;
 }

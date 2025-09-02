@@ -71,6 +71,11 @@ class EwsIncomingServer : public nsMsgIncomingServer,
                           std::function<nsresult()> postSyncCallback);
 
   /**
+   * Synchronize the message list for the given list of folders.
+   */
+  nsresult SyncFolders(const nsTArray<RefPtr<nsIMsgFolder>>& folders,
+                       nsIMsgWindow* aMsgWindow, nsIUrlListener* urlListener);
+  /**
    * Synchronize the message list for every folder in the account.
    */
   nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow,

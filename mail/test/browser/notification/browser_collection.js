@@ -152,7 +152,7 @@ add_task(async function testBiffUpdateEWS() {
   await subtest(ewsIncomingServer, inbox =>
     inbox.server.performBiff(window.msgWindow)
   );
-}).skip(); // Not yet implemented. Bug 1981524.
+}).skip(); // See 1985881
 
 /**
  * Test manual update for an EWS server.
@@ -161,7 +161,7 @@ add_task(async function testUserUpdateEWS() {
   await subtest(ewsIncomingServer, inbox =>
     inbox.server.performBiff(window.msgWindow)
   );
-}).skip(); // Not yet implemented. Bug 1981524.
+}).skip(); // See 1985881
 
 /**
  * Create a filter that moves mail from `sender` to `folder`.
@@ -371,7 +371,7 @@ async function subtest(incomingServer, getMessagesCallback) {
 async function promiseAlert(expectedSender, expectedCookie) {
   const alert = await TestUtils.waitForCondition(
     () => MockAlertsService.alert,
-    `waiting for a notification about inbox`
+    `waiting for a notification about ${expectedCookie}`
   );
   Assert.stringContains(
     alert.text,

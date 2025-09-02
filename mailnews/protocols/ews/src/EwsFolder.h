@@ -92,6 +92,10 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
                                nsIMsgWindow* window,
                                nsIMsgCopyServiceListener* listener) override;
 
+  NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,
+                                 nsIUrlListener* aUrlListener,
+                                 bool* aAsyncResults) override;
+
  private:
   bool mHasLoadedSubfolders;
 
