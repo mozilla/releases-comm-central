@@ -4,6 +4,7 @@
 
 SOURCES += [
     "EwsCopyMoveTransaction.cpp",
+    "EwsFetchMsgToOffline.cpp",
     "EwsFolder.cpp",
     "EwsFolderCopyHandler.cpp",
     "EwsIncomingServer.cpp",
