@@ -82,6 +82,82 @@ export class BaseProfileImporter {
   }
 
   /**
+   * @callback ProgressCallback
+   * @param {number} progress - A value between 0 and 1.
+   */
+  /**
+   * Extract a zip file to a temporary directory.
+   *
+   * @param {nsIFile} sourceFile
+   * @param {ProgressCallback} progressCallback
+   * @returns {nsIFile}
+   */
+  async extractZipFile(sourceFile, progressCallback) {
+    // Extract the zip file to a tmp dir.
+    const targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    targetDir.append("tmp-profile");
+    targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+
+    const zipReader = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+      Ci.nsIZipReader
+    );
+    zipReader.open(sourceFile);
+
+    // The profile data could be at the top level, or inside a lone folder at
+    // the top level. Find out which.
+    let depth = 0;
+    const entries = [...zipReader.findEntries(null)];
+    const rootEntries = entries.filter(e => e.match(/^[^\/]*\/?$/));
+    if (
+      entries.length > 1 &&
+      rootEntries.length == 1 &&
+      rootEntries[0].endsWith("/") &&
+      this.validateZipSource(zipReader, rootEntries[0])
+    ) {
+      this._logger.debug(`Found an inner directory ${rootEntries[0]}`);
+      depth = 1;
+    }
+
+    let extractedFileCount = 0;
+    for (const entry of entries) {
+      extractedFileCount++;
+      const parts = entry.split("/").slice(depth);
+      if (
+        parts.length == 0 ||
+        this.IGNORE_DIRS.includes(parts[0]) ||
+        entry.endsWith("/")
+      ) {
+        this._logger.debug(`Skipping ${entry}`);
+        continue;
+      }
+      // Folders can not be unzipped recursively, have to iterate and
+      // extract all file entries one by one.
+      const target = targetDir.clone();
+      for (const part of parts) {
+        // Drop the root folder name in the zip file.
+        target.append(part);
+      }
+      if (!target.parent.exists()) {
+        target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+      }
+      try {
+        this._logger.debug(`Extracting ${entry} to ${target.path}`);
+        zipReader.extract(entry, target);
+        // Update the progress callback, and yield the main thread to avoid jank.
+        if (extractedFileCount % 10 == 0) {
+          const progress = Math.min(extractedFileCount / entries.length, 1);
+          progressCallback(progress);
+          await new Promise(resolve => setTimeout(resolve));
+        }
+      } catch (e) {
+        this._logger.error(e);
+      }
+    }
+    progressCallback(1);
+    return targetDir;
+  }
+
+  /**
    * Actually start importing things to the current profile.
    *
    * @param {nsIFile} _sourceProfileDir - The source location to import from.

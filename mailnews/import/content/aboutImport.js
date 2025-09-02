@@ -651,72 +651,6 @@ class ProfileImporterController extends ImporterController {
     this.showPane("summary");
   }
 
-  /**
-   * Extract the zip file to a tmp dir, set _sourceProfile.dir to the tmp dir.
-   */
-  async _extractZipFile() {
-    // Extract the zip file to a tmp dir.
-    const targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    targetDir.append("tmp-profile");
-    targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-
-    const zipReader = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
-      Ci.nsIZipReader
-    );
-    zipReader.open(this._sourceProfile.dir);
-
-    // The profile data could be at the top level, or inside a lone folder at
-    // the top level. Find out which.
-    let depth = 0;
-    const entries = [...zipReader.findEntries(null)];
-    const rootDirs = entries.filter(e => e.match(/^[^\/]*\/$/));
-    if (
-      entries.length > 1 &&
-      rootDirs.length == 1 &&
-      this._importer.validateZipSource(zipReader, rootDirs[0])
-    ) {
-      depth = 1;
-    }
-
-    for (const entry of entries) {
-      const parts = entry.split("/").slice(depth);
-      if (
-        this._importer.IGNORE_DIRS.includes(parts[0]) ||
-        entry.endsWith("/")
-      ) {
-        continue;
-      }
-      // Folders can not be unzipped recursively, have to iterate and
-      // extract all file entries one by one.
-      const target = targetDir.clone();
-      for (const part of parts) {
-        // Drop the root folder name in the zip file.
-        target.append(part);
-      }
-      if (!target.parent.exists()) {
-        target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-      }
-      try {
-        this._logger.debug(`Extracting ${entry} to ${target.path}`);
-        zipReader.extract(entry, target);
-        this._extractedFileCount++;
-        if (this._extractedFileCount % 10 == 0) {
-          const progress = Math.min(
-            (this._extractedFileCount / 200) * 0.2,
-            0.2
-          );
-          this.updateProgress(progress);
-          await new Promise(resolve => setTimeout(resolve));
-        }
-      } catch (e) {
-        this._logger.error(e);
-      }
-    }
-    // Use the tmp dir as source profile dir.
-    this._sourceProfile = { dir: targetDir };
-    this.updateProgress(0.2);
-  }
-
   async startImport() {
     const gleanData = {
       importer: this._importer.NAME,
@@ -728,9 +662,13 @@ class ProfileImporterController extends ImporterController {
     this.showProgress("progress-pane-importing2");
     if (this._importingFromZip) {
       gleanData.importer += ",zip";
-      this._extractedFileCount = 0;
       try {
-        await this._extractZipFile();
+        this._sourceProfile = {
+          dir: await this._importer.extractZipFile(
+            this._sourceProfile.dir,
+            progress => this.updateProgress(progress * 0.2)
+          ),
+        };
       } catch (e) {
         this.showError("error-message-extract-zip-file-failed2");
         Glean.mail.import.record({ ...gleanData, result: "unzipFailed" });
