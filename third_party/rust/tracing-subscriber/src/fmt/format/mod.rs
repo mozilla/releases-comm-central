@@ -48,6 +48,10 @@ use tracing_log::NormalizeEvent;
 #[cfg(feature = "ansi")]
 use nu_ansi_term::{Color, Style};
 
+
+mod escape;
+use escape::Escape;
+
 #[cfg(feature = "json")]
 mod json;
 #[cfg(feature = "json")]
@@ -864,7 +868,7 @@ impl<T> Format<Json, T> {
     /// ```ignore,json
     /// {"timestamp":"Feb 20 11:28:15.096","level":"INFO","target":"mycrate", "message":"some message", "key": "value"}
     /// ```
-    /// See [`Json`][super::format::Json].
+    /// See [`Json`].
     #[cfg(feature = "json")]
     #[cfg_attr(docsrs, doc(cfg(feature = "json")))]
     pub fn flatten_event(mut self, flatten_event: bool) -> Format<Json, T> {
@@ -1257,7 +1261,7 @@ impl field::Visit for DefaultVisitor<'_> {
                 field,
                 &format_args!(
                     "{} {}{}{}{}",
-                    value,
+                    Escape(&format_args!("{}", value)),
                     italic.paint(field.name()),
                     italic.paint(".sources"),
                     self.writer.dimmed().paint("="),
@@ -1265,7 +1269,7 @@ impl field::Visit for DefaultVisitor<'_> {
                 ),
             )
         } else {
-            self.record_debug(field, &format_args!("{}", value))
+            self.record_debug(field, &format_args!("{}", Escape(&format_args!("{}", value))))
         }
     }
 
@@ -1274,12 +1278,23 @@ impl field::Visit for DefaultVisitor<'_> {
             return;
         }
 
+        let name = field.name();
+
+        // Skip fields that are actually log metadata that have already been handled
+        #[cfg(feature = "tracing-log")]
+        if name.starts_with("log.") {
+            debug_assert_eq!(self.result, Ok(())); // no need to update self.result
+            return;
+        }
+
+        // emit separating spaces if needed
         self.maybe_pad();
-        self.result = match field.name() {
-            "message" => write!(self.writer, "{:?}", value),
-            // Skip fields that are actually log metadata that have already been handled
-            #[cfg(feature = "tracing-log")]
-            name if name.starts_with("log.") => Ok(()),
+
+        self.result = match name {
+            "message" => {
+                // Escape ANSI characters to prevent malicious patterns (e.g., terminal injection attacks)
+                write!(self.writer, "{:?}", Escape(value))
+            },
             name if name.starts_with("r#") => write!(
                 self.writer,
                 "{}{}{:?}",
@@ -1318,7 +1333,7 @@ impl Display for ErrorSourceList<'_> {
         let mut list = f.debug_list();
         let mut curr = Some(self.0);
         while let Some(curr_err) = curr {
-            list.entry(&format_args!("{}", curr_err));
+            list.entry(&Escape(&format_args!("{}", curr_err)));
             curr = curr_err.source();
         }
         list.finish()
