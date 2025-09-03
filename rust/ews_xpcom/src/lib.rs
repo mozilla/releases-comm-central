@@ -12,20 +12,15 @@ use mailnews_ui_glue::UserInteractiveServer;
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
-use nsstring::nsACString;
-use nsstring::nsCString;
-use std::ptr;
+use nsstring::{nsACString, nsCString};
 use std::{cell::OnceCell, ffi::c_void};
 use thin_vec::ThinVec;
 use url::Url;
-use xpcom::get_service;
-use xpcom::getter_addrefs;
-use xpcom::interfaces::nsIIOService;
-use xpcom::interfaces::IEwsSimpleOperationListener;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderListener,
         IEwsMessageCreateListener, IEwsMessageFetchListener, IEwsMessageSyncListener,
+        IEwsSimpleOperationListener,
     },
     nsIID, xpcom_method, RefPtr,
 };
@@ -34,7 +29,7 @@ use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
 use safe_xpcom::{
     SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener,
-    SafeEwsSimpleOperationListener,
+    SafeEwsSimpleOperationListener, SafeUri, SafeUrlListener,
 };
 
 mod authentication;
@@ -104,20 +99,15 @@ impl XpcomEwsBridge {
     fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
         // Extract the endpoint URL from the existing server details (or error
         // if these haven't been set yet).
-        let uri = nsCString::from(
-            self.details
-                .get()
-                .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?
-                .endpoint
-                .to_string(),
-        );
+        let uri = self
+            .details
+            .get()
+            .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?
+            .endpoint
+            .to_string();
 
         // Turn the string URI into an `nsIURI`.
-        let io_service = get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
-
-        let uri =
-            getter_addrefs(|p| unsafe { io_service.NewURI(&*uri, ptr::null(), ptr::null(), p) })?;
+        let uri = SafeUri::new(uri)?;
 
         // Get an EWS client and make a request to check connectivity to the EWS
         // server.
@@ -125,11 +115,11 @@ impl XpcomEwsBridge {
 
         moz_task::spawn_local(
             "check_connectivity",
-            client.check_connectivity(uri.clone(), RefPtr::new(listener)),
+            client.check_connectivity(uri.clone(), SafeUrlListener::new(listener)),
         )
         .detach();
 
-        Ok(uri)
+        Ok(uri.into())
     }
 
     xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(listener: *const IEwsFolderListener, sync_state: *const nsACString));
