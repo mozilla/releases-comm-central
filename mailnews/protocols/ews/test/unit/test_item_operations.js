@@ -166,7 +166,13 @@ async function copyItems(sourceFolder, destinationFolder, headers, isMove) {
  */
 async function copyFolder(sourceFolder, destinationFolder, isMove) {
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
-  destinationFolder.copyFolder(sourceFolder, isMove, null, copyListener);
+  MailServices.copy.copyFolder(
+    sourceFolder,
+    destinationFolder,
+    isMove,
+    copyListener,
+    null
+  );
   return copyListener.promise;
 }
 

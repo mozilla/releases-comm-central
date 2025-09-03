@@ -1675,6 +1675,22 @@ export class EwsServer {
   }
 
   /**
+   * Get all of the items in a folder.
+   *
+   * @param {string} folderId
+   * @returns {ItemInfo[]}
+   */
+  getItemsInFolder(folderId) {
+    const items = [];
+    for (const item of this.#itemIdToItemInfo.values()) {
+      if (item.parentId === folderId) {
+        items.push(item);
+      }
+    }
+    return items;
+  }
+
+  /**
    * Construct a response for the EWS Move[Item,Folder] operations.
    *
    * @param {string} responseBase The response document base XML.

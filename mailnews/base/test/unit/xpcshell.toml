@@ -103,6 +103,8 @@ tags = ["virtualfolders"]
 
 ["test_mimemaltdetach.js"]
 
+["test_moveCopyFoldersAcrossServers.js"]
+
 ["test_msgHdrProperties.js"]
 
 ["test_newMailNotification.js"]

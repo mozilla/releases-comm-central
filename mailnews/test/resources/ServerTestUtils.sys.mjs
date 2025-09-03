@@ -63,9 +63,11 @@ async function createServer({
   server.server?.setDebugLevel(serverDebugLevel);
   server.start?.();
 
-  NetworkTestUtils.configureProxy(hostname, port, server.port);
-  for (const [aliasHostname, aliasPort] of aliases) {
-    NetworkTestUtils.configureProxy(aliasHostname, aliasPort, server.port);
+  if (hostname && port) {
+    NetworkTestUtils.configureProxy(hostname, port, server.port);
+    for (const [aliasHostname, aliasPort] of aliases) {
+      NetworkTestUtils.configureProxy(aliasHostname, aliasPort, server.port);
+    }
   }
 
   return server;

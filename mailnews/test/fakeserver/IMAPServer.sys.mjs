@@ -52,7 +52,7 @@ export class IMAPServer {
   }
 
   /**
-   * @param {nsIMsgFolder} folder
+   * @param {nsIMsgImapMailFolder} folder
    * @param {SyntheticMessage[]} messages
    * @param {boolean} [update=true] - Whether the client should update the
    *   folder immediately
@@ -60,7 +60,8 @@ export class IMAPServer {
    *   resolves when `folder` has been updated
    */
   addMessages(folder, messages, update = true) {
-    const fakeFolder = this.daemon.getMailbox(folder.name);
+    folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    const mailbox = this.daemon.getMailbox(folder.onlineName);
     messages.forEach(message => {
       if (typeof message != "string") {
         message = message.toMessageString();
@@ -68,10 +69,10 @@ export class IMAPServer {
 
       const imapMsg = new ImapMessage(
         "data:text/plain;base64," + btoa(message),
-        fakeFolder.uidnext++,
+        mailbox.uidnext++,
         []
       );
-      fakeFolder.addMessage(imapMsg);
+      mailbox.addMessage(imapMsg);
     });
 
     if (update) {
@@ -80,6 +81,18 @@ export class IMAPServer {
       );
     }
     return Promise.resolve();
+  }
+
+  /**
+   * Get all of the messages in a folder.
+   *
+   * @param {nsIMsgImapMailFolder} folder
+   * @returns {ImapMessage[]}
+   */
+  getMessagesInFolder(folder) {
+    folder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    const mailbox = this.daemon.getMailbox(folder.onlineName);
+    return mailbox._messages;
   }
 }
 

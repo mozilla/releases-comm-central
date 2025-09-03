@@ -523,7 +523,7 @@ interface nsIMsgFolder : nsISupports {
    *   moved/copied.
    * @param isMove - false for copy operation, true for move operation.
    * @param msgWindow - Window for notification callbacks, can be null.
-   * @param listener - Listener which receive operation notifications
+   * @param listener - Listener which receives operation notifications.
    * @param isFolder - Used internally by some implementations.
    * @param allowUndo - Specifies if this operation will be done as an
    *   transaction that can be undone.
@@ -533,6 +533,16 @@ interface nsIMsgFolder : nsISupports {
                     in nsIMsgCopyServiceListener listener, in boolean isFolder,
                     in boolean allowUndo);
 
+  /**
+   * Called by the message copy service to initiate folder copying into this
+   * folder. This method should NOT be called directly from JS. Instead use
+   * `MailServices.copy.copyFolder`.
+   *
+   * @param srcFolder - Source folder of an operation.
+   * @param isMoveFolder - false for copy operation, true for move operation.
+   * @param msgWindow - Window for notification callbacks, can be null.
+   * @param listener - Listener which receives operation notifications.
+   */
   void copyFolder(in nsIMsgFolder srcFolder, in boolean isMoveFolder,
                   in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener);
 
