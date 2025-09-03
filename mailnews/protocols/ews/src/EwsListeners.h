@@ -234,7 +234,7 @@ class EwsMessageFetchListener : public IEwsMessageFetchListener {
 
   EwsMessageFetchListener(
       std::function<nsresult()> onFetchStart,
-      std::function<nsresult(nsIInputStream*, uint32_t, uint64_t*)>
+      std::function<nsresult(nsIInputStream*, uint64_t*)>
           onFetchedDataAvailable,
       std::function<nsresult(nsresult, uint64_t)> onFetchStop)
       : mOnFetchStart(std::move(onFetchStart)),
@@ -246,8 +246,7 @@ class EwsMessageFetchListener : public IEwsMessageFetchListener {
 
  private:
   std::function<nsresult()> mOnFetchStart;
-  std::function<nsresult(nsIInputStream*, uint32_t, uint64_t*)>
-      mOnFetchedDataAvailable;
+  std::function<nsresult(nsIInputStream*, uint64_t*)> mOnFetchedDataAvailable;
   std::function<nsresult(nsresult, uint64_t)> mOnFetchStop;
 
   uint64_t mTotalFetchedBytesCount = 0;

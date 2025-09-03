@@ -429,7 +429,7 @@ nsresult EwsMessageChannel::FetchAndReadMessage() {
   };
 
   auto onFetchedDataAvailable = [self = RefPtr(this), storeOutStream](
-                                    nsIInputStream* stream, uint32_t count,
+                                    nsIInputStream* stream,
                                     uint64_t* bytesFetched) {
     // Copy the message from the provided stream to the output stream provided
     // by the store.
