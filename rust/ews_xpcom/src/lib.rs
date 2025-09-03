@@ -32,7 +32,10 @@ use xpcom::{
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
-use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener};
+use safe_xpcom::{
+    SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener,
+    SafeEwsSimpleOperationListener,
+};
 
 mod authentication;
 mod cancellable_request;
@@ -174,7 +177,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "create_folder",
             client.create_folder(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 parent_id.to_utf8().into(),
                 name.to_utf8().into(),
             ),
@@ -196,7 +199,10 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "delete_folder",
-            client.delete_folder(RefPtr::new(listener), folder_id.to_utf8().into_owned()),
+            client.delete_folder(
+                SafeEwsSimpleOperationListener::new(listener),
+                folder_id.to_utf8().into_owned(),
+            ),
         )
         .detach();
 
@@ -217,7 +223,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "update_folder",
             client.update_folder(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 folder_id.to_utf8().into_owned(),
                 folder_name.to_utf8().into_owned(),
             ),
@@ -347,7 +353,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_items",
             client.copy_move_item::<MoveItem>(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(|id| id.to_string()).collect(),
             ),
@@ -369,7 +375,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "copy_items",
             client.copy_move_item::<CopyItem>(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 item_ids.iter().map(|id| id.to_string()).collect(),
             ),
@@ -391,7 +397,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "move_folders",
             client.copy_move_folder::<MoveFolder>(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(|id| id.to_string()).collect(),
             ),
@@ -413,7 +419,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "copy_folders",
             client.copy_move_folder::<CopyFolder>(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 destination_folder_id.to_string(),
                 folder_ids.iter().map(|id| id.to_string()).collect(),
             ),
@@ -435,7 +441,10 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "delete_messages",
-            client.delete_messages(RefPtr::new(listener), ews_ids.clone()),
+            client.delete_messages(
+                SafeEwsSimpleOperationListener::new(listener),
+                ews_ids.clone(),
+            ),
         )
         .detach();
 
@@ -455,7 +464,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "mark_items_as_junk",
             client.mark_as_junk(
-                RefPtr::new(listener),
+                SafeEwsSimpleOperationListener::new(listener),
                 ews_ids.clone(),
                 is_junk,
                 legacy_destination_folder_id.to_string(),

@@ -2,16 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use thin_vec::thin_vec;
-
 use ews::{create_folder::CreateFolder, BaseFolderId, Folder, OperationResponse};
 
 use mailnews_ui_glue::UserInteractiveServer;
-use nsstring::nsCString;
-use xpcom::interfaces::{IEwsFallibleOperationListener, IEwsSimpleOperationListener};
-use xpcom::{RefCounted, RefPtr, XpCom};
+use xpcom::RefCounted;
 
-use crate::client::{handle_error, single_response_or_error};
+use crate::client::single_response_or_error;
+use crate::safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener};
 
 use super::{process_response_message_class, XpComEwsClient, XpComEwsError};
 use crate::authentication::credentials::AuthenticationProvider;
@@ -22,22 +19,17 @@ where
 {
     pub(crate) async fn create_folder(
         self,
-        listener: RefPtr<IEwsSimpleOperationListener>,
+        listener: SafeEwsSimpleOperationListener,
         parent_id: String,
         name: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         match self.create_folder_inner(parent_id, name).await {
-            Ok(folder_id) => unsafe {
-                let ids = thin_vec![folder_id];
-                listener.OnOperationSuccess(&ids, false);
-            },
-            Err(err) => handle_error(
-                "CreateFolder",
-                err,
-                listener.query_interface::<IEwsFallibleOperationListener>(),
-            ),
+            Ok(folder_id) => {
+                let _ = listener.on_success((std::iter::once(folder_id), false).into());
+            }
+            Err(err) => handle_error(&listener, "CreateFolder", &err, ()),
         };
     }
 
@@ -45,7 +37,7 @@ where
         self,
         parent_id: String,
         name: String,
-    ) -> Result<nsCString, XpComEwsError> {
+    ) -> Result<String, XpComEwsError> {
         let op = CreateFolder {
             parent_folder_id: BaseFolderId::FolderId {
                 id: parent_id,
@@ -93,8 +85,6 @@ where
                 });
             }
         };
-
-        let folder_id = nsCString::from(folder_id);
 
         Ok(folder_id)
     }

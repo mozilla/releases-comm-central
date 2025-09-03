@@ -10,11 +10,13 @@ pub use folder_listener::*;
 pub use message_create_listener::*;
 pub use message_sync_listener::*;
 pub use msg_db_hdr::*;
+pub use simple_operation_listener::*;
 
 mod folder_listener;
 mod message_create_listener;
 mod message_sync_listener;
 mod msg_db_hdr;
+mod simple_operation_listener;
 
 use crate::client::XpComEwsError;
 
@@ -76,7 +78,7 @@ impl<L: XpCom> UnsafeListener for SafeListenerWrapper<L> {
 }
 
 /// Perform any actions appropriate when an error associated with the listener is encountered.
-pub fn safe_handle_error<L: SafeListener>(
+pub fn handle_error<L: SafeListener>(
     listener: &L,
     op_name: &str,
     err: &XpComEwsError,
