@@ -9,15 +9,18 @@ use ews::{
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
+use xpcom::{
+    interfaces::{IEwsFallibleOperationListener, IEwsSimpleOperationListener},
+    RefCounted, RefPtr,
+};
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
     client::{
-        process_response_message_class, validate_response_message_count, XpComEwsClient,
-        XpComEwsError,
+        handle_error, process_response_message_class, validate_response_message_count,
+        XpComEwsClient, XpComEwsError,
     },
-    safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener},
+    xpcom::XpCom,
 };
 
 impl<ServerT> XpComEwsClient<ServerT>
@@ -26,7 +29,7 @@ where
 {
     pub async fn mark_as_junk(
         self,
-        listener: SafeEwsSimpleOperationListener,
+        listener: RefPtr<IEwsSimpleOperationListener>,
         ews_ids: ThinVec<nsCString>,
         is_junk: bool,
         legacy_destination_folder_id: String,
@@ -37,12 +40,15 @@ where
             .mark_as_junk_inner(ews_ids, is_junk, legacy_destination_folder_id)
             .await
         {
-            Ok(ids) => {
-                let use_legacy_fallback = ids.is_none();
-                let _ = listener
-                    .on_success((ids.unwrap_or(ThinVec::new()), use_legacy_fallback).into());
-            }
-            Err(err) => handle_error(&listener, "MarkAsJunk", &err, ()),
+            Ok(ids) => unsafe {
+                listener
+                    .OnOperationSuccess(ids.as_ref().unwrap_or(&ThinVec::new()), !ids.is_some());
+            },
+            Err(err) => handle_error(
+                "MarkAsJunk",
+                err,
+                listener.query_interface::<IEwsFallibleOperationListener>(),
+            ),
         };
     }
 
@@ -102,7 +108,7 @@ where
             Ok(if sync_required {
                 None
             } else {
-                Some(new_ids.iter().map(nsCString::from).collect())
+                Some(new_ids.iter().map(|id| nsCString::from(id)).collect())
             })
         } else {
             Err(XpComEwsError::Processing { message: "Unable to determine junk folder and Exchange version is too old for `MarkAsJunk` operation.".to_string() })

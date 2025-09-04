@@ -4,13 +4,15 @@
 
 use ews::{Operation, OperationResponse};
 use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
-
-use crate::client::{response_into_messages, XpComEwsClient, XpComEwsError};
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener},
+use nsstring::nsCString;
+use thin_vec::ThinVec;
+use xpcom::{
+    interfaces::{IEwsFallibleOperationListener, IEwsSimpleOperationListener},
+    RefCounted, RefPtr, XpCom,
 };
+
+use crate::authentication::credentials::AuthenticationProvider;
+use crate::client::{handle_error, response_into_messages, XpComEwsClient, XpComEwsError};
 
 /// An EWS operation that copies or moves folders or items.
 pub(crate) trait CopyMoveOperation: Operation + Clone {
@@ -41,7 +43,7 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
 /// success or failure.
 pub(super) async fn move_generic<ServerT, OperationDataT>(
     client: XpComEwsClient<ServerT>,
-    listener: SafeEwsSimpleOperationListener,
+    listener: RefPtr<IEwsSimpleOperationListener>,
     destination_folder_id: String,
     ids: Vec<String>,
     operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
@@ -61,10 +63,18 @@ pub(super) async fn move_generic<ServerT, OperationDataT>(
     )
     .await
     {
-        (_, Ok((new_ids, requires_resync))) => {
-            let _ = listener.on_success((new_ids, requires_resync).into());
-        }
-        (operation_name, Err(err)) => handle_error(&listener, operation_name, &err, ()),
+        (_, Ok((new_ids, requires_resync))) => unsafe {
+            let converted_new_ids = new_ids
+                .iter()
+                .map(|id| nsCString::from(id))
+                .collect::<ThinVec<nsCString>>();
+            listener.OnOperationSuccess(&converted_new_ids, requires_resync);
+        },
+        (operation_name, Err(err)) => handle_error(
+            operation_name,
+            err,
+            listener.query_interface::<IEwsFallibleOperationListener>(),
+        ),
     };
 }
 
