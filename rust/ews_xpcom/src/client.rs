@@ -51,14 +51,17 @@ use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
-use xpcom::{RefCounted, RefPtr};
+use xpcom::{
+    interfaces::{nsIStringInputStream, IEwsMessageFetchListener},
+    RefCounted, RefPtr,
+};
 
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     safe_xpcom::{
         handle_error, PopulatedMsgDbHeader, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsMessageFetchListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
-        SafeListener, SafeMsgOutgoingListener, SafeUri, SafeUrlListener, UnpopulatedMsgDbHeader,
+        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeListener,
+        SafeMsgOutgoingListener, SafeUri, SafeUrlListener, UnpopulatedMsgDbHeader,
     },
 };
 
@@ -601,26 +604,30 @@ where
         Ok(())
     }
 
-    pub(crate) async fn get_message(self, listener: SafeEwsMessageFetchListener, id: String) {
+    pub(crate) async fn get_message(self, listener: RefPtr<IEwsMessageFetchListener>, id: String) {
+        unsafe { listener.OnFetchStart() };
+
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         let result = self.get_message_inner(&listener, id.clone()).await;
 
-        match result {
-            Ok(_) => {
-                let _ = listener.on_success(());
+        let status = match result {
+            Ok(_) => nserror::NS_OK,
+            Err(err) => {
+                log::error!("an unexpected error occurred while fetching message {id}: {err:?}");
+
+                nsresult::from(err)
             }
-            Err(err) => handle_error(&listener, "GetItem", &err, ()),
         };
+
+        unsafe { listener.OnFetchStop(status) };
     }
 
     async fn get_message_inner(
         self,
-        listener: &SafeEwsMessageFetchListener,
+        listener: &IEwsMessageFetchListener,
         id: String,
     ) -> Result<(), XpComEwsError> {
-        listener.on_fetch_start()?;
-
         let items = self.get_items([id], &[], true).await?;
         if items.len() != 1 {
             return Err(XpComEwsError::Processing {
@@ -654,7 +661,30 @@ where
                     message: "MIME content for item is not validly base64 encoded".to_string(),
                 })?;
 
-        listener.on_fetched_data_available(mime_content)
+        let len: i32 = mime_content
+            .len()
+            .try_into()
+            .map_err(|_| XpComEwsError::Processing {
+                message: format!(
+                    "item is of length {}, larger than supported size of 2GiB",
+                    mime_content.len()
+                ),
+            })?;
+
+        let stream = xpcom::create_instance::<nsIStringInputStream>(cstr::cstr!(
+            "@mozilla.org/io/string-input-stream;1"
+        ))
+        .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+
+        // We use `SetByteStringData()` here instead of one of the alternatives
+        // to ensure that the data is copied. Otherwise, the pointer may become
+        // invalid before the stream is dropped.
+        let mime_content = nsCString::from(mime_content);
+        unsafe { stream.SetByteStringData(&*mime_content) }.to_result()?;
+
+        unsafe { listener.OnFetchedDataAvailable(stream.coerce(), len as u32) }.to_result()?;
+
+        Ok(())
     }
 
     /// Builds a map from remote folder ID to distinguished folder ID.

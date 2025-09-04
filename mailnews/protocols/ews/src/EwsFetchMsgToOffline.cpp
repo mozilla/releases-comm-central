@@ -91,12 +91,12 @@ class MsgFetcher : public IEwsMessageFetchListener {
 
   // IEwsMessageFetchListener.onFetchedDataAvailable implementation.
   // (analogous to nsIStreamListener.onDataAvailable)
-  NS_IMETHOD OnFetchedDataAvailable(nsIInputStream* inputStream) override {
-    uint64_t bytesCopied;
+  NS_IMETHOD OnFetchedDataAvailable(nsIInputStream* inputStream,
+                                    uint32_t count) override {
     MOZ_ASSERT(mOut);
-    nsresult rv = SyncCopyStream(inputStream, mOut, bytesCopied);
+    nsresult rv = SyncCopyStreamN(inputStream, mOut, count);
     NS_ENSURE_SUCCESS(rv, rv);
-    mMsgSize += bytesCopied;
+    mMsgSize += count;
     return NS_OK;
   }
 

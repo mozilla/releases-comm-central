@@ -8,7 +8,6 @@ use xpcom::{interfaces::IEwsFallibleOperationListener, RefCounted, RefPtr, XpCom
 
 pub use folder_listener::*;
 pub use message_create_listener::*;
-pub use message_fetch_listener::*;
 pub use message_sync_listener::*;
 pub use msg_db_hdr::*;
 pub use msg_outgoing_listener::*;
@@ -18,7 +17,6 @@ pub use url_listener::*;
 
 mod folder_listener;
 mod message_create_listener;
-mod message_fetch_listener;
 mod message_sync_listener;
 mod msg_db_hdr;
 mod msg_outgoing_listener;
