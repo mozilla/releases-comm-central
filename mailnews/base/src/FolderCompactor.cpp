@@ -723,6 +723,7 @@ RefPtr<FolderCompactor::ShutdownObserver>
 FolderCompactor::ShutdownObserver::ShutdownObserver() {
   nsCOMPtr<nsIAppStartup> appStartup(
       mozilla::components::AppStartup::Service());
+  NS_ENSURE_TRUE_VOID(appStartup);
   appStartup->GetShuttingDown(&mIsShuttingDown);
 
   if (!mIsShuttingDown) {

@@ -70,6 +70,7 @@ nsImapOfflineSync::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
   bool isShuttingDown = false;
   nsCOMPtr<nsIAppStartup> appStartup(
       mozilla::components::AppStartup::Service());
+  NS_ENSURE_TRUE(appStartup, NS_ERROR_FAILURE);
   appStartup->GetShuttingDown(&isShuttingDown);
   if (isShuttingDown) {
     if (m_listener) m_listener->OnStopRunningUrl(url, NS_BINDING_ABORTED);

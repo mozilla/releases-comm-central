@@ -396,6 +396,7 @@ void nsMsgSearchSession::TimerCallback(nsITimer* aTimer, void* aClosure) {
   bool isShuttingDown = false;
   nsCOMPtr<nsIAppStartup> appStartup(
       mozilla::components::AppStartup::Service());
+  NS_ENSURE_TRUE_VOID(appStartup);
   appStartup->GetShuttingDown(&isShuttingDown);
   if (isShuttingDown) {
     // Shutting down? Stop searching.
