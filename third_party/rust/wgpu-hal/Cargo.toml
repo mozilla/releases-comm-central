@@ -229,7 +229,7 @@ optional = true
 default-features = false
 
 [dependencies.thiserror]
-version = "2.0.11"
+version = "2.0.12"
 default-features = false
 
 [dependencies.wgpu-types]

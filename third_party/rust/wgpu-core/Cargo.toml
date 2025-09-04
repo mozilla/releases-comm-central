@@ -185,7 +185,7 @@ default-features = false
 version = "1.13.1"
 
 [dependencies.thiserror]
-version = "2.0.11"
+version = "2.0.12"
 default-features = false
 
 [dependencies.wgpu-hal]
