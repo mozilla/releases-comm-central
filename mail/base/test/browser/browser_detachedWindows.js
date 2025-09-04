@@ -115,6 +115,29 @@ add_task(async function testMessageWindow() {
   await assertNoDetachedWindows();
 });
 
+add_task(async function testComposeWindow() {
+  info("Opening a compose window");
+  let composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    win =>
+      win.document.documentURI ===
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
+  window.MsgNewMessage();
+
+  let composeWindow = await composeWindowPromise;
+  await SimpleTest.promiseFocus(composeWindow);
+  await TestUtils.waitForCondition(() => composeWindow.gLoadingComplete);
+  await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
+
+  info("Closing the window");
+  await BrowserTestUtils.closeWindow(composeWindow);
+  composeWindow = null;
+  composeWindowPromise = null;
+
+  await assertNoDetachedWindows();
+});
+
 add_task(async function testSearchMessagesDialog() {
   info("Opening the search messages dialog");
   const about3Pane = tabmail.currentAbout3Pane;

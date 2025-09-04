@@ -1483,3 +1483,11 @@ class MailRecipientsArea extends MozXULElement {
 }
 
 customElements.define("mail-recipients-area", MailRecipientsArea);
+
+// We override the blur handling on autocomplete widgets, so we have to clean
+// them up ourselves. We can do this once for all when the page unloads.
+window.addEventListener("unload", () =>
+  document
+    .querySelectorAll(`[is="autocomplete-input"]`)
+    .forEach(input => input.detachController())
+);
