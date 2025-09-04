@@ -2158,6 +2158,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
       bool needToRemoveDup = false;
       if (!mMimeConverter) {
         mMimeConverter = mozilla::components::MimeConverter::Service();
+        NS_ENSURE_TRUE(mMimeConverter, NS_ERROR_FAILURE);
       }
       nsCString charset("UTF-8");
 

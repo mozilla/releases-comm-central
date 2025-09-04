@@ -22,6 +22,10 @@ void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
                            nsACString& result) {
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  if (!mimeConverter) {
+    result.Truncate();
+    return;
+  }
   mimeConverter->DecodeMimeHeaderToUTF8(nsDependentCString(header),
                                         default_charset, override_charset,
                                         eatContinuations, result);

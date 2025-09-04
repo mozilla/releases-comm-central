@@ -289,6 +289,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
   nsCString decodedName(name);
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
   mimeConverter->DecodeMimeHeaderToUTF8(name, nullptr, false, true,
                                         decodedName);
 

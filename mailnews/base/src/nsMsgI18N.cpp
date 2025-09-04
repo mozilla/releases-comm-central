@@ -172,9 +172,10 @@ nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
 char* nsMsgI18NEncodeMimePartIIStr(const char* header, bool structured,
                                    const char* charset, int32_t fieldnamelen) {
   nsAutoCString encodedString;
-  nsCOMPtr<nsIMimeConverter> converter =
+  nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
-  nsresult rv = converter->EncodeMimePartIIStr_UTF8(
+  NS_ENSURE_TRUE(mimeConverter, nullptr);
+  nsresult rv = mimeConverter->EncodeMimePartIIStr_UTF8(
       nsDependentCString(header), structured, fieldnamelen,
       nsIMimeConverter::MIME_ENCODED_WORD_SIZE, encodedString);
 

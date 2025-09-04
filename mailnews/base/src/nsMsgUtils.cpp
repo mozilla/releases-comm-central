@@ -477,6 +477,7 @@ bool NS_MsgStripRE(const nsCString& subject, nsCString& modifiedSubject) {
   // original.
   if (subject.Find("=?") != kNotFound) {
     mimeConverter = mozilla::components::MimeConverter::Service();
+    NS_ENSURE_TRUE(mimeConverter, false);
     mimeConverter->DecodeMimeHeaderToUTF8(subject, nullptr, false, true,
                                           decodedString);
   }

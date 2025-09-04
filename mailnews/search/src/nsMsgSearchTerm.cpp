@@ -906,6 +906,7 @@ nsresult nsMsgSearchTerm::MatchRfc2047String(const nsACString& rfc2047string,
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
   nsAutoString stringToMatch;
   nsresult rv = mimeConverter->DecodeMimeHeader(
       PromiseFlatCString(rfc2047string).get(), charset, charsetOverride, false,

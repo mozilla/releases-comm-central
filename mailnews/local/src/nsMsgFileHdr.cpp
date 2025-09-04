@@ -98,6 +98,7 @@ nsresult nsMsgFileHdr::ReadFile() {
 
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
   mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
                                   mDecodedSubject);
   mimeConverter->DecodeMimeHeader(mAuthor.get(), "UTF-8", false, true,
@@ -324,6 +325,7 @@ NS_IMETHODIMP nsMsgFileHdr::SetSubject(const nsACString& aSubject) {
   bool strippedRE = NS_MsgStripRE(mSubject, mSubject);
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
   mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
                                   mDecodedSubject);
   if (strippedRE) {

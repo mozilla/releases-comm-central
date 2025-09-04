@@ -175,6 +175,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char* searchPart) {
   // Get a global converter
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       mozilla::components::MimeConverter::Service();
+  NS_ENSURE_TRUE(mimeConverter, NS_ERROR_FAILURE);
 
   // Now unescape everything, and mime-decode the things that can be encoded.
   UnescapeAndConvert(mimeConverter, escapedToPart, m_toPart);
