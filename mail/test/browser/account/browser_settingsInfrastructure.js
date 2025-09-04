@@ -20,7 +20,7 @@ var { FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-var gPopAccount, gImapAccount, gOriginalAccountCount;
+var gPopAccount, gImapAccount, gOriginalAccountCount, gEwsAccount;
 
 add_setup(function () {
   // There may be pre-existing accounts from other tests.
@@ -50,10 +50,23 @@ add_setup(function () {
   gImapAccount.incomingServer = imapServer;
   gImapAccount.addIdentity(identity);
 
+  const ewsServer = MailServices.accounts.createIncomingServer(
+    "nobody",
+    "ews.invalid",
+    "ews"
+  ); // nsIMsgIncomingServer is fine (no protocol QI needed).
+
+  const ewsIdentity = MailServices.accounts.createIdentity();
+  ewsIdentity.email = "tinderbox@ews.invalid";
+
+  gEwsAccount = MailServices.accounts.createAccount();
+  gEwsAccount.incomingServer = ewsServer;
+  gEwsAccount.addIdentity(ewsIdentity);
+
   // Now there should be one more account.
   Assert.equal(
     MailServices.accounts.allServers.length,
-    gOriginalAccountCount + 2
+    gOriginalAccountCount + 3
   );
 });
 
@@ -61,6 +74,7 @@ registerCleanupFunction(function () {
   // Remove our test accounts to leave the profile clean.
   MailServices.accounts.removeAccount(gPopAccount);
   MailServices.accounts.removeAccount(gImapAccount);
+  MailServices.accounts.removeAccount(gEwsAccount);
 
   // There should be only the original accounts left.
   Assert.equal(MailServices.accounts.allServers.length, gOriginalAccountCount);
@@ -468,3 +482,64 @@ async function subtest_check_onchange_handler(tab) {
   autoSyncInterval = iframe.getElementById("autosyncInterval");
   Assert.equal(autoSyncInterval.value, 7);
 }
+
+/**
+ * Tests that am-offline.xhtml (Disk Space/Synchronisation & Storage)
+ * hides IMAP/NNTP-specific controls for EWS,
+ * while keeping the generic retention controls visible.
+ */
+add_task(async function test_ews_offline_pane_hidden_boxes() {
+  await open_advanced_settings(async function (tab) {
+    // Open Disk Space pane for EWS account.
+    const accountRow = get_account_tree_row(
+      gEwsAccount.key,
+      "am-offline.xhtml",
+      tab
+    );
+    await click_account_tree_row(tab, accountRow);
+
+    const iframe =
+      tab.browser.contentWindow.document.getElementById(
+        "contentFrame"
+      ).contentDocument;
+
+    // Should be HIDDEN for EWS.
+    const hiddenIds = [
+      "offline.titlebox",
+      "autosyncSelect",
+      "selectImapFoldersButton",
+      "selectNewsgroupsButton",
+      "nntp.notDownloadRead",
+      "nntp.downloadMsg",
+      "nntp.removeBody",
+      "offline.notDownload",
+      "autosyncNotDownload",
+      "retentionDescriptionImap",
+      "retentionDescriptionPop",
+    ];
+    for (const id of hiddenIds) {
+      const el = iframe.getElementById(id);
+      Assert.ok(el, `Expected #${id} to exist`);
+      Assert.ok(
+        BrowserTestUtils.isHidden(el),
+        `Expected #${id} to be hidden for EWS`
+      );
+    }
+
+    // Should be VISIBLE for EWS.
+    const visibleIds = [
+      "diskspace.titlebox",
+      "retention.keepMsg",
+      "retention.applyToFlagged",
+      "retentionDescription",
+    ];
+    for (const id of visibleIds) {
+      const el = iframe.getElementById(id);
+      Assert.ok(el, `Expected #${id} to exist`);
+      Assert.ok(
+        BrowserTestUtils.isVisible(el),
+        `Expected #${id} to be visible for EWS`
+      );
+    }
+  });
+});

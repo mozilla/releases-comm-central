@@ -56,25 +56,25 @@
       <separator class="thin" />
 
       <html:div>
-        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss">
+        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss,ews">
           <html:legend>&syncGroupTitle.label;</html:legend>
 
           <vbox>
             <checkbox
-              hidefor="pop3,nntp,none"
+              hidefor="pop3,nntp,none,ews"
               id="offline.folders"
               label="&allFoldersOffline2.label;"
               oncommand="toggleOffline()"
               accesskey="&allFoldersOffline2.accesskey;"
             />
 
-            <description hidefor="pop3,nntp,none,rss"
+            <description hidefor="pop3,nntp,none,rss,ews"
               >&allFoldersOfflineNote.label;</description
             >
 
-            <separator class="thin" hidefor="pop3,nntp,none" />
+            <separator class="thin" hidefor="pop3,nntp,none,ews" />
 
-            <hbox hidefor="pop3,nntp,none" pack="end">
+            <hbox hidefor="pop3,nntp,none,ews" pack="end">
               <button
                 label="&offlineImapAdvancedOffline.label;"
                 accesskey="&offlineImapAdvancedOffline.accesskey;"
@@ -84,7 +84,7 @@
               />
             </hbox>
 
-            <hbox hidefor="pop3,imap,none" pack="end">
+            <hbox hidefor="pop3,imap,none,ews" pack="end">
               <button
                 label="&offlineSelectNntp.label;"
                 accesskey="&offlineSelectNntp.accesskey;"
@@ -99,23 +99,23 @@
 
       <html:div>
         <html:fieldset id="diskspace.titlebox">
-          <html:legend hidefor="pop3,none,rss"
+          <html:legend hidefor="pop3,none,rss,ews"
             >&diskspaceGroupTitle.label;</html:legend
           >
 
-          <description hidefor="pop3,nntp,none,rss"
+          <description hidefor="pop3,nntp,none,rss,ews"
             >&doNotDownloadImap.label;</description
           >
-          <description hidefor="pop3,imap,none,rss"
+          <description hidefor="pop3,imap,none,rss,ews"
             >&doNotDownloadNntp.label;</description
           >
-          <description hidefor="imap,nntp,none,rss"
+          <description hidefor="imap,nntp,none,rss,ews"
             >&doNotDownloadPop3Movemail.label;</description
           >
 
           <!-- IMAP Autosync Preference -->
           <radiogroup
-            hidefor="pop3,nntp,none,rss"
+            hidefor="pop3,nntp,none,rss,ews"
             id="autosyncSelect"
             class="indent"
           >
@@ -165,7 +165,7 @@
 
           <hbox align="center" class="indent" hidefor="rss">
             <checkbox
-              hidefor="pop3,imap,none"
+              hidefor="pop3,imap,none,ews"
               id="nntp.notDownloadRead"
               wsm_persist="true"
               label="&nntpNotDownloadRead.label;"
@@ -173,7 +173,7 @@
             />
           </hbox>
 
-          <hbox align="center" class="indent" hidefor="none,rss">
+          <hbox align="center" class="indent" hidefor="none,rss,ews">
             <checkbox
               wsm_persist="true"
               id="offline.notDownload"
@@ -185,7 +185,7 @@
             <checkbox
               wsm_persist="true"
               id="autosyncNotDownload"
-              hidefor="pop3,nntp"
+              hidefor="pop3,nntp,ews"
               label="&autosyncNotDownload.label;"
               accesskey="&autosyncNotDownload.accesskey;"
               oncommand="onAutosyncNotDownload();"
@@ -206,7 +206,7 @@
             />
           </hbox>
 
-          <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
+          <hbox align="center" class="indent" hidefor="pop3,imap,none,rss,ews">
             <checkbox
               wsm_persist="true"
               id="nntp.downloadMsg"
@@ -241,14 +241,14 @@
             >
             <label
               id="retentionDescriptionImap"
-              hidefor="pop3,nntp,none,rss"
+              hidefor="pop3,nntp,none,rss,ews"
               class="desc"
               control="retention.keepMsg"
               >&retentionCleanupImap.label;</label
             >
             <label
               id="retentionDescriptionPop"
-              hidefor="imap,nntp,none,rss"
+              hidefor="imap,nntp,none,rss,ews"
               class="desc"
               control="retention.keepMsg"
               >&retentionCleanupPop.label;</label
@@ -256,7 +256,7 @@
 
             <radiogroup
               hidefor=""
-              confirmfor="imap,pop3"
+              confirmfor="imap,pop3,ews"
               id="retention.keepMsg"
               class="indent"
               oncommand="warnServerRemove(this);"
@@ -323,7 +323,11 @@
                 checked="true"
               />
             </hbox>
-            <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
+            <hbox
+              align="center"
+              class="indent"
+              hidefor="pop3,imap,none,rss,ews"
+            >
               <checkbox
                 id="nntp.removeBody"
                 accesskey="&nntpRemoveMsgBody.accesskey;"
