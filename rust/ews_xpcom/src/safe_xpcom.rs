@@ -13,7 +13,6 @@ pub use msg_db_hdr::*;
 pub use msg_outgoing_listener::*;
 pub use simple_operation_listener::*;
 pub use uri::*;
-pub use url_listener::*;
 
 mod folder_listener;
 mod message_create_listener;
@@ -22,7 +21,6 @@ mod msg_db_hdr;
 mod msg_outgoing_listener;
 mod simple_operation_listener;
 mod uri;
-mod url_listener;
 
 use crate::client::XpComEwsError;
 
