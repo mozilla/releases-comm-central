@@ -4,17 +4,32 @@
 
 use ews::FolderId;
 use fxhash::FxHashMap;
-use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderListener};
+use xpcom::{
+    interfaces::{
+        nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFallibleOperationListener, IEwsFolderListener,
+    },
+    RefPtr, XpCom,
+};
 
 use crate::client::XpComEwsError;
 
-use super::{SafeListener, SafeListenerWrapper};
-
-pub type SafeEwsFolderListener = SafeListenerWrapper<IEwsFolderListener>;
+/// Wrapper newtype for [`IEwsFolderListener`] that utilizes only safe Rust
+/// types in its public interface and handles converting to unsafe types and
+/// call to the underlying unsafe C++ callbacks with validated data.
+pub struct SafeEwsFolderListener(RefPtr<IEwsFolderListener>);
 
 impl SafeEwsFolderListener {
+    /// Return a new wrapper for the given [`IEwsFolderListener`].  Will place
+    /// the given borrow into a [`RefPtr`] to ensure the memory management of
+    /// the inner callbacks is done correctly across the XPCOM boundary and
+    /// guarantee that the lifetime of the borrowed inner [`IEwsFolderListener`]
+    /// meets or exceeds the lifetime of the returned [`SafeEwsFolderListener`]
+    /// for use in asynchronous operations.
+    pub fn new(unsafe_callbacks: &IEwsFolderListener) -> Self {
+        SafeEwsFolderListener(RefPtr::new(unsafe_callbacks))
+    }
+
     /// Convert types and forward to [`IEwsFolderListener::OnNewRootFolder`]
     pub fn on_new_root_folder(&self, root_folder_id: FolderId) -> Result<(), XpComEwsError> {
         let folder_id = nsCString::from(root_folder_id.id);
@@ -97,15 +112,18 @@ impl SafeEwsFolderListener {
         unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()?;
         Ok(())
     }
-}
-
-impl SafeListener for SafeEwsFolderListener {
-    type OnSuccessArg = ();
-    type OnFailureArg = ();
 
     /// Forward to [`IEwsFolderListener::OnSuccess`].
-    fn on_success(&self, _arg: ()) -> Result<(), nsresult> {
-        unsafe { self.0.OnSuccess() }.to_result()
+    pub fn on_success(&self) -> Result<(), XpComEwsError> {
+        unsafe { self.0.OnSuccess() }.to_result()?;
+        Ok(())
+    }
+
+    /// Convert the wrapped [`IEwsFolderListener`] into an instance of
+    /// [`IEwsFallibleOperationListener`], if it implements the latter
+    /// interface.
+    pub fn into_unsafe_fallible_listener(self) -> Option<RefPtr<IEwsFallibleOperationListener>> {
+        self.0.query_interface::<IEwsFallibleOperationListener>()
     }
 }
 
