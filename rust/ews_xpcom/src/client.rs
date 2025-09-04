@@ -12,7 +12,6 @@ use std::{
     cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
     env,
-    rc::Rc,
 };
 
 use base64::prelude::{Engine, BASE64_STANDARD};
@@ -52,16 +51,20 @@ use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
 use xpcom::{
-    interfaces::{nsIStringInputStream, nsIURI, nsIUrlListener, IEwsMessageFetchListener},
+    interfaces::{
+        nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
+        IEwsMessageFetchListener,
+    },
     RefCounted, RefPtr,
 };
 
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
+    cancellable_request::CancellableRequest,
     safe_xpcom::{
         handle_error, PopulatedMsgDbHeader, SafeEwsFolderListener, SafeEwsMessageCreateListener,
         SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeListener,
-        SafeMsgOutgoingListener, SafeUri, UnpopulatedMsgDbHeader,
+        UnpopulatedMsgDbHeader,
     },
 };
 
@@ -1052,11 +1055,14 @@ where
         message_id: String,
         should_request_dsn: bool,
         bcc_recipients: Vec<Recipient>,
-        listener: SafeMsgOutgoingListener,
-        server_uri: SafeUri,
+        listener: RefPtr<nsIMsgOutgoingListener>,
+        server_uri: RefPtr<nsIURI>,
     ) {
+        let cancellable_request = CancellableRequest::new();
+
         // Notify that the request has started.
-        if let Err(err) = listener.on_send_start() {
+        if let Err(err) = unsafe { listener.OnSendStart(cancellable_request.coerce()) }.to_result()
+        {
             log::error!("aborting sending: an error occurred while starting the observer: {err}");
             return;
         }
@@ -1064,27 +1070,39 @@ where
         // Send the request, using an inner method to more easily handle errors.
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
-        match self
+        let (status, sec_info) = match self
             .send_message_inner(mime_content, message_id, should_request_dsn, bcc_recipients)
             .await
         {
-            // Notify that the request has finished. We don't pass in an error
-            // message because we don't currently generate any user-facing error
-            // from here, so it's likely better to let MessageSend generate one.
-            Ok(()) => {
-                if let Err(err) = listener.on_success(server_uri) {
-                    log::error!("an error occurred while stopping the observer: {err}");
+            Ok(_) => (nserror::NS_OK, None),
+            Err(err) => {
+                log::error!("an error occurred while attempting to send the message: {err:?}");
+
+                match err {
+                    XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
+                        status,
+                        transport_security_info,
+                    }) => (status, Some(transport_security_info.0.clone())),
+                    _ => (err.into(), None),
                 }
             }
-            Err(err) => {
-                let err = Rc::new(err);
-                handle_error(
-                    &listener,
-                    "CreateItem",
-                    err.as_ref(),
-                    (server_uri, Some(err.clone()), None::<String>).into(),
-                );
-            }
+        };
+
+        // Notify that the request has finished. We pass in an empty string as
+        // the error message because we don't currently generate any user-facing
+        // error from here, so it's likely better to let MessageSend generate
+        // one.
+        let err_msg = nsCString::new();
+        let sec_info = match sec_info {
+            Some(sec_info) => RefPtr::forget_into_raw(sec_info),
+            None => std::ptr::null(),
+        };
+
+        if let Err(err) =
+            unsafe { listener.OnSendStop(server_uri.coerce(), status, sec_info, &*err_msg) }
+                .to_result()
+        {
+            log::error!("an error occurred while stopping the observer: {err}")
         }
     }
 
