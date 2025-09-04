@@ -32,7 +32,7 @@ use xpcom::{
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
-use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener};
+use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageSyncListener};
 
 mod authentication;
 mod cancellable_request;
@@ -327,7 +327,7 @@ impl XpcomEwsBridge {
                 is_draft,
                 is_read,
                 content,
-                SafeEwsMessageCreateListener::new(listener),
+                RefPtr::new(listener),
             ),
         )
         .detach();

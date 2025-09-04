@@ -51,9 +51,11 @@ use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
 use xpcom::{
+    getter_addrefs,
     interfaces::{
         nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        IEwsFallibleOperationListener, IEwsMessageFetchListener, IEwsSimpleOperationListener,
+        IEwsFallibleOperationListener, IEwsMessageCreateListener, IEwsMessageFetchListener,
+        IEwsSimpleOperationListener,
     },
     RefCounted, RefPtr, XpCom,
 };
@@ -62,9 +64,8 @@ use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     cancellable_request::CancellableRequest,
     safe_xpcom::{
-        safe_handle_error, PopulatedMsgDbHeader, SafeEwsFolderListener,
-        SafeEwsMessageCreateListener, SafeEwsMessageSyncListener, SafeListener,
-        UnpopulatedMsgDbHeader,
+        safe_handle_error, PopulatedMsgDbHeader, SafeEwsFolderListener, SafeEwsMessageSyncListener,
+        SafeListener, UnpopulatedMsgDbHeader,
     },
 };
 
@@ -1161,20 +1162,26 @@ where
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        listener: SafeEwsMessageCreateListener,
+        listener: RefPtr<IEwsMessageCreateListener>,
     ) {
         // Send the request, using an inner method to more easily handle errors.
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
-        match self
+        let status = match self
             .create_message_inner(folder_id, is_draft, is_read, content, &listener)
             .await
         {
-            Ok(_) => {
-                let _ = listener.on_success(());
+            Ok(_) => nserror::NS_OK,
+            Err(err) => {
+                log::error!("an error occurred while attempting to copy the message: {err:?}");
+
+                err.into()
             }
-            Err(err) => safe_handle_error(&listener, "CreateItem", &err, ()),
         };
+
+        if let Err(err) = unsafe { listener.OnStopCreate(status) }.to_result() {
+            log::error!("aborting copy: an error occurred while stopping the listener: {err}")
+        }
     }
 
     async fn create_message_inner(
@@ -1183,7 +1190,7 @@ where
         is_draft: bool,
         is_read: bool,
         content: Vec<u8>,
-        listener: &SafeEwsMessageCreateListener,
+        listener: &IEwsMessageCreateListener,
     ) -> Result<(), XpComEwsError> {
         // Create a new message from the binary content we got.
         let mut message = Message {
@@ -1239,7 +1246,8 @@ where
             create_and_populate_header_from_create_response(response_message, &content, listener)?;
 
         // Let the listeners know of the local key for the newly created message.
-        listener.on_new_message_key(&hdr)?;
+        let key = hdr.get_message_key()?;
+        unsafe { listener.OnNewMessageKey(key) }.to_result()?;
 
         Ok(())
     }
@@ -1907,7 +1915,7 @@ fn validate_get_folder_response_message(
 fn create_and_populate_header_from_create_response(
     response_message: ItemResponseMessage,
     content: &[u8],
-    listener: &SafeEwsMessageCreateListener,
+    listener: &IEwsMessageCreateListener,
 ) -> Result<PopulatedMsgDbHeader, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
@@ -1918,7 +1926,7 @@ fn create_and_populate_header_from_create_response(
         });
     }
 
-    let item = &items[0];
+    let item = items.into_iter().next().unwrap();
     let message = item.inner_message();
 
     let ews_id = &message
@@ -1926,10 +1934,12 @@ fn create_and_populate_header_from_create_response(
         .as_ref()
         .ok_or(XpComEwsError::MissingIdInResponse)?
         .id;
+    let ews_id = nsCString::from(ews_id);
 
     // Signal that copying the message to the server has succeeded, which will
     // trigger its content to be streamed to the relevant message store.
-    let hdr: UnpopulatedMsgDbHeader = listener.on_remote_create_successful(ews_id)?;
+    let hdr: UnpopulatedMsgDbHeader =
+        getter_addrefs(|hdr| unsafe { listener.OnRemoteCreateSuccessful(&*ews_id, hdr) })?.into();
 
     // Parse the message and use its headers to populate the `nsIMsgDBHdr`
     // before committing it to the database. We parse the original content
@@ -1943,7 +1953,8 @@ fn create_and_populate_header_from_create_response(
         })?;
 
     let hdr = hdr.populate_from_message_headers(message)?;
-    listener.on_hdr_populated(&hdr)?;
+    let unsafe_hdr: RefPtr<_> = (&hdr).into();
+    unsafe { listener.OnHdrPopulated(&*unsafe_hdr) }.to_result()?;
 
     Ok(hdr)
 }
