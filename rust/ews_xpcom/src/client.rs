@@ -1496,7 +1496,7 @@ where
     async fn delete_folder_inner(self, folder_id: String) -> Result<(), XpComEwsError> {
         let delete_folder = DeleteFolder {
             folder_ids: vec![BaseFolderId::FolderId {
-                id: folder_id,
+                id: folder_id.clone(),
                 change_key: None,
             }],
             delete_type: DeleteType::HardDelete,
@@ -1509,9 +1509,24 @@ where
         // contain one response message.
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
-        process_response_message_class("DeleteFolder", response_message)?;
-
-        Ok(())
+        match process_response_message_class("DeleteFolder", response_message) {
+            Ok(_) => Ok(()),
+            Err(err) => match err {
+                XpComEwsError::ResponseError(ResponseError {
+                    response_code: ResponseCode::ErrorItemNotFound,
+                    ..
+                }) => {
+                    // Something happened in a previous attempt that caused the
+                    // folder to be deleted on the EWS server but not in the
+                    // database. In this case, we don't want to force a zombie
+                    // folder in the account, so we ignore the error and move on
+                    // with the local deletion.
+                    log::warn!("found folder that was deleted from the EWS server but not the local db: {folder_id}");
+                    Ok(())
+                }
+                _ => Err(err),
+            },
+        }
     }
 
     pub async fn update_folder(

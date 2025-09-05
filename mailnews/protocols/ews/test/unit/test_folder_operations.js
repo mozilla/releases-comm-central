@@ -1,0 +1,111 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+var { localAccountUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
+);
+var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+);
+
+var incomingServer;
+var ewsServer;
+
+const ewsIdPropertyName = "ewsId";
+
+add_setup(async function () {
+  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
+});
+
+add_task(async function test_delete() {
+  // Reset the list of deleted folders on the server to avoid any side-effect
+  // from another test
+  ewsServer.deletedFolders = [];
+
+  // Create a new remote folder for this test.
+  const folderToDeleteName = "folder_to_delete";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(
+      folderToDeleteName,
+      "root",
+      folderToDeleteName,
+      folderToDeleteName
+    )
+  );
+
+  // Sync the folder list, updated with the new folder.
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const child = rootFolder.getChildNamed(folderToDeleteName);
+  Assert.ok(!!child, `${folderToDeleteName} should exist.`);
+
+  // Record the new folder's EWS ID, so we can compare it with the server's data
+  // later on.
+  const remoteEwsId = child.getStringProperty(ewsIdPropertyName);
+
+  // Delete the folder and make sure it results in a local deletion.
+  child.deleteSelf(null);
+  await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderToDeleteName) == null,
+    "the folder should eventually get deleted"
+  );
+
+  // Ensure the server has recorded a folder deletion and that it's for the
+  // folder we've just deleted.
+  Assert.equal(
+    1,
+    ewsServer.deletedFolders.length,
+    "the server should have recorded one folder deletion"
+  );
+  Assert.equal(
+    remoteEwsId,
+    ewsServer.deletedFolders[0].id,
+    "the deleted folder should be the one we've just deleted"
+  );
+});
+
+add_task(async function test_delete_id_mismatch() {
+  // Reset the list of deleted folders on the server to avoid any side-effect
+  // from another test
+  ewsServer.deletedFolders = [];
+
+  // Create a new remote folder for this test.
+  const folderToDeleteName = "folder_to_delete_id_mismatch";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(
+      folderToDeleteName,
+      "root",
+      folderToDeleteName,
+      folderToDeleteName
+    )
+  );
+
+  // Sync the folder list, updated with the new folder.
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+  const child = rootFolder.getChildNamed(folderToDeleteName);
+  Assert.ok(!!child, `${folderToDeleteName} should exist.`);
+
+  // Set the new folder's EWS ID to one the server does not know.
+  child.setStringProperty(ewsIdPropertyName, "foo");
+
+  // Delete the folder and make sure it results in a local deletion, even though
+  // the server will respond by saying it doesn't know this folder.
+  child.deleteSelf(null);
+  await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderToDeleteName) == null,
+    "the folder should eventually get deleted"
+  );
+
+  // Ensure the server really did not know the folder, and so hasn't recorded
+  // the deletion of a known folder.
+  Assert.equal(
+    0,
+    ewsServer.deletedFolders.length,
+    "the server should not have recorded any deletion"
+  );
+});
