@@ -4,8 +4,16 @@
 <head>
 <meta charset="UTF-8">
 <script type="text/javascript">
-function installTrigger(url) {
-  InstallTrigger.install({extension: url});
+async function installAddon(url) {
+  // Only available for https://example.com hosts (extensions.webapi.testing = true), or
+  // http://example.com hosts (extensions.webapi.testing.http = true).
+  try {
+    await navigator.mozAddonManager.createInstall({url})
+    .then(install => install.install());
+  } catch {
+    // Canceled.
+  }
+  document.dispatchEvent(new CustomEvent("mozAddonManagerDone"));
 }
 </script>
 </head>
@@ -14,10 +22,11 @@ function installTrigger(url) {
 <a id="policytest" href="policytest_v0.1.xpi">policytest@mozilla.com</a>
 </p>
 <p>
-<a id="policytest_installtrigger" onclick="installTrigger(this.href);return false;" href="policytest_v0.1.xpi">policytest@mozilla.com</a>
+<a id="policytest_mozAddonManager" onclick="installAddon('https://example.com/browser/comm/mail/components/enterprisepolicies/tests/browser/policytest_v0.1.xpi');return false;">policytest@mozilla.com</a>
 </p>
 <p>
 <a id="policytest_otherdomain" href="http://example.org:80/browser/comm/mail/components/enterprisepolicies/tests/browser/policytest_v0.1.xpi">policytest@mozilla.com</a>
 </p>
+
 </body>
 </html>

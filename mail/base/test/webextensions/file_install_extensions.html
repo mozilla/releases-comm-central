@@ -10,10 +10,6 @@ function installMozAM(url) {
   return navigator.mozAddonManager.createInstall({url})
                   .then(install => install.install());
 }
-
-function installTrigger(url) {
-  InstallTrigger.install({extension: url});
-}
 </script>
 </body>
 </html>

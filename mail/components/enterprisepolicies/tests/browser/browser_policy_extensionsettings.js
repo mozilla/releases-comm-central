@@ -6,6 +6,8 @@
 
 const BASE_URL =
   "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser/";
+const BASE_HTTPS_URL =
+  "https://example.com/browser/comm/mail/components/enterprisepolicies/tests/browser/";
 
 async function openTab(url) {
   const tab = window.openContentTab(url, null, null);
@@ -63,8 +65,8 @@ function dismissNotification(win = window) {
 add_setup(async function setupTestEnvironment() {
   await SpecialPowers.pushPrefEnv({
     set: [
-      ["extensions.InstallTrigger.enabled", true],
-      ["extensions.InstallTriggerImpl.enabled", true],
+      ["extensions.webapi.testing", true],
+      ["extensions.install.requireBuiltInCerts", false],
       // Relax the user input requirements while running this test.
       ["xpinstall.userActivation.required", false],
     ],
@@ -94,7 +96,7 @@ add_task(async function test_install_source_blocked_link() {
   document.getElementById("tabmail").closeTab(tab);
 });
 
-add_task(async function test_install_source_blocked_installtrigger() {
+add_task(async function test_install_source_blocked_mozAddonManager() {
   await setupPolicyEngineWithJson({
     policies: {
       ExtensionSettings: {
@@ -108,11 +110,23 @@ add_task(async function test_install_source_blocked_installtrigger() {
   const popupPromise = promisePopupNotificationShown(
     "addon-install-policy-blocked"
   );
-  const tab = await openTab(`${BASE_URL}extensionsettings.html`);
+  const tab = await openTab(`${BASE_HTTPS_URL}extensionsettings.html`);
 
-  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
-    content.document.getElementById("policytest_installtrigger").click();
-  });
+  const mozAddonManagerDone = SpecialPowers.spawn(
+    tab.linkedBrowser,
+    [],
+    async () => {
+      const mozAddonManagerDoneEvent = new Promise(resolve => {
+        function listener() {
+          content.document.removeEventListener("mozAddonManagerDone", listener);
+          resolve();
+        }
+        content.document.addEventListener("mozAddonManagerDone", listener);
+      });
+      content.document.getElementById("policytest_mozAddonManager").click();
+      await mozAddonManagerDoneEvent;
+    }
+  );
   const popup = await popupPromise;
   const description = popup.querySelector(".popup-notification-description");
   ok(
@@ -120,6 +134,7 @@ add_task(async function test_install_source_blocked_installtrigger() {
     "Custom install message present"
   );
   await dismissNotification();
+  await mozAddonManagerDone;
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -196,12 +211,12 @@ add_task(async function test_install_source_allowed_link() {
   document.getElementById("tabmail").closeTab(tab);
 });
 
-add_task(async function test_install_source_allowed_installtrigger() {
+add_task(async function test_install_source_allowed_mozAddonManager() {
   await setupPolicyEngineWithJson({
     policies: {
       ExtensionSettings: {
         "*": {
-          install_sources: ["http://mochi.test/*"],
+          install_sources: ["https://example.com/*"],
         },
       },
     },
@@ -209,13 +224,25 @@ add_task(async function test_install_source_allowed_installtrigger() {
   const popupPromise = promisePopupNotificationShown(
     "addon-webext-permissions"
   );
-  const tab = await openTab(`${BASE_URL}extensionsettings.html`);
-
-  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
-    content.document.getElementById("policytest_installtrigger").click();
-  });
+  const tab = await openTab(`${BASE_HTTPS_URL}extensionsettings.html`);
+  const mozAddonManagerDone = SpecialPowers.spawn(
+    tab.linkedBrowser,
+    [],
+    async () => {
+      const mozAddonManagerDoneEvent = new Promise(resolve => {
+        function listener() {
+          content.document.removeEventListener("mozAddonManagerDone", listener);
+          resolve();
+        }
+        content.document.addEventListener("mozAddonManagerDone", listener);
+      });
+      content.document.getElementById("policytest_mozAddonManager").click();
+      await mozAddonManagerDoneEvent;
+    }
+  );
   await popupPromise;
   await dismissNotification();
+  await mozAddonManagerDone;
   document.getElementById("tabmail").closeTab(tab);
 });
 
