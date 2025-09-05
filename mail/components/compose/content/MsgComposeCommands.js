@@ -644,12 +644,18 @@ var stateListener = {
     // identity/signature switch. This can only be done once the message
     // body has already been assembled with the signature we need to switch.
     if (gMsgCompose.identity != gCurrentIdentity) {
+      const editor = GetCurrentEditor();
+      editor.enableUndo(false);
+
       const identityList = document.getElementById("msgIdentity");
       identityList.selectedItem = identityList.getElementsByAttribute(
         "identitykey",
         gMsgCompose.identity.key
       )[0];
       LoadIdentity(false);
+
+      editor.enableUndo(true);
+      editor.resetModificationCount();
     }
     if (gMsgCompose.composeHTML) {
       loadHTMLMsgPrefs();
@@ -9573,8 +9579,6 @@ function LoadIdentity(startup) {
   const start = range.startOffset;
   const startNode = range.startContainer;
 
-  editor.enableUndo(false);
-
   // Handle non-startup changing of identity.
   if (prevIdentity && idKey != prevIdentity.key) {
     let changedRecipients = false;
@@ -9762,8 +9766,7 @@ function LoadIdentity(startup) {
     );
   }
 
-  editor.enableUndo(true);
-  editor.resetModificationCount();
+  // Restore the caret position following a potential signature switch.
   selection.collapse(startNode, start);
 
   // Try to focus the first available address row. If there are none, focus the
