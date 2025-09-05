@@ -64,7 +64,8 @@ NS_IMETHODIMP EwsMessageCreateListener::OnStopCreate(nsresult status) {
 
 // Implementation of EwsFolderSyncListener
 
-NS_IMPL_ISUPPORTS(EwsFolderSyncListener, IEwsFolderListener)
+NS_IMPL_ISUPPORTS(EwsFolderSyncListener, EwsFallibleListener,
+                  IEwsFolderListener, IEwsFallibleOperationListener)
 
 NS_IMETHODIMP EwsFolderSyncListener::OnNewRootFolder(const nsACString& id) {
   return mOnNewRootFolder(id);
@@ -119,7 +120,8 @@ NS_IMETHODIMP EwsMessageFetchListener::OnFetchStop(nsresult status) {
 
 // Implementation of EwsMessageSyncListener
 
-NS_IMPL_ISUPPORTS(EwsMessageSyncListener, IEwsMessageSyncListener)
+NS_IMPL_ISUPPORTS(EwsMessageSyncListener, EwsFallibleListener,
+                  IEwsMessageSyncListener, IEwsFallibleOperationListener)
 
 NS_IMETHODIMP EwsMessageSyncListener::OnMessageCreated(const nsACString& ewsId,
                                                        nsIMsgDBHdr** newHdr) {

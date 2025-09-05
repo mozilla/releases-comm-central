@@ -18,12 +18,14 @@
 #include "MsgOperationListener.h"
 #include "nsIInputStream.h"
 #include "nsIMessenger.h"
+#include "mozilla/intl/Localization.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMsgDBView.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsIMsgStatusFeedback.h"
 #include "nsISpamSettings.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgWindow.h"
@@ -40,6 +42,8 @@
 #define kEWSMessageRootURI "ews-message:/"
 
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
+
+using namespace mozilla;
 
 constexpr auto kEwsIdProperty = "ewsId";
 
@@ -766,24 +770,71 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
   // storage and the server).
   if (aDeleteStorage || isTrashFolder ||
       deleteModel == DeleteModel::PERMANENTLY_DELETE) {
-    nsTArray<nsCString> ewsIds;
-    MOZ_TRY(GetEwsIdsForMessageHeaders(aMsgHeaders, ewsIds));
+    nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
+    if (aMsgWindow) {
+      // Format the message we'll show the user while we wait for the remote
+      // operation to complete.
+      RefPtr<intl::Localization> l10n = intl::Localization::Create(
+          {"messenger/activityFeedback.ftl"_ns}, true);
 
+      auto l10nArgs = dom::Optional<intl::L10nArgs>();
+      l10nArgs.Construct();
+
+      nsCString folderName;
+      rv = GetLocalizedName(folderName);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      auto numberArg = l10nArgs.Value().Entries().AppendElement();
+      numberArg->mKey = "number"_ns;
+      numberArg->mValue.SetValue().SetAsUTF8String().Assign(
+          nsPrintfCString("%zu", aMsgHeaders.Length()));
+
+      auto folderArg = l10nArgs.Value().Entries().AppendElement();
+      folderArg->mKey = "folderName"_ns;
+      folderArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
+
+      ErrorResult error;
+      nsCString message;
+      l10n->FormatValueSync("deleting-messages"_ns, l10nArgs, message, error);
+
+      // Show the formatted message in the status bar.
+      rv = aMsgWindow->GetStatusFeedback(getter_AddRefs(feedback));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = feedback->StartMeteors();
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    // Define the listener with a success lambda callback, and start the remote
+    // operation.
     const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
-
     RefPtr<EwsSimpleMessageListener> listener = new EwsSimpleMessageListener(
         aMsgHeaders,
-        [self = RefPtr(this), copyListener](
+        [self = RefPtr(this), copyListener, feedback](
             const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
             const nsTArray<nsCString>& ids, bool useLegacyFallback) {
           nsresult rv = NS_OK;
           auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
-          return LocalDeleteMessages(self, srcHdrs);
+
+          rv = LocalDeleteMessages(self, srcHdrs);
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          if (feedback) {
+            // Reset the status bar.
+            return feedback->StopMeteors();
+          }
+
+          return NS_OK;
         });
 
     nsCOMPtr<IEwsClient> client;
     rv = GetEwsClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    nsTArray<nsCString> ewsIds;
+    MOZ_TRY(GetEwsIdsForMessageHeaders(aMsgHeaders, ewsIds));
 
     return client->DeleteMessages(listener, ewsIds);
   }
@@ -943,9 +994,46 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     syncStateToken = EmptyCString();
   }
 
-  // Get the EWS ID of the folder to sync (i.e. the current one).
-  nsCString ewsId;
-  MOZ_TRY(GetEwsId(ewsId));
+  nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
+  if (window) {
+    // Format the message we'll show the user while we wait for the remote
+    // operation to complete.
+    RefPtr<intl::Localization> l10n =
+        intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
+
+    auto l10nArgs = dom::Optional<intl::L10nArgs>();
+    l10nArgs.Construct();
+
+    nsCString folderName;
+    rv = GetLocalizedName(folderName);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    auto idArg = l10nArgs.Value().Entries().AppendElement();
+    idArg->mKey = "folderName"_ns;
+    idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
+
+    ErrorResult error;
+    nsCString message;
+    l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs, message,
+                          error);
+
+    // Show the message in the status bar.
+    rv = window->GetStatusFeedback(getter_AddRefs(feedback));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // The window might not be attached to an `nsIMsgStatusFeedback`. This
+    // typically happens with new profiles, because the `nsIMsgStatusFeedback`
+    // is only added after the first account is added. Technically this should
+    // also run after the account is added, but we're might be racing against
+    // the `nsIMsgStatusFeedback` being added to the message window, in which
+    // case it might still be null by the time this runs.
+    if (feedback) {
+      rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = feedback->StartMeteors();
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
 
   // Define the callbacks for the EWS operation.
   auto onMessageCreated = [self = RefPtr(this)](const nsACString& ewsId,
@@ -1101,11 +1189,12 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
         return self->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
       };
 
-  // This lambda will both be called at the end of `onSyncComplete`, and used as
-  // the listener's `OnOperationFailure` callback.
+  // This lambda will be called whenever the sync terminates, regardless of the
+  // outcome. This means it will both be called at the end of `onSyncComplete`,
+  // and used as the listener's `OnOperationFailure` callback.
   nsCOMPtr<nsIUrlListener> syncUrlListener = urlListener;
-  auto notifyListener = [self = RefPtr(this),
-                         syncUrlListener](nsresult status) {
+  auto onSyncStop = [self = RefPtr(this), syncUrlListener,
+                     feedback](nsresult status) {
     if (syncUrlListener) {
       nsCOMPtr<nsIURI> folderUri;
       nsresult rv = FolderUri(self, getter_AddRefs(folderUri));
@@ -1113,10 +1202,15 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
       syncUrlListener->OnStopRunningUrl(folderUri, rv);
     }
 
+    if (feedback) {
+      // Reset the status bar.
+      return feedback->StopMeteors();
+    }
+
     return NS_OK;
   };
 
-  auto onSyncComplete = [self = RefPtr(this), notifyListener](
+  auto onSyncComplete = [self = RefPtr(this), onSyncStop](
                             const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
     // Trigger notifications for new messages.
     if (!newMessages.IsEmpty()) {
@@ -1129,7 +1223,7 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     if (!newMessages.IsEmpty()) {
       self->ApplyFilters(newMessages);
     }
-    notifyListener(NS_OK);
+    onSyncStop(NS_OK);
     self->NotifyFolderEvent(kFolderLoaded);
 
     return NS_OK;
@@ -1138,7 +1232,7 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
   RefPtr<EwsMessageSyncListener> listener = new EwsMessageSyncListener(
       onMessageCreated, onMessageDeleted, onMessageUpdated,
       onDetachedHdrPopulated, onExistingHdrChanged, onSyncStateTokenChanged,
-      onSyncComplete, onReadStatusChanged, notifyListener);
+      onSyncComplete, onReadStatusChanged, onSyncStop);
 
   if (urlListener) {
     nsCOMPtr<nsIURI> folderUri;
@@ -1149,8 +1243,12 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
   }
 
   // Sync the message list for the current folder.
+  nsCString ewsId;
+  MOZ_TRY(GetEwsId(ewsId));
+
   nsCOMPtr<IEwsClient> client;
   MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
   return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
 }
 
