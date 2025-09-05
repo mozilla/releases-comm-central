@@ -148,3 +148,37 @@ calendar-dialog-subview-manager {
     flex-direction: column;
   }
 }
+
+calendar-dialog-description-row {
+  & .rich-description {
+    display: none;
+  }
+
+  & .plain-text-description {
+    display: initial;
+  }
+
+  &[type="full"] {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    & calendar-dialog-row {
+      flex-grow: 1;
+    }
+
+    & [slot="content"] {
+      display: flex;
+      height: 100%;
+    }
+
+    & .rich-description {
+      display: block;
+      flex-grow: 1;
+    }
+
+    & .plain-text-description {
+      display: none;
+    }
+  }
+}

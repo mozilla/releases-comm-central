@@ -41,6 +41,7 @@ add_setup(async function () {
     calendar,
     categories: ["TEST"],
     repeats: true,
+    description: "foobar",
   });
 
   MockExternalProtocolService.init();
@@ -401,22 +402,57 @@ add_task(async function test_dialogLocation() {
 
 add_task(async function test_dialogDescription() {
   dialog.show();
-  const calendarDescriptionRow = dialog.querySelector(
-    '#expandingDescription [slot="content"]'
+  const calendarPlainTextDescription = dialog.querySelector(
+    "#expandingDescription .plain-text-description"
+  );
+  const fullDescription = dialog.querySelector(
+    "#expandedDescription .rich-description"
   );
 
   Assert.equal(
-    calendarDescriptionRow.textContent,
+    calendarPlainTextDescription.textContent.trim(),
     "",
     "Description row content should be empty"
   );
+  Assert.equal(
+    fullDescription.contentDocument.body.childElementCount,
+    0,
+    "Full description should be empty"
+  );
 
-  dialog.updateDialogData({ description: "foobar" });
+  dialog.setCalendarEvent(calendarEvent);
+  await BrowserTestUtils.waitForMutationCondition(
+    calendarPlainTextDescription,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => calendarPlainTextDescription.textContent.trim()
+  );
 
   Assert.equal(
-    calendarDescriptionRow.textContent,
+    calendarPlainTextDescription.textContent.trim(),
     "foobar",
     "Description row content should update"
+  );
+  Assert.equal(
+    fullDescription.contentDocument.body.textContent.trim(),
+    "foobar",
+    "Full description content should update"
+  );
+
+  resetDialog();
+
+  Assert.equal(
+    calendarPlainTextDescription.textContent.trim(),
+    "",
+    "Description row content should be empty again"
+  );
+  Assert.equal(
+    fullDescription.contentDocument.body.childElementCount,
+    0,
+    "Full description should be empty again"
   );
 });
 

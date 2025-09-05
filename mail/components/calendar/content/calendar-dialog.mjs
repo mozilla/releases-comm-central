@@ -159,7 +159,7 @@ export class CalendarDialog extends PositionedDialog {
     if (!calendarId) {
       // Only clear if event ID is still set.
       if (this.getAttribute("event-id")) {
-        this.#clearData();
+        await this.#clearData();
       }
       return;
     }
@@ -174,7 +174,7 @@ export class CalendarDialog extends PositionedDialog {
     const eventId = this.getAttribute("event-id");
     if (!eventId) {
       // Should clear now, since calendar ID is still set.
-      this.#clearData();
+      await this.#clearData();
       return;
     }
     let event = await calendar.getItem(eventId);
@@ -244,12 +244,20 @@ export class CalendarDialog extends PositionedDialog {
     );
 
     this.#setLocation(event.getProperty("LOCATION") ?? "");
+
+    const plainDescriptionPromise = this.querySelector(
+      "#expandingDescription"
+    ).setDescription(event.descriptionText);
+    const richDescriptionPromise = this.querySelector(
+      "#expandedDescription"
+    ).setDescription(event.descriptionText, event.descriptionHTML);
+    await Promise.allSettled([plainDescriptionPromise, richDescriptionPromise]);
   }
 
   /**
    * Clear the data displayed in the dialog.
    */
-  #clearData() {
+  async #clearData() {
     this.#subviewManager.showDefaultSubview();
     this.querySelector(".calendar-dialog-title").textContent = "";
     // Only clearing the repeats attribute, the dates are expected to always
@@ -258,24 +266,8 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-categories").setCategories([]);
     this.#setLocation("");
     this.style.removeProperty("--calendar-bar-color");
-  }
-
-  /**
-   * Updates the event data showing in the dialog. Deprecated in favor of
-   * populating data from the calIEvent. Left in place as reference for adding
-   * more loading above.
-   *
-   * @param {object} data - Event data to be displayed in the dialog.
-   */
-  updateDialogData(data) {
-    if (data.description) {
-      this.querySelector("#expandingDescription").setDescription(
-        data.description
-      );
-      // this.querySelector("#expandedDescription").setExpandedDescription(
-      //   data.description
-      // );
-    }
+    await this.querySelector("#expandingDescription").setDescription("");
+    await this.querySelector("#expandedDescription").setDescription("");
   }
 
   /**

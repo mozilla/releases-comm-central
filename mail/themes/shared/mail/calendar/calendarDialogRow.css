@@ -23,7 +23,6 @@
   :host([expanded]) & {
     padding-block: var(--calendar-dialog-expanded-row-padding-block);
     row-gap: var(--calendar-dialog-expanded-row-content-gap);
-    overflow: auto;
   }
 }
 

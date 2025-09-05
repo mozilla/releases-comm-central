@@ -25,7 +25,7 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
-add_task(function test_attributes() {
+add_task(async function test_attributes() {
   const expandedRow = expandedDescription.querySelector("calendar-dialog-row");
   const expandingRow = expandingDescription.querySelector(
     "calendar-dialog-row"
@@ -48,23 +48,142 @@ add_task(function test_attributes() {
   );
 
   Assert.ok(
-    expandedRow.querySelector('[slot="content"] browser'),
-    "Expanded description should have a browser element it's content slot"
+    BrowserTestUtils.isVisible(
+      expandingDescription.querySelector(".plain-text-description")
+    ),
+    "Expanding row should have plain text description visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      expandingDescription.querySelector(".rich-description")
+    ),
+    "Expanding row should not show rich description"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      expandedDescription.querySelector(".plain-text-description")
+    ),
+    "Expanded row should have plain text description hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      expandedDescription.querySelector(".rich-description")
+    ),
+    "Expanded row should show rich description"
   );
 });
 
-add_task(function test_setDescription() {
-  expandingDescription.setDescription("foo");
+add_task(async function test_richDescriptionBrowser() {
+  const richDescriptionBrowser =
+    expandedDescription.querySelector(".rich-description");
+  const targetDocument = "chrome://messenger/content/eventDescription.html";
+
+  if (
+    richDescriptionBrowser.contentWindow.location.href !== targetDocument ||
+    richDescriptionBrowser.contentDocument.readyState === "loading"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      richDescriptionBrowser,
+      targetDocument
+    );
+  }
   Assert.equal(
-    expandingDescription.querySelector('[slot="content"]').textContent,
+    richDescriptionBrowser.contentWindow.location.href,
+    "chrome://messenger/content/eventDescription.html",
+    "Should have description document loaded"
+  );
+  Assert.equal(
+    richDescriptionBrowser.contentDocument.body.childElementCount,
+    0,
+    "Loaded document should have an empty body"
+  );
+});
+
+add_task(async function test_setExpandingDescription() {
+  const entireSlot = expandingDescription.querySelector('[slot="content"]');
+  const plainText = expandingDescription.querySelector(
+    ".plain-text-description"
+  );
+  const richDescription =
+    expandingDescription.querySelector(".rich-description");
+  await expandingDescription.setDescription("foo");
+  Assert.equal(
+    entireSlot.textContent.trim(),
     "foo",
     "The description text content should be updated"
   );
-
-  expandingDescription.setDescription("");
   Assert.equal(
-    expandingDescription.querySelector('[slot="content"]').textContent,
+    plainText.textContent,
+    "foo",
+    "Should display description in plain field"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.textContent.trim(),
+    "",
+    "Should not touch browser for expanding row"
+  );
+
+  await expandingDescription.setDescription("");
+  Assert.equal(
+    entireSlot.textContent.trim(),
     "",
     "The description text content should be empty"
+  );
+  Assert.equal(
+    plainText.textContent,
+    "",
+    "Should clear plain text description"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.textContent.trim(),
+    "",
+    "Should still not touch browser"
+  );
+});
+
+add_task(async function test_setFullDescription() {
+  const plainText = expandedDescription.querySelector(
+    ".plain-text-description"
+  );
+  const richDescription =
+    expandedDescription.querySelector(".rich-description");
+  await expandedDescription.setDescription("foo");
+  Assert.equal(
+    plainText.textContent,
+    "foo",
+    "Should display description in plain field"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.innerHTML.trim(),
+    "foo",
+    "Should have a simple string in the browser body"
+  );
+
+  await expandedDescription.setDescription(
+    "foo",
+    "<p>foo</p><button>Test</button>"
+  );
+  Assert.equal(
+    plainText.textContent,
+    "foo",
+    "Should display description in plain field"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.innerHTML.trim(),
+    "<p>foo</p>",
+    "Browser should contain sanitized rich description"
+  );
+
+  await expandedDescription.setDescription("");
+  Assert.equal(
+    plainText.textContent,
+    "",
+    "Should clear plain text description"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.childElementCount,
+    0,
+    "Should clear browser"
   );
 });

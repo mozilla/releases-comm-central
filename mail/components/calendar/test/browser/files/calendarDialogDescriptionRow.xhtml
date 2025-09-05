@@ -2,12 +2,15 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
   <head>
     <meta charset="utf-8" />
     <title>Calendar Dialog Description Row Test</title>
-    <linkr rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css" />
-    <linkr rel="localization" href="messenger/calendarDialog.ftl" />
+    <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css" />
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
     <script type="module" src="chrome://messenger/content/calendar-dialog-description-row.mjs"></script>
   </head>
   <body>
@@ -31,7 +34,19 @@
           class="row-label"
           data-l10n-id="calendar-dialog-description-label"
         ></span>
-        <div slot="content"></div>
+        <div slot="content">
+          <span class="plain-text-description"></span>
+          <xul:browser
+            class="rich-description"
+            src="chrome://messenger/content/eventDescription.html"
+            type="content"
+            messagemanagergroup="single-page"
+            tooltip="aHTMLTooltip"
+            context="browserContext"
+            constrainpopups="false"
+            nodefaultsrc="true"
+          ></xul:browser>
+        </div>
       </calendar-dialog-row>
     </template>
     <calendar-dialog-description-row id="expandingDescription">

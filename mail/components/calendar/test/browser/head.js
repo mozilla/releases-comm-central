@@ -136,6 +136,9 @@ function createCalendar({
  * @param {boolean} [options.repeats=false] - If the event is repeating.
  * @param {string} [options.location] - Location of the event. Only set if not
  *  falsy.
+ * @param {string} [options.description=""] - Description for the event.
+ * @param {string} [options.descriptionHTML] - HTML version of the
+ *   description. Overrides description if truthy.
  *
  * @returns {CalEvent} - The created event.
  */
@@ -148,6 +151,8 @@ async function createEvent({
   categories = [],
   repeats = false,
   location,
+  description = "",
+  descriptionHTML,
 } = {}) {
   let start = new Date(baseDate);
   start.setDate(baseDate.getDate() + offset);
@@ -164,6 +169,10 @@ async function createEvent({
   event.title = name;
   event.startDate = start;
   event.endDate = end;
+  event.descriptionText = description;
+  if (descriptionHTML) {
+    event.descriptionHTML = descriptionHTML;
+  }
 
   if (repeats) {
     event.recurrenceInfo = new CalRecurrenceInfo(event);

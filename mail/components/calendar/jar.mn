@@ -5,6 +5,7 @@
 messenger.jar:
   content/messenger/calendar-dialog.mjs                                            (content/calendar-dialog.mjs)
   content/messenger/dialog-position.mjs                                            (content/dialog-position.mjs)
+  content/messenger/eventDescription.html                                          (content/eventDescription.html)
 
 # Custom elements
   content/messenger/calendar-dialog-categories.mjs                                 (content/calendar-dialog-categories.mjs)

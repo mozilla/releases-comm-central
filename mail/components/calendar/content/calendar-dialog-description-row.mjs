@@ -4,6 +4,12 @@
 
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
+
 /**
  * Template ID: #calendarDescriptionRowTemplate
  *
@@ -12,13 +18,6 @@ import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-
  *  a browser, otherwise it is truncated.
  */
 class CalendarDialogDescriptionRow extends HTMLElement {
-  /**
-   * Browser element for the expanded description.
-   *
-   * @type {XULBrowserElement}
-   */
-  browser = null;
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -32,52 +31,47 @@ class CalendarDialogDescriptionRow extends HTMLElement {
 
     const row = this.querySelector("calendar-dialog-row");
 
-    if (this.getAttribute("type") !== "full") {
-      this.querySelector('[slot="content"]').className = "truncated-content";
-    } else {
-      const contentWrapper = this.querySelector('[slot="content"]');
-      this.browser = document.createXULElement("browser");
-      this.browser.setAttribute("id", "descriptionContent");
-      this.browser.setAttribute("type", "content");
-      contentWrapper.appendChild(this.browser);
-    }
-
-    row.toggleAttribute("expanded", this.getAttribute("type") === "full");
-    row.toggleAttribute("expanding", this.getAttribute("type") !== "full");
+    const isFullDescription = this.getAttribute("type") === "full";
+    row
+      .querySelector('[slot="content"]')
+      .classList.toggle("truncated-content", !isFullDescription);
+    row.toggleAttribute("expanded", isFullDescription);
+    row.toggleAttribute("expanding", !isFullDescription);
   }
 
   /**
    * Sets the description of the calendar dialog row.
    *
    * @param {string} description
+   * @param {string} [descriptionHTML] - The HTML event description.
    */
-  setDescription(description) {
-    this.querySelector('[slot="content"]').textContent = description;
-  }
+  async setDescription(description, descriptionHTML) {
+    this.querySelector(".plain-text-description").textContent = description;
 
-  /**
-   * Loads the expanded description content in the browser element.
-   *
-   * @param {string} description - The calendar event description.
-   */
-  // eslint-disable-next-line no-unused-vars
-  setExpandedDescription(description) {
-    // TODO: Deal with loading the browser description content.
-    // const docFragment = cal.view.textToHtmlDocumentFragment(
-    //   description,
-    //   this.browser.contentDocument,
-    //   descriptionHTML
-    // );
-    // // Make any links open in the user's default browser, not in Thunderbird.
-    // for (const anchor of docFragment.querySelectorAll("a")) {
-    //   anchor.addEventListener("click", function (event) {
-    //     event.preventDefault();
-    //     if (event.isTrusted) {
-    //       // TODO: Open the link
-    //       // openLink(anchor.getAttribute("href"), event);
-    //     }
-    //   });
-    // }
+    if (this.getAttribute("type") !== "full") {
+      return;
+    }
+    const browser = this.querySelector(".rich-description");
+    // Wait for the browser to load the correct document.
+    while (
+      browser.contentWindow.location.href !==
+        "chrome://messenger/content/eventDescription.html" ||
+      browser.contentDocument.readyState === "loading"
+    ) {
+      await new Promise(resolve =>
+        browser.addEventListener("load", resolve, { once: true, capture: true })
+      );
+    }
+    if (!description && !descriptionHTML) {
+      browser.contentDocument.body.replaceChildren();
+      return;
+    }
+    const docFragment = lazy.cal.view.textToHtmlDocumentFragment(
+      description,
+      browser.contentDocument,
+      descriptionHTML
+    );
+    browser.contentDocument.body.replaceChildren(docFragment);
   }
 }
 

@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
   <head>
     <meta charset="utf-8" />
     <title>Calendar Dialog</title>
@@ -56,9 +59,9 @@
     <template id="calendarDialogDescriptionRowTemplate">
       <calendar-dialog-row>
         <img
+          src=""
           slot="icon"
           class="icon-description"
-          src=""
           data-l10n-id="calendar-dialog-description-row-icon"
         />
         <span
@@ -66,7 +69,19 @@
           class="row-label"
           data-l10n-id="calendar-dialog-description-label"
         ></span>
-        <div slot="content"></div>
+        <div slot="content">
+          <span class="plain-text-description"></span>
+          <xul:browser
+            class="rich-description"
+            src="chrome://messenger/content/eventDescription.html"
+            type="content"
+            messagemanagergroup="single-page"
+            tooltip="aHTMLTooltip"
+            context="browserContext"
+            constrainpopups="false"
+            nodefaultsrc="true"
+          ></xul:browser>
+        </div>
       </calendar-dialog-row>
     </template>
     <template id="calendarDialogTemplate">
