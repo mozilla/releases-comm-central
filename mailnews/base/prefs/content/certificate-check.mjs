@@ -5,14 +5,31 @@
 const certOverrideService = Cc[
   "@mozilla.org/security/certoverride;1"
 ].getService(Ci.nsICertOverrideService);
+const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+  Ci.nsINSSErrorsService
+);
 const proxyService = Cc[
   "@mozilla.org/network/protocol-proxy-service;1"
 ].getService(Ci.nsIProtocolProxyService);
+const transportService = Cc[
+  "@mozilla.org/network/socket-transport-service;1"
+].getService(Ci.nsISocketTransportService);
+
+const ScriptableInputStream = Components.Constructor(
+  "@mozilla.org/scriptableinputstream;1",
+  Ci.nsIScriptableInputStream,
+  "init"
+);
+const InputStreamPump = Components.Constructor(
+  "@mozilla.org/network/input-stream-pump;1",
+  Ci.nsIInputStreamPump,
+  "init"
+);
 
 const log = console.createInstance({
   prefix: "certificate check",
   maxLogLevel: "Warn",
-  maxLogLevelPref: "certificate-check.loglevel",
+  maxLogLevelPref: "mail.certificate-check.loglevel",
 });
 
 /**
@@ -56,16 +73,6 @@ class CertificateCheck extends HTMLElement {
 
   /** @type {boolean} */
   #hasException;
-  /** @type {string[]} */
-  #commands;
-  /** @type {string[]} */
-  #postUpgradeCommands;
-  /** @type {nsISocketTransport} */
-  #transport;
-  /** @type {nsIInputStream} */
-  #inStream;
-  /** @type {nsIOutputStream} */
-  #outStream;
   /** @type {nsITransportSecurityInfo} */
   #securityInfo;
   /** @type {nsIX509Certificate} */
@@ -166,31 +173,52 @@ class CertificateCheck extends HTMLElement {
     this.setAttribute("status", "fetching");
     this.fetchButton.hidden = true;
 
-    this.#postUpgradeCommands = null;
-    if (this.type == "imap") {
-      if (this.isStartTLS) {
-        this.#commands = imapStartTLSCommands.slice();
-        this.#postUpgradeCommands = imapCommands.slice();
-      } else {
-        this.#commands = imapCommands.slice();
+    let commands;
+    let postUpgradeCommands;
+    switch (this.type) {
+      case "imap":
+        if (this.isStartTLS) {
+          commands = imapStartTLSCommands.slice();
+          postUpgradeCommands = imapCommands.slice();
+        } else {
+          commands = imapCommands.slice();
+        }
+        break;
+      case "pop3":
+        if (this.isStartTLS) {
+          commands = pop3StartTLSCommands.slice();
+          postUpgradeCommands = pop3Commands.slice();
+        } else {
+          commands = pop3Commands.slice();
+        }
+        break;
+      case "smtp":
+        if (this.isStartTLS) {
+          commands = smtpStartTLSCommands.slice();
+          postUpgradeCommands = smtpCommands.slice();
+        } else {
+          commands = smtpCommands.slice();
+        }
+        break;
+      case "ews": {
+        const request = new XMLHttpRequest();
+        request.open("GET", `https://${this.hostname}:${this.port}/`);
+        request.onerror = () =>
+          this.#handleSecurityInfo(
+            request.channel.status,
+            request.channel.securityInfo
+          );
+        request.onload = () =>
+          this.#handleSecurityInfo(
+            request.channel.status,
+            request.channel.securityInfo
+          );
+        request.send(null);
+        return;
       }
-    } else if (this.type == "pop3") {
-      if (this.isStartTLS) {
-        this.#commands = pop3StartTLSCommands.slice();
-        this.#postUpgradeCommands = pop3Commands.slice();
-      } else {
-        this.#commands = pop3Commands.slice();
-      }
-    } else if (this.type == "smtp") {
-      if (this.isStartTLS) {
-        this.#commands = smtpStartTLSCommands.slice();
-        this.#postUpgradeCommands = smtpCommands.slice();
-      } else {
-        this.#commands = smtpCommands.slice();
-      }
-    } else {
-      console.error(`unknown type "${this.type}", how did we get here?`);
-      return;
+      default:
+        console.error(`unknown type "${this.type}", how did we get here?`);
+        return;
     }
 
     const uri = Services.io.newURI("http://" + this.hostname);
@@ -201,77 +229,66 @@ class CertificateCheck extends HTMLElement {
       proxyFlags |= Ci.nsIProtocolProxyService.RESOLVE_ALWAYS_TUNNEL;
     }
 
-    const myProxy = await new Promise(resolve => {
-      proxyService.asyncResolve(uri, proxyFlags, {
-        onProxyAvailable(_req, _uri, proxy) {
-          // Anything but a SOCKS proxy will be unusable for email.
-          if (["socks", "socks4"].includes(proxy?.type)) {
-            resolve(proxy);
-          }
-          resolve(null);
-        },
-      });
+    const proxyDeferred = Promise.withResolvers();
+    proxyService.asyncResolve(uri, proxyFlags, {
+      onProxyAvailable(_req, _uri, proxy) {
+        // Anything but a SOCKS proxy will be unusable for email.
+        if (["socks", "socks4"].includes(proxy?.type)) {
+          proxyDeferred.resolve(proxy);
+        } else {
+          proxyDeferred.resolve(null);
+        }
+      },
     });
 
-    const transportService = Cc[
-      "@mozilla.org/network/socket-transport-service;1"
-    ].getService(Ci.nsISocketTransportService);
-    this.#transport = transportService.createTransport(
+    const transport = transportService.createTransport(
       [this.isStartTLS ? "starttls" : "ssl"],
       this.hostname,
       this.port,
-      myProxy,
+      await proxyDeferred.promise,
       null
     );
-    this.#transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, 10);
-    this.#transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, 10);
-    this.#outStream = this.#transport.openOutputStream(0, 0, 0);
-    const stream = this.#transport.openInputStream(0, 0, 0);
-    this.#inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-      Ci.nsIScriptableInputStream
-    );
-    this.#inStream.init(stream);
-    const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
-      Ci.nsIInputStreamPump
-    );
-    pump.init(stream, 0, 0, false);
+    transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, 10);
+    transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, 10);
+    const outStream = transport.openOutputStream(0, 0, 0);
+    const stream = transport.openInputStream(0, 0, 0);
+    const inStream = new ScriptableInputStream(stream);
+    const pump = new InputStreamPump(stream, 0, 0, false);
     pump.asyncRead({
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
       onStartRequest: () => {},
 
       onStopRequest: (_request, reqStatus) => {
-        const socketTransport = this.#transport.QueryInterface(
-          Ci.nsISocketTransport
-        );
+        const socketTransport = transport.QueryInterface(Ci.nsISocketTransport);
         socketTransport.tlsSocketControl
           ?.asyncGetSecurityInfo()
           .then(secInfo => this.#handleSecurityInfo(reqStatus, secInfo));
-        this.#inStream.close();
-        this.#outStream.close();
+        inStream.close();
+        outStream.close();
       },
 
       onDataAvailable: async (request, inputStream, offset, count) => {
-        const inputData = this.#inStream.read(count);
+        const inputData = inStream.read(count);
         log.debug(`S: ${inputData}`);
 
-        if (this.#commands.length == 0 && this.#postUpgradeCommands) {
-          this.#commands = this.#postUpgradeCommands;
-          this.#postUpgradeCommands = null;
+        if (commands.length == 0 && postUpgradeCommands) {
+          commands = postUpgradeCommands;
+          postUpgradeCommands = null;
 
-          await this.#transport.tlsSocketControl.asyncStartTLS();
+          await transport.tlsSocketControl.asyncStartTLS();
         }
 
-        if (this.#commands.length == 0) {
+        if (commands.length == 0) {
           // If the server doesn't hang up, do it ourselves, or we won't get
           // to onStopRequest until the connection times out.
-          setTimeout(() => this.#transport.close(Cr.NS_OK), 500);
+          setTimeout(() => transport.close(Cr.NS_OK), 500);
           return;
         }
 
-        const outputData = this.#commands.shift();
+        const outputData = commands.shift();
         log.debug(`C: ${outputData}`);
-        this.#outStream.write(outputData, outputData.length);
+        outStream.write(outputData, outputData.length);
       },
     });
   }
@@ -312,10 +329,10 @@ class CertificateCheck extends HTMLElement {
 
     let isCertError = false;
     try {
-      const errorType = Cc["@mozilla.org/nss_errors_service;1"]
-        .getService(Ci.nsINSSErrorsService)
-        .getErrorClass(reqStatus);
-      if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+      if (
+        nssErrorsService.getErrorClass(reqStatus) ==
+        Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT
+      ) {
         isCertError = true;
       }
     } catch (ex) {

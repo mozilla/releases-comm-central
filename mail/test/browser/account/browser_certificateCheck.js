@@ -16,15 +16,16 @@ const certOverrideService = Cc[
 
 const tabmail = document.getElementById("tabmail");
 // Incoming servers.
-let imapPlain, imapTLS, imapExpired, imapNoServer, pop3TLS, ews, nntpTLS;
+let imapPlain, imapTLS, imapExpired, imapNoServer, pop3TLS, ewsTLS, nntpTLS;
 // Outgoing servers.
-let smtpPlain, smtpTLS;
+let smtpPlain, smtpTLS, ewsOutgoingTLS;
 
 add_setup(async () => {
   await ServerTestUtils.createServers([
     ServerTestUtils.serverDefs.imap.tls,
     ServerTestUtils.serverDefs.imap.expiredTLS,
     ServerTestUtils.serverDefs.pop3.tls,
+    ServerTestUtils.serverDefs.ews.tls,
     ServerTestUtils.serverDefs.smtp.tls,
   ]);
 
@@ -82,18 +83,20 @@ add_setup(async () => {
   pop3TLS.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
   pop3TLS.incomingServer.prettyName = "POP3 TLS";
 
-  ews = MailServices.accounts.createAccount();
-  ews.addIdentity(MailServices.accounts.createIdentity());
-  ews.incomingServer = MailServices.accounts.createIncomingServer(
+  ewsTLS = MailServices.accounts.createAccount();
+  ewsTLS.addIdentity(MailServices.accounts.createIdentity());
+  ewsTLS.incomingServer = MailServices.accounts.createIncomingServer(
     "user6",
     "test.test",
     "ews"
   );
-  ews.incomingServer.setStringValue(
+  ewsTLS.incomingServer.setStringValue(
     "ews_url",
     "https://test.test/EWS/Exchange.asmx"
   );
-  ews.incomingServer.prettyName = "EWS TLS";
+  ewsTLS.incomingServer.port = 443;
+  ewsTLS.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
+  ewsTLS.incomingServer.prettyName = "EWS TLS";
 
   nntpTLS = MailServices.accounts.createAccount();
   nntpTLS.addIdentity(MailServices.accounts.createIdentity());
@@ -122,16 +125,23 @@ add_setup(async () => {
   smtpTLS.socketType = Ci.nsMsgSocketType.SSL;
   smtpTLS.description = "SMTP TLS";
 
+  ewsOutgoingTLS = MailServices.outgoingServer.createServer("ews");
+  ewsOutgoingTLS.QueryInterface(Ci.nsIEwsServer);
+  ewsOutgoingTLS.initialize("https://test.test/EWS/Exchange.asmx");
+  ewsOutgoingTLS.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
+  ewsOutgoingTLS.username = "user";
+
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(imapPlain, false);
     MailServices.accounts.removeAccount(imapTLS, false);
     MailServices.accounts.removeAccount(imapExpired, false);
     MailServices.accounts.removeAccount(imapNoServer, false);
     MailServices.accounts.removeAccount(pop3TLS, false);
-    MailServices.accounts.removeAccount(ews, false);
+    MailServices.accounts.removeAccount(ewsTLS, false);
     MailServices.accounts.removeAccount(nntpTLS, false);
     MailServices.outgoingServer.deleteServer(smtpPlain);
     MailServices.outgoingServer.deleteServer(smtpTLS);
+    MailServices.outgoingServer.deleteServer(ewsOutgoingTLS);
     certOverrideService.clearAllOverrides();
     tabmail.closeOtherTabs(0);
   });
@@ -457,8 +467,21 @@ add_task(async function testPOP3() {
  * Test an Exchange server that uses TLS.
  */
 add_task(async function testEWS() {
-  // TODO: Implement this when the account manager is ready for EWS.
-}).skip();
+  const accountsTab = await openTab(ewsTLS, null, undefined, ["fetch"]);
+
+  const certCheck = getCertificateCheck(accountsTab);
+  await fetchCert(
+    certCheck,
+    "success",
+    {
+      id: "certificate-check-success",
+      args: { hostname: "test.test:443" },
+    },
+    ["view"]
+  );
+
+  tabmail.closeTab(accountsTab);
+});
 
 /**
  * Test an NNTP server. This isn't implemented yet, but we need to check that
@@ -481,7 +504,7 @@ add_task(async function testOutgoingServerPane() {
     accountsTab.browser.contentDocument.getElementById("contentFrame");
   const serverList = contentDocument.getElementById("smtpList");
 
-  // Test a non-TLS server.
+  // Test a non-TLS SMTP server.
 
   EventUtils.synthesizeMouseAtCenter(
     serverList.querySelector(`[key="${smtpPlain.key}"]`),
@@ -491,7 +514,7 @@ add_task(async function testOutgoingServerPane() {
   let certCheck = contentDocument.querySelector("certificate-check");
   Assert.ok(!certCheck, "certificate check should not exist for plain server");
 
-  // Test a TLS server.
+  // Test a TLS SMTP server.
 
   EventUtils.synthesizeMouseAtCenter(
     serverList.querySelector(`[key="${smtpTLS.key}"]`),
@@ -507,6 +530,26 @@ add_task(async function testOutgoingServerPane() {
     {
       id: "certificate-check-success",
       args: { hostname: "test.test:465" },
+    },
+    ["view"]
+  );
+
+  // Test a TLS EWS server.
+
+  EventUtils.synthesizeMouseAtCenter(
+    serverList.querySelector(`[key="${ewsOutgoingTLS.key}"]`),
+    {},
+    contentWindow
+  );
+  certCheck = contentDocument.querySelector("certificate-check");
+  Assert.ok(certCheck, "certificate check should exist for TLS server");
+  checkStatus(certCheck, null);
+  await fetchCert(
+    certCheck,
+    "success",
+    {
+      id: "certificate-check-success",
+      args: { hostname: "test.test:443" },
     },
     ["view"]
   );

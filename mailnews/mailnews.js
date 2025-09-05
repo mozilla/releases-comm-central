@@ -1103,6 +1103,8 @@ pref("mail.imap.qos", 0);
 // PgpMime Addon
 pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/addon/enigmail/");
 
+pref("mail.certificate-check.loglevel", "Warn");
+
 pref("mail.asyncprompter.loglevel", "Warn");
 
 pref("mail.mailstoreconverter.loglevel", "Warn");
