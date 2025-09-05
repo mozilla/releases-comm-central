@@ -13,6 +13,7 @@ var gMessengerBundle = null;
 var gFolderBundle = null;
 var gDefaultColor = "";
 var gMsgFolder;
+let isDefaultColor = false;
 
 var { FolderTreeProperties } = ChromeUtils.importESModule(
   "resource:///modules/FolderTreeProperties.sys.mjs"
@@ -197,9 +198,11 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   }
 
   const colorInput = document.getElementById("color");
-  colorInput.value =
-    FolderTreeProperties.getColor(aVirtualFolder.URI) || gDefaultColor;
+  const storedColor = FolderTreeProperties.getColor(aVirtualFolder.URI);
+  colorInput.value = storedColor || gDefaultColor;
+  isDefaultColor = !storedColor;
   colorInput.addEventListener("input", () => {
+    isDefaultColor = false;
     // Preview the chosen color.
     Services.obs.notifyObservers(
       gMsgFolder,
@@ -210,6 +213,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   const resetColorButton = document.getElementById("resetColor");
   resetColorButton.addEventListener("click", function () {
     colorInput.value = gDefaultColor;
+    isDefaultColor = true;
     // Preview the default color.
     Services.obs.notifyObservers(
       gMsgFolder,
@@ -278,7 +282,7 @@ function onOK(event) {
     MailServices.accounts.saveVirtualFolders();
 
     let color = document.getElementById("color").value;
-    if (color == gDefaultColor) {
+    if (color == gDefaultColor || isDefaultColor) {
       color = undefined;
     }
     FolderTreeProperties.setColor(gMsgFolder.URI, color);

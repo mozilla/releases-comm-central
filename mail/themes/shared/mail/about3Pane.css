@@ -318,7 +318,7 @@ body {
       background-image: var(--icon-rss);
     }
 
-    &[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"]) .icon {
+    &[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"], [data-has-error="true"]) .icon {
       --icon-color: currentColor;
       fill: var(--icon-color);
     }
@@ -383,7 +383,7 @@ body {
     &[data-is-busy="true"] > .container > .icon {
       content: var(--icon-clock) !important;
       background-image: none;
-      --icon-color: var(--button-primary-background-color) !important;
+      --icon-color: var(--primary) !important;
 
       @media (prefers-reduced-motion: no-preference) {
         content: var(--icon-loading) !important;
@@ -396,8 +396,7 @@ body {
     &[data-has-error="true"] > .container > .icon {
       content: var(--icon-warning) !important;
       background-image: none;
-      --icon-color: var(--color-amber-30) !important;
-      stroke: var(--color-amber-60);
+      --icon-color: var(--folder-color-warning) !important;
     }
 
     &[data-tag-key] > .container > .icon {

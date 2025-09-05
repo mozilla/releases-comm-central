@@ -17,6 +17,7 @@ var gMsgFolder;
 var gLockedPref = null;
 
 var gDefaultColor = "";
+let isDefaultColor = false;
 
 window.addEventListener("load", folderPropsOnLoad);
 // This ensures that the opening about3Pane is unfreezed as soon as this dialog
@@ -171,7 +172,7 @@ function folderPropsOKButton(event) {
     gMsgFolder.retentionSettings = retentionSettings;
 
     let color = document.getElementById("color").value;
-    if (color == gDefaultColor) {
+    if (color == gDefaultColor || isDefaultColor) {
       color = undefined;
     }
     FolderTreeProperties.setColor(gMsgFolder.URI, color);
@@ -272,9 +273,11 @@ function folderPropsOnLoad() {
     }
 
     const colorInput = document.getElementById("color");
-    colorInput.value =
-      FolderTreeProperties.getColor(gMsgFolder.URI) || gDefaultColor;
+    const storedColor = FolderTreeProperties.getColor(gMsgFolder.URI);
+    colorInput.value = storedColor || gDefaultColor;
+    isDefaultColor = !storedColor;
     colorInput.addEventListener("input", () => {
+      isDefaultColor = false;
       // Preview the chosen color.
       Services.obs.notifyObservers(
         gMsgFolder,
@@ -286,6 +289,7 @@ function folderPropsOnLoad() {
     resetColorButton.addEventListener("click", function () {
       colorInput.value = gDefaultColor;
       // Preview the default color.
+      isDefaultColor = true;
       Services.obs.notifyObservers(
         gMsgFolder,
         "folder-color-preview",
