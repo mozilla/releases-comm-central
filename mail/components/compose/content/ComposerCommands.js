@@ -33,7 +33,7 @@
 /* import-globals-from editor.js */
 /* import-globals-from MsgComposeCommands.js */
 
-var gComposerJSCommandControllerID = 0;
+var gComposerCommandController = null;
 
 /**
  * Used to register commands we have created manually.
@@ -150,39 +150,50 @@ function SetupTextEditorCommands() {
 /**
  * Used to register the command controller in the editor document.
  *
- * @returns {nsIControllerCommandTable|null} - A controller used to
+ * @returns {nsICommandController|null} - A controller used to
  *   register the manually created commands.
  */
 function GetComposerCommandTable() {
-  var controller;
-  if (gComposerJSCommandControllerID) {
-    try {
-      controller = window.content.controllers.getControllerById(
-        gComposerJSCommandControllerID
+  if (gComposerCommandController) {
+    return gComposerCommandController;
+  }
+
+  gComposerCommandController = {
+    _commands: {},
+    registerCommand(cmd, command) {
+      this._commands[cmd] = command;
+    },
+    supportsCommand(cmd) {
+      return cmd in this._commands;
+    },
+    isCommandEnabled(cmd) {
+      return (
+        this._commands[cmd]?.isCommandEnabled(cmd, GetCurrentEditorElement()) ||
+        false
       );
-    } catch (e) {}
-  }
-  if (!controller) {
-    // create it
-    controller =
-      Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
-
-    var editorController = controller.QueryInterface(Ci.nsIControllerContext);
-    editorController.setCommandContext(GetCurrentEditorElement());
-    window.content.controllers.insertControllerAt(0, controller);
-
-    // Store the controller ID so we can be sure to get the right one later
-    gComposerJSCommandControllerID =
-      window.content.controllers.getControllerId(controller);
-  }
-
-  if (controller) {
-    var interfaceRequestor = controller.QueryInterface(
-      Ci.nsIInterfaceRequestor
-    );
-    return interfaceRequestor.getInterface(Ci.nsIControllerCommandTable);
-  }
-  return null;
+    },
+    doCommand(cmd) {
+      return this._commands[cmd].doCommand(cmd, GetCurrentEditorElement());
+    },
+    getCommandStateWithParams() {
+      throw Components.Exception(
+        "Not implemented",
+        Cr.NS_ERROR_NOT_IMPLEMENTED
+      );
+    },
+    doCommandWithParams() {
+      throw Components.Exception(
+        "Not implemented",
+        Cr.NS_ERROR_NOT_IMPLEMENTED
+      );
+    },
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIController",
+      "nsICommandController",
+    ]),
+  };
+  window.controllers.insertControllerAt(0, gComposerCommandController);
+  return gComposerCommandController;
 }
 
 /**
