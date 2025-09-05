@@ -130,10 +130,13 @@ CallbackStreamListener.prototype = {
   /**
    * Our onDataAvailable should actually never be called. The stream converter
    * is actually eating everything except the start and stop notification.
+   *
+   * @param {nsIRequest} request - Request corresponding to the source of the data.
    */
-  onDataAvailable(aRequest) {
+  onDataAvailable(request) {
+    const spec = request instanceof Ci.nsIChannel ? request.URI.spec : request;
     throw new Error(
-      `The stream converter should have grabbed the data for ${aRequest?.URI.spec}`
+      `The stream converter should have grabbed the data for ${spec}`
     );
   },
 };
