@@ -100,7 +100,6 @@ reference-tasks:
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
-    - windows-rs
 
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms

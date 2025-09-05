@@ -12,6 +12,7 @@ task-defaults:
         toolchain:
             - nsis
             - vs
+        fetch:
             - windows-rs
 
 win32/opt:
@@ -320,7 +321,6 @@ win64/debug:
             - win64-libotr
         fetch:
             - upx-3.95-win
-
 
 win64-plain/debug:
     description: "Win64 Debug Plain"

@@ -146,7 +146,7 @@ tasks:
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
                 - win64-libotr
-                - windows-rs
                 - vs
             fetch:
                 - upx-3.95-win
+                - windows-rs
