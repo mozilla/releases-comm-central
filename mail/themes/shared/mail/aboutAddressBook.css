@@ -685,7 +685,7 @@ body:not(.is-editing) #editContactForm {
     padding: var(--ab-detail-section-padding);
     border-radius: var(--button-border-radius);
     border: 1px solid var(--in-content-box-info-border);
-    background-color: var(--in-content-box-info-background);
+    background-color: var(--background-color-box-info);
     font-size: 1.1rem;
     line-height: 1.2;
   }

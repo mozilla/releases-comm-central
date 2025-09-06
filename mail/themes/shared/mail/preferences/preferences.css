@@ -195,7 +195,7 @@ menulist::part(dropmarker-icon) {
 }
 
 .info-box-container {
-  background-color: var(--in-content-box-info-background);
+  background-color: var(--background-color-box-info);
   padding: 9px;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -541,7 +541,7 @@ treechildren::-moz-tree-cell-text(selected) {
 }
 
 .updateSettingCrossUserWarningContainer {
-  background: var(--in-content-box-info-background);
+  background: var(--background-color-box-info);
   border: 1px solid var(--in-content-box-info-border);
   border-radius: 5px;
   padding: 2px 8px 8px;
@@ -1027,7 +1027,7 @@ calendar-notifications-setting {
   display: grid;
   margin-block-start: 15px;
   padding: 15px;
-  background-color: var(--in-content-box-info-background);
+  background-color: var(--background-color-box-info);
   border-radius: 6px;
 }
 

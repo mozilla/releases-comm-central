@@ -16,7 +16,7 @@
   --menu-item-margin: 0 3px;
 
   @media not (forced-colors) {
-    --in-content-box-info-background: light-dark(var(--layout-background-1), var(--layout-background-2));
+    --background-color-box-info: light-dark(var(--layout-background-1), var(--layout-background-2));
     --in-content-box-info-border: light-dark(var(--layout-border-0), transparent);
     --button-background-color: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
     --button-background-color-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
@@ -37,7 +37,7 @@
   }
 
   @media (forced-colors) {
-    --in-content-box-info-background: transparent;
+    --background-color-box-info: transparent;
     --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
     --in-content-categories-border: currentColor;

@@ -12,7 +12,7 @@
   --button-background-color-ghost-hover: color-mix(in srgb, currentColor 15%, transparent);
   --button-background-color-ghost-active: color-mix(in srgb, currentColor 25%, transparent);
   --close-icon-size: 32px;
-  --message-bar-background-color: var(--in-content-box-info-background);
+  --message-bar-background-color: var(--background-color-box-info);
   --message-bar-text-color: var(--text-color);
   --message-bar-icon-url: var(--icon-info);
   --panel-border-radius: 3px;
@@ -26,7 +26,7 @@
     --button-border-color-active: light-dark(#a2a2a3, #878788);
     --button-text-color-active: light-dark(#0c0c0d, #f9f9fa);
     --button-background-color-active: light-dark(#c2c2c3, #878788);
-    --in-content-box-info-background: light-dark(var(--layout-background-0), var(--layout-background-2));
+    --background-color-box-info: light-dark(var(--layout-background-0), var(--layout-background-2));
   }
 
   @media (prefers-contrast) {
@@ -38,7 +38,7 @@
     --button-border-color-active: ThreeDFace;
     --button-text-color-active: SelectedItemText;
     --button-background-color-active: SelectedItem;
-    --in-content-box-info-background: hsla(0, 0%, 50%, 0.15);
+    --background-color-box-info: hsla(0, 0%, 50%, 0.15);
   }
 }
 
