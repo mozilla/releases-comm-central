@@ -15,11 +15,11 @@ export function CalMemoryCalendar() {
 
 var calMemoryCalendarClassID = Components.ID("{bda0dd7f-0a2f-4fcf-ba08-5517e6fbf133}");
 var calMemoryCalendarInterfaces = [
-  "Ci.calICalendar",
+  "calICalendar",
   "calISchedulingSupport",
   "calIOfflineStorage",
   "calISyncWriteCalendar",
-  "Ci.calICalendarProvider",
+  "calICalendarProvider",
 ];
 CalMemoryCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
@@ -45,7 +45,7 @@ CalMemoryCalendar.prototype = {
   },
 
   //
-  // @see {calICalendarProvider}
+  // calICalendarProvider interface
   //
 
   get displayName() {
@@ -84,7 +84,7 @@ CalMemoryCalendar.prototype = {
   },
 
   //
-  // Ci.calICalendar interface
+  // calICalendar interface
   //
 
   getProperty(aName) {
@@ -327,6 +327,8 @@ CalMemoryCalendar.prototype = {
   //                                       in calIDateTime rangeStart,
   //                                       in calIDateTime rangeEnd)
   getItems(itemFilter, count, rangeStart, rangeEnd) {
+    const calICalendar = Ci.calICalendar;
+
     let itemsFound = [];
 
     //
@@ -334,7 +336,7 @@ CalMemoryCalendar.prototype = {
     //
 
     let wantUnrespondedInvitations =
-      (itemFilter & Ci.calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0;
+      (itemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0;
     let superCal;
     try {
       superCal = this.superCalendar.QueryInterface(Ci.calISchedulingSupport);
@@ -347,23 +349,23 @@ CalMemoryCalendar.prototype = {
     }
 
     // item base type
-    const wantEvents = (itemFilter & Ci.calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
-    const wantTodos = (itemFilter & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
+    const wantEvents = (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
+    const wantTodos = (itemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
     if (!wantEvents && !wantTodos) {
       // bail.
       return CalReadableStreamFactory.createEmptyReadableStream();
     }
 
     // completed?
-    const itemCompletedFilter = (itemFilter & Ci.calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
-    const itemNotCompletedFilter = (itemFilter & Ci.calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
+    const itemCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
+    const itemNotCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
     function checkCompleted(item) {
       item.QueryInterface(Ci.calITodo);
       return item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter;
     }
 
     // return occurrences?
-    const itemReturnOccurrences = (itemFilter & Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
+    const itemReturnOccurrences = (itemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
 
     rangeStart = cal.dtz.ensureDateTime(rangeStart);
     rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
@@ -373,11 +375,11 @@ CalMemoryCalendar.prototype = {
     }
 
     let requestedFlag = 0;
-    if ((itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
+    if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
       requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD;
-    } else if ((itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
+    } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
       requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_MODIFIED_RECORD;
-    } else if ((itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
+    } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
       requestedFlag = Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD;
     }
 
