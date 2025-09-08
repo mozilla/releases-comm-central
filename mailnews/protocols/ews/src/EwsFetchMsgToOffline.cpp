@@ -135,6 +135,9 @@ class MsgFetcher : public IEwsMessageFetchListener {
       if (NS_SUCCEEDED(rv)) {
         rv = msgHdr->SetOfflineMessageSize(mMsgSize);
       }
+      // NOTE: we don't set .messageSize. That should already have been set
+      // before a download is attempted, having been sent down by the server
+      // when it first told us about the existance of the message.
       if (NS_SUCCEEDED(rv)) {
         uint32_t unused;
         rv = msgHdr->OrFlags(nsMsgMessageFlags::Offline, &unused);

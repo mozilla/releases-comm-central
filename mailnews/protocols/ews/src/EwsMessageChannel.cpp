@@ -4,6 +4,7 @@
 
 #include "EwsMessageChannel.h"
 
+#include "EwsFetchMsgToOffline.h"
 #include "EwsListeners.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
@@ -26,8 +27,6 @@
 #include "nsNetUtil.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
-
-constexpr auto kEwsIdProperty = "ewsId";
 
 /**
  * nsIChannel/nsIRequest impl for EwsOfflineMessageChannel
@@ -302,22 +301,36 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   rv = mHdr->GetMessageKey(&msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Instantiate the listener wrapper.
-  mStreamListener =
-      new OfflineMessageReadListener(aListener, this, msgKey, folder);
-
-  // Make sure the message exists in the offline store.
+  // Is the message already in the offline store?
   bool hasOffline;
   rv = folder->HasMsgOffline(msgKey, &hasOffline);
   NS_ENSURE_SUCCESS(rv, rv);
-
   if (hasOffline) {
-    // If the message already exists in the offline store, skip directly to
-    // reading it.
-    return StartMessageReadFromStore();
+    // Yes - start streaming it directly from there.
+    return StartMessageReadFromStore(aListener);
   }
 
-  return FetchAndReadMessage();
+  // No - Fetch it from the server first.
+  // TODO: Should use nsIStreamListenerTee to combine this into one operation.
+  // TODO: There should be a policy check - do we actually _want_ to keep a
+  //       local copy of this message?
+  return EwsFetchMsgToOffline(
+      folder, msgKey,
+      [self = RefPtr(this), listener = nsCOMPtr(aListener)](nsresult status) {
+        if (NS_SUCCEEDED(status)) {
+          // Yay! We've now got the offline copy in the store.
+          // Can start streaming it out now....
+          status = self->StartMessageReadFromStore(listener);
+        }
+
+        if (NS_FAILED(status)) {
+          // We've already returned from AsyncOpen(), so the listener is
+          // expecting callbacks...
+          listener->OnStartRequest(self);
+          listener->OnStopRequest(self, status);
+          return;
+        }
+      });
 }
 
 NS_IMETHODIMP EwsMessageChannel::GetCanceled(bool* aCanceled) {
@@ -371,149 +384,14 @@ NS_IMETHODIMP EwsMessageChannel::GetIsDocument(bool* aIsDocument) {
   return NS_GetIsDocumentChannel(this, aIsDocument);
 }
 
-nsresult EwsMessageChannel::FetchAndReadMessage() {
-  // Retrieve the EWS ID of the message we want to download.
-  nsCString ewsId;
-  nsresult rv = mHdr->GetStringProperty(kEwsIdProperty, ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Look up the incoming server for this message, from which we can get an EWS
-  // client.
-  nsCOMPtr<nsIMsgAccountManager> accountManager =
-      mozilla::components::AccountManager::Service();
-
-  // `FindServerByURI()` expects that the URI passed in has a scheme matching
-  // the value returned by an incoming server's `GetType()` method. In our case,
-  // that should be `ews`.
-  nsCOMPtr<nsIURI> serverUri;
-  rv = NS_MutateURI(mURI).SetScheme("ews"_ns).Finalize(serverUri);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = accountManager->FindServerByURI(serverUri, getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get an EWS client from the incoming server, and start downloading the
-  // message content.
-  nsCOMPtr<IEwsIncomingServer> ewsServer = do_QueryInterface(server, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<IEwsClient> client;
-  rv = ewsServer->GetEwsClient(getter_AddRefs(client));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Instantiate the attributes we'll need to write the message and pass it on
-  // to the right consumer.
-  nsCOMPtr<nsIMsgFolder> folder;
-  rv = mHdr->GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  rv = folder->GetMsgDatabase(getter_AddRefs(msgDB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  rv = folder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIOutputStream> storeOutStream;
-  rv = msgStore->GetNewMsgOutputStream(folder, getter_AddRefs(storeOutStream));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Define the listener and its callbacks.
-  auto onFetchStart = [self = RefPtr(this)]() {
-    // Notify the consumer about the operation's start. Ideally we'd do this in
-    // `AsyncOpen`/`FetchMessage`, but `DocumentLoadListener::Open()` seems to
-    // expect we do this after `AsyncOpen` has returned.
-    return self->mStreamListener->OnStartRequest(self);
-  };
-
-  auto onFetchedDataAvailable = [self = RefPtr(this), storeOutStream](
-                                    nsIInputStream* stream, uint32_t count,
-                                    uint64_t* bytesFetched) {
-    // Copy the message from the provided stream to the output stream provided
-    // by the store.
-    uint64_t bytesCopied;
-    nsresult rv = SyncCopyStream(stream, storeOutStream, bytesCopied);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    *bytesFetched = bytesCopied;
-
-    return NS_OK;
-  };
-
-  nsCOMPtr<nsIMsgDBHdr> hdr = mHdr;
-  auto onFetchStop = [self = RefPtr(this), hdr, folder, msgDB, msgStore,
-                      storeOutStream](nsresult status,
-                                      uint64_t totalFetchedBytesCount) {
-    nsresult rv;
-    if (NS_SUCCEEDED(status)) {
-      nsAutoCString storeToken;
-      rv = msgStore->FinishNewMessage(folder, storeOutStream, storeToken);
-
-      // Here, we don't use `NS_ENSURE_SUCCESS` or `MOZ_TRY` like most places in
-      // this file, because we still need `OnDownloadFinished` to be called if
-      // any of these calls fail. So instead we just ensure any failure trickles
-      // down to it.
-      if (NS_SUCCEEDED(rv)) {
-        rv = hdr->SetStoreToken(storeToken);
-      }
-      if (NS_SUCCEEDED(rv)) {
-        // Mark the message as downloaded in the database record and record its
-        // size.
-        uint32_t unused;
-        rv = hdr->OrFlags(nsMsgMessageFlags::Offline, &unused);
-      }
-
-      if (NS_SUCCEEDED(rv)) {
-        // Update the message's size in the database now that we've actually
-        // downloaded it (in case the server previously lied about it).
-        rv = hdr->SetMessageSize(totalFetchedBytesCount);
-      }
-
-      if (NS_SUCCEEDED(rv)) {
-        rv = hdr->SetOfflineMessageSize(totalFetchedBytesCount);
-      }
-
-      if (NS_SUCCEEDED(rv)) {
-        // Commit the changes to the folder's database.
-        rv = msgDB->Commit(nsMsgDBCommitType::kLargeCommit);
-      }
-
-      // If anything went wrong, make sure the caller hears about it.
-      status = rv;
-    } else {
-      // Fetch has failed, discard the new message in the store.
-      msgStore->DiscardNewMessage(folder, storeOutStream);
-    }
-
-    self->mStatus = status;
-
-    // If downloading the message failed, notify the consumer and bail.
-    if (NS_FAILED(status)) {
-      return self->mStreamListener->OnStopRequest(self, status);
-    }
-
-    // Otherwise, start feeding the stored message content to the consumer.
-    return self->StartMessageReadFromStore();
-  };
-
-  // Instantiate the listener and send the request.
-  RefPtr<EwsMessageFetchListener> listener = new EwsMessageFetchListener(
-      onFetchStart, onFetchedDataAvailable, onFetchStop);
-  return client->GetMessage(listener, ewsId);
-}
-
-nsresult EwsMessageChannel::StartMessageReadFromStore() {
-  nsresult rv = AsyncReadMessageFromStore(mHdr, mStreamListener, mConvert, this,
+nsresult EwsMessageChannel::StartMessageReadFromStore(
+    nsIStreamListener* streamListener) {
+  nsresult rv = AsyncReadMessageFromStore(mHdr, streamListener, mConvert, this,
                                           getter_AddRefs(mReadRequest));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // We no longer need the listener. Clean it up so both it and this channel can
-  // be collected.
-  mStreamListener = nullptr;
-
   // Apply the same load flags and group that were previously set.
+  // TODO: should AsyncReadMessageFromStore() do this automatically?
   MOZ_TRY(mReadRequest->SetLoadFlags(mLoadFlags));
   MOZ_TRY(mReadRequest->SetLoadGroup(mLoadGroup));
 

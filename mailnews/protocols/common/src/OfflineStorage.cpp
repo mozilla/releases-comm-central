@@ -87,22 +87,33 @@ nsresult AsyncReadMessageFromStore(nsIMsgDBHdr* message,
   nsCOMPtr<nsIInputStreamPump> pump;
   MOZ_TRY(NS_NewInputStreamPump(getter_AddRefs(pump), msgStream.forget()));
 
+  // Wrap the listener to:
+  // a) provide srcChannel as the request, instead of the pump.
+  // b) remove the message from the offline store if anything goes
+  //    wrong (the idea being that it'll force a re-download from
+  //    the server so next time it'll work).
+  nsCOMPtr<nsIStreamListener> listenerWrapper = new OfflineMessageReadListener(
+      streamListener, srcChannel, msgKey, folder);
+
   // Set up a stream converter if required.
-  nsCOMPtr<nsIStreamListener> consumerListener = streamListener;
+  nsCOMPtr<nsIStreamListener> consumerListener = listenerWrapper;
   if (convertData) {
     nsCOMPtr<nsIStreamConverterService> streamConverterService =
         mozilla::components::StreamConverter::Service();
 
     nsCOMPtr<nsIStreamListener> convertedListener;
     nsresult rv = streamConverterService->AsyncConvertData(
-        MESSAGE_RFC822, ANY_WILDCARD, streamListener, srcChannel,
+        MESSAGE_RFC822, ANY_WILDCARD, listenerWrapper, srcChannel,
         getter_AddRefs(consumerListener));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   MOZ_TRY(pump->AsyncRead(consumerListener));
 
+  // TODO: should we set the pump LoadFlags() and LoadGroup() here, using
+  // the values on the original request?
   pump.forget(readRequest);
+
   return NS_OK;
 }
 

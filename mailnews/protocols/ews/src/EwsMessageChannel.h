@@ -61,16 +61,8 @@ class EwsMessageChannel : public nsMailChannel,
   /**
    * Starts asynchronously reading the message from the offline store.
    */
-  nsresult StartMessageReadFromStore();
+  nsresult StartMessageReadFromStore(nsIStreamListener* streamListener);
 
-  /**
-   * Fetches the message's content from the server, stores it in the relevant
-   * message store, then feeds it to the consumer.
-   */
-  nsresult FetchAndReadMessage();
-
-  // The stream listener to use to stream the message's content to the consumer.
-  nsCOMPtr<nsIStreamListener> mStreamListener;
   bool mConvert;
 
   // The URI for the message which content we want to stream.
