@@ -48,7 +48,6 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
-  // eslint-disable-next-line no-shadow
   const { PopupNotifications } = ChromeUtils.importESModule(
     "resource:///modules/GlobalPopupNotifications.sys.mjs"
   );

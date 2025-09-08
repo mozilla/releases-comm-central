@@ -357,7 +357,7 @@ var contentProgress = {
    *
    * @param {Browser} browser
    */
-  // eslint-disable-next-line no-shadow
+
   addProgressListenerToBrowser(browser) {
     if (browser?.webProgress && !browser._progressListener) {
       browser._progressListener = new contentProgress.ProgressListener(browser);

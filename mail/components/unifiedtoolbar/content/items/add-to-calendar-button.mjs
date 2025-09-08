@@ -10,7 +10,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
 
-/* import-globals-from ../../../../../calendar/base/content/calendar-extract.js */
+// Globals from calendar-extract.js. This should use import-globals-from
+// but the linter is unhappy.
+/* globals calendarExtract */
 
 /**
  * Unified toolbar button to add the selected message to a calendar as event or
