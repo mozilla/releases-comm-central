@@ -35,14 +35,6 @@ ChromeUtils.defineLazyGetter(this, "formatString", function () {
   };
 });
 
-const lazy = {};
-XPCOMUtils.defineLazyPreferenceGetter(
-  lazy,
-  "isConversationView",
-  "mail.thread.conversation.enabled",
-  false
-);
-
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
     return;
@@ -643,9 +635,7 @@ class MultipleSelectionSummarizer {
   summarize(aMessages, aDBView) {
     const messageList = document.getElementById("messageList");
 
-    const threads = lazy.isConversationView
-      ? Array.from(aMessages, m => [m])
-      : this._buildThreads(aMessages, aDBView);
+    const threads = this._buildThreads(aMessages, aDBView);
     const threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.

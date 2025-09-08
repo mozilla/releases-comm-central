@@ -197,28 +197,6 @@ class MessagePane extends HTMLElement {
       case "request-message-clear":
         this.clearAll();
         break;
-      case "show-conversation-view": {
-        // TODO: This is temporary as we're leveraging the multimessagebrowser
-        // but in the future this custom element will handle its own UI.
-        const conv = event.detail.collection.items[0].conversation;
-        conv.getMessagesCollection({
-          onItemsAdded() {},
-          onItemsModified() {},
-          onItemsRemoved() {},
-          onQueryCompleted: collection => {
-            const messages = collection.items
-              .map(i => i.folderMessage)
-              .filter(Boolean);
-            this.multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-              "thread",
-              messages,
-              gDBView,
-              msgs => this.#dispatchSingleMessageEvent(msgs)
-            );
-          },
-        });
-        break;
-      }
     }
   }
 
@@ -321,6 +299,11 @@ class MessagePane extends HTMLElement {
    * Ensure the message browser is not displaying a message.
    */
   #clearMessage() {
+    if (this.conversationView) {
+      this.conversationView.hidden = true;
+      this.conversationView.clear();
+    }
+
     this.messageBrowser.hidden = true;
     this.messageBrowser.contentWindow.displayMessage();
   }
@@ -364,6 +347,11 @@ class MessagePane extends HTMLElement {
    * Ensure the multi-message browser is not displaying messages.
    */
   #clearMessages() {
+    if (this.conversationView) {
+      this.conversationView.hidden = true;
+      this.conversationView.clear();
+    }
+
     this.multiMessageBrowser.hidden = true;
     this.multiMessageBrowser.contentWindow.gMessageSummary.clear();
   }
@@ -405,33 +393,32 @@ class MessagePane extends HTMLElement {
     // gDBView.selection.count is 1, which means that a thread has been
     // selected and not multiple single messages.
     if (this.isConversationView && gDBView?.selection.count == 1) {
-      let conversationView = document.querySelector("conversation-view");
+      this.conversationView = document.querySelector("conversation-view");
       // Set up the conversation view element if we don't have one.
-      if (!conversationView) {
+      if (!this.conversationView) {
         ChromeUtils.importESModule(
           "chrome://messenger/content/conversation-view.mjs",
           { global: "current" }
         );
-        conversationView = document.createElement("conversation-view");
-        conversationView.addEventListener("show-conversation-view", this);
-        this.append(conversationView);
+        this.conversationView = document.createElement("conversation-view");
+        this.append(this.conversationView);
       }
-      conversationView.show(gDBView.hdrForFirstSelectedMessage);
-    } else {
-      const getThreadId = message =>
-        gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
-      const firstThreadId = getThreadId(messages.at(0));
-      const isSingleThread = messages.every(
-        m => getThreadId(m) == firstThreadId
-      );
-
-      this.multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-        isSingleThread ? "thread" : "multipleselection",
-        messages,
-        gDBView,
-        msgs => this.#dispatchSingleMessageEvent(msgs)
-      );
+      this.conversationView.show(gDBView.hdrForFirstSelectedMessage);
+      // TODO: Trigger findbar search continuation if needed.
+      return;
     }
+
+    const getThreadId = message =>
+      gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
+    const firstThreadId = getThreadId(messages.at(0));
+    const isSingleThread = messages.every(m => getThreadId(m) == firstThreadId);
+
+    this.multiMessageBrowser.contentWindow.gMessageSummary.summarize(
+      isSingleThread ? "thread" : "multipleselection",
+      messages,
+      gDBView,
+      msgs => this.#dispatchSingleMessageEvent(msgs)
+    );
 
     this.multiMessageBrowser.hidden = false;
     this.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
@@ -545,6 +532,7 @@ class MessagePane extends HTMLElement {
    * Helper method to dispatch the cmd_find to the currently visible findbar.
    */
   onFindCommand() {
+    // TODO: Handle find command in conversation view.
     if (this.isMessageBrowserVisible()) {
       this.doMessageBrowserCommand("cmd_find");
       return;

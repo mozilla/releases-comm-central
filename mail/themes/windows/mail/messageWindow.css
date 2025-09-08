@@ -26,3 +26,7 @@
 :root[lwtheme] #mail-toolbox {
   text-shadow: none;
 }
+
+#messagepane {
+  flex: 1;
+}

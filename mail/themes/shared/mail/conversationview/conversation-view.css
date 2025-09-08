@@ -1,0 +1,108 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/widgets.css");
+@import url("chrome://messenger/skin/variables.css");
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/icons.css");
+
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html "http://www.w3.org/1999/xhtml";
+
+header {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  grid-template-rows: 1fr;
+  gap: 9px 6px;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  padding: 9px 12px;
+  background: var(--color-surface-base);
+  color: var(--color-text-base);
+  border-bottom: 1px solid var(--color-surface-border);
+
+  & .info {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-items: center;
+
+    & .counts {
+      display: flex;
+      flex-direction: column;
+
+      & .total {
+        font-weight: bold;
+      }
+
+      & .details {
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+
+  & .title {
+    margin-block: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  & :is(.toolbar, .actions) {
+    text-align: end;
+  }
+}
+
+#mainConversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  & article {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    grid-template-rows: 1fr;
+    gap: 6px 3px;
+    align-items: center;
+    padding: 9px 12px;
+
+    &[aria-expanded="false"] {
+      cursor: pointer;
+    }
+
+    &[aria-expanded="true"] {
+      flex: 1 0 auto;
+      padding-inline: 0;
+      padding-block-end: 0;
+
+      & xul|browser {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    & + article {
+      border-top: 1px solid var(--color-surface-border);
+    }
+
+    & address {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    & time {
+      font-size: 0.9375rem;
+      text-align: end;
+    }
+
+    & p {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-block: 0;
+    }
+  }
+}

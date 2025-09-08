@@ -23,3 +23,7 @@
   flex: 3 3;
   text-shadow: none;
 }
+
+#messagepane {
+  flex: 1;
+}

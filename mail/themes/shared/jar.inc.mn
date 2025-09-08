@@ -369,6 +369,7 @@
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
   skin/classic/messenger/shared/composerOverlay.css           (../shared/mail/composerOverlay.css)
   skin/classic/messenger/shared/contextMenu.css               (../shared/mail/contextMenu.css)
+  skin/classic/messenger/conversation-view.css                (../shared/mail/conversationview/conversation-view.css)
   skin/classic/messenger/shared/converterDialog.css           (../shared/mail/converterDialog.css)
   skin/classic/messenger/shared/customizeToolbar.css          (../shared/mail/customizeToolbar.css)
   skin/classic/messenger/shared/popupPanel.css                (../shared/mail/popupPanel.css)

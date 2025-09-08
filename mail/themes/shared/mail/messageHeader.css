@@ -1005,6 +1005,14 @@ button.email-action-flagged {
   }
 }
 
+/* Conversation view */
+
+.in-conversation {
+  & #expandedsubjectRow {
+    display: none;
+  }
+}
+
 /* Dark Message Mode */
 
 #darkReaderToggle {

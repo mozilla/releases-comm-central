@@ -658,3 +658,7 @@ body {
 #placeholderMultipleFolders::before {
   background-image: var(--icon-folder);
 }
+
+conversation-view:not([hidden]) {
+  flex: 1;
+}

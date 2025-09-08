@@ -4466,7 +4466,7 @@ var threadPaneHeader = {
   /**
    * The h2 element receiving the folder name.
    *
-   * @type {?HTMLHeadElement}
+   * @type {?HTMLElement}
    */
   folderName: null,
   /**

@@ -1,0 +1,34 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<template id="conversationViewTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <header>
+    <div class="info">
+      <div class="avatars" hidden="hidden"></div>
+      <div class="counts">
+        <span class="total"></span>
+        <span class="details"></span>
+      </div>
+    </div>
+    <div class="toolbar"></div>
+    <h1 class="title"></h1>
+    <div class="actions"></div>
+  </header>
+  <div id="mainConversation" role="list"></div>
+</template>
+
+<template id="conversationViewMessageTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <article role="listitem" aria-expanded="false">
+    <address></address>
+    <time datetime=""></time>
+    <p></p>
+    <div class="info"></div>
+  </article>
+</template>
+
+<template id="conversationViewMessageBrowserTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <article role="listitem" aria-expanded="true">
+    <xul:browser src="about:message" hidden="true" />
+  </article>
+</template>
