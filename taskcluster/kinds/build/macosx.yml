@@ -266,6 +266,9 @@ macosx64-shippable/opt:
             - artifact: mozharness.zip
               extract: false
               dest: ../artifacts
+            - artifact: target.trainhop.tests.tar.gz
+              extract: false
+              dest: ../artifacts
         macosx64-aarch64-shippable-opt:
             - artifact: target.dmg
               extract: false
