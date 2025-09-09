@@ -397,6 +397,7 @@ Enigmail.hdrView = {
 
   async messageLoad() {
     await Enigmail.msg.messageDecrypt(null, true);
+    await customElements.whenDefined("attachment-list");
     Enigmail.msg.handleAttachmentEvent();
   },
 

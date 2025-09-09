@@ -188,10 +188,6 @@ window.addEventListener("DOMContentLoaded", event => {
     });
   }
 
-  window.dispatchEvent(
-    new CustomEvent("aboutMessageLoaded", { bubbles: true })
-  );
-
   window.addEventListener("MsgLoaded", msgObserver);
   prefersDarkQuery.addEventListener("change", msgObserver);
 
@@ -217,6 +213,12 @@ window.addEventListener("DOMContentLoaded", event => {
         : "dark-message-mode-toggle-enabled"
     );
     messagePane.focus();
+  });
+
+  customElements.whenDefined("attachment-list").then(() => {
+    window.dispatchEvent(
+      new CustomEvent("aboutMessageLoaded", { bubbles: true })
+    );
   });
 });
 

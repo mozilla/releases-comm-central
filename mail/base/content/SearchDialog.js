@@ -13,6 +13,9 @@
 
 "use strict";
 
+ChromeUtils.importESModule("chrome://messenger/content/treecol-image.mjs", {
+  global: "current",
+});
 ChromeUtils.defineESModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",

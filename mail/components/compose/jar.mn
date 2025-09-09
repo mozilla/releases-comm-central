@@ -8,6 +8,7 @@ messenger.jar:
     content/messenger/messengercompose/bigFileObserver.js            (content/bigFileObserver.js)
     content/messenger/messengercompose/cloudAttachmentLinkManager.js (content/cloudAttachmentLinkManager.js)
     content/messenger/messengercompose/addressingWidgetOverlay.js    (content/addressingWidgetOverlay.js)
+    content/messenger/messengercompose/composeWidgets.mjs            (content/composeWidgets.mjs)
     content/messenger/messengercompose/editor.js                     (content/editor.js)
     content/messenger/messengercompose/editorUtilities.js            (content/editorUtilities.js)
     content/messenger/messengercompose/ComposerCommands.js           (content/ComposerCommands.js)

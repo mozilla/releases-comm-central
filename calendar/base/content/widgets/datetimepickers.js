@@ -6,6 +6,9 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  ChromeUtils.importESModule("chrome://messenger/content/menulist-editable.mjs", {
+    global: "current",
+  });
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
   // Leave these first arguments as `undefined`, to use the OS style if
