@@ -230,18 +230,18 @@
     <hbox id="privacyJunkCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-junk-header"></html:h1>
+      <html:h1 data-l10n-id="privacy-spam-header"></html:h1>
     </hbox>
 
     <separator data-category="panePrivacy"/>
 
     <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
-      <description data-l10n-id="junk-description"/>
+      <description data-l10n-id="spam-description"/>
       <separator class="thin"/>
       <hbox>
         <checkbox id="manualMark"
-                  data-l10n-id="junk-marked-label"
+                  data-l10n-id="spam-marked-label"
                   preference="mail.spam.manualMark"
                   oncommand="gPrivacyPane.updateManualMarkMode(this.checked);"/>
         <spacer flex="1"/>
@@ -253,39 +253,39 @@
         <hbox>
           <radio id="manualMarkMode0"
                  value="0"
-                 data-l10n-id="junk-move-label"/>
+                 data-l10n-id="spam-move-label"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="manualMarkMode1"
                  value="1"
-                 data-l10n-id="junk-delete-label"/>
+                 data-l10n-id="spam-delete-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
       <separator class="thin"/>
-      <description data-l10n-id="junk-read-description"></description>
+      <description data-l10n-id="spam-read-description"></description>
       <checkbox class="indent"
                 id="manualMarkAsJunkMarksRead"
-                data-l10n-id="junk-read-manual-label"
+                data-l10n-id="spam-read-manual-label"
                 preference="mailnews.ui.junk.manualMarkAsJunkMarksRead" />
       <checkbox class="indent"
                 id="markAsReadOnSpam"
-                data-l10n-id="junk-read-auto-label"
+                data-l10n-id="spam-read-auto-label"
                 preference="mail.spam.markAsReadOnSpam" />
       <hbox align="start">
-        <checkbox id="enableJunkLogging" data-l10n-id="junk-log-label"
+        <checkbox id="enableJunkLogging" data-l10n-id="spam-log-label"
                   oncommand="gPrivacyPane.updateJunkLogButton(this.checked);"
                   preference="mail.spam.logging.enabled"/>
         <spacer flex="1"/>
         <button is="highlightable-button" id="openJunkLogButton"
-                data-l10n-id="junk-log-button"
+                data-l10n-id="spam-log-button"
                 oncommand="gPrivacyPane.openJunkLog();"/>
       </hbox>
       <hbox align="start">
         <spacer flex="1"/>
         <button is="highlightable-button"
-                data-l10n-id="reset-junk-button"
+                data-l10n-id="reset-spam-button"
                 oncommand="gPrivacyPane.resetTrainingData()"/>
       </hbox>
     </html:fieldset>

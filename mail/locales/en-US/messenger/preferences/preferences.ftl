@@ -72,7 +72,7 @@ privacy-main-header = Privacy
 
 privacy-passwords-header = Passwords
 
-privacy-junk-header = Junk
+privacy-spam-header = Spam
 
 collection-header = { -brand-short-name } Data Collection and Use
 
@@ -814,39 +814,39 @@ forms-primary-pw-fips-title = You are currently in FIPS mode. FIPS requires a no
 forms-master-pw-fips-desc = Password Change Failed
 
 
-junk-description = Set your default junk mail settings. Account-specific junk mail settings can be configured in Account Settings.
+spam-description = Set your default spam settings. Account-specific spam settings can be configured in Account Settings.
 
-junk-marked-label =
-    .label = When messages are marked as junk:
+spam-marked-label =
+    .label = When messages are marked as spam:
     .accesskey = W
 
-junk-move-label =
-    .label = Move them to the account’s “Junk” folder
+spam-move-label =
+    .label = Move them to the account’s “Spam” folder
     .accesskey = o
 
-junk-delete-label =
+spam-delete-label =
     .label = Delete them
     .accesskey = D
 
-junk-read-description = Mark messages as read
+spam-read-description = Mark messages as read
 
-junk-read-manual-label =
-    .label = When manually marked as junk
+spam-read-manual-label =
+    .label = When manually marked as spam
     .accesskey = M
 
-junk-read-auto-label =
-    .label = When { -brand-short-name } determines that they are junk
+spam-read-auto-label =
+    .label = When { -brand-short-name } determines that they are spam
     .accesskey = T
 
-junk-log-label =
-    .label = Enable adaptive junk filter logging
+spam-log-label =
+    .label = Enable adaptive spam filter logging
     .accesskey = E
 
-junk-log-button =
+spam-log-button =
     .label = Show log
     .accesskey = S
 
-reset-junk-button =
+reset-spam-button =
     .label = Reset Training Data
     .accesskey = R
 
