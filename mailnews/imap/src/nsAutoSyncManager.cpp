@@ -29,6 +29,26 @@ const char* kAppIdleNotification = "mail:appIdle";
 const char* kStartupDoneNotification = "mail-startup-done";
 LazyLogModule gAutoSyncLog("IMAPAutoSync");
 
+/**
+ * Tests whether the given folder is owned by the same imap server
+ * or not.
+ */
+static nsresult IsSibling(nsIAutoSyncState* syncA, nsIAutoSyncState* syncB,
+                          bool& isSibling) {
+  MOZ_ASSERT(syncA);
+  MOZ_ASSERT(syncB);
+
+  isSibling = false;
+  nsCOMPtr<nsIMsgFolder> folderA, folderB;
+  nsCOMPtr<nsIMsgIncomingServer> serverA, serverB;
+  MOZ_TRY(syncA->GetOwnerFolder(getter_AddRefs(folderA)));
+  MOZ_TRY(syncB->GetOwnerFolder(getter_AddRefs(folderB)));
+  MOZ_TRY(folderA->GetServer(getter_AddRefs(serverA)));
+  MOZ_TRY(folderB->GetServer(getter_AddRefs(serverB)));
+  MOZ_TRY(serverA->Equals(serverB, &isSibling));
+  return NS_OK;
+}
+
 // recommended size of each group of messages per download
 static const uint32_t kDefaultGroupSize = 50U * 1024U /* 50K */;
 
@@ -364,7 +384,7 @@ void nsAutoSyncManager::ChainFoldersInQ(
     int32_t elemCount = aChainedQ.Count();
     for (int32_t idx = 0; idx < elemCount; idx++) {
       bool isSibling;
-      nsresult rv = aChainedQ[idx]->IsSibling(aQueue[pqidx], &isSibling);
+      nsresult rv = IsSibling(aChainedQ[idx], aQueue[pqidx], isSibling);
 
       if (NS_SUCCEEDED(rv) && isSibling) {
         // this prevent us to overwrite a lower priority sibling in
@@ -402,10 +422,10 @@ nsIAutoSyncState* nsAutoSyncManager::SearchQForSibling(
   if (aIndex) *aIndex = -1;
 
   if (aAutoSyncStateObj) {
-    bool isSibling;
     int32_t elemCount = aQueue.Count();
     for (int32_t idx = aStartIdx; idx < elemCount; idx++) {
-      nsresult rv = aAutoSyncStateObj->IsSibling(aQueue[idx], &isSibling);
+      bool isSibling;
+      nsresult rv = IsSibling(aAutoSyncStateObj, aQueue[idx], isSibling);
 
       if (NS_SUCCEEDED(rv) && isSibling && aAutoSyncStateObj != aQueue[idx]) {
         if (aIndex) *aIndex = idx;
@@ -428,7 +448,6 @@ nsIAutoSyncState* nsAutoSyncManager::GetNextSibling(
 
   if (aAutoSyncStateObj) {
     bool located = false;
-    bool isSibling;
     int32_t elemCount = aQueue.Count();
     for (int32_t idx = 0; idx < elemCount; idx++) {
       if (!located) {
@@ -436,7 +455,8 @@ nsIAutoSyncState* nsAutoSyncManager::GetNextSibling(
         continue;
       }
 
-      nsresult rv = aAutoSyncStateObj->IsSibling(aQueue[idx], &isSibling);
+      bool isSibling;
+      nsresult rv = IsSibling(aAutoSyncStateObj, aQueue[idx], isSibling);
       if (NS_SUCCEEDED(rv) && isSibling) {
         if (aIndex) *aIndex = idx;
 

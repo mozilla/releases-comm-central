@@ -85,11 +85,6 @@ interface nsIAutoSyncState : nsISupports {
   void resetRetryCounter();
 
   /**
-   * Tests whether the given folder has the same imap server.
-   */
-  boolean isSibling(in nsIAutoSyncState aAnotherStateObj);
-
-  /**
    * Update the folder to find new message headers to download
    */
   void updateFolder();

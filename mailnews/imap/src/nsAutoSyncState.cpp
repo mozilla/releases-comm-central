@@ -618,38 +618,6 @@ NS_IMETHODIMP nsAutoSyncState::ResetDownloadQ() {
 }
 
 /**
- * Tests whether the given folder is owned by the same imap server
- * or not.
- */
-NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState* aAnotherStateObj,
-                                         bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = false;
-
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> folderA, folderB;
-
-  rv = GetOwnerFolder(getter_AddRefs(folderA));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = aAnotherStateObj->GetOwnerFolder(getter_AddRefs(folderB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgIncomingServer> serverA, serverB;
-  rv = folderA->GetServer(getter_AddRefs(serverA));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderB->GetServer(getter_AddRefs(serverB));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool isSibling;
-  rv = serverA->Equals(serverB, &isSibling);
-
-  if (NS_SUCCEEDED(rv)) *aResult = isSibling;
-
-  return rv;
-}
-
-/**
  * Test whether the download queue is empty.
  */
 NS_IMETHODIMP nsAutoSyncState::IsDownloadQEmpty(bool* aResult) {
