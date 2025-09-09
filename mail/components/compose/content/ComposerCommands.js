@@ -154,45 +154,53 @@ function SetupTextEditorCommands() {
  *   register the manually created commands.
  */
 function GetComposerCommandTable() {
-  if (gComposerCommandController) {
-    return gComposerCommandController;
+  const editorWindow = GetCurrentEditorElement()?.contentWindow;
+  if (!editorWindow) {
+    return null;
   }
 
-  gComposerCommandController = {
-    _commands: {},
-    registerCommand(cmd, command) {
-      this._commands[cmd] = command;
-    },
-    supportsCommand(cmd) {
-      return cmd in this._commands;
-    },
-    isCommandEnabled(cmd) {
-      return (
-        this._commands[cmd]?.isCommandEnabled(cmd, GetCurrentEditorElement()) ||
-        false
-      );
-    },
-    doCommand(cmd) {
-      return this._commands[cmd].doCommand(cmd, GetCurrentEditorElement());
-    },
-    getCommandStateWithParams() {
-      throw Components.Exception(
-        "Not implemented",
-        Cr.NS_ERROR_NOT_IMPLEMENTED
-      );
-    },
-    doCommandWithParams() {
-      throw Components.Exception(
-        "Not implemented",
-        Cr.NS_ERROR_NOT_IMPLEMENTED
-      );
-    },
-    QueryInterface: ChromeUtils.generateQI([
-      "nsIController",
-      "nsICommandController",
-    ]),
-  };
-  window.controllers.insertControllerAt(0, gComposerCommandController);
+  if (!gComposerCommandController) {
+    gComposerCommandController = {
+      _commands: {},
+      registerCommand(cmd, command) {
+        this._commands[cmd] = command;
+      },
+      supportsCommand(cmd) {
+        return cmd in this._commands;
+      },
+      isCommandEnabled(cmd) {
+        return (
+          this._commands[cmd]?.isCommandEnabled(
+            cmd,
+            GetCurrentEditorElement()
+          ) || false
+        );
+      },
+      doCommand(cmd) {
+        return this._commands[cmd].doCommand(cmd, GetCurrentEditorElement());
+      },
+      getCommandStateWithParams() {
+        throw Components.Exception(
+          "Not implemented",
+          Cr.NS_ERROR_NOT_IMPLEMENTED
+        );
+      },
+      doCommandWithParams() {
+        throw Components.Exception(
+          "Not implemented",
+          Cr.NS_ERROR_NOT_IMPLEMENTED
+        );
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIController",
+        "nsICommandController",
+      ]),
+    };
+    // IMPORTANT: attach to the editor document, not the chrome window, so commands
+    // enable/disable with focus.
+    editorWindow.controllers.insertControllerAt(0, gComposerCommandController);
+  }
+
   return gComposerCommandController;
 }
 
