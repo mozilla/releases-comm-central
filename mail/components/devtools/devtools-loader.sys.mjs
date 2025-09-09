@@ -56,7 +56,7 @@ DevToolsStartup.prototype = {
       if (options.root) {
         const {
           createRootActor,
-        } = require("resource:///modules/tb-root-actor.js");
+        } = require("moz-src:///comm/mail/components/devtools/tb-root-actor.js");
         DevToolsServer.setRootActor(createRootActor);
       }
     };

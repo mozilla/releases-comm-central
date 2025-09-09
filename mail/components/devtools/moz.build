@@ -6,7 +6,7 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
-EXTRA_JS_MODULES += [
+MOZ_SRC_FILES += [
     "devtools-loader.sys.mjs",
     "tb-root-actor.js",
 ]
