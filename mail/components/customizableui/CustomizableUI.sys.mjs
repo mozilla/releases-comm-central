@@ -9,7 +9,8 @@
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
+  PanelMultiView:
+    "moz-src:///comm/mail/components/customizableui/PanelMultiView.sys.mjs",
 });
 
 /**

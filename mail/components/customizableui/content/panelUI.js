@@ -29,8 +29,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
-  CustomizableUI: "resource:///modules/CustomizableUI.sys.mjs",
-  PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
+  CustomizableUI:
+    "moz-src:///comm/mail/components/customizableui/CustomizableUI.sys.mjs",
+  PanelMultiView:
+    "moz-src:///comm/mail/components/customizableui/PanelMultiView.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",

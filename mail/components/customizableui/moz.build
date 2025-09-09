@@ -7,11 +7,8 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Toolbars and Tabs")
 
-DIRS += [
-    "content",
-]
-
-EXTRA_JS_MODULES += [
+MOZ_SRC_FILES += [
+    "content/panelUI.js",
     "CustomizableUI.sys.mjs",
     "PanelMultiView.sys.mjs",
 ]
