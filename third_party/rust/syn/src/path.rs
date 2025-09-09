@@ -379,11 +379,11 @@ pub(crate) mod parsing {
                                     }
                                     bounds.push_value({
                                         let allow_precise_capture = false;
-                                        let allow_tilde_const = true;
+                                        let allow_const = true;
                                         TypeParamBound::parse_single(
                                             input,
                                             allow_precise_capture,
-                                            allow_tilde_const,
+                                            allow_const,
                                         )?
                                     });
                                     if !input.peek(Token![+]) {
@@ -528,7 +528,10 @@ pub(crate) mod parsing {
                 input.parse()?
             };
 
-            if !expr_style && input.peek(Token![<]) && !input.peek(Token![<=])
+            if !expr_style
+                && input.peek(Token![<])
+                && !input.peek(Token![<=])
+                && !input.peek(Token![<<=])
                 || input.peek(Token![::]) && input.peek3(Token![<])
             {
                 Ok(PathSegment {

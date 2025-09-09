@@ -3,6 +3,8 @@
 
 use std::env;
 use std::ffi::OsString;
+use std::fs;
+use std::io::ErrorKind;
 use std::iter;
 use std::path::Path;
 use std::process::{self, Command, Stdio};
@@ -18,7 +20,10 @@ fn main() {
         println!("cargo:rustc-check-cfg=cfg(no_literal_c_string)");
         println!("cargo:rustc-check-cfg=cfg(no_source_text)");
         println!("cargo:rustc-check-cfg=cfg(proc_macro_span)");
+        println!("cargo:rustc-check-cfg=cfg(proc_macro_span_file)");
+        println!("cargo:rustc-check-cfg=cfg(proc_macro_span_location)");
         println!("cargo:rustc-check-cfg=cfg(procmacro2_backtrace)");
+        println!("cargo:rustc-check-cfg=cfg(procmacro2_build_probe)");
         println!("cargo:rustc-check-cfg=cfg(procmacro2_nightly_testing)");
         println!("cargo:rustc-check-cfg=cfg(procmacro2_semver_exempt)");
         println!("cargo:rustc-check-cfg=cfg(randomize_layout)");
@@ -27,8 +32,7 @@ fn main() {
         println!("cargo:rustc-check-cfg=cfg(wrap_proc_macro)");
     }
 
-    let docs_rs = env::var_os("DOCS_RS").is_some();
-    let semver_exempt = cfg!(procmacro2_semver_exempt) || docs_rs;
+    let semver_exempt = cfg!(procmacro2_semver_exempt);
     if semver_exempt {
         // https://github.com/dtolnay/proc-macro2/issues/147
         println!("cargo:rustc-cfg=procmacro2_semver_exempt");
@@ -66,18 +70,16 @@ fn main() {
         return;
     }
 
-    println!("cargo:rerun-if-changed=build/probe.rs");
-
     let proc_macro_span;
     let consider_rustc_bootstrap;
-    if compile_probe(false) {
+    if compile_probe_unstable("proc_macro_span", false) {
         // This is a nightly or dev compiler, so it supports unstable features
         // regardless of RUSTC_BOOTSTRAP. No need to rerun build script if
         // RUSTC_BOOTSTRAP is changed.
         proc_macro_span = true;
         consider_rustc_bootstrap = false;
     } else if let Some(rustc_bootstrap) = env::var_os("RUSTC_BOOTSTRAP") {
-        if compile_probe(true) {
+        if compile_probe_unstable("proc_macro_span", true) {
             // This is a stable or beta compiler for which the user has set
             // RUSTC_BOOTSTRAP to turn on unstable features. Rerun build script
             // if they change it.
@@ -114,11 +116,23 @@ fn main() {
     }
 
     if proc_macro_span {
-        // Enable non-dummy behavior of Span::start and Span::end methods which
-        // requires an unstable compiler feature. Enabled when building with
-        // nightly, unless `-Z allow-feature` in RUSTFLAGS disallows unstable
-        // features.
+        // Enable non-dummy behavior of Span::byte_range and Span::join methods
+        // which requires an unstable compiler feature. Enabled when building
+        // with nightly, unless `-Z allow-feature` in RUSTFLAGS disallows
+        // unstable features.
         println!("cargo:rustc-cfg=proc_macro_span");
+    }
+
+    if proc_macro_span || (rustc >= 88 && compile_probe_stable("proc_macro_span_location")) {
+        // Enable non-dummy behavior of Span::start and Span::end methods on
+        // Rust 1.88+.
+        println!("cargo:rustc-cfg=proc_macro_span_location");
+    }
+
+    if proc_macro_span || (rustc >= 88 && compile_probe_stable("proc_macro_span_file")) {
+        // Enable non-dummy behavior of Span::file and Span::local_file methods
+        // on Rust 1.88+.
+        println!("cargo:rustc-cfg=proc_macro_span_file");
     }
 
     if semver_exempt && proc_macro_span {
@@ -132,21 +146,38 @@ fn main() {
     }
 }
 
-fn compile_probe(rustc_bootstrap: bool) -> bool {
-    if env::var_os("RUSTC_STAGE").is_some() {
-        // We are running inside rustc bootstrap. This is a highly non-standard
-        // environment with issues such as:
-        //
-        //     https://github.com/rust-lang/cargo/issues/11138
-        //     https://github.com/rust-lang/rust/issues/114839
-        //
-        // Let's just not use nightly features here.
-        return false;
-    }
+fn compile_probe_unstable(feature: &str, rustc_bootstrap: bool) -> bool {
+    // RUSTC_STAGE indicates that this crate is being compiled as a dependency
+    // of a multistage rustc bootstrap. This environment uses Cargo in a highly
+    // non-standard way with issues such as:
+    //
+    //     https://github.com/rust-lang/cargo/issues/11138
+    //     https://github.com/rust-lang/rust/issues/114839
+    //
+    env::var_os("RUSTC_STAGE").is_none() && do_compile_probe(feature, rustc_bootstrap)
+}
+
+fn compile_probe_stable(feature: &str) -> bool {
+    env::var_os("RUSTC_STAGE").is_some() || do_compile_probe(feature, true)
+}
+
+fn do_compile_probe(feature: &str, rustc_bootstrap: bool) -> bool {
+    println!("cargo:rerun-if-changed=src/probe/{}.rs", feature);
 
     let rustc = cargo_env_var("RUSTC");
     let out_dir = cargo_env_var("OUT_DIR");
-    let probefile = Path::new("build").join("probe.rs");
+    let out_subdir = Path::new(&out_dir).join("probe");
+    let probefile = Path::new("src")
+        .join("probe")
+        .join(feature)
+        .with_extension("rs");
+
+    if let Err(err) = fs::create_dir(&out_subdir) {
+        if err.kind() != ErrorKind::AlreadyExists {
+            eprintln!("Failed to create {}: {}", out_subdir.display(), err);
+            process::exit(1);
+        }
+    }
 
     let rustc_wrapper = env::var_os("RUSTC_WRAPPER").filter(|wrapper| !wrapper.is_empty());
     let rustc_workspace_wrapper =
@@ -163,13 +194,15 @@ fn compile_probe(rustc_bootstrap: bool) -> bool {
     }
 
     cmd.stderr(Stdio::null())
+        .arg("--cfg=procmacro2_build_probe")
         .arg("--edition=2021")
         .arg("--crate-name=proc_macro2")
         .arg("--crate-type=lib")
         .arg("--cap-lints=allow")
         .arg("--emit=dep-info,metadata")
+        .arg("--cap-lints=allow")
         .arg("--out-dir")
-        .arg(out_dir)
+        .arg(&out_subdir)
         .arg(probefile);
 
     if let Some(target) = env::var_os("TARGET") {
@@ -185,10 +218,31 @@ fn compile_probe(rustc_bootstrap: bool) -> bool {
         }
     }
 
-    match cmd.status() {
+    let success = match cmd.status() {
         Ok(status) => status.success(),
         Err(_) => false,
+    };
+
+    // Clean up to avoid leaving nondeterministic absolute paths in the dep-info
+    // file in OUT_DIR, which causes nonreproducible builds in build systems
+    // that treat the entire OUT_DIR as an artifact.
+    if let Err(err) = fs::remove_dir_all(&out_subdir) {
+        // libc::ENOTEMPTY
+        // Some filesystems (NFSv3) have timing issues under load where '.nfs*'
+        // dummy files can continue to get created for a short period after the
+        // probe command completes, breaking remove_dir_all.
+        // To be replaced with ErrorKind::DirectoryNotEmpty (Rust 1.83+).
+        const ENOTEMPTY: i32 = 39;
+
+        if !(err.kind() == ErrorKind::NotFound
+            || (cfg!(target_os = "linux") && err.raw_os_error() == Some(ENOTEMPTY)))
+        {
+            eprintln!("Failed to clean up {}: {}", out_subdir.display(), err);
+            process::exit(1);
+        }
     }
+
+    success
 }
 
 fn rustc_minor_version() -> Option<u32> {
