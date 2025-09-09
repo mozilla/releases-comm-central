@@ -56,6 +56,11 @@ const { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
+const AccountManagerl10n = new Localization(
+  ["messenger/accountManager.ftl"],
+  true
+);
+
 ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
@@ -700,11 +705,10 @@ function checkUserServerChanges(showAlert) {
         }
       }
 
-      const l10n = new Localization(["messenger/accountManager.ftl"], true);
       const cancel = Services.prompt.confirmEx(
         window,
         alertTitle,
-        l10n.formatValueSync("server-change-restart-required"),
+        AccountManagerl10n.formatValueSync("server-change-restart-required"),
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL,
         prefBundle.getString("localDirectoryRestart"),
@@ -1068,13 +1072,12 @@ function saveAccount(accountValues, account) {
         null,
         false
       );
-      const alertText = document
-        .getElementById("bundle_prefs")
-        .getFormattedString("junkSettingsBroken", [accountName]);
       const review = Services.prompt.confirmEx(
         window,
         null,
-        alertText,
+        AccountManagerl10n.formatValueSync("spam-settings-alert-message", {
+          account: accountName,
+        }),
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_YES +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_NO,
         null,
@@ -1762,11 +1765,12 @@ var gAccountTree = {
   },
 
   _build(newServer) {
-    var bundle = document.getElementById("bundle_prefs");
+    const bundle = document.getElementById("bundle_prefs");
     function getString(aString) {
       return bundle.getString(aString);
     }
-    var panels = [
+
+    const panels = [
       { string: getString("prefPanel-server"), src: "am-server.xhtml" },
       { string: getString("prefPanel-copies"), src: "am-copies.xhtml" },
       {
@@ -1775,7 +1779,10 @@ var gAccountTree = {
       },
       { string: getString("prefPanel-diskspace"), src: "am-offline.xhtml" },
       { string: getString("prefPanel-addressing"), src: "am-addressing.xhtml" },
-      { string: getString("prefPanel-junk"), src: "am-junk.xhtml" },
+      {
+        string: AccountManagerl10n.formatValueSync("panel-settings-spam"),
+        src: "am-junk.xhtml",
+      },
     ];
 
     const accounts = FolderUtils.allAccountsSorted(false);

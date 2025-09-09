@@ -20,7 +20,6 @@ add_task(function () {
   const draftsFolderName = bundle.GetStringFromName("draftsFolderName");
   const templatesFolderName = bundle.GetStringFromName("templatesFolderName");
   const outboxFolderName = bundle.GetStringFromName("outboxFolderName");
-  const junkFolderName = bundle.GetStringFromName("junkFolderName");
   const archivesFolderName = bundle.GetStringFromName("archivesFolderName");
 
   Cc["@mozilla.org/msgFolder/msgFolderService;1"]
@@ -130,10 +129,12 @@ add_task(function () {
     panorama ? "Unsent Messages" : ""
   );
 
-  const junkFolder = rootFolder.createLocalSubfolder("Junk");
+  const junkFolder = rootFolder.createLocalSubfolder("Spam");
   junkFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
-  Assert.equal(junkFolder.name, "Junk");
-  Assert.equal(junkFolder.localizedName, junkFolderName);
+  Assert.equal(junkFolder.name, "Spam");
+  const l10n = new Localization(["messenger/messenger.ftl"], true);
+  const spamFolderName = l10n.formatValueSync("folder-name-spam");
+  Assert.equal(junkFolder.localizedName, spamFolderName);
   Assert.equal(
     junkFolder.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Junk" : ""

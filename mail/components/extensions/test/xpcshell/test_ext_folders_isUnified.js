@@ -169,7 +169,7 @@ add_task(async function test_folder_isUnified() {
           },
           {
             id: "unified://Junk",
-            name: "Junk",
+            name: "Spam",
             path: "/unified/Junk",
             specialUse: ["junk"],
             isFavorite: false,
