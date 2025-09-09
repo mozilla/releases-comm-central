@@ -611,6 +611,9 @@ NS_IMETHODIMP nsMsgFilter::GetNeedsMessageBody(bool* needsBody) {
       nsCOMPtr<nsIMsgSearchCustomTerm> customTerm;
       rv = filterService->GetCustomTerm(customId, getter_AddRefs(customTerm));
       NS_ENSURE_SUCCESS(rv, rv);
+      if (!customTerm) {
+        continue;
+      }
       rv = customTerm->GetNeedsBody(needsBody);
       NS_ENSURE_SUCCESS(rv, rv);
       if (*needsBody) {
