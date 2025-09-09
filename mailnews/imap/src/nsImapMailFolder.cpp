@@ -4158,9 +4158,6 @@ NS_IMETHODIMP nsImapMailFolder::DownloadAllForOffline(nsIUrlListener* listener,
   GetFlag(nsMsgFolderFlags::ImapNoselect, &noSelect);
 
   if (!noSelect) {
-    nsAutoCString messageIdsToDownload;
-    nsTArray<nsMsgKey> msgsToDownload;
-
     GetDatabase();
     m_downloadingFolderForOfflineUse = true;
 
