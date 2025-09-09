@@ -4,3 +4,5 @@
 
 messenger.jar:
     content/messenger/LiveViewDataAdapter.mjs (content/LiveViewDataAdapter.mjs)
+    content/messenger/panorama.js             (content/panorama.js)
+    content/messenger/panorama.xhtml          (content/panorama.xhtml)
