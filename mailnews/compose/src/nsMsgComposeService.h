@@ -28,7 +28,6 @@ class nsMsgComposeService : public nsIMsgComposeService,
   nsresult Init();
   void Reset();
   void DeleteCachedWindows();
-  nsresult AddGlobalHtmlDomains();
 
  private:
   virtual ~nsMsgComposeService();

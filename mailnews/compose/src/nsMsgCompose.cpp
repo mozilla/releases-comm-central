@@ -1324,26 +1324,6 @@ NS_IMETHODIMP nsMsgCompose::SetDeleteDraft(bool aDeleteDraft) {
   return NS_OK;
 }
 
-bool nsMsgCompose::IsLastWindow() {
-  nsresult rv;
-  bool more;
-  nsCOMPtr<nsIWindowMediator> windowMediator =
-      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsISimpleEnumerator> windowEnumerator;
-    rv = windowMediator->GetEnumerator(nullptr,
-                                       getter_AddRefs(windowEnumerator));
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsISupports> isupports;
-
-      if (NS_SUCCEEDED(windowEnumerator->GetNext(getter_AddRefs(isupports))))
-        if (NS_SUCCEEDED(windowEnumerator->HasMoreElements(&more)))
-          return !more;
-    }
-  }
-  return true;
-}
-
 NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   nsresult rv;
 
@@ -2674,36 +2654,6 @@ nsresult QuotingOutputStreamListener::InsertToCompose(nsIEditor* aEditor,
         nsISelectionController::SCROLL_SYNCHRONOUS);
 
   return NS_OK;
-}
-
-/**
- * Returns true if the domain is a match for the given the domain list.
- * Subdomains are also considered to match.
- * @param aDomain - the domain name to check
- * @param aDomainList - a comma separated string of domain names
- */
-bool IsInDomainList(const nsAString& aDomain, const nsAString& aDomainList) {
-  if (aDomain.IsEmpty() || aDomainList.IsEmpty()) return false;
-
-  // Check plain text domains.
-  int32_t left = 0;
-  int32_t right = 0;
-  while (right != (int32_t)aDomainList.Length()) {
-    right = aDomainList.FindChar(',', left);
-    if (right == kNotFound) right = aDomainList.Length();
-    nsDependentSubstring domain = Substring(aDomainList, left, right);
-
-    if (aDomain.Equals(domain, nsCaseInsensitiveStringComparator)) return true;
-
-    nsAutoString dotDomain;
-    dotDomain.Assign(u'.');
-    dotDomain.Append(domain);
-    if (StringEndsWith(aDomain, dotDomain, nsCaseInsensitiveStringComparator))
-      return true;
-
-    left = right + 1;
-  }
-  return false;
 }
 
 NS_IMPL_ISUPPORTS(QuotingOutputStreamListener,
@@ -5008,20 +4958,6 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity* aIdentity) {
   }
 
   return rv;
-}
-
-NS_IMETHODIMP nsMsgCompose::CheckCharsetConversion(nsIMsgIdentity* identity,
-                                                   char** fallbackCharset,
-                                                   bool* _retval) {
-  NS_ENSURE_ARG_POINTER(identity);
-  NS_ENSURE_ARG_POINTER(_retval);
-
-  // Kept around for legacy reasons. This method is supposed to check that the
-  // headers can be converted to the appropriate charset, but we don't support
-  // encoding headers to non-UTF-8, so this is now moot.
-  if (fallbackCharset) *fallbackCharset = nullptr;
-  *_retval = true;
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompose::GetDeliverMode(MSG_DeliverMode* aDeliverMode) {

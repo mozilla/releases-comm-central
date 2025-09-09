@@ -186,10 +186,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
    */
   attribute nsIMsgIdentity identity;
 
-  /* Check if the composing mail headers (and identity) can be converted to a mail charset.
-  */
-  boolean checkCharsetConversion(in nsIMsgIdentity identity, out string fallbackCharset);
-
   /* The message send object. This is created by default to be the SMTP server
    * in sendMsgToServer, but if that method is overridden, set the actual
    * value used here.

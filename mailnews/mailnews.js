@@ -792,7 +792,6 @@ pref("mail.spellcheck.inline", true);
 pref("mail.phishing.detection.enabled", true);
 pref("mail.warn_on_send_accel_key", true);
 pref("mail.enable_autocomplete", true);
-pref("mailnews.global_html_domains.version", 1);
 
 /////////////////////////////////////////////////////////////////
 // Privacy Controls for Handling Remote Content

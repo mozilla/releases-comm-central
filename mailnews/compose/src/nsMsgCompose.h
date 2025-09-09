@@ -103,7 +103,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
    * the relevant cards from the address books.
    */
   nsresult LookupAddressBook(RecipientsArray& recipientList);
-  bool IsLastWindow();
 
   // Helper function. Parameters are not checked.
   bool mConvertStructs;  // for TagConvertible
