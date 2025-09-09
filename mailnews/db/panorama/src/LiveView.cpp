@@ -83,6 +83,19 @@ NS_IMETHODIMP LiveView::InitWithTag(const nsACString& aTag) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::InitWithConversation(uint64_t aConversationId) {
+  if (mFolderFilter) {
+    NS_WARNING("folder filter already set");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mFolderFilter = new ConversationFilter(aConversationId);
+  // Conversation view is always in date-ascending order.
+  mSortColumn = nsILiveView::SortColumn::DATE;
+  mSortDescending = false;
+  return NS_OK;
+}
+
 NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
   *aSortColumn = mSortColumn;
   return NS_OK;

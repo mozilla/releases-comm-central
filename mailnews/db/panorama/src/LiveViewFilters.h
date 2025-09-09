@@ -93,6 +93,24 @@ class VirtualFolderFilter final : public LiveViewFilter {
   RefPtr<VirtualFolderWrapper> mWrapper;
 };
 
+class ConversationFilter final : public LiveViewFilter {
+ public:
+  explicit ConversationFilter(uint64_t conversationId)
+      : mConversationId(conversationId) {
+    mSQLClause.Assign("threadId = ");
+    mSQLClause.AppendInt(conversationId);
+  }
+
+  bool Matches(Message& message) {
+    nsMsgKey threadId;
+    message.GetThreadId(&threadId);
+    return threadId == mConversationId;
+  }
+
+ protected:
+  uint64_t mConversationId;
+};
+
 class TaggedMessagesFilter final : public LiveViewFilter {
  public:
   explicit TaggedMessagesFilter(const nsACString& aTag, bool aWanted)

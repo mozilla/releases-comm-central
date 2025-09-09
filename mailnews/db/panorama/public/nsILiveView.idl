@@ -18,6 +18,8 @@ interface nsILiveView : nsISupports {
   void initWithFolders(in Array<unsigned long long> folderIds);
   // `tag` is the tag's identifier (nsIMsgTag.key).
   void initWithTag(in AUTF8String tag);
+  // `conversationId` is a message's thread id (nsIMsgDBHdr.threadId)
+  void initWithConversation(in unsigned long long conversationId);
 
   cenum SortColumn : 8 {
     DATE = 1,

@@ -473,4 +473,9 @@ function assertInitFails(liveView) {
     /NS_ERROR_UNEXPECTED/,
     "setting the folder a second time should throw"
   );
+  Assert.throws(
+    () => liveView.initWithConversation(1),
+    /NS_ERROR_UNEXPECTED/,
+    "setting the folder a second time should throw"
+  );
 }

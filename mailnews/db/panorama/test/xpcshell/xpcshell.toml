@@ -8,6 +8,7 @@ prefs = [
 ]
 support-files = [
   "data/**",
+  "db/conversations.sql",
   "db/messages.sql",
   "db/move.sql",
   "db/relations.sql",
@@ -26,6 +27,8 @@ support-files = [
 ["test_liveViewDataAdapter.js"]
 
 ["test_liveViewSQL.js"]
+
+["test_liveView_conversations.js"]
 
 ["test_lookup.js"]
 
