@@ -82,12 +82,11 @@
           `
           <menulist class="ruleactionitem" flex="1">
             <menupopup>
-              <menuitem value="100" label="&junk.label;"/>
-              <menuitem value="0" label="&notJunk.label;"/>
+              <menuitem value="100" data-l10n-id="rule-menuitem-spam"/>
+              <menuitem value="0" data-l10n-id="rule-menuitem-not-spam"/>
             </menupopup>
           </menulist>
-          `,
-          ["chrome://messenger/locale/FilterEditor.dtd"]
+          `
         )
       );
 
@@ -1484,7 +1483,7 @@
                         value="setpriorityto"></menuitem>
               <menuitem label="&addTag.label;"
                         value="addtagtomessage"></menuitem>
-              <menuitem label="&setJunkScore.label;"
+              <menuitem data-l10n-id="rule-action-set-spam-status"
                         value="setjunkscore"
                         enablefornews="false"></menuitem>
               <menuseparator enableforpop3="true"></menuseparator>

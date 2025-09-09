@@ -35,8 +35,6 @@
 <!ENTITY hdrFollowupButton1.tooltip "Post a followup to this newsgroup">
 <!ENTITY hdrForwardButton1.label "Forward">
 <!ENTITY hdrForwardButton1.tooltip "Forward this message">
-<!ENTITY hdrJunkButton1.label "Junk">
-<!ENTITY hdrJunkButton1.tooltip "Mark this message as junk">
 <!ENTITY hdrTrashButton1.label "Delete">
 <!ENTITY hdrTrashButton1.tooltip "Delete this message">
 

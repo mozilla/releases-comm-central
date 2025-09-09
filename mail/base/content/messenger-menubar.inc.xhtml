@@ -590,8 +590,7 @@
                   type="radio"
                   name="sortby"
                   value="junkStatusCol"
-                  label="&sortByJunkStatusCmd.label;"
-                  accesskey="&sortByJunkStatusCmd.accesskey;"/>
+                  data-l10n-id="sort-by-spam-status"/>
         <menuitem id="sortByAttachmentsMenuitem"
                   type="radio"
                   name="sortby"
@@ -1063,17 +1062,16 @@
                       command="cmd_markAsFlagged"
                       key="key_toggleFlagged"/>
             <menuseparator id="markMenuAfterFlaggedSeparator"/>
-            <menuitem id="menu_markAsJunk" label="&markAsJunkCmd.label;"
-                      accesskey="&markAsJunkCmd.accesskey;"
+            <menuitem id="menu_markAsJunk"
+                      data-l10n-id="menu-mark-as-spam"
                       command="cmd_markAsJunk"
                       key="key_markJunk"/>
-            <menuitem id="menu_markAsNotJunk" label="&markAsNotJunkCmd.label;"
+            <menuitem id="menu_markAsNotJunk"
+                      data-l10n-id="menu-mark-not-spam"
                       key="key_markNotJunk"
-                      accesskey="&markAsNotJunkCmd.accesskey;"
                       command="cmd_markAsNotJunk"/>
             <menuitem id="menu_recalculateJunkScore"
-                      label="&recalculateJunkScoreCmd.label;"
-                      accesskey="&recalculateJunkScoreCmd.accesskey;"
+                      data-l10n-id="menu-recalculate-spam-score"
                       command="cmd_recalculateJunkScore"/>
           </menupopup>
         </menu>
@@ -1199,12 +1197,10 @@
               command="cmd_applyFiltersToSelection"/>
     <menuseparator id="tasksMenuAfterApplySeparator"/>
     <menuitem id="runJunkControls"
-              label="&runJunkControls.label;"
-              accesskey="&runJunkControls.accesskey;"
+              data-l10n-id="menu-run-spam-on-folder"
               command="cmd_runJunkControls"/>
     <menuitem id="deleteJunk"
-              label="&deleteJunk.label;"
-              accesskey="&deleteJunk.accesskey;"
+              data-l10n-id="menu-delete-spam"
               command="cmd_deleteJunk"/>
     <menuseparator id="tasksMenuAfterDeleteSeparator"/>
     <menuitem id="menu_import" label="&importCmd.label;"
