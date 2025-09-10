@@ -60,7 +60,8 @@ class LiveView : public nsILiveView, public MessageListener {
                             const char* messageId, PRTime date,
                             const char* sender, const char* recipients,
                             const char* subject, uint64_t flags,
-                            const char* tags, JSContext* aCx);
+                            const char* tags, uint64_t threadId,
+                            uint64_t threadParent, JSContext* aCx);
   JSObject* CreateJSMessage(Message* aMessage, JSContext* aCx);
 
   // The one and only listener for this live view, if set.

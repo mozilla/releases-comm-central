@@ -40,6 +40,8 @@ add_task(function testMessageProperties() {
   Assert.equal(message.subject, "Balanced static project");
   Assert.equal(message.flags, 0);
   Assert.equal(message.tags, "$label1");
+  Assert.equal(message.threadId, 0);
+  Assert.equal(message.threadParent, 0);
 });
 
 add_task(function testInitWithFolder() {

@@ -65,7 +65,7 @@ window.addEventListener("load", async function () {
   messageList.defaultColumns = [
     { id: "id", l10n: {}, name: "id", sortable: false },
     { id: "folderId", l10n: {}, name: "folder", sortable: false },
-    { id: "messageId", l10n: {}, name: "messageId", sortable: false },
+    { id: "messageId", l10n: {}, name: "message-id", sortable: false },
     { id: "date", l10n: {}, name: "date" },
     { id: "sender", l10n: {}, name: "sender" },
     { id: "recipients", l10n: {}, name: "recipients" },
@@ -74,6 +74,8 @@ window.addEventListener("load", async function () {
     { id: "unread", l10n: {}, name: "unread" },
     { id: "flagged", l10n: {}, name: "flagged" },
     { id: "tags", l10n: {}, name: "tags", sortable: false },
+    { id: "threadId", l10n: {}, name: "thread", sortable: false },
+    { id: "threadParent", l10n: {}, name: "parent", sortable: false },
   ];
 
   const unreadCheckbox = document.body.querySelector("input#unread_messages");

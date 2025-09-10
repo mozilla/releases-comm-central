@@ -10,7 +10,7 @@ INSERT INTO messages (id, folderId, threadId, threadParent, messageId) VALUES
   (3, 3, 3, 0, 'message3@invalid'),
   (4, 3, 7, 7, 'message4@invalid'),
   (5, 3, 3, 3, 'message5@invalid'),
-  (6, 3, 3, 3, 'message6@invalid'),
+  (6, 3, 3, 5, 'message6@invalid'),
   (7, 4, 7, 0, 'message7@invalid'),
   (8, 4, 8, 0, 'message8@invalid'),
   (9, 4, 9, 0, 'message9@invalid'),

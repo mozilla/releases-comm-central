@@ -241,7 +241,8 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
                                     const char* messageId, PRTime date,
                                     const char* sender, const char* recipients,
                                     const char* subject, uint64_t flags,
-                                    const char* tags, JSContext* cx) {
+                                    const char* tags, uint64_t threadId,
+                                    uint64_t threadParent, JSContext* cx) {
   Rooted<JSObject*> obj(cx, JS_NewPlainObject(cx));
 
   JS_DefineProperty(cx, obj, "id", (double)(id), JSPROP_ENUMERATE);
@@ -269,6 +270,10 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
   Rooted<Value> val6(cx, StringValue(JS_NewStringCopyZ(cx, tags)));
   JS_DefineProperty(cx, obj, "tags", val6, JSPROP_ENUMERATE);
 
+  JS_DefineProperty(cx, obj, "threadId", (double)(threadId), JSPROP_ENUMERATE);
+  JS_DefineProperty(cx, obj, "threadParent", (double)(threadParent),
+                    JSPROP_ENUMERATE);
+
   return obj;
 }
 
@@ -284,6 +289,8 @@ JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* cx) {
   nsAutoCString subject;
   uint32_t flags;
   nsAutoCString tags;
+  nsMsgKey threadId;
+  nsMsgKey threadParent;
 
   aMessage->GetMessageId(messageId);
   aMessage->GetDate(&date);
@@ -292,10 +299,13 @@ JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* cx) {
   aMessage->GetSubject(subject);
   aMessage->GetFlags(&flags);
   aMessage->GetStringProperty("keywords", tags);
+  aMessage->GetThreadId(&threadId);
+  aMessage->GetThreadParent(&threadParent);
 
   return CreateJSMessage(aMessage->Key(), aMessage->FolderId(), messageId.get(),
                          date, sender.get(), recipients.get(), subject.get(),
-                         flags, tags.get(), cx);
+                         flags, tags.get(), (uint64_t)threadId,
+                         (uint64_t)threadParent, cx);
 }
 
 NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
@@ -312,7 +322,9 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
           ADDRESS_FORMAT(recipients) AS formattedRecipients, \
           subject, \
           flags, \
-          tags \
+          tags, \
+          threadId, \
+          threadParent \
         FROM messages \
         WHERE ");
     sql.Append(GetSQLClause());
@@ -371,6 +383,8 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
   double folderId;
   double flags;
   const char* tags;
+  double threadId;
+  double threadParent;
 
   while (NS_SUCCEEDED(mSelectStmt->ExecuteStep(&hasResult)) && hasResult) {
     id = mSelectStmt->AsInt64(0);
@@ -382,9 +396,12 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
     subject = mSelectStmt->AsSharedUTF8String(6, &len);
     flags = mSelectStmt->AsInt64(7);
     tags = mSelectStmt->AsSharedUTF8String(8, &len);
+    threadId = mSelectStmt->AsInt64(9);
+    threadParent = mSelectStmt->AsInt64(10);
 
-    JSObject* obj = CreateJSMessage(id, folderId, messageId, date, sender,
-                                    recipients, subject, flags, tags, aCx);
+    JSObject* obj =
+        CreateJSMessage(id, folderId, messageId, date, sender, recipients,
+                        subject, flags, tags, threadId, threadParent, aCx);
     Rooted<Value> message(aCx, ObjectValue(*obj));
     JS_DefineElement(aCx, arr, count++, message, JSPROP_ENUMERATE);
   }

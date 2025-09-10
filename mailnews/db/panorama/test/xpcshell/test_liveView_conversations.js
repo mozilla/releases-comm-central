@@ -48,11 +48,18 @@ add_task(async function () {
     3,
     "countMessages should return the total number of messages"
   );
+  const messages = liveView.selectMessages();
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(messages, m => m.id),
     [3, 5, 6],
     "selectMessages should return all the messages in sort ascending order"
   );
+  Assert.equal(messages[0].threadId, 3);
+  Assert.equal(messages[0].threadParent, 0);
+  Assert.equal(messages[1].threadId, 3);
+  Assert.equal(messages[1].threadParent, 3);
+  Assert.equal(messages[2].threadId, 3);
+  Assert.equal(messages[2].threadParent, 5);
 });
 
 add_task(async function () {
@@ -63,9 +70,16 @@ add_task(async function () {
     3,
     "countMessages should return the total number of messages"
   );
+  const messages = liveView.selectMessages();
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(messages, m => m.id),
     [2, 4, 7],
     "selectMessages should return all the messages in sort ascending order"
   );
+  Assert.equal(messages[0].threadId, 7);
+  Assert.equal(messages[0].threadParent, 7);
+  Assert.equal(messages[1].threadId, 7);
+  Assert.equal(messages[1].threadParent, 7);
+  Assert.equal(messages[2].threadId, 7);
+  Assert.equal(messages[2].threadParent, 0);
 });
