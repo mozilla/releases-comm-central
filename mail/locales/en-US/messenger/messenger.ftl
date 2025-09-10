@@ -571,58 +571,6 @@ openpgp-forget = Forget OpenPGP passphrases
 quota-panel-percent-used = { $percent }% full
   .title = IMAP quota: { $usage } used of { $limit } total
 
-## Sort menu.
-
-sort-by-spam-status =
-  .label = Spam Status
-  .accesskey = S
-
-## Message menu.
-
-menu-mark-as-spam =
-  .label = As Spam
-  .accesskey = S
-
-mark-as-junk-key =
-  .key = j
-
-menu-mark-not-spam =
-  .label = As Not Spam
-  .accesskey = N
-
-mark-not-junk-key =
-  .key = j
-
-menu-recalculate-spam-score =
-  .label = Run Spam Controls
-  .accesskey = C
-
-menu-run-spam-on-folder =
-  .label = Run Spam Controls on Folder
-  .accesskey = C
-
-menu-delete-spam =
-  .label = Delete Mail Marked as Spam in Folder
-  .accesskey = D
-
-## Folder pane context.
-
-folder-context-empty-spam =
-  .label = Empty Spam
-  .accesskey = S
-
-## Thread pane.
-
-column-status-spam =
-  .label = Spam Status
-  .tooltiptext = Sort by spam status
-
-## Message header.
-
-header-spam-button =
-  .label = Spam
-  .tooltiptext = Mark this message as spam
-
 ## Actions for the New Mail Notification
 
 mark-as-read-action = Mark as Read

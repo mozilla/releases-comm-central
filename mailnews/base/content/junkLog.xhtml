@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html>
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/junkLog.dtd">
 <html
   id="viewLogWindow"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -14,13 +14,12 @@
   scrolling="false"
 >
   <head>
-    <title data-l10n-id="spam-log-title"></title>
+    <title>&adaptiveJunkLog.title;</title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-    <link rel="localization" href="messenger/preferences/spamLog.ftl" />
     <script defer="defer" src="chrome://messenger/content/junkLog.js"></script>
   </head>
   <html:body
@@ -29,14 +28,18 @@
     <dialog
       style="min-width: 40em; min-height: 25em"
       buttons="accept"
-      data-l10n-id="spam-log-dialog"
-      data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept"
+      buttonlabelaccept="&closeLog.label;"
+      buttonaccesskeyaccept="&closeLog.accesskey;"
     >
       <vbox flex="1">
         <hbox>
-          <label data-l10n-id="spam-log-info-label" />
+          <label value="&adaptiveJunkLogInfo.label;" />
           <spacer flex="1" />
-          <button data-l10n-id="clear-log-button" oncommand="clearLog();" />
+          <button
+            label="&clearLog.label;"
+            accesskey="&clearLog.accesskey;"
+            oncommand="clearLog();"
+          />
         </hbox>
         <separator class="thin" />
         <hbox flex="1">

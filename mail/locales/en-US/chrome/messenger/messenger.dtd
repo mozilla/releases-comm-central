@@ -162,6 +162,8 @@
 <!ENTITY sortByStatusCmd.accesskey "u">
 <!ENTITY sortByTagsCmd.label "Tags">
 <!ENTITY sortByTagsCmd.accesskey "g">
+<!ENTITY sortByJunkStatusCmd.label "Junk Status">
+<!ENTITY sortByJunkStatusCmd.accesskey "J">
 <!ENTITY sortBySubjectCmd.label "Subject">
 <!ENTITY sortBySubjectCmd.accesskey "b">
 <!ENTITY sortByFromCmd.label "From">
@@ -394,6 +396,14 @@
 <!ENTITY markStarredCmd.label "Add Star">
 <!ENTITY markStarredCmd.accesskey "S">
 <!ENTITY markStarredCmd.key "S">
+<!ENTITY markAsJunkCmd.label "As Junk">
+<!ENTITY markAsJunkCmd.accesskey "J">
+<!ENTITY markAsJunkCmd.key "j">
+<!ENTITY markAsNotJunkCmd.label "As Not Junk">
+<!ENTITY markAsNotJunkCmd.accesskey "N">
+<!ENTITY markAsNotJunkCmd.key "j">
+<!ENTITY recalculateJunkScoreCmd.label "Run Junk Mail Controls">
+<!ENTITY recalculateJunkScoreCmd.accesskey "C">
 <!ENTITY openMessageWindowCmd.label "Open Message">
 <!ENTITY openMessageWindowCmd.accesskey "O">
 <!ENTITY openMessageWindowCmd.key "o">
@@ -444,6 +454,10 @@
 <!ENTITY filtersApplyToSelection.accesskey "u">
 <!ENTITY filtersApplyToMessage.label "Run Filters on Message">
 <!ENTITY filtersApplyToMessage.accesskey "u">
+<!ENTITY runJunkControls.label "Run Junk Mail Controls on Folder">
+<!ENTITY runJunkControls.accesskey "C">
+<!ENTITY deleteJunk.label "Delete Mail Marked as Junk in Folder">
+<!ENTITY deleteJunk.accesskey "D">
 <!ENTITY importCmd.label "Import…">
 <!ENTITY importCmd.accesskey "m">
 <!ENTITY exportCmd.label "Export…">
@@ -493,6 +507,7 @@
 <!ENTITY printButton.label "Print">
 <!ENTITY stopButton.label "Stop">
 <!ENTITY throbberItem.title "Activity Indicator">
+<!ENTITY junkItem.title "Junk">
 <!ENTITY addressBookButton.label "Address Book">
 <!ENTITY chatButton.label "Chat">
 <!ENTITY glodaSearch.title "Global Search">
@@ -591,6 +606,8 @@
 <!ENTITY folderContextCompact.accesskey "C">
 <!ENTITY folderContextEmptyTrash.label "Empty Trash">
 <!ENTITY folderContextEmptyTrash.accesskey "y">
+<!ENTITY folderContextEmptyJunk.label "Empty Junk">
+<!ENTITY folderContextEmptyJunk.accesskey "J">
 <!ENTITY folderContextSendUnsentMessages.label "Send Unsent Messages">
 <!ENTITY folderContextSendUnsentMessages.accesskey "d">
 <!ENTITY folderContextUnsubscribe.label "Unsubscribe">
@@ -637,6 +654,7 @@
 <!ENTITY accountColumn.label "Account">
 <!ENTITY statusColumn.label "Status">
 <!ENTITY sizeColumn.label "Size">
+<!ENTITY junkStatusColumn.label "Junk Status">
 <!ENTITY unreadColumn.label "Unread">
 <!ENTITY totalColumn.label "Total">
 <!ENTITY readColumn.label "Read">
@@ -661,6 +679,7 @@
 <!ENTITY accountColumn2.tooltip "Sort by account">
 <!ENTITY statusColumn2.tooltip "Sort by status">
 <!ENTITY sizeColumn2.tooltip "Sort by size">
+<!ENTITY junkStatusColumn2.tooltip "Sort by junk status">
 <!ENTITY unreadColumn2.tooltip "Number of unread messages in thread">
 <!ENTITY totalColumn2.tooltip "Total number of messages in thread">
 <!ENTITY readColumn2.tooltip "Sort by read">
