@@ -36,8 +36,8 @@ add_task(function testMessageProperties() {
   Assert.equal(message.folderId, 4);
   Assert.equal(message.messageId, "message8@invalid");
   Assert.equal(message.date.toISOString(), "2023-08-06T06:02:00.000Z");
-  Assert.equal(message.sender, "Edgar Stokes <edgar@stokes.invalid>");
-  Assert.equal(message.subject, "Balanced static project");
+  Assert.equal(message.sender, "Edgár Stokes <edgar@stokes.invalid>");
+  Assert.equal(message.subject, "Balanced static project déjà vu");
   Assert.equal(message.flags, 0);
   Assert.equal(message.tags, "$label1");
   Assert.equal(message.threadId, 0);
@@ -292,7 +292,7 @@ add_task(function testSort() {
       "Fundamental empowering pricing structure",
       "Enterprise-wide mission-critical middleware",
       "Distributed mobile access",
-      "Balanced static project",
+      "Balanced static project déjà vu",
     ],
     "messages should be in descending subject order"
   );
@@ -301,7 +301,7 @@ add_task(function testSort() {
   Assert.deepEqual(
     Array.from(liveView.selectMessages(), m => m.subject),
     [
-      "Balanced static project",
+      "Balanced static project déjà vu",
       "Distributed mobile access",
       "Enterprise-wide mission-critical middleware",
       "Fundamental empowering pricing structure",
@@ -321,7 +321,7 @@ add_task(function testSort() {
     [
       "Abe Koepp <abe@koepp.invalid>",
       "Christian Murray <christian@murray.invalid>",
-      "Edgar Stokes <edgar@stokes.invalid>",
+      "Edgár Stokes <edgar@stokes.invalid>",
       "Eliseo Bauch <eliseo@bauch.invalid>",
       "Frederick Rolfson <frederick@rolfson.invalid>",
       "Hope Bosco <hope@bosco.invalid>",
@@ -344,7 +344,7 @@ add_task(function testSort() {
       "Hope Bosco <hope@bosco.invalid>",
       "Frederick Rolfson <frederick@rolfson.invalid>",
       "Eliseo Bauch <eliseo@bauch.invalid>",
-      "Edgar Stokes <edgar@stokes.invalid>",
+      "Edgár Stokes <edgar@stokes.invalid>",
       "Christian Murray <christian@murray.invalid>",
       "Abe Koepp <abe@koepp.invalid>",
     ],

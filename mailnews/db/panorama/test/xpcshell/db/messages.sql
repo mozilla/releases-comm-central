@@ -12,6 +12,6 @@ INSERT INTO messages (id, folderId, messageId, date, sender, subject, flags, tag
   (5, 4, 'message5@invalid', UNIXEPOCH('2023-04-10') * 1000000, '"Hope Bosco" <hope@bosco.invalid>', 'Universal 5th generation conglomeration', 1, ''),
   (6, 4, 'message6@invalid', UNIXEPOCH('2023-05-13') * 1000000, '"Kip Mann" <kip@mann.invalid>', 'Self-enabling clear-thinking archive', 1, ''),
   (7, 4, 'message7@invalid', UNIXEPOCH('2023-06-26') * 1000000, '"Abe Koepp" <abe@koepp.invalid>', 'Enterprise-wide mission-critical middleware', 0, ''),
-  (8, 4, 'message8@invalid', UNIXEPOCH('2023-08-06T06:02:00Z') * 1000000, '"Edgar Stokes" <edgar@stokes.invalid>', 'Balanced static project', 0, '$label1'),
+  (8, 4, 'message8@invalid', UNIXEPOCH('2023-08-06T06:02:00Z') * 1000000, '"Edgár Stokes" <edgar@stokes.invalid>', 'Balanced static project déjà vu', 0, '$label1'),
   (9, 4, 'message9@invalid', UNIXEPOCH('2023-08-14') * 1000000, '"Neal Jast" <neal@jast.invalid>', 'Virtual solution-oriented knowledge user', 0, ''),
   (10, 4, 'message10@invalid', UNIXEPOCH('2023-09-14') * 1000000, '"Christian Murray" <christian@murray.invalid>', 'Distributed mobile access', 5, '');

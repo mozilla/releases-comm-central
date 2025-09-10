@@ -39,8 +39,8 @@ add_task(function testColumnContents() {
     // We're not going to get into the intricacies of date/time formatting yet.
     // Just check the value is right for sorting.
     Assert.equal(row2.getValue("date"), 1691301720000);
-    Assert.equal(row2.getText("sender"), "Edgar Stokes <edgar@stokes.invalid>");
-    Assert.equal(row2.getText("subject"), "Balanced static project");
+    Assert.equal(row2.getText("sender"), "Edgár Stokes <edgar@stokes.invalid>");
+    Assert.equal(row2.getText("subject"), "Balanced static project déjà vu");
     Assert.equal(row2.getText("flags"), "0");
     Assert.equal(row2.getText("unread"), "1");
     Assert.equal(row2.getText("flagged"), "0");

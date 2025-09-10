@@ -17,13 +17,13 @@
 #include "prtime.h"
 #include "xpcpublic.h"
 
+using JS::ConstUTF8CharsZ;
 using JS::MutableHandle;
 using JS::NewArrayObject;
 using JS::NewDateObject;
 using JS::ObjectValue;
 using JS::Rooted;
 using JS::SetArrayLength;
-using JS::StringValue;
 using JS::TimeClip;
 using JS::Value;
 using mozilla::LazyLogModule;
@@ -264,25 +264,45 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
 
   JS_DefineProperty(cx, obj, "folderId", (double)(folderId), JSPROP_ENUMERATE);
 
-  Rooted<Value> val1(cx, StringValue(JS_NewStringCopyZ(cx, messageId)));
+  Rooted<JSString*> val1(cx);
+  if (messageId)
+    val1 = JS_NewStringCopyUTF8Z(cx, ConstUTF8CharsZ(messageId));
+  else
+    val1 = JS_GetEmptyString(cx);
   JS_DefineProperty(cx, obj, "messageId", val1, JSPROP_ENUMERATE);
 
   Rooted<JSObject*> val2(cx,
                          NewDateObject(cx, TimeClip(date / PR_USEC_PER_MSEC)));
   JS_DefineProperty(cx, obj, "date", val2, JSPROP_ENUMERATE);
 
-  Rooted<Value> val3(cx, StringValue(JS_NewStringCopyZ(cx, sender)));
+  Rooted<JSString*> val3(cx);
+  if (sender)
+    val3 = JS_NewStringCopyUTF8Z(cx, ConstUTF8CharsZ(sender));
+  else
+    val3 = JS_GetEmptyString(cx);
   JS_DefineProperty(cx, obj, "sender", val3, JSPROP_ENUMERATE);
 
-  Rooted<Value> val4(cx, StringValue(JS_NewStringCopyZ(cx, recipients)));
+  Rooted<JSString*> val4(cx);
+  if (recipients)
+    val4 = JS_NewStringCopyUTF8Z(cx, ConstUTF8CharsZ(recipients));
+  else
+    val4 = JS_GetEmptyString(cx);
   JS_DefineProperty(cx, obj, "recipients", val4, JSPROP_ENUMERATE);
 
-  Rooted<Value> val5(cx, StringValue(JS_NewStringCopyZ(cx, subject)));
+  Rooted<JSString*> val5(cx);
+  if (subject)
+    val5 = JS_NewStringCopyUTF8Z(cx, ConstUTF8CharsZ(subject));
+  else
+    val5 = JS_GetEmptyString(cx);
   JS_DefineProperty(cx, obj, "subject", val5, JSPROP_ENUMERATE);
 
   JS_DefineProperty(cx, obj, "flags", (double)(flags), JSPROP_ENUMERATE);
 
-  Rooted<Value> val6(cx, StringValue(JS_NewStringCopyZ(cx, tags)));
+  Rooted<JSString*> val6(cx);
+  if (tags)
+    val6 = JS_NewStringCopyUTF8Z(cx, ConstUTF8CharsZ(tags));
+  else
+    val6 = JS_GetEmptyString(cx);
   JS_DefineProperty(cx, obj, "tags", val6, JSPROP_ENUMERATE);
 
   JS_DefineProperty(cx, obj, "threadId", (double)(threadId), JSPROP_ENUMERATE);
