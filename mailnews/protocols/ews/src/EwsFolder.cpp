@@ -1586,6 +1586,13 @@ NS_IMETHODIMP EwsFolder::HandleViewCommand(
                   rv = destinationFolder->GetNewMessages(window, nullptr);
                   NS_ENSURE_SUCCESS(rv, rv);
                 }
+
+                // If we're here, it means we've triggered a server-side move.
+                // This means we need to sync the current folder, so we can pick
+                // up the removal of the target message(s).
+                rv = self->SyncMessages(window, nullptr);
+                NS_ENSURE_SUCCESS(rv, rv);
+
                 return NS_OK;
               }
 

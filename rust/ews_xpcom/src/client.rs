@@ -9,7 +9,6 @@ mod server_version;
 
 use std::{
     cell::{Cell, RefCell},
-    cmp::Ordering,
     collections::{HashMap, HashSet, VecDeque},
     env,
 };
@@ -36,7 +35,6 @@ use ews::{
     Recipient,
 };
 use fxhash::FxHashMap;
-use itertools::Itertools;
 use mail_parser::MessageParser;
 use mailnews_ui_glue::{
     handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
@@ -463,39 +461,14 @@ where
                 })
                 .collect::<Result<_, _>>()?;
 
-            // There is no guarantee the server will correctly batch and order
-            // all the changes in the response, so, just to be safe, we make
-            // sure they're ordered in a sensible way. More specifically, we
-            // want to enforce the following order in the type of changes we
-            // process:
-            //  * message creations (new messages)
-            //  * updates to existing messages
-            //  * message deletions
-            let changes: Vec<_> = message
-                .changes
-                .inner
-                .into_iter()
-                // `sorted_by` is provided by the `Itertools` trait, imported
-                // from the `itertools` crate.
-                .sorted_by(|a, b| match a {
-                    sync_folder_items::Change::Create { .. } => match b {
-                        sync_folder_items::Change::Create { .. } => Ordering::Equal,
-                        _ => Ordering::Less,
-                    },
-                    sync_folder_items::Change::Update { .. }
-                    | sync_folder_items::Change::ReadFlagChange { .. } => match b {
-                        sync_folder_items::Change::Create { .. } => Ordering::Greater,
-                        sync_folder_items::Change::Delete { .. } => Ordering::Less,
-                        _ => Ordering::Equal,
-                    },
-                    sync_folder_items::Change::Delete { .. } => match b {
-                        sync_folder_items::Change::Delete { .. } => Ordering::Equal,
-                        _ => Ordering::Greater,
-                    },
-                })
-                .collect();
-
-            for change in changes {
+            // Iterate over each change we got from the server. We expect that
+            // the server has ordered these changes in chronological order. This
+            // means if, for a same given EWS ID, a message was created, then
+            // deleted, then created again (which isn't really something that
+            // should happen anywhere outside of our tests), it should be
+            // represented in the response as a `Create`, then a `Delete`, then
+            // another `Create`, in that order.
+            for change in message.changes.inner.into_iter() {
                 match change {
                     sync_folder_items::Change::Create { item } => {
                         let item_id = &item
