@@ -59,7 +59,7 @@ const getCommonFiles = async () => {
               }
               if (log.id && log.id != tabId) {
                 browser.test.fail(
-                  "Should not receive update events for multiple tabs"
+                  `Should not receive update events for multiple tabs (${log.id} & ${tabId})`
                 );
               }
               log.id = tabId;
