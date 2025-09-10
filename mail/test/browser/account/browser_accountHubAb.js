@@ -353,11 +353,11 @@ add_task(async function test_address_book_sync_account() {
   const booksList = addressBookDocument.getElementById("books");
 
   const index = booksList.getIndexForUID(addressBookDirectory.UID);
-  Assert.equal(
-    booksList.selectedIndex,
-    index,
-    "The new address book should be selected"
+  await BrowserTestUtils.waitForCondition(
+    () => booksList.selectedIndex == index,
+    `Waiting for the new address book at index ${index} to be selected`
   );
+
   Assert.equal(
     addressBookDocument.activeElement.id,
     "searchInput",
@@ -504,11 +504,11 @@ add_task(async function test_localAddressBookCreation() {
   );
 
   const index = booksList.getIndexForUID(addressBookDirectory.UID);
-  Assert.equal(
-    booksList.selectedIndex,
-    index,
-    "Correct address book should be selected"
+  await BrowserTestUtils.waitForCondition(
+    () => booksList.selectedIndex == index,
+    `Waiting for the correct address book at index ${index} to be selected`
   );
+
   Assert.equal(
     tabmail.currentTabInfo.browser.contentDocument.activeElement.id,
     "searchInput",
