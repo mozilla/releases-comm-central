@@ -56,6 +56,27 @@ add_task(function () {
   // but actually stored in the 'tags' column in 'messages'.
   addedMessage.setStringProperty("keywords", "foo bar");
 
+  Assert.equal(
+    messageDB.getMessageProperty(1, "storeToken"),
+    "0",
+    "message property value should be available to JS"
+  );
+  Assert.equal(
+    messageDB.getMessageProperty(1, "messageSize"),
+    "303",
+    "message property value should be available to JS"
+  );
+  Assert.equal(
+    messageDB.getMessageProperty(1, "nothing"),
+    "",
+    "missing message property should be an empty string to JS"
+  );
+  Assert.equal(
+    messageDB.getMessageProperty(2, "storeToken"),
+    "",
+    "message property on non-existent should be an empty string to JS"
+  );
+
   // Check that we saved everything in the database.
 
   let stmt = database.connectionForTests.createStatement(

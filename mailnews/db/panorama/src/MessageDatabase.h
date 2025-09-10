@@ -60,8 +60,6 @@ class MessageDatabase : public nsIMessageDatabase {
   nsresult GetMessageFolderId(nsMsgKey key, uint64_t& folderId);
   nsresult GetMessagePropertyNames(nsMsgKey key, nsTArray<nsCString>& names);
   nsresult GetMessageProperty(nsMsgKey key, const nsACString& name,
-                              nsACString& value);
-  nsresult GetMessageProperty(nsMsgKey key, const nsACString& name,
                               uint32_t& value);
 
   nsresult GetMessageThreadId(nsMsgKey key, nsMsgKey& threadId);

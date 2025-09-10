@@ -39,6 +39,11 @@ interface nsIMessageDatabase : nsISupports {
   void removeMessage(in nsMsgKey id);
 
   /**
+   * Get any message property from the message_properties table.
+   */
+  AUTF8String getMessageProperty(in nsMsgKey id, in AUTF8String name);
+
+  /**
    * Add or remove a message listener (as defined in MessageDatabase.h).
    * Not available to JS code as it's intended that we only use Live Views
    * there. This could change!

@@ -552,9 +552,9 @@ nsresult MessageDatabase::GetMessagePropertyNames(nsMsgKey key,
   return NS_OK;
 }
 
-nsresult MessageDatabase::GetMessageProperty(nsMsgKey aKey,
-                                             const nsACString& aName,
-                                             nsACString& aValue) {
+NS_IMETHODIMP MessageDatabase::GetMessageProperty(nsMsgKey aKey,
+                                                  const nsACString& aName,
+                                                  nsACString& aValue) {
   MOZ_ASSERT(!aName.EqualsLiteral("keywords"));  // Use GetMessageTags().
 
   // TODO: might want to cache selected properties.
