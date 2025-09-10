@@ -155,19 +155,30 @@ NS_IMETHODIMP EwsService::StreamMessage(
   nsCOMPtr<nsIURI> channelURI;
   MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
 
-  // If we need to convert the message's data, update the URI's query
-  // accordingly. We _could_ set up the stream converter here instead, but we
-  // already have a code path for data conversion in the channel (so we can
-  // display attachments like images or PDFs), so we might as well use it here.
-  if (aConvertData) {
+  // If there's any modifications needed to the URI's query, do so here.
+  if (aConvertData || !aAdditionalHeader.IsEmpty()) {
     nsCString query;
     MOZ_TRY(channelURI->GetQuery(query));
 
-    if (!query.IsEmpty()) {
-      query.AppendLiteral("&");
+    if (!aAdditionalHeader.IsEmpty()) {
+      if (!query.IsEmpty()) {
+        query.AppendLiteral("&");
+      }
+      query.AppendLiteral("header=");
+      query.Append(aAdditionalHeader);
     }
 
-    query.AppendLiteral("convert=true");
+    // If we need to convert the message's data, update the URI's query
+    // accordingly. We _could_ set up the stream converter here instead, but we
+    // already have a code path for data conversion in the channel (so we can
+    // display attachments like images or PDFs), so we might as well use it
+    // here.
+    if (aConvertData) {
+      if (!query.IsEmpty()) {
+        query.AppendLiteral("&");
+      }
+      query.AppendLiteral("convert=true");
+    }
 
     nsresult rv = NS_MutateURI(channelURI)
                       .SetQuery(query)
