@@ -118,7 +118,7 @@ class AddressBookSync extends AccountHubStep {
     }
   }
 
-  async #updateSelectAll() {
+  #updateSelectAll() {
     const allSelected =
       this.counter.addressBooks === this.#availableAddressBooks.length;
 
@@ -138,7 +138,7 @@ class AddressBookSync extends AccountHubStep {
   /**
    * Sets the list address books ready to be synced.
    *
-   * @param {Array} addressBooks - The sync accounts for the user.
+   * @param {object[]} addressBooks - The address books ready to be synced.
    */
   setState(addressBooks) {
     this.resetState();
@@ -160,7 +160,7 @@ class AddressBookSync extends AccountHubStep {
   /**
    * Returns the selected address books.
    *
-   * @returns {Array} The address books selected.
+   * @returns {object[]} The address books selected.
    */
   captureState() {
     const checkedAddressBookUrls = Array.from(

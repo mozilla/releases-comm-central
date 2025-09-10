@@ -41,7 +41,7 @@ add_setup(async function () {
   });
 });
 
-add_task(function test_setState() {
+add_task(async function test_setState() {
   abSyncSubview.setState(addressBooks);
 
   Assert.equal(
@@ -100,7 +100,7 @@ add_task(function test_setState() {
   abSyncSubview.resetState();
 });
 
-add_task(function test_resetState() {
+add_task(async function test_resetState() {
   abSyncSubview.setState(addressBooks);
   Assert.equal(
     abSyncSubview.querySelectorAll("#addressBookAccountsContainer input")
@@ -196,26 +196,35 @@ add_task(async function test_inputChangeAndToggleAll() {
   const addressBookInput = abSyncSubview.querySelector(
     "#addressBookAccountsContainer input"
   );
-  const selectAllInput = abSyncSubview.querySelector("#selectAllAddressBooks");
-  Assert.ok(selectAllInput.checked, "Select all input should be checked");
+  const selectAllAddressBooks = abSyncSubview.querySelector(
+    "#selectAllAddressBooks"
+  );
   Assert.ok(
-    !selectAllInput.indeterminate,
+    selectAllAddressBooks.checked,
+    "Select all input should be checked"
+  );
+  Assert.ok(
+    !selectAllAddressBooks.indeterminate,
     "Select all input should not be indeterminate"
   );
 
-  const checkEvent = BrowserTestUtils.waitForEvent(
-    addressBookInput,
-    "change",
-    false,
-    event => !event.target.checked
+  await BrowserTestUtils.waitForCondition(
+    () => !addressBookInput.disabled && addressBookInput.offsetParent,
+    "Checkbox should be visible and enabled before clicking"
   );
+
+  addressBookInput.focus();
 
   EventUtils.synthesizeMouseAtCenter(
     addressBookInput,
     {},
     abSyncSubview.ownerGlobal
   );
-  await checkEvent;
+  await BrowserTestUtils.waitForMutationCondition(
+    addressBookInput,
+    { attributes: true },
+    () => !addressBookInput.checked
+  );
 
   const selectAllAddressBooksLabel = abSyncSubview.querySelector(
     `[for="selectAllAddressBooks"] span`
@@ -227,9 +236,12 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Address book select toggle should be select all"
   );
 
-  Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
   Assert.ok(
-    selectAllInput.indeterminate,
+    !selectAllAddressBooks.checked,
+    "Select all input should not be checked"
+  );
+  Assert.ok(
+    selectAllAddressBooks.indeterminate,
     "Select all input should be indeterminate"
   );
 
@@ -274,9 +286,12 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Address books count should update"
   );
 
-  Assert.ok(selectAllInput.checked, "Select all input should be checked");
   Assert.ok(
-    !selectAllInput.indeterminate,
+    selectAllAddressBooks.checked,
+    "Select all input should be checked"
+  );
+  Assert.ok(
+    !selectAllAddressBooks.indeterminate,
     "Select all input should not be indeterminate"
   );
 
@@ -287,9 +302,9 @@ add_task(async function test_inputChangeAndToggleAll() {
   );
 
   await BrowserTestUtils.waitForMutationCondition(
-    selectAllInput,
+    selectAllAddressBooks,
     { attributes: true },
-    () => !selectAllInput.checked
+    () => !selectAllAddressBooks.checked
   );
 
   Assert.equal(
@@ -298,9 +313,12 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Address book select toggle should be select all"
   );
 
-  Assert.ok(!selectAllInput.checked, "Select all input should not be checked");
   Assert.ok(
-    !selectAllInput.indeterminate,
+    !selectAllAddressBooks.checked,
+    "Select all input should not be checked"
+  );
+  Assert.ok(
+    !selectAllAddressBooks.indeterminate,
     "Select all input should not be indeterminate"
   );
 
