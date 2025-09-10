@@ -77,11 +77,11 @@ add_task(async function () {
   Assert.equal(trashFolder.localizedName, "Trash");
   Assert.equal(trashFolder.msgDatabase.dBFolderInfo.folderName, "");
 
-  const SpamFolder = rootFolder.getChildNamed("Spam");
-  Assert.ok(SpamFolder.flags & Ci.nsMsgFolderFlags.Junk);
-  Assert.equal(SpamFolder.name, "Spam");
-  Assert.equal(SpamFolder.localizedName, "Spam");
-  Assert.equal(SpamFolder.msgDatabase.dBFolderInfo.folderName, "");
+  const junkFolder = rootFolder.getChildNamed("Spam");
+  Assert.ok(junkFolder.flags & Ci.nsMsgFolderFlags.Junk);
+  Assert.equal(junkFolder.name, "Spam");
+  Assert.equal(junkFolder.localizedName, "Spam");
+  Assert.equal(junkFolder.msgDatabase.dBFolderInfo.folderName, "");
 
   const archivesFolder = rootFolder.getChildNamed("Archives");
   Assert.ok(archivesFolder.flags & Ci.nsMsgFolderFlags.Archive);

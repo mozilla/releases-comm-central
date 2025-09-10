@@ -527,7 +527,7 @@ add_task(async function test_real_folder_mail_views_custom_not_junk() {
   // open, see non-junk messages. #1
   viewWrapper.open(folder);
   await new Promise(resolve => setTimeout(resolve));
-  viewWrapper.setMailView("Not Spam", null);
+  viewWrapper.setMailView("Not Junk", null);
   verify_messages_in_view(setNotJunk, viewWrapper);
 
   // add some more messages, have them be non-junk for now. #2

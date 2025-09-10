@@ -16,7 +16,7 @@ const { VirtualFolderHelper } = ChromeUtils.importESModule(
 );
 
 const servers = ["server", "nntpRoot", "rssRoot"];
-const realFolders = ["plain", "inbox", "spam", "trash", "rssFeed"];
+const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
 const virtualFolders = ["virtual", "virtualFiltered"];
 
 const folderPaneContextData = {
@@ -31,13 +31,13 @@ const folderPaneContextData = {
   "folderPaneContext-new": ["server", "rssRoot", ...realFolders],
   "folderPaneContext-remove": [
     "plain",
-    "spam",
+    "junk",
     ...virtualFolders,
     "nntpGroup",
     "rssFeed",
     "multiselect-plain",
   ],
-  "folderPaneContext-rename": ["plain", "spam", ...virtualFolders, "rssFeed"],
+  "folderPaneContext-rename": ["plain", "junk", ...virtualFolders, "rssFeed"],
   "folderPaneContext-moveMenu": [
     "plain",
     ...virtualFolders,
@@ -61,7 +61,7 @@ const folderPaneContextData = {
   ],
   "folderPaneContext-markNewsgroupAllRead": ["nntpGroup"],
   "folderPaneContext-emptyTrash": ["trash"],
-  "folderPaneContext-emptyJunk": ["spam"],
+  "folderPaneContext-emptyJunk": ["junk"],
   "folderPaneContext-sendUnsentMessages": [],
   "folderPaneContext-favoriteFolder": [
     ...realFolders,
@@ -92,7 +92,7 @@ let rootFolder,
   inheritFolder,
   inboxFolder,
   inboxSubfolder,
-  spamFolder,
+  junkFolder,
   trashFolder,
   virtualFolder,
   virtualFilteredFolder;
@@ -138,10 +138,10 @@ add_setup(async function () {
   inboxSubfolder = inboxFolder
     .createLocalSubfolder("folderPaneContextInboxSubfolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  spamFolder = rootFolder
+  junkFolder = rootFolder
     .createLocalSubfolder("folderPaneContextJunk")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  spamFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
+  junkFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
   trashFolder = rootFolder
     .getFolderWithFlags(Ci.nsMsgFolderFlags.Trash)
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -218,8 +218,8 @@ add_task(async function testShownItems() {
   await rightClickOn(plainFolder, "plain");
   leftClickOn(inboxFolder);
   await rightClickOn(inboxFolder, "inbox");
-  leftClickOn(spamFolder);
-  await rightClickOn(spamFolder, "spam");
+  leftClickOn(junkFolder);
+  await rightClickOn(junkFolder, "junk");
   leftClickOn(trashFolder);
   await rightClickOn(trashFolder, "trash");
   leftClickOn(virtualFolder);
@@ -243,7 +243,7 @@ add_task(async function testShownItems() {
   leftClickOn(rootFolder);
   await rightClickOn(plainFolder, "plain");
   await rightClickOn(inboxFolder, "inbox");
-  await rightClickOn(spamFolder, "spam");
+  await rightClickOn(junkFolder, "junk");
   await rightClickOn(trashFolder, "trash");
   await rightClickOn(virtualFolder, "virtual");
   await rightClickOn(rssRootFolder, "rssRoot");
@@ -253,8 +253,8 @@ add_task(async function testShownItems() {
   // Check the menu has the right items when multiple folders are selected.
   leftClickOn(inboxFolder);
   await rightClickOn(inboxFolder, "inbox");
-  leftClickOn(spamFolder, { accelKey: true });
-  await rightClickOn(spamFolder, "multiselect");
+  leftClickOn(junkFolder, { accelKey: true });
+  await rightClickOn(junkFolder, "multiselect");
   leftClickOn(plainFolder);
   leftClickOn(inboxSubfolder, { accelKey: true });
   await rightClickOn(plainFolder, "multiselect-plain");
@@ -829,7 +829,7 @@ add_task(async function testMarkAllRead() {
 });
 
 /**
- * Tests "Empty Trash" and "Empty Spam".
+ * Tests "Empty Trash" and "Empty Junk".
  * Note that this test has several commented-out assertions about the number
  * of messages in the smart trash folder. This folder doesn't get notified
  * properly due to the weird way we empty trash folders.
@@ -841,7 +841,7 @@ add_task(async function testEmpty() {
   const smartTrashFolder = smartServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Trash
   );
-  const smartSpamFolder = smartServer.rootFolder.getFolderWithFlags(
+  const smartJunkFolder = smartServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Junk
   );
 
@@ -853,7 +853,7 @@ add_task(async function testEmpty() {
       .makeMessages({ count: 8 })
       .map(message => message.toMessageString())
   );
-  spamFolder.addMessageBatch(
+  junkFolder.addMessageBatch(
     generator
       .makeMessages({ count: 3 })
       .map(message => message.toMessageString())
@@ -869,24 +869,26 @@ add_task(async function testEmpty() {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await rightClickAndActivate(trashFolder, "folderPaneContext-emptyTrash");
   await promptPromise;
-  await TestUtils.waitForCondition(
-    () => trashFolder.getTotalMessages(false) == 0,
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
     "trash folder should be emptied"
   );
 
-  // Test emptying a real spam folder.
+  // Test emptying a real junk folder.
 
   Assert.equal(
-    spamFolder.getTotalMessages(false),
+    junkFolder.getTotalMessages(false),
     3,
-    "spam folder should have the right message count before emptying"
+    "junk folder should have the right message count before emptying"
   );
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  await rightClickAndActivate(spamFolder, "folderPaneContext-emptyJunk");
+  await rightClickAndActivate(junkFolder, "folderPaneContext-emptyJunk");
   await promptPromise;
-  await TestUtils.waitForCondition(
-    () => spamFolder.getTotalMessages(false) == 0,
-    "spam folder should be emptied"
+  Assert.equal(
+    junkFolder.getTotalMessages(false),
+    0,
+    "junk folder should be emptied"
   );
 
   // Add some new messages to the test folders.
@@ -901,7 +903,7 @@ add_task(async function testEmpty() {
       .makeMessages({ count: 5 })
       .map(message => message.toMessageString())
   );
-  spamFolder.addMessageBatch(
+  junkFolder.addMessageBatch(
     generator
       .makeMessages({ count: 6 })
       .map(message => message.toMessageString())
@@ -928,8 +930,9 @@ add_task(async function testEmpty() {
   //   0,
   //   "smart trash folder should be emptied"
   // );
-  await TestUtils.waitForCondition(
-    () => trashFolder.getTotalMessages(false) == 0,
+  Assert.equal(
+    trashFolder.getTotalMessages(false),
+    0,
     "trash folder should be emptied"
   );
   Assert.equal(
@@ -944,30 +947,31 @@ add_task(async function testEmpty() {
   //   "no rows should be displayed"
   // );
 
-  // Test emptying the smart spam folder. All spam folders should be emptied.
+  // Test emptying the smart junk folder. All junk folders should be emptied.
 
-  leftClickOn(smartSpamFolder);
+  leftClickOn(smartJunkFolder);
   Assert.equal(
-    smartSpamFolder.getTotalMessages(false),
+    smartJunkFolder.getTotalMessages(false),
     6,
-    "smart spam folder should have the right message count before emptying"
+    "smart junk folder should have the right message count before emptying"
   );
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  await rightClickAndActivate(smartSpamFolder, "folderPaneContext-emptyJunk");
+  await rightClickAndActivate(smartJunkFolder, "folderPaneContext-emptyJunk");
   await promptPromise;
   Assert.deepEqual(
-    VirtualFolderHelper.wrapVirtualFolder(smartSpamFolder).searchFolders,
-    [spamFolder],
-    "smart spam folder should still search the real spam folder"
-  );
-  await TestUtils.waitForCondition(
-    () => smartSpamFolder.getTotalMessages(false) == 0,
-    "smart spam folder should be emptied"
+    VirtualFolderHelper.wrapVirtualFolder(smartJunkFolder).searchFolders,
+    [junkFolder],
+    "smart junk folder should still search the real junk folder"
   );
   Assert.equal(
-    spamFolder.getTotalMessages(false),
+    smartJunkFolder.getTotalMessages(false),
     0,
-    "spam folder should be emptied"
+    "smart junk folder should be emptied"
+  );
+  Assert.equal(
+    junkFolder.getTotalMessages(false),
+    0,
+    "junk folder should be emptied"
   );
   Assert.equal(about3Pane.gDBView.rowCount, 0, "view should have no rows");
   Assert.equal(

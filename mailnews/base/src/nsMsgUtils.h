@@ -30,10 +30,6 @@ class nsICancelable;
 class nsIProtocolProxyCallback;
 class nsIMsgSearchTerm;
 
-namespace mozilla::intl {
-class Localization;
-}
-
 #define FILE_IO_BUFFER_SIZE (16 * 1024)
 #define MSGS_URL "chrome://messenger/locale/messenger.properties"
 
@@ -542,18 +538,5 @@ nsString EncodeFilename(nsACString const& str);
  *   DecodeFilename("u"f%6F%6F bar"_ns)  => "foo bar"
  */
 nsCString DecodeFilename(nsAString const& filename);
-
-/**
- * Helper for formatting text with intl::Localization.
- *
- * @param l10n            The intl::Localization object.
- * @param id              The id of the localizable string.
- * @param args            Values to use for placeables in the text.
- * @param [out] message   The localized text.
- */
-nsresult LocalizeMessage(mozilla::intl::Localization* l10n,
-                         nsACString const& id,
-                         nsTArray<std::pair<nsCString, nsCString>> const& args,
-                         nsACString& message);
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_

@@ -4,22 +4,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgMailViewList.h"
+#include "nsArray.h"
 #include "nsIMsgFilterService.h"
-#include "nsIMsgFilter.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsMsgUtils.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsIFile.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Components.h"
-#include "mozilla/intl/Localization.h"
+#include "nsIMsgFilter.h"
 
 #define kDefaultViewPeopleIKnow "People I Know"
 #define kDefaultViewRecent "Recent Mail"
 #define kDefaultViewFiveDays "Last 5 Days"
-#define kDefaultViewNotSpam "Not Spam"
+#define kDefaultViewNotJunk "Not Junk"
 #define kDefaultViewHasAttachments "Has Attachments"
 
 nsMsgMailView::nsMsgMailView() {}
@@ -46,31 +45,38 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
   NS_ENSURE_ARG_POINTER(aMailViewName);
 
   nsresult rv = NS_OK;
+  if (!mBundle) {
+    nsCOMPtr<nsIStringBundleService> bundleService =
+        mozilla::components::StringBundle::Service();
+    NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+    bundleService->CreateBundle(
+        "chrome://messenger/locale/mailviews.properties",
+        getter_AddRefs(mBundle));
+  }
 
-  RefPtr<mozilla::intl::Localization> l10n =
-      mozilla::intl::Localization::Create({"messenger/mailViews.ftl"_ns}, true);
+  NS_ENSURE_TRUE(mBundle, NS_ERROR_FAILURE);
 
-  nsAutoCString mailViewName;
+  // see if mName has an associated pretty name inside our string bundle and if
+  // so, use that as the pretty name otherwise just return mName
+  nsAutoString mailViewName;
   if (mName.EqualsLiteral(kDefaultViewPeopleIKnow)) {
-    rv = LocalizeMessage(l10n, "mail-view-known-people"_ns, {}, mailViewName);
+    rv = mBundle->GetStringFromName("mailViewPeopleIKnow", mailViewName);
     *aMailViewName = ToNewUnicode(mailViewName);
   } else if (mName.EqualsLiteral(kDefaultViewRecent)) {
-    rv = LocalizeMessage(l10n, "mail-view-recent"_ns, {}, mailViewName);
+    rv = mBundle->GetStringFromName("mailViewRecentMail", mailViewName);
     *aMailViewName = ToNewUnicode(mailViewName);
   } else if (mName.EqualsLiteral(kDefaultViewFiveDays)) {
-    rv = LocalizeMessage(l10n, "mail-view-last-five-days"_ns, {}, mailViewName);
+    rv = mBundle->GetStringFromName("mailViewLastFiveDays", mailViewName);
     *aMailViewName = ToNewUnicode(mailViewName);
-  } else if (mName.EqualsLiteral(kDefaultViewNotSpam)) {
-    rv = LocalizeMessage(l10n, "mail-view-not-spam"_ns, {}, mailViewName);
+  } else if (mName.EqualsLiteral(kDefaultViewNotJunk)) {
+    rv = mBundle->GetStringFromName("mailViewNotJunk", mailViewName);
     *aMailViewName = ToNewUnicode(mailViewName);
   } else if (mName.EqualsLiteral(kDefaultViewHasAttachments)) {
-    rv =
-        LocalizeMessage(l10n, "mail-view-has-attachments"_ns, {}, mailViewName);
+    rv = mBundle->GetStringFromName("mailViewHasAttachments", mailViewName);
     *aMailViewName = ToNewUnicode(mailViewName);
   } else {
     *aMailViewName = ToNewUnicode(mName);
   }
-  NS_ENSURE_SUCCESS(rv, rv);
 
   return rv;
 }

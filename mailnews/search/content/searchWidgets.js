@@ -725,12 +725,8 @@
       for (const itemData of itemDataList) {
         const item = document.createXULElement("menuitem");
         item.classList.add("search-value-menuitem");
-        if (itemData.l10nID) {
-          document.l10n.setAttributes(item, itemData.l10nID);
-        } else {
-          item.label =
-            itemData.label || bundle.GetStringFromName(itemData.stringId);
-        }
+        item.label =
+          itemData.label || bundle.GetStringFromName(itemData.stringId);
         item.value = itemData.value;
         menupopup.appendChild(item);
       }
@@ -826,10 +822,7 @@
           case "junk-status":
             // "Junk Status is/isn't/is empty/isn't empty 'Junk'".
             input = this.constructor._createMenulist([
-              {
-                value: Ci.nsIJunkMailPlugin.JUNK,
-                l10nID: "menuitem-label-spam",
-              },
+              { stringId: "junk", value: Ci.nsIJunkMailPlugin.JUNK },
             ]);
             break;
           case "attachment-status":

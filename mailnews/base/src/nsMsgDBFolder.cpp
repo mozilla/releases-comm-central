@@ -59,7 +59,6 @@
 #include "nsPrintfCString.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/LocaleService.h"
-#include "mozilla/intl/Localization.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -2517,16 +2516,9 @@ nsresult nsMsgDBFolder::initializeStrings() {
   bundle->GetStringFromName("sentFolderName", kLocalizedSentName);
   bundle->GetStringFromName("draftsFolderName", kLocalizedDraftsName);
   bundle->GetStringFromName("templatesFolderName", kLocalizedTemplatesName);
+  bundle->GetStringFromName("junkFolderName", kLocalizedJunkName);
   bundle->GetStringFromName("outboxFolderName", kLocalizedUnsentName);
   bundle->GetStringFromName("archivesFolderName", kLocalizedArchivesName);
-
-  RefPtr<mozilla::intl::Localization> l10n =
-      mozilla::intl::Localization::Create({"messenger/messenger.ftl"_ns}, true);
-  nsAutoCString localizedSpamName;
-  rv = LocalizeMessage(l10n, "folder-name-spam"_ns, {}, localizedSpamName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  kLocalizedJunkName = NS_ConvertUTF8toUTF16(localizedSpamName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties",
