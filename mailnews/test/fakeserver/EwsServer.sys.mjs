@@ -486,7 +486,7 @@ export class EwsServer {
    * @param {string} [options.hostname]
    * @param {integer} [options.port]
    * @param {nsIX509Cert} [options.tlsCert]
-   * @param {string} [options.version]
+   * @param {string} [options.version="Exchange2013"]
    * @param {string} [options.username="user"]
    * @param {string} [options.password="password"]
    */

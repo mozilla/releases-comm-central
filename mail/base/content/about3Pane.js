@@ -3621,20 +3621,27 @@ var folderPane = {
 
     folder.msgDatabase.summaryValid = false;
     try {
-      const isIMAP = folder.server.type == "imap";
       let transferInfo = null;
-      if (isIMAP) {
-        transferInfo = folder.dBTransferInfo.QueryInterface(
-          Ci.nsIWritablePropertyBag2
-        );
-        transferInfo.setPropertyAsACString("numMsgs", "0");
-        transferInfo.setPropertyAsACString("numNewMsgs", "0");
-        // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
-        // will recognize that a folder repair is in progress.
-        transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
+      switch (folder.server.type) {
+        case "imap":
+          transferInfo = folder.dBTransferInfo.QueryInterface(
+            Ci.nsIWritablePropertyBag2
+          );
+          transferInfo.setPropertyAsACString("numMsgs", "0");
+          transferInfo.setPropertyAsACString("numNewMsgs", "0");
+          // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
+          // will recognize that a folder repair is in progress.
+          transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
+          break;
+        case "ews":
+          // Reset the sync state token so that the next sync will download the
+          // message list again.
+          folder.setStringProperty("ewsSyncStateToken", "");
+          break;
       }
+
       folder.closeAndBackupFolderDB("");
-      if (isIMAP && transferInfo) {
+      if (folder.server.type == "imap" && transferInfo) {
         folder.dBTransferInfo = transferInfo;
       }
     } catch (e) {
