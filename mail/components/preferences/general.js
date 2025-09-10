@@ -2180,7 +2180,9 @@ var gGeneralPane = {
   destroy() {
     window.removeEventListener("unload", this);
 
-    Services.obs.removeObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+    if (AppConstants.MOZ_UPDATER) {
+      Services.obs.removeObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+    }
     Services.prefs.removeObserver("mailnews.tags.", this);
   },
 
