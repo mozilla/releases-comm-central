@@ -1301,6 +1301,29 @@
             elements[0].hidden = true;
           }
         }
+
+        // Disable "Copy Message to" filter action for "Getting New Mail" with
+        // "Filter before Junk Classification" in newsgroups, enable otherwise.
+        if (scope == Ci.nsMsgSearchScope.newsFilter) {
+          const filterBeforeJunkClassification =
+            gFilterType & Ci.nsMsgFilterType.NewsRule &&
+            !(gFilterType & Ci.nsMsgFilterType.PostPlugin);
+          const [actionItem] = menupopup.getElementsByAttribute(
+            "value",
+            "copymessage"
+          );
+          if (actionItem) {
+            actionItem.hidden = filterBeforeJunkClassification;
+            if (actionItem.selected) {
+              this.disabled = filterBeforeJunkClassification;
+              const [actionTargetItem] =
+                this.parentElement.getElementsByClassName("ruleactionitem");
+              if (actionTargetItem) {
+                actionTargetItem.disabled = filterBeforeJunkClassification;
+              }
+            }
+          }
+        }
       }
 
       addCustomActions() {
@@ -1654,6 +1677,18 @@
       switch (filterActionString) {
         case "movemessage":
         case "copymessage": {
+          // "Copy Message to" filter action for "Getting New Mail" with
+          // "Filter before Junk Classification" is not supported for
+          // newsgroups.
+          if (
+            gFilterType & Ci.nsMsgFilterType.NewsRule &&
+            !(gFilterType & Ci.nsMsgFilterType.PostPlugin)
+          ) {
+            // TODO: This should be replaced by a more concise error message
+            // when migrating to Fluent.
+            errorString = "filterFailureAction";
+            break;
+          }
           const msgFolder = actionTargetLabel
             ? MailUtils.getOrCreateFolder(actionTargetLabel)
             : null;

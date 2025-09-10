@@ -295,6 +295,7 @@ export class NntpNewsGroup {
           this,
           this._msgWindow
         );
+        this._folderFilterList.flushLogIfNecessary();
       }
       if (serverFilterCount) {
         this._serverFilterList.applyFiltersToHdr(
@@ -306,6 +307,7 @@ export class NntpNewsGroup {
           this,
           this._msgWindow
         );
+        this._serverFilterList.flushLogIfNecessary();
       }
       if (this._addHdrToDB && !this._db.containsKey(msgHdr.messageKey)) {
         if (this._readKeySet.has(msgHdr.messageKey)) {
@@ -331,9 +333,6 @@ export class NntpNewsGroup {
     let applyMore = true;
 
     for (const action of filter.sortedActionList) {
-      if (loggingEnabled) {
-        filter.logRuleHit(action, this._filteringHdr);
-      }
       switch (action.type) {
         case Ci.nsMsgFilterAction.Delete:
           this._addHdrToDB = false;
@@ -381,10 +380,18 @@ export class NntpNewsGroup {
           );
           break;
         default:
-          throw Components.Exception(
-            `Unexpected filter action type=${action.type}`,
-            Cr.NS_ERROR_UNEXPECTED
-          );
+          if (loggingEnabled) {
+            filter.logRuleHitFail(
+              action,
+              this._filteringHdr,
+              Cr.NS_ERROR_UNEXPECTED,
+              `Unexpected filter action type=${action.type}`
+            );
+          }
+          applyMore = false;
+      }
+      if (loggingEnabled && applyMore) {
+        filter.logRuleHit(action, this._filteringHdr);
       }
     }
     return applyMore;
