@@ -655,7 +655,7 @@ add_task(async function testEveryThingOK() {
       .textContent,
     "CardDAV Test"
   );
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => abWindow.booksList.selectedIndex == 2,
     "Waiting for the new address book at index 2 to get selected"
   );
@@ -729,7 +729,7 @@ add_task(async function testEveryThingOKAgain() {
       .textContent,
     "Not This One"
   );
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => abWindow.booksList.selectedIndex == 3,
     "Waiting for the new address book at index 3 to get selected"
   );
@@ -807,7 +807,7 @@ add_task(async function testNoSavePassword() {
       .textContent,
     "CardDAV Test"
   );
-  await BrowserTestUtils.waitForCondition(
+  await TestUtils.waitForCondition(
     () => abWindow.booksList.selectedIndex == 2,
     "Waiting for the new address book at index 2 to get selected"
   );
