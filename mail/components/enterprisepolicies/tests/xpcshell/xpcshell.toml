@@ -12,6 +12,8 @@ head = "head.js"
 
 ["test_clear_blocked_cookies.js"]
 
+["test_import_enterprise_roots.js"]
+
 ["test_macosparser_unflatten.js"]
 skip-if = ["os != 'mac'"]
 
