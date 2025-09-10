@@ -655,7 +655,10 @@ add_task(async function testEveryThingOK() {
       .textContent,
     "CardDAV Test"
   );
-  Assert.equal(abWindow.booksList.selectedIndex, 2, "new book got selected");
+  await BrowserTestUtils.waitForCondition(
+    () => abWindow.booksList.selectedIndex == 2,
+    "Waiting for the new address book at index 2 to get selected"
+  );
 
   await closeAddressBookWindow();
 
@@ -726,7 +729,10 @@ add_task(async function testEveryThingOKAgain() {
       .textContent,
     "Not This One"
   );
-  Assert.equal(abWindow.booksList.selectedIndex, 3, "new book got selected");
+  await BrowserTestUtils.waitForCondition(
+    () => abWindow.booksList.selectedIndex == 3,
+    "Waiting for the new address book at index 3 to get selected"
+  );
 
   await closeAddressBookWindow();
   await CardDAVServer.close();
@@ -801,7 +807,10 @@ add_task(async function testNoSavePassword() {
       .textContent,
     "CardDAV Test"
   );
-  Assert.equal(abWindow.booksList.selectedIndex, 2, "new book got selected");
+  await BrowserTestUtils.waitForCondition(
+    () => abWindow.booksList.selectedIndex == 2,
+    "Waiting for the new address book at index 2 to get selected"
+  );
 
   await closeAddressBookWindow();
 
