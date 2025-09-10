@@ -80,28 +80,23 @@
           `
           <menuitem class="percent-0-menuitem"
                     type="checkbox"
-                    label="&progress.level.0;"
-                    accesskey="&progress.level.0.accesskey;"
+                    data-l10n-id="calendar-progress-level-0"
                     command="calendar_percentComplete-0_command"/>
           <menuitem class="percent-25-menuitem"
                     type="checkbox"
-                    label="&progress.level.25;"
-                    accesskey="&progress.level.25.accesskey;"
+                    data-l10n-id="calendar-progress-level-25"
                     command="calendar_percentComplete-25_command"/>
           <menuitem class="percent-50-menuitem"
                     type="checkbox"
-                    label="&progress.level.50;"
-                    accesskey="&progress.level.50.accesskey;"
+                    data-l10n-id="calendar-progress-level-50"
                     command="calendar_percentComplete-50_command"/>
           <menuitem class="percent-75-menuitem"
                     type="checkbox"
-                    label="&progress.level.75;"
-                    accesskey="&progress.level.75.accesskey;"
+                    data-l10n-id="calendar-progress-level-75"
                     command="calendar_percentComplete-75_command"/>
           <menuitem class="percent-100-menuitem"
                     type="checkbox"
-                    label="&progress.level.100;"
-                    accesskey="&progress.level.100.accesskey;"
+                    data-l10n-id="calendar-progress-level-100"
                     command="calendar_percentComplete-100_command"/>
           `,
           ["chrome://calendar/locale/calendar.dtd"]
@@ -139,23 +134,19 @@
           `
           <menuitem class="priority-0-menuitem"
                     type="checkbox"
-                    label="&priority.level.none;"
-                    accesskey="&priority.level.none.accesskey;"
+                    data-l10n-id="calendar-priority-none"
                     command="calendar_priority-0_command"/>
           <menuitem class="priority-9-menuitem"
                     type="checkbox"
-                    label="&priority.level.low;"
-                    accesskey="&priority.level.low.accesskey;"
+                    data-l10n-id="calendar-priority-low"
                     command="calendar_priority-9_command"/>
           <menuitem class="priority-5-menuitem"
                     type="checkbox"
-                    label="&priority.level.normal;"
-                    accesskey="&priority.level.normal.accesskey;"
+                    data-l10n-id="calendar-priority-normal"
                     command="calendar_priority-5_command"/>
           <menuitem class="priority-1-menuitem"
                     type="checkbox"
-                    label="&priority.level.high;"
-                    accesskey="&priority.level.high.accesskey;"
+                    data-l10n-id="calendar-priority-high"
                     command="calendar_priority-1_command"/>
           `,
           ["chrome://calendar/locale/calendar.dtd"]

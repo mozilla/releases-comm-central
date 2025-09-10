@@ -41,21 +41,21 @@
           <checkbox id="task-tree-filter-header"
                            checked="true"
                            class="treenode-checkbox"
-                           label="&calendar.task.filter.title.label;"/>
+                           data-l10n-id="calendar-task-filter-title"/>
           <calendar-modevbox id="task-filtertree-pane"
                              flex="1"
                              mode="task"
                              refcontrol="task-tree-filter-header">
             <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
                         persist="value">
-              <radio id="opt_throughcurrent_filter" label="&calendar.task.filter.current.label;" value="throughcurrent" command="calendar_task_filter_command"/>
-              <radio id="opt_today_filter" label="&calendar.task.filter.today.label;" value="throughtoday" command="calendar_task_filter_command"/>
-              <radio id="opt_next7days_filter" label="&calendar.task.filter.next7days.label;" value="throughsevendays" command="calendar_task_filter_command"/>
-              <radio id="opt_notstarted_filter" label="&calendar.task.filter.notstarted.label;" value="notstarted" command="calendar_task_filter_command"/>
-              <radio id="opt_overdue_filter" label="&calendar.task.filter.overdue.label;" value="overdue" command="calendar_task_filter_command"/>
-              <radio id="opt_completed_filter" label="&calendar.task.filter.completed.label;" value="completed" command="calendar_task_filter_command"/>
-              <radio id="opt_open_filter" label="&calendar.task.filter.open.label;" value="open" command="calendar_task_filter_command"/>
-              <radio id="opt_all_filter" label="&calendar.task.filter.all.label;" value="all" command="calendar_task_filter_command"/>
+              <radio id="opt_throughcurrent_filter" data-l10n-id="calendar-task-filter-current" value="throughcurrent" command="calendar_task_filter_command"/>
+              <radio id="opt_today_filter" data-l10n-id="calendar-task-filter-today" value="throughtoday" command="calendar_task_filter_command"/>
+              <radio id="opt_next7days_filter" data-l10n-id="calendar-task-filter-next7days" value="throughsevendays" command="calendar_task_filter_command"/>
+              <radio id="opt_notstarted_filter" data-l10n-id="calendar-task-filter-notstarted" value="notstarted" command="calendar_task_filter_command"/>
+              <radio id="opt_overdue_filter" data-l10n-id="calendar-task-filter-overdue" value="overdue" command="calendar_task_filter_command"/>
+              <radio id="opt_completed_filter" data-l10n-id="calendar-task-filter-completed" value="completed" command="calendar_task_filter_command"/>
+              <radio id="opt_open_filter" data-l10n-id="calendar-task-filter-open" value="open" command="calendar_task_filter_command"/>
+              <radio id="opt_all_filter" data-l10n-id="calendar-task-filter-all" value="all" command="calendar_task_filter_command"/>
             </radiogroup>
           </calendar-modevbox>
         </calendar-modevbox>
@@ -373,9 +373,8 @@
                         id="task-text-filter-field"
                         class="themeableSearchBox"
                         placeholder=""
-                        emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
-                        keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
-                        keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
+                        data-l10n-id="calendar-task-text-filter-field"
+                        data-l10n-attrs="emptytextbase keylabelnonmac keylabelmac"
                         oninput="taskViewUpdate();"/>
           </box>
         </hbox>
@@ -418,8 +417,8 @@
                     </toolbarbutton>
                     <toolbarbutton is="toolbarbutton-menu-button" id="task-actions-markcompleted"
                                    type="menu"
-                                   data-l10n-id="calendar-context-mark-completed"
-                                   tooltiptext="&calendar.task.complete.button.tooltip;"
+                                   data-l10n-id="calendar-task-mark-completed"
+                                   data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_toggle_completed_command"
                                    class="toolbarbutton-1 message-header-view-button">
                       <menupopup is="calendar-task-progress-menupopup" id="task-actions-markcompleted-menupopup"/>
@@ -427,8 +426,8 @@
                     <toolbarbutton id="task-actions-priority"
                                    type="menu"
                                    wantdropmarker="true"
-                                   data-l10n-id="calendar-context-priority"
-                                   tooltiptext="&calendar.task.priority.button.tooltip;"
+                                   data-l10n-id="calendar-task-change-priority"
+                                   data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_general-priority_command"
                                    class="toolbarbutton-1 message-header-view-button">
                       <menupopup is="calendar-task-priority-menupopup" id="task-actions-priority-menupopup"/>
@@ -444,9 +443,7 @@
                 <html:table id="calendar-task-details-grid">
                   <html:tr id="calendar-task-details-title-row"
                            hidden="hidden">
-                    <html:th class="task-details-name">
-                      &calendar.task-details.title.label;
-                    </html:th>
+                    <html:th class="task-details-name" data-l10n-id="calendar-task-details-title"/>
                     <html:td id="calendar-task-details-title"
                              class="task-details-value">
                     </html:td>
@@ -454,29 +451,28 @@
                   <html:tr id="calendar-task-details-priority-row"
                            hidden="hidden">
                     <html:th id="calendar-task-details-priority-label"
-                             class="task-details-name">
-                      &calendar.task-details.priority.label;
-                    </html:th>
+                             class="task-details-name" data-l10n-id="calendar-task-details-priority"/>
                     <html:td id="calendar-task-details-priority-td">
                       <label id="calendar-task-details-priority-low"
-                             value="&calendar.task-details.priority.low.label;"
+                             data-l10n-id="calendar-task-details-priority-low"
+                             data-l10n-attrs="value"
                              class="task-details-value"
                              hidden="true"/>
                       <label id="calendar-task-details-priority-normal"
-                             value="&calendar.task-details.priority.normal.label;"
+                             data-l10n-id="calendar-task-details-priority-normal"
+                             data-l10n-attrs="value"
                              class="task-details-value"
                              hidden="true"/>
                       <label id="calendar-task-details-priority-high"
-                             value="&calendar.task-details.priority.high.label;"
+                             data-l10n-id="calendar-task-details-priority-high"
+                             data-l10n-attrs="value"
                              class="task-details-value"
                              hidden="true"/>
                     </html:td>
                   </html:tr>
                   <html:tr id="calendar-task-details-organizer-row"
                            hidden="hidden">
-                    <html:th class="task-details-name">
-                      &calendar.task-details.organizer.label;
-                    </html:th>
+                    <html:th class="task-details-name" data-l10n-id="calendar-task-details-organizer"/>
                     <html:td id="calendar-task-details-organizer"
                              class="task-details-value text-link"
                              onclick="sendMailToOrganizer()">
@@ -484,18 +480,14 @@
                   </html:tr>
                   <html:tr id="calendar-task-details-status-row"
                            hidden="hidden">
-                    <html:th class="task-details-name">
-                      &calendar.task-details.status.label;
-                    </html:th>
+                    <html:th class="task-details-name" data-l10n-id="calendar-task-details-status"/>
                     <html:td id="calendar-task-details-status"
                              class="task-details-value">
                     </html:td>
                   </html:tr>
                   <html:tr id="calendar-task-details-category-row"
                            hidden="hidden">
-                    <html:th class="task-details-name">
-                      &calendar.task-details.category.label;
-                    </html:th>
+                    <html:th class="task-details-name" data-l10n-id="calendar-task-details-category"/>
                     <html:td id="calendar-task-details-category"
                              class="task-details-value">
                     </html:td>
@@ -503,26 +495,20 @@
                   <html:tr id="task-start-row"
                            class="item-date-row"
                            hidden="hidden">
-                    <html:th class="headline">
-                      &calendar.task-details.start.label;
-                    </html:th>
+                    <html:th class="headline" data-l10n-id="calendar-task-details-start"/>
                     <html:td id="task-start-date">
                     </html:td>
                   </html:tr>
                   <html:tr id="task-due-row"
                            class="item-date-row"
                            hidden="hidden">
-                    <html:th class="headline">
-                      &calendar.task-details.due.label;
-                    </html:th>
+                    <html:th class="headline" data-l10n-id="calendar-task-details-due"/>
                     <html:td id="task-due-date">
                     </html:td>
                   </html:tr>
                   <html:tr id="calendar-task-details-repeat-row"
                            hidden="hidden">
-                    <html:th class="task-details-name">
-                      &calendar.task-details.repeat.label;
-                    </html:th>
+                    <html:th class="task-details-name" data-l10n-id="calendar-task-details-repeat"/>
                     <html:td id="calendar-task-details-repeat"
                              class="task-details-value">
                     </html:td>
@@ -537,7 +523,7 @@
                   align="start"
                   hidden="true">
               <hbox pack="end">
-                <label value="&calendar.task-details.attachments.label;"
+                <label data-l10n-id="calendar-task-details-attachments" data-l10n-attrs="value"
                        class="task-details-name"/>
               </hbox>
               <vbox id="calendar-task-details-attachment-rows"

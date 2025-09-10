@@ -506,7 +506,7 @@
               command="cmd_paste"/>
     <menuseparator id="calendar-menuseparator-beforemarkcompleted"/>
     <menuitem id="calendar-context-markcompleted"
-              data-l10n-id="calendar-context-mark-completed"
+              data-l10n-id="calendar-task-mark-completed"
               command="calendar_toggle_completed_command"/>
     <menu id="task-context-menu-progress"
           data-l10n-id="calendar-context-progress"
@@ -514,7 +514,7 @@
       <menupopup is="calendar-task-progress-menupopup"/>
     </menu>
     <menu id="task-context-menu-priority"
-          data-l10n-id="calendar-context-priority"
+          data-l10n-id="calendar-task-change-priority"
           command="calendar_general-priority_command">
       <menupopup is="calendar-task-priority-menupopup"/>
     </menu>
@@ -784,58 +784,49 @@
     </menu>
     <menuseparator id="task-context-menu-separator-filter"/>
     <menu id="task-context-menu-filter-todaypane"
-          label="&calendar.tasks.view.filtertasks.label;"
-          accesskey="&calendar.tasks.view.filtertasks.accesskey;">
+          data-l10n-id="calendar-tasks-view-filtertasks">
       <menupopup id="task-context-menu-filter-todaypane-popup"
                  oncommand="TodayPane.updateCalendarToDoUnifinder(event.target.getAttribute('value'))">
         <menuitem id="task-context-menu-filter-todaypane-current"
                   name="filtergrouptodaypane"
                   value="throughcurrent"
                   type="radio"
-                  label="&calendar.task.filter.current.label;"
-                  accesskey="&calendar.task.filter.current.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-current"/>
         <menuitem id="task-context-menu-filter-todaypane-today"
                   name="filtergrouptodaypane"
                   value="throughtoday"
                   type="radio"
-                  label="&calendar.task.filter.today.label;"
-                  accesskey="&calendar.task.filter.today.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-today"/>
         <menuitem id="task-context-menu-filter-todaypane-next7days"
                   name="filtergrouptodaypane"
                   value="throughsevendays"
                   type="radio"
-                  label="&calendar.task.filter.next7days.label;"
-                  accesskey="&calendar.task.filter.next7days.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-next7days"/>
         <menuitem id="task-context-menu-filter-todaypane-notstarted"
                   name="filtergrouptodaypane"
                   value="notstarted"
                   type="radio"
-                  label="&calendar.task.filter.notstarted.label;"
-                  accesskey="&calendar.task.filter.notstarted.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-notstarted"/>
         <menuitem id="task-context-menu-filter-todaypane-overdue"
                   name="filtergrouptodaypane"
                   value="overdue"
                   type="radio"
-                  label="&calendar.task.filter.overdue.label;"
-                  accesskey="&calendar.task.filter.overdue.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-overdue"/>
         <menuitem id="task-context-menu-filter-todaypane-completed"
                   name="filtergrouptodaypane"
                   type="radio"
                   value="completed"
-                  label="&calendar.task.filter.completed.label;"
-                  accesskey="&calendar.task.filter.completed.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-completed"/>
         <menuitem id="task-context-menu-filter-todaypane-open"
                   name="filtergrouptodaypane"
                   type="radio"
                   value="open"
-                  label="&calendar.task.filter.open.label;"
-                  accesskey="&calendar.task.filter.open.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-open"/>
         <menuitem id="task-context-menu-filter-todaypane-all"
                   name="filtergrouptodaypane"
                   value="all"
                   type="radio"
-                  label="&calendar.task.filter.all.label;"
-                  accesskey="&calendar.task.filter.all.accesskey;"/>
+                  data-l10n-id="calendar-task-filter-all"/>
       </menupopup>
     </menu>
   </menupopup>
@@ -844,8 +835,7 @@
   <menupopup id="taskview-link-context-menu"
              class="no-icon-menupopup">
     <menuitem id="taskview-link-context-menu-copy"
-              label="&calendar.copylink.label;"
-              accesskey="&calendar.copylink.accesskey;"
+              data-l10n-id="calendar-copylink"
               oncommand="taskViewCopyLink(this.parentNode.triggerNode)"/>
   </menupopup>
 

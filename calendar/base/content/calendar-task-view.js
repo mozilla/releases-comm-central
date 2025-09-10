@@ -431,25 +431,25 @@ function sendMailToOrganizer() {
 function taskViewOnLoad() {
   const calendarDisplayBox = document.getElementById("calendarDisplayBox");
   const tree = document.getElementById("calendar-task-tree");
-
   if (calendarDisplayBox && tree) {
     tree.textFilterField = "task-text-filter-field";
+  }
 
-    // setup the platform-dependent placeholder for the text filter field
+  document.l10n.ready.then(() => {
     const textFilter = document.getElementById("task-text-filter-field");
     if (textFilter) {
       const base = textFilter.getAttribute("emptytextbase");
-      const keyLabel = textFilter.getAttribute(
-        AppConstants.platform == "macosx" ? "keyLabelMac" : "keyLabelNonMac"
-      );
+      const keyAttr = AppConstants.platform == "macosx" ? "keylabelmac" : "keylabelnonmac";
+      const keyLabel = textFilter.getAttribute(keyAttr);
 
-      textFilter.setAttribute("placeholder", base.replace("#1", keyLabel));
+      if (base && keyLabel) {
+        textFilter.placeholder = base.replace("#1", keyLabel);
+      }
       textFilter.value = "";
     }
     taskViewUpdate();
-  }
+  });
 
-  // Setup customizeDone handler for the task action toolbox.
   const toolbox = document.getElementById("task-actions-toolbox");
   toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeTaskActionsToolbar");

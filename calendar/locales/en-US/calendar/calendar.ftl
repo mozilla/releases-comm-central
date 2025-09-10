@@ -915,17 +915,9 @@ calendar-context-progress =
     .label = Progress
     .accesskey = P
 
-calendar-context-priority =
-    .label = Priority
-    .accesskey = r
-
 calendar-context-postpone =
     .label = Postpone Task
     .accesskey = s
-
-calendar-context-mark-completed =
-    .label = Mark Completed
-    .accesskey = o
 
 calendar-context-postpone-1hour =
     .label = 1 Hour
@@ -986,3 +978,119 @@ calendar-context-convert-to-message =
 calendar-context-convert-to-task =
     .label = Task…
     .accesskey = T
+
+calendar-task-filter-title = Show
+
+calendar-task-filter-all =
+    .label = All
+    .accesskey = A
+
+calendar-task-filter-today =
+    .label = Today
+    .accesskey = T
+
+calendar-task-filter-next7days =
+    .label = Next Seven Days
+    .accesskey = N
+
+calendar-task-filter-notstarted =
+    .label = Not Started Tasks
+    .accesskey = a
+
+calendar-task-filter-overdue =
+    .label = Overdue Tasks
+    .accesskey = O
+
+calendar-task-filter-completed =
+    .label = Completed Tasks
+    .accesskey = C
+
+calendar-task-filter-open =
+    .label = Incomplete Tasks
+    .accesskey = m
+
+# LOCALIZATION NOTE (calendar-task-filter-current):
+# "Current Tasks" shows all tasks except those starting in the future.
+calendar-task-filter-current =
+    .label = Current Tasks
+    .accesskey = u
+
+calendar-task-details-title = title
+calendar-task-details-organizer = from
+calendar-task-details-priority = priority
+calendar-task-details-priority-low = Low
+calendar-task-details-priority-normal = Normal
+calendar-task-details-priority-high = High
+calendar-task-details-status = status
+calendar-task-details-category = category
+calendar-task-details-repeat = repeat
+calendar-task-details-attachments = attachments
+calendar-task-details-start = start date
+calendar-task-details-due = due date
+
+calendar-task-mark-completed =
+    .label = Mark Completed
+    .accesskey = o
+    .tooltiptext = Mark selected tasks completed
+
+calendar-task-change-priority =
+    .label = Priority
+    .accesskey = r
+    .tooltiptext = Change the priority
+
+calendar-task-text-filter-field =
+    .emptytextbase = Filter tasks #1
+    .keylabelnonmac = <Ctrl+Shift+K>
+    .keylabelmac = <⇧⌘K>
+
+calendar-copylink =
+    .label = Copy Link Location
+    .accesskey = C
+
+calendar-progress-level-0 =
+    .label = 0% Completed
+    .accesskey = 0
+
+calendar-progress-level-25 =
+    .label = 25% Completed
+    .accesskey = 2
+
+calendar-progress-level-50 =
+    .label = 50% Completed
+    .accesskey = 5
+
+calendar-progress-level-75 =
+    .label = 75% Completed
+    .accesskey = 7
+
+calendar-progress-level-100 =
+    .label = 100% Completed
+    .accesskey = 1
+
+calendar-priority-none =
+    .label = Not specified
+    .accesskey = s
+
+calendar-priority-low =
+    .label = Low
+    .accesskey = L
+
+calendar-priority-normal =
+    .label = Normal
+    .accesskey = N
+
+calendar-priority-high =
+    .label = High
+    .accesskey = H
+
+calendar-tasks-view-minimonth =
+    .label = Mini-Month
+    .accesskey = M
+
+calendar-tasks-view-calendarlist =
+    .label = Calendar List
+    .accesskey = L
+
+calendar-tasks-view-filtertasks =
+    .label = Filter Tasks
+    .accesskey = F

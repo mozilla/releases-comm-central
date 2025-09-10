@@ -42,6 +42,7 @@
     />
 
     <link rel="localization" href="toolkit/global/textActions.ftl" />
+    <link rel="localization" href="calendar/calendar.ftl" />
     <link rel="localization" href="calendar/calendar-summary-dialog.ftl" />
     <link rel="localization" href="calendar/calendar-editable-item.ftl" />
     <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
@@ -164,8 +165,7 @@
       <menupopup id="location-link-context-menu">
         <menuitem
           id="location-link-context-menu-copy"
-          label="&calendar.copylink.label;"
-          accesskey="&calendar.copylink.accesskey;"
+          data-l10n-id="calendar-copylink"
           oncommand="locationCopyLink(this.parentNode.triggerNode)"
         />
       </menupopup>
@@ -191,8 +191,7 @@
         <menuitem data-l10n-id="text-action-copy" command="cmd_copy" />
         <menuitem
           id="description-context-menu-copy-link-location"
-          label="&calendar.copylink.label;"
-          accesskey="&calendar.copylink.accesskey;"
+          data-l10n-id="calendar-copylink"
           oncommand="goDoCommand('cmd_copyLink')"
         />
         <menuitem
