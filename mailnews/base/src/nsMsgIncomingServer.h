@@ -78,7 +78,13 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
   nsCOMPtr<nsIFile> mFilterFile;
   nsCOMPtr<nsIMsgFilterList> mFilterList;
   nsCOMPtr<nsIMsgFilterList> mEditableFilterList;
+  // The prefs branch which holds prefs for _this_ server.
+  // Prefs path is: "mail.server.{serverKey}."
   nsCOMPtr<nsIPrefBranch> mPrefBranch;
+  // The prefs branch which holds default values, common to all servers.
+  // Used as fallback when trying to read a pref which isn't present in
+  // the server-specific mPrefBranch.
+  // Prefs path is "mail.server.default."
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
   // these allow us to handle duplicate incoming messages, e.g. delete them.
