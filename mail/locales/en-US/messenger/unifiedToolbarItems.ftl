@@ -88,10 +88,10 @@ toolbar-next-label = Next
 toolbar-next =
     .title = Move to the next message
 
-toolbar-spam-label = Spam
+toolbar-junk-label = Junk
 
-toolbar-spam =
-    .title = Mark the selected messages as spam
+toolbar-junk =
+    .title = Mark the selected messages as junk
 
 toolbar-delete-label = Delete
 

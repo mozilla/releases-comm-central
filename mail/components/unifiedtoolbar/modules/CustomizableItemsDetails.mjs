@@ -244,7 +244,7 @@ export default [
   },
   {
     id: "junk",
-    labelId: "toolbar-spam",
+    labelId: "toolbar-junk",
     spaces: ["mail"],
     templateId: "junkTemplate",
     requiredModules: [
