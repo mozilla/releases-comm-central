@@ -249,6 +249,26 @@ static nsresult InitXPCOMGlue(LibLoadingStrategy aLibLoadingStrategy) {
 uint32_t gBlocklistInitFlags = eDllBlocklistInitFlagDefault;
 #endif
 
+#ifdef XP_LINUX
+// Linux performance hack: when the fd table expands to the next power
+// of two, in a multithreaded process it blocks for 30-50ms due to
+// RCU, and this applies separately to each process, so it can add up.
+// But, for a single-threaded process it's basically free, so we can
+// pre-expand early in startup to a value that will usually be enough.
+// The table takes one machine word per entry, so it's cheap in memory.
+//
+// Idea from https://chromium-review.googlesource.com/c/chromium/src/+/6845921
+static void ExpandFileDescriptorTable() {
+  // Expand the table to size 512 by creating a fd with the first
+  // unused number greater than 255 (unlike dup2, this won't overwrite
+  // an existing fd).  Empirically, 512 seems to be enough for our
+  // content processes in most cases.
+  mozilla::UniqueFileHandle fdTableExpander(fcntl(0, F_DUPFD, 256));
+  // The fd is immediately closed (if it was created; we ignore errors
+  // because this is just an optimization).
+}
+#endif
+
 int main(int argc, char* argv[], char* envp[]) {
 #ifdef MOZ_BROWSER_CAN_BE_CONTENTPROC
   if (argc > 1 && IsArg(argv[1], "contentproc")) {
@@ -282,6 +302,12 @@ int main(int argc, char* argv[], char* envp[]) {
     }
 #  endif
   }
+#endif
+
+#ifdef XP_LINUX
+  // Do this as early as possible but after the fork server hook,
+  // because forking resets the fd table size.
+  ExpandFileDescriptorTable();
 #endif
 
   mozilla::TimeStamp start = mozilla::TimeStamp::Now();
