@@ -78,7 +78,9 @@ window.addEventListener("load", async function () {
     { id: "threadParent", l10n: {}, name: "parent", sortable: false },
   ];
 
-  const unreadCheckbox = document.body.querySelector("input#unread_messages");
+  const threadedCheckbox = document.body.querySelector(
+    "input#threaded_messages"
+  );
   folderList.addEventListener("click", function (event) {
     const { path, tag } = event.target.dataset;
     if (!path && !tag) {
@@ -94,9 +96,7 @@ window.addEventListener("load", async function () {
     } else if (tag) {
       liveView.initWithTag(tag);
     }
-    if (unreadCheckbox.checked) {
-      liveView.setThreadType(Ci.nsILiveView.UNREAD_MESSAGES);
-    }
+    liveView.threadsOnly = threadedCheckbox.checked;
 
     messageList.view = new LiveViewDataAdapter(liveView);
   });

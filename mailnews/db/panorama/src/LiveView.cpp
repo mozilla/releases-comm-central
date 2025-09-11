@@ -31,7 +31,7 @@ using mozilla::LogLevel;
 
 namespace mozilla::mailnews {
 
-LazyLogModule gLiveViewLog("panorama");
+extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
 NS_IMPL_ISUPPORTS(LiveView, nsILiveView)
 
@@ -96,6 +96,17 @@ NS_IMETHODIMP LiveView::InitWithConversation(uint64_t aConversationId) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::GetThreadsOnly(bool* threadsOnly) {
+  *threadsOnly = mThreadsOnly;
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::SetThreadsOnly(bool threadsOnly) {
+  mThreadsOnly = threadsOnly;
+  ResetStatements();
+  return NS_OK;
+}
+
 NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
   *aSortColumn = mSortColumn;
   return NS_OK;
@@ -103,18 +114,7 @@ NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
 
 NS_IMETHODIMP LiveView::SetSortColumn(nsILiveView::SortColumn aSortColumn) {
   mSortColumn = aSortColumn;
-  if (mCountStmt) {
-    mCountStmt->Finalize();
-    mCountStmt = nullptr;
-  }
-  if (mCountUnreadStmt) {
-    mCountUnreadStmt->Finalize();
-    mCountUnreadStmt = nullptr;
-  }
-  if (mSelectStmt) {
-    mSelectStmt->Finalize();
-    mSelectStmt = nullptr;
-  }
+  ResetStatements();
   return NS_OK;
 }
 
@@ -125,6 +125,11 @@ NS_IMETHODIMP LiveView::GetSortDescending(bool* aSortDescending) {
 
 NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
   mSortDescending = aSortDescending;
+  ResetStatements();
+  return NS_OK;
+}
+
+void LiveView::ResetStatements() {
   if (mCountStmt) {
     mCountStmt->Finalize();
     mCountStmt = nullptr;
@@ -137,7 +142,6 @@ NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
     mSelectStmt->Finalize();
     mSelectStmt = nullptr;
   }
-  return NS_OK;
 }
 
 /**
@@ -145,6 +149,7 @@ NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
  */
 nsCString LiveView::GetSQLClause() {
   if (mClause.IsEmpty()) {
+    mParams.Clear();
     if (mFolderFilter) {
       mClause.Append(mFolderFilter->mSQLClause);
       mParams.AppendElements(mFolderFilter->mSQLParams);
@@ -196,9 +201,14 @@ bool LiveView::Matches(Message& aMessage) {
 
 NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
   if (!mCountStmt) {
-    nsAutoCString sql("SELECT COUNT(*) AS count FROM messages WHERE ");
+    nsAutoCString sql;
+    if (mThreadsOnly) {
+      sql = "SELECT COUNT(DISTINCT threadId) AS count FROM messages WHERE ";
+    } else {
+      sql = "SELECT COUNT(*) AS count FROM messages WHERE ";
+    }
     sql.Append(GetSQLClause());
-    MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mCountStmt));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -215,11 +225,16 @@ NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
 
 NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
   if (!mCountUnreadStmt) {
-    nsAutoCString sql("SELECT COUNT(*) AS count FROM messages WHERE ");
+    nsAutoCString sql;
+    if (mThreadsOnly) {
+      sql = "SELECT COUNT(DISTINCT threadId) AS count FROM messages WHERE ";
+    } else {
+      sql = "SELECT COUNT(*) AS count FROM messages WHERE ";
+    }
     sql.Append(GetSQLClause());
     sql.Append(" AND ~flags & ");
     sql.AppendInt(nsMsgMessageFlags::Read);
-    MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mCountUnreadStmt));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -324,10 +339,17 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
           flags, \
           tags, \
           threadId, \
-          threadParent \
-        FROM messages \
-        WHERE ");
+          threadParent");
+    if (mThreadsOnly) {
+      // Get only the newest message in each thread. This is the last column and
+      // only exists to tell SQLite what to do, we don't use this data.
+      sql.Append(", MAX(date)");
+    }
+    sql.Append(" FROM messages WHERE ");
     sql.Append(GetSQLClause());
+    if (mThreadsOnly) {
+      sql.Append(" GROUP BY threadId ");
+    }
     sql.Append(" ORDER BY ");
     switch (mSortColumn) {
       case nsILiveView::SortColumn::DATE:
@@ -358,7 +380,7 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
     }
     sql.Append(mSortDescending ? " DESC" : " ASC");
     sql.Append(" LIMIT :limit OFFSET :offset");
-    MOZ_LOG(gLiveViewLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mSelectStmt));
     NS_ENSURE_SUCCESS(rv, rv);

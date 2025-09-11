@@ -30,7 +30,10 @@ add_setup(async function () {
   await installDBFromFile("db/conversations.sql");
 });
 
-add_task(async function () {
+/**
+ * A thread of one message.
+ */
+add_task(async function testSingleMessage() {
   const liveView = new LiveView();
   liveView.initWithConversation(1);
   Assert.equal(
@@ -40,7 +43,11 @@ add_task(async function () {
   );
 });
 
-add_task(async function () {
+/**
+ * Test a thread of messages that got added to the database in the order they
+ * were written.
+ */
+add_task(async function testThreadInOrder() {
   const liveView = new LiveView();
   liveView.initWithConversation(3);
   Assert.equal(
@@ -62,7 +69,11 @@ add_task(async function () {
   Assert.equal(messages[2].threadParent, 5);
 });
 
-add_task(async function () {
+/**
+ * Test a thread of messages that got added to the database out of the order
+ * they were written. The root message arrived after the replies.
+ */
+add_task(async function testThreadOutOfOrder() {
   const liveView = new LiveView();
   liveView.initWithConversation(7);
   Assert.equal(
@@ -73,13 +84,44 @@ add_task(async function () {
   const messages = liveView.selectMessages();
   Assert.deepEqual(
     Array.from(messages, m => m.id),
-    [2, 4, 7],
+    [7, 2, 4],
     "selectMessages should return all the messages in sort ascending order"
   );
   Assert.equal(messages[0].threadId, 7);
-  Assert.equal(messages[0].threadParent, 7);
+  Assert.equal(messages[0].threadParent, 0);
   Assert.equal(messages[1].threadId, 7);
   Assert.equal(messages[1].threadParent, 7);
   Assert.equal(messages[2].threadId, 7);
-  Assert.equal(messages[2].threadParent, 0);
+  Assert.equal(messages[2].threadParent, 7);
+});
+
+/**
+ * Test a live view in threads-only mode.
+ */
+add_task(async function testThreadsOnly() {
+  const liveView = new LiveView();
+  liveView.threadsOnly = true;
+
+  Assert.equal(
+    liveView.countMessages(),
+    6,
+    "countMessages should only count threads"
+  );
+  Assert.equal(
+    liveView.countUnreadMessages(),
+    0,
+    "countUnreadMessages should only count threads"
+  );
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [10, 9, 8, 6, 4, 1],
+    "selectMessages should only return threads"
+  );
+
+  liveView.sortDescending = false;
+  Assert.deepEqual(
+    Array.from(liveView.selectMessages(), m => m.id),
+    [1, 4, 6, 8, 9, 10],
+    "selectMessages should only return threads"
+  );
 });

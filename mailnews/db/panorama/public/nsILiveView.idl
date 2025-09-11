@@ -21,6 +21,11 @@ interface nsILiveView : nsISupports {
   // `conversationId` is a message's thread id (nsIMsgDBHdr.threadId)
   void initWithConversation(in unsigned long long conversationId);
 
+  /**
+   * The live view should have only the newest message in each thread.
+   */
+  attribute boolean threadsOnly;
+
   cenum SortColumn : 8 {
     DATE = 1,
     SUBJECT = 2,
