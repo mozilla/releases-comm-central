@@ -36,6 +36,11 @@ git = "https://github.com/gfx-rs/wgpu"
 rev = "c488bbe60447d28736c26c82a32cd87794b3bf1d"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c"]
+git = "https://github.com/glandium/allocator-api2"
+rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/glandium/rust-objc?rev=4de89f5aa9851ceca4d40e7ac1e2759410c04324"]
 git = "https://github.com/glandium/rust-objc"
 rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324"

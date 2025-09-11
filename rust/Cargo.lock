@@ -43,7 +43,8 @@ dependencies = [
 
 [[package]]
 name = "allocator-api2"
-version = "0.2.999"
+version = "0.2.21"
+source = "git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c#ad5f3d56a5a4519eff52af4ff85293431466ef5c"
 dependencies = [
  "serde",
 ]
