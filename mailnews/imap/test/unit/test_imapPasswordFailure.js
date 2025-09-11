@@ -9,6 +9,10 @@
  *     we get a new password prompt and can enter the password.
  */
 
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/alertTestUtils.js");
@@ -133,12 +137,16 @@ add_task(async function () {
   Assert.ok(rootFolder.containsChildNamed("Inbox"));
   Assert.ok(rootFolder.containsChildNamed("Subscribed"));
 
-  // Now check the new one has been saved.
-  logins = Services.logins.findLogins(
-    "imap://localhost",
-    null,
-    "imap://localhost"
-  );
+  await TestUtils.waitForCondition(() => {
+    // Now check the new one has been saved.
+    logins = Services.logins.findLogins(
+      "imap://localhost",
+      null,
+      "imap://localhost"
+    );
+
+    return logins.length == 1 && logins[0].password == kValidPassword;
+  }, "waiting for the password to be updated");
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);

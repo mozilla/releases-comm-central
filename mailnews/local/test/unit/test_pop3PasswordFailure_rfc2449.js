@@ -23,6 +23,9 @@ load("../../../resources/passwordStorage.js");
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 var server;
 var daemon;
@@ -128,12 +131,17 @@ add_task(async function getMail2() {
   // On the last attempt (4th), we should have successfully got one mail.
   Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 1);
 
-  // Now check the new one has been saved.
-  const logins = Services.logins.findLogins(
-    "mailbox://localhost",
-    null,
-    "mailbox://localhost"
-  );
+  var logins;
+  await TestUtils.waitForCondition(() => {
+    // Now check the new one has been saved.
+    logins = Services.logins.findLogins(
+      "mailbox://localhost",
+      null,
+      "mailbox://localhost"
+    );
+
+    return logins.length == 1 && logins[0].password == kValidPassword;
+  }, "waiting for the password to be updated");
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);

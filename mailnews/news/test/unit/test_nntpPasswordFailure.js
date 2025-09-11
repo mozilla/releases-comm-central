@@ -19,6 +19,9 @@ var { mailTestUtils } = ChromeUtils.importESModule(
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
@@ -112,12 +115,17 @@ add_task(async function getMail2() {
   });
   folder.getNewMessages(gDummyMsgWindow, urlListener);
   await urlListener.promise;
-  // Now check the new one has been saved.
-  logins = Services.logins.findLogins(
-    "news://localhost",
-    null,
-    "news://localhost"
-  );
+
+  await TestUtils.waitForCondition(() => {
+    // Now check the new one has been saved.
+    logins = Services.logins.findLogins(
+      "news://localhost",
+      null,
+      "news://localhost"
+    );
+
+    return logins.length == 1 && logins[0].password == kValidPassword;
+  }, "waiting for the password to be updated");
 
   Assert.equal(logins.length, 1);
   Assert.equal(logins[0].username, kUserName);
