@@ -630,8 +630,27 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   rv = GetEwsUrl(endpoint);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  bool overrideOAuth;
+  rv = GetEwsOverrideOAuthDetails(&overrideOAuth);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString applicationId, tenantId, redirectUri, endpointHost, oauthScopes;
+  if (overrideOAuth) {
+    rv = GetEwsApplicationId(applicationId);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetEwsTenantId(tenantId);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetEwsRedirectUri(redirectUri);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetEwsEndpointHost(endpointHost);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = GetEwsOAuthScopes(oauthScopes);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   // Set up the client object with access details.
-  rv = client->Initialize(endpoint, this);
+  rv = client->Initialize(endpoint, this, overrideOAuth, applicationId,
+                          tenantId, redirectUri, endpointHost, oauthScopes);
   NS_ENSURE_SUCCESS(rv, rv);
 
   client.forget(ewsClient);
@@ -747,12 +766,29 @@ NS_IMETHODIMP EwsIncomingServer::GetTrashFolderPath(nsACString& returnValue) {
   return GetStringValue(kTrashFolderPreferenceName, returnValue);
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetEwsUrl(nsACString& ewsUrl) {
-  // EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
-  // is stored as a pref against this server.
-  return GetStringValue("ews_url", ewsUrl);
+NS_IMETHODIMP EwsIncomingServer::GetEwsOverrideOAuthDetails(bool* value) {
+  return GetBoolValue("ews_override_oauth_details", value);
 }
 
-NS_IMETHODIMP EwsIncomingServer::SetEwsUrl(const nsACString& ewsUrl) {
-  return SetStringValue("ews_url", ewsUrl);
+NS_IMETHODIMP EwsIncomingServer::SetEwsOverrideOAuthDetails(bool value) {
+  return SetBoolValue("ews_override_oauth_details", value);
 }
+
+#define DEFINE_PREF_STRING_PROPERTY(PropName, PrefName)                     \
+  NS_IMETHODIMP EwsIncomingServer::Get##PropName(nsACString& value) {       \
+    return GetStringValue(PrefName, value);                                 \
+  }                                                                         \
+  NS_IMETHODIMP EwsIncomingServer::Set##PropName(const nsACString& value) { \
+    return SetStringValue(PrefName, value);                                 \
+  }
+
+// EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
+// is stored as a pref against this server.
+DEFINE_PREF_STRING_PROPERTY(EwsUrl, "ews_url")
+DEFINE_PREF_STRING_PROPERTY(EwsApplicationId, "ews_application_id")
+DEFINE_PREF_STRING_PROPERTY(EwsTenantId, "ews_tenant_id")
+DEFINE_PREF_STRING_PROPERTY(EwsRedirectUri, "ews_redirect_uri")
+DEFINE_PREF_STRING_PROPERTY(EwsEndpointHost, "ews_endpoint_host")
+DEFINE_PREF_STRING_PROPERTY(EwsOAuthScopes, "ews_oauth_scopes")
+
+#undef DEFINE_PREF_PROPERTY

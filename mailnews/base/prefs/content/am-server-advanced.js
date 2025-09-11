@@ -75,6 +75,20 @@ function onLoad() {
   } else if (gServerSettings.serverType == "ews") {
     document.getElementById("pop3Panel").hidden = true;
     document.getElementById("imapPanel").hidden = true;
+    if (
+      Services.prefs.getBoolPref(
+        "experimental.mail.ews.overrideOAuth.enabled",
+        false
+      )
+    ) {
+      document.getElementById("ewsOverrideOAuthDetailsContainer").hidden =
+        false;
+      setOAuthOverrideState(
+        gServerSettings.account.incomingServer.ewsOverrideOAuthDetails
+      );
+    } else {
+      document.getElementById("ewsOverrideOAuthDetailsContainer").hidden = true;
+    }
   }
 
   var controls = getControls();
@@ -148,4 +162,21 @@ function updateInboxAccount(enablePicker) {
   document.getElementById("deferredServerFolderPicker").disabled =
     !enablePicker;
   document.getElementById("deferGetNewMail").disabled = !enablePicker;
+}
+
+function setOAuthOverrideState(isEnabled) {
+  const oauthElementIds = [
+    "ewsApplicationId",
+    "ewsTenantId",
+    "ewsRedirectUri",
+    "ewsEndpointHost",
+    "ewsOAuthScopes",
+  ];
+  for (const elementId of oauthElementIds) {
+    document.getElementById(elementId).disabled = !isEnabled;
+  }
+}
+
+function onChangeOverrideOAuthSelection(overrideSelector) {
+  setOAuthOverrideState(overrideSelector.checked);
 }

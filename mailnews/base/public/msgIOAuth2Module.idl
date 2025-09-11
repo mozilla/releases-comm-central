@@ -47,7 +47,50 @@ interface msgIOAuth2Module : nsISupports {
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
    */
-  boolean initFromMail(in nsIMsgIncomingServer aServer);
+   boolean initFromMail(in nsIMsgIncomingServer aServer);
+
+  /**
+   * Initialize the OAuth2 parameters from an incoming server, and return
+   * whether or not we can authenticate with OAuth2.
+   *
+   * If the prefs for the server don't include an OAuth2 config, but one could
+   * be found among the known OAuth2 providers using the server's hostname,
+   * this config is used instead and stored in the server's prefs.
+   *
+   * If `allowOverrides` is true, implementations should use the provided
+   * override values for the issuer, scopes, and issuer details.
+   *
+   * The `overrideProviderDetails` array is an associative list with key-value
+   * pairs interleaved with one another (i.e. for n key-value pairs, the array
+   * will contain 2*n values). These values are used to override default OAuth
+   * provider issuer details.
+   */
+  boolean initFromMailWithOptionalOverrides(
+    in nsIMsgIncomingServer aServer,
+    in boolean allowOverrides,
+    in AUTF8String overrideIssuer,
+    in AUTF8String overrideScopes,
+    in Array<AUTF8String> overrideProviderDetails);
+
+  /**
+   * Initialize the OAuth2 parameters using the provided hostname, username,
+   * and scope type. Returns whether or not we can authenticate with OAuth2.
+   *
+   * If `allowOverrides` is true, implementations should use the provided
+   * override values for the issuer, scopes, and issuer details.
+   *
+   * The `overrideProviderDetails` array is an associative list with key-value
+   * pairs interleaved with one another (i.e. for n key-value pairs, the array
+   * will contain 2*n values). These values are used to override default OAuth
+   * provider issuer details.
+   */
+  boolean initFromHostnameWithOptionalOverrides(in AUTF8String aHostname,
+                           in AUTF8String aUsername,
+                           in AUTF8String aType,
+                           in boolean allowOverrides,
+                           in AUTF8String overrideIssuer,
+                           in AUTF8String overrideScopes,
+                           in Array<AUTF8String> overrideProviderDetails);
 
   /**
    * Initialize the OAuth2 parameters using the provided hostname, username,

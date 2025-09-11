@@ -221,6 +221,7 @@
         </hbox>
       </vbox>
 
+      <!-- EWS Panel -->
       <vbox id="ewsPanel">
         <hbox align="center">
           <label
@@ -238,6 +239,93 @@
             />
           </hbox>
         </hbox>
+        <vbox id="ewsOverrideOAuthDetailsContainer">
+          <separator class="groove" />
+          <checkbox
+            id="ewsOverrideOAuthDetails"
+            amsa_persist="true"
+            data-l10n-id="ews-override-oauth-details"
+            onclick="onChangeOverrideOAuthSelection(this)"
+          />
+          <hbox class="indent">
+            <!-- Labels -->
+            <vbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="ewsApplicationIdLabel"
+                  data-l10n-id="ews-applicationid-label"
+                  control="ewsApplicationId"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="ewsTenantIdLabel"
+                  data-l10n-id="ews-tenantid-label"
+                  control="ewsTenantId"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="ewsRedirectUriLabel"
+                  data-l10n-id="ews-redirecturi-label"
+                  control="ewsRedirectUri"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="ewsEndpointHostLabel"
+                  data-l10n-id="ews-endpointhost-label"
+                  control="ewsEndpointHost"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label
+                  id="ewsOAuthScopesLabel"
+                  data-l10n-id="ews-oauthscopes-label"
+                  control="ewsOAuthScopes"
+                />
+              </hbox>
+            </vbox>
+            <!-- Input Fields -->
+            <vbox>
+              <html:input
+                id="ewsApplicationId"
+                type="text"
+                class="input-inline"
+                aria-labelledby="ewsApplicationIdLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="ewsTenantId"
+                type="text"
+                class="input-inline"
+                aria-labelledby="ewsTenantIdLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="ewsRedirectUri"
+                type="text"
+                class="input-inline"
+                aria-labelledby="ewsRedirectUriLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="ewsEndpointHost"
+                type="text"
+                class="input-inline"
+                aria-labelledby="ewsEndpointHostLabel"
+                amsa_persist="true"
+              />
+              <html:input
+                id="ewsOAuthScopes"
+                type="text"
+                class="input-inline"
+                aria-labelledby="ewsOAuthScopesLabel"
+                amsa_persist="true"
+              />
+            </vbox>
+          </hbox>
+        </vbox>
       </vbox>
     </dialog>
   </html:body>

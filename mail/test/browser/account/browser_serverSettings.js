@@ -338,6 +338,12 @@ add_task(async function test_ews_advanced_settings_hidden_boxes() {
   });
 });
 
+/**
+ * Wait for the advanced server settings dialog to open.
+ *
+ * @param {HTMLElement} tab
+ * @returns {HTMLElement}
+ */
 async function waitForAdvancedDialog(tab) {
   return await wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
@@ -345,9 +351,40 @@ async function waitForAdvancedDialog(tab) {
   );
 }
 
+/**
+ * Accept the advanced dialog and wait for it to close.
+ *
+ * @param {HTMLElement} dialog
+ */
 async function acceptDialogAndWaitForClose(dialog) {
   dialog.document.documentElement.querySelector("dialog").acceptDialog();
   await TestUtils.waitForCondition(() => !dialog.visible);
+}
+
+/**
+ * Click the advanced settings button and wait for the advanced
+ * settings dialog to open.
+ *
+ * @param {HTMLIFrameElement} iframe
+ * @param {HTMLElement} accountSettingsTab
+ * @returns {HTMLElement}
+ */
+async function openAdvancedDialog(iframe, accountSettingsTab) {
+  const advancedSettingsButton = iframe.getElementById(
+    "server.ewsAdvancedButton"
+  );
+  Assert.ok(
+    !!advancedSettingsButton,
+    "Should have advanced settings button for EWS."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    advancedSettingsButton,
+    {},
+    advancedSettingsButton.ownerGlobal
+  );
+
+  return await waitForAdvancedDialog(accountSettingsTab);
 }
 
 /** Tests that setting the EWS Host URL changes the incoming server settings. */
@@ -370,21 +407,7 @@ add_task(async function test_ews_host_url_settings() {
       "EWS URL data element should be hidden."
     );
 
-    const advancedSettingsButton = iframe.getElementById(
-      "server.ewsAdvancedButton"
-    );
-    Assert.ok(
-      !!advancedSettingsButton,
-      "Should have advanced settings button for EWS."
-    );
-
-    EventUtils.synthesizeMouseAtCenter(
-      advancedSettingsButton,
-      {},
-      advancedSettingsButton.ownerGlobal
-    );
-
-    const advancedDialog = await waitForAdvancedDialog(accountSettingsTab);
+    const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
 
     const ewsUrlElement = advancedDialog.document.getElementById("ewsUrl");
     Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
@@ -418,14 +441,10 @@ add_task(async function test_ews_host_url_settings() {
     );
 
     // Reopen the dialog and reset the value.
-    EventUtils.synthesizeMouseAtCenter(
-      advancedSettingsButton,
-      {},
-      advancedSettingsButton.ownerGlobal
+    const advancedDialogReopened = await openAdvancedDialog(
+      iframe,
+      accountSettingsTab
     );
-
-    const advancedDialogReopened =
-      await waitForAdvancedDialog(accountSettingsTab);
 
     const ewsUrlElementReopened =
       advancedDialogReopened.document.getElementById("ewsUrl");
@@ -446,6 +465,118 @@ add_task(async function test_ews_host_url_settings() {
       incomingServer.ewsUrl,
       originalHostUrl,
       "EWS Host URL should have been reset."
+    );
+  });
+});
+
+/** Tests that changing the OAuth override settings correctly updates the incoming server. */
+add_task(async function test_override_oauth_settings() {
+  const incomingServer = ewsAccount.incomingServer;
+  await open_advanced_settings(async accountSettingsTab => {
+    const checkPref = Services.prefs.getBoolPref(
+      "experimental.mail.ews.overrideOAuth.enabled",
+      false
+    );
+    Assert.ok(checkPref, "pref should be enabled.");
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
+
+    const dataElements = [
+      "ews.ewsOverrideOAuthDetails",
+      "ews.ewsApplicationId",
+      "ews.ewsTenantId",
+      "ews.ewsRedirectUri",
+      "ews.ewsEndpointHost",
+      "ews.ewsOAuthScopes",
+    ];
+    for (const dataElement of dataElements) {
+      const element = iframe.getElementById(dataElement);
+      Assert.ok(!!element, `Data element ${dataElement} should exist.`);
+      Assert.ok(
+        !element.visible,
+        `Data element ${dataElement} should not be visible.`
+      );
+    }
+
+    const advancedDialog = await openAdvancedDialog(iframe, accountSettingsTab);
+
+    const oauthOverrideControl = advancedDialog.document.getElementById(
+      "ewsOverrideOAuthDetails"
+    );
+    Assert.ok(!!oauthOverrideControl, "OAuth override checkbox should exist.");
+    Assert.ok(
+      !oauthOverrideControl.checked,
+      "OAuth override checkbox should be unchecked."
+    );
+
+    const inputElementIds = [
+      "ewsApplicationId",
+      "ewsTenantId",
+      "ewsRedirectUri",
+      "ewsEndpointHost",
+      "ewsOAuthScopes",
+    ];
+    const inputElements = inputElementIds.map(id =>
+      advancedDialog.document.getElementById(id)
+    );
+    for (const inputElement of inputElements) {
+      Assert.ok(
+        inputElement.disabled,
+        `Input element ${inputElement.id} should be disabled.`
+      );
+    }
+
+    EventUtils.synthesizeMouseAtCenter(
+      oauthOverrideControl,
+      {},
+      oauthOverrideControl.ownerGlobal
+    );
+
+    for (const inputElement of inputElements) {
+      Assert.ok(
+        !inputElement.disabled,
+        `Input element ${inputElement.id} should be enabled.`
+      );
+    }
+
+    for (const inputElement of inputElements) {
+      inputElement.focus();
+      EventUtils.synthesizeKey("KEY_Delete", {}, inputElement.ownerGlobal);
+      EventUtils.sendString("changed_value", inputElement.ownerGlobal);
+    }
+
+    await acceptDialogAndWaitForClose(advancedDialog);
+
+    Assert.ok(
+      incomingServer.ewsOverrideOAuthDetails,
+      "Incoming server should have override OAuth details selected."
+    );
+    Assert.equal(
+      incomingServer.ewsApplicationId,
+      "changed_value",
+      "EWS Application ID should have changed."
+    );
+    Assert.equal(
+      incomingServer.ewsTenantId,
+      "changed_value",
+      "EWS Tenant ID should have changed."
+    );
+    Assert.equal(
+      incomingServer.ewsRedirectUri,
+      "changed_value",
+      "EWS Redirect URI should have changed."
+    );
+    Assert.equal(
+      incomingServer.ewsEndpointHost,
+      "changed_value",
+      "EWS Endpoint Host should have changed."
+    );
+    Assert.equal(
+      incomingServer.ewsOAuthScopes,
+      "changed_value",
+      "EWS OAuth Scopes should have changed."
     );
   });
 });

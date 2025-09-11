@@ -531,6 +531,79 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
   delete oAuth2Server.grantedScope;
 });
 
+add_task(async function testOverrideIssuerDetails() {
+  const mod = new OAuth2Module();
+  const isOAuthSupportedWithIssuerDetailOverridesOnly =
+    mod.initFromHostnameWithOptionalOverrides(
+      "test.test",
+      "oscar@test.invalid",
+      "ews",
+      true,
+      "",
+      "",
+      [
+        "clientId",
+        "custom_client_id",
+        "authorizationEndpoint",
+        "https://oauth2.test2.test2/form",
+      ]
+    );
+  Assert.ok(
+    isOAuthSupportedWithIssuerDetailOverridesOnly,
+    "OAuth should initialize successfully with only issuer detail overrides."
+  );
+  Assert.equal(
+    mod._oauth.authorizationEndpoint,
+    "https://oauth2.test2.test2/form",
+    "Authorization endpoint should have been customized."
+  );
+});
+
+add_task(async function testOverrideIssuer() {
+  const mod = new OAuth2Module();
+  const isOAuthSupportedWithEverythingCustom =
+    mod.initFromHostnameWithOptionalOverrides(
+      "test2.test2",
+      "oscar@test.invalid",
+      "ews",
+      true,
+      "oauth.test2.test2",
+      "custom_scope1 custom_scope2",
+      [
+        "clientId",
+        "cid",
+        "authorizationEndpoint",
+        "https://oauth2.test2.test2/form",
+        "tokenEndpoint",
+        "https://oauth2.test2.test2/token",
+      ]
+    );
+  Assert.ok(
+    isOAuthSupportedWithEverythingCustom,
+    "Custom OAuth configuration should be supported."
+  );
+  Assert.equal(
+    mod._loginOrigin,
+    "oauth://oauth.test2.test2",
+    "Should have set up custom issuer."
+  );
+  Assert.equal(
+    mod._scope,
+    "custom_scope1 custom_scope2",
+    "Should have applied custom scopes"
+  );
+  Assert.equal(
+    mod._oauth.authorizationEndpoint,
+    "https://oauth2.test2.test2/form",
+    "Authorization endpoint should have been customized."
+  );
+  Assert.equal(
+    mod._oauth.tokenEndpoint,
+    "https://oauth2.test2.test2/token",
+    "Authorization endpoint should have been customized."
+  );
+});
+
 async function storeLogins(logins) {
   for (const [origin, scope, username, token] of logins) {
     const loginInfo = Cc[

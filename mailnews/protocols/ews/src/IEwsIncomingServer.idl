@@ -28,6 +28,25 @@ interface IEwsIncomingServer : nsISupports
   /** The URL for the EWS Server */
   attribute AUTF8String ewsUrl;
 
+  /** Whether or not to override default OAuth issuer details. */
+  attribute boolean ewsOverrideOAuthDetails;
+
+  /** Override value for the application (client) ID. */
+  attribute AUTF8String ewsApplicationId;
+
+  /** Override value for the tenant ID. */
+  attribute AUTF8String ewsTenantId;
+
+  /** Override value for the redirect URI. */
+  attribute AUTF8String ewsRedirectUri;
+
+  /** Override value for the endpoint host. */
+  attribute AUTF8String ewsEndpointHost;
+
+  /** Override value for OAuth scopes. */
+  attribute AUTF8String ewsOAuthScopes;
+
+
   /**
    * An enumeration of what to do when we delete an item.
    *

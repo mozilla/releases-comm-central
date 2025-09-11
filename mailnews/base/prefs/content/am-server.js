@@ -261,6 +261,24 @@ function onAdvanced() {
     serverSettings.ewsUrl = document
       .getElementById("ews.ewsUrl")
       .getAttribute("value");
+    serverSettings.ewsOverrideOAuthDetails = document.getElementById(
+      "ews.ewsOverrideOAuthDetails"
+    ).checked;
+    serverSettings.ewsApplicationId = document
+      .getElementById("ews.ewsApplicationId")
+      .getAttribute("value");
+    serverSettings.ewsTenantId = document
+      .getElementById("ews.ewsTenantId")
+      .getAttribute("value");
+    serverSettings.ewsRedirectUri = document
+      .getElementById("ews.ewsRedirectUri")
+      .getAttribute("value");
+    serverSettings.ewsEndpointHost = document
+      .getElementById("ews.ewsEndpointHost")
+      .getAttribute("value");
+    serverSettings.ewsOAuthScopes = document
+      .getElementById("ews.ewsOAuthScopes")
+      .getAttribute("value");
   }
 
   const onCloseAdvanced = function () {
@@ -395,6 +413,23 @@ function onAdvanced() {
       document
         .getElementById("ews.ewsUrl")
         .setAttribute("value", serverSettings.ewsUrl);
+      document.getElementById("ews.ewsOverrideOAuthDetails").checked =
+        serverSettings.ewsOverrideOAuthDetails;
+      document
+        .getElementById("ews.ewsApplicationId")
+        .setAttribute("value", serverSettings.ewsApplicationId);
+      document
+        .getElementById("ews.ewsTenantId")
+        .setAttribute("value", serverSettings.ewsTenantId);
+      document
+        .getElementById("ews.ewsRedirectUri")
+        .setAttribute("value", serverSettings.ewsRedirectUri);
+      document
+        .getElementById("ews.ewsEndpointHost")
+        .setAttribute("value", serverSettings.ewsEndpointHost);
+      document
+        .getElementById("ews.ewsOAuthScopes")
+        .setAttribute("value", serverSettings.ewsOAuthScopes);
     }
     document.dispatchEvent(new CustomEvent("prefchange"));
   };

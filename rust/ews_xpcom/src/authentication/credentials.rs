@@ -9,6 +9,7 @@ use cstr::cstr;
 
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
+use thin_vec::ThinVec;
 use xpcom::{
     create_instance,
     interfaces::{
@@ -61,6 +62,42 @@ impl Credentials {
     }
 }
 
+pub(crate) struct OAuthOverrides {
+    pub application_id: String,
+    pub tenant_id: String,
+    pub redirect_uri: String,
+    pub endpoint_host: String,
+    pub scopes: String,
+}
+
+impl OAuthOverrides {
+    fn to_key_value_pairs(&self) -> Vec<nsCString> {
+        let endpoint_host = if !self.endpoint_host.trim().is_empty() {
+            &self.endpoint_host
+        } else {
+            &"login.microsoftonline.com".to_string()
+        };
+        let auth_endpoint = format!(
+            "https://{endpoint_host}/{0}/oauth2/v2.0/authorize",
+            self.tenant_id
+        );
+        let token_endpoint = format!(
+            "https://{endpoint_host}/{0}/oauth2/v2.0/token",
+            self.tenant_id
+        );
+        vec![
+            nsCString::from("clientId".to_string()),
+            nsCString::from(&self.application_id),
+            nsCString::from("authorizationEndpoint".to_string()),
+            nsCString::from(auth_endpoint),
+            nsCString::from("tokenEndpoint".to_string()),
+            nsCString::from(token_endpoint),
+            nsCString::from("redirectionEndpoint"),
+            nsCString::from(&self.redirect_uri),
+        ]
+    }
+}
+
 /// An entity which can provide details to use for authentication.
 pub(crate) trait AuthenticationProvider {
     /// Indicates the authentication method to use.
@@ -75,10 +112,16 @@ pub(crate) trait AuthenticationProvider {
     /// Creates and initializes an OAuth2 module.
     ///
     /// `None` is returned if OAuth2 is not supported for the provider's domain.
-    fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult>;
+    fn oauth2_module(
+        &self,
+        override_details: Option<OAuthOverrides>,
+    ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult>;
 
     /// Creates an instance of [`Credentials`] from this provider.
-    fn get_credentials(&self) -> Result<Credentials, nsresult> {
+    fn get_credentials(
+        &self,
+        override_details: Option<OAuthOverrides>,
+    ) -> Result<Credentials, nsresult> {
         match self.auth_method()? {
             nsMsgAuthMethod::passwordCleartext => Ok(Credentials::Basic {
                 username: self.username()?.to_string(),
@@ -86,7 +129,7 @@ pub(crate) trait AuthenticationProvider {
             }),
             nsMsgAuthMethod::OAuth2 => {
                 // Ensure the OAuth2 module indicated it can support this provider.
-                match self.oauth2_module()? {
+                match self.oauth2_module(override_details)? {
                     Some(module) => Ok(Credentials::OAuth2(module)),
                     None => {
                         log::error!(
@@ -129,14 +172,40 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
         Ok(password)
     }
 
-    fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
+    fn oauth2_module(
+        &self,
+        override_details: Option<OAuthOverrides>,
+    ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
             create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 
+        let (issuer, scopes, parameter_override_values) =
+            if let Some(ref details) = override_details {
+                (
+                    nsCString::from(details.endpoint_host.trim()),
+                    nsCString::from(details.scopes.trim()),
+                    details.to_key_value_pairs(),
+                )
+            } else {
+                (nsCString::new(), nsCString::new(), vec![])
+            };
+
+        let parameter_override_values: ThinVec<nsCString> =
+            parameter_override_values.into_iter().collect();
         let mut oauth2_supported = false;
-        unsafe { oauth2_module.InitFromMail(self.coerce(), &mut oauth2_supported) }.to_result()?;
+        unsafe {
+            oauth2_module.InitFromMailWithOptionalOverrides(
+                self.coerce(),
+                override_details.is_some(),
+                &*issuer,
+                &*scopes,
+                &parameter_override_values,
+                &mut oauth2_supported,
+            )
+        }
+        .to_result()?;
 
         let ret = match oauth2_supported {
             true => Some(oauth2_module),
@@ -174,13 +243,19 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
         Ok(password)
     }
 
-    fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
+    fn oauth2_module(
+        &self,
+        _override_details: Option<OAuthOverrides>,
+    ) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
             create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 
         let mut oauth2_supported = false;
+        // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1987797 Use the
+        // currently unused _override_details parameter to provide OAuth issuer
+        // details override values to the OAuth2 module.
         unsafe { oauth2_module.InitFromOutgoing(self.coerce(), &mut oauth2_supported) }
             .to_result()?;
 

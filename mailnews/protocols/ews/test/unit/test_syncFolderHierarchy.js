@@ -45,7 +45,16 @@ add_setup(() => {
   client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
     Ci.IEwsClient
   );
-  client.initialize(server.getStringValue("ews_url"), server);
+  client.initialize(
+    server.getStringValue("ews_url"),
+    server,
+    false,
+    "",
+    "",
+    "",
+    "",
+    ""
+  );
 
   registerCleanupFunction(() => {
     // We need to stop the mock server, but the client has no additional

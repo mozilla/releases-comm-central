@@ -1,5 +1,6 @@
 [DEFAULT]
 prefs = [
+  "experimental.mail.ews.overrideOAuth.enabled=true",
   "mail.account.account1.server=",
   "mail.account.account2.identities=",
   "mail.account.account2.server=",

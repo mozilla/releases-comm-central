@@ -2,6 +2,7 @@
 head = "head_mailbase.js"
 dupe-manifest = true
 prefs = [
+  "experimental.mail.ews.overrideOAuth.enabled=true",
   "mail.biff.use_new_count_in_badge=false",
   "mailnews.oauth.loglevel=Debug",
 ]
