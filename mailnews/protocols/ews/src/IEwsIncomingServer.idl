@@ -25,6 +25,9 @@ interface IEwsIncomingServer : nsISupports
 {
   IEwsClient getEwsClient();
 
+  /** The URL for the EWS Server */
+  attribute AUTF8String ewsUrl;
+
   /**
    * An enumeration of what to do when we delete an item.
    *

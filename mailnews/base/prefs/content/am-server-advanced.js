@@ -34,8 +34,10 @@ function onLoad() {
 
   if (gServerSettings.serverType == "imap") {
     document.getElementById("pop3Panel").hidden = true;
+    document.getElementById("ewsPanel").hidden = true;
   } else if (gServerSettings.serverType == "pop3") {
     document.getElementById("imapPanel").hidden = true;
+    document.getElementById("ewsPanel").hidden = true;
     const radioGroup = document.getElementById("folderStorage");
 
     gFirstDeferredAccount = gServerSettings.deferredToAccount;
@@ -70,6 +72,9 @@ function onLoad() {
 
     const picker = document.getElementById("deferredServerFolderPicker");
     picker.disabled = radioGroup.selectedIndex != 1;
+  } else if (gServerSettings.serverType == "ews") {
+    document.getElementById("pop3Panel").hidden = true;
+    document.getElementById("imapPanel").hidden = true;
   }
 
   var controls = getControls();

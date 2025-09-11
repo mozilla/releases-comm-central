@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -217,6 +218,25 @@
               </vbox>
             </vbox>
           </radiogroup>
+        </hbox>
+      </vbox>
+
+      <vbox id="ewsPanel">
+        <hbox align="center">
+          <label
+            id="ewsUrlLabel"
+            data-l10n-id="ews-url-label"
+            control="ewsUrl"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="ewsUrl"
+              type="text"
+              class="input-inline"
+              aria-labelledby="ewsUrlLabel"
+              amsa_persist="true"
+            />
+          </hbox>
         </hbox>
       </vbox>
     </dialog>

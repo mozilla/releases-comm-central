@@ -571,7 +571,25 @@
                 </hbox>
               </radiogroup>
             </hbox>
+            <hbox pack="end">
+              <!-- This button should have identical attributes to the
+             server.popAdvancedButton except the hidefor attribute. -->
+              <button
+                id="server.ewsAdvancedButton"
+                label="&advancedButton.label;"
+                accesskey="&advancedButton.accesskey;"
+                oncommand="onAdvanced();"
+                wsm_persist="true"
+                prefstring="mail.server.%serverkey%.advanced.disable"
+                hidefor="pop3,nntp,imap"
+              />
+            </hbox>
           </vbox>
+
+          <!-- Advanced EWS settings -->
+          <hbox flex="1" hidefor="pop3,nntp,imap" hidden="true">
+            <label id="ews.ewsUrl" wsm_persist="true" hidden="true" />
+          </hbox>
 
           <!-- NNTP -->
           <hbox id="nntp.articles.box" hidefor="pop3,imap,ews" align="center">

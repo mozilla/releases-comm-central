@@ -7,6 +7,10 @@ const { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
     "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 
+const { wait_for_frame_load } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
+
 // The accounts to use in tests.
 var ewsAccount;
 var imapAccount;
@@ -331,5 +335,117 @@ add_task(async function test_ews_advanced_settings_hidden_boxes() {
         `Expected element #${elementId} to be hidden for EWS`
       );
     }
+  });
+});
+
+async function waitForAdvancedDialog(tab) {
+  return await wait_for_frame_load(
+    tab.browser.contentWindow.gSubDialog._topDialog._frame,
+    "chrome://messenger/content/am-server-advanced.xhtml"
+  );
+}
+
+async function acceptDialogAndWaitForClose(dialog) {
+  dialog.document.documentElement.querySelector("dialog").acceptDialog();
+  await TestUtils.waitForCondition(() => !dialog.visible);
+}
+
+/** Tests that setting the EWS Host URL changes the incoming server settings. */
+add_task(async function test_ews_host_url_settings() {
+  const incomingServer = ewsAccount.incomingServer;
+  await open_advanced_settings(async accountSettingsTab => {
+    const iframe = await selectAccountInSettings(
+      accountSettingsTab,
+      ewsAccount.key
+    );
+
+    // This page uses hidden elements to connect the advanced settings dialog to
+    // the underlying save infrastructure.
+    const ewsUrlDataElement = iframe.getElementById("ews.ewsUrl");
+    Assert.ok(!!ewsUrlDataElement, "EWS URL data element should exist.");
+
+    // The data elements should all be hidden.
+    Assert.ok(
+      !ewsUrlDataElement.visible,
+      "EWS URL data element should be hidden."
+    );
+
+    const advancedSettingsButton = iframe.getElementById(
+      "server.ewsAdvancedButton"
+    );
+    Assert.ok(
+      !!advancedSettingsButton,
+      "Should have advanced settings button for EWS."
+    );
+
+    EventUtils.synthesizeMouseAtCenter(
+      advancedSettingsButton,
+      {},
+      advancedSettingsButton.ownerGlobal
+    );
+
+    const advancedDialog = await waitForAdvancedDialog(accountSettingsTab);
+
+    const ewsUrlElement = advancedDialog.document.getElementById("ewsUrl");
+    Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
+    Assert.equal(
+      ewsUrlElement.value,
+      incomingServer.ewsUrl,
+      "Host URL value should match incoming server URL."
+    );
+
+    // Get the original value.
+    const originalHostUrl = incomingServer.ewsUrl;
+
+    // Change to a new value.
+    ewsUrlElement.focus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, ewsUrlElement.ownerGlobal);
+    EventUtils.sendString("anothervalue", ewsUrlElement.ownerGlobal);
+
+    await acceptDialogAndWaitForClose(advancedDialog);
+
+    // Check the value of the hidden data element.
+    Assert.equal(
+      ewsUrlDataElement.value,
+      "anothervalue",
+      "EWS URL hidden data element value should have changed."
+    );
+
+    Assert.equal(
+      incomingServer.ewsUrl,
+      "anothervalue",
+      "Incoming server Host URL should have changed."
+    );
+
+    // Reopen the dialog and reset the value.
+    EventUtils.synthesizeMouseAtCenter(
+      advancedSettingsButton,
+      {},
+      advancedSettingsButton.ownerGlobal
+    );
+
+    const advancedDialogReopened =
+      await waitForAdvancedDialog(accountSettingsTab);
+
+    const ewsUrlElementReopened =
+      advancedDialogReopened.document.getElementById("ewsUrl");
+    Assert.ok(!!ewsUrlElement, "Should have the Host URL element.");
+    Assert.equal(
+      ewsUrlElement.value,
+      incomingServer.ewsUrl,
+      "Host URL value should match incoming server URL."
+    );
+
+    ewsUrlElementReopened.focus();
+    EventUtils.synthesizeKey("KEY_Delete", {}, ewsUrlElement.ownerGlobal);
+    EventUtils.sendString(originalHostUrl, ewsUrlElementReopened.ownerGlobal);
+
+    await acceptDialogAndWaitForClose(advancedDialogReopened);
+
+    Assert.equal(
+      incomingServer.ewsUrl,
+      originalHostUrl,
+      "EWS Host URL should have been reset."
+    );
   });
 });

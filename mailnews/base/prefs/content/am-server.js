@@ -257,6 +257,10 @@ function onAdvanced() {
     serverSettings.deferredToAccount = document
       .getElementById("pop3.deferredToAccount")
       .getAttribute("value");
+  } else if (serverType == "ews") {
+    serverSettings.ewsUrl = document
+      .getElementById("ews.ewsUrl")
+      .getAttribute("value");
   }
 
   const onCloseAdvanced = function () {
@@ -387,6 +391,10 @@ function onAdvanced() {
           );
         }
       }
+    } else if (serverType == "ews") {
+      document
+        .getElementById("ews.ewsUrl")
+        .setAttribute("value", serverSettings.ewsUrl);
     }
     document.dispatchEvent(new CustomEvent("prefchange"));
   };

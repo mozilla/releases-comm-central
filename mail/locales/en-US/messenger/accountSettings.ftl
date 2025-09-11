@@ -20,3 +20,7 @@ outgoing-server-name = Outgoing Server:
 outgoing-server-edit =
     .label = Edit outgoing server…
     .accesskey = o
+
+ews-url-label =
+    .value = Host URL:
+    .accesskey = h

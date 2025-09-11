@@ -626,10 +626,8 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
       do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
-  // is stored as a pref against this server.
-  nsCString endpoint;
-  rv = GetStringValue("ews_url", endpoint);
+  nsAutoCString endpoint;
+  rv = GetEwsUrl(endpoint);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Set up the client object with access details.
@@ -747,4 +745,14 @@ NS_IMETHODIMP EwsIncomingServer::SetTrashFolderPath(const nsACString& path) {
 
 NS_IMETHODIMP EwsIncomingServer::GetTrashFolderPath(nsACString& returnValue) {
   return GetStringValue(kTrashFolderPreferenceName, returnValue);
+}
+
+NS_IMETHODIMP EwsIncomingServer::GetEwsUrl(nsACString& ewsUrl) {
+  // EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
+  // is stored as a pref against this server.
+  return GetStringValue("ews_url", ewsUrl);
+}
+
+NS_IMETHODIMP EwsIncomingServer::SetEwsUrl(const nsACString& ewsUrl) {
+  return SetStringValue("ews_url", ewsUrl);
 }
