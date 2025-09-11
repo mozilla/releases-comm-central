@@ -643,8 +643,15 @@ async function smimeGenCSR() {
   } while (nextStep < 3);
 }
 
-function smimeSelectCert(smime_cert) {
-  var certInfo = document.getElementById(smime_cert);
+/**
+ * Prompt the user to select a personal certificate.
+ *
+ * @param {string} id - ID of the related UI element that will
+ *   receive the certificate identifier. That parameter is also used
+ *   when deciding whether to select a signing or an encryption certificate.
+ */
+function smimeSelectCert(id) {
+  var certInfo = document.getElementById(id);
   if (!certInfo) {
     return;
   }
@@ -657,12 +664,14 @@ function smimeSelectCert(smime_cert) {
   var certUsage;
   var selectEncryptionCert;
 
-  if (smime_cert == kEncryptionCertPref) {
+  if (id == kEncryptionCertPref) {
     selectEncryptionCert = true;
     certUsage = email_recipient_cert_usage;
-  } else if (smime_cert == kSigningCertPref) {
+  } else if (id == kSigningCertPref) {
     selectEncryptionCert = false;
     certUsage = email_signing_cert_usage;
+  } else {
+    throw new Error(`Unexcpected id: ${id}`);
   }
 
   try {
@@ -738,6 +747,82 @@ function smimeSelectCert(smime_cert) {
   onSave();
 }
 
+/**
+ * Check if a certificate is considered valid for email use and give
+ * status feedback to the user.
+ *
+ * @param {string} id - ID of the UI element that contains
+ *   the certificate identifier. The given parameter is also used to
+ *   decide whether the certificate is validated for signing or
+ *   for encryption.
+ */
+async function smimeTestCert(id) {
+  let x509cert = null;
+  let certUsage;
+  const certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+    Ci.nsIX509CertDB
+  );
+
+  if (id == kEncryptionCertPref) {
+    x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey);
+    certUsage = Ci.nsIX509CertDB.verifyUsageEmailRecipient;
+  } else if (id == kSigningCertPref) {
+    x509cert = certdb.findCertByDBKey(gSignCertName.dbKey);
+    certUsage = Ci.nsIX509CertDB.verifyUsageEmailSigner;
+  } else {
+    throw new Error(`Unexcpected id to test: ${id}`);
+  }
+
+  if (!x509cert) {
+    alertUser(await document.l10n.formatValue("configured-cert-not-found"));
+    return;
+  }
+
+  const { promise, resolve } = Promise.withResolvers();
+  const flags = 0; // Allow online checks
+  certdb.asyncVerifyCertAtTime(
+    x509cert,
+    certUsage,
+    flags,
+    "",
+    Math.floor(Date.now() / 1000),
+    // An object that works as a nsICertVerificationCallback instance
+    // and provides member function verifyCertFinished()
+    { verifyCertFinished: resolve }
+  );
+  const prErrorCode = await promise;
+  if (!prErrorCode) {
+    let infoStrID;
+    if (certUsage == Ci.nsIX509CertDB.verifyUsageEmailSigner) {
+      infoStrID = "configured-cert-ok-sig";
+    } else if (certUsage == Ci.nsIX509CertDB.verifyUsageEmailRecipient) {
+      infoStrID = "configured-cert-ok-enc";
+    }
+    alertUser(await document.l10n.formatValue(infoStrID));
+    return;
+  }
+  const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+    Ci.nsINSSErrorsService
+  );
+  if (nssErrorsService.isNSSErrorCode(prErrorCode)) {
+    const errorCode = nssErrorsService.getXPCOMFromNSSError(prErrorCode);
+    const errorCodeStr = nssErrorsService.getErrorName(errorCode);
+    const errorMsg = nssErrorsService.getErrorMessage(errorCode);
+    alertUser(
+      await document.l10n.formatValue("configured-cert-failure-detail", {
+        errorMsg,
+        errorCodeStr,
+      })
+    );
+    return;
+  }
+  alertUser(
+    await document.l10n.formatValue("configured-cert-failure", {
+      errorCode: prErrorCode,
+    })
+  );
+}
+
 function enableEncryptionControls(do_enable) {
   gDisableEncryption.disabled = !do_enable;
   gEnableEncryption.disabled = !do_enable;
@@ -760,18 +845,24 @@ function enableSelectButtons() {
   gSignCertName.disabled = !gSignCertName.value;
   document.getElementById("signingCertClearButton").disabled =
     !gSignCertName.value;
+  document.getElementById("signingCertTestButton").disabled =
+    !gSignCertName.value;
 
   gEncryptionCertName.disabled = !gEncryptionCertName.value;
   document.getElementById("encryptionCertClearButton").disabled =
     !gEncryptionCertName.value;
+  document.getElementById("encryptionCertTestButton").disabled =
+    !gEncryptionCertName.value;
 }
 
-function smimeClearCert(smime_cert) {
-  var certInfo = document.getElementById(smime_cert);
-  if (!certInfo) {
-    return;
-  }
-
+/**
+ * Clear a certificate configuration.
+ *
+ * @param {string} id - ID of the related UI element that will
+ *   be cleared.
+ */
+function smimeClearCert(id) {
+  var certInfo = document.getElementById(id);
   certInfo.disabled = true;
   certInfo.value = "";
   certInfo.displayName = "";
@@ -781,9 +872,9 @@ function smimeClearCert(smime_cert) {
   stillHaveOther = gKeyId != "";
 
   if (!stillHaveOther) {
-    if (smime_cert == kEncryptionCertPref) {
+    if (id == kEncryptionCertPref) {
       enableEncryptionControls(false);
-    } else if (smime_cert == kSigningCertPref) {
+    } else if (id == kSigningCertPref) {
       enableSigningControls(false);
     }
   }

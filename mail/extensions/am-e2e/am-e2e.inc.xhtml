@@ -10,6 +10,7 @@
       <linkset>
         <html:link rel="localization" href="branding/brand.ftl"/>
         <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
+        <html:link rel="localization" href="messenger/smime/smime.ftl"/>
       </linkset>
 
       <vbox flex="1">
@@ -128,6 +129,10 @@
                   accesskey="&digitalSign.certificate.accesskey;"
                   oncommand="smimeSelectCert('identity_signing_cert_name')"/>
 
+          <button id="signingCertTestButton"
+                  data-l10n-id="smime-test-cert-button"
+                  oncommand="smimeTestCert('identity_signing_cert_name')"/>
+
           <button id="signingCertClearButton"
                   label="&digitalSign.certificate_clear.button;"
                   accesskey="&digitalSign.certificate_clear.accesskey;"
@@ -151,6 +156,10 @@
                   label="&encryption.certificate.button;"
                   accesskey="&encryption.certificate.accesskey;"
                   oncommand="smimeSelectCert('identity_encryption_cert_name')"/>
+
+          <button id="encryptionCertTestButton"
+                  data-l10n-id="smime-test-cert-button"
+                  oncommand="smimeTestCert('identity_encryption_cert_name')"/>
 
           <button id="encryptionCertClearButton"
                   label="&encryption.certificate_clear.button;"
