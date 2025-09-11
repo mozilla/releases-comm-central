@@ -7,3 +7,5 @@ JAR_MANIFESTS += ["jar.mn"]
 
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
+
+MOZ_SRC_FILES += ["content/aboutDownloads.js"]
