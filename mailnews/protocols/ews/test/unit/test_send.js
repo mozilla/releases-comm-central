@@ -88,7 +88,7 @@ add_task(async function test_basic_auth() {
     {},
     null,
     null,
-    {},
+    null,
     false,
     "testmessage@local.test",
     listener

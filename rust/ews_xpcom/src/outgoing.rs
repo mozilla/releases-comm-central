@@ -601,7 +601,7 @@ impl EwsOutgoingServer {
         _sender_identity: &nsIMsgIdentity,
         _sender: &nsACString,
         _password: &nsACString,
-        _status_listener: &nsIMsgStatusFeedback,
+        _status_listener: Option<&nsIMsgStatusFeedback>,
         should_request_dsn: bool,
         message_id: &nsACString,
         listener: &nsIMsgOutgoingListener,
