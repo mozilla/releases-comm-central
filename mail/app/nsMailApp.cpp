@@ -21,6 +21,7 @@
 #elif defined(XP_UNIX)
 #  include <sys/resource.h>
 #  include <unistd.h>
+#  include <fcntl.h>
 #endif
 
 #include <stdio.h>
