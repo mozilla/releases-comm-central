@@ -375,6 +375,12 @@ add_task(async function testSyncChangesWithRealFolder() {
   Assert.ok(originalGreeting, "the message content should contain a greeting");
   const originalStoreToken = originalMessage.storeToken;
   Assert.ok(originalStoreToken, "the message should have been stored");
+  const originalMsgSize = originalMessage.messageSize;
+  Assert.equal(
+    messages[4].toMessageString().length,
+    originalMsgSize,
+    "the right size should have been stored for the message"
+  );
 
   // Change a message, move a message, delete a message, mark a message read.
 

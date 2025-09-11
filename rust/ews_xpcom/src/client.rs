@@ -446,6 +446,7 @@ where
                         "item:HasAttachments",
                         "item:Importance",
                         "message:References",
+                        "item:Size",
                     ],
                     false,
                 )
@@ -1857,6 +1858,17 @@ fn populate_db_message_header_from_message_headers(
     if let Some(references) = msg.references() {
         let references = nsCString::from(references.as_ref());
         unsafe { header.SetReferences(&*references) }.to_result()?;
+    }
+
+    if let Some(size) = msg.size() {
+        match size.try_into() {
+            Ok(size) => {
+                unsafe { header.SetMessageSize(size) }.to_result()?;
+            }
+            Err(_) => {
+                log::error!("failed to compute size for message that's larger than supported max size of {}", u32::MAX);
+            }
+        };
     }
 
     Ok(())

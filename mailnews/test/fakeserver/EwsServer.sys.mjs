@@ -1352,6 +1352,10 @@ export class EwsServer {
         isReadEl.textContent = item.syntheticMessage.metaState.read;
         messageEl.appendChild(isReadEl);
 
+        const sizeEl = resDoc.createElement("t:Size");
+        sizeEl.textContent = item.syntheticMessage.toMessageString().length;
+        messageEl.appendChild(sizeEl);
+
         if (includeContent) {
           const contentEl = resDoc.createElement("t:MimeContent");
           contentEl.textContent = btoa(item.syntheticMessage.toMessageString());

@@ -49,6 +49,9 @@ pub(crate) trait MessageHeaders {
     /// The messages this message refers to. This is a string which follows the
     /// format of the `References` header described in RFC822.
     fn references(&self) -> Option<impl AsRef<str>>;
+
+    /// The size of the message in bytes.
+    fn size(&self) -> Option<usize>;
 }
 
 impl MessageHeaders for &ews::Message {
@@ -139,6 +142,10 @@ impl MessageHeaders for &ews::Message {
     fn references(&self) -> Option<impl AsRef<str>> {
         self.references.as_ref()
     }
+
+    fn size(&self) -> Option<usize> {
+        self.size
+    }
 }
 
 impl MessageHeaders for mail_parser::Message<'_> {
@@ -222,6 +229,10 @@ impl MessageHeaders for mail_parser::Message<'_> {
     fn references(&self) -> Option<impl AsRef<str>> {
         self.header(HeaderName::References)
             .and_then(|value| value.as_text())
+    }
+
+    fn size(&self) -> Option<usize> {
+        Some(self.raw_message.len())
     }
 }
 
