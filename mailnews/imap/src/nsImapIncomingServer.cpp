@@ -1759,24 +1759,32 @@ nsImapIncomingServer::FEAlertWithName(const char* aMsgName,
 }
 
 NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
-    const nsACString& aServerString, nsIMsgMailNewsUrl* aUrl) {
+    const nsACString& aServerString, nsIMsgMailNewsUrl* aUrl, bool forBye) {
   NS_ENSURE_TRUE(!aServerString.IsEmpty(), NS_OK);
 
   nsCString message(aServerString);
   message.Trim(" \t\b\r\n");
   NS_ENSURE_TRUE(!message.IsEmpty(), NS_OK);
-  if (message.Last() != '.') message.Append('.');
 
-  // Skip over the first two words (the command tag and "NO").
-  // Find the first word break.
-  int32_t pos = message.FindChar(' ');
+  // Ensure a period at end and skip over the first two words (the command tag
+  // and "NO"). But keep it all as-is if this is for an untagged BYE which can
+  // occur in place of a correct greeting response while imap server connection
+  // is is attempting to be made; e.g., print "* BYE no can do" in the alert.
+  if (!forBye) {
+    if (message.Last() != '.') message.Append('.');
 
-  // Find the second word break.
-  if (pos != -1) pos = message.FindChar(' ', pos + 1);
+    // Find the first word break.
+    int32_t pos = message.FindChar(' ');
 
-  // Adjust the message.
-  if (pos != -1) message = Substring(message, pos + 1);
+    // Find the second word break.
+    if (pos != -1) pos = message.FindChar(' ', pos + 1);
 
+    // Adjust the message.
+    if (pos != -1) message = Substring(message, pos + 1);
+  } else {
+    // For untagged BYE greeting show the string on a new line.
+    message.Insert("\r\n", 0);
+  }
   nsAutoCString hostName;
   GetPrettyName(hostName);
 

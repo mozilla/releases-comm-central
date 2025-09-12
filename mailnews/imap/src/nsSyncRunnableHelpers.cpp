@@ -429,8 +429,8 @@ NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlert, const nsAString&,
                        nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertWithName, const char*,
                        nsIMsgMailNewsUrl*)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertFromServer, const nsACString&,
-                       nsIMsgMailNewsUrl*)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, FEAlertFromServer, const nsACString&,
+                       nsIMsgMailNewsUrl*, bool)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertCertError,
                        nsITransportSecurityInfo*, nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, CommitNamespaces)

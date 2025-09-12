@@ -109,8 +109,10 @@ interface nsIImapServerSink : nsISupports {
    *
    * @param aServerString  The string to alert the user with.
    * @param url            The running url.
+   * @param forBye         Print the whole server response when greeting is BYE.
    */
-  void fEAlertFromServer(in ACString aServerString, in nsIMsgMailNewsUrl aUrl);
+  void fEAlertFromServer(in ACString aServerString, in nsIMsgMailNewsUrl aUrl,
+                         in boolean forBye);
 
   /**
    * Alerts the user with a certificate error.

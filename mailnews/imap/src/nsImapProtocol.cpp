@@ -1627,6 +1627,8 @@ void nsImapProtocol::EstablishServerConnection() {
 #define ESC_CAPABILITY_OK_LEN ESC_LENGTH(ESC_CAPABILITY_OK)
 #define ESC_CAPABILITY_GREETING (ESC_CAPABILITY_OK "CAPABILITY")
 #define ESC_CAPABILITY_GREETING_LEN ESC_LENGTH(ESC_CAPABILITY_GREETING)
+#define ESC_BYE "* BYE"
+#define ESC_BYE_LEN ESC_LENGTH(ESC_BYE)
 
   char* serverResponse = CreateNewLineFromSocket();  // read in the greeting
   // record the fact that we've received a greeting for this connection so we
@@ -1698,8 +1700,21 @@ void nsImapProtocol::EstablishServerConnection() {
            hostName.get()));
       SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     }
+  } else if (!PL_strncasecmp(serverResponse, ESC_BYE, ESC_BYE_LEN)) {
+    if (m_imapServerSink) {
+      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
+      m_imapServerSink->FEAlertFromServer(nsDependentCString(serverResponse),
+                                          mailnewsUrl, true);
+    }
+    SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
+    if (MOZ_LOG_TEST(IMAP, LogLevel::Error)) {
+      const nsCString& hostName = GetImapHostName();
+      MOZ_LOG(IMAP, LogLevel::Error,
+              ("BYE greeting sent by IMAP server %s. "
+               "Connection rejected by server and is now closed.",
+               hostName.get()));
+    }
   }
-
   PR_Free(serverResponse);  // we don't care about the greeting yet...
 
 #undef ESC_LENGTH
@@ -1713,6 +1728,8 @@ void nsImapProtocol::EstablishServerConnection() {
 #undef ESC_CAPABILITY_OK_LEN
 #undef ESC_CAPABILITY_GREETING
 #undef ESC_CAPABILITY_GREETING_LEN
+#undef ESC_BYE
+#undef ESC_BYE_LEN
 }
 
 // This can get called from the UI thread or an imap thread.
@@ -5232,11 +5249,11 @@ void nsImapProtocol::AlertUserEventFromServer(const char* aServerEvent,
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
           do_QueryInterface(m_runningUrlLatest);
       m_imapServerSinkLatest->FEAlertFromServer(
-          nsDependentCString(aServerEvent), mailnewsUrl);
+          nsDependentCString(aServerEvent), mailnewsUrl, false);
     } else if (m_imapServerSink) {
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
       m_imapServerSink->FEAlertFromServer(nsDependentCString(aServerEvent),
-                                          mailnewsUrl);
+                                          mailnewsUrl, false);
     }
   }
 }
