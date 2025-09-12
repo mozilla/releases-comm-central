@@ -227,8 +227,7 @@ class EmailConfigFound extends AccountHubStep {
 
       // FIXME: Bug 1899649 is tracking being able to edit an EWS config.
       this.querySelector("#editConfiguration").hidden =
-        incoming.type === "ews" ||
-        (incoming.type === "exchange" && !this.#addon?.isInstalled);
+        incoming.type === "exchange" && !this.#addon?.isInstalled;
 
       this.querySelector("#configSelection").classList.add("single");
       return;

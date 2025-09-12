@@ -350,3 +350,7 @@ address-book-carddav-connection-error = Failed to connect.
 address-book-ldap-duplicate-error = LDAP directory name already exists. Please input a different directory name.
 
 address-book-ldap-creation-error = Could not create LDAP Directory.
+
+account-hub-email-setup-ews = Server Settings
+
+account-hub-result-host-url-label = EWS endpoint URL

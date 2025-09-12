@@ -6,7 +6,7 @@
   <form id="incomingEmailForm" class="account-hub-form" slot="content">
     <div class="hub-body manual-form-body">
       <div class="form-row">
-        <div>
+        <div id="incomingProtocolFormGroup">
           <label for="incomingProtocol"
                  data-l10n-id="account-hub-protocol-label"
                  data-l10n-attrs="accesskey">
@@ -34,8 +34,7 @@
             </xul:menulist>
           </div>
         </div>
-
-        <div class="expanded">
+        <div id="incomingHostnameFormGroup" class="expanded">
           <label for="incomingHostname"
                  data-l10n-id="account-hub-result-hostname-label"
                  class="option-label">
@@ -59,8 +58,39 @@
             </span>
           </div>
         </div>
+
+        <label id="ewsProtocol" hidden="hidden">
+          <span data-l10n-id="account-hub-protocol-label"></span>
+          <div class="selected-option">
+            EWS
+          </div>
+        </label>
+        <div id="incomingEwsUrlFormGroup" class="expanded" hidden="hidden">
+          <label for="incomingEwsUrl"
+                 data-l10n-id="account-hub-result-host-url-label"
+                 class="option-label">
+          </label>
+          <div class="input-control">
+            <input id="incomingEwsUrl"
+                   type="url"
+                   placeholder="https://www.example.com"
+                   required="required"
+                   class="input-field manual-input"
+                   aria-invalid="false" />
+            <img src=""
+                 alt=""
+                 class="form-icon icon-danger input-warning" />
+            <img src=""
+                 alt=""
+                 class="form-icon icon-success input-success" />
+            <span id="incomingEwsUrlErrorMessage"
+                  class="input-error-message"
+                  data-l10n-id="account-hub-server-error-text">
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="form-row">
+      <div id="nonEwsFormRow" class="form-row">
         <div>
           <label for="incomingPort"
                  data-l10n-id="account-hub-port-label"

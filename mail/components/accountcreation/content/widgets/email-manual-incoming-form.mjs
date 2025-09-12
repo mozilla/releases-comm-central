@@ -73,6 +73,13 @@ class EmailIncomingForm extends AccountHubStep {
   #incomingUsername;
 
   /**
+   * The EWS URL for an ews config.
+   *
+   * @type {HTMLInputElement}
+   */
+  #incomingEwsUrl;
+
+  /**
    * The current email incoming config form inputs.
    *
    * @type {AccountConfig}
@@ -110,6 +117,7 @@ class EmailIncomingForm extends AccountHubStep {
       "#incomingAuthMethod"
     );
     this.#incomingUsername = this.querySelector("#incomingUsername");
+    this.#incomingEwsUrl = this.querySelector("#incomingEwsUrl");
     this.setupEventListeners();
     this.#currentConfig = {};
     this.#edited = false;
@@ -144,6 +152,10 @@ class EmailIncomingForm extends AccountHubStep {
     this.#incomingProtocol.addEventListener("command", () => {
       this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
+    });
+
+    this.#incomingEwsUrl.addEventListener("input", () => {
+      this.#configChanged();
     });
 
     this.querySelector("#advancedConfigurationIncoming").addEventListener(
@@ -384,9 +396,87 @@ class EmailIncomingForm extends AccountHubStep {
    * @returns {AccountConfig}
    */
   getIncomingUserConfig() {
-    const config = this.#currentConfig;
+    let config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
+    // An EWS configuration won't have any of the default fields available to
+    // edit.
+    if (config.incoming.type != "ews") {
+      config = this.#getDefaultConfigValues(config);
+    } else {
+      config = this.#getEwsConfigValues(config);
+    }
+
+    config.incoming.auth = Sanitizer.integer(
+      this.#incomingAuthenticationMethod.value
+    );
+    config.incoming.username = this.#incomingUsername.value;
+    !this.#incomingUsername.value
+      ? this.#incomingUsername.setAttribute(
+          "aria-describedby",
+          "incomingUsernameErrorMessage"
+        )
+      : this.#incomingUsername.removeAttribute("aria-describedby");
+    this.#incomingUsername.setAttribute(
+      "aria-invalid",
+      !this.#incomingUsername.value
+    );
+
+    return config;
+  }
+
+  /**
+   * Updates the fields with the confirmed AccountConfig from
+   * guessConfig, called by parent template.
+   *
+   * @param {AccountConfig} config - The config to present to the user.
+   */
+  updateFields(config) {
+    assert(config instanceof AccountConfig);
+    this.#updateConfigInputsVisibility(config.incoming.type === "ews");
+
+    // An EWS configuration won't have any of these fields available to edit.
+    if (config.incoming.type != "ews") {
+      this.#incomingProtocol.value = Sanitizer.translate(
+        config.incoming.type,
+        { imap: 1, pop3: 2, exchange: 3, ews: 4 },
+        1
+      );
+      this.#incomingHostname.value = config.incoming.hostname;
+      this.#incomingConnectionSecurity.value = Sanitizer.enum(
+        config.incoming.socketType,
+        [-1, 0, 1, 2, 3],
+        0
+      );
+
+      // If a port number was specified other than "Auto"
+      if (config.incoming.port) {
+        this.#incomingPort.value = config.incoming.port;
+      } else {
+        this.#adjustPortToSSLAndProtocol(config);
+      }
+    } else {
+      this.#incomingEwsUrl.value = config.incoming.ewsURL;
+    }
+
+    this.#incomingAuthenticationMethod.value = Sanitizer.enum(
+      config.incoming.auth,
+      [0, 3, 4, 5, 6, 10],
+      0
+    );
+    this.#incomingUsername.value = config.incoming.username;
+
+    this.#adjustOAuth2Visibility(config);
+  }
+
+  /**
+   * Captures and sanitizes the incoming config fields that are for a default
+   * incoming configuration (non ews), and then returns the updated config.
+   *
+   * @param {AccountConfig} config - The current account config.
+   * @returns {AccountConfig}
+   */
+  #getDefaultConfigValues(config) {
     try {
       const inHostnameValue = this.#incomingHostname.value;
       config.incoming.hostname = Sanitizer.hostname(inHostnameValue);
@@ -433,62 +523,67 @@ class EmailIncomingForm extends AccountHubStep {
     config.incoming.socketType = Sanitizer.integer(
       this.#incomingConnectionSecurity.value
     );
-    config.incoming.auth = Sanitizer.integer(
-      this.#incomingAuthenticationMethod.value
-    );
-    config.incoming.username = this.#incomingUsername.value;
-    !this.#incomingUsername.value
-      ? this.#incomingUsername.setAttribute(
-          "aria-describedby",
-          "incomingUsernameErrorMessage"
-        )
-      : this.#incomingUsername.removeAttribute("aria-describedby");
-    this.#incomingUsername.setAttribute(
-      "aria-invalid",
-      !this.#incomingUsername.value
-    );
 
     return config;
   }
 
   /**
-   * Updates the fields with the confirmed AccountConfig from
-   * guessConfig, called by parent template.
+   * Captures and sanitizes the incoming config fields that are for an ews
+   * (configuration), and then returns the updated config.
    *
-   * @param {AccountConfig} config - The config to present to the user.
+   * @param {AccountConfig} config - The current account config.
+   * @returns {AccountConfig}
    */
-  updateFields(config) {
-    assert(config instanceof AccountConfig);
-
-    const isExchange = config.incoming.type == "exchange";
-
-    this.querySelector("#incomingProtocolExchange").hidden = !isExchange;
-    this.#incomingProtocol.value = Sanitizer.translate(
-      config.incoming.type,
-      { imap: 1, pop3: 2, exchange: 3 },
-      1
-    );
-    this.#incomingHostname.value = config.incoming.hostname;
-    this.#incomingConnectionSecurity.value = Sanitizer.enum(
-      config.incoming.socketType,
-      [-1, 0, 1, 2, 3],
-      0
-    );
-    this.#incomingAuthenticationMethod.value = Sanitizer.enum(
-      config.incoming.auth,
-      [0, 3, 4, 5, 6, 10],
-      0
-    );
-    this.#incomingUsername.value = config.incoming.username;
-
-    // If a port number was specified other than "Auto"
-    if (config.incoming.port) {
-      this.#incomingPort.value = config.incoming.port;
-    } else {
-      this.#adjustPortToSSLAndProtocol(config);
+  #getEwsConfigValues(config) {
+    try {
+      const inEwsUrl = this.#incomingEwsUrl.value;
+      config.incoming.ewsURL = Sanitizer.url(inEwsUrl);
+      this.#incomingEwsUrl.value = config.incoming.ewsURL;
+      this.#incomingEwsUrl.setCustomValidity("");
+      this.#incomingEwsUrl.setAttribute("aria-invalid", false);
+      this.#incomingEwsUrl.removeAttribute("aria-describedby");
+    } catch (error) {
+      gAccountSetupLogger.warn(error);
+      this.#incomingEwsUrl.setCustomValidity(error._message);
+      this.#incomingEwsUrl.setAttribute("aria-invalid", true);
+      this.#incomingEwsUrl.setAttribute(
+        "aria-describedby",
+        "incomingEwsUrlErrorMessage"
+      );
     }
 
-    this.#adjustOAuth2Visibility(config);
+    return config;
+  }
+
+  /**
+   * Shows/Hides the config inputs based on if we're editing an EWS
+   * configuration.
+   *
+   * @param {boolean} isExchange - If the config is an EWS config.
+   */
+  #updateConfigInputsVisibility(isExchange) {
+    const configOptions = {
+      "#ewsProtocol": !isExchange,
+      "#incomingProtocolFormGroup": isExchange,
+      "#incomingHostnameFormGroup": isExchange,
+      "#incomingEwsUrlFormGroup": !isExchange,
+      "#nonEwsFormRow": isExchange,
+      "#incomingProtocolIMAP": isExchange,
+      "#incomingProtocolPOP3": isExchange,
+      "#incomingAuthMethodAutodetect": isExchange,
+      "#incomingAuthMethodEncrypted": isExchange,
+      "#incomingAuthMethodKerbos": isExchange,
+      "#incomingAuthMethodNtlm": isExchange,
+    };
+
+    for (const optionID in configOptions) {
+      this.querySelector(optionID).toggleAttribute(
+        "hidden",
+        configOptions[optionID]
+      );
+    }
+
+    this.#incomingEwsUrl.toggleAttribute("required", isExchange);
   }
 }
 
