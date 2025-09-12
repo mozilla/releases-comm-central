@@ -182,7 +182,9 @@ add_task(async function testSwitchToCardsView() {
   const row = threadTree.getRowAtIndex(0);
   const star = row.querySelector(".button-star");
   Assert.ok(BrowserTestUtils.isVisible(star), "star icon should be visible");
-  const tag = row.querySelector(".tag-icon");
+  const tag = row
+    .querySelector("thread-card-tags")
+    .shadowRoot.querySelector(".tag-icon");
   Assert.ok(BrowserTestUtils.isHidden(tag), "tag icon should be hidden");
   const attachment = row.querySelector(".attachment-icon");
   Assert.ok(

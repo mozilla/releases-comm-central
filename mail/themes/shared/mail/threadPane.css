@@ -157,43 +157,6 @@
   margin-inline: auto;
 }
 
-tr[data-properties~="tagged"] .thread-card-icon-info .thread-card-tags-info {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-
-  .tag-more {
-    font-size: 0.7em;
-    font-weight: 700;
-  }
-
-  & > img {
-    position: relative;
-
-    &:not(:first-child) {
-      margin-inline-start: -11px;
-    }
-
-    &:first-child {
-      z-index: 3;
-    }
-
-    &:nth-of-type(2) {
-      z-index: 2;
-    }
-
-    &.tag-icon {
-      content: var(--icon-tag-sm);
-    }
-  }
-}
-
-tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
-  display: unset;
-  color: var(--tag-color, currentColor);
-  fill: color-mix(in srgb, var(--tag-color, currentColor) 20%, var(--tags-base-background-color));
-}
-
 [is="tree-view-table-body"] {
 
   & > .table-layout[data-properties~="unread"]:not([data-properties~="tagged"]) {

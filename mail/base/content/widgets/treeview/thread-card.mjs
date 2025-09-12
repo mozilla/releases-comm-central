@@ -2,16 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
-);
-
 import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
-
-const tagsMoreFormatter = new Intl.NumberFormat(undefined, {
-  signDisplay: "always",
-});
-const tagsTitleFormatter = new Intl.ListFormat();
+// eslint-disable-next-line import/no-unassigned-import
+import "chrome://messenger/content/thread-card-tags.mjs";
 
 /**
  * The tr element row of the TreeView table for the cards view layout.
@@ -41,9 +34,7 @@ class ThreadCard extends TreeViewTableRow {
     this.subjectLine = this.querySelector(".subject");
     this.dateLine = this.querySelector(".date");
     this.starButton = this.querySelector(".button-star");
-    this.threadCardTagsInfo = this.querySelector(".thread-card-tags-info");
-    this.tagIcons = this.querySelectorAll(".tag-icon");
-    this.tagsMore = this.querySelector(".tag-more");
+    this.threadCardTags = this.querySelector("thread-card-tags");
     this.replies = this.querySelector(".thread-replies");
     this.sortHeaderDetails = this.querySelector(".sort-header-details");
   }
@@ -111,39 +102,7 @@ class ThreadCard extends TreeViewTableRow {
     this.senderLine.title = data.sender;
     this.dateLine.textContent = data.date;
 
-    const matchedKeys = [];
-    const matchedTags = [];
-    for (const key of data.tagKeys.split(" ")) {
-      try {
-        const tag = MailServices.tags.getTagForKey(key);
-        matchedKeys.push(key);
-        matchedTags.push(tag);
-      } catch (ex) {
-        // `getTagForKey` throws if the tag doesn't exist.
-      }
-    }
-    this.threadCardTagsInfo.title = tagsTitleFormatter.format(matchedTags);
-
-    // Clears the text span displaying the extra amount of the tags to prevent
-    // stale content.
-    const tagCount = matchedTags.length;
-    this.tagsMore.hidden = tagCount <= 3;
-
-    // Show or hide tags based on its index and the amount of tags.
-    for (const [tagIndex, tag] of this.tagIcons.entries()) {
-      tag.hidden = tagIndex >= tagCount;
-      // If any tag is active, we reset the tags colors.
-      tag.style.setProperty(
-        "--tag-color",
-        `var(--tag-${CSS.escape(matchedKeys[tagIndex])}-backcolor)`
-      );
-    }
-
-    // Updates the text span displaying the extra amount of the tags.
-    if (tagCount > 3) {
-      this.tagsMore.hidden = false;
-      this.tagsMore.textContent = tagsMoreFormatter.format(tagCount - 3);
-    }
+    this.threadCardTags.setAttribute("tags", data.tagKeys);
 
     // Follow the layout order.
     ariaLabelPromises.push(data.sender);
