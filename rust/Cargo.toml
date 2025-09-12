@@ -255,6 +255,7 @@ tracing-support = { git = "https://github.com/mozilla/application-services", rev
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "2f3f9cd624cc6f1e08b7540407e953daae602b82" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "2f3f9cd624cc6f1e08b7540407e953daae602b82" }
 zip = { path = "../../third_party/rust/zip" }
+libcrux-traits = { path = "../../build/rust/libcrux-traits" }
 
 [patch."https://github.com/mozilla/neqo"]
 neqo-crypto = { path = "../../third_party/rust/neqo-crypto" }
