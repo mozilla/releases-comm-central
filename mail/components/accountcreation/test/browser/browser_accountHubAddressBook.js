@@ -150,6 +150,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   const accountSelectSubview = await subtest_viewAccountOptions();
   let setStateSpy = sinon.spy(accountSelectSubview, "setState");
   const backButton = abView.querySelector("account-hub-footer #back");
+  Assert.equal(backButton.disabled, false, "#back button should be enabled");
 
   let subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
     "hidden",
@@ -456,16 +457,14 @@ async function subtest_viewAccountOptions() {
     "#syncExistingAccounts"
   );
   syncAccountsButton.disabled = false;
+  Assert.report(false, undefined, undefined, "Will submit!");
   const formSubmissionPromise = BrowserTestUtils.waitForEvent(
     optionSelectSubview,
     "submit"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    syncAccountsButton,
-    {},
-    abView.ownerGlobal
-  );
+  syncAccountsButton.click();
   await formSubmissionPromise;
+  Assert.report(false, undefined, undefined, "Sync accounts form submitted");
 
   const accountSelectSubview = abView.querySelector(
     "address-book-account-select"
