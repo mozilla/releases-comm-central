@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the thread-card-tags custom element</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      margin: 0;
+    }
+  </style>
+  <script type="module" src="chrome://messenger/content/thread-card-tags.mjs"></script>
+</head>
+<body>
+  <thread-card-tags
+    id="existingFilledTag"
+    tags="$label1 $label2 notjunk something"
+  ></thread-card-tags>
+  <thread-card-tags id="existingEmptyTag"></thread-card-tags>
+</body>
+</html>

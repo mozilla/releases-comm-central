@@ -39,6 +39,8 @@ skip-if = ["headless"]
 
 ["browser_searchBar.js"]
 
+["browser_threadCardTags.js"]
+
 ["browser_treeListbox.js"]
 
 ["browser_treeView.js"]
