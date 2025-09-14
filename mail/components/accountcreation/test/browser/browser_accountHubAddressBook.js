@@ -152,13 +152,49 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   const backButton = abView.querySelector("account-hub-footer #back");
   Assert.equal(backButton.disabled, false, "#back button should be enabled");
 
-  let subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
-    "hidden",
-    accountSelectSubview
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "About to click Back from account-select → option-select"
   );
+  // Make sure Back is actually visible & clickable in headless.
+  await TestUtils.waitForCondition(
+    () =>
+      backButton &&
+      !backButton.disabled &&
+      !BrowserTestUtils.isHidden(backButton),
+    "waiting for #back button to be visible and enabled"
+  );
+  backButton.scrollIntoView({ block: "center" });
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
-  await subviewHiddenPromise;
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", optionSelectSubview);
+
+  // After clicking Back, the account-select subview may be hidden OR removed.
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "Clicked Back, waiting for account-select to hide/remove"
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      !accountSelectSubview.isConnected ||
+      BrowserTestUtils.isHidden(accountSelectSubview),
+    "waiting for account-select subview to be hidden or removed after Back"
+  );
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "account-select is hidden/removed"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(optionSelectSubview),
+    "waiting for option-select subview to be visible after Back"
+  );
+  Assert.report(false, undefined, undefined, "option-select is visible again");
+
   Assert.ok(
     BrowserTestUtils.isHidden(accountSelectSubview),
     "The account select subview should be hidden"
@@ -175,7 +211,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   );
   await TestUtils.waitForCondition(
     () => accountSelectSubview.querySelector('button[value="test@test.com"]'),
-    "The account-select subview should show an account button"
+    "waiting for the account-select subview to show an account button"
   );
   Assert.equal(
     setStateSpy.callCount,
@@ -189,16 +225,40 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
   const syncSubview = await subtest_viewSyncAddressBooks(accountSelectSubview);
   setStateSpy = sinon.spy(syncSubview, "setState");
 
-  subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
-    "hidden",
-    syncSubview
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "About to click Back from sync → account-select"
   );
+  await TestUtils.waitForCondition(
+    () =>
+      backButton &&
+      !backButton.disabled &&
+      !BrowserTestUtils.isHidden(backButton),
+    "waiting for #back button to be visible and enabled (from sync)"
+  );
+  backButton.scrollIntoView({ block: "center" });
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   EventUtils.synthesizeMouseAtCenter(backButton, {}, abView.ownerGlobal);
-  await subviewHiddenPromise;
-  await BrowserTestUtils.waitForAttributeRemoval(
-    "hidden",
-    accountSelectSubview
+
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "Clicked Back, waiting for sync to hide/remove"
   );
+  await TestUtils.waitForCondition(
+    () => !syncSubview.isConnected || BrowserTestUtils.isHidden(syncSubview),
+    "waiting for sync subview to be hidden or removed after Back"
+  );
+  Assert.report(false, undefined, undefined, "sync subview is hidden/removed");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(accountSelectSubview),
+    "waiting for account-select subview to be visible after Back"
+  );
+  Assert.report(false, undefined, undefined, "account-select is visible again");
+
   Assert.ok(
     BrowserTestUtils.isHidden(syncSubview),
     "The sync subview should be hidden"
@@ -208,16 +268,40 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
     "The account select subview should be visible"
   );
 
-  subviewHiddenPromise = BrowserTestUtils.waitForAttribute(
-    "hidden",
-    accountSelectSubview
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "About to click account button to go forward → sync"
   );
   const accountButton = accountSelectSubview.querySelector(
     'button[value="test@test.com"]'
   );
+  await TestUtils.waitForCondition(
+    () => accountButton && !BrowserTestUtils.isHidden(accountButton),
+    "waiting for Account button to be visible before click"
+  );
+  accountButton.scrollIntoView({ block: "center" });
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   EventUtils.synthesizeMouseAtCenter(accountButton, {}, abView.ownerGlobal);
-  await subviewHiddenPromise;
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", syncSubview);
+
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "Clicked account button, waiting for account-select to hide/remove"
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      !accountSelectSubview.isConnected ||
+      BrowserTestUtils.isHidden(accountSelectSubview),
+    "waiting for account-select subview to be hidden or removed after choosing account"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(syncSubview),
+    "waiting for sync subview to be visible after choosing account"
+  );
+
   Assert.ok(
     BrowserTestUtils.isHidden(accountSelectSubview),
     "The account select subview should be hidden"
@@ -240,7 +324,7 @@ add_task(async function test_optionAndAccountSelectFormSubmission() {
 add_task(async function test_configUpdatedEvent() {
   await TestUtils.waitForCondition(
     () => abView.hasConnected,
-    "The address book subview should be connected"
+    "waiting for the address book subview to be connected"
   );
   const viewSubmit = BrowserTestUtils.waitForEvent(abView, "submit");
   EventUtils.synthesizeMouseAtCenter(
@@ -392,7 +476,7 @@ add_task(async function test_syncNoAddressBooks() {
 add_task(async function test_localAddressBookForwardEventAndCreation() {
   const optionSelect = await TestUtils.waitForCondition(
     () => abView.querySelector("address-book-option-select"),
-    `Address book option select should connected`
+    `waiting for Address book option select to be connected`
   );
 
   const button = optionSelect.querySelector("#newLocalAddressBook");
@@ -404,7 +488,7 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
   await TestUtils.waitForCondition(async () => {
     localForm = abView.querySelector("address-book-local-form form");
     return localForm?.getBoundingClientRect().width;
-  }, `New local address book subview should be visible`);
+  }, `waiting for new local address book subview to be visible`);
 
   const input = localForm.querySelector("input");
 
@@ -471,7 +555,7 @@ async function subtest_viewAccountOptions() {
   );
   await TestUtils.waitForCondition(
     () => accountSelectSubview.hasConnected,
-    "The account-select subview should be connected"
+    "waiting for the account-select subview to be connected"
   );
 
   return accountSelectSubview;
@@ -498,7 +582,7 @@ async function subtest_viewSyncAddressBooks(accountSelectSubview) {
   const syncSubview = abView.querySelector("address-book-sync");
   await TestUtils.waitForCondition(
     () => syncSubview.hasConnected,
-    "The sync subview should be connected"
+    "waiting for the sync subview to be connected"
   );
 
   return syncSubview;
