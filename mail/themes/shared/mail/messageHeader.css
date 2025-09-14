@@ -160,10 +160,6 @@ mail-tagfield[collapsed] {
 
 /* ::::: msg header buttons ::::: */
 
-#otherActionsButton > .toolbarbutton-icon {
-  display: none;
-}
-
 .message-header-view-button {
   flex-direction: row;
   min-width: 24px;
@@ -244,6 +240,10 @@ mail-tagfield[collapsed] {
 
 .hdrTrashButton {
   list-style-image: var(--icon-trash);
+}
+
+.hdrMoreButton {
+  list-style-image: var(--icon-kebab);
 }
 
 #attachmentSaveAllSingle,
