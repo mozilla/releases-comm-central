@@ -3234,6 +3234,12 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
 
   nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++) {
+    if (!mDatabase) {
+      MOZ_LOG(
+          FILTERLOGMODULE, LogLevel::Error,
+          ("(Imap) Db went away; bailing out at index %" PRIu32, actionIndex));
+    }
+    NS_ENSURE_STATE(mDatabase);
     nsCOMPtr<nsIMsgRuleAction> filterAction(filterActionList[actionIndex]);
     if (!filterAction) {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
