@@ -2072,12 +2072,20 @@ function getEmail(url) {
  * @param {string} linkURL - mailto: link to use.
  * @param {nsIMsgIdentity} [identity] - The identity to use, otherwise the
  *   default identity is used.
+ * @param {nsIMsgCompFormat} [format] - If given, the preferred compose format
+ *   to use. 'mailto' URLs containing 'html-body' or 'html-part' fields are
+ *   always opened in HTML mode.
  */
-function composeEmailTo(linkURL, identity) {
+function composeEmailTo(
+  linkURL,
+  identity,
+  format = Ci.nsIMsgCompFormat.Default
+) {
   MailServices.compose.OpenComposeWindowWithURI(
     null,
     Services.io.newURI(linkURL),
-    identity
+    identity,
+    format
   );
 }
 

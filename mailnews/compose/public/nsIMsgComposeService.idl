@@ -50,19 +50,24 @@ interface nsIMsgComposeService : nsISupports {
                          [optional] in boolean autodetectCharset);
 
   /**
-   * Open a compose window given a mailto url and (optionally) an identity.
+   * Open a compose window given a 'mailto' URL and further optional
+   * arguments.
    *
-   * @param aMsgComposeWindowURL Can be null in most cases. If you have your
-   *                             own chrome url you want to use in bringing up a
-   *                             compose window, pass it in here.
-   * @param aURI                 The mailto url you want to use as the
-   *                             foundation for the data inside the compose
-   *                             window.
-   * @param aIdentity            An optional identity to send the message from.
+   * @param msgComposeWindowURL Can be null in most cases. If you have your
+   *                            own chrome URL you want to use in bringing up a
+   *                            compose window, pass it in here.
+   * @param URI                 The 'mailto' URL you want to use as the
+   *                            foundation for the data inside the compose
+   *                            window.
+   * @param identity            An optional identity to send the message from.
+   * @param format              Optionally the preferred compose format. URIs
+   *                            containing 'html-body' or 'html-part' fields
+   *                            are always opened in HTML mode.
    */
   void OpenComposeWindowWithURI(in string msgComposeWindowURL,
-                                in nsIURI aURI,
-                                [optional] in nsIMsgIdentity aIdentity);
+                                in nsIURI URI,
+                                [optional] in nsIMsgIdentity identity,
+                                [optional] in MSG_ComposeFormat format);
 
   /* ... */
   void OpenComposeWindowWithParams(in string msgComposeWindowURL, in nsIMsgComposeParams params);
@@ -90,15 +95,19 @@ interface nsIMsgComposeService : nsISupports {
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
 
   /**
-   * Given a mailto url and an optional identity, parse the attributes and turn
-   * them into a nsIMsgComposeParams object.
+   * Given a 'mailto' URL and optional further arguments, parse the attributes
+   * and turn them into an nsIMsgComposeParams object.
    *
-   * @param aURI                 The mailto url to parse.
-   * @param aIdentity            An optional identity to send the message from.
-
+   * @param URI       The 'mailto' URL to parse.
+   * @param identity  An optional identity to send the message from.
+   * @param format    Optionally the preferred compose format. This does not
+   *                  affect URIs containing 'html-body' or 'html-part' fields.
+   *
    * @return nsIMsgComposeParams which corresponds to the passed in data.
    */
-  nsIMsgComposeParams getParamsForMailto(in nsIURI aURI, [optional] in nsIMsgIdentity aIdentity);
+  nsIMsgComposeParams getParamsForMailto(in nsIURI URI,
+                                         [optional] in nsIMsgIdentity identity,
+                                         [optional] in MSG_ComposeFormat format);
 
   /**
    * @{

@@ -384,7 +384,8 @@ nsMsgComposeService::OpenComposeWindow(
 }
 
 NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
-    nsIURI* aURI, nsIMsgIdentity* aIdentity, nsIMsgComposeParams** aParams) {
+    nsIURI* aURI, nsIMsgIdentity* aIdentity, MSG_ComposeFormat aFormat,
+    nsIMsgComposeParams** aParams) {
   nsresult rv = NS_OK;
   if (aURI) {
     nsCString spec;
@@ -410,8 +411,11 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
                                      bodyPart, HTMLBodyPart, refPart, newsgroup,
                                      &requestedComposeFormat);
 
-      nsAutoString sanitizedBody;
-
+      // Override the compose format only for URLs that do not require a
+      // specific format.
+      if (requestedComposeFormat == nsIMsgCompFormat::Default) {
+        requestedComposeFormat = aFormat;
+      }
       bool composeHTMLFormat;
       DetermineComposeHTML(aIdentity, requestedComposeFormat,
                            &composeHTMLFormat);
@@ -422,6 +426,7 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
       // 'body' param needs to be escaped, since it's supposed to be plain
       // text, but it then doesn't need to sanitized.
       nsString rawBody;
+      nsAutoString sanitizedBody;
       if (HTMLBodyPart.IsEmpty()) {
         if (composeHTMLFormat) {
           nsCString escaped;
@@ -483,10 +488,11 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
 }
 
 NS_IMETHODIMP nsMsgComposeService::OpenComposeWindowWithURI(
-    const char* aMsgComposeWindowURL, nsIURI* aURI, nsIMsgIdentity* identity) {
+    const char* aMsgComposeWindowURL, nsIURI* aURI, nsIMsgIdentity* identity,
+    MSG_ComposeFormat aFormat) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
-  nsresult rv =
-      GetParamsForMailto(aURI, identity, getter_AddRefs(pMsgComposeParams));
+  nsresult rv = GetParamsForMailto(aURI, identity, aFormat,
+                                   getter_AddRefs(pMsgComposeParams));
   NS_ENSURE_SUCCESS(rv, rv);
   return OpenComposeWindowWithParams(aMsgComposeWindowURL, pMsgComposeParams);
 }

@@ -99,7 +99,8 @@ NS_IMETHODIMP nsMsgComposeContentHandler::HandleContent(
     if (aUri) {
       nsCOMPtr<nsIMsgComposeService> composeService =
           mozilla::components::Compose::Service();
-      rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity);
+      rv = composeService->OpenComposeWindowWithURI(nullptr, aUri, identity,
+                                                    nsIMsgCompFormat::Default);
     }
   } else {
     // The content-type was not application/x-mailto...

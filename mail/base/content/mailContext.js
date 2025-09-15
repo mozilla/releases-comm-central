@@ -606,7 +606,10 @@ var mailContextMenu = {
           this.context.linkURL,
           gFolder
             ? MailServices.accounts.getFirstIdentityForServer(gFolder.server)
-            : null
+            : null,
+          event.shiftKey
+            ? Ci.nsIMsgCompFormat.OppositeOfDefault
+            : Ci.nsIMsgCompFormat.Default
         );
         break;
       case "mailContext-copyemail": {

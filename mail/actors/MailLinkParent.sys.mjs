@@ -29,14 +29,14 @@ export class MailLinkParent extends JSWindowActorParent {
         break;
       default:
         throw Components.Exception(
-          `Unsupported name=${value.name} url=${value.data}`,
+          `Unsupported name=${value.name} url=${value.data.href}`,
           Cr.NS_ERROR_ILLEGAL_VALUE
         );
     }
   }
 
   _handleMailboxLink({ data, target }) {
-    const url = new URL(data);
+    const url = new URL(data.href);
     const filename = url.searchParams.get("filename");
     // When a message is received with a 'news:' link embedded as a MIME part
     // of the message, the internal 'cid:' link is converted to a mailbox link
@@ -46,7 +46,7 @@ export class MailLinkParent extends JSWindowActorParent {
     // content-type in this case.
     new lazy.AttachmentInfo({
       contentType: /\.rfc822$/.test(filename) ? "message/rfc822" : "",
-      url: data,
+      url: data.href,
       name: filename,
       uri: "",
       isExternalAttachment: false,
@@ -70,19 +70,21 @@ export class MailLinkParent extends JSWindowActorParent {
 
     lazy.MailServices.compose.OpenComposeWindowWithURI(
       undefined,
-      Services.io.newURI(data),
-      identity
+      Services.io.newURI(data.href),
+      identity,
+      data.shiftPressed
+        ? Ci.nsIMsgCompFormat.OppositeOfDefault
+        : Ci.nsIMsgCompFormat.Default
     );
   }
 
   _handleMidLink({ data }) {
-    // data is the mid: url.
-    lazy.MailUtils.openMessageForMessageId(data.slice(4));
+    lazy.MailUtils.openMessageForMessageId(data.href.slice(4));
   }
 
   _handleNewsLink({ data }) {
     lazy.MailUtils.handleNewsUri(
-      data,
+      data.href,
       Services.wm.getMostRecentWindow("mail:3pane")
     );
   }

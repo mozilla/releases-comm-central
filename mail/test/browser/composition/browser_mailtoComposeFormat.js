@@ -33,7 +33,7 @@ var identityA0, identityB0, identityB1;
 var inboxA, inboxB;
 
 add_setup(async function () {
-  const createTestMessage = async (folder, identity) => {
+  const createTestMessage = async (folder, identity, mailTo) => {
     await add_message_to_folder(
       [folder],
       create_message({
@@ -44,9 +44,9 @@ add_setup(async function () {
           body: `<!DOCTYPE html>
 <html>
 <body>
-<a href="mailto:mailtoRecipient@example.org" id="mailtolink">Mailto Link</a>
+<a href="${mailTo}" id="mailtolink">Mailto Link</a>
 </body>
-<hml>`,
+</html>`,
           contentType: "text/html",
         },
       })
@@ -86,9 +86,26 @@ add_setup(async function () {
   identityB1.email = "someone.else@accountB.invalid";
   accountB.addIdentity(identityB1);
 
-  await createTestMessage(inboxA, identityA0);
-  await createTestMessage(inboxB, identityB1);
-  await createTestMessage(inboxB, identityB0);
+  await createTestMessage(
+    inboxA,
+    identityA0,
+    "mailto:mailtoRecipient@example.org?html-body=%3Chtml%3E%3Cbody%3EHTML%20body%3C%2Fbody%3E%3C%2Fhtml%3E"
+  );
+  await createTestMessage(
+    inboxA,
+    identityA0,
+    "mailto:mailtoRecipient@example.org"
+  );
+  await createTestMessage(
+    inboxB,
+    identityB1,
+    "mailto:mailtoRecipient@example.org"
+  );
+  await createTestMessage(
+    inboxB,
+    identityB0,
+    "mailto:mailtoRecipient@example.org"
+  );
 
   registerCleanupFunction(() => {
     accountB.removeIdentity(identityB1);
@@ -101,15 +118,21 @@ add_setup(async function () {
 
 add_task(async function test_mailto_links() {
   const subTest = async (formatA0, formatB0, formatB1) => {
-    const clickMailtoLink = async (folder, identity, row = 0) => {
+    const selectMessageInFolder = async (folder, row = 0) => {
       await be_in_folder(folder);
       const msg = await select_click_row(row);
       await assert_selected_and_displayed(window, msg);
+    };
 
+    const clickMailtoLink = async (
+      identity,
+      shift = false,
+      htmlFields = false
+    ) => {
       const composePromise = promise_new_window("msgcompose");
       await BrowserTestUtils.synthesizeMouseAtCenter(
         "#mailtolink",
-        {},
+        { shiftKey: shift },
         get_about_message().getMessagePaneBrowser()
       );
       const cwc = await compose_window_ready(composePromise);
@@ -119,21 +142,52 @@ add_task(async function test_mailto_links() {
         identity,
         "The correct identity should be selected."
       );
-      Assert.equal(
-        cwc.gMsgCompose.composeHTML,
-        identity.composeHtml,
-        "Compose HTML should match the identity's setting."
-      );
-
+      console.log(identity.composeHtml);
+      if (htmlFields) {
+        Assert.equal(
+          cwc.gMsgCompose.composeHTML,
+          true,
+          "Any click on 'mailto' link containing HTML fields: Compose HTML should be true."
+        );
+      } else if (!shift) {
+        Assert.equal(
+          cwc.gMsgCompose.composeHTML,
+          identity.composeHtml,
+          "Compose HTML should match the identity's setting."
+        );
+      } else {
+        Assert.equal(
+          cwc.gMsgCompose.composeHTML,
+          !identity.composeHtml,
+          "Shift-click: Compose HTML should match the opposite of the identity's setting."
+        );
+      }
       await close_compose_window(cwc);
     };
 
     identityA0.composeHtml = formatA0;
     identityB0.composeHtml = formatB0;
     identityB1.composeHtml = formatB1;
-    await clickMailtoLink(inboxA, identityA0);
-    await clickMailtoLink(inboxB, identityB0);
-    await clickMailtoLink(inboxB, identityB1, 1);
+
+    // Test the identity for account A.
+    await selectMessageInFolder(inboxA);
+    await clickMailtoLink(identityA0);
+    await clickMailtoLink(identityA0, true);
+
+    // Test a 'mailto' link containing a 'html-body' field.
+    await selectMessageInFolder(inboxA, 1);
+    await clickMailtoLink(identityA0, false, true);
+    await clickMailtoLink(identityA0, true, true);
+
+    // Test the first identity for account B.
+    await selectMessageInFolder(inboxB);
+    await clickMailtoLink(identityB0);
+    await clickMailtoLink(identityB0, true);
+
+    // Test the second identity for account B.
+    await selectMessageInFolder(inboxB, 1);
+    await clickMailtoLink(identityB1);
+    await clickMailtoLink(identityB1, true);
   };
 
   await subTest(true, false, true);

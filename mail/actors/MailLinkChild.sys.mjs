@@ -3,8 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const PROTOCOLS = ["mailto:", "mid:", "news:", "snews:"];
-
 export class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
     const href = event.target.closest("a")?.href;
@@ -23,7 +21,7 @@ export class MailLinkChild extends JSWindowActorChild {
     const url = new URL(href);
     const protocol = url.protocol;
     if (
-      PROTOCOLS.includes(protocol) ||
+      ["mailto:", "mid:", "news:", "snews:"].includes(protocol) ||
       // A link to an attachment, e.g. cid: link.
       (["imap:", "mailbox:"].includes(protocol) &&
         url.searchParams.get("part") &&
@@ -32,7 +30,7 @@ export class MailLinkChild extends JSWindowActorChild {
           url.origin != location.origin ||
           url.pathname != location.pathname))
     ) {
-      this.sendAsyncMessage(protocol, href);
+      this.sendAsyncMessage(protocol, { href, shiftPressed: event.shiftKey });
       event.preventDefault();
     }
   }
