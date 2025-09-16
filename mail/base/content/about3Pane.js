@@ -3649,6 +3649,7 @@ var folderPane = {
       folder.ForceDBClosed();
     }
     folder.updateFolder(top.msgWindow);
+    folder.msgDatabase.commit(Ci.nsMsgDBCommitType.kCompressCommit);
   },
 
   /**

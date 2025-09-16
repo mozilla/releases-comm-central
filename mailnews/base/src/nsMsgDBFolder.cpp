@@ -1682,6 +1682,11 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
           rv = AsyncCompactFolders(folderArray, nullptr, aWindow);
         }
       }
+    } else {
+      // Ensure commit happens regularly, even if offline stores are disabled.
+      if (mDatabase) {
+        mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+      }
     }
   }
   return rv;
