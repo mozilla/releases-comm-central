@@ -26,7 +26,6 @@ var gCookiesWindow = {
 
   init() {
     Services.obs.addObserver(this, "cookie-changed");
-    Services.obs.addObserver(this, "perm-changed");
 
     this._bundle = document.getElementById("bundlePreferences");
     this._tree = document.getElementById("cookiesList");
@@ -43,7 +42,6 @@ var gCookiesWindow = {
 
   uninit() {
     Services.obs.removeObserver(this, "cookie-changed");
-    Services.obs.removeObserver(this, "perm-changed");
   },
 
   _populateList(aInitialLoad) {
@@ -83,36 +81,43 @@ var gCookiesWindow = {
     );
   },
 
-  observe(aCookie, aTopic, aData) {
-    if (aTopic != "cookie-changed") {
+  observe(subject, topic) {
+    if (topic != "cookie-changed") {
       return;
     }
 
-    if (aCookie instanceof Ci.nsICookie) {
-      var strippedHost = this._makeStrippedHost(aCookie.host);
-      if (aData == "changed") {
-        this._handleCookieChanged(aCookie, strippedHost);
-      } else if (aData == "added") {
-        this._handleCookieAdded(aCookie, strippedHost);
-      }
-    } else if (aData == "cleared") {
+    const notification = subject.QueryInterface(Ci.nsICookieNotification);
+
+    const { ALL_COOKIES_CLEARED, COOKIE_CHANGED, COOKIE_ADDED } =
+      Ci.nsICookieNotification;
+
+    if (notification.action == ALL_COOKIES_CLEARED) {
       this._hosts = {};
       this._hostOrder = [];
 
-      var oldRowCount = this._view._rowCount;
+      const oldRowCount = this._view._rowCount;
       this._view._rowCount = 0;
       this._tree.rowCountChanged(0, -oldRowCount);
       this._view.selection.clearSelection();
-    } else if (aData == "reload") {
-      // first, clear any existing entries
-      this.observe(aCookie, aTopic, "cleared");
-
-      // then, reload the list
-      this._populateList(false);
+      return;
     }
 
-    // We don't yet handle aData == "deleted" - it's a less common case
-    // and is rather complicated as selection tracking is difficult
+    if (![COOKIE_CHANGED, COOKIE_ADDED].includes(notification.action)) {
+      return;
+    }
+
+    const cookie = notification.cookie.QueryInterface(Ci.nsICookie);
+    const strippedHost = this._makeStrippedHost(cookie.host);
+    switch (notification.action) {
+      case COOKIE_CHANGED:
+        this._handleCookieChanged(cookie, strippedHost);
+        break;
+      case COOKIE_ADDED:
+        this._handleCookieAdded(cookie, strippedHost);
+        break;
+      // We don't yet handle the COOKIE_DELETED notification - it's a less common
+      // case and is rather complicated as selection tracking is difficult
+    }
   },
 
   _handleCookieChanged(changedCookie, strippedHost) {
@@ -297,7 +302,13 @@ var gCookiesWindow = {
       }
       this._invalidateCache(aIndex - 1);
       if (item.container) {
-        gCookiesWindow._hosts[item.rawHost] = null;
+        delete gCookiesWindow._hosts[item.rawHost];
+        const idx = gCookiesWindow._hostOrder.findIndex(
+          el => el == item.rawHost
+        );
+        if (idx >= 0) {
+          gCookiesWindow._hostOrder.splice(idx, 1);
+        }
       } else {
         const parent = this._getItemAtIndex(item.parentIndex);
         for (let i = 0; i < parent.cookies.length; ++i) {
@@ -767,12 +778,15 @@ var gCookiesWindow = {
       }
     } else {
       var rangeCount = seln.getRangeCount();
-      for (var i = 0; i < rangeCount; ++i) {
+      // Traverse backwards through selections to avoid messing
+      // up the indices when they are deleted.
+      // See bug 388079.
+      for (let i = rangeCount - 1; i >= 0; --i) {
         var min = {};
         var max = {};
         seln.getRangeAt(i, min, max);
         nextSelected = min.value;
-        for (var j = min.value; j <= max.value; ++j) {
+        for (let j = min.value; j <= max.value; ++j) {
           deleteItems.push(this._view._getItemAtIndex(j));
           if (!this._view.hasNextSibling(-1, max.value)) {
             --nextSelected;
@@ -850,6 +864,18 @@ var gCookiesWindow = {
       if (!ascending) {
         this._view._filterSet.reverse();
       }
+    }
+
+    // Adjust the sort indicator.
+    const domainCol = document.getElementById("domainCol");
+    const nameCol = document.getElementById("nameCol");
+    const sortOrderString = ascending ? "ascending" : "descending";
+    if (aProperty == "rawHost") {
+      domainCol.setAttribute("sortDirection", sortOrderString);
+      nameCol.removeAttribute("sortDirection");
+    } else {
+      nameCol.setAttribute("sortDirection", sortOrderString);
+      domainCol.removeAttribute("sortDirection");
     }
 
     this._view._invalidateCache(0);
