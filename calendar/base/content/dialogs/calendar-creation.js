@@ -507,7 +507,6 @@ function renderCalendarList(calendarList, calendars) {
   while (calendarList.hasChildNodes()) {
     calendarList.lastChild.remove();
   }
-  const propertiesButtonLabel = calendarList.getAttribute("propertiesbuttonlabel");
   calendars.forEach((calendar, index) => {
     const item = document.createXULElement("richlistitem");
     item.calendar = calendar;
@@ -531,7 +530,7 @@ function renderCalendarList(calendarList, calendars) {
 
     const propertiesButton = document.createXULElement("button");
     propertiesButton.classList.add("calendar-edit-button");
-    propertiesButton.label = propertiesButtonLabel;
+    document.l10n.setAttributes(propertiesButton, "calendar-context-properties");
     propertiesButton.addEventListener("command", openCalendarPropertiesFromEvent);
     item.appendChild(propertiesButton);
 
