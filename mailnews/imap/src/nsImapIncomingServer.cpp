@@ -2703,7 +2703,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
   if (!isRootFolder && canOpen &&
       ((forceAllFolders &&
         !(flags & (nsMsgFolderFlags::Inbox | nsMsgFolderFlags::Trash |
-                   nsMsgFolderFlags::Junk | nsMsgFolderFlags::Virtual))) ||
+                   nsMsgFolderFlags::Virtual))) ||
        flags & nsMsgFolderFlags::CheckNew)) {
     // Get new messages for this folder.
     aFolder->SetGettingNewMessages(true);
