@@ -498,6 +498,11 @@ Enigmail.hdrView = {
     msgHdr.setUint32Property("enigmail", Enigmail.msg.securityInfo.statusFlags);
   },
 
+  /**
+   * Checks - message level - whether delete/detach should be possible.
+   *
+   * @returns {boolean} true if delete/detach is possible.
+   */
   enigCanDetachAttachments() {
     let canDetach = true;
     if (

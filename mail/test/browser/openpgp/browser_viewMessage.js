@@ -226,6 +226,15 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon is not displayed"
   );
 
+  // Delete should not work.
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentBar"),
+    { clickCount: 1 },
+    aboutMessage
+  );
+  EventUtils.synthesizeKey("VK_DELETE", {}, aboutMessage);
+  await TestUtils.waitForTick();
+
   const newWindowPromise = promise_new_window("mail:messageWindow");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
