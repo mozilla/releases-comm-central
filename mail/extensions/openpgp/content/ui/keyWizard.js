@@ -329,9 +329,13 @@ function backToStart(event) {
 /**
  * Create a new inline notification to append to the import warning container.
  *
+ * @param {string} [containerId="openPgpImportWarning"] - Id of the container
+ *   to add the warning to.
  * @returns {XULElement} - The description element inside the notification.
  */
-async function addImportWarningNotification() {
+async function addImportWarningNotification(
+  containerId = "openPgpImportWarning"
+) {
   const notification = document.createXULElement("hbox");
   notification.classList.add(
     "inline-notification-container",
@@ -353,7 +357,7 @@ async function addImportWarningNotification() {
 
   notification.appendChild(wrapper);
 
-  const container = document.getElementById("openPgpImportWarning");
+  const container = document.getElementById(containerId);
   container.appendChild(notification);
 
   // Show the notification container.
@@ -364,9 +368,12 @@ async function addImportWarningNotification() {
 
 /**
  * Remove all inline errors from the notification area of the import section.
+ *
+ * @param {string} [containerId="openPgpImportWarning"] - Id of the container
+ *   to remove the warning from.
  */
-function clearImportWarningNotifications() {
-  const container = document.getElementById("openPgpImportWarning");
+function clearImportWarningNotifications(containerId = "openPgpImportWarning") {
+  const container = document.getElementById(containerId);
 
   // Remove any existing notification.
   for (const notification of container.querySelectorAll(
@@ -450,10 +457,6 @@ function wizardImportKey() {
 async function wizardExternalKey() {
   kCurrentSection = "external";
   revealSection("wizardExternalKey");
-
-  kDialog.getButton("accept").label = await document.l10n.formatValue(
-    "openpgp-save-external-button"
-  );
   kDialog.getButton("accept").classList.add("primary");
 
   // If the user is already using an external GnuPG key, populate the input,
@@ -1164,16 +1167,12 @@ function toggleSaveButton(event) {
 }
 
 /**
- * Save the GnuPG Key for the current identity and trigger a callback.
+ * Return the normalized key from input that may be the full fingerprint.
+ *
+ * @returns {string} the key id.
  */
-function openPgpExternalComplete() {
-  gIdentity.setBoolAttribute("is_gnupg_key_id", true);
-
-  let key = document
-    .getElementById("externalKey")
-    .value.replace(/^0x/, "")
-    .replaceAll(" ", "")
-    .toUpperCase();
+function normalizeKeyInput(key) {
+  key = key.replace(/^0x/, "").replaceAll(" ", "").toUpperCase();
   if (key.length == 40 || key.length == 64) {
     // Got the full fingerprint; use key part.
     // See https://openpgp.dev/book/glossary.html#term-Key-ID
@@ -1183,8 +1182,86 @@ function openPgpExternalComplete() {
     //   (leftmost) 64 bits of their OpenPGP Fingerprint.
     key = key.length === 40 ? key.substring(24) : key.substring(0, 16);
   }
-  gIdentity.setUnicharAttribute("openpgp_key_id", key);
+  return key;
+}
 
-  window.arguments[0].okExternalCallback(key);
+/**
+ * Save the GnuPG Key for the current identity and trigger a callback.
+ */
+function openPgpExternalComplete() {
+  const keyId = normalizeKeyInput(document.getElementById("externalKey").value);
+
+  // Check if we have the public key for that, and if not, request it.
+  const keyObj = EnigmailKeyRing.getKeyById(keyId);
+  // TODO: could try to grab public key from GnuPG, similar to
+  // GPGME.getPublicKeysForEmail(email);
+
+  if (!keyObj?.getUserIdWithEmail(gIdentity.email)) {
+    document.getElementById("wizardExternalKeyProvideKeyId").hidden = true;
+    kDialog.getButton("accept").disabled = true;
+    document.l10n.setAttributes(
+      document.getElementById("openpgpImportOwnPublicKey"),
+      "openpgp-import-own-key-description",
+      { keyId: `0x${keyId}` }
+    );
+    revealSection("openpgpImportOwnKey");
+    return;
+  }
+
+  gIdentity.setBoolAttribute("is_gnupg_key_id", true);
+  gIdentity.setUnicharAttribute("openpgp_key_id", keyId);
+
+  window.arguments[0].okExternalCallback(keyId);
   window.close();
+}
+
+/**
+ * Open key picker, and try to import the public key.
+ * On success, complete the external key setup.
+ */
+async function importPublicKey() {
+  clearImportWarningNotifications("openPgpImportPublicKeyWarning");
+  const [importTitle, importType] = await document.l10n.formatValues([
+    { id: "import-key-file" },
+    { id: "gnupg-file" },
+  ]);
+
+  const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  fp.init(window.browsingContext, importTitle, Ci.nsIFilePicker.modeOpen);
+  fp.defaultExtension = "*.asc";
+  fp.appendFilter(importType, "*.asc;*.gpg;*.pgp");
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
+  const rv = await new Promise(resolve => fp.open(resolve));
+  if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+    return;
+  }
+
+  const keyId = normalizeKeyInput(document.getElementById("externalKey").value);
+
+  const errorMsgObj = {};
+  // Fetch the list of all the available keys inside the selected file.
+  const importKeys = await EnigmailKey.getKeyListFromKeyFile(
+    fp.file,
+    errorMsgObj,
+    true,
+    false,
+    true
+  );
+  const key = importKeys?.find(k => k.id.toUpperCase() == keyId);
+  // Show a warning message if the import failed.
+  if (!key) {
+    document.l10n.setAttributes(
+      await addImportWarningNotification("openPgpImportPublicKeyWarning"),
+      "openpgp-import-keyid-failed",
+      {
+        keyId: `0x${keyId}`,
+      }
+    );
+    return;
+  }
+
+  await EnigmailKeyRing.importKeyDataSilent(null, key.pubKey, false);
+
+  kDialog.getButton("accept").disabled = false;
+  openPgpExternalComplete();
 }

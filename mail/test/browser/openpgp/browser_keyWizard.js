@@ -329,14 +329,39 @@ add_task(async function add_external_key() {
 
   doc.getElementById("externalKey").focus();
 
-  const EXTERNAL_GNUP_KEY = "0123456789ABCDEF";
+  const EXTERNAL_GNUP_KEY = "f231550c4f47e38e".toUpperCase();
+
   EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard);
+
+  dialog.acceptDialog(); // Press "Continue"
+
+  // Must provide the public key.
+  const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
+    Ci.nsIChromeRegistry
+  );
+  const chromeUrl = Services.io.newURI(
+    getRootDirectory(gTestPath) +
+      "data/keys/alice@openpgp.example-0xf231550c4f47e38e-pub.asc"
+  );
+  const fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
+  const file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
+
+  MockFilePicker.init(window.browsingContext);
+  MockFilePicker.setFiles([file]);
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
 
   const keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
   const listItemCount = keyListRadio.itemCount + 1;
 
-  // Accept the dialog to close it.
-  dialog.acceptDialog();
+  const importButton = doc.getElementById("importPublicKeyButton");
+  EventUtils.synthesizeMouseAtCenter(importButton, {}, dialog.ownerGlobal);
+
+  // The container with the listed keys to import should be visible.
+  await BrowserTestUtils.waitForCondition(
+    () => !dialog.getButton("accept").disabled,
+    "Timeout waiting for the Continue to appear"
+  );
+
   await BrowserTestUtils.waitForCondition(
     () => keyListRadio.itemCount == listItemCount,
     "Waiting for the newly imported key to be listed"
@@ -362,6 +387,7 @@ add_task(async function add_external_key() {
     "The external key was properly set for the current identity"
   );
 
+  await OpenPGPTestUtils.removeKeyById(EXTERNAL_GNUP_KEY, false);
   Services.prefs.clearUserPref("mail.openpgp.allow_external_gnupg");
 });
 

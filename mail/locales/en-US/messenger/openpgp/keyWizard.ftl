@@ -190,6 +190,12 @@ openpgp-external-key-info = In addition, you must use Key Manager to import and 
 
 openpgp-external-key-warning = <b>You may configure only one external GnuPG Key.</b> Your previous entry will be replaced.
 
-openpgp-save-external-button = Save key ID
-
 openpgp-external-key-label = Secret Key ID:
+
+openpgp-import-own-key-title = Import your public key
+
+#   $keyId (String) - The Key ID.
+openpgp-import-own-key-description = { -brand-short-name } couldn’t find the public key with ID { $keyId }. Please import it to continue.
+
+#   $keyId (String) - The Key ID.
+openpgp-import-keyid-failed = Could not import public key { $keyId } from that file.
