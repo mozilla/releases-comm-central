@@ -172,7 +172,7 @@ add_task(async function () {
 
   // Test tree column visibility and order.
 
-  checkTreeColumnsInOrder(threadTree, [
+  await checkTreeColumnsInOrder(threadTree, [
     "flaggedCol",
     "attachmentCol",
     "subjectCol",
@@ -192,10 +192,7 @@ add_task(async function () {
   );
   popup.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
-  // Wait for macOS to catch up.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
-  checkTreeColumnsInOrder(threadTree, [
+  await checkTreeColumnsInOrder(threadTree, [
     "selectCol",
     "flaggedCol",
     "attachmentCol",
@@ -214,10 +211,7 @@ add_task(async function () {
     false
   );
   threadTree.invalidate();
-  // Wait for macOS to catch up.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
-  checkTreeColumnsInOrder(threadTree, [
+  await checkTreeColumnsInOrder(threadTree, [
     "selectCol",
     "deleteCol",
     "flaggedCol",
@@ -440,7 +434,7 @@ add_task(async function () {
 
   const threadTree2 = doc2.getElementById("threadTree");
 
-  checkTreeColumnsInOrder(threadTree2, [
+  await checkTreeColumnsInOrder(threadTree2, [
     "selectCol",
     "deleteCol",
     "flaggedCol",
@@ -456,9 +450,17 @@ add_task(async function () {
   await BrowserTestUtils.closeWindow(win2);
 });
 
-function checkTreeColumnsInOrder(tree, expectedOrder) {
+async function checkTreeColumnsInOrder(tree, expectedOrder) {
+  const expectedSet = new Set(expectedOrder);
+  const querySelector = "treecol:not([hidden])";
+  await TestUtils.waitForCondition(() => {
+    const currentSet = new Set(
+      [...tree.querySelectorAll(querySelector)].map(c => c.id)
+    );
+    return expectedSet.isSubsetOf(currentSet);
+  }, "Waiting for columns to populate.");
   Assert.deepEqual(
-    Array.from(tree.querySelectorAll("treecol:not([hidden])"))
+    Array.from(tree.querySelectorAll(querySelector))
       .sort((a, b) => a.ordinal - b.ordinal)
       .map(c => c.id),
     expectedOrder
