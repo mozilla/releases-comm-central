@@ -447,6 +447,18 @@ function updateSharedSplitter(isTableLayout) {
 }
 
 /**
+ * @param {?string} displayName - The name.
+ * @returns {string} what to display as avatar for the name.
+ */
+function avatarPlaceholder(displayName) {
+  return (
+    Array.from(
+      displayName?.normalize().replaceAll(/[^\p{Letter}\p{Nd}]+/gu, "")
+    )[0]?.toUpperCase() || ""
+  );
+}
+
+/**
  * Update all commands that are affected by the contents of the address book
  * tab.
  */
@@ -1293,9 +1305,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           this.avatar.replaceChildren(img);
         } else {
           const letter = document.createElement("span");
-          letter.textContent = Array.from(
-            this.name.textContent
-          )[0]?.toUpperCase();
+          letter.textContent = avatarPlaceholder(this.name.textContent);
           letter.setAttribute("aria-hidden", "true");
           this.avatar.replaceChildren(letter);
         }
@@ -2976,7 +2986,7 @@ var detailsPane = {
           avatar.appendChild(img);
         } else {
           const letter = document.createElement("span");
-          letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
+          letter.textContent = avatarPlaceholder(name.textContent);
           letter.setAttribute("aria-hidden", "true");
           avatar.appendChild(letter);
         }
@@ -3784,7 +3794,7 @@ var detailsPane = {
         avatar.appendChild(img);
       } else {
         const letter = document.createElement("span");
-        letter.textContent = Array.from(name.textContent)[0]?.toUpperCase();
+        letter.textContent = avatarPlaceholder(name.textContent);
         letter.setAttribute("aria-hidden", "true");
         avatar.appendChild(letter);
       }

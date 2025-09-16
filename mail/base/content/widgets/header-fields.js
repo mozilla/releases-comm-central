@@ -562,9 +562,12 @@
 
     _createAvatarPlaceholder() {
       const letter = document.createElement("span");
-      letter.textContent = Array.from(
-        this.nameLine.textContent || this.displayName || this.fullAddress
-      )[0]?.toUpperCase();
+      letter.textContent =
+        Array.from(
+          (this.nameLine.textContent || this.displayName || this.fullAddress)
+            ?.normalize()
+            .replaceAll(/[^\p{Letter}\p{Nd}]+/gu, "")
+        )[0]?.toUpperCase() || "";
       letter.setAttribute("aria-hidden", "true");
       this.avatar.appendChild(letter);
       this.avatar.classList.remove("has-avatar");
