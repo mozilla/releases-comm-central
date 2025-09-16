@@ -485,22 +485,28 @@ CalAlarmService.prototype = {
           // action required.
           continue;
         }
-
-        let ongoingEvent = false;
-        const tz = alarmDate.timezone.isFloating ? cal.dtz.floating : cal.dtz.UTC;
-        const itemStart = aItem[cal.dtz.startDateProp(aItem)].getInTimezone(tz);
-        const itemEnd = aItem[cal.dtz.endDateProp(aItem)].getInTimezone(tz);
-        if (itemStart && itemEnd) {
-          // Ensure isDate false so we get hour/minute/second for all-day events.
-          itemStart.isDate = false;
-          itemEnd.isDate = false;
-          ongoingEvent = now.compare(itemStart) >= 0 && now.compare(itemEnd) <= 0;
+        if (showMissed) {
+          // The alarm was not snoozed or dismissed, fire it now.
+          this.alarmFired(aItem, alarm);
+          continue;
         }
 
-        if (showMissed || ongoingEvent) {
-          // The alarm was not snoozed or dismissed, fire it now.
-          // Or if the event is ongoing but we haven't fired. Especially important
-          // for all-day events where alarm would have set off at midnight.
+        const tz = alarmDate.timezone.isFloating ? cal.dtz.floating : cal.dtz.UTC;
+        const itemStart = aItem[cal.dtz.startDateProp(aItem)]?.getInTimezone(tz);
+        const itemEnd = aItem[cal.dtz.endDateProp(aItem)]?.getInTimezone(tz);
+        // Ensure isDate false so we get hour/minute/second for all-day events.
+        if (itemStart) {
+          itemStart.isDate = false;
+        }
+        if (itemEnd) {
+          itemEnd.isDate = false;
+        }
+
+        // If the event ends in the future / task is due in the future OR
+        // start date is in (was moved to?) the future, show reminder.
+        // Especially important for all-day events where alarm would have set
+        // off at midnight.
+        if (itemEnd?.compare(now) >= 0 || itemStart?.compare(now) >= 0) {
           this.alarmFired(aItem, alarm);
         }
       }
