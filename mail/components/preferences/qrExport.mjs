@@ -28,8 +28,26 @@ const STEPS = ["Intro", "Codes", "Summary"];
 export const qrExportPane = {
   init() {
     this.showIntro();
+    if (this.initialized) {
+      return;
+    }
+    this.initialized = true;
+
     this.addEventListeners();
     delete document.getElementById("qrExportContent").dataset.hiddenFromSearch;
+    const reloader = {
+      observe: (subject, topic, data) => {
+        if (data == "mail.accountmanager.accounts") {
+          // Take action on a timeout, so the added account will have time
+          // to actually get added.
+          setTimeout(() => this.showIntro());
+        }
+      },
+    };
+    Services.prefs.addObserver("mail.accountmanager.accounts", reloader);
+    window.addEventListener("unload", () => {
+      Services.prefs.removeObserver("mail.accountmanager.accounts", reloader);
+    });
   },
 
   /**
