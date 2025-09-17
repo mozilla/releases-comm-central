@@ -629,29 +629,7 @@ export class MessageSend {
         if (nssErrorsService.isNSSErrorCode(secInfo.errorCode)) {
           isNSSError = true;
           exitCode = nssErrorsService.getXPCOMFromNSSError(secInfo.errorCode);
-
-          if (
-            [
-              "MOZILLA_PKIX_ERROR_ADDITIONAL_POLICY_CONSTRAINT_FAILED",
-              "MOZILLA_PKIX_ERROR_CA_CERT_USED_AS_END_ENTITY",
-              "MOZILLA_PKIX_ERROR_EMPTY_ISSUER_NAME",
-              "MOZILLA_PKIX_ERROR_INADEQUATE_KEY_SIZE",
-              "MOZILLA_PKIX_ERROR_MITM_DETECTED",
-              "MOZILLA_PKIX_ERROR_NOT_YET_VALID_CERTIFICATE",
-              "MOZILLA_PKIX_ERROR_NOT_YET_VALID_ISSUER_CERTIFICATE",
-              "MOZILLA_PKIX_ERROR_SELF_SIGNED_CERT",
-              "MOZILLA_PKIX_ERROR_V1_CERT_USED_AS_CA",
-              "SEC_ERROR_CA_CERT_INVALID",
-              "SEC_ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED",
-              "SEC_ERROR_EXPIRED_CERTIFICATE",
-              "SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE",
-              "SEC_ERROR_INVALID_TIME",
-              "SEC_ERROR_UNKNOWN_ISSUER",
-              "SSL_ERROR_BAD_CERT_DOMAIN",
-            ].includes(secInfo?.errorCodeString)
-          ) {
-            isOverridable = true;
-          }
+          isOverridable = nssErrorsService.isErrorOverridable(exitCode);
         }
       }
 
