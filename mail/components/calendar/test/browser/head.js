@@ -318,30 +318,86 @@ function checkTollerance(target, message) {
     .getElementById("calendarDisplayBox")
     .getBoundingClientRect();
 
+  // Distance from the target to the dialog matches margin on left.
+  const horizontalLeftPositionValid =
+    Math.round(targetRect.x - dialogRect.right) === DEFAULT_DIALOG_MARGIN;
+  // Distance from the target to the dialog matches margin on right.
+  const horizontalRightPositionValid =
+    Math.round(dialogRect.x - targetRect.right) === DEFAULT_DIALOG_MARGIN;
+  // Target hangs off right of the screen. The dialog should be
+  // DEFAULT_DIALOG_MARGIN from the right and at least DEFAULT_DIALOG_MARGIN
+  // from the left of the container.
+  const horizontalLeftOverhangPositionValid =
+    targetRect.right > containerRect.right &&
+    Math.round(dialogRect.right) ===
+      Math.round(containerRect.right - DEFAULT_DIALOG_MARGIN) &&
+    dialogRect.x >= containerRect.x + DEFAULT_DIALOG_MARGIN;
+  // Target hangs off left of the screen. The dialog should be
+  // DEFAULT_DIALOG_MARGIN from the left and at least DEFAULT_DIALOG_MARGIN
+  // from the right of the container.
+  const horizontalRightOverhangPositionValid =
+    targetRect.x <= containerRect.x &&
+    Math.round(dialogRect.x) ===
+      Math.round(containerRect.x + DEFAULT_DIALOG_MARGIN) &&
+    dialogRect.right <= containerRect.right - DEFAULT_DIALOG_MARGIN;
+  // The dialog is centered in the container.
+  const horizontalCenteredInContainer =
+    Math.round(dialogRect.x - containerRect.x) ===
+    Math.round(containerRect.right - dialogRect.right);
+  // The dialog is contained within the target.
+  const horizontalContainedInTarget =
+    targetRect.x >= dialogRect.x && targetRect.right <= dialogRect.right;
+
   const horizontalTarget =
-    Math.round(targetRect.x - dialogRect.right) === DEFAULT_DIALOG_MARGIN ||
-    Math.round(dialogRect.x - targetRect.right) === DEFAULT_DIALOG_MARGIN ||
-    (targetRect.right > containerRect.right &&
-      dialogRect.right === DEFAULT_DIALOG_MARGIN &&
-      dialogRect.x >= DEFAULT_DIALOG_MARGIN) ||
-    (targetRect.x <= containerRect.x &&
-      dialogRect.x === DEFAULT_DIALOG_MARGIN &&
-      dialogRect.right <= DEFAULT_DIALOG_MARGIN) ||
-    dialogRect.x - containerRect.x === containerRect.right - dialogRect.right ||
-    (targetRect.x >= dialogRect.x && targetRect.right <= dialogRect.right);
-  const verticalTarget =
-    Math.round(targetRect.y - dialogRect.bottom) === DEFAULT_DIALOG_MARGIN ||
-    Math.round(dialogRect.y - targetRect.bottom) === DEFAULT_DIALOG_MARGIN ||
-    (targetRect.bottom > containerRect.bottom &&
-      Math.round(dialogRect.bottom) === DEFAULT_DIALOG_MARGIN &&
-      dialogRect.y >= DEFAULT_DIALOG_MARGIN) ||
-    (targetRect.y <= containerRect.y &&
-      Math.round(dialogRect.y) === DEFAULT_DIALOG_MARGIN &&
-      dialogRect.bottom <= DEFAULT_DIALOG_MARGIN) ||
+    horizontalCenteredInContainer ||
+    horizontalContainedInTarget ||
+    horizontalLeftOverhangPositionValid ||
+    horizontalRightOverhangPositionValid ||
+    horizontalLeftPositionValid ||
+    horizontalRightPositionValid;
+
+  // The dialog is above the target with correct margin.
+  const verticalTopPositionValid =
+    Math.round(targetRect.y - dialogRect.bottom) === DEFAULT_DIALOG_MARGIN;
+  // The dialog is below the target with correct margin.
+  const verticalBottomPositionValid =
+    Math.round(dialogRect.y - targetRect.bottom) === DEFAULT_DIALOG_MARGIN;
+  // The target is hanging off the bottom of the screen the dialog should be
+  // DEFAULT_DIALOG_MARGIN from the bottom of the container and at least
+  // DEFAULT_DIALOG_MARGIN from the top of the container.
+  const verticalTopOverhangPositionValid =
+    targetRect.bottom > containerRect.bottom &&
+    Math.round(dialogRect.bottom) ===
+      Math.round(containerRect.bottom - DEFAULT_DIALOG_MARGIN) &&
+    dialogRect.y >= containerRect.y + DEFAULT_DIALOG_MARGIN;
+  // The target is hanging off the top of the screen the dialog should be
+  // DEFAULT_DIALOG_MARGIN from the top of the container and at least
+  // DEFAULT_DIALOG_MARGIN from the bottom of the container.
+  const verticalBottomOverhangPositionValid =
+    targetRect.y <= containerRect.y &&
+    Math.round(dialogRect.y) ===
+      Math.round(containerRect.top + DEFAULT_DIALOG_MARGIN) &&
+    dialogRect.bottom <= containerRect.bottom - DEFAULT_DIALOG_MARGIN;
+  // The dialog is centered in the container.
+  const verticalCenteredInContainer =
     Math.round(dialogRect.y - containerRect.y) ===
-      Math.round(containerRect.bottom - dialogRect.bottom) ||
-    (targetRect.y <= dialogRect.y && targetRect.bottom >= dialogRect.bottom) ||
-    (targetRect.y >= dialogRect.y && targetRect.y <= dialogRect.bottom);
+    Math.round(containerRect.bottom - dialogRect.bottom);
+  // The dialog is contained in the target.
+  const verticalContainedInTarget =
+    targetRect.y <= dialogRect.y && targetRect.bottom >= dialogRect.bottom;
+  // The target is contained in the dialog.
+  const verticalCoversTarget =
+    targetRect.y >= dialogRect.y && targetRect.y <= dialogRect.bottom;
+
+  const verticalTarget =
+    verticalBottomOverhangPositionValid ||
+    verticalTopOverhangPositionValid ||
+    verticalBottomPositionValid ||
+    verticalTopPositionValid ||
+    verticalContainedInTarget ||
+    verticalCoversTarget ||
+    verticalCenteredInContainer;
+
   const verticalContainer =
     dialogRect.y - containerRect.y >= DEFAULT_DIALOG_MARGIN;
   const horizontalContainer =
@@ -499,7 +555,6 @@ async function runPositioningTest(windowSizes) {
       }
     }
 
-    window.moveTo(0, 0);
     await resizeWindow(originalWidth, originalHeight);
   }
 
