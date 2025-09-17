@@ -250,6 +250,39 @@ add_task(async function test_account_email_manual_form() {
     "The incoming config template should be in view"
   );
 
+  // We should check that the EWS changes to the config form aren't here, as
+  // we're not editing an EWS config.
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      incomingConfigTemplate.querySelector("#incomingProtocol")
+    ),
+    "Default protocol dropdown should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      incomingConfigTemplate.querySelector("#incomingConnectionSecurity")
+    ),
+    "Incoming connection security dropdown should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      incomingConfigTemplate.querySelector("#incomingPort")
+    ),
+    "Incoming port input should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      incomingConfigTemplate.querySelector("#ewsProtocol")
+    ),
+    "EWS protocol label should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      incomingConfigTemplate.querySelector("#incomingEwsUrl")
+    ),
+    "EWS URL input should be hidden"
+  );
+
   let outgoingConfigTemplate = dialog.querySelector(
     "#emailOutgoingConfigSubview"
   );

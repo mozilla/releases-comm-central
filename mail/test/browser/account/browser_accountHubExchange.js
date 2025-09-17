@@ -20,6 +20,11 @@ const USER = "testExchange@exchange.test";
 const BASIC_AUTH = btoa(
   String.fromCharCode(...new TextEncoder().encode(`${USER}:${PASSWORD}`))
 );
+const emailUser = {
+  name: "John Doe",
+  email: USER,
+  password: PASSWORD,
+};
 const AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
 <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
   <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
@@ -123,42 +128,11 @@ add_setup(async () => {
 });
 
 add_task(async function test_exchange_requires_credentials_account_creation() {
-  const emailUser = {
-    name: "John Doe",
-    email: USER,
-    password: PASSWORD,
-  };
-
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
-  const nameInput = emailTemplate.querySelector("#realName");
-  const emailInput = emailTemplate.querySelector("#email");
   const footerForward = dialog.querySelector("#emailFooter #forward");
 
-  // Ensure fields are empty.
-  nameInput.value = "";
-  emailInput.value = "";
-
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === emailUser.name
-  );
-  EventUtils.sendString(emailUser.name, window);
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === emailUser.email
-  );
-  EventUtils.sendString(emailUser.email, window);
-  await inputEvent;
-
+  await fillUserInformation(emailTemplate);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for config found template to be in view.
@@ -167,24 +141,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
   const passwordStep = dialog.querySelector("email-password-form");
 
   await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
-
-  info("Entering password");
-  const passwordInput = passwordStep.querySelector("#password");
-
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(passwordInput),
-    "The password form input should be visible."
-  );
-  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
-
-  inputEvent = BrowserTestUtils.waitForEvent(
-    passwordInput,
-    "input",
-    true,
-    event => event.target.value === PASSWORD
-  );
-  EventUtils.sendString(PASSWORD);
-  await inputEvent;
+  await fillPasswordInput(passwordStep);
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
   const configFoundTemplate = dialog.querySelector("email-config-found");
@@ -253,3 +210,250 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
   Services.logins.removeAllLogins();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
 });
+
+add_task(async function test_exchange_manual_configuration() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate);
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting password entry");
+  const passwordStep = dialog.querySelector("email-password-form");
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
+  await fillPasswordInput(passwordStep);
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", configFoundTemplate);
+  const imapOption = configFoundTemplate.querySelector("#imap");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(imapOption),
+    "The IMAP config option should be visible"
+  );
+
+  Assert.ok(
+    imapOption.classList.contains("selected"),
+    "IMAP should be the selected config option"
+  );
+
+  const ewsOption = configFoundTemplate.querySelector("#ews");
+  Assert.ok(
+    BrowserTestUtils.isVisible(ewsOption),
+    "EWS should be available as config"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(ewsOption, {});
+  const editConfigurationButton =
+    configFoundTemplate.querySelector("#editConfiguration");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(editConfigurationButton),
+    "EWS config should be editable"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(editConfigurationButton, {});
+  const ewsConfigStep = dialog.querySelector("#emailEwsConfigSubview");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
+
+  // The protocol option select, connection securty, and port should be hidden,
+  // and we should be showing the EWS label, with only OAuth and
+  // Normal Password as authentication options, and the EWS url input.
+  Assert.ok(
+    BrowserTestUtils.isHidden(ewsConfigStep.querySelector("#incomingProtocol")),
+    "Default protocol dropdown should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      ewsConfigStep.querySelector("#incomingConnectionSecurity")
+    ),
+    "Incoming connection security dropdown should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(ewsConfigStep.querySelector("#incomingPort")),
+    "Incoming port input should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(ewsConfigStep.querySelector("#ewsProtocol")),
+    "EWS protocol label should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(ewsConfigStep.querySelector("#incomingEwsUrl")),
+    "EWS URL input should be visible"
+  );
+
+  // The available config fields should be filled in with the correct info.
+  Assert.equal(
+    ewsConfigStep.querySelector("#incomingEwsUrl").value,
+    "https://outlook.office365.com/EWS/Exchange.asmx",
+    "The EWS URL input should have the correct exchange url"
+  );
+  Assert.equal(
+    ewsConfigStep.querySelector("#incomingAuthMethod").value,
+    3,
+    "The auth method should be Normal Password"
+  );
+  Assert.equal(
+    ewsConfigStep.querySelector("#incomingUsername").value,
+    "testExchange@exchange.test",
+    "The username input should have the exchange email from the config"
+  );
+
+  // TODO: This test will expect the password step again when clicking continue
+  // but this will need to be updated as we should store the password and go
+  // directly to creating a new account.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
+
+  Services.logins.removeAllLogins();
+  await subtest_close_account_hub_dialog(dialog, passwordStep);
+});
+
+add_task(async function test_exchange_advanced_configuration() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate);
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting password entry");
+  const passwordStep = dialog.querySelector("email-password-form");
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
+  await fillPasswordInput(passwordStep);
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", configFoundTemplate);
+  const imapOption = configFoundTemplate.querySelector("#imap");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(imapOption),
+    "The IMAP config option should be visible"
+  );
+
+  const ewsOption = configFoundTemplate.querySelector("#ews");
+  Assert.ok(
+    BrowserTestUtils.isVisible(ewsOption),
+    "EWS should be available as config"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(ewsOption, {});
+  const editConfigurationButton =
+    configFoundTemplate.querySelector("#editConfiguration");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(editConfigurationButton),
+    "EWS config should be editable"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(editConfigurationButton, {});
+  const ewsConfigStep = dialog.querySelector("#emailEwsConfigSubview");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
+
+  // Clicking advanced config and confirming the dialog should create the ews
+  // account and close the dialog.
+  const advancedConfigButton = ewsConfigStep.querySelector(
+    "#advancedConfigurationIncoming"
+  );
+  EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
+
+  const tabmail = document.getElementById("tabmail");
+  const oldTab = tabmail.selectedTab;
+
+  await BrowserTestUtils.promiseAlertDialog("accept");
+
+  // The dialog should automatically close after clicking advanced config
+  await BrowserTestUtils.waitForEvent(dialog, "close");
+
+  await BrowserTestUtils.waitForCondition(
+    () => tabmail.selectedTab != oldTab,
+    "The tab should change to the account settings tab"
+  );
+
+  let ewsAccount;
+  await TestUtils.waitForCondition(
+    () =>
+      (ewsAccount = MailServices.accounts.accounts.find(
+        account => account.identities[0]?.email === emailUser.email
+      )),
+    "The ews account should be created"
+  );
+
+  // Close the account settings tab.
+  tabmail.closeTab(tabmail.currentTabInfo);
+
+  MailServices.accounts.removeAccount(ewsAccount);
+  await subtest_clear_status_bar();
+  Services.logins.removeAllLogins();
+});
+
+/**
+ * Fills the name and email inputs in the first step of account hub
+ * email setup.
+ *
+ * @param {HTMLElement} emailStep - The email step HTML element.
+ */
+async function fillUserInformation(emailStep) {
+  const nameInput = emailStep.querySelector("#realName");
+  const emailInput = emailStep.querySelector("#email");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === emailUser.name
+  );
+  EventUtils.sendString(emailUser.name, window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === emailUser.email
+  );
+  EventUtils.sendString(emailUser.email, window);
+  await inputEvent;
+}
+
+/**
+ * Fills the password input in the password step of account hub email setup.
+ *
+ * @param {HTMLElement} passwordStep - The password step HTML element.
+ */
+async function fillPasswordInput(passwordStep) {
+  info("Entering password");
+  const passwordInput = passwordStep.querySelector("#password");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(passwordInput),
+    "The password form input should be visible."
+  );
+  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
+
+  const inputEvent = BrowserTestUtils.waitForEvent(
+    passwordInput,
+    "input",
+    true,
+    event => event.target.value === PASSWORD
+  );
+  EventUtils.sendString(PASSWORD);
+  await inputEvent;
+}
