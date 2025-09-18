@@ -19,6 +19,8 @@ nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
                                  const nsACString& folderName,
                                  nsIMsgFolder** createdFolder);
 
+class nsAutoSyncState;
+
 /**
  * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
  * account.
@@ -95,6 +97,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,
                                  nsIUrlListener* aUrlListener,
                                  bool* aAsyncResults) override;
+  NS_IMETHOD GetAutoSyncStateObj(nsIAutoSyncState** autoSyncStateObj) override;
 
  private:
   bool mHasLoadedSubfolders;
@@ -138,6 +141,16 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    * Apply the current filters to a list of new messages.
    */
   nsresult ApplyFilters(const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages);
+
+  /**
+   * Get the nsAutoSyncState for this folder, used for interacting with
+   * AutoSyncManager (for downloading messages in the background etc...)
+   * Created lazily, so use this instead of mAutoSyncState!
+   */
+  nsAutoSyncState* AutoSyncState();
+
+  // Don't use this directly - it's created lazily by AutoSyncState().
+  RefPtr<nsAutoSyncState> mAutoSyncState;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_

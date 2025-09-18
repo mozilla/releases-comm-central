@@ -16,6 +16,7 @@
 #include "FolderPopulation.h"
 #include "MailNewsTypes.h"
 #include "MsgOperationListener.h"
+#include "nsAutoSyncState.h"
 #include "nsIInputStream.h"
 #include "nsIMessenger.h"
 #include "mozilla/intl/Localization.h"
@@ -1250,6 +1251,21 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
   MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
 
   return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
+}
+
+nsAutoSyncState* EwsFolder::AutoSyncState() {
+  if (!mAutoSyncState) {
+    // Lazy creation.
+    mAutoSyncState = new nsAutoSyncState(this);
+  }
+  return mAutoSyncState;
+}
+
+NS_IMETHODIMP EwsFolder::GetAutoSyncStateObj(
+    nsIAutoSyncState** autoSyncStateObj) {
+  NS_ENSURE_ARG_POINTER(autoSyncStateObj);
+  NS_IF_ADDREF(*autoSyncStateObj = AutoSyncState());
+  return NS_OK;
 }
 
 nsresult EwsFolder::GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr) {
