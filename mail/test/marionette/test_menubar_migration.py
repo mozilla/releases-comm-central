@@ -47,11 +47,11 @@ class TestMenubarMigration(MarionetteTestCase):
         """
         self.subtest(46, None, None, "-moz-missing\n")
 
-    def test_xulstore_false_no_update(self):
+    def test_xulstore_false_second_update_only(self):
         """
-        The XUL store value is false and migration doesn't happen. The menubar should be visible.
+        The XUL store value is false and the second migration happens. The menubar should be visible.
         """
-        self.subtest(54, "false", None, "-moz-missing\n")
+        self.subtest(52, "false", None, "-moz-missing\n")
 
     def test_xulstore_false_update(self):
         """
