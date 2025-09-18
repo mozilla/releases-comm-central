@@ -38,26 +38,38 @@ class TestMenubarMigration(MarionetteTestCase):
         The XUL store has no value and migration doesn't happen. The menubar should be hidden,
         because that's the default.
         """
-        self.subtest(52, None, "true", "")
+        self.subtest(54, None, "true", "")
 
     def test_no_xulstore_update(self):
         """
         The XUL store has no value when migration happens. The menubar should be visible, because
         that's what no value in the XUL store meant before ESR 140.
         """
-        self.subtest(46, None, "false", "false")
+        self.subtest(46, None, None, "-moz-missing\n")
 
     def test_xulstore_false_no_update(self):
         """
         The XUL store value is false and migration doesn't happen. The menubar should be visible.
         """
-        self.subtest(52, "false", "false", "false")
+        self.subtest(54, "false", None, "-moz-missing\n")
 
     def test_xulstore_false_update(self):
         """
         The XUL store value is false when migration happens. The menubar should be visible.
         """
-        self.subtest(46, "false", "false", "false")
+        self.subtest(46, "false", None, "-moz-missing\n")
+
+    def test_xulstore_missing_no_update(self):
+        """
+        The XUL store value is -moz-missing\n and migration doesn't happen. The menubar should be visible.
+        """
+        self.subtest(54, "-moz-missing\n", None, "-moz-missing\n")
+
+    def test_xulstore_missing_update(self):
+        """
+        The XUL store value is -moz-missing\n when migration happens. The menubar should be visible.
+        """
+        self.subtest(52, "-moz-missing\n", None, "-moz-missing\n")
 
     def test_xulstore_true_no_update(self):
         """

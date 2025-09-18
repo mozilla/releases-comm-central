@@ -30,7 +30,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 53;
+    const UI_VERSION = 54;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -344,6 +344,23 @@ export var MailMigrator = {
           removeStaleValue(
             "chrome://messenger/content/messengercompose/messengercompose.xhtml",
             elementID
+          );
+        }
+      }
+
+      if (currentUIVersion < 54) {
+        if (
+          Services.xulStore.getValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "toolbar-menubar",
+            "autohide"
+          ) == "false"
+        ) {
+          Services.xulStore.setValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "toolbar-menubar",
+            "autohide",
+            "-moz-missing\n"
           );
         }
       }
