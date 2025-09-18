@@ -90,13 +90,6 @@ interface nsIAutoSyncManager : nsISupports {
   const long dmChained = 1;
 
   /**
-   * Suggested minimum grouping size in bytes for message downloads.
-   * Setting this attribute to 0 resets its value to the
-   * hardcoded default.
-   */
-  attribute unsigned long groupSize;
-
-  /**
    * Active strategy function to prioritize
    * messages in the download queue
    */

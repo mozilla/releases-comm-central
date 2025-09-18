@@ -50,7 +50,7 @@ static nsresult IsSibling(nsIAutoSyncState* syncA, nsIAutoSyncState* syncB,
 }
 
 // recommended size of each group of messages per download
-static const uint32_t kDefaultGroupSize = 50U * 1024U /* 50K */;
+static const uint32_t kDefaultGroupSize = 2000U * 1024U /* 2MB */;
 
 nsDefaultAutoSyncMsgStrategy::nsDefaultAutoSyncMsgStrategy() = default;
 
@@ -1102,16 +1102,6 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(
     }
   }
 
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAutoSyncManager::GetGroupSize(uint32_t* aGroupSize) {
-  NS_ENSURE_ARG_POINTER(aGroupSize);
-  *aGroupSize = mGroupSize;
-  return NS_OK;
-}
-NS_IMETHODIMP nsAutoSyncManager::SetGroupSize(uint32_t aGroupSize) {
-  mGroupSize = aGroupSize ? aGroupSize : kDefaultGroupSize;
   return NS_OK;
 }
 
