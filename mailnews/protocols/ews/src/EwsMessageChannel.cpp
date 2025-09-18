@@ -4,7 +4,7 @@
 
 #include "EwsMessageChannel.h"
 
-#include "EwsFetchMsgToOffline.h"
+#include "EwsFetchMsgsToOffline.h"
 #include "EwsListeners.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
@@ -314,8 +314,8 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   // TODO: Should use nsIStreamListenerTee to combine this into one operation.
   // TODO: There should be a policy check - do we actually _want_ to keep a
   //       local copy of this message?
-  return EwsFetchMsgToOffline(
-      folder, msgKey,
+  return EwsFetchMsgsToOffline(
+      folder, {msgKey},
       [self = RefPtr(this), listener = nsCOMPtr(aListener)](nsresult status) {
         if (NS_SUCCEEDED(status)) {
           // Yay! We've now got the offline copy in the store.
