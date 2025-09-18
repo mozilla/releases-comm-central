@@ -1183,6 +1183,7 @@ nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr* aMsgHdr,
   return NS_OK;
 }
 
+// This is called by nsAutoSyncState::PlaceIntoDownloadQ().
 NS_IMETHODIMP nsAutoSyncManager::OnDownloadQChanged(
     nsIAutoSyncState* aAutoSyncStateObj) {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);

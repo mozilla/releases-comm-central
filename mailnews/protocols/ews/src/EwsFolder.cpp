@@ -1223,6 +1223,19 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     // If some new messages arrived, apply filters to them now.
     if (!newMessages.IsEmpty()) {
       self->ApplyFilters(newMessages);
+
+      // Tell the AutoSyncState about the newly-added messages,
+      // to queue them for potential offline download.
+      {
+        nsTArray<nsMsgKey> keys(newMessages.Length());
+        for (nsIMsgDBHdr* hdr : newMessages) {
+          nsMsgKey key;
+          hdr->GetMessageKey(&key);
+          MOZ_ASSERT(key != nsMsgKey_None);
+          keys.AppendElement(key);
+        }
+        self->AutoSyncState()->OnNewHeaderFetchCompleted(keys);
+      }
     }
     onSyncStop(NS_OK);
     self->NotifyFolderEvent(kFolderLoaded);

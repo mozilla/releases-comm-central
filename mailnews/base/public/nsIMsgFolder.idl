@@ -968,7 +968,7 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute nsIMsgPluggableStore msgStore;
 
   /**
-   * Protocol type, i.e. "pop3", "imap", "nntp", "none", etc
+   * Protocol type, i.e. "pop3", "imap", "ews", "nntp", "none", etc
    * used to construct URLs for this account type.
    */
   readonly attribute ACString incomingServerType;
