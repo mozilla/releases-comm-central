@@ -56,6 +56,13 @@ export var alertHook = {
       return true;
     }
 
+    // Block identical alerts (with the same cookie) for 5 seconds, or until
+    // the old alert is finished.
+    activeAlerts.add(cookie);
+    const deferred = Promise.withResolvers();
+    deferred.promise.then(() => activeAlerts.delete(cookie));
+    setTimeout(() => deferred.resolve(), 5000);
+
     // Create a new warning.
     const warning = new nsActWarning(message, this.activityMgr, "");
 
@@ -74,17 +81,18 @@ export var alertHook = {
     this.activityMgr.addActivity(warning);
 
     if (Services.prefs.getBoolPref("mail.suppressAlertsForTests", false)) {
+      deferred.resolve();
       return true;
     }
 
     // If the alert should be silent (e.g. it was a generated as a result of
     // background activity like autosync, biff, etc.), we shouldn't notify.
     if (silent) {
+      deferred.resolve();
       return true;
     }
 
     try {
-      const deferred = Promise.withResolvers();
       const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
         Ci.nsIAlertNotification
       );
@@ -107,12 +115,6 @@ export var alertHook = {
           }
         },
       });
-
-      // Block identical alerts (with the same cookie) for 5 seconds, or until
-      // the old alert is finished.
-      activeAlerts.add(cookie);
-      deferred.promise.then(() => activeAlerts.delete(cookie));
-      setTimeout(() => deferred.resolve(), 5000);
     } catch (ex) {
       // `showAlert` can throw an error if there's no system notification back
       // end, so fall-back to the old method of modal dialogs.
@@ -127,6 +129,13 @@ export var alertHook = {
     if (activeAlerts.has(cookie)) {
       return;
     }
+
+    // Block identical alerts (with the same cookie) for 5 seconds, or until
+    // the old alert is finished.
+    activeAlerts.add(cookie);
+    const deferred = Promise.withResolvers();
+    deferred.promise.then(() => activeAlerts.delete(cookie));
+    setTimeout(() => deferred.resolve(), 5000);
 
     let errorString;
     const errorArgs = { hostname: uri.host };
@@ -156,7 +165,6 @@ export var alertHook = {
     }
 
     const formattedString = await l10n.formatValue(errorString, errorArgs);
-    const deferred = Promise.withResolvers();
     function showExceptionDialog() {
       const params = {
         exceptionAdded: false,
@@ -244,12 +252,6 @@ export var alertHook = {
       Services.prompt.alert(null, null, formattedString);
       showExceptionDialog();
     }
-
-    // Block identical alerts (with the same cookie) for 5 seconds, or until
-    // the old alert is finished.
-    activeAlerts.add(cookie);
-    deferred.promise.then(() => activeAlerts.delete(cookie));
-    setTimeout(() => deferred.resolve(), 5000);
   },
 
   init() {
