@@ -15,11 +15,21 @@ const { MockAlertsService } = ChromeUtils.importESModule(
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
+const { EwsServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+);
 
 const generator = new MessageGenerator();
-let localAccount, imapAccount, pop3Account, ewsAccount, nntpAccount;
+let localAccount,
+  imapAccount,
+  pop3Account,
+  ewsAccount,
+  ewsAccountInvalidPath,
+  nntpAccount;
 
 const allServers = [];
+
+let ewsServer = null;
 
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 const getMessagesButton = about3Pane.document.getElementById(
@@ -63,7 +73,7 @@ add_setup(async function () {
   ewsAccount = MailServices.accounts.createAccount();
   ewsAccount.addIdentity(MailServices.accounts.createIdentity());
   ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "user",
+    "user0",
     "localhost",
     "ews"
   );
@@ -73,6 +83,31 @@ add_setup(async function () {
   );
   ewsAccount.incomingServer.prettyName = "EWS Account";
   allServers.push(ewsAccount.incomingServer);
+
+  // Start an EWS server on a port that's explicitly not the one used by the
+  // other servers (i.e. not 10000) so we don't fail if the server randomly
+  // start on port 10000.
+  ewsServer = new EwsServer({
+    listenPort: 10101,
+    username: "user",
+    password: "password",
+  });
+  ewsServer.start();
+
+  // EWS also alerts the user if it could connect to the server but got an error
+  // back, such as when the path part of the URI is invalid.
+  ewsAccountInvalidPath = MailServices.accounts.createAccount();
+  ewsAccountInvalidPath.addIdentity(MailServices.accounts.createIdentity());
+  ewsAccountInvalidPath.incomingServer =
+    MailServices.accounts.createIncomingServer("user", "localhost", "ews");
+  ewsAccountInvalidPath.incomingServer.password = "password";
+  ewsAccountInvalidPath.incomingServer.setStringValue(
+    "ews_url",
+    `http://localhost:${ewsServer.port}/EWS/NotExchange.asmx`
+  );
+  ewsAccountInvalidPath.incomingServer.prettyName =
+    "EWS Account - Invalid Path";
+  allServers.push(ewsAccountInvalidPath.incomingServer);
 
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
@@ -97,7 +132,9 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(ewsAccountInvalidPath, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
+    ewsServer.stop();
     MockAlertsService.cleanup();
   });
 });
@@ -134,7 +171,14 @@ add_task(async function testConnectionRefused() {
     );
     Assert.stringContains(
       alert.text,
-      "the connection was refused",
+
+      // If we're testing against a server that responds, then we're testing
+      // whether the server returned an error (as opposed to whether we could
+      // connect in the first place).
+      server.type == "ews" && server.port == ewsServer.port
+        ? "responded with an error"
+        : "the connection was refused",
+
       "the alert text should state the problem"
     );
 

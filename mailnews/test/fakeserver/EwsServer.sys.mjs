@@ -482,13 +482,35 @@ export class EwsServer {
   #tlsCert;
 
   /**
-   * @param {object} options
-   * @param {string} [options.hostname]
-   * @param {integer} [options.port]
-   * @param {nsIX509Cert} [options.tlsCert]
-   * @param {string} [options.version="Exchange2013"]
-   * @param {string} [options.username="user"]
-   * @param {string} [options.password="password"]
+   * The port to use when starting the HTTP server. -1 means to let the mock
+   * HTTP server set a random port.
+   *
+   * @type {number}
+   * @name EwsServer.port
+   * @private
+   */
+  #listenPort;
+
+  /**
+   * @param {object} options - The parameters to use to configure the mock EWS
+   *   server and its underlying HTTP(S) server.
+   * @param {string} [options.hostname] - The hostname used by ServerTestUtils
+   *   to make the server appear as listening on this host. This doesn't mean
+   *   the HTTP server is listening on that host.
+   * @param {integer} [options.port] - The port used by ServerTestUtils to make
+   *   the server appear as listening on this port. This doesn't mean the HTTP
+   *   server is listening on that port, use `listenPort` to control which port
+   *   the HTTP server is actually listening on.
+   * @param {nsIX509Cert} [options.tlsCert] - The certificate to use for HTTPS
+   *   requests. `null` means HTTPS is not available.
+   * @param {string} [options.version="Exchange2013"] - The Exchange Server
+   *   version to advertise.
+   * @param {string} [options.username="user"] - The username for the account
+   *   used for testing.
+   * @param {string} [options.password="password"] - The password for the
+   *   account used for testing.
+   * @param {integer} [options.listenPort=-1] - The port to listen to. -1 means
+   *   to let the mock HTTP server set a random port.
    */
   constructor({
     hostname,
@@ -497,6 +519,7 @@ export class EwsServer {
     version = "Exchange2013",
     username = "user",
     password = "password",
+    listenPort = -1,
   } = {}) {
     this.version = version;
     this.#httpServer = new HttpServer();
@@ -519,7 +542,7 @@ export class EwsServer {
       // Used by ServerTestUtils to make this server appear at hostname:port.
       // This doesn't mean the HTTP server is listening on that host and port.
       this.#httpServer.identity.add(
-        port == 443 ? "http" : "https",
+        port == 443 ? "https" : "http",
         hostname,
         port
       );
@@ -527,6 +550,7 @@ export class EwsServer {
     this.#tlsCert = tlsCert;
     this.#username = username;
     this.#password = password;
+    this.#listenPort = listenPort;
 
     this.#parser = new DOMParser();
     this.#serializer = new XMLSerializer();
@@ -538,7 +562,7 @@ export class EwsServer {
    * Start listening for requests.
    */
   start() {
-    this.#httpServer.start(-1);
+    this.#httpServer.start(this.#listenPort);
     if (this.#tlsCert) {
       const { HttpsProxy } = ChromeUtils.importESModule(
         "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
@@ -559,7 +583,9 @@ export class EwsServer {
   }
 
   /**
-   * The port this server is listening for new requests on.
+   * The port this server is listening for new requests on. This might not
+   * reflect the value passed for the `port` argument to the class's
+   * constructor.
    *
    * @type {number}
    */

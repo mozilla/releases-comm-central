@@ -62,6 +62,7 @@ where
         nserror::NS_ERROR_NET_TIMEOUT => c"netTimeoutError",
         nserror::NS_ERROR_NET_RESET => c"netResetError",
         nserror::NS_ERROR_NET_INTERRUPT => c"netInterruptError",
+        nserror::NS_ERROR_NET_ERROR_RESPONSE => c"errorResponseError",
 
         // We couldn't find a message to show the user, in which case we bail
         // early and let the consumer handle the error as usual.

@@ -167,6 +167,8 @@ async function subtest(
     `https://${hostname}/EWS/Exchange.asmx`
   );
   ewsAccount.incomingServer.prettyName = "EWS Account";
+  ewsAccount.incomingServer.socketType = Ci.nsMsgSocketType.SSL;
+
   const ewsRootFolder = ewsAccount.incomingServer.rootFolder;
   await subsubtest(
     ewsRootFolder,

@@ -1656,6 +1656,26 @@ where
                 }
             };
 
+            // If we managed to connect to the server, but the response's HTTP
+            // status code is an error (e.g. because the server encountered an
+            // internal error, the path is invalid, etc.), we should also raise
+            // a connection error. From manual testing, it does not look like
+            // throttling results in actual 429 responses (but instead in 200
+            // responses with the relevant response message).
+            let response = match response.error_from_status() {
+                Ok(response) => response,
+                Err(err) => {
+                    if let moz_http::Error::StatusCode { ref response, .. } = err {
+                        log::error!("Request FAILED with status {}: {err}", response.status()?);
+                    } else {
+                        log::error!("moz_http::Response::error_from_status returned an unexpected error: {err:?}");
+                    }
+
+                    maybe_handle_connection_error((&err).into(), self.server.clone())?;
+                    return Err(err.into());
+                }
+            };
+
             report_connection_success(self.server.clone())?;
 
             // Don't immediately propagate in case the error represents a
@@ -1712,18 +1732,7 @@ where
                         continue;
                     }
 
-                    log::error!("Request FAILED with status {}: {err}", response.status()?);
-                    if matches!(err, ews::Error::Deserialize(_)) {
-                        // If deserialization failed, the most likely cause is
-                        // that our request failed and the response body was not
-                        // an EWS XML response. In that case, prefer the
-                        // HTTP-derived error, which includes the status code
-                        // and full response body.
-                        response.error_from_status()?;
-                    }
-
-                    // If the response's HTTP status doesn't represent an error,
-                    // derive one from the `ews` error.
+                    // If not, propagate the error.
                     Err(err.into())
                 }
             };

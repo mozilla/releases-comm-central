@@ -325,6 +325,41 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
   return failureStatus;
 }
 
+NS_IMETHODIMP EwsIncomingServer::GetPort(int32_t* aPort) {
+  NS_ENSURE_ARG_POINTER(aPort);
+
+  nsCString ewsURL;
+  nsresult rv = GetEwsUrl(ewsURL);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  int32_t port = -1;
+
+  // We might not have a valid URL yet.
+  if (!ewsURL.IsEmpty()) {
+    nsCOMPtr<nsIURI> uri;
+    rv = NS_NewURI(getter_AddRefs(uri), ewsURL);
+
+    // We might have a URL that's invalid (e.g. set by a test).
+    if (NS_SUCCEEDED(rv)) {
+      rv = uri->GetPort(&port);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
+
+  if (port < 0) {
+    // If we don't have a valid URL yet, or it doesn't specify a port, default
+    // to the relevant one (as per the socket type).
+    nsMsgSocketTypeValue socketType;
+    rv = GetSocketType(&socketType);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    port = socketType == nsMsgSocketType::SSL ? 443 : 80;
+  }
+
+  *aPort = port;
+  return NS_OK;
+}
+
 NS_IMETHODIMP EwsIncomingServer::SyncFolderHierarchy(
     IEwsSimpleOperationListener* listener, nsIMsgWindow* window) {
   const auto refListener = RefPtr{listener};

@@ -116,6 +116,7 @@ impl From<&Error> for nsresult {
             Error::RedirectLoop => nserror::NS_ERROR_REDIRECT_LOOP,
             Error::TransportSecurityFailure { status, .. } => status.clone(),
             Error::Unknown(result) => result.clone(),
+            Error::StatusCode { .. } => nserror::NS_ERROR_NET_ERROR_RESPONSE,
 
             _ => nserror::NS_ERROR_FAILURE,
         }
