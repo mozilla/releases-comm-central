@@ -631,33 +631,54 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   nsresult rv;
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
 
-  nsAutoCString messageIds;
-  nsTArray<nsMsgKey> msgKeys;
-
-  rv = nsImapMailFolder::BuildIdsAndKeyArray(messages, messageIds, msgKeys);
-  if (NS_FAILED(rv) || messageIds.IsEmpty()) return rv;
-
-  // acquire semaphore for offline store. If it fails, we won't download
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Acquire semaphore for offline store. If it fails, we won't download.
   rv = folder->AcquireSemaphore(
       folder, "nsAutoSyncState::DownloadMessagesForOffline"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
+  auto guard = mozilla::MakeScopeExit([=] {
+    folder->ReleaseSemaphore(
+        folder, "nsAutoSyncState::DownloadMessagesForOffline failure"_ns);
+  });
 
-  if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-    nsCString folderName;
-    folder->GetURI(folderName);
-    MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-            ("%s: downloading UIDs %s for folder %s", __func__,
-             messageIds.get(), folderName.get()));
+  nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
+  if (imapFolder) {
+    // The keys are IMAP UIDs we can send to the server.
+    nsAutoCString messageIds;
+    nsTArray<nsMsgKey> msgKeys;
+    rv = nsImapMailFolder::BuildIdsAndKeyArray(messages, messageIds, msgKeys);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (messageIds.IsEmpty()) {
+      return NS_OK;
+    }
+
+    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+      nsCString folderName;
+      folder->GetURI(folderName);
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+              ("%s: downloading UIDs %s for folder %s", __func__,
+               messageIds.get(), folderName.get()));
+    }
+
+    // Start downloading, passing the nsAutoSyncState as listener.
+    // So OnStopRunningUrl() is called when the download completes.
+    rv = imapService->DownloadMessagesForOffline(messageIds, folder, this,
+                                                 nullptr);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    NS_WARNING(
+        "nsAutoSyncState::DownloadMessagesForOffline() used on non-imap "
+        "folder");
+    return NS_ERROR_UNEXPECTED;
   }
-  // start downloading
-  rv = imapService->DownloadMessagesForOffline(messageIds, folder, this,
-                                               nullptr);
-  if (NS_SUCCEEDED(rv)) SetState(stDownloadInProgress);
 
-  return rv;
+  rv = SetState(stDownloadInProgress);
+  NS_ENSURE_SUCCESS(rv, rv);
+  guard.release();
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAutoSyncState::GetLastSyncTime(PRTime* aLastSyncTime) {
