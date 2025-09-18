@@ -184,13 +184,12 @@ export var autosyncModule = {
         const process = this.createSyncMailProcess(folder);
 
         // create a sync object to keep track of the process of this folder
-        const imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
         const syncItem = {
           syncFolder: folder,
           activity: process,
           percentComplete: 0,
           totalDownloaded: 0,
-          pendingMsgCount: imapFolder.autoSyncStateObj.pendingMessageCount,
+          pendingMsgCount: folder.autoSyncStateObj.pendingMessageCount,
         };
 
         // if this is the first folder of this server in the queue, then set the sync start time
