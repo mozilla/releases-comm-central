@@ -61,9 +61,8 @@ var kHostnames = new Map([
   ["imap.yandex.com", ["oauth.yandex.com", "mail:imap_full"]],
   ["smtp.yandex.com", ["oauth.yandex.com", "mail:smtp"]],
 
-  ["imap.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
-  ["pop.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
-  ["smtp.mail.yahoo.com", ["login.yahoo.com", "mail-w"]],
+  ["yahoo.com", ["login.yahoo.com", "mail-w"]],
+  ["att.net", ["login.yahoo.com", "mail-w"]],
 
   ["imap.aol.com", ["login.aol.com", "mail-w"]],
   ["pop.aol.com", ["login.aol.com", "mail-w"]],
