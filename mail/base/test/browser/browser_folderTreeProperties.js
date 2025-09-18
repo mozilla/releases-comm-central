@@ -27,7 +27,8 @@ const FOLDER_COLORS = [
 ];
 
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-const { folderPane, folderTree, threadTree } = about3Pane;
+const { accountCentralBrowser, folderPane, folderTree, threadTree } =
+  about3Pane;
 let rootFolder,
   trashFolder,
   trashFolderRows,
@@ -81,6 +82,16 @@ add_setup(async function () {
     favorite: folderPane.getRowForFolder(virtualFolder, "favorite"),
   };
 
+  // Account central must load (for the first account we just added) before
+  // we start changing the theme or a large memory leak happens.
+  await TestUtils.waitForCondition(() => {
+    return (
+      accountCentralBrowser.contentDocument.readyState == "complete" &&
+      accountCentralBrowser.currentURI.spec.includes(
+        account.incomingServer.username
+      )
+    );
+  }, "waiting for account central to load");
   lightTheme = await AddonManager.getAddonByID(
     "thunderbird-compact-light@mozilla.org"
   );
