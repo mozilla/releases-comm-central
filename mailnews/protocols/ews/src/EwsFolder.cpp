@@ -1361,7 +1361,6 @@ NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,
   nsresult rv = nsMsgDBFolder::AddSubfolder(folderName, newFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
-
   // Check to see if we have a trash folder path saved in prefs.
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = GetServer(getter_AddRefs(server));
