@@ -9039,7 +9039,8 @@ class ImapOfflineMsgStreamListener : public nsIStreamListener {
     mListener = nullptr;
     mChannel->Close();
     mChannel = nullptr;
-    if (NS_FAILED(status)) {
+    if (NS_FAILED(status) &&
+        Preferences::GetBool("mail.discard_offline_msg_on_failure", true)) {
       // The streaming failed, discard the offline copy of the message.
       mFolder->DiscardOfflineMsg(mMsgKey);
     }

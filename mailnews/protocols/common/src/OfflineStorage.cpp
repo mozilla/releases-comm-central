@@ -40,7 +40,8 @@ NS_IMETHODIMP OfflineMessageReadListener::OnStartRequest(nsIRequest* request) {
 NS_IMETHODIMP OfflineMessageReadListener::OnStopRequest(nsIRequest* request,
                                                         nsresult status) {
   nsresult rv = mDestination->OnStopRequest(mChannel, status);
-  if (NS_FAILED(status)) {
+  if (NS_FAILED(status) &&
+      Preferences::GetBool("mail.discard_offline_msg_on_failure", true)) {
     // The streaming failed, discard the offline copy of the message so it can
     // be downloaded again later.
     mFolder->DiscardOfflineMsg(mMsgKey);

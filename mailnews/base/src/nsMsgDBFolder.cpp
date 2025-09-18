@@ -94,8 +94,6 @@ static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
 #define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshold_mb"
 #define PREF_MAIL_PURGE_ASK "mail.purge.ask"
 #define PREF_MAIL_WARN_FILTER_CHANGED "mail.warn_filter_changed"
-#define PREF_MAIL_DISCARD_OFFLINE_ON_FAILURE \
-  "mail.discard_offline_msg_on_failure"
 
 const char* kUseServerRetentionProp = "useServerRetention";
 
@@ -1081,10 +1079,6 @@ NS_IMETHODIMP nsMsgDBFolder::HasMsgOffline(nsMsgKey msgKey, bool* result) {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DiscardOfflineMsg(nsMsgKey msgKey) {
-  if (!Preferences::GetBool(PREF_MAIL_DISCARD_OFFLINE_ON_FAILURE, true)) {
-    return NS_OK;
-  }
-
   GetDatabase();
   if (!mDatabase) return NS_ERROR_FAILURE;
 
