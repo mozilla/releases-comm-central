@@ -68,8 +68,7 @@ bool MsgStrategyComparatorAdaptor::LessThan(const nsMsgKey& a,
   return false;
 }
 
-nsAutoSyncState::nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
-                                 PRTime aLastSyncTime)
+nsAutoSyncState::nsAutoSyncState(nsIMsgFolder* folder, PRTime lastSyncTime)
     : mSyncState(stCompletedIdle),
       mOffset(0U),
       mLastOffset(0U),
@@ -77,13 +76,12 @@ nsAutoSyncState::nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
       mLastServerRecent(0),
       mLastServerUnseen(0),
       mLastNextUID(0),
-      mLastSyncTime(aLastSyncTime),
+      mLastSyncTime(lastSyncTime),
       mLastUpdateTime(0UL),
       mProcessPointer(0U),
       mIsDownloadQChanged(false),
       mRetryCounter(0U) {
-  mOwnerFolder =
-      do_GetWeakReference(static_cast<nsIMsgImapMailFolder*>(aOwnerFolder));
+  mOwnerFolder = do_GetWeakReference(folder);
   mHaveAStatusResponse = false;
 }
 

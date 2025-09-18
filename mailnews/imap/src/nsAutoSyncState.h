@@ -14,7 +14,7 @@
 #include "nsTArray.h"
 #include "prlog.h"
 
-class nsImapMailFolder;
+class nsIMsgFolder;
 class nsIAutoSyncMsgStrategy;
 class nsIMsgDatabase;
 
@@ -44,7 +44,7 @@ class MsgStrategyComparatorAdaptor {
 };
 
 /**
- * Facilitates auto-sync capabilities for imap folders.
+ * Facilitates auto-sync capabilities for server-linked folders.
  */
 class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
  public:
@@ -52,8 +52,7 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   NS_DECL_NSIAUTOSYNCSTATE
   NS_DECL_NSIURLLISTENER
 
-  explicit nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
-                           PRTime aLastSyncTime = 0UL);
+  explicit nsAutoSyncState(nsIMsgFolder* folder, PRTime lastSyncTime = 0UL);
 
   /// Called by owner folder when new headers are fetched from the server
   void OnNewHeaderFetchCompleted(const nsTArray<nsMsgKey>& aMsgKeyList);
