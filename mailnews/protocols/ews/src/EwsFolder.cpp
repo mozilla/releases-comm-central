@@ -1348,48 +1348,54 @@ NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,
   nsresult rv = nsMsgDBFolder::AddSubfolder(folderName, newFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // When we add a subfolder, we need to make sure the trash folder flags are
-  // configured appropriately for the trash folder preference, if it is set.
-  if (*newFolder) {
-    // Check to see if we have a trash folder path saved in prefs.
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = GetServer(getter_AddRefs(server));
-    NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<IEwsIncomingServer> ewsServer{do_QueryInterface(server, &rv)};
-    NS_ENSURE_SUCCESS(rv, rv);
+  // Check to see if we have a trash folder path saved in prefs.
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsAutoCString trashFolderPath;
-    rv = ewsServer->GetTrashFolderPath(trashFolderPath);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<IEwsIncomingServer> ewsServer{do_QueryInterface(server, &rv)};
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsAutoCString folderPath;
-    rv = FolderPathInServer(*newFolder, folderPath);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString trashFolderPath;
+  rv = ewsServer->GetTrashFolderPath(trashFolderPath);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    if (trashFolderPath.IsEmpty()) {
-      // If we don't have a trash folder preference value set, and this folder
-      // has the trash flag set, set the preference value to this folder's path.
-      uint32_t flags;
-      rv = (*newFolder)->GetFlags(&flags);
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString folderPath;
+  rv = FolderPathInServer(*newFolder, folderPath);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      if (flags & nsMsgFolderFlags::Trash) {
-        rv = ewsServer->SetTrashFolderPath(folderPath);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-    } else if (trashFolderPath.Equals(folderPath)) {
-      // If the new folder path matches the trash folder path, ensure the trash
-      // folder flag is set for that folder.
-      rv = (*newFolder)->SetFlag(nsMsgFolderFlags::Trash);
-      NS_ENSURE_SUCCESS(rv, rv);
-    } else {
-      // The trash folder is set and is not equal to this folder. Clear the
-      // trash folder flag.
-      rv = (*newFolder)->ClearFlag(nsMsgFolderFlags::Trash);
+  uint32_t flags;
+  rv = (*newFolder)->GetFlags(&flags);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (trashFolderPath.IsEmpty()) {
+    // If we don't have a trash folder preference value set, and this folder
+    // has the trash flag set, set the preference value to this folder's path.
+    if (flags & nsMsgFolderFlags::Trash) {
+      rv = ewsServer->SetTrashFolderPath(folderPath);
       NS_ENSURE_SUCCESS(rv, rv);
     }
+  } else if (trashFolderPath.Equals(folderPath)) {
+    // If the new folder path matches the trash folder path, ensure the trash
+    // folder flag is set for that folder.
+    flags |= nsMsgFolderFlags::Trash;
+  } else {
+    // The trash folder is set and is not equal to this folder. Clear the
+    // trash folder flag.
+    flags &= ~nsMsgFolderFlags::Trash;
   }
+
+  // Should this folder download messages for offline?
+  {
+    bool setNewFoldersForOffline = false;
+    rv = server->GetOfflineDownload(&setNewFoldersForOffline);
+    if (NS_SUCCEEDED(rv) && setNewFoldersForOffline)
+      flags |= nsMsgFolderFlags::Offline;
+  }
+
+  rv = (*newFolder)->SetFlags(flags);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
 }
