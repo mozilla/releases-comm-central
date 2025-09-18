@@ -57,6 +57,7 @@ function testCertValidity(cert, date) {
       flags,
       "Alice@example.com",
       date,
+      [],
       result
     );
   });
