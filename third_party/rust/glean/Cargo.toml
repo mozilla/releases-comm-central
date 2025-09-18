@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean"
-version = "65.0.2"
+version = "65.1.1"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -58,6 +58,10 @@ path = "tests/custom_distribution_buffered.rs"
 [[test]]
 name = "dual_labeled_counter_metric"
 path = "tests/dual_labeled_counter_metric.rs"
+
+[[test]]
+name = "health_ping"
+path = "tests/health_ping.rs"
 
 [[test]]
 name = "init_fails"
@@ -123,7 +127,7 @@ path = "tests/uploader_capabilities.rs"
 version = "0.5"
 
 [dependencies.glean-core]
-version = "65.0.2"
+version = "65.1.1"
 
 [dependencies.inherent]
 version = "1"

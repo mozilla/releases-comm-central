@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean-core"
-version = "65.0.2"
+version = "65.1.1"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -45,6 +45,10 @@ glean-parser = "17.2.0"
 [lib]
 name = "glean_core"
 path = "src/lib.rs"
+
+[[example]]
+name = "rkv-open"
+path = "examples/rkv-open.rs"
 
 [[test]]
 name = "boolean"

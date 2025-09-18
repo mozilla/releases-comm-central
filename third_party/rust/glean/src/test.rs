@@ -63,6 +63,7 @@ fn send_a_ping() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Define a new ping and submit it.
@@ -105,6 +106,7 @@ fn send_a_ping_without_info_sections() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Define a new ping and submit it.
@@ -272,6 +274,7 @@ fn sending_of_foreground_background_pings() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Simulate becoming active.
@@ -354,6 +357,8 @@ fn sending_of_startup_baseline_ping() {
 #[test]
 fn no_dirty_baseline_on_clean_shutdowns() {
     let _lock = lock_test();
+
+    glean_core::glean_set_test_mode(true);
 
     // Create an instance of Glean, wait for init and then flip the dirty
     // bit to true.
@@ -590,6 +595,8 @@ fn ping_collection_must_happen_after_concurrently_scheduled_metrics_recordings()
 
     let (s, r) = crossbeam_channel::bounded(1);
 
+    glean_core::glean_set_test_mode(true);
+
     // Define a fake uploader that reports back the submission URL
     // using a crossbeam channel.
     #[derive(Debug)]
@@ -770,6 +777,8 @@ fn no_sending_of_deletion_ping_if_unchanged_outside_of_run() {
     let _lock = lock_test();
 
     let (s, r) = crossbeam_channel::bounded::<String>(1);
+
+    glean_core::glean_set_test_mode(true);
 
     // Define a fake uploader that reports back the submission URL
     // using a crossbeam channel.
@@ -1078,6 +1087,7 @@ fn setting_source_tags_after_initialization_should_not_crash() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Attempt to set source tags after `Glean.initialize` is called,
@@ -1114,6 +1124,8 @@ fn flipping_upload_enabled_respects_order_of_events() {
     let _lock = lock_test();
 
     let (s, r) = crossbeam_channel::bounded::<String>(1);
+
+    glean_core::glean_set_test_mode(true);
 
     // Define a fake uploader that reports back the submission URL
     // using a crossbeam channel.
@@ -1195,6 +1207,7 @@ fn registering_pings_before_init_must_work() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Submit a test ping.
@@ -1234,6 +1247,7 @@ fn test_a_ping_before_submission() {
         .with_uploader(FakeUploader { sender: s })
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     // Create a custom ping and register it.
@@ -1450,6 +1464,8 @@ fn configure_ping_throttling() {
 
     let (s, r) = crossbeam_channel::bounded::<String>(1);
 
+    glean_core::glean_set_test_mode(true);
+
     // Define a fake uploader that reports back the submission URL
     // using a crossbeam channel.
     #[derive(Debug)]
@@ -1553,6 +1569,7 @@ fn pings_ride_along_builtin_pings() {
         .with_ping_schedule(ping_schedule)
         .build();
 
+    glean_core::glean_set_test_mode(true);
     let _t = new_glean(Some(cfg), true);
 
     let _ride_along_ping = new_test_ping("ride-along");

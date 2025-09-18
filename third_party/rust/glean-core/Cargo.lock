@@ -213,6 +213,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 
 [[package]]
+name = "ctor"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32a2785755761f3ddc1492979ce1e48d2c00d09311c39e4466429188f3dd6501"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "dashmap"
 version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,12 +231,6 @@ dependencies = [
  "cfg-if",
  "num_cpus",
 ]
-
-[[package]]
-name = "either"
-version = "1.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 
 [[package]]
 name = "env_logger"
@@ -311,35 +315,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "glean"
-version = "65.1.1"
-dependencies = [
- "crossbeam-channel",
- "env_logger",
- "flate2",
- "glean-core",
- "inherent",
- "jsonschema-valid",
- "libc",
- "log",
- "once_cell",
- "serde_json",
- "tempfile",
- "whatsys",
- "wr_malloc_size_of",
-]
-
-[[package]]
 name = "glean-core"
 version = "65.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59c554057934fd0f31d68d8e9485134609c1e6d7373e8adfcd59e612f2d507f4"
 dependencies = [
  "android_logger",
  "bincode",
  "chrono",
  "crossbeam-channel",
+ "ctor",
+ "env_logger",
  "flate2",
+ "iso8601",
  "log",
  "malloc_size_of_derive",
  "once_cell",
@@ -347,6 +333,7 @@ dependencies = [
  "rkv",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror",
  "uniffi",
  "uuid",
@@ -449,29 +436,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "inherent"
-version = "1.0.9"
+name = "iso8601"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b311f3b85c4fe018ce74d962fec93365819da2219e1d6529d66db241e7c70ce0"
+checksum = "e5b94fbeb759754d87e1daea745bc8efd3037cd16980331fe1d1524c9a79ce96"
 dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "iri-string"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf071934ee7ee97e52fa1868a9540a7885eab75926bd70794030304a9797cea1"
-
-[[package]]
-name = "itertools"
-version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
-dependencies = [
- "either",
+ "nom",
 ]
 
 [[package]]
@@ -488,33 +458,6 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "json-pointer"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fe841b94e719a482213cee19dd04927cf412f26d8dc84c5a446c081e49c2997"
-dependencies = [
- "serde_json",
-]
-
-[[package]]
-name = "jsonschema-valid"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "998c0b6acd4e20747af58157c9d55878970f546088e17c9870f4b41bc8a032a3"
-dependencies = [
- "chrono",
- "iri-string",
- "itertools",
- "json-pointer",
- "lazy_static",
- "percent-encoding",
- "regex",
- "serde_json",
- "textwrap",
- "url",
 ]
 
 [[package]]
@@ -666,21 +609,6 @@ checksum = "567664f262709473930a4bf9e51bf2ebf3348f2e748ccc50dea20646858f8f29"
 dependencies = [
  "bitflags 1.3.2",
 ]
-
-[[package]]
-name = "regex"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c4eb3267174b8c6c2f654116623910a0fef09c4753f8dd83db29c48a0df988b"
-dependencies = [
- "regex-syntax",
-]
-
-[[package]]
-name = "regex-syntax"
-version = "0.6.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3f87b73ce11b1619a3c6332f45341e0047173771e8b8b73f87bfeefb7b56244"
 
 [[package]]
 name = "rkv"
@@ -1133,17 +1061,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "998d2c24ec099a87daf9467808859f9d82b61f1d9c9701251aea037f514eae0e"
 dependencies = [
  "nom",
-]
-
-[[package]]
-name = "whatsys"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb632c0076024630111a08ca9fcbd34736c80d10b9ae517077487b0c82f46a36"
-dependencies = [
- "cc",
- "cfg-if",
- "libc",
 ]
 
 [[package]]
