@@ -763,14 +763,19 @@ async function smimeTestCert(id) {
     Ci.nsIX509CertDB
   );
 
-  if (id == kEncryptionCertPref) {
-    x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey);
-    certUsage = Ci.nsIX509CertDB.verifyUsageEmailRecipient;
-  } else if (id == kSigningCertPref) {
-    x509cert = certdb.findCertByDBKey(gSignCertName.dbKey);
-    certUsage = Ci.nsIX509CertDB.verifyUsageEmailSigner;
-  } else {
+  if (id != kEncryptionCertPref && id != kSigningCertPref) {
     throw new Error(`Unexcpected id to test: ${id}`);
+  }
+  try {
+    if (id == kEncryptionCertPref) {
+      x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey);
+      certUsage = Ci.nsIX509CertDB.verifyUsageEmailRecipient;
+    } else if (id == kSigningCertPref) {
+      x509cert = certdb.findCertByDBKey(gSignCertName.dbKey);
+      certUsage = Ci.nsIX509CertDB.verifyUsageEmailSigner;
+    }
+  } catch (e) {
+    // findCertByDBKey can fail...
   }
 
   if (!x509cert) {
