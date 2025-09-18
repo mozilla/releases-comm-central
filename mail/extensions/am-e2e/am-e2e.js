@@ -786,6 +786,7 @@ async function smimeTestCert(id) {
     flags,
     "",
     Math.floor(Date.now() / 1000),
+    [],
     // An object that works as a nsICertVerificationCallback instance
     // and provides member function verifyCertFinished()
     { verifyCertFinished: resolve }
