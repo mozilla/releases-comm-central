@@ -240,6 +240,9 @@ export class MsgIncomingServer {
       ["Bool", "canFileMessagesOnServer", "canFileMessages"],
       ["Bool", "limitOfflineMessageSize", "limit_offline_message_size"],
       ["Bool", "hidden"],
+      ["Bool", "offlineDownload", "offline_download"],
+      ["Bool", "autoSyncOfflineStores", "autosync_offline_stores"],
+      ["Int", "autoSyncMaxAgeDays", "autosync_max_age_days"],
     ]);
 
     // nsIMsgIncomingServer attributes.

@@ -113,14 +113,13 @@ NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::IsExcluded(nsIMsgFolder* aFolder,
 
   nsresult rv = aFolder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIImapIncomingServer> imapServer(do_QueryInterface(server, &rv));
-  int32_t offlineMsgAgeLimit = -1;
-  imapServer->GetAutoSyncMaxAgeDays(&offlineMsgAgeLimit);
+  int32_t maxAge = -1;  // -1 = no limit.
+  rv = server->GetAutoSyncMaxAgeDays(&maxAge);
   NS_ENSURE_SUCCESS(rv, rv);
+
   PRTime msgDate;
   aMsgHdr->GetDate(&msgDate);
-  *aDecision = offlineMsgAgeLimit > 0 &&
-               msgDate < MsgConvertAgeInDaysToCutoffDate(offlineMsgAgeLimit);
+  *aDecision = maxAge > 0 && msgDate < MsgConvertAgeInDaysToCutoffDate(maxAge);
   return NS_OK;
 }
 
@@ -749,10 +748,24 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
     rv = account->GetIncomingServer(getter_AddRefs(incomingServer));
     if (!incomingServer) continue;
 
+    // Skip if AutoSyncOfflineStores pref is not set for this server.
+    bool autoSyncOfflineStores = false;
+    rv = incomingServer->GetAutoSyncOfflineStores(&autoSyncOfflineStores);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!autoSyncOfflineStores) {
+      continue;
+    }
+    // Ideally, the GetAutoSyncOfflineStores() test should be enough.
+    // But because the `autosync_offline_stores` pref defaults to
+    // true, we might end up trying to autosync folder types which
+    // don't support it.
+    // So for now, also do an explicit test for server types we _know_
+    // support autosync.
     nsCString type;
     rv = incomingServer->GetType(type);
-
-    if (!type.EqualsLiteral("imap")) continue;
+    if (!(type.EqualsLiteral("imap") || type.EqualsLiteral("ews"))) {
+      continue;
+    }
 
     // If we haven't logged onto this server yet during this session or if the
     // password has been removed from cache (see
@@ -810,20 +823,6 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
             folderFlags &
                 (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect)) {
           continue;
-        }
-
-        nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
-            do_QueryInterface(folder, &rv);
-        if (NS_FAILED(rv)) continue;
-
-        nsCOMPtr<nsIImapIncomingServer> imapServer;
-        rv = imapFolder->GetImapIncomingServer(getter_AddRefs(imapServer));
-        if (imapServer) {
-          bool autoSyncOfflineStores = false;
-          rv = imapServer->GetAutoSyncOfflineStores(&autoSyncOfflineStores);
-
-          // skip if AutoSyncOfflineStores pref is not set for this folder
-          if (NS_FAILED(rv) || !autoSyncOfflineStores) continue;
         }
 
         nsCOMPtr<nsIAutoSyncState> autoSyncState;

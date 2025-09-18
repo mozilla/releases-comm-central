@@ -302,13 +302,15 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsACString& aName,
 
   flags |= nsMsgFolderFlags::Mail;
 
-  nsCOMPtr<nsIImapIncomingServer> imapServer;
-  GetImapIncomingServer(getter_AddRefs(imapServer));
-  if (imapServer) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  {
     bool setNewFoldersForOffline = false;
-    rv = imapServer->GetOfflineDownload(&setNewFoldersForOffline);
-    if (NS_SUCCEEDED(rv) && setNewFoldersForOffline)
+    rv = server->GetOfflineDownload(&setNewFoldersForOffline);
+    if (NS_SUCCEEDED(rv) && setNewFoldersForOffline) {
       flags |= nsMsgFolderFlags::Offline;
+    }
   }
 
   folder->SetParent(this);
@@ -370,15 +372,14 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(const nsACString& name,
   GetFlags(&pFlags);
   bool isParentInbox = pFlags & nsMsgFolderFlags::Inbox;
 
-  nsCOMPtr<nsIImapIncomingServer> imapServer;
-  rv = GetImapIncomingServer(getter_AddRefs(imapServer));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // Only set these if these are top level children or parent is inbox
   if (isInbox)
     flags |= nsMsgFolderFlags::Inbox;
   else if (isServer || isParentInbox) {
     nsMsgImapDeleteModel deleteModel;
+    nsCOMPtr<nsIImapIncomingServer> imapServer;
+    rv = GetImapIncomingServer(getter_AddRefs(imapServer));
+    NS_ENSURE_SUCCESS(rv, rv);
     imapServer->GetDeleteModel(&deleteModel);
     if (deleteModel == nsMsgImapDeleteModels::MoveToTrash) {
       nsAutoCString trashName;
@@ -392,7 +393,10 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(const nsACString& name,
   if (brandNew &&
       !(flags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
     bool setNewFoldersForOffline = false;
-    rv = imapServer->GetOfflineDownload(&setNewFoldersForOffline);
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = GetServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = server->GetOfflineDownload(&setNewFoldersForOffline);
     if (NS_SUCCEEDED(rv) && setNewFoldersForOffline)
       flags |= nsMsgFolderFlags::Offline;
   }
@@ -934,11 +938,11 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       // offline_download preference is true, unless it's the Trash or Junk
       // folder.
       if (!(flags & (nsMsgFolderFlags::Trash | nsMsgFolderFlags::Junk))) {
-        nsCOMPtr<nsIImapIncomingServer> imapServer;
-        rv = GetImapIncomingServer(getter_AddRefs(imapServer));
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        rv = GetServer(getter_AddRefs(server));
         NS_ENSURE_SUCCESS(rv, rv);
         bool setNewFoldersForOffline = false;
-        rv = imapServer->GetOfflineDownload(&setNewFoldersForOffline);
+        rv = server->GetOfflineDownload(&setNewFoldersForOffline);
         if (NS_SUCCEEDED(rv) && setNewFoldersForOffline)
           flags |= nsMsgFolderFlags::Offline;
       } else {
@@ -1177,10 +1181,10 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings() {
   int32_t numDaysToKeepOfflineMsgs = -1;
 
   // Check if we've limited the offline storage by age.
-  nsCOMPtr<nsIImapIncomingServer> imapServer;
-  nsresult rv = GetImapIncomingServer(getter_AddRefs(imapServer));
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  imapServer->GetAutoSyncMaxAgeDays(&numDaysToKeepOfflineMsgs);
+  server->GetAutoSyncMaxAgeDays(&numDaysToKeepOfflineMsgs);
 
   nsCOMPtr<nsIMsgDatabase> holdDBOpen;
   if (numDaysToKeepOfflineMsgs > 0) {
@@ -5410,13 +5414,18 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
     GetImapIncomingServer(getter_AddRefs(imapServer));
 
     bool autoDownloadNewHeaders = false;
-    bool autoSyncOfflineStores = false;
-
     if (imapServer) {
-      imapServer->GetAutoSyncOfflineStores(&autoSyncOfflineStores);
       imapServer->GetDownloadBodiesOnGetNewMail(&autoDownloadNewHeaders);
       if (m_filterListRequiresBody) autoDownloadNewHeaders = true;
     }
+
+    bool autoSyncOfflineStores = false;
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    GetServer(getter_AddRefs(server));
+    if (server) {
+      server->GetAutoSyncOfflineStores(&autoSyncOfflineStores);
+    }
+
     bool notifiedBodies = false;
     if (m_downloadingFolderForOfflineUse || autoSyncOfflineStores ||
         autoDownloadNewHeaders) {

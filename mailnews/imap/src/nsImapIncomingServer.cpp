@@ -277,14 +277,8 @@ NS_IMPL_SERVERPREF_STR(nsImapIncomingServer, AdminUrl, "admin_url")
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CleanupInboxOnExit,
                         "cleanup_inbox_on_exit")
 
-NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, OfflineDownload,
-                        "offline_download")
-
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, DownloadBodiesOnGetNewMail,
                         "download_bodies_on_get_new_mail")
-
-NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, AutoSyncOfflineStores,
-                        "autosync_offline_stores")
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, UseIdle, "use_idle")
 
@@ -297,9 +291,6 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, IsGMailServer, "is_gmail")
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, UseCompressDeflate,
                         "use_compress_deflate")
-
-NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, AutoSyncMaxAgeDays,
-                       "autosync_max_age_days")
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, AllowUTF8Accept,
                         "allow_utf8_accept")

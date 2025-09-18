@@ -1548,6 +1548,15 @@ NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, IncomingDuplicateAction,
 
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, Hidden, "hidden")
 
+NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, OfflineDownload,
+                        "offline_download")
+
+NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, AutoSyncOfflineStores,
+                        "autosync_offline_stores")
+
+NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, AutoSyncMaxAgeDays,
+                       "autosync_max_age_days")
+
 NS_IMETHODIMP nsMsgIncomingServer::GetSocketType(int32_t* aSocketType) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 

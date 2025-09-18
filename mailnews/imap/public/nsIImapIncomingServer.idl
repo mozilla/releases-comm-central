@@ -37,7 +37,6 @@ interface nsIImapIncomingServer : nsISupports {
   attribute AUTF8String personalNamespace;
   attribute AUTF8String publicNamespace;
   attribute AUTF8String otherUsersNamespace;
-  attribute boolean offlineDownload;
   attribute boolean overrideNamespaces;
   attribute boolean usingSubscription;
   attribute AUTF8String manageMailAccountUrl;
@@ -67,10 +66,6 @@ interface nsIImapIncomingServer : nsISupports {
   attribute AUTF8String trashFolderName;
 
   attribute boolean downloadBodiesOnGetNewMail;
-  attribute boolean autoSyncOfflineStores;
-
-  /// Max age of messages we will autosync to, or keep in offline store.
-  attribute long autoSyncMaxAgeDays;
 
   /** True if there are no busy connections in cache. */
   readonly attribute boolean allConnectionsIdle;
