@@ -11,6 +11,7 @@
 #include "nsIUrlListener.idl"
 #include "nsIMsgEnumerator.idl"
 
+interface nsIAutoSyncState;
 interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIMsgDatabase;
@@ -991,4 +992,14 @@ interface nsIMsgFolder : nsISupports {
    * user moves or copies new messages into the folder.
    */
   void updateTimestamps(in boolean userInitiated);
+
+
+  /**
+   * Optional AutoSync state for this folder (see nsAutoSyncManager).
+   * Used to track which messages are queued to be downloaded for offline use.
+   * Folders which want to participate in AutoSync can provide this (IMAP,
+   * EWS).
+   * Folders which don't want/need AutoSync support will return null.
+   */
+  readonly attribute nsIAutoSyncState autoSyncStateObj;
 };

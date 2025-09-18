@@ -5656,6 +5656,15 @@ nsresult nsMsgDBFolder::MessagesInKeyOrder(
   return rv;
 }
 
+// Optional support for autosync manager.
+// IMAP, EWS provide this, other folder types just return null.
+NS_IMETHODIMP nsMsgDBFolder::GetAutoSyncStateObj(
+    nsIAutoSyncState** autoSyncStateObj) {
+  NS_ENSURE_ARG_POINTER(autoSyncStateObj);
+  autoSyncStateObj = nullptr;
+  return NS_OK;
+}
+
 /* static */ nsMsgKeySetU* nsMsgKeySetU::Create() {
   nsMsgKeySetU* set = new nsMsgKeySetU;
   if (set) {

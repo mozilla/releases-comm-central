@@ -827,7 +827,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
         }
 
         nsCOMPtr<nsIAutoSyncState> autoSyncState;
-        rv = imapFolder->GetAutoSyncStateObj(getter_AddRefs(autoSyncState));
+        rv = folder->GetAutoSyncStateObj(getter_AddRefs(autoSyncState));
         NS_ASSERTION(
             autoSyncState,
             "*** nsAutoSyncState shouldn't be NULL, check owner folder");

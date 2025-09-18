@@ -14,7 +14,6 @@ interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIImapIncomingServer;
 interface nsIMsgParseMailMsgState;
-interface nsIAutoSyncState;
 
 /**
  * nsIMsgQuota defines the quota for a resource within a quota root.
@@ -187,7 +186,6 @@ interface nsIMsgImapMailFolder : nsISupports {
   attribute boolean performingBiff;
   readonly attribute nsIMsgParseMailMsgState hdrParser;
   readonly attribute nsIImapIncomingServer imapIncomingServer;
-  readonly attribute nsIAutoSyncState autoSyncStateObj;
   readonly attribute boolean shouldUseUtf8FolderName;
   /**
    * @{

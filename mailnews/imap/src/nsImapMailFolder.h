@@ -339,6 +339,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetCustomIdentity(nsIMsgIdentity** aIdentity) override;
 
   NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
+  NS_IMETHOD GetAutoSyncStateObj(nsIAutoSyncState** autoSyncStateObj) override;
 
   nsresult AddSubfolderWithPath(const nsACString& name, nsIFile* folderPath,
                                 nsIMsgFolder** child, bool brandNew = false);
