@@ -1,0 +1,46 @@
+---
+schema: 1
+
+bugzilla:
+  product: "Thunderbird"
+  component: "Build Config"
+
+origin:
+  name: "botan"
+  description: "Cryptography Toolkit"
+
+  url: "https://github.com/randombit/botan"
+  license: BSD-2-Clause
+
+  release: tag 2.18.2
+
+  revision: 2.18.2
+
+  license-file: license.txt
+
+vendoring:
+  url: https://github.com/randombit/botan
+  source-hosting: github
+  tracking: tag
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  keep:
+    - botan.mozbuild
+    - botan_configure.py
+    - moz.build
+    - Makefile.in
+
+  exclude:
+    - ".*"
+    - ".github/**"
+    - "src/examples"
+
+  update-actions:
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.botan'
+      pattern: '\[tag [0-9\.]+\]'
+      with: '[tag {revision}]'

@@ -1,16 +1,25 @@
-Directory ./botan contains a copy of version 2.18.2 of the Botan library,
-which has been obtained from https://botan.randombit.net/releases/Botan-2.18.2.tar.xz .
+Directory ./botan contains a copy of the Botan library, which has been obtained
+from https://github.com/randombit/botan
 
 For licensing information, please refer to the included documentation.
 
-The SHA256SUM of the imported file is:
-541a3b13f1b9d30f977c6c1ae4c7bfdfda763cda6e44de807369dce79f42307e  Botan-2.18.2.tar.xz
+[tag 2.18.2]
+
+Updating:
+- cd $topsrcdir/comm
+- ../mach vendor -r <tag_name> third_party/botan/moz.yaml
+- Review the changes
+- Commit the changes
+
+The tag information in this file is automatically updated. The moz.yaml file
+is automatically updated. If upstream changes require updating moz.build, that
+must be done with a manual step.
 
 The following files were removed from the source distribution:
 .github/
 .gitignore
-.lgtm.yml
-.travis.yml
+.clang-format
+src/examples
 src/tests
 
 The following files were added to the source's root by MZLA Technologies:
