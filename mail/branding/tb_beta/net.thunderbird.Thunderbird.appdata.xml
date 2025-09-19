@@ -25,6 +25,11 @@
     <category>Office</category>
   </categories>
 
+  <branding>
+    <color type="primary" scheme_preference="light">#F0F8FF</color>
+    <color type="primary" scheme_preference="dark">#262C40</color>
+  </branding>
+
   <url type="homepage">https://www.thunderbird.net/</url>
   <url type="bugtracker">https://bugzilla.mozilla.org/</url>
   <url type="faq">https://support.mozilla.org/kb/thunderbird-faq/</url>
