@@ -1,0 +1,20 @@
+# Tests generated partially with openssl 1.0.2g
+# CertificateVerify message contains the following fields:
+# - SignatureAndHash Algorithm (2 bytes) [only in TLS 1.2]
+# - Certificate length (2 bytes)
+# - Certificate
+
+[cert_verify]
+Buffer = 06010080266481066a8431582157a9a591150d418b63d46154c4cd85bffcfdba8c7f6396f0ceb0402c2142c526a19659d58cd4111bf45f57a56e97d16eeecd350f6e9dc93662e4361053666e5a53c74fe11bd6cf86a9cf7a2488704c5121915820973280ed6afa3e8b79dfb799bddffb52caa2d1a0a895a0e7505d841a882bdd92ec9141
+Exception = 
+
+Buffer = 0601000100
+Exception = 
+
+#Incomplete algorithm
+Buffer = 06
+Exception = Invalid CertificateVerify: Expected 2 bytes remaining, only 1 left
+
+#Incomplete certificate
+Buffer = 0601000500
+Exception = Invalid CertificateVerify: Expected 5 bytes remaining, only 1 left

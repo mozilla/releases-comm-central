@@ -1,0 +1,24 @@
+# Alert message contains the following fields:
+# - Fatal (1 byte): 1=false, 2=true
+# - Type (1 byte)
+
+[alert]
+Buffer = 0130
+Exception = 
+
+Buffer = 0230
+Exception = 
+
+Buffer = 0231
+Exception = 
+
+Buffer = 0030
+Protocol = 0303
+Exception = Bad code for TLS alert level
+
+Buffer = 02
+Exception = Bad size (1) for TLS alert message
+
+Buffer = 020101
+Exception = Bad size (3) for TLS alert message
+
