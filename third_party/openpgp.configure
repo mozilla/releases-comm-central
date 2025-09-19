@@ -203,8 +203,193 @@ with only_when(in_tree_librnp):
             when=use_pkg_config,
         )
 
-        botan_pkg = pkg_check_modules("MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan")
+        botan_pkg = pkg_check_modules("MZLA_BOTAN", "botan-3 >= 3.8.0", when="--with-system-botan")
         set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
+
+        @depends(
+            botan_pkg,
+            build_environment,
+            target,
+            cxx_compiler,
+            milestone,
+            stdcxx_compat,
+            target_sysroot.bootstrapped,
+            target_sysroot.path,
+        )
+        @imports("json")
+        @imports("os")
+        @imports("subprocess")
+        @imports("sys")
+        @imports(_from="mozbuild.dirutils", _import="ensureParentDir")
+        @imports(_from="importlib", _import="import_module")
+        @imports(_from="shutil", _import="move")
+        @imports(_from="shlex", _import="split")
+        @imports(_from="__builtin__", _import="open")
+        @imports(_from="__builtin__", _import="Exception")
+        def configure_botan(
+            botan_pkg,
+            build_env,
+            target,
+            cxx_compiler,
+            milestone,
+            stdcxx_compat,
+            bootstrapped,
+            sysroot_path,
+        ):
+            if botan_pkg:
+                return
+
+            log.info("Configuring Botan...")
+            if target.kernel == "WINNT":
+                botan_os = "windows"
+            elif target.kernel == "Darwin" and target.os == "OSX":
+                botan_os = "macos"
+            elif target.kernel == "Linux":
+                botan_os = "linux"
+            else:
+                botan_os = target.kernel.lower()
+
+            botan_objdir = os.path.join(build_env.topobjdir, "comm/third_party/botan")
+            botan_distinfo = f"Thunderbird_{milestone.app_version_display}"
+            botan_modules = ",".join(
+                (
+                    "aead",
+                    "aes",
+                    "auto_rng",
+                    "bigint",
+                    "blowfish",
+                    "camellia",
+                    "cast128",
+                    "cbc",
+                    "cfb",
+                    "crc24",
+                    "des",
+                    "dl_group",
+                    "dsa",
+                    "eax",
+                    "ec_group",
+                    "ecdh",
+                    "ecdsa",
+                    "ed25519",
+                    "elgamal",
+                    "eme_pkcs1",
+                    "emsa_pkcs1",
+                    "emsa_raw",
+                    "ffi",
+                    "hash",
+                    "hkdf",
+                    "hmac",
+                    "hmac_drbg",
+                    "idea",
+                    "kdf",
+                    "md5",
+                    "ocb",
+                    "pcurves_brainpool256r1",
+                    "pcurves_brainpool384r1",
+                    "pcurves_brainpool512r1",
+                    "pcurves_generic",
+                    "pcurves_numsp512d1",
+                    "pcurves_secp192r1",
+                    "pcurves_secp224r1",
+                    "pcurves_secp256k1",
+                    "pcurves_secp256r1",
+                    "pcurves_secp384r1",
+                    "pcurves_secp521r1",
+                    "pcurves_sm2p256v1",
+                    "pgp_s2k",
+                    "pubkey",
+                    "raw_hash",
+                    "rfc3394",
+                    "rmd160",
+                    "rsa",
+                    "sha1",
+                    "sha2_32",
+                    "sha2_64",
+                    "sha3",
+                    "sm2",
+                    "sm3",
+                    "sm4",
+                    "sp800_56a",
+                    "system_rng",
+                    "twofish",
+                    "x25519",
+                )
+            )
+
+            botan_flags = [
+                "--cc-bin={}".format(cxx_compiler.compiler),
+                "--cc-abi-flags=--target={}".format(target.alias),
+                "--cpu={}".format(target.cpu),
+                "--os={}".format(botan_os),
+                "--with-build-dir={}".format(botan_objdir),
+                "--build-targets=static",
+                "--minimized-build",
+                "--link-method=copy",
+                "--without-documentation",
+                "--distribution-info={}".format(botan_distinfo),
+                "--enable-modules={}".format(botan_modules),
+            ]
+            if botan_os == "linux" and (stdcxx_compat or bootstrapped):
+                botan_flags += [
+                    "--without-os-features=getrandom",
+                    "--without-os-features=explicit_bzero",
+                ]
+            if botan_os == "windows":
+                win_cxx_flags = [
+                    "-clang:-fno-force-enable-int128",
+                    "-D_ENABLE_EXTENDED_ALIGNED_STORAGE=1",
+                ]
+                botan_flags += [
+                    "--cc=msvc",  # This forces MSVC style arguments out of Botan with clang-cl
+                    "--msvc-runtime=MT",
+                    "--extra-cxxflags={}".format(" ".join(win_cxx_flags)),
+                ]
+            if bootstrapped:
+                botan_flags += ["--with-sysroot-dir={}".format(sysroot_path)]
+            command = [
+                "python",
+                "--virtualenv",
+                "build",
+                os.path.join(
+                    build_env.topsrcdir,
+                    "comm/third_party/botan/configure.py",
+                ),
+            ]
+            log.debug(" ".join(command + botan_flags))
+
+            output = check_cmd_output(
+                sys.executable,
+                os.path.join(build_env.topsrcdir, "mach"),
+                "--log-no-times",
+                *command,
+                *botan_flags,
+                cwd=os.path.join(build_env.topobjdir),
+            )
+            log.info(output)
+
+            with open(os.path.join(botan_objdir, "build", "build_config.json")) as f:
+                build_config = json.load(f)
+
+            cxxflags = (
+                split(build_config["cxx_abi_flags"])
+                + split(build_config["cc_lang_flags"])
+                + split(build_config["os_feature_macros"])
+                + split(build_config["cc_compile_flags"])
+                + split(build_config["cc_warning_flags"])
+            )
+            cxxflags = [
+                f for f in cxxflags if not f.startswith("/Zc:")
+            ]  # Avoid unused argument warnings on Windows
+
+            return namespace(
+                libfile=build_config["static_lib_name"],
+                libname=build_config["libname"],
+                cxxflags=cxxflags,
+            )
+
+        set_config("BOTAN_LIB_FILE", configure_botan.libfile, when=configure_botan)
+        set_config("BOTAN_LIB_NAME", configure_botan.libname, when=configure_botan)
+        set_config("BOTAN_CXXFLAGS", configure_botan.cxxflags, when=configure_botan)
 
     # OpenSSL backend
     with only_when(rnp_openssl):
