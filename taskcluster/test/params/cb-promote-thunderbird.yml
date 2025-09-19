@@ -16,8 +16,6 @@ do_not_optimize: []
 enable_always_target:
   - docker-image
 existing_tasks:
-  build-linux-shippable/opt: Knv3C3plSMGBoMi0j6Imjw
-  build-linux-shippable/opt-upload-symbols: XAreN-r5RDG7kiZHmBO3ag
   build-linux/debug: EMExvYqAT8yllPKhG0P3Mw
   build-linux64-shippable/opt: Lage7KruRxCMtiBRL5yAiA
   build-linux64-shippable/opt-upload-symbols: KqEIerj3T5-iBY7Hg4Jltg
@@ -31,7 +29,6 @@ existing_tasks:
   build-macosx64-x64-shippable/opt: Rb7a4SynSzye-UWBWyCuFg
   build-macosx64-x64-shippable/opt-upload-symbols: Aw1yqXF3Tgq1olktxeI1AQ
   build-macosx64/debug: LWN8XPudQ5yrYbd2bAYjwg
-  build-signing-linux-shippable/opt: UN_JIMWzReWA956VOYe4Ng
   build-signing-linux64-shippable/opt: J_osU89GSMWYS4L5uZFJMg
   build-signing-win32-shippable/opt: NqGOeHl7Q9qlOhBq3ZDt6g
   build-signing-win32/debug: JCDqqeRvQ7G3zPm-udSOZA
@@ -141,7 +138,6 @@ existing_tasks:
   packages-ub20-python-zstandard: bqnsIz63TWqDBhm831vMyg
   packages-ub22-mercurial: euB0N7i_TgGMRXWvzoDEMA
   packages-ub22-python-zstandard: FCDcnjRWTNeH5sIGueAhWQ
-  repackage-linux-shippable/opt: IkqeEDRlQy2nD5d1Uz_ELw
   repackage-linux64-shippable/opt: MjBCA6PMRDm6l8X98HCC1w
   repackage-macosx64-shippable/opt: FJUNe41xRgSjnIm7b_TUDg
   repackage-macosx64/debug: avxrW_zaTeunP4W8lYqFrg

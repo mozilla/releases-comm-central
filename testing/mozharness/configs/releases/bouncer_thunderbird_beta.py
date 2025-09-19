@@ -8,7 +8,6 @@ config = {
         "installer": {
             "product-name": "Thunderbird-%(version)s",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -18,7 +17,6 @@ config = {
         "installer-latest": {
             "product-name": "Thunderbird-beta-latest",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -28,7 +26,6 @@ config = {
         "installer-ssl": {
             "product-name": "Thunderbird-%(version)s-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -38,7 +35,6 @@ config = {
         "installer-latest-ssl": {
             "product-name": "Thunderbird-beta-latest-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -76,7 +72,6 @@ config = {
         "complete-mar": {
             "product-name": "Thunderbird-%(version)s-Complete",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -88,7 +83,6 @@ config = {
         "releases-dir": {
             "product-name": "Thunderbird-%(version)s-Partial-%(prev_version)s",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",

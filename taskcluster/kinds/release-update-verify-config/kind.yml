@@ -60,30 +60,6 @@ task-defaults:
                 default: "default"
 
 tasks:
-    thunderbird-linux:
-        shipping-product: thunderbird
-        treeherder:
-            symbol: UVC
-            platform: linux32-shippable/opt
-            kind: test
-            tier: 1
-        attributes:
-            build_platform: linux-shippable
-        extra:
-            product: thunderbird
-            platform: linux-i686
-            updater-platform: linux-x86_64
-            channel:
-                by-release-type:
-                    beta: "beta-localtest"
-                    release(-rc)?: "release-localtest"
-                    esr.*: "esr-localtest"
-                    default: "default"
-            mar-channel-id-override:
-                by-release-type:
-                    beta: beta
-                    default: null
-
     thunderbird-linux64:
         shipping-product: thunderbird
         treeherder:

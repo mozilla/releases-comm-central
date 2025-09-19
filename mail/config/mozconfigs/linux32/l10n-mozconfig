@@ -1,6 +1,0 @@
-. "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
-
-if test `uname -m` = "x86_64"; then
-  ac_add_options --target=i686-pc-linux
-  ac_add_options --host=i686-pc-linux
-fi

@@ -58,14 +58,6 @@ task-defaults:
         last-watershed: "115.10.2"
 
 tasks:
-    thunderbird-next-linux:
-        shipping-product: thunderbird
-        treeherder:
-            platform: linux32-shippable/opt
-        attributes:
-            build_platform: linux-shippable
-        extra:
-            platform: linux-i686
     thunderbird-next-linux64:
         shipping-product: thunderbird
         treeherder:

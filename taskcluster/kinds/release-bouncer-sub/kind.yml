@@ -35,7 +35,7 @@ task-defaults:
 
 tasks:
     thunderbird:
-        bouncer-platforms: ['linux', 'linux64', 'osx', 'win', 'win64']
+        bouncer-platforms: ['linux64', 'osx', 'win', 'win64']
         bouncer-products: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar', 'msi', 'msix']
         shipping-product: thunderbird
         treeherder:

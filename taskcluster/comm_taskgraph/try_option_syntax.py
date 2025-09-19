@@ -73,7 +73,6 @@ UNITTEST_ALIASES = {
 # Note that the test platforms here are only the prefix up to the `/`.
 UNITTEST_PLATFORM_PRETTY_NAMES = {
     "Ubuntu": [
-        "linux32",
         "linux64",
         "linux64-asan",
         "linux1804-64",

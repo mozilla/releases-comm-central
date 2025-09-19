@@ -266,29 +266,6 @@ case "${_TARGET_OS}" in
 
         _TARGET_LIBS="lib/libotr.dylib"
         ;;
-    linux32)
-        for _t in clang/bin binutils/bin; do
-            PATH="${MOZ_FETCHES_DIR}/${_t}:$PATH"
-        done
-        export PATH
-
-        SYSROOT="sysroot-i686-linux-gnu"
-        export _TARGET_TRIPLE="i686-pc-linux"
-        export CC="i686-linux-gnu-clang"
-        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
-        export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse -fuse-ld=lld"
-
-        export AR=llvm-ar
-        export RANLIB=llvm-ranlib
-        export NM=llvm-nm
-        export STRIP=llvm-strip
-
-        _OS_CONFIGURE_FLAGS=(--host="${_TARGET_TRIPLE}" --target="${_TARGET_TRIPLE}")
-        _OS_CONFIGURE_FLAGS+=(--with-sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}")
-        _CONF_STATIC=(--enable-static --disable-shared)
-        _TARGET_LIBS="lib/libotr.so"
-        ;;
     linux64)
         for _t in clang/bin binutils/bin; do
             PATH="${MOZ_FETCHES_DIR}/${_t}:$PATH"

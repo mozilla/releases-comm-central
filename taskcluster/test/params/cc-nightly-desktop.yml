@@ -17,10 +17,6 @@ do_not_optimize: []
 enable_always_target:
   - docker-image
 existing_tasks:
-  build-linux-shippable/opt: e5BEoGFgT0uaL-BP3QnfDQ
-  build-linux-shippable/opt-upload-symbols: ci6PdBZqTPCu63qu38_HCQ
-  build-linux/debug: SKFLBk1ISX-Nm0uuVGIbng
-  build-linux/opt: dtvTpgh2QQy7cHhrqorosQ
   build-linux64-ccov/opt: FH6LO8I_RXO8S_S5WUJlVQ
   build-linux64-shippable/opt: FdgdCWRTRYufgmZ1DlmkvA
   build-linux64-shippable/opt-upload-symbols: B3BWA6zSRz-IEWBTnQblFQ
@@ -37,7 +33,6 @@ existing_tasks:
   build-macosx64-x64-shippable/opt-upload-symbols: Mwt7Pnq9ThuFjnBgp5L4uQ
   build-macosx64/debug: ZCAPxN6JTTqZmTjlFpp7YQ
   build-macosx64/opt: UVUq0iJ2QdWdSgvSndxNEQ
-  build-signing-linux-shippable/opt: Onl_CUJ8QjWpVk8dmuE5Fg
   build-signing-linux64-shippable/opt: F4Rjze2CSUC_9n9VNEUASA
   build-signing-win32-shippable/opt: doW5FdWRT6-XsfdTIOI5Ew
   build-signing-win32/debug: OOONiEnjRtO_khyw1K1mzw
@@ -156,7 +151,6 @@ existing_tasks:
   packages-ub20-python-zstandard: bqnsIz63TWqDBhm831vMyg
   packages-ub22-mercurial: euB0N7i_TgGMRXWvzoDEMA
   packages-ub22-python-zstandard: FCDcnjRWTNeH5sIGueAhWQ
-  repackage-linux-shippable/opt: W2gX1UlgRNCBSmx3CKa1aA
   repackage-linux64-shippable/opt: NcNSnhT8Qk-gbZ0tWXJKmQ
   repackage-macosx64-shippable/opt: f2x86YQWQuSZLUuKF2gwsw
   repackage-macosx64/debug: BBDhU0e-SzSYY43h7sVWUQ
@@ -445,7 +439,6 @@ existing_tasks:
   test-windows11-64-24h2-shippable/opt-xpcshell-msix-4: fpk4sTMZQFGMPixu-rFDLw
   test-windows11-64-24h2-shippable/opt-xpcshell-msix-5: BMjR-yI6ROu2GzckHhVELA
   toolchain-linux-aarch64-libotr: N6_7CsEuSMm1RCJkQkxlSw
-  toolchain-linux32-libotr: VDBlcksAQN67UA9vMto4wQ
   toolchain-linux64-aarch64-compiler-rt-18: f1xcVa-NQO6cJW5WR1XuCw
   toolchain-linux64-cargo-vet: EWn9lD-ISP6a9016VbHa3A
   toolchain-linux64-cbindgen: C1W0HkNhSo-aN4lO-Qsv8A

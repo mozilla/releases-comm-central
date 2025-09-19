@@ -1,3 +1,0 @@
-. "$topsrcdir/comm/mail/config/mozconfigs/linux32/common-linux32"
-
-ac_add_options --enable-official-branding

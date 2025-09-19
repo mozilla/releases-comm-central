@@ -20,7 +20,6 @@ kind-dependencies:
 
 only-for-build-platforms:
     - linux64/opt
-    - linux/opt
     - macosx64/opt
     - win32/opt
     - win64/opt
@@ -70,7 +69,6 @@ tasks:
             product: thunderbird
             job-name:
                 by-build-platform:
-                    linux(?!64).*: linux-opt
                     linux64.*: linux64-opt
                     macosx64.*: macosx64-opt
                     win32.*: win32-opt
@@ -83,13 +81,12 @@ tasks:
             platform:
                 by-build-platform:
                     linux64: linux64/opt
-                    linux: linux32/opt
                     macosx64: osx-cross/opt
                     win32: windows2012-32/opt
                     win64: windows2012-64/opt
         env:
             by-build-platform:
-                linux.*:
+                linux64.*:
                     MOZ_ARTIFACT_TASK: {task-reference: '<build>'}
                 macosx64.*:
                     MOZ_ARTIFACT_TASK: {task-reference: '<build>'}
@@ -101,11 +98,6 @@ tasks:
                 - comm/testing/mozharness/configs
             config:
                 by-build-platform:
-                    linux:
-                        - single_locale/linux32.py
-                        - single_locale/tc_common.py
-                        - single_locale/tc_linux_common.py
-                        - single_locale/thunderbird.py
                     linux64:
                         - single_locale/linux64.py
                         - single_locale/tc_common.py

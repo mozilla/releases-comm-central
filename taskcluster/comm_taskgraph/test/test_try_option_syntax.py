@@ -33,12 +33,10 @@ def unittest_task(n, tp, bt="opt"):
 tasks = {
     k: v
     for k, v in [
-        unittest_task("mochitest-browser-chrome", "linux/opt"),
         unittest_task("mochitest-browser-chrome-e10s", "linux64/opt"),
         unittest_task("extra1", "linux", "debug/opt"),
         unittest_task("extra2", "win32/opt"),
         unittest_task("gtest", "linux64/asan"),
-        unittest_task("extra3", "linux/opt"),
         unittest_task("extra4", "linux64/debug", "debug"),
         unittest_task("extra5", "linux/this"),
         unittest_task("extra6", "linux/that"),
@@ -223,7 +221,6 @@ class TestTryOptionSyntax(unittest.TestCase):
                     {
                         "test": "gtest",
                         "platforms": [
-                            "linux32",
                             "linux64",
                             "linux64-asan",
                             "linux1804-64",
@@ -244,29 +241,16 @@ class TestTryOptionSyntax(unittest.TestCase):
             sorted(x for x in all_platforms if x != "linux"),
         )
 
-    def test_u_platforms_negated_pretty(self):
-        "-u gtest[Ubuntu,-x64] selects just linux for gtest"
-        parameters = parse_message("try: -u gtest[Ubuntu,-x64]")
-        tos = TryOptionSyntax(parameters, graph_with_jobs, GRAPH_CONFIG)
-        self.assertEqual(
-            sorted(tos.unittests),
-            sorted(
-                [
-                    {"test": "gtest", "platforms": ["linux32"]},
-                ]
-            ),
-        )
-
     def test_u_chunks_platforms(self):
-        "-u gtest-1[linux,win32] selects the linux and win32 platforms for chunk 1 of gtest"
-        parameters = parse_message("try: -u gtest-1[linux,win32]")
+        "-u gtest-1[win32] selects the win32 platform for chunk 1 of gtest"
+        parameters = parse_message("try: -u gtest-1[win32]")
         tos = TryOptionSyntax(parameters, graph_with_jobs, GRAPH_CONFIG)
         self.assertEqual(
             tos.unittests,
             [
                 {
                     "test": "gtest",
-                    "platforms": ["linux", "win32"],
+                    "platforms": ["win32"],
                     "only_chunks": set("1"),
                 },
             ],

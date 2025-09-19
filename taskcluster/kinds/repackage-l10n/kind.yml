@@ -21,7 +21,6 @@ kind-dependencies:
     - toolchain
 
 only-for-build-platforms:
-    - linux-shippable/opt
     - linux64-shippable/opt
     - macosx64-shippable/opt
     - win32-shippable/opt
@@ -45,9 +44,6 @@ tasks:
                 - comm/testing/mozharness/configs
             config:
                 by-build-platform:
-                    linux-.*:
-                        - repackage/base.py
-                        - repackage/linux32_signed.py
                     linux64.*:
                         - repackage/base.py
                         - repackage/linux64_signed.py

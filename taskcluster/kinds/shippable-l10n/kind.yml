@@ -20,7 +20,6 @@ kind-dependencies:
 
 only-for-build-platforms:
     - linux64-shippable/opt
-    - linux-shippable/opt
     - macosx64-shippable/opt
     - win32-shippable/opt
     - win64-shippable/opt
@@ -79,7 +78,6 @@ tasks:
             product: thunderbird
             job-name:
                 by-build-platform:
-                    linux-shippable: linux-opt
                     linux64-shippable: linux64-opt
                     macosx64-shippable: macosx64-opt
                     win32-shippable: win32-opt
@@ -91,7 +89,6 @@ tasks:
             platform:
                 by-build-platform:
                     linux64-shippable: linux64-shippable/opt
-                    linux-shippable: linux32-shippable/opt
                     macosx64-shippable: osx-shippable/opt
                     win32-shippable: windows2012-32-shippable/opt
                     win64-shippable: windows2012-64-shippable/opt
@@ -110,12 +107,6 @@ tasks:
             config:
                 # no default, so we fail on new entries
                 by-build-platform:
-                    linux-shippable:
-                        - single_locale/linux32.py
-                        - single_locale/tc_common.py
-                        - single_locale/tc_linux_common.py
-                        - single_locale/thunderbird.py
-                        - taskcluster_nightly.py
                     linux64-shippable:
                         - single_locale/linux64.py
                         - single_locale/tc_common.py
