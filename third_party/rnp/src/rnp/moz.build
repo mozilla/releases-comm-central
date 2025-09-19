@@ -17,6 +17,11 @@ LOCAL_INCLUDES = [
     "../lib",
 ]
 
+if CONFIG["OS_TARGET"] == "WINNT":
+    CXXFLAGS += ["/std:c++20"]
+else:
+    CXXFLAGS += ["-std=c++20"]
+
 if CONFIG["MZLA_SYSTEM_JSONC"]:
     CXXFLAGS += CONFIG["MZLA_JSONC_CFLAGS"]
     LDFLAGS += CONFIG["MZLA_JSONC_LIBS"] + ["-Wl,-rpath,$ORIGIN"]
