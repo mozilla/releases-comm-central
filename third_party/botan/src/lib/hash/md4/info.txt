@@ -2,6 +2,11 @@
 MD4 -> 20131128
 </defines>
 
+<module_info>
+name -> "MD4"
+lifecycle -> "Deprecated"
+</module_info>
+
 <requires>
 mdx_hash
 </requires>

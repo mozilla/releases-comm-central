@@ -5,13 +5,11 @@
 */
 
 #include "fuzzers.h"
+
 #include <botan/ocsp.h>
 
-void fuzz(const uint8_t in[], size_t len)
-   {
-   try
-      {
-      Botan::OCSP::Response response(in, len);
-      }
-   catch(Botan::Exception& e) { }
-   }
+void fuzz(std::span<const uint8_t> in) {
+   try {
+      Botan::OCSP::Response response(in.data(), in.size());
+   } catch(Botan::Exception& e) {}
+}

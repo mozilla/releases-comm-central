@@ -5,87 +5,72 @@
 */
 
 #include <botan/rng.h>
-#include <botan/entropy_src.h>
-#include <botan/loadstor.h>
-#include <botan/internal/os_utils.h>
 
-#if defined(BOTAN_HAS_AUTO_SEEDING_RNG)
-  #include <botan/auto_rng.h>
+#include <botan/internal/loadstor.h>
+
+#if defined(BOTAN_HAS_ENTROPY_SOURCE)
+   #include <botan/entropy_src.h>
 #endif
+
+#if defined(BOTAN_HAS_SYSTEM_RNG)
+   #include <botan/system_rng.h>
+#endif
+
+#if defined(BOTAN_HAS_OS_UTILS)
+   #include <botan/internal/os_utils.h>
+#endif
+
+#include <array>
 
 namespace Botan {
 
-void RandomNumberGenerator::randomize_with_ts_input(uint8_t output[], size_t output_len)
-   {
-   if(this->accepts_input())
-      {
-      /*
-      Form additional input which is provided to the PRNG implementation
-      to paramaterize the KDF output.
-      */
-      uint8_t additional_input[16] = { 0 };
-      store_le(OS::get_system_timestamp_ns(), additional_input);
-      store_le(OS::get_high_resolution_clock(), additional_input + 8);
+void RandomNumberGenerator::randomize_with_ts_input(std::span<uint8_t> output) {
+   if(this->accepts_input()) {
+      std::array<uint8_t, 32> additional_input = {0};
 
-      this->randomize_with_input(output, output_len, additional_input, sizeof(additional_input));
-      }
-   else
-      {
-      this->randomize(output, output_len);
-      }
-   }
-
-void RandomNumberGenerator::randomize_with_input(uint8_t output[], size_t output_len,
-                                                 const uint8_t input[], size_t input_len)
-   {
-   this->add_entropy(input, input_len);
-   this->randomize(output, output_len);
-   }
-
-size_t RandomNumberGenerator::reseed(Entropy_Sources& srcs,
-                                     size_t poll_bits,
-                                     std::chrono::milliseconds poll_timeout)
-   {
-   if(this->accepts_input())
-      {
-      return srcs.poll(*this, poll_bits, poll_timeout);
-      }
-   else
-      {
-      return 0;
-      }
-   }
-
-void RandomNumberGenerator::reseed_from_rng(RandomNumberGenerator& rng, size_t poll_bits)
-   {
-   if(this->accepts_input())
-      {
-      secure_vector<uint8_t> buf(poll_bits / 8);
-      rng.randomize(buf.data(), buf.size());
-      this->add_entropy(buf.data(), buf.size());
-      }
-   }
-
-RandomNumberGenerator* RandomNumberGenerator::make_rng()
-   {
-#if defined(BOTAN_HAS_AUTO_SEEDING_RNG)
-   return new AutoSeeded_RNG;
+#if defined(BOTAN_HAS_OS_UTILS)
+      store_le(std::span{additional_input}.subspan<0, 8>(), OS::get_high_resolution_clock());
+      store_le(std::span{additional_input}.subspan<8, 4>(), OS::get_process_id());
+      constexpr size_t offset = 12;
 #else
-   throw Not_Implemented("make_rng failed, no AutoSeeded_RNG in this build");
+      constexpr size_t offset = 0;
 #endif
-   }
 
-#if defined(BOTAN_TARGET_OS_HAS_THREADS)
-
-#if defined(BOTAN_HAS_AUTO_SEEDING_RNG)
-Serialized_RNG::Serialized_RNG() : m_rng(new AutoSeeded_RNG) {}
+#if defined(BOTAN_HAS_SYSTEM_RNG)
+      system_rng().randomize(std::span{additional_input}.subspan<offset>());
 #else
-Serialized_RNG::Serialized_RNG()
-   {
-   throw Not_Implemented("Serialized_RNG default constructor failed: AutoSeeded_RNG disabled in build");
+      BOTAN_UNUSED(offset);
+#endif
+
+      this->fill_bytes_with_input(output, additional_input);
+   } else {
+      this->fill_bytes_with_input(output, {});
    }
-#endif
-
-#endif
-
 }
+
+size_t RandomNumberGenerator::reseed(Entropy_Sources& srcs, size_t poll_bits, std::chrono::milliseconds poll_timeout) {
+   if(this->accepts_input()) {
+#if defined(BOTAN_HAS_ENTROPY_SOURCE)
+      return srcs.poll(*this, poll_bits, poll_timeout);
+#else
+      BOTAN_UNUSED(srcs, poll_bits, poll_timeout);
+#endif
+   }
+
+   return 0;
+}
+
+void RandomNumberGenerator::reseed_from_rng(RandomNumberGenerator& rng, size_t poll_bits) {
+   if(this->accepts_input()) {
+      this->add_entropy(rng.random_vec(poll_bits / 8));
+   }
+}
+
+void Null_RNG::fill_bytes_with_input(std::span<uint8_t> output, std::span<const uint8_t> /* ignored */) {
+   // throw if caller tries to obtain random bytes
+   if(!output.empty()) {
+      throw PRNG_Unseeded("Null_RNG called");
+   }
+}
+
+}  // namespace Botan

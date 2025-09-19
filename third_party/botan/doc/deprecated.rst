@@ -18,272 +18,175 @@ doesn't seem to be an obvious alternative, contact the developers to
 explain your use case if you want to make sure your code continues to
 work.
 
+Platform Support Deprecations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Support for building for Windows systems prior to Windows 10 is deprecated.
+
 TLS Protocol Deprecations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following TLS protocol features are deprecated and will be removed
 in a future major release:
 
-- Support for TLSv1.0/v1.1 and DTLS v1.0
-
-- All support for DSA ciphersuites/certificates
-
 - Support for point compression in TLS. This is supported in v1.2 but
   removed in v1.3. For simplicity it will be removed in v1.2 also.
 
-- Support for using SHA-1 to sign TLS v1.2 ServerKeyExchange.
+- All CBC mode ciphersuites. This includes all available 3DES ciphersuites.
+  This implies also removing Encrypt-then-MAC extension.
 
-- All CBC mode ciphersuites. This includes all available 3DES and SEED
-  ciphersuites. This implies also removing Encrypt-then-MAC extension.
-
-- All ciphersuites using DH key exchange (DHE-DSS, DHE-RSA, DHE-PSK, anon DH)
+- All DHE ciphersuites
 
 - Support for renegotiation in TLS v1.2
 
 - All ciphersuites using static RSA key exchange
 
-- All anonymous (DH/ECDH) ciphersuites. This does not include PSK and
-  ECDHE-PSK, which will be retained.
+- ``Credentials_Manager::psk()`` to provide various TLS-specific keys and
+  secrets, most notably "session-ticket", "dtls-cookie-secret" and the actual
+  TLS PSKs for given identities and hosts. Instead, use the dedicated methods in
+  ``Credentials_Manager`` and do not override the ``psk()`` method any longer.
 
-- SRP ciphersuites. This is implied by the removal of CBC mode, since
-  all available SRP ciphersuites use CBC. To avoid use of obsolete
-  ciphers, it would be better to instead perform a standard TLS
-  negotiation, then a PAKE authentication within (and bound to) the
-  TLS channel.
-
-- OCB ciphersuites using 128-bit keys
-
-Deprecated Functionality
+Elliptic Curve Deprecations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section lists cryptographic functionality which will be removed
-in a future major release.
+A number of features relating to elliptic curves are deprecated.  As a typical
+user you would probably not notice these; their removal would not affect for
+example using ECDSA signatures or TLS, but only applications doing unusual things
+such as custom elliptic curve parameters, or creating your own protocol using
+elliptic curve points.
 
-- Block ciphers CAST-256, GOST 28147, Kasumi, MISTY1, DESX, XTEA, Noekeon
+- Botan currently contains support for a number of relatively weak or little
+  used elliptic curves. These are deprecated.
 
-- Hash functions GOST 34.11-94, Tiger, MD4
+  The curves "secp160k1", "secp160r1", "secp160r2", "brainpool160r1" and
+  "secp224k1" will be removed in Botan4, and it *will not be possible* to add
+  support for them as an application specified curve. If your application makes
+  use of any of these curves please open an issue asap so we can understand your
+  use case.
 
-- X9.42 KDF
+  Other curves including "secp192k1", "brainpool192r1", "brainpool224r1",
+  "brainpool320r1", "x962_p192v2", "x962_p192v3", "x962_p239v1", "x962_p239v2",
+  "x962_p239v3", "gost_256A", "gost_512A" are deprecated, and may also be
+  removed from Botan4. However it will be possible to add support for any
+  curves from this list as an application specified curve.
 
-- DLIES
-
-- MCEIES
-
-- CBC-MAC
-
-- PBKDF1 key derivation
-
-- GCM support for 64-bit tags
-
-- Weak or rarely used ECC builtin groups including "secp160k1", "secp160r1",
-  "secp160r2", "secp192k1", "secp224k1",
-  "brainpool160r1", "brainpool192r1", "brainpool224r1", "brainpool320r1",
-  "x962_p192v2", "x962_p192v3", "x962_p239v1", "x962_p239v2", "x962_p239v3".
-
-- All built in MODP groups < 2048 bits
+- The EC_Point type is deprecated and will be removed. Use EC_AffinePoint.
 
 - Support for explicit ECC curve parameters and ImplicitCA encoded parameters in
-  EC_Group and all users (including X.509 certificates and PKCS#8 private keys).
+  ``EC_Group`` and all users (including X.509 certificates and PKCS#8 private keys).
 
-- All pre-created DSA groups
+- Currently it is possible to create an ``EC_Group`` with cofactor > 1. None of
+  the builtin groups have composite order, and in the future it will be
+  impossible to create composite order ``EC_Group``.
 
-- All support for loading, generating or using RSA keys with a public
-  exponent larger than 2**64-1
+- Currently it is possible to create an application specific
+  ``EC_Group`` with parameters of effectively arbitrary size. In a
+  future release the parameters of application provided elliptic curve
+  will be limited in the following ways.
 
-- All or nothing package transform (``package.h``)
+  a) The bitlength must be between 192 and 512 bits, and a multiple of 32
+  b) As an extension of (a) you can also use the 521 bit Mersenne prime
+     or the X9.62 239 bit prime.
+  c) The prime must be congruent to 3 modulo 4
+  d) The bitlength of the prime and the bitlength of the order must be equal
 
+- Elliptic curve points can be encoded in several different ways.  The
+  most common are "compressed" and "uncompressed"; both are widely
+  used in various systems. Botan additionally supports a "hybrid"
+  encoding format which is effectively uncompressed but with an
+  additional indicator of the parity of the y coordinate. This
+  format is quite obscure and seemingly rarely implemented. Support
+  for this encoding will be removed in a future release.
 
-Deprecated Headers
-^^^^^^^^^^^^^^^^^^^^^^
+- The SEC1 standard specifies that the identity element is encoded as a single
+  byte consisting of 0. This was not well thought out. In addition identity
+  elements are rarely if ever useful serialized into a protocol.  Support for
+  encoding or decoding EC identity elements is deprecated and will be removed.
 
-* The following headers and all functionality contained within them
-  are outright deprecated, and will be removed entirely in a future
-  major release. Most are either simply forwarding includes to another
-  (still public) header, or contain functionality which is entirely
-  deprecated. Consult the relevent file for more information.
-  ``basefilt.h``, ``botan.h``, ``buf_filt.h``, ``cipher_filter.h``, ``comp_filter.h``,
-  ``compiler.h``, ``init.h``, ``key_filt.h``, ``lookup.h``, ``sm2_enc.h``, ``threefish.h``,
-  ``xmss_key_pair.h``
+Deprecated Modules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* The following headers have useful functionality but which we wish to
-  hide from applications to allow easier library evolution. They will
-  be made internal in a future major release, and will only be
-  available to the library itself. In most cases, there is an
-  alternative available. For example instead of using algorithm
-  specific interfaces, use X::create to create the object dynamically.
+In a number of cases an entire module is deprecated. If the build is configured
+with ``--disable-deprecated`` then these will not be included. In a future major
+release the source for these modules will be entirely removed.
 
-  Block cipher headers (interact using BlockCipher interface):
-  ``aes.h``,
-  ``aria.h``,
-  ``blowfish.h``,
-  ``camellia.h``,
-  ``cascade.h``,
-  ``cast128.h``,
-  ``cast256.h``,
-  ``des.h``,
-  ``desx.h``,
-  ``gost_28147.h``,
-  ``idea.h``,
-  ``kasumi.h``,
-  ``lion.h``,
-  ``misty1.h``,
-  ``noekeon.h``,
-  ``seed.h``,
-  ``serpent.h``,
-  ``shacal2.h``,
-  ``sm4.h``,
-  ``threefish_512.h``,
-  ``twofish.h``,
-  ``xtea.h``,
+Deprecated modules include
 
-  Hash function headers (interact using HashFunction interface):
-  ``adler32.h``,
-  ``blake2b.h``,
-  ``comb4p.h``,
-  ``crc24.h``,
-  ``crc32.h``,
-  ``gost_3411.h``,
-  ``keccak.h``,
-  ``md4.h``,
-  ``md5.h``,
-  ``par_hash.h``,
-  ``rmd160.h``,
-  ``sha160.h``,
-  ``sha2_32.h``,
-  ``sha2_64.h``,
-  ``sha3.h``,
-  ``shake.h``,
-  ``skein_512.h``,
-  ``sm3.h``,
-  ``streebog.h``,
-  ``tiger.h``,
-  ``whrlpool.h``,
+- Kyber mode ``kyber_90s``: Kyber's "90s mode" is not in the NIST ML-KEM
+  standard, and seems to have been never implemented widely.
 
-  MAC headers:
-  ``cbc_mac.h``,
-  ``cmac.h``,
-  ``gmac.h``,
-  ``hmac.h``,
-  ``poly1305.h``,
-  ``siphash.h``,
-  ``x919_mac.h``,
+- Dilithium mode ``dilithium_aes``: Similar situation to Kyber 90s mode.
 
-  Stream cipher headers:
-  ``chacha.h``,
-  ``ctr.h``,
-  ``ofb.h``,
-  ``rc4.h``,
-  ``salsa20.h``,
+- Block cipher ``gost_28147``: This cipher was obsolete 20 years ago.
 
-  Cipher mode headers:
-  ``cbc.h``,
-  ``ccm.h``,
-  ``cfb.h``,
-  ``chacha20poly1305.h``,
-  ``eax.h``,
-  ``gcm.h``,
-  ``ocb.h``,
-  ``shake_cipher.h``,
-  ``siv.h``,
-  ``xts.h``,
+- Block cipher ``noekeon``: An interesting design but not widely implemented.
 
-  KDF headers:
-  ``hkdf.h``,
-  ``kdf1.h``,
-  ``kdf1_iso18033.h``,
-  ``kdf2.h``,
-  ``prf_tls.h``,
-  ``prf_x942.h``,
-  ``sp800_108.h``,
-  ``sp800_56a.h``,
-  ``sp800_56c.h``,
+- Block cipher ``lion``: Similar situation to Noekeon
 
-  PBKDF headers:
-  ``bcrypt_pbkdf.h``,
-  ``pbkdf1.h``,
-  ``pbkdf2.h``,
-  ``pgp_s2k.h``,
-  ``scrypt.h``,
+- Checksum ``adler32``: Not useful cryptographically
 
-  Internal implementation headers - seemingly no reason for applications to use:
-  ``blinding.h``,
-  ``curve_gfp.h``,
-  ``curve_nistp.h``,
-  ``datastor.h``,
-  ``divide.h``,
-  ``eme.h``,
-  ``eme_pkcs.h``,
-  ``eme_raw.h``,
-  ``emsa.h``,
-  ``emsa1.h``,
-  ``emsa_pkcs1.h``,
-  ``emsa_raw.h``,
-  ``emsa_x931.h``,
-  ``gf2m_small_m.h``,
-  ``ghash.h``,
-  ``iso9796.h``,
-  ``keypair.h``,
-  ``mdx_hash.h``,
-  ``mode_pad.h``,
-  ``mul128.h``,
-  ``oaep.h``,
-  ``pbes2.h``,
-  ``polyn_gf2m.h``,
-  ``pow_mod.h``,
-  ``pssr.h``,
-  ``reducer.h``,
-  ``rfc6979.h``,
-  ``scan_name.h``,
-  ``stream_mode.h``,
-  ``tls_algos.h``,
-  ``tls_magic.h``,
-  ``xmss_common_ops.h``,
-  ``xmss_hash.h``,
-  ``xmss_index_registry.h``,
-  ``xmss_tools.h``,
+- Checksum ``crc32``: Not useful cryptographically
 
-  Utility headers, nominally useful in applications but not a core part of
-  the library API and most are just sufficient for what the library needs
-  to implement other functionality.
-  ``atomic.h``,
-  ``bswap.h``,
-  ``charset.h``,
-  ``compiler.h``,
-  ``cpuid.h``,
-  ``http_util.h``,
-  ``loadstor.h``,
-  ``locking_allocator.h``,
-  ``parsing.h``,
-  ``rotate.h``,
-  ``secqueue.h``,
-  ``stl_compatibility.h``,
-  ``uuid.h``,
+- Hash function ``gost_3411``: Very weak and questionable hash function.
 
-  Merged into other headers:
-  ``alg_id.h``, ``asn1_oid.h``, ``asn1_str.h``, and ``asn1_time.h`` - use ``asn1_obj.h``
+- Hash function ``streebog``: Incredibly sketchy situation with the sbox
 
-Other API deprecations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- Hash function ``md4``: It's time to let go
 
-- Directly accessing the member variables of types ``calendar_point``,
-  ``ASN1_Attribute``, ``AlgorithmIdentifier``, and ``BER_Object``
+- Hash function ``md5``: See above
 
-- Using a default output length for "SHAKE-128" and "SHAKE-256". Instead,
-  always specify the desired output length.
+- Hash function ``keccak``: Note this is not SHA-3 or the Keccak
+  permutation, but rather the Keccak hash originally proposed during
+  the SHA-3 competition.
 
-- Currently, for certain KDFs, if KDF interface is invoked with a
-  requested output length larger than supported by the KDF, it returns
-  instead a truncated key. In a future major release, instead if KDF
-  is called with a length larger than it supports an exception will be
-  thrown.
+- MAC ``siphash``: Only supports a 64-bit output length, and not really intended
+  for cryptography per se.
 
-- The TLS constructors taking ``std::function`` for callbacks. Instead
-  use the ``TLS::Callbacks`` interface.
+- MAC ``x919_mac``: Quite obsolete at this point
 
-- Using ``X509_Certificate::subject_info`` and ``issuer_info`` to access any
-  information that is not included in the DN or subject alternative name. Prefer
-  using the specific assessor functions for other data, eg instead of
-  ``cert.subject_info("X509.Certificate.serial")`` use ``cert.serial_number()``.
+- Signature scheme ``dsa``: Finite field DSA is slow, very rarely used anymore,
+  and no longer approved by NIST
+
+- Signature scheme ``gost_3410``
+
+- McEliece implementation ``mce``. Will be replaced by the proposal Classic
+  McEliece.
+
+- Stream cipher ``shake_cipher``. Note this deprecation affects only
+  using SHAKE as a ``StreamCipher`` not as a hash or XOF
+
+- `cryptobox`: A not unreasonable password based encryption utility
+  but neither modern (these days) nor widely implemented.
+
+- ``dlies``: DLIES is considered quite obsolete
+
+- ``tpm`` (TPM 1.2 only, rarely tested)
+
+Other Deprecated Functionality
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section lists other functionality which will be removed in a future major
+release, or where a backwards incompatible change is expected.
+
+- The ``PBKDF`` class is deprecated in favor of ``PasswordHash`` and
+  ``PasswordHashFamily``.
+
+- Implicit conversion of a private key into a public key. Currently
+  ``Private_Key`` derives from ``Public_Key`` (and likewise for each of the
+  algorithm specfic classes, eg ``RSA_PrivateKey`` derives from
+  ``RSA_PublicKey``). In a future release these derivations will not exist. To
+  correctly extract the public key from a private key, use the function
+  ``Private_Key::public_key()``
+
+- Prior to 2.8.0, SM2 algorithms were implemented as two distinct key
+  types, one used for encryption and the other for signatures. In 2.8,
+  the two types were merged. However it is still possible to refer to
+  SM2 using the split names of "SM2_Enc" or "SM2_Sig". In a future major
+  release this will be removed, and only "SM2" will be recognized.
+
+- DSA, ECDSA, ECGDSA, ECKCDSA, and GOST-34.10 previously (before Botan 3)
+  required that the hash be named as "EMSA1(HASH_NAME)". This is no longer
+  required. In a future major release, only "HASH_NAME" will be accepted.
 
 - The ``Buffered_Computation`` base class. In a future release the
   class will be removed, and all of member functions instead declared
@@ -291,12 +194,47 @@ Other API deprecations
   this only affects you if you are directly referencing
   ``Botan::Buffered_Computation`` in some way.
 
-Deprecated Build Targets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- GCM support for 64-bit tags
 
-- Configuring a build (with ``configure.py``) using Python2. In a future
-  major release, Python3 will be required.
+- All built in MODP groups < 2048 bits
 
-- Platform support for Google Native Client
+- All pre-created DSA groups
 
-- Support for PathScale and HP compilers
+- All support for loading, generating or using RSA keys with a public
+  exponent larger than 2**64-1
+
+- Currently RSA_PrivateKey will allow generating any key of bitlength
+  greater than or equal to 1024 bits. In a future major release the
+  allowed bitlengths of new RSA keys will be restricted to 2048 bits
+  or higher, and the bitlength must be a multiple of 1024 bits.
+
+- Currently some public key padding mechanisms can be used with several
+  different names. This is deprecated.
+  "EMSA_PKCS1", "EMSA-PKCS1-v1_5", "EMSA3": Use "PKCS1v15"
+  "PSSR_Raw": Use "PSS_Raw"
+  "PSSR", "EMSA-PSS", "PSS-MGF1", "EMSA4": Use "PSS"
+  "EMSA_X931", "EMSA2": Use "X9.31"
+
+Deprecated Headers
+^^^^^^^^^^^^^^^^^^^^^^
+
+These headers are currently publically available, but will be made
+internal to the library in the future.
+
+  PBKDF headers: ``bcrypt_pbkdf.h``, ``pbkdf2.h``, ``pgp_s2k.h``, ``scrypt.h``,
+  and ``argon2.h``: Use the ``PasswordHash`` interface instead.
+
+  Internal implementation headers - seemingly no reason for applications to use:
+  ``assert.h``,
+  ``curve_gfp.h``,
+  ``numthry.h``,
+  ``reducer.h``,
+  ``tls_algos.h``,
+  ``tls_magic.h``
+
+  Utility headers, nominally useful in applications but not a core part of
+  the library API and most are just sufficient for what the library needs
+  to implement other functionality.
+  ``compiler.h``,
+  ``mem_ops.h``,
+  ``uuid.h``,

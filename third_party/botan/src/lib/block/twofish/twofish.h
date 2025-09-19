@@ -9,25 +9,28 @@
 #define BOTAN_TWOFISH_H_
 
 #include <botan/block_cipher.h>
-
-BOTAN_FUTURE_INTERNAL_HEADER(twofish.h)
+#include <botan/secmem.h>
 
 namespace Botan {
 
 /**
 * Twofish, an AES finalist
 */
-class BOTAN_PUBLIC_API(2,0) Twofish final : public Block_Cipher_Fixed_Params<16, 16, 32, 8>
-   {
+class Twofish final : public Block_Cipher_Fixed_Params<16, 16, 32, 8> {
    public:
       void encrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override;
       void decrypt_n(const uint8_t in[], uint8_t out[], size_t blocks) const override;
 
       void clear() override;
+
       std::string name() const override { return "Twofish"; }
-      BlockCipher* clone() const override { return new Twofish; }
+
+      std::unique_ptr<BlockCipher> new_object() const override { return std::make_unique<Twofish>(); }
+
+      bool has_keying_material() const override;
+
    private:
-      void key_schedule(const uint8_t[], size_t) override;
+      void key_schedule(std::span<const uint8_t> key) override;
 
       static const uint32_t MDS0[256];
       static const uint32_t MDS1[256];
@@ -40,8 +43,8 @@ class BOTAN_PUBLIC_API(2,0) Twofish final : public Block_Cipher_Fixed_Params<16,
       static const uint8_t POLY_TO_EXP[255];
 
       secure_vector<uint32_t> m_SB, m_RK;
-   };
+};
 
-}
+}  // namespace Botan
 
 #endif

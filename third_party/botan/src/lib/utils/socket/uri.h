@@ -1,5 +1,6 @@
 /*
 * (C) 2019 Nuno Goncalves <nunojpg@gmail.com>
+*     2023,2024 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -7,43 +8,44 @@
 #ifndef BOTAN_URI_H_
 #define BOTAN_URI_H_
 
+#include <botan/types.h>
 #include <cstdint>
 #include <string>
-
-#include <botan/build.h>
+#include <string_view>
 
 namespace Botan {
 
-struct BOTAN_TEST_API URI
-   {
-   enum class Type : uint8_t
-      {
-      NotSet,
-      IPv4,
-      IPv6,
-      Domain,
+class BOTAN_TEST_API URI {
+   public:
+      enum class Type : uint8_t {
+         IPv4,
+         IPv6,
+         Domain,
       };
-   static URI fromAny(const std::string& uri);
-   static URI fromIPv4(const std::string& uri);
-   static URI fromIPv6(const std::string& uri);
-   static URI fromDomain(const std::string& uri);
-   URI() = default;
-   URI(Type xtype, const std::string& xhost, unsigned short xport)
-      : type { xtype }
-      , host { xhost }
-      , port { xport }
-      {}
-   bool operator==(const URI& a) const
-      {
-      return type == a.type && host == a.host && port == a.port;
-      }
-   std::string to_string() const;
 
-   const Type type{Type::NotSet};
-   const std::string host{};
-   const uint16_t port{};
-   };
+      static URI from_any(std::string_view uri);
+      static URI from_ipv4(std::string_view uri);
+      static URI from_ipv6(std::string_view uri);
+      static URI from_domain(std::string_view uri);
 
-}
+      URI(Type type, std::string_view host, uint16_t port) : m_type(type), m_host(host), m_port(port) {}
+
+      bool operator==(const URI& a) const { return m_type == a.m_type && m_host == a.m_host && m_port == a.m_port; }
+
+      std::string to_string() const;
+
+      const std::string& host() const { return m_host; }
+
+      uint16_t port() const { return m_port; }
+
+      Type type() const { return m_type; }
+
+   private:
+      const Type m_type;
+      const std::string m_host;
+      const uint16_t m_port;
+};
+
+}  // namespace Botan
 
 #endif

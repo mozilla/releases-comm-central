@@ -4,72 +4,81 @@ Continuous Integration and Automated Testing
 CI Build Script
 ----------------
 
-The Travis and AppVeyor builds are orchestrated using a script
+The Github Actions builds are orchestrated using a script
 ``src/scripts/ci_build.py``. This allows one to easily reproduce the CI process
 on a local machine.
 
-Travis CI
------------
+Repository Configuration
+------------------------
 
-https://travis-ci.com/github/randombit/botan
+Specific configuration for test dependencies and CI-related global settings
+are centralized in ``src/configs/repo_config.env``. This file is pulled into
+the CI environment using the python script ``src/scripts/repo_config.py``.
 
-This is the primary CI, and tests the Linux, macOS, and iOS builds. Among other
-things it runs tests using valgrind, compilation on various architectures
-(currently including ARM, PPC64, and S390x), MinGW build, and a build that
-produces the coverage report.
+If one needs direct access to the configuration variables (without relying on
+environment variables in CI), use ``src/scripts/repo_config.py`` in one of the
+following ways:
 
-The Travis configurations is in ``src/scripts/ci/travis.yml``, which executes a
-setup script ``src/scripts/ci/setup_travis.sh`` to install needed packages.
-Then ``src/scripts/ci_build.py`` is invoked.
+1. From the command line:
 
-AppVeyor
-----------
+   .. code-block:: bash
 
-https://ci.appveyor.com/project/randombit/botan
+      # print all key-value pairs, like: VAR=VALUE\n...
+      python3 src/scripts/repo_config.py all
 
-Runs a build/test cycle using MSVC on Windows. Like Travis it uses
-``src/scripts/ci_build.py``. The AppVeyor setup script is in
-``src/scripts/ci/setup_appveyor.bat``
+      # print the value of a specific key
+      python3 src/scripts/repo_config.py get VAR
 
-The AppVeyor build uses `sccache <https://github.com/mozilla/sccache>`_ as a
-compiler cache. Since that is not available in the AppVeyor images, the setup
-script downloads a release binary from the upstream repository.
+      # list all available variables in repo_config.env
+      python3 src/scripts/repo_config.py list
 
-LGTM
----------
+2. As a python module (assuming the script is in the PYTHONPATH):
 
-https://lgtm.com/projects/g/randombit/botan/
+   .. code-block:: python
 
-An automated linter that is integrated with Github. It automatically checks each
-incoming PR. It also supports custom queries/alerts, which likely would be worth
-investigating but is not something currently in use.
+      from repo_config import RepoConfig
+      config = RepoConfig()
+      print(config['VAR'])
 
-Coverity
----------
+Github Actions
+---------------
 
-https://scan.coverity.com/projects/624
+https://github.com/randombit/botan/actions/workflows/ci.yml
 
-An automated source code scanner. Use of Coverity scanner is rate-limited,
-sometimes it is very slow to produce a new report, and occasionally the service
-goes offline for days or weeks at a time. New reports are kicked off manually by
-rebasing branch ``coverity_scan`` against the most recent master and force
-pushing it.
+Github Actions is the primary CI, and tests the Linux, Windows, macOS, and iOS
+builds. Among other things it runs tests using valgrind, cross-compilation
+for various architectures (currently including ARM and PPC64), MinGW build,
+and a build that produces the coverage report.
 
-Sonar
--------
+The Github Actions configuration is in ``.github/workflows/ci.yml`` which
+executes platform dependent setup scripts ``src/scripts/ci/setup_gh_actions.sh``
+or ``src/scripts/ci/setup_gh_actions.ps1`` and ``.../setup_gh_actions_after_vcvars.ps1``
+to install needed packages and detect certain platform specifics like compiler
+cache locations.
 
-https://sonarcloud.io/dashboard?id=botan
+Then ``src/scripts/ci_build.py`` is invoked to steer the actual build and test
+runs.
 
-Sonar scanner is another software quality scanner. Unfortunately a recent update
-of their scanner caused it to take over an hour to produce a report which caused
-Travis CI timeouts, so it has been disabled. It should be re-enabled to run on
-demand in the same way Coverity is.
+Github Actions (nightly)
+-------------------------
+
+https://github.com/randombit/botan/actions/workflows/nightly.yml
+
+Some checks are just too slow to include in the main CI builds. These
+are instead delegated to a scheduled job that runs every night against
+master.
+
+Currently these checks include a full run of ``valgrind`` (the valgrind build in
+CI only runs a subset of the tests), and a run of ``clang-tidy`` with all
+warnings (that we are currently clean for) enabled. Each of these jobs takes
+about an hour to run. In the main CI, we aim to have no job take more than
+half an hour.
 
 OSS-Fuzz
 ----------
 
 https://github.com/google/oss-fuzz/
 
-OSS-Fuzz is a distributed fuzzer run by Google. Every night, each library fuzzers
+OSS-Fuzz is a distributed fuzzer run by Google. Every night, the fuzzer harnesses
 in ``src/fuzzer`` are built and run on many machines, with any findings reported
 to the developers via email.

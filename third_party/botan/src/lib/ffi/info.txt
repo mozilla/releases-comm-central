@@ -1,9 +1,16 @@
 <defines>
-FFI -> 20210220
+FFI -> 20250506
 </defines>
 
+<module_info>
+name -> "Foreign Function Interface"
+brief -> "C API for Botan's functionality"
+</module_info>
+
 <header:internal>
+ffi_ec.h
 ffi_mp.h
+ffi_oid.h
 ffi_pkey.h
 ffi_rng.h
 ffi_util.h

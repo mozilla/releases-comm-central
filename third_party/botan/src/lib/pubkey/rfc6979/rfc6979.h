@@ -1,6 +1,6 @@
 /*
 * RFC 6979 Deterministic Nonce Generator
-* (C) 2014,2015 Jack Lloyd
+* (C) 2014,2015,2024 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -9,35 +9,39 @@
 #define BOTAN_RFC6979_GENERATOR_H_
 
 #include <botan/bigint.h>
-#include <string>
 #include <memory>
+#include <span>
+#include <string_view>
 
-BOTAN_FUTURE_INTERNAL_HEADER(rfc6979.h)
+#if defined(BOTAN_HAS_ECC_GROUP)
+   #include <botan/ec_scalar.h>
+#endif
 
 namespace Botan {
 
 class HMAC_DRBG;
 
-class BOTAN_PUBLIC_API(2,0) RFC6979_Nonce_Generator final
-   {
+class BOTAN_TEST_API RFC6979_Nonce_Generator final {
    public:
-      /**
-      * Note: keeps persistent reference to order
-      */
-      RFC6979_Nonce_Generator(const std::string& hash,
-                              const BigInt& order,
-                              const BigInt& x);
+      RFC6979_Nonce_Generator(std::string_view hash, size_t order_bits, const BigInt& x);
+
+      BigInt nonce_for(const BigInt& group_order, const BigInt& m);
+
+#if defined(BOTAN_HAS_ECC_GROUP)
+      RFC6979_Nonce_Generator(std::string_view hash, size_t order_bits, const EC_Scalar& scalar);
+
+      EC_Scalar nonce_for(const EC_Group& group, const EC_Scalar& m);
+#endif
 
       ~RFC6979_Nonce_Generator();
 
-      const BigInt& nonce_for(const BigInt& m);
    private:
-      const BigInt& m_order;
-      BigInt m_k;
-      size_t m_qlen, m_rlen;
+      size_t m_qlen;
+      size_t m_rlen;
       std::unique_ptr<HMAC_DRBG> m_hmac_drbg;
-      secure_vector<uint8_t> m_rng_in, m_rng_out;
-   };
+      secure_vector<uint8_t> m_rng_in;
+      secure_vector<uint8_t> m_rng_out;
+};
 
 /**
 * @param x the secret (EC)DSA key
@@ -45,11 +49,11 @@ class BOTAN_PUBLIC_API(2,0) RFC6979_Nonce_Generator final
 * @param h the message hash already reduced mod q
 * @param hash the hash function used to generate h
 */
-BigInt BOTAN_PUBLIC_API(2,0) generate_rfc6979_nonce(const BigInt& x,
-                                        const BigInt& q,
-                                        const BigInt& h,
-                                        const std::string& hash);
-
+inline BigInt generate_rfc6979_nonce(const BigInt& x, const BigInt& q, const BigInt& h, std::string_view hash) {
+   RFC6979_Nonce_Generator gen(hash, q.bits(), x);
+   return gen.nonce_for(q, h);
 }
+
+}  // namespace Botan
 
 #endif

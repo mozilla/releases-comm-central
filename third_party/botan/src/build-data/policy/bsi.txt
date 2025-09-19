@@ -1,52 +1,110 @@
 <required>
-# block
+# For reference see BSI TR-02102-1 (2024-01):
+# https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TG02102/BSI-TR-02102-1.pdf?__blob=publicationFile&v=7
+
+# === 2. Asymmetric Encryption Schemes and Key Agreement ===
+# Table 2.1: Recommended classical asymmetric encryption and key derivation schemes
+rsa
+# dlies (deprecated)
+ecies
+dh
+ecdh
+
+# Allowed KDF for ECIES (see 2.3.4)
+kdf1_iso18033
+
+# Table 2.3: Recommended formatting method for the RSA encryption algorithm
+eme_oaep
+
+# Table 2.4: Recommended parameters for FrodoKEM
+frodokem
+
+# Table 2.5: Recommended parameters for ClassicMcEliece-KEM.
+classic_mceliece
+
+# === 3. Symmetric Encryption Schemes ===
+# Table 3.1: Recommended block ciphers
 aes
 
-# modes
+# Table 3.2: Recommended modes of operation for block ciphers
 ccm
 gcm
 cbc
-mode_pad
-
-# stream
 ctr
 
-# hash
+# Table 3.3: Recommended padding schemes for block ciphers
+mode_pad # contains various paddings
+
+# === 4. Hash Functions ===
+# Table 4.1: Recommended hash functions
 sha2_32
 sha2_64
 sha3
 
-# mac
+# === 5. Data Authentication ===
+# Table 5.1: Recommended MAC schemes
 cmac
 hmac
+kmac
 gmac
 
-# kdf
-kdf1_iso18033
-sp800_108
-sp800_56c
-
-# pk_pad
-eme_oaep
-emsa_pssr
-emsa1
-iso9796
-
-# pubkey
-dlies
-dh
-rsa
+# Table 5.3/5.5: Recommended signature algorithms.
+# rsa (already enabled above)
 dsa
 ecdsa
 ecgdsa
-ecies
 eckcdsa
-ecdh
 xmss
+hss_lms
 
-# rng
+# Table 5.4: Recommended padding schemes for the RSA signature algorithm.
+emsa_pssr
+iso9796 # DS 2 and 3
+
+# === 8. Random Number Generators ===
 auto_rng
 hmac_drbg
+
+# === Appendix and Others ===
+# Table B.1: Recommended method for key derivation
+sp800_56c # (Two-Step KDF)
+hkdf
+
+# B.1.3. Password-Based Key Derivation
+argon2
+argon2fmt
+
+# Addition: ML-KEM, ML-DSA, and SLH-DSA
+# We expect the BSI to approve the new FIPS (203,204,205) PQC algorithms
+# in the upcoming TR (see Section 2.4.3 and Remark 5.5). We believe it is in
+# the BSI's interest to allow them here so applications can migrate to
+# post-quantum security as soon as possible.
+ml_kem
+ml_dsa
+slh_dsa_shake
+slh_dsa_sha2
+
+
+# Optimization: PCurves
+# To benefit from the speedup of pcurves, we activate all pcurve modules. We
+# activate all curves regardless of the recommendation in the TR since they
+# would be accessible anyway in a worse generic implementation.
+
+pcurves_brainpool256r1
+pcurves_brainpool384r1
+pcurves_brainpool512r1
+
+pcurves_secp192r1
+pcurves_secp224r1
+pcurves_secp256r1
+pcurves_secp384r1
+pcurves_secp521r1
+pcurves_secp256k1
+
+pcurves_frp256v1
+pcurves_numsp512d1
+pcurves_sm2p256v1
+
 </required>
 
 <if_available>
@@ -63,15 +121,19 @@ ghash_vperm
 # hash
 sha2_32_x86
 sha2_32_armv8
-sha2_32_bmi2
-sha2_64_bmi2
-sha3_bmi2
+sha2_32_simd
+sha2_32_avx2
+sha2_64_avx2
+keccak_perm_bmi2
 
 # entropy sources
-dev_random
-proc_walk
+getentropy
 rdseed
 win32_stats
+
+# pbkdf
+argon2_avx2
+argon2_ssse3
 
 # rng
 processor_rng
@@ -80,7 +142,6 @@ system_rng
 # utils
 http_util # needed by x509 for OCSP online checks
 locking_allocator
-simd
 </if_available>
 
 <prohibited>
@@ -90,28 +151,27 @@ blowfish
 camellia
 cascade
 cast128
-cast256
 des
 gost_28147
 idea
 idea_sse2
-kasumi
+kuznyechik
 lion
-misty1
 noekeon
 noekeon_simd
 seed
 serpent
-serpent_simd
 serpent_avx2
+serpent_simd
 shacal2
-shacal2_x86
+shacal2_armv8
+shacal2_avx2
 shacal2_simd
+shacal2_x86
 sm4
+sm4_armv8
 threefish_512
-threefish_512_avx2
 twofish
-xtea
 
 # modes
 chacha20poly1305
@@ -127,46 +187,43 @@ chacha_avx2
 ofb
 rc4
 salsa20
-shake_cipher
+#shake_cipher # not recommended, but needed for kyber
 
 # kdf
-hkdf
 kdf1
 kdf2
 prf_x942
 sp800_56a
 
 # pubkey
-cecpq1
-curve25519
+x25519
+x448
 ed25519
 elgamal
 gost_3410
 mce
-mceies
 rfc6979
-newhope
 sm2
 
 # pk_pad
 #eme_pkcs1 // needed for tls
 #emsa_pkcs1 // needed for tls
+#eme_raw // allows custom paddings
 emsa_raw
 emsa_x931
 
 # hash
-blake2
+#blake2 # not recommended, but needed for argon2
 comb4p
 gost_3411
 md4
 md5
 rmd160
-shake
+#shake # not recommended, but needed for kyber
 skein
 #sha1 // needed for x509
 sm3
 streebog
-tiger
 whirlpool
 keccak
 
@@ -174,15 +231,12 @@ keccak
 chacha_rng
 
 # mac
-cbc_mac
+blake2mac
 poly1305
 siphash
 x919_mac
 
-# misc
+# passhash
 bcrypt
-
-# tls
-tls_10
 
 </prohibited>

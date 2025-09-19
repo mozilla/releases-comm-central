@@ -5,50 +5,34 @@ Development Roadmap
 Near Term Plans
 ----------------------------------------
 
-Here is an outline for the development plans over the next 12-18 months, as of
-June 2019.
+Here is an outline of the development plans over the next ~12 months, as of
+February 2025.
 
-TLS Hardening/Testing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Botan2
+---------------
 
-Leverage TLS-Attacker better, for example using custom workflows. Add
-interop testing with OpenSSL as part of CI. Improve fuzzer coverage.
+As of 2025-01-01, Botan2 has reached end of life. No further releases are planned.
 
-Expose TLS at FFI layer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Botan3
+---------------
 
-Exposing TLS to C would allow for many new applications to make use of Botan.
+The following future work is currently planned for Botan3:
 
-TLS v1.3
-^^^^^^^^^^^^^^^
+* New ECC based password authenticated key exchanges, to replace SRP.
+  The most likely candidate algorithms are SPAKE2(+) and CPace.
 
-A complete implementation of TLS v1.3 is planned. DTLS v1.3 may or may not be
-supported as well.
+* Adding an implementation of BLS12-381 elliptic curve pairing.
 
-Botan 3.x
-----------------------------------------
+* HPKE (RFC 9180)
 
-Botan 3 is currently planned for release in 2021. Botan 2 will remain
-supported for several years past that, to allow plenty of time for
-applications to switch over.
+Botan4
+---------------
 
-This version will adopt C++17 and use new std types such as string_view,
-optional, and any, along with adopting memory span and guarded integer
-types. All deprecated features/APIs of 2.x (which notably includes TLS v1.0/v1.1
-support) will be removed. Beyond explicitly deprecated functionality, there
-should be no breaking API changes in the transition to 3.x
+Botan4 is currently planned for release in 2027.
 
-Features currently targeted for Botan 3 include
+See the current planning discussion in https://github.com/randombit/botan/issues/4666
 
-* New post-quantum algorithms: especially a CCA2 secure encryption scheme and a
-  lattice-based signature scheme are of interest.
-
-* Password Authenticated Key Exchanges: one or more modern PAKEs
-  (such as SPAKE2+ or OPAQUE) to replace SRP.
-
-* Elliptic Curve Pairings: useful in many interesting protocols.
-  BN-256 and BLS12-381 seem the most likely.
-
-* New ASN.1 library
-
-Some of these features may end being backported to Botan 2 as well.
+One notable change planned for Botan4 is that in that release, Public_Key
+will no longer derive from Private_Key. And similarly, specific private keys
+(for example RSA_PrivateKey) will no longer derive from their corresponding
+public key type.

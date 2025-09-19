@@ -15,8 +15,91 @@ mail please use::
 This key can be found in the file ``doc/pgpkey.txt`` or online at
 https://keybase.io/jacklloyd and on most PGP keyservers.
 
+2024
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 2024-07-08 (CVE-2024-34702): Denial of Service Due to Excessive Name Constraints
+
+  Checking name constraints in X.509 certificates is quadratic in the number of
+  names and name constraints. An attacker who presented a certificate chain
+  which contained a very large number of names in the SubjectAlternativeName,
+  signed by a CA certificate which contained a large number of name constraints,
+  could cause a denial of service.
+
+  Introduced in 2.0.0, fixed in 2.19.5 and 3.5.0
+
+  Found and reported by Bing Shi.
+
+* 2024-07-08 (CVE-2024-39312): Authorization Error due to Name Constraint Decoding Bug
+
+  A bug in the parsing of name constraint extensions in X.509 certificates meant
+  that if the extension included both permitted subtrees and excluded subtrees,
+  only the permitted subtree would be checked. If a certificate included a name
+  which was permitted by the permitted subtree but also excluded by excluded
+  subtree, it would be accepted.
+
+  Introduced in 2.0.0, fixed in 2.19.5 and 3.5.0
+
+* 2024-02-20: Kyber side channel
+
+  The Kyber implementation was vulnerable to the KyberSlash1 and
+  KyberSlash2 side channel issues.
+
+  Introduced in 3.0.0, fixed in 3.3.0
+
+* 2024-02-20 (CVE-2024-34703): DoS due to oversized elliptic curve parameters
+
+  When decoding an ASN.1 encoded elliptic curve, Botan would verify the `p`
+  parameter was actually prime, and at least some minimum size. However it
+  failed to check if the prime was far too large (for example thousands of
+  bits), in which case checking the prime would take a significant amount of
+  computation. Now the maximum size of arbitrary elliptic curves when decoding
+  from ASN.1 is limited.
+
+  Reported by Bing Shi
+
+  Fixed in 3.3.0 and 2.19.4
+
+2022
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 2022-11-16 (CVE-2022-43705): Failure to correctly check OCSP responder embedded certificate
+
+  OCSP responses for some end entity are either signed by the issuing CA certificate of
+  the PKI, or an OCSP responder certificate that the PKI authorized to sign responses in
+  their name. In the latter case, the responder certificate (and its validation path
+  certificate) may be embedded into the OCSP response and clients must verify that such
+  certificates are indeed authorized by the CA when validating OCSP responses.
+
+  The OCSP implementation failed to verify that an authorized responder certificate
+  embedded in an OCSP response is authorized by the issuing CA. As a result, any valid
+  signature by an embedded certificate passed the check and was allowed to make claims
+  about the revocation status of certificates of any CA.
+
+  Attackers that are in a position to spoof OCSP responses for a client could therefore
+  render legitimate certificates of a 3rd party CA as revoked or even use a compromised
+  (and actually revoked) certificate by spoofing an OCSP-"OK" response. E.g. an attacker
+  could exploit this to impersonate a legitimate TLS server using a compromised
+  certificate of that host and get around the revocation check using OCSP stapling.
+
+  Introduced in 1.11.34, fixed in 2.19.3 and 3.0.0
+
 2020
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* 2020-12-21 (CVE-2021-24115): Codec encoding/decoding was not constant time
+
+  The base64, base32, base58 and hex encoding/decoding routines used lookup
+  tables which could leak information via a cache-based side channel attack.
+  The encoding tables were small and unlikely to be exploitable, but the
+  decoding tables were large enough to cause non-negligible information
+  leakage. In particular parsing an unencrypted PEM-encoded private key within
+  an SGX enclave could be easily attacked to leak key material.
+
+  Identified and reported by Jan Wichelmann, Thomas Eisenbarth,
+  Sebastian Berndt, and Florian Sieck.
+
+  Fixed in 2.17.3
 
 * 2020-07-05: Failure to enforce name constraints on alternative names
 

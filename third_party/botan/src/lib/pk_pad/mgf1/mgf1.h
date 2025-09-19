@@ -9,6 +9,7 @@
 #define BOTAN_MGF1_H_
 
 #include <botan/types.h>
+#include <span>
 
 namespace Botan {
 
@@ -19,13 +20,15 @@ class HashFunction;
 * @param hash hash function to use
 * @param in input buffer
 * @param in_len size of the input buffer in bytes
-* @param out output buffer
+* @param out output buffer. The buffer is XORed with the output of MGF1.
 * @param out_len size of the output buffer in bytes
 */
-void BOTAN_PUBLIC_API(2,0) mgf1_mask(HashFunction& hash,
-                         const uint8_t in[], size_t in_len,
-                         uint8_t out[], size_t out_len);
+void mgf1_mask(HashFunction& hash, const uint8_t in[], size_t in_len, uint8_t out[], size_t out_len);
 
+inline void mgf1_mask(HashFunction& hash, std::span<const uint8_t> input, std::span<uint8_t> output) {
+   mgf1_mask(hash, input.data(), input.size(), output.data(), output.size());
 }
+
+}  // namespace Botan
 
 #endif

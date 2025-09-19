@@ -60,7 +60,7 @@ Several different RNG types are implemented. Some access hardware RNGs, which
 are only available on certain platforms. Others are mostly useful in specific
 situations.
 
-Generally prefer using the system RNG, or if not available use ``AutoSeeded_RNG``
+Generally prefer using ``System_RNG``, or if not available use ``AutoSeeded_RNG``
 which is intended to provide best possible behavior in a userspace PRNG.
 
 System_RNG
@@ -68,7 +68,8 @@ System_RNG
 
 On systems which support it, in ``system_rng.h`` you can access a shared
 reference to a process global instance of the system PRNG (using interfaces such
-as ``/dev/urandom``, ``getrandom``, ``arc4random``, or ``RtlGenRandom``):
+as ``/dev/urandom``, ``getrandom``, ``arc4random``, ``BCryptGenRandom``,
+or ``RtlGenRandom``):
 
 .. cpp:function:: RandomNumberGenerator& system_rng()
 
@@ -87,15 +88,15 @@ for example::
   #endif
 
 Unlike nearly any other object in Botan it is acceptable to share a single
-instance of ``System_RNG`` between threads, because the underlying RNG is itself
-thread safe due to being serialized by a mutex in the kernel itself.
+instance of ``System_RNG`` between threads without locking, because the underlying
+RNG is itself thread safe due to being serialized by a mutex in the kernel itself.
 
 AutoSeeded_RNG
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 AutoSeeded_RNG is type naming a 'best available' userspace PRNG. The
-exact definition of this has changed over time and may change in the
-future, fortunately there is no compatibility concerns when changing
+exact definition of this has changed over time and may change again in the
+future. Fortunately there is no compatibility concerns when changing
 any RNG since the only expectation is it produces bits
 indistinguishable from random.
 
@@ -113,7 +114,7 @@ reseeding of the RNG state.
 HMAC_DRBG
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-HMAC DRBG is a random number generator designed by NIST and specified
+HMAC-DRBG is a random number generator designed by NIST and specified
 in SP 800-90A. It seems to be the most conservative generator of the
 NIST approved options.
 
@@ -121,7 +122,13 @@ It can be instantiated with any HMAC but is typically used with
 SHA-256, SHA-384, or SHA-512, as these are the hash functions approved
 for this use by NIST.
 
-HMAC_DRBG's constructors are:
+.. note::
+   There is no reason to use this class directly unless your application
+   requires HMAC-DRBG with specific parameters or options. Usually this
+   would be for some standards conformance reason. If you just want a
+   userspace RNG, use ``AutoSeeded_RNG``.
+
+``HMAC_DRBG``'s constructors are:
 
 .. cpp:class:: HMAC_DRBG
 
@@ -216,15 +223,24 @@ on POWER ``darn``. If the relevant instruction is not available, the
 constructor of the class will throw at runtime. You can test
 beforehand by checking the result of ``Processor_RNG::available()``.
 
-TPM_RNG
-^^^^^^^^^^^^^^^^^
+TPM_RNG & TPM2_RNG
+^^^^^^^^^^^^^^^^^^
 
-This RNG type allows using the RNG exported from a TPM chip.
+These RNG types allow using the RNG exported from a TPM chip.
 
 PKCS11_RNG
 ^^^^^^^^^^^^^^^^^
 
 This RNG type allows using the RNG exported from a hardware token accessed via PKCS11.
+
+Jitter_RNG
+^^^^^^^^^^^^^^^^^
+
+This is an RNG based on low-level CPU timing jitter, using the
+`jitterentropy library <https://github.com/smuellerDD/jitterentropy-library>`_.
+
+Can be enabled with ``configure.py`` via ``--enable-modules="jitter_rng"``, provided
+you have the library installed and made available to the build, including headers.
 
 Entropy Sources
 ---------------------------------
@@ -235,10 +251,12 @@ gather "real" entropy. This tends to be very system dependent. The
 that will extract entropy from it -- never use the output directly for
 any kind of key or nonce generation!
 
-``EntropySource`` has a pair of functions for getting entropy from
-some external source, called ``fast_poll`` and ``slow_poll``. These
-pass a buffer of bytes to be written; the functions then return how
-many bytes of entropy were gathered.
+``EntropySource`` has a single function which is called at runtime, ``poll`,
+which is passed the ``RandomNumberGenerator`` that it should be seeding. The
+source can perform polling and pass whatever it gathers to the RNG using the
+object's ``add_entropy`` function. The source then returns a best estimate of
+the number of bits of entropy gathered; this can be zero if the source should be
+used but not counted.
 
 Note for writers of ``EntropySource`` subclasses: it isn't necessary
 to use any kind of cryptographic hash on your output. The data
@@ -247,16 +265,30 @@ has been hashed by the ``RandomNumberGenerator`` that asked for the
 entropy, thus any hashing you do will be wasteful of both CPU cycles
 and entropy.
 
-The following entropy sources are currently used:
+The following entropy sources are currently included in the library:
 
- * The system RNG (``arc4random``, ``/dev/urandom``, or ``RtlGenRandom``).
- * RDRAND and RDSEED are used if available, but not counted as contributing entropy
- * ``/dev/random`` and ``/dev/urandom``. This may be redundant with the system RNG
- * ``getentropy``, only used on OpenBSD currently
- * ``/proc`` walk: read files in ``/proc``. Last ditch protection against
-   flawed system RNG.
- * Win32 stats: takes snapshot of current system processes. Last ditch
-   protection against flawed system RNG.
+ * The system RNG (``/dev/urandom``, ``getrandom``, ``arc4random``,
+   ``BCryptGenRandom``, or ``RtlGenRandom``).
+ * Processor provided RNG outputs (RDRAND, RDSEED, DARN) are used if available
+   (but not counted as contributing entropy)
+ * The ``getentropy`` call is used on OpenBSD, FreeBSD, and macOS
+ * Gathering Windows system statistics (a last ditch protection against
+   a flawed system RNG)
+
+Custom Entropy Sources
+---------------------------------
+
+On some systems (most notably baremetal embedded systems without an
+operating system) you may have to implement your own RNG and/or
+entropy source.
+
+An example of how to create an entropy source::
+
+.. literalinclude:: /../src/examples/entropy.cpp
+
+An example of how to create a custom RNG::
+
+.. literalinclude:: /../src/examples/custom_system_rng.cpp
 
 Fork Safety
 ---------------------------------

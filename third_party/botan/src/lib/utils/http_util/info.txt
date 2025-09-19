@@ -2,10 +2,14 @@
 HTTP_UTIL -> 20171003
 </defines>
 
-<header:public>
-http_util.h
-</header:public>
+<module_info>
+name -> "HTTP"
+</module_info>
 
 <requires>
 socket
 </requires>
+
+<os_features>
+system_clock
+</os_features>

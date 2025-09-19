@@ -1,0 +1,17 @@
+<defines>
+KYBER -> 20220107
+</defines>
+
+<module_info>
+name -> "Kyber"
+</module_info>
+
+<requires>
+sha3
+shake
+shake_xof
+</requires>
+
+<header:internal>
+kyber_modern.h
+</header:internal>

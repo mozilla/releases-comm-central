@@ -2,35 +2,37 @@
 AES_VPERM -> 20190901
 </defines>
 
-endian little
+<module_info>
+name -> "AES Vector Permutation"
+brief -> "AES using Vector Permutation Instructions"
+</module_info>
 
 <isa>
 x86_32:sse2
 x86_64:sse2
 x86_32:ssse3
 x86_64:ssse3
+x32:sse2
+x32:ssse3
 arm32:neon
 arm64:neon
 ppc32:altivec
 ppc64:altivec
+loongarch64:lsx
 </isa>
 
 <arch>
 x86_32
 x86_64
+x32
 arm32
 arm64
 ppc32
 ppc64
+loongarch64
 </arch>
 
 <requires>
-simd
+cpuid
+simd_4x32
 </requires>
-
-<cc>
-gcc
-clang
-msvc:19.10 # VC 2017
-sunstudio
-</cc>

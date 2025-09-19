@@ -2,121 +2,141 @@
 * HKDF
 * (C) 2013,2015,2017 Jack Lloyd
 * (C) 2016 René Korthaus, Rohde & Schwarz Cybersecurity
+* (C) 2024 René Meusel, Rohde & Schwarz Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/hkdf.h>
-#include <botan/loadstor.h>
+#include <botan/internal/hkdf.h>
+
+#include <botan/exceptn.h>
+#include <botan/internal/fmt.h>
+#include <botan/internal/loadstor.h>
+#include <botan/internal/stl_util.h>
 
 namespace Botan {
 
-size_t HKDF::kdf(uint8_t key[], size_t key_len,
-                 const uint8_t secret[], size_t secret_len,
-                 const uint8_t salt[], size_t salt_len,
-                 const uint8_t label[], size_t label_len) const
-   {
-   HKDF_Extract extract(m_prf->clone());
-   HKDF_Expand expand(m_prf->clone());
+std::unique_ptr<KDF> HKDF::new_object() const {
+   return std::make_unique<HKDF>(m_prf->new_object());
+}
+
+std::string HKDF::name() const {
+   return fmt("HKDF({})", m_prf->name());
+}
+
+void HKDF::perform_kdf(std::span<uint8_t> key,
+                       std::span<const uint8_t> secret,
+                       std::span<const uint8_t> salt,
+                       std::span<const uint8_t> label) const {
+   HKDF_Extract extract(m_prf->new_object());
+   HKDF_Expand expand(m_prf->new_object());
    secure_vector<uint8_t> prk(m_prf->output_length());
 
-   extract.kdf(prk.data(), prk.size(), secret, secret_len, salt, salt_len, nullptr, 0);
-   return expand.kdf(key, key_len, prk.data(), prk.size(), nullptr, 0, label, label_len);
+   extract.derive_key(prk, secret, salt, {});
+   expand.derive_key(key, prk, {}, label);
+}
+
+std::unique_ptr<KDF> HKDF_Extract::new_object() const {
+   return std::make_unique<HKDF_Extract>(m_prf->new_object());
+}
+
+std::string HKDF_Extract::name() const {
+   return fmt("HKDF-Extract({})", m_prf->name());
+}
+
+void HKDF_Extract::perform_kdf(std::span<uint8_t> key,
+                               std::span<const uint8_t> secret,
+                               std::span<const uint8_t> salt,
+                               std::span<const uint8_t> label) const {
+   const size_t prf_output_len = m_prf->output_length();
+   BOTAN_ARG_CHECK(key.size() <= prf_output_len, "HKDF-Extract maximum output length exceeeded");
+   BOTAN_ARG_CHECK(label.empty(), "HKDF-Extract does not support a label input");
+
+   if(key.empty()) {
+      return;
    }
 
-size_t HKDF_Extract::kdf(uint8_t key[], size_t key_len,
-                         const uint8_t secret[], size_t secret_len,
-                         const uint8_t salt[], size_t salt_len,
-                         const uint8_t[], size_t) const
-   {
-   secure_vector<uint8_t> prk;
-   if(salt_len == 0)
-      {
-      m_prf->set_key(std::vector<uint8_t>(m_prf->output_length()));
-      }
-   else
-      {
-      m_prf->set_key(salt, salt_len);
-      }
-
-   m_prf->update(secret, secret_len);
-   m_prf->final(prk);
-
-   const size_t written = std::min(prk.size(), key_len);
-   copy_mem(&key[0], prk.data(), written);
-   // FIXME: returns truncated output
-   return written;
+   if(salt.empty()) {
+      m_prf->set_key(std::vector<uint8_t>(prf_output_len));
+   } else {
+      m_prf->set_key(salt);
    }
 
-size_t HKDF_Expand::kdf(uint8_t key[], size_t key_len,
-                        const uint8_t secret[], size_t secret_len,
-                        const uint8_t salt[], size_t salt_len,
-                        const uint8_t label[], size_t label_len) const
-   {
-   m_prf->set_key(secret, secret_len);
+   m_prf->update(secret);
 
-   uint8_t counter = 1;
-   secure_vector<uint8_t> h;
-   size_t offset = 0;
+   if(key.size() == prf_output_len) {
+      m_prf->final(key);
+   } else {
+      const auto prk = m_prf->final();
+      copy_mem(key, std::span{prk}.first(key.size()));
+   }
+}
 
-   while(offset != key_len && counter != 0)
-      {
+std::unique_ptr<KDF> HKDF_Expand::new_object() const {
+   return std::make_unique<HKDF_Expand>(m_prf->new_object());
+}
+
+std::string HKDF_Expand::name() const {
+   return fmt("HKDF-Expand({})", m_prf->name());
+}
+
+void HKDF_Expand::perform_kdf(std::span<uint8_t> key,
+                              std::span<const uint8_t> secret,
+                              std::span<const uint8_t> salt,
+                              std::span<const uint8_t> label) const {
+   const auto prf_output_length = m_prf->output_length();
+   BOTAN_ARG_CHECK(key.size() <= prf_output_length * 255, "HKDF-Expand maximum output length exceeeded");
+
+   if(key.empty()) {
+      return;
+   }
+
+   // Keep a reference to the previous PRF output (empty by default).
+   std::span<uint8_t> h = {};
+
+   BufferStuffer k(key);
+   m_prf->set_key(secret);
+   for(uint8_t counter = 1; !k.full(); ++counter) {
       m_prf->update(h);
-      m_prf->update(label, label_len);
-      m_prf->update(salt, salt_len);
-      m_prf->update(counter++);
-      m_prf->final(h);
+      m_prf->update(label);
+      m_prf->update(salt);
+      m_prf->update(counter);
 
-      const size_t written = std::min(h.size(), key_len - offset);
-      copy_mem(&key[offset], h.data(), written);
-      offset += written;
+      // Write straight into the output buffer, except if the PRF output needs
+      // a truncation in the final iteration.
+      if(k.remaining_capacity() >= prf_output_length) {
+         h = k.next(prf_output_length);
+         m_prf->final(h);
+      } else {
+         const auto full_prf_output = m_prf->final();
+         h = {};  // this is the final iteration!
+         k.append(std::span{full_prf_output}.first(k.remaining_capacity()));
       }
-
-   // FIXME: returns truncated output
-   return offset;
    }
+}
 
-secure_vector<uint8_t>
-hkdf_expand_label(const std::string& hash_fn,
-                  const uint8_t secret[], size_t secret_len,
-                  const std::string& label,
-                  const uint8_t hash_val[], size_t hash_val_len,
-                  size_t length)
-   {
+secure_vector<uint8_t> hkdf_expand_label(std::string_view hash_fn,
+                                         std::span<const uint8_t> secret,
+                                         std::string_view label,
+                                         std::span<const uint8_t> hash_val,
+                                         size_t length) {
    BOTAN_ARG_CHECK(length <= 0xFFFF, "HKDF-Expand-Label requested output too large");
    BOTAN_ARG_CHECK(label.size() <= 0xFF, "HKDF-Expand-Label label too long");
-   BOTAN_ARG_CHECK(hash_val_len <= 0xFF, "HKDF-Expand-Label hash too long");
+   BOTAN_ARG_CHECK(hash_val.size() <= 0xFF, "HKDF-Expand-Label hash too long");
 
-   const uint16_t length16 = static_cast<uint16_t>(length);
+   HKDF_Expand hkdf(MessageAuthenticationCode::create_or_throw(fmt("HMAC({})", hash_fn)));
 
-   auto mac = MessageAuthenticationCode::create_or_throw("HMAC(" + hash_fn + ")");
-
-   HKDF_Expand hkdf(mac.release());
-
-   secure_vector<uint8_t> output(length16);
-   std::vector<uint8_t> prefix(3 + label.size() + 1);
-
-   prefix[0] = get_byte(0, length16);
-   prefix[1] = get_byte(1, length16);
-   prefix[2] = static_cast<uint8_t>(label.size());
-
-   copy_mem(prefix.data() + 3,
-            cast_char_ptr_to_uint8(label.data()),
-            label.size());
-
-   prefix[3 + label.size()] = static_cast<uint8_t>(hash_val_len);
+   const auto prefix = concat<std::vector<uint8_t>>(store_be(static_cast<uint16_t>(length)),
+                                                    store_be(static_cast<uint8_t>(label.size())),
+                                                    std::span{cast_char_ptr_to_uint8(label.data()), label.size()},
+                                                    store_be(static_cast<uint8_t>(hash_val.size())));
 
    /*
    * We do something a little dirty here to avoid copying the hash_val,
    * making use of the fact that Botan's KDF interface supports label+salt,
    * and knowing that our HKDF hashes first param label then param salt.
    */
-   hkdf.kdf(output.data(), output.size(),
-            secret, secret_len,
-            hash_val, hash_val_len,
-            prefix.data(), prefix.size());
-
-   return output;
-   }
-
+   return hkdf.derive_key(length, secret, hash_val, prefix);
 }
+
+}  // namespace Botan

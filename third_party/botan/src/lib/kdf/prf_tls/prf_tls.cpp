@@ -1,96 +1,56 @@
 /*
-* TLS v1.0 and v1.2 PRFs
+* TLSv1.2 PRF
 * (C) 2004-2010 Jack Lloyd
+* (C) 2024      René Meusel, Rohde & Schwarz Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/prf_tls.h>
+#include <botan/internal/prf_tls.h>
+
 #include <botan/exceptn.h>
+#include <botan/mem_ops.h>
+#include <botan/internal/fmt.h>
+#include <botan/internal/stl_util.h>
 
 namespace Botan {
-
-TLS_PRF::TLS_PRF() :
-   TLS_PRF(MessageAuthenticationCode::create_or_throw("HMAC(MD5)"),
-           MessageAuthenticationCode::create_or_throw("HMAC(SHA-1)"))
-   {
-   }
-
-namespace {
 
 /*
 * TLS PRF P_hash function
 */
-void P_hash(uint8_t out[], size_t out_len,
-            MessageAuthenticationCode& mac,
-            const uint8_t secret[], size_t secret_len,
-            const uint8_t salt[], size_t salt_len)
-   {
-   try
-      {
-      mac.set_key(secret, secret_len);
-      }
-   catch(Invalid_Key_Length&)
-      {
-      throw Internal_Error("The premaster secret of " +
-                           std::to_string(secret_len) +
-                           " bytes is too long for the PRF");
-      }
+void TLS_12_PRF::perform_kdf(std::span<uint8_t> key,
+                             std::span<const uint8_t> secret,
+                             std::span<const uint8_t> salt,
+                             std::span<const uint8_t> label) const {
+   try {
+      m_mac->set_key(secret);
+   } catch(Invalid_Key_Length&) {
+      throw Internal_Error(fmt("The premaster secret of {} bytes is too long for TLS-PRF", secret.size()));
+   }
 
-   secure_vector<uint8_t> A(salt, salt + salt_len);
+   auto A = concat<secure_vector<uint8_t>>(label, salt);
    secure_vector<uint8_t> h;
 
-   size_t offset = 0;
+   BufferStuffer o(key);
+   while(!o.full()) {
+      A = m_mac->process(A);
 
-   while(offset != out_len)
-      {
-      A = mac.process(A);
+      m_mac->update(A);
+      m_mac->update(label);
+      m_mac->update(salt);
+      m_mac->final(h);
 
-      mac.update(A);
-      mac.update(salt, salt_len);
-      mac.final(h);
-
-      const size_t writing = std::min(h.size(), out_len - offset);
-      xor_buf(&out[offset], h.data(), writing);
-      offset += writing;
-      }
+      const size_t writing = std::min(h.size(), o.remaining_capacity());
+      xor_buf(o.next(writing), std::span{h}.first(writing));
    }
-
 }
 
-size_t TLS_PRF::kdf(uint8_t key[], size_t key_len,
-                    const uint8_t secret[], size_t secret_len,
-                    const uint8_t salt[], size_t salt_len,
-                    const uint8_t label[], size_t label_len) const
-   {
-   const size_t S1_len = (secret_len + 1) / 2,
-                S2_len = (secret_len + 1) / 2;
-   const uint8_t* S1 = secret;
-   const uint8_t* S2 = secret + (secret_len - S2_len);
-   secure_vector<uint8_t> msg;
-
-   msg.reserve(label_len + salt_len);
-   msg += std::make_pair(label, label_len);
-   msg += std::make_pair(salt, salt_len);
-
-   P_hash(key, key_len, *m_hmac_md5,  S1, S1_len, msg.data(), msg.size());
-   P_hash(key, key_len, *m_hmac_sha1, S2, S2_len, msg.data(), msg.size());
-   return key_len;
-   }
-
-size_t TLS_12_PRF::kdf(uint8_t key[], size_t key_len,
-                       const uint8_t secret[], size_t secret_len,
-                       const uint8_t salt[], size_t salt_len,
-                       const uint8_t label[], size_t label_len) const
-   {
-   secure_vector<uint8_t> msg;
-
-   msg.reserve(label_len + salt_len);
-   msg += std::make_pair(label, label_len);
-   msg += std::make_pair(salt, salt_len);
-
-   P_hash(key, key_len, *m_mac, secret, secret_len, msg.data(), msg.size());
-   return key_len;
-   }
-
+std::string TLS_12_PRF::name() const {
+   return fmt("TLS-12-PRF({})", m_mac->name());
 }
+
+std::unique_ptr<KDF> TLS_12_PRF::new_object() const {
+   return std::make_unique<TLS_12_PRF>(m_mac->new_object());
+}
+
+}  // namespace Botan

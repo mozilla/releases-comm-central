@@ -11,59 +11,89 @@ command -v shellcheck > /dev/null && shellcheck "$0" # Run shellcheck on this if
 
 set -ex
 
-TARGET=$1
+TARGET="$1"
+
+# shellcheck disable=SC2034
+ARCH="$2"
+
+SCRIPT_LOCATION=$(cd "$(dirname "$0")"; pwd)
+
+if [ "$GITHUB_ACTIONS" != "true" ]; then
+    echo "This script should only run in a Github Actions environment" >&2
+    exit 1
+fi
+
+if [ -z "$REPO_CONFIG_LOADED" ]; then
+    echo "Repository configuration not loaded" >&2
+    exit 1
+fi
 
 if type -p "apt-get"; then
+
+    sudo rm /var/lib/man-db/auto-update
+
     sudo apt-get -qq update
-    sudo apt-get -qq install ccache
+    # shellcheck disable=SC2046
+    sudo apt-get -qq install $("${SCRIPT_LOCATION}"/gha_linux_packages.py "$TARGET")
 
-    if [ "$TARGET" = "valgrind" ]; then
-        sudo apt-get -qq install valgrind
+    if [ "$TARGET" = "sde" ]; then
+        wget -nv "https://downloadmirror.intel.com/823664/${INTEL_SDE_VERSION}.tar.xz"
+        tar -xf "${INTEL_SDE_VERSION}.tar.xz"
+        echo "${INTEL_SDE_VERSION}" >> "$GITHUB_PATH"
 
-    elif [ "$TARGET" = "clang" ]; then
-        sudo apt-get -qq install clang
+        echo "CXX=g++-14" >> "$GITHUB_ENV"
 
-    elif [ "$TARGET" = "cross-i386" ]; then
-        sudo apt-get -qq install g++-multilib linux-libc-dev libc6-dev-i386
+    elif [ "$TARGET" = "cross-android-arm32" ] || [ "$TARGET" = "cross-android-arm64" ] || [ "$TARGET" = "cross-android-arm64-amalgamation" ]; then
+        wget -nv "https://dl.google.com/android/repository/${ANDROID_NDK}-linux.zip"
+        unzip -qq "$ANDROID_NDK"-linux.zip
 
-    elif [ "$TARGET" = "cross-win64" ]; then
-        sudo apt-get -qq install wine-development g++-mingw-w64-x86-64
+    elif [ "$TARGET" = "cross-arm32-baremetal" ]; then
+        echo 'extern "C" void __sync_synchronize() {}' >> "${SCRIPT_LOCATION}/../../tests/main.cpp"
+        echo 'extern "C" void __sync_synchronize() {}' >> "${SCRIPT_LOCATION}/../../cli/main.cpp"
 
-    elif [ "$TARGET" = "cross-arm64" ]; then
-        sudo apt-get -qq install qemu-user g++-aarch64-linux-gnu
+    elif [ "$TARGET" = "limbo" ]; then
+        wget -nv "https://raw.githubusercontent.com/C2SP/x509-limbo/${LIMBO_TEST_SUITE_REVISION}/limbo.json" -O "${SCRIPT_LOCATION}/../../../limbo.json"
 
-    elif [ "$TARGET" = "cross-ppc64" ]; then
-        sudo apt-get -qq install qemu-user g++-powerpc64le-linux-gnu
+    elif [ "$TARGET" = "coverage" ] || [ "$TARGET" = "sanitizer" ]; then
+        if [ "$TARGET" = "coverage" ]; then
+            curl -L https://coveralls.io/coveralls-linux.tar.gz | tar -xz -C /usr/local/bin
+        fi
 
-    elif [ "$TARGET" = "cross-android-arm32" ] || [ "$TARGET" = "cross-android-arm64" ]; then
-        wget -nv https://dl.google.com/android/repository/"$ANDROID_NDK"-linux-x86_64.zip
-        unzip -qq "$ANDROID_NDK"-linux-x86_64.zip
+        echo "BOTAN_TPM2_ENABLED=test" >> "$GITHUB_ENV"
 
-    elif [ "$TARGET" = "baremetal" ]; then
-        sudo apt-get -qq install gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib
-
-        echo 'extern "C" void __sync_synchronize() {}' >> src/tests/main.cpp
-        echo 'extern "C" void __sync_synchronize() {}' >> src/cli/main.cpp
-
-    elif [ "$TARGET" = "lint" ]; then
-        sudo apt-get -qq install pylint
-
-    elif [ "$TARGET" = "coverage" ]; then
-        sudo apt-get -qq install g++-8 softhsm2 libtspi-dev lcov python-coverage libboost-all-dev gdb
-        pip install --user codecov
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-        git clone --depth 1 --branch runner-changes https://github.com/randombit/boringssl.git
 
         sudo chgrp -R "$(id -g)" /var/lib/softhsm/ /etc/softhsm
         sudo chmod g+w /var/lib/softhsm/tokens
 
         softhsm2-util --init-token --free --label test --pin 123456 --so-pin 12345678
         echo "PKCS11_LIB=/usr/lib/softhsm/libsofthsm2.so" >> "$GITHUB_ENV"
-
-    elif [ "$TARGET" = "docs" ]; then
-        sudo apt-get -qq install doxygen python-docutils python3-sphinx
     fi
 else
-    HOMEBREW_NO_AUTO_UPDATE=1 brew install ccache
+    export HOMEBREW_NO_AUTO_UPDATE=1
+    export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+    brew install ccache
+
+    if [ "$TARGET" = "shared" ]  || [ "$TARGET" = "amalgamation" ] ; then
+        brew install boost
+
+        # On Apple Silicon we need to specify the include directory
+        # so that the build can find the boost headers.
+        boostincdir=$(brew --prefix boost)/include
+        echo "BOOST_INCLUDEDIR=$boostincdir" >> "$GITHUB_ENV"
+    elif [ "$TARGET" = "emscripten" ]; then
+        brew install emscripten
+    fi
+
+    if [ -d '/Applications/Xcode_16.1.app/Contents/Developer' ]; then
+        sudo xcrun xcode-select --switch '/Applications/Xcode_16.1.app/Contents/Developer'
+    else
+        sudo xcrun xcode-select --switch '/Applications/Xcode_15.2.app/Contents/Developer'
+    fi
+fi
+
+# find the ccache cache location and store it in the build job's environment
+if type -p "ccache"; then
+    cache_location="$( ccache --get-config cache_dir )"
+    echo "COMPILER_CACHE_LOCATION=${cache_location}" >> "${GITHUB_ENV}"
 fi

@@ -7,11 +7,16 @@
 #ifndef BOTAN_ASN1_OBJECT_TYPES_H_
 #define BOTAN_ASN1_OBJECT_TYPES_H_
 
-#include <botan/secmem.h>
 #include <botan/exceptn.h>
-#include <vector>
-#include <string>
+#include <botan/secmem.h>
 #include <chrono>
+#include <iosfwd>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
 
 namespace Botan {
 
@@ -19,54 +24,77 @@ class BER_Decoder;
 class DER_Encoder;
 
 /**
-* ASN.1 Type and Class Tags
-* This will become an enum class in a future major release
+* ASN.1 Class Tags
 */
-enum ASN1_Tag : uint32_t {
-   UNIVERSAL        = 0x00,
-   APPLICATION      = 0x40,
-   CONTEXT_SPECIFIC = 0x80,
+enum class ASN1_Class : uint32_t {
+   Universal = 0b0000'0000,
+   Application = 0b0100'0000,
+   ContextSpecific = 0b1000'0000,
+   Private = 0b1100'0000,
 
-   CONSTRUCTED      = 0x20,
+   Constructed = 0b0010'0000,
+   ExplicitContextSpecific = Constructed | ContextSpecific,
 
-   PRIVATE          = CONSTRUCTED | CONTEXT_SPECIFIC,
-
-   EOC              = 0x00,
-   BOOLEAN          = 0x01,
-   INTEGER          = 0x02,
-   BIT_STRING       = 0x03,
-   OCTET_STRING     = 0x04,
-   NULL_TAG         = 0x05,
-   OBJECT_ID        = 0x06,
-   ENUMERATED       = 0x0A,
-   SEQUENCE         = 0x10,
-   SET              = 0x11,
-
-   UTF8_STRING      = 0x0C,
-   NUMERIC_STRING   = 0x12,
-   PRINTABLE_STRING = 0x13,
-   T61_STRING       = 0x14,
-   IA5_STRING       = 0x16,
-   VISIBLE_STRING   = 0x1A,
-   UNIVERSAL_STRING = 0x1C,
-   BMP_STRING       = 0x1E,
-
-   UTC_TIME                = 0x17,
-   GENERALIZED_TIME        = 0x18,
-   UTC_OR_GENERALIZED_TIME = 0x19,
-
-   NO_OBJECT        = 0xFF00,
-   DIRECTORY_STRING = 0xFF01
+   NoObject = 0xFF00
 };
 
-std::string BOTAN_UNSTABLE_API asn1_tag_to_string(ASN1_Tag type);
-std::string BOTAN_UNSTABLE_API asn1_class_to_string(ASN1_Tag type);
+/**
+* ASN.1 Type Tags
+*/
+enum class ASN1_Type : uint32_t {
+   Eoc = 0x00,
+   Boolean = 0x01,
+   Integer = 0x02,
+   BitString = 0x03,
+   OctetString = 0x04,
+   Null = 0x05,
+   ObjectId = 0x06,
+   Enumerated = 0x0A,
+   Sequence = 0x10,
+   Set = 0x11,
+
+   Utf8String = 0x0C,
+   NumericString = 0x12,
+   PrintableString = 0x13,
+   TeletexString = 0x14,
+   Ia5String = 0x16,
+   VisibleString = 0x1A,
+   UniversalString = 0x1C,
+   BmpString = 0x1E,
+
+   UtcTime = 0x17,
+   GeneralizedTime = 0x18,
+
+   NoObject = 0xFF00,
+};
+
+inline bool intersects(ASN1_Class x, ASN1_Class y) {
+   return static_cast<uint32_t>(x) & static_cast<uint32_t>(y);
+}
+
+inline ASN1_Type operator|(ASN1_Type x, ASN1_Type y) {
+   return static_cast<ASN1_Type>(static_cast<uint32_t>(x) | static_cast<uint32_t>(y));
+}
+
+inline ASN1_Class operator|(ASN1_Class x, ASN1_Class y) {
+   return static_cast<ASN1_Class>(static_cast<uint32_t>(x) | static_cast<uint32_t>(y));
+}
+
+inline uint32_t operator|(ASN1_Type x, ASN1_Class y) {
+   return static_cast<uint32_t>(x) | static_cast<uint32_t>(y);
+}
+
+inline uint32_t operator|(ASN1_Class x, ASN1_Type y) {
+   return static_cast<uint32_t>(x) | static_cast<uint32_t>(y);
+}
+
+std::string BOTAN_UNSTABLE_API asn1_tag_to_string(ASN1_Type type);
+std::string BOTAN_UNSTABLE_API asn1_class_to_string(ASN1_Class type);
 
 /**
 * Basic ASN.1 Object Interface
 */
-class BOTAN_PUBLIC_API(2,0) ASN1_Object
-   {
+class BOTAN_PUBLIC_API(2, 0) ASN1_Object {
    public:
       /**
       * Encode whatever this object is into to
@@ -89,17 +117,16 @@ class BOTAN_PUBLIC_API(2,0) ASN1_Object
 
       ASN1_Object() = default;
       ASN1_Object(const ASN1_Object&) = default;
-      ASN1_Object & operator=(const ASN1_Object&) = default;
+      ASN1_Object& operator=(const ASN1_Object&) = default;
       virtual ~ASN1_Object() = default;
-   };
+};
 
 /**
 * BER Encoded Object
 */
-class BOTAN_PUBLIC_API(2,0) BER_Object final
-   {
+class BOTAN_PUBLIC_API(2, 0) BER_Object final {
    public:
-      BER_Object() : type_tag(NO_OBJECT), class_tag(UNIVERSAL) {}
+      BER_Object() : m_type_tag(ASN1_Type::NoObject), m_class_tag(ASN1_Class::Universal) {}
 
       BER_Object(const BER_Object& other) = default;
 
@@ -109,45 +136,44 @@ class BOTAN_PUBLIC_API(2,0) BER_Object final
 
       BER_Object& operator=(BER_Object&& other) = default;
 
-      bool is_set() const { return type_tag != NO_OBJECT; }
+      bool is_set() const { return m_type_tag != ASN1_Type::NoObject; }
 
-      ASN1_Tag tagging() const { return ASN1_Tag(type() | get_class()); }
+      uint32_t tagging() const { return type_tag() | class_tag(); }
 
-      ASN1_Tag type() const { return type_tag; }
-      ASN1_Tag get_class() const { return class_tag; }
+      ASN1_Type type_tag() const { return m_type_tag; }
 
-      const uint8_t* bits() const { return value.data(); }
+      ASN1_Class class_tag() const { return m_class_tag; }
 
-      size_t length() const { return value.size(); }
+      ASN1_Type type() const { return m_type_tag; }
 
-      void assert_is_a(ASN1_Tag type_tag, ASN1_Tag class_tag,
-                       const std::string& descr = "object") const;
+      ASN1_Class get_class() const { return m_class_tag; }
 
-      bool is_a(ASN1_Tag type_tag, ASN1_Tag class_tag) const;
+      const uint8_t* bits() const { return m_value.data(); }
 
-      bool is_a(int type_tag, ASN1_Tag class_tag) const;
+      size_t length() const { return m_value.size(); }
 
-   BOTAN_DEPRECATED_PUBLIC_MEMBER_VARIABLES:
-      /*
-      * The following member variables are public for historical reasons, but
-      * will be made private in a future major release. Use the accessor
-      * functions above.
-      */
-      ASN1_Tag type_tag, class_tag;
-      secure_vector<uint8_t> value;
+      std::span<const uint8_t> data() const { return std::span{m_value}; }
+
+      void assert_is_a(ASN1_Type type_tag, ASN1_Class class_tag, std::string_view descr = "object") const;
+
+      bool is_a(ASN1_Type type_tag, ASN1_Class class_tag) const;
+
+      bool is_a(int type_tag, ASN1_Class class_tag) const;
 
    private:
+      ASN1_Type m_type_tag;
+      ASN1_Class m_class_tag;
+      secure_vector<uint8_t> m_value;
 
       friend class BER_Decoder;
 
-      void set_tagging(ASN1_Tag type_tag, ASN1_Tag class_tag);
+      void set_tagging(ASN1_Type type_tag, ASN1_Class class_tag);
 
-      uint8_t* mutable_bits(size_t length)
-         {
-         value.resize(length);
-         return value.data();
-         }
-   };
+      uint8_t* mutable_bits(size_t length) {
+         m_value.resize(length);
+         return m_value.data();
+      }
+};
 
 /*
 * ASN.1 Utility Functions
@@ -166,64 +192,72 @@ std::string to_string(const BER_Object& obj);
 */
 bool maybe_BER(DataSource& src);
 
-}
+}  // namespace ASN1
 
 /**
 * General BER Decoding Error Exception
 */
-class BOTAN_PUBLIC_API(2,0) BER_Decoding_Error : public Decoding_Error
-   {
+class BOTAN_PUBLIC_API(2, 0) BER_Decoding_Error : public Decoding_Error {
    public:
-      explicit BER_Decoding_Error(const std::string&);
-   };
+      explicit BER_Decoding_Error(std::string_view);
+};
 
 /**
 * Exception For Incorrect BER Taggings
 */
-class BOTAN_PUBLIC_API(2,0) BER_Bad_Tag final : public BER_Decoding_Error
-   {
+class BOTAN_PUBLIC_API(2, 0) BER_Bad_Tag final : public BER_Decoding_Error {
    public:
-      BER_Bad_Tag(const std::string& msg, ASN1_Tag tag);
-      BER_Bad_Tag(const std::string& msg, ASN1_Tag tag1, ASN1_Tag tag2);
-   };
+      BER_Bad_Tag(std::string_view msg, uint32_t tagging);
+};
 
 /**
 * This class represents ASN.1 object identifiers.
 */
-class BOTAN_PUBLIC_API(2,0) OID final : public ASN1_Object
-   {
+class BOTAN_PUBLIC_API(2, 0) OID final : public ASN1_Object {
    public:
-
       /**
-      * Create an uninitialied OID object
+      * Create an uninitialised OID object
       */
-      explicit OID() {}
+      explicit OID() = default;
 
       /**
       * Construct an OID from a string.
-      * @param str a string in the form "a.b.c" etc., where a,b,c are numbers
+      * @param str a string in the form "a.b.c" etc., where a,b,c are integers
+      *
+      * Note: it is currently required that each integer fit into 32 bits
       */
-      explicit OID(const std::string& str);
+      explicit OID(std::string_view str);
 
       /**
       * Initialize an OID from a sequence of integer values
       */
-      explicit OID(std::initializer_list<uint32_t> init) : m_id(init) {}
+      explicit OID(std::initializer_list<uint32_t> init);
 
       /**
       * Initialize an OID from a vector of integer values
       */
-      explicit OID(std::vector<uint32_t>&& init) : m_id(init) {}
+      explicit OID(std::vector<uint32_t>&& init);
 
       /**
       * Construct an OID from a string.
       * @param str a string in the form "a.b.c" etc., where a,b,c are numbers
       *        or any known OID name (for example "RSA" or "X509v3.SubjectKeyIdentifier")
       */
-      static OID from_string(const std::string& str);
+      static OID from_string(std::string_view str);
 
-      void encode_into(class DER_Encoder&) const override;
-      void decode_from(class BER_Decoder&) override;
+      /**
+      * Construct an OID from a name
+      * @param name any known OID name (for example "RSA" or "X509v3.SubjectKeyIdentifier")
+      */
+      static std::optional<OID> from_name(std::string_view name);
+
+      /**
+      * Register a new OID in the internal table
+      */
+      static void register_oid(const OID& oid, std::string_view name);
+
+      void encode_into(DER_Encoder&) const override;
+      void decode_from(BER_Decoder&) override;
 
       /**
       * Find out whether this OID is empty
@@ -235,24 +269,7 @@ class BOTAN_PUBLIC_API(2,0) OID final : public ASN1_Object
       * Find out whether this OID has a value
       * @return true is this OID has a value
       */
-      bool has_value() const { return (m_id.empty() == false); }
-
-      /**
-      * Get this OID as list (vector) of its components.
-      * @return vector representing this OID
-      */
-      const std::vector<uint32_t>& get_components() const { return m_id; }
-
-      const std::vector<uint32_t>& get_id() const { return get_components(); }
-
-      /**
-      * Get this OID as a string
-      * @return string representing this OID
-      */
-      std::string BOTAN_DEPRECATED("Use OID::to_string") as_string() const
-         {
-         return this->to_string();
-         }
+      bool has_value() const { return !empty(); }
 
       /**
       * Get this OID as a dotted-decimal string
@@ -267,40 +284,53 @@ class BOTAN_PUBLIC_API(2,0) OID final : public ASN1_Object
       std::string to_formatted_string() const;
 
       /**
+      * If there is a known name associated with this OID, return that.
+      * Otherwise return the empty string.
+      */
+      std::string human_name_or_empty() const;
+
+      /**
+      * Return true if the OID in *this is registered in the internal
+      * set of constants as a known OID.
+      */
+      bool registered_oid() const;
+
+      /**
       * Compare two OIDs.
       * @return true if they are equal, false otherwise
       */
-      bool operator==(const OID& other) const
-         {
-         return m_id == other.m_id;
-         }
+      bool operator==(const OID& other) const { return m_id == other.m_id; }
 
       /**
-      * Reset this instance to an empty OID.
+      * Return a hash code for this OID
+      *
+      * This value is only meant as a std::unsorted_map hash and
+      * can change value from release to release.
       */
-      void BOTAN_DEPRECATED("Avoid mutation of OIDs") clear() { m_id.clear(); }
+      size_t hash_code() const;
 
       /**
-      * Add a component to this OID.
-      * @param new_comp the new component to add to the end of this OID
-      * @return reference to *this
+      * Get this OID as list (vector) of its components.
+      * @return vector representing this OID
       */
-      BOTAN_DEPRECATED("Avoid mutation of OIDs") OID& operator+=(uint32_t new_comp)
-         {
-         m_id.push_back(new_comp);
-         return (*this);
-         }
+      BOTAN_DEPRECATED("Do not access the integer values, use eg to_string")
+      const std::vector<uint32_t>& get_components() const {
+         return m_id;
+      }
+
+      BOTAN_DEPRECATED("Do not access the integer values, use eg to_string")
+      const std::vector<uint32_t>& get_id() const {
+         return m_id;
+      }
 
    private:
       std::vector<uint32_t> m_id;
-   };
+};
 
-/**
-* Append another component onto the OID.
-* @param oid the OID to add the new component to
-* @param new_comp the new component to add
-*/
-OID BOTAN_PUBLIC_API(2,0) operator+(const OID& oid, uint32_t new_comp);
+inline std::ostream& operator<<(std::ostream& out, const OID& oid) {
+   out << oid.to_string();
+   return out;
+}
 
 /**
 * Compare two OIDs.
@@ -308,10 +338,9 @@ OID BOTAN_PUBLIC_API(2,0) operator+(const OID& oid, uint32_t new_comp);
 * @param b the second OID
 * @return true if a is not equal to b
 */
-inline bool operator!=(const OID& a, const OID& b)
-   {
+inline bool operator!=(const OID& a, const OID& b) {
    return !(a == b);
-   }
+}
 
 /**
 * Compare two OIDs.
@@ -319,13 +348,12 @@ inline bool operator!=(const OID& a, const OID& b)
 * @param b the second OID
 * @return true if a is lexicographically smaller than b
 */
-bool BOTAN_PUBLIC_API(2,0) operator<(const OID& a, const OID& b);
+BOTAN_PUBLIC_API(2, 0) bool operator<(const OID& a, const OID& b);
 
 /**
 * Time (GeneralizedTime/UniversalTime)
 */
-class BOTAN_PUBLIC_API(2,0) ASN1_Time final : public ASN1_Object
-   {
+class BOTAN_PUBLIC_API(2, 0) ASN1_Time final : public ASN1_Object {
    public:
       /// DER encode a ASN1_Time
       void encode_into(DER_Encoder&) const override;
@@ -352,7 +380,10 @@ class BOTAN_PUBLIC_API(2,0) ASN1_Time final : public ASN1_Object
       explicit ASN1_Time(const std::chrono::system_clock::time_point& time);
 
       /// Create an ASN1_Time from string
-      ASN1_Time(const std::string& t_spec, ASN1_Tag tag);
+      ASN1_Time(std::string_view t_spec);
+
+      /// Create an ASN1_Time from string and a specified tagging (Utc or Generalized)
+      ASN1_Time(std::string_view t_spec, ASN1_Type tag);
 
       /// Returns a STL timepoint object
       std::chrono::system_clock::time_point to_std_timepoint() const;
@@ -361,7 +392,7 @@ class BOTAN_PUBLIC_API(2,0) ASN1_Time final : public ASN1_Object
       uint64_t time_since_epoch() const;
 
    private:
-      void set_to(const std::string& t_spec, ASN1_Tag);
+      void set_to(std::string_view t_spec, ASN1_Type type);
       bool passes_sanity_check() const;
 
       uint32_t m_year = 0;
@@ -370,18 +401,18 @@ class BOTAN_PUBLIC_API(2,0) ASN1_Time final : public ASN1_Object
       uint32_t m_hour = 0;
       uint32_t m_minute = 0;
       uint32_t m_second = 0;
-      ASN1_Tag m_tag = NO_OBJECT;
-   };
+      ASN1_Type m_tag = ASN1_Type::NoObject;
+};
 
 /*
 * Comparison Operations
 */
-bool BOTAN_PUBLIC_API(2,0) operator==(const ASN1_Time&, const ASN1_Time&);
-bool BOTAN_PUBLIC_API(2,0) operator!=(const ASN1_Time&, const ASN1_Time&);
-bool BOTAN_PUBLIC_API(2,0) operator<=(const ASN1_Time&, const ASN1_Time&);
-bool BOTAN_PUBLIC_API(2,0) operator>=(const ASN1_Time&, const ASN1_Time&);
-bool BOTAN_PUBLIC_API(2,0) operator<(const ASN1_Time&, const ASN1_Time&);
-bool BOTAN_PUBLIC_API(2,0) operator>(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator==(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator!=(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator<=(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator>=(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator<(const ASN1_Time&, const ASN1_Time&);
+BOTAN_PUBLIC_API(2, 0) bool operator>(const ASN1_Time&, const ASN1_Time&);
 
 typedef ASN1_Time X509_Time;
 
@@ -389,13 +420,12 @@ typedef ASN1_Time X509_Time;
 * ASN.1 string type
 * This class normalizes all inputs to a UTF-8 std::string
 */
-class BOTAN_PUBLIC_API(2,0) ASN1_String final : public ASN1_Object
-   {
+class BOTAN_PUBLIC_API(2, 0) ASN1_String final : public ASN1_Object {
    public:
-      void encode_into(class DER_Encoder&) const override;
-      void decode_from(class BER_Decoder&) override;
+      void encode_into(DER_Encoder&) const override;
+      void decode_from(BER_Decoder&) override;
 
-      ASN1_Tag tagging() const { return m_tag; }
+      ASN1_Type tagging() const { return m_tag; }
 
       const std::string& value() const { return m_utf8_str; }
 
@@ -403,73 +433,77 @@ class BOTAN_PUBLIC_API(2,0) ASN1_String final : public ASN1_Object
 
       bool empty() const { return m_utf8_str.empty(); }
 
-      std::string BOTAN_DEPRECATED("Use value() to get UTF-8 string instead")
-         iso_8859() const;
-
       /**
       * Return true iff this is a tag for a known string type we can handle.
-      * This ignores string types that are not supported, eg teletexString
       */
-      static bool is_string_type(ASN1_Tag tag);
+      static bool is_string_type(ASN1_Type tag);
 
-      bool operator==(const ASN1_String& other) const
-         { return value() == other.value(); }
+      bool operator==(const ASN1_String& other) const { return value() == other.value(); }
 
-      explicit ASN1_String(const std::string& utf8 = "");
-      ASN1_String(const std::string& utf8, ASN1_Tag tag);
+      friend bool operator<(const ASN1_String& a, const ASN1_String& b) { return a.value() < b.value(); }
+
+      explicit ASN1_String(std::string_view utf8 = "");
+      ASN1_String(std::string_view utf8, ASN1_Type tag);
+
    private:
       std::vector<uint8_t> m_data;
       std::string m_utf8_str;
-      ASN1_Tag m_tag;
-   };
+      ASN1_Type m_tag;
+};
 
 /**
 * Algorithm Identifier
 */
-class BOTAN_PUBLIC_API(2,0) AlgorithmIdentifier final : public ASN1_Object
-   {
+class BOTAN_PUBLIC_API(2, 0) AlgorithmIdentifier final : public ASN1_Object {
    public:
       enum Encoding_Option { USE_NULL_PARAM, USE_EMPTY_PARAM };
 
-      void encode_into(class DER_Encoder&) const override;
-      void decode_from(class BER_Decoder&) override;
+      void encode_into(DER_Encoder&) const override;
+      void decode_from(BER_Decoder&) override;
 
       AlgorithmIdentifier() = default;
 
       AlgorithmIdentifier(const OID& oid, Encoding_Option enc);
-      AlgorithmIdentifier(const std::string& oid_name, Encoding_Option enc);
+      AlgorithmIdentifier(std::string_view oid_name, Encoding_Option enc);
 
       AlgorithmIdentifier(const OID& oid, const std::vector<uint8_t>& params);
-      AlgorithmIdentifier(const std::string& oid_name, const std::vector<uint8_t>& params);
+      AlgorithmIdentifier(std::string_view oid_name, const std::vector<uint8_t>& params);
 
-      const OID& get_oid() const { return oid; }
-      const std::vector<uint8_t>& get_parameters() const { return parameters; }
+      const OID& oid() const { return m_oid; }
+
+      const std::vector<uint8_t>& parameters() const { return m_parameters; }
+
+      BOTAN_DEPRECATED("Use AlgorithmIdentifier::oid") const OID& get_oid() const { return m_oid; }
+
+      BOTAN_DEPRECATED("Use AlgorithmIdentifier::parameters") const std::vector<uint8_t>& get_parameters() const {
+         return m_parameters;
+      }
 
       bool parameters_are_null() const;
-      bool parameters_are_empty() const { return parameters.empty(); }
 
-      bool parameters_are_null_or_empty() const
-         {
-         return parameters_are_empty() || parameters_are_null();
-         }
+      bool parameters_are_empty() const { return m_parameters.empty(); }
 
-   BOTAN_DEPRECATED_PUBLIC_MEMBER_VARIABLES:
-      /*
-      * These values are public for historical reasons, but in a future release
-      * they will be made private. Do not access them.
-      */
-      OID oid;
-      std::vector<uint8_t> parameters;
-   };
+      bool parameters_are_null_or_empty() const { return parameters_are_empty() || parameters_are_null(); }
+
+      bool empty() const { return m_oid.empty() && m_parameters.empty(); }
+
+   private:
+      OID m_oid;
+      std::vector<uint8_t> m_parameters;
+};
 
 /*
 * Comparison Operations
 */
-bool BOTAN_PUBLIC_API(2,0) operator==(const AlgorithmIdentifier&,
-                                      const AlgorithmIdentifier&);
-bool BOTAN_PUBLIC_API(2,0) operator!=(const AlgorithmIdentifier&,
-                                      const AlgorithmIdentifier&);
+BOTAN_PUBLIC_API(2, 0) bool operator==(const AlgorithmIdentifier&, const AlgorithmIdentifier&);
+BOTAN_PUBLIC_API(2, 0) bool operator!=(const AlgorithmIdentifier&, const AlgorithmIdentifier&);
 
-}
+}  // namespace Botan
+
+template <>
+class std::hash<Botan::OID> {
+   public:
+      size_t operator()(const Botan::OID& oid) const noexcept { return oid.hash_code(); }
+};
 
 #endif

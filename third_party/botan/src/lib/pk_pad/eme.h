@@ -1,17 +1,17 @@
 /*
-* EME Classes
-* (C) 1999-2007 Jack Lloyd
+* (C) 1999-2007,2024 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#ifndef BOTAN_PUBKEY_EME_ENCRYPTION_PAD_H_
-#define BOTAN_PUBKEY_EME_ENCRYPTION_PAD_H_
+#ifndef BOTAN_PUBKEY_EME_H_
+#define BOTAN_PUBKEY_EME_H_
 
-#include <botan/secmem.h>
-#include <string>
-
-BOTAN_FUTURE_INTERNAL_HEADER(eme.h)
+#include <botan/types.h>
+#include <botan/internal/ct_utils.h>
+#include <memory>
+#include <span>
+#include <string_view>
 
 namespace Botan {
 
@@ -20,10 +20,16 @@ class RandomNumberGenerator;
 /**
 * Encoding Method for Encryption
 */
-class BOTAN_PUBLIC_API(2,0) EME
-   {
+class BOTAN_TEST_API EME {
    public:
-      virtual ~EME() = default;
+      virtual ~EME();
+
+      /**
+      * Factory method for EME (message-encoding methods for encryption) objects
+      * @param algo_spec the name of the EME to create
+      * @return pointer to newly allocated object of that type
+      */
+      static std::unique_ptr<EME> create(std::string_view algo_spec);
 
       /**
       * Return the maximum input size in bytes we can support
@@ -34,61 +40,28 @@ class BOTAN_PUBLIC_API(2,0) EME
 
       /**
       * Encode an input
-      * @param in the plaintext
-      * @param in_length length of plaintext in bytes
+      * @param output buffer that is written to
+      * @param input the plaintext
       * @param key_length length of the key in bits
       * @param rng a random number generator
-      * @return encoded plaintext
+      * @return number of bytes written to output
       */
-      secure_vector<uint8_t> encode(const uint8_t in[],
-                                 size_t in_length,
-                                 size_t key_length,
-                                 RandomNumberGenerator& rng) const;
-
-      /**
-      * Encode an input
-      * @param in the plaintext
-      * @param key_length length of the key in bits
-      * @param rng a random number generator
-      * @return encoded plaintext
-      */
-      secure_vector<uint8_t> encode(const secure_vector<uint8_t>& in,
-                                 size_t key_length,
-                                 RandomNumberGenerator& rng) const;
+      virtual size_t pad(std::span<uint8_t> output,
+                         std::span<const uint8_t> input,
+                         size_t key_length,
+                         RandomNumberGenerator& rng) const = 0;
 
       /**
       * Decode an input
-      * @param valid_mask written to specifies if output is valid
-      * @param in the encoded plaintext
-      * @param in_len length of encoded plaintext in bytes
-      * @return bytes of out[] written to along with
-      *         validity mask (0xFF if valid, else 0x00)
+      * @param output buffer where output is placed
+      * @param input the encoded plaintext
+      * @return number of bytes written to output if valid,
+      *  or an empty option if invalid. If an empty option is
+      *  returned the contents of output are undefined
       */
-      virtual secure_vector<uint8_t> unpad(uint8_t& valid_mask,
-                                        const uint8_t in[],
-                                        size_t in_len) const = 0;
+      virtual CT::Option<size_t> unpad(std::span<uint8_t> output, std::span<const uint8_t> input) const = 0;
+};
 
-      /**
-      * Encode an input
-      * @param in the plaintext
-      * @param in_length length of plaintext in bytes
-      * @param key_length length of the key in bits
-      * @param rng a random number generator
-      * @return encoded plaintext
-      */
-      virtual secure_vector<uint8_t> pad(const uint8_t in[],
-                                      size_t in_length,
-                                      size_t key_length,
-                                      RandomNumberGenerator& rng) const = 0;
-   };
-
-/**
-* Factory method for EME (message-encoding methods for encryption) objects
-* @param algo_spec the name of the EME to create
-* @return pointer to newly allocated object of that type
-*/
-BOTAN_PUBLIC_API(2,0) EME*  get_eme(const std::string& algo_spec);
-
-}
+}  // namespace Botan
 
 #endif

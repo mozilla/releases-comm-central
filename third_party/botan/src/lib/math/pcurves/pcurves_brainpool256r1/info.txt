@@ -1,0 +1,12 @@
+<defines>
+PCURVES_BRAINPOOL256R1 -> 20240608
+</defines>
+
+<module_info>
+name -> "PCurve brainpool256r1"
+brief -> "brainpool256r1"
+</module_info>
+
+<requires>
+pcurves_impl
+</requires>

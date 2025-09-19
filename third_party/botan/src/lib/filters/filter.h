@@ -10,16 +10,16 @@
 #define BOTAN_FILTER_H_
 
 #include <botan/secmem.h>
-#include <vector>
+#include <span>
 #include <string>
+#include <vector>
 
 namespace Botan {
 
 /**
 * This class represents general abstract filter objects.
 */
-class BOTAN_PUBLIC_API(2,0) Filter
-   {
+class BOTAN_PUBLIC_API(2, 0) Filter {
    public:
       /**
       * @return descriptive name for this filter
@@ -37,13 +37,15 @@ class BOTAN_PUBLIC_API(2,0) Filter
       * Start a new message. Must be closed by end_msg() before another
       * message can be started.
       */
-      virtual void start_msg() { /* default empty */ }
+      virtual void start_msg() { /* default empty */
+      }
 
       /**
       * Notify that the current message is finished; flush buffers and
       * do end-of-message processing (if any).
       */
-      virtual void end_msg() { /* default empty */ }
+      virtual void end_msg() { /* default empty */
+      }
 
       /**
       * Check whether this filter is an attachable filter.
@@ -52,6 +54,10 @@ class BOTAN_PUBLIC_API(2,0) Filter
       virtual bool attachable() { return true; }
 
       virtual ~Filter() = default;
+
+      Filter(const Filter&) = delete;
+      Filter& operator=(const Filter&) = delete;
+
    protected:
       /**
       * @param in some input for the filter
@@ -67,28 +73,20 @@ class BOTAN_PUBLIC_API(2,0) Filter
       /**
       * @param in some input for the filter
       */
-      template<typename Alloc>
-      void send(const std::vector<uint8_t, Alloc>& in)
-         {
-         send(in.data(), in.size());
-         }
+      void send(std::span<const uint8_t> in) { send(in.data(), in.size()); }
 
       /**
       * @param in some input for the filter
       * @param length the number of bytes of in to send
+      *
+      * This previously took a std::vector, for which the length field (allowing
+      * using just a prefix of the vector) somewhat made sense. It makes less
+      * sense now that we are using a span here; you can just use `first` to get
+      * a prefix.
       */
-      template<typename Alloc>
-      void send(const std::vector<uint8_t, Alloc>& in, size_t length)
-         {
-         BOTAN_ASSERT_NOMSG(length <= in.size());
-         send(in.data(), length);
-         }
+      void send(std::span<const uint8_t> in, size_t length);
 
       Filter();
-
-      Filter(const Filter&) = delete;
-
-      Filter& operator=(const Filter&) = delete;
 
    private:
       /**
@@ -105,8 +103,10 @@ class BOTAN_PUBLIC_API(2,0) Filter
 
       friend class Pipe;
       friend class Fanout_Filter;
+      friend class Threaded_Fork;
 
       size_t total_ports() const;
+
       size_t current_port() const { return m_port_num; }
 
       /**
@@ -131,18 +131,17 @@ class BOTAN_PUBLIC_API(2,0) Filter
       Filter* get_next() const;
 
       secure_vector<uint8_t> m_write_queue;
-      std::vector<Filter*> m_next; // not owned
+      std::vector<Filter*> m_next;  // not owned
       size_t m_port_num, m_filter_owns;
 
       // true if filter belongs to a pipe --> prohibit filter sharing!
       bool m_owned;
-   };
+};
 
 /**
 * This is the abstract Fanout_Filter base class.
 **/
-class BOTAN_PUBLIC_API(2,0) Fanout_Filter : public Filter
-   {
+class BOTAN_PUBLIC_API(2, 0) Fanout_Filter : public Filter {
    protected:
       /**
       * Increment the number of filters past us that we own
@@ -154,13 +153,7 @@ class BOTAN_PUBLIC_API(2,0) Fanout_Filter : public Filter
       void set_next(Filter* f[], size_t n) { Filter::set_next(f, n); }
 
       void attach(Filter* f) { Filter::attach(f); }
-
-   private:
-      friend class Threaded_Fork;
-      using Filter::m_write_queue;
-      using Filter::total_ports;
-      using Filter::m_next;
-   };
+};
 
 /**
 * The type of checking to be performed by decoders:
@@ -170,6 +163,6 @@ class BOTAN_PUBLIC_API(2,0) Fanout_Filter : public Filter
 */
 enum Decoder_Checking { NONE, IGNORE_WS, FULL_CHECK };
 
-}
+}  // namespace Botan
 
 #endif

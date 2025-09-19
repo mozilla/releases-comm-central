@@ -1,4 +1,3 @@
-
 Mistakes Were Made
 ===================
 
@@ -24,8 +23,7 @@ Intead such operations should have been accessible only via the higher level
 interfaces (here BlockCipher and HashFunction). This would substantially reduce
 the overall API and ABI surface.
 
-These interfaces are now deprecated, and perhaps will be able to be
-removed eventually.
+[These interfaces were made internal in 3.0]
 
 Header Directories
 -------------------
@@ -40,12 +38,18 @@ Exceptions
 Constant ABI headaches from this, and it impacts performance and makes APIs
 harder to understand. Should have been handled with a result<> type instead.
 
+Alternatively, and possibly more practically, there should have not been any
+exception hierarchy (or at least not one visible to users) - instead only the
+high level Exception type with contains an error type enum.
+
 Virtual inheritance
 ---------------------
 
 This was used in the public key interfaces and the hierarchy is a tangle.
 Public and private keys should be distinct classes, with a function on private
 keys that creates a new object corresponding to the public key.
+
+[This is planned to be fixed in Botan4]
 
 Cipher Interface
 ------------------

@@ -8,36 +8,35 @@
 #ifndef BOTAN_KDF1_H_
 #define BOTAN_KDF1_H_
 
-#include <botan/kdf.h>
 #include <botan/hash.h>
-
-BOTAN_FUTURE_INTERNAL_HEADER(kdf1.h)
+#include <botan/kdf.h>
 
 namespace Botan {
 
 /**
 * KDF1, from IEEE 1363
 */
-class BOTAN_PUBLIC_API(2,0) KDF1 final : public KDF
-   {
+class KDF1 final : public KDF {
    public:
-      std::string name() const override { return "KDF1(" + m_hash->name() + ")"; }
+      std::string name() const override;
 
-      KDF* clone() const override { return new KDF1(m_hash->clone()); }
-
-      size_t kdf(uint8_t key[], size_t key_len,
-                 const uint8_t secret[], size_t secret_len,
-                 const uint8_t salt[], size_t salt_len,
-                 const uint8_t label[], size_t label_len) const override;
+      std::unique_ptr<KDF> new_object() const override;
 
       /**
-      * @param h hash function to use
+      * @param hash function to use
       */
-      explicit KDF1(HashFunction* h) : m_hash(h) {}
+      explicit KDF1(std::unique_ptr<HashFunction> hash) : m_hash(std::move(hash)) {}
+
+   private:
+      void perform_kdf(std::span<uint8_t> key,
+                       std::span<const uint8_t> secret,
+                       std::span<const uint8_t> salt,
+                       std::span<const uint8_t> label) const override;
+
    private:
       std::unique_ptr<HashFunction> m_hash;
-   };
+};
 
-}
+}  // namespace Botan
 
 #endif

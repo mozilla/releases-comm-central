@@ -8,8 +8,10 @@ sha2_32
 sha2_64
 blake2
 skein
-keccak
+shake
 sha3
+
+shake_xof
 
 gcm
 ocb
@@ -20,7 +22,6 @@ hkdf
 cmac
 hmac
 poly1305
-siphash
 
 pbkdf2
 bcrypt
@@ -29,7 +30,9 @@ bcrypt
 pbes2
 
 ed25519
-curve25519
+ed448
+x25519
+x448
 ecdh
 ecdsa
 rsa
@@ -37,7 +40,6 @@ rfc6979
 
 eme_oaep
 emsa_pssr
-emsa1
 
 auto_rng
 hmac_drbg
@@ -48,8 +50,6 @@ ffi
 
 tls
 prf_tls
-newhope
-ed25519
 
 ghash_cpu
 ghash_vperm
@@ -63,20 +63,18 @@ aes_armv8
 aes_power8
 serpent_simd
 serpent_avx2
-threefish_512_avx2
 chacha_simd32
 chacha_avx2
 
-sha1_sse2
+sha1_simd
 sha1_x86
 sha1_armv8
 sha2_32_x86
+sha2_32_simd
 sha2_32_armv8
-sha2_32_bmi2
-sha2_64_bmi2
-sha3_bmi2
-
-simd
+sha2_32_avx2
+sha2_64_avx2
+keccak_perm_bmi2
 
 sessions_sql
 certstor_sql
@@ -85,8 +83,6 @@ system_rng
 processor_rng
 
 # entropy sources
-dev_random
-proc_walk
 rdseed
 win32_stats
 </if_available>
@@ -96,19 +92,14 @@ win32_stats
 tls_cbc
 
 cast128
-cast256
 des
 gost_28147
 idea
 idea_sse2
-kasumi
 lion
-misty1
 rc4
 seed
-xtea
 
-cbc_mac
 x919_mac
 
 # MD5 and SHA1 are broken but not prohibited. They are widely in use
@@ -123,7 +114,6 @@ elgamal
 gost_3410
 
 emsa_x931
-pbkdf1
 prf_x942
 
 passhash9

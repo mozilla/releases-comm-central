@@ -1,5 +1,5 @@
 
-default_compiler clang
+default_compiler xcode
 
 uses_pkg_config no
 
@@ -10,10 +10,13 @@ posix1
 posix_mlock
 arc4random
 
+sysctlbyname
+
 commoncrypto
 
 atomics
 sockets
+system_clock
 threads
 thread_local
 filesystem

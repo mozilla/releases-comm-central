@@ -1,0 +1,12 @@
+<defines>
+PCURVES_SECP256K1 -> 20240608
+</defines>
+
+<module_info>
+name -> "PCurve secp256k1"
+brief -> "secp256k1"
+</module_info>
+
+<requires>
+pcurves_impl
+</requires>

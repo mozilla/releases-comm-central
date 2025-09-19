@@ -8,49 +8,33 @@
 #ifndef BOTAN_ROUNDING_H_
 #define BOTAN_ROUNDING_H_
 
+#include <botan/assert.h>
 #include <botan/types.h>
 
 namespace Botan {
 
 /**
-* Round up
-* @param n a non-negative integer
+* Integer rounding
+*
+* Returns an integer z such that n <= z <= n + align_to
+* and z % align_to == 0
+*
+* @param n an integer
 * @param align_to the alignment boundary
 * @return n rounded up to a multiple of align_to
 */
-inline size_t round_up(size_t n, size_t align_to)
-   {
+constexpr inline size_t round_up(size_t n, size_t align_to) {
+   // Arguably returning n in this case would also be sensible
    BOTAN_ARG_CHECK(align_to != 0, "align_to must not be 0");
 
-   if(n % align_to)
-      n += align_to - (n % align_to);
+   if(n % align_to > 0) {
+      const size_t adj = align_to - (n % align_to);
+      BOTAN_ARG_CHECK(n + adj >= n, "Integer overflow during rounding");
+      n += adj;
+   }
    return n;
-   }
-
-/**
-* Round down
-* @param n an integer
-* @param align_to the alignment boundary
-* @return n rounded down to a multiple of align_to
-*/
-template<typename T>
-inline constexpr T round_down(T n, T align_to)
-   {
-   return (align_to == 0) ? n : (n - (n % align_to));
-   }
-
-/**
-* Clamp
-*/
-inline size_t clamp(size_t n, size_t lower_bound, size_t upper_bound)
-   {
-   if(n < lower_bound)
-      return lower_bound;
-   if(n > upper_bound)
-      return upper_bound;
-   return n;
-   }
-
 }
+
+}  // namespace Botan
 
 #endif

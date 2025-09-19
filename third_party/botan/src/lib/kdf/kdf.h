@@ -1,6 +1,7 @@
 /*
 * Key Derivation Function interfaces
 * (C) 1999-2007 Jack Lloyd
+* (C) 2024      René Meusel - Rohde & Schwarz Cybersecurity
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -8,17 +9,20 @@
 #ifndef BOTAN_KDF_BASE_H_
 #define BOTAN_KDF_BASE_H_
 
+#include <botan/concepts.h>
+#include <botan/exceptn.h>
 #include <botan/secmem.h>
-#include <botan/types.h>
+#include <memory>
+#include <span>
 #include <string>
+#include <string_view>
 
 namespace Botan {
 
 /**
 * Key Derivation Function
 */
-class BOTAN_PUBLIC_API(2,0) KDF
-   {
+class BOTAN_PUBLIC_API(2, 0) KDF {
    public:
       virtual ~KDF() = default;
 
@@ -29,23 +33,19 @@ class BOTAN_PUBLIC_API(2,0) KDF
       * @param provider provider implementation to choose
       * @return a null pointer if the algo/provider combination cannot be found
       */
-      static std::unique_ptr<KDF>
-         create(const std::string& algo_spec,
-                const std::string& provider = "");
+      static std::unique_ptr<KDF> create(std::string_view algo_spec, std::string_view provider = "");
 
       /**
       * Create an instance based on a name, or throw if the
       * algo/provider combination cannot be found. If provider is
       * empty then best available is chosen.
       */
-      static std::unique_ptr<KDF>
-         create_or_throw(const std::string& algo_spec,
-                         const std::string& provider = "");
+      static std::unique_ptr<KDF> create_or_throw(std::string_view algo_spec, std::string_view provider = "");
 
       /**
       * @return list of available providers for this algorithm, empty if not available
       */
-      static std::vector<std::string> providers(const std::string& algo_spec);
+      static std::vector<std::string> providers(std::string_view algo_spec);
 
       /**
       * @return KDF name
@@ -62,12 +62,18 @@ class BOTAN_PUBLIC_API(2,0) KDF
       * @param salt_len size of salt in bytes
       * @param label purpose for the derived keying material
       * @param label_len size of label in bytes
-      * @return the derived key
       */
-      virtual size_t kdf(uint8_t key[], size_t key_len,
-                         const uint8_t secret[], size_t secret_len,
-                         const uint8_t salt[], size_t salt_len,
-                         const uint8_t label[], size_t label_len) const = 0;
+      BOTAN_DEPRECATED("Use KDF::derive_key")
+      void kdf(uint8_t key[],
+               size_t key_len,
+               const uint8_t secret[],
+               size_t secret_len,
+               const uint8_t salt[],
+               size_t salt_len,
+               const uint8_t label[],
+               size_t label_len) const {
+         derive_key({key, key_len}, {secret, secret_len}, {salt, salt_len}, {label, label_len});
+      }
 
       /**
       * Derive a key
@@ -80,59 +86,65 @@ class BOTAN_PUBLIC_API(2,0) KDF
       * @param label_len size of label in bytes
       * @return the derived key
       */
-      secure_vector<uint8_t> derive_key(size_t key_len,
-                                    const uint8_t secret[],
-                                    size_t secret_len,
-                                    const uint8_t salt[],
-                                    size_t salt_len,
-                                    const uint8_t label[] = nullptr,
-                                    size_t label_len = 0) const
-         {
-         secure_vector<uint8_t> key(key_len);
-         key.resize(kdf(key.data(), key.size(), secret, secret_len, salt, salt_len, label, label_len));
+      template <concepts::resizable_byte_buffer T = secure_vector<uint8_t>>
+      BOTAN_DEPRECATED("Use std::span or std::string_view overloads")
+      T derive_key(size_t key_len,
+                   const uint8_t secret[],
+                   size_t secret_len,
+                   const uint8_t salt[],
+                   size_t salt_len,
+                   const uint8_t label[] = nullptr,
+                   size_t label_len = 0) const {
+         return derive_key<T>(key_len, {secret, secret_len}, {salt, salt_len}, {label, label_len});
+      }
+
+      /**
+      * Derive a key
+      * @param key_len the desired output length in bytes
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      * @return the derived key
+      */
+      template <concepts::resizable_byte_buffer T = secure_vector<uint8_t>>
+      T derive_key(size_t key_len,
+                   std::span<const uint8_t> secret,
+                   std::string_view salt = "",
+                   std::string_view label = "") const {
+         return derive_key<T>(key_len, secret, _as_span(salt), _as_span(label));
+      }
+
+      /**
+      * Derive a key
+      * @param key the output buffer for the to-be-derived key
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      */
+      void derive_key(std::span<uint8_t> key,
+                      std::span<const uint8_t> secret,
+                      std::span<const uint8_t> salt,
+                      std::span<const uint8_t> label) const {
+         perform_kdf(key, secret, salt, label);
+      }
+
+      /**
+      * Derive a key
+      * @param key_len the desired output length in bytes
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      * @return the derived key
+      */
+      template <concepts::resizable_byte_buffer T = secure_vector<uint8_t>>
+      T derive_key(size_t key_len,
+                   std::span<const uint8_t> secret,
+                   std::span<const uint8_t> salt,
+                   std::span<const uint8_t> label) const {
+         T key(key_len);
+         perform_kdf(key, secret, salt, label);
          return key;
-         }
-
-      /**
-      * Derive a key
-      * @param key_len the desired output length in bytes
-      * @param secret the secret input
-      * @param salt a diversifier
-      * @param label purpose for the derived keying material
-      * @return the derived key
-      */
-      secure_vector<uint8_t> derive_key(size_t key_len,
-                                    const secure_vector<uint8_t>& secret,
-                                    const std::string& salt = "",
-                                    const std::string& label = "") const
-         {
-         return derive_key(key_len, secret.data(), secret.size(),
-                           cast_char_ptr_to_uint8(salt.data()),
-                           salt.length(),
-                           cast_char_ptr_to_uint8(label.data()),
-                           label.length());
-
-         }
-
-      /**
-      * Derive a key
-      * @param key_len the desired output length in bytes
-      * @param secret the secret input
-      * @param salt a diversifier
-      * @param label purpose for the derived keying material
-      * @return the derived key
-      */
-      template<typename Alloc, typename Alloc2, typename Alloc3>
-      secure_vector<uint8_t> derive_key(size_t key_len,
-                                     const std::vector<uint8_t, Alloc>& secret,
-                                     const std::vector<uint8_t, Alloc2>& salt,
-                                     const std::vector<uint8_t, Alloc3>& label) const
-         {
-         return derive_key(key_len,
-                           secret.data(), secret.size(),
-                           salt.data(), salt.size(),
-                           label.data(), label.size());
-         }
+      }
 
       /**
       * Derive a key
@@ -143,18 +155,15 @@ class BOTAN_PUBLIC_API(2,0) KDF
       * @param label purpose for the derived keying material
       * @return the derived key
       */
-      secure_vector<uint8_t> derive_key(size_t key_len,
-                                    const secure_vector<uint8_t>& secret,
-                                    const uint8_t salt[],
-                                    size_t salt_len,
-                                    const std::string& label = "") const
-         {
-         return derive_key(key_len,
-                           secret.data(), secret.size(),
-                           salt, salt_len,
-                           cast_char_ptr_to_uint8(label.data()),
-                           label.size());
-         }
+      template <concepts::resizable_byte_buffer T = secure_vector<uint8_t>>
+      BOTAN_DEPRECATED("Use std::span or std::string_view overloads")
+      T derive_key(size_t key_len,
+                   std::span<const uint8_t> secret,
+                   const uint8_t salt[],
+                   size_t salt_len,
+                   std::string_view label = "") const {
+         return derive_key<T>(key_len, secret, {salt, salt_len}, _as_span(label));
+      }
 
       /**
       * Derive a key
@@ -165,32 +174,113 @@ class BOTAN_PUBLIC_API(2,0) KDF
       * @param label purpose for the derived keying material
       * @return the derived key
       */
-      secure_vector<uint8_t> derive_key(size_t key_len,
-                                    const uint8_t secret[],
-                                    size_t secret_len,
-                                    const std::string& salt = "",
-                                    const std::string& label = "") const
-         {
-         return derive_key(key_len, secret, secret_len,
-                           cast_char_ptr_to_uint8(salt.data()),
-                           salt.length(),
-                           cast_char_ptr_to_uint8(label.data()),
-                           label.length());
-         }
+      template <concepts::resizable_byte_buffer T = secure_vector<uint8_t>>
+      BOTAN_DEPRECATED("Use std::span or std::string_view overloads")
+      T derive_key(size_t key_len,
+                   const uint8_t secret[],
+                   size_t secret_len,
+                   std::string_view salt = "",
+                   std::string_view label = "") const {
+         return derive_key<T>(key_len, {secret, secret_len}, _as_span(salt), _as_span(label));
+      }
+
+      /**
+      * Derive a key
+      * @tparam key_len the desired output length in bytes
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      * @return the derived key
+      */
+      template <size_t key_len>
+      std::array<uint8_t, key_len> derive_key(std::span<const uint8_t> secret,
+                                              std::span<const uint8_t> salt = {},
+                                              std::span<const uint8_t> label = {}) {
+         std::array<uint8_t, key_len> key;
+         perform_kdf(key, secret, salt, label);
+         return key;
+      }
+
+      /**
+      * Derive a key
+      * @tparam key_len the desired output length in bytes
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      * @return the derived key
+      */
+      template <size_t key_len>
+      std::array<uint8_t, key_len> derive_key(std::span<const uint8_t> secret,
+                                              std::span<const uint8_t> salt = {},
+                                              std::string_view label = "") {
+         return derive_key<key_len>(secret, salt, _as_span(label));
+      }
+
+      /**
+      * Derive a key
+      * @tparam key_len the desired output length in bytes
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      * @return the derived key
+      */
+      template <size_t key_len>
+      std::array<uint8_t, key_len> derive_key(std::span<const uint8_t> secret,
+                                              std::string_view salt = "",
+                                              std::string_view label = "") {
+         return derive_key<key_len>(secret, _as_span(salt), _as_span(label));
+      }
 
       /**
       * @return new object representing the same algorithm as *this
       */
-      virtual KDF* clone() const = 0;
-   };
+      virtual std::unique_ptr<KDF> new_object() const = 0;
+
+      /**
+      * @return new object representing the same algorithm as *this
+      */
+      KDF* clone() const { return this->new_object().release(); }
+
+   protected:
+      /**
+      * Internal customization point for subclasses
+      *
+      * The byte size of the @p key span is the number of bytes to be produced
+      * by the concrete key derivation function.
+      *
+      * @param key the output buffer for the to-be-derived key
+      * @param secret the secret input
+      * @param salt a diversifier
+      * @param label purpose for the derived keying material
+      */
+      virtual void perform_kdf(std::span<uint8_t> key,
+                               std::span<const uint8_t> secret,
+                               std::span<const uint8_t> salt,
+                               std::span<const uint8_t> label) const = 0;
+
+   private:
+      static std::span<const uint8_t> _as_span(std::string_view s) {
+         return {reinterpret_cast<const uint8_t*>(s.data()), s.size()};
+      }
+};
 
 /**
 * Factory method for KDF (key derivation function)
 * @param algo_spec the name of the KDF to create
 * @return pointer to newly allocated object of that type
+*
+* Prefer KDF::create
 */
-BOTAN_PUBLIC_API(2,0) KDF* get_kdf(const std::string& algo_spec);
+BOTAN_DEPRECATED("Use KDF::create")
 
+inline KDF* get_kdf(std::string_view algo_spec) {
+   if(algo_spec == "Raw") {
+      return nullptr;
+   }
+
+   return KDF::create_or_throw(algo_spec).release();
 }
+
+}  // namespace Botan
 
 #endif

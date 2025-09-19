@@ -2,6 +2,11 @@
 MD5 -> 20131128
 </defines>
 
+<module_info>
+name -> "MD5"
+lifecycle -> "Deprecated"
+</module_info>
+
 <requires>
 mdx_hash
 </requires>

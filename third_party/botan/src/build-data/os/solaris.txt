@@ -6,12 +6,13 @@ posix1
 posix_mlock
 clock_gettime
 dev_random
-proc_fs
+getentropy
 
 atomics
 threads
 thread_local
 sockets
+system_clock
 filesystem
 setppriv
 </target_features>

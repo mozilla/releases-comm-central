@@ -2,6 +2,11 @@
 X942_PRF -> 20131128
 </defines>
 
+<module_info>
+name -> "PRF X9.42"
+lifecycle -> "Deprecated"
+</module_info>
+
 <requires>
 asn1
 sha1

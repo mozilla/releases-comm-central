@@ -1,5 +1,5 @@
 /*
-* (C) 2018 Jack Lloyd
+* (C) 2018,2024 Jack Lloyd
 *
 * Botan is released under the Simplified BSD License (see license.txt)
 */
@@ -8,47 +8,56 @@
 #define BOTAN_MONTY_INT_H_
 
 #include <botan/bigint.h>
-BOTAN_FUTURE_INTERNAL_HEADER(monty.h)
+
+#include <botan/internal/ct_utils.h>
+#include <memory>
 
 namespace Botan {
 
-class Modular_Reducer;
+class Barrett_Reduction;
 
 class Montgomery_Params;
 
 /**
 * The Montgomery representation of an integer
 */
-class BOTAN_UNSTABLE_API Montgomery_Int final
-   {
+class BOTAN_TEST_API Montgomery_Int final {
    public:
       /**
       * Create a zero-initialized Montgomery_Int
       */
-      Montgomery_Int(std::shared_ptr<const Montgomery_Params> params) : m_params(params) {}
+      Montgomery_Int(std::shared_ptr<const Montgomery_Params> params) : m_params(std::move(params)) {}
 
       /**
       * Create a Montgomery_Int
       */
-      Montgomery_Int(std::shared_ptr<const Montgomery_Params> params,
-                     const BigInt& v,
+      Montgomery_Int(const std::shared_ptr<const Montgomery_Params>& params, const BigInt& v, bool redc_needed = true);
+
+      /**
+      * Create a Montgomery_Int
+      */
+      Montgomery_Int(const std::shared_ptr<const Montgomery_Params>& params,
+                     const uint8_t bits[],
+                     size_t len,
                      bool redc_needed = true);
 
       /**
       * Create a Montgomery_Int
       */
       Montgomery_Int(std::shared_ptr<const Montgomery_Params> params,
-                     const uint8_t bits[], size_t len,
+                     const word words[],
+                     size_t len,
                      bool redc_needed = true);
 
+      static Montgomery_Int one(const std::shared_ptr<const Montgomery_Params>& params);
+
       /**
-      * Create a Montgomery_Int
+      * Wide reduction - input can be at most 2*bytes long
       */
-      Montgomery_Int(std::shared_ptr<const Montgomery_Params> params,
-                     const word words[], size_t len,
-                     bool redc_needed = true);
+      static Montgomery_Int from_wide_int(const std::shared_ptr<const Montgomery_Params>& params, const BigInt& x);
 
       bool operator==(const Montgomery_Int& other) const;
+
       bool operator!=(const Montgomery_Int& other) const { return (m_v != other.m_v); }
 
       std::vector<uint8_t> serialize() const;
@@ -83,28 +92,23 @@ class BOTAN_UNSTABLE_API Montgomery_Int final
 
       Montgomery_Int& operator*=(const secure_vector<word>& other);
 
-      Montgomery_Int& add(const Montgomery_Int& other,
-                          secure_vector<word>& ws);
+      Montgomery_Int& add(const Montgomery_Int& other, secure_vector<word>& ws);
 
-      Montgomery_Int& sub(const Montgomery_Int& other,
-                          secure_vector<word>& ws);
+      Montgomery_Int& sub(const Montgomery_Int& other, secure_vector<word>& ws);
 
-      Montgomery_Int mul(const Montgomery_Int& other,
-                         secure_vector<word>& ws) const;
+      Montgomery_Int mul(const Montgomery_Int& other, secure_vector<word>& ws) const;
 
-      Montgomery_Int& mul_by(const Montgomery_Int& other,
-                             secure_vector<word>& ws);
+      Montgomery_Int& mul_by(const Montgomery_Int& other, secure_vector<word>& ws);
 
-      Montgomery_Int& mul_by(const secure_vector<word>& other,
-                             secure_vector<word>& ws);
+      Montgomery_Int& mul_by(const secure_vector<word>& other, secure_vector<word>& ws);
 
       Montgomery_Int square(secure_vector<word>& ws) const;
+
+      Montgomery_Int cube(secure_vector<word>& ws) const;
 
       Montgomery_Int& square_this(secure_vector<word>& ws);
 
       Montgomery_Int& square_this_n_times(secure_vector<word>& ws, size_t n);
-
-      Montgomery_Int multiplicative_inverse() const;
 
       Montgomery_Int additive_inverse() const;
 
@@ -116,25 +120,27 @@ class BOTAN_UNSTABLE_API Montgomery_Int final
 
       Montgomery_Int& mul_by_8(secure_vector<word>& ws);
 
-      void const_time_poison() const { m_v.const_time_poison(); }
-      void const_time_unpoison() const { return m_v.const_time_unpoison(); }
+      void _const_time_poison() const { CT::poison(m_v); }
+
+      void _const_time_unpoison() const { CT::unpoison(m_v); }
+
+      const std::shared_ptr<const Montgomery_Params>& _params() const { return m_params; }
 
    private:
       std::shared_ptr<const Montgomery_Params> m_params;
       BigInt m_v;
-   };
+};
 
 /**
 * Parameters for Montgomery Reduction
 */
-class BOTAN_UNSTABLE_API Montgomery_Params final
-   {
+class BOTAN_TEST_API Montgomery_Params final {
    public:
       /**
       * Initialize a set of Montgomery reduction parameters. These values
       * can be shared by all values in a specific Montgomery domain.
       */
-      Montgomery_Params(const BigInt& p, const Modular_Reducer& mod_p);
+      Montgomery_Params(const BigInt& p, const Barrett_Reduction& mod_p);
 
       /**
       * Initialize a set of Montgomery reduction parameters. These values
@@ -143,39 +149,40 @@ class BOTAN_UNSTABLE_API Montgomery_Params final
       Montgomery_Params(const BigInt& p);
 
       const BigInt& p() const { return m_p; }
+
       const BigInt& R1() const { return m_r1; }
+
       const BigInt& R2() const { return m_r2; }
+
       const BigInt& R3() const { return m_r3; }
 
       word p_dash() const { return m_p_dash; }
 
       size_t p_words() const { return m_p_words; }
 
-      BigInt redc(const BigInt& x,
-                  secure_vector<word>& ws) const;
+      BigInt redc(const BigInt& x, secure_vector<word>& ws) const;
 
-      BigInt mul(const BigInt& x,
-                 const BigInt& y,
-                 secure_vector<word>& ws) const;
+      void mul(BigInt& z, const BigInt& x, const BigInt& y, secure_vector<word>& ws) const;
 
-      BigInt mul(const BigInt& x,
-                 const secure_vector<word>& y,
-                 secure_vector<word>& ws) const;
+      void mul(BigInt& z, const BigInt& x, std::span<const word> y, secure_vector<word>& ws) const;
 
-      void mul_by(BigInt& x,
-                  const secure_vector<word>& y,
-                  secure_vector<word>& ws) const;
+      BigInt mul(const BigInt& x, const BigInt& y, secure_vector<word>& ws) const;
 
-      void mul_by(BigInt& x, const BigInt& y,
-                  secure_vector<word>& ws) const;
+      BigInt mul(const BigInt& x, std::span<const word> y, secure_vector<word>& ws) const;
 
-      BigInt sqr(const BigInt& x,
-                 secure_vector<word>& ws) const;
+      void mul_by(BigInt& x, std::span<const word> y, secure_vector<word>& ws) const;
 
-      void square_this(BigInt& x,
-                       secure_vector<word>& ws) const;
+      void mul_by(BigInt& x, const BigInt& y, secure_vector<word>& ws) const;
 
-      BigInt inv_mod_p(const BigInt& x) const;
+      BigInt sqr(const BigInt& x, secure_vector<word>& ws) const;
+
+      BigInt sqr(std::span<const word> x, secure_vector<word>& ws) const;
+
+      void sqr(BigInt& z, const BigInt& x, secure_vector<word>& ws) const;
+
+      void sqr(BigInt& z, std::span<const word> x, secure_vector<word>& ws) const;
+
+      void square_this(BigInt& x, secure_vector<word>& ws) const;
 
    private:
       BigInt m_p;
@@ -184,8 +191,8 @@ class BOTAN_UNSTABLE_API Montgomery_Params final
       BigInt m_r3;
       word m_p_dash;
       size_t m_p_words;
-   };
+};
 
-}
+}  // namespace Botan
 
 #endif

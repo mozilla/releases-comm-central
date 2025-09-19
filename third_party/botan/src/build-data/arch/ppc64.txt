@@ -1,7 +1,5 @@
-endian big
 
 family ppc
-wordsize 64
 
 <aliases>
 powerpc64
@@ -12,6 +10,7 @@ ppc64el
 
 <isa_extensions>
 altivec
+vsx
 powercrypto
 power9
 </isa_extensions>

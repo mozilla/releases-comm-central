@@ -62,7 +62,7 @@ the desired end result. Over time further progress is made in each.
   do not want it to (see non-goals below). But we do want it to run on anything
   that someone is deploying new applications on. That includes both major
   platforms like Windows, Linux, Android and iOS, and also promising new systems
-  such as IncludeOS and Fuchsia.
+  such as Fuchsia.
 
 * Well documented. Ideally every public API would have some place in the manual
   describing its usage.
@@ -100,23 +100,6 @@ seek to address.
   in the codebase. The set of supported compilers is fixed for each new release
   branch, for example Botan 2.x will always support GCC 4.8. But a future 3.x
   release version will likely increase the required versions for all compilers.
-
-* FIPS 140 validation. The primary developer was (long ago) a consultant with a
-  NIST approved testing lab. He does not have a positive view of the process or
-  results, particularly when it comes to Level 1 software validations. The only
-  benefit of a Level 1 validation is to allow for government sales, and the cost
-  of validation includes enormous amounts of time and money, adding 'checks'
-  that are useless or actively harmful, then freezing the software so security
-  updates cannot be applied in the future. It does force a certain minimum
-  standard (ie, FIPS Level 1 does assure AES and RSA are probably implemented
-  correctly) but this is an issue of interop not security since Level 1 does not
-  seriously consider attacks of any kind. Any security budget would be far
-  better spent on a review from a specialized crypto consultancy, who would look
-  for actual flaws.
-
-  That said it would be easy to add a "FIPS 140" build mode to Botan, which just
-  disabled all the builtin crypto and wrapped whatever the most recent OpenSSL
-  FIPS module exports.
 
 * Educational purposes. The library code is intended to be easy to read and
   review, and so might be useful in an educational context. However it does not

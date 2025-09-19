@@ -5,6 +5,7 @@ API Reference
 .. toctree::
    :maxdepth: 1
 
+   footguns
    versions
    secmem
    rng
@@ -28,12 +29,16 @@ API Reference
    filters
    fpe
    tss
+   ec_group
    ecc
    compression
+   providers
    pkcs11
    tpm
    otp
    roughtime
+   sodium
+   zfec
    ffi
    env_vars
    python

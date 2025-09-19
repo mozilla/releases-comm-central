@@ -1,3 +1,8 @@
 <defines>
 NOEKEON -> 20131128
 </defines>
+
+<module_info>
+name -> "Noekeon"
+lifecycle -> "Deprecated"
+</module_info>

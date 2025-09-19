@@ -5,16 +5,15 @@
 */
 
 #include "fuzzers.h"
+
 #include <botan/internal/uri.h>
 
-void fuzz(const uint8_t in[], size_t len)
-   {
-   if(len > max_fuzzer_input_size)
+void fuzz(std::span<const uint8_t> input) {
+   if(input.size() > max_fuzzer_input_size) {
       return;
-
-   try
-      {
-      Botan::URI::fromAny(std::string(reinterpret_cast<const char*>(in), len));
-      }
-   catch(Botan::Exception& e) { }
    }
+
+   try {
+      Botan::URI::from_any(std::string(reinterpret_cast<const char*>(input.data()), input.size()));
+   } catch(Botan::Exception& e) {}
+}

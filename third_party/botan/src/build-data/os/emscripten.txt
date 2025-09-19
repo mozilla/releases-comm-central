@@ -1,8 +1,8 @@
 
-obj_suffix bc
+default_compiler emcc
 
 static_suffix a
-program_suffix .bc
+program_suffix .html
 
 ar_command emar
 ar_options cr
@@ -13,5 +13,11 @@ use_stack_protector no
 atomics
 filesystem
 dev_random
+system_clock
 posix1
 </target_features>
+
+<aliases>
+emscripten
+wasm
+</aliases>

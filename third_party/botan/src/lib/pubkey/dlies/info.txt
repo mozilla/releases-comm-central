@@ -2,9 +2,18 @@
 DLIES -> 20160713
 </defines>
 
+<module_info>
+name -> "DLIES"
+lifecycle -> "Deprecated"
+</module_info>
+
 <requires>
 dh
 kdf
 mac
 modes
 </requires>
+
+<header:public>
+dlies.h
+</header:public>

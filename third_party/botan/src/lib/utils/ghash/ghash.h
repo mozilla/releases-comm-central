@@ -9,54 +9,36 @@
 #define BOTAN_GCM_GHASH_H_
 
 #include <botan/sym_algo.h>
-
-BOTAN_FUTURE_INTERNAL_HEADER(ghash.h)
+#include <botan/internal/alignment_buffer.h>
 
 namespace Botan {
 
 /**
 * GCM's GHASH
-* This is not intended for general use, but is exposed to allow
-* shared code between GCM and GMAC
 */
-class BOTAN_PUBLIC_API(2,0) GHASH final : public SymmetricAlgorithm
-   {
+class GHASH final : public SymmetricAlgorithm {
+   private:
+      static constexpr size_t GCM_BS = 16;
+
    public:
-      void set_associated_data(const uint8_t ad[], size_t ad_len);
+      /// Hashing of non-default length nonce values for both GCM and GMAC use-cases
+      void nonce_hash(std::span<uint8_t, GCM_BS> y0, std::span<const uint8_t> nonce);
 
-      secure_vector<uint8_t> BOTAN_DEPRECATED("Use other impl")
-         nonce_hash(const uint8_t nonce[], size_t nonce_len)
-         {
-         secure_vector<uint8_t> y0(GCM_BS);
-         nonce_hash(y0, nonce, nonce_len);
-         return y0;
-         }
+      void start(std::span<const uint8_t> nonce);
 
-      void nonce_hash(secure_vector<uint8_t>& y0, const uint8_t nonce[], size_t len);
+      void update(std::span<const uint8_t> in);
 
-      void start(const uint8_t nonce[], size_t len);
+      /// Monolithic setting of associated data usid in the GCM use-case
+      void set_associated_data(std::span<const uint8_t> ad);
 
-      /*
-      * Assumes input len is multiple of 16
-      */
-      void update(const uint8_t in[], size_t len);
+      /// Incremental update of associated data used in the GMAC use-case
+      void update_associated_data(std::span<const uint8_t> ad);
 
-      /*
-      * Incremental update of associated data
-      */
-      void update_associated_data(const uint8_t ad[], size_t len);
+      void final(std::span<uint8_t> out);
 
-      secure_vector<uint8_t> BOTAN_DEPRECATED("Use version taking output params") final()
-         {
-         secure_vector<uint8_t> mac(GCM_BS);
-         final(mac.data(), mac.size());
-         return mac;
-         }
+      Key_Length_Specification key_spec() const override { return Key_Length_Specification(16); }
 
-      void final(uint8_t out[], size_t out_len);
-
-      Key_Length_Specification key_spec() const override
-         { return Key_Length_Specification(16); }
+      bool has_keying_material() const override;
 
       void clear() override;
 
@@ -66,45 +48,38 @@ class BOTAN_PUBLIC_API(2,0) GHASH final : public SymmetricAlgorithm
 
       std::string provider() const;
 
-      void ghash_update(secure_vector<uint8_t>& x,
-                        const uint8_t input[], size_t input_len);
-
-      void add_final_block(secure_vector<uint8_t>& x,
-                           size_t ad_len, size_t pt_len);
    private:
+      void ghash_update(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t> input);
+      void ghash_zeropad(std::span<uint8_t, GCM_BS> x);
+      void ghash_final_block(std::span<uint8_t, GCM_BS> x, uint64_t ad_len, uint64_t pt_len);
 
 #if defined(BOTAN_HAS_GHASH_CLMUL_CPU)
-      static void ghash_precompute_cpu(const uint8_t H[16], uint64_t H_pow[4*2]);
+      static void ghash_precompute_cpu(const uint8_t H[16], uint64_t H_pow[4 * 2]);
 
-      static void ghash_multiply_cpu(uint8_t x[16],
-                                     const uint64_t H_pow[4*2],
-                                     const uint8_t input[], size_t blocks);
+      static void ghash_multiply_cpu(uint8_t x[16], const uint64_t H_pow[4 * 2], const uint8_t input[], size_t blocks);
 #endif
 
 #if defined(BOTAN_HAS_GHASH_CLMUL_VPERM)
-      static void ghash_multiply_vperm(uint8_t x[16],
-                                       const uint64_t HM[256],
-                                       const uint8_t input[], size_t blocks);
+      static void ghash_multiply_vperm(uint8_t x[16], const uint64_t HM[256], const uint8_t input[], size_t blocks);
 #endif
 
-      void key_schedule(const uint8_t key[], size_t key_len) override;
+      void key_schedule(std::span<const uint8_t> key) override;
 
-      void ghash_multiply(secure_vector<uint8_t>& x,
-                          const uint8_t input[],
-                          size_t blocks);
+      void ghash_multiply(std::span<uint8_t, GCM_BS> x, std::span<const uint8_t> input, size_t blocks);
 
-      static const size_t GCM_BS = 16;
+   private:
+      AlignmentBuffer<uint8_t, GCM_BS> m_buffer;
 
-      secure_vector<uint8_t> m_H;
-      secure_vector<uint8_t> m_H_ad;
-      secure_vector<uint8_t> m_ghash;
-      secure_vector<uint8_t> m_nonce;
+      std::array<uint8_t, GCM_BS> m_H_ad;   /// cache of hash state after consuming the AD, reused for multiple messages
+      std::array<uint8_t, GCM_BS> m_ghash;  /// hash state used for update() or update_associated_data()
       secure_vector<uint64_t> m_HM;
       secure_vector<uint64_t> m_H_pow;
+
+      std::optional<std::array<uint8_t, GCM_BS>> m_nonce;
       size_t m_ad_len = 0;
       size_t m_text_len = 0;
-   };
+};
 
-}
+}  // namespace Botan
 
 #endif

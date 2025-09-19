@@ -8,9 +8,9 @@
 #ifndef BOTAN_CHACHA_RNG_H_
 #define BOTAN_CHACHA_RNG_H_
 
+#include <botan/mac.h>
 #include <botan/stateful_rng.h>
 #include <botan/stream_cipher.h>
-#include <botan/mac.h>
 
 namespace Botan {
 
@@ -37,8 +37,7 @@ class Entropy_Sources;
 * The primary reason to use it is in cases where the other RNGs are
 * not fast enough.
 */
-class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
-   {
+class BOTAN_PUBLIC_API(2, 3) ChaCha_RNG final : public Stateful_RNG {
    public:
       /**
       * Automatic reseeding is disabled completely, as it has no access to
@@ -62,7 +61,7 @@ class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
       *
       * @param seed the seed material, should be at least 256 bits
       */
-      ChaCha_RNG(const secure_vector<uint8_t>& seed);
+      ChaCha_RNG(std::span<const uint8_t> seed);
 
       /**
       * Automatic reseeding from @p underlying_rng will take place after
@@ -74,7 +73,7 @@ class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
       * the RNG will be called before automatic reseeding is performed
       */
       ChaCha_RNG(RandomNumberGenerator& underlying_rng,
-                 size_t reseed_interval = BOTAN_RNG_DEFAULT_RESEED_INTERVAL);
+                 size_t reseed_interval = RandomNumberGenerator::DefaultReseedInterval);
 
       /**
       * Automatic reseeding from @p entropy_sources will take place after
@@ -85,7 +84,7 @@ class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
       * the RNG will be called before automatic reseeding is performed.
       */
       ChaCha_RNG(Entropy_Sources& entropy_sources,
-                 size_t reseed_interval = BOTAN_RNG_DEFAULT_RESEED_INTERVAL);
+                 size_t reseed_interval = RandomNumberGenerator::DefaultReseedInterval);
 
       /**
       * Automatic reseeding from @p underlying_rng and @p entropy_sources
@@ -100,7 +99,7 @@ class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
       */
       ChaCha_RNG(RandomNumberGenerator& underlying_rng,
                  Entropy_Sources& entropy_sources,
-                 size_t reseed_interval = BOTAN_RNG_DEFAULT_RESEED_INTERVAL);
+                 size_t reseed_interval = RandomNumberGenerator::DefaultReseedInterval);
 
       std::string name() const override { return "ChaCha_RNG"; }
 
@@ -109,17 +108,16 @@ class BOTAN_PUBLIC_API(2,3) ChaCha_RNG final : public Stateful_RNG
       size_t max_number_of_bytes_per_request() const override { return 0; }
 
    private:
-      void update(const uint8_t input[], size_t input_len) override;
+      void update(std::span<const uint8_t> input) override;
 
-      void generate_output(uint8_t output[], size_t output_len,
-                           const uint8_t input[], size_t input_len) override;
+      void generate_output(std::span<uint8_t> output, std::span<const uint8_t> input) override;
 
       void clear_state() override;
 
       std::unique_ptr<MessageAuthenticationCode> m_hmac;
       std::unique_ptr<StreamCipher> m_chacha;
-   };
+};
 
-}
+}  // namespace Botan
 
 #endif
