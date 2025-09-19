@@ -96,9 +96,9 @@ git = "https://github.com/mozilla/mp4parse-rust"
 rev = "f955be5d2a04a631c0f1777d6f35370ea1a99e2d"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/neqo?tag=v0.15.0"]
+[source."git+https://github.com/mozilla/neqo?tag=v0.16.1"]
 git = "https://github.com/mozilla/neqo"
-tag = "v0.15.0"
+tag = "v0.16.1"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c"]

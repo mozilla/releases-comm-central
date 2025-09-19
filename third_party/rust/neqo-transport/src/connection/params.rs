@@ -94,6 +94,8 @@ pub struct ConnectionParameters {
     sni_slicing: bool,
     /// Whether to enable mlkem768nistp256-sha256.
     mlkem: bool,
+    /// Whether to randomize the packet number of the first Initial packet.
+    randomize_first_pn: bool,
 }
 
 impl Default for ConnectionParameters {
@@ -113,7 +115,7 @@ impl Default for ConnectionParameters {
             ack_ratio: Self::DEFAULT_ACK_RATIO,
             idle_timeout: Self::DEFAULT_IDLE_TIMEOUT,
             preferred_address: PreferredAddressConfig::Default,
-            datagram_size: 0,
+            datagram_size: 1200,
             outgoing_datagram_queue: MAX_QUEUED_DATAGRAMS_DEFAULT,
             incoming_datagram_queue: MAX_QUEUED_DATAGRAMS_DEFAULT,
             initial_rtt: DEFAULT_INITIAL_RTT,
@@ -125,6 +127,7 @@ impl Default for ConnectionParameters {
             pmtud_iface_mtu: true,
             sni_slicing: true,
             mlkem: true,
+            randomize_first_pn: true,
         }
     }
 }
@@ -418,6 +421,17 @@ impl ConnectionParameters {
     #[must_use]
     pub const fn mlkem(mut self, mlkem: bool) -> Self {
         self.mlkem = mlkem;
+        self
+    }
+
+    #[must_use]
+    pub const fn randomize_first_pn_enabled(&self) -> bool {
+        self.randomize_first_pn
+    }
+
+    #[must_use]
+    pub const fn randomize_first_pn(mut self, randomize_first_pn: bool) -> Self {
+        self.randomize_first_pn = randomize_first_pn;
         self
     }
 

@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-transport"
-version = "0.15.0"
+version = "0.16.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -134,8 +134,7 @@ version = "0.4"
 default-features = false
 
 [dependencies.mtu]
-version = "0.2.9"
-default-features = false
+path = "../mtu"
 
 [dependencies.neqo-common]
 path = "../neqo-common"
@@ -167,6 +166,10 @@ default-features = false
 [dependencies.strum]
 version = "0.27"
 features = ["derive"]
+default-features = false
+
+[dependencies.thiserror]
+version = "2.0.12"
 default-features = false
 
 [dev-dependencies.criterion]

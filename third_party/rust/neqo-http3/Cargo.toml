@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-http3"
-version = "0.15.0"
+version = "0.16.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -40,7 +40,10 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/mozilla/neqo/"
 
 [package.metadata.cargo-machete]
-ignored = ["log"]
+ignored = [
+    "criterion",
+    "log",
+]
 
 [features]
 bench = [
@@ -61,6 +64,14 @@ path = "src/lib.rs"
 bench = false
 
 [[test]]
+name = "classic_connect"
+path = "tests/classic_connect.rs"
+
+[[test]]
+name = "connect_udp"
+path = "tests/connect_udp.rs"
+
+[[test]]
 name = "httpconn"
 path = "tests/httpconn.rs"
 
@@ -75,6 +86,12 @@ path = "tests/send_message.rs"
 [[test]]
 name = "webtransport"
 path = "tests/webtransport.rs"
+
+[[bench]]
+name = "streams"
+path = "benches/streams.rs"
+harness = false
+required-features = ["bench"]
 
 [dependencies.enumset]
 version = "1.1"
@@ -113,6 +130,10 @@ default-features = false
 [dependencies.strum]
 version = "0.27"
 features = ["derive"]
+default-features = false
+
+[dependencies.thiserror]
+version = "2.0.12"
 default-features = false
 
 [dependencies.url]

@@ -4052,8 +4052,7 @@ dependencies = [
 [[package]]
 name = "mtu"
 version = "0.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e3124fb16267c5a77ce8cd015bcb5bb3f8aab28ec32d89d65f6a31c5c1306a0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "bindgen 0.69.999",
  "cfg_aliases",
@@ -4097,19 +4096,22 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.15.0"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "enum-map",
  "env_logger",
  "log",
  "qlog",
  "strum",
+ "thiserror 2.0.12",
  "windows",
 ]
 
 [[package]]
 name = "neqo-crypto"
-version = "0.15.0"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "bindgen 0.69.999",
  "enum-map",
@@ -4120,13 +4122,14 @@ dependencies = [
  "serde",
  "serde_derive",
  "strum",
+ "thiserror 2.0.12",
  "toml",
 ]
 
 [[package]]
 name = "neqo-http3"
-version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "enumset",
  "log",
@@ -4138,13 +4141,14 @@ dependencies = [
  "rustc-hash 2.1.1",
  "sfv",
  "strum",
+ "thiserror 2.0.12",
  "url",
 ]
 
 [[package]]
 name = "neqo-qpack"
-version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "log",
  "neqo-common",
@@ -4152,12 +4156,13 @@ dependencies = [
  "qlog",
  "rustc-hash 2.1.1",
  "static_assertions",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
 name = "neqo-transport"
-version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4171,12 +4176,13 @@ dependencies = [
  "smallvec",
  "static_assertions",
  "strum",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
 name = "neqo-udp"
-version = "0.15.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.15.0#01e855911c2edf9745dafc02cf5156182d4fb1aa"
+version = "0.16.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.16.1#b3d8f0d21db5657ebafb14f9b60c8892d2eb3aa9"
 dependencies = [
  "cfg_aliases",
  "libc",

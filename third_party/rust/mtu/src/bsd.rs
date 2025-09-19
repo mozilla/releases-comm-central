@@ -94,7 +94,7 @@ impl IfAddrs {
         Ok(ifap)
     }
 
-    const fn iter(&self) -> IfAddrPtr {
+    const fn iter(&self) -> IfAddrPtr<'_> {
         IfAddrPtr {
             ptr: self.0,
             _ref: PhantomData,

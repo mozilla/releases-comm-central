@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-udp"
-version = "0.15.0"
+version = "0.16.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -40,7 +40,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/mozilla/neqo/"
 
 [package.metadata.cargo-machete]
-ignored = ["log"]
+ignored = ["cfg_aliases"]
 
 [features]
 bench = ["neqo-common/bench"]
@@ -67,7 +67,7 @@ default-features = false
 cfg_aliases = "0.2"
 
 [target."cfg(unix)".dependencies.libc]
-version = "0.2.171"
+version = "0.2"
 default-features = false
 
 [target."cfg(windows)".dependencies.windows]

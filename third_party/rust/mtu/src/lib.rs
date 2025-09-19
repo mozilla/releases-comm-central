@@ -130,6 +130,8 @@ pub fn interface_and_mtu(remote: IpAddr) -> Result<(String, usize)> {
 
 #[cfg(test)]
 mod test {
+    #![expect(clippy::unwrap_used, reason = "OK in tests.")]
+
     use std::{
         env,
         net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -168,14 +170,7 @@ mod test {
         };
 
     // Non-loopback interface names are unpredictable, so we only check the MTU.
-    const INET: NameMtu = NameMtu(
-        None,
-        if cfg!(target_os = "android") {
-            1_440 // At least inside the Android emulator we use in CI.
-        } else {
-            1_500
-        },
-    );
+    const INET: NameMtu = NameMtu(None, 1_500);
 
     #[test]
     fn loopback_v4() {
