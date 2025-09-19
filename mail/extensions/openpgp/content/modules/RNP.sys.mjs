@@ -2308,8 +2308,17 @@ export var RNP = {
     }
 
     const sig_handle = new RNPLib.rnp_signature_handle_t();
-    if (RNPLib.rnp_op_verify_signature_get_handle(sig, sig_handle.address())) {
-      throw new Error("rnp_op_verify_signature_get_handle failed");
+    const sig_get_handle_status = RNPLib.rnp_op_verify_signature_get_handle(
+      sig,
+      sig_handle.address()
+    );
+    if (sig_get_handle_status) {
+      result.exitCode = -1;
+      result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
+      lazy.log.warn(
+        `Verify signature FAILED; rnp_op_verify_signature_get_handle returned ${sig_get_handle_status}`
+      );
+      return false;
     }
 
     const sig_id_str = new lazy.ctypes.char.ptr();
