@@ -67,6 +67,10 @@ class ConversationView extends HTMLElement {
     this.#details = shadowRoot.querySelector(".details");
   }
 
+  disconnectedCallback() {
+    this.l10n.disconnectRoot(this.shadowRoot);
+  }
+
   /**
    * Show the thread conversation for the currently selected header.
    *
