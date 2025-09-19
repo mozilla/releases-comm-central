@@ -54,7 +54,6 @@ reference-tasks:
     - linux64-winchecksec
     - linux64-wine
     - linux64-x64-compiler-rt-19
-    - linux64-x86-compiler-rt-19
     - linux64-xar
     - macosx64-aarch64-compiler-rt-19
     - macosx64-clang-19-profile
