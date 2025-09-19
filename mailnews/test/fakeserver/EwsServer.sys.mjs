@@ -1356,14 +1356,11 @@ export class EwsServer {
         messageEl.appendChild(dateEl);
 
         const senderEl = resDoc.createElement("t:Sender");
-        const mailboxEl = resDoc.createElement("t:Mailbox");
-        const nameEl = resDoc.createElement("t:Name");
-        nameEl.textContent = item.syntheticMessage.fromName;
-        mailboxEl.appendChild(nameEl);
-        const emailAddressEl = resDoc.createElement("t:EmailAddress");
-        emailAddressEl.textContent = item.syntheticMessage.fromAddress;
-        mailboxEl.appendChild(emailAddressEl);
-        senderEl.appendChild(mailboxEl);
+        const senderMailboxEl = this.#mailboxElFromTuple(
+          resDoc,
+          item.syntheticMessage.from
+        );
+        senderEl.appendChild(senderMailboxEl);
         messageEl.appendChild(senderEl);
 
         const toEl = resDoc.createElement("t:DisplayTo");
@@ -1381,6 +1378,22 @@ export class EwsServer {
         const sizeEl = resDoc.createElement("t:Size");
         sizeEl.textContent = item.syntheticMessage.toMessageString().length;
         messageEl.appendChild(sizeEl);
+
+        const toRecipientsEl = resDoc.createElement("t:ToRecipients");
+        for (const to of item.syntheticMessage.to) {
+          const toMailboxEl = this.#mailboxElFromTuple(resDoc, to);
+          toRecipientsEl.appendChild(toMailboxEl);
+        }
+        messageEl.appendChild(toRecipientsEl);
+
+        if (item.syntheticMessage.cc) {
+          const ccRecipientsEl = resDoc.createElement("t:CcRecipients");
+          for (const cc of item.syntheticMessage.cc) {
+            const ccMailboxEl = this.#mailboxElFromTuple(resDoc, cc);
+            ccRecipientsEl.appendChild(ccMailboxEl);
+          }
+          messageEl.appendChild(ccRecipientsEl);
+        }
 
         if (includeContent) {
           const contentEl = resDoc.createElement("t:MimeContent");
@@ -1778,6 +1791,32 @@ export class EwsServer {
     });
 
     return resDoc;
+  }
+
+  /**
+   * Generates an EWS `Mailbox` element from the given tuple.
+   *
+   * @param {XMLDocument} resDoc - The response document to use when generating
+   *   new XML elements.
+   * @param {string[]} tuple - A tuple containing two elements: a display name and an
+   *   email address (in that order).
+   * @returns {Element} The resulting `Mailbox` element.
+   */
+  #mailboxElFromTuple(resDoc, tuple) {
+    const nameEl = resDoc.createElement("t:Name");
+    nameEl.textContent = tuple[0];
+
+    const addressEl = resDoc.createElement("t:EmailAddress");
+    addressEl.textContent = tuple[1];
+
+    // Build the final `Mailbox` element. Note that in practice it will contain
+    // more than `Name` and `EmailAddress`, but our EWS client currently ignores
+    // those extra fields.
+    const mailboxEl = resDoc.createElement("t:Mailbox");
+    mailboxEl.appendChild(nameEl);
+    mailboxEl.appendChild(addressEl);
+
+    return mailboxEl;
   }
 }
 

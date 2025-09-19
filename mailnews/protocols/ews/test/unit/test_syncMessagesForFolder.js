@@ -475,6 +475,60 @@ add_task(async function testSyncChangesWithRealFolder() {
 });
 
 /**
+ * Test that the recipients of a new message are correctly persisted.
+ */
+add_task(async function testSyncRecipients() {
+  // Create a new folder for our test on the server.
+  const folderName = "recipientsSync";
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder(folderName, "root", folderName, null)
+  );
+
+  // Create a fake message with multiple recipients and a CC'd recipient.
+  const msgGen = new MessageGenerator();
+  const msg = msgGen.makeMessage({
+    from: ["Tinderbox", "tinderbox@foo.invalid"],
+    to: [
+      ["Tinderbox", "tinderbox@foo.invalid"],
+      ["Alice", "alice@foo.invalid"],
+    ],
+    cc: [["Bob", "bob@foo.invalid"]],
+    subject: "Hello world",
+  });
+
+  ewsServer.addMessages(folderName, [msg]);
+
+  // Sync and wait for the message to show up.
+  const rootFolder = incomingServer.rootFolder;
+  incomingServer.getNewMessages(rootFolder, null, null);
+
+  const folder = await TestUtils.waitForCondition(
+    () => rootFolder.getChildNamed(folderName),
+    "waiting for folder to exist"
+  );
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 1,
+    "waiting for the message to exist"
+  );
+
+  // Retrieve the message and check that the recipients that are persisted are
+  // correct.
+  const message = [...folder.messages][0];
+
+  Assert.equal(
+    message.recipients,
+    '"Tinderbox" <tinderbox@foo.invalid>, "Alice" <alice@foo.invalid>',
+    "the recipients property on the message should match the ones in the message"
+  );
+
+  Assert.equal(
+    message.ccList,
+    '"Bob" <bob@foo.invalid>',
+    "the ccList property on the message should match the ones in the message"
+  );
+});
+
+/**
  * Fetch the full message from the message service. If necessary, from the server.
  *
  * @param {nsIMsgDBHdr} header
