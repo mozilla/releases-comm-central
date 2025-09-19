@@ -61,12 +61,12 @@
           />
           <tab
             id="SharingTab"
-            hidefor="pop3,rss,none,nntp"
+            hidefor="pop3,rss,none,nntp,ews"
             label="&folderSharingTab.label;"
           />
           <tab
             id="QuotaTab"
-            hidefor="pop3,rss,none,nntp"
+            hidefor="pop3,rss,none,nntp,ews"
             label="&folderQuotaTab.label;"
           />
         </tabs>
@@ -163,15 +163,15 @@
           </vbox>
 
           <vbox id="RetentionPanel" align="start">
-            <description hidefor="imap,pop3" class="desc"
-              >&retentionCleanup.label;</description
-            >
-            <description hidefor="pop3,rss,none,nntp" class="desc"
-              >&retentionCleanupImap.label;</description
-            >
-            <description hidefor="imap,rss,none,nntp" class="desc"
-              >&retentionCleanupPop.label;</description
-            >
+            <description hidefor="imap,pop3" class="desc">
+              &retentionCleanup.label;
+            </description>
+            <description hidefor="pop3,rss,none,nntp,ews" class="desc">
+              &retentionCleanupImap.label;
+            </description>
+            <description hidefor="imap,rss,none,nntp,ews" class="desc">
+              &retentionCleanupPop.label;
+            </description>
 
             <hbox align="center" class="indent">
               <checkbox
@@ -270,7 +270,7 @@
                 accesskey="&offlineFolder.check.accesskey;"
               />
               <checkbox
-                hidefor="imap"
+                hidefor="imap,ews"
                 wsm_persist="true"
                 id="offline.selectForOfflineNewsgroup"
                 label="&selectofflineNewsgroup.check.label;"
@@ -286,7 +286,7 @@
               orient="right"
             />
             <button
-              hidefor="imap"
+              hidefor="imap,ews"
               label="&offlineNewsgroup.button.label;"
               oncommand="onOfflineFolderDownload();"
               accesskey="&offlineNewsgroup.button.accesskey;"
@@ -319,7 +319,7 @@
             <vbox align="start">
               <button
                 id="imap.FolderPrivileges"
-                hidefor="pop3,none,rss,nntp"
+                hidefor="pop3,none,rss,nntp,ews"
                 label="&privileges.button.label;"
                 oncommand="onFolderPrivileges();"
                 accesskey="&privileges.button.accesskey;"

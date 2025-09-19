@@ -44,3 +44,34 @@ function setupEwsTestServer(serverConfig = {}) {
 
   return [ewsServer, incomingServer];
 }
+
+/**
+ * Open the folder properties window for a given folder. This function has been
+ * largely copied from the one with the same name in
+ * mail/base/test/browser/browser_repairFolder.js.
+ *
+ * @param {nsIMsgFolder} folder - The folder which properties to open.
+ * @returns {object} - The window for the folder properties dialog.
+ */
+async function openFolderProperties(folder) {
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  const { folderPane } = about3Pane;
+
+  const folderPaneContext =
+    about3Pane.document.getElementById("folderPaneContext");
+  const folderPaneContextProperties = about3Pane.document.getElementById(
+    "folderPaneContext-properties"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    folderPane.getRowForFolder(folder).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(folderPaneContext, "shown");
+
+  const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  folderPaneContext.activateItem(folderPaneContextProperties);
+
+  return windowOpenedPromise;
+}

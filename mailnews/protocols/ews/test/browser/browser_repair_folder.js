@@ -19,60 +19,6 @@ var incomingServer;
 
 const generator = new MessageGenerator();
 
-/**
- * Open the folder properties window for a given folder. This function has been
- * largely copied from the one with the same name in
- * mail/base/test/browser/browser_repairFolder.js.
- *
- * @param {nsIMsgFolder} folder - The folder which properties to open.
- * @returns {object} - An object with two functions: `repairFolder()` which
- *   clicks on the "Repair Folder" button, and `accept()`, which is async and
- *   closes the folder properties window.
- */
-async function openFolderProperties(folder) {
-  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-  const { folderPane } = about3Pane;
-
-  const folderPaneContext =
-    about3Pane.document.getElementById("folderPaneContext");
-  const folderPaneContextProperties = about3Pane.document.getElementById(
-    "folderPaneContext-properties"
-  );
-
-  EventUtils.synthesizeMouseAtCenter(
-    folderPane.getRowForFolder(folder).querySelector(".name"),
-    { type: "contextmenu" },
-    about3Pane
-  );
-  await BrowserTestUtils.waitForPopupEvent(folderPaneContext, "shown");
-
-  const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  folderPaneContext.activateItem(folderPaneContextProperties);
-  const dialogWindow = await windowOpenedPromise;
-  const dialogDocument = dialogWindow.document;
-
-  const repairButton = dialogDocument.getElementById(
-    "folderRebuildSummaryButton"
-  );
-  const folderPropertiesDialog = dialogDocument.querySelector("dialog");
-
-  return {
-    repairFolder() {
-      EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
-    },
-    async accept() {
-      const windowClosedPromise =
-        BrowserTestUtils.domWindowClosed(dialogWindow);
-      EventUtils.synthesizeMouseAtCenter(
-        folderPropertiesDialog.getButton("accept"),
-        {},
-        dialogWindow
-      );
-      await windowClosedPromise;
-    },
-  };
-}
-
 add_setup(async function () {
   [ewsServer, incomingServer] = setupEwsTestServer();
 });
@@ -136,11 +82,26 @@ add_task(async function test_repair_folder() {
   about3Pane.displayFolder(folder);
   await eventPromise;
 
+  // Open the folder properties dialog so we can trigger the repair operation.
+  const dialogWindow = await openFolderProperties(folder);
+
+  const repairButton = dialogWindow.document.getElementById(
+    "folderRebuildSummaryButton"
+  );
+  const folderPropertiesDialog = dialogWindow.document.querySelector("dialog");
+
   // Trigger the repair and wait for the folder to be fully loaded.
-  const dialog = await openFolderProperties(folder);
   eventPromise = PromiseTestUtils.promiseFolderEvent(folder, "FolderLoaded");
-  dialog.repairFolder();
-  await dialog.accept();
+
+  EventUtils.synthesizeMouseAtCenter(repairButton, {}, dialogWindow);
+  const windowClosedPromise = BrowserTestUtils.domWindowClosed(dialogWindow);
+  EventUtils.synthesizeMouseAtCenter(
+    folderPropertiesDialog.getButton("accept"),
+    {},
+    dialogWindow
+  );
+  await windowClosedPromise;
+
   await eventPromise;
 
   // Check that the messages have all been reloaded and now have the correct,
