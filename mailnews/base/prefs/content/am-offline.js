@@ -157,13 +157,13 @@ function onPreInit(account, accountValues) {
     // hide retention settings for deferred accounts
     if (pop3Server.deferredToAccount.length) {
       var retentionRadio = document.getElementById("retention.keepMsg");
-      retentionRadio.setAttribute("hidden", "true");
+      retentionRadio.toggleAttribute("hidden", true);
       var retentionLabel = document.getElementById("retentionDescriptionPop");
-      retentionLabel.setAttribute("hidden", "true");
+      retentionLabel.toggleAttribute("hidden", true);
       var applyToFlaggedCheckbox = document.getElementById(
         "retention.applyToFlagged"
       );
-      applyToFlaggedCheckbox.setAttribute("hidden", "true");
+      applyToFlaggedCheckbox.toggleAttribute("hidden", true);
     }
   }
 }

@@ -1217,7 +1217,7 @@ async function reloadOpenPgpUI() {
       event.stopPropagation();
       enigmailEditKeyDate(key);
     });
-    dateButton.setAttribute("hidden", "true");
+    dateButton.toggleAttribute("hidden", true);
     dateButton.classList.add("button-small");
 
     const description = document.createXULElement("description");

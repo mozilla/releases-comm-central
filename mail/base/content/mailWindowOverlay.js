@@ -1448,7 +1448,7 @@ function IsGetNextNMessagesEnabled() {
     return true;
   }
 
-  menuItem.setAttribute("hidden", "true");
+  menuItem.toggleAttribute("hidden", true);
   return false;
 }
 

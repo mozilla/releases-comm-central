@@ -238,7 +238,7 @@ function wizardContinue(event) {
  * the event listener to prevent stacking.
  */
 function switchSection(isKeyManager = false) {
-  kStartSection.setAttribute("hidden", true);
+  kStartSection.toggleAttribute("hidden", true);
 
   // Save the current label of the accept button in order to restore it later.
   kButtonLabel = kDialog.getButton("accept").label;
@@ -318,7 +318,7 @@ function backToStart(event) {
   document.getElementById("importKeyIntro").hidden = false;
   document.getElementById("importKeyListContainer").collapsed = true;
 
-  event.target.setAttribute("hidden", true);
+  event.target.toggleAttribute("hidden", true);
 
   // Reset section key.
   kCurrentSection = "start";
@@ -794,7 +794,7 @@ function closeOverlay() {
  * @param {Event} event - The DOM Event.
  */
 function hideOverlay(event) {
-  event.target.setAttribute("hidden", true);
+  event.target.toggleAttribute("hidden", true);
   resizeWindow();
 }
 

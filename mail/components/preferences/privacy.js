@@ -527,7 +527,7 @@ var gPrivacyPane = {
     if (url) {
       el.setAttribute("href", url);
     } else {
-      el.setAttribute("hidden", "true");
+      el.toggleAttribute("hidden", true);
     }
   },
 

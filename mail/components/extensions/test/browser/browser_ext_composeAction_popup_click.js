@@ -207,7 +207,7 @@ add_task(
       const window = Services.wm.getMostRecentWindow("msgcompose");
       const toolbar = window.document.getElementById("composeToolbar2");
       if (state) {
-        toolbar.setAttribute("collapsed", "true");
+        toolbar.toggleAttribute("collapsed", true);
       } else {
         toolbar.removeAttribute("collapsed");
       }
@@ -281,7 +281,7 @@ add_task(
       const window = Services.wm.getMostRecentWindow("msgcompose");
       const toolbar = window.document.getElementById("FormatToolbar");
       if (state) {
-        toolbar.setAttribute("collapsed", "true");
+        toolbar.toggleAttribute("collapsed", true);
       } else {
         toolbar.removeAttribute("collapsed");
       }

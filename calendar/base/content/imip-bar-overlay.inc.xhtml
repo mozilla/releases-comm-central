@@ -7,7 +7,7 @@
 
         <hbox id="imip-bar"
               class="calendar-notification-bar"
-              collapsed="true"
+              collapsed="collapsed"
               label="&lightning.imipbar.description;"
               align="center">
           <html:img src="chrome://messenger/skin/icons/new/normal/calendar-invite.svg"
@@ -52,7 +52,7 @@
                              tooltiptext="&lightning.imipbar.btnDetails.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipDetailsButton"
                              oncommand="calImipBar.executeAction('X-SHOWDETAILS')"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- decline counter -->
               <toolbarbutton id="imipDeclineCounterButton"
@@ -60,7 +60,7 @@
                              tooltiptext="&lightning.imipbar.btnDeclineCounter.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipDeclineCounterButton"
                              oncommand="calImipBar.executeAction('X-DECLINECOUNTER')"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- reschedule -->
               <toolbarbutton id="imipRescheduleButton"
@@ -68,7 +68,7 @@
                              tooltiptext="&lightning.imipbar.btnReschedule.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipRescheduleButton"
                              oncommand="calImipBar.executeAction('X-RESCHEDULE')"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- add published events -->
               <toolbarbutton id="imipAddButton"
@@ -76,7 +76,7 @@
                              tooltiptext="&lightning.imipbar.btnAdd.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipAddButton"
                              oncommand="calImipBar.executeAction()"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- update published events and invitations -->
               <toolbarbutton id="imipUpdateButton"
@@ -84,7 +84,7 @@
                              tooltiptext="&lightning.imipbar.btnUpdate.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipUpdateButton"
                              oncommand="calImipBar.executeAction()"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- delete cancelled events from calendar -->
               <toolbarbutton id="imipDeleteButton"
@@ -92,7 +92,7 @@
                              tooltiptext="&lightning.imipbar.btnDelete.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipDeleteButton"
                              oncommand="calImipBar.executeAction()"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- re-confirm partstat -->
               <toolbarbutton id="imipReconfirmButton"
@@ -100,7 +100,7 @@
                              tooltiptext="&lightning.imipbar.btnReconfirm.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipReconfirmButton"
                              oncommand="calImipBar.executeAction()"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- go to calendar tab -->
               <toolbarbutton id="imipGoToCalendarButton"
@@ -108,7 +108,7 @@
                              tooltiptext="&lightning.imipbar.btnGoToCalendar.tooltiptext;"
                              class="toolbarbutton-1 message-header-view-button imipGoToCalendarButton"
                              oncommand="cal.window.goToCalendar();"
-                             hidden="true"/>
+                             hidden="hidden"/>
 
               <!-- accept -->
               <toolbarbutton is="toolbarbutton-menu-button" id="imipAcceptButton"
@@ -117,7 +117,7 @@
                              oncommand="calImipBar.executeAction('ACCEPTED', 'AUTO');"
                              type="menu"
                              class="imip-button toolbarbutton-1 message-header-view-button imipAcceptButton"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipAcceptDropdown">
                   <label id="imipAcceptButton_AcceptLabel"
                          class="imipAcceptLabel"
@@ -155,7 +155,7 @@
                              oncommand="calImipBar.executeAction('ACCEPTED', 'AUTO');"
                              type="menu"
                              class="imip-button toolbarbutton-1 message-header-view-button imipAcceptRecurrencesButton"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipAcceptRecurrencesDropdown">
                   <label id="imipAcceptRecurrencesButton_AcceptLabel"
                          class="imipAcceptLabel"
@@ -194,7 +194,7 @@
                              class="toolbarbutton-1 message-header-view-button imipTentativeButton"
                              oncommand="calImipBar.executeAction('TENTATIVE', 'AUTO');"
                              type="menu"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipTentativeDropdown">
                   <menuitem id="imipTentativeButton_Tentative"
                             tooltiptext="&lightning.imipbar.btnSend.tooltiptext;"
@@ -216,7 +216,7 @@
                              class="toolbarbutton-1 message-header-view-button imipTentativeRecurrencesButton"
                              oncommand="calImipBar.executeAction('TENTATIVE', 'AUTO');"
                              type="menu"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipTentativeRecurrencesDropdown">
                   <menuitem id="imipTentativeRecurrencesButton_Tentative"
                             tooltiptext="&lightning.imipbar.btnSendSeries.tooltiptext;"
@@ -237,7 +237,7 @@
                              oncommand="calImipBar.executeAction('DECLINED', 'AUTO');"
                              type="menu"
                              class="toolbarbutton-1 message-header-view-button imipDeclineButton"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipDeclineDropdown">
                   <menuitem id="imipDeclineButton_Decline"
                             tooltiptext="&lightning.imipbar.btnSend.tooltiptext;"
@@ -258,7 +258,7 @@
                              oncommand="calImipBar.executeAction('DECLINED', 'AUTO');"
                              type="menu"
                              class="toolbarbutton-1 message-header-view-button imipDeclineRecurrencesButton"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipDeclineRecurrencesDropdown">
                   <menuitem id="imipDeclineRecurrencesButton_DeclineAll"
                             tooltiptext="&lightning.imipbar.btnSendSeries.tooltiptext;"
@@ -278,7 +278,7 @@
                              tooltiptext="&lightning.imipbar.btnMore.tooltiptext;"
                              label="&lightning.imipbar.btnMore.label;"
                              class="toolbarbutton-1 message-header-view-button imipMoreButton"
-                             hidden="true">
+                             hidden="hidden">
                 <menupopup id="imipMoreDropdown">
                   <menuitem id="imipMoreButton_SaveCopy"
                             tooltiptext="&lightning.imipbar.btnSaveCopy.tooltiptext;"

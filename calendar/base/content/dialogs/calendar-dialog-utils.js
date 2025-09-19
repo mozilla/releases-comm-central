@@ -218,8 +218,8 @@ function updateReminderDetails(reminderDetails, reminderList, calendar) {
       reminderSingleLabel.value = reminders[0].toString(window.calendarItem);
     }
   } else {
-    reminderMultipleLabel.setAttribute("hidden", "true");
-    reminderSingleLabel.setAttribute("hidden", "true");
+    reminderMultipleLabel.toggleAttribute("hidden", true);
+    reminderSingleLabel.toggleAttribute("hidden", true);
     if (reminderList.value == "none") {
       // No reminder selected means show no icons.
       while (iconBox.lastChild) {

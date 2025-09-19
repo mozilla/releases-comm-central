@@ -231,34 +231,34 @@ function HideMenus() {
   // Can we just fold this into an array of element IDs and loop over them?
   var message_menuitem = document.getElementById("menu_showMessage");
   if (message_menuitem) {
-    message_menuitem.setAttribute("hidden", "true");
+    message_menuitem.toggleAttribute("hidden", true);
   }
 
   message_menuitem = document.getElementById("appmenu_showMessage");
   if (message_menuitem) {
-    message_menuitem.setAttribute("hidden", "true");
+    message_menuitem.toggleAttribute("hidden", true);
   }
 
   var folderPane_menuitem = document.getElementById("menu_showFolderPane");
   if (folderPane_menuitem) {
-    folderPane_menuitem.setAttribute("hidden", "true");
+    folderPane_menuitem.toggleAttribute("hidden", true);
   }
 
   folderPane_menuitem = document.getElementById("appmenu_showFolderPane");
   if (folderPane_menuitem) {
-    folderPane_menuitem.setAttribute("hidden", "true");
+    folderPane_menuitem.toggleAttribute("hidden", true);
   }
 
   var showSearch_showMessage_Separator = document.getElementById(
     "menu_showSearch_showMessage_Separator"
   );
   if (showSearch_showMessage_Separator) {
-    showSearch_showMessage_Separator.setAttribute("hidden", "true");
+    showSearch_showMessage_Separator.toggleAttribute("hidden", true);
   }
 
   var expandOrCollapseMenu = document.getElementById("menu_expandOrCollapse");
   if (expandOrCollapseMenu) {
-    expandOrCollapseMenu.setAttribute("hidden", "true");
+    expandOrCollapseMenu.toggleAttribute("hidden", true);
   }
 
   var menuDeleteFolder = document.getElementById("menu_deleteFolder");
@@ -268,141 +268,141 @@ function HideMenus() {
 
   var renameFolderMenu = document.getElementById("menu_renameFolder");
   if (renameFolderMenu) {
-    renameFolderMenu.setAttribute("hidden", "true");
+    renameFolderMenu.toggleAttribute("hidden", true);
   }
 
   var viewLayoutMenu = document.getElementById("menu_MessagePaneLayout");
   if (viewLayoutMenu) {
-    viewLayoutMenu.setAttribute("hidden", "true");
+    viewLayoutMenu.toggleAttribute("hidden", true);
   }
 
   viewLayoutMenu = document.getElementById("appmenu_MessagePaneLayout");
   if (viewLayoutMenu) {
-    viewLayoutMenu.setAttribute("hidden", "true");
+    viewLayoutMenu.toggleAttribute("hidden", true);
   }
 
   const paneViewSeparator = document.getElementById(
     "appmenu_paneViewSeparator"
   );
   if (paneViewSeparator) {
-    paneViewSeparator.setAttribute("hidden", "true");
+    paneViewSeparator.toggleAttribute("hidden", true);
   }
 
   var viewFolderMenu = document.getElementById("menu_FolderViews");
   if (viewFolderMenu) {
-    viewFolderMenu.setAttribute("hidden", "true");
+    viewFolderMenu.toggleAttribute("hidden", true);
   }
 
   viewFolderMenu = document.getElementById("appmenu_FolderViews");
   if (viewFolderMenu) {
-    viewFolderMenu.setAttribute("hidden", "true");
+    viewFolderMenu.toggleAttribute("hidden", true);
   }
 
   var viewMessagesMenu = document.getElementById("viewMessagesMenu");
   if (viewMessagesMenu) {
-    viewMessagesMenu.setAttribute("hidden", "true");
+    viewMessagesMenu.toggleAttribute("hidden", true);
   }
 
   viewMessagesMenu = document.getElementById("appmenu_viewMessagesMenu");
   if (viewMessagesMenu) {
-    viewMessagesMenu.setAttribute("hidden", "true");
+    viewMessagesMenu.toggleAttribute("hidden", true);
   }
 
   var viewMessageViewMenu = document.getElementById("viewMessageViewMenu");
   if (viewMessageViewMenu) {
-    viewMessageViewMenu.setAttribute("hidden", "true");
+    viewMessageViewMenu.toggleAttribute("hidden", true);
   }
 
   var viewMessagesMenuSeparator = document.getElementById(
     "viewMessagesMenuSeparator"
   );
   if (viewMessagesMenuSeparator) {
-    viewMessagesMenuSeparator.setAttribute("hidden", "true");
+    viewMessagesMenuSeparator.toggleAttribute("hidden", true);
   }
 
   var openMessageMenu = document.getElementById("openMessageWindowMenuitem");
   if (openMessageMenu) {
-    openMessageMenu.setAttribute("hidden", "true");
+    openMessageMenu.toggleAttribute("hidden", true);
   }
 
   openMessageMenu = document.getElementById(
     "appmenu_openMessageWindowMenuitem"
   );
   if (openMessageMenu) {
-    openMessageMenu.setAttribute("hidden", "true");
+    openMessageMenu.toggleAttribute("hidden", true);
   }
 
   var viewSortMenuSeparator = document.getElementById("viewSortMenuSeparator");
   if (viewSortMenuSeparator) {
-    viewSortMenuSeparator.setAttribute("hidden", "true");
+    viewSortMenuSeparator.toggleAttribute("hidden", true);
   }
 
   viewSortMenuSeparator = document.getElementById(
     "appmenu_viewAfterThreadsSeparator"
   );
   if (viewSortMenuSeparator) {
-    viewSortMenuSeparator.setAttribute("hidden", "true");
+    viewSortMenuSeparator.toggleAttribute("hidden", true);
   }
 
   var viewSortMenu = document.getElementById("viewSortMenu");
   if (viewSortMenu) {
-    viewSortMenu.setAttribute("hidden", "true");
+    viewSortMenu.toggleAttribute("hidden", true);
   }
 
   var emptryTrashMenu = document.getElementById("menu_emptyTrash");
   if (emptryTrashMenu) {
-    emptryTrashMenu.setAttribute("hidden", "true");
+    emptryTrashMenu.toggleAttribute("hidden", true);
   }
 
   emptryTrashMenu = document.getElementById("appmenu_emptyTrash");
   if (emptryTrashMenu) {
-    emptryTrashMenu.setAttribute("hidden", "true");
+    emptryTrashMenu.toggleAttribute("hidden", true);
   }
 
   var menuPropertiesSeparator = document.getElementById(
     "editPropertiesSeparator"
   );
   if (menuPropertiesSeparator) {
-    menuPropertiesSeparator.setAttribute("hidden", "true");
+    menuPropertiesSeparator.toggleAttribute("hidden", true);
   }
 
   menuPropertiesSeparator = document.getElementById(
     "appmenu_editPropertiesSeparator"
   );
   if (menuPropertiesSeparator) {
-    menuPropertiesSeparator.setAttribute("hidden", "true");
+    menuPropertiesSeparator.toggleAttribute("hidden", true);
   }
 
   var menuProperties = document.getElementById("menu_properties");
   if (menuProperties) {
-    menuProperties.setAttribute("hidden", "true");
+    menuProperties.toggleAttribute("hidden", true);
   }
 
   menuProperties = document.getElementById("appmenu_properties");
   if (menuProperties) {
-    menuProperties.setAttribute("hidden", "true");
+    menuProperties.toggleAttribute("hidden", true);
   }
 
   var favoriteFolder = document.getElementById("menu_favoriteFolder");
   if (favoriteFolder) {
     favoriteFolder.setAttribute("disabled", "true");
-    favoriteFolder.setAttribute("hidden", "true");
+    favoriteFolder.toggleAttribute("hidden", true);
   }
 
   favoriteFolder = document.getElementById("appmenu_favoriteFolder");
   if (favoriteFolder) {
     favoriteFolder.setAttribute("disabled", "true");
-    favoriteFolder.setAttribute("hidden", "true");
+    favoriteFolder.toggleAttribute("hidden", true);
   }
 
   var compactFolderMenu = document.getElementById("menu_compactFolder");
   if (compactFolderMenu) {
-    compactFolderMenu.setAttribute("hidden", "true");
+    compactFolderMenu.toggleAttribute("hidden", true);
   }
 
   const trashSeparator = document.getElementById("trashMenuSeparator");
   if (trashSeparator) {
-    trashSeparator.setAttribute("hidden", "true");
+    trashSeparator.toggleAttribute("hidden", true);
   }
 
   const goStartPageSeparator = document.getElementById("goNextSeparator");
@@ -414,7 +414,7 @@ function HideMenus() {
     "goRecentlyClosedTabsSeparator"
   );
   if (goRecentlyClosedTabsSeparator) {
-    goRecentlyClosedTabsSeparator.setAttribute("hidden", "true");
+    goRecentlyClosedTabsSeparator.toggleAttribute("hidden", true);
   }
 
   let goFolder = document.getElementById("goFolderMenu");

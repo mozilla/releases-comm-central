@@ -26,7 +26,7 @@ const Template = ({ label, disabled }) => html`
   <template id="searchBarTemplate">
     <form>
       <input type="search" placeholder="" required="required" />
-      <div aria-hidden="true"><slot name="placeholder"></slot></div>
+      <div aria-hidden="hidden"><slot name="placeholder"></slot></div>
       <button id="search-button" class="button button-flat icon-button">
         <slot name="search-button"></slot>
       </button>

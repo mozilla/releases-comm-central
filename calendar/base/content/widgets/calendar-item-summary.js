@@ -93,16 +93,16 @@
               &task.status.label;
             </html:th>
             <html:td class="status-row-td">
-              <html:div hidden="true" status="TENTATIVE">&newevent.status.tentative.label;</html:div>
-              <html:div hidden="true" status="CONFIRMED">&newevent.status.confirmed.label;</html:div>
-              <html:div hidden="true" status="CANCELLED">&newevent.eventStatus.cancelled.label;</html:div>
-              <html:div hidden="true" status="CANCELLED">&newevent.todoStatus.cancelled.label;</html:div>
-              <html:div hidden="true" status="NEEDS-ACTION">&newevent.status.needsaction.label;</html:div>
-              <html:div hidden="true" status="IN-PROCESS">&newevent.status.inprogress.label;</html:div>
-              <html:div hidden="true" status="COMPLETED">&newevent.status.completed.label;</html:div>
+              <html:div hidden="hidden" status="TENTATIVE">&newevent.status.tentative.label;</html:div>
+              <html:div hidden="hidden" status="CONFIRMED">&newevent.status.confirmed.label;</html:div>
+              <html:div hidden="hidden" status="CANCELLED">&newevent.eventStatus.cancelled.label;</html:div>
+              <html:div hidden="hidden" status="CANCELLED">&newevent.todoStatus.cancelled.label;</html:div>
+              <html:div hidden="hidden" status="NEEDS-ACTION">&newevent.status.needsaction.label;</html:div>
+              <html:div hidden="hidden" status="IN-PROCESS">&newevent.status.inprogress.label;</html:div>
+              <html:div hidden="hidden" status="COMPLETED">&newevent.status.completed.label;</html:div>
             </html:td>
           </html:tr>
-          <separator class="groove" flex="1" hidden="true"/>
+          <separator class="groove" flex="1" hidden="hidden"/>
           <html:tr class="reminder-row" hidden="hidden">
             <html:th class="reminder-label">
               &read.only.reminder.label;
@@ -118,7 +118,7 @@
               <vbox class="item-attachment-cell">
                 <!-- attachment box template -->
                 <hbox class="attachment-template"
-                      hidden="true"
+                      hidden="hidden"
                       align="center"
                       disable-on-readonly="true">
                   <html:img class="attachment-icon invisible-on-broken"
@@ -133,7 +133,7 @@
         </html:table>
         <!-- Attendees -->
         <box class="item-attendees-description">
-          <box class="item-attendees" orient="vertical" hidden="true">
+          <box class="item-attendees" orient="vertical" hidden="hidden">
             <spacer class="default-spacer"/>
             <hbox class="calendar-caption" align="center">
               <label value="&read.only.attendees.label;"
@@ -154,7 +154,7 @@
                     state="open"/>
 
           <!-- Description -->
-          <box class="item-description-box" hidden="true" orient="vertical">
+          <box class="item-description-box" hidden="hidden" orient="vertical">
             <hbox class="calendar-caption" align="center">
               <label value="&read.only.description.label;"
                     class="header"/>
@@ -169,7 +169,7 @@
         </box>
 
         <!-- URL link -->
-        <box class="event-grid-link-row" hidden="true" orient="vertical">
+        <box class="event-grid-link-row" hidden="hidden" orient="vertical">
           <spacer class="default-spacer"/>
           <hbox class="calendar-caption" align="center">
             <label value="&read.only.link.label;"
@@ -264,13 +264,13 @@
               <hbox class="alarm-icons-box" align="center"/>
               <!-- TODO oncommand? onkeypress? -->
               <label class="reminder-multiple-alarms-label text-link"
-                     hidden="true"
+                     hidden="hidden"
                      value="&event.reminder.multiple.label;"
                      disable-on-readonly="true"
                      flex="1"
                      hyperlink="true"/>
               <label class="reminder-single-alarms-label text-link"
-                     hidden="true"
+                     hidden="hidden"
                      disable-on-readonly="true"
                      flex="1"
                      hyperlink="true"/>
@@ -329,7 +329,7 @@
 
       if (!item.descriptionHTML || !item.getAttendees().length) {
         // Hide the splitter when there is no description or attendees.
-        document.getElementById("attendeeDescriptionSplitter").setAttribute("hidden", "true");
+        document.getElementById("attendeeDescriptionSplitter").toggleAttribute("hidden", true);
       }
     }
 

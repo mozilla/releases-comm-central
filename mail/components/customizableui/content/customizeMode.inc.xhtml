@@ -5,8 +5,8 @@
 <box id="customization-content-container">
 <box flex="1" id="customization-palette-container">
   <label id="customization-header" data-l10n-id="customize-mode-menu-and-toolbars-header"></label>
-  <vbox id="customization-palette" class="customization-palette" hidden="true"/>
-  <vbox id="customization-pong-arena" hidden="true"/>
+  <vbox id="customization-palette" class="customization-palette" hidden="hidden"/>
+  <vbox id="customization-pong-arena" hidden="hidden"/>
   <spacer id="customization-spacer"/>
 </box>
 <vbox id="customization-panel-container">
@@ -19,7 +19,7 @@
         <description id="customization-panelHeader" data-l10n-id="customize-mode-overflow-list-title"></description>
         <description id="customization-panelDescription" data-l10n-id="customize-mode-overflow-list-description"></description>
       </vbox>
-      <box class="panel-inner-arrowcontentfooter" hidden="true"/>
+      <box class="panel-inner-arrowcontentfooter" hidden="hidden"/>
     </box>
   </vbox>
 </vbox>
@@ -96,9 +96,9 @@
               onmouseout="gCustomizeMode.resetUIDensity();"
               oncommand="gCustomizeMode.setUIDensity(this.mode);">
     </menuitem>
-    <spacer hidden="true" id="customization-uidensity-touch-spacer"/>
+    <spacer hidden="hidden" id="customization-uidensity-touch-spacer"/>
     <checkbox id="customization-uidensity-autotouchmode-checkbox"
-              hidden="true"
+              hidden="hidden"
               data-l10n-id="customize-mode-uidensity-auto-touch-mode-checkbox"
               oncommand="gCustomizeMode.updateAutoTouchMode(this.checked)"/>
 #endif
@@ -109,12 +109,12 @@
         type="checkbox"
         class="customizationmode-button"
         oncommand="gCustomizeMode.togglePong(this.checked);"
-        hidden="true"/>
+        hidden="hidden"/>
 
 <spacer id="customization-footer-spacer"/>
 <button id="customization-undo-reset-button"
         class="customizationmode-button"
-        hidden="true"
+        hidden="hidden"
         oncommand="gCustomizeMode.undoReset();"
         data-l10n-id="customize-mode-undo-cmd"/>
 <button id="customization-reset-button"

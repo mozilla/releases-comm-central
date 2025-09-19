@@ -99,7 +99,7 @@ add_task(async function test_selection_select_column_deselection() {
   await right_click_on_row(7);
   await delete_via_popup();
   await assert_nothing_selected();
-  document.getElementById("selectCol").setAttribute("hidden", true);
+  document.getElementById("selectCol").toggleAttribute("hidden", true);
 }).skip();
 
 add_task(async function test_selection_last_message_deleted() {

@@ -107,7 +107,7 @@
     <hbox id="messagepaneboxwrapper" flex="1">
       <vbox id="messagepanebox">
         <vbox id="singleMessage">
-          <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
+          <hbox id="msgHeaderView" collapsed="collapsed" class="main-header-area">
 #include msgHdrView.inc.xhtml
           </hbox>
 #include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
@@ -123,7 +123,7 @@
 
         <vbox id="calendarInvitationDisplayContainer"
               flex="1"
-              hidden="true">
+              hidden="hidden">
           <html:div id="calendarInvitationDisplay">
             <!-- The calendar invitation panel is displayed here. -->
           </html:div>
@@ -148,8 +148,8 @@
                  onresize="messagePaneOnResize();"/>
         <splitter id="attachment-splitter" orient="vertical"
                   resizebefore="closest" resizeafter="closest"
-                  collapse="after" collapsed="true"/>
-        <vbox id="attachmentView" collapsed="true">
+                  collapse="after" collapsed="collapsed"/>
+        <vbox id="attachmentView" collapsed="collapsed">
 #include msgAttachmentView.inc.xhtml
         </vbox>
         <findbar id="findToolbar" browserid="messagepane"/>

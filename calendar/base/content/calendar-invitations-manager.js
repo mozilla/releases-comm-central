@@ -145,7 +145,7 @@ InvitationsManager.prototype = {
       }
     }
 
-    invitationsBox.setAttribute("hidden", "true");
+    invitationsBox.toggleAttribute("hidden", true);
   },
 
   /**

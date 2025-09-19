@@ -51,7 +51,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
               <label class="calendar-invitations-richlistitem-location" crop="end"/>
               <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
               <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
-              <label class="calendar-invitations-richlistitem-spacer" value="" hidden="true"/>
+              <label class="calendar-invitations-richlistitem-spacer" value="" hidden="hidden"/>
             </vbox>
             <vbox>
               <button group="${this.getAttribute("itemId")}"
@@ -124,7 +124,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
         if (item.recurrenceInfo) {
           document.l10n.setAttributes(recurrenceLabel, "recurrent-event");
         } else {
-          recurrenceLabel.setAttribute("hidden", "true");
+          recurrenceLabel.toggleAttribute("hidden", true);
           const spacer = this.querySelector(".calendar-invitations-richlistitem-spacer");
           spacer.removeAttribute("hidden");
         }
@@ -220,7 +220,7 @@ async function onLoad() {
   const { invitationsManager } = window.arguments[0];
   const items = await cal.iterate.mapStream(invitationsManager.getInvitations(), chunk => {
     document.title = title + " (" + chunk.length + ")";
-    updatingBox.setAttribute("hidden", "true");
+    updatingBox.toggleAttribute("hidden", true);
     const richListBox = document.getElementById("invitations-listbox");
     for (const item of chunk) {
       const newNode = document.createXULElement("richlistitem", {
@@ -232,7 +232,7 @@ async function onLoad() {
   });
 
   invitationsManager.toggleInvitationsPanel(items);
-  updatingBox.setAttribute("hidden", "true");
+  updatingBox.toggleAttribute("hidden", true);
 
   const richListBox = document.getElementById("invitations-listbox");
   if (richListBox.getRowCount() > 0) {

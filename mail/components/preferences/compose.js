@@ -477,7 +477,7 @@ var gCloudFile = {
 
     const input = document.createElement("input");
     input.setAttribute("type", "text");
-    input.setAttribute("hidden", "hidden");
+    input.toggleAttribute("hidden", "hidden");
     input.addEventListener("blur", this);
     input.addEventListener("keypress", this);
     rli.appendChild(input);
@@ -709,7 +709,7 @@ var gCloudFile = {
         cloudFileAccounts.setDisplayName(item.value, input.value);
         label.value = input.value;
         label.hidden = false;
-        input.setAttribute("hidden", "hidden");
+        input.toggleAttribute("hidden", "hidden");
         break;
       }
       case "keypress": {
@@ -721,14 +721,14 @@ var gCloudFile = {
           cloudFileAccounts.setDisplayName(item.value, input.value);
           label.value = input.value;
           label.hidden = false;
-          input.setAttribute("hidden", "hidden");
+          input.toggleAttribute("hidden", "hidden");
           gCloudFile._list.focus();
 
           aEvent.preventDefault();
         } else if (aEvent.key == "Escape") {
           input.value = label.value;
           label.hidden = false;
-          input.setAttribute("hidden", "hidden");
+          input.toggleAttribute("hidden", "hidden");
           gCloudFile._list.focus();
 
           aEvent.preventDefault();

@@ -235,7 +235,7 @@
                 <description class="ac-normal-text ac-comment"></description>
               </hbox>
               <label class="ac-ellipsis-after ac-comment"
-                     hidden="true"></label>
+                     hidden="hidden"></label>
             </hbox>
             <hbox>
               <hbox class="ac-url"
@@ -244,7 +244,7 @@
                 <description class="ac-normal-text ac-url-text"></description>
               </hbox>
               <label class="ac-ellipsis-after ac-url-text"
-                     hidden="true"></label>
+                     hidden="hidden"></label>
             </hbox>
           </vbox>
         `)
@@ -511,7 +511,7 @@
                   <description class="ac-normal-text ac-comment"></description>
                 </hbox>
                 <label class="ac-ellipsis-after ac-comment"
-                       hidden="true"></label>
+                       hidden="hidden"></label>
               </hbox>
               <hbox>
                 <hbox class="ac-url"
@@ -521,7 +521,7 @@
                                inherits="selected"></description>
                 </hbox>
                 <label class="ac-ellipsis-after ac-url-text"
-                       hidden="true"></label>
+                       hidden="hidden"></label>
               </hbox>
             </vbox>
           </hbox>

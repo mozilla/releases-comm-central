@@ -64,7 +64,7 @@ function loadCalendars() {
     extra1.setAttribute("label", window.arguments[0].labelExtra1);
     extra1.removeAttribute("hidden");
   } else {
-    extra1.setAttribute("hidden", "true");
+    extra1.toggleAttribute("hidden", true);
   }
 
   if (calendars.length) {

@@ -126,7 +126,7 @@
       <vbox id="calendar-view-box"
             flex="1"
             context="calendar-view-context-menu"
-            collapsed="true">
+            collapsed="collapsed">
         <vbox id="calendar-deactivated-notification-location-events">
           <!-- Calendar deactivated notificationbox for events will be added here lazily. -->
         </vbox>
@@ -226,7 +226,7 @@
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
-                       hidden="true"
+                       hidden="hidden"
                        itemproperty="location"
                        data-l10n-id="calendar-event-listing-column-location"/>
               <splitter class="tree-splitter"/>
@@ -234,14 +234,14 @@
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
-                       hidden="true"
+                       hidden="hidden"
                        itemproperty="status"
                        data-l10n-id="calendar-event-listing-column-status"/>
               <treecol id="unifinder-search-results-tree-col-calendarname"
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
-                       hidden="true"
+                       hidden="hidden"
                        itemproperty="calendar"
                        data-l10n-id="calendar-event-listing-column-calendar-name"/>
             </treecols>
@@ -350,7 +350,7 @@
       </vbox>
       <!-- Tasks View -->
       <vbox id="calendar-task-box" flex="1"
-            collapsed="true">
+            collapsed="collapsed">
         <vbox id="calendar-deactivated-notification-location-tasks">
           <!-- Calendar deactivated notificationbox for tasks will be added here lazily. -->
         </vbox>
@@ -393,7 +393,7 @@
           <vbox id="calendar-task-details-container"
                 style="height: 50%"
                 persist="height"
-                hidden="true">
+                hidden="hidden">
             <hbox id="calendar-task-details">
               <hbox id="other-actions-box">
                 <vbox id="task-actions-toolbox" class="inline-toolbox">
@@ -457,17 +457,17 @@
                              data-l10n-id="calendar-task-details-priority-low"
                              data-l10n-attrs="value"
                              class="task-details-value"
-                             hidden="true"/>
+                             hidden="hidden"/>
                       <label id="calendar-task-details-priority-normal"
                              data-l10n-id="calendar-task-details-priority-normal"
                              data-l10n-attrs="value"
                              class="task-details-value"
-                             hidden="true"/>
+                             hidden="hidden"/>
                       <label id="calendar-task-details-priority-high"
                              data-l10n-id="calendar-task-details-priority-high"
                              data-l10n-attrs="value"
                              class="task-details-value"
-                             hidden="true"/>
+                             hidden="hidden"/>
                     </html:td>
                   </html:tr>
                   <html:tr id="calendar-task-details-organizer-row"
@@ -521,7 +521,7 @@
             </hbox>
             <hbox id="calendar-task-details-attachment-row"
                   align="start"
-                  hidden="true">
+                  hidden="hidden">
               <hbox pack="end">
                 <label data-l10n-id="calendar-task-details-attachments" data-l10n-attrs="value"
                        class="task-details-name"/>
@@ -530,7 +530,7 @@
                     align="start"
                     flex="1"
                     style="overflow: auto;"
-                    hidden="true">
+                    hidden="hidden">
               </vbox>
             </hbox>
           </vbox>

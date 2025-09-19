@@ -79,7 +79,7 @@
                                 id="searchResultConv"
                                 displayname="&searchResultConversation.label;"
                                 is-search-result=""
-                                hidden="true"/>
+                                hidden="hidden"/>
                   <richlistitem is="chat-group-richlistitem" id="onlinecontactsGroup"
                                 name="&onlineContactsHeader.label;"/>
                   <richlistitem is="chat-group-richlistitem" id="offlinecontactsGroup"
@@ -99,7 +99,7 @@
                         <description id="noConvDesc"
                                      class="im-placeholder-desc">&chat.noConv.description;</description>
                       </vbox>
-                      <vbox id="noAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="true">
+                      <vbox id="noAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="hidden">
                         <label id="noAccountTitle" class="im-placeholder-title">&chat.noAccount.title;</label>
                         <description id="noAccountDesc"
                                      class="im-placeholder-desc">&chat.noAccount.description;</description>
@@ -109,7 +109,7 @@
                                   oncommand="openIMAccountWizard();"/>
                         </hbox>
                       </vbox>
-                      <vbox id="noConnectedAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="true">
+                      <vbox id="noConnectedAccountInnerBox" class="im-placeholder-innerbox" flex="1" hidden="hidden">
                         <label id="noConnectedAccountTitle"
                               class="im-placeholder-title">&chat.noConnectedAccount.title;</label>
                         <description id="noConnectedAccountDesc"
@@ -123,7 +123,7 @@
                     </hbox>
                   </vbox>
 
-                  <vbox id="logDisplay" flex="1" hidden="true">
+                  <vbox id="logDisplay" flex="1" hidden="hidden">
                     <vbox flex="1">
                       <vbox flex="1" id="noPreviousConvScreen" class="im-placeholder-screen" align="center" pack="center">
                         <hbox id="noPreviousConvBox" class="im-placeholder-box" align="start">
@@ -138,18 +138,18 @@
                                 contextmenu="chatConversationContextMenu" flex="1"
                                 tooltip="imTooltip"
                                 messagemanagergroup="browsers"/>
-                        <html:progress id="log-browserProgress" max="100" hidden="true"/>
+                        <html:progress id="log-browserProgress" max="100" hidden="hidden"/>
                         <findbar id="log-findbar" browserid="conv-log-browser"/>
                       </vbox>
                     </vbox>
-                    <button id="goToConversation" hidden="true"
+                    <button id="goToConversation" hidden="hidden"
                             oncommand="chatHandler.showCurrentConversation();"/>
                   </vbox>
 
                 </vbox>
               </vbox>
-              <splitter id="contextSplitter" hidden="true" collapse="after"/>
-              <vbox id="contextPane" hidden="true" width="250" persist="width">
+              <splitter id="contextSplitter" hidden="hidden" collapse="after"/>
+              <vbox id="contextPane" hidden="hidden" width="250" persist="width">
                 <chat-conversation-info id="conv-top-info" class="conv-top-info"/>
                 <vbox id="contextPaneFlexibleBox" flex="1">
                   <vbox class="conv-chat" width="150">

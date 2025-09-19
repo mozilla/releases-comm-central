@@ -25,7 +25,7 @@
 
       this.shortWeekdayName = document.createXULElement("label");
       this.shortWeekdayName.classList.add("calendar-day-label-name");
-      this.shortWeekdayName.setAttribute("hidden", "true");
+      this.shortWeekdayName.toggleAttribute("hidden", true);
 
       this.appendChild(this.longWeekdayName);
       this.appendChild(this.shortWeekdayName);

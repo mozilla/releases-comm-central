@@ -57,11 +57,11 @@ var gFolderPropsSink = {
   serverDoesntSupportACL() {
     var typeLabel = document.getElementById("folderTypeLabel");
     if (typeLabel) {
-      typeLabel.setAttribute("hidden", "true");
+      typeLabel.toggleAttribute("hidden", true);
     }
     var permissionsLabel = document.getElementById("permissionsDescLabel");
     if (permissionsLabel) {
-      permissionsLabel.setAttribute("hidden", "true");
+      permissionsLabel.toggleAttribute("hidden", true);
     }
   },
 

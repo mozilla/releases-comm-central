@@ -269,9 +269,9 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
     // hide the ok and cancel dialog buttons
     const accept = dialog.getButton("accept");
     const cancel = dialog.getButton("cancel");
-    accept.setAttribute("collapsed", "true");
-    cancel.setAttribute("collapsed", "true");
-    cancel.parentNode.setAttribute("collapsed", "true");
+    accept.toggleAttribute("collapsed", true);
+    cancel.toggleAttribute("collapsed", true);
+    cancel.parentNode.toggleAttribute("collapsed", true);
 
     document.addEventListener("dialogaccept", event => {
       const itemTitle = iframe.contentDocument.documentElement.querySelector("#item-title");
@@ -546,7 +546,7 @@ function updatePrivacy(aArg) {
             !aArg.privacyValues.includes(currentPrivacyValue) ||
             (currentProvider && currentProvider != aArg.calendarType)
           ) {
-            node.setAttribute("collapsed", "true");
+            node.toggleAttribute("collapsed", true);
           } else {
             node.removeAttribute("collapsed");
           }
@@ -576,7 +576,7 @@ function updatePrivacy(aArg) {
             !aArg.privacyValues.includes(currentPrivacyValue) ||
             (currentProvider && currentProvider != aArg.calendarType)
           ) {
-            node.setAttribute("collapsed", "true");
+            node.toggleAttribute("collapsed", true);
           } else {
             node.removeAttribute("collapsed");
           }
@@ -607,7 +607,7 @@ function updatePrivacy(aArg) {
           (currentProvider && currentProvider != aArg.calendarType) ||
           aArg.privacy != currentPrivacyValue
         ) {
-          node.setAttribute("collapsed", "true");
+          node.toggleAttribute("collapsed", true);
         } else {
           node.removeAttribute("collapsed");
           hasAnyPrivacyValue = true;
@@ -619,7 +619,7 @@ function updatePrivacy(aArg) {
     if (hasAnyPrivacyValue) {
       privacyPanel.removeAttribute("collapsed");
     } else {
-      privacyPanel.setAttribute("collapsed", "true");
+      privacyPanel.toggleAttribute("collapsed", true);
     }
   } else {
     // aArg.hasPrivacy is false
@@ -685,7 +685,7 @@ function updatePriority(aArg) {
     const image = priorityPanel.querySelector("img");
     if (priorityLevel === "none") {
       // If the priority is none, don't show the status bar panel
-      priorityPanel.setAttribute("collapsed", "true");
+      priorityPanel.toggleAttribute("collapsed", true);
       image.removeAttribute("data-l10n-id");
       image.setAttribute("alt", "");
       image.removeAttribute("src");

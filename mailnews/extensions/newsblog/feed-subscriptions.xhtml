@@ -177,7 +177,7 @@
                     <label
                       is="text-link"
                       id="locationValidate"
-                      collapsed="true"
+                      collapsed="collapsed"
                       crop="end"
                       value="&locationValidate.label;"
                       onclick="FeedSubscriptions.checkValidation(event);"
@@ -189,7 +189,7 @@
                     id="selectFolder"
                     flex="1"
                     class="folderMenuItem"
-                    hidden="true"
+                    hidden="hidden"
                   >
                     <menupopup
                       is="folder-menupopup"
@@ -251,13 +251,13 @@
                 <label
                   id="recommendedUnits"
                   value="&recommendedUnits.label;"
-                  hidden="true"
+                  hidden="hidden"
                   control="updateMinutes"
                 />
                 <label
                   id="recommendedUnitsVal"
                   value=""
-                  hidden="true"
+                  hidden="hidden"
                   control="updateMinutes"
                 />
               </hbox>
@@ -301,7 +301,7 @@
           <spacer flex="1" />
           <label
             id="validationText"
-            collapsed="true"
+            collapsed="collapsed"
             class="text-link"
             crop="end"
             value="&validateText.label;"
@@ -309,7 +309,7 @@
           />
           <button
             id="addCertException"
-            collapsed="true"
+            collapsed="collapsed"
             data-l10n-id="certmgr-add-exception"
             oncommand="FeedSubscriptions.addCertExceptionDialog();"
           />
@@ -325,7 +325,7 @@
           <hbox class="actionButtons" flex="1">
             <button
               id="addFeed"
-              hidden="true"
+              hidden="hidden"
               disabled="true"
               label="&button.addFeed.label;"
               accesskey="&button.addFeed.accesskey;"
@@ -334,7 +334,7 @@
 
             <button
               id="updateFeed"
-              hidden="true"
+              hidden="hidden"
               disabled="true"
               label="&button.verifyFeed.label;"
               accesskey="&button.verifyFeed.accesskey;"
@@ -347,7 +347,7 @@
 
             <button
               id="removeFeed"
-              hidden="true"
+              hidden="hidden"
               label="&button.removeFeed.label;"
               accesskey="&button.removeFeed.accesskey;"
               oncommand="FeedSubscriptions.removeFeed(true);"
@@ -357,7 +357,7 @@
 
             <button
               id="importOPML"
-              hidden="true"
+              hidden="hidden"
               label="&button.importOPML.label;"
               accesskey="&button.importOPML.accesskey;"
               oncommand="FeedSubscriptions.importOPML();"
@@ -365,7 +365,7 @@
 
             <button
               id="exportOPML"
-              hidden="true"
+              hidden="hidden"
               label="&button.exportOPML.label;"
               accesskey="&button.exportOPML.accesskey;"
               tooltiptext="&button.exportOPML.tooltip;"

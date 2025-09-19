@@ -16,9 +16,9 @@ window.addEventListener("keypress", onKeyPress);
 function onLoad() {
   document.documentElement.style.minHeight = "120px";
   var dlg = document.getElementById("enigmailMsgBox");
-  dlg.getButton("cancel").setAttribute("hidden", "true");
-  dlg.getButton("extra1").setAttribute("hidden", "true");
-  dlg.getButton("extra2").setAttribute("hidden", "true");
+  dlg.getButton("cancel").toggleAttribute("hidden", true);
+  dlg.getButton("extra1").toggleAttribute("hidden", true);
+  dlg.getButton("extra2").toggleAttribute("hidden", true);
 
   document.getElementById("filler").style.maxWidth =
     screen.availWidth - 50 + "px";
@@ -97,7 +97,7 @@ function setButton(buttonId, label) {
   var i = label.indexOf(":");
   if (i === 0) {
     elem = dlg.getButton(label.substr(1));
-    elem.setAttribute("hidden", "false");
+    elem.toggleAttribute("hidden", false);
     elem.setAttribute("oncommand", "dlgClose('" + buttonId + "')");
     return;
   }

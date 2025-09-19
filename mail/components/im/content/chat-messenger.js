@@ -1063,7 +1063,7 @@ var chatHandler = {
       document
         .querySelectorAll("#contextPaneFlexibleBox .conv-chat")
         .forEach(e => {
-          e.setAttribute("hidden", "true");
+          e.toggleAttribute("hidden", true);
         });
 
       IMServices.logs.getLogsForContact(contact).then(aLogs => {

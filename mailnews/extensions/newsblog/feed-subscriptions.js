@@ -1049,7 +1049,7 @@ var FeedSubscriptions = {
       nameValue.value = "";
       nameValue.disabled = true;
       locationValue.value = "";
-      locationValidate.setAttribute("collapsed", true);
+      locationValidate.toggleAttribute("collapsed", true);
 
       server = aItem.folder.server;
       displayFolder = aItem.folder;

@@ -54,7 +54,7 @@
       </html:div>
       <hbox class="encryption-container themeable-brighttext"
             align="center"
-            hidden="true">
+            hidden="hidden">
         <label class="encryption-label"
                crop="end"
                data-l10n-id="state-label"
@@ -177,7 +177,7 @@
       this.editingTopic = true;
 
       topicInput.hidden = false;
-      topic.setAttribute("hidden", "true");
+      topic.toggleAttribute("hidden", true);
       this._topicKeyPress = this.topicKeyPress.bind(this);
       topicInput.addEventListener("keypress", this._topicKeyPress);
       this._topicBlur = this.topicBlur.bind(this);

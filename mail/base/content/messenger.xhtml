@@ -430,18 +430,18 @@
          noautofocus="true"
          role="alert"/>
 
-  <popupnotification id="addon-progress-notification" hasicon="true" hidden="true">
+  <popupnotification id="addon-progress-notification" hasicon="true" hidden="hidden">
     <popupnotificationcontent orient="vertical">
       <html:progress id="addon-progress-notification-progressmeter" max="100"/>
       <label id="addon-progress-notification-progresstext" crop="end"/>
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-install-confirmation-notification" hasicon="true" hidden="true">
+  <popupnotification id="addon-install-confirmation-notification" hasicon="true" hidden="hidden">
     <popupnotificationcontent id="addon-install-confirmation-content" orient="vertical"/>
   </popupnotification>
 
-  <popupnotification id="addon-webext-permissions-notification" hasicon="true" hidden="true">
+  <popupnotification id="addon-webext-permissions-notification" hasicon="true" hidden="hidden">
     <popupnotificationcontent class="addon-webext-perm-notification-content" orient="vertical">
       <description id="addon-webext-perm-text" class="addon-webext-perm-text"/>
       <label id="addon-webext-perm-intro" class="addon-webext-perm-text"/>
@@ -454,13 +454,13 @@
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-installed-notification" hasicon="true" hidden="true">
+  <popupnotification id="addon-installed-notification" hasicon="true" hidden="hidden">
     <popupnotificationcontent class="addon-installed-notification-content" orient="vertical">
       <html:ul id="addon-installed-list" class="addon-installed-list"/>
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-install-blocked-notification" hasicon="true" hidden="true">
+  <popupnotification id="addon-install-blocked-notification" hasicon="true" hidden="hidden">
     <popupnotificationcontent id="addon-install-blocked-content" orient="vertical">
       <description id="addon-install-blocked-message" class="popup-notification-description"></description>
       <hbox>
@@ -549,7 +549,7 @@
       <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
                       id="alltabs-button"
                       type="menu"
-                      hidden="true"
+                      hidden="hidden"
                       tooltiptext="&listAllTabs.label;">
         <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
                     position="after_end"
@@ -604,10 +604,10 @@
       <!-- Hidden browser used for printing documents without displaying them. -->
       <browser id="hiddenPrintContent"
                type="content"
-               hidden="true"/>
+               hidden="hidden"/>
     </tabmail>
 #include ../../../calendar/base/content/calendar-today-pane.inc.xhtml
-    <vbox id="contentTab" collapsed="true">
+    <vbox id="contentTab" collapsed="collapsed">
       <vbox flex="1" class="contentTabInstance">
         <vbox id="dummycontenttoolbox" class="contentTabToolbox themeable-full">
           <hbox id="dummycontenttoolbar" class="contentTabToolbar">
@@ -627,7 +627,7 @@
         <stack flex="1"><!-- Insert browser here. --></stack>
       </vbox>
     </vbox>
-    <vbox id="glodaTab" collapsed="true">
+    <vbox id="glodaTab" collapsed="collapsed">
       <vbox flex="1" class="chromeTabInstance">
         <vbox class="contentTabToolbox themeable-full">
           <hbox class="glodaTabToolbar inline-toolbar chromeclass-toolbar" flex="1">
@@ -653,7 +653,7 @@
         <iframe flex="1"/>
       </vbox>
     </vbox>
-    <vbox id="preferencesTab" collapsed="true">
+    <vbox id="preferencesTab" collapsed="collapsed">
       <vbox flex="1">
         <hbox flex="1">
           <browser id="preferencesbrowser"
@@ -671,7 +671,7 @@
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
-            hidden="true"/>
+            hidden="hidden"/>
   </panel>
 
   <vbox id="messenger-notification-bottom">
@@ -692,7 +692,7 @@
        - editing events in a tab and for the today pane button). -->
     <hbox role="status" aria-live="off" flex="1">
 #include mainStatusbar.inc.xhtml
-      <hbox id="calendar-invitations-panel" class="statusbarpanel" hidden="true">
+      <hbox id="calendar-invitations-panel" class="statusbarpanel" hidden="hidden">
         <label id="calendar-invitations-label"
                class="text-link"
                onclick="openInvitationsDialog()"

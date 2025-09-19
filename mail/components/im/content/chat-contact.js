@@ -184,7 +184,7 @@
       const input = this.querySelector(".contactDisplayNameInput");
       const label = this.querySelector(".contactDisplayName");
       input.removeAttribute("hidden");
-      label.setAttribute("hidden", "true");
+      label.toggleAttribute("hidden", true);
       input.focus();
 
       this._inputBlurListener = function () {
@@ -210,7 +210,7 @@
       const listbox = this.parentNode;
       const input = this.querySelector(".contactDisplayNameInput");
       const label = this.querySelector(".contactDisplayName");
-      input.setAttribute("hidden", "hidden");
+      input.toggleAttribute("hidden", "hidden");
       label.removeAttribute("hidden");
       if (save) {
         this.contact.alias = input.value;

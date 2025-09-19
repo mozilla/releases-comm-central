@@ -627,7 +627,7 @@ export var OTRUI = {
   hideAllOTRNotifications() {
     for (const notification of this.globalBox.allNotifications) {
       if (notification.getAttribute("protocol") == "otr") {
-        notification.setAttribute("hidden", "true");
+        notification.toggleAttribute("hidden", true);
       }
     }
   },

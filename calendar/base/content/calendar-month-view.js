@@ -50,7 +50,7 @@
 
       const weekLabel = document.createElement("span");
       weekLabel.setAttribute("data-label", "week");
-      weekLabel.setAttribute("hidden", "true");
+      weekLabel.toggleAttribute("hidden", true);
       weekLabel.style.pointerEvents = "none";
       weekLabel.classList.add("calendar-month-day-box-week-label", "calendar-month-week-label");
 

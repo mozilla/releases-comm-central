@@ -121,7 +121,7 @@ function hiddenWindowStartup() {
   // Also hide the window-list separator if it exists.
   element = document.getElementById("sep-window-list");
   if (element) {
-    element.setAttribute("hidden", "true");
+    element.toggleAttribute("hidden", true);
   }
 
   // Unhide tasksMenuMail to enable the CMD + 1 key.

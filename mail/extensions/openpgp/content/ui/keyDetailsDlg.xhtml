@@ -149,7 +149,7 @@
               id="changeExpiryButton"
               data-l10n-id="openpgp-key-man-change-expiry"
               oncommand="changeExpiry()"
-              hidden="true"
+              hidden="hidden"
             />
           </vbox>
         </html:aside>
@@ -200,7 +200,7 @@
               <html:fieldset>
                 <radiogroup
                   id="acceptanceRadio"
-                  hidden="true"
+                  hidden="hidden"
                   class="indent"
                   oncommand="onAcceptanceChanged();"
                 >
@@ -225,7 +225,7 @@
                     data-l10n-id="openpgp-acceptance-verified-label"
                   />
                 </radiogroup>
-                <radiogroup id="personalRadio" class="indent" hidden="true">
+                <radiogroup id="personalRadio" class="indent" hidden="hidden">
                   <radio
                     id="notPersonal"
                     value="not_personal"
@@ -301,13 +301,13 @@
             <hbox>
               <button
                 id="removeProtection"
-                hidden="true"
+                hidden="hidden"
                 data-l10n-id="openpgp-remove-protection"
                 oncommand="useAutoPassphrase()"
               />
               <button
                 id="usePrimaryPassword"
-                hidden="true"
+                hidden="hidden"
                 data-l10n-id="openpgp-use-primary-password"
                 oncommand="useAutoPassphrase()"
               />
@@ -415,7 +415,7 @@
               id="legendMissingSecret"
               class="tip-caption"
               data-l10n-id="openpgp-key-details-legend-secret-missing"
-              hidden="true"
+              hidden="hidden"
             />
           </vbox>
         </tabpanels>

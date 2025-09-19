@@ -217,7 +217,7 @@
       <td class="tree-view-row-thread threadcol-column button-column" data-column-name="threadcol">
         <button type="button"
                 class="button-flat tree-button-thread"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -225,7 +225,7 @@
       <td class="tree-view-row-flag flaggedcol-column button-column" data-column-name="flaggedcol">
         <button type="button"
                 class="button-flat tree-button-flag"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -237,7 +237,7 @@
         <div class="thread-container">
           <button type="button"
                   class="button button-flat button-reset twisty"
-                  aria-hidden="true"
+                  aria-hidden="hidden"
                   tabindex="-1">
             <img src="" alt="" class="twisty-icon" />
           </button>
@@ -249,7 +249,7 @@
       <td class="tree-view-row-unread unreadbuttoncolheader-column button-column" data-column-name="unreadcol">
         <button type="button"
                 class="button-flat tree-button-unread"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -260,7 +260,7 @@
       <td class="tree-view-row-spam junkstatuscol-column button-column" data-column-name="junkstatuscol">
         <button type="button"
                 class="button-flat tree-button-spam"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -280,14 +280,14 @@
         <button type="button"
                 class="button-flat tree-button-delete tree-button-request-delete"
                 tabindex="-1"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 data-l10n-id="tree-list-view-row-delete">
           <img src="" alt="" />
         </button>
         <button type="button"
                 class="button-flat tree-button-restore tree-button-request-delete"
                 tabindex="-1"
-                aria-hidden="true"
+                aria-hidden="hidden"
                 data-l10n-id="tree-list-view-row-restore">
           <img src="" alt="" />
         </button>
@@ -309,7 +309,7 @@
               <span class="date"></span>
               <button type="button"
                       class="button icon-button icon-only tree-button-more"
-                      aria-hidden="true"
+                      aria-hidden="hidden"
                       data-l10n-id="threadpane-card-menu-button"
                       tabindex="-1">
               </button>
@@ -318,7 +318,7 @@
               <span class="sort-header-details"></span>
               <button type="button"
                       class="button button-flat button-reset twisty thread-card-button"
-                      aria-hidden="true"
+                      aria-hidden="hidden"
                       tabindex="-1">
                 <img src="" alt="" class="replies-icon" />
                 <span class="thread-replies"></span>
@@ -332,11 +332,11 @@
                 <thread-card-tags></thread-card-tags>
                 <button class="button-spam tree-button-spam"
                         data-l10n-id="tree-list-view-row-spam"
-                        aria-hidden="true"
+                        aria-hidden="hidden"
                         tabindex="-1">
                 </button>
                 <button class="button-star tree-button-flag"
-                        aria-hidden="true"
+                        aria-hidden="hidden"
                         tabindex="-1">
                 </button>
               </div>
@@ -355,7 +355,7 @@
       collapse-height="100" />
 #include templates/messagePaneTemplate.inc.xhtml
   <message-pane id="messagePane" class="collapsed-by-splitter"></message-pane>
-  <xul:browser id="accountCentralBrowser" hidden="true"/>
+  <xul:browser id="accountCentralBrowser" hidden="hidden"/>
 #include templates/conversationViewTemplate.inc.xhtml
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

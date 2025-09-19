@@ -418,7 +418,7 @@ function setupAttendanceMenu(aMenu, aItems) {
                 checked.setAttribute("value", item.getAttribute("value"));
                 checked.setAttribute("scope", item.getAttribute("scope"));
                 checked.setAttribute("id", checkedId);
-                item.setAttribute("hidden", "true");
+                item.toggleAttribute("hidden", true);
                 toAdd.push([item, checked]);
               }
               break;
@@ -464,7 +464,7 @@ function setupAttendanceMenu(aMenu, aItems) {
       if (aPartStat && aPartStat != item.getAttribute("value")) {
         continue;
       }
-      item.setAttribute("hidden", "true");
+      item.toggleAttribute("hidden", true);
     }
   }
 
@@ -546,7 +546,7 @@ function setupAttendanceMenu(aMenu, aItems) {
       }
     } else {
       // in this case, we hide the entire attendance menu
-      aMenu.setAttribute("hidden", "true");
+      aMenu.toggleAttribute("hidden", true);
     }
   } else if (aItems.length > 1) {
     // the user displayed a context menu for multiple selected items.

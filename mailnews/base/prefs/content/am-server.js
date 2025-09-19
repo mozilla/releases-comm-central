@@ -522,7 +522,7 @@ function setupFixedUI() {
       fixedElement.getAttribute("use")
     );
 
-    fixedElement.setAttribute("collapsed", "true");
+    fixedElement.toggleAttribute("collapsed", true);
     otherElement.removeAttribute("collapsed");
   }
 }

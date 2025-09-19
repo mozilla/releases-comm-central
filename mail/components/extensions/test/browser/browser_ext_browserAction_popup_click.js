@@ -416,7 +416,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
     const window = Services.wm.getMostRecentWindow("mail:messageWindow");
     const toolbar = window.document.getElementById("mail-bar3");
     if (state) {
-      toolbar.setAttribute("collapsed", "true");
+      toolbar.toggleAttribute("collapsed", true);
     } else {
       toolbar.removeAttribute("collapsed");
     }

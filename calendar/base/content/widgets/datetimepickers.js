@@ -251,7 +251,7 @@
               <timepicker-hour class="time-picker-hour-box-class" value="9" label="9"></timepicker-hour>
               <timepicker-hour class="time-picker-hour-box-class" value="10" label="10"></timepicker-hour>
               <timepicker-hour class="time-picker-hour-box-class" value="11" label="11"></timepicker-hour>
-              <hbox class="timepicker-amLabelBox-class amLabelBox" hidden="true">
+              <hbox class="timepicker-amLabelBox-class amLabelBox" hidden="hidden">
                 <label></label>
               </hbox>
             </hbox>
@@ -268,7 +268,7 @@
               <timepicker-hour class="time-picker-hour-box-class" value="21" label="21"></timepicker-hour>
               <timepicker-hour class="time-picker-hour-box-class" value="22" label="22"></timepicker-hour>
               <timepicker-hour class="time-picker-hour-box-class" value="23" label="23"></timepicker-hour>
-              <hbox class="pmLabelBox timepicker-pmLabelBox-class" hidden="true">
+              <hbox class="pmLabelBox timepicker-pmLabelBox-class" hidden="hidden">
                 <label></label>
               </hbox>
             </hbox>
@@ -297,7 +297,7 @@
               <label class="time-picker-more-control-label" value="»" onclick="clickMore()"></label>
             </hbox>
           </vbox>
-          <vbox class="time-picker-one-minute-grid-box" flex="1" hidden="true">
+          <vbox class="time-picker-one-minute-grid-box" flex="1" hidden="hidden">
             <vbox class="time-picker-one-minute-grid" flex="1">
               <hbox flex="1">
                 <timepicker-minute class="time-picker-one-minute-class" value="0" label=":00" flex="1"></timepicker-minute>
@@ -545,11 +545,11 @@
       const oneMinuteBox = this.querySelector(".time-picker-one-minute-grid-box");
 
       if (view == this.kMINUTE_VIEW_ONE) {
-        fiveMinuteBox.setAttribute("hidden", true);
+        fiveMinuteBox.toggleAttribute("hidden", true);
         oneMinuteBox.removeAttribute("hidden");
       } else {
         fiveMinuteBox.removeAttribute("hidden");
-        oneMinuteBox.setAttribute("hidden", true);
+        oneMinuteBox.toggleAttribute("hidden", true);
       }
     }
 

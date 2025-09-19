@@ -184,7 +184,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   document.getElementById("msgNewFolderPicker").collapsed = true;
   const items = document.getElementsByClassName("chooseFolderLocation");
   for (const item of items) {
-    item.setAttribute("hidden", true);
+    item.toggleAttribute("hidden", true);
   }
   const folderNameField = document.getElementById("existingName");
   folderNameField.removeAttribute("hidden");

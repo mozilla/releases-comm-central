@@ -391,7 +391,7 @@
         if (visibleColumns.includes(itemProperty)) {
           col.removeAttribute("hidden");
         } else {
-          col.setAttribute("hidden", "true");
+          col.toggleAttribute("hidden", true);
         }
         if (ordinals.length > 0) {
           col.ordinal = ordinals.shift();

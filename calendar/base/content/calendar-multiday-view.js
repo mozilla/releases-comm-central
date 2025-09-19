@@ -104,7 +104,7 @@
           <stack class="multiday-column-box-stack" flex="1">
             <html:div class="multiday-hour-box-container"></html:div>
             <html:ol class="multiday-events-list"></html:ol>
-            <box class="timeIndicator" hidden="true"/>
+            <box class="timeIndicator" hidden="hidden"/>
             <box class="fgdragcontainer" flex="1">
               <box class="fgdragspacer">
                 <spacer flex="1"/>
@@ -114,7 +114,7 @@
               <label class="fgdragbox-label fgdragbox-endlabel"/>
             </box>
           </stack>
-          <calendar-event-box hidden="true"/>
+          <calendar-event-box hidden="hidden"/>
         `)
       );
       this.hourBoxContainer = this.querySelector(".multiday-hour-box-container");
@@ -431,7 +431,7 @@
       const configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
       const minSize = configBox.getOptimalMinSize(orient);
-      configBox.setAttribute("hidden", "true");
+      configBox.toggleAttribute("hidden", true);
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
       const minDuration = Math.ceil(minSize / this.pixelsPerMinute);

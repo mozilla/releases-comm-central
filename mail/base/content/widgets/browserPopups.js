@@ -919,7 +919,7 @@ class nsContextMenu {
         if (sibling.localName == "menuseparator") {
           // If we got here then the item is a menuseparator and everything
           // below it hidden.
-          sibling.setAttribute("hidden", true);
+          sibling.toggleAttribute("hidden", true);
           return;
         }
         return;

@@ -161,15 +161,15 @@
     </menupopup>
 
     <!-- Counter information section -->
-    <hbox id="counter-proposal-box" collapsed="true">
+    <hbox id="counter-proposal-box" collapsed="collapsed">
       <vbox>
-        <description id="counter-proposal-summary" collapsed="true" crop="end" />
+        <description id="counter-proposal-summary" collapsed="collapsed" crop="end" />
         <hbox id="counter-proposal">
           <vbox id="counter-proposal-property-labels">
             <label
               id="counter-proposal-property-label"
               control="counter-proposal-property-value"
-              collapsed="true"
+              collapsed="collapsed"
               value=""
             />
           </vbox>
@@ -177,12 +177,12 @@
             <description
               id="counter-proposal-property-value"
               crop="end"
-              collapsed="true"
+              collapsed="collapsed"
               value=""
             />
           </vbox>
         </hbox>
-        <description id="counter-proposal-comment" collapsed="true" crop="end" />
+        <description id="counter-proposal-comment" collapsed="collapsed" crop="end" />
       </vbox>
       <spacer flex="1" />
       <vbox id="counter-buttons">
@@ -386,7 +386,7 @@
               <label
                 id="timezone-starttime"
                 class="text-link"
-                collapsed="true"
+                collapsed="collapsed"
                 crop="end"
                 disable-on-readonly="true"
                 hyperlink="true"
@@ -450,7 +450,7 @@
                 <label
                   id="timezone-endtime"
                   class="text-link"
-                  collapsed="true"
+                  collapsed="collapsed"
                   crop="end"
                   disable-on-readonly="true"
                   flex="1"
@@ -598,7 +598,7 @@
                 />
               </menupopup>
             </menulist>
-            <hbox id="repeat-untilDate" align="center" hidden="true">
+            <hbox id="repeat-untilDate" align="center" hidden="hidden">
               <label
                 value="&event.until.label;"
                 accesskey="&event.until.accesskey;"
@@ -614,7 +614,7 @@
                 value=""
               />
             </hbox>
-            <vbox id="repeat-details" flex="1" hidden="true">
+            <vbox id="repeat-details" flex="1" hidden="hidden">
               <label
                 id="repeat-details-label"
                 class="text-link"
@@ -754,7 +754,7 @@
               <!-- TODO oncommand? onkeypress? -->
               <label
                 class="reminder-multiple-alarms-label text-link"
-                hidden="true"
+                hidden="hidden"
                 value="&event.reminder.multiple.label;"
                 disable-on-readonly="true"
                 flex="1"
@@ -763,7 +763,7 @@
               />
               <label
                 class="reminder-single-alarms-label text-link"
-                hidden="true"
+                hidden="hidden"
                 disable-on-readonly="true"
                 flex="1"
                 hyperlink="true"
@@ -817,7 +817,7 @@
               id="event-grid-tab-attendees"
               label="&event.attendees.label;"
               accesskey="&event.attendees.accesskey;"
-              collapsed="true"
+              collapsed="collapsed"
             />
           </tabs>
           <tabpanels id="event-grid-tabpanels" flex="1">
@@ -1088,9 +1088,9 @@
                 />
               </vbox>
             </tabpanel>
-            <tabpanel id="event-grid-tabpanel-attendees" collapsed="true">
+            <tabpanel id="event-grid-tabpanel-attendees" collapsed="collapsed">
               <vbox flex="1">
-                <hbox id="item-organizer-row" hidden="true" align="start">
+                <hbox id="item-organizer-row" hidden="hidden" align="start">
                   <label value="&read.only.organizer.label;" />
                 </hbox>
                 <vbox
@@ -1108,7 +1108,7 @@
             id="notify-options"
             dialog-type="event"
             align="center"
-            collapsed="true"
+            collapsed="collapsed"
             disable-on-readonly="true"
           >
             <checkbox

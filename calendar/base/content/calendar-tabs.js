@@ -250,7 +250,7 @@ var calendarItemTabType = {
     const statusbar = document.getElementById("status-bar");
     const items = statusbar.getElementsByClassName("event-dialog");
     for (const item of items) {
-      item.setAttribute("collapsed", true);
+      item.toggleAttribute("collapsed", true);
     }
     // move toolbox to the place where it can be accessed later
     const to = document.getElementById("calendarItemPanel").firstElementChild;

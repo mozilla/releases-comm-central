@@ -271,7 +271,7 @@ class MailAddressPill extends MozXULElement {
     this.style.setProperty("min-width", `${this.clientWidth}px`);
 
     this.classList.add("editing");
-    this.labelView.setAttribute("hidden", "true");
+    this.labelView.toggleAttribute("hidden", true);
     this.emailInput.removeAttribute("hidden");
     this.emailInput.focus();
 
@@ -356,7 +356,7 @@ class MailAddressPill extends MozXULElement {
     this.style.removeProperty("min-width");
     this.classList.remove("editing");
     this.labelView.removeAttribute("hidden");
-    this.emailInput.setAttribute("hidden", "hidden");
+    this.emailInput.toggleAttribute("hidden", "hidden");
     const textLength = this.emailInput.value.length;
     this.emailInput.setSelectionRange(textLength, textLength);
     this.rowInput.focus();

@@ -27,7 +27,7 @@
       }
 
       this.setAttribute("is", "chat-group-richlistitem");
-      this.setAttribute("collapsed", "true");
+      this.toggleAttribute("collapsed", true);
 
       /* Here we use a div, rather than the usual img because the icon image
        * relies on CSS -moz-locale-dir(rtl). The corresponding icon
@@ -109,7 +109,7 @@
         });
       }
       if (this.classList.contains("closed")) {
-        contactElt.setAttribute("collapsed", "true");
+        contactElt.toggleAttribute("collapsed", true);
       }
 
       let end = this.contacts.length;
@@ -184,7 +184,7 @@
 
       // Check if some contacts remain in the group, if empty hide it.
       if (!this.contacts.length) {
-        this.setAttribute("collapsed", "true");
+        this.toggleAttribute("collapsed", true);
       } else {
         this._updateGroupLabel();
       }

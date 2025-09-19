@@ -134,7 +134,7 @@ function hideShowControls(serverType) {
     }
 
     if (hide) {
-      control.setAttribute("hidden", "true");
+      control.toggleAttribute("hidden", true);
     } else {
       control.removeAttribute("hidden");
     }

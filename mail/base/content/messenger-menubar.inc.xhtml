@@ -777,7 +777,7 @@
 #ifdef MAIN_WINDOW
           <menuseparator id="goNextAfterUnreadThreadSeparator"
                          class="hide-before-calendar-loaded hide-when-calendar-deactivated"
-                         hidden="true"/>
+                         hidden="hidden"/>
           <!-- Label is set up automatically using the view id. When writing
                 a view extension, add a `label-<myviewtype>` attribute with
                 the correct label. -->
@@ -793,7 +793,7 @@
                     accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                     accesskey-month="&lightning.toolbar.month.accesskey;"
                     command="calendar_view_next_command"
-                    hidden="true"/>
+                    hidden="hidden"/>
 #endif
         </menupopup>
       </menu>
@@ -816,7 +816,7 @@
 #ifdef MAIN_WINDOW
           <menuseparator id="goPreviousAfterFlaggedSeparator"
                          class="hide-before-calendar-loaded hide-when-calendar-deactivated"
-                         hidden="true"/>
+                         hidden="hidden"/>
           <!-- Label is set up automatically using the view id. When writing
                 a view extension, add a `label-<myviewtype>` attribute with
                 the correct label. -->
@@ -832,7 +832,7 @@
                     accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                     accesskey-month="&lightning.toolbar.month.accesskey;"
                     command="calendar_view_prev_command"
-                    hidden="true"/>
+                    hidden="hidden"/>
 #endif
         </menupopup>
       </menu>
@@ -1148,7 +1148,7 @@
 <!-- Tools -->
 <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
   <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')">
-    <menuitem hidden="true" accesskey="&messengerCmd.accesskey;" label="&messengerCmd.label;"
+    <menuitem hidden="hidden" accesskey="&messengerCmd.accesskey;" label="&messengerCmd.label;"
               key="key_mail" oncommand="toMessengerWindow();" id="tasksMenuMail"/>
 #ifndef XP_MACOSX
     <menuitem id="addressBook"

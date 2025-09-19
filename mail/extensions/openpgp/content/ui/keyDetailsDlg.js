@@ -415,7 +415,7 @@ async function reloadData(firstLoad) {
 
   if (gModePersonal) {
     gPersonalRadio.removeAttribute("hidden");
-    gAcceptanceRadio.setAttribute("hidden", "true");
+    gAcceptanceRadio.toggleAttribute("hidden", true);
     acceptanceIntroText = "key-accept-personal";
     const value = l10n.formatValueSync("key-type-pair");
     setLabel("keyType", value);
@@ -432,7 +432,7 @@ async function reloadData(firstLoad) {
       document.getElementById("changeExpiryButton").removeAttribute("hidden");
     }
   } else {
-    gPersonalRadio.setAttribute("hidden", "true");
+    gPersonalRadio.toggleAttribute("hidden", true);
     const value = l10n.formatValueSync("key-type-public");
     setLabel("keyType", value);
 
@@ -442,7 +442,7 @@ async function reloadData(firstLoad) {
       keyIsExpired
     );
     if (!isStillValid) {
-      gAcceptanceRadio.setAttribute("hidden", "true");
+      gAcceptanceRadio.toggleAttribute("hidden", true);
       if (keyObj.keyTrust == "r") {
         acceptanceIntroText = "key-revoked-simple";
       } else if (keyObj.keyTrust == "e" || keyIsExpired) {

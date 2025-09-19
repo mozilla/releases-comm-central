@@ -175,7 +175,7 @@ var calImipBar = {
   resetButtons() {
     const buttons = calImipBar.getButtons();
     for (const button of buttons) {
-      button.setAttribute("hidden", "true");
+      button.toggleAttribute("hidden", true);
       for (const item of calImipBar.getMenuItems(button)) {
         item.removeAttribute("hidden");
       }
@@ -305,7 +305,7 @@ var calImipBar = {
     // apart from that, we need this to adapt the accept button depending on
     // whether three or four button style is present
     for (const item of data.hideItems) {
-      document.getElementById(item).setAttribute("hidden", "true");
+      document.getElementById(item).toggleAttribute("hidden", true);
     }
     for (const item of data.showItems) {
       document.getElementById(item).removeAttribute("hidden");

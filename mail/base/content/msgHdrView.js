@@ -2539,16 +2539,16 @@ function onShowOtherActionsPopup() {
     tagsItem.disabled = true;
     markAsReadItem.disabled = true;
     markAsReadItem.removeAttribute("hidden");
-    markAsUnreadItem.setAttribute("hidden", true);
+    markAsUnreadItem.toggleAttribute("hidden", true);
   } else {
     tagsItem.disabled = false;
     markAsReadItem.disabled = false;
     if (SelectedMessagesAreRead()) {
-      markAsReadItem.setAttribute("hidden", true);
+      markAsReadItem.toggleAttribute("hidden", true);
       markAsUnreadItem.removeAttribute("hidden");
     } else {
       markAsReadItem.removeAttribute("hidden");
-      markAsUnreadItem.setAttribute("hidden", true);
+      markAsUnreadItem.toggleAttribute("hidden", true);
     }
   }
 

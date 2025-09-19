@@ -8,7 +8,7 @@
 # chrome://calendar/locale/calendar-event-dialog.dtd
 # chrome://lightning/locale/lightning-toolbar.dtd
 
-    <vbox id="calendarItemPanel" collapsed="true">
+    <vbox id="calendarItemPanel" collapsed="collapsed">
 
       <!-- The id of the inner vbox and the iframe are set dynamically
            when a tab is created. -->
@@ -32,7 +32,7 @@
           <!-- status -->
           <command id="cmd_status_none"
                    oncommand="editStatus(event.target)"
-                   hidden="true"
+                   hidden="hidden"
                    value="NONE"/>
           <command id="cmd_status_tentative"
                    oncommand="editStatus(event.target)"

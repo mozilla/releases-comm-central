@@ -42,7 +42,7 @@ function onLoad() {
 
     // hide the section when folder contain both folders and messages.
     var newFolderTypeBox = document.getElementById("newFolderTypeBox");
-    newFolderTypeBox.setAttribute("hidden", "true");
+    newFolderTypeBox.toggleAttribute("hidden", true);
   } else {
     // set our folder type by calling the default selected type's oncommand
     document.getElementById("folderGroup").selectedItem.doCommand();

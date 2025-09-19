@@ -170,7 +170,7 @@ function RefreshViewPopup(viewPopup) {
 
   // Only show the "Not Deleted" item for IMAP servers that are using the IMAP
   // delete model.
-  viewNotDeleted.setAttribute("hidden", true);
+  viewNotDeleted.toggleAttribute("hidden", true);
   var msgFolder = folderArray[0];
   var server = msgFolder.server;
   if (server.type == "imap") {

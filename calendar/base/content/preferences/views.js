@@ -75,7 +75,7 @@ var gViewsPane = {
     const endMenuKids = document.getElementById("dayendhourpopup").children;
     for (let i = 0; i < endMenuKids.length; i++) {
       if (Number(endMenuKids[i].value) <= Number(aStartValue)) {
-        endMenuKids[i].setAttribute("hidden", true);
+        endMenuKids[i].toggleAttribute("hidden", true);
       } else {
         endMenuKids[i].removeAttribute("hidden");
       }
@@ -92,7 +92,7 @@ var gViewsPane = {
     const startMenuKids = document.getElementById("daystarthourpopup").children;
     for (let i = 0; i < startMenuKids.length; i++) {
       if (Number(startMenuKids[i].value) >= Number(aEndValue)) {
-        startMenuKids[i].setAttribute("hidden", true);
+        startMenuKids[i].toggleAttribute("hidden", true);
       } else {
         startMenuKids[i].removeAttribute("hidden");
       }

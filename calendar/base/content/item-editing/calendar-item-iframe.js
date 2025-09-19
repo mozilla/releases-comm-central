@@ -2524,7 +2524,7 @@ function attachmentClick(aEvent) {
     if (item.localName == "richlistitem" || node.id == "attachment-popup-attachPage") {
       node.removeAttribute("hidden");
     } else {
-      node.setAttribute("hidden", "true");
+      node.toggleAttribute("hidden", true);
     }
   }
 }
@@ -2629,7 +2629,7 @@ function updateCalendar() {
 
     const collapseElements = document.getElementsByAttribute("collapse-on-readonly", "true");
     for (const element of collapseElements) {
-      element.setAttribute("collapsed", "true");
+      element.toggleAttribute("collapsed", true);
     }
   } else {
     sendMessage({ command: "removeDisableAndCollapseOnReadonly" });
@@ -3635,7 +3635,7 @@ function updateTimezone() {
         element.removeAttribute("disabled");
       }
     } else {
-      element.setAttribute("collapsed", "true");
+      element.toggleAttribute("collapsed", true);
     }
   }
 
@@ -3646,8 +3646,8 @@ function updateTimezone() {
     updateTimezoneElement(gStartTimezone, "timezone-starttime", gStartTime);
     updateTimezoneElement(gEndTimezone, "timezone-endtime", gEndTime);
   } else {
-    document.getElementById("timezone-starttime").setAttribute("collapsed", "true");
-    document.getElementById("timezone-endtime").setAttribute("collapsed", "true");
+    document.getElementById("timezone-starttime").toggleAttribute("collapsed", true);
+    document.getElementById("timezone-endtime").toggleAttribute("collapsed", true);
   }
 }
 
@@ -3772,8 +3772,8 @@ function updateAttendeeInterface() {
       attendeeTab.label = window.attendeeTabLabel;
     }
   } else {
-    attendeeTab.setAttribute("collapsed", "true");
-    attendeePanel.setAttribute("collapsed", "true");
+    attendeeTab.toggleAttribute("collapsed", true);
+    attendeePanel.toggleAttribute("collapsed", true);
   }
   updateParentSaveControls();
 }
@@ -3887,7 +3887,7 @@ function setAttendeeContext(aEvent) {
       if (node == invite) {
         node.removeAttribute("hidden");
       } else {
-        node.setAttribute("hidden", "true");
+        node.toggleAttribute("hidden", true);
       }
     }
   } else {
@@ -3916,9 +3916,9 @@ function setAttendeeContext(aEvent) {
       mailto.attendee = attendee;
       remove.attendee = attendee;
     } else {
-      mailto.setAttribute("hidden", "true");
-      remove.setAttribute("hidden", "true");
-      secondSeparator.setAttribute("hidden", "true");
+      mailto.toggleAttribute("hidden", true);
+      remove.toggleAttribute("hidden", true);
+      secondSeparator.toggleAttribute("hidden", true);
     }
 
     if (window.attendees.some(isAttendeeUndecided)) {

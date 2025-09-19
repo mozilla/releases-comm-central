@@ -6,7 +6,7 @@
        class="cui-widget-panel panel-no-padding"
        role="group"
        type="arrow"
-       hidden="true"
+       hidden="hidden"
        flip="slide"
        position="bottomright topright"
        noautofocus="true">
@@ -21,16 +21,16 @@
         <vbox id="appMenu-addon-banners"/>
         <toolbarbutton class="panel-banner-item"
                        oncommand="PanelUI._onBannerItemSelected(event);"
-                       hidden="true"/>
+                       hidden="hidden"/>
 #ifdef MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_signin"
                        data-l10n-id="appmenu-signin-panel"
                        class="subviewbutton subviewbutton-iconic"
-                       hidden="true"
+                       hidden="hidden"
                        oncommand="gSync.initFxA();"/>
         <toolbarbutton id="appmenu_sync"
                        class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       hidden="true"
+                       hidden="hidden"
                        align="center"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-syncView', this);">
@@ -49,7 +49,7 @@
             </vbox>
           </hbox>
         </toolbarbutton>
-        <toolbarseparator id="syncSeparator" hidden="true"/>
+        <toolbarseparator id="syncSeparator" hidden="hidden"/>
 #endif  // MOZ_SERVICES_SYNC
         <toolbarbutton id="appmenu_new"
                        data-l10n-id="appmenu-new-account-panel"
@@ -213,7 +213,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-newab-panel"
                        oncommand="openAccountHubABDialog();"
-                       hidden="true"/>
+                       hidden="hidden"/>
         <toolbarbutton id="appmenu_newIMAccountMenuItem"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-new-chat-account"

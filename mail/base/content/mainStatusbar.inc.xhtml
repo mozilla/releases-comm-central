@@ -6,12 +6,12 @@
       <hbox class="statusbarpanel">
         <toolbarbutton id="offline-status" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
       </hbox>
-      <label id="urlText" class="statusbarpanel" value="" flex="2" collapsed="true" crop="end"/>
+      <label id="urlText" class="statusbarpanel" value="" flex="2" collapsed="collapsed" crop="end"/>
       <label id="statusText" class="statusbarpanel" value="&statusText.label;" flex="1" crop="end"/>
-      <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="true">
+      <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="collapsed">
         <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
       </hbox>
-      <hbox id="quotaPanel" class="statusbarpanel statusbarpanel-progress" hidden="true">
+      <hbox id="quotaPanel" class="statusbarpanel statusbarpanel-progress" hidden="hidden">
         <stack>
           <html:progress id="quotaMeter" class="progressmeter-statusbar" value="0" max="100"/>
           <html:a id="quotaLabel" onclick="openFolderQuota();"></html:a>

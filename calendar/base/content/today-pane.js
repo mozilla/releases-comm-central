@@ -344,7 +344,7 @@ var TodayPane = {
     if (TodayPane.minidayDrag.session) {
       window.removeEventListener("mouseout", TodayPane.stopSwitching);
       TodayPane.minidayDrag.distance = 0;
-      document.getElementById("dragCenter-image").setAttribute("hidden", "true");
+      document.getElementById("dragCenter-image").toggleAttribute("hidden", true);
       TodayPane.minidayDrag.session = false;
     }
     window.removeEventListener("mousemove", TodayPane.onMousemove);
@@ -522,7 +522,7 @@ var TodayPane = {
       splitter.removeAttribute("hidden");
       splitter.setAttribute("state", "open");
     } else {
-      splitter.setAttribute("hidden", "true");
+      splitter.toggleAttribute("hidden", true);
     }
   },
 

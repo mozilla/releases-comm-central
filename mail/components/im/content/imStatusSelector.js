@@ -105,7 +105,7 @@ var statusSelector = {
   statusMessageClick() {
     const statusMessage = document.getElementById("statusMessageLabel");
     const statusMessageInput = document.getElementById("statusMessageInput");
-    statusMessage.setAttribute("hidden", "true");
+    statusMessage.toggleAttribute("hidden", true);
     statusMessageInput.removeAttribute("hidden");
     const statusType = document
       .getElementById("statusTypeIcon")
@@ -193,7 +193,7 @@ var statusSelector = {
     const statusMessage = document.getElementById("statusMessageLabel");
     const statusMessageInput = document.getElementById("statusMessageInput");
     statusMessage.removeAttribute("hidden");
-    statusMessageInput.toggleAttribute("hidden", "true");
+    statusMessageInput.toggleAttribute("hidden", true);
     if (aSave) {
       let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
       if ("_statusTypeEditing" in this) {
@@ -266,7 +266,7 @@ var statusSelector = {
   displayNameClick() {
     const displayName = document.getElementById("displayName");
     const displayNameInput = document.getElementById("displayNameInput");
-    displayName.setAttribute("hidden", "true");
+    displayName.toggleAttribute("hidden", true);
     displayNameInput.removeAttribute("hidden");
     if (!displayNameInput.hasAttribute("editing")) {
       displayNameInput.setAttribute("editing", "true");
@@ -321,7 +321,7 @@ var statusSelector = {
     const displayName = document.getElementById("displayName");
     const displayNameInput = document.getElementById("displayNameInput");
     displayName.removeAttribute("hidden");
-    displayNameInput.toggleAttribute("hidden", "true");
+    displayNameInput.toggleAttribute("hidden", true);
     // Apply the new display name only if it is different from the current one.
     if (
       aSave &&

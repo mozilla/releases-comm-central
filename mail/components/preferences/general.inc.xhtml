@@ -214,7 +214,7 @@
       <hbox id="confirmMessengerLanguage"
             class="message-bar"
             align="center"
-            hidden="true">
+            hidden="hidden">
         <html:img class="message-bar-icon"
                   src="chrome://global/skin/icons/info.svg" alt="" />
         <vbox class="message-bar-content-container" align="stretch" flex="1"/>
@@ -790,10 +790,10 @@
         <vbox>
           <description>
             <label id="version"/>
-            <label is="text-link" id="releasenotes" hidden="true" data-l10n-id="release-notes-link"></label>
+            <label is="text-link" id="releasenotes" hidden="hidden" data-l10n-id="release-notes-link"></label>
           </description>
-          <description id="distribution" class="text-blurb" hidden="true"/>
-          <description id="distributionId" class="text-blurb" hidden="true"/>
+          <description id="distribution" class="text-blurb" hidden="hidden"/>
+          <description id="distributionId" class="text-blurb" hidden="hidden"/>
         </vbox>
         <spacer flex="1"/>
         <vbox>
@@ -918,7 +918,7 @@
 #ifdef MOZ_UPDATE_AGENT
       <checkbox id="backgroundUpdate"
                 class="indent"
-                hidden="true"
+                hidden="hidden"
                 data-l10n-id="update-application-background-enabled"/>
 #endif
           <radio id="manualDesktop"
@@ -927,7 +927,7 @@
         </radiogroup>
         <description id="updateSettingCrossUserWarning"
                      data-l10n-id="cross-user-udpate-warning"
-                     hidden="true"/>
+                     hidden="hidden"/>
       </vbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE

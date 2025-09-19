@@ -61,9 +61,9 @@
         src="chrome://messenger/locale/messenger.properties"
       />
 
-      <label hidden="true" wsm_persist="true" id="server.type" />
+      <label hidden="hidden" wsm_persist="true" id="server.type" />
       <label
-        hidden="true"
+        hidden="hidden"
         wsm_persist="true"
         preftype="string"
         prefattribute="value"
@@ -95,7 +95,7 @@
         <div class="input-container" style="grid-row: 2">
           <xul:label
             id="fixedServerName"
-            collapsed="true"
+            collapsed="collapsed"
             use="server.hostName"
           />
           <html:input
@@ -114,7 +114,11 @@
             accesskey="&port.accesskey;"
             control="server.port"
           />
-          <xul:label id="fixedServerPort" collapsed="true" use="server.port" />
+          <xul:label
+            id="fixedServerPort"
+            collapsed="collapsed"
+            use="server.port"
+          />
           <html:input
             id="server.port"
             type="number"
@@ -138,7 +142,7 @@
         <div class="input-container" hidefor="nntp" style="grid-row: 3">
           <xul:label
             id="fixedUserName"
-            collapsed="true"
+            collapsed="collapsed"
             use="server.username"
           />
           <html:input
@@ -350,16 +354,16 @@
             />
 
             <!-- hidden elements for data transfer to and from advanced... dialog -->
-            <hbox flex="1" hidefor="imap,nntp" hidden="true">
+            <hbox flex="1" hidefor="imap,nntp" hidden="hidden">
               <checkbox
-                hidden="true"
+                hidden="hidden"
                 wsm_persist="true"
                 id="pop3.deferGetNewMail"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.deferGetNewMail"
               />
               <label
-                hidden="true"
+                hidden="hidden"
                 wsm_persist="true"
                 id="pop3.deferredToAccount"
                 prefattribute="value"
@@ -369,7 +373,7 @@
           </vbox>
           <!-- IMAP -->
           <label
-            hidden="true"
+            hidden="hidden"
             wsm_persist="true"
             id="imap.trashFolderName"
             prefattribute="value"
@@ -461,40 +465,48 @@
           </vbox>
 
           <!-- Advanced IMAP settings -->
-          <hbox flex="1" hidefor="pop3,nntp,ews" hidden="true">
+          <hbox flex="1" hidefor="pop3,nntp,ews" hidden="hidden">
             <checkbox
-              hidden="true"
+              hidden="hidden"
               wsm_persist="true"
               id="imap.dualUseFolders"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.dual_use_folders"
             />
             <checkbox
-              hidden="true"
+              hidden="hidden"
               wsm_persist="true"
               id="imap.usingSubscription"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.using_subscription"
             />
             <label
-              hidden="true"
+              hidden="hidden"
               wsm_persist="true"
               id="imap.maximumConnectionsNumber"
             />
             <label
-              hidden="true"
+              hidden="hidden"
               wsm_persist="true"
               id="imap.personalNamespace"
             />
-            <label hidden="true" wsm_persist="true" id="imap.publicNamespace" />
             <label
-              hidden="true"
+              hidden="hidden"
+              wsm_persist="true"
+              id="imap.publicNamespace"
+            />
+            <label
+              hidden="hidden"
               wsm_persist="true"
               id="imap.otherUsersNamespace"
             />
-            <label hidden="true" wsm_persist="true" id="imap.serverDirectory" />
+            <label
+              hidden="hidden"
+              wsm_persist="true"
+              id="imap.serverDirectory"
+            />
             <checkbox
-              hidden="true"
+              hidden="hidden"
               wsm_persist="true"
               id="imap.overrideNamespaces"
               prefattribute="value"
@@ -504,7 +516,7 @@
 
           <!-- EWS -->
           <label
-            hidden="true"
+            hidden="hidden"
             wsm_persist="true"
             id="ews.trashFolderPath"
             prefattribute="value"
@@ -587,20 +599,28 @@
           </vbox>
 
           <!-- Advanced EWS settings -->
-          <hbox flex="1" hidefor="pop3,nntp,imap" hidden="true">
-            <label id="ews.ewsUrl" wsm_persist="true" hidden="true" />
+          <hbox flex="1" hidefor="pop3,nntp,imap" hidden="hidden">
+            <label id="ews.ewsUrl" wsm_persist="true" hidden="hidden" />
             <checkbox
               id="ews.ewsOverrideOAuthDetails"
               wsm_persist="true"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.ews_override_oauth_details"
-              hidden="true"
+              hidden="hidden"
             />
-            <label id="ews.ewsApplicationId" wsm_persist="true" hidden="true" />
-            <label id="ews.ewsTenantId" wsm_persist="true" hidden="true" />
-            <label id="ews.ewsRedirectUri" wsm_persist="true" hidden="true" />
-            <label id="ews.ewsEndpointHost" wsm_persist="true" hidden="true" />
-            <label id="ews.ewsOAuthScopes" wsm_persist="true" hidden="true" />
+            <label
+              id="ews.ewsApplicationId"
+              wsm_persist="true"
+              hidden="hidden"
+            />
+            <label id="ews.ewsTenantId" wsm_persist="true" hidden="hidden" />
+            <label id="ews.ewsRedirectUri" wsm_persist="true" hidden="hidden" />
+            <label
+              id="ews.ewsEndpointHost"
+              wsm_persist="true"
+              hidden="hidden"
+            />
+            <label id="ews.ewsOAuthScopes" wsm_persist="true" hidden="hidden" />
           </hbox>
 
           <!-- NNTP -->

@@ -598,19 +598,19 @@
   <menuitem id="addr_toShowAddressRowMenuItem" disableonsend="true"
             class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowTo')"
-            hidden="true"
+            hidden="hidden"
             data-button-id="addr_toShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_ccShowAddressRowMenuItem" disableonsend="true"
             class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowCc')"
-            hidden="true"
+            hidden="hidden"
             data-button-id="addr_ccShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_bccShowAddressRowMenuItem" disableonsend="true"
             class="mail-show-row-menuitem menuitem-iconic"
             oncommand="showAndFocusAddressRow('addressRowBcc')"
-            hidden="true"
+            hidden="hidden"
             data-button-id="addr_bccShowAddressRowButton"
             data-prefer-button="true"/>
   <menuitem id="addr_newsgroupsShowAddressRowMenuItem"
@@ -841,7 +841,7 @@
   <menuitem id="expandList"
             class="pill-action-edit"
             data-l10n-id="pill-action-expand-list"
-            hidden="true"
+            hidden="hidden"
             oncommand="expandList(this.parentNode.triggerNode)"/>
 </menupopup>
 
@@ -1231,7 +1231,7 @@
                              class="fontFaceMenuAfterDefaultFonts"/>
               <menuseparator id="fontFaceMenuAfterUsedFontsSeparator"
                              class="fontFaceMenuAfterUsedFonts"
-                             hidden="true"/>
+                             hidden="hidden"/>
                 <!-- Local font face items added here by initLocalFontFaceMenu() -->
             </menupopup>
           </menu>
@@ -2499,7 +2499,7 @@
       <html:summary>
         <!-- Hide from accessibility tree since this is only used for a brief
            - animation effect. -->
-        <html:span id="newAttachmentIndicator" aria-hidden="true"></html:span>
+        <html:span id="newAttachmentIndicator" aria-hidden="hidden"></html:span>
         <html:img id="attachmentToggle"
                   src="chrome://messenger/skin/icons/new/nav-down-sm.svg"
                   alt="" />
@@ -2530,7 +2530,7 @@
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
-            hidden="true"/>
+            hidden="hidden"/>
   </panel>
 
   <vbox id="compose-notification-bottom">

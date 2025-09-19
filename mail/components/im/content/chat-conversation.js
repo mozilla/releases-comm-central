@@ -225,7 +225,7 @@
         "http://www.w3.org/1999/xhtml",
         "progress"
       );
-      this.progressBar.setAttribute("hidden", "hidden");
+      this.progressBar.toggleAttribute("hidden", "hidden");
 
       this.findbar = document.createXULElement("findbar");
       this.findbar.setAttribute("reversed", "true");
@@ -240,7 +240,7 @@
       this.splitter.classList.add("splitter");
 
       this.convStatusContainer = document.createXULElement("hbox");
-      this.convStatusContainer.setAttribute("hidden", "true");
+      this.convStatusContainer.toggleAttribute("hidden", true);
       this.convStatusContainer.classList.add("conv-status-container");
 
       this.convStatus = document.createXULElement("description");
@@ -379,7 +379,7 @@
       if (this._statusText) {
         this.convStatusContainer.removeAttribute("hidden");
       } else {
-        this.convStatusContainer.setAttribute("hidden", "true");
+        this.convStatusContainer.toggleAttribute("hidden", true);
       }
     }
 

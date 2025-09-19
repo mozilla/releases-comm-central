@@ -562,7 +562,7 @@
           }
 
           this.arrowScrollbox.removeAttribute("overflow");
-          alltabsButton.setAttribute("hidden", "true");
+          alltabsButton.toggleAttribute("hidden", true);
           break;
         case "resize": {
           const width = this.arrowScrollbox.getBoundingClientRect().width;
