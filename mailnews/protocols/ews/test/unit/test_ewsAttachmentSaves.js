@@ -3,17 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests imap save and detach attachments.
+ * Tests EWS save and detach attachments.
  *
  * This should closely match
- * mailnews/protocols/ews/test/unit/test_ewsAttachmentSaves.js
+ * mailnews/imap/test/unit/test_imapAttachmentSaves.js
  */
 
+var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-var { PromiseTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
   "resource:///modules/gloda/MimeMessage.sys.mjs"
@@ -21,6 +24,13 @@ var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
 var { AttachmentInfo } = ChromeUtils.importESModule(
   "resource:///modules/AttachmentInfo.sys.mjs"
 );
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
+var incomingServer;
+/** @type {EwsServer} */
+var ewsServer;
 
 const kAttachFileName = "bob.txt";
 
@@ -38,39 +48,38 @@ class SaveAttachmentCallbackListener {
 
 const gCallbackObject = new SaveAttachmentCallbackListener();
 
-add_setup(function () {
-  setupIMAPPump();
+add_setup(async function () {
+  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
 
   registerCleanupFunction(() => {
-    teardownIMAPPump();
+    ewsServer.clearItems();
   });
 });
 
-add_task(async function testImapAttachmentDetac() {
+add_task(async function testEwsAttachmentDetach() {
   const messageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
   const smsg = messageGenerator.makeMessage({
     attachments: [{ filename: kAttachFileName, body: "I like cheese!" }],
   });
 
-  const imapInbox = IMAPPump.daemon.getMailbox("INBOX");
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
 
-  // load and update a message in the fake imap server
-  const msgURI = Services.io.newURI(
-    "data:text/plain;base64," + btoa(smsg.toMessageString())
-  );
-  const message = new ImapMessage(msgURI.spec, imapInbox.uidnext++, []);
-  IMAPPump.mailbox.addMessage(message);
-  const listener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.updateFolderWithListener(null, listener);
-  await listener.promise;
+  const inboxFolder = rootFolder.getChildNamed("Inbox");
+  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+  await syncFolder(incomingServer, inboxFolder);
+
+  // load and update a message in the fake EWS server
+  ewsServer.addNewItemOrMoveItemToFolder("attach_test_msg", "inbox", smsg);
+  await syncFolder(incomingServer, inboxFolder);
 
   Assert.equal(
     1,
-    IMAPPump.inbox.getTotalMessages(false),
+    inboxFolder.getTotalMessages(false),
     "Inbox should have the one message we added"
   );
-  const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const msgHdr = mailTestUtils.firstMsgHdr(inboxFolder);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
 
   // process the message through mime
@@ -101,11 +110,11 @@ add_task(async function testImapAttachmentDetac() {
   // Get the message header - detached copy has UID 2. The original should be
   // gone.
   Assert.equal(
-    [...IMAPPump.inbox.messages].length,
+    inboxFolder.getTotalMessages(false),
     1,
     "Inbox should still have exactly one message after detach"
   );
-  const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
+  const msgHdr2 = inboxFolder.GetMessageHeader(2);
   Assert.ok(!!msgHdr2, "Should have a message header");
 
   const messageContent = await getContentFromMessage(msgHdr2);

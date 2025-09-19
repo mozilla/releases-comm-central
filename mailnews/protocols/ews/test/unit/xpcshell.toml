@@ -5,6 +5,8 @@ support-files = ["data/*"]
 
 ["test_delete_model_trash_path.js"]
 
+["test_ewsAttachmentSaves.js"]
+
 ["test_ewsFilters.js"]
 
 ["test_folder_operations.js"]
