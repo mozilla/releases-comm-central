@@ -231,7 +231,7 @@ workers:
                 by-release-level:
                     production: comm-3-tree
                     staging: comm-1-tree
-        t-linux-docker(|-noscratch):
+        t-linux-docker(|-noscratch|-noscratch-amd|-amd):
             provisioner: comm-t
             implementation: docker-worker
             os: linux
