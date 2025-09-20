@@ -20,7 +20,7 @@ def rnp_version(version_file):
     return version_str, parse(version_str)
 
 
-def rnp_version_defines(version_file, thunderbird_version, crypto_backend):
+def rnp_version_defines(version_file, thunderbird_version, crypto_backend, crypto_backend_version):
     """
     Get DEFINES needed for RNP includes generated at build time
     :param string version_file:
@@ -32,7 +32,9 @@ def rnp_version_defines(version_file, thunderbird_version, crypto_backend):
     version_minor = version.minor
     version_patch = version.micro
 
-    version_full = f"{version_str}.MZLA.{thunderbird_version}.{crypto_backend}"
+    version_full = (
+        f"{version_str}.MZLA.{thunderbird_version}.{crypto_backend}.{crypto_backend_version}"
+    )
 
     defines = dict(
         RNP_VERSION_MAJOR=version_major,
@@ -43,6 +45,8 @@ def rnp_version_defines(version_file, thunderbird_version, crypto_backend):
         # Follow upstream's example when commit info is unavailable
         RNP_VERSION_COMMIT_TIMESTAMP="0",
         PACKAGE_STRING=f'"rnp {version_full}"',
+        CRYPTO_BACKEND_LOWERCASE=crypto_backend,
+        CRYPTO_BACKEND_VERSION=crypto_backend_version,
     )
 
     return defines

@@ -68,7 +68,9 @@ rnp_defines = {
     "ENABLE_RIPEMD160": True,
     "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
 }
-if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
+crypto_backend = CONFIG["MZLA_LIBRNP_BACKEND"]
+if crypto_backend == "botan":
+    crypto_backend_version = CONFIG["BOTAN_VERSION"]
     LOCAL_INCLUDES += ["!../botan/build/include/public"]
     if CONFIG["MZLA_SYSTEM_BOTAN"]:
         CXXFLAGS += CONFIG["MZLA_BOTAN_CFLAGS"]
@@ -81,10 +83,13 @@ if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
 
     rnp_defines.update({
         "CRYPTO_BACKEND_BOTAN": True,
+        "CRYPTO_BACKEND_BOTAN3": True,
         "ENABLE_TWOFISH": True,
         "ENABLE_BRAINPOOL": True,
     })
-elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
+elif crypto_backend == "openssl":
+    crypto_backend = "openssl"
+    crypto_backend_version = CONFIG["MZLA_LIBRNP_OPENSSL_VERSION"]
     CXXFLAGS += CONFIG["MZLA_LIBRNP_OPENSSL_CFLAGS"]
     OS_LIBS += CONFIG["MZLA_LIBRNP_OPENSSL_LIBS"]
 
@@ -110,7 +115,8 @@ GeneratedFile(
     inputs=["src/lib/version.h.in", "src/lib/config.h.in"],
     flags=["-V", f"{SRCDIR}/version.txt",
            "-m", CONFIG["MOZ_APP_VERSION_DISPLAY"],
-           "-c", CONFIG["MZLA_LIBRNP_BACKEND"]] + gen_files_flags
+           "-c", crypto_backend,
+           "-b", crypto_backend_version] + gen_files_flags
 )
 
 if CONFIG["MOZ_SYSTEM_ZLIB"]:
@@ -136,27 +142,26 @@ SOURCES += [
     "src/common/file-utils.cpp",
     "src/common/str-utils.cpp",
     "src/common/time-utils.cpp",
-    "src/lib/crypto.cpp",
     "src/lib/crypto/backend_version.cpp",
-    "src/lib/crypto/cipher.cpp",
-    "src/lib/crypto/ec_curves.cpp",
-    "src/lib/crypto/ecdh_utils.cpp",
-    "src/lib/crypto/hash_common.cpp",
     "src/lib/crypto/hash_sha1cd.cpp",
-    "src/lib/crypto/mpi.cpp",
-    "src/lib/crypto/s2k.cpp",
     "src/lib/crypto/sha1cd/sha1.c",
     "src/lib/crypto/sha1cd/ubc_check.c",
-    "src/lib/crypto/signatures.cpp",
+    "src/lib/enc_material.cpp",
     "src/lib/fingerprint.cpp",
-    "src/lib/generate-key.cpp",
     "src/lib/json-utils.cpp",
     "src/lib/key-provider.cpp",
+    "src/lib/key.cpp",
+    "src/lib/key_material.cpp",
+    "src/lib/keygen.cpp",
     "src/lib/logging.cpp",
     "src/lib/pass-provider.cpp",
-    "src/lib/pgp-key.cpp",
+    "src/lib/rawpacket.cpp",
     "src/lib/rnp.cpp",
     "src/lib/sec_profile.cpp",
+    "src/lib/sig_material.cpp",
+    "src/lib/sig_subpacket.cpp",
+    "src/lib/signature.cpp",
+    "src/lib/userid.cpp",
     "src/lib/utils.cpp",
     # librekey
     "src/librekey/key_store_g10.cpp",
@@ -189,37 +194,53 @@ SOURCES["src/lib/crypto/sha1cd/ubc_check.c"].flags += ["-Wno-unsafe-buffer-usage
 
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
     SOURCES += [
-        "src/lib/crypto/bn.cpp",
+        "src/lib/crypto/cipher.cpp",
         "src/lib/crypto/cipher_botan.cpp",
         "src/lib/crypto/dsa.cpp",
+        "src/lib/crypto/dsa_common.cpp",
         "src/lib/crypto/ec.cpp",
+        "src/lib/crypto/ec_curves.cpp",
         "src/lib/crypto/ecdh.cpp",
+        "src/lib/crypto/ecdh_utils.cpp",
         "src/lib/crypto/ecdsa.cpp",
         "src/lib/crypto/eddsa.cpp",
         "src/lib/crypto/elgamal.cpp",
         "src/lib/crypto/hash.cpp",
+        "src/lib/crypto/hash_common.cpp",
         "src/lib/crypto/mem.cpp",
+        "src/lib/crypto/mpi.cpp",
         "src/lib/crypto/rng.cpp",
         "src/lib/crypto/rsa.cpp",
+        "src/lib/crypto/s2k.cpp",
+        "src/lib/crypto/signatures.cpp",
         "src/lib/crypto/symmetric.cpp",
+        "src/lib/crypto/symmetric_common.cpp",
     ]
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
     SOURCES += [
-        "src/lib/crypto/bn_ossl.cpp",
+        "src/lib/crypto/dsa_common.cpp",
+        "src/lib/crypto/cipher.cpp",
         "src/lib/crypto/cipher_ossl.cpp",
         "src/lib/crypto/dl_ossl.cpp",
         "src/lib/crypto/dsa_ossl.cpp",
+        "src/lib/crypto/ec_curves.cpp",
         "src/lib/crypto/ec_ossl.cpp",
         "src/lib/crypto/ecdh_ossl.cpp",
+        "src/lib/crypto/ecdh_utils.cpp",
         "src/lib/crypto/ecdsa_ossl.cpp",
         "src/lib/crypto/eddsa_ossl.cpp",
         "src/lib/crypto/elgamal_ossl.cpp",
+        "src/lib/crypto/hash_common.cpp",
         "src/lib/crypto/hash_crc24.cpp",
         "src/lib/crypto/hash_ossl.cpp",
         "src/lib/crypto/mem_ossl.cpp",
+        "src/lib/crypto/mpi.cpp",
         "src/lib/crypto/rng_ossl.cpp",
         "src/lib/crypto/rsa_ossl.cpp",
+        "src/lib/crypto/s2k.cpp",
         "src/lib/crypto/s2k_ossl.cpp",
+        "src/lib/crypto/signatures.cpp",
+        "src/lib/crypto/symmetric_common.cpp",
         "src/lib/crypto/symmetric_ossl.cpp",
     ]
 

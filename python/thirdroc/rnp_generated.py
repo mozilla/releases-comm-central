@@ -53,6 +53,9 @@ def main(output, *argv):
         "-c", type=str, dest="crypto_backend", help="Crypto backend (botan|openssl)"
     )
     parser.add_argument(
+        "-b", type=str, dest="crypto_backend_version", help="Crypto backend version"
+    )
+    parser.add_argument(
         "-D",
         type=define_type,
         action="append",
@@ -63,7 +66,12 @@ def main(output, *argv):
 
     args = parser.parse_args(argv)
 
-    defines = rnp_version_defines(args.version_file, args.thunderbird_version, args.crypto_backend)
+    defines = rnp_version_defines(
+        args.version_file,
+        args.thunderbird_version,
+        args.crypto_backend,
+        args.crypto_backend_version,
+    )
 
     # "output" is an open filedescriptor for version.h
     generate_version_h(output, args.version_h_in, defines)

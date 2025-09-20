@@ -412,11 +412,13 @@ with only_when(in_tree_librnp):
             ]  # Avoid unused argument warnings on Windows
 
             return namespace(
+                botan_version=build_config["version"],
                 libfile=build_config["static_lib_name"],
                 libname=build_config["libname"],
                 cxxflags=cxxflags,
             )
 
+        set_config("BOTAN_VERSION", configure_botan.botan_version, when=configure_botan)
         set_config("BOTAN_LIB_FILE", configure_botan.libfile, when=configure_botan)
         set_config("BOTAN_LIB_NAME", configure_botan.libname, when=configure_botan)
         set_config("BOTAN_CXXFLAGS", configure_botan.cxxflags, when=configure_botan)
