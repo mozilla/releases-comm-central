@@ -5,30 +5,29 @@
 use std::cell::{OnceCell, RefCell};
 use std::ffi::CString;
 use std::os::raw::c_void;
-use std::ptr;
 
 use ews::{Mailbox, Recipient};
 use thin_vec::ThinVec;
 
 use cstr::cstr;
-use nserror::nsresult;
-use nserror::NS_OK;
+use nserror::{nsresult, NS_OK};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
-use xpcom::interfaces::{nsILoginInfo, nsILoginManager, nsIMsgOutgoingServer};
-use xpcom::{get_service, getter_addrefs, nsIID};
 use xpcom::{
+    get_service, getter_addrefs,
     interfaces::{
-        msgIAddressObject, nsIFile, nsIIOService, nsIMsgIdentity, nsIMsgOutgoingListener,
-        nsIMsgStatusFeedback, nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener,
-        nsMsgAuthMethodValue, nsMsgSocketType, nsMsgSocketTypeValue,
+        msgIAddressObject, nsIFile, nsILoginInfo, nsILoginManager, nsIMsgIdentity,
+        nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgStatusFeedback, nsIMsgWindow,
+        nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
+        nsMsgSocketType, nsMsgSocketTypeValue,
     },
-    xpcom_method, RefPtr,
+    nsIID, xpcom_method, RefPtr,
 };
 
 use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::XpComEwsClient;
+use crate::safe_xpcom::{SafeMsgOutgoingListener, SafeUri};
 use crate::xpcom_io;
 
 /// Whether a field is required to have a value (either in memory or in a pref)
@@ -550,14 +549,12 @@ impl EwsOutgoingServer {
     // Server URI
     xpcom_method!(server_uri => GetServerURI() -> *const nsIURI);
     fn server_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
+        self.safe_server_uri().map(|uri| uri.into())
+    }
+
+    fn safe_server_uri(&self) -> Result<SafeUri, nsresult> {
         let url = self.ews_url()?;
-        let url = nsCString::from(url.as_str());
-
-        let io_service =
-            xpcom::get_service::<nsIIOService>(cstr!("@mozilla.org/network/io-service;1"))
-                .ok_or(nserror::NS_ERROR_FAILURE)?;
-
-        getter_addrefs(|p| unsafe { io_service.NewURI(&*url, ptr::null(), ptr::null(), p) })
+        SafeUri::new(url.as_str())
     }
 
     // Maximum number of connections
@@ -665,8 +662,8 @@ impl EwsOutgoingServer {
                 message_id.to_utf8().into(),
                 should_request_dsn,
                 bcc_recipients,
-                RefPtr::new(listener),
-                self.server_uri()?,
+                SafeMsgOutgoingListener::new(listener),
+                self.safe_server_uri()?,
             ),
         )
         .detach();

@@ -10,13 +10,17 @@ pub(crate) use folder_listener::*;
 pub(crate) use message_create_listener::*;
 pub(crate) use message_sync_listener::*;
 pub(crate) use msg_db_hdr::*;
+pub(crate) use msg_outgoing_listener::*;
 pub(crate) use simple_operation_listener::*;
+pub(crate) use uri::*;
 
 mod folder_listener;
 mod message_create_listener;
 mod message_sync_listener;
 mod msg_db_hdr;
+mod msg_outgoing_listener;
 mod simple_operation_listener;
+mod uri;
 
 use crate::client::XpComEwsError;
 
