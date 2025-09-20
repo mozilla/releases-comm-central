@@ -21,12 +21,16 @@ else:
     DEFINES["_GNU_SOURCE"] = True
     DEFINES["CC"] = CONFIG["_CC"]
 
+    json_c_strtoll = CONFIG["JSON_C_STRTOLL"]
+    json_c_strtoull = CONFIG["JSON_C_STRTOULL"]
     GeneratedFile(
         "config.h",
         script="/comm/python/thirdroc/thirdroc/cmake_define_files.py",
         inputs=["cmake/config.h.in"],
         flags=[
-            "-DPACKAGE_URL=\"\""
+            "-DPACKAGE_URL=\"\"",
+            f"-Djson_c_strtoll={json_c_strtoll}",
+            f"-Djson_c_strtoull={json_c_strtoull}",
         ]
     )
 
