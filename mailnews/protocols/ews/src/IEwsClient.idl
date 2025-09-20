@@ -473,7 +473,7 @@ interface IEwsMessageCreateListener : nsISupports
 interface IEwsMessageFetchListener : nsISupports
 {
   void onFetchStart();
-  void onFetchedDataAvailable(in nsIInputStream inputStream, in unsigned long count);
+  void onFetchedDataAvailable(in nsIInputStream inputStream);
   void onFetchStop(in nsresult status);
 };
 

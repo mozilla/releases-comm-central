@@ -28,8 +28,8 @@ use xpcom::{
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
 use safe_xpcom::{
-    SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener,
-    SafeEwsSimpleOperationListener, SafeUri, SafeUrlListener,
+    SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
+    SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUri, SafeUrlListener,
 };
 
 use crate::authentication::credentials::OAuthOverrides;
@@ -287,7 +287,10 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "get_message",
-            client.get_message(RefPtr::new(listener), id.to_utf8().into()),
+            client.get_message(
+                SafeEwsMessageFetchListener::new(listener),
+                id.to_utf8().into(),
+            ),
         )
         .detach();
 

@@ -104,9 +104,9 @@ NS_IMETHODIMP EwsMessageFetchListener::OnFetchStart() {
 }
 
 NS_IMETHODIMP EwsMessageFetchListener::OnFetchedDataAvailable(
-    nsIInputStream* stream, uint32_t count) {
+    nsIInputStream* stream) {
   uint64_t bytesFetched = 0;
-  nsresult rv = mOnFetchedDataAvailable(stream, count, &bytesFetched);
+  nsresult rv = mOnFetchedDataAvailable(stream, &bytesFetched);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mTotalFetchedBytesCount += bytesFetched;
