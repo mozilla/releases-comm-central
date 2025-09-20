@@ -265,8 +265,9 @@ async function checkCardsListed(...expectedCards) {
         "The avatar image should be visible"
       );
       Assert.equal(
-        row.avatar.shadowRoot.querySelector("img").src,
-        "chrome://messenger/skin/icons/new/compact/user-list-alt.svg",
+        abWindow.getComputedStyle(row.avatar.shadowRoot.querySelector("img"))
+          .content,
+        `url("chrome://messenger/skin/icons/new/compact/user-list-alt.svg")`,
         "The mailing list image should match"
       );
       Assert.ok(
