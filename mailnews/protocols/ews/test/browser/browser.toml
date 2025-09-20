@@ -9,11 +9,11 @@ prefs = [
 ]
 subsuite = "thunderbird"
 
+["browser_basic_notifications.js"]
+
 ["browser_feedback.js"]
 
 ["browser_folder_props.js"]
-
-["browser_basic_notifications.js"]
 
 ["browser_openPGP.js"]
 

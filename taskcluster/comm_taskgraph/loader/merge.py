@@ -22,7 +22,9 @@ def loader(kind, path, config, params, loaded_tasks, write_artifacts):
         "reference-base-path": config.pop("reference-base-path"),
         "reference-tasks": config.pop("reference-tasks", None),
     }
-    for task in reference_loader(kind, path, reference_config, params, loaded_tasks, write_artifacts):
+    for task in reference_loader(
+        kind, path, reference_config, params, loaded_tasks, write_artifacts
+    ):
         yield task
 
     for task in transform_loader(kind, path, config, params, loaded_tasks, write_artifacts):
