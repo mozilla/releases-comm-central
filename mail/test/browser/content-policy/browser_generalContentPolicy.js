@@ -372,7 +372,7 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
 
 /**
  * Check remote content in stand-alone message window loaded from .eml file.
- * Make sure there's a notification bar.
+ * Make sure there's a notification bar and allowing remote content works.
  */
 async function checkEMLMessageWindow(test, emlFile) {
   const msgc = await open_message_from_file(emlFile);
@@ -384,7 +384,30 @@ async function checkEMLMessageWindow(test, emlFile) {
     throw new Error(test.type + " content notification bar not shown.");
   }
 
-  // Clean up, close the window
+  if (
+    await test.checkForAllowed(
+      aboutMessage
+        .getMessagePaneBrowser()
+        .contentDocument.getElementById("testelement")
+    )
+  ) {
+    throw new Error(`${test.type} has not been blocked in EML message window.`);
+  }
+
+  await showRemoteContent(aboutMessage);
+
+  if (
+    !(await test.checkForAllowed(
+      aboutMessage
+        .getMessagePaneBrowser()
+        .contentDocument.getElementById("testelement")
+    ))
+  ) {
+    throw new Error(
+      `${test.type} has been unexpectedly blocked in EML message window.`
+    );
+  }
+
   await BrowserTestUtils.closeWindow(msgc);
 }
 
@@ -415,15 +438,14 @@ async function saveAsEMLFile(msgNo) {
   return file;
 }
 
-async function allowRemoteContentAndCheck(test) {
-  if (test.neverAllowed) {
-    return;
-  }
-  info(`Checking allow remote content; test=${test.type}`);
-  await addMsgToFolderAndCheckContent(folder, test);
-
-  const aboutMessage = get_about_message();
-
+/**
+ * Helper function to click the "Show remote content in this message" option
+ * in the notification bar.
+ *
+ * @param {Window} aboutMessage - The about:message window showing the
+ *   notification.
+ */
+async function showRemoteContent(aboutMessage) {
   // Click on the allow remote content button
   const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
@@ -447,8 +469,18 @@ async function allowRemoteContentAndCheck(test) {
       aboutMessage.document.getElementById("remoteContentOptionAllowForMsg")
     );
   await wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
-
   await wait_for_message_display_completion(window, true);
+}
+
+async function allowRemoteContentAndCheck(test) {
+  if (test.neverAllowed) {
+    return;
+  }
+  info(`Checking allow remote content; test=${test.type}`);
+  await addMsgToFolderAndCheckContent(folder, test);
+
+  const aboutMessage = get_about_message();
+  await showRemoteContent(aboutMessage);
 
   if (
     !(await test.checkForAllowed(

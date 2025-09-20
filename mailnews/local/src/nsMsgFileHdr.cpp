@@ -109,6 +109,17 @@ nsresult nsMsgFileHdr::ReadFile() {
   return rv;
 }
 
+nsresult nsMsgFileHdr::InitFileName() {
+  if (!mFileName.IsEmpty()) {
+    return nsresult::NS_OK;
+  }
+
+  nsCOMPtr<nsIURI> uri;
+  NS_NewURI(getter_AddRefs(uri), mUri);
+  nsCOMPtr<nsIFileURL> fileUrl = do_QueryInterface(uri);
+  return fileUrl->GetFileName(mFileName);
+}
+
 NS_IMETHODIMP nsMsgFileHdr::SetStringProperty(const char* propertyName,
                                               const nsACString& propertyValue) {
   return NS_OK;
@@ -133,12 +144,21 @@ NS_IMETHODIMP nsMsgFileHdr::GetUint32Property(const char* propertyName,
     PRTime modifiedTime;
     mFile->GetLastModifiedTime(&modifiedTime);
     *_retval = PRTimeToSeconds(modifiedTime);
+  } else if (!strcmp(propertyName, "remoteContentPolicy")) {
+    InitFileName();
+    *_retval = RemoteAllowList().Contains(mFileName) ? kAllowRemoteContent
+                                                     : kNoRemoteContentPolicy;
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::SetUint32Property(const char* propertyName,
                                               uint32_t propertyVal) {
+  if (!strcmp(propertyName, "remoteContentPolicy") &&
+      propertyVal == kAllowRemoteContent) {
+    InitFileName();
+    RemoteAllowList().Insert(mFileName);
+  }
   return NS_OK;
 }
 

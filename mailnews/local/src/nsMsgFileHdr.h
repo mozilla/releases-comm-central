@@ -9,6 +9,7 @@
 #include "nsIMsgHdr.h"
 #include "nsString.h"
 #include "nsTArray.h"
+#include "nsTHashSet.h"
 
 /* This mail-related class is a stub. You can help mailnews by expanding it. */
 
@@ -23,9 +24,12 @@ class nsMsgFileHdr : public nsIMsgDBHdr {
   virtual ~nsMsgFileHdr();
 
   nsresult ReadFile();
+  nsresult InitFileName();
 
   nsCString mUri;
   nsCOMPtr<nsIFile> mFile;
+  nsCString mFileName;
+
   nsCString mAuthor;
   nsString mDecodedAuthor;
   nsCString mSubject;
@@ -37,6 +41,13 @@ class nsMsgFileHdr : public nsIMsgDBHdr {
   PRTime mDate;
   nsCString mMessageID;
   uint32_t mFlags;
+
+  static constexpr uint32_t kNoRemoteContentPolicy = 0;
+  static constexpr uint32_t kAllowRemoteContent = 2;
+  static nsTHashSet<nsCString>& RemoteAllowList() {
+    static nsTHashSet<nsCString> sRemoteAllowList;
+    return sRemoteAllowList;
+  };
 };
 
 #endif  // COMM_MAILNEWS_LOCAL_SRC_NSMSGFILEHDR_H_

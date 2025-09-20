@@ -497,21 +497,30 @@ nsMailboxService::MessageURIToMsgHdr(const nsACString& uri,
                                      nsIMsgDBHdr** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
+  // When an .eml message file is loaded, nsMailboxService::FetchMessage
+  // creates a new 'mailbox' URI  including a 'number=0' search part from the
+  // original 'file' URI spec, which is subsequently returned as
+  //'mailbox-message' URI with additional `#0' by nsMailboxUrl::GetUri.
+  if (StringBeginsWith(uri, "mailbox-message:"_ns) &&
+      StringEndsWith(uri, "number=0#0"_ns)) {
+    nsAutoCString uriString(uri);
+    uriString.Replace(0, 16, "file:"_ns);
+    nsCOMPtr<nsIMsgDBHdr> msgHdr = new nsMsgFileHdr(uriString);
+    msgHdr.forget(_retval);
+    return NS_OK;
+  }
+
   if (StringBeginsWith(uri, "file:"_ns)) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr = new nsMsgFileHdr(uri);
     msgHdr.forget(_retval);
     return NS_OK;
   }
 
-  nsresult rv = NS_OK;
-
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey msgKey;
 
-  rv = DecomposeMailboxURI(uri, getter_AddRefs(folder), &msgKey);
+  nsresult rv = DecomposeMailboxURI(uri, getter_AddRefs(folder), &msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folder->GetMessageHeader(msgKey, _retval);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return NS_OK;
+  return folder->GetMessageHeader(msgKey, _retval);
 }
