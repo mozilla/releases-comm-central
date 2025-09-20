@@ -50,7 +50,7 @@ use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
 use xpcom::{
-    interfaces::{nsIStringInputStream, nsIURI, nsIUrlListener, IEwsMessageFetchListener},
+    interfaces::{nsIStringInputStream, IEwsMessageFetchListener},
     RefCounted, RefPtr,
 };
 
@@ -59,7 +59,7 @@ use crate::{
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
         SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeListener,
-        SafeMsgOutgoingListener, SafeUri, StaleMsgDbHeader, UpdatedMsgDbHeader,
+        SafeMsgOutgoingListener, SafeUri, SafeUrlListener, StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
 };
 
@@ -156,23 +156,15 @@ where
     /// authentication, we try to look up the ID of the account's root mail
     /// folder, since it produces a fairly small request and represents the
     /// first operation performed when adding a new account to Thunderbird.
-    pub(crate) async fn check_connectivity(
-        self,
-        uri: RefPtr<nsIURI>,
-        listener: RefPtr<nsIUrlListener>,
-    ) {
-        unsafe { listener.OnStartRunningUrl(uri.coerce()) };
+    pub(crate) async fn check_connectivity(self, uri: SafeUri, listener: SafeUrlListener) {
+        listener.on_start_running_url(uri.clone());
 
         match self.check_connectivity_inner().await {
-            Ok(_) => unsafe {
-                listener.OnStopRunningUrl(uri.coerce(), nserror::NS_OK);
-            },
+            Ok(_) => {
+                let _ = listener.on_success(uri);
+            }
             Err(err) => {
-                log::error!("connectivity check failed with error: {}", err);
-
-                unsafe {
-                    listener.OnStopRunningUrl(uri.coerce(), err.into());
-                }
+                handle_error(&listener, "check connectivity", &err, uri);
             }
         }
     }
