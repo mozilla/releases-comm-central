@@ -8,12 +8,12 @@ use ews::{
     BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::interfaces::IEwsSimpleOperationListener;
-use xpcom::{RefCounted, RefPtr};
+use xpcom::RefCounted;
 
 use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::copy_move_operations::move_generic::CopyMoveOperation;
 use crate::client::XpComEwsClient;
+use crate::safe_xpcom::SafeEwsSimpleOperationListener;
 
 use super::move_generic::move_generic;
 
@@ -34,7 +34,7 @@ where
     /// contains the callbacks to execute upon success or failure.
     pub(crate) async fn copy_move_folder<RequestT>(
         self,
-        listener: RefPtr<IEwsSimpleOperationListener>,
+        listener: SafeEwsSimpleOperationListener,
         destination_folder_id: String,
         folder_ids: Vec<String>,
     ) where

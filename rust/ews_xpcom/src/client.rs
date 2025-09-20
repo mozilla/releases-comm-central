@@ -51,17 +51,18 @@ use uuid::Uuid;
 use xpcom::{
     interfaces::{
         nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        IEwsFallibleOperationListener, IEwsMessageFetchListener, IEwsSimpleOperationListener,
+        IEwsMessageFetchListener,
     },
-    RefCounted, RefPtr, XpCom,
+    RefCounted, RefPtr,
 };
 
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     cancellable_request::CancellableRequest,
     safe_xpcom::{
-        safe_handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsMessageSyncListener, SafeListener, StaleMsgDbHeader, UpdatedMsgDbHeader,
+        handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
+        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeListener, StaleMsgDbHeader,
+        UpdatedMsgDbHeader,
     },
 };
 
@@ -238,7 +239,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => safe_handle_error(&listener, "SyncFolderHierarchy", &err, ()),
+            Err(err) => handle_error(&listener, "SyncFolderHierarchy", &err, ()),
         };
     }
 
@@ -349,7 +350,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => safe_handle_error(&listener, "SyncFolderItems", &err, ()),
+            Err(err) => handle_error(&listener, "SyncFolderItems", &err, ()),
         }
     }
 
@@ -1148,7 +1149,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => safe_handle_error(&listener, "CreateItem", &err, ()),
+            Err(err) => handle_error(&listener, "CreateItem", &err, ()),
         };
     }
 
@@ -1340,20 +1341,16 @@ where
 
     pub async fn delete_messages(
         self,
-        listener: RefPtr<IEwsSimpleOperationListener>,
+        listener: SafeEwsSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         match self.delete_messages_inner(ews_ids).await {
-            Ok(_) => unsafe {
-                listener.OnOperationSuccess(&ThinVec::new(), false);
-            },
-            Err(err) => handle_error(
-                "DeleteItem",
-                err,
-                listener.query_interface::<IEwsFallibleOperationListener>(),
-            ),
+            Ok(_) => {
+                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
+            }
+            Err(err) => handle_error(&listener, "DeleteItem", &err, ()),
         };
     }
 
@@ -1418,22 +1415,14 @@ where
         Ok(())
     }
 
-    pub async fn delete_folder(
-        self,
-        listener: RefPtr<IEwsSimpleOperationListener>,
-        folder_id: String,
-    ) {
+    pub async fn delete_folder(self, listener: SafeEwsSimpleOperationListener, folder_id: String) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         match self.delete_folder_inner(folder_id).await {
-            Ok(_) => unsafe {
-                listener.OnOperationSuccess(&ThinVec::new(), false);
-            },
-            Err(err) => handle_error(
-                "DeleteFolder",
-                err,
-                listener.query_interface::<IEwsFallibleOperationListener>(),
-            ),
+            Ok(_) => {
+                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
+            }
+            Err(err) => handle_error(&listener, "DeleteFolder", &err, ()),
         }
     }
 
@@ -1475,21 +1464,17 @@ where
 
     pub async fn update_folder(
         self,
-        listener: RefPtr<IEwsSimpleOperationListener>,
+        listener: SafeEwsSimpleOperationListener,
         folder_id: String,
         folder_name: String,
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
         match self.update_folder_inner(folder_id, folder_name).await {
-            Ok(_) => unsafe {
-                listener.OnOperationSuccess(&ThinVec::new(), false);
-            },
-            Err(err) => handle_error(
-                "UpdateFolder",
-                err,
-                listener.query_interface::<IEwsFallibleOperationListener>(),
-            ),
+            Ok(_) => {
+                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
+            }
+            Err(err) => handle_error(&listener, "UpdateFolder", &err, ()),
         }
     }
 
@@ -1832,21 +1817,6 @@ impl From<&XpComEwsError> for nsresult {
 impl From<XpComEwsError> for nsresult {
     fn from(value: XpComEwsError) -> Self {
         (&value).into()
-    }
-}
-
-fn handle_error(
-    op_name: &str,
-    err: XpComEwsError,
-    listener: Option<RefPtr<IEwsFallibleOperationListener>>,
-) {
-    log::error!("an error occurred when performing operation {op_name}: {err:?}");
-
-    if let Some(listener) = listener {
-        match unsafe { listener.OnOperationFailure(err.into()) }.to_result() {
-            Ok(_) => {}
-            Err(err) => log::error!("the error callback returned a failure ({err})"),
-        }
     }
 }
 
