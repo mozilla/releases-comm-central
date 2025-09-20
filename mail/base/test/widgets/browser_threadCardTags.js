@@ -24,7 +24,7 @@ add_setup(async function () {
     .getElementById("existingEmptyTag")
     .setAttribute("tags", "$label1 $label2 notjunk something");
 
-  info("Generate a new element on runtime...");
+  info("Generate a new element at runtime...");
   runtimeGeneratedTag = doc.createElement("thread-card-tags");
   runtimeGeneratedTag.setAttribute("tags", "$label1 $label2 notjunk something");
   doc.body.appendChild(runtimeGeneratedTag);

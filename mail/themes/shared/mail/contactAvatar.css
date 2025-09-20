@@ -3,13 +3,12 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/icons.css");
 
+:host,
 :root {
   --recipient-avatar-size: 28px;
   --recipient-avatar-placeholder-size: 16px;
-
-  --recipient-avatar-color: light-dark(var(--color-gray-50), var(--color-gray-30));
-  --recipient-avatar-background-color: light-dark(var(--color-gray-30), var(--color-gray-60));
 
   &[uidensity="compact"] {
     --recipient-avatar-size: 24px;
@@ -21,14 +20,11 @@
     --recipient-avatar-size: 32px;
     --recipient-avatar-placeholder-size: 16px;
   }
-
-  @media (prefers-contrast) {
-    --recipient-avatar-color: currentColor;
-    --recipient-avatar-background-color: color-mix(in srgb, currentColor 30%, transparent);
-  }
 }
 
+:host,
 .recipient-avatar {
+  box-sizing: border-box;
   display: inline-flex;
   height: var(--recipient-avatar-size);
   width: var(--recipient-avatar-size);
@@ -36,8 +32,9 @@
   margin-inline-end: 6px;
   text-align: center;
   overflow: hidden;
-  color: var(--recipient-avatar-color);
-  background-color: var(--recipient-avatar-background-color);
+  color: var(--color-text-base);
+  background-color: var(--color-surface-deep);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
@@ -53,8 +50,19 @@
 
     & img {
       -moz-context-properties: fill, stroke;
-      fill: color-mix(in srgb, currentColor 20%, transparent);
+      fill: color-mix(in srgb, currentColor 50%, transparent);
       stroke: currentColor;
     }
+  }
+}
+
+:host(.is-mail-list) {
+  background: none;
+
+  & img {
+    content: var(--icon-mail-list);
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
   }
 }

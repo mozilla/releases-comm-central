@@ -14,6 +14,8 @@ support-files = ["files/**"]
 ["browser_autoTreeView.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
 
+["browser_contactAvatar.js"]
+
 ["browser_customElementUtils.js"]
 
 ["browser_customElements.js"]

@@ -19,6 +19,9 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.importESModule("chrome://messenger/content/contact-avatar.mjs", {
+  global: "current",
+});
 ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.importESModule("resource:///modules/ABQueryUtils.sys.mjs");
 });
@@ -444,18 +447,6 @@ function updateSharedSplitter(isTableLayout) {
 
   splitter.isCollapsed =
     document.getElementById("detailsPane").hidden && isTableLayout;
-}
-
-/**
- * @param {?string} displayName - The name.
- * @returns {string} what to display as avatar for the name.
- */
-function avatarPlaceholder(displayName) {
-  return (
-    Array.from(
-      displayName?.normalize().replaceAll(/[^\p{Letter}\p{Nd}]+/gu, "")
-    )[0]?.toUpperCase() || ""
-  );
 }
 
 /**
@@ -1236,8 +1227,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       const container = this.cell.appendChild(document.createElement("div"));
       container.classList.add("card-container");
 
-      this.avatar = container.appendChild(document.createElement("div"));
-      this.avatar.classList.add("recipient-avatar");
+      this.avatar = container.appendChild(
+        document.createElement("contact-avatar")
+      );
       const dataContainer = container.appendChild(
         document.createElement("div")
       );
@@ -1294,31 +1286,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         this.querySelector(".address-book-name")?.remove();
       }
 
-      // Don't try to fetch the avatar or show the parent AB if this is a list.
-      if (!card.isMailList) {
-        this.classList.remove("MailList");
-        const photoURL = card.photoURL;
-        if (photoURL) {
-          const img = document.createElement("img");
-          img.alt = this.name.textContent;
-          img.src = photoURL;
-          this.avatar.replaceChildren(img);
-        } else {
-          const letter = document.createElement("span");
-          letter.textContent = avatarPlaceholder(this.name.textContent);
-          letter.setAttribute("aria-hidden", "true");
-          this.avatar.replaceChildren(letter);
-        }
-        this.address.textContent = card.primaryEmail;
-      } else {
-        this.classList.add("MailList");
-        const img = document.createElement("img");
-        img.alt = "";
-        img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
-        this.avatar.replaceChildren(img);
-        this.avatar.classList.add("is-mail-list");
-        this.address.textContent = "";
-      }
+      this.address.textContent = !card.isMailList ? card.primaryEmail : "";
+      this.classList.toggle("mail-list-row", card.isMailList);
+      this.avatar.setData({ card, recipient: this.name.textContent });
 
       this.cell.setAttribute("aria-label", this.name.textContent);
     }
@@ -1358,7 +1328,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       super.fillRow();
 
       const card = this.view.getCardFromRow(this._index);
-      this.classList.toggle("MailList", card.isMailList);
+      this.classList.toggle("mail-list-card", card.isMailList);
 
       for (const column of cardsPane.COLUMNS) {
         const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
@@ -2970,34 +2940,17 @@ var detailsPane = {
     for (const card of cards) {
       const li = list.appendChild(template.cloneNode(true));
       li._card = card;
-      const avatar = li.querySelector(".recipient-avatar");
+      const avatar = li.querySelector("contact-avatar");
       const name = li.querySelector(".name");
       const address = li.querySelector(".address");
 
       if (!card.isMailList) {
         name.textContent = card.generateName(AddrBookDataAdapter.nameFormat);
         address.textContent = card.primaryEmail;
-
-        const photoURL = card.photoURL;
-        if (photoURL) {
-          const img = document.createElement("img");
-          img.alt = name.textContent;
-          img.src = photoURL;
-          avatar.appendChild(img);
-        } else {
-          const letter = document.createElement("span");
-          letter.textContent = avatarPlaceholder(name.textContent);
-          letter.setAttribute("aria-hidden", "true");
-          avatar.appendChild(letter);
-        }
       } else {
         name.textContent = card.displayName;
-
-        const img = avatar.appendChild(document.createElement("img"));
-        img.alt = "";
-        img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
-        avatar.classList.add("is-mail-list");
       }
+      avatar.setData({ card });
     }
     this.selectedCardsSection.hidden = false;
 
@@ -3780,24 +3733,12 @@ var detailsPane = {
     for (const card of cards) {
       const li = list.appendChild(template.cloneNode(true));
       li._card = card;
-      const avatar = li.querySelector(".recipient-avatar");
+      const avatar = li.querySelector("contact-avatar");
       const name = li.querySelector(".name");
       const address = li.querySelector(".address");
+      avatar.setData({ card });
       name.textContent = card.name;
       address.textContent = card.email;
-
-      const photoURL = card.photoURL;
-      if (photoURL) {
-        const img = document.createElement("img");
-        img.alt = name.textContent;
-        img.src = photoURL;
-        avatar.appendChild(img);
-      } else {
-        const letter = document.createElement("span");
-        letter.textContent = avatarPlaceholder(name.textContent);
-        letter.setAttribute("aria-hidden", "true");
-        avatar.appendChild(letter);
-      }
     }
     this.selectedCardsSection.hidden = list.childElementCount == 0;
 

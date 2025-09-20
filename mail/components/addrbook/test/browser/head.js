@@ -248,23 +248,55 @@ async function checkCardsListed(...expectedCards) {
   await waitForCardsListReady(cardsList);
   for (let i = 0; i < expectedCards.length; i++) {
     const row = cardsList.getRowAtIndex(i);
+    const card = expectedCards[i];
     Assert.equal(
-      row.classList.contains("MailList"),
-      expectedCards[i].isMailList,
-      `row ${
-        expectedCards[i].isMailList ? "should" : "should not"
-      } be a mailing list row`
+      row.classList.contains("mail-list-row"),
+      card.isMailList,
+      `row ${card.isMailList ? "should" : "should not"} be a mailing list row`
     );
     Assert.equal(
       row.address.textContent,
-      expectedCards[i].primaryEmail ?? "",
+      card.primaryEmail ?? "",
       "correct address should be displayed"
     );
-    Assert.equal(
-      row.avatar.childElementCount,
-      1,
-      "only one avatar image should be displayed"
-    );
+    if (card.isMailList) {
+      Assert.ok(
+        !row.avatar.shadowRoot.querySelector("img").hidden,
+        "The avatar image should be visible"
+      );
+      Assert.equal(
+        row.avatar.shadowRoot.querySelector("img").src,
+        "chrome://messenger/skin/icons/new/compact/user-list-alt.svg",
+        "The mailing list image should match"
+      );
+      Assert.ok(
+        row.avatar.shadowRoot.querySelector("span").hidden,
+        "The avatar placeholder letter should be hidden"
+      );
+    } else if (card.photoURL) {
+      Assert.ok(
+        !row.avatar.shadowRoot.querySelector("img").hidden,
+        "The avatar image should be visible"
+      );
+      Assert.equal(
+        row.avatar.shadowRoot.querySelector("img").src,
+        card.photoURL,
+        "The contact avatar image should match"
+      );
+      Assert.ok(
+        row.avatar.shadowRoot.querySelector("span").hidden,
+        "The avatar placeholder letter should be hidden"
+      );
+    } else {
+      Assert.ok(
+        row.avatar.shadowRoot.querySelector("img").hidden,
+        "The avatar image should be hidden"
+      );
+      Assert.ok(
+        !row.avatar.shadowRoot.querySelector("span").hidden,
+        "The avatar placeholder letter should be visible"
+      );
+    }
   }
 }
 

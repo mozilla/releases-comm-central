@@ -123,6 +123,7 @@ messenger.jar:
     content/messenger/toolbarbutton-menu-button.js  (content/widgets/toolbarbutton-menu-button.js)
     content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
     content/messenger/treecol-image.mjs             (content/widgets/treecol-image.mjs)
+    content/messenger/contact-avatar.mjs            (content/widgets/treeview/contact-avatar.mjs)
     content/messenger/thread-card-tags.mjs          (content/widgets/treeview/thread-card-tags.mjs)
     content/messenger/thread-card.mjs               (content/widgets/treeview/thread-card.mjs)
     content/messenger/thread-row.mjs                (content/widgets/treeview/thread-row.mjs)
