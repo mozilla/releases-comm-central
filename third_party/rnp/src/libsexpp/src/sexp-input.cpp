@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2021-2023 Ribose Inc. (https://www.ribose.com)
+ * Copyright 2021-2024 Ribose Inc. (https://www.ribose.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -219,7 +219,15 @@ void sexp_input_stream_t::scan_verbatim_string(sexp_simple_string_t &ss, uint32_
 
     // Some length is specified always, this is ensured by the caller's logic
     assert(length != std::numeric_limits<uint32_t>::max());
+    // We should not handle too large strings
+    if (length > 1024 * 1024) {
+        sexp_error(sexp_exception_t::error, "Too long verbatim string: %zu", length, 0, count);
+    }
     for (uint32_t i = 0; i < length; i++) {
+        if (next_char == EOF) {
+            sexp_error(
+              sexp_exception_t::error, "EOF while reading verbatim string", 0, 0, count);
+        }
         ss.append(next_char);
         get_char();
     }

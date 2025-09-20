@@ -11,7 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 // MIN_RNP_VERSION is updated by mach vendor when updating librnp from upstream.
-const MIN_RNP_VERSION = [0, 17, 1];
+const MIN_RNP_VERSION = [0, 18, 0];
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;

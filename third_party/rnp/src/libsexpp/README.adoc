@@ -20,11 +20,11 @@ Prof. Ronald Rivest and Prof. Butler Lampson of MIT LCS (now CSAIL).
 
 This library differs from the original C implementation in the following ways:
 
-* It aims to be reuseable in C++ implementations and is importable via CMake.
+* It aims to be reusable in C++ implementations and is importable via CMake.
 * It includes a test suite for correctness testing and tests against malformed
   S-Expressions.
 * It supports, and is tested against, all major platforms, including:
-** Ubuntu, Debian, Fedora, CentOS
+** Ubuntu, Debian, Fedora, CentOS, NixOS
 ** macOS
 ** Windows
 ** msys

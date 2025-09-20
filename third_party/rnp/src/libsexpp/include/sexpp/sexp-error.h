@@ -27,6 +27,7 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <cstdint>
 
 #include "sexp-public.h"
 

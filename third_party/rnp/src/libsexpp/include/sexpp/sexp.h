@@ -44,7 +44,7 @@
 #include "sexp-public.h"
 #include "sexp-error.h"
 
-// We are implementing char traits for octet_t with trhe following restrictions
+// We are implementing char traits for octet_t with the following restrictions
 //  -- limit visibility so that other traits for unsigned char are still possible
 //  -- create template specializatio in std workspace (use workspace specialization
 //     is not specified and causes issues at least with gcc 4.8
@@ -454,7 +454,7 @@ class SEXP_PUBLIC_SYMBOL sexp_output_stream_t : sexp_depth_manager {
   public:
     const uint32_t default_line_length = 75;
     enum sexp_print_mode {                /* PRINTING MODES */
-                           canonical = 1, /* standard for hashing and tranmission */
+                           canonical = 1, /* standard for hashing and transmission */
                            base64 = 2,    /* base64 version of canonical */
                            advanced = 3   /* pretty-printed */
     };
