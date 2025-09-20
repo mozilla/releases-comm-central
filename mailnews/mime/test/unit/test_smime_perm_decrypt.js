@@ -42,6 +42,7 @@ class CertVerificationResultCallback {
 /**
  * @param {nsIX509Cert} cert
  * @param {integer} date
+ * @returns {Promise<void>}
  */
 function testCertValidity(cert, date) {
   const prom = new Promise(resolve => {
@@ -63,25 +64,6 @@ function testCertValidity(cert, date) {
   });
   return prom;
 }
-
-add_setup(async function () {
-  const messageInjection = new MessageInjection({ mode: "local" });
-  gInbox = messageInjection.getInboxFolder();
-  SmimeUtils.ensureNSS();
-
-  SmimeUtils.loadPEMCertificate(
-    do_get_file(smimeDataDirectory + "TestCA.pem"),
-    Ci.nsIX509Cert.CA_CERT
-  );
-  SmimeUtils.loadCertificateAndKey(
-    do_get_file(smimeDataDirectory + "Alice.p12"),
-    "nss"
-  );
-  SmimeUtils.loadCertificateAndKey(
-    do_get_file(smimeDataDirectory + "Bob.p12"),
-    "nss"
-  );
-});
 
 var gInbox;
 
@@ -185,13 +167,40 @@ const smimeSink = {
  */
 
 var gMessages = [
-  { filename: "alice.env.eml", enc: true, sig: false },
-  { filename: "alice.sig.SHA256.opaque.env.eml", enc: true, sig: true },
+  {
+    filename: "alice.env.eml",
+    enc: true,
+    sig: false,
+    sentDate: new Date("Tue, 21 Nov 2023 20:50:06 +0000"),
+  },
+  {
+    filename: "alice.sig.SHA256.opaque.env.eml",
+    enc: true,
+    sig: true,
+    sentDate: new Date("Tue, 21 Nov 2023 20:50:06 +0000"),
+  },
 ];
 
-var gDecFolder;
+add_setup(async function () {
+  const messageInjection = new MessageInjection({ mode: "local" });
+  gInbox = messageInjection.getInboxFolder();
+  SmimeUtils.ensureNSS();
 
-add_task(async function copy_messages() {
+  SmimeUtils.loadPEMCertificate(
+    do_get_file(smimeDataDirectory + "TestCA.pem"),
+    Ci.nsIX509Cert.CA_CERT
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "Alice.p12"),
+    "nss"
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "Bob.p12"),
+    "nss"
+  );
+});
+
+add_task(async function check_smime_message() {
   for (const msg of gMessages) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
 
@@ -210,10 +219,8 @@ add_task(async function copy_messages() {
     promiseCopyListener = null;
   }
   gInbox.server.rootFolder.createSubfolder("decrypted", null);
-  gDecFolder = gInbox.server.rootFolder.getChildNamed("decrypted");
-});
+  const decFolder = gInbox.server.rootFolder.getChildNamed("decrypted");
 
-add_task(async function check_smime_message() {
   let hdrIndex = 0;
 
   for (const msg of gMessages) {
@@ -249,9 +256,13 @@ add_task(async function check_smime_message() {
       Assert.equal(r[0].certificate, null);
     }
 
+    if (msg.sentDate) {
+      await testCertValidity(r[0].certificate, msg.sentDate.getTime());
+    }
+
     await EnigmailPersistentCrypto.cryptMessage(
       hdr,
-      gDecFolder.URI,
+      decFolder.URI,
       false,
       null
     );
@@ -261,7 +272,7 @@ add_task(async function check_smime_message() {
       eventsExpected++;
     }
 
-    hdr = mailTestUtils.getMsgHdrN(gDecFolder, hdrIndex);
+    hdr = mailTestUtils.getMsgHdrN(decFolder, hdrIndex);
     uri = hdr.folder.getUriForMsg(hdr);
     sinkPromise = smimeSink.expectResults(eventsExpected);
 
