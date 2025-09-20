@@ -12,7 +12,7 @@ from taskgraph.util.yaml import load_yaml
 logger = logging.getLogger(__name__)
 
 
-def loader(kind, path, config, params, loaded_tasks):
+def loader(kind, path, config, params, loaded_tasks, write_artifacts):
     """
     Generate tasks implementing Gecko tests.
     """
@@ -33,7 +33,7 @@ def loader(kind, path, config, params, loaded_tasks):
     test_platforms = expand_tests(test_sets_cfg, test_platforms)
 
     # load the test descriptions
-    tests = transform_loader(kind, path, config, params, loaded_tasks)
+    tests = transform_loader(kind, path, config, params, loaded_tasks, write_artifacts)
     test_descriptions = {t.pop("name"): t for t in tests}
 
     # generate all tests for all test platforms

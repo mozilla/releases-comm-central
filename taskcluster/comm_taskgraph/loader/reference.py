@@ -54,7 +54,7 @@ def _get_loader(path, config):
     return find_object(_loader)
 
 
-def loader(kind, path, config, params, loaded_tasks):
+def loader(kind, path, config, params, loaded_tasks, write_artifacts):
     """
     Loads selected tasks from a different taskgraph hierarchy.
 
@@ -68,7 +68,7 @@ def loader(kind, path, config, params, loaded_tasks):
     logger.debug("Reference loader: load tasks from {}".format(sub_path))
     sub_config = load_yaml(sub_path, "kind.yml")
     _loader = _get_loader(sub_path, sub_config)
-    inputs = _loader(kind, sub_path, sub_config, params, loaded_tasks)
+    inputs = _loader(kind, sub_path, sub_config, params, loaded_tasks, write_artifacts)
 
     tasks = config.pop("reference-tasks", None)
 

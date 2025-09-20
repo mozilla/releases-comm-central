@@ -7,7 +7,7 @@ from taskgraph.loader.transform import loader as transform_loader
 from comm_taskgraph.loader.reference import loader as reference_loader
 
 
-def loader(kind, path, config, params, loaded_tasks):
+def loader(kind, path, config, params, loaded_tasks, write_artifacts):
     """
     Look up tasks via reference loader at reference-base-path using the list
     reference-tasks-from, followed by tasks-from.
@@ -22,8 +22,8 @@ def loader(kind, path, config, params, loaded_tasks):
         "reference-base-path": config.pop("reference-base-path"),
         "reference-tasks": config.pop("reference-tasks", None),
     }
-    for task in reference_loader(kind, path, reference_config, params, loaded_tasks):
+    for task in reference_loader(kind, path, reference_config, params, loaded_tasks, write_artifacts):
         yield task
 
-    for task in transform_loader(kind, path, config, params, loaded_tasks):
+    for task in transform_loader(kind, path, config, params, loaded_tasks, write_artifacts):
         yield task
