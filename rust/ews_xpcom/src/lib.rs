@@ -32,7 +32,7 @@ use xpcom::{
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
-use safe_xpcom::SafeEwsFolderListener;
+use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageSyncListener};
 
 use crate::authentication::credentials::OAuthOverrides;
 
@@ -269,7 +269,7 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_messages_for_folder",
             client.sync_messages_for_folder(
-                RefPtr::new(listener),
+                SafeEwsMessageSyncListener::new(listener),
                 folder_id.to_utf8().into_owned(),
                 sync_state,
             ),

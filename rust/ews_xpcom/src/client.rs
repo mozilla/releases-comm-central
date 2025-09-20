@@ -51,9 +51,9 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgDBHdr, nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
-        nsMsgKey, IEwsFallibleOperationListener, IEwsMessageCreateListener,
-        IEwsMessageFetchListener, IEwsMessageSyncListener, IEwsSimpleOperationListener,
+        nsIMsgOutgoingListener, nsIStringInputStream, nsIURI, nsIUrlListener,
+        IEwsFallibleOperationListener, IEwsMessageCreateListener, IEwsMessageFetchListener,
+        IEwsSimpleOperationListener,
     },
     RefCounted, RefPtr, XpCom,
 };
@@ -61,10 +61,10 @@ use xpcom::{
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     cancellable_request::CancellableRequest,
-};
-use crate::{
-    headers::{Mailbox, MessageHeaders},
-    safe_xpcom::SafeEwsFolderListener,
+    safe_xpcom::{
+        safe_handle_error, SafeEwsFolderListener, SafeEwsMessageSyncListener, SafeListener,
+        StaleMsgDbHeader, UpdatedMsgDbHeader,
+    },
 };
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
@@ -238,13 +238,9 @@ where
             .await
         {
             Ok(_) => {
-                let _ = listener.on_success();
+                let _ = listener.on_success(());
             }
-            Err(err) => handle_error(
-                "SyncFolderHierarchy",
-                err,
-                listener.into_unsafe_fallible_listener(),
-            ),
+            Err(err) => safe_handle_error(&listener, "SyncFolderHierarchy", &err, ()),
         };
     }
 
@@ -341,7 +337,7 @@ where
 
     pub(crate) async fn sync_messages_for_folder(
         self,
-        listener: RefPtr<IEwsMessageSyncListener>,
+        listener: SafeEwsMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {
@@ -352,20 +348,16 @@ where
             .sync_messages_for_folder_inner(&listener, folder_id, sync_state_token)
             .await
         {
-            Ok(_) => unsafe {
-                listener.OnSyncComplete();
-            },
-            Err(err) => handle_error(
-                "SyncFolderItems",
-                err,
-                listener.query_interface::<IEwsFallibleOperationListener>(),
-            ),
+            Ok(_) => {
+                let _ = listener.on_success(());
+            }
+            Err(err) => safe_handle_error(&listener, "SyncFolderItems", &err, ()),
         }
     }
 
     async fn sync_messages_for_folder_inner(
         self,
-        listener: &IEwsMessageSyncListener,
+        listener: &SafeEwsMessageSyncListener,
         folder_id: String,
         mut sync_state_token: Option<String>,
     ) -> Result<(), XpComEwsError> {
@@ -492,10 +484,7 @@ where
                         // us. We don't create it ourselves so that the database
                         // can fill out any fields it wants beforehand. The
                         // header we get back will have its EWS ID already set.
-                        let ews_id = nsCString::from(item_id);
-                        let result = getter_addrefs(|hdr| unsafe {
-                            listener.OnMessageCreated(&*ews_id, hdr)
-                        });
+                        let result = listener.on_message_created(item_id);
 
                         if let Err(nserror::NS_ERROR_ILLEGAL_VALUE) = result {
                             // `NS_ERROR_ILLEGAL_VALUE` means a header already
@@ -508,10 +497,8 @@ where
                             continue;
                         }
 
-                        let header = result?;
-                        populate_db_message_header_from_message_headers(&header, msg)?;
-
-                        unsafe { listener.OnDetachedHdrPopulated(&*header) }.to_result()?;
+                        let header = result?.populate_from_message_headers(msg)?;
+                        listener.on_detached_hdr_populated(header)?;
                     }
 
                     sync_folder_items::Change::Update { item } => {
@@ -530,9 +517,7 @@ where
                             }
                         })?;
 
-                        let ews_id = nsCString::from(item_id);
-                        let mut result =
-                            getter_addrefs(|p| unsafe { listener.OnMessageUpdated(&*ews_id, p) });
+                        let mut result = listener.on_message_updated(item_id);
 
                         let mut hdr_is_detached = false;
                         if let Err(nserror::NS_ERROR_NOT_AVAILABLE) = result {
@@ -544,14 +529,10 @@ where
                                 "Cannot find existing item to update with ID {item_id}, creating it instead"
                             );
 
-                            result = getter_addrefs(|hdr| unsafe {
-                                listener.OnMessageCreated(&*ews_id, hdr)
-                            });
+                            result = listener.on_message_created(item_id);
 
                             hdr_is_detached = true;
                         }
-
-                        let header = result?;
 
                         // At some point we might want to restrict what
                         // properties we want to support updating (e.g. do we
@@ -562,7 +543,7 @@ where
                         // readability depend on the context, and which ones can
                         // always be updated, so we copy the remote state onto
                         // the database entry and commit.
-                        populate_db_message_header_from_message_headers(&header, msg)?;
+                        let header = result?.populate_from_message_headers(msg)?;
 
                         // Persist the database entry. If it's a new one
                         // (because we've missed the creation event), then we
@@ -570,9 +551,9 @@ where
                         // still-detached entry from a `Created` change (which
                         // we kind of are).
                         if hdr_is_detached {
-                            unsafe { listener.OnDetachedHdrPopulated(&*header) }.to_result()?;
+                            listener.on_detached_hdr_populated(header)?;
                         } else {
-                            unsafe { listener.OnExistingHdrChanged() }.to_result()?;
+                            listener.on_existing_hdr_changed()?;
                         }
                     }
 
@@ -581,8 +562,7 @@ where
                         let id = item_id.id;
 
                         // Delete the messages from the folder's database.
-                        let ews_id = nsCString::from(id);
-                        unsafe { listener.OnMessageDeleted(&*ews_id) }.to_result()?;
+                        listener.on_message_deleted(id)?;
                     }
 
                     sync_folder_items::Change::ReadFlagChange { item_id, is_read } => {
@@ -590,16 +570,14 @@ where
                         let id = item_id.id;
 
                         // Mark the messages as read in the folder's database.
-                        let ews_id = nsCString::from(id);
-                        unsafe { listener.OnReadStatusChanged(&*ews_id, is_read) }.to_result()?;
+                        listener.on_read_status_changed(id, is_read)?;
                     }
                 }
             }
 
             // Update sync state after pushing each batch of messages so that,
             // if we're interrupted, we resume from roughly the same place.
-            let new_sync_state = nsCString::from(&message.sync_state);
-            unsafe { listener.OnSyncStateTokenChanged(&*new_sync_state) }.to_result()?;
+            listener.on_sync_state_token_changed(&message.sync_state)?;
 
             if message.includes_last_item_in_range {
                 // EWS has signaled to us that there are no more changes at this
@@ -1244,8 +1222,7 @@ where
             create_and_populate_header_from_create_response(response_message, &content, listener)?;
 
         // Let the listeners know of the local key for the newly created message.
-        let mut key: nsMsgKey = 0;
-        unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
+        let key = hdr.get_message_key()?;
         unsafe { listener.OnNewMessageKey(key) }.to_result()?;
 
         Ok(())
@@ -1799,91 +1776,6 @@ where
     }
 }
 
-/// Sets the fields of a database header object from a collection of message
-/// headers.
-fn populate_db_message_header_from_message_headers(
-    header: &nsIMsgDBHdr,
-    msg: impl MessageHeaders,
-) -> Result<(), XpComEwsError> {
-    let internet_message_id = if let Some(internet_message_id) = msg.internet_message_id() {
-        nsCString::from(internet_message_id.as_ref())
-    } else {
-        // Lots of code assumes Message-ID is set and unique, so we need to
-        // build something suitable. The value need not be stable, since we only
-        // ever set message ID on a new header.
-        let uuid = Uuid::new_v4();
-
-        nsCString::from(format!("x-moz-uuid:{uuid}", uuid = uuid.hyphenated()))
-    };
-
-    unsafe { header.SetMessageId(&*internet_message_id) }.to_result()?;
-
-    if let Some(has_attachments) = msg.has_attachments() {
-        unsafe { header.MarkHasAttachments(has_attachments) }.to_result()?;
-    }
-
-    if let Some(is_read) = msg.is_read() {
-        unsafe { header.MarkRead(is_read) }.to_result()?;
-    }
-
-    if let Some(sent) = msg.sent_timestamp_ms() {
-        unsafe { header.SetDate(sent) }.to_result()?;
-    }
-
-    if let Some(author) = msg.author() {
-        let author = nsCString::from(author.to_string());
-        unsafe { header.SetAuthor(&*author) }.to_result()?;
-    }
-
-    if let Some(reply_to) = msg.reply_to_recipient() {
-        let reply_to = nsCString::from(reply_to.to_string());
-        unsafe { header.SetStringProperty(cstr::cstr!("replyTo").as_ptr(), &*reply_to) }
-            .to_result()?;
-    }
-
-    if let Some(to) = msg.to_recipients() {
-        let to = nsCString::from(make_header_string_for_mailbox_list(to));
-        unsafe { header.SetRecipients(&*to) }.to_result()?;
-    }
-
-    if let Some(cc) = msg.cc_recipients() {
-        let cc = nsCString::from(make_header_string_for_mailbox_list(cc));
-        unsafe { header.SetCcList(&*cc) }.to_result()?;
-    }
-
-    if let Some(bcc) = msg.bcc_recipients() {
-        let bcc = nsCString::from(make_header_string_for_mailbox_list(bcc));
-        unsafe { header.SetBccList(&*bcc) }.to_result()?;
-    }
-
-    if let Some(subject) = msg.message_subject() {
-        let subject = nsCString::from(subject.as_ref());
-        unsafe { header.SetSubject(&*subject) }.to_result()?;
-    }
-
-    if let Some(priority) = msg.priority() {
-        unsafe { header.SetPriority(priority) }.to_result()?;
-    }
-
-    if let Some(references) = msg.references() {
-        let references = nsCString::from(references.as_ref());
-        unsafe { header.SetReferences(&*references) }.to_result()?;
-    }
-
-    if let Some(size) = msg.size() {
-        match size.try_into() {
-            Ok(size) => {
-                unsafe { header.SetMessageSize(size) }.to_result()?;
-            }
-            Err(_) => {
-                log::error!("failed to compute size for message that's larger than supported max size of {}", u32::MAX);
-            }
-        };
-    }
-
-    Ok(())
-}
-
 /// Gets the time to wait before retrying a throttled request, if any.
 ///
 /// When an Exchange server throttles a request, the response will specify a
@@ -1901,19 +1793,6 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
     } else {
         None
     }
-}
-
-/// Creates a string representation of a list of mailboxes, suitable for use as
-/// the value of an Internet Message Format header.
-fn make_header_string_for_mailbox_list<'a>(
-    mailboxes: impl IntoIterator<Item = Mailbox<'a>>,
-) -> String {
-    let strings: Vec<_> = mailboxes
-        .into_iter()
-        .map(|mailbox| mailbox.to_string())
-        .collect();
-
-    strings.join(", ")
 }
 
 #[derive(Debug, Error)]
@@ -1948,14 +1827,20 @@ pub(crate) enum XpComEwsError {
     Authentication,
 }
 
-impl From<XpComEwsError> for nsresult {
-    fn from(value: XpComEwsError) -> Self {
+impl From<&XpComEwsError> for nsresult {
+    fn from(value: &XpComEwsError) -> Self {
         match value {
-            XpComEwsError::XpCom(value) => value,
+            XpComEwsError::XpCom(value) => *value,
             XpComEwsError::Http(value) => value.into(),
 
             _ => nserror::NS_ERROR_UNEXPECTED,
         }
+    }
+}
+
+impl From<XpComEwsError> for nsresult {
+    fn from(value: XpComEwsError) -> Self {
+        (&value).into()
     }
 }
 
@@ -2026,7 +1911,7 @@ fn create_and_populate_header_from_create_response(
     response_message: ItemResponseMessage,
     content: &[u8],
     listener: &IEwsMessageCreateListener,
-) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
+) -> Result<UpdatedMsgDbHeader, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
     let items = response_message.items.inner;
@@ -2048,7 +1933,8 @@ fn create_and_populate_header_from_create_response(
 
     // Signal that copying the message to the server has succeeded, which will
     // trigger its content to be streamed to the relevant message store.
-    let hdr = getter_addrefs(|hdr| unsafe { listener.OnRemoteCreateSuccessful(&*ews_id, hdr) })?;
+    let hdr: StaleMsgDbHeader =
+        getter_addrefs(|hdr| unsafe { listener.OnRemoteCreateSuccessful(&*ews_id, hdr) })?.into();
 
     // Parse the message and use its headers to populate the `nsIMsgDBHdr`
     // before committing it to the database. We parse the original content
@@ -2061,8 +1947,9 @@ fn create_and_populate_header_from_create_response(
             message: String::from("failed to parse message"),
         })?;
 
-    populate_db_message_header_from_message_headers(&hdr, message)?;
-    unsafe { listener.OnHdrPopulated(&*hdr) }.to_result()?;
+    let hdr = hdr.populate_from_message_headers(message)?;
+    let unsafe_hdr: RefPtr<_> = (&hdr).into();
+    unsafe { listener.OnHdrPopulated(&*unsafe_hdr) }.to_result()?;
 
     Ok(hdr)
 }
