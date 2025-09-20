@@ -7,10 +7,12 @@ use std::ops::Deref;
 use xpcom::{interfaces::IEwsFallibleOperationListener, RefCounted, RefPtr, XpCom};
 
 pub(crate) use folder_listener::*;
+pub(crate) use message_create_listener::*;
 pub(crate) use message_sync_listener::*;
 pub(crate) use msg_db_hdr::*;
 
 mod folder_listener;
+mod message_create_listener;
 mod message_sync_listener;
 mod msg_db_hdr;
 

@@ -32,7 +32,7 @@ use xpcom::{
 
 use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
-use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageSyncListener};
+use safe_xpcom::{SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageSyncListener};
 
 use crate::authentication::credentials::OAuthOverrides;
 
@@ -347,7 +347,7 @@ impl XpcomEwsBridge {
                 is_draft,
                 is_read,
                 content,
-                RefPtr::new(listener),
+                SafeEwsMessageCreateListener::new(listener),
             ),
         )
         .detach();
