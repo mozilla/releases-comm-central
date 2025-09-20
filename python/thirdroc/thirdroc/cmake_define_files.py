@@ -46,21 +46,31 @@ def process_cmake_define_file(output, input_file, extra_defines):
             r'^\s*#\s*(?P<cmd>[a-z]+)(?:\s+(?P<name>\S+)(?:\s+(?P<value>("[^"]+"|\S+)))?)?',
             re.U,
         )
+
+        def replace_define(v):
+            if v.group(1) in defines:
+                return f" {defines[v.group(1)]}"
+            return ""
+
         for line in input_file:
             m = r.match(line)
             if m:
                 cmd = m.group("cmd")
                 name = m.group("name")
                 value = m.group("value")
+                if value is not None:
+                    value = re.sub(r'"?@(.*)@"?', replace_define, value)
                 if name:
                     if cmd == "define":
-                        if value and name in defines:
+                        if name in defines:
                             line = (
                                 line[: m.start("value")]
                                 + str(defines[name])
                                 + line[m.end("value") :]
                             )
-                        elif name not in defines:
+                        elif value and name not in defines:
+                            line = line[: m.start("value")] + value + line[m.end("value") :]
+                        else:
                             line = (
                                 "/* #undef "
                                 + line[m.start("name") : m.end("name")]
