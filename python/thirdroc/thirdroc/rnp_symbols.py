@@ -11,7 +11,10 @@ they can be exported by the shared library.
 
 Limitations: The regex that captures the function name is very basic and may need adjusting if
 the third_party/rnp/include/rnp/rnp.h format changes too much.
-Also note that APIs that are marked deprecated are not checked for.
+
+The header file is run through Clang's preprocessor so that functions within #ifdef #endif blocks
+are handled correctly. Currently RNP_EXPERIMENTAL_PQC and RNP_EXPERIMENTAL_CRYPTO_REFRESH
+are filtered out. (Clang is run with -DRNP_EXPORT so that the 'RNP_API' macro is not expanded.)
 
 Dependencies: Only Python 3
 
@@ -30,8 +33,9 @@ Either path argument can be '-' to use stdin or stdout respectively.
 
 import argparse
 import os
+import pathlib
 import re
-import sys
+import subprocess
 
 HERE = os.path.dirname(__file__)
 TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))
@@ -41,44 +45,15 @@ HEADER_FILE = os.path.join(THIRD_SRCDIR, HEADER_FILE_REL)
 SYMBOLS_FILE_REL = "rnp/rnp.symbols"
 SYMBOLS_FILE = os.path.join(THIRD_SRCDIR, SYMBOLS_FILE_REL)
 
-
 FUNC_DECL_RE = re.compile(r"^RNP_API\s+.*?([a-zA-Z0-9_]+)\(.*$")
 
 
-class FileArg:
-    """Based on argparse.FileType from the Python standard library.
-    Modified to not open the filehandles until the open() method is
-    called.
-    """
-
-    def __init__(self, mode="r"):
-        self._mode = mode
-        self._fp = None
-        self._file = None
-
-    def __call__(self, string):
-        # the special argument "-" means sys.std{in,out}
-        if string == "-":
-            if "r" in self._mode:
-                self._fp = sys.stdin.buffer if "b" in self._mode else sys.stdin
-            elif "w" in self._mode:
-                self._fp = sys.stdout.buffer if "b" in self._mode else sys.stdout
-            else:
-                raise ValueError(f"Invalid mode {self._mode} for stdin/stdout")
-        else:
-            if "r" in self._mode:
-                if not os.path.isfile(string):
-                    raise ValueError(f"Cannot read file {string}, does not exist.")
-            elif "w" in self._mode:
-                if not os.access(string, os.W_OK):
-                    raise ValueError(f"Cannot write file {string}, permission denied.")
-            self._file = string
-        return self
-
-    def open(self):
-        if self._fp:
-            return self._fp
-        return open(self._file, self._mode)
+def preprocess_header(header_file):
+    """Execute clang preprocessor on the header file and yield each line."""
+    cmd = ["clang", "-E", "-DRNP_EXPORT", header_file]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)
+    for line in proc.stdout:
+        yield line.rstrip()
 
 
 def get_func_name(line):
@@ -97,11 +72,10 @@ def extract_func_defs(filearg):
     """
     Look for RNP_API in the header file to find the names of the symbols that should be exported
     """
-    with filearg.open() as fp:
-        for line in fp:
-            if line.startswith("RNP_API") and "RNP_DEPRECATED" not in line:
-                func_name = get_func_name(line)
-                yield func_name
+    for line in preprocess_header(filearg):
+        if line.startswith("RNP_API") and "RNP_DEPRECATED" not in line:
+            func_name = get_func_name(line)
+            yield func_name
 
 
 if __name__ == "__main__":
@@ -112,20 +86,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "header_file",
         default=HEADER_FILE,
-        type=FileArg("r"),
+        type=pathlib.Path,
         nargs="?",
         help=f"input path to rnp.h header file (default: {HEADER_FILE_REL})",
     )
     parser.add_argument(
         "symbols_file",
         default=SYMBOLS_FILE,
-        type=FileArg("w"),
+        type=pathlib.Path,
         nargs="?",
         help=f"output path to symbols file (default: {SYMBOLS_FILE_REL})",
     )
 
     args = parser.parse_args()
 
-    with args.symbols_file.open() as out_fp:
+    with args.symbols_file.open("w") as out_fp:
         for symbol in sorted(list(extract_func_defs(args.header_file))):
             out_fp.write(f"{symbol}\n")
