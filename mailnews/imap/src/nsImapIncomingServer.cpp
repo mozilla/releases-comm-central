@@ -2677,9 +2677,9 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
                                                        bool forceAllFolders,
                                                        bool performingBiff) {
   NS_ENSURE_ARG_POINTER(aFolder);
-  static bool gGotStatusPref = false;
-  static bool gUseStatus = false;
-
+  // Default is to use STATUS to check for new messages.
+  // If false, a full UpdateFolder() is performed.
+  bool useStatus = Preferences::GetBool("mail.imap.use_status_for_biff", true);
   bool isRootFolder;
   (void)aFolder->GetIsServer(&isRootFolder);
   // Check this folder for new messages if it is marked to be checked
@@ -2700,14 +2700,7 @@ nsImapIncomingServer::GetNewMessagesForNonInboxFolders(nsIMsgFolder* aFolder,
     aFolder->SetGettingNewMessages(true);
     if (performingBiff) imapFolder->SetPerformingBiff(true);
 
-    // eventually, the gGotStatusPref should go away, once we work out the kinks
-    // from using STATUS.
-    if (!gGotStatusPref) {
-      Preferences::GetBool("mail.imap.use_status_for_biff", &gUseStatus);
-      gGotStatusPref = true;
-    }
-
-    if (gUseStatus) {
+    if (useStatus) {
       if (m_foldersToStat.IndexOf(imapFolder) == -1) {
         // Prepare to do folderstatus URL. If folder not imap SELECTed, this
         // results in imap STATUS sent. If SELECTed, this result in imap NOOP.
