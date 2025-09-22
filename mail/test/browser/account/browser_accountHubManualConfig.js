@@ -586,6 +586,33 @@ add_task(async function test_invalid_manual_config_flow() {
     "The outgoing hostname error message should be hidden"
   );
 
+  // Hitting the test footer button should change the back button to cancel, to
+  // cancel finding the config.
+  let backTextPromise = BrowserTestUtils.waitForMutationCondition(
+    footerBack,
+    { attributes: true },
+    () =>
+      footerBack.getAttribute("data-l10n-id") ===
+      "account-hub-email-cancel-button"
+  );
+  EventUtils.synthesizeMouseAtCenter(footerCustom, {});
+  await backTextPromise;
+
+  // Hitting cancel should change the back button text to "back" and keep the
+  // form as the outgoing form.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  backTextPromise = BrowserTestUtils.waitForMutationCondition(
+    footerBack,
+    { attributes: true },
+    () =>
+      footerBack.getAttribute("data-l10n-id") ===
+      "account-hub-email-back-button"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing form should still be visible"
+  );
+
   // We still have a config that can't be found because of the testing domain,
   // so hitting the test button should lead back to the incoming config, with
   // an error notification.
@@ -602,7 +629,7 @@ add_task(async function test_invalid_manual_config_flow() {
       header.shadowRoot
         .querySelector("#emailFormNotification")
         .classList.contains("error"),
-    "The notification should be present."
+    "The notification should be present"
   );
 
   // The continue button should still be enabled, but going to outgoing the

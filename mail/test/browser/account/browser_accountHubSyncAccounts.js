@@ -70,6 +70,133 @@ registerCleanupFunction(function () {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
+add_task(async function test_cancelling_sync_accounts_load() {
+  IMAPServer.open();
+  SMTPServer.open();
+  const emailUser = {
+    name: "John Doe",
+    email: "john.doe@imap.test",
+    password: "abc12345",
+    incomingHost: "testin.imap.test",
+    outgoingHost: "testout.imap.test",
+  };
+
+  const dialog = await subtest_open_account_hub_dialog();
+  await subtest_fill_initial_config_fields(dialog, emailUser);
+  const footer = dialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  const footerBack = footer.querySelector("#back");
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option should be visible."
+  );
+
+  // Continue button should lead to password template.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(configFoundTemplate),
+    "The config found template should be hidden."
+  );
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(dialog.querySelector("email-password-form")),
+    "The email password form should be visible."
+  );
+
+  const emailPasswordTemplate = dialog.querySelector("email-password-form");
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        emailPasswordTemplate.querySelector("#password")
+      ),
+    "The password form input should be visible."
+  );
+  const passwordInput = emailPasswordTemplate.querySelector("#password");
+
+  EventUtils.synthesizeMouseAtCenter(passwordInput, {});
+
+  // Entering the correct password should hide current subview.
+  const inputEvent = BrowserTestUtils.waitForEvent(
+    passwordInput,
+    "input",
+    true,
+    event => event.target.value === "abc12345"
+  );
+  EventUtils.sendString("abc12345", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(emailPasswordTemplate),
+    "The email password subview should be hidden."
+  );
+
+  let imapAccount;
+
+  await TestUtils.waitForCondition(
+    () =>
+      (imapAccount = MailServices.accounts.accounts.find(
+        account => account.identities[0]?.email === emailUser.email
+      )),
+    "The imap account should be created."
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(
+        dialog.querySelector("email-sync-accounts-form")
+      ),
+    "The sync accounts view should be in view."
+  );
+
+  // Cancelling here should prevent showing any sync accounts, whether we've fetched them or not.
+  Assert.ok(
+    BrowserTestUtils.isVisible(footerBack),
+    "The cancel button should be visible."
+  );
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  const syncAccountsTemplate = dialog.querySelector("email-sync-accounts-form");
+  const selectAllAddressBooks = syncAccountsTemplate.querySelector(
+    "#selectAllAddressBooks"
+  );
+  const selectAllCalendars = syncAccountsTemplate.querySelector(
+    "#selectAllCalendars"
+  );
+
+  // Cancelling should show an error notificaiton.
+  const header =
+    syncAccountsTemplate.shadowRoot.querySelector("account-hub-header");
+  await TestUtils.waitForCondition(
+    () =>
+      header.shadowRoot
+        .querySelector("#emailFormNotification")
+        .classList.contains("error"),
+    "The error notification should be present."
+  );
+
+  // The toggle buttons should be hidden as we haven't set the state of the sync view.
+  Assert.ok(
+    BrowserTestUtils.isHidden(selectAllAddressBooks),
+    "The address book select all button should be hidden."
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(selectAllCalendars),
+    "The calendar select all button should be hidden."
+  );
+
+  await subtest_clear_status_bar();
+  MailServices.accounts.removeAccount(imapAccount);
+  Services.logins.removeAllLogins();
+
+  IMAPServer.close();
+  SMTPServer.close();
+  await subtest_close_account_hub_dialog(dialog, syncAccountsTemplate);
+});
+
 add_task(async function test_account_load_sync_accounts_imap_account() {
   IMAPServer.open();
   SMTPServer.open();

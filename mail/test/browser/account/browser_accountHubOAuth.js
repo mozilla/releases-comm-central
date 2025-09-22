@@ -140,12 +140,20 @@ add_task(async function test_account_oauth_cancel() {
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
 
   const oAuthWindow = await oAuthWindowPromise;
+
+  // The back button should be hidden now, as we shouldn't be able to cancel
+  // account creation with OAuth using the back/cancel button.
+  Assert.ok(
+    BrowserTestUtils.isHidden(footer.querySelector("#back")),
+    "Back button should be hidden"
+  );
+
   await SimpleTest.promiseFocus(oAuthWindow.getBrowser());
   EventUtils.synthesizeKey("KEY_Escape", {}, oAuthWindow);
 
   await TestUtils.waitForCondition(
     () => !dialog.querySelector("account-hub-email.busy"),
-    "Should stop loading."
+    "Should stop loading"
   );
   Assert.ok(
     BrowserTestUtils.isVisible(configFoundTemplate),
@@ -158,6 +166,13 @@ add_task(async function test_account_oauth_cancel() {
     "Should have no email account for the address"
   );
   Assert.ok(!footerForward.disabled, "Forward button should still be enabled");
+
+  // The back button should be visible again because we cancelled OAuth through
+  // the OAuth window.
+  Assert.ok(
+    BrowserTestUtils.isVisible(footer.querySelector("#back")),
+    "Back button should be visible"
+  );
 
   await subtest_clear_status_bar();
 

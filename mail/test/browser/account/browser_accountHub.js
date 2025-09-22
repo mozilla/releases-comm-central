@@ -361,6 +361,67 @@ add_task(async function test_account_email_config_found() {
   await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
 });
 
+add_task(async function test_cancel_finding_config() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+  const footer = dialog.querySelector("#emailFooter");
+  const footerForward = footer.querySelector("#forward");
+  const footerBack = footer.querySelector("#back");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === "Test User"
+  );
+  EventUtils.sendString("Test User", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === "badtest@example.localhost"
+  );
+  EventUtils.sendString("badtest@example.localhost", window);
+  await inputEvent;
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled.");
+  Assert.ok(
+    BrowserTestUtils.isHidden(footerBack),
+    "The back button should be hidden."
+  );
+
+  // Click continue to start finding config, which should show the cancel
+  // button.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", footerBack);
+  Assert.equal(
+    document.l10n.getAttributes(footerBack).id,
+    "account-hub-email-cancel-button",
+    "Should cancel text on the back button."
+  );
+
+  // Clicking cancel should stop loading and hide the back button again.
+  const backHiddenPromise = BrowserTestUtils.waitForMutationCondition(
+    footerBack,
+    { attributes: true },
+    () => footerBack.hidden
+  );
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  await backHiddenPromise;
+  Assert.ok(!footer.disabled, "The footer should be re-enabled.");
+  await subtest_close_account_hub_dialog(dialog, emailTemplate);
+});
+
 add_task(async function test_account_enter_password_imap_account() {
   IMAPServer.open();
   SMTPServer.open();
@@ -476,6 +537,14 @@ add_task(async function test_account_enter_password_imap_account() {
   await inputEvent;
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  // The back button should be hidden now, as we shouldn't be able to cancel
+  // account creation.
+  Assert.ok(
+    BrowserTestUtils.isHidden(footer.querySelector("#back")),
+    "Back button should be hidden."
+  );
+
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(emailPasswordTemplate),
     "The email password subview should be hidden."
