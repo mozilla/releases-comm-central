@@ -12,7 +12,7 @@
               <div class="config-title">
                 <input type="radio" name="config-type" value="imap" />
                 <span class="config-title-text">IMAP</span>
-                <span class="recommended" data-l10n-id="account-hub-result-recommended-label"></span>
+                <span class="info-badge" data-l10n-id="account-hub-result-recommended-label"></span>
               </div>
               <div class="config-text" data-l10n-id="account-hub-result-imap-description"></div>
             </label>
@@ -21,7 +21,7 @@
               <div class="config-title">
                 <input type="radio" name="config-type" value="pop3" />
                 <span class="config-title-text">POP3</span>
-                <span class="recommended" data-l10n-id="account-hub-result-recommended-label"></span>
+                <span class="info-badge" data-l10n-id="account-hub-result-recommended-label"></span>
               </div>
               <div class="config-text" data-l10n-id="account-hub-result-pop-description"></div>
             </label>
@@ -30,7 +30,7 @@
               <div class="config-title">
                 <input type="radio" name="config-type" value="ews" />
                 <span class="config-title-text" data-l10n-id="account-hub-result-ews-shortname"></span>
-                <span class="recommended" data-l10n-id="account-hub-result-recommended-label"></span>
+                <span class="info-badge" data-l10n-id="account-hub-result-recommended-label"></span>
               </div>
               <div class="config-text" data-l10n-id="account-hub-result-ews-description"></div>
             </label>
@@ -39,25 +39,25 @@
               <div class="config-title">
                 <input type="radio" name="config-type" value="exchange" />
                 <span class="config-title-text">Exchange</span>
-                <span class="recommended addon" data-l10n-id="account-hub-result-addon-label"></span>
+                <span class="info-badge addon" data-l10n-id="account-hub-result-addon-label"></span>
               </div>
               <div class="config-text" data-l10n-id="account-hub-result-exchange-description"></div>
             </label>
           </fieldset>
           <div id="configSelection" class="form-selection">
-            <div class="config-directions selection-grid">
+            <div class="config-protocols selection-grid">
               <div class="config-detail" id="incomingConfigType">
                 <img src="chrome://messenger/skin/icons/new/normal/incoming.svg" alt="" />
                 <div class="config-item-data">
-                  <p id="incomingType"></p>
-                  <p id="incomingTypeText" data-l10n-id="account-hub-result-incoming-server-legend"></p>
+                  <p class="protocol-title" id="incomingType"></p>
+                  <p class="protocol-data" id="incomingTypeText" data-l10n-id="account-hub-result-incoming-server-legend"></p>
                 </div>
               </div>
               <div class="config-detail" id="outgoingConfigType" hidden="hidden">
                 <img src="chrome://messenger/skin/icons/new/normal/outgoing.svg" alt="" />
                 <div class="config-item-data">
-                  <p id="outgoingType"></p>
-                  <p data-l10n-id="account-hub-result-outgoing-server-legend"></p>
+                  <p class="protocol-title" id="outgoingType"></p>
+                  <p class="protocol-data" data-l10n-id="account-hub-result-outgoing-server-legend"></p>
                 </div>
               </div>
             </div>
@@ -67,8 +67,8 @@
                 <div class="config-detail">
                   <img class="config-item-icon lighter" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-hostname-label"></p>
-                    <p id="incomingHost"></p>
+                    <p class="title" data-l10n-id="account-hub-result-hostname-label"></p>
+                    <p id="incomingHost" class="data"></p>
                   </div>
                 </div>
 
@@ -76,8 +76,8 @@
                 <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-authentication-label"></p>
-                    <p id="incomingAuth"></p>
+                    <p class="title" data-l10n-id="account-hub-result-authentication-label"></p>
+                    <p id="incomingAuth" class="data"></p>
                   </div>
                 </div>
 
@@ -85,8 +85,8 @@
                 <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-username-label"></p>
-                    <p id="incomingUsername"></p>
+                    <p class="title" data-l10n-id="account-hub-result-username-label"></p>
+                    <p id="incomingUsername" class="data"></p>
                   </div>
                 </div>
 
@@ -107,8 +107,8 @@
                 <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/globe.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-hostname-label"></p>
-                    <p id="outgoingHost"></p>
+                    <p class="title" data-l10n-id="account-hub-result-hostname-label"></p>
+                    <p id="outgoingHost" class="data"></p>
                   </div>
                 </div>
 
@@ -116,8 +116,8 @@
               <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/key.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-authentication-label"></p>
-                    <p id="outgoingAuth"></p>
+                    <p class="title" data-l10n-id="account-hub-result-authentication-label"></p>
+                    <p id="outgoingAuth" class="data"></p>
                   </div>
                 </div>
 
@@ -125,8 +125,8 @@
                 <div class="config-detail">
                   <img class="config-item-icon" src="chrome://messenger/skin/icons/new/compact/account-settings.svg" />
                   <div class="config-item-data">
-                    <p data-l10n-id="account-hub-result-username-label"></p>
-                    <p id="outgoingUsername"></p>
+                    <p class="title" data-l10n-id="account-hub-result-username-label"></p>
+                    <p id="outgoingUsername" class="data"></p>
                   </div>
                 </div>
               </div>

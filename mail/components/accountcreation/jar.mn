@@ -25,6 +25,7 @@ messenger.jar:
   content/messenger/accountcreation/content/widgets/email-password-form.mjs               (content/widgets/email-password-form.mjs)
   content/messenger/accountcreation/content/widgets/email-sync-accounts-form.mjs          (content/widgets/email-sync-accounts-form.mjs)
   content/messenger/accountcreation/content/widgets/email-added-success.mjs               (content/widgets/email-added-success.mjs)
+  content/messenger/accountcreation/content/widgets/email-credentials-confirmation.mjs    (content/widgets/email-credentials-confirmation.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-step.mjs                  (content/widgets/account-hub-step.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-header.mjs                (content/widgets/account-hub-header.mjs)
   content/messenger/accountcreation/content/widgets/account-hub-footer.mjs                (content/widgets/account-hub-footer.mjs)

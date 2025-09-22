@@ -12,13 +12,14 @@
 #include ./accountHubAddressBookOptionSelectTemplate.inc.xhtml
 #include ./accountHubAddressBookRemoteAccountFormTemplate.inc.xhtml
 #include ./accountHubAddressBookSyncTemplate.inc.xhtml
+#include ./accountHubEmailAddedSuccessTemplate.inc.xhtml
 #include ./accountHubEmailAutoFormTemplate.inc.xhtml
 #include ./accountHubEmailConfigFoundTemplate.inc.xhtml
+#include ./accountHubEmailCredentialsConfirmationTemplate.inc.xhtml
 #include ./accountHubEmailIncomingFormTemplate.inc.xhtml
 #include ./accountHubEmailOutgoingFormTemplate.inc.xhtml
 #include ./accountHubEmailPasswordFormTemplate.inc.xhtml
 #include ./accountHubEmailSyncAccountsFormTemplate.inc.xhtml
-#include ./accountHubEmailAddedSuccessTemplate.inc.xhtml
 #include ./accountHubFooterTemplate.inc.xhtml
 #include ./accountHubHeaderTemplate.inc.xhtml
 #include ./accountHubStepTemplate.inc.xhtml
@@ -123,6 +124,13 @@
     hidden="hidden"
   >
   </email-config-found>
+  <email-credentials-confirmation
+    id="emailCredentialsConfirmationSubview"
+    title-id="account-hub-email-credentials-confirmation"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-credentials-confirmation>
   <email-password-form
     id="emailPasswordSubview"
     title-id="account-hub-email-enter-password"

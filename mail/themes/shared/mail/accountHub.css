@@ -457,7 +457,8 @@ header {
     max-width: 400px;
   }
 
-  &.account-select-body {
+  &.account-select-body,
+  &.credentials-confirmation-body {
     max-width: 500px;
   }
 

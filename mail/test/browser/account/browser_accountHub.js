@@ -285,7 +285,7 @@ add_task(async function test_account_email_config_found() {
 
   // POP3 should be the recommended configuration.
   Assert.ok(
-    BrowserTestUtils.isVisible(pop3ConfigOption.querySelector(".recommended")),
+    BrowserTestUtils.isVisible(pop3ConfigOption.querySelector(".info-badge")),
     "POP3 should be the recommended config option"
   );
 

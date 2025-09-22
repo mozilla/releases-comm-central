@@ -105,6 +105,13 @@ class AccountHubEmail extends HTMLElement {
    */
   #emailAddedSuccessSubview;
 
+  /**
+   * Email credentials confirmation subview.
+   *
+   * @type {HTMLElement}
+   */
+  #emailCredentialsConfirmationSubview;
+
   // TODO: Clean up excess global variables and use IDs in state instead.
 
   /**
@@ -186,6 +193,16 @@ class AccountHubEmail extends HTMLElement {
       customActionFluentID: "",
       subview: {},
       templateId: "email-config-found",
+    },
+    emailCredentialsConfirmationSubview: {
+      id: "emailCredentialsConfirmationSubview",
+      nextStep: true,
+      previousStep: "",
+      forwardEnabled: true,
+      customActionFluentID: "",
+      customBackFluentID: "account-hub-email-cancel-button",
+      subview: {},
+      templateId: "email-credentials-confirmation",
     },
     emailPasswordSubview: {
       id: "emailPasswordSubview",
@@ -292,6 +309,12 @@ class AccountHubEmail extends HTMLElement {
     this.#states.emailAddedSuccessSubview.subview =
       this.#emailAddedSuccessSubview;
 
+    this.#emailCredentialsConfirmationSubview = this.querySelector(
+      "#emailCredentialsConfirmationSubview"
+    );
+    this.#states.emailCredentialsConfirmationSubview.subview =
+      this.#emailCredentialsConfirmationSubview;
+
     this.#emailEwsConfigSubview = this.querySelector("#emailEwsConfigSubview");
     this.#states.ewsConfigSubview.subview = this.#emailEwsConfigSubview;
 
@@ -395,6 +418,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailAutoConfigSubview.hidden = true;
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
+    this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#emailEwsConfigSubview.hidden = true;
   }
 
