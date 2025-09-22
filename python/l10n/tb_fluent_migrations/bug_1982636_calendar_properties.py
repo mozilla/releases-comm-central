@@ -13,14 +13,22 @@ def migrate(ctx):
         "calendar/calendar/calendar.ftl",
         transforms_from(
             """
-calendar-properties-color = {COPY(from_path, "calendarproperties.color.label")}
-calendar-properties-location = {COPY(from_path, "calendarproperties.location.label")}
-calendar-properties-refresh = {COPY(from_path, "calendarproperties.refreshInterval.label")}
-calendar-properties-refresh-manual = {COPY(from_path, "calendarproperties.refreshInterval.manual.label")}
-calendar-properties-read-only = {COPY(from_path, "calendarproperties.readonly.label")}
-calendar-properties-show-reminders = {COPY(from_path, "calendarproperties.firealarms.label")}
-calendar-properties-offline-support = {COPY(from_path, "calendarproperties.cache3.label")}
-calendar-properties-enable-calendar = {COPY(from_path, "calendarproperties.enabled2.label")}
+calendar-properties-color =
+    .value = {COPY(from_path, "calendarproperties.color.label")}
+calendar-properties-location =
+    .value = {COPY(from_path, "calendarproperties.location.label")}
+calendar-properties-refresh =
+    .value = {COPY(from_path, "calendarproperties.refreshInterval.label")}
+calendar-properties-refresh-manual =
+    .label = {COPY(from_path, "calendarproperties.refreshInterval.manual.label")}
+calendar-properties-read-only =
+    .label = {COPY(from_path, "calendarproperties.readonly.label")}
+calendar-properties-show-reminders =
+    .label = {COPY(from_path, "calendarproperties.firealarms.label")}
+calendar-properties-offline-support =
+    .label = {COPY(from_path, "calendarproperties.cache3.label")}
+calendar-properties-enable-calendar =
+    .label = {COPY(from_path, "calendarproperties.enabled2.label")}
 calendar-properties-provider-missing = {COPY(from_path, "calendarproperties.forceDisabled.label")}
 calendar-properties-unsubscribe =
     .label = {COPY(from_path, "calendarproperties.unsubscribe.label")}
