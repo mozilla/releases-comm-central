@@ -14,11 +14,6 @@
 #include "nsWeakReference.h"
 #include "nsIObserver.h"
 
-typedef struct {
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  PRTime nextBiffTime;
-} nsBiffEntry;
-
 class nsMsgBiffManager : public nsIMsgBiffManager,
                          public nsIIncomingServerListener,
                          public nsIObserver,
@@ -36,12 +31,14 @@ class nsMsgBiffManager : public nsIMsgBiffManager,
  protected:
   virtual ~nsMsgBiffManager();
 
-  int32_t FindServer(nsIMsgIncomingServer* server);
+  struct nsBiffEntry {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    PRTime nextBiffTime;
+  };
+
   nsresult SetNextBiffTime(nsBiffEntry& biffEntry, PRTime currentTime);
   nsresult SetupNextBiff();
-  nsresult AddBiffEntry(nsBiffEntry& biffEntry);
 
- protected:
   nsCOMPtr<nsITimer> mBiffTimer;
   nsTArray<nsBiffEntry> mBiffArray;
   bool mHaveShutdown;
