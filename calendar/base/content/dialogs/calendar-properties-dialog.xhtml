@@ -53,19 +53,22 @@
   as a native HTML dialog. Keep these dialogs in sync if a property changes. -->
     <dialog
       buttons="accept,cancel,extra1"
-      buttonlabelextra1="&calendarproperties.unsubscribe.label;"
-      buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;"
+      data-l10n-id="calendar-properties-unsubscribe"
+      data-l10n-attrs="buttonlabelextra1,buttonaccesskeyextra1"
     >
-      <description id="force-disabled-description" hidden="hidden"
-        >&calendarproperties.forceDisabled.label;</description
+      <description
+        id="force-disabled-description"
+        hidden="hidden"
+        data-l10n-id="calendar-properties-provider-missing"
       >
+      </description>
 
       <vbox id="no-identity-notification" class="notification-inline">
         <!-- notificationbox will be added here lazily. -->
       </vbox>
       <checkbox
         id="calendar-enabled-checkbox"
-        label="&calendarproperties.enabled2.label;"
+        data-l10n-id="calendar-properties-enable-calendar"
         oncommand="setupEnabledCheckbox()"
       />
       <html:table id="calendar-properties-table">
@@ -94,7 +97,7 @@
           <html:th>
             <label
               id="calendar-color-label"
-              value="&calendarproperties.color.label;"
+              data-l10n-id="calendar-properties-color"
               disable-with-calendar="true"
               control="calendar-color"
             />
@@ -134,7 +137,7 @@
           <html:th>
             <label
               id="calendar-uri-label"
-              value="&calendarproperties.location.label;"
+              data-l10n-id="calendar-properties-location"
               disable-with-calendar="true"
               control="calendar-uri"
             />
@@ -155,7 +158,7 @@
         <html:tr id="calendar-refreshInterval-row">
           <html:th>
             <label
-              value="&calendarproperties.refreshInterval.label;"
+              data-l10n-id="calendar-properties-refresh"
               disable-with-calendar="true"
               control="calendar-refreshInterval-textbox"
             />
@@ -164,7 +167,7 @@
             <menulist
               id="calendar-refreshInterval-menulist"
               disable-with-calendar="true"
-              label="&calendarproperties.refreshInterval.label;"
+              data-l10n-id="calendar-properties-refresh"
             >
               <menupopup id="calendar-refreshInterval-menupopup">
                 <!-- This will be filled programmatically to reduce the number of needed strings -->
@@ -172,7 +175,7 @@
                 <menuitem
                   id="calendar-refreshInterval-manual"
                   value="0"
-                  label="&calendarproperties.refreshInterval.manual.label;"
+                  data-l10n-id="calendar-properties-refresh-manual"
                 />
               </menupopup>
             </menulist>
@@ -183,7 +186,7 @@
           <html:td>
             <checkbox
               id="read-only"
-              label="&calendarproperties.readonly.label;"
+              data-l10n-id="calendar-properties-read-only"
               disable-with-calendar="true"
             />
           </html:td>
@@ -193,7 +196,7 @@
           <html:td>
             <checkbox
               id="fire-alarms"
-              label="&calendarproperties.firealarms.label;"
+              data-l10n-id="calendar-properties-show-reminders"
               disable-with-calendar="true"
             />
           </html:td>
@@ -203,7 +206,7 @@
           <html:td>
             <checkbox
               id="cache"
-              label="&calendarproperties.cache3.label;"
+              data-l10n-id="calendar-properties-offline-support"
               disable-with-calendar="true"
             />
           </html:td>

@@ -64,23 +64,6 @@
 <!ENTITY calendar.server.dialog.title.edit          "Edit Calendar">
 <!ENTITY calendar.server.dialog.name.label          "Calendar Name:">
 
-<!-- Calendar Properties -->
-<!ENTITY calendarproperties.color.label                    "Color:">
-<!ENTITY calendarproperties.webdav.label                   "iCalendar (ICS)">
-<!ENTITY calendarproperties.caldav.label                   "CalDAV">
-<!ENTITY calendarproperties.format.label                   "Format:">
-<!ENTITY calendarproperties.location.label                 "Location:">
-<!ENTITY calendarproperties.refreshInterval.label          "Refresh Calendar:">
-<!ENTITY calendarproperties.refreshInterval.manual.label   "Manually">
-<!ENTITY calendarproperties.name.label                     "Name:">
-<!ENTITY calendarproperties.readonly.label                 "Read Only">
-<!ENTITY calendarproperties.firealarms.label               "Show Reminders">
-<!ENTITY calendarproperties.cache3.label                   "Offline Support">
-<!ENTITY calendarproperties.enabled2.label                 "Enable This Calendar">
-<!ENTITY calendarproperties.forceDisabled.label            "The provider for this calendar could not be found. This often happens if you have disabled or uninstalled certain addons.">
-<!ENTITY calendarproperties.unsubscribe.label              "Unsubscribe">
-<!ENTITY calendarproperties.unsubscribe.accesskey          "U">
-
 <!-- Calendar Publish Dialog -->
 <!ENTITY calendar.publish.dialog.title              "Publish Calendar">
 <!ENTITY calendar.publish.url.label                 "Publishing URL">
