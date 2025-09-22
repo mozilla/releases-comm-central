@@ -8,6 +8,7 @@ const {
     SuccessiveAbortable,
     UserCancelledException,
     AddonInstaller,
+    Abortable,
   },
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
@@ -355,25 +356,44 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Handle for async operation that's cancellable.
-   * Setting the abortable property updates the hidden state of the cancel
-   * button and the disabled state of the forward button.
+   * Handle for async operation that's cancellable. Setting the abortable
+   * property updates the hidden state of the cancel button.
    *
-   * @type {?Abortable}
+   * @type {?Abortable|?AbortController}
    */
   set abortable(abortablePromise) {
     const stateDetails = this.#states[this.#currentState];
     this.#emailFooter.canBack(abortablePromise || stateDetails.previousStep);
-    // TODO: Update button to say cancel when setDirectionalButtonText is
-    // available.
-    this.#emailFooter.toggleForwardDisabled(
-      !!abortablePromise || stateDetails.canForward
+    this.#emailFooter.setDirectionalButtonText(
+      "back",
+      abortablePromise
+        ? "account-hub-email-cancel-button"
+        : "account-hub-email-back-button"
     );
     this.#abortable = abortablePromise;
   }
 
   get abortable() {
     return this.#abortable;
+  }
+
+  /**
+   * Handles aborting the current action that is loading.
+   */
+  #handleAbortable() {
+    if (this.abortable instanceof Abortable) {
+      this.abortable.cancel(new UserCancelledException());
+      this.abortable = null;
+    }
+
+    if (AbortController.isInstance(this.abortable)) {
+      // We don't clear the abortable here because we need to check if the
+      // abortable has aborted when using an AbortController. It is cleared
+      // after the check.
+      this.abortable.abort();
+    }
+
+    this.#stopLoading();
   }
 
   /**
@@ -686,7 +706,6 @@ class AccountHubEmail extends HTMLElement {
             type: "success",
           });
         } catch (error) {
-          this.abortable = null;
           if (error instanceof AuthenticationRequiredError) {
             // We already have a password, so the provided password or username
             // was probably wrong. Stay at the current step.
@@ -786,20 +805,39 @@ class AccountHubEmail extends HTMLElement {
           this.#startLoading("account-hub-oauth-pending");
           gAccountSetupLogger.debug("Create button clicked.");
           try {
+            // We don't want the user to be able to cancel account creation here,
+            // as the back button is available in this step. The next state doesn't
+            // have a back button, so we don't need to reset it after.
+            this.#emailFooter.canBack(false);
             await this.#validateAndFinish(this.#currentConfig);
+          } catch (error) {
+            // Show the back button again if account creation failed.
+            this.#emailFooter.canBack(true);
+            throw error;
           } finally {
-            this.#configVerifier?.cleanup();
             this.#stopLoading();
+            this.#configVerifier?.cleanup();
           }
 
           await this.#initUI("emailSyncAccountsSubview");
-          this.#states[this.#currentState].previousStep = currentState;
+
           try {
             this.#startLoading("account-hub-fetching-sync-accounts");
+            this.abortable = new AbortController();
             const syncAccounts = {};
             //TODO fetch address books and calendars in parallel?
             syncAccounts.addressBooks = await this.#getAddressBooks("");
+
+            // If the user hit cancel while loading, we won't fetch
+            // the calendars.
+            this.abortable.signal.throwIfAborted();
+
+            // If the user cancels while loading and calendars have been
+            // fetched, we won't show them and show the error instead.
             syncAccounts.calendars = await this.#getCalendars("", false);
+            this.abortable?.signal?.throwIfAborted();
+            this.abortable = null;
+
             this.#currentSubview.setState(syncAccounts);
             this.#stopLoading();
 
@@ -812,6 +850,7 @@ class AccountHubEmail extends HTMLElement {
               type: accountsFound ? "success" : "info",
             });
           } catch (error) {
+            this.abortable = null;
             this.#stopLoading();
             this.#currentSubview.showNotification({
               fluentTitleId: "account-hub-sync-accounts-not-found",
@@ -839,6 +878,10 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "emailPasswordSubview":
         this.#startLoading("account-hub-creating-account");
+        // We don't want the user to be able to cancel account creation here,
+        // as the back button is available in this step. The next state doesn't
+        // have a back button, so we don't need to reset it after.
+        this.#emailFooter.canBack(false);
         try {
           // Get password and remember from the state and apply it to the config.
           this.#currentConfig = this.#fillAccountConfig(
@@ -851,6 +894,8 @@ class AccountHubEmail extends HTMLElement {
           await this.#validateAndFinish(this.#currentConfig.copy());
         } catch (error) {
           this.#stopLoading();
+          // Show the back button again if account creation failed.
+          this.#emailFooter.canBack(true);
           throw error;
         } finally {
           this.#configVerifier?.cleanup();
@@ -860,14 +905,25 @@ class AccountHubEmail extends HTMLElement {
         await this.#initUI(this.#states[this.#currentState].nextStep);
         try {
           this.#startLoading("account-hub-fetching-sync-accounts");
+          this.abortable = new AbortController();
           const syncAccounts = {};
           syncAccounts.addressBooks = await this.#getAddressBooks(
             stateData.password
           );
+
+          // If the user hit cancel while loading, we won't fetch
+          // the calendars.
+          this.abortable.signal.throwIfAborted();
+
+          // If the user cancels while loading and calendars have been
+          // fetched, we won't show them and show the error instead.
           syncAccounts.calendars = await this.#getCalendars(
             stateData.password,
             stateData.rememberPassword
           );
+          this.abortable?.signal?.throwIfAborted();
+          this.abortable = null;
+
           this.#currentSubview.setState(syncAccounts);
           this.#stopLoading();
 
@@ -881,6 +937,7 @@ class AccountHubEmail extends HTMLElement {
           });
         } catch (error) {
           this.#stopLoading();
+          this.abortable = null;
           this.#currentSubview.showNotification({
             fluentTitleId: "account-hub-sync-accounts-not-found",
             type: "error",
@@ -968,6 +1025,10 @@ class AccountHubEmail extends HTMLElement {
             });
           }
         } catch (error) {
+          if (error instanceof UserCancelledException) {
+            break;
+          }
+
           this.#stopLoading();
           this.#initUI(this.#states[this.#currentState].previousStep);
           this.#currentSubview.showNotification({
@@ -982,16 +1043,6 @@ class AccountHubEmail extends HTMLElement {
         break;
       default:
         break;
-    }
-  }
-
-  /**
-   * Handles aborting the current action that is loading.
-   */
-  #handleAbortable() {
-    if (this.abortable) {
-      this.abortable.cancel(new UserCancelledException());
-      this.abortable = null;
     }
   }
 
@@ -1504,7 +1555,7 @@ class AccountHubEmail extends HTMLElement {
    */
   async reset() {
     if (this.abortable) {
-      return false;
+      this.#handleAbortable();
     }
 
     this.#stopLoading();

@@ -697,6 +697,43 @@ function alertPrompt(alertTitle, alertMsg) {
   );
 }
 
+/**
+ * An abortable that closes the OAuth prompt if it is cancelled. No effects of
+ * OAuth are monitored by this abortable.
+ */
+class OAuthAbortable extends Abortable {
+  /**
+   * OAuth2 System Module
+   *
+   * @type {OAuth2Module}
+   */
+  #oauthModule = null;
+
+  /**
+   * Boolean to store cancelled state.
+   *
+   * @type {boolean}
+   */
+  cancelled = false;
+
+  /**
+   * Creates module abortable.
+   *
+   * @param {OAuth2Module} oauthModule - The OAuth2 system module.
+   */
+  constructor(oauthModule) {
+    super();
+    this.#oauthModule = oauthModule;
+  }
+  /**
+   * Cancels module abortable and sets cancelled property to true;
+   */
+  cancel() {
+    this.#oauthModule.cancelPrompt();
+    this.cancelled = true;
+  }
+}
+
 export const AccountCreationUtils = {
   Abortable,
   AddonInstaller,
@@ -709,6 +746,7 @@ export const AccountCreationUtils = {
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
+  OAuthAbortable,
   ParallelAbortable,
   PriorityOrderAbortable,
   PromiseAbortable,

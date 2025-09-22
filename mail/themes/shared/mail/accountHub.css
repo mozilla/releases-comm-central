@@ -752,6 +752,10 @@ header {
     padding: 10px 25px;
     text-align: center;
   }
+
+  .busy & {
+    z-index: 3;
+  }
 }
 
 .footer-links {

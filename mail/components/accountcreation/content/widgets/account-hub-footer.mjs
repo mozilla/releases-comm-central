@@ -12,6 +12,13 @@ const { AppConstants } = ChromeUtils.importESModule(
  */
 
 class AccountHubFooter extends HTMLElement {
+  /**
+   * Property to store disabled state of footer.
+   *
+   * @type {boolean}
+   */
+  #disabled = false;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -103,11 +110,11 @@ class AccountHubFooter extends HTMLElement {
   }
 
   get disabled() {
-    return this.querySelector("#back").disabled;
+    return this.#disabled;
   }
 
   set disabled(val) {
-    this.querySelector("#back").disabled = val;
+    this.#disabled = val;
     this.toggleForwardDisabled(val);
     const customAction = this.querySelector("#custom");
     if (!customAction.hidden) {

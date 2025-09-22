@@ -322,6 +322,14 @@ OAuth2Module.prototype = {
   },
 
   /**
+   * Cancel any pending OAuth prompt.
+   */
+  cancelPrompt() {
+    this._oauth?.onAuthorizationFailed(null, {}, "cancelled");
+    this._oauth?.finishAuthorizationRequest();
+  },
+
+  /**
    * Gets a current access token for the provider.
    *
    * @param {msgIOAuth2ModuleListener} listener - The listener for the results

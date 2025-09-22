@@ -17,6 +17,7 @@ const {
   gAccountSetupLogger,
   ParallelAbortable,
   PriorityOrderAbortable,
+  UserCancelledException,
 } = AccountCreationUtils;
 
 /**
@@ -146,7 +147,7 @@ async function parallelAutoDiscovery(
     await promise;
   } catch (error) {
     if (error instanceof CancelledException) {
-      return null;
+      throw new UserCancelledException();
     }
 
     let newError;

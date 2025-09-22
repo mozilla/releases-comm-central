@@ -35,12 +35,12 @@ add_task(function test_disabled() {
   Assert.ok(!footer.disabled, "Should not report itself as disabled");
 
   footer.disabled = true;
-  Assert.ok(back.disabled, "Back button should be disabled");
+  Assert.ok(!back.disabled, "Back button should be enabled");
   Assert.ok(forward.disabled, "Forward button should be disabled");
   Assert.ok(footer.disabled, "Should report itself as disabled");
 
   footer.disabled = false;
-  Assert.ok(!back.disabled, "Back button should be enabled again");
+  Assert.ok(!back.disabled, "Back button should be enabled");
   Assert.ok(!forward.disabled, "Forward button should be enabled again");
   Assert.ok(!footer.disabled, "Should report itself as enabled again");
 });

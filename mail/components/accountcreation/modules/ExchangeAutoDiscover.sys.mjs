@@ -24,10 +24,12 @@ const {
   Exception,
   gAccountSetupLogger,
   getStringBundle,
+  OAuthAbortable,
   PriorityOrderAbortable,
   PromiseAbortable,
   SuccessiveAbortable,
   TimeoutAbortable,
+  UserCancelledException,
 } = AccountCreationUtils;
 
 /**
@@ -80,6 +82,7 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   // Initialize an OAuth2 module and determine whether we support a provider
   // associated with the provided domain.
   const uri = Services.io.newURI(url);
+  call.setAbortable(new OAuthAbortable(oauth2Module));
   const isOAuth2Available = oauth2Module.initFromHostname(
     uri.host,
     username,
@@ -107,9 +110,15 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
         setUpAndStart(args);
       },
       onFailure: () => {
+        if (call.callerAbortable.cancelled) {
+          call.errorCallback()(new UserCancelledException("OAuth cancelled"));
+          return;
+        }
+
         gAccountSetupLogger.warn(
           "Exchange Autodiscover: Could not retrieve an OAuth2 token; falling back to Basic auth"
         );
+
         fetchWithBasicAuth();
       },
     });
