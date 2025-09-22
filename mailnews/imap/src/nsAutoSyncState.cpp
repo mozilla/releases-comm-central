@@ -376,13 +376,34 @@ NS_IMETHODIMP nsAutoSyncState::UpdateFolder() {
   nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
       do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
+  // Make sure it really _is_ a nsIUrlListener.
   nsCOMPtr<nsIUrlListener> autoSyncMgrListener =
       do_QueryInterface(autoSyncMgr, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
-      do_QueryReferent(mOwnerFolder, &rv);
-  SetState(nsAutoSyncState::stUpdateIssued);
-  return imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
+  nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // TODO: this should be protocol-agnostic, but currently the base
+  // nsIMsgFolder.updateFolder() doesn't take a listener.
+  // For EWS, GetNewMessages() works as update-with-listener.
+  //
+  // The autoSyncMgr is a nsIUrlListener, so this operation will
+  // invoke nsAutoSyncManager::OnStopRunningUrl() when done.
+  nsAutoCString serverType;
+  folder->GetIncomingServerType(serverType);
+  if (serverType.EqualsLiteral("imap")) {
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
+    rv = imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
+  } else if (serverType.EqualsLiteral("ews")) {
+    rv = folder->GetNewMessages(nullptr, autoSyncMgrListener);
+  } else {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  if (NS_SUCCEEDED(rv)) {
+    SetState(nsAutoSyncState::stUpdateIssued);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI* aUrl) {

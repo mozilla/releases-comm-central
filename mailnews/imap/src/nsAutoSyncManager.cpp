@@ -321,10 +321,27 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
           nsCOMPtr<nsIMsgFolder> folder;
           autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
           if (folder) {
+            // NOTE: this _should_ be protocol-agnostic, but we're not quite
+            // there yet.
+            // In both these cases, the autoSyncMgr is used as nsIUrlListener,
+            // so nsAutoSyncManager::OnStopRunningUrl() will be invoked when
+            // done.
             nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
-                do_QueryInterface(folder, &rv);
-            NS_ENSURE_SUCCESS_VOID(rv);
-            rv = imapFolder->InitiateAutoSync(autoSyncMgr);
+                do_QueryInterface(folder);
+            if (imapFolder) {
+              // IMAP. This will either UpdateFolder() immediately, or
+              // issue a STATUS command to check message counts on the
+              // server.
+              rv = imapFolder->InitiateAutoSync(autoSyncMgr);
+            } else {
+              // Other types have no stStatusIssued phase, so just jump
+              // straight to folder update.
+              // To unify this, other protocols could be given a proper
+              // status operation to check the message counts on the
+              // server, or IMAP STATUS could be rolled up into its folder
+              // update operation.
+              rv = autoSyncStateObj->UpdateFolder();
+            }
             if (NS_SUCCEEDED(rv)) {
               autoSyncMgr->mUpdateInProgress = true;
               NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnAutoSyncInitiated,
@@ -761,29 +778,35 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
     // don't support it.
     // So for now, also do an explicit test for server types we _know_
     // support autosync.
-    nsCString type;
-    rv = incomingServer->GetType(type);
+    nsAutoCString type;
+    incomingServer->GetType(type);
     if (!(type.EqualsLiteral("imap") || type.EqualsLiteral("ews"))) {
       continue;
     }
 
-    // If we haven't logged onto this server yet during this session or if the
-    // password has been removed from cache (see
-    // nsImapIncomingServer::ForgetSessionPassword) then skip autosync for
-    // this account.
-    bool notLoggedIn;
-    incomingServer->GetServerRequiresPasswordForBiff(&notLoggedIn);
-    if (notLoggedIn) {
-      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-        nsCString serverName;
-        incomingServer->GetHostName(serverName);
-        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                ("%s: server |%s| don't autosync; not yet logged in", __func__,
-                 serverName.get()));
-      }
-      continue;
-    }
+    // Bypass the logged-in check for EWS.
+    // TODO: EWS doesn't yet have an obvious logged-in check.
+    // It uses default .serverRequiresPasswordForBiff, which always returns
+    // true.
+    if (!type.EqualsLiteral("ews")) {
+      // If we haven't logged onto this server yet during this session or if the
+      // password has been removed from cache (see
+      // nsImapIncomingServer::ForgetSessionPassword) then skip autosync for
+      // this account.
+      bool notLoggedIn;
+      incomingServer->GetServerRequiresPasswordForBiff(&notLoggedIn);
 
+      if (notLoggedIn) {
+        if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+          nsCString serverName;
+          incomingServer->GetHostName(serverName);
+          MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+                  ("%s: server |%s| don't autosync; not yet logged in",
+                   __func__, serverName.get()));
+        }
+        continue;
+      }
+    }
     nsCOMPtr<nsIMsgFolder> rootFolder;
 
     rv = incomingServer->GetRootFolder(getter_AddRefs(rootFolder));
