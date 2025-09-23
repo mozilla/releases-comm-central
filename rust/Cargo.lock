@@ -3130,6 +3130,8 @@ name = "ipcclientcerts"
 version = "0.1.0"
 dependencies = [
  "byteorder",
+ "env_logger",
+ "log",
  "pkcs11-bindings",
  "rsclientcerts",
 ]
@@ -5199,6 +5201,7 @@ version = "0.1.0"
 dependencies = [
  "byteorder",
  "digest",
+ "env_logger",
  "gecko-profiler",
  "pkcs11-bindings",
  "rand",
