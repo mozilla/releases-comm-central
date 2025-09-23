@@ -108,18 +108,20 @@ add_setup(async function () {
 });
 
 /**
- * Tests composition of an encrypted only message shows as encrypted in
- * the Outbox.
+ * Tests composition of an encrypted message (signed or unsigned)
+ * shows as encrypted in the Outbox.
  *
  * @param {boolean} autoEnable - set pref mail.e2ee.auto_enable to this value
  * @param {boolean} autoDisable - set pref mail.e2ee.auto_disable to this value
  * @param {boolean} notifyOnDisable - set pref mail.e2ee.notify_on_auto_disable
+ * @param {boolean} signed - use digital signature
  *   to this value
  */
 async function testEncryptedMessageComposition(
   autoEnable,
   autoDisable,
-  notifyOnDisable
+  notifyOnDisable,
+  signed
 ) {
   setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
@@ -130,10 +132,11 @@ async function testEncryptedMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
+  const subject = "Compose Encrypted Message";
   await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
-    "Compose Encrypted Message",
+    subject,
     "This is an encrypted message with key composition test."
   );
   await checkDonePromise;
@@ -149,12 +152,13 @@ async function testEncryptedMessageComposition(
 
   Assert.ok(composeWin.gSendEncrypted, "message encryption should be on");
   Assert.ok(composeWin.gSendSigned, "message signing should be on");
-  await OpenPGPTestUtils.toggleMessageSigning(composeWin);
-
-  Assert.ok(
-    !composeWin.gSendSigned,
-    "toggling message signing should have completed already"
-  );
+  if (!signed) {
+    await OpenPGPTestUtils.toggleMessageSigning(composeWin);
+    Assert.ok(
+      !composeWin.gSendSigned,
+      "toggling message signing should have completed already"
+    );
+  }
 
   await sendMessage(composeWin);
 
@@ -167,31 +171,60 @@ async function testEncryptedMessageComposition(
   );
 
   Assert.equal(
-    aboutMessage.document.querySelector("#attachmentList").itemChildren.length,
-    0,
-    "no keys should be attached to message"
+    aboutMessage.document.getElementById("expandedsubjectBox").textContent,
+    "Subject:" + subject,
+    "Subject should be correct/decrypted"
   );
 
-  Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "message should have no signed icon"
-  );
+  if (signed) {
+    Assert.ok(
+      OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
+      "message should have signed icon"
+    );
+  } else {
+    Assert.equal(
+      aboutMessage.document.querySelector("#attachmentList").itemChildren
+        .length,
+      0,
+      "no keys should be attached to message"
+    );
+    Assert.ok(
+      OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+      "message should have no signed icon"
+    );
+  }
 
   // Delete the message so other tests work.
   EventUtils.synthesizeKey("VK_DELETE");
 }
 
 add_task(async function testEncryptedMessageCompositionAutoEncOff() {
-  await testEncryptedMessageComposition(false, false, false);
+  await testEncryptedMessageComposition(false, false, false, false);
 });
 
 add_task(async function testEncryptedMessageCompositionAutoEncOnAutoDisOff() {
-  await testEncryptedMessageComposition(true, false, false);
+  await testEncryptedMessageComposition(true, false, false, false);
 });
 
 add_task(async function testEncryptedMessageCompositionAutoEncOnAutoDisOn() {
-  await testEncryptedMessageComposition(true, true, false);
+  await testEncryptedMessageComposition(true, true, false, false);
 });
+
+add_task(async function testEncryptedSignedMessageCompositionAutoEncOff() {
+  await testEncryptedMessageComposition(false, false, false, true);
+});
+
+add_task(
+  async function testEncryptedSignedMessageCompositionAutoEncOnAutoDisOff() {
+    await testEncryptedMessageComposition(true, false, false, true);
+  }
+);
+
+add_task(
+  async function testEncryptedSignedMessageCompositionAutoEncOnAutoDisOn() {
+    await testEncryptedMessageComposition(true, true, false, true);
+  }
+);
 
 /**
  * Tests composition of an encrypted only message, with public key attachment
