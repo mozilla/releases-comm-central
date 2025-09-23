@@ -1681,7 +1681,7 @@ var gAccountSetup = {
     document.getElementById("incomingSsl").value = Sanitizer.enum(
       config.incoming.socketType,
       [0, 1, 2, 3],
-      0
+      -1
     );
     document.getElementById("incomingAuthMethod").value = Sanitizer.enum(
       config.incoming.auth,
@@ -1711,7 +1711,7 @@ var gAccountSetup = {
     document.getElementById("outgoingSsl").value = Sanitizer.enum(
       config.outgoing.socketType,
       [0, 1, 2, 3],
-      0
+      -1
     );
     document.getElementById("outgoingAuthMethod").value = Sanitizer.enum(
       config.outgoing.auth,
