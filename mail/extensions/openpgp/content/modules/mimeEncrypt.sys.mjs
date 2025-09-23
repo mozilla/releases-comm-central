@@ -185,11 +185,18 @@ PgpMimeEncrypt.prototype = {
     }
 
     let w = `Content-Type: multipart/mixed; boundary="${this.encHeader}"`;
+    w += `;\r\n protected-headers="v1"\r\n${this.headers}`;
 
-    if (this.headers) {
-      w += `;\r\n protected-headers="v1"\r\n${this.headers}`;
-    } else {
-      w += "\r\n";
+    if (
+      (this.mimeStructure == MIME_ENCRYPTED ||
+        this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
+      this.originalSubject
+    ) {
+      w += lazy.jsmime.headeremitter.emitStructuredHeader(
+        "subject",
+        this.originalSubject,
+        {}
+      );
     }
 
     if (this.autocryptGossipHeaders) {
