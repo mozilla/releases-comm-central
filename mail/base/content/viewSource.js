@@ -141,28 +141,30 @@ function ViewSourceSavePage() {
 /** Called by ContextMenuParent.sys.mjs */
 function openContextMenu({ data }, browser) {
   const popup = browser.ownerDocument.getElementById("viewSourceContextMenu");
-
-  const newEvent = document.createEvent("MouseEvent");
-  const screenX = data.context.screenXDevPx / window.devicePixelRatio;
-  const screenY = data.context.screenYDevPx / window.devicePixelRatio;
-  newEvent.initNSMouseEvent(
-    "contextmenu",
-    true,
-    true,
-    null,
-    0,
-    screenX,
-    screenY,
-    0,
-    0,
-    false,
-    false,
-    false,
-    false,
-    2,
-    null,
-    0,
-    data.context.mozInputSource
-  );
+  const newEvent = new PointerEvent("contextmenu", {
+    bubbles: true,
+    cancelable: true,
+    screenX: data.context.screenXDevPx / window.devicePixelRatio,
+    screenY: data.context.screenYDevPx / window.devicePixelRatio,
+    button: 2,
+    pointerType: (() => {
+      switch (data.context.inputSource) {
+        case MouseEvent.MOZ_SOURCE_MOUSE:
+          return "mouse";
+        case MouseEvent.MOZ_SOURCE_PEN:
+          return "pen";
+        case MouseEvent.MOZ_SOURCE_ERASER:
+          return "eraser";
+        case MouseEvent.MOZ_SOURCE_CURSOR:
+          return "cursor";
+        case MouseEvent.MOZ_SOURCE_TOUCH:
+          return "touch";
+        case MouseEvent.MOZ_SOURCE_KEYBOARD:
+          return "keyboard";
+        default:
+          return "";
+      }
+    })(),
+  });
   popup.openPopupAtScreen(newEvent.screenX, newEvent.screenY, true, newEvent);
 }
