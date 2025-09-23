@@ -1,0 +1,93 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.accounthub.addressbook.enabled=false", # TODO Remove in Bug 1991626
+  "mail.biff.show_alert=false",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.default_sort_order=1",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "head_editMenu.js",
+]
+
+["browser_browserContext.js"]
+tags = [
+  "contextmenu",
+  "webextensions",
+]
+
+["browser_editMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_editMenu_delete_item.js"]
+skip-if = [
+  "os == 'mac'",
+  "debug",  # Too unreliable.
+]
+
+["browser_editMenu_favorite_folder_item.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_editMenu_properties_item.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_fileMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_folderPaneContext.js"]
+tags = [
+  "contextmenu",
+  "virtualfolders",
+]
+
+["browser_goMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_mailContext.js"]
+skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1897093.
+tags = [
+  "contextmenu",
+  "virtualfolders",
+]
+
+["browser_mailContext_compose.js"]
+tags = ["contextmenu"]
+
+["browser_mailContext_messageContent.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+tags = ["contextmenu"]
+
+["browser_mailContext_navigation.js"]
+tags = ["contextmenu"]
+
+["browser_mailContext_threadTree.js"]
+tags = ["contextmenu"]
+
+["browser_menubar.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_messageMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_spamMenusAndKeys.js"]
+tags = [
+  "contextmenu",
+  "spam",
+]
+
+["browser_tagsMenusAndKeys.js"]
+skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
+tags = ["contextmenu"]
+
+["browser_toolsMenu.js"]
+skip-if = ["os == 'mac'"]
+
+["browser_viewMenu.js"]
+skip-if = ["os == 'mac'"]

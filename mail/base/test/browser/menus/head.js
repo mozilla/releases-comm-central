@@ -65,6 +65,21 @@ async function clickExtensionButton(win, buttonId) {
   return actionButton;
 }
 
+async function openExtensionPopup(win, buttonId) {
+  const actionButton = await clickExtensionButton(win, buttonId);
+
+  const panel = win.top.document.getElementById(
+    "webextension-remote-preload-panel"
+  );
+  const browser = panel.querySelector("browser");
+  await TestUtils.waitForCondition(
+    () => browser.clientWidth > 100,
+    "waiting for browser to resize"
+  );
+
+  return { actionButton, panel, browser };
+}
+
 function getSmartServer() {
   const smartMailbox = lazy.SmartMailboxUtils.getSmartMailbox();
   return smartMailbox.server;
@@ -337,7 +352,6 @@ async function clearStatusBar() {
         !status._stopTimeoutID,
       "waiting for meteors to stop spinning"
     );
-    // eslint-disable-next-line no-unused-vars
   } catch (ex) {
     // If the meteors don't stop spinning within 5 seconds, something has got
     // confused somewhere and they'll probably keep spinning forever.

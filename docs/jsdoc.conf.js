@@ -70,8 +70,6 @@ module.exports = {
       "../mail/base/content/widgets/customizable-toolbar.js",
       "../mail/base/content/widgets/tree-view.mjs",
       "../mail/base/test/browser/browser_cardsView.js",
-      "../mail/base/test/browser/browser_editMenu.js",
-      "../mail/base/test/browser/browser_spacesToolbar.js",
       "../mail/branding/tb_beta/pref/thunderbird-branding.js",
       "../mail/branding/thunderbird/pref/thunderbird-branding.js",
       "../mail/components/accountcreation/content/accountSetup.js",

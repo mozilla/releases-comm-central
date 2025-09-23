@@ -6,15 +6,19 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Testing Infrastructure")
 
-DIRS += ["webextensions"]
+DIRS += ["browser/webextensions"]
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser/browser-detachedWindows.toml",
-    "browser/browser-drawBelowTitlebar.toml",
-    "browser/browser-drawInTitlebar.toml",
     "browser/browser.toml",
-    "performance/browser.toml",
-    "widgets/browser.toml",
+    "browser/detachedWindows/browser.toml",
+    "browser/getMessages/browser.toml",
+    "browser/menus/browser.toml",
+    "browser/performance/browser.toml",
+    "browser/spacesToolbar/browser-drawBelowTitlebar.toml",
+    "browser/spacesToolbar/browser-drawInTitlebar.toml",
+    "browser/spacesToolbar/browser.toml",
+    "browser/static/browser.toml",
+    "browser/widgets/browser.toml",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

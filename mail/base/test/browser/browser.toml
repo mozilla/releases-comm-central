@@ -7,15 +7,14 @@ prefs = [
   "mail.spellcheck.inline=false",
   "mail.spotlight.firstRunDone=true",
   "mail.winsearch.firstRunDone=true",
-  "mailnews.start_page.override_url=about:blank",
-  "mailnews.start_page.url=about:blank",
   "mailnews.default_sort_order=1",
   "mailnews.oauth.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
 ]
 subsuite = "thunderbird"
 support-files = [
   "files/**",
-  "head_editMenu.js",
 ]
 
 ["browser_3paneTelemetry.js"]
@@ -24,12 +23,6 @@ support-files = [
 
 ["browser_archive.js"]
 tags = ["archive"]
-
-["browser_browserContext.js"]
-tags = [
-  "contextmenu",
-  "webextensions",
-]
 
 ["browser_browserRequestWindow.js"]
 
@@ -45,35 +38,11 @@ skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
 
 ["browser_dummyRow.js"]
 
-["browser_editMenu.js"]
-skip-if = ["os == 'mac'"]
-
-["browser_editMenu_delete_item.js"]
-skip-if = [
-  "os == 'mac'",
-  "debug",  # Too unreliable.
-]
-
-["browser_editMenu_favorite_folder_item.js"]
-skip-if = ["os == 'mac'"]
-
-["browser_editMenu_properties_item.js"]
-skip-if = ["os == 'mac'"]
-
 ["browser_feedBodyDisplay.js"]
 
 ["browser_feedBodyScroll.js"]
 
-["browser_fileMenu.js"]
-skip-if = ["os == 'mac'"]
-
 ["browser_findbar.js"]
-
-["browser_folderPaneContext.js"]
-tags = [
-  "contextmenu",
-  "virtualfolders",
-]
 
 ["browser_folderTreeProperties.js"]
 tags = ["virtualfolders"]
@@ -81,49 +50,10 @@ tags = ["virtualfolders"]
 ["browser_folderTreeQuirks.js"]
 tags = ["virtualfolders"]
 
-["browser_getMessages.js"]
-
-["browser_getMessages_badPassword.js"]
-skip-if = ["os == 'mac' && debug"]  # Fails almost every time. Unsure why.
-
-["browser_getMessages_certError.js"]
-
-["browser_getMessages_connectionError.js"]
-
-["browser_getMessages_deferredAccount.js"]
-
-["browser_getMessages_oAuth2.js"]
-tags = ["oauth"]
-
-["browser_getMessages_offline.js"]
-
-["browser_goMenu.js"]
-skip-if = ["os == 'mac'"]
-
 ["browser_groupedBySortPersistence.js"]
 tags = ["virtualfolders"]
 
 ["browser_interactionTelemetry.js"]
-
-["browser_mailContext.js"]
-skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1897093.
-tags = [
-  "contextmenu",
-  "virtualfolders"
-]
-
-["browser_mailContext_compose.js"]
-tags = ["contextmenu"]
-
-["browser_mailContext_messageContent.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
-tags = ["contextmenu"]
-
-["browser_mailContext_navigation.js"]
-tags = ["contextmenu"]
-
-["browser_mailContext_threadTree.js"]
-tags = ["contextmenu"]
 
 ["browser_mailTabsAndWindows.js"]
 
@@ -132,13 +62,7 @@ skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
 
 ["browser_markAsRead.js"]
 
-["browser_menubar.js"]
-skip-if = ["os == 'mac'"]
-
 ["browser_messageBodyAs.js"]
-
-["browser_messageMenu.js"]
-skip-if = ["os == 'mac'"]
 
 ["browser_navigation.js"]
 
@@ -160,21 +84,11 @@ tags = ["oauth"]
 ["browser_smartFolderDelete.js"]
 tags = ["virtualfolders"]
 
-["browser_spacesToolbar.js"]
-
-["browser_spacesToolbarCustomize.js"]
-
-["browser_spamMenusAndKeys.js"]
-tags = ["spam"]
-
 ["browser_statusFeedback.js"]
 
 ["browser_subscribe.js"]
 
 ["browser_tabIcon.js"]
-
-["browser_tagsMenusAndKeys.js"]
-skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
 
 ["browser_tagsMode.js"]
 tags = ["virtualfolders"]
@@ -192,11 +106,5 @@ tags = ["virtualfolders"]
 ["browser_threadTreeSorting.js"]
 
 ["browser_threads.js"]
-
-["browser_toolsMenu.js"]
-skip-if = ["os == 'mac'"]
-
-["browser_viewMenu.js"]
-skip-if = ["os == 'mac'"]
 
 ["browser_zoom.js"]

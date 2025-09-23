@@ -49,13 +49,7 @@ const xpcshellTestPaths = [
   "mailnews/test/",
 ];
 
-const browserTestPaths = [
-  "**/test*/**/browser/",
-  "mail/base/test/performance/",
-  "mail/base/test/webextensions/",
-  "mail/base/test/widgets/",
-  "mail/test/static/",
-];
+const browserTestPaths = ["**/test*/**/browser/"];
 
 export default [
   {
@@ -337,12 +331,12 @@ export default [
   {
     name: "webextension-tests",
     files: [
-      "mail/base/test/webextensions/**/*.js",
-      "mail/test/browser/shared-modules/**/*.mjs",
+      "mail/base/test/browser/menus/browser_browserContext.js",
+      "mail/base/test/browser/webextensions/**/*.js",
+      "mail/base/test/browser/widgets/browser_formPickers_webextensions.js",
       "mail/components/extensions/test/**/*.js",
       "mail/components/preferences/test/browser/browser_cloudfile.js",
-      "mail/base/test/browser/browser_browserContext.js",
-      "mail/base/test/widgets/browser_formPickers_webextensions.js",
+      "mail/test/browser/shared-modules/**/*.mjs",
     ],
     languageOptions: {
       globals: globals.webextensions,

@@ -48,7 +48,6 @@ if CONFIG["MOZ_OVERRIDE_GKRUST"]:
 TEST_DIRS += [
     "test/browser",
     "test/marionette",
-    "test/static",
 ]
 
 FINAL_TARGET_FILES.defaults += ["app/permissions"]
