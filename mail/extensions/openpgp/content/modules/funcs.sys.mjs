@@ -255,27 +255,6 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Get a mail URL from a uriSpec.
-   *
-   * @param {string} uriSpec - URL spec of the desired message.
-   *
-   * @returns {nsIURI|null} The necko url.
-   */
-  getUrlFromUriSpec(uriSpec) {
-    try {
-      if (!uriSpec) {
-        return null;
-      }
-      const url =
-        MailServices.messageServiceFromURI(uriSpec).getUrlForUri(uriSpec);
-
-      return url;
-    } catch (ex) {
-      return null;
-    }
-  },
-
-  /**
    * Check if the given spec refers to the currently shown message.
    *
    * @param {string} current - URI spec of the currently shown message
@@ -290,7 +269,9 @@ export var EnigmailFuncs = {
     // file:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display
 
     const uri = Services.io.newURI(spec);
-    const uri2 = this.getUrlFromUriSpec(current);
+    const uri2 =
+      MailServices.messageServiceFromURI(current).getUrlForUri(current);
+
     if (uri.host != uri2.host) {
       return false;
     }

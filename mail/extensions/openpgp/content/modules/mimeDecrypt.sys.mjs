@@ -6,6 +6,7 @@
  * Module for handling PGP/MIME encrypted messages.
  */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { EnigmailSingletons } from "chrome://openpgp/content/modules/singletons.sys.mjs";
 
 import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
@@ -372,7 +373,8 @@ MimeDecryptHandler.prototype = {
       try {
         let url = null;
         if (this.msgUriSpec) {
-          url = lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec);
+          const uri = this.msgUriSpec;
+          url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
         }
 
         if (

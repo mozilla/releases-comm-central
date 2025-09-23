@@ -445,19 +445,11 @@ function getRequireMessageProcessing(aMsgHdr) {
     }
   }
 
-  const u = lazy.EnigmailFuncs.getUrlFromUriSpec(
-    aMsgHdr.folder.getUriForMsg(aMsgHdr)
-  );
-
-  if (!u) {
-    return null;
-  }
-
-  const op = u.spec.indexOf("?") > 0 ? "&" : "?";
-  const url = u.spec + op + "header=enigmailFilter";
-
+  const uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
+  const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
+  const op = url.spec.indexOf("?") > 0 ? "&" : "?";
   return {
-    url,
+    url: url.spec + op + "header=enigmailFilter",
     requireBody,
   };
 }

@@ -4,9 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
@@ -53,9 +54,8 @@ export var EnigmailFixExchangeMsg = {
    */
   async getMessageBody() {
     return new Promise((resolve, reject) => {
-      const url = lazy.EnigmailFuncs.getUrlFromUriSpec(
-        this.hdr.folder.getUriForMsg(this.hdr)
-      );
+      const uri = this.hdr.folder.getUriForMsg(this.hdr);
+      const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
       const s = lazy.EnigmailStreams.newStringStreamListener(data => {
         const [good, errorCode, msg] = this.getRepairedMessage(data);
         if (!good) {

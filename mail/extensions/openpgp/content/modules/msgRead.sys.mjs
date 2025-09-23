@@ -6,11 +6,6 @@
  * OpenPGP message reading related functions.
  */
 
-const lazy = {};
-ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
-});
-
 export var EnigmailMsgRead = {
   /**
    * Ensure that Thunderbird prepares certain headers during message reading
@@ -35,17 +30,6 @@ export var EnigmailMsgRead = {
         Services.prefs.setCharPref(prefName, hdr);
       }
     }
-  },
-
-  /**
-   * Get a mail URL from a uriSpec
-   *
-   * @param {string} uriSpec - URI of the desired message.
-   *
-   * @returns {nsIURI|nsIMsgMailNewsUrl|null}
-   */
-  getUrlFromUriSpec(uriSpec) {
-    return lazy.EnigmailFuncs.getUrlFromUriSpec(uriSpec);
   },
 
   /**

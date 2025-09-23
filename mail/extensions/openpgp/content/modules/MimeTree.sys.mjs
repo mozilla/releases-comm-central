@@ -1284,7 +1284,7 @@ export function mimeTreeToString(mimeTreePart, includeHeaders) {
  * @callback MimeTreeFromUrlCallback
  *
  * Function is called when parsing is complete.
- * @param {MimeTreePart} aimeTreePart
+ * @param {MimeTreePart} mimeTreePart
  */
 
 /**

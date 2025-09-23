@@ -247,34 +247,32 @@ Enigmail.msg = {
   },
 
   composeOpen() {
-    let msgUri = null;
-    let msgHdr = null;
-
-    msgUri = this.getOriginalMsgUri();
-    if (msgUri) {
-      msgHdr = this.getMsgHdr(msgUri);
+    const uri = this.getOriginalMsgUri();
+    if (uri) {
+      const msgHdr = this.getMsgHdr(uri);
       if (msgHdr) {
         try {
-          const msgUrl = EnigmailMsgRead.getUrlFromUriSpec(msgUri);
-          getMimeTreeFromUrl(msgUrl.spec, false, mimeMsg => {
-            Enigmail.msg.continueComposeOpenWithMimeTree(
-              msgUri,
-              msgHdr,
-              mimeMsg
-            );
+          const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
+          getMimeTreeFromUrl(url.spec, false, mimeMsg => {
+            Enigmail.msg.continueComposeOpenWithMimeTree(uri, msgHdr, mimeMsg);
           });
         } catch (ex) {
           console.warn(ex);
-          this.continueComposeOpenWithMimeTree(msgUri, msgHdr, null);
+          this.continueComposeOpenWithMimeTree(uri, msgHdr, null);
         }
       } else {
-        this.continueComposeOpenWithMimeTree(msgUri, msgHdr, null);
+        this.continueComposeOpenWithMimeTree(uri, msgHdr, null);
       }
     } else {
-      this.continueComposeOpenWithMimeTree(msgUri, msgHdr, null);
+      this.continueComposeOpenWithMimeTree(uri, null, null);
     }
   },
 
+  /**
+   * @param {string} msgUri
+   * @param {nsIMsgDBHdr} msgHdr
+   * @param {MimeTreePart} mimeMsg
+   */
   continueComposeOpenWithMimeTree(msgUri, msgHdr, mimeMsg) {
     const selectedElement = document.activeElement;
 

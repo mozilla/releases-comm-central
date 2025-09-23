@@ -226,9 +226,15 @@ Enigmail.msg = {
     return gMessageURI || "";
   },
 
+  /**
+   * @returns {?nsIURI} the current message
+   */
   getCurrentMsgUrl() {
-    var uriSpec = this.getCurrentMsgUriSpec();
-    return EnigmailMsgRead.getUrlFromUriSpec(uriSpec);
+    const uri = this.getCurrentMsgUriSpec();
+    if (!uri) {
+      return null;
+    }
+    return MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
   },
 
   /**
@@ -839,8 +845,6 @@ Enigmail.msg = {
 
     // ignoring text following armored block
 
-    var mailNewsUrl = EnigmailMsgRead.getUrlFromUriSpec(msgUriSpec);
-    var urlSpec = mailNewsUrl ? mailNewsUrl.spec : "";
     const retry = 1;
 
     await Enigmail.msg.messageParseCallback(
@@ -850,7 +854,6 @@ Enigmail.msg = {
       charset,
       interactive,
       importOnly,
-      urlSpec,
       "",
       retry,
       "", // head
@@ -947,7 +950,6 @@ Enigmail.msg = {
     charset,
     interactive,
     importOnly,
-    messageUrl,
     signature,
     retry,
     head,
@@ -1092,7 +1094,6 @@ Enigmail.msg = {
           charset,
           interactive,
           importOnly,
-          messageUrl,
           signature,
           retry + 1,
           head,
@@ -1132,7 +1133,6 @@ Enigmail.msg = {
           charset,
           interactive,
           importOnly,
-          messageUrl,
           null,
           retry + 1,
           head,
@@ -1553,7 +1553,6 @@ Enigmail.msg = {
               charset,
               interactive,
               importOnly,
-              mailNewsUrl.spec,
               signature,
               3,
               head,

@@ -6,6 +6,7 @@
  * Module for handling PGP/MIME signed messages.
  */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sys.mjs";
 
 const lazy = {};
@@ -493,11 +494,10 @@ MimeVerify.prototype = {
             return;
           }
 
-          const url = this.msgUriSpec
-            ? lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec)
-            : null;
-
-          if (url) {
+          const uri = this.msgUriSpec;
+          if (uri) {
+            const url =
+              MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
             const otherId = lazy.EnigmailURIs.msgIdentificationFromUrl(url);
             const thisId = lazy.EnigmailURIs.msgIdentificationFromUrl(this.uri);
 
