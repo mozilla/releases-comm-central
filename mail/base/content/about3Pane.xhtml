@@ -15,8 +15,12 @@
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       lightweightthemes="true">
 <head>
-  <meta charset="utf-8" />
   <title id="about3PaneTitle"></title>
+  <meta charset="utf-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src chrome:; script-src chrome: about: moz-src: 'unsafe-inline'; style-src about: 'unsafe-inline'; img-src moz-icon: chrome: moz-src:;"
+  />
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/folder.svg" />
 
