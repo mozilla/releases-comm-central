@@ -22,9 +22,6 @@ autobenches = false
 readme = false
 license = "MPL-2.0"
 
-[features]
-testing = []
-
 [lib]
 name = "tracing_support"
 path = "src/lib.rs"

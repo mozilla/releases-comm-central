@@ -38,10 +38,10 @@ required-features = ["build-binary"]
 base64 = "0.22.1"
 md-5 = "0.10"
 regex = "1"
-thiserror = "1.0"
+thiserror = "2"
 
 [dependencies.clap]
-version = "4.5.36"
+version = "4.5"
 features = [
     "std",
     "derive",

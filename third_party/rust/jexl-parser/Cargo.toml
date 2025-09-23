@@ -12,13 +12,14 @@
 [package]
 edition = "2018"
 name = "jexl-parser"
-version = "0.3.0"
+version = "0.4.0"
 authors = [
     "Mike Cooper <mythmon@gmail.com>",
     "The Sync Team <sync-team@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
 ]
 build = false
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false

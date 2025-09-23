@@ -33,4 +33,4 @@ path = "tests/test_versioning.rs"
 
 [dependencies]
 serde_json = "1.0"
-thiserror = "1.0"
+thiserror = "2"

@@ -3,18 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 pub mod ast;
+pub mod lexer;
 #[rustfmt::skip]
 mod parser;
 
+pub use crate::lexer::{LexError, Token};
 pub use lalrpop_util::ParseError;
-
-pub use crate::parser::Token;
 
 pub struct Parser {}
 
 impl Parser {
-    pub fn parse(input: &str) -> Result<ast::Expression, ParseError<usize, Token, &str>> {
-        Ok(*parser::ExpressionParser::new().parse(input)?)
+    pub fn parse(input: &str) -> Result<ast::Expression, ParseError<usize, Token, LexError>> {
+        let lexer = lexer::Lexer::new(input);
+        Ok(*parser::ExpressionParser::new().parse(lexer)?)
     }
 }
 
@@ -172,5 +173,12 @@ mod tests {
     #[test]
     fn test_parsing_null() {
         assert_eq!(Parser::parse("null"), Ok(Expression::Null));
+    }
+
+    #[test]
+    fn test_empty_object_literal() {
+        let exp = "{}";
+        let parsed = Parser::parse(exp).unwrap();
+        assert_eq!(parsed, Expression::Object(vec![]));
     }
 }

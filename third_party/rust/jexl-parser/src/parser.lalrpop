@@ -1,8 +1,57 @@
-use std::str::FromStr;
-
 use crate::ast::{Expression, OpCode};
+use crate::lexer::Token;
 
-grammar;
+grammar<'input>();
+
+extern {
+    type Location = usize;
+    type Error = crate::lexer::LexError;
+    
+    enum Token<'input> {
+        // Literals
+        Number => Token::Number(<f64>),
+        DoubleQuotedString => Token::DoubleQuotedString(<&'input str>),
+        SingleQuotedString => Token::SingleQuotedString(<&'input str>),
+        Boolean => Token::Boolean(<bool>),
+        Null => Token::Null,
+        Identifier => Token::Identifier(<&'input str>),
+        
+        // Operators
+        "+" => Token::Plus,
+        "-" => Token::Minus,
+        "*" => Token::Multiply,
+        "/" => Token::Divide,
+        "//" => Token::FloorDivide,
+        "%" => Token::Modulus,
+        "^" => Token::Exponent,
+        
+        // Comparison
+        "==" => Token::Equal,
+        "!=" => Token::NotEqual,
+        ">" => Token::Greater,
+        ">=" => Token::GreaterEqual,
+        "<" => Token::Less,
+        "<=" => Token::LessEqual,
+        "in" => Token::In,
+        
+        // Logical
+        "&&" => Token::And,
+        "||" => Token::Or,
+        
+        // Punctuation
+        "(" => Token::LeftParen,
+        ")" => Token::RightParen,
+        "[" => Token::LeftBracket,
+        "]" => Token::RightBracket,
+        "{" => Token::LeftBrace,
+        "}" => Token::RightBrace,
+        "," => Token::Comma,
+        "." => Token::Dot,
+        ":" => Token::Colon,
+        "?" => Token::Question,
+        "|" => Token::Pipe,
+    }
+}
 
 pub Expression: Box<Expression> = Expr00;
 
@@ -37,7 +86,7 @@ Expr50: Box<Expression> = {
 }
 
 Expr60: Box<Expression> = {
-    <subject: Expr60> "|" <name: Identifier> <args: Args?> => Box::new(Expression::Transform{name, subject, args}),
+    <subject: Expr60> "|" <name: Identifier> <args: Args?> => Box::new(Expression::Transform{name: name.to_string(), subject, args}),
     Expr70
 };
 
@@ -66,7 +115,7 @@ Expr60: Box<Expression> = {
 /// `[1, 2, 3][1] == 2`
 Expr70: Box<Expression> = {
     <subject: Expr70> <index: Index> => Box::new(Expression::IndexOperation{subject, index}),
-    <subject: Expr70> "." <ident: Identifier>  => Box::new(Expression::DotOperation{subject, ident}),
+    <subject: Expr70> "." <ident: Identifier>  => Box::new(Expression::DotOperation{subject, ident: ident.to_string()}),
     Expr80
 };
 
@@ -77,7 +126,7 @@ Expr80: Box<Expression> = {
     Array => Box::new(Expression::Array(<>)),
     Object => Box::new(Expression::Object(<>)),
     Null => Box::new(Expression::Null),
-    Identifier => Box::new(Expression::Identifier(<>)),
+    Identifier => Box::new(Expression::Identifier(<>.to_string())),
     "(" <Expression> ")",
 };
 
@@ -116,35 +165,23 @@ Op50: OpCode = {
     "^" => OpCode::Exponent,
 };
 
-Number: f64 = {
-    r"[0-9]+" => f64::from_str(<>).unwrap(),
-    r"[0-9]+\.[0-9]*" => f64::from_str(<>).unwrap(),
-    r"\.[0-9]+" => f64::from_str(<>).unwrap(),
-};
-
+// The weird string literal handling here to preserve the weird semantics of the previous lexer implementation:
+//  String: String = {
+//     <s: r#""([^"\\]*(\\")?)*""#> => s[1..s.len() - 1].to_string().replace("\\\"", "\""),
+//     <s: r#"'([^'\\]*(\\')?)*'"#> => s[1..s.len() - 1].to_string().replace("\\'", "'"),
+//  };
 String: String = {
-    <s: r#""([^"\\]*(\\")?)*""#> => s[1..s.len() - 1].to_string().replace("\\\"", "\""),
-    <s: r#"'([^'\\]*(\\')?)*'"#> => s[1..s.len() - 1].to_string().replace("\\'", "'"),
+    <s: DoubleQuotedString> => s.replace("\\\"", "\""),
+    <s: SingleQuotedString> => s.replace("\\'", "'"),
 };
-
-Null: Option<Box<Expression>> = {
-    "null" => None,
-}
-
-Identifier: String = {
-    r#"[a-zA-Z_][a-zA-Z0-9_]*"# => <>.to_string()
-}
 
 Index: Box<Expression> = {
-    "[" "." <ident: Identifier> <op: Op20> <right: Expr80> "]" => Box::new(Expression::Filter {ident, op, right}),
+    "[" "." <ident: Identifier> <op: Op20> <right: Expr80> "]" => Box::new(Expression::Filter {ident: ident.to_string(), op, right}),
     "[" <Expression> "]",
 }
 
 
-Boolean: bool = {
-    "true" => true,
-    "false" => false,
-}
+// Boolean tokens are now handled by the external lexer
 
 Comma<T>: Vec<T> = {
     <v: (<T> ",")*> <e:T?> => match e {
@@ -163,10 +200,11 @@ Array: Vec<Box<Expression>> = {
 
 Object: Vec<(String, Box<Expression>)> = {
     "{" <Comma<(<ObjectIdentifier> ":" <Expression>)>> "}",
-    "{}" => vec![],
 }
 
+
+
 ObjectIdentifier: String = {
-    String, 
-    Identifier
+    String,
+    Identifier => <>.to_string()
 }

@@ -54,7 +54,7 @@ lazy_static = "1.4"
 serde_derive = "1"
 serde_json = "1"
 serde_path_to_error = "0.1"
-thiserror = "1.0"
+thiserror = "2"
 
 [dependencies.base16]
 version = "0.2"
