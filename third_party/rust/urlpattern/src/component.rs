@@ -7,6 +7,7 @@ use crate::parser::Options;
 use crate::parser::Part;
 use crate::parser::PartModifier;
 use crate::parser::PartType;
+use crate::parser::RegexSyntax;
 use crate::parser::FULL_WILDCARD_REGEXP_VALUE;
 use crate::regexp::RegExp;
 use crate::tokenizer::is_valid_name_codepoint;
@@ -42,7 +43,15 @@ impl<R: RegExp> Component<R> {
     let (regexp_string, name_list) =
       generate_regular_expression_and_name_list(&part_list, &options);
     let flags = if options.ignore_case { "ui" } else { "u" };
-    let regexp = R::parse(&regexp_string, flags).map_err(Error::RegExp);
+    let mut regexp =
+      R::parse(&regexp_string, flags, false).map_err(Error::RegExp);
+    if regexp.is_ok() && R::syntax() == RegexSyntax::EcmaScript {
+      for part in part_list.iter() {
+        if part.kind == PartType::Regexp {
+          regexp = R::parse(&regexp_string, flags, true).map_err(Error::RegExp);
+        }
+      }
+    }
     let pattern_string = generate_pattern_string(&part_list, &options);
     let matcher = generate_matcher::<R>(&part_list, &options, flags);
     Ok(Component {
@@ -350,7 +359,8 @@ fn generate_matcher<R: RegExp>(
     part_list => {
       let (regexp_string, _) =
         generate_regular_expression_and_name_list(part_list, options);
-      let regexp = R::parse(&regexp_string, flags).map_err(Error::RegExp);
+      let regexp =
+        R::parse(&regexp_string, flags, false).map_err(Error::RegExp);
       InnerMatcher::RegExp { regexp }
     }
   };

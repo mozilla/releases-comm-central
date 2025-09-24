@@ -46,7 +46,8 @@ pub fn canonicalize_hostname(value: &str) -> Result<String, Error> {
     return Ok(String::new());
   }
   let mut url = url::Url::parse("http://dummy.test").unwrap();
-  url.set_host(Some(value)).map_err(Error::Url)?;
+  url::quirks::set_hostname(&mut url, value)
+    .map_err(|_| Error::Url(url::ParseError::InvalidDomainCharacter))?;
   Ok(url::quirks::hostname(&url).to_string())
 }
 
@@ -73,15 +74,13 @@ pub fn canonicalize_port(
   if let Some("") = protocol {
     protocol = None;
   }
-  let port = value
-    .parse::<u16>()
-    .map_err(|_| Error::Url(url::ParseError::InvalidPort))?;
   // Note: this unwrap is safe, because the protocol was previously parsed to be
   // valid.
   let mut url =
     url::Url::parse(&format!("{}://dummy.test", protocol.unwrap_or("dummy")))
       .unwrap();
-  url.set_port(Some(port)).unwrap(); // TODO: dont unwrap, instead ParseError
+  url::quirks::set_port(&mut url, value)
+    .map_err(|_| Error::Url(url::ParseError::InvalidPort))?;
   Ok(url::quirks::port(&url).to_string())
 }
 
@@ -212,11 +211,24 @@ pub fn process_pathname_init(
   if kind == &ProcessType::Pattern {
     Ok(pathname_value.to_string())
   } else {
-    match protocol_value {
+    // A path is non-opaque if:
+    // 1. The protocol is empty, OR
+    // 2. The protocol is a special scheme (http, https, etc.), OR
+    // 3. The pathname has a leading '/' (indicating hierarchical path)
+    let is_non_opaque = match protocol_value {
       Some(protocol) if protocol.is_empty() || is_special_scheme(protocol) => {
-        canonicalize_pathname(pathname_value)
+        true
       }
-      _ => canonicalize_an_opaque_pathname(pathname_value),
+      _ => {
+        // For non-special schemes, treat as non-opaque if pathname starts with '/'
+        pathname_value.starts_with('/')
+      }
+    };
+
+    if is_non_opaque {
+      canonicalize_pathname(pathname_value)
+    } else {
+      canonicalize_an_opaque_pathname(pathname_value)
     }
   }
 }

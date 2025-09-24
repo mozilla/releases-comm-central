@@ -175,12 +175,20 @@ impl RegExp for EcmaRegexp {
     RegexSyntax::EcmaScript
   }
 
-  fn parse(pattern: &str, flags: &str) -> Result<Self, ()> {
-    Ok(EcmaRegexp(pattern.to_string(), flags.to_string()))
+  fn parse(pattern: &str, flags: &str, force_eval: bool) -> Result<Self, ()> {
+    if force_eval {
+      let regexp = regex::Regex::parse(pattern, flags, false);
+      match regexp {
+        Ok(r) => Ok(EcmaRegexp(r.to_string(), flags.to_string())),
+        _ => Err(()),
+      }
+    } else {
+      Ok(EcmaRegexp(pattern.to_string(), flags.to_string()))
+    }
   }
 
   fn matches<'a>(&self, text: &'a str) -> Option<Vec<Option<&'a str>>> {
-    let regexp = regex::Regex::parse(&self.0, &self.1).ok()?;
+    let regexp = regex::Regex::parse(&self.0, &self.1, false).ok()?;
     regexp.matches(text)
   }
 }
@@ -191,7 +199,8 @@ pub fn parse_pattern(
   options: UrlPatternOptions,
 ) -> Result<UrlPattern, Error> {
   let pattern =
-    crate::UrlPattern::<EcmaRegexp>::parse_internal(init, false, options)?;
+    crate::UrlPattern::<EcmaRegexp>::parse_internal(init, true, options)?;
+
   let urlpattern = UrlPattern {
     has_regexp_groups: pattern.has_regexp_groups(),
     protocol: pattern.protocol.into(),

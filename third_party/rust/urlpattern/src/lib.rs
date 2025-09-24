@@ -371,23 +371,38 @@ impl<R: RegExp> UrlPattern<R> {
       ..Default::default()
     };
 
-    let pathname = if protocol.protocol_component_matches_special_scheme() {
-      Component::compile(
-        processed_init.pathname.as_deref(),
-        canonicalize_and_process::canonicalize_pathname,
-        parser::Options {
-          ignore_case: options.ignore_case,
-          ..parser::Options::pathname()
-        },
-      )?
-      .optionally_transpose_regex_error(report_regex_errors)?
-    } else {
-      Component::compile(
-        processed_init.pathname.as_deref(),
-        canonicalize_and_process::canonicalize_an_opaque_pathname,
-        compile_options.clone(),
-      )?
-      .optionally_transpose_regex_error(report_regex_errors)?
+    let pathname = {
+      // Determine if path is non-opaque using the same criteria as process_pathname_init
+      let protocol_is_empty = processed_init
+        .protocol
+        .as_ref()
+        .is_some_and(|p| p.is_empty());
+      let has_leading_slash = processed_init
+        .pathname
+        .as_ref()
+        .is_some_and(|p| p.starts_with('/'));
+      let is_non_opaque = protocol_is_empty
+        || protocol.protocol_component_matches_special_scheme()
+        || has_leading_slash;
+
+      if is_non_opaque {
+        Component::compile(
+          processed_init.pathname.as_deref(),
+          canonicalize_and_process::canonicalize_pathname,
+          parser::Options {
+            ignore_case: options.ignore_case,
+            ..parser::Options::pathname()
+          },
+        )?
+        .optionally_transpose_regex_error(report_regex_errors)?
+      } else {
+        Component::compile(
+          processed_init.pathname.as_deref(),
+          canonicalize_and_process::canonicalize_an_opaque_pathname,
+          compile_options.clone(),
+        )?
+        .optionally_transpose_regex_error(report_regex_errors)?
+      }
     };
 
     Ok(UrlPattern {
@@ -1046,5 +1061,63 @@ mod tests {
     )
     .unwrap();
     assert!(pattern.has_regexp_groups());
+  }
+
+  #[test]
+  fn issue54() {
+    let pattern = <UrlPattern>::parse(
+      UrlPatternInit {
+        pathname: Some("/:thereisa\u{30FB}middledot.".to_owned()),
+        ..Default::default()
+      },
+      Default::default(),
+    )
+    .unwrap();
+    assert_eq!(
+      pattern.pathname.group_name_list,
+      vec!["thereisa\u{30FB}middledot"]
+    );
+  }
+
+  #[test]
+  fn issue61() {
+    // Test case for https://github.com/denoland/deno/issues/29935
+    // Custom protocols should not escape colons and slashes in pattern pathnames
+
+    // Test using init with pattern components
+    let pattern = <UrlPattern>::parse(
+      UrlPatternInit {
+        protocol: Some("myhttp".to_string()),
+        hostname: Some("example.com".to_string()),
+        pathname: Some("/:directory/:file".to_string()),
+        ..Default::default()
+      },
+      Default::default(),
+    )
+    .unwrap();
+
+    println!("Pattern: {pattern:?}");
+    println!("Protocol: {}", pattern.protocol());
+    println!("Hostname: {}", pattern.hostname());
+    println!("Pathname: {}", pattern.pathname());
+
+    // The pathname should be "/:directory/:file", not "%2F:directory%2F:file"
+    assert_eq!(pattern.pathname().to_string(), "/:directory/:file");
+
+    // Also test myfile:///test case - empty hostname with leading slash
+    let myfile_pattern = <UrlPattern>::parse(
+      UrlPatternInit {
+        protocol: Some("myfile".to_string()),
+        hostname: Some("".to_string()), // empty hostname
+        pathname: Some("/test".to_string()),
+        ..Default::default()
+      },
+      Default::default(),
+    )
+    .unwrap();
+
+    println!("\nMyfile pattern pathname: {}", myfile_pattern.pathname());
+    // Should use non-opaque canonicalization because of leading slash
+    assert_eq!(myfile_pattern.pathname().to_string(), "/test");
   }
 }
