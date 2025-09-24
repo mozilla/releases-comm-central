@@ -61,7 +61,6 @@ SOURCES += [
     "nsMsgDBFolder.cpp",
     "nsMsgDBView.cpp",
     "nsMsgEnumerator.cpp",
-    "nsMsgFileStream.cpp",
     "nsMsgFolderCache.cpp",
     "nsMsgFolderNotificationService.cpp",
     "nsMsgGroupThread.cpp",

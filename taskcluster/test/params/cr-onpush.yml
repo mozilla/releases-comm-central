@@ -727,7 +727,6 @@ files_changed:
   - comm/mailnews/base/src/nsMsgDBView.cpp
   - comm/mailnews/base/src/nsMsgDBView.h
   - comm/mailnews/base/src/nsMsgEnumerator.cpp
-  - comm/mailnews/base/src/nsMsgFileStream.h
   - comm/mailnews/base/src/nsMsgFolderCache.cpp
   - comm/mailnews/base/src/nsMsgFolderCompactor.cpp
   - comm/mailnews/base/src/nsMsgFolderCompactor.h

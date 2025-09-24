@@ -222,8 +222,6 @@ nsresult GetSpecialDirectoryWithFileName(const char* specialDirName,
 // be filled.
 nsresult MsgCleanupTempFiles(const char* fileName, const char* extension);
 
-nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream);
-
 // Automatically creates an output stream with a suitable buffer
 nsresult MsgNewBufferedFileOutputStream(nsIOutputStream** aResult,
                                         nsIFile* aFile, int32_t aIOFlags = -1,

@@ -6,6 +6,7 @@
 #include "msgCore.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
+#include "nsISeekableStream.h"
 #include "nsIStringStream.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
@@ -37,7 +38,6 @@
 #include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMessageService.h"
 #include "nsIOutputStream.h"
-#include "nsMsgFileStream.h"
 #include "nsIFileURL.h"
 #include "nsLocalFile.h"
 #include "nsNetUtil.h"
@@ -1255,14 +1255,6 @@ nsresult MsgCleanupTempFiles(const char* fileName, const char* extension) {
       tmpFile->SetNativeLeafName(leafName);
     }
   } while (exists && index++ < 10000);
-  return NS_OK;
-}
-
-nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream) {
-  RefPtr<nsMsgFileStream> newFileStream = new nsMsgFileStream;
-  nsresult rv = newFileStream->InitWithFile(file);
-  NS_ENSURE_SUCCESS(rv, rv);
-  newFileStream.forget(fileStream);
   return NS_OK;
 }
 

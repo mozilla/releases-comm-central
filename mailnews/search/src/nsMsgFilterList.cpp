@@ -120,7 +120,8 @@ nsresult nsMsgFilterList::EnsureLogFile(nsIFile* file) {
   // write the header at the start
   if (fileSize == 0) {
     nsCOMPtr<nsIOutputStream> outputStream;
-    rv = MsgGetFileStream(file, getter_AddRefs(outputStream));
+    rv = NS_NewLocalFileOutputStream(getter_AddRefs(outputStream), file,
+                                     PR_RDWR | PR_CREATE_FILE, 0664);
     NS_ENSURE_SUCCESS(rv, rv);
 
     uint32_t writeCount;
