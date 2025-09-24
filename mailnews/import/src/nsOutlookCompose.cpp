@@ -26,14 +26,16 @@
 
 #include "nsMsgUtils.h"
 
-#include "nsIThread.h"
-#include "nsThreadUtils.h"
-
 #include "nsMsgMessageFlags.h"
 #include "nsMsgLocalFolderHdrs.h"
 
 #include "mozilla/Components.h"
 #include "mozilla/SpinEventLoopUntil.h"
+
+// Escape lines starting with "From ", ">From ", etc. in a buffer.
+nsresult EscapeFromSpaceLine(nsIOutputStream* outputStream, char* start,
+                             const char* end);
+bool IsAFromSpaceLine(char* start, const char* end);
 
 #ifdef IMPORT_DEBUG
 static const char* p_test_headers =
@@ -644,4 +646,60 @@ nsresult CCompositionFile::ToString(nsCString& dest, const char* term,
 nsresult CCompositionFile::ToStream(nsIOutputStream* dest, const char* term,
                                     int termSize) {
   return ToDest(dest_Stream(dest), term, termSize);
+}
+
+// Moved from nsMsgUtils.cpp:
+
+bool IsAFromSpaceLine(char* start, const char* end) {
+  bool rv = false;
+  while ((start < end) && (*start == '>')) start++;
+  // If the leading '>'s are followed by an 'F' then we have a possible case
+  // here.
+  if ((*start == 'F') && (end - start > 4) && !strncmp(start, "From ", 5))
+    rv = true;
+  return rv;
+}
+
+//
+// This function finds all lines starting with "From " or "From " preceding
+// with one or more '>' (ie, ">From", ">>From", etc) in the input buffer
+// (between 'start' and 'end') and prefix them with a ">" .
+//
+nsresult EscapeFromSpaceLine(nsIOutputStream* outputStream, char* start,
+                             const char* end) {
+  nsresult rv;
+  char* pChar;
+  uint32_t written;
+
+  pChar = start;
+  while (start < end) {
+    while ((pChar < end) && (*pChar != '\r') && ((pChar + 1) < end) &&
+           (*(pChar + 1) != '\n'))
+      pChar++;
+    if ((pChar + 1) == end) pChar++;
+
+    if (pChar < end) {
+      // Found a line so check if it's a qualified "From " line.
+      if (IsAFromSpaceLine(start, pChar)) {
+        rv = outputStream->Write(">", 1, &written);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+      int32_t lineTerminatorCount = (*(pChar + 1) == '\n') ? 2 : 1;
+      rv = outputStream->Write(start, pChar - start + lineTerminatorCount,
+                               &written);
+      NS_ENSURE_SUCCESS(rv, rv);
+      pChar += lineTerminatorCount;
+      start = pChar;
+    } else if (start < end) {
+      // Check and flush out the remaining data and we're done.
+      if (IsAFromSpaceLine(start, end)) {
+        rv = outputStream->Write(">", 1, &written);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
+      rv = outputStream->Write(start, end - start, &written);
+      NS_ENSURE_SUCCESS(rv, rv);
+      break;
+    }
+  }
+  return NS_OK;
 }

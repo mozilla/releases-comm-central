@@ -155,11 +155,6 @@ nsresult CreateRootFolderAndCache(const nsACString& folderName,
 /// the server root folder.
 nsresult FolderPathInServer(nsIMsgFolder* folder, nsACString& path);
 
-// Escape lines starting with "From ", ">From ", etc. in a buffer.
-nsresult EscapeFromSpaceLine(nsIOutputStream* ouputStream, char* start,
-                             const char* end);
-bool IsAFromSpaceLine(char* start, const char* end);
-
 nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
                               const char* dirServiceProp,  // Can be NULL
                               bool& gotRelPref, nsIFile** aFile,
