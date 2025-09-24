@@ -29,7 +29,6 @@
 #include "nsMsgI18N.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterService.h"
-#include "nsIMsgSearchCustomTerm.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsImapMoveCoalescer.h"
 #include "nsIPrompt.h"
@@ -279,7 +278,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsACString& aName,
   uri.Append('/');
 
   nsAutoCString escapedName;
-  rv = NS_MsgEscapeEncodeURLPath(aName, escapedName);
+  rv = MsgEscapeString(aName, nsINetUtil::ESCAPE_URL_PATH, escapedName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   uri += escapedName.get();

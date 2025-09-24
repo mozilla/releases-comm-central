@@ -507,7 +507,13 @@ nsSubscribableServer::GetLeafName(const nsACString& aPath,
   // For imap, the node name is in MUTF-7; for news, the path is escaped UTF-8.
   // When we switch to using the tree, this hack will go away.
   if (mShowFullName) {
-    return NS_MsgDecodeUnescapeURLPath(aPath, aLeafName);
+    nsAutoCString unescapedName;
+    MsgUnescapeString(
+        aPath,
+        nsINetUtil::ESCAPE_URL_FILE_BASENAME | nsINetUtil::ESCAPE_URL_FORCED,
+        unescapedName);
+    CopyUTF8toUTF16(unescapedName, aLeafName);
+    return NS_OK;
   }
 
   return CopyFolderNameToUTF16(node->name, aLeafName);

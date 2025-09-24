@@ -576,21 +576,6 @@ char* NS_MsgSACat(char** destination, const char* source) {
   return *destination;
 }
 
-nsresult NS_MsgEscapeEncodeURLPath(const nsACString& aStr, nsCString& aResult) {
-  return MsgEscapeString(aStr, nsINetUtil::ESCAPE_URL_PATH, aResult);
-}
-
-nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
-                                     nsAString& aResult) {
-  nsAutoCString unescapedName;
-  MsgUnescapeString(
-      aPath,
-      nsINetUtil::ESCAPE_URL_FILE_BASENAME | nsINetUtil::ESCAPE_URL_FORCED,
-      unescapedName);
-  CopyUTF8toUTF16(unescapedName, aResult);
-  return NS_OK;
-}
-
 bool WeAreOffline() {
   bool offline = false;
 
@@ -636,7 +621,8 @@ nsresult GetExistingFolder(nsIMsgFolder* parent, const nsACString& folderPath,
   NS_ENSURE_ARG_POINTER(folder);
 
   nsAutoCString encodedPath;
-  nsresult rv = NS_MsgEscapeEncodeURLPath(folderPath, encodedPath);
+  nsresult rv =
+      MsgEscapeString(folderPath, nsINetUtil::ESCAPE_URL_PATH, encodedPath);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString folderUri;
@@ -691,7 +677,7 @@ nsresult CreateFolderAndCache(nsIMsgFolder* parentFolder,
     // both representations for a conflict. This workaround can be removed once
     // Bug 1969363 is addressed.
     nsAutoCString urlEncodedName;
-    NS_MsgEscapeEncodeURLPath(folderName, urlEncodedName);
+    MsgEscapeString(folderName, nsINetUtil::ESCAPE_URL_PATH, urlEncodedName);
     nsAutoCString candidateUri{parentFolder->URI()};
     candidateUri.Append("/");
     candidateUri.Append(urlEncodedName);

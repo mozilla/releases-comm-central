@@ -24,7 +24,6 @@
 #include "nsMsgSearchTerm.h"
 #include "nsMsgUtils.h"
 #include "nsNativeCharsetUtils.h"
-#include "nsServiceManagerUtils.h"
 #include "prmem.h"
 
 static const char* kImapPrefix = "//imap:";
@@ -711,7 +710,8 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
 #endif
         destFolderUri.Append('/');
         if (filterVersion == k45Version) {
-          rv = NS_MsgEscapeEncodeURLPath(moveValue, moveValue);
+          rv = MsgEscapeString(moveValue, nsINetUtil::ESCAPE_URL_PATH,
+                               moveValue);
         }
         destFolderUri.Append(moveValue);
         localMailRoot->GetChildWithURI(destFolderUri, true,

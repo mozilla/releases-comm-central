@@ -16,7 +16,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgDatabase.h"
 #include "nsIMsgAccountManager.h"
-#include "nsISeekableStream.h"
 #include "nsIChannel.h"
 #include "nsITransport.h"
 #include "nsIWindowWatcher.h"
@@ -56,16 +55,13 @@
 #include "nsIScriptError.h"
 #include "nsIURIMutator.h"
 #include "nsIXULAppInfo.h"
-#include "nsPrintfCString.h"
 #include "mozilla/Components.h"
-#include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/UniquePtr.h"
-#include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 #include "nsIWritablePropertyBag2.h"
@@ -2706,7 +2702,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   server->GetServerURI(mURI);
   nsCString path;
   MOZ_TRY_VAR(path, folderDB.GetFolderPath(folderId));
-  rv = NS_MsgEscapeEncodeURLPath(path, path);
+  rv = MsgEscapeString(path, nsINetUtil::ESCAPE_URL_PATH, path);
   NS_ENSURE_SUCCESS(rv, rv);
   mURI.Append(Substring(path, path.FindChar('/')));
   mBaseMessageURI = "mailbox-message:"_ns + Substring(mURI, 8);

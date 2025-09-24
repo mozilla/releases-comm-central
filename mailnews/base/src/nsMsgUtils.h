@@ -93,11 +93,6 @@ char* NS_MsgSACopy(char** destination, const char* source);
 
 char* NS_MsgSACat(char** destination, const char* source);
 
-nsresult NS_MsgEscapeEncodeURLPath(const nsACString& aStr, nsCString& aResult);
-
-nsresult NS_MsgDecodeUnescapeURLPath(const nsACString& aPath,
-                                     nsAString& aResult);
-
 bool WeAreOffline();
 
 // Get a folder by Uri, returning null if it doesn't exist (or if some
