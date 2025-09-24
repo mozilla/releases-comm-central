@@ -700,48 +700,6 @@ char* mime_gen_content_id(uint32_t aPartNum, const char* aEmailAddress) {
   return retVal;
 }
 
-void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
-                               nsCString& uri) {
-  nsresult rv;
-  uri.Truncate();
-
-  // QueueForLater (Outbox)
-  if (aMode == nsIMsgSend::nsMsgQueueForLater ||
-      aMode == nsIMsgSend::nsMsgDeliverBackground) {
-    rv = Preferences::GetCString("mail.default_sendlater_uri", uri);
-    if (NS_FAILED(rv) || uri.IsEmpty())
-      uri.AssignLiteral(ANY_SERVER);
-    else {
-      // check if uri is unescaped, and if so, escape it and reset the pef.
-      if (uri.FindChar(' ') != kNotFound) {
-        uri.ReplaceSubstring(" ", "%20");
-        Preferences::SetCString("mail.default_sendlater_uri", uri);
-      }
-    }
-    return;
-  }
-
-  if (!identity) return;
-
-  nsCOMPtr<nsIMsgFolder> folder;
-  if (aMode == nsIMsgSend::nsMsgSaveAsDraft) {  // SaveAsDraft (Drafts)
-    rv = identity->GetOrCreateDraftsFolder(getter_AddRefs(folder));
-  } else if (aMode ==
-             nsIMsgSend::nsMsgSaveAsTemplate) {  // SaveAsTemplate (Templates)
-    rv = identity->GetOrCreateTemplatesFolder(getter_AddRefs(folder));
-  } else {
-    bool doFcc = false;
-    rv = identity->GetDoFcc(&doFcc);
-    if (doFcc) {
-      rv = identity->GetOrCreateFccFolder(getter_AddRefs(folder));
-    }
-  }
-  if (folder) {
-    uri = folder->URI();
-  }
-  return;
-}
-
 /**
  * Check if we should use format=flowed (RFC 2646) for a mail.
  * We will use format=flowed unless the preference tells us not to do so.

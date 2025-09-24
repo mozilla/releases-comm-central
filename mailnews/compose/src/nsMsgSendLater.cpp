@@ -638,7 +638,16 @@ nsMsgSendLater::GetUnsentMessagesFolder(nsIMsgIdentity* aIdentity,
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder);
   if (!folder) {
     nsCString uri;
-    GetFolderURIFromUserPrefs(nsIMsgSend::nsMsgQueueForLater, aIdentity, uri);
+    rv = Preferences::GetCString("mail.default_sendlater_uri", uri);
+    if (NS_FAILED(rv) || uri.IsEmpty()) {
+      uri.AssignLiteral(ANY_SERVER);
+    } else {
+      // check if uri is unescaped, and if so, escape it and reset the pef.
+      if (uri.FindChar(' ') != kNotFound) {
+        uri.ReplaceSubstring(" ", "%20");
+        Preferences::SetCString("mail.default_sendlater_uri", uri);
+      }
+    }
     rv = LocateMessageFolder(aIdentity, nsIMsgSend::nsMsgQueueForLater,
                              uri.get(), getter_AddRefs(folder));
     mMessageFolder = do_GetWeakReference(folder);

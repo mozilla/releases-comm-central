@@ -79,12 +79,6 @@ char* nsMsgParseURLHost(const char* url);
 
 char* GenerateFileNameFromURI(nsIURI* aURL);
 
-//
-// Folder calls...
-//
-void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
-                               nsCString& uri);
-
 // Check if we should use format=flowed
 void GetSerialiserFlags(bool* flowed, bool* formatted);
 
