@@ -49,7 +49,7 @@ nsresult nsParseImapMessageURI(const nsACString& uri, nsACString& folderURI,
 
   int32_t keySeparator = uriStr.RFindChar('#', folderEnd);
   if (keySeparator != -1) {
-    int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "/?&", keySeparator);
+    int32_t keyEndSeparator = uriStr.FindCharInSet("/?&", keySeparator);
     nsAutoString folderPath;
     folderURI = StringHead(uriStr, keySeparator);
     folderURI.Cut(4, 8);  // cut out the _message part of imap-message:

@@ -155,7 +155,7 @@ nsresult nsParseLocalMessageURI(const nsACString& uri, nsCString& folderURI,
   const nsPromiseFlatCString& uriStr = PromiseFlatCString(uri);
   int32_t keySeparator = uriStr.FindChar('#');
   if (keySeparator != -1) {
-    int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "?&", keySeparator);
+    int32_t keyEndSeparator = uriStr.FindCharInSet("?&", keySeparator);
     folderURI = StringHead(uriStr, keySeparator);
     folderURI.Cut(7, 8);  // cut out the -message part of mailbox-message:
 

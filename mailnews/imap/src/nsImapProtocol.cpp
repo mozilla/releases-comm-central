@@ -4722,7 +4722,7 @@ uint32_t nsImapProtocol::GetMessageSize(const nsACString& messageId) {
 // message id string utility functions
 /* static */ bool nsImapProtocol::HandlingMultipleMessages(
     const nsCString& messageIdString) {
-  return (MsgFindCharInSet(messageIdString, ",:") != kNotFound);
+  return (messageIdString.FindCharInSet(",:") != kNotFound);
 }
 
 uint32_t nsImapProtocol::CountMessagesInIdString(const char* idString) {
@@ -8941,7 +8941,7 @@ nsresult nsImapCacheStreamListener::Peeker(nsIInputStream* aInStr,
   aCount = aCount >= sizeof peekBuf ? sizeof peekBuf - 1 : aCount;
   memcpy(peekBuf, aBuffer, aCount);
   peekBuf[aCount] = '\0';  // Null terminate the starting header data.
-  int32_t findPos = MsgFindCharInSet(nsDependentCString(peekBuf), ":\n\r", 0);
+  int32_t findPos = nsDependentCString(peekBuf).FindCharInSet(":\n\r", 0);
   // Check that the first line is a header line, i.e., with a ':' in it
   // Or that it begins with "From " because some IMAP servers allow that,
   // even though it's technically invalid.

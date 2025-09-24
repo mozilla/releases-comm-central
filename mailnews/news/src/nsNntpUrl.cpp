@@ -177,7 +177,7 @@ nsresult nsNntpUrl::ParseNewsMessageURL() {
 
   int32_t keySeparator = spec.FindChar('#');
   if (keySeparator == -1) return NS_ERROR_MALFORMED_URI;
-  int32_t keyEndSeparator = MsgFindCharInSet(spec, "?&", keySeparator);
+  int32_t keyEndSeparator = spec.FindCharInSet("?&", keySeparator);
 
   // Grab between the last '/' and the '#' for the key
   nsAutoCString escapedGroup;

@@ -274,17 +274,6 @@ inline uint32_t StringHash(const nsString& str) {
   return StringHash(reinterpret_cast<const char*>(strbuf), str.Length() * 2);
 }
 
-/* Utility functions used in a few places in mailnews */
-int32_t MsgFindCharInSet(const nsCString& aString, const char* aChars,
-                         uint32_t aOffset) {
-  return aString.FindCharInSet(aChars, aOffset);
-}
-
-int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
-                         uint32_t aOffset) {
-  return aString.FindCharInSet(aChars, aOffset);
-}
-
 const static uint32_t MAX_LEN = 55;
 
 // XXX : The number of UTF-16 2byte code units are half the number of
@@ -299,8 +288,7 @@ nsString NS_MsgHashIfNecessary(const nsACString& unsafeName) {
 nsString NS_MsgHashIfNecessary(const nsAString& unsafeName) {
   nsString name(unsafeName);
   if (name.IsEmpty()) return name;  // Nothing to do.
-  int32_t illegalCharacterIndex = MsgFindCharInSet(
-      name,
+  int32_t illegalCharacterIndex = name.FindCharInSet(
       u"" FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS ILLEGAL_FOLDER_CHARS, 0);
 
   // Need to check the first ('.') and last ('.', '~' and ' ') char

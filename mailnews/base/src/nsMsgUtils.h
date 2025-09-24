@@ -256,11 +256,6 @@ nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                  nsIProtocolProxyCallback* listener,
                                  nsICancelable** result);
 
-int32_t MsgFindCharInSet(const nsCString& aString, const char* aChars,
-                         uint32_t aOffset = 0);
-int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
-                         uint32_t aOffset = 0);
-
 /**
  * Calculate a PRTime value used to determine if a date is XX
  * days ago. This is used by various retention setting algorithms.
