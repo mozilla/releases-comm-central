@@ -484,8 +484,8 @@
   appearance: none;
   box-sizing: border-box;
   padding: 0;
-  background-color: var(--color-neutral-lower);
-  border: 1px solid var(--color-neutral-border);
+  background-color: var(--color-surface-lower);
+  border: 1px solid var(--color-surface-border);
   height: 22px;
   width: 44px;
   border-radius: 14px;
@@ -495,7 +495,7 @@
     display: block;
     content: "";
     box-sizing: border-box;
-    background-color: var(--color-neutral-base);
+    background-color: var(--color-surface-base);
     border: 1px solid var(--color-surface-border);
     height: 18px;
     width: 18px;
@@ -523,7 +523,7 @@
   }
 
   &:is(:hover, :active) {
-    background-color: var(--color-neutral-border);
+    background-color: var(--color-surface-border);
     border-color: var(--color-neutral-200);
   }
 

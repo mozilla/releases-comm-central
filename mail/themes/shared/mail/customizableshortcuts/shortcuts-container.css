@@ -17,7 +17,7 @@ dialog {
   padding: 0;
   border: none;
   border-radius: 6px;
-  background-color: var(--color-neutral-base);
+  background-color: var(--color-surface-base);
   box-shadow: 0 18px 15px -15px rgba(0, 0, 0, 0.5);
 
   &::backdrop {
@@ -61,7 +61,7 @@ shortcut-row {
   align-items: center;
   gap: 9px;
   padding-block: 6px;
-  border-bottom: 1px dashed var(--color-neutral-border-intense);
+  border-bottom: 1px dashed var(--color-surface-border-intense);
   font-size: 1.1rem;
 
   & .content-area {
