@@ -6,16 +6,14 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
 
-#include "nsString.h"
 #include "msgCore.h"
 #include "MailNewsTypes2.h"
-#include "nsTArray.h"
 #include "nsINetUtil.h"
 #include "nsILoadInfo.h"
 #include "nsIFile.h"
+#include "nsEscape.h"
 
 class nsIChannel;
-class nsIFile;
 class nsIPrefBranch;
 class nsIMsgFolder;
 class nsIMsgMessageService;
@@ -23,8 +21,6 @@ class nsIUrlListener;
 class nsIOutputStream;
 class nsIInputStream;
 class nsIMsgDatabase;
-class nsIProxyInfo;
-class nsIMsgWindow;
 class nsIStreamListener;
 class nsICancelable;
 class nsIProtocolProxyCallback;
@@ -249,7 +245,7 @@ nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
 // Given a message db and a set of keys, fetch the corresponding message
 // headers.
 nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
-                               const nsTArray<nsMsgKey>& aKeys,
+                               const nsTArray<nsMsgKey>& aMsgKeys,
                                nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders);
 
 nsresult MsgExamineForProxyAsync(nsIChannel* channel,
@@ -304,8 +300,6 @@ nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset);
 nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
                                bool formatOutput, bool disallowBreaks);
 
-#include "nsEscape.h"
-
 /**
  * Converts a hex string into an integer.
  * Processes up to aNumChars characters or the first non-hex char.
@@ -357,52 +351,11 @@ void MsgRemoveQueryPart(nsCString& aSpec);
   }
 
 /**
- * Macro and helper function for reporting an error, warning or
- * informational message to the Error Console
- *
- * This will require the inclusion of the following files in the source file
- * #include "nsIScriptError.h"
- * #include "nsIConsoleService.h"
- *
+ * Helper function for reporting an error, warning or informational message
+ * to the Error Console. For flag constants see nsIScriptError.h.
  */
-
 void MsgLogToConsole4(const nsAString& aErrorText, const nsCString& aFilename,
-                      uint32_t aLine, uint32_t flags);
-
-// Macro with filename and line number
-#define MSG_LOG_TO_CONSOLE(_text, _flag)                                       \
-  MsgLogToConsole4(NS_LITERAL_STRING_FROM_CSTRING(_text), nsCString(__FILE__), \
-                   __LINE__, _flag)
-#define MSG_LOG_ERR_TO_CONSOLE(_text) \
-  MSG_LOG_TO_CONSOLE(_text, nsIScriptError::errorFlag)
-#define MSG_LOG_WARN_TO_CONSOLE(_text) \
-  MSG_LOG_TO_CONSOLE(_text, nsIScriptError::warningFlag)
-#define MSG_LOG_INFO_TO_CONSOLE(_text) \
-  MSG_LOG_TO_CONSOLE(_text, nsIScriptError::infoFlag)
-
-// Helper macros to cope with shoddy I/O error reporting (or lack thereof)
-#define MSG_NS_ERROR(_txt)        \
-  do {                            \
-    NS_ERROR(_txt);               \
-    MSG_LOG_ERR_TO_CONSOLE(_txt); \
-  } while (0)
-#define MSG_NS_WARNING(_txt)       \
-  do {                             \
-    NS_WARNING(_txt);              \
-    MSG_LOG_WARN_TO_CONSOLE(_txt); \
-  } while (0)
-#define MSG_NS_WARN_IF_FALSE(_val, _txt) \
-  do {                                   \
-    if (!(_val)) {                       \
-      NS_WARNING(_txt);                  \
-      MSG_LOG_WARN_TO_CONSOLE(_txt);     \
-    }                                    \
-  } while (0)
-#define MSG_NS_INFO(_txt)                                             \
-  do {                                                                \
-    MSG_LOCAL_INFO_TO_CONSOLE(_txt);                                  \
-    fprintf(stderr, "(info) %s (%s:%d)\n", _txt, __FILE__, __LINE__); \
-  } while (0)
+                      uint32_t aLinenumber, uint32_t aFlag);
 
 /**
  * Perform C-style string escaping. E.g. "foo\r\n" => "foo\\r\\n"

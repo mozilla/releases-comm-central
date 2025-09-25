@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
 #include "nsISeekableStream.h"
@@ -16,11 +15,9 @@
 #include "nsIImapUrl.h"
 #include "nsIMailboxUrl.h"
 #include "nsMsgI18N.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsCharTraits.h"
 #include "prprf.h"
 #include "prmem.h"
-#include "nsNetCID.h"
 #include "nsIIOService.h"
 #include "nsIMimeConverter.h"
 #include "nsIPrefBranch.h"
@@ -30,7 +27,6 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsISpamSettings.h"
 #include "nsICryptoHash.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIRssIncomingServer.h"
@@ -48,8 +44,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgWindow.h"
-#include "nsIWindowWatcher.h"
-#include "nsIPrompt.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsTextFormatter.h"
 #include "nsIStreamListener.h"
@@ -71,7 +65,6 @@
 #include "mozilla/Utf8.h"
 #include "mozilla/Buffer.h"
 #include "nsIPromptService.h"
-#include "nsEmbedCID.h"
 #include "mozilla/intl/Localization.h"
 #include <algorithm>
 #include <limits.h>
