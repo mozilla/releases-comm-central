@@ -745,6 +745,16 @@ certificate-check {
       color: var(--color-text-warning);
     }
   }
+
+  &[status="exception-exists"] {
+    & > img {
+      content: var(--icon-warning);
+    }
+
+    & > :is(img, span) {
+      color: var(--color-text-warning);
+    }
+  }
 }
 
 @keyframes activity-indicator {

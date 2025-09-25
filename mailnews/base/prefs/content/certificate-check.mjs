@@ -88,7 +88,7 @@ class CertificateCheck extends HTMLElement {
     this.fetchButton.classList.add("text-link");
     document.l10n.setAttributes(
       this.fetchButton,
-      "certificate-check-fetch-button"
+      "certificate-check-test-button"
     );
     this.fetchButton.onclick = () => this.#fetchCertificate();
 
@@ -149,7 +149,7 @@ class CertificateCheck extends HTMLElement {
           { hostname: `${this.hostname}:${this.port}` }
         );
         this.removeExceptionButton.hidden = false;
-        this.setAttribute("status", "cert-error");
+        this.setAttribute("status", "exception-exists");
         this.#hasException = true;
         return;
       }
@@ -163,13 +163,9 @@ class CertificateCheck extends HTMLElement {
    * and passing it to `#handleSecurityInfo`.
    */
   async #fetchCertificate() {
-    document.l10n.setAttributes(
-      this.statusLabel,
-      "certificate-check-fetching",
-      {
-        hostname: `${this.hostname}:${this.port}`,
-      }
-    );
+    document.l10n.setAttributes(this.statusLabel, "certificate-checking", {
+      hostname: `${this.hostname}:${this.port}`,
+    });
     this.setAttribute("status", "fetching");
     this.fetchButton.hidden = true;
 
@@ -315,11 +311,11 @@ class CertificateCheck extends HTMLElement {
           "certificate-check-exception-exists",
           l10nArgs
         );
-        this.setAttribute("status", "cert-error");
+        this.setAttribute("status", "exception-exists");
       } else {
         document.l10n.setAttributes(
           this.statusLabel,
-          "certificate-check-success",
+          "certificate-test-success",
           l10nArgs
         );
         this.setAttribute("status", "success");
@@ -342,7 +338,7 @@ class CertificateCheck extends HTMLElement {
     if (!isCertError) {
       document.l10n.setAttributes(
         this.statusLabel,
-        "certificate-check-failure",
+        "certificate-test-failure",
         l10nArgs
       );
       this.setAttribute("status", "failure");

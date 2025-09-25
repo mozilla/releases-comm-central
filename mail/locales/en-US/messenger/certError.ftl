@@ -42,22 +42,22 @@ cert-error-inline-not-yet-valid =
 cert-error-inline-untrusted-default =
     .title = Connection error. The certificate for { $hostname } does not come from a trusted source. Click to open server security settings.
 
-certificate-check-fetch-button = Fetch Certificate
+certificate-check-test-button = Test connection to server
 certificate-check-view-button = View Certificate
 certificate-check-add-exception-button = Add Exception
 certificate-check-remove-exception-button = Remove Exception
 
 # Variables:
 #   $hostname (string) - Hostname (and possibly port) of a server.
-certificate-check-fetching = Fetching the certificate for { $hostname }.
+certificate-checking = Testing connection to server { $hostname }…
 
 # Variables:
 #   $hostname (string) - Hostname (and possibly port) of a server.
-certificate-check-success = The certificate for { $hostname } appears to be valid.
+certificate-test-success = Successfully established a secure connection to { $hostname }.
 
 # Variables:
 #   $hostname (string) - Hostname (and possibly port) of a server.
-certificate-check-failure = Failed to fetch the certificate for { $hostname }.
+certificate-test-failure = Connection to server { $hostname } failed.
 
 certificate-check-exception-added = Certificate exception added.
 

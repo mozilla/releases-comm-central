@@ -240,7 +240,7 @@ add_task(async function testValidCertificate() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:993" },
     },
     ["view"]
@@ -322,7 +322,7 @@ add_task(async function testWithExistingException() {
 
   const accountsTab = await openTab(
     imapExpired,
-    "cert-error",
+    "exception-exists",
     {
       id: "certificate-check-exception-exists",
       args: { hostname: "expired.test.test:993" },
@@ -333,7 +333,7 @@ add_task(async function testWithExistingException() {
   const certCheck = getCertificateCheck(accountsTab);
   await fetchCert(
     certCheck,
-    "cert-error",
+    "exception-exists",
     {
       id: "certificate-check-exception-exists",
       args: { hostname: "expired.test.test:993" },
@@ -357,7 +357,7 @@ add_task(async function testConnectionError() {
     certCheck,
     "failure",
     {
-      id: "certificate-check-failure",
+      id: "certificate-test-failure",
       args: { hostname: "wrong.test:993" },
     },
     []
@@ -378,7 +378,7 @@ add_task(async function testSwitchPanes() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:993" },
     },
     ["view"]
@@ -437,7 +437,7 @@ add_task(async function testPOP3() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:995" },
     },
     ["view"]
@@ -474,7 +474,7 @@ add_task(async function testEWS() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:443" },
     },
     ["view"]
@@ -528,7 +528,7 @@ add_task(async function testOutgoingServerPane() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:465" },
     },
     ["view"]
@@ -548,7 +548,7 @@ add_task(async function testOutgoingServerPane() {
     certCheck,
     "success",
     {
-      id: "certificate-check-success",
+      id: "certificate-test-success",
       args: { hostname: "test.test:443" },
     },
     ["view"]
