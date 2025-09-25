@@ -1700,7 +1700,7 @@ NS_IMETHODIMP EwsFolder::FetchMsgPreviewText(
     NS_ENSURE_SUCCESS(rv, rv);
     if (flags & nsMsgMessageFlags::Offline) {
       nsCOMPtr<nsIInputStream> inputStream;
-      rv = GetLocalMsgStream(header, getter_AddRefs(inputStream));
+      rv = GetMsgInputStream(header, getter_AddRefs(inputStream));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = GetMsgPreviewTextFromStream(header, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);

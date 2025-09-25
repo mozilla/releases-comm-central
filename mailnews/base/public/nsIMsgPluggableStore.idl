@@ -152,7 +152,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param folder - The target nsIMsgFolder.
    * @param stream - The stream obtained by getNewMsgOutputStream().
    * @return a storeToken string which can used to retrieve the message
-   *         data back from the store (via getMsgInputStream2()).
+   *         data back from the store (via getMsgInputStream()).
    */
   AUTF8String finishNewMessage(in nsIMsgFolder folder, in nsIOutputStream stream);
 
@@ -182,6 +182,11 @@ interface nsIMsgPluggableStore : nsISupports {
 
   /**
    * Get an input stream that we can read the contents of a message from.
+   *
+   * NOTE: see also nsIMsgFolder.getMsgInputStream(). That usually passes
+   * straight through to here, but the IMAP folder implementation supports
+   * the gmail hack where messages can appear in multiple folders while only
+   * storing one offline copy.
    *
    * @param aMsgFolder Folder containing the message
    * @param aMsgToken token that identifies message. This is store-dependent,

@@ -681,28 +681,23 @@ interface nsIMsgFolder : nsISupports {
   void discardOfflineMsg(in nsMsgKey msgKey);
 
   /**
-   * !!! DEPRECATED (Bug 1733849) !!!
-   * Use getLocalMsgStream() instead.
+   * Returns an input stream for reading a message out from the
+   * local message store (.msgStore).
+   * That means any message in a local folder, or a message marked as
+   * Offline on a non-local folder.
+   * The stream contains the single message.
+   * The returned stream should _not_ be considered seekable.
    *
-   * Get an input stream for the passed message header. The stream will
-   * be positioned at the start of the message.
+   * The reason to use this function instead of calling
+   * .msgStore.getMsgInputStream() directly is that IMAP has
+   * a gmail-specific hack which allows messages to appear in multiple
+   * folders while only storing a single copy locally.
+   * nsImapMailFolder overrides this method to handle that case.
    *
    * @param aHdr hdr of message to get the input stream for.
    * @returns an input stream to read the message from
    */
   nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr);
-
-  /**
-   * Returns an input stream for reading a locally-stored message.
-   * (That means any message in a local folder, or a message marked as
-   * Offline on a non-local folder).
-   * The stream contains the single message.
-   * The returned stream should _not_ be considered seekable.
-   *
-   * @param hdr   The message to get the input stream for.
-   * @returns     Input stream to read the message from.
-   */
-  nsIInputStream getLocalMsgStream(in nsIMsgDBHdr aHdr);
 
   void downloadMessagesForOffline(in Array<nsIMsgDBHdr> messages,
                                   in nsIMsgWindow window);

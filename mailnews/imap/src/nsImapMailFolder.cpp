@@ -6401,7 +6401,7 @@ static nsresult CopyStoreMessage(nsIMsgDBHdr* srcHdr, nsIMsgDBHdr* destHdr,
 
   // Copy message into the msgStore.
   nsCOMPtr<nsIInputStream> srcStream;
-  rv = srcFolder->GetLocalMsgStream(srcHdr, getter_AddRefs(srcStream));
+  rv = srcFolder->GetMsgInputStream(srcHdr, getter_AddRefs(srcStream));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIOutputStream> destStream;
   rv = destStore->GetNewMsgOutputStream(destFolder, getter_AddRefs(destStream));
@@ -8396,6 +8396,7 @@ void nsImapMailFolder::GetTrashFolderName(nsACString& aFolderName) {
   imapServer->GetTrashFolderName(aFolderName);
   return;
 }
+
 NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsTArray<nsMsgKey> const& aKeysToFetch, nsIUrlListener* aUrlListener,
     bool* aAsyncResults) {
@@ -8432,7 +8433,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     uint32_t msgFlags;
     msgHdr->GetFlags(&msgFlags);
     if (msgFlags & nsMsgMessageFlags::Offline) {
-      rv = GetLocalMsgStream(msgHdr, getter_AddRefs(inputStream));
+      rv = GetMsgInputStream(msgHdr, getter_AddRefs(inputStream));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -8797,7 +8798,7 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
+NS_IMETHODIMP nsImapMailFolder::GetMsgInputStream(nsIMsgDBHdr* hdr,
                                                   nsIInputStream** stream) {
   // Gmail hack. Check if message is actually stored in another folder.
   nsMsgKey msgKey;
@@ -8821,10 +8822,10 @@ NS_IMETHODIMP nsImapMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
     if (!otherHdr) {
       return NS_ERROR_FAILURE;  // Couldn't find the message.
     }
-    return otherFolder->GetLocalMsgStream(otherHdr, stream);
+    return otherFolder->GetMsgInputStream(otherHdr, stream);
   }
 
-  rv = GetMsgInputStream(hdr, stream);
+  rv = nsMsgDBFolder::GetMsgInputStream(hdr, stream);
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }

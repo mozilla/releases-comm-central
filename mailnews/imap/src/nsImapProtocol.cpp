@@ -9717,7 +9717,7 @@ bool nsImapMockChannel::ReadFromLocalCache() {
   // In that case we'll discard it and tell the caller there is no local
   // copy.
   nsCOMPtr<nsIInputStream> msgStream;
-  rv = folder->GetLocalMsgStream(hdr, getter_AddRefs(msgStream));
+  rv = folder->GetMsgInputStream(hdr, getter_AddRefs(msgStream));
   NS_ENSURE_SUCCESS(rv, false);
 
   // Create a stream pump that will async read the message.

@@ -2026,7 +2026,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   }
   nsCOMPtr<nsIInputStream> inputStream;
   rv =
-      m_downloadFolder->GetLocalMsgStream(mailHdr, getter_AddRefs(inputStream));
+      m_downloadFolder->GetMsgInputStream(mailHdr, getter_AddRefs(inputStream));
   if (NS_FAILED(rv)) {
     NS_ERROR("couldn't get source msg input stream in move filter");
     destIFolder->ReleaseSemaphore(

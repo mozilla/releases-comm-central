@@ -70,7 +70,7 @@ export var mailTestUtils = {
   loadMessageToString(aFolder, aMsgHdr, aCharset) {
     var data = "";
     let bytesLeft = aMsgHdr.messageSize;
-    const stream = aFolder.getLocalMsgStream(aMsgHdr);
+    const stream = aFolder.getMsgInputStream(aMsgHdr);
     if (aCharset) {
       const cstream = Cc[
         "@mozilla.org/intl/converter-input-stream;1"

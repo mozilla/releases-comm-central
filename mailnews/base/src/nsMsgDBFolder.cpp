@@ -737,11 +737,9 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore** aStore) {
   return server->GetMsgStore(aStore);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
-                                               nsIInputStream** stream) {
-  return GetMsgInputStream(hdr, stream);
-}
-
+// NOTE: IMAP folder overrides this to handle the gmail-specific hack which
+// allows messages to appear in multiple folders without having to store
+// multiple offline copies.
 NS_IMETHODIMP
 nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
                                  nsIInputStream** aInputStream) {

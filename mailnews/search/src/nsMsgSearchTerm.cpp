@@ -1609,7 +1609,7 @@ nsMsgSearchScopeTerm::GetInputStream(nsIMsgDBHdr* aMsgHdr,
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   NS_ENSURE_TRUE(m_folder, NS_ERROR_NULL_POINTER);
   nsresult rv =
-      m_folder->GetLocalMsgStream(aMsgHdr, getter_AddRefs(m_inputStream));
+      m_folder->GetMsgInputStream(aMsgHdr, getter_AddRefs(m_inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
   NS_IF_ADDREF(*aInputStream = m_inputStream);
   return rv;

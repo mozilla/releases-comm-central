@@ -72,7 +72,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
         header instanceof Ci.nsIMsgDBHdr &&
         header.flags & Ci.nsMsgMessageFlags.Offline
       ) {
-        IMAPPump.inbox.getLocalMsgStream(header).close();
+        IMAPPump.inbox.getMsgInputStream(header).close();
       }
     }
   }

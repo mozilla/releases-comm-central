@@ -129,7 +129,7 @@ add_task({ skip_if: () => !storageOk }, async function check_result() {
     );
 
     // Make sure we don't fall over if we ask to read the message.
-    IMAPPump.inbox.getLocalMsgStream(header).close();
+    IMAPPump.inbox.getMsgInputStream(header).close();
   }
 });
 

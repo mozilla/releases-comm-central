@@ -173,7 +173,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             NS_ENSURE_SUCCESS(rv, rv);
             if (folder) {
               nsCOMPtr<nsIInputStream> stream;
-              rv = folder->GetLocalMsgStream(msgHdr, getter_AddRefs(stream));
+              rv = folder->GetMsgInputStream(msgHdr, getter_AddRefs(stream));
               NS_ENSURE_SUCCESS(rv, rv);
               // create input stream transport
               nsCOMPtr<nsIStreamTransportService> sts =
@@ -270,7 +270,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                 msgUrl->SetUri(uri);
 
                 nsCOMPtr<nsIInputStream> stream;
-                rv = msgFolder->GetLocalMsgStream(nextMsg,
+                rv = msgFolder->GetMsgInputStream(nextMsg,
                                                   getter_AddRefs(stream));
 
                 if (NS_SUCCEEDED(rv)) {

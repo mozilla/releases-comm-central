@@ -362,7 +362,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
     if (NS_WARN_IF(NS_FAILED(rv))) break;
 
     nsCOMPtr<nsIInputStream> inStream;
-    rv = destFolder->GetLocalMsgStream(mailHdr, getter_AddRefs(inStream));
+    rv = destFolder->GetMsgInputStream(mailHdr, getter_AddRefs(inStream));
     if (NS_WARN_IF((NS_FAILED(rv)))) break;
 
     // From this point onwards, we need to set "playing back".
