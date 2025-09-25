@@ -50,7 +50,6 @@ tasktype_map:
 platform_names:
     path_platform:
         by-platform:
-            linux-shippable: 'linux-i686'
             linux64-shippable: 'linux-x86_64'
             linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'mac'
@@ -59,7 +58,6 @@ platform_names:
             win64-asan-reporter-shippable: 'win64-asan-reporter'
     tools_platform:
         by-platform:
-            linux-shippable: 'linux'
             linux64-shippable: 'linux64'
             linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
@@ -68,7 +66,6 @@ platform_names:
             win64-asan-reporter-shippable: 'win64-asan-reporter'
     filename_platform:
         by-platform:
-            linux-shippable: 'linux'
             linux64-shippable: 'linux64'
             linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
@@ -190,7 +187,6 @@ mapping:
         from:
             - build
         only_for_platforms:
-            - linux-shippable
             - linux64-shippable
             - macosx64-shippable
             - win32-shippable
@@ -230,7 +226,6 @@ mapping:
         from:
             - signing
         only_for_platforms:
-            - linux-shippable
             - linux64-shippable
         pretty_name: thunderbird-${version}.tar.xz
         checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.xz
@@ -241,7 +236,6 @@ mapping:
         from:
             - signing
         only_for_platforms:
-            - linux-shippable
             - linux64-shippable
         pretty_name: thunderbird-${version}.tar.xz.asc
         checksums_path: ${path_platform}/${locale}/thunderbird-${version}.tar.xz.asc
@@ -316,7 +310,6 @@ mapping:
         from:
             - release-deb-repackage
         only_for_platforms:
-            - linux-shippable
             - linux64-shippable
         pretty_name: thunderbird-${version}.deb
         checksums_path: ${path_platform}/${locale}/thunderbird-${version}.deb

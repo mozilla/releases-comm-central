@@ -36,7 +36,6 @@ kind-dependencies:
     - upload-symbols
 
 only-for-build-platforms:
-    - linux-shippable/opt
     - linux64-shippable/opt
     - linux64-asan-reporter-shippable/opt
     - macosx64-shippable/opt

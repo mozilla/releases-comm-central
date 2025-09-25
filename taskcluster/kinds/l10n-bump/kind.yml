@@ -39,13 +39,11 @@ task-defaults:
                           ja:
                               - macosx64
                           ja-JP-mac:
-                              - linux
                               - linux64
                               - win32
                               - win64
                       platform-configs: [{
                           "platforms": [
-                              "linux",
                               "linux64",
                               "macosx64",
                               "win32",
@@ -63,13 +61,11 @@ task-defaults:
                           ja:
                               - macosx64
                           ja-JP-mac:
-                              - linux
                               - linux64
                               - win32
                               - win64
                       platform-configs: [{
                           "platforms": [
-                              "linux",
                               "linux64",
                               "macosx64",
                               "win32",

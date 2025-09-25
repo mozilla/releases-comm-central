@@ -63,7 +63,7 @@ tasks:
         tooltool:
             by-build-platform:
                 default: internal
-                linux.*: public
+                linux64.*: public
         index:
             type: l10n
             product: thunderbird

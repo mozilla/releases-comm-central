@@ -49,12 +49,6 @@ tasks:
         attributes:
             build_platform: linux64-shippable
 
-    thunderbird-next-linux:
-        description: linux release-next update verify
-        shipping-product: thunderbird
-        attributes:
-            build_platform: linux-shippable
-
     thunderbird-next-win64:
         description: win64 release-next update verify
         shipping-product: thunderbird
