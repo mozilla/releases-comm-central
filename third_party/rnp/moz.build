@@ -243,4 +243,9 @@ if CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
         "src/lib/crypto/symmetric_ossl.cpp",
     ]
 
+if CONFIG["MOZ_STDCXX_COMPAT"] and (CONFIG["MOZ_ASAN"] or CONFIG["MOZ_TSAN"]):
+    SOURCES += [
+        "/comm/build/unix/stdc++compat-tb.cpp"
+    ]
+
 DIRS += ["src/rnp", "src/rnpkeys"]
