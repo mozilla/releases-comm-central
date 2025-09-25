@@ -1248,11 +1248,6 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
-                                                 nsIInputStream** stream) {
-  return GetMsgInputStream(hdr, stream);
-}
-
 NS_IMETHODIMP nsMsgNewsFolder::NotifyArticleDownloaded(uint32_t articleNumber,
                                                        nsACString const& data) {
   if (!m_downloadMessageForOfflineUse) {

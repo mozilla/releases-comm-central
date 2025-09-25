@@ -2844,11 +2844,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::HasMsgOffline(nsMsgKey msgKey,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
-                                                      nsIInputStream** stream) {
-  return GetMsgInputStream(hdr, stream);
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::NotifyDelete() {
   NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
   return NS_OK;

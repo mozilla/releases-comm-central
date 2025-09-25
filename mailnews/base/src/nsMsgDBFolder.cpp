@@ -739,7 +739,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore** aStore) {
 
 NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                nsIInputStream** stream) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return GetMsgInputStream(hdr, stream);
 }
 
 NS_IMETHODIMP
