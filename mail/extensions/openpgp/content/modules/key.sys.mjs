@@ -35,19 +35,6 @@ export var EnigmailKey = {
     return r;
   },
 
-  /**
-   * Extract the public key from a status message.
-   *
-   * @param {string} statusMsg
-   * @returns {?string} the public key, if one is found.
-   */
-  extractPubkey(statusMsg) {
-    const matchb = statusMsg.match(/(^|\n)NO_PUBKEY (\w{8})(\w{8})/);
-    if (matchb && matchb.length > 3) {
-      return matchb[2] + matchb[3];
-    }
-    return null;
-  },
 
   /**
    * Import a revocation certificate form a given keyblock string.
