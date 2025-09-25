@@ -60,6 +60,7 @@ dx12 = [
     "dep:libloading",
     "dep:log",
     "dep:ordered-float",
+    "dep:once_cell",
     "dep:parking_lot",
     "dep:profiling",
     "dep:range-alloc",
@@ -407,6 +408,11 @@ optional = true
 
 [target."cfg(windows)".dependencies.gpu-allocator]
 version = "0.27"
+optional = true
+default-features = false
+
+[target."cfg(windows)".dependencies.once_cell]
+version = "1.21"
 optional = true
 default-features = false
 

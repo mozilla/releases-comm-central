@@ -205,7 +205,7 @@ version = "26.0.0"
 path = "platform-deps/wasm"
 optional = true
 
-[target.'cfg(any(windows, target_os = "linux", target_os = "android"))'.dependencies.wgpu-core-deps-windows-linux-android]
+[target.'cfg(any(windows, target_os = "linux", target_os = "android", target_os = "freebsd"))'.dependencies.wgpu-core-deps-windows-linux-android]
 version = "26.0.0"
 path = "platform-deps/windows-linux-android"
 optional = true

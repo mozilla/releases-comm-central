@@ -75,6 +75,7 @@ Otherwise, we pass a range corresponding only to the current bind group.
 mod adapter;
 mod command;
 mod conv;
+mod dcomp;
 mod descriptor;
 mod device;
 mod instance;
@@ -100,6 +101,7 @@ use windows::{
     },
 };
 
+use self::dcomp::DCompLib;
 use crate::auxil::{
     self,
     dxgi::{
@@ -459,7 +461,9 @@ pub struct Instance {
     factory: DxgiFactory,
     factory_media: Option<Dxgi::IDXGIFactoryMedia>,
     library: Arc<D3D12Lib>,
+    dcomp_lib: Arc<DCompLib>,
     supports_allow_tearing: bool,
+    presentation_system: wgt::Dx12SwapchainKind,
     _lib_dxgi: DxgiLib,
     flags: wgt::InstanceFlags,
     memory_budget_thresholds: wgt::MemoryBudgetThresholds,
@@ -542,6 +546,11 @@ struct SwapChain {
 enum SurfaceTarget {
     /// Borrowed, lifetime externally managed
     WndHandle(Foundation::HWND),
+    /// `handle` is borrowed, lifetime externally managed
+    VisualFromWndHandle {
+        handle: Foundation::HWND,
+        dcomp_state: Mutex<dcomp::DCompState>,
+    },
     Visual(DirectComposition::IDCompositionVisual),
     /// Borrowed, lifetime externally managed
     SurfaceHandle(Foundation::HANDLE),
@@ -605,6 +614,7 @@ pub struct Adapter {
     raw: DxgiAdapter,
     device: Direct3D12::ID3D12Device,
     library: Arc<D3D12Lib>,
+    dcomp_lib: Arc<DCompLib>,
     private_caps: PrivateCapabilities,
     presentation_timer: auxil::dxgi::time::PresentationTimer,
     // Note: this isn't used right now, but we'll need it later.
@@ -678,6 +688,7 @@ pub struct Device {
     srv_uav_pool: Mutex<descriptor::CpuPool>,
     // library
     library: Arc<D3D12Lib>,
+    dcomp_lib: Arc<DCompLib>,
     #[cfg(feature = "renderdoc")]
     render_doc: auxil::renderdoc::RenderDoc,
     null_rtv_handle: descriptor::Handle,
@@ -1297,7 +1308,9 @@ impl crate::Surface for Surface {
                     Flags: flags.0 as u32,
                 };
                 let swap_chain1 = match self.target {
-                    SurfaceTarget::Visual(_) | SurfaceTarget::SwapChainPanel(_) => {
+                    SurfaceTarget::Visual(_)
+                    | SurfaceTarget::VisualFromWndHandle { .. }
+                    | SurfaceTarget::SwapChainPanel(_) => {
                         profiling::scope!("IDXGIFactory2::CreateSwapChainForComposition");
                         unsafe {
                             self.factory.CreateSwapChainForComposition(
@@ -1344,6 +1357,34 @@ impl crate::Surface for Surface {
 
                 match &self.target {
                     SurfaceTarget::WndHandle(_) | SurfaceTarget::SurfaceHandle(_) => {}
+                    SurfaceTarget::VisualFromWndHandle {
+                        handle,
+                        dcomp_state,
+                    } => {
+                        let mut dcomp_state = dcomp_state.lock();
+                        let dcomp_state =
+                            unsafe { dcomp_state.get_or_init(&device.dcomp_lib, handle) }?;
+                        // Set the new swap chain as the content for the backing visual
+                        // and commit the changes to the composition visual tree.
+                        {
+                            profiling::scope!("IDCompositionVisual::SetContent");
+                            unsafe { dcomp_state.visual.SetContent(&swap_chain1) }.map_err(
+                                |err| {
+                                    log::error!("IDCompositionVisual::SetContent failed: {err}");
+                                    crate::SurfaceError::Other("IDCompositionVisual::SetContent")
+                                },
+                            )?;
+                        }
+
+                        // Commit the changes to the composition device.
+                        {
+                            profiling::scope!("IDCompositionDevice::Commit");
+                            unsafe { dcomp_state.device.Commit() }.map_err(|err| {
+                                log::error!("IDCompositionDevice::Commit failed: {err}");
+                                crate::SurfaceError::Other("IDCompositionDevice::Commit")
+                            })?;
+                        }
+                    }
                     SurfaceTarget::Visual(visual) => {
                         if let Err(err) = unsafe { visual.SetContent(&swap_chain1) } {
                             log::error!("Unable to SetContent: {err}");
@@ -1381,6 +1422,7 @@ impl crate::Surface for Surface {
                 .into_device_result("MakeWindowAssociation")?;
             }
             SurfaceTarget::Visual(_)
+            | SurfaceTarget::VisualFromWndHandle { .. }
             | SurfaceTarget::SurfaceHandle(_)
             | SurfaceTarget::SwapChainPanel(_) => {}
         }

@@ -861,7 +861,7 @@ dependencies = [
 [[package]]
 name = "context_id"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "chrono",
  "error-support",
@@ -1678,7 +1678,7 @@ dependencies = [
 [[package]]
 name = "error-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "env_logger",
  "error-support-macros",
@@ -1693,7 +1693,7 @@ dependencies = [
 [[package]]
 name = "error-support-macros"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1840,7 +1840,7 @@ dependencies = [
 [[package]]
 name = "filter_adult"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "base64 0.22.1",
  "error-support",
@@ -1872,7 +1872,7 @@ dependencies = [
 [[package]]
 name = "firefox-versioning"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "serde_json",
  "thiserror 2.0.12",
@@ -3071,7 +3071,7 @@ dependencies = [
 [[package]]
 name = "interrupt-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "lazy_static",
  "parking_lot",
@@ -4092,7 +4092,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -4565,7 +4565,7 @@ checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
 [[package]]
 name = "payload-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "serde",
  "serde_derive",
@@ -5070,7 +5070,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "relevancy"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "base64 0.21.999",
@@ -5094,7 +5094,7 @@ dependencies = [
 [[package]]
 name = "remote_settings"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "camino",
@@ -5367,7 +5367,7 @@ dependencies = [
 [[package]]
 name = "search"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "error-support",
  "firefox-versioning",
@@ -5647,7 +5647,7 @@ dependencies = [
 [[package]]
 name = "sql-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "error-support",
  "interrupt-support",
@@ -5827,7 +5827,7 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 [[package]]
 name = "suggest"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "chrono",
@@ -5880,7 +5880,7 @@ dependencies = [
 [[package]]
 name = "sync-guid"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "base64 0.21.999",
  "rand",
@@ -5891,7 +5891,7 @@ dependencies = [
 [[package]]
 name = "sync15"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "error-support",
@@ -5939,7 +5939,7 @@ dependencies = [
 [[package]]
 name = "tabs"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "error-support",
@@ -6185,7 +6185,7 @@ dependencies = [
 [[package]]
 name = "tracing-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "parking_lot",
  "serde_json",
@@ -6245,7 +6245,7 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 [[package]]
 name = "types"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "rusqlite 0.37.0",
  "serde",
@@ -6563,7 +6563,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "viaduct"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "async-trait",
  "error-support",
@@ -6623,7 +6623,7 @@ version = "0.3.100"
 [[package]]
 name = "webext-storage"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa#0cbf0dc0088a47f9ba0155440aaa5a9232a1a0aa"
+source = "git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526#f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
 dependencies = [
  "anyhow",
  "error-support",
@@ -6761,7 +6761,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6791,7 +6791,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6799,7 +6799,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "wgpu-hal",
 ]
@@ -6807,7 +6807,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -6829,6 +6829,7 @@ dependencies = [
  "metal",
  "naga",
  "objc",
+ "once_cell",
  "ordered-float",
  "parking_lot",
  "profiling",
@@ -6844,7 +6845,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "26.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=1791064a306881c7ddf218e69b4ffdafdae1be0d#1791064a306881c7ddf218e69b4ffdafdae1be0d"
+source = "git+https://github.com/gfx-rs/wgpu?rev=ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24#ffd4e9fb53a98f8ad67bab8c5d2b42cc9dbdff24"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",
