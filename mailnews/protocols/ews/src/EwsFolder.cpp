@@ -828,7 +828,7 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
 
       ErrorResult error;
       nsCString message;
-      l10n->FormatValueSync("deleting-messages"_ns, l10nArgs, message, error);
+      l10n->FormatValueSync("deleting-message"_ns, l10nArgs, message, error);
 
       // Show the formatted message in the status bar.
       rv = aMsgWindow->GetStatusFeedback(getter_AddRefs(feedback));
