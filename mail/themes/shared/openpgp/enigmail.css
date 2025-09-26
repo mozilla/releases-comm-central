@@ -17,20 +17,6 @@
   margin: 10px 3px;
 }
 
-.enigmailDialogTitle {
-  font-size: 120%;
-  font-weight: bold;
-  padding-bottom: 6px;
-}
-
-.enigmailDialogBody {
-  -moz-user-focus: normal;
-  user-select: text;
-  cursor: text !important;
-  white-space: pre-wrap;
-  unicode-bidi: plaintext;
-}
-
 .enigmailKeyImportHeader {
   font-weight: bold;
   color: #888;

@@ -871,8 +871,3 @@ enig-confirm = OpenPGP Confirmation
 
 dlg-button-retry = &Retry
 dlg-button-skip = &Skip
-
-## Strings used in enigmailMsgBox.js
-
-enig-alert-title =
-    .title = OpenPGP Alert
