@@ -47,6 +47,7 @@ tasktype_map:
     repackage-signing-shippable-l10n-msix: signing
     release-sign-and-push-langpacks: scriptworker
     release-deb-repackage: repackage
+    repackage-deb-l10n: repackage
 platform_names:
     path_platform:
         by-platform:
@@ -195,6 +196,21 @@ mapping:
         checksums_path: ${path_platform}/xpi/${locale}.xpi
         destinations:
             - ${version}-candidates/build${build_number}/${path_platform}/xpi
+    target.langpack.deb:
+        <<: *default
+        all_locales: true
+        description: "langpack.xpi repackaged as a .deb"
+        locale_prefix: ''
+        from:
+            - repackage-deb-l10n
+        only_for_platforms:
+            - linux-shippable
+            - linux64-shippable
+        pretty_name: ${locale}.deb
+        checksums_path: ${path_platform}/deb-l10n/${locale}.deb
+        destinations:
+            - ${version}-candidates/build${build_number}/${path_platform}/deb-l10n
+        update_balrog_manifest: false
     mar:
         <<: *default
         description: "Alongside `mbsdiff`, a tool used to generate partials"

@@ -39,6 +39,7 @@ treeherder:
         'cs': 'Checksum signing'
         'css': 'Checksum signing for source'
         'Deb': 'Deb archive generation'
+        'Deb-l10n': 'Localized deb repacks'
         'Flatpak': 'Flatpak image generation'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'

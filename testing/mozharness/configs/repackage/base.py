@@ -15,4 +15,5 @@ config = {
     "rpm-templates": "",
     "wsx-stub": "comm/mail/installer/windows/msi/installer.wxs",
     "fetch-dir": os.environ.get("MOZ_FETCHES_DIR"),
+    "extensions-dir": "thunderbird/distribution/extensions",
 }
