@@ -521,14 +521,13 @@ add_task(async function test_mark_as_read() {
 
   folder.markMessagesRead([messages[0], messages[2]], true);
 
-  Assert.equal(
-    folder.getNumUnread(false),
-    1,
-    "two messages should be marked as read"
-  );
   await TestUtils.waitForCondition(
     () => serverMessage0.syntheticMessage.metaState.read,
     "waiting for message 0 to be marked as read on the server"
+  );
+  await TestUtils.waitForCondition(
+    () => folder.getNumUnread(false) == 1,
+    "waiting for two of three messages to be marked as read"
   );
   Assert.ok(
     !serverMessage1.syntheticMessage.metaState.read,
@@ -542,15 +541,14 @@ add_task(async function test_mark_as_read() {
   // Mark a message as unread.
 
   folder.markMessagesRead([messages[2]], false);
-
-  Assert.equal(
-    folder.getNumUnread(false),
-    2,
-    "one message should be marked as read"
-  );
   await TestUtils.waitForCondition(
     () => !serverMessage2.syntheticMessage.metaState.read,
     "waiting for message 2 to be marked as unread on the server"
+  );
+
+  await TestUtils.waitForCondition(
+    () => folder.getNumUnread(false) == 2,
+    "waiting for message 2 to be marked as unread locally"
   );
   Assert.ok(
     !serverMessage1.syntheticMessage.metaState.read,

@@ -11,6 +11,9 @@ var { localAccountUtils } = ChromeUtils.importESModule(
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 var ewsServer;
 var incomingServer;
@@ -93,6 +96,12 @@ add_task(async function testBasicFiltering() {
   const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.getNewMessages(null, l);
   await l.promise;
+
+  // Wait for the local messages to be updated after the server acks.
+  await TestUtils.waitForCondition(
+    () => inbox.getNumUnread(false) != inbox.getTotalMessages(false),
+    "waiting for messages to be marked as read"
+  );
 
   // Check that filter was applied correctly.
   Assert.equal(inbox.getTotalMessages(false), messages.length);

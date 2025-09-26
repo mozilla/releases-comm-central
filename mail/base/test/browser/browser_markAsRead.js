@@ -144,8 +144,8 @@ async function subtest(testFolder) {
 
   tabmail.switchToTab(1);
   await TestUtils.waitForTick();
-  Assert.ok(
-    message.isRead,
+  await TestUtils.waitForCondition(
+    () => message.isRead,
     "message 1 should be read after switching to the background tab"
   );
   tabmail.closeTab(1);
@@ -245,8 +245,8 @@ async function subtest(testFolder) {
 
   tabmail.switchToTab(1);
   await TestUtils.waitForTick();
-  Assert.ok(
-    message.isRead,
+  await TestUtils.waitForCondition(
+    () => message.isRead,
     "message 4 should be read after switching to the background tab"
   );
   tabmail.closeTab(1);
@@ -258,8 +258,8 @@ async function subtest(testFolder) {
   Assert.ok(!message.isRead, "message 5 should not be read before load");
   window.OpenMessageInNewTab(message, { background: false });
   await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  Assert.ok(
-    message.isRead,
+  await TestUtils.waitForCondition(
+    () => message.isRead,
     "message 5 should be read after opening the foreground tab"
   );
   tabmail.closeTab(1);

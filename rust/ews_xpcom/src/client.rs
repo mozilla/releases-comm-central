@@ -28,7 +28,8 @@ use ews::{
     sync_folder_items::{self, SyncFolderItems},
     update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates as FolderUpdates},
     update_item::{
-        ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
+        ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem,
+        UpdateItemResponse, Updates,
     },
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
     ExtendedProperty, Folder, FolderId, FolderShape, ItemResponseMessage, ItemShape, Message,
@@ -1193,15 +1194,24 @@ where
     /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
     ///
     /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    pub async fn change_read_status(self, message_ids: Vec<String>, is_read: bool) {
+    pub async fn change_read_status(
+        self,
+        listener: SafeEwsSimpleOperationListener,
+        message_ids: Vec<String>,
+        is_read: bool,
+    ) {
         // Send the request, using an inner method to more easily handle errors.
-        if let Err(err) = self.change_read_status_inner(message_ids, is_read).await {
+        if let Err(err) = self
+            .change_read_status_inner(&listener, message_ids, is_read)
+            .await
+        {
             log::error!("an error occurred while attempting to update the read status: {err:?}");
         }
     }
 
     async fn change_read_status_inner(
         self,
+        listener: &SafeEwsSimpleOperationListener,
         message_ids: Vec<String>,
         is_read: bool,
     ) -> Result<(), XpComEwsError> {
@@ -1244,44 +1254,67 @@ where
             conflict_resolution: Some(ConflictResolution::AlwaysOverwrite),
         };
 
-        self.make_update_item_request(update_item).await?;
-
-        Ok(())
-    }
-
-    /// Performs an [`UpdateItem` operation] and processes its response.
-    ///
-    /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    async fn make_update_item_request(&self, update_item: UpdateItem) -> Result<(), XpComEwsError> {
-        // Make the operation request using the provided parameters.
-        let response = self
-            .make_operation_request(update_item.clone(), Default::default())
-            .await?;
-
-        // Get all response messages.
+        let response = self.make_update_item_request(update_item).await?;
         let response_messages = response.into_response_messages();
-        validate_response_message_count(&response_messages, update_item.item_changes.len())?;
 
-        // Process each response message, checking for errors or warnings.
-        let errors: Vec<_> = response_messages
+        let (successes, errors): (Vec<_>, Vec<_>) = response_messages
             .into_iter()
+            .map(|r| process_response_message_class("UpdateItem", r))
             .enumerate()
-            .filter_map(|(index, response_message)| {
-                match process_response_message_class("UpdateItem", response_message) {
-                    Ok(_) => None,
-                    Err(err) => Some(format!("failed to process message #{index}: {err}")),
-                }
+            .partition(|(_index, result)| result.is_ok());
+
+        let successes: ThinVec<nsCString> = successes
+            .into_iter()
+            .flat_map(|(_, success)| {
+                let message = success.expect("partition should only populate this with okays");
+                message.items.inner.into_iter()
             })
+            .filter_map(|item| item.into_inner_message().item_id)
+            .map(|item_id| item_id.id.into())
             .collect();
+
+        let ret = if !successes.is_empty() {
+            listener.on_success((successes, false).into())
+        } else {
+            // This branch only happens if no messages were requested,
+            // or we're about to return an aggregated error in the next block.
+            Ok(())
+        };
 
         // If there were errors, return an aggregated error.
         if !errors.is_empty() {
+            let num_errs = errors.len();
+            let (index, ref first_err) = errors[0];
+            let first_error = first_err
+                .as_ref()
+                .expect_err("partition should only populate this with errs");
             return Err(XpComEwsError::Processing {
-                message: format!("response contained errors: {errors:?}"),
+                message: format!("response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"),
             });
         }
 
-        Ok(())
+        Ok(ret?)
+    }
+
+    /// Performs an [`UpdateItem` operation]. The caller must processes the Ok response to check for
+    /// any errors.
+    ///
+    /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
+    async fn make_update_item_request(
+        &self,
+        update_item: UpdateItem,
+    ) -> Result<UpdateItemResponse, XpComEwsError> {
+        let expected_response_count = update_item.item_changes.len();
+        // Make the operation request using the provided parameters.
+        let response = self
+            .make_operation_request(update_item, Default::default())
+            .await?;
+
+        // Get all response messages.
+        let response_messages = response.response_messages();
+        validate_response_message_count(response_messages, expected_response_count)?;
+
+        Ok(response)
     }
 
     pub async fn delete_messages(

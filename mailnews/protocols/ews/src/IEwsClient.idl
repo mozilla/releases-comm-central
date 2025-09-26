@@ -136,7 +136,7 @@ interface IEwsClient : nsISupports
    * @param isRead - The new read/unread state for the message, indicating
    *   whether the message should be marked as read.
    */
-  void changeReadStatus(in Array<AUTF8String> messageIds, in boolean isRead);
+  void changeReadStatus(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageIds, in boolean isRead);
 
   /**
    * Creates a new message on the server using the data read from the stream.

@@ -180,14 +180,6 @@ const UPDATE_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
                         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                         xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <m:ResponseMessages>
-      <m:UpdateItemResponseMessage ResponseClass="Success">
-        <m:ResponseCode>NoError</m:ResponseCode>
-        <m:Items>
-        </m:Items>
-        <m:ConflictResults>
-          <t:Count>0</t:Count>
-        </m:ConflictResults>
-      </m:UpdateItemResponseMessage>
     </m:ResponseMessages>
   </m:UpdateItemResponse>
   ${EWS_SOAP_FOOT}`;
@@ -1290,7 +1282,8 @@ export class EwsServer {
 
     this.#setVersion(resDoc);
 
-    const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
+    const responsesMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
     for (const itemChange of reqDoc.getElementsByTagName("t:ItemChange")) {
       const itemId = itemChange
         .getElementsByTagName("t:ItemId")[0]
@@ -1302,11 +1295,24 @@ export class EwsServer {
         this.itemChanges.push(["readflag", item.parentId, itemId]);
       }
 
-      const itemEl = itemsEl
+      const updateItemResponseMessageEl = responsesMessagesEl.appendChild(
+        resDoc.createElement("m:UpdateItemResponseMessage")
+      );
+      updateItemResponseMessageEl.setAttribute("ResponseClass", "Success");
+      const responseCodeEl = updateItemResponseMessageEl.appendChild(
+        resDoc.createElement("m:ResponseCode")
+      );
+      responseCodeEl.textContent = "NoError";
+      const itemEl = updateItemResponseMessageEl
+        .appendChild(resDoc.createElement("m:Items"))
         .appendChild(resDoc.createElement("t:Message"))
         .appendChild(resDoc.createElement("t:ItemId"));
       itemEl.setAttribute("Id", itemId);
       itemEl.setAttribute("ChangeKey", "abc12345");
+      const countEl = updateItemResponseMessageEl
+        .appendChild(resDoc.createElement("m:ConflictResults"))
+        .appendChild(resDoc.createElement("t:Count"));
+      countEl.textContent = "0";
     }
 
     return this.#serializer.serializeToString(resDoc);

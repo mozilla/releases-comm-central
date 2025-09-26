@@ -298,11 +298,13 @@ impl XpcomEwsBridge {
     }
 
     xpcom_method!(change_read_status => ChangeReadStatus(
+        listener: *const IEwsSimpleOperationListener,
         message_ids: *const ThinVec<nsCString>,
         is_read: bool
     ));
     fn change_read_status(
         &self,
+        listener: &IEwsSimpleOperationListener,
         message_ids: &ThinVec<nsCString>,
         is_read: bool,
     ) -> Result<(), nsresult> {
@@ -317,7 +319,11 @@ impl XpcomEwsBridge {
         // this scope, so spawn it as a detached `moz_task`.
         moz_task::spawn_local(
             "change_read_status",
-            client.change_read_status(message_ids, is_read),
+            client.change_read_status(
+                SafeEwsSimpleOperationListener::new(listener),
+                message_ids,
+                is_read,
+            ),
         )
         .detach();
 

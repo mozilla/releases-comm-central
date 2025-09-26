@@ -35,6 +35,8 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
+#include "nsTArray.h"
+#include "nsTHashSet.h"
 #include "nscore.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
@@ -304,30 +306,58 @@ NS_IMETHODIMP EwsFolder::MarkMessagesRead(
   nsresult rv = GetEwsClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Mark the messages as read in the local database.
-  rv = nsMsgDBFolder::MarkMessagesRead(messages, markRead);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<nsCString> ewsMessageIds;
+  CopyableTArray<nsCString> requestedIds(messages.Length());
 
   // Get a list of the EWS IDs for the messages to be modified.
   for (const auto& msg : messages) {
     nsAutoCString itemId;
     rv = msg->GetStringProperty(kEwsIdProperty, itemId);
     NS_ENSURE_SUCCESS(rv, rv);
-    ewsMessageIds.AppendElement(itemId);
+    requestedIds.AppendElement(itemId);
   }
 
-  rv = client->ChangeReadStatus(ewsMessageIds, markRead);
-  NS_ENSURE_SUCCESS(rv, rv);
+  CopyableTArray<RefPtr<nsIMsgDBHdr>> headersCopy(messages.Length());
+  headersCopy.AppendElements(messages);
 
-  // Commit the changes to the local database to make sure they are persisted.
-  rv = GetDatabase();
-  if (NS_SUCCEEDED(rv)) {
-    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-  }
+  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+      [self = RefPtr(this), headersCopy = std::move(headersCopy), requestedIds,
+       markRead](const nsTArray<nsCString>& ids,
+                 bool useLegacyFallback) mutable {
+        MOZ_ASSERT(headersCopy.Length() == requestedIds.Length());
 
-  return rv;
+        CopyableTArray<RefPtr<nsIMsgDBHdr>> foundHeaders;
+        if (requestedIds.Length() == ids.Length()) {
+          // Assume all the returned ids are the ones we requested.
+          foundHeaders = std::move(headersCopy);
+        } else {
+          // Not all requested messages were succesfully marked.
+          // Find the ones that were.
+          nsTHashSet<nsCString> returnedIds(ids.Length());
+          for (const auto& id : ids) {
+            returnedIds.Insert(id);
+          }
+
+          foundHeaders.SetCapacity(ids.Length());
+          for (size_t i = 0; i < headersCopy.Length(); ++i) {
+            if (returnedIds.Contains(requestedIds[i])) {
+              foundHeaders.AppendElement(headersCopy[i]);
+            }
+          }
+        }
+
+        nsresult rv =
+            self->nsMsgDBFolder::MarkMessagesRead(foundHeaders, markRead);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        rv = self->GetDatabase();
+        if (NS_SUCCEEDED(rv)) {
+          self->mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+        }
+
+        return rv;
+      });
+
+  return client->ChangeReadStatus(listener, requestedIds, markRead);
 }
 
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
