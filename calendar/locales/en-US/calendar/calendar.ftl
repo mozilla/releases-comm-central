@@ -1117,3 +1117,50 @@ calendar-properties-unsubscribe =
     .accesskey = U
     .buttonlabelextra1 = Unsubscribe
     .buttonaccesskeyextra1 = U
+
+calendar-alarm-dialog-title = Calendar Reminders
+calendar-alarm-details =
+    .value = Details…
+
+calendar-alarm-dismiss =
+    .label = Dismiss
+calendar-alarm-dismiss-all =
+    .label = Dismiss All
+
+calendar-alarm-snooze-for =
+    .label = Snooze for
+calendar-alarm-snooze-all-for =
+    .label = Snooze All for
+
+# Variables:
+# $count (Number) - The number of minutes to snooze.
+calendar-alarm-snooze-preset-minutes =
+    .label =
+        { $count ->
+            [one] { $count } Minute
+           *[other] { $count } Minutes
+        }
+
+# Variables:
+# $count (Number) - The number of hours to snooze.
+calendar-alarm-snooze-preset-hours =
+    .label =
+        { $count ->
+            [one] { $count } Hour
+           *[other] { $count } Hours
+        }
+
+# Variables:
+# $count (Number) - The number of days to snooze.
+calendar-alarm-snooze-preset-days =
+    .label =
+        { $count ->
+            [one] { $count } Day
+           *[other] { $count } Days
+        }
+
+# LOCALIZATION NOTE (calendar-alarm-snooze-cancel):
+# This string is not visible in the UI. It is read by screen readers when the
+# user focuses the "Cancel" button in the "Snooze for..." popup of the alarm dialog.
+calendar-alarm-snooze-cancel =
+    .aria-label = Cancel Snooze

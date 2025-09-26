@@ -44,7 +44,7 @@
                            flex="1"/>
               <hbox pack="start">
                 <label class="text-link alarm-details-label"
-                       value="&calendar.alarm.details.label;"
+                       data-l10n-id="calendar-alarm-details"
                        onclick="showDetails(event)"
                        onkeypress="showDetails(event)"/>
               </hbox>
@@ -55,11 +55,12 @@
           <vbox class="alarm-action-buttons" pack="center">
             <button class="alarm-snooze-button"
                     type="menu"
-                    label="&calendar.alarm.snoozefor.label;">
+                    data-l10n-id="calendar-alarm-snooze-for"
+                    data-l10n-attrs="label">
               <menupopup is="calendar-snooze-popup" ignorekeys="true"/>
             </button>
             <button class="alarm-dismiss-button"
-                    label="&calendar.alarm.dismiss.label;"
+                    data-l10n-id="calendar-alarm-dismiss"
                     oncommand="dismissAlarm()"/>
           </vbox>
           `,
@@ -152,11 +153,15 @@
         !cal.acl.userCanModifyItem(this.mItem)
       ) {
         snoozeButton.disabled = true;
-        document.l10n.setAttributes(snoozeButton, "reminder-disabled-snooze-button-tooltip");
+        snoozeButton.setAttribute(
+          "tooltiptext",
+          lazy.l10n.formatValueSync("reminder-disabled-snooze-button-tooltip")
+        );
       } else {
         snoozeButton.disabled = false;
-        snoozeButton.removeAttribute("data-l10n-id");
         snoozeButton.removeAttribute("tooltiptext");
+        document.l10n.setAttributes(snoozeButton, "calendar-alarm-snooze-for");
+        document.l10n.translateElements([snoozeButton]);
       }
     }
 
@@ -251,28 +256,36 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-          <menuitem label="&calendar.alarm.snooze.5minutes.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-minutes"
+                    data-l10n-args='{"count": 5}'
                     value="5"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.10minutes.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-minutes"
+                    data-l10n-args='{"count": 10}'
                     value="10"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.15minutes.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-minutes"
+                    data-l10n-args='{"count": 15}'
                     value="15"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.30minutes.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-minutes"
+                    data-l10n-args='{"count": 30}'
                     value="30"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.45minutes.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-minutes"
+                    data-l10n-args='{"count": 45}'
                     value="45"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.1hour.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-hours"
+                    data-l10n-args='{"count": 1}'
                     value="60"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.2hours.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-hours"
+                    data-l10n-args='{"count": 2}'
                     value="120"
                     oncommand="snoozeItem(event)"/>
-          <menuitem label="&calendar.alarm.snooze.1day.label;"
+          <menuitem data-l10n-id="calendar-alarm-snooze-preset-days"
+                    data-l10n-args='{"count": 1}'
                     value="1440"
                     oncommand="snoozeItem(event)"/>
           <menuseparator/>
@@ -293,13 +306,13 @@
             <toolbarbutton class="snooze-popup-button snooze-popup-ok-button"
                            oncommand="snoozeOk()"/>
             <toolbarbutton class="snooze-popup-button snooze-popup-cancel-button"
-                           aria-label="&calendar.alarm.snooze.cancel;"
+                           data-l10n-id="calendar-alarm-snooze-cancel"
                            oncommand="snoozeCancel()"/>
           </hbox>
-          `,
-          ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
+          `
         )
       );
+
       const defaultSnoozeLength = Services.prefs.getIntPref(
         "calendar.alarms.defaultsnoozelength",
         0
