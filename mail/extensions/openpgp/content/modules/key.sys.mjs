@@ -35,7 +35,6 @@ export var EnigmailKey = {
     return r;
   },
 
-
   /**
    * Import a revocation certificate form a given keyblock string.
    * Ask the user before importing the cert, and display an error
