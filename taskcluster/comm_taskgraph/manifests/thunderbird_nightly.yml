@@ -45,7 +45,7 @@ tasktype_map:
     repackage-signing: repackage
     repackage-signing-msi: repackage
     repackage-signing-shippable-l10n-msix: signing
-    release-deb-repackage: repackage
+    repackage-deb: repackage
     repackage-deb-l10n: repackage
 platform_names:
     filename_platform:
@@ -415,23 +415,17 @@ mapping:
             - latest-${branch}-l10n
     target.deb:
         <<: *default
-        description: "Debian package for Linux platforms"
-        all_locales: true
+        description: "Thunderbird as a .deb package"
         from:
-            - release-deb-repackage
+            - repackage-deb
         only_for_platforms:
             - linux64-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.deb
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.deb
+        update_balrog_manifest: false
         destinations:
-            by-locale:
-                en-US:
-                    - ${year}/${month}/${upload_date}-${branch}
-                    - latest-${branch}
-                    - latest-${branch}-l10n
-                default:
-                    - ${year}/${month}/${upload_date}-${branch}-l10n
-                    - latest-${branch}-l10n
+            - ${year}/${month}/${upload_date}-${branch}
+            - latest-${branch}
     target.complete.mar:
         <<: *default
         description: "The main installer we ship our mobile products baked within"
