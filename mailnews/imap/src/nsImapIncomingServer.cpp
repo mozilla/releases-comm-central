@@ -8,6 +8,7 @@
 #include "msgCore.h"
 #include "netCore.h"
 #include "../public/nsIImapHostSessionList.h"
+#include "nsFmtString.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIdentity.h"
 #include "nsIImapUrl.h"
@@ -2485,30 +2486,16 @@ nsImapIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   return NS_OK;
 }
 
-nsresult nsImapIncomingServer::CreateHostSpecificPrefName(
-    const char* prefPrefix, nsAutoCString& prefName) {
-  NS_ENSURE_ARG_POINTER(prefPrefix);
-
-  nsCString hostName;
-  nsresult rv = GetHostName(hostName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  prefName = prefPrefix;
-  prefName.Append('.');
-  prefName.Append(hostName);
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsImapIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
   NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
-  nsAutoCString prefName;
-  nsresult rv =
-      CreateHostSpecificPrefName("default_supports_diskspace", prefName);
+
+  nsAutoCString host;
+  nsresult rv = GetHostName(host);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aSupportsDiskSpace = true;
-  Preferences::GetBool(prefName.get(), aSupportsDiskSpace);
+  nsFmtCString prefName(FMT_STRING("default_supports_diskspace.{}"), host);
+  *aSupportsDiskSpace = Preferences::GetBool(prefName.get(), true);
 
   return NS_OK;
 }
@@ -2557,15 +2544,15 @@ nsImapIncomingServer::GetCanCreateFoldersOnServer(
 NS_IMETHODIMP
 nsImapIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
-  nsresult rv = NS_OK;
 
-  rv = GetIntValue("offline_support_level", aSupportLevel);
+  nsresult rv = GetIntValue("offline_support_level", aSupportLevel);
   if (*aSupportLevel != OFFLINE_SUPPORT_LEVEL_UNDEFINED) return rv;
 
-  nsAutoCString prefName;
-  rv = CreateHostSpecificPrefName("default_offline_support_level", prefName);
+  nsAutoCString host;
+  rv = GetHostName(host);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsFmtCString prefName(FMT_STRING("default_offline_support_level.{}"), host);
   *aSupportLevel =
       Preferences::GetInt(prefName.get(), OFFLINE_SUPPORT_LEVEL_REGULAR);
 
