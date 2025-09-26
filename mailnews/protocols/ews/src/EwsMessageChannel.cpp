@@ -7,6 +7,7 @@
 #include "EwsFetchMsgsToOffline.h"
 #include "EwsListeners.h"
 #include "IEwsClient.h"
+#include "IEwsFolder.h"
 #include "IEwsIncomingServer.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
@@ -296,6 +297,8 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   nsCOMPtr<nsIMsgFolder> folder;
   rv = mHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<IEwsFolder> ewsFolder{do_QueryInterface(folder, &rv)};
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgKey msgKey;
   rv = mHdr->GetMessageKey(&msgKey);
@@ -316,8 +319,12 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   //       local copy of this message?
   return EwsFetchMsgsToOffline(
       folder, {msgKey},
-      [self = RefPtr(this), listener = nsCOMPtr(aListener)](nsresult status) {
+      [self = RefPtr(this), ewsFolder, msgKey,
+       listener = nsCOMPtr(aListener)](nsresult status) {
         if (NS_SUCCEEDED(status)) {
+          // Let the folder know a message has been downloaded.
+          ewsFolder->HandleDownloadedMessages({msgKey});
+
           // Yay! We've now got the offline copy in the store.
           // Can start streaming it out now....
           status = self->StartMessageReadFromStore(listener);

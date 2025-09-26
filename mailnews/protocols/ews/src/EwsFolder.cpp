@@ -46,6 +46,8 @@
 
 using namespace mozilla;
 
+extern LazyLogModule FILTERLOGMODULE;  // From nsMsgFilterService.
+
 constexpr auto kEwsIdProperty = "ewsId";
 
 nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
@@ -1218,11 +1220,17 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
       self->SetHasNewMessages(true);
       self->SetNumNewMessages(static_cast<int32_t>(newMessages.Length()));
       self->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
-    }
 
-    // If some new messages arrived, apply filters to them now.
-    if (!newMessages.IsEmpty()) {
-      self->ApplyFilters(newMessages);
+      // Mark them as requiring filtering.
+      for (nsIMsgDBHdr* msg : newMessages) {
+        nsMsgKey key;
+        msg->GetMessageKey(&key);
+        static_cast<void>(self->mRequireFiltering.put(key));
+      }
+
+      // We might be able to apply filtering right away (if the full message
+      // body isn't required).
+      self->PerformFiltering();
 
       // Tell the AutoSyncState about the newly-added messages,
       // to queue them for potential offline download.
@@ -1281,6 +1289,13 @@ NS_IMETHODIMP EwsFolder::GetAutoSyncStateObj(
   return NS_OK;
 }
 
+NS_IMETHODIMP EwsFolder::HandleDownloadedMessages(
+    nsTArray<nsMsgKey> const& msgs) {
+  // There may be filters that were waiting for the full message.
+  PerformFiltering();
+  return NS_OK;
+}
+
 nsresult EwsFolder::GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr) {
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = GetMsgDatabase(getter_AddRefs(db));
@@ -1300,28 +1315,55 @@ nsresult EwsFolder::GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr) {
   return NS_OK;
 }
 
-nsresult EwsFolder::ApplyFilters(
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
-  nsCOMPtr<nsIMsgFilterService> filterService(
-      mozilla::components::Filter::Service());
+// Apply filtering to as many of the mRequireFiltering messages as we can.
+nsresult EwsFolder::PerformFiltering() {
+  nsresult rv;
 
-  nsCOMPtr<nsIMsgFilterList> filterList;
-  nsresult rv = GetFilterList(nullptr, getter_AddRefs(filterList));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Can we run the filters? Or will they require the full message
-  // first?
+  // Do the filters require full message body?
   bool incomingFiltersRequireBody;
-  rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
-                                            &incomingFiltersRequireBody);
-  NS_ENSURE_SUCCESS(rv, rv);
+  {
+    nsCOMPtr<nsIMsgFilterList> filterList;
+    rv = GetFilterList(nullptr, getter_AddRefs(filterList));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
+                                              &incomingFiltersRequireBody);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-  if (!incomingFiltersRequireBody) {
+  // Collect up the messages we can filter now.
+  nsTArray<RefPtr<nsIMsgDBHdr>> targetMsgs(mRequireFiltering.count());
+  for (auto it = mRequireFiltering.modIter(); !it.done(); it.next()) {
+    nsCOMPtr<nsIMsgDBHdr> msg;
+    GetMessageHeader(it.get(), getter_AddRefs(msg));
+    if (!msg) {
+      // The message could have have been manually deleted or something.
+      it.remove();
+      continue;
+    }
+    if (incomingFiltersRequireBody) {
+      uint32_t flags;
+      msg->GetFlags(&flags);
+      if (!(flags & nsMsgMessageFlags::Offline)) {
+        // We need the full message, but it's not (yet) available.
+        // Leave for next time.
+        continue;
+      }
+    }
+    targetMsgs.AppendElement(msg);
+    it.remove();
+  }
+
+  MOZ_LOG_FMT(FILTERLOGMODULE, LogLevel::Info,
+              "EWS PerformFiltering(): can filter {} messages now, leaving {} "
+              "(incomingFiltersRequireBody={})",
+              targetMsgs.Length(), mRequireFiltering.count(),
+              incomingFiltersRequireBody);
+
+  if (!targetMsgs.IsEmpty()) {
     // Once the filtering is complete, `doneFunc` will run.
-    auto doneFunc =
-        [self = RefPtr(this)](
-            nsresult status,
-            const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) -> nsresult {
+    auto doneFunc = [self = RefPtr(this)](
+                        nsresult status,
+                        const nsTArray<RefPtr<nsIMsgDBHdr>>& msgs) -> nsresult {
       nsresult rv = self->NotifyFolderEvent(kFiltersApplied);
       NS_ENSURE_SUCCESS(rv, rv);
       // Now run the spam classification.
@@ -1337,7 +1379,7 @@ nsresult EwsFolder::ApplyFilters(
       return NS_OK;
     };
 
-    // Run the filters upon the new messages. Note, by this time, the
+    // Run the filters upon the target messages. Note, by this time, the
     // messages have already been added to the folders database.
     // This means we can use ApplyFilters, which handles all the filter
     // actions - it uses the protocol-agnostic code, as if the filters
@@ -1345,9 +1387,11 @@ nsresult EwsFolder::ApplyFilters(
     // contrast to POP3 and IMAP, which run the filters _before_ adding
     // the messages to the database, but then have to implement all
     // their own filter actions.
+    nsCOMPtr<nsIMsgFilterService> filterService(
+        mozilla::components::Filter::Service());
     rv = filterService->ApplyFilters(
-        nsMsgFilterType::Inbox, newMessages, this, nullptr /*window*/,
-        new MsgOperationListener(newMessages, doneFunc));
+        nsMsgFilterType::Inbox, targetMsgs, this, nullptr /*window*/,
+        new MsgOperationListener(targetMsgs, doneFunc));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

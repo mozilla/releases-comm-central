@@ -7,7 +7,7 @@
 
 #include "IEwsClient.h"
 #include "IEwsFolder.h"
-#include "nsICopyMessageListener.h"
+#include "mozilla/HashTable.h"
 #include "nsMsgDBFolder.h"
 #include "nscore.h"
 
@@ -138,11 +138,6 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   nsresult GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr);
 
   /**
-   * Apply the current filters to a list of new messages.
-   */
-  nsresult ApplyFilters(const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages);
-
-  /**
    * Get the nsAutoSyncState for this folder, used for interacting with
    * AutoSyncManager (for downloading messages in the background etc...)
    * Created lazily, so use this instead of mAutoSyncState!
@@ -151,6 +146,27 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
 
   // Don't use this directly - it's created lazily by AutoSyncState().
   RefPtr<nsAutoSyncState> mAutoSyncState;
+
+  /**
+   * Tracks the set of messages which require filtering. New messages are
+   * added to this when their headers are first received from the server,
+   * then removed when they've been filtered - see PerformFiltering().
+   * Messages copied in from other folders wouldn't appear here.
+   */
+  mozilla::HashSet<nsMsgKey> mRequireFiltering;
+
+  /**
+   * PerformFiltering() attempts to apply filtering to as many messages in the
+   * mRequireFiltering set as possible.
+   * It's a best-effort approach - if the filterlist requires full message
+   * bodies for matching, only messages which have local (offline) copies
+   * can be processed.
+   *
+   * Messages which are filtered are removed from mRequireFiltering, and
+   * the rest are left, in the hopes that the next time PerformFiltering() is
+   * called, things might have changed.
+   */
+  nsresult PerformFiltering();
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSFOLDER_H_

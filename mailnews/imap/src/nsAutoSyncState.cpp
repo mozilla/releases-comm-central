@@ -693,7 +693,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
                                                  nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   } else if (serverType.EqualsLiteral("ews")) {
-    nsTArray<nsMsgKey> keys(messages.Length());
+    CopyableTArray<nsMsgKey> keys(messages.Length());
     for (nsIMsgDBHdr* hdr : messages) {
       nsMsgKey key;
       hdr->GetMessageKey(&key);
@@ -704,7 +704,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
             ("Downloading %d messages for offline, for folder %s",
              (int)keys.Length(), folder->URI().get()));
     rv = EwsFetchMsgsToOffline(
-        folder, keys, [folder, self = RefPtr(this)](nsresult status) {
+        folder, keys, [folder, keys, self = RefPtr(this)](nsresult status) {
           // For IMAP, this is handled in OnStopRunningUrl().
           folder->ReleaseSemaphore(
               folder, "nsAutoSyncState::DownloadMessagesForOffline done"_ns);
@@ -712,6 +712,13 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
                   NS_SUCCEEDED(status) ? LogLevel::Info : LogLevel::Error,
                   ("Finished downloading messages (status=0x%x) for folder %s",
                    status, folder->URI().get()));
+
+          // Let the folder know these messages are now stored offline.
+          nsCOMPtr<IEwsFolder> ewsFolder{do_QueryInterface(folder)};
+          if (ewsFolder) {
+            ewsFolder->HandleDownloadedMessages(keys);
+          }
+
           nsCOMPtr<nsIAutoSyncManager> autoSyncMgr =
               do_GetService(NS_AUTOSYNCMANAGER_CONTRACTID);
           autoSyncMgr->OnDownloadCompleted(self, status);
