@@ -182,65 +182,6 @@ char* nsMsgI18NEncodeMimePartIIStr(const char* header, bool structured,
   return NS_SUCCEEDED(rv) ? PL_strdup(encodedString.get()) : nullptr;
 }
 
-// Return True if a charset is stateful (e.g. JIS).
-bool nsMsgI18Nstateful_charset(const char* charset) {
-  // TODO: use charset manager's service
-  return (PL_strcasecmp(charset, "ISO-2022-JP") == 0);
-}
-
-bool nsMsgI18Nmultibyte_charset(const char* charset) {
-  nsresult res;
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &res);
-  bool result = false;
-
-  if (NS_SUCCEEDED(res)) {
-    nsAutoString charsetData;
-    res = ccm->GetCharsetData(charset, u".isMultibyte", charsetData);
-    if (NS_SUCCEEDED(res)) {
-      result = charsetData.LowerCaseEqualsLiteral("true");
-    }
-  }
-
-  return result;
-}
-
-bool nsMsgI18Ncheck_data_in_charset_range(const char* charset,
-                                          const char16_t* inString) {
-  if (!charset || !*charset || !inString || !*inString) return true;
-
-  bool res = true;
-
-  auto encoding =
-      mozilla::Encoding::ForLabelNoReplacement(nsDependentCString(charset));
-  if (!encoding) return false;
-  auto encoder = encoding->NewEncoder();
-
-  uint8_t buffer[512];
-  auto src = mozilla::MakeStringSpan(inString);
-  auto dst = mozilla::Span(buffer);
-  while (true) {
-    uint32_t result;
-    size_t read;
-    size_t written;
-    std::tie(result, read, written) =
-        encoder->EncodeFromUTF16WithoutReplacement(src, dst, false);
-    if (result == mozilla::kInputEmpty) {
-      // All converted successfully.
-      break;
-    } else if (result != mozilla::kOutputFull) {
-      // Didn't use all the input but the output isn't full, hence
-      // there was an unencodable character.
-      res = false;
-      break;
-    }
-    src = src.From(read);
-    // dst = dst.From(written); // Just overwrite output since we don't need it.
-  }
-
-  return res;
-}
-
 // Simple parser to parse META charset.
 // It only supports the case when the description is within one line.
 const char* nsMsgI18NParseMetaCharset(nsIFile* file) {
