@@ -21,12 +21,6 @@ interface nsICharsetConverterManager : nsISupports
     ACString getCharsetAlias(in string aCharset);
 
     /**
-     * Get the human-readable name for the given charset.
-     * @throws if aCharset is an unknown charset.
-     */
-    AString getCharsetTitle(in string aCharset);
-
-    /**
      * Get some data about the given charset. This includes whether the
      * character encoding may be used for certain purposes, if it is
      * multi-byte, and the language code for it. See charsetData.properties

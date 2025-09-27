@@ -18,7 +18,6 @@
 #include "nsCharsetConverterManager.h"
 
 MOZ_RUNINIT static nsCOMPtr<nsIStringBundle> sDataBundle;
-MOZ_RUNINIT static nsCOMPtr<nsIStringBundle> sTitleBundle;
 
 // Class nsCharsetConverterManager [implementation]
 
@@ -28,7 +27,6 @@ nsCharsetConverterManager::nsCharsetConverterManager() {}
 
 nsCharsetConverterManager::~nsCharsetConverterManager() {
   sDataBundle = nullptr;
-  sTitleBundle = nullptr;
 }
 
 static nsresult LoadBundle(const char* aBundleURLSpec,
@@ -109,21 +107,6 @@ nsCharsetConverterManager::GetCharsetAlias(const char* aCharset,
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetTitle(const char* aCharset,
-                                           nsAString& aResult) {
-  NS_ENSURE_ARG_POINTER(aCharset);
-
-  if (!sTitleBundle) {
-    nsresult rv =
-        LoadBundle("chrome://messenger/locale/charsetTitles.properties",
-                   getter_AddRefs(sTitleBundle));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  return GetBundleValue(sTitleBundle, aCharset, u".title"_ns, aResult);
 }
 
 NS_IMETHODIMP
