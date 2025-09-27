@@ -101,7 +101,7 @@ where
                 Some(name) => {
                     // We expect the body of the response to contain a single
                     // element with the name of the expected operation response.
-                    let expected = T::name();
+                    let expected = T::NAME;
                     if name != expected {
                         return Err(serde::de::Error::custom(format_args!(
                             "unknown element `{name}`, expected {expected}"

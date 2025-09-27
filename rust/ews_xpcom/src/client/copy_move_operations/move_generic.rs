@@ -97,7 +97,7 @@ where
     let operation_data = operation_builder(&client, destination_folder_id, ids);
 
     (
-        operation_data.name(),
+        <OperationDataT as Operation>::NAME,
         move_generic_inner(client, operation_data.clone())
             .await
             .map(|messages| {

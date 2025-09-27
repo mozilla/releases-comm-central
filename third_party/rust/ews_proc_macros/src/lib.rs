@@ -27,12 +27,11 @@ See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-ref
 
         impl crate::Operation for #request_name {
             type Response = #response_name;
+            const NAME: &'static str = stringify!(#request_name);
         }
 
         impl crate::types::sealed::EnvelopeBodyContents for #request_name {
-            fn name() -> &'static str {
-                stringify!(#request_name)
-            }
+            const NAME: &'static str = stringify!(#request_name);
         }
 
         #response_doc_attr
@@ -53,9 +52,7 @@ See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-ref
         }
 
         impl crate::types::sealed::EnvelopeBodyContents for #response_name {
-            fn name() -> &'static str {
-                stringify!(#response_name)
-            }
+            const NAME: &'static str = stringify!(#response_name);
         }
     };
 

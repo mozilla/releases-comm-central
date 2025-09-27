@@ -4,7 +4,7 @@
 
 use ews::{
     mark_as_junk::MarkAsJunk, move_item::MoveItem, server_version::ExchangeServerVersion,
-    BaseItemId, OperationResponse,
+    BaseItemId, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
@@ -42,7 +42,7 @@ where
                 let _ = listener
                     .on_success((ids.unwrap_or(ThinVec::new()), use_legacy_fallback).into());
             }
-            Err(err) => handle_error(&listener, "MarkAsJunk", &err, ()),
+            Err(err) => handle_error(&listener, MarkAsJunk::NAME, &err, ()),
         };
     }
 
@@ -85,7 +85,7 @@ where
             let new_ids = response_messages
                 .into_iter()
                 .map(|response_message| {
-                    process_response_message_class("MarkAsJunk", response_message)
+                    process_response_message_class(MarkAsJunk::NAME, response_message)
                 })
                 .map(|response| response.map(|v| nsCString::from(v.moved_item_id.id)))
                 .collect::<Result<ThinVec<nsCString>, _>>()?;

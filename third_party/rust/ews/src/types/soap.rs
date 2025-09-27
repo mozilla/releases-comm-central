@@ -92,7 +92,7 @@ where
 
         // Write the operation itself.
         self.body
-            .serialize_as_element(&mut writer, <B as sealed::EnvelopeBodyContents>::name())?;
+            .serialize_as_element(&mut writer, <B as sealed::EnvelopeBodyContents>::NAME)?;
 
         writer.write_event(Event::End(BytesEnd::new(SOAP_BODY)))?;
         writer.write_event(Event::End(BytesEnd::new(SOAP_ENVELOPE)))?;
@@ -226,9 +226,7 @@ mod tests {
         }
 
         impl EnvelopeBodyContents for SomeStruct {
-            fn name() -> &'static str {
-                "Foo"
-            }
+            const NAME: &'static str = "Foo";
         }
 
         // This XML is contrived, with a custom structure defined in order to

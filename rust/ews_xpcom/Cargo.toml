@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.21.3"
 cstr = "0.2"
-ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "31d1c1d137f02dd5fa457757a141286093d5e362", version = "0.1.0", features = [
+ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "61c14ae9c36d900ce85d1ba10bce8d0ff54d4432", version = "0.1.0", features = [
     "interop",
 ] }
 fxhash = "0.2.1"

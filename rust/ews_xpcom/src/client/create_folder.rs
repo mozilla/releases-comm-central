@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::{create_folder::CreateFolder, BaseFolderId, Folder, OperationResponse};
+use ews::{create_folder::CreateFolder, BaseFolderId, Folder, Operation, OperationResponse};
 
 use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
@@ -29,7 +29,7 @@ where
             Ok(folder_id) => {
                 let _ = listener.on_success((std::iter::once(folder_id), false).into());
             }
-            Err(err) => handle_error(&listener, "CreateFolder", &err, ()),
+            Err(err) => handle_error(&listener, CreateFolder::NAME, &err, ()),
         };
     }
 
@@ -61,7 +61,7 @@ where
         // constraints on response shape.
         let response_messages = response.into_response_messages();
         let response_class = single_response_or_error(response_messages)?;
-        let response_message = process_response_message_class("CreateFolder", response_class)?;
+        let response_message = process_response_message_class(CreateFolder::NAME, response_class)?;
 
         let folders = response_message.folders.inner;
         if folders.len() != 1 {

@@ -195,7 +195,7 @@ where
 
         // Get the first (and only) response message so we can inspect it.
         let response_class = single_response_or_error(response_messages)?;
-        let message = process_response_message_class("GetFolder", response_class)?;
+        let message = process_response_message_class(GetFolder::NAME, response_class)?;
 
         // Any error fetching the root folder is fatal, since it likely means
         // all subsequent request will fail, and that we won't manage to sync
@@ -227,7 +227,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => handle_error(&listener, "SyncFolderHierarchy", &err, ()),
+            Err(err) => handle_error(&listener, SyncFolderHierarchy::NAME, &err, ()),
         };
     }
 
@@ -270,7 +270,7 @@ where
                 .await?
                 .into_response_messages();
             let response = single_response_or_error(response)?;
-            let message = process_response_message_class("SyncFolderHierarchy", response)?;
+            let message = process_response_message_class(SyncFolderHierarchy::NAME, response)?;
 
             let mut create_ids = Vec::new();
             let mut update_ids = Vec::new();
@@ -338,7 +338,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => handle_error(&listener, "SyncFolderItems", &err, ()),
+            Err(err) => handle_error(&listener, SyncFolderItems::NAME, &err, ()),
         }
     }
 
@@ -375,7 +375,7 @@ where
                 .await?
                 .into_response_messages();
             let response_class = single_response_or_error(response)?;
-            let message = process_response_message_class("SyncFolderItems", response_class)?;
+            let message = process_response_message_class(SyncFolderItems::NAME, response_class)?;
 
             // We only fetch unique messages, as we ignore the `ChangeKey` and
             // simply fetch the latest version.
@@ -587,7 +587,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => handle_error(&listener, "GetItem", &err, ()),
+            Err(err) => handle_error(&listener, GetItem::NAME, &err, ()),
         };
     }
 
@@ -698,7 +698,7 @@ where
         // folders and we've already checked that we have that number of
         // responses.
         let (_, response_class) = message_iter.next().unwrap();
-        let message = process_response_message_class("GetFolder", response_class)?;
+        let message = process_response_message_class(GetFolder::NAME, response_class)?;
 
         // Any error fetching the root folder is fatal, since we can't correctly
         // set the parents of any folders it contains without knowing its ID.
@@ -708,7 +708,8 @@ where
         // Build the mapping for the remaining folders.
         message_iter
             .filter_map(|(&distinguished_id, response_class)| {
-                let message = match process_response_message_class("GetFolder", response_class) {
+                let message = match process_response_message_class(GetFolder::NAME, response_class)
+                {
                     Ok(message) => Some(message),
 
                     // Not every Exchange account will have all queried
@@ -835,7 +836,7 @@ where
             let mut fetched = messages
                 .into_iter()
                 .filter_map(|response_class| {
-                    let message = match process_response_message_class("GetFolder", response_class) {
+                    let message = match process_response_message_class(GetFolder::NAME, response_class) {
                         Ok(message) => message,
                         Err(err) => {return Some(Err(err));}
                     };
@@ -958,7 +959,7 @@ where
 
             let response = self.make_operation_request(op, Default::default()).await?;
             for response_message in response.into_response_messages() {
-                let message = process_response_message_class("GetItem", response_message)?;
+                let message = process_response_message_class(GetItem::NAME, response_message)?;
 
                 // The expected shape of the list of response messages is
                 // underspecified, but EWS always seems to return one message
@@ -1020,7 +1021,7 @@ where
                 let err = Rc::new(err);
                 handle_error(
                     &listener,
-                    "CreateItem",
+                    CreateItem::NAME,
                     err.as_ref(),
                     (server_uri, Some(err.clone()), None::<String>).into(),
                 );
@@ -1095,7 +1096,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success(());
             }
-            Err(err) => handle_error(&listener, "CreateItem", &err, ()),
+            Err(err) => handle_error(&listener, CreateItem::NAME, &err, ()),
         };
     }
 
@@ -1188,7 +1189,7 @@ where
         // contain one response message.
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
-        process_response_message_class("CreateItem", response_message)
+        process_response_message_class(CreateItem::NAME, response_message)
     }
 
     /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
@@ -1259,7 +1260,7 @@ where
 
         let (successes, errors): (Vec<_>, Vec<_>) = response_messages
             .into_iter()
-            .map(|r| process_response_message_class("UpdateItem", r))
+            .map(|r| process_response_message_class(UpdateItem::NAME, r))
             .enumerate()
             .partition(|(_index, result)| result.is_ok());
 
@@ -1328,7 +1329,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success((std::iter::empty::<String>(), false).into());
             }
-            Err(err) => handle_error(&listener, "DeleteItem", &err, ()),
+            Err(err) => handle_error(&listener, DeleteItem::NAME, &err, ()),
         };
     }
 
@@ -1364,7 +1365,7 @@ where
             .zip(ews_ids.iter())
             .try_for_each(|(response_message, ews_id)| {
                 if let Err(err) = process_response_message_class(
-                    "DeleteItem",
+                    DeleteItem::NAME,
                     response_message
                 ) {
                     if matches!(err, XpComEwsError::ResponseError( ResponseError { response_code: ResponseCode::ErrorItemNotFound, .. })) {
@@ -1400,7 +1401,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success((std::iter::empty::<String>(), false).into());
             }
-            Err(err) => handle_error(&listener, "DeleteFolder", &err, ()),
+            Err(err) => handle_error(&listener, DeleteFolder::NAME, &err, ()),
         }
     }
 
@@ -1420,7 +1421,7 @@ where
         // contain one response message.
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
-        match process_response_message_class("DeleteFolder", response_message) {
+        match process_response_message_class(DeleteFolder::NAME, response_message) {
             Ok(_) => Ok(()),
             Err(err) => match err {
                 XpComEwsError::ResponseError(ResponseError {
@@ -1452,7 +1453,7 @@ where
             Ok(_) => {
                 let _ = listener.on_success((std::iter::empty::<String>(), false).into());
             }
-            Err(err) => handle_error(&listener, "UpdateFolder", &err, ()),
+            Err(err) => handle_error(&listener, UpdateFolder::NAME, &err, ()),
         }
     }
 
@@ -1492,7 +1493,7 @@ where
             .await?;
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
-        process_response_message_class("UpdateFolder", response_message)?;
+        process_response_message_class(UpdateFolder::NAME, response_message)?;
 
         Ok(())
     }
@@ -1510,7 +1511,7 @@ where
     where
         Op: Operation,
     {
-        let op_name = op.name();
+        let op_name = <Op as Operation>::NAME;
         let envelope = soap::Envelope {
             headers: vec![soap::Header::RequestServerVersion {
                 version: self.server_version.get(),
