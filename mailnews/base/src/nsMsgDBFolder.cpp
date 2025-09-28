@@ -4707,6 +4707,7 @@ nsMsgDBFolder::NotifyPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderPropertyChanged(this, aProperty,
                                                         aOldValue, aNewValue);
 }
@@ -4725,6 +4726,7 @@ nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderIntPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
 }
@@ -4738,6 +4740,7 @@ nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString& aProperty,
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderBoolPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
 }
@@ -4753,6 +4756,7 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderPropertyFlagChanged(
       aItem, aProperty, aOldValue, aNewValue);
 }
@@ -4763,6 +4767,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyMessageAdded(nsIMsgDBHdr* msg) {
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnMessageAdded(this, msg);
 }
 
@@ -4772,6 +4777,7 @@ nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnMessageRemoved(this, msg);
 }
 
@@ -4782,6 +4788,7 @@ NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderAdded(this, child);
 }
 
@@ -4791,6 +4798,7 @@ nsresult nsMsgDBFolder::NotifyFolderRemoved(nsIMsgFolder* child) {
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderRemoved(this, child);
 }
 
@@ -4800,6 +4808,7 @@ nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {
   // Notify listeners who listen to every folder
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       mozilla::components::MailSession::Service();
+  NS_ENSURE_TRUE(folderListenerManager, NS_ERROR_FAILURE);
   return folderListenerManager->OnFolderEvent(this, aEvent);
 }
 
