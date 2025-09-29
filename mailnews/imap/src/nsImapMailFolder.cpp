@@ -5065,9 +5065,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   }
                 }
                 (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
-                if (imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
-                  UpdateFolderWithListener(msgWindow, m_urlListener);
-                }
+                UpdateFolderWithListener(msgWindow, m_urlListener);
               }
             } else {
               // clear the copyState if copy has failed
