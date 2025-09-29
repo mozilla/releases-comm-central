@@ -274,8 +274,13 @@ class EmailConfigFound extends AccountHubStep {
     this.#addon.isDisabled = await installer.isDisabled();
 
     if (this.#addon.isInstalled) {
-      this.#currentConfig.incoming.addonAccountType =
-        this.#addon.useType.addonAccountType;
+      const exchangeConfigs = [
+        this.#currentConfig.incoming,
+        ...this.#currentConfig.incomingAlternatives,
+      ].filter(config => config.type == "exchange");
+      for (const config of exchangeConfigs) {
+        config.addonAccountType = this.#addon.useType.addonAccountType;
+      }
       this.querySelector("#owlExchangeDescription").hidden = true;
       this.querySelector("#editConfiguration").hidden = false;
       return;
