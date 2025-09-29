@@ -2305,7 +2305,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
           type == nsIMsgCompType::ReplyToSender ||
           type == nsIMsgCompType::Reply) {
         if (isReplyToSelf) {
-          // Cast to concrete class. We *only* what to change m_identity, not
+          // Cast to concrete class. We *only* want to change m_identity, not
           // all the things compose->SetIdentity would do.
           nsMsgCompose* _compose = static_cast<nsMsgCompose*>(compose.get());
           _compose->m_identity = selfIdentity;
@@ -2333,7 +2333,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
         }
       } else if (type == nsIMsgCompType::ReplyAll) {
         if (isReplyToSelf) {
-          // Cast to concrete class. We *only* what to change m_identity, not
+          // Cast to concrete class. We *only* want to change m_identity, not
           // all the things compose->SetIdentity would do.
           nsMsgCompose* _compose = static_cast<nsMsgCompose*>(compose.get());
           _compose->m_identity = selfIdentity;
