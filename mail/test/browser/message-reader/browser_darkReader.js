@@ -288,6 +288,9 @@ add_task(async function test_darkReaderToggleVisibility() {
 
 async function assert_light_style() {
   await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
+  if (AppConstants.DEBUG || AppConstants.ASAN || AppConstants.TSAN) {
+    await new Promise(resolve => aboutMessage.requestAnimationFrame(resolve));
+  }
   const msgDoc =
     aboutMessage.document.getElementById("messagepane").contentDocument;
 
