@@ -6,11 +6,20 @@
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
+MOZ_SRC_FILES += [
+    "content/aboutSupport.js",
+    "content/accounts.js",
+    "content/calendars.js",
+    "content/chat.js",
+    "content/export.js",
+    "content/libs.js",
+]
+
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
-    EXTRA_JS_MODULES += ["AboutSupportWin32.sys.mjs"]
+    MOZ_SRC_FILES += ["AboutSupportWin32.sys.mjs"]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    EXTRA_JS_MODULES += ["AboutSupportMac.sys.mjs"]
+    MOZ_SRC_FILES += ["AboutSupportMac.sys.mjs"]
 else:
-    EXTRA_JS_MODULES += ["AboutSupportUnix.sys.mjs"]
+    MOZ_SRC_FILES += ["AboutSupportUnix.sys.mjs"]
 
 JAR_MANIFESTS += ["jar.mn"]

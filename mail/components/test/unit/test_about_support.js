@@ -209,7 +209,7 @@ var tests = [test_get_file_system_type, test_get_account_details];
 
 function run_test() {
   Services.scriptloader.loadSubScript(
-    "chrome://messenger/content/about-support/accounts.js"
+    "moz-src:///comm/mail/components/about-support/content/accounts.js"
   );
 
   setup_accounts();

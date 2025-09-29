@@ -3,11 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/about-support/accounts.js                (content/accounts.js)
-    content/messenger/about-support/export.js                  (content/export.js)
 *   content/messenger/about-support/aboutSupport.xhtml         (content/aboutSupport.xhtml)
 % override chrome://global/content/aboutSupport.xhtml chrome://messenger/content/about-support/aboutSupport.xhtml
-    content/messenger/about-support/aboutSupport.js            (content/aboutSupport.js)
-    content/messenger/about-support/calendars.js               (content/calendars.js)
-    content/messenger/about-support/chat.js                    (content/chat.js)
-    content/messenger/about-support/libs.js                    (content/libs.js)

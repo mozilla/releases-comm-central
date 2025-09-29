@@ -14,17 +14,17 @@ var { MailServices } = ChromeUtils.importESModule(
 var AboutSupportPlatform;
 if ("@mozilla.org/windows-registry-key;1" in Cc) {
   const temp = ChromeUtils.importESModule(
-    "resource:///modules/AboutSupportWin32.sys.mjs"
+    "moz-src:///comm/mail/components/about-support/AboutSupportWin32.sys.mjs"
   );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else if ("nsILocalFileMac" in Ci) {
   const temp = ChromeUtils.importESModule(
-    "resource:///modules/AboutSupportMac.sys.mjs"
+    "moz-src:///comm/mail/components/about-support/AboutSupportMac.sys.mjs"
   );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else {
   const temp = ChromeUtils.importESModule(
-    "resource:///modules/AboutSupportUnix.sys.mjs"
+    "moz-src:///comm/mail/components/about-support/AboutSupportUnix.sys.mjs"
   );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 }
