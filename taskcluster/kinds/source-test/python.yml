@@ -5,7 +5,7 @@
 task-defaults:
     platform: linux1804-64/opt
     always-target: true
-    worker-type: t-linux-docker
+    worker-type: t-linux-docker-amd
     worker:
         # A build image instead of the lint image m-c uses, because of the
         # comm-checkout requirement.

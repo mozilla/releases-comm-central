@@ -24,7 +24,7 @@ tasks:
             platform: thunderbird-release/opt
             symbol: pin-verify
             tier: 2
-        worker-type: t-linux-docker-noscratch
+        worker-type: t-linux-docker-noscratch-amd
         worker:
             docker-image: {in-tree: "debian12-base"}
             max-run-time: 1800
