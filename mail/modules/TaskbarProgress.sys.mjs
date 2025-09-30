@@ -45,6 +45,9 @@ export const TaskbarProgress = {
    * @param {number} maxValue
    */
   showProgress(window, state, currentValue = 0, maxValue = 0) {
+    if (!window.docShell) {
+      return;
+    }
     getTaskbarProgress(window)?.setProgressState(state, currentValue, maxValue);
   },
 };

@@ -911,6 +911,11 @@ var progressListener = {
       progressMeter.hidden = true;
       progressMeter.value = 0;
       document.getElementById("statusText").textContent = "";
+      // Clear taskbar/dock progress.
+      lazy.TaskbarProgress.showProgress(
+        window,
+        Ci.nsITaskbarProgress.STATE_NO_PROGRESS
+      );
       Services.obs.notifyObservers(
         { composeWindow: window },
         "mail:composeSendProgressStop"
@@ -936,15 +941,22 @@ var progressListener = {
 
       // Advance progress meter.
       document.getElementById("compose-progressmeter").value = percent;
-      lazy.TaskbarProgress.showProgress(
-        window,
-        Ci.nsITaskbarProgress.STATE_NORMAL,
-        aCurTotalProgress,
-        aMaxTotalProgress
-      );
+
+      // Taskbar/dock progress. Don't show progress for messages smaller than
+      // the send chunk size.
+      if (aMaxTotalProgress > 65536) {
+        lazy.TaskbarProgress.showProgress(
+          window,
+          Ci.nsITaskbarProgress.STATE_NORMAL,
+          aCurTotalProgress,
+          aMaxTotalProgress
+        );
+      }
     } else {
       // Progress meter should be barber-pole in this case.
       document.getElementById("compose-progressmeter").removeAttribute("value");
+
+      // Just clear taskbar/dock progress.
       lazy.TaskbarProgress.showProgress(
         window,
         Ci.nsITaskbarProgress.STATE_NO_PROGRESS
