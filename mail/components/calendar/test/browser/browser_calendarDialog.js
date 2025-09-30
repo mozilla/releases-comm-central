@@ -36,7 +36,10 @@ add_setup(async function () {
 
   // Setting the color to the rgb value of #ffbbff so we don't have to do the
   // conversion for the computed color later.
-  calendar = createCalendar({ color: "rgb(255, 187, 255)" });
+  calendar = createCalendar({
+    color: "rgb(255, 187, 255)",
+    name: "TB CAL TEST",
+  });
   calendarEvent = await createEvent({
     calendar,
     categories: ["TEST"],
@@ -225,10 +228,10 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
 add_task(async function test_dialogTitle() {
   dialog.show();
-  const title = dialog.querySelector(".calendar-dialog-title");
+  const title = dialog.querySelector(".event-title");
 
   Assert.equal(
-    title.textContent,
+    title.textContent.trim(),
     "",
     "The dialog title has no text before data is set"
   );
@@ -256,7 +259,7 @@ add_task(async function test_dialogTitle() {
 });
 
 add_task(async function test_dialogTitleOccurrenceException() {
-  const title = dialog.querySelector(".calendar-dialog-title");
+  const title = dialog.querySelector(".event-title");
   const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
   let end = new Date(todayDate);
   end.setDate(todayDate.getDate() + 1);
@@ -578,4 +581,23 @@ add_task(async function test_dialogCalendarBarColor() {
     !dialog.style.getPropertyValue("--calendar-bar-color"),
     "Should not have a bar color set without a loaded event"
   );
+});
+
+add_task(async function test_calendarDailogName() {
+  dialog.show();
+  dialog.setCalendarEvent(calendarEvent);
+  const nameElement = dialog.querySelector(".calendar-name");
+
+  await new Promise(requestAnimationFrame);
+
+  Assert.equal(
+    nameElement.textContent,
+    "TB CAL TEST",
+    "Dialog has correct calendar name"
+  );
+
+  resetDialog();
+  Assert.equal(nameElement.textContent, "", "Calendar name gets cleared");
+
+  dialog.close();
 });

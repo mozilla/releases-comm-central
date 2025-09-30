@@ -16,7 +16,10 @@ const tabmail = document.getElementById("tabmail");
 let calendar;
 
 add_setup(() => {
-  calendar = createCalendar({ color: "rgb(255, 187, 255)" });
+  calendar = createCalendar({
+    name: "TB CAL TEST",
+    color: "rgb(255, 187, 255)",
+  });
 
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);

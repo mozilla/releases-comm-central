@@ -219,7 +219,8 @@ export class CalendarDialog extends PositionedDialog {
       `var(--calendar-${cssSafeCalendarId}-backcolor)`
     );
 
-    this.querySelector(".calendar-dialog-title").textContent = event.title;
+    this.querySelector(".event-title").textContent = event.title;
+    this.querySelector(".calendar-name").textContent = calendar.name;
 
     const dateRow = this.querySelector("calendar-dialog-date-row");
     const startDate = cal.dtz.dateTimeToJsDate(event.startDate);
@@ -259,7 +260,8 @@ export class CalendarDialog extends PositionedDialog {
    */
   async #clearData() {
     this.#subviewManager.showDefaultSubview();
-    this.querySelector(".calendar-dialog-title").textContent = "";
+    this.querySelector(".event-title").textContent = "";
+    this.querySelector(".calendar-name").textContent = "";
     // Only clearing the repeats attribute, the dates are expected to always
     // have a value.
     this.querySelector("calendar-dialog-date-row").removeAttribute("repeats");

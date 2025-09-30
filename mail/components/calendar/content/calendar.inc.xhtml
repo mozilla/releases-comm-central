@@ -1,6 +1,6 @@
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include calendarDialogRowTemplate.inc.xhtml
 #include calendarDialogDateRowTemplate.inc.xhtml
@@ -13,7 +13,10 @@
       class="button icon-button icon-only button-flat back-button"
       data-l10n-id="calendar-dialog-back-button"
     ></button>
-    <h2 class="calendar-dialog-title"></h2>
+    <h2 class="calendar-dialog-title">
+      <span class="calendar-name screen-reader-only"></span>
+      <span class="event-title"></span>
+    </h2>
     <button class="button icon-button icon-only button-flat close-button"
             data-l10n-id="calendar-dialog-close-button">
     </button>
