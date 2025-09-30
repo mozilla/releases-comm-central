@@ -38,8 +38,6 @@ FINAL_LIBRARY = "mail"
 # Tests need more attention before they can be enabled.
 TEST_DIRS += ["test"]
 
-JAR_MANIFESTS += ["jar.mn"]
-
 XPCOM_MANIFESTS += [
     "components.conf",
 ]

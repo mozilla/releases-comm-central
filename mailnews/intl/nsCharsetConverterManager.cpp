@@ -3,89 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
 #include "nsString.h"
-#include "nsUnicharUtils.h"
 #include "nsCharsetAlias.h"
 #include "nsICharsetConverterManager.h"
-#include "nsIStringBundle.h"
-#include "nsTArray.h"
-#include "mozilla/Components.h"
+#include "mozilla/intl/EncodingToLang.h"
 
 #include "../base/src/nsMsgI18N.h"
 
 // just for CONTRACTIDs
 #include "nsCharsetConverterManager.h"
 
-MOZ_RUNINIT static nsCOMPtr<nsIStringBundle> sDataBundle;
-
 // Class nsCharsetConverterManager [implementation]
 
 NS_IMPL_ISUPPORTS(nsCharsetConverterManager, nsICharsetConverterManager)
-
-nsCharsetConverterManager::nsCharsetConverterManager() {}
-
-nsCharsetConverterManager::~nsCharsetConverterManager() {
-  sDataBundle = nullptr;
-}
-
-static nsresult LoadBundle(const char* aBundleURLSpec,
-                           nsIStringBundle** aResult) {
-  nsCOMPtr<nsIStringBundleService> sbServ =
-      mozilla::components::StringBundle::Service();
-  if (!sbServ) return NS_ERROR_FAILURE;
-
-  return sbServ->CreateBundle(aBundleURLSpec, aResult);
-}
-
-static nsresult GetBundleValueInner(nsIStringBundle* aBundle, const char* aName,
-                                    const nsString& aProp, nsAString& aResult) {
-  nsAutoString key;
-
-  CopyASCIItoUTF16(mozilla::MakeStringSpan(aName), key);
-  ToLowerCase(key);  // we lowercase the main comparison key
-  key.Append(aProp);
-
-  return aBundle->GetStringFromName(NS_ConvertUTF16toUTF8(key).get(), aResult);
-}
-
-static nsresult GetBundleValue(nsIStringBundle* aBundle, const char* aName,
-                               const nsString& aProp, nsAString& aResult) {
-  nsresult rv = NS_OK;
-
-  nsAutoString value;
-  rv = GetBundleValueInner(aBundle, aName, aProp, value);
-  if (NS_FAILED(rv)) return rv;
-
-  aResult = value;
-
-  return NS_OK;
-}
-
-static nsresult GetCharsetDataImpl(const char* aCharset, const char16_t* aProp,
-                                   nsAString& aResult) {
-  NS_ENSURE_ARG_POINTER(aCharset);
-  // aProp can be nullptr
-
-  if (!sDataBundle) {
-    nsresult rv = LoadBundle("resource://gre-resources/charsetData.properties",
-                             getter_AddRefs(sDataBundle));
-    if (NS_FAILED(rv)) return rv;
-  }
-
-  return GetBundleValue(sDataBundle, aCharset, nsDependentString(aProp),
-                        aResult);
-}
-
-// static
-bool nsCharsetConverterManager::IsInternal(const nsACString& aCharset) {
-  nsAutoString str;
-  // fully qualify to possibly avoid vtable call
-  nsresult rv = GetCharsetDataImpl(PromiseFlatCString(aCharset).get(),
-                                   u".isInternal", str);
-
-  return NS_SUCCEEDED(rv);
-}
 
 //----------------------------------------------------------------------------//----------------------------------------------------------------------------
 // Interface nsICharsetConverterManager [implementation]
@@ -110,40 +40,57 @@ nsCharsetConverterManager::GetCharsetAlias(const char* aCharset,
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetData(const char* aCharset,
-                                          const char16_t* aProp,
-                                          nsAString& aResult) {
-  return GetCharsetDataImpl(aCharset, aProp, aResult);
-}
-
-NS_IMETHODIMP
 nsCharsetConverterManager::GetCharsetLangGroup(const char* aCharset,
                                                nsACString& aResult) {
-  // resolve the charset first
-  nsAutoCString charset;
-
-  nsresult rv = GetCharsetAlias(aCharset, charset);
+  // Resolve a possible charset alias first.
+  nsAutoCString label;
+  nsresult rv = GetCharsetAlias(aCharset, label);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // fully qualify to possibly avoid vtable call
-  return nsCharsetConverterManager::GetCharsetLangGroupRaw(charset.get(),
-                                                           aResult);
+  // There is no UTF-7 mozilla::Encoding, so we do this replacement which
+  // yields the same result.
+  if (label.Equals("UTF-7")) {
+    label = "utf-8";
+  }
+
+  const mozilla::Encoding* encoding = mozilla::Encoding::ForLabel(label);
+  if (!encoding) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
+  // Unfortunately, the Mozilla lookup function returns the current
+  // locale for these encodings, so we check these directly.
+  const mozilla::NotNull<const mozilla::Encoding*>* xUnicodeEncodings[] = {
+      &UTF_8_ENCODING, &UTF_16BE_ENCODING, &UTF_16LE_ENCODING,
+      &REPLACEMENT_ENCODING, &X_USER_DEFINED_ENCODING};
+  for (auto& xUnicodeEncoding : xUnicodeEncodings) {
+    if (*xUnicodeEncoding == encoding) {
+      aResult = "x-unicode";
+      return NS_OK;
+    }
+  }
+  nsAtom* lang = mozilla::intl::EncodingToLang::Lookup(WrapNotNull(encoding));
+  lang->ToUTF8String(aResult);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsCharsetConverterManager::GetCharsetLangGroupRaw(const char* aCharset,
-                                                  nsACString& aResult) {
-  nsAutoString langGroup;
-  // fully qualify to possibly avoid vtable call
-  nsresult rv = nsCharsetConverterManager::GetCharsetData(
-      aCharset, u".LangGroup", langGroup);
-
-  if (NS_SUCCEEDED(rv)) {
-    ToLowerCase(langGroup);  // use lowercase for all language groups
-    aResult = NS_ConvertUTF16toUTF8(langGroup);
+nsCharsetConverterManager::IsMultiByteCharset(const char* aCharset,
+                                              bool* aResult) {
+  if (!aCharset) {
+    *aResult = false;
+    return NS_OK;
   }
-
-  return rv;
+  nsAutoCString label(aCharset);
+  ToLowerCase(label);
+  const mozilla::Encoding* encoding = mozilla::Encoding::ForLabel(label);
+  if (!encoding) {
+    // mozilla::Encoding doesn't know about UTF-7, which is also multi byte.
+    *aResult = label.Equals("utf-7");
+    return NS_OK;
+  }
+  *aResult = !encoding->IsSingleByte();
+  return NS_OK;
 }
 
 NS_IMETHODIMP

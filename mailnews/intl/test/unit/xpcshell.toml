@@ -1,6 +1,8 @@
 [DEFAULT]
 head = "head_CharsetConversionTests.js"
 
+["test_charset_functions.js"]
+
 ["test_decode_utf-7.js"]
 
 ["test_decode_utf-7_internal.js"]

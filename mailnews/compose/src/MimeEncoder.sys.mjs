@@ -111,11 +111,7 @@ export class MimeEncoder {
       const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
         Ci.nsICharsetConverterManager
       );
-      let isCharsetMultiByte = false;
-      try {
-        isCharsetMultiByte =
-          manager.getCharsetData(this._charset, ".isMultibyte") == "true";
-      } catch {}
+      const isCharsetMultiByte = manager.isMultiByteCharset(this._charset);
 
       // If the Mail charset is multibyte, we force it to use Base64 for
       // attachments.

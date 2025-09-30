@@ -17,12 +17,10 @@ class nsCharsetConverterManager : public nsICharsetConverterManager {
   NS_DECL_NSICHARSETCONVERTERMANAGER
 
  public:
-  nsCharsetConverterManager();
+  nsCharsetConverterManager() = default;
 
  private:
-  virtual ~nsCharsetConverterManager();
-
-  static bool IsInternal(const nsACString& aCharset);
+  virtual ~nsCharsetConverterManager() {}
 };
 
 #endif  // COMM_MAILNEWS_INTL_NSCHARSETCONVERTERMANAGER_H_

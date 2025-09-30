@@ -49,8 +49,9 @@ nsresult nsCharsetAlias::GetPreferred(const nsACString& aAlias,
   nsresult res = GetPreferredInternal(aAlias, oResult);
   if (NS_FAILED(res)) return res;
 
-  if (nsCharsetConverterManager::IsInternal(oResult))
+  if (oResult.Equals("replacement")) {
     return NS_ERROR_UCONV_NOCONV;
+  }
 
   return res;
 }
