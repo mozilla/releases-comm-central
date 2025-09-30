@@ -764,14 +764,27 @@ export var MsgUtils = {
       }
       return uri;
     }
+    // Note: we SHOULD use the getOrCreate*Folder functions here, as that is
+    // meant to be responsible for creating folders. But it currently can't
+    // create folders on remote servers, which we need. Instead we've reverted
+    // to an earlier behaviour of just returning the URI if it is set, and
+    // letting the caller create the folder.
     if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft) {
-      return userIdentity.getOrCreateDraftsFolder().URI;
+      return (
+        userIdentity.draftsFolderURI ||
+        userIdentity.getOrCreateDraftsFolder().URI
+      );
     }
     if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
-      return userIdentity.getOrCreateTemplatesFolder().URI;
+      return (
+        userIdentity.templatesFolderURI ||
+        userIdentity.getOrCreateTemplatesFolder().URI
+      );
     }
     if (userIdentity.doFcc) {
-      return userIdentity.getOrCreateFccFolder().URI;
+      return (
+        userIdentity.fccFolderURI || userIdentity.getOrCreateFccFolder().URI
+      );
     }
     return "";
   },

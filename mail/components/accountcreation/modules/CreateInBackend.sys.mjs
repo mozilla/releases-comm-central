@@ -262,6 +262,7 @@ async function createAccountInBackend(config) {
   }
 
   verifyLocalFoldersAccount();
+  setFolders(identity, inServer);
 
   // save
   MailServices.accounts.saveAccountInfo();
@@ -271,6 +272,24 @@ async function createAccountInBackend(config) {
     lazy.AccountCreationUtils.ddump("Could not write out prefs: " + ex);
   }
   return account;
+}
+
+function setFolders(identity, server) {
+  // TODO: support for local folders for global inbox (or use smart search
+  // folder instead)
+
+  // Names will be localized in UI, not in folder names on server/disk
+  // TODO allow to override these names in the XML config file,
+  // in case e.g. Google or AOL use different names?
+  // Workaround: Let user fix it :)
+  const baseURI = server.serverURI + "/";
+  identity.fccFolderURI = baseURI + "Sent";
+  identity.draftsFolderURI = baseURI + "Drafts";
+  identity.templatesFolderURI = baseURI + "Templates";
+
+  identity.fccFolderPickerMode = 0;
+  identity.draftsFolderPickerMode = 0;
+  identity.templatesFolderPickerMode = 0;
 }
 
 async function rememberPassword(server, password) {
