@@ -12,7 +12,7 @@ GECKO_PATH=${GECKO_PATH:-"/builds/worker/workspace/build/src"}
 MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/fetches"}
 UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
-MACOS_SDK_DIR=${MACOS_SDK_DIR:-"MacOSX15.5.sdk"}
+MACOS_SDK_DIR=${MACOS_SDK_DIR:-"MacOSX26.0.sdk"}
 MACOS_TARGET_SDK=${MACOS_TARGET_SDK:-"10.15"}
 
 
