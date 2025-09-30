@@ -1,0 +1,43 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.accounthub.addressbook.enabled=false", # TODO Remove in Bug 1991626
+  "mail.biff.show_alert=false",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.default_sort_order=1",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "files/**",
+]
+
+# Tests in this folder are split across multiple manifests. When adding a test,
+# please put it in the manifest with its (alphabetical) neighbours.
+
+["browser_navigation.js"]
+
+["browser_oAuth2Window.js"]
+tags = ["oauth"]
+
+["browser_paneFocus.js"]
+
+["browser_preferDisplayName.js"]
+
+["browser_quota.js"]
+
+["browser_reloadBadMessage.js"]
+
+["browser_repairFolder.js"]
+
+["browser_searchMessages.js"]
+
+["browser_smartFolderDelete.js"]
+tags = ["virtualfolders"]
+
+["browser_statusFeedback.js"]

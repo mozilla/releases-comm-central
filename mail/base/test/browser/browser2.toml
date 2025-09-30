@@ -1,0 +1,45 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.accounthub.addressbook.enabled=false", # TODO Remove in Bug 1991626
+  "mail.biff.show_alert=false",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.default_sort_order=1",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+support-files = [
+  "files/**",
+]
+
+# Tests in this folder are split across multiple manifests. When adding a test,
+# please put it in the manifest with its (alphabetical) neighbours.
+
+["browser_feedBodyScroll.js"]
+
+["browser_findbar.js"]
+
+["browser_folderTreeProperties.js"]
+tags = ["virtualfolders"]
+
+["browser_folderTreeQuirks.js"]
+tags = ["virtualfolders"]
+
+["browser_groupedBySortPersistence.js"]
+tags = ["virtualfolders"]
+
+["browser_interactionTelemetry.js"]
+
+["browser_mailTabsAndWindows.js"]
+
+["browser_manualSortFolders.js"]
+skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+
+["browser_markAsRead.js"]
+
+["browser_messageBodyAs.js"]

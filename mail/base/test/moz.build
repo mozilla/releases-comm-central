@@ -9,7 +9,10 @@ with Files("**"):
 DIRS += ["browser/webextensions"]
 
 BROWSER_CHROME_MANIFESTS += [
-    "browser/browser.toml",
+    "browser/browser1.toml",
+    "browser/browser2.toml",
+    "browser/browser3.toml",
+    "browser/browser4.toml",
     "browser/detachedWindows/browser.toml",
     "browser/getMessages/browser.toml",
     "browser/menus/browser.toml",
