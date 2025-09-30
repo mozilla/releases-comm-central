@@ -8,11 +8,7 @@
 
 #include "nsICharsetConverterManager.h"
 
-class nsCharsetAlias;
-
 class nsCharsetConverterManager : public nsICharsetConverterManager {
-  friend class nsCharsetAlias;
-
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSICHARSETCONVERTERMANAGER
 

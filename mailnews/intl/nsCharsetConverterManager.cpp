@@ -3,40 +3,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsString.h"
-#include "nsCharsetAlias.h"
-#include "nsICharsetConverterManager.h"
-#include "mozilla/intl/EncodingToLang.h"
-
-#include "../base/src/nsMsgI18N.h"
-
-// just for CONTRACTIDs
 #include "nsCharsetConverterManager.h"
 
-// Class nsCharsetConverterManager [implementation]
+#include "../base/src/nsMsgI18N.h"
+#include "mozilla/intl/EncodingToLang.h"
+#include "nsICharsetConverterManager.h"
+#include "nsString.h"
+#include "nsUConvPropertySearch.h"
 
 NS_IMPL_ISUPPORTS(nsCharsetConverterManager, nsICharsetConverterManager)
 
-//----------------------------------------------------------------------------//----------------------------------------------------------------------------
-// Interface nsICharsetConverterManager [implementation]
+static const nsUConvProp kAliases[] = {
+#include "charsetalias.properties.h"
+};
 
-// XXX Improve the implementation of this method. Right now, it is build on
-// top of the nsCharsetAlias service. We can make the nsCharsetAlias
-// better, with its own hash table (not the StringBundle anymore) and
-// a nicer file format.
+// TODO: Improve the implementation of this method and get rid of the
+// props2arrays.py script and the need to use nsUConvPropertySearch.
 NS_IMETHODIMP
 nsCharsetConverterManager::GetCharsetAlias(const char* aCharset,
                                            nsACString& aResult) {
   NS_ENSURE_ARG_POINTER(aCharset);
+  nsAutoCString label(aCharset);
+  if (label.IsEmpty()) return NS_ERROR_NULL_POINTER;
+  ToLowerCase(label);
+
+  const mozilla::Encoding* encoding = mozilla::Encoding::ForLabel(label);
+  if (encoding) {
+    if (encoding == REPLACEMENT_ENCODING) {
+      return NS_ERROR_UCONV_NOCONV;
+    }
+    encoding->Name(aResult);
+    return NS_OK;
+  }
 
   // We try to obtain the preferred name for this charset from the charset
   // aliases.
-  nsresult rv;
+  nsresult rv = nsUConvPropertySearch::SearchPropertyValue(
+      kAliases, std::size(kAliases), label, aResult);
+  if (NS_SUCCEEDED(rv)) {
+    return NS_OK;
+  }
 
-  rv = nsCharsetAlias::GetPreferred(nsDependentCString(aCharset), aResult);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return NS_OK;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP

@@ -11,6 +11,16 @@ add_task(async function test_getCharsetAlias() {
   const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
     Ci.nsICharsetConverterManager
   );
+  Assert.equal(manager.getCharsetAlias("UtF-7"), "UTF-7");
+  Assert.equal(manager.getCharsetAlias("utF-8"), "UTF-8");
+  Assert.equal(manager.getCharsetAlias("iso8859_1"), "windows-1252");
+  Assert.equal(manager.getCharsetAlias("CP936"), "GBK");
+  Assert.equal(manager.getCharsetAlias("X-User-Defined"), "x-user-defined");
+  Assert.throws(
+    () => manager.getCharsetAlias("replacement"),
+    /Component returned failure code: 0x80500001/,
+    `"replacement" should throw NS_ERROR_UCONV_NOCONV"`
+  );
   Assert.throws(
     () => manager.getCharsetAlias("this-shouldnt-exist"),
     /Component returned failure code: 0x80040111/,

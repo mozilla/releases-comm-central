@@ -15,8 +15,9 @@
 interface nsICharsetConverterManager : nsISupports
 {
     /**
-     * A shortcut to calling nsICharsetAlias to do alias resolution
-     * @throws if aCharset is an unknown charset.
+     * Do alias resolution.
+     * @throws if aCharset is an unknown charset or not to be used in untrusted
+     *   web content.
      */
     ACString getCharsetAlias(in string aCharset);
 
