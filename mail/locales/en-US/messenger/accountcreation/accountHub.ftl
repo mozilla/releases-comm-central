@@ -82,8 +82,7 @@ account-hub-result-hostname-label = Hostname
 
 account-hub-result-socket-type-label = Connection security
 
-account-hub-port-label = Port
-    .title = Set the port number to 0 for autodetection
+account-hub-on-port-label = Port
 
 account-hub-auto-description = { -brand-short-name } will attempt to auto-detect fields that are left blank.
 
