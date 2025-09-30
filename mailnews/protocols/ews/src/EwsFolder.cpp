@@ -1319,8 +1319,7 @@ NS_IMETHODIMP EwsFolder::GetAutoSyncStateObj(
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsFolder::HandleDownloadedMessages(
-    nsTArray<nsMsgKey> const& msgs) {
+NS_IMETHODIMP EwsFolder::HandleDownloadedMessages() {
   // There may be filters that were waiting for the full message.
   PerformFiltering();
   return NS_OK;

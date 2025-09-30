@@ -319,11 +319,11 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   //       local copy of this message?
   return EwsFetchMsgsToOffline(
       folder, {msgKey},
-      [self = RefPtr(this), ewsFolder, msgKey,
+      [self = RefPtr(this), ewsFolder,
        listener = nsCOMPtr(aListener)](nsresult status) {
         if (NS_SUCCEEDED(status)) {
           // Let the folder know a message has been downloaded.
-          ewsFolder->HandleDownloadedMessages({msgKey});
+          ewsFolder->HandleDownloadedMessages();
 
           // Yay! We've now got the offline copy in the store.
           // Can start streaming it out now....
