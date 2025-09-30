@@ -209,11 +209,9 @@ function openAccountSetup(isInitialSetup = false) {
   const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   mail3Pane.focus();
 
-  // Only show the Account Hub if this is not the initial setup and there is at
-  // least one account set up already.
+  // Only show the Account Hub if this is not the initial setup.
   if (
     !isInitialSetup &&
-    MailServices.accounts.accounts.length &&
     Services.prefs.getBoolPref("mail.accounthub.enabled", false)
   ) {
     mail3Pane.openAccountHub();
