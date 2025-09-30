@@ -396,15 +396,17 @@ function subtest_config_results(template, configType) {
   );
 
   Assert.equal(
-    template.l10n.getAttributes(template.querySelector("#incomingAuth")).id,
+    template.l10n.getAttributes(template.querySelector("#incomingSocketType"))
+      .id,
     "account-setup-result-ssl",
-    `${configType}: Incoming auth should be expected auth`
+    `${configType}: Incoming socketType should be as expected`
   );
 
   Assert.equal(
-    template.l10n.getAttributes(template.querySelector("#outgoingAuth")).id,
+    template.l10n.getAttributes(template.querySelector("#outgoingSocketType"))
+      .id,
     "account-setup-result-ssl",
-    `${configType}: Outgoing auth should be expected auth`
+    `${configType}: Outgoing socketType should be as expected`
   );
 
   Assert.equal(

@@ -80,8 +80,7 @@ account-hub-protocol-label = Protocol
 account-hub-result-hostname-label = Hostname
     .title = Hostname
 
-account-hub-result-authentication-label = Authentication
-    .title = Authentication
+account-hub-result-socket-type-label = Connection security
 
 account-hub-port-label = Port
     .title = Set the port number to 0 for autodetection
@@ -90,13 +89,10 @@ account-hub-auto-description = { -brand-short-name } will attempt to auto-detect
 
 account-hub-ssl-label = Connection security
 
-## Incoming/Outgoing SSL Authentication options
+## Incoming/Outgoing authentication method options
 
 account-hub-ssl-autodetect-option =
     .label = Autodetect
-
-account-hub-ssl-no-authentication-option =
-    .label = No authentication
 
 account-hub-ssl-cleartext-password-option =
     .label = Normal password
@@ -104,7 +100,7 @@ account-hub-ssl-cleartext-password-option =
 account-hub-ssl-encrypted-password-option =
     .label = Encrypted password
 
-## Incoming/Outgoing SSL options
+## Incoming/Outgoing connection security options
 
 account-hub-ssl-noencryption-option =
     .label = None

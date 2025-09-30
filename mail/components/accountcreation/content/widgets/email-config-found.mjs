@@ -197,14 +197,14 @@ class EmailConfigFound extends AccountHubStep {
     this.querySelector("#incomingUsername").title = username;
     this.querySelector("#owlExchangeDescription").hidden = true;
     this.querySelector("#editConfiguration").hidden = false;
-    const incomingSSL = Sanitizer.translate(incoming.socketType, {
-      0: "no-encryption",
-      2: "starttls",
-      3: "ssl",
+    const incomingSocketType = Sanitizer.translate(incoming.socketType, {
+      0: "no-encryption", // account-setup-result-no-encryption
+      2: "starttls", // account-setup-result-no-starttls
+      3: "ssl", // account-setup-result-no-ssl
     });
     document.l10n.setAttributes(
-      this.querySelector("#incomingAuth"),
-      `account-setup-result-${incomingSSL}`
+      this.querySelector("#incomingSocketType"),
+      `account-setup-result-${incomingSocketType}`
     );
 
     this.#selectedConfig = this.#currentConfig.copy();
@@ -247,14 +247,14 @@ class EmailConfigFound extends AccountHubStep {
     this.querySelector("#outgoingType").title = outgoing.type;
     this.querySelector("#outgoingHost").title = outgoing.hostname;
     this.querySelector("#outgoingUsername").title = outgoing.username;
-    const outgoingSsl = Sanitizer.translate(outgoing.socketType, {
-      0: "no-encryption",
-      2: "starttls",
-      3: "ssl",
+    const outgoingSocketType = Sanitizer.translate(outgoing.socketType, {
+      0: "no-encryption", // account-setup-result-no-encryption
+      2: "starttls", // account-setup-result-starttls
+      3: "ssl", // account-setup-result-ssl
     });
     document.l10n.setAttributes(
-      this.querySelector("#outgoingAuth"),
-      `account-setup-result-${outgoingSsl}`
+      this.querySelector("#outgoingSocketType"),
+      `account-setup-result-${outgoingSocketType}`
     );
   }
 

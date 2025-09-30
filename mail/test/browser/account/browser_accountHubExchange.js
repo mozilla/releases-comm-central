@@ -180,7 +180,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
 
   Assert.equal(
     configFoundTemplate.l10n.getAttributes(
-      configFoundTemplate.querySelector("#incomingAuth")
+      configFoundTemplate.querySelector("#incomingSocketType")
     ).id,
     "account-setup-result-ssl",
     "Incoming auth should be expected auth"
