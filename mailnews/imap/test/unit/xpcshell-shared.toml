@@ -98,6 +98,8 @@ skip-if = ["os == 'mac'"]
 
 ["test_mailboxes.js"]
 
+["test_multipleCopyNonlocal.js"]
+
 ["test_nsIMsgFolderListenerIMAP.js"]
 
 ["test_offlineCopy.js"]
