@@ -205,7 +205,7 @@ async function subtest(action, expectedParent) {
   // Check that the message was saved to the folder.
 
   await TestUtils.waitForCondition(
-    () => folder.getTotalMessages(false) > 0,
+    () => folder.getTotalMessages(false) - folder.numPendingTotalMessages == 1,
     "waiting for message to exist in folder"
   );
   const copies = [...folder.messages];
