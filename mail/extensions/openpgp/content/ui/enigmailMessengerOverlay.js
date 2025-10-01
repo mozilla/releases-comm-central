@@ -98,10 +98,6 @@ Enigmail.msg = {
 
     Enigmail.msg.savedHeaders = null;
 
-    Enigmail.msg.decryptButton = document.getElementById(
-      "button-enigmail-decrypt"
-    );
-
     setTimeout(function () {
       // if nothing happened, then load all keys after 1 hour
       // to trigger the key check
@@ -138,22 +134,6 @@ Enigmail.msg = {
     onEndHeaders() {},
     onEndAttachments() {},
   },
-
-  /*
-  viewSecurityInfo(event, displaySmimeMsg) {
-    if (event && event.button !== 0) {
-      return;
-    }
-
-    if (gSignatureStatus >= 0 || gEncryptionStatus >= 0) {
-      showMessageReadSecurityInfo();
-    } else if (Enigmail.msg.securityInfo) {
-      this.viewOpenpgpInfo();
-    } else {
-      showMessageReadSecurityInfo();
-    }
-  },
-  */
 
   clearLastMessage() {
     EnigmailSingletons.clearLastDecryptedMessage();
