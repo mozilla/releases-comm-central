@@ -69,7 +69,7 @@ impl SafeListener for SafeEwsMessageFetchListener {
     }
 
     /// Calls [`IEwsMessageFetchListener::OnFetchStop`] with the appropriate arguments.
-    fn on_failure(&self, err: nsresult, _arg: ()) -> Result<(), nsresult> {
-        self.on_fetch_stop(err)
+    fn on_failure(&self, err: &XpComEwsError, _arg: ()) -> Result<(), nsresult> {
+        self.on_fetch_stop(err.into())
     }
 }

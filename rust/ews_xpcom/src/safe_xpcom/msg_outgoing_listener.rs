@@ -4,7 +4,6 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use std::rc::Rc;
 use xpcom::{
     interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
     RefPtr,
@@ -33,12 +32,12 @@ impl SafeMsgOutgoingListener {
     fn on_send_stop(
         &self,
         server_uri: SafeUri,
-        error: Option<Rc<XpComEwsError>>,
+        error: Option<&XpComEwsError>,
         err_msg: Option<nsCString>,
     ) -> Result<(), nsresult> {
         let (status, sec_info) = match error {
             None => (nserror::NS_OK, None),
-            Some(rc) => match rc.as_ref() {
+            Some(rc) => match rc {
                 XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
                     status,
                     transport_security_info,
@@ -68,18 +67,16 @@ impl SafeMsgOutgoingListener {
 
 pub struct OnSendStopArg {
     server_uri: SafeUri,
-    error: Option<Rc<XpComEwsError>>,
     err_msg: Option<nsCString>,
 }
 
-impl<S> From<(SafeUri, Option<Rc<XpComEwsError>>, Option<S>)> for OnSendStopArg
+impl<S> From<(SafeUri, Option<S>)> for OnSendStopArg
 where
     S: Into<nsCString>,
 {
-    fn from((server_uri, error, err_msg): (SafeUri, Option<Rc<XpComEwsError>>, Option<S>)) -> Self {
+    fn from((server_uri, err_msg): (SafeUri, Option<S>)) -> Self {
         Self {
             server_uri,
-            error,
             err_msg: err_msg.map(|s| s.into()),
         }
     }
@@ -95,7 +92,7 @@ impl SafeListener for SafeMsgOutgoingListener {
     }
 
     /// Calls [`nsIMsgOutgoingListener::OnSendStop`] with the appropriate arguments.
-    fn on_failure(&self, _err: nsresult, arg: OnSendStopArg) -> Result<(), nsresult> {
-        self.on_send_stop(arg.server_uri, arg.error, arg.err_msg)
+    fn on_failure(&self, err: &XpComEwsError, arg: OnSendStopArg) -> Result<(), nsresult> {
+        self.on_send_stop(arg.server_uri, Some(err), arg.err_msg)
     }
 }

@@ -55,7 +55,8 @@ pub(crate) trait SafeListener: UnsafeListener {
     /// Safe wrapper for a callback that indicates failure.
     ///
     /// The default implementation works by casting to a [`IEwsFallibleOperationListener`].
-    fn on_failure(&self, err: nsresult, _arg: Self::OnFailureArg) -> Result<(), nsresult> {
+    fn on_failure(&self, err: &XpComEwsError, _arg: Self::OnFailureArg) -> Result<(), nsresult> {
+        let err = err.into();
         let unsafe_listener = self.unsafe_listener();
 
         if let Some(listener) = unsafe_listener.query_interface::<IEwsFallibleOperationListener>() {
@@ -97,7 +98,7 @@ pub fn handle_error<L: SafeListener>(
 ) {
     log::error!("an error occurred when performing operation {op_name}: {err:?}");
 
-    if let Err(err) = listener.on_failure(err.into(), on_failure_arg) {
+    if let Err(err) = listener.on_failure(err, on_failure_arg) {
         log::error!("the error callback returned a failure ({err})");
     }
 }

@@ -8,6 +8,8 @@ use xpcom::{
     RefPtr,
 };
 
+use crate::client::XpComEwsError;
+
 use super::{SafeListener, SafeListenerWrapper, SafeUri};
 
 /// See [`SafeListenerWrapper`].
@@ -43,8 +45,8 @@ impl SafeListener for SafeUrlListener {
 
     /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
     /// arguments.
-    fn on_failure(&self, err: nsresult, uri: SafeUri) -> Result<(), nsresult> {
-        self.on_stop_running_url(uri, err).to_result()?;
+    fn on_failure(&self, err: &XpComEwsError, uri: SafeUri) -> Result<(), nsresult> {
+        self.on_stop_running_url(uri, err.into()).to_result()?;
         Ok(())
     }
 }
