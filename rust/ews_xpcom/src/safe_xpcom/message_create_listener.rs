@@ -6,8 +6,6 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{getter_addrefs, interfaces::IEwsMessageCreateListener, RefPtr};
 
-use crate::client::XpComEwsError;
-
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 
 /// See [`SafeListenerWrapper`].
@@ -63,7 +61,7 @@ impl SafeListener for SafeEwsMessageCreateListener {
 
     /// Calls [`IEwsMessageCreateListener::OnStopCreate`] with the appropriate
     /// arguments.
-    fn on_failure(&self, err: &XpComEwsError, _arg: ()) -> Result<(), nsresult> {
-        self.on_stop_create(err.into())
+    fn on_failure(&self, err: nsresult, _arg: ()) -> Result<(), nsresult> {
+        self.on_stop_create(err)
     }
 }
