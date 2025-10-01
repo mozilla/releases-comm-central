@@ -31,7 +31,6 @@ ChromeUtils.defineESModuleGetters(this, {
 
 Enigmail.hdrView = {
   lastEncryptedUri: null,
-  flexbuttonAction: null,
 
   msgSignedStateString: null,
   msgEncryptedStateString: null,
@@ -353,11 +352,6 @@ Enigmail.hdrView = {
 
         if (msgFrame) {
           msgFrame.addEventListener(
-            "unload",
-            Enigmail.hdrView.messageUnload.bind(Enigmail.hdrView),
-            true
-          );
-          msgFrame.addEventListener(
             "load",
             Enigmail.hdrView.messageLoad.bind(Enigmail.hdrView),
             true
@@ -387,12 +381,6 @@ Enigmail.hdrView = {
     // fire the handlers since some windows open directly with a visible message
     this.messageListener.onStartHeaders();
     this.messageListener.onEndAttachments();
-  },
-
-  messageUnload() {
-    if (Enigmail.hdrView.flexbuttonAction === null) {
-      this.forgetEncryptedMsgKey();
-    }
   },
 
   async messageLoad() {
