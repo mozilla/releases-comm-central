@@ -35,6 +35,11 @@ pub enum AuthErrorOutcome {
 ///
 /// Note the actual error is not included here, because all we need to know here
 /// is that we failed to authenticate against the remote server.
+///
+/// # Safety
+///
+/// The arguments must point to valid objects or be the null pointer. In the
+/// latter case, this function will return [`nserror::NS_ERROR_NULL_POINTER`].
 #[no_mangle]
 pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
     incoming_server: *const nsIMsgIncomingServer,
@@ -156,18 +161,23 @@ where
 
     let mut pressed_button_index: i32 = 0;
     let mut checkbox_check_state = false;
+
+    // SAFETY: `aParent` is always allowed to be null, `aButton1Title` is unused
+    // because `BUTTON_TITLE_IS_STRING` was not set for button 1, `aCheckMsg` is
+    // null to avoid a checkbox, and the remaining values were safely
+    // constructed above.
     unsafe {
         prompt_service.ConfirmEx(
-            ptr::null(),
-            title.as_ptr(),
-            message.as_ptr(),
-            button_flags,
-            retry_button.as_ptr(),
-            ptr::null(),
-            new_password_button.as_ptr(),
-            ptr::null(),
-            &mut checkbox_check_state,
-            &mut pressed_button_index,
+            ptr::null(),                  // aParent
+            title.as_ptr(),               // aDialogTitle
+            message.as_ptr(),             // aText
+            button_flags,                 // aButtonFlags
+            retry_button.as_ptr(),        // aButton0Title
+            ptr::null(),                  // aButton1Title
+            new_password_button.as_ptr(), // aButton2Title
+            ptr::null(),                  // aCheckMsg
+            &mut checkbox_check_state,    // aCheckState
+            &mut pressed_button_index,    // retval
         )
     }
     .to_result()?;

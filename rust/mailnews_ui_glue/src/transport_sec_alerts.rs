@@ -10,6 +10,11 @@ use crate::UserInteractiveServer;
 
 /// Handle a transport security failure (e.g. bad certificate) that came from
 /// the given [`nsIMsgIncomingServer`].
+///
+/// # Safety
+///
+/// The arguments must point to valid objects or be the null pointer. In the
+/// latter case, this function will return [`nserror::NS_ERROR_NULL_POINTER`].
 pub unsafe extern "C" fn handle_transport_sec_failure_from_incoming_server(
     incoming_server: *const nsIMsgIncomingServer,
     transport_sec_info: *const nsITransportSecurityInfo,
@@ -47,5 +52,6 @@ where
         get_service::<nsIMsgMailSession>(c"@mozilla.org/messenger/services/session;1")
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
+    // SAFETY: sec_info and uri both point to valid objects
     unsafe { mail_session.AlertCertError(sec_info.coerce(), uri.coerce()) }.to_result()
 }

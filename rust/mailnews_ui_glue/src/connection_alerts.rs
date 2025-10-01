@@ -19,6 +19,12 @@ use crate::{
 ///
 /// If the error matches a known connection error, the user is shown an alert
 /// notification/modal. Otherwise, this does nothing.
+///
+/// # Safety
+///
+/// The `incoming_server` argument must point to a valid object or be the null
+/// pointer. In the latter case, this function will return
+/// [`nserror::NS_ERROR_NULL_POINTER`].
 pub unsafe extern "C" fn maybe_handle_connection_error_from_incoming_server(
     error: nsresult,
     incoming_server: *const nsIMsgIncomingServer,
@@ -84,6 +90,8 @@ where
 {
     let obs_svc: RefPtr<nsIObserverService> = components::Observer::service()?;
     let uri = server.uri()?;
+
+    // SAFETY: uri is a valid object, `aTopic` is constructed inline, and `someData` is optional
     unsafe {
         obs_svc
             .NotifyObservers(
