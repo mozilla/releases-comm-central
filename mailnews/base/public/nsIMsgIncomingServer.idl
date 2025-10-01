@@ -397,6 +397,9 @@ interface nsIMsgIncomingServer : nsISupports {
   /* check if this server allows search operations */
   readonly attribute boolean canSearchMessages;
 
+  /**
+   * Settings for NNTP downloads.
+   */
   attribute nsIMsgDownloadSettings downloadSettings;
 
   /*

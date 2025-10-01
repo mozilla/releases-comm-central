@@ -728,6 +728,9 @@ interface nsIMsgFolder : nsISupports {
   void notifyCompactCompleted();
 
   attribute nsIMsgRetentionSettings retentionSettings;
+  /**
+   * Settings for NNTP downloads.
+   */
   attribute nsIMsgDownloadSettings downloadSettings;
   boolean callFilterPlugins(in nsIMsgWindow aMsgWindow);
 

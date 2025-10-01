@@ -5,6 +5,11 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Service which periodically checks for old messages to delete.
+ * The message retention policy is defined by nsIMsgRetentionSettings.
+ * (defined per folder, with default settings from nsIMsgIncomingServer).
+ */
 [scriptable, uuid(c73294b2-b619-4915-b0e8-314d4215e08d)]
 interface nsIMsgPurgeService : nsISupports {
 

@@ -43,6 +43,11 @@ typedef unsigned long nsMsgRetainByPreference;
 
 [scriptable, uuid(fe8b7cec-eec8-4bcd-82ff-d8bb23cef3da)]
 
+/**
+ * Settings to define policy for deleting old/stale messages.
+ * Defined per folder, with default settings from nsIMsgIncomingServer.
+ * The nsMsgPurgeService runs periodically to perform the deletion.
+ */
 interface nsIMsgRetentionSettings : nsISupports
 {
   const unsigned long nsMsgRetainAll = 1;
@@ -65,6 +70,9 @@ interface nsIMsgRetentionSettings : nsISupports
   attribute boolean applyToFlaggedMessages;
 };
 
+/**
+ * Settings for downloading NNTP messages.
+ */
 [scriptable, uuid(86a9da90-14f1-11d5-a5c0-0060b0fc04b7)]
 interface nsIMsgDownloadSettings : nsISupports
 {
