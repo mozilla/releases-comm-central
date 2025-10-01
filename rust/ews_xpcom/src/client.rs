@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;
 mod mark_as_junk;
@@ -11,7 +12,6 @@ use std::{
     cell::{Cell, RefCell},
     collections::{HashMap, HashSet, VecDeque},
     env,
-    rc::Rc,
 };
 
 use base64::prelude::{Engine, BASE64_STANDARD};
@@ -57,8 +57,7 @@ use crate::{
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
         SafeEwsMessageFetchListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
-        SafeListener, SafeMsgOutgoingListener, SafeUri, SafeUrlListener, StaleMsgDbHeader,
-        UpdatedMsgDbHeader,
+        SafeListener, SafeMsgOutgoingListener, SafeUri, StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
 };
 
@@ -147,62 +146,6 @@ where
             client: moz_http::Client::new(),
             server_version: Cell::new(server_version),
         })
-    }
-
-    /// Performs a connectivity check to the EWS server.
-    ///
-    /// Because EWS does not have a dedicated endpoint to test connectivity and
-    /// authentication, we try to look up the ID of the account's root mail
-    /// folder, since it produces a fairly small request and represents the
-    /// first operation performed when adding a new account to Thunderbird.
-    pub(crate) async fn check_connectivity(self, uri: SafeUri, listener: SafeUrlListener) {
-        listener.on_start_running_url(uri.clone());
-
-        match self.check_connectivity_inner().await {
-            Ok(_) => {
-                let _ = listener.on_success(uri);
-            }
-            Err(err) => {
-                handle_error(&listener, "check connectivity", &err, uri);
-            }
-        }
-    }
-
-    async fn check_connectivity_inner(self) -> Result<(), XpComEwsError> {
-        // Request the EWS ID of the root folder.
-        let get_root_folder = GetFolder {
-            folder_shape: FolderShape {
-                base_shape: BaseShape::IdOnly,
-            },
-            folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: EWS_ROOT_FOLDER.to_string(),
-                change_key: None,
-            }],
-        };
-
-        let response_messages = self
-            // Make authentication failure silent, since all we want to know is
-            // whether our credentials are valid.
-            .make_operation_request(
-                get_root_folder,
-                OperationRequestOptions {
-                    auth_failure_behavior: AuthFailureBehavior::Silent,
-                    ..Default::default()
-                },
-            )
-            .await?
-            .into_response_messages();
-
-        // Get the first (and only) response message so we can inspect it.
-        let response_class = single_response_or_error(response_messages)?;
-        let message = process_response_message_class(GetFolder::NAME, response_class)?;
-
-        // Any error fetching the root folder is fatal, since it likely means
-        // all subsequent request will fail, and that we won't manage to sync
-        // the folder list later.
-        validate_get_folder_response_message(&message)?;
-
-        Ok(())
     }
 
     /// Performs a [`SyncFolderHierarchy` operation] via EWS.
@@ -1018,12 +961,11 @@ where
                 }
             }
             Err(err) => {
-                let err = Rc::new(err);
                 handle_error(
                     &listener,
                     CreateItem::NAME,
-                    err.as_ref(),
-                    (server_uri, Some(err.clone()), None::<String>).into(),
+                    &err,
+                    (server_uri, None::<String>).into(),
                 );
             }
         };
@@ -1938,4 +1880,59 @@ fn response_into_messages<OpResponse: OperationResponse>(
             }
         })
         .collect()
+}
+
+/// Where [`Operation`] represents the types and (de)serialization of an EWS operation,
+/// this trait represents the client implementation of performing an operation.
+pub(crate) trait DoOperation {
+    /// A name of the operation for logging purposes.
+    ///
+    /// This is usually the same as [`Operation::NAME`], but not always, because some
+    /// implementations of `DoOperation` don't correspond 1-to-1 with an EWS operation.
+    const NAME: &str;
+
+    /// The success case return type of [`Self::do_operation`].
+    type Okay;
+
+    /// The listener this operation uses to report success/failure.
+    type Listener: SafeListener;
+
+    /// Do the operation represented. Includes most of the logic, returning any errors encountered.
+    async fn do_operation<ServerT>(
+        &mut self,
+        client: &XpComEwsClient<ServerT>,
+    ) -> Result<Self::Okay, XpComEwsError>
+    where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted;
+
+    /// Turn the succesesfully completed operation into the argument for [`SafeListener::on_success`].
+    fn into_success_arg(self, ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg;
+
+    /// Turn the failed operation into the argument for [`SafeListener::on_failure`].
+    fn into_failure_arg(self) -> <Self::Listener as SafeListener>::OnFailureArg;
+
+    /// Handle the operation done in [`Self::do_operation`]. I.e., calls `do_operation`, and handles
+    /// any errors returned as appropriate.
+    async fn handle_operation<ServerT>(
+        mut self,
+        client: &XpComEwsClient<ServerT>,
+        listener: &Self::Listener,
+    ) where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+        Self: Sized,
+    {
+        match self.do_operation(client).await {
+            Ok(okay) => {
+                if let Err(err) = listener.on_success(self.into_success_arg(okay)) {
+                    log::warn!(
+                        "listener for {} success callback returned an error: {err}",
+                        Self::NAME
+                    );
+                }
+            }
+            Err(err) => {
+                handle_error(listener, Self::NAME, &err, self.into_failure_arg());
+            }
+        }
+    }
 }
