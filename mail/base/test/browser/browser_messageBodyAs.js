@@ -17,6 +17,7 @@ const { GlodaIndexer } = ChromeUtils.importESModule(
 );
 
 const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
 let testFolder, rssFeedFolder;
 
 add_setup(async () => {
@@ -62,28 +63,14 @@ add_setup(async () => {
 });
 
 async function displayMailMessage() {
-  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(testFolder);
-  const testMessages = testFolder.messages;
-
-  const [message] = testMessages;
-  about3Pane.threadTree.selectedIndex = about3Pane.gDBView.findIndexOfMsgHdr(
-    message,
-    false
-  );
+  about3Pane.threadTree.selectedIndex = 0;
   await messageLoadedIn(about3Pane.messageBrowser);
 }
 
 async function displayFeedMessage(websiteLoad = false) {
-  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(rssFeedFolder);
-  const testMessages = rssFeedFolder.messages;
-
-  const [message] = testMessages;
-  about3Pane.threadTree.selectedIndex = about3Pane.gDBView.findIndexOfMsgHdr(
-    message,
-    false
-  );
+  about3Pane.threadTree.selectedIndex = 0;
   if (websiteLoad) {
     const browser =
       about3Pane.messageBrowser.contentDocument.getElementById("messagepane");
@@ -255,6 +242,7 @@ async function subtestFeedBodyAsHiddenForWebsite(
   plaintextModeId,
   useMessageBrowserDocument = false
 ) {
+  about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
   window.FeedMessageHandler.onSelectPref = 0;
 
   await displayFeedMessage(true);
@@ -288,6 +276,7 @@ async function subtestFeedBodyAsHiddenForWebsite(
   mainPopup.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(mainPopup, "hidden");
 
+  about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
   window.FeedMessageHandler.onSelectPref = 1;
 }
 

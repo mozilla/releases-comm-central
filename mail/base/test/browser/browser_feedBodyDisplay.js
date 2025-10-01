@@ -9,6 +9,7 @@ const { FeedUtils } = ChromeUtils.importESModule(
 );
 
 const tabmail = document.getElementById("tabmail");
+const about3Pane = tabmail.currentAbout3Pane;
 let rssFeedFolder;
 
 add_setup(async () => {
@@ -32,18 +33,11 @@ add_setup(async () => {
 });
 
 async function displayFeedMessage(websiteLoad = false) {
-  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(rssFeedFolder);
-  const testMessages = rssFeedFolder.messages;
-
-  const [message] = testMessages;
-  about3Pane.threadTree.selectedIndex = about3Pane.gDBView.findIndexOfMsgHdr(
-    message,
-    false
-  );
+  about3Pane.threadTree.selectedIndex = 0;
   if (websiteLoad) {
     const browser =
-      about3Pane.messageBrowser.contentDocument.getElementById("messagepane");
+      about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
     const url =
       "https://example.org/browser/comm/mail/base/test/browser/files/sampleContent.html";
     if (
@@ -128,9 +122,7 @@ async function subtestCycleThroughFeedFormat(
   );
 
   const browser =
-    tabmail.currentAbout3Pane.messageBrowser.contentDocument.getElementById(
-      "messagepane"
-    );
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   const url =
     "https://example.org/browser/comm/mail/base/test/browser/files/sampleContent.html";
   if (
@@ -170,7 +162,7 @@ async function subtestCycleThroughFeedFormat(
   displayAsMenuPopup.activateItem(summaryItem);
 
   await BrowserTestUtils.waitForPopupEvent(displayAsMenuPopup, "hidden");
-  await messageLoadedIn(tabmail.currentAbout3Pane.messageBrowser);
+  await messageLoadedIn(about3Pane.messageBrowser);
 
   Assert.equal(
     Services.prefs.getIntPref("rss.show.summary"),
@@ -180,13 +172,8 @@ async function subtestCycleThroughFeedFormat(
 }
 
 async function subtestSelectArticleAndCheckMode(website = false) {
-  const about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.messagePane.showStartPage();
   const browser =
-    about3Pane.messageBrowser.contentDocument.getElementById("messagepane");
-  if (browser.contentDocument?.readyState != "complete") {
-    await BrowserTestUtils.browserLoaded(browser, false);
-  }
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
   await displayFeedMessage(website);
 
@@ -239,6 +226,7 @@ add_task(async function test_feedBodyFormat_selectWebsite() {
 
   await subtestSelectArticleAndCheckMode(true);
 
+  about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
   Services.prefs.clearUserPref("rss.show.summary");
 });
 
@@ -247,6 +235,7 @@ add_task(async function test_feedBodyFormat_selectSummary() {
 
   await subtestSelectArticleAndCheckMode(false);
 
+  about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
   Services.prefs.clearUserPref("rss.show.summary");
 });
 
@@ -255,5 +244,6 @@ add_task(async function test_feedBodyFormat_selectFolder() {
 
   await subtestSelectArticleAndCheckMode(true);
 
+  about3Pane.threadTree.selectedIndex = -1; // Clear the displayed message.
   Services.prefs.clearUserPref("rss.show.summary");
 });
