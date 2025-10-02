@@ -165,11 +165,6 @@ const GET_ITEM_RESPONSE_BASE = `${EWS_SOAP_HEAD}
                      xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                      xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <m:ResponseMessages>
-      <m:GetItemResponseMessage ResponseClass="Success">
-        <m:ResponseCode>NoError</m:ResponseCode>
-        <m:Items>
-        </m:Items>
-      </m:GetItemResponseMessage>
     </m:ResponseMessages>
   </m:GetItemResponse>
   ${EWS_SOAP_FOOT}`;
@@ -1341,8 +1336,22 @@ export class EwsServer {
       reqDoc.getElementsByTagName("t:IncludeMimeContent")[0]?.textContent ==
       "true";
 
-    const itemsEl = resDoc.getElementsByTagName("m:Items")[0];
+    const responseMessagesEl =
+      resDoc.getElementsByTagName("m:ResponseMessages")[0];
     reqItemIds.forEach(reqItemId => {
+      const responseMessageEl = resDoc.createElement(
+        "m:GetItemResponseMessage"
+      );
+      responseMessageEl.setAttribute("ResponseClass", "Success");
+      responseMessagesEl.appendChild(responseMessageEl);
+
+      const responseCodeEl = resDoc.createElement("m:ResponseCode");
+      responseCodeEl.textContent = "NoError";
+      responseMessageEl.appendChild(responseCodeEl);
+
+      const itemsEl = resDoc.createElement("m:Items");
+      responseMessageEl.appendChild(itemsEl);
+
       const item = this.#itemIdToItemInfo.get(reqItemId);
       const messageEl = resDoc.createElement("t:Message");
       const itemIdEl = resDoc.createElement("t:ItemId");
@@ -1399,6 +1408,26 @@ export class EwsServer {
             ccRecipientsEl.appendChild(ccMailboxEl);
           }
           messageEl.appendChild(ccRecipientsEl);
+        }
+
+        if (
+          item.syntheticMessage.bodyPart &&
+          item.syntheticMessage.bodyPart.body &&
+          typeof item.syntheticMessage.bodyPart.body == "string"
+        ) {
+          const previewEl = resDoc.createElement("t:Preview");
+          previewEl.textContent = replaceUnicodeInXML(
+            item.syntheticMessage.bodyPart.body
+              .substring(0, 256)
+              // A real EWS server sanitizes the XML string to make it a valid
+              // XML text body.
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/&/g, "&amp;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&apos;")
+          );
+          messageEl.appendChild(previewEl);
         }
 
         if (includeContent) {
@@ -1850,4 +1879,27 @@ function extractMoveObjects(reqDoc, collectionElementName, objectElementName) {
   ].map(e => e.getAttribute("Id"));
 
   return [destinationFolderId, objectIds];
+}
+
+/**
+ * Replace unicode values in a string with an XML entity reference to their codepoint.
+ *
+ * @param {string} s
+ *
+ * @returns {string}
+ */
+function replaceUnicodeInXML(s) {
+  let result = "";
+  for (const c of s) {
+    // eslint-disable-next-line no-control-regex
+    if (/[\x00-\x7f]/.test(c)) {
+      result += c;
+    } else {
+      // Replace the character with a unicode entity reference.
+      const reference =
+        "&#" + `${c}`.charCodeAt().toString().padStart(5, "0") + ";";
+      result += reference;
+    }
+  }
+  return result;
 }

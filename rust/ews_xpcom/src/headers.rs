@@ -52,6 +52,9 @@ pub(crate) trait MessageHeaders {
 
     /// The size of the message in bytes.
     fn size(&self) -> Option<usize>;
+
+    /// A short preview string for the message.
+    fn preview(&self) -> Option<impl AsRef<str>>;
 }
 
 impl MessageHeaders for &ews::Message {
@@ -146,6 +149,10 @@ impl MessageHeaders for &ews::Message {
     fn size(&self) -> Option<usize> {
         self.size
     }
+
+    fn preview(&self) -> Option<impl AsRef<str>> {
+        self.preview.as_ref()
+    }
 }
 
 impl MessageHeaders for mail_parser::Message<'_> {
@@ -233,6 +240,10 @@ impl MessageHeaders for mail_parser::Message<'_> {
 
     fn size(&self) -> Option<usize> {
         Some(self.raw_message.len())
+    }
+
+    fn preview(&self) -> Option<impl AsRef<str>> {
+        None::<String>
     }
 }
 

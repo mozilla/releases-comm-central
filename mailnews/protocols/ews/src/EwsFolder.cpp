@@ -1749,10 +1749,8 @@ NS_IMETHODIMP EwsFolder::FetchMsgPreviewText(
     bool* aAsyncResults) {
   NS_ENSURE_ARG(aAsyncResults);
 
-  // This implementation currently only provides preview content if we have an
-  // offline copy of the message. See
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1985878 for fetching remote
-  // content for notification previews.
+  // We request preview content as part of the initial message sync, so there's
+  // no need for an async request to obtain a preview.
   *aAsyncResults = false;
 
   nsresult rv = NS_OK;

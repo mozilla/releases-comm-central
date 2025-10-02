@@ -92,6 +92,10 @@ impl StaleMsgDbHeader {
             };
         }
 
+        if let Some(preview) = msg.preview() {
+            self.set_preview(preview)?;
+        }
+
         Ok(UpdatedMsgDbHeader(self.0))
     }
 
@@ -196,6 +200,21 @@ impl StaleMsgDbHeader {
     fn set_size(&self, size: u32) -> Result<(), nsresult> {
         // SAFETY: u32 is safe to cross the Rust/C++ boundary.
         unsafe { self.0.SetMessageSize(size) }.to_result()
+    }
+
+    /// A safe wrapper to set the message preview property on a message.
+    fn set_preview(&self, preview: impl AsRef<str>) -> Result<(), nsresult> {
+        // The display code uses a custom string property on the header property
+        // called `preview` to access a short preview of the email.
+        let property_name = c"preview";
+        let preview_text = nsCString::from(preview.as_ref());
+        // SAFETY: The input values are valid and the cast below applies
+        // specifically to a C-String that is guaranteed to be null terminated.
+        unsafe {
+            self.0
+                .SetStringProperty(property_name.as_ptr(), &*preview_text)
+        }
+        .to_result()
     }
 }
 

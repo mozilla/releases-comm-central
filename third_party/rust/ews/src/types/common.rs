@@ -783,6 +783,17 @@ pub struct Message {
 
     #[xml_struct(ns_prefix = "t")]
     pub references: Option<String>,
+
+    /// A short preview of the first 256 characters of an item.
+    ///
+    /// This value isn't documented for either the `Item` or `Message`
+    /// interfaces in the Exchange documentation. However, the element itself is
+    /// documented at
+    /// <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/preview-ex15websvcsotherref>
+    ///
+    /// This element was introduced in Exchange 2013.
+    #[xml_struct(ns_prefix = "t")]
+    pub preview: Option<String>,
 }
 
 /// An extended MAPI property of an Exchange item or folder.

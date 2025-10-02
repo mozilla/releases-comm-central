@@ -351,28 +351,30 @@ where
                 })
                 .collect::<Result<_, _>>()?;
 
+            let mut fields_to_fetch = vec![
+                "message:IsRead",
+                "message:InternetMessageId",
+                "item:InternetMessageHeaders",
+                "item:DateTimeSent",
+                "message:From",
+                "message:ReplyTo",
+                "message:Sender",
+                "item:Subject",
+                "message:ToRecipients",
+                "message:CcRecipients",
+                "message:BccRecipients",
+                "item:HasAttachments",
+                "item:Importance",
+                "message:References",
+                "item:Size",
+            ];
+
+            if self.server_version.get() >= ExchangeServerVersion::Exchange2013 {
+                fields_to_fetch.push("item:Preview");
+            }
+
             let messages_by_id: HashMap<_, _> = self
-                .get_items(
-                    message_ids_to_fetch,
-                    &[
-                        "message:IsRead",
-                        "message:InternetMessageId",
-                        "item:InternetMessageHeaders",
-                        "item:DateTimeSent",
-                        "message:From",
-                        "message:ReplyTo",
-                        "message:Sender",
-                        "item:Subject",
-                        "message:ToRecipients",
-                        "message:CcRecipients",
-                        "message:BccRecipients",
-                        "item:HasAttachments",
-                        "item:Importance",
-                        "message:References",
-                        "item:Size",
-                    ],
-                    false,
-                )
+                .get_items(message_ids_to_fetch, &fields_to_fetch, false)
                 .await?
                 .into_iter()
                 .map(|item| {

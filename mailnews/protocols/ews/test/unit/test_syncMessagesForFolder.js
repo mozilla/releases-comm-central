@@ -301,6 +301,7 @@ class EwsMessageCallbackListener {
       // Just enough to stop the test breaking.
       markHasAttachments() {},
       markRead() {},
+      setStringProperty() {},
     };
   }
   onMessageUpdated(_ewsId) {
@@ -309,6 +310,7 @@ class EwsMessageCallbackListener {
       // Just enough to stop the test breaking.
       markHasAttachments() {},
       markRead() {},
+      setStringProperty() {},
     };
 
     this._deletedMessages.push(hdr);

@@ -12,7 +12,7 @@ const { MockAlertsService } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
 );
 
-var { MessageGenerator } = ChromeUtils.importESModule(
+var { SyntheticPartLeaf, MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
@@ -78,20 +78,33 @@ add_task(async function test_basic_notifications() {
     "inbox should have 0 unread messages at the start"
   );
 
-  await addMessage("inbox", { from: ["friend", "friend@test.invalid"] });
+  const message1Body =
+    "twas brillig and the slithy toves did gyre and gimbal in the wabe";
+  await addMessage("inbox", {
+    from: ["friend", "friend@test.invalid"],
+    bodyPart: new SyntheticPartLeaf(message1Body),
+  });
   incomingServer.performBiff(window.msgWindow);
-  await promiseAlert("friend", "INBOX#");
+  await promiseAlert("friend", "INBOX#", message1Body);
 
   // Add a bunch of messages.
+  const bodies = [
+    "All mimsy were the borogroves and the mome raths outgrabe",
+    "Beware the jabberwock my son",
+    "The jaws that bite, the claws that catch",
+    "Beware the jub jub bird.",
+    "And shun the frumious bandersnatch",
+  ];
   for (let i = 0; i < 20; i++) {
     await addMessage("inbox", {
       from: [`friend${i}`, `friend${i}@test.invalid`],
+      bodyPart: new SyntheticPartLeaf(bodies[i % 5]),
     });
   }
 
   incomingServer.performBiff(window.msgWindow);
   // The notificaiton we get should be about the first message.
-  await promiseAlert("friend0", "INBOX#");
+  await promiseAlert("friend0", "INBOX#", bodies[0]);
 });
 
 /**
@@ -101,7 +114,7 @@ add_task(async function test_basic_notifications() {
  * @param {string} expectedCookie - Part of the expected message's URI, to
  *   check it is the right message.
  */
-async function promiseAlert(expectedSender, expectedCookie) {
+async function promiseAlert(expectedSender, expectedCookie, expectedPreview) {
   const alert = await TestUtils.waitForCondition(
     () => MockAlertsService.alert,
     `waiting for a notification about inbox`
@@ -115,6 +128,15 @@ async function promiseAlert(expectedSender, expectedCookie) {
     alert.cookie.toLowerCase(),
     expectedCookie.toLowerCase(),
     `notification should be about ${expectedCookie}`
+  );
+
+  // The ews server truncates the preview text to the first 256 characters of
+  // the body part, but the notification itself truncates even further. Take
+  // only the first 10 characters to be safe.
+  Assert.stringContains(
+    alert.text,
+    expectedPreview.substring(0, 10),
+    "notification should contain a body preview"
   );
 
   MockAlertsService.listener.observe(null, "alertfinished", alert.cookie);
