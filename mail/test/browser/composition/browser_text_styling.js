@@ -609,3 +609,22 @@ add_task(async function test_fixed_width_text_styling_font_change() {
 
   await close_compose_window(win);
 });
+
+add_task(async function test_insertSmiley() {
+  const win = await open_compose_new_mail();
+  const formatHelper = new FormatHelper(win);
+
+  formatHelper.focusMessage();
+
+  formatHelper.smileButton.click();
+  formatHelper.smileySmileButton.click();
+
+  await TestUtils.waitForTick();
+
+  formatHelper.assertMessageParagraph(
+    [String.fromCodePoint([0x1f642])],
+    "Should have inserted smiley."
+  );
+
+  await close_compose_window(win);
+});

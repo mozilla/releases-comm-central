@@ -179,17 +179,11 @@ function GetComposerCommandTable() {
       doCommand(cmd) {
         return this._commands[cmd].doCommand(cmd, GetCurrentEditorElement());
       },
-      getCommandStateWithParams() {
-        throw Components.Exception(
-          "Not implemented",
-          Cr.NS_ERROR_NOT_IMPLEMENTED
-        );
+      getCommandStateWithParams(cmd, params) {
+        return this._commands[cmd].getCommandStateParams(cmd, params);
       },
-      doCommandWithParams() {
-        throw Components.Exception(
-          "Not implemented",
-          Cr.NS_ERROR_NOT_IMPLEMENTED
-        );
+      doCommandWithParams(cmd, params) {
+        return this._commands[cmd].doCommandParams(cmd, params);
       },
       QueryInterface: ChromeUtils.generateQI([
         "nsIController",

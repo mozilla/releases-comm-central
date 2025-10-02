@@ -817,6 +817,11 @@ export class FormatHelper {
     /** The remove text styling menu item. */
     this.removeStylingMenuItem = this._getById("removeStylesMenuitem");
 
+    /** The toobar emoticon selection button. */
+    this.smileButton = this._getById("smileButtonMenu");
+    /** The smile button within the smiley popup */
+    this.smileySmileButton = this._getById("smileySmile");
+
     this.messageEditor = this._getById("messageEditor");
     /** The Window of the message content. */
     this.messageWindow = this.messageEditor.contentWindow;
