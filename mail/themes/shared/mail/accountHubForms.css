@@ -89,6 +89,12 @@ form {
     }
   }
 
+  label:has(+ .input-control input:required)::after ,
+  input:required + label::after {
+    content: "*";
+    color: var(--color-text-critical);
+  }
+
   .selected-option {
     padding-block: 13px;
     padding-inline: 10px;
