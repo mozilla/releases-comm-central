@@ -26,9 +26,6 @@ ChromeUtils.defineESModuleGetters(this, {
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
 });
 
-// This global is for SeaMonkey compatibility.
-var gShowFeedSummary;
-
 var FeedMessageHandler = {
   gShowSummary: true,
   gToggle: false,
@@ -106,7 +103,7 @@ var FeedMessageHandler = {
 
     if (aToggle) {
       // Toggle mode, flip value.
-      return (gShowFeedSummary = this.gShowSummary = !this.gShowSummary);
+      return (this.gShowSummary = !this.gShowSummary);
     }
 
     const wintype = document.documentElement.getAttribute("windowtype");
@@ -141,7 +138,7 @@ var FeedMessageHandler = {
       }
     }
 
-    gShowFeedSummary = this.gShowSummary = showSummary;
+    this.gShowSummary = showSummary;
 
     if (messageWindow || messageTab) {
       // Message opened in either standalone window or tab, due to either
@@ -304,7 +301,7 @@ function openComposeWindowForRSSArticle(
     !is3pane &&
     FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenWebPage;
 
-  if (gShowFeedSummary && !showingwebpage) {
+  if (FeedMessageHandler.gShowSummary && !showingwebpage) {
     // The user is viewing the summary.
     MailServices.compose.OpenComposeWindow(
       aMsgComposeWindow,
