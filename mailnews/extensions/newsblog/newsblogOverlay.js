@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals ReloadMessage, getMessagePaneBrowser, openContentTab,
-           GetNumSelectedMessages, gMessageNotificationBar */
+   gMessageNotificationBar */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -235,7 +235,7 @@ var FeedMessageHandler = {
   setContent(aMsgHdr, aShowSummary) {
     if (aShowSummary) {
       // Only here if toggling to summary in 3pane.
-      if (this.gToggle && window.gDBView && GetNumSelectedMessages() == 1) {
+      if (this.gToggle && window.gDBView) {
         ReloadMessage();
       }
     } else {
