@@ -26,7 +26,6 @@ class nsRssIncomingServer : public nsMailboxServer,
   nsresult CreateRootFolder() override;
 #endif  // MOZ_PANORAMA
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
-  NS_IMETHOD GetSupportsDiskSpace(bool* aSupportsDiskSpace) override;
   NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
   NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(

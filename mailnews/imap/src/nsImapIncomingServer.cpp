@@ -2486,20 +2486,6 @@ nsImapIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsImapIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
-  NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
-
-  nsAutoCString host;
-  nsresult rv = GetHostName(host);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsFmtCString prefName(FMT_STRING("default_supports_diskspace.{}"), host);
-  *aSupportsDiskSpace = Preferences::GetBool(prefName.get(), true);
-
-  return NS_OK;
-}
-
 // Check whether all connections in the cache are idle.
 NS_IMETHODIMP
 nsImapIncomingServer::GetAllConnectionsIdle(bool* aAllIdle) {

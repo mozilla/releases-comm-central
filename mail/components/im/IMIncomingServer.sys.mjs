@@ -33,9 +33,6 @@ IMIncomingServer.prototype = {
   get offlineSupportLevel() {
     return 0;
   },
-  get supportsDiskSpace() {
-    return false;
-  },
   _key: "",
   get key() {
     return this._key;

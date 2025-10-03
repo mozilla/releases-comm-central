@@ -148,13 +148,6 @@ NS_IMETHODIMP nsRssIncomingServer::GetOfflineSupportLevel(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetSupportsDiskSpace(
-    bool* aSupportsDiskSpace) {
-  NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
-  *aSupportsDiskSpace = true;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsRssIncomingServer::GetServerRequiresPasswordForBiff(
     bool* aServerRequiresPasswordForBiff) {
   NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);

@@ -1474,13 +1474,6 @@ NS_IMETHODIMP nsMsgIncomingServer::SetDownloadSettings(
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
-  NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
-  *aSupportsDiskSpace = true;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
 

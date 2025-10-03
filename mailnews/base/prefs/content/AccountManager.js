@@ -1829,12 +1829,13 @@ var gAccountTree = {
           panelsToKeep.push(panels[5]);
         }
 
-        // Check offline/diskspace support level.
-        const diskspace = server.supportsDiskSpace;
-        if (server.offlineSupportLevel >= 10 && diskspace) {
-          panelsToKeep.push(panels[2]);
-        } else if (diskspace) {
-          panelsToKeep.push(panels[3]);
+        // Add the synchronization/diskspace panel?
+        if (server.type != "im") {
+          if (server.offlineSupportLevel >= 10) {
+            panelsToKeep.push(panels[2]); // As "Synchronization & Storage".
+          } else {
+            panelsToKeep.push(panels[3]); // As "Disk Space".
+          }
         }
 
         // extensions

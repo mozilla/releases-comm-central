@@ -420,9 +420,6 @@ interface nsIMsgIncomingServer : nsISupports {
    */
   readonly attribute long offlineSupportLevel;
 
-  /* does this server have disk space settings? */
-  readonly attribute boolean supportsDiskSpace;
-
   /**
    * Hide this server/account from the UI - used for smart mailboxes.
    * The server can be retrieved from the account manager by name using the

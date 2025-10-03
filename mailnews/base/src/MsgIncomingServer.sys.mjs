@@ -251,7 +251,6 @@ export class MsgIncomingServer {
     this.biffState = Ci.nsIMsgFolder.nsMsgBiffState_Unknown;
     this.canHaveFilters = true;
     this.canBeDefaultServer = false;
-    this.supportsDiskSpace = true;
 
     // @type {Map<string, number>} - The key is MsgId+Subject, the value is
     //   this._hdrIndex.

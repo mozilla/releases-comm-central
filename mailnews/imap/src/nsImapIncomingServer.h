@@ -49,7 +49,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD GetCanBeDefaultServer(bool* canBeDefaultServer) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
-  NS_IMETHOD GetSupportsDiskSpace(bool* aSupportsDiskSpace) override;
   NS_IMETHOD GetCanCreateFoldersOnServer(
       bool* aCanCreateFoldersOnServer) override;
   NS_IMETHOD GetCanFileMessagesOnServer(
