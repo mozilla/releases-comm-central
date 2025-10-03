@@ -32,8 +32,6 @@ use safe_xpcom::{
     SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUri, SafeUrlListener,
 };
 
-use crate::authentication::credentials::OAuthOverrides;
-
 mod authentication;
 mod cancellable_request;
 mod client;
@@ -75,33 +73,17 @@ struct EwsConnectionDetails {
 }
 
 impl XpcomEwsBridge {
-    xpcom_method!(initialize => Initialize(endpoint: *const nsACString, server: *const nsIMsgIncomingServer, override_oauth_details: bool, application_id: *const nsACString, tenant_id: *const nsACString, redirect_uri: *const nsACString, endpoint_host: *const nsACString, scopes: *const nsACString));
+    xpcom_method!(initialize => Initialize(
+        endpoint: *const nsACString,
+        server: *const nsIMsgIncomingServer));
     fn initialize(
         &self,
         endpoint: &nsACString,
         server: &nsIMsgIncomingServer,
-        override_oauth_details: bool,
-        application_id: &nsACString,
-        tenant_id: &nsACString,
-        redirect_uri: &nsACString,
-        endpoint_host: &nsACString,
-        scopes: &nsACString,
     ) -> Result<(), nsresult> {
         let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
 
-        let override_details = if override_oauth_details {
-            Some(OAuthOverrides {
-                application_id: application_id.to_string(),
-                tenant_id: tenant_id.to_string(),
-                redirect_uri: redirect_uri.to_string(),
-                endpoint_host: endpoint_host.to_string(),
-                scopes: scopes.to_string(),
-            })
-        } else {
-            None
-        };
-
-        let credentials = server.get_credentials(override_details)?;
+        let credentials = server.get_credentials()?;
         let server = RefPtr::new(server);
 
         self.details

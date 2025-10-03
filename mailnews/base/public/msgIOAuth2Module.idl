@@ -5,23 +5,10 @@
 
 #include "nsISupports.idl"
 
+interface IOAuth2CustomDetails;
+interface msgIOAuth2ModuleListener;
 interface nsIMsgIncomingServer;
 interface nsIMsgOutgoingServer;
-
-/**
- * A listener callback for OAuth2 SASL authentication. This would be represented
- * as a promise, but this needs to be consumed by C++ code.
- */
-[scriptable, uuid(9a088b49-bc13-4f99-9478-053a6a43e370)]
-interface msgIOAuth2ModuleListener : nsISupports {
-  /**
-   * Called on successful OAuth2 authentication.
-   */
-  void onSuccess(in ACString aBearerToken);
-
-  /// Called on failed OAuth2 authentication.
-  void onFailure(in nsresult aError);
-};
 
 /**
  * An interface for managing the responsibilities of using OAuth2 to produce a
@@ -36,8 +23,14 @@ interface msgIOAuth2Module : nsISupports {
    * If the prefs for the server don't include an OAuth2 config, but one could
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
+   *
+   * The `aCustomDetails` parameter, if non-null, will be used to override
+   * default server settings from the known providers list or enable an unknown
+   * provider.
    */
-  boolean initFromOutgoing(in nsIMsgOutgoingServer aServer);
+  boolean initFromOutgoing(
+    in nsIMsgOutgoingServer aServer,
+    [optional] in IOAuth2CustomDetails aCustomDetails);
 
   /**
    * Initialize the OAuth2 parameters from an incoming server, and return
@@ -46,59 +39,27 @@ interface msgIOAuth2Module : nsISupports {
    * If the prefs for the server don't include an OAuth2 config, but one could
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
+   *
+   * The `aCustomDetails` parameter, if non-null, will be used to override
+   * default server settings from the known providers list or enable an unknown
+   * provider.
    */
-   boolean initFromMail(in nsIMsgIncomingServer aServer);
-
-  /**
-   * Initialize the OAuth2 parameters from an incoming server, and return
-   * whether or not we can authenticate with OAuth2.
-   *
-   * If the prefs for the server don't include an OAuth2 config, but one could
-   * be found among the known OAuth2 providers using the server's hostname,
-   * this config is used instead and stored in the server's prefs.
-   *
-   * If `allowOverrides` is true, implementations should use the provided
-   * override values for the issuer, scopes, and issuer details.
-   *
-   * The `overrideProviderDetails` array is an associative list with key-value
-   * pairs interleaved with one another (i.e. for n key-value pairs, the array
-   * will contain 2*n values). These values are used to override default OAuth
-   * provider issuer details.
-   */
-  boolean initFromMailWithOptionalOverrides(
+   boolean initFromMail(
     in nsIMsgIncomingServer aServer,
-    in boolean allowOverrides,
-    in AUTF8String overrideIssuer,
-    in AUTF8String overrideScopes,
-    in Array<AUTF8String> overrideProviderDetails);
+    [optional] in IOAuth2CustomDetails aCustomDetails);
 
   /**
    * Initialize the OAuth2 parameters using the provided hostname, username,
    * and scope type. Returns whether or not we can authenticate with OAuth2.
    *
-   * If `allowOverrides` is true, implementations should use the provided
-   * override values for the issuer, scopes, and issuer details.
-   *
-   * The `overrideProviderDetails` array is an associative list with key-value
-   * pairs interleaved with one another (i.e. for n key-value pairs, the array
-   * will contain 2*n values). These values are used to override default OAuth
-   * provider issuer details.
-   */
-  boolean initFromHostnameWithOptionalOverrides(in AUTF8String aHostname,
-                           in AUTF8String aUsername,
-                           in AUTF8String aType,
-                           in boolean allowOverrides,
-                           in AUTF8String overrideIssuer,
-                           in AUTF8String overrideScopes,
-                           in Array<AUTF8String> overrideProviderDetails);
-
-  /**
-   * Initialize the OAuth2 parameters using the provided hostname, username,
-   * and scope type. Returns whether or not we can authenticate with OAuth2.
+   * The `aCustomDetails` parameter, if non-null, will be used to override
+   * default server settings from the known providers list or enable an unknown
+   * provider.
    */
   boolean initFromHostname(in AUTF8String aHostname,
                            in AUTF8String aUsername,
-                           in AUTF8String aType);
+                           in AUTF8String aType,
+                           [optional] in IOAuth2CustomDetails aCustomDetails);
 
   /**
    * Connect to the OAuth2 server to get an access token encoded for use with
@@ -126,3 +87,70 @@ interface msgIOAuth2Module : nsISupports {
 %{C++
 #define MSGIOAUTH2MODULE_CONTRACTID "@mozilla.org/mail/oauth2-module;1"
 %}
+
+/**
+ * An interface to access OAuth2 customization parameters.
+ *
+ * OAuth2 customization parameter configuration may differ between protocols and
+ * providers, with certain protocols/providers exposing differing configuration
+ * values to construct the standard set of OAuth2 connection parameters. This
+ * interface exposes the standard set of connection parameters via read-only
+ * attributes. Protocol-specific implementations should accept input for their
+ * specific protocol or provider and, through this interface, map those
+ * configuration values to the standard set of connection parameters.
+ */
+[scriptable, uuid(9db6d3f9-a9dd-481c-91db-da66fcc4bcc5)]
+interface IOAuth2CustomDetails : nsISupports {
+
+  /**
+   * Whether or not to enable the use of custom OAuth2 parameters.
+   *
+   * This is included within the configuration object rather than relying on a
+   * null value to signal whether or not the configuration should be used to
+   * simplify passing the required information across multiple XPCOM language
+   * boundaries. In addition, since whether or not the customization parameters
+   * should be used is a configuration value, providing the explicit value of
+   * that configuration option from this interface centralizes the logic
+   * required to interact with the backing settings, enabling clients to check
+   * the configuration value without understanding how the information is
+   * stored.
+   */
+  readonly attribute boolean useCustomDetails;
+
+  /** The OAuth2 issuer, also known as the endpoint host. */
+  readonly attribute AUTF8String issuer;
+
+  /** The OAuth2 scopes. */
+  readonly attribute AUTF8String scopes;
+
+  // Below are the required attributes to override the issuer configuration.
+
+  /** The client ID, also known as the application ID. */
+  readonly attribute AUTF8String clientId;
+
+  /** The endpoint to use for authorization. */
+  readonly attribute AUTF8String authorizationEndpoint;
+
+  /** The endpoint to use for obtaining tokens. */
+  readonly attribute AUTF8String tokenEndpoint;
+
+  /** The redirection endpoint. */
+  readonly attribute AUTF8String redirectionEndpoint;
+};
+
+/**
+ * A listener callback for OAuth2 SASL authentication. This would be represented
+ * as a promise, but this needs to be consumed by C++ code.
+ */
+[scriptable, uuid(9a088b49-bc13-4f99-9478-053a6a43e370)]
+interface msgIOAuth2ModuleListener : nsISupports {
+  /**
+   * Called on successful OAuth2 authentication.
+   */
+  void onSuccess(in ACString aBearerToken);
+
+  /**
+   * Called on failed OAuth2 authentication.
+   */
+  void onFailure(in nsresult aError);
+};

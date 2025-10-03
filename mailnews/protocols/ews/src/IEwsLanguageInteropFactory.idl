@@ -1,0 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface IOAuth2CustomDetails;
+
+/**
+ * Interface for constructing XPCOM object parameterized on a value.
+ */
+[scriptable, uuid(b783f2c3-f836-4695-a320-1fd8378d57e9)]
+interface IEwsLanguageInteropFactory : nsISupports {
+
+  /**
+   * Return OAuth2 custom details for the given string identifier.
+   */
+  IOAuth2CustomDetails createOAuth2Details(in AUTF8String identifier);
+
+};

@@ -533,24 +533,27 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
 
 add_task(async function testOverrideIssuerDetails() {
   const mod = new OAuth2Module();
-  const isOAuthSupportedWithIssuerDetailOverridesOnly =
-    mod.initFromHostnameWithOptionalOverrides(
-      "test.test",
-      "oscar@test.invalid",
-      "ews",
-      true,
-      "",
-      "",
-      [
-        "clientId",
-        "custom_client_id",
-        "authorizationEndpoint",
-        "https://oauth2.test2.test2/form",
-      ]
-    );
+
+  class TestOAuth2CustomDetails {
+    useCustomDetails = true;
+    clientId = "custom_client_id";
+    authorizationEndpoint = "https://oauth2.test2.test2/form";
+  }
+
+  const isOAuthSupportedWithIssuerDetailOverridesOnly = mod.initFromHostname(
+    "test.test",
+    "oscar@test.invalid",
+    "ews",
+    new TestOAuth2CustomDetails()
+  );
   Assert.ok(
     isOAuthSupportedWithIssuerDetailOverridesOnly,
     "OAuth should initialize successfully with only issuer detail overrides."
+  );
+  Assert.equal(
+    mod._oauth.clientId,
+    "custom_client_id",
+    "ClientID should have been customized."
   );
   Assert.equal(
     mod._oauth.authorizationEndpoint,
@@ -561,23 +564,21 @@ add_task(async function testOverrideIssuerDetails() {
 
 add_task(async function testOverrideIssuer() {
   const mod = new OAuth2Module();
-  const isOAuthSupportedWithEverythingCustom =
-    mod.initFromHostnameWithOptionalOverrides(
-      "test2.test2",
-      "oscar@test.invalid",
-      "ews",
-      true,
-      "oauth.test2.test2",
-      "custom_scope1 custom_scope2",
-      [
-        "clientId",
-        "cid",
-        "authorizationEndpoint",
-        "https://oauth2.test2.test2/form",
-        "tokenEndpoint",
-        "https://oauth2.test2.test2/token",
-      ]
-    );
+
+  class TestOAuth2CustomDetails {
+    useCustomDetails = true;
+    issuer = "oauth.test2.test2";
+    scopes = "custom_scope1 custom_scope2";
+    clientId = "cid";
+    authorizationEndpoint = "https://oauth2.test2.test2/form";
+    tokenEndpoint = "https://oauth2.test2.test2/token";
+  }
+  const isOAuthSupportedWithEverythingCustom = mod.initFromHostname(
+    "test2.test2",
+    "oscar@test.invalid",
+    "ews",
+    new TestOAuth2CustomDetails()
+  );
   Assert.ok(
     isOAuthSupportedWithEverythingCustom,
     "Custom OAuth configuration should be supported."

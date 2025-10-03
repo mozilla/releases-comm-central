@@ -47,23 +47,10 @@ interface IEwsClient : nsISupports
    * @param endpoint - The HTTP(S) address of an Exchange server's EWS endpoint.
    * @param server - An incoming server entity corresponding to an EWS-capable
    *   account.
-   * @param overrideOAuthDetails - Whether or not to override OAuth default issuer details.
-   * @param applicationId - The override value for the application (client) ID.
-   * @param tenantId - The override value for the tenant ID.
-   * @param redirectUri - The override value for the redirect URI.
-   * @param endpointHost - The override value for the endpoint host, which also
-   *                       identifies the issuer domain.
-   * @param scopes - The override value for the OAuth scopes.
    */
   void initialize(
     in AUTF8String endpoint,
-    in nsIMsgIncomingServer server,
-    in boolean overrideOAuthDetails,
-    in AUTF8String applicationId,
-    in AUTF8String tenantId,
-    in AUTF8String redirectUri,
-    in AUTF8String endpointHost,
-    in AUTF8String scopes);
+    in nsIMsgIncomingServer server);
 
   /**
    * Checks that the current client configuration is able to connect and

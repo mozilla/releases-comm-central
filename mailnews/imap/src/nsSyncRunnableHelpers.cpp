@@ -553,7 +553,7 @@ void OAuth2ThreadHelper::Init() {
   mOAuth2Support = do_CreateInstance(MSGIOAUTH2MODULE_CONTRACTID);
   if (mOAuth2Support) {
     bool supportsOAuth = false;
-    mOAuth2Support->InitFromMail(mServer, &supportsOAuth);
+    mOAuth2Support->InitFromMail(mServer, nullptr, &supportsOAuth);
     if (!supportsOAuth) mOAuth2Support = nullptr;
   }
 

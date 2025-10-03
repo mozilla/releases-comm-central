@@ -12,9 +12,11 @@ SOURCES += [
     "EwsFolder.cpp",
     "EwsFolderCopyHandler.cpp",
     "EwsIncomingServer.cpp",
+    "EwsLanguageInteropFactory.cpp",
     "EwsListeners.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
+    "EwsOAuth2CustomDetails.cpp",
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
@@ -34,6 +36,7 @@ XPIDL_SOURCES += [
     "IEwsClient.idl",
     "IEwsFolder.idl",
     "IEwsIncomingServer.idl",
+    "IEwsLanguageInteropFactory.idl",
 ]
 
 FINAL_LIBRARY = "mail"

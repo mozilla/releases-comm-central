@@ -646,10 +646,7 @@ impl EwsOutgoingServer {
             .query_interface::<nsIMsgOutgoingServer>()
             .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
-        // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1987797 Accept
-        // override values for OAuth issuer details and pass override details
-        // into get_credentials.
-        let credentials = outgoing_server.get_credentials(None)?;
+        let credentials = outgoing_server.get_credentials()?;
 
         // Set up the client to build and send the request.
         let client = XpComEwsClient::new(url, outgoing_server, credentials)?;

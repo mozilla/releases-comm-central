@@ -696,7 +696,7 @@ where
                             // entered a new password after being prompted for one),
                             // and should we emit more requests using this client,
                             // we should be using up to date credentials.
-                            let credentials = self.server.get_credentials(None)?;
+                            let credentials = self.server.get_credentials()?;
                             self.credentials.replace(credentials);
 
                             match outcome {

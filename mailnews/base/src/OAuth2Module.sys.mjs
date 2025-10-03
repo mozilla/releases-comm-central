@@ -31,80 +31,39 @@ export function OAuth2Module() {}
 OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
-  initFromOutgoing(server) {
+  initFromOutgoing(server, customDetails) {
     return this.initFromHostname(
       server.serverURI.host,
       server.username,
-      server.type
+      server.type,
+      customDetails
     );
   },
 
-  initFromMail(server) {
-    return this.initFromMailWithOptionalOverrides(
-      server,
-      false,
-      null,
-      null,
-      null
-    );
-  },
-
-  initFromMailWithOptionalOverrides(
-    server,
-    allowOverrides,
-    overrideIssuer,
-    overrideScopes,
-    overrideDetails
-  ) {
-    return this.initFromHostnameWithOptionalOverrides(
+  initFromMail(server, customDetails) {
+    return this.initFromHostname(
       server.hostName,
       server.username,
       server.type,
-      allowOverrides,
-      overrideIssuer,
-      overrideScopes,
-      overrideDetails
+      customDetails
     );
   },
 
-  initFromHostname(hostname, username, type) {
-    return this.initFromHostnameWithOptionalOverrides(
-      hostname,
-      username,
-      type,
-      false,
-      null,
-      null,
-      null
-    );
-  },
-
-  initFromHostnameWithOptionalOverrides(
-    hostname,
-    username,
-    type,
-    allowOverrides,
-    overrideIssuer,
-    overrideScopes,
-    overrideDetails
-  ) {
-    if (typeof allowOverrides == "undefined" || allowOverrides == null) {
-      allowOverrides = false;
+  initFromHostname(hostname, username, type, customDetails) {
+    if (typeof customDetails == "undefined") {
+      customDetails = null;
     }
+
     const overridePrefEnabled = Services.prefs.getBoolPref(
       "experimental.mail.ews.overrideOAuth.enabled",
       false
     );
 
-    const doOverrides = overridePrefEnabled && allowOverrides;
+    const doOverrides =
+      overridePrefEnabled && customDetails && customDetails.useCustomDetails;
 
     const details = doOverrides
-      ? this._getHostnameDetailsWithOverrides(
-          hostname,
-          type,
-          overrideIssuer,
-          overrideScopes
-        )
+      ? this._getHostnameDetailsWithOverrides(hostname, type, customDetails)
       : OAuth2Providers.getHostnameDetails(hostname, type);
 
     if (!details) {
@@ -116,7 +75,7 @@ OAuth2Module.prototype = {
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
     const issuerDetails = doOverrides
-      ? this._getIssuerWithOverrides(issuer, overrideDetails)
+      ? this._getIssuerWithOverrides(issuer, customDetails)
       : OAuth2Providers.getIssuerDetails(issuer);
 
     if (!issuerDetails.clientId) {
@@ -255,69 +214,85 @@ OAuth2Module.prototype = {
   /**
    * Return the hostname details with the given issuer and scopes override values applied.
    *
-   * If there is no known provider for the given hostname, `issuer` and `scopes`
-   * must be non-null and non-empty. Otherwise, `issuer` and `scopes` will be
-   * used to override the values of the known provider obtained from the lookup.
+   * If there is no known provider for the given hostname, `customDetails` must
+   * be non-null, and `customDetails.issuer` and `customDetails.scope` must also
+   * contain valid values.
    *
-   * If there is no known provider and either `issuer` or `scopes` is empty,
-   * this function will return `null`.
+   * If there is no known provider and any of `customDetails`,
+   * `customDetails.issuer` or `customDetails.scopes` is empty, this function
+   * will return `null`.
    *
    * @param {string} hostname
    * @param {string} type
-   * @param {string} issuer
-   * @param {string} scopes
+   * @param {IOAuth2CustomDetails} customDetails
    * @returns {OAuth2Providers.hostnameDetails}
    */
-  _getHostnameDetailsWithOverrides(hostname, type, issuer, scopes) {
+  _getHostnameDetailsWithOverrides(hostname, type, customDetails) {
     let details = OAuth2Providers.getHostnameDetails(hostname, type);
+
+    if (!customDetails) {
+      return details;
+    }
 
     if (!details) {
       // If it's not a known issuer, then we have to have a custom issuer and scopes.
       // We are allowing overrides because the previous check didn't return.
-      if (!issuer || !scopes) {
+      if (!customDetails.issuer || !customDetails.scopes) {
         return null;
       }
       details = {
-        issuer,
-        allScopes: scopes,
-        requiredScopes: scopes,
+        issuer: customDetails.issuer,
+        allScopes: customDetails.scopes,
+        requiredScopes: customDetails.scopes,
       };
     } else {
       // If it's a known issuer, and we're allowing overrides, then
       // override the known values with the custom values.
-      details.issuer = issuer || details.issuer;
-      details.allScopes = scopes || details.allScopes;
-      details.requiredScopes = scopes || details.requiredScopes;
+      details.issuer = customDetails.issuer || details.issuer;
+      details.allScopes = customDetails.scopes || details.allScopes;
+      details.requiredScopes = customDetails.scopes || details.requiredScopes;
     }
 
     return details;
   },
 
   /**
-   * Return the issuer details from the `OAuth2Provider` with the given
-   * overrides applied on top of them.
+   * Return the details for the given `issuer` from the `OAuth2Provider` with
+   * the given `customDetails` applied on top of them.
    *
-   * If there are no known details for the given issuer, then this function will
-   * return an undefined value.
+   * If there are no known details for the given `issuer`, and no custom details
+   * are provided, then this function will return null.
    *
    * @param {string} issuer
-   * @param {Array<string>} overrideDetails
+   * @param {IOAuth2CustomDetails} customDetails
    * @returns {Array<string>}
    */
-  _getIssuerWithOverrides(issuer, overrideDetails) {
+  _getIssuerWithOverrides(issuer, customDetails) {
     let issuerDetails = OAuth2Providers.getIssuerDetails(issuer);
-    if (typeof overrideDetails != "undefined" && overrideDetails) {
+    if (typeof customDetails != "undefined" && customDetails) {
       // Don't overwrite the object we got from the static configuration so we
       // can roll back to it if overrides are disabled later.
       issuerDetails = structuredClone(issuerDetails) ?? {};
-      for (let i = 0; i < overrideDetails.length - 1; i += 2) {
-        const name = overrideDetails[i];
-        const value = overrideDetails[i + 1].trim();
-        if (value) {
-          issuerDetails[name] = value;
+
+      const attributes = [
+        "clientId",
+        "clientSecret",
+        "authorizationEndpoint",
+        "tokenEndpoint",
+        "redirectionEndpoint",
+        "usePKCE",
+      ];
+      for (const key of attributes) {
+        if (customDetails.hasOwnProperty(key) && customDetails[key]) {
+          issuerDetails[key] = customDetails[key];
         }
       }
     }
+
+    if (typeof issuerDetails == "undefined") {
+      return null;
+    }
+
     return issuerDetails;
   },
 

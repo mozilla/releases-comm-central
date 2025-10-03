@@ -6,6 +6,7 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
+interface IOAuth2CustomDetails;
 interface nsIMsgFolder;
 interface nsIMsgFolderCache;
 interface nsIMsgWindow;

@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "EwsListeners.h"
+#include "EwsOAuth2CustomDetails.h"
 #include "IEwsClient.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgStatusFeedback.h"
@@ -669,23 +670,8 @@ NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   rv = GetEwsOverrideOAuthDetails(&overrideOAuth);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoCString applicationId, tenantId, redirectUri, endpointHost, oauthScopes;
-  if (overrideOAuth) {
-    rv = GetEwsApplicationId(applicationId);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetEwsTenantId(tenantId);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetEwsRedirectUri(redirectUri);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetEwsEndpointHost(endpointHost);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetEwsOAuthScopes(oauthScopes);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   // Set up the client object with access details.
-  rv = client->Initialize(endpoint, this, overrideOAuth, applicationId,
-                          tenantId, redirectUri, endpointHost, oauthScopes);
+  rv = client->Initialize(endpoint, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   client.forget(ewsClient);
@@ -801,29 +787,107 @@ NS_IMETHODIMP EwsIncomingServer::GetTrashFolderPath(nsACString& returnValue) {
   return GetStringValue(kTrashFolderPreferenceName, returnValue);
 }
 
+NS_IMETHODIMP EwsIncomingServer::GetEwsUrl(nsACString& value) {
+  return GetStringValue("ews_url", value);
+}
+
+NS_IMETHODIMP EwsIncomingServer::SetEwsUrl(const nsACString& value) {
+  return SetStringValue("ews_url", value);
+}
+
+namespace {
+
+nsresult GetDetailsForHostname(EwsIncomingServer* server,
+                               EwsOAuth2CustomDetails** details) {
+  NS_ENSURE_ARG_POINTER(details);
+
+  nsAutoCString hostname;
+  nsresult rv = server->GetHostName(hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<EwsOAuth2CustomDetails> result;
+  rv = EwsOAuth2CustomDetails::ForHostname(hostname, getter_AddRefs(result));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  result.forget(details);
+
+  return NS_OK;
+}
+
+template <typename F>
+nsresult GetOAuthProperty(EwsIncomingServer* server, nsACString& value,
+                          F&& accessor) {
+  RefPtr<EwsOAuth2CustomDetails> details;
+  nsresult rv = GetDetailsForHostname(server, getter_AddRefs(details));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  const std::optional<nsAutoCString> found = accessor(*details);
+  if (found) {
+    value.Assign(*found);
+  } else {
+    value.Assign("");
+  }
+
+  return NS_OK;
+}
+
+template <typename F>
+nsresult SetOAuthProperty(EwsIncomingServer* server, const nsACString& value,
+                          F&& accessor) {
+  RefPtr<EwsOAuth2CustomDetails> details;
+  nsresult rv = GetDetailsForHostname(server, getter_AddRefs(details));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return accessor(*details, value);
+}
+
+}  // namespace
+
 NS_IMETHODIMP EwsIncomingServer::GetEwsOverrideOAuthDetails(bool* value) {
-  return GetBoolValue("ews_override_oauth_details", value);
+  NS_ENSURE_ARG(value);
+
+  RefPtr<EwsOAuth2CustomDetails> details;
+  nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  *value = details->GetConfiguredUseCustomDetails();
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsIncomingServer::SetEwsOverrideOAuthDetails(bool value) {
-  return SetBoolValue("ews_override_oauth_details", value);
+  NS_ENSURE_ARG(value);
+
+  RefPtr<EwsOAuth2CustomDetails> details;
+  nsresult rv = GetDetailsForHostname(this, getter_AddRefs(details));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = details->SetConfiguredUseCustomDetails(value);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
 }
 
-#define DEFINE_PREF_STRING_PROPERTY(PropName, PrefName)                     \
-  NS_IMETHODIMP EwsIncomingServer::Get##PropName(nsACString& value) {       \
-    return GetStringValue(PrefName, value);                                 \
-  }                                                                         \
-  NS_IMETHODIMP EwsIncomingServer::Set##PropName(const nsACString& value) { \
-    return SetStringValue(PrefName, value);                                 \
+#define DEFINE_OAUTH_PROPERTY_ACCESSORS(PropertyName, OAuthValueName)     \
+  NS_IMETHODIMP EwsIncomingServer::Get##PropertyName(nsACString& value) { \
+    return GetOAuthProperty(this, value,                                  \
+                            [](const EwsOAuth2CustomDetails& details) {   \
+                              return details.Get##OAuthValueName();       \
+                            });                                           \
+  }                                                                       \
+  NS_IMETHODIMP EwsIncomingServer::Set##PropertyName(                     \
+      const nsACString& value) {                                          \
+    return SetOAuthProperty(                                              \
+        this, value,                                                      \
+        [](EwsOAuth2CustomDetails& details, const nsACString& value) {    \
+          return details.Set##OAuthValueName(value);                      \
+        });                                                               \
   }
 
-// EWS uses an HTTP(S) endpoint for calls rather than a simple hostname. This
-// is stored as a pref against this server.
-DEFINE_PREF_STRING_PROPERTY(EwsUrl, "ews_url")
-DEFINE_PREF_STRING_PROPERTY(EwsApplicationId, "ews_application_id")
-DEFINE_PREF_STRING_PROPERTY(EwsTenantId, "ews_tenant_id")
-DEFINE_PREF_STRING_PROPERTY(EwsRedirectUri, "ews_redirect_uri")
-DEFINE_PREF_STRING_PROPERTY(EwsEndpointHost, "ews_endpoint_host")
-DEFINE_PREF_STRING_PROPERTY(EwsOAuthScopes, "ews_oauth_scopes")
+DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsApplicationId, ConfiguredApplicationId);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsTenantId, ConfiguredTenant);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsRedirectUri, ConfiguredRedirectUri);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsEndpointHost, ConfiguredEndpointHost);
+DEFINE_OAUTH_PROPERTY_ACCESSORS(EwsOAuthScopes, ConfiguredOAuthScopes);
 
-#undef DEFINE_PREF_PROPERTY
+#undef DEFINE_OAUTH_PROPERTY_ACCESSORS
