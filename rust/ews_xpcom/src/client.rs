@@ -5,6 +5,7 @@
 mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;
+mod get_message;
 mod mark_as_junk;
 mod server_version;
 mod sync_folder_hierarchy;
@@ -56,8 +57,8 @@ use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsMessageFetchListener, SafeEwsSimpleOperationListener, SafeListener,
-        SafeMsgOutgoingListener, SafeUri, StaleMsgDbHeader, UpdatedMsgDbHeader,
+        SafeEwsSimpleOperationListener, SafeListener, SafeMsgOutgoingListener, SafeUri,
+        StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
 };
 
@@ -146,62 +147,6 @@ where
             client: moz_http::Client::new(),
             server_version: Cell::new(server_version),
         })
-    }
-
-    pub(crate) async fn get_message(self, listener: SafeEwsMessageFetchListener, id: String) {
-        // Call an inner function to perform the operation in order to allow us
-        // to handle errors while letting the inner function simply propagate.
-        let result = self.get_message_inner(&listener, id.clone()).await;
-
-        match result {
-            Ok(_) => {
-                let _ = listener.on_success(());
-            }
-            Err(err) => handle_error(&listener, GetItem::NAME, &err, ()),
-        };
-    }
-
-    async fn get_message_inner(
-        self,
-        listener: &SafeEwsMessageFetchListener,
-        id: String,
-    ) -> Result<(), XpComEwsError> {
-        listener.on_fetch_start()?;
-
-        let items = self.get_items([id], &[], true).await?;
-        if items.len() != 1 {
-            return Err(XpComEwsError::Processing {
-                message: format!(
-                    "provided single ID to GetItem operation, got {} responses",
-                    items.len()
-                ),
-            });
-        }
-
-        // Extract the Internet Message Format content of the message from the
-        // response. We've guaranteed above that the iteration will produce
-        // at least one element, so unwrapping is okay here.
-        let item = items.into_iter().next().unwrap();
-        let message = item.inner_message();
-
-        let raw_mime = if let Some(raw_mime) = &message.mime_content {
-            &raw_mime.content
-        } else {
-            return Err(XpComEwsError::Processing {
-                message: "item has no content".to_string(),
-            });
-        };
-
-        // EWS returns the content of the email b64encoded on top of any
-        // encoding within the message.
-        let mime_content =
-            BASE64_STANDARD
-                .decode(raw_mime)
-                .map_err(|_| XpComEwsError::Processing {
-                    message: "MIME content for item is not validly base64 encoded".to_string(),
-                })?;
-
-        listener.on_fetched_data_available(mime_content)
     }
 
     /// Builds a map from remote folder ID to distinguished folder ID.
