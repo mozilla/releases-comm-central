@@ -7,6 +7,7 @@ pub(crate) mod copy_move_operations;
 mod create_folder;
 mod get_message;
 mod mark_as_junk;
+mod send_message;
 mod server_version;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
@@ -32,10 +33,9 @@ use ews::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem,
         UpdateItemResponse, Updates,
     },
-    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI,
-    ExtendedProperty, Folder, FolderId, FolderShape, ItemResponseMessage, ItemShape, Message,
-    MessageDisposition, MimeContent, Operation, OperationResponse, PathToElement, RealItem,
-    Recipient,
+    BaseFolderId, BaseItemId, BaseShape, DeleteType, ExtendedFieldURI, ExtendedProperty, Folder,
+    FolderId, FolderShape, ItemResponseMessage, ItemShape, Message, MessageDisposition,
+    MimeContent, Operation, OperationResponse, PathToElement, RealItem,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -57,8 +57,7 @@ use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsSimpleOperationListener, SafeListener, SafeMsgOutgoingListener, SafeUri,
-        StaleMsgDbHeader, UpdatedMsgDbHeader,
+        SafeEwsSimpleOperationListener, SafeListener, StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
 };
 
@@ -494,96 +493,6 @@ where
         }
 
         Ok(items)
-    }
-
-    /// Send a message by performing a [`CreateItem` operation] via EWS.
-    ///
-    /// All headers except for Bcc are expected to be included in the provided
-    /// MIME content.
-    ///
-    /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
-    pub async fn send_message(
-        self,
-        mime_content: String,
-        message_id: String,
-        should_request_dsn: bool,
-        bcc_recipients: Vec<Recipient>,
-        listener: SafeMsgOutgoingListener,
-        server_uri: SafeUri,
-    ) {
-        // Notify that the request has started.
-        if let Err(err) = listener.on_send_start() {
-            log::error!("aborting sending: an error occurred while starting the observer: {err}");
-            return;
-        }
-
-        // Send the request, using an inner method to more easily handle errors.
-        // Use the return value to determine which status we should use when
-        // notifying the end of the request.
-        match self
-            .send_message_inner(mime_content, message_id, should_request_dsn, bcc_recipients)
-            .await
-        {
-            // Notify that the request has finished. We don't pass in an error
-            // message because we don't currently generate any user-facing error
-            // from here, so it's likely better to let MessageSend generate one.
-            Ok(()) => {
-                if let Err(err) = listener.on_success(server_uri) {
-                    log::error!("an error occurred while stopping the observer: {err}");
-                }
-            }
-            Err(err) => {
-                handle_error(
-                    &listener,
-                    CreateItem::NAME,
-                    &err,
-                    (server_uri, None::<String>).into(),
-                );
-            }
-        };
-    }
-
-    async fn send_message_inner(
-        self,
-        mime_content: String,
-        message_id: String,
-        should_request_dsn: bool,
-        bcc_recipients: Vec<Recipient>,
-    ) -> Result<(), XpComEwsError> {
-        let bcc_recipients = if !bcc_recipients.is_empty() {
-            Some(ArrayOfRecipients(bcc_recipients))
-        } else {
-            None
-        };
-
-        // Create a new message using the default values, and set the ones we
-        // need.
-        let message = Message {
-            mime_content: Some(MimeContent {
-                character_set: None,
-                content: BASE64_STANDARD.encode(&mime_content),
-            }),
-            is_delivery_receipt_requested: Some(should_request_dsn),
-            internet_message_id: Some(message_id),
-            bcc_recipients,
-            ..Default::default()
-        };
-
-        let create_item = CreateItem {
-            items: vec![RealItem::Message(message)],
-
-            // We don't need EWS to copy messages to the Sent folder after
-            // they've been sent, because the internal MessageSend module
-            // already takes care of it and will include additional headers we
-            // don't send to EWS (such as Bcc).
-            message_disposition: Some(MessageDisposition::SendOnly),
-            saved_item_folder_id: None,
-        };
-
-        self.make_create_item_request(create_item, TransportSecFailureBehavior::Silent)
-            .await?;
-
-        Ok(())
     }
 
     /// Create a message on the server by performing a [`CreateItem` operation]
