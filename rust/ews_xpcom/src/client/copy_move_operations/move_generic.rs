@@ -6,17 +6,37 @@ use ews::{Operation, OperationResponse};
 use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
 
+use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::{response_into_messages, XpComEwsClient, XpComEwsError};
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener},
-};
 
 /// An EWS operation that copies or moves folders or items.
 pub(crate) trait CopyMoveOperation: Operation + Clone {
     /// Whether the consumer should sync the folder or account again after this
     /// operation has completed.
     fn requires_resync(&self) -> bool;
+
+    /// Specifies the mapping from the available input data, including the EWS
+    /// client, the destination EWS ID, and the input collection of EWS IDs to
+    /// be moved, to the input to the EWS operation.
+    fn operation_builder<ServerT>(
+        client: &XpComEwsClient<ServerT>,
+        destination_folder_id: String,
+        ids: Vec<String>,
+    ) -> Self
+    where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted;
+
+    /// Maps from the EWS response object to the collection of EWS IDs for the
+    /// moved objects.
+    fn response_to_ids(
+        response: Vec<<Self::Response as OperationResponse>::Message>,
+    ) -> Vec<String>;
+}
+
+/// The result of a successful copy or move operation.
+pub(crate) struct CopyMoveSuccess {
+    pub new_ids: Vec<String>,
+    pub requires_resync: bool,
 }
 
 /// Perform a generic copy/move operation.
@@ -32,96 +52,28 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
 /// The EWS client to use for the operation is given by the `client` parameter.
 /// The `destination_folder_id` parameter specifies the destination folder for
 /// the generic move operation, and the `ids` parameter specifies the the
-/// collection of EWS IDs to move. The `operation_builder` function specifies
-/// the mapping from the available input data, including the EWS client, the
-/// destination EWS ID, and the input collection of EWS IDs to be moved, to the
-/// input to the EWS operation. The `response_to_ids` function maps from the EWS
-/// response object to the collection of EWS IDs for the moved objects. The
-/// `callbacks` parameter provides the asynchronous mechanism for signaling
-/// success or failure.
+/// collection of EWS IDs to move.
 pub(super) async fn move_generic<ServerT, OperationDataT>(
-    client: XpComEwsClient<ServerT>,
-    listener: SafeEwsSimpleOperationListener,
+    client: &XpComEwsClient<ServerT>,
     destination_folder_id: String,
     ids: Vec<String>,
-    operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
-    response_to_ids: fn(
-        Vec<<OperationDataT::Response as OperationResponse>::Message>,
-    ) -> Vec<String>,
-) where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    OperationDataT: CopyMoveOperation,
-{
-    match move_generic_functional(
-        client,
-        destination_folder_id,
-        ids,
-        operation_builder,
-        response_to_ids,
-    )
-    .await
-    {
-        (_, Ok((new_ids, requires_resync))) => {
-            let _ = listener.on_success((new_ids, requires_resync).into());
-        }
-        (operation_name, Err(err)) => handle_error(&listener, operation_name, &err, ()),
-    };
-}
-
-/// Perform a generic copy/move operation (functional version).
-///
-/// The EWS client to use for the operation is given by the `client` parameter.
-/// The `destination_folder_id` parameter specifies the destination folder for
-/// the generic move operation, and the `ids` parameter specifies the the
-/// collection of EWS IDs to move. The `operation_builder` function specifies
-/// the mapping from the available input data, including the EWS client, the
-/// destination EWS ID, and the input collection of EWS IDs to be moved, to the
-/// input to the EWS operation. The `response_to_ids` function maps from the EWS
-/// response object to the collection of EWS IDs for the moved objects.
-///
-/// This version is suitable for use when a larger operation requires item
-/// copy or move operations as part of its orchestration.
-pub(super) async fn move_generic_functional<ServerT, OperationDataT>(
-    client: XpComEwsClient<ServerT>,
-    destination_folder_id: String,
-    ids: Vec<String>,
-    operation_builder: fn(&XpComEwsClient<ServerT>, String, Vec<String>) -> OperationDataT,
-    response_to_ids: fn(
-        Vec<<OperationDataT::Response as OperationResponse>::Message>,
-    ) -> Vec<String>,
-) -> (&'static str, Result<(Vec<String>, bool), XpComEwsError>)
+) -> Result<CopyMoveSuccess, XpComEwsError>
 where
     ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     OperationDataT: CopyMoveOperation,
 {
-    let operation_data = operation_builder(&client, destination_folder_id, ids);
+    let operation_data = OperationDataT::operation_builder(client, destination_folder_id, ids);
+    let requires_resync = operation_data.requires_resync();
 
-    (
-        <OperationDataT as Operation>::NAME,
-        move_generic_inner(client, operation_data.clone())
-            .await
-            .map(|messages| {
-                let new_ids = response_to_ids(messages);
-                let requires_resync = operation_data.requires_resync();
-                (new_ids, requires_resync)
-            }),
-    )
-}
-
-async fn move_generic_inner<ServerT, OperationDataT>(
-    client: XpComEwsClient<ServerT>,
-    operation_data: OperationDataT,
-) -> Result<
-    Vec<<<OperationDataT as Operation>::Response as OperationResponse>::Message>,
-    XpComEwsError,
->
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    OperationDataT: CopyMoveOperation,
-{
     let resp = client
         .make_operation_request(operation_data, Default::default())
         .await?;
+
     let messages = response_into_messages(resp)?;
-    Ok(messages)
+    let new_ids = OperationDataT::response_to_ids(messages);
+
+    Ok(CopyMoveSuccess {
+        new_ids,
+        requires_resync,
+    })
 }

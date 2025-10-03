@@ -14,8 +14,8 @@ use xpcom::RefCounted;
 use crate::{
     authentication::credentials::AuthenticationProvider,
     client::{
-        process_response_message_class, validate_response_message_count, XpComEwsClient,
-        XpComEwsError,
+        copy_move_operations::move_generic::CopyMoveSuccess, process_response_message_class,
+        validate_response_message_count, XpComEwsClient, XpComEwsError,
     },
     safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener},
 };
@@ -93,13 +93,16 @@ where
             Ok(Some(new_ids))
         } else if !legacy_destination_folder_id.is_empty() {
             // We have to move the items to the junk folder using a regular move operation.
-            let (new_ids, sync_required) = self
+            let CopyMoveSuccess {
+                new_ids,
+                requires_resync,
+            } = self
                 .copy_move_item_functional::<MoveItem>(
                     legacy_destination_folder_id.to_string(),
                     ews_ids.iter().map(|s| s.to_string()).collect(),
                 )
                 .await?;
-            Ok(if sync_required {
+            Ok(if requires_resync {
                 None
             } else {
                 Some(new_ids.iter().map(nsCString::from).collect())

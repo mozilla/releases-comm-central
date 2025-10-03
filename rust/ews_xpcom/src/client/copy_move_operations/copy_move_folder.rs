@@ -2,20 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::copy_folder::CopyFolder;
-use ews::move_folder::MoveFolder;
 use ews::{
-    BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
+    copy_folder::CopyFolder, move_folder::MoveFolder, BaseFolderId, CopyMoveFolderData, Folder,
+    FolderResponseMessage, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
+use std::marker::PhantomData;
 use xpcom::RefCounted;
 
 use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::copy_move_operations::move_generic::CopyMoveOperation;
-use crate::client::XpComEwsClient;
-use crate::safe_xpcom::SafeEwsSimpleOperationListener;
+use crate::client::{DoOperation, XpComEwsClient, XpComEwsError};
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 
-use super::move_generic::move_generic;
+use super::move_generic::{move_generic, CopyMoveSuccess};
+
+struct DoCopyMoveFolder<RequestT> {
+    destination_folder_id: String,
+    folder_ids: Vec<String>,
+    _request_type: PhantomData<RequestT>,
+}
+
+impl<RequestT> DoOperation for DoCopyMoveFolder<RequestT>
+where
+    RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData>,
+    <RequestT as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
+{
+    const NAME: &'static str = <RequestT as Operation>::NAME;
+    type Okay = CopyMoveSuccess;
+    type Listener = SafeEwsSimpleOperationListener;
+
+    async fn do_operation<ServerT>(
+        &mut self,
+        client: &XpComEwsClient<ServerT>,
+    ) -> Result<Self::Okay, XpComEwsError>
+    where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+    {
+        move_generic::<_, RequestT>(
+            client,
+            self.destination_folder_id.clone(),
+            self.folder_ids.clone(),
+        )
+        .await
+    }
+
+    fn into_success_arg(self, ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg {
+        ok.into()
+    }
+
+    fn into_failure_arg(self) {}
+}
 
 impl<ServerT> XpComEwsClient<ServerT>
 where
@@ -41,15 +78,12 @@ where
         RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData>,
         <RequestT as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
     {
-        move_generic(
-            self,
-            listener,
+        let operation = DoCopyMoveFolder::<RequestT> {
             destination_folder_id,
             folder_ids,
-            construct_request::<RequestT, ServerT>,
-            get_new_ews_ids_from_response,
-        )
-        .await;
+            _request_type: PhantomData,
+        };
+        operation.handle_operation(&self, &listener).await;
     }
 }
 
@@ -78,20 +112,41 @@ where
     .into()
 }
 
-impl CopyMoveOperation for MoveFolder {
+// Create our own trait that upstream can't implement, to avoid errors about
+// "upstream crates may add a new impl of trait" when implementing
+// CopyMoveOperation on other types that shouldn't use this implementation.
+trait FolderOperation: From<CopyMoveFolderData> + Into<CopyMoveFolderData> + Operation + Clone {}
+impl FolderOperation for MoveFolder {}
+impl FolderOperation for CopyFolder {}
+
+impl<FolderOp: FolderOperation> CopyMoveOperation for FolderOp
+where
+    <FolderOp as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
+{
     fn requires_resync(&self) -> bool {
         // We don't expect folder IDs to change after a move, so we shouldn't
-        // need to sync the folder hierarchy after this operation completes.
+        // need to sync the folder hierarchy after that operation completes, and
+        // while a `CopyFolder` operation always requires a resync to get the
+        // newly copied folder and item ids, the resync path is different than
+        // the item resync path, so we always return false here.
         false
     }
-}
 
-impl CopyMoveOperation for CopyFolder {
-    fn requires_resync(&self) -> bool {
-        // A `CopyFolder` operation always requires a resync to get the newly
-        // copied folder and item ids, but the resync path is different than the
-        // item resync path, so we return false here.
-        false
+    fn operation_builder<ServerT>(
+        client: &XpComEwsClient<ServerT>,
+        destination_folder_id: String,
+        ids: Vec<String>,
+    ) -> Self
+    where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+    {
+        construct_request(client, destination_folder_id, ids)
+    }
+
+    fn response_to_ids(
+        response: Vec<<Self::Response as OperationResponse>::Message>,
+    ) -> Vec<String> {
+        get_new_ews_ids_from_response(response)
     }
 }
 

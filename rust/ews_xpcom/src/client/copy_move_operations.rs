@@ -4,4 +4,4 @@
 
 pub(crate) mod copy_move_folder;
 pub(crate) mod copy_move_item;
-mod move_generic;
+pub(crate) mod move_generic;
