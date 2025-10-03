@@ -244,7 +244,10 @@ img {
 /* ::::: links ::::: */
 /* stylelint-disable-next-line media-query-no-invalid */
 @media (prefers-color-scheme: dark) and -moz-pref("mail.dark-reader.enabled") {
-  a {
+  a:link {
     color: LinkText;
+  }
+  a:visited {
+    color: VisitedText;
   }
 }
