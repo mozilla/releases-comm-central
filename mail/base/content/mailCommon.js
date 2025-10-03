@@ -2,9 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals mailContextMenu */ // mailContext.js
-/* globals CrossFolderNavigation */ // msgViewNavigation.js
-/* globals ThreadPaneColumns */ // about3pane.js
+// mailContext.js
+/* globals mailContextMenu */
+
+// msgViewNavigation.js
+/* globals CrossFolderNavigation */
+
+// about3pane.js
+/* globals ThreadPaneColumns */
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -16,11 +21,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   ConversationOpener: "resource:///modules/ConversationOpener.sys.mjs",
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
+
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
+
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
-  TagUtils: "resource:///modules/TagUtils.sys.mjs",
   TreeSelection: "chrome://messenger/content/TreeSelection.mjs",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
@@ -114,25 +120,29 @@ var commandController = {
     cmd_tag() {
       // Does nothing, just here to enable/disable the tags sub-menu.
     },
-    cmd_tag1: () => commandController._toggleMessageTagKey(1),
-    cmd_tag2: () => commandController._toggleMessageTagKey(2),
-    cmd_tag3: () => commandController._toggleMessageTagKey(3),
-    cmd_tag4: () => commandController._toggleMessageTagKey(4),
-    cmd_tag5: () => commandController._toggleMessageTagKey(5),
-    cmd_tag6: () => commandController._toggleMessageTagKey(6),
-    cmd_tag7: () => commandController._toggleMessageTagKey(7),
-    cmd_tag8: () => commandController._toggleMessageTagKey(8),
-    cmd_tag9: () => commandController._toggleMessageTagKey(9),
-    cmd_addTag: () => commandController._addTag(),
+    cmd_tag1: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 1),
+    cmd_tag2: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 2),
+    cmd_tag3: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 3),
+    cmd_tag4: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 4),
+    cmd_tag5: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 5),
+    cmd_tag6: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 6),
+    cmd_tag7: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 7),
+    cmd_tag8: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 8),
+    cmd_tag9: mailContextMenu._toggleMessageTagKey.bind(mailContextMenu, 9),
+    cmd_addTag() {
+      mailContextMenu.addTag();
+    },
     cmd_manageTags() {
       window.browsingContext.topChromeWindow.openOptionsDialog(
         "paneGeneral",
         "tagsCategory"
       );
     },
-    cmd_removeTags: () => commandController._removeAllMessageTags(),
-    cmd_toggleTag: event => {
-      commandController._toggleMessageTag(
+    cmd_removeTags() {
+      mailContextMenu.removeAllMessageTags();
+    },
+    cmd_toggleTag(event) {
+      mailContextMenu._toggleMessageTag(
         event.target.value,
         event.target.getAttribute("checked") == "true"
       );
@@ -746,119 +756,6 @@ var commandController = {
       checkStatusObj
     );
     return enabledObj.value;
-  },
-
-  /**
-   * Toggle the state of a message tag on the selected messages (based on the
-   * state of the first selected message, like for starring).
-   *
-   * @param {number} keyNumber - The number (1 through 9) associated with the tag.
-   */
-  _toggleMessageTagKey(keyNumber) {
-    const msgHdr = gDBView.hdrForFirstSelectedMessage;
-    if (!msgHdr) {
-      return;
-    }
-
-    const tagArray = MailServices.tags.getAllTags();
-    if (keyNumber > tagArray.length) {
-      return;
-    }
-
-    const key = tagArray[keyNumber - 1].key;
-    const curKeys = msgHdr.getStringProperty("keywords").split(" ");
-    if (msgHdr.label) {
-      curKeys.push("$label" + msgHdr.label);
-    }
-    const addKey = !curKeys.includes(key);
-
-    this._toggleMessageTag(key, addKey);
-  },
-
-  _removeAllMessageTags() {
-    const selectedMessages = gDBView.getSelectedMsgHdrs();
-    if (!selectedMessages.length) {
-      return;
-    }
-
-    let messages = [];
-    const allKeys = MailServices.tags
-      .getAllTags()
-      .map(t => t.key)
-      .join(" ");
-    let prevHdrFolder = null;
-
-    // This crudely handles cross-folder virtual folders with selected
-    // messages that spans folders, by coalescing consecutive messages in the
-    // selection that happen to be in the same folder. nsMsgSearchDBView does
-    // this better, but nsIMsgDBView doesn't handle commands with arguments,
-    // and untag takes a key argument. Furthermore, we only delete known tags,
-    // keeping other keywords like (non)junk intact.
-    for (let i = 0; i < selectedMessages.length; ++i) {
-      const msgHdr = selectedMessages[i];
-      if (prevHdrFolder != msgHdr.folder) {
-        if (prevHdrFolder) {
-          prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-        }
-        messages = [];
-        prevHdrFolder = msgHdr.folder;
-      }
-      messages.push(msgHdr);
-    }
-    if (prevHdrFolder) {
-      prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-    }
-  },
-
-  /**
-   * @param {string} key - nsIMsgTag.key
-   * @param {boolean} addKey - true to add, false to remove
-   */
-  _toggleMessageTag(key, addKey) {
-    let messages = [];
-    const selectedMessages = gDBView.getSelectedMsgHdrs();
-    const toggler = addKey
-      ? "addKeywordsToMessages"
-      : "removeKeywordsFromMessages";
-    let prevHdrFolder = null;
-    // this crudely handles cross-folder virtual folders with selected messages
-    // that spans folders, by coalescing consecutive msgs in the selection
-    // that happen to be in the same folder. nsMsgSearchDBView does this
-    // better, but nsIMsgDBView doesn't handle commands with arguments,
-    // and (un)tag takes a key argument.
-    for (let i = 0; i < selectedMessages.length; ++i) {
-      const msgHdr = selectedMessages[i];
-      if (prevHdrFolder != msgHdr.folder) {
-        if (prevHdrFolder) {
-          prevHdrFolder[toggler](messages, key);
-        }
-        messages = [];
-        prevHdrFolder = msgHdr.folder;
-      }
-      messages.push(msgHdr);
-    }
-    if (prevHdrFolder) {
-      prevHdrFolder[toggler](messages, key);
-    }
-  },
-
-  _addTag() {
-    top.openDialog(
-      "chrome://messenger/content/newTagDialog.xhtml",
-      "",
-      "chrome,titlebar,modal,centerscreen",
-      {
-        result: "",
-        okCallback: (name, color) => {
-          MailServices.tags.addTag(name, color, "");
-          const key = MailServices.tags.getKeyForTag(name);
-          TagUtils.addTagToAllDocumentSheets(key, color);
-
-          this._toggleMessageTag(key, true);
-          return true;
-        },
-      }
-    );
   },
 
   /**
