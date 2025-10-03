@@ -6,6 +6,7 @@ mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;
 mod create_message;
+mod delete_folder;
 mod delete_messages;
 mod get_message;
 mod mark_as_junk;
@@ -22,7 +23,6 @@ use std::{
 
 use ews::{
     create_item::CreateItem,
-    delete_folder::DeleteFolder,
     get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
     response::{ResponseClass, ResponseCode, ResponseError},
@@ -33,9 +33,8 @@ use ews::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem,
         UpdateItemResponse, Updates,
     },
-    BaseFolderId, BaseItemId, BaseShape, DeleteType, Folder, FolderId, FolderShape,
-    ItemResponseMessage, ItemShape, Message, MessageDisposition, Operation, OperationResponse,
-    PathToElement, RealItem,
+    BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
+    ItemShape, Message, MessageDisposition, Operation, OperationResponse, PathToElement, RealItem,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -644,53 +643,6 @@ where
         validate_response_message_count(response_messages, expected_response_count)?;
 
         Ok(response)
-    }
-
-    pub async fn delete_folder(self, listener: SafeEwsSimpleOperationListener, folder_id: String) {
-        // Call an inner function to perform the operation in order to allow us
-        // to handle errors while letting the inner function simply propagate.
-        match self.delete_folder_inner(folder_id).await {
-            Ok(_) => {
-                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
-            }
-            Err(err) => handle_error(&listener, DeleteFolder::NAME, &err, ()),
-        }
-    }
-
-    async fn delete_folder_inner(self, folder_id: String) -> Result<(), XpComEwsError> {
-        let delete_folder = DeleteFolder {
-            folder_ids: vec![BaseFolderId::FolderId {
-                id: folder_id.clone(),
-                change_key: None,
-            }],
-            delete_type: DeleteType::HardDelete,
-        };
-        let response = self
-            .make_operation_request(delete_folder, Default::default())
-            .await?;
-
-        // We have only sent one message, therefore the response should only
-        // contain one response message.
-        let response_messages = response.into_response_messages();
-        let response_message = single_response_or_error(response_messages)?;
-        match process_response_message_class(DeleteFolder::NAME, response_message) {
-            Ok(_) => Ok(()),
-            Err(err) => match err {
-                XpComEwsError::ResponseError(ResponseError {
-                    response_code: ResponseCode::ErrorItemNotFound,
-                    ..
-                }) => {
-                    // Something happened in a previous attempt that caused the
-                    // folder to be deleted on the EWS server but not in the
-                    // database. In this case, we don't want to force a zombie
-                    // folder in the account, so we ignore the error and move on
-                    // with the local deletion.
-                    log::warn!("found folder that was deleted from the EWS server but not the local db: {folder_id}");
-                    Ok(())
-                }
-                _ => Err(err),
-            },
-        }
     }
 
     pub async fn update_folder(
