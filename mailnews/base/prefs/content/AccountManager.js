@@ -1766,17 +1766,6 @@ var gAccountTree = {
     function getString(aString) {
       return bundle.getString(aString);
     }
-    var panels = [
-      { string: getString("prefPanel-server"), src: "am-server.xhtml" },
-      { string: getString("prefPanel-copies"), src: "am-copies.xhtml" },
-      {
-        string: getString("prefPanel-synchronization"),
-        src: "am-offline.xhtml",
-      },
-      { string: getString("prefPanel-diskspace"), src: "am-offline.xhtml" },
-      { string: getString("prefPanel-addressing"), src: "am-addressing.xhtml" },
-      { string: getString("prefPanel-junk"), src: "am-junk.xhtml" },
-    ];
 
     const accounts = FolderUtils.allAccountsSorted(false);
 
@@ -1790,7 +1779,7 @@ var gAccountTree = {
       let accountName = null;
       const accountKey = account.key;
       let amChrome = "about:blank";
-      const panelsToKeep = [];
+      let panels = [];
       let server = null;
       let validAccount = true;
 
@@ -1813,9 +1802,14 @@ var gAccountTree = {
         // Now add our panels.
         const idents = MailServices.accounts.getIdentitiesForServer(server);
         if (idents.length) {
-          panelsToKeep.push(panels[0]); // The server panel is valid
-          panelsToKeep.push(panels[1]); // also the copies panel
-          panelsToKeep.push(panels[4]); // and addressing
+          panels.push(
+            { string: getString("prefPanel-server"), src: "am-server.xhtml" },
+            { string: getString("prefPanel-copies"), src: "am-copies.xhtml" },
+            {
+              string: getString("prefPanel-addressing"),
+              src: "am-addressing.xhtml",
+            }
+          );
         }
 
         // Everyone except News, RSS and IM has a junk panel
@@ -1826,16 +1820,19 @@ var gAccountTree = {
           server.type != "rss" &&
           server.type != "im"
         ) {
-          panelsToKeep.push(panels[5]);
+          panels.push({
+            string: getString("prefPanel-junk"),
+            src: "am-junk.xhtml",
+          });
         }
 
         // Add the synchronization/diskspace panel?
         if (server.type != "im") {
-          if (server.offlineSupportLevel >= 10) {
-            panelsToKeep.push(panels[2]); // As "Synchronization & Storage".
-          } else {
-            panelsToKeep.push(panels[3]); // As "Disk Space".
-          }
+          const title =
+            server.offlineSupportLevel >= 10
+              ? getString("prefPanel-synchronization")
+              : getString("prefPanel-diskspace");
+          panels.push({ string: title, src: "am-offline.xhtml" });
         }
 
         // extensions
@@ -1856,7 +1853,7 @@ var gAccountTree = {
               const title = panelBundle.GetStringFromName(
                 "prefPanel-" + svc.name
               );
-              panelsToKeep.push({
+              panels.push({
                 string: title,
                 src: "am-" + svc.name + ".xhtml",
               });
@@ -1875,7 +1872,7 @@ var gAccountTree = {
         const accountID = accountName || accountKey;
         console.error(`Error accessing account ${accountID}`, e);
         accountName = "Invalid account " + accountID;
-        panelsToKeep.length = 0;
+        panels = [];
         validAccount = false;
       }
 
@@ -1908,9 +1905,9 @@ var gAccountTree = {
         this._updateAccountRowColor(account);
       }
 
-      if (panelsToKeep.length > 0) {
+      if (panels.length > 0) {
         const treekids = treeitem.querySelector("ul");
-        for (const panel of panelsToKeep) {
+        for (const panel of panels) {
           const kidtreeitem = document.createElement("li");
           kidtreeitem.title = panel.string;
           treekids.appendChild(kidtreeitem);
