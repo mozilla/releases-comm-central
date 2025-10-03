@@ -14,6 +14,7 @@ mod send_message;
 mod server_version;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
+mod update_folder;
 
 use std::{
     cell::{Cell, RefCell},
@@ -28,7 +29,6 @@ use ews::{
     response::{ResponseClass, ResponseCode, ResponseError},
     server_version::ExchangeServerVersion,
     soap,
-    update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates as FolderUpdates},
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem,
         UpdateItemResponse, Updates,
@@ -643,63 +643,6 @@ where
         validate_response_message_count(response_messages, expected_response_count)?;
 
         Ok(response)
-    }
-
-    pub async fn update_folder(
-        self,
-        listener: SafeEwsSimpleOperationListener,
-        folder_id: String,
-        folder_name: String,
-    ) {
-        // Call an inner function to perform the operation in order to allow us
-        // to handle errors while letting the inner function simply propagate.
-        match self.update_folder_inner(folder_id, folder_name).await {
-            Ok(_) => {
-                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
-            }
-            Err(err) => handle_error(&listener, UpdateFolder::NAME, &err, ()),
-        }
-    }
-
-    async fn update_folder_inner(
-        self,
-        folder_id: String,
-        folder_name: String,
-    ) -> Result<(), XpComEwsError> {
-        let update_folder = UpdateFolder {
-            folder_changes: FolderChanges {
-                folder_change: FolderChange {
-                    folder_id: BaseFolderId::FolderId {
-                        id: folder_id,
-                        change_key: None,
-                    },
-                    updates: FolderUpdates::SetFolderField {
-                        field_URI: PathToElement::FieldURI {
-                            field_URI: "folder:DisplayName".to_string(),
-                        },
-                        folder: Folder::Folder {
-                            display_name: Some(folder_name),
-                            folder_id: None,
-                            parent_folder_id: None,
-                            folder_class: None,
-                            total_count: None,
-                            child_folder_count: None,
-                            extended_property: None,
-                            unread_count: None,
-                        },
-                    },
-                },
-            },
-        };
-
-        let response = self
-            .make_operation_request(update_folder, Default::default())
-            .await?;
-        let response_messages = response.into_response_messages();
-        let response_message = single_response_or_error(response_messages)?;
-        process_response_message_class(UpdateFolder::NAME, response_message)?;
-
-        Ok(())
     }
 
     /// Makes a request to the EWS endpoint to perform an operation.
