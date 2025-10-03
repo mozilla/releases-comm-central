@@ -2531,17 +2531,13 @@ NS_IMETHODIMP
 nsImapIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
 
+  *aSupportLevel = OFFLINE_SUPPORT_LEVEL_UNDEFINED;
   nsresult rv = GetIntValue("offline_support_level", aSupportLevel);
-  if (*aSupportLevel != OFFLINE_SUPPORT_LEVEL_UNDEFINED) return rv;
-
-  nsAutoCString host;
-  rv = GetHostName(host);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsFmtCString prefName(FMT_STRING("default_offline_support_level.{}"), host);
-  *aSupportLevel =
-      Preferences::GetInt(prefName.get(), OFFLINE_SUPPORT_LEVEL_REGULAR);
-
+  if (*aSupportLevel == OFFLINE_SUPPORT_LEVEL_UNDEFINED) {
+    *aSupportLevel = OFFLINE_SUPPORT_LEVEL_REGULAR;
+  }
   return NS_OK;
 }
 
