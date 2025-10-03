@@ -6,6 +6,7 @@ mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;
 mod create_message;
+mod delete_messages;
 mod get_message;
 mod mark_as_junk;
 mod send_message;
@@ -22,7 +23,6 @@ use std::{
 use ews::{
     create_item::CreateItem,
     delete_folder::DeleteFolder,
-    delete_item::DeleteItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
     get_item::GetItem,
     response::{ResponseClass, ResponseCode, ResponseError},
@@ -644,82 +644,6 @@ where
         validate_response_message_count(response_messages, expected_response_count)?;
 
         Ok(response)
-    }
-
-    pub async fn delete_messages(
-        self,
-        listener: SafeEwsSimpleOperationListener,
-        ews_ids: ThinVec<nsCString>,
-    ) {
-        // Call an inner function to perform the operation in order to allow us
-        // to handle errors while letting the inner function simply propagate.
-        match self.delete_messages_inner(ews_ids).await {
-            Ok(_) => {
-                let _ = listener.on_success((std::iter::empty::<String>(), false).into());
-            }
-            Err(err) => handle_error(&listener, DeleteItem::NAME, &err, ()),
-        };
-    }
-
-    async fn delete_messages_inner(self, ews_ids: ThinVec<nsCString>) -> Result<(), XpComEwsError> {
-        let item_ids: Vec<BaseItemId> = ews_ids
-            .iter()
-            .map(|raw_id| BaseItemId::ItemId {
-                id: raw_id.to_string(),
-                change_key: None,
-            })
-            .collect();
-
-        let delete_item = DeleteItem {
-            item_ids,
-            delete_type: DeleteType::HardDelete,
-            send_meeting_cancellations: None,
-            affected_task_occurrences: None,
-            suppress_read_receipts: None,
-        };
-
-        let response = self
-            .make_operation_request(delete_item, Default::default())
-            .await?;
-
-        // Make sure we got the amount of response messages matches the amount
-        // of messages we requested to have deleted.
-        let response_messages = response.into_response_messages();
-        validate_response_message_count(&response_messages, ews_ids.len())?;
-
-        // Check every response message for an error.
-        response_messages
-            .into_iter()
-            .zip(ews_ids.iter())
-            .try_for_each(|(response_message, ews_id)| {
-                if let Err(err) = process_response_message_class(
-                    DeleteItem::NAME,
-                    response_message
-                ) {
-                    if matches!(err, XpComEwsError::ResponseError( ResponseError { response_code: ResponseCode::ErrorItemNotFound, .. })) {
-                        // Something happened in a previous attempt that caused
-                        // the message to be deleted on the EWS server but not
-                        // in the database. In this case, we don't want to force
-                        // a zombie message in the folder, so we ignore the
-                        // error and move on with the local deletion.
-                        log::warn!("found message that was deleted from the EWS server but not the local db: {ews_id}");
-                        Ok(())
-                    } else {
-                        // We've already checked that there are as many elements in
-                        // `response_messages` as in `message_ews_ids`, so we
-                        // shouldn't be able to get out of bounds here.
-                        Err(XpComEwsError::Processing {
-                            message: format!(
-                                "error while attempting to delete message {ews_id}: {err:?}"
-                            ),
-                        })
-                    }
-                } else {
-                    Ok(())
-                }
-            })?;
-
-        Ok(())
     }
 
     pub async fn delete_folder(self, listener: SafeEwsSimpleOperationListener, folder_id: String) {
