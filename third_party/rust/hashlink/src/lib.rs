@@ -16,7 +16,7 @@ pub use lru_cache::LruCache;
 /// Default hash builder, matches hashbrown's default hasher.
 ///
 /// See [`DefaultHasher`] for more details.
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct DefaultHashBuilder(hashbrown::DefaultHashBuilder);
 
 impl BuildHasher for DefaultHashBuilder {

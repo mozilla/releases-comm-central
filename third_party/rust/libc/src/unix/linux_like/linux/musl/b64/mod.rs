@@ -3,6 +3,8 @@ use crate::prelude::*;
 pub type regoff_t = c_long;
 
 s! {
+    // MIPS implementation is special, see the subfolder.
+    #[cfg(not(target_arch = "mips64"))]
     pub struct stack_t {
         pub ss_sp: *mut c_void,
         pub ss_flags: c_int,
@@ -17,6 +19,8 @@ s! {
         __val: [c_ulong; 16],
     }
 
+    // PowerPC implementation is special, see the subfolder.
+    #[cfg(not(target_arch = "powerpc64"))]
     pub struct shmid_ds {
         pub shm_perm: crate::ipc_perm,
         pub shm_segsz: size_t,
@@ -80,10 +84,6 @@ s! {
 pub const __SIZEOF_PTHREAD_RWLOCK_T: usize = 56;
 pub const __SIZEOF_PTHREAD_MUTEX_T: usize = 40;
 pub const __SIZEOF_PTHREAD_BARRIER_T: usize = 32;
-
-extern "C" {
-    pub fn getrandom(buf: *mut c_void, buflen: size_t, flags: c_uint) -> ssize_t;
-}
 
 cfg_if! {
     if #[cfg(target_arch = "aarch64")] {

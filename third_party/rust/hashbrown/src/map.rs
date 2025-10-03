@@ -1306,9 +1306,14 @@ where
         Q: Hash + Equivalent<K> + ?Sized,
     {
         // Avoid `Option::map` because it bloats LLVM IR.
-        match self.get_inner(k) {
-            Some((_, v)) => Some(v),
-            None => None,
+        if !self.table.is_empty() {
+            let hash = make_hash::<Q, S>(&self.hash_builder, k);
+            match self.table.get(hash, equivalent_key(k)) {
+                Some((_, v)) => Some(v),
+                None => None,
+            }
+        } else {
+            None
         }
     }
 
@@ -1337,22 +1342,14 @@ where
         Q: Hash + Equivalent<K> + ?Sized,
     {
         // Avoid `Option::map` because it bloats LLVM IR.
-        match self.get_inner(k) {
-            Some((key, value)) => Some((key, value)),
-            None => None,
-        }
-    }
-
-    #[inline]
-    fn get_inner<Q>(&self, k: &Q) -> Option<&(K, V)>
-    where
-        Q: Hash + Equivalent<K> + ?Sized,
-    {
-        if self.table.is_empty() {
-            None
-        } else {
+        if !self.table.is_empty() {
             let hash = make_hash::<Q, S>(&self.hash_builder, k);
-            self.table.get(hash, equivalent_key(k))
+            match self.table.get(hash, equivalent_key(k)) {
+                Some((key, value)) => Some((key, value)),
+                None => None,
+            }
+        } else {
+            None
         }
     }
 
@@ -1385,9 +1382,14 @@ where
         Q: Hash + Equivalent<K> + ?Sized,
     {
         // Avoid `Option::map` because it bloats LLVM IR.
-        match self.get_inner_mut(k) {
-            Some(&mut (ref key, ref mut value)) => Some((key, value)),
-            None => None,
+        if !self.table.is_empty() {
+            let hash = make_hash::<Q, S>(&self.hash_builder, k);
+            match self.table.get_mut(hash, equivalent_key(k)) {
+                Some(&mut (ref key, ref mut value)) => Some((key, value)),
+                None => None,
+            }
+        } else {
+            None
         }
     }
 
@@ -1415,7 +1417,12 @@ where
     where
         Q: Hash + Equivalent<K> + ?Sized,
     {
-        self.get_inner(k).is_some()
+        if !self.table.is_empty() {
+            let hash = make_hash::<Q, S>(&self.hash_builder, k);
+            self.table.get(hash, equivalent_key(k)).is_some()
+        } else {
+            false
+        }
     }
 
     /// Returns a mutable reference to the value corresponding to the key.
@@ -1447,22 +1454,14 @@ where
         Q: Hash + Equivalent<K> + ?Sized,
     {
         // Avoid `Option::map` because it bloats LLVM IR.
-        match self.get_inner_mut(k) {
-            Some(&mut (_, ref mut v)) => Some(v),
-            None => None,
-        }
-    }
-
-    #[inline]
-    fn get_inner_mut<Q>(&mut self, k: &Q) -> Option<&mut (K, V)>
-    where
-        Q: Hash + Equivalent<K> + ?Sized,
-    {
-        if self.table.is_empty() {
-            None
-        } else {
+        if !self.table.is_empty() {
             let hash = make_hash::<Q, S>(&self.hash_builder, k);
-            self.table.get_mut(hash, equivalent_key(k))
+            match self.table.get_mut(hash, equivalent_key(k)) {
+                Some(&mut (_, ref mut v)) => Some(v),
+                None => None,
+            }
+        } else {
+            None
         }
     }
 
@@ -2596,10 +2595,7 @@ impl<K, V, A: Allocator> Drain<'_, K, V, A> {
 /// assert_eq!(map.len(), 1);
 /// ```
 #[must_use = "Iterators are lazy unless consumed"]
-pub struct ExtractIf<'a, K, V, F, A: Allocator = Global>
-where
-    F: FnMut(&K, &mut V) -> bool,
-{
+pub struct ExtractIf<'a, K, V, F, A: Allocator = Global> {
     f: F,
     inner: RawExtractIf<'a, (K, V), A>,
 }
@@ -3527,6 +3523,38 @@ impl<'a, K, V, S, A: Allocator> Entry<'a, K, V, S, A> {
         }
     }
 
+    /// Ensures a value is in the entry by inserting the default if empty,
+    /// and returns an [`OccupiedEntry`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hashbrown::HashMap;
+    ///
+    /// let mut map: HashMap<&str, u32> = HashMap::new();
+    ///
+    /// // nonexistent key
+    /// let entry = map.entry("poneyland").or_insert_entry(3);
+    /// assert_eq!(entry.key(), &"poneyland");
+    /// assert_eq!(entry.get(), &3);
+    ///
+    /// // existing key
+    /// let mut entry = map.entry("poneyland").or_insert_entry(10);
+    /// assert_eq!(entry.key(), &"poneyland");
+    /// assert_eq!(entry.get(), &3);
+    /// ```
+    #[cfg_attr(feature = "inline-more", inline)]
+    pub fn or_insert_entry(self, default: V) -> OccupiedEntry<'a, K, V, S, A>
+    where
+        K: Hash,
+        S: BuildHasher,
+    {
+        match self {
+            Entry::Occupied(entry) => entry,
+            Entry::Vacant(entry) => entry.insert_entry(default),
+        }
+    }
+
     /// Ensures a value is in the entry by inserting the result of the default function if empty,
     /// and returns a mutable reference to the value in the entry.
     ///
@@ -4131,7 +4159,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> EntryRef<'a, 'b, K, Q, V, S, A> {
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn insert(self, value: V) -> OccupiedEntry<'a, K, V, S, A>
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         match self {
@@ -4164,7 +4193,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> EntryRef<'a, 'b, K, Q, V, S, A> {
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn or_insert(self, default: V) -> &'a mut V
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         match self {
@@ -4194,7 +4224,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> EntryRef<'a, 'b, K, Q, V, S, A> {
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn or_insert_with<F: FnOnce() -> V>(self, default: F) -> &'a mut V
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         match self {
@@ -4225,7 +4256,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> EntryRef<'a, 'b, K, Q, V, S, A> {
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn or_insert_with_key<F: FnOnce(&Q) -> V>(self, default: F) -> &'a mut V
     where
-        K: Hash + Borrow<Q> + From<&'b Q>,
+        K: Hash + Borrow<Q>,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         match self {
@@ -4320,12 +4352,46 @@ impl<'a, 'b, K, Q: ?Sized, V: Default, S, A: Allocator> EntryRef<'a, 'b, K, Q, V
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn or_default(self) -> &'a mut V
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         match self {
             EntryRef::Occupied(entry) => entry.into_mut(),
             EntryRef::Vacant(entry) => entry.insert(Default::default()),
+        }
+    }
+
+    /// Ensures a value is in the entry by inserting the default value if empty,
+    /// and returns an [`OccupiedEntry`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hashbrown::HashMap;
+    ///
+    /// let mut map: HashMap<String, Option<u32>> = HashMap::new();
+    ///
+    /// // nonexistent key
+    /// let entry = map.entry_ref("poneyland").or_default_entry();
+    /// assert_eq!(entry.key(), &"poneyland");
+    /// assert_eq!(entry.get(), &None);
+    ///
+    /// // existing key
+    /// map.insert("horseland".to_string(), Some(3));
+    /// let entry = map.entry_ref("horseland").or_default_entry();
+    /// assert_eq!(entry.key(), &"horseland");
+    /// assert_eq!(entry.get(), &Some(3));
+    /// ```
+    #[cfg_attr(feature = "inline-more", inline)]
+    pub fn or_default_entry(self) -> OccupiedEntry<'a, K, V, S, A>
+    where
+        K: Hash + From<&'b Q>,
+        S: BuildHasher,
+    {
+        match self {
+            EntryRef::Occupied(entry) => entry,
+            EntryRef::Vacant(entry) => entry.insert_entry(Default::default()),
         }
     }
 }
@@ -4368,7 +4434,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> VacantEntryRef<'a, 'b, K, Q, V, S
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn insert(self, value: V) -> &'a mut V
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         let table = &mut self.table.table;
@@ -4399,7 +4466,8 @@ impl<'a, 'b, K, Q: ?Sized, V, S, A: Allocator> VacantEntryRef<'a, 'b, K, Q, V, S
     #[cfg_attr(feature = "inline-more", inline)]
     pub fn insert_entry(self, value: V) -> OccupiedEntry<'a, K, V, S, A>
     where
-        K: Hash + From<&'b Q>,
+        K: Hash,
+        &'b Q: Into<K>,
         S: BuildHasher,
     {
         let elem = self.table.table.insert(
@@ -4690,9 +4758,9 @@ mod test_map {
     use super::Entry::{Occupied, Vacant};
     use super::EntryRef;
     use super::HashMap;
+    use crate::raw::{AllocError, Allocator, Global};
     use alloc::string::{String, ToString};
     use alloc::sync::Arc;
-    use allocator_api2::alloc::{AllocError, Allocator, Global};
     use core::alloc::Layout;
     use core::ptr::NonNull;
     use core::sync::atomic::{AtomicI8, Ordering};
@@ -5054,6 +5122,10 @@ mod test_map {
             Some(x) => *x = new,
         }
         assert_eq!(m.get(&5), Some(&new));
+        let mut hashmap: HashMap<i32, String> = HashMap::default();
+        let key = &1;
+        let result = hashmap.get_mut(key);
+        assert!(result.is_none());
     }
 
     #[test]
@@ -5446,8 +5518,7 @@ mod test_map {
         map.insert(2, 1);
         map.insert(3, 4);
 
-        #[allow(clippy::no_effect)] // false positive lint
-        map[&4];
+        _ = map[&4];
     }
 
     #[test]
@@ -6156,7 +6227,7 @@ mod test_map {
             }
 
             for (k, v) in map {
-                println!("{}, {}", k, v);
+                println!("{k}, {v}");
             }
         }
 
@@ -6261,8 +6332,7 @@ mod test_map {
             for ((key, value), (panic_in_clone, panic_in_drop)) in guard.iter().zip(iter) {
                 if *key != check_count {
                     return Err(format!(
-                        "key != check_count,\nkey: `{}`,\ncheck_count: `{}`",
-                        key, check_count
+                        "key != check_count,\nkey: `{key}`,\ncheck_count: `{check_count}`"
                     ));
                 }
                 if value.dropped
@@ -6289,8 +6359,7 @@ mod test_map {
 
             if count != check_count {
                 return Err(format!(
-                    "count != check_count,\ncount: `{}`,\ncheck_count: `{}`",
-                    count, check_count
+                    "count != check_count,\ncount: `{count}`,\ncheck_count: `{check_count}`"
                 ));
             }
             core::mem::forget(guard);

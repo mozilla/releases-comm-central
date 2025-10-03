@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.63"
+version = "0.1.64"
 dependencies = [
  "android_system_properties",
  "chrono-tz",

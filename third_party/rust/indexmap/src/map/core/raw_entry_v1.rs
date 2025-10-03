@@ -498,8 +498,8 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
 
     /// Remove the key, value pair stored in the map for this entry, and return the value.
     ///
-    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-    /// the last element of the map and popping it off.
+    /// Like [`Vec::swap_remove`][alloc::vec::Vec::swap_remove], the pair is removed by swapping it
+    /// with the last element of the map and popping it off.
     /// **This perturbs the position of what used to be the last element!**
     ///
     /// Computes in **O(1)** time (average).
@@ -509,7 +509,7 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
 
     /// Remove the key, value pair stored in the map for this entry, and return the value.
     ///
-    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+    /// Like [`Vec::remove`][alloc::vec::Vec::remove], the pair is removed by shifting all of the
     /// elements that follow it, preserving their relative order.
     /// **This perturbs the index of all of those elements!**
     ///
@@ -532,8 +532,8 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
 
     /// Remove and return the key, value pair stored in the map for this entry
     ///
-    /// Like [`Vec::swap_remove`][crate::Vec::swap_remove], the pair is removed by swapping it with
-    /// the last element of the map and popping it off.
+    /// Like [`Vec::swap_remove`][alloc::vec::Vec::swap_remove], the pair is removed by swapping it
+    /// with the last element of the map and popping it off.
     /// **This perturbs the position of what used to be the last element!**
     ///
     /// Computes in **O(1)** time (average).
@@ -544,7 +544,7 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
 
     /// Remove and return the key, value pair stored in the map for this entry
     ///
-    /// Like [`Vec::remove`][crate::Vec::remove], the pair is removed by shifting all of the
+    /// Like [`Vec::remove`][alloc::vec::Vec::remove], the pair is removed by shifting all of the
     /// elements that follow it, preserving their relative order.
     /// **This perturbs the index of all of those elements!**
     ///
@@ -566,6 +566,7 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
     /// ***Panics*** if `to` is out of bounds.
     ///
     /// Computes in **O(n)** time (average).
+    #[track_caller]
     pub fn move_index(self, to: usize) {
         let index = self.index();
         self.into_ref_mut().move_index(index, to);
@@ -579,6 +580,7 @@ impl<'a, K, V, S> RawOccupiedEntryMut<'a, K, V, S> {
     /// ***Panics*** if the `other` index is out of bounds.
     ///
     /// Computes in **O(1)** time (average).
+    #[track_caller]
     pub fn swap_indices(self, other: usize) {
         let index = self.index();
         self.into_ref_mut().swap_indices(index, other);
@@ -629,6 +631,7 @@ impl<'a, K, V, S> RawVacantEntryMut<'a, K, V, S> {
     /// ***Panics*** if `index` is out of bounds.
     ///
     /// Computes in **O(n)** time (average).
+    #[track_caller]
     pub fn shift_insert(self, index: usize, key: K, value: V) -> (&'a mut K, &'a mut V)
     where
         K: Hash,
@@ -645,6 +648,7 @@ impl<'a, K, V, S> RawVacantEntryMut<'a, K, V, S> {
     /// ***Panics*** if `index` is out of bounds.
     ///
     /// Computes in **O(n)** time (average).
+    #[track_caller]
     pub fn shift_insert_hashed_nocheck(
         mut self,
         index: usize,

@@ -15,6 +15,12 @@ rust-version = "1.65"
 name = "hashlink"
 version = "0.10.0"
 authors = ["kyren <kerriganw@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "HashMap-like containers that hold their key-value pairs in a user controllable order"
 documentation = "https://docs.rs/hashlink"
 readme = "README.md"
@@ -25,8 +31,35 @@ keywords = [
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/kyren/hashlink"
 
+[badges.circle-ci]
+branch = "master"
+repository = "kyren/hashlink"
+
+[features]
+serde_impl = ["serde"]
+
+[lib]
+name = "hashlink"
+path = "src/lib.rs"
+
+[[test]]
+name = "linked_hash_map"
+path = "tests/linked_hash_map.rs"
+
+[[test]]
+name = "linked_hash_set"
+path = "tests/linked_hash_set.rs"
+
+[[test]]
+name = "lru_cache"
+path = "tests/lru_cache.rs"
+
+[[test]]
+name = "serde"
+path = "tests/serde.rs"
+
 [dependencies.hashbrown]
-version = "0.15"
+version = ">=0.15,<=0.16"
 features = [
     "default-hasher",
     "inline-more",
@@ -38,15 +71,6 @@ version = "1.0"
 optional = true
 default-features = false
 
-[dev-dependencies.rustc-hash]
-version = "2"
-
-[dev-dependencies.serde_test]
-version = "1.0"
-
-[features]
-serde_impl = ["serde"]
-
-[badges.circle-ci]
-branch = "master"
-repository = "kyren/hashlink"
+[dev-dependencies]
+rustc-hash = "2"
+serde_test = "1.0"

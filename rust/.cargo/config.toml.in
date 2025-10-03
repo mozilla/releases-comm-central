@@ -26,6 +26,11 @@ git = "https://github.com/beurdouche/nss-gk-api"
 rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/erichdongubler-contrib/hashlink?rev=76dc47a12af5829c1e8bf4834e38b410dec2aeff"]
+git = "https://github.com/erichdongubler-contrib/hashlink"
+rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/franziskuskiefer/cose-rust?rev=43c22248d136c8b38fe42ea709d08da6355cf04b"]
 git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"

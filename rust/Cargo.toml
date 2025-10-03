@@ -211,7 +211,8 @@ getrandom = { path = "../../build/rust/getrandom" }
 rustc-hash = { path = "../../build/rust/rustc-hash" }
 memoffset = { path = "../../build/rust/memoffset" }
 hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.13" }
-hashbrown_0_14 = { package = "hashbrown", path = "../../build/rust/hashbrown" }
+hashbrown_0_14 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.14" }
+hashbrown_0_15 = { package = "hashbrown", path = "../../build/rust/hashbrown" }
 thiserror = { path = "../../build/rust/thiserror" }
 thin-vec = { path = "../../third_party/rust/thin-vec" }
 js-sys = { path = "../../build/rust/dummy-web/js-sys" }
@@ -256,3 +257,4 @@ viaduct = { git = "https://github.com/mozilla/application-services", rev = "f6f6
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "f6f667f590ac15367fc37eb1ad3a6bdea4ffc526" }
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
+hashlink = { git = "https://github.com/erichdongubler-contrib/hashlink", rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff" }
