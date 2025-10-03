@@ -3,51 +3,42 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{create_folder::CreateFolder, BaseFolderId, Folder, Operation, OperationResponse};
-
 use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
 
 use crate::client::single_response_or_error;
-use crate::safe_xpcom::{handle_error, SafeEwsSimpleOperationListener, SafeListener};
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 
-use super::{process_response_message_class, XpComEwsClient, XpComEwsError};
+use super::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError};
 use crate::authentication::credentials::AuthenticationProvider;
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
-    pub(crate) async fn create_folder(
-        self,
-        listener: SafeEwsSimpleOperationListener,
-        parent_id: String,
-        name: String,
-    ) {
-        // Call an inner function to perform the operation in order to allow us
-        // to handle errors while letting the inner function simply propagate.
-        match self.create_folder_inner(parent_id, name).await {
-            Ok(folder_id) => {
-                let _ = listener.on_success((std::iter::once(folder_id), false).into());
-            }
-            Err(err) => handle_error(&listener, CreateFolder::NAME, &err, ()),
-        };
-    }
+struct DoCreateFolder {
+    parent_id: String,
+    name: String,
+}
 
-    async fn create_folder_inner(
-        self,
-        parent_id: String,
-        name: String,
-    ) -> Result<String, XpComEwsError> {
+impl DoOperation for DoCreateFolder {
+    const NAME: &'static str = CreateFolder::NAME;
+    type Okay = String;
+    type Listener = SafeEwsSimpleOperationListener;
+
+    async fn do_operation<ServerT>(
+        &mut self,
+        client: &XpComEwsClient<ServerT>,
+    ) -> Result<Self::Okay, XpComEwsError>
+    where
+        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+    {
         let op = CreateFolder {
             parent_folder_id: BaseFolderId::FolderId {
-                id: parent_id,
+                id: self.parent_id.clone(),
                 change_key: None,
             },
             folders: vec![Folder::Folder {
                 folder_id: None,
                 parent_folder_id: None,
                 folder_class: Some("IPF.Note".to_string()),
-                display_name: Some(name),
+                display_name: Some(self.name.clone()),
                 total_count: None,
                 child_folder_count: None,
                 extended_property: None,
@@ -55,7 +46,9 @@ where
             }],
         };
 
-        let response = self.make_operation_request(op, Default::default()).await?;
+        let response = client
+            .make_operation_request(op, Default::default())
+            .await?;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.
@@ -87,5 +80,29 @@ where
         };
 
         Ok(folder_id)
+    }
+
+    fn into_success_arg(
+        self,
+        folder_id: Self::Okay,
+    ) -> <Self::Listener as SafeListener>::OnSuccessArg {
+        (std::iter::once(folder_id), false).into()
+    }
+
+    fn into_failure_arg(self) {}
+}
+
+impl<ServerT> XpComEwsClient<ServerT>
+where
+    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+{
+    pub(crate) async fn create_folder(
+        self,
+        listener: SafeEwsSimpleOperationListener,
+        parent_id: String,
+        name: String,
+    ) {
+        let operation = DoCreateFolder { parent_id, name };
+        operation.handle_operation(&self, &listener).await;
     }
 }
