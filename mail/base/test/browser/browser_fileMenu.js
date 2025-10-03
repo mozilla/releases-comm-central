@@ -24,11 +24,11 @@ const fileMenuData = {
     disabled: ["mailMessageWindow"],
   },
   newMailAccountMenuItem: {},
-  menu_newAddressbook: {},
+  menu_newAddressbook: {}, // TODO: Bug 1991626 Remove line.
   menu_newLocalAddressbook: {},
   menu_newCarddavAddressbook: {},
   menu_newLdapAddressbook: {},
-  menu_newAccountHubAddressbook: { hidden: true },
+  menu_newAccountHubAddressbook: { hidden: true }, // TODO: Bug 1991626 Remove hidden attr.
   newIMAccountMenuItem: {},
   newFeedAccountMenuItem: {},
   newNewsgroupAccountMenuItem: {},
@@ -73,7 +73,7 @@ const nonMainWindowData = Object.fromEntries(
   Object.entries(fileMenuData).filter(
     ([id]) =>
       ![
-        "menu_newAddressbook",
+        "menu_newAddressbook", // TODO: Bug 1991626 Remove line.
         "menu_newLocalAddressbook",
         "menu_newCarddavAddressbook",
         "menu_newLdapAddressbook",

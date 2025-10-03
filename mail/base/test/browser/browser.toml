@@ -1,6 +1,7 @@
 [DEFAULT]
 head = "head.js"
 prefs = [
+  "mail.accounthub.addressbook.enabled=false", # TODO Remove in Bug 1991626
   "mail.biff.show_alert=false",
   "mail.provider.suppress_dialog_on_startup=true",
   "mail.spellcheck.inline=false",
