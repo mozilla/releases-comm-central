@@ -119,7 +119,7 @@ features = ["num-traits"]
 default-features = false
 
 [dependencies.hashbrown]
-version = "0.15"
+version = "0.16"
 features = [
     "default-hasher",
     "inline-more",
@@ -131,7 +131,7 @@ version = "0.2"
 optional = true
 
 [dependencies.indexmap]
-version = "2.7"
+version = "2.8"
 default-features = false
 
 [dependencies.libm]
@@ -195,7 +195,7 @@ version = "0.11"
 default-features = false
 
 [dev-dependencies.hashbrown]
-version = "0.15"
+version = "0.16"
 features = [
     "default-hasher",
     "inline-more",
@@ -214,7 +214,7 @@ version = "26.0.0"
 path = "../naga-test"
 
 [dev-dependencies.ron]
-version = "0.10"
+version = "0.11"
 
 [dev-dependencies.rspirv]
 version = "0.12"
@@ -231,7 +231,7 @@ default-features = false
 version = "0.3"
 
 [dev-dependencies.strum]
-version = "0.27"
+version = "0.27.1"
 features = ["derive"]
 default-features = false
 

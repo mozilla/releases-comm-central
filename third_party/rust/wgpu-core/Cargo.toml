@@ -129,7 +129,7 @@ features = [
 version = "0.2.10"
 
 [dependencies.hashbrown]
-version = "0.15"
+version = "0.16"
 features = [
     "default-hasher",
     "inline-more",
@@ -137,7 +137,7 @@ features = [
 default-features = false
 
 [dependencies.indexmap]
-version = "2.7"
+version = "2.8"
 default-features = false
 
 [dependencies.log]
@@ -165,7 +165,7 @@ optional = true
 default-features = false
 
 [dependencies.ron]
-version = "0.10"
+version = "0.11"
 optional = true
 
 [dependencies.rustc-hash]
@@ -182,7 +182,7 @@ optional = true
 default-features = false
 
 [dependencies.smallvec]
-version = "1.13.1"
+version = "1.14"
 
 [dependencies.thiserror]
 version = "2.0.12"

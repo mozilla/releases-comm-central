@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.64.0"
 name = "ron"
-version = "0.10.1"
+version = "0.11.0"
 authors = [
     "Christopher Durham <cad97@cad97.com>",
     "Dzmitry Malyshau <kvarkus@gmail.com>",
@@ -47,8 +47,14 @@ features = [
 rustdoc-args = ["--generate-link-to-definition"]
 
 [features]
-default = []
+default = ["std"]
+indexmap = [
+    "std",
+    "dep:indexmap",
+]
 integer128 = []
+internal-span-substring-test = ["unicode-segmentation"]
+std = ["serde/std"]
 
 [lib]
 name = "ron"
@@ -57,26 +63,36 @@ path = "src/lib.rs"
 [[example]]
 name = "base64"
 path = "examples/base64.rs"
+required-features = []
 
 [[example]]
 name = "decode"
 path = "examples/decode.rs"
+required-features = []
 
 [[example]]
 name = "decode_file"
 path = "examples/decode_file.rs"
+required-features = ["std"]
 
 [[example]]
 name = "encode"
 path = "examples/encode.rs"
+required-features = []
 
 [[example]]
 name = "encode_file"
 path = "examples/encode_file.rs"
+required-features = ["std"]
+
+[[example]]
+name = "file_read_write_vec"
+path = "examples/file_read_write_vec.rs"
 
 [[example]]
 name = "transcode"
 path = "examples/transcode.rs"
+required-features = []
 
 [[test]]
 name = "115_minimal_flattening"
@@ -279,6 +295,10 @@ name = "544_path_meta"
 path = "tests/544_path_meta.rs"
 
 [[test]]
+name = "564_exhaustive_number"
+path = "tests/564_exhaustive_number.rs"
+
+[[test]]
 name = "big_struct"
 path = "tests/big_struct.rs"
 
@@ -356,7 +376,7 @@ path = "tests/value.rs"
 
 [dependencies.base64]
 version = "0.22"
-features = ["std"]
+features = ["alloc"]
 default-features = false
 
 [dependencies.bitflags]
@@ -366,16 +386,13 @@ default-features = false
 
 [dependencies.indexmap]
 version = "2.0"
-features = [
-    "std",
-    "serde",
-]
+features = ["serde"]
 optional = true
 default-features = false
 
 [dependencies.serde]
 version = "1.0.181"
-features = ["std"]
+features = ["alloc"]
 default-features = false
 
 [dependencies.serde_derive]
@@ -384,6 +401,11 @@ default-features = false
 
 [dependencies.unicode-ident]
 version = "1.0"
+default-features = false
+
+[dependencies.unicode-segmentation]
+version = "1.12.0"
+optional = true
 default-features = false
 
 [dev-dependencies.bytes]

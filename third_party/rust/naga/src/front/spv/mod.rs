@@ -82,6 +82,8 @@ pub const SUPPORTED_CAPABILITIES: &[spirv::Capability] = &[
     spirv::Capability::GroupNonUniformBallot,
     spirv::Capability::GroupNonUniformShuffle,
     spirv::Capability::GroupNonUniformShuffleRelative,
+    spirv::Capability::RuntimeDescriptorArray,
+    spirv::Capability::StorageImageMultisample,
     // tricky ones
     spirv::Capability::UniformBufferArrayDynamicIndexing,
     spirv::Capability::StorageBufferArrayDynamicIndexing,
@@ -90,6 +92,7 @@ pub const SUPPORTED_EXTENSIONS: &[&str] = &[
     "SPV_KHR_storage_buffer_storage_class",
     "SPV_KHR_vulkan_memory_model",
     "SPV_KHR_multiview",
+    "SPV_EXT_descriptor_indexing",
     "SPV_EXT_shader_atomic_float_add",
     "SPV_KHR_16bit_storage",
 ];
@@ -2799,6 +2802,7 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                     let options = image::SamplingOptions {
                         compare: false,
                         project: false,
+                        gather: false,
                     };
                     self.parse_image_sample(
                         extra,
@@ -2815,6 +2819,7 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                     let options = image::SamplingOptions {
                         compare: false,
                         project: true,
+                        gather: false,
                     };
                     self.parse_image_sample(
                         extra,
@@ -2831,6 +2836,7 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                     let options = image::SamplingOptions {
                         compare: true,
                         project: false,
+                        gather: false,
                     };
                     self.parse_image_sample(
                         extra,
@@ -2847,6 +2853,41 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                     let options = image::SamplingOptions {
                         compare: true,
                         project: true,
+                        gather: false,
+                    };
+                    self.parse_image_sample(
+                        extra,
+                        options,
+                        ctx,
+                        &mut emitter,
+                        &mut block,
+                        block_id,
+                        body_idx,
+                    )?;
+                }
+                Op::ImageGather => {
+                    let extra = inst.expect_at_least(6)?;
+                    let options = image::SamplingOptions {
+                        compare: false,
+                        project: false,
+                        gather: true,
+                    };
+                    self.parse_image_sample(
+                        extra,
+                        options,
+                        ctx,
+                        &mut emitter,
+                        &mut block,
+                        block_id,
+                        body_idx,
+                    )?;
+                }
+                Op::ImageDrefGather => {
+                    let extra = inst.expect_at_least(6)?;
+                    let options = image::SamplingOptions {
+                        compare: true,
+                        project: false,
+                        gather: true,
                     };
                     self.parse_image_sample(
                         extra,
@@ -3869,7 +3910,10 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                             crate::Barrier::TEXTURE,
                             semantics & spirv::MemorySemantics::IMAGE_MEMORY.bits() != 0,
                         );
+
+                        block.extend(emitter.finish(ctx.expressions));
                         block.push(crate::Statement::ControlBarrier(flags), span);
+                        emitter.start(ctx.expressions);
                     } else {
                         log::warn!("Unsupported barrier execution scope: {exec_scope}");
                     }
@@ -3911,7 +3955,10 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                         crate::Barrier::TEXTURE,
                         semantics & spirv::MemorySemantics::IMAGE_MEMORY.bits() != 0,
                     );
+
+                    block.extend(emitter.finish(ctx.expressions));
                     block.push(crate::Statement::MemoryBarrier(flags), span);
+                    emitter.start(ctx.expressions);
                 }
                 Op::CopyObject => {
                     inst.expect(4)?;

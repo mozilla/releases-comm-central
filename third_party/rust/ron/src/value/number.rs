@@ -1,4 +1,4 @@
-use std::{
+use core::{
     cmp::{Eq, Ordering},
     hash::{Hash, Hasher},
 };
@@ -17,7 +17,8 @@ use serde::{de::Visitor, Serialize, Serializer};
 /// <summary>Exhaustively matching on <code>Number</code> in tests</summary>
 ///
 /// If you want to ensure that you exhaustively handle every variant, you can
-/// match on the hidden `Number::__NonExhaustive` variant.
+/// match on the hidden `Number::__NonExhaustive(x)` variant by using the
+/// `x.never() -> !` method.
 ///
 /// <div class="warning">
 /// Matching on this variant means that your code may break when RON is
@@ -54,8 +55,61 @@ pub enum Number {
 }
 
 mod private {
+    #[derive(Debug, PartialEq, PartialOrd, Eq, Hash, Ord)]
+    enum _Never {}
+
     #[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Eq, Hash, Ord)]
-    pub enum Never {}
+    pub struct Never {
+        never: &'static _Never,
+    }
+
+    impl Never {
+        pub fn never(self) -> ! {
+            match *self.never {}
+        }
+    }
+
+    #[cfg(not(feature = "integer128"))]
+    /// ```compile_fail
+    /// # use ron::Number;
+    /// fn match_number(x: Number) {
+    ///     match x {
+    ///         Number::I8(v) => println!("i8: {}", v),
+    ///         Number::I16(v) => println!("i16: {}", v),
+    ///         Number::I32(v) => println!("i32: {}", v),
+    ///         Number::I64(v) => println!("i64: {}", v),
+    ///         Number::U8(v) => println!("u8: {}", v),
+    ///         Number::U16(v) => println!("u16: {}", v),
+    ///         Number::U32(v) => println!("u32: {}", v),
+    ///         Number::U64(v) => println!("u64: {}", v),
+    ///         Number::F32(v) => println!("f32: {}", v.0),
+    ///         Number::F64(v) => println!("f64: {}", v.0),
+    ///     }
+    /// }
+    /// ```
+    fn _assert_non_exhaustive_check_fails_not_integer128() {}
+
+    #[cfg(feature = "integer128")]
+    /// ```compile_fail
+    /// # use ron::Number;
+    /// fn match_number(x: Number) {
+    ///     match x {
+    ///         Number::I8(v) => println!("i8: {}", v),
+    ///         Number::I16(v) => println!("i16: {}", v),
+    ///         Number::I32(v) => println!("i32: {}", v),
+    ///         Number::I64(v) => println!("i64: {}", v),
+    ///         Number::I128(v) => println!("i128: {}", v),
+    ///         Number::U8(v) => println!("u8: {}", v),
+    ///         Number::U16(v) => println!("u16: {}", v),
+    ///         Number::U32(v) => println!("u32: {}", v),
+    ///         Number::U64(v) => println!("u64: {}", v),
+    ///         Number::U128(v) => println!("u128: {}", v),
+    ///         Number::F32(v) => println!("f32: {}", v.0),
+    ///         Number::F64(v) => println!("f64: {}", v.0),
+    ///     }
+    /// }
+    /// ```
+    fn _assert_non_exhaustive_check_fails_integer128() {}
 }
 
 impl Serialize for Number {
@@ -76,7 +130,7 @@ impl Serialize for Number {
             Self::F32(v) => serializer.serialize_f32(v.get()),
             Self::F64(v) => serializer.serialize_f64(v.get()),
             #[cfg(not(doc))]
-            Self::__NonExhaustive(never) => match *never {},
+            Self::__NonExhaustive(never) => never.never(),
         }
     }
 }
@@ -102,7 +156,7 @@ impl Number {
             Self::F32(v) => visitor.visit_f32(v.get()),
             Self::F64(v) => visitor.visit_f64(v.get()),
             #[cfg(not(doc))]
-            Self::__NonExhaustive(never) => match *never {},
+            Self::__NonExhaustive(never) => never.never(),
         }
     }
 }
@@ -240,22 +294,22 @@ impl Number {
     pub fn into_f64(self) -> f64 {
         #[allow(clippy::cast_precision_loss)]
         match self {
-            Number::I8(v) => f64::from(v),
-            Number::I16(v) => f64::from(v),
-            Number::I32(v) => f64::from(v),
-            Number::I64(v) => v as f64,
+            Self::I8(v) => f64::from(v),
+            Self::I16(v) => f64::from(v),
+            Self::I32(v) => f64::from(v),
+            Self::I64(v) => v as f64,
             #[cfg(feature = "integer128")]
-            Number::I128(v) => v as f64,
-            Number::U8(v) => f64::from(v),
-            Number::U16(v) => f64::from(v),
-            Number::U32(v) => f64::from(v),
-            Number::U64(v) => v as f64,
+            Self::I128(v) => v as f64,
+            Self::U8(v) => f64::from(v),
+            Self::U16(v) => f64::from(v),
+            Self::U32(v) => f64::from(v),
+            Self::U64(v) => v as f64,
             #[cfg(feature = "integer128")]
-            Number::U128(v) => v as f64,
-            Number::F32(v) => f64::from(v.get()),
-            Number::F64(v) => v.get(),
+            Self::U128(v) => v as f64,
+            Self::F32(v) => f64::from(v.get()),
+            Self::F64(v) => v.get(),
             #[cfg(not(doc))]
-            Self::__NonExhaustive(never) => match never {},
+            Self::__NonExhaustive(never) => never.never(),
         }
     }
 }
@@ -294,22 +348,26 @@ number_from_impl! { Number::F64(F64(f64)) }
 
 #[cfg(test)]
 mod tests {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
     use super::*;
-
-    fn hash<T: Hash>(v: &T) -> u64 {
-        let mut state = DefaultHasher::new();
-        v.hash(&mut state);
-        state.finish()
-    }
 
     #[test]
     fn test_nan() {
         assert_eq!(F32(f32::NAN), F32(f32::NAN));
         assert_eq!(F32(-f32::NAN), F32(-f32::NAN));
         assert_ne!(F32(f32::NAN), F32(-f32::NAN));
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn test_nan_hash() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        fn hash<T: Hash>(v: &T) -> u64 {
+            let mut state = DefaultHasher::new();
+            v.hash(&mut state);
+            state.finish()
+        }
 
         assert_eq!(hash(&F32(f32::NAN)), hash(&F32(f32::NAN)));
         assert_eq!(hash(&F32(-f32::NAN)), hash(&F32(-f32::NAN)));

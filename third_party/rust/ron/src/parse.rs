@@ -1,6 +1,11 @@
 #![allow(clippy::identity_op)]
 
-use std::{
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec::Vec,
+};
+use core::{
     char::from_u32 as char_from_u32,
     str::{self, from_utf8, FromStr, Utf8Error},
 };
@@ -8,7 +13,7 @@ use std::{
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 use crate::{
-    error::{Error, Position, Result, SpannedError, SpannedResult},
+    error::{Error, Position, Result, Span, SpannedError, SpannedResult},
     extensions::Extensions,
     value::Number,
 };
@@ -59,6 +64,7 @@ pub struct Parser<'a> {
     pub exts: Extensions,
     src: &'a str,
     cursor: ParserCursor,
+    prev_cursor: ParserCursor,
 }
 
 #[derive(Copy, Clone)] // GRCOV_EXCL_LINE
@@ -77,7 +83,7 @@ impl PartialEq for ParserCursor {
 }
 
 impl PartialOrd for ParserCursor {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         self.cursor.partial_cmp(&other.cursor)
     }
 }
@@ -89,6 +95,11 @@ impl<'a> Parser<'a> {
             exts: Extensions::empty(),
             src,
             cursor: ParserCursor {
+                cursor: 0,
+                pre_ws_cursor: 0,
+                last_ws_len: 0,
+            },
+            prev_cursor: ParserCursor {
                 cursor: 0,
                 pre_ws_cursor: 0,
                 last_ws_len: 0,
@@ -119,11 +130,15 @@ impl<'a> Parser<'a> {
     pub fn span_error(&self, code: Error) -> SpannedError {
         SpannedError {
             code,
-            position: Position::from_src_end(&self.src[..self.cursor.cursor]),
+            span: Span {
+                start: Position::from_src_end(&self.src[..self.prev_cursor.cursor]),
+                end: Position::from_src_end(&self.src[..self.cursor.cursor]),
+            },
         }
     }
 
     pub fn advance_bytes(&mut self, bytes: usize) {
+        self.prev_cursor = self.cursor;
         self.cursor.cursor += bytes;
     }
 
@@ -134,7 +149,7 @@ impl<'a> Parser<'a> {
     }
 
     pub fn skip_next_char(&mut self) {
-        std::mem::drop(self.next_char());
+        core::mem::drop(self.next_char());
     }
 
     pub fn peek_char(&self) -> Option<char> {
@@ -1010,7 +1025,7 @@ impl<'a> Parser<'a> {
                 ParsedByteStr::Slice(b) => b,
             }
             .iter()
-            .flat_map(|c| std::ascii::escape_default(*c))
+            .flat_map(|c| core::ascii::escape_default(*c))
             .map(char::from)
             .collect::<String>();
             let base64_str = match &base64_str {
@@ -1029,12 +1044,12 @@ impl<'a> Parser<'a> {
             let base64_result = ParsedByteStr::try_from_base64(&base64_str);
 
             if cfg!(not(test)) {
-                // FIXME @juntyr: remove in v0.10
+                // FIXME @juntyr: remove in v0.12
                 #[allow(deprecated)]
                 base64_result.map_err(Error::Base64Error)
             } else {
                 match base64_result {
-                    // FIXME @juntyr: enable in v0.10
+                    // FIXME @juntyr: enable in v0.12
                     Ok(byte_str) => Err(expected_byte_string_found_base64(&base64_str, &byte_str)),
                     Err(_) => Err(Error::ExpectedByteString),
                 }
@@ -1044,12 +1059,12 @@ impl<'a> Parser<'a> {
             let base64_result = ParsedByteStr::try_from_base64(&base64_str);
 
             if cfg!(not(test)) {
-                // FIXME @juntyr: remove in v0.10
+                // FIXME @juntyr: remove in v0.12
                 #[allow(deprecated)]
                 base64_result.map_err(Error::Base64Error)
             } else {
                 match base64_result {
-                    // FIXME @juntyr: enable in v0.10
+                    // FIXME @juntyr: enable in v0.12
                     Ok(byte_str) => Err(expected_byte_string_found_base64(&base64_str, &byte_str)),
                     Err(_) => Err(Error::ExpectedByteString),
                 }
@@ -1141,7 +1156,7 @@ impl<'a> Parser<'a> {
                         1 => s.push(c as u8),
                         len => {
                             let start = s.len();
-                            s.extend(std::iter::repeat(0).take(len));
+                            s.extend(core::iter::repeat(0).take(len));
                             c.encode_utf8(&mut s[start..]);
                         }
                     },
@@ -1781,7 +1796,10 @@ mod tests {
                     expected: String::from("the Rusty byte string b\"Hello ron!\""),
                     found: String::from("the ambiguous base64 string \"SGVsbG8gcm9uIQ==\"")
                 },
-                position: Position { line: 1, col: 19 },
+                span: Span {
+                    start: Position { line: 1, col: 2 },
+                    end: Position { line: 1, col: 19 },
+                }
             }
         );
 
@@ -1793,7 +1811,10 @@ mod tests {
             crate::from_str::<bytes::Bytes>("\"invalid=\"").unwrap_err(),
             SpannedError {
                 code: Error::ExpectedByteString,
-                position: Position { line: 1, col: 11 },
+                span: Span {
+                    start: Position { line: 1, col: 2 },
+                    end: Position { line: 1, col: 11 },
+                }
             }
         );
 
@@ -1801,7 +1822,10 @@ mod tests {
             crate::from_str::<bytes::Bytes>("r\"invalid=\"").unwrap_err(),
             SpannedError {
                 code: Error::ExpectedByteString,
-                position: Position { line: 1, col: 12 },
+                span: Span {
+                    start: Position { line: 1, col: 3 },
+                    end: Position { line: 1, col: 12 },
+                }
             }
         );
     }

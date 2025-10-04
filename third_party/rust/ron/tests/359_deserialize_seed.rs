@@ -17,7 +17,7 @@ fn test_deserialize_seed() {
             impl<'de> serde::de::Visitor<'de> for Visitor {
                 type Value = i64;
 
-                fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
                     write!(formatter, "an integer")
                 }
 
@@ -51,7 +51,10 @@ fn test_deserialize_seed() {
                 expected: String::from("an integer"),
                 found: String::from("the string \"a\""),
             },
-            position: ron::error::Position { line: 1, col: 4 },
+            span: ron::error::Span {
+                start: ron::error::Position { line: 1, col: 3 },
+                end: ron::error::Position { line: 1, col: 4 },
+            }
         })
     );
 }

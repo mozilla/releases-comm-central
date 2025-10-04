@@ -12,8 +12,17 @@
 #![deny(clippy::unreachable)]
 #![deny(unsafe_code)]
 #![allow(clippy::missing_errors_doc)] // FIXME
+#![warn(clippy::alloc_instead_of_core)]
+#![warn(clippy::std_instead_of_alloc)]
+#![warn(clippy::std_instead_of_core)]
 #![doc = include_str!("../README.md")]
-#![doc(html_root_url = "https://docs.rs/ron/0.10.1")]
+#![doc(html_root_url = "https://docs.rs/ron/0.11.0")]
+#![no_std]
+
+#[cfg(feature = "std")]
+extern crate std;
+
+extern crate alloc;
 
 pub mod de;
 pub mod ser;
@@ -24,6 +33,7 @@ pub mod value;
 pub mod extensions;
 
 pub mod options;
+pub mod util;
 
 pub use de::{from_str, Deserializer};
 pub use error::{Error, Result};
