@@ -132,8 +132,8 @@ taskgraph:
     register: comm_taskgraph:register
     decision-parameters: 'comm_taskgraph.decision:get_decision_parameters'
     repositories:
-        comm:
-            name: 'Mozilla Thunderbird'
+        gecko:
+            name: 'Mozilla Firefox'
 
 workers:
     aliases:
