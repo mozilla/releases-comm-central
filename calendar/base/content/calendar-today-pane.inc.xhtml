@@ -129,8 +129,7 @@
                          mode="mail"
                          iconsize="small"
                          orient="horizontal"
-                         label="&calendar.newevent.button.label;"
-                         tooltiptext="&calendar.newevent.button.tooltip;"
+                         data-l10n-id="calendar-newevent-button"
                          command="calendar_new_event_todaypane_command"/>
         </hbox>
         <html:ul is="agenda-list" id="agenda" role="listbox"></html:ul>
@@ -157,7 +156,7 @@
                        ondrop="calendarTaskButtonDNDObserver.onDrop(event);">
       <box id="show-completed-checkbox-box" align="center">
         <checkbox id="show-completed-checkbox"
-                  label="&calendar.unifinder.showcompletedtodos.label;"
+                  data-l10n-id="calendar-unifinder-show-completed-todos"
                   flex="1"
                   crop="end"
                   oncommand="TodayPane.updateCalendarToDoUnifinder()"

@@ -2,39 +2,37 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
 %msgHdrViewOverlayDTD;
-<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
+<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
 %messengerDTD;
 <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
 %chatDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
-<!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd" >
+<!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd">
 %tabMailDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
-<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
+<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd">
 %msgViewPickerDTD;
 <!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
 %baseMenuOverlayDTD;
 <!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
 %viewZoomOverlayDTD;
-<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
+<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd">
 %msgViewPickerDTD;
 <!ENTITY % calendarGlobalDTD SYSTEM "chrome://calendar/locale/global.dtd">
 %calendarGlobalDTD;
-<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
-%calendarDTD;
-<!ENTITY % calendarMenuOverlayDTD SYSTEM "chrome://calendar/locale/menuOverlay.dtd" >
+<!ENTITY % calendarMenuOverlayDTD SYSTEM "chrome://calendar/locale/menuOverlay.dtd">
 %calendarMenuOverlayDTD;
 <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
 %eventDialogDTD;
 <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
 %lightningDTD;
-<!ENTITY % lightningToolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" >
+<!ENTITY % lightningToolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd">
 %lightningToolbarDTD;
 <!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd">
 %mailOverlayDTD;

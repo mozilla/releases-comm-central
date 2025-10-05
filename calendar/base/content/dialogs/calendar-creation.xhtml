@@ -5,8 +5,6 @@
 
 <!-- TODO: messenger.dtd is used for the "Next" button; some relocation is needed. -->
 <!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendarCreation.dtd"> %dtd1;
-<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" >
-%dtd2;
 <!ENTITY % dtd3 SYSTEM "chrome://lightning/locale/lightning.dtd" >
 %dtd3;
 <!ENTITY % dtd4 SYSTEM "chrome://messenger/locale/messenger.dtd" >
@@ -79,7 +77,7 @@
             <html:tr>
               <html:th>
                 <label
-                  value="&calendar.server.dialog.name.label;"
+                  data-l10n-id="calendar-server-dialog-name-label"
                   control="local-calendar-name-input"
                 />
               </html:th>

@@ -5,9 +5,8 @@
 
 <!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
 <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
-%brandDTD; %globalDTD; %calendarDTD; %eventDialogDTD; ]>
+%brandDTD; %globalDTD; %eventDialogDTD; ]>
 
 <!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. -->
@@ -29,6 +28,7 @@
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="calendar/calendar.ftl" />
     <link rel="stylesheet" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />

@@ -27,6 +27,7 @@
         return;
       }
       this.hasConnected = true;
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
@@ -63,8 +64,7 @@
                     data-l10n-id="calendar-alarm-dismiss"
                     oncommand="dismissAlarm()"/>
           </vbox>
-          `,
-          ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
+          `
         )
       );
       this.mItem = null;

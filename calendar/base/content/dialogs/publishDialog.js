@@ -29,6 +29,10 @@ function loadCalendarPublishDialog() {
 
   checkURLField();
 
+  // Set initial accept button label via Fluent ("Publish").
+  const dialog = document.querySelector("dialog");
+  document.l10n.setAttributes(dialog.getButton("accept"), "calendar-publish-publish-button");
+
   const firstFocus = document.getElementById("publish-remotePath-textbox");
   firstFocus.focus();
 }
@@ -44,7 +48,7 @@ function onOKCommand(event) {
   // call caller's on OK function
   gOnOkFunction(gPublishObject, progressDialog);
   const dialog = document.querySelector("dialog");
-  dialog.getButton("accept").setAttribute("label", dialog.getAttribute("buttonlabelaccept2"));
+  document.l10n.setAttributes(dialog.getButton("accept"), "calendar-publish-close-button");
   event.preventDefault();
 }
 document.addEventListener("dialogaccept", onOKCommand, { once: true });

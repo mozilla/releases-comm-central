@@ -3,9 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
-<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" >
-%dtd2; ]>
+<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1; ]>
 <html
   id="calendar-error-prompt"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -15,7 +13,7 @@
   scrolling="false"
 >
   <head>
-    <title>&calendar.error.title;</title>
+    <title data-l10n-id="calendar-error-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -23,6 +21,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+    <link rel="localization" href="calendar/calendar.ftl" />
     <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
     <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
@@ -38,16 +37,20 @@
         style="resize: none"
       ></html:textarea>
       <hbox>
-        <button id="details-button" label="&calendar.error.detail;" oncommand="toggleDetails()" />
+        <button
+          id="details-button"
+          data-l10n-id="calendar-error-detail"
+          oncommand="toggleDetails()"
+        />
         <spacer flex="1" />
       </hbox>
       <vbox id="details-box" collapsed="collapsed" persist="collapsed">
         <hbox>
-          <label value="&calendar.error.code;" />
+          <label data-l10n-id="calendar-error-code" />
           <label id="error-code" value="" />
         </hbox>
         <vbox>
-          <label value="&calendar.error.description;" control="error-description" />
+          <label data-l10n-id="calendar-error-description" control="error-description" />
           <html:textarea
             id="error-description"
             class="plain"

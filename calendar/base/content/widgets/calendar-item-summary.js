@@ -185,7 +185,6 @@
     static get entities() {
       return [
         "chrome://calendar/locale/global.dtd",
-        "chrome://calendar/locale/calendar.dtd",
         "chrome://calendar/locale/calendar-event-dialog.dtd",
         "chrome://branding/locale/brand.dtd",
       ];

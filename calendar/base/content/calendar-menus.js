@@ -98,8 +98,7 @@
                     type="checkbox"
                     data-l10n-id="calendar-progress-level-100"
                     command="calendar_percentComplete-100_command"/>
-          `,
-          ["chrome://calendar/locale/calendar.dtd"]
+          `
         )
       );
 
@@ -129,6 +128,8 @@
       // this.hasConnected is set to true in super.connectedCallback
       super.connectedCallback();
 
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
+
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
@@ -148,8 +149,7 @@
                     type="checkbox"
                     data-l10n-id="calendar-priority-high"
                     command="calendar_priority-1_command"/>
-          `,
-          ["chrome://calendar/locale/calendar.dtd"]
+          `
         )
       );
 

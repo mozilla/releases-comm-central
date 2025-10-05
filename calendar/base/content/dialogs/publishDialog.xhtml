@@ -3,9 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
-<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd">
-%dtd2; ]>
+<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1; ]>
 <html
   id="calendar-publishwindow"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -17,7 +15,7 @@
   scrolling="false"
 >
   <head>
-    <title>&calendar.publish.dialog.title;</title>
+    <title data-l10n-id="calendar-publish-dialog-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -27,17 +25,17 @@
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="stylesheet" href="chrome://calendar/skin/shared/publishDialog.css" />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="calendar/calendar.ftl" />
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
     <script defer="defer" src="chrome://calendar/content/publishDialog.js"></script>
   </head>
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <dialog
-      buttons="accept,cancel"
-      buttonlabelaccept="&calendar.publish.publish.button;"
-      buttonlabelaccept2="&calendar.publish.close.button;"
-    >
+    <dialog buttons="accept,cancel" data-l10n-id="calendar-publish-publish-button">
       <html:div>
-        <html:label for="publish-remotePath-textbox">&calendar.publish.url.label;</html:label>
+        <html:label
+          for="publish-remotePath-textbox"
+          data-l10n-id="calendar-publish-url-label"
+        ></html:label>
         <html:input
           id="publish-remotePath-textbox"
           type="url"

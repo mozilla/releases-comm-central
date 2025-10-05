@@ -4,8 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
-<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" >
-%dtd2;
 <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" >
 %dtd3;
 <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" >
@@ -23,7 +21,7 @@
   height="630"
 >
   <head>
-    <title>&calendar.server.dialog.title.edit;</title>
+    <title data-l10n-id="calendar-server-dialog-title-edit"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -76,7 +74,7 @@
           <html:th>
             <label
               id="calendar-name-label"
-              value="&calendar.server.dialog.name.label;"
+              data-l10n-id="calendar-server-dialog-name-label"
               disable-with-calendar="true"
               control="calendar-name"
             />
