@@ -242,6 +242,8 @@ malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
+ohttp = { git = "https://github.com/martinthomson/ohttp.git", rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b" }
+bhttp = { git = "https://github.com/martinthomson/ohttp.git", rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b" }
 context_id = { git = "https://github.com/mozilla/application-services", rev = "f6f667f590ac15367fc37eb1ad3a6bdea4ffc526" }
 error-support = { git = "https://github.com/mozilla/application-services", rev = "f6f667f590ac15367fc37eb1ad3a6bdea4ffc526" }
 filter_adult = { git = "https://github.com/mozilla/application-services", rev = "f6f667f590ac15367fc37eb1ad3a6bdea4ffc526" }

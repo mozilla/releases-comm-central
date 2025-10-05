@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.81.0"
+rust-version = "1.82.0"
 name = "ohttp"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Martin Thomson <mt@lowentropy.net>"]
 build = "build.rs"
 autolib = false
@@ -23,7 +23,7 @@ autotests = false
 autobenches = false
 description = "Oblivious HTTP"
 homepage = "https://github.com/martinthomson/ohttp"
-readme = "README.md"
+readme = "../README.md"
 keywords = [
     "ohttp",
     "http",
@@ -52,7 +52,6 @@ gecko = [
     "mozbuild",
 ]
 nss = ["bindgen"]
-pq = ["hpke-pq"]
 rust-hpke = [
     "rand",
     "aead",
@@ -69,6 +68,11 @@ unsafe-print-secrets = []
 name = "ohttp"
 path = "src/lib.rs"
 
+[dependencies]
+byteorder = "1.4"
+hex = "0.4"
+thiserror = "1"
+
 [dependencies.aead]
 version = "0.4"
 features = ["std"]
@@ -78,15 +82,9 @@ optional = true
 version = "0.9"
 optional = true
 
-[dependencies.byteorder]
-version = "1.4"
-
 [dependencies.chacha20poly1305]
 version = "0.8"
 optional = true
-
-[dependencies.hex]
-version = "0.4"
 
 [dependencies.hkdf]
 version = "0.11"
@@ -100,17 +98,6 @@ features = [
 ]
 optional = true
 default-features = false
-
-[dependencies.hpke-pq]
-version = "0.11.0"
-features = [
-    "std",
-    "x25519",
-    "xyber768d00",
-]
-optional = true
-default-features = false
-package = "hpke_pq"
 
 [dependencies.log]
 version = "0.4"
@@ -128,15 +115,17 @@ optional = true
 version = "0.9"
 optional = true
 
-[dependencies.thiserror]
-version = "1"
-
 [dev-dependencies.env_logger]
 version = "0.10"
 default-features = false
 
+[build-dependencies]
+serde = "1.0"
+serde_derive = "1.0"
+toml = "0.5"
+
 [build-dependencies.bindgen]
-version = "0.69"
+version = "0.72"
 features = ["runtime"]
 optional = true
 default-features = false
@@ -144,12 +133,3 @@ default-features = false
 [build-dependencies.mozbuild]
 version = "0.1"
 optional = true
-
-[build-dependencies.serde]
-version = "1.0"
-
-[build-dependencies.serde_derive]
-version = "1.0"
-
-[build-dependencies.toml]
-version = "0.5"

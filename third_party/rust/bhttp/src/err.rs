@@ -6,10 +6,16 @@ pub enum Error {
     ConnectUnsupported,
     #[error("a field contained invalid Unicode: {0}")]
     CharacterEncoding(#[from] std::string::FromUtf8Error),
+    #[error("read a response when expecting a request")]
+    ExpectedRequest,
+    #[error("read a request when expecting a response")]
+    ExpectedResponse,
     #[error("a field contained an integer value that was out of range: {0}")]
     IntRange(#[from] std::num::TryFromIntError),
     #[error("the mode of the message was invalid")]
     InvalidMode,
+    #[error("the status code of a response needs to be in 100..=599")]
+    InvalidStatus,
     #[error("IO error {0}")]
     Io(#[from] std::io::Error),
     #[error("a field or line was missing a necessary character 0x{0:x}")]

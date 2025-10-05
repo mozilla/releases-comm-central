@@ -1,10 +1,3 @@
-use super::{
-    super::hpke::{Aead, Kdf, Kem},
-    err::{sec::SEC_ERROR_INVALID_ARGS, secstatus_to_res, Error},
-    p11::{sys, Item, PrivateKey, PublicKey, Slot, SymKey},
-};
-use crate::err::Res;
-use log::{log_enabled, trace};
 use std::{
     convert::TryFrom,
     ops::Deref,
@@ -12,7 +5,15 @@ use std::{
     ptr::{addr_of_mut, null, null_mut},
 };
 
+use log::{log_enabled, trace};
 pub use sys::{HpkeAeadId as AeadId, HpkeKdfId as KdfId, HpkeKemId as KemId};
+
+use super::{
+    super::hpke::{Aead, Kdf, Kem},
+    err::{sec::SEC_ERROR_INVALID_ARGS, secstatus_to_res, Error},
+    p11::{sys, Item, PrivateKey, PublicKey, Slot, SymKey},
+};
+use crate::err::Res;
 
 /// Configuration for `Hpke`.
 #[derive(Clone, Copy)]
@@ -96,7 +97,7 @@ impl Exporter for HpkeContext {
                 self.ptr,
                 &Item::wrap(info),
                 c_uint::try_from(len).unwrap(),
-                &mut out,
+                &raw mut out,
             )
         })?;
         SymKey::from_ptr(out)
@@ -138,7 +139,12 @@ impl HpkeS {
     pub fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
         let mut out: *mut sys::SECItem = null_mut();
         secstatus_to_res(unsafe {
-            sys::PK11_HPKE_Seal(*self.context, &Item::wrap(aad), &Item::wrap(pt), &mut out)
+            sys::PK11_HPKE_Seal(
+                *self.context,
+                &Item::wrap(aad),
+                &Item::wrap(pt),
+                &raw mut out,
+            )
         })?;
         let v = Item::from_ptr(out)?;
         Ok(unsafe { v.into_vec() })
@@ -203,7 +209,7 @@ impl HpkeR {
                 *context,
                 k.as_ptr(),
                 c_uint::try_from(k.len()).unwrap(),
-                &mut ptr,
+                &raw mut ptr,
             )
         })?;
         PublicKey::from_ptr(ptr)
@@ -212,7 +218,12 @@ impl HpkeR {
     pub fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
         let mut out: *mut sys::SECItem = null_mut();
         secstatus_to_res(unsafe {
-            sys::PK11_HPKE_Open(*self.context, &Item::wrap(aad), &Item::wrap(ct), &mut out)
+            sys::PK11_HPKE_Open(
+                *self.context,
+                &Item::wrap(aad),
+                &Item::wrap(ct),
+                &raw mut out,
+            )
         })?;
         let v = Item::from_ptr(out)?;
         Ok(unsafe { v.into_vec() })
@@ -256,7 +267,7 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
                 *slot,
                 sys::CK_MECHANISM_TYPE::from(sys::CKM_EC_KEY_PAIR_GEN),
                 addr_of_mut!(wrapped).cast(),
-                &mut public_ptr,
+                &raw mut public_ptr,
                 sys::PK11_ATTR_SESSION | sys::PK11_ATTR_INSENSITIVE | sys::PK11_ATTR_PUBLIC,
                 sys::CK_FLAGS::from(sys::CKF_DERIVE),
                 sys::CK_FLAGS::from(sys::CKF_DERIVE),
@@ -273,7 +284,7 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
                 *slot,
                 sys::CK_MECHANISM_TYPE::from(sys::CKM_EC_KEY_PAIR_GEN),
                 addr_of_mut!(wrapped).cast(),
-                &mut public_ptr,
+                &raw mut public_ptr,
                 sys::PK11_ATTR_SESSION | sys::PK11_ATTR_SENSITIVE | sys::PK11_ATTR_PRIVATE,
                 sys::CK_FLAGS::from(sys::CKF_DERIVE),
                 sys::CK_FLAGS::from(sys::CKF_DERIVE),
@@ -286,7 +297,7 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
     assert_eq!(secret_ptr.is_null(), public_ptr.is_null());
     let sk = PrivateKey::from_ptr(secret_ptr)?;
     let pk = PublicKey::from_ptr(public_ptr)?;
-    trace!("Generated key pair: sk={:?} pk={:?}", sk, pk);
+    trace!("Generated key pair: sk={sk:?} pk={pk:?}");
     Ok((sk, pk))
 }
 

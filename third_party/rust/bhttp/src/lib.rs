@@ -10,6 +10,7 @@ use std::convert::TryFrom;
     feature = "write-bhttp"
 ))]
 use std::io;
+
 #[cfg(feature = "read-http")]
 use url::Url;
 
@@ -17,6 +18,9 @@ mod err;
 mod parse;
 #[cfg(any(feature = "read-bhttp", feature = "write-bhttp"))]
 mod rw;
+
+#[cfg(any(feature = "read-http", feature = "read-bhttp",))]
+use std::borrow::BorrowMut;
 
 pub use err::Error;
 #[cfg(any(
@@ -33,8 +37,6 @@ use parse::{index_of, trim_ows, COMMA};
 use rw::{read_varint, read_vec};
 #[cfg(feature = "write-bhttp")]
 use rw::{write_len, write_varint, write_vec};
-#[cfg(any(feature = "read-http", feature = "read-bhttp",))]
-use std::borrow::BorrowMut;
 
 #[cfg(feature = "read-http")]
 const CONTENT_LENGTH: &[u8] = b"content-length";
@@ -43,7 +45,48 @@ const COOKIE: &[u8] = b"cookie";
 const TRANSFER_ENCODING: &[u8] = b"transfer-encoding";
 const CHUNKED: &[u8] = b"chunked";
 
-pub type StatusCode = u16;
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct StatusCode(u16);
+
+impl StatusCode {
+    pub const OK: Self = StatusCode(200);
+
+    #[must_use]
+    pub fn informational(self) -> bool {
+        matches!(self.0, 100..=199)
+    }
+
+    #[must_use]
+    pub fn code(self) -> u16 {
+        self.0
+    }
+}
+
+impl TryFrom<u64> for StatusCode {
+    type Error = Error;
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        Self::try_from(u16::try_from(value).map_err(|_| Error::InvalidStatus)?)
+    }
+}
+
+impl TryFrom<u16> for StatusCode {
+    type Error = Error;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        if matches!(value, 100..=599) {
+            Ok(Self(value))
+        } else {
+            Err(Error::InvalidStatus)
+        }
+    }
+}
+
+impl From<StatusCode> for u16 {
+    fn from(value: StatusCode) -> Self {
+        value.code()
+    }
+}
 
 pub trait ReadSeek: io::BufRead + io::Seek {}
 impl<T> ReadSeek for io::Cursor<T> where T: AsRef<[u8]> {}
@@ -53,7 +96,7 @@ impl<T> ReadSeek for io::BufReader<T> where T: io::Read + io::Seek {}
 #[cfg(any(feature = "read-bhttp", feature = "write-bhttp"))]
 pub enum Mode {
     KnownLength,
-    IndefiniteLength,
+    IndeterminateLength,
 }
 
 pub struct Field {
@@ -386,7 +429,7 @@ impl ControlData {
         if index_of(SLASH, &a).is_some() {
             // Probably a response, so treat it as such.
             let status_str = String::from_utf8(b)?;
-            let code = status_str.parse::<u16>()?;
+            let code = StatusCode::try_from(status_str.parse::<u64>()?)?;
             Ok(Self::Response(code))
         } else if index_of(COLON, &b).is_some() {
             // Now try to parse the URL.
@@ -442,7 +485,9 @@ impl ControlData {
                 path,
             }
         } else {
-            Self::Response(u16::try_from(read_varint(r)?.ok_or(Error::Truncated)?)?)
+            Self::Response(StatusCode::try_from(
+                read_varint(r)?.ok_or(Error::Truncated)?,
+            )?)
         };
         Ok(v)
     }
@@ -452,7 +497,7 @@ impl ControlData {
     #[must_use]
     fn informational(&self) -> Option<StatusCode> {
         match self {
-            Self::Response(v) if *v >= 100 && *v < 200 => Some(*v),
+            Self::Response(v) if v.informational() => Some(*v),
             _ => None,
         }
     }
@@ -463,8 +508,8 @@ impl ControlData {
         match (self, mode) {
             (Self::Request { .. }, Mode::KnownLength) => 0,
             (Self::Response(_), Mode::KnownLength) => 1,
-            (Self::Request { .. }, Mode::IndefiniteLength) => 2,
-            (Self::Response(_), Mode::IndefiniteLength) => 3,
+            (Self::Request { .. }, Mode::IndeterminateLength) => 2,
+            (Self::Response(_), Mode::IndeterminateLength) => 3,
         }
     }
 
@@ -482,7 +527,7 @@ impl ControlData {
                 write_vec(authority, w)?;
                 write_vec(path, w)?;
             }
-            Self::Response(status) => write_varint(*status, w)?,
+            Self::Response(status) => write_varint(status.code(), w)?,
         }
         Ok(())
     }
@@ -507,7 +552,7 @@ impl ControlData {
                 w.write_all(b" HTTP/1.1\r\n")?;
             }
             Self::Response(status) => {
-                let buf = format!("HTTP/1.1 {} Reason\r\n", *status);
+                let buf = format!("HTTP/1.1 {} Reason\r\n", status.code());
                 w.write_all(buf.as_bytes())?;
             }
         }
@@ -538,7 +583,7 @@ impl InformationalResponse {
 
     #[cfg(feature = "write-bhttp")]
     fn write_bhttp(&self, mode: Mode, w: &mut impl io::Write) -> Res<()> {
-        write_varint(self.status, w)?;
+        write_varint(self.status.code(), w)?;
         self.fields.write_bhttp(mode, w)?;
         Ok(())
     }
@@ -660,30 +705,31 @@ impl Message {
 
         let mut header = FieldSection::read_http(r)?;
 
-        let (content, trailer) = if matches!(control.status(), Some(204) | Some(304)) {
-            // 204 and 304 have no body, no matter what Content-Length says.
-            // Unfortunately, we can't do the same for responses to HEAD.
-            (Vec::new(), FieldSection::default())
-        } else if header.is_chunked() {
-            let content = Self::read_chunked(r)?;
-            let trailer = FieldSection::read_http(r)?;
-            (content, trailer)
-        } else {
-            let mut content = Vec::new();
-            if let Some(cl) = header.get(CONTENT_LENGTH) {
-                let cl_str = String::from_utf8(Vec::from(cl))?;
-                let cl_int = cl_str.parse::<usize>()?;
-                if cl_int > 0 {
-                    content.resize(cl_int, 0);
-                    r.borrow_mut().read_exact(&mut content)?;
-                }
+        let (content, trailer) =
+            if matches!(control.status().map(StatusCode::code), Some(204 | 304)) {
+                // 204 and 304 have no body, no matter what Content-Length says.
+                // Unfortunately, we can't do the same for responses to HEAD.
+                (Vec::new(), FieldSection::default())
+            } else if header.is_chunked() {
+                let content = Self::read_chunked(r)?;
+                let trailer = FieldSection::read_http(r)?;
+                (content, trailer)
             } else {
-                // Note that for a request, the spec states that the content is
-                // empty, but this just reads all input like for a response.
-                r.borrow_mut().read_to_end(&mut content)?;
-            }
-            (content, FieldSection::default())
-        };
+                let mut content = Vec::new();
+                if let Some(cl) = header.get(CONTENT_LENGTH) {
+                    let cl_str = String::from_utf8(Vec::from(cl))?;
+                    let cl_int = cl_str.parse::<usize>()?;
+                    if cl_int > 0 {
+                        content.resize(cl_int, 0);
+                        r.borrow_mut().read_exact(&mut content)?;
+                    }
+                } else {
+                    // Note that for a request, the spec states that the content is
+                    // empty, but this just reads all input like for a response.
+                    r.borrow_mut().read_to_end(&mut content)?;
+                }
+                (content, FieldSection::default())
+            };
 
         header.strip_connection_headers();
         Ok(Self {
@@ -734,7 +780,7 @@ impl Message {
         let request = t == 0 || t == 2;
         let mode = match t {
             0 | 1 => Mode::KnownLength,
-            2 | 3 => Mode::IndefiniteLength,
+            2 | 3 => Mode::IndeterminateLength,
             _ => return Err(Error::InvalidMode),
         };
 
@@ -748,7 +794,7 @@ impl Message {
         let header = FieldSection::read_bhttp(mode, r)?;
 
         let mut content = read_vec(r)?.unwrap_or_default();
-        if mode == Mode::IndefiniteLength && !content.is_empty() {
+        if mode == Mode::IndeterminateLength && !content.is_empty() {
             loop {
                 let mut extra = read_vec(r)?.unwrap_or_default();
                 if extra.is_empty() {
@@ -779,7 +825,7 @@ impl Message {
         self.header.write_bhttp(mode, w)?;
 
         write_vec(&self.content, w)?;
-        if mode == Mode::IndefiniteLength && !self.content.is_empty() {
+        if mode == Mode::IndeterminateLength && !self.content.is_empty() {
             write_len(0, w)?;
         }
         self.trailer.write_bhttp(mode, w)?;

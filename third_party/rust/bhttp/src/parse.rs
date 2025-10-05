@@ -56,7 +56,7 @@ pub fn index_of(v: u8, line: &[u8]) -> Option<usize> {
 pub fn split_at(v: u8, mut line: Vec<u8>) -> Option<(Vec<u8>, Vec<u8>)> {
     index_of(v, &line).map(|i| {
         let tail = line.split_off(i + 1);
-        let _ = line.pop();
+        _ = line.pop();
         (line, tail)
     })
 }
