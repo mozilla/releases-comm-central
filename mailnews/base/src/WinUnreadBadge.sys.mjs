@@ -42,6 +42,7 @@ function getCanvasAsImgContainer(canvas, width, height) {
     imageData.height,
     imageData.width * 4,
     imgEncoder.INPUT_FORMAT_RGBA,
+    "",
     ""
   );
 
