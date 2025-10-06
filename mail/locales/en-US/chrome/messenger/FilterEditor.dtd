@@ -6,9 +6,6 @@
 <!ENTITY filterName.label "Filter name:">
 <!ENTITY filterName.accesskey "i">
 
-<!ENTITY junk.label "Junk">
-<!ENTITY notJunk.label "Not Junk">
-
 <!ENTITY lowestPriorityCmd.label "Lowest">
 <!ENTITY lowPriorityCmd.label "Low">
 <!ENTITY normalPriorityCmd.label "Normal">
@@ -20,8 +17,6 @@
 <!ENTITY contextIncomingMail.accesskey "G">
 <!ENTITY contextManual.label "Manually Run">
 <!ENTITY contextManual.accesskey "R">
-<!ENTITY contextBeforeCls.label "Filter before Junk Classification">
-<!ENTITY contextAfterCls.label "Filter after Junk Classification">
 <!ENTITY contextOutgoing.label "After Sending">
 <!ENTITY contextOutgoing.accesskey "S">
 <!ENTITY contextArchive.label "Archiving">
@@ -44,7 +39,6 @@
 <!ENTITY markMessageStarred.label "Add Star">
 <!ENTITY setPriority.label "Set Priority to">
 <!ENTITY addTag.label "Tag Message">
-<!ENTITY setJunkScore.label "Set Junk Status to">
 <!ENTITY deleteMessage.label "Delete Message">
 <!ENTITY deleteFromPOP.label "Delete From POP Server">
 <!ENTITY fetchFromPOP.label "Fetch From POP Server">

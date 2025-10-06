@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+  <link rel="localization" href="messenger/messenger.ftl" />
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
@@ -223,8 +224,7 @@
                      cycler="true"
                      closemenu="none"
                      src="chrome://messenger/skin/icons/new/spam-sm.svg"
-                     label="&junkStatusColumn.label;"
-                     tooltiptext="&junkStatusColumn2.tooltip;"/>
+                     data-l10n-id="column-status-spam"/>
             <splitter class="tree-splitter"/>
             <treecol id="receivedCol"
                      persist="hidden ordinal sortDirection width"

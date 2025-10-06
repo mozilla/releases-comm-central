@@ -22,5 +22,4 @@
 <!ENTITY advFeaturesSectionHdr.label  "Advanced Features">
 <!ENTITY searchMsgsLink.label         "Search messages">
 <!ENTITY filtersLink.label            "Manage message filters">
-<!ENTITY junkSettings.label           "Junk mail settings">
 <!ENTITY offlineLink.label            "Offline settings">
