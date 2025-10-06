@@ -213,6 +213,7 @@ with only_when(in_tree_librnp):
             cxx_compiler,
             milestone,
             stdcxx_compat,
+            asan,
             target_sysroot.bootstrapped,
             target_sysroot.path,
         )
@@ -233,6 +234,7 @@ with only_when(in_tree_librnp):
             cxx_compiler,
             milestone,
             stdcxx_compat,
+            is_asan,
             bootstrapped,
             sysroot_path,
         ):
@@ -341,7 +343,7 @@ with only_when(in_tree_librnp):
                 ]
                 botan_flags += [
                     "--cc=msvc",  # This forces MSVC style arguments out of Botan with clang-cl
-                    "--msvc-runtime=MT",
+                    "--msvc-runtime={}".format("MD" if is_asan else "MT"),
                     "--extra-cxxflags={}".format(" ".join(win_cxx_flags)),
                 ]
             if bootstrapped:
