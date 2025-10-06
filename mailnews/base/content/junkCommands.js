@@ -23,9 +23,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-ChromeUtils.defineESModuleGetters(this, {
-  MailUtils: "resource:///modules/MailUtils.sys.mjs",
-});
 
 /**
  * Performs required operations on a list of newly-classified junk messages.
@@ -168,31 +165,26 @@ MessageClassifier.prototype = {
     }
 
     var nextMsgURI = this.mMessageQueue.shift();
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
 
     if (nextMsgURI) {
       ++this.mProcessedMessages;
       if (Date.now() > this.lastStatusTime + statusDisplayInterval) {
         this.lastStatusTime = Date.now();
-        var percentDone = 0;
-        if (this.mTotalMessages) {
-          percentDone = Math.round(
-            (this.mProcessedMessages * 100) / this.mTotalMessages
-          );
-        }
-        top.window.MsgStatusFeedback.showStatusString(
-          bundle.formatStringFromName("junkAnalysisPercentComplete", [
-            percentDone + "%",
-          ])
+        const percentage = this.mTotalMessages
+          ? this.mProcessedMessages / this.mTotalMessages
+          : 0;
+        const status = await document.l10n.formatValue(
+          "spam-analysis-percentage",
+          {
+            percentage,
+          }
         );
+        top.window.MsgStatusFeedback.showStatusString(status);
       }
       MailServices.junk.classifyMessage(nextMsgURI, top.msgWindow, this);
     } else {
-      top.window.MsgStatusFeedback.showStatusString(
-        bundle.GetStringFromName("processingJunkMessages")
-      );
+      const status = await document.l10n.formatValue("spam-processing-message");
+      top.window.MsgStatusFeedback.showStatusString(status);
       await performActionsOnJunkMsgs(
         this.mFolder,
         this.mJunkMsgHdrs,

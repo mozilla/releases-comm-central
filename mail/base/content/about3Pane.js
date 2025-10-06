@@ -3820,7 +3820,7 @@ var folderPane = {
    * @param {nsIMsgFolder} [aFolder] - The trash folder to empty. If unspecified
    *   or not a trash folder, the currently selected server's trash folder is used.
    */
-  emptyTrash(aFolder) {
+  async emptyTrash(aFolder) {
     let folder = aFolder;
     if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash)) {
       folder = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
@@ -3829,7 +3829,11 @@ var folderPane = {
       return;
     }
 
-    if (!this._checkConfirmationPrompt("emptyTrash", folder)) {
+    const confirmEmptyTrash = await this._checkConfirmationPrompt(
+      "emptyTrash",
+      folder
+    );
+    if (!confirmEmptyTrash) {
       return;
     }
 
@@ -3855,17 +3859,25 @@ var folderPane = {
    * @param {nsIMsgFolder} folder - The folder to empty.
    * @param {boolean} [prompt=true] - If the user should be prompted.
    */
-  emptyJunk(folder, prompt = true) {
+  async emptyJunk(folder, prompt = true) {
     if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk)) {
       return;
     }
 
-    if (prompt && !this._checkConfirmationPrompt("emptyJunk", folder)) {
-      return;
+    // If prompt is true, ask the user to confirm. Don't want to fire this
+    // within recursive calls.
+    if (prompt) {
+      const confirmEmptyJunk = await this._checkConfirmationPrompt(
+        "emptyJunk",
+        folder
+      );
+      if (!confirmEmptyJunk) {
+        return;
+      }
     }
 
     if (FolderUtils.isSmartVirtualFolder(folder)) {
-      // This is the unified junk folder.
+      // Unified junk folder: recurse through each real junk folder without prompting again.
       const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
       for (const searchFolder of wrappedFolder.searchFolders) {
         this.emptyJunk(searchFolder, false);
@@ -3971,8 +3983,9 @@ var folderPane = {
    *
    * @param {string} aCommand - The command to prompt for.
    * @param {nsIMsgFolder} aFolder - The folder for which the confirmation is requested.
+   * @returns {boolean}
    */
-  _checkConfirmationPrompt(aCommand, aFolder) {
+  async _checkConfirmationPrompt(aCommand, aFolder) {
     // If no folder was specified, reject the operation.
     if (!aFolder) {
       return false;
@@ -3983,36 +3996,42 @@ var folderPane = {
       false
     );
 
-    if (showPrompt) {
-      const checkbox = { value: false };
-      const title = messengerBundle.formatStringFromName(
-        aCommand + "FolderTitle",
-        [aFolder.localizedName]
-      );
-      const msg = messengerBundle.GetStringFromName(aCommand + "FolderMessage");
-      const ok =
-        Services.prompt.confirmEx(
-          window,
-          title,
-          msg,
-          Services.prompt.STD_YES_NO_BUTTONS,
-          null,
-          null,
-          null,
-          messengerBundle.GetStringFromName(aCommand + "DontAsk"),
-          checkbox
-        ) == 0;
-      if (checkbox.value) {
-        Services.prefs.setBoolPref(
-          "mailnews." + aCommand + ".dontAskAgain",
-          true
-        );
-      }
-      if (!ok) {
-        return false;
-      }
+    if (!showPrompt) {
+      return true;
     }
-    return true;
+
+    const [title, message, check] = await document.l10n.formatValues([
+      {
+        id: "prompt-empty-folder-title",
+        args: { folder: aFolder.localizedName },
+      },
+      {
+        id: "prompt-empty-folder-message",
+        args: { folder: aFolder.localizedName },
+      },
+      { id: "prompt-dont-ask-again" },
+    ]);
+
+    const checkbox = { value: false };
+    const response =
+      Services.prompt.confirmEx(
+        window,
+        title,
+        message,
+        Services.prompt.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        check,
+        checkbox
+      ) == 0;
+    if (checkbox.value) {
+      Services.prefs.setBoolPref(
+        "mailnews." + aCommand + ".dontAskAgain",
+        true
+      );
+    }
+    return response;
   },
 
   /**

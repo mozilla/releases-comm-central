@@ -56,6 +56,17 @@ const { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
+let AccountManagerl10n;
+function getAccountManagerL10n() {
+  if (!AccountManagerl10n) {
+    AccountManagerl10n = new Localization(
+      ["messenger/accountManager.ftl"],
+      true
+    );
+  }
+  return AccountManagerl10n;
+}
+
 ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
@@ -195,12 +206,12 @@ function onLoad() {
         });
       }
     }
-    // Always add the contentFrame window to the UIFontSize because most of the
-    // sub pages remove themselves on onload. This doesn't happen consistently
-    // and the RSS feed seems to be loading twice.
-    // Accept this temporarily and let the API handle the early return. The
-    // account settings will need to be rebuilt from scratch anyway.
-    UIFontSize.registerWindow(contentFrame.contentWindow);
+    // _build is async, so sub-page loads can overlap (e.g. RSS may fire twice).
+    // Register this iframe window with UIFontSize only once to prevent warnings.
+    if (!contentFrame.contentWindow.__UIFontRegistered) {
+      UIFontSize.registerWindow(contentFrame.contentWindow);
+      contentFrame.contentWindow.__UIFontRegistered = true;
+    }
     // TODO: Add the density registration once the account settings style is
     // updated to support density variations.
   });
@@ -700,11 +711,12 @@ function checkUserServerChanges(showAlert) {
         }
       }
 
-      const l10n = new Localization(["messenger/accountManager.ftl"], true);
       const cancel = Services.prompt.confirmEx(
         window,
         alertTitle,
-        l10n.formatValueSync("server-change-restart-required"),
+        getAccountManagerL10n().formatValueSync(
+          "server-change-restart-required"
+        ),
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL,
         prefBundle.getString("localDirectoryRestart"),
@@ -1068,13 +1080,12 @@ function saveAccount(accountValues, account) {
         null,
         false
       );
-      const alertText = document
-        .getElementById("bundle_prefs")
-        .getFormattedString("junkSettingsBroken", [accountName]);
       const review = Services.prompt.confirmEx(
         window,
         null,
-        alertText,
+        getAccountManagerL10n().formatValueSync("spam-settings-alert-message", {
+          account: accountName,
+        }),
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_YES +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_NO,
         null,
@@ -1656,7 +1667,7 @@ var gAccountTree = {
 
     await FolderTreeProperties.ready;
 
-    this._build();
+    await this._build();
 
     const mainTree = document.getElementById("accounttree");
     mainTree.__defineGetter__("_orderableChildren", function () {
@@ -1701,13 +1712,13 @@ var gAccountTree = {
     Services.obs.removeObserver(this, "server-color-changed");
     Services.obs.removeObserver(this, "server-color-preview");
   },
-  onServerLoaded(server) {
+  async onServerLoaded(server) {
     // We assume the newly appeared server was created by the user so we select
     // it in the tree.
-    this._build(server);
+    await this._build(server);
   },
-  onServerUnloaded() {
-    this._build();
+  async onServerUnloaded() {
+    await this._build();
   },
   onServerChanged() {},
 
@@ -1761,8 +1772,8 @@ var gAccountTree = {
     return this._dataStore.getValue(document.documentURI, aAccountKey, "open");
   },
 
-  _build(newServer) {
-    var bundle = document.getElementById("bundle_prefs");
+  async _build(newServer) {
+    const bundle = document.getElementById("bundle_prefs");
     function getString(aString) {
       return bundle.getString(aString);
     }
@@ -1821,7 +1832,7 @@ var gAccountTree = {
           server.type != "im"
         ) {
           panels.push({
-            string: getString("prefPanel-junk"),
+            string: await document.l10n.formatValue("panel-settings-spam"),
             src: "am-junk.xhtml",
           });
         }

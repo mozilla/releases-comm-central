@@ -11,6 +11,32 @@ ChromeUtils.defineESModuleGetters(lazy, {
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
 });
 
+// Logs every window that opens during tests (esp. common dialogs).
+(function installDialogLogger() {
+  const TOPIC = "domwindowopened";
+  function observer(subject, topic) {
+    if (topic !== TOPIC) {
+      return;
+    }
+    const win = subject;
+    win.addEventListener(
+      "load",
+      () => {
+        const doc = win.document;
+        const uri = doc.documentURI || "";
+        const wt = doc.documentElement?.getAttribute("windowtype") || "";
+        const title = doc.title || "";
+        info(
+          `[dialog] opened: windowtype="${wt}" uri="${uri}" title="${title}"`
+        );
+      },
+      { once: true }
+    );
+  }
+  Services.obs.addObserver(observer, TOPIC);
+  registerCleanupFunction(() => Services.obs.removeObserver(observer, TOPIC));
+})();
+
 /**
  * Helper to add logins to the login manager.
  *

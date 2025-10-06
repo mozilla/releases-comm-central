@@ -26,6 +26,7 @@
 #include "nsIAbManager.h"
 #include "nsIMsgAccountManager.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
+#include "mozilla/intl/Localization.h"
 
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
@@ -590,42 +591,35 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
   // do this so we avoid growing and copying as we append to the log.
   buffer.SetCapacity(512);
 
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
 
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/filter.properties", getter_AddRefs(bundle));
+  nsAutoCString detectionErrorMessage;
+  rv = LocalizeMessage(l10n, "spam-message-detection-log"_ns,
+                       {{"author"_ns, NS_ConvertUTF16toUTF8(authorValue)},
+                        {"subject"_ns, NS_ConvertUTF16toUTF8(subjectValue)},
+                        {"date"_ns, NS_ConvertUTF16toUTF8(dateValue)}},
+                       detectionErrorMessage);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  AutoTArray<nsString, 3> junkLogDetectFormatStrings = {
-      authorValue, subjectValue, dateValue};
-  nsString junkLogDetectStr;
-  rv = bundle->FormatStringFromName(
-      "junkLogDetectStr", junkLogDetectFormatStrings, junkLogDetectStr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  buffer += NS_ConvertUTF16toUTF8(junkLogDetectStr);
+  buffer += detectionErrorMessage;
   buffer += "\n";
 
   if (aMoveMessage) {
     nsCString msgId;
     aMsgHdr->GetMessageId(msgId);
 
-    nsCString junkFolderURI;
-    rv = GetSpamFolderURI(junkFolderURI);
+    nsCString folderURI;
+    rv = GetSpamFolderURI(folderURI);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    AutoTArray<nsString, 2> logMoveFormatStrings;
-    CopyASCIItoUTF16(msgId, *logMoveFormatStrings.AppendElement());
-    CopyASCIItoUTF16(junkFolderURI, *logMoveFormatStrings.AppendElement());
-    nsString logMoveStr;
-    rv = bundle->FormatStringFromName("logMoveStr", logMoveFormatStrings,
-                                      logMoveStr);
+    nsAutoCString movedMessage;
+    rv = LocalizeMessage(l10n, "moved-message-log"_ns,
+                         {{"id"_ns, msgId}, {"folder"_ns, folderURI}},
+                         movedMessage);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    buffer += NS_ConvertUTF16toUTF8(logMoveStr);
+    buffer += movedMessage;
     buffer += "\n";
   }
 

@@ -3857,16 +3857,9 @@ var gMessageNotificationBar = {
         true
       );
     } else if (junkBarStatus == 1) {
-      const brandName = this.brandBundle.getString("brandShortName");
-      const junkBarMsg = this.stringBundle.getFormattedString(
-        "junkBarMessage",
-        [brandName]
-      );
-
       const buttons = [
         {
-          label: this.stringBundle.getString("junkBarInfoButton"),
-          accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
+          "l10n-id": "message-bar-learn-more-button",
           popup: null,
           callback() {
             // TODO: This doesn't work in a message window.
@@ -3877,8 +3870,7 @@ var gMessageNotificationBar = {
           },
         },
         {
-          label: this.stringBundle.getString("junkBarButton"),
-          accessKey: this.stringBundle.getString("junkBarButtonKey"),
+          "l10n-id": "message-bar-not-spam-button",
           popup: null,
           callback() {
             commandController.doCommand("cmd_markAsNotJunk");
@@ -3895,7 +3887,7 @@ var gMessageNotificationBar = {
         .appendNotification(
           "junkContent",
           {
-            label: junkBarMsg,
+            label: { "l10n-id": "message-bar-spam" },
             image: "chrome://messenger/skin/icons/junk.svg",
             priority: this.msgNotificationBar.PRIORITY_WARNING_HIGH,
           },

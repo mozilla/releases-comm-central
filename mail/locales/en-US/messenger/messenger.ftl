@@ -145,6 +145,10 @@ folder-toolbar-toggle-folder-compact-view =
     .label = Compact View
     .accesskey = C
 
+## Folder names
+
+folder-name-spam = Spam
+
 ## File Menu
 
 menu-file-save-as-file =
@@ -626,3 +630,39 @@ delete-action = Delete
 mark-as-starred-action = Mark as Starred
 mark-as-spam-action = Mark as Spam
 archive-action = Archive
+
+## Message list.
+
+message-flag-spam = Spam
+
+menuitem-label-spam =
+  .label = Spam
+
+menuitem-label-spam-score-origin =
+  .label = Spam Score Origin
+
+menuitem-label-spam-percentage =
+  .label = Spam Percent
+
+menuitem-label-spam-status =
+  .label = Spam Status
+
+## Prompts
+
+# Variables:
+# $folder (String) - The name of the selected folder.
+prompt-empty-folder-title = Empty { $folder }?
+
+# Variables:
+# $folder (String) - The name of the selected folder.
+prompt-empty-folder-message = Delete all messages and subfolders in the { $folder } folder?
+
+prompt-dont-ask-again = Do not ask again.
+
+## Spam commands
+
+# Variables:
+# $percentage (Number) - The percentage of completion of the spam analysis.
+spam-analysis-percentage = Spam analysis { NUMBER($percentage, maximumSignificantDigits: 2, style: "percent") } completed
+
+spam-processing-message = Processing spam messages

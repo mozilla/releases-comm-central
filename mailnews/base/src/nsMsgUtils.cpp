@@ -1843,3 +1843,22 @@ nsCString DecodeFilename(nsAString const& filename) {
   NS_UnescapeURL(out);
   return out;
 }
+
+nsresult LocalizeMessage(mozilla::intl::Localization* l10n,
+                         nsACString const& id,
+                         nsTArray<std::pair<nsCString, nsCString>> const& args,
+                         nsACString& message) {
+  auto l10nArgs = dom::Optional<intl::L10nArgs>();
+  l10nArgs.Construct();
+
+  for (auto&& [key, value] : args) {
+    auto idArg = l10nArgs.Value().Entries().AppendElement();
+    idArg->mKey = key;
+    idArg->mValue.SetValue().SetAsUTF8String().Assign(value);
+  }
+
+  ErrorResult error;
+  l10n->FormatValueSync(id, l10nArgs, message, error);
+  NS_ENSURE_TRUE(!error.Failed(), error.StealNSResult());
+  return NS_OK;
+}

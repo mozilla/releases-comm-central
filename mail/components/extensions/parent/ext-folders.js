@@ -235,9 +235,7 @@ var folderTracker = new (class extends EventEmitter {
     // actual folder by its name (which is unique).
     let dstFolder = null;
     if (targetFolder && targetFolder.hasSubFolders) {
-      dstFolder = targetFolder.subFolders.find(
-        f => f.localizedName == srcFolder.localizedName
-      );
+      dstFolder = targetFolder.subFolders.find(f => f.name == srcFolder.name);
     }
 
     if (move) {
@@ -298,10 +296,10 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
 
   if (
     dstFolder.hasSubFolders &&
-    dstFolder.subFolders.find(f => f.localizedName == srcFolder.localizedName)
+    dstFolder.subFolders.find(f => f.name == srcFolder.name)
   ) {
     throw new ExtensionError(
-      `${functionName} failed, because ${srcFolder.localizedName} already exists in ${dstFolderPath}`
+      `${functionName} failed, because ${srcFolder.name} already exists in ${dstFolderPath}`
     );
   }
 
@@ -322,7 +320,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
         // Find the actual folder by its name (which is unique).
         if (_dstFolder && _dstFolder.hasSubFolders) {
           _destination = _dstFolder.subFolders.find(
-            f => f.localizedName == _srcFolder.localizedName
+            f => f.name == _srcFolder.name
           );
         }
       },
@@ -1043,7 +1041,7 @@ this.folders = class extends ExtensionAPIPersistent {
 
           if (
             parentFolder.hasSubFolders &&
-            parentFolder.subFolders.find(f => f.localizedName == childName)
+            parentFolder.subFolders.find(f => f.name == childName)
           ) {
             throw new ExtensionError(
               `folders.create() failed, because ${childName} already exists in ${folderURIToPath(
@@ -1075,7 +1073,11 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          if (folder.parent.subFolders.find(f => f.localizedName == newName)) {
+          if (
+            folder.parent.subFolders.find(
+              f => f.name == newName || f.localizedName == newName
+            )
+          ) {
             throw new ExtensionError(
               `folders.rename() failed, because ${newName} already exists in ${folderURIToPath(
                 accountKey,

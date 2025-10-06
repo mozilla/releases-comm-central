@@ -17,6 +17,7 @@
 #include "nsIMsgImapMailFolder.h"
 #include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
+#include "nsMsgUtils.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIMsgSearchSession.h"
@@ -44,6 +45,7 @@
 #include "nsTHashMap.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/StaticPrefs_mailnews.h"
+#include "mozilla/intl/Localization.h"
 
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
@@ -1492,9 +1494,13 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
   uint32_t flags;
   msgHdr->GetFlags(&flags);
 
+  nsAutoCString localizedValue;
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/messenger.ftl"_ns}, true);
+
   // Provide a string "value" for cells that do not normally have text.
   // Use empty string for the normal states "Read", "Not Starred",
-  // "No Attachment" and "Not Junk".
+  // "No Attachment" and "Not Spam".
   switch (colID.First()) {
     case 'a':
       if (colID.EqualsLiteral("attachmentCol") &&
@@ -1515,8 +1521,12 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
         // Only need to assign a real value for junk, it's empty already
         // as it should be for non-junk.
         if (!junkScoreStr.IsEmpty() &&
-            (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE))
-          aValue.AssignLiteral("messageJunk");
+            (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE)) {
+          rv =
+              LocalizeMessage(l10n, "message-flag-spam"_ns, {}, localizedValue);
+          NS_ENSURE_SUCCESS(rv, rv);
+          aValue = ToNewUnicode(localizedValue);
+        }
 
         NS_ASSERTION(NS_SUCCEEDED(rv),
                      "Converting junkScore to integer failed.");

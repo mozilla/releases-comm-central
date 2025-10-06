@@ -266,145 +266,6 @@ add_task(async function testShownItems() {
 });
 
 /**
- * Tests "Open in New Tab" and "Open in New Window".
- */
-add_task(async function testOpen() {
-  async function promiseTabOpenAndReady() {
-    const event = await BrowserTestUtils.waitForEvent(
-      tabmail.tabContainer,
-      "TabOpen"
-    );
-    // Wait for about:3pane and the folder to load.
-    await BrowserTestUtils.waitForEvent(
-      event.detail.tabInfo.chromeBrowser,
-      "folderURIChanged"
-    );
-    return event.detail.tabInfo;
-  }
-
-  async function promiseWindowOpenAndReady() {
-    const win = await BrowserTestUtils.domWindowOpenedAndLoaded(
-      undefined,
-      wind => wind.location.href == "chrome://messenger/content/messenger.xhtml"
-    );
-    // Wait for about:3pane and the folder to load.
-    await TestUtils.topicObserved("mail-idle-startup-tasks-finished");
-    return win;
-  }
-
-  // Open in a new background tab.
-
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
-
-  leftClickOn(plainFolder);
-  let tabPromise = promiseTabOpenAndReady();
-  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab");
-  let tabInfo = await tabPromise;
-
-  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
-  Assert.notEqual(
-    tabmail.currentTabInfo,
-    tabInfo,
-    "tab should open in the background"
-  );
-  Assert.equal(
-    tabInfo.folder,
-    plainFolder,
-    "tab should load the correct folder"
-  );
-  tabmail.closeTab(tabInfo);
-
-  // Open in a new foreground tab by pressing shift.
-
-  leftClickOn(inboxFolder);
-  tabPromise = promiseTabOpenAndReady();
-  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab", {
-    shiftKey: true,
-  });
-  tabInfo = await tabPromise;
-
-  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
-  Assert.equal(
-    tabmail.currentTabInfo,
-    tabInfo,
-    "tab should open in the foreground"
-  );
-  Assert.equal(
-    tabInfo.folder,
-    inboxFolder,
-    "tab should load the correct folder"
-  );
-  tabmail.closeTab(tabInfo);
-
-  // Open in a new foreground tab by preference.
-
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
-
-  leftClickOn(inboxFolder);
-  tabPromise = promiseTabOpenAndReady();
-  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab");
-  tabInfo = await tabPromise;
-
-  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
-  Assert.equal(
-    tabmail.currentTabInfo,
-    tabInfo,
-    "tab should open in the foreground"
-  );
-  Assert.equal(
-    tabInfo.folder,
-    inboxFolder,
-    "tab should load the correct folder"
-  );
-  tabmail.closeTab(tabInfo);
-
-  // Open in a new background tab by pressing shift.
-
-  leftClickOn(plainFolder);
-  tabPromise = promiseTabOpenAndReady();
-  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab", {
-    shiftKey: true,
-  });
-  tabInfo = await tabPromise;
-
-  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
-  Assert.notEqual(
-    tabmail.currentTabInfo,
-    tabInfo,
-    "tab should open in the background"
-  );
-  Assert.equal(
-    tabInfo.folder,
-    plainFolder,
-    "tab should load the correct folder"
-  );
-  tabmail.closeTab(tabInfo);
-
-  // Open in a new window.
-
-  leftClickOn(trashFolder);
-  const winPromise = promiseWindowOpenAndReady();
-  await rightClickAndActivate(trashFolder, "folderPaneContext-openNewWindow");
-  const win = await winPromise;
-  const winTabmail = win.document.getElementById("tabmail");
-
-  Assert.equal(winTabmail.tabInfo.length, 1, "new window should have 1 tab");
-  Assert.equal(
-    winTabmail.currentTabInfo.mode.name,
-    "mail3PaneTab",
-    "tab should be a 3-pane tab"
-  );
-  Assert.equal(
-    winTabmail.currentTabInfo.folder,
-    trashFolder,
-    "tab should load the correct folder"
-  );
-  await BrowserTestUtils.closeWindow(win);
-
-  await SimpleTest.promiseFocus(window);
-});
-
-/**
  * Tests "New Folder", "Rename" and "Delete".
  */
 add_task(async function testNewRenameDelete() {
@@ -869,6 +730,13 @@ add_task(async function testEmpty() {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await rightClickAndActivate(trashFolder, "folderPaneContext-emptyTrash");
   await promptPromise;
+
+  // The empty operation is async; wait until it’s really done.
+  await BrowserTestUtils.waitForCondition(
+    () => trashFolder.getTotalMessages(false) === 0,
+    "waiting for trash empty to complete"
+  );
+
   Assert.equal(
     trashFolder.getTotalMessages(false),
     0,
@@ -885,6 +753,13 @@ add_task(async function testEmpty() {
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await rightClickAndActivate(junkFolder, "folderPaneContext-emptyJunk");
   await promptPromise;
+
+  // The empty operation is async; wait until it’s really done.
+  await BrowserTestUtils.waitForCondition(
+    () => junkFolder.getTotalMessages(false) === 0,
+    "waiting for junk empty to complete"
+  );
+
   Assert.equal(
     junkFolder.getTotalMessages(false),
     0,
@@ -920,35 +795,38 @@ add_task(async function testEmpty() {
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await rightClickAndActivate(smartTrashFolder, "folderPaneContext-emptyTrash");
   await promptPromise;
+
   Assert.deepEqual(
     VirtualFolderHelper.wrapVirtualFolder(smartTrashFolder).searchFolders,
     [trashFolder, rssTrashFolder],
     "smart trash folder should still search the real trash folders"
   );
-  // Assert.equal(
-  //   smartTrashFolder.getTotalMessages(false),
-  //   0,
-  //   "smart trash folder should be emptied"
-  // );
+
+  // The empty operation is async; wait until it’s really done.
+  await BrowserTestUtils.waitForCondition(
+    () => trashFolder.getTotalMessages(false) === 0,
+    "waiting for trash empty to complete via smart trash empty"
+  );
+
   Assert.equal(
     trashFolder.getTotalMessages(false),
     0,
-    "trash folder should be emptied"
+    "trash folder should be emptied from smart trash empty"
   );
+
+  // The empty operation is async; wait until it’s really done.
+  await BrowserTestUtils.waitForCondition(
+    () => rssTrashFolder.getTotalMessages(false) === 0,
+    "waiting for trash empty to complete via smart trash empty"
+  );
+
   Assert.equal(
     rssTrashFolder.getTotalMessages(false),
     0,
     "RSS trash folder should be emptied"
   );
-  // Assert.equal(about3Pane.gDBView.rowCount, 0, "view should have no rows");
-  // Assert.equal(
-  //   about3Pane.threadTree.table.body.rows.length,
-  //   0,
-  //   "no rows should be displayed"
-  // );
 
   // Test emptying the smart junk folder. All junk folders should be emptied.
-
   leftClickOn(smartJunkFolder);
   Assert.equal(
     smartJunkFolder.getTotalMessages(false),
@@ -958,6 +836,14 @@ add_task(async function testEmpty() {
   promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   await rightClickAndActivate(smartJunkFolder, "folderPaneContext-emptyJunk");
   await promptPromise;
+
+  // The empty operation is async; wait until it’s really done.
+  await BrowserTestUtils.waitForCondition(
+    () => smartJunkFolder.getTotalMessages(false) === 0,
+    "waiting for junk empty to complete via smart junk empty"
+  );
+
+  // Assertions.
   Assert.deepEqual(
     VirtualFolderHelper.wrapVirtualFolder(smartJunkFolder).searchFolders,
     [junkFolder],
@@ -979,6 +865,145 @@ add_task(async function testEmpty() {
     0,
     "no rows should be displayed"
   );
+});
+
+/**
+ * Tests "Open in New Tab" and "Open in New Window".
+ */
+add_task(async function testOpen() {
+  async function promiseTabOpenAndReady() {
+    const event = await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabOpen"
+    );
+    // Wait for about:3pane and the folder to load.
+    await BrowserTestUtils.waitForEvent(
+      event.detail.tabInfo.chromeBrowser,
+      "folderURIChanged"
+    );
+    return event.detail.tabInfo;
+  }
+
+  async function promiseWindowOpenAndReady() {
+    const win = await BrowserTestUtils.domWindowOpenedAndLoaded(
+      undefined,
+      wind => wind.location.href == "chrome://messenger/content/messenger.xhtml"
+    );
+    // Wait for about:3pane and the folder to load.
+    await TestUtils.topicObserved("mail-idle-startup-tasks-finished");
+    return win;
+  }
+
+  // Open in a new background tab.
+
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
+
+  leftClickOn(plainFolder);
+  let tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab");
+  let tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.notEqual(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the background"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    plainFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new foreground tab by pressing shift.
+
+  leftClickOn(inboxFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab", {
+    shiftKey: true,
+  });
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the foreground"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    inboxFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new foreground tab by preference.
+
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
+
+  leftClickOn(inboxFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab");
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the foreground"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    inboxFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new background tab by pressing shift.
+
+  leftClickOn(plainFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab", {
+    shiftKey: true,
+  });
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.notEqual(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the background"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    plainFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new window.
+
+  leftClickOn(trashFolder);
+  const winPromise = promiseWindowOpenAndReady();
+  await rightClickAndActivate(trashFolder, "folderPaneContext-openNewWindow");
+  const win = await winPromise;
+  const winTabmail = win.document.getElementById("tabmail");
+
+  Assert.equal(winTabmail.tabInfo.length, 1, "new window should have 1 tab");
+  Assert.equal(
+    winTabmail.currentTabInfo.mode.name,
+    "mail3PaneTab",
+    "tab should be a 3-pane tab"
+  );
+  Assert.equal(
+    winTabmail.currentTabInfo.folder,
+    trashFolder,
+    "tab should load the correct folder"
+  );
+  await BrowserTestUtils.closeWindow(win);
+
+  await SimpleTest.promiseFocus(window);
 });
 
 function leftClickOn(folder, modifiers = {}) {
