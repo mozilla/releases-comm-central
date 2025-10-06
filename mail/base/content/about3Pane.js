@@ -36,10 +36,12 @@ var { MailServices } = ChromeUtils.importESModule(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+var { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
-  FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
