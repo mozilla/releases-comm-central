@@ -61,6 +61,7 @@ win32/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - winappsdk-x86-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -114,6 +115,7 @@ win32-shippable/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - winappsdk-x86-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -164,6 +166,7 @@ win32/debug:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - winappsdk-x86-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -214,6 +217,7 @@ win64/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -268,6 +272,7 @@ win64-shippable/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -319,6 +324,7 @@ win64/debug:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - winappsdk-x86_64-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -364,6 +370,7 @@ win64-plain/debug:
             - win64-nasm
             - win64-rust
             - win64-winchecksec
+            - winappsdk-x86_64-pc-windows-msvc
 
 win64-plain/opt:
     description: "Win64 Opt Plain"
@@ -407,6 +414,7 @@ win64-plain/opt:
             - win64-nasm
             - win64-rust
             - win64-winchecksec
+            - winappsdk-x86_64-pc-windows-msvc
 
 win64-asan/opt:
     description: "Win64 Opt ASAN"
@@ -455,6 +463,7 @@ win64-asan/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
+            - winappsdk-x86_64-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -516,6 +525,7 @@ win64-asan-reporter-shippable/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
+            - winappsdk-x86_64-pc-windows-msvc
         fetch:
             - upx-3.95-win
 
@@ -574,6 +584,7 @@ win64-ccov/opt:
             - win64-rust-size
             - win64-sccache
             - win64-winchecksec
+            - winappsdk-x86_64-pc-windows-msvc
 
 win64-aarch64/debug:
     description: "AArch64 Win64 Debug"
@@ -619,6 +630,7 @@ win64-aarch64/debug:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - winappsdk-aarch64-pc-windows-msvc
         fetch:
             - upx-3.95-win
     optimization:
@@ -669,6 +681,7 @@ win64-aarch64/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - winappsdk-aarch64-pc-windows-msvc
         fetch:
             - upx-3.95-win
     optimization:

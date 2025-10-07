@@ -99,6 +99,9 @@ reference-tasks:
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
+    - winappsdk-x86-pc-windows-msvc
+    - winappsdk-x86_64-pc-windows-msvc
+    - winappsdk-aarch64-pc-windows-msvc
 
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms
