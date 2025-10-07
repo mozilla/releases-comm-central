@@ -18,8 +18,8 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 var gEmptyLocal1, gEmptyLocal2;
@@ -166,20 +166,26 @@ add_task(async function update1() {
   const folder1 = IMAPPump.inbox
     .getChildNamed("empty 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder1.updateFolderWithListener(null, listener);
-  await listener.promise;
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Wait until folder1 shows the expected two messages (no extra refresh).
+  await TestUtils.waitForCondition(
+    () => folderCount(folder1) == 2,
+    "Waiting for two messages in folder1",
+    200
+  );
 });
 
 add_task(async function update2() {
   const folder2 = IMAPPump.inbox
     .getChildNamed("empty 2")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  const listener = new PromiseTestUtils.PromiseUrlListener();
-  folder2.updateFolderWithListener(null, listener);
-  await listener.promise;
+
+  // Wait until folder2 shows the expected two messages (no extra refresh).
+  await TestUtils.waitForCondition(
+    () => folderCount(folder2) == 2,
+    "Waiting for two messages in folder2",
+    200
+  );
 });
 
 add_task(function verifyFolders() {
