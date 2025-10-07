@@ -237,7 +237,7 @@ struct RawHdr {
   nsMsgKey key{nsMsgKey_None};
   nsCString messageId;  // "Message-Id:" value with surrounding '<' and '>'
                         // stripped. e.g."1234@local.machine.example"
-  nsCString references; // should be array?
+  nsTArray<nsCString> references; // The Message-Id list from "References:".
   PRTime date{0};       // From "Date:" header.
   PRTime dateReceived{0}; // From closest "Received:" header, if available.
   nsCString subject;

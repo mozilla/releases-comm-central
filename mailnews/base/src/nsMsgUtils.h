@@ -479,6 +479,25 @@ nsString EncodeFilename(nsACString const& str);
  */
 nsCString DecodeFilename(nsAString const& filename);
 
+// Parse Message-Ids from a space-separated list (or single Message-Id).
+// As per section 3.6.4 of RFC 5322.
+// i.e. Parse "Message-Id", "In-Reply-To:" and "References:" headers.
+//
+// Examples:
+// "" -> []
+// "<test@example.com>" -> ["test@example.com"]
+// "<foo23@example.com> <bar99@blah.org>"
+//   -> ["foo23@example.com", bar99@blah.org"]
+// "\t\t\t   <foo23@example.com>    <bar99@blah.org> \t\t "
+//    -> ["foo23@example.com", bar99@blah.org"]
+// "foo bar" -> ["foo","bar"]
+//
+// Some currently-undefined corner-cases...
+// "<<<foo bar" -> ["<<foo","bar"]?
+// "<foo bar>" -> ???
+// etc...
+nsTArray<nsCString> ParseIdentificationFields(nsACString const& m);
+
 /**
  * Helper for formatting text with intl::Localization.
  *

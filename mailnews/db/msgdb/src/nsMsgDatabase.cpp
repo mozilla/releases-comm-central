@@ -2920,7 +2920,11 @@ NS_IMETHODIMP nsMsgDatabase::AddMsgHdr(RawHdr* msg, bool notify,
     NS_ENSURE_SUCCESS(rv, rv);
   }
   if (!msg->references.IsEmpty()) {
-    rv = hdr->SetReferences(msg->references);
+    nsTArray<nsCString> parts(msg->references.Length());
+    for (auto ref : msg->references) {
+      parts.AppendElement("<"_ns + ref + ">"_ns);
+    }
+    rv = hdr->SetReferences(StringJoin(" "_ns, parts));
     NS_ENSURE_SUCCESS(rv, rv);
   }
   if (!msg->replyTo.IsEmpty()) {

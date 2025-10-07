@@ -63,14 +63,6 @@ static PRTime TimestampFromReceived(nsACString const& received) {
   return time;
 }
 
-static nsCString RemoveAngleBrackets(nsACString const& s) {
-  size_t len = s.Length();
-  if (len >= 2 && s[0] == '<' && s[len - 1] == '>') {
-    return nsCString(Substring(s, 1, len - 2));
-  }
-  return nsCString(s);
-}
-
 // NOTE:
 // Does not attempt to use fallback timestamps.
 //  - RawHdr.date is from the "Date": header, else 0.
@@ -139,12 +131,16 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
     } else if (n.LowerCaseEqualsLiteral("in-reply-to")) {
       // "In-Reply-To:" used as a fallback for missing "References:".
       if (out.references.IsEmpty()) {
-        out.references = hdr.Value(raw);
+        auto ids = ParseIdentificationFields(hdr.Value(raw));
+        if (!ids.IsEmpty()) {
+          out.references = {ids[0]};
+        }
       }
     } else if (n.LowerCaseEqualsLiteral("message-id")) {
-      nsAutoCString value(hdr.Value(raw));
-      value.Trim(" \t");  // Trim WSP
-      out.messageId = RemoveAngleBrackets(value);
+      auto ids = ParseIdentificationFields(hdr.Value(raw));
+      if (!ids.IsEmpty()) {
+        out.messageId = ids[0];
+      }
     } else if (n.LowerCaseEqualsLiteral("newsgroups")) {
       // We _might_ need this for recipients (see below).
       newsgroups = hdr.Value(raw);
@@ -154,8 +150,7 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
       // Treat "Priority:" and "X-Priority:" the same way.
       NS_MsgGetPriorityFromString(hdr.Value(raw).get(), out.priority);
     } else if (n.LowerCaseEqualsLiteral("references")) {
-      // "In-Reply-To:" used as a fallback for missing "References:".
-      out.references = hdr.Value(raw);
+      out.references = ParseIdentificationFields(hdr.Value(raw));
     } else if (n.LowerCaseEqualsLiteral("return-path")) {
       // NOTE: unused in nsParseMailMessageState.
     } else if (n.LowerCaseEqualsLiteral("return-receipt-to")) {

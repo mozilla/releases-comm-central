@@ -1844,6 +1844,32 @@ nsCString DecodeFilename(nsAString const& filename) {
   return out;
 }
 
+nsTArray<nsCString> ParseIdentificationFields(nsACString const& m) {
+  nsTArray<nsCString> out;
+  // TODO: implement a proper parser?
+  // This adhoc mess should be fine for most cases, but we're not exactly
+  // following RFC5322 in exact detail here...
+  // Noting that we also have to account for real-world messiness.
+  // See also nsMsgHdr::GetNextReference().
+
+  for (auto part : m.Split(' ')) {
+    nsAutoCString s(part);
+
+    s.Trim(" \t");  // Trim WSP.
+
+    // Strip (optional) angle brackets.
+    size_t len = s.Length();
+    if (len >= 2 && s[0] == '<' && s[len - 1] == '>') {
+      s = Substring(s, 1, len - 2);
+    }
+
+    if (!s.IsEmpty()) {
+      out.AppendElement(s);
+    }
+  }
+  return out;
+}
+
 nsresult LocalizeMessage(mozilla::intl::Localization* l10n,
                          nsACString const& id,
                          nsTArray<std::pair<nsCString, nsCString>> const& args,

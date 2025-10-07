@@ -296,6 +296,7 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
                                            nsIMsgDBHdr** newHdr) {
   NS_ENSURE_ARG(msg);
   NS_ENSURE_ARG_POINTER(newHdr);
+
   nsMsgKey key;
   nsresult rv = MessageDB().AddMessage(
       mFolderId, msg->messageId, msg->date, msg->sender, msg->recipients,

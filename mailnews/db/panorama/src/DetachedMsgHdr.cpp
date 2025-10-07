@@ -8,6 +8,7 @@
 #include "nsIDatabaseCore.h"
 #include "nsIFolderDatabase.h"
 #include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
 #include "nsPrintfCString.h"
 
 namespace mozilla::mailnews {
@@ -286,7 +287,7 @@ NS_IMETHODIMP DetachedMsgHdr::SetRecipients(const nsACString& recipients) {
 }
 
 NS_IMETHODIMP DetachedMsgHdr::SetReferences(const nsACString& references) {
-  mRaw.references = references;
+  mRaw.references = ParseIdentificationFields(references);
   return NS_OK;
 }
 
