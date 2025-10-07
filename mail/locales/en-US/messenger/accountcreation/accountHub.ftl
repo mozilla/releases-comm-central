@@ -215,7 +215,7 @@ account-hub-username-error-text = Username is required
 
 account-hub-oauth-pending = Waiting for authorization in login popup…
 
-account-hub-addon-install-needed = { -brand-short-name } doesn’t natively support this server. To access Exchange email, <a data-l10n-name="addon-install"> install a third-party add-on like Owl (paid).</a>
+account-hub-addon-install-button = Install
 
 account-hub-addon-error = Add-on installation failed. Please try again or contact the add-on author for assistance.
 

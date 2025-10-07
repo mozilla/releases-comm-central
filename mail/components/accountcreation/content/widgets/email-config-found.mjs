@@ -9,9 +9,11 @@ const {
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
-
 const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
+);
+const { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
 );
 
 /**
@@ -33,13 +35,6 @@ class EmailConfigFound extends AccountHubStep {
    * @type {HTMLElement}
    */
   #protocolForm;
-
-  /**
-   * The install link.
-   *
-   * @type {HTMLElement}
-   */
-  #installAddon;
 
   /**
    * The Account Config object with the selected incoming set.
@@ -70,7 +65,6 @@ class EmailConfigFound extends AccountHubStep {
     this.appendChild(template);
 
     this.#protocolForm = this.querySelector("#protocolForm");
-    this.#installAddon = this.querySelector("#addonInstall");
 
     this.#protocolForm.addEventListener("change", event => {
       // Remove 'selected' class from all label elements.
@@ -84,6 +78,7 @@ class EmailConfigFound extends AccountHubStep {
     });
 
     this.querySelector("#editConfiguration").addEventListener("click", this);
+    this.querySelector("#addonInstall").addEventListener("click", this);
     this.querySelector("#addonInfo").addEventListener("click", this);
 
     this.#currentConfig = {};
@@ -99,11 +94,14 @@ class EmailConfigFound extends AccountHubStep {
             })
           );
         } else if (event.target.id === "addonInstall") {
+          this.querySelector("#addonInstall").disabled = true;
           this.dispatchEvent(
             new CustomEvent("install-addon", {
               bubbles: true,
             })
           );
+        } else if (event.target.id === "addonInfo") {
+          openLinkExternally(event.target.href);
         }
         break;
       default:
@@ -213,7 +211,7 @@ class EmailConfigFound extends AccountHubStep {
     this.#setContinueState();
 
     // Hide outgoing config details if unavailable.
-    if (!outgoing || incoming.type === "ews" || incoming.type === "exchange") {
+    if (!outgoing || incoming.type == "ews" || incoming.type == "exchange") {
       this.querySelector("#outgoingConfigType").hidden = true;
       this.querySelector("#outgoingConfig").hidden = true;
       document.l10n.setAttributes(
@@ -221,11 +219,23 @@ class EmailConfigFound extends AccountHubStep {
         "account-hub-result-ews-text"
       );
 
-      this.querySelector("#owlExchangeDescription").hidden =
-        (incoming.type === "exchange" && this.#addon?.isInstalled) ||
-        incoming.type === "ews";
+      // Show OWL add-on installation option if incoming type is exchange
+      // (not ews) and the add-on is not already installed.
+      if (
+        incoming.type == "exchange" &&
+        this.#addon &&
+        !this.#addon.isInstalled
+      ) {
+        this.querySelector("#owlExchangeDescription").hidden = false;
+        this.querySelector("#addonInstall").disabled = false;
+        const link = this.querySelector("#addonInfo");
+        link.textContent = this.#addon.description;
+        link.href = this.#addon.websiteURL;
+        if (this.#addon.icon32) {
+          this.querySelector("#addonIcon").src = this.#addon.icon32;
+        }
+      }
 
-      // FIXME: Bug 1899649 is tracking being able to edit an EWS config.
       this.querySelector("#editConfiguration").hidden =
         incoming.type === "exchange" && !this.#addon?.isInstalled;
 
@@ -287,7 +297,7 @@ class EmailConfigFound extends AccountHubStep {
     }
 
     if (this.#addon.isDisabled) {
-      this.#installAddon.disabled = true;
+      this.querySelector("#addonInstall").disabled = true;
 
       // Trigger an add-on update check. If an update is available,
       // enable the install button to (re)install.
@@ -297,7 +307,7 @@ class EmailConfigFound extends AccountHubStep {
         }
         const listener = {
           onUpdateAvailable() {
-            this.querySelector("#installAddon").disabled = false;
+            this.querySelector("#addonInstall").disabled = false;
           },
           onNoUpdateAvailable() {},
         };
