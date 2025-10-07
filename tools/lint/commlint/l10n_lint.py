@@ -5,11 +5,12 @@
 import os
 from datetime import datetime, timedelta
 
+from python.l10n_lint import lint_strings
+
 from mach import util as mach_util
 from mozpack import path as mozpath
 from mozversioncontrol import MissingVCSTool
 from mozversioncontrol.repoupdate import update_mercurial_repo
-from python.l10n_lint import lint_strings
 
 LOCALE = "comm-strings-quarantine"
 STRINGS_REPO = "https://hg.mozilla.org/projects/comm-strings-quarantine"

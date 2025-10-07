@@ -18,9 +18,9 @@ from typing import Union
 import requests
 from mozphab.conduit import ConduitAPI
 from mozphab.detect_repository import repo_from_args
+from taskcluster.helper import TaskclusterConfig
 
 import taskcluster
-from taskcluster.helper import TaskclusterConfig
 
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
 ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task/"
