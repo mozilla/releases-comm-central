@@ -158,6 +158,7 @@ files_changed:
   - comm/mail/base/content/helpMenu.inc.xhtml
   - comm/mail/base/content/mailCommon.js
   - comm/mail/base/content/mailContext.js
+  - comm/mail/base/content/nsContextMenu.sys.mjs
   - comm/mail/base/content/mailCore.js
   - comm/mail/base/content/mailTabs.js
   - comm/mail/base/content/mailWindow.js

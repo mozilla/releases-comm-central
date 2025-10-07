@@ -9,9 +9,6 @@
      nsMsgViewIndex_None, TreeSelection */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
-// mailContext.js
-/* globals mailContextMenu */
-
 // msgHdrView.js
 /* globals AdjustHeaderView ClearCurrentHeaders ClearPendingReadTimer
    HideMessageHeaderPane initFolderDBListener OnLoadMsgHeaderPane OnTagsChange
@@ -153,10 +150,6 @@ window.addEventListener("DOMContentLoaded", event => {
   if (parent == top) {
     // Standalone message display? Focus the message pane.
     browser.focus();
-  }
-
-  if (window.parent == window.top) {
-    mailContextMenu.init();
   }
 
   // There might not be a msgWindow variable on the top window

@@ -27,9 +27,23 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  nsContextMenu: "chrome://messenger/content/nsContextMenu.sys.mjs",
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
 });
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    const contextMenuPopup = document.getElementById("mailContext");
+    mailContextMenu._menupopup = contextMenuPopup;
+
+    contextMenuPopup.addEventListener("command", mailContextMenu);
+    contextMenuPopup.addEventListener("popupshowing", mailContextMenu);
+    contextMenuPopup.addEventListener("popuphidden", mailContextMenu);
+  },
+  { once: true }
+);
 
 /**
  * Called by ContextMenuParent if this window is about:3pane, or is
@@ -120,13 +134,6 @@ var mailContextMenu = {
    * @type {boolean}
    */
   _selectionIsOverridden: false,
-
-  init() {
-    this._menupopup = document.getElementById("mailContext");
-    this._menupopup.addEventListener("popupshowing", this);
-    this._menupopup.addEventListener("popuphidden", this);
-    this._menupopup.addEventListener("command", this);
-  },
 
   handleEvent(event) {
     switch (event.type) {

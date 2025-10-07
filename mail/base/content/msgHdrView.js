@@ -14,7 +14,6 @@
 /* import-globals-from aboutMessage.js */
 /* import-globals-from editContactPanel.js */
 /* import-globals-from globalOverlay.js */
-/* import-globals-from mailContext.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from msgSecurityPane.js */
@@ -36,8 +35,8 @@ ChromeUtils.defineESModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
+  PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
-
   calendarDeactivator:
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });

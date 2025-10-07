@@ -203,8 +203,6 @@ window.addEventListener("DOMContentLoaded", async event => {
   await new Promise(resolve => setTimeout(resolve));
   folderTree.dispatchEvent(new CustomEvent("select"));
 
-  mailContextMenu.init();
-
   CalMetronome.on("day", refreshGroupedBySortView);
 
   updateZoomCommands();
