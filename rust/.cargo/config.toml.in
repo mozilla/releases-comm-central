@@ -76,9 +76,9 @@ git = "https://github.com/martinthomson/ohttp.git"
 rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/application-services?rev=f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"]
+[source."git+https://github.com/mozilla/application-services?rev=cd04a4d1a74294ab08434d7a5a8152d25d25e53c"]
 git = "https://github.com/mozilla/application-services"
-rev = "f6f667f590ac15367fc37eb1ad3a6bdea4ffc526"
+rev = "cd04a4d1a74294ab08434d7a5a8152d25d25e53c"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/audioipc?rev=82fe7fa7e3aaa35468137239a0e4c2f867457214"]

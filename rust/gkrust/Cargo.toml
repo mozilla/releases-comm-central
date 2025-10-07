@@ -1,3 +1,4 @@
+
 [package]
 name = "gkrust"
 version = "0.1.0"
@@ -9,6 +10,7 @@ test = false
 doctest = false
 bench = false
 doc = false
+plugin = false
 harness = false
 
 [dependencies]
