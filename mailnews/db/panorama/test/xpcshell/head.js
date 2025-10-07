@@ -162,6 +162,7 @@ function checkOrdinals(expected) {
  * @param {object} message - Details of the new message to add.
  * @param {integer} [message.folderId=1]
  * @param {string} [message.messageId="messageId"]
+ * @param {string[]} [message.references=[]]
  * @param {string} [message.date="2025-01-22"] - Any string which can be
  *   parsed by the Date constructor.
  * @param {string} [message.sender="sender"]
@@ -176,6 +177,7 @@ function checkOrdinals(expected) {
 function addMessage({
   folderId = 1,
   messageId = "messageId",
+  references = [],
   date = "2025-01-22",
   sender = "sender",
   recipients = "recipients",
@@ -188,6 +190,7 @@ function addMessage({
   return messageDB.addMessage(
     folderId,
     messageId,
+    references,
     new Date(date).valueOf() * 1000,
     sender,
     recipients,

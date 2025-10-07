@@ -58,7 +58,8 @@ MessageDatabase::GetTotalCount(uint64_t* aTotalCount) {
 }
 
 NS_IMETHODIMP MessageDatabase::AddMessage(
-    uint64_t aFolderId, const nsACString& aMessageId, PRTime aDate,
+    uint64_t aFolderId, const nsACString& aMessageId,
+    nsTArray<nsCString> const& aReferences, PRTime aDate,
     const nsACString& aSender, const nsACString& aRecipients,
     const nsACString& aCcList, const nsACString& aBccList,
     const nsACString& aSubject, uint64_t aFlags, const nsACString& aTags,
@@ -67,19 +68,34 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
 
   CachedMsg cached;
   {
+    // NOTE: THIS THREADING STUFF IS AN UNSUSTAINABLE HACK!
+    // It assumes that parent messages are already in the database.
+    // Fine for now, but we can't assume that'll be the case out in
+    // Real-Life Land (tm).
+    // For now, threadId is the key of root message, but assume
+    // that threads will one day have their own IDs!
+    nsMsgKey threadId = 0;
+    nsMsgKey parentId = 0;
+    if (aReferences.Length() > 0) {
+      threadId = FindByMessageId(aReferences[0]);
+      parentId = FindByMessageId(aReferences.LastElement());
+    }
+
     nsCOMPtr<mozIStorageStatement> stmt;
     // Duplicate statement! Also in FolderMigrator::SetupAndRun.
     nsresult rv = DatabaseCore::GetStatement("AddMessage"_ns,
                                              "INSERT INTO messages ( \
-                                  folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \
+                                  folderId, threadId, threadParent, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \
                                 ) VALUES ( \
-                                  :folderId, :messageId, :date, :sender, :recipients, :ccList, :bccList, :subject, :flags, :tags \
+                                  :folderId, :threadId, :threadParent, :messageId, :date, :sender, :recipients, :ccList, :bccList, :subject, :flags, :tags \
                                 ) RETURNING "_ns MESSAGE_SQL_FIELDS,
                                              getter_AddRefs(stmt));
     NS_ENSURE_SUCCESS(rv, rv);
     mozStorageStatementScoper scoper(stmt);
 
     stmt->BindInt64ByName("folderId"_ns, aFolderId);
+    stmt->BindInt64ByName("threadId"_ns, threadId);
+    stmt->BindInt64ByName("threadParent"_ns, parentId);
     stmt->BindUTF8StringByName("messageId"_ns,
                                DatabaseUtils::Normalize(aMessageId));
     stmt->BindInt64ByName("date"_ns, aDate);
@@ -118,35 +134,28 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     cached.flags = (uint32_t)stmt->AsInt64(11);
     cached.tags = stmt->AsSharedUTF8String(12, &len);
   }
-  // Update the thread columns on the newly inserted row. We're assuming the
-  // message being added is at the root of a thread, which uses the row's id
-  // value as threadId, so we can't do this in one insert query. At some point
-  // in the future we'll handle messages with a known parent differently and
-  // avoid this second query.
 
-  {
-    // Duplicate statement! Also in FolderMigrator::HandleCompletion.
+  // For root messages, we need to update the threadId to be the msgKey,
+  // as we didn't have it when we did the main insert.
+  if (cached.threadId == 0) {
     nsCOMPtr<mozIStorageStatement> stmt;
     nsresult rv = DatabaseCore::GetStatement(
-        "UpdateThreadInfo"_ns,
-        "UPDATE messages SET threadId = :threadId, threadParent = :threadParent WHERE id = :id"_ns,
+        "SetThreadIdToId"_ns,
+        "UPDATE messages SET threadId = id WHERE id = :id"_ns,
         getter_AddRefs(stmt));
     NS_ENSURE_SUCCESS(rv, rv);
     mozStorageStatementScoper scoper(stmt);
     stmt->BindInt64ByName("id"_ns, cached.key);
-    stmt->BindInt64ByName("threadId"_ns, cached.key);
-    stmt->BindInt64ByName("threadParent"_ns, 0);
     rv = stmt->Execute();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Reflect UpdateThreadInfo in the cached data.
+    // Reflect in the cached data.
     cached.threadId = cached.key;
-    cached.threadParent = 0;
+  }
 
-    // Add to cache.
-    if (!mMsgCache.put(cached.key, cached)) {
-      return NS_ERROR_FAILURE;
-    }
+  // Add to cache.
+  if (!mMsgCache.put(cached.key, cached)) {
+    return NS_ERROR_FAILURE;
   }
 
   RefPtr<Message> message = new Message(cached.key);
@@ -427,6 +436,7 @@ void MessageDatabase::TrimCache() {
   }
 }
 
+// NOTE: this query restricts the search to the same folder.
 nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
                                                  const nsACString& aMessageId,
                                                  Message** aMessage) {
@@ -453,6 +463,29 @@ nsresult MessageDatabase::GetMessageForMessageID(uint64_t aFolderId,
   message.forget(aMessage);
 
   return NS_OK;
+}
+
+// TODO: This is a quick hack.
+// Doesn't take into account various corner cases (eg multiple
+// messages with same message-id!).
+nsMsgKey MessageDatabase::FindByMessageId(nsACString const& messageId) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "FindByMessageId"_ns,
+      "SELECT id"_ns
+      " FROM messages WHERE messageId = :messageId"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, 0);
+  mozStorageStatementScoper scoper(stmt);
+  stmt->BindUTF8StringByName("messageId"_ns, messageId);
+
+  bool hasResult;
+  rv = stmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, 0);
+  if (!hasResult) {
+    return 0;  // Not found.
+  }
+  return (nsMsgKey)stmt->AsInt64(0);
 }
 
 nsresult MessageDatabase::MarkAllRead(uint64_t aFolderId,

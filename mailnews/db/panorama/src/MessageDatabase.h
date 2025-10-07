@@ -87,6 +87,11 @@ class MessageDatabase : public nsIMessageDatabase {
 
   nsresult MessageExists(nsMsgKey key, bool& exists);
 
+  // Find the message with the given "Message-Id:".
+  // If not found, or error, returns 0.
+  // NOTE: undefined behaviour if multiple messages share the same message-id!
+  nsMsgKey FindByMessageId(nsACString const& messageId);
+
  protected:
   virtual ~MessageDatabase() {};
 

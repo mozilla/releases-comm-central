@@ -556,7 +556,6 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
     mMimeConverter = mozilla::components::MimeConverter::Service();
     NS_ENSURE_TRUE(mMimeConverter, NS_ERROR_FAILURE);
 
-    // Duplicate statement! Also in MessageDatabase::AddMessage.
     DatabaseCore::GetStatement("AddMessage"_ns,
                                "INSERT INTO messages ( \
                                   folderId, messageId, date, sender, recipients, ccList, bccList, subject, flags, tags \

@@ -299,8 +299,9 @@ NS_IMETHODIMP PerFolderDatabase::AddMsgHdr(RawHdr* msg, bool notify,
 
   nsMsgKey key;
   nsresult rv = MessageDB().AddMessage(
-      mFolderId, msg->messageId, msg->date, msg->sender, msg->recipients,
-      msg->ccList, msg->bccList, msg->subject, msg->flags, msg->keywords, &key);
+      mFolderId, msg->messageId, msg->references, msg->date, msg->sender,
+      msg->recipients, msg->ccList, msg->bccList, msg->subject, msg->flags,
+      msg->keywords, &key);
   NS_ENSURE_SUCCESS(rv, rv);
   MOZ_ASSERT(key != nsMsgKey_None);
 

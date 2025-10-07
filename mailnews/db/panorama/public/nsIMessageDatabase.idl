@@ -20,10 +20,11 @@ interface nsIMessageDatabase : nsISupports {
   readonly attribute unsigned long long totalCount;
 
   /**
-   * Add a row to the database.
+   * Add a message to the database.
    */
   nsMsgKey addMessage(in unsigned long long folderId,
                       in AUTF8String messageId,
+                      in Array<AUTF8String> references,
                       in PRTime date,
                       in AUTF8String sender,
                       in AUTF8String recipients,
@@ -34,7 +35,7 @@ interface nsIMessageDatabase : nsISupports {
                       in AUTF8String tags);
 
   /**
-   * Remove a row from the database.
+   * Remove a message from the database.
    */
   void removeMessage(in nsMsgKey id);
 
