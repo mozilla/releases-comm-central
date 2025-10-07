@@ -489,6 +489,7 @@ treechildren::-moz-tree-cell-text(selected) {
   margin-inline-start: 0;
   font-weight: normal;
   white-space: nowrap;
+  line-height: 1.8em;
 }
 
 .accessory-button {
@@ -1531,4 +1532,96 @@ qr-code-wizard {
 
 #appearanceStyleCards .radio-icon {
   list-style-image: var(--cards-view-illustration);
+}
+
+.highlighting-group {
+  --section-highlight-background-color: color-mix(in srgb, AccentColor 20%, transparent);
+}
+
+.privacy-detailedoption .checkbox-label-box,
+.arrowhead {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.privacy-detailedoption {
+  margin: 3px 0;
+  border-color: var(--in-content-box-border-color);
+
+  @media not (forced-colors) {
+    background-color: rgba(215, 215, 219, 0.1);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+
+    & .radio-check {
+      opacity: 1;
+    }
+  }
+
+  & > .indent {
+    /* Apply display: block to the containers of all the category information, as
+     * without this the flex-wrapped blocks inside don't stretch vertically to
+     * enclose their content. */
+    display: block;
+    margin-inline-end: 22px;
+  }
+
+  &.selected {
+    border-color: AccentColor;
+
+    @media not (forced-colors) {
+      background-color: var(--section-highlight-background-color);
+    }
+
+    @media (forced-colors) {
+      outline: 2px solid var(--color-accent-primary);
+    }
+
+    & .arrowhead {
+      display: none;
+    }
+  }
+
+  & .radio-label-box {
+    font-weight: bold;
+  }
+
+  &:not(.expanded, .selected) .privacy-extra-information {
+    visibility: collapse;
+  }
+
+  &:where(.expanded, .selected) .privacy-extra-information {
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+  }
+}
+
+.extra-information-label {
+  margin-top: 18px;
+}
+
+.arrowhead {
+  border-color: transparent;
+  min-height: 20px;
+  min-width: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-color: transparent;
+  padding: 3px;
+}
+
+.arrowhead:not([disabled]):hover {
+  cursor: pointer;
+}
+
+.arrowhead.up {
+  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+}
+
+.doh-label {
+  display: list-item;
 }
