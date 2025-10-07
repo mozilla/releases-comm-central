@@ -1674,7 +1674,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
     } else {
       // Ensure commit happens regularly, even if offline stores are disabled.
       if (mDatabase) {
-        mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+        mDatabase->Commit(nsMsgDBCommitType::kCompressCommit);
       }
     }
   }
