@@ -42,8 +42,8 @@ function getCanvasAsImgContainer(canvas, width, height) {
     imageData.height,
     imageData.width * 4,
     imgEncoder.INPUT_FORMAT_RGBA,
-    "",
-    ""
+    "", // outputOptions
+    null // randomizationKey
   );
 
   // Now turn the PNG stream into an imgIContainer.
