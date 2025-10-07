@@ -173,6 +173,7 @@ export class nsMailServer {
       this._readers[i]._handler.resetTest();
       this._readers[i]._realCloseSocket();
     }
+    this._readers.length = 0;
   }
 
   setDebugLevel(debug) {
