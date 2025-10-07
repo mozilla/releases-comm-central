@@ -124,8 +124,18 @@ async function subtest(testFolder) {
     () => message.isRead,
     "waiting for message 0 to be marked as read"
   );
+  // Extra time to ensure loading completes. Not loading may lead to leaks.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   firstAbout3Pane.threadTree.selectedIndex = -1; // Unload the message.
+  const firstMessagePane =
+    firstAbout3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+  await TestUtils.waitForCondition(
+    () =>
+      firstMessagePane.contentDocument.readyState == "complete" &&
+      firstMessagePane.currentURI.spec == "about:blank"
+  );
 
   // Open a message in a background tab. It should not get marked as read.
 
@@ -262,5 +272,8 @@ async function subtest(testFolder) {
     () => message.isRead,
     "message 5 should be read after opening the foreground tab"
   );
+  // Extra time to ensure loading completes. Not loading may lead to leaks.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   tabmail.closeTab(1);
 }
