@@ -124,7 +124,10 @@ impl XpcomEwsBridge {
         Ok(uri.into())
     }
 
-    xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(listener: *const IEwsFolderListener, sync_state: *const nsACString));
+    xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(
+        listener: *const IEwsFolderListener,
+        sync_state: *const nsACString
+    ));
     fn sync_folder_hierarchy(
         &self,
         listener: &IEwsFolderListener,
@@ -151,7 +154,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_folder => CreateFolder(listener: *const IEwsSimpleOperationListener, parent_id: *const nsACString, name: *const nsACString));
+    xpcom_method!(create_folder => CreateFolder(
+        listener: *const IEwsSimpleOperationListener,
+        parent_id: *const nsACString,
+        name: *const nsACString
+    ));
     fn create_folder(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -179,7 +186,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(delete_folder => DeleteFolder(listener: *const IEwsSimpleOperationListener, folder_id: *const nsACString));
+    xpcom_method!(delete_folder => DeleteFolder(
+        listener: *const IEwsSimpleOperationListener,
+        folder_id: *const nsACString
+    ));
     fn delete_folder(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -201,7 +211,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(update_folder => UpdateFolder(listener: *const IEwsSimpleOperationListener, folder_id: *const nsACString, folder_name: *const nsACString));
+    xpcom_method!(update_folder => UpdateFolder(
+        listener: *const IEwsSimpleOperationListener,
+        folder_id: *const nsACString,
+        folder_name: *const nsACString
+    ));
     fn update_folder(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -225,7 +239,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(listener: *const IEwsMessageSyncListener, folder_id: *const nsACString, sync_state: *const nsACString));
+    xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(
+        listener: *const IEwsMessageSyncListener,
+        folder_id: *const nsACString,
+        sync_state: *const nsACString
+    ));
     fn sync_messages_for_folder(
         &self,
         listener: &IEwsMessageSyncListener,
@@ -257,7 +275,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(get_message => GetMessage(callbacks: *const IEwsMessageFetchListener, id: *const nsACString));
+    xpcom_method!(get_message => GetMessage(
+        callbacks: *const IEwsMessageFetchListener,
+        id: *const nsACString
+    ));
     fn get_message(
         &self,
         listener: &IEwsMessageFetchListener,
@@ -312,7 +333,13 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(create_message => CreateMessage(listener: *const IEwsMessageCreateListener, folder_id: *const nsACString, is_draft: bool, is_read: bool, message_stream: *const nsIInputStream));
+    xpcom_method!(create_message => CreateMessage(
+        listener: *const IEwsMessageCreateListener,
+        folder_id: *const nsACString,
+        is_draft: bool,
+        is_read: bool,
+        message_stream: *const nsIInputStream
+    ));
     fn create_message(
         &self,
         listener: &IEwsMessageCreateListener,
@@ -342,7 +369,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(move_items => MoveItems(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    xpcom_method!(move_items => MoveItems(
+        listener: *const IEwsSimpleOperationListener,
+        destination_folder_id: *const nsACString,
+        item_ids: *const ThinVec<nsCString>
+    ));
     fn move_items(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -364,7 +395,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(copy_items => CopyItems(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, item_ids: *const ThinVec<nsCString>));
+    xpcom_method!(copy_items => CopyItems(
+        listener: *const IEwsSimpleOperationListener,
+        destination_folder_id: *const nsACString,
+        item_ids: *const ThinVec<nsCString>
+    ));
     fn copy_items(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -386,7 +421,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(move_folders => MoveFolders(listener: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, folder_ids: *const ThinVec<nsCString>));
+    xpcom_method!(move_folders => MoveFolders(
+        listener: *const IEwsSimpleOperationListener,
+        destination_folder_id: *const nsACString,
+        folder_ids: *const ThinVec<nsCString>
+    ));
     fn move_folders(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -408,7 +447,11 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(copy_folders => CopyFolders(callbacks: *const IEwsSimpleOperationListener, destination_folder_id: *const nsACString, folder_ids: *const ThinVec<nsCString>));
+    xpcom_method!(copy_folders => CopyFolders(
+        callbacks: *const IEwsSimpleOperationListener,
+        destination_folder_id: *const nsACString,
+        folder_ids: *const ThinVec<nsCString>
+    ));
     fn copy_folders(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -430,7 +473,10 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(delete_messages => DeleteMessages(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>));
+    xpcom_method!(delete_messages => DeleteMessages(
+        listener: *const IEwsSimpleOperationListener,
+        ews_ids: *const ThinVec<nsCString>
+    ));
     fn delete_messages(
         &self,
         listener: &IEwsSimpleOperationListener,
@@ -452,7 +498,12 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(listener: *const IEwsSimpleOperationListener, ews_ids: *const ThinVec<nsCString>, is_junk: bool, legacyDestinationFolderId: *const nsACString));
+    xpcom_method!(mark_items_as_junk => MarkItemsAsJunk(
+        listener: *const IEwsSimpleOperationListener,
+        ews_ids: *const ThinVec<nsCString>,
+        is_junk: bool,
+        legacyDestinationFolderId: *const nsACString
+    ));
     fn mark_items_as_junk(
         &self,
         listener: &IEwsSimpleOperationListener,

@@ -44,12 +44,14 @@ pub struct XpComFuture<T: XpCom + 'static> {
     running: bool,
 }
 
+type ListenerResult<T> = Result<(RefPtr<T>, ThinVec<u8>), nsresult>;
+
 impl<T: XpCom> XpComFuture<T> {
     /// Reads data from the listener if any is available.
     ///
     /// Returns [`Poll::Ready`] if the request has completed, and
     /// [`Poll::Pending`] otherwise.
-    fn poll_listener(&self) -> Poll<Result<(RefPtr<T>, ThinVec<u8>), nsresult>> {
+    fn poll_listener(&self) -> Poll<ListenerResult<T>> {
         if let Some(status) = self.listener.status() {
             // The listener has a final status, which means the request has
             // finished.
@@ -139,7 +141,7 @@ impl XpComFuture<nsIChannel> {
 // arrives (rather than buffering it all).
 // See https://bugzilla.mozilla.org/show_bug.cgi?id=1869277
 impl Future for XpComFuture<nsIChannel> {
-    type Output = Result<(RefPtr<nsIChannel>, ThinVec<u8>), nsresult>;
+    type Output = ListenerResult<nsIChannel>;
 
     fn poll(mut self: Pin<&mut XpComFuture<nsIChannel>>, cx: &mut Context) -> Poll<Self::Output> {
         // Set the waker on the listener so it can use it when the request finishes.

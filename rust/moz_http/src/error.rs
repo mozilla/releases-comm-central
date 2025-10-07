@@ -112,10 +112,10 @@ impl From<&Error> for nsresult {
             Error::UnsupportedScheme(_) => nserror::NS_ERROR_UNKNOWN_PROTOCOL,
             Error::TimedOut => nserror::NS_ERROR_NET_TIMEOUT,
             Error::UnknownHost => nserror::NS_ERROR_UNKNOWN_HOST,
-            Error::UnknownNetworkError(result) => result.clone(),
+            Error::UnknownNetworkError(result) => *result,
             Error::RedirectLoop => nserror::NS_ERROR_REDIRECT_LOOP,
-            Error::TransportSecurityFailure { status, .. } => status.clone(),
-            Error::Unknown(result) => result.clone(),
+            Error::TransportSecurityFailure { status, .. } => *status,
+            Error::Unknown(result) => *result,
             Error::StatusCode { .. } => nserror::NS_ERROR_NET_ERROR_RESPONSE,
 
             _ => nserror::NS_ERROR_FAILURE,

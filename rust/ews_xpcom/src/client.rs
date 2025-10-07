@@ -239,13 +239,13 @@ where
                     }
                 };
 
-                message.and_then(|message| {
+                message.map(|message| {
                     // Validate the message (and propagate any error) if it's
                     // not `None`.
                     match validate_get_folder_response_message(&message) {
                         // Map from EWS folder ID to distinguished ID.
-                        Ok(folder_id) => Some(Ok((folder_id.id, distinguished_id))),
-                        Err(err) => Some(Err(err)),
+                        Ok(folder_id) => Ok((folder_id.id, distinguished_id)),
+                        Err(err) => Err(err),
                     }
                 })
             })

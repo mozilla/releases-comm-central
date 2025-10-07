@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["The Mozilla Project Developers"]
 license = "MPL-2.0"
 description = "Testing code for libgkrust"
+edition = "2021"
 
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ["gkrust-gtest"], optional = true }
@@ -33,5 +34,4 @@ test = false
 doctest = false
 bench = false
 doc = false
-plugin = false
 harness = false
