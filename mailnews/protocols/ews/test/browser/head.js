@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
+
 var { EwsServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
@@ -9,6 +13,19 @@ var { EwsServer } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+
+/**
+ * Sync the messages for the specified folder.
+ *
+ * @param {nsIMsgIncomingServer} incomingServer - The incoming server to use for
+ *   syncing.
+ * @param {nsIMsgFolder} folder - The specific folder to sync on this server.
+ */
+async function syncFolder(incomingServer, folder) {
+  const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  incomingServer.getNewMessages(folder, null, asyncUrlListener);
+  return asyncUrlListener.promise;
+}
 
 /**
  * Set up an incoming server connected to an EWS test server.

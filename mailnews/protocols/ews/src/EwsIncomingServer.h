@@ -56,6 +56,7 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD PerformExpand(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow,
                          nsIURI** _retval) override;
+  NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
 
  private:
   /**

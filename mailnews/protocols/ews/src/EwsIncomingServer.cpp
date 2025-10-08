@@ -787,6 +787,12 @@ NS_IMETHODIMP EwsIncomingServer::GetTrashFolderPath(nsACString& returnValue) {
   return GetStringValue(kTrashFolderPreferenceName, returnValue);
 }
 
+NS_IMETHODIMP EwsIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
+  NS_ENSURE_ARG_POINTER(canSearchMessages);
+  *canSearchMessages = true;
+  return NS_OK;
+}
+
 NS_IMETHODIMP EwsIncomingServer::GetEwsUrl(nsACString& value) {
   return GetStringValue("ews_url", value);
 }
