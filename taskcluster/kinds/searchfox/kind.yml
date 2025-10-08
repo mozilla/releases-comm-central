@@ -145,8 +145,9 @@ tasks:
                 - nsis
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
-                - win64-libotr
                 - vs
+                - win64-libotr
+                - winappsdk-x86_64-pc-windows-msvc
             fetch:
                 - upx-3.95-win
                 - windows-rs
