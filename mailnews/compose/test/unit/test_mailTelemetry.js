@@ -24,6 +24,7 @@ const deliveryListener = {
         "mails_sent must be correct"
       );
     }
+    this.deferred.resolve();
   },
 };
 
@@ -57,6 +58,7 @@ add_task(async function test_mails_sent() {
       .msgGenerateMessageId(identity, null);
 
     for (let i = 0; i < NUM_MAILS; i++) {
+      deliveryListener.deferred = Promise.withResolvers();
       smtpServer.sendMailMessage(
         testFile,
         MailServices.headerParser.parseEncodedHeaderW(kTo),
@@ -69,6 +71,7 @@ add_task(async function test_mails_sent() {
         messageId,
         deliveryListener
       );
+      await deliveryListener.deferred.promise;
     }
   } catch (e) {
     do_throw(e);
