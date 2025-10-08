@@ -4,8 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
-<!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" >
-%dtd3;
 <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" >
 %dtd4; ]>
 <html
@@ -33,6 +31,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-properties-dialog.css" />
     <link rel="localization" href="calendar/calendar-alarms.ftl" />
+    <link rel="localization" href="calendar/calendar-creation.ftl" />
     <link rel="localization" href="calendar/calendar.ftl" />
     <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
     <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
@@ -114,7 +113,7 @@
           <html:th>
             <label
               id="calendar-username-label"
-              value="&locationpage.username.label;"
+              data-l10n-id="calendar-creation-username"
               disable-with-calendar="true"
               control="calendar-username"
             />
