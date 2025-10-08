@@ -119,6 +119,7 @@ form {
     padding-block: var(--hub-form-input-block-padding);
     padding-inline: 9px 30px;
     border: 1px solid var(--color-surface-border);
+    border-radius: var(--button-border-radius);
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
     max-width: 100%;
