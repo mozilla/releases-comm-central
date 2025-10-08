@@ -26,10 +26,12 @@ const {
  * autodiscovery finds nothing, returns null.
  *
  * @param {SuccessiveAbortable} successiveAbortable - Encapsulates abortables
- * in function call.
+ *   in function call.
  * @param {string} domain - The domain of the emailAddress used for discovery.
  * @param {string} emailAddress - The emailAddress used for discovery.
  * @param {string} [password] - Password if available, used for exchange.
+ * @param {string} [exchangeUsername] - Separate username to authenticate
+ *   exchange autodiscovery lookups with.
  *
  * @returns {?AccountConfig} @see AccountConfig.sys.mjs
  */
@@ -37,7 +39,8 @@ async function parallelAutoDiscovery(
   successiveAbortable,
   domain,
   emailAddress,
-  password
+  password,
+  exchangeUsername
 ) {
   // We use several discovery mechanisms running in parallel in order to avoid
   // excess delays if several of them in a row fail to find an appropriate
@@ -91,7 +94,7 @@ async function parallelAutoDiscovery(
   const autodiscoverTask = fetchConfigFromExchange(
     domain,
     emailAddress,
-    null,
+    exchangeUsername,
     password,
     () => {},
     (...args) => {

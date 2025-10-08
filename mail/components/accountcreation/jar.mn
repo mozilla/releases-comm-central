@@ -18,6 +18,7 @@ messenger.jar:
   content/messenger/accountcreation/content/widgets/address-book-option-select.mjs        (content/widgets/address-book-option-select.mjs)
   content/messenger/accountcreation/content/widgets/address-book-remote-account-form.mjs  (content/widgets/address-book-remote-account-form.mjs)
   content/messenger/accountcreation/content/widgets/address-book-sync.mjs                 (content/widgets/address-book-sync.mjs)
+  content/messenger/accountcreation/content/widgets/email-authentication-form.mjs         (content/widgets/email-authentication-form.mjs)
   content/messenger/accountcreation/content/widgets/email-auto-form.mjs                   (content/widgets/email-auto-form.mjs)
   content/messenger/accountcreation/content/widgets/email-manual-incoming-form.mjs        (content/widgets/email-manual-incoming-form.mjs)
   content/messenger/accountcreation/content/widgets/email-manual-outgoing-form.mjs        (content/widgets/email-manual-outgoing-form.mjs)

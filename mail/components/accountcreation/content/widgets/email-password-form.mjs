@@ -20,7 +20,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
  * Account Hub Email Password Form Template
  * Template ID: #accountHubEmailPasswordFormTemplate (from accountHubEmailPasswordFormTemplate.inc.xhtml)
  */
-class EmailPasswordForm extends AccountHubStep {
+export class EmailPasswordForm extends AccountHubStep {
   constructor() {
     super();
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -39,6 +39,8 @@ class EmailPasswordForm extends AccountHubStep {
    */
   #password;
 
+  _templateId = "accountHubEmailPasswordFormTemplate";
+
   /**
    * The remember checkbox.
    *
@@ -55,7 +57,7 @@ class EmailPasswordForm extends AccountHubStep {
     this.hasConnected = true;
 
     const template = document
-      .getElementById("accountHubEmailPasswordFormTemplate")
+      .getElementById(this._templateId)
       .content.cloneNode(true);
     this.appendChild(template);
 

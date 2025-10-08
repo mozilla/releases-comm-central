@@ -161,6 +161,13 @@ class AccountHubEmail extends HTMLElement {
   #realName;
 
   /**
+   * Username used for Exchange Autodiscover.
+   *
+   * @type {string}
+   */
+  #exchangeUsername = "";
+
+  /**
    * States of the email setup flow, based on the ID's of the steps in the
    * flow.
    *
@@ -177,14 +184,14 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-auto-form",
     },
-    emailAutodiscoverPasswordSubview: {
-      id: "emailPasswordSubview",
+    emailAutodiscoverAuthenticationSubview: {
+      id: "emailAutodiscoverAuthenticationSubview",
       nextStep: "emailConfigFoundSubview",
       previousStep: "autoConfigSubview",
       forwardEnabled: false,
       customActionFluentID: "",
       subview: {},
-      templateId: "email-password-form",
+      templateId: "email-authentication-form",
     },
     emailConfigFoundSubview: {
       id: "emailConfigFoundSubview",
@@ -296,8 +303,8 @@ class AccountHubEmail extends HTMLElement {
       this.#emailConfigFoundSubview;
     this.#emailPasswordSubview = this.querySelector("#emailPasswordSubview");
     this.#states.emailPasswordSubview.subview = this.#emailPasswordSubview;
-    this.#states.emailAutodiscoverPasswordSubview.subview =
-      this.#emailPasswordSubview;
+    this.#states.emailAutodiscoverAuthenticationSubview.subview =
+      this.querySelector("#emailAutodiscoverAuthenticationSubview");
     this.#emailSyncAccountsSubview = this.querySelector(
       "#emailSyncAccountsSubview"
     );
@@ -333,6 +340,10 @@ class AccountHubEmail extends HTMLElement {
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
     this.#emailEwsConfigSubview.addEventListener("advanced-config", this);
+    this.#states.emailAutodiscoverAuthenticationSubview.subview.addEventListener(
+      "config-updated",
+      this
+    );
 
     this.#abortable = null;
     this.#currentConfig = null;
@@ -440,6 +451,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailOutgoingConfigSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
     this.#emailEwsConfigSubview.hidden = true;
+    this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;
   }
 
   /**
@@ -713,7 +725,7 @@ class AccountHubEmail extends HTMLElement {
               throw error;
             }
             this.#stopLoading();
-            await this.#initUI("emailAutodiscoverPasswordSubview");
+            await this.#initUI("emailAutodiscoverAuthenticationSubview");
             this.#currentSubview.setState();
 
             this.#currentSubview.showNotification({
@@ -730,7 +742,7 @@ class AccountHubEmail extends HTMLElement {
 
         this.#setCurrentConfigForSubview();
         break;
-      case "emailAutodiscoverPasswordSubview":
+      case "emailAutodiscoverAuthenticationSubview":
         this.#startLoading("account-hub-lookup-email-configuration-title");
 
         try {
@@ -740,6 +752,7 @@ class AccountHubEmail extends HTMLElement {
             stateData.password
           );
           this.#currentConfig.rememberPassword = stateData.rememberPassword;
+          this.#exchangeUsername = stateData.username;
           gAccountSetupLogger.debug("Retrying config discovery with password.");
 
           const config = await this.#findConfig();
@@ -1113,7 +1126,8 @@ class AccountHubEmail extends HTMLElement {
         domain,
         this.#email,
         this.#currentConfig?.incoming.password ||
-          this.#currentConfig?.outgoing.password
+          this.#currentConfig?.outgoing.password,
+        this.#exchangeUsername
       );
     } catch (error) {
       if (error.cause?.fluentTitleId === "account-setup-credentials-wrong") {
@@ -1562,6 +1576,7 @@ class AccountHubEmail extends HTMLElement {
     await this.#initUI("autoConfigSubview");
     this.#currentState = "autoConfigSubview";
     this.#currentConfig = null;
+    this.#exchangeUsername = "";
     this.#hideSubviews();
     this.#clearNotifications();
     this.#currentSubview.hidden = false;

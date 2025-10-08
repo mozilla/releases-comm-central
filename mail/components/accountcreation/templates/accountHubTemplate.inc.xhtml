@@ -13,6 +13,7 @@
 #include ./accountHubAddressBookRemoteAccountFormTemplate.inc.xhtml
 #include ./accountHubAddressBookSyncTemplate.inc.xhtml
 #include ./accountHubEmailAddedSuccessTemplate.inc.xhtml
+#include ./accountHubEmailAuthenticationFormTemplate.inc.xhtml
 #include ./accountHubEmailAutoFormTemplate.inc.xhtml
 #include ./accountHubEmailConfigFoundTemplate.inc.xhtml
 #include ./accountHubEmailCredentialsConfirmationTemplate.inc.xhtml
@@ -138,6 +139,12 @@
     hidden="hidden"
   >
   </email-password-form>
+  <email-authentication-form
+    id="emailAutodiscoverAuthenticationSubview"
+    title-id="account-hub-email-enter-password"
+    class="account-hub-step"
+    hidden="hidden"
+  ></email-authentication-form>
   <email-sync-accounts-form
     id="emailSyncAccountsSubview"
     title-id="account-hub-email-sync-accounts"
