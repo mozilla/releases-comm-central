@@ -93,6 +93,11 @@ toolbar-spam-label = Spam
 toolbar-spam =
     .title = Mark the selected messages as spam
 
+toolbar-not-spam-label = Not Spam
+
+toolbar-not-spam =
+    .title = Mark the selected messages as not spam
+
 toolbar-delete-label = Delete
 
 toolbar-delete-title =

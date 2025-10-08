@@ -179,14 +179,14 @@ async function subtestKeys(message, win, aboutMessageBrowser) {
 }
 
 /**
- * Tests key shortcuts to set and clear the spam flag.
+ * Tests the header button to set the spam flag.
  *
  * @param {nsIMsgDBHdr[]} messages - The currently selected messages.
- * @param {Element} button - The window to simulate key presses in.
+ * @param {Element} button - The button to use.
  * @param {Browser} aboutMessageBrowser - The about:message browser that will
  *   be displaying the message.
  */
-async function subtestButton(messages, button, aboutMessageBrowser) {
+async function subtestHeaderButton(messages, button, aboutMessageBrowser) {
   for (const message of messages) {
     Assert.equal(message.getStringProperty("junkscore"), "");
   }
@@ -201,11 +201,6 @@ async function subtestButton(messages, button, aboutMessageBrowser) {
   for (const message of messages) {
     Assert.equal(message.getStringProperty("junkscore"), "100");
   }
-
-  // None of the buttons have a way to mark the message as not junk.
-  // changePromise = promiseScoreChanged(messages.at(-1));
-  // EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
-  // await changePromise;
 
   if (messages.length == 1) {
     const bar =
@@ -233,6 +228,64 @@ async function subtestButton(messages, button, aboutMessageBrowser) {
   MailServices.junk.resetTrainingData();
 }
 
+/**
+ * Tests the unified toolbar button to set and clear the spam flag.
+ *
+ * @param {nsIMsgDBHdr[]} messages - The currently selected messages.
+ * @param {Element} button - The button to use.
+ */
+async function subtestToolbarButton(messages, button) {
+  const spam = "spam";
+  const notSpam = "not-spam";
+  const assertButtonLabel = expected => {
+    Assert.deepEqual(
+      button.querySelector("[is='spam-button']").getAttribute("label-id"),
+      `toolbar-${expected}-label`,
+      "Spam toolbar button has the correct label."
+    );
+  };
+
+  if (!messages.length) {
+    Assert.ok(
+      button.querySelector("[is='spam-button']").hasAttribute("disabled"),
+      "Spam button is disabled when no message is selected"
+    );
+    return;
+  }
+
+  // Ensure the spam score of the messages is reset.
+  for (const message of messages) {
+    Assert.equal(message.getStringProperty("junkscore"), "");
+  }
+  assertButtonLabel(spam);
+
+  // Mark as spam.
+  let changePromise = promiseScoreChanged(messages.at(-1));
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
+  await changePromise;
+  for (const message of messages) {
+    Assert.equal(message.getStringProperty("junkscore"), "100");
+  }
+  assertButtonLabel(notSpam);
+
+  // Mark as not spam.
+  changePromise = promiseScoreChanged(messages[0]);
+  EventUtils.synthesizeMouseAtCenter(button, {}, button.ownerGlobal);
+  await changePromise;
+  for (const message of messages) {
+    Assert.equal(message.getStringProperty("junkscore"), "0");
+  }
+  assertButtonLabel(spam);
+
+  // Reset spam score of the messages.
+  for (const message of messages) {
+    message.setStringProperty("junkscore", "");
+  }
+  assertButtonLabel(spam);
+
+  MailServices.junk.resetTrainingData();
+}
+
 add_task(async function testMailContextFromThreadTree() {
   const message = await selectMessageInAbout3Pane(0);
   await subtestSingleMessage(
@@ -256,18 +309,23 @@ add_task(async function testMailContextFromMessagePane() {
 
 add_task(async function testHeaderButton() {
   const message = await selectMessageInAbout3Pane(1);
-  await subtestButton([message], getHeaderButton(), about3Pane.messageBrowser);
+  await subtestHeaderButton(
+    [message],
+    getHeaderButton(),
+    about3Pane.messageBrowser
+  );
 });
 
 add_task(async function testToolbarButton() {
   const message = await selectMessageInAbout3Pane(0);
-  await subtestButton([message], getToolbarButton(), about3Pane.messageBrowser);
+  await subtestToolbarButton([message], getToolbarButton());
   about3Pane.threadTree.selectedIndices = [2, 3, 4];
-  await subtestButton(
+  await subtestToolbarButton(
     about3Pane.gDBView.getSelectedMsgHdrs(),
-    getToolbarButton(),
-    about3Pane.messageBrowser
+    getToolbarButton()
   );
+  about3Pane.threadTree.selectedIndices = [];
+  await subtestToolbarButton([], getToolbarButton());
 });
 
 add_task(async function testMessageMenu() {
@@ -320,10 +378,10 @@ add_task(async function testMessageTab() {
   );
 
   info("testing header popup");
-  await subtestButton([message], getHeaderButton(), tab.chromeBrowser);
+  await subtestHeaderButton([message], getHeaderButton(), tab.chromeBrowser);
 
   info("testing toolbar popup");
-  await subtestButton([message], getToolbarButton(), tab.chromeBrowser);
+  await subtestToolbarButton([message], getToolbarButton());
 
   if (AppConstants.platform != "macosx") {
     info("testing message menu");
@@ -354,7 +412,7 @@ add_task(async function testMessageWindow() {
   );
 
   info("testing header popup");
-  await subtestButton(
+  await subtestHeaderButton(
     [message],
     getHeaderButton(aboutMessage),
     win.messageBrowser

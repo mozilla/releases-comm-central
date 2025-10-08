@@ -14,6 +14,7 @@ messenger.jar:
     content/messenger/unifiedtoolbar/folder-location-button.mjs        (content/items/folder-location-button.mjs)
     content/messenger/unifiedtoolbar/get-messages-button.mjs           (content/items/get-messages-button.mjs)
     content/messenger/unifiedtoolbar/global-search-bar.mjs             (content/items/global-search-bar.mjs)
+    content/messenger/unifiedtoolbar/spam-button.mjs                   (content/items/spam-button.mjs)
     content/messenger/unifiedtoolbar/mail-go-button.mjs                (content/items/mail-go-button.mjs)
     content/messenger/unifiedtoolbar/quick-filter-bar-toggle.mjs       (content/items/quick-filter-bar-toggle.mjs)
     content/messenger/unifiedtoolbar/space-button.mjs                  (content/items/space-button.mjs)

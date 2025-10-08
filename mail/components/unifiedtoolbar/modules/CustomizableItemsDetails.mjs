@@ -248,7 +248,7 @@ export default [
     spaces: ["mail"],
     templateId: "junkTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+      "chrome://messenger/content/unifiedtoolbar/spam-button.mjs",
     ],
   },
   {
