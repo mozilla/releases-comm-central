@@ -86,10 +86,10 @@ add_task(function testAddressFormat() {
   check("Anything <contact@test.invalid>", "Address Book Contact");
 
   // Change the name, check that the returned value changes.
-  contact.displayName = "Updated Contact";
+  contact.displayName = "Updated Contact 🤷‍♂️";
   contact = MailServices.ab.directories[0].modifyCard(contact);
-  check("contact@test.invalid", "Updated Contact");
-  check("Anything <contact@test.invalid>", "Updated Contact");
+  check("contact@test.invalid", "Updated Contact 🤷‍♂️");
+  check("Anything <contact@test.invalid>", "Updated Contact 🤷‍♂️");
 
   // Turn off the pref.
   Services.prefs.setBoolPref("mail.showCondensedAddresses", false);

@@ -302,7 +302,9 @@ const JsMIMEheaderparser = function () {
 
   /**
    * Clean up characters that could cause display problems since they
-   * are not displayed.
+   * are not displayed. Undisplayed characters could be used to break up runs
+   * of ordinary white-space characters (that would otherwise be collapsed to
+   * prevent spoofing attacks), so we remove them.
    *
    * @param {string} token - The string to be cleaned.
    * @returns {string} The cleaned string.
@@ -332,8 +334,10 @@ const JsMIMEheaderparser = function () {
     // https://mothereff.in/regexpu#input=/\p{Mn}/u&unicodePropertyEscape=1
     // This is a bit more complicated as some of them could be "real", so we'll
     // only remove the ones that are known to show as blank.
+    // The text variation selector (\uFE0E) and emoji variation selector
+    // (\uFE0F) are allowed.
     token = token.replace(
-      /[\u034F\u17B4\u17B5\u180B-\u180D\uFE00-\uFE0F]/g,
+      /[\u034F\u17B4\u17B5\u180B-\u180D\uFE00-\uFE0D]/g,
       ""
     );
     // \uE0100-\uE01EF need to be written using their surrogate code point pairs
@@ -355,8 +359,9 @@ const JsMIMEheaderparser = function () {
     // XXX: We replace these with spaces (" "), not empty strings ("").
     // Notably, for zero width space (\u200B) replacing with empty space
     // would later drop real spaces surrounding it. Dunno why.
+    // The zero-width joiner (\u200D) is allowed for emoji sequences.
     token = token.replace(
-      /(?:[\xAD\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD80D[\uDC30-\uDC38]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F])/g,
+      /(?:[\xAD\u061C\u06DD\u070F\u08E2\u180E\u200B\u200C\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD80D[\uDC30-\uDC38]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F])/g,
       " "
     );
 
@@ -364,6 +369,18 @@ const JsMIMEheaderparser = function () {
     // https://www.fileformat.info/info/unicode/category/So/list.htm
     // Replace U+2800 BRAILLE PATTERN BLANK with space.
     token = token.replace(/\u2800/g, " ");
+
+    // Now handle special cases we allowed above.
+
+    // Replace the zero-width joiner, but only if it's now preceeded or
+    // followed by a space added above.
+    token = token.replace(/(^| )\u200D|\u200D( |$)/g, " ");
+
+    // Replace text and/or emoji variation selectors, but only at the
+    // start of the token, or after a space added above.
+    token = token.replace(/(^| )[\uFE0E\uFE0F]+/g, " ");
+    // Remove consecutive variation selectors, keeping the first.
+    token = token.replace(/([\uFE0E\uFE0F])[\uFE0E\uFE0F]+/g, "$1");
 
     return token;
   }

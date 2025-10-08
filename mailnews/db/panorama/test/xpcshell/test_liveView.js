@@ -457,6 +457,22 @@ add_task(function testListener() {
   messageDB.removeMessage(laterId);
 });
 
+add_task(function testEmojiCharacters() {
+  const added = addMessage({
+    sender: "🤷‍♂️",
+    subject: "🤦‍♂️",
+  });
+
+  const liveView = new LiveView();
+
+  const [message] = liveView.selectMessages(1, 0);
+  Assert.equal(message.id, added);
+  Assert.equal(message.sender, "🤷‍♂️");
+  Assert.equal(message.subject, "🤦‍♂️");
+
+  messageDB.removeMessage(added);
+});
+
 function assertInitFails(liveView) {
   const folderA = folderDB.getFolderByPath("server1/folderA");
 

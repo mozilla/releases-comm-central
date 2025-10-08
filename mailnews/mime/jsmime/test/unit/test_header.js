@@ -920,6 +920,54 @@ define(function (require) {
             },
           ],
         ],
+
+        // Emoji sequence containing a zero-width joiner. This requires both
+        // the ZWJ (\u200D) and emoji variation selector (\uFE0F) to be allowed.
+        [
+          "Emojis are complicated \u{1F926}\u200D\u2642\uFE0F <emoji@example.com>",
+          [
+            {
+              name: "Emojis are complicated 🤦‍♂️",
+              email: "emoji@example.com",
+            },
+          ],
+        ],
+        // Check that both text variation selector (\uFE0E) and emoji variation
+        // selector (\uFE0F) are working.
+        [
+          "Text \u2640\uFE0E Emoji \u2640\uFE0F <emoji@example.com>",
+          [
+            {
+              name: "Text ♀︎ Emoji ♀️",
+              email: "emoji@example.com",
+            },
+          ],
+        ],
+        // Text and emoji variation selectors should be removed unless they
+        // follow a printable character.
+        [
+          "\uFE0E\u200B\uFE0F\uFE0F\u200BSneaky",
+          [{ name: "Sneaky", email: "" }],
+        ],
+        [
+          "Naughty\uFE0E\uFE0F\u200B\uFE0F\uFE0F\u200B\uFE0E!",
+          [{ name: "Naughty\uFE0E !", email: "" }],
+        ],
+        [
+          "Mostly\uFE0E\u200B\uFE0Fharmless - \uFE0E \uFE0F\uFE0E or is it?",
+          [{ name: "Mostly\uFE0E harmless - or is it?", email: "" }],
+        ],
+        // Zero-width joiners adjacent to other characters we're sanitising.
+        // The joiners should be removed.
+        [
+          "Before\u200B\u200DAfter\u200D\u200BBoth\u200B\u200D\u200B",
+          [{ name: "Before After Both", email: "" }],
+        ],
+        // A zero-width joiner next to printable characters.
+        [
+          "This\u200D \u200D \u200D \u200Dis bad",
+          [{ name: "This is bad", email: "" }],
+        ],
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
