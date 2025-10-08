@@ -543,15 +543,22 @@ class nsMailReader {
   _realCloseSocket(immediately) {
     this._isRunning = false;
     this._server.stopTest();
+
+    const cleanUp = () => {
+      this._transport?.close(Cr.NS_OK);
+      this._transport = null;
+      this._output = null;
+    };
+
     if (immediately) {
-      this._transport.close(Cr.NS_OK);
+      cleanUp();
       return;
     }
 
     // Wait a moment, then close the connection. Closing immediately can
     // prevent the last output stream message from reaching the client
     // (although that's not supposed to happen).
-    setTimeout(() => this._transport.close(Cr.NS_OK), 50);
+    setTimeout(cleanUp, 50);
   }
 
   setMultiline(multi) {
