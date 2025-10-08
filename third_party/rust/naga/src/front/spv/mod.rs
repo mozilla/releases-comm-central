@@ -44,7 +44,6 @@ use petgraph::graphmap::GraphMap;
 use super::atomic_upgrade::Upgrades;
 use crate::{
     arena::{Arena, Handle, UniqueArena},
-    path_like::PathLikeOwned,
     proc::{Alignment, Layouter},
     FastHashMap, FastHashSet, FastIndexMap,
 };
@@ -384,7 +383,7 @@ pub struct Options {
     pub adjust_coordinate_space: bool,
     /// Only allow shaders with the known set of capabilities.
     pub strict_capabilities: bool,
-    pub block_ctx_dump_prefix: Option<PathLikeOwned>,
+    pub block_ctx_dump_prefix: Option<String>,
 }
 
 impl Default for Options {
@@ -5636,7 +5635,7 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
         let is_depth = self.next()?;
         let is_array = self.next()? != 0;
         let is_msaa = self.next()? != 0;
-        let _is_sampled = self.next()?;
+        let is_sampled = self.next()?;
         let format = self.next()?;
 
         let dim = map_image_dim(dim)?;
@@ -5671,6 +5670,8 @@ impl<I: Iterator<Item = u32>> Frontend<I> {
                     format: map_image_format(format)?,
                     access: crate::StorageAccess::default(),
                 }
+            } else if is_sampled == 2 {
+                return Err(Error::InvalidImageWriteType);
             } else {
                 crate::ImageClass::Sampled {
                     kind,

@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82.0"
 name = "naga"
-version = "26.0.0"
+version = "27.0.0"
 authors = ["gfx-rs developers"]
 build = "build.rs"
 exclude = [
@@ -210,7 +210,6 @@ path = "hlsl-snapshots"
 version = "0.14"
 
 [dev-dependencies.naga-test]
-version = "26.0.0"
 path = "../naga-test"
 
 [dev-dependencies.ron]
