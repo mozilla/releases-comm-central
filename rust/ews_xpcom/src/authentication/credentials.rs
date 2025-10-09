@@ -164,7 +164,7 @@ impl AuthenticationProvider for nsIMsgIncomingServer {
 
         let mut oauth2_supported = false;
         unsafe {
-            oauth2_module.InitFromMail(self.coerce(), &*override_details, &mut oauth2_supported)
+            oauth2_module.InitFromMail(self.coerce(), override_details, &mut oauth2_supported)
         }
         .to_result()?;
 
@@ -222,7 +222,7 @@ impl AuthenticationProvider for nsIMsgOutgoingServer {
 
         let mut oauth2_supported = false;
         unsafe {
-            oauth2_module.InitFromOutgoing(self.coerce(), &*override_details, &mut oauth2_supported)
+            oauth2_module.InitFromOutgoing(self.coerce(), override_details, &mut oauth2_supported)
         }
         .to_result()?;
 
