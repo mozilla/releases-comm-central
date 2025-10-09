@@ -16,20 +16,16 @@
 .webextension-action {
   list-style-image: var(--webextension-toolbar-image, inherit);
 
-  @media not (-moz-native-theme) {
-    @media (prefers-color-scheme: light) {
-      list-style-image: var(--webextension-toolbar-image-dark, inherit);
-    }
+  :root[lwtheme] & {
+    list-style-image: var(--webextension-toolbar-image-dark, inherit);
   }
 }
 
 .spaces-addon-menuitem {
   --menuitem-icon: var(--webextension-toolbar-image, inherit);
 
-  @media not (-moz-native-theme) {
-    @media (prefers-color-scheme: light) {
-      --menuitem-icon: var(--webextension-toolbar-image-dark, inherit);
-    }
+  :root[lwtheme] & {
+    --menuitem-icon: var(--webextension-toolbar-image-dark, inherit);
   }
 }
 
@@ -37,10 +33,8 @@
 .spaces-addon-button img {
   content: var(--webextension-toolbar-image, inherit);
 
-  @media not (-moz-native-theme) {
-    @media (prefers-color-scheme: light) {
-      content: var(--webextension-toolbar-image-dark, inherit);
-    }
+  :root[lwtheme] & {
+    content: var(--webextension-toolbar-image-dark, inherit);
   }
 }
 
@@ -65,10 +59,8 @@
     list-style-image: var(--webextension-menupanel-image-light, inherit);
   }
 
-  @media not (-moz-native-theme) {
-    @media (prefers-color-scheme: light) {
-      list-style-image: var(--webextension-menupanel-image-dark, inherit);
-    }
+  :root[lwtheme]:not([lwt-popup-brighttext]) & {
+    list-style-image: var(--webextension-menupanel-image-dark, inherit);
   }
 }
 
