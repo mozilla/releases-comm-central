@@ -156,6 +156,7 @@ mochitest-thunderbird:
             linux.*64-tsan.*/opt: 15
             windows1.-64.*-asan.*/opt: 9
             windows1.*-ccov.*/.*: 9
+            .*/debug: 11
             default: 7
     mozharness:
         script: desktop_unittest.py
