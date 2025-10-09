@@ -9,68 +9,64 @@ const LoginInfo = Components.Constructor(
 );
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
-  Deprecated: "resource://gre/modules/Deprecated.sys.mjs",
   PromptUtils: "resource://gre/modules/PromptUtils.sys.mjs",
 });
-
 ChromeUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
   return Services.strings.createBundle(
     "chrome://global/locale/commonDialogs.properties"
   );
 });
-
 ChromeUtils.defineLazyGetter(lazy, "brandFullName", function () {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandFullName");
 });
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "mail.asyncprompter",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.asyncprompter.loglevel",
+  });
+});
 
-function runnablePrompter(asyncPrompter, hashKey) {
-  this._asyncPrompter = asyncPrompter;
-  this._hashKey = hashKey;
-}
+/**
+ * @implements {nsIRunnable}
+ */
+class RunnablePrompter {
+  #asyncPrompter = null;
+  #hashKey = null;
 
-runnablePrompter.prototype = {
-  _asyncPrompter: null,
-  _hashKey: null,
+  constructor(asyncPrompter, hashKey) {
+    this.#asyncPrompter = asyncPrompter;
+    this.#hashKey = hashKey;
+  }
 
-  _promiseAuthPrompt(listener) {
+  #promiseAuthPrompt(listener) {
     return new Promise((resolve, reject) => {
       try {
         listener.onPromptStartAsync({ onAuthResult: resolve });
       } catch (e) {
-        if (e.result == Cr.NS_ERROR_XPC_JSOBJECT_HAS_NO_FUNCTION_NAMED) {
-          // Fall back to onPromptStart, for add-ons compat
-          lazy.Deprecated.warning(
-            "onPromptStart has been replaced by onPromptStartAsync",
-            "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399"
-          );
-          const ok = listener.onPromptStart();
-          resolve(ok);
-        } else {
-          reject(e);
-        }
+        reject(e);
       }
     });
-  },
+  }
 
   async run() {
+    lazy.log.debug("Running prompt for " + this.#hashKey);
     await Services.logins.initializationPromise;
-    this._asyncPrompter._log.debug("Running prompt for " + this._hashKey);
-    const prompter = this._asyncPrompter._pendingPrompts[this._hashKey];
+    const prompter = this.#asyncPrompter.pendingPrompts[this.#hashKey];
     let ok = false;
     try {
-      ok = await this._promiseAuthPrompt(prompter.first);
+      ok = await this.#promiseAuthPrompt(prompter.first);
     } catch (ex) {
-      console.error("runnablePrompter:run: ", ex);
+      lazy.log.error("RunnablePrompter:run: ", ex);
       prompter.first.onPromptCanceled();
     }
 
-    delete this._asyncPrompter._pendingPrompts[this._hashKey];
+    delete this.#asyncPrompter.pendingPrompts[this.#hashKey];
 
-    for (var consumer of prompter.consumers) {
+    for (const consumer of prompter.consumers) {
       try {
         if (ok) {
           consumer.onPromptAuthAvailable();
@@ -79,81 +75,69 @@ runnablePrompter.prototype = {
         }
       } catch (ex) {
         // Log the error for extension devs and others to pick up.
-        console.error(
-          "runnablePrompter:run: consumer.onPrompt* reported an exception: ",
+        lazy.log.error(
+          "RunnablePrompter:run: consumer.onPrompt* reported an exception: ",
           ex
         );
       }
     }
-    this._asyncPrompter._asyncPromptInProgress--;
+    this.#asyncPrompter.asyncPromptInProgress--;
 
-    this._asyncPrompter._log.debug(
-      "Finished running prompter for " + this._hashKey
-    );
-    this._asyncPrompter._doAsyncAuthPrompt();
-  },
-};
-
-export function MsgAsyncPrompter() {
-  this._pendingPrompts = {};
-  // By default, only log warnings to the error console
-  // You can use the preference:
-  //   msgAsyncPrompter.loglevel
-  // To change this up.  Values should be one of:
-  //   Fatal/Error/Warn/Info/Config/Debug/Trace/All
-  this._log = console.createInstance({
-    prefix: "mail.asyncprompter",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "mail.asyncprompter.loglevel",
-  });
+    lazy.log.debug("Finished running prompter for " + this.#hashKey);
+    this.#asyncPrompter.doAsyncAuthPrompt();
+  }
 }
 
-MsgAsyncPrompter.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgAsyncPrompter"]),
+/**
+ * @implements {nsIMsgAsyncPrompter}
+ */
+export class MsgAsyncPrompter {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgAsyncPrompter"]);
 
-  _pendingPrompts: null,
-  _asyncPromptInProgress: 0,
-  _log: null,
+  pendingPrompts = null;
+  asyncPromptInProgress = 0;
+
+  constructor() {
+    this.pendingPrompts = {};
+  }
 
   queueAsyncAuthPrompt(aKey, aJumpQueue, aCaller) {
-    if (aKey in this._pendingPrompts) {
-      this._log.debug(
+    if (aKey in this.pendingPrompts) {
+      lazy.log.debug(
         "Prompt bound to an existing one in the queue, key: " + aKey
       );
-      this._pendingPrompts[aKey].consumers.push(aCaller);
+      this.pendingPrompts[aKey].consumers.push(aCaller);
       return;
     }
 
-    this._log.debug("Adding new prompt to the queue, key: " + aKey);
+    lazy.log.debug("Adding new prompt to the queue, key: " + aKey);
     const asyncPrompt = {
       first: aCaller,
       consumers: [],
     };
 
-    this._pendingPrompts[aKey] = asyncPrompt;
+    this.pendingPrompts[aKey] = asyncPrompt;
     if (aJumpQueue) {
-      this._asyncPromptInProgress++;
+      this.asyncPromptInProgress++;
 
-      this._log.debug("Forcing runnablePrompter for " + aKey);
+      lazy.log.debug("Forcing RunnablePrompter for " + aKey);
 
-      const runnable = new runnablePrompter(this, aKey);
+      const runnable = new RunnablePrompter(this, aKey);
       Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
     } else {
-      this._doAsyncAuthPrompt();
+      this.doAsyncAuthPrompt();
     }
-  },
+  }
 
-  _doAsyncAuthPrompt() {
-    if (this._asyncPromptInProgress > 0) {
-      this._log.debug(
-        "_doAsyncAuthPrompt bypassed - prompt already in progress"
-      );
+  doAsyncAuthPrompt() {
+    if (this.asyncPromptInProgress > 0) {
+      lazy.log.debug("doAsyncAuthPrompt bypassed - prompt already in progress");
       return;
     }
 
     // Find the first prompt key we have in the queue.
     let hashKey = null;
-    for (hashKey in this._pendingPrompts) {
+    for (hashKey in this.pendingPrompts) {
       break;
     }
 
@@ -161,14 +145,14 @@ MsgAsyncPrompter.prototype = {
       return;
     }
 
-    this._asyncPromptInProgress++;
+    this.asyncPromptInProgress++;
 
-    this._log.debug("Dispatching runnablePrompter for " + hashKey);
+    lazy.log.debug("Dispatching RunnablePrompter for " + hashKey);
 
-    const runnable = new runnablePrompter(this, hashKey);
+    const runnable = new RunnablePrompter(this, hashKey);
     Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
-  },
-};
+  }
+}
 
 /**
  * An implementation of nsIAuthPrompt which is roughly the same as
@@ -185,18 +169,7 @@ export class MsgAuthPrompt {
 
   static l10n = new Localization(["messenger/msgAuthPrompt.ftl"], true);
 
-  _getFormattedOrigin(aURI) {
-    let uri;
-    if (aURI instanceof Ci.nsIURI) {
-      uri = aURI;
-    } else {
-      uri = Services.io.newURI(aURI);
-    }
-
-    return uri.scheme + "://" + uri.displayHostPort;
-  }
-
-  _getRealmInfo(aRealmString) {
+  #getRealmInfo(aRealmString) {
     const httpRealm = /^.+ \(.+\)$/;
     if (httpRealm.test(aRealmString)) {
       return [null, null, null];
@@ -209,7 +182,7 @@ export class MsgAuthPrompt {
       pathname = uri.pathQueryRef;
     }
 
-    const formattedOrigin = this._getFormattedOrigin(uri);
+    const formattedOrigin = uri.scheme + "://" + uri.displayHostPort;
 
     return [formattedOrigin, formattedOrigin + pathname, uri.username];
   }
@@ -238,7 +211,7 @@ export class MsgAuthPrompt {
     }
 
     return Services.prompt.prompt(
-      this._chromeWindow,
+      this.chromeWindow,
       aDialogTitle,
       aText,
       aResult,
@@ -268,7 +241,7 @@ export class MsgAuthPrompt {
 
     const checkBox = { value: false };
     let checkBoxLabel = null;
-    const [origin, realm] = this._getRealmInfo(aPasswordRealm);
+    const [origin, realm] = this.#getRealmInfo(aPasswordRealm);
 
     // If origin is null, we can't save this login.
     if (origin) {
@@ -345,7 +318,7 @@ export class MsgAuthPrompt {
 
     const checkBox = { value: false };
     let checkBoxLabel = null;
-    let [origin, realm, username] = this._getRealmInfo(aPasswordRealm);
+    let [origin, realm, username] = this.#getRealmInfo(aPasswordRealm);
 
     username = decodeURIComponent(username);
 

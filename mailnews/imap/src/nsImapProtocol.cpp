@@ -8372,7 +8372,6 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
           bool shuttingDown = false;
           (void)m_imapServerSink->GetServerShuttingDown(&shuttingDown);
           if (shuttingDown) {
-            // Note: If we fix bug 1783573 this check could be ditched.
             rv = NS_ERROR_FAILURE;
             break;
           }
