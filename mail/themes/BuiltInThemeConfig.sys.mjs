@@ -24,7 +24,7 @@ export const BuiltInThemeConfig = new Map([
   [
     "thunderbird-compact-light@mozilla.org",
     {
-      version: "1.3.1",
+      version: "1.3.2",
       path: "resource://builtin-themes/light/",
       inApp: true,
       nonNative: true,
@@ -33,7 +33,7 @@ export const BuiltInThemeConfig = new Map([
   [
     "thunderbird-compact-dark@mozilla.org",
     {
-      version: "1.3.1",
+      version: "1.3.2",
       path: "resource://builtin-themes/dark/",
       inApp: true,
       nonNative: true,
