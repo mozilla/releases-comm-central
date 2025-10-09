@@ -5,7 +5,7 @@
 "use strict";
 
 /**
- * Test that the STANDARD_THEMES_DATA in mail/themes/BuiltInThemes.sys.mjs is in
+ * Test that mail/themes/BuiltInThemeConfig.sys.mjs is in
  * sync with the actual themes at mail/themes/addons/*.
  */
 
@@ -21,7 +21,7 @@ add_task(async function test_builtInThemes() {
     Assert.equal(
       data.version,
       theme.version,
-      `The built-in theme <${id}> should have the expected version string (forgot to update BuiltInThemes.sys.mjs?)`
+      `The built-in theme <${id}> should have the expected version string (forgot to update BuiltInThemeConfig.sys.mjs?)`
     );
   }
 });

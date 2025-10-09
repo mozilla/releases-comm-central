@@ -6,32 +6,17 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  BuiltInThemeConfig: "resource:///modules/BuiltInThemeConfig.sys.mjs",
 });
 
-// List of themes built in to the browser. The themes are represented by objects
-// containing their id, current version, and path relative to
-// resource://builtin-themes/.
-const STANDARD_THEMES_DATA = [
-  [
-    "thunderbird-compact-light@mozilla.org",
-    {
-      version: "1.3.1",
-      path: "light/",
-    },
-  ],
-  [
-    "thunderbird-compact-dark@mozilla.org",
-    {
-      version: "1.3.1",
-      path: "dark/",
-    },
-  ],
-];
-
-const STANDARD_THEMES = new Map(STANDARD_THEMES_DATA);
+const kActiveThemePref = "extensions.activeThemeID";
 
 class _BuiltInThemes {
-  constructor() {}
+  /**
+   * The list of themes to be installed. This is exposed on the class so tests
+   * can set custom config files.
+   */
+  builtInThemeMap = lazy.BuiltInThemeConfig;
 
   /**
    * @param {string} id An addon's id string.
@@ -40,34 +25,12 @@ class _BuiltInThemes {
    *   theme's preview image. Null otherwise.
    */
   previewForBuiltInThemeId(id) {
-    if (STANDARD_THEMES.has(id)) {
-      return `resource://builtin-themes/${
-        STANDARD_THEMES.get(id).path
-      }preview.svg`;
+    const theme = this.builtInThemeMap.get(id);
+    if (theme) {
+      return `${theme.path}preview.svg`;
     }
 
     return null;
-  }
-
-  /**
-   * @param {string} id An addon's id string.
-   * @returns {boolean}
-   *   True if the theme with id `id` is a monochromatic theme.
-   */
-  isMonochromaticTheme(id) {
-    return id.endsWith("-colorway@mozilla.org");
-  }
-
-  /**
-   * @param {string} _id
-   *   The theme's id.
-   * @returns {boolean}
-   *   True if the theme with id `_id` is both expired and retained. That is,
-   *   the user has the ability to use it after its expiry date.
-   *   Or it would - this is just a shim not to break assumptions...
-   */
-  isRetainedExpiredTheme(_id) {
-    return false;
   }
 
   /**
@@ -76,10 +39,11 @@ class _BuiltInThemes {
    */
   maybeInstallActiveBuiltInTheme() {
     const activeThemeID = Services.prefs.getStringPref(
-      "extensions.activeThemeID",
+      kActiveThemePref,
       "default-theme@mozilla.org"
     );
-    const activeBuiltInTheme = STANDARD_THEMES.get(activeThemeID);
+    const activeBuiltInTheme = this.builtInThemeMap.get(activeThemeID);
+
     if (activeBuiltInTheme) {
       lazy.AddonManager.maybeInstallBuiltinAddon(
         activeThemeID,
@@ -90,16 +54,18 @@ class _BuiltInThemes {
   }
 
   /**
-   * Ensures that all built-in themes are installed.
+   * Ensures that all built-in themes are installed and expired themes are
+   * uninstalled.
    */
   async ensureBuiltInThemes() {
     const installPromises = [];
-    for (const [id, { version, path }] of STANDARD_THEMES.entries()) {
+
+    for (const [id, themeInfo] of this.builtInThemeMap.entries()) {
       installPromises.push(
         lazy.AddonManager.maybeInstallBuiltinAddon(
           id,
-          version,
-          `resource://builtin-themes/${path}`
+          themeInfo.version,
+          themeInfo.path
         )
       );
     }
@@ -109,7 +75,7 @@ class _BuiltInThemes {
 
   getBuiltInThemesDataMap() {
     // Expose a clone of the internal data.
-    return new Map(STANDARD_THEMES_DATA);
+    return new Map(this.builtInThemeMap);
   }
 }
 
