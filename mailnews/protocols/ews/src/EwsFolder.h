@@ -64,7 +64,6 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   NS_IMETHOD DeleteSelf(nsIMsgWindow* aWindow) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
-  NS_IMETHOD GetSupportsOffline(bool* supportsOffline) override;
   NS_IMETHOD GetDeletable(bool* deletable) override;
   NS_IMETHOD GetIncomingServerType(nsACString& aIncomingServerType) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,

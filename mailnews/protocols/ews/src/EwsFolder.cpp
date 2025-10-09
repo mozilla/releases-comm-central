@@ -253,18 +253,6 @@ EwsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
   return (*database)->GetDBFolderInfo(folderInfo);
 }
 
-NS_IMETHODIMP
-EwsFolder::GetSupportsOffline(bool* supportsOffline) {
-  NS_ENSURE_ARG_POINTER(supportsOffline);
-  if (mFlags & nsMsgFolderFlags::Virtual) {
-    *supportsOffline = false;
-  } else {
-    // Non-virtual EWS folders support downloading messages for offline use.
-    *supportsOffline = true;
-  }
-  return NS_OK;
-}
-
 NS_IMETHODIMP EwsFolder::GetIncomingServerType(nsACString& aServerType) {
   aServerType.AssignLiteral("ews");
 
@@ -1487,9 +1475,8 @@ NS_IMETHODIMP EwsFolder::AddSubfolder(const nsACString& folderName,
   {
     bool setNewFoldersForOffline = false;
     rv = server->GetOfflineDownload(&setNewFoldersForOffline);
-    if (NS_SUCCEEDED(rv) && setNewFoldersForOffline) {
+    if (NS_SUCCEEDED(rv) && setNewFoldersForOffline)
       flags |= nsMsgFolderFlags::Offline;
-    }
   }
 
   rv = (*newFolder)->SetFlags(flags);

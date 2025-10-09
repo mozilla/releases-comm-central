@@ -671,14 +671,6 @@ interface nsIMsgFolder : nsISupports {
   nsIMsgDatabase getDBFolderInfoAndDB(out nsIDBFolderInfo folderInfo);
   nsIMsgDBHdr GetMessageHeader(in nsMsgKey msgKey);
 
-  /**
-   * Does this folder support downloading messages from server for
-   * offline use?
-   * NOTE: this is false for local folders(!)
-   * It's really a flag to indicate that the folder is mirroring
-   * a mailbox on a remote server.
-   * Bug 1992042 is all about investigating and clarifying this.
-   */
   readonly attribute boolean supportsOffline;
   boolean shouldStoreMsgOffline(in nsMsgKey msgKey);
   boolean hasMsgOffline(in nsMsgKey msgKey);

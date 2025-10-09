@@ -310,14 +310,26 @@ function folderPropsOnLoad() {
       document.getElementById("name").removeAttribute("readonly");
     }
 
-    const isOfflineFolder = gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Offline);
-    if (["imap", "pop3", "ews"].includes(serverType)) {
-      document.getElementById("offline.selectForOfflineFolder").checked =
-        isOfflineFolder;
-    }
-    if (serverType == "nntp") {
-      document.getElementById("offline.selectForOfflineNewsgroup").checked =
-        isOfflineFolder;
+    if (gMsgFolder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
+      if (serverType == "imap" || serverType == "pop3") {
+        document.getElementById("offline.selectForOfflineFolder").checked =
+          true;
+      }
+
+      if (serverType == "nntp") {
+        document.getElementById("offline.selectForOfflineNewsgroup").checked =
+          true;
+      }
+    } else {
+      if (serverType == "imap" || serverType == "pop3") {
+        document.getElementById("offline.selectForOfflineFolder").checked =
+          false;
+      }
+
+      if (serverType == "nntp") {
+        document.getElementById("offline.selectForOfflineNewsgroup").checked =
+          false;
+      }
     }
 
     // set check for new mail checkbox

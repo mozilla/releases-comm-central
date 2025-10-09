@@ -561,13 +561,6 @@ NS_IMETHODIMP EwsIncomingServer::GetCanBeDefaultServer(
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsIncomingServer::GetOfflineSupportLevel(
-    int32_t* aSupportLevel) {
-  NS_ENSURE_ARG_POINTER(aSupportLevel);
-  *aSupportLevel = OFFLINE_SUPPORT_LEVEL_NONE;
-  return NS_OK;
-}
-
 NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
                                                 nsIMsgWindow* aMsgWindow,
                                                 nsIUrlListener* aUrlListener) {
