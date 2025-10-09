@@ -10,8 +10,10 @@
   margin-inline: 1px;
   content: var(--webextension-toolbar-image, inherit);
 
-  :root[lwtheme] & {
-    content: var(--webextension-toolbar-image-dark, inherit);
+  @media not (-moz-native-theme) {
+    @media (prefers-color-scheme: light) {
+      content: var(--webextension-toolbar-image-dark, inherit);
+    }
   }
 
   @media (prefers-color-scheme: dark) {

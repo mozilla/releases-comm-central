@@ -15,54 +15,8 @@
   "icons": { "32": "icon.svg" },
 
   "theme": {
-    "colors": {
-      "tab_background_text": "#18181b",
-      "icons": "#52525b",
-      "frame": "#e4e4e7",
-      "popup": "#fff",
-      "popup_text": "#18181b",
-      "popup_border": "#a1a1aa",
-      "popup_highlight": "#1373d9",
-      "popup_highlight_text": "#fff",
-      "tab_line": "#1373d9",
-      "toolbar": "#f4f4f5",
-      "toolbar_top_separator": "#ccc",
-      "toolbar_bottom_separator": "#ccc",
-      "toolbar_field": "#f4f4f5",
-      "toolbar_field_text": "#18181b",
-      "toolbar_field_border": "#a1a1aa",
-      "toolbar_field_border_focus": "#1373d9",
-      "toolbar_field_focus": "white",
-      "toolbar_text": "#52525b",
-      "sidebar": "#fafafa",
-      "sidebar_text": "#3f3f46",
-      "sidebar_border": "#d4d4d8",
-      "sidebar_highlight": "#2493ef",
-      "sidebar_highlight_text": "#fff",
-      "sidebar_highlight_border": "#105bbc",
-      "button": "rgba(207, 207, 216, 0.33)",
-      "button_hover": "rgba(207, 207, 216, 0.66)",
-      "button_active": "rgb(207, 207, 216)"
-    },
     "properties": {
-      "color_scheme": "light",
-      "panel_hover": "color-mix(in srgb, currentColor 12%, transparent)",
-      "panel_active": "color-mix(in srgb, currentColor 20%, transparent)",
-      "panel_active_darker": "color-mix(in srgb, currentColor 27%, transparent)"
-    }
-  },
-
-  "theme_experiment": {
-    "stylesheet": "experiment.css",
-    "colors": {
-      "button": "--button-background-color",
-      "button_hover": "--button-hover-background-color",
-      "button_active": "--button-active-background-color"
-    },
-    "properties": {
-      "panel_hover": "--arrowpanel-dimmed",
-      "panel_active": "-arrowpanel-dimmed-further",
-      "panel_active_darker": "--arrowpanel-dimmed-even-further"
+      "color_scheme": "light"
     }
   }
 }
