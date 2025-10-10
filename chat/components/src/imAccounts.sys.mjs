@@ -29,7 +29,7 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "HttpProtocolHandler",
   "@mozilla.org/network/protocol;1?name=http",
-  "nsIHttpProtocolHandler"
+  Ci.nsIHttpProtocolHandler
 );
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";

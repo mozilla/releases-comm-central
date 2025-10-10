@@ -16,8 +16,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyServiceGetters(lazy, {
-  imgTools: ["@mozilla.org/image/tools;1", "imgITools"],
-  taskbar: ["@mozilla.org/windows-taskbar;1", "nsIWinTaskbar"],
+  imgTools: ["@mozilla.org/image/tools;1", Ci.imgITools],
+  taskbar: ["@mozilla.org/windows-taskbar;1", Ci.nsIWinTaskbar],
 });
 
 /**

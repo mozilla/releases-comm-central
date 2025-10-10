@@ -20,9 +20,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
 XPCOMUtils.defineLazyServiceGetters(lazy, {
   gHandlerService: [
     "@mozilla.org/uriloader/handler-service;1",
-    "nsIHandlerService",
+    Ci.nsIHandlerService,
   ],
-  gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
+  gMIMEService: ["@mozilla.org/mime;1", Ci.nsIMIMEService],
 });
 
 ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () => {

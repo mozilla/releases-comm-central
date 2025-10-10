@@ -37,7 +37,7 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "imgTools",
   "@mozilla.org/image/tools;1",
-  "imgITools"
+  Ci.imgITools
 );
 
 ChromeUtils.defineLazyGetter(

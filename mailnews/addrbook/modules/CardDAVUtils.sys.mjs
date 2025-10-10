@@ -23,7 +23,7 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "nssErrorsService",
   "@mozilla.org/nss_errors_service;1",
-  "nsINSSErrorsService"
+  Ci.nsINSSErrorsService
 );
 
 // Use presets only where DNS discovery fails. Set to null to prevent

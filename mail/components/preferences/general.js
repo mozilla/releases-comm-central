@@ -37,9 +37,9 @@ var { TagUtils } = ChromeUtils.importESModule(
 XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: [
     "@mozilla.org/uriloader/handler-service;1",
-    "nsIHandlerService",
+    Ci.nsIHandlerService,
   ],
-  gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
+  gMIMEService: ["@mozilla.org/mime;1", Ci.nsIMIMEService],
 });
 
 ChromeUtils.defineLazyGetter(this, "gIsPackagedApp", () => {

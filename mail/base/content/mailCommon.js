@@ -29,7 +29,7 @@ XPCOMUtils.defineLazyServiceGetter(
   this,
   "gEncryptedURIService",
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
-  "nsIEncryptedSMIMEURIsService"
+  Ci.nsIEncryptedSMIMEURIsService
 );
 
 const nsMsgViewIndex_None = 0xffffffff;

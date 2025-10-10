@@ -13,7 +13,7 @@ const lazy = {};
 XPCOMUtils.defineLazyServiceGetters(lazy, {
   attrMapService: [
     "@mozilla.org/addressbook/ldap-attribute-map-service;1",
-    "nsIAbLDAPAttributeMapService",
+    Ci.nsIAbLDAPAttributeMapService,
   ],
 });
 

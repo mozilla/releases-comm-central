@@ -22,14 +22,14 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "gParserUtils",
   "@mozilla.org/parserutils;1",
-  "nsIParserUtils"
+  Ci.nsIParserUtils
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "gTextToHtmlConverter",
   "@mozilla.org/txttohtmlconv;1",
-  "mozITXTToHTMLConv"
+  Ci.mozITXTToHTMLConv
 );
 
 /**

@@ -23,8 +23,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 XPCOMUtils.defineLazyServiceGetters(this, {
-  imgTools: ["@mozilla.org/image/tools;1", "imgITools"],
-  WindowsUIUtils: ["@mozilla.org/windows-ui-utils;1", "nsIWindowsUIUtils"],
+  imgTools: ["@mozilla.org/image/tools;1", Ci.imgITools],
+  WindowsUIUtils: ["@mozilla.org/windows-ui-utils;1", Ci.nsIWindowsUIUtils],
 });
 
 function getCanvasAsImgContainer(canvas, width, height) {

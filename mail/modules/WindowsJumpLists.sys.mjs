@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "_taskbarService",
   "@mozilla.org/windows-taskbar;1",
-  "nsIWinTaskbar"
+  Ci.nsIWinTaskbar
 );
 
 ChromeUtils.defineLazyGetter(lazy, "_prefs", function () {

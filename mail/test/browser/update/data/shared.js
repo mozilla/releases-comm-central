@@ -89,7 +89,7 @@ XPCOMUtils.defineLazyServiceGetter(
   this,
   "gUpdateManager",
   "@mozilla.org/updates/update-manager;1",
-  "nsIUpdateManager"
+  Ci.nsIUpdateManager
 );
 
 /**

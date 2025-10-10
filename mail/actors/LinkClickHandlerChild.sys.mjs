@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "protocolSvc",
   "@mozilla.org/uriloader/external-protocol-service;1",
-  "nsIExternalProtocolService"
+  Ci.nsIExternalProtocolService
 );
 
 /**

@@ -45,19 +45,19 @@ XPCOMUtils.defineLazyServiceGetter(
   this,
   "gDbService",
   "@mozilla.org/msgDatabase/msgDBService;1",
-  "nsIMsgDBService"
+  Ci.nsIMsgDBService
 );
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gMIMEService",
   "@mozilla.org/mime;1",
-  "nsIMIMEService"
+  Ci.nsIMIMEService
 );
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gHandlerService",
   "@mozilla.org/uriloader/handler-service;1",
-  "nsIHandlerService"
+  Ci.nsIHandlerService
 );
 XPCOMUtils.defineLazyServiceGetter(
   this,

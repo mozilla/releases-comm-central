@@ -70,7 +70,7 @@ if (AppConstants.MOZ_UPDATER) {
   XPCOMUtils.defineLazyServiceGetters(lazy, {
     UpdateServiceStub: [
       "@mozilla.org/updates/update-service-stub;1",
-      "nsIApplicationUpdateServiceStub",
+      Ci.nsIApplicationUpdateServiceStub,
     ],
   });
 }
@@ -360,7 +360,7 @@ export function MailGlue() {
     this,
     "_userIdleService",
     "@mozilla.org/widget/useridleservice;1",
-    "nsIUserIdleService"
+    Ci.nsIUserIdleService
   );
   this._init();
 }

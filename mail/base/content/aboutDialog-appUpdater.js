@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyServiceGetter(
   this,
   "AUS",
   "@mozilla.org/updates/update-service;1",
-  "nsIApplicationUpdateService"
+  Ci.nsIApplicationUpdateService
 );
 
 var UPDATING_MIN_DISPLAY_TIME_MS = 1500;

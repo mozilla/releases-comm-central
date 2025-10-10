@@ -398,37 +398,37 @@ XPCOMUtils.defineLazyServiceGetter(
   cal,
   "manager",
   "@mozilla.org/calendar/manager;1",
-  "calICalendarManager"
+  Ci.calICalendarManager
 );
 XPCOMUtils.defineLazyServiceGetter(
   cal,
   "icsService",
   "@mozilla.org/calendar/ics-service;1",
-  "calIICSService"
+  Ci.calIICSService
 );
 XPCOMUtils.defineLazyServiceGetter(
   cal,
   "timezoneService",
   "@mozilla.org/calendar/timezone-service;1",
-  "calITimezoneService"
+  Ci.calITimezoneService
 );
 XPCOMUtils.defineLazyServiceGetter(
   cal,
   "freeBusyService",
   "@mozilla.org/calendar/freebusy-service;1",
-  "calIFreeBusyService"
+  Ci.calIFreeBusyService
 );
 XPCOMUtils.defineLazyServiceGetter(
   cal,
   "weekInfoService",
   "@mozilla.org/calendar/weekinfo-service;1",
-  "calIWeekInfoService"
+  Ci.calIWeekInfoService
 );
 XPCOMUtils.defineLazyServiceGetter(
   cal,
   "dragService",
   "@mozilla.org/widget/dragservice;1",
-  "nsIDragService"
+  Ci.nsIDragService
 );
 
 // Sub-modules for calUtils

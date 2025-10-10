@@ -47,112 +47,112 @@ XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "mailSession",
   "@mozilla.org/messenger/services/session;1",
-  "nsIMsgMailSession"
+  Ci.nsIMsgMailSession
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "accounts",
   "@mozilla.org/messenger/account-manager;1",
-  "nsIMsgAccountManager"
+  Ci.nsIMsgAccountManager
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "pop3",
   "@mozilla.org/messenger/popservice;1",
-  "nsIPop3Service"
+  Ci.nsIPop3Service
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "imap",
   "@mozilla.org/messenger/imapservice;1",
-  "nsIImapService"
+  Ci.nsIImapService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "nntp",
   "@mozilla.org/messenger/nntpservice;1",
-  "nsINntpService"
+  Ci.nsINntpService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "outgoingServer",
   "@mozilla.org/messengercompose/outgoingserverservice;1",
-  "nsIMsgOutgoingServerService"
+  Ci.nsIMsgOutgoingServerService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "compose",
   "@mozilla.org/messengercompose;1",
-  "nsIMsgComposeService"
+  Ci.nsIMsgComposeService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "ab",
   "@mozilla.org/abmanager;1",
-  "nsIAbManager"
+  Ci.nsIAbManager
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "copy",
   "@mozilla.org/messenger/messagecopyservice;1",
-  "nsIMsgCopyService"
+  Ci.nsIMsgCopyService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "mfn",
   "@mozilla.org/messenger/msgnotificationservice;1",
-  "nsIMsgFolderNotificationService"
+  Ci.nsIMsgFolderNotificationService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "headerParser",
   "@mozilla.org/messenger/headerparser;1",
-  "nsIMsgHeaderParser"
+  Ci.nsIMsgHeaderParser
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "mimeConverter",
   "@mozilla.org/messenger/mimeconverter;1",
-  "nsIMimeConverter"
+  Ci.nsIMimeConverter
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "tags",
   "@mozilla.org/messenger/tagservice;1",
-  "nsIMsgTagService"
+  Ci.nsIMsgTagService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "filters",
   "@mozilla.org/messenger/services/filters;1",
-  "nsIMsgFilterService"
+  Ci.nsIMsgFilterService
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "junk",
   "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter",
-  "nsIJunkMailPlugin"
+  Ci.nsIJunkMailPlugin
 );
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
   "folderLookup",
   "@mozilla.org/mail/folder-lookup;1",
-  "nsIFolderLookupService"
+  Ci.nsIFolderLookupService
 );
 
 // Clean up all of these references at shutdown, so that they don't appear as
