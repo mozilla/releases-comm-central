@@ -2847,11 +2847,8 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
   if (server) {
     nsAutoString newPath;
     nsAutoCString escapedUrlPath;
-    nsAutoCString urlPath;
     url->GetFilePath(escapedUrlPath);
     if (!escapedUrlPath.IsEmpty()) {
-      MsgUnescapeString(escapedUrlPath, 0, urlPath);
-
       // transform the filepath from the URI, such as
       // "/folder1/folder2/foldern"
       // to
@@ -2865,7 +2862,8 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
                        scheme.EqualsLiteral("snews") ||
                        scheme.EqualsLiteral("nntp");
       }
-      NS_MsgCreatePathStringFromFolderURI(urlPath.get(), newPath, isNewsFolder);
+      NS_MsgCreatePathStringFromFolderURI(escapedUrlPath.get(), newPath,
+                                          isNewsFolder);
     }
 
     // now append munged path onto server path

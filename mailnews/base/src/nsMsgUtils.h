@@ -66,9 +66,11 @@ nsresult NS_MsgGetUntranslatedPriorityName(const nsMsgPriorityValue p,
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize);
 
 /**
- * given a folder uri, return the path to folder in the user profile directory.
+ * Given an escaped folder uri, return the path to folder in the user profile
+ * directory.
  *
- * @param aFolderURI uri of folder we want the path to, without the scheme
+ * @param aFolderURI Escaped uri of folder we want the path to, without the
+ * scheme
  * @param[out] aPathString result path string
  * @param aScheme scheme of the uri
  * @param[optional] aIsNewsFolder is this a news folder?

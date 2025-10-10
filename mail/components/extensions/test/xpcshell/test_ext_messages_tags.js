@@ -443,9 +443,9 @@ add_task(
         const tagFolder = await browser.folders.getTagFolder("custom:_tag");
         window.assertDeepEqual(
           {
-            id: "tag://custom2fe99f47",
+            id: "tag://custom:_tag",
             name: "Custom Tag",
-            path: "/tag/custom2fe99f47",
+            path: "/tag/custom:_tag",
             specialUse: [],
             isFavorite: false,
             isRoot: false,

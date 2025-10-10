@@ -216,6 +216,37 @@ async function test_discoverChildFolders() {
   }
 }
 
+async function test_createFolder() {
+  const root = create_temporary_directory();
+  const rootFolder = setup_mailbox("none", root);
+
+  const store = rootFolder.msgStore;
+
+  const folderNames = {
+    easypeasy: "easypeasy",
+    ".nameWithLeadingDot": "8e57891d",
+    "Input/Output": "Input6359d759",
+    COM1: "COM1",
+    グレープフルーツ: "グレープフルーツ",
+    "/\\wibble/\\": "9d042cb8",
+    "ZA̡͊͠͝LGΌ ISͮ̂҉̯͈͕̹̘̱ TO͇̹̺ͅƝ̴ȳ̳ TH̘Ë͖́̉ ͠P̯͍̭O̚​N̐Y̡ H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝S̨̥̫͎̭ͯ̿̔̀ͅ": "ZA̡͊͠͝LGΌ ISͮ̂҉̯͈͕̹̘̱ TO͇̹̺ͅƝ̴ȳ̳ TH̘Ë͖́̉ ͠P̯͍̭O656c4d10",
+  };
+
+  for (const folderName in folderNames) {
+    const newFolder = store.createFolder(rootFolder, folderName);
+    Assert.equal(
+      newFolder.name,
+      folderName,
+      `Folder "${folderName}" should be named correctly.`
+    );
+    Assert.equal(
+      newFolder.filePath.leafName,
+      folderNames[folderName],
+      `Folder "${folderName} should have path "${folderNames[folderName]}""`
+    );
+  }
+}
+
 /**
  * Load messages into a msgStore and make sure we can read
  * them back correctly using asyncScan().
@@ -592,6 +623,7 @@ function withStore(store, fn) {
 for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_discoverChildFolders));
   add_task(withStore(store, test_discoverSubFolders));
+  add_task(withStore(store, test_createFolder));
   add_task(withStore(store, test_asyncScan));
   add_task(withStore(store, test_basicReadWrite));
   add_task(withStore(store, test_discardWrites));

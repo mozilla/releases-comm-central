@@ -374,7 +374,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder* aParent,
   nsCOMPtr<nsIMsgFolder> child;
   // GetFlags and SetFlags in AddSubfolder will fail because we have no db at
   // this point but mFlags is set.
-  rv = aParent->AddSubfolder(safeFolderName, getter_AddRefs(child));
+  rv = aParent->AddSubfolder(aFolderName, getter_AddRefs(child));
   if (!child || NS_FAILED(rv)) {
     path->Remove(true);  // recursive
     return rv;

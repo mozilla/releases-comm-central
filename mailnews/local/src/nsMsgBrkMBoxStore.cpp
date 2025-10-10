@@ -171,7 +171,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
   // and `SetFlags` in `AddSubfolder` will fail because we have no db at this
   // point but mFlags is set.
   nsCOMPtr<nsIMsgFolder> child;
-  nsresult rv = aParent->AddSubfolder(safeFolderName, getter_AddRefs(child));
+  nsresult rv = aParent->AddSubfolder(aFolderName, getter_AddRefs(child));
   if (!child || NS_FAILED(rv)) {
     return rv;
   }
