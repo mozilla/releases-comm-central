@@ -318,15 +318,16 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Select all input should not be checked"
   );
   Assert.ok(
-    !selectAllAddressBooks.indeterminate,
-    "Select all input should not be indeterminate"
+    selectAllAddressBooks.indeterminate,
+    "Select all input should not be indeterminate since the one pre-existing ab is still selected"
   );
 
+  // Only the one pre-existing ab should be selected now.
   Assert.equal(
     abSyncSubview.l10n.getAttributes(
       abSyncSubview.querySelector("#selectedAddressBooks")
     ).args.count,
-    0,
+    1,
     "Address books count should update"
   );
 

@@ -134,28 +134,23 @@ class EmailSyncAccountsForm extends AccountHubStep {
 
     // If there are no address books or calendars, we show text to let the
     // user know.
-    const addressBooksCount = addressBooks.length;
-    this.#selectAllAddressBooks.hidden = !addressBooksCount;
-    this.querySelector("#noAddressBooks").hidden = addressBooksCount;
-    this.counterObserver.addressBooks = addressBooksCount;
-
-    const calendarsCount = calendars.length;
-    this.#selectAllCalendars.hidden = !calendarsCount;
-    this.querySelector("#noCalendars").hidden = calendarsCount;
-    this.counterObserver.calendars = calendarsCount;
-
-    // Create the sync account inputs.
-    for (const calendar of calendars) {
-      this.querySelector("#calendarAccountsContainer").append(
-        this.#createInput(calendar, "calendar-input")
-      );
-    }
-
+    this.#selectAllAddressBooks.hidden = !addressBooks.length;
+    this.querySelector("#noAddressBooks").hidden = addressBooks.length;
     for (const addressBook of addressBooks) {
       this.querySelector("#addressBookAccountsContainer").append(
         this.#createInput(addressBook, "address-book-input")
       );
     }
+    this.counterObserver.addressBooks = addressBooks.length;
+
+    this.#selectAllCalendars.hidden = !calendars.length;
+    this.querySelector("#noCalendars").hidden = calendars.length;
+    for (const calendar of calendars) {
+      this.querySelector("#calendarAccountsContainer").append(
+        this.#createInput(calendar, "calendar-input")
+      );
+    }
+    this.counterObserver.calendars = calendars.length;
   }
 
   /**
@@ -234,17 +229,12 @@ class EmailSyncAccountsForm extends AccountHubStep {
    * @param {string} type - The type of sync account.
    */
   #toggleSelectAllInputs(type) {
-    const inputs = this.querySelectorAll(`#${type} input`);
-    const allSelected =
-      this.counters[type] === this.#availableSyncAccounts[type].length;
-
-    inputs.forEach(checkbox => {
+    const inputs = [...this.querySelectorAll(`#${type} input`)];
+    const allSelected = inputs.every(c => c.checked);
+    for (const checkbox of inputs.filter(c => !c.disabled)) {
       checkbox.checked = !allSelected;
-    });
-
-    this.counterObserver[type] = allSelected
-      ? 0
-      : this.#availableSyncAccounts[type].length;
+    }
+    this.counterObserver[type] = inputs.filter(c => c.checked).length;
   }
 
   /**
@@ -266,16 +256,17 @@ class EmailSyncAccountsForm extends AccountHubStep {
       }
     );
 
-    const toggleFluentID =
-      count === this.#availableSyncAccounts[type].length &&
-      this.#availableSyncAccounts[type].length != 0
-        ? "account-hub-deselect-all"
-        : "account-hub-select-all";
+    const inputs = [...this.querySelectorAll(`#${type} input`)];
+    const allSelected = inputs.every(c => c.checked);
     const selectAllButton =
       type === "addressBooks"
         ? this.#selectAllAddressBooks
         : this.#selectAllCalendars;
-    document.l10n.setAttributes(selectAllButton, toggleFluentID);
+    document.l10n.setAttributes(
+      selectAllButton,
+      allSelected ? "account-hub-deselect-all" : "account-hub-select-all"
+    );
+    selectAllButton.disabled = inputs.every(c => c.disabled);
   }
 }
 

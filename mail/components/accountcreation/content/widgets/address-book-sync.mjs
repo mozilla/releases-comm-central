@@ -118,20 +118,23 @@ class AddressBookSync extends AccountHubStep {
     }
   }
 
+  /**
+   * Updates the label (and looks) of the Select All button based on the
+   * states of the inputs.
+   */
   #updateSelectAll() {
-    const allSelected =
-      this.counter.addressBooks === this.#availableAddressBooks.length;
+    const allSelected = [...this.inputs].every(c => c.checked);
 
     this.#selectAllAddressBooksInput.checked = allSelected;
     this.#selectAllAddressBooksInput.indeterminate =
       !allSelected && this.counter.addressBooks !== 0;
 
-    const toggleFluentID = allSelected
-      ? "account-hub-deselect-all"
-      : "account-hub-select-all";
     this.l10n.setAttributes(
       this.#selectAllAddressBooksLabel.querySelector("span"),
-      toggleFluentID
+      allSelected ? "account-hub-deselect-all" : "account-hub-select-all"
+    );
+    this.#selectAllAddressBooksInput.disabled = [...this.inputs].every(
+      c => c.disabled
     );
   }
 
@@ -207,7 +210,6 @@ class AddressBookSync extends AccountHubStep {
     title.textContent = addressBook.name;
     label.append(input);
     label.append(title);
-
     return label;
   }
 
@@ -215,16 +217,14 @@ class AddressBookSync extends AccountHubStep {
    * Selects/Deselects all address book checkboxes.
    */
   #toggleSelectAllInputs() {
-    const allSelected =
-      this.counter.addressBooks === this.#availableAddressBooks.length;
-
-    this.inputs.forEach(checkbox => {
+    const allSelected = [...this.inputs].every(c => c.checked);
+    for (const checkbox of [...this.inputs].filter(c => !c.disabled)) {
       checkbox.checked = !allSelected;
-    });
+    }
 
-    this.counterObserver.addressBooks = allSelected
-      ? 0
-      : this.#availableAddressBooks.length;
+    this.counterObserver.addressBooks = [...this.inputs].filter(
+      c => c.checked
+    ).length;
 
     this.#updateSelectAll();
   }
