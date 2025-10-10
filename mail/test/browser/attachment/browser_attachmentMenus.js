@@ -27,6 +27,9 @@ var {
 const { add_message_to_folder, create_message } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
+const { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://testing-common/MockFilePicker.sys.mjs"
+);
 
 var aboutMessage = get_about_message();
 
@@ -613,10 +616,62 @@ add_task(async function test_attachment_menus_eml_file() {
   await check_menu_states_single(0, menuStates);
   await check_menu_states_single(1, menuStates);
 
-  await BrowserTestUtils.closeWindow(msgc);
-});
+  // Test Save All.
+  const tmpD = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  const saveDir = tmpD.clone();
+  saveDir.append("multi-save");
+  if (saveDir.exists()) {
+    saveDir.remove(true);
+  }
+  saveDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+  const existing = tmpD.clone();
+  existing.append("multi-save");
+  existing.append("ubik.txt");
+  existing.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+  MockFilePicker.init(aboutMessage.browsingContext);
+  const filePickerShownPromise = new Promise(resolve => {
+    MockFilePicker.showCallback = () => {
+      Assert.ok(true, "Filepicker shown.");
+      MockFilePicker.useDirectory([saveDir.path]);
+      resolve();
+    };
+  });
+  registerCleanupFunction(() => {
+    saveDir.remove(true);
+    MockFilePicker.cleanup();
+  });
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  const alertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        win.document.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
+  const saved = BrowserTestUtils.waitForEvent(msgc, "attachmentsSaved");
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentSaveAllMultiple"),
+    {},
+    aboutMessage
+  );
+  await filePickerShownPromise;
+  await alertPromise; // Get dialog to confirm replace, and hit Ok.
+  await saved;
+  Assert.greater(
+    (await IOUtils.stat(existing.path)).size,
+    0,
+    "Existing file should have been replaced"
+  );
+  Assert.equal(
+    (await IOUtils.getChildren(saveDir.path)).length,
+    2,
+    "Both attachments should have been saved"
+  );
 
-add_task(() => {
+  await BrowserTestUtils.closeWindow(msgc);
+
   Assert.report(
     false,
     undefined,

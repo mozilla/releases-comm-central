@@ -226,19 +226,30 @@ export class AttachmentInfo {
 
     try {
       for (const attachment of attachments) {
-        await attachment.saveToFile(
-          PathUtils.join(fp.file.path, attachment.name)
-        );
+        const path = PathUtils.join(fp.file.path, attachment.name);
+        if (await IOUtils.exists(path)) {
+          const message = bundle.formatStringFromName("fileExists", [
+            attachment.name,
+          ]);
+          if (!Services.prompt.confirm(browsingContext.window, null, message)) {
+            // Skip if the user choose not to replace the existing.
+            continue;
+          }
+        }
+        await attachment.saveToFile(path);
       }
     } catch (e) {
       console.warn(`Saving attachments to ${fp.file.path} FAILED.`, e);
       Services.prompt.alert(
-        null,
+        browsingContext.window,
         title,
         bundle.GetStringFromName("saveAttachmentFailed")
       );
       return null;
     }
+    browsingContext.window.dispatchEvent(
+      new CustomEvent("attachmentsSaved", { detail: { path: fp.file.path } })
+    );
     return fp.file.path;
   }
 
