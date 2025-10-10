@@ -412,12 +412,8 @@ add_task(async function test_invalid_manual_config_flow() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const nameInput = emailTemplate.querySelector("#realName");
   const emailInput = emailTemplate.querySelector("#email");
-  const footerForward = dialog
-    .querySelector("#emailFooter")
-    .querySelector("#forward");
-  const footerCustom = dialog
-    .querySelector("#emailFooter")
-    .querySelector("#custom");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  const footerCustom = dialog.querySelector("#emailFooter #custom");
 
   // Ensure fields are empty.
   nameInput.value = "";
@@ -460,9 +456,7 @@ add_task(async function test_invalid_manual_config_flow() {
   await incomingConfigTemplatePromise;
 
   // The continue button should be enabled if you go back to the email form.
-  const footerBack = dialog
-    .querySelector("#emailFooter")
-    .querySelector("#back");
+  const footerBack = dialog.querySelector("#emailFooter #back");
   EventUtils.synthesizeMouseAtCenter(footerBack, {});
   const emailFormTemplatePromise = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(emailTemplate),
@@ -529,16 +523,24 @@ add_task(async function test_invalid_manual_config_flow() {
     "#incomingConnectionSecurityNoEncryption"
   );
   EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
-  await TestUtils.waitForTick();
-  EventUtils.synthesizeMouseAtCenter(noEncryptionOption, {});
-  const securityWarningPromise = TestUtils.waitForCondition(
-    () =>
-      BrowserTestUtils.isVisible(
-        incomingConfigTemplate.querySelector("#incomingSecurityWarning")
-      ),
-    "The incoming security warning message should be visible"
+  await BrowserTestUtils.waitForPopupEvent(
+    incomingConnectionSecurity.menupopup,
+    "shown"
   );
-  await securityWarningPromise;
+  EventUtils.synthesizeMouseAtCenter(noEncryptionOption, {});
+  await BrowserTestUtils.waitForPopupEvent(
+    incomingConnectionSecurity.menupopup,
+    "hidden"
+  );
+  const securityWarning = incomingConfigTemplate.querySelector(
+    "#incomingSecurityWarning"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", securityWarning);
+  Assert.ok(
+    BrowserTestUtils.isVisible(securityWarning),
+    "Should show security warning"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval("disabled", footerForward);
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Clicking continue should lead to the outgoing view, with an invalid
@@ -547,11 +549,10 @@ add_task(async function test_invalid_manual_config_flow() {
   const outgoingConfigTemplate = dialog.querySelector(
     "#emailOutgoingConfigSubview"
   );
-  let outgoingConfigTemplatePromise = TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
-    "The outgoing config template should be in view"
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    outgoingConfigTemplate
   );
-  await outgoingConfigTemplatePromise;
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   const outgoingHostname = outgoingConfigTemplate.querySelector(
     "#outgoingHostname:invalid"
@@ -636,11 +637,10 @@ add_task(async function test_invalid_manual_config_flow() {
   // continue button should be disabled.
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
-  outgoingConfigTemplatePromise = TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
-    "The outgoing config template should be in view"
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    outgoingConfigTemplate
   );
-  await outgoingConfigTemplatePromise;
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
 });
