@@ -358,3 +358,5 @@ account-hub-result-unknown-cert = Unverified Certificate
 
 account-hub-close-button =
   .title = Close
+
+account-hub-email-manual-configuration = Manual configuration

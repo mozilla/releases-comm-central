@@ -30,33 +30,43 @@
               data-l10n-id="account-hub-name-error-text">
         </span>
       </div>
-
-      <div class="input-control">
-        <input id="email"
-               class="input-field animated"
-               aria-invalid="false"
-               aria-errormessage="emailErrorMessage"
-               type="email"
-               placeholder=""
-               required="required" />
-        <label for="email"
-               class="animated"
-               data-l10n-id="account-setup-email-label"
-               data-l10n-attrs="accesskey">
-        </label>
-        <img id="emailWarning"
-             src=""
-             data-l10n-id="account-setup-email-warning-icon"
-             alt=""
-             class="form-icon icon-danger input-warning" />
-        <img id="emailSuccess"
-             src=""
-             alt=""
-             class="form-icon icon-success input-success" />
-        <span id="emailErrorMessage"
-              class="input-error-message"
-              data-l10n-id="account-hub-email-error-text">
-        </span>
+      <div class="email-input-container">
+        <div class="input-control">
+          <input id="email"
+                class="input-field animated"
+                aria-invalid="false"
+                aria-errormessage="emailErrorMessage"
+                type="email"
+                placeholder=""
+                required="required" />
+          <label for="email"
+                class="animated"
+                data-l10n-id="account-setup-email-label"
+                data-l10n-attrs="accesskey">
+          </label>
+          <img id="emailWarning"
+              src=""
+              data-l10n-id="account-setup-email-warning-icon"
+              alt=""
+              class="form-icon icon-danger input-warning" />
+          <img id="emailSuccess"
+              src=""
+              alt=""
+              class="form-icon icon-success input-success" />
+          <span id="emailErrorMessage"
+                class="input-error-message"
+                data-l10n-id="account-hub-email-error-text">
+          </span>
+        </div>
+        <div>
+          <button
+            id="manualConfiguration"
+            class="button link-button link-button-sm visibility-hidden"
+            type="button"
+            data-l10n-id="account-hub-email-manual-configuration"
+          >
+          </button>
+        </div>
       </div>
     </div>
     <button type="submit" hidden="hidden"></button>

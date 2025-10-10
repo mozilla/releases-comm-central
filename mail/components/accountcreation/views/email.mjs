@@ -331,6 +331,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom-footer-action", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
+    this.#emailAutoConfigSubview.addEventListener("edit-configuration", this);
     this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailOutgoingConfigSubview.addEventListener("config-updated", this);
     this.#emailPasswordSubview.addEventListener("config-updated", this);
@@ -580,10 +581,22 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
-      case "edit-configuration":
-        this.#currentConfig = this.#fillAccountConfig(
-          this.#currentSubview.captureState()
-        );
+      case "edit-configuration": {
+        let config = this.#currentSubview.captureState();
+
+        if (this.#currentState == "autoConfigSubview") {
+          this.#email = config.email;
+          this.#realName = config.realName;
+          config = this.#getEmptyAccountConfig();
+        }
+
+        this.#currentConfig = this.#fillAccountConfig(config);
+
+        const prevStep =
+          this.#currentState == "emailConfigFoundSubview"
+            ? "emailConfigFoundSubview"
+            : "autoConfigSubview";
+
         // The edit configuration button was pressed, it we're editing an
         // ews config, we should show the edit ews config step. Otherwise
         // show the edit incoming config step.
@@ -593,11 +606,11 @@ class AccountHubEmail extends HTMLElement {
           await this.#initUI("incomingConfigSubview");
         }
 
-        this.#states[this.#currentState].previousStep =
-          "emailConfigFoundSubview";
+        this.#states[this.#currentState].previousStep = prevStep;
         // Apply the current state data to the new state.
         this.#currentSubview.setState(this.#currentConfig);
         break;
+      }
       case "config-updated":
         try {
           this.#emailFooter.toggleForwardDisabled(!event.detail.completed);

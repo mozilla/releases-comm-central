@@ -450,6 +450,10 @@ header {
     }
   }
 
+  &.email-form-body {
+    position: relative;
+  }
+
   &.password-form-body,
   &.email-form-body,
   &.option-select-body,

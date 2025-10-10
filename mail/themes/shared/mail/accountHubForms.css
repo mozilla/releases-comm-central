@@ -848,6 +848,15 @@ div:has(legend) {
   text-align: end;
 }
 
+.email-input-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.visibility-hidden {
+  visibility: hidden;
+}
+
 .align-self-end {
   align-self: end;
 }

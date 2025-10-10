@@ -24,6 +24,13 @@ class EmailAutoForm extends AccountHubStep {
   #email;
 
   /**
+   * Manual config button.
+   *
+   * @type {HTMLButtonElement}
+   */
+  #manualConfigButton;
+
+  /**
    * The current email auto config form inputs.
    *
    * @type {object}
@@ -45,8 +52,10 @@ class EmailAutoForm extends AccountHubStep {
 
     this.#realName = this.querySelector("#realName");
     this.#email = this.querySelector("#email");
+    this.#manualConfigButton = this.querySelector("#manualConfiguration");
     this.#realName.addEventListener("input", this);
     this.#email.addEventListener("input", this);
+    this.#manualConfigButton.addEventListener("click", this);
     this.resetState();
   }
 
@@ -56,11 +65,23 @@ class EmailAutoForm extends AccountHubStep {
       case "change":
         this.checkValidEmailForm();
         break;
+      case "click":
+        if (event.target.id == "manualConfiguration") {
+          this.dispatchEvent(
+            new CustomEvent("edit-configuration", {
+              bubbles: true,
+            })
+          );
+        }
+        break;
       default:
         break;
     }
   }
 
+  /**
+   * Resets currentConfig, and resets and re-validates the form.
+   */
   resetState() {
     this.querySelector("#autoConfigEmailForm").reset();
     this.#currentConfig = {};
@@ -91,33 +112,22 @@ class EmailAutoForm extends AccountHubStep {
 
     this.#realName.setAttribute("aria-invalid", !nameValidity);
     this.#email.setAttribute("aria-invalid", !emailValidity);
+    const completed = nameValidity && emailValidity;
 
-    this.dispatchEvent(
-      new CustomEvent("config-updated", {
-        bubbles: true,
-        detail: { completed: nameValidity && emailValidity },
-      })
-    );
-
-    const domain =
-      nameValidity && emailValidity
-        ? this.#email.value.split("@")[1].toLowerCase()
-        : "";
     // TODO: Check for domain extension when validating email address.
-    const outgoingHostname = domain;
-    const incomingHostname = domain;
-    const username = nameValidity && emailValidity ? this.#email.value : "";
-    const incomingUsername = username;
-    const outgoingUsername = username;
 
     this.#currentConfig = {
       realName: this.#realName.value,
       email: this.#email.value,
-      outgoingHostname,
-      incomingHostname,
-      outgoingUsername,
-      incomingUsername,
     };
+
+    this.#manualConfigButton.classList.toggle("visibility-hidden", !completed);
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: { completed },
+      })
+    );
   }
 
   /**
