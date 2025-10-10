@@ -53,9 +53,14 @@ add_task(async function test_theme_icons() {
         default_icon: "default.png",
         theme_icons: [
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: "dark16.png",
+            light: "light16.png",
             size: 16,
+          },
+          {
+            dark: "dark32.png",
+            light: "light32.png",
+            size: 32,
           },
         ],
       },
@@ -71,45 +76,7 @@ add_task(async function test_theme_icons() {
   const button = composeWindow.document.getElementById(
     "compose_action_mochi_test-composeAction-toolbarbutton"
   );
-  const defaultIcon = `url("moz-extension://${uuid}/default.png")`;
-
-  const dark_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-dark@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(composeWindow, "windowlwthemeupdate"),
-    dark_theme.enable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    composeWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(`url("moz-extension://${uuid}/light.png")`, defaultIcon),
-    `Dark theme should use light icon.`
-  );
-
-  const light_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-light@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(composeWindow, "windowlwthemeupdate"),
-    light_theme.enable(),
-  ]);
-  Assert.equal(
-    composeWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(`url("moz-extension://${uuid}/dark.png")`, defaultIcon),
-    `Light theme should use dark icon.`
-  );
-
-  // Disabling a theme will enable the default theme.
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(composeWindow, "windowlwthemeupdate"),
-    light_theme.disable(),
-  ]);
-  Assert.equal(
-    composeWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(defaultIcon),
-    `Default theme should use default icon.`
-  );
+  await testThemeIcons(button, uuid);
 
   composeWindow.close();
   await extension.unload();

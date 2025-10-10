@@ -493,33 +493,52 @@ add_task(async function test_icons() {
     browser.test.notifyPass();
   }
 
+  const darkBuiltInTheme = await AddonManager.getAddonByID(
+    "thunderbird-compact-dark@mozilla.org"
+  );
+  const lightBuiltInTheme = await AddonManager.getAddonByID(
+    "thunderbird-compact-light@mozilla.org"
+  );
+
   // Manifest V2 and V3 have a different schema for the SpaceButtonProperties,
   // test them both.
   for (const manifestVersion of [2, 3]) {
     // Test with and without icons defined in the manifest.
     for (const manifestIcons of [null, { 16: "manifest16.png" }]) {
-      const dark_theme = await AddonManager.getAddonByID(
-        "thunderbird-compact-dark@mozilla.org"
-      );
-      await dark_theme.enable();
+      const darkCustomTheme = makeDarkTheme();
+      await darkCustomTheme.startup();
+      await test_space(background, {
+        selectedTheme: "light",
+        manifestIcons,
+        manifestVersion,
+      });
+      await darkCustomTheme.unload();
+
+      const lightCustomTheme = makeLightTheme();
+      await lightCustomTheme.startup();
+      await test_space(background, {
+        selectedTheme: "dark",
+        manifestIcons,
+        manifestVersion,
+      });
+      await lightCustomTheme.unload();
+
+      await darkBuiltInTheme.enable();
       await test_space(background, {
         selectedTheme: "light",
         manifestIcons,
         manifestVersion,
       });
 
-      const light_theme = await AddonManager.getAddonByID(
-        "thunderbird-compact-light@mozilla.org"
-      );
-      await light_theme.enable();
+      await lightBuiltInTheme.enable();
       await test_space(background, {
-        selectedTheme: "dark",
+        selectedTheme: "default",
         manifestIcons,
         manifestVersion,
       });
 
       // Disabling a theme will enable the default theme.
-      await light_theme.disable();
+      await lightBuiltInTheme.disable();
       await test_space(background, {
         selectedTheme: "default",
         manifestIcons,

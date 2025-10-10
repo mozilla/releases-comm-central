@@ -111,13 +111,13 @@ add_task(async function test_theme_icons() {
         default_icon: "default.png",
         theme_icons: [
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: "dark16.png",
+            light: "light16.png",
             size: 16,
           },
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: "dark32.png",
+            light: "light32.png",
             size: 32,
           },
         ],
@@ -133,45 +133,7 @@ add_task(async function test_theme_icons() {
     "message_display_action_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
-  const dark_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-dark@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    dark_theme.enable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    aboutMessage.getComputedStyle(button).listStyleImage,
-    `image-set(url("moz-extension://${uuid}/light.png") 1dppx, url("moz-extension://${uuid}/light.png") 2dppx)`,
-    `Dark theme should use light icon.`
-  );
-
-  const light_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-light@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    light_theme.enable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    aboutMessage.getComputedStyle(button).listStyleImage,
-    `image-set(url("moz-extension://${uuid}/dark.png") 1dppx, url("moz-extension://${uuid}/dark.png") 2dppx)`,
-    `Light theme should use dark icon.`
-  );
-
-  // Disabling a theme will enable the default theme.
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    light_theme.disable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    aboutMessage.getComputedStyle(button).listStyleImage,
-    `image-set(url("moz-extension://${uuid}/default.png") 1dppx, url("moz-extension://${uuid}/default.png") 2dppx)`,
-    `Default theme should use default icon.`
-  );
+  await testThemeIcons(button, uuid);
 
   await extension.unload();
 });

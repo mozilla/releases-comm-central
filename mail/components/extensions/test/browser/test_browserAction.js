@@ -153,12 +153,19 @@ add_task(async function test_theme_icons() {
   );
   const defaultIcon = `url("moz-extension://${uuid}/default.png")`;
 
-  const dark_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-dark@mozilla.org"
-  );
+  const dark_theme = ExtensionTestUtils.loadExtension({
+    manifest: {
+      theme: {
+        colors: {
+          frame: "#000",
+          tab_background_text: "#FFF",
+        },
+      },
+    },
+  });
   await Promise.all([
     BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    dark_theme.enable(),
+    dark_theme.startup(),
   ]);
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
@@ -167,12 +174,20 @@ add_task(async function test_theme_icons() {
     `Dark theme should use light icon.`
   );
 
-  const light_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-light@mozilla.org"
-  );
+  const light_theme = ExtensionTestUtils.loadExtension({
+    manifest: {
+      theme: {
+        colors: {
+          frame: "#FFF",
+          tab_background_text: "#000",
+        },
+      },
+    },
+  });
   await Promise.all([
+    dark_theme.unload(),
     BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    light_theme.enable(),
+    light_theme.startup(),
   ]);
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
@@ -184,7 +199,7 @@ add_task(async function test_theme_icons() {
   // Disabling a theme will enable the default theme.
   await Promise.all([
     BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
-    light_theme.disable(),
+    light_theme.unload(),
   ]);
   Assert.equal(
     window.getComputedStyle(icon).content,
@@ -210,9 +225,14 @@ add_task(async function test_theme_icons_messagewindow() {
         default_windows: ["messageDisplay"],
         theme_icons: [
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: "dark16.png",
+            light: "light16.png",
             size: 16,
+          },
+          {
+            dark: "dark32.png",
+            light: "light32.png",
+            size: 32,
           },
         ],
       },
@@ -225,46 +245,8 @@ add_task(async function test_theme_icons_messagewindow() {
   const button = messageWindow.document.getElementById(
     "browser_action_properties_mochi_test-browserAction-toolbarbutton"
   );
-  const defaultIcon = `url("moz-extension://${uuid}/default.png")`;
 
-  const dark_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-dark@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(messageWindow, "windowlwthemeupdate"),
-    dark_theme.enable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    messageWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(`url("moz-extension://${uuid}/light.png")`, defaultIcon),
-    `Dark theme should use light icon.`
-  );
-
-  const light_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-light@mozilla.org"
-  );
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(messageWindow, "windowlwthemeupdate"),
-    light_theme.enable(),
-  ]);
-  await new Promise(resolve => requestAnimationFrame(resolve));
-  Assert.equal(
-    messageWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(`url("moz-extension://${uuid}/dark.png")`, defaultIcon),
-    `Light theme should use dark icon.`
-  );
-
-  // Disabling a theme will enable the default theme.
-  await Promise.all([
-    BrowserTestUtils.waitForEvent(messageWindow, "windowlwthemeupdate"),
-    light_theme.disable(),
-  ]);
-  Assert.equal(
-    messageWindow.getComputedStyle(button).listStyleImage,
-    makeIconSet(defaultIcon),
-    `Default theme should use default icon.`
-  );
+  await testThemeIcons(button, uuid);
 
   await extension.unload();
   messageWindow.close();
