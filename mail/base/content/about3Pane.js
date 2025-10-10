@@ -3499,7 +3499,9 @@ var folderPane = {
       // This is a potential rss feed. A link image as well as link text url
       // should be handled; try to extract a url from non moz apps as well.
       const feedURI = FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer);
-      FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
+      if (feedURI) {
+        FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
+      }
     }
 
     event.preventDefault();
