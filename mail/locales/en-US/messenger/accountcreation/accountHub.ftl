@@ -355,3 +355,6 @@ account-hub-email-credentials-confirmation = Account Configuration
 account-hub-result-unknown-hostname = Unknown Hostname
 
 account-hub-result-unknown-cert = Unverified Certificate
+
+account-hub-close-button =
+  .title = Close
