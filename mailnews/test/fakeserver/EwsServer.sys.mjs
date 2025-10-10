@@ -1416,16 +1416,8 @@ export class EwsServer {
           typeof item.syntheticMessage.bodyPart.body == "string"
         ) {
           const previewEl = resDoc.createElement("t:Preview");
-          previewEl.textContent = replaceUnicodeInXML(
-            item.syntheticMessage.bodyPart.body
-              .substring(0, 256)
-              // A real EWS server sanitizes the XML string to make it a valid
-              // XML text body.
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;")
-              .replace(/&/g, "&amp;")
-              .replace(/"/g, "&quot;")
-              .replace(/'/g, "&apos;")
+          previewEl.textContent = sanitizeXmlTextContent(
+            item.syntheticMessage.bodyPart.body.substring(0, 256)
           );
           messageEl.appendChild(previewEl);
         }
@@ -1882,17 +1874,31 @@ function extractMoveObjects(reqDoc, collectionElementName, objectElementName) {
 }
 
 /**
- * Replace unicode values in a string with an XML entity reference to their codepoint.
+ * Sanitize text content for use in an XML text node.
+ *
+ * This will replace the characters <>&"' with appropriate entity references and
+ * non-ASCII unicode characters with an appropriate entity reference to their
+ * codepoint.
  *
  * @param {string} s
  *
  * @returns {string}
  */
-function replaceUnicodeInXML(s) {
+function sanitizeXmlTextContent(s) {
   let result = "";
   for (const c of s) {
-    // eslint-disable-next-line no-control-regex
-    if (/[\x00-\x7f]/.test(c)) {
+    if (c == "<") {
+      result += "&lt;";
+    } else if (c == ">") {
+      result += "&gt;";
+    } else if (c == "&") {
+      result += "&amp;";
+    } else if (c == '"') {
+      result += "&quot;";
+    } else if (c == "'") {
+      result += "&apos;";
+      // eslint-disable-next-line no-control-regex
+    } else if (/[\x00-\x7f]/.test(c)) {
       result += c;
     } else {
       // Replace the character with a unicode entity reference.

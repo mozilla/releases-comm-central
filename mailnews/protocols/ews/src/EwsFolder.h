@@ -99,6 +99,10 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
                                  bool* aAsyncResults) override;
   NS_IMETHOD GetAutoSyncStateObj(nsIAutoSyncState** autoSyncStateObj) override;
 
+  NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element) override;
+  NS_IMETHOD ReadFromFolderCacheElem(
+      nsIMsgFolderCacheElement* element) override;
+
  private:
   bool mHasLoadedSubfolders;
 

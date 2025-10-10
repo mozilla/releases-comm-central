@@ -9,6 +9,8 @@ support-files = ["data/*"]
 
 ["test_ewsFilters.js"]
 
+["test_ewsFolder.js"]
+
 ["test_folder_operations.js"]
 
 ["test_folder_sync.js"]

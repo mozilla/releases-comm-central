@@ -24,6 +24,7 @@
 #include "nsIMsgDBView.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFilterService.h"
+#include "nsIMsgFolderCacheElement.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgStatusFeedback.h"
@@ -40,6 +41,7 @@
 #include "nscore.h"
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
+#include "mozilla/StaticPrefs_mail.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -47,6 +49,7 @@
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
 using namespace mozilla;
+using namespace mozilla::StaticPrefs;
 
 extern LazyLogModule FILTERLOGMODULE;  // From nsMsgFilterService.
 
@@ -1817,6 +1820,35 @@ NS_IMETHODIMP EwsFolder::FetchMsgPreviewText(
       rv = GetMsgPreviewTextFromStream(header, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);
     }
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::ReadFromFolderCacheElem(
+    nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+  NS_ENSURE_ARG_POINTER(element);
+  nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!UsesLocalizedName()) {
+    return element->GetCachedString("folderName", mName);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::WriteToFolderCacheElem(
+    nsIMsgFolderCacheElement* element) {
+  MOZ_ASSERT(!mail_panorama_enabled_AtStartup());
+  if (mail_panorama_enabled_AtStartup()) {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+  NS_ENSURE_ARG_POINTER(element);
+  nsMsgDBFolder::WriteToFolderCacheElem(element);
+  if (!UsesLocalizedName()) {
+    return element->SetCachedString("folderName", mName);
   }
   return NS_OK;
 }

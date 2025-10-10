@@ -66,6 +66,14 @@ interface nsIFolderLookupService : nsISupports
    * @param aFolder - The folder to cache.
    */
   void cache(in AUTF8String aUrl, in nsIMsgFolder aFolder);
+
+  /**
+   * Empty the folder cache.
+   *
+   * This is generally for use in testing, when a test wants to ensure that no
+   * previously existing `nsIMsgFolder` can exist in the folder cache.
+   */
+  void invalidateCache();
 };
 
 %{C++

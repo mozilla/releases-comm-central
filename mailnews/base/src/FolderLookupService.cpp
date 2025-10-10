@@ -210,6 +210,11 @@ NS_IMETHODIMP FolderLookupService::Cache(const nsACString& url,
   return NS_OK;
 }
 
+NS_IMETHODIMP FolderLookupService::InvalidateCache() {
+  mFolderCache.Clear();
+  return NS_OK;
+}
+
 nsCOMPtr<nsIMsgFolder> FolderLookupService::GetExisting(const nsACString& url) {
   const auto found = mFolderCache.Lookup(url);
   if (!found) {
