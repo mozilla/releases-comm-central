@@ -224,9 +224,9 @@ function toolboxChanged(aType) {
 }
 
 function dispatchCustomizationEvent(aEventName) {
-  var evt = document.createEvent("Events");
-  evt.initEvent(aEventName, true, true);
-  gToolbox.dispatchEvent(evt);
+  gToolbox.dispatchEvent(
+    new CustomEvent(aEventName, { bubbles: true, cancelable: true })
+  );
 }
 
 /**

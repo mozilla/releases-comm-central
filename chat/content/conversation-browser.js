@@ -549,8 +549,7 @@
         );
       } while (timing.timeRemaining() > 2);
 
-      const event = document.createEvent("UIEvents");
-      event.initUIEvent("MessagesDisplayed", false, false, window, 0);
+      const event = new CustomEvent("MessagesDisplayed");
       if (this._pendingMessagesDisplayed < max) {
         if (this.progressBar) {
           // Show progress bar if after the third call (ca. 120ms)

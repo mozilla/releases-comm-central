@@ -32,20 +32,9 @@ class MozAttachmentlist extends MozElements.RichListBox {
         case "Enter":
           if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
             this.addItemToSelection(this.currentItem);
-            const evt = document.createEvent("XULCommandEvent");
-            evt.initCommandEvent(
-              "command",
-              true,
-              true,
-              window,
-              0,
-              event.ctrlKey,
-              event.altKey,
-              event.shiftKey,
-              event.metaKey,
-              null
+            this.currentItem.dispatchEvent(
+              new CustomEvent("command", { bubbles: true, cancelable: true })
             );
-            this.currentItem.dispatchEvent(evt);
           }
           break;
       }
@@ -192,21 +181,10 @@ class MozAttachmentlist extends MozElements.RichListBox {
     item.classList.add("attachmentItem");
     item.setAttribute("role", "option");
 
-    item.addEventListener("dblclick", event => {
-      const evt = document.createEvent("XULCommandEvent");
-      evt.initCommandEvent(
-        "command",
-        true,
-        true,
-        window,
-        0,
-        event.ctrlKey,
-        event.altKey,
-        event.shiftKey,
-        event.metaKey,
-        null
+    item.addEventListener("dblclick", () => {
+      item.dispatchEvent(
+        new CustomEvent("command", { bubbles: true, cancelable: true })
       );
-      item.dispatchEvent(evt);
     });
 
     const makeDropIndicator = placementClass => {

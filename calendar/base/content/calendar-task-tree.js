@@ -66,9 +66,7 @@
           this.tree.mFilter.getOccurrences(oldItem)
         );
         // We also need to notify potential listeners.
-        const event = document.createEvent("Events");
-        event.initEvent("select", true, false);
-        this.tree.dispatchEvent(event);
+        this.tree.dispatchEvent(new CustomEvent("select", { bubbles: true }));
       }
     }
 

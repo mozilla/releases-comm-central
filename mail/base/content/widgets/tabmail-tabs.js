@@ -514,9 +514,9 @@
 
       if (!alreadySelected) {
         // Fire an onselect event for the tabs element.
-        const event = document.createEvent("Events");
-        event.initEvent("select", true, true);
-        this.dispatchEvent(event);
+        this.dispatchEvent(
+          new CustomEvent("select", { bubbles: true, cancelable: true })
+        );
       }
     }
 
