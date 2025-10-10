@@ -311,11 +311,6 @@ impl XpcomEwsBridge {
         message_ids: &ThinVec<nsCString>,
         is_read: bool,
     ) -> Result<(), nsresult> {
-        let message_ids: Vec<String> = message_ids
-            .iter()
-            .map(|message_id| message_id.to_string())
-            .collect();
-
         let client = self.try_new_client()?;
 
         // The client operation is async and we want it to survive the end of
@@ -324,7 +319,7 @@ impl XpcomEwsBridge {
             "change_read_status",
             client.change_read_status(
                 SafeEwsSimpleOperationListener::new(listener),
-                message_ids,
+                message_ids.clone(),
                 is_read,
             ),
         )

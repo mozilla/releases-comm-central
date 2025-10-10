@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+mod change_read_status;
 mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;
@@ -29,12 +30,9 @@ use ews::{
     response::{ResponseClass, ResponseCode, ResponseError},
     server_version::ExchangeServerVersion,
     soap,
-    update_item::{
-        ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem,
-        UpdateItemResponse, Updates,
-    },
+    update_item::{UpdateItem, UpdateItemResponse},
     BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
-    ItemShape, Message, MessageDisposition, Operation, OperationResponse, PathToElement, RealItem,
+    ItemShape, Operation, OperationResponse, PathToElement, RealItem,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -44,9 +42,7 @@ use mailnews_ui_glue::{
 };
 use moz_http::Response;
 use nserror::nsresult;
-use nsstring::nsCString;
 use server_version::read_server_version;
-use thin_vec::ThinVec;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -55,8 +51,8 @@ use xpcom::{RefCounted, RefPtr};
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
     safe_xpcom::{
-        handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsSimpleOperationListener, SafeListener, StaleMsgDbHeader, UpdatedMsgDbHeader,
+        handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
+        StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
 };
 
@@ -517,111 +513,6 @@ where
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
         process_response_message_class(CreateItem::NAME, response_message)
-    }
-
-    /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
-    ///
-    /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
-    pub async fn change_read_status(
-        self,
-        listener: SafeEwsSimpleOperationListener,
-        message_ids: Vec<String>,
-        is_read: bool,
-    ) {
-        // Send the request, using an inner method to more easily handle errors.
-        if let Err(err) = self
-            .change_read_status_inner(&listener, message_ids, is_read)
-            .await
-        {
-            log::error!("an error occurred while attempting to update the read status: {err:?}");
-        }
-    }
-
-    async fn change_read_status_inner(
-        self,
-        listener: &SafeEwsSimpleOperationListener,
-        message_ids: Vec<String>,
-        is_read: bool,
-    ) -> Result<(), XpComEwsError> {
-        // Create the structure for setting the messages as read/unread.
-        let item_changes: Vec<ItemChange> = message_ids
-            .into_iter()
-            .map(|message_id| {
-                let updates = Updates {
-                    inner: vec![ItemChangeDescription::SetItemField {
-                        field_uri: PathToElement::FieldURI {
-                            field_URI: "message:IsRead".to_string(),
-                        },
-                        message: Message {
-                            is_read: Some(is_read),
-                            ..Default::default()
-                        },
-                    }],
-                };
-
-                ItemChange {
-                    item_change: ItemChangeInner {
-                        item_id: BaseItemId::ItemId {
-                            id: message_id,
-                            // TODO: We should be able to get the change key from the
-                            // database or server, but we don't have a way to do that yet.
-                            change_key: None,
-                        },
-                        updates,
-                    },
-                }
-            })
-            .collect();
-
-        let update_item = UpdateItem {
-            item_changes,
-            message_disposition: MessageDisposition::SaveOnly,
-            // If we don't provide a ChangeKey as part of the ItemChange, then
-            // we cannot use the default value of `AutoResolve` for
-            // `ConflictResolution`. Instead, we will use `AlwaysOverwrite` for now.
-            conflict_resolution: Some(ConflictResolution::AlwaysOverwrite),
-        };
-
-        let response = self.make_update_item_request(update_item).await?;
-        let response_messages = response.into_response_messages();
-
-        let (successes, errors): (Vec<_>, Vec<_>) = response_messages
-            .into_iter()
-            .map(|r| process_response_message_class(UpdateItem::NAME, r))
-            .enumerate()
-            .partition(|(_index, result)| result.is_ok());
-
-        let successes: ThinVec<nsCString> = successes
-            .into_iter()
-            .flat_map(|(_, success)| {
-                let message = success.expect("partition should only populate this with okays");
-                message.items.inner.into_iter()
-            })
-            .filter_map(|item| item.into_inner_message().item_id)
-            .map(|item_id| item_id.id.into())
-            .collect();
-
-        let ret = if !successes.is_empty() {
-            listener.on_success((successes, false).into())
-        } else {
-            // This branch only happens if no messages were requested,
-            // or we're about to return an aggregated error in the next block.
-            Ok(())
-        };
-
-        // If there were errors, return an aggregated error.
-        if !errors.is_empty() {
-            let num_errs = errors.len();
-            let (index, ref first_err) = errors[0];
-            let first_error = first_err
-                .as_ref()
-                .expect_err("partition should only populate this with errs");
-            return Err(XpComEwsError::Processing {
-                message: format!("response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"),
-            });
-        }
-
-        Ok(ret?)
     }
 
     /// Performs an [`UpdateItem` operation]. The caller must processes the Ok response to check for
