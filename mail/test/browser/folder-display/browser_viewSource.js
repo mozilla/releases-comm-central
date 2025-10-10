@@ -131,8 +131,6 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "View source must contain the readable text"
   );
 
-  let popupshown;
-
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
     const theContent = viewSourceWin.document.getElementById("content");
@@ -143,13 +141,12 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
 
-    popupshown = BrowserTestUtils.waitForEvent(
-      viewSourceWin.document.getElementById("viewmenu-popup"),
-      "popupshown"
-    );
     const menuView = viewSourceWin.document.getElementById("menu_view");
     EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
-    await popupshown;
+    await BrowserTestUtils.waitForPopupEvent(
+      viewSourceWin.document.getElementById("viewmenu-popup"),
+      "shown"
+    );
 
     Assert.equal(
       viewSourceWin.document.getElementById("repair-text-encoding").disabled,
@@ -188,13 +185,12 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   const contextMenu = viewSourceWin.document.getElementById(
     "viewSourceContextMenu"
   );
-  popupshown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "body",
     { type: "contextmenu" },
     browser
   );
-  await popupshown;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
 
   const actualItems = [];
   for (const item of contextMenu.children) {
@@ -209,6 +205,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "cMenu_findAgain",
   ]);
   contextMenu.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");
 
   await BrowserTestUtils.closeWindow(viewSourceWin);
 }
