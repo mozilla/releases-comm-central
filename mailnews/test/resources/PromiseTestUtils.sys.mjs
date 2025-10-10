@@ -534,3 +534,47 @@ PromiseTestUtils.WebProgressListener.prototype = {
     return this._promise;
   },
 };
+
+/**
+ * A `nsIMsgSendListener` that can be awaited as a promise, and resolves/reject
+ * when sending stops.
+ */
+PromiseTestUtils.SendListener = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgSendListener"]);
+
+  constructor() {
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
+
+  onStartSending(_msgId, _msgSize) {}
+  onSendProgress(_msgId, _progress, _progressMax) {}
+  onStatus(_msgId, _msg) {}
+  onGetDraftFolderURI(_msgId, _folderURI) {}
+
+  onStopSending(_msgId, status, _msg, _file) {
+    if (status == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(status);
+    }
+  }
+
+  onSendNotPerformed(_msgId, status) {
+    if (status == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(status);
+    }
+  }
+
+  onTransportSecurityError(_msgId, status, _secInfo, _location) {
+    this._reject(status);
+  }
+
+  get promise() {
+    return this._promise;
+  }
+};

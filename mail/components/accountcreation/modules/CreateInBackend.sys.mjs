@@ -262,7 +262,16 @@ async function createAccountInBackend(config) {
   }
 
   verifyLocalFoldersAccount();
-  setFolders(identity, inServer);
+
+  if (inServer.type != "ews") {
+    // EWS doesn't use the same names as IMAP et al for its notable folders, and
+    // there's no guarantee the folder names will always be the same and not be
+    // e.g. localized depending on the organization's primary language. The EWS
+    // API provides a fairly straightforward and reliable way to identify
+    // notable folders using flags, so we'll use them instead (through e.g.
+    // `identity.getOrCreateFccFolder`).
+    setFolders(identity, inServer);
+  }
 
   // save
   MailServices.accounts.saveAccountInfo();

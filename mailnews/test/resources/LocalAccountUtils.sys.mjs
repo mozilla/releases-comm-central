@@ -204,23 +204,23 @@ export var localAccountUtils = {
    * It does so by creating a new identity in the account using the given outgoing
    * server.
    *
-   * @param {nsIMsgAccount} aIncoming - The account to associate.
+   * @param {nsIMsgAccount} aAccount - The account to associate.
    * @param {nsIOutgoingServer} aOutgoingServer - The outgoing server to associate.
    * @param {bool} aSetAsDefault - Whether to set the outgoing server as the
    *   default for the account.
    */
-  associate_servers(aIncoming, aOutgoingServer, aSetAsDefault = false) {
-    if (!(aIncoming instanceof Ci.nsIMsgAccount)) {
+  associate_servers(aAccount, aOutgoingServer, aSetAsDefault = false) {
+    if (!(aAccount instanceof Ci.nsIMsgAccount)) {
       throw new Error("aIncoming isn't an account");
     }
 
     const identity = MailServices.accounts.createIdentity();
     identity.smtpServerKey = aOutgoingServer.key;
 
-    aIncoming.addIdentity(identity);
+    aAccount.addIdentity(identity);
 
     if (aSetAsDefault) {
-      aIncoming.defaultIdentity = identity;
+      aAccount.defaultIdentity = identity;
     }
   },
 };

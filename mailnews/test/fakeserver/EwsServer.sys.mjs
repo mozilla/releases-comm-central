@@ -613,7 +613,7 @@ export class EwsServer {
   }
 
   /**
-   * Set the exclusive list of folders this server should use to generate
+   * Set the exhaustive list of folders this server should use to generate
    * responses. If this method is called more than once, the previous list of
    * folders is replaced by the new one.
    *
