@@ -138,6 +138,18 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   nsresult GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr);
 
   /**
+   * Handle a generic message or folder delete operation.
+   *
+   * If `forceHardDelete` is true, then this will call `onHardDelete`, otherwise
+   * whether `onHardDelete` or `onSoftDelete` is called will depend on the
+   * server delete model configuration and whether this is the configured trash
+   * folder for the server.
+   */
+  nsresult HandleDeleteOperation(
+      bool forceHardDelete, std::function<nsresult()>&& onHardDelete,
+      std::function<nsresult(IEwsFolder* trashFolder)>&& onSoftDelete);
+
+  /**
    * Get the nsAutoSyncState for this folder, used for interacting with
    * AutoSyncManager (for downloading messages in the background etc...)
    * Created lazily, so use this instead of mAutoSyncState!

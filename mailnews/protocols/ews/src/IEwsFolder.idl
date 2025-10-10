@@ -43,6 +43,20 @@ void copyItemsOnSameServer(
     in IEwsFolderOperationListener listener);
 
 /**
+ * Copy a folder on the same server to this folder.
+ *
+ * @param sourceFolder The folder to copy.
+ * @param isMove Whether or not this is a move operation.
+ * @param window A context window for the operation.
+ * @param copyListener The copy listener for the operation.
+ */
+void copyFolderOnSameServer(
+    in nsIMsgFolder sourceFolder,
+    in boolean isMove,
+    in nsIMsgWindow window,
+    in nsIMsgCopyServiceListener copyListener);
+
+/**
  * Tell the folder that some messages have been downloaded for
  * offline use and are now in the local message store.
  *
@@ -56,7 +70,7 @@ void copyItemsOnSameServer(
  * offline-download path as EWS, and at that point this call would
  * be removed in favour of a more general mechanism.
  */
-void handleDownloadedMessages();
+ void handleDownloadedMessages();
 };
 
 /**

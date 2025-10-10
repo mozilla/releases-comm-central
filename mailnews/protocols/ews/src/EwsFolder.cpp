@@ -681,90 +681,9 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
 
   if (isSameServer) {
     // Same server move or copy.
-    nsAutoCString sourceEwsId;
-    rv = aSrcFolder->GetStringProperty(kEwsIdProperty, sourceEwsId);
+    rv = CopyFolderOnSameServer(aSrcFolder, aIsMoveFolder, aMsgWindow,
+                                aCopyListener);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (sourceEwsId.IsEmpty()) {
-      NS_ERROR("Expected EWS folder for server but folder has no EWS ID.");
-      return NS_ERROR_UNEXPECTED;
-    }
-
-    nsAutoCString destinationEwsId;
-    rv = GetEwsId(destinationEwsId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    const nsCOMPtr<nsIMsgFolder> srcFolder = aSrcFolder;
-    const nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
-    const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
-
-    RefPtr<EwsSimpleFailibleListener> listener = new EwsSimpleFailibleListener(
-        [self = RefPtr(this), srcFolder, copyListener, msgWindow,
-         aIsMoveFolder](const nsTArray<nsCString>& ids,
-                        bool useLegacyFallback) {
-          NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
-          const auto& newEwsId = ids[0];
-
-          nsAutoCString name;
-          nsresult rv = srcFolder->GetName(name);
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          // For a move, the EWS IDs of any subfolders or items of the moved
-          // folder or subfolder are stable (no known documentation, so this is
-          // through observation), so we can move in local storage to avoid a
-          // sync. When copying, however, new EWS IDs must be created for any
-          // subfolders or items of the copied folder or its subfolders, and we
-          // have no way to obtain the new IDs other than performing a sync of
-          // the folder hierarchy.
-          if (aIsMoveFolder) {
-            rv = LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
-            NS_ENSURE_SUCCESS(rv, rv);
-            rv = CompleteCopyMoveFolderOperation(srcFolder, self, copyListener,
-                                                 name, newEwsId);
-            return rv;
-          }
-
-          nsCOMPtr<nsIMsgIncomingServer> server;
-          rv = self->GetServer(getter_AddRefs(server));
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          const nsCOMPtr<IEwsIncomingServer> ewsServer{
-              do_QueryInterface(server, &rv)};
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          // Limiting granularity of the folder hierarchy update to only the
-          // destination folder is not possible due to our current strategy of
-          // managing the EWS sync token at the server level for folder updates,
-          // so we have to sync the entire hierarchy. In addition, for the
-          // copied folder messages to appear, an additional message sync will
-          // be required for the newly copied folder. However, to limit the
-          // complexity of this callback chain, we don't perform that step here,
-          // instead relying on external processes (such as folder
-          // expansion/selection) to perform that operation in the future.
-          // See https://bugzilla.mozilla.org/show_bug.cgi?id=1980963
-          // for the enhancement to improve hierarchy update granularity.
-          const RefPtr<EwsSimpleListener> listener = new EwsSimpleListener{
-              [self, srcFolder, msgWindow, copyListener, newEwsId, name](
-                  const auto& ids, bool resyncRequired) {
-                nsresult rv = NS_OK;
-                rv = CompleteCopyMoveFolderOperation(
-                    srcFolder, self, copyListener, name, newEwsId);
-                return rv;
-              }};
-          return ewsServer->SyncFolderHierarchy(listener, msgWindow);
-        },
-        [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
-          if (copyListener) {
-            copyListener->OnStopCopy(status);
-          }
-
-          return HandleMoveError(srcFolder, self, status);
-        });
-
-    if (aIsMoveFolder) {
-      client->MoveFolders(listener, destinationEwsId, {sourceEwsId});
-    } else {
-      client->CopyFolders(listener, destinationEwsId, {sourceEwsId});
-    }
   } else {
     // Cross-server folder move (or copy). Instantiate a `FolderCopyHandler` for
     // this operation.
@@ -778,10 +697,103 @@ NS_IMETHODIMP EwsFolder::CopyFolder(nsIMsgFolder* aSrcFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP EwsFolder::DeleteMessages(
-    nsTArray<RefPtr<nsIMsgDBHdr>> const& aMsgHeaders, nsIMsgWindow* aMsgWindow,
-    bool aDeleteStorage, bool aIsMove, nsIMsgCopyServiceListener* aCopyListener,
-    bool aAllowUndo) {
+NS_IMETHODIMP EwsFolder::CopyFolderOnSameServer(
+    nsIMsgFolder* aSourceFolder, bool aIsMoveFolder, nsIMsgWindow* aWindow,
+    nsIMsgCopyServiceListener* aCopyListener) {
+  nsAutoCString sourceEwsId;
+  nsresult rv = aSourceFolder->GetStringProperty(kEwsIdProperty, sourceEwsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (sourceEwsId.IsEmpty()) {
+    NS_ERROR("Expected EWS folder for server but folder has no EWS ID.");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  nsAutoCString destinationEwsId;
+  rv = GetEwsId(destinationEwsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  const nsCOMPtr<nsIMsgFolder> srcFolder = aSourceFolder;
+  const nsCOMPtr<nsIMsgWindow> msgWindow = aWindow;
+  const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
+
+  RefPtr<EwsSimpleFailibleListener> listener = new EwsSimpleFailibleListener(
+      [self = RefPtr(this), srcFolder, copyListener, msgWindow, aIsMoveFolder](
+          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+        NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
+        const auto& newEwsId = ids[0];
+
+        nsAutoCString name;
+        nsresult rv = srcFolder->GetName(name);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // For a move, the EWS IDs of any subfolders or items of the moved
+        // folder or subfolder are stable (no known documentation, so this is
+        // through observation), so we can move in local storage to avoid a
+        // sync. When copying, however, new EWS IDs must be created for any
+        // subfolders or items of the copied folder or its subfolders, and we
+        // have no way to obtain the new IDs other than performing a sync of
+        // the folder hierarchy.
+        if (aIsMoveFolder) {
+          rv = LocalRenameOrReparentFolder(srcFolder, self, name, msgWindow);
+          NS_ENSURE_SUCCESS(rv, rv);
+          rv = CompleteCopyMoveFolderOperation(srcFolder, self, copyListener,
+                                               name, newEwsId);
+          return rv;
+        }
+
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        rv = self->GetServer(getter_AddRefs(server));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        const nsCOMPtr<IEwsIncomingServer> ewsServer{
+            do_QueryInterface(server, &rv)};
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // Limiting granularity of the folder hierarchy update to only the
+        // destination folder is not possible due to our current strategy of
+        // managing the EWS sync token at the server level for folder updates,
+        // so we have to sync the entire hierarchy. In addition, for the
+        // copied folder messages to appear, an additional message sync will
+        // be required for the newly copied folder. However, to limit the
+        // complexity of this callback chain, we don't perform that step here,
+        // instead relying on external processes (such as folder
+        // expansion/selection) to perform that operation in the future.
+        // See https://bugzilla.mozilla.org/show_bug.cgi?id=1980963
+        // for the enhancement to improve hierarchy update granularity.
+        const RefPtr<EwsSimpleListener> listener = new EwsSimpleListener{
+            [self, srcFolder, msgWindow, copyListener, newEwsId, name](
+                const auto& ids, bool resyncRequired) {
+              nsresult rv = NS_OK;
+              rv = CompleteCopyMoveFolderOperation(
+                  srcFolder, self, copyListener, name, newEwsId);
+              return rv;
+            }};
+        return ewsServer->SyncFolderHierarchy(listener, msgWindow);
+      },
+      [self = RefPtr(this), srcFolder, copyListener](nsresult status) {
+        if (copyListener) {
+          copyListener->OnStopCopy(status);
+        }
+
+        return HandleMoveError(srcFolder, self, status);
+      });
+
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
+  if (aIsMoveFolder) {
+    rv = client->MoveFolders(listener, destinationEwsId, {sourceEwsId});
+  } else {
+    rv = client->CopyFolders(listener, destinationEwsId, {sourceEwsId});
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+nsresult EwsFolder::HandleDeleteOperation(
+    bool forceHardDelete, std::function<nsresult()>&& onHardDelete,
+    std::function<nsresult(IEwsFolder*)>&& onSoftDelete) {
   using DeleteModel = IEwsIncomingServer::DeleteModel;
 
   nsresult rv;
@@ -798,13 +810,39 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
   DeleteModel deleteModel;
   rv = ewsServer->GetDeleteModel(&deleteModel);
 
+  if (forceHardDelete || isTrashFolder ||
+      deleteModel == DeleteModel::PERMANENTLY_DELETE) {
+    return onHardDelete();
+  }
+
+  // We're moving the messages to trash folder.
+  nsCOMPtr<nsIMsgFolder> trashFolder;
+  rv = GetTrashFolder(getter_AddRefs(trashFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!trashFolder) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  nsCOMPtr<IEwsFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return onSoftDelete(ewsTrashFolder);
+}
+
+NS_IMETHODIMP EwsFolder::DeleteMessages(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& aMsgHeaders, nsIMsgWindow* aMsgWindow,
+    bool aDeleteStorage, bool aIsMove, nsIMsgCopyServiceListener* aCopyListener,
+    bool aAllowUndo) {
   // If we're performing a "hard" delete, or if we're deleting from the trash
   // folder, perform a "real" deletion (i.e. delete the messages from both the
   // storage and the server).
-  if (aDeleteStorage || isTrashFolder ||
-      deleteModel == DeleteModel::PERMANENTLY_DELETE) {
+  const auto headers = CopyableTArray<RefPtr<nsIMsgDBHdr>>{aMsgHeaders};
+  const auto onHardDelete = [self = RefPtr(this), window = RefPtr(aMsgWindow),
+                             copyListener = RefPtr(aCopyListener), headers]() {
     nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
-    if (aMsgWindow) {
+    nsresult rv = NS_OK;
+    if (window) {
       // Format the message we'll show the user while we wait for the remote
       // operation to complete.
       RefPtr<intl::Localization> l10n = intl::Localization::Create(
@@ -814,13 +852,13 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
       l10nArgs.Construct();
 
       nsCString folderName;
-      rv = GetLocalizedName(folderName);
+      rv = self->GetLocalizedName(folderName);
       NS_ENSURE_SUCCESS(rv, rv);
 
       auto numberArg = l10nArgs.Value().Entries().AppendElement();
       numberArg->mKey = "number"_ns;
       numberArg->mValue.SetValue().SetAsUTF8String().Assign(
-          nsPrintfCString("%zu", aMsgHeaders.Length()));
+          nsPrintfCString("%zu", headers.Length()));
 
       auto folderArg = l10nArgs.Value().Entries().AppendElement();
       folderArg->mKey = "folderName"_ns;
@@ -831,7 +869,7 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
       l10n->FormatValueSync("deleting-message"_ns, l10nArgs, message, error);
 
       // Show the formatted message in the status bar.
-      rv = aMsgWindow->GetStatusFeedback(getter_AddRefs(feedback));
+      rv = window->GetStatusFeedback(getter_AddRefs(feedback));
       NS_ENSURE_SUCCESS(rv, rv);
 
       rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
@@ -840,14 +878,12 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    // Define the listener with a success lambda callback, and start the remote
-    // operation.
-    const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
+    // Define the listener with a success lambda callback, and start the
+    // remote operation.
     RefPtr<EwsSimpleMessageListener> listener = new EwsSimpleMessageListener(
-        aMsgHeaders,
-        [self = RefPtr(this), copyListener, feedback](
-            const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-            const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+        headers, [self, copyListener, feedback](
+                     const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
+                     const nsTArray<nsCString>& ids, bool useLegacyFallback) {
           nsresult rv = NS_OK;
           auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
 
@@ -863,30 +899,27 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
         });
 
     nsCOMPtr<IEwsClient> client;
-    rv = GetEwsClient(getter_AddRefs(client));
+    rv = self->GetEwsClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsTArray<nsCString> ewsIds;
-    MOZ_TRY(GetEwsIdsForMessageHeaders(aMsgHeaders, ewsIds));
+    rv = GetEwsIdsForMessageHeaders(headers, ewsIds);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     return client->DeleteMessages(listener, ewsIds);
-  }
+  };
 
   // We're moving the messages to trash folder.
-  nsCOMPtr<nsIMsgFolder> trashFolder;
-  rv = GetTrashFolder(getter_AddRefs(trashFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
+  const auto onSoftDelete =
+      [self = RefPtr(this), headers, window = RefPtr(aMsgWindow),
+       copyListener = RefPtr(aCopyListener)](IEwsFolder* trashFolder) {
+        return trashFolder->CopyItemsOnSameServer(
+            self, headers, true, window, copyListener, true,
+            nsIMessenger::eDeleteMsg, nullptr);
+      };
 
-  if (!trashFolder) {
-    return NS_ERROR_UNEXPECTED;
-  }
-
-  nsCOMPtr<IEwsFolder> ewsTrashFolder = do_QueryInterface(trashFolder, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return ewsTrashFolder->CopyItemsOnSameServer(
-      this, aMsgHeaders, true, aMsgWindow, aCopyListener, true,
-      nsIMessenger::eDeleteMsg, nullptr);
+  return HandleDeleteOperation(aDeleteStorage, std::move(onHardDelete),
+                               std::move(onSoftDelete));
 }
 
 NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
@@ -898,23 +931,31 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  nsCOMPtr<IEwsClient> client;
-  rv = GetEwsClient(getter_AddRefs(client));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCString folderId;
   rv = GetEwsId(folderId);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgWindow> window = aWindow;
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
-      [self = RefPtr(this), window](const nsTArray<nsCString>& ids,
-                                    bool useLegacyFallback) {
-        return self->nsMsgDBFolder::DeleteSelf(window);
-      });
+  const auto onHardDelete = [self = RefPtr(this), window, folderId]() {
+    RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+        [self, window](const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+          return self->nsMsgDBFolder::DeleteSelf(window);
+        });
 
-  return client->DeleteFolder(listener, folderId);
+    nsCOMPtr<IEwsClient> client;
+    nsresult rv = self->GetEwsClient(getter_AddRefs(client));
+    NS_ENSURE_SUCCESS(rv, rv);
+    return client->DeleteFolder(listener, folderId);
+  };
+
+  const auto onSoftDelete =
+      [self = RefPtr(this), window = RefPtr(aWindow)](IEwsFolder* trashFolder) {
+        return trashFolder->CopyFolderOnSameServer(self, true, window, nullptr);
+      };
+
+  return HandleDeleteOperation(false, std::move(onHardDelete),
+                               std::move(onSoftDelete));
 }
 
 NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
