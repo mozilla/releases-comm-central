@@ -90,6 +90,14 @@ if (!Services.prefs.getBoolPref("dom.viewTransitions.enabled")) {
   });
 }
 
+if (!Services.prefs.getBoolPref("mathml.math_shift.enabled")) {
+  ignoreList.push({
+    sourceName: /\bmathml\.css$/i,
+    errorMessage: /Unknown property.*math-shift/i,
+    isFromDevTools: false,
+  });
+}
+
 const propNameAllowlist = [
   // These custom properties are retrieved directly from CSSOM
   // in videocontrols.xml to get pre-defined style instead of computed
