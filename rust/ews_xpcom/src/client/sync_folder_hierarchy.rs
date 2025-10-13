@@ -7,6 +7,7 @@ use ews::{
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
 };
 use mailnews_ui_glue::UserInteractiveServer;
+use std::collections::HashSet;
 use xpcom::RefCounted;
 
 use super::{
@@ -72,8 +73,8 @@ impl DoOperation for DoSyncFolderHierarchy<'_> {
             let message = process_response_message_class("SyncFolderHierarchy", response)?;
 
             let mut create_ids = Vec::new();
-            let mut update_ids = Vec::new();
-            let mut delete_ids = Vec::new();
+            let mut update_ids = HashSet::new();
+            let mut delete_ids = HashSet::new();
 
             // Build lists of all of the changed folder IDs. We'll need to fetch
             // further details when creating or updating folders as well.
@@ -83,21 +84,28 @@ impl DoOperation for DoSyncFolderHierarchy<'_> {
                         if let Folder::Folder { folder_id, .. } = folder {
                             let folder_id = folder_id.ok_or(XpComEwsError::MissingIdInResponse)?;
 
-                            create_ids.push(folder_id.id)
+                            create_ids.push(folder_id.id);
                         }
                     }
                     sync_folder_hierarchy::Change::Update { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
                             let folder_id = folder_id.ok_or(XpComEwsError::MissingIdInResponse)?;
 
-                            update_ids.push(folder_id.id)
+                            update_ids.insert(folder_id.id);
                         }
                     }
                     sync_folder_hierarchy::Change::Delete { folder_id } => {
-                        delete_ids.push(folder_id.id)
+                        delete_ids.insert(folder_id.id);
                     }
                 }
             }
+
+            // don't try to update anything that was deleted
+            let update_ids = update_ids
+                .difference(&delete_ids)
+                .map(|s| s.to_string())
+                .collect();
+            let delete_ids = delete_ids.into_iter().collect();
 
             client
                 .push_sync_state_to_ui(

@@ -188,12 +188,12 @@ impl XpcomEwsBridge {
 
     xpcom_method!(delete_folder => DeleteFolder(
         listener: *const IEwsSimpleOperationListener,
-        folder_id: *const nsACString
+        folder_ids: *const ThinVec<nsCString>
     ));
     fn delete_folder(
         &self,
         listener: &IEwsSimpleOperationListener,
-        folder_id: &nsACString,
+        folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
         let client = self.try_new_client()?;
 
@@ -203,7 +203,10 @@ impl XpcomEwsBridge {
             "delete_folder",
             client.delete_folder(
                 SafeEwsSimpleOperationListener::new(listener),
-                folder_id.to_utf8().into_owned(),
+                folder_ids
+                    .iter()
+                    .map(|s| s.to_utf8().into_owned())
+                    .collect(),
             ),
         )
         .detach();

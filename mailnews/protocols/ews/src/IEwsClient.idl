@@ -150,13 +150,13 @@ interface IEwsClient : nsISupports
   void deleteMessages(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageEwsIds);
 
   /**
-   * Deletes a folder on the Exchange server.
+   * Deletes the folders with the given EWS IDs from the server.
    *
    * @param listener - Listener to indicate the success or failure of the
    *   folder deletion operation.
-   * @param folderId - The EWS ID of the folder to delete.
+   * @param folderIds - The EWS IDs of the folders to delete.
    */
-  void deleteFolder(in IEwsSimpleOperationListener listener, in AUTF8String folderId);
+  void deleteFolder(in IEwsSimpleOperationListener listener, in Array<AUTF8String> folderIds);
 
   /**
    * Renames a folder on the Exchange server.

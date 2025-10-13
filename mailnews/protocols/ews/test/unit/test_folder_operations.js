@@ -98,6 +98,26 @@ add_task(async function test_soft_delete() {
     "deleteditems",
     "Parent of deleted folder should be deleted items folder."
   );
+
+  // Now test trash operations
+  const trashFolder = incomingServer.rootFolder.getChildNamed("Deleted Items");
+  Assert.ok(!!trashFolder, "server should have trash folder");
+  Assert.ok(trashFolder.hasSubFolders, "Folder should be in trash");
+
+  // Empty the trash (should work from any folder)
+  trashFolder.emptyTrash(null);
+  await TestUtils.waitForCondition(
+    () => !trashFolder.hasSubFolders,
+    "The trash should eventually be emptied."
+  );
+
+  await syncFolder(incomingServer, incomingServer.rootFolder);
+  const unfoundFolder = ewsServer.folders.filter(f => f.id === remoteEwsId);
+  Assert.equal(
+    unfoundFolder.length,
+    0,
+    "Server should no longer have folder in its list."
+  );
 });
 
 add_task(async function test_delete_id_mismatch() {

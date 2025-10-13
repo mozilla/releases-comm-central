@@ -1071,7 +1071,7 @@ export class EwsServer {
   }
 
   /**
-   * Generate a response to a SyncFolderItems operation.
+   * Generate a response to a CreateItem operation.
    *
    * Currently, generated responses will always serve a static success report.
    *

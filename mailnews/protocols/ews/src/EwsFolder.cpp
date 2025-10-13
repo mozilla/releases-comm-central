@@ -949,7 +949,7 @@ NS_IMETHODIMP EwsFolder::DeleteSelf(nsIMsgWindow* aWindow) {
     nsCOMPtr<IEwsClient> client;
     nsresult rv = self->GetEwsClient(getter_AddRefs(client));
     NS_ENSURE_SUCCESS(rv, rv);
-    return client->DeleteFolder(listener, folderId);
+    return client->DeleteFolder(listener, {folderId});
   };
 
   const auto onSoftDelete =
@@ -970,6 +970,68 @@ NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
 
   *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
   return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
+  nsCOMPtr<nsIMsgFolder> trashFolder;
+  nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgDatabase> db;
+  rv = trashFolder->GetMsgDatabase(getter_AddRefs(db));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Start by deleting the messages in the folder.
+  nsTArray<nsMsgKey> keys;
+  rv = db->ListAllKeys(keys);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+  rv = MsgGetHeadersFromKeys(db, keys, hdrs);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!hdrs.IsEmpty()) {
+    nsCOMPtr<nsIMsgCopyServiceListener> copyListener =
+        do_QueryInterface(aListener);
+    rv = trashFolder->DeleteMessages(hdrs,
+                                     /* msgWindow = */ nullptr,
+                                     /* deleteStorage = */ true,
+                                     /* isMove = */ false, copyListener,
+                                     /* allowUndo = */ false);
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Then delete any subfolders.
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  CopyableTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = trashFolder->GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<nsCString> subFolderIds(subFolders.Length());
+  for (const auto f : subFolders) {
+    nsCString ewsId;
+    rv = f->GetStringProperty(kEwsIdProperty, ewsId);
+    NS_ENSURE_SUCCESS(rv, rv);
+    subFolderIds.AppendElement(ewsId);
+  }
+
+  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+      [self = RefPtr(this), trashFolder, subFolders](
+          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+        for (const auto f : subFolders) {
+          nsresult rv = trashFolder->PropagateDelete(f, true);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
+        return NS_OK;
+      });
+
+  // The IMAP version performs some cleanup around here to efficiently delete
+  // all the local contents, but that's a bad idea for EWS because the two
+  // deletes above use async calls to ensure local copies are only deleted on
+  // success.
+
+  return client->DeleteFolder(listener, subFolderIds);
 }
 
 NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,

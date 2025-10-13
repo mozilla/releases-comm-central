@@ -10,10 +10,7 @@ use ews::{
 use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
 
-use super::{
-    process_response_message_class, single_response_or_error, DoOperation, XpComEwsClient,
-    XpComEwsError,
-};
+use super::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError};
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
@@ -21,7 +18,7 @@ use crate::{
 };
 
 struct DoDeleteFolder {
-    pub folder_id: String,
+    pub folder_ids: Vec<String>,
 }
 
 impl DoOperation for DoDeleteFolder {
@@ -36,39 +33,42 @@ impl DoOperation for DoDeleteFolder {
     where
         ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
     {
-        let delete_folder = DeleteFolder {
-            folder_ids: vec![BaseFolderId::FolderId {
-                id: self.folder_id.clone(),
+        let folder_ids = self
+            .folder_ids
+            .iter()
+            .map(|id| BaseFolderId::FolderId {
+                id: id.clone(),
                 change_key: None,
-            }],
+            })
+            .collect();
+        let delete_folder = DeleteFolder {
             delete_type: DeleteType::HardDelete,
+            folder_ids,
         };
         let response = client
             .make_operation_request(delete_folder, Default::default())
             .await?;
 
-        // We have only sent one message, therefore the response should only
-        // contain one response message.
         let response_messages = response.into_response_messages();
-        let response_message = single_response_or_error(response_messages)?;
-        match process_response_message_class(Self::NAME, response_message) {
-            Ok(_) => Ok(()),
-            Err(err) => match err {
-                XpComEwsError::ResponseError(ResponseError {
-                    response_code: ResponseCode::ErrorItemNotFound,
-                    ..
-                }) => {
-                    // Something happened in a previous attempt that caused the
-                    // folder to be deleted on the EWS server but not in the
-                    // database. In this case, we don't want to force a zombie
-                    // folder in the account, so we ignore the error and move on
-                    // with the local deletion.
-                    log::warn!("found folder that was deleted from the EWS server but not the local db: {}", self.folder_id);
-                    Ok(())
+        for response_message in response_messages {
+            if let Err(err) = process_response_message_class(Self::NAME, response_message) {
+                match err {
+                    XpComEwsError::ResponseError(ResponseError {
+                        response_code: ResponseCode::ErrorItemNotFound,
+                        ..
+                    }) => {
+                        // Something happened in a previous attempt that caused the
+                        // folder to be deleted on the EWS server but not in the
+                        // database. In this case, we don't want to force a zombie
+                        // folder in the account, so we ignore the error and move on
+                        // with the local deletion.
+                        log::warn!("found folder that was deleted from the EWS server but not the local db");
+                    }
+                    _ => return Err(err),
                 }
-                _ => Err(err),
-            },
+            }
         }
+        Ok(())
     }
 
     fn into_success_arg(self, _ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg {
@@ -82,8 +82,12 @@ impl<ServerT> XpComEwsClient<ServerT>
 where
     ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
 {
-    pub async fn delete_folder(self, listener: SafeEwsSimpleOperationListener, folder_id: String) {
-        let operation = DoDeleteFolder { folder_id };
+    pub async fn delete_folder(
+        self,
+        listener: SafeEwsSimpleOperationListener,
+        folder_ids: Vec<String>,
+    ) {
+        let operation = DoDeleteFolder { folder_ids };
         operation.handle_operation(&self, &listener).await;
     }
 }

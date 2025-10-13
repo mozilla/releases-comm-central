@@ -58,6 +58,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
                             nsIMsgWindow* msgWindow, bool deleteStorage,
                             bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
+  NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                         nsIMsgWindow* window,
                         nsIMsgCopyServiceListener* listener) override;
