@@ -53,7 +53,7 @@ impl StaleMsgDbHeader {
             self.set_author(author)?;
         }
 
-        if let Some(reply_to) = msg.reply_to_recipient() {
+        if let Some(reply_to) = msg.reply_to_recipients() {
             self.set_reply_to(reply_to)?;
         }
 
@@ -135,15 +135,20 @@ impl StaleMsgDbHeader {
 
     /// A safe wrapper for setting the `replyTo` property, via
     /// [`nsIMsgDBHdr::SetStringProperty`], converting types as needed.
-    fn set_reply_to(&self, reply_to: Mailbox) -> Result<(), nsresult> {
-        let reply_to = nsCString::from(reply_to.to_string());
+    fn set_reply_to<'a>(
+        &self,
+        reply_to: impl IntoIterator<Item = Mailbox<'a>>,
+    ) -> Result<(), nsresult> {
+        let reply_to = nsCString::from(
+            reply_to
+                .into_iter()
+                .map(|r| r.to_string())
+                .collect::<Vec<_>>()
+                .join(","),
+        );
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe {
-            self.0
-                .SetStringProperty(cstr::cstr!("replyTo").as_ptr(), &*reply_to)
-        }
-        .to_result()
+        unsafe { self.0.SetStringProperty(c"replyTo".as_ptr(), &*reply_to) }.to_result()
     }
 
     /// Convert types and forward to [`nsIMsgDBHdr::SetRecipients`].

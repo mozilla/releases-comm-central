@@ -761,7 +761,7 @@ pub struct Message {
     pub is_response_requested: Option<bool>,
 
     #[xml_struct(ns_prefix = "t")]
-    pub reply_to: Option<Recipient>,
+    pub reply_to: Option<ArrayOfRecipients>,
 
     #[xml_struct(ns_prefix = "t")]
     pub received_by: Option<Recipient>,
