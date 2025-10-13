@@ -4665,7 +4665,7 @@ var threadPaneHeader = {
     }
 
     this.folderName.textContent = gFolder?.abbreviatedName ?? document.title;
-    this.folderName.title = gFolder?.localizedName ?? document.title;
+    this.folderName.title = gFolder?.prettyPath ?? document.title;
     this.updateMessageCount(
       gFolder?.getTotalMessages(false) || gDBView?.numMsgsInView || 0
     );

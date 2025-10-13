@@ -326,7 +326,7 @@ class FolderTreeRow extends HTMLLIElement {
     }
     this._serverName = folder.server.prettyName;
     this._folderName = folder.abbreviatedName;
-    this._fullFolderName = folder.localizedName;
+    this._fullFolderName = folder.prettyPath;
     this._setName();
   }
 
