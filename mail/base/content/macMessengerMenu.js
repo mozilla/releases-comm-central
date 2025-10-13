@@ -29,49 +29,15 @@ addEventListener(
 );
 
 /**
- * When the Preferences window is actually loaded, this Listener is called.
- * Not doing this way could make DOM elements not available.
- */
-function loadListener() {
-  setTimeout(function () {
-    const prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
-    prefWin.gSubDialog.open(
-      "chrome://messenger/content/preferences/dockoptions.xhtml"
-    );
-  });
-}
-
-/**
- * When the Preferences window is opened/closed, this observer will be called.
- * This is done so subdialog opens as a child of it.
- */
-function PrefWindowObserver() {
-  this.observe = function (aSubject, aTopic) {
-    if (aTopic == "domwindowopened") {
-      aSubject.addEventListener("load", loadListener, {
-        capture: false,
-        once: true,
-      });
-    }
-    Services.ww.unregisterNotification(this);
-  };
-}
-
-/**
  * Show the Dock Options sub-dialog hanging from the Preferences window.
  * If Preference window was already opened, this will select General pane before
  * opening Dock Options sub-dialog.
  */
-function openDockOptions() {
-  const win = Services.wm.getMostRecentWindow("Mail:Preferences");
-
-  if (win) {
-    openOptionsDialog("paneGeneral");
-    win.gSubDialog("chrome://messenger/content/preferences/dockoptions.xhtml");
-  } else {
-    Services.ww.registerNotification(new PrefWindowObserver());
-    openOptionsDialog("paneGeneral");
-  }
+async function openDockOptions() {
+  const win = await openOptionsDialog("paneGeneral");
+  win.gSubDialog.open(
+    "chrome://messenger/content/preferences/dockoptions.xhtml"
+  );
 }
 
 /**

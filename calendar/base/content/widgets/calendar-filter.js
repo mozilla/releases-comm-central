@@ -1061,6 +1061,13 @@ let CalendarFilteredViewMixin = Base =>
 
       this.#filter = new calFilter();
       this.#filter.itemType = 0;
+
+      if ("addEventListener" in this) {
+        // If we're not in an XPCShell test environment, make sure we clean up.
+        addEventListener("unload", () =>
+          cal.manager.removeCalendarObserver(this.#calendarObserver)
+        );
+      }
     }
 
     /**

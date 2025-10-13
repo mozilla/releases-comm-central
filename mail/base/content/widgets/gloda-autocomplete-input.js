@@ -162,6 +162,12 @@ customElements.whenDefined("autocomplete-input").then(() => {
         this.textObserver,
         "autocomplete-did-enter-text"
       );
+      window.addEventListener("unload", () =>
+        Services.obs.removeObserver(
+          this.textObserver,
+          "autocomplete-did-enter-text"
+        )
+      );
 
       // make sure we set our emptytext here from the get-go
       if (this.hasAttribute("placeholder")) {
