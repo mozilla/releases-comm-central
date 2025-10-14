@@ -30,6 +30,9 @@
                               label="Exchange"
                               value="3"
                               hidden="hidden" />
+                <xul:menuitem id="incomingProtocolEWS"
+                              label="EWS"
+                              value="4" />
               </xul:menupopup>
             </xul:menulist>
           </div>
@@ -59,12 +62,6 @@
           </div>
         </div>
 
-        <div id="ewsProtocol" hidden="hidden">
-          <span data-l10n-id="account-hub-protocol-label"></span>
-          <div class="selected-option">
-            EWS
-          </div>
-        </div>
         <div id="incomingEwsUrlFormGroup" class="expanded" hidden="hidden">
           <label for="incomingEwsUrl"
                  data-l10n-id="account-hub-result-host-url-label"
@@ -73,7 +70,7 @@
           <div class="input-control">
             <input id="incomingEwsUrl"
                    type="url"
-                   placeholder="https://www.example.com"
+                   placeholder="https://www.example.com/"
                    required="required"
                    class="input-field manual-input"
                    aria-invalid="false" />

@@ -272,12 +272,6 @@ add_task(async function test_account_email_manual_form() {
   );
   Assert.ok(
     BrowserTestUtils.isHidden(
-      incomingConfigTemplate.querySelector("#ewsProtocol")
-    ),
-    "EWS protocol label should be hidden"
-  );
-  Assert.ok(
-    BrowserTestUtils.isHidden(
       incomingConfigTemplate.querySelector("#incomingEwsUrl")
     ),
     "EWS URL input should be hidden"
@@ -643,4 +637,100 @@ add_task(async function test_invalid_manual_config_flow() {
   );
   Assert.ok(footerForward.disabled, "Continue button should be disabled");
   await subtest_close_account_hub_dialog(dialog, outgoingConfigTemplate);
+});
+
+add_task(async function test_account_email_manual_to_ews() {
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === "Test User"
+  );
+  EventUtils.sendString("Test User");
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === "badtest@example.localhost"
+  );
+  EventUtils.sendString("badtest@example.localhost");
+  await inputEvent;
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for incoming config view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const incomingConfigSubview = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    incomingConfigSubview
+  );
+
+  info("Now that we're in the incoming config view, switch to EWS");
+
+  const protocolSelector =
+    incomingConfigSubview.querySelector("#incomingProtocol");
+
+  EventUtils.synthesizeMouseAtCenter(protocolSelector, {});
+  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
+
+  EventUtils.synthesizeMouseAtCenter(
+    protocolSelector.querySelector("#incomingProtocolEWS"),
+    {}
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    protocolSelector.menupopup,
+    "hidden"
+  );
+
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    incomingConfigSubview.querySelector("#incomingEwsUrlFormGroup")
+  );
+
+  const ewsURLInput = incomingConfigSubview.querySelector("#incomingEwsUrl");
+  const focusEvent = BrowserTestUtils.waitForEvent(ewsURLInput, "focus");
+  EventUtils.synthesizeMouseAtCenter(ewsURLInput, {});
+  await focusEvent;
+
+  const configUpdatedEvent = BrowserTestUtils.waitForEvent(
+    incomingConfigSubview,
+    "config-updated",
+    false,
+    () => ewsURLInput.value == "https://example.com/"
+  );
+  EventUtils.sendString("https://example.com/");
+  const { detail: configState } = await configUpdatedEvent;
+
+  Assert.ok(configState.completed, "Should have a complete EWS config");
+  Assert.ok(!footerForward.disabled, "Forward button should be enabled");
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const passwordSubview = dialog.querySelector("email-password-form");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordSubview);
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordSubview),
+    "Should go to password subview next"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, passwordSubview);
 });

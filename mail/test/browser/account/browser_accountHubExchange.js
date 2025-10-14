@@ -377,15 +377,22 @@ add_task(async function test_exchange_manual_configuration() {
   );
 
   EventUtils.synthesizeMouseAtCenter(editConfigurationButton, {});
-  const ewsConfigStep = dialog.querySelector("#emailEwsConfigSubview");
+  const ewsConfigStep = dialog.querySelector("#emailIncomingConfigSubview");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
 
   // The protocol option select, connection securty, and port should be hidden,
   // and we should be showing the EWS label, with only OAuth and
   // Normal Password as authentication options, and the EWS url input.
   Assert.ok(
-    BrowserTestUtils.isHidden(ewsConfigStep.querySelector("#incomingProtocol")),
-    "Default protocol dropdown should be hidden"
+    BrowserTestUtils.isVisible(
+      ewsConfigStep.querySelector("#incomingProtocol")
+    ),
+    "Default protocol dropdown should be visible"
+  );
+  Assert.equal(
+    ewsConfigStep.querySelector("#incomingProtocol").value,
+    4,
+    "EWS should be the selected protocol"
   );
   Assert.ok(
     BrowserTestUtils.isHidden(
@@ -396,10 +403,6 @@ add_task(async function test_exchange_manual_configuration() {
   Assert.ok(
     BrowserTestUtils.isHidden(ewsConfigStep.querySelector("#incomingPort")),
     "Incoming port input should be hidden"
-  );
-  Assert.ok(
-    BrowserTestUtils.isVisible(ewsConfigStep.querySelector("#ewsProtocol")),
-    "EWS protocol label should be visible"
   );
   Assert.ok(
     BrowserTestUtils.isVisible(ewsConfigStep.querySelector("#incomingEwsUrl")),
@@ -477,7 +480,7 @@ add_task(async function test_exchange_advanced_configuration() {
   );
 
   EventUtils.synthesizeMouseAtCenter(editConfigurationButton, {});
-  const ewsConfigStep = dialog.querySelector("#emailEwsConfigSubview");
+  const ewsConfigStep = dialog.querySelector("#emailIncomingConfigSubview");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
 
   // Clicking advanced config and confirming the dialog should create the ews

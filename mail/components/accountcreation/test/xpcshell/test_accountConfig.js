@@ -55,3 +55,41 @@ add_task(function test_hasPassword() {
     "Should report a password with only the outgoing password set"
   );
 });
+
+add_task(function test_isIncomingEditedComplete() {
+  const config = new AccountConfig();
+
+  config.incoming.type = "ews";
+  config.incoming.ewsURL = "https://example.com";
+  config.incoming.username = "test";
+  config.incoming.auth = 3;
+
+  Assert.ok(
+    config.isIncomingEditedComplete(),
+    "Should have a complete incoming config for EWS"
+  );
+
+  config.incoming.type = "imap";
+
+  Assert.ok(
+    !config.isIncomingEditedComplete(),
+    "Should have an incomplete config with EWS value for an IMAP config"
+  );
+
+  config.incoming.auth = 0;
+  config.incoming.ewsURL = null;
+  config.incoming.hostname = "example.com";
+  config.incoming.port = 443;
+
+  Assert.ok(
+    config.isIncomingEditedComplete(),
+    "Should have a complete incoming config for IMAP"
+  );
+
+  config.incoming.type = "ews";
+
+  Assert.ok(
+    !config.isIncomingEditedComplete(),
+    "Should be an incomplete incoming config with IMAP value but EWS type"
+  );
+});

@@ -58,13 +58,6 @@ class AccountHubEmail extends HTMLElement {
   #emailAutoConfigSubview;
 
   /**
-   * Email EWS manual config subview.
-   *
-   * @type {HTMLElement}
-   */
-  #emailEwsConfigSubview;
-
-  /**
    * Email incoming config subview.
    *
    * @type {HTMLElement}
@@ -230,16 +223,6 @@ class AccountHubEmail extends HTMLElement {
       subview: {},
       templateId: "email-sync-accounts-form",
     },
-    ewsConfigSubview: {
-      id: "emailEwsConfigSubview",
-      nextStep: "emailPasswordSubview",
-      previousStep: "emailConfigFoundSubview",
-      forwardEnabled: true,
-      // TODO: Being able to test an ews config.
-      customActionFluentID: "",
-      subview: {},
-      templateId: "email-manual-incoming-form",
-    },
     incomingConfigSubview: {
       id: "emailIncomingConfigSubview",
       nextStep: "outgoingConfigSubview",
@@ -323,9 +306,6 @@ class AccountHubEmail extends HTMLElement {
     this.#states.emailCredentialsConfirmationSubview.subview =
       this.#emailCredentialsConfirmationSubview;
 
-    this.#emailEwsConfigSubview = this.querySelector("#emailEwsConfigSubview");
-    this.#states.ewsConfigSubview.subview = this.#emailEwsConfigSubview;
-
     this.#emailFooter = this.querySelector("account-hub-footer");
     this.#emailFooter.addEventListener("back", this);
     this.#emailFooter.addEventListener("forward", this);
@@ -340,7 +320,6 @@ class AccountHubEmail extends HTMLElement {
     this.#emailConfigFoundSubview.addEventListener("install-addon", this);
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
-    this.#emailEwsConfigSubview.addEventListener("advanced-config", this);
     this.#states.emailAutodiscoverAuthenticationSubview.subview.addEventListener(
       "config-updated",
       this
@@ -451,7 +430,6 @@ class AccountHubEmail extends HTMLElement {
     this.#emailIncomingConfigSubview.hidden = true;
     this.#emailOutgoingConfigSubview.hidden = true;
     this.#emailCredentialsConfirmationSubview.hidden = true;
-    this.#emailEwsConfigSubview.hidden = true;
     this.#states.emailAutodiscoverAuthenticationSubview.subview.hidden = true;
   }
 
@@ -597,14 +575,7 @@ class AccountHubEmail extends HTMLElement {
             ? "emailConfigFoundSubview"
             : "autoConfigSubview";
 
-        // The edit configuration button was pressed, it we're editing an
-        // ews config, we should show the edit ews config step. Otherwise
-        // show the edit incoming config step.
-        if (this.#currentConfig.incoming.type === "ews") {
-          await this.#initUI("ewsConfigSubview");
-        } else {
-          await this.#initUI("incomingConfigSubview");
-        }
+        await this.#initUI("incomingConfigSubview");
 
         this.#states[this.#currentState].previousStep = prevStep;
         // Apply the current state data to the new state.
@@ -805,6 +776,10 @@ class AccountHubEmail extends HTMLElement {
         this.#setCurrentConfigForSubview();
         break;
       case "incomingConfigSubview":
+        if (stateData.config.incoming.type == "ews") {
+          await this.#validateAccountConfig(stateData.config);
+          break;
+        }
         await this.#initUI(this.#states[this.#currentState].nextStep);
         this.#currentConfig.incoming = stateData.config.incoming;
         this.#setCurrentConfigForSubview();
@@ -817,90 +792,7 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "emailConfigFoundSubview":
       case "outgoingConfigSubview":
-      case "ewsConfigSubview":
-        if (currentState === "ewsConfigSubview") {
-          // The EWS config screen doesn't care about the config being edited,
-          // so we should update the stateData to just be the config from the
-          // ConfigFormState.
-          stateData = stateData.config;
-        }
-        this.#currentConfig = this.#fillAccountConfig(stateData);
-
-        if (this.#currentConfig.isOauthOnly()) {
-          //TODO share this with the code path for pw entry...
-          this.#startLoading("account-hub-oauth-pending");
-          gAccountSetupLogger.debug("Create button clicked.");
-          try {
-            // We don't want the user to be able to cancel account creation here,
-            // as the back button is available in this step. The next state doesn't
-            // have a back button, so we don't need to reset it after.
-            this.#emailFooter.canBack(false);
-            await this.#validateAndFinish(this.#currentConfig);
-          } catch (error) {
-            // Show the back button again if account creation failed.
-            this.#emailFooter.canBack(true);
-            throw error;
-          } finally {
-            this.#stopLoading();
-            this.#configVerifier?.cleanup();
-          }
-
-          await this.#initUI("emailSyncAccountsSubview");
-
-          try {
-            this.#startLoading("account-hub-fetching-sync-accounts");
-            this.abortable = new AbortController();
-            const syncAccounts = {};
-            //TODO fetch address books and calendars in parallel?
-            syncAccounts.addressBooks = await this.#getAddressBooks("");
-
-            // If the user hit cancel while loading, we won't fetch
-            // the calendars.
-            this.abortable.signal.throwIfAborted();
-
-            // If the user cancels while loading and calendars have been
-            // fetched, we won't show them and show the error instead.
-            syncAccounts.calendars = await this.#getCalendars("", false);
-            this.abortable?.signal?.throwIfAborted();
-            this.abortable = null;
-
-            this.#currentSubview.setState(syncAccounts);
-            this.#stopLoading();
-
-            const accountsFound =
-              syncAccounts.addressBooks.length || syncAccounts.calendars.length;
-            this.#currentSubview.showNotification({
-              fluentTitleId: accountsFound
-                ? "account-hub-sync-accounts-found"
-                : "account-hub-sync-accounts-not-found",
-              type: accountsFound ? "success" : "info",
-            });
-          } catch (error) {
-            this.abortable = null;
-            this.#stopLoading();
-            this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-sync-accounts-not-found",
-              type: "error",
-              error,
-            });
-          }
-
-          break;
-        }
-        //TODO Bug 1973959: Consider trying to go directly to validating the
-        // account credentials if we already have a password from autoconfig.
-
-        // Move to the password stage where validateAndFinish is run.
-        await this.#initUI(this.#states[this.#currentState].nextStep);
-        // The password stage should now have the outgoing subview as the
-        // previous step.
-        this.#states[this.#currentState].previousStep = currentState;
-        this.#currentSubview.setState();
-
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-password-info",
-          type: "info",
-        });
+        await this.#validateAccountConfig(stateData);
         break;
       case "emailPasswordSubview":
         this.#startLoading("account-hub-creating-account");
@@ -1256,6 +1148,92 @@ class AccountHubEmail extends HTMLElement {
       await lazy.CreateInBackend.createAccountInBackend(accountConfig);
 
     await this.#moveToAccountManager(newAccount.incomingServer);
+  }
+
+  /**
+   * Finalize the account config, validate it and start authentication.
+   *
+   * @param {AccountConfig} accountConfig
+   */
+  async #validateAccountConfig(accountConfig) {
+    this.#currentConfig = this.#fillAccountConfig(accountConfig);
+
+    if (this.#currentConfig.isOauthOnly()) {
+      //TODO share this with the code path for pw entry...
+      this.#startLoading("account-hub-oauth-pending");
+      gAccountSetupLogger.debug("Create button clicked.");
+      try {
+        // We don't want the user to be able to cancel account creation here,
+        // as the back button is available in this step. The next state doesn't
+        // have a back button, so we don't need to reset it after.
+        this.#emailFooter.canBack(false);
+        await this.#validateAndFinish(this.#currentConfig);
+      } catch (error) {
+        // Show the back button again if account creation failed.
+        this.#emailFooter.canBack(true);
+        throw error;
+      } finally {
+        this.#stopLoading();
+        this.#configVerifier?.cleanup();
+      }
+
+      await this.#initUI("emailSyncAccountsSubview");
+
+      try {
+        this.#startLoading("account-hub-fetching-sync-accounts");
+        this.abortable = new AbortController();
+        const syncAccounts = {};
+        //TODO fetch address books and calendars in parallel?
+        syncAccounts.addressBooks = await this.#getAddressBooks("");
+
+        // If the user hit cancel while loading, we won't fetch
+        // the calendars.
+        this.abortable.signal.throwIfAborted();
+
+        // If the user cancels while loading and calendars have been
+        // fetched, we won't show them and show the error instead.
+        syncAccounts.calendars = await this.#getCalendars("", false);
+        this.abortable?.signal?.throwIfAborted();
+        this.abortable = null;
+
+        this.#currentSubview.setState(syncAccounts);
+        this.#stopLoading();
+
+        const accountsFound =
+          syncAccounts.addressBooks.length || syncAccounts.calendars.length;
+        this.#currentSubview.showNotification({
+          fluentTitleId: accountsFound
+            ? "account-hub-sync-accounts-found"
+            : "account-hub-sync-accounts-not-found",
+          type: accountsFound ? "success" : "info",
+        });
+      } catch (error) {
+        this.abortable = null;
+        this.#stopLoading();
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-sync-accounts-not-found",
+          type: "error",
+          error,
+        });
+      }
+
+      return;
+    }
+    //TODO Bug 1973959: Consider trying to go directly to validating the
+    // account credentials if we already have a password from autoconfig.
+
+    const currentState = this.#currentState;
+    // Move to the password stage where validateAndFinish is run.
+    await this.#initUI("emailPasswordSubview");
+    // The password stage should now have the outgoing subview as the
+    // previous step.
+    this.#states[this.#currentState].previousStep = currentState;
+    this.#currentSubview.setState();
+
+    this.#currentSubview.showNotification({
+      fluentTitleId: "account-hub-password-info",
+      type: "info",
+    });
   }
 
   /**

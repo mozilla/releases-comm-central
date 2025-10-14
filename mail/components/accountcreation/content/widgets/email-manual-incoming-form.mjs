@@ -150,12 +150,19 @@ class EmailIncomingForm extends AccountHubStep {
     });
 
     this.#incomingProtocol.addEventListener("command", () => {
+      this.#updateConfigInputsVisibility(this.#incomingProtocol.value == 4);
       this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
     });
 
     this.#incomingEwsUrl.addEventListener("input", () => {
+      // Skip validation while there isn't a URL with a full host in the field
+      // to avoid inserting a slash into the host through the validation.
+      if (/^[^/]+\/\/[^/]+$/.test(this.#incomingEwsUrl.value)) {
+        return;
+      }
       this.#configChanged();
+      this.#adjustOAuth2Visibility();
     });
 
     this.querySelector("#advancedConfigurationIncoming").addEventListener(
@@ -269,11 +276,14 @@ class EmailIncomingForm extends AccountHubStep {
     // Get current config.
     const config = accountConfig || this.getIncomingUserConfig();
 
+    const host =
+      config.incoming.type === "ews"
+        ? URL.parse(config.incoming.ewsURL)?.hostname
+        : config.incoming.hostname;
+
     // If the incoming server hostname supports OAuth2, enable it.
-    const incomingDetails = OAuth2Providers.getHostnameDetails(
-      config.incoming.hostname,
-      config.incoming.type
-    );
+    const incomingDetails =
+      host && OAuth2Providers.getHostnameDetails(host, config.incoming.type);
 
     this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;
     if (incomingDetails) {
@@ -399,6 +409,15 @@ class EmailIncomingForm extends AccountHubStep {
     let config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
+    // Update the type based on the current selection.
+    config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
+      1: "imap",
+      2: "pop3",
+      3: "exchange",
+      4: "ews",
+      0: null,
+    });
+
     // An EWS configuration won't have any of the default fields available to
     // edit.
     if (config.incoming.type != "ews") {
@@ -435,29 +454,31 @@ class EmailIncomingForm extends AccountHubStep {
     assert(config instanceof AccountConfig);
     this.#updateConfigInputsVisibility(config.incoming.type === "ews");
 
-    // An EWS configuration won't have any of these fields available to edit.
-    if (config.incoming.type != "ews") {
-      this.#incomingProtocol.value = Sanitizer.translate(
-        config.incoming.type,
-        { imap: 1, pop3: 2, exchange: 3, ews: 4 },
-        1
-      );
-      this.#incomingHostname.value = config.incoming.hostname;
-      this.#incomingConnectionSecurity.value = Sanitizer.enum(
-        config.incoming.socketType,
-        [-1, 0, 1, 2, 3],
-        0
-      );
+    this.#incomingProtocol.value = Sanitizer.translate(
+      config.incoming.type,
+      { imap: 1, pop3: 2, exchange: 3, ews: 4 },
+      1
+    );
+    this.#incomingHostname.value = config.incoming.hostname;
+    this.#incomingConnectionSecurity.value = Sanitizer.enum(
+      config.incoming.socketType,
+      [-1, 0, 1, 2, 3],
+      0
+    );
 
-      // If a port number was specified other than "Auto"
-      if (config.incoming.port) {
-        this.#incomingPort.value = config.incoming.port;
-      } else {
-        this.#adjustPortToSSLAndProtocol(config);
-      }
+    // If a port number was specified other than "Auto"
+    if (config.incoming.port) {
+      this.#incomingPort.value = config.incoming.port;
     } else {
-      this.#incomingEwsUrl.value = config.incoming.ewsURL;
+      this.#adjustPortToSSLAndProtocol(config);
     }
+
+    this.#incomingEwsUrl.value =
+      config.incoming.ewsURL ||
+      (config.incoming.hostname &&
+        config.incoming.hostname[0] != "." &&
+        `https://${config.incoming.hostname}`) ||
+      "";
 
     this.#incomingAuthenticationMethod.value = Sanitizer.enum(
       config.incoming.auth,
@@ -514,12 +535,6 @@ class EmailIncomingForm extends AccountHubStep {
       );
     }
 
-    config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {
-      1: "imap",
-      2: "pop3",
-      3: "exchange",
-      0: null,
-    });
     config.incoming.socketType = Sanitizer.integer(
       this.#incomingConnectionSecurity.value
     );
@@ -563,27 +578,46 @@ class EmailIncomingForm extends AccountHubStep {
    */
   #updateConfigInputsVisibility(isExchange) {
     const configOptions = {
-      "#ewsProtocol": !isExchange,
-      "#incomingProtocolFormGroup": isExchange,
       "#incomingHostnameFormGroup": isExchange,
       "#incomingEwsUrlFormGroup": !isExchange,
       "#nonEwsFormRow": isExchange,
-      "#incomingProtocolIMAP": isExchange,
-      "#incomingProtocolPOP3": isExchange,
       "#incomingAuthMethodAutodetect": isExchange,
       "#incomingAuthMethodEncrypted": isExchange,
       "#incomingAuthMethodKerbos": isExchange,
       "#incomingAuthMethodNtlm": isExchange,
     };
 
-    for (const optionID in configOptions) {
-      this.querySelector(optionID).toggleAttribute(
-        "hidden",
-        configOptions[optionID]
-      );
+    for (const [optionID, hide] of Object.entries(configOptions)) {
+      const element = this.querySelector(optionID);
+      element.hidden = hide;
+
+      for (const input of element.querySelectorAll("input")) {
+        if (input.required || input.dataset.wasRequired) {
+          input.required = !hide;
+          input.dataset.wasRequired = true;
+        }
+        if (input.validity.customError) {
+          input.setCustomValidity("");
+        }
+        if (input.ariaInvalid) {
+          input.ariaInvalid = "false";
+        }
+      }
     }
 
-    this.#incomingEwsUrl.toggleAttribute("required", isExchange);
+    // If we're switching to EWS, make sure a valid authentication method
+    // is selected.
+    if (
+      isExchange &&
+      !["3", "10"].includes(this.#incomingAuthenticationMethod.value)
+    ) {
+      this.#incomingAuthenticationMethod.value = "3";
+    }
+
+    // Only check form validity if the user has already interacted with the form.
+    if (this.#edited) {
+      this.#checkFormValidity();
+    }
   }
 }
 

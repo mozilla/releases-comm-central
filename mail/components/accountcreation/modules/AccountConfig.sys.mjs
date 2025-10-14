@@ -254,9 +254,14 @@ AccountConfig.prototype = {
 
   isIncomingEditedComplete() {
     return (
-      !!this.incoming.hostname &&
-      !!this.incoming.port &&
-      !!this.incoming.username
+      (this.incoming.type == "ews" &&
+        this.incoming.ewsURL &&
+        this.incoming.username &&
+        this.incoming.auth) ||
+      (this.incoming.type != "ews" &&
+        !!this.incoming.hostname &&
+        !!this.incoming.port &&
+        !!this.incoming.username)
     );
   },
 
