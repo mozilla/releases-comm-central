@@ -216,7 +216,7 @@ macosx64-shippable/opt:
             - artifact: target.test_packages.json
               extract: false
               dest: ../artifacts
-            - artifact: target.perftests.tests.tar.gz
+            - artifact: target.perftests.tests.tar.zst
               extract: false
               dest: ../artifacts
             - artifact: target.update_framework_artifacts.zip
@@ -225,33 +225,33 @@ macosx64-shippable/opt:
             - artifact: target.xpt_artifacts.zip
               extract: false
               dest: ../artifacts
-            - artifact: target.common.tests.tar.gz
+            - artifact: target.common.tests.tar.zst
               dest: x64/common
-            - artifact: target.cppunittest.tests.tar.gz
+            - artifact: target.cppunittest.tests.tar.zst
               dest: x64/cppunittest
-            - artifact: target.gtest.tests.tar.gz
+            - artifact: target.gtest.tests.tar.zst
               dest: x64/gtest
-            - artifact: target.jittest.tests.tar.gz
+            - artifact: target.jittest.tests.tar.zst
               dest: x64/jittest
-            - artifact: target.jsreftest.tests.tar.gz
+            - artifact: target.jsreftest.tests.tar.zst
               dest: x64/jsreftest
-            - artifact: target.mochitest.tests.tar.gz
+            - artifact: target.mochitest.tests.tar.zst
               dest: x64/mochitest
-            - artifact: target.reftest.tests.tar.gz
+            - artifact: target.reftest.tests.tar.zst
               dest: x64/reftest
-            - artifact: target.talos.tests.tar.gz
+            - artifact: target.talos.tests.tar.zst
               dest: x64/talos
-            - artifact: target.raptor.tests.tar.gz
+            - artifact: target.raptor.tests.tar.zst
               dest: x64/raptor
-            - artifact: target.condprof.tests.tar.gz
+            - artifact: target.condprof.tests.tar.zst
               dest: x64/confprof
-            - artifact: target.awsy.tests.tar.gz
+            - artifact: target.awsy.tests.tar.zst
               dest: x64/awsy
-            - artifact: target.xpcshell.tests.tar.gz
+            - artifact: target.xpcshell.tests.tar.zst
               dest: x64/xpcshell
-            - artifact: target.web-platform.tests.tar.gz
+            - artifact: target.web-platform.tests.tar.zst
               dest: x64/web-platform
-            - artifact: target.updater-dep.tests.tar.gz
+            - artifact: target.updater-dep.tests.tar.zst
               dest: x64/updater-dep
             - artifact: target.crashreporter-symbols.zip
               dest: x64/crashreporter-symbols
@@ -266,40 +266,40 @@ macosx64-shippable/opt:
             - artifact: mozharness.zip
               extract: false
               dest: ../artifacts
-            - artifact: target.trainhop.tests.tar.gz
+            - artifact: target.trainhop.tests.tar.zst
               extract: false
               dest: ../artifacts
         macosx64-aarch64-shippable-opt:
             - artifact: target.dmg
               extract: false
               dest: aarch64
-            - artifact: target.common.tests.tar.gz
+            - artifact: target.common.tests.tar.zst
               dest: aarch64/common
-            - artifact: target.cppunittest.tests.tar.gz
+            - artifact: target.cppunittest.tests.tar.zst
               dest: aarch64/cppunittest
-            - artifact: target.gtest.tests.tar.gz
+            - artifact: target.gtest.tests.tar.zst
               dest: aarch64/gtest
-            - artifact: target.jittest.tests.tar.gz
+            - artifact: target.jittest.tests.tar.zst
               dest: aarch64/jittest
-            - artifact: target.jsreftest.tests.tar.gz
+            - artifact: target.jsreftest.tests.tar.zst
               dest: aarch64/jsreftest
-            - artifact: target.mochitest.tests.tar.gz
+            - artifact: target.mochitest.tests.tar.zst
               dest: aarch64/mochitest
-            - artifact: target.reftest.tests.tar.gz
+            - artifact: target.reftest.tests.tar.zst
               dest: aarch64/reftest
-            - artifact: target.talos.tests.tar.gz
+            - artifact: target.talos.tests.tar.zst
               dest: aarch64/talos
-            - artifact: target.raptor.tests.tar.gz
+            - artifact: target.raptor.tests.tar.zst
               dest: aarch64/raptor
-            - artifact: target.condprof.tests.tar.gz
+            - artifact: target.condprof.tests.tar.zst
               dest: aarch64/confprof
-            - artifact: target.awsy.tests.tar.gz
+            - artifact: target.awsy.tests.tar.zst
               dest: aarch64/awsy
-            - artifact: target.xpcshell.tests.tar.gz
+            - artifact: target.xpcshell.tests.tar.zst
               dest: aarch64/xpcshell
-            - artifact: target.web-platform.tests.tar.gz
+            - artifact: target.web-platform.tests.tar.zst
               dest: aarch64/web-platform
-            - artifact: target.updater-dep.tests.tar.gz
+            - artifact: target.updater-dep.tests.tar.zst
               dest: aarch64/updater-dep
             - artifact: target.crashreporter-symbols.zip
               dest: aarch64/crashreporter-symbols
