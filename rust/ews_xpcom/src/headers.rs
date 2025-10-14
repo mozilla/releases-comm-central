@@ -28,7 +28,7 @@ pub(crate) trait MessageHeaders {
     fn author<'a>(&'a self) -> Option<Mailbox<'a>>;
 
     /// The `Reply-To` header for this message.
-    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>>;
+    fn reply_to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>>;
 
     /// The `To` header for this message.
     fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>>;
@@ -106,10 +106,15 @@ impl MessageHeaders for &ews::Message {
             .map(|recipient| Mailbox::from(&recipient.mailbox))
     }
 
-    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>> {
+    fn reply_to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
         self.reply_to
             .as_ref()
-            .map(|recipient| Mailbox::from(&recipient.mailbox))
+            .map(|recipients| &recipients.0)
+            .map(|recipients| {
+                recipients
+                    .iter()
+                    .map(|recipient| Mailbox::from(&recipient.mailbox))
+            })
     }
 
     fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
@@ -191,10 +196,13 @@ impl MessageHeaders for mail_parser::Message<'_> {
             .and_then(|addr| addr.try_into().ok())
     }
 
-    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>> {
-        self.reply_to()
-            .and_then(mail_parser::Address::first)
-            .and_then(|addr| addr.try_into().ok())
+    fn reply_to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
+        self.reply_to().map(|addr| addr.iter()).and_then(|addrs| {
+            addrs
+                .into_iter()
+                .map(|addr| addr.try_into().ok())
+                .collect::<Option<Vec<Mailbox<'a>>>>()
+        })
     }
 
     fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
