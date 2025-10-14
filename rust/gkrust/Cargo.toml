@@ -92,6 +92,7 @@ prefs_parser = { path = "../../../modules/libpref/parser" }
 processtools = { path = "../../../toolkit/components/processtools" }
 profiler_helper = { path = "../../../tools/profiler/rust-helper", optional = true }
 qcms = { path = "../../../gfx/qcms", features = ['c_bindings', 'neon'] }
+qwac-trust-anchors = { path = "../../../security/manager/ssl/qwac_trust_anchors" }
 rsdparsa_capi = { path = "../../../dom/media/webrtc/sdp/rsdparsa_capi" }
 rure = { version = "0.2.2" }
 rusqlite = { workspace = true, features = ['modern_sqlite'] }

@@ -2423,6 +2423,7 @@ dependencies = [
  "processtools",
  "profiler_helper",
  "qcms",
+ "qwac-trust-anchors",
  "rsdparsa_capi",
  "rure",
  "rusqlite 0.37.0",
@@ -2535,6 +2536,7 @@ dependencies = [
  "prefs_parser",
  "processtools",
  "qcms",
+ "qwac-trust-anchors",
  "rsdparsa_capi",
  "rure",
  "rusqlite 0.37.0",
@@ -3171,6 +3173,7 @@ dependencies = [
  "log",
  "pkcs11-bindings",
  "rsclientcerts",
+ "rsclientcerts-util",
 ]
 
 [[package]]
@@ -4612,6 +4615,7 @@ dependencies = [
  "nserror",
  "pkcs11-bindings",
  "rsclientcerts",
+ "rsclientcerts-util",
  "winapi",
  "xpcom",
 ]
@@ -5030,6 +5034,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "qwac-trust-anchors"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "rsclientcerts-util",
+ "static_prefs",
+ "thin-vec",
+]
+
+[[package]]
 name = "r-efi"
 version = "5.999.999"
 
@@ -5319,10 +5333,17 @@ dependencies = [
  "byteorder",
  "digest",
  "env_logger",
- "gecko-profiler",
  "pkcs11-bindings",
  "rand",
+ "rsclientcerts-util",
  "sha2",
+]
+
+[[package]]
+name = "rsclientcerts-util"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]
