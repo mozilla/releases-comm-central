@@ -263,7 +263,6 @@ mail-tagfield[collapsed] {
 
 #expandedsubjectBox {
   font-weight: 700;
-  flex: 1;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
   padding-inline: var(--message-header-field-offset);
   /* IMPORTANT! Keep these to avoid issues with very long subjects. Bug 77806 */
