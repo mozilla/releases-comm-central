@@ -26,11 +26,6 @@ git = "https://github.com/beurdouche/nss-gk-api"
 rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/eleanxr/ews-rs.git?rev=d007531c850cd8b0d3eb07ba308a212364e00525"]
-git = "https://github.com/eleanxr/ews-rs.git"
-rev = "d007531c850cd8b0d3eb07ba308a212364e00525"
-replace-with = "vendored-sources"
-
 [source."git+https://github.com/erichdongubler-contrib/hashlink?rev=76dc47a12af5829c1e8bf4834e38b410dec2aeff"]
 git = "https://github.com/erichdongubler-contrib/hashlink"
 rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff"
@@ -129,6 +124,11 @@ replace-with = "vendored-sources"
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]
 git = "https://github.com/servo/unicode-bidi"
 rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/thunderbird/ews-rs.git?rev=27bc2dd33f2eaf7c1b123f0d043e7bd46700bfae"]
+git = "https://github.com/thunderbird/ews-rs.git"
+rev = "27bc2dd33f2eaf7c1b123f0d043e7bd46700bfae"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=87723b90425d474fd29095d8b710baefd7c9b13a"]
