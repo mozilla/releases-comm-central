@@ -1424,68 +1424,66 @@ NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,
 NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
-  if (NS_SUCCEEDED(rv)) {
-    if (WeAreOffline()) {
-      nsCOMPtr<nsIMsgDatabase> trashDB;
-      rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDB));
-      if (trashDB) {
-        nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
-            do_QueryInterface(trashDB, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        // Offline operations are usually indexed by a msgKey. There's no
-        // message here, so we pretend and generate a fake msgKey to hang the
-        // offline op from. Ugh.
-        nsMsgKey fakeKey;
-        opsDb->GetNextFakeOfflineMsgKey(&fakeKey);
-
-        nsCOMPtr<nsIMsgOfflineImapOperation> op;
-        rv = opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
-        trashFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
-        op->SetOperation(nsIMsgOfflineImapOperation::kDeleteAllMsgs);
-      }
-      return rv;
-    }
-
-    nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-    if (aListener)
-      rv = imapService->DeleteAllMessages(trashFolder, aListener);
-    else {
-      nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(trashFolder);
-      rv = imapService->DeleteAllMessages(trashFolder, urlListener);
-    }
-    // Return an error if this failed. We want the empty trash on exit code
-    // to know if this fails so that it doesn't block waiting for empty trash to
-    // finish.
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Delete any subfolders under Trash.
-    nsTArray<RefPtr<nsIMsgFolder>> subFolders;
-    rv = trashFolder->GetSubFolders(subFolders);
-    NS_ENSURE_SUCCESS(rv, rv);
-    while (!subFolders.IsEmpty()) {
-      RefPtr<nsIMsgFolder> f = subFolders.PopLastElement();
-      rv = trashFolder->PropagateDelete(f, true);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (WeAreOffline()) {
+    nsCOMPtr<nsIMsgDatabase> trashDB;
+    rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDB));
+    if (trashDB) {
+      nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
+          do_QueryInterface(trashDB, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
+
+      // Offline operations are usually indexed by a msgKey. There's no
+      // message here, so we pretend and generate a fake msgKey to hang the
+      // offline op from. Ugh.
+      nsMsgKey fakeKey;
+      opsDb->GetNextFakeOfflineMsgKey(&fakeKey);
+
+      nsCOMPtr<nsIMsgOfflineImapOperation> op;
+      rv = opsDb->GetOfflineOpForKey(fakeKey, true, getter_AddRefs(op));
+      trashFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
+      op->SetOperation(nsIMsgOfflineImapOperation::kDeleteAllMsgs);
     }
-
-    nsCOMPtr<nsIPropertyBag2> transferInfo;
-    rv = trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
-    NS_ENSURE_SUCCESS(rv, rv);
-    // Bulk-delete all the messages by deleting the msf file and storage.
-    // This is a little kludgy.
-    rv = trashFolder->DeleteStorage();
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (transferInfo) trashFolder->SetDBTransferInfo(transferInfo);
-    trashFolder->SetSizeOnDisk(0);
-
-    // The trash folder has effectively been deleted.
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-        mozilla::components::FolderNotification::Service();
-    notifier->NotifyFolderDeleted(trashFolder);
-
-    return NS_OK;
+    return rv;
   }
+
+  nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
+  if (aListener)
+    rv = imapService->DeleteAllMessages(trashFolder, aListener);
+  else {
+    nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(trashFolder);
+    rv = imapService->DeleteAllMessages(trashFolder, urlListener);
+  }
+  // Return an error if this failed. We want the empty trash on exit code
+  // to know if this fails so that it doesn't block waiting for empty trash to
+  // finish.
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Delete any subfolders under Trash.
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = trashFolder->GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
+  while (!subFolders.IsEmpty()) {
+    RefPtr<nsIMsgFolder> f = subFolders.PopLastElement();
+    rv = trashFolder->PropagateDelete(f, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  nsCOMPtr<nsIPropertyBag2> transferInfo;
+  rv = trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
+  NS_ENSURE_SUCCESS(rv, rv);
+  // Bulk-delete all the messages by deleting the msf file and storage.
+  // This is a little kludgy.
+  rv = trashFolder->DeleteStorage();
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (transferInfo) trashFolder->SetDBTransferInfo(transferInfo);
+  trashFolder->SetSizeOnDisk(0);
+
+  // The trash folder has effectively been deleted.
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  rv = notifier->NotifyFolderDeleted(trashFolder);
+
   return rv;
 }
 
