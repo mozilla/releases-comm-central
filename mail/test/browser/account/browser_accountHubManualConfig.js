@@ -734,3 +734,68 @@ add_task(async function test_account_email_manual_to_ews() {
 
   await subtest_close_account_hub_dialog(dialog, passwordSubview);
 });
+
+add_task(async function test_direct_to_manual_config() {
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+  const manualConfigButton = emailTemplate.querySelector(
+    "#manualConfiguration"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(manualConfigButton),
+    "Manual config button should be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === "Test User"
+  );
+  EventUtils.sendString("Test User", window);
+  await inputEvent;
+
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === "badtest@example.localhost"
+  );
+  EventUtils.sendString("badtest@example.localhost", window);
+  await inputEvent;
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigButton),
+    "Manual config button should be visible"
+  );
+
+  // Clicking the manual config button should lead to the incoming config form
+  // with some prefilled data.
+  EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    incomingConfigTemplate
+  );
+  Assert.equal(
+    incomingConfigTemplate.querySelector("#incomingHostname").value,
+    ".example.localhost"
+  );
+  Assert.equal(
+    incomingConfigTemplate.querySelector("#incomingUsername").value,
+    "badtest@example.localhost"
+  );
+  await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
+});
