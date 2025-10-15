@@ -7,7 +7,6 @@
 
 var gIncomingServer;
 var gServerType;
-var gImapIncomingServer;
 var gPref = null;
 var gLockedPref = {};
 var gOfflineMap = null; // map of folder URLs to offline flags
@@ -51,13 +50,8 @@ function initServerSettings() {
     document.getElementById("offline.notDownloadMin").value = "50";
   }
 
-  if (gServerType == "imap") {
-    gImapIncomingServer = gIncomingServer.QueryInterface(
-      Ci.nsIImapIncomingServer
-    );
-    document.getElementById("offline.folders").checked =
-      gImapIncomingServer.offlineDownload;
-  }
+  document.getElementById("offline.folders").checked =
+    gIncomingServer.offlineDownload;
 }
 
 function initRetentionSettings() {
@@ -306,11 +300,8 @@ function onSave() {
   gIncomingServer.retentionSettings = retentionSettings;
   gIncomingServer.downloadSettings = downloadSettings;
 
-  if (gImapIncomingServer) {
-    // Set the pref on the incomingserver, and set the flag on all folders.
-    gImapIncomingServer.offlineDownload =
-      document.getElementById("offline.folders").checked;
-  }
+  gIncomingServer.offlineDownload =
+    document.getElementById("offline.folders").checked;
 }
 
 // Does the work of disabling an element given the array which contains xul id/prefstring pairs.

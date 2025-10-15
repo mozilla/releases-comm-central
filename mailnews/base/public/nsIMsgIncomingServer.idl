@@ -404,20 +404,16 @@ interface nsIMsgIncomingServer : nsISupports {
   attribute nsIMsgDownloadSettings downloadSettings;
 
   /*
-   * Offline support level. Support level can vary based on abilities
-   * and features each server can offer wrt to offline service.
-   * Here is the legend to determine the each support level details
+   * Offline support level. Does this server allow the user to perform
+   * operations while the network is offline (e.g. copy/move/delete of
+   * messages or folders)? These operations are queued up and relayed
+   * to the remote server when the network comes back online.
    *
-   * supportLevel == 0  --> no offline support (default)
-   * supportLevel == 10 --> regular offline feature support
-   * supportLevel == 20 --> extended offline feature support
+   * supportLevel == 0  --> No.
+   * supportLevel >= 10 --> Yes.
    *
-   * Each server can initialize itself to the support level if needed
-   * to override the default choice i.e., no offline support.
-   *
-   * POP3, None will default to 0.
-   * IMAP level 10 and NEWS with level 20.
-   *
+   * NOTE: This is confusing and has overloaded meanings. See Bug 1992042
+   * for an attempt to sort things out.
    */
   readonly attribute long offlineSupportLevel;
 

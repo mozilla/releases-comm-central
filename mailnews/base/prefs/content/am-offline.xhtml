@@ -56,25 +56,26 @@
       <separator class="thin" />
 
       <html:div>
-        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss,ews">
+        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss">
           <html:legend>&syncGroupTitle.label;</html:legend>
 
           <vbox>
             <checkbox
-              hidefor="pop3,nntp,none,ews"
+              hidefor="pop3,nntp,none"
               id="offline.folders"
               label="&allFoldersOffline2.label;"
               oncommand="toggleOffline()"
               accesskey="&allFoldersOffline2.accesskey;"
             />
 
-            <description hidefor="pop3,nntp,none,rss,ews"
+            <description hidefor="pop3,nntp,none,rss"
               >&allFoldersOfflineNote.label;</description
             >
 
-            <separator class="thin" hidefor="pop3,nntp,none,ews" />
+            <separator class="thin" hidefor="pop3,nntp,none" />
 
-            <hbox hidefor="pop3,nntp,none,ews" pack="end">
+            <hbox hidefor="pop3,nntp,none" pack="end">
+              <!-- "Imap" in names here is misleading. Also used for EWS. -->
               <button
                 label="&offlineImapAdvancedOffline.label;"
                 accesskey="&offlineImapAdvancedOffline.accesskey;"
@@ -99,11 +100,11 @@
 
       <html:div>
         <html:fieldset id="diskspace.titlebox">
-          <html:legend hidefor="pop3,none,rss,ews"
+          <html:legend hidefor="pop3,none,rss"
             >&diskspaceGroupTitle.label;</html:legend
           >
 
-          <description hidefor="pop3,nntp,none,rss,ews"
+          <description hidefor="pop3,nntp,none,rss"
             >&doNotDownloadImap.label;</description
           >
           <description hidefor="pop3,imap,none,rss,ews"
@@ -113,9 +114,9 @@
             >&doNotDownloadPop3Movemail.label;</description
           >
 
-          <!-- IMAP Autosync Preference -->
+          <!-- IMAP and EWS Autosync Preference -->
           <radiogroup
-            hidefor="pop3,nntp,none,rss,ews"
+            hidefor="pop3,nntp,none,rss"
             id="autosyncSelect"
             class="indent"
           >
@@ -173,11 +174,11 @@
             />
           </hbox>
 
-          <hbox align="center" class="indent" hidefor="none,rss,ews">
+          <hbox align="center" class="indent" hidefor="none,rss">
             <checkbox
               wsm_persist="true"
               id="offline.notDownload"
-              hidefor="imap"
+              hidefor="imap,ews"
               label="&offlineNotDownload.label;"
               accesskey="&offlineNotDownload.accesskey;"
               oncommand="onCheckItem('offline.notDownloadMin', [this.id]);"
@@ -185,7 +186,7 @@
             <checkbox
               wsm_persist="true"
               id="autosyncNotDownload"
-              hidefor="pop3,nntp,ews"
+              hidefor="pop3,nntp"
               label="&autosyncNotDownload.label;"
               accesskey="&autosyncNotDownload.accesskey;"
               oncommand="onAutosyncNotDownload();"
@@ -234,14 +235,14 @@
             <separator hidefor="none,rss" />
             <label
               id="retentionDescription"
-              hidefor="imap,pop3"
+              hidefor="imap,pop3,ews"
               class="desc"
               control="retention.keepMsg"
               >&retentionCleanup.label;</label
             >
             <label
               id="retentionDescriptionImap"
-              hidefor="pop3,nntp,none,rss,ews"
+              hidefor="pop3,nntp,none,rss"
               class="desc"
               control="retention.keepMsg"
               >&retentionCleanupImap.label;</label

@@ -1839,10 +1839,14 @@ var gAccountTree = {
 
         // Add the synchronization/diskspace panel?
         if (server.type != "im") {
-          const title =
-            server.offlineSupportLevel >= 10
-              ? getString("prefPanel-synchronization")
-              : getString("prefPanel-diskspace");
+          // EWS looks like a special case here, but really it's just that
+          // the meaning of .offlineSupportLevel is pretty confused.
+          // Ongoing investigation and notes in Bug 1992042.
+          const isSync =
+            server.offlineSupportLevel >= 10 || server.type == "ews";
+          const title = getString(
+            isSync ? "prefPanel-synchronization" : "prefPanel-diskspace"
+          );
           panels.push({ string: title, src: "am-offline.xhtml" });
         }
 

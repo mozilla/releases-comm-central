@@ -505,16 +505,12 @@ add_task(async function test_ews_offline_pane_hidden_boxes() {
 
     // Should be HIDDEN for EWS.
     const hiddenIds = [
-      "offline.titlebox",
-      "autosyncSelect",
-      "selectImapFoldersButton",
       "selectNewsgroupsButton",
       "nntp.notDownloadRead",
       "nntp.downloadMsg",
       "nntp.removeBody",
       "offline.notDownload",
-      "autosyncNotDownload",
-      "retentionDescriptionImap",
+      "retentionDescription",
       "retentionDescriptionPop",
     ];
     for (const id of hiddenIds) {
@@ -528,10 +524,14 @@ add_task(async function test_ews_offline_pane_hidden_boxes() {
 
     // Should be VISIBLE for EWS.
     const visibleIds = [
+      "offline.titlebox",
+      "autosyncSelect",
+      "selectImapFoldersButton",
+      "autosyncNotDownload",
       "diskspace.titlebox",
       "retention.keepMsg",
       "retention.applyToFlagged",
-      "retentionDescription",
+      "retentionDescriptionImap",
     ];
     for (const id of visibleIds) {
       const el = iframe.getElementById(id);
