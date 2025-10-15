@@ -93,11 +93,6 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro WriteRegDWORD2
 !insertmacro WriteRegStr2
 
-; This needs to be inserted after InitHashAppModelId because it uses
-; $AppUserModelID and the compiler can't handle using variables lexically before
-; they've been declared.
-!insertmacro GetInstallerRegistryPref
-
 !insertmacro un.ChangeMUIHeaderImage
 !insertmacro un.CheckForFilesInUse
 !insertmacro un.CleanMaintenanceServiceLogs
@@ -118,6 +113,11 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro un.SetBrandNameVars
 
 !include shared.nsh
+
+; This needs to be inserted after InitHashAppModelId because it uses
+; $AppUserModelID and the compiler can't handle using variables lexically before
+; they've been declared.
+!insertmacro GetInstallerRegistryPref
 
 ; Helper macros for ui callbacks. Insert these after shared.nsh
 !insertmacro OnEndCommon
