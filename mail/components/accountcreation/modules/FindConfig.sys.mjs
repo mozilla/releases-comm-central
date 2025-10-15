@@ -23,7 +23,12 @@ const {
 /**
  * Finds and returns an AccountConfig, including incoming exchange
  * exchange alternatives, from a domain and email address. If autoconfig or
- * autodiscovery finds nothing, returns null.
+ * autodiscovery finds nothing, returns null. This is an async generator
+ * function, as we need to pause the function in case we need to wait for
+ * confirmation to continue with autodiscovery if the domain is hosted by a 3rd
+ * party.
+ *
+ * @generator
  *
  * @param {SuccessiveAbortable} successiveAbortable - Encapsulates abortables
  *   in function call.
@@ -32,10 +37,11 @@ const {
  * @param {string} [password] - Password if available, used for exchange.
  * @param {string} [exchangeUsername] - Separate username to authenticate
  *   exchange autodiscovery lookups with.
+ * @yields {object} - May yield object saying redirect is required with host.
  *
  * @returns {?AccountConfig} @see AccountConfig.sys.mjs
  */
-async function parallelAutoDiscovery(
+async function* parallelAutoDiscovery(
   successiveAbortable,
   domain,
   emailAddress,
@@ -90,13 +96,19 @@ async function parallelAutoDiscovery(
   // when using Exchange is possible. Autodiscover should always produce an
   // Exchange config if available, so we want it to always complete.
   gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
+  const redirectCallbackResolvers = Promise.withResolvers();
   const { promise, resolve, reject } = Promise.withResolvers();
+  let acceptRedirect, cancelRedirect;
   const autodiscoverTask = fetchConfigFromExchange(
     domain,
     emailAddress,
     exchangeUsername,
     password,
-    () => {},
+    (host, accept, cancel, scheme) => {
+      acceptRedirect = accept;
+      cancelRedirect = cancel;
+      redirectCallbackResolvers.resolve({ host, scheme });
+    },
     (...args) => {
       autodiscoverCall.successCallback()(...args);
       resolve();
@@ -140,14 +152,37 @@ async function parallelAutoDiscovery(
 
   autodiscoverCall.setAbortable(autodiscoverTask);
 
-  await new Promise(resolvePromise => {
+  const allFinishedPromise = new Promise(resolvePromise => {
     discoveryTasks.addAllFinishedObserver(() => resolvePromise());
   });
 
   // If there is a 401 error with fetchConfigWithExchange, we need to throw an
-  // error back to the function caller.
+  // error back to the function caller. If there is a 301 error, autodiscovery
+  // will resolve the redirectCallbackResovlers promise, and we will yield here
+  // to make sure the user confirms they want to submit their credentials.
   try {
-    await promise;
+    // Handle the 3rd party redirect callback as a promise.
+    await Promise.race([promise, redirectCallbackResolvers.promise]);
+    // acceptRedirect is set when exchange autodiscover requires confirmation
+    // for submitting credentials to a 3rd party host.
+    if (acceptRedirect) {
+      const { host, scheme } = await redirectCallbackResolvers.promise;
+      const result = yield {
+        isRedirect: true,
+        host,
+        scheme,
+      };
+      // The generator waits for the user to either accept or reject submitting
+      // their credentials, and then continues with autodiscovery after they
+      // respond.
+      if (result) {
+        if (result.acceptRedirect) {
+          acceptRedirect();
+        } else {
+          cancelRedirect(new UserCancelledException());
+        }
+      }
+    }
   } catch (error) {
     if (error instanceof CancelledException) {
       throw new UserCancelledException();
@@ -161,8 +196,12 @@ async function parallelAutoDiscovery(
       });
     }
 
+    discoveryTasks.cancel(error);
+
     throw newError || error;
   }
+
+  await allFinishedPromise;
 
   // Wait for both our priority discovery and Autodiscover search to complete
   // before deciding on a configuration to ensure we get an Exchange config if

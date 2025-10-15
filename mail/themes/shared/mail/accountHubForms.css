@@ -1091,8 +1091,8 @@ button.account-hub-option-button {
 
   &.warning {
     display: inline-block;
-    background-color: var(--color-warning-default);
-    color: var(--color-text-base);
+    background-color: light-dark(var(--color-warning-default-light), var(--color-warning-soft-dark));
+    color: light-dark(var(--color-text-base-light), var(--color-text-warning-dark));
   }
 }
 

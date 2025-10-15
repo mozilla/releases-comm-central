@@ -64,11 +64,13 @@ add_task(async function testFindConfigFound() {
   );
 
   const abortable = new SuccessiveAbortable();
-  const config = await FindConfig.parallelAutoDiscovery(
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
     abortable,
     "imap.test",
     "yamatoo.nadeshiko@imap.test"
   );
+
+  const { value: config } = await discoveryStream.next();
 
   Assert.equal(
     config.incoming.type,
@@ -109,11 +111,13 @@ add_task(async function testFindConfigNotFound() {
   );
 
   const abortable = new SuccessiveAbortable();
-  const config = await FindConfig.parallelAutoDiscovery(
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
     abortable,
     "imap.testtt",
     "yamatoo.nadeshiko@imap.testtt"
   );
+
+  const { value: config } = await discoveryStream.next();
 
   Assert.equal(
     config,
@@ -149,11 +153,13 @@ add_task(async function testFindConfigExchange() {
   );
 
   const abortable = new SuccessiveAbortable();
-  const config = await FindConfig.parallelAutoDiscovery(
+  const discoveryStream = await FindConfig.parallelAutoDiscovery(
     abortable,
     "exchange.test",
     "testExchange@exchange.test"
   );
+
+  const { value: config } = await discoveryStream.next();
 
   Assert.equal(
     config.incoming.type,
@@ -230,10 +236,9 @@ add_task(async function testFindConfigExchangeAuthRequired() {
     }
   );
 
-  const abortable = new SuccessiveAbortable();
-
+  let abortable = new SuccessiveAbortable();
   await Assert.rejects(
-    FindConfig.parallelAutoDiscovery(abortable, "exchange.test", user),
+    FindConfig.parallelAutoDiscovery(abortable, "exchange.test", user).next(),
     error =>
       error.message === "Exchange auth error" &&
       error.cause.fluentTitleId === "account-setup-credentials-wrong",
@@ -241,12 +246,16 @@ add_task(async function testFindConfigExchangeAuthRequired() {
   );
 
   expectSuccess = true;
-  const config = await FindConfig.parallelAutoDiscovery(
+  abortable = new SuccessiveAbortable();
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
     abortable,
     "exchange.test",
     user,
     password
   );
+
+  const { value: config } = await discoveryStream.next();
+
   Assert.ok(config, "Should get a config with password");
 
   // Clean up.
@@ -314,7 +323,7 @@ add_task(async function testFindConfigExchangeWithUsername() {
       "exchange.test",
       "testExchange@exchange.test",
       password
-    ),
+    ).next(),
     error =>
       error.message === "Exchange auth error" &&
       error.cause.fluentTitleId === "account-setup-credentials-wrong",
@@ -322,13 +331,16 @@ add_task(async function testFindConfigExchangeWithUsername() {
   );
 
   expectSuccess = true;
-  const config = await FindConfig.parallelAutoDiscovery(
+  const discoveryStream = FindConfig.parallelAutoDiscovery(
     abortable,
     "exchange.test",
     "testExchange@exchange.test",
     password,
     user
   );
+
+  const { value: config } = await discoveryStream.next();
+
   Assert.ok(config, "Should get a config with password and separate username");
 
   // Clean up.

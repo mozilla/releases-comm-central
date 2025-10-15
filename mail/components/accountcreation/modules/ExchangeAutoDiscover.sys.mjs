@@ -202,7 +202,8 @@ function fetchFromPotentiallyUnsafeAddress(
           e => {
             // User rejected, or action cancelled otherwise.
             dialogCall.errorCallback()(e);
-          }
+          },
+          newURI.scheme
         );
         // Account for a slow server response.
         // This will prevent showing the warning message when not necessary.

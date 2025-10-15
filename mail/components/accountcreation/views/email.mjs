@@ -161,6 +161,13 @@ class AccountHubEmail extends HTMLElement {
   #exchangeUsername = "";
 
   /**
+   * Stores FindConfig.parallelAutoDiscovery generator function.
+   *
+   * @type {Function}
+   */
+  #discoveryStream = null;
+
+  /**
    * States of the email setup flow, based on the ID's of the steps in the
    * flow.
    *
@@ -197,8 +204,8 @@ class AccountHubEmail extends HTMLElement {
     },
     emailCredentialsConfirmationSubview: {
       id: "emailCredentialsConfirmationSubview",
-      nextStep: true,
-      previousStep: "",
+      nextStep: "emailConfigFoundSubview",
+      previousStep: "autoConfigSubview",
       forwardEnabled: true,
       customActionFluentID: "",
       customBackFluentID: "account-hub-email-cancel-button",
@@ -324,6 +331,10 @@ class AccountHubEmail extends HTMLElement {
       "config-updated",
       this
     );
+    this.#emailCredentialsConfirmationSubview.addEventListener(
+      "edit-configuration",
+      this
+    );
 
     this.#abortable = null;
     this.#currentConfig = null;
@@ -369,7 +380,8 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Handles aborting the current action that is loading.
+   * Handles aborting the current action that is loading. If we are waiting
+   * for a redirect confirmation, the redirect is rejected.
    */
   #handleAbortable() {
     if (this.abortable instanceof Abortable) {
@@ -385,6 +397,14 @@ class AccountHubEmail extends HTMLElement {
     }
 
     this.#stopLoading();
+
+    // If the findConfig() async generator is waiting for a response, we send
+    // back a rejection. Because we've aborted the autodiscovery before this,
+    // findConfig() will fail silently.
+    if (this.#discoveryStream) {
+      this.#discoveryStream.next({ acceptRedirect: false });
+      this.#discoveryStream = null;
+    }
   }
 
   /**
@@ -512,12 +532,18 @@ class AccountHubEmail extends HTMLElement {
     switch (event.type) {
       case "back":
         try {
-          if (!this.abortable) {
+          // An abortable is ongoing if we are in the credentials confirmation
+          // step, so we must go back to the first step as well as cancelling
+          // the abortable.
+          if (
+            !this.abortable ||
+            this.#currentState == "emailCredentialsConfirmationSubview"
+          ) {
             await this.#initUI(stateDetails.previousStep);
             this.#handleBackAction(this.#currentState);
-          } else {
-            this.#handleAbortable();
           }
+
+          this.#handleAbortable();
         } catch (error) {
           this.#currentSubview.showNotification({
             title: error.cause.code,
@@ -560,15 +586,22 @@ class AccountHubEmail extends HTMLElement {
         }
         break;
       case "edit-configuration": {
-        let config = this.#currentSubview.captureState();
-
         if (this.#currentState == "autoConfigSubview") {
-          this.#email = config.email;
-          this.#realName = config.realName;
-          config = this.#getEmptyAccountConfig();
+          const stateData = this.#currentSubview.captureState();
+          this.#email = stateData.email;
+          this.#realName = stateData.realName;
         }
 
-        this.#currentConfig = this.#fillAccountConfig(config);
+        // If we are in this step, we already have email and realName set.
+        if (this.#currentState == "emailCredentialsConfirmationSubview") {
+          this.#handleAbortable();
+        }
+
+        const configData =
+          this.#currentState == "emailConfigFoundSubview"
+            ? this.#currentSubview.captureState()
+            : this.#getEmptyAccountConfig();
+        this.#currentConfig = this.#fillAccountConfig(configData);
 
         const prevStep =
           this.#currentState == "emailConfigFoundSubview"
@@ -690,17 +723,31 @@ class AccountHubEmail extends HTMLElement {
           // move to the manual config form to get them to fill in details,
           // or move forward to the next step.
           if (!config) {
+            this.#currentConfig = null;
             await this.#initFallbackConfigView(currentState);
             break;
           }
-          this.#currentConfig = config;
 
-          await this.#initUI(this.#states[this.#currentState].nextStep);
+          // If the autodiscovery requires confirmation to submit credentials,
+          // we show the subview to confirm credentials submission.
+          if (config.isRedirect) {
+            await this.#initUI("emailCredentialsConfirmationSubview");
+            this.#currentSubview.setState({
+              host: config.host,
+              username: stateData.email,
+              scheme: config.scheme,
+            });
+            this.#states[this.#currentState].previousStep = "autoConfigSubview";
+            this.#currentSubview.showNotification({
+              fluentTitleId: "account-hub-notification-unknown-host",
+              type: "info",
+            });
+            break;
+          }
 
-          this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-config-success",
-            type: "success",
-          });
+          this.#abortable = null;
+          this.#initConfigView(config);
+          break;
         } catch (error) {
           if (error instanceof AuthenticationRequiredError) {
             // We already have a password, so the provided password or username
@@ -708,24 +755,49 @@ class AccountHubEmail extends HTMLElement {
             if (this.#currentConfig?.hasPassword()) {
               throw error;
             }
-            this.#stopLoading();
-            await this.#initUI("emailAutodiscoverAuthenticationSubview");
-            this.#currentSubview.setState();
-
-            this.#currentSubview.showNotification({
-              fluentTitleId: "account-hub-password-info",
-              type: "info",
-            });
+            this.#initAutodiscoverAuthenticationView();
             break;
           }
+
           if (!(error instanceof UserCancelledException)) {
             throw error;
           }
           break;
         }
+      case "emailCredentialsConfirmationSubview":
+        try {
+          // The findConfig() async generator will continue with autodiscovery
+          // as the user has accepted submitting their credentials.
+          const config = await this.#findConfig({ acceptRedirect: true });
 
-        this.#setCurrentConfigForSubview();
-        break;
+          // If the config is null, the guessConfig couldn't find anything so
+          // move to the manual config form to get them to fill in details,
+          // or move forward to the next step.
+          if (!config) {
+            this.#currentConfig = null;
+            await this.#initFallbackConfigView("autoConfigSubview");
+            break;
+          }
+
+          this.#initConfigView(config);
+          break;
+        } catch (error) {
+          if (error instanceof AuthenticationRequiredError) {
+            // We already have a password, so the provided password or username
+            // was probably wrong. Stay at the current step.
+            if (this.#currentConfig?.hasPassword()) {
+              throw error;
+            }
+            this.#initAutodiscoverAuthenticationView();
+            break;
+          }
+
+          if (!(error instanceof UserCancelledException)) {
+            throw error;
+          }
+
+          break;
+        }
       case "emailAutodiscoverAuthenticationSubview":
         this.#startLoading("account-hub-lookup-email-configuration-title");
 
@@ -740,10 +812,28 @@ class AccountHubEmail extends HTMLElement {
           gAccountSetupLogger.debug("Retrying config discovery with password.");
 
           const config = await this.#findConfig();
+
           if (!config) {
             // Use the #currentConfig from before, which will already be an
             // empty config.
             await this.#initFallbackConfigView(currentState);
+            break;
+          }
+
+          // If the autodiscovery requires confirmation to submit credentials,
+          // we show the subview to confirm credentials submission.
+          if (config.isRedirect) {
+            await this.#initUI("emailCredentialsConfirmationSubview");
+            this.#currentSubview.setState({
+              host: config.host,
+              username: stateData.email,
+            });
+            this.#states[this.#currentState].previousStep =
+              "emailAutodiscoverAuthenticationSubview";
+            this.#currentSubview.showNotification({
+              fluentTitleId: "account-hub-password-info",
+              type: "info",
+            });
             break;
           }
 
@@ -998,11 +1088,47 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Initialize config select subview when we've succesfully found a config.
+   *
+   * @param {AccountConfig} config - The account config found.
+   */
+  async #initConfigView(config) {
+    this.#currentConfig = config;
+
+    await this.#initUI(this.#states[this.#currentState].nextStep);
+
+    this.#currentSubview.showNotification({
+      fluentTitleId: "account-hub-config-success",
+      type: "success",
+    });
+
+    this.#setCurrentConfigForSubview();
+  }
+
+  /**
+   * Initialize autodiscover authentication view when we need a username and/or
+   * a password.
+   */
+  async #initAutodiscoverAuthenticationView() {
+    this.#stopLoading();
+    await this.#initUI("emailAutodiscoverAuthenticationSubview");
+    this.#currentSubview.setState();
+
+    this.#currentSubview.showNotification({
+      fluentTitleId: "account-hub-password-info",
+      type: "info",
+    });
+  }
+
+  /**
    * Finds an account configuration from the provided data if available.
+   *
+   * @param {object} [userFeedback] - If the user had to give feedback to a
+   *   redirect, provide the answer in this object.
    *
    * @returns {?AccountConfig} @see AccountConfig.sys.mjs
    */
-  async #findConfig() {
+  async #findConfig(userFeedback) {
     if (this.abortable) {
       this.#handleAbortable();
     }
@@ -1021,20 +1147,26 @@ class AccountHubEmail extends HTMLElement {
 
     gAccountSetupLogger.debug("findConfig()");
     this.abortable = new SuccessiveAbortable();
-    let config = null;
+    let config, discoveryDone;
 
     // This can throw an error which will be caught up the call stack
     // to show the correct notification.
     try {
-      config = await lazy.FindConfig.parallelAutoDiscovery(
-        this.abortable,
-        domain,
-        this.#email,
-        this.#currentConfig?.incoming.password ||
-          this.#currentConfig?.outgoing.password,
-        this.#exchangeUsername
-      );
+      if (!this.#discoveryStream) {
+        this.#discoveryStream = lazy.FindConfig.parallelAutoDiscovery(
+          this.abortable,
+          domain,
+          this.#email,
+          this.#currentConfig?.incoming.password ||
+            this.#currentConfig?.outgoing.password,
+          this.#exchangeUsername
+        );
+      }
+
+      ({ value: config, done: discoveryDone } =
+        await this.#discoveryStream.next(userFeedback));
     } catch (error) {
+      this.#discoveryStream = null;
       if (error.cause?.fluentTitleId === "account-setup-credentials-wrong") {
         throw new AuthenticationRequiredError(error.message, {
           cause: error.cause,
@@ -1049,16 +1181,18 @@ class AccountHubEmail extends HTMLElement {
       try {
         config = await this.#guessConfig(domain, initialConfig);
       } catch (error) {
+        this.#discoveryStream = null;
         if (error instanceof UserCancelledException) {
           throw error;
         }
       }
     }
 
-    if (config) {
+    if (config && !config.isRedirect) {
       try {
         config = await this.#getExchangeAddons(config);
       } catch (error) {
+        this.#discoveryStream = null;
         if (error instanceof UserCancelledException) {
           throw error;
         }
@@ -1071,7 +1205,12 @@ class AccountHubEmail extends HTMLElement {
       config = this.#fillAccountConfig(config);
     }
 
-    this.abortable = null;
+    // Check if parallelAutoDiscovery has finished running.
+    if (discoveryDone) {
+      this.#discoveryStream = null;
+      this.abortable = null;
+    }
+
     return config;
   }
 

@@ -360,3 +360,7 @@ account-hub-close-button =
   .title = Close
 
 account-hub-email-manual-configuration = Manual configuration
+
+account-hub-notification-unknown-host = Setup information found on 3rd party domain
+
+account-hub-ssl-noencryption = None

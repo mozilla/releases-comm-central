@@ -22,16 +22,54 @@ class EmailCredentialsConfirmation extends AccountHubStep {
       .content.cloneNode(true);
     this.appendChild(template);
 
+    this.querySelector("#manualConfiguration").addEventListener("click", this);
+
     super.showBrandingHeader();
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "click":
+        if (event.target.id === "manualConfiguration") {
+          this.dispatchEvent(
+            new CustomEvent("edit-configuration", {
+              bubbles: true,
+            })
+          );
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   /**
    * Updates the step with the user's credentials that are to be submitted.
    *
-   * @param {object} credentials - Object containing user credentials.
+   * @param {object} credentials - Object containing domain and email.
+   * @param {string} credentials.host - Domain.
+   * @param {string} credentials.username - Email.
+   * @param {string} credentials.scheme - Host scheme (HTTP/HTTPS);
    */
   setState(credentials) {
-    // TODO: Actually set the state with the credentials;
+    this.querySelector("#hostname").textContent = credentials.host;
+    this.querySelector("#username").textContent = credentials.username;
+    const socketType = this.querySelector("#socketType");
+
+    if (credentials.scheme == "https") {
+      socketType.textContent = "SSL/TLS";
+      delete socketType.dataset.l10nId;
+    } else {
+      this.l10n.setAttributes(socketType, "account-hub-ssl-noencryption");
+    }
+
+    this.l10n.setAttributes(
+      this.querySelector("#confirmationQuestion"),
+      "exchange-dialog-question",
+      {
+        domain: credentials.host,
+      }
+    );
     return credentials;
   }
 
@@ -39,7 +77,12 @@ class EmailCredentialsConfirmation extends AccountHubStep {
    * Clears the credentials from the step.
    *
    */
-  resetState() {}
+  resetState() {
+    this.querySelector("#hostname").textContent = "";
+    this.querySelector("#username").textContent = "";
+    delete this.querySelector("#socketType").dataset.l10nId;
+    this.querySelector("#socketType").textContent = "";
+  }
 }
 
 customElements.define(
