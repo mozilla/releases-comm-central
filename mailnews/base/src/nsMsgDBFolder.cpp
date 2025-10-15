@@ -2666,12 +2666,11 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
       mozilla::mailnews::DatabaseCore::GetInstanceForService();
   mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
 
-  uint64_t parentId;
-  MOZ_TRY_VAR(parentId, folderDB.GetFolderParent(folderId));
+  uint64_t parentId = MOZ_TRY(folderDB.GetFolderParent(folderId));
   mIsServer = (parentId == 0);
   mIsServerIsValid = true;
-  MOZ_TRY_VAR(mName, folderDB.GetFolderName(folderId));
-  MOZ_TRY_VAR(mFlags, folderDB.GetFolderFlags(folderId));
+  mName = MOZ_TRY(folderDB.GetFolderName(folderId));
+  mFlags = MOZ_TRY(folderDB.GetFolderFlags(folderId));
 
   // Set up the filesystem path. This could probably be improved by using the
   // parent folder's path instead of constructing the whole thing.
@@ -2679,10 +2678,8 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgIncomingServer> server;
-  uint64_t rootId;
-  MOZ_TRY_VAR(rootId, folderDB.GetFolderRoot(folderId));
-  nsCString rootName;
-  MOZ_TRY_VAR(rootName, folderDB.GetFolderName(rootId));
+  uint64_t rootId = MOZ_TRY(folderDB.GetFolderRoot(folderId));
+  nsCString rootName = MOZ_TRY(folderDB.GetFolderName(rootId));
 
   rv = accountManager->GetIncomingServer(rootName, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2692,11 +2689,10 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   rv = server->GetLocalPath(getter_AddRefs(mPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<uint64_t> ancestorIds;
-  MOZ_TRY_VAR(ancestorIds, folderDB.GetFolderAncestors(folderId));
+  nsTArray<uint64_t> ancestorIds =
+      MOZ_TRY(folderDB.GetFolderAncestors(folderId));
   for (int i = ancestorIds.Length() - 2; i >= 0; --i) {
-    nsCString name;
-    MOZ_TRY_VAR(name, folderDB.GetFolderName(ancestorIds[i]));
+    nsCString name = MOZ_TRY(folderDB.GetFolderName(ancestorIds[i]));
     mPath->Append(EncodeFilename(name) + u".sbd"_ns);
   }
   if (!mIsServer) {
@@ -2706,8 +2702,7 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   // Set up the URI.
 
   server->GetServerURI(mURI);
-  nsCString path;
-  MOZ_TRY_VAR(path, folderDB.GetFolderPath(folderId));
+  nsCString path = MOZ_TRY(folderDB.GetFolderPath(folderId));
   rv = MsgEscapeString(path, nsINetUtil::ESCAPE_URL_PATH, path);
   NS_ENSURE_SUCCESS(rv, rv);
   mURI.Append(Substring(path, path.FindChar('/')));
@@ -2733,8 +2728,8 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   MOZ_TRY(folderDB.Reconcile(folderId, childNames));
 
   // Add the subfolders.
-  nsTArray<uint64_t> subFolderIds;
-  MOZ_TRY_VAR(subFolderIds, folderDB.GetFolderChildren(folderId));
+  nsTArray<uint64_t> subFolderIds =
+      MOZ_TRY(folderDB.GetFolderChildren(folderId));
   for (auto subFolderId : subFolderIds) {
     nsCOMPtr<nsIMsgFolder> msgFolder =
         do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
@@ -2771,7 +2766,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetPath(nsACString& path) {
   RefPtr<mozilla::mailnews::DatabaseCore> dbCore =
       mozilla::mailnews::DatabaseCore::GetInstanceForService();
   mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
-  MOZ_TRY_VAR(path, folderDB.GetFolderPath(mFolderId));
+  path = MOZ_TRY(folderDB.GetFolderPath(mFolderId));
 
 #else
   MOZ_ASSERT(false, "panorama-only code");
@@ -3397,10 +3392,9 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
         mozilla::mailnews::DatabaseCore::GetInstanceForService();
     mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
 
-    uint64_t subFolderId;
     // FolderDatabase might already have an entry? Unclear...
-    MOZ_TRY_VAR(subFolderId,
-                folderDB.GetFolderChildNamed(mFolderId, actualName));
+    uint64_t subFolderId =
+        MOZ_TRY(folderDB.GetFolderChildNamed(mFolderId, actualName));
     if (subFolderId == 0) {
       rv = folderDB.InsertFolder(mFolderId, actualName, &subFolderId);
       NS_ENSURE_SUCCESS(rv, rv);

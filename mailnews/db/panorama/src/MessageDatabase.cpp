@@ -689,8 +689,7 @@ MessageDatabase::RemoveMessageListener(MessageListener* aListener) {
 // Message functions
 
 nsresult MessageDatabase::GetMessageFlags(nsMsgKey key, uint32_t& flags) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   flags = cached->flags;
   return NS_OK;
 }
@@ -712,8 +711,7 @@ nsresult MessageDatabase::GetMessageOfflineMessageSize(nsMsgKey key,
 }
 
 nsresult MessageDatabase::GetMessageDate(nsMsgKey key, PRTime& date) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   date = cached->date;
   return NS_OK;
 }
@@ -739,51 +737,44 @@ nsresult MessageDatabase::GetMessageStoreToken(nsMsgKey key,
 
 nsresult MessageDatabase::GetMessageMessageId(nsMsgKey key,
                                               nsACString& messageId) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   messageId.Assign(cached->messageId);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageCcList(nsMsgKey key, nsACString& ccList) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   ccList.Assign(cached->ccList);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageBccList(nsMsgKey key, nsACString& bccList) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   bccList.Assign(cached->bccList);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageSender(nsMsgKey key, nsACString& sender) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   sender.Assign(cached->sender);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageSubject(nsMsgKey key, nsACString& subject) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   subject.Assign(cached->subject);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageRecipients(nsMsgKey key,
                                                nsACString& recipients) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   recipients.Assign(cached->recipients);
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageTags(nsMsgKey key, nsACString& tags) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   tags.Assign(cached->tags);
   return NS_OK;
 }
@@ -794,23 +785,20 @@ nsresult MessageDatabase::GetMessageUidOnServer(nsMsgKey key,
 }
 
 nsresult MessageDatabase::GetMessageThreadId(nsMsgKey key, nsMsgKey& threadId) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   threadId = cached->threadId;
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageThreadParent(nsMsgKey key,
                                                  nsMsgKey& threadParent) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   threadParent = cached->threadParent;
   return NS_OK;
 }
 
 nsresult MessageDatabase::GetMessageFolderId(nsMsgKey key, uint64_t& folderId) {
-  CachedMsg* cached;
-  MOZ_TRY_VAR(cached, EnsureCached(key));
+  CachedMsg* cached = MOZ_TRY(EnsureCached(key));
   folderId = cached->folderId;
   return NS_OK;
 }

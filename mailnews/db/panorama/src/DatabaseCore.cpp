@@ -892,8 +892,7 @@ NS_IMETHODIMP DatabaseCore::CreateNewDB(nsIMsgFolder* aFolder,
   MOZ_TRY(msgParent->GetId(&parentId));
 
   // I think the folder should be in the DB by now, but add it if it's not.
-  uint64_t folderId;
-  MOZ_TRY_VAR(folderId, FolderDB().GetFolderChildNamed(parentId, name));
+  uint64_t folderId = MOZ_TRY(FolderDB().GetFolderChildNamed(parentId, name));
   if (folderId == 0) {
     nsresult rv = FolderDB().InsertFolder(parentId, name, &folderId);
     NS_ENSURE_SUCCESS(rv, rv);

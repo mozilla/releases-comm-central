@@ -48,7 +48,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& path,
     nsAutoCString name(part);
     NS_UnescapeURL(name);
 
-    MOZ_TRY_VAR(curId, GetFolderChildNamed(curId, name));
+    curId = MOZ_TRY(GetFolderChildNamed(curId, name));
     if (curId == 0) {
       *folderId = 0;  // Path not found!
       return NS_OK;
@@ -67,10 +67,8 @@ NS_IMETHODIMP FolderDatabase::GetMsgFolderForFolder(uint64_t folderId,
   NS_ENSURE_ARG_POINTER(msgFolder);
   nsresult rv;
 
-  nsAutoCString name;
-  MOZ_TRY_VAR(name, GetFolderName(folderId));
-  uint64_t parentId;
-  MOZ_TRY_VAR(parentId, GetFolderParent(folderId));
+  nsCString name = MOZ_TRY(GetFolderName(folderId));
+  uint64_t parentId = MOZ_TRY(GetFolderParent(folderId));
   if (!parentId) {
     // If we're at the root, get the corresponding nsIMsgFolder from the
     // account manager.
@@ -174,16 +172,14 @@ nsresult FolderDatabase::InternalInsertFolder(uint64_t parentId,
 }
 
 NS_IMETHODIMP FolderDatabase::DeleteFolder(uint64_t folderId) {
-  uint64_t parentId;
-  MOZ_TRY_VAR(parentId, GetFolderParent(folderId));
+  uint64_t parentId = MOZ_TRY(GetFolderParent(folderId));
   if (!parentId) {
     NS_WARNING("using DeleteFolder on a root folder is forbidden");
     return NS_ERROR_UNEXPECTED;
   }
 
   // Delete the target folder _AND_ all its descendants.
-  nsTArray<uint64_t> doomed;
-  MOZ_TRY_VAR(doomed, GetFolderDescendants(folderId));
+  nsTArray<uint64_t> doomed = MOZ_TRY(GetFolderDescendants(folderId));
   doomed.AppendElement(folderId);
 
   // TODO: Presumably, we should also be deleting (or unlinking) any
@@ -221,13 +217,10 @@ NS_IMETHODIMP FolderDatabase::Reconcile(uint64_t parentId,
   // TODO: (BenC) - I don't think we should do this step. Even for local
   // folders, I think the database should be the source of truth for folder
   // existence.
-  nsTArray<uint64_t> childIds;
-  MOZ_TRY_VAR(childIds, GetFolderChildrenUnsorted(parentId));
+  nsTArray<uint64_t> childIds = MOZ_TRY(GetFolderChildrenUnsorted(parentId));
   for (auto childId : childIds) {
-    nsAutoCString childName;
-    MOZ_TRY_VAR(childName, GetFolderName(childId));
-    uint32_t childFlags;
-    MOZ_TRY_VAR(childFlags, GetFolderFlags(childId));
+    nsCString childName = MOZ_TRY(GetFolderName(childId));
+    uint32_t childFlags = MOZ_TRY(GetFolderFlags(childId));
     // TODO: really should be using an NFC-normalized `childNames` here.
     if (!childNames.Contains(childName) &&
         !(childFlags & nsMsgFolderFlags::Virtual)) {
@@ -237,8 +230,7 @@ NS_IMETHODIMP FolderDatabase::Reconcile(uint64_t parentId,
 
   // Step Two: create any folders which are in `childNames`, but not in DB.
   for (auto const& childName : childNames) {
-    uint64_t childId;
-    MOZ_TRY_VAR(childId, GetFolderChildNamed(parentId, childName));
+    uint64_t childId = MOZ_TRY(GetFolderChildNamed(parentId, childName));
     if (childId == 0) {
       // It's not in the DB!
       uint64_t newChildId;
@@ -252,8 +244,7 @@ NS_IMETHODIMP FolderDatabase::Reconcile(uint64_t parentId,
 NS_IMETHODIMP
 FolderDatabase::MoveFolderWithin(uint64_t parentId, uint64_t childId,
                                  uint64_t beforeId) {
-  nsTArray<uint64_t> children;
-  MOZ_TRY_VAR(children, GetFolderChildren(parentId));
+  nsTArray<uint64_t> children = MOZ_TRY(GetFolderChildren(parentId));
 
   // Remove the folder we're moving around.
   if (!children.RemoveElement(childId)) {
@@ -338,8 +329,7 @@ FolderDatabase::MoveFolderTo(uint64_t newParentId, uint64_t childId) {
   NS_ENSURE_ARG(childId);
 
   // Sanity checks.
-  uint64_t oldParentId;
-  MOZ_TRY_VAR(oldParentId, GetFolderParent(childId));
+  uint64_t oldParentId = MOZ_TRY(GetFolderParent(childId));
   if (!oldParentId) {
     NS_WARNING("cannot move a root folder");
     return NS_ERROR_UNEXPECTED;
@@ -353,8 +343,7 @@ FolderDatabase::MoveFolderTo(uint64_t newParentId, uint64_t childId) {
     return NS_OK;
   }
 
-  nsTArray<uint64_t> descendants;
-  MOZ_TRY_VAR(descendants, GetFolderDescendants(childId));
+  nsTArray<uint64_t> descendants = MOZ_TRY(GetFolderDescendants(childId));
   if (descendants.Contains(newParentId)) {
     NS_WARNING("child cannot be made a descendant of itself");
     return NS_ERROR_UNEXPECTED;
@@ -364,10 +353,8 @@ FolderDatabase::MoveFolderTo(uint64_t newParentId, uint64_t childId) {
   // TODO: The DB can support this just fine, and there's no hard reason to
   // disallow it here. It could actually be really useful, so this
   // restriction should be imposed by the nsIMsgFolder layer instead.
-  uint64_t newParentRootId;
-  MOZ_TRY_VAR(newParentRootId, GetFolderRoot(newParentId));
-  uint64_t oldParentRootId;
-  MOZ_TRY_VAR(oldParentRootId, GetFolderRoot(oldParentId));
+  uint64_t newParentRootId = MOZ_TRY(GetFolderRoot(newParentId));
+  uint64_t oldParentRootId = MOZ_TRY(GetFolderRoot(oldParentId));
   if (newParentRootId != oldParentRootId) {
     NS_WARNING("child cannot move to a different root");
     return NS_ERROR_UNEXPECTED;
@@ -572,8 +559,7 @@ nsresult FolderDatabase::SetVirtualFolderFolders(
 
 Result<nsCString, nsresult> FolderDatabase::GetFolderName(uint64_t folderId) {
   MOZ_ASSERT(folderId);
-  CachedFolder* cached;
-  MOZ_TRY_VAR(cached, EnsureFolderCached(folderId));
+  CachedFolder* cached = MOZ_TRY(EnsureFolderCached(folderId));
   return cached->name;
 }
 
@@ -582,8 +568,7 @@ Result<nsCString, nsresult> FolderDatabase::GetFolderPath(uint64_t folderId) {
 
   nsTArray<nsCString> encodedParts;
   while (true) {
-    CachedFolder* cached;
-    MOZ_TRY_VAR(cached, EnsureFolderCached(folderId));
+    CachedFolder* cached = MOZ_TRY(EnsureFolderCached(folderId));
     nsCString encodedName =
         PercentEncode(cached->name, [](char c) -> bool { return c == '/'; });
     encodedParts.AppendElement(encodedName);
@@ -598,23 +583,20 @@ Result<nsCString, nsresult> FolderDatabase::GetFolderPath(uint64_t folderId) {
 
 Result<uint32_t, nsresult> FolderDatabase::GetFolderFlags(uint64_t folderId) {
   MOZ_ASSERT(folderId);
-  CachedFolder* cached;
-  MOZ_TRY_VAR(cached, EnsureFolderCached(folderId));
+  CachedFolder* cached = MOZ_TRY(EnsureFolderCached(folderId));
   return cached->flags;
 }
 
 Result<Maybe<uint64_t>, nsresult> FolderDatabase::GetFolderOrdinal(
     uint64_t folderId) {
   MOZ_ASSERT(folderId);
-  CachedFolder* cached;
-  MOZ_TRY_VAR(cached, EnsureFolderCached(folderId));
+  CachedFolder* cached = MOZ_TRY(EnsureFolderCached(folderId));
   return cached->ordinal;
 }
 
 Result<uint64_t, nsresult> FolderDatabase::GetFolderParent(uint64_t folderId) {
   MOZ_ASSERT(folderId);
-  CachedFolder* cached;
-  MOZ_TRY_VAR(cached, EnsureFolderCached(folderId));
+  CachedFolder* cached = MOZ_TRY(EnsureFolderCached(folderId));
   return cached->parent;
 }
 
@@ -647,8 +629,7 @@ Result<nsTArray<uint64_t>, nsresult> FolderDatabase::GetFolderChildrenUnsorted(
 Result<nsTArray<uint64_t>, nsresult> FolderDatabase::GetFolderChildren(
     uint64_t folderId) {
   // folderId can be 0, to return root folders.
-  nsTArray<uint64_t> children;
-  MOZ_TRY_VAR(children, GetFolderChildrenUnsorted(folderId));
+  nsTArray<uint64_t> children = MOZ_TRY(GetFolderChildrenUnsorted(folderId));
 
   children.Sort(mComparator);
   return children;
@@ -688,8 +669,7 @@ Result<uint64_t, nsresult> FolderDatabase::GetFolderChildNamed(
 Result<uint64_t, nsresult> FolderDatabase::GetFolderRoot(uint64_t folderId) {
   MOZ_ASSERT(folderId);
   while (true) {
-    uint64_t parent;
-    MOZ_TRY_VAR(parent, GetFolderParent(folderId));
+    uint64_t parent = MOZ_TRY(GetFolderParent(folderId));
     if (parent == 0) {
       break;
     }
@@ -700,8 +680,7 @@ Result<uint64_t, nsresult> FolderDatabase::GetFolderRoot(uint64_t folderId) {
 
 nsresult FolderDatabase::InternalAppendDescendants(
     uint64_t folderId, nsTArray<uint64_t>& descendants) {
-  nsTArray<uint64_t> children;
-  MOZ_TRY_VAR(children, GetFolderChildren(folderId));
+  nsTArray<uint64_t> children = MOZ_TRY(GetFolderChildren(folderId));
   for (uint64_t child : children) {
     descendants.AppendElement(child);
     MOZ_TRY(InternalAppendDescendants(child, descendants));
@@ -721,11 +700,11 @@ Result<nsTArray<uint64_t>, nsresult> FolderDatabase::GetFolderAncestors(
   MOZ_ASSERT(folderId);
   nsTArray<uint64_t> ancestors;
   // Don't include self.
-  MOZ_TRY_VAR(folderId, GetFolderParent(folderId));
+  folderId = MOZ_TRY(GetFolderParent(folderId));
   while (folderId) {
     MOZ_ASSERT(!ancestors.Contains(folderId));  // Cycle detected!
     ancestors.AppendElement(folderId);
-    MOZ_TRY_VAR(folderId, GetFolderParent(folderId));
+    folderId = MOZ_TRY(GetFolderParent(folderId));
   }
   return ancestors;
 }
@@ -802,14 +781,14 @@ void FolderDatabase::TrimCache() {
 NS_IMETHODIMP FolderDatabase::GetFolderName(uint64_t folderId,
                                             nsACString& name) {
   NS_ENSURE_ARG(folderId);
-  MOZ_TRY_VAR(name, GetFolderName(folderId));
+  name = MOZ_TRY(GetFolderName(folderId));
   return NS_OK;
 }
 
 NS_IMETHODIMP FolderDatabase::GetFolderPath(uint64_t folderId,
                                             nsACString& path) {
   NS_ENSURE_ARG(folderId);
-  MOZ_TRY_VAR(path, GetFolderPath(folderId));
+  path = MOZ_TRY(GetFolderPath(folderId));
   return NS_OK;
 }
 
@@ -817,7 +796,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderFlags(uint64_t folderId,
                                              uint32_t* flags) {
   NS_ENSURE_ARG(folderId);
   NS_ENSURE_ARG_POINTER(flags);
-  MOZ_TRY_VAR(*flags, GetFolderFlags(folderId));
+  *flags = MOZ_TRY(GetFolderFlags(folderId));
   return NS_OK;
 }
 
@@ -826,8 +805,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderIsServer(uint64_t folderId,
   NS_ENSURE_ARG(folderId);
   NS_ENSURE_ARG_POINTER(isServer);
   // Root/Server folders are just top-level ones with no parent.
-  uint64_t parentId;
-  MOZ_TRY_VAR(parentId, GetFolderParent(folderId));
+  uint64_t parentId = MOZ_TRY(GetFolderParent(folderId));
   *isServer = (parentId == 0);
   return NS_OK;
 }
@@ -836,13 +814,13 @@ NS_IMETHODIMP FolderDatabase::GetFolderParent(uint64_t folderId,
                                               uint64_t* parentId) {
   NS_ENSURE_ARG(folderId);
   NS_ENSURE_ARG_POINTER(parentId);
-  MOZ_TRY_VAR(*parentId, GetFolderParent(folderId));
+  *parentId = MOZ_TRY(GetFolderParent(folderId));
   return NS_OK;
 }
 
 NS_IMETHODIMP FolderDatabase::GetFolderChildren(uint64_t folderId,
                                                 nsTArray<uint64_t>& children) {
-  MOZ_TRY_VAR(children, GetFolderChildren(folderId));
+  children = MOZ_TRY(GetFolderChildren(folderId));
   return NS_OK;
 }
 
@@ -851,7 +829,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderChildNamed(uint64_t folderId,
                                                   uint64_t* childId) {
   // folderId can be 0 to access root folders.
   NS_ENSURE_ARG_POINTER(childId);
-  MOZ_TRY_VAR(*childId, GetFolderChildNamed(folderId, childName));
+  *childId = MOZ_TRY(GetFolderChildNamed(folderId, childName));
   return NS_OK;
 }
 
@@ -859,20 +837,20 @@ NS_IMETHODIMP FolderDatabase::GetFolderRoot(uint64_t folderId,
                                             uint64_t* rootId) {
   NS_ENSURE_ARG(folderId);
   NS_ENSURE_ARG_POINTER(rootId);
-  MOZ_TRY_VAR(*rootId, GetFolderRoot(folderId));
+  *rootId = MOZ_TRY(GetFolderRoot(folderId));
   return NS_OK;
 }
 
 NS_IMETHODIMP FolderDatabase::GetFolderDescendants(
     uint64_t folderId, nsTArray<uint64_t>& descendants) {
-  MOZ_TRY_VAR(descendants, GetFolderDescendants(folderId));
+  descendants = MOZ_TRY(GetFolderDescendants(folderId));
   return NS_OK;
 }
 
 NS_IMETHODIMP FolderDatabase::GetFolderAncestors(
     uint64_t folderId, nsTArray<uint64_t>& ancestors) {
   NS_ENSURE_ARG(folderId);  // Can't call with null folder.
-  MOZ_TRY_VAR(ancestors, GetFolderAncestors(folderId));
+  ancestors = MOZ_TRY(GetFolderAncestors(folderId));
   return NS_OK;
 }
 
@@ -882,8 +860,7 @@ NS_IMETHODIMP FolderDatabase::GetFolderIsDescendantOf(
   NS_ENSURE_ARG(potentialAncestorId);
   // Note inverted search - it's likely quicker to search ancestors than
   // descendants.
-  nsTArray<uint64_t> ancestorIds;
-  MOZ_TRY_VAR(ancestorIds, GetFolderAncestors(folderId));
+  nsTArray<uint64_t> ancestorIds = MOZ_TRY(GetFolderAncestors(folderId));
   *isDescendant = ancestorIds.Contains(potentialAncestorId);
   return NS_OK;
 }
@@ -892,8 +869,8 @@ NS_IMETHODIMP FolderDatabase::GetFolderIsAncestorOf(
     uint64_t folderId, uint64_t potentialDescendantId, bool* isAncestor) {
   NS_ENSURE_ARG(folderId);
   NS_ENSURE_ARG(potentialDescendantId);
-  nsTArray<uint64_t> ancestorIds;
-  MOZ_TRY_VAR(ancestorIds, GetFolderAncestors(potentialDescendantId));
+  nsTArray<uint64_t> ancestorIds =
+      MOZ_TRY(GetFolderAncestors(potentialDescendantId));
   *isAncestor = ancestorIds.Contains(folderId);
   return NS_OK;
 }

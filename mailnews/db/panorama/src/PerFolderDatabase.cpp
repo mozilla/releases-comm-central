@@ -802,7 +802,7 @@ NS_IMPL_ISUPPORTS(FolderInfo, nsIDBFolderInfo)
 
 NS_IMETHODIMP FolderInfo::GetFlags(int32_t* aFlags) {
   NS_ENSURE_ARG_POINTER(aFlags);
-  MOZ_TRY_VAR(*aFlags, FolderDB().GetFolderFlags(mFolderId));
+  *aFlags = MOZ_TRY(FolderDB().GetFolderFlags(mFolderId));
   return NS_OK;
 }
 
@@ -812,8 +812,7 @@ NS_IMETHODIMP FolderInfo::SetFlags(int32_t aFlags) {
 
 NS_IMETHODIMP FolderInfo::OrFlags(int32_t aFlags, int32_t* aOutFlags) {
   NS_ENSURE_ARG_POINTER(aOutFlags);
-  uint32_t flags;
-  MOZ_TRY_VAR(flags, FolderDB().GetFolderFlags(mFolderId));
+  uint32_t flags = MOZ_TRY(FolderDB().GetFolderFlags(mFolderId));
   flags |= aFlags;
   MOZ_TRY(FolderDB().UpdateFlags(mFolderId, flags));
   *aOutFlags = flags;
@@ -822,8 +821,7 @@ NS_IMETHODIMP FolderInfo::OrFlags(int32_t aFlags, int32_t* aOutFlags) {
 
 NS_IMETHODIMP FolderInfo::AndFlags(int32_t aFlags, int32_t* aOutFlags) {
   NS_ENSURE_ARG_POINTER(aOutFlags);
-  uint32_t flags;
-  MOZ_TRY_VAR(flags, FolderDB().GetFolderFlags(mFolderId));
+  uint32_t flags = MOZ_TRY(FolderDB().GetFolderFlags(mFolderId));
   flags &= aFlags;
   MOZ_TRY(FolderDB().UpdateFlags(mFolderId, flags));
   *aOutFlags = flags;
@@ -1041,7 +1039,7 @@ NS_IMETHODIMP FolderInfo::SetKnownArtsSet(const char* aKnownArtsSet) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP FolderInfo::GetFolderName(nsACString& aFolderName) {
-  MOZ_TRY_VAR(aFolderName, FolderDB().GetFolderName(mFolderId));
+  aFolderName = MOZ_TRY(FolderDB().GetFolderName(mFolderId));
   return NS_OK;
 }
 NS_IMETHODIMP FolderInfo::SetFolderName(const nsACString& aFolderName) {
