@@ -40,7 +40,6 @@
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
   <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
-  <script defer="defer" src="chrome://messenger/content/macMessengerMenu.js"></script>
   <script defer="defer" src="chrome://messenger/content/hiddenWindowMac.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -79,17 +78,6 @@
     <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard')"/>
   </commandset>
 </commandset>
-
-<popupset>
-  <menupopup id="menu_mac_dockmenu">
-    <menuitem label="&writeNewMessageDock.label;" id="tasksWriteNewMessage"
-              oncommand="writeNewMessageDock();"/>
-    <menuitem label="&openAddressBookDock.label;" id="tasksOpenAddressBook"
-              oncommand="openAddressBookDock();"/>
-    <menuitem label="&dockOptions.label;" id="tasksMenuDockOptions"
-              oncommand="openDockOptions();"/>
-  </menupopup>
-</popupset>
 
   <!-- it's the whole mailWindowOverlay.xhtml menubar! hidden windows need to
        have a menubar for situations where they're the only window remaining

@@ -1921,16 +1921,10 @@ var chatHandler = {
         function accountsObserver() {
           if (IMServices.accounts.getAccounts().length > 0) {
             Services.obs.removeObserver(accountsObserver, "account-added");
-            window.removeEventListener("unload", unloadListener);
             resolve();
           }
         }
-        function unloadListener() {
-          Services.obs.removeObserver(accountsObserver, "account-added");
-          // Don't resolve or reject, nothing good can happen if we do.
-        }
         Services.obs.addObserver(accountsObserver, "account-added");
-        window.addEventListener("unload", unloadListener);
       });
     }
     await OTRUI.init();

@@ -567,11 +567,9 @@ function toSanitize() {
  * @param {string} aPaneID - ID of prefpane to select automatically.
  * @param {string} aScrollPaneTo - ID of the element to scroll into view.
  * @param {*} aOtherArgs - Other prefpane specific arguments
- * @returns {Promise} - A Promise which resolves with the window object of the
- *   preferences page, once loaded.
  */
 function openOptionsDialog(aPaneID, aScrollPaneTo, aOtherArgs) {
-  return openPreferencesTab(aPaneID, aScrollPaneTo, aOtherArgs);
+  openPreferencesTab(aPaneID, aScrollPaneTo, aOtherArgs);
 }
 
 function openAddonsMgr(aView) {

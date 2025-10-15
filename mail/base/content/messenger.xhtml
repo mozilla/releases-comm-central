@@ -176,6 +176,7 @@
   <!-- panelUI.js is for the appmenus. -->
   <script defer="defer" src="moz-src:///comm/mail/components/customizableui/content/panelUI.js"></script>
 #ifdef XP_MACOSX
+  <script defer="defer" src="chrome://messenger/content/macMessengerMenu.js"></script>
   <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
 #endif
 #ifdef XP_WIN
@@ -470,6 +471,18 @@
 
 #include ../../components/im/content/chat-menu.inc.xhtml
 </popupset>
+#ifdef XP_MACOSX
+<popupset>
+  <menupopup id="menu_mac_dockmenu">
+    <menuitem label="&writeNewMessageDock.label;" id="tasksWriteNewMessage"
+              oncommand="writeNewMessageDock();"/>
+    <menuitem label="&openAddressBookDock.label;" id="tasksOpenAddressBook"
+              oncommand="openAddressBookDock();"/>
+    <menuitem label="&dockOptions.label;" id="tasksMenuDockOptions"
+              oncommand="openDockOptions();"/>
+  </menupopup>
+</popupset>
+#endif
 
 <!--
   Include in app notifications first to make them as easy as possible to get to

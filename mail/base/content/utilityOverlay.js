@@ -258,21 +258,16 @@ function openContentTab(url, where, linkHandler) {
  * @param {string} paneID - ID of prefpane to select automatically.
  * @param {string} scrollPaneTo - ID of the element to scroll into view.
  * @param {*} otherArgs - Other prefpane specific arguments.
- * @returns {Promise} - A Promise which resolves with the window object of the
- *   preferences page, once loaded.
  */
 function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
-  const { promise, resolve } = Promise.withResolvers();
   openTab("preferencesTab", {
     paneID,
     scrollPaneTo,
     otherArgs,
     onLoad(aEvent, aBrowser) {
       aBrowser.contentWindow.selectPrefPane(paneID, scrollPaneTo, otherArgs);
-      resolve(aBrowser.contentWindow);
     },
   });
-  return promise;
 }
 
 /**

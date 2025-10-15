@@ -346,7 +346,6 @@ var gMailInit = {
       gRightMouseButtonSavedSelection = null;
     }
 
-    PanelUI.uninit();
     SessionStoreManager.unloadingWindow(window);
     CustomTitlebar.uninit();
     ToolbarIconColor.uninit();

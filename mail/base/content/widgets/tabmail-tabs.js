@@ -411,9 +411,6 @@
       this._updateCloseButtons();
 
       Services.prefs.addObserver("mail.tabs.", this._prefObserver);
-      window.addEventListener("unload", () =>
-        Services.prefs.removeObserver("mail.tabs.", this._prefObserver)
-      );
 
       window.addEventListener("resize", this);
 
@@ -698,6 +695,8 @@
     }
 
     disconnectedCallback() {
+      Services.prefs.removeObserver("mail.tabs.", this._prefObserver);
+
       // Release timer to avoid reference cycles.
       if (this._animateTimer) {
         this._animateTimer.cancel();
