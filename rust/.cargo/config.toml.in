@@ -11,14 +11,14 @@ git = "https://github.com/FirefoxGraphics/wpf-gpu-raster"
 rev = "99979da091fd58fba8477e7fcdf5ec0727102916"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/beurdouche/mls-platform-api?rev=5d88241b9765cae3669aba21f0946bd3700f7db1"]
+[source."git+https://github.com/beurdouche/mls-platform-api?rev=3acd8e7de512940207d45477a6034a38a9424652"]
 git = "https://github.com/beurdouche/mls-platform-api"
-rev = "5d88241b9765cae3669aba21f0946bd3700f7db1"
+rev = "3acd8e7de512940207d45477a6034a38a9424652"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/beurdouche/mls-rs?rev=b747d7efb85a776b97ad8afa8d1b32893fa5efa3"]
+[source."git+https://github.com/beurdouche/mls-rs?rev=c846691feab0f3617c3815c527402bd44d854d74"]
 git = "https://github.com/beurdouche/mls-rs"
-rev = "b747d7efb85a776b97ad8afa8d1b32893fa5efa3"
+rev = "c846691feab0f3617c3815c527402bd44d854d74"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/beurdouche/nss-gk-api?rev=e48a946811ffd64abc78de3ee284957d8d1c0d63"]

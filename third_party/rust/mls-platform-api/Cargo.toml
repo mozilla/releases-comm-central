@@ -89,7 +89,7 @@ features = ["serde"]
 
 [dependencies.mls-rs]
 git = "https://github.com/beurdouche/mls-rs"
-rev = "b747d7efb85a776b97ad8afa8d1b32893fa5efa3"
+rev = "c846691feab0f3617c3815c527402bd44d854d74"
 features = [
     "sqlcipher-bundled",
     "serde",
@@ -97,11 +97,11 @@ features = [
 
 [dependencies.mls-rs-crypto-nss]
 git = "https://github.com/beurdouche/mls-rs"
-rev = "b747d7efb85a776b97ad8afa8d1b32893fa5efa3"
+rev = "c846691feab0f3617c3815c527402bd44d854d74"
 
 [dependencies.mls-rs-provider-sqlite]
 git = "https://github.com/beurdouche/mls-rs"
-rev = "b747d7efb85a776b97ad8afa8d1b32893fa5efa3"
+rev = "c846691feab0f3617c3815c527402bd44d854d74"
 
 [dependencies.serde]
 version = "1.0"

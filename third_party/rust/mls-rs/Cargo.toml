@@ -227,7 +227,7 @@ optional = true
 default-features = false
 
 [dependencies.itertools]
-version = "0.10.5"
+version = "0.14"
 features = ["use_alloc"]
 default-features = false
 

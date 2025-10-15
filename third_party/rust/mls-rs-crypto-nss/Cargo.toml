@@ -50,7 +50,6 @@ maybe-async = "0.2.10"
 
 [dependencies.getrandom]
 version = "0.2"
-features = ["custom"]
 default-features = false
 
 [dependencies.hex]
