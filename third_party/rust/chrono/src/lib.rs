@@ -380,7 +380,7 @@
 //! use chrono::{DateTime, Utc};
 //!
 //! // Construct a datetime from epoch:
-//! let dt: DateTime<Utc> = DateTime::from_timestamp(1_500_000_000, 0).unwrap();
+//! let dt: DateTime<Utc> = DateTime::from_timestamp_secs(1_500_000_000).unwrap();
 //! assert_eq!(dt.to_rfc2822(), "Fri, 14 Jul 2017 02:40:00 +0000");
 //!
 //! // Get epoch value from a datetime:
@@ -512,8 +512,8 @@
 extern crate alloc;
 
 mod time_delta;
-#[cfg(feature = "std")]
 #[doc(no_inline)]
+#[cfg(any(feature = "std", feature = "core-error"))]
 pub use time_delta::OutOfRangeError;
 pub use time_delta::TimeDelta;
 
@@ -634,7 +634,7 @@ pub mod serde {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             match self {
                 SerdeError::InvalidTimestamp(ts) => {
-                    write!(f, "value is not a legal timestamp: {}", ts)
+                    write!(f, "value is not a legal timestamp: {ts}")
                 }
             }
         }
@@ -689,6 +689,9 @@ impl fmt::Debug for OutOfRange {
 
 #[cfg(feature = "std")]
 impl std::error::Error for OutOfRange {}
+
+#[cfg(all(not(feature = "std"), feature = "core-error"))]
+impl core::error::Error for OutOfRange {}
 
 /// Workaround because `?` is not (yet) available in const context.
 #[macro_export]

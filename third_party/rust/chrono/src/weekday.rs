@@ -238,12 +238,15 @@ pub struct ParseWeekdayError {
     pub(crate) _dummy: (),
 }
 
+#[cfg(all(not(feature = "std"), feature = "core-error"))]
+impl core::error::Error for ParseWeekdayError {}
+
 #[cfg(feature = "std")]
 impl std::error::Error for ParseWeekdayError {}
 
 impl fmt::Display for ParseWeekdayError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_fmt(format_args!("{:?}", self))
+        f.write_fmt(format_args!("{self:?}"))
     }
 }
 
