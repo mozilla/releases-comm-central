@@ -35,39 +35,33 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
         this.appendChild(
           MozXULElement.parseXULToFragment(
             `
-          <hbox align="start" flex="1">
-            <!-- Note: The wrapper div is only here because the XUL box does not
-               - properly crop img elements with CSS object-fit and
-               - object-position. Should be removed when converting the parent
-               - element to HTML. -->
-            <html:div>
-              <html:img class="calendar-invitations-richlistitem-icon"
-                        src="chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png" />
-            </html:div>
-            <vbox flex="1">
-              <label class="calendar-invitations-richlistitem-title" crop="end"/>
-              <label class="calendar-invitations-richlistitem-date" crop="end"/>
-              <label class="calendar-invitations-richlistitem-recurrence" crop="end"/>
-              <label class="calendar-invitations-richlistitem-location" crop="end"/>
-              <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
-              <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
-              <label class="calendar-invitations-richlistitem-spacer" value="" hidden="hidden"/>
-            </vbox>
-            <vbox>
-              <button group="${this.getAttribute("itemId")}"
-                      type="radio"
-                      class="calendar-invitations-richlistitem-accept-button
-                      calendar-invitations-richlistitem-button"
-                      label="&calendar.invitations.list.accept.button.label;"
-                      oncommand="accept();"/>
-              <button group="${this.getAttribute("itemId")}"
-                      type="radio"
-                      class="calendar-invitations-richlistitem-decline-button
-                      calendar-invitations-richlistitem-button"
-                      label="&calendar.invitations.list.decline.button.label;"
-                      oncommand="decline();"/>
-            </vbox>
-          </hbox>
+          <html:div>
+            <html:img class="calendar-invitations-richlistitem-icon"
+                      src="chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png" />
+          </html:div>
+          <vbox class="content-box" flex="1">
+            <label class="calendar-invitations-richlistitem-title" crop="end"/>
+            <label class="calendar-invitations-richlistitem-date" crop="end"/>
+            <label class="calendar-invitations-richlistitem-recurrence" crop="end"/>
+            <label class="calendar-invitations-richlistitem-location" crop="end"/>
+            <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
+            <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
+            <label class="calendar-invitations-richlistitem-spacer" value="" hidden="hidden"/>
+          </vbox>
+          <vbox>
+            <button group="${this.getAttribute("itemId")}"
+                    type="radio"
+                    class="calendar-invitations-richlistitem-accept-button
+                    calendar-invitations-richlistitem-button"
+                    label="&calendar.invitations.list.accept.button.label;"
+                    oncommand="accept();"/>
+            <button group="${this.getAttribute("itemId")}"
+                    type="radio"
+                    class="calendar-invitations-richlistitem-decline-button
+                    calendar-invitations-richlistitem-button"
+                    label="&calendar.invitations.list.decline.button.label;"
+                    oncommand="decline();"/>
+          </vbox>
           `,
             ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]
           )
@@ -133,7 +127,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
         const locationProperty =
           item.getProperty("LOCATION") || lazy.l10n.formatValueSync("calendar-invitations-none");
 
-        document.l10n.setAttributes(locationLabel, "calendar-invitations-location", {
+        document.l10n.setAttributes(locationLabel, "calendar-invitation-location", {
           locationProperty,
         });
 

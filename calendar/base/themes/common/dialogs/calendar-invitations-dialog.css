@@ -29,6 +29,14 @@ richlistitem[is="calendar-invitations-richlistitem"] {
   padding: 6px 7px;
   min-height: 25px;
   border-bottom: 1px dotted #808080;
+
+  @media (-moz-overlay-scrollbars) {
+    padding-inline-end: env(scrollbar-inline-size);
+  }
+}
+
+.content-box {
+  overflow: hidden;
 }
 
 .calendar-invitations-richlistitem-title {
@@ -41,6 +49,7 @@ richlistitem[is="calendar-invitations-richlistitem"] {
   object-fit: none;
   width: 32px;
   height: 32px;
+  margin-inline-end: 3px;
 }
 
 .calendar-invitations-richlistitem-icon[status="NEEDS-ACTION"] {
