@@ -859,10 +859,7 @@ class AccountHubEmail extends HTMLElement {
 
         await this.#initUI(this.#states[this.#currentState].nextStep);
 
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-config-success",
-          type: "success",
-        });
+        this.#showConfigFoundNotification();
         this.#setCurrentConfigForSubview();
         break;
       case "incomingConfigSubview":
@@ -1097,10 +1094,7 @@ class AccountHubEmail extends HTMLElement {
 
     await this.#initUI(this.#states[this.#currentState].nextStep);
 
-    this.#currentSubview.showNotification({
-      fluentTitleId: "account-hub-config-success",
-      type: "success",
-    });
+    this.#showConfigFoundNotification();
 
     this.#setCurrentConfigForSubview();
   }
@@ -1689,6 +1683,35 @@ class AccountHubEmail extends HTMLElement {
     // eslint-disable-next-line no-undef
     MsgAccountManager("am-server.xhtml", data);
     await this.reset();
+  }
+
+  #showConfigFoundNotification() {
+    let configFoundString = "account-hub-config-success-unknown";
+
+    const CONFIG_SOURCE = {
+      [lazy.AccountConfig.kSourceExchange]:
+        "account-hub-config-success-exchange",
+      [lazy.AccountConfig.kSourceGuess]: "account-hub-config-success-guess",
+    };
+
+    if (Object.hasOwn(CONFIG_SOURCE, this.#currentConfig.source)) {
+      configFoundString = CONFIG_SOURCE[this.#currentConfig.source];
+    } else if (this.#currentConfig.source == lazy.AccountConfig.kSourceXML) {
+      const CONFIG_SUBSOURCE = {
+        "xml-from-disk": "account-hub-config-success-disk",
+        "xml-from-isp-https": "account-hub-config-success-isp",
+        "xml-from-isp-http": "account-hub-config-success-isp",
+        "xml-from-db": "account-hub-config-success",
+      };
+      if (Object.hasOwn(CONFIG_SUBSOURCE, this.#currentConfig.subSource)) {
+        configFoundString = CONFIG_SUBSOURCE[this.#currentConfig.subSource];
+      }
+    }
+
+    this.#currentSubview.showNotification({
+      fluentTitleId: configFoundString,
+      type: "success",
+    });
   }
 
   /**
