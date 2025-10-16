@@ -30,21 +30,17 @@ NS_IMPL_QUERY_INTERFACE(nsMsgMailView, nsIMsgMailView)
 
 nsMsgMailView::~nsMsgMailView() {}
 
-NS_IMETHODIMP nsMsgMailView::GetMailViewName(char16_t** aMailViewName) {
-  NS_ENSURE_ARG_POINTER(aMailViewName);
-
-  *aMailViewName = ToNewUnicode(mName);
+NS_IMETHODIMP nsMsgMailView::GetMailViewName(nsACString& aMailViewName) {
+  aMailViewName = mName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::SetMailViewName(const char16_t* aMailViewName) {
+NS_IMETHODIMP nsMsgMailView::SetMailViewName(const nsACString& aMailViewName) {
   mName = aMailViewName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
-  NS_ENSURE_ARG_POINTER(aMailViewName);
-
+NS_IMETHODIMP nsMsgMailView::GetPrettyName(nsACString& aPrettyName) {
   nsresult rv = NS_OK;
 
   RefPtr<mozilla::intl::Localization> l10n =
@@ -69,13 +65,13 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
         LocalizeMessage(l10n, "mail-view-has-attachments"_ns, {}, mailViewName);
     gotLocalized = NS_SUCCEEDED(rv) && !mailViewName.IsEmpty();
   } else {
-    *aMailViewName = ToNewUnicode(mName);
+    aPrettyName = mName;
   }
 
   if (gotLocalized) {
-    *aMailViewName = ToNewUnicode(mailViewName);
+    aPrettyName = mailViewName;
   } else {
-    *aMailViewName = ToNewUnicode(mName);
+    aPrettyName = mName;
   }
 
   return NS_OK;
@@ -180,12 +176,13 @@ nsresult nsMsgMailViewList::ConvertMailViewListToFilterList() {
   uint32_t mailViewCount = m_mailViews.Length();
   nsCOMPtr<nsIMsgMailView> mailView;
   nsCOMPtr<nsIMsgFilter> newMailFilter;
-  nsString mailViewName;
+  nsAutoCString mailViewName;
   for (uint32_t index = 0; index < mailViewCount; index++) {
     GetMailViewAt(index, getter_AddRefs(mailView));
     if (!mailView) continue;
-    mailView->GetMailViewName(getter_Copies(mailViewName));
-    mFilterList->CreateFilter(mailViewName, getter_AddRefs(newMailFilter));
+    mailView->GetMailViewName(mailViewName);
+    mFilterList->CreateFilter(NS_ConvertUTF8toUTF16(mailViewName),
+                              getter_AddRefs(newMailFilter));
     if (!newMailFilter) continue;
 
     nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
@@ -264,7 +261,7 @@ nsresult nsMsgMailViewList::ConvertFilterListToMailViews() {
 
     nsString filterName;
     msgFilter->GetFilterName(filterName);
-    newMailView->SetMailViewName(filterName.get());
+    newMailView->SetMailViewName(NS_ConvertUTF16toUTF8(filterName));
 
     nsTArray<RefPtr<nsIMsgSearchTerm>> filterSearchTerms;
     rv = msgFilter->GetSearchTerms(filterSearchTerms);

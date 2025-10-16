@@ -24,7 +24,7 @@ class nsMsgMailView : public nsIMsgMailView {
 
  protected:
   virtual ~nsMsgMailView();
-  nsString mName;
+  nsCString mName;
   nsCOMPtr<nsIStringBundle> mBundle;
   nsTArray<RefPtr<nsIMsgSearchTerm>> mViewSearchTerms;
 };

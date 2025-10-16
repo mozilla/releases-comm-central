@@ -2519,7 +2519,7 @@ nsresult nsMsgDBFolder::initializeStrings() {
   rv = LocalizeMessage(l10n, "folder-name-spam"_ns, {}, localizedSpamName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  kLocalizedJunkName = ToNewUnicode(localizedSpamName);
+  kLocalizedJunkName = NS_ConvertUTF8toUTF16(localizedSpamName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties",

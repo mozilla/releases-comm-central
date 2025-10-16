@@ -10,8 +10,8 @@ interface nsIMsgSearchTerm;
 
 [scriptable, uuid(28AC84DF-CBE5-430d-A5C0-4FA63B5424DF)]
 interface nsIMsgMailView : nsISupports {
-    attribute wstring mailViewName;
-    readonly attribute wstring prettyName; // localized pretty name
+    attribute AUTF8String mailViewName;
+    readonly attribute AUTF8String prettyName; // localized pretty name
 
     // the array of search terms
     attribute Array<nsIMsgSearchTerm> searchTerms;

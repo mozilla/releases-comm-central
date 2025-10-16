@@ -1525,7 +1525,7 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
           rv =
               LocalizeMessage(l10n, "message-flag-spam"_ns, {}, localizedValue);
           NS_ENSURE_SUCCESS(rv, rv);
-          aValue = ToNewUnicode(localizedValue);
+          aValue = NS_ConvertUTF8toUTF16(localizedValue);
         }
 
         NS_ASSERTION(NS_SUCCEEDED(rv),

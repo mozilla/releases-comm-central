@@ -539,7 +539,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
       nsAutoCString filterActionSpam;
       rv = LocalizeMessage(l10n, "filter-action-log-spam"_ns, {},
                            filterActionSpam);
-      actionValue = ToNewUnicode(filterActionSpam);
+      actionValue = NS_ConvertUTF8toUTF16(filterActionSpam);
     } else {
       nsAutoCString filterActionID;
       filterActionID = "filterAction"_ns;
