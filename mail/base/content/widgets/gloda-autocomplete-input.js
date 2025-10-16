@@ -70,6 +70,15 @@ customElements.whenDefined("autocomplete-input").then(() => {
           event.stopPropagation();
         }
       });
+
+      window.addEventListener("unload", () => {
+        if (this.hasConnected) {
+          Services.obs.removeObserver(
+            this.textObserver,
+            "autocomplete-did-enter-text"
+          );
+        }
+      });
     }
 
     connectedCallback() {

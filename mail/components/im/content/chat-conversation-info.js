@@ -103,9 +103,6 @@
         "command",
         this.encryptionButtonClicked
       );
-      if (Services.prefs.getBoolPref("chat.otr.enable")) {
-        OTRUI.setNotificationBox(chatHandler.msgNotificationBar);
-      }
       this.initializeAttributeInheritance();
     }
 

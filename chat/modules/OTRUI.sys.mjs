@@ -348,8 +348,11 @@ export var OTRUI = {
     );
   },
 
-  setNotificationBox(notificationbox) {
-    this.globalBox = notificationbox;
+  get globalBox() {
+    // Storing a reference to an element in a window would leak that window,
+    // so don't do that. Instead, get the element when we want it.
+    return Services.wm.getMostRecentWindow("mail:3pane").chatHandler
+      .msgNotificationBar;
   },
 
   /*
@@ -562,11 +565,12 @@ export var OTRUI = {
       },
     ];
 
-    const notification = await this.globalBox.appendNotification(
+    const notificationBox = this.globalBox;
+    const notification = await notificationBox.appendNotification(
       `ask-auth-${name}`,
       {
         label: msg,
-        priority: this.globalBox.PRIORITY_WARNING_MEDIUM,
+        priority: notificationBox.PRIORITY_WARNING_MEDIUM,
       },
       buttons
     );
@@ -579,14 +583,15 @@ export var OTRUI = {
       return;
     }
 
-    const notification = this.globalBox.getNotificationWithValue(
+    const notificationBox = this.globalBox;
+    const notification = notificationBox.getNotificationWithValue(
       `ask-auth-${name}`
     );
     if (!notification) {
       return;
     }
 
-    this.globalBox.removeNotification(notification);
+    notificationBox.removeNotification(notification);
   },
 
   closeUnverifiedWithUsername(username) {
@@ -669,11 +674,12 @@ export var OTRUI = {
       },
     ];
 
-    const notification = await this.globalBox.appendNotification(
+    const notificationBox = this.globalBox;
+    const notification = await notificationBox.appendNotification(
       name,
       {
         label: _strArgs(`finger-${seen}`, { name }),
-        priority: this.globalBox.PRIORITY_WARNING_MEDIUM,
+        priority: notificationBox.PRIORITY_WARNING_MEDIUM,
       },
       buttons
     );
@@ -761,15 +767,16 @@ export var OTRUI = {
     }
 
     // Change priority type based on the passed key.
-    let priority = this.globalBox.PRIORITY_WARNING_HIGH;
+    const notificationBox = this.globalBox;
+    let priority = notificationBox.PRIORITY_WARNING_HIGH;
     let dismissable = true;
     switch (key) {
       case "otr:auth-error":
       case "otr:auth-fail":
-        priority = this.globalBox.PRIORITY_CRITICAL_HIGH;
+        priority = notificationBox.PRIORITY_CRITICAL_HIGH;
         break;
       case "otr:auth-waiting":
-        priority = this.globalBox.PRIORITY_INFO_MEDIUM;
+        priority = notificationBox.PRIORITY_INFO_MEDIUM;
         dismissable = false;
         break;
 
@@ -779,7 +786,7 @@ export var OTRUI = {
 
     OTRUI.closeUnverifiedWithUsername(cachedUsername);
 
-    const notification = await this.globalBox.appendNotification(
+    const notification = await notificationBox.appendNotification(
       cachedUsername,
       {
         label: authLabelMap.get(key),

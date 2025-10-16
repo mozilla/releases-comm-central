@@ -2,6 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Tests for windows which remain in memory after they are closed. Window
+ * objects, and everything they contain, should be freed from memory as soon
+ * as the window closes. Not doing so is a significant memory leak, which may
+ * or may not also appear in the leak summary at the end of a test run.
+ *
+ * Failing one of these tests means that opening a window has created a strong
+ * reference to it somewhere, typically in a service that lasts the lifetime
+ * of the application such as the observer service or preferences service.
+ *
+ * It's very likely that failing one of these tests will cause all of the
+ * subsequent tests to also fail.
+ */
+
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -115,6 +129,24 @@ add_task(async function testMessageWindow() {
   await BrowserTestUtils.closeWindow(win);
   win = null;
   aboutMessage = null;
+
+  await assertNoDetachedWindows();
+});
+
+add_task(async function testSecondMessengerWindow() {
+  info("Opening a new messenger window");
+  let openPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.MsgOpenNewWindowForFolder(testFolder.URI, -1);
+  let win = await openPromise;
+  await new Promise(resolve => win.setTimeout(resolve, 500));
+
+  info("Closing the window");
+  await BrowserTestUtils.closeWindow(win);
+  // Apparently we need to wait a moment for things to clean up properly.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  win = null;
+  openPromise = null;
 
   await assertNoDetachedWindows();
 });
