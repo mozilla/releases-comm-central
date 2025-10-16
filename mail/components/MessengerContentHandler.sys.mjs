@@ -791,7 +791,7 @@ export class MessengerContentHandler {
   }
 }
 
-/*
+/**
  * @implements {nsIProfileMigrator}
  */
 export class MessengerProfileMigrator {

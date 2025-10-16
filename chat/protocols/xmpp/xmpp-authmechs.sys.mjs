@@ -391,7 +391,7 @@ async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
   return new Uint8Array(output);
 }
 
-/*
+/**
  * Given hash functions return a generator to be used as an XMPP authentication
  * mechanism.
  *

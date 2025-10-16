@@ -23,7 +23,7 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 });
 
 export var EnigmailFixExchangeMsg = {
-  /*
+  /**
    * Fix a broken message from MS-Exchange and replace it with the original message
    *
    * @param {nsIMsgDBHdr} hdr - Header of the message to fix (= pointer to message)

@@ -57,19 +57,21 @@ export var item = {
     return false;
   },
 
-  /*
+  /**
    * Checks whether a calendar supports events
    *
-   * @param {calICalendar} aCalendar
+   * @param {calICalendar} aCalendar - The calendar to check.
+   * @returns {boolean} Whether the calendar supports events.
    */
   isEventCalendar(aCalendar) {
     return aCalendar.getProperty("capabilities.events.supported") !== false;
   },
 
-  /*
+  /**
    * Checks whether a calendar supports tasks
    *
-   * @param aCalendar
+   * @param {calICalendar} aCalendar - The calendar to check.
+   * @returns {boolean} Whether the calendar supports tasks.
    */
   isTaskCalendar(aCalendar) {
     return aCalendar.getProperty("capabilities.tasks.supported") !== false;

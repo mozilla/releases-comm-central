@@ -278,11 +278,11 @@ async function populateMaildir(maildir, emailFiles) {
   }
 }
 
-/*
+/**
  * List files in a directory (excludes subdirectories).
  *
- * @param {String} dirPath - Full path of directory.
- * @returns {Array<String} full paths of the files.
+ * @param {string} dirPath - Full path of directory.
+ * @returns {Array<string>} full paths of the files.
  */
 async function listFiles(dirPath) {
   const files = [];
@@ -296,11 +296,11 @@ async function listFiles(dirPath) {
   return files;
 }
 
-/*
+/**
  * Calculate md5 checksum for a file.
  *
- * @param {String} fileName - Full path to file.
- * @returns {String} checksum of the file contents.
+ * @param {string} fileName - Full path to file.
+ * @returns {string} checksum of the file contents.
  */
 async function md5Sum(fileName) {
   const md5 = Cc["@mozilla.org/security/hash;1"].createInstance(

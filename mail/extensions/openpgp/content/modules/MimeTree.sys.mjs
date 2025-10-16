@@ -338,7 +338,7 @@ export class MimeTreeDecrypter {
     }
   }
 
-  /***
+  /**
    *
    * Detect if MimeTreePart is PGP/MIME message that got modified by MS-Exchange:
    *

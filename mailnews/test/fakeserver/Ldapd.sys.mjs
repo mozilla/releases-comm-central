@@ -101,8 +101,8 @@ class BERValue {
     return (this.type & 0xc0) == 0xc0;
   }
 
-  /*
-   * @return {boolean} - Is this value a constructed type a sequence or set?
+  /**
+   * @returns {boolean} - Is this value a constructed type a sequence or set?
    *                     (As encoded in bit 5 of the type)
    */
   isConstructed() {

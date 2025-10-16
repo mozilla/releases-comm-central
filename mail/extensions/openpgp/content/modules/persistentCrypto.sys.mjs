@@ -28,7 +28,7 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
 });
 
 export var EnigmailPersistentCrypto = {
-  /***
+  /**
    * Decrypts a message and copy it to a folder. If targetKey is
    * not null, it encrypts a message to the target key afterwards.
    *
@@ -37,7 +37,7 @@ export var EnigmailPersistentCrypto = {
    * @param {boolean} move - true for move, false for copy.
    * @param {KeyObject} targetKey - Target key if encryption is requested.
    * @returns {nsMsgKey} message key of the new message.
-   **/
+   */
   async cryptMessage(hdr, destFolder, move, targetKey) {
     return new Promise(function (resolve, reject) {
       const uri = hdr.folder.getUriForMsg(hdr);
@@ -96,7 +96,7 @@ export var EnigmailPersistentCrypto = {
     return newHeaders + "\r\n" + body;
   },
 
-  /*
+  /**
    * Copies an email message to a folder, which is a modified copy of an
    * existing message, optionally creating a new message ID.
    *

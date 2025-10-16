@@ -136,8 +136,9 @@ export function get_mailing_list_from_address_book(aAddressBook, aDirName) {
   throw Error("Could not find a mailing list with dirName " + aDirName);
 }
 
-/* Given some address book, adds a collection of contacts to that
- * address book.
+/**
+ * Given some address book, adds a collection of contacts to that address book.
+ *
  * @param {nsIAbDirectory} aAddressBook - An address book to add the contacts to.
  * @param {object[]} aContacts - A collection of nsIAbCards, or contacts,
  *   where each contact has members "email" and "displayName"

@@ -13,11 +13,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 export var EnigmailMime = {
-  /***
+  /**
    * create a string of random characters suitable to use for a boundary in a
    * MIME message following RFC 2045
    *
-   * @return: string to use as MIME boundary
+   * @returns {string} A string to use as the MIME boundary.
    * @see {MimeMultiPart._makePartSeparator}
    */
   createBoundary() {
@@ -63,42 +63,39 @@ export var EnigmailMime = {
     );
   },
 
-  /***
+  /**
    * determine the "boundary" part of a mail content type.
    *
-   * @contentTypeStr: the string containing all parts of a content-type.
-   *               (e.g. multipart/mixed; boundary="xyz") --> returns "xyz"
-   *
-   * @return: String containing the boundary parameter; or ""
+   * @param {string} contentTypeStr - The string containing all parts of a content-type.
+   *   For example: `multipart/mixed; boundary="xyz"` → returns `"xyz"`.
+   * @returns {string} The boundary parameter value, or an empty string if not found.
    */
-
   getBoundary(contentTypeStr) {
     return EnigmailMime.getParameter(contentTypeStr, "boundary");
   },
 
-  /***
+  /**
    * determine the "protocol" part of a mail content type.
    *
-   * @contentTypeStr: the string containing all parts of a content-type.
+   * @param {string} contentTypeStr - The string containing all parts of a content-type.
    *               (e.g. multipart/signed; protocol="xyz") --> returns "xyz"
    *
-   * @return: String containing the protocol parameter; or ""
+   * @returns {string} String containing the protocol parameter; or ""
    */
 
   getProtocol(contentTypeStr) {
     return EnigmailMime.getParameter(contentTypeStr, "protocol");
   },
 
-  /***
+  /**
    * determine an arbitrary "parameter" part of a mail header.
    *
-   * @param headerStr: the string containing all parts of the header.
-   * @param parameter: the parameter we are looking for
-   *
+   * @param {string} headerStr - The string containing all parts of the header.
+   * @param {string} parameter - The parameter we are looking for.
    *
    * 'multipart/signed; protocol="xyz"', 'protocol' --> returns "xyz"
    *
-   * @return: String containing the parameter; or ""
+   * @returns {string} String containing the parameter; or ""
    */
 
   getParameter(headerStr, parameter) {
@@ -110,12 +107,12 @@ export var EnigmailMime = {
     return "";
   },
 
-  /***
+  /**
    * get all parameter attributes of a mail header.
    *
-   * @param headerStr: the string containing all parts of the header.
+   * @param {string} headerStr - The string containing all parts of the header.
    *
-   * @return: Array of Object containing the key value pairs
+   * @returns {Array<object>} Array of object containing the key value pairs
    *
    * 'multipart/signed; protocol="xyz"'; boundary="xxx"
    *  --> returns [ ["protocol": "xyz"], ["boundary": "xxx"] ]
@@ -176,7 +173,7 @@ export var EnigmailMime = {
     return null;
   },
 
-  /***
+  /**
    * Determine if the message data contains protected headers.
    * If so, extract the corresponding field(s).
    *

@@ -88,14 +88,12 @@ export function modelQueryHasUserValue(aBasePrefName) {
   return Services.prefs.prefHasUserValue(aBasePrefName);
 }
 
-/*
- * Given a database model query and a list of search tokens,
- * return query URI.
+/**
+ * Given a database model query and a list of search tokens, return the query URI.
  *
- * @param aModelQuery database model query
- * @param aSearchWords an array of search tokens.
- *
- * @return query URI.
+ * @param {string} aModelQuery - The database model query.
+ * @param {string[]} aSearchWords - An array of search tokens.
+ * @returns {string} The generated query URI.
  */
 export function generateQueryURI(aModelQuery, aSearchWords) {
   // If there are no search tokens, we simply return an empty string.

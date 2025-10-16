@@ -303,7 +303,7 @@ Enigmail.msg = {
     });
   },
 
-  /***
+  /**
    * Walk through the (sub-) mime tree and determine PGP/MIME encrypted and
    * signed message parts
    *

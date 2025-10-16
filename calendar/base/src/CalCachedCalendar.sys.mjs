@@ -437,14 +437,14 @@ calCachedCalendar.prototype = {
     }
   },
 
-  /*
+  /**
    * Asynchronously performs playback operations of items added, modified, or deleted offline
    *
-   * @param aPlaybackType     (optional) The starting operation type. This function will be
-   *                          called recursively through playback operations in the order of
-   *                          add, modify, delete. By default playback will start with the add
-   *                          operation. Valid values for this parameter are defined as
-   *                          OFFLINE_FLAG_XXX constants in the calIChangeLog interface.
+   * @param {number} [aPlaybackType=Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD] - (Optional) The starting
+   *   operation type. This function will be called recursively through playback operations in the
+   *   order of add, modify, and delete. By default, playback will start with the add operation.
+   *   Valid values for this parameter are defined as `OFFLINE_FLAG_XXX` constants in the
+   *   `calIChangeLog` interface.
    */
   async playbackOfflineItems(aPlaybackType) {
     const self = this;

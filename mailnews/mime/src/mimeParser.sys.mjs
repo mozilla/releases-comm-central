@@ -33,7 +33,7 @@ function setDefaultParserOptions(opts) {
 }
 
 export var MimeParser = {
-  /***
+  /**
    * Determine an arbitrary "parameter" part of a mail header.
    *
    * @param {string} headerStr - The string containing all parts of the header.
@@ -41,7 +41,7 @@ export var MimeParser = {
    *
    * 'multipart/signed; protocol="xyz"', 'protocol' --> returns "xyz"
    *
-   * @return {string} String containing the value of the parameter; or "".
+   * @returns {string} String containing the value of the parameter; or "".
    */
   getParameter(headerStr, parameter) {
     parameter = parameter.toLowerCase();

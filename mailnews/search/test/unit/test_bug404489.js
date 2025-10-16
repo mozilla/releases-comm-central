@@ -123,21 +123,28 @@ function continue_test() {
   }
 }
 
-/*
- * TestSearchx: Class to test number of search hits
+/**
+ * TestSearchx: Class to test number of search hits.
  *
- * @param aFolder:   the folder to search
- * @param aValue:    value used for the search
- *                   The interpretation of aValue depends on aAttrib. It
- *                   defaults to string, but for certain attributes other
- *                   types are used.
- *                   WARNING: not all attributes have been tested.
- *
- * @param aAttrib:   attribute for the search (Ci.nsMsgSearchAttrib.Size, etc.)
- * @param aOp:       operation for the search (Ci.nsMsgSearchOp.Contains, etc.)
- * @param aHitCount: expected number of search hits
- * @param onDone:    function to call on completion of search
- *
+ * @param {nsIMsgFolder} aFolder - The folder to search.
+ * @param {(string|number|Date)} aValue - Value used for the search.
+ *   The interpretation of `aValue` depends on `aAttrib` (defaults to string, but
+ *   some attributes use other types):
+ *   - `Ci.nsMsgSearchAttrib.JunkPercent` → {number} (0–100)
+ *   - `Ci.nsMsgSearchAttrib.Priority` → {number} (Ci.nsMsgPriority.*)
+ *   - `Ci.nsMsgSearchAttrib.Date` → {Date|number} (Date or PRTime/epoch number)
+ *   - `Ci.nsMsgSearchAttrib.MsgStatus` → {number} (Ci.nsMsgMessageFlags.*)
+ *   - `Ci.nsMsgSearchAttrib.MessageKey` → {number}
+ *   - `Ci.nsMsgSearchAttrib.Size` → {number} (bytes)
+ *   - `Ci.nsMsgSearchAttrib.AgeInDays` → {number}
+ *   - `Ci.nsMsgSearchAttrib.JunkStatus` → {number}
+ *   - `Ci.nsMsgSearchAttrib.HasAttachmentStatus` → (ignored; status is set internally)
+ *   - otherwise → {string}
+ *   WARNING: Not all attributes have been tested.
+ * @param {number} aAttrib - Attribute for the search (Ci.nsMsgSearchAttrib.*).
+ * @param {number} aOp - Operation for the search (Ci.nsMsgSearchOp.*).
+ * @param {number} aHitCount - Expected number of search hits.
+ * @param {Function} onDone - Function to call on completion of the search.
  */
 
 function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {

@@ -138,12 +138,12 @@ function setUpdateTimerPrefs() {
   Services.prefs.setIntPref(PREF_APP_UPDATE_INTERVAL, 43200);
 }
 
-/*
- * Sets the value of the App Auto Update setting and sets it back to the
- * original value at the start of the test when the test finishes.
+/**
+ * Sets the value of the App Auto Update setting and restores it to the
+ * original value at the end of the test.
  *
- * @param  enabled
- *         The value to set App Auto Update to.
+ * @param {boolean} enabled - The value to set App Auto Update to.
+ * @returns {Promise<void>} Resolves when the setting has been updated.
  */
 async function setAppUpdateAutoEnabledHelper(enabled) {
   if (gOriginalUpdateAutoValue == null) {

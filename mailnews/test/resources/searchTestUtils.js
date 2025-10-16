@@ -107,13 +107,13 @@ function TestSearch(
   searchSession.search(null);
 }
 
-/*
+/**
  * Test search validity table Available and Enabled settings
  *
- * @param aScope:  search scope (Ci.nsMsgSearchScope.offlineMail, etc.)
- * @param aOp:     search operation (Ci.nsMsgSearchOp.Contains, etc.)
- * @param aAttrib: search attribute (Ci.nsMsgSearchAttrib.Size, etc.)
- * @param aValue:  expected value (true/false) for Available and Enabled
+ * @param {number} aScope - Search scope (Ci.nsMsgSearchScope.offlineMail, etc.)
+ * @param {number} aOp - Search operation (Ci.nsMsgSearchOp.Contains, etc.)
+ * @param {number} aAttrib - Search attribute (Ci.nsMsgSearchAttrib.Size, etc.)
+ * @param {boolean} aValue - Expected value (true/false) for Available and Enabled
  */
 const gValidityManager = Cc[
   "@mozilla.org/mail/search/validityManager;1"
