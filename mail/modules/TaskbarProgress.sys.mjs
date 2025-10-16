@@ -7,8 +7,12 @@
  *
  * @param {mozIDOMWindowProxy} window - The window to associate with this
  *   progress display.
+ * @returns {?nsITaskbarProgress}
  */
 function getTaskbarProgress(window) {
+  if (!window.docShell) {
+    return null;
+  }
   if ("@mozilla.org/windows-taskbar;1" in Cc) {
     const winTaskbar = Cc["@mozilla.org/windows-taskbar;1"].getService(
       Ci.nsIWinTaskbar
@@ -34,20 +38,5 @@ function getTaskbarProgress(window) {
 }
 
 export const TaskbarProgress = {
-  /**
-   * Display the progress on the OS taskbar icon of `window`.
-   * See nsITaskbarProgress.idl for more info.
-   *
-   * @param {mozIDOMWindowProxy} window - The window to associate with this
-   *   progress display.
-   * @param {nsTaskbarProgressState} state
-   * @param {number} currentValue
-   * @param {number} maxValue
-   */
-  showProgress(window, state, currentValue = 0, maxValue = 0) {
-    if (!window.docShell) {
-      return;
-    }
-    getTaskbarProgress(window)?.setProgressState(state, currentValue, maxValue);
-  },
+  getTaskbarProgress,
 };

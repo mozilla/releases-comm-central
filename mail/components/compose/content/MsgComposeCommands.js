@@ -100,7 +100,16 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
-  TaskbarProgress: "resource:///modules/TaskbarProgress.sys.mjs",
+});
+
+ChromeUtils.defineLazyGetter(lazy, "taskbarProgress", () => {
+  // Once we have this object, we must hold a reference to it until the window
+  // closes. Otherwise it could be cleaned up by garbage collection, which
+  // causes the window to disappear from the taskbar on Windows.
+  const { TaskbarProgress } = ChromeUtils.importESModule(
+    "resource:///modules/TaskbarProgress.sys.mjs"
+  );
+  return TaskbarProgress.getTaskbarProgress(window);
 });
 
 /**
@@ -912,9 +921,10 @@ var progressListener = {
       progressMeter.value = 0;
       document.getElementById("statusText").textContent = "";
       // Clear taskbar/dock progress.
-      lazy.TaskbarProgress.showProgress(
-        window,
-        Ci.nsITaskbarProgress.STATE_NO_PROGRESS
+      lazy.taskbarProgress?.setProgressState(
+        Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
+        0,
+        0
       );
       Services.obs.notifyObservers(
         { composeWindow: window },
@@ -945,8 +955,7 @@ var progressListener = {
       // Taskbar/dock progress. Don't show progress for messages smaller than
       // the send chunk size.
       if (aMaxTotalProgress > 65536) {
-        lazy.TaskbarProgress.showProgress(
-          window,
+        lazy.taskbarProgress?.setProgressState(
           Ci.nsITaskbarProgress.STATE_NORMAL,
           aCurTotalProgress,
           aMaxTotalProgress
@@ -957,9 +966,10 @@ var progressListener = {
       document.getElementById("compose-progressmeter").removeAttribute("value");
 
       // Just clear taskbar/dock progress.
-      lazy.TaskbarProgress.showProgress(
-        window,
-        Ci.nsITaskbarProgress.STATE_NO_PROGRESS
+      lazy.taskbarProgress?.setProgressState(
+        Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
+        0,
+        0
       );
     }
   },
