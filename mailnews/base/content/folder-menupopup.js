@@ -547,7 +547,7 @@
 
         switch (specialType) {
           case "recent":
-            // Find the most recently modified ones.
+            // Find the folders that were most recently used as destinations.
             specialFolders = lazy.FolderUtils.getMostRecentFolders(
               specialFolders,
               Services.prefs.getIntPref("mail.folder_widget.max_recent"),
@@ -597,12 +597,14 @@
           folderItem.label = label;
         }
 
-        // Make sure the entries are sorted alphabetically.
-        specialFoldersMap.sort((a, b) =>
-          a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
-        );
+        // If appropriate, sort the entries alphabetically.
+        if (specialType != "recent") {
+          specialFoldersMap.sort((a, b) =>
+            a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
+          );
+        }
 
-        // Create entries for each of the recent folders.
+        // Create entries for each of the special folders.
         for (const folderItem of specialFoldersMap) {
           const attributes = {
             label: folderItem.label,
