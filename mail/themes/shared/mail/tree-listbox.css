@@ -573,16 +573,8 @@ th[is="tree-view-table-header-cell"] {
     background-image: var(--icon-nav-up-xs);
     padding-inline-end: 9px;
 
-    @media (-moz-platform: linux) {
-      background-image: var(--icon-nav-down-xs);
-    }
-
     &.descending {
       background-image: var(--icon-nav-down-xs);
-
-      @media (-moz-platform: linux) {
-        background-image: var(--icon-nav-up-xs);
-      }
     }
   }
 
