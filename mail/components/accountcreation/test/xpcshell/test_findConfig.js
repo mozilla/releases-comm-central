@@ -353,6 +353,125 @@ add_task(async function testFindConfigExchangeWithUsername() {
   );
 });
 
+add_task(async function testFindConfigExchangeFromRedirect() {
+  // Set up a configuration file at
+  // https://exchange.test/autodiscover/autodiscover.xml"
+  Services.prefs.setBoolPref(
+    "mailnews.auto_config.fetchFromExchange.enabled",
+    true
+  );
+
+  // The initial request needs to be HTTP for the redirect to trigger.
+  NetworkTestUtils.configureProxy(
+    "autodiscover.exchange.test",
+    80,
+    server.identity.primaryPort
+  );
+  const user = "testExchange@exchange.test";
+
+  server.identity.add("https", "autodiscover.exchange.test", 80);
+  server.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      response.setHeader("Cache-Control", "private");
+      response.setStatusLine(request.httpVersion, 301, "Moved Permanently");
+      response.setHeader(
+        "Location",
+        "https://dav.test/autodiscover/autodiscover.xml"
+      );
+    }
+  );
+
+  const autodiscoverResponse = await IOUtils.readUTF8(
+    do_get_file("data/exchange.test.xml").path
+  );
+  let redirectAccepted = false;
+
+  const redirectedServer = new HttpServer();
+  redirectedServer.start(-1);
+
+  const redirectedAutodiscover = await HttpsProxy.create(
+    redirectedServer.identity.primaryPort,
+    "dav",
+    "dav.test"
+  );
+
+  redirectedServer.identity.add("https", "dav.test", 443);
+  redirectedServer.registerPathHandler(
+    "/autodiscover/autodiscover.xml",
+    (request, response) => {
+      // We have to block the response here because one of the fetches in
+      // autodisovery will find this config here instead of letting the above
+      // server redirect to this one.
+      if (redirectAccepted) {
+        response.setStatusLine(request.httpVersion, 200, "OK");
+        response.setHeader("Content-Type", "application/xml");
+        response.write(autodiscoverResponse);
+      } else {
+        response.setStatusLine(request.httpVersion, 404, "Not Found");
+      }
+    }
+  );
+
+  const abortable = new SuccessiveAbortable();
+  let discoveryStream = FindConfig.parallelAutoDiscovery(
+    abortable,
+    "exchange.test",
+    user
+  );
+
+  let config;
+
+  // Config returned should show the need for redirect confirmation.
+  ({ value: config } = await discoveryStream.next());
+  Assert.deepEqual(config, {
+    isRedirect: true,
+    host: "dav.test",
+    scheme: "https",
+  });
+
+  ({ value: config } = await discoveryStream.next({ acceptRedirect: false }));
+
+  // Rejecting the redirect should return a null config.
+  Assert.equal(
+    config,
+    null,
+    "parallelAutoDiscovery should return null for an invalid email address"
+  );
+
+  // Trying again by accepting the redirect should return a config.
+  discoveryStream = FindConfig.parallelAutoDiscovery(
+    abortable,
+    "exchange.test",
+    user
+  );
+  ({ value: config } = await discoveryStream.next());
+
+  Assert.deepEqual(config, {
+    isRedirect: true,
+    host: "dav.test",
+    scheme: "https",
+  });
+
+  redirectAccepted = true;
+  ({ value: config } = await discoveryStream.next({ acceptRedirect: true }));
+
+  Assert.ok(config, "Should find a configuration");
+
+  // Clean up.
+  NetworkTestUtils.unconfigureProxy("autodiscover.exchange.test", 80);
+  server.identity.remove("http", "autodiscover.exchange.test", 80);
+  server.registerFile("/autodiscover/autodiscover.xml", null);
+  redirectedAutodiscover.destroy();
+  redirectedServer.identity.remove("https", "dav.test", 443);
+  redirectedServer.registerFile("/autodiscover/autodiscover.xml", null);
+  redirectedServer.stop();
+  Services.cache2.clear();
+  Services.prefs.clearUserPref(
+    "mailnews.auto_config.fetchFromExchange.enabled"
+  );
+});
+
 add_task(function testEWSifyConfig() {
   Services.prefs.setBoolPref(
     "mailnews.auto_config.fetchFromExchange.enabled",
