@@ -8,6 +8,9 @@ const { TestUtils } = ChromeUtils.importESModule(
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
 );
@@ -16,6 +19,7 @@ var incomingServer;
 var ewsServer;
 
 const ewsIdPropertyName = "ewsId";
+const generator = new MessageGenerator();
 
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer({});
@@ -159,5 +163,46 @@ add_task(async function test_delete_id_mismatch() {
     0,
     ewsServer.deletedFolders.length,
     "the server should not have recorded any deletion"
+  );
+});
+
+add_task(async function test_mark_as_read() {
+  const folderName = "markRead";
+  ewsServer.appendRemoteFolder(new RemoteFolder(folderName, "root"));
+
+  const syntheticMessages = generator.makeMessages({ count: 3 });
+  ewsServer.addMessages(folderName, syntheticMessages);
+
+  const rootFolder = incomingServer.rootFolder;
+
+  await syncFolder(incomingServer, rootFolder);
+  const folder = rootFolder.getChildNamed(folderName);
+  Assert.ok(!!folder, `${folderName} should exist`);
+
+  await syncFolder(incomingServer, folder);
+  Assert.equal(
+    folder.getTotalMessages(false),
+    3,
+    `${folderName} should have 3 messages`
+  );
+
+  Assert.equal(
+    folder.getNumUnread(false),
+    3,
+    "all messages should be unread at the start"
+  );
+
+  folder.markAllMessagesRead(null);
+
+  await TestUtils.waitForCondition(
+    () => folder.getNumUnread(false) == 0,
+    "waiting for all messages to be marked as read locally"
+  );
+
+  await syncFolder(incomingServer, folder);
+  Assert.equal(
+    folder.getNumUnread(false),
+    0,
+    "all messages should still be read after sync"
   );
 });

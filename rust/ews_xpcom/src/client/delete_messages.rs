@@ -19,7 +19,7 @@ use super::{
 
 use crate::{
     authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener},
+    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
 };
 
 struct DoDeleteMessages {
@@ -100,7 +100,7 @@ impl DoOperation for DoDeleteMessages {
     }
 
     fn into_success_arg(self, _ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg {
-        (std::iter::empty::<String>(), false).into()
+        (std::iter::empty::<String>(), UseLegacyFallback::No).into()
     }
 
     fn into_failure_arg(self) {}

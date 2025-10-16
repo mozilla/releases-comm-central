@@ -7,7 +7,7 @@ use mailnews_ui_glue::UserInteractiveServer;
 use xpcom::RefCounted;
 
 use crate::client::single_response_or_error;
-use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
 
 use super::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError};
 use crate::authentication::credentials::AuthenticationProvider;
@@ -86,7 +86,7 @@ impl DoOperation for DoCreateFolder {
         self,
         folder_id: Self::Okay,
     ) -> <Self::Listener as SafeListener>::OnSuccessArg {
-        (std::iter::once(folder_id), false).into()
+        (std::iter::once(folder_id), UseLegacyFallback::No).into()
     }
 
     fn into_failure_arg(self) {}

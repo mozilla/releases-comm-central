@@ -97,7 +97,7 @@ impl DoOperation for DoMarkAsJunk {
     }
 
     fn into_success_arg(self, ids: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg {
-        let use_legacy_fallback = ids.is_none();
+        let use_legacy_fallback = ids.is_none().into();
         (ids.unwrap_or(ThinVec::new()), use_legacy_fallback).into()
     }
 

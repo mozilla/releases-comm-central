@@ -26,17 +26,46 @@ impl SafeEwsSimpleOperationListener {
     }
 }
 
-pub struct SimpleOperationSuccessArgs {
-    new_ids: ThinVec<nsCString>,
-    use_legacy_fallback: bool,
+/// Whether the operation requires some further "legacy" action because the server is too old to
+/// support the "normal" way. What a legacy action/fallback does concretely depends on the specific
+/// operation.
+///
+/// This is just a typed version of the `use_legacy_fallback` boolean argument in
+/// [`IEwsSimpleOperationListener::OnOperationSuccess`] to make return types, etc., more legible.
+pub enum UseLegacyFallback {
+    No,
+    Yes,
 }
 
-impl<I, S> From<(I, bool)> for SimpleOperationSuccessArgs
+impl From<UseLegacyFallback> for bool {
+    fn from(use_legacy_fallback: UseLegacyFallback) -> Self {
+        match use_legacy_fallback {
+            UseLegacyFallback::No => false,
+            UseLegacyFallback::Yes => true,
+        }
+    }
+}
+
+impl From<bool> for UseLegacyFallback {
+    fn from(use_legacy_fallback: bool) -> Self {
+        match use_legacy_fallback {
+            false => UseLegacyFallback::No,
+            true => UseLegacyFallback::Yes,
+        }
+    }
+}
+
+pub struct SimpleOperationSuccessArgs {
+    new_ids: ThinVec<nsCString>,
+    use_legacy_fallback: UseLegacyFallback,
+}
+
+impl<I, S> From<(I, UseLegacyFallback)> for SimpleOperationSuccessArgs
 where
     I: IntoIterator<Item = S>,
     S: Into<nsCString>,
 {
-    fn from((ids, use_legacy_fallback): (I, bool)) -> Self {
+    fn from((ids, use_legacy_fallback): (I, UseLegacyFallback)) -> Self {
         Self {
             new_ids: ids.into_iter().map(Into::into).collect(),
             use_legacy_fallback,
@@ -51,7 +80,7 @@ impl From<CopyMoveSuccess> for SimpleOperationSuccessArgs {
             requires_resync,
         }: CopyMoveSuccess,
     ) -> Self {
-        (new_ids, requires_resync).into()
+        (new_ids, requires_resync.into()).into()
     }
 }
 
@@ -60,7 +89,7 @@ impl SafeListener for SafeEwsSimpleOperationListener {
     type OnFailureArg = ();
 
     fn on_success(&self, args: SimpleOperationSuccessArgs) -> Result<(), nsresult> {
-        self.on_operation_success(args.new_ids, args.use_legacy_fallback)
+        self.on_operation_success(args.new_ids, args.use_legacy_fallback.into())
             .to_result()
     }
 }

@@ -449,6 +449,10 @@ async function subsubtest(
       `waiting for new ${server.type} messages to be received`
     );
     folder.markAllMessagesRead(window.msgWindow);
+    await TestUtils.waitForCondition(
+      () => folder.getNumUnread(false) == 0,
+      `waiting for new ${server.type} messages to be marked read`
+    );
   }
 
   // Check that the folder tree row no longer has a warning icon.

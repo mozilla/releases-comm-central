@@ -331,6 +331,37 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
+    xpcom_method!(change_read_status_all => ChangeReadStatusAll(
+        listener: *const IEwsSimpleOperationListener,
+        folder_ids: *const ThinVec<nsCString>,
+        is_read: bool,
+        suppress_read_receipts: bool
+    ));
+    fn change_read_status_all(
+        &self,
+        listener: &IEwsSimpleOperationListener,
+        folder_ids: &ThinVec<nsCString>,
+        is_read: bool,
+        suppress_read_receipts: bool,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "change_read_status_all",
+            client.change_read_status_all(
+                SafeEwsSimpleOperationListener::new(listener),
+                folder_ids.clone(),
+                is_read,
+                suppress_read_receipts,
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
     xpcom_method!(create_message => CreateMessage(
         listener: *const IEwsMessageCreateListener,
         folder_id: *const nsACString,

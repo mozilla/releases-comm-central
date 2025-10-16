@@ -74,6 +74,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
       nsTArray<RefPtr<nsIMsgFolder>>& aSubFolders) override;
   NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
                               bool markRead) override;
+  NS_IMETHOD MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD RenameSubFolders(nsIMsgWindow* msgWindow,
                               nsIMsgFolder* oldFolder) override;
   NS_IMETHOD Rename(const nsACString& aNewName,

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 mod change_read_status;
+mod change_read_status_all;
 mod check_connectivity;
 pub(crate) mod copy_move_operations;
 mod create_folder;

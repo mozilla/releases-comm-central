@@ -375,6 +375,77 @@ NS_IMETHODIMP EwsFolder::MarkMessagesRead(
   return client->ChangeReadStatus(listener, requestedIds, markRead);
 }
 
+NS_IMETHODIMP EwsFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
+  nsCOMPtr<IEwsClient> client;
+  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+
+  nsCString folderId;
+  MOZ_TRY(GetEwsId(folderId));
+
+  nsTArray<nsCString> folderIds{{folderId}};
+
+  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+      [self = RefPtr(this), window = RefPtr(aMsgWindow)](
+          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+        nsresult rv = self->GetDatabase();
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        if (!useLegacyFallback) {
+          // server marked read on its end, mark as read locally and set up undo
+          nsTArray<nsMsgKey> thoseMarked;
+          rv = self->EnableNotifications(allMessageCountNotifications, false);
+          NS_ENSURE_SUCCESS(rv, rv);
+          rv = self->mDatabase->MarkAllRead(thoseMarked);
+          nsresult rv2 =
+              self->EnableNotifications(allMessageCountNotifications, true);
+          NS_ENSURE_SUCCESS(rv, rv);
+          NS_ENSURE_SUCCESS(rv2, rv2);
+
+          if (thoseMarked.Length() > 0) {
+            rv = self->mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            if (window) {
+              rv = self->AddMarkAllReadUndoAction(
+                  window, thoseMarked.Elements(), thoseMarked.Length());
+              NS_ENSURE_SUCCESS(rv, rv);
+            }
+          }
+        } else {
+          // server doesn't support marking folders, find unread messages and do
+          // it manually
+          nsCOMPtr<nsIMsgEnumerator> hdrs;
+          rv = self->mDatabase->EnumerateMessages(getter_AddRefs(hdrs));
+          NS_ENSURE_SUCCESS(rv, rv);
+
+          nsTArray<RefPtr<nsIMsgDBHdr>> unread;
+          bool hasMore = false;
+          while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) &&
+                 hasMore) {
+            nsCOMPtr<nsIMsgDBHdr> msg;
+            rv = hdrs->GetNext(getter_AddRefs(msg));
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            bool isRead;
+            rv = msg->GetIsRead(&isRead);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            if (!isRead) {
+              unread.AppendElement(msg);
+            }
+          }
+
+          if (unread.Length() > 0) {
+            rv = self->MarkMessagesRead(unread, true);
+          }
+        }
+
+        return rv;
+      });
+
+  return client->ChangeReadStatusAll(listener, folderIds, true, true);
+}
+
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // Sync the message list.
   // TODO: In the future, we might want to sync the folder hierarchy. Since

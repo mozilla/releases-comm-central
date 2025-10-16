@@ -18,6 +18,7 @@ use crate::{
     client::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError},
     safe_xpcom::{
         handle_error, SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
+        UseLegacyFallback,
     },
 };
 
@@ -100,7 +101,8 @@ impl DoOperation for DoChangeReadStatus<'_> {
             .collect();
 
         let ret = if !successes.is_empty() {
-            self.listener.on_success((successes, false).into())
+            self.listener
+                .on_success((successes, UseLegacyFallback::No).into())
         } else {
             // This branch only happens if no messages were requested,
             // or we're about to return an aggregated error in the next block.
@@ -124,7 +126,7 @@ impl DoOperation for DoChangeReadStatus<'_> {
 
     fn into_success_arg(self, _ok: Self::Okay) -> SimpleOperationSuccessArgs {
         // this isn't actually used in this case
-        (ThinVec::<nsCString>::new(), false).into()
+        (ThinVec::<nsCString>::new(), UseLegacyFallback::No).into()
     }
 
     fn into_failure_arg(self) {}

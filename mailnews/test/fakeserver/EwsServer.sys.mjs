@@ -209,6 +209,16 @@ const DELETE_FOLDER_RESPONSE_BASE = `${EWS_SOAP_HEAD}
   </DeleteFolderResponse>
   ${EWS_SOAP_FOOT}`;
 
+const MARK_ALL_ITEMS_AS_READ_RESPONSE_BASE = `${EWS_SOAP_HEAD}
+  <m:MarkAllItemsAsReadResponse xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+    <m:ResponseMessages>
+    </m:ResponseMessages>
+  </m:MarkAllItemsAsReadResponse>
+  ${EWS_SOAP_FOOT}`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -265,6 +275,11 @@ export class ItemInfo {
   /**
    * @type {string}
    */
+  id;
+
+  /**
+   * @type {string}
+   */
   parentId;
 
   /**
@@ -275,11 +290,13 @@ export class ItemInfo {
   /**
    * Construct a new item within the given parent.
    *
+   * @param {string} id
    * @param {string} parentId
    * @param {SyntheticMessage} [syntheticMessage] - Message data from
    *   MessageGenerator, if this item is a message.
    */
-  constructor(parentId, syntheticMessage) {
+  constructor(id, parentId, syntheticMessage) {
+    this.id = id;
     this.parentId = parentId;
     this.syntheticMessage = syntheticMessage;
   }
@@ -698,7 +715,7 @@ export class EwsServer {
     const requestVersionHeaders = reqDoc.getElementsByTagName(
       "t:RequestServerVersion"
     );
-    if (requestVersionHeaders.length > 0) {
+    if (requestVersionHeaders.length) {
       const versionHeader = requestVersionHeaders[0];
       this.#lastRequestedVersion = versionHeader.getAttribute("Version");
     }
@@ -733,6 +750,8 @@ export class EwsServer {
       resBytes = this.#generateMarkAsJunkResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("DeleteFolder").length) {
       resBytes = this.#generateDeleteFolderResponse(reqDoc);
+    } else if (reqDoc.getElementsByTagName("MarkAllItemsAsRead").length) {
+      resBytes = this.#generateMarkAllItemsAsReadResponse(reqDoc);
     } else {
       throw new Error("Unexpected EWS operation");
     }
@@ -1598,6 +1617,112 @@ export class EwsServer {
   }
 
   /**
+   * Generate a response to a MarkAllItemsAsRead operation.
+   *
+   * @see {@link https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markallitemsasread-operation}
+   * @param {XMLDocument} reqDoc - The parsed document for the request to respond to.
+   * @returns {string} A serialized XML document.
+   */
+  #generateMarkAllItemsAsReadResponse(reqDoc) {
+    // Figure out which folder IDs (or distinguished IDs have been requested).
+    const requestedFolderIds = [
+      ...reqDoc.getElementsByTagName("FolderIds")[0].children,
+    ].map(c => c.getAttribute("Id"));
+
+    // Map the requested IDs to actual folders if we have them. A `null` folder
+    // in the resulting array means the folder couldn't be found on the server,
+    // and the relevant response message should reflect this.
+    const responseFolders = requestedFolderIds.map(id => {
+      // Try to match against a known distinguished ID.
+      if (this.#distinguishedIdToFolder.has(id)) {
+        return this.#distinguishedIdToFolder.get(id);
+      }
+
+      // If that failed, try to match against a known folder ID.=
+      if (this.#idToFolder.has(id)) {
+        return this.#idToFolder.get(id);
+      }
+
+      return null;
+    });
+
+    // Get whether we're marking as read or unread
+    const markRead =
+      reqDoc.getElementsByTagName("ReadFlag")[0].textContent == "true";
+
+    // Generate a base document for the response.
+    const resDoc = this.#parser.parseFromString(
+      MARK_ALL_ITEMS_AS_READ_RESPONSE_BASE,
+      "text/xml"
+    );
+
+    this.#setVersion(resDoc);
+
+    const resMsgsEl = resDoc.getElementsByTagName("m:ResponseMessages")[0];
+
+    // Mark all the messages as (un)read and add a single success or failure
+    // response message
+    let success = false;
+    responseFolders.forEach(folder => {
+      if (folder) {
+        this.getItemsInFolder(folder.id).forEach(item => {
+          item.syntheticMessage.metaState.read = markRead;
+          this.itemChanges.push(["readflag", item.parentId, item.id]);
+          console.log(item.id, item.syntheticMessage.metaState.read);
+        });
+
+        if (!success) {
+          // Indicate that no error happened when retrieving this message.
+          const resCodeEl = resDoc.createElement("m:ResponseCode");
+          resCodeEl.appendChild(resDoc.createTextNode("NoError"));
+
+          // Build the m:MarkAllItemsAsReadResponseMessage element, which is
+          // parent to m:ResponseCode.
+          const messageEl = resDoc.createElement(
+            "m:MarkAllItemsAsReadResponseMessage"
+          );
+          messageEl.setAttribute("ResponseClass", "Success");
+          messageEl.appendChild(resCodeEl);
+
+          // Add the message to the document.
+          resMsgsEl.appendChild(messageEl);
+
+          // We only do this once.
+          success = true;
+        }
+      } else {
+        // We couldn't find a folder with this ID, so format the response
+        // message as an `ErrorFolderNotFound` error.
+        const messageEl = resDoc.createElement(
+          "m:MarkAllItemsAsReadResponseMessage"
+        );
+        messageEl.setAttribute("ResponseClass", "Error");
+
+        // Add the response code to the response message.
+        const resCodeEl = resDoc.createElement("m:ResponseCode");
+        resCodeEl.appendChild(resDoc.createTextNode("ErrorItemNotFound"));
+        messageEl.appendChild(resCodeEl);
+
+        // Add a human-readable representation of the error to the response
+        // message.
+        const errMessageEl = resDoc.createElement("m:MessageText");
+        errMessageEl.appendChild(
+          resDoc.createTextNode(
+            "The specified object was not found in the store."
+          )
+        );
+        messageEl.appendChild(errMessageEl);
+
+        // Append the message to the document.
+        resMsgsEl.appendChild(messageEl);
+      }
+    });
+
+    // Serialize the response to a string that the consumer can return in a response.
+    return this.#serializer.serializeToString(resDoc);
+  }
+
+  /**
    * Add a new remote folder to the server to include in future responses.
    *
    * @param {RemoteFolder} folder
@@ -1690,7 +1815,7 @@ export class EwsServer {
       itemInfo.parentId = folderId;
       this.itemChanges.push(["create", folderId, itemId]);
     } else {
-      itemInfo = new ItemInfo(folderId, syntheticMessage);
+      itemInfo = new ItemInfo(itemId, folderId, syntheticMessage);
       this.itemChanges.push(["create", folderId, itemId]);
     }
     this.#itemIdToItemInfo.set(itemId, itemInfo);

@@ -1757,17 +1757,24 @@ nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   nsresult rv = GetDatabase();
   if (NS_SUCCEEDED(rv)) {
     nsTArray<nsMsgKey> thoseMarked;
-    EnableNotifications(allMessageCountNotifications, false);
+    rv = EnableNotifications(allMessageCountNotifications, false);
+    NS_ENSURE_SUCCESS(rv, rv);
     rv = mDatabase->MarkAllRead(thoseMarked);
-    EnableNotifications(allMessageCountNotifications, true);
-    if (NS_SUCCEEDED(rv) && thoseMarked.Length() > 0) {
+    nsresult rv2 = EnableNotifications(allMessageCountNotifications, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+    NS_ENSURE_SUCCESS(rv2, rv2);
+
+    if (thoseMarked.Length() > 0) {
       rv = StoreImapFlags(kImapMsgSeenFlag, true, thoseMarked, nullptr);
-      mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // Setup a undo-state
-      if (aMsgWindow)
+      if (aMsgWindow) {
         rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
                                       thoseMarked.Length());
+      }
     }
   }
   return rv;

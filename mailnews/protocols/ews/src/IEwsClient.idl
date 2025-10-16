@@ -126,6 +126,26 @@ interface IEwsClient : nsISupports
   void changeReadStatus(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageIds, in boolean isRead);
 
   /**
+   * Changes the read/unread status of all messages in the listed folders on the
+   * Exchange server, if the server supports it (Exchange 2013 on).
+   *
+   * If the server is too old, the listener will use the success callback with
+   * the use_legacy_fallback flag set, but the items will not be marked read.
+   *
+   * @param folderIds - The EWS IDs of the folders which read/unread status to
+   *   change.
+   * @param isRead - The new read/unread state for the messages, indicating
+   *   whether the messages should be marked as read.
+   * @param suppressReadReceipts - Whether read receipts should be suppressed
+   *   for any messages marked read. This is ignored if the server is too old to
+   *   support it (pre-2013).
+   */
+  void changeReadStatusAll(in IEwsSimpleOperationListener listener,
+                           in Array<AUTF8String> folderIds,
+                           in boolean isRead,
+                           in boolean suppressReadReceipts);
+
+  /**
    * Creates a new message on the server using the data read from the stream.
    *
    * @param listener - Listener to indicate operation state and status.
