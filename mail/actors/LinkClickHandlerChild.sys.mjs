@@ -88,7 +88,6 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
           event.preventDefault();
           this.sendAsyncMessage("openLinkInNewTab", {
             url: eventHRef,
-            refererTopBrowsingContextId: this.browsingContext.top.id,
           });
         }
         return;
@@ -103,7 +102,6 @@ export class LinkClickHandlerChild extends JSWindowActorChild {
             event.preventDefault();
             this.sendAsyncMessage("openLinkInNewTab", {
               url: eventHRef,
-              refererTopBrowsingContextId: this.browsingContext.top.id,
             });
           }
           return;
@@ -174,7 +172,6 @@ export class RelaxedLinkClickHandlerChild extends JSWindowActorChild {
       event.preventDefault();
       this.sendAsyncMessage("openLinkInNewTab", {
         url: eventHRef,
-        refererTopBrowsingContextId: this.browsingContext.top.id,
       });
     }
   }
@@ -216,7 +213,6 @@ export class StrictLinkClickHandlerChild extends JSWindowActorChild {
         event.preventDefault();
         this.sendAsyncMessage("openLinkInNewTab", {
           url: eventHRef,
-          refererTopBrowsingContextId: this.browsingContext.top.id,
         });
       }
       return;

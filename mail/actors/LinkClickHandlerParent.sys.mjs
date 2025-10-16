@@ -7,7 +7,6 @@ import {
   openLinkExternally,
   openLinkInNewTab,
 } from "resource:///modules/LinkHelper.sys.mjs";
-import { TabManager } from "chrome://remote/content/shared/TabManager.sys.mjs";
 
 export class LinkClickHandlerParent extends JSWindowActorParent {
   receiveMessage({ name, data }) {
@@ -17,9 +16,7 @@ export class LinkClickHandlerParent extends JSWindowActorParent {
         break;
       case "openLinkInNewTab":
         {
-          const browsingContext = TabManager.getBrowsingContextById(
-            data.refererTopBrowsingContextId
-          );
+          const browsingContext = this.browsingContext.top;
           const browser = browsingContext?.embedderElement;
           openLinkInNewTab(data.url, {
             initialBrowsingContextGroupId: browser?.getAttribute(
