@@ -28,7 +28,7 @@ tasks:
         use-python: default
         worker:
             docker-image: {in-tree: "debian12-base"}
-            max-run-time: 900
+            max-run-time: 1800
             env:
                 # {level} gets replaced in the upload_symbols transform
                 SYMBOL_SECRET: "project/comm/thunderbird/releng/build/level-{level}/gecko-symbol-upload"
