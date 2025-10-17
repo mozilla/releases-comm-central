@@ -224,7 +224,7 @@ add_task(async function test_onNewMailReceived_custom() {
           );
 
           window.assertDeepEqual(
-            ["test1", "test2"],
+            ["test1", "Drafts"],
             seenByListener1.map(e => e.folder.name)
           );
 

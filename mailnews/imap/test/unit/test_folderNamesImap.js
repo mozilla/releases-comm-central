@@ -13,14 +13,19 @@ const { IMAPServer } = ChromeUtils.importESModule(
 
 add_task(async function () {
   // Get the localized strings. This test should work in any locale, or if you
-  // change the string values in messenger.properties.
-  // Apart from Inbox, special imap folders retain their server side name,
-  // which may or may not be localized by the server.
+  // change the string values in messenger.properties/messenger.ftl.
 
   const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
   const inboxFolderName = bundle.GetStringFromName("inboxFolderName");
+  const trashFolderName = bundle.GetStringFromName("trashFolderName");
+  const sentFolderName = bundle.GetStringFromName("sentFolderName");
+  const draftsFolderName = bundle.GetStringFromName("draftsFolderName");
+  const archivesFolderName = bundle.GetStringFromName("archivesFolderName");
+
+  const l10n = new Localization(["messenger/messenger.ftl"], true);
+  const spamFolderName = l10n.formatValueSync("folder-name-spam");
 
   const server = new IMAPServer();
   server.daemon.createMailbox("Trash", {
@@ -62,30 +67,30 @@ add_task(async function () {
   const sentFolder = rootFolder.getChildNamed("Sent");
   Assert.ok(sentFolder.flags & Ci.nsMsgFolderFlags.SentMail);
   Assert.equal(sentFolder.name, "Sent");
-  Assert.equal(sentFolder.localizedName, "Sent");
+  Assert.equal(sentFolder.localizedName, sentFolderName);
   Assert.equal(sentFolder.msgDatabase.dBFolderInfo.folderName, "");
 
   const draftsFolder = rootFolder.getChildNamed("Drafts");
   Assert.ok(draftsFolder.flags & Ci.nsMsgFolderFlags.Drafts);
   Assert.equal(draftsFolder.name, "Drafts");
-  Assert.equal(draftsFolder.localizedName, "Drafts");
+  Assert.equal(draftsFolder.localizedName, draftsFolderName);
   Assert.equal(draftsFolder.msgDatabase.dBFolderInfo.folderName, "");
 
   const trashFolder = rootFolder.getChildNamed("Trash");
   Assert.ok(trashFolder.flags & Ci.nsMsgFolderFlags.Trash);
   Assert.equal(trashFolder.name, "Trash");
-  Assert.equal(trashFolder.localizedName, "Trash");
+  Assert.equal(trashFolder.localizedName, trashFolderName);
   Assert.equal(trashFolder.msgDatabase.dBFolderInfo.folderName, "");
 
-  const SpamFolder = rootFolder.getChildNamed("Spam");
-  Assert.ok(SpamFolder.flags & Ci.nsMsgFolderFlags.Junk);
-  Assert.equal(SpamFolder.name, "Spam");
-  Assert.equal(SpamFolder.localizedName, "Spam");
-  Assert.equal(SpamFolder.msgDatabase.dBFolderInfo.folderName, "");
+  const spamFolder = rootFolder.getChildNamed("Spam");
+  Assert.ok(spamFolder.flags & Ci.nsMsgFolderFlags.Junk);
+  Assert.equal(spamFolder.name, "Spam");
+  Assert.equal(spamFolder.localizedName, spamFolderName);
+  Assert.equal(spamFolder.msgDatabase.dBFolderInfo.folderName, "");
 
   const archivesFolder = rootFolder.getChildNamed("Archives");
   Assert.ok(archivesFolder.flags & Ci.nsMsgFolderFlags.Archive);
   Assert.equal(archivesFolder.name, "Archives");
-  Assert.equal(archivesFolder.localizedName, "Archives");
+  Assert.equal(archivesFolder.localizedName, archivesFolderName);
   Assert.equal(archivesFolder.msgDatabase.dBFolderInfo.folderName, "");
 });

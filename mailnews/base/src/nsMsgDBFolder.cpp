@@ -3037,50 +3037,28 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
 }
 
 nsString nsMsgDBFolder::GetLocalizedNameInternal() {
-  // INBOX is special...
-  if (mFlags & nsMsgFolderFlags::Inbox &&
-      mName.LowerCaseEqualsLiteral("inbox")) {
+  if (mFlags & nsMsgFolderFlags::Inbox) {
     return kLocalizedInboxName;
   }
-
-  nsAutoCString serverType;
-  GetIncomingServerType(serverType);
-  if (!serverType.Equals("none")) {
-    // Only Local Folders acccounts should have special treatment of name.
-    // For other accounts, the name may or may not be localized to the
-    // user server side settings. But we must match what's shown to the
-    // user on the server to avoid confusion about what folder it is and
-    // potential duplication (e.g. name + localized name both showing "Sent").
-    // See nsMsgDBFolder::AddSubfolder
-    return u""_ns;
-  }
-
-  if (mFlags & nsMsgFolderFlags::SentMail &&
-      mName.LowerCaseEqualsLiteral("sent")) {
+  if (mFlags & nsMsgFolderFlags::SentMail) {
     return kLocalizedSentName;
   }
-  if (mFlags & nsMsgFolderFlags::Drafts &&
-      mName.LowerCaseEqualsLiteral("drafts")) {
+  if (mFlags & nsMsgFolderFlags::Drafts) {
     return kLocalizedDraftsName;
   }
-  if (mFlags & nsMsgFolderFlags::Templates &&
-      mName.LowerCaseEqualsLiteral("templates")) {
+  if (mFlags & nsMsgFolderFlags::Templates) {
     return kLocalizedTemplatesName;
   }
-  if (mFlags & nsMsgFolderFlags::Trash &&
-      mName.LowerCaseEqualsLiteral("trash")) {
+  if (mFlags & nsMsgFolderFlags::Trash) {
     return kLocalizedTrashName;
   }
-  if (mFlags & nsMsgFolderFlags::Queue &&
-      mName.LowerCaseEqualsLiteral("unsent messages")) {
+  if (mFlags & nsMsgFolderFlags::Queue) {
     return kLocalizedUnsentName;
   }
-  if (mFlags & nsMsgFolderFlags::Junk && mName.LowerCaseEqualsLiteral("junk")) {
+  if (mFlags & nsMsgFolderFlags::Junk) {
     return kLocalizedJunkName;
   }
-  if (mFlags & nsMsgFolderFlags::Archive &&
-
-      mName.LowerCaseEqualsLiteral("archives")) {
+  if (mFlags & nsMsgFolderFlags::Archive) {
     return kLocalizedArchivesName;
   }
   return u""_ns;

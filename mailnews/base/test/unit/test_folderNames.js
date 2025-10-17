@@ -9,7 +9,7 @@
 
 add_task(function () {
   // Get the localized strings. This test should work in any locale, or if you
-  // change the string values in messenger.properties.
+  // change the string values in messenger.properties/messenger.ftl.
 
   const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
@@ -21,6 +21,9 @@ add_task(function () {
   const templatesFolderName = bundle.GetStringFromName("templatesFolderName");
   const outboxFolderName = bundle.GetStringFromName("outboxFolderName");
   const archivesFolderName = bundle.GetStringFromName("archivesFolderName");
+
+  const l10n = new Localization(["messenger/messenger.ftl"], true);
+  const spamFolderName = l10n.formatValueSync("folder-name-spam");
 
   Cc["@mozilla.org/msgFolder/msgFolderService;1"]
     .getService(Ci.nsIMsgFolderService)
@@ -57,12 +60,12 @@ add_task(function () {
   const sentFolder2 = rootFolder.createLocalSubfolder("Sent Mail");
   sentFolder2.setFlag(Ci.nsMsgFolderFlags.SentMail);
   Assert.equal(sentFolder2.name, "Sent Mail");
-  Assert.equal(sentFolder2.localizedName, "Sent Mail");
+  Assert.equal(sentFolder2.localizedName, sentFolderName);
 
   const sentFolder3 = rootFolder.createLocalSubfolder("Outbox");
   sentFolder3.setFlag(Ci.nsMsgFolderFlags.SentMail);
   Assert.equal(sentFolder3.name, "Outbox");
-  Assert.equal(sentFolder3.localizedName, "Outbox");
+  Assert.equal(sentFolder3.localizedName, sentFolderName);
 
   // Normal drafts folder as created by us, but with weird capitalisation to
   // prove it works. The case is "corrected" by nsMsgDBFolder::AddSubfolder.
@@ -79,7 +82,7 @@ add_task(function () {
   const draftsFolder2 = rootFolder.createLocalSubfolder("Draft");
   draftsFolder2.setFlag(Ci.nsMsgFolderFlags.Drafts);
   Assert.equal(draftsFolder2.name, "Draft");
-  Assert.equal(draftsFolder2.localizedName, "Draft");
+  Assert.equal(draftsFolder2.localizedName, draftsFolderName);
   Assert.equal(
     draftsFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Draft" : ""
@@ -105,7 +108,7 @@ add_task(function () {
   const trashFolder2 = rootFolder.createLocalSubfolder("Bin");
   trashFolder2.setFlag(Ci.nsMsgFolderFlags.Trash);
   Assert.equal(trashFolder2.name, "Bin");
-  Assert.equal(trashFolder2.localizedName, "Bin");
+  Assert.equal(trashFolder2.localizedName, trashFolderName);
   Assert.equal(
     trashFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Bin" : ""
@@ -114,7 +117,7 @@ add_task(function () {
   const trashFolder3 = rootFolder.createLocalSubfolder("Deleted");
   trashFolder3.setFlag(Ci.nsMsgFolderFlags.Trash);
   Assert.equal(trashFolder3.name, "Deleted");
-  Assert.equal(trashFolder3.localizedName, "Deleted");
+  Assert.equal(trashFolder3.localizedName, trashFolderName);
   Assert.equal(
     trashFolder3.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Deleted" : ""
@@ -132,8 +135,6 @@ add_task(function () {
   const junkFolder = rootFolder.createLocalSubfolder("Spam");
   junkFolder.setFlag(Ci.nsMsgFolderFlags.Junk);
   Assert.equal(junkFolder.name, "Spam");
-  const l10n = new Localization(["messenger/messenger.ftl"], true);
-  const spamFolderName = l10n.formatValueSync("folder-name-spam");
   Assert.equal(junkFolder.localizedName, spamFolderName);
   Assert.equal(
     junkFolder.msgDatabase.dBFolderInfo.folderName,
@@ -152,7 +153,7 @@ add_task(function () {
   const archivesFolder2 = rootFolder.createLocalSubfolder("Archive");
   archivesFolder2.setFlag(Ci.nsMsgFolderFlags.Archive);
   Assert.equal(archivesFolder2.name, "Archive");
-  Assert.equal(archivesFolder2.localizedName, "Archive");
+  Assert.equal(archivesFolder2.localizedName, archivesFolderName);
   Assert.equal(
     archivesFolder2.msgDatabase.dBFolderInfo.folderName,
     panorama ? "Archive" : ""

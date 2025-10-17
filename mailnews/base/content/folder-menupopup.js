@@ -518,6 +518,7 @@
         this.childWrapper.appendChild(this._buildSeparator());
         const attributes = {
           label: `${folder.localizedName} - ${folder.server.prettyName}`,
+          uri: folder.URI,
           ...this._getCssSelectorAttributes(folder),
         };
         this.childWrapper.appendChild(this._buildMenuItem(attributes, folder));
@@ -608,6 +609,7 @@
         for (const folderItem of specialFoldersMap) {
           const attributes = {
             label: folderItem.label,
+            uri: folderItem.folder.URI,
             ...this._getCssSelectorAttributes(folderItem.folder),
           };
 
@@ -663,6 +665,7 @@
               attributes.accesskey = this.getAttribute("fileHereAccessKey");
             } else {
               attributes.label = folder.localizedName;
+              attributes.uri = folder.URI;
               Object.assign(attributes, this._getCssSelectorAttributes(folder));
             }
 
@@ -705,6 +708,7 @@
 
           const attributes = {
             label: this._getFolderLabel(mode, globalInboxFolder, folder),
+            uri: folder.URI,
             ...this._getCssSelectorAttributes(folder),
           };
 

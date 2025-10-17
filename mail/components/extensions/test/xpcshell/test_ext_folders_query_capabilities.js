@@ -518,9 +518,15 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         await window.sendMessage("setAsDraft");
         await folderUpdatedPromise;
 
+        for (let i = 0; i < expectedAccountFolders.length; i++) {
+          if (expectedAccountFolders[i] == "Trash") {
+            expectedAccountFolders[i] = "Drafts";
+          }
+        }
+
         await queryCheck(
           { folderId: rootFolder.id, specialUse: ["drafts", "trash"] },
-          expectedAccountFolders.filter(f => f == "Trash")
+          expectedAccountFolders.filter(f => f == "Drafts")
         );
       }
 

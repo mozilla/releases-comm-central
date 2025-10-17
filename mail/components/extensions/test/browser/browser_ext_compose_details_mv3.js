@@ -207,7 +207,7 @@ add_task(async function testType() {
 
       const [draftFolder] = await browser.folders.query({
         accountId: accounts[0].id,
-        name: "something",
+        name: "Drafts",
       });
       const drafts = (await browser.messages.list(draftFolder.id)).messages;
       browser.test.assertEq(2, drafts.length, "number of drafts");
@@ -363,7 +363,7 @@ add_task(async function testFcc() {
       });
       const [folder2] = await browser.folders.query({
         accountId: account.id,
-        name: "something",
+        name: "Drafts",
       });
 
       // Start a new message.

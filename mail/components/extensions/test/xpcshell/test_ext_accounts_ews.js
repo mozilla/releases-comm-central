@@ -94,7 +94,7 @@ add_task(async function test_folders() {
           },
           {
             id: "account1://Junk",
-            name: "Junk",
+            name: "Spam",
             path: "/Junk",
             specialUse: ["junk"],
             isFavorite: false,
@@ -107,7 +107,7 @@ add_task(async function test_folders() {
           },
           {
             id: "account1://Deleted Items",
-            name: "Deleted Items",
+            name: "Trash",
             path: "/Deleted Items",
             specialUse: ["trash"],
             isFavorite: false,

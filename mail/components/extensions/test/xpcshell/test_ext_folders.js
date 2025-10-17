@@ -760,6 +760,7 @@ add_task(
         // Prepare expected event folder value.
         trash.specialUse = ["drafts", "trash"];
         trash.type = "drafts";
+        trash.name = "Drafts";
 
         window.assertDeepEqual(
           {
