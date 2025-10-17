@@ -167,16 +167,6 @@ account-hub-edit-configuration = Edit configuration
 
 account-hub-config-success = Configuration found in Mozilla ISPDB
 
-account-hub-config-success-exchange = Configuration found for a Microsoft Exchange server
-
-account-hub-config-success-guess = Configuration found by trying common server names
-
-account-hub-config-success-disk = Configuration found in { -brand-short-name } installation
-
-account-hub-config-success-isp = Configuration found at email provider
-
-account-hub-config-success-unknown = Configuration found
-
 account-hub-password-info = Your credentials will only be stored locally on your computer
 
 account-hub-creating-account = Creating account…
