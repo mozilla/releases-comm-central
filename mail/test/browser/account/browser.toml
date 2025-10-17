@@ -71,6 +71,8 @@ tags = ["addrbook", "carddav", "oauth"]
 
 ["browser_accountHubConfigSelect.js"]
 
+["browser_accountHubEmailConfigFound.js"]
+
 ["browser_accountHubExchange.js"]
 
 ["browser_accountHubManualConfig.js"]
