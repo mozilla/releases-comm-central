@@ -3,6 +3,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 
+tb-atn:
+    symbol: I(tb-atn)
+    parent: debian12-base
+
 tb-debian-mingw:
     symbol: I(tb-mingw)
     parent: debian12-amd64-build
@@ -13,10 +17,10 @@ tb-flatpak:
 tb-snap:
     symbol: I(snap)
 
-tb-atn:
-    symbol: I(tb-atn)
-    parent: debian12-base
-
 tb-updatebot:
     symbol: I(3rdp)
     parent: push-to-try
+
+tb-yaml:
+    symbol: I(tb-yaml)
+    parent: debian12-amd64-build

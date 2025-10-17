@@ -1,0 +1,43 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - toolchain
+    - fetch
+
+transforms:
+    - gecko_taskgraph.transforms.release:run_on_releases
+    - comm_taskgraph.transforms.env_subst:transforms
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+tasks:
+    thunderbird:
+        description: Checks if release notes have been published
+        run-on-projects: []  # Exclude from normal CI
+        run-on-releases: [beta, release, esr128, esr140]
+        shipping-phase: push
+        index:
+            product: thunderbird
+            job-name: release-notes-verify
+        treeherder:
+            kind: test
+            platform: thunderbird-release/opt
+            symbol: Rel(notes-verify)
+            tier: 2
+        worker-type: t-linux-docker-noscratch-amd
+        worker:
+            docker-image: {in-tree: "tb-yaml"}
+            max-run-time: 1800
+            env:
+                BRANCH: "{config_params[release_type]}"
+                VERSION: "{release_config[version]}"
+        run:
+            using: run-task
+            comm-checkout: true
+            cwd: "{checkout}"
+            command: >
+                ./comm/taskcluster/scripts/verify-notes.py
