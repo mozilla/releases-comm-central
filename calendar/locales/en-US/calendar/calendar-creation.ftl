@@ -49,7 +49,7 @@ calendar-creation-location-placeholder =
     .default-placeholder = URL or host name of the calendar server
 
 calendar-creation-network-nocredentials =
-    .label = This location doesn't require credentials
+    .label = This location doesn’t require credentials
 
 calendar-creation-network-loading = Please wait while your calendars are being discovered.
 calendar-creation-network-notfound = Could not find calendars at this location. Please check your settings.
