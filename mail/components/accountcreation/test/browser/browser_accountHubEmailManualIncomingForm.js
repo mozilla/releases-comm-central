@@ -23,6 +23,7 @@ add_setup(async function () {
   subview = tab.browser.contentWindow.document.querySelector(
     "email-manual-incoming-form"
   );
+  EventUtils.synthesizeMouseAtCenter(subview, {}, browser.contentWindow);
 
   registerCleanupFunction(() => {
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
@@ -61,9 +62,12 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     false,
     () => usernameField.value == "test@example.com"
   );
+
   let focusEvent = BrowserTestUtils.waitForEvent(usernameField, "focus");
   EventUtils.synthesizeMouseAtCenter(usernameField, {}, browser.contentWindow);
   await focusEvent;
+
+  info("Typing username...");
   EventUtils.sendString("test@example.com", browser.contentWindow);
   let { detail: configUpdatedEvent } = await configUpdatedEventPromise;
 
