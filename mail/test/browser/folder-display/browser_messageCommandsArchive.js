@@ -67,6 +67,12 @@ add_setup(async function () {
   );
 });
 
+registerCleanupFunction(function () {
+  for (const identity of MailServices.accounts.allIdentities) {
+    identity.archiveGranularity = Ci.nsIMsgIdentity.perYearArchiveFolders;
+  }
+});
+
 function enable_archiving(enabled) {
   Services.prefs.setBoolPref("mail.identity.default.archive_enabled", enabled);
 }

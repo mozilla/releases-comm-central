@@ -162,6 +162,8 @@ add_task(async function test_delete_message() {
 });
 
 add_task(async function test_archive_message() {
+  const hdr = await select_click_row(0);
+  const year = new Date(hdr.date / 1000).getFullYear();
   await archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
   const archive = await get_special_folder(
@@ -169,7 +171,7 @@ add_task(async function test_archive_message() {
     false,
     false
   );
-  await be_in_folder(archive.descendants[0]);
+  await be_in_folder(archive.getChildNamed(year));
   await select_click_row(0);
   await right_click_on_row(0);
   const popups = await click_menus_in_sequence(
