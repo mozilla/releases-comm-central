@@ -21,7 +21,6 @@ TESTING_JS_MODULES.mail += [
     "NotificationBoxHelpers.sys.mjs",
     "OpenPGPTestUtils.sys.mjs",
     "PrefTabHelpers.sys.mjs",
-    "PromptHelpers.sys.mjs",
     "QuickFilterBarHelpers.sys.mjs",
     "SearchWindowHelpers.sys.mjs",
     "SubscribeWindowHelpers.sys.mjs",

@@ -17,9 +17,6 @@ var { add_attachments, close_compose_window, open_compose_new_mail } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
-);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -337,13 +334,6 @@ add_task(async function test_attachment_renamed() {
     lastEvent = event;
   };
 
-  // Renaming a file brings up a Prompt, so we'll mock the Prompt Service
-  gMockPromptService.reset();
-  gMockPromptService.register();
-  // The inoutValue is used to set the attachment name
-  gMockPromptService.inoutValue = kRenameTo1;
-  gMockPromptService.returnValue = true;
-
   // Open up the compose window, attach some files, choose the first
   // attachment, and choose to rename it.
   const cw = await open_compose_new_mail(window);
@@ -359,7 +349,20 @@ add_task(async function test_attachment_renamed() {
 
   select_attachments(cw, 0);
   Assert.equal(0, eventCount);
+
+  // Renaming a file brings up a Prompt.
+  let promptPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    undefined,
+    {
+      callback(win) {
+        win.document.getElementById("loginTextbox").value = kRenameTo1;
+        win.document.getElementById("commonDialog").getButton("accept").click();
+      },
+    }
+  );
   cw.goDoCommand("cmd_renameAttachment");
+  await promptPromise;
 
   // Wait until we saw the attachment-renamed event.
   await TestUtils.waitForCondition(() => eventCount == 1);
@@ -373,13 +376,18 @@ add_task(async function test_attachment_renamed() {
   Assert.equal("www.example.com/1", originalAttachment1.name);
 
   // Ok, let's try renaming the same attachment.
-  gMockPromptService.reset();
-  gMockPromptService.inoutValue = kRenameTo2;
-  gMockPromptService.returnValue = true;
 
   select_attachments(cw, 0);
   Assert.equal(1, eventCount);
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(win) {
+      win.document.getElementById("loginTextbox").value = kRenameTo2;
+      win.document.getElementById("commonDialog").getButton("accept").click();
+    },
+  });
   cw.goDoCommand("cmd_renameAttachment");
+  await promptPromise;
 
   // Wait until we saw the attachment-renamed event.
   await TestUtils.waitForCondition(() => eventCount == 2);
@@ -392,14 +400,19 @@ add_task(async function test_attachment_renamed() {
   Assert.equal(kRenameTo1, originalAttachment2.name);
 
   // Ok, let's rename another attachment
-  gMockPromptService.reset();
-  gMockPromptService.inoutValue = kRenameTo3;
-  gMockPromptService.returnValue = true;
 
   // We'll select the second attachment this time.
   select_attachments(cw, 1);
   Assert.equal(2, eventCount);
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(win) {
+      win.document.getElementById("loginTextbox").value = kRenameTo3;
+      win.document.getElementById("commonDialog").getButton("accept").click();
+    },
+  });
   cw.goDoCommand("cmd_renameAttachment");
+  await promptPromise;
 
   // Wait until we saw the attachment-renamed event.
   await TestUtils.waitForCondition(() => eventCount == 3);
@@ -418,7 +431,6 @@ add_task(async function test_attachment_renamed() {
     .removeEventListener(kAttachmentRenamed, listener);
 
   await close_compose_window(cw);
-  gMockPromptService.unregister();
 });
 
 /**
@@ -431,13 +443,6 @@ add_task(async function test_no_attachment_renamed_on_blank() {
   const listener = function () {
     eventCount++;
   };
-
-  // Register the Mock Prompt Service to return the empty string when
-  // prompted.
-  gMockPromptService.reset();
-  gMockPromptService.register();
-  gMockPromptService.inoutValue = "";
-  gMockPromptService.returnValue = true;
 
   // Open the compose window, attach some files, select one, and chooes to
   // rename it.
@@ -453,7 +458,19 @@ add_task(async function test_no_attachment_renamed_on_blank() {
   ]);
 
   select_attachments(cw, 0);
+
+  const promptPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    undefined,
+    {
+      callback(win) {
+        win.document.getElementById("loginTextbox").value = "";
+        win.document.getElementById("commonDialog").getButton("accept").click();
+      },
+    }
+  );
   cw.goDoCommand("cmd_renameAttachment");
+  await promptPromise;
 
   // Ensure that we didn't see the attachment-renamed event.
   Assert.equal(0, eventCount);
@@ -461,7 +478,6 @@ add_task(async function test_no_attachment_renamed_on_blank() {
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentRenamed, listener);
   await close_compose_window(cw);
-  gMockPromptService.unregister();
 });
 
 /**

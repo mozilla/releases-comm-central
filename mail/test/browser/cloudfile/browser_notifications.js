@@ -32,9 +32,6 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
-);
 var { MockFilePicker } = SpecialPowers;
 
 var maxSize, oldInsertNotificationPref;
@@ -262,8 +259,6 @@ add_task(async function test_link_insertion_notification_multiple() {
  * if we hit an uploading error.
  */
 add_task(async function test_link_insertion_goes_away_on_error() {
-  gMockPromptService.register();
-  gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
@@ -274,11 +269,24 @@ add_task(async function test_link_insertion_goes_away_on_error() {
   await add_cloud_attachments(cwc, provider, false);
 
   await wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
+  // Ew, yuck. We're about to get two alert dialogs at the same time, because
+  // two uploads get cancelled. Not only is this horrible UX, we don't have a
+  // nice way to handle it in a test.
+  const promptsPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    undefined,
+    {
+      async callback(win) {
+        await BrowserTestUtils.promiseAlertDialog("accept");
+        win.document.getElementById("commonDialog").getButton("accept").click();
+      },
+    }
+  );
   gMockCloudfileManager.rejectUploads();
+  await promptsPromise;
   await wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   await close_compose_window(cwc);
-  gMockPromptService.unregister();
 });
 
 /**
@@ -405,8 +413,6 @@ add_task(async function test_offer_then_upload_notifications() {
  * message. We should only get this the first time.
  */
 add_task(async function test_privacy_warning_notification() {
-  gMockPromptService.register();
-  gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
@@ -439,7 +445,6 @@ add_task(async function test_privacy_warning_notification() {
   assert_privacy_warning_notification_displayed(cwc, false);
 
   await close_compose_window(cwc);
-  gMockPromptService.unregister();
 });
 
 /**
@@ -447,8 +452,6 @@ add_task(async function test_privacy_warning_notification() {
  * be removed as well.
  */
 add_task(async function test_privacy_warning_notification() {
-  gMockPromptService.register();
-  gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
@@ -482,7 +485,6 @@ add_task(async function test_privacy_warning_notification() {
   assert_privacy_warning_notification_displayed(cwc, false);
 
   await close_compose_window(cwc);
-  gMockPromptService.unregister();
 });
 
 /**
@@ -490,8 +492,6 @@ add_task(async function test_privacy_warning_notification() {
  * and re-opening a compose window.
  */
 add_task(async function test_privacy_warning_notification_no_persist() {
-  gMockPromptService.register();
-  gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
@@ -522,7 +522,6 @@ add_task(async function test_privacy_warning_notification_no_persist() {
   assert_privacy_warning_notification_displayed(cwc, false);
 
   await close_compose_window(cwc);
-  gMockPromptService.unregister();
 });
 
 /**
@@ -530,8 +529,6 @@ add_task(async function test_privacy_warning_notification_no_persist() {
  * spawn in a new one.
  */
 add_task(async function test_privacy_warning_notification_open_after_close() {
-  gMockPromptService.register();
-  gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
@@ -577,7 +574,6 @@ add_task(async function test_privacy_warning_notification_open_after_close() {
   );
 
   await close_compose_window(cwc);
-  gMockPromptService.unregister();
 
   Assert.report(
     false,

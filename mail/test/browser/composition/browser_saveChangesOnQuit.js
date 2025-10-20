@@ -36,9 +36,6 @@ var { get_notification, wait_for_notification_to_show } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
   );
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
-);
 var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
@@ -93,9 +90,6 @@ function msgSource(aSubject, aContentType) {
  * quit request.
  */
 add_task(async function test_can_cancel_quit_on_changes() {
-  // Register the Mock Prompt Service
-  gMockPromptService.register();
-
   // opening a new compose window
   const cwc = await open_compose_new_mail(window);
 
@@ -107,26 +101,17 @@ add_task(async function test_can_cancel_quit_on_changes() {
     Ci.nsISupportsPRBool
   );
 
-  // Set the Mock Prompt Service to return false, so that we
-  // cancel the quit.
-  gMockPromptService.returnValue = CANCEL;
-  // Trigger the quit-application-request notification
-
+  // Cancel the quit.
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
+  await promptPromise;
 
-  const promptState = gMockPromptService.promptState;
-  Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
-
-  Assert.equal("confirmEx", promptState.method);
   // Since we returned false on the confirmation dialog,
   // we should be cancelling the quit - so cancelQuit.data
   // should now be true
   Assert.ok(cancelQuit.data, "Didn't cancel the quit");
 
   await close_compose_window(cwc);
-
-  // Unregister the Mock Prompt Service
-  gMockPromptService.unregister();
 });
 
 /**
@@ -137,9 +122,6 @@ add_task(async function test_can_cancel_quit_on_changes() {
  * occur.
  */
 add_task(async function test_can_quit_on_changes() {
-  // Register the Mock Prompt Service
-  gMockPromptService.register();
-
   // opening a new compose window
   const cwc = await open_compose_new_mail(window);
 
@@ -151,26 +133,17 @@ add_task(async function test_can_quit_on_changes() {
     Ci.nsISupportsPRBool
   );
 
-  // Set the Mock Prompt Service to return true, so that we're
-  // allowing the quit to occur.
-  gMockPromptService.returnValue = DONT_SAVE;
-
-  // Trigger the quit-application-request notification
+  // Don't save.
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
+  await promptPromise;
 
-  const promptState = gMockPromptService.promptState;
-  Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
-
-  Assert.equal("confirmEx", promptState.method);
   // Since we returned true on the confirmation dialog,
   // we should be quitting - so cancelQuit.data should now be
   // false
   Assert.ok(!cancelQuit.data, "The quit request was cancelled");
 
   await close_compose_window(cwc);
-
-  // Unregister the Mock Prompt Service
-  gMockPromptService.unregister();
 });
 
 /**
@@ -180,9 +153,6 @@ add_task(async function test_can_quit_on_changes() {
  * Don't Save / Cancel / Save dialog to come up.
  */
 add_task(async function test_window_quit_state_reset_on_aborted_quit() {
-  // Register the Mock Prompt Service
-  gMockPromptService.register();
-
   // open two new compose windows
   const cwc1 = await open_compose_new_mail(window);
   const cwc2 = await open_compose_new_mail(window);
@@ -198,32 +168,20 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
     Ci.nsISupportsPRBool
   );
 
-  // This is a hacky method for making sure that the second window
-  // receives a CANCEL click in the popup dialog.
-  var numOfPrompts = 0;
-  gMockPromptService.onPromptCallback = function () {
-    numOfPrompts++;
-
-    if (numOfPrompts > 1) {
-      gMockPromptService.returnValue = CANCEL;
-    }
-  };
-
-  gMockPromptService.returnValue = DONT_SAVE;
-
-  // Trigger the quit-application-request notification
+  // Don't save the first message.
+  const promptsPromise = BrowserTestUtils.promiseAlertDialog("extra1").then(
+    // Cancel the quit on the second message.
+    () => BrowserTestUtils.promiseAlertDialog("cancel")
+  );
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
+  await promptsPromise;
 
   // We should have cancelled the quit appropriately.
   Assert.ok(cancelQuit.data);
 
-  // The quit behaviour is that the second window to spawn is the first
-  // one that prompts for Save / Don't Save, etc.
-  gMockPromptService.reset();
-
   // The first window should still prompt when attempting to close the
   // window.
-  gMockPromptService.returnValue = DONT_SAVE;
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
 
   // Unclear why the timeout is needed.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -231,14 +189,8 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
 
   cwc2.goDoCommand("cmd_close");
 
-  TestUtils.waitForCondition(
-    () => !!gMockPromptService.promptState,
-    "Expected a confirmEx prompt to come up"
-  );
-
+  await promptPromise;
   await close_compose_window(cwc1);
-
-  gMockPromptService.unregister();
 });
 
 /**
@@ -410,9 +362,9 @@ add_task(async function test_prompt_save_on_pill_editing() {
   EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
   await isEditing;
 
-  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   // Try to quit after entering the pill edit mode, a "unsaved changes" dialog
   // should be triggered.
+  const promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   cwc.goDoCommand("cmd_close");
   await promptPromise;
 

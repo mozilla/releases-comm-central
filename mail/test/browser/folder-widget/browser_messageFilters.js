@@ -21,7 +21,6 @@ var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NNTPHelpers.sys.mjs"
   );
-
 var {
   click_menus_in_sequence,
   promise_modal_dialog,
@@ -29,10 +28,6 @@ var {
   wait_for_window_focused,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
-
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -306,9 +301,6 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
  * This also tests whether or not cancelling quit works.
  */
 add_task(async function test_can_cancel_quit_on_filter_changes() {
-  // Register the Mock Prompt Service
-  gMockPromptService.register();
-
   const filterWin = await create_simple_filter();
 
   filterWin.gRunningFilters = true; // simulate running
@@ -317,23 +309,17 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
     Ci.nsISupportsPRBool
   );
 
-  // Set the Mock Prompt Service to return false, so that we
-  // cancel the quit.
-  gMockPromptService.returnValue = false;
+  // Prevent the quit. Confusingly, the accept button is labelled Stop.
+  const stopPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
-  const promptState = gMockPromptService.promptState;
-  Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
+  await stopPromise;
 
-  Assert.equal("confirmEx", promptState.method);
   // Since we returned false on the confirmation dialog,
   // we should be cancelling the quit - so cancelQuit.data
   // should now be true
   Assert.ok(cancelQuit.data, "Didn't cancel the quit");
   filterWin.gRunningFilters = false; // reset
-
-  // Unregister the Mock Prompt Service
-  gMockPromptService.unregister();
 });
 
 /**
@@ -344,38 +330,28 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
  * This also tests whether or not allowing quit works.
  */
 add_task(async function test_can_quit_on_filter_changes() {
-  // Register the Mock Prompt Service
-  gMockPromptService.register();
-
   const filterWin = Services.wm.getMostRecentWindow("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
   const filterCount = filterWin.document.getElementById("filterList").itemCount;
   Assert.equal(filterCount, 1, "should have 1 filter from prev test");
 
-  const runButton = filterWin.document.getElementById("runFiltersButton");
-  runButton.disabled = true; // simulate running
+  filterWin.gRunningFilters = true; // simulate running
 
   const cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
   );
 
-  // Set the Mock Prompt Service to return true, so that we
-  // allow the quit.
-  gMockPromptService.returnValue = true;
+  // Allow the quit. The cancel button is labelled Continue.
+  const continuePromise = BrowserTestUtils.promiseAlertDialog("cancel");
   // Trigger the quit-application-request notification
   Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
-  const promptState = gMockPromptService.promptState;
-  Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
+  await continuePromise;
 
-  Assert.equal("confirmEx", promptState.method);
   // Since we returned true on the confirmation dialog,
   // we should be allowing the quit - so cancelQuit.data
   // should now be false
   Assert.ok(!cancelQuit.data, "Cancelled the quit");
-
-  // Unregister the Mock Prompt Service
-  gMockPromptService.unregister();
 
   EventUtils.synthesizeMouseAtCenter(
     filterWin.document.querySelector("#filterList richlistitem"),

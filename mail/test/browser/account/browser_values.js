@@ -16,9 +16,6 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
 var { input_value } = ChromeUtils.importESModule(
   "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PromptHelpers.sys.mjs"
-);
 
 var gPopAccount, gOriginalAccountCount;
 
@@ -225,14 +222,10 @@ async function subtest_check_account_name(
   }
 
   if (newUsername) {
-    gMockPromptService.register();
+    BrowserTestUtils.promiseAlertDialog("accept");
   }
 
   tab.browser.contentWindow.onAccept(true);
-  if (newUsername) {
-    Assert.equal("alert", gMockPromptService.promptState.method);
-    gMockPromptService.unregister();
-  }
 }
 
 /**
