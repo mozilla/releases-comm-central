@@ -756,6 +756,9 @@ nsSubscribableServer::GetCellText(int32_t aRow, nsTreeColumn* aCol,
   nsString colId;
   aCol->GetId(colId);
   if (colId.EqualsLiteral("nameColumn")) {
+    if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
+      return NS_ERROR_INVALID_ARG;
+    }
     nsCString path(mRowMap[aRow]->path);
     GetLeafName(path, retval);
   }
@@ -767,8 +770,12 @@ nsSubscribableServer::GetCellValue(int32_t aRow, nsTreeColumn* aCol,
                                    nsAString& retval) {
   nsString colId;
   aCol->GetId(colId);
-  if (colId.EqualsLiteral("nameColumn"))
+  if (colId.EqualsLiteral("nameColumn")) {
+    if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
+      return NS_ERROR_INVALID_ARG;
+    }
     retval = NS_ConvertUTF8toUTF16(mRowMap[aRow]->path);
+  }
   if (colId.EqualsLiteral("subscribedColumn")) {
     retval = mRowMap[aRow]->isSubscribed ? u"true"_ns : u"false"_ns;
   }
