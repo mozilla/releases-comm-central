@@ -90,9 +90,6 @@ class AccountHubControllerClass {
       // aborted or the UI can't be cleared.
       if (!this.#reset()) {
         event.preventDefault();
-      } else {
-        // Re-enable keyboard interaction.
-        document.getElementById("tabmail").globalOverlay = false;
       }
     });
 
@@ -112,9 +109,6 @@ class AccountHubControllerClass {
       // cleared.
       if (!this.#reset()) {
         event.preventDefault();
-      } else {
-        // Re-enable keyboard interaction.
-        document.getElementById("tabmail").globalOverlay = false;
       }
     });
   }
@@ -180,9 +174,6 @@ class AccountHubControllerClass {
     if (!this.#reset()) {
       return;
     }
-
-    // Disabled keyboard interaction while accounthub is open.
-    document.getElementById("tabmail").globalOverlay = true;
 
     await this.#views[type].call();
     if (!this.#modal.open) {
