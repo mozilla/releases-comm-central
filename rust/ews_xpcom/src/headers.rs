@@ -276,14 +276,14 @@ fn array_of_recipients_to_mailboxes<'a>(
 #[derive(Clone, Copy, Debug)]
 pub struct Mailbox<'a> {
     pub name: Option<&'a str>,
-    pub email_address: &'a str,
+    pub email_address: Option<&'a str>,
 }
 
 impl<'a> From<&'a ews::Mailbox> for Mailbox<'a> {
     fn from(value: &'a ews::Mailbox) -> Self {
         Mailbox {
             name: value.name.as_deref(),
-            email_address: &value.email_address,
+            email_address: value.email_address.as_deref(),
         }
     }
 }
@@ -294,7 +294,7 @@ impl<'a> TryFrom<&'a mail_parser::Addr<'_>> for Mailbox<'a> {
     fn try_from(value: &'a mail_parser::Addr) -> Result<Self, Self::Error> {
         value.address.as_ref().ok_or(()).map(|address| Mailbox {
             name: value.name.as_ref().map(|name| name.as_ref()),
-            email_address: address.as_ref(),
+            email_address: Some(address.as_ref()),
         })
     }
 }
@@ -303,7 +303,6 @@ impl std::fmt::Display for Mailbox<'_> {
     /// Writes the contents of the mailbox in a format suitable for use in an
     /// Internet Message Format header.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let email_address = self.email_address;
         if let Some(name) = self.name {
             let mut buf: Vec<u8> = Vec::new();
 
@@ -314,9 +313,15 @@ impl std::fmt::Display for Mailbox<'_> {
             // It's okay to unwrap here, as successful RFC 2047 encoding implies the
             // result is ASCII.
             let name = std::str::from_utf8(&buf).unwrap();
-            write!(f, "{name} <{email_address}>")
-        } else {
-            write!(f, "{email_address}")
+            write!(f, "{name}")?;
+
+            if let Some(address) = self.email_address {
+                write!(f, " <{address}>")?;
+            }
+        } else if let Some(address) = self.email_address {
+            write!(f, "{address}")?;
         }
+
+        Ok(())
     }
 }

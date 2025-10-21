@@ -632,7 +632,7 @@ impl EwsOutgoingServer {
 
                 let mailbox = Mailbox {
                     name,
-                    email_address: address.to_string(),
+                    email_address: Some(address.to_string()),
                     ..Default::default()
                 };
 
