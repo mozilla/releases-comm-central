@@ -30,7 +30,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 54;
+    const UI_VERSION = 55;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -363,6 +363,12 @@ export var MailMigrator = {
             "-moz-missing\n"
           );
         }
+      }
+
+      if (currentUIVersion < 55) {
+        // Force all logins to be re-encrypted to make use of more modern crypto.
+        // This pref is checked in the initialization of the LoginManagerStorage.
+        Services.prefs.setBoolPref("signon.reencryptionNeeded", true);
       }
 
       // Migration tasks that may take a long time are not run immediately, but
