@@ -830,11 +830,20 @@ nsMsgAccountManager::GetDefaultAccount(nsIMsgAccount** aDefaultAccount) {
     rv = Preferences::GetCString(PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT,
                                  defaultKey);
     if (NS_SUCCEEDED(rv)) {
-      rv = GetAccount(defaultKey, getter_AddRefs(m_defaultAccount));
-      if (NS_SUCCEEDED(rv) && m_defaultAccount) {
+      nsCOMPtr<nsIMsgAccount> account;
+      rv = GetAccount(defaultKey, getter_AddRefs(account));
+      if (NS_SUCCEEDED(rv) && account) {
         bool canBeDefault = false;
-        rv = CheckDefaultAccount(m_defaultAccount, canBeDefault);
-        if (NS_FAILED(rv) || !canBeDefault) m_defaultAccount = nullptr;
+        rv = CheckDefaultAccount(account, canBeDefault);
+        if (rv == NS_ERROR_NOT_INITIALIZED) {
+          // This appears to be an account that hasn't been instantiated yet.
+          // Don't try to set a new default account in this case.
+          *aDefaultAccount = nullptr;
+          return NS_OK;
+        }
+        if (NS_SUCCEEDED(rv) && canBeDefault) {
+          m_defaultAccount = account;
+        }
       }
     }
   }
@@ -861,14 +870,14 @@ nsresult nsMsgAccountManager::CheckDefaultAccount(nsIMsgAccount* aAccount,
                                                   bool& aCanBeDefault) {
   aCanBeDefault = false;
   nsCOMPtr<nsIMsgIncomingServer> server;
-  // Server could be null if created by an unloaded extension.
   nsresult rv = aAccount->GetIncomingServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
-  if (server) {
-    // Check if server can be default.
-    rv = server->GetCanBeDefaultServer(&aCanBeDefault);
+  if (!server) {
+    // Server could be null if created by an unloaded extension.
+    return NS_ERROR_NOT_INITIALIZED;
   }
-  return rv;
+  // Check if server can be default.
+  return server->GetCanBeDefaultServer(&aCanBeDefault);
 }
 
 NS_IMETHODIMP

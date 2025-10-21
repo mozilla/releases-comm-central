@@ -36,7 +36,7 @@ function run_test() {
     "mail.accountmanager.accounts",
     "account2,account1"
   );
-  Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account1");
+  Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account2");
 
   // This will force the load of the accounts setup above.
   // We don't see the invalid account.
@@ -46,6 +46,11 @@ function run_test() {
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
     "account2,account1"
+  );
+  Assert.equal(
+    MailServices.accounts.defaultAccount,
+    null,
+    "A default account not yet initialized should be returned as null."
   );
 
   // Add a new account (so that we can check if this clobbers the existing
@@ -65,12 +70,22 @@ function run_test() {
   Assert.notEqual(newAccount.incomingServer.key, "server2");
   Assert.notEqual(newAccount.key, "account2");
   Assert.equal(MailServices.accounts.accounts.length, 2);
+  Assert.equal(
+    MailServices.accounts.defaultAccount,
+    null,
+    "A default account not yet initialized should not lose its status to another account"
+  );
 
   MailServices.accounts.unloadAccounts();
 
   // Set the unavailable account to a valid type, and watch it appear.
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
   Assert.equal(MailServices.accounts.accounts.length, 3);
+  Assert.equal(
+    MailServices.accounts.defaultAccount.key,
+    "account2",
+    "The default account should have retained its status."
+  );
 
   // Make it bad again, and reload it to restart the timeout before delete.
   MailServices.accounts.unloadAccounts();
