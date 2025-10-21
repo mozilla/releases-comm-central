@@ -39,6 +39,9 @@ var { add_message_to_folder, create_message, msgGen } =
 var { promise_modal_dialog, promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
+const { storeState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
+);
 
 var folder;
 var messages;
@@ -55,6 +58,10 @@ var textAttachment =
 var binaryAttachment = textAttachment;
 
 add_setup(async function () {
+  await setUnifiedToolbarState({
+    mail: ["delete"],
+  });
+
   folder = await create_folder("AttachmentA");
 
   var attachedMessage = msgGen.makeMessage({
@@ -193,6 +200,23 @@ function ensure_starts_expanded(expand) {
     "mailnews.attachments.display.start_expanded",
     expand
   );
+}
+
+/**
+ * Update the state of the unified toolbar contents.
+ *
+ * @param {object} state - The new state for the unified toolbar.
+ */
+async function setUnifiedToolbarState(state) {
+  const stateUpdated = TestUtils.topicObserved("unified-toolbar-state-change");
+  const toolbarMutation = BrowserTestUtils.waitForMutationCondition(
+    document.querySelector("unified-toolbar"),
+    { childList: true },
+    () => true
+  );
+  storeState(state);
+  await stateUpdated;
+  await toolbarMutation;
 }
 
 add_task(async function test_attachment_view_collapsed() {
@@ -723,56 +747,69 @@ add_task(async function test_attachments_compose_menu() {
   await close_compose_window(cwc);
 });
 
-add_task(async function test_delete_from_toolbar() {
-  await be_in_folder(folder);
+add_task(async function test_delete_from_toolbar_buttons() {
+  const deleteFromButton = async useUnifiedToolbar => {
+    await be_in_folder(folder);
 
-  // First, select the message with two attachments.
-  await select_none();
-  await select_click_row(3);
+    // First, select a message with attachments.
+    await select_none();
+    await select_click_row(3);
+    // Expand the attachment list.
+    await assert_selected_and_displayed(3);
+    const aboutMessage = get_about_message();
+    if (aboutMessage.document.getElementById("attachmentList").collapsed) {
+      EventUtils.synthesizeMouseAtCenter(
+        aboutMessage.document.getElementById("attachmentToggle"),
+        { clickCount: 1 },
+        aboutMessage
+      );
+      await TestUtils.waitForTick();
+    }
 
-  // Expand the attachment list.
-  await assert_selected_and_displayed(3);
-  const aboutMessage = get_about_message();
-  if (aboutMessage.document.getElementById("attachmentList").collapsed) {
+    const firstAttachment =
+      aboutMessage.document.getElementById("attachmentList").firstElementChild;
     EventUtils.synthesizeMouseAtCenter(
-      aboutMessage.document.getElementById("attachmentToggle"),
+      firstAttachment,
       { clickCount: 1 },
       aboutMessage
     );
-    await TestUtils.waitForTick();
-  }
 
-  const firstAttachment =
-    aboutMessage.document.getElementById("attachmentList").firstElementChild;
-  EventUtils.synthesizeMouseAtCenter(
-    firstAttachment,
-    { clickCount: 1 },
-    aboutMessage
-  );
+    // Make sure clicking the "Delete" toolbar button with an attachment focused
+    // deletes the *message*.
+    const tree = get_about_3pane().threadTree;
+    const rowCountBefore = tree.view.rowCount;
+    // Note: Removing an attachment also triggers this notification.
+    const completed = PromiseTestUtils.promiseFolderEvent(
+      folder,
+      "DeleteOrMoveMsgCompleted"
+    );
+    const button = useUnifiedToolbar
+      ? document
+          .querySelector("unified-toolbar")
+          .querySelector('[is="delete-button"]')
+      : aboutMessage.document.getElementById("hdrTrashButton");
+    EventUtils.synthesizeMouseAtCenter(
+      button,
+      { clickCount: 1 },
+      button.ownerGlobal
+    );
+    await completed;
+    Assert.equal(
+      tree.view.rowCount,
+      rowCountBefore - 1,
+      "Row count of view should be one less than before."
+    );
+  };
 
-  // Make sure clicking the "Delete" toolbar button with an attachment focused
-  // deletes the *message*.
-  const tree = get_about_3pane().threadTree;
-  const rowCountBefore = tree.view.rowCount;
-  // Note: Removing an attachment also triggers this notification.
-  const completed = PromiseTestUtils.promiseFolderEvent(
-    folder,
-    "DeleteOrMoveMsgCompleted"
-  );
-  EventUtils.synthesizeMouseAtCenter(
-    aboutMessage.document.getElementById("hdrTrashButton"),
-    { clickCount: 1 },
-    aboutMessage
-  );
-  await completed;
-  Assert.equal(
-    tree.view.rowCount,
-    rowCountBefore - 1,
-    "Row count of view should be one less than before."
-  );
+  // Test message header pane button.
+  await deleteFromButton(false);
+  // Test unified toolbar button.
+  await deleteFromButton(true);
 });
 
 registerCleanupFunction(() => {
   // Remove created folders.
   folder.deleteSelf(null);
+  // Reset unified toolbar.
+  storeState({});
 });

@@ -43,8 +43,8 @@ class DeleteButton extends MailTabButton {
   handleClick(event) {
     goDoCommand(
       event.shiftKey && event.target.dataset.imapDeleted == "false"
-        ? "cmd_shiftDelete"
-        : "cmd_delete"
+        ? "cmd_shiftDeleteMessage"
+        : "cmd_deleteMessage"
     );
     // IMAP deleted state may have changed.
     this.onCommandContextChange();
