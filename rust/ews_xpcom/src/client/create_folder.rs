@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{create_folder::CreateFolder, BaseFolderId, Folder, Operation, OperationResponse};
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
-use crate::client::single_response_or_error;
 use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
 
-use super::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError};
-use crate::authentication::credentials::AuthenticationProvider;
+use super::{
+    process_response_message_class, single_response_or_error, DoOperation, ServerType,
+    XpComEwsClient, XpComEwsError,
+};
 
 struct DoCreateFolder {
     parent_id: String,
@@ -22,13 +21,10 @@ impl DoOperation for DoCreateFolder {
     type Okay = String;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let op = CreateFolder {
             parent_folder_id: BaseFolderId::FolderId {
                 id: self.parent_id.clone(),
@@ -92,10 +88,7 @@ impl DoOperation for DoCreateFolder {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn create_folder(
         self,
         listener: SafeEwsSimpleOperationListener,

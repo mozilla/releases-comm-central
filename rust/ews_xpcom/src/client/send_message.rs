@@ -7,15 +7,10 @@ use ews::{
     create_item::CreateItem, ArrayOfRecipients, Message, MessageDisposition, MimeContent,
     Operation, RealItem, Recipient,
 };
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
-use super::{DoOperation, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
+use super::{DoOperation, ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeListener, SafeMsgOutgoingListener, SafeUri},
-};
+use crate::safe_xpcom::{SafeListener, SafeMsgOutgoingListener, SafeUri};
 
 struct DoSendMessage<'a> {
     listener: &'a SafeMsgOutgoingListener,
@@ -31,13 +26,10 @@ impl DoOperation for DoSendMessage<'_> {
     type Okay = ();
     type Listener = SafeMsgOutgoingListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         // Notify that the request has started.
         self.listener.on_send_start()?;
 
@@ -87,10 +79,7 @@ impl DoOperation for DoSendMessage<'_> {
     }
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Send a message by performing a [`CreateItem` operation] via EWS.
     ///
     /// All headers except for Bcc are expected to be included in the provided

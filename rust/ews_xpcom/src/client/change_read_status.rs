@@ -8,14 +8,13 @@ use ews::{
     },
     BaseItemId, Message, MessageDisposition, Operation, OperationResponse, PathToElement,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
 
 use crate::{
-    authentication::credentials::AuthenticationProvider,
-    client::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError},
+    client::{
+        process_response_message_class, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
+    },
     safe_xpcom::{
         handle_error, SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
         UseLegacyFallback,
@@ -33,13 +32,10 @@ impl DoOperation for DoChangeReadStatus<'_> {
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         // Create the structure for setting the messages as read/unread.
         let item_changes: Vec<ItemChange> = self
             .message_ids
@@ -134,13 +130,11 @@ impl DoOperation for DoChangeReadStatus<'_> {
     /// This uses a custom implementation, since this operation has the unusual
     /// behavior of returning any successful responses to the success listener,
     /// even if the operation had failures.
-    async fn handle_operation<ServerT>(
+    async fn handle_operation<ServerT: ServerType>(
         mut self,
         client: &XpComEwsClient<ServerT>,
         listener: &Self::Listener,
-    ) where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) {
         match self.do_operation(client).await {
             Ok(()) => {
                 // the operation has already called on_success
@@ -152,10 +146,7 @@ impl DoOperation for DoChangeReadStatus<'_> {
     }
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Mark a message as read or unread by performing an [`UpdateItem` operation] via EWS.
     ///
     /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation

@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{Operation, OperationResponse};
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
-use crate::authentication::credentials::AuthenticationProvider;
-use crate::client::{response_into_messages, XpComEwsClient, XpComEwsError};
+use crate::client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError};
 
 /// An EWS operation that copies or moves folders or items.
 pub(crate) trait CopyMoveOperation: Operation + Clone {
@@ -18,13 +15,11 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
     /// Specifies the mapping from the available input data, including the EWS
     /// client, the destination EWS ID, and the input collection of EWS IDs to
     /// be moved, to the input to the EWS operation.
-    fn operation_builder<ServerT>(
+    fn operation_builder<ServerT: ServerType>(
         client: &XpComEwsClient<ServerT>,
         destination_folder_id: String,
         ids: Vec<String>,
-    ) -> Self
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted;
+    ) -> Self;
 
     /// Maps from the EWS response object to the collection of EWS IDs for the
     /// moved objects.
@@ -59,7 +54,7 @@ pub(super) async fn move_generic<ServerT, OperationDataT>(
     ids: Vec<String>,
 ) -> Result<CopyMoveSuccess, XpComEwsError>
 where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
+    ServerT: ServerType,
     OperationDataT: CopyMoveOperation,
 {
     let operation_data = OperationDataT::operation_builder(client, destination_folder_id, ids);

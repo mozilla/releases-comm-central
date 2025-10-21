@@ -6,18 +6,14 @@ use ews::{
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use std::collections::HashSet;
-use xpcom::RefCounted;
 
 use super::{
-    process_response_message_class, single_response_or_error, DoOperation, XpComEwsClient,
-    XpComEwsError, EWS_ROOT_FOLDER,
+    process_response_message_class, single_response_or_error, DoOperation, ServerType,
+    XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider, safe_xpcom::SafeEwsFolderListener,
-};
+use crate::safe_xpcom::SafeEwsFolderListener;
 
 struct DoSyncFolderHierarchy<'a> {
     pub listener: &'a SafeEwsFolderListener,
@@ -29,13 +25,10 @@ impl DoOperation for DoSyncFolderHierarchy<'_> {
     type Okay = ();
     type Listener = SafeEwsFolderListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         // If we have received no sync state, assume that this is the first time
         // syncing this account. In that case, we need to determine which
         // folders are "well-known" (e.g., inbox, trash, etc.) so we can flag
@@ -134,10 +127,7 @@ impl DoOperation for DoSyncFolderHierarchy<'_> {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Performs a [`SyncFolderHierarchy` operation] via EWS.
     ///
     /// This will fetch a list of remote changes since the specified sync state,

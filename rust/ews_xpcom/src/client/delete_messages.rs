@@ -7,20 +7,15 @@ use ews::{
     response::{ResponseCode, ResponseError},
     BaseItemId, DeleteType, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
 
 use super::{
-    process_response_message_class, validate_response_message_count, DoOperation, XpComEwsClient,
-    XpComEwsError,
+    process_response_message_class, validate_response_message_count, DoOperation, ServerType,
+    XpComEwsClient, XpComEwsError,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
-};
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
 
 struct DoDeleteMessages {
     pub ews_ids: ThinVec<nsCString>,
@@ -31,13 +26,10 @@ impl DoOperation for DoDeleteMessages {
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let item_ids: Vec<BaseItemId> = self
             .ews_ids
             .iter()
@@ -106,10 +98,7 @@ impl DoOperation for DoDeleteMessages {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_messages(
         self,
         listener: SafeEwsSimpleOperationListener,

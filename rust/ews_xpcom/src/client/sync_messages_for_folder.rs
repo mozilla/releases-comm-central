@@ -7,18 +7,14 @@ use ews::{
     sync_folder_items::{self, SyncFolderItems},
     ItemShape, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use std::collections::{HashMap, HashSet};
-use xpcom::RefCounted;
 
 use super::{
     process_response_message_class, single_response_or_error, BaseFolderId, BaseShape, DoOperation,
-    XpComEwsClient, XpComEwsError,
+    ServerType, XpComEwsClient, XpComEwsError,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider, safe_xpcom::SafeEwsMessageSyncListener,
-};
+use crate::safe_xpcom::SafeEwsMessageSyncListener;
 
 struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
@@ -31,13 +27,10 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
     type Okay = ();
     type Listener = SafeEwsMessageSyncListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         // We may need to call the SyncFolderItems operation multiple times to
         // ensure that all changes are returned, as EWS caps the number of
         // results. Loop until we have no more changes.
@@ -275,10 +268,7 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn sync_messages_for_folder(
         self,
         listener: SafeEwsMessageSyncListener,

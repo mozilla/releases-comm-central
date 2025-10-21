@@ -6,16 +6,13 @@ use ews::{
     mark_as_junk::MarkAsJunk, move_item::MoveItem, server_version::ExchangeServerVersion,
     BaseItemId, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
 
 use crate::{
-    authentication::credentials::AuthenticationProvider,
     client::{
         copy_move_operations::move_generic::CopyMoveSuccess, process_response_message_class,
-        validate_response_message_count, DoOperation, XpComEwsClient, XpComEwsError,
+        validate_response_message_count, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
     },
     safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener},
 };
@@ -31,13 +28,10 @@ impl DoOperation for DoMarkAsJunk {
     type Okay = Option<ThinVec<nsCString>>;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let server_version = client.server_version.get();
 
         // The `MarkAsJunk` operation was added in Exchange2013.
@@ -104,10 +98,7 @@ impl DoOperation for DoMarkAsJunk {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn mark_as_junk(
         self,
         listener: SafeEwsSimpleOperationListener,

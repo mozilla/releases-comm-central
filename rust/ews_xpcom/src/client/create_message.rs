@@ -7,17 +7,13 @@ use ews::{
     create_item::CreateItem, BaseFolderId, ExtendedFieldURI, ExtendedProperty, Message,
     MessageDisposition, MimeContent, Operation, RealItem,
 };
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
 use super::{
-    create_and_populate_header_from_create_response, DoOperation, XpComEwsClient, XpComEwsError,
-    MSGFLAG_READ, MSGFLAG_UNMODIFIED, MSGFLAG_UNSENT,
+    create_and_populate_header_from_create_response, DoOperation, ServerType, XpComEwsClient,
+    XpComEwsError, MSGFLAG_READ, MSGFLAG_UNMODIFIED, MSGFLAG_UNSENT,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider, safe_xpcom::SafeEwsMessageCreateListener,
-};
+use crate::safe_xpcom::SafeEwsMessageCreateListener;
 
 struct DoCreateMessage<'a> {
     pub listener: &'a SafeEwsMessageCreateListener,
@@ -32,13 +28,10 @@ impl DoOperation for DoCreateMessage<'_> {
     type Okay = ();
     type Listener = SafeEwsMessageCreateListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         // Create a new message from the binary content we got.
         let mut message = Message {
             mime_content: Some(MimeContent {
@@ -105,10 +98,7 @@ impl DoOperation for DoCreateMessage<'_> {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Create a message on the server by performing a [`CreateItem` operation]
     /// via EWS.
     ///

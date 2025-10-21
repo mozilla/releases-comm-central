@@ -124,10 +124,14 @@ pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
     server_version: Cell<ExchangeServerVersion>,
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted + 'static,
+/// Shorthand for the most common server type constraints.
+pub(crate) trait ServerType:
+    AuthenticationProvider + UserInteractiveServer + RefCounted
 {
+}
+impl<T> ServerType for T where T: AuthenticationProvider + UserInteractiveServer + RefCounted {}
+
+impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
     pub(crate) fn new(
         endpoint: Url,
         server: RefPtr<ServerT>,
@@ -995,12 +999,10 @@ pub(crate) trait DoOperation {
     type Listener: SafeListener;
 
     /// Do the operation represented. Includes most of the logic, returning any errors encountered.
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted;
+    ) -> Result<Self::Okay, XpComEwsError>;
 
     /// Turn the succesesfully completed operation into the argument for [`SafeListener::on_success`].
     fn into_success_arg(self, ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg;
@@ -1010,12 +1012,11 @@ pub(crate) trait DoOperation {
 
     /// Handle the operation done in [`Self::do_operation`]. I.e., calls `do_operation`, and handles
     /// any errors returned as appropriate.
-    async fn handle_operation<ServerT>(
+    async fn handle_operation<ServerT: ServerType>(
         mut self,
         client: &XpComEwsClient<ServerT>,
         listener: &Self::Listener,
     ) where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
         Self: Sized,
     {
         match self.do_operation(client).await {

@@ -7,15 +7,12 @@ use ews::{
     response::{ResponseCode, ResponseError},
     BaseFolderId, DeleteType, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
-use super::{process_response_message_class, DoOperation, XpComEwsClient, XpComEwsError};
-
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
+use super::{
+    process_response_message_class, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
 };
+
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
 
 struct DoDeleteFolder {
     pub folder_ids: Vec<String>,
@@ -26,13 +23,10 @@ impl DoOperation for DoDeleteFolder {
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let folder_ids = self
             .folder_ids
             .iter()
@@ -78,10 +72,7 @@ impl DoOperation for DoDeleteFolder {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_folder(
         self,
         listener: SafeEwsSimpleOperationListener,

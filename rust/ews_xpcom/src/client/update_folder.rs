@@ -6,18 +6,13 @@ use ews::{
     update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates},
     BaseFolderId, Folder, Operation, OperationResponse, PathToElement,
 };
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
 use super::{
-    process_response_message_class, single_response_or_error, DoOperation, XpComEwsClient,
-    XpComEwsError,
+    process_response_message_class, single_response_or_error, DoOperation, ServerType,
+    XpComEwsClient, XpComEwsError,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
-};
+use crate::safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback};
 
 struct DoUpdateFolder {
     pub folder_id: String,
@@ -29,13 +24,10 @@ impl DoOperation for DoUpdateFolder {
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let update_folder = UpdateFolder {
             folder_changes: FolderChanges {
                 folder_change: FolderChange {
@@ -82,10 +74,7 @@ impl DoOperation for DoUpdateFolder {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn update_folder(
         self,
         listener: SafeEwsSimpleOperationListener,

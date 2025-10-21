@@ -3,19 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{Operation, OperationResponse};
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
 use super::{
     process_response_message_class, single_response_or_error, validate_get_folder_response_message,
     AuthFailureBehavior, BaseFolderId, BaseShape, DoOperation, FolderShape, GetFolder,
-    OperationRequestOptions, XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
+    OperationRequestOptions, ServerType, XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::{
-    authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeUri, SafeUrlListener},
-};
+use crate::safe_xpcom::{SafeUri, SafeUrlListener};
 
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,
@@ -28,13 +23,10 @@ impl DoOperation for DoCheckConnectivity<'_> {
     type Okay = ();
     type Listener = SafeUrlListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         self.listener.on_start_running_url(self.uri.clone());
         // Request the EWS ID of the root folder.
         let get_root_folder = GetFolder {
@@ -81,10 +73,7 @@ impl DoOperation for DoCheckConnectivity<'_> {
     }
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Performs a connectivity check to the EWS server.
     ///
     /// Because EWS does not have a dedicated endpoint to test connectivity and

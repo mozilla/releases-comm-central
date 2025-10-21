@@ -6,13 +6,11 @@ use ews::{
     copy_folder::CopyFolder, move_folder::MoveFolder, BaseFolderId, CopyMoveFolderData, Folder,
     FolderResponseMessage, Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use std::marker::PhantomData;
 use xpcom::RefCounted;
 
-use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::copy_move_operations::move_generic::CopyMoveOperation;
-use crate::client::{DoOperation, XpComEwsClient, XpComEwsError};
+use crate::client::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
 use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 
 use super::move_generic::{move_generic, CopyMoveSuccess};
@@ -32,13 +30,10 @@ where
     type Okay = CopyMoveSuccess;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         move_generic::<_, RequestT>(
             client,
             self.destination_folder_id.clone(),
@@ -54,10 +49,7 @@ where
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Copy or move a collection of EWS folders.
     ///
     /// The `RequestT` generic parameter indicates which EWS operation to perform
@@ -132,14 +124,11 @@ where
         false
     }
 
-    fn operation_builder<ServerT>(
+    fn operation_builder<ServerT: ServerType>(
         client: &XpComEwsClient<ServerT>,
         destination_folder_id: String,
         ids: Vec<String>,
-    ) -> Self
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Self {
         construct_request(client, destination_folder_id, ids)
     }
 

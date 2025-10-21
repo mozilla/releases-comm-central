@@ -6,16 +6,13 @@ use ews::{
     mark_all_read::MarkAllItemsAsRead, server_version::ExchangeServerVersion, BaseFolderId,
     Operation, OperationResponse,
 };
-use mailnews_ui_glue::UserInteractiveServer;
 use nsstring::nsCString;
 use thin_vec::ThinVec;
-use xpcom::RefCounted;
 
 use crate::{
-    authentication::credentials::AuthenticationProvider,
     client::{
-        process_response_message_class, single_response_or_error, DoOperation, XpComEwsClient,
-        XpComEwsError,
+        process_response_message_class, single_response_or_error, DoOperation, ServerType,
+        XpComEwsClient, XpComEwsError,
     },
     safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
 };
@@ -31,13 +28,10 @@ impl DoOperation for DoChangeReadStatusAll {
     type Okay = UseLegacyFallback;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         let server_version = client.server_version.get();
 
         // The `MarkAllItemsAsRead` operation was added in Exchange2013
@@ -84,10 +78,7 @@ impl DoOperation for DoChangeReadStatusAll {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// Mark folders as read or unread by performing a [`MarkAllItemsAsRead` operation] via EWS.
     ///
     /// [`MarkAllItemsAsRead` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markallitemsasread-operation

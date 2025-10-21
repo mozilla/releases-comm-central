@@ -4,14 +4,10 @@
 
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{get_item::GetItem, Operation};
-use mailnews_ui_glue::UserInteractiveServer;
-use xpcom::RefCounted;
 
-use super::{DoOperation, XpComEwsClient, XpComEwsError};
+use super::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
 
-use crate::{
-    authentication::credentials::AuthenticationProvider, safe_xpcom::SafeEwsMessageFetchListener,
-};
+use crate::safe_xpcom::SafeEwsMessageFetchListener;
 
 struct DoGetMessage<'a> {
     pub listener: &'a SafeEwsMessageFetchListener,
@@ -23,13 +19,10 @@ impl DoOperation for DoGetMessage<'_> {
     type Okay = ();
     type Listener = SafeEwsMessageFetchListener;
 
-    async fn do_operation<ServerT>(
+    async fn do_operation<ServerT: ServerType>(
         &mut self,
         client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>
-    where
-        ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-    {
+    ) -> Result<Self::Okay, XpComEwsError> {
         self.listener.on_fetch_start()?;
 
         let items = client.get_items([self.id.clone()], &[], true).await?;
@@ -72,10 +65,7 @@ impl DoOperation for DoGetMessage<'_> {
     fn into_failure_arg(self) {}
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: AuthenticationProvider + UserInteractiveServer + RefCounted,
-{
+impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn get_message(self, listener: SafeEwsMessageFetchListener, id: String) {
         let operation = DoGetMessage {
             listener: &listener,
