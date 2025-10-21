@@ -355,6 +355,8 @@ pref("browser.preferences.animateFadeIn", false);
 // we leave this choice to the user, hopefully in the future this can be flipped
 // for everyone.
 pref("browser.urlbar.keepPanelOpenDuringImeComposition", false);
+// Copied from firefox.js to prevent test failure.
+pref("browser.fixup.domainwhitelist.localhost", true);
 
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);
