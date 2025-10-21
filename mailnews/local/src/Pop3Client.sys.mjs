@@ -427,8 +427,8 @@ export class Pop3Client {
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this._logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
-      if (secInfo.failedCertChain.length) {
-        const chain = secInfo.failedCertChain.map(c => {
+      if (secInfo.handshakeCertificates.length) {
+        const chain = secInfo.handshakeCertificates.map(c => {
           return c.commonName + "; serial# " + c.serialNumber;
         });
         this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
