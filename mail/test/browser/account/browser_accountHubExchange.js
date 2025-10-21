@@ -223,22 +223,21 @@ add_task(
     });
     Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
-    const authenticationStep = dialog.querySelector(
-      "email-authentication-form"
-    );
-    const authenticationStepShown = BrowserTestUtils.waitForAttributeRemoval(
-      "hidden",
-      authenticationStep
-    );
     // Click continue and wait for config found template to be in view.
     EventUtils.synthesizeMouseAtCenter(footerForward, {});
     info("Expecting password entry");
-    await authenticationStepShown;
+    const authenticationStep = dialog.querySelector(
+      "email-authentication-form"
+    );
 
+    await BrowserTestUtils.waitForAttributeRemoval(
+      "hidden",
+      authenticationStep
+    );
     await fillPasswordInput(authenticationStep);
-
     info("Entering username");
     const usernameInput = authenticationStep.querySelector("#username");
+
     await TestUtils.waitForCondition(
       () => BrowserTestUtils.isVisible(usernameInput),
       "The username form input should be visible."
