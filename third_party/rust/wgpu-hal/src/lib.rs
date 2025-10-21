@@ -1948,7 +1948,7 @@ pub struct SamplerDescriptor<'a> {
     pub address_modes: [wgt::AddressMode; 3],
     pub mag_filter: wgt::FilterMode,
     pub min_filter: wgt::FilterMode,
-    pub mipmap_filter: wgt::FilterMode,
+    pub mipmap_filter: wgt::MipmapFilterMode,
     pub lod_clamp: Range<f32>,
     pub compare: Option<wgt::CompareFunction>,
     // Must in the range [1, 16].
@@ -2436,6 +2436,36 @@ pub struct CopyExtent {
     pub width: u32,
     pub height: u32,
     pub depth: u32,
+}
+
+impl From<wgt::Extent3d> for CopyExtent {
+    fn from(value: wgt::Extent3d) -> Self {
+        let wgt::Extent3d {
+            width,
+            height,
+            depth_or_array_layers,
+        } = value;
+        Self {
+            width,
+            height,
+            depth: depth_or_array_layers,
+        }
+    }
+}
+
+impl From<CopyExtent> for wgt::Extent3d {
+    fn from(value: CopyExtent) -> Self {
+        let CopyExtent {
+            width,
+            height,
+            depth,
+        } = value;
+        Self {
+            width,
+            height,
+            depth_or_array_layers: depth,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
