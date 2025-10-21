@@ -468,13 +468,13 @@ checkbox {
 }
 
 treechildren::-moz-tree-row(selected) {
-  background-color: var(--in-content-item-selected) !important;
+  background-color: var(--color-accent-primary-selected) !important;
   border-color: transparent;
   outline-color: transparent;
 }
 
 treechildren::-moz-tree-cell-text(selected) {
-  color: var(--in-content-item-selected-text);
+  color: var(--text-color-accent-primary-selected);
 }
 
 .align-no-label {
@@ -674,15 +674,15 @@ treechildren::-moz-tree-cell-text(selected) {
     }
 
     &[selected="true"] {
-      background-color: var(--in-content-item-selected-unfocused);
+      background-color: var(--color-accent-primary-selected-unfocused);
       color: inherit;
     }
   }
 
   &:focus {
     & > richlistitem[selected="true"] {
-      background-color: var(--in-content-item-selected);
-      color: var(--in-content-item-selected-text) !important;
+      background-color: var(--color-accent-primary-selected);
+      color: var(--text-color-accent-primary-selected) !important;
     }
   }
 }

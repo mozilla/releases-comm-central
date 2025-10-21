@@ -215,8 +215,8 @@ body {
     }
 
     &:not([disabled="true"])[selected="true"] {
-      color: var(--in-content-item-selected-text);
-      background-color: var(--in-content-item-selected);
+      color: var(--text-color-accent-primary-selected);
+      background-color: var(--color-accent-primary-selected);
     }
 
     &[disabled="true"] {

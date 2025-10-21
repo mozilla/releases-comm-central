@@ -61,8 +61,8 @@
     }
 
     &:focus-within .typeCell {
-      background-color: var(--in-content-item-selected);
-      color: var(--in-content-item-selected-text);
+      background-color: var(--color-accent-primary-selected);
+      color: var(--text-color-accent-primary-selected);
     }
 
     &:not(:hover, :focus-within) .actionsMenu {
