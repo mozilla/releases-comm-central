@@ -174,7 +174,7 @@
    */
   class ActivityEventItem extends ActivityItemBase {
     static defaultIconSrc =
-      "chrome://messenger/skin/icons/new/activity/defaultEventIcon.svg";
+      "chrome://messenger/skin/icons/new/activity/defaultProcessIcon.svg";
     static activityInterface = Ci.nsIActivityEvent;
 
     connectedCallback() {

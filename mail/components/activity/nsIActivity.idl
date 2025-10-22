@@ -113,8 +113,7 @@ interface nsIActivity : nsISupports {
 
   /**
    * Changes the default icon associated with the activity. Core activity
-   * icons are declared in |mail/themes/<themename>/mail/activity/activity.css|
-   * files.
+   * icons are declared in |mail/themes/<themename>/mail/activity.css|files.
    *
    * Extension developers can add and assign their own icons by setting
    * this attribute.
