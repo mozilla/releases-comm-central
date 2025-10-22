@@ -258,6 +258,8 @@ interface nsIMsgFolder : nsISupports {
   /**
    * Delete the given subfolder of this folder.
    * It does not need to be a direct child.
+   * NOTE: This is purely local! No attempt is made to perform the delete on
+   * the server.
    *
    * @param folder         a child subfolder to delete
    * @param deleteStorage  whether to also delete the folder storage on disk
@@ -266,6 +268,8 @@ interface nsIMsgFolder : nsISupports {
 
   /**
    * Delete the folder and all of its subfolders.
+   * NOTE: This is purely local! No attempt is made to perform the delete on
+   * the server.
    *
    * @param deleteStorage  whether to also delete the folder storage on disk
    */
