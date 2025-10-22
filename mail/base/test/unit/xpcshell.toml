@@ -27,6 +27,9 @@ tags = ["archive"]
 ["test_emptyTrash_dbViewWrapper.js"]
 run-sequentially = true  # Avoid bustage.
 
+["test_folderSelectionDataAdapter.js"]
+tags = ["dataadapter"]
+
 ["test_linkHelper.js"]
 
 ["test_mailGlue_distribution.js"]

@@ -96,6 +96,7 @@ messenger.jar:
 
     content/messenger/CustomElementUtils.mjs        (content/modules/CustomElementUtils.mjs)
     content/messenger/DarkReader.mjs                (content/modules/DarkReader.mjs)
+    content/messenger/FolderSelectionDataAdapter.mjs (content/modules/FolderSelectionDataAdapter.mjs)
     content/messenger/ThreadPaneColumns.mjs         (content/modules/ThreadPaneColumns.mjs)
     content/messenger/TreeDataAdapter.mjs           (content/modules/TreeDataAdapter.mjs)
     content/messenger/TreeSelection.mjs             (content/modules/TreeSelection.mjs)
