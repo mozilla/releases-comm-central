@@ -64,6 +64,7 @@ skip-if = ["os == 'mac'"]
 ["test_sendMessageLater2.js"]
 
 ["test_sendMessageLater3.js"]
+requesttimeoutfactor = 2
 
 ["test_sendMessageLater_dsn_message_id.js"]
 

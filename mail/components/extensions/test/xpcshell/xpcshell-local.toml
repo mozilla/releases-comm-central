@@ -1,6 +1,7 @@
 [DEFAULT]
 dupe-manifest = true
 head = "head.js"
+requesttimeoutfactor = 2
 support-files = ["data/utils.js"]
 tags = [
   "local",

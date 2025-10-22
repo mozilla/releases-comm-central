@@ -13,6 +13,7 @@ prefs = [
 ["test_cardDAV_copyCard.js"]
 
 ["test_cardDAV_offline.js"]
+requesttimeoutfactor = 6 # Takes a long time on Windows.
 
 ["test_cardDAV_serverModified.js"]
 

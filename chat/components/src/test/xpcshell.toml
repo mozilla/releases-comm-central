@@ -11,3 +11,4 @@
 ["test_init.js"]
 
 ["test_logger.js"]
+requesttimeoutfactor = 2

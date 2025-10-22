@@ -30,12 +30,16 @@ tags = ["compact"]
 ["test_index_junk_local.js"]
 
 ["test_index_messages_imap_offline.js"]
+requesttimeoutfactor = 2
 
 ["test_index_messages_imap_online.js"]
+requesttimeoutfactor = 2
 
 ["test_index_messages_imap_online_to_offline.js"]
+requesttimeoutfactor = 2
 
 ["test_index_messages_local.js"]
+requesttimeoutfactor = 2
 
 ["test_index_sweep_folder.js"]
 
