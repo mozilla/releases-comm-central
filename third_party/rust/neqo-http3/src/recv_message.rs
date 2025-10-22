@@ -10,7 +10,6 @@ use std::{
     collections::VecDeque,
     fmt::{self, Debug, Display, Formatter},
     rc::Rc,
-    time::Instant,
 };
 
 use neqo_common::{header::HeadersExt as _, qdebug, qinfo, qtrace, Header};
@@ -260,12 +259,7 @@ impl RecvMessage {
         Ok(())
     }
 
-    fn receive_internal(
-        &mut self,
-        conn: &mut Connection,
-        post_readable_event: bool,
-        now: Instant,
-    ) -> Res<()> {
+    fn receive_internal(&mut self, conn: &mut Connection, post_readable_event: bool) -> Res<()> {
         loop {
             qdebug!("[{self}] state={:?}", self.state);
             match &mut self.state {
@@ -273,10 +267,10 @@ impl RecvMessage {
                 RecvMessageState::WaitingForResponseHeaders { frame_reader }
                 | RecvMessageState::WaitingForData { frame_reader }
                 | RecvMessageState::WaitingForFinAfterTrailers { frame_reader } => {
-                    match frame_reader.receive(
-                        &mut StreamReaderConnectionWrapper::new(conn, self.stream_id),
-                        now,
-                    )? {
+                    match frame_reader.receive(&mut StreamReaderConnectionWrapper::new(
+                        conn,
+                        self.stream_id,
+                    ))? {
                         (None, true) => {
                             break self.set_state_to_close_pending(post_readable_event);
                         }
@@ -381,8 +375,8 @@ impl Stream for RecvMessage {
 }
 
 impl RecvStream for RecvMessage {
-    fn receive(&mut self, conn: &mut Connection, now: Instant) -> Res<(ReceiveOutput, bool)> {
-        self.receive_internal(conn, true, now)?;
+    fn receive(&mut self, conn: &mut Connection) -> Res<(ReceiveOutput, bool)> {
+        self.receive_internal(conn, true)?;
         Ok((
             ReceiveOutput::NoOutput,
             matches!(self.state, RecvMessageState::Closed),
@@ -400,12 +394,7 @@ impl RecvStream for RecvMessage {
         Ok(())
     }
 
-    fn read_data(
-        &mut self,
-        conn: &mut Connection,
-        buf: &mut [u8],
-        now: Instant,
-    ) -> Res<(usize, bool)> {
+    fn read_data(&mut self, conn: &mut Connection, buf: &mut [u8]) -> Res<(usize, bool)> {
         let mut written = 0;
         loop {
             match self.state {
@@ -416,7 +405,7 @@ impl RecvStream for RecvMessage {
                     let (amount, fin) = conn
                         .stream_recv(self.stream_id, &mut buf[written..written + to_read])
                         .map_err(|e| Error::map_stream_recv_errors(&Error::from(e)))?;
-                    qlog::h3_data_moved_up(conn.qlog_mut(), self.stream_id, amount, now);
+                    qlog::h3_data_moved_up(conn.qlog_mut(), self.stream_id, amount);
 
                     debug_assert!(amount <= to_read);
                     *remaining_data_len -= amount;
@@ -432,7 +421,7 @@ impl RecvStream for RecvMessage {
                         self.state = RecvMessageState::WaitingForData {
                             frame_reader: FrameReader::new(),
                         };
-                        self.receive_internal(conn, false, now)?;
+                        self.receive_internal(conn, false)?;
                     } else {
                         break Ok((written, false));
                     }
@@ -452,11 +441,7 @@ impl RecvStream for RecvMessage {
 }
 
 impl HttpRecvStream for RecvMessage {
-    fn header_unblocked(
-        &mut self,
-        conn: &mut Connection,
-        now: Instant,
-    ) -> Res<(ReceiveOutput, bool)> {
+    fn header_unblocked(&mut self, conn: &mut Connection) -> Res<(ReceiveOutput, bool)> {
         while let Some(p) = self.blocked_push_promise.front() {
             if let Some(headers) = self
                 .qpack_decoder
@@ -474,7 +459,7 @@ impl HttpRecvStream for RecvMessage {
             }
         }
 
-        self.receive(conn, now)
+        self.receive(conn)
     }
 
     fn maybe_update_priority(&mut self, priority: Priority) -> Res<bool> {

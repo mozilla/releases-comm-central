@@ -236,7 +236,6 @@ impl Tos {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use crate::{Dscp, Ecn, Tos};
 

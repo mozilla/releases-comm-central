@@ -4,8 +4,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
-
 //! A crate to return the name and maximum transmission unit (MTU) of the local network interface
 //! towards a given destination `SocketAddr`, optionally from a given local `SocketAddr`.
 //!
@@ -131,7 +129,6 @@ pub fn interface_and_mtu(remote: IpAddr) -> Result<(String, usize)> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
     #![expect(clippy::unwrap_used, reason = "OK in tests.")]
 

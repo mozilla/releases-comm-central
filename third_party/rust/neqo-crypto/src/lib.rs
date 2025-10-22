@@ -4,8 +4,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
-
 mod aead;
 #[cfg(feature = "disable-encryption")]
 pub mod aead_null;
@@ -39,7 +37,6 @@ pub use self::aead::RealAead;
 #[cfg(feature = "disable-encryption")]
 pub use self::aead_null::AeadNull as Aead;
 pub use self::{
-    aead::Aead as AeadTrait,
     agent::{
         Agent, AllowZeroRtt, Client, HandshakeState, Record, RecordList, ResumptionToken,
         SecretAgent, SecretAgentInfo, SecretAgentPreInfo, Server, ZeroRttCheckResult,

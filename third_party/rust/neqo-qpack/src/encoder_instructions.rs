@@ -294,7 +294,6 @@ impl EncoderInstructionReader {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
 
     use super::{Data, EncoderInstruction, EncoderInstructionReader};

@@ -84,9 +84,7 @@ fn establish_new_session() -> (
                         && headers.contains_header(":protocol", "connect-udp")
                 );
 
-                session
-                    .response(&SessionAcceptAction::Accept, now())
-                    .unwrap();
+                session.response(&SessionAcceptAction::Accept).unwrap();
                 Some(session)
             } else {
                 None
@@ -139,7 +137,7 @@ fn exchange_packets_through_proxy(
     let server_dgrams = proxy.events().filter_map(|event| match event {
         Http3ServerEvent::ConnectUdp(ConnectUdpServerEvent::Datagram { datagram, session }) => {
             assert_eq!(session.stream_id(), connect_udp_session_id);
-            Some(Datagram::from_bytes(
+            Some(Datagram::new(
                 DEFAULT_ADDR,
                 DEFAULT_ADDR,
                 Tos::default(),
@@ -180,7 +178,7 @@ fn exchange_packets_through_proxy(
         }) = event
         {
             assert_eq!(session_id, connect_udp_session_id);
-            Some(Datagram::from_bytes(
+            Some(Datagram::new(
                 DEFAULT_ADDR,
                 DEFAULT_ADDR,
                 Tos::default(),
@@ -220,7 +218,7 @@ fn session_lifecycle(client_closes: bool) {
         })
         .unwrap();
     assert_eq!(session_id, id);
-    assert_eq!(&datagram, PING);
+    assert_eq!(datagram, PING);
 
     proxy_session.send_datagram(PONG, None).unwrap();
 
@@ -242,11 +240,11 @@ fn session_lifecycle(client_closes: bool) {
         .unwrap();
 
     assert_eq!(session_id, id);
-    assert_eq!(&datagram, PONG);
+    assert_eq!(datagram, PONG);
 
     if client_closes {
         client
-            .connect_udp_close_session(session_id, 0, "kthxbye", now())
+            .connect_udp_close_session(session_id, 0, "kthxbye")
             .unwrap();
 
         exchange_packets(&mut client, &mut proxy, false, None);
@@ -264,7 +262,7 @@ fn session_lifecycle(client_closes: bool) {
             })
             .unwrap();
     } else {
-        proxy_session.close_session(0, "kthxbye", now()).unwrap();
+        proxy_session.close_session(0, "kthxbye").unwrap();
 
         exchange_packets(&mut client, &mut proxy, false, None);
 
@@ -389,7 +387,7 @@ fn server_datagram_before_accept() {
             })
             .unwrap();
         proxy_session
-            .response(&SessionAcceptAction::Accept, now())
+            .response(&SessionAcceptAction::Accept)
             .unwrap();
         let proxy_accept = proxy.process_output(now()).dgram().unwrap();
         assert!(proxy.process_output(now()).dgram().is_none());
@@ -489,7 +487,7 @@ fn connect_udp_operation_on_fetch_stream() {
     );
 
     assert_eq!(
-        client.connect_udp_close_session(fetch_stream, 0, "kthxbye", now()),
+        client.connect_udp_close_session(fetch_stream, 0, "kthxbye"),
         Err(Error::InvalidStreamId)
     );
 }

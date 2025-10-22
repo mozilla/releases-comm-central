@@ -20,5 +20,4 @@ pub use reader::{FrameReader, StreamReaderConnectionWrapper, StreamReaderRecvStr
 pub use wtframe::WebTransportFrame;
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests;

@@ -16,7 +16,14 @@ use ::qlog::events::{quic::CongestionStateUpdated, EventData};
 use neqo_common::{const_max, const_min, qdebug, qinfo, qlog::Qlog, qtrace};
 
 use super::CongestionControl;
-use crate::{packet, qlog, recovery::sent, rtt::RttEstimate, sender::PACING_BURST_SIZE, Pmtud};
+use crate::{
+    packet,
+    qlog::{self, QlogMetric},
+    recovery::sent,
+    rtt::RttEstimate,
+    sender::PACING_BURST_SIZE,
+    Pmtud,
+};
 
 pub const CWND_INITIAL_PKTS: usize = 10;
 const PERSISTENT_CONG_THRESH: u32 = 3;
@@ -203,7 +210,7 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
 
             if self.state.in_recovery() {
                 self.set_state(State::CongestionAvoidance, now);
-                qlog::metrics_updated(&self.qlog, &[qlog::Metric::InRecovery(false)], now);
+                qlog::metrics_updated(&self.qlog, &[QlogMetric::InRecovery(false)], now);
             }
 
             new_acked += pkt.len();
@@ -259,8 +266,8 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
         qlog::metrics_updated(
             &self.qlog,
             &[
-                qlog::Metric::CongestionWindow(self.congestion_window),
-                qlog::Metric::BytesInFlight(self.bytes_in_flight),
+                QlogMetric::CongestionWindow(self.congestion_window),
+                QlogMetric::BytesInFlight(self.bytes_in_flight),
             ],
             now,
         );
@@ -292,7 +299,7 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
         }
         qlog::metrics_updated(
             &self.qlog,
-            &[qlog::Metric::BytesInFlight(self.bytes_in_flight)],
+            &[QlogMetric::BytesInFlight(self.bytes_in_flight)],
             now,
         );
 
@@ -339,7 +346,7 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
             self.bytes_in_flight -= pkt.len();
             qlog::metrics_updated(
                 &self.qlog,
-                &[qlog::Metric::BytesInFlight(self.bytes_in_flight)],
+                &[QlogMetric::BytesInFlight(self.bytes_in_flight)],
                 now,
             );
             qtrace!("[{self}] Ignore pkt with size {}", pkt.len());
@@ -350,7 +357,7 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
         self.bytes_in_flight = 0;
         qlog::metrics_updated(
             &self.qlog,
-            &[qlog::Metric::BytesInFlight(self.bytes_in_flight)],
+            &[QlogMetric::BytesInFlight(self.bytes_in_flight)],
             now,
         );
     }
@@ -381,7 +388,7 @@ impl<T: WindowAdjustment> CongestionControl for ClassicCongestionControl<T> {
         );
         qlog::metrics_updated(
             &self.qlog,
-            &[qlog::Metric::BytesInFlight(self.bytes_in_flight)],
+            &[QlogMetric::BytesInFlight(self.bytes_in_flight)],
             now,
         );
     }
@@ -513,7 +520,7 @@ impl<T: WindowAdjustment> ClassicCongestionControl<T> {
                     self.set_state(State::PersistentCongestion, now);
                     qlog::metrics_updated(
                         &self.qlog,
-                        &[qlog::Metric::CongestionWindow(self.congestion_window)],
+                        &[QlogMetric::CongestionWindow(self.congestion_window)],
                         now,
                     );
                     return true;
@@ -561,9 +568,9 @@ impl<T: WindowAdjustment> ClassicCongestionControl<T> {
         qlog::metrics_updated(
             &self.qlog,
             &[
-                qlog::Metric::CongestionWindow(self.congestion_window),
-                qlog::Metric::SsThresh(self.ssthresh),
-                qlog::Metric::InRecovery(true),
+                QlogMetric::CongestionWindow(self.congestion_window),
+                QlogMetric::SsThresh(self.ssthresh),
+                QlogMetric::InRecovery(true),
             ],
             now,
         );
@@ -589,7 +596,6 @@ impl<T: WindowAdjustment> ClassicCongestionControl<T> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use std::time::{Duration, Instant};
 

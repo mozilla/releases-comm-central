@@ -8,10 +8,9 @@ use std::{
     collections::HashSet,
     fmt::{self, Display, Formatter},
     mem,
-    time::Instant,
 };
 
-use neqo_common::{qtrace, Bytes, Encoder, Role};
+use neqo_common::{qtrace, Encoder, Role};
 use neqo_transport::{Connection, StreamId};
 
 use crate::{
@@ -96,14 +95,13 @@ impl Protocol for Session {
         conn: &mut Connection,
         events: &mut Box<dyn ExtendedConnectEvents>,
         control_stream_recv: &mut Box<dyn RecvStream>,
-        now: Instant,
     ) -> Res<Option<State>> {
         let (f, fin) = self
             .frame_reader
-            .receive::<WebTransportFrame>(
-                &mut StreamReaderRecvStreamWrapper::new(conn, control_stream_recv),
-                now,
-            )
+            .receive::<WebTransportFrame>(&mut StreamReaderRecvStreamWrapper::new(
+                conn,
+                control_stream_recv,
+            ))
             .map_err(|_| Error::HttpGeneralProtocolStream)?;
         qtrace!("[{self}] Received frame: {f:?} fin={fin}");
         if let Some(WebTransportFrame::CloseSession { error, message }) = f {
@@ -205,7 +203,7 @@ impl Protocol for Session {
         // WebTransport does not add prefix (i.e. context ID).
     }
 
-    fn dgram_context_id(&self, datagram: Bytes) -> Result<Bytes, DgramContextIdError> {
+    fn dgram_context_id<'a>(&self, datagram: &'a [u8]) -> Result<&'a [u8], DgramContextIdError> {
         // WebTransport does not use a prefix (i.e. context ID).
         Ok(datagram)
     }

@@ -10,12 +10,11 @@ pub(crate) mod webtransport_session;
 pub(crate) mod webtransport_streams;
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests;
 
 use std::{cell::RefCell, fmt::Debug, mem, rc::Rc};
 
-use neqo_common::{Bytes, Header, Role};
+use neqo_common::{Header, Role};
 use neqo_transport::StreamId;
 
 use crate::{
@@ -51,7 +50,7 @@ pub(crate) trait ExtendedConnectEvents: Debug {
     fn new_datagram(
         &self,
         session_id: StreamId,
-        datagram: Bytes,
+        datagram: Vec<u8>,
         connect_type: ExtendedConnectType,
     );
 }
@@ -109,44 +108,24 @@ impl ExtendedConnectFeature {
     }
 }
 
-#[expect(
-    clippy::struct_field_names,
-    reason = "wrapper type, providing additional info"
-)]
 #[derive(Debug, Default)]
-struct Headers {
-    headers: Vec<Header>,
-    interim: bool,
-    fin: bool,
+struct Listener {
+    headers: Option<(Vec<Header>, bool, bool)>,
 }
 
-/// Implementation of [`HttpRecvStreamEvents`]. Registered with the underlying
-/// [`RecvMessage`] stream. Listening for [`RecvMessage`] to read
-/// incoming headers.
-///
-/// [`RecvMessage`]: crate::recv_message::RecvMessage
-#[derive(Debug, Default)]
-struct HeaderListener {
-    headers: Option<Headers>,
-}
-
-impl HeaderListener {
+impl Listener {
     fn set_headers(&mut self, headers: Vec<Header>, interim: bool, fin: bool) {
-        self.headers = Some(Headers {
-            headers,
-            interim,
-            fin,
-        });
+        self.headers = Some((headers, interim, fin));
     }
 
-    pub fn get_headers(&mut self) -> Option<Headers> {
+    pub fn get_headers(&mut self) -> Option<(Vec<Header>, bool, bool)> {
         mem::take(&mut self.headers)
     }
 }
 
-impl RecvStreamEvents for Rc<RefCell<HeaderListener>> {}
+impl RecvStreamEvents for Rc<RefCell<Listener>> {}
 
-impl HttpRecvStreamEvents for Rc<RefCell<HeaderListener>> {
+impl HttpRecvStreamEvents for Rc<RefCell<Listener>> {
     fn header_ready(
         &self,
         _stream_info: &Http3StreamInfo,
@@ -160,4 +139,4 @@ impl HttpRecvStreamEvents for Rc<RefCell<HeaderListener>> {
     }
 }
 
-impl SendStreamEvents for Rc<RefCell<HeaderListener>> {}
+impl SendStreamEvents for Rc<RefCell<Listener>> {}

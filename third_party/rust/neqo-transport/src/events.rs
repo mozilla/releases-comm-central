@@ -252,7 +252,6 @@ impl EventProvider for ConnectionEvents {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use neqo_common::event::Provider as _;
 

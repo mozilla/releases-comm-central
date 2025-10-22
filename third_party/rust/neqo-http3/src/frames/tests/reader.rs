@@ -43,10 +43,10 @@ impl FrameReaderTest {
         drop(self.conn_c.process(out.dgram(), now()));
         let (frame, fin) = self
             .fr
-            .receive::<T>(
-                &mut StreamReaderConnectionWrapper::new(&mut self.conn_c, self.stream_id),
-                now(),
-            )
+            .receive::<T>(&mut StreamReaderConnectionWrapper::new(
+                &mut self.conn_c,
+                self.stream_id,
+            ))
             .ok()?;
         assert!(!fin);
         frame
@@ -247,10 +247,10 @@ fn test_reading_frame<T: FrameDecoder<T> + PartialEq + Debug>(
         drop(fr.conn_c.process(out.dgram(), now()));
     }
 
-    let rv = fr.fr.receive::<T>(
-        &mut StreamReaderConnectionWrapper::new(&mut fr.conn_c, fr.stream_id),
-        now(),
-    );
+    let rv = fr.fr.receive::<T>(&mut StreamReaderConnectionWrapper::new(
+        &mut fr.conn_c,
+        fr.stream_id,
+    ));
 
     match expected_result {
         FrameReadingTestExpect::Error => assert_eq!(Err(Error::HttpFrame), rv),
@@ -498,10 +498,11 @@ fn frame_reading_when_stream_is_closed_before_sending_data() {
     drop(fr.conn_s.process(out.dgram(), now()));
     assert_eq!(
         Ok((None, true)),
-        fr.fr.receive::<HFrame>(
-            &mut StreamReaderConnectionWrapper::new(&mut fr.conn_s, fr.stream_id),
-            now()
-        )
+        fr.fr
+            .receive::<HFrame>(&mut StreamReaderConnectionWrapper::new(
+                &mut fr.conn_s,
+                fr.stream_id
+            ))
     );
 }
 
@@ -520,9 +521,10 @@ fn wt_frame_reading_when_stream_is_closed_before_sending_data() {
     drop(fr.conn_s.process(out.dgram(), now()));
     assert_eq!(
         Ok((None, true)),
-        fr.fr.receive::<WebTransportFrame>(
-            &mut StreamReaderConnectionWrapper::new(&mut fr.conn_s, fr.stream_id),
-            now()
-        )
+        fr.fr
+            .receive::<WebTransportFrame>(&mut StreamReaderConnectionWrapper::new(
+                &mut fr.conn_s,
+                fr.stream_id
+            ))
     );
 }

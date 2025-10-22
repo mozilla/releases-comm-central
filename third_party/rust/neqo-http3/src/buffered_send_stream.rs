@@ -4,8 +4,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::time::Instant;
-
 use neqo_common::Encoder;
 use neqo_transport::{Connection, StreamId};
 
@@ -63,7 +61,7 @@ impl BufferedStream {
     /// # Errors
     ///
     /// Returns `neqo_transport` errors.
-    pub fn send_buffer(&mut self, conn: &mut Connection, now: Instant) -> Res<usize> {
+    pub fn send_buffer(&mut self, conn: &mut Connection) -> Res<usize> {
         let Self::Initialized { stream_id, buf } = self else {
             return Ok(0);
         };
@@ -79,21 +77,16 @@ impl BufferedStream {
             let b = buf.split_off(sent);
             *buf = b;
         }
-        qlog::h3_data_moved_down(conn.qlog_mut(), *stream_id, sent, now);
+        qlog::h3_data_moved_down(conn.qlog_mut(), *stream_id, sent);
         Ok(sent)
     }
 
     /// # Errors
     ///
     /// Returns `neqo_transport` errors.
-    pub fn send_atomic(
-        &mut self,
-        conn: &mut Connection,
-        to_send: &[u8],
-        now: Instant,
-    ) -> Res<bool> {
+    pub fn send_atomic(&mut self, conn: &mut Connection, to_send: &[u8]) -> Res<bool> {
         // First try to send anything that is in the buffer.
-        self.send_buffer(conn, now)?;
+        self.send_buffer(conn)?;
         let Self::Initialized { stream_id, buf } = self else {
             return Ok(false);
         };
@@ -102,7 +95,7 @@ impl BufferedStream {
         }
         let res = conn.stream_send_atomic(*stream_id, to_send)?;
         if res {
-            qlog::h3_data_moved_down(conn.qlog_mut(), *stream_id, to_send.len(), now);
+            qlog::h3_data_moved_down(conn.qlog_mut(), *stream_id, to_send.len());
         }
         Ok(res)
     }

@@ -145,7 +145,6 @@ impl PriorityHandler {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod test {
     use neqo_transport::StreamId;
 

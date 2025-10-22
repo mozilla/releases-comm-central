@@ -381,7 +381,6 @@ fn prepare_data(
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use std::{
         collections::HashMap,
@@ -1004,7 +1003,7 @@ mod tests {
                             Header::new("content-length", "3"),
                         ])
                         .unwrap();
-                    stream.send_data(RESPONSE_BODY, now()).unwrap();
+                    stream.send_data(RESPONSE_BODY).unwrap();
                     data_received += 1;
                 }
                 Http3ServerEvent::DataWritable { .. }
@@ -1052,7 +1051,7 @@ mod tests {
                             Header::new("content-length", "3"),
                         ])
                         .unwrap();
-                    stream.send_data(RESPONSE_BODY, now()).unwrap();
+                    stream.send_data(RESPONSE_BODY).unwrap();
                 }
                 Http3ServerEvent::Data { .. } => {
                     panic!("We should not have a Data event");

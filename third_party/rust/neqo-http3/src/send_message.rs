@@ -10,7 +10,6 @@ use std::{
     fmt::{self, Debug, Display, Formatter},
     num::NonZeroUsize,
     rc::Rc,
-    time::Instant,
 };
 
 use neqo_common::{qdebug, qtrace, Buffer, Encoder, Header, MessageType};
@@ -169,12 +168,12 @@ impl Stream for SendMessage {
     }
 }
 impl SendStream for SendMessage {
-    fn send_data(&mut self, conn: &mut Connection, buf: &[u8], now: Instant) -> Res<usize> {
+    fn send_data(&mut self, conn: &mut Connection, buf: &[u8]) -> Res<usize> {
         qtrace!("[{self}] send_body: len={}", buf.len());
 
         self.state.new_data()?;
 
-        self.stream.send_buffer(conn, now)?;
+        self.stream.send_buffer(conn)?;
         if self.stream.has_buffered_data() {
             return Ok(0);
         }
@@ -213,13 +212,13 @@ impl SendStream for SendMessage {
         data_frame.encode(&mut enc);
         let sent_fh = self
             .stream
-            .send_atomic(conn, enc.as_ref(), now)
+            .send_atomic(conn, enc.as_ref())
             .map_err(|e| Error::map_stream_send_errors(&e))?;
         debug_assert!(sent_fh);
 
         let sent = self
             .stream
-            .send_atomic(conn, &buf[..to_send], now)
+            .send_atomic(conn, &buf[..to_send])
             .map_err(|e| Error::map_stream_send_errors(&e))?;
         debug_assert!(sent);
         Ok(to_send)
@@ -246,8 +245,8 @@ impl SendStream for SendMessage {
     /// `TransportStreamDoesNotExist` if the transport stream does not exist (this may happen if
     /// `process_output` has not been called when needed, and HTTP3 layer has not picked up the
     /// info that the stream has been closed.)
-    fn send(&mut self, conn: &mut Connection, now: Instant) -> Res<()> {
-        let sent = Error::map_error(self.stream.send_buffer(conn, now), Error::HttpInternal(5))?;
+    fn send(&mut self, conn: &mut Connection) -> Res<()> {
+        let sent = Error::map_error(self.stream.send_buffer(conn), Error::HttpInternal(5))?;
 
         qtrace!("[{self}] {sent} bytes sent");
         if !self.stream.has_buffered_data() {
@@ -274,7 +273,7 @@ impl SendStream for SendMessage {
         self.stream.has_buffered_data()
     }
 
-    fn close(&mut self, conn: &mut Connection, _now: Instant) -> Res<()> {
+    fn close(&mut self, conn: &mut Connection) -> Res<()> {
         self.state.fin()?;
         if !self.stream.has_buffered_data() {
             conn.stream_close_send(self.stream_id())?;
@@ -295,13 +294,13 @@ impl SendStream for SendMessage {
         Some(self)
     }
 
-    fn send_data_atomic(&mut self, conn: &mut Connection, buf: &[u8], now: Instant) -> Res<()> {
+    fn send_data_atomic(&mut self, conn: &mut Connection, buf: &[u8]) -> Res<()> {
         let data_frame = HFrame::Data {
             len: buf.len() as u64,
         };
         self.stream.encode_with(|e| data_frame.encode(e));
         self.stream.buffer(buf);
-        _ = self.stream.send_buffer(conn, now)?;
+        _ = self.stream.send_buffer(conn)?;
         Ok(())
     }
 }

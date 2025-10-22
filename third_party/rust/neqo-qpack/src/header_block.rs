@@ -394,7 +394,6 @@ impl<'a> HeaderDecoder<'a> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
 
     use super::{HeaderDecoder, HeaderDecoderResult, HeaderEncoder, HeaderTable};

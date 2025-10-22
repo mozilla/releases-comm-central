@@ -686,7 +686,6 @@ impl<'a> Frame<'a> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage_nightly, coverage(off))]
 mod tests {
     use neqo_common::{Decoder, Encoder};
 

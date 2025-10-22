@@ -231,7 +231,7 @@ impl super::Handler for Handler {
                             qwarn!("Data on unexpected stream: {stream_id}");
                         }
                         Some(handler) => {
-                            handler.process_data_writable(client, stream_id, Instant::now());
+                            handler.process_data_writable(client, stream_id);
                         }
                     }
                 }
@@ -269,12 +269,7 @@ trait StreamHandler {
         data: &[u8],
         output_read_data: bool,
     ) -> Res<()>;
-    fn process_data_writable(
-        &mut self,
-        client: &mut Http3Client,
-        stream_id: StreamId,
-        now: Instant,
-    );
+    fn process_data_writable(&mut self, client: &mut Http3Client, stream_id: StreamId);
 }
 
 struct DownloadStreamHandler {
@@ -315,13 +310,7 @@ impl StreamHandler for DownloadStreamHandler {
         Ok(())
     }
 
-    fn process_data_writable(
-        &mut self,
-        _client: &mut Http3Client,
-        _stream_id: StreamId,
-        _now: Instant,
-    ) {
-    }
+    fn process_data_writable(&mut self, _client: &mut Http3Client, _stream_id: StreamId) {}
 }
 
 struct UploadStreamHandler {
@@ -353,17 +342,12 @@ impl StreamHandler for UploadStreamHandler {
         }
     }
 
-    fn process_data_writable(
-        &mut self,
-        client: &mut Http3Client,
-        stream_id: StreamId,
-        now: Instant,
-    ) {
+    fn process_data_writable(&mut self, client: &mut Http3Client, stream_id: StreamId) {
         let done = self
             .data
-            .send(|chunk| client.send_data(stream_id, chunk, now).unwrap());
+            .send(|chunk| client.send_data(stream_id, chunk).unwrap());
         if done {
-            client.stream_close_send(stream_id, now).unwrap();
+            client.stream_close_send(stream_id).unwrap();
         }
     }
 }
@@ -400,9 +384,8 @@ impl UrlHandler {
             .url_queue
             .pop_front()
             .expect("download_next called with empty queue");
-        let now = Instant::now();
         match client.fetch(
-            now,
+            Instant::now(),
             &self.args.method,
             &url,
             &self.args.headers,
@@ -418,12 +401,12 @@ impl UrlHandler {
                             self.args.output_dir.as_ref(),
                             &mut self.all_paths,
                         );
-                        client.stream_close_send(client_stream_id, now).unwrap();
+                        client.stream_close_send(client_stream_id).unwrap();
                         Box::new(DownloadStreamHandler { out_file })
                     }
                     "POST" => Box::new(UploadStreamHandler {
                         data: SendData::zeroes(self.args.upload_size),
-                        start: now,
+                        start: Instant::now(),
                     }),
                     _ => unimplemented!(),
                 };

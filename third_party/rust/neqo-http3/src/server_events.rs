@@ -10,10 +10,9 @@ use std::{
     fmt::{self, Display, Formatter},
     ops::Deref,
     rc::Rc,
-    time::Instant,
 };
 
-use neqo_common::{qdebug, Bytes, Encoder, Header};
+use neqo_common::{qdebug, Encoder, Header};
 use neqo_transport::{
     server::ConnectionRef, AppError, Connection, DatagramTracking, StreamId, StreamType,
 };
@@ -75,10 +74,10 @@ impl StreamHandler {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn send_data(&self, buf: &[u8], now: Instant) -> Res<usize> {
+    pub fn send_data(&self, buf: &[u8]) -> Res<usize> {
         self.handler
             .borrow_mut()
-            .send_data(self.stream_id(), buf, &mut self.conn.borrow_mut(), now)
+            .send_data(self.stream_id(), buf, &mut self.conn.borrow_mut())
     }
 
     /// Bytes sendable on stream at the QUIC layer.
@@ -99,12 +98,10 @@ impl StreamHandler {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn stream_close_send(&self, now: Instant) -> Res<()> {
-        self.handler.borrow_mut().stream_close_send(
-            self.stream_id(),
-            &mut self.conn.borrow_mut(),
-            now,
-        )
+    pub fn stream_close_send(&self) -> Res<()> {
+        self.handler
+            .borrow_mut()
+            .stream_close_send(self.stream_id(), &mut self.conn.borrow_mut())
     }
 
     /// Request a peer to stop sending a stream.
@@ -196,9 +193,9 @@ impl Http3OrWebTransportStream {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn send_data(&self, data: &[u8], now: Instant) -> Res<usize> {
+    pub fn send_data(&self, data: &[u8]) -> Res<usize> {
         qdebug!("[{self}] Set new response");
-        self.stream_handler.send_data(data, now)
+        self.stream_handler.send_data(data)
     }
 
     /// Close sending side.
@@ -206,9 +203,9 @@ impl Http3OrWebTransportStream {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn stream_close_send(&self, now: Instant) -> Res<()> {
+    pub fn stream_close_send(&self) -> Res<()> {
         qdebug!("[{self}] Set new response");
-        self.stream_handler.stream_close_send(now)
+        self.stream_handler.stream_close_send()
     }
 }
 
@@ -269,7 +266,7 @@ impl WebTransportRequest {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn response(&self, accept: &SessionAcceptAction, now: Instant) -> Res<()> {
+    pub fn response(&self, accept: &SessionAcceptAction) -> Res<()> {
         qdebug!("[{self}] Set a response for a WebTransport session");
         self.stream_handler
             .handler
@@ -278,7 +275,6 @@ impl WebTransportRequest {
                 &mut self.stream_handler.conn.borrow_mut(),
                 self.stream_handler.stream_info.stream_id(),
                 accept,
-                now,
             )
     }
 
@@ -287,7 +283,7 @@ impl WebTransportRequest {
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
     /// Also return an error if the stream was closed on the transport layer,
     /// but that information is not yet consumed on the  http/3 layer.
-    pub fn close_session(&self, error: u32, message: &str, now: Instant) -> Res<()> {
+    pub fn close_session(&self, error: u32, message: &str) -> Res<()> {
         self.stream_handler
             .handler
             .borrow_mut()
@@ -296,7 +292,6 @@ impl WebTransportRequest {
                 self.stream_handler.stream_info.stream_id(),
                 error,
                 message,
-                now,
             )
     }
 
@@ -412,7 +407,7 @@ impl ConnectUdpRequest {
     /// # Errors
     ///
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
-    pub fn response(&self, accept: &SessionAcceptAction, now: Instant) -> Res<()> {
+    pub fn response(&self, accept: &SessionAcceptAction) -> Res<()> {
         qdebug!("[{self}] Set a response for a ConnectUdp session");
         self.stream_handler
             .handler
@@ -421,7 +416,6 @@ impl ConnectUdpRequest {
                 &mut self.stream_handler.conn.borrow_mut(),
                 self.stream_handler.stream_info.stream_id(),
                 accept,
-                now,
             )
     }
 
@@ -430,7 +424,7 @@ impl ConnectUdpRequest {
     /// It may return `InvalidStreamId` if a stream does not exist anymore.
     /// Also return an error if the stream was closed on the transport layer,
     /// but that information is not yet consumed on the  http/3 layer.
-    pub fn close_session(&self, error: u32, message: &str, now: Instant) -> Res<()> {
+    pub fn close_session(&self, error: u32, message: &str) -> Res<()> {
         self.stream_handler
             .handler
             .borrow_mut()
@@ -439,7 +433,6 @@ impl ConnectUdpRequest {
                 self.stream_handler.stream_info.stream_id(),
                 error,
                 message,
-                now,
             )
     }
 
@@ -508,7 +501,7 @@ pub enum WebTransportServerEvent {
     NewStream(Http3OrWebTransportStream),
     Datagram {
         session: WebTransportRequest,
-        datagram: Bytes,
+        datagram: Vec<u8>,
     },
 }
 
@@ -525,7 +518,7 @@ pub enum ConnectUdpServerEvent {
     },
     Datagram {
         session: ConnectUdpRequest,
-        datagram: Bytes,
+        datagram: Vec<u8>,
     },
 }
 
@@ -724,12 +717,12 @@ impl Http3ServerEvents {
         ));
     }
 
-    pub(crate) fn webtransport_datagram(&self, session: WebTransportRequest, datagram: Bytes) {
+    pub(crate) fn webtransport_datagram(&self, session: WebTransportRequest, datagram: Vec<u8>) {
         self.insert(Http3ServerEvent::WebTransport(
             WebTransportServerEvent::Datagram { session, datagram },
         ));
     }
-    pub(crate) fn connect_udp_datagram(&self, session: ConnectUdpRequest, datagram: Bytes) {
+    pub(crate) fn connect_udp_datagram(&self, session: ConnectUdpRequest, datagram: Vec<u8>) {
         self.insert(Http3ServerEvent::ConnectUdp(
             ConnectUdpServerEvent::Datagram { session, datagram },
         ));
