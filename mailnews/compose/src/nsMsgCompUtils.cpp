@@ -31,7 +31,6 @@
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/UniquePtr.h"
-#include "mozilla/Unused.h"
 #include "mozilla/ContentIterator.h"
 #include "mozilla/dom/Document.h"
 #include "nsIMIMEInfo.h"
@@ -77,7 +76,7 @@ nsMsgCompUtils::DetectCharset(const nsACString& aContent,
       mozilla::EncodingDetector::Create();
   mozilla::Span<const uint8_t> src = mozilla::AsBytes(
       mozilla::Span(ToNewCString(aContent), aContent.Length()));
-  mozilla::Unused << detector->Feed(src, true);
+  (void)detector->Feed(src, true);
   auto encoding = detector->Guess(nullptr, true);
   encoding->Name(aCharset);
   return NS_OK;

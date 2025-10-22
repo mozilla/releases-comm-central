@@ -55,7 +55,6 @@
 
 #ifdef MOZ_LINUX_32_SSE2_STARTUP_ERROR
 #  include <cpuid.h>
-#  include "mozilla/Unused.h"
 
 static bool IsSSE2Available() {
   // The rest of the app has been compiled to assume that SSE2 is present

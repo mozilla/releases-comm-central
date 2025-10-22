@@ -28,7 +28,6 @@
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/Unused.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
 
@@ -590,7 +589,7 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
       } else {
         nsAutoCString userAgentString;
         // Ignore error since we're testing the return value.
-        mozilla::Unused << pHTTPHandler->GetUserAgent(userAgentString);
+        (void)pHTTPHandler->GetUserAgent(userAgentString);
 
         if (!userAgentString.IsEmpty()) {
           // Prepend the product name with the dns name according to RFC 3798.

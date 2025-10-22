@@ -358,7 +358,7 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(const nsACString& name,
 
   folder->SetFilePath(folderPath);
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder, &rv);
-  mozilla::Unused << imapFolder;
+  (void)imapFolder;
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t flags = 0;

@@ -37,7 +37,7 @@ nsresult MIME_detect_charset(const char* aBuf, int32_t aLength,
       mozilla::EncodingDetector::Create();
   mozilla::Span<const uint8_t> src =
       mozilla::AsBytes(mozilla::Span(aBuf, aLength));
-  Unused << detector->Feed(src, true);
+  (void)detector->Feed(src, true);
   auto encoding = detector->Guess(nullptr, true);
   encoding->Name(aCharset);
   return NS_OK;

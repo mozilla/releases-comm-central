@@ -21,7 +21,6 @@
 #include "nsMsgUtils.h"
 #include "nsIAutoSyncManager.h"
 #include "mozilla/Components.h"
-#include "mozilla/Unused.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
                   nsIDBChangeListener, nsIImapOfflineSync)
@@ -384,7 +383,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
     if (NS_FAILED(rv) || NS_FAILED(rv2)) {
       // This Remove() will fail under Windows if the output stream
       // fails to close above.
-      mozilla::Unused << NS_WARN_IF(NS_FAILED(tmpFile->Remove(false)));
+      (void)NS_WARN_IF(NS_FAILED(tmpFile->Remove(false)));
       break;
     }
 
@@ -414,7 +413,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
 
   // Close the output stream if it's not already closed.
   if (outputStream)
-    mozilla::Unused << NS_WARN_IF(NS_FAILED(outputStream->Close()));
+    (void)NS_WARN_IF(NS_FAILED(outputStream->Close()));
 }
 
 void nsImapOfflineSync::ClearCurrentOps() {

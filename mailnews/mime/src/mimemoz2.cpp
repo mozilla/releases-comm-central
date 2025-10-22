@@ -43,7 +43,6 @@
 // </for>
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
-#include "mozilla/Unused.h"
 
 using mozilla::Preferences;
 using mozilla::PrefValueKind;
@@ -650,9 +649,9 @@ extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
     nsAutoCString spec;
     if (tmp->m_url) {
       if (tmp->m_isExternalLinkAttachment)
-        mozilla::Unused << tmp->m_url->GetAsciiSpec(spec);
+        (void)tmp->m_url->GetAsciiSpec(spec);
       else
-        mozilla::Unused << tmp->m_url->GetSpec(spec);
+        (void)tmp->m_url->GetSpec(spec);
     }
 
     nsAutoCString sizeStr;

@@ -57,7 +57,6 @@
 #include "nsIChannel.h"
 #include "nsIURIMutator.h"
 #include "nsReadableUtils.h"
-#include "mozilla/Unused.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
@@ -902,7 +901,7 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle) {
   }
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aMsgURI, &rv);
-  mozilla::Unused << mailnewsUrl;
+  (void)mailnewsUrl;
   NS_ENSURE_SUCCESS(rv, rv);
 
   // get the folder and the server from the msghdr
@@ -1064,8 +1063,8 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
 
   // Write the relative path.
   nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
-  mozilla::Unused << relFilePref->SetFile(aFile);
-  mozilla::Unused << relFilePref->SetRelativeToKey(
+  (void)relFilePref->SetFile(aFile);
+  (void)relFilePref->SetRelativeToKey(
       nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
   nsresult rv2 = prefBranch->SetComplexValue(
@@ -1528,12 +1527,12 @@ nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset) {
   while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
     mozilla::Span<const uint8_t> src =
         mozilla::AsBytes(mozilla::Span(buffer, numRead));
-    Unused << detector->Feed(src, false);
+    (void)detector->Feed(src, false);
     if (numRead == 0) {
       break;
     }
   }
-  Unused << detector->Feed(nullptr, true);
+  (void)detector->Feed(nullptr, true);
   auto encoding = detector->Guess(nullptr, true);
   encoding->Name(aCharset);
   return NS_OK;

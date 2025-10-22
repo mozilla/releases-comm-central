@@ -26,7 +26,6 @@
 #include "nsString.h"
 #include "mozpkix/pkixtypes.h"
 #include "mozilla/Maybe.h"
-#include "mozilla/Unused.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla;
@@ -38,7 +37,7 @@ static void PRTimeToLocalDateString(PRTime time, nsAString& result) {
   mozilla::intl::DateTimeFormat::StyleBag style;
   style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
   style.time = mozilla::Nothing();
-  mozilla::Unused << intl::AppDateTimeFormat::Format(style, &explodedTime,
+  (void)intl::AppDateTimeFormat::Format(style, &explodedTime,
                                                      result);
 }
 

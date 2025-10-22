@@ -42,7 +42,6 @@
 #include "mozilla/StaticPrefs_mail.h"
 #include "nsIMsgFilter.h"
 #include "nsIObserverService.h"
-#include "mozilla/Unused.h"
 #include "nsIUUIDGenerator.h"
 #include "nsIArray.h"
 #ifdef MOZ_PANORAMA
@@ -508,8 +507,8 @@ nsMsgIncomingServer::GetFileValue(const char* aRelPrefName,
 
     nsCOMPtr<nsIRelativeFilePref> relFilePref =
         new mozilla::nsRelativeFilePref();
-    mozilla::Unused << relFilePref->SetFile(*aLocalFile);
-    mozilla::Unused << relFilePref->SetRelativeToKey(
+    (void)relFilePref->SetFile(*aLocalFile);
+    (void)relFilePref->SetRelativeToKey(
         nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
     rv = mPrefBranch->SetComplexValue(
@@ -527,8 +526,8 @@ nsMsgIncomingServer::SetFileValue(const char* aRelPrefName,
 
   // Write the relative path.
   nsCOMPtr<nsIRelativeFilePref> relFilePref = new mozilla::nsRelativeFilePref();
-  mozilla::Unused << relFilePref->SetFile(aLocalFile);
-  mozilla::Unused << relFilePref->SetRelativeToKey(
+  (void)relFilePref->SetFile(aLocalFile);
+  (void)relFilePref->SetRelativeToKey(
       nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
   nsresult rv = mPrefBranch->SetComplexValue(

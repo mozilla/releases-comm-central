@@ -25,7 +25,6 @@
 #include "nsIMIMEHeaderParam.h"
 #include "nsNetCID.h"
 #include "nsServiceManagerUtils.h"
-#include "mozilla/Unused.h"
 
 // Forward declares...
 int32_t MimeHeaders_build_heads_list(MimeHeaders* hdrs);
@@ -685,7 +684,7 @@ void MimeHeaders_do_unix_display_hook_hack(MimeHeaders* hdrs) {
   if (cmd && *cmd) {
     FILE* fp = popen(cmd, "w");
     if (fp) {
-      mozilla::Unused << fwrite(hdrs->all_headers, 1, hdrs->all_headers_fp, fp);
+      (void)fwrite(hdrs->all_headers, 1, hdrs->all_headers_fp, fp);
       pclose(fp);
     }
   }
