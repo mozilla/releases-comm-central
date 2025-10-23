@@ -251,19 +251,25 @@ class load_libresolv {
     const ancount = this.ns_get16(answer.addressOfElement(6));
 
     for (let qdidx = 0; qdidx < qdcount && idx < length; qdidx++) {
-      idx +=
-        this.NS_QFIXEDSZ +
-        this.dn_skipname(
-          answer.addressOfElement(idx),
-          answer.addressOfElement(length)
-        );
-    }
-
-    for (let anidx = 0; anidx < ancount && idx < length; anidx++) {
-      idx += this.dn_skipname(
+      const nextNameOffset = this.dn_skipname(
         answer.addressOfElement(idx),
         answer.addressOfElement(length)
       );
+      if (nextNameOffset < 0) {
+        return [];
+      }
+      idx += this.NS_QFIXEDSZ + nextNameOffset;
+    }
+
+    for (let anidx = 0; anidx < ancount && idx < length; anidx++) {
+      const nextNameOffset = this.dn_skipname(
+        answer.addressOfElement(idx),
+        answer.addressOfElement(length)
+      );
+      if (nextNameOffset < 0) {
+        return [];
+      }
+      idx += nextNameOffset;
       const rridx = idx;
       const type = this.ns_get16(answer.addressOfElement(rridx));
       const dataLength = this.ns_get16(answer.addressOfElement(rridx + 8));
