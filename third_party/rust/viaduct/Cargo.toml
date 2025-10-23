@@ -27,6 +27,17 @@ autobenches = false
 readme = "README.md"
 license = "MPL-2.0"
 
+[features]
+backend-dev = [
+    "dep:tokio",
+    "dep:hyper",
+]
+default = []
+ohttp = [
+    "dep:bhttp",
+    "dep:ohttp",
+]
+
 [lib]
 name = "viaduct"
 crate-type = ["lib"]
@@ -43,11 +54,43 @@ serde_json = "1"
 thiserror = "2"
 url = "2"
 
+[dependencies.bhttp]
+git = "https://github.com/martinthomson/ohttp.git"
+rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b"
+optional = true
+
 [dependencies.error-support]
 path = "../support/error"
 
+[dependencies.hyper]
+version = "0.14"
+features = [
+    "client",
+    "http1",
+    "http2",
+    "tcp",
+]
+optional = true
+
+[dependencies.ohttp]
+git = "https://github.com/martinthomson/ohttp.git"
+rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b"
+features = [
+    "client",
+    "server",
+    "app-svc",
+    "external-sqlite",
+]
+optional = true
+default-features = false
+
 [dependencies.parking_lot]
 version = ">=0.11,<=0.12"
+
+[dependencies.tokio]
+version = "1"
+features = ["rt-multi-thread"]
+optional = true
 
 [dependencies.uniffi]
 version = "0.29.0"

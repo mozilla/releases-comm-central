@@ -25,7 +25,12 @@ readme = "README.md"
 license = "MPL-2.0"
 
 [features]
+default = []
 keydb = ["nss/keydb"]
+ohttp = [
+    "dep:viaduct",
+    "viaduct/ohttp",
+]
 
 [lib]
 name = "init_rust_components"
@@ -36,3 +41,7 @@ path = "../support/rc_crypto/nss"
 
 [dependencies.uniffi]
 version = "0.29.0"
+
+[dependencies.viaduct]
+path = "../viaduct"
+optional = true
