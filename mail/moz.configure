@@ -192,9 +192,7 @@ def thunderbird_official_branding_directory(thunderbird_official_branding):
 #    reason=thunderbird_official_branding,
 # )
 
-# Thunderbird Rust code is now the only way to compile
-set_config("MOZ_THUNDERBIRD_RUST", True)
-set_define("MOZ_THUNDERBIRD_RUST", True)
+# Override Firefox's Cargo workspace with our own.
 set_config("MOZ_OVERRIDE_GKRUST", True)
 set_config(
     "MOZ_OVERRIDE_CARGO_CONFIG",

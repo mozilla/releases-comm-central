@@ -126,13 +126,11 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-#if defined(MOZ_THUNDERBIRD_RUST)
   if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message")) {
     return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-#endif
 
   rv = NS_ERROR_UNKNOWN_PROTOCOL;  // Let M-C handle it by default.
 

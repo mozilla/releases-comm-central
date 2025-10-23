@@ -1129,10 +1129,8 @@ pref("mail.export.loglevel", "Warn");
 // memory cache is used instead. Both use the cache2 implementation.
 pref("mail.imap.use_disk_cache2", true);
 
-#ifdef MOZ_THUNDERBIRD_RUST
 // Enable support for Microsoft Exchange via Exchange Web Services.
 pref("experimental.mail.ews.enabled", true);
-#endif
 
 // Enable users to override OAuth provider details for EWS accounts.
 pref("experimental.mail.ews.overrideOAuth.enabled", false);
