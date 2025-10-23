@@ -47,6 +47,19 @@ xpcshell:
             .*-ccov.*/.*: 10
             .*-tsan.*/opt: 10
             default: 5
+    timeoutfactor:
+        by-test-platform:
+            linux1804-64-asan/opt: 2
+            linux1804-64-ccov/opt: 4
+            linux1804-64-tsan/opt: 3
+            linux1804-64/debug: 2
+            macosx1015-64.*: 6
+            macosx1470-64/debug: 6
+            macosx1470-64.*/opt: 4
+            windows.*/debug: 2
+            windows11-64-24h2-asan/opt: 2
+            windows11-64-24h2-ccov/opt: 3
+            default: 1
     worker-type:
         by-test-platform:
             windows11-64-24h2-ccov/opt: win11-64-24h2-ssd
