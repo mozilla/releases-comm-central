@@ -1405,7 +1405,8 @@ export var itip = {
   },
 };
 
-/** local to this module file
+/**
+ * local to this module file
  * Sets the received info either on the passed attendee or item object.
  *
  * @param {calIItemBase|calIAttendee} item - The item to set info on
@@ -1426,7 +1427,8 @@ function setReceivedInfo(item, itipItemItem) {
   }
 }
 
-/** local to this module file
+/**
+ * local to this module file
  * Takes over relevant item information from iTIP item and sets received info.
  *
  * @param {calIItemBase} item - The stored calendar item to update
@@ -1477,7 +1479,8 @@ function updateItem(item, itipItemItem) {
   return newItem;
 }
 
-/** local to this module file
+/**
+ * local to this module file
  * Copies the provider-specified properties from the itip item to the passed
  * item. Special case property "METHOD" uses the itipItem's receivedMethod.
  *
@@ -1499,7 +1502,8 @@ function copyProviderProperties(itipItem, itipItemItem, item) {
   }
 }
 
-/** local to this module file
+/**
+ * local to this module file
  * Sends an iTIP message using the passed item's calendar transport.
  *
  * @param {calIEvent} aItem - item to be sent
@@ -1518,7 +1522,8 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
   ).send(itip.getImipTransport(aItem));
 }
 
-/** local to this module file
+/**
+ * local to this module file
  * An operation listener that is used on calendar operations which checks and sends further iTIP
  * messages based on the calendar action.
  *
@@ -1552,7 +1557,8 @@ ItipOpListener.prototype = {
   onGetResult() {},
 };
 
-/** local to this module file
+/**
+ * local to this module file
  * Add a parameter SCHEDULE-AGENT=CLIENT to the item before it is
  * created or updated so that the providers knows scheduling will
  * be handled by the client.
@@ -1602,7 +1608,8 @@ var ItipItemFinderFactory = {
   },
 };
 
-/** local to this module file
+/**
+ * local to this module file
  * An operation listener triggered by cal.itip.processItipItem() for lookup of the sent iTIP item's UID.
  *
  * @param {string} aId - The search identifier for the item to find

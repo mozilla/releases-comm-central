@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/** Test that listing subscribed mailboxes uses LIST (SUBSCRIBED) instead of LSUB
+/**
+ * Test that listing subscribed mailboxes uses LIST (SUBSCRIBED) instead of LSUB
  * for servers that have LIST-EXTENDED capability
  */
 /* References:

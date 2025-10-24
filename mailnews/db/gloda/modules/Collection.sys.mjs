@@ -527,7 +527,8 @@ export function GlodaCollection(
     this.masterCollection = aMasterCollection.masterCollection;
   } else {
     this.masterCollection = this;
-    /** a dictionary of dictionaries. at the top level, the keys are noun IDs.
+    /**
+     * a dictionary of dictionaries. at the top level, the keys are noun IDs.
      * each of these sub-dictionaries maps the IDs of desired noun instances to
      * the actual instance, or null if it has not yet been loaded.
      */

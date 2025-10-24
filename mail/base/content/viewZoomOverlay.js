@@ -6,7 +6,8 @@
 
 /* globals getBrowser */
 
-/** Document Zoom Management Code
+/**
+ * Document Zoom Management Code
  *
  * Forked from M-C since we don't provide a global gBrowser variable.
  *

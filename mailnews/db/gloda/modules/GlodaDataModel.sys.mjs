@@ -269,8 +269,10 @@ GlodaFolder.prototype = {
   kFolderClean: 0,
   /** The folder has some un-indexed or dirty messages */
   kFolderDirty: 1,
-  /** The folder needs to be entirely re-indexed, regardless of the flags on
-   * the messages in the folder. This state will be downgraded to dirty */
+  /**
+   * The folder needs to be entirely re-indexed, regardless of the flags on
+   * the messages in the folder. This state will be downgraded to dirty
+   */
   kFolderFilthy: 2,
 
   _kFolderDirtyStatusMask: 0x7,

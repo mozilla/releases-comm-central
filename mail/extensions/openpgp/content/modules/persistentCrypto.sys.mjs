@@ -224,7 +224,8 @@ class CryptMessageIntoFolder extends MimeTreeDecrypter {
     this.targetKey = targetKey;
   }
 
-  /** Here is the effective action of a call to cryptMessage.
+  /**
+   * Here is the effective action of a call to cryptMessage.
    * If no failure is seen when attempting to decrypt (!decryptFailure),
    * then we copy. (This includes plain messages that didn't need
    * decryption.)

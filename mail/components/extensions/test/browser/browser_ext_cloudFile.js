@@ -1255,8 +1255,10 @@ add_task(async function test_incomplete_cloudFiles() {
   composeWindow.close();
 });
 
-/** Test data_format "File", which is the default if none is specified in the
- * manifest. */
+/**
+ * Test data_format "File", which is the default if none is specified in the
+ * manifest.
+ */
 add_task(async function test_file_format() {
   async function background() {
     function createCloudfileAccount() {
