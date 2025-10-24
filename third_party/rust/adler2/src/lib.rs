@@ -8,7 +8,7 @@
 //! - Decent performance (3-4 GB/s).
 //! - `#![no_std]` support (with `default-features = false`).
 
-#![doc(html_root_url = "https://docs.rs/adler/1.0.2")]
+#![doc(html_root_url = "https://docs.rs/adler2/2.0.0")]
 // Deny a few warnings in doctests, since rustdoc `allow`s many warnings by default
 #![doc(test(attr(deny(unused_imports, unused_must_use))))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -42,7 +42,7 @@ use std::io::{self, BufRead};
 /// Basic, piecewise checksum calculation:
 ///
 /// ```
-/// use adler::Adler32;
+/// use adler2::Adler32;
 ///
 /// let mut adler = Adler32::new();
 ///
@@ -56,7 +56,7 @@ use std::io::{self, BufRead};
 ///
 /// ```
 /// use std::hash::Hash;
-/// use adler::Adler32;
+/// use adler2::Adler32;
 ///
 /// #[derive(Hash)]
 /// struct Data {
@@ -104,12 +104,12 @@ impl Adler32 {
     /// # Example
     ///
     /// ```
-    /// # use adler::Adler32;
+    /// # use adler2::Adler32;
     /// let parts = [
     ///     "rust",
     ///     "acean",
     /// ];
-    /// let whole = adler::adler32_slice(b"rustacean");
+    /// let whole = adler2::adler32_slice(b"rustacean");
     ///
     /// let mut sum = Adler32::new();
     /// sum.write_slice(parts[0].as_bytes());
@@ -122,7 +122,7 @@ impl Adler32 {
     /// assert_eq!(sum.checksum(), whole);
     /// ```
     #[inline]
-    pub fn from_checksum(sum: u32) -> Self {
+    pub const fn from_checksum(sum: u32) -> Self {
         Adler32 {
             a: sum as u16,
             b: (sum >> 16) as u16,
@@ -189,7 +189,7 @@ pub fn adler32_slice(data: &[u8]) -> u32 {
 ///
 /// ```no_run
 /// # fn run() -> Result<(), Box<dyn std::error::Error>> {
-/// use adler::adler32;
+/// use adler2::adler32;
 ///
 /// use std::fs::File;
 /// use std::io::BufReader;

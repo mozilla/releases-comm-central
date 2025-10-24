@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "authenticator"
-version = "0.4.1"
+version = "0.5.0"
 authors = [
     "Dana Keeler <dkeeler@mozilla.com>",
     "J.C. Jones <jc@mozilla.com>",
@@ -37,6 +37,10 @@ categories = [
 license = "MPL-2.0"
 repository = "https://github.com/mozilla/authenticator-rs/"
 
+[dependencies.aes]
+version = "0.8"
+optional = true
+
 [dependencies.base64]
 version = "^0.21"
 
@@ -48,8 +52,18 @@ version = "0.5"
 features = ["serde"]
 optional = true
 
+[dependencies.cbc]
+version = "0.1"
+features = ["std"]
+optional = true
+default-features = false
+
 [dependencies.cfg-if]
 version = "1.0"
+
+[dependencies.hmac]
+version = "0.12"
+optional = true
 
 [dependencies.libc]
 version = "0.2"
@@ -69,12 +83,28 @@ optional = true
 version = "0.9"
 optional = true
 
+[dependencies.p256]
+version = "0.13"
+features = [
+    "arithmetic",
+    "ecdsa",
+    "ecdh",
+    "std",
+]
+optional = true
+default-features = false
+
 [dependencies.pkcs11-bindings]
 version = "0.1.4"
 optional = true
 
 [dependencies.rand]
 version = "0.8"
+
+[dependencies.rand_core]
+version = "0.6"
+features = ["getrandom"]
+optional = true
 
 [dependencies.runloop]
 version = "0.1.0"
@@ -121,6 +151,13 @@ crypto_nss = [
 crypto_openssl = [
     "openssl",
     "openssl-sys",
+]
+crypto_rust = [
+    "aes",
+    "cbc",
+    "rand_core",
+    "p256",
+    "hmac",
 ]
 default = ["crypto_nss"]
 gecko = ["nss-gk-api/gecko"]

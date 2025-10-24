@@ -68,6 +68,7 @@ impl Adler32 {
                 a_vec += val;
                 b_vec += a_vec;
             }
+
             b += CHUNK_SIZE as u32 * a;
             a_vec %= MOD;
             b_vec %= MOD;
@@ -111,6 +112,7 @@ impl Adler32 {
 struct U32X4([u32; 4]);
 
 impl U32X4 {
+    #[inline]
     fn from(bytes: &[u8]) -> Self {
         U32X4([
             u32::from(bytes[0]),
@@ -122,25 +124,32 @@ impl U32X4 {
 }
 
 impl AddAssign<Self> for U32X4 {
+    #[inline]
     fn add_assign(&mut self, other: Self) {
-        for (s, o) in self.0.iter_mut().zip(other.0.iter()) {
-            *s += o;
-        }
+        // Implement this in a primitive manner to help out the compiler a bit.
+        self.0[0] += other.0[0];
+        self.0[1] += other.0[1];
+        self.0[2] += other.0[2];
+        self.0[3] += other.0[3];
     }
 }
 
 impl RemAssign<u32> for U32X4 {
+    #[inline]
     fn rem_assign(&mut self, quotient: u32) {
-        for s in self.0.iter_mut() {
-            *s %= quotient;
-        }
+        self.0[0] %= quotient;
+        self.0[1] %= quotient;
+        self.0[2] %= quotient;
+        self.0[3] %= quotient;
     }
 }
 
 impl MulAssign<u32> for U32X4 {
+    #[inline]
     fn mul_assign(&mut self, rhs: u32) {
-        for s in self.0.iter_mut() {
-            *s *= rhs;
-        }
+        self.0[0] *= rhs;
+        self.0[1] *= rhs;
+        self.0[2] *= rhs;
+        self.0[3] *= rhs;
     }
 }

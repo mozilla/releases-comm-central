@@ -127,6 +127,11 @@ impl<W: BufRead + Write> Write for DeflateEncoder<W> {
 /// This structure implements a [`Read`] interface. When read from, it reads
 /// compressed data from the underlying [`BufRead`] and provides the uncompressed data.
 ///
+/// After reading a single member of the DEFLATE data this reader will return
+/// Ok(0) even if there are more bytes available in the underlying reader.
+/// If you need the following bytes, call `into_inner()` after Ok(0) to
+/// recover the underlying reader.
+///
 /// [`Read`]: https://doc.rust-lang.org/std/io/trait.Read.html
 /// [`BufRead`]: https://doc.rust-lang.org/std/io/trait.BufRead.html
 ///
@@ -259,7 +264,7 @@ mod test {
 
         let compressed = {
             let mut e = write::DeflateEncoder::new(Vec::new(), Compression::default());
-            e.write(expected.as_ref()).unwrap();
+            e.write_all(expected.as_ref()).unwrap();
             let mut b = e.finish().unwrap();
             b.push(b'x');
             b

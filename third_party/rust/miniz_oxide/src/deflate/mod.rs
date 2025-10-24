@@ -5,7 +5,9 @@ use crate::alloc::vec::Vec;
 
 mod buffer;
 pub mod core;
+mod stored;
 pub mod stream;
+mod zlib;
 use self::core::*;
 
 /// How much processing the compressor should do to compress the data.
@@ -118,31 +120,30 @@ pub fn compress_to_vec_zlib(input: &[u8], level: u8) -> Vec<u8> {
 }
 
 /// Simple function to compress data to a vec.
-fn compress_to_vec_inner(input: &[u8], level: u8, window_bits: i32, strategy: i32) -> Vec<u8> {
+fn compress_to_vec_inner(mut input: &[u8], level: u8, window_bits: i32, strategy: i32) -> Vec<u8> {
     // The comp flags function sets the zlib flag if the window_bits parameter is > 0.
     let flags = create_comp_flags_from_zip_params(level.into(), window_bits, strategy);
     let mut compressor = CompressorOxide::new(flags);
     let mut output = vec![0; ::core::cmp::max(input.len() / 2, 2)];
 
-    let mut in_pos = 0;
     let mut out_pos = 0;
     loop {
         let (status, bytes_in, bytes_out) = compress(
             &mut compressor,
-            &input[in_pos..],
+            input,
             &mut output[out_pos..],
             TDEFLFlush::Finish,
         );
-
         out_pos += bytes_out;
-        in_pos += bytes_in;
 
         match status {
             TDEFLStatus::Done => {
                 output.truncate(out_pos);
                 break;
             }
-            TDEFLStatus::Okay => {
+            TDEFLStatus::Okay if bytes_in <= input.len() => {
+                input = &input[bytes_in..];
+
                 // We need more space, so resize the vector.
                 if output.len().saturating_sub(out_pos) < 30 {
                     output.resize(output.len() * 2, 0)
@@ -185,6 +186,15 @@ mod test {
         let test_data = b"Deflate late";
 
         let res = compress_to_vec_inner(test_data, 1, 0, CompressionStrategy::HuffmanOnly as i32);
+        let d = decompress_to_vec(res.as_slice()).expect("Failed to decompress!");
+        assert_eq!(test_data, d.as_slice());
+    }
+
+    #[test]
+    fn compress_rle() {
+        let test_data = b"Deflate late";
+
+        let res = compress_to_vec_inner(test_data, 1, 0, CompressionStrategy::RLE as i32);
         let d = decompress_to_vec(res.as_slice()).expect("Failed to decompress!");
         assert_eq!(test_data, d.as_slice());
     }

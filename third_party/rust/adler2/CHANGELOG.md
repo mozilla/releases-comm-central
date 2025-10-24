@@ -1,8 +1,29 @@
 # Changelog
 
-## Unreleased
+All notable changes to this project will be documented in this file.
 
-No changes.
+---
+## [2.0.1](https://github.com/Frommi/miniz_oxide/compare/2.0.0..2.0.1) - 2025-06-09
+
+### Other
+
+- Remove `compiler-builtins` from `rustc-dep-of-std` dependencies - ([7cdbd39](https://github.com/Frommi/miniz_oxide/commit/7cdbd3925a7f61cc075f44367b5d383861571b0a)) - Trevor Gross
+
+---
+## [2.0.0](https://github.com/Frommi/miniz_oxide/compare/1.0.2..2.0.0) - 2024-08-04
+
+First release of adler2 - fork of adler crate as the original is unmaintained and archived
+
+##### Changes since last version of Adler:
+
+### Bug Fixes
+
+- **(core)** change to rust 2021 edition, update repository info and links, update author info - ([867b115](https://github.com/Frommi/miniz_oxide/commit/867b115bad79bf62098f2acccc81bf53ec5a125d)) - oyvindln
+- **(core)** simplify some code and fix benches - ([128fb9c](https://github.com/Frommi/miniz_oxide/commit/128fb9cb6cad5c3a54fb0b6c68549d80b79a1fe0)) - oyvindln
+
+### Changelog of original adler crate
+
+---
 
 ## [1.0.2 - 2021-02-26](https://github.com/jonas-schievink/adler/releases/tag/v1.0.2)
 
