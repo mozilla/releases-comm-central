@@ -139,11 +139,8 @@ class EmailConfigFound extends AccountHubStep {
       this.querySelector("#imap"),
       this.querySelector("#pop3"),
       this.querySelector("#exchange"),
+      this.querySelector("#ews"),
     ];
-
-    if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)) {
-      configLabels.push(this.querySelector("#ews"));
-    }
 
     const alternatives = this.#currentConfig.incomingAlternatives.map(
       a => a.type

@@ -837,11 +837,9 @@ class AccountHubEmail extends HTMLElement {
             break;
           }
 
-          if (
-            Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)
-          ) {
-            lazy.FindConfig.ewsifyConfig(config);
-          }
+          // Check if we have found an Exchange config we should tweak to make it work
+          // with our native EWS support (and do so if that's the case).
+          lazy.FindConfig.ewsifyConfig(config);
 
           this.#currentConfig = this.#fillAccountConfig(
             config,
@@ -1192,9 +1190,9 @@ class AccountHubEmail extends HTMLElement {
         }
       }
 
-      if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", true)) {
-        lazy.FindConfig.ewsifyConfig(config);
-      }
+      // Check if we have found an Exchange config we should tweak to make it work
+      // with our native EWS support (and do so if that's the case).
+      lazy.FindConfig.ewsifyConfig(config);
 
       config = this.#fillAccountConfig(config);
     }

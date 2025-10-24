@@ -831,9 +831,9 @@ var gAccountSetup = {
       return;
     }
 
-    if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", false)) {
-      this._ewsifyConfig(config);
-    }
+    // Check if we have found an Exchange config we should tweak to make it work
+    // with our native EWS support (and do so if that's the case).
+    this._ewsifyConfig(config);
 
     config.addons = [];
     const successCallback = () => {

@@ -1095,12 +1095,3 @@ button.account-hub-option-button {
     color: light-dark(var(--color-text-base-light), var(--color-text-warning-dark));
   }
 }
-
-#incomingProtocolEWS {
-  display: none;
-
-  /* stylelint-disable-next-line media-query-no-invalid */
-  @media -moz-pref("experimental.mail.ews.enabled") {
-    display: block;
-  }
-}
