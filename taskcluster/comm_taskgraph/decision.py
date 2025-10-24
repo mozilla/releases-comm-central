@@ -8,11 +8,6 @@ import os
 import sys
 
 from redo import retry
-from taskgraph.decision import (
-    _determine_more_accurate_base_ref,
-    _determine_more_accurate_base_rev,
-    _get_env_prefix,
-)
 from taskgraph.taskgraph import TaskGraph
 from taskgraph.util.taskcluster import get_artifact
 from taskgraph.util.vcs import get_repository
@@ -186,20 +181,9 @@ def get_decision_parameters(graph_config, parameters):
     repo_path = COMM
     repo = get_repository(repo_path)
     logger.info("Determining comm_base_ref...")
-    parameters["comm_base_ref"] = _determine_more_accurate_base_ref(
-        repo,
-        candidate_base_ref="",
-        head_ref=parameters.get("comm_head_ref"),
-        base_rev=parameters.get("comm_base_rev"),
-    )
+    parameters["comm_base_ref"] = "default"
     logger.info("Determining comm_base_rev...")
-    parameters["comm_base_rev"] = _determine_more_accurate_base_rev(
-        repo,
-        base_ref=parameters["comm_base_ref"],
-        candidate_base_rev=parameters.get("comm_base_rev"),
-        head_rev=parameters.get("comm_head_rev"),
-        env_prefix=_get_env_prefix(graph_config),
-    )
+    parameters["comm_base_rev"] = "tip"
 
     # Calculate changed files here. Already have gecko's changed files when this
     # executes, so only need to add comm changed files
