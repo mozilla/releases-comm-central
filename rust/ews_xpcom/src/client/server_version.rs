@@ -4,6 +4,7 @@
 
 use std::{collections::HashMap, ffi::CStr};
 
+use firefox_on_glean::metrics::mailnews_ews::VersionLabel;
 use nserror::nsresult;
 use nsstring::nsCString;
 use url::Url;
@@ -21,7 +22,8 @@ use super::{XpComEwsClient, XpComEwsError};
 /// stays stable enough if we need to update that version number later on. SP1
 /// specifically updates the format of EWS IDs to the one that is still used by
 /// more modern servers, so it is preferable over plain Exchange Server 2007.
-const DEFAULT_EWS_SERVER_VERSION: ExchangeServerVersion = ExchangeServerVersion::Exchange2007_SP1;
+pub(super) const DEFAULT_EWS_SERVER_VERSION: ExchangeServerVersion =
+    ExchangeServerVersion::Exchange2007_SP1;
 
 /// The name of the pref in which we store the map associating an EWS endpoint
 /// with its version. This map is stored as a string-ified JSON.
@@ -92,31 +94,46 @@ fn parse_server_version_pref() -> Result<Option<HashMap<String, String>>, XpComE
 /// Reads the version stored for a given EWS endpoint from the relevant pref.
 ///
 /// If no version could be read for this endpoint (the pref is empty, or does
-/// not contain valid JSON), the default version is used.
+/// not contain valid JSON), [`None`] is returned.
 ///
-/// If a version could be read but is unknown, [`XpComEwsError::Ews`] is
+/// If a version could be read but is unknown, an [`XpComEwsError::Ews`] is
 /// returned.
-pub(super) fn read_server_version(endpoint: &Url) -> Result<ExchangeServerVersion, XpComEwsError> {
+pub(crate) fn read_server_version(
+    endpoint: &Url,
+) -> Result<Option<ExchangeServerVersion>, XpComEwsError> {
     let known_versions = match parse_server_version_pref()? {
         Some(known_versions) => known_versions,
-        // No map could be extracted from the prefs. In this case, we can take
-        // the easy way out and use the default version.
-        None => return Ok(DEFAULT_EWS_SERVER_VERSION),
+        // No map could be extracted from the prefs, probably because no EWS
+        // server has been set up with this profile before.
+        None => return Ok(None),
     };
 
-    // Check if we have a version identifier stored for the endpoint; if not
-    // we'll use the default version.
-    let version: ExchangeServerVersion = match known_versions.get(&endpoint.to_string()) {
+    // Check if we have a version identifier stored for the endpoint.
+    let version: Option<ExchangeServerVersion> = match known_versions.get(&endpoint.to_string()) {
         // We expect the version read from the prefs to be one we know about,
         // because if the server gave us an unknown version then we'll have
         // defaulted to a known one when storing it. So we propagate errors
         // about unknown versions, because it means something has gone wrong
         // somewhere else.
-        Some(version) => version.as_str().try_into()?,
-        None => DEFAULT_EWS_SERVER_VERSION,
+        Some(version) => Some(version.as_str().try_into()?),
+        None => None,
     };
 
     Ok(version)
+}
+
+/// Turn a given [`ExchangeServerVersion`] into an [`ServerVersionLabel`] that
+/// can be used to record telemetry data with Glean.
+pub(crate) fn to_glean_label(version: &ExchangeServerVersion) -> VersionLabel {
+    match version {
+        ExchangeServerVersion::Exchange2007 => VersionLabel::EExchange2007,
+        ExchangeServerVersion::Exchange2007_SP1 => VersionLabel::EExchange2007Sp1,
+        ExchangeServerVersion::Exchange2010 => VersionLabel::EExchange2010,
+        ExchangeServerVersion::Exchange2010_SP1 => VersionLabel::EExchange2010Sp1,
+        ExchangeServerVersion::Exchange2010_SP2 => VersionLabel::EExchange2010Sp2,
+        ExchangeServerVersion::Exchange2013 => VersionLabel::EExchange2013,
+        ExchangeServerVersion::Exchange2013_SP1 => VersionLabel::EExchange2013Sp1,
+    }
 }
 
 impl<ServerT> XpComEwsClient<ServerT>

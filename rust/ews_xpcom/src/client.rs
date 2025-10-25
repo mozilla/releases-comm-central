@@ -13,7 +13,7 @@ mod delete_messages;
 mod get_message;
 mod mark_as_junk;
 mod send_message;
-mod server_version;
+pub(crate) mod server_version;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
 mod update_folder;
@@ -43,7 +43,6 @@ use mailnews_ui_glue::{
 };
 use moz_http::Response;
 use nserror::nsresult;
-use server_version::read_server_version;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -51,6 +50,7 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     authentication::credentials::{AuthenticationProvider, Credentials},
+    client::server_version::{read_server_version, DEFAULT_EWS_SERVER_VERSION},
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
         StaleMsgDbHeader, UpdatedMsgDbHeader,
@@ -137,7 +137,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         server: RefPtr<ServerT>,
         credentials: Credentials,
     ) -> Result<XpComEwsClient<ServerT>, XpComEwsError> {
-        let server_version = read_server_version(&endpoint)?;
+        let server_version = read_server_version(&endpoint)?.unwrap_or(DEFAULT_EWS_SERVER_VERSION);
 
         Ok(XpComEwsClient {
             endpoint,

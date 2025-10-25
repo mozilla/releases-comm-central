@@ -12,8 +12,6 @@
 #define EWS_INCOMING_SERVER_IID \
   {0x6eaa0a24, 0x78f6, 0x4ad7, {0xa2, 0x8a, 0x07, 0x7d, 0x24, 0x02, 0x2c, 0xd2}}
 
-class FolderSyncListener;
-
 class EwsIncomingServer : public nsMsgIncomingServer,
                           public IEwsIncomingServer {
  public:
@@ -84,12 +82,18 @@ class EwsIncomingServer : public nsMsgIncomingServer,
   nsresult SyncAllFolders(nsIMsgWindow* aMsgWindow,
                           nsIUrlListener* urlListener);
 
-  RefPtr<msgIOAuth2Module> mOAuth2Module;
-
-  friend class FolderSyncListener;
-
+  /**
+   * Retrieve the trash folder using the path stored in the server's prefs.
+   */
   nsresult GetTrashFolder(nsIMsgFolder** trashFolder);
+
+  /**
+   * Set the trash folder flag to the folder which path is stored in the
+   * relevant pref.
+   */
   nsresult UpdateTrashFolder();
+
+  nsCOMPtr<msgIOAuth2Module> mOAuth2Module;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_

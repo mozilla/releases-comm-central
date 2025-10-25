@@ -108,6 +108,7 @@ set_config(
         "comm/mail/components/compose/metrics.yaml",
         "comm/mail/components/inappnotifications/metrics.yaml",
         "comm/calendar/metrics.yaml",
+        "comm/mailnews/protocols/ews/metrics.yaml",
     ],
 )
 # set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
@@ -121,6 +122,7 @@ set_config(
         "comm/mail/components/compose/metrics.yaml",
         "comm/mail/components/inappnotifications/metrics.yaml",
         "comm/calendar/metrics.yaml",
+        "comm/mailnews/protocols/ews/metrics.yaml",
         "modules/libpref/metrics.yaml",
         "parser/htmlparser/metrics.yaml",
         # NOTE: test_pkcs11_module.js will fail without this.

@@ -41,6 +41,28 @@ interface IEwsFallibleOperationListener;
 interface IEwsClient : nsISupports
 {
   /**
+   * Record in telemetry (Glean) the version for the Exchange Server with the
+   * provided URL, and whether it refers to Office365 or an on-premise server.
+   *
+   * This method can fail if the provided URL is invalid (e.g. un-parseable
+   * URL, URL without a domain...) or if reading the pref in which Exchange
+   * Server versions are stored failed. If a failure, happens, no telemetry
+   * records are created.
+   *
+   * If no known version exists for this server, no version is recorded for this
+   * server in the telemetry data. However, a record regarding whether the
+   * server refers to Office365 or an on-premise server is still created in this
+   * case.
+   *
+   * This method is stateless (thus can be called repeatedly on the same
+   * `IEwsClient` instance with different URLs) and does not require
+   * `initialize` to be called.
+   *
+   * @param endpoint - The full URL to the server's EWS endpoint.
+   */
+  void recordTelemetry(in AUTF8String endpoint);
+
+  /**
    * Initializes a new client with the necessary host address and authentication
    * details to communicate with an Exchange server.
    *

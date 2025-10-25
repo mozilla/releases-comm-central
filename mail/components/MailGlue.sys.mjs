@@ -993,6 +993,7 @@ MailGlue.prototype = {
         await reportCalendars();
         reportPreferences();
         reportUIConfiguration();
+        reportEwsAccounts();
       },
     ];
 
@@ -1059,6 +1060,7 @@ function reportAccountTypes() {
     imap: 0,
     nntp: 0,
     exchange: 0,
+    ews: 0,
     rss: 0,
     im_gtalk: 0,
     im_irc: 0,
@@ -1544,6 +1546,32 @@ function reportUIConfiguration() {
 }
 
 /**
+ * Record EWS-specific telemetry (server version, on-premise, etc.) from the
+ * existing EWS accounts.
+ */
+function reportEwsAccounts() {
+  // Filter out non-EWS servers, and return early if there aren't any.
+  const servers = lazy.MailServices.accounts.accounts
+    .map(a => a.incomingServer)
+    .filter(s => s.type == "ews");
+  if (!servers) {
+    return;
+  }
+
+  // We typically don't reuse EWS clients when using them in e.g. `EwsFolder` or
+  // `EwsIncomingServer`, but the implementation of the *telemetry* method if
+  // `IEwsClient` is completely stateless, so client reuse is not an issue here.
+  const ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
+    Ci.IEwsClient
+  );
+
+  for (const server of servers) {
+    const ewsUrl = server.getStringValue("ews_url");
+    ewsClient.recordTelemetry(ewsUrl);
+  }
+}
+
+/**
  * Export these functions so we can test them. This object shouldn't be
  * accessed outside of a test (hence the name).
  */
@@ -1555,4 +1583,5 @@ export var MailTelemetryForTests = {
   reportCalendars,
   reportPreferences,
   reportUIConfiguration,
+  reportEwsAccounts,
 };

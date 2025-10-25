@@ -9,6 +9,10 @@ var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
+var { MailTelemetryForTests } = ChromeUtils.importESModule(
+  "resource:///modules/MailGlue.sys.mjs"
+);
+
 const EWS_SERVER_VERSION_PREF = "mail.ews.server_versions";
 
 var ewsServer;
@@ -57,25 +61,9 @@ async function send_request_and_wait_for_response() {
 }
 
 add_setup(() => {
-  // Create a new mock EWS server, and start it.
-  ewsServer = new EwsServer();
-  ewsServer.start();
-
-  // Create and configure the EWS incoming server.
-  incomingServer = localAccountUtils.create_incoming_server(
-    "ews",
-    ewsServer.port,
-    "user",
-    "password"
-  );
-  incomingServer.setStringValue(
-    "ews_url",
-    `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
-  );
+  [ewsServer, incomingServer] = setupBasicEwsTestServer({});
 
   registerCleanupFunction(() => {
-    ewsServer.stop();
-    incomingServer.closeCachedConnections();
     Services.prefs.clearUserPref(EWS_SERVER_VERSION_PREF);
   });
 });
@@ -226,6 +214,109 @@ async function set_version_and_verify(version, expected) {
       storedVersion,
       expected,
       "stored version should match the expected identifier"
+    );
+  }
+}
+
+/**
+ * Test that EWS-specific telemetry data is correctly recorded.
+ */
+add_task(async function test_telemetry() {
+  // Test that each version gets correctly recorded.
+  set_version_telemetry_and_verify(null);
+  set_version_telemetry_and_verify("Exchange2007");
+  set_version_telemetry_and_verify("Exchange2007_SP1");
+  set_version_telemetry_and_verify("Exchange2010");
+  set_version_telemetry_and_verify("Exchange2010_SP1");
+  set_version_telemetry_and_verify("Exchange2010_SP2");
+  set_version_telemetry_and_verify("Exchange2013");
+  set_version_telemetry_and_verify("Exchange2013_SP1");
+
+  // Test that accounts on an on-premise server are reported as such.
+  Services.fog.testResetFOG();
+  MailTelemetryForTests.reportEwsAccounts();
+
+  Assert.equal(
+    Glean.mailnewsEws.serverType.OnPremise.testGetValue(),
+    1,
+    "the server should be recorded as on-premise"
+  );
+  Assert.equal(
+    Glean.mailnewsEws.serverType.Office365.testGetValue(),
+    null,
+    "the server should not be recorded as using Office365"
+  );
+
+  // Test that accounts on Office365 server are reported as such.
+  Services.fog.testResetFOG();
+  MailTelemetryForTests.reportEwsAccounts();
+
+  const originalEwsUrl = incomingServer.getStringValue("ews_url");
+  incomingServer.setStringValue(
+    "ews_url",
+    "https://outlook.office365.com/ews/exchange.asmx"
+  );
+
+  Services.fog.testResetFOG();
+  MailTelemetryForTests.reportEwsAccounts();
+
+  Assert.equal(
+    Glean.mailnewsEws.serverType.OnPremise.testGetValue(),
+    null,
+    "the server should not be recorded as on-premise"
+  );
+  Assert.equal(
+    Glean.mailnewsEws.serverType.Office365.testGetValue(),
+    1,
+    "the server should be recorded as using Office365"
+  );
+
+  // Revert the server's EWS URL to its previous value so we don't introduce
+  // side-effects for other tests.
+  incomingServer.setStringValue("ews_url", originalEwsUrl);
+});
+
+/**
+ * Set the version for the current server and test that it is correctly reported
+ * in the telemetry data.
+ *
+ * @param {?string} expectedVersion - The version to set for the server in the
+ *   pref, and expect in the telemetry data. If `null`, no version is stored in
+ *   the pref.
+ */
+function set_version_telemetry_and_verify(expectedVersion) {
+  // The asserts below can be a bit noisy, and we'll run this function a bunch
+  // of time, so logging each version here makes the output a bit more
+  // digestible.
+  info(`Testing telemetry for version ${expectedVersion}`);
+
+  Services.fog.testResetFOG();
+
+  let prefContent;
+  if (expectedVersion) {
+    prefContent = `{"${incomingServer.getStringValue("ews_url")}": "${expectedVersion}"}`;
+  } else {
+    prefContent = "{}";
+  }
+  Services.prefs.setCharPref(EWS_SERVER_VERSION_PREF, prefContent);
+
+  MailTelemetryForTests.reportEwsAccounts();
+
+  // Iterate over each supported version to make sure we don't report anything
+  // but the expected one.
+  for (const version of [
+    "Exchange2007",
+    "Exchange2007_SP1",
+    "Exchange2010",
+    "Exchange2010_SP1",
+    "Exchange2010_SP2",
+    "Exchange2013",
+    "Exchange2013_SP1",
+  ]) {
+    Assert.equal(
+      Glean.mailnewsEws.version[version].testGetValue(),
+      version == expectedVersion ? 1 : null,
+      `Glean should have the right count for ${version}`
     );
   }
 }

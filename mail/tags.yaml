@@ -20,3 +20,5 @@ $schema: moz://mozilla.org/schemas/glean/tags/1-0-0
   description: The Bugzilla component which applies to this object.
 'Thunderbird :: Message Compose Window':
   description: The Bugzilla component which applies to this object.
+'MailNews Core :: Networking: Exchange':
+  description: The Bugzilla component which applies to this object.

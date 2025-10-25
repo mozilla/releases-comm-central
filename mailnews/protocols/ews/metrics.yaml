@@ -1,0 +1,53 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Adding a new metric? We have docs for that!
+# https://firefox-source-docs.mozilla.org/toolkit/components/glean/user/new_definitions_file.html
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+$tags:
+  - 'MailNews Core :: Networking: Exchange'
+
+mailnews_ews:
+  version:
+    type: labeled_counter
+    description: >
+      How many EWS accounts are hosted by each known version of Exchange Server.
+      Exchange Server 2013 SP1 can also be used to designate a more recent
+      server version.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1984116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1984116
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - Exchange2007
+      - Exchange2007_SP1
+      - Exchange2010
+      - Exchange2010_SP1
+      - Exchange2010_SP2
+      - Exchange2013
+      - Exchange2013_SP1
+
+  server_type:
+    type: labeled_counter
+    description: >
+      How many EWS accounts are hosted by an on-premise server or Office365.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1984116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1984116
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - OnPremise
+      - Office365

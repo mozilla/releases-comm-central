@@ -1750,6 +1750,7 @@ dependencies = [
  "base64 0.21.999",
  "cstr",
  "ews",
+ "firefox-on-glean",
  "fxhash",
  "log",
  "mail-builder",
