@@ -5,8 +5,8 @@
 //! Time's hard. Correct time is near impossible.
 //!
 //! This crate has one purpose: give me a timestamp as an integer, coming from a monotonic clock
-//! source, include time across suspend/hibernation of the host machine and let me compare it to
-//! other timestamps.
+//! source, guaranteed with or without time across suspend/hibernation of the host machine,
+//! and let me compare it to other timestamps.
 //!
 //! It becomes the developer's responsibility to only compare timestamps obtained from this clock source.
 //! Timestamps are not comparable across operating system reboots.
@@ -21,11 +21,11 @@
 //! However:
 //!
 //! * It can't be serialized.
-//! * It's not guaranteed that the clock source it uses contains suspend/hibernation time across all operating systems.
+//! * It's not guaranteed that the clock source it uses contains (or exclude) suspend/hibernation time across all operating systems.
 //!
 //! [rustsource]: https://doc.rust-lang.org/1.47.0/src/std/time.rs.html#213-237
 //!
-//! # Example
+//! # Example with suspend time
 //!
 //! ```
 //! # use std::{thread, time::Duration};
@@ -33,6 +33,17 @@
 //! thread::sleep(Duration::from_millis(2));
 //!
 //! let diff = Duration::from_nanos(zeitstempel::now() - start);
+//! assert!(diff >= Duration::from_millis(2));
+//! ```
+//!
+//! # Example with only awake time
+//!
+//! ```
+//! # use std::{thread, time::Duration};
+//! let start = zeitstempel::now_awake();
+//! thread::sleep(Duration::from_millis(2));
+//!
+//! let diff = Duration::from_nanos(zeitstempel::now_awake() - start);
 //! assert!(diff >= Duration::from_millis(2));
 //! ```
 //!
@@ -74,7 +85,7 @@ cfg_if::cfg_if! {
     }
 }
 
-/// Returns a timestamp corresponding to "now".
+/// Returns a timestamp corresponding to "now", including suspend time.
 ///
 /// It can be compared to other timestamps gathered from this API, as long as the host was not
 /// rebooted inbetween.
@@ -91,6 +102,23 @@ pub fn now() -> u64 {
     sys::now_including_suspend()
 }
 
+/// Returns a timestamp corresponding to "now", excluding suspend time.
+///
+/// It can be compared to other timestamps gathered from this API, as long as the host was not
+/// rebooted inbetween.
+///
+///
+/// ## Note
+///
+/// * The difference between two timestamps will NOT include time the system was in sleep or
+///   hibernation.
+/// * The difference between two timestamps gathered from this is in nanoseconds.
+/// * The clocks on some operating systems, e.g. on Windows, are not nanosecond-precise.
+///   The value will still use nanosecond resolution.
+pub fn now_awake() -> u64 {
+    sys::now_awake()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -104,5 +132,28 @@ mod test {
         let ts2 = now();
 
         assert!(ts1 < ts2);
+    }
+
+    #[test]
+    fn awake_time_atleast_total_time() {
+        let ts1 = now();
+        let a_ts1 = now_awake();
+        thread::sleep(Duration::from_millis(2));
+        let ts2 = now();
+        let a_ts2 = now_awake();
+
+        assert!(ts1 < ts2);
+        assert!(a_ts1 < a_ts2);
+        let total_diff = Duration::from_nanos(ts2 - ts1);
+        let awake_diff = Duration::from_nanos(a_ts2 - a_ts1);
+        // `now_awake` gives us nanosecond resolution. That might be _too_ precise,
+        // such that `awake` might be actually longer than `total` due to the calls taking just a
+        // tiny bit longer.
+        assert!(
+            total_diff.as_millis() <= awake_diff.as_millis(),
+            "total: {:?}, awake: {:?}",
+            total_diff,
+            awake_diff
+        );
     }
 }

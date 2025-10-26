@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean"
-version = "65.2.2"
+version = "66.0.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -104,6 +104,10 @@ name = "schema"
 path = "tests/schema.rs"
 
 [[test]]
+name = "signaling_done"
+path = "tests/signaling_done.rs"
+
+[[test]]
 name = "simple"
 path = "tests/simple.rs"
 
@@ -127,7 +131,7 @@ path = "tests/uploader_capabilities.rs"
 version = "0.5"
 
 [dependencies.glean-core]
-version = "65.2.2"
+version = "66.0.0"
 
 [dependencies.inherent]
 version = "1"

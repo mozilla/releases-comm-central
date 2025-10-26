@@ -4,7 +4,11 @@ use std::mem;
 use std::sync::OnceLock;
 
 use winapi::um::profileapi::{QueryPerformanceCounter, QueryPerformanceFrequency};
+use winapi::um::realtimeapiset::QueryUnbiasedInterruptTime;
 use winapi::um::winnt::LARGE_INTEGER;
+
+/// Windows counts time in a system time unit of 100 nanoseconds.
+const SYSTEM_TIME_UNIT: u64 = 100;
 
 fn i64_to_large_integer(i: i64) -> LARGE_INTEGER {
     unsafe {
@@ -47,7 +51,16 @@ fn mul_div_i64(value: i64, numer: i64, denom: i64) -> i64 {
 pub fn now_including_suspend() -> u64 {
     let mut ticks = i64_to_large_integer(0);
     unsafe {
-        assert!(QueryPerformanceCounter(&mut ticks) == 1);
+        assert!(QueryPerformanceCounter(&mut ticks) != 0);
     }
     mul_div_i64(large_integer_to_i64(ticks), 1000000000, frequency()) as u64
+}
+
+pub fn now_awake() -> u64 {
+    let mut interrupt_time = 0;
+    unsafe {
+        assert!(QueryUnbiasedInterruptTime(&mut interrupt_time) != 0);
+    }
+
+    interrupt_time * SYSTEM_TIME_UNIT
 }

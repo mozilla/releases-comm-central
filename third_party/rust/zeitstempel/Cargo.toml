@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "zeitstempel"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Jan-Erik Rediger <jrediger@mozilla.com>"]
 build = false
 autolib = false
@@ -47,4 +47,7 @@ version = "0.2"
 
 [target."cfg(windows)".dependencies.winapi]
 version = "0.3"
-features = ["profileapi"]
+features = [
+    "profileapi",
+    "realtimeapiset",
+]

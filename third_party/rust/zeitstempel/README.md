@@ -11,8 +11,8 @@ zeitstempel is German for "timestamp".
 Time's hard. Correct time is near impossible.
 
 This crate has one purpose: give me a timestamp as an integer, coming from a monotonic clock
-source, include time across suspend/hibernation of the host machine and let me compare it to
-other timestamps.
+source, guaranteed with or without time across suspend/hibernation of the host machine,
+and let me compare it to other timestamps.
 
 It becomes the developer's responsibility to only compare timestamps obtained from this clock source.
 Timestamps are not comparable across operating system reboots.
@@ -33,15 +33,25 @@ However:
 
 [rustsource]: https://doc.rust-lang.org/1.47.0/src/std/time.rs.html#213-237
 
-# Example
+# Example with suspend time
 
 ```rust
-use std::{thread, time::Duration};
-
+# use std::{thread, time::Duration};
 let start = zeitstempel::now();
 thread::sleep(Duration::from_millis(2));
 
 let diff = Duration::from_nanos(zeitstempel::now() - start);
+assert!(diff >= Duration::from_millis(2));
+```
+
+# Example with only awake time
+
+```rust
+# use std::{thread, time::Duration};
+let start = zeitstempel::now_awake();
+thread::sleep(Duration::from_millis(2));
+
+let diff = Duration::from_nanos(zeitstempel::now_awake() - start);
 assert!(diff >= Duration::from_millis(2));
 ```
 

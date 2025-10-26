@@ -4,11 +4,8 @@
 
 #![cfg(feature = "win10plus")]
 
-/// [PULONGLONG] is a pointer to [ULONGLONG], a 64-bit unsigned integer.
-///
-/// [PULONGLONG]: https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types#PULONGLONG
-/// [ULONGLONG]: https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types#ulonglong
-type PULONGLONG = *mut u64;
+use winapi::um::realtimeapiset::QueryUnbiasedInterruptTime;
+use winapi::um::winnt::PULONGLONG;
 
 // Link against Windows' `mincore`.
 #[link(name = "mincore")]
@@ -36,6 +33,15 @@ pub fn now_including_suspend() -> u64 {
     let mut interrupt_time = 0;
     unsafe {
         QueryInterruptTime(&mut interrupt_time);
+    }
+
+    interrupt_time * SYSTEM_TIME_UNIT
+}
+
+pub fn now_awake() -> u64 {
+    let mut interrupt_time = 0;
+    unsafe {
+        assert!(QueryUnbiasedInterruptTime(&mut interrupt_time) != 0);
     }
 
     interrupt_time * SYSTEM_TIME_UNIT
