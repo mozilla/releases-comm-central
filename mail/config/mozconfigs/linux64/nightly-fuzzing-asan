@@ -1,0 +1,22 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/comm/mail/config/mozconfigs/linux64/common-linux64"
+
+ac_add_options --enable-debug-symbols=-gline-tables-only
+
+# ASan specific options on Linux
+ac_add_options --enable-valgrind
+
+. "$topsrcdir/build/unix/mozconfig.asan"
+ac_add_options --disable-elf-hack
+
+# Piggybacking UBSan for now since only a small subset of checks are enabled.
+# A new build can be created when appropriate.
+ac_add_options --enable-undefined-sanitizer
+
+# Need this to prevent name conflicts with the normal nightly build packages
+export MOZ_PKG_SPECIAL=asan
+
+# Disable telemetry
+ac_add_options MOZ_TELEMETRY_REPORTING=
+
+ac_add_options --enable-fuzzing

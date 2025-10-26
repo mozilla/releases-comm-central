@@ -146,6 +146,42 @@ linux64-asan/opt:
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
 
+linux64-asan-fuzzing/opt:
+    description: "Linux64 Fuzzing Opt ASAN"
+    index:
+        product: thunderbird
+        job-name: linux64-fuzzing-asan-opt
+    attributes:
+        # The gtest libxul contains libFuzzer targets
+        skip-verify-test-packaging: true
+    treeherder:
+        platform: linux64/asan
+        symbol: Bof
+    worker:
+        env:
+            PERFHERDER_EXTRA_OPTIONS: asan-fuzzing
+            ASAN_OPTIONS: "detect_leaks=0"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+        max-run-time: 5400
+    run:
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        custom-build-variant-cfg: fuzzing-asan-tc
+        mozconfig-variant: nightly-fuzzing-asan
+        tooltool-downloads: public
+    run-on-projects: ['comm-central']
+    use-sccache: true
+    optimization:
+        skip-unless-backstop: null
+    fetches:
+        toolchain:
+            - linux64-libotr
+            - linux64-llvm-symbolizer
+            - linux64-rust-dev
+            - linux64-sccache
+            - sysroot-x86_64-linux-gnu
+
 linux64-asan-reporter-shippable/opt:
     description: "Linux64 Opt ASAN Reporter (Shippable)"
     attributes:
