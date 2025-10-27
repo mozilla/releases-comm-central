@@ -902,7 +902,12 @@ pub struct Mailbox {
     /// The protocol used in routing to this mailbox.
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/routingtype-emailaddress>
-    pub routing_type: Option<RoutingType>,
+    ///
+    /// Note: Although the documentation says that `SMTP` and `EX` are the only
+    /// possible values, it also appears that `SYSTEM` is a value that sometimes
+    /// occurs. Since the documentation isn't clear, this is a free-form string
+    /// field.
+    pub routing_type: Option<String>,
 
     /// The type of sender/recipient represented by this mailbox.
     ///
@@ -912,17 +917,6 @@ pub struct Mailbox {
     /// An identifier for a contact or list of contacts corresponding to this
     /// mailbox.
     pub item_id: Option<ItemId>,
-}
-
-/// A protocol used in routing mail.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/routingtype-emailaddress>
-#[derive(Clone, Copy, Debug, Default, Deserialize, XmlSerialize, PartialEq, Eq)]
-#[xml_struct(text)]
-pub enum RoutingType {
-    #[default]
-    SMTP,
-    EX,
 }
 
 /// The type of sender or recipient a mailbox represents.

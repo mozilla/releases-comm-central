@@ -72,6 +72,4 @@ pub struct DeleteItem {
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
-pub struct DeleteItemResponseMessage {
-    pub message_text: Option<String>,
-}
+pub struct DeleteItemResponseMessage {}

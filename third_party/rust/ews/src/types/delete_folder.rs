@@ -29,6 +29,4 @@ pub struct DeleteFolder {
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "PascalCase")]
-pub struct DeleteFolderResponseMessage {
-    pub message_text: Option<String>,
-}
+pub struct DeleteFolderResponseMessage {}

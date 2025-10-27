@@ -15,6 +15,7 @@ pub mod create_folder;
 pub mod create_item;
 pub mod delete_folder;
 pub mod delete_item;
+pub mod empty_folder;
 pub mod get_folder;
 pub mod get_item;
 pub mod mark_all_read;
