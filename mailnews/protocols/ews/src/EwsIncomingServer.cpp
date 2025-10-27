@@ -256,6 +256,9 @@ nsresult EwsIncomingServer::DeleteFolderWithId(const nsACString& id) {
 /**
  * Locates the folder associated with this server which has the remote (EWS)
  * ID specified, if any.
+ *
+ * This function returns `NS_OK` if, and only if, the folder with the specified
+ * `id` is found.
  */
 nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
                                              nsIMsgFolder** _retval) {
@@ -290,22 +293,24 @@ nsresult EwsIncomingServer::FindFolderWithId(const nsACString& id,
         // recording the IDs on folder creation or in retrieving them from
         // storage.
 
+        // We don't want to fail now in case a properly-constructed subfolder
+        // matches the requested ID. Note the failure in case we don't find a
+        // match, then continue the search.
+        failureStatus = rv;
+
         // Retrieve the folder's URI as an identifier for logging.
         nsCString uri;
         rv = folder->GetURI(uri);
         if (NS_FAILED(rv)) {
           // If we can't get the URI either, something is seriously wrong.
           NS_ERROR("failed to get ewsId property or URI for folder");
+          failureStatus = rv;
+        } else {
+          NS_WARNING(
+              nsPrintfCString("failed to get ewsId property for folder %s",
+                              uri.get())
+                  .get());
         }
-
-        NS_WARNING(nsPrintfCString("failed to get ewsId property for folder %s",
-                                   uri.get())
-                       .get());
-
-        // We don't want to fail now in case a properly-constructed subfolder
-        // matches the requested ID. Note the failure in case we don't find a
-        // match, then continue the search.
-        failureStatus = rv;
       }
 
       // This folder didn't match the ID we want. We'll check any subfolders
