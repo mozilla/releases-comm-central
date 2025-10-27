@@ -542,6 +542,7 @@ pub struct Folders {
 #[xml_struct(variant_ns_prefix = "t")]
 #[non_exhaustive]
 pub enum RealItem {
+    CalendarItem(Message),
     Message(Message),
     MeetingMessage(Message),
     MeetingRequest(Message),
@@ -553,7 +554,8 @@ impl RealItem {
     /// Return the [`Message`] object contained within this [`RealItem`].
     pub fn inner_message(&self) -> &Message {
         match self {
-            RealItem::Message(message)
+            RealItem::CalendarItem(message)
+            | RealItem::Message(message)
             | RealItem::MeetingMessage(message)
             | RealItem::MeetingRequest(message)
             | RealItem::MeetingResponse(message)
@@ -564,7 +566,8 @@ impl RealItem {
     /// Take ownership of the inner [`Message`].
     pub fn into_inner_message(self) -> Message {
         match self {
-            RealItem::Message(message)
+            RealItem::CalendarItem(message)
+            | RealItem::Message(message)
             | RealItem::MeetingMessage(message)
             | RealItem::MeetingRequest(message)
             | RealItem::MeetingResponse(message)
