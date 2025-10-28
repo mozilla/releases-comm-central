@@ -47,9 +47,12 @@ def add_artifact_fetches(config, jobs):
     project = config.params["project"]
     for job in jobs:
         try:
-            previous_task_id = find_task_id(f"comm.v2.{project}.latest.thunderbird.tb-rust-vendor")
-            job["dependencies"].append(previous_task_id)
-            job["worker"]["env"]["PREVIOUS_TASK_ID"] = previous_task_id
+            if project != "try-comm-central":
+                previous_task_id = find_task_id(
+                    f"comm.v2.{project}.latest.thunderbird.tb-rust-vendor"
+                )
+                job["dependencies"].append(previous_task_id)
+                job["worker"]["env"]["PREVIOUS_TASK_ID"] = previous_task_id
         except KeyError:
             pass
         yield job
