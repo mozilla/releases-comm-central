@@ -56,7 +56,7 @@ tasks:
                 by-release-type:
                     beta.*: beta
                     release.*: official
-                    esr.*: official
+                    esr.*: esr
                     default: nightly
             identity-name:
                 by-package-format:
@@ -69,7 +69,7 @@ tasks:
                     msix-store:
                         by-release-type:
                             beta.*: ThunderbirdBeta
-                            release.*: MZLA
+                            release.*: MozillaThunderbirdRelease
                             esr.*: MZLA
                             default: ThunderbirdDaily
             publisher:
