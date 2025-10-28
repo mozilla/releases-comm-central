@@ -5,14 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.12.0 (2025-06-19)
+
+<csr-id-08e74647f00f7d77cbb81e0cb73ed663798d000f/>
+
+### Chore
+
+ - <csr-id-08e74647f00f7d77cbb81e0cb73ed663798d000f/> Update version number in docs
+
+### Chore
+
+ - <csr-id-51d6baaa6ffce658fb9b56a96affaf0ddd0603e5/> Update changelog
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 7 commits contributed to the release over the course of 269 calendar days.
- - 320 days passed between releases.
+ - 6 commits contributed to the release over the course of 138 calendar days.
+ - 163 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update changelog ([`51d6baa`](https://github.com/rust-phf/rust-phf/commit/51d6baaa6ffce658fb9b56a96affaf0ddd0603e5))
+    - Update version number in docs ([`08e7464`](https://github.com/rust-phf/rust-phf/commit/08e74647f00f7d77cbb81e0cb73ed663798d000f))
+    - Merge pull request #289 from thaliaarchi/master ([`a6df856`](https://github.com/rust-phf/rust-phf/commit/a6df856ade4cfbf2666fcabbd70c666ea8234abf))
+    - Add support for unicase::Ascii type ([`2806801`](https://github.com/rust-phf/rust-phf/commit/28068018dec5aab9b6ddc0da918431285db8cd34))
+    - Merge branch 'master' into no-wasteful-allocations ([`33b8aff`](https://github.com/rust-phf/rust-phf/commit/33b8affe77cea8bdeccb5c8d6c730c78231fc138))
+    - Merge branch 'master' into fastrand ([`576dd47`](https://github.com/rust-phf/rust-phf/commit/576dd47858a2db74eb4ef67a8385039ef17b867d))
+</details>
+
+## 0.11.3 (2025-01-07)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 10 commits contributed to the release.
+ - 562 days passed between releases.
  - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -23,6 +59,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Adjusting changelogs prior to release of phf_shared v0.11.3, phf_generator v0.11.3, phf_macros v0.11.3, phf v0.11.3, phf_codegen v0.11.3 ([`e111f4b`](https://github.com/rust-phf/rust-phf/commit/e111f4b53a965c188fdcbf03950321107d9b3987))
+    - Merge branch 'master' into master ([`43e9bb6`](https://github.com/rust-phf/rust-phf/commit/43e9bb69aca9ab8ddf8e2041d33d4ec08a6a0ce1))
+    - Merge pull request #314 from TGODiamond/master ([`4abd9a0`](https://github.com/rust-phf/rust-phf/commit/4abd9a0a5eaddb1b4c18d678b2924a1cda818f85))
+    - Add `PhfBorrow<[u8; N]>` ([`e44fb71`](https://github.com/rust-phf/rust-phf/commit/e44fb714ea4d5fb85bfad1496dd887313cbfa3b5))
+    - Merge pull request #304 from serprex/master ([`999e6a2`](https://github.com/rust-phf/rust-phf/commit/999e6a260f03d82aa9d159465113294e7ed019e7))
+    - Update siphasher to 1.0 ([`7e0482e`](https://github.com/rust-phf/rust-phf/commit/7e0482e8e80e14d66cd46dde5ee6a16f34630ab3))
+    - Merge pull request #300 from JohnTitor/msrv-1.61 ([`323366d`](https://github.com/rust-phf/rust-phf/commit/323366d03966ddad2eaa3432df79c9da8339e319))
+    - Bump MSRV to 1.61 ([`1795f7b`](https://github.com/rust-phf/rust-phf/commit/1795f7b66b16af0191f221dc957bc8a090c891ad))
+    - Merge pull request #291 from Manishearth/uncased-transmute ([`b7116ff`](https://github.com/rust-phf/rust-phf/commit/b7116ff519415d302c070aa313831cd473b1a911))
+    - Bump uncased dep; remove generated transmute ([`c70bb63`](https://github.com/rust-phf/rust-phf/commit/c70bb636dea1c5902ca0cae68df2ec387eb1d2bc))
+</details>
+
+## 0.11.2 (2023-06-24)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 9 commits contributed to the release over the course of 268 calendar days.
+ - 319 days passed between releases.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release phf_shared v0.11.2, phf_generator v0.11.2, phf_macros v0.11.2, phf v0.11.2, phf_codegen v0.11.2 ([`c9c35fd`](https://github.com/rust-phf/rust-phf/commit/c9c35fd8ba3f1bc228388b0cef6e3814a02a72c0))
+    - Update changelogs ([`a1e5072`](https://github.com/rust-phf/rust-phf/commit/a1e5072b8e84b108f06389a1d41ac868426a03f7))
     - Merge pull request #274 from ankane/license-files ([`21baa73`](https://github.com/rust-phf/rust-phf/commit/21baa73941a0694ec48f437c0c0a6abfcc2f32d2))
     - Include license files in crates ([`1229b2f`](https://github.com/rust-phf/rust-phf/commit/1229b2faa6b97542ab4850a1723b1723dea92814))
     - Merge pull request #273 from drewkett/impl-phf-hash-for-slices ([`757012b`](https://github.com/rust-phf/rust-phf/commit/757012bba5eb5056a29c30c708e5c37993c2be1d))
@@ -50,7 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 197 commits contributed to the release over the course of 2946 calendar days.
+ - 197 commits contributed to the release.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 

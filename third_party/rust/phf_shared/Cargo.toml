@@ -11,10 +11,16 @@
 
 [package]
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.66"
 name = "phf_shared"
-version = "0.11.2"
+version = "0.13.1"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Support code shared by PHF libraries"
 readme = "README.md"
 categories = ["data-structures"]
@@ -22,23 +28,23 @@ license = "MIT"
 repository = "https://github.com/rust-phf/rust-phf"
 resolver = "1"
 
+[features]
+default = ["std"]
+std = []
+
 [lib]
 name = "phf_shared"
 path = "src/lib.rs"
 test = false
 
 [dependencies.siphasher]
-version = "0.3"
+version = "1.0"
 
 [dependencies.uncased]
-version = "0.9.6"
+version = "0.9.9"
 optional = true
 default-features = false
 
 [dependencies.unicase]
 version = "2.4.0"
 optional = true
-
-[features]
-default = ["std"]
-std = []

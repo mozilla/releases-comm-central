@@ -406,6 +406,7 @@ impl PendingWrites {
                     list: vec![cmd_buf],
                     device: device.clone(),
                     is_open: false,
+                    api: crate::command::EncodingApi::InternalUse,
                     label: "(wgpu internal) PendingWrites command encoder".into(),
                 },
                 trackers: Tracker::new(),
@@ -1796,6 +1797,12 @@ fn validate_command_buffer(
                             .unwrap();
                     };
                 }
+            }
+        }
+        {
+            profiling::scope!("bind groups");
+            for bind_group in &cmd_buf_data.trackers.bind_groups {
+                bind_group.try_raw(snatch_guard)?;
             }
         }
 

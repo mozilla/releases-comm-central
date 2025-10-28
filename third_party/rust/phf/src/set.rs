@@ -28,6 +28,17 @@ where
     }
 }
 
+impl<T> PartialEq for Set<T>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.map == other.map
+    }
+}
+
+impl<T> Eq for Set<T> where T: Eq {}
+
 impl<T> Set<T> {
     /// Returns the number of elements in the `Set`.
     #[inline]
@@ -45,18 +56,18 @@ impl<T> Set<T> {
     /// key.
     ///
     /// This can be useful for interning schemes.
-    pub fn get_key<U: ?Sized>(&self, key: &U) -> Option<&T>
+    pub fn get_key<U>(&self, key: &U) -> Option<&T>
     where
-        U: Eq + PhfHash,
+        U: Eq + PhfHash + ?Sized,
         T: PhfBorrow<U>,
     {
         self.map.get_key(key)
     }
 
     /// Returns true if `value` is in the `Set`.
-    pub fn contains<U: ?Sized>(&self, value: &U) -> bool
+    pub fn contains<U>(&self, value: &U) -> bool
     where
-        U: Eq + PhfHash,
+        U: Eq + PhfHash + ?Sized,
         T: PhfBorrow<U>,
     {
         self.map.contains_key(value)

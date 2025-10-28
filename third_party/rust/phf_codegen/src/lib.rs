@@ -15,8 +15,8 @@
 //!
 //! ```toml
 //! [build-dependencies]
-//! phf = { version = "0.11.1", default-features = false }
-//! phf_codegen = "0.11.1"
+//! phf = { version = "0.13.1", default-features = false }
+//! phf_codegen = "0.13.1"
 //! ```
 //!
 //! Then put code on build.rs:
@@ -78,22 +78,20 @@
 //! use std::io::{BufWriter, Write};
 //! use std::path::Path;
 //!
-//! fn main() {
-//!     let path = Path::new(&env::var("OUT_DIR").unwrap()).join("codegen.rs");
-//!     let mut file = BufWriter::new(File::create(&path).unwrap());
+//! let path = Path::new(&env::var("OUT_DIR").unwrap()).join("codegen.rs");
+//! let mut file = BufWriter::new(File::create(&path).unwrap());
 //!
-//!     writeln!(
-//!         &mut file,
-//!          "static KEYWORDS: phf::Map<&'static [u8], Keyword> = \n{};\n",
-//!          phf_codegen::Map::<&[u8]>::new()
-//!              .entry(b"loop", "Keyword::Loop")
-//!              .entry(b"continue", "Keyword::Continue")
-//!              .entry(b"break", "Keyword::Break")
-//!              .entry(b"fn", "Keyword::Fn")
-//!              .entry(b"extern", "Keyword::Extern")
-//!              .build()
-//!     ).unwrap();
-//! }
+//! writeln!(
+//!     &mut file,
+//!      "static KEYWORDS: phf::Map<&'static [u8], Keyword> = \n{};\n",
+//!      phf_codegen::Map::<&[u8]>::new()
+//!          .entry(b"loop", "Keyword::Loop")
+//!          .entry(b"continue", "Keyword::Continue")
+//!          .entry(b"break", "Keyword::Break")
+//!          .entry(b"fn", "Keyword::Fn")
+//!          .entry(b"extern", "Keyword::Extern")
+//!          .build()
+//! ).unwrap();
 //! ```
 //!
 //! lib.rs:
@@ -138,10 +136,11 @@
 //! // ...
 //! ```
 
-#![doc(html_root_url = "https://docs.rs/phf_codegen/0.11")]
+#![doc(html_root_url = "https://docs.rs/phf_codegen/0.13.1")]
 #![allow(clippy::new_without_default)]
 
 use phf_shared::{FmtConst, PhfHash};
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt;
 use std::hash::Hash;
@@ -157,15 +156,15 @@ impl<T: FmtConst> fmt::Display for Delegate<T> {
 }
 
 /// A builder for the `phf::Map` type.
-pub struct Map<K> {
+pub struct Map<'a, K> {
     keys: Vec<K>,
-    values: Vec<String>,
-    path: String,
+    values: Vec<Cow<'a, str>>,
+    path: Cow<'a, str>,
 }
 
-impl<K: Hash + PhfHash + Eq + FmtConst> Map<K> {
+impl<'a, K: Hash + PhfHash + Eq + FmtConst> Map<'a, K> {
     /// Creates a new `phf::Map` builder.
-    pub fn new() -> Map<K> {
+    pub fn new() -> Self {
         // FIXME rust#27438
         //
         // On Windows/MSVC there are major problems with the handling of dllimport.
@@ -179,22 +178,22 @@ impl<K: Hash + PhfHash + Eq + FmtConst> Map<K> {
         Map {
             keys: vec![],
             values: vec![],
-            path: String::from("::phf"),
+            path: Cow::Borrowed("::phf"),
         }
     }
 
     /// Set the path to the `phf` crate from the global namespace
-    pub fn phf_path(&mut self, path: &str) -> &mut Map<K> {
-        self.path = path.to_owned();
+    pub fn phf_path(&mut self, path: impl Into<Cow<'a, str>>) -> &mut Self {
+        self.path = path.into();
         self
     }
 
     /// Adds an entry to the builder.
     ///
     /// `value` will be written exactly as provided in the constructed source.
-    pub fn entry(&mut self, key: K, value: &str) -> &mut Map<K> {
+    pub fn entry(&mut self, key: K, value: impl Into<Cow<'a, str>>) -> &mut Self {
         self.keys.push(key);
-        self.values.push(value.to_owned());
+        self.values.push(value.into());
         self
     }
 
@@ -215,10 +214,10 @@ impl<K: Hash + PhfHash + Eq + FmtConst> Map<K> {
         let state = phf_generator::generate_hash(&self.keys);
 
         DisplayMap {
+            state,
             path: &self.path,
             keys: &self.keys,
             values: &self.values,
-            state,
         }
     }
 }
@@ -228,7 +227,7 @@ pub struct DisplayMap<'a, K> {
     path: &'a str,
     state: HashState,
     keys: &'a [K],
-    values: &'a [String],
+    values: &'a [Cow<'a, str>],
 }
 
 impl<'a, K: FmtConst + 'a> fmt::Display for DisplayMap<'a, K> {
@@ -279,25 +278,39 @@ impl<'a, K: FmtConst + 'a> fmt::Display for DisplayMap<'a, K> {
     }
 }
 
-/// A builder for the `phf::Set` type.
-pub struct Set<T> {
-    map: Map<T>,
+impl<'a, K, V> FromIterator<(K, V)> for Map<'a, K>
+where
+    K: Hash + PhfHash + Eq + FmtConst,
+    V: Into<Cow<'a, str>>,
+{
+    fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
+        let mut map = Map::new();
+        for (key, value) in iter {
+            map.entry(key, value);
+        }
+        map
+    }
 }
 
-impl<T: Hash + PhfHash + Eq + FmtConst> Set<T> {
+/// A builder for the `phf::Set` type.
+pub struct Set<'a, T> {
+    map: Map<'a, T>,
+}
+
+impl<'a, T: Hash + PhfHash + Eq + FmtConst> Set<'a, T> {
     /// Constructs a new `phf::Set` builder.
-    pub fn new() -> Set<T> {
+    pub fn new() -> Self {
         Set { map: Map::new() }
     }
 
     /// Set the path to the `phf` crate from the global namespace
-    pub fn phf_path(&mut self, path: &str) -> &mut Set<T> {
+    pub fn phf_path(&mut self, path: impl Into<Cow<'a, str>>) -> &mut Self {
         self.map.phf_path(path);
         self
     }
 
     /// Adds an entry to the builder.
-    pub fn entry(&mut self, entry: T) -> &mut Set<T> {
+    pub fn entry(&mut self, entry: T) -> &mut Self {
         self.map.entry(entry, "()");
         self
     }
@@ -327,34 +340,34 @@ impl<'a, T: FmtConst + 'a> fmt::Display for DisplaySet<'a, T> {
 }
 
 /// A builder for the `phf::OrderedMap` type.
-pub struct OrderedMap<K> {
+pub struct OrderedMap<'a, K> {
     keys: Vec<K>,
-    values: Vec<String>,
-    path: String,
+    values: Vec<Cow<'a, str>>,
+    path: Cow<'a, str>,
 }
 
-impl<K: Hash + PhfHash + Eq + FmtConst> OrderedMap<K> {
+impl<'a, K: Hash + PhfHash + Eq + FmtConst> OrderedMap<'a, K> {
     /// Constructs a enw `phf::OrderedMap` builder.
-    pub fn new() -> OrderedMap<K> {
+    pub fn new() -> Self {
         OrderedMap {
             keys: vec![],
             values: vec![],
-            path: String::from("::phf"),
+            path: Cow::Borrowed("::phf"),
         }
     }
 
     /// Set the path to the `phf` crate from the global namespace
-    pub fn phf_path(&mut self, path: &str) -> &mut OrderedMap<K> {
-        self.path = path.to_owned();
+    pub fn phf_path(&mut self, path: impl Into<Cow<'a, str>>) -> &mut Self {
+        self.path = path.into();
         self
     }
 
     /// Adds an entry to the builder.
     ///
     /// `value` will be written exactly as provided in the constructed source.
-    pub fn entry(&mut self, key: K, value: &str) -> &mut OrderedMap<K> {
+    pub fn entry(&mut self, key: K, value: impl Into<Cow<'a, str>>) -> &mut Self {
         self.keys.push(key);
-        self.values.push(value.to_owned());
+        self.values.push(value.into());
         self
     }
 
@@ -376,8 +389,8 @@ impl<K: Hash + PhfHash + Eq + FmtConst> OrderedMap<K> {
         let state = phf_generator::generate_hash(&self.keys);
 
         DisplayOrderedMap {
-            path: &self.path,
             state,
+            path: &self.path,
             keys: &self.keys,
             values: &self.values,
         }
@@ -389,7 +402,7 @@ pub struct DisplayOrderedMap<'a, K> {
     path: &'a str,
     state: HashState,
     keys: &'a [K],
-    values: &'a [String],
+    values: &'a [Cow<'a, str>],
 }
 
 impl<'a, K: FmtConst + 'a> fmt::Display for DisplayOrderedMap<'a, K> {
@@ -448,26 +461,26 @@ impl<'a, K: FmtConst + 'a> fmt::Display for DisplayOrderedMap<'a, K> {
 }
 
 /// A builder for the `phf::OrderedSet` type.
-pub struct OrderedSet<T> {
-    map: OrderedMap<T>,
+pub struct OrderedSet<'a, T> {
+    map: OrderedMap<'a, T>,
 }
 
-impl<T: Hash + PhfHash + Eq + FmtConst> OrderedSet<T> {
+impl<'a, T: Hash + PhfHash + Eq + FmtConst> OrderedSet<'a, T> {
     /// Constructs a new `phf::OrderedSet` builder.
-    pub fn new() -> OrderedSet<T> {
+    pub fn new() -> Self {
         OrderedSet {
             map: OrderedMap::new(),
         }
     }
 
     /// Set the path to the `phf` crate from the global namespace
-    pub fn phf_path(&mut self, path: &str) -> &mut OrderedSet<T> {
+    pub fn phf_path(&mut self, path: impl Into<Cow<'a, str>>) -> &mut Self {
         self.map.phf_path(path);
         self
     }
 
     /// Adds an entry to the builder.
-    pub fn entry(&mut self, entry: T) -> &mut OrderedSet<T> {
+    pub fn entry(&mut self, entry: T) -> &mut Self {
         self.map.entry(entry, "()");
         self
     }

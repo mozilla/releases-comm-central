@@ -11,10 +11,16 @@
 
 [package]
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.66"
 name = "phf_generator"
-version = "0.11.2"
+version = "0.13.1"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "PHF generation logic"
 readme = "README.md"
 categories = ["data-structures"]
@@ -22,26 +28,26 @@ license = "MIT"
 repository = "https://github.com/rust-phf/rust-phf"
 resolver = "1"
 
+[lib]
+name = "phf_generator"
+path = "src/lib.rs"
+
 [[bin]]
 name = "gen_hash_test"
-required-features = ["criterion"]
+path = "src/bin/gen_hash_test.rs"
 
 [[bench]]
 name = "benches"
+path = "benches/benches.rs"
 harness = false
 
-[dependencies.criterion]
-version = "0.3.6"
-optional = true
-
-[dependencies.phf_shared]
-version = "^0.11.2"
+[dependencies.fastrand]
+version = "2.1.0"
 default-features = false
 
-[dependencies.rand]
-version = "0.8"
-features = ["small_rng"]
+[dependencies.phf_shared]
+version = "^0.13.1"
 default-features = false
 
 [dev-dependencies.criterion]
-version = "0.3.6"
+version = "0.6.0"

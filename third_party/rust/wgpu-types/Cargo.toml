@@ -52,7 +52,6 @@ serde = [
 std = [
     "js-sys?/std",
     "web-sys?/std",
-    "thiserror/std",
 ]
 strict_asserts = []
 trace = ["std"]
@@ -85,11 +84,6 @@ features = [
     "alloc",
     "derive",
 ]
-optional = true
-default-features = false
-
-[dependencies.thiserror]
-version = "2.0.12"
 optional = true
 default-features = false
 

@@ -11,10 +11,16 @@
 
 [package]
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.66"
 name = "phf"
-version = "0.11.2"
+version = "0.13.1"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Runtime support for perfect hash function data structures"
 readme = "README.md"
 categories = [
@@ -33,29 +39,36 @@ all-features = false
 default-features = true
 features = ["macros"]
 
+[features]
+default = ["std"]
+macros = ["phf_macros"]
+std = [
+    "phf_shared/std",
+    "serde?/std",
+]
+uncased = [
+    "phf_macros?/uncased",
+    "phf_shared/uncased",
+]
+unicase = [
+    "phf_macros?/unicase",
+    "phf_shared/unicase",
+]
+
 [lib]
 name = "phf"
 path = "src/lib.rs"
 test = false
 
 [dependencies.phf_macros]
-version = "^0.11.2"
+version = "^0.13.1"
 optional = true
 
 [dependencies.phf_shared]
-version = "^0.11.2"
+version = "^0.13.1"
 default-features = false
 
 [dependencies.serde]
 version = "1.0"
 optional = true
-
-[features]
-default = ["std"]
-macros = ["phf_macros"]
-std = ["phf_shared/std"]
-uncased = ["phf_shared/uncased"]
-unicase = [
-    "phf_macros?/unicase",
-    "phf_shared/unicase",
-]
+default-features = false
