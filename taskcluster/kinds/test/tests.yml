@@ -49,9 +49,9 @@ xpcshell:
             default: 5
     timeoutfactor:
         by-test-platform:
-            linux1804-64-asan/opt: 2
-            linux1804-64-ccov/opt: 4
-            linux1804-64-tsan/opt: 3
+            linux1804-64-asan-qr/opt: 2
+            linux1804-64-ccov-qr/opt: 4
+            linux1804-64-tsan-qr/opt: 3
             linux1804-64/debug: 2
             macosx1015-64.*: 6
             macosx1470-64/debug: 6
