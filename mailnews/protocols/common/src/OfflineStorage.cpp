@@ -181,6 +181,9 @@ nsresult LocalRenameOrReparentFolder(nsIMsgFolder* sourceFolder,
                                      nsIMsgFolder* newParentFolder,
                                      const nsACString& name,
                                      nsIMsgWindow* msgWindow) {
+  NS_ENSURE_ARG_POINTER(sourceFolder);
+  NS_ENSURE_ARG_POINTER(newParentFolder);
+
   nsAutoCString currentName;
   nsresult rv = sourceFolder->GetName(currentName);
   NS_ENSURE_SUCCESS(rv, rv);
