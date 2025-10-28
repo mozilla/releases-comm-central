@@ -6,6 +6,11 @@
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
+// The guessConfig requests make this test take a long time, so we need a
+// longer timeout.
+// TODO: Split up this test so longer timeout isn't required.
+requestLongerTimeout(2);
+
 add_setup(function () {
   // Set the pref to load a local autoconfig file.
   const url =
@@ -95,6 +100,8 @@ add_task(async function test_account_email_advanced_setup_incoming() {
     emailUser,
     "pop"
   );
+
+  await subtest_clear_status_bar();
 
   tabmail.closeTab(tabmail.currentTabInfo);
 
@@ -413,25 +420,7 @@ add_task(async function test_invalid_manual_config_flow() {
   nameInput.value = "";
   emailInput.value = "";
 
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === "Test User"
-  );
-  EventUtils.sendString("Test User", window);
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === "badtest@example.localhost"
-  );
-  EventUtils.sendString("badtest@example.localhost", window);
-  await inputEvent;
+  await fillInvalidUserInfo(nameInput, emailInput);
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -651,25 +640,7 @@ add_task(async function test_account_email_manual_to_ews() {
   nameInput.value = "";
   emailInput.value = "";
 
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === "Test User"
-  );
-  EventUtils.sendString("Test User");
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === "badtest@example.localhost"
-  );
-  EventUtils.sendString("badtest@example.localhost");
-  await inputEvent;
+  await fillInvalidUserInfo(nameInput, emailInput);
 
   Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -753,25 +724,7 @@ add_task(async function test_direct_to_manual_config() {
     "Manual config button should be hidden"
   );
 
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
-  let inputEvent = BrowserTestUtils.waitForEvent(
-    nameInput,
-    "input",
-    false,
-    event => event.target.value === "Test User"
-  );
-  EventUtils.sendString("Test User", window);
-  await inputEvent;
-
-  EventUtils.synthesizeMouseAtCenter(emailInput, {});
-  inputEvent = BrowserTestUtils.waitForEvent(
-    emailInput,
-    "input",
-    false,
-    event => event.target.value === "badtest@example.localhost"
-  );
-  EventUtils.sendString("badtest@example.localhost", window);
-  await inputEvent;
+  await fillInvalidUserInfo(nameInput, emailInput);
 
   Assert.ok(
     BrowserTestUtils.isVisible(manualConfigButton),
@@ -799,3 +752,144 @@ add_task(async function test_direct_to_manual_config() {
   );
   await subtest_close_account_hub_dialog(dialog, incomingConfigTemplate);
 });
+
+add_task(async function test_account_invalid_email_advanced_setup_incoming() {
+  // Fill in email auto form and click continue, incoming config step to show
+  // a base invalid configuration.
+  const dialog = await subtest_open_account_hub_dialog();
+
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const nameInput = emailTemplate.querySelector("#realName");
+  const emailInput = emailTemplate.querySelector("#email");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  // Ensure fields are empty.
+  nameInput.value = "";
+  emailInput.value = "";
+
+  await fillInvalidUserInfo(nameInput, emailInput);
+
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  info("Clicking next to incoming config");
+
+  // Click continue and wait for incoming config view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  const incomingConfigTemplatePromise = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template should be in view",
+    500,
+    500
+  );
+  await incomingConfigTemplatePromise;
+
+  info("At incoming config view");
+
+  const advancedConfigButton = incomingConfigTemplate.querySelector(
+    "#advancedConfigurationIncoming"
+  );
+  EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
+
+  const tabmail = document.getElementById("tabmail");
+  const oldTab = tabmail.selectedTab;
+
+  await BrowserTestUtils.promiseAlertDialog("accept");
+
+  // The dialog should automatically close after clicking advanced config
+  await BrowserTestUtils.waitForEvent(dialog, "close");
+  const accountTab = tabmail.selectedTab;
+
+  await BrowserTestUtils.waitForCondition(
+    () => accountTab != oldTab,
+    "The tab should change to the account settings tab"
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => !!accountTab.browser.contentWindow.currentAccount,
+    "The new account should have been created"
+  );
+
+  const account = accountTab.browser.contentWindow.currentAccount;
+  const identity = account.defaultIdentity;
+  const incoming = account.incomingServer;
+  const outgoing = MailServices.outgoingServer.getServerByKey(
+    identity.smtpServerKey
+  );
+
+  const config = {
+    "incoming server username": {
+      actual: incoming.username,
+      expected: "badtest@example.localhost",
+    },
+    "outgoing server username": {
+      actual: outgoing.username,
+      expected: "badtest@example.localhost",
+    },
+    "incoming server hostname": {
+      actual: incoming.hostName,
+      expected: ".example.localhost",
+    },
+    "outgoing server hostname": {
+      actual: outgoing.serverURI.host,
+      expected: ".example.localhost",
+    },
+    "user real name": { actual: identity.fullName, expected: "Test User" },
+    "user email address": {
+      actual: identity.email,
+      expected: "badtest@example.localhost",
+    },
+    "incoming port": {
+      actual: incoming.port,
+      expected: 143,
+    },
+    "outgoing port": {
+      actual: outgoing.port,
+      expected: 0,
+    },
+  };
+
+  for (const detail in config) {
+    Assert.equal(
+      config[detail].actual,
+      config[detail].expected,
+      `Configured ${detail} is ${config[detail].actual}. It should be ${config[detail].expected}`
+    );
+  }
+
+  removeAccountInternal(accountTab, account);
+  await subtest_clear_status_bar();
+  tabmail.closeTab(tabmail.currentTabInfo);
+
+  // Confirm that the folder pane is visible.
+  Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
+});
+
+async function fillInvalidUserInfo(nameInput, emailInput) {
+  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+
+  let inputEvent = BrowserTestUtils.waitForEvent(
+    nameInput,
+    "input",
+    false,
+    event => event.target.value === "Test User"
+  );
+  EventUtils.sendString("Test User", window);
+  await inputEvent;
+
+  const focusEvent = BrowserTestUtils.waitForEvent(emailInput, "focus");
+  EventUtils.synthesizeMouseAtCenter(emailInput, {});
+  await focusEvent;
+
+  inputEvent = BrowserTestUtils.waitForEvent(
+    emailInput,
+    "input",
+    false,
+    event => event.target.value === "badtest@example.localhost"
+  );
+  EventUtils.sendString("badtest@example.localhost", window);
+  await inputEvent;
+}

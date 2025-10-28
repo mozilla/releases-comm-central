@@ -629,14 +629,21 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "advanced-config":
         try {
-          let stateData = this.#currentSubview.captureState().config;
-          if (this.#currentState === "outgoingConfigSubview") {
-            stateData = this.#currentSubview.captureState();
-            stateData.incoming =
-              this.#states.incomingConfigSubview.subview.captureState().config.incoming;
+          let stateData = this.#currentSubview.captureState();
+
+          if (this.#currentState === "incomingConfigSubview") {
+            // captureState in incoming returns an object with the config prop.
+            stateData = stateData.config;
           }
-          stateData = this.#fillAccountConfig(stateData);
-          await this.#advancedSetup(stateData);
+
+          // If we couldn't find a configuration when directed to manual
+          // config, the default config doesn't have an outgoing type.
+          if (stateData.incoming.type != "ews" && !stateData.outgoing.type) {
+            stateData.outgoing.type = "smtp";
+          }
+
+          const config = this.#fillAccountConfig(stateData);
+          await this.#advancedSetup(config);
         } catch (error) {
           this.#currentSubview.showNotification({
             title: error.title,
