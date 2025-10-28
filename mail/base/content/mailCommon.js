@@ -869,11 +869,9 @@ var commandController = {
    * @param {Event} [event] - The event that triggered the call.
    */
   _composeMsgByType(composeType, event) {
-    // If we're the hidden window, then we're not going to have a gFolderDisplay
-    // to work out existing folders, so just use null.
     const msgFolder = gFolder;
     const msgUris =
-      gFolder || gViewWrapper.isSynthetic
+      gFolder || gViewWrapper?.isSynthetic
         ? gDBView?.getURIsForSelection()
         : [window.gMessageURI];
 
