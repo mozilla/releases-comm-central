@@ -5,70 +5,72 @@
  */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.sys.mjs",
-  EnigmailKeyserverURIs:
-    "chrome://openpgp/content/modules/keyserverUris.sys.mjs",
   EnigmailWkdLookup: "chrome://openpgp/content/modules/wkdLookup.sys.mjs",
 });
-
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
 export var KeyLookupHelper = {
   /**
+   * @param {string} keyTrust - Key trust string.
+   * @returns {boolean} true if expired or revoked
+   */
+  isExpiredOrRevoked(keyTrust) {
+    return keyTrust.match(/e/i) || keyTrust.match(/r/i);
+  },
+
+  /**
    * Internal helper function, search for keys by either keyID
    * or email address on a keyserver.
    * Returns additional flags regarding lookup and import.
    * Will never show feedback prompts.
    *
-   * @param {string} mode - "interactive-import" or "silent-collection"
-   *    In interactive-import mode, the user will be asked to confirm
-   *    import of keys into the permanent keyring.
-   *    In silent-collection mode, only updates to existing keys will
-   *    be imported. New keys will only be added to CollectedKeysDB.
-   * @param {nsIWindow} window - parent window
-   * @param {string} identifier - search value, either key ID or fingerprint or email address.
-   * @returns {object} flags
-   * @returns {boolean} flags.keyImported - At least one key was imported.
-   * @returns {boolean} flags.foundUpdated - At least one update for a local existing key was found and imported.
-   * @returns {boolean} flags.foundUnchanged - All found keys are identical to already existing local keys.
-   * @returns {boolean} flags.collectedForLater - At least one key was added to CollectedKeysDB.
+   * @param {"interactive-import"|"silent-collection"} mode - In
+       - interactive-import mode, the user will be asked to confirm
+   *     import of keys into the permanent keyring.
+   *   - silent-collection mode, only updates to existing keys will
+   *     be imported. New keys will only be added to CollectedKeysDB.
+   * @param {Window} window - Parent window.
+   * @param {string} query - A search string; keyId, fingerprint or email.
+   * @returns {object} state - Lookup state.
+   * @returns {boolean} state.keyImported - At least one key was imported.
+   * @returns {boolean} state.foundUpdated - At least one update for a local
+   *   existing key was found and imported.
+   * @returns {boolean} state.foundUnchanged - All found keys are identical to
+   *  already existing local keys.
+   * @returns {boolean} state.collectedForLater - At least one key was added to
+   *  CollectedKeysDB.
    */
-
-  isExpiredOrRevoked(keyTrust) {
-    return keyTrust.match(/e/i) || keyTrust.match(/r/i);
-  },
-
-  async _lookupAndImportOnKeyserver(mode, window, identifier) {
+  async _lookupAndImportOnKeyserver(mode, window, query) {
     let keyImported = false;
     let foundUpdated = false;
     let foundUnchanged = false;
     let collectedForLater = false;
 
-    const ksArray = lazy.EnigmailKeyserverURIs.getKeyServers();
-    if (!ksArray.length) {
-      return false;
+    const keyServers = Services.prefs
+      .getStringPref("mail.openpgp.keyserver_list")
+      .split(/,\s*/)
+      .filter(s => /^(vks:|hkp:|hkps:)\/\//.test(s));
+    if (!keyServers.length) {
+      return { keyImported, foundUpdated, foundUnchanged, collectedForLater };
     }
 
     let continueSearching = true;
-    for (const ks of ksArray) {
+    for (const ks of keyServers) {
       let foundKey;
       if (ks.startsWith("vks://")) {
-        foundKey = await lazy.EnigmailKeyServer.downloadNoImport(
-          identifier,
-          ks
-        );
+        foundKey = await lazy.EnigmailKeyServer.downloadNoImport(query, ks);
       } else if (ks.startsWith("hkp://") || ks.startsWith("hkps://")) {
         foundKey =
           await lazy.EnigmailKeyServer.searchAndDownloadSingleResultNoImport(
-            identifier,
+            query,
             ks
           );
       }
@@ -164,7 +166,7 @@ export var KeyLookupHelper = {
    *    import of keys into the permanent keyring.
    *    In silent-collection mode, only updates to existing keys will
    *    be imported. New keys will only be added to CollectedKeysDB.
-   * @param {nsIWindow} window - parent window
+   * @param {Window} window - parent window
    * @param {string} keyId - the key ID to search for.
    * @param {boolean} giveFeedbackToUser - false to be silent,
    *    true to show feedback to user after search and import is complete.
@@ -174,26 +176,18 @@ export var KeyLookupHelper = {
     if (!/^0x/i.test(keyId)) {
       keyId = "0x" + keyId;
     }
-    const importResult = await this._lookupAndImportOnKeyserver(
-      mode,
-      window,
-      keyId
-    );
-    if (
-      mode == "interactive-import" &&
-      giveFeedbackToUser &&
-      !importResult.keyImported
-    ) {
-      let msgId;
-      if (importResult.foundUnchanged) {
-        msgId = "no-update-found";
-      } else {
-        msgId = "no-key-found2";
-      }
-      const value = await lazy.l10n.formatValue(msgId);
-      Services.prompt.alert(window, null, value);
+    const { keyImported, foundUnchanged } =
+      await this._lookupAndImportOnKeyserver(mode, window, keyId);
+    if (mode == "interactive-import" && giveFeedbackToUser && !keyImported) {
+      Services.prompt.alert(
+        window,
+        null,
+        await lazy.l10n.formatValue(
+          foundUnchanged ? "no-update-found" : "no-key-found2"
+        )
+      );
     }
-    return importResult.keyImported;
+    return keyImported;
   },
 
   /**
@@ -205,7 +199,7 @@ export var KeyLookupHelper = {
    *    import of keys into the permanent keyring.
    *    In silent-collection mode, only updates to existing keys will
    *    be imported. New keys will only be added to CollectedKeysDB.
-   * @param {nsIWindow} window - parent window
+   * @param {Window} window - parent window
    * @param {string} email - the email address to search for.
    * @param {boolean} giveFeedbackToUser - false to be silent,
    *    true to show feedback to user after search and import is complete.

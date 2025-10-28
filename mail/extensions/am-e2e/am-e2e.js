@@ -22,9 +22,6 @@ var { EnigmailDialog } = ChromeUtils.importESModule(
 var { EnigmailKeyRing } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailKeyserverURIs } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/keyserverUris.sys.mjs"
-);
 var { EnigmailKeyServer } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyserver.sys.mjs"
 );
@@ -1574,14 +1571,22 @@ async function openPgpRevokeKey(key) {
   });
 }
 
+/**
+ * Upload the key to the first configured keyserver with a supported protocol.
+ *
+ * @param {KeyObj} key - The key to upload.
+ */
 async function amE2eUploadKey(key) {
-  const ks = EnigmailKeyserverURIs.getUploadKeyServer();
+  const keyserver = Services.prefs
+    .getStringPref("mail.openpgp.keyserver_list")
+    .split(/,\s*/)
+    .find(s => /^(vks:|hkp:|hkps:)\/\//.test(s));
 
-  const ok = await EnigmailKeyServer.upload(key.keyId, ks);
+  const ok = await EnigmailKeyServer.upload(key.keyId, keyserver);
   const msg = await document.l10n.formatValue(
     ok ? "openpgp-key-publish-ok" : "openpgp-key-publish-fail",
     {
-      keyserver: ks,
+      keyserver,
     }
   );
 

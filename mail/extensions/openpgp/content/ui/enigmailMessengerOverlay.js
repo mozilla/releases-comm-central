@@ -35,9 +35,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
-  EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.sys.mjs",
-  EnigmailKeyserverURIs:
-    "chrome://openpgp/content/modules/keyserverUris.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
   EnigmailPersistentCrypto:
