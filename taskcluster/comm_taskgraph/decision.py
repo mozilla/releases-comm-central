@@ -10,7 +10,6 @@ import sys
 from redo import retry
 from taskgraph.taskgraph import TaskGraph
 from taskgraph.util.taskcluster import get_artifact
-from taskgraph.util.vcs import get_repository
 
 from gecko_taskgraph.decision import ARTIFACTS_DIR, write_artifact
 from gecko_taskgraph.parameters import get_app_version, get_version
@@ -178,8 +177,9 @@ def get_decision_parameters(graph_config, parameters):
         val = os.environ.get(n, "")
         parameters[n.lower()] = val
 
-    repo_path = COMM
-    repo = get_repository(repo_path)
+    # TODO: bug 1996185, remove following assignments if obsolete
+    # repo_path = COMM
+    # repo = get_repository(repo_path)
     logger.info("Determining comm_base_ref...")
     parameters["comm_base_ref"] = "default"
     logger.info("Determining comm_base_rev...")
