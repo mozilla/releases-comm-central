@@ -10287,7 +10287,7 @@ var envelopeDragObserver = {
     // and we're not dragging a supported data type.
     if (
       !event.dataTransfer.files.length &&
-      !DROP_FLAVORS.some(f => event.dataTransfer.types.includes(f))
+      !DROP_FLAVORS.some(f => event.dataTransfer.mozTypesAt(0).contains(f))
     ) {
       return;
     }
@@ -10406,7 +10406,7 @@ var envelopeDragObserver = {
     // Excluding dragged address book entries, check for valid attachments.
     if (
       !event.dataTransfer.mozTypesAt(0).contains("text/x-moz-address") &&
-      DROP_FLAVORS.some(f => event.dataTransfer.types.includes(f))
+      DROP_FLAVORS.some(f => event.dataTransfer.mozTypesAt(0).contains(f))
     ) {
       // Show the drop overlay only if we dragged files or supported types.
       const attachments = this.getValidAttachments(event);
