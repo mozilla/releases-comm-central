@@ -578,13 +578,11 @@
 
     <html:div data-category="panePrivacy">
     <html:fieldset id="emailE2eeGroupPreparation" data-category="panePrivacy">
-      <description data-l10n-id="email-e2ee-enable-info"/>
-      <html:button id="settingsButton"
-              type="button"
-              data-l10n-id="account-button"
-              class="button button-flat"
-              onclick="window.browsingContext.topChromeWindow.MsgAccountManager(null);">
-      </html:button>
+      <html:p data-l10n-id="email-e2ee-enable-accounts-info">
+        <html:a data-l10n-name="account-settings-url"
+                onclick="MsgAccountManager(null);">
+        </html:a>
+      </html:p>
     </html:fieldset>
     </html:div>
 

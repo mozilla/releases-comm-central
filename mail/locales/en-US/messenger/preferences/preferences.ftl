@@ -888,8 +888,8 @@ email-e2ee-header = Email End-To-End Encryption
 
 account-settings = Account Settings
 
-email-e2ee-enable-info =
-    Set up email accounts and identities for End-To-End Encryption in Account Settings.
+email-e2ee-enable-accounts-info =
+    Set up email accounts and identities for End-To-End Encryption in the <a data-l10n-name="account-settings-url">Account Settings</a>.
 
 email-e2ee-automatism = Automatic Use of Encryption
 email-e2ee-automatism-pre =
