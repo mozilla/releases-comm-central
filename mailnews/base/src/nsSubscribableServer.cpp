@@ -637,6 +637,9 @@ nsSubscribableServer::SetTree(mozilla::dom::XULTreeElement* aTree) {
 
 NS_IMETHODIMP
 nsSubscribableServer::IsContainer(int32_t aIndex, bool* retval) {
+  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   *retval = !!mRowMap[aIndex]->firstChild;
   return NS_OK;
 }
@@ -649,12 +652,18 @@ nsSubscribableServer::IsContainerEmpty(int32_t aIndex, bool* retval) {
 
 NS_IMETHODIMP
 nsSubscribableServer::IsContainerOpen(int32_t aIndex, bool* retval) {
+  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   *retval = mRowMap[aIndex]->isOpen;
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsSubscribableServer::GetParentIndex(int32_t aIndex, int32_t* retval) {
+  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   SubscribeTreeNode* parent = mRowMap[aIndex]->parent;
   if (!parent) {
     *retval = -1;
@@ -675,6 +684,9 @@ nsSubscribableServer::GetParentIndex(int32_t aIndex, int32_t* retval) {
 NS_IMETHODIMP
 nsSubscribableServer::HasNextSibling(int32_t aRowIndex, int32_t aAfterIndex,
                                      bool* retval) {
+  if (aRowIndex < 0 || aRowIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   // This looks odd, but is correct. Using ->nextSibling gives a bad tree.
   *retval = !!mRowMap[aRowIndex]->prevSibling;
   return NS_OK;
@@ -682,6 +694,9 @@ nsSubscribableServer::HasNextSibling(int32_t aRowIndex, int32_t aAfterIndex,
 
 NS_IMETHODIMP
 nsSubscribableServer::GetLevel(int32_t aIndex, int32_t* retval) {
+  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   // When starting with -2, we increase twice and return 0 for a top level node.
   int32_t level = -2;
   SubscribeTreeNode* node = mRowMap[aIndex];
@@ -696,6 +711,9 @@ nsSubscribableServer::GetLevel(int32_t aIndex, int32_t* retval) {
 
 NS_IMETHODIMP
 nsSubscribableServer::ToggleOpenState(int32_t aIndex) {
+  if (aIndex < 0 || aIndex >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   SubscribeTreeNode* node = mRowMap[aIndex];
   if (node->isOpen) {
     node->isOpen = false;
@@ -797,6 +815,9 @@ nsSubscribableServer::SetCellValue(int32_t aRow, nsTreeColumn* aCol,
 NS_IMETHODIMP
 nsSubscribableServer::GetCellProperties(int32_t aRow, nsTreeColumn* aCol,
                                         nsAString& aProps) {
+  if (aRow < 0 || aRow >= (int32_t)mRowMap.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   SubscribeTreeNode* node = mRowMap[aRow];
   if (node->isSubscribable)
     aProps.AssignLiteral("subscribable-true");
