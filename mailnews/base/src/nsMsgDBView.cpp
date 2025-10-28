@@ -15,11 +15,9 @@
 #include "nsIMsgFolder.h"
 #include "MailNewsTypes2.h"
 #include "nsIMsgImapMailFolder.h"
-#include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsIPrefLocalizedString.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgCopyService.h"
 #include "nsISpamSettings.h"
@@ -36,13 +34,11 @@
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
-#include "mozilla/ProfilerMarkers.h"
 #include "nsTArray.h"
 #include "mozilla/intl/OSPreferences.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgMessageService.h"
-#include "nsTHashMap.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/StaticPrefs_mailnews.h"
 #include "mozilla/intl/Localization.h"
@@ -406,11 +402,17 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
       mozilla::components::AccountManager::Service();
   nsCOMPtr<nsIMsgAccount> account;
   nsCOMPtr<nsIMsgIncomingServer> server;
-  if (!accountKey.IsEmpty())
-    rv = accountManager->GetAccount(accountKey, getter_AddRefs(account));
-
-  if (account) {
-    account->GetIncomingServer(getter_AddRefs(server));
+  if (!accountKey.IsEmpty()) {
+    accountManager->GetAccount(accountKey, getter_AddRefs(account));
+    if (account) account->GetIncomingServer(getter_AddRefs(server));
+    if (server) {
+      nsAutoCString type;
+      server->GetType(type);
+      if (type == "none"_ns) {
+        // This can't be the account that originally set the key.
+        server = nullptr;
+      }
+    }
   } else {
     nsCOMPtr<nsIMsgFolder> folder;
     aHdr->GetFolder(getter_AddRefs(folder));
