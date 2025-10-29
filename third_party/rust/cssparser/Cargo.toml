@@ -11,7 +11,7 @@
 
 [package]
 edition = "2018"
-rust-version = "1.66"
+rust-version = "1.68"
 name = "cssparser"
 version = "0.35.0"
 authors = ["Simon Sapin <simon.sapin@exyr.org>"]

@@ -36,9 +36,9 @@ git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=18f4ed66c004d68003528510a0726d86a56acb9c"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "18f4ed66c004d68003528510a0726d86a56acb9c"
+rev = "d8f97261d23e436be75884f792b5931b383c4041"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c"]
