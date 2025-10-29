@@ -70,7 +70,7 @@ add_setup(async () => {
   const time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
     const eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, i + 11);
-    info(`Checking content of hour box for <${TIMEZONES[i]}>.`);
+    info(`Checking content of hour box for <${TIMEZONES[i]}> at hour=${i + 11}`);
     const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
     time.hour = times[i][0];
     time.minute = times[i][1];
@@ -86,6 +86,7 @@ add_setup(async () => {
 
     info(`Saving event data for <${TIMEZONES[i]}> and closing item dialog.`);
     await saveAndCloseItemDialog(dialogWindow);
+    await new Promise(resolve => setTimeout(resolve));
   }
   info(`Completed setup for timezone test.`);
 });

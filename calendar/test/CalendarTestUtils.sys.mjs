@@ -847,8 +847,13 @@ export const CalendarTestUtils = {
   async _editNewItem(win, target, type) {
     const dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
 
+    await new Promise(resolve => win.requestIdleCallback(resolve));
     if (target) {
       this.scrollViewToTarget(target, true);
+      Assert.ok(
+        BrowserTestUtils.isVisible(target),
+        `click target ${target.id || target.localName} should be visible`
+      );
       await new Promise(resolve => win.setTimeout(resolve));
       EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
     } else {
