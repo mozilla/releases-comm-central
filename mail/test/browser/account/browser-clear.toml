@@ -16,7 +16,6 @@ prefs = [
   "datareporting.policy.dataSubmissionPolicyBypassNotification=true",
   "chat.otr.enable=false",
 ]
-skip-if = ["debug"]
 subsuite = "thunderbird"
 
 ["browser_accountSetupTab.js"]
