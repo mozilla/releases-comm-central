@@ -340,6 +340,8 @@ class AccountHubAddressBook extends HTMLElement {
       })
     );
 
+    document.getElementById("tabmail").globalOverlay = false;
+
     await window.toAddressBook(["cmd_displayAddressBook", directoryUID]);
   }
 

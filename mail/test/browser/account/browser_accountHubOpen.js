@@ -80,6 +80,11 @@ add_task(async function test_open_account_hub_appmenu() {
 add_task(async function test_open_account_hub_account_central() {
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.document.querySelector("[is='folder-tree-row']"),
+    {},
+    about3Pane
+  );
   const accountCentral = about3Pane.document.getElementById(
     "accountCentralBrowser"
   ).contentWindow;

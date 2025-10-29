@@ -68,6 +68,8 @@ tags = ["addrbook"]
 ["browser_accountHubAbRemote.js"]
 tags = ["addrbook", "carddav", "oauth"]
 
+["browser_accountHubBackground.js"]
+
 ["browser_accountHubConfigSelect.js"]
 
 ["browser_accountHubCredentialsConfirmation.js"]
