@@ -289,36 +289,32 @@ export class AttachmentInfo {
   }
 
   /**
-   * @param {string} path - Path to save to.
+   * Save the attachment to a given file.
+   *
+   * @param {string} target - Path to save to.
    * @param {boolean} [isTmp=false] - Treat it as a temporary file.
    */
-  async saveToFile(path, isTmp = false) {
+  async saveToFile(target, isTmp = false) {
     const buffer = await this.fetchAttachment();
-    await IOUtils.write(path, new Uint8Array(buffer));
+    const blob = new Blob([new Uint8Array(buffer)], {
+      type: "application/octet-stream",
+    });
+    const source = URL.createObjectURL(blob);
 
-    if (!isTmp) {
-      let url = this.url;
-      if (
-        this.contentType == "message/rfc822" ||
-        /[?&]filename=.*\.eml(&|$)/.test(url)
-      ) {
-        url += url.includes("?") ? "&outputformat=raw" : "?outputformat=raw";
-      }
-      // Create a download so that saved files show up under... Saved Files.
-      const file = await IOUtils.getFile(path);
-      await lazy.Downloads.createDownload({
-        source: {
-          url,
-        },
-        target: file,
+    // Create a download so that saved files show up under... Saved Files.
+    try {
+      const download = await lazy.Downloads.createDownload({
+        source,
+        target,
         startTime: new Date(),
-      })
-        .then(async download => {
-          await download.start();
-          const list = await lazy.Downloads.getList(lazy.Downloads.ALL);
-          await list.add(download);
-        })
-        .catch(console.error);
+      });
+      await download.start();
+      if (!isTmp) {
+        const list = await lazy.Downloads.getList(lazy.Downloads.ALL);
+        await list.add(download);
+      }
+    } finally {
+      URL.revokeObjectURL(source);
     }
   }
 
