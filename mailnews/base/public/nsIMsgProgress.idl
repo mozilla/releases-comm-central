@@ -8,6 +8,7 @@
 #include "nsIWebProgressListener.idl"
 
 interface mozIDOMWindowProxy;
+interface nsIMsgComposeProgressParams;
 interface nsIMsgWindow;
 
 [scriptable, uuid(6d6fe91d-7f9a-4552-9737-9f74b0e75538)]
@@ -17,10 +18,8 @@ interface nsIMsgProgress: nsIWebProgressListener {
    * Open the progress dialog, you can specify parameters through an xpcom object
    */
   void openProgressDialog(in mozIDOMWindowProxy parent,
-                          in nsIMsgWindow aMsgWindow,
                           in string dialogURL,
-                          in boolean inDisplayModal,
-                          in nsISupports parameters);
+                          in nsIMsgComposeProgressParams composeParams);
 
   /* Close the progress dialog */
   void closeProgressDialog(in boolean forceClose);

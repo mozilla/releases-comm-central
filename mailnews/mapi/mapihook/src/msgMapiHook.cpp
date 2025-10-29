@@ -287,8 +287,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   RefPtr<Promise> promise;
   rv = pMsgCompose->SendMsg(WeAreOffline() ? nsIMsgSend::nsMsgQueueForLater
                                            : nsIMsgSend::nsMsgDeliverNow,
-                            pMsgId, nullptr, nullptr, nullptr,
-                            getter_AddRefs(promise));
+                            pMsgId, nullptr, nullptr, getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // When offline, the message is saved to Outbox and OnStopSending won't be

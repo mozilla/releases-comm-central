@@ -124,7 +124,10 @@ interface nsIMsgCompose : nsIMsgSendListener {
   void UnregisterStateListener(in nsIMsgComposeStateListener stateListener);
 
   /* ... */
-  Promise sendMsg(in MSG_DeliverMode deliverMode, in nsIMsgIdentity identity, in string accountKey, in nsIMsgWindow aMsgWindow, in nsIMsgProgress progress);
+  Promise sendMsg(in MSG_DeliverMode deliverMode,
+                  in nsIMsgIdentity identity,
+                  in string accountKey,
+                  in nsIMsgProgress progress);
 
   /**
    * After all Compose preparations are complete, send the prepared message to

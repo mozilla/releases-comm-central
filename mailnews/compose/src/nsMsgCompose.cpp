@@ -1133,7 +1133,6 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
 NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
                                     nsIMsgIdentity* identity,
                                     const char* accountKey,
-                                    nsIMsgWindow* aMsgWindow,
                                     nsIMsgProgress* progress,
                                     Promise** aPromise) {
   NS_ENSURE_TRUE(m_compFields, NS_ERROR_NOT_INITIALIZED);
@@ -1197,9 +1196,9 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
         params->SetDeliveryMode(deliverMode);
 
         mProgress->OpenProgressDialog(
-            m_window, aMsgWindow,
+            m_window,
             "chrome://messenger/content/messengercompose/sendProgress.xhtml",
-            false, params);
+            params);
       }
     }
 

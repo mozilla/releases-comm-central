@@ -38,13 +38,7 @@ async function sendReply(identity, fields, originalMsgURI, compType) {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgDeliverNow,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgDeliverNow, identity, "", progress);
   return promise;
 }
 

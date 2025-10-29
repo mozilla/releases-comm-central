@@ -5,18 +5,20 @@
 
 #include "nsMsgProgress.h"
 
-#include "nsIStringBundle.h"
-#include "nsXPCOM.h"
-#include "nsIMutableArray.h"
-#include "nsISupportsPrimitives.h"
-#include "nsError.h"
-#include "nsIWindowWatcher.h"
-#include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
-#include "nsComponentManagerUtils.h"
-#include "nsMsgUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/BrowsingContext.h"
+#include "nsArray.h"
+#include "nsComponentManagerUtils.h"
+#include "nsError.h"
+#include "nsIMsgComposeProgressParams.h"
+#include "nsIMutableArray.h"
+#include "nsIStringBundle.h"
+#include "nsISupportsPrimitives.h"
+#include "nsIWindowWatcher.h"
+#include "nsMsgUtils.h"
+#include "nsPIDOMWindow.h"
+#include "nsXPCOM.h"
 
 NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
                   nsIWebProgressListener, nsIProgressEventSink,
@@ -32,42 +34,23 @@ nsMsgProgress::nsMsgProgress() {
 nsMsgProgress::~nsMsgProgress() { (void)ReleaseListeners(); }
 
 NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
-    mozIDOMWindowProxy* parentDOMWindow, nsIMsgWindow* aMsgWindow,
-    const char* dialogURL, bool inDisplayModal, nsISupports* parameters) {
-  nsresult rv;
-
-  if (aMsgWindow) {
-    SetMsgWindow(aMsgWindow);
-    aMsgWindow->SetStatusFeedback(this);
-  }
-
+    mozIDOMWindowProxy* parentDOMWindow, const char* dialogURL,
+    nsIMsgComposeProgressParams* parameters) {
   NS_ENSURE_ARG_POINTER(dialogURL);
 
-  // Set up window.arguments[0]...
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsISupportsInterfacePointer> ifptr =
-      do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  ifptr->SetData(static_cast<nsIMsgProgress*>(this));
-  ifptr->SetDataIID(&NS_GET_IID(nsIMsgProgress));
-
-  array->AppendElement(ifptr);
+  // Set up window.arguments...
+  nsCOMPtr<nsIMutableArray> array = nsArray::Create();
+  array->AppendElement(static_cast<nsIMsgProgress*>(this));
   array->AppendElement(parameters);
 
   // Open the dialog.
   nsCOMPtr<nsIWindowWatcher> wwatch =
       mozilla::components::WindowWatcher::Service();
 
-  nsCString chromeOptions("chrome,dependent,centerscreen"_ns);
-  if (inDisplayModal) chromeOptions.AppendLiteral(",modal");
-
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   return wwatch->OpenWindow(parentDOMWindow, nsDependentCString(dialogURL),
-                            "_blank"_ns, chromeOptions, array,
-                            getter_AddRefs(newWindow));
+                            "_blank"_ns, "chrome,dependent,centerscreen"_ns,
+                            array, getter_AddRefs(newWindow));
 }
 
 NS_IMETHODIMP nsMsgProgress::CloseProgressDialog(bool forceClose) {

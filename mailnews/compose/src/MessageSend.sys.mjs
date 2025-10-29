@@ -488,9 +488,7 @@ export class MessageSend {
 
             progress.openProgressDialog(
               this._parentWindow,
-              this._sendProgress.msgWindow,
               "chrome://messenger/content/messengercompose/sendProgress.xhtml",
-              false,
               composeParams
             );
 

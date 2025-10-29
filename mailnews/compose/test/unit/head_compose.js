@@ -222,7 +222,6 @@ function richCreateMessage(
     deliverMode,
     identity,
     account ? account.key : "",
-    null,
     progress
   );
   return promise;

@@ -6566,11 +6566,14 @@ async function CompleteGenericSendMessage(msgType) {
     }
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.allowAuth = true;
+    // This doesn't look great, but the purpose of `progress.msgWindow` is to
+    // clear `msgWindow.statusFeedback` when the progress ends.
+    msgWindow.statusFeedback = progress;
+    progress.msgWindow = msgWindow;
     await gMsgCompose.sendMsg(
       msgType,
       gCurrentIdentity,
       getCurrentAccountKey(),
-      msgWindow,
       progress
     );
   } catch (ex) {

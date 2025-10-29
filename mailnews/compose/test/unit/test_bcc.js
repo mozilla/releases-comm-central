@@ -70,13 +70,7 @@ add_task(async function testBcc() {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgDeliverNow,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgDeliverNow, identity, "", progress);
   await promise;
 
   const expectedBody = `\r\n\r\n${fields.body}`;
@@ -144,13 +138,7 @@ add_task(async function testBccWithNonUtf8EmlAttachment() {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgDeliverNow,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgDeliverNow, identity, "", progress);
   await promise;
 
   Assert.ok(
@@ -197,13 +185,7 @@ add_task(async function testBccWithSendLater() {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgQueueForLater,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgQueueForLater, identity, "", progress);
   await promise;
 
   const onStopSendingPromise = Promise.withResolvers();
@@ -287,13 +269,7 @@ add_task(async function testBccOnlyWithSendLater() {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgQueueForLater,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgQueueForLater, identity, "", progress);
   await promise;
 
   const onStopSendingPromise = Promise.withResolvers();

@@ -77,13 +77,7 @@ add_task(async function saveDraft() {
   );
   const progressListener = new WebProgressListener();
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgSaveAsDraft,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", progress);
   await progressListener.promise;
   // Verify that message is not on the server yet.
   Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);

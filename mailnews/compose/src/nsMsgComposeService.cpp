@@ -637,7 +637,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
 
   RefPtr<mozilla::dom::Promise> promise;
   return pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, mIdentity, nullptr,
-                              nullptr, nullptr, getter_AddRefs(promise));
+                              nullptr, getter_AddRefs(promise));
 }
 
 NS_IMETHODIMP
@@ -893,7 +893,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
 
   RefPtr<Promise> promise;
   rv = pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, identity, nullptr,
-                            nullptr, nullptr, getter_AddRefs(promise));
+                            nullptr, getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // nsMsgCompose::ProcessReplyFlags usually takes care of marking messages

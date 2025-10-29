@@ -106,11 +106,5 @@ add_task(async function () {
 
   do_test_pending();
 
-  gMsgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgSaveAsDraft,
-    identity,
-    "",
-    null,
-    progress
-  );
+  gMsgCompose.sendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", progress);
 });

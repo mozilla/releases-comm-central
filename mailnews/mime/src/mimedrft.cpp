@@ -255,7 +255,7 @@ nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
 
   RefPtr<mozilla::dom::Promise> promise;
   rv = pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, identity, nullptr,
-                            nullptr, nullptr, getter_AddRefs(promise));
+                            nullptr, getter_AddRefs(promise));
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgFolder> origFolder;
     origMsgHdr->GetFolder(getter_AddRefs(origFolder));

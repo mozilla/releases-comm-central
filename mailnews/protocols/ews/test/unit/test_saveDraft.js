@@ -47,13 +47,7 @@ add_task(async function saveDraft() {
   );
   const progressListener = new PromiseTestUtils.WebProgressListener();
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
-    Ci.nsIMsgSend.nsMsgSaveAsDraft,
-    identity,
-    "",
-    null,
-    progress
-  );
+  msgCompose.sendMsg(Ci.nsIMsgSend.nsMsgSaveAsDraft, identity, "", progress);
   await progressListener.promise;
   Assert.equal(
     draftsFolder.getTotalMessages(false),
