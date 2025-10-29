@@ -97,7 +97,16 @@ NS_IMETHODIMP nsMsgProgress::RegisterListener(
 
   NS_ENSURE_ARG(this != listener);  // Check for self-reference (see bug 271700)
 
-  m_listenerList.AppendObject(listener);
+  nsWeakPtr listenerWeak = do_GetWeakReference(listener);
+  if (!listenerWeak) {
+    return NS_ERROR_INVALID_ARG;
+  }
+  if (mListenerInfoList.Contains(listenerWeak)) {
+    // The listener is already registered!
+    return NS_ERROR_FAILURE;
+  }
+
+  mListenerInfoList.AppendElement(ListenerInfo(listenerWeak));
   if (m_closeProgress || m_processCanceled)
     listener->OnStateChange(nullptr, nullptr,
                             nsIWebProgressListener::STATE_STOP, NS_OK);
@@ -113,8 +122,13 @@ NS_IMETHODIMP nsMsgProgress::RegisterListener(
 
 NS_IMETHODIMP nsMsgProgress::UnregisterListener(
     nsIWebProgressListener* listener) {
-  if (listener) m_listenerList.RemoveObject(listener);
-  return NS_OK;
+  nsWeakPtr listenerWeak = do_GetWeakReference(listener);
+  if (!listenerWeak) {
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  return mListenerInfoList.RemoveElement(listenerWeak) ? NS_OK
+                                                       : NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress* aWebProgress,
@@ -130,9 +144,18 @@ NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress* aWebProgress,
     msgWindow->SetStatusFeedback(nullptr);
   }
 
-  for (int32_t i = m_listenerList.Count() - 1; i >= 0; i--)
-    m_listenerList[i]->OnStateChange(aWebProgress, aRequest, aStateFlags,
-                                     aStatus);
+  ListenerArray::ForwardIterator iter(mListenerInfoList);
+  while (iter.HasMore()) {
+    ListenerInfo& info = iter.GetNext();
+    nsCOMPtr<nsIWebProgressListener> listener =
+        do_QueryReferent(info.mWeakListener);
+    if (!listener) {
+      mListenerInfoList.RemoveElement(info);
+      continue;
+    }
+
+    listener->OnStateChange(aWebProgress, aRequest, aStateFlags, aStatus);
+  }
 
   return NS_OK;
 }
@@ -143,10 +166,20 @@ NS_IMETHODIMP nsMsgProgress::OnProgressChange(nsIWebProgress* aWebProgress,
                                               int32_t aMaxSelfProgress,
                                               int32_t aCurTotalProgress,
                                               int32_t aMaxTotalProgress) {
-  for (int32_t i = m_listenerList.Count() - 1; i >= 0; i--)
-    m_listenerList[i]->OnProgressChange(aWebProgress, aRequest,
-                                        aCurSelfProgress, aMaxSelfProgress,
-                                        aCurTotalProgress, aMaxTotalProgress);
+  ListenerArray::ForwardIterator iter(mListenerInfoList);
+  while (iter.HasMore()) {
+    ListenerInfo& info = iter.GetNext();
+    nsCOMPtr<nsIWebProgressListener> listener =
+        do_QueryReferent(info.mWeakListener);
+    if (!listener) {
+      mListenerInfoList.RemoveElement(info);
+      continue;
+    }
+
+    listener->OnProgressChange(aWebProgress, aRequest, aCurSelfProgress,
+                               aMaxSelfProgress, aCurTotalProgress,
+                               aMaxTotalProgress);
+  }
   return NS_OK;
 }
 
@@ -162,9 +195,18 @@ NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress* aWebProgress,
                                             nsresult aStatus,
                                             const char16_t* aMessage) {
   if (aMessage && *aMessage) m_pendingStatus = aMessage;
-  for (int32_t i = m_listenerList.Count() - 1; i >= 0; i--)
-    m_listenerList[i]->OnStatusChange(aWebProgress, aRequest, aStatus,
-                                      aMessage);
+  ListenerArray::ForwardIterator iter(mListenerInfoList);
+  while (iter.HasMore()) {
+    ListenerInfo& info = iter.GetNext();
+    nsCOMPtr<nsIWebProgressListener> listener =
+        do_QueryReferent(info.mWeakListener);
+    if (!listener) {
+      mListenerInfoList.RemoveElement(info);
+      continue;
+    }
+
+    listener->OnStatusChange(aWebProgress, aRequest, aStatus, aMessage);
+  }
   return NS_OK;
 }
 
@@ -181,7 +223,7 @@ nsMsgProgress::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
 }
 
 nsresult nsMsgProgress::ReleaseListeners() {
-  m_listenerList.Clear();
+  mListenerInfoList.Clear();
   return NS_OK;
 }
 

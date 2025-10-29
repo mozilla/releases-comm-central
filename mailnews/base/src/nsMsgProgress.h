@@ -12,6 +12,7 @@
 #include "nsString.h"
 #include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
+#include "nsTObserverArray.h"
 #include "nsWeakReference.h"
 
 class nsMsgProgress : public nsIMsgProgress,
@@ -27,6 +28,21 @@ class nsMsgProgress : public nsIMsgProgress,
   NS_DECL_NSIMSGSTATUSFEEDBACK
   NS_DECL_NSIPROGRESSEVENTSINK
 
+  struct ListenerInfo {
+    explicit ListenerInfo(nsIWeakReference* aListener)
+        : mWeakListener(aListener) {}
+
+    bool operator==(const ListenerInfo& aOther) const {
+      return mWeakListener == aOther.mWeakListener;
+    }
+    bool operator==(const nsWeakPtr& aOther) const {
+      return mWeakListener == aOther;
+    }
+
+    // Weak pointer for the nsIWebProgressListener...
+    nsWeakPtr mWeakListener;
+  };
+
  private:
   virtual ~nsMsgProgress();
   nsresult ReleaseListeners(void);
@@ -37,7 +53,9 @@ class nsMsgProgress : public nsIMsgProgress,
   int32_t m_pendingStateFlags;
   nsresult m_pendingStateValue;
   nsWeakPtr m_msgWindow;
-  nsCOMArray<nsIWebProgressListener> m_listenerList;
+
+  using ListenerArray = nsAutoTObserverArray<ListenerInfo, 4>;
+  ListenerArray mListenerInfoList;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGPROGRESS_H_

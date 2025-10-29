@@ -72,6 +72,7 @@
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
 #include "nsIStringBundle.h"
+#include "nsWeakReference.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -2976,23 +2977,10 @@ NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const char* aMsgID,
 // operation. We have to create this class to listen for message send completion
 // and deal with failures in both send and copy operations
 ////////////////////////////////////////////////////////////////////////////////////
-NS_IMPL_ADDREF(nsMsgComposeSendListener)
-NS_IMPL_RELEASE(nsMsgComposeSendListener)
 
-/*
-NS_IMPL_QUERY_INTERFACE(nsMsgComposeSendListener,
-                         nsIMsgComposeSendListener,
-                         nsIMsgSendListener,
-                         nsIMsgCopyServiceListener,
-                         nsIWebProgressListener)
-*/
-NS_INTERFACE_MAP_BEGIN(nsMsgComposeSendListener)
-  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIMsgComposeSendListener)
-  NS_INTERFACE_MAP_ENTRY(nsIMsgComposeSendListener)
-  NS_INTERFACE_MAP_ENTRY(nsIMsgSendListener)
-  NS_INTERFACE_MAP_ENTRY(nsIMsgCopyServiceListener)
-  NS_INTERFACE_MAP_ENTRY(nsIWebProgressListener)
-NS_INTERFACE_MAP_END
+NS_IMPL_ISUPPORTS(nsMsgComposeSendListener, nsIMsgComposeSendListener,
+                  nsIMsgSendListener, nsIMsgCopyServiceListener,
+                  nsIWebProgressListener, nsISupportsWeakReference)
 
 nsMsgComposeSendListener::nsMsgComposeSendListener(void) { mDeliverMode = 0; }
 
@@ -3366,7 +3354,7 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
     nsCOMPtr<nsIMsgFolder> savedToFolder;
     nsCOMPtr<nsIMsgSend> msgSend;
     rv = compObj->GetMessageSend(getter_AddRefs(msgSend));
-    NS_ASSERTION(msgSend, "RemoveCurrentDraftMessage msgSend is null.");
+    if (!msgSend) NS_WARNING("RemoveCurrentDraftMessage msgSend is null.");
     if (NS_FAILED(rv) || !msgSend) return rv;
 
     rv = msgSend->GetMessageKey(&newUid);

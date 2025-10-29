@@ -197,7 +197,8 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
 class nsMsgComposeSendListener : public nsIMsgComposeSendListener,
                                  public nsIMsgSendListener,
                                  public nsIMsgCopyServiceListener,
-                                 public nsIWebProgressListener {
+                                 public nsIWebProgressListener,
+                                 public nsSupportsWeakReference {
  public:
   nsMsgComposeSendListener(void);
 
