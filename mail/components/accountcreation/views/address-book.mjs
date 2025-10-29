@@ -128,7 +128,7 @@ class AccountHubAddressBook extends HTMLElement {
       id: "addressBookLocalSubview",
       nextStep: true,
       previousStep: "optionSelectSubview",
-      forwardEnabled: true,
+      forwardEnabled: false,
       subview: {},
       templateId: "address-book-local-form",
     },

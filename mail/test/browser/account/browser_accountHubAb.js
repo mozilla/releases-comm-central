@@ -456,6 +456,11 @@ add_task(async function test_localAddressBookCreation() {
     return localForm.getBoundingClientRect().width;
   }, "New local address book subview should be visible");
 
+  Assert.ok(
+    accountHub.querySelector("#addressBookFooter #forward").disabled,
+    "Continue should be disabled before name was input"
+  );
+
   const input = localForm.querySelector("input");
   EventUtils.synthesizeMouseAtCenter(input, {});
   input.focus();
@@ -469,6 +474,11 @@ add_task(async function test_localAddressBookCreation() {
   const closeEvent = BrowserTestUtils.waitForEvent(accountHub, "close");
 
   const tabmail = document.getElementById("tabmail");
+
+  Assert.ok(
+    !accountHub.querySelector("#addressBookFooter #forward").disabled,
+    "Continue should be enabled when name was input"
+  );
 
   EventUtils.synthesizeMouseAtCenter(
     accountHub.querySelector("#addressBookFooter #forward"),

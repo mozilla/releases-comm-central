@@ -31,6 +31,29 @@ class AddressBookLocalForm extends AccountHubStep {
     this.appendChild(template);
 
     this.showBrandingHeader();
+    this.querySelector("#addressBookName").addEventListener("input", this);
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "input":
+        this.dispatchEvent(
+          new CustomEvent("config-updated", {
+            bubbles: true,
+            detail: {
+              completed: event.target.form.checkValidity(),
+            },
+          })
+        );
+        break;
+    }
+  }
+
+  /**
+   * Resets the form each time this step is visited.
+   */
+  setState() {
+    this.querySelector("#localAddressBookForm").reset();
   }
 
   /**
