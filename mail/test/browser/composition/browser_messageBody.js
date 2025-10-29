@@ -6,7 +6,7 @@
  * Tests related to message body.
  */
 
-var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
+var { get_msg_source, open_compose_new_mail, send_later, setup_msg_contents } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
@@ -39,9 +39,7 @@ add_task(async function test_invalid_data_uri() {
   );
 
   cwc.GetCurrentEditor().insertHTML("<a href=data:1>invalid data uri</a>");
-  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
-  cwc.goDoCommand("cmd_sendLater");
-  await closePromise;
+  await send_later(cwc);
 
   await be_in_folder(gOutboxFolder);
   const msgLoaded = BrowserTestUtils.waitForEvent(
@@ -86,9 +84,7 @@ add_task(async function test_freeTextLink() {
     .insertHTML(
       `<a href="${link1}/">${link1}</a> <a href="mailto:${link2}">${link2}</a> <a href="${link3}">link3</a>`
     );
-  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
-  cwc.goDoCommand("cmd_sendLater");
-  await closePromise;
+  await send_later(cwc);
 
   await be_in_folder(gOutboxFolder);
   const msgLoaded = BrowserTestUtils.waitForEvent(

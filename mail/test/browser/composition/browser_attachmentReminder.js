@@ -14,6 +14,7 @@ var {
   compose_window_ready,
   open_compose_new_mail,
   save_compose_message,
+  send_later,
   setup_msg_contents,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
@@ -826,9 +827,7 @@ add_task(async function test_disabling_attachment_reminder() {
   await wait_for_reminder_state(cwc, false);
 
   // Now send the message.
-  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
-  cwc.goDoCommand("cmd_sendLater");
-  await closePromise;
+  await send_later(cwc);
 
   // There should be no alert so it is saved in Outbox.
   await be_in_folder(gOutbox);

@@ -148,6 +148,20 @@ export async function save_compose_message(win) {
 }
 
 /**
+ * Perform the "send later" command on the given compose window, and wait for
+ * the progress dialog to open and close again.
+ *
+ * @param {Window} composeWin
+ */
+export async function send_later(composeWin) {
+  const progressPromise = BrowserTestUtils.domWindowOpened().then(win =>
+    BrowserTestUtils.domWindowClosed(win)
+  );
+  composeWin.goDoCommand("cmd_sendLater");
+  await progressPromise;
+}
+
+/**
  * Closes the requested compose window.
  *
  * @param {Window} aWin - The window to be closed.

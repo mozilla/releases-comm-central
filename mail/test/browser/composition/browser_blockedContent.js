@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
+var { get_msg_source, open_compose_new_mail, send_later, setup_msg_contents } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
@@ -112,9 +112,7 @@ add_task(async function test_paste_file_urls() {
   // For the non-existent (non-accessible!) image we should get a notification.
   await wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
-  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
-  cwc.goDoCommand("cmd_sendLater");
-  await closePromise;
+  await send_later(cwc);
 
   await be_in_folder(gOutboxFolder);
   const outMsg = await select_click_row(0);

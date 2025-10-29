@@ -12,10 +12,11 @@
 requestLongerTimeout(4);
 
 var {
+  FormatHelper,
   open_compose_from_draft,
   open_compose_new_mail,
   open_compose_with_reply,
-  FormatHelper,
+  send_later,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
@@ -251,14 +252,7 @@ async function setSendFormat(composeWindow, sendFormat) {
 async function assertSentMessage(composeWindow, expectMessage, msg) {
   const { isBold, plain, html } = expectMessage;
 
-  // Send later.
-  const closePromise = BrowserTestUtils.windowClosed(composeWindow);
-  EventUtils.synthesizeKey(
-    "KEY_Enter",
-    { accelKey: true, shiftKey: true },
-    composeWindow
-  );
-  await closePromise;
+  await send_later(composeWindow);
 
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
