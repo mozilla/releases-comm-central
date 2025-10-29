@@ -70,6 +70,9 @@ tags = ["addrbook", "carddav", "oauth"]
 
 ["browser_accountHubBackground.js"]
 
+["browser_accountHubConfigAlternatives.js"]
+tags = ["oauth"]
+
 ["browser_accountHubConfigSelect.js"]
 
 ["browser_accountHubCredentialsConfirmation.js"]

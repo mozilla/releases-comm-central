@@ -219,7 +219,7 @@ add_task(
 
     await fillUserInformation(emailTemplate, {
       ...emailUser,
-      email: "username@exchange.test",
+      email: "testExchange@exchange.test",
     });
     Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
@@ -301,7 +301,7 @@ add_task(
 
     Assert.equal(
       configFoundTemplate.querySelector("#incomingUsername").textContent,
-      "username@exchange.test",
+      "testExchange@exchange.test",
       "Incoming username should be expected username"
     );
 

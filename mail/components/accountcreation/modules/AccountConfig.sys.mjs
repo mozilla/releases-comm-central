@@ -460,29 +460,13 @@ AccountConfig.replaceVariables = function (
   otherVariables.EMAILDOMAIN = emaildomain;
   otherVariables.REALNAME = realname;
 
-  if (password) {
-    account.incoming.password = password;
-    account.outgoing.password = password; // set member only if auth required?
+  _replaceConfig({ config: account.incoming, otherVariables, password });
+  _replaceConfig({ config: account.outgoing, otherVariables, password });
+
+  for (const alternative of account.incomingAlternatives) {
+    _replaceConfig({ config: alternative, otherVariables, password });
   }
-  account.incoming.username = _replaceVariable(
-    account.incoming.username,
-    otherVariables
-  );
-  account.outgoing.username = _replaceVariable(
-    account.outgoing.username,
-    otherVariables
-  );
-  account.incoming.hostname = _replaceVariable(
-    account.incoming.hostname,
-    otherVariables
-  );
-  if (account.outgoing.hostname) {
-    // will be null if user picked existing server.
-    account.outgoing.hostname = _replaceVariable(
-      account.outgoing.hostname,
-      otherVariables
-    );
-  }
+
   account.identity.realname = _replaceVariable(
     account.identity.realname,
     otherVariables
@@ -494,6 +478,16 @@ AccountConfig.replaceVariables = function (
   account.displayName = _replaceVariable(account.displayName, otherVariables);
 };
 
+function _replaceConfig({ config, otherVariables, password }) {
+  if (password) {
+    config.password = password;
+  }
+  config.username = _replaceVariable(config.username, otherVariables);
+  if (config.hostname) {
+    config.hostname = _replaceVariable(config.hostname, otherVariables);
+  }
+}
+
 function _replaceVariable(variable, values) {
   let str = variable;
   if (typeof str != "string") {
@@ -501,7 +495,7 @@ function _replaceVariable(variable, values) {
   }
 
   for (const varname in values) {
-    str = str.replace("%" + varname + "%", values[varname]);
+    str = str.replaceAll("%" + varname + "%", values[varname]);
   }
 
   return str;

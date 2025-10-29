@@ -204,6 +204,28 @@ function test_replaceVariables() {
     "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
     "</pop3>" +
     "</incomingServer>" +
+    '<incomingServer type="imap">' +
+    "<hostname>imap.%EMAILDOMAIN%</hostname>" +
+    "<port>995</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILLOCALPART%</username>" +
+    "<authentication>plain</authentication>" +
+    "<pop3>" +
+    "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
+    "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
+    "</pop3>" +
+    "</incomingServer>" +
+    '<incomingServer type="pop3">' +
+    "<hostname>%EMAILDOMAIN%</hostname>" +
+    "<port>995</port>" +
+    "<socketType>SSL</socketType>" +
+    "<username>%EMAILADDRESS%</username>" +
+    "<authentication>plain</authentication>" +
+    "<pop3>" +
+    "<leaveMessagesOnServer>true</leaveMessagesOnServer>" +
+    "<daysToLeaveMessagesOnServer>999</daysToLeaveMessagesOnServer>" +
+    "</pop3>" +
+    "</incomingServer>" +
     '<outgoingServer type="smtp">' +
     "<hostname>smtp.example.com</hostname>" +
     "<port>587</port>" +
@@ -233,6 +255,16 @@ function test_replaceVariables() {
     "incoming server username"
   );
   assert_equal_config(
+    config.incoming.password,
+    "abc12345",
+    "incoming server username"
+  );
+  assert_equal_config(
+    config.outgoing.password,
+    "abc12345",
+    "incoming server username"
+  );
+  assert_equal_config(
     config.outgoing.username,
     "yamato.nadeshiko@example.com",
     "outgoing server username"
@@ -256,6 +288,36 @@ function test_replaceVariables() {
     config.identity.emailAddress,
     "yamato.nadeshiko@example.com",
     "user email address"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[0].username,
+    "yamato.nadeshiko",
+    "incoming alternative server username 0"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[1].username,
+    "yamato.nadeshiko@example.com",
+    "incoming alternative server username 1"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[0].hostname,
+    "imap.example.com",
+    "incoming alternative server hostname 0"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[1].hostname,
+    "example.com",
+    "incoming alternative server hostname 1"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[0].password,
+    "abc12345",
+    "incoming server alternative password"
+  );
+  assert_equal_config(
+    config.incomingAlternatives[1].password,
+    "abc12345",
+    "incoming server alternative password"
   );
 }
 

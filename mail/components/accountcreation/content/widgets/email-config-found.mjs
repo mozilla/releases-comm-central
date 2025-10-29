@@ -174,8 +174,6 @@ class EmailConfigFound extends AccountHubStep {
    * @param {string} configType - The config type (imap, pop3, exchange).
    */
   #selectConfig(configType) {
-    const username = this.#currentConfig.incoming.username;
-
     // Grab the config from the list of configs in #currentConfig.
     const incoming = [
       this.#currentConfig.incoming,
@@ -186,10 +184,10 @@ class EmailConfigFound extends AccountHubStep {
 
     this.querySelector("#incomingType").textContent = incoming.type;
     this.querySelector("#incomingHost").textContent = incoming.hostname;
-    this.querySelector("#incomingUsername").textContent = username;
+    this.querySelector("#incomingUsername").textContent = incoming.username;
     this.querySelector("#incomingType").title = incoming.type;
     this.querySelector("#incomingHost").title = incoming.hostname;
-    this.querySelector("#incomingUsername").title = username;
+    this.querySelector("#incomingUsername").title = incoming.username;
     this.querySelector("#owlExchangeDescription").hidden = true;
     this.querySelector("#editConfiguration").hidden = false;
     const incomingSocketType = Sanitizer.translate(incoming.socketType, {
