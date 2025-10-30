@@ -55,6 +55,7 @@ add_setup(async function () {
     about3Pane.messagePane.clearAll();
     MailServices.junk.resetTrainingData();
     testFolder.deleteSelf(null);
+    rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash).emptyTrash(null);
   });
 });
 
