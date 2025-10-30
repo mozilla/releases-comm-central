@@ -38,7 +38,7 @@ crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
 cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "7b996ab09d0a57a2345cd1c4509f0a8491cd3d66", optional = true, features = ['vpio-forcelist'] }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "4e3ea4bbc582705a4e7d9220679525283c035a7e", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.30.1", optional = true, features = ['gecko-in-tree'] }
-dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
+dap_ffi = { path = "../../../toolkit/components/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }
 dom = { path = "../../../dom/base/rust" }
