@@ -18,10 +18,6 @@
   background-color: -moz-Dialog;
 }
 
-:root:not([lwt-tree]) #folderTree {
-  background-color: -moz-OddTreeRow;
-}
-
 /* ..... tabs ..... */
 
 #tabpanelcontainer {

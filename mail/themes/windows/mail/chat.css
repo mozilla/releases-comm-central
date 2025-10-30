@@ -15,7 +15,6 @@
     appearance: none !important;
     border: none;
   }
-  /* Adaptation from #folderTree */
   :root:not([lwt-tree]) & {
     appearance: none;
     background-color: Field;

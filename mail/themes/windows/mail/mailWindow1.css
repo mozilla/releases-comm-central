@@ -16,15 +16,6 @@
   background-color: -moz-Dialog;
 }
 
-/* ::::: thread decoration ::::: */
-
-/* ::::: group rows ::::: */
-treechildren::-moz-tree-row(dummy, hover),
-treechildren::-moz-tree-row(dummy, selected, focus) {
-  background-color: var(--row-grouped-header-bg-color-selected) !important;
-  color: inherit;
-}
-
 /* ..... tabs ..... */
 
 #tabpanelcontainer {
@@ -203,10 +194,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   treechildren::-moz-tree-image(selected) {
     color: inherit;
   }
-}
-
-:root:not([lwt-tree],[lwtheme]) #folderTree {
-  background-color: #fafafa;
 }
 
 /* Global notification popup */

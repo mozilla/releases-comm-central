@@ -27,7 +27,6 @@ classic.jar:
   skin/classic/messenger/junkMail.css                            (mail/junkMail.css)
   skin/classic/messenger/input-fields.css                        (mail/input-fields.css)
   skin/classic/messenger/folderMenus.css                         (mail/folderMenus.css)
-  skin/classic/messenger/folderPane.css                          (mail/folderPane.css)
   skin/classic/messenger/searchDialog.css                        (mail/searchDialog.css)
   skin/classic/messenger/spacesToolbar.css                       (mail/spacesToolbar.css)
   skin/classic/messenger/filterDialog.css                        (mail/filterDialog.css)

@@ -9,25 +9,9 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwtheme] {
-  --new-focused-folder-color: var(--sidebar-highlight-text-color);
-
   @media (prefers-color-scheme: dark) {
     /* Toolbar buttons */
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-    --autocomplete-popup-highlight-background: #0060df;
-
-    #folderTree treechildren::-moz-tree-image(folderNameCol, newMessages-true),
-    #folderTree
-      treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-      --new-folder-color: var(--color-blue-40);
-    }
-
-    #folderTree
-      treechildren::-moz-tree-cell-text(hasUnreadMessages-true, selected, focus),
-    #folderTree
-      treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true, selected, focus) {
-      color: var(--sidebar-highlight-text-color) !important;
-    }
   }
 }
