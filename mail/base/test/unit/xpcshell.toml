@@ -18,8 +18,6 @@ tags = ["archive"]
 
 ["test_attachmentChecker.js"]
 
-["test_bug1086527.js"]
-
 ["test_columns.js"]
 
 ["test_darkReader.js"]
@@ -36,11 +34,9 @@ skip-if = ["os == 'win' && msix"]  # MSIX has a distribution.ini and it's unwrit
 
 ["test_migrateTryStartTLS.js"]
 
-["test_pluralForm.js"]
+["test_pluralForm-english.js"]
 
-["test_pluralForm_english.js"]
-
-["test_pluralForm_makeGetter.js"]
+["test_pluralForm-irish.js"]
 
 ["test_qrExport.js"]
 

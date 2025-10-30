@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 /**
- * This unit test makes sure the plural form for the default language (by
- * development), English, is working for the PluralForm javascript module.
+ * This unit test uses the default language (for development), English.
  */
 
 const { PluralForm } = ChromeUtils.importESModule(
@@ -16,7 +17,7 @@ function run_test() {
   Assert.equal(2, PluralForm.numForms());
 
   // Make sure for good inputs, things work as expected
-  for (var num = 0; num <= 200; num++) {
+  for (let num = 0; num <= 200; num++) {
     Assert.equal(
       num == 1 ? "word" : "words",
       PluralForm.get(num, "word;words")
