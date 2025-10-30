@@ -2390,6 +2390,7 @@ dependencies = [
  "l10nregistry",
  "l10nregistry-ffi",
  "libz-rs-sys",
+ "locale_service_glue",
  "localization-ffi",
  "log",
  "mailnews_ui_glue",
@@ -2509,6 +2510,7 @@ dependencies = [
  "kvstore",
  "l10nregistry",
  "l10nregistry-ffi",
+ "locale_service_glue",
  "localization-ffi",
  "log",
  "mapped_hyph",
@@ -3508,6 +3510,14 @@ dependencies = [
  "cc",
  "libc",
  "pkg-config",
+]
+
+[[package]]
+name = "locale_service_glue"
+version = "0.1.0"
+dependencies = [
+ "icu_locale",
+ "nsstring",
 ]
 
 [[package]]
