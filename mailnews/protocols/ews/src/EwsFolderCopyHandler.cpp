@@ -5,9 +5,11 @@
 #include "EwsFolderCopyHandler.h"
 
 #include "EwsListeners.h"
+#include "nsIMsgCopyService.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+#include "mozilla/Components.h"
 
 constexpr auto kEwsIdProperty = "ewsId";
 
@@ -170,9 +172,9 @@ nsresult FolderCopyHandler::OnFolderCreateFinished(nsresult status,
     // If the folder has messages in it, we want to wait for them to copy before
     // we move onto the next folder. The `MessageCopyListener` will call
     // `CopyNextFolder()` once all the messages have been copied (or moved).
-    return newFolder->CopyMessages(currentFolder, msgArray, mIsMove, mWindow,
-                                   listener, true /* is folder*/,
-                                   false /* allowUndo */);
+    nsCOMPtr<nsIMsgCopyService> service = mozilla::components::Copy::Service();
+    return service->CopyMessages(currentFolder, msgArray, newFolder, mIsMove,
+                                 listener, mWindow, false /* allowUndo */);
   }
 
   return CopyNextFolder();

@@ -202,21 +202,15 @@ async function subtestMove(folder, newParent) {
   );
   checkMessagesOnServer(destFolder, 10);
 
-  // TODO in EWS:
   const destSubfolder = destFolder.getChildNamed("subfolder");
-  Assert.report(
-    false,
+  Assert.ok(
     destSubfolder,
-    true,
-    "the moved subfolder should have been created on the destination server",
-    "=="
+    "the moved subfolder should have been created on the destination server"
   );
-  Assert.report(
-    false,
-    destSubfolder?.getTotalMessages(false),
+  Assert.equal(
+    destSubfolder.getTotalMessages(false),
     3,
-    "the moved subfolder should still contain the messages",
-    "=="
+    "the moved subfolder should still contain the messages"
   );
   checkMessagesOnServer(destSubfolder, 3);
 }
@@ -275,21 +269,15 @@ async function subtestCopy(folder, newParent) {
   );
   checkMessagesOnServer(destFolder, 7);
 
-  // TODO in EWS:
   const destSubfolder = destFolder.getChildNamed("subfolder");
-  Assert.report(
-    false,
+  Assert.ok(
     destSubfolder,
-    true,
-    "the copied subfolder should have been created on the destination server",
-    "=="
+    "the copied subfolder should have been created on the destination server"
   );
-  Assert.report(
-    false,
+  Assert.equal(
     destSubfolder?.getTotalMessages(false),
     2,
-    "the copied subfolder should contain a copy of the subfolder's messages",
-    "=="
+    "the copied subfolder should contain a copy of the subfolder's messages"
   );
   checkMessagesOnServer(destSubfolder, 2);
 }
