@@ -397,9 +397,9 @@ export class CardDAVDirectory extends SQLiteDirectory {
    *
    * @param {nsIAbCard} card
    * @returns {boolean} true if the PUT request succeeded without conflict,
-   *     false if there was a conflict.
-   * @throws if the server responded with anything other than a success or
-   *     conflict status code.
+   *   false if there was a conflict.
+   * @throws {Error} if the server responded with anything other than a
+   *   success or conflict status code.
    */
   async _sendCardToServer(card) {
     const cardHref = this._getCardHref(card);
@@ -412,6 +412,9 @@ export class CardDAVDirectory extends SQLiteDirectory {
     if (this._isGoogleCardDAV) {
       // There must be an `N` property, even if empty.
       const vCardProperties = lazy.VCardProperties.fromVCard(vCard);
+      if (!vCardProperties) {
+        throw new Error(`Invalid vCard: ${vCard}`);
+      }
       if (!vCardProperties.getFirstEntry("n")) {
         vCardProperties.addValue("n", ["", "", "", "", ""]);
       }

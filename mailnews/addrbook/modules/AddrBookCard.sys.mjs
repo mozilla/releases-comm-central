@@ -60,8 +60,8 @@ export function AddrBookCard() {
         return vCardProperties;
       }
       return lazy.VCardProperties.fromPropertyMap(this._properties);
-    } catch (error) {
-      console.error("Error creating vCard properties", error);
+    } catch (e) {
+      console.error(`Creating vCard properties FAILED for vCard=${vCard}`, e);
       // Return  an empty VCardProperties object if parsing failed
       // catastrophically.
       return new lazy.VCardProperties("4.0");

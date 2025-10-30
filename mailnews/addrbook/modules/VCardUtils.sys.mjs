@@ -661,10 +661,17 @@ export class VCardProperties {
    * Parse a vCard into a VCardProperties object.
    *
    * @param {string} vCard
-   * @returns {VCardProperties}
+   * @returns {?VCardProperties}
    */
   static fromVCard(vCard, { isGoogleCardDAV = false } = {}) {
-    vCard = VCardUtils.translateVCard21(vCard);
+    const vCards = vCard.match(/BEGIN:VCARD[\s\S]*?END:VCARD/gi);
+    if (!vCards) {
+      return null;
+    }
+    if (vCards.length > 1) {
+      console.warn(`Card data had more than one vCard ${vCard}`);
+    }
+    vCard = VCardUtils.translateVCard21(vCards[0]);
 
     const rv = new VCardProperties();
     const [, properties] = ICAL.parse(vCard);

@@ -213,6 +213,47 @@ add_task(function testFromToVCard() {
 });
 
 /**
+ * Tests creating a VCardProperties from a BAD vCard string,
+ * then recreating the vCard.
+ * Notice the extra begin and end. The data has two cards (second empty).
+ */
+add_task(function testFromToVCardBad() {
+  const inVCard = formatVCard`
+    BEGIN:VCARD
+    VERSION:3.0
+    EMAIL;PREF=1:mike@example.org
+    END:VCARD
+    BEGIN:VCARD
+    END:VCARD`;
+  const properties = VCardProperties.fromVCard(inVCard);
+
+  Assert.equal(properties.entries.length, 2, "entry count");
+  propertyEqual(
+    properties.getFirstEntry("version"),
+    {
+      name: "version",
+      params: {},
+      type: "text",
+      value: "3.0",
+    },
+    "version entry"
+  );
+  propertyEqual(
+    properties.getFirstEntry("email"),
+    {
+      name: "email",
+      params: { pref: 1 },
+      type: "text",
+      value: "mike@example.org",
+    },
+    "email entry"
+  );
+
+  const outVCard = properties.toVCard() + "BEGIN:VCARD\r\nEND:VCARD\r\n";
+  Assert.equal(outVCard, inVCard, "vCard reproduction should be ok");
+});
+
+/**
  * Tests creating a VCardProperties from a Map of old-style address book
  * properties, then recreating the Map.
  */
