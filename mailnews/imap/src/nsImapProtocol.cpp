@@ -84,6 +84,7 @@
 
 #include "mozilla/Components.h"
 #include "mozilla/SyncRunnable.h"
+#include "mozilla/intl/LocaleService.h"
 
 using namespace mozilla;
 
@@ -514,11 +515,7 @@ nsImapProtocol::nsImapProtocol()
   // read in the accept languages preference
   if (!gInitialized) GlobalInitialization();
 
-  nsCOMPtr<nsIPrefLocalizedString> prefString;
-  Preferences::GetComplex("intl.accept_languages",
-                          NS_GET_IID(nsIPrefLocalizedString),
-                          getter_AddRefs(prefString));
-  if (prefString) prefString->ToString(getter_Copies(mAcceptLanguages));
+  intl::LocaleService::GetInstance()->GetAcceptLanguages(mAcceptLanguages);
 
   nsCString customDBHeaders;
   Preferences::GetCString("mailnews.customDBHeaders", customDBHeaders);
@@ -5652,17 +5649,15 @@ void nsImapProtocol::Language() {
     // we need to parse out the first language out of this comma separated
     // list.... i.e if we have en,ja we only want to send en to the server.
     if (mAcceptLanguages.get()) {
-      nsAutoCString extractedLanguage;
-      LossyCopyUTF16toASCII(mAcceptLanguages, extractedLanguage);
-      int32_t pos = extractedLanguage.FindChar(',');
+      int32_t pos = mAcceptLanguages.FindChar(',');
       if (pos > 0)  // we have a comma separated list of languages...
-        extractedLanguage.SetLength(pos);  // truncate everything after the
-                                           // first comma (including the comma)
+        mAcceptLanguages.SetLength(pos);  // truncate everything after the
+                                          // first comma (including the comma)
 
-      if (extractedLanguage.IsEmpty()) return;
+      if (mAcceptLanguages.IsEmpty()) return;
 
       command.AppendLiteral(" LANGUAGE ");
-      command.Append(extractedLanguage);
+      command.Append(mAcceptLanguages);
       command.Append(CRLF);
 
       rv = SendData(command.get());

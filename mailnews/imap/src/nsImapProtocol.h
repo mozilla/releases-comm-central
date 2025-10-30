@@ -700,7 +700,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   bool m_fromHeaderSeen;
 
-  nsString mAcceptLanguages;
+  nsCString mAcceptLanguages;
 
   nsCString m_clientId;
 
