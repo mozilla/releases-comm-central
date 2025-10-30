@@ -778,7 +778,7 @@ class AddrBookImporterController extends ImporterController {
     const filter = {
       csv: "*.csv; *.tsv; *.tab",
       ldif: "*.ldif",
-      vcard: "*.vcf",
+      vcard: "*.vcf; *.vcard",
       sqlite: "*.sqlite",
       mab: "*.mab",
     }[this._fileType];

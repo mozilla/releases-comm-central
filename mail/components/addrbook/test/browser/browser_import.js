@@ -343,7 +343,7 @@ add_task(async function testImportVCard() {
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   const newBookPromise = TestUtils.topicObserved("addrbook-directory-created");
-  await doImport(".new", ["*.vcf", "*.*"], vCardFile.path);
+  await doImport(".new", ["*.vcf; *.vcard", "*.*"], vCardFile.path);
   const [newBook] = await newBookPromise;
   Assert.equal(
     newBook.dirName,
