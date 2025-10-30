@@ -102,10 +102,7 @@ export const UIFontSize = {
    *   the default preferences.
    */
   browserSize(isPlainText) {
-    const langGroup = Services.prefs.getComplexValue(
-      "font.language.group",
-      Ci.nsIPrefLocalizedString
-    ).data;
+    const langGroup = Services.locale.fontLanguageGroup;
     if (isPlainText) {
       const monospaceSize = Services.prefs.getIntPref(
         "font.size.monospace." + langGroup,

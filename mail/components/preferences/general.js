@@ -79,7 +79,7 @@ Preferences.addAll([
   { id: "mail.quoted_size", type: "int" },
   { id: "mail.citation_color", type: "string" },
   { id: "mail.display_glyph", type: "bool" },
-  { id: "font.language.group", type: "wstring" },
+  { id: "font.language.group", type: "string" },
   { id: "intl.regional_prefs.use_os_locales", type: "bool" },
   { id: "mailnews.database.global.indexer.enabled", type: "bool" },
   { id: "mailnews.labels.description.1", type: "wstring" },
@@ -839,11 +839,9 @@ var gGeneralPane = {
    * Populates the default font list in UI.
    */
   _rebuildFonts() {
-    var langGroupPref = Preferences.get("font.language.group");
-    var isSerif =
-      gGeneralPane._readDefaultFontTypeForLanguage(langGroupPref.value) ==
-      "serif";
-    gGeneralPane._selectDefaultLanguageGroup(langGroupPref.value, isSerif);
+    const langGroup = Services.locale.fontLanguageGroup;
+    const isSerif = this._readDefaultFontTypeForLanguage(langGroup) == "serif";
+    this._selectDefaultLanguageGroup(langGroup, isSerif);
   },
 
   /**
@@ -946,16 +944,10 @@ var gGeneralPane = {
     );
     var preference = Preferences.get(defaultFontTypePref);
     if (!preference) {
-      Preferences.add({
-        id: defaultFontTypePref,
-        type: "string",
-        name: defaultFontTypePref,
-      }).on("change", gGeneralPane._rebuildFonts);
+      preference = Preferences.add({ id: defaultFontTypePref, type: "string" });
+      preference.on("change", gGeneralPane._rebuildFonts.bind(gGeneralPane));
     }
-
-    // We should return preference.value here, but we can't wait for the binding to load,
-    // or things get really messy. Fortunately this will give the same answer.
-    return Services.prefs.getCharPref(defaultFontTypePref);
+    return preference.value;
   },
 
   /**
@@ -3048,7 +3040,10 @@ Preferences.get("mailnews.start_page.enabled").on(
   "change",
   gGeneralPane.updateStartPage
 );
-Preferences.get("font.language.group").on("change", gGeneralPane._rebuildFonts);
+Preferences.get("font.language.group").on(
+  "change",
+  gGeneralPane._rebuildFonts.bind(gGeneralPane)
+);
 Preferences.get("mailnews.mark_message_read.auto").on(
   "change",
   gGeneralPane.updateMarkAsReadOptions

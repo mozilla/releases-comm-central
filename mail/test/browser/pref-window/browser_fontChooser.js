@@ -255,7 +255,7 @@ async function _verify_fonts_displayed(
  * present on the computer).
  */
 add_task(async function test_font_name_displayed() {
-  Services.prefs.setCharPref("font.language.group", kLanguage);
+  Services.prefs.setStringPref("font.language.group", kLanguage);
 
   // Pick the first font for each font type and set it.
   const expected = {};
@@ -290,7 +290,7 @@ const kFakeFonts = {
  * font.name-list.<type>.<language>.
  */
 add_task(async function test_font_name_not_present() {
-  Services.prefs.setCharPref("font.language.group", kLanguage);
+  Services.prefs.setStringPref("font.language.group", kLanguage);
 
   // The fonts we're expecting to see selected in the font chooser for
   // test_font_name_not_present.
