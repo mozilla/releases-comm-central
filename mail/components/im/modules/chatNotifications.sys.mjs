@@ -14,18 +14,6 @@ import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 var kTimeToWaitForMoreMsgs = 3;
 
 export var Notifications = {
-  get ellipsis() {
-    let ellipsis = "[\u2026]";
-
-    try {
-      ellipsis = Services.prefs.getComplexValue(
-        "intl.ellipsis",
-        Ci.nsIPrefLocalizedString
-      ).data;
-    } catch (e) {}
-    return ellipsis;
-  },
-
   // Holds the first direct message of a bundle while we wait for further
   // messages from the same sender to arrive.
   _heldMessage: null,
@@ -88,7 +76,7 @@ export var Notifications = {
         if (messageText.length > 50) {
           messageText = messageText.substr(0, 50);
           if (aCounter == 0) {
-            messageText = messageText + this.ellipsis;
+            messageText = messageText + Services.locale.ellipsis;
           }
         }
 

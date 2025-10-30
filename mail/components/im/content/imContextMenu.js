@@ -25,15 +25,7 @@ function imContextMenu(aXulMenu) {
   this.isTextSelected = false;
   this.isContentSelected = false;
   this.shouldDisplay = true;
-  this.ellipsis = "\u2026";
   this.initedActions = false;
-
-  try {
-    this.ellipsis = Services.prefs.getComplexValue(
-      "intl.ellipsis",
-      Ci.nsIPrefLocalizedString
-    ).data;
-  } catch (e) {}
 
   // Initialize new menu.
   this.initMenu(aXulMenu);
@@ -234,7 +226,7 @@ imContextMenu.prototype = {
     }
 
     if (selectedText.length > 15) {
-      selectedText = selectedText.substr(0, 15) + this.ellipsis;
+      selectedText = selectedText.substr(0, 15) + Services.locale.ellipsis;
     }
 
     return true;

@@ -250,19 +250,10 @@
         `)
       );
 
-      let ellipsis = "\u2026";
-      try {
-        ellipsis = Services.prefs.getComplexValue(
-          "intl.ellipsis",
-          Ci.nsIPrefLocalizedString
-        ).data;
-      } catch (ex) {
-        // Do nothing.. we already have a default.
-      }
-
       this._identityOverflowEllipsis = this.querySelector("label.ac-url-text");
       this._nameOverflowEllipsis = this.querySelector("label.ac-comment");
 
+      const ellipsis = Services.locale.ellipsis;
       this._identityOverflowEllipsis.value = ellipsis;
       this._nameOverflowEllipsis.value = ellipsis;
 
@@ -528,19 +519,10 @@
         `)
       );
 
-      let ellipsis = "\u2026";
-      try {
-        ellipsis = Services.prefs.getComplexValue(
-          "intl.ellipsis",
-          Ci.nsIPrefLocalizedString
-        ).data;
-      } catch (ex) {
-        // Do nothing.. we already have a default.
-      }
-
       this._identityOverflowEllipsis = this.querySelector("label.ac-url-text");
       this._nameOverflowEllipsis = this.querySelector("label.ac-comment");
 
+      const ellipsis = Services.locale.ellipsis;
       this._identityOverflowEllipsis.value = ellipsis;
       this._nameOverflowEllipsis.value = ellipsis;
 
