@@ -132,6 +132,7 @@
   skin/classic/messenger/error-pages.css                      (../shared/mail/error-pages.css)
   skin/classic/messenger/extensionPopup.css                   (../shared/mail/extensionPopup.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
+  skin/classic/messenger/folderSelection.css                  (../shared/mail/folderSelection.css)
   skin/classic/messenger/filterEditor.css                     (../shared/mail/filterEditor.css)
   skin/classic/messenger/imMenulist.css                       (../shared/mail/imMenulist.css)
   skin/classic/messenger/imRichlistbox.css                    (../shared/mail/imRichlistbox.css)
@@ -143,7 +144,6 @@
   skin/classic/messenger/mailViewSetup.css                    (../shared/mail/mailViewSetup.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
   skin/classic/messenger/migrationProgress.css                (../shared/mail/migrationProgress.css)
-  skin/classic/messenger/msgSelectOffline.css                 (../shared/mail/msgSelectOffline.css)
 #ifndef XP_MACOSX
   skin/classic/messenger/newmailalert.css                     (../shared/mail/newmailalert.css)
 #endif

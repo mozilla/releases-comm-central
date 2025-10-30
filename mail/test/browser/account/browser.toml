@@ -110,6 +110,7 @@ tags = ["archive"]
 ["browser_manageIdentities.js"]
 
 ["browser_offlineSettings.js"]
+tags = ["dataadapter"]
 
 ["browser_portSetting.js"]
 skip-if = [

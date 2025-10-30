@@ -83,8 +83,6 @@ add_task(async function () {
 
         const doc = win.document;
         const tree = doc.getElementById("folderPickerTree");
-        const { folderNameCol, selectedCol } = tree.columns;
-        const treeChildren = tree.lastElementChild;
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         // Check the initial state.
@@ -104,23 +102,17 @@ add_task(async function () {
         tree.view.toggleOpenState(6); // Open "third" folder.
         Assert.equal(tree.view.rowCount, 8);
 
-        Assert.equal(
-          tree.view.getCellText(0, folderNameCol),
-          "nobody on localhost"
-        );
-        Assert.equal(tree.view.getCellText(1, folderNameCol), "Local Folders");
-        Assert.equal(tree.view.getCellText(2, folderNameCol), "Trash");
-        Assert.equal(tree.view.getCellText(3, folderNameCol), "Outbox");
-        Assert.equal(tree.view.getCellText(4, folderNameCol), "first");
-        Assert.equal(tree.view.getCellText(5, folderNameCol), "second");
-        Assert.equal(tree.view.getCellText(6, folderNameCol), "third");
-        Assert.equal(tree.view.getCellText(7, folderNameCol), "fourth");
+        Assert.equal(tree.view.getCellText(0, "name"), "nobody on localhost");
+        Assert.equal(tree.view.getCellText(1, "name"), "Local Folders");
+        Assert.equal(tree.view.getCellText(2, "name"), "Trash");
+        Assert.equal(tree.view.getCellText(3, "name"), "Outbox");
+        Assert.equal(tree.view.getCellText(4, "name"), "first");
+        Assert.equal(tree.view.getCellText(5, "name"), "second");
+        Assert.equal(tree.view.getCellText(6, "name"), "third");
 
         // Check the initial selection.
         const isSelected = index =>
-          tree.view
-            .getCellProperties(index, selectedCol)
-            .includes("selected-true");
+          tree.view.rowAt(index).hasProperty("folderSelected");
         Assert.ok(!isSelected(0));
         Assert.ok(!isSelected(1));
         Assert.ok(!isSelected(2));
@@ -131,11 +123,13 @@ add_task(async function () {
         Assert.ok(!isSelected(7));
 
         // Change the selection by clicking on a check box.
-        const coords = tree.getCoordsForCellItem(4, selectedCol, "cell");
-        EventUtils.synthesizeMouse(
-          treeChildren,
-          coords.x + coords.width / 2,
-          coords.y + coords.height / 2,
+        await BrowserTestUtils.waitForMutationCondition(
+          tree.table.body,
+          { subtree: true, childList: true },
+          () => tree.table.body.rows[4].querySelector('input[type="checkbox"]')
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          tree.table.body.rows[4].querySelector('input[type="checkbox"]'),
           {},
           win
         );

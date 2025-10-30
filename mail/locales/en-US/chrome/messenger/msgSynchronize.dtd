@@ -19,5 +19,3 @@
 <!ENTITY selectButton.label "Select…">
 <!ENTITY selectButton.accesskey "E">
 <!ENTITY MsgSelectDesc.label "Choose mail folders and newsgroups for offline use.">
-<!ENTITY MsgSelectInd.label "Download">
-<!ENTITY MsgSelectItems.label "Folders and Newsgroups">

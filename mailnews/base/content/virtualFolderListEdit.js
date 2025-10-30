@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals PROTO_TREE_VIEW */
-
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
+var { FolderSelectionDataAdapter } = ChromeUtils.importESModule(
+  "chrome://messenger/content/FolderSelectionDataAdapter.mjs"
 );
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+var { UIDensity } = ChromeUtils.importESModule(
+  "resource:///modules/UIDensity.sys.mjs"
 );
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
@@ -20,120 +21,73 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
+  UIDensity.registerWindow(window);
+  UIFontSize.registerWindow(window);
+});
+window.addEventListener("load", () => {
   gSelectVirtual.load();
 });
 
-var gFolderTreeView = new PROTO_TREE_VIEW();
-
 var gSelectVirtual = {
   _treeElement: null,
-  _selectedList: new Set(),
 
-  load() {
+  async load() {
+    const selectedFolders = new Set();
     if (window.arguments[0].searchFolderURIs) {
       const srchFolderUriArray =
         window.arguments[0].searchFolderURIs.split("|");
       for (const uri of srchFolderUriArray) {
-        this._selectedList.add(MailUtils.getOrCreateFolder(uri));
+        selectedFolders.add(MailUtils.getOrCreateFolder(uri));
       }
     }
 
-    // Add the top level of the folder tree.
-    for (const account of FolderUtils.allAccountsSorted(true)) {
-      const server = account.incomingServer;
-      if (
-        server instanceof Ci.nsIPop3IncomingServer &&
-        server.deferredToAccount
-      ) {
-        continue;
-      }
+    const adapter = new FolderSelectionDataAdapter();
+    adapter.selectedFolders = selectedFolders;
 
-      gFolderTreeView._rowMap.push(new FolderRow(server.rootFolder));
-    }
-
-    // Recursively expand the tree to show all selected folders.
-    function expandToSelected(row, i) {
-      hiddenFolders.delete(row._folder);
-      for (const folder of hiddenFolders) {
-        if (row._folder.isAncestorOf(folder)) {
-          gFolderTreeView.toggleOpenState(i);
-          for (let j = row.children.length - 1; j >= 0; j--) {
-            expandToSelected(row.children[j], i + j + 1);
-          }
-          break;
-        }
-      }
-    }
-
-    const hiddenFolders = new Set(gSelectVirtual._selectedList);
-    for (let i = gFolderTreeView.rowCount - 1; i >= 0; i--) {
-      expandToSelected(gFolderTreeView._rowMap[i], i);
-    }
-
+    await customElements.whenDefined("auto-tree-view");
     this._treeElement = document.getElementById("folderPickerTree");
-    this._treeElement.view = gFolderTreeView;
+    this._treeElement.setAttribute("rows", "auto-tree-view-table-row");
+    this._treeElement.headerHidden = true;
+    this._treeElement.defaultColumns = [
+      {
+        id: "name",
+        sortable: false,
+        twisty: true,
+        cellIcon: true,
+      },
+      {
+        id: "folderSelected",
+        sortable: false,
+        checkbox: "folderSelected",
+      },
+    ];
+    this._treeElement.addEventListener("keypress", this);
 
-    UIFontSize.registerWindow(window);
+    this._treeElement.view = adapter;
   },
 
-  onKeyPress(aEvent) {
+  handleEvent(event) {
     // For now, only do something on space key.
-    if (aEvent.charCode != aEvent.DOM_VK_SPACE) {
+    if (event.key != " " || event.altKey || event.ctrlKey || event.metaKey) {
       return;
     }
 
-    const selection = this._treeElement.view.selection;
-    const start = {};
-    const end = {};
-    const numRanges = selection.getRangeCount();
-
-    for (let range = 0; range < numRanges; range++) {
-      selection.getRangeAt(range, start, end);
-      for (let i = start.value; i <= end.value; i++) {
-        this._toggle(i);
-      }
+    const view = this._treeElement.view;
+    const shouldSelect = !view
+      .rowAt(this._treeElement.currentIndex)
+      ?.hasProperty("folderSelected");
+    for (const index of this._treeElement.selectedIndices) {
+      view.rowAt(index).toggleProperty("folderSelected", shouldSelect);
+      this._treeElement.invalidateRow(index);
     }
-  },
-
-  onClick(aEvent) {
-    // We only care about button 0 (left click) events.
-    if (aEvent.button != 0) {
-      return;
-    }
-
-    // We don't want to toggle when clicking on header or tree (scrollbar) or
-    // on treecol.
-    if (aEvent.target.nodeName != "treechildren") {
-      return;
-    }
-
-    const treeCellInfo = this._treeElement.getCellAt(
-      aEvent.clientX,
-      aEvent.clientY
-    );
-    if (treeCellInfo.row == -1 || treeCellInfo.col.id != "selectedCol") {
-      return;
-    }
-
-    this._toggle(treeCellInfo.row);
-  },
-
-  _toggle(aRow) {
-    const folder = gFolderTreeView._rowMap[aRow]._folder;
-    if (this._selectedList.has(folder)) {
-      this._selectedList.delete(folder);
-    } else {
-      this._selectedList.add(folder);
-    }
-
-    gFolderTreeView._tree.invalidateRow(aRow);
+    event.preventDefault();
   },
 
   onAccept() {
-    // XXX We should just pass the folder objects around...
-    const uris = [...this._selectedList.values()]
-      .map(folder => folder.URI)
-      .join("|");
+    const uris = Array.from(
+      this._treeElement.view.selectedFolders,
+      folder => folder.URI
+    ).join("|");
 
     if (window.arguments[0].okCallback) {
       window.arguments[0].okCallback(uris);
@@ -142,71 +96,3 @@ var gSelectVirtual = {
 };
 
 document.addEventListener("dialogaccept", () => gSelectVirtual.onAccept());
-
-/**
- * A tree row representing a single folder.
- */
-class FolderRow {
-  constructor(folder, parent = null) {
-    this._folder = folder;
-    this._open = false;
-    this._level = parent ? parent.level + 1 : 0;
-    this._parent = parent;
-    this._children = null;
-  }
-
-  get id() {
-    return this._folder.URI;
-  }
-
-  get text() {
-    return this.getText("folderNameCol");
-  }
-
-  getText(aColName) {
-    switch (aColName) {
-      case "folderNameCol":
-        return this._folder.abbreviatedName;
-      default:
-        return "";
-    }
-  }
-
-  get open() {
-    return this._open;
-  }
-
-  get level() {
-    return this._level;
-  }
-
-  getProperties(column) {
-    let properties = "";
-    switch (column?.id) {
-      case "folderNameCol":
-        // From folderUtils.sys.mjs.
-        properties = FolderUtils.getFolderProperties(this._folder, this.open);
-        break;
-      case "selectedCol":
-        properties = "selectedColumn";
-        if (gSelectVirtual._selectedList.has(this._folder)) {
-          properties += " selected-true";
-        }
-        break;
-    }
-    return properties;
-  }
-
-  get children() {
-    if (this._children === null) {
-      this._children = [];
-      for (const subFolder of this._folder.subFolders) {
-        if (!subFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-          this._children.push(new FolderRow(subFolder, this));
-        }
-      }
-      this._children.sort(FolderUtils.compareFolders);
-    }
-    return this._children;
-  }
-}

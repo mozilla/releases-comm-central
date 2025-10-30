@@ -268,60 +268,46 @@ add_task(async function testNNTP() {
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
-        const { folderNameCol, syncCol } = tree.columns;
-        const treeChildren = tree.lastElementChild;
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         // Check the initial state.
-        Assert.equal(tree.view.rowCount, 3);
-        Assert.ok(
-          !tree.view.isContainerOpen(0),
-          "root folder should not be open"
-        );
-        tree.view.toggleOpenState(0); // Open root folder.
-        Assert.equal(tree.view.rowCount, 7);
+        Assert.equal(tree.view.rowCount, 4);
 
-        Assert.equal(
-          tree.view.getCellText(0, folderNameCol),
-          "example.nntp.invalid"
-        );
-        Assert.equal(tree.view.getCellText(1, folderNameCol), "o.first");
-        Assert.equal(tree.view.getCellText(2, folderNameCol), "o.second");
-        Assert.equal(tree.view.getCellText(3, folderNameCol), "o.third");
-        Assert.equal(tree.view.getCellText(4, folderNameCol), "o.t.fourth");
-        Assert.equal(tree.view.getCellText(5, folderNameCol), "IMAP Account");
-        Assert.equal(tree.view.getCellText(6, folderNameCol), "EWS Account");
+        Assert.equal(tree.view.getCellText(0, "name"), "offline.first");
+        Assert.equal(tree.view.getCellText(1, "name"), "offline.second");
+        Assert.equal(tree.view.getCellText(2, "name"), "offline.third");
+        Assert.equal(tree.view.getCellText(3, "name"), "offline.third.fourth");
 
         // Check the initial selection.
         const isSelected = index =>
-          tree.view
-            .getCellProperties(index, syncCol)
-            .includes("synchronize-true");
+          tree.view.rowAt(index).hasProperty("folderSelected");
+        Assert.ok(isSelected(0));
         Assert.ok(isSelected(1));
-        Assert.ok(isSelected(2));
+        Assert.ok(!isSelected(2));
         Assert.ok(!isSelected(3));
-        Assert.ok(!isSelected(4));
 
         // Change the selection by clicking on a check box.
-        const coords = tree.getCoordsForCellItem(1, syncCol, "cell");
-        EventUtils.synthesizeMouse(
-          treeChildren,
-          coords.x + coords.width / 2,
-          coords.y + coords.height / 2,
+        await BrowserTestUtils.waitForMutationCondition(
+          tree.table.body,
+          { subtree: true, childList: true },
+          () => tree.table.body.rows[0].querySelector('input[type="checkbox"]')
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          tree.table.body.rows[0].querySelector('input[type="checkbox"]'),
           {},
           win
         );
 
         // Change the selection by selecting some rows and pressing space.
-        tree.view.selection.rangedSelect(3, 4, false);
+        tree.view.selection.rangedSelect(2, 3, false);
         tree.focus();
         EventUtils.synthesizeKey(" ", {}, win);
 
         // Check the changed selection.
-        Assert.ok(!isSelected(1));
+        Assert.ok(!isSelected(0));
+        Assert.ok(isSelected(1));
         Assert.ok(isSelected(2));
         Assert.ok(isSelected(3));
-        Assert.ok(isSelected(4));
 
         acceptButton.click();
       },
@@ -405,74 +391,57 @@ add_task(async function testIMAP() {
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
-        const { folderNameCol, syncCol } = tree.columns;
-        const treeChildren = tree.lastElementChild;
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         // Check the initial state.
-        Assert.equal(tree.view.rowCount, 3);
         Assert.ok(
-          !tree.view.isContainerOpen(1),
-          "root folder should not be open"
-        );
-        tree.view.toggleOpenState(1); // Open root folder.
-        Assert.equal(tree.view.rowCount, 8);
-        Assert.ok(
-          !tree.view.isContainerOpen(6),
+          !tree.view.isContainerOpen(4),
           "unselected folder should not be open"
         );
-        tree.view.toggleOpenState(6); // Open "third" folder.
-        Assert.equal(tree.view.rowCount, 9);
+        tree.view.toggleOpenState(4); // Open "third" folder.
+        Assert.equal(tree.view.rowCount, 6);
 
-        Assert.equal(
-          tree.view.getCellText(0, folderNameCol),
-          "example.nntp.invalid"
-        );
-        Assert.equal(tree.view.getCellText(1, folderNameCol), "IMAP Account");
-        Assert.equal(tree.view.getCellText(2, folderNameCol), "Inbox");
-        Assert.equal(tree.view.getCellText(3, folderNameCol), "Trash");
-        Assert.equal(tree.view.getCellText(4, folderNameCol), "first");
-        Assert.equal(tree.view.getCellText(5, folderNameCol), "second");
-        Assert.equal(tree.view.getCellText(6, folderNameCol), "third");
-        Assert.equal(tree.view.getCellText(7, folderNameCol), "fourth");
-        Assert.equal(tree.view.getCellText(8, folderNameCol), "EWS Account");
+        Assert.equal(tree.view.getCellText(0, "name"), "Inbox");
+        Assert.equal(tree.view.getCellText(1, "name"), "Trash");
+        Assert.equal(tree.view.getCellText(2, "name"), "first");
+        Assert.equal(tree.view.getCellText(3, "name"), "second");
+        Assert.equal(tree.view.getCellText(4, "name"), "third");
+        Assert.equal(tree.view.getCellText(5, "name"), "fourth");
 
         // Check the initial selection.
         const isSelected = index =>
-          tree.view
-            .getCellProperties(index, syncCol)
-            .includes("synchronize-true");
+          tree.view.rowAt(index).hasProperty("folderSelected");
+        Assert.ok(isSelected(0));
         Assert.ok(!isSelected(1));
         Assert.ok(isSelected(2));
-        Assert.ok(!isSelected(3));
-        Assert.ok(isSelected(4));
-        Assert.ok(isSelected(5));
-        Assert.ok(!isSelected(6));
-        Assert.ok(!isSelected(7));
+        Assert.ok(isSelected(3));
+        Assert.ok(!isSelected(4));
+        Assert.ok(!isSelected(5));
 
         // Change the selection by clicking on a check box.
-        const coords = tree.getCoordsForCellItem(4, syncCol, "cell");
-        EventUtils.synthesizeMouse(
-          treeChildren,
-          coords.x + coords.width / 2,
-          coords.y + coords.height / 2,
+        await BrowserTestUtils.waitForMutationCondition(
+          tree.table.body,
+          { subtree: true, childList: true },
+          () => tree.table.body.rows[2].querySelector('input[type="checkbox"]')
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          tree.table.body.rows[2].querySelector('input[type="checkbox"]'),
           {},
           win
         );
 
         // Change the selection by selecting some rows and pressing space.
-        tree.view.selection.rangedSelect(6, 7, false);
+        tree.view.selection.rangedSelect(4, 5, false);
         tree.focus();
         EventUtils.synthesizeKey(" ", {}, win);
 
         // Check the changed selection.
+        Assert.ok(isSelected(0));
         Assert.ok(!isSelected(1));
-        Assert.ok(isSelected(2));
-        Assert.ok(!isSelected(3));
-        Assert.ok(!isSelected(4));
+        Assert.ok(!isSelected(2));
+        Assert.ok(isSelected(3));
+        Assert.ok(isSelected(4));
         Assert.ok(isSelected(5));
-        Assert.ok(isSelected(6));
-        Assert.ok(isSelected(7));
 
         acceptButton.click();
       },
@@ -556,69 +525,55 @@ add_task(async function testEWS() {
 
         const doc = win.document;
         const tree = doc.getElementById("synchronizeTree");
-        const { folderNameCol, syncCol } = tree.columns;
-        const treeChildren = tree.lastElementChild;
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         // Check the initial state.
-        Assert.equal(tree.view.rowCount, 3);
+        Assert.equal(tree.view.rowCount, 4);
         Assert.ok(
-          !tree.view.isContainerOpen(2),
-          "root folder should not be open"
-        );
-        tree.view.toggleOpenState(2); // Open root folder.
-        Assert.equal(tree.view.rowCount, 7);
-        Assert.ok(
-          !tree.view.isContainerOpen(6),
+          !tree.view.isContainerOpen(3),
           "unselected folder should not be open"
         );
-        tree.view.toggleOpenState(6); // Open "third" folder.
-        Assert.equal(tree.view.rowCount, 8);
+        tree.view.toggleOpenState(3); // Open "third" folder.
+        Assert.equal(tree.view.rowCount, 5);
 
-        Assert.equal(
-          tree.view.getCellText(0, folderNameCol),
-          "example.nntp.invalid"
-        );
-        Assert.equal(tree.view.getCellText(1, folderNameCol), "IMAP Account");
-        Assert.equal(tree.view.getCellText(2, folderNameCol), "EWS Account");
-        Assert.equal(tree.view.getCellText(3, folderNameCol), "Inbox");
-        Assert.equal(tree.view.getCellText(4, folderNameCol), "first");
-        Assert.equal(tree.view.getCellText(5, folderNameCol), "second");
-        Assert.equal(tree.view.getCellText(6, folderNameCol), "third");
-        Assert.equal(tree.view.getCellText(7, folderNameCol), "fourth");
+        Assert.equal(tree.view.getCellText(0, "name"), "Inbox");
+        Assert.equal(tree.view.getCellText(1, "name"), "first");
+        Assert.equal(tree.view.getCellText(2, "name"), "second");
+        Assert.equal(tree.view.getCellText(3, "name"), "third");
+        Assert.equal(tree.view.getCellText(4, "name"), "fourth");
 
         // Check the initial selection.
         const isSelected = index =>
-          tree.view
-            .getCellProperties(index, syncCol)
-            .includes("synchronize-true");
-        Assert.ok(isSelected(3));
-        Assert.ok(isSelected(4));
-        Assert.ok(isSelected(5));
-        Assert.ok(!isSelected(6));
-        Assert.ok(!isSelected(7));
+          tree.view.rowAt(index).hasProperty("folderSelected");
+        Assert.ok(isSelected(0));
+        Assert.ok(isSelected(1));
+        Assert.ok(isSelected(2));
+        Assert.ok(!isSelected(3));
+        Assert.ok(!isSelected(4));
 
         // Change the selection by clicking on a check box.
-        const coords = tree.getCoordsForCellItem(4, syncCol, "cell");
-        EventUtils.synthesizeMouse(
-          treeChildren,
-          coords.x + coords.width / 2,
-          coords.y + coords.height / 2,
+        await BrowserTestUtils.waitForMutationCondition(
+          tree.table.body,
+          { subtree: true, childList: true },
+          () => tree.table.body.rows[1].querySelector('input[type="checkbox"]')
+        );
+        EventUtils.synthesizeMouseAtCenter(
+          tree.table.body.rows[1].querySelector('input[type="checkbox"]'),
           {},
           win
         );
 
         // Change the selection by selecting some rows and pressing space.
-        tree.view.selection.rangedSelect(6, 7, false);
+        tree.view.selection.rangedSelect(3, 4, false);
         tree.focus();
         EventUtils.synthesizeKey(" ", {}, win);
 
         // Check the changed selection.
+        Assert.ok(isSelected(0));
+        Assert.ok(!isSelected(1));
+        Assert.ok(isSelected(2));
         Assert.ok(isSelected(3));
-        Assert.ok(!isSelected(4));
-        Assert.ok(isSelected(5));
-        Assert.ok(isSelected(6));
-        Assert.ok(isSelected(7));
+        Assert.ok(isSelected(4));
 
         acceptButton.click();
       },

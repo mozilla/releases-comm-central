@@ -1,0 +1,132 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/messenger.css");
+
+dialog {
+  height: 100%;
+}
+
+dialog::part(content-box) {
+  height: 0;
+}
+
+auto-tree-view {
+  border: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
+}
+
+tbody[is="tree-view-table-body"] {
+  img.icon {
+    content: var(--icon-folder);
+    color: var(--icon-color);
+  }
+
+  &:is(:focus, :focus-within) > .table-layout.selected,
+  & > .table-layout.selected:focus-within {
+    & img.icon {
+      color: inherit;
+    }
+  }
+
+  & tr:is(
+    [data-properties~="server-type-imap"],
+    [data-properties~="server-type-pop3"],
+    [data-properties~="server-type-ews"]
+  ) img.icon {
+    content: var(--icon-mail);
+  }
+
+  & tr:is(
+    [data-properties~="server-type-imap"],
+    [data-properties~="server-type-pop3"],
+    [data-properties~="server-type-ews"]
+  )[data-properties~="server-secure"] img.icon {
+    content: var(--icon-mail-secure);
+  }
+
+  & tr[data-properties~="server-type-nntp"] img.icon {
+    content: var(--icon-globe);
+  }
+
+  & tr[data-properties~="server-type-nntp"][data-properties~="server-secure"] img.icon {
+    content: var(--icon-globe-secure);
+  }
+
+  & tr[data-properties~="server-type-rss"] img.icon {
+    content: var(--icon-rss);
+  }
+
+  & tr[data-properties~="folder-type-archive"] img.icon {
+    content: var(--icon-archive);
+  }
+
+  & tr[data-properties~="folder-type-drafts"] img.icon {
+    content: var(--icon-draft);
+  }
+
+  & tr[data-properties~="folder-type-inbox"] img.icon {
+    content: var(--icon-inbox);
+  }
+
+  & tr[data-properties~="folder-type-junk"] img.icon {
+    content: var(--icon-spam);
+  }
+
+  & tr[data-properties~="folder-type-outbox"] img.icon {
+    content: var(--icon-outbox);
+  }
+
+  & tr[data-properties~="folder-type-sent"] img.icon {
+    content: var(--icon-sent);
+  }
+
+  & tr[data-properties~="folder-type-templates"] img.icon {
+    content: var(--icon-template);
+  }
+
+  & tr[data-properties~="folder-type-trash"] img.icon {
+    content: var(--icon-trash);
+  }
+
+  & tr[data-properties~="folder-type-news"] img.icon {
+    content: var(--icon-newsletter);
+  }
+
+  & .name-column {
+    max-width: unset;
+    width: 100%;
+  }
+
+  & tr:is(
+    [data-properties~="server-type-imap"],
+    [data-properties~="server-type-pop3"],
+    [data-properties~="server-type-ews"],
+    [data-properties~="server-type-nntp"],
+    [data-properties~="server-type-rss"],
+    [data-properties~="server-type-none"]
+  ) .name-column {
+    font-weight: bold;
+
+    & img.icon {
+      color: var(--primary);
+    }
+  }
+
+  & tr[data-properties~="noselect"] .name-column {
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  & .folderselected-column {
+    max-width: unset;
+
+    & input {
+      margin: 0;
+    }
+
+    @media (-moz-overlay-scrollbars) {
+      padding-inline-end: calc(6px + env(scrollbar-inline-size));
+    }
+  }
+}

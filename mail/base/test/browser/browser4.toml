@@ -43,6 +43,7 @@ tags = ["virtualfolders"]
 
 ["browser_virtualFolderEdit.js"]
 tags = [
+  "dataadapter",
   "virtualfolders",
 ]
 

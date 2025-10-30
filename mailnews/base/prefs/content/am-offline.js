@@ -164,7 +164,9 @@ function onPreInit(account, accountValues) {
 
 function onClickSelect() {
   parent.gSubDialog.open(
-    "chrome://messenger/content/msgSelectOfflineFolders.xhtml"
+    "chrome://messenger/content/msgSelectOfflineFolders.xhtml",
+    undefined,
+    [gIncomingServer] // Show only this server.
   );
 }
 
