@@ -76,15 +76,15 @@ if (!Services.prefs.getBoolPref("layout.css.scroll-anchoring.enabled")) {
   });
 }
 
-if (!Services.prefs.getBoolPref("layout.css.text-decoration-trim.enabled")) {
+if (!Services.prefs.getBoolPref("layout.css.text-decoration-inset.enabled")) {
   ignoreList.push({
     sourceName: /html\.css$/i,
-    errorMessage: /Unknown property .*text-decoration-trim/i,
+    errorMessage: /Unknown property .*text-decoration-inset/i,
     isFromDevTools: false,
   });
   ignoreList.push({
     sourceName: /ua\.css$/i,
-    errorMessage: /Unknown property .*text-decoration-trim/i,
+    errorMessage: /Unknown property .*text-decoration-inset/i,
     isFromDevTools: false,
   });
 }
