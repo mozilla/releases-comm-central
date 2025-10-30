@@ -24,6 +24,20 @@
  * Commands for the message composition window.
  */
 
+/*
+ * On the mozilla/no-more-globals eslint rule:
+ * Adding new globals to this file is discouraged by eslint. This file is
+ * already massive. Consider if you couldn't provide what you need with a system
+ * module, a custom element of if need be some other form of separated script.
+ *
+ * Rule documentation: https://firefox-source-docs.mozilla.org/code-quality/lint/linters/eslint-plugin-mozilla/rules/no-more-globals.html
+ * As it says: DO NOT JUST ADD ITEMS TO THE ALLOWLIST
+ *
+ * If you're lazy loading something, we already have a `lazy` object in this
+ * scope, so you can simply avoid adding a global for that by defining the
+ * getter on `lazy` instead of `this`.
+ */
+
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.importESModule(
   "resource:///modules/activity/activityModules.sys.mjs"

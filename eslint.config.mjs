@@ -68,7 +68,7 @@ export default [
   },
   {
     name: "source-type-script",
-    files: ["**/*.{js,json,html,sjs,xhtml}"],
+    files: ["**/*.{js,json,html,sjs,xhtml,globals}"],
     languageOptions: {
       sourceType: "script",
     },
@@ -76,7 +76,7 @@ export default [
   ...mozilla.configs["flat/recommended"],
   {
     name: "json-recommended-with-comments",
-    files: ["**/*.json"],
+    files: ["**/*.{json,globals}"],
     ...json.configs["recommended-with-comments"],
   },
   {
@@ -442,6 +442,13 @@ export default [
       // these in the sandbox directly as that would potentially mean the
       // imported properties would be instantiated up-front rather than lazily.
       "mozilla/reject-importGlobalProperties": "off",
+    },
+  },
+  {
+    name: "no-more-globals-in-msgcomposecommands",
+    files: ["mail/components/compose/content/MsgComposeCommands.js"],
+    rules: {
+      "mozilla/no-more-globals": "error",
     },
   },
   /**
