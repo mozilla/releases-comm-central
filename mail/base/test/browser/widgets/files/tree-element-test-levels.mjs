@@ -57,8 +57,8 @@ class TreeItem extends TreeDataRow {
     this.id = id;
   }
 
-  getProperties() {
-    return this.id;
+  get properties() {
+    return [this.id];
   }
 }
 

@@ -41,6 +41,7 @@ skip-if = ["os == 'win' && msix"]  # MSIX has a distribution.ini and it's unwrit
 ["test_qrExport.js"]
 
 ["test_treeDataAdapter.js"]
+tags = ["dataadapter"]
 
 ["test_treeSelection.js"]
 

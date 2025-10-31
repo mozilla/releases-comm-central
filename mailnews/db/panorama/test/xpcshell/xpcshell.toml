@@ -25,6 +25,7 @@ support-files = [
 ["test_liveView.js"]
 
 ["test_liveViewDataAdapter.js"]
+tags = ["dataadapter"]
 
 ["test_liveViewSQL.js"]
 

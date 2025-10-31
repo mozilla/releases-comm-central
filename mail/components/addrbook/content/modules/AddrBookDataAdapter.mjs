@@ -395,7 +395,9 @@ class AddrBookDataRow extends TreeDataRow {
         this.card.directoryUID
       );
     }
-    this.properties = this.card.isMailList ? "mailing-list" : "";
+    if (this.card.isMailList) {
+      this.addProperty("mailing-list");
+    }
   }
 
   #getText(columnID) {

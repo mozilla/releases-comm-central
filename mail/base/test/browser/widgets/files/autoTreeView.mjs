@@ -65,7 +65,7 @@ class AutoTreeView extends TreeDataAdapter {
         new TreeDataRow(
           this.data[i],
           undefined,
-          this.data[i].continent == "antarctica" ? "uninhabited" : ""
+          this.data[i].continent == "antarctica" ? ["uninhabited"] : []
         )
       );
     }

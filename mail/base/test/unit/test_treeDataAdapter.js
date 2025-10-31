@@ -494,3 +494,74 @@ add_task(function testSorting() {
     );
   }
 });
+
+add_task(function testRowProperties() {
+  const adapter = new TreeDataAdapter();
+  adapter.appendRow(new TreeDataRow({ id: 0 }));
+  const row = adapter.rowAt(0);
+
+  info("Add a property.");
+  row.addProperty("fungible");
+  Assert.deepEqual([...row.properties], ["fungible"]);
+  Assert.ok(row.hasProperty("fungible"));
+  Assert.ok(!row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "fungible");
+
+  info("Add another property.");
+  row.addProperty("mutable");
+  Assert.deepEqual([...row.properties], ["fungible", "mutable"]);
+  Assert.ok(row.hasProperty("fungible"));
+  Assert.ok(row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "fungible mutable");
+
+  info("Add a property that was already there.");
+  row.addProperty("fungible");
+  Assert.deepEqual([...row.properties], ["fungible", "mutable"]);
+  Assert.ok(row.hasProperty("fungible"));
+  Assert.ok(row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "fungible mutable");
+
+  info("Remove a property.");
+  row.removeProperty("fungible");
+  Assert.deepEqual([...row.properties], ["mutable"]);
+  Assert.ok(!row.hasProperty("fungible"));
+  Assert.ok(row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "mutable");
+
+  info("Remove a property that isn't there.");
+  row.removeProperty("malleable");
+  Assert.deepEqual([...row.properties], ["mutable"]);
+  Assert.ok(!row.hasProperty("fungible"));
+  Assert.ok(row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "mutable");
+
+  info("Toggle a property.");
+  row.toggleProperty("malleable", true); // Force set.
+  Assert.deepEqual([...row.properties], ["mutable", "malleable"]);
+  Assert.ok(row.hasProperty("malleable"));
+
+  row.toggleProperty("malleable"); // Toggle.
+  Assert.deepEqual([...row.properties], ["mutable"]);
+  Assert.ok(!row.hasProperty("malleable"));
+
+  row.toggleProperty("malleable"); // Toggle.
+  Assert.deepEqual([...row.properties], ["mutable", "malleable"]);
+  Assert.ok(row.hasProperty("malleable"));
+
+  row.toggleProperty("malleable", false); // Force unset.
+  Assert.deepEqual([...row.properties], ["mutable"]);
+  Assert.ok(!row.hasProperty("malleable"));
+
+  info("Remove the last remaining property.");
+  row.removeProperty("mutable");
+  Assert.deepEqual([...row.properties], []);
+  Assert.ok(!row.hasProperty("fungible"));
+  Assert.ok(!row.hasProperty("mutable"));
+  Assert.ok(!row.hasProperty("malleable"));
+  Assert.equal(adapter.getRowProperties(0), "");
+});

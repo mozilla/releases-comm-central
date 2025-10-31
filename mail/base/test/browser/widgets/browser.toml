@@ -13,6 +13,7 @@ support-files = ["files/**"]
 
 ["browser_autoTreeView.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+tags = ["dataadapter"]
 
 ["browser_contactAvatar.js"]
 
@@ -48,3 +49,4 @@ skip-if = ["headless"]
 ["browser_treeListbox.js"]
 
 ["browser_treeView.js"]
+tags = ["dataadapter"]

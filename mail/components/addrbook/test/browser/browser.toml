@@ -34,10 +34,12 @@ tags = ["oauth"]
 
 ["browser_contact_sidebar.js"]
 skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+tags = ["dataadapter"]
 
 ["browser_contact_sidebar_keyboard.js"]
 
 ["browser_contact_tree.js"]
+tags = ["dataadapter"]
 
 ["browser_directory_tree.js"]
 
@@ -72,5 +74,6 @@ support-files = ["../../../../../mailnews/addrbook/test/unit/data/ldap_contacts.
 ["browser_search.js"]
 
 ["browser_search_dialog.js"]
+tags = ["dataadapter"]
 
 ["browser_telemetry.js"]

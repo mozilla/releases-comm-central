@@ -144,13 +144,13 @@ export class TreeDataAdapter {
   }
 
   /**
-   * Properties of the row at `rowIndex`.
+   * Properties of the row at `rowIndex` as a space-separated list.
    *
    * @param {integer} rowIndex
    * @returns {string}
    */
   getRowProperties(rowIndex) {
-    return this.rowAt(rowIndex).getProperties();
+    return [...this.rowAt(rowIndex).properties].join(" ");
   }
 
   /**
@@ -333,16 +333,23 @@ export class TreeDataRow {
   children = [];
 
   /**
-   * @param {object} texts - The text to be displayed for this row. The
-   *   object's keys are column IDs, and the values are the text to display.
-   * @param {object} values - Same as `texts`, but instead the values are string
-   *   or numeric values for sorting the rows.
-   * @param {string} properties - The defined properties for this row.
+   * A set of string properties.
+   *
+   * @type {Set<string>}
    */
-  constructor(texts = {}, values = {}, properties = "") {
+  #properties;
+
+  /**
+   * @param {object} [texts={}] - The text to be displayed for this row. The
+   *   object's keys are column IDs, and the values are the text to display.
+   * @param {object} [values={}] - Same as `texts`, but instead the values are string
+   *   or numeric values for sorting the rows.
+   * @param {Iterable<string>} [properties=[]] - The defined properties for this row.
+   */
+  constructor(texts = {}, values = {}, properties = []) {
     this.texts = texts;
     this.values = values;
-    this.properties = properties;
+    this.#properties = new Set(properties);
   }
 
   /**
@@ -430,13 +437,57 @@ export class TreeDataRow {
   }
 
   /**
-   * Properties of the row. Usually a space-separated list that gets assigned
-   * to an element's attribute and matched with CSS selectors.
+   * Get the properties of the row.
    *
-   * @returns {string}
+   * @returns {Iterable<string>} Though this function returns an Iterator,
+   *   subclasses can override it and return any Iterable (e.g. an Array).
    */
-  getProperties() {
-    return this.properties;
+  get properties() {
+    return this.#properties.values();
+  }
+
+  /**
+   * Add a property to the row.
+   *
+   * @param {string} property
+   */
+  addProperty(property) {
+    this.#properties.add(property);
+  }
+
+  /**
+   * Change the existence of a property to a given value, or the opposite of
+   * the current value.
+   *
+   * @param {string} property
+   * @param {boolean} [force] - If true, the property will be added. If false,
+   *   it will be removed. If not given, the property will be toggled.
+   */
+  toggleProperty(property, force = !this.hasProperty(property)) {
+    if (force) {
+      this.addProperty(property);
+    } else {
+      this.removeProperty(property);
+    }
+  }
+
+  /**
+   * Test if the row has the given property.
+   *
+   * @param {string} property
+   * @returns {boolean}
+   */
+  hasProperty(property) {
+    return this.#properties.has(property);
+  }
+
+  /**
+   * Remove a property from the row.
+   *
+   * @param {string} property
+   */
+  removeProperty(property) {
+    this.#properties.delete(property);
   }
 
   /**

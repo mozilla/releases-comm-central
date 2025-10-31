@@ -386,8 +386,7 @@ export class LiveViewDataRow extends TreeDataRow {
         unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
         flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
       },
-      { date: message.date.valueOf() },
-      ""
+      { date: message.date.valueOf() }
     );
     this.message = message;
   }
