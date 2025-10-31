@@ -129,7 +129,8 @@ add_task(async () => {
     await checkFreeBusy(organizer, 5);
 
     // Add attendee.
-
+    attendeesDocument.activeElement.focus();
+    await TestUtils.waitForTick();
     EventUtils.sendString("test@example.com", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
@@ -165,7 +166,7 @@ add_task(async () => {
     EventUtils.sendString("boys", attendeesWindow);
     await new Promise(resolve => attendeesWindow.setTimeout(resolve, 1000));
     Assert.equal(input.value, "boys >> The Boys <The Boys>");
-    Assert.ok(input.popupElement.popupOpen);
+    Assert.ok(input.popupElement.popupOpen, "input popup should be open");
     Assert.equal(input.popupElement.richlistbox.childElementCount, 1);
     Assert.equal(input.popupElement._currentIndex, 1);
     EventUtils.synthesizeKey("VK_DOWN", {}, attendeesWindow);
@@ -190,8 +191,12 @@ add_task(async () => {
     await new Promise(resolve => eventWindow.setTimeout(resolve));
   }
 
-  Assert.equal(eventStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
-  Assert.equal(eventEndTime.value.toISOString(), times.FOUR.toISOString());
+  Assert.equal(
+    eventStartTime.value.toISOString(),
+    times.TWO_THIRTY.toISOString(),
+    "start time should be ok"
+  );
+  Assert.equal(eventEndTime.value.toISOString(), times.FOUR.toISOString(), "end time should be ok");
 
   function checkAttendeesInEventDialog(organizer, expectedAttendees) {
     Assert.equal(iframeDocument.getElementById("item-organizer-row").textContent, organizer);
