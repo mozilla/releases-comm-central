@@ -8,6 +8,8 @@
 
 "use strict";
 
+requestLongerTimeout(AppConstants.DEBUG ? 2 : 1);
+
 var {
   assert_selected_tab,
   be_in_folder,
