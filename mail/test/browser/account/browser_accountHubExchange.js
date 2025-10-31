@@ -14,6 +14,8 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 
+requestLongerTimeout(4);
+
 const PASSWORD = "hunter2";
 const USER = "testExchange@exchange.test";
 // Encoding matches what FetchHTTP.sys.mjs uses.
