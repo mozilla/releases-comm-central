@@ -68,6 +68,27 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
   }
 
   /**
+   * The number of visible rows. Overrides TreeDataAdapter because _rowMap is
+   * overridden.
+   *
+   * @returns {integer}
+   */
+  get rowCount() {
+    return this._rowMap.length;
+  }
+
+  /**
+   * Get the row at a given row index, accounting for open rows. Overrides
+   * TreeDataAdapter because _rowMap is overridden.
+   *
+   * @param {number} rowIndex
+   * @returns {?TreeDataRow}
+   */
+  rowAt(rowIndex) {
+    return this._rowMap.at(rowIndex);
+  }
+
+  /**
    * Overrides TreeDataAdapter.sortBy. If the sorting changes, LiveViewRowMap
    * will flush its cache and inform the LiveView, so messages will be fetched
    * again in the new order.

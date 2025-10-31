@@ -21,6 +21,7 @@ class SimpleRow extends TreeDataRow {
 add_task(function testEmpty() {
   const adapter = new TreeDataAdapter();
   Assert.equal(adapter.rowCount, 0);
+  Assert.ok(!adapter.rowAt(0));
 
   // Cell contents.
   Assert.throws(() => adapter.getCellText(0, "columnA"), /TypeError/);
@@ -40,6 +41,8 @@ add_task(function testOneRow() {
 
   // Cell contents.
   Assert.equal(adapter.rowCount, 1);
+  Assert.equal(adapter.rowAt(0), row);
+  Assert.equal(adapter.indexOf(row), 0);
   Assert.equal(adapter.getCellText(0, "columnA"), "value0A");
   Assert.equal(adapter.getCellText(0, "columnB"), "value0B");
   Assert.equal(adapter.getCellText(0, "columnC"), undefined);
@@ -60,10 +63,10 @@ add_task(function testOneRow() {
 
 add_task(function testBranching() {
   const adapter = new TreeDataAdapter();
-  const parentRow = adapter.appendRow(new SimpleRow("0"));
-  adapter.appendRow(new SimpleRow("1")); // Check that following rows are not broken.
+  const parentRow0 = adapter.appendRow(new SimpleRow("0"));
+  const parentRow1 = adapter.appendRow(new SimpleRow("1")); // Check that following rows are not broken.
   const childRow0 = new SimpleRow("0.0");
-  Assert.equal(parentRow.appendRow(childRow0), childRow0);
+  Assert.equal(parentRow0.appendRow(childRow0), childRow0);
   const listenerTree = {
     rowCountChanged(rowIndex, change) {
       this._rowCountChange = { rowIndex, change };
@@ -76,8 +79,15 @@ add_task(function testBranching() {
 
   // Cell contents. Row 0 is closed.
   Assert.equal(adapter.rowCount, 2);
+  Assert.equal(adapter.rowAt(0), parentRow0);
+  Assert.equal(adapter.indexOf(parentRow0), 0);
   Assert.equal(adapter.getCellText(0, "columnA"), "value0A");
   Assert.equal(adapter.getCellText(0, "columnB"), "value0B");
+  Assert.equal(adapter.indexOf(childRow0), -1);
+  Assert.equal(parentRow0.rowAt(0), childRow0);
+  Assert.equal(parentRow0.indexOf(childRow0), 0);
+  Assert.equal(adapter.rowAt(1), parentRow1);
+  Assert.equal(adapter.indexOf(parentRow1), 1);
   Assert.equal(adapter.getCellText(1, "columnA"), "value1A");
   Assert.equal(adapter.getCellText(1, "columnB"), "value1B");
   Assert.throws(() => adapter.getCellText(2, "columnA"), /TypeError/);
@@ -110,10 +120,18 @@ add_task(function testBranching() {
 
   // Cell contents.
   Assert.equal(adapter.rowCount, 3);
+  Assert.equal(adapter.rowAt(0), parentRow0);
+  Assert.equal(adapter.indexOf(parentRow0), 0);
   Assert.equal(adapter.getCellText(0, "columnA"), "value0A");
   Assert.equal(adapter.getCellText(0, "columnB"), "value0B");
+  Assert.equal(adapter.rowAt(1), childRow0);
+  Assert.equal(adapter.indexOf(childRow0), 1);
+  Assert.equal(parentRow0.rowAt(0), childRow0);
+  Assert.equal(parentRow0.indexOf(childRow0), 0);
   Assert.equal(adapter.getCellText(1, "columnA"), "value0.0A");
   Assert.equal(adapter.getCellText(1, "columnB"), "value0.0B");
+  Assert.equal(adapter.rowAt(2), parentRow1);
+  Assert.equal(adapter.indexOf(parentRow1), 2);
   Assert.equal(adapter.getCellText(2, "columnA"), "value1A");
   Assert.equal(adapter.getCellText(2, "columnB"), "value1B");
   Assert.throws(() => adapter.getCellText(3, "columnA"), /TypeError/);
@@ -155,8 +173,12 @@ add_task(function testBranching() {
 
   // Cell contents. Row 0 is closed.
   Assert.equal(adapter.rowCount, 2);
+  Assert.equal(adapter.rowAt(0), parentRow0);
+  Assert.equal(adapter.indexOf(parentRow0), 0);
   Assert.equal(adapter.getCellText(0, "columnA"), "value0A");
   Assert.equal(adapter.getCellText(0, "columnB"), "value0B");
+  Assert.equal(adapter.rowAt(1), parentRow1);
+  Assert.equal(adapter.indexOf(parentRow1), 1);
   Assert.equal(adapter.getCellText(1, "columnA"), "value1A");
   Assert.equal(adapter.getCellText(1, "columnB"), "value1B");
   Assert.throws(() => adapter.getCellText(2, "columnA"), /TypeError/);
