@@ -187,9 +187,7 @@ async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
  *    It will be an empty array if aKeepOpen was set to false.
  */
 export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
-  if (aRootPopup.state != "open") {
-    await BrowserTestUtils.waitForEvent(aRootPopup, "popupshown");
-  }
+  await BrowserTestUtils.waitForPopupEvent(aRootPopup, "shown");
 
   /**
    * Check if a node's attributes match all those given in actionObj.
@@ -262,14 +260,12 @@ export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
     if (newPopup) {
       curPopup = newPopup;
       closeStack.push(curPopup);
-      if (curPopup.state != "open") {
-        await BrowserTestUtils.waitForEvent(curPopup, "popupshown");
-      }
+      await BrowserTestUtils.waitForPopupEvent(curPopup, "shown");
     }
   }
 
   if (!aKeepOpen) {
-    close_popup_sequence(closeStack);
+    await close_popup_sequence(closeStack);
     return [];
   }
   return closeStack;
@@ -278,17 +274,15 @@ export async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
 /**
  * Close given menupopups.
  *
- * @param {Element[]} aCloseStack  An array of menupopup elements that are to
+ * @param {Element[]} popups - An array of menupopup elements that are to
  *   be closed. The elements are processed from the end of the array to the
  *   front (a stack).
  */
-export function close_popup_sequence(aCloseStack) {
-  while (aCloseStack.length) {
-    const curPopup = aCloseStack.pop();
-    if (curPopup.state == "open") {
-      curPopup.focus();
-      curPopup.hidePopup();
-    }
+export async function close_popup_sequence(popups) {
+  while (popups.length) {
+    const curPopup = popups.pop();
+    curPopup.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(curPopup, "hidden");
   }
 }
 

@@ -66,12 +66,8 @@ add_task(async function test_move_message() {
   Assert.equal(recentMenu.getAttribute("disabled"), "true");
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
-    getMailContext(),
-    "popuphidden"
-  );
-  close_popup_sequence(popups);
-  await hiddenPromise;
+  await close_popup_sequence(popups);
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));
   /** @implements {nsIMsgCopyServiceListener} */
   const copyListener = {
@@ -122,12 +118,8 @@ add_task(async function test_move_message() {
     "aaafolder2",
     "recent menu child should be aaafolder2 after move"
   );
-  hiddenPromise = BrowserTestUtils.waitForEvent(
-    getMailContext(),
-    "popuphidden"
-  );
-  close_popup_sequence(popups);
-  await hiddenPromise;
+  await close_popup_sequence(popups);
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));
 });
 
@@ -152,12 +144,8 @@ add_task(async function test_delete_message() {
     "aaafolder2",
     "recent menu should still be aaafolder2 after delete"
   );
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    getMailContext(),
-    "popuphidden"
-  );
-  close_popup_sequence(popups);
-  await hiddenPromise;
+  await close_popup_sequence(popups);
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));
 });
 
@@ -190,11 +178,7 @@ add_task(async function test_archive_message() {
     "aaafolder2",
     "recent menu should still be aaafolder2 after archive"
   );
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    getMailContext(),
-    "popuphidden"
-  );
-  close_popup_sequence(popups);
-  await hiddenPromise;
+  await close_popup_sequence(popups);
+  await BrowserTestUtils.waitForPopupEvent(getMailContext(), "hidden");
   await new Promise(resolve => requestAnimationFrame(resolve));
 });

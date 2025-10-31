@@ -92,7 +92,7 @@ async function assert_mode_selected(aMode) {
         modeList_menu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
       );
     }
-    close_popup_sequence(popuplist);
+    await close_popup_sequence(popuplist);
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
@@ -109,6 +109,7 @@ async function assert_mode_selected(aMode) {
     );
   }
   appmenu_popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(appmenu_popup, "hidden");
 }
 
 /**
@@ -131,7 +132,7 @@ async function assert_mode_not_selected(mode) {
     Assert.ok(
       !modeList_menu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
     );
-    close_popup_sequence(popuplist);
+    await close_popup_sequence(popuplist);
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
@@ -144,6 +145,7 @@ async function assert_mode_not_selected(mode) {
     !modeList_appmenu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
   );
   appmenu_popup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(appmenu_popup, "hidden");
 }
 
 /**
