@@ -1286,11 +1286,13 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   }
 
   // force something to get set if there was nothing there before
-  aDatePickerId.value = document.getElementById(aDatePickerId).value;
+  const datePicker = document.getElementById(aDatePickerId);
+  // eslint-disable-next-line no-self-assign
+  datePicker.value = datePicker.value; // FIXME: check if really needed
 
   // first of all disable the datetime picker if we don't have a date
   const hasDate = document.getElementById(aCheckboxId).checked;
-  aDatePickerId.disabled = !hasDate;
+  datePicker.setAttribute("disabled", !hasDate);
 
   // create a new datetime object if date is now checked for the first time
   if (hasDate && !aDateTime.isValid()) {
