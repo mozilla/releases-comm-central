@@ -47,7 +47,7 @@ def add_artifact_fetches(config, jobs):
     project = config.params["project"]
     for job in jobs:
         try:
-            if project != "try-comm-central":
+            if project == "comm-central":
                 previous_task_id = find_task_id(
                     f"comm.v2.{project}.latest.thunderbird.tb-rust-vendor"
                 )
