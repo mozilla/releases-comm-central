@@ -850,12 +850,14 @@ export const CalendarTestUtils = {
     await new Promise(resolve => win.requestIdleCallback(resolve));
     if (target) {
       this.scrollViewToTarget(target, true);
+      Assert.greater(target.getBoundingClientRect().width, 5, "target width ok");
+      Assert.greater(target.getBoundingClientRect().height, 5, "target height ok");
       Assert.ok(
         BrowserTestUtils.isVisible(target),
         `click target ${target.id || target.localName} should be visible`
       );
       await new Promise(resolve => win.setTimeout(resolve));
-      EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
+      EventUtils.synthesizeMouse(target, 5, 5, { clickCount: 2 }, win);
     } else {
       const buttonId = `sidePanelNew${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
       EventUtils.synthesizeMouseAtCenter(win.document.getElementById(buttonId), {}, win);
