@@ -73,7 +73,6 @@ add_setup(async () => {
   await SpecialPowers.pushPrefEnv({
     set: [
       ["mailnews.auto_config.fetchFromExchange.enabled", true],
-      ["experimental.mail.ews.enabled", true],
       // Set the pref to load nothing.
       ["mailnews.auto_config_url", ""],
     ],
