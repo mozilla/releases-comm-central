@@ -410,25 +410,29 @@
       <html:div id="expandedsubjectBox" is="simple-header-row"
                 data-header-name="subject"></html:div>
     </html:div>
-    <html:div id="cryptoBox" hidden="hidden">
-      <html:button id="encryptionTechBtn"
-                   class="toolbarbutton-1 crypto-button themeable-brighttext button-focusable"
-                   data-l10n-id="message-security-button">
-        <html:span class="crypto-label"></html:span>
-        <html:img id="encryptedHdrIcon" hidden="hidden" alt="" />
-        <html:img id="signedHdrIcon" hidden="hidden" alt="" />
-      </html:button>
-    </html:div>
-    <html:time id="dateLabelSubject"
-               class="message-header-datetime"
-               aria-readonly="true"
-               hidden="hidden"></html:time>
-    <html:div id="darkReaderToggle" xmlns="http://www.w3.org/1999/xhtml">
-      <label for="disableDarkReader" class="toggle-label">
-        <input id="disableDarkReader"
-               type="checkbox"
-               class="toggle-checkbox toggle-checkbox-sm dark-reader-toggle" />
-      </label>
+    <html:div id="expandedButtonsBox">
+      <html:time id="dateLabelSubject"
+                 class="message-header-datetime"
+                 aria-readonly="true"
+                 hidden="hidden"></html:time>
+      <html:div id="buttonsBox">
+        <html:div id="cryptoBox" hidden="hidden">
+          <html:button id="encryptionTechBtn"
+                       class="toolbarbutton-1 crypto-button themeable-brighttext button-focusable"
+                       data-l10n-id="message-security-button">
+            <html:span class="crypto-label"></html:span>
+            <html:img id="encryptedHdrIcon" hidden="hidden" alt="" />
+            <html:img id="signedHdrIcon" hidden="hidden" alt="" />
+          </html:button>
+        </html:div>
+        <html:div id="darkReaderToggle" xmlns="http://www.w3.org/1999/xhtml">
+          <label for="disableDarkReader" class="toggle-label">
+            <input id="disableDarkReader"
+                   type="checkbox"
+                   class="toggle-checkbox toggle-checkbox-sm dark-reader-toggle" />
+          </label>
+        </html:div>
+      </html:div>
     </html:div>
   </html:div>
 
