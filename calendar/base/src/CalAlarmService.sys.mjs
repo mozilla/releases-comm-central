@@ -753,11 +753,10 @@ CalAlarmService.prototype = {
   },
 
   async findAlarms(aCalendars, aStart, aUntil) {
-    const calICalendar = Ci.calICalendar;
     const filter =
-      calICalendar.ITEM_FILTER_COMPLETED_ALL |
-      calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
-      calICalendar.ITEM_FILTER_TYPE_ALL;
+      Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL |
+      Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
+      Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
 
     await Promise.all(
       aCalendars.map(async calendar => {
