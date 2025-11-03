@@ -16,14 +16,12 @@
 #include "nsICommandLineHandler.h"
 
 class nsMsgComposeService : public nsIMsgComposeService,
-                            public nsICommandLineHandler,
                             public nsSupportsWeakReference {
  public:
   nsMsgComposeService();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOMPOSESERVICE
-  NS_DECL_NSICOMMANDLINEHANDLER
 
   nsresult Init();
   void Reset();

@@ -441,11 +441,7 @@ async function enigCreateKeyMsg() {
   ].createInstance(Ci.nsIMsgCompFields);
   msgCompFields.addAttachment(keyAttachment);
 
-  var msgCompSvc = Cc["@mozilla.org/messengercompose;1"].getService(
-    Ci.nsIMsgComposeService
-  );
-
-  var msgCompParam = Cc[
+  const msgCompParam = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   msgCompParam.composeFields = msgCompFields;
@@ -453,7 +449,8 @@ async function enigCreateKeyMsg() {
   msgCompParam.type = Ci.nsIMsgCompType.New;
   msgCompParam.format = Ci.nsIMsgCompFormat.Default;
   msgCompParam.originalMsgURI = "";
-  msgCompSvc.OpenComposeWindowWithParams("", msgCompParam);
+
+  MailServices.compose.OpenComposeWindowWithParams(null, msgCompParam);
 }
 
 async function enigmailRevokeKey() {

@@ -53,13 +53,10 @@
 using namespace mozilla;
 using namespace mozilla::dom;
 
-#define DEFAULT_CHROME \
-  "chrome://messenger/content/messengercompose/messengercompose.xhtml"_ns
-
 nsMsgComposeService::nsMsgComposeService() = default;
 
 NS_IMPL_ISUPPORTS(nsMsgComposeService, nsIMsgComposeService,
-                  nsICommandLineHandler, nsISupportsWeakReference)
+                  nsISupportsWeakReference)
 
 nsMsgComposeService::~nsMsgComposeService() { mOpenComposeWindows.Clear(); }
 
@@ -118,7 +115,8 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
   if (chrome && *chrome) {
     chromeURL = nsDependentCString(chrome);
   } else {
-    chromeURL = DEFAULT_CHROME;
+    chromeURL =
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml"_ns;
   }
   rv = wwatch->OpenWindow(0, chromeURL, "_blank"_ns,
                           "all,chrome,dialog=no,status,toolbar"_ns,
@@ -1081,109 +1079,4 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   return messageService->StreamMessage(aMsgURI, streamListener, aMsgWindow,
                                        nullptr, false, ""_ns, false,
                                        getter_AddRefs(dummyNull));
-}
-
-NS_IMETHODIMP
-nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
-  NS_ENSURE_ARG_POINTER(aCmdLine);
-
-  nsresult rv;
-  int32_t found, end, count;
-  nsAutoString uristr;
-  bool composeShouldHandle = true;
-
-  rv = aCmdLine->FindFlag(u"compose"_ns, false, &found);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-#ifndef MOZ_SUITE
-  // MAC OS X passes in -url mailto:mscott@mozilla.org into the command line
-  // instead of -compose.
-  if (found == -1) {
-    rv = aCmdLine->FindFlag(u"url"_ns, false, &found);
-    NS_ENSURE_SUCCESS(rv, rv);
-    // we don't want to consume the argument for -url unless we're sure it is a
-    // mailto url and we'll figure that out shortly.
-    composeShouldHandle = false;
-  }
-#endif
-
-  if (found == -1) return NS_OK;
-
-  end = found;
-
-  rv = aCmdLine->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (count > found + 1) {
-    aCmdLine->GetArgument(found + 1, uristr);
-    if (StringBeginsWith(uristr, u"mailto:"_ns) ||
-        StringBeginsWith(uristr, u"preselectid="_ns) ||
-        StringBeginsWith(uristr, u"to="_ns) ||
-        StringBeginsWith(uristr, u"cc="_ns) ||
-        StringBeginsWith(uristr, u"bcc="_ns) ||
-        StringBeginsWith(uristr, u"newsgroups="_ns) ||
-        StringBeginsWith(uristr, u"subject="_ns) ||
-        StringBeginsWith(uristr, u"format="_ns) ||
-        StringBeginsWith(uristr, u"body="_ns) ||
-        StringBeginsWith(uristr, u"attachment="_ns) ||
-        StringBeginsWith(uristr, u"message="_ns) ||
-        StringBeginsWith(uristr, u"from="_ns)) {
-      composeShouldHandle = true;  // the -url argument looks like mailto
-      end++;
-      // mailto: URIs are frequently passed with spaces in them. They should be
-      // escaped with %20, but we hack around broken clients. See bug 231032.
-      while (end + 1 < count) {
-        nsAutoString curarg;
-        aCmdLine->GetArgument(end + 1, curarg);
-        if (!curarg.IsEmpty() && curarg.First() == '-') break;
-
-        uristr.Append(' ');
-        uristr.Append(curarg);
-        ++end;
-      }
-    } else {
-      uristr.Truncate();
-    }
-  }
-  if (composeShouldHandle) {
-    nsCOMPtr<nsIMsgIdentity> identity;
-    GetDefaultIdentity(getter_AddRefs(identity));
-    if (!identity) {
-      // No account yet; can't compose.
-      return NS_OK;
-    }
-
-    aCmdLine->RemoveArguments(found, end);
-
-    nsCOMPtr<nsIWindowWatcher> wwatch =
-        mozilla::components::WindowWatcher::Service();
-    nsCOMPtr<nsISupportsString> arg(
-        do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID));
-    if (arg) arg->SetData(uristr);
-
-    nsCOMPtr<nsIMutableArray> params(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    params->AppendElement(arg);
-    params->AppendElement(aCmdLine);
-
-    nsCOMPtr<mozIDOMWindowProxy> opened;
-    wwatch->OpenWindow(nullptr, DEFAULT_CHROME, "_blank"_ns,
-                       "chrome,dialog=no,all"_ns, params,
-                       getter_AddRefs(opened));
-
-    aCmdLine->SetPreventDefault(true);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgComposeService::GetHelpInfo(nsACString& aResult) {
-  // clang-format off
-  aResult.AssignLiteral(
-    "  -compose [ <options> ] Compose a mail or news message. Options are specified\n"
-    "                     as string \"option='value,...',option=value,...\" and\n"
-    "                     include: from, to, cc, bcc, newsgroups, subject, body,\n"
-    "                     message (file), attachment (file), format (html | text).\n"
-    "                     Example: \"to=john@example.com,subject='Dinner tonight?'\"\n");
-  return NS_OK;
-  // clang-format on
 }

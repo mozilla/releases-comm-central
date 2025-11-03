@@ -272,12 +272,7 @@ export class MessengerContentHandler {
       return;
     }
 
-    try {
-      var remoteCommand = cmdLine.handleFlagWithParam("remote", true);
-    } catch (e) {
-      throw Components.Exception("", Cr.NS_ERROR_ABORT);
-    }
-
+    const remoteCommand = cmdLine.handleFlagWithParam("remote", true);
     if (remoteCommand) {
       const a = /^\s*(\w+)\(([^\)]*)\)\s*$/.exec(remoteCommand);
       const remoteVerb = a[1].toLowerCase();
@@ -405,6 +400,37 @@ export class MessengerContentHandler {
       cmdLine.preventDefault = true;
     }
 
+    if (cmdLine.findFlag("compose", false) != -1) {
+      // E.g. -compose "to=john@example.com,subject='Dinner tonight?'"
+      const uri = cmdLine.handleFlagWithParam("compose", false);
+      const arg = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
+      arg.data = uri;
+      const args = Cc["@mozilla.org/array;1"].createInstance(
+        Ci.nsIMutableArray
+      );
+      args.appendElement(arg);
+      args.appendElement(cmdLine);
+
+      // First ensure main window is opened earlier than compose window, to
+      // ensure proper initialization.
+      getOrOpen3PaneWindow().then(win => {
+        if (!MailServices.accounts.defaultAccount) {
+          // No account yet; can't compose.
+          return;
+        }
+        Services.ww.openWindow(
+          win,
+          "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+          "_blank",
+          "chrome,dialog=no,all",
+          args
+        );
+      });
+      cmdLine.preventDefault = true;
+    }
+
     if (cmdLine.handleFlag("keymanager", false)) {
       getOrOpen3PaneWindow().then(win => win.openKeyManager());
       cmdLine.preventDefault = true;
@@ -419,14 +445,16 @@ export class MessengerContentHandler {
 
     // The URI might be passed as the argument to the file parameter
     let uri = cmdLine.handleFlagWithParam("file", false);
-    // macOS passes `-url mid:<msgid>` into the command line, drop the -url flag.
+
+    // macOS passes e.g. `-url mid:<msgid>` and `-url mailto:foo@example.com`
+    // into the command line, drop the -url flag.
     cmdLine.handleFlag("url", false);
 
-    var count = cmdLine.length;
+    const count = cmdLine.length;
     if (count) {
-      var i = 0;
+      let i = 0;
       while (i < count) {
-        var curarg = cmdLine.getArgument(i);
+        const curarg = cmdLine.getArgument(i);
         if (!curarg.startsWith("-")) {
           break;
         }
@@ -441,11 +469,12 @@ export class MessengerContentHandler {
       if (i < count) {
         uri = cmdLine.getArgument(i);
 
-        // mailto: URIs are frequently passed with spaces in them. They should be
-        // escaped into %20, but we hack around bad clients, see bug 231032
+        // For mailto: incorporate all subsequent arguments that
+        // come after it since mailto urls can have arbitrary unencoded spaces.
+        // E.g. `mailto:foo@example.com?subject=test and stuff`
         if (uri.startsWith("mailto:")) {
           while (++i < count) {
-            var testarg = cmdLine.getArgument(i);
+            const testarg = cmdLine.getArgument(i);
             if (testarg.startsWith("-")) {
               break;
             }
@@ -707,44 +736,43 @@ export class MessengerContentHandler {
     }
   }
 
-  /** @see {nsICommandLineValidator} */
+  /**
+   * @param {nsICommandLine} cmdLine
+   * @see {nsICommandLineValidator}
+   */
   validate(cmdLine) {
-    var osintFlagIdx = cmdLine.findFlag("osint", false);
+    const osintFlagIdx = cmdLine.findFlag("osint", false);
     if (osintFlagIdx == -1) {
       return;
     }
 
     // Other handlers may use osint so only handle the osint flag if the mail
     // or compose flag is also present and the command line is valid.
-    var mailFlagIdx = cmdLine.findFlag("mail", false);
-    var composeFlagIdx = cmdLine.findFlag("compose", false);
+    const mailFlagIdx = cmdLine.findFlag("mail", false);
+    const composeFlagIdx = cmdLine.findFlag("compose", false);
     if (mailFlagIdx == -1 && composeFlagIdx == -1) {
       return;
     }
 
     // If both flags are present use the first flag found so the command line
     // length test will fail.
+    let actionFlagIdx;
     if (mailFlagIdx > -1 && composeFlagIdx > -1) {
-      var actionFlagIdx =
+      actionFlagIdx =
         mailFlagIdx > composeFlagIdx ? composeFlagIdx : mailFlagIdx;
     } else {
       actionFlagIdx = mailFlagIdx > -1 ? mailFlagIdx : composeFlagIdx;
     }
 
     if (actionFlagIdx && osintFlagIdx > -1) {
-      var param = cmdLine.getArgument(actionFlagIdx + 1);
+      const param = cmdLine.getArgument(actionFlagIdx + 1);
       if (
         cmdLine.length != actionFlagIdx + 2 ||
         /thunderbird.url.(mailto|news):/.test(param)
       ) {
-        throw Components.Exception("", Cr.NS_ERROR_ABORT);
+        throw Components.Exception("Bad command line args.", Cr.NS_ERROR_ABORT);
       }
-      cmdLine.handleFlag("osint", false);
     }
-  }
-
-  openInExternal(uri) {
-    lazy.openLinkExternally(uri, { addToHistory: false });
   }
 
   /** @see {nsIContentHandler} */
@@ -755,10 +783,16 @@ export class MessengerContentHandler {
           .getService(Ci.nsIWebNavigationInfo)
           .isTypeSupported(aContentType, null)
       ) {
-        throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
+        throw Components.Exception(
+          `Unsupported type: ${aContentType}`,
+          Cr.NS_ERROR_WONT_HANDLE_CONTENT
+        );
       }
     } catch (e) {
-      throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
+      throw Components.Exception(
+        `Won't handle type: ${aContentType}`,
+        Cr.NS_ERROR_WONT_HANDLE_CONTENT
+      );
     }
 
     aRequest.QueryInterface(Ci.nsIChannel);
@@ -771,7 +805,7 @@ export class MessengerContentHandler {
       throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
     }
 
-    this.openInExternal(aRequest.URI);
+    lazy.openLinkExternally(aRequest.URI, { addToHistory: false });
     aRequest.cancel(Cr.NS_BINDING_ABORTED);
   }
 
@@ -781,6 +815,11 @@ export class MessengerContentHandler {
     "  -addressbook       Go to the address book tab.\n" +
     "  -calendar          Go to the calendar tab.\n" +
     "  -options           Go to the settings tab.\n" +
+    "  -compose [ <options> ] Compose a mail or news message. Options are specified\n" +
+    "    as string \"option='value,...',option=value,...\" and\n" +
+    "    include: from, to, cc, bcc, newsgroups, subject, body,\n" +
+    "    message (file), attachment (file), format (html | text).\n" +
+    "    Example: \"to=john@example.com,subject='Dinner tonight?'\"\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n" +
     "  -keymanager        Open the OpenPGP Key Manager.\n";
