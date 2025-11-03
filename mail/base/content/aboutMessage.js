@@ -39,6 +39,7 @@ const messengerBundle = Services.strings.createBundle(
 );
 
 const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const forcedColorsQuery = window.matchMedia("(forced-colors)");
 
 var gMessage, gMessageURI;
 var autodetectCharset;
@@ -183,6 +184,7 @@ window.addEventListener("DOMContentLoaded", event => {
 
   window.addEventListener("MsgLoaded", msgObserver);
   prefersDarkQuery.addEventListener("change", msgObserver);
+  forcedColorsQuery.addEventListener("change", msgObserver);
 
   const disableDarkReaderToggle = document.getElementById("disableDarkReader");
   disableDarkReaderToggle.checked = !Services.prefs.getBoolPref(
@@ -224,6 +226,7 @@ window.addEventListener("unload", () => {
   Services.obs.removeObserver(msgObserver, "ipc:network:set-offline");
   window.removeEventListener("MsgLoaded", msgObserver);
   prefersDarkQuery.removeEventListener("change", msgObserver);
+  forcedColorsQuery.removeEventListener("change", msgObserver);
   gViewWrapper?.close();
 });
 

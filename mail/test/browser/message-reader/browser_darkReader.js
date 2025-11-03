@@ -243,7 +243,6 @@ add_task(async function test_darkReaderToggleVisibility() {
     set: [["ui.useAccessibilityTheme", 0]],
   });
   await toggle_theme(lightTheme, true);
-
   await msgLoaded;
 
   const toggle = aboutMessage.document.querySelector("#darkReaderToggle");
@@ -280,7 +279,7 @@ add_task(async function test_darkReaderToggleVisibility() {
 
   Assert.ok(
     BrowserTestUtils.isVisible(toggle),
-    "Dark reader toggle is vidible in dark theme with high contrast disabled"
+    "Dark reader toggle is visible in dark theme with high contrast disabled"
   );
 
   await SpecialPowers.popPrefEnv();
