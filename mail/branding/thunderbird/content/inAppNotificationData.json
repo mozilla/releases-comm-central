@@ -1,19 +1,5 @@
 [
   {
-    "id": "PREBAKED-ESR25",
-    "start_at": "2025-07-01T00:00:00.000Z",
-    "end_at": "2025-11-02T23:59:59.000Z",
-    "title": "Prebaked Appeal ESR25",
-    "description": "",
-    "URL": "https://updates.thunderbird.net/%LOCALE%/thunderbird/appeal/?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%&ID=PREBAKED-ESR25",
-    "CTA": "",
-    "severity": 3,
-    "type": "donation_tab",
-    "targeting": {
-      "percent_chance": 100
-    }
-  },
-  {
     "id": "PREBAKED-EoY25-1",
     "start_at": "2025-11-03T00:00:00.000Z",
     "end_at": "2025-11-30T23:59:59.000Z",
