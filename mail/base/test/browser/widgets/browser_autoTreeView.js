@@ -111,6 +111,23 @@ add_task(async function () {
   function checkTableRows(expectedContent) {
     const tableRows = table.tBodies[1].rows;
     Assert.equal(tableRows.length, 7);
+
+    const colourColumn = expectedContent[0].findIndex(c =>
+      ["red", "orange", "yellow", "green", "blue", "indigo", "violet"].includes(
+        c
+      )
+    );
+    const continentColumn = expectedContent[0].findIndex(c =>
+      [
+        "north america",
+        "south america",
+        "antarctica",
+        "australia",
+        "asia",
+        "europe",
+        "africa",
+      ].includes(c)
+    );
     for (let i = 0; i < 7; i++) {
       Assert.deepEqual(
         Array.from(tableRows[i].cells, c => c.textContent),
@@ -120,13 +137,45 @@ add_task(async function () {
         Array.from(tableRows[i].cells, c => c.hidden),
         Array.from(expectedContent[i], c => !c)
       );
+
+      // Cells in the colour column should contain an image element.
+      const colourCell = tableRows[i].cells[colourColumn];
+      Assert.equal(colourCell.childElementCount, 1);
+      const colourCellInner = colourCell.firstElementChild;
+      Assert.ok(colourCellInner.matches("div.container"));
+      Assert.equal(colourCellInner.childElementCount, 2);
+      Assert.ok(colourCellInner.firstElementChild.matches("img.icon"));
+      Assert.ok(colourCellInner.lastElementChild.matches("div"));
+
       // The row containing "antarctica" has the property "uninhabited".
       // The continent column is sometimes hidden, so check against "yellow"
       // instead, which is in the row and not hidden during this test.
       Assert.equal(
         tableRows[i].dataset.properties,
-        expectedContent[i].includes("yellow") ? "uninhabited" : ""
+        expectedContent[i].includes("yellow")
+          ? "yellow uninhabited"
+          : expectedContent[i][colourColumn]
       );
+
+      // Cells in the continent column should contain a twisty button. For all
+      // rows except the one containing "australia", it should be hidden.
+      // Twisty behaviour is tested in browser_treeView.js.
+      if (continentColumn > -1) {
+        const continentCell = tableRows[i].cells[continentColumn];
+        Assert.equal(continentCell.childElementCount, 1);
+        const continentCellInner = continentCell.firstElementChild;
+        Assert.ok(continentCellInner.matches("div.container"));
+        Assert.equal(continentCellInner.childElementCount, 2);
+        const [twisty, text] = continentCellInner.children;
+        Assert.ok(twisty.matches("button.twisty"));
+        Assert.ok(text.matches("div"));
+
+        if (expectedContent[i][continentColumn] == "australia") {
+          Assert.ok(BrowserTestUtils.isVisible(twisty));
+        } else {
+          Assert.ok(BrowserTestUtils.isHidden(twisty));
+        }
+      }
     }
   }
   async function checkTableRowsA11y(expectedColumns, expectedTitles) {
@@ -608,12 +657,18 @@ add_task(async function () {
 
   // Restore columns.
 
+  const restoreEvent = BrowserTestUtils.waitForEvent(
+    document.body,
+    "restore-columns",
+    true
+  );
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
   checkPickerLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
   checkPickerState([true, false, true, true, false]);
   pickerPopup.activateItem(pickerPopup.querySelector("#restoreColumnOrder"));
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+  await restoreEvent;
 
   checkPersistedValue("columns", "");
   checkHeaderLabels(["colour", "continent", "sin", "wonder", "dwarf"]);

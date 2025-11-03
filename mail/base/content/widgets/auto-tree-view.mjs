@@ -75,9 +75,11 @@ class AutoTreeView extends TreeView {
         this.sortBy(event.detail.column);
         break;
       case "uidensitychange":
-        this._rowElementClass.ROW_HEIGHT =
-          this._rowElementClass.ROW_HEIGHTS[UIDensity.prefValue];
-        this.reset();
+        if (this._rowElementClass) {
+          this._rowElementClass.ROW_HEIGHT =
+            this._rowElementClass.ROW_HEIGHTS[UIDensity.prefValue];
+          this.reset();
+        }
         break;
       case "keydown": {
         let modifier = event.ctrlKey;
@@ -429,14 +431,47 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
         continue;
       }
 
+      cell.replaceChildren();
+      cell.removeAttribute("aria-label");
+      cell.title = "";
+
       const text = this.view.getCellText(this._index, column.id);
-      cell.textContent = text;
-      if (column.l10n.cell) {
+      let container = cell;
+      if (column.twisty || column.cellIcon) {
+        container = cell.appendChild(document.createElement("div"));
+        container.classList.add("container");
+      }
+      if (column.twisty) {
+        container.style.paddingInlineStart =
+          this.view.getLevel(this._index) * 16 + "px";
+        const twistyButton = container.appendChild(
+          document.createElement("button")
+        );
+        twistyButton.type = "button";
+        twistyButton.classList.add("button", "button-flat", "twisty");
+        twistyButton.ariaHidden = "hidden";
+        twistyButton.tabIndex = -1;
+        const twistyIcon = twistyButton.appendChild(
+          document.createElement("img")
+        );
+        twistyIcon.classList.add("twisty-icon");
+      }
+      if (column.cellIcon) {
+        container
+          .appendChild(document.createElement("img"))
+          .classList.add("icon");
+      }
+      if (container.childElementCount) {
+        const div = container.appendChild(document.createElement("div"));
+        div.textContent = text;
+      } else {
+        container.textContent = text;
+      }
+      if (column.l10n?.cell) {
         document.l10n.setAttributes(cell, column.l10n.cell, { title: text });
         continue;
       }
 
-      cell.removeAttribute("aria-label");
       cell.title = text;
     }
 

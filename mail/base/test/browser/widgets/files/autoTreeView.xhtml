@@ -10,6 +10,32 @@
       rel="stylesheet"
       href="chrome://messenger/skin/shared/tree-listbox.css"
     />
+    <style>
+      img.icon {
+        content: var(--icon-heart);
+        tr[data-properties~="red"] &amp; {
+          color: red;
+        }
+        tr[data-properties~="orange"] &amp; {
+          color: orange;
+        }
+        tr[data-properties~="yellow"] &amp; {
+          color: yellow;
+        }
+        tr[data-properties~="green"] &amp; {
+          color: green;
+        }
+        tr[data-properties~="blue"] &amp; {
+          color: blue;
+        }
+        tr[data-properties~="indigo"] &amp; {
+          color: indigo;
+        }
+        tr[data-properties~="violet"] &amp; {
+          color: violet;
+        }
+      }
+    </style>
 
     <link rel="localization" href="messenger/treeView.ftl" />
 

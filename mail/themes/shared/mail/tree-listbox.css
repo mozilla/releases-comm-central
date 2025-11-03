@@ -659,6 +659,61 @@ table[is="tree-view-table"] {
       outline: 1px dashed var(--focus-outline-color);
       outline-offset: -2px;
     }
+
+    & .container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      max-height: inherit;
+      box-sizing: border-box;
+
+      tr:not(.children) & .twisty {
+        visibility: hidden;
+      }
+
+      & .twisty {
+        width: 16px;
+        height: 16px;
+        min-height: auto;
+        min-width: auto;
+        flex-shrink: 0;
+        padding: 0;
+        margin: 0;
+        background-color: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      & .twisty-icon {
+        width: 12px;
+        height: 12px;
+        content: var(--icon-nav-down-sm);
+
+        @media (prefers-reduced-motion: no-preference) {
+          transition: transform 200ms ease;
+        }
+      }
+
+      tr.children.collapsed & .twisty-icon {
+        transform: rotate(-90deg);
+
+        &:dir(rtl) {
+          transform: rotate(90deg);
+        }
+      }
+
+      & .icon {
+        margin-inline-start: 3px;
+      }
+
+      & div {
+        margin-inline-start: 6px;
+        line-height: 1.5;
+      }
+    }
   }
 }
 
