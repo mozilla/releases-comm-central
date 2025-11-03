@@ -389,27 +389,49 @@ class CertificateCheck extends HTMLElement {
    * Add an exception for the certificate.
    */
   #addException() {
-    certOverrideService.rememberValidityOverride(
-      this.hostname,
-      this.port,
-      {},
-      this.#certificate,
-      !Services.prefs.getBoolPref("security.certerrors.permanentOverride", true)
-    );
-    Glean.mail.certificateExceptionAdded.record({
-      error_category: this.#securityInfo.errorCodeString,
-      protocol: this.type,
-      port: this.port,
-      ui: "certificate-check",
-    });
+    const params = {
+      exceptionAdded: false,
+      securityInfo: this.#securityInfo,
+      prefetchCert: true,
+      location: this.hostname + ":" + this.port,
+    };
+    const dialog = Services.wm
+      .getMostRecentWindow("")
+      .openDialog(
+        "chrome://pippki/content/exceptionDialog.xhtml",
+        "",
+        "chrome,centerscreen,dependent",
+        params
+      );
+    const onWindowClosed = win => {
+      if (win == dialog.opener) {
+        // Avoid leaking if this window closes before the exception dialog.
+        dialog.close();
+        return;
+      } else if (win != dialog) {
+        return;
+      }
+      Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+      if (!params.exceptionAdded) {
+        return;
+      }
 
-    document.l10n.setAttributes(
-      this.statusLabel,
-      "certificate-check-exception-added"
-    );
-    this.addExceptionButton.hidden = true;
-    this.removeExceptionButton.hidden = false;
-    this.#hasException = true;
+      document.l10n.setAttributes(
+        this.statusLabel,
+        "certificate-check-exception-added"
+      );
+      this.addExceptionButton.hidden = true;
+      this.removeExceptionButton.hidden = false;
+      this.#hasException = true;
+
+      Glean.mail.certificateExceptionAdded.record({
+        error_category: this.#securityInfo.errorCodeString,
+        protocol: this.type,
+        port: this.port,
+        ui: "certificate-check",
+      });
+    };
+    Services.obs.addObserver(onWindowClosed, "domwindowclosed");
   }
 
   /**

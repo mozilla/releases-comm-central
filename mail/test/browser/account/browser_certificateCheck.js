@@ -719,11 +719,16 @@ async function fetchCert(
  * @param {nsIX509Cert} certificate - The certificate to test.
  */
 async function addException(certCheck, certificate) {
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    "extra1",
+    "chrome://pippki/content/exceptionDialog.xhtml"
+  );
   EventUtils.synthesizeMouseAtCenter(
     certCheck.addExceptionButton,
     {},
     certCheck.ownerGlobal
   );
+  await dialogPromise;
 
   const isTemporary = {};
   Assert.ok(
