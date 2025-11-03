@@ -122,10 +122,11 @@ add_task(async function test_sounds() {
 });
 
 add_task(async function testMessageStylePreview() {
-  await openNewPrefsTab("paneChat", "chatPaneCategory");
   const conversationLoad = TestUtils.topicObserved("conversation-loaded");
+  await openNewPrefsTab("paneChat", "chatPaneCategory");
   const [subject] = await conversationLoad;
   do {
+    info(`Will wait for ${subject.getPendingMessagesCount()} pending msgs`);
     await BrowserTestUtils.waitForEvent(subject, "MessagesDisplayed");
   } while (subject.getPendingMessagesCount() > 0);
   const messageParent = subject.contentChatNode;
