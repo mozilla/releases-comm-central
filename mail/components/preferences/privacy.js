@@ -136,6 +136,8 @@ var gPrivacyPane = {
 
     await DoHConfigController.init();
     this.initDoH();
+
+    this.initE2eeKeyServers();
   },
 
   /**
@@ -943,6 +945,99 @@ var gPrivacyPane = {
         gPrivacyPane.updateDoHStatus();
         break;
     }
+  },
+
+  initE2eeKeyServers() {
+    const keyServerList = document.getElementById("keyServerList");
+    const keyServers = Services.prefs
+      .getStringPref("mail.openpgp.keyserver_list")
+      .split(/,\s*/)
+      .filter(Boolean);
+    const template = document.getElementById("keyServerListItem");
+    keyServerList.replaceChildren(
+      template,
+      ...keyServers.map(server => {
+        const item = template.content.cloneNode(true).firstElementChild;
+        item.querySelector(".checkbox-label").textContent = server;
+        const input = item.querySelector("input");
+        input.value = server;
+        input.addEventListener("change", event => {
+          const value = event.target.value;
+          let servers = Services.prefs
+            .getStringPref("mail.openpgp.keyserver_list")
+            .split(/,\s*/)
+            .filter(Boolean);
+          if (!event.target.checked) {
+            servers = servers.filter(s => s != value);
+          } else {
+            servers.push(value);
+          }
+          Services.prefs.setStringPref(
+            "mail.openpgp.keyserver_list",
+            servers.join(",")
+          );
+        });
+        return item;
+      })
+    );
+  },
+
+  /**
+   * Put up UI to request the URL to a key server to add.
+   *
+   * @param {string} [value="hkps://"] - Value to prefill the dialog input field.
+   */
+  async addKeyServer(value = "hkps://") {
+    const input = { value };
+    const [title, text] = await document.l10n.formatValues([
+      "email-e2ee-key-servers-add-title",
+      "email-e2ee-key-servers-add-text",
+    ]);
+    const result = Services.prompt.prompt(window, title, text, input, null, {
+      value: false,
+    });
+    input.value = input.value.trim();
+    if (!result || !input.value || input.value == "hkps://") {
+      return;
+    }
+    let u;
+    try {
+      if (!/^(vks:|hkp:|hkps:)\/\//.test(input.value)) {
+        throw new Error(`Invalid protocol: ${input.value}`);
+      }
+      u = new URL(input.value);
+      await fetch(
+        u.protocol != "hkp:" ? `https://${u.host}` : `http://${u.host}`
+      );
+    } catch (e) {
+      const [failedTitle, failedText] = await document.l10n.formatValues([
+        "email-e2ee-key-servers-add-failed-title",
+        "email-e2ee-key-servers-add-failed-text",
+      ]);
+      Services.prompt.alert(window, failedTitle, failedText);
+      return;
+    }
+
+    const serverURL = `${u.protocol}//${u.host}`;
+
+    const keyServers = Services.prefs
+      .getStringPref("mail.openpgp.keyserver_list")
+      .split(/,\s*/)
+      .filter(Boolean);
+    if (!keyServers.includes(serverURL)) {
+      keyServers.push(serverURL);
+    }
+
+    Services.prefs.setStringPref(
+      "mail.openpgp.keyserver_list",
+      keyServers.join(",")
+    );
+    this.initE2eeKeyServers();
+  },
+
+  resetKeyServerList() {
+    Services.prefs.clearUserPref("mail.openpgp.keyserver_list");
+    this.initE2eeKeyServers();
   },
 };
 

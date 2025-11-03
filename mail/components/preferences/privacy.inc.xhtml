@@ -610,6 +610,35 @@
     </html:fieldset>
     </html:div>
 
+    <html:div data-category="panePrivacy">
+    <html:fieldset id="emailE2eeKeyServers" data-category="panePrivacy">
+      <html:legend data-l10n-id="email-e2ee-key-servers-legend"></html:legend>
+      <html:p data-l10n-id="email-e2ee-key-servers-intro"></html:p>
+      <html:hr />
+      <html:p data-l10n-id="email-e2ee-key-servers-use-following"></html:p>
+      <html:ul id="keyServerList" class="indent">
+        <html:template id="keyServerListItem">
+          <html:li>
+            <html:label>
+              <html:input type="checkbox" checked="checked"/>
+              <html:span class="checkbox-label"></html:span>
+            </html:label>
+          </html:li>
+        </html:template>
+      </html:ul>
+      <html:button id="keyServerAdd"
+                   type="button"
+                   data-l10n-id="email-e2ee-key-servers-add"
+                   onclick="gPrivacyPane.addKeyServer();">
+      </html:button>
+      <html:button id="keyServerReset"
+                   type="button"
+                   data-l10n-id="email-e2ee-key-servers-reset"
+                   onclick="gPrivacyPane.resetKeyServerList();">
+     </html:button>
+    </html:fieldset>
+    </html:div>
+
     <!-- DoH -->
     <hbox id="DoHCategory"
           class="subcategory"
@@ -779,5 +808,4 @@
         </vbox>
       </vbox>
     </html:div>
-
   </html:template>

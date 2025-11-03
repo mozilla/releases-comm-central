@@ -978,6 +978,24 @@ preferences-doh-url-custom =
     .label = Custom
     .accesskey = C
 
+## Keyservers
+
+email-e2ee-key-servers-legend = OpenPGP Keyservers
+
+email-e2ee-key-servers-intro =
+    A keyserver receives and then serves existing public keys to users.
+    It allows you to publish your public key and find and refresh keys of others.
+
+email-e2ee-key-servers-use-following = Use the following keyservers:
+
+email-e2ee-key-servers-add = Add…
+email-e2ee-key-servers-reset = Reset Server List
+
+email-e2ee-key-servers-add-title = Add Keyserver
+email-e2ee-key-servers-add-text = Enter the URL of the keyserver to add.
+email-e2ee-key-servers-add-failed-title = Adding Keyserver Failed
+email-e2ee-key-servers-add-failed-text = Could not connect to a keyserver at the provided URL.
+
 ## Chat Tab
 
 startup-label =

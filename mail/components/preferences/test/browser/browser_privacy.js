@@ -882,3 +882,177 @@ add_task(async function testSecurityDialogs() {
   );
   await closePrefsTab();
 });
+
+/**
+ * Tests the keyserver settings.
+ */
+add_task(async function testKeyServers() {
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "panePrivacy",
+    "privacyPasswordsCategory"
+  );
+
+  prefsDocument
+    .getElementById("emailE2eeKeyServers")
+    .scrollIntoView({ block: "start", behavior: "instant" });
+  const keyServerList = prefsDocument.getElementById("keyServerList");
+  await BrowserTestUtils.waitForMutationCondition(
+    keyServerList,
+    {
+      childList: true,
+    },
+    () => keyServerList.children.length == 3
+  );
+
+  // Initial state based on "mail.openpgp.keyserver_list".
+
+  const keyServers = Services.prefs
+    .getStringPref("mail.openpgp.keyserver_list")
+    .split(/,\s*/);
+  Assert.equal(keyServers.length, 2, "should start with 2 servers");
+
+  // Toggle a checkbox (to remove server from pref).
+
+  let prefChanged = TestUtils.waitForPrefChange(
+    "mail.openpgp.keyserver_list",
+    value => !value.split(/,\s*/).includes("vks://keys.openpgp.org"),
+    "waiting for vks://keys.openpgp.org to get removed from pref"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    keyServerList.querySelector("input[type=checkbox]"),
+    {},
+    prefsWindow
+  );
+  await prefChanged;
+  await TestUtils.waitForTick();
+  info("Uncheck server removed it from the list.");
+
+  // Reset list.
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("keyServerReset"),
+    {},
+    prefsWindow
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    keyServerList,
+    { childList: true },
+    () => keyServerList.querySelectorAll("input[type=checkbox]:checked").length,
+    "waiting for servers to all be checked, after reset"
+  );
+  await TestUtils.waitForTick();
+  Assert.ok(
+    Services.prefs.prefHasDefaultValue("mail.openpgp.keyserver_list"),
+    "should have default servers after reset"
+  );
+
+  // Add a server.
+
+  prefChanged = TestUtils.waitForPrefChange(
+    "mail.openpgp.keyserver_list",
+    value => value.split(/,\s*/).includes("vks://test1.example.com"),
+    "waiting for mail.openpgp.keyserver_list pref to add vks://test1.example.com"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("keyServerAdd"),
+    {},
+    prefsWindow
+  );
+  const addPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        const input = win.document.querySelector("input");
+        input.value = "vks://test1.example.com";
+        win.document.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
+  await addPromise;
+  await prefChanged;
+  info("Server was added to prefs");
+
+  await BrowserTestUtils.waitForMutationCondition(
+    keyServerList,
+    { childList: true },
+    () => keyServerList.querySelectorAll(":scope > li").length == 3
+  );
+  Assert.equal(
+    3,
+    keyServerList.querySelectorAll(":scope > li").length,
+    "should have correct servers listed after add"
+  );
+  Assert.equal(
+    keyServerList
+      .querySelector(`li:has(input[value="vks://test1.example.com"]:checked)`)
+      .textContent.trim(),
+    "vks://test1.example.com",
+    "Should show the new server in the list"
+  );
+  await TestUtils.waitForTick();
+  info("UI appears correct after addition.");
+
+  // Test inputting invalid data.
+  const addFailPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        const input = win.document.querySelector("input");
+        input.value = "mjuschpush";
+        const alertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+          "",
+          "chrome://global/content/commonDialog.xhtml",
+          {
+            async callback(win2) {
+              win2.document.querySelector("dialog").acceptDialog();
+            },
+          }
+        );
+        win.document.querySelector("dialog").acceptDialog();
+        await alertPromise; // Got alerted about bad data.
+        info("Got alerted about bad data.");
+        await TestUtils.waitForTick();
+      },
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("keyServerAdd"),
+    {},
+    prefsWindow
+  );
+  await addFailPromise; // Input dialog closed;
+  info("Tried adding junk");
+
+  await TestUtils.waitForTick();
+
+  // Reset list.
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("keyServerReset"),
+    {},
+    prefsWindow
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    keyServerList,
+    { childList: true },
+    () => keyServerList.querySelectorAll(":scope > li").length == 2
+  );
+  Assert.equal(
+    2,
+    keyServerList.querySelectorAll(":scope > li").length,
+    "should have initial servers listed after reset"
+  );
+  await TestUtils.waitForTick();
+  Assert.ok(
+    Services.prefs.prefHasDefaultValue("mail.openpgp.keyserver_list"),
+    "should have default servers after reset"
+  );
+  Assert.ok(
+    !keyServerList.querySelector(`li input[value="vks://test1.example.com"]`),
+    "Should no longer have the extra server in the DOM after the reset"
+  );
+
+  await closePrefsTab();
+});
