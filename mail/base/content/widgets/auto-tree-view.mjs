@@ -422,6 +422,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
   fillRow() {
     super.fillRow();
 
+    const viewRow = this.view.rowAt(this._index);
     this.dataset.properties = this.view.getRowProperties(this._index);
 
     for (const column of this.list.table.columns) {
@@ -434,6 +435,18 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
       cell.replaceChildren();
       cell.removeAttribute("aria-label");
       cell.title = "";
+
+      if (column.checkbox) {
+        const checkbox = cell.appendChild(document.createElement("input"));
+        checkbox.type = "checkbox";
+        checkbox.tabIndex = -1;
+        checkbox.checked = viewRow.hasProperty(column.checkbox);
+        checkbox.addEventListener("change", () => {
+          viewRow.toggleProperty(column.checkbox, checkbox.checked);
+          this.dataset.properties = this.view.getRowProperties(this._index);
+        });
+        continue;
+      }
 
       const text = this.view.getCellText(this._index, column.id);
       let container = cell;

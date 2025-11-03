@@ -121,6 +121,10 @@ dwarf-header = Dwarf
   .title = Sort by Dwarf
 dwarf-menuitem =
   .label = Dwarf
+selected-header = Selected
+  .title = Selected
+selected-menuitem =
+  .label = Selected
 `,
     },
   ]),
@@ -164,6 +168,17 @@ tree.defaultColumns = [
     id: "dwarf",
     l10n: { header: "dwarf-header", menuitem: "dwarf-menuitem" },
     hidden: true,
+  },
+  {
+    id: "selected",
+    l10n: {
+      header: "selected-header",
+      menuitem: "selected-menuitem",
+    },
+    width: 40,
+    picker: false,
+    sortable: false,
+    checkbox: "test",
   },
 ];
 tree.view = new AutoTreeView();

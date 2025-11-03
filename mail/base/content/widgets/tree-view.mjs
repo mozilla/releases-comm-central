@@ -28,6 +28,9 @@ const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
  *   might cause problems for CSS or JS identifiers.
  * @property {boolean} [cellIcon=false] - Cell content contains an
  *   <img class="icon"> element as well as any text content.
+ * @property {string} [checkbox] - Cell content is an <input type="checkbox">
+ *   element, which is checked if the row has the named property. Toggling the
+ *   checkbox element adds or removes the row property as appropriate.
  * @property {boolean} [custom=false] - Custom column for about:3pane.
  * @property {boolean} [delete=false] - Column handles delete actions.
  * @property {boolean} [hidden=false] - Column is hidden.

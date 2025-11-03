@@ -32,7 +32,7 @@ add_task(async function () {
   // First we'll check that the header was constructed correctly.
 
   let headerRow = table.tHead.rows[0];
-  Assert.equal(headerRow.childElementCount, 6);
+  Assert.equal(headerRow.childElementCount, 7);
 
   let headerButtons;
   function updateHeaderButtons() {
@@ -62,8 +62,15 @@ add_task(async function () {
       }
     }
   }
-  checkHeaderLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
-  checkHeaderVisibility([150, true, false, false, false]);
+  checkHeaderLabels([
+    "colour",
+    "continent",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, true, false, false, false, true]);
 
   // Now the column picker.
 
@@ -98,11 +105,21 @@ add_task(async function () {
         pickerItems[i].getAttribute("checked"),
         expectedChecked[i] ? "true" : null
       );
-      Assert.equal(pickerItems[i].disabled, pickerItems[i].value == "colour");
+      Assert.equal(
+        pickerItems[i].disabled,
+        ["colour", "selected"].includes(pickerItems[i].value)
+      );
     }
   }
-  checkPickerLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
-  checkPickerState([true, true, false, false, false]);
+  checkPickerLabels([
+    "colour",
+    "continent",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
+  checkPickerState([true, true, false, false, false, true]);
   pickerPopup.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
 
@@ -128,14 +145,16 @@ add_task(async function () {
         "africa",
       ].includes(c)
     );
+    const checkboxColumn = expectedContent[0].findIndex(c => c === null);
+    Assert.equal(checkboxColumn, 5);
     for (let i = 0; i < 7; i++) {
       Assert.deepEqual(
         Array.from(tableRows[i].cells, c => c.textContent),
-        expectedContent[i]
+        expectedContent[i].map(c => c ?? "")
       );
       Assert.deepEqual(
         Array.from(tableRows[i].cells, c => c.hidden),
-        Array.from(expectedContent[i], c => !c)
+        expectedContent[i].map(c => c === "")
       );
 
       // Cells in the colour column should contain an image element.
@@ -176,6 +195,10 @@ add_task(async function () {
           Assert.ok(BrowserTestUtils.isHidden(twisty));
         }
       }
+
+      const checkboxCell = tableRows[i].cells[checkboxColumn];
+      Assert.equal(checkboxCell.childElementCount, 1);
+      Assert.ok(checkboxCell.children[0].matches('input[type="checkbox"]'));
     }
   }
   async function checkTableRowsA11y(expectedColumns, expectedTitles) {
@@ -194,24 +217,24 @@ add_task(async function () {
     }
   }
   checkTableRows([
-    ["red", "north america", "", "", ""],
-    ["orange", "south america", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["blue", "asia", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["violet", "africa", "", "", ""],
+    ["red", "north america", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["blue", "asia", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
   ]);
   await checkTableRowsA11y(
-    ["Colour", "Continent", null, null, null],
+    ["Colour", "Continent", null, null, null, null],
     [
-      ["The sky is red", "north america", "", "", ""],
-      ["The sky is orange", "south america", "", "", ""],
-      ["The sky is yellow", "antarctica", "", "", ""],
-      ["The sky is green", "australia", "", "", ""],
-      ["The sky is blue", "asia", "", "", ""],
-      ["The sky is indigo", "europe", "", "", ""],
-      ["The sky is violet", "africa", "", "", ""],
+      ["The sky is red", "north america", "", "", "", ""],
+      ["The sky is orange", "south america", "", "", "", ""],
+      ["The sky is yellow", "antarctica", "", "", "", ""],
+      ["The sky is green", "australia", "", "", "", ""],
+      ["The sky is blue", "asia", "", "", "", ""],
+      ["The sky is indigo", "europe", "", "", "", ""],
+      ["The sky is violet", "africa", "", "", "", ""],
     ]
   );
 
@@ -256,13 +279,13 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(headerButtons[1], {}, win);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["violet", "africa", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
-    ["blue", "asia", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["orange", "south america", "", "", ""],
+    ["violet", "africa", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
+    ["blue", "asia", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
   ]);
   checkHeaderSortClasses(1, "ascending");
   checkPersistedValue("sortColumn", "continent");
@@ -271,13 +294,13 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(headerButtons[1], {}, win);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["orange", "south america", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["blue", "asia", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
-    ["violet", "africa", "", "", ""],
+    ["orange", "south america", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["blue", "asia", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
   ]);
   checkHeaderSortClasses(1, "descending");
   checkPersistedValue("sortColumn", "continent");
@@ -286,13 +309,13 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "asia", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["orange", "south america", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["violet", "africa", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
+    ["blue", "asia", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
   ]);
   checkHeaderSortClasses(0, "ascending");
   checkPersistedValue("sortColumn", "colour");
@@ -301,13 +324,13 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["yellow", "antarctica", "", "", ""],
-    ["violet", "africa", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["orange", "south america", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["blue", "asia", "", "", ""],
+    ["yellow", "antarctica", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["blue", "asia", "", "", "", null],
   ]);
   checkHeaderSortClasses(0, "descending");
   checkPersistedValue("sortColumn", "colour");
@@ -316,13 +339,13 @@ add_task(async function () {
   EventUtils.synthesizeMouseAtCenter(headerButtons[0], {}, win);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "asia", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["orange", "south america", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["violet", "africa", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
+    ["blue", "asia", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
   ]);
   checkHeaderSortClasses(0, "ascending");
   checkPersistedValue("sortColumn", "colour");
@@ -358,34 +381,48 @@ add_task(async function () {
   }
   await toggleColumn(
     "wonder",
-    ["colour", "continent", "sin", "wonder", "dwarf"],
-    [true, true, false, false, false]
+    ["colour", "continent", "sin", "wonder", "dwarf", "selected"],
+    [true, true, false, false, false, true]
   );
-  checkHeaderVisibility([150, true, false, true, false]);
+  checkHeaderVisibility([150, true, false, true, false, true]);
   checkPersistedValue(
     "columns",
-    "colour,continent,sin:hidden,wonder,dwarf:hidden"
+    "colour,continent,sin:hidden,wonder,dwarf:hidden,selected"
   );
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "asia", "", "temple of artemis", ""],
-    ["green", "australia", "", "mausoleum of halicarnassus", ""],
-    ["indigo", "europe", "", "statue of zeus", ""],
-    ["orange", "south america", "", "colossus of rhodes", ""],
-    ["red", "north america", "", "pyramid of giza", ""],
-    ["violet", "africa", "", "gardens of babylon", ""],
-    ["yellow", "antarctica", "", "lighthouse of alexandria", ""],
+    ["blue", "asia", "", "temple of artemis", "", null],
+    ["green", "australia", "", "mausoleum of halicarnassus", "", null],
+    ["indigo", "europe", "", "statue of zeus", "", null],
+    ["orange", "south america", "", "colossus of rhodes", "", null],
+    ["red", "north america", "", "pyramid of giza", "", null],
+    ["violet", "africa", "", "gardens of babylon", "", null],
+    ["yellow", "antarctica", "", "lighthouse of alexandria", "", null],
   ]);
   await checkTableRowsA11y(
-    ["Colour", "Continent", null, null, null],
+    ["Colour", "Continent", null, null, null, null],
     [
-      ["The sky is blue", "asia", "", "temple of artemis", ""],
-      ["The sky is green", "australia", "", "mausoleum of halicarnassus", ""],
-      ["The sky is indigo", "europe", "", "statue of zeus", ""],
-      ["The sky is orange", "south america", "", "colossus of rhodes", ""],
-      ["The sky is red", "north america", "", "pyramid of giza", ""],
-      ["The sky is violet", "africa", "", "gardens of babylon", ""],
-      ["The sky is yellow", "antarctica", "", "lighthouse of alexandria", ""],
+      ["The sky is blue", "asia", "", "temple of artemis", "", ""],
+      [
+        "The sky is green",
+        "australia",
+        "",
+        "mausoleum of halicarnassus",
+        "",
+        "",
+      ],
+      ["The sky is indigo", "europe", "", "statue of zeus", "", ""],
+      ["The sky is orange", "south america", "", "colossus of rhodes", "", ""],
+      ["The sky is red", "north america", "", "pyramid of giza", "", ""],
+      ["The sky is violet", "africa", "", "gardens of babylon", "", ""],
+      [
+        "The sky is yellow",
+        "antarctica",
+        "",
+        "lighthouse of alexandria",
+        "",
+        "",
+      ],
     ]
   );
 
@@ -447,115 +484,164 @@ add_task(async function () {
   }
   dragColumn(0, 1); // Drag colour to between continent and wonder.
 
-  checkHeaderLabels(["continent", "colour", "sin", "wonder", "dwarf"]);
+  checkHeaderLabels([
+    "continent",
+    "colour",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
   checkHeaderVisibility([true, 150, false, true, false]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["asia", "blue", "", "temple of artemis", ""],
-    ["australia", "green", "", "mausoleum of halicarnassus", ""],
-    ["europe", "indigo", "", "statue of zeus", ""],
-    ["south america", "orange", "", "colossus of rhodes", ""],
-    ["north america", "red", "", "pyramid of giza", ""],
-    ["africa", "violet", "", "gardens of babylon", ""],
-    ["antarctica", "yellow", "", "lighthouse of alexandria", ""],
+    ["asia", "blue", "", "temple of artemis", "", null],
+    ["australia", "green", "", "mausoleum of halicarnassus", "", null],
+    ["europe", "indigo", "", "statue of zeus", "", null],
+    ["south america", "orange", "", "colossus of rhodes", "", null],
+    ["north america", "red", "", "pyramid of giza", "", null],
+    ["africa", "violet", "", "gardens of babylon", "", null],
+    ["antarctica", "yellow", "", "lighthouse of alexandria", "", null],
   ]);
   await checkTableRowsA11y(
-    ["Continent", "Colour", null, null, null],
+    ["Continent", "Colour", null, null, null, null],
     [
-      ["asia", "The sky is blue", "", "temple of artemis", ""],
-      ["australia", "The sky is green", "", "mausoleum of halicarnassus", ""],
-      ["europe", "The sky is indigo", "", "statue of zeus", ""],
-      ["south america", "The sky is orange", "", "colossus of rhodes", ""],
-      ["north america", "The sky is red", "", "pyramid of giza", ""],
-      ["africa", "The sky is violet", "", "gardens of babylon", ""],
-      ["antarctica", "The sky is yellow", "", "lighthouse of alexandria", ""],
+      ["asia", "The sky is blue", "", "temple of artemis", "", ""],
+      [
+        "australia",
+        "The sky is green",
+        "",
+        "mausoleum of halicarnassus",
+        "",
+        "",
+      ],
+      ["europe", "The sky is indigo", "", "statue of zeus", "", ""],
+      ["south america", "The sky is orange", "", "colossus of rhodes", "", ""],
+      ["north america", "The sky is red", "", "pyramid of giza", "", ""],
+      ["africa", "The sky is violet", "", "gardens of babylon", "", ""],
+      [
+        "antarctica",
+        "The sky is yellow",
+        "",
+        "lighthouse of alexandria",
+        "",
+        "",
+      ],
     ]
   );
   checkPersistedValue(
     "columns",
-    "continent,colour,sin:hidden,wonder,dwarf:hidden"
+    "continent,colour,sin:hidden,wonder,dwarf:hidden,selected"
   );
 
   dragColumn(1, 0); // Drag colour back to first.
 
-  checkHeaderLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
-  checkHeaderVisibility([150, true, false, true, false]);
+  checkHeaderLabels([
+    "colour",
+    "continent",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, true, false, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "asia", "", "temple of artemis", ""],
-    ["green", "australia", "", "mausoleum of halicarnassus", ""],
-    ["indigo", "europe", "", "statue of zeus", ""],
-    ["orange", "south america", "", "colossus of rhodes", ""],
-    ["red", "north america", "", "pyramid of giza", ""],
-    ["violet", "africa", "", "gardens of babylon", ""],
-    ["yellow", "antarctica", "", "lighthouse of alexandria", ""],
+    ["blue", "asia", "", "temple of artemis", "", null],
+    ["green", "australia", "", "mausoleum of halicarnassus", "", null],
+    ["indigo", "europe", "", "statue of zeus", "", null],
+    ["orange", "south america", "", "colossus of rhodes", "", null],
+    ["red", "north america", "", "pyramid of giza", "", null],
+    ["violet", "africa", "", "gardens of babylon", "", null],
+    ["yellow", "antarctica", "", "lighthouse of alexandria", "", null],
   ]);
   checkPersistedValue(
     "columns",
-    "colour,continent,sin:hidden,wonder,dwarf:hidden"
+    "colour,continent,sin:hidden,wonder,dwarf:hidden,selected"
   );
 
   dragColumn(1, 3); // Drag continent to last.
 
-  checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
-  checkHeaderVisibility([150, false, true, true, false]);
+  checkHeaderLabels([
+    "colour",
+    "sin",
+    "wonder",
+    "continent",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, false, true, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "", "temple of artemis", "asia", ""],
-    ["green", "", "mausoleum of halicarnassus", "australia", ""],
-    ["indigo", "", "statue of zeus", "europe", ""],
-    ["orange", "", "colossus of rhodes", "south america", ""],
-    ["red", "", "pyramid of giza", "north america", ""],
-    ["violet", "", "gardens of babylon", "africa", ""],
-    ["yellow", "", "lighthouse of alexandria", "antarctica", ""],
+    ["blue", "", "temple of artemis", "asia", "", null],
+    ["green", "", "mausoleum of halicarnassus", "australia", "", null],
+    ["indigo", "", "statue of zeus", "europe", "", null],
+    ["orange", "", "colossus of rhodes", "south america", "", null],
+    ["red", "", "pyramid of giza", "north america", "", null],
+    ["violet", "", "gardens of babylon", "africa", "", null],
+    ["yellow", "", "lighthouse of alexandria", "antarctica", "", null],
   ]);
   checkPersistedValue(
     "columns",
-    "colour,sin:hidden,wonder,continent,dwarf:hidden"
+    "colour,sin:hidden,wonder,continent,dwarf:hidden,selected"
   );
 
   await toggleColumn(
     "continent",
-    ["colour", "sin", "wonder", "continent", "dwarf"],
-    [true, false, true, true, false]
+    ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
+    [true, false, true, true, false, true]
   );
-  checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
-  checkHeaderVisibility([150, false, true, false, false]);
+  checkHeaderLabels([
+    "colour",
+    "sin",
+    "wonder",
+    "continent",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, false, true, false, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "", "temple of artemis", "", ""],
-    ["green", "", "mausoleum of halicarnassus", "", ""],
-    ["indigo", "", "statue of zeus", "", ""],
-    ["orange", "", "colossus of rhodes", "", ""],
-    ["red", "", "pyramid of giza", "", ""],
-    ["violet", "", "gardens of babylon", "", ""],
-    ["yellow", "", "lighthouse of alexandria", "", ""],
+    ["blue", "", "temple of artemis", "", "", null],
+    ["green", "", "mausoleum of halicarnassus", "", "", null],
+    ["indigo", "", "statue of zeus", "", "", null],
+    ["orange", "", "colossus of rhodes", "", "", null],
+    ["red", "", "pyramid of giza", "", "", null],
+    ["violet", "", "gardens of babylon", "", "", null],
+    ["yellow", "", "lighthouse of alexandria", "", "", null],
   ]);
   checkPersistedValue(
     "columns",
-    "colour,sin:hidden,wonder,continent:hidden,dwarf:hidden"
+    "colour,sin:hidden,wonder,continent:hidden,dwarf:hidden,selected"
   );
 
   await toggleColumn(
     "continent",
-    ["colour", "sin", "wonder", "continent", "dwarf"],
-    [true, false, true, false, false]
+    ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
+    [true, false, true, false, false, true]
   ); // Have the continents drifted?
-  checkHeaderLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
-  checkHeaderVisibility([150, false, true, true, false]);
+  checkHeaderLabels([
+    "colour",
+    "sin",
+    "wonder",
+    "continent",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, false, true, true, false, true]);
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "", "temple of artemis", "asia", ""],
-    ["green", "", "mausoleum of halicarnassus", "australia", ""],
-    ["indigo", "", "statue of zeus", "europe", ""],
-    ["orange", "", "colossus of rhodes", "south america", ""],
-    ["red", "", "pyramid of giza", "north america", ""],
-    ["violet", "", "gardens of babylon", "africa", ""],
-    ["yellow", "", "lighthouse of alexandria", "antarctica", ""],
+    ["blue", "", "temple of artemis", "asia", "", null],
+    ["green", "", "mausoleum of halicarnassus", "australia", "", null],
+    ["indigo", "", "statue of zeus", "europe", "", null],
+    ["orange", "", "colossus of rhodes", "south america", "", null],
+    ["red", "", "pyramid of giza", "north america", "", null],
+    ["violet", "", "gardens of babylon", "africa", "", null],
+    ["yellow", "", "lighthouse of alexandria", "antarctica", "", null],
   ]);
   checkPersistedValue(
     "columns",
-    "colour,sin:hidden,wonder,continent,dwarf:hidden"
+    "colour,sin:hidden,wonder,continent,dwarf:hidden,selected"
   );
 
   // Resize columns.
@@ -595,64 +681,64 @@ add_task(async function () {
   }
   const widthBefore = headerButtons[2].closest("th").clientWidth;
   await resizeColumn(2, 20);
-  checkHeaderVisibility([150, false, widthBefore + 20, true, false]);
+  checkHeaderVisibility([150, false, widthBefore + 20, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour,sin:hidden,wonder:${widthBefore + 20},continent,dwarf:hidden`
+    `colour,sin:hidden,wonder:${widthBefore + 20},continent,dwarf:hidden,selected`
   );
 
   await resizeColumn(2, -60);
-  checkHeaderVisibility([150, false, widthBefore - 40, true, false]);
+  checkHeaderVisibility([150, false, widthBefore - 40, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden`
+    `colour,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden,selected`
   );
 
   await resizeColumn(0, 32);
-  checkHeaderVisibility([182, false, widthBefore - 40, true, false]);
+  checkHeaderVisibility([182, false, widthBefore - 40, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour:182,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden`
+    `colour:182,sin:hidden,wonder:${widthBefore - 40},continent,dwarf:hidden,selected`
   );
 
   // Resizing a column back to the starting size won't forget the width.
   await resizeColumn(2, 40);
-  checkHeaderVisibility([182, false, widthBefore, true, false]);
+  checkHeaderVisibility([182, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour:182,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden`
+    `colour:182,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
   );
 
   // Unless there's a default width.
   await resizeColumn(0, -32);
-  checkHeaderVisibility([150, false, widthBefore, true, false]);
+  checkHeaderVisibility([150, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden`
+    `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
   );
 
   // Hide a resized column.
   await toggleColumn(
     "wonder",
-    ["colour", "sin", "wonder", "continent", "dwarf"],
-    [true, false, true, true, false]
+    ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
+    [true, false, true, true, false, true]
   );
-  checkHeaderVisibility([150, false, false, true, false]);
+  checkHeaderVisibility([150, false, false, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour,sin:hidden,wonder:${widthBefore}:hidden,continent,dwarf:hidden`
+    `colour,sin:hidden,wonder:${widthBefore}:hidden,continent,dwarf:hidden,selected`
   );
 
   // Show it again and check the size was restored.
   await toggleColumn(
     "wonder",
-    ["colour", "sin", "wonder", "continent", "dwarf"],
-    [true, false, false, true, false]
+    ["colour", "sin", "wonder", "continent", "dwarf", "selected"],
+    [true, false, false, true, false, true]
   );
-  checkHeaderVisibility([150, false, widthBefore, true, false]);
+  checkHeaderVisibility([150, false, widthBefore, true, false, true]);
   checkPersistedValue(
     "columns",
-    `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden`
+    `colour,sin:hidden,wonder:${widthBefore},continent,dwarf:hidden,selected`
   );
 
   // Restore columns.
@@ -664,32 +750,53 @@ add_task(async function () {
   );
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
-  checkPickerLabels(["colour", "sin", "wonder", "continent", "dwarf"]);
-  checkPickerState([true, false, true, true, false]);
+  checkPickerLabels([
+    "colour",
+    "sin",
+    "wonder",
+    "continent",
+    "dwarf",
+    "selected",
+  ]);
+  checkPickerState([true, false, true, true, false, true]);
   pickerPopup.activateItem(pickerPopup.querySelector("#restoreColumnOrder"));
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
   await restoreEvent;
 
   checkPersistedValue("columns", "");
-  checkHeaderLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
-  checkHeaderVisibility([150, true, false, false, false]);
+  checkHeaderLabels([
+    "colour",
+    "continent",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
+  checkHeaderVisibility([150, true, false, false, false, true]);
   checkPersistedValue("sortColumn", "colour");
   checkPersistedValue("sortDirection", "ascending");
   await new Promise(resolve => win.requestAnimationFrame(resolve));
   checkTableRows([
-    ["blue", "asia", "", "", ""],
-    ["green", "australia", "", "", ""],
-    ["indigo", "europe", "", "", ""],
-    ["orange", "south america", "", "", ""],
-    ["red", "north america", "", "", ""],
-    ["violet", "africa", "", "", ""],
-    ["yellow", "antarctica", "", "", ""],
+    ["blue", "asia", "", "", "", null],
+    ["green", "australia", "", "", "", null],
+    ["indigo", "europe", "", "", "", null],
+    ["orange", "south america", "", "", "", null],
+    ["red", "north america", "", "", "", null],
+    ["violet", "africa", "", "", "", null],
+    ["yellow", "antarctica", "", "", "", null],
   ]);
 
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
-  checkPickerLabels(["colour", "continent", "sin", "wonder", "dwarf"]);
-  checkPickerState([true, true, false, false, false]);
+  checkPickerLabels([
+    "colour",
+    "continent",
+    "sin",
+    "wonder",
+    "dwarf",
+    "selected",
+  ]);
+  checkPickerState([true, true, false, false, false, true]);
   pickerPopup.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
 
@@ -701,7 +808,7 @@ add_task(async function () {
     url,
     "autoTree",
     "columns",
-    "continent:300,dwarf:150:hidden,sin:100,wonder:hidden,colour:80"
+    "continent:300,dwarf:150:hidden,sin:100,wonder:hidden,colour:80,selected"
   );
   Services.xulStore.setValue(url, "autoTree", "sortColumn", "sin");
   Services.xulStore.setValue(url, "autoTree", "sortDirection", "descending");
@@ -720,50 +827,64 @@ add_task(async function () {
   pickerButton = headerRow.lastElementChild.querySelector("button");
   pickerPopup = headerRow.lastElementChild.querySelector("menupopup");
 
-  checkHeaderLabels(["continent", "dwarf", "sin", "wonder", "colour"]);
+  checkHeaderLabels([
+    "continent",
+    "dwarf",
+    "sin",
+    "wonder",
+    "colour",
+    "selected",
+  ]);
   // Width of colour column not used.
-  checkHeaderVisibility([300, false, 100, false, true]);
+  checkHeaderVisibility([300, false, 100, false, true, true]);
   checkTableRows([
-    ["antarctica", "", "wrath", "", "yellow"],
-    ["africa", "", "sloth", "", "violet"],
-    ["north america", "", "pride", "", "red"],
-    ["asia", "", "lust", "", "blue"],
-    ["south america", "", "greed", "", "orange"],
-    ["europe", "", "gluttony", "", "indigo"],
-    ["australia", "", "envy", "", "green"],
+    ["antarctica", "", "wrath", "", "yellow", null],
+    ["africa", "", "sloth", "", "violet", null],
+    ["north america", "", "pride", "", "red", null],
+    ["asia", "", "lust", "", "blue", null],
+    ["south america", "", "greed", "", "orange", null],
+    ["europe", "", "gluttony", "", "indigo", null],
+    ["australia", "", "envy", "", "green", null],
   ]);
 
   await toggleColumn(
     "continent",
-    ["continent", "dwarf", "sin", "wonder", "colour"],
-    [true, false, true, false, true]
+    ["continent", "dwarf", "sin", "wonder", "colour", "selected"],
+    [true, false, true, false, true, true]
   );
   // Width of colour column not used.
-  checkHeaderVisibility([false, false, 100, false, true]);
+  checkHeaderVisibility([false, false, 100, false, true, true]);
   checkPersistedValue(
     "columns",
-    "continent:300:hidden,dwarf:150:hidden,sin:100,wonder:hidden,colour:80"
+    "continent:300:hidden,dwarf:150:hidden,sin:100,wonder:hidden,colour:80,selected"
   );
 
   await toggleColumn(
     "dwarf",
-    ["continent", "dwarf", "sin", "wonder", "colour"],
-    [false, false, true, false, true]
+    ["continent", "dwarf", "sin", "wonder", "colour", "selected"],
+    [false, false, true, false, true, true]
   );
   // Width of colour column not used.
-  checkHeaderVisibility([false, 150, 100, false, true]);
+  checkHeaderVisibility([false, 150, 100, false, true, true]);
   checkPersistedValue(
     "columns",
-    "continent:300:hidden,dwarf:150,sin:100,wonder:hidden,colour:80"
+    "continent:300:hidden,dwarf:150,sin:100,wonder:hidden,colour:80,selected"
   );
 
   await dragColumn(4, 1);
-  checkHeaderLabels(["continent", "colour", "dwarf", "sin", "wonder"]);
+  checkHeaderLabels([
+    "continent",
+    "colour",
+    "dwarf",
+    "sin",
+    "wonder",
+    "selected",
+  ]);
   // Width of sin column not used.
-  checkHeaderVisibility([false, 80, 150, true, false]);
+  checkHeaderVisibility([false, 80, 150, true, false, true]);
   checkPersistedValue(
     "columns",
-    "continent:300:hidden,colour:80,dwarf:150,sin:100,wonder:hidden"
+    "continent:300:hidden,colour:80,dwarf:150,sin:100,wonder:hidden,selected"
   );
 
   // Check that the widget responds to changes in UI density.
