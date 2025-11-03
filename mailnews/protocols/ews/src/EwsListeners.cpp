@@ -28,15 +28,15 @@ NS_IMETHODIMP EwsFallibleListener::OnOperationFailure(nsresult status) {
   return mOnFailure(status);
 };
 
-// Implementation of EwsSimpleFailibleListener
+// Implementation of EwsSimpleFallibleListener
 
-NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFailibleListener, EwsSimpleListener,
+NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFallibleListener, EwsSimpleListener,
                             EwsFallibleListener, IEwsSimpleOperationListener,
                             IEwsFallibleOperationListener)
 
-// Implementation of EwsSimpleFailibleMessageListener
+// Implementation of EwsSimpleFallibleMessageListener
 
-NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFailibleMessageListener,
+NS_IMPL_ISUPPORTS_INHERITED(EwsSimpleFallibleMessageListener,
                             EwsSimpleMessageListener, EwsFallibleListener,
                             IEwsSimpleOperationListener,
                             IEwsFallibleOperationListener)

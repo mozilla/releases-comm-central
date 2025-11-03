@@ -266,6 +266,50 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
+    xpcom_method!(empty_folder => EmptyFolder(
+        listener: *const IEwsSimpleOperationListener,
+        folder_ids: *const ThinVec<nsCString>,
+        subfolder_ids: *const ThinVec<nsCString>,
+        message_ids: *const ThinVec<nsCString>
+    ));
+    fn empty_folder(
+        &self,
+        listener: &IEwsSimpleOperationListener,
+        folder_ids: &ThinVec<nsCString>,
+        subfolder_ids: &ThinVec<nsCString>,
+        message_ids: &ThinVec<nsCString>,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        let folder_ids = folder_ids
+            .iter()
+            .map(|s| s.to_utf8().into_owned())
+            .collect();
+        let subfolder_ids = subfolder_ids
+            .iter()
+            .map(|s| s.to_utf8().into_owned())
+            .collect();
+        let message_ids = message_ids
+            .iter()
+            .map(|s| s.to_utf8().into_owned())
+            .collect();
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "empty_folder",
+            client.empty_folder(
+                SafeEwsSimpleOperationListener::new(listener),
+                folder_ids,
+                subfolder_ids,
+                message_ids,
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
     xpcom_method!(update_folder => UpdateFolder(
         listener: *const IEwsSimpleOperationListener,
         folder_id: *const nsACString,

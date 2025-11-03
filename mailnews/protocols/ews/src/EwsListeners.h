@@ -74,7 +74,7 @@ class EwsSimpleMessageListener : public IEwsSimpleOperationListener {
  *
  * This class is not intended to be used directly, but rather inherited from by
  * another class that will also handle cases besides failures (like with
- * `EwsSimpleFailibleListener` below).
+ * `EwsSimpleFallibleListener` below).
  *
  * Upon failure of the EWS operation, the lambda function passed to this class's
  * constructor is called with an `nsresult` representing the failure.
@@ -100,19 +100,19 @@ class EwsFallibleListener : public IEwsFallibleOperationListener {
  * instructions regarding the lambda functions passed to this class's
  * constructor.
  */
-class EwsSimpleFailibleListener : public EwsSimpleListener,
+class EwsSimpleFallibleListener : public EwsSimpleListener,
                                   public EwsFallibleListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
-  EwsSimpleFailibleListener(
+  EwsSimpleFallibleListener(
       std::function<nsresult(const nsTArray<nsCString>&, bool)> onSuccess,
       std::function<nsresult(nsresult)> onFailure)
       : EwsSimpleListener(std::move(onSuccess)),
         EwsFallibleListener(std::move(onFailure)) {};
 
  protected:
-  virtual ~EwsSimpleFailibleListener() = default;
+  virtual ~EwsSimpleFallibleListener() = default;
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;
@@ -123,14 +123,14 @@ class EwsSimpleFailibleListener : public EwsSimpleListener,
  * to capture.
  *
  * See the documentation for `EwsSimpleMessageListener` for instructions
- * regarding when to use this implementation over `EwsSimpleFailibleListener`.
+ * regarding when to use this implementation over `EwsSimpleFallibleListener`.
  */
-class EwsSimpleFailibleMessageListener : public EwsSimpleMessageListener,
+class EwsSimpleFallibleMessageListener : public EwsSimpleMessageListener,
                                          public EwsFallibleListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
-  EwsSimpleFailibleMessageListener(
+  EwsSimpleFallibleMessageListener(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& headers,
       std::function<nsresult(const nsTArray<RefPtr<nsIMsgDBHdr>>&,
                              const nsTArray<nsCString>&, bool)>
@@ -140,7 +140,7 @@ class EwsSimpleFailibleMessageListener : public EwsSimpleMessageListener,
         EwsFallibleListener(std::move(onFailure)) {};
 
  protected:
-  virtual ~EwsSimpleFailibleMessageListener() = default;
+  virtual ~EwsSimpleFallibleMessageListener() = default;
 
  private:
   std::function<nsresult(nsresult)> mOnFailure;

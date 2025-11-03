@@ -42,6 +42,7 @@
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
 #include "mozilla/StaticPrefs_mail.h"
+#include "UrlListener.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -620,8 +621,8 @@ NS_IMETHODIMP EwsFolder::CopyItemsOnSameServer(
   const nsCOMPtr<IEwsFolderOperationListener> operationListener =
       aOperationListener;
 
-  const RefPtr<EwsSimpleFailibleMessageListener> listener =
-      new EwsSimpleFailibleMessageListener(
+  const RefPtr<EwsSimpleFallibleMessageListener> listener =
+      new EwsSimpleFallibleMessageListener(
           aSrcHdrs,
           [self = RefPtr(this), srcFolder, msgWindow, aIsMove, copyListener,
            aAllowUndo, operationListener, undoOperationType](
@@ -802,7 +803,7 @@ NS_IMETHODIMP EwsFolder::CopyFolderOnSameServer(
   const nsCOMPtr<nsIMsgWindow> msgWindow = aWindow;
   const nsCOMPtr<nsIMsgCopyServiceListener> copyListener = aCopyListener;
 
-  RefPtr<EwsSimpleFailibleListener> listener = new EwsSimpleFailibleListener(
+  RefPtr<EwsSimpleFallibleListener> listener = new EwsSimpleFallibleListener(
       [self = RefPtr(this), srcFolder, copyListener, msgWindow, aIsMoveFolder](
           const nsTArray<nsCString>& ids, bool useLegacyFallback) {
         NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);
@@ -1056,41 +1057,30 @@ NS_IMETHODIMP EwsFolder::GetDeletable(bool* deletable) {
 }
 
 NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
+  // collect info about the trash folder...
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = trashFolder->GetMsgDatabase(getter_AddRefs(db));
+  nsCString trashEwsId;
+  rv = trashFolder->GetStringProperty(kEwsIdProperty, trashEwsId);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // Start by deleting the messages in the folder.
-  nsTArray<nsMsgKey> keys;
-  rv = db->ListAllKeys(keys);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-  rv = MsgGetHeadersFromKeys(db, keys, hdrs);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!hdrs.IsEmpty()) {
-    nsCOMPtr<nsIMsgCopyServiceListener> copyListener =
-        do_QueryInterface(aListener);
-    rv = trashFolder->DeleteMessages(hdrs,
-                                     /* msgWindow = */ nullptr,
-                                     /* deleteStorage = */ true,
-                                     /* isMove = */ false, copyListener,
-                                     /* allowUndo = */ false);
+  if (trashEwsId.IsEmpty()) {
+    NS_ERROR("EWS Trash folder missing its EWS ID");
+    return NS_ERROR_UNEXPECTED;
   }
+  nsCOMPtr<nsIMsgDatabase> trashDb;
+  rv = trashFolder->GetMsgDatabase(getter_AddRefs(trashDb));
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIURI> trashUri;
+  if (aListener) {
+    rv = FolderUri(trashFolder, getter_AddRefs(trashUri));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-  // Then delete any subfolders.
-
-  nsCOMPtr<IEwsClient> client;
-  rv = GetEwsClient(getter_AddRefs(client));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  // ... its subfolders...
   CopyableTArray<RefPtr<nsIMsgFolder>> subFolders;
   rv = trashFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
-
   nsTArray<nsCString> subFolderIds(subFolders.Length());
   for (const auto f : subFolders) {
     nsCString ewsId;
@@ -1099,22 +1089,59 @@ NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
     subFolderIds.AppendElement(ewsId);
   }
 
-  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
-      [self = RefPtr(this), trashFolder, subFolders](
-          const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+  // ... and its messages
+  nsTArray<nsMsgKey> msgKeys;
+  rv = trashDb->ListAllKeys(msgKeys);
+  NS_ENSURE_SUCCESS(rv, rv);
+  CopyableTArray<RefPtr<nsIMsgDBHdr>> msgHdrs(msgKeys.Length());
+  rv = MsgGetHeadersFromKeys(trashDb, msgKeys, msgHdrs);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsCString> messageIds(msgKeys.Length());
+  rv = GetEwsIdsForMessageHeaders(msgHdrs, messageIds);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<EwsSimpleListener> listener = new EwsSimpleFallibleListener(
+      [self = RefPtr(this), trashFolder, trashUri, msgHdrs,
+       aListener = nsCOMPtr(aListener)](const nsTArray<nsCString>& ids,
+                                        bool useLegacyFallback) {
+        // Once we've reached this callback, all messages and subfolders have
+        // been remotely deleted, recursively. Now we do the local operations.
+        nsresult rv;
+        auto scopeExit = mozilla::MakeScopeExit([&rv, trashUri, aListener]() {
+          if (aListener) {
+            aListener->OnStopRunningUrl(trashUri, rv);
+          }
+        });
+
+        // Locally delete the subfolders.
+        nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+        rv = trashFolder->GetSubFolders(subFolders);
+        NS_ENSURE_SUCCESS(rv, rv);
+
         for (const auto f : subFolders) {
-          nsresult rv = trashFolder->PropagateDelete(f, true);
+          rv = trashFolder->PropagateDelete(f, true);
           NS_ENSURE_SUCCESS(rv, rv);
         }
-        return NS_OK;
+
+        // Locally delete the messages.
+        rv = LocalDeleteMessages(trashFolder, msgHdrs);
+
+        return rv;
+      },
+      [trashUri, aListener = nsCOMPtr(aListener)](nsresult rv) {
+        return aListener->OnStopRunningUrl(trashUri, rv);
       });
 
-  // The IMAP version performs some cleanup around here to efficiently delete
-  // all the local contents, but that's a bad idea for EWS because the two
-  // deletes above use async calls to ensure local copies are only deleted on
-  // success.
-
-  return client->DeleteFolder(listener, subFolderIds);
+  rv = client->EmptyFolder(listener, {trashEwsId}, subFolderIds, messageIds);
+  if (NS_SUCCEEDED(rv) && aListener) {
+    rv = aListener->OnStartRunningUrl(trashUri);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return rv;
 }
 
 NS_IMETHODIMP EwsFolder::CompactAll(nsIUrlListener* aListener,

@@ -103,8 +103,8 @@ nsresult FolderCopyHandler::CopyNextFolder() {
   nsCString parentId;
   MOZ_TRY(parent.value()->GetStringProperty(kEwsIdProperty, parentId));
 
-  const RefPtr<EwsSimpleFailibleListener> listener =
-      new EwsSimpleFailibleListener(
+  const RefPtr<EwsSimpleFallibleListener> listener =
+      new EwsSimpleFallibleListener(
           [self = RefPtr(this), parentFolder, folderName](
               const nsTArray<nsCString>& ids, bool useLegacyFallback) {
             NS_ENSURE_TRUE(ids.Length() == 1, NS_ERROR_UNEXPECTED);

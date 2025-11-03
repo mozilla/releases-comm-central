@@ -201,6 +201,24 @@ interface IEwsClient : nsISupports
   void deleteFolder(in IEwsSimpleOperationListener listener, in Array<AUTF8String> folderIds);
 
   /**
+   * Empties the folders with the given EWS IDs from the server (deletes all
+   * messages and subfolders).
+   *
+   * @param listener - Listener to indicate the success or failure of the empty
+   *   folder operation. The `ids` argument of `onOperationSuccess` is currently
+   *   unset, the `useLegacyFallback` argument is true iff EmptyFolder was
+   *   unsupported and the workaround was used (which hopefully shouldn't
+   *   matter).
+   * @param folderIds - The EWS IDs of the folders to empty. Only used if the
+   *   EmptyFolder operation is supported.
+   * @param subfolderIds - The EWS IDs of the child folders of the given
+   *   folderIds. Only used if EmptyFolder operation is not supported.
+   * @param messageIds - The EWS IDs of the messages in the folders listed in
+   *   folderIds. Only used if EmptyFolder operation is not supported.
+   */
+  void emptyFolder(in IEwsSimpleOperationListener listener, in Array<AUTF8String> folderIds, in Array<AUTF8String> subfolderIds, in Array<AUTF8String> messageIds);
+
+  /**
    * Renames a folder on the Exchange server.
    *
    * @param listener - Listener to indicate the success or failure of the
