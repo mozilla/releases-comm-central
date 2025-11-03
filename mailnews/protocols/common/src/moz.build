@@ -4,13 +4,24 @@
 
 EXPORTS += [
     "FolderPopulation.h",
+    "mailnews_ffi_glue.h",
     "mailnews_ui_glue.h",
     "OfflineStorage.h",
 ]
 
 SOURCES += [
     "FolderPopulation.cpp",
+    "mailnews_ffi_glue.cpp",
     "OfflineStorage.cpp",
 ]
 
 FINAL_LIBRARY = "mail"
+
+
+LOCAL_INCLUDES += [
+    # These three includes are required by `mailnews_ffi_glue.h` since it
+    # depends on code generated from IPDL files.
+    "!/ipc/ipdl/_ipdlheaders",
+    "/ipc/chromium/src",
+    "/netwerk/base",
+]

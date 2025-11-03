@@ -6,13 +6,14 @@ use std::collections::HashMap;
 use std::ptr;
 
 use cstr::cstr;
+use nserror::nsresult;
 use url::Url;
 
 use nsstring::nsCString;
 use xpcom::interfaces::{
-    nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo, nsINSSErrorsService,
-    nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream, nsITransportSecurityInfo,
-    nsIUploadChannel,
+    nsContentPolicyType, nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo,
+    nsINSSErrorsService, nsINode, nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream,
+    nsITransportSecurityInfo, nsIURI, nsIUploadChannel, nsSecurityFlags,
 };
 use xpcom::XpCom;
 use xpcom::{getter_addrefs, RefPtr};
@@ -21,6 +22,19 @@ use xpcom_async::XpComFuture;
 use crate::client::Method;
 use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;
+
+unsafe extern "C" {
+    /// Defined and documented in `mailnews_ffi_glue.h`.
+    unsafe fn new_loadinfo_with_cookie_settings(
+        aLoadingPrincipal: *const nsIPrincipal,
+        aTriggeringPrincipal: *const nsIPrincipal,
+        aLoadingNode: *const nsINode,
+        aSecurityFlags: nsSecurityFlags,
+        aContentPolicyType: nsContentPolicyType,
+        aSandboxFlags: u32,
+        outLoadInfo: *mut *const nsILoadInfo,
+    ) -> nsresult;
+}
 
 /// The bytes to use as body in a request.
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
@@ -126,24 +140,34 @@ impl<'rb> RequestBuilder<'rb> {
                 Error::XpComOperationFailure("failed to get service nsIIOService"),
             )?;
 
-        // Build the nsIChannel to send the request through. Note that we could
-        // do this in two parts, with the first one being parsing the url into
-        // an nsIURI, but this wouldn't really be much more useful to us, since
-        // all we'd do with it would be passing it to
-        // io_service.NewChannelFromURI().
         let url = nsCString::from(self.url.as_str());
-        let channel: RefPtr<nsIChannel> = getter_addrefs(|p| unsafe {
-            io_service.NewChannel(
-                &*url,
-                ptr::null(),
-                ptr::null(),
-                ptr::null(),
+        let uri: RefPtr<nsIURI> =
+            getter_addrefs(|p| unsafe { io_service.NewURI(&*url, ptr::null(), ptr::null(), p) })?;
+
+        // Instantiate an `nsILoadInfo` that's configured to allow cookies
+        // (unless the user settings say otherwise). We need to take this extra
+        // step, as opposed to just creating a new channel with
+        // `nsIIOService::NewChannel`, because `NewChannel` creates the
+        // channel's `nsILoadInfo` in such a way that cookies cannot be
+        // persisted if we don't have an `nsINode` to give it.
+        //
+        // SAFETY: `new_loadinfo_with_cookie_settings` is expected to return an
+        // error if it wasn't able to build an `nsILoadInfo`, rather than return
+        // a null pointer.
+        let load_info: RefPtr<nsILoadInfo> = getter_addrefs(|p| unsafe {
+            new_loadinfo_with_cookie_settings(
                 principal.coerce(),
+                ptr::null(),
                 ptr::null(),
                 nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
                 nsIContentPolicy::TYPE_OTHER,
+                0,
                 p,
             )
+        })?;
+
+        let channel: RefPtr<nsIChannel> = getter_addrefs(|p| unsafe {
+            io_service.NewChannelFromURIWithLoadInfo(uri.coerce(), load_info.coerce(), p)
         })?;
 
         // Set the request body to the channel, if any.
