@@ -64,9 +64,15 @@ function convertMailTab(tab, context) {
     windowId: tab.windowId,
     active: tab.active,
     layout: LAYOUTS[gDynamicPaneConfig],
-    folderMode: fixApiModeName(about3Pane.folderTree.selectedRow.modeName),
     folderModesEnabled: about3Pane.folderPane.activeModes.map(fixApiModeName),
   };
+
+  const folderMode = fixApiModeName(
+    about3Pane.folderTree.selectedRow?.modeName
+  );
+  if (folderMode) {
+    mailTabObject.folderMode = folderMode;
+  }
 
   if (context.extension.manifest.manifest_version < 3) {
     mailTabObject.id = tab.id;
@@ -321,7 +327,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         folder = getFolder(displayedFolderId || displayedFolder).folder;
       }
 
-      const curFolderMode = about3Pane.folderTree.selectedRow.modeName;
+      const curFolderMode = about3Pane.folderTree.selectedRow?.modeName;
       const curFolderModes = about3Pane.folderPane.activeModes;
       const newFolderMode = folderMode ? fixTbModeName(folderMode) : null;
       let newFolderModes = folderModesEnabled
@@ -662,7 +668,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               selectedIndices = foundIndices;
             } else {
               // Stay within the current folderMode, if possible.
-              const curFolderMode = about3Pane.folderTree.selectedRow.modeName;
+              const curFolderMode = about3Pane.folderTree.selectedRow?.modeName;
               let row = about3Pane.folderPane.getRowForFolder(
                 msgHdrs[0].folder,
                 curFolderMode
