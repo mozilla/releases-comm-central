@@ -285,29 +285,55 @@ NS_IMETHODIMP EwsFolder::GetNewMessages(nsIMsgWindow* aWindow,
 
 NS_IMETHODIMP EwsFolder::GetSubFolders(
     nsTArray<RefPtr<nsIMsgFolder>>& aSubFolders) {
-  // The first time we ask for a list of subfolders, this folder has no idea
-  // what they are. Use the message store to get a list, which we cache in this
-  // folder's memory. (Keeping it up-to-date is managed by the `AddSubfolder`
-  // and `CreateSubfolder`, where appropriate.)
+  // Lazy discovery of child folders. Should do this up front when root folder
+  // is created!
   if (!mHasLoadedSubfolders) {
-    // If we fail this time, we're unlikely to succeed later, so we set this
-    // first thing.
-    mHasLoadedSubfolders = true;
-
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    nsresult rv = GetServer(getter_AddRefs(server));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgPluggableStore> msgStore;
-    rv = server->GetMsgStore(getter_AddRefs(msgStore));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Running discovery on the message store will populate the subfolder list.
-    rv = msgStore->DiscoverSubFolders(this, true);
+    nsresult rv = CreateChildrenFromStore();
     NS_ENSURE_SUCCESS(rv, rv);
   }
-
   return nsMsgDBFolder::GetSubFolders(aSubFolders);
+}
+
+// Recursively create child folders by asking the msgStore.
+// They won't necessarily be up-to-date with the server, but it's a good
+// first stab we can do right now without waiting for the server.
+nsresult EwsFolder::CreateChildrenFromStore() {
+  MOZ_ASSERT(!mHasLoadedSubfolders);  // Should only be called once.
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Ask the store which children it thinks we have.
+  nsTArray<nsCString> childNames;
+  rv = msgStore->DiscoverChildFolders(this, childNames);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Have to set this NOW, because folder creation via FLS uses GetSubFolders()
+  // to search for existing folders!
+  mHasLoadedSubfolders = true;
+
+  for (auto& childName : childNames) {
+    // For now, use the base AddSubFolder, _not_ the EwsFolder-specific one.
+    // (EwsFolder::AddSubFolder() assumes we're creating a new folder and
+    // clobbers state restored from the database (e.g. Offline flag)). This is
+    // a bit awful, but AddSubfolder should probably be removed entirely, in
+    // favour of directly instantiating the concrete class.
+    nsCOMPtr<nsIMsgFolder> child;
+    rv = nsMsgDBFolder::AddSubfolder(childName, getter_AddRefs(child));
+    NS_ENSURE_SUCCESS(rv, rv);
+    // mSubFolders will now include the new child.
+  }
+
+  // mSubFolders is now valid for this folder.
+  mHasLoadedSubfolders = true;
+
+  for (nsIMsgFolder* child : mSubFolders) {
+    // Recurse downward (we _know_ it's an EwsFolder).
+    rv = static_cast<EwsFolder*>(child)->CreateChildrenFromStore();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP EwsFolder::RenameSubFolders(nsIMsgWindow* msgWindow,

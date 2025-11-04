@@ -107,6 +107,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
       nsIMsgFolderCacheElement* element) override;
 
  private:
+  nsresult CreateChildrenFromStore();
   bool mHasLoadedSubfolders;
 
   // The OnMessageClassified() implementation uses this to accumulate the
