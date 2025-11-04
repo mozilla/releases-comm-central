@@ -7,9 +7,8 @@ const UNIFIED_TOOLBAR_ID = "unifiedToolbar";
 const CUSTOMIZATION_ATTRIBUTE_NAME = "state";
 
 /**
- * @typedef {object} UnifiedToolbarCustomizationState
- * @property {string[]} (spaceName) - Each space has a key on the object,
- *   containing an ordered array of item IDs.
+ * @typedef {{[key: string]: string[]}} UnifiedToolbarCustomizationState
+ *  Each space has a key on the object, containing an ordered array of item IDs.
  */
 
 /**

@@ -2272,7 +2272,7 @@ export class FormatHelper {
    *
    * Note, this method does not currently work on mac/osx.
    *
-   * Implied styles (see {@link StyleData#linked} and {@linj StyleData#implies})
+   * Implied styles (see {@link StyleData#linked} and {@link StyleData#implies})
    * will be automatically checked for from the given styles.
    *
    * @param {[(StyleData|string)]|StyleData|string|null} styleSet - The styles

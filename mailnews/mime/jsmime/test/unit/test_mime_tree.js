@@ -754,7 +754,7 @@ define(function (require) {
         return buildTree(read_file("shift-jis-image"), {
           strformat: "unicode",
           charset: "ISO-8859-1",
-          "force-charset": true,
+          forceCharset: true,
           bodyformat: "decode",
         }).then(function (tree) {
           // text/plain should be transcoded...

@@ -588,7 +588,7 @@ export var Gloda = {
    *     lookupNoun.  The suggested convention is lower-case-dash-delimited,
    *     with names being singular (since it's a single noun we are referring
    *     to.)
-   * @param {class} aNounDef.class - The 'class' to which an instance of the noun will
+   * @param {Class} aNounDef.class - The 'class' to which an instance of the noun will
    *     belong (aka will pass an instanceof test).  You may also provide this
    *     as 'clazz' if the keyword makes your IDE angry.
    * @param {boolean} aNounDef.allowsArbitraryAttrs - Is this a 'first class noun'/can it be

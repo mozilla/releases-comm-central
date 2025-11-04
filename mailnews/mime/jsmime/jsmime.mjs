@@ -1668,7 +1668,7 @@ const headerparser = JsMIMEheaderparser();
  * raw binary string data can only be done via getRawHeader. The .charset
  * parameter on header objects, if changed, changes the fallback charset used
  * for headers. It is initialized to the presumed charset of the corresponding
- * part, taking into account the charset and force-charset options of the
+ * part, taking into account the charset and forceCharset options of the
  * parser. Body parts are only converted into Unicode strings if the strformat
  * option is set to Unicode. Even then, only the bodies of parts with a media
  * type of text are converted to Unicode strings using available charset data;
@@ -1723,13 +1723,13 @@ const JsMIMEmimeparser = function () {
    *
    * Extra properties compared to a Map object are:
    * - charset: This field represents the assumed charset of the associated MIME
-   *   body. It is prefilled using a combination of the charset and force-charset
+   *   body. It is prefilled using a combination of the charset and forceCharset
    *   options on the associated MimeParser instance as well as attempting to find
    *   a charset parameter in the Content-Type header.
    *
-   *   If the force-charset option is false, the charset is guessed first using
+   *   If the forceCharset option is false, the charset is guessed first using
    *   the Content-Type header's charset parameter, falling back to the charset
-   *   option if it is present. If the force-charset option is true, the charset
+   *   option if it is present. If the forceCharset option is true, the charset
    *   is initially set to the charset option. This initial guessed value can be
    *   overridden at any time by simply setting the field on this object.
    *
@@ -2074,7 +2074,7 @@ const JsMIMEmimeparser = function () {
    *   This only matters if strformat is unicode. See above note on charsets
    *   for more details.
    *
-   * @property {boolean} [force-charset=false] - If true, this coerces all
+   * @property {boolean} [forceCharset=false] - If true, this coerces all
    *   types to use the charset option, even if the message specifies a
    *   different content-type.
    *
@@ -2113,7 +2113,7 @@ const JsMIMEmimeparser = function () {
       strformat: "binarystring",
       stripcontinuations: true,
       charset: "",
-      "force-charset": false,
+      forceCharset: false,
       onerror() {},
     };
     // Load the options as a copy here (prevents people from changing on the fly).
@@ -2552,7 +2552,7 @@ const JsMIMEmimeparser = function () {
     // conversion, use that first. Otherwise, check the content-type for one and
     // fallback to a default if it is not present.
     let charset = "";
-    if (this._options["force-charset"]) {
+    if (this._options.forceCharset) {
       charset = this._options.charset;
     } else if (contentType.has("charset")) {
       charset = contentType.get("charset");

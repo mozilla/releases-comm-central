@@ -16,7 +16,7 @@ const { gAccountSetupLogger } = AccountCreationUtils;
  * Account Hub Header Template
  * Template ID: #accountHubHeaderTemplate (from accountHubHeaderTemplate.inc.xhtml)
  *
- * @fires request-close - Event when close button is clicked to close dialog.
+ * @fires CustomEvent#"request-close" - When close button is clicked to close dialog.
  */
 class AccountHubHeader extends HTMLElement {
   /**

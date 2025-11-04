@@ -64,7 +64,7 @@ var log = console.createInstance({
  *                       created by the factory, where CID is a string uuid.
  *      }
  *
- *   @param {class} aJsDelegateConstructor - a JS constructor class, called using new,
+ *   @param {Class} aJsDelegateConstructor - a JS constructor class, called using new,
  *     that will create the JS object to which XPCOM methods calls will be delegated.
  */
 
