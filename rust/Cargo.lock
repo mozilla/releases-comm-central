@@ -3746,8 +3746,8 @@ dependencies = [
 
 [[package]]
 name = "midir"
-version = "0.10.1"
-source = "git+https://github.com/mozilla/midir.git?rev=37ad39de3382c2aad0758dab49ba545331a2257d#37ad39de3382c2aad0758dab49ba545331a2257d"
+version = "0.10.3"
+source = "git+https://github.com/mozilla/midir.git?rev=0cc61b81b26088bb8d6e593caf96879879ab814b#0cc61b81b26088bb8d6e593caf96879879ab814b"
 dependencies = [
  "alsa",
  "coremidi",

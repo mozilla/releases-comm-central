@@ -96,9 +96,9 @@ git = "https://github.com/mozilla/cubeb-pulse-rs"
 rev = "4e3ea4bbc582705a4e7d9220679525283c035a7e"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/midir.git?rev=37ad39de3382c2aad0758dab49ba545331a2257d"]
+[source."git+https://github.com/mozilla/midir.git?rev=0cc61b81b26088bb8d6e593caf96879879ab814b"]
 git = "https://github.com/mozilla/midir.git"
-rev = "37ad39de3382c2aad0758dab49ba545331a2257d"
+rev = "0cc61b81b26088bb8d6e593caf96879879ab814b"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/mp4parse-rust?rev=f955be5d2a04a631c0f1777d6f35370ea1a99e2d"]

@@ -12,7 +12,7 @@ soon as we will be able to vendor the upstream crate.
 **midir** currently supports the following platforms/backends: 
 - [x] ALSA (Linux)
 - [x] WinMM (Windows)
-- [x] CoreMIDI (macOS, iOS (untested))
+- [x] CoreMIDI (macOS, iOS)
 - [x] WinRT (Windows 8+), enable the `winrt` feature
 - [x] Jack (Linux, macOS), enable the `jack` feature
 - [x] Web MIDI (Chrome, Opera, perhaps others browsers)

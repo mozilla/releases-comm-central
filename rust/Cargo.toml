@@ -238,7 +238,7 @@ firefox-on-glean = { path = "../../toolkit/components/glean/api" }
 icu_capi = { path = "../../intl/icu_capi" }
 icu_segmenter_data = { path = "../../intl/icu_segmenter_data" }
 libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
-midir = { git = "https://github.com/mozilla/midir.git", rev = "37ad39de3382c2aad0758dab49ba545331a2257d" }
+midir = { git = "https://github.com/mozilla/midir.git", rev = "0cc61b81b26088bb8d6e593caf96879879ab814b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
