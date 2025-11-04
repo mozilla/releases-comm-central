@@ -8,6 +8,7 @@ import sys
 from importlib import import_module
 
 from mozilla_taskgraph import register as register_mozilla_taskgraph
+from taskgraph import generator
 
 from gecko_taskgraph import GECKO
 from gecko_taskgraph.optimize.schema import set_optimization_schema  # noqa: F401
@@ -47,10 +48,16 @@ def register(graph_config):
     from comm_taskgraph.parameters import register_parameters
     from comm_taskgraph.util import taskgraph_attributes  # noqa: F401 patch gecko_taskgraph
 
+    # TODO switch to using gecko_taskgraph verifications
+    from comm_taskgraph.util.verify import verifications
+
     logger.info("{} path registered".format(__name__))
     register_parameters()
 
     register_mozilla_taskgraph(graph_config)
+
+    # Don't use the upstream verifications, and replace them with our own.
+    generator.verifications = verifications
 
     set_optimization_schema(thunderbird_optimizations)
 
