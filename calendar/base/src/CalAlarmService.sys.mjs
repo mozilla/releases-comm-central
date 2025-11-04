@@ -835,9 +835,9 @@ CalAlarmService.prototype = {
 
   get isLoading() {
     for (const calId in this.mLoadedCalendars) {
-      // we need to exclude calendars which failed to load explicitly to
-      // prevent the alaram dialog to stay opened after dismissing all
-      // alarms if there is a network calendar that failed to load
+      // We need to exclude calendars which failed to load explicitly, to
+      // prevent the alarm dialog staying open after dismissing all
+      // alarms if there is a network calendar that failed to load.
       const currentStatus = cal.manager.getCalendarById(calId).getProperty("currentStatus");
       if (!this.mLoadedCalendars[calId] && Components.isSuccessCode(currentStatus)) {
         return true;
