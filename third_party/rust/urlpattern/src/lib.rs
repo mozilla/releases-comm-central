@@ -1120,4 +1120,16 @@ mod tests {
     // Should use non-opaque canonicalization because of leading slash
     assert_eq!(myfile_pattern.pathname().to_string(), "/test");
   }
+
+  #[test]
+  fn issue72() {
+    let _ = <UrlPattern>::parse(
+      UrlPatternInit {
+        pathname: Some("\\\n*\0".to_string()),
+        ..Default::default()
+      },
+      Default::default(),
+    )
+    .unwrap();
+  }
 }

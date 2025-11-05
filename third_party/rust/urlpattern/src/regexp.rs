@@ -22,8 +22,8 @@ impl RegExp for regex::Regex {
     RegexSyntax::Rust
   }
 
-  fn parse(pattern: &str, flags: &str, _force_eval: bool) -> Result<Self, ()> {
-    regex::Regex::new(&format!("(?{flags}){pattern}")).map_err(|_| ())
+  fn parse(pattern: &str, _flags: &str, _force_eval: bool) -> Result<Self, ()> {
+    regex::Regex::new(pattern).map_err(|_| ())
   }
 
   fn matches<'a>(&self, text: &'a str) -> Option<Vec<Option<&'a str>>> {

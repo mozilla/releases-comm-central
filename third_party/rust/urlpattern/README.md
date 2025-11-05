@@ -10,10 +10,6 @@ follow [the specification][spec] as closely as possible.
 
 ```rust
 use urlpattern::UrlPattern;
-use urlpattern::UrlPatternInput;
-use urlpattern::UrlPatternInit;
-
-use urlpattern::UrlPattern;
 use urlpattern::UrlPatternInit;
 use urlpattern::UrlPatternMatchInput;
 
@@ -23,12 +19,12 @@ fn main() {
     pathname: Some("/users/:id".to_owned()),
     ..Default::default()
   };
-  let pattern = <UrlPattern>::parse(init).unwrap();
+  let pattern = <UrlPattern>::parse(init, Default::default()).unwrap();
 
   // Match the pattern against a URL.
   let url = "https://example.com/users/123".parse().unwrap();
   let result = pattern.exec(UrlPatternMatchInput::Url(url)).unwrap().unwrap();
-  assert_eq!(result.pathname.groups.get("id").unwrap(), "123");
+  assert_eq!(result.pathname.groups.get("id").unwrap().as_ref().unwrap(), "123");
 }
 ```
 

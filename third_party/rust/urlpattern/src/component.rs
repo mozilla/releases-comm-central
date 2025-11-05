@@ -232,7 +232,7 @@ fn generate_pattern_string(part_list: &[&Part], options: &Options) -> String {
           kind: PartType::FixedText,
           value,
           ..
-        }) if value.chars().last().unwrap().to_string() == options.prefix_code_point
+        }) if !value.is_empty() && value.chars().last().unwrap().to_string() == options.prefix_code_point
       )
     {
       needs_grouping = true;
