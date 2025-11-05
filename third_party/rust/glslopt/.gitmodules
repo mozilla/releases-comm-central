@@ -1,3 +1,0 @@
-[submodule "glsl-optimizer"]
-	path = glsl-optimizer
-	url = https://github.com/jamienicol/glsl-optimizer.git

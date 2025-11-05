@@ -1,8 +1,0 @@
-image: "rust:1.56"
-
-test-job:
-  script:
-    - rustc --version && cargo --version
-    - rustup component add clippy
-    - cargo clippy
-    - cargo test
