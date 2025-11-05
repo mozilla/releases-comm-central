@@ -71,8 +71,8 @@ impl Response {
         Ok(self)
     }
 
-    /// Retrieves a single header from the response.
-    pub fn header(&self, key: String) -> crate::Result<String> {
+    /// Retrieves the values of the response headers with the given name.
+    pub fn header(&self, key: String) -> crate::Result<Vec<String>> {
         let key = nsCString::from(key);
         let mut value = nsCString::new();
 
@@ -82,7 +82,17 @@ impl Response {
                 .to_result()?;
         }
 
-        Ok(value.to_utf8().into_owned())
+        // If there are multiple headers with the same name, Necko seems to
+        // place each value on a different line (without a trailing line break
+        // at the end of the last value), so splitting on line breaks splits
+        // them up nicely.
+        let value: Vec<String> = value
+            .to_utf8()
+            .split("\n")
+            .map(|split| split.to_string())
+            .collect();
+
+        Ok(value)
     }
 
     /// Retrieves the body bytes from the response.

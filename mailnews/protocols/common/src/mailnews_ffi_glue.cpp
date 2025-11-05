@@ -11,6 +11,21 @@
 
 using namespace mozilla::net;
 
+extern "C" nsresult new_auth_module(const char* authMethod,
+                                    nsIAuthModule** outModule) {
+  nsCOMPtr<nsIAuthModule> module = nsIAuthModule::CreateInstance(authMethod);
+  if (!module) {
+    // As per the call contract set out in the function's documentation, we must
+    // not return a success if `CreateInstance` returned a null pointer (which
+    // it does if `authMethod` is unknown, or if we request NTLM but it's not
+    // available).
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  module.forget(outModule);
+  return NS_OK;
+}
+
 extern "C" nsresult new_loadinfo_with_cookie_settings(
     nsIPrincipal* aLoadingPrincipal, nsIPrincipal* aTriggeringPrincipal,
     nsINode* aLoadingNode, nsSecurityFlags aSecurityFlags,

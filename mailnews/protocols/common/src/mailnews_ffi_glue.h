@@ -5,9 +5,23 @@
 #ifndef COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_MAILNEWSFFIGLUE_H_
 #define COMM_MAILNEWS_PROTOCOLS_COMMON_SRC_MAILNEWSFFIGLUE_H_
 
+#include "nsIAuthModule.h"
 #include "nsILoadInfo.h"
 #include "nsINode.h"
 #include "nsIPrincipal.h"
+
+/**
+ * Helper function to instantiate an `nsIAuthModule` with the desired
+ * method/type from outside of C++.
+ *
+ * If a module could not be retrieved, `NS_ERROR_INVALID_ARG` is returned. This
+ * can happen if `authMethod` is unknown, or if we're trying to create an NTLM
+ * module but NTLM is unavailable (see `nsNTLMAuthModule::InitTest`). This means
+ * that, as long as this function succeeds, `outModule` is always a non-null
+ * `nsIAuthModule`.
+ */
+extern "C" nsresult new_auth_module(const char* authMethod,
+                                    nsIAuthModule** outModule);
 
 /**
  * Helper function to instantiate an `nsILoadInfo`, with an

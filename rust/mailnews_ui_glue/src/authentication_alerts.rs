@@ -79,7 +79,9 @@ where
 {
     match server.auth_method()? {
         nsMsgAuthMethod::OAuth2 => notify_oauth_failure(server),
-        nsMsgAuthMethod::passwordCleartext => notify_password_failure(server),
+        nsMsgAuthMethod::passwordCleartext | nsMsgAuthMethod::NTLM => {
+            notify_password_failure(server)
+        }
         _ => Err(nserror::NS_ERROR_NOT_IMPLEMENTED),
     }
 }
@@ -111,7 +113,9 @@ where
 ///    after validating which [`AuthErrorOutcome::RETRY`] is returned to let the
 ///    server it should try again with the new password.
 ///  * cancel: [`AuthErrorOutcome::ABORT`] is returned immediately.
-fn notify_password_failure<ServerT>(server: RefPtr<ServerT>) -> Result<AuthErrorOutcome, nsresult>
+pub fn notify_password_failure<ServerT>(
+    server: RefPtr<ServerT>,
+) -> Result<AuthErrorOutcome, nsresult>
 where
     ServerT: UserInteractiveServer + RefCounted,
 {
