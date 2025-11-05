@@ -152,6 +152,11 @@ OAuth2Module.prototype = {
     return "";
   },
   async setRefreshToken(token) {
+    // This might seem unnecessary, given that `setRefreshToken` gets called
+    // because of a change in `this._oauth.refreshToken`, but we also might
+    // be here because of an external caller, e.g. an add-on.
+    this._oauth.refreshToken = token;
+
     const scope = this._oauth.scope ?? this._scope;
     const grantedScopes = scopeSet(scope);
 

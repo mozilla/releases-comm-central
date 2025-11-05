@@ -531,6 +531,50 @@ add_task(async function testSetRefreshTokenPreservesOthers() {
   delete oAuth2Server.grantedScope;
 });
 
+/**
+ * Tests that calling `setRefreshToken` from outside the module (e.g. an
+ * add-on) sets the refresh token on the inner object, as well as saving the
+ * token to the login manager.
+ */
+add_task(async function testSetRefreshTokenExternally() {
+  const mod = new OAuth2Module();
+  mod.initFromHostname("mochi.test", "victor@foo.invalid", "imap");
+  Assert.equal(mod._oauth.refreshToken, "");
+  await mod.setRefreshToken("external_token");
+  Assert.equal(
+    mod._oauth.refreshToken,
+    "external_token",
+    "refresh token should be set in memory"
+  );
+
+  // Check that the saved token was updated.
+  const logins = await Services.logins.getAllLogins();
+  Assert.equal(logins.length, 1, "a login should have been added");
+
+  Assert.equal(logins[0].hostname, "oauth://test.test");
+  Assert.equal(logins[0].httpRealm, "test_scope");
+  Assert.equal(logins[0].username, "victor@foo.invalid");
+  Assert.equal(logins[0].password, "external_token", "token should be set");
+
+  await OAuth2TestUtils.startServer({ refreshToken: "external_token" });
+  const deferred = Promise.withResolvers();
+  mod.connect(false, {
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+  await deferred.promise;
+
+  Assert.equal(
+    mod._oauth.refreshToken,
+    "external_token",
+    "refresh token should still be set in memory"
+  );
+
+  Services.logins.removeAllLogins();
+  OAuth2TestUtils.forgetObjects();
+  OAuth2TestUtils.stopServer();
+});
+
 add_task(async function testOverrideIssuerDetails() {
   const mod = new OAuth2Module();
 
