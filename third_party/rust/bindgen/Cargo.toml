@@ -46,15 +46,14 @@ repository = "https://github.com/rust-lang/rust-bindgen"
 features = ["experimental"]
 
 [package.metadata.release]
-release = true
 pre-release-hook = [
     "../node_modules/doctoc/doctoc.js",
     "../CHANGELOG.md",
 ]
+release = true
 
 [[package.metadata.release.pre-release-replacements]]
 file = "../CHANGELOG.md"
-search = "# Unreleased"
 replace = """
 # Unreleased
 ## Added
@@ -64,6 +63,7 @@ replace = """
 ## Security
 
 # {{version}} ({{date}})"""
+search = "# Unreleased"
 
 [features]
 __cli = [
