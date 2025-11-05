@@ -22,6 +22,7 @@ use std::{
     cell::{Cell, RefCell},
     collections::VecDeque,
     env,
+    ops::ControlFlow,
 };
 
 use ews::{
@@ -49,7 +50,10 @@ use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
-    authentication::credentials::{AuthenticationProvider, Credentials},
+    authentication::{
+        credentials::{AuthValidationOutcome, AuthenticationProvider, Credentials},
+        ntlm::{self, NTLMAuthOutcome},
+    },
     client::server_version::{read_server_version, DEFAULT_EWS_SERVER_VERSION},
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
@@ -541,6 +545,67 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         Ok(response)
     }
 
+    /// Handles an authentication failure from the server.
+    ///
+    /// This method instructs its consumer on whether to retry
+    /// ([`ControlFlow::Continue`]) or cancel the request
+    /// ([`ControlFlow::Break`]) based on user input and the authentication
+    /// method.
+    // Clippy warns that this method keeps a borrow on `self.credentials` while
+    // awaiting futures. This is not an issue here, because we never take a
+    // mutable borrow of `self.credentials`, and we only call `replace()` on it
+    // outside of blocks that take an immutable borrow on it.
+    #[allow(clippy::await_holding_refcell_ref)]
+    async fn handle_authentication_failure(&self) -> Result<ControlFlow<()>, XpComEwsError> {
+        if let Credentials::Ntlm {
+            username,
+            password,
+            ews_url,
+        } = &*self.credentials.borrow()
+        {
+            // NTLM is a bit special since it authenticates through additional
+            // requests to complete a challenge, and the result of this flow is
+            // persisted through a cookie. This means we might be getting a 401
+            // response because the cookie expired, so we should try refreshing
+            // it before prompting for a new password.
+            match ntlm::authenticate(username, password, ews_url).await? {
+                NTLMAuthOutcome::Success => return Ok(ControlFlow::Continue(())),
+                NTLMAuthOutcome::Failure => (),
+            }
+        }
+
+        loop {
+            let outcome = handle_auth_failure(self.server.clone())?;
+
+            // Refresh the credentials before potentially retrying, because they
+            // might have changed (e.g. if the user entered a new password after
+            // being prompted for one), and should we emit more requests using
+            // this client, we should be using up to date credentials.
+            let credentials = self.server.get_credentials()?;
+            self.credentials.replace(credentials);
+
+            match outcome {
+                AuthErrorOutcome::RETRY => {
+                    match self.credentials.borrow().validate().await? {
+                        // The credentials work, let's move on.
+                        AuthValidationOutcome::Valid => break,
+
+                        // The credentials are still invalid, let's prompt the
+                        // user for more info.
+                        AuthValidationOutcome::Invalid => continue,
+                    }
+                }
+
+                // The user has cancelled from the password prompt, or the
+                // selected authentication method does not support retrying at
+                // this stage, let's stop here.
+                AuthErrorOutcome::ABORT => return Ok(ControlFlow::Break(())),
+            }
+        }
+
+        Ok(ControlFlow::Continue(()))
+    }
+
     /// Makes a request to the EWS endpoint to perform an operation.
     ///
     /// If the entire request or first response is throttled, the request will
@@ -563,7 +628,8 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         };
         let request_body = envelope.as_xml_document()?;
 
-        // Loop in case we need to retry the request after a delay.
+        // Loop in case we need to retry the request after a delay or an
+        // authentication failure.
         loop {
             let response = match self
                 .send_authenticated_request(&request_body, op_name)
@@ -585,19 +651,17 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                                 AuthFailureBehavior::ReAuth
                             ) =>
                         {
-                            let outcome = handle_auth_failure(self.server.clone())?;
+                            match self.handle_authentication_failure().await? {
+                                // We should continue with the authentication
+                                // attempts, and retry the request with
+                                // refreshed credentials.
+                                ControlFlow::Continue(_) => continue,
 
-                            // Refresh the credentials before potentially retrying,
-                            // because they might have changed (e.g. if the user
-                            // entered a new password after being prompted for one),
-                            // and should we emit more requests using this client,
-                            // we should be using up to date credentials.
-                            let credentials = self.server.get_credentials()?;
-                            self.credentials.replace(credentials);
-
-                            match outcome {
-                                AuthErrorOutcome::RETRY => continue,
-                                AuthErrorOutcome::ABORT => return Err(err),
+                                // We've been instructed to abort the request
+                                // here (either because the user asked us to, or
+                                // because the selected authentication method
+                                // does not support retrying at this stage).
+                                ControlFlow::Break(_) => return Err(err),
                             }
                         }
 
@@ -724,17 +788,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         // Fetch the Authorization header value for each request in case of
         // token expiration between requests.
         let credentials = self.credentials.borrow().clone();
-        let auth_header_value = match credentials.to_auth_header_value().await {
-            Ok(value) => value,
-            // The OAuth2 module will return `NS_ERROR_ABORT` if it's failed
-            // to get credentials even after prompting the user again. We
-            // want to catch this so we can properly process it as an
-            // authentication error.
-            Err(err) if err == nserror::NS_ERROR_ABORT => {
-                return Err(XpComEwsError::Authentication);
-            }
-            Err(err) => return Err(err.into()),
-        };
+        let auth_header_value = credentials.to_auth_header_value().await?;
 
         // Generate random id for logging purposes.
         let request_id = Uuid::new_v4();
@@ -745,10 +799,14 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
             log::info!("C: {}", String::from_utf8_lossy(request_body));
         }
 
-        let response = self
-            .client
-            .post(&self.endpoint)?
-            .header("Authorization", &auth_header_value)
+        let mut request_builder = self.client.post(&self.endpoint)?;
+
+        if let Some(ref hdr_value) = auth_header_value {
+            // Only set an `Authorization` header if necessary.
+            request_builder = request_builder.header("Authorization", hdr_value);
+        }
+
+        let response = request_builder
             .body(request_body, "text/xml; charset=utf-8")
             .send()
             .await?;

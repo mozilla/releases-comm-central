@@ -93,7 +93,7 @@ impl<'rb> RequestBuilder<'rb> {
     }
 
     /// Adds an HTTP header to the request.
-    pub fn header(&'rb mut self, key: &'rb str, value: &'rb str) -> &'rb mut RequestBuilder<'rb> {
+    pub fn header(mut self, key: &'rb str, value: &'rb str) -> RequestBuilder<'rb> {
         self.headers.insert(key, value);
 
         self
@@ -108,10 +108,10 @@ impl<'rb> RequestBuilder<'rb> {
     /// The body's length cannot exceed [`i32::MAX`] (otherwise an error will be
     /// returned by [`RequestBuilder::send`]).
     pub fn body<T: Into<Body<'rb>>>(
-        &'rb mut self,
+        mut self,
         body: T,
         content_type: &'rb str,
-    ) -> &'rb mut RequestBuilder<'rb> {
+    ) -> RequestBuilder<'rb> {
         self.body = Some(RequestBody {
             content: body.into(),
             content_type,
