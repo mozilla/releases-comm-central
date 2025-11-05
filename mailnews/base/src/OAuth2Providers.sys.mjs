@@ -39,6 +39,12 @@ const EWS_SCOPES = {
   exchange: "https://outlook.office.com/EWS.AccessAsUser.All",
   extra: "offline_access",
 };
+
+const GRAPH_SCOPES = {
+  exchange: "https://graph.microsoft.com/User.Read",
+  graph: "https://graph.microsoft.com/User.Read",
+};
+
 const TBPRO_SCOPES = "openid profile email offline_access";
 
 /**
@@ -299,6 +305,12 @@ export var OAuth2Providers = {
       return undefined;
     }
 
+    // Only allow graph scopes if the Graph API support pref is enabled.
+    const graphApiPrefEnabled = Services.prefs.getBoolPref(
+      "mail.graph.enabled",
+      false
+    );
+
     let [issuer, scopes] = details;
     if (
       issuer == "login.microsoftonline.com" &&
@@ -306,7 +318,14 @@ export var OAuth2Providers = {
     ) {
       // Special case for EWS, to avoid asking for the scope when not needed.
       scopes = EWS_SCOPES;
+    } else if (
+      graphApiPrefEnabled &&
+      issuer == "login.microsoftonline.com" &&
+      type == "graph"
+    ) {
+      scopes = GRAPH_SCOPES;
     }
+
     if (typeof scopes == "string") {
       // Scopes not separated into types.
       return { issuer, allScopes: scopes, requiredScopes: scopes };

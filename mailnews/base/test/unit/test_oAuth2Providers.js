@@ -146,6 +146,27 @@ add_task(function testMicrosoftHostnameDetails() {
         "https://outlook.office.com/EWS.AccessAsUser.All offline_access",
     }
   );
+
+  // Make sure we don't support Graph API without the experimental pref.
+  Assert.ok(
+    !OAuth2Providers.getHostnameDetails("outlook.office365.com", "graph")
+  );
+
+  Services.prefs.setBoolPref("mail.graph.enabled", true);
+
+  // The `outlook.office365.com` host may need to be changed, especially once
+  // autodiscover is implemented in
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1995836.
+  Assert.deepEqual(
+    OAuth2Providers.getHostnameDetails("outlook.office365.com", "graph"),
+    {
+      issuer: "login.microsoftonline.com",
+      allScopes: "https://graph.microsoft.com/User.Read",
+      requiredScopes: "https://graph.microsoft.com/User.Read",
+    }
+  );
+
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
 });
 
 add_task(function testRegisterUnregister() {

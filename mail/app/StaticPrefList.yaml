@@ -38,6 +38,12 @@
   value: false
   mirror: once
 
+# Is Microsoft Graph enabled? This is currently experimental.
+- name: mail.graph.enabled
+  type: bool
+  value: false
+  mirror: always
+
 # Whether the colors from tags should be applied only to the message(s)
 # actually tagged, or also to any collapsed threads which contain tagged
 # messages.
