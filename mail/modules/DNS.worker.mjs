@@ -147,6 +147,46 @@ class load_libresolv {
     this.NS_C_IN = 1;
   }
 
+  /**
+   * A wrapper around ns_get16 that performs bounds checks.
+   *
+   * This function will throw an exception if obtaining the value will result in
+   * a buffer overrun.
+   *
+   * @param {index} idx The index to obtain the 16-bit value at.
+   * @param {ctypes.unsigned_char.array} answer The DNS query answer buffer.
+   * @param {integer} length The length of the DNS query answer buffer.
+   * @returns {integer} The value at the index.
+   */
+  _safe_get16(idx, answer, length) {
+    if (idx + 2 > length) {
+      throw new Error(
+        `ns_get16: Illegal index ${idx} into array with length ${length}`
+      );
+    }
+    return this.ns_get16(answer.addressOfElement(idx));
+  }
+
+  /**
+   * A wrapper around ns_get32 that performs bounds checks.
+   *
+   * This function will throw an exception if obtaining the value will result in
+   * a buffer overrun.
+   *
+   * @param {index} idx The index to obtain the 32-bit value at.
+   * @param {ctypes.unsigned_char.array} answer The DNS query answer buffer.
+   * @param {integer} length The length of the DNS query answer buffer.
+   * @returns {integer} The value at the index.
+   */
+  _safe_get32(idx, answer, length) {
+    if (idx + 4 > length) {
+      throw new Error(
+        `ns_get32: Illegal index ${idx} into array with length ${length}`
+      );
+    }
+    return this.ns_get32(answer.addressOfElement(idx));
+  }
+
   close() {
     this.library.close();
     this.library = null;
@@ -165,9 +205,9 @@ class load_libresolv {
    */
   _mapAnswer(aTypeID, aAnswer, aIdx, aLength, aDataLength) {
     if (aTypeID == NS_T_SRV) {
-      const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
-      const weight = this.ns_get16(aAnswer.addressOfElement(aIdx + 2));
-      const port = this.ns_get16(aAnswer.addressOfElement(aIdx + 4));
+      const prio = this._safe_get16(aIdx, aAnswer, aLength);
+      const weight = this._safe_get16(aIdx + 2, aAnswer, aLength);
+      const port = this._safe_get16(aIdx + 4, aAnswer, aLength);
 
       const hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
       const hostlen = this.dn_expand(
@@ -204,7 +244,7 @@ class load_libresolv {
       return new TXTRecord(strings);
     }
     if (aTypeID == NS_T_MX) {
-      const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
+      const prio = this._safe_get16(aIdx, aAnswer, aLength);
 
       const hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
       const hostlen = this.dn_expand(
@@ -247,15 +287,15 @@ class load_libresolv {
     const results = [];
     let idx = this.NS_HFIXEDSZ;
 
-    const qdcount = this.ns_get16(answer.addressOfElement(4));
-    const ancount = this.ns_get16(answer.addressOfElement(6));
+    const qdcount = this._safe_get16(4, answer, length);
+    const ancount = this._safe_get16(6, answer, length);
 
     for (let qdidx = 0; qdidx < qdcount && idx < length; qdidx++) {
       const nextNameOffset = this.dn_skipname(
         answer.addressOfElement(idx),
         answer.addressOfElement(length)
       );
-      if (nextNameOffset < 0) {
+      if (nextNameOffset < 0 || idx + nextNameOffset >= length) {
         return [];
       }
       idx += this.NS_QFIXEDSZ + nextNameOffset;
@@ -270,11 +310,21 @@ class load_libresolv {
         return [];
       }
       idx += nextNameOffset;
+
       const rridx = idx;
-      const type = this.ns_get16(answer.addressOfElement(rridx));
-      const dataLength = this.ns_get16(answer.addressOfElement(rridx + 8));
+      const type = this._safe_get16(rridx, answer, length);
+      const nsclass = this._safe_get16(rridx + 2, answer, length);
+      const ttl = this._safe_get32(rridx + 4, answer, length) | 0;
+      const dataLength = this._safe_get16(rridx + 8, answer, length);
 
       idx += this.NS_RRFIXEDSZ;
+
+      // Make sure the data payload is within the answer buffer length bounds.
+      if (idx + dataLength > length) {
+        throw new Error(
+          `Data overrun at index ${idx} with data length ${dataLength} for array of size ${length}.`
+        );
+      }
 
       if (type === aTypeID) {
         const resource = this._mapAnswer(
@@ -285,8 +335,8 @@ class load_libresolv {
           dataLength
         );
         resource.type = type;
-        resource.nsclass = this.ns_get16(answer.addressOfElement(rridx + 2));
-        resource.ttl = this.ns_get32(answer.addressOfElement(rridx + 4)) | 0;
+        resource.nsclass = nsclass;
+        resource.ttl = ttl;
         results.push(resource);
       }
       idx += dataLength;
