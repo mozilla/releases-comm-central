@@ -35,7 +35,7 @@
               "nodeId": {
                 "type": "string",
                 "min_manifest_version": 3,
-                "description": "The ID of a contact or mailing list node from the $(doc:addressBook.contacts) or $(doc:addressBook.mailingLists)."
+                "description": "The ID of a contact or mailing list node from the $(doc:addressBooks.contacts) or $(doc:addressBooks.mailingLists)."
               },
               "type": {
                 "type": "string",
@@ -232,12 +232,12 @@
               }
             ],
             "optional": true,
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolder) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. The permission <permission>accountsRead</permission> is required to use this property."
+            "description": "This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolder) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. The permission <permission>accountsRead</permission> is required to use this property."
           },
           "overrideDefaultFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolderId) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>. The permission <permission>accountsRead</permission> is required to use this property.",
+            "description": "This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolderId) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": "omit-key-if-missing"
           },
           "plainTextBody": {
@@ -252,7 +252,7 @@
             "optional": true
           },
           "relatedMessageId": {
-            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <var>undefined</var> in all other cases or if the original message was opened from file.",
+            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <var>undefined</var> in all other cases or if the original message was opened from file. The <permission>messagesRead</permission> permission is required to use this property.",
             "$ref": "messages.MessageId",
             "optional": true
           },
@@ -451,7 +451,7 @@
                 "items": {
                   "$ref": "messages.MessageHeader"
                 },
-                "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc)."
+                "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc). The <permission>messagesRead</permission> permission is required for this property to be included."
               }
             }
           }
@@ -486,7 +486,7 @@
                 "items": {
                   "$ref": "messages.MessageHeader"
                 },
-                "description": "An array with exactly one element, the saved message."
+                "description": "An array with exactly one element, the saved message. The <permission>messagesRead</permission> permission is required for this property to be included."
               }
             }
           }

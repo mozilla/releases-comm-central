@@ -16,8 +16,8 @@ properties:
 - `version_added` - a boolean value indicating whether the specified API or property
 is supported by Thunderbird, overriding automatically generated compat data from
 the schema files (schemas read from mail/ default to `true`, schemas read from
-browser/ and toolkit/ default to `false`), can also be an string with a version
-number to override the automatically calculated first supporting version
+browser/ and toolkit/ default to `false`), can also be a string with a version
+number to override the automatically calculated first supporting version.
 
 Annotation objects may also include `min_manifest_version` and `max_manifest_version`
 properties to specify for which manifest version the annotated information is valid.

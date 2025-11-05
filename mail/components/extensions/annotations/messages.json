@@ -44,7 +44,7 @@
                     "code": "includes/messages/decodeBinaryString.js"
                   },
                   {
-                    "text": " See MDN for $(url:input-encoding)[supported input encodings]."
+                    "text": "See MDN for $(url:input-encoding)[supported input encodings]."
                   }
                 ]
               }

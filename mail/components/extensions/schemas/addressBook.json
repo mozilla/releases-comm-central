@@ -405,45 +405,85 @@
     "types": [
       {
         "id": "QueryInfo",
-        "description": "Object defining a query for $(ref:contacts.quickSearch).",
-        "type": "object",
-        "properties": {
-          "parentId": {
-            "type": "string",
+        "choices": [
+          {
+            "max_manifest_version": 2,
+            "description": "Object defining a query for $(ref:contacts.quickSearch).",
+            "type": "object",
+            "properties": {
+              "searchString": {
+                "type": "string",
+                "optional": true,
+                "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <var>mail.addr_book.quicksearchquery.format</var>)."
+              },
+              "includeLocal": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from local address books. Defaults to <var>true</var>."
+              },
+              "includeRemote": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from remote address books. Defaults to <var>true</var>."
+              },
+              "includeReadOnly": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from read-only address books. Defaults to <var>true</var>."
+              },
+              "includeReadWrite": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from read-write address books. Defaults to <var>true</var>."
+              }
+            }
+          },
+          {
             "min_manifest_version": 3,
-            "optional": true,
-            "description": "The id of the address book to search. If not specified, all address books are searched."
-          },
-          "searchString": {
-            "type": "string",
-            "optional": true,
-            "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <var>mail.addr_book.quicksearchquery.format</var>)."
-          },
-          "includeLocal": {
-            "type": "boolean",
-            "optional": true,
-            "default": true,
-            "description": "Whether to include results from local address books. Defaults to <var>true</var>."
-          },
-          "includeRemote": {
-            "type": "boolean",
-            "optional": true,
-            "default": true,
-            "description": "Whether to include results from remote address books. Defaults to <var>true</var>."
-          },
-          "includeReadOnly": {
-            "type": "boolean",
-            "optional": true,
-            "default": true,
-            "description": "Whether to include results from read-only address books. Defaults to <var>true</var>."
-          },
-          "includeReadWrite": {
-            "type": "boolean",
-            "optional": true,
-            "default": true,
-            "description": "Whether to include results from read-write address books. Defaults to <var>true</var>."
+            "description": "Object defining a query for $(ref:contacts.query).",
+            "type": "object",
+            "properties": {
+              "parentId": {
+                "type": "string",
+                "optional": true,
+                "description": "The id of the address book to search. If not specified, all address books are searched."
+              },
+              "searchString": {
+                "type": "string",
+                "optional": true,
+                "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <var>mail.addr_book.quicksearchquery.format</var>)."
+              },
+              "includeLocal": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from local address books. Defaults to <var>true</var>."
+              },
+              "includeRemote": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from remote address books. Defaults to <var>true</var>."
+              },
+              "includeReadOnly": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from read-only address books. Defaults to <var>true</var>."
+              },
+              "includeReadWrite": {
+                "type": "boolean",
+                "optional": true,
+                "default": true,
+                "description": "Whether to include results from read-write address books. Defaults to <var>true</var>."
+              }
+            }
           }
-        }
+        ]
       },
       {
         "id": "ContactNode",

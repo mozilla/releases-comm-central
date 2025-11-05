@@ -16,6 +16,14 @@
         ]
       },
       {
+        "id": "ExtensionFileUrl",
+        "annotations": [
+          {
+            "text": "A path relative to the root of the extension, must not be empty and can be localized."
+          }
+        ]
+      },
+      {
         "id": "ThemeIcons",
         "annotations": [
           {
@@ -48,6 +56,14 @@
           },
           {
             "code": "includes/base64Image"
+          }
+        ]
+      },
+      {
+        "id": "CommonDataCollectionPermission",
+        "annotations": [
+          {
+            "warning": "Unlike Firefox, Thunderbird does not use the built-in onboarding flow that prompts users to opt into data collection. In Thunderbird, add-ons must request consent explicitly, for example by adding a checkbox on the options page or by showing a popup. The application does not provide an automatic prompt."
           }
         ]
       }

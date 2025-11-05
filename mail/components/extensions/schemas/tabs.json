@@ -491,7 +491,7 @@
               "title": {
                 "type": "string",
                 "optional": true,
-                "description": "Match page titles against a pattern."
+                "description": "Match page titles against a pattern. The <permission>tabs</permission> permission is required to use this property."
               },
               "url": {
                 "choices": [
@@ -506,7 +506,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Match tabs against one or more $(url:match-patterns)[URL Patterns]. Fragment identifiers are not matched."
+                "description": "Match tabs against one or more $(url:match-patterns)[URL Patterns]. Fragment identifiers are not matched. The <permission>tabs</permission> permission is required to use this property."
               },
               "windowId": {
                 "type": "integer",
