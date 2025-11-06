@@ -114,7 +114,11 @@
       // FIXME: Temporarily ignore numbers coming from the Numpad to prevent
       // hijacking Alt characters typing in Windows. This can be removed once
       // we implement customizable shortcuts.
-      if (!shortcut || event.location == 3) {
+      if (
+        !shortcut ||
+        event.location == 3 ||
+        document.getElementById("tabmail").globalOverlay
+      ) {
         return;
       }
       event.preventDefault();
