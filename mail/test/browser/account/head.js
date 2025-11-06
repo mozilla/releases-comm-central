@@ -515,3 +515,34 @@ function removeAccountInternal(tab, account) {
   MailServices.outgoingServer.deleteServer(outgoing);
   win.replaceWithDefaultSmtpServer(smtpKey);
 }
+
+// Report and remove any accounts/servers that aren't in the test manifest.
+// If we register a cleanup function here, it will run before any other
+// cleanup function has had a chance to run. Instead, when it runs register
+// another cleanup function which will run last.
+registerCleanupFunction(function () {
+  registerCleanupFunction(async function () {
+    for (const server of MailServices.accounts.allServers) {
+      if (!["server1", "server2"].includes(server.key)) {
+        Assert.report(
+          true,
+          undefined,
+          undefined,
+          `Found server ${server.key} at the end of the test run`
+        );
+        MailServices.accounts.removeIncomingServer(server, false);
+      }
+    }
+    for (const account of MailServices.accounts.accounts) {
+      if (!["account1", "account2"].includes(account.key)) {
+        Assert.report(
+          true,
+          undefined,
+          undefined,
+          `Found account ${account.key} at the end of the test run`
+        );
+        MailServices.accounts.removeAccount(account, false);
+      }
+    }
+  });
+});

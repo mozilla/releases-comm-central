@@ -844,4 +844,9 @@ registerCleanupFunction(function () {
   DNS.srv = _srv;
   DNS.txt = _txt;
   Services.prefs.clearUserPref("mail.suppressAlertsForTests");
+  for (const account of MailServices.accounts.accounts) {
+    if (!["account1", "account2"].includes(account.key)) {
+      MailServices.accounts.removeAccount(account, false);
+    }
+  }
 });
