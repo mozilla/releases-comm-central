@@ -3040,28 +3040,48 @@ nsString nsMsgDBFolder::GetLocalizedNameInternal() {
   if (mFlags & nsMsgFolderFlags::Inbox) {
     return kLocalizedInboxName;
   }
+
+  nsAutoCString serverType;
+  GetIncomingServerType(serverType);
+  bool isLocalFolders = serverType.Equals("none");
+
   if (mFlags & nsMsgFolderFlags::SentMail) {
-    return kLocalizedSentName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("sent")) {
+      return kLocalizedSentName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Drafts) {
-    return kLocalizedDraftsName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("drafts")) {
+      return kLocalizedDraftsName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Templates) {
-    return kLocalizedTemplatesName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("templates")) {
+      return kLocalizedTemplatesName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Trash) {
-    return kLocalizedTrashName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("trash")) {
+      return kLocalizedTrashName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Queue) {
-    return kLocalizedUnsentName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("unsent messages")) {
+      return kLocalizedUnsentName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Junk) {
-    return kLocalizedJunkName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("junk")) {
+      return kLocalizedJunkName;
+    }
   }
   if (mFlags & nsMsgFolderFlags::Archive &&
       !(mFlags & nsMsgFolderFlags::AllMail)) {
-    return kLocalizedArchivesName;
+    if (!isLocalFolders || mName.LowerCaseEqualsLiteral("archives")) {
+      return kLocalizedArchivesName;
+    }
   }
+
   return u""_ns;
 }
 

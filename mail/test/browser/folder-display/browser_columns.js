@@ -773,7 +773,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
     { label: "Local Folders" },
   ];
   if (!folder.isServer) {
-    menuItems.push({ uri: folder.URI });
+    menuItems.push({ label: folder.name });
   }
   menuItems.push(menuItems.at(-1));
 

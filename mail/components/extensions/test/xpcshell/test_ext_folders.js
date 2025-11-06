@@ -757,7 +757,11 @@ add_task(
         // Prepare expected event folder value.
         trash.specialUse = ["drafts", "trash"];
         trash.type = "drafts";
-        trash.name = "Drafts";
+        if (account.type != "none") {
+          // Except on Local Folders, setting the Drafts flag causes the name
+          // to change from Trash to Drafts.
+          trash.name = "Drafts";
+        }
 
         window.assertDeepEqual(
           {

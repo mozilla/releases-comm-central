@@ -200,10 +200,10 @@ add_task(async function test_onNewMailReceived_custom() {
   );
   const draft = await createSubfolder(
     account.incomingServer.rootFolder,
-    "test2"
+    "Drafts"
   );
 
-  // Set the test2 folder to be a drafts folder, which should not trigger the
+  // Set the Drafts folder to be a drafts folder, which should not trigger the
   // onNewMailReceived event in the default listener configuration.
   draft.setFlag(Ci.nsMsgFolderFlags.Drafts);
 
