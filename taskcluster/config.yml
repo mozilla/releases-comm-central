@@ -162,7 +162,7 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
-        images-gcp-aarch64:
+        images-aarch64:
             provisioner: '{trust-domain}-{level}'
             implementation: docker-worker
             os: linux
