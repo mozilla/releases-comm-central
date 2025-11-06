@@ -67,6 +67,7 @@
   /* The selected tab should appear above adjacent tabs and the highlight
      of #tabs-toolbar */
   &[selected=true] {
+    -moz-user-focus: ignore;
     position: relative;
     z-index: 2;
     box-shadow: 0 2px 8px -5px var(--color-black);
