@@ -768,7 +768,8 @@ var mailContextMenu = {
     for (const tagInfo of MailServices.tags.getAllTags()) {
       const msgHasTag = currentTags.includes(tagInfo.key);
       if (tagInfo.ordinal.includes("~AUTOTAG") && !msgHasTag) {
-        return;
+        index++;
+        continue;
       }
 
       const item = document.createXULElement("menuitem");
