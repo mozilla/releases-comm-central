@@ -16,6 +16,7 @@ kind-dependencies:
     - release-mark-as-shipped
 
 task-defaults:
+    run-on-repo-type: [hg]
     name: notify-release-drivers-ship
     description: Sends email to release-drivers telling release was shipped.
     run-on-projects: []

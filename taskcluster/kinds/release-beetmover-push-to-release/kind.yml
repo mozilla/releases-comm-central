@@ -13,6 +13,7 @@ kind-dependencies:
     - release-generate-checksums-beetmover
 
 task-defaults:
+    run-on-repo-type: [hg]
     run-on-projects: []
     shipping-phase: push
 

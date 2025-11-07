@@ -13,6 +13,7 @@ kind-dependencies:
     - post-beetmover-dummy
 
 task-defaults:
+    run-on-repo-type: [hg]
     name: notify-av-announce
     description: Sends email to antivirus vendors telling them that the release is available for scanning.
     run-on-projects: []

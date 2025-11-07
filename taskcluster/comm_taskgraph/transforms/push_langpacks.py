@@ -41,6 +41,7 @@ langpack_push_description_schema = Schema(
         Required("run-on-projects"): [],
         Required("shipping-phase"): task_description_schema["shipping-phase"],
         Required("shipping-product"): task_description_schema["shipping-product"],
+        Optional("run-on-repo-type"): task_description_schema["run-on-repo-type"],
     }
 )
 
@@ -128,6 +129,8 @@ def make_task_description(config, jobs):
 
         job["dependencies"] = {dep_job.kind: dep_job.label}
         job["treeherder"] = treeherder
+
+        job["run-on-repo-type"] = ["hg"]
 
         yield job
 

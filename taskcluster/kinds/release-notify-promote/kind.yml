@@ -16,6 +16,7 @@ kind-dependencies:
     - beetmover-strings-source
 
 task-defaults:
+    run-on-repo-type: [hg]
     name: notify-release-drivers-promote
     description: Sends email to tb-drivers telling release was promoted.
     run-on-projects: []

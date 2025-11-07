@@ -13,6 +13,7 @@ kind-dependencies:
     - release-beetmover-push-to-release
 
 task-defaults:
+    run-on-repo-type: [hg]
     description: Release Promotion version bump/tag
     run-on-projects: []
     shipping-phase: ship

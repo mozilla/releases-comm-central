@@ -10,6 +10,7 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 task-defaults:
+    run-on-repo-type: [hg]
     description: Release Promotion version tag for buildN
     run-on-projects: []
     shipping-phase: promote

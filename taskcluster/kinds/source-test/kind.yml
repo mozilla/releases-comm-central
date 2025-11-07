@@ -23,6 +23,7 @@ tasks-from:
     - taskgraph.yml
 
 task-defaults:
+    run-on-repo-type: [hg]
     attributes:
         retrigger: true
     task-context:

@@ -15,6 +15,7 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 task-defaults:
+    run-on-repo-type: [hg]
     shipping-phase: promote
     shipping-product: thunderbird
     treeherder:

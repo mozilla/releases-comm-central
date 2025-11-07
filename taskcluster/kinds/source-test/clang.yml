@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 task-defaults:
+    run-on-repo-type: [hg]
     always-target: true
     platform: linux64/debug
     worker-type: t-linux-docker-amd

@@ -13,6 +13,7 @@ kind-dependencies:
     - release-bouncer-check
 
 task-defaults:
+    run-on-repo-type: [hg]
     run-on-projects: []
     shipping-phase: ship
     worker-type: balrog

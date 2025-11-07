@@ -14,6 +14,7 @@ kind-dependencies:
     - repackage-shippable-l10n-msix
 
 task-defaults:
+    run-on-repo-type: [hg]
     description: Pushes msix archives to Microsoft Store
     run-on-projects: []  # to make sure this never runs as part of CI
     run-on-releases: [beta, release, esr140]

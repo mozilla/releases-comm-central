@@ -11,6 +11,7 @@ transforms:
     - gecko_taskgraph.transforms.task:transforms
 
 task-defaults:
+    run-on-repo-type: [hg]
     run-on-projects: []  # to make sure this never runs in CI
     shipping-phase: promote
     worker-type: balrog

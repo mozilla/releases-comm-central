@@ -33,6 +33,7 @@ l10n_pre_schema = Schema(
         Optional("run"): job_description_schema["run"],
         Optional("run-on-projects"): task_description_schema["run-on-projects"],
         Optional("optimization"): task_description_schema["optimization"],
+        Optional("run-on-repo-type"): task_description_schema["run-on-repo-type"],
     }
 )
 
@@ -69,5 +70,7 @@ def make_job_description(config, jobs):
                 ],
             }
         )
+
+        job["run-on-repo-type"] = ["hg"]
 
         yield job
