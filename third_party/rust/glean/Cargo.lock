@@ -312,7 +312,7 @@ dependencies = [
 
 [[package]]
 name = "glean"
-version = "66.1.0"
+version = "66.1.1"
 dependencies = [
  "crossbeam-channel",
  "env_logger",
@@ -331,9 +331,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "66.1.0"
+version = "66.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f2e01e857cf2ca46dfcaa1228289adec3ceefe59350e9194dc87edac4ce6eda"
+checksum = "4be45adb18821dc6f6dfe02c52e9e161e3e4b2e8bcc6e826402b3c984b0e275f"
 dependencies = [
  "android_logger",
  "bincode",
