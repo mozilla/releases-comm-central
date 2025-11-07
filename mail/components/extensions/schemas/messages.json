@@ -1506,7 +1506,7 @@
         "name": "onDeleted",
         "type": "function",
         "description": "Fired when a message tag has been deleted.",
-        "permissions": ["accountsRead"],
+        "permissions": ["messagesTagsList"],
         "parameters": [
           {
             "type": "string",
