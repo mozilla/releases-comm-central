@@ -2380,6 +2380,7 @@ dependencies = [
  "geckoservo",
  "gkrust-shared",
  "gkrust_utils",
+ "graph_xpcom",
  "http_sfv",
  "idna_glue",
  "ipcclientcerts",
@@ -2741,6 +2742,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fdf242682df893b86f33a73828fb09ca4b2d3bb6cc95249707fc684d27484b91"
 dependencies = [
  "bitflags 2.9.0",
+]
+
+[[package]]
+name = "graph_xpcom"
+version = "0.1.0"
+dependencies = [
+ "xpcom",
+ "xpcom_async",
 ]
 
 [[package]]

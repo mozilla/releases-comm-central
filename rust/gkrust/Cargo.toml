@@ -114,6 +114,7 @@ webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
 wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
 xpcom = { path = "../../../xpcom/rust/xpcom" }
+graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["mozilla-central-workspace-hack"]

@@ -386,6 +386,7 @@ widths: 30 70
   -
     * mailnews/protocols/ews/\*\*
     * rust/ews_xpcom/\*\*
+    * rust/graph_xpcom/\*\*
 * - Bugzilla Components
   - MailNews Core::Networking: Exchange
 ```

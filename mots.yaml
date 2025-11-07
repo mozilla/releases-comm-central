@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-07-21T19:06:52.299459+00:00'
+updated_at: '2025-11-05T23:12:43.949648+00:00'
 hashes:
-  config: 805435385a2031b80b637d39761efda5b6cb4943
-  export: 2ed9d2bcf2dcfab8c656eb68221d3a9741160b53
+  config: 3d965360c149c3d8ab0e29c7fb38c8f18530e80b
+  export: 66b1335a01caa212b797a92b64472bcbd3d442b6
 export:
   path: ./docs/mots/index.md
   format: md
@@ -514,6 +514,7 @@ modules:
         includes:
           - mailnews/protocols/ews/**
           - rust/ews_xpcom/**
+          - rust/graph_xpcom/**
         owners: [*babolivier]
         peers:
           - *heather
