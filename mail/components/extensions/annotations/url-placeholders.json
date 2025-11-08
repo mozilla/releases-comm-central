@@ -59,8 +59,16 @@
   "runtime-last-error": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/lastError",
   "runtime-on-connect": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onConnect",
   "runtime-on-message": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage",
-  "theme-experiment": "https://github.com/thunderbird/webext-examples/tree/master/manifest_v2/theme_experiment",
   "source-thunderbird-schemas": "https://hg-edge.mozilla.org/comm-central/file/tip/mail/components/extensions/schemas",
+  "theme-experiment": "https://github.com/thunderbird/webext-examples/tree/master/manifest_v2/theme_experiment",
   "ui-elements": "https://developer.thunderbird.net/add-ons/mailextensions/supported-ui-elements#menu-items",
-  "user-input-restrictions": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions"
+  "user-input-restrictions": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions",
+  // The following are invalid relative URLs present in (Mozilla's) schema files, which have to be corrected.
+  "manifest/version": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version",
+  "manifest/version#version_name": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/version_name",
+  "manifest/icons": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/icons",
+  "events#filtered": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/events/UrlFilter",
+  "#type-DownloadItem": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/downloads/DownloadItem",
+  "#event-onCreated": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/downloads/onCreated",
+  "extension.html#property-lastError": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/lastError"
 }
