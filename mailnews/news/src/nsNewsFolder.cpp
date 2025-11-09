@@ -5,6 +5,7 @@
 
 #include "nsNewsFolder.h"
 
+#include "mozilla/intl/Localization.h"
 #include "nsIDBFolderInfo.h"
 #include "prlog.h"
 
@@ -34,7 +35,6 @@
 #include "nsNetCID.h"
 #include "nsINntpUrl.h"
 
-#include "nsIStringBundle.h"
 #include "nsMsgI18N.h"
 
 #include "nsIMsgFolderNotificationService.h"
@@ -927,18 +927,8 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_FALSE(mustPrompt && !mayPrompt, NS_ERROR_INVALID_ARG);
   NS_ENSURE_ARG_POINTER(validCredentials);
 
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  nsresult rv;
-  nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle("chrome://messenger/locale/news.properties",
-                                   getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsString signonUrl;
-  rv = CreateNewsgroupUrlForSignon(nullptr, signonUrl);
+  nsresult rv = CreateNewsgroupUrlForSignon(nullptr, signonUrl);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If we don't have a username or password, try to load it via the login mgr.
@@ -973,10 +963,6 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
     }
 
     if (authPrompt) {
-      // Format the prompt text strings
-      nsString promptTitle, promptText;
-      bundle->GetStringFromName("enterUserPassTitle", promptTitle);
-
       nsAutoCString serverName;
       nsCOMPtr<nsIMsgIncomingServer> server;
       rv = GetServer(getter_AddRefs(server));
@@ -991,14 +977,25 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
       bool singleSignon = true;
       nntpServer->GetSingleSignon(&singleSignon);
 
+      // Format the prompt text strings
+      RefPtr<mozilla::intl::Localization> l10n =
+          mozilla::intl::Localization::Create({"messenger/news.ftl"_ns}, true);
+
+      nsAutoCString promptTitle;
+      rv = LocalizeMessage(l10n, "enter-news-credentials-title"_ns, {},
+                           promptTitle);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsAutoCString promptText;
       if (singleSignon) {
-        AutoTArray<nsString, 1> params = {NS_ConvertUTF8toUTF16(serverName)};
-        bundle->FormatStringFromName("enterUserPassServer", params, promptText);
+        rv = LocalizeMessage(l10n, "enter-news-server-credentials"_ns,
+                             {{"server"_ns, serverName}}, promptText);
       } else {
-        AutoTArray<nsString, 2> params = {NS_ConvertUTF8toUTF16(mName),
-                                          NS_ConvertUTF8toUTF16(serverName)};
-        bundle->FormatStringFromName("enterUserPassGroup", params, promptText);
+        rv = LocalizeMessage(
+            l10n, "enter-news-group-credentials"_ns,
+            {{"newsgroup"_ns, mName}, {"server"_ns, serverName}}, promptText);
       }
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // Fill the signon url for the dialog
       nsString signonURL;
@@ -1013,7 +1010,8 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
 
       // Prompt for the dialog
       rv = authPrompt->PromptUsernameAndPassword(
-          promptTitle.get(), promptText.get(), signonURL.get(),
+          NS_ConvertUTF8toUTF16(promptTitle).get(),
+          NS_ConvertUTF8toUTF16(promptText).get(), signonURL.get(),
           nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY, &uniGroupUsername,
           &uniGroupPassword, validCredentials);
 

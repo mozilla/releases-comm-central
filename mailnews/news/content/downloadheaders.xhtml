@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/downloadheaders.dtd">
+<!DOCTYPE html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -13,10 +13,11 @@
   lightweightthemes="true"
 >
   <head>
+    <title data-l10n-id="download-headers-dialog-title"></title>
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
-    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/news.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/dialogShadowDom.js"
@@ -34,29 +35,28 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
     <dialog>
-      <stringbundle
-        id="bundle_news"
-        src="chrome://messenger/locale/news.properties"
-      />
-
       <label
         id="newsgroupLabel"
-        control="downloadGroup"
         class="header"
-        style="width: 25em; max-width: 25em; margin-inline-start: 6px"
+        control="downloadGroup"
+        style="width: 25em; max-width: 25em; word-wrap: break-word"
       />
       <description
-        style="width: 25em; max-width: 25em"
         id="info"
         control="downloadGroup"
+        style="
+          width: 25em;
+          max-width: 25em;
+          min-height: 3lh;
+          align-content: center;
+        "
       />
       <separator class="thin" />
       <vbox class="indent">
         <radiogroup id="downloadGroup">
           <radio
             id="all"
-            label="&all.label;"
-            accesskey="&all.accesskey;"
+            data-l10n-id="download-all-headers"
             oncommand="setupDownloadUI(false);"
             value="all"
           />
@@ -64,9 +64,8 @@
           <hbox align="center">
             <radio
               id="some"
+              data-l10n-id="download-n"
               selected="true"
-              label="&download.label;"
-              accesskey="&download.accesskey;"
               oncommand="setupDownloadUI(true);"
               aria-labelledby="some number headers"
               value="some"
@@ -77,21 +76,12 @@
               min="1"
               aria-labelledby="some number headers"
             />
-            <label
-              id="headers"
-              control="number"
-              value="&headers.label;"
-              accesskey="&headers.accesskey;"
-            />
+            <label id="headers" data-l10n-id="n-headers" control="number" />
           </hbox>
         </radiogroup>
 
         <hbox class="indent" align="start">
-          <checkbox
-            id="markread"
-            label="&mark.label;"
-            accesskey="&mark.accesskey;"
-          />
+          <checkbox id="markread" data-l10n-id="mark-headers-read" />
         </hbox>
       </vbox>
     </dialog>

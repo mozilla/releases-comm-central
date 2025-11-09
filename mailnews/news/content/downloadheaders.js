@@ -18,8 +18,6 @@ document.addEventListener("dialogaccept", onOK);
 document.addEventListener("dialogcancel", onCancel);
 
 function onLoad() {
-  const newsBundle = document.getElementById("bundle_news");
-
   if ("arguments" in window && window.arguments[0]) {
     propBag = window.arguments[0]
       .QueryInterface(Ci.nsIWritablePropertyBag2)
@@ -39,17 +37,17 @@ function onLoad() {
       .getIncomingServer(args.serverKey)
       .QueryInterface(Ci.nsINntpIncomingServer);
 
-    document.title = newsBundle.getString("downloadHeadersTitlePrefix");
-
-    const infotext = newsBundle.getFormattedString("downloadHeadersInfoText", [
-      args.articleCount,
-    ]);
-    setText("info", infotext);
-    const okButtonText = newsBundle.getString("okButtonText");
-    const okbutton = document.querySelector("dialog").getButton("accept");
-    okbutton.setAttribute("label", okButtonText);
-    okbutton.focus();
-    setText("newsgroupLabel", args.groupName);
+    document.l10n.setAttributes(
+      document.getElementById("info"),
+      "download-headers-info-text",
+      {
+        count: args.articleCount,
+      }
+    );
+    document.getElementById("newsgroupLabel").textContent = args.groupName;
+    const okButton = document.querySelector("dialog").getButton("accept");
+    document.l10n.setAttributes(okButton, "download-headers-ok-button");
+    okButton.focus();
   }
 
   numberElement = document.getElementById("number");
@@ -68,19 +66,6 @@ function onUnload() {
   for (const propName in args) {
     propBag.setProperty(propName, args[propName]);
   }
-}
-
-function setText(id, value) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return;
-  }
-
-  while (element.lastChild) {
-    element.lastChild.remove();
-  }
-  const textNode = document.createTextNode(value);
-  element.appendChild(textNode);
 }
 
 function onOK() {

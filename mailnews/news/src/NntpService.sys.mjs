@@ -8,6 +8,11 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   NewsDownloader: "resource:///modules/NewsDownloader.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/news.ftl"], true)
+);
 
 /**
  * @implements {nsINntpService}
@@ -132,13 +137,10 @@ export class NntpService {
 
   cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
     if (Services.prefs.getBoolPref("news.cancel.confirm")) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/news.properties"
-      );
       const result = Services.prompt.confirmEx(
         msgWindow?.domWindow,
         null,
-        bundle.GetStringFromName("cancelConfirm"),
+        lazy.l10n.formatValueSync("cancel-confirm"),
         Ci.nsIPrompt.STD_YES_NO_BUTTONS,
         null,
         null,
@@ -161,9 +163,6 @@ export class NntpService {
     const messageKey = messageUri.split("#")[1];
     const newsFolder = server.findGroup(groupName);
     const from = MailServices.accounts.getFirstIdentityForServer(server).email;
-    const bundle = Services.strings.createBundle(
-      "chrome://branding/locale/brand.properties"
-    );
 
     server.wrappedJSObject.withClient(client => {
       const runningUrl = client.startRunningUrl(urlListener, msgWindow);
@@ -183,9 +182,7 @@ export class NntpService {
           "MIME-Version: 1.0",
           "Content-Type: text/plain",
           "", // body separator
-          `This message was cancelled from within ${bundle.GetStringFromName(
-            "brandFullName"
-          )}`,
+          `This message was cancelled from within ${Services.appinfo.name}.`,
         ];
         client.send(content.join("\r\n"));
         client.send("\r\n.\r\n");

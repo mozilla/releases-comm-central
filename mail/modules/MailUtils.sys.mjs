@@ -12,6 +12,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
   PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
+  return new Localization(["messenger/news.ftl"], true);
+});
 
 /**
  * This module has several utility functions for use by both core and
@@ -927,13 +930,12 @@ export var MailUtils = {
           .QueryInterface(Ci.nsINntpIncomingServer)
           .containsNewsgroup(identifier)
       ) {
-        const bundle = Services.strings.createBundle(
-          "chrome://messenger/locale/news.properties"
-        );
         const result = Services.prompt.confirm(
           win,
           null,
-          bundle.formatStringFromName("autoSubscribeText", [identifier])
+          lazy.l10n.formatValueSync("auto-subscribe-text", {
+            newsgroup: identifier,
+          })
         );
         if (!result) {
           return;

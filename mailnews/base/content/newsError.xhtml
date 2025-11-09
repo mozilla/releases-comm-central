@@ -2,19 +2,14 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-
-<!DOCTYPE html [ <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
-%htmlDTD;
-<!ENTITY % netErrorDTD
-    SYSTEM "chrome://messenger/locale/newsError.dtd">
-%netErrorDTD; ]>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: moz-src:;"
     />
-    <title>&newsError.title;</title>
+    <title data-l10n-id="news-error-title"></title>
     <link
       rel="stylesheet"
       href="chrome://global/skin/aboutNetError.css"
@@ -29,31 +24,41 @@
       id="favicon"
       href="chrome://global/skin/icons/warning.svg"
     />
+    <link rel="localization" href="messenger/news.ftl" />
   </head>
   <body>
     <div id="errorPageContainer">
       <div id="errorTitle">
-        <h1 id="errorTitleText">&articleNotFound.title;</h1>
+        <h1 id="errorTitleText" data-l10n-id="article-not-found-title"></h1>
       </div>
       <div id="errorLongContent">
         <div id="errorShortDesc">
-          <p id="errorShortDescText"><b>&articleNotFound.desc;</b></p>
+          <p id="errorShortDescText">
+            <b data-l10n-id="article-not-found-desc"></b>
+          </p>
         </div>
         <div id="errorLongDesc">
           <ul>
-            <li>&serverResponded.title; <span id="ngResp" /></li>
-            <li>&articleExpired.title;</li>
+            <li>
+              <span data-l10n-id="news-server-responded-prefix"></span>
+              <span id="ngResp"></span>
+            </li>
+
+            <li data-l10n-id="article-may-have-expired"></li>
+
             <li id="messageIdDesc">
-              &trySearching.title; &lt;<span id="msgId" />&gt; (<span
-                id="msgKey"
-              />)
+              <span data-l10n-id="try-searching-prefix"></span>
+              &lt;<span id="msgId"></span>&gt; (<span id="msgKey"></span>)
             </li>
           </ul>
         </div>
       </div>
       <!-- This button really means "remove all expired articles", but we use
            the "errorTryAgain" id to piggyback on toolkit's CSS. -->
-      <button id="errorTryAgain">&removeExpiredArticles.title;</button>
+      <button
+        id="errorTryAgain"
+        data-l10n-id="remove-expired-articles-label"
+      ></button>
     </div>
     <script src="chrome://messenger/content/newsError.js" />
   </body>
