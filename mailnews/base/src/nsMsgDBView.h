@@ -22,7 +22,6 @@
 #include "nsMsgUtils.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsIStringBundle.h"
 #include "nsCOMArray.h"
 #include "nsTArray.h"
 #include "nsTHashtable.h"
@@ -30,8 +29,6 @@
 #include "nsIMsgCustomColumnHandler.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsMsgEnumerator.h"
-
-#define MESSENGER_STRING_URL "chrome://messenger/locale/messenger.properties"
 
 typedef AutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
 static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
@@ -137,6 +134,17 @@ class nsMsgDBView : public nsIMsgDBView,
   static nsString kTwoWeeksAgoString;
   static nsString kOldMailString;
   static nsString kFutureDateString;
+
+  // Also used for group views.
+  static nsString kNoStatusString;
+  static nsString kUntaggedString;
+  static nsString kNoPriorityString;
+  static nsString kNoAttachmentsString;
+  static nsString kAttachmentsString;
+  static nsString kNotStarredString;
+  static nsString kStarredString;
+
+  static nsString kAndOthersString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsIMsgJSTree> mJSTree;
@@ -388,7 +396,8 @@ class nsMsgDBView : public nsIMsgDBView,
                                bool* resultToggleState);
   bool OfflineMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
   bool NonDummyMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
-  static void GetString(const char16_t* aStringName, nsAString& aValue);
+  static void GetString(mozilla::intl::Localization* l10n, nsACString const& id,
+                        nsAString& value);
   static nsresult GetPrefLocalizedString(const char* aPrefName,
                                          nsString& aResult);
   nsresult AppendKeywordProperties(const nsACString& keywords,
@@ -461,7 +470,6 @@ class nsMsgDBView : public nsIMsgDBView,
   nsWeakPtr mMsgWindowWeak;
   // We push command update notifications to the UI from this.
   nsWeakPtr mCommandUpdater;
-  static nsCOMPtr<nsIStringBundle> mMessengerStringBundle;
 
   // Used to determine when to start and end junk plugin batches.
   uint32_t mNumMessagesRemainingInBatch;

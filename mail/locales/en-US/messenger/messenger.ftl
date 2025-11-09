@@ -633,7 +633,40 @@ archive-action = Archive
 
 ## Message list.
 
-message-flag-spam = Spam
+message-priority-lowest = Lowest
+message-priority-low = Low
+# Normal priority is often blank, depending on the consumers of these strings.
+message-priority-normal = Normal
+message-priority-high = High
+message-priority-highest = Highest
+
+message-flag-replied = Replied
+message-flag-forwarded = Forwarded
+message-flag-redirected = Redirected
+message-flag-new = New
+message-flag-read = Read
+message-flag-starred = Starred
+
+# Grouped By Date thread pane titles
+message-group-today = Today
+message-group-yesterday = Yesterday
+message-group-last-seven-days = Last 7 Days
+message-group-last-fourteen-days = Last 14 Days
+message-group-older = Older
+message-group-future-date = Future
+
+# Different Grouped By Sort thread pane titles
+message-group-untagged = Untagged Messages
+message-group-no-status = No Status
+message-group-no-priority = No Priority
+message-group-no-attachments = No Attachments
+message-group-attachments = Attachments
+message-group-not-starred = Not Starred
+message-group-starred = Starred
+
+# For multiple authors, add this abbreviation to the first author to indicate
+# there are more; for the From column in the threadpane message list.
+and-others = et al.
 
 menuitem-label-spam =
   .label = Spam

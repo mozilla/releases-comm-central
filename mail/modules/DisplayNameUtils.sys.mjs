@@ -14,6 +14,13 @@ var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/messenger.ftl"], true)
+);
+
 function _getIdentityForAddress(aEmailAddress) {
   const emailAddress = aEmailAddress.toLowerCase();
   for (const identity of MailServices.accounts.allIdentities) {
@@ -101,7 +108,7 @@ function formatDisplayNameList(aHeaderValue, aContext) {
     );
     let andOthersStr = "";
     if (addresses.length > 1) {
-      andOthersStr = " " + gMessengerBundle.GetStringFromName("andOthers");
+      andOthersStr = " " + lazy.l10n.formatValueSync("and-others");
     }
 
     if (displayName) {

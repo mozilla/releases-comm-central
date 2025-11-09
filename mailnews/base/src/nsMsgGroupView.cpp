@@ -845,19 +845,19 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
       case nsMsgViewSortType::byStatus:
         rv = FetchStatus(m_flags[aRow], aValue);
         if (aValue.IsEmpty()) {
-          GetString(u"messagesWithNoStatus", aValue);
+          aValue.Assign(nsMsgDBView::kNoStatusString);
         }
         break;
       case nsMsgViewSortType::byTags:
         rv = FetchTags(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          GetString(u"untaggedMessages", aValue);
+          aValue.Assign(nsMsgDBView::kUntaggedString);
         }
         break;
       case nsMsgViewSortType::byPriority:
         FetchPriority(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          GetString(u"noPriority", aValue);
+          aValue.Assign(nsMsgDBView::kNoPriorityString);
         }
         break;
       case nsMsgViewSortType::byAccount:
@@ -867,14 +867,14 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         FetchRecipients(msgHdr, aValue);
         break;
       case nsMsgViewSortType::byAttachments:
-        GetString(flags & nsMsgMessageFlags::Attachment ? u"attachments"
-                                                        : u"noAttachments",
-                  aValue);
+        aValue.Assign(flags & nsMsgMessageFlags::Attachment
+                          ? nsMsgDBView::kAttachmentsString
+                          : nsMsgDBView::kNoAttachmentsString);
         break;
       case nsMsgViewSortType::byFlagged:
-        GetString(
-            flags & nsMsgMessageFlags::Marked ? u"groupFlagged" : u"notFlagged",
-            aValue);
+        aValue.Assign(flags & nsMsgMessageFlags::Marked
+                          ? nsMsgDBView::kStarredString
+                          : nsMsgDBView::kNotStarredString);
         break;
       // byLocation is a special case; we don't want to have duplicate
       // all this logic in nsMsgSearchDBView, and its hash key is what we

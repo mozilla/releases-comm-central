@@ -89,6 +89,9 @@ add_task(async function test_nsMsgDBView_headValues() {
   );
 
   // Make the DB view
+  Cc["@mozilla.org/msgDBView/msgDBViewService;1"]
+    .getService(Ci.nsIMsgDBViewService)
+    .initializeDBViewStrings();
   const dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
   const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   dbView.init(null, null, null);
