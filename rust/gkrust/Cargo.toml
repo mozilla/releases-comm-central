@@ -17,9 +17,10 @@ harness = false
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
 mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
-aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "a821fa621c2def48e90c82774b4c6563b5a8ea4a" }
+aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776bdfc8ad664a1503db668fab397d818a5f98a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 audio_thread_priority = { version = "0.34" }
 audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "82fe7fa7e3aaa35468137239a0e4c2f867457214", optional = true }
@@ -114,7 +115,6 @@ webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
 wpf-gpu-raster = { git = "https://github.com/FirefoxGraphics/wpf-gpu-raster", rev = "99979da091fd58fba8477e7fcdf5ec0727102916" }
 xpcom = { path = "../../../xpcom/rust/xpcom" }
-graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["mozilla-central-workspace-hack"]

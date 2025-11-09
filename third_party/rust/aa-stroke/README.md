@@ -8,5 +8,5 @@ before passing them to the stroker. Other transforms are not currently (or ever?
 
 ### TODO
 - using triangle strips instead of triangle lists
-- handle curves more efficiently than just flattening to lines
 - handle cusps of curves more correctly
+- dashing
