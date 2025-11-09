@@ -38,6 +38,10 @@ task-defaults:
                 skip-unless-backstop: null
             default:
                 never: null
+    docker-image:
+        by-test-platform:
+            linux2404-.*: {in-tree: ubuntu2404-test}
+            default: {in-tree: ubuntu1804-test}
     mozharness:
         requires-signed-builds:
             by-test-platform:
