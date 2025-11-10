@@ -32,11 +32,11 @@
     }
 
     get brushItems() {
-      return items => this.vis.hoverItems(items);
+      return items => this.vis?.hoverItems(items);
     }
 
     get clearBrushedItems() {
-      return () => this.vis.clearHover();
+      return () => this.vis?.clearHover();
     }
 
     connectedCallback() {
