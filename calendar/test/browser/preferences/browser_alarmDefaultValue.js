@@ -87,19 +87,21 @@ add_task(async function testDefaultAlarms() {
 });
 
 async function handlePrefTab(prefsWindow, prefsDocument) {
-  function menuList(id, value) {
+  async function menuList(id, value) {
     const list = prefsDocument.getElementById(id);
     list.scrollIntoView({ block: "start", behavior: "instant" });
-    list.click();
-    list.querySelector(`menuitem[value="${value}"]`).click();
+    EventUtils.synthesizeMouseAtCenter(list, {}, list.ownerGlobal);
+    await BrowserTestUtils.waitForPopupEvent(list.menupopup, "shown");
+    list.menupopup.activateItem(list.querySelector(`menuitem[value="${value}"]`));
+    await BrowserTestUtils.waitForPopupEvent(list.menupopup, "hidden");
   }
   // Turn on alarms for events and tasks.
-  menuList("eventdefalarm", "1");
-  menuList("tododefalarm", "1");
+  await menuList("eventdefalarm", "1");
+  await menuList("tododefalarm", "1");
 
   // Selects "days" as a unit.
-  menuList("tododefalarmunit", "days");
-  menuList("eventdefalarmunit", "days");
+  await menuList("tododefalarmunit", "days");
+  await menuList("eventdefalarmunit", "days");
 
   function text(id, value) {
     const input = prefsDocument.getElementById(id);
