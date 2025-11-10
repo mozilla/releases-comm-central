@@ -253,13 +253,12 @@ function closeWithKeyboard(tab) {
 async function openContextMenu(tab) {
   const win = tab.ownerGlobal;
   const contextMenu = win.document.getElementById("tabContextMenu");
-  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     tab,
     { type: "contextmenu", button: 2 },
     win
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
 }
 
 /**
@@ -270,12 +269,8 @@ async function openContextMenu(tab) {
 async function closeContextMenu(tab) {
   const win = tab.ownerGlobal;
   const contextMenu = win.document.getElementById("tabContextMenu");
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    contextMenu,
-    "popuphidden"
-  );
   contextMenu.hidePopup();
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");
 }
 
 /**
@@ -289,12 +284,8 @@ async function selectFromContextMenu(tab, itemId) {
   const contextMenu = doc.getElementById("tabContextMenu");
   const item = doc.getElementById(itemId);
   await openContextMenu(tab);
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    contextMenu,
-    "popuphidden"
-  );
   contextMenu.activateItem(item);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");
 }
 
 /**
