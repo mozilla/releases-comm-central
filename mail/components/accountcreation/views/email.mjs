@@ -642,6 +642,12 @@ class AccountHubEmail extends HTMLElement {
             stateData.outgoing.type = "smtp";
           }
 
+          // If the configuration is for EWS, set the outgoing type to use EWS
+          // as well.
+          if (stateData.incoming.type == "ews") {
+            stateData.incoming.handlesOutgoing = true;
+          }
+
           const config = this.#fillAccountConfig(stateData);
           await this.#advancedSetup(config);
         } catch (error) {
