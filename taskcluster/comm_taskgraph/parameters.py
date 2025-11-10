@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 comm_parameters_schema.update(
     {
         Required("comm_base_repository"): str,
-        Required("comm_base_ref"): str,
+        Required("comm_base_ref"): Any(None, str),
         Required("comm_base_rev"): str,
         Required("comm_head_ref"): str,
         Required("comm_head_repository"): str,

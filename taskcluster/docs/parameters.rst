@@ -11,7 +11,9 @@ Comm Push Information
 ---------------------
 
 These parameters correspond to the repository and revision of the comm-central
-repository to checkout. All parameters are required.
+repository to checkout. All parameters are required except for comm_base_ref,
+which may sometimes be set to `None`; when this happens, it will be defaulted
+to the repository’s default branch.
 
 ``comm_base_repository``
    The repository from which to do an initial clone, utilizing any available

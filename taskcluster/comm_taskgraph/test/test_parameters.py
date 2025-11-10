@@ -22,7 +22,7 @@ class TestCommParameters(unittest.TestCase):
         "build_date": 0,
         "build_number": 0,
         "comm_base_repository": "comm_base_repository",
-        "comm_base_ref": "comm_base_ref",
+        "comm_base_ref": None,
         "comm_base_rev": "comm_base_rev",
         "comm_head_ref": "comm_head_ref",
         "comm_head_repository": "comm_head_repository",
