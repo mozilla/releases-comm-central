@@ -114,7 +114,7 @@ nsresult CopyUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
 nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest) {
 #define IMAP_UTF7_BUF_LENGTH 100
   nsUnicodeToMUTF7 converter;
-  static char buffer[IMAP_UTF7_BUF_LENGTH];
+  char buffer[IMAP_UTF7_BUF_LENGTH];
   const char16_t* in = aSrc.BeginReading();
   int32_t inLen = aSrc.Length();
   int32_t outLen;
