@@ -377,7 +377,7 @@ var folderPaneContextMenu = {
       for (const row of folderTree.selection.values()) {
         const folder = MailServices.folderLookup.getFolderForURL(row.uri);
 
-        online &&= !Services.io.offline && !folder.server.offlineSupportLevel;
+        online &&= !Services.io.offline || !folder.server.offlineSupportLevel;
 
         // We only care if a folder doesn't support a specific property, so
         // let's update a variable only if it's still truthy.
