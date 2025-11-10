@@ -115,36 +115,36 @@ class nsMsgDBView : public nsIMsgDBView,
  protected:
   virtual ~nsMsgDBView();
 
-  static nsString kHighestPriorityString;
-  static nsString kHighPriorityString;
-  static nsString kLowestPriorityString;
-  static nsString kLowPriorityString;
-  static nsString kNormalPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sHighestPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sHighPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sLowestPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sLowPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sNormalPriorityString;
 
-  static nsString kReadString;
-  static nsString kRepliedString;
-  static nsString kForwardedString;
-  static nsString kRedirectedString;
-  static nsString kNewString;
+  static mozilla::StaticAutoPtr<nsString> sReadString;
+  static mozilla::StaticAutoPtr<nsString> sRepliedString;
+  static mozilla::StaticAutoPtr<nsString> sForwardedString;
+  static mozilla::StaticAutoPtr<nsString> sRedirectedString;
+  static mozilla::StaticAutoPtr<nsString> sNewString;
 
   // Used for group views.
-  static nsString kTodayString;
-  static nsString kYesterdayString;
-  static nsString kLastWeekString;
-  static nsString kTwoWeeksAgoString;
-  static nsString kOldMailString;
-  static nsString kFutureDateString;
+  static mozilla::StaticAutoPtr<nsString> sTodayString;
+  static mozilla::StaticAutoPtr<nsString> sYesterdayString;
+  static mozilla::StaticAutoPtr<nsString> sLastWeekString;
+  static mozilla::StaticAutoPtr<nsString> sTwoWeeksAgoString;
+  static mozilla::StaticAutoPtr<nsString> sOldMailString;
+  static mozilla::StaticAutoPtr<nsString> sFutureDateString;
 
   // Also used for group views.
-  static nsString kNoStatusString;
-  static nsString kUntaggedString;
-  static nsString kNoPriorityString;
-  static nsString kNoAttachmentsString;
-  static nsString kAttachmentsString;
-  static nsString kNotStarredString;
-  static nsString kStarredString;
+  static mozilla::StaticAutoPtr<nsString> sNoStatusString;
+  static mozilla::StaticAutoPtr<nsString> sUntaggedString;
+  static mozilla::StaticAutoPtr<nsString> sNoPriorityString;
+  static mozilla::StaticAutoPtr<nsString> sNoAttachmentsString;
+  static mozilla::StaticAutoPtr<nsString> sAttachmentsString;
+  static mozilla::StaticAutoPtr<nsString> sNotStarredString;
+  static mozilla::StaticAutoPtr<nsString> sStarredString;
 
-  static nsString kAndOthersString;
+  static mozilla::StaticAutoPtr<nsString> sAndOthersString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
   nsCOMPtr<nsIMsgJSTree> mJSTree;
@@ -152,7 +152,6 @@ class nsMsgDBView : public nsIMsgDBView,
   // Set when we're telling the outline a row is being removed. Used to
   // suppress msg loading during delete/move operations.
   bool mRemovingRow;
-  bool mCommandsNeedDisablingBecauseOfSelection;
   bool mSuppressChangeNotification;
 
   nsresult FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aAuthorString);
@@ -511,7 +510,7 @@ class nsMsgDBView : public nsIMsgDBView,
   static nsDateFormatSelectorComm m_dateFormatDefault;
   static nsDateFormatSelectorComm m_dateFormatThisWeek;
   static nsDateFormatSelectorComm m_dateFormatToday;
-  static nsString m_connectorPattern;
+  static mozilla::StaticAutoPtr<nsString> sConnectorPattern;
 
   bool ServerSupportsFilterAfterTheFact();
 

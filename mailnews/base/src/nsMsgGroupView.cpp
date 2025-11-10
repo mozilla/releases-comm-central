@@ -815,23 +815,23 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         GetAgeBucketValue(msgHdr, &ageBucket, rcvDate);
         switch (ageBucket) {
           case 1:
-            aValue.Assign(nsMsgDBView::kTodayString);
+            aValue.Assign(*nsMsgDBView::sTodayString);
             break;
           case 2:
-            aValue.Assign(nsMsgDBView::kYesterdayString);
+            aValue.Assign(*nsMsgDBView::sYesterdayString);
             break;
           case 3:
-            aValue.Assign(nsMsgDBView::kLastWeekString);
+            aValue.Assign(*nsMsgDBView::sLastWeekString);
             break;
           case 4:
-            aValue.Assign(nsMsgDBView::kTwoWeeksAgoString);
+            aValue.Assign(*nsMsgDBView::sTwoWeeksAgoString);
             break;
           case 5:
-            aValue.Assign(nsMsgDBView::kOldMailString);
+            aValue.Assign(*nsMsgDBView::sOldMailString);
             break;
           default:
             // Future date, error/spoofed.
-            aValue.Assign(nsMsgDBView::kFutureDateString);
+            aValue.Assign(*nsMsgDBView::sFutureDateString);
             break;
         }
         break;
@@ -845,19 +845,19 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
       case nsMsgViewSortType::byStatus:
         rv = FetchStatus(m_flags[aRow], aValue);
         if (aValue.IsEmpty()) {
-          aValue.Assign(nsMsgDBView::kNoStatusString);
+          aValue.Assign(*nsMsgDBView::sNoStatusString);
         }
         break;
       case nsMsgViewSortType::byTags:
         rv = FetchTags(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          aValue.Assign(nsMsgDBView::kUntaggedString);
+          aValue.Assign(*nsMsgDBView::sUntaggedString);
         }
         break;
       case nsMsgViewSortType::byPriority:
         FetchPriority(msgHdr, aValue);
         if (aValue.IsEmpty()) {
-          aValue.Assign(nsMsgDBView::kNoPriorityString);
+          aValue.Assign(*nsMsgDBView::sNoPriorityString);
         }
         break;
       case nsMsgViewSortType::byAccount:
@@ -868,13 +868,13 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         break;
       case nsMsgViewSortType::byAttachments:
         aValue.Assign(flags & nsMsgMessageFlags::Attachment
-                          ? nsMsgDBView::kAttachmentsString
-                          : nsMsgDBView::kNoAttachmentsString);
+                          ? *nsMsgDBView::sAttachmentsString
+                          : *nsMsgDBView::sNoAttachmentsString);
         break;
       case nsMsgViewSortType::byFlagged:
         aValue.Assign(flags & nsMsgMessageFlags::Marked
-                          ? nsMsgDBView::kStarredString
-                          : nsMsgDBView::kNotStarredString);
+                          ? *nsMsgDBView::sStarredString
+                          : *nsMsgDBView::sNotStarredString);
         break;
       // byLocation is a special case; we don't want to have duplicate
       // all this logic in nsMsgSearchDBView, and its hash key is what we
