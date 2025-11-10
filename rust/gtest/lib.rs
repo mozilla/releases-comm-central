@@ -16,4 +16,5 @@ extern crate nsstring_gtest;
 extern crate xpcom_gtest;
 
 extern crate ews_xpcom;
+extern crate graph_xpcom;
 extern crate sys_tray;

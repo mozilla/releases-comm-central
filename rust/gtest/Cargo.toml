@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ["gkrust-gtest"], optional = true }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 bench-collections-gtest = { path = "../../../xpcom/rust/gtest/bench-collections" }
 l10nregistry-ffi-gtest = { path = "../../../intl/l10n/rust/gtest" }

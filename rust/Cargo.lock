@@ -2453,6 +2453,7 @@ dependencies = [
  "fog-gtest",
  "gecko-fuzz-targets",
  "gkrust-shared",
+ "graph_xpcom",
  "kvstore-gtest",
  "l10nregistry-ffi-gtest",
  "lmdb-rkv-sys",
@@ -2748,6 +2749,9 @@ dependencies = [
 name = "graph_xpcom"
 version = "0.1.0"
 dependencies = [
+ "nserror",
+ "nsstring",
+ "thin-vec",
  "xpcom",
  "xpcom_async",
 ]

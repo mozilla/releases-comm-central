@@ -191,7 +191,7 @@ class MsgFetcher : public IEwsMessageFetchListener {
     MOZ_ASSERT(ewsServer);  // Only EWS supported for now!
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<IEwsClient> ewsClient;
-    rv = ewsServer->GetEwsClient(getter_AddRefs(ewsClient));
+    rv = ewsServer->CreateProtocolClient(getter_AddRefs(ewsClient));
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Retrieve the EWS ID of the message we want to download.

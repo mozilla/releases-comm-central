@@ -23,7 +23,12 @@ interface nsIMsgWindow;
 [scriptable, uuid(3b22cadc-da49-11ee-99b2-b42e99ed15ca)]
 interface IEwsIncomingServer : nsISupports
 {
-  IEwsClient getEwsClient();
+  /**
+   * Create the client for interacting with the remote server protocol.
+   *
+   * This method will construct a new client on every call.
+   */
+  IEwsClient createProtocolClient();
 
   /** The URL for the EWS Server */
   attribute AUTF8String ewsUrl;

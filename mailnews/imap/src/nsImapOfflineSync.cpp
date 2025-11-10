@@ -412,8 +412,9 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
   }
 
   // Close the output stream if it's not already closed.
-  if (outputStream)
+  if (outputStream) {
     (void)NS_WARN_IF(NS_FAILED(outputStream->Close()));
+  }
 }
 
 void nsImapOfflineSync::ClearCurrentOps() {

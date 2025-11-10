@@ -20,6 +20,7 @@
 #include "OfflineStorage.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/Localization.h"
+#include "mozilla/StaticPrefs_mail.h"
 
 using namespace mozilla;
 
@@ -491,7 +492,7 @@ nsresult EwsIncomingServer::SyncFolderList(
 
   // Sync the folder tree for the whole account.
   RefPtr<IEwsClient> client;
-  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+  MOZ_TRY(CreateProtocolClient(getter_AddRefs(client)));
   return client->SyncFolderHierarchy(listener, syncStateToken);
 }
 
@@ -658,21 +659,35 @@ EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   // only be doing `nsIMsgMailNewsUrl`-related operations to it, which doesn't
   // apply to us.
   RefPtr<IEwsClient> client;
-  MOZ_TRY(GetEwsClient(getter_AddRefs(client)));
+  MOZ_TRY(CreateProtocolClient(getter_AddRefs(client)));
   return client->CheckConnectivity(aUrlListener, _retval);
 }
 
 /**
- * Gets or creates an instance of the EWS client interface, allowing us to
- * perform operations against the relevant EWS instance.
+ * Creates an instance of the EWS client interface, allowing us to perform
+ * operations against the relevant EWS instance.
  */
-NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
+NS_IMETHODIMP EwsIncomingServer::CreateProtocolClient(IEwsClient** ewsClient) {
   NS_ENSURE_ARG_POINTER(ewsClient);
 
-  nsresult rv;
-  nsCOMPtr<IEwsClient> client =
-      do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = NS_OK;
+
+  nsCOMPtr<IEwsClient> client;
+  if (StaticPrefs::mail_graph_enabled()) {
+    nsAutoCString type;
+    rv = GetType(type);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsAutoCString contractId{"@mozilla.org/messenger/"};
+    contractId.Append(type);
+    contractId.Append("-client;1");
+
+    client = do_CreateInstance(contractId.Data(), &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    client = do_CreateInstance("@mozilla.org/messenger/ews-client;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   nsAutoCString endpoint;
   rv = GetEwsUrl(endpoint);
