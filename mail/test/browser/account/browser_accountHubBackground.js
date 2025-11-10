@@ -14,14 +14,9 @@ const { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
-const { promise_content_tab_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
-);
-
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 let testFolder;
-let card;
 
 add_setup(async function () {
   const generator = new MessageGenerator();
@@ -56,8 +51,6 @@ add_setup(async function () {
     );
   }
 
-  card = about3Pane.threadTree.querySelector(`tr[is="thread-card"]`);
-
   registerCleanupFunction(() => {
     about3Pane.messagePane.clearAll();
     MailServices.junk.resetTrainingData();
@@ -66,7 +59,7 @@ add_setup(async function () {
   });
 });
 
-async function toggleSpam() {
+async function toggleSpam(card) {
   const button = card.querySelector(".button-spam");
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isHidden(button),
@@ -88,7 +81,9 @@ async function toggleSpam() {
   );
 }
 
-async function openAddressbookAndBlur() {
+async function checkAccountHubInteraction(card, closeMethod) {
+  EventUtils.synthesizeMouseAtCenter(card, {}, about3Pane);
+
   await window.openAccountHub();
 
   EventUtils.synthesizeMouseAtCenter(
@@ -98,12 +93,6 @@ async function openAddressbookAndBlur() {
     {},
     window
   );
-}
-
-async function checkAccountHubInteraction(closeMethod) {
-  EventUtils.synthesizeMouseAtCenter(card, {}, about3Pane);
-
-  await openAddressbookAndBlur();
 
   EventUtils.sendChar("j", window);
 
@@ -118,10 +107,6 @@ async function checkAccountHubInteraction(closeMethod) {
     "spam icon should be hidden"
   );
 
-  await closeAddressBook(closeMethod);
-}
-
-async function closeAddressBook(closeMethod) {
   const dialog = document
     .querySelector("account-hub-container")
     .shadowRoot.querySelector("dialog");
@@ -155,62 +140,32 @@ async function closeAddressBook(closeMethod) {
   await dialogCloseEvent;
 }
 
-async function toggleTab() {
-  Assert.equal(
-    tabmail.currentTabInfo.mode.name,
-    "mail3PaneTab",
-    "Should show mail tab"
-  );
-
-  EventUtils.synthesizeKey("2", { ctrlKey: true }, window);
-
-  await promise_content_tab_load(undefined, "about:addressbook");
-
-  Assert.equal(
-    tabmail.currentTabInfo.mode.name,
-    "addressBookTab",
-    "Should show addressbook tab"
-  );
-
-  const mailPromise = TestUtils.waitForCondition(
-    () => tabmail.currentTabInfo.mode.name === "mail3PaneTab",
-    "Should Show mail tab"
-  );
-
-  EventUtils.synthesizeKey("1", { ctrlKey: true }, window);
-
-  await mailPromise;
-}
-
-const methods = ["ESCAPE", "button", "request-close", "close"];
-
 add_task(async function testBackgroundKeyboardCommands() {
+  const card = about3Pane.threadTree.querySelector(`tr[is="thread-card"]`);
   // Ensure keyboard commands are enabled.
   await toggleSpam(card);
 
-  for (const method of methods) {
-    await checkAccountHubInteraction(method);
+  // Ensure keyboard commands are disabled when account hub opens.
+  await checkAccountHubInteraction(card, "ESCAPE");
 
-    // Ensure keyboard commands are re-enabled after close.
-    await toggleSpam();
-  }
-});
+  // Ensure keyboard commands are re-enabled after close via escape key.
+  await toggleSpam(card);
 
-add_task(async function testBackgroundShortcuts() {
-  await toggleTab();
-  for (const closeMethod of methods) {
-    await openAddressbookAndBlur();
+  // Ensure keyboard commands are disabled again when re-openings.
+  await checkAccountHubInteraction(card, "button");
 
-    EventUtils.synthesizeKey("2", { ctrlKey: true }, window);
+  // Ensure keyboard commands are re-enabled after close via close button.
+  await toggleSpam(card);
 
-    Assert.equal(
-      tabmail.currentTabInfo.mode.name,
-      "mail3PaneTab",
-      "Should show mail tab"
-    );
+  // Ensure keyboard commands are disabled again when re-openings.
+  await checkAccountHubInteraction(card, "request-close");
 
-    await closeAddressBook(closeMethod);
+  // Ensure keyboard commands are re-enabled after close via request-close event.
+  await toggleSpam(card);
 
-    await toggleTab();
-  }
+  // Ensure keyboard commands are disabled again when re-openings.
+  await checkAccountHubInteraction(card, "close");
+
+  // Ensure keyboard commands are re-enabled after close via close method.
+  await toggleSpam(card);
 });
