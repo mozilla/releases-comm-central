@@ -309,8 +309,11 @@ class WebExtMimeTreeEmitter extends MimeTreeEmitter {
     if (contentDisposition) {
       name = lazy.MimeParser.getParameter(contentDisposition[0], "filename");
     }
+    if (!name && mimeTreePart.fullContentType) {
+      name = lazy.MimeParser.getParameter(mimeTreePart.fullContentType, "name");
+    }
     if (!name) {
-      name = mimeTreePart.headers.contentType.get("name") || "";
+      name = "";
     }
 
     // Handle forwarded messages.
