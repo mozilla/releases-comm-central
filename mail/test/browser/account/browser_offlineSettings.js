@@ -84,7 +84,9 @@ add_setup(async () => {
 
   imapAccount.incomingServer.performExpand(null);
   await TestUtils.waitForCondition(
-    () => imapRootFolder.numSubFolders == 5,
+    () =>
+      imapRootFolder.numSubFolders == 5 &&
+      imapRootFolder.getChildNamed("third").numSubFolders == 1,
     "waiting for IMAP folders to sync"
   );
   imapRootFolder.getChildNamed("third").clearFlag(Ci.nsMsgFolderFlags.Offline);
@@ -113,7 +115,9 @@ add_setup(async () => {
 
   ewsAccount.incomingServer.performExpand(null);
   await TestUtils.waitForCondition(
-    () => ewsRootFolder.numSubFolders == 4,
+    () =>
+      ewsRootFolder.numSubFolders == 4 &&
+      ewsRootFolder.getChildNamed("third").numSubFolders == 1,
     "waiting for EWS folders to sync"
   );
   ewsRootFolder.getChildNamed("Inbox").setFlag(Ci.nsMsgFolderFlags.Offline);
