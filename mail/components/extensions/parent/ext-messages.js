@@ -804,6 +804,8 @@ this.messages = class extends ExtensionAPIPersistent {
             !Number.isInteger(source) &&
             source?.contentType == "message/rfc822"
           ) {
+            // messagePartToRaw() uses source.rawBody to create the output, which is a binary string,
+            // the result therefore is also a binary string.
             const raw = messagePartToRaw(source);
             // TODO: Pipe raw through decryptor if requested.
             if (decrypt) {
@@ -926,7 +928,9 @@ this.messages = class extends ExtensionAPIPersistent {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
 
-          const msgHdrProcessor = new MsgHdrProcessor(msgHdr);
+          const msgHdrProcessor = new MsgHdrProcessor(msgHdr, {
+            strFormat: "binarystring",
+          });
           let attachmentPart;
           try {
             attachmentPart = await msgHdrProcessor.getAttachmentPart(partName, {
@@ -949,7 +953,7 @@ this.messages = class extends ExtensionAPIPersistent {
             );
           }
 
-          // Convert binary string to Uint8Array and return a File.
+          // Convert the requested binary string to Uint8Array and return a File.
           const bytes = new Uint8Array(attachmentPart.body.length);
           for (let i = 0; i < attachmentPart.body.length; i++) {
             bytes[i] = attachmentPart.body.charCodeAt(i) & 0xff;

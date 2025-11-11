@@ -89,7 +89,7 @@ add_task(async function test_plain_mv2() {
         });
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(fileMessage_3 instanceof File);
-        // Since we do not have utf-8 chars in the test message, the returned BinaryString is
+        // Since we do not have utf-8 chars in the test message, the returned binary string is
         // identical to the return value of File.text().
         const strMessage_3 = await fileMessage_3.text();
 
@@ -240,7 +240,7 @@ add_task(async function test_plain_mv3() {
         // eslint-disable-next-line mozilla/use-isInstance
         browser.test.assertTrue(fileMessage_1 instanceof File);
         // Since we do not have utf-8 chars in the test message, the returned
-        // BinaryString is identical to the return value of File.text().
+        // binary string is identical to the return value of File.text().
         const strMessage_1 = await fileMessage_1.text();
 
         const strMessage_2 = await browser.messages.getRaw(message.id, {

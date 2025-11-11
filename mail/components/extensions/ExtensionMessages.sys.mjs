@@ -459,7 +459,7 @@ export class MsgHdrProcessor {
       rawMessage,
       {
         // We should not automatically decrypt nested messages, so we keep them
-        // as an blob and do not parse them.
+        // as a blob and do not parse them.
         decodeSubMessages: false,
       },
       {
