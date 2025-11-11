@@ -177,12 +177,6 @@ tabProgressListener.prototype = {
       // Set our unit testing variables accordingly
       this.mTab.pageLoading = false;
       this.mTab.pageLoaded = true;
-
-      // If we've finished loading, and we've not had an icon loaded from a
-      // link element, then we try using the default icon for the site.
-      if (aWebProgress.isTopLevel && !this.mTab.favIconUrl) {
-        specialTabs.useDefaultFavIcon(this.mTab);
-      }
     }
   },
   onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
@@ -893,8 +887,12 @@ var specialTabs = {
         aTab.browser.setAttribute("messagemanagergroup", "single-site");
       }
 
-      aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
-      aTab.browser.addEventListener("DOMLinkChanged", DOMLinkHandler);
+      if (!aTab.browser.isRemoteBrowser) {
+        // Links in HTTP documents are handled by LinkHandlerParent, but it
+        // doesn't handle chrome documents.
+        aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
+        aTab.browser.addEventListener("DOMLinkChanged", DOMLinkHandler);
+      }
 
       // Now initialise the find bar.
       aTab.findbar = document.createXULElement("findbar");
@@ -1266,22 +1264,6 @@ var specialTabs = {
       "schemeIs" in aURI &&
       (aURI.schemeIs("http") || aURI.schemeIs("https"))
     );
-  },
-
-  /**
-   * Tries to use the default favicon for a webpage for the specified tab.
-   * We'll use the site's favicon.ico if prefs allow us to.
-   */
-  useDefaultFavIcon(aTab) {
-    // Use documentURI in the check for shouldLoadFavIcon so that we do the
-    // right thing with about:-style error pages.
-    const docURIObject = aTab.browser.documentURI;
-    let icon = null;
-    if (this._shouldLoadFavIcon(docURIObject)) {
-      icon = docURIObject.prePath + "/favicon.ico";
-    }
-
-    this.setFavIcon(aTab, icon);
   },
 
   /**

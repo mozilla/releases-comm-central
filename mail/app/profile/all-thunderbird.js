@@ -803,6 +803,7 @@ pref("browser.tabs.loadDivertedInBackground", false);
 pref("extensions.webextensions.remote", true);
 
 // Browser icon prefs
+pref("browser.chrome.guess_favicon", true);
 pref("browser.chrome.site_icons", true);
 pref("browser.chrome.favicons", true);
 

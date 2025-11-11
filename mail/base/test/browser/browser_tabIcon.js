@@ -91,4 +91,10 @@ add_task(async function testContentTab() {
     { attributes: true, attributeFilter: ["src"] },
     () => icon.src.startsWith("data:image/png;base64,iVBORw0KGgoAAAANSUhEU")
   );
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 250));
+  Assert.ok(
+    icon.src.startsWith("data:image/png;base64,iVBORw0KGgoAAAANSUhEU"),
+    "tab icon src should not have been overwritten"
+  );
 });

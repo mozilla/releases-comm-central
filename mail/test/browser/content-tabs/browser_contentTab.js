@@ -22,6 +22,13 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
 var whatsUrl = url + "whatsnew.html";
 
+add_setup(async function () {
+  // Set this pref back to the default true, instead of the false set in the testing profile.
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.chrome.guess_favicon", true]],
+  });
+});
+
 add_task(async function test_content_tab_open() {
   // Need to open the thread pane to load the appropriate context menus.
   await be_in_folder(inboxFolder);
@@ -141,7 +148,7 @@ add_task(async function test_content_tab_default_favicon() {
   // Check the location of the favicon, this should be the site favicon in this
   // test.
   await TestUtils.waitForCondition(
-    () => tab.favIconUrl == "http://mochi.test:8888/favicon.ico",
+    () => tab.favIconUrl?.startsWith("data:image/png;base64,iVBORw0KGgoAAAAN"),
     `Checking tab favicon; tab.favIconUrl=${tab.favIconUrl}`
   );
 });
