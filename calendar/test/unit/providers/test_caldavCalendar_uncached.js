@@ -131,3 +131,11 @@ add_task(async function testPutSpecialCharactersInUID() {
   await calendar.deleteItem(storedEvent);
   cal.manager.unregisterCalendar(calendar);
 });
+
+add_task(async function testConnectionError1() {
+  await runConnectionError1(CalDAVServer, "caldav", false);
+});
+
+add_task(async function testConnectionError2() {
+  await runConnectionError2(CalDAVServer, "caldav", false);
+});

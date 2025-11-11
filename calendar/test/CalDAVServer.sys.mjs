@@ -38,6 +38,7 @@ const PROPFIND_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 export var CalDAVServer = {
+  port: -1,
   users: new Map(),
   items: new Map(),
   deletedItems: new Map(),
@@ -52,7 +53,7 @@ export var CalDAVServer = {
 
   open(username, password) {
     this.server = new HttpServer();
-    this.server.start(-1);
+    this.server.start(this.port);
     this.port = this.server.identity.primaryPort;
     this.isOpen = true;
 

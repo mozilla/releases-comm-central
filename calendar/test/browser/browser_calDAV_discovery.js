@@ -223,6 +223,7 @@ add_task(async function testWellKnown() {
   });
 
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -287,6 +288,7 @@ add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
   });
 
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -366,6 +368,7 @@ add_task(async function testWellKnown_noResourceType() {
   });
 
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -389,6 +392,7 @@ add_task(async function testCalendarWithOnlyReadPriv() {
     ],
   });
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -412,6 +416,7 @@ add_task(async function testCalendarWithoutPrivs() {
     ],
   });
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -435,6 +440,7 @@ add_task(async function testCalendarWithNoPrivSupport() {
     ],
   });
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -454,6 +460,7 @@ add_task(async function testCertificateError() {
 
   proxy.destroy();
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 });
 
 /**
@@ -480,6 +487,7 @@ add_task(async function testCertificateErrorWithException() {
 
   proxy.destroy();
   CalDAVServer.close();
+  CalDAVServer.port = -1;
 
   const isTemporary = {};
   Assert.ok(

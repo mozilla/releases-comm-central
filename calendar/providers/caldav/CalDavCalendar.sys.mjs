@@ -30,6 +30,10 @@ var FORBIDDEN_PATH_CHARACTERS = /[^a-zA-Z0-9_\-\.]/g;
 
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+ChromeUtils.defineESModuleGetters(lazy, {
+  ConnectionNotifications: "resource:///modules/ConnectionNotifications.sys.mjs",
+});
+
 export function CalDavCalendar() {
   this.initProviderBase();
   this.unmappedProperties = [];
@@ -1664,6 +1668,7 @@ CalDavCalendar.prototype = {
           // This is a valid calendar resource
           if (this.mDisabledByDavError) {
             this.mDisabledByDavError = false;
+            lazy.ConnectionNotifications.connectionRestored(this.id);
           }
 
           const privs = response.firstProps["D:current-user-privilege-set"];
@@ -1690,8 +1695,8 @@ CalDavCalendar.prototype = {
         }
       },
       e => {
-        cal.LOG(`CalDAV: Error during initial PROPFIND for calendar ${this.name}: ${e}`);
-        this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV);
+        cal.WARN(`CalDAV: Error during initial PROPFIND for calendar ${this.name}}`);
+        this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV, e.streamStatus);
       }
     );
   },
@@ -1771,7 +1776,7 @@ CalDavCalendar.prototype = {
       },
       e => {
         cal.LOG(`CalDAV: Error checking server capabilities for calendar ${this.name}: ${e}`);
-        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE);
+        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
       }
     );
   },
@@ -1819,7 +1824,7 @@ CalDavCalendar.prototype = {
       },
       e => {
         cal.LOG(`CalDAV: Failed to propstat principal namespace for calendar ${this.name}: ${e}`);
-        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE);
+        this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
       }
     );
   },
@@ -1975,8 +1980,10 @@ CalDavCalendar.prototype = {
    *
    * @param {calIGenericOperationListener} aChangeLogListener
    * @param {nsresult} [aError=Cr.NS_OK]
+   * @param {nsresult} [aStreamStatus] - A network error code (e.g.
+   *   NS_ERROR_CONNECTION_REFUSED) to report if `aError` is not NS_OK.
    */
-  completeCheckServerInfo(aChangeLogListener, aError = Cr.NS_OK) {
+  completeCheckServerInfo(aChangeLogListener, aError = Cr.NS_OK, aStreamStatus) {
     if (Components.isSuccessCode(aError)) {
       this.saveCalendarProperties();
       this.checkedServerInfo = true;
@@ -1987,7 +1994,7 @@ CalDavCalendar.prototype = {
         this.refresh();
       }
     } else {
-      this.reportDavError(aError);
+      this.reportDavError(aError, undefined, undefined, aStreamStatus);
       if (this.isCached && aChangeLogListener) {
         aChangeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
       }
@@ -1997,8 +2004,23 @@ CalDavCalendar.prototype = {
   /**
    * Called to report a certain DAV error. Strings and modification type are
    * handled here.
+   *
+   * @param {nsresult} [errNo] - A member of Ci.calIErrors
+   * @param {number} [httpStatus]
+   * @param {string} [extraInfo]
+   * @param {nsresult} [streamStatus] - A network error code (e.g.
+   *   NS_ERROR_CONNECTION_REFUSED) to report.
    */
-  reportDavError(aErrNo, status, extraInfo) {
+  reportDavError(errNo, httpStatus, extraInfo, streamStatus) {
+    if (streamStatus !== undefined && !this.mDisabledByDavError) {
+      lazy.ConnectionNotifications.connectionFailed(
+        this.id,
+        streamStatus,
+        this.name,
+        this.mUri.host
+      );
+    }
+
     const mapError = {};
     mapError[Ci.calIErrors.DAV_NOT_DAV] = "dav-not-dav";
     mapError[Ci.calIErrors.DAV_DAV_NOT_CALDAV] = "dav-dav-not-cal-dav";
@@ -2013,8 +2035,8 @@ CalDavCalendar.prototype = {
     mapModification[Ci.calIErrors.DAV_REMOVE_ERROR] = true;
     mapModification[Ci.calIErrors.DAV_REPORT_ERROR] = false;
 
-    const message = mapError[aErrNo];
-    const modificationError = mapModification[aErrNo];
+    const message = mapError[errNo];
+    const modificationError = mapModification[errNo];
 
     if (!message) {
       // Only notify if there is a message for this error
@@ -2022,10 +2044,10 @@ CalDavCalendar.prototype = {
     }
     const localizedMessage = lazy.l10n.formatValueSync(message, { name: this.mUri.spec });
     this.mDisabledByDavError = true;
-    this.notifyError(aErrNo, localizedMessage);
+    this.notifyError(errNo, localizedMessage);
     this.notifyError(
       modificationError ? Ci.calIErrors.MODIFICATION_FAILED : Ci.calIErrors.READ_FAILED,
-      this.buildDetailedMessage(status, extraInfo)
+      this.buildDetailedMessage(httpStatus, extraInfo)
     );
   },
 

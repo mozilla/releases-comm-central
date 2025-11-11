@@ -7,7 +7,13 @@ var { CalendarTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
+var { MockAlertsService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockAlertsService.sys.mjs"
+);
 var { updateAppInfo } = ChromeUtils.importESModule("resource://testing-common/AppInfo.sys.mjs");
+
+var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
+
 updateAppInfo();
 
 // The tests in this directory each do the same thing, with slight variations as needed for each
@@ -148,4 +154,105 @@ async function runDeleteItem(calendar) {
   calendarObserver._onDeleteItemPromise = Promise.withResolvers();
   await calendar.deleteItem(event);
   await calendarObserver._onDeleteItemPromise.promise;
+}
+
+/**
+ * Tests what happens when a calendar has a connection error. This simulates
+ * what happens if Thunderbird is running when the server disappears.
+ */
+async function runConnectionError1(server, type, useCache) {
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  const calendar = createCalendar(type, `${server.origin}/calendars/alice/test/`, useCache);
+  await calendarObserver._onLoadPromise.promise;
+
+  info("refreshing with the server down");
+  MockAlertsService.init();
+  const shownPromise = MockAlertsService.promiseShown();
+  server.close();
+  calendar.refresh();
+  await shownPromise;
+  // Here we'd wait for an onLoad notification, but some calendars do this and some don't.
+  await new Promise(resolve => do_timeout(150, resolve));
+
+  Assert.equal(
+    MockAlertsService.alert.imageURL,
+    AppConstants.platform == "macosx" ? "" : "chrome://branding/content/icon48.png"
+  );
+  Assert.equal(
+    MockAlertsService.alert.title,
+    calendar.name,
+    "the alert title should be the calendar name"
+  );
+  Assert.stringContains(
+    MockAlertsService.alert.text,
+    "localhost",
+    "the alert text should include the hostname of the server"
+  );
+  Assert.stringContains(
+    MockAlertsService.alert.text,
+    "the connection was refused",
+    "the alert text should state the problem"
+  );
+
+  Assert.equal(calendar.getProperty("currentStatus"), Ci.calIErrors.READ_FAILED);
+
+  info("refreshing with the server back up");
+  const closedPromise = MockAlertsService.promiseClosed();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  server.open();
+  calendar.refresh();
+  await Promise.all([calendarObserver._onLoadPromise.promise, closedPromise]);
+  Assert.equal(calendar.getProperty("currentStatus"), Cr.NS_OK);
+
+  cal.manager.unregisterCalendar(calendar);
+  MockAlertsService.cleanup();
+}
+
+/**
+ * Tests what happens when a calendar has a connection error. This simulates
+ * what happens if Thunderbird starts after the server disappears.
+ */
+async function runConnectionError2(server, type, useCache) {
+  const origin = server.origin;
+  info("setting up with the server down");
+  const shownPromise = MockAlertsService.promiseShown();
+  server.close();
+  MockAlertsService.init();
+
+  const calendar = createCalendar(type, `${origin}/calendars/alice/test/`, useCache);
+  await shownPromise;
+  // Here we'd wait for an onLoad notification, but some calendars do this and some don't.
+  await new Promise(resolve => do_timeout(150, resolve));
+  Assert.equal(
+    MockAlertsService.alert.imageURL,
+    AppConstants.platform == "macosx" ? "" : "chrome://branding/content/icon48.png"
+  );
+  Assert.equal(
+    MockAlertsService.alert.title,
+    calendar.name,
+    "the alert title should be the calendar name"
+  );
+  Assert.stringContains(
+    MockAlertsService.alert.text,
+    "localhost",
+    "the alert text should include the hostname of the server"
+  );
+  Assert.stringContains(
+    MockAlertsService.alert.text,
+    "the connection was refused",
+    "the alert text should state the problem"
+  );
+
+  Assert.equal(calendar.getProperty("currentStatus"), Ci.calIErrors.READ_FAILED);
+
+  info("refreshing with the server back up");
+  const closedPromise = MockAlertsService.promiseClosed();
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  server.open();
+  calendar.refresh();
+  await Promise.all([calendarObserver._onLoadPromise.promise, closedPromise]);
+  Assert.equal(calendar.getProperty("currentStatus"), Cr.NS_OK);
+
+  cal.manager.unregisterCalendar(calendar);
+  MockAlertsService.cleanup();
 }

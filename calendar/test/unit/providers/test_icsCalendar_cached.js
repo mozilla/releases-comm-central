@@ -53,3 +53,11 @@ add_task(async function () {
   await runDeleteItem(calendar);
   await calendarObserver._onLoadPromise.promise;
 });
+
+add_task(async function testConnectionError1() {
+  await runConnectionError1(ICSServer, "ics", true);
+});
+
+add_task(async function testConnectionError2() {
+  await runConnectionError2(ICSServer, "ics", true);
+});

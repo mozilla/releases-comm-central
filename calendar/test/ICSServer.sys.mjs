@@ -6,6 +6,7 @@ import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpServer } from "resource://testing-common/httpd.sys.mjs";
 
 export var ICSServer = {
+  port: -1,
   server: null,
   isOpen: false,
 
@@ -13,7 +14,8 @@ export var ICSServer = {
   etag: "",
   open(username, password) {
     this.server = new HttpServer();
-    this.server.start(-1);
+    this.server.start(this.port);
+    this.port = this.server.identity.primaryPort;
     this.isOpen = true;
 
     this.username = username;

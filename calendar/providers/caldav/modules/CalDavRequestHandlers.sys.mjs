@@ -485,7 +485,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  async onStopRequest(request) {
+  async onStopRequest(request, status) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
@@ -524,7 +524,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       this.calendar.safeRefresh(this.changeLogListener);
     } else {
       cal.WARN("CalDAV: Error doing webdav sync: " + responseStatus);
-      this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
+      this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR, undefined, undefined, status);
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
       }

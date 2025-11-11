@@ -141,7 +141,7 @@ class MockAlertsServiceInstance {
     dump(`closeAlert: ${name}\n`);
     if (MockAlertsService._closedDeferred) {
       if (name == MockAlertsService.alert.name) {
-        MockAlertsService.listener.observe(
+        MockAlertsService.listener?.observe(
           null,
           "alertfinished",
           MockAlertsService.alert.cookie

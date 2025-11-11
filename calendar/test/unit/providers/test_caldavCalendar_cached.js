@@ -236,3 +236,11 @@ add_task(async function testSyncError2() {
     CalDAVServer.deleteItemInternal(`/calendars/alice/test/fake-uid-${i}.ics`);
   }
 });
+
+add_task(async function testConnectionError1() {
+  await runConnectionError1(CalDAVServer, "caldav", true);
+});
+
+add_task(async function testConnectionError2() {
+  await runConnectionError2(CalDAVServer, "caldav", true);
+});

@@ -416,6 +416,7 @@ class CalDavSimpleResponse extends CalDavResponseBase {
 
     this.nsirequest = aLoader.request.QueryInterface(Ci.nsIHttpChannel);
 
+    this.#streamStatus = aStatus;
     if (Components.isSuccessCode(aStatus)) {
       this._onresponded(this);
     } else {
@@ -432,7 +433,17 @@ class CalDavSimpleResponse extends CalDavResponseBase {
     }
   }
 
+  #streamStatus;
   #certError = false;
+
+  /**
+   * The status of the underlying stream, e.g. NS_ERROR_CONNECTION_REFUSED.
+   *
+   * @type {nsresult}
+   */
+  get streamStatus() {
+    return this.#streamStatus;
+  }
 
   /** If the response had a certificate error. */
   get certError() {

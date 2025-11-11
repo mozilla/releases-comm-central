@@ -3,8 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  ConnectionNotifications: "resource:///modules/ConnectionNotifications.sys.mjs",
+});
 
 // This is a non-sync ics file. It reads the file pointer to by uri when set,
 // then writes it on updates. External changes to the file will be
@@ -337,14 +341,24 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   onStreamComplete(loader, ctxt, status, resultLength, result) {
     let cont = false;
 
+    const currentStatus = this.getProperty("currentStatus");
     if (Components.isSuccessCode(status)) {
+      if (currentStatus != Cr.NS_OK) {
+        this.setProperty("currentStatus", Cr.NS_OK);
+        lazy.ConnectionNotifications.connectionRestored(this.id);
+      }
       // Allow the hook to get needed data (like an etag) of the channel
       cont = this.#hooks.onAfterGet(loader.request);
       cal.LOG("[calICSCalendar] Loading ICS succeeded, needs further processing: " + cont);
     } else {
       // Failure may be due to temporary connection issue, keep old data to
       // prevent potential data loss if it becomes available again.
-      cal.LOG("[calICSCalendar] Unable to load stream - status: " + status);
+      cal.WARN(`[calICSCalendar] Unable to load stream - status: 0x${status.toString(16)}`);
+
+      if (currentStatus == Cr.NS_OK) {
+        lazy.ConnectionNotifications.connectionFailed(this.id, status, this.name, this.#uri.host);
+      }
+      this.notifyError(Ci.calIErrors.READ_FAILED, ""); // Sets currentStatus.
 
       // Check for bad server certificates on SSL/TLS connections.
       cal.provider.checkBadCertStatus(loader.request, status, this);
