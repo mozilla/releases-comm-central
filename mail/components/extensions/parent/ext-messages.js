@@ -1083,7 +1083,15 @@ this.messages = class extends ExtensionAPIPersistent {
             attachmentInfos.push(attachmentInfo);
           }
 
-          await AttachmentInfo.deleteAttachments(msgHdr, attachmentInfos);
+          if (msgHdrProcessor.hasEncryptedParts) {
+            throw new ExtensionError(
+              `Operation not supported for encrypted messages`
+            );
+          }
+
+          if (attachmentInfos.length > 0) {
+            await AttachmentInfo.deleteAttachments(msgHdr, attachmentInfos);
+          }
         },
         async query(queryInfo) {
           const messageQuery = new MessageQuery(

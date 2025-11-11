@@ -813,6 +813,10 @@ export class MsgHdrProcessor {
     );
     return mimeTree;
   }
+
+  get hasEncryptedParts() {
+    return this.#hasEncryptedParts;
+  }
 }
 
 export function getMessagesInFolder(folder) {

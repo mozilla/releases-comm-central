@@ -659,7 +659,7 @@
       {
         "name": "listAttachments",
         "type": "function",
-        "description": "Lists the attachments of a message.",
+        "description": "Lists the attachments of a message. If the message is encrypted, the attachments of the decrypted message are listed.",
         "async": "callback",
         "parameters": [
           {
@@ -684,7 +684,7 @@
       {
         "name": "listInlineTextParts",
         "type": "function",
-        "description": "Lists all inline text parts of a message. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method $(ref:messengerUtilities.convertToPlainText) can be used to retreive a plain text version.",
+        "description": "Lists all inline text parts of a message. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method $(ref:messengerUtilities.convertToPlainText) can be used to retreive a plain text version. If the message is encrypted, the inline text parts of the decrypted message are listed.",
         "async": "callback",
         "parameters": [
           {
@@ -709,7 +709,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a $(url:dom-file)[File] object.",
+        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a $(url:dom-file)[File] object. If the message is encrypted, the function retrieves the attachment from the decrypted message.",
         "async": "callback",
         "parameters": [
           {
@@ -718,6 +718,7 @@
           },
           {
             "name": "partName",
+            "description": "The <var>partName</var> of an attachment to be retrieved from the decrypted message.",
             "type": "string",
             "pattern": "^\\d+(\\.\\d+\\$?)*$"
           },
@@ -738,7 +739,7 @@
       {
         "name": "deleteAttachments",
         "type": "function",
-        "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <var>text/x-moz-deleted</var> content type. This permanently modifies the message.",
+        "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <var>text/x-moz-deleted</var> content type. This permanently modifies the message. Deleting attachments of encrypted messages is not supported and will throw an <em>ExtensionError</em>.",
         "permissions": ["messagesModifyPermanent"],
         "async": true,
         "parameters": [

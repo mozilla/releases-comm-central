@@ -111,7 +111,9 @@ add_setup(async () => {
   );
 });
 
-// Test an OpenPGP/MIME encrypted message with nested attachments.
+/**
+ * Test an OpenPGP/MIME encrypted message with nested attachments.
+ */
 add_task(async function test_openpgp_enc_nested_messages() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -728,7 +730,9 @@ add_task(async function test_openpgp_enc_nested_messages() {
   await extension.unload();
 });
 
-// Test an OpenPGP/INLINE encrypted message.
+/**
+ * Test an OpenPGP/INLINE encrypted message.
+ */
 add_task(async function test_openpgp_enc_msg_inline() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -852,7 +856,9 @@ add_task(async function test_openpgp_enc_msg_inline() {
   await extension.unload();
 });
 
-// Test a message with an OpenPGP encrypted attachment.
+/**
+ * Test a message with an OpenPGP encrypted attachment.
+ */
 add_task(async function test_openpgp_enc_msg_attachment() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -1085,7 +1091,9 @@ add_task(async function test_openpgp_enc_msg_attachment() {
   await extension.unload();
 });
 
-// Test an S/MIME encrypted message.
+/**
+ * Test an S/MIME encrypted message.
+ */
 add_task(async function test_smime_enc_not_signed() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -1216,7 +1224,9 @@ add_task(async function test_smime_enc_not_signed() {
   await extension.unload();
 });
 
-// Test an S/MIME encrypted and signed message.
+/**
+ * Test an S/MIME encrypted and signed message.
+ */
 add_task(async function test_smime_enc_signed() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -1378,6 +1388,103 @@ add_task(async function test_smime_enc_signed() {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Test deleting an attachment from an S/MIME encrypted message.
+ */
+add_task(async function deleteAttachments_smime() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [folder] = await browser.folders.query({ name: "test5" });
+        const { messages } = await browser.messages.list(folder.id);
+        browser.test.assertEq(1, messages.length);
+        const msgId = messages[0].id;
+
+        const attachments = await browser.messages.listAttachments(msgId);
+        browser.test.assertEq(
+          1,
+          attachments.length,
+          "Should find the correct number of attachments"
+        );
+        browser.test.assertEq(
+          "1",
+          attachments[0].partName,
+          "Should find the correct partName for attachment #1"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.deleteAttachments(msgId, ["1"]),
+          /Operation not supported for encrypted messages/,
+          "Should reject deleting attachments of encrypted messages"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "messagesModifyPermanent"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Test deleting an attachment from an OpenPGP encrypted message.
+ */
+add_task(async function deleteAttachments_openpgp_enc_nested_messages() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [folder] = await browser.folders.query({ name: "test1" });
+        const { messages } = await browser.messages.list(folder.id);
+        browser.test.assertEq(1, messages.length);
+        const msgId = messages[0].id;
+
+        const attachments = await browser.messages.listAttachments(msgId);
+        browser.test.assertEq(
+          2,
+          attachments.length,
+          "Should find the correct number of attachments"
+        );
+        browser.test.assertEq(
+          "1.1.2",
+          attachments[0].partName,
+          "Should find the correct partName for attachment #1"
+        );
+        browser.test.assertEq(
+          "1.1.3",
+          attachments[1].partName,
+          "Should find the correct partName for attachment #2"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.deleteAttachments(msgId, ["1.1.2"]),
+          /Operation not supported for encrypted messages/,
+          "Should reject deleting attachments of encrypted messages"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "messagesModifyPermanent"],
     },
   });
 
