@@ -990,7 +990,9 @@ this.messages = class extends ExtensionAPIPersistent {
           );
           const data = {
             contentType: attachmentPart.headers.contentType.type,
-            url: getMsgPartUrl(msgHdr, partName),
+            url:
+              getMsgPartUrl(msgHdr, partName) +
+              `&filename=${attachmentPart.name}`,
             name: attachmentPart.name,
             uri: msgHdr.folder
               ? msgHdr.folder.getUriForMsg(msgHdr)
