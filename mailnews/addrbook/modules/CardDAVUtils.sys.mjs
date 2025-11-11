@@ -36,8 +36,6 @@ const PRESETS = {
   "googlemail.com": "https://www.googleapis.com",
   // For testing purposes.
   "test.invalid": "http://localhost:9999",
-  // Yahoo! OAuth is not working yet.
-  "yahoo.com": null,
 };
 
 // At least one of these ACL privileges must be present to consider an address

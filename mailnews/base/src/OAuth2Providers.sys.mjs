@@ -67,12 +67,10 @@ var kHostnames = new Map([
   ["imap.yandex.com", ["oauth.yandex.com", "mail:imap_full"]],
   ["smtp.yandex.com", ["oauth.yandex.com", "mail:smtp"]],
 
-  ["yahoo.com", ["login.yahoo.com", "mail-w"]],
-  ["att.net", ["login.yahoo.com", "mail-w"]],
+  ["yahoo.com", ["login.yahoo.com", "mail-w ycal-w sdct-w"]],
+  ["att.net", ["login.yahoo.com", "mail-w ycal-w sdct-w"]],
 
-  ["imap.aol.com", ["login.aol.com", "mail-w"]],
-  ["pop.aol.com", ["login.aol.com", "mail-w"]],
-  ["smtp.aol.com", ["login.aol.com", "mail-w"]],
+  ["aol.com", ["login.aol.com", "mail-w ycal-w sdct-w"]],
 
   // outlook.office365.com, smtp.office365.com
   ["office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
@@ -165,10 +163,11 @@ var kIssuers = new Map([
       name: "login.yahoo.com",
       builtIn: true,
       clientId:
-        "dj0yJmk9NUtCTWFMNVpTaVJmJmQ9WVdrOVJ6UjVTa2xJTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYw--",
-      clientSecret: "f2de6a30ae123cdbc258c15e0812799010d589cc",
+        "dj0yJmk9WVZUaWRNUUZSQTBNJmQ9WVdrOVNqbHJUMGhtTkU4bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTgz",
       authorizationEndpoint: "https://api.login.yahoo.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.yahoo.com/oauth2/get_token",
+      redirectionEndpoint: "https://127.0.0.1",
+      usePKCE: true,
     },
   ],
   [
@@ -177,10 +176,11 @@ var kIssuers = new Map([
       name: "login.aol.com",
       builtIn: true,
       clientId:
-        "dj0yJmk9OXRHc1FqZHRQYzVvJmQ9WVdrOU1UQnJOR0pvTjJrbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD02NQ--",
-      clientSecret: "79c1c11991d148ddd02a919000d69879942fc278",
+        "dj0yJmk9MGNoTTQ0SjhIN1dSJmQ9WVdrOVdIVnFkVVp2UkZNbWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTNm",
       authorizationEndpoint: "https://api.login.aol.com/oauth2/request_auth",
       tokenEndpoint: "https://api.login.aol.com/oauth2/get_token",
+      redirectionEndpoint: "https://127.0.0.1",
+      usePKCE: true,
     },
   ],
 
