@@ -66,6 +66,25 @@ add_task(async function test_message_settings() {
               levelOfControl: "not_controllable",
             },
           },
+          {
+            name: "readerDisplayAttachmentsInline",
+            expected: {
+              value: true,
+              levelOfControl: "not_controllable",
+            },
+          },
+          {
+            name: "readerDisplayAttachmentsInline",
+            pref: {
+              setFunc: "setBoolPref",
+              name: "mail.inline_attachments",
+              value: false,
+            },
+            expected: {
+              value: false,
+              levelOfControl: "not_controllable",
+            },
+          },
         ];
 
         for (let idx = 0; idx < tests.length; idx++) {

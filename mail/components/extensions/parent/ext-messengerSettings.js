@@ -29,6 +29,14 @@ ExtensionPreferencesManager.addSetting("messageLineLengthLimit", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("readerDisplayAttachmentsInline", {
+  permission: "messengerSettings",
+  prefNames: ["mail.inline_attachments"],
+  getCallback() {
+    return Services.prefs.getBoolPref("mail.inline_attachments");
+  },
+});
+
 this.messengerSettings = class extends ExtensionAPI {
   getAPI(context) {
     function makeSettingsAPI(options) {
@@ -52,6 +60,10 @@ this.messengerSettings = class extends ExtensionAPI {
         }),
         messagePlainTextFlowedOutputEnabled: makeSettingsAPI({
           name: "messagePlainTextFlowedOutputEnabled",
+          readOnly: true,
+        }),
+        readerDisplayAttachmentsInline: makeSettingsAPI({
+          name: "readerDisplayAttachmentsInline",
           readOnly: true,
         }),
       },
