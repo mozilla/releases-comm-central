@@ -37,7 +37,7 @@ const folderPaneContextData = {
     "rssFeed",
     "multiselect-plain",
   ],
-  "folderPaneContext-rename": ["plain", "junk", ...virtualFolders, "rssFeed"],
+  "folderPaneContext-rename": ["plain", ...virtualFolders, "rssFeed"],
   "folderPaneContext-moveMenu": [
     "plain",
     ...virtualFolders,

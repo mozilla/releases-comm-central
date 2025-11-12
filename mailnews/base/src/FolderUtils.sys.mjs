@@ -328,7 +328,9 @@ function isSmartTagsFolder(folder) {
 }
 
 /**
- * Checks if the configured junk mail can be renamed or deleted.
+ * Checks if the configured junk mail can be renamed or deleted. In practice
+ * we no longer permit renaming folders with the Junk flag as the name is
+ * overridden by a localised name.
  *
  * @param {string} aFolderUri
  */

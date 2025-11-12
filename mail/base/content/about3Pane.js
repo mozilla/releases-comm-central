@@ -441,10 +441,7 @@ var folderPaneContextMenu = {
       cmd_deleteFolder:
         online && (isJunk ? canRenameDeleteJunkMail : deletable),
       cmd_renameFolder:
-        online &&
-        ((!isServer && canRename && !isSpecialUse) ||
-          isVirtual ||
-          (isJunk && canRenameDeleteJunkMail)),
+        online && ((!isServer && canRename && !isSpecialUse) || isVirtual),
       cmd_compactFolder:
         !isVirtual && !isNNTP && (isServer || canCompact) && isCompactEnabled,
       cmd_emptyTrash: online && !isNNTP,
