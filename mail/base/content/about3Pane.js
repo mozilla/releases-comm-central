@@ -4234,24 +4234,28 @@ var folderPane = {
    * @param {nsIMsgFolder} parentFolder
    */
   clearUserSortOrder(parentFolder) {
-    const folders = [];
-    for (const folder of this._getSubFolders(parentFolder)) {
-      if (folder.userSortOrder == Ci.nsIMsgFolder.NO_SORT_VALUE) {
-        continue;
+    const clearRecursively = parent => {
+      const folders = [];
+      for (const folder of this._getSubFolders(parent)) {
+        if (folder.hasSubFolders) {
+          clearRecursively(folder);
+        }
+
+        if (folder.userSortOrder == Ci.nsIMsgFolder.NO_SORT_VALUE) {
+          continue;
+        }
+
+        folder.userSortOrder = Ci.nsIMsgFolder.NO_SORT_VALUE;
+        folders.push(folder);
       }
 
-      folder.userSortOrder = Ci.nsIMsgFolder.NO_SORT_VALUE;
-      folders.push(folder);
-
-      if (folder.hasSubFolders) {
-        this.clearUserSortOrder(folder);
+      for (const changedFolder of folders) {
+        this.setOrderToRowInAllModes(changedFolder, changedFolder.sortOrder);
+        this.refreshFolderPaneUI(changedFolder);
       }
-    }
+    };
 
-    for (const changedFolder of folders) {
-      this.setOrderToRowInAllModes(changedFolder, changedFolder.sortOrder);
-      this.refreshFolderPaneUI(changedFolder);
-    }
+    clearRecursively(parentFolder);
 
     window.dispatchEvent(
       new CustomEvent("folder-sort-order-restored", { bubbles: true })
