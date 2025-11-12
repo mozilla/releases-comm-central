@@ -7491,9 +7491,8 @@ void nsImapProtocol::DiscoverMailboxList() {
         // directory (like UW-IMAP).
         nsCString pattern;
         pattern.Append(prefix);
+        pattern += '*';
         if (usingSubscription) {
-          pattern.Append('*');
-
           if (GetServerStateParser().GetCapabilityFlag() &
               kHasListExtendedCapability)
             Lsub(pattern.get(), true);  // do LIST (SUBSCRIBED)
@@ -7508,15 +7507,9 @@ void nsImapProtocol::DiscoverMailboxList() {
             m_standardListMailboxes.Clear();
           }
         } else {
-          // Not using subscription. Need to list top level folders here so any
-          // new folders at top level are discovered. Folders at all levels
-          // will be set unverified and will be checked for new children in
-          // nsImapIncomingServer::DiscoveryDone when discoverallboxes URL stop
-          // is signaled. This must be done instead of 'list "" *' so that the
-          // database for each individually listed folder at all levels is
-          // is properly closed when discoverchildren URL stop is signaled.
-          // Testing for database closing is done by test_listClosesDB.js.
-          pattern += "%";
+          // Not using subscription. Just LIST all the folders for this
+          // namespace. Will close the DBs this leaves open in
+          // nsImapIncomingServer::DiscoveryDone().
           List(pattern.get(), true, hasXLIST);
         }
       }

@@ -988,14 +988,6 @@ var folderPane = {
           // assigned to an account before creating folders on the server.
           throw new Error(`No parentRow for ${parentFolder.URI}`);
         }
-        // To auto-expand non-root imap folders, imap URL "discoverchildren" is
-        // triggered -- but actually only occurs if server settings configured
-        // to ignore subscriptions. (This also occurs in _onExpanded() for
-        // manual folder expansion.)
-        if (parentFolder.server.type == "imap" && !parentFolder.isServer) {
-          parentFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
-          parentFolder.performExpand(top.msgWindow);
-        }
         folderTree.expandRow(parentRow);
         const childRow = folderPane._createFolderRow(this.name, childFolder);
         folderPane._addSubFolders(childFolder, childRow, "all");
@@ -2967,8 +2959,10 @@ var folderPane = {
     const folder = MailServices.folderLookup.getFolderForURL(target.uri);
     if (folder.server.type == "imap") {
       if (folder.isServer) {
+        // Do URL discoverallboxes when server (root folder) expanded.
         folder.server.performExpand(top.msgWindow);
       } else {
+        // Do URL discoverchildren when mail folder expanded.
         folder.QueryInterface(Ci.nsIMsgImapMailFolder);
         folder.performExpand(top.msgWindow);
       }

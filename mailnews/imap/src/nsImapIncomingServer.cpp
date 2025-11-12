@@ -1265,6 +1265,34 @@ nsresult nsImapIncomingServer::PathFromFolder(nsIMsgFolder* folder,
   return FolderPathInServer(folder, shortPath);
 }
 
+static uint32_t gFolderCnt = 0;  // For logging info only
+/*
+ * Iterate over all folders on this imap server and close each folder database.
+ * This is based on algorithm used by ResetFoldersToUnverified() below.
+ */
+nsresult nsImapIncomingServer::CloseFoldersDB(nsIMsgFolder* parentFolder) {
+  nsresult rv = NS_OK;
+  if (!parentFolder) {
+    gFolderCnt = 0;
+    nsCOMPtr<nsIMsgFolder> rootFolder;
+    rv = GetRootFolder(getter_AddRefs(rootFolder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    return CloseFoldersDB(rootFolder);
+  }
+
+  gFolderCnt++;
+  parentFolder->SetMsgDatabase(nullptr);
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = parentFolder->GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (nsIMsgFolder* child : subFolders) {
+    rv = CloseFoldersDB(child);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return rv;
+}
+
 NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
   if (mDoingSubscribeDialog) return NS_OK;
 
@@ -1335,21 +1363,23 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     }
   }
 
-  // Un-verify ALL subfolders when ignoring subs. Needed to ensure that new
-  // folders are discovered at all levels, including under Inbox. Note: At
-  // account creation, all folders are new.
-  bool usingSubscription = true;
-  GetUsingSubscription(&usingSubscription);
-  if (!usingSubscription && rootMsgFolder) {
-    ResetFoldersToUnverified(rootMsgFolder);
-  }
-
-  nsCOMArray<nsIMsgImapMailFolder> unverifiedFolders;
-  GetUnverifiedFolders(unverifiedFolders);
+  // Close all the folder DBs
+  MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+          ("DiscoveryDone %s: start closing DBs", m_serverKey.get()));
+  CloseFoldersDB(nullptr);
+  MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
+          ("DiscoveryDone %s: Done closing DBs for %" PRIu32 " folders",
+           m_serverKey.get(), gFolderCnt));
 
   // Need to do this BEFORE trash folder checks and adjustments so if trash
   // folder is deleted it is no longer present in the trashFolders array. Array
   // obtained below.
+  bool usingSubscription = true;
+  GetUsingSubscription(&usingSubscription);
+
+  nsCOMArray<nsIMsgImapMailFolder> unverifiedFolders;
+  GetUnverifiedFolders(unverifiedFolders);
+
   int32_t count = unverifiedFolders.Count();
   MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
           ("DiscoveryDone, unverified folder count = %" PRIu32, count));
@@ -1387,13 +1417,6 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         // away.
         currentImapFolder->SetExplicitlyVerify(false);
         currentImapFolder->List();  // Run listfolder url
-        // If subscriptions are ignored, trigger a discoverchildren url so that
-        // any new folders are discovered. PerformExpand starts the url.
-        if (!usingSubscription) {
-          MOZ_LOG(IMAP_DC, mozilla::LogLevel::Debug,
-                  ("DiscoveryDone: run discoverchildren with PerformExpand"));
-          currentImapFolder->PerformExpand(nullptr);
-        }
       }
     } else {
       nsCOMPtr<nsIMsgFolder> parent;
