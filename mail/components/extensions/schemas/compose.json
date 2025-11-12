@@ -452,6 +452,10 @@
                   "$ref": "messages.MessageHeader"
                 },
                 "description": "Copies of the sent message. The number of created copies depends on the applied file carbon copy configuration (fcc). The <permission>messagesRead</permission> permission is required for this property to be included."
+              },
+              "details": {
+                "$ref": "ComposeDetails",
+                "description": "The $(ref:compose.ComposeDetails) of the send message."
               }
             }
           }
@@ -487,6 +491,10 @@
                   "$ref": "messages.MessageHeader"
                 },
                 "description": "An array with exactly one element, the saved message. The <permission>messagesRead</permission> permission is required for this property to be included."
+              },
+              "details": {
+                "$ref": "ComposeDetails",
+                "description": "The $(ref:compose.ComposeDetails) of the saved message."
               }
             }
           }

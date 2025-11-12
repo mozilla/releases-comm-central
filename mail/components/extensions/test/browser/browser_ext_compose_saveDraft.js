@@ -396,13 +396,42 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
 
   // Trigger onAfterSave without terminating the background first.
 
-  composeWindow.SetComposeDetails({ to: "first@invalid.net" });
+  composeWindow.SetComposeDetails({
+    to: "first@invalid.net",
+    subject: "test_onAfterSave_MV3_event_pages",
+  });
   composeWindow.SaveAsDraft();
   const firstSaveInfo = await extension.awaitMessage("onAfterSave received");
   Assert.equal(
     "draft",
     firstSaveInfo.mode,
     "Returned SaveInfo should be correct"
+  );
+  Assert.deepEqual(
+    firstSaveInfo.details,
+    {
+      from: "identity@foo.invalid",
+      to: ["first@invalid.net"],
+      cc: [],
+      bcc: [],
+      type: "new",
+      replyTo: [],
+      followupTo: [],
+      newsgroups: [],
+      subject: "test_onAfterSave_MV3_event_pages",
+      isPlainText: false,
+      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+      plainTextBody: "",
+      customHeaders: [],
+      priority: "normal",
+      returnReceipt: false,
+      deliveryStatusNotification: false,
+      attachPublicPGPKey: false,
+      attachVCard: false,
+      isModified: true,
+      deliveryFormat: "auto",
+    },
+    "Returned details in SaveInfo should be correct"
   );
 
   // Terminate background and re-trigger onAfterSave.
@@ -411,13 +440,42 @@ add_task(async function test_onAfterSave_MV3_event_pages() {
   // The listeners should be primed.
   checkPersistentListeners({ primed: true });
 
-  composeWindow.SetComposeDetails({ to: "second@invalid.net" });
+  composeWindow.SetComposeDetails({
+    to: "second@invalid.net",
+    subject: "test_onAfterSave_MV3_event_pages",
+  });
   composeWindow.SaveAsDraft();
   const secondSaveInfo = await extension.awaitMessage("onAfterSave received");
   Assert.equal(
     "draft",
     secondSaveInfo.mode,
     "Returned SaveInfo should be correct"
+  );
+  Assert.deepEqual(
+    secondSaveInfo.details,
+    {
+      from: "identity@foo.invalid",
+      to: ["second@invalid.net"],
+      cc: [],
+      bcc: [],
+      type: "new",
+      replyTo: [],
+      followupTo: [],
+      newsgroups: [],
+      subject: "test_onAfterSave_MV3_event_pages",
+      isPlainText: false,
+      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+      plainTextBody: "",
+      customHeaders: [],
+      priority: "normal",
+      returnReceipt: false,
+      deliveryStatusNotification: false,
+      attachPublicPGPKey: false,
+      attachVCard: false,
+      isModified: true,
+      deliveryFormat: "auto",
+    },
+    "Returned details in SaveInfo should be correct again"
   );
 
   // The background should have been restarted.

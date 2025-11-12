@@ -142,11 +142,37 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
   firstComposeWindow.SetComposeDetails({ to: "first@invalid.net" });
   firstComposeWindow.SetComposeDetails({ subject: "First message" });
   firstComposeWindow.SendMessage();
-  const firstSaveInfo = await extension.awaitMessage("onAfterSend received");
+  const firstSendInfo = await extension.awaitMessage("onAfterSend received");
   Assert.equal(
     "sendNow",
-    firstSaveInfo.mode,
-    "Returned SaveInfo should be correct"
+    firstSendInfo.mode,
+    "Returned SendInfo should be correct"
+  );
+  Assert.deepEqual(
+    firstSendInfo.details,
+    {
+      from: "identity@foo.invalid",
+      to: ["first@invalid.net"],
+      cc: [],
+      bcc: [],
+      type: "new",
+      replyTo: [],
+      followupTo: [],
+      newsgroups: [],
+      subject: "First message",
+      isPlainText: false,
+      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+      plainTextBody: "",
+      customHeaders: [],
+      priority: "normal",
+      returnReceipt: false,
+      deliveryStatusNotification: false,
+      attachPublicPGPKey: false,
+      attachVCard: false,
+      isModified: true,
+      deliveryFormat: "auto",
+    },
+    "Returned details in SendInfo should be correct"
   );
 
   // Terminate background and re-trigger onAfterSend.
@@ -159,11 +185,37 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
   secondComposeWindow.SetComposeDetails({ to: "second@invalid.net" });
   secondComposeWindow.SetComposeDetails({ subject: "Second message" });
   secondComposeWindow.SendMessage();
-  const secondSaveInfo = await extension.awaitMessage("onAfterSend received");
+  const secondSendInfo = await extension.awaitMessage("onAfterSend received");
   Assert.equal(
     "sendNow",
-    secondSaveInfo.mode,
-    "Returned SaveInfo should be correct"
+    secondSendInfo.mode,
+    "Returned SendInfo should be correct"
+  );
+  Assert.deepEqual(
+    secondSendInfo.details,
+    {
+      from: "identity@foo.invalid",
+      to: ["second@invalid.net"],
+      cc: [],
+      bcc: [],
+      type: "new",
+      replyTo: [],
+      followupTo: [],
+      newsgroups: [],
+      subject: "Second message",
+      isPlainText: false,
+      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+      plainTextBody: "",
+      customHeaders: [],
+      priority: "normal",
+      returnReceipt: false,
+      deliveryStatusNotification: false,
+      attachPublicPGPKey: false,
+      attachVCard: false,
+      isModified: true,
+      deliveryFormat: "auto",
+    },
+    "Returned details in SendInfo should be correct again"
   );
 
   // The background should have been restarted.

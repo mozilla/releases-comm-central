@@ -1472,10 +1472,11 @@ this.compose = class extends ExtensionAPIPersistent {
         async onSuccess(window, mode, messages, headerMessageId) {
           const win = windowManager.wrapWindow(window);
           const tab = tabManager.convert(win.activeTab.nativeTab);
+          const details = await getComposeDetails(window, extension);
+          const sendInfo = { mode, messages, details };
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          const sendInfo = { mode, messages };
           if (mode == "sendNow") {
             sendInfo.headerMessageId = headerMessageId;
           }
@@ -1511,22 +1512,22 @@ this.compose = class extends ExtensionAPIPersistent {
       const { tabManager, windowManager } = extension;
       const listener = {
         async onSuccess(window, mode, messages) {
+          const win = windowManager.wrapWindow(window);
+          const tab = tabManager.convert(win.activeTab.nativeTab);
+          const details = await getComposeDetails(window, extension);
+          const saveInfo = { mode, messages, details };
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          const win = windowManager.wrapWindow(window);
-          const saveInfo = { mode, messages };
-          return fire.async(
-            tabManager.convert(win.activeTab.nativeTab),
-            saveInfo
-          );
+          return fire.async(tab, saveInfo);
         },
         async onFailure(window, mode, exception) {
+          const win = windowManager.wrapWindow(window);
+          const tab = tabManager.convert(win.activeTab.nativeTab);
           if (fire.wakeup) {
             await fire.wakeup();
           }
-          const win = windowManager.wrapWindow(window);
-          return fire.async(tabManager.convert(win.activeTab.nativeTab), {
+          return fire.async(tab, {
             mode,
             messages: [],
             error: exception.message,
