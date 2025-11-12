@@ -12,8 +12,14 @@
 [package]
 edition = "2018"
 name = "whatsys"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Jan-Erik Rediger <janerik@fnordig.de>"]
+build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Determine the kernel version"
 readme = "README.md"
 license = "MIT"
@@ -26,6 +32,14 @@ targets = [
     "x86_64-apple-darwin",
     "x86_64-pc-windows-msvc",
 ]
+
+[lib]
+name = "whatsys"
+path = "src/lib.rs"
+
+[[example]]
+name = "version"
+path = "examples/version.rs"
 
 [dependencies.cfg-if]
 version = "1.0"

@@ -56,7 +56,8 @@ int get_os_release(char *outbuf, size_t outlen) {
 
   // If the output buffer is smaller than the version (or "unknown"),
   // we only wrote until the buffer was full.
-  return min(written, (int)outlen - 1);
+  int maxsize = (int)outlen - 1;
+  return written < maxsize ? written : maxsize;
 }
 
 /**

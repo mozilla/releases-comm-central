@@ -18,6 +18,8 @@ fn configure(build: &mut cc::Build) -> &mut cc::Build {
         build.define("HAVE_TIMESPEC_GET", None);
     }
 
+    // Avoid including mozilla-config.h in Gecko builds
+    build.define("MOZILLA_CONFIG_H", None);
     // Avoid using e.g. moz_malloc in Gecko builds.
     build.define("MOZ_INCLUDE_MOZALLOC_H", None);
     // Avoid using e.g. mozalloc_abort in Gecko builds.
