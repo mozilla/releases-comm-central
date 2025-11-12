@@ -34,7 +34,6 @@ class nsICancelable;
 // this class and not all of the mailnews protocols.
 class nsMsgProtocol : public nsIStreamListener,
                       public nsIChannel,
-                      public nsITransportEventSink,
                       public nsMailChannel,
                       public nsHashPropertyBag {
  public:
@@ -47,7 +46,6 @@ class nsMsgProtocol : public nsIStreamListener,
 
   NS_DECL_NSISTREAMLISTENER
   NS_DECL_NSIREQUESTOBSERVER
-  NS_DECL_NSITRANSPORTEVENTSINK
 
   // LoadUrl -- A protocol typically overrides this function, sets up any local
   // state for the url and then calls the base class which opens the socket if

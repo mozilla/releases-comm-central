@@ -49,7 +49,7 @@ using namespace mozilla;
 
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgProtocol, nsHashPropertyBag, nsIMailChannel,
                             nsIChannel, nsIStreamListener, nsIRequestObserver,
-                            nsIRequest, nsITransportEventSink)
+                            nsIRequest)
 
 static char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
                                                 nsIMsgMailNewsUrl* msgUri);
@@ -150,12 +150,6 @@ nsresult nsMsgProtocol::CloseSocket() {
   // release all of our socket state
   m_socketIsOpen = false;
   m_outputStream = nullptr;
-  if (m_transport) {
-    nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
-    if (strans) {
-      strans->SetEventSink(nullptr, nullptr);  // break cyclic reference!
-    }
-  }
   // we need to call Cancel so that we remove the socket transport from the
   // mActiveTransportList.  see bug #30648
   if (m_request) {
@@ -603,35 +597,6 @@ NS_IMETHODIMP
 nsMsgProtocol::SetNotificationCallbacks(
     nsIInterfaceRequestor* aNotificationCallbacks) {
   mCallbacks = aNotificationCallbacks;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgProtocol::OnTransportStatus(nsITransport* transport, nsresult status,
-                                 int64_t progress, int64_t progressMax) {
-  if ((mLoadFlags & LOAD_BACKGROUND) || !m_url) return NS_OK;
-
-  // these transport events should not generate any status messages
-  if (status == NS_NET_STATUS_RECEIVING_FROM ||
-      status == NS_NET_STATUS_SENDING_TO)
-    return NS_OK;
-
-  if (!mProgressEventSink) {
-    NS_QueryNotificationCallbacks(mCallbacks, m_loadGroup, mProgressEventSink);
-    if (!mProgressEventSink) return NS_OK;
-  }
-
-  nsAutoCString host;
-  m_url->GetHost(host);
-
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
-  if (mailnewsUrl) {
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    mailnewsUrl->GetServer(getter_AddRefs(server));
-    if (server) server->GetHostName(host);
-  }
-  mProgressEventSink->OnStatus(this, status, NS_ConvertUTF8toUTF16(host).get());
-
   return NS_OK;
 }
 
