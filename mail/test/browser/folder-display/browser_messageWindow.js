@@ -60,6 +60,10 @@ add_task(async function test_open_message_window() {
   // display it
   msgc = await open_selected_message_in_new_window();
   await assert_selected_and_displayed(msgc, curMessage);
+  await TestUtils.waitForCondition(
+    () => msgc.messageBrowser?.contentWindow?.msgLoaded,
+    "waiting for message to load in new window"
+  );
 
   let expectedTitle =
     msgc.document.getElementById("messageBrowser").contentTitle;
@@ -104,7 +108,7 @@ add_task(async function test_navigate_to_next_message() {
   EventUtils.synthesizeKey("f", {}, msgc);
   await wait_for_message_display_completion(msgc, true);
   await assert_selected_and_displayed(msgc, 1);
-}).skip();
+});
 
 /**
  * Delete a single message and verify the next message is loaded. This sets
@@ -115,7 +119,7 @@ add_task(async function test_delete_single_message() {
   await press_delete(msgc);
   await wait_for_message_display_completion(msgc, true);
   await assert_selected_and_displayed(msgc, 1);
-}).skip();
+});
 
 /**
  * Delete the current message, and verify that it only deletes
@@ -128,7 +132,7 @@ add_task(async function test_del_collapsed_thread() {
   }
   await wait_for_message_display_completion(msgc, true);
   await assert_selected_and_displayed(msgc, 1);
-}).skip();
+});
 
 /**
  * Hit n enough times to mark all messages in folder A read, and then accept the
@@ -159,7 +163,7 @@ add_task(async function test_next_unread() {
 
   // make sure we've been displaying the right message
   await assert_selected_and_displayed(msgc, msg);
-}).skip();
+});
 
 /**
  * Close the window by hitting escape.
