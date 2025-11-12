@@ -4,6 +4,12 @@
 
 "use strict";
 
+// Load subscript shared with all spaces tests.
+Services.scriptloader.loadSubScript(
+  new URL("head_spaces.js", gTestPath).href,
+  this
+);
+
 /**
  * Helper Function, creates a test extension to verify expected button states.
  *
@@ -51,7 +57,9 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       await tabPromise;
     }
 
-    const tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceButtonId);
+    const tabs = tabmail.tabInfo.filter(
+      tabInfo => !!ExtensionSpaces.getSpaceButtonIdForTab(tabInfo)
+    );
     Assert.equal(
       test.openSpacesUrls.length,
       tabs.length,
@@ -61,7 +69,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       Assert.ok(
         tabmail.tabInfo.find(
           tabInfo =>
-            !!tabInfo.spaceButtonId &&
+            !!ExtensionSpaces.getSpaceButtonIdForTab(tabInfo) &&
             tabInfo.browser.currentURI.spec == expectedUrl
         ),
         `Should have found a spaces tab with the expected url.`

@@ -1118,10 +1118,9 @@ var gSpacesToolbar = {
         tabProperties,
         isExtensionSpace: true,
         tabInSpace(tabInfo) {
-          // TODO: Store the spaceButtonId in the XULStore (or somewhere), so the
-          // space is recognized after a restart. Or force closing of all spaces
-          // on shutdown.
-          return tabInfo.spaceButtonId == this.name ? 1 : 0;
+          return gSpacesToolbar.getSpaceButtonIdForTab(tabInfo) == this.name
+            ? 1
+            : 0;
         },
         open(where) {
           // The check if we should switch to an existing tab in this space was
@@ -1133,7 +1132,7 @@ var gSpacesToolbar = {
             { ...this.tabProperties, duplicate: true },
             where
           );
-          tab.spaceButtonId = this.name;
+          gSpacesToolbar.setSpaceButtonIdForTab(tab, this.name);
           // TODO: Make sure the spaceButtonId is set during load, and not here,
           // where it might be too late.
           gSpacesToolbar.currentSpace = this;
@@ -1361,3 +1360,8 @@ var gSpacesToolbar = {
     );
   },
 };
+
+ChromeUtils.defineESModuleGetters(gSpacesToolbar, {
+  getSpaceButtonIdForTab: "resource:///modules/ExtensionSpaces.sys.mjs",
+  setSpaceButtonIdForTab: "resource:///modules/ExtensionSpaces.sys.mjs",
+});

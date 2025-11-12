@@ -6,6 +6,10 @@
 
 /* globals getUtilsJS, contentTabOpenPromise, makeIconSet, closeMenuPopup */
 
+var ExtensionSpaces = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSpaces.sys.mjs"
+);
+
 /**
  * Helper Function, creates a test extension to verify expected button states.
  *
@@ -64,7 +68,9 @@ async function test_space(background, config = {}) {
       await tabPromise;
     }
 
-    const tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceButtonId);
+    const tabs = tabmail.tabInfo.filter(
+      tabInfo => !!ExtensionSpaces.getSpaceButtonIdForTab(tabInfo)
+    );
     Assert.equal(
       test.openSpacesUrls.length,
       tabs.length,
@@ -73,7 +79,7 @@ async function test_space(background, config = {}) {
     for (const expectedUrl of test.openSpacesUrls) {
       const tab = tabmail.tabInfo.find(
         tabInfo =>
-          !!tabInfo.spaceButtonId &&
+          !!ExtensionSpaces.getSpaceButtonIdForTab(tabInfo) &&
           tabInfo.browser.currentURI.spec == expectedUrl
       );
       Assert.ok(tab, `Should have found a spaces tab with the expected url.`);

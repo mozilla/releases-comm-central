@@ -232,7 +232,7 @@ export class SpaceTracker {
    * @returns {string} id of the html element of the spaces toolbar button of
    *   this space
    */
-  _getSpaceButtonId(name, extension) {
+  _makeSpaceButtonId(name, extension) {
     return `${ExtensionCommon.makeWidgetId(extension.id)}-spacesButton-${name}`;
   }
 
@@ -244,7 +244,7 @@ export class SpaceTracker {
    * @returns {SpaceData}
    */
   fromSpaceName(name, extension) {
-    const spaceButtonId = this._getSpaceButtonId(name, extension);
+    const spaceButtonId = this._makeSpaceButtonId(name, extension);
     return this.fromSpaceButtonId(spaceButtonId);
   }
 
@@ -287,14 +287,15 @@ export class SpaceTracker {
    * @returns {SpaceData}
    */
   async create(name, tabProperties, buttonProperties, extension) {
-    const spaceButtonId = this._getSpaceButtonId(name, extension);
+    const spaceButtonId = this._makeSpaceButtonId(name, extension);
     if (this._spaceData.has(spaceButtonId)) {
       return false;
     }
     return this._add({
       name,
       spaceButtonId,
-      tabInSpace: tabInfo => (tabInfo.spaceButtonId == spaceButtonId ? 1 : 0),
+      tabInSpace: tabInfo =>
+        getSpaceButtonIdForTab(tabInfo) == spaceButtonId ? 1 : 0,
       tabProperties,
       buttonProperties,
       extension,
@@ -352,4 +353,32 @@ export class SpaceTracker {
   getAll() {
     return this._spaceData.values();
   }
+}
+
+/**
+ * Associate a space button with a certain tab by storing the id of the space
+ * button in the persistent extension storage of the tabInfo object of that tab.
+ *
+ * @param {NativeTabInfo} nativeTabInfo
+ * @param {string} spaceButtonId
+ */
+export function setSpaceButtonIdForTab(nativeTabInfo, spaceButtonId) {
+  if (!nativeTabInfo._ext) {
+    nativeTabInfo._ext = {};
+  }
+  if (!nativeTabInfo._ext.extensionSpaces) {
+    nativeTabInfo._ext.extensionSpaces = {};
+  }
+  nativeTabInfo._ext.extensionSpaces.id = spaceButtonId;
+}
+
+/**
+ * Retrieve the id of the space button associated with a certain tab, which is
+ * stored in the persistent extension storage of the tabInfo object of that tab.
+ *
+ * @param {NativeTabInfo} nativeTabInfo
+ * @returns {string} the associated spaceButtonId
+ */
+export function getSpaceButtonIdForTab(nativeTabInfo) {
+  return nativeTabInfo._ext?.extensionSpaces?.id;
 }
