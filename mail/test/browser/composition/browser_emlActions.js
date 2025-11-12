@@ -205,7 +205,7 @@ add_task(async function test_forward_eml_catchall() {
 /**
  * Test that saving an .eml opened from a file works.
  */
-add_task(async function test_save_eml_as_file() {
+add_task(async function test_save_eml_as_file1() {
   const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   const msgc = await open_message_from_file(file);
   const pickerPromise = new Promise(resolve => {
@@ -225,7 +225,7 @@ add_task(async function test_save_eml_as_file() {
  * Test that an attached .eml that has been opened retains the correct filename
  * when it is subsequently saved.
  */
-add_task(async function test_save_eml_as_file() {
+add_task(async function test_save_eml_as_file2() {
   const file = new FileUtils.File(getTestFilePath("data/testmsg-nested.eml"));
   const msgc = await open_message_from_file(file);
   const aboutMessage = get_about_message(msgc);
@@ -236,6 +236,10 @@ add_task(async function test_save_eml_as_file() {
     aboutMessage
   );
   const msgc2 = await newWindowPromise;
+  await TestUtils.waitForCondition(
+    () => msgc2.messageBrowser?.contentWindow?.msgLoaded,
+    "waiting for message to load in new window"
+  );
   const pickerPromise = new Promise(resolve => {
     SpecialPowers.MockFilePicker.init(window.browsingContext);
     SpecialPowers.MockFilePicker.showCallback = picker => {
