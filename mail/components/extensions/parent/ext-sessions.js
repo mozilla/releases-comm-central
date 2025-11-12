@@ -10,6 +10,14 @@ function getSessionData(tabId, extension) {
   const nativeTab = tabTracker.getTab(tabId);
   const widgetId = makeWidgetId(extension.id);
 
+  // A mail tab always has an _ext property, which is restored on app restart.
+  // The sessions API can also be used on popup or compose tabs/windows, which do
+  // not support values to be restored (since these windows are not restored),
+  // but we do support the same concept of tab-specific session data during their
+  // lifetime. So we fake the _ext property for those tabs/windows here.
+  if (!nativeTab._ext) {
+    nativeTab._ext = {};
+  }
   if (!nativeTab._ext.extensionSession) {
     nativeTab._ext.extensionSession = {};
   }
