@@ -1583,8 +1583,10 @@ function updateSecurityIcon() {
     case "IRCClient":
       let k = Object.keys(client.networks).length;
       let c = client.getConnectionCount();
-      let m = client.bundle.getString("knownNetworks");
-      label = PluralForm.get(k, m).replace("#1", k).replace("#2", c);
+      let cn = client.bundle.getString("connectedNetworks");
+      let cl = PluralForm.get(c, cn).replace("#1", c);
+      let kn = client.bundle.getString("knownNetworks2");
+      label = PluralForm.get(k, kn).replace("#1", k).replace("#2", cl);
       showCondition = false;
       break;
     case "IRCNetwork":
