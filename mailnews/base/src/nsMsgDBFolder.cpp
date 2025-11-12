@@ -2519,7 +2519,7 @@ nsresult nsMsgDBFolder::initializeStrings() {
   rv = LocalizeMessage(l10n, "folder-name-spam"_ns, {}, localizedSpamName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  kLocalizedJunkName = NS_ConvertUTF8toUTF16(localizedSpamName);
+  CopyUTF8toUTF16(localizedSpamName, kLocalizedJunkName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties",
@@ -4984,7 +4984,7 @@ NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
         ident);
   }
   if (ident.IsEmpty()) {
-    ident = NS_ConvertUTF8toUTF16(folderPath);  // Fallback, just in case.
+    CopyUTF8toUTF16(folderPath, ident);  // Fallback, just in case.
   }
 
   // Format the actual error message (NOTE: not all error messages use the

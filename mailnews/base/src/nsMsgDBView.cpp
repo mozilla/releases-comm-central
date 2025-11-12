@@ -203,7 +203,7 @@ void nsMsgDBView::GetString(mozilla::intl::Localization* l10n,
   if (error.Failed()) {
     localizedValue = id;
   };
-  value = NS_ConvertUTF8toUTF16(localizedValue);
+  CopyUTF8toUTF16(localizedValue, value);
 };
 
 nsresult nsMsgDBView::AppendKeywordProperties(const nsACString& keywords,
@@ -435,7 +435,7 @@ nsresult nsMsgDBView::FetchAccount(nsIMsgDBHdr* aHdr, nsAString& aAccount) {
   if (server) {
     nsAutoCString name;
     server->GetPrettyName(name);
-    aAccount.Assign(NS_ConvertUTF8toUTF16(name));
+    CopyUTF8toUTF16(name, aAccount);
   } else {
     CopyASCIItoUTF16(accountKey, aAccount);
   }
@@ -1879,7 +1879,7 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         NS_ENSURE_SUCCESS(rv, rv);
         nsAutoCString prettyPath;
         folder->GetPrettyPath(prettyPath);
-        aValue.Assign(NS_ConvertUTF8toUTF16(prettyPath));
+        CopyUTF8toUTF16(prettyPath, aValue);
       }
       break;
     }

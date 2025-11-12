@@ -472,11 +472,11 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
       // is an identifier to get from the bundle.
       rv =
           bundle->GetStringFromName(PromiseFlatCString(aErrmsg).get(), tErrmsg);
-      if (NS_FAILED(rv)) tErrmsg.Assign(NS_ConvertUTF8toUTF16(aErrmsg));
+      if (NS_FAILED(rv)) CopyUTF8toUTF16(aErrmsg, tErrmsg);
     } else {
       // The addon creating the custom action should have passed a localized
       // string.
-      tErrmsg.Assign(NS_ConvertUTF8toUTF16(aErrmsg));
+      CopyUTF8toUTF16(aErrmsg, tErrmsg);
     }
     AutoTArray<nsString, 2> logErrorFormatStrings = {tErrmsg, tcode16};
 
@@ -539,7 +539,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
       nsAutoCString filterActionSpam;
       rv = LocalizeMessage(l10n, "filter-action-log-spam"_ns, {},
                            filterActionSpam);
-      actionValue = NS_ConvertUTF8toUTF16(filterActionSpam);
+      CopyUTF8toUTF16(filterActionSpam, actionValue);
     } else {
       nsAutoCString filterActionID;
       filterActionID = "filterAction"_ns;
