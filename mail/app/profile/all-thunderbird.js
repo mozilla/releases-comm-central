@@ -1470,6 +1470,10 @@ pref("dom.disable_window_flip", true);
 // Thunderbird.
 pref("browser.theme.dark-private-windows", true);
 
+// Whether to override themes in forced-colors mode and just use the
+// system theme and forced-colors palette to style the chrome.
+pref("browser.theme.forced-colors-override.enabled", true);
+
 // In-app notifications are disabled while the feature is being implemented.
 pref("mail.inappnotifications.enabled", true);
 // Refresh interval for in-app notifications in ms (6 hours)
