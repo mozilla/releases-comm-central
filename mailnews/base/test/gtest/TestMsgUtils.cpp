@@ -48,7 +48,7 @@ TEST(TestMsgUtils, EncodeFilename)
       {"wibble-"_ns, u"wibble-"_ns},
       {"Peas & Carrots"_ns, u"Peas & Carrots"_ns},
       {"グレープフルーツ"_ns, u"グレープフルーツ"_ns},
-      {u8"Ì̷͚̫͌̿̎̆̀̈̕ͅn̶̡̛̖͓͓̩̠͕͍͈̝̦̪͒̉̈̃̿̅̍ͅb̷̨̡̧͇̮̈́̽̒͌́̈͒̇̾́̏̃͝͝ǫ̵̛̩̥̮͙͔̜̬̮̤̠́́̒̑̐͋̏̓̃͒̐x̷̧̛͉̳̭͓͔̭̾͐̄͒̆͐͊͒̍̕"_ns, u"Ì̷͚̫͌̿̎̆̀̈̕ͅn̶̡̛̖͓͓̩̠͕͍͈̝̦̪͒̉̈̃̿̅̍ͅb̷̨̡̧͇̮̈́̽̒͌́̈͒̇̾́̏̃͝͝ǫ̵̛̩̥̮͙͔̜̬̮̤̠́́̒̑̐͋̏̓̃͒̐x̷̧̛͉̳̭͓͔̭̾͐̄͒̆͐͊͒̍̕"_ns},  // Zalgo text (about 200 bytes long).
+      {"Ì̷͚̫͌̿̎̆̀̈̕ͅn̶̡̛̖͓͓̩̠͕͍͈̝̦̪͒̉̈̃̿̅̍ͅb̷̨̡̧͇̮̈́̽̒͌́̈͒̇̾́̏̃͝͝ǫ̵̛̩̥̮͙͔̜̬̮̤̠́́̒̑̐͋̏̓̃͒̐x̷̧̛͉̳̭͓͔̭̾͐̄͒̆͐͊͒̍̕"_ns, u"Ì̷͚̫͌̿̎̆̀̈̕ͅn̶̡̛̖͓͓̩̠͕͍͈̝̦̪͒̉̈̃̿̅̍ͅb̷̨̡̧͇̮̈́̽̒͌́̈͒̇̾́̏̃͝͝ǫ̵̛̩̥̮͙͔̜̬̮̤̠́́̒̑̐͋̏̓̃͒̐x̷̧̛͉̳̭͓͔̭̾͐̄͒̆͐͊͒̍̕"_ns},  // Zalgo text (about 200 bytes long).
       // Escape special chars:
       {"C:\\AUTOEXEC.BAT"_ns, u"C%3A%5CAUTOEXEC.BAT"_ns},
       {"foo/bar"_ns, u"foo%2Fbar"_ns},
@@ -60,7 +60,7 @@ TEST(TestMsgUtils, EncodeFilename)
       // Handle forbidden filenames:
       {"CON"_ns, u"%43%4F%4E"_ns},
       {"COM1.txt"_ns, u"%43%4F%4D%31.txt"_ns},
-      {u8"LPT\u00B3"_ns, u"%4C%50%54%C2%B3"_ns},  // LPT^3
+      {"LPT\u00B3"_ns, u"%4C%50%54%C2%B3"_ns},  // LPT^3
       // Things that might be mistaken for forbidden filenames but actually
       // don't require any change:
       {"CONTACTS"_ns, u"CONTACTS"_ns},
