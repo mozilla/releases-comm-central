@@ -1052,10 +1052,16 @@ var folderPane = {
       _addSearchedFolder(folderType, parentFolder, childFolder) {
         if (folderType.flag & childFolder.flags) {
           // The folder has the flag for this type.
+          const smartFolder = this._smartMailbox.getSmartFolder(
+            folderType.name
+          );
           const folderRow = folderPane._createFolderRow(
             this.name,
             childFolder,
-            "server"
+            // If the name is not localised, display the name and server name.
+            childFolder.localizedName == smartFolder.localizedName
+              ? "server"
+              : "both"
           );
           folderPane._insertInServerOrder(folderType.list, folderRow);
           return;

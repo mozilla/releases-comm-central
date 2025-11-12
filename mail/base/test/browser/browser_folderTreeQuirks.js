@@ -361,11 +361,12 @@ add_task(async function testSmartFolders() {
   const smartServer = getSmartServer();
   const smartInbox = smartServer.rootFolder.getChildNamed("Inbox");
   const smartInboxFolders = [smartInbox, inboxFolder];
+  const smartArchives = smartServer.rootFolder.getChildNamed("Archives");
   const otherSmartFolders = [
     smartServer.rootFolder.getChildNamed("Drafts"),
     smartServer.rootFolder.getChildNamed("Templates"),
     smartServer.rootFolder.getChildNamed("Sent"),
-    smartServer.rootFolder.getChildNamed("Archives"),
+    smartArchives,
     smartServer.rootFolder.getChildNamed("Junk"),
     smartServer.rootFolder.getChildNamed("Trash"),
   ];
@@ -406,9 +407,24 @@ add_task(async function testSmartFolders() {
   let rowYY = folderPane.getRowForFolder(folderYY);
   let rowZ = folderPane.getRowForFolder(folderZ);
   Assert.equal(
+    inboxRow.nameLabel.textContent,
+    "Local Folders",
+    "inbox row should be named after the server"
+  );
+  Assert.equal(
+    trashRow.nameLabel.textContent,
+    "Local Folders",
+    "trash row should be named after the server"
+  );
+  Assert.equal(
     rowX.parentNode.parentNode,
     rootRow,
     "folderX should be displayed as a child of rootFolder"
+  );
+  Assert.equal(
+    rowX.nameLabel.textContent,
+    "folderTreeQuirksX",
+    "folderTreeQuirksX row should be named after the folder"
   );
   Assert.equal(
     rowY.parentNode.parentNode,
@@ -416,14 +432,72 @@ add_task(async function testSmartFolders() {
     "folderY should be displayed as a child of inboxFolder"
   );
   Assert.equal(
+    rowY.nameLabel.textContent,
+    "folderTreeQuirksY",
+    "folderTreeQuirksY row should be named after the folder"
+  );
+  Assert.equal(
     rowYY.parentNode.parentNode,
     rowY,
     "folderYY should be displayed as a child of folderY"
   );
   Assert.equal(
+    rowYY.nameLabel.textContent,
+    "folderTreeQuirksYY",
+    "folderTreeQuirksYY row should be named after the folder"
+  );
+  Assert.equal(
     rowZ.parentNode.parentNode,
     rowB,
     "folderZ should be displayed as a child of folderB"
+  );
+  Assert.equal(
+    rowZ.nameLabel.textContent,
+    "folderTreeQuirksZ",
+    "folderTreeQuirksZ row should be named after the folder"
+  );
+
+  // Check that a folder given a special flag is moved into the smart folder.
+  folderX.setFlag(Ci.nsMsgFolderFlags.Archive);
+  await checkModeListItems("smart", [
+    ...smartInboxFolders,
+    folderY,
+    folderYY,
+    smartServer.rootFolder.getChildNamed("Drafts"),
+    smartServer.rootFolder.getChildNamed("Templates"),
+    smartServer.rootFolder.getChildNamed("Sent"),
+    smartArchives,
+    folderX,
+    smartServer.rootFolder.getChildNamed("Junk"),
+    smartServer.rootFolder.getChildNamed("Trash"),
+    trashFolder,
+    ...localExtraFolders,
+    folderZ,
+  ]);
+  rowX = folderPane.getRowForFolder(folderX);
+  Assert.equal(
+    rowX.nameLabel.textContent,
+    "folderTreeQuirksX - Local Folders",
+    "special folder with non-localised name should be named after the folder AND the server"
+  );
+
+  // Check that a folder losing its special flag is removed from the smart folder.
+  folderX.clearFlag(Ci.nsMsgFolderFlags.Archive);
+  await checkModeListItems("smart", [
+    ...smartInboxFolders,
+    folderY,
+    folderYY,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+    folderZ,
+    folderX,
+  ]);
+  rowX = folderPane.getRowForFolder(folderX);
+  Assert.equal(
+    rowX.nameLabel.textContent,
+    "folderTreeQuirksX",
+    "folderTreeQuirksX row should be named after the folder"
   );
 
   // Stop searching folderY and folderYY in the smart inbox. They should stop
