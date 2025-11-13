@@ -170,6 +170,7 @@ MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedDraftsName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTemplatesName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedUnsentName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedJunkName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedAllMailName;
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedArchivesName;
 
 MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedBrandShortName;
@@ -2515,11 +2516,17 @@ nsresult nsMsgDBFolder::initializeStrings() {
 
   RefPtr<mozilla::intl::Localization> l10n =
       mozilla::intl::Localization::Create({"messenger/messenger.ftl"_ns}, true);
+
   nsAutoCString localizedSpamName;
   rv = LocalizeMessage(l10n, "folder-name-spam"_ns, {}, localizedSpamName);
   NS_ENSURE_SUCCESS(rv, rv);
-
   CopyUTF8toUTF16(localizedSpamName, kLocalizedJunkName);
+
+  nsAutoCString localizedAllMailName;
+  rv = LocalizeMessage(l10n, "folder-name-all-mail"_ns, {},
+                       localizedAllMailName);
+  NS_ENSURE_SUCCESS(rv, rv);
+  CopyUTF8toUTF16(localizedAllMailName, kLocalizedAllMailName);
 
   nsCOMPtr<nsIStringBundle> brandBundle;
   rv = bundleService->CreateBundle("chrome://branding/locale/brand.properties",
@@ -3075,8 +3082,10 @@ nsString nsMsgDBFolder::GetLocalizedNameInternal() {
       return kLocalizedJunkName;
     }
   }
-  if (mFlags & nsMsgFolderFlags::Archive &&
-      !(mFlags & nsMsgFolderFlags::AllMail)) {
+  if (mFlags & nsMsgFolderFlags::Archive) {
+    if (mFlags & nsMsgFolderFlags::AllMail) {
+      return kLocalizedAllMailName;
+    }
     if (!isLocalFolders || mName.LowerCaseEqualsLiteral("archives")) {
       return kLocalizedArchivesName;
     }

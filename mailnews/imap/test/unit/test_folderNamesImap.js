@@ -26,6 +26,7 @@ add_task(async function () {
 
   const l10n = new Localization(["messenger/messenger.ftl"], true);
   const spamFolderName = l10n.formatValueSync("folder-name-spam");
+  const allMailName = l10n.formatValueSync("folder-name-all-mail");
 
   // Extensions needed for the \\AllMail flag.
   const server = new IMAPServer({ extensions: ["GMAIL", "RFC3348"] });
@@ -104,6 +105,6 @@ add_task(async function () {
   Assert.ok(allMailFolder.flags & Ci.nsMsgFolderFlags.Archive);
   Assert.ok(allMailFolder.flags & Ci.nsMsgFolderFlags.AllMail);
   Assert.equal(allMailFolder.name, "All Mail");
-  Assert.equal(allMailFolder.localizedName, "All Mail");
+  Assert.equal(allMailFolder.localizedName, allMailName);
   Assert.equal(allMailFolder.msgDatabase.dBFolderInfo.folderName, "");
 });

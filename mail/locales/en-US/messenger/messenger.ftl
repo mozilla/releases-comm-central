@@ -147,6 +147,9 @@ folder-toolbar-toggle-folder-compact-view =
 
 ## Folder names
 
+# Gmail's "All Mail" folder. Please make sure this is the same string used in the Gmail web UI for your language.
+folder-name-all-mail = All Mail
+
 folder-name-spam = Spam
 
 ## File Menu

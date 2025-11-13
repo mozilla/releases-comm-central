@@ -306,6 +306,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   static nsString kLocalizedUnsentName;
   static nsString kLocalizedJunkName;
   static nsString kLocalizedArchivesName;
+  static nsString kLocalizedAllMailName;
 
   static nsString kLocalizedBrandShortName;
 
