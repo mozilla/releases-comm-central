@@ -117,9 +117,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "automod"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edf3ee19dbc0a46d740f6f0926bde8c50f02bdbc7b536842da28f6ac56513a8b"
+checksum = "ebb4bd301db2e2ca1f5be131c24eb8ebf2d9559bc3744419e93baf8ddea7e670"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1534,7 +1534,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.9"
+version = "0.7.13"
 dependencies = [
  "annotate-snippets",
  "anstream 0.3.2",
@@ -1543,7 +1543,7 @@ dependencies = [
  "automod",
  "circular",
  "criterion",
- "is-terminal",
+ "is_terminal_polyfill",
  "lexopt",
  "memchr",
  "proptest",

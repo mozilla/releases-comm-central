@@ -432,6 +432,67 @@ impl_partial_ord!(BStr, &'a [u8]);
 impl_partial_ord!(BStr, str);
 impl_partial_ord!(BStr, &'a str);
 
+#[cfg(test)]
+mod test {
+    use crate::stream::BStr;
+
+    #[test]
+    fn partial_eq_bstr_byte_slice() {
+        let input = b"foo".as_slice();
+        let actual = BStr::new(input);
+        assert!(actual == input);
+    }
+
+    #[test]
+    fn partial_eq_byte_slice_bstr() {
+        let input = b"foo".as_slice();
+        let actual = BStr::new(input);
+        assert!(input == actual);
+    }
+
+    #[test]
+    fn partial_eq_bstr_str() {
+        let input = "foo";
+        let actual = BStr::new(input);
+        assert!(actual == input);
+    }
+
+    #[test]
+    fn partial_eq_str_bstr() {
+        let input = "foo";
+        let actual = BStr::new(input);
+        assert!(input == actual);
+    }
+
+    #[test]
+    fn partial_ord_bstr_byte_slice() {
+        let input = b"foo".as_slice();
+        let actual = BStr::new(input);
+        assert!(actual.partial_cmp(input) == Some(core::cmp::Ordering::Equal));
+    }
+
+    #[test]
+    fn partial_ord_byte_slice_bstr() {
+        let input = b"foo".as_slice();
+        let actual = BStr::new(input);
+        assert!(input.partial_cmp(actual) == Some(core::cmp::Ordering::Equal));
+    }
+
+    #[test]
+    fn partial_ord_bstr_str() {
+        let input = "foo";
+        let actual = BStr::new(input);
+        assert!(actual.partial_cmp(input) == Some(core::cmp::Ordering::Equal));
+    }
+
+    #[test]
+    fn partial_ord_str_bstr() {
+        let input = "foo";
+        let actual = BStr::new(input);
+        assert!(input.partial_cmp(actual) == Some(core::cmp::Ordering::Equal));
+    }
+}
+
 #[cfg(all(test, feature = "std"))]
 mod display {
     use crate::stream::BStr;
@@ -446,22 +507,35 @@ mod display {
 #[cfg(all(test, feature = "std"))]
 mod debug {
     use crate::stream::BStr;
+    use crate::stream::Stream as _;
+    use snapbox::assert_data_eq;
+    use snapbox::str;
 
     #[test]
     fn test_debug() {
-        assert_eq!(&format!("{:?}", BStr::new(b"abc")), "\"abc\"");
+        let input = BStr::new(b"abc");
+        let expected = str![[r#""abc""#]];
+        assert_data_eq!(&format!("{input:?}"), expected);
 
-        assert_eq!(
-            "\"\\0\\0\\0 ftypisom\\0\\0\\u{2}\\0isomiso2avc1mp\"",
-            format!(
-                "{:?}",
-                BStr::new(b"\0\0\0 ftypisom\0\0\x02\0isomiso2avc1mp")
-            ),
-        );
+        let input = BStr::new(b"\0\0\0 ftypisom\0\0\x02\0isomiso2avc1mp");
+        let expected = str![[r#""/0/0/0 ftypisom/0/0/u{2}/0isomiso2avc1mp""#]];
+        assert_data_eq!(&format!("{input:?}"), expected);
     }
 
     #[test]
     fn test_pretty_debug() {
-        assert_eq!(&format!("{:#?}", BStr::new(b"abc")), "abc");
+        let input = BStr::new(b"abc");
+        let expected = str!["abc"];
+        assert_data_eq!(&format!("{input:#?}"), expected);
+    }
+
+    #[test]
+    fn test_trace() {
+        let input = BStr::new(b"abc");
+        let expected = str!["abc"];
+        assert_data_eq!(
+            crate::util::from_fn(|f| input.trace(f)).to_string(),
+            expected
+        );
     }
 }

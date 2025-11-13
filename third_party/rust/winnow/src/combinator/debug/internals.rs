@@ -149,7 +149,7 @@ pub(crate) fn start<I: Stream>(
 
     // The debug version of `slice` might be wider, either due to rendering one byte as two nibbles or
     // escaping in strings.
-    let mut debug_slice = format!("{:#?}", input.raw());
+    let mut debug_slice = format!("{:?}", crate::util::from_fn(|f| input.trace(f)));
     let (debug_slice, eof) = if let Some(debug_offset) = debug_slice
         .char_indices()
         .enumerate()
@@ -289,7 +289,7 @@ fn term_width() -> usize {
 }
 
 fn query_width() -> Option<usize> {
-    use is_terminal::IsTerminal;
+    use is_terminal_polyfill::IsTerminal;
     if std::io::stderr().is_terminal() {
         terminal_size::terminal_size().map(|(w, _h)| w.0.into())
     } else {

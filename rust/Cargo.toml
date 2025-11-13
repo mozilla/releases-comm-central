@@ -215,6 +215,7 @@ hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.1
 hashbrown_0_14 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.14" }
 hashbrown_0_15 = { package = "hashbrown", path = "../../build/rust/hashbrown" }
 thiserror = { path = "../../build/rust/thiserror" }
+toml = { path = "../../build/rust/toml" }
 thin-vec = { path = "../../third_party/rust/thin-vec" }
 js-sys = { path = "../../build/rust/dummy-web/js-sys" }
 wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }

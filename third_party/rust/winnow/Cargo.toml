@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.65.0"
 name = "winnow"
-version = "0.7.9"
+version = "0.7.13"
 build = false
 include = [
     "build.rs",
@@ -22,7 +22,6 @@ include = [
     "Cargo.lock",
     "LICENSE*",
     "README.md",
-    "benches/**/*",
     "examples/**/*",
 ]
 autolib = false
@@ -53,44 +52,44 @@ rustdoc-args = [
 
 [[package.metadata.release.pre-release-replacements]]
 file = "CHANGELOG.md"
-min = 1
-replace = "{{version}}"
 search = "Unreleased"
-
-[[package.metadata.release.pre-release-replacements]]
-exactly = 1
-file = "CHANGELOG.md"
-replace = "...{{tag_name}}"
-search = '\.\.\.HEAD'
-
-[[package.metadata.release.pre-release-replacements]]
-file = "CHANGELOG.md"
+replace = "{{version}}"
 min = 1
-replace = "{{date}}"
-search = "ReleaseDate"
 
 [[package.metadata.release.pre-release-replacements]]
-exactly = 1
 file = "CHANGELOG.md"
+search = '\.\.\.HEAD'
+replace = "...{{tag_name}}"
+exactly = 1
+
+[[package.metadata.release.pre-release-replacements]]
+file = "CHANGELOG.md"
+search = "ReleaseDate"
+replace = "{{date}}"
+min = 1
+
+[[package.metadata.release.pre-release-replacements]]
+file = "CHANGELOG.md"
+search = "<!-- next-header -->"
 replace = """
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 """
-search = "<!-- next-header -->"
+exactly = 1
 
 [[package.metadata.release.pre-release-replacements]]
-exactly = 1
 file = "CHANGELOG.md"
+search = "<!-- next-url -->"
 replace = """
 <!-- next-url -->
 [Unreleased]: https://github.com/winnow-rs/winnow/compare/{{tag_name}}...HEAD"""
-search = "<!-- next-url -->"
+exactly = 1
 
 [[package.metadata.release.pre-release-replacements]]
-exactly = 1
 file = "src/lib.rs"
-replace = "blob/v{{version}}/CHANGELOG.md"
 search = 'blob/v.+\..+\..+/CHANGELOG.md'
+replace = "blob/v{{version}}/CHANGELOG.md"
+exactly = 1
 
 [features]
 alloc = []
@@ -98,7 +97,7 @@ debug = [
     "std",
     "dep:anstream",
     "dep:anstyle",
-    "dep:is-terminal",
+    "dep:is_terminal_polyfill",
     "dep:terminal_size",
 ]
 default = ["std"]
@@ -186,16 +185,6 @@ harness = false
 required-features = ["alloc"]
 
 [[bench]]
-name = "contains_token"
-path = "benches/contains_token.rs"
-harness = false
-
-[[bench]]
-name = "find_slice"
-path = "benches/find_slice.rs"
-harness = false
-
-[[bench]]
 name = "http"
 path = "examples/http/bench.rs"
 harness = false
@@ -208,25 +197,10 @@ harness = false
 required-features = ["std"]
 
 [[bench]]
-name = "iter"
-path = "benches/iter.rs"
-harness = false
-
-[[bench]]
 name = "json"
 path = "examples/json/bench.rs"
 harness = false
 required-features = ["std"]
-
-[[bench]]
-name = "next_slice"
-path = "benches/next_slice.rs"
-harness = false
-
-[[bench]]
-name = "number"
-path = "benches/number.rs"
-harness = false
 
 [dependencies.anstream]
 version = "0.3.2"
@@ -236,8 +210,8 @@ optional = true
 version = "1.0.1"
 optional = true
 
-[dependencies.is-terminal]
-version = "0.4.9"
+[dependencies.is_terminal_polyfill]
+version = "1.48.0"
 optional = true
 
 [dependencies.memchr]

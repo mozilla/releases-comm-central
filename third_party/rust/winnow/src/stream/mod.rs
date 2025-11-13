@@ -25,6 +25,8 @@ use crate::lib::std::str::FromStr;
 use crate::error::ErrMode;
 
 #[cfg(feature = "alloc")]
+use crate::lib::std::borrow::Cow;
+#[cfg(feature = "alloc")]
 use crate::lib::std::collections::BTreeMap;
 #[cfg(feature = "alloc")]
 use crate::lib::std::collections::BTreeSet;
@@ -32,6 +34,8 @@ use crate::lib::std::collections::BTreeSet;
 use crate::lib::std::collections::HashMap;
 #[cfg(feature = "std")]
 use crate::lib::std::collections::HashSet;
+#[cfg(feature = "alloc")]
+use crate::lib::std::collections::VecDeque;
 #[cfg(feature = "alloc")]
 use crate::lib::std::string::String;
 #[cfg(feature = "alloc")]
@@ -252,8 +256,15 @@ pub trait Stream: Offset<<Self as Stream>::Checkpoint> + crate::lib::std::fmt::D
     /// May panic if an invalid [`Self::Checkpoint`] is provided
     fn reset(&mut self, checkpoint: &Self::Checkpoint);
 
-    /// Return the inner-most stream
+    /// Deprecated for callers as of 0.7.10, instead call [`Stream::trace`]
+    #[deprecated(since = "0.7.10", note = "Replaced with `Stream::trace`")]
     fn raw(&self) -> &dyn crate::lib::std::fmt::Debug;
+
+    /// Write out a single-line summary of the current parse location
+    fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #![allow(deprecated)]
+        write!(f, "{:#?}", self.raw())
+    }
 }
 
 impl<'i, T> Stream for &'i [T]
@@ -352,6 +363,10 @@ where
     fn raw(&self) -> &dyn crate::lib::std::fmt::Debug {
         self
     }
+
+    fn trace(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{self:?}")
+    }
 }
 
 impl<'i> Stream for &'i str {
@@ -373,9 +388,9 @@ impl<'i> Stream for &'i str {
 
     #[inline(always)]
     fn next_token(&mut self) -> Option<Self::Token> {
-        let c = self.chars().next()?;
-        let offset = c.len();
-        *self = &self[offset..];
+        let mut iter = self.chars();
+        let c = iter.next()?;
+        *self = iter.as_str();
         Some(c)
     }
 
@@ -1467,6 +1482,36 @@ impl<'i> Accumulate<&'i str> for String {
 }
 
 #[cfg(feature = "alloc")]
+impl<'i> Accumulate<Cow<'i, str>> for String {
+    #[inline(always)]
+    fn initial(capacity: Option<usize>) -> Self {
+        match capacity {
+            Some(capacity) => String::with_capacity(clamp_capacity::<char>(capacity)),
+            None => String::new(),
+        }
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: Cow<'i, str>) {
+        self.push_str(&acc);
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl Accumulate<String> for String {
+    #[inline(always)]
+    fn initial(capacity: Option<usize>) -> Self {
+        match capacity {
+            Some(capacity) => String::with_capacity(clamp_capacity::<char>(capacity)),
+            None => String::new(),
+        }
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: String) {
+        self.push_str(&acc);
+    }
+}
+
+#[cfg(feature = "alloc")]
 impl<K, V> Accumulate<(K, V)> for BTreeMap<K, V>
 where
     K: crate::lib::std::cmp::Ord,
@@ -1535,6 +1580,21 @@ where
     #[inline(always)]
     fn accumulate(&mut self, key: K) {
         self.insert(key);
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<'i, T: Clone> Accumulate<&'i [T]> for VecDeque<T> {
+    #[inline(always)]
+    fn initial(capacity: Option<usize>) -> Self {
+        match capacity {
+            Some(capacity) => VecDeque::with_capacity(clamp_capacity::<T>(capacity)),
+            None => VecDeque::new(),
+        }
+    }
+    #[inline(always)]
+    fn accumulate(&mut self, acc: &'i [T]) {
+        self.extend(acc.iter().cloned());
     }
 }
 
