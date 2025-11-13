@@ -25,6 +25,8 @@
 class nsIMsgFolderCache;
 class nsIMsgProtocolInfo;
 
+class MsgPasswordAuthModule;
+
 /*
  * base class for nsIMsgIncomingServer - derive your class from here
  * if you want to get some free implementation
@@ -98,9 +100,9 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
   nsCOMPtr<nsIMsgFilterPlugin> mFilterPlugin;  // XXX should be a list
 
  protected:
-  nsString m_password;
   bool m_canHaveFilters;
   bool mPerformingBiff;
+  RefPtr<MsgPasswordAuthModule> mPasswordModule;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGINCOMINGSERVER_H_

@@ -9,6 +9,7 @@
 #include "EwsListeners.h"
 #include "EwsOAuth2CustomDetails.h"
 #include "IEwsClient.h"
+#include "MsgPasswordAuthModule.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsIMsgWindow.h"
@@ -538,7 +539,7 @@ NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
   // ensure we have read its value from the logins manager at least once. If it
   // changes, `GetPasswordWithUI` (implemented in `nsMsgIncomingServer` too)
   // takes care of updating `m_password`.
-  if (m_password.IsEmpty() &&
+  if (mPasswordModule->cachedPassword().IsEmpty() &&
       authMethod == nsMsgAuthMethod::passwordCleartext) {
     MOZ_TRY(GetPasswordWithoutUI());
   }

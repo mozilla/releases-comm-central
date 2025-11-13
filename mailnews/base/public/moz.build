@@ -6,6 +6,7 @@
 XPIDL_SOURCES += [
     "MailNewsTypes2.idl",
     "msgIOAuth2Module.idl",
+    "msgIPasswordAuthModule.idl",
     "nsICopyMessageListener.idl",
     "nsIFolderListener.idl",
     "nsIFolderLookupService.idl",

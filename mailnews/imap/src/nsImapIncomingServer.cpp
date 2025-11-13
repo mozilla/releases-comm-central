@@ -6,6 +6,7 @@
 #include "nsImapIncomingServer.h"
 
 #include "msgCore.h"
+#include "MsgPasswordAuthModule.h"
 #include "netCore.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsFmtString.h"
@@ -1992,7 +1993,7 @@ NS_IMETHODIMP
 nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
                                        bool aNewPasswordRequested,
                                        nsAString& aPassword) {
-  if (m_password.IsEmpty()) {
+  if (mPasswordModule->cachedPassword().IsEmpty()) {
     // We're now going to need to do something that will end up with us either
     // poking login manager or prompting the user. We need to ensure we only
     // do one prompt at a time (and login manager could cause a master password
@@ -2009,7 +2010,11 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
     // hidden.
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  if (!m_password.IsEmpty()) aPassword = m_password;
+
+  if (!mPasswordModule->cachedPassword().IsEmpty()) {
+    aPassword = mPasswordModule->cachedPassword();
+  }
+
   return NS_OK;
 }
 
@@ -2018,10 +2023,13 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol* aProtocol,
 NS_IMETHODIMP
 nsImapIncomingServer::SyncGetPassword(nsAString& aPassword) {
   nsresult rv = NS_OK;
-  if (NS_SUCCEEDED(GetPasswordWithoutUI()) && !m_password.IsEmpty())
-    aPassword = m_password;
-  else
+  if (NS_SUCCEEDED(GetPasswordWithoutUI()) &&
+      !mPasswordModule->cachedPassword().IsEmpty()) {
+    aPassword = mPasswordModule->cachedPassword();
+  } else {
     rv = NS_ERROR_NOT_AVAILABLE;
+  }
+
   return rv;
 }
 
@@ -2055,8 +2063,9 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetPasswordWithUI(passwordText, passwordTitle, aPassword);
-  if (NS_SUCCEEDED(rv)) m_password = aPassword;
-  return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
 }
 
 // for the nsIImapServerSink interface

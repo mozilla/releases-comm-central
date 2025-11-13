@@ -5,6 +5,7 @@
 
 #include "nsMsgIncomingServer.h"
 
+#include "MsgPasswordAuthModule.h"
 #include "nscore.h"
 #include "plstr.h"
 #include "prmem.h"
@@ -62,7 +63,8 @@ nsMsgIncomingServer::nsMsgIncomingServer()
       m_biffState(nsIMsgFolder::nsMsgBiffState_Unknown),
       m_serverBusy(false),
       m_canHaveFilters(true),
-      mPerformingBiff(false) {}
+      mPerformingBiff(false),
+      mPasswordModule(new MsgPasswordAuthModule{}) {}
 
 nsresult nsMsgIncomingServer::Init() {
   // We need to know when the password manager changes.
@@ -631,12 +633,16 @@ nsMsgIncomingServer::ToString(nsAString& aResult) {
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::SetPassword(const nsAString& aPassword) {
-  m_password = aPassword;
-  return NS_OK;
+  return mPasswordModule->SetCachedPassword(NS_ConvertUTF16toUTF8(aPassword));
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetPassword(nsAString& aPassword) {
-  aPassword = m_password;
+  nsAutoCString value;
+  nsresult rv = mPasswordModule->GetCachedPassword(value);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  aPassword = NS_ConvertUTF8toUTF16(value);
+
   return NS_OK;
 }
 
@@ -647,193 +653,77 @@ NS_IMETHODIMP nsMsgIncomingServer::GetServerRequiresPasswordForBiff(
   return NS_OK;
 }
 
-// This sets m_password if we find a password in the pw mgr.
-nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
-  nsresult rv;
-  nsCOMPtr<nsILoginManager> loginMgr(
-      do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get the current server URI
-  nsCString currServerUri;
-  rv = GetLocalStoreType(currServerUri);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  currServerUri.AppendLiteral("://");
-
-  nsCString temp;
-  rv = GetHostName(temp);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  currServerUri.Append(temp);
-
-  NS_ConvertUTF8toUTF16 currServer(currServerUri);
-
-  nsTArray<RefPtr<nsILoginInfo>> logins;
-  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
-
-  // Login manager can produce valid fails, e.g. NS_ERROR_ABORT when a user
-  // cancels the master password dialog. Therefore handle that here, but don't
-  // warn about it.
-  if (NS_FAILED(rv)) return rv;
-  uint32_t numLogins = logins.Length();
-
-  // Don't abort here, if we didn't find any or failed, then we'll just have
-  // to prompt.
-  if (numLogins > 0) {
-    nsCString serverCUsername;
-    rv = GetUsername(serverCUsername);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    NS_ConvertUTF8toUTF16 serverUsername(serverCUsername);
-
-    nsString username;
-    for (uint32_t i = 0; i < numLogins; ++i) {
-      rv = logins[i]->GetUsername(username);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      if (username.Equals(serverUsername)) {
-        nsString password;
-        rv = logins[i]->GetPassword(password);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        m_password = password;
-        break;
-      }
-    }
-  }
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
                                        const nsAString& aPromptTitle,
                                        nsAString& aPassword) {
-  nsresult rv = NS_OK;
+  nsAutoCString localStoreType;
+  nsresult rv = GetLocalStoreType(localStoreType);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (m_password.IsEmpty()) {
-    // let's see if we have the password in the password manager and
-    // can avoid this prompting thing. This makes it easier to get embedders
-    // to get up and running w/o a password prompting UI.
-    rv = GetPasswordWithoutUI();
-    // If GetPasswordWithoutUI returns NS_ERROR_ABORT, the most likely case
-    // is the user canceled getting the master password, so just return
-    // straight away, as they won't want to get prompted again.
-    if (rv == NS_ERROR_ABORT) return NS_MSG_PASSWORD_PROMPT_CANCELLED;
-  }
-  if (m_password.IsEmpty()) {
-    nsCOMPtr<nsIAuthPrompt> authPrompt =
-        do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
-    if (authPrompt) {
-      // prompt the user for the password
-      nsCString serverUri;
-      rv = GetLocalStoreType(serverUri);
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString hostname;
+  rv = GetHostName(hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      serverUri.AppendLiteral("://");
-      nsCString temp;
-      rv = GetUsername(temp);
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString username;
+  rv = GetUsername(username);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      if (!temp.IsEmpty()) {
-        nsCString escapedUsername;
-        MsgEscapeString(temp, nsINetUtil::ESCAPE_XALPHAS, escapedUsername);
-        serverUri.Append(escapedUsername);
-        serverUri.Append('@');
-      }
+  nsAutoCString password;
+  rv = mPasswordModule->QueryPasswordFromUserAndCache(
+      username, hostname, localStoreType, NS_ConvertUTF16toUTF8(aPromptMessage),
+      NS_ConvertUTF16toUTF8(aPromptTitle), password);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = GetHostName(temp);
-      NS_ENSURE_SUCCESS(rv, rv);
+  aPassword = NS_ConvertUTF8toUTF16(password);
 
-      serverUri.Append(temp);
+  return NS_OK;
+}
 
-      // we pass in the previously used password, if any, into PromptPassword
-      // so that it will appear as ******. This means we can't use an nsString
-      // and getter_Copies.
-      char16_t* uniPassword = nullptr;
-      if (!aPassword.IsEmpty()) uniPassword = ToNewUnicode(aPassword);
+nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
+  nsAutoCString localStoreType;
+  nsresult rv = GetLocalStoreType(localStoreType);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      bool okayValue = true;
-      rv = authPrompt->PromptPassword(PromiseFlatString(aPromptTitle).get(),
-                                      PromiseFlatString(aPromptMessage).get(),
-                                      NS_ConvertASCIItoUTF16(serverUri).get(),
-                                      nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
-                                      &uniPassword, &okayValue);
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString hostname;
+  rv = GetHostName(hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      if (!okayValue)  // if the user pressed cancel, just return an empty
-                       // string;
-      {
-        aPassword.Truncate();
-        return NS_MSG_PASSWORD_PROMPT_CANCELLED;
-      }
+  nsAutoCString username;
+  rv = GetUsername(username);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      // we got a password back...so remember it
-      rv = SetPassword(nsDependentString(uniPassword));
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsAutoCString managerPassword;
+  rv = mPasswordModule->QueryPasswordFromManagerAndCache(
+      username, hostname, localStoreType, managerPassword);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      PR_FREEIF(uniPassword);
-    }  // if we got a prompt dialog
-    else
-      return NS_ERROR_FAILURE;
-  }  // if the password is empty
-  return GetPassword(aPassword);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgIncomingServer::ForgetPassword() {
-  nsresult rv;
-  nsCOMPtr<nsILoginManager> loginMgr =
-      do_GetService(NS_LOGINMANAGER_CONTRACTID, &rv);
+  nsAutoCString localStoreType;
+  nsresult rv = GetLocalStoreType(localStoreType);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Get the current server URI
-  nsCString currServerUri;
-  rv = GetLocalStoreType(currServerUri);
+  nsAutoCString hostname;
+  rv = GetHostName(hostname);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  currServerUri.AppendLiteral("://");
-
-  nsCString temp;
-  rv = GetHostName(temp);
+  nsAutoCString username;
+  rv = GetUsername(username);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  currServerUri.Append(temp);
-
-  NS_ConvertUTF8toUTF16 currServer(currServerUri);
-
-  nsCString serverCUsername;
-  rv = GetUsername(serverCUsername);
+  rv = mPasswordModule->ForgetPassword(username, hostname, localStoreType);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ConvertUTF8toUTF16 serverUsername(serverCUsername);
-
-  nsTArray<RefPtr<nsILoginInfo>> logins;
-  rv = loginMgr->FindLogins(currServer, EmptyString(), currServer, logins);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // There should only be one-login stored for this url, however just in case
-  // there isn't.
-  nsString username;
-  for (uint32_t i = 0; i < logins.Length(); ++i) {
-    rv = logins[i]->GetUsername(username);
-    int32_t atPos = serverUsername.FindChar('@');
-    if (NS_SUCCEEDED(rv) &&
-        (username.Equals(serverUsername) ||
-         StringHead(serverUsername, atPos).Equals(username))) {
-      // If this fails, just continue, we'll still want to remove the password
-      // from our local cache.
-      loginMgr->RemoveLogin(logins[i]);
-    }
-  }
-
-  return SetPassword(EmptyString());
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgIncomingServer::ForgetSessionPassword(bool modifyLogin) {
-  m_password.Truncate();
-  return NS_OK;
+  return mPasswordModule->ForgetSessionPassword();
 }
 
 NS_IMETHODIMP
@@ -1605,9 +1495,12 @@ nsMsgIncomingServer::GetPasswordPromptRequired(bool* aPasswordIsRequired) {
   if (!*aPasswordIsRequired) return NS_OK;
 
   // If the password is empty, check to see if it is stored and to be retrieved
-  if (m_password.IsEmpty()) (void)GetPasswordWithoutUI();
+  if (mPasswordModule->cachedPassword().IsEmpty()) {
+    rv = GetPasswordWithoutUI();
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-  *aPasswordIsRequired = m_password.IsEmpty();
+  *aPasswordIsRequired = mPasswordModule->cachedPassword().IsEmpty();
   if (*aPasswordIsRequired) {
     // Set *aPasswordIsRequired false if authMethod is oauth2.
     int32_t authMethod = 0;

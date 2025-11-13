@@ -22,7 +22,7 @@ add_setup(async function () {
   ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
 
   let ewsAccount;
-  ({ ewsAccount, ewsIdentity } = createEWSAccount());
+  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
   await addLoginInfo("ews://test.test", "user", "password");
 
   registerCleanupFunction(async function () {
@@ -73,7 +73,7 @@ add_task(async function testEnterPasswordSMTP() {
 
 add_task(async function testEnterPasswordEWS() {
   await subtestEnterPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
-}).skip(); // Bug 1976128: error message instead of password prompt.
+});
 
 /**
  * Tests getting messages when there is no password to use.
@@ -100,7 +100,11 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 1, "there should be a saved password");
-  Assert.equal(logins[0].hostname, "smtp://test.test", "login hostname");
+  Assert.equal(
+    logins[0].hostname,
+    `${outgoingServer.type}://test.test`,
+    "login hostname"
+  );
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
   Services.logins.removeAllLogins();
@@ -124,7 +128,7 @@ add_task(async function testEnterAndSavePasswordSMTP() {
 
 add_task(async function testEnterAndSavePasswordEWS() {
   await subtestEnterAndSavePassword(ewsIdentity, ewsOutgoingServer, ewsServer);
-}).skip(); // Bug 1976128: error message instead of password prompt.
+});
 
 /**
  * Tests getting messages when there is a bad password in the password manager.
@@ -151,7 +155,11 @@ async function subtestWrongPassword(identity, outgoingServer, server) {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 1, "there should be a saved password");
-  Assert.equal(logins[0].hostname, "smtp://test.test", "login hostname");
+  Assert.equal(
+    logins[0].hostname,
+    `${outgoingServer.type}://test.test`,
+    "login hostname"
+  );
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
   Services.logins.removeAllLogins();
@@ -175,7 +183,7 @@ add_task(async function testWrongPasswordEWS() {
   Services.logins.removeAllLogins();
   await addLoginInfo("ews://test.test", "user", "wrong password");
   await subtestWrongPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
-}).skip(); // Bug 1976128: error message instead of password prompt.
+});
 
 function handleFailurePrompt() {
   return BrowserTestUtils.promiseAlertDialogOpen(undefined, undefined, {

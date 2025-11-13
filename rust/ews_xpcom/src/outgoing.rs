@@ -10,16 +10,16 @@ use ews::{Mailbox, Recipient};
 use thin_vec::ThinVec;
 
 use cstr::cstr;
-use nserror::{nsresult, NS_OK};
+use nserror::{nsresult, NS_ERROR_UNEXPECTED, NS_OK};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
 use xpcom::{
     get_service, getter_addrefs,
     interfaces::{
-        msgIAddressObject, nsIFile, nsILoginInfo, nsILoginManager, nsIMsgIdentity,
-        nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgStatusFeedback, nsIMsgWindow,
-        nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
+        msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsILoginInfo, nsILoginManager,
+        nsIMsgIdentity, nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgStatusFeedback,
+        nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
         nsMsgSocketType, nsMsgSocketTypeValue,
     },
     nsIID, xpcom_method, RefPtr,
@@ -73,7 +73,11 @@ pub unsafe extern "C" fn nsEwsOutgoingServerConstructor(
     result: *mut *mut c_void,
 ) -> nsresult {
     let instance = EwsOutgoingServer::new();
-    instance.QueryInterface(iid, result)
+
+    match instance {
+        Ok(instance) => instance.QueryInterface(iid, result),
+        Err(rv) => rv,
+    }
 }
 
 #[xpcom::xpcom(implement(nsIMsgOutgoingServer, nsIEwsServer), atomic)]
@@ -82,7 +86,7 @@ pub struct EwsOutgoingServer {
     uid: OnceCell<nsCString>,
     description: RefCell<Option<nsCString>>,
     username: RefCell<Option<nsCString>>,
-    password: RefCell<Option<nsCString>>,
+    password_module: RefCell<RefPtr<msgIPasswordAuthModule>>,
     auth_method: RefCell<Option<nsMsgAuthMethodValue>>,
     ews_url: OnceCell<Url>,
     pref_branch: OnceCell<RefPtr<nsIPrefBranch>>,
@@ -90,17 +94,22 @@ pub struct EwsOutgoingServer {
 
 #[allow(clippy::too_many_arguments)]
 impl EwsOutgoingServer {
-    pub fn new() -> RefPtr<Self> {
-        EwsOutgoingServer::allocate(InitEwsOutgoingServer {
+    pub fn new() -> Result<RefPtr<Self>, nsresult> {
+        let password_module = xpcom::get_service::<msgIPasswordAuthModule>(
+            c"@mozilla.org/mail/password-auth-module;1",
+        )
+        .ok_or(Err::<(), nsresult>(nserror::NS_ERROR_FAILURE))?;
+
+        Ok(EwsOutgoingServer::allocate(InitEwsOutgoingServer {
             key: Default::default(),
             uid: Default::default(),
             description: Default::default(),
             username: Default::default(),
-            password: Default::default(),
+            password_module: RefCell::new(password_module),
             auth_method: Default::default(),
             ews_url: Default::default(),
             pref_branch: Default::default(),
-        })
+        }))
     }
 
     /// Retrieves the pref branch for this server, or initializes it if it isn't
@@ -447,6 +456,19 @@ impl EwsOutgoingServer {
     // Password
     xpcom_method!(password => GetPassword() -> nsACString);
     fn password(&self) -> Result<nsCString, nsresult> {
+        // Check to see if the password auth module has cached the password.
+        let mut cached_password = nsCString::new();
+        unsafe {
+            self.password_module
+                .borrow()
+                .GetCachedPassword(&mut *cached_password)
+                .to_result()?;
+        }
+        if !cached_password.is_empty() {
+            return Ok(cached_password);
+        }
+
+        // Otherwise, look it up in the login manager.
         let ews_url = self.ews_url()?;
 
         // The URI we use to store logins into the login manager uses the format
@@ -502,7 +524,7 @@ impl EwsOutgoingServer {
 
     xpcom_method!(set_password => SetPassword(password: *const nsACString));
     fn set_password(&self, password: &nsACString) -> Result<(), nsresult> {
-        self.password.replace(Some(password.into()));
+        unsafe { self.password_module.borrow().SetCachedPassword(&*password) };
         Ok(())
     }
 
@@ -574,8 +596,22 @@ impl EwsOutgoingServer {
 
     xpcom_method!(forget_password => ForgetPassword());
     fn forget_password(&self) -> Result<(), nsresult> {
-        self.password.replace(None);
-        Ok(())
+        let username = self.username()?;
+        let server_type = self.server_type()?;
+        let ews_url = self.ews_url()?;
+        let host = ews_url.host().map(|x| x);
+        if let Some(host) = host {
+            unsafe {
+                self.password_module.borrow().ForgetPassword(
+                    &*username,
+                    &*nsCString::from(host.to_string()),
+                    &*server_type,
+                )
+            };
+            Ok(())
+        } else {
+            Err(NS_ERROR_UNEXPECTED)
+        }
     }
 
     xpcom_method!(send_mail => SendMailMessage(
@@ -684,10 +720,29 @@ impl EwsOutgoingServer {
     ) -> nsACString);
     fn get_password_with_ui(
         &self,
-        _prompt_string: *const nsACString,
-        _prompt_title: *const nsACString,
-    ) -> Result<nsACString, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        prompt_string: *const nsACString,
+        prompt_title: *const nsACString,
+    ) -> Result<nsCString, nsresult> {
+        let username = self.username()?;
+        let server_type = self.server_type()?;
+        let ews_url = self.ews_url()?;
+        let host = ews_url.host().map(|x| x);
+        if let Some(host) = host {
+            let mut password = nsCString::new();
+            unsafe {
+                self.password_module.borrow().QueryPasswordFromUserAndCache(
+                    &*username,
+                    &*nsCString::from(host.to_string()),
+                    &*server_type,
+                    &*prompt_string,
+                    &*prompt_title,
+                    &mut *password,
+                )
+            };
+            Ok(password)
+        } else {
+            Err(NS_ERROR_UNEXPECTED)
+        }
     }
 
     xpcom_method!(verify_logon => VerifyLogon(
