@@ -29,12 +29,12 @@ style pattern matching via `pathspec`.
 
 .. code-block:: yaml
   reference-tasks:
-    - linux64-aarch64-compiler-rt-19
+    - linux64-aarch64-compiler-rt-20
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang-19-profile
-    - linux64-clang-19-raw
+    - linux64-clang-20-profile
+    - linux64-clang-20-raw
 
 **or use wildcards**
 
