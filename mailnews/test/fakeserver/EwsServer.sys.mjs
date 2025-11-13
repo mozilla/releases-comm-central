@@ -229,6 +229,21 @@ const MARK_ALL_ITEMS_AS_READ_RESPONSE_BASE = `${EWS_SOAP_HEAD}
   </m:MarkAllItemsAsReadResponse>
   ${EWS_SOAP_FOOT}`;
 
+const SERVER_BUSY_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body><s:Fault>
+    <faultcode xmlns:a="http://schemas.microsoft.com/exchange/services/2006/types">a:ErrorServerBusy</faultcode>
+    <faultstring xml:lang="en-US">The server cannot service this request right now. Try again later.</faultstring>
+    <detail>
+        <e:ResponseCode xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">ErrorServerBusy</e:ResponseCode>
+        <e:Message xmlns:e="http://schemas.microsoft.com/exchange/services/2006/errors">The server cannot service this request right now. Try again later.</e:Message>
+        <t:MessageXml xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+          <t:Value Name="BackOffMilliseconds">100</t:Value>
+        </t:MessageXml>
+    </detail>
+  </s:Fault></s:Body>
+</s:Envelope>`;
+
 /**
  * A remote folder to sync from the EWS server. While initiating a test, an
  * array of folders is given to the EWS server, which will use it to populate
@@ -325,6 +340,14 @@ export class EwsServer {
    * @type {integer}
    */
   maxSyncItems = Infinity;
+
+  /**
+   * The number of busy responses the server will send. Usually 0, but can be
+   * set to a positive integer to simulate handling of busy responses.
+   *
+   * @type {integer}
+   */
+  busyResponses = 0;
 
   /**
    * The folders registered on this EWS server.
@@ -732,7 +755,12 @@ export class EwsServer {
 
     // Generate a response based on the operation found in the request.
     let resBytes = "";
-    if (reqDoc.getElementsByTagName("SyncFolderHierarchy").length) {
+    if (this.busyResponses > 0) {
+      // Never mind, act like the server is busy
+      response.setStatusLine("1.1", 500, "ErrorServerBusy");
+      resBytes = SERVER_BUSY_RESPONSE;
+      this.busyResponses -= 1;
+    } else if (reqDoc.getElementsByTagName("SyncFolderHierarchy").length) {
       resBytes = this.#generateSyncFolderHierarchyResponse(reqDoc);
     } else if (reqDoc.getElementsByTagName("GetFolder").length) {
       resBytes = this.#generateGetFolderResponse(reqDoc);

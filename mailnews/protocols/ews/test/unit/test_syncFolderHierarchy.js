@@ -167,3 +167,31 @@ class EwsFolderCallbackListener {
     this._deferred.reject(new Error(`syncFolderHierarchy FAILED: ${err}`));
   }
 }
+
+/**
+ * Test sync where the server returns busy twice.
+ */
+add_task(async function testSimpleSync() {
+  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+
+  ewsServer.busyResponses = 2;
+
+  const listener = new EwsFolderCallbackListener();
+  client.syncFolderHierarchy(listener, null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    [...listener._createdFolderIds],
+    [
+      "inbox",
+      "deleteditems",
+      "drafts",
+      "outbox",
+      "sentitems",
+      "junkemail",
+      "archive",
+    ],
+    "all folders should have synced"
+  );
+  Assert.ok(listener._syncStateToken, "sync token should exist");
+});

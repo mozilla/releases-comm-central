@@ -703,7 +703,14 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
             // throttling results in actual 429 responses (but instead in 200
             // responses with the relevant response message).
             let response = match response.error_from_status() {
-                Ok(response) => response,
+                Ok(response) => {
+                    report_connection_success(self.server.clone())?;
+                    response
+                }
+                Err(moz_http::Error::StatusCode { status, response }) if status.0 == 500 => {
+                    log::error!("Request FAILED with status 500, attempting to parse for backoff");
+                    response
+                }
                 Err(err) => {
                     if let moz_http::Error::StatusCode { ref response, .. } = err {
                         log::error!("Request FAILED with status {}: {err}", response.status()?);
@@ -715,8 +722,6 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                     return Err(err.into());
                 }
             };
-
-            report_connection_success(self.server.clone())?;
 
             // Don't immediately propagate in case the error represents a
             // throttled request, which we can address with retry.
