@@ -38,17 +38,22 @@ path = "src/lib.rs"
 anyhow = "1.0"
 chrono = "0.4"
 extend = "1.1"
+icu_casemap = "2"
+icu_properties = "2"
 once_cell = "1.5"
 parking_lot = ">=0.11,<=0.12"
 rmp-serde = "1.3"
 serde_json = "1"
 thiserror = "2"
-unicase = "2.6"
-unicode-normalization = "0.1"
 
 [dependencies.error-support]
 path = "../support/error"
 features = ["tracing-logging"]
+
+[dependencies.icu_normalizer]
+version = "2"
+features = ["compiled_data"]
+default-features = false
 
 [dependencies.interrupt-support]
 path = "../support/interrupt"

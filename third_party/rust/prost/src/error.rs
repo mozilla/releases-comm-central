@@ -1,7 +1,9 @@
 //! Protobuf encoding and decoding errors.
 
 use alloc::borrow::Cow;
+#[cfg(not(feature = "std"))]
 use alloc::boxed::Box;
+#[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 
 use core::fmt;
@@ -127,5 +129,52 @@ impl std::error::Error for EncodeError {}
 impl From<EncodeError> for std::io::Error {
     fn from(error: EncodeError) -> std::io::Error {
         std::io::Error::new(std::io::ErrorKind::InvalidInput, error)
+    }
+}
+
+/// An error indicating that an unknown enumeration value was encountered.
+///
+/// The Protobuf spec mandates that enumeration value sets are ‘open’, so this
+/// error's value represents an integer value unrecognized by the
+/// presently used enum definition.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct UnknownEnumValue(pub i32);
+
+impl fmt::Display for UnknownEnumValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "unknown enumeration value {}", self.0)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for UnknownEnumValue {}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_push() {
+        let mut decode_error = DecodeError::new("something failed");
+        decode_error.push("Foo bad", "bar.foo");
+        decode_error.push("Baz bad", "bar.baz");
+
+        assert_eq!(
+            decode_error.to_string(),
+            "failed to decode Protobuf message: Foo bad.bar.foo: Baz bad.bar.baz: something failed"
+        );
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn test_into_std_io_error() {
+        let decode_error = DecodeError::new("something failed");
+        let std_io_error = std::io::Error::from(decode_error);
+
+        assert_eq!(std_io_error.kind(), std::io::ErrorKind::InvalidData);
+        assert_eq!(
+            std_io_error.to_string(),
+            "failed to decode Protobuf message: something failed"
+        );
     }
 }

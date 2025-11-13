@@ -11,16 +11,22 @@
 
 [package]
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.71.1"
 name = "prost"
-version = "0.12.1"
+version = "0.13.5"
 authors = [
     "Dan Burkert <dan@danburkert.com>",
-    "Lucio Franco <luciofranco14@gmail.com",
+    "Lucio Franco <luciofranco14@gmail.com>",
+    "Casper Meijn <casper@meijn.net>",
     "Tokio Contributors <team@tokio.rs>",
 ]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "A Protocol Buffers implementation for the Rust Language."
-documentation = "https://docs.rs/prost"
 readme = "README.md"
 keywords = [
     "protobuf",
@@ -30,14 +36,24 @@ categories = ["encoding"]
 license = "Apache-2.0"
 repository = "https://github.com/tokio-rs/prost"
 
-[profile.bench]
-debug = 2
+[features]
+default = [
+    "derive",
+    "std",
+]
+derive = ["dep:prost-derive"]
+no-recursion-limit = []
+prost-derive = ["derive"]
+std = []
 
 [lib]
+name = "prost"
+path = "src/lib.rs"
 bench = false
 
 [[bench]]
 name = "varint"
+path = "benches/varint.rs"
 harness = false
 
 [dependencies.bytes]
@@ -45,30 +61,15 @@ version = "1"
 default-features = false
 
 [dependencies.prost-derive]
-version = "0.12.1"
+version = "0.13.5"
 optional = true
 
 [dev-dependencies.criterion]
-version = "0.4"
+version = "0.5"
 default-features = false
-
-[dev-dependencies.env_logger]
-version = "0.10"
-default-features = false
-
-[dev-dependencies.log]
-version = "0.4"
 
 [dev-dependencies.proptest]
 version = "1"
 
 [dev-dependencies.rand]
-version = "0.8"
-
-[features]
-default = [
-    "prost-derive",
-    "std",
-]
-no-recursion-limit = []
-std = []
+version = "0.9"
