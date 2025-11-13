@@ -1166,7 +1166,7 @@ MimeDisplayOptions::MimeDisplayOptions() {
   format_out = 0;  // The format out type
   url = nullptr;
 
-  memset(&headers, 0, sizeof(headers));
+  memset((void*)&headers, 0, sizeof(headers));
   fancy_headers_p = false;
 
   output_vcard_buttons_p = false;
@@ -1450,7 +1450,7 @@ extern "C" void* mime_bridge_create_display_stream(
     return 0;
   }
 
-  memset(stream, 0, sizeof(*stream));
+  memset((void*)stream, 0, sizeof(*stream));
   stream->name = "MIME Conversion Stream";
   stream->complete = mime_display_stream_complete;
   stream->abort = mime_display_stream_abort;

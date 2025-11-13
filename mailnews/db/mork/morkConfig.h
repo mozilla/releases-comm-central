@@ -127,8 +127,8 @@ extern void mork_assertion_signal(const char* inMessage);
 #ifdef MORK_USE_C_STDLIB
 #  define MORK_MEMCMP(src1, src2, size) memcmp(src1, src2, size)
 #  define MORK_MEMCPY(dest, src, size) memcpy(dest, src, size)
-#  define MORK_MEMMOVE(dest, src, size) memmove(dest, src, size)
-#  define MORK_MEMSET(dest, byte, size) memset(dest, byte, size)
+#  define MORK_MEMMOVE(dest, src, size) memmove((void*)dest, src, size)
+#  define MORK_MEMSET(dest, byte, size) memset((void*)dest, byte, size)
 #  if defined(MORK_WIN)
 #    define MORK_STRCPY(dest, src) wcscpy(char16ptr_t(dest), char16ptr_t(src))
 #  else

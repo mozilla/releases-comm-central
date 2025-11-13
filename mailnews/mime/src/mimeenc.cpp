@@ -700,7 +700,7 @@ static MimeDecoderData* mime_decoder_init(mime_encoding which,
                                           MimeClosure closure) {
   MimeDecoderData* data = PR_NEW(MimeDecoderData);
   if (!data) return 0;
-  memset(data, 0, sizeof(*data));
+  memset((void*)data, 0, sizeof(*data));
   data->encoding = which;
   data->write_buffer = output_fn;
   data->closure = closure;
