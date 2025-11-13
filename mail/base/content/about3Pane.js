@@ -1848,6 +1848,7 @@ var folderPane = {
     }
     this.activeModes = currentModes;
     this.toggleCompactViewMenuItem();
+    this.toggleFullPathMenuItem();
 
     if (this.activeModes.length == 1 && this.activeModes.at(0) == "all") {
       this.updateContextCheckedFolderMode();
@@ -1863,6 +1864,17 @@ var folderPane = {
       return;
     }
     subMenuCompactBtn.setAttribute("disabled", "true");
+  },
+
+  toggleFullPathMenuItem() {
+    const fullPathBtn = document.querySelector(
+      "#folderPaneHeaderToggleFullPath"
+    );
+    if (this.canBeCompact && this.isCompact) {
+      fullPathBtn.removeAttribute("disabled");
+    } else {
+      fullPathBtn.setAttribute("disabled", "true");
+    }
   },
 
   /**
@@ -1933,6 +1945,7 @@ var folderPane = {
    */
   compactFolderToggle(event) {
     this.isCompact = event.target.hasAttribute("checked");
+    this.toggleFullPathMenuItem();
   },
 
   /**
@@ -4079,6 +4092,12 @@ var folderPane = {
             ? item.setAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
+        case "folderPaneHeaderToggleFullPath":
+          XULStoreUtils.isItemVisible("messenger", "folderPaneFullPath")
+            ? item.setAttribute("checked", true)
+            : item.removeAttribute("checked");
+          this.toggleFullPathMenuItem();
+          break;
         case "folderPaneHeaderToggleLocalFolders":
           XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders")
             ? item.setAttribute("checked", true)
@@ -4150,6 +4169,17 @@ var folderPane = {
     );
     for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
       row.updateSizeCount(isHidden);
+    }
+  },
+
+  /**
+   * Toggle the full path option and update the XULStore.
+   */
+  toggleFullPath(event) {
+    const show = event.target.hasAttribute("checked");
+    XULStoreUtils.setValue("messenger", "folderPaneFullPath", "visible", show);
+    for (const row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
+      row.updateFolderNames();
     }
   },
 
