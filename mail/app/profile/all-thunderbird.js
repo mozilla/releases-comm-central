@@ -1483,6 +1483,11 @@ pref("mail.inappnotifications.refreshInterval", 21600000);
 // Disables all filtering of in-app notifications, useful for testing.
 pref("mail.inappnotifications.bypass-filtering", false);
 
+// Whether Yahoo/AOL/ATT OAuth user is detected.
+// Used to notify about upcoming changes via in-app notification.
+// TODO: Remove this when PKCE is fully rolled out for Yahoo/AOL/AT&T
+pref("mail.inappnotifications.pkceUpgradeForYahooAol", false);
+
 #ifdef NIGHTLY_BUILD
 // Enable the new experimental conversation view based on Gloda.
 pref("mail.thread.conversation.enabled", false);
