@@ -8,7 +8,6 @@ config = {
         "installer": {
             "product-name": "Thunderbird-%(version)s",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -18,7 +17,6 @@ config = {
         "installer-latest": {
             "product-name": "Thunderbird-esr-latest",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -28,7 +26,6 @@ config = {
         "installer-next-latest": {
             "product-name": "Thunderbird-esr-next-latest",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -38,7 +35,6 @@ config = {
         "installer-ssl": {
             "product-name": "Thunderbird-%(version)s-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -48,7 +44,6 @@ config = {
         "installer-latest-ssl": {
             "product-name": "Thunderbird-esr-latest-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -58,7 +53,6 @@ config = {
         "installer-next-latest-ssl": {
             "product-name": "Thunderbird-esr-next-latest-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -122,7 +116,6 @@ config = {
         "langpack": {
             "product-name": "Thunderbird-%(version)s-langpack-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -132,7 +125,6 @@ config = {
         "langpack-latest": {
             "product-name": "Thunderbird-esr-langpack-latest-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -142,7 +134,6 @@ config = {
         "langpack-latest-next": {
             "product-name": "Thunderbird-esr-next-langpack-latest-SSL",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -152,7 +143,6 @@ config = {
         "complete-mar": {
             "product-name": "Thunderbird-%(version)s-Complete",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
@@ -164,7 +154,6 @@ config = {
         "releases-dir": {
             "product-name": "Thunderbird-%(version)s-Partial-%(prev_version)s",
             "platforms": [
-                "linux",
                 "linux64",
                 "osx",
                 "win",
