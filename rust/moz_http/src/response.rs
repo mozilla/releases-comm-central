@@ -103,9 +103,13 @@ impl Response {
 
 impl fmt::Debug for Response {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Response")
-            .field("status", &self.status())
-            .field("body", &self.body)
-            .finish()
+        let mut f = f.debug_struct("Response");
+        f.field("status", &self.status());
+        if let Ok(ref body) = core::str::from_utf8(&self.body) {
+            f.field("body", body);
+        } else {
+            f.field("body", &self.body);
+        }
+        f.finish()
     }
 }
