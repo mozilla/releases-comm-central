@@ -2420,7 +2420,7 @@ nsresult VirtualFolderChangeListener::Init() {
     nsCOMPtr<nsIMsgFilter> tempFilter;
     filterList->CreateFilter(u"temp"_ns, getter_AddRefs(tempFilter));
     NS_ENSURE_SUCCESS(rv, rv);
-    filterList->ParseCondition(tempFilter, searchTermString.get());
+    filterList->ParseCondition(tempFilter, searchTermString);
     NS_ENSURE_SUCCESS(rv, rv);
     m_searchSession =
         do_CreateInstance("@mozilla.org/messenger/searchSession;1", &rv);

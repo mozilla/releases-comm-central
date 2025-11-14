@@ -681,7 +681,7 @@ nsresult nsMsgFilterList::LoadTextFilters(
             NS_CopyNativeToUnicode(value, unicodeStr);
             CopyUTF16toUTF8(unicodeStr, value);
           }
-          err = ParseCondition(m_curFilter, value.get());
+          err = ParseCondition(m_curFilter, value);
           if (err == NS_ERROR_INVALID_ARG)
             err = m_curFilter->SetUnparseable(true);
           NS_ENSURE_SUCCESS(err, err);
@@ -716,13 +716,13 @@ nsresult nsMsgFilterList::LoadTextFilters(
 // which will get written out as (\"foo\\")\") and read in as ("foo\")"
 // ALL means match all messages.
 NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter* aFilter,
-                                              const char* aCondition) {
+                                              const nsACString& aCondition) {
   NS_ENSURE_ARG_POINTER(aFilter);
 
   bool done = false;
   nsresult err = NS_OK;
-  const char* curPtr = aCondition;
-  if (!strcmp(aCondition, "ALL")) {
+  const char* curPtr = aCondition.BeginReading();
+  if (aCondition.EqualsLiteral("ALL")) {
     RefPtr<nsMsgSearchTerm> newTerm = new nsMsgSearchTerm;
     newTerm->m_matchAll = true;
     aFilter->AppendTerm(newTerm);

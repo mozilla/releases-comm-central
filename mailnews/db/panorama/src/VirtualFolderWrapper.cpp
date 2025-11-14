@@ -103,7 +103,7 @@ NS_IMETHODIMP VirtualFolderWrapper::GetSearchTermsSession(
   nsAutoCString searchString;
   GetSearchString(searchString);
   filterList->CreateFilter(u"temp"_ns, filter);
-  filterList->ParseCondition(*filter, searchString.get());
+  filterList->ParseCondition(*filter, searchString);
   return NS_OK;
 }
 

@@ -122,8 +122,8 @@ interface nsIMsgSearchTerm : nsISupports {
 
     readonly attribute boolean matchAllBeforeDeciding;
 
-    readonly attribute ACString termAsString;
-    boolean matchKeyword(in ACString keyword); // used for tag searches
+    readonly attribute AUTF8String termAsString;
+    boolean matchKeyword(in AUTF8String keyword); // used for tag searches
     attribute boolean matchAll;
     /**
      * Does the message match the custom search term?
