@@ -71,12 +71,12 @@ interface nsMsgFolderFlags : nsISupports {
   const nsMsgFolderFlagType Queue           = 0x00000800;
   /// Whether this is the primary inbox folder.
   const nsMsgFolderFlagType Inbox           = 0x00001000;
-  /// Whether this folder on online IMAP
+  /// Whether this folder is an online IMAP folder.
   const nsMsgFolderFlagType ImapBox         = 0x00002000;
-  /// Whether this is an archive folder
+  /// Whether this is an archive folder.
   const nsMsgFolderFlagType Archive         = 0x00004000;
-  /// This used to be used for virtual newsgroups
-  const nsMsgFolderFlagType Unused1         = 0x00008000;
+  /// Whether this is the Gmail "All Mail" folder.
+  const nsMsgFolderFlagType AllMail         = 0x00008000;
   /// Used to be for categories
   const nsMsgFolderFlagType Unused4         = 0x00010000;
   /// Used to be for new msgs in a folder

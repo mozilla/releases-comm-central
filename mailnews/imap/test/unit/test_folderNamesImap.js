@@ -27,7 +27,8 @@ add_task(async function () {
   const l10n = new Localization(["messenger/messenger.ftl"], true);
   const spamFolderName = l10n.formatValueSync("folder-name-spam");
 
-  const server = new IMAPServer();
+  // Extensions needed for the \\AllMail flag.
+  const server = new IMAPServer({ extensions: ["GMAIL", "RFC3348"] });
   server.daemon.createMailbox("Trash", {
     flags: ["\\Trash"],
     subscribed: true,
@@ -41,6 +42,11 @@ add_task(async function () {
   server.daemon.createMailbox("Archives", {
     flags: ["\\Archive"],
     subscribed: true,
+  });
+  server.daemon.createMailbox("All Mail", {
+    flags: ["\\Archive"],
+    subscribed: true,
+    specialUseFlag: "\\AllMail",
   });
 
   const account = MailServices.accounts.createAccount();
@@ -93,4 +99,11 @@ add_task(async function () {
   Assert.equal(archivesFolder.name, "Archives");
   Assert.equal(archivesFolder.localizedName, archivesFolderName);
   Assert.equal(archivesFolder.msgDatabase.dBFolderInfo.folderName, "");
+
+  const allMailFolder = rootFolder.getChildNamed("All Mail");
+  Assert.ok(allMailFolder.flags & Ci.nsMsgFolderFlags.Archive);
+  Assert.ok(allMailFolder.flags & Ci.nsMsgFolderFlags.AllMail);
+  Assert.equal(allMailFolder.name, "All Mail");
+  Assert.equal(allMailFolder.localizedName, "All Mail");
+  Assert.equal(allMailFolder.msgDatabase.dBFolderInfo.folderName, "");
 });

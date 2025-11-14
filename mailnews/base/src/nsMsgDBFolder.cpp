@@ -3058,7 +3058,8 @@ nsString nsMsgDBFolder::GetLocalizedNameInternal() {
   if (mFlags & nsMsgFolderFlags::Junk) {
     return kLocalizedJunkName;
   }
-  if (mFlags & nsMsgFolderFlags::Archive) {
+  if (mFlags & nsMsgFolderFlags::Archive &&
+      !(mFlags & nsMsgFolderFlags::AllMail)) {
     return kLocalizedArchivesName;
   }
   return u""_ns;
