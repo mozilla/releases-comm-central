@@ -2,6 +2,7 @@
 name = "graph_xpcom"
 version = "0.1.0"
 edition = "2021"
+rust-version.workspace = true
 
 [dependencies]
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
