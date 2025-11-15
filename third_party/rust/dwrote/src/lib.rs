@@ -19,15 +19,15 @@ include!("types.rs");
 
 use std::ffi::CString;
 use std::ptr;
-use winapi::Interface;
 use winapi::shared::guiddef::REFIID;
 use winapi::shared::winerror::S_OK;
-use winapi::um::dwrite::DWRITE_FACTORY_TYPE;
-use winapi::um::dwrite::DWRITE_FACTORY_TYPE_SHARED;
 use winapi::um::dwrite::IDWriteFactory;
 use winapi::um::dwrite::IDWriteRenderingParams;
+use winapi::um::dwrite::DWRITE_FACTORY_TYPE;
+use winapi::um::dwrite::DWRITE_FACTORY_TYPE_SHARED;
 use winapi::um::unknwnbase::IUnknown;
 use winapi::um::winnt::LPCSTR;
+use winapi::Interface;
 
 pub use winapi::um::winnt::HRESULT;
 

@@ -1542,9 +1542,9 @@ dependencies = [
 
 [[package]]
 name = "dwrote"
-version = "0.11.0"
+version = "0.11.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "439a1c2ba5611ad3ed731280541d36d2e9c4ac5e7fb818a27b604bdc5a6aa65b"
+checksum = "9e1b35532432acc8b19ceed096e35dfa088d3ea037fe4f3c085f1f97f33b4d02"
 dependencies = [
  "lazy_static",
  "libc",
@@ -4194,7 +4194,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -6973,7 +6973,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -7003,7 +7003,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7011,7 +7011,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7019,7 +7019,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -7057,7 +7057,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=d8f97261d23e436be75884f792b5931b383c4041#d8f97261d23e436be75884f792b5931b383c4041"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a441382328c5163466fae06802737ef1df8d1f13#a441382328c5163466fae06802737ef1df8d1f13"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",

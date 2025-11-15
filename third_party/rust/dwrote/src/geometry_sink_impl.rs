@@ -64,7 +64,7 @@ unsafe extern "system" fn GeometrySinkImpl_BeginFigure(
     _: D2D1_FIGURE_BEGIN,
 ) {
     let this = GeometrySinkImpl::from_interface(this);
-    (*this)
+    this
         .outline_builder
         .move_to(start_point.x, start_point.y)
 }
@@ -75,7 +75,7 @@ unsafe extern "system" fn GeometrySinkImpl_EndFigure(
 ) {
     let this = GeometrySinkImpl::from_interface(this);
     if figure_end == D2D1_FIGURE_END_CLOSED {
-        (*this).outline_builder.close()
+        this.outline_builder.close()
     }
 }
 
@@ -87,7 +87,7 @@ unsafe extern "system" fn GeometrySinkImpl_AddLines(
     let this = GeometrySinkImpl::from_interface(this);
     let points = slice::from_raw_parts(points, points_count as usize);
     for point in points {
-        (*this).outline_builder.line_to(point.x, point.y)
+        this.outline_builder.line_to(point.x, point.y)
     }
 }
 
@@ -99,7 +99,7 @@ unsafe extern "system" fn GeometrySinkImpl_AddBeziers(
     let this = GeometrySinkImpl::from_interface(this);
     let beziers = slice::from_raw_parts(beziers, beziers_count as usize);
     for bezier in beziers {
-        (*this).outline_builder.curve_to(
+        this.outline_builder.curve_to(
             bezier.point1.x,
             bezier.point1.y,
             bezier.point2.x,

@@ -13,7 +13,7 @@ use crate::com_helpers::Com;
 
 pub struct TextAnalysisSource<'a> {
     native: ComPtr<IDWriteTextAnalysisSource>,
-    phantom: PhantomData<CustomTextAnalysisSourceImpl<'a>>
+    phantom: PhantomData<CustomTextAnalysisSourceImpl<'a>>,
 }
 
 impl<'a> TextAnalysisSource<'a> {
@@ -28,10 +28,13 @@ impl<'a> TextAnalysisSource<'a> {
     ) -> TextAnalysisSource<'a> {
         let native = unsafe {
             ComPtr::from_raw(
-                CustomTextAnalysisSourceImpl::from_text_native(inner, text).into_interface()
+                CustomTextAnalysisSourceImpl::from_text_native(inner, text).into_interface(),
             )
         };
-        TextAnalysisSource { native, phantom: PhantomData }
+        TextAnalysisSource {
+            native,
+            phantom: PhantomData,
+        }
     }
 
     /// Create a new custom TextAnalysisSource for the given text and a trait
@@ -51,10 +54,13 @@ impl<'a> TextAnalysisSource<'a> {
                     text,
                     number_subst,
                 )
-                .into_interface()
+                .into_interface(),
             )
         };
-        TextAnalysisSource { native, phantom: PhantomData }
+        TextAnalysisSource {
+            native,
+            phantom: PhantomData,
+        }
     }
 
     pub fn as_ptr(&self) -> *mut IDWriteTextAnalysisSource {

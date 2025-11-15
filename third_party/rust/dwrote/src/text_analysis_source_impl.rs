@@ -38,7 +38,7 @@ pub trait TextAnalysisSourceMethods {
     ///
     /// Return locale and length of text (in utf-16 code units) for which the
     /// locale is valid.
-    fn get_locale_name<'a>(&'a self, text_position: u32) -> (Cow<'a, str>, u32);
+    fn get_locale_name(&self, text_position: u32) -> (Cow<'_, str>, u32);
 
     /// Get the text direction for the paragraph.
     fn get_paragraph_reading_direction(&self) -> DWRITE_READING_DIRECTION;
@@ -80,7 +80,7 @@ impl<'a> CustomTextAnalysisSourceImpl<'a> {
         inner: Box<dyn TextAnalysisSourceMethods + 'a>,
         text: Cow<'a, [wchar_t]>,
     ) -> CustomTextAnalysisSourceImpl<'a> {
-        assert!(text.len() <= (std::u32::MAX as usize));
+        assert!(text.len() <= (u32::MAX as usize));
         CustomTextAnalysisSourceImpl {
             _refcount: AtomicUsize::new(1),
             inner,
@@ -100,7 +100,7 @@ impl<'a> CustomTextAnalysisSourceImpl<'a> {
         text: Cow<'a, [wchar_t]>,
         number_subst: NumberSubstitution,
     ) -> CustomTextAnalysisSourceImpl<'a> {
-        assert!(text.len() <= (std::u32::MAX as usize));
+        assert!(text.len() <= (u32::MAX as usize));
         CustomTextAnalysisSourceImpl {
             _refcount: AtomicUsize::new(1),
             inner,
@@ -137,11 +137,15 @@ unsafe extern "system" fn CustomTextAnalysisSourceImpl_GetLocaleName(
     let (locale, text_len) = this.inner.get_locale_name(text_position);
 
     // Copy the locale data into the buffer
-    for (i, c) in OsStr::new(&*locale).encode_wide().chain(Some(0)).enumerate() {
+    for (i, c) in OsStr::new(&*locale)
+        .encode_wide()
+        .chain(Some(0))
+        .enumerate()
+    {
         // -1 here is deliberate: it ensures that we never write to the last character in
         // this.locale_buf, so that the buffer is always null-terminated.
         if i >= this.locale_buf.len() - 1 {
-            break
+            break;
         }
 
         *this.locale_buf.get_unchecked_mut(i) = c;
@@ -169,8 +173,8 @@ unsafe extern "system" fn CustomTextAnalysisSourceImpl_GetNumberSubstitution(
             let com_ptr = &number_subst.native;
             com_ptr.AddRef();
             com_ptr.as_raw()
-        },
-        None => std::ptr::null_mut()
+        }
+        None => std::ptr::null_mut(),
     };
 
     S_OK

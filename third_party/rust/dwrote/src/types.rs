@@ -41,7 +41,7 @@ impl FontWeight {
             FontWeight::ExtraBold=> 800,
             FontWeight::Black=> 900,
             FontWeight::ExtraBlack=> 950,
-            FontWeight::Unknown(v) => *v as u32
+            FontWeight::Unknown(v) => { *v }
         }
     }
     pub fn from_u32(v: u32) -> FontWeight {

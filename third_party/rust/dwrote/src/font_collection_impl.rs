@@ -76,7 +76,7 @@ unsafe extern "system" fn CustomFontCollectionLoaderImpl_CreateEnumeratorFromKey
     out_enumerator: *mut *mut IDWriteFontFileEnumerator,
 ) -> HRESULT {
     let this = CustomFontCollectionLoaderImpl::from_interface(this);
-    let enumerator = CustomFontFileEnumeratorImpl::new((*this).font_files.clone());
+    let enumerator = CustomFontFileEnumeratorImpl::new(this.font_files.clone());
     let enumerator = ComPtr::<IDWriteFontFileEnumerator>::from_raw(enumerator.into_interface());
     *out_enumerator = enumerator.as_raw();
     mem::forget(enumerator);
@@ -129,10 +129,10 @@ unsafe extern "system" fn CustomFontFileEnumeratorImpl_GetCurrentFontFile(
     out_font_file: *mut *mut IDWriteFontFile,
 ) -> HRESULT {
     let this = CustomFontFileEnumeratorImpl::from_interface(this);
-    if (*this).index < 0 || (*this).index >= (*this).font_files.len() as isize {
+    if this.index < 0 || this.index >= this.font_files.len() as isize {
         return E_INVALIDARG;
     }
-    let new_font_file = (*this).font_files[(*this).index as usize].clone();
+    let new_font_file = this.font_files[this.index as usize].clone();
     *out_font_file = new_font_file.as_raw();
     mem::forget(new_font_file);
     S_OK
@@ -144,11 +144,11 @@ unsafe extern "system" fn CustomFontFileEnumeratorImpl_MoveNext(
     has_current_file: *mut BOOL,
 ) -> HRESULT {
     let this = CustomFontFileEnumeratorImpl::from_interface(this);
-    let font_file_count = (*this).font_files.len() as isize;
-    if (*this).index < font_file_count {
-        (*this).index += 1
+    let font_file_count = this.font_files.len() as isize;
+    if this.index < font_file_count {
+        this.index += 1
     }
-    *has_current_file = if (*this).index >= 0 && (*this).index < font_file_count {
+    *has_current_file = if this.index >= 0 && this.index < font_file_count {
         TRUE
     } else {
         FALSE

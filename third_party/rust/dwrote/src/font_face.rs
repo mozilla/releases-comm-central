@@ -4,8 +4,8 @@
 
 use std::cell::UnsafeCell;
 use std::mem::{self, zeroed};
-use std::ptr;
 use std::slice;
+use std::{error, fmt, ptr};
 use winapi::ctypes::c_void;
 use winapi::shared::minwindef::{BOOL, FALSE, TRUE};
 use winapi::shared::winerror::S_OK;
@@ -20,16 +20,23 @@ use winapi::um::dwrite::{DWRITE_FONT_SIMULATIONS, DWRITE_GLYPH_METRICS};
 use winapi::um::dwrite::{DWRITE_GLYPH_OFFSET, DWRITE_MATRIX, DWRITE_RENDERING_MODE};
 use winapi::um::dwrite::{DWRITE_RENDERING_MODE_DEFAULT, DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC};
 use winapi::um::dwrite_1::IDWriteFontFace1;
-use winapi::um::dwrite_3::{IDWriteFontFace5, IDWriteFontResource, DWRITE_FONT_AXIS_VALUE};
+use winapi::um::dwrite_3::{
+    IDWriteFontFace5, IDWriteFontResource, DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE,
+    DWRITE_FONT_AXIS_VALUE,
+};
+use winapi::um::winnt::HRESULT;
+use winapi::Interface;
 use wio::com::ComPtr;
 
 use super::{DWriteFactory, DefaultDWriteRenderParams, FontFile, FontMetrics};
 use crate::com_helpers::Com;
 use crate::geometry_sink_impl::GeometrySinkImpl;
 use crate::outline_builder::OutlineBuilder;
+use crate::FontSimulations;
 
 pub struct FontFace {
     native: UnsafeCell<ComPtr<IDWriteFontFace>>,
+    face1: UnsafeCell<Option<ComPtr<IDWriteFontFace1>>>,
     face5: UnsafeCell<Option<ComPtr<IDWriteFontFace5>>>,
 }
 
@@ -38,6 +45,7 @@ impl FontFace {
         let cell = UnsafeCell::new(native);
         FontFace {
             native: cell,
+            face1: UnsafeCell::new(None),
             face5: UnsafeCell::new(None),
         }
     }
@@ -46,25 +54,35 @@ impl FontFace {
         (*self.native.get()).as_raw()
     }
 
-    unsafe fn get_raw_files(&self) -> Vec<*mut IDWriteFontFile> {
+    unsafe fn raw_files(&self) -> Result<Vec<*mut IDWriteFontFile>, HRESULT> {
         let mut number_of_files: u32 = 0;
         let hr = (*self.native.get()).GetFiles(&mut number_of_files, ptr::null_mut());
-        assert!(hr == 0);
+        if hr != S_OK {
+            return Err(hr);
+        }
 
         let mut file_ptrs: Vec<*mut IDWriteFontFile> =
             vec![ptr::null_mut(); number_of_files as usize];
         let hr = (*self.native.get()).GetFiles(&mut number_of_files, file_ptrs.as_mut_ptr());
-        assert!(hr == 0);
-        file_ptrs
+        if hr != S_OK {
+            return Err(hr);
+        }
+        Ok(file_ptrs)
     }
 
+    #[deprecated(note = "Use `files` instead.")]
     pub fn get_files(&self) -> Vec<FontFile> {
+        self.files().unwrap()
+    }
+
+    pub fn files(&self) -> Result<Vec<FontFile>, HRESULT> {
         unsafe {
-            let file_ptrs = self.get_raw_files();
-            file_ptrs
-                .iter()
-                .map(|p| FontFile::take(ComPtr::from_raw(*p)))
-                .collect()
+            self.raw_files().map(|file_ptrs| {
+                file_ptrs
+                    .iter()
+                    .map(|p| FontFile::take(ComPtr::from_raw(*p)))
+                    .collect()
+            })
         }
     }
 
@@ -73,7 +91,7 @@ impl FontFace {
         simulations: DWRITE_FONT_SIMULATIONS,
     ) -> FontFace {
         unsafe {
-            let file_ptrs = self.get_raw_files();
+            let file_ptrs = self.raw_files().unwrap();
             let face_type = (*self.native.get()).GetType();
             let face_index = (*self.native.get()).GetIndex();
             let mut face: *mut IDWriteFontFace = ptr::null_mut();
@@ -99,7 +117,7 @@ impl FontFace {
 
     pub fn metrics(&self) -> FontMetrics {
         unsafe {
-            let font_1: Option<ComPtr<IDWriteFontFace1>> = (*self.native.get()).cast().ok();
+            let font_1 = self.get_face1();
             match font_1 {
                 None => {
                     let mut metrics = mem::zeroed();
@@ -115,24 +133,41 @@ impl FontFace {
         }
     }
 
+    #[deprecated(note = "Use `glyph_indices` instead.")]
     pub fn get_glyph_indices(&self, code_points: &[u32]) -> Vec<u16> {
+        self.glyph_indices(code_points).unwrap()
+    }
+
+    pub fn glyph_indices(&self, code_points: &[u32]) -> Result<Vec<u16>, HRESULT> {
+        let mut glyph_indices: Vec<u16> = vec![0; code_points.len()];
         unsafe {
-            let mut glyph_indices: Vec<u16> = vec![0; code_points.len()];
             let hr = (*self.native.get()).GetGlyphIndices(
                 code_points.as_ptr(),
                 code_points.len() as u32,
                 glyph_indices.as_mut_ptr(),
             );
-            assert!(hr == 0);
-            glyph_indices
+            if hr != S_OK {
+                return Err(hr);
+            }
+            Ok(glyph_indices)
         }
     }
 
+    #[deprecated(note = "Use `design_glyph_metrics` instead.")]
     pub fn get_design_glyph_metrics(
         &self,
         glyph_indices: &[u16],
         is_sideways: bool,
     ) -> Vec<DWRITE_GLYPH_METRICS> {
+        self.design_glyph_metrics(glyph_indices, is_sideways)
+            .unwrap()
+    }
+
+    pub fn design_glyph_metrics(
+        &self,
+        glyph_indices: &[u16],
+        is_sideways: bool,
+    ) -> Result<Vec<DWRITE_GLYPH_METRICS>, HRESULT> {
         unsafe {
             let mut metrics: Vec<DWRITE_GLYPH_METRICS> = vec![zeroed(); glyph_indices.len()];
             let hr = (*self.native.get()).GetDesignGlyphMetrics(
@@ -141,11 +176,14 @@ impl FontFace {
                 metrics.as_mut_ptr(),
                 is_sideways as BOOL,
             );
-            assert!(hr == 0);
-            metrics
+            if hr != S_OK {
+                return Err(hr);
+            }
+            Ok(metrics)
         }
     }
 
+    #[deprecated(note = "Use `gdi_compatible_glyph_metrics` instead.")]
     pub fn get_gdi_compatible_glyph_metrics(
         &self,
         em_size: f32,
@@ -155,6 +193,26 @@ impl FontFace {
         glyph_indices: &[u16],
         is_sideways: bool,
     ) -> Vec<DWRITE_GLYPH_METRICS> {
+        self.gdi_compatible_glyph_metrics(
+            em_size,
+            pixels_per_dip,
+            transform,
+            use_gdi_natural,
+            glyph_indices,
+            is_sideways,
+        )
+        .unwrap()
+    }
+
+    pub fn gdi_compatible_glyph_metrics(
+        &self,
+        em_size: f32,
+        pixels_per_dip: f32,
+        transform: *const DWRITE_MATRIX,
+        use_gdi_natural: bool,
+        glyph_indices: &[u16],
+        is_sideways: bool,
+    ) -> Result<Vec<DWRITE_GLYPH_METRICS>, HRESULT> {
         unsafe {
             let mut metrics: Vec<DWRITE_GLYPH_METRICS> = vec![zeroed(); glyph_indices.len()];
             let hr = (*self.native.get()).GetGdiCompatibleGlyphMetrics(
@@ -167,22 +225,28 @@ impl FontFace {
                 metrics.as_mut_ptr(),
                 is_sideways as BOOL,
             );
-            assert!(hr == 0);
-            metrics
+            if hr != S_OK {
+                return Err(hr);
+            }
+            Ok(metrics)
         }
+    }
+
+    #[deprecated(note = "Use `font_table` instead.")]
+    pub fn get_font_table(&self, opentype_table_tag: u32) -> Option<Vec<u8>> {
+        self.font_table(opentype_table_tag).unwrap()
     }
 
     /// Returns the contents of the OpenType table with the given tag.
     ///
     /// NB: The bytes of the tag are reversed! You probably want to use the `u32::swap_bytes()`
     /// method on the tag value before calling this method.
-    pub fn get_font_table(&self, opentype_table_tag: u32) -> Option<Vec<u8>> {
+    pub fn font_table(&self, opentype_table_tag: u32) -> Result<Option<Vec<u8>>, HRESULT> {
+        let mut table_data_ptr: *const u8 = ptr::null_mut();
+        let mut table_size: u32 = 0;
+        let mut table_context: *mut c_void = ptr::null_mut();
+        let mut exists: BOOL = FALSE;
         unsafe {
-            let mut table_data_ptr: *const u8 = ptr::null_mut();
-            let mut table_size: u32 = 0;
-            let mut table_context: *mut c_void = ptr::null_mut();
-            let mut exists: BOOL = FALSE;
-
             let hr = (*self.native.get()).TryGetFontTable(
                 opentype_table_tag,
                 &mut table_data_ptr as *mut *const _ as *mut *const c_void,
@@ -190,17 +254,19 @@ impl FontFace {
                 &mut table_context,
                 &mut exists,
             );
-            assert!(hr == 0);
+            if hr != S_OK {
+                return Err(hr);
+            }
 
             if exists == FALSE {
-                return None;
+                return Ok(None);
             }
 
             let table_bytes = slice::from_raw_parts(table_data_ptr, table_size as usize).to_vec();
 
             (*self.native.get()).ReleaseFontTable(table_context);
 
-            Some(table_bytes)
+            Ok(Some(table_bytes))
         }
     }
 
@@ -221,7 +287,7 @@ impl FontFace {
                 &mut render_mode,
             );
 
-            if hr != 0 {
+            if hr != S_OK {
                 return DWRITE_RENDERING_MODE_NATURAL_SYMMETRIC;
             }
 
@@ -243,6 +309,7 @@ impl FontFace {
         )
     }
 
+    #[deprecated(note = "Use `glyph_run_outline` instead.")]
     pub fn get_glyph_run_outline(
         &self,
         em_size: f32,
@@ -253,25 +320,51 @@ impl FontFace {
         is_right_to_left: bool,
         outline_builder: Box<dyn OutlineBuilder>,
     ) {
+        self.glyph_run_outline(
+            em_size,
+            glyph_indices,
+            glyph_advances,
+            glyph_offsets,
+            is_sideways,
+            is_right_to_left,
+            outline_builder,
+        )
+        .unwrap()
+    }
+
+    pub fn glyph_run_outline(
+        &self,
+        em_size: f32,
+        glyph_indices: &[u16],
+        glyph_advances: Option<&[f32]>,
+        glyph_offsets: Option<&[DWRITE_GLYPH_OFFSET]>,
+        is_sideways: bool,
+        is_right_to_left: bool,
+        outline_builder: Box<dyn OutlineBuilder>,
+    ) -> Result<(), GlyphRunOutlineError> {
+        let glyph_advances = match glyph_advances {
+            None => ptr::null(),
+            Some(glyph_advances) => {
+                if glyph_advances.len() != glyph_indices.len() {
+                    return Err(GlyphRunOutlineError::InvalidInput);
+                }
+                glyph_advances.as_ptr()
+            }
+        };
+        let glyph_offsets = match glyph_offsets {
+            None => ptr::null(),
+            Some(glyph_offsets) => {
+                if glyph_offsets.len() != glyph_indices.len() {
+                    return Err(GlyphRunOutlineError::InvalidInput);
+                }
+                glyph_offsets.as_ptr()
+            }
+        };
+        let is_sideways = if is_sideways { TRUE } else { FALSE };
+        let is_right_to_left = if is_right_to_left { TRUE } else { FALSE };
+        let geometry_sink = GeometrySinkImpl::new(outline_builder);
+        let geometry_sink = geometry_sink.into_interface();
         unsafe {
-            let glyph_advances = match glyph_advances {
-                None => ptr::null(),
-                Some(glyph_advances) => {
-                    assert_eq!(glyph_advances.len(), glyph_indices.len());
-                    glyph_advances.as_ptr()
-                }
-            };
-            let glyph_offsets = match glyph_offsets {
-                None => ptr::null(),
-                Some(glyph_offsets) => {
-                    assert_eq!(glyph_offsets.len(), glyph_indices.len());
-                    glyph_offsets.as_ptr()
-                }
-            };
-            let is_sideways = if is_sideways { TRUE } else { FALSE };
-            let is_right_to_left = if is_right_to_left { TRUE } else { FALSE };
-            let geometry_sink = GeometrySinkImpl::new(outline_builder);
-            let geometry_sink = geometry_sink.into_interface();
             let hr = (*self.native.get()).GetGlyphRunOutline(
                 em_size,
                 glyph_indices.as_ptr(),
@@ -282,7 +375,50 @@ impl FontFace {
                 is_right_to_left,
                 geometry_sink,
             );
-            assert_eq!(hr, S_OK);
+            if hr != S_OK {
+                return Err(GlyphRunOutlineError::Win32Error(hr));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn has_kerning_pairs(&self) -> bool {
+        unsafe {
+            match self.get_face1() {
+                Some(face1) => face1.HasKerningPairs() == TRUE,
+                None => false,
+            }
+        }
+    }
+
+    #[deprecated(note = "Use `glyph_pair_kerning_adjustment` instead.")]
+    pub fn get_glyph_pair_kerning_adjustment(&self, first_glyph: u16, second_glyph: u16) -> i32 {
+        self.glyph_pair_kerning_adjustment(first_glyph, second_glyph)
+            .unwrap()
+    }
+
+    pub fn glyph_pair_kerning_adjustment(
+        &self,
+        first_glyph: u16,
+        second_glyph: u16,
+    ) -> Result<i32, HRESULT> {
+        unsafe {
+            match self.get_face1() {
+                Some(face1) => {
+                    let mut adjustments = [0; 2];
+                    let hr = face1.GetKerningPairAdjustments(
+                        2,
+                        [first_glyph, second_glyph].as_ptr(),
+                        adjustments.as_mut_ptr(),
+                    );
+                    if hr != S_OK {
+                        return Err(hr);
+                    }
+
+                    Ok(adjustments[0])
+                }
+                None => Ok(0),
+            }
         }
     }
 
@@ -308,11 +444,24 @@ impl FontFace {
     }
 
     #[inline]
+    unsafe fn get_face1(&self) -> Option<ComPtr<IDWriteFontFace1>> {
+        self.get_interface(&self.face1)
+    }
+
+    #[inline]
     unsafe fn get_face5(&self) -> Option<ComPtr<IDWriteFontFace5>> {
-        if (*self.face5.get()).is_none() {
-            *self.face5.get() = (*self.native.get()).cast().ok()
+        self.get_interface(&self.face5)
+    }
+
+    #[inline]
+    unsafe fn get_interface<I: Interface>(
+        &self,
+        interface: &UnsafeCell<Option<ComPtr<I>>>,
+    ) -> Option<ComPtr<I>> {
+        if (*interface.get()).is_none() {
+            *interface.get() = (*self.native.get()).cast().ok()
         }
-        (*self.face5.get()).clone()
+        (*interface.get()).clone()
     }
 
     pub fn has_variations(&self) -> bool {
@@ -322,6 +471,57 @@ impl FontFace {
                 None => false,
             }
         }
+    }
+
+    /// If this font has variations, return a [`Vec<DWRITE_FONT_AXIS_VALUE`] of the
+    /// variation axes and their values. If the font does not have variations,
+    /// return an empty `Vec`.
+    pub fn variations(&self) -> Result<Vec<DWRITE_FONT_AXIS_VALUE>, HRESULT> {
+        let face5 = unsafe { self.get_face5() };
+        let Some(face5) = face5 else {
+            return Ok(vec![]);
+        };
+        if unsafe { face5.HasVariations() != TRUE } {
+            return Ok(vec![]);
+        }
+        let axis_count = unsafe { face5.GetFontAxisValueCount() as usize };
+        if axis_count == 0 {
+            return Ok(vec![]);
+        }
+
+        let mut resource: *mut IDWriteFontResource = ptr::null_mut();
+        let hr = unsafe { face5.GetFontResource(&mut resource) };
+        if hr != S_OK || resource.is_null() {
+            return Err(hr);
+        }
+
+        let mut axis_values = Vec::with_capacity(axis_count);
+        axis_values.resize(
+            axis_count,
+            DWRITE_FONT_AXIS_VALUE {
+                axisTag: 0,
+                value: 0.,
+            },
+        );
+
+        let hr = unsafe { face5.GetFontAxisValues(axis_values.as_mut_ptr(), axis_count as u32) };
+        if hr != S_OK {
+            return Err(hr);
+        }
+
+        let resource = unsafe { &*resource };
+        Ok(axis_values
+            .iter()
+            .enumerate()
+            .filter_map(|(index, axis_value)| {
+                let attributes = unsafe { resource.GetFontAxisAttributes(index as u32) };
+                if attributes & DWRITE_FONT_AXIS_ATTRIBUTES_VARIABLE == 0 {
+                    None
+                } else {
+                    Some(*axis_value)
+                }
+            })
+            .collect())
     }
 
     pub fn create_font_face_with_variations(
@@ -351,6 +551,14 @@ impl FontFace {
             None
         }
     }
+
+    pub fn simulations(&self) -> FontSimulations {
+        unsafe {
+            std::mem::transmute::<DWRITE_FONT_SIMULATIONS, FontSimulations>(
+                (*self.native.get()).GetSimulations(),
+            )
+        }
+    }
 }
 
 impl Clone for FontFace {
@@ -358,6 +566,7 @@ impl Clone for FontFace {
         unsafe {
             FontFace {
                 native: UnsafeCell::new((*self.native.get()).clone()),
+                face1: UnsafeCell::new(None),
                 face5: UnsafeCell::new(None),
             }
         }
@@ -375,3 +584,20 @@ pub enum FontFaceType {
     Vector,
     Bitmap,
 }
+
+#[derive(Debug)]
+pub enum GlyphRunOutlineError {
+    InvalidInput,
+    Win32Error(HRESULT),
+}
+
+impl fmt::Display for GlyphRunOutlineError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidInput => write!(f, "Invalid input"),
+            Self::Win32Error(code) => write!(f, "{:#x}", code),
+        }
+    }
+}
+
+impl error::Error for GlyphRunOutlineError {}

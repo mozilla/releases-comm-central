@@ -19,7 +19,7 @@ lazy_static! {
             locale
         }
     };
-    static ref EN_US_LOCALE: Vec<wchar_t> = { OsStr::new("en-us").to_wide_null() };
+    static ref EN_US_LOCALE: Vec<wchar_t> = OsStr::new("en-us").to_wide_null();
 }
 
 pub fn get_locale_string(strings: &mut ComPtr<IDWriteLocalizedStrings>) -> String {
@@ -51,7 +51,6 @@ pub fn get_locale_string(strings: &mut ComPtr<IDWriteLocalizedStrings>) -> Strin
 // ToWide from https://github.com/retep998/wio-rs/blob/master/src/wide.rs
 
 pub trait ToWide {
-    fn to_wide(&self) -> Vec<u16>;
     fn to_wide_null(&self) -> Vec<u16>;
 }
 
@@ -59,9 +58,6 @@ impl<T> ToWide for T
 where
     T: AsRef<OsStr>,
 {
-    fn to_wide(&self) -> Vec<u16> {
-        self.as_ref().encode_wide().collect()
-    }
     fn to_wide_null(&self) -> Vec<u16> {
         self.as_ref().encode_wide().chain(Some(0)).collect()
     }
