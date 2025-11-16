@@ -1,0 +1,27 @@
+[package]
+name = "cubeb-sys"
+version = "0.30.1"
+authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
+repository = "https://github.com/mozilla/cubeb-rs"
+license = "ISC"
+description = "Native bindings to the cubeb library"
+exclude = ["libcubeb/googletest"]
+
+links = "cubeb"
+build = "build.rs"
+
+[badges]
+circle-ci = { repository = "mozilla/cubeb-rs" }
+
+[features]
+gecko-in-tree = []
+unittest-build = []
+
+[build-dependencies]
+pkg-config = "0.3"
+cmake = "0.1.2"
+
+# Workaround, see build.rs and
+# https://github.com/rust-lang/cargo/issues/4789#issuecomment-2308131243
+[dev-dependencies]
+cubeb-sys = { path = ".", features = ["unittest-build"] }

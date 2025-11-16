@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+      - master
+
+jobs:
+  check:
+    name: Lints and checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy --no-self-update
+      - run: date +%W >weekly
+      - id: cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ runner.os }}-lints-${{ hashFiles('weekly') }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo install cargo-msrv garden-tools
+      - name: Run clippy checks
+        run: garden check/clippy -vv
+      - name: Run format checks
+        run: garden check/fmt -vv
+      - name: Rust MSRV check
+        run: garden check/msrv -vv
+
+  test:
+    name: Test using Rust ${{ matrix.rust }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1
+      - run: rustup toolchain install ${{ matrix.rust }} --profile minimal --no-self-update
+      - run: date +%W >weekly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.rust }}-${{ matrix.os }}-test-${{ hashFiles('weekly') }}
+      - name: Run build
+        run: cargo build
+      - name: Run tests
+        run: cargo test -v

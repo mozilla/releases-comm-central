@@ -1,0 +1,25 @@
+[package]
+name = "cubeb-core"
+version = "0.30.1"
+authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
+license = "ISC"
+keywords = ["cubeb"]
+repository = "https://github.com/mozilla/cubeb-rs"
+homepage = "https://github.com/mozilla/cubeb-rs"
+description = """
+Common types and definitions for cubeb rust and C bindings. Not intended for direct use.
+"""
+categories = ["api-bindings"]
+
+[badges]
+circle-ci = { repository = "mozilla/cubeb-rs" }
+
+[features]
+gecko-in-tree = ["cubeb-sys/gecko-in-tree"]
+
+[dependencies]
+bitflags = "1.2.0"
+cubeb-sys = { path = "../cubeb-sys", version = "0.30" }
+
+[build-dependencies]
+cc = "1.1.30"

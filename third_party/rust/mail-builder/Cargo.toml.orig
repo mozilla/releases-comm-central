@@ -1,0 +1,26 @@
+[package]
+name = "mail-builder"
+description = "E-mail builder library for Rust"
+version = "0.3.2"
+edition = "2021"
+authors = [ "Stalwart Labs <hello@stalw.art>"]
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/stalwartlabs/mail-builder"
+homepage = "https://github.com/stalwartlabs/mail-builder"
+keywords = ["email", "mime", "mail", "e-mail"]
+categories = ["email"]
+readme = "README.md"
+
+[features]
+default = ["gethostname"]
+gethostname = ["dep:gethostname"]
+ludicrous_mode = []
+
+[dependencies]
+gethostname = { version = "0.4.0", optional = true }
+
+[dev-dependencies]
+mail-parser = "0.9"
+serde = { version = "1.0", features = ["derive"]}
+serde_yaml = "0.9.10"
+serde_json = "1.0"

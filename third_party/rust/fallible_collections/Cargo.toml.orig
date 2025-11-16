@@ -1,0 +1,33 @@
+[package]
+name = "fallible_collections"
+version = "0.5.1"
+authors = ["vcombey <vcombey@student.42.fr>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/vcombey/fallible_collections.git"
+description = "a crate which adds fallible allocation api to std collections"
+readme = "README.md"
+keywords = ["fallible", "allocation", "collections", "oom", "try-reserve"]
+categories = ["rust-patterns", "memory-management"]
+rust-version = "1.64"
+
+[dependencies]
+hashbrown = { version = "0.14", optional = true }
+
+[features]
+default = ["hashmap"]
+
+# Allow use of std
+std = []
+
+# Functionality based on std::io types
+std_io = ["std"]
+
+# Add fallible `HashMap`
+hashmap = ["dep:hashbrown"]
+
+# Enable on nightly builds to allow use of unstable features
+unstable = []
+
+# Obsolete. Always enabled.
+rust_1_57 = []

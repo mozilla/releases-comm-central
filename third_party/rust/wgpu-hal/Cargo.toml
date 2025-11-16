@@ -117,6 +117,7 @@ metal = [
     "dep:objc",
     "dep:parking_lot",
     "dep:profiling",
+    "dep:smallvec",
 ]
 portable-atomic = [
     "dep:portable-atomic",

@@ -1,0 +1,19 @@
+[package]
+name = "dbus-tree"
+version = "0.9.2"
+authors = ["David Henningsson <diwic@ubuntu.com>"]
+edition = "2018"
+
+description = "Framework for writing D-Bus method handlers (legacy)"
+repository = "https://github.com/diwic/dbus-rs"
+documentation = "http://docs.rs/dbus-tree"
+keywords = ["D-Bus", "DBus", "IPC"]
+license = "Apache-2.0/MIT"
+categories = ["os::unix-apis", "api-bindings"]
+readme = "../README.md"
+
+[dependencies]
+dbus = { path = "../dbus", version = "0.9" }
+
+[badges]
+maintenance = { status = "passively-maintained" }

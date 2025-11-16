@@ -79,6 +79,8 @@ serde = [
     "wgpu-types/serde",
     "arrayvec/serde",
     "hashbrown/serde",
+    "smallvec/serde",
+    "macro_rules_attribute",
 ]
 spirv = ["naga/spv-in"]
 static-dxc = ["wgpu-hal/static-dxc"]
@@ -142,6 +144,10 @@ default-features = false
 
 [dependencies.log]
 version = "0.4.21"
+
+[dependencies.macro_rules_attribute]
+version = "0.2"
+optional = true
 
 [dependencies.naga]
 version = "27.0.0"
