@@ -1,5 +1,30 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "compose_action": {
+            "properties": {
+              "type": {
+                "enums": {
+                  "menu": {
+                    "annotations": [
+                      {
+                        "text": "The $(ref:menus.ContextType.compose_action_menu) context of the $(doc:menus) can be used to add menu entries to a menu-typed composeAction button."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
     "namespace": "composeAction",
     "types": [
       {

@@ -1,5 +1,45 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "action": {
+            "properties": {
+              "type": {
+                "enums": {
+                  "menu": {
+                    "annotations": [
+                      {
+                        "text": "The $(ref:menus.ContextType.action_menu) context of the $(doc:menus) can be used to add menu entries to a menu-typed action button."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "browser_action": {
+            "properties": {
+              "type": {
+                "enums": {
+                  "menu": {
+                    "annotations": [
+                      {
+                        "text": "The $(ref:menus.ContextType.browser_action_menu) context of the $(doc:menus) can be used to add menu entries to a menu-typed browserAction button."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
     "namespace": "action",
     "types": [
       {

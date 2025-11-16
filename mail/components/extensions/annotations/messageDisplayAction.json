@@ -1,5 +1,30 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "message_display_action": {
+            "properties": {
+              "type": {
+                "enums": {
+                  "menu": {
+                    "annotations": [
+                      {
+                        "text": "The $(ref:menus.ContextType.message_display_action_menu) context of the $(doc:menus) can be used to add menu entries to a menu-typed messageDisplayAction button."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
     "namespace": "messageDisplayAction",
     "types": [
       {
