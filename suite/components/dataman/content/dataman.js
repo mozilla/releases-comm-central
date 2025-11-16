@@ -26,9 +26,6 @@ XPCOMUtils.defineLazyServiceGetter(gLocSvc, "idn",
 XPCOMUtils.defineLazyServiceGetter(gLocSvc, "appcache",
                                    "@mozilla.org/network/application-cache-service;1",
                                    "nsIApplicationCacheService");
-XPCOMUtils.defineLazyServiceGetter(gLocSvc, "domstoremgr",
-                                   "@mozilla.org/dom/storagemanager;1",
-                                   "nsIDOMStorageManager");
 XPCOMUtils.defineLazyServiceGetter(gLocSvc, "idxdbmgr",
                                    "@mozilla.org/dom/indexeddb/manager;1",
                                    "nsIIndexedDatabaseManager");
@@ -2431,11 +2428,11 @@ var gStorage = {
           this.storages.push({host: host,
                               rawHost: rawHost,
                               type: type,
-                              // FIXME if you want getUsage no longer exists
+                              // FIXME if you want: getUsage no longer exists.
                               // But I think it's not worth it. Seems the only way
                               // to do this is to get all the key names and values
-                              // and add the string lengths together
-                              // size: gLocSvc.domstoremgr.getUsage(rawHost),
+                              // and add the string lengths together.
+                              // size: Services.domStorageManager.getUsage(rawHost),
                               size: 0,
                               origHost: origHost,
                               keys: [domstorelist[i].key]});
@@ -2606,6 +2603,8 @@ var gStorage = {
         let uri = Services.io.newURI(testHost);
         let principal = gLocSvc.ssm.createCodebasePrincipal(uri, {});
         let storage = gLocSvc.domstoremgr.createStorage(null, principal, "");
+        let storage = Services.domStorageManager.createStorage(null, principal,
+                                                               "");
         storage.clear();
         break;
       case "indexedDB":
