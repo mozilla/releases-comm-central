@@ -431,7 +431,9 @@ class FolderTreeRow extends HTMLLIElement {
    */
   setFolderTypeFromFolder(folder) {
     const folderType = lazy.FolderUtils.getSpecialFolderString(folder);
-    if (folderType != "none") {
+    if (folderType == "none") {
+      delete this.dataset.folderType;
+    } else {
       this.dataset.folderType = folderType.toLowerCase();
     }
   }
