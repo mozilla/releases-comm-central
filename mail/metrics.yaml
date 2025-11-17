@@ -179,6 +179,8 @@ mail:
       - browser.display.use_system_colors
       - browser.safebrowsing.enabled
       - datareporting.healthreport.uploadEnabled
+      - extensions.hasExperimentsInstalled
+      - extensions.hasExtensionsInstalled
       - general.autoScroll
       - general.smoothScroll
       - intl.regional_prefs.use_os_locales
@@ -213,6 +215,7 @@ mail:
       - mail.enable_autocomplete
       - mail.fixed_width_messages
       - mail.forward_add_extension
+      - mail.inappnotifications.pkceUpgradeForYahooAol
       - mail.mdn.report.enabled
       - mail.minimizeToTray
       - mail.operate_on_msgs_in_collapsed_threads
