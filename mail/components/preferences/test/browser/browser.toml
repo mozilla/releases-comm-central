@@ -21,6 +21,8 @@ support-files = [
 
 ["browser_compose.js"]
 
+["browser_fontChooser.js"]
+
 ["browser_general.js"]
 support-files = ["files/complete.oga"]
 

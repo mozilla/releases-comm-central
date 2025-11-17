@@ -38,7 +38,6 @@ BROWSER_CHROME_MANIFESTS += [
     "notification/browser.toml",
     "openpgp/browser.toml",
     "openpgp/composition/browser.toml",
-    "pref-window/browser.toml",
     "quick-filter-bar/browser.toml",
     "search-window/browser.toml",
     "session-store/browser.toml",

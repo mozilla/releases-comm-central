@@ -10,20 +10,7 @@
  * font.name-list.<style>.<language>.
  */
 
-"use strict";
-
-var { content_tab_e } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
-);
-var { close_pref_tab, open_pref_tab } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/PrefTabHelpers.sys.mjs"
-);
-var { wait_for_frame_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
-
 var gFontEnumerator;
-var gTodayPane;
 
 // We'll test with Western. Unicode has issues on Windows (bug 550443).
 const kLanguage = "x-western";
@@ -82,17 +69,6 @@ add_setup(async function () {
     () => finished,
     "Timeout waiting for font enumeration to complete."
   );
-
-  // Hide Lightning's Today pane as it obscures buttons in preferences in the
-  // small TB window our tests run in.
-  gTodayPane = document.getElementById("today-pane-panel");
-  if (gTodayPane) {
-    if (!gTodayPane.collapsed) {
-      EventUtils.synthesizeKey("VK_F11", {});
-    } else {
-      gTodayPane = null;
-    }
-  }
 });
 
 async function buildFontList() {
@@ -104,34 +80,25 @@ async function buildFontList() {
       kLanguage,
       fontType
     );
-    if (gRealFontLists[fontType].length == 0) {
-      throw new Error(
-        "No fonts found for language " +
-          kLanguage +
-          " and font type " +
-          fontType +
-          "."
-      );
-    }
+    Assert.greater(
+      gRealFontLists[fontType].length,
+      0,
+      `there should be fonts for language ${kLanguage} and font type ${fontType}`
+    );
   }
 }
 
 function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
-  if (
-    !(
-      (!aPrefix && aExpected == aActual) ||
-      (aPrefix && aActual.startsWith(aExpected))
-    )
-  ) {
-    throw new Error(
-      "The " +
-        aDescription +
-        " font should be '" +
-        aExpected +
-        "', but " +
-        (aActual.length == 0
-          ? "nothing is actually selected."
-          : "is actually: " + aActual + ".")
+  if (aPrefix) {
+    Assert.ok(
+      aActual.startsWith(aExpected),
+      `the ${aDescription} font should be '${aExpected}', but is actually '${aActual}'`
+    );
+  } else {
+    Assert.equal(
+      aExpected,
+      aActual,
+      `the ${aDescription} font should be '${aExpected}'`
     );
   }
 }
@@ -148,15 +115,15 @@ async function _verify_fonts_displayed(
   aMonospace
 ) {
   // Bring up the preferences window.
-  const prefTab = await open_pref_tab("paneGeneral");
-  const contentDoc = prefTab.browser.contentDocument;
-  const prefsWindow = contentDoc.ownerGlobal;
-  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneGeneral",
+    "languageAndFontsCategory"
+  );
 
   const isSansDefault =
     Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
   const displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
-  const displayPaneActual = content_tab_e(prefTab, "defaultFont");
+  const displayPaneActual = prefsDocument.getElementById("defaultFont");
   await TestUtils.waitForCondition(
     () => displayPaneActual.itemCount > 0,
     "No font names were populated in the font picker."
@@ -167,86 +134,84 @@ async function _verify_fonts_displayed(
     displayPaneActual.value
   );
 
-  const advancedFonts = contentDoc.getElementById("advancedFonts");
-  advancedFonts.scrollIntoView({ block: "end", behavior: "instant" });
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
   // Now open the advanced dialog.
-  EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
-  const fontc = await wait_for_frame_load(
-    prefsWindow.gSubDialog._topDialog._frame,
-    "chrome://messenger/content/preferences/fonts.xhtml"
+
+  await promiseSubDialog(
+    prefsDocument.getElementById("advancedFonts"),
+    "chrome://messenger/content/preferences/fonts.xhtml",
+    async function (fontc) {
+      // The font pickers are populated async so we need to wait for it.
+      for (const fontElemId of ["serif", "sans-serif", "monospace"]) {
+        await TestUtils.waitForCondition(
+          () => fontc.document.getElementById(fontElemId).label != "",
+          "Timeout waiting for font picker '" + fontElemId + "' to populate."
+        );
+      }
+
+      if (!aDefaults) {
+        assert_fonts_equal(
+          "serif",
+          aSerif,
+          fontc.document.getElementById("serif").value
+        );
+        assert_fonts_equal(
+          "sans-serif",
+          aSansSerif,
+          fontc.document.getElementById("sans-serif").value
+        );
+        assert_fonts_equal(
+          "monospace",
+          aMonospace,
+          fontc.document.getElementById("monospace").value
+        );
+      } else if (AppConstants.platform == "linux") {
+        // When default fonts are displayed in the menulist, there is no value set,
+        // only the label, in the form "Default (font name)".
+
+        // On Linux the prefs we set contained only the generic font names,
+        // like 'serif', but here a specific font name will be shown, but it is
+        // system-dependent what it will be. So we just check for the 'Default'
+        // prefix.
+        assert_fonts_equal(
+          "serif",
+          `Default (`,
+          fontc.document.getElementById("serif").label,
+          true
+        );
+        assert_fonts_equal(
+          "sans-serif",
+          `Default (`,
+          fontc.document.getElementById("sans-serif").label,
+          true
+        );
+        assert_fonts_equal(
+          "monospace",
+          `Default (`,
+          fontc.document.getElementById("monospace").label,
+          true
+        );
+      } else {
+        assert_fonts_equal(
+          "serif",
+          `Default (${aSerif})`,
+          fontc.document.getElementById("serif").label
+        );
+        assert_fonts_equal(
+          "sans-serif",
+          `Default (${aSansSerif})`,
+          fontc.document.getElementById("sans-serif").label
+        );
+        assert_fonts_equal(
+          "monospace",
+          `Default (${aMonospace})`,
+          fontc.document.getElementById("monospace").label
+        );
+      }
+    },
+    "cancel"
   );
 
-  // The font pickers are populated async so we need to wait for it.
-  for (const fontElemId of ["serif", "sans-serif", "monospace"]) {
-    await TestUtils.waitForCondition(
-      () => fontc.document.getElementById(fontElemId).label != "",
-      "Timeout waiting for font picker '" + fontElemId + "' to populate."
-    );
-  }
-
-  if (!aDefaults) {
-    assert_fonts_equal(
-      "serif",
-      aSerif,
-      fontc.document.getElementById("serif").value
-    );
-    assert_fonts_equal(
-      "sans-serif",
-      aSansSerif,
-      fontc.document.getElementById("sans-serif").value
-    );
-    assert_fonts_equal(
-      "monospace",
-      aMonospace,
-      fontc.document.getElementById("monospace").value
-    );
-  } else if (AppConstants.platform == "linux") {
-    // When default fonts are displayed in the menulist, there is no value set,
-    // only the label, in the form "Default (font name)".
-
-    // On Linux the prefs we set contained only the generic font names,
-    // like 'serif', but here a specific font name will be shown, but it is
-    // system-dependent what it will be. So we just check for the 'Default'
-    // prefix.
-    assert_fonts_equal(
-      "serif",
-      `Default (`,
-      fontc.document.getElementById("serif").label,
-      true
-    );
-    assert_fonts_equal(
-      "sans-serif",
-      `Default (`,
-      fontc.document.getElementById("sans-serif").label,
-      true
-    );
-    assert_fonts_equal(
-      "monospace",
-      `Default (`,
-      fontc.document.getElementById("monospace").label,
-      true
-    );
-  } else {
-    assert_fonts_equal(
-      "serif",
-      `Default (${aSerif})`,
-      fontc.document.getElementById("serif").label
-    );
-    assert_fonts_equal(
-      "sans-serif",
-      `Default (${aSansSerif})`,
-      fontc.document.getElementById("sans-serif").label
-    );
-    assert_fonts_equal(
-      "monospace",
-      `Default (${aMonospace})`,
-      fontc.document.getElementById("monospace").label
-    );
-  }
-
-  close_pref_tab(prefTab);
+  await closePrefsTab();
 }
 
 /**
@@ -301,36 +266,16 @@ add_task(async function test_font_name_not_present() {
     const listPref = "font.name-list." + fontType + "." + kLanguage;
     const fontList = Services.prefs.getCharPref(listPref);
     const fonts = fontList.split(",").map(font => font.trim());
-    if (fonts.length != 2) {
-      throw new Error(
-        listPref +
-          " should have exactly two fonts, but it is '" +
-          fontList +
-          "'."
-      );
-    }
-
-    if (fonts[0] != fakeFont) {
-      throw new Error(
-        "The first font in " +
-          listPref +
-          " should be '" +
-          fakeFont +
-          "', but is actually: " +
-          fonts[0] +
-          "."
-      );
-    }
-
-    if (!gRealFontLists[fontType].includes(fonts[1])) {
-      throw new Error(
-        "The second font in " +
-          listPref +
-          " (" +
-          fonts[1] +
-          ") should be present on this computer, but isn't."
-      );
-    }
+    Assert.equal(fonts.length, 2, `${listPref} should have exactly two fonts`);
+    Assert.equal(
+      fonts[0],
+      fakeFont,
+      `the first font in ${listPref} should be '${fakeFont}'`
+    );
+    Assert.ok(
+      gRealFontLists[fontType].includes(fonts[1]),
+      `the second font in ${listPref} (${fonts[1]}) should be present on this computer`
+    );
     expected[fontType] = fonts[1];
 
     // Set font.name to be a nonsense name that shouldn't exist.
@@ -354,14 +299,4 @@ function teardownTest() {
 
 registerCleanupFunction(function () {
   Services.prefs.clearUserPref("font.language.group");
-  if (gTodayPane && gTodayPane.collapsed) {
-    EventUtils.synthesizeKey("VK_F11", {});
-  }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 });

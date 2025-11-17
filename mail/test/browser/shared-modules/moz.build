@@ -20,7 +20,6 @@ TESTING_JS_MODULES.mail += [
     "NNTPHelpers.sys.mjs",
     "NotificationBoxHelpers.sys.mjs",
     "OpenPGPTestUtils.sys.mjs",
-    "PrefTabHelpers.sys.mjs",
     "QuickFilterBarHelpers.sys.mjs",
     "SearchWindowHelpers.sys.mjs",
     "SubscribeWindowHelpers.sys.mjs",
