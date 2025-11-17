@@ -1760,6 +1760,7 @@ dependencies = [
  "moz_task",
  "nserror",
  "nsstring",
+ "protocol_shared",
  "quick-xml",
  "serde",
  "serde_json",
@@ -2750,6 +2751,7 @@ version = "0.1.0"
 dependencies = [
  "nserror",
  "nsstring",
+ "protocol_shared",
  "thin-vec",
  "xpcom",
  "xpcom_async",
@@ -4995,6 +4997,10 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "protocol_shared"
+version = "0.1.0"
 
 [[package]]
 name = "pulse"
