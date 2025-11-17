@@ -149,6 +149,9 @@ const testRunner = {
 };
 
 add_setup(async function () {
+  // This test needs enough space to run.
+  window.resizeTo(screen.availWidth, screen.availHeight);
+
   const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/widgets/files/paneSplitter.xhtml",
   });
@@ -165,6 +168,10 @@ add_setup(async function () {
   win.addEventListener("splitter-expanded", () => expandedEvents++);
 
   window.windowUtils.disableNonTestMouseEvents(true);
+  await TestUtils.waitForCondition(
+    () => doc.documentElement.scrollTopMax == 0,
+    "waiting for window to be large enough to run the test"
+  );
 
   registerCleanupFunction(() => {
     window.windowUtils.disableNonTestMouseEvents(false);
