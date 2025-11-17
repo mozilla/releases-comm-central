@@ -55,7 +55,9 @@ support-files = [
 # please put it in the manifest with its (alphabetical) neighbours.
 
 ["browser_inlineImage.js"]
-skip-if = ["headless"]  # clipboard doesn't work with headless
+skip-if = [
+  "headless", # clipboard doesn't work with headless
+]
 
 ["browser_linkPreviews.js"]
 
@@ -68,7 +70,9 @@ skip-if = ["headless"]  # clipboard doesn't work with headless
 ["browser_newmsgComposeIdentity.js"]
 
 ["browser_paragraph_state.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 reason = "Cannot open the Format menu"
 
 ["browser_publicRecipientsWarning.js"]

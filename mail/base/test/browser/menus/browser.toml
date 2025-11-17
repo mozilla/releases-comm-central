@@ -24,22 +24,30 @@ tags = [
 ]
 
 ["browser_editMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_editMenu_delete_item.js"]
 skip-if = [
+  "debug", #  Too unreliable.
   "os == 'mac'",
-  "debug",  # Too unreliable.
 ]
 
 ["browser_editMenu_favorite_folder_item.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_editMenu_properties_item.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_fileMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_folderPaneContext.js"]
 tags = [
@@ -48,10 +56,14 @@ tags = [
 ]
 
 ["browser_goMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_mailContext.js"]
-skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1897093.
+skip-if = [
+  "os == 'mac' && debug", # Frequently hangs. Bug 1897093.
+]
 tags = [
   "contextmenu",
   "virtualfolders",
@@ -61,7 +73,9 @@ tags = [
 tags = ["contextmenu"]
 
 ["browser_mailContext_messageContent.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 tags = ["contextmenu"]
 
 ["browser_mailContext_navigation.js"]
@@ -71,10 +85,14 @@ tags = ["contextmenu"]
 tags = ["contextmenu"]
 
 ["browser_menubar.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_messageMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_spamMenusAndKeys.js"]
 tags = [
@@ -83,11 +101,17 @@ tags = [
 ]
 
 ["browser_tagsMenusAndKeys.js"]
-skip-if = ["os == 'mac' && debug"]  # Frequently hangs. Bug 1884033.
+skip-if = [
+  "os == 'mac' && debug", # Frequently hangs. Bug 1884033.
+]
 tags = ["contextmenu"]
 
 ["browser_toolsMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_viewMenu.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]

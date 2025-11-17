@@ -34,10 +34,14 @@ tags = ["archive"]
 ["browser_clickLinks.js"]
 
 ["browser_dragDropFolders.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_dragDropMessages.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_dummyRow.js"]
 

@@ -52,4 +52,6 @@ support-files = ["html/**"]
 tags = ["contextmenu"]
 
 ["browser_installXpi.js"]
-skip-if = ["os == 'mac' && debug"]  # Bug 1905998.
+skip-if = [
+  "os == 'mac' && debug", # Bug 1905998.
+]

@@ -25,7 +25,9 @@ tags = ["openpgp"]
 ["browser_inlineOpenPGP.js"]
 
 ["browser_keyWizard.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_openPGPDrafts.js"]
 

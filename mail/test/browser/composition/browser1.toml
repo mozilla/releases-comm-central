@@ -61,14 +61,18 @@ support-files = [
 ["browser_attachmentCloudDraft.js"]
 
 ["browser_attachmentDragDrop.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_attachmentReminder.js"]
 
 ["browser_base64Display.js"]
 
 ["browser_blockedContent.js"]
-skip-if = ["headless"]  # clipboard doesn't work with headless
+skip-if = [
+  "headless", # clipboard doesn't work with headless
+]
 
 ["browser_charsetEdit.js"]
 

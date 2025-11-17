@@ -11,7 +11,9 @@ prefs = [
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
 ]
-run-if = ["os == 'linux'"]
+run-if = [
+  "os == 'linux'",
+]
 subsuite = "thunderbird"
 
 ["browser_en_US.js"]

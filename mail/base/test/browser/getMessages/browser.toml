@@ -15,7 +15,9 @@ subsuite = "thunderbird"
 ["browser_getMessages.js"]
 
 ["browser_getMessages_badPassword.js"]
-skip-if = ["os == 'mac' && debug"]  # Fails almost every time. Unsure why.
+skip-if = [
+  "os == 'mac' && debug", # Fails almost every time. Unsure why.
+]
 
 ["browser_getMessages_certError.js"]
 

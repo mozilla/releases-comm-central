@@ -16,4 +16,6 @@ support-files = ["data/**"]
 ["browser_minimonth.js"]
 
 ["browser_timezones.js"]
-skip-if = ["debug"]  # Takes way too long, bug 1746973.
+skip-if = [
+  "debug", # Takes way too long, bug 1746973.
+]

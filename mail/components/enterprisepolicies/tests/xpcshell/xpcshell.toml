@@ -15,7 +15,9 @@ head = "head.js"
 ["test_import_enterprise_roots.js"]
 
 ["test_macosparser_unflatten.js"]
-skip-if = ["os != 'mac'"]
+skip-if = [
+  "os != 'mac'",
+]
 
 ["test_policy_search_engine.js"]
 

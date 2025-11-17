@@ -56,10 +56,14 @@ support-files = [
 
 ["browser_sendButton.js"]
 tags = ["addrbook"]
-skip-if = ["os == 'win' && bits == 64 && debug"]  # Bug 1601520
+skip-if = [
+  "os == 'win' && arch == 'x86_64' && debug", # Bug 1601520
+]
 
 ["browser_sendFormat.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 reason = "See bug 1763407"
 
 ["browser_signatureInit.js"]
@@ -71,7 +75,9 @@ reason = "See bug 1763407"
 ["browser_subjectWas.js"]
 
 ["browser_text_styling.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 reason = "Cannot open the Format menu"
 
 ["browser_xUnsent.js"]

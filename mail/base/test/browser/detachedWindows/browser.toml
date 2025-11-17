@@ -11,4 +11,6 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_detachedWindows.js"]
-skip-if = ["debug"]
+skip-if = [
+  "debug",
+]

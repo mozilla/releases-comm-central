@@ -16,7 +16,9 @@ prefs = [
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
 ]
-skip-if = ["debug"]
+skip-if = [
+  "debug",
+]
 subsuite = "thunderbird"
 support-files = ["html/**"]
 
@@ -27,7 +29,9 @@ support-files = ["html/**"]
 ["browser_exposedInContentTabs.js"]
 
 ["browser_generalContentPolicy.js"]
-skip-if = ["headless"]  # clipboard doesn't work with headless
+skip-if = [
+  "headless", # clipboard doesn't work with headless
+]
 
 ["browser_jsContentPolicy.js"]
 

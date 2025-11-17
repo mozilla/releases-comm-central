@@ -12,7 +12,9 @@ subsuite = "thunderbird"
 support-files = ["files/**"]
 
 ["browser_autoTreeView.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 tags = ["dataadapter"]
 
 ["browser_contactAvatar.js"]
@@ -22,7 +24,9 @@ tags = ["dataadapter"]
 ["browser_customElements.js"]
 
 ["browser_dropIndicator.js"]
-skip-if = ["headless"]
+skip-if = [
+  "headless",
+]
 
 ["browser_formPickers.js"]
 support-files = ["head_formPickers.js"]
@@ -35,10 +39,14 @@ tags = ["webextensions"]
 https_first_disabled = true
 
 ["browser_menulist.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["browser_orderableTreeListbox.js"]
-skip-if = ["headless"]
+skip-if = [
+  "headless",
+]
 
 ["browser_paneSplitter.js"]
 

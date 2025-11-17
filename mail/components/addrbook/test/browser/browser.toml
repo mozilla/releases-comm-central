@@ -33,7 +33,9 @@ tags = ["oauth"]
 ["browser_cardDAV_sync.js"]
 
 ["browser_contact_sidebar.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 tags = ["dataadapter"]
 
 ["browser_contact_sidebar_keyboard.js"]
@@ -48,14 +50,18 @@ tags = ["dataadapter"]
 ["browser_display_multiple.js"]
 
 ["browser_drag_drop.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_edit_async.js"]
 
 ["browser_edit_card.js"]
 
 ["browser_edit_photo.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_export.js"]
 

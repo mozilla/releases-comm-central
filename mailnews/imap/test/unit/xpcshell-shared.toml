@@ -84,7 +84,9 @@ tags = ["compact"]
 ["test_imapUrls.js"]
 
 ["test_largeOfflineStore.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["test_listClosesDB.js"]
 

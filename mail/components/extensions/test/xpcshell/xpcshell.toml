@@ -42,7 +42,9 @@ support-files = ["messages/**"]
 ["test_ext_messages_onNewMailReceived.js"]
 
 ["test_ext_messages_query.js"]
-skip-if = ["ccov"]  # Bug 1827450.
+skip-if = [
+  "ccov", # Bug 1827450.
+]
 support-files = ["messages/alternative.eml"]
 
 ["test_ext_messages_query_multiple_accounts_folders.js"]

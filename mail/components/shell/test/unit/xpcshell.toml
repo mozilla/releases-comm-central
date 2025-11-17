@@ -2,6 +2,6 @@
 
 ["test_shellService.js"]
 skip-if = [
+  "os == 'mac'", #  Mac: test perma failing on CI. Bug 1954960.
   "os == 'win'", # Windows: setDefaultClient requires user confirmation.
-  "os == 'mac'"  # Mac: test perma failing on CI. Bug 1954960.
 ]

@@ -9,7 +9,9 @@ support-files = ["data/*"]
 ["test_attachment_intl.js"]
 
 ["test_autoReply.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 
 ["test_bcc.js"]
 

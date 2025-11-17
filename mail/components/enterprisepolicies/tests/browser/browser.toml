@@ -17,13 +17,19 @@ support-files = [
 ["browser_policies_setAndLockPref_API.js"]
 
 ["browser_policy_app_auto_update.js"]
-skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+skip-if = [
+  "os == 'win' && msix", # Updater is disabled in MSIX builds
+]
 
 ["browser_policy_app_update.js"]
-skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+skip-if = [
+  "os == 'win' && msix", # Updater is disabled in MSIX builds
+]
 
 ["browser_policy_background_app_update.js"]
-skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
+skip-if = [
+  "os == 'win' && msix", # Updater is disabled in MSIX builds
+]
 
 ["browser_policy_block_about.js"]
 
@@ -39,7 +45,9 @@ skip-if = ["os == 'win' && msix"]  # Updater is disabled in MSIX builds
 
 ["browser_policy_extensionsettings.js"]
 https_first_disabled = true
-skip-if = ["os == 'mac' && debug"]  # Bug 1912417.
+skip-if = [
+  "os == 'mac' && debug", # Bug 1912417.
+]
 
 ["browser_policy_extensionsettings2.js"]
 

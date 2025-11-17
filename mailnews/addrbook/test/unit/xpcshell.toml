@@ -56,7 +56,9 @@ tags = [
 ["test_ldapOffline.js"]
 
 ["test_ldapReplication.js"]
-skip-if = ["debug"]  # Fails for unknown reasons.
+skip-if = [
+  "debug", # Fails for unknown reasons.
+]
 
 ["test_ldapquery.js"]
 

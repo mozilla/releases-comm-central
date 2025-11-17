@@ -36,5 +36,7 @@ support-files = ["files/qrCodeWizard.xhtml"]
 ["browser_qrExport.js"]
 
 ["browser_sync.js"]
-skip-if = ["!sync"]
+skip-if = [
+  "!sync",
+]
 support-files = ["files/avatar.png"]

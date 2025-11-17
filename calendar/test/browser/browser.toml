@@ -26,14 +26,18 @@ tags = ["caldav"]
 tags = ["caldav", "oauth"]
 
 ["browser_calendarList.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_calendarTelemetry.js"]
 
 ["browser_calendarUnifinder.js"]
 
 ["browser_dragEventItem.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_eventDisplay_dayView.js"]
 
@@ -59,6 +63,8 @@ tags = ["import"]
 ["browser_todayPane.js"]
 
 ["browser_todayPane_dragAndDrop.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_todayPane_visibility.js"]

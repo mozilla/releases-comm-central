@@ -38,7 +38,9 @@ tags = ["virtualfolders"]
 ["browser_mailTabsAndWindows.js"]
 
 ["browser_manualSortFolders.js"]
-skip-if = ["headless && os == 'linux'"]  # See bug 1806870.
+skip-if = [
+  "headless && os == 'linux'", # See bug 1806870.
+]
 
 ["browser_markAsRead.js"]
 

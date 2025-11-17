@@ -7,7 +7,9 @@ prefs = [
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
 ]
-skip-if = ["debug"]
+skip-if = [
+  "debug",
+]
 subsuite = "thunderbird"
 
 ["browser_parsable_css.js"]

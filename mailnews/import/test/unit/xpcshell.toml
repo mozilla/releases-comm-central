@@ -20,4 +20,6 @@ support-files = [
 ["test_extractZip.js"]
 
 ["test_outlook_settings.js"]
-run-if = ["os == 'win'"]
+run-if = [
+  "os == 'win'",
+]

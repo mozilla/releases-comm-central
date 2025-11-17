@@ -57,11 +57,15 @@ support-files = [
 ["browser_redirect.js"]
 
 ["browser_remove_text_styling.js"]
-skip-if = ["os == 'mac'"]
+skip-if = [
+  "os == 'mac'",
+]
 reason = "Cannot open the Format menu"
 
 ["browser_replyAddresses.js"]
-skip-if = ["debug"]  # Bug 1601591
+skip-if = [
+  "debug", # Bug 1601591
+]
 
 ["browser_replyCatchAll.js"]
 
@@ -70,7 +74,9 @@ skip-if = ["debug"]  # Bug 1601591
 ["browser_replyHTML.js"]
 
 ["browser_replyMultipartCharset.js"]
-skip-if = ["debug"]  # Bug 1606542
+skip-if = [
+  "debug", # Bug 1606542
+]
 
 ["browser_replySelection.js"]
 

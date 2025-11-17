@@ -19,6 +19,8 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_preferences_usage.js"]
-skip-if = ["!debug"]
+skip-if = [
+  "!debug",
+]
 
 ["browser_startup.js"]

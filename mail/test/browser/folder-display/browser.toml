@@ -116,7 +116,9 @@ tags = ["compact"]
 ["browser_selection.js"]
 
 ["browser_syntheticViews.js"]
-skip-if = ["true"]  # TODO
+skip-if = [
+  "true", # TODO
+]
 
 ["browser_tabsSimple.js"]
 
