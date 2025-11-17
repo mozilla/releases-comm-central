@@ -27,9 +27,7 @@ dialog {
 
 treechildren::-moz-tree-image(subscribedColumn),
 treechildren::-moz-tree-image(subscribedColumn2) {
-  width: 14px;
-  height: 14px;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  list-style-image: var(--icon-checkbox);
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   stroke: currentColor;
@@ -59,27 +57,23 @@ treechildren::-moz-tree-cell-text(nameColumn, subscribable-false) {
 
 /* ::::: Folders :::::: */
 
-treechildren::-moz-tree-image(nameColumn) {
+treechildren::-moz-tree-image(nameColumn),
+treechildren::-moz-tree-image(nameColumn2) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder.svg");
+  list-style-image: var(--icon-folder);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
 }
 
 treechildren::-moz-tree-image(nameColumn, serverType-nntp),
 treechildren::-moz-tree-image(nameColumn2, serverType-nntp) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
+  list-style-image: var(--icon-newsletter);
 }
 
-/* ::::: Servers :::::: */
-
-.subscribeMenuItem {
-  list-style-image: url("chrome://messenger/skin/icons/message.svg");
-
-  &[ServerType="imap"][IsSecure="true"] {
-    list-style-image: url("chrome://messenger/skin/icons/message-secure.svg");
-  }
-
-  &[ServerType="nntp"] {
-    list-style-image: url("chrome://messenger/skin/icons/globe.svg");
-  }
+treechildren::-moz-tree-image(nameColumn, selected, focus),
+treechildren::-moz-tree-image(nameColumn2, selected, focus) {
+  fill: color-mix(in srgb, var(--select-focus-text-color) 20%, transparent);
+  stroke: var(--select-focus-text-color);
 }
