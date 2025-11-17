@@ -92,13 +92,17 @@ export const NotificationUpdater = {
         .asyncOpenURI(
           Services.io.newURI(url),
           "",
-          Ci.nsICacheStorage.READ_ONLY,
+          Ci.nsICacheStorage.OPEN_READONLY,
           {
             onCacheEntryCheck() {
               return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
             },
-            onCacheEntryAvailable({ expirationTime }) {
-              resolve(expirationTime);
+            onCacheEntryAvailable(entry, _new, result) {
+              if (result !== Cr.NS_OK) {
+                resolve(0);
+                return;
+              }
+              resolve(entry?.expirationTime);
             },
           }
         );
