@@ -108,12 +108,9 @@ add_setup(async () => {
   // throw but simply ignore this property, which is used by Firefox, but not by
   // us. However, by default, tests throw when deprecated properties are used,
   // which can be disabled by setting the following pref to false.
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.warnings-as-errors",
-    false
-  );
+  ExtensionTestUtils.failOnSchemaWarnings(false);
   registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+    ExtensionTestUtils.failOnSchemaWarnings(true);
   });
 });
 

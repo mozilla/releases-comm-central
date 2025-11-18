@@ -41,14 +41,11 @@ add_setup(async () => {
   // There are a couple of deprecated properties in MV3, which we still want to
   // test in MV2 but also report to the user. By default, tests throw when
   // deprecated properties are used.
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.warnings-as-errors",
-    false
-  );
+  ExtensionTestUtils.failOnSchemaWarnings(false);
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(async () => {
     await ensure_cards_view(document);
-    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+    ExtensionTestUtils.failOnSchemaWarnings(true);
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));

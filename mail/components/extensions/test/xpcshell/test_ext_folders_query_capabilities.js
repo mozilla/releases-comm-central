@@ -12,16 +12,13 @@ add_setup(async () => {
   // There are a couple of deprecated properties in MV3, which we still want to
   // test in MV2 but also report to the user. By default, tests throw when
   // deprecated properties are used.
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.warnings-as-errors",
-    false
-  );
+  ExtensionTestUtils.failOnSchemaWarnings(false);
 
   // Set max_recent to 1 to be able to test the difference between most recent
   // and recent.
   Services.prefs.setIntPref("mail.folder_widget.max_recent", 1);
   registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+    ExtensionTestUtils.failOnSchemaWarnings(true);
     Services.prefs.clearUserPref("mail.folder_widget.max_recent");
   });
   await new Promise(resolve => executeSoon(resolve));

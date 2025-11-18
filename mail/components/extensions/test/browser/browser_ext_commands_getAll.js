@@ -8,13 +8,9 @@ add_setup(async () => {
   // This test uses the unsupported platform "android" for the suggested_key.
   // However, by default, tests throw when unsupported properties are used, which
   // can be disabled by setting the following pref to false.
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.warnings-as-errors",
-    false
-  );
-
-  registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+  registerCleanupFunction(async () => {
+    ExtensionTestUtils.failOnSchemaWarnings(true);
   });
 });
 

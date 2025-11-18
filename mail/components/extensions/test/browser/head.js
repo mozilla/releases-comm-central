@@ -63,6 +63,12 @@ add_setup(async () => {
     is(tabmail.tabInfo.length, 1, "One tab open from start");
   }
 });
+
+// Keep tack of the origial value of the pref extensions.webextensions.uuids to
+// be able to restore its original value after running the tests.
+const webextensions_uuids = Services.prefs.getStringPref(
+  "extensions.webextensions.uuids"
+);
 registerCleanupFunction(() => {
   const tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1, "Only one tab open at end of test");
@@ -98,7 +104,10 @@ registerCleanupFunction(() => {
   setCachedAllowedSpaces(new Map());
   Services.prefs.clearUserPref("mail.pane_config.dynamic");
   Services.prefs.clearUserPref("mail.threadpane.listview");
-  Services.prefs.setStringPref("extensions.webextensions.uuids", "{}");
+  Services.prefs.setStringPref(
+    "extensions.webextensions.uuids",
+    webextensions_uuids
+  );
 });
 
 /**

@@ -18,14 +18,11 @@ add_setup(async () => {
   await createMessages(subFolders.test1, 6);
 
   // The test uses a deprecated option which throws an error in tests by default.
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.warnings-as-errors",
-    false
-  );
+  ExtensionTestUtils.failOnSchemaWarnings(false);
   Services.prefs.setStringPref("mail.last_msg_movecopy_target_uri", "");
   Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
   registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+    ExtensionTestUtils.failOnSchemaWarnings(true);
     Services.prefs.clearUserPref("email.last_msg_movecopy_target_uri");
     Services.prefs.clearUserPref("email.last_msg_movecopy_was_move");
   });
