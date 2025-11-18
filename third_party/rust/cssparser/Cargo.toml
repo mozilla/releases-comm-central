@@ -13,7 +13,7 @@
 edition = "2018"
 rust-version = "1.68"
 name = "cssparser"
-version = "0.35.0"
+version = "0.36.0"
 authors = ["Simon Sapin <simon.sapin@exyr.org>"]
 build = false
 exclude = [
@@ -45,14 +45,14 @@ skip_long_tests = []
 name = "cssparser"
 path = "src/lib.rs"
 
-[dependencies]
-dtoa-short = "0.3"
-itoa = "1.0"
-smallvec = "1.0"
-
 [dependencies.cssparser-macros]
 version = "0.6.1"
-path = "./macros"
+
+[dependencies.dtoa-short]
+version = "0.3"
+
+[dependencies.itoa]
+version = "1.0"
 
 [dependencies.malloc_size_of]
 version = "0.1"
@@ -68,17 +68,17 @@ version = "1.0"
 features = ["derive"]
 optional = true
 
-[dev-dependencies]
-difference = "2.0"
-encoding_rs = "0.8"
-serde_json = "1.0.25"
+[dependencies.smallvec]
+version = "1.0"
 
-[workspace]
-members = [
-    ".",
-    "./macros",
-    "./color",
-]
+[dev-dependencies.difference]
+version = "2.0"
+
+[dev-dependencies.encoding_rs]
+version = "0.8"
+
+[dev-dependencies.serde_json]
+version = "1.0.25"
 
 [profile.profiling]
 debug = 2

@@ -236,7 +236,6 @@ rure = { path = "../../third_party/rust/rure" }
 unicode-width = { path = "../../build/rust/unicode-width" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 nss-gk-api = { git = "https://github.com/beurdouche/nss-gk-api", rev = "e48a946811ffd64abc78de3ee284957d8d1c0d63" }
-cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "03f982ed70ce1de67bef02de63b2e11e08a9e111" }
 any_all_workaround = { git = "https://github.com/hsivonen/any_all_workaround", rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80" }
 chardetng = { git = "https://github.com/hsivonen/chardetng", rev = "a07d20273ce36146adaf76bd667dd57bd7b3508b" }
 chardetng_c = { git = "https://github.com/hsivonen/chardetng_c", rev = "2f0aba284677d098de14f91ffe5a9e5b9a4922c2" }

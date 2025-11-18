@@ -116,11 +116,6 @@ git = "https://github.com/rust-lang/rust-bindgen"
 rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/servo/rust-cssparser?rev=03f982ed70ce1de67bef02de63b2e11e08a9e111"]
-git = "https://github.com/servo/rust-cssparser"
-rev = "03f982ed70ce1de67bef02de63b2e11e08a9e111"
-replace-with = "vendored-sources"
-
 [source."git+https://github.com/servo/unicode-bidi?rev=ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"]
 git = "https://github.com/servo/unicode-bidi"
 rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"

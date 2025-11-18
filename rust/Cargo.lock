@@ -1142,8 +1142,9 @@ dependencies = [
 
 [[package]]
 name = "cssparser"
-version = "0.35.0"
-source = "git+https://github.com/servo/rust-cssparser?rev=03f982ed70ce1de67bef02de63b2e11e08a9e111#71b7cfe6f1cd85427ca905a41be31ca9f6af29a5"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dae61cf9c0abb83bd659dab65b7e4e38d8236824c85f0f804f173567bda257d2"
 dependencies = [
  "cssparser-macros",
  "dtoa-short",
@@ -1155,7 +1156,8 @@ dependencies = [
 [[package]]
 name = "cssparser-macros"
 version = "0.6.1"
-source = "git+https://github.com/servo/rust-cssparser?rev=03f982ed70ce1de67bef02de63b2e11e08a9e111#71b7cfe6f1cd85427ca905a41be31ca9f6af29a5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
 dependencies = [
  "quote",
  "syn",
