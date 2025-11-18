@@ -7,9 +7,9 @@ calendar-minimonth {
   --mmMainBackground: light-dark(var(--color-gray-05), var(--color-gray-70));
   --mmMainBorderColor: light-dark(var(--color-gray-20), var(--color-gray-50));
   --mmMainBorderRadius: 6px;
-    --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
-    --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
+  --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+  --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
+  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --mmBoxBackground: light-dark(var(--color-gray-20), var(--color-gray-50));
   --mmBoxBorderColor: light-dark(var(--color-gray-20), var(--color-gray-40));
   --mmBoxPadding: 0;
@@ -35,30 +35,28 @@ calendar-minimonth {
   --mmDayPadding: 4px;
   --mmDayBusyColor: var(--selected-item-color);
   --mmDayBusyIndicatorSize: 4px;
-}
 
-/* This includes the light theme not inherited by the system */
-:root[lwt-tree]:not([lwt-tree-brighttext]) calendar-minimonth {
-  --mmMainColor: var(--sidebar-text-color, FieldText);
-  --mmMainBackground: transparent;
-  --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
-  --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
-  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
-  --mmBoxBackground: var(--color-gray-20);
-  --mmBoxBorderColor: var(--color-gray-30);
-  --mmBoxItemColor: var(--color-gray-30);
-  --mmBoxItemBorderColor:  transparent;
-  --mmDayTodayColor: var(--color-gray-90);
-  --mmDayTodayBorderColor: transparent;
-  --mmDayColor: var(--color-gray-70);
-  --mmDayBorderColor: transparent;
-  --mmDayOtherColor: var(--color-gray-40);
-  --mmDayOtherBackground: transparent;
-  --mmDayOtherBorderColor: transparent;
-}
+  /* This includes the light theme not inherited by the system */
+  :root[lwt-tree]:not([lwt-tree-brighttext]) & {
+    --mmMainColor: var(--sidebar-text-color, FieldText);
+    --mmMainBackground: transparent;
+    --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+    --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --mmBoxBackground: var(--color-gray-20);
+    --mmBoxBorderColor: var(--color-gray-30);
+    --mmBoxItemColor: var(--color-gray-30);
+    --mmBoxItemBorderColor:  transparent;
+    --mmDayTodayColor: var(--color-gray-90);
+    --mmDayTodayBorderColor: transparent;
+    --mmDayColor: var(--color-gray-70);
+    --mmDayBorderColor: transparent;
+    --mmDayOtherColor: var(--color-gray-40);
+    --mmDayOtherBackground: transparent;
+    --mmDayOtherBorderColor: transparent;
+  }
 
-@media (prefers-contrast) {
-  :root:not([lwtheme]) calendar-minimonth {
+  @media (prefers-contrast) {
     --mmMainBackground: transparent;
     --mmBoxBackground: ButtonFace;
     --mmBoxBorderColor: var(--color-gray-30);
@@ -190,8 +188,8 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 @media (prefers-contrast) {
-  :root:not([lwtheme]) .button.minimonth-nav-btn:is(:hover, :active),
-  :root:not([lwtheme]) .button.minimonth-nav-btn:enabled:is(:hover, :active) {
+  .button.minimonth-nav-btn:is(:hover, :active),
+  .button.minimonth-nav-btn:enabled:is(:hover, :active) {
     background-color: var(--mmDaySelectedBackground);
     color: var(--mmDaySelectedColor);
     stroke: var(--mmDaySelectedColor);

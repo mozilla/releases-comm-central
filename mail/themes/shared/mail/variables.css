@@ -163,18 +163,14 @@
                                                        var(--sidebar-highlight-background-color,
                                                        rgba(249, 249, 250, 0.3)));
   }
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
+  @media (prefers-color-scheme: dark) {
     --lwt-accent-color: rgb(24, 24, 26);
   }
-}
 
-/* Special High contrast setting */
+  /* Special High contrast setting */
 
-@media (prefers-contrast) {
-  :root:not([lwtheme]) {
+  @media (prefers-contrast) {
     --button-text-color: ButtonText;
     --button-background-color: ButtonFace;
     --button-border-color: ButtonText;
@@ -203,22 +199,22 @@
 
     --tabline-color: SelectedItem;
   }
-}
 
-@media not (prefers-contrast) {
-  :root:not([lwtheme]) {
-    --buttons-secondary-bgcolor: rgb(240, 240, 244);
-    --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
-    --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
-    --buttons-secondary-color: rgb(21, 20, 26);
-    --arrowpanel-dimmed: color-mix(in srgb, currentColor 12%, transparent);
-    --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
-    --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
-    --error-text-color: #c50042;
-    --link-color: LinkText;
-    --link-color-hover: LinkText;
-    --link-color-active: ActiveText;
-    --link-color-visited: var(--link-color);
+  @media not (prefers-contrast) {
+    &:not([lwtheme]) {
+      --buttons-secondary-bgcolor: rgb(240, 240, 244);
+      --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
+      --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
+      --buttons-secondary-color: rgb(21, 20, 26);
+      --arrowpanel-dimmed: color-mix(in srgb, currentColor 12%, transparent);
+      --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
+      --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
+      --error-text-color: #c50042;
+      --link-color: LinkText;
+      --link-color-hover: LinkText;
+      --link-color-active: ActiveText;
+      --link-color-visited: var(--link-color);
+    }
   }
 }
 

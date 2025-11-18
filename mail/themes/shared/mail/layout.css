@@ -38,11 +38,8 @@
   --layout-border-0: light-dark(var(--color-gray-30), var(--color-gray-70));
   --layout-border-1: light-dark(var(--color-gray-40), var(--color-gray-60));
   --layout-border-2: var(--color-gray-50);
-}
 
-@media (prefers-contrast) {
-  :host,
-  :root:not([lwtheme]) {
+  @media (prefers-contrast) {
     --layout-background-0: Window;
     --layout-background-1: -moz-Dialog;
     --layout-background-2: transparent;

@@ -115,16 +115,12 @@
 .calendar-notification-bar {
   background-color: light-dark(var(--color-blue-10), var(--color-purple-40));
   padding: 3px;
-}
 
-@media (prefers-contrast) {
-  :root:not([lwtheme]) {
-    .calendar-notification-bar {
-      background-color: var(--selected-item-color);
+  @media (prefers-contrast) {
+    background-color: var(--selected-item-color);
 
-      & > *:not(#imip-view-toolbox) {
-        color: var(--selected-item-text-color);
-      }
+    & > *:not(#imip-view-toolbox) {
+      color: var(--selected-item-text-color);
     }
   }
 }

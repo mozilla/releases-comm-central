@@ -50,19 +50,17 @@
   }
 
   @media (prefers-contrast) {
-    &:not([lwtheme]) {
-      --foldertree-background: -moz-Dialog;
-      --folderpane-unread-count-background: var(--selected-item-color);
-      --folderpane-unread-count-text: var(--selected-item-text-color);
-      --folderpane-total-count-background: var(--selected-item-color);
-      --folderpane-total-count-text: var(--selected-item-text-color);
-      --folderpane-unread-new-count-background: ButtonShadow;
-      --treeitem-background-selected: transparent;
-      --treeitem-background-hover: transparent;
-      --treeitem-outline-hover: 2px solid var(--selected-item-color);
-      --treeitem-text-active: var(--selected-item-text-color);
-      --treeitem-background-active: var(--selected-item-color);
-    }
+    --foldertree-background: -moz-Dialog;
+    --folderpane-unread-count-background: var(--selected-item-color);
+    --folderpane-unread-count-text: var(--selected-item-text-color);
+    --folderpane-total-count-background: var(--selected-item-color);
+    --folderpane-total-count-text: var(--selected-item-text-color);
+    --folderpane-unread-new-count-background: ButtonShadow;
+    --treeitem-background-selected: transparent;
+    --treeitem-background-hover: transparent;
+    --treeitem-outline-hover: 2px solid var(--selected-item-color);
+    --treeitem-text-active: var(--selected-item-text-color);
+    --treeitem-background-active: var(--selected-item-color);
   }
 }
 

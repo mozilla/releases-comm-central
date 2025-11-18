@@ -21,11 +21,9 @@
   }
 
   @media (prefers-contrast) {
-    &:not([lwtheme]) {
-      --spaces-bg-color: -moz-Dialog;
-      --spaces-bg-image: none;
-      --spaces-border-color: var(--splitter-color);
-    }
+    --spaces-bg-color: -moz-Dialog;
+    --spaces-bg-image: none;
+    --spaces-border-color: var(--splitter-color);
   }
 
 /* Density variations */

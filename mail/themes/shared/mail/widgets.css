@@ -140,16 +140,14 @@
         color: var(--button-primary-text-color);
         border-color: var(--button-primary-border-color);
 
+        @media (prefers-contrast) {
+          border-color: var(--button-primary-hover-border-color);
+        }
+
         &:active {
           background-color: var(--button-primary-active-background-color);
           border-color: var(--button-primary-border-color);
         }
-      }
-    }
-
-    @media (prefers-contrast) {
-      :root:not([lwtheme]) &:hover {
-        border-color: var(--button-primary-hover-border-color);
       }
     }
   }

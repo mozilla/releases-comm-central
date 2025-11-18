@@ -59,30 +59,8 @@
   --today-week-pill-padding-block: 3px;
   --today-week-pill-padding-inline: 6px;
   --calendar-nav-gap: 3px;
-}
 
-:root[uidensity="compact"] {
-  --calendar-view-toggle-margin: 3px;
-  --calendar-view-toggle-label-padding: 2px 12px;
-  --calendar-view-toolbar-gap: 6px;
-  --calendar-month-day-box-padding: 1px;
-  --today-week-pill-padding-block: 1px;
-  --today-week-pill-padding-inline: 3px;
-  --calendar-nav-gap: 3px;
-}
-
-:root[uidensity="touch"] {
-  --calendar-view-toggle-margin: 6px 3px;
-  --calendar-view-toggle-label-padding: 6px 15px;
-  --calendar-view-toolbar-gap: 12px;
-  --calendar-month-day-box-padding: 3px;
-  --today-week-pill-padding-block: 3px;
-  --today-week-pill-padding-inline: 9px;
-  --calendar-nav-gap: 6px;
-}
-
-@media (prefers-contrast) {
-  :root:not([lwtheme]) {
+  @media (prefers-contrast) {
     --calendar-view-toggle-background: transparent;
     --calendar-view-toggle-hover-background: SelectedItem;
     --calendar-view-toggle-active-background: SelectedItem;
@@ -127,6 +105,26 @@
       color: SelectedItemText;
     }
   }
+}
+
+:root[uidensity="compact"] {
+  --calendar-view-toggle-margin: 3px;
+  --calendar-view-toggle-label-padding: 2px 12px;
+  --calendar-view-toolbar-gap: 6px;
+  --calendar-month-day-box-padding: 1px;
+  --today-week-pill-padding-block: 1px;
+  --today-week-pill-padding-inline: 3px;
+  --calendar-nav-gap: 3px;
+}
+
+:root[uidensity="touch"] {
+  --calendar-view-toggle-margin: 6px 3px;
+  --calendar-view-toggle-label-padding: 6px 15px;
+  --calendar-view-toolbar-gap: 12px;
+  --calendar-month-day-box-padding: 3px;
+  --today-week-pill-padding-block: 3px;
+  --today-week-pill-padding-inline: 9px;
+  --calendar-nav-gap: 6px;
 }
 
 /* Calendar Items */

@@ -29,7 +29,7 @@
         z-index: -1;
       }
 
-      :root:not([lwtheme]) & > #composeToolbar2 {
+      & > #composeToolbar2 {
         background-color: transparent;
       }
     }

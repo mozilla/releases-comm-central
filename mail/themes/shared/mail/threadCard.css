@@ -158,12 +158,10 @@
         border-color: var(--selected-item-color);
 
         @media (prefers-contrast) {
-          :root:not([lwtheme]) & {
-            border-color: SelectedItemText;
-          }
+          border-color: SelectedItemText;
 
-          :root:not([lwtheme]) & .replies-icon,
-          :root:not([lwtheme]) & .thread-replies {
+          & .replies-icon,
+          & .thread-replies {
             color: inherit;
           }
         }

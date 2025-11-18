@@ -113,60 +113,58 @@ treechildren::-moz-tree-cell-text {
 }
 
 @media (prefers-contrast) {
-  :root:not([lwtheme]) {
-    #threadTree > treechildren::-moz-tree-row(tagged, selected),
-    #threadTree > treechildren::-moz-tree-row(untagged, selected),
-    tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
-      border-color: SelectedItem;
-      background-color: transparent;
-    }
+  #threadTree > treechildren::-moz-tree-row(tagged, selected),
+  #threadTree > treechildren::-moz-tree-row(untagged, selected),
+  tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
+    border-color: SelectedItem;
+    background-color: transparent;
+  }
 
-    tree > treechildren::-moz-tree-row(hover) {
-      border-color: SelectedItemText !important;
-      border-style: solid;
-      background-color: transparent;
-    }
+  tree > treechildren::-moz-tree-row(hover) {
+    border-color: SelectedItemText !important;
+    border-style: solid;
+    background-color: transparent;
+  }
 
-    #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
-    tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
-      color: WindowText;
-    }
+  #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
+  tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
+    color: WindowText;
+  }
 
-    #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),
-    tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus) {
-      background-color: SelectedItem;
-    }
+  #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus) {
+    background-color: SelectedItem;
+  }
 
-    treechildren::-moz-tree-row(current, focus) {
-      outline-width: 2px;
-      outline-offset: -2px;
-    }
+  treechildren::-moz-tree-row(current, focus) {
+    outline-width: 2px;
+    outline-offset: -2px;
+  }
 
-    treechildren::-moz-tree-row(selected, current, focus) {
-      outline-color: SelectedItemText;
-    }
+  treechildren::-moz-tree-row(selected, current, focus) {
+    outline-color: SelectedItemText;
+  }
 
-    tree > treechildren::-moz-tree-twisty {
-      color: WindowText;
-    }
+  tree > treechildren::-moz-tree-twisty {
+    color: WindowText;
+  }
 
-    #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
-    tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
-    #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
-    tree:not(#threadTree) > treechildren::-moz-tree-image(selected, focus),
-    #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
-    tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
-      color: SelectedItemText;
-      fill: currentColor;
-    }
+  #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
+  #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-image(selected, focus),
+  #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
+    color: SelectedItemText;
+    fill: currentColor;
+  }
 
-    treechildren::-moz-tree-cell-text {
-      padding-inline-start: 4px !important;
-    }
+  treechildren::-moz-tree-cell-text {
+    padding-inline-start: 4px !important;
+  }
 
-    .autocomplete-richlistitem:hover {
-      color: SelectedItemText;
-    }
+  .autocomplete-richlistitem:hover {
+    color: SelectedItemText;
   }
 }
 
@@ -195,7 +193,7 @@ button.notification-button[is="toolbarbutton-menu-button"] {
 }
 
 @media (prefers-contrast) {
-  :root:not([lwtheme]) #tabmail {
+  #tabmail {
     background-color: ActiveCaption;
 
     &:-moz-window-inactive {

@@ -88,7 +88,7 @@
 
 @media (prefers-contrast) {
   :host,
-  :root:not([lwtheme]) {
+  :root {
     --button-text-active: SelectedItemText;
     --field-border-color: ThreeDShadow;
     --field-border-hover-color: SelectedItemText;

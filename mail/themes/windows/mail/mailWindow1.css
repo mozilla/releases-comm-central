@@ -148,15 +148,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   @media (prefers-contrast) {
-    :root:not([lwtheme]) & {
-      color: ButtonText;
-      background-color: Field;
+    color: ButtonText;
+    background-color: Field;
 
-      &:is(:hover, :active),
-      &.titlebar-close:is(:hover, :active) {
-        color: SelectedItemText;
-        background-color: SelectedItem;
-      }
+    &:is(:hover, :active),
+    &.titlebar-close:is(:hover, :active) {
+      color: SelectedItemText;
+      background-color: SelectedItem;
     }
   }
 }
@@ -202,8 +200,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  :root:not([lwtheme])
-    treechildren::-moz-tree-image(selected) {
+  treechildren::-moz-tree-image(selected) {
     color: inherit;
   }
 }

@@ -30,22 +30,20 @@ html {
   }
 
   @media (prefers-contrast) {
-    &:not([lwtheme]) {
-      --bg-color: Window;
-      --text-color: WindowText;
-      --title-color: -moz-DialogText;
-      --primary-color: SelectedItem;
-      --primary-color-hover: SelectedItem;
-      --btn-color: -moz-DialogText;
-      --btn-color-hover: SelectedItemText;
-      --btn-bg: Dialog;
-      --btn-bg-hover: SelectedItem;
-      --btn-shadow-hover: transparent;
-      --popup-bg: Window;
+    --bg-color: Window;
+    --text-color: WindowText;
+    --title-color: -moz-DialogText;
+    --primary-color: SelectedItem;
+    --primary-color-hover: SelectedItem;
+    --btn-color: -moz-DialogText;
+    --btn-color-hover: SelectedItemText;
+    --btn-bg: Dialog;
+    --btn-bg-hover: SelectedItem;
+    --btn-shadow-hover: transparent;
+    --popup-bg: Window;
 
-      & .btn-hub {
-        border: 1px solid -moz-DialogText;
-      }
+    & .btn-hub {
+      border: 1px solid -moz-DialogText;
     }
   }
 }
