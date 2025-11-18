@@ -68,11 +68,13 @@ function getAccountManagerL10n() {
 }
 
 ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
+  const dialogStack = document.getElementById("dialogStack");
+
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );
-  return new SubDialogManager({
-    dialogStack: document.getElementById("dialogStack"),
+  const manager = new SubDialogManager({
+    dialogStack,
     dialogTemplate: document.getElementById("dialogTemplate"),
     dialogOptions: {
       styleSheets: [
@@ -95,6 +97,25 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
       },
     },
   });
+
+  const accountTreeBox = document.getElementById("accountTreeBox");
+  const contentFrame = document.getElementById("contentFrame");
+  dialogStack.addEventListener("dialogopen", () => {
+    // Make the background UI inert when a subdialog opens.
+    accountTreeBox.inert = true;
+    contentFrame.tabIndex = -1;
+    contentFrame.contentDocument.body.inert = true;
+  });
+  dialogStack.addEventListener("dialogclose", () => {
+    // Make the background UI active when the last subdialog closes.
+    if (!manager.hasDialogs) {
+      accountTreeBox.inert = false;
+      contentFrame.tabIndex = 0;
+      contentFrame.contentDocument.body.inert = false;
+    }
+  });
+
+  return manager;
 });
 
 // If Local directory has changed the app needs to restart. Once this is set
