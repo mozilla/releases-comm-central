@@ -3,8 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd">
-%dtd1; ]>
+<!DOCTYPE html>
 
 <html
   id="calendar-invitations-dialog"
@@ -18,7 +17,7 @@
   scrolling="false"
 >
   <head>
-    <title>&calendar.invitations.dialog.invitations.text;</title>
+    <title data-l10n-id="calendar-invitations-title"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -38,7 +37,7 @@
       <div id="invitationContainer">
         <richlistbox id="invitations-listbox" />
         <hbox id="updating-box" align="center" pack="center" hidden="hidden">
-          <label value="&calendar.invitations.dialog.statusmessage.updating.text;" crop="end" />
+          <label data-l10n-id="calendar-invitations-status-updating" crop="end" />
           <html:img
             class="calendar-invitations-updating-icon"
             src="chrome://messenger/skin/icons/spinning.svg"
@@ -46,10 +45,7 @@
           />
         </hbox>
         <hbox id="noinvitations-box" align="center" pack="center" hidden="hidden">
-          <label
-            value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
-            crop="end"
-          />
+          <label data-l10n-id="calendar-invitations-status-none" crop="end" />
         </hbox>
       </div>
     </dialog>

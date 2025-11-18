@@ -11,7 +11,6 @@
     locale/@AB_CD@/calendar/calendar-event-dialog.dtd                    (%chrome/calendar/calendar-event-dialog.dtd)
     locale/@AB_CD@/calendar/calendar-event-dialog.properties             (%chrome/calendar/calendar-event-dialog.properties)
     locale/@AB_CD@/calendar/calendar-extract.properties                  (%chrome/calendar/calendar-extract.properties)
-    locale/@AB_CD@/calendar/calendar-invitations-dialog.dtd              (%chrome/calendar/calendar-invitations-dialog.dtd)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.dtd               (%chrome/calendar/calendar-occurrence-prompt.dtd)
     locale/@AB_CD@/calendar/calendarCreation.properties                  (%chrome/calendar/calendarCreation.properties)
     locale/@AB_CD@/calendar/dateFormat.properties                        (%chrome/calendar/dateFormat.properties)

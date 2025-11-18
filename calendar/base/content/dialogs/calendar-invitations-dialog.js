@@ -53,17 +53,16 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
                     type="radio"
                     class="calendar-invitations-richlistitem-accept-button
                     calendar-invitations-richlistitem-button"
-                    label="&calendar.invitations.list.accept.button.label;"
+                      data-l10n-id="calendar-invitations-accept"
                     oncommand="accept();"/>
             <button group="${this.getAttribute("itemId")}"
                     type="radio"
                     class="calendar-invitations-richlistitem-decline-button
                     calendar-invitations-richlistitem-button"
-                    label="&calendar.invitations.list.decline.button.label;"
+                      data-l10n-id="calendar-invitations-decline"
                     oncommand="decline();"/>
           </vbox>
-          `,
-            ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]
+          `
           )
         );
       }
