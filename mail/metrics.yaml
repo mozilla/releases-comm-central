@@ -252,6 +252,7 @@ mail:
       - places.history.enabled
       - privacy.clearOnShutdown.cache
       - privacy.donottrackheader.enabled
+      - privacy.globalprivacycontrol.enabled
       - purple.conversations.im.send_typing
       - purple.logging.log_chats
       - purple.logging.log_ims
