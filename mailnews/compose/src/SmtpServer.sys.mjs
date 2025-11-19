@@ -4,6 +4,7 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -361,6 +362,12 @@ export class SmtpServer {
   }
 
   forgetPassword() {
+    this.password = "";
+    if (!this.hostname) {
+      // Looks like we're not fully set up yet. There's no point in continuing.
+      return;
+    }
+
     const serverURI = this._getServerURISpec();
     const logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (const login of logins) {
@@ -368,7 +375,12 @@ export class SmtpServer {
         Services.logins.removeLogin(login);
       }
     }
-    this.password = "";
+    if (this.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+      const oauth2Module = new OAuth2Module();
+      if (oauth2Module.initFromOutgoing(this)) {
+        oauth2Module.clearTokens();
+      }
+    }
   }
 
   verifyLogon(urlListener) {

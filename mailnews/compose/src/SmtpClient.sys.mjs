@@ -26,11 +26,10 @@
  */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-
-import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
-import { SmtpAuthenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 import { MsgUtils } from "resource:///modules/MimeMessageUtils.sys.mjs";
+import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { SmtpAuthenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 
 export class SmtpClient {
   /**
@@ -826,7 +825,11 @@ export class SmtpClient {
 
     // Ask user what to do.
     const action = this._authenticator.promptAuthFailed();
-    if (action == 1) {
+    if (action == 0 && this._currentAuthMethod == "XOAUTH2") {
+      // Retry button pressed. Clear the OAuth access token to get a new one.
+      const oauth2Module = this._authenticator.getOAuthModule();
+      oauth2Module?.clearAccessToken();
+    } else if (action == 1) {
       // Cancel button pressed.
       this.logger.error(`Authentication failed: ${command.data}`);
       this._onNsError("smtpAuthFailure");

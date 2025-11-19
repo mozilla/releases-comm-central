@@ -128,11 +128,12 @@ async function newComposeWindow(identity, body) {
  * @param {string} hostname
  * @param {string} username
  * @param {string} password
+ * @param {string} [realm=hostname]
  */
-async function addLoginInfo(hostname, username, password) {
+async function addLoginInfo(hostname, username, password, realm = hostname) {
   const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
-  loginInfo.init(hostname, null, hostname, username, password, "", "");
+  loginInfo.init(hostname, null, realm, username, password, "", "");
   await Services.logins.addLoginAsync(loginInfo);
 }

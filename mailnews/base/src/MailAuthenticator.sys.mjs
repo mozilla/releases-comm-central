@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MailCryptoUtils } from "resource:///modules/MailCryptoUtils.sys.mjs";
-
 import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
+import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 /**
  * A base class for interfaces when authenticating a mail connection.
@@ -276,11 +276,17 @@ export class SmtpAuthenticator extends MailAuthenticator {
     return btoa("\0" + this.username + "\0" + this.getByteStringPassword());
   }
 
-  async getOAuthToken() {
-    const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
-      Ci.msgIOAuth2Module
-    );
+  getOAuthModule() {
+    const oauth2Module = new OAuth2Module();
     if (!oauth2Module.initFromOutgoing(this._server)) {
+      return null;
+    }
+    return oauth2Module;
+  }
+
+  async getOAuthToken() {
+    const oauth2Module = this.getOAuthModule();
+    if (!oauth2Module) {
       return Promise.reject(
         `initFromOutgoing failed, hostname: ${this.hostname}`
       );
