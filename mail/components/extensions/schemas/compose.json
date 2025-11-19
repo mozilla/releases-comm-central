@@ -425,7 +425,8 @@
         "parameters": [
           {
             "name": "tab",
-            "$ref": "tabs.Tab"
+            "$ref": "tabs.Tab",
+            "description": "The tab of the associated compose window. By the time the event listener is called, this window may have already been destroyed."
           },
           {
             "name": "sendInfo",

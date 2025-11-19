@@ -84,38 +84,43 @@ add_setup(async () => {
   });
 });
 
-// Test onAfterSend for MV3
-add_task(async function test_onAfterSend_MV3_event_pages() {
+async function createExtension(idx) {
   const files = {
     "background.js": async () => {
-      // Whenever the extension starts or wakes up, hasFired is set to false. In
-      // case of a wake-up, the first fired event is the one that woke up the background.
-      let hasFired = false;
-
+      const { short_name } = browser.runtime.getManifest();
       browser.compose.onAfterSend.addListener(async (tab, sendInfo) => {
-        // Only send the first event after background wake-up, this should be
-        // the only one expected.
-        if (!hasFired) {
-          hasFired = true;
-          browser.test.sendMessage("onAfterSend received", sendInfo);
-        }
+        browser.test.sendMessage(
+          `${short_name}: onAfterSend received`,
+          sendInfo
+        );
       });
-
-      browser.test.sendMessage("background started");
+      browser.test.sendMessage(`${short_name}: background started`);
     },
     "utils.js": await getUtilsJS(),
   };
-  const extension = ExtensionTestUtils.loadExtension({
+  return ExtensionTestUtils.loadExtension({
     files,
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
+      short_name: idx,
       permissions: ["compose"],
       browser_specific_settings: {
-        gecko: { id: "compose.onAfterSend@xpcshell.test" },
+        gecko: { id: `compose.onAfterSend.${idx}@xpcshell.test` },
       },
     },
   });
+}
+
+// Test onAfterSend for MV3
+add_task(async function test_onAfterSend_MV3_event_pages() {
+  const _extensions = {};
+  for (const idx of ["one", "two", "three", "four"]) {
+    _extensions[idx] = await createExtension(idx);
+  }
+  const extensions = Object.entries(_extensions);
+  const allExtensions = callback =>
+    Promise.all(extensions.map(([idx, ext]) => callback(idx, ext)));
 
   function checkPersistentListeners({ primed }) {
     // A persistent event is referenced by its moduleName as defined in
@@ -124,104 +129,121 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
 
     for (const event of persistent_events) {
       const [moduleName, eventName] = event.split(".");
-      assertPersistentListeners(extension, moduleName, eventName, {
-        primed,
-      });
+      for (const [, extension] of extensions) {
+        assertPersistentListeners(extension, moduleName, eventName, {
+          primed,
+        });
+      }
     }
   }
 
-  await extension.startup();
-  await extension.awaitMessage("background started");
+  await allExtensions((idx, ext) => ext.startup());
+  await allExtensions((idx, ext) =>
+    ext.awaitMessage(`${idx}: background started`)
+  );
+
   // The listeners should be persistent, but not primed.
   checkPersistentListeners({ primed: false });
 
   // Trigger onAfterSend without terminating the background first.
-
   const firstComposeWindow = await openComposeWindow(gPopAccount);
   await focusWindow(firstComposeWindow);
   firstComposeWindow.SetComposeDetails({ to: "first@invalid.net" });
   firstComposeWindow.SetComposeDetails({ subject: "First message" });
   firstComposeWindow.SendMessage();
-  const firstSendInfo = await extension.awaitMessage("onAfterSend received");
-  Assert.equal(
-    "sendNow",
-    firstSendInfo.mode,
-    "Returned SendInfo should be correct"
-  );
-  Assert.deepEqual(
-    firstSendInfo.details,
-    {
-      from: "identity@foo.invalid",
-      to: ["first@invalid.net"],
-      cc: [],
-      bcc: [],
-      type: "new",
-      replyTo: [],
-      followupTo: [],
-      newsgroups: [],
-      subject: "First message",
-      isPlainText: false,
-      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
-      plainTextBody: "",
-      customHeaders: [],
-      priority: "normal",
-      returnReceipt: false,
-      deliveryStatusNotification: false,
-      attachPublicPGPKey: false,
-      attachVCard: false,
-      isModified: true,
-      deliveryFormat: "auto",
-    },
-    "Returned details in SendInfo should be correct"
-  );
+
+  for (const [idx, extension] of extensions) {
+    const firstSendInfo = await extension.awaitMessage(
+      `${idx}: onAfterSend received`
+    );
+    Assert.equal(
+      "sendNow",
+      firstSendInfo.mode,
+      `Returned SendInfo should be correct for extension ${idx}`
+    );
+    Assert.deepEqual(
+      firstSendInfo.details,
+      {
+        from: "identity@foo.invalid",
+        to: ["first@invalid.net"],
+        cc: [],
+        bcc: [],
+        type: "new",
+        replyTo: [],
+        followupTo: [],
+        newsgroups: [],
+        subject: "First message",
+        isPlainText: false,
+        body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+        plainTextBody: "",
+        customHeaders: [],
+        priority: "normal",
+        returnReceipt: false,
+        deliveryStatusNotification: false,
+        attachPublicPGPKey: false,
+        attachVCard: false,
+        isModified: true,
+        deliveryFormat: "auto",
+      },
+      `Returned details in SendInfo should be correct for extension ${idx}`
+    );
+  }
 
   // Terminate background and re-trigger onAfterSend.
+  await allExtensions((idx, ext) =>
+    ext.terminateBackground({ disableResetIdleForTest: true })
+  );
 
-  await extension.terminateBackground({ disableResetIdleForTest: true });
   // The listeners should be primed.
   checkPersistentListeners({ primed: true });
+
   const secondComposeWindow = await openComposeWindow(gPopAccount);
   await focusWindow(secondComposeWindow);
   secondComposeWindow.SetComposeDetails({ to: "second@invalid.net" });
   secondComposeWindow.SetComposeDetails({ subject: "Second message" });
   secondComposeWindow.SendMessage();
-  const secondSendInfo = await extension.awaitMessage("onAfterSend received");
-  Assert.equal(
-    "sendNow",
-    secondSendInfo.mode,
-    "Returned SendInfo should be correct"
-  );
-  Assert.deepEqual(
-    secondSendInfo.details,
-    {
-      from: "identity@foo.invalid",
-      to: ["second@invalid.net"],
-      cc: [],
-      bcc: [],
-      type: "new",
-      replyTo: [],
-      followupTo: [],
-      newsgroups: [],
-      subject: "Second message",
-      isPlainText: false,
-      body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
-      plainTextBody: "",
-      customHeaders: [],
-      priority: "normal",
-      returnReceipt: false,
-      deliveryStatusNotification: false,
-      attachPublicPGPKey: false,
-      attachVCard: false,
-      isModified: true,
-      deliveryFormat: "auto",
-    },
-    "Returned details in SendInfo should be correct again"
-  );
-
+  for (const [idx, extension] of extensions) {
+    const secondSendInfo = await extension.awaitMessage(
+      `${idx}: onAfterSend received`
+    );
+    Assert.equal(
+      "sendNow",
+      secondSendInfo.mode,
+      `Returned SendInfo should be correct again for extension ${idx}`
+    );
+    Assert.deepEqual(
+      secondSendInfo.details,
+      {
+        from: "identity@foo.invalid",
+        to: ["second@invalid.net"],
+        cc: [],
+        bcc: [],
+        type: "new",
+        replyTo: [],
+        followupTo: [],
+        newsgroups: [],
+        subject: "Second message",
+        isPlainText: false,
+        body: '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><p><br></p></body></html>',
+        plainTextBody: "",
+        customHeaders: [],
+        priority: "normal",
+        returnReceipt: false,
+        deliveryStatusNotification: false,
+        attachPublicPGPKey: false,
+        attachVCard: false,
+        isModified: true,
+        deliveryFormat: "auto",
+      },
+      `Returned details in SendInfo should be correct again for extension ${idx}`
+    );
+  }
   // The background should have been restarted.
-  await extension.awaitMessage("background started");
+  await allExtensions((idx, ext) =>
+    ext.awaitMessage(`${idx}: background started`)
+  );
   // The listener should no longer be primed.
   checkPersistentListeners({ primed: false });
 
-  await extension.unload();
+  await allExtensions((idx, ext) => ext.unload());
 });
