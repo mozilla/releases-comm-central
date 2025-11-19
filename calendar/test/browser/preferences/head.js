@@ -45,6 +45,8 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
     }
     Assert.greater(container.scrollTop, 0, "Prefs page did scroll when it was supposed to");
   }
+  await new Promise(resolve => prefsWindow.setTimeout(resolve));
+  info(`Opened new prefs tab; paneID=${paneID}, scrollPaneTo=${scrollPaneTo}`);
   return { prefsDocument, prefsWindow };
 }
 
