@@ -181,7 +181,7 @@ add_task(async function test_observeAddressBookCounter() {
 
 add_task(async function test_inputChangeAndToggleAll() {
   abSyncSubview.setState(addressBooks);
-  await TestUtils.waitForTick();
+  // Three address books should appear.
   await BrowserTestUtils.waitForMutationCondition(
     abSyncSubview.querySelector("#addressBooks"),
     {
@@ -192,8 +192,9 @@ add_task(async function test_inputChangeAndToggleAll() {
       abSyncSubview.querySelectorAll("#addressBookAccountsContainer input")
         .length === 3
   );
+  await TestUtils.waitForTick();
 
-  const addressBookInput = abSyncSubview.querySelector(
+  const firstAddressBookCheckbox = abSyncSubview.querySelector(
     "#addressBookAccountsContainer input"
   );
   const selectAllAddressBooks = abSyncSubview.querySelector(
@@ -207,23 +208,20 @@ add_task(async function test_inputChangeAndToggleAll() {
     !selectAllAddressBooks.indeterminate,
     "Select all input should not be indeterminate"
   );
-
-  await BrowserTestUtils.waitForCondition(
-    () => !addressBookInput.disabled && addressBookInput.offsetParent,
-    "Checkbox should be visible and enabled before clicking"
+  Assert.ok(
+    !firstAddressBookCheckbox.disabled,
+    `first ab checkbox should be enabled`
   );
-
-  addressBookInput.focus();
-
-  EventUtils.synthesizeMouseAtCenter(
-    addressBookInput,
-    {},
-    abSyncSubview.ownerGlobal
+  Assert.ok(
+    firstAddressBookCheckbox.offsetParent,
+    `first ab checkbox should be visible`
   );
+  firstAddressBookCheckbox.click();
+
   await BrowserTestUtils.waitForMutationCondition(
-    addressBookInput,
+    firstAddressBookCheckbox,
     { attributes: true },
-    () => !addressBookInput.checked
+    () => !firstAddressBookCheckbox.checked
   );
 
   const selectAllAddressBooksLabel = abSyncSubview.querySelector(
@@ -254,11 +252,7 @@ add_task(async function test_inputChangeAndToggleAll() {
   );
 
   // Toggle select all.
-  EventUtils.synthesizeMouseAtCenter(
-    selectAllAddressBooksLabel,
-    {},
-    abSyncSubview.ownerGlobal
-  );
+  selectAllAddressBooksLabel.click();
 
   await BrowserTestUtils.waitForMutationCondition(
     abSyncSubview.querySelector("#addressBookAccountsContainer"),
@@ -295,11 +289,7 @@ add_task(async function test_inputChangeAndToggleAll() {
     "Select all input should not be indeterminate"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    selectAllAddressBooksLabel,
-    {},
-    abSyncSubview.ownerGlobal
-  );
+  selectAllAddressBooksLabel.click();
 
   await BrowserTestUtils.waitForMutationCondition(
     selectAllAddressBooks,
