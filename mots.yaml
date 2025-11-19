@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-11-05T23:12:43.949648+00:00'
+updated_at: '2025-11-17T15:44:31.128871+00:00'
 hashes:
-  config: 3d965360c149c3d8ab0e29c7fb38c8f18530e80b
-  export: 66b1335a01caa212b797a92b64472bcbd3d442b6
+  config: f063d7810fa38f2aecdbaaba8c2ae7e2ee5b1ed2
+  export: 2d4d70da0a3a4e7c1941df5dacb882c8a1988d9d
 export:
   path: ./docs/mots/index.md
   format: md
@@ -515,16 +515,18 @@ modules:
           - mailnews/protocols/ews/**
           - rust/ews_xpcom/**
           - rust/graph_xpcom/**
-        owners: [*babolivier]
+        owners: [*edicharry]
         peers:
           - *heather
           - *mkmelin
-          - *edicharry
+          - *babolivier
           - *jtracey
         meta:
           components:
             - 'MailNews Core::Networking: Exchange'
-          owners_emeritus: [*leftmostcat]
+          owners_emeritus:
+            - *leftmostcat
+            - *babolivier
       - name: Feeds
         machine_name: feeds
         includes:
