@@ -635,10 +635,28 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           if (messageIds.length > 0) {
             const getIndices = msgHdrs => {
               try {
+                // getViewIndexForMsgHdr() expands threads, if queried messages
+                // are inside a collapsed thread, which invalidates some of the
+                // already collected indices. To work around this, we re-query
+                // the indices if any thread got expanded.
+                const rowCountAtStart = about3Pane.gViewWrapper.dbView.rowCount;
+                const speculativeIndices = msgHdrs
+                  .map(msgHdr =>
+                    about3Pane.gViewWrapper.getViewIndexForMsgHdr(msgHdr)
+                  )
+                  .filter(idx => idx != nsMsgViewIndex_None);
+
+                // If no threads are expanded, return the already collected indices.
+                if (
+                  about3Pane.gViewWrapper.dbView.rowCount == rowCountAtStart
+                ) {
+                  return speculativeIndices;
+                }
+
+                // Re-query all indices to get the correct ones.
                 return msgHdrs
-                  .map(
-                    about3Pane.gViewWrapper.getViewIndexForMsgHdr,
-                    about3Pane.gViewWrapper
+                  .map(msgHdr =>
+                    about3Pane.gViewWrapper.getViewIndexForMsgHdr(msgHdr)
                   )
                   .filter(idx => idx != nsMsgViewIndex_None);
               } catch (ex) {
@@ -651,6 +669,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               .map(id => extension.messageManager.get(id))
               .filter(Boolean);
             const foundIndices = getIndices(msgHdrs);
+
             const allInCurrentView = foundIndices.length == msgHdrs.length;
             const allInSameFolder = msgHdrs.every(
               hdr => hdr.folder == msgHdrs[0].folder

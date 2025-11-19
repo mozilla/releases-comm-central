@@ -156,6 +156,8 @@ tags = ["contextmenu"]
 
 ["browser_ext_mailTabs_mv3.js"]
 
+["browser_ext_mailTabs_setSelectedMessages.js"]
+
 ["browser_ext_menus_context_action.js"]
 support-files = [
   "data/content.html",
