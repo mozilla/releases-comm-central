@@ -11,17 +11,18 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.74"
 name = "windows-interface"
-version = "0.58.0"
-authors = ["Microsoft"]
+version = "0.59.3"
 build = false
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-description = "The interface macro for the windows crate"
-readme = false
+description = "The interface macro for the Windows crates"
+readme = "readme.md"
+categories = ["os::windows-apis"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/microsoft/windows-rs"
 
@@ -36,9 +37,11 @@ proc-macro = true
 
 [dependencies.proc-macro2]
 version = "1.0"
+default-features = false
 
 [dependencies.quote]
 version = "1.0"
+default-features = false
 
 [dependencies.syn]
 version = "2.0"
@@ -47,19 +50,16 @@ features = [
     "proc-macro",
     "printing",
     "full",
-    "derive",
     "clone-impls",
 ]
 default-features = false
 
-[lints.rust]
-missing_docs = "warn"
+[dev-dependencies]
 
-[lints.rust.rust_2018_idioms]
-level = "warn"
-priority = -1
+[lints.rust]
+missing_unsafe_on_extern = "warn"
 
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = ["cfg(windows_raw_dylib, windows_debugger_visualizer, windows_slim_errors)"]
+check-cfg = ["cfg(windows_raw_dylib, windows_slim_errors)"]

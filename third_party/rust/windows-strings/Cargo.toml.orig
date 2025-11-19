@@ -1,14 +1,20 @@
 [package]
 name = "windows-strings"
-version = "0.1.0"
-authors = ["Microsoft"]
+version = "0.5.1"
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.82"
 license = "MIT OR Apache-2.0"
-description = "Rust for Windows"
+description = "Windows string types"
 repository = "https://github.com/microsoft/windows-rs"
-readme = "readme.md"
 categories = ["os::windows-apis"]
+readme = "readme.md"
+
+[dependencies]
+windows-link = { workspace = true }
+
+[features]
+default = ["std"]
+std = []
 
 [lints]
 workspace = true
@@ -16,16 +22,3 @@ workspace = true
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
 targets = []
-
-[dependencies.windows-targets]
-version = "0.52.6"
-path = "../targets"
-
-[dependencies.windows-result]
-version = "0.2.0"
-path = "../result"
-default-features = false
-
-[features]
-default = ["std"]
-std = []

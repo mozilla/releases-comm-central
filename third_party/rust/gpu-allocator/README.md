@@ -6,25 +6,18 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE-MIT)
 [![LICENSE](https://img.shields.io/badge/license-apache-blue.svg?logo=apache)](LICENSE-APACHE)
 [![Contributor Covenant](https://img.shields.io/badge/contributor%20covenant-v1.4%20adopted-ff69b4.svg)](../main/CODE_OF_CONDUCT.md)
-[![MSRV](https://img.shields.io/badge/rustc-1.70.0+-ab6000.svg)](https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html)
+[![MSRV](https://img.shields.io/badge/rustc-1.71.0+-ab6000.svg)](https://blog.rust-lang.org/2023/07/13/Rust-1.71.0.html)
 
 [![Banner](banner.png)](https://traverseresearch.nl)
 
 ```toml
 [dependencies]
-gpu-allocator = "0.27.0"
+gpu-allocator = "0.28.0"
 ```
 
 ![Visualizer](visualizer.png)
 
 This crate provides a fully written in Rust memory allocator for Vulkan, DirectX 12 and Metal.
-
-## [Windows-rs] and [winapi]
-
-`gpu-allocator` recently migrated from [winapi] to [windows-rs] but still provides convenient helpers to convert to and from [winapi] types, enabled when compiling with the `public-winapi` crate feature.
-
-[Windows-rs]: https://github.com/microsoft/windows-rs
-[winapi]: https://github.com/retep998/winapi-rs
 
 ## Setting up the Vulkan memory allocator
 
@@ -134,36 +127,71 @@ allocator.free(allocation).unwrap();
 
 ```rust
 use gpu_allocator::metal::*;
-
 let mut allocator = Allocator::new(&AllocatorCreateDesc {
     device: device.clone(),
     debug_settings: Default::default(),
     allocation_sizes: Default::default(),
+    create_residency_set: false,
 });
 ```
 
 ## Simple Metal allocation example
+
 ```rust
 use gpu_allocator::metal::*;
 use gpu_allocator::MemoryLocation;
-
 let allocation_desc = AllocationCreateDesc::buffer(
     &device,
     "Example allocation",
     512, // size in bytes
-    gpu_allocator::MemoryLocation::GpuOnly,
+    MemoryLocation::GpuOnly,
 );
 let allocation = allocator.allocate(&allocation_desc).unwrap();
-let resource = allocation.make_buffer().unwrap();
+let heap = unsafe { allocation.heap() };
+let resource = unsafe {
+    heap.newBufferWithLength_options_offset(
+        allocation.size() as usize,
+        heap.resourceOptions(),
+        allocation.offset() as usize,
+    )
+}
+.unwrap();
 
 // Cleanup
 drop(resource);
 allocator.free(&allocation).unwrap();
 ```
 
+## `no_std` support
+
+`no_std` support can be enabled by compiling with `--no-default-features` to disable `std` support and `--features hashbrown` for `Hash` collections that are only defined in `std` for internal usages in crate. For example:
+
+```toml
+[dependencies]
+gpu-allocator = { version = "0.28.0", default-features = false, features = ["hashbrown", "other features"] }
+```
+
+To support both `std` and `no_std` builds in your project, use the following in your `Cargo.toml`:
+
+```toml
+[features]
+default = ["std", "other features"]
+
+std = ["gpu-allocator/std"]
+hashbrown = ["gpu-allocator/hashbrown"]
+other_features = []
+
+[dependencies]
+gpu-allocator = { version = "0.28.0", default-features = false }
+```
+
 ## Minimum Supported Rust Version
 
-The MSRV for this crate and the `vulkan`, `d3d12` and `metal` features is Rust 1.70.  Any other features such as the `visualizer` (with all the `egui` dependencies) may have a higher requirement and are not tested in our CI.
+The MSRV for this crate and the `vulkan`, `d3d12` and `metal` features is Rust **1.71**.
+
+The `no_std` support requires Rust **1.81** or higher because `no_std` support of dependency `thiserror` requires `core::error::Error` which is stabilized in **1.81**.
+
+Any other features such as the `visualizer` (with all the `egui` dependencies) may have a higher requirement and are not tested in our CI.
 
 ## License
 

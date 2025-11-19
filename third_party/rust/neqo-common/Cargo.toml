@@ -110,7 +110,7 @@ default-features = false
 path = "../test-fixture"
 
 [target."cfg(windows)".dependencies.windows]
-version = "0.58"
+version = ">=0.60,<0.63"
 features = ["Win32_Media"]
 default-features = false
 

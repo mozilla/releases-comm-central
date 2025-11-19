@@ -1,5 +1,5 @@
 use crate::imp::Box;
-use crate::{AsImpl, IUnknown, IUnknownImpl, Interface, InterfaceRef};
+use crate::{IUnknown, IUnknownImpl, Interface, InterfaceRef};
 use core::any::Any;
 use core::borrow::Borrow;
 use core::ops::Deref;
@@ -245,10 +245,7 @@ impl<T: ComObjectInner> Clone for ComObject<T> {
     }
 }
 
-impl<T: ComObjectInner> AsRef<T> for ComObject<T>
-where
-    IUnknown: From<T> + AsImpl<T>,
-{
+impl<T: ComObjectInner> AsRef<T> for ComObject<T> {
     #[inline(always)]
     fn as_ref(&self) -> &T {
         self.get()
@@ -270,8 +267,8 @@ impl<T: ComObjectInner> Deref for ComObject<T> {
 // exclusive access.
 
 impl<T: ComObjectInner> From<T> for ComObject<T> {
-    fn from(value: T) -> ComObject<T> {
-        ComObject::new(value)
+    fn from(value: T) -> Self {
+        Self::new(value)
     }
 }
 
@@ -288,7 +285,7 @@ unsafe impl<T: ComObjectInner + Send> Send for ComObject<T> {}
 unsafe impl<T: ComObjectInner + Sync> Sync for ComObject<T> {}
 
 impl<T: ComObjectInner + PartialEq> PartialEq for ComObject<T> {
-    fn eq(&self, other: &ComObject<T>) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         let inner_self: &T = self.get();
         let other_self: &T = other.get();
         inner_self == other_self
@@ -314,13 +311,13 @@ impl<T: ComObjectInner + Ord> Ord for ComObject<T> {
 }
 
 impl<T: ComObjectInner + core::fmt::Debug> core::fmt::Debug for ComObject<T> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         <T as core::fmt::Debug>::fmt(self.get(), f)
     }
 }
 
 impl<T: ComObjectInner + core::fmt::Display> core::fmt::Display for ComObject<T> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         <T as core::fmt::Display>::fmt(self.get(), f)
     }
 }
@@ -328,5 +325,70 @@ impl<T: ComObjectInner + core::fmt::Display> core::fmt::Display for ComObject<T>
 impl<T: ComObjectInner> Borrow<T> for ComObject<T> {
     fn borrow(&self) -> &T {
         self.get()
+    }
+}
+
+/// Enables applications to define COM objects using static storage. This is useful for factory
+/// objects, stateless objects, or objects which use need to contain or use mutable global state.
+///
+/// COM objects that are defined using `StaticComObject` have their storage placed directly in
+/// static storage; they are not stored in the heap.
+///
+/// COM objects defined using `StaticComObject` do have a reference count and this reference
+/// count is adjusted when owned COM interface references (e.g. `IFoo` and `IUnknown`) are created
+/// for the object. The reference count is initialized to 1.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// #[implement(IFoo)]
+/// struct MyApp {
+///     // ...
+/// }
+///
+/// static MY_STATIC_APP: StaticComObject<MyApp> = MyApp { ... }.into_static();
+///
+/// fn get_my_static_ifoo() -> IFoo {
+///     MY_STATIC_APP.to_interface()
+/// }
+/// ```
+pub struct StaticComObject<T>
+where
+    T: ComObjectInner,
+{
+    outer: T::Outer,
+}
+
+// IMPORTANT: Do not expose any methods that return mutable access to the contents of StaticComObject.
+// Doing so would violate our safety invariants. For example, we provide a Deref impl but it would
+// be unsound to provide a DerefMut impl.
+impl<T> StaticComObject<T>
+where
+    T: ComObjectInner,
+{
+    /// Wraps `outer` in a `StaticComObject`.
+    pub const fn from_outer(outer: T::Outer) -> Self {
+        Self { outer }
+    }
+}
+
+impl<T> StaticComObject<T>
+where
+    T: ComObjectInner,
+{
+    /// Gets access to the contained value.
+    pub const fn get(&'static self) -> &'static T::Outer {
+        &self.outer
+    }
+}
+
+impl<T> core::ops::Deref for StaticComObject<T>
+where
+    T: ComObjectInner,
+{
+    type Target = T::Outer;
+
+    fn deref(&self) -> &Self::Target {
+        &self.outer
     }
 }

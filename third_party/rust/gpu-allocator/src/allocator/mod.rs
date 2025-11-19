@@ -1,4 +1,9 @@
-use std::{backtrace::Backtrace, fmt, ops::Range, sync::Arc};
+#[cfg(feature = "std")]
+use alloc::sync::Arc;
+use alloc::{fmt, string::String, vec::Vec};
+use core::ops::Range;
+#[cfg(feature = "std")]
+use std::backtrace::Backtrace;
 
 use log::*;
 
@@ -61,8 +66,8 @@ pub struct AllocatorReport {
     pub blocks: Vec<MemoryBlockReport>,
     /// Sum of the memory used by all allocations, in bytes.
     pub total_allocated_bytes: u64,
-    /// Sum of the memory reserved by all memory blocks including unallocated regions, in bytes.
-    pub total_reserved_bytes: u64,
+    /// Sum of the memory capacity of all memory blocks including unallocated regions, in bytes.
+    pub total_capacity_bytes: u64,
 }
 
 impl fmt::Debug for AllocationReport {
@@ -79,7 +84,7 @@ impl fmt::Debug for AllocationReport {
 impl fmt::Debug for AllocatorReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut allocations = self.allocations.clone();
-        allocations.sort_by_key(|alloc| std::cmp::Reverse(alloc.size));
+        allocations.sort_by_key(|alloc| core::cmp::Reverse(alloc.size));
 
         let max_num_allocations_to_print = f.precision().unwrap_or(usize::MAX);
         allocations.truncate(max_num_allocations_to_print);
@@ -87,10 +92,10 @@ impl fmt::Debug for AllocatorReport {
         f.debug_struct("AllocatorReport")
             .field(
                 "summary",
-                &std::format_args!(
+                &core::format_args!(
                     "{} / {}",
                     fmt_bytes(self.total_allocated_bytes),
-                    fmt_bytes(self.total_reserved_bytes)
+                    fmt_bytes(self.total_capacity_bytes)
                 ),
             )
             .field("blocks", &self.blocks.len())
@@ -113,14 +118,14 @@ pub(crate) trait SubAllocator: SubAllocatorBase + fmt::Debug + Sync + Send {
         allocation_type: AllocationType,
         granularity: u64,
         name: &str,
-        backtrace: Arc<Backtrace>,
-    ) -> Result<(u64, std::num::NonZeroU64)>;
+        #[cfg(feature = "std")] backtrace: Arc<Backtrace>,
+    ) -> Result<(u64, core::num::NonZeroU64)>;
 
-    fn free(&mut self, chunk_id: Option<std::num::NonZeroU64>) -> Result<()>;
+    fn free(&mut self, chunk_id: Option<core::num::NonZeroU64>) -> Result<()>;
 
     fn rename_allocation(
         &mut self,
-        chunk_id: Option<std::num::NonZeroU64>,
+        chunk_id: Option<core::num::NonZeroU64>,
         name: &str,
     ) -> Result<()>;
 
@@ -133,6 +138,8 @@ pub(crate) trait SubAllocator: SubAllocatorBase + fmt::Debug + Sync + Send {
 
     fn report_allocations(&self) -> Vec<AllocationReport>;
 
+    /// Returns [`true`] if this allocator allows sub-allocating multiple allocations, [`false`] if
+    /// it is designed to only represent dedicated allocations.
     #[must_use]
     fn supports_general_allocations(&self) -> bool;
     #[must_use]

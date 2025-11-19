@@ -1,17 +1,23 @@
-#![deny(clippy::unimplemented, clippy::unwrap_used, clippy::ok_expect)]
-
-#[cfg(feature = "visualizer")]
-mod visualizer;
-use std::{backtrace::Backtrace, fmt, marker::PhantomData, sync::Arc};
+#[cfg(feature = "std")]
+use alloc::sync::Arc;
+use alloc::{borrow::ToOwned, boxed::Box, string::ToString, vec::Vec};
+use core::{fmt, marker::PhantomData};
+#[cfg(feature = "std")]
+use std::backtrace::Backtrace;
 
 use ash::vk;
 use log::{debug, Level};
+
+#[cfg(feature = "visualizer")]
+mod visualizer;
 #[cfg(feature = "visualizer")]
 pub use visualizer::AllocatorVisualizer;
 
-use super::allocator;
 use crate::{
-    allocator::{AllocatorReport, MemoryBlockReport},
+    allocator::{
+        AllocationType, AllocatorReport, DedicatedBlockAllocator, FreeListAllocator,
+        MemoryBlockReport, SubAllocator,
+    },
     AllocationError, AllocationSizes, AllocatorDebugSettings, MemoryLocation, Result,
 };
 
@@ -45,7 +51,7 @@ pub struct AllocationCreateDesc<'a> {
 /// mark the entire [`Allocation`] as such, instead relying on the compiler to
 /// auto-implement this or fail if fields are added that violate this constraint
 #[derive(Clone, Copy, Debug)]
-pub(crate) struct SendSyncPtr(std::ptr::NonNull<std::ffi::c_void>);
+pub(crate) struct SendSyncPtr(core::ptr::NonNull<core::ffi::c_void>);
 // Sending is fine because mapped_ptr does not change based on the thread we are in
 unsafe impl Send for SendSyncPtr {}
 // Sync is also okay because Sending &Allocation is safe: a mutable reference
@@ -149,7 +155,7 @@ pub struct AllocatorCreateDesc {
 /// [\[1\]]: presser#motivation
 #[derive(Debug)]
 pub struct Allocation {
-    chunk_id: Option<std::num::NonZeroU64>,
+    chunk_id: Option<core::num::NonZeroU64>,
     offset: u64,
     size: u64,
     memory_block_index: usize,
@@ -198,7 +204,7 @@ impl Allocation {
         })
     }
 
-    pub fn chunk_id(&self) -> Option<std::num::NonZeroU64> {
+    pub fn chunk_id(&self) -> Option<core::num::NonZeroU64> {
         self.chunk_id
     }
 
@@ -208,13 +214,17 @@ impl Allocation {
     }
 
     /// Returns the [`vk::DeviceMemory`] object that is backing this allocation.
-    /// This memory object can be shared with multiple other allocations and shouldn't be freed (or allocated from)
+    ///
+    /// This memory object can be shared with multiple other allocations and shouldn't be freed or allocated from
     /// without this library, because that will lead to undefined behavior.
     ///
     /// # Safety
-    /// The result of this function can safely be used to pass into [`ash::Device::bind_buffer_memory()`],
-    /// [`ash::Device::bind_image_memory()`] etc. It is exposed for this reason. Keep in mind to also
-    /// pass [`Self::offset()`] along to those.
+    /// The result of this function can safely be passed into [`ash::Device::bind_buffer_memory()`],
+    /// [`ash::Device::bind_image_memory()`] etc. It is exposed for this reason.  Keep in mind to
+    /// also pass [`Self::offset()`] along to those.
+    ///
+    /// Also, this [`Allocation`] must not be [`Allocator::free()`]d while such a created resource
+    /// on this [`vk::DeviceMemory`] is still live.
     pub unsafe fn memory(&self) -> vk::DeviceMemory {
         self.device_memory
     }
@@ -237,7 +247,7 @@ impl Allocation {
 
     /// Returns a valid mapped pointer if the memory is host visible, otherwise it will return None.
     /// The pointer already points to the exact memory region of the suballocation, so no offset needs to be applied.
-    pub fn mapped_ptr(&self) -> Option<std::ptr::NonNull<std::ffi::c_void>> {
+    pub fn mapped_ptr(&self) -> Option<core::ptr::NonNull<core::ffi::c_void>> {
         self.mapped_ptr.map(|SendSyncPtr(p)| p)
     }
 
@@ -245,7 +255,7 @@ impl Allocation {
     /// The slice already references the exact memory region of the allocation, so no offset needs to be applied.
     pub fn mapped_slice(&self) -> Option<&[u8]> {
         self.mapped_ptr().map(|ptr| unsafe {
-            std::slice::from_raw_parts(ptr.cast().as_ptr(), self.size as usize)
+            core::slice::from_raw_parts(ptr.cast().as_ptr(), self.size as usize)
         })
     }
 
@@ -253,7 +263,7 @@ impl Allocation {
     /// The slice already references the exact memory region of the allocation, so no offset needs to be applied.
     pub fn mapped_slice_mut(&mut self) -> Option<&mut [u8]> {
         self.mapped_ptr().map(|ptr| unsafe {
-            std::slice::from_raw_parts_mut(ptr.cast().as_ptr(), self.size as usize)
+            core::slice::from_raw_parts_mut(ptr.cast().as_ptr(), self.size as usize)
         })
     }
 
@@ -289,7 +299,7 @@ pub struct MappedAllocationSlab<'a> {
 }
 
 // SAFETY: See the safety comment of Allocation::as_mapped_slab above.
-unsafe impl<'a> presser::Slab for MappedAllocationSlab<'a> {
+unsafe impl presser::Slab for MappedAllocationSlab<'_> {
     fn base_ptr(&self) -> *const u8 {
         self.mapped_ptr
     }
@@ -335,7 +345,7 @@ pub(crate) struct MemoryBlock {
     pub(crate) device_memory: vk::DeviceMemory,
     pub(crate) size: u64,
     pub(crate) mapped_ptr: Option<SendSyncPtr>,
-    pub(crate) sub_allocator: Box<dyn allocator::SubAllocator>,
+    pub(crate) sub_allocator: Box<dyn SubAllocator>,
     #[cfg(feature = "visualizer")]
     pub(crate) dedicated_allocation: bool,
 }
@@ -381,8 +391,7 @@ impl MemoryBlock {
             unsafe { device.allocate_memory(&alloc_info, None) }.map_err(|e| match e {
                 vk::Result::ERROR_OUT_OF_DEVICE_MEMORY => AllocationError::OutOfMemory,
                 e => AllocationError::Internal(format!(
-                    "Unexpected error in vkAllocateMemory: {:?}",
-                    e
+                    "Unexpected error in vkAllocateMemory: {e:?}"
                 )),
             })?
         };
@@ -402,20 +411,20 @@ impl MemoryBlock {
                     AllocationError::FailedToMap(e.to_string())
                 })
                 .and_then(|p| {
-                    std::ptr::NonNull::new(p).map(SendSyncPtr).ok_or_else(|| {
+                    core::ptr::NonNull::new(p).map(SendSyncPtr).ok_or_else(|| {
                         AllocationError::FailedToMap("Returned mapped pointer is null".to_owned())
                     })
                 })
             })
             .transpose()?;
 
-        let sub_allocator: Box<dyn allocator::SubAllocator> = if allocation_scheme
+        let sub_allocator: Box<dyn SubAllocator> = if allocation_scheme
             != AllocationScheme::GpuAllocatorManaged
             || requires_personal_block
         {
-            Box::new(allocator::DedicatedBlockAllocator::new(size))
+            Box::new(DedicatedBlockAllocator::new(size))
         } else {
-            Box::new(allocator::FreeListAllocator::new(size))
+            Box::new(FreeListAllocator::new(size))
         };
 
         Ok(Self {
@@ -454,23 +463,20 @@ impl MemoryType {
         device: &ash::Device,
         desc: &AllocationCreateDesc<'_>,
         granularity: u64,
-        backtrace: Arc<Backtrace>,
+        #[cfg(feature = "std")] backtrace: Arc<Backtrace>,
         allocation_sizes: &AllocationSizes,
     ) -> Result<Allocation> {
         let allocation_type = if desc.linear {
-            allocator::AllocationType::Linear
+            AllocationType::Linear
         } else {
-            allocator::AllocationType::NonLinear
+            AllocationType::NonLinear
         };
 
-        let memblock_size = if self
+        let is_host = self
             .memory_properties
-            .contains(vk::MemoryPropertyFlags::HOST_VISIBLE)
-        {
-            allocation_sizes.host_memblock_size
-        } else {
-            allocation_sizes.device_memblock_size
-        };
+            .contains(vk::MemoryPropertyFlags::HOST_VISIBLE);
+
+        let memblock_size = allocation_sizes.get_memblock_size(is_host, self.active_general_blocks);
 
         let size = desc.requirements.size;
         let alignment = desc.requirements.alignment;
@@ -519,6 +525,7 @@ impl MemoryType {
                 allocation_type,
                 granularity,
                 desc.name,
+                #[cfg(feature = "std")]
                 backtrace,
             )?;
 
@@ -545,6 +552,7 @@ impl MemoryType {
                     allocation_type,
                     granularity,
                     desc.name,
+                    #[cfg(feature = "std")]
                     backtrace.clone(),
                 );
 
@@ -553,7 +561,7 @@ impl MemoryType {
                         let mapped_ptr = if let Some(SendSyncPtr(mapped_ptr)) = mem_block.mapped_ptr
                         {
                             let offset_ptr = unsafe { mapped_ptr.as_ptr().add(offset as usize) };
-                            std::ptr::NonNull::new(offset_ptr).map(SendSyncPtr)
+                            core::ptr::NonNull::new(offset_ptr).map(SendSyncPtr)
                         } else {
                             None
                         };
@@ -609,6 +617,7 @@ impl MemoryType {
             allocation_type,
             granularity,
             desc.name,
+            #[cfg(feature = "std")]
             backtrace,
         );
         let (offset, chunk_id) = match allocation {
@@ -626,7 +635,7 @@ impl MemoryType {
 
         let mapped_ptr = if let Some(SendSyncPtr(mapped_ptr)) = mem_block.mapped_ptr {
             let offset_ptr = unsafe { mapped_ptr.as_ptr().add(offset as usize) };
-            std::ptr::NonNull::new(offset_ptr).map(SendSyncPtr)
+            core::ptr::NonNull::new(offset_ptr).map(SendSyncPtr)
         } else {
             None
         };
@@ -655,24 +664,22 @@ impl MemoryType {
 
         mem_block.sub_allocator.free(allocation.chunk_id)?;
 
-        if mem_block.sub_allocator.is_empty() {
-            if mem_block.sub_allocator.supports_general_allocations() {
-                if self.active_general_blocks > 1 {
-                    let block = self.memory_blocks[block_idx].take();
-                    let block = block.ok_or_else(|| {
-                        AllocationError::Internal("Memory block must be Some.".into())
-                    })?;
-                    block.destroy(device);
+        // We only want to destroy this now-empty block if it is either a dedicated/personal
+        // allocation, or a block supporting sub-allocations that is not the last one (ensuring
+        // there's always at least one block/allocator readily available).
+        let is_dedicated_or_not_last_general_block =
+            !mem_block.sub_allocator.supports_general_allocations()
+                || self.active_general_blocks > 1;
+        if mem_block.sub_allocator.is_empty() && is_dedicated_or_not_last_general_block {
+            let block = self.memory_blocks[block_idx]
+                .take()
+                .ok_or_else(|| AllocationError::Internal("Memory block must be Some.".into()))?;
 
-                    self.active_general_blocks -= 1;
-                }
-            } else {
-                let block = self.memory_blocks[block_idx].take();
-                let block = block.ok_or_else(|| {
-                    AllocationError::Internal("Memory block must be Some.".into())
-                })?;
-                block.destroy(device);
+            if block.sub_allocator.supports_general_allocations() {
+                self.active_general_blocks -= 1;
             }
+
+            block.destroy(device);
         }
 
         Ok(())
@@ -762,7 +769,7 @@ impl Allocator {
             device: desc.device.clone(),
             buffer_image_granularity: granularity,
             debug_settings: desc.debug_settings,
-            allocation_sizes: AllocationSizes::default(),
+            allocation_sizes: desc.allocation_sizes,
         })
     }
 
@@ -770,6 +777,7 @@ impl Allocator {
         let size = desc.requirements.size;
         let alignment = desc.requirements.alignment;
 
+        #[cfg(feature = "std")]
         let backtrace = Arc::new(if self.debug_settings.store_stack_traces {
             Backtrace::force_capture()
         } else {
@@ -781,9 +789,10 @@ impl Allocator {
                 "Allocating `{}` of {} bytes with an alignment of {}.",
                 &desc.name, size, alignment
             );
+            #[cfg(feature = "std")]
             if self.debug_settings.log_stack_traces {
                 let backtrace = Backtrace::force_capture();
-                debug!("Allocation stack trace: {}", backtrace);
+                debug!("Allocation stack trace: {backtrace}");
             }
         }
 
@@ -835,6 +844,7 @@ impl Allocator {
                 &self.device,
                 desc,
                 self.buffer_image_granularity,
+                #[cfg(feature = "std")]
                 backtrace.clone(),
                 &self.allocation_sizes,
             )
@@ -857,6 +867,7 @@ impl Allocator {
                     &self.device,
                     desc,
                     self.buffer_image_granularity,
+                    #[cfg(feature = "std")]
                     backtrace,
                     &self.allocation_sizes,
                 )
@@ -871,10 +882,11 @@ impl Allocator {
     pub fn free(&mut self, allocation: Allocation) -> Result<()> {
         if self.debug_settings.log_frees {
             let name = allocation.name.as_deref().unwrap_or("<null>");
-            debug!("Freeing `{}`.", name);
+            debug!("Freeing `{name}`.");
+            #[cfg(feature = "std")]
             if self.debug_settings.log_stack_traces {
                 let backtrace = Backtrace::force_capture();
-                debug!("Free stack trace: {}", backtrace);
+                debug!("Free stack trace: {backtrace}");
             }
         }
 
@@ -935,11 +947,11 @@ impl Allocator {
     pub fn generate_report(&self) -> AllocatorReport {
         let mut allocations = vec![];
         let mut blocks = vec![];
-        let mut total_reserved_bytes = 0;
+        let mut total_capacity_bytes = 0;
 
         for memory_type in &self.memory_types {
             for block in memory_type.memory_blocks.iter().flatten() {
-                total_reserved_bytes += block.size;
+                total_capacity_bytes += block.size;
                 let first_allocation = allocations.len();
                 allocations.extend(block.sub_allocator.report_allocations());
                 blocks.push(MemoryBlockReport {
@@ -955,8 +967,21 @@ impl Allocator {
             allocations,
             blocks,
             total_allocated_bytes,
-            total_reserved_bytes,
+            total_capacity_bytes,
         }
+    }
+
+    /// Current total capacity of memory blocks allocated on the device, in bytes
+    pub fn capacity(&self) -> u64 {
+        let mut total_capacity_bytes = 0;
+
+        for memory_type in &self.memory_types {
+            for block in memory_type.memory_blocks.iter().flatten() {
+                total_capacity_bytes += block.size;
+            }
+        }
+
+        total_capacity_bytes
     }
 }
 

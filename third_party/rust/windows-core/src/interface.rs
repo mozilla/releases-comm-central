@@ -38,7 +38,7 @@ pub unsafe trait Interface: Sized + Clone {
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn assume_vtable<T: Interface>(&self) -> &T::Vtable {
-        &**(self.as_raw() as *mut *mut T::Vtable)
+        unsafe { &**(self.as_raw() as *mut *mut T::Vtable) }
     }
 
     /// Returns the raw COM interface pointer. The resulting pointer continues to be owned by the `Interface` implementation.
@@ -64,7 +64,7 @@ pub unsafe trait Interface: Sized + Clone {
     /// The `raw` pointer must be owned by the caller and represent a valid COM interface pointer. In other words,
     /// it must point to a vtable beginning with the `IUnknown` function pointers and match the vtable of `Interface`.
     unsafe fn from_raw(raw: *mut c_void) -> Self {
-        transmute_copy(&raw)
+        unsafe { transmute_copy(&raw) }
     }
 
     /// Creates an `Interface` that is valid so long as the `raw` COM interface pointer is valid.
@@ -75,10 +75,12 @@ pub unsafe trait Interface: Sized + Clone {
     /// beginning with the `IUnknown` function pointers and match the vtable of `Interface`.
     #[inline(always)]
     unsafe fn from_raw_borrowed(raw: &*mut c_void) -> Option<&Self> {
-        if raw.is_null() {
-            None
-        } else {
-            Some(transmute_copy(&raw))
+        unsafe {
+            if raw.is_null() {
+                None
+            } else {
+                Some(transmute_copy(&raw))
+            }
         }
     }
 
@@ -235,7 +237,7 @@ pub unsafe trait Interface: Sized + Clone {
     /// Attempts to create a [`Weak`] reference to this object.
     fn downgrade(&self) -> Result<Weak<Self>> {
         self.cast::<imp::IWeakReferenceSource>()
-            .and_then(|source| Weak::downgrade(&source))
+            .map(|source| Weak::downgrade(&source))
     }
 
     /// Call `QueryInterface` on this interface
@@ -245,10 +247,12 @@ pub unsafe trait Interface: Sized + Clone {
     /// `interface` must be a non-null, valid pointer for writing an interface pointer.
     #[inline(always)]
     unsafe fn query(&self, iid: *const GUID, interface: *mut *mut c_void) -> HRESULT {
-        if Self::UNKNOWN {
-            (self.assume_vtable::<IUnknown>().QueryInterface)(self.as_raw(), iid, interface)
-        } else {
-            panic!("Non-COM interfaces cannot be queried.")
+        unsafe {
+            if Self::UNKNOWN {
+                (self.assume_vtable::<IUnknown>().QueryInterface)(self.as_raw(), iid, interface)
+            } else {
+                panic!("Non-COM interfaces cannot be queried.")
+            }
         }
     }
 
@@ -259,12 +263,6 @@ pub unsafe trait Interface: Sized + Clone {
     }
 }
 
-/// # Safety
-#[doc(hidden)]
-pub unsafe fn from_raw_borrowed<T: Interface>(raw: &*mut c_void) -> Option<&T> {
-    T::from_raw_borrowed(raw)
-}
-
 /// This has the same memory representation as `IFoo`, but represents a borrowed interface pointer.
 ///
 /// This type has no `Drop` impl; it does not AddRef/Release the given interface. However, because
@@ -272,21 +270,21 @@ pub unsafe fn from_raw_borrowed<T: Interface>(raw: &*mut c_void) -> Option<&T> {
 #[repr(transparent)]
 pub struct InterfaceRef<'a, I>(NonNull<c_void>, PhantomData<&'a I>);
 
-impl<'a, I> Copy for InterfaceRef<'a, I> {}
+impl<I> Copy for InterfaceRef<'_, I> {}
 
-impl<'a, I> Clone for InterfaceRef<'a, I> {
+impl<I> Clone for InterfaceRef<'_, I> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<'a, I: core::fmt::Debug + Interface> core::fmt::Debug for InterfaceRef<'a, I> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+impl<I: core::fmt::Debug + Interface> core::fmt::Debug for InterfaceRef<'_, I> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         <I as core::fmt::Debug>::fmt(&**self, f)
     }
 }
 
-impl<'a, I: Interface> InterfaceRef<'a, I> {
+impl<I: Interface> InterfaceRef<'_, I> {
     /// Creates an `InterfaceRef` from a raw pointer. _This is extremely dangerous, since there
     /// is no lifetime tracking at all!_
     ///
@@ -320,12 +318,12 @@ impl<'a, I: Interface> InterfaceRef<'a, I> {
 
 impl<'a, 'i: 'a, I: Interface> From<&'i I> for InterfaceRef<'a, I> {
     #[inline(always)]
-    fn from(interface: &'a I) -> InterfaceRef<'a, I> {
+    fn from(interface: &'a I) -> Self {
         InterfaceRef::from_interface(interface)
     }
 }
 
-impl<'a, I: Interface> core::ops::Deref for InterfaceRef<'a, I> {
+impl<I: Interface> core::ops::Deref for InterfaceRef<'_, I> {
     type Target = I;
 
     #[inline(always)]

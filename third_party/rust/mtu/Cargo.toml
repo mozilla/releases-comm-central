@@ -77,13 +77,14 @@ optional = true
 default-features = false
 
 [target."cfg(windows)".dependencies.windows]
-version = ">=0.58,<0.60"
+version = ">=0.60,<0.63"
 features = [
     "Win32_Foundation",
     "Win32_NetworkManagement_IpHelper",
     "Win32_NetworkManagement_Ndis",
     "Win32_Networking_WinSock",
 ]
+default-features = false
 
 [lints.clippy]
 allow_attributes = "warn"

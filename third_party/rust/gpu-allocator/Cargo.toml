@@ -11,16 +11,22 @@
 
 [package]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.71"
 name = "gpu-allocator"
-version = "0.27.0"
+version = "0.28.0"
 authors = ["Traverse Research <opensource@traverseresearch.nl>"]
+build = false
 include = [
     "/README.md",
     "/LICENSE-*",
     "/src",
     "/examples",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Memory allocator for GPU memory in Vulkan and DirectX 12"
 homepage = "https://github.com/Traverse-Research/gpu-allocator"
 documentation = "https://docs.rs/gpu-allocator/"
@@ -40,27 +46,48 @@ repository = "https://github.com/Traverse-Research/gpu-allocator"
 [package.metadata.docs.rs]
 all-features = true
 
-[[example]]
-name = "vulkan-buffer"
-required-features = [
-    "vulkan",
-    "ash/loaded",
-]
-
-[[example]]
-name = "d3d12-buffer"
-required-features = [
+[features]
+d3d12 = ["dep:windows"]
+default = [
+    "std",
     "d3d12",
-    "public-winapi",
+    "vulkan",
+    "metal",
 ]
+hashbrown = ["dep:hashbrown"]
+metal = [
+    "dep:objc2",
+    "dep:objc2-metal",
+    "dep:objc2-foundation",
+]
+std = ["presser/std"]
+visualizer = [
+    "dep:egui",
+    "dep:egui_extras",
+]
+vulkan = ["dep:ash"]
+
+[lib]
+name = "gpu_allocator"
+path = "src/lib.rs"
 
 [[example]]
 name = "d3d12-buffer-winrs"
+path = "examples/d3d12-buffer-winrs.rs"
 required-features = ["d3d12"]
 
 [[example]]
 name = "metal-buffer"
+path = "examples/metal-buffer.rs"
 required-features = ["metal"]
+
+[[example]]
+name = "vulkan-buffer"
+path = "examples/vulkan-buffer.rs"
+required-features = [
+    "vulkan",
+    "ash/loaded",
+]
 
 [dependencies.ash]
 version = "0.38"
@@ -78,14 +105,21 @@ version = ">=0.24, <=0.27"
 optional = true
 default-features = false
 
+[dependencies.hashbrown]
+version = "0.16.0"
+optional = true
+
 [dependencies.log]
 version = "0.4"
+default-features = false
 
 [dependencies.presser]
 version = "0.3"
+default-features = false
 
 [dependencies.thiserror]
-version = "1.0"
+version = "2.0"
+default-features = false
 
 [dev-dependencies.ash]
 version = "0.38"
@@ -96,65 +130,49 @@ features = [
 default-features = false
 
 [dev-dependencies.env_logger]
-version = "0.10"
+version = "0.11"
 
-[features]
-d3d12 = ["dep:windows"]
-default = [
-    "d3d12",
-    "vulkan",
-]
-metal = ["dep:metal"]
-public-winapi = ["dep:winapi"]
-visualizer = [
-    "dep:egui",
-    "dep:egui_extras",
-]
-vulkan = ["dep:ash"]
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2]
+version = "0.6"
+optional = true
+default-features = false
 
-[target."cfg(any(target_os = \"macos\", target_os = \"ios\"))".dependencies.metal]
-version = "0.29.0"
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-foundation]
+version = "0.3"
+optional = true
+default-features = false
+
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-metal]
+version = "0.3"
 features = [
-    "link",
-    "dispatch",
+    "MTLAccelerationStructure",
+    "MTLAllocation",
+    "MTLBuffer",
+    "MTLDevice",
+    "MTLHeap",
+    "MTLResidencySet",
+    "MTLResource",
+    "MTLTexture",
+    "std",
 ]
 optional = true
 default-features = false
 
-[target."cfg(windows)".dependencies.winapi]
-version = "0.3.9"
-features = [
-    "d3d12",
-    "winerror",
-    "impl-default",
-    "impl-debug",
-]
-optional = true
+[target.'cfg(target_vendor = "apple")'.dev-dependencies.objc2-metal]
+version = "0.3"
+features = ["MTLPixelFormat"]
+default-features = false
 
 [target."cfg(windows)".dependencies.windows]
-version = ">=0.53,<=0.58"
+version = ">=0.53, <=0.62"
 features = [
     "Win32_Graphics_Direct3D12",
     "Win32_Graphics_Dxgi_Common",
 ]
 optional = true
 
-[target."cfg(windows)".dev-dependencies.winapi]
-version = "0.3.9"
-features = [
-    "d3d12",
-    "d3d12sdklayers",
-    "dxgi1_6",
-    "winerror",
-    "impl-default",
-    "impl-debug",
-    "winuser",
-    "windowsx",
-    "libloaderapi",
-]
-
 [target."cfg(windows)".dev-dependencies.windows]
-version = "0.58"
+version = ">=0.58, <=0.62"
 features = [
     "Win32_Graphics_Direct3D",
     "Win32_Graphics_Direct3D12",

@@ -31,14 +31,19 @@ git = "https://github.com/erichdongubler-contrib/hashlink"
 rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/erichdongubler-mozilla/neqo?rev=5bfb65919fb5804ec1dd68cc93e014cb9c830d94"]
+git = "https://github.com/erichdongubler-mozilla/neqo"
+rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/franziskuskiefer/cose-rust?rev=43c22248d136c8b38fe42ea709d08da6355cf04b"]
 git = "https://github.com/franziskuskiefer/cose-rust"
 rev = "43c22248d136c8b38fe42ea709d08da6355cf04b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=3e8a11c626df52f39bdf1097e5bd9e1bdbf648d6"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=d65295a3ce2bb11a36c2c2454ef400652fc1c4a4"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "3e8a11c626df52f39bdf1097e5bd9e1bdbf648d6"
+rev = "d65295a3ce2bb11a36c2c2454ef400652fc1c4a4"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c"]
@@ -96,9 +101,14 @@ git = "https://github.com/mozilla/cubeb-pulse-rs"
 rev = "4e3ea4bbc582705a4e7d9220679525283c035a7e"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/midir.git?rev=0cc61b81b26088bb8d6e593caf96879879ab814b"]
+[source."git+https://github.com/mozilla/memtest?rev=ad681ba425beb0aeba95f03e671432b4be932174"]
+git = "https://github.com/mozilla/memtest"
+rev = "ad681ba425beb0aeba95f03e671432b4be932174"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/mozilla/midir.git?rev=54759f681f3b523e120d047adec2bb1a97152017"]
 git = "https://github.com/mozilla/midir.git"
-rev = "0cc61b81b26088bb8d6e593caf96879879ab814b"
+rev = "54759f681f3b523e120d047adec2bb1a97152017"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/mp4parse-rust?rev=f955be5d2a04a631c0f1777d6f35370ea1a99e2d"]

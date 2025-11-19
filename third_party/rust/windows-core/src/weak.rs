@@ -7,7 +7,7 @@ pub struct Weak<I: Interface>(Option<imp::IWeakReference>, PhantomData<I>);
 
 impl<I: Interface> Weak<I> {
     /// Creates a new `Weak` object without any backing object.
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self(None, PhantomData)
     }
 
@@ -18,9 +18,9 @@ impl<I: Interface> Weak<I> {
             .and_then(|inner| unsafe { inner.Resolve().ok() })
     }
 
-    pub(crate) fn downgrade(source: &imp::IWeakReferenceSource) -> Result<Self> {
+    pub(crate) fn downgrade(source: &imp::IWeakReferenceSource) -> Self {
         let reference = unsafe { source.GetWeakReference().ok() };
-        Ok(Self(reference, PhantomData))
+        Self(reference, PhantomData)
     }
 }
 

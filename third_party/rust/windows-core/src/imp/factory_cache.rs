@@ -40,7 +40,7 @@ impl<C: crate::RuntimeName, I: Interface> FactoryCache<C, I> {
             }
 
             // Otherwise, we load the factory the usual way.
-            let factory = factory::<C, I>()?;
+            let factory = load_factory::<C, I>()?;
 
             // If the factory is agile, we can safely cache it.
             if factory.cast::<IAgileObject>().is_ok() {
@@ -70,7 +70,7 @@ unsafe impl<C, I> Sync for FactoryCache<C, I> {}
 
 /// Attempts to load the factory object for the given WinRT class.
 /// This can be used to access COM interfaces implemented on a Windows Runtime class factory.
-pub fn factory<C: crate::RuntimeName, I: Interface>() -> crate::Result<I> {
+pub fn load_factory<C: crate::RuntimeName, I: Interface>() -> crate::Result<I> {
     let mut factory: Option<I> = None;
     let name = crate::HSTRING::from(C::NAME);
 
@@ -102,18 +102,18 @@ pub fn factory<C: crate::RuntimeName, I: Interface>() -> crate::Result<I> {
         return Ok(factory);
     }
 
-    // If not, first capture the error information from the failure above so that we
-    // can ultimately return this error information if all else fails.
-    let original: crate::Error = code.into();
-
-    // Now attempt to find the factory's implementation heuristically.
-    if let Some(i) = search_path(C::NAME, |library| unsafe {
-        get_activation_factory(library, &name)
-    }) {
-        i.cast()
-    } else {
-        Err(original)
+    // Reg-free activation should only be attempted if the class is not registered.
+    // It should not be attempted if the class is registered but fails to activate.
+    if code == REGDB_E_CLASSNOTREG {
+        // Now attempt to find the factory's implementation heuristically.
+        if let Some(i) = search_path(C::NAME, |library| unsafe {
+            get_activation_factory(library, &name)
+        }) {
+            return i.cast();
+        }
     }
+
+    Err(crate::Error::from_hresult(code))
 }
 
 // Remove the suffix until a match is found appending `.dll\0` at the end
@@ -146,32 +146,36 @@ unsafe fn get_activation_factory(
     library: crate::PCSTR,
     name: &crate::HSTRING,
 ) -> crate::Result<IGenericFactory> {
-    let function =
-        delay_load::<DllGetActivationFactory>(library, crate::s!("DllGetActivationFactory"))
-            .ok_or_else(crate::Error::from_win32)?;
-    let mut abi = null_mut();
-    function(transmute_copy(name), &mut abi).and_then(|| crate::Type::from_abi(abi))
+    unsafe {
+        let function =
+            delay_load::<DllGetActivationFactory>(library, crate::s!("DllGetActivationFactory"))
+                .ok_or_else(crate::Error::from_thread)?;
+        let mut abi = null_mut();
+        function(transmute_copy(name), &mut abi).and_then(|| crate::Type::from_abi(abi))
+    }
 }
 
 unsafe fn delay_load<T>(library: crate::PCSTR, function: crate::PCSTR) -> Option<T> {
-    let library = LoadLibraryExA(
-        library.0,
-        core::ptr::null_mut(),
-        LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
-    );
+    unsafe {
+        let library = LoadLibraryExA(
+            library.0,
+            core::ptr::null_mut(),
+            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
+        );
 
-    if library.is_null() {
-        return None;
+        if library.is_null() {
+            return None;
+        }
+
+        let address = GetProcAddress(library, function.0);
+
+        if address.is_some() {
+            return Some(core::mem::transmute_copy(&address));
+        }
+
+        FreeLibrary(library);
+        None
     }
-
-    let address = GetProcAddress(library, function.0);
-
-    if address.is_some() {
-        return Some(core::mem::transmute_copy(&address));
-    }
-
-    FreeLibrary(library);
-    None
 }
 
 type DllGetActivationFactory =

@@ -122,7 +122,7 @@ features = [
 ]
 
 [target."cfg(windows)".dependencies.windows]
-version = "0.58"
+version = "0.62"
 optional = true
 features = [
  "Win32_Foundation",
@@ -244,7 +244,7 @@ firefox-on-glean = { path = "../../toolkit/components/glean/api" }
 icu_capi = { path = "../../intl/icu_capi" }
 icu_segmenter_data = { path = "../../intl/icu_segmenter_data" }
 libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
-midir = { git = "https://github.com/mozilla/midir.git", rev = "0cc61b81b26088bb8d6e593caf96879879ab814b" }
+midir = { git = "https://github.com/mozilla/midir.git", rev = "54759f681f3b523e120d047adec2bb1a97152017" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
@@ -269,3 +269,8 @@ init_rust_components = { git = "https://github.com/mozilla/application-services"
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
 hashlink = { git = "https://github.com/erichdongubler-contrib/hashlink", rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff" }
+
+[patch."https://github.com/mozilla/neqo"]
+neqo-common = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }
+neqo-udp = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }
+mtu = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }

@@ -1,12 +1,5 @@
 //! This crate provides a fully written in Rust memory allocator for Vulkan, DirectX 12 and Metal.
 //!
-//! # [Windows-rs] and [winapi]
-//!
-//! `gpu-allocator` recently migrated from [winapi] to [windows-rs] but still provides convenient helpers to convert to and from [winapi] types, enabled when compiling with the `public-winapi` crate feature.
-//!
-//! [Windows-rs]: https://github.com/microsoft/windows-rs
-//! [winapi]: https://github.com/retep998/winapi-rs
-//!
 //! # Setting up the Vulkan memory allocator
 //!
 //! ```no_run
@@ -161,14 +154,13 @@
 //! ```no_run
 //! # #[cfg(feature = "metal")]
 //! # fn main() {
-//! # use std::sync::Arc;
 //! use gpu_allocator::metal::*;
-//!
-//! # let device = Arc::new(metal::Device::system_default().unwrap());
+//! # let device = objc2_metal::MTLCreateSystemDefaultDevice().expect("No MTLDevice found");
 //! let mut allocator = Allocator::new(&AllocatorCreateDesc {
 //!     device: device.clone(),
 //!     debug_settings: Default::default(),
 //!     allocation_sizes: Default::default(),
+//!     create_residency_set: false,
 //! });
 //! # }
 //! # #[cfg(not(feature = "metal"))]
@@ -176,28 +168,37 @@
 //! ```
 //!
 //! # Simple Metal allocation example
+//!
 //! ```no_run
 //! # #[cfg(feature = "metal")]
 //! # fn main() {
-//! # use std::sync::Arc;
 //! use gpu_allocator::metal::*;
 //! use gpu_allocator::MemoryLocation;
-//! # let device = Arc::new(metal::Device::system_default().unwrap());
+//! # let device = objc2_metal::MTLCreateSystemDefaultDevice().expect("No MTLDevice found");
 //! # let mut allocator = Allocator::new(&AllocatorCreateDesc {
 //! #     device: device.clone(),
 //! #     debug_settings: Default::default(),
 //! #     allocation_sizes: Default::default(),
+//! #    create_residency_set: false,
 //! # })
 //! # .unwrap();
-//!
 //! let allocation_desc = AllocationCreateDesc::buffer(
 //!     &device,
 //!     "Example allocation",
 //!     512, // size in bytes
-//!     gpu_allocator::MemoryLocation::GpuOnly,
+//!     MemoryLocation::GpuOnly,
 //! );
 //! let allocation = allocator.allocate(&allocation_desc).unwrap();
-//! let resource = allocation.make_buffer().unwrap();
+//! # use objc2_metal::MTLHeap;
+//! let heap = unsafe { allocation.heap() };
+//! let resource = unsafe {
+//!     heap.newBufferWithLength_options_offset(
+//!         allocation.size() as usize,
+//!         heap.resourceOptions(),
+//!         allocation.offset() as usize,
+//!     )
+//! }
+//! .unwrap();
 //!
 //! // Cleanup
 //! drop(resource);
@@ -206,6 +207,22 @@
 //! # #[cfg(not(feature = "metal"))]
 //! # fn main() {}
 //! ```
+#![deny(clippy::unimplemented, clippy::unwrap_used, clippy::ok_expect)]
+#![warn(
+    clippy::alloc_instead_of_core,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core
+)]
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[macro_use]
+extern crate alloc;
+
+#[cfg(all(not(feature = "std"), feature = "visualizer"))]
+compile_error!("Cannot enable `visualizer` feature in `no_std` environment.");
+
+#[cfg(not(any(feature = "std", feature = "hashbrown")))]
+compile_error!("Either `std` or `hashbrown` feature must be enabled");
 
 mod result;
 pub use result::*;
@@ -223,7 +240,7 @@ pub mod vulkan;
 #[cfg(all(windows, feature = "d3d12"))]
 pub mod d3d12;
 
-#[cfg(all(any(target_os = "macos", target_os = "ios"), feature = "metal"))]
+#[cfg(all(target_vendor = "apple", feature = "metal"))]
 pub mod metal;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -239,6 +256,7 @@ pub enum MemoryLocation {
     GpuToCpu,
 }
 
+#[non_exhaustive]
 #[derive(Copy, Clone, Debug)]
 pub struct AllocatorDebugSettings {
     /// Logs out debugging information about the various heaps the current device has on startup
@@ -248,12 +266,14 @@ pub struct AllocatorDebugSettings {
     /// Stores a copy of the full backtrace for every allocation made, this makes it easier to debug leaks
     /// or other memory allocations, but storing stack traces has a RAM overhead so should be disabled
     /// in shipping applications.
+    #[cfg(feature = "std")]
     pub store_stack_traces: bool,
     /// Log out every allocation as it's being made with log level Debug, rather spammy so off by default
     pub log_allocations: bool,
     /// Log out every free that is being called with log level Debug, rather spammy so off by default
     pub log_frees: bool,
     /// Log out stack traces when either `log_allocations` or `log_frees` is enabled.
+    #[cfg(feature = "std")]
     pub log_stack_traces: bool,
 }
 
@@ -262,9 +282,11 @@ impl Default for AllocatorDebugSettings {
         Self {
             log_memory_information: false,
             log_leaks_on_shutdown: true,
+            #[cfg(feature = "std")]
             store_stack_traces: false,
             log_allocations: false,
             log_frees: false,
+            #[cfg(feature = "std")]
             log_stack_traces: false,
         }
     }
@@ -276,58 +298,152 @@ impl Default for AllocatorDebugSettings {
 /// values, but eg. an app might want to use smaller block sizes to reduce the amount of memory used.
 ///
 /// Clamped between 4MB and 256MB, and rounds up to the nearest multiple of 4MB for alignment reasons.
+///
+/// Note that these limits only apply to shared memory blocks that can hold multiple allocations.
+/// If an allocation does not fit within the corresponding maximum block size, it will be placed
+/// in a dedicated memory block holding only this allocation, without limitations other than what
+/// the underlying hardware and driver are able to provide.
+///
+/// # Fixed or growable block size
+///
+/// This structure represents ranges of allowed sizes for shared memory blocks.
+/// By default, if the upper bounds are not extended using `with_max_*_memblock_size`,
+/// the allocator will be configured to use a fixed memory block size for shared
+/// allocations.
+///
+/// Otherwise, the allocator will pick a memory block size within the specifed
+/// range, depending on the number of existing allocations for the memory
+/// type.
+///
+/// As a rule of thumb, the allocator will start with the minimum block size
+/// and double the size with each new allocation, up to the specified maximum
+/// block size. This growth is tracked independently for each memory type.
+/// The block size also decreases when blocks are deallocated.
+///
+/// # Example
+///
+/// ```
+/// use gpu_allocator::AllocationSizes;
+/// const MB: u64 = 1024 * 1024;
+/// // This configuration uses fixed memory block sizes.
+/// let fixed = AllocationSizes::new(256 * MB, 64 * MB);
+///
+/// // This configuration starts with 8MB memory blocks
+/// // and grows the block size of a given memory type each
+/// // time a new allocation is needed, up to a limit of
+/// // 256MB for device memory and 64MB for host memory.
+/// let growing = AllocationSizes::new(8 * MB, 8 * MB)
+///     .with_max_device_memblock_size(256 * MB)
+///     .with_max_host_memblock_size(64 * MB);
+/// ```
 #[derive(Clone, Copy, Debug)]
 pub struct AllocationSizes {
-    /// The size of the memory blocks that will be created for the GPU only memory type.
+    /// The initial size for device memory blocks.
+    ///
+    /// The size of new device memory blocks doubles each time a new block is needed, up to
+    /// [`AllocationSizes::max_device_memblock_size`].
     ///
     /// Defaults to 256MB.
-    device_memblock_size: u64,
-    /// The size of the memory blocks that will be created for the CPU visible memory types.
+    min_device_memblock_size: u64,
+    /// The maximum size for device memory blocks.
+    ///
+    /// Defaults to the value of [`AllocationSizes::min_device_memblock_size`].
+    max_device_memblock_size: u64,
+    /// The initial size for host memory blocks.
+    ///
+    /// The size of new host memory blocks doubles each time a new block is needed, up to
+    /// [`AllocationSizes::max_host_memblock_size`].
     ///
     /// Defaults to 64MB.
-    host_memblock_size: u64,
+    min_host_memblock_size: u64,
+    /// The maximum size for host memory blocks.
+    ///
+    /// Defaults to the value of [`AllocationSizes::min_host_memblock_size`].
+    max_host_memblock_size: u64,
 }
 
 impl AllocationSizes {
+    /// Sets the minimum device and host memory block sizes.
+    ///
+    /// The maximum block sizes are initialized to the minimum sizes and
+    /// can be increased using [`AllocationSizes::with_max_device_memblock_size`] and
+    /// [`AllocationSizes::with_max_host_memblock_size`].
     pub fn new(device_memblock_size: u64, host_memblock_size: u64) -> Self {
-        const FOUR_MB: u64 = 4 * 1024 * 1024;
-        const TWO_HUNDRED_AND_FIFTY_SIX_MB: u64 = 256 * 1024 * 1024;
-
-        let mut device_memblock_size =
-            device_memblock_size.clamp(FOUR_MB, TWO_HUNDRED_AND_FIFTY_SIX_MB);
-        let mut host_memblock_size =
-            host_memblock_size.clamp(FOUR_MB, TWO_HUNDRED_AND_FIFTY_SIX_MB);
-
-        if device_memblock_size % FOUR_MB != 0 {
-            let val = device_memblock_size / FOUR_MB + 1;
-            device_memblock_size = val * FOUR_MB;
-            log::warn!(
-                "Device memory block size must be a multiple of 4MB, clamping to {}MB",
-                device_memblock_size / 1024 / 1024
-            )
-        }
-
-        if host_memblock_size % FOUR_MB != 0 {
-            let val = host_memblock_size / FOUR_MB + 1;
-            host_memblock_size = val * FOUR_MB;
-            log::warn!(
-                "Host memory block size must be a multiple of 4MB, clamping to {}MB",
-                host_memblock_size / 1024 / 1024
-            )
-        }
+        let device_memblock_size = Self::adjust_memblock_size(device_memblock_size, "Device");
+        let host_memblock_size = Self::adjust_memblock_size(host_memblock_size, "Host");
 
         Self {
-            device_memblock_size,
-            host_memblock_size,
+            min_device_memblock_size: device_memblock_size,
+            max_device_memblock_size: device_memblock_size,
+            min_host_memblock_size: host_memblock_size,
+            max_host_memblock_size: host_memblock_size,
         }
+    }
+
+    /// Sets the maximum device memblock size, in bytes.
+    pub fn with_max_device_memblock_size(mut self, size: u64) -> Self {
+        self.max_device_memblock_size =
+            Self::adjust_memblock_size(size, "Device").max(self.min_device_memblock_size);
+
+        self
+    }
+
+    /// Sets the maximum host memblock size, in bytes.
+    pub fn with_max_host_memblock_size(mut self, size: u64) -> Self {
+        self.max_host_memblock_size =
+            Self::adjust_memblock_size(size, "Host").max(self.min_host_memblock_size);
+
+        self
+    }
+
+    fn adjust_memblock_size(size: u64, kind: &str) -> u64 {
+        const MB: u64 = 1024 * 1024;
+
+        let size = size.clamp(4 * MB, 256 * MB);
+
+        if size % (4 * MB) == 0 {
+            return size;
+        }
+
+        let val = size / (4 * MB) + 1;
+        let new_size = val * 4 * MB;
+        log::warn!(
+            "{kind} memory block size must be a multiple of 4MB, clamping to {}MB",
+            new_size / MB
+        );
+
+        new_size
+    }
+
+    /// Used internally to decide the size of a shared memory block
+    /// based within the allowed range, based on the number of
+    /// existing allocations. The more blocks there already are
+    /// (where the requested allocation didn't fit), the larger
+    /// the returned memory block size is going to be (up to
+    /// `max_*_memblock_size`).
+    pub(crate) fn get_memblock_size(&self, is_host: bool, count: usize) -> u64 {
+        let (min_size, max_size) = if is_host {
+            (self.min_host_memblock_size, self.max_host_memblock_size)
+        } else {
+            (self.min_device_memblock_size, self.max_device_memblock_size)
+        };
+
+        // The ranges are clamped to 4MB..256MB so we never need to
+        // shift by more than 7 bits. Clamping here to avoid having
+        // to worry about overflows.
+        let shift = count.min(7) as u64;
+        (min_size << shift).min(max_size)
     }
 }
 
 impl Default for AllocationSizes {
     fn default() -> Self {
+        const MB: u64 = 1024 * 1024;
         Self {
-            device_memblock_size: 256 * 1024 * 1024,
-            host_memblock_size: 64 * 1024 * 1024,
+            min_device_memblock_size: 256 * MB,
+            max_device_memblock_size: 256 * MB,
+            min_host_memblock_size: 64 * MB,
+            max_host_memblock_size: 64 * MB,
         }
     }
 }
