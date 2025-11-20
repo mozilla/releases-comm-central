@@ -51,7 +51,7 @@ add_setup(async function () {
  */
 var msgc;
 
-add_task(async function test_open_message_window() {
+add_setup(async function () {
   await be_in_folder(folderA);
 
   // select the first message
@@ -90,13 +90,16 @@ add_task(async function test_open_message_window() {
       "title should be correct"
     );
   }
+  // Let things settle. Yet unclear exactly what's in flux.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 250));
 });
 
 /**
  * Use the "m" keyboard accelerator to mark a message as read or unread.
  */
 add_task(async function test_toggle_read() {
-  curMessage.markRead(false);
+  curMessage.markRead(false); // start off unread
   EventUtils.synthesizeKey("m", {}, msgc);
   await TestUtils.waitForTick();
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
