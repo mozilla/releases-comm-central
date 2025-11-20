@@ -84,19 +84,25 @@ add_task(async function test_open_message_window() {
     await TestUtils.waitForCondition(
       () => msgc.window.document.title == expectedTitle
     );
-    Assert.equal(msgc.window.document.title, expectedTitle);
+    Assert.equal(
+      msgc.window.document.title,
+      expectedTitle,
+      "title should be correct"
+    );
   }
 });
 
 /**
  * Use the "m" keyboard accelerator to mark a message as read or unread.
  */
-add_task(function test_toggle_read() {
+add_task(async function test_toggle_read() {
   curMessage.markRead(false);
   EventUtils.synthesizeKey("m", {}, msgc);
+  await TestUtils.waitForTick();
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   EventUtils.synthesizeKey("m", {}, msgc);
+  await TestUtils.waitForTick();
   Assert.ok(!curMessage.isRead, "Message should have been marked unread!");
 });
 
