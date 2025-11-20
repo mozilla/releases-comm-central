@@ -7,6 +7,8 @@
  * background tab.
  */
 
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
