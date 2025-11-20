@@ -355,9 +355,11 @@ class AutoTreeView extends TreeView {
     this.table
       .querySelector(".sorting")
       ?.classList.remove("sorting", "ascending", "descending");
+    // Use the values from the view here, in case it rejects `newColumn` or
+    // `newDirection`.
     this.table
-      .querySelector(`#${newColumn} button`)
-      ?.classList.add("sorting", newDirection);
+      .querySelector(`#${this.view.sortColumn} button`)
+      ?.classList.add("sorting", this.view.sortDirection);
   }
 
   /**

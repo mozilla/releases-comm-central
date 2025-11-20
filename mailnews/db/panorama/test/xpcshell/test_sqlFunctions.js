@@ -144,3 +144,47 @@ add_task(function testAddressFormat() {
 
   stmt.finalize();
 });
+
+add_task(function testDateGroup() {
+  const stmt = database.connectionForTests.createStatement(
+    "SELECT UNIXEPOCH(:date) * 1000000 AS input, DATE_GROUP(UNIXEPOCH(:date) * 1000000) AS result"
+  );
+
+  function check(input, expectedOutput) {
+    stmt.params.date = input;
+    stmt.executeStep();
+    Assert.equal(
+      stmt.row.result,
+      expectedOutput,
+      `date_grouped(${stmt.row.input}) should return ${expectedOutput}`
+    );
+    stmt.reset();
+  }
+
+  const tomorrow = new Date();
+  tomorrow.setHours(26);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setHours(-2);
+  const thisWeek = new Date(yesterday);
+  thisWeek.setDate(thisWeek.getDate() - 3);
+  const lastWeek = new Date(thisWeek);
+  lastWeek.setDate(lastWeek.getDate() - 7);
+
+  check(tomorrow.toISOString(), Ci.nsILiveView.DATE_GROUP_FUTURE);
+  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  today.setHours(0);
+  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  today.setMinutes(0);
+  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_TODAY);
+  today.setMinutes(-1);
+  check(today.toISOString(), Ci.nsILiveView.DATE_GROUP_YESTERDAY);
+  check(yesterday.toISOString(), Ci.nsILiveView.DATE_GROUP_YESTERDAY);
+  check(thisWeek.toISOString(), Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS);
+  check(lastWeek.toISOString(), Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS);
+  check("2025-05-26T02:00:00Z", 2025);
+  check("2024-08-18T19:45:00Z", 2024);
+  check("1995-11-15T00:00:00Z", 1995);
+
+  stmt.finalize();
+});

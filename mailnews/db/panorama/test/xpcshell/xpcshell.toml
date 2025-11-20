@@ -12,6 +12,7 @@ support-files = [
   "db/messages.sql",
   "db/move.sql",
   "db/relations.sql",
+  "db/sortGroups.sql",
 ]
 
 ["test_delete.js"]
@@ -27,7 +28,13 @@ support-files = [
 ["test_liveViewDataAdapter.js"]
 tags = ["dataadapter"]
 
+["test_liveViewGroupedDataAdapter.js"]
+tags = ["dataadapter"]
+
 ["test_liveViewSQL.js"]
+
+["test_liveViewThreadedDataAdapter.js"]
+tags = ["dataadapter"]
 
 ["test_liveView_conversations.js"]
 

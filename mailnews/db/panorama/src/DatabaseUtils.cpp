@@ -7,16 +7,23 @@
 #include "mozilla/Components.h"
 #include "mozilla/intl/FormatBuffer.h"
 #include "mozilla/intl/String.h"
+#include "mozilla/Logging.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/storage/Variant.h"
 #include "mozIStorageStatement.h"
 #include "nsIAbCard.h"
+#include "nsILiveView.h"
 #include "nsIMsgHeaderParser.h"
 #include "nsString.h"
+#include "prtime.h"
 
+using mozilla::LazyLogModule;
+using mozilla::LogLevel;
 using mozilla::intl::nsTStringToBufferAdapter;
 
 namespace mozilla::mailnews {
+
+extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
 /* static */
 nsCString DatabaseUtils::Normalize(const nsACString& inString) {
@@ -235,6 +242,139 @@ nsresult AddressFormatFunction::GetDisplayNameInAddressBook(
   }
 
   return rv;
+}
+
+NS_IMPL_ISUPPORTS(GroupedByDateFunction, mozIStorageFunction)
+
+/**
+ * Groups date values relative to the current time, for the "grouped by sort"
+ * display when the sort is by date.
+ *
+ * There are five special categories here, "Future", "Today", "Yesterday", "Last
+ * 7 Days", and "Last 14 Days". For input values in those ranges, magic output
+ * values are returned. It doesn't matter what those values are as long as they
+ * match the front-end code that handles them, and they are greater than the
+ * current year so they get sorted correctly.
+ *
+ * For older input values, the year is returned.
+ */
+NS_IMETHODIMP GroupedByDateFunction::OnFunctionCall(
+    mozIStorageValueArray* aArguments, nsIVariant** aResult) {
+  MOZ_ASSERT(aArguments);
+  MOZ_ASSERT(aResult);
+
+  uint32_t argc;
+  aArguments->GetNumEntries(&argc);
+
+  if (argc != 1) {
+    NS_WARNING("Don't call me with the wrong number of arguments!");
+    return NS_ERROR_INVALID_ARG;
+  }
+
+  int64_t year = 0;
+  int32_t type;
+  aArguments->GetTypeOfIndex(0, &type);
+  if (type != mozIStorageStatement::VALUE_TYPE_INTEGER) {
+    NS_WARNING("Don't call me with the wrong type of argument 1!");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  PRTime now = PR_Now();
+  if (now >= mTomorrow) {
+    // Precalculate all of the dates we're interested in. Doing this prevents a
+    // call to PR_ExplodeTime for each message, instead we just do integer
+    // comparison.
+    // TODO: Reset mTomorrow to 0 if the system time zone changes. Observing
+    // "default-timezone-changed" should be enough.
+    MOZ_LOG(gPanoramaLog, LogLevel::Info,
+            ("GroupedByDateFunction: (re)calculating dates"));
+
+    char buf[24];
+    PRExplodedTime explodedNow;
+    PR_ExplodeTime(now, PR_LocalTimeParameters, &explodedNow);
+
+    // Today, actually midnight last night.
+    explodedNow.tm_hour = 0;
+    explodedNow.tm_min = 0;
+    explodedNow.tm_sec = 0;
+    explodedNow.tm_usec = 0;
+    mToday = PR_ImplodeTime(&explodedNow);
+    PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+            ("GroupedByDateFunction: today it was %s", buf));
+
+    // Tomorrow, actually midnight tonight. If the actual time passes this
+    // value, all the dates will be recalculated.
+    explodedNow.tm_mday++;
+    explodedNow.tm_hour =
+        12;  // Normalise the middle of the day to avoid DST weirdness.
+    PR_NormalizeTime(&explodedNow, PR_LocalTimeParameters);
+    explodedNow.tm_hour = 0;  // Reset to midnight.
+    explodedNow.tm_min = 0;
+    mTomorrow = PR_ImplodeTime(&explodedNow);
+    PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+            ("GroupedByDateFunction: tomorrow it will be %s", buf));
+
+    // Midnight yesterday.
+    explodedNow.tm_mday -= 2;  // We went forward 1 day, now go back 2.
+    explodedNow.tm_hour = 12;
+    PR_NormalizeTime(&explodedNow, PR_LocalTimeParameters);
+    explodedNow.tm_hour = 0;
+    explodedNow.tm_min = 0;
+    mYesterday = PR_ImplodeTime(&explodedNow);
+    PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+            ("GroupedByDateFunction: yesterday it was %s", buf));
+
+    // "7 Days Ago", actually 6 days before midnight last night.
+    explodedNow.tm_mday -= 5;  // 5 days before yesterday.
+    explodedNow.tm_hour = 12;
+    PR_NormalizeTime(&explodedNow, PR_LocalTimeParameters);
+    explodedNow.tm_hour = 0;
+    explodedNow.tm_min = 0;
+    mThisWeek = PR_ImplodeTime(&explodedNow);
+    PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+            ("GroupedByDateFunction: 7 days ago it was %s", buf));
+
+    // "14 Days Ago", actually 13 days before midnight last night.
+    explodedNow.tm_mday -= 7;  // Another week earlier.
+    explodedNow.tm_hour = 12;
+    PR_NormalizeTime(&explodedNow, PR_LocalTimeParameters);
+    explodedNow.tm_hour = 0;
+    explodedNow.tm_min = 0;
+    mLastWeek = PR_ImplodeTime(&explodedNow);
+    PR_FormatTime(buf, 24, "%FT%T", &explodedNow);
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug,
+            ("GroupedByDateFunction: 14 days ago it was %s", buf));
+  }
+
+  PRTime date = aArguments->AsInt64(0);
+  if (date > now + 1800) {
+    // A message from the future! (And a half-hour grace period for weirdness
+    // like clock skew.)
+    year = nsILiveView::DATE_GROUP_FUTURE;
+  } else if (date >= mToday) {
+    year = nsILiveView::DATE_GROUP_TODAY;
+  } else if (date >= mYesterday) {
+    year = nsILiveView::DATE_GROUP_YESTERDAY;
+  } else if (date >= mThisWeek) {
+    year = nsILiveView::DATE_GROUP_LAST_SEVEN_DAYS;
+  } else if (date >= mLastWeek) {
+    year = nsILiveView::DATE_GROUP_LAST_FOURTEEN_DAYS;
+  } else {
+    // TODO: This could be improved, to remove the PR_ExplodeTime call, by
+    // pre-calculating the start of each year as a PRTime and doing integer
+    // comparisons. But that's not important right now.
+    PRExplodedTime explodedDate;
+    PR_ExplodeTime(date, PR_LocalTimeParameters, &explodedDate);
+    year = explodedDate.tm_year;
+  }
+
+  nsCOMPtr<nsIVariant> result = new mozilla::storage::IntegerVariant(year);
+  result.forget(aResult);
+  return NS_OK;
 }
 
 }  // namespace mozilla::mailnews

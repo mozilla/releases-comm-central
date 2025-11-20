@@ -100,7 +100,7 @@ add_task(async function testThreadOutOfOrder() {
  */
 add_task(async function testThreadsOnly() {
   const liveView = new LiveView();
-  liveView.threadsOnly = true;
+  liveView.grouping = Ci.nsILiveView.THREADED;
 
   Assert.equal(
     liveView.countMessages(),

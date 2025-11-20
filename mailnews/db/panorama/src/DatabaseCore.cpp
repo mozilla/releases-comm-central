@@ -177,6 +177,8 @@ nsresult DatabaseCore::EnsureConnection() {
   sConnection->CreateFunction("tags_exclude"_ns, 2, tagsExclude);
   RefPtr<AddressFormatFunction> addressFormat = new AddressFormatFunction();
   sConnection->CreateFunction("address_format"_ns, 1, addressFormat);
+  RefPtr<GroupedByDateFunction> dateGroup = new GroupedByDateFunction();
+  sConnection->CreateFunction("date_group"_ns, 1, dateGroup);
 
   return NS_OK;
 }

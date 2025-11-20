@@ -21,11 +21,6 @@ interface nsILiveView : nsISupports {
   // `conversationId` is a message's thread id (nsIMsgDBHdr.threadId)
   void initWithConversation(in unsigned long long conversationId);
 
-  /**
-   * The live view should have only the newest message in each thread.
-   */
-  attribute boolean threadsOnly;
-
   cenum SortColumn : 8 {
     DATE = 1,
     SUBJECT = 2,
@@ -45,6 +40,23 @@ interface nsILiveView : nsISupports {
    */
   attribute boolean sortDescending;
 
+  cenum Grouping : 8 {
+    UNTHREADED = 1,
+    THREADED = 2,
+    GROUPED_BY_SORT = 3,
+  };
+
+  /**
+   * How messages should be grouped (or not grouped) for display.
+   */
+  attribute nsILiveView_Grouping grouping;
+
+  const unsigned long DATE_GROUP_FUTURE = 9999;
+  const unsigned long DATE_GROUP_TODAY = 9998;
+  const unsigned long DATE_GROUP_YESTERDAY = 9997;
+  const unsigned long DATE_GROUP_LAST_SEVEN_DAYS = 9996;
+  const unsigned long DATE_GROUP_LAST_FOURTEEN_DAYS = 9995;
+
   /**
    * Get the total number of messages in the database matching this live view.
    */
@@ -56,12 +68,23 @@ interface nsILiveView : nsISupports {
   unsigned long long countUnreadMessages();
 
   /**
-   * Get the messages matching this live view from the database. The return
-   * value is a JS array of plain objects containing the message properties.
+   * Get the messages matching this live view from the database. Messages will
+   * be sorted and grouped based on `sortColumn`, `sortDescending` and
+   * `grouping`. The return value is a JS array of plain objects containing
+   * the message properties.
    */
   [implicit_jscontext]
   jsval selectMessages([optional] in unsigned long long limit,
                        [optional] in unsigned long long offset);
+
+  /**
+   * Get the messages matching this live view and the specified group. The
+   * return value is a JS array of plain objects containing the message
+   * properties. Though the argument is a string, JS type conversion means
+   * an integer group identifier can be used, e.g. for date groups.
+   */
+  [implicit_jscontext]
+  Promise selectMessagesInGroup(in AUTF8String group);
 
   /**
    * Register as the one and only listener for this live view.

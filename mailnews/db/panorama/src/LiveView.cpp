@@ -9,6 +9,7 @@
 #include "js/Date.h"
 #include "jsapi.h"
 #include "mozilla/Components.h"
+#include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
 #include "mozStorageHelper.h"
@@ -23,11 +24,12 @@ using JS::NewArrayObject;
 using JS::NewDateObject;
 using JS::ObjectValue;
 using JS::Rooted;
-using JS::SetArrayLength;
 using JS::TimeClip;
 using JS::Value;
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
+using mozilla::dom::Promise;
+using xpc::CurrentNativeGlobal;
 
 namespace mozilla::mailnews {
 
@@ -96,17 +98,6 @@ NS_IMETHODIMP LiveView::InitWithConversation(uint64_t aConversationId) {
   return NS_OK;
 }
 
-NS_IMETHODIMP LiveView::GetThreadsOnly(bool* threadsOnly) {
-  *threadsOnly = mThreadsOnly;
-  return NS_OK;
-}
-
-NS_IMETHODIMP LiveView::SetThreadsOnly(bool threadsOnly) {
-  mThreadsOnly = threadsOnly;
-  ResetStatements();
-  return NS_OK;
-}
-
 NS_IMETHODIMP LiveView::GetSortColumn(nsILiveView::SortColumn* aSortColumn) {
   *aSortColumn = mSortColumn;
   return NS_OK;
@@ -129,6 +120,17 @@ NS_IMETHODIMP LiveView::SetSortDescending(bool aSortDescending) {
   return NS_OK;
 }
 
+NS_IMETHODIMP LiveView::GetGrouping(nsILiveView::Grouping* aGrouping) {
+  *aGrouping = mGrouping;
+  return NS_OK;
+}
+
+NS_IMETHODIMP LiveView::SetGrouping(nsILiveView::Grouping aGrouping) {
+  mGrouping = aGrouping;
+  ResetStatements();
+  return NS_OK;
+}
+
 void LiveView::ResetStatements() {
   if (mCountStmt) {
     mCountStmt->Finalize();
@@ -141,6 +143,10 @@ void LiveView::ResetStatements() {
   if (mSelectStmt) {
     mSelectStmt->Finalize();
     mSelectStmt = nullptr;
+  }
+  if (mSelectGroupStmt) {
+    mSelectGroupStmt->Finalize();
+    mSelectGroupStmt = nullptr;
   }
 }
 
@@ -201,12 +207,30 @@ bool LiveView::Matches(Message& aMessage) {
 
 NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
   if (!mCountStmt) {
-    nsAutoCString sql;
-    if (mThreadsOnly) {
-      sql = "SELECT COUNT(DISTINCT threadId) AS count FROM messages WHERE ";
+    nsAutoCString sql("SELECT COUNT(");
+    if (mGrouping == nsILiveView::THREADED) {
+      sql.Append("DISTINCT threadId");
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      switch (mSortColumn) {
+        case nsILiveView::DATE:
+          sql.Append("DISTINCT DATE_GROUP(date)");
+          break;
+        case nsILiveView::SortColumn::SUBJECT:
+          sql.Append("DISTINCT subject COLLATE locale");
+          break;
+        case nsILiveView::SortColumn::SENDER:
+          sql.Append("DISTINCT formattedSender COLLATE locale");
+          break;
+        case nsILiveView::SortColumn::RECIPIENTS:
+          sql.Append("DISTINCT formattedRecipients COLLATE locale");
+          break;
+        default:
+          MOZ_CRASH("Unexpected sort column for GROUPED_BY_SORT");
+      }
     } else {
-      sql = "SELECT COUNT(*) AS count FROM messages WHERE ";
+      sql.Append("*");
     }
+    sql.Append(") AS count FROM messages WHERE ");
     sql.Append(GetSQLClause());
     MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
@@ -225,12 +249,30 @@ NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
 
 NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
   if (!mCountUnreadStmt) {
-    nsAutoCString sql;
-    if (mThreadsOnly) {
-      sql = "SELECT COUNT(DISTINCT threadId) AS count FROM messages WHERE ";
+    nsAutoCString sql("SELECT COUNT(");
+    if (mGrouping == nsILiveView::THREADED) {
+      sql.Append("DISTINCT threadId");
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      switch (mSortColumn) {
+        case nsILiveView::DATE:
+          sql.Append("DISTINCT DATE_GROUP(date)");
+          break;
+        case nsILiveView::SortColumn::SUBJECT:
+          sql.Append("DISTINCT subject COLLATE locale");
+          break;
+        case nsILiveView::SortColumn::SENDER:
+          sql.Append("DISTINCT formattedSender COLLATE locale");
+          break;
+        case nsILiveView::SortColumn::RECIPIENTS:
+          sql.Append("DISTINCT formattedRecipients COLLATE locale");
+          break;
+        default:
+          MOZ_CRASH("Unexpected sort column for GROUPED_BY_SORT");
+      }
     } else {
-      sql = "SELECT COUNT(*) AS count FROM messages WHERE ";
+      sql.Append("*");
     }
+    sql.Append(") AS count FROM messages WHERE ");
     sql.Append(GetSQLClause());
     sql.Append(" AND ~flags & ");
     sql.AppendInt(nsMsgMessageFlags::Read);
@@ -249,16 +291,68 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
   return NS_OK;
 }
 
+void LiveView::CreateJSMessageArray(mozIStorageStatement* stmt, JSContext* cx,
+                                    Rooted<JSObject*>& arr) {
+  arr.set(NewArrayObject(cx, 0));
+  uint32_t count = 0;
+
+  bool hasResult;
+  uint32_t len;
+  double id;
+  const char* messageId;
+  double date;
+  const char* sender;
+  const char* recipients;
+  const char* subject;
+  double folderId;
+  double flags;
+  const char* tags;
+  double threadId;
+  double threadParent;
+
+  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+    id = stmt->AsInt64(0);
+    folderId = stmt->AsInt64(1);
+    messageId = stmt->AsSharedUTF8String(2, &len);
+    date = stmt->AsDouble(3);
+    sender = stmt->AsSharedUTF8String(4, &len);
+    recipients = stmt->AsSharedUTF8String(5, &len);
+    subject = stmt->AsSharedUTF8String(6, &len);
+    flags = stmt->AsInt64(7);
+    tags = stmt->AsSharedUTF8String(8, &len);
+    threadId = stmt->AsInt64(9);
+    threadParent = stmt->AsInt64(10);
+
+    Rooted<JSObject*> obj(cx);
+    CreateJSMessage(id, folderId, messageId, date, sender, recipients, subject,
+                    flags, tags, threadId, threadParent, cx, obj);
+    if (mGrouping == nsILiveView::THREADED ||
+        mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      double messageCount = stmt->AsInt64(11);
+      JS_DefineProperty(cx, obj, "messageCount", messageCount,
+                        JSPROP_ENUMERATE);
+    }
+    if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
+        mSortColumn == nsILiveView::DATE) {
+      double dateGroup = stmt->AsInt64(12);
+      JS_DefineProperty(cx, obj, "dateGroup", dateGroup, JSPROP_ENUMERATE);
+    }
+    Rooted<Value> message(cx, ObjectValue(*obj));
+    JS_DefineElement(cx, arr, count++, message, JSPROP_ENUMERATE);
+  }
+}
+
 /**
  * Create an object of JS primitives representing a message.
  */
-JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
-                                    const char* messageId, PRTime date,
-                                    const char* sender, const char* recipients,
-                                    const char* subject, uint64_t flags,
-                                    const char* tags, uint64_t threadId,
-                                    uint64_t threadParent, JSContext* cx) {
-  Rooted<JSObject*> obj(cx, JS_NewPlainObject(cx));
+void LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
+                               const char* messageId, PRTime date,
+                               const char* sender, const char* recipients,
+                               const char* subject, uint64_t flags,
+                               const char* tags, uint64_t threadId,
+                               uint64_t threadParent, JSContext* cx,
+                               Rooted<JSObject*>& obj) {
+  obj.set(JS_NewPlainObject(cx));
 
   JS_DefineProperty(cx, obj, "id", (double)(id), JSPROP_ENUMERATE);
 
@@ -308,14 +402,13 @@ JSObject* LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
   JS_DefineProperty(cx, obj, "threadId", (double)(threadId), JSPROP_ENUMERATE);
   JS_DefineProperty(cx, obj, "threadParent", (double)(threadParent),
                     JSPROP_ENUMERATE);
-
-  return obj;
 }
 
 /**
  * Create an object of JS primitives representing a message.
  */
-JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* cx) {
+void LiveView::CreateJSMessage(Message* aMessage, JSContext* cx,
+                               Rooted<JSObject*>& obj) {
   // Yes. This is a bit clunky for now.
   nsAutoCString messageId;
   PRTime date;
@@ -337,15 +430,15 @@ JSObject* LiveView::CreateJSMessage(Message* aMessage, JSContext* cx) {
   aMessage->GetThreadId(&threadId);
   aMessage->GetThreadParent(&threadParent);
 
-  return CreateJSMessage(aMessage->Key(), aMessage->FolderId(), messageId.get(),
-                         date, sender.get(), recipients.get(), subject.get(),
-                         flags, tags.get(), (uint64_t)threadId,
-                         (uint64_t)threadParent, cx);
+  CreateJSMessage(aMessage->Key(), aMessage->FolderId(), messageId.get(), date,
+                  sender.get(), recipients.get(), subject.get(), flags,
+                  tags.get(), (uint64_t)threadId, (uint64_t)threadParent, cx,
+                  obj);
 }
 
-NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
-                                       JSContext* aCx,
-                                       MutableHandle<Value> aMessages) {
+NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
+                                       JSContext* cx,
+                                       MutableHandle<Value> messages) {
   if (!mSelectStmt) {
     nsAutoCString sql(
         "SELECT \
@@ -360,20 +453,48 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
           tags, \
           threadId, \
           threadParent");
-    if (mThreadsOnly) {
+    if (mGrouping == nsILiveView::THREADED) {
+      sql.Append(", COUNT(*) AS messageCount");
       // Get only the newest message in each thread. This is the last column and
       // only exists to tell SQLite what to do, we don't use this data.
-      sql.Append(", MAX(date)");
+      sql.Append(", MAX(date) AS maxDate");
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      sql.Append(", COUNT(*) AS messageCount");
+      if (mSortColumn == nsILiveView::DATE) {
+        sql.Append(", DATE_GROUP(date) AS dateGroup");
+      }
     }
     sql.Append(" FROM messages WHERE ");
     sql.Append(GetSQLClause());
-    if (mThreadsOnly) {
+    if (mGrouping == nsILiveView::THREADED) {
       sql.Append(" GROUP BY threadId ");
+    } else if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
+      sql.Append(" GROUP BY ");
+      switch (mSortColumn) {
+        case nsILiveView::SortColumn::DATE:
+          sql.Append("dateGroup ");
+          break;
+        case nsILiveView::SortColumn::SUBJECT:
+          sql.Append("subject ");
+          break;
+        case nsILiveView::SortColumn::SENDER:
+          sql.Append("formattedSender COLLATE locale ");
+          break;
+        case nsILiveView::SortColumn::RECIPIENTS:
+          sql.Append("formattedRecipients COLLATE locale ");
+          break;
+        default:
+          MOZ_CRASH("Unexpected sort column for GROUPED_BY_SORT");
+      }
     }
     sql.Append(" ORDER BY ");
     switch (mSortColumn) {
       case nsILiveView::SortColumn::DATE:
-        sql.Append("date");
+        if (mGrouping == nsILiveView::GROUPED_BY_SORT) {
+          sql.Append("dateGroup");
+        } else {
+          sql.Append("date");
+        }
         break;
       case nsILiveView::SortColumn::SUBJECT:
         sql.Append("subject COLLATE locale");
@@ -408,50 +529,82 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t aLimit, uint64_t aOffset,
   mozStorageStatementScoper scoper(mSelectStmt);
 
   PrepareStatement(mSelectStmt);
-  mSelectStmt->BindInt64ByName("limit"_ns, aLimit ? aLimit : -1);
-  mSelectStmt->BindInt64ByName("offset"_ns, aOffset);
+  mSelectStmt->BindInt64ByName("limit"_ns, limit ? limit : -1);
+  mSelectStmt->BindInt64ByName("offset"_ns, offset);
 
-  Rooted<JSObject*> arr(aCx, NewArrayObject(aCx, 100));
-  uint32_t count = 0;
+  Rooted<JSObject*> arr(cx);
+  CreateJSMessageArray(mSelectStmt, cx, arr);
+  messages.set(ObjectValue(*arr));
+  return NS_OK;
+}
 
-  bool hasResult;
-  uint32_t len;
-  double id;
-  const char* messageId;
-  double date;
-  const char* sender;
-  const char* recipients;
-  const char* subject;
-  double folderId;
-  double flags;
-  const char* tags;
-  double threadId;
-  double threadParent;
+nsresult LiveView::SelectMessagesInGroup(const nsACString& group, JSContext* cx,
+                                         Promise** retval) {
+  if (!mSelectGroupStmt) {
+    nsAutoCString sql(
+        "SELECT \
+          id, \
+          folderId, \
+          messageId, \
+          date, \
+          ADDRESS_FORMAT(sender) AS formattedSender, \
+          ADDRESS_FORMAT(recipients) AS formattedRecipients, \
+          subject, \
+          flags, \
+          tags, \
+          threadId, \
+          threadParent \
+        FROM messages WHERE ");
+    sql.Append(GetSQLClause());
+    if (mGrouping == nsILiveView::THREADED) {
+      sql.Append(" AND threadId = :group ORDER BY date ASC");
+    } else {
+      switch (mSortColumn) {
+        case nsILiveView::SortColumn::DATE:
+          sql.Append(" AND DATE_GROUP(date) = :group ORDER BY date");
+          sql.Append(mSortDescending ? " DESC" : " ASC");
+          break;
+        case nsILiveView::SortColumn::SUBJECT:
+          sql.Append(" AND subject = :group COLLATE locale");
+          // TODO: Sort order is undefined.
+          break;
+        case nsILiveView::SortColumn::SENDER:
+          sql.Append(" AND formattedSender = :group COLLATE locale");
+          // TODO: Sort order is undefined.
+          break;
+        case nsILiveView::SortColumn::RECIPIENTS:
+          sql.Append(" AND formattedRecipients = :group COLLATE locale");
+          // TODO: Sort order is undefined.
+          break;
+        default:
+          MOZ_CRASH("Unexpected sort column for GROUPED_BY_SORT");
+      }
+    }
+    MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
+    nsresult rv = DatabaseCore::sConnection->CreateStatement(
+        sql, getter_AddRefs(mSelectGroupStmt));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  mozStorageStatementScoper scoper(mSelectGroupStmt);
 
-  while (NS_SUCCEEDED(mSelectStmt->ExecuteStep(&hasResult)) && hasResult) {
-    id = mSelectStmt->AsInt64(0);
-    folderId = mSelectStmt->AsInt64(1);
-    messageId = mSelectStmt->AsSharedUTF8String(2, &len);
-    date = mSelectStmt->AsDouble(3);
-    sender = mSelectStmt->AsSharedUTF8String(4, &len);
-    recipients = mSelectStmt->AsSharedUTF8String(5, &len);
-    subject = mSelectStmt->AsSharedUTF8String(6, &len);
-    flags = mSelectStmt->AsInt64(7);
-    tags = mSelectStmt->AsSharedUTF8String(8, &len);
-    threadId = mSelectStmt->AsInt64(9);
-    threadParent = mSelectStmt->AsInt64(10);
-
-    JSObject* obj =
-        CreateJSMessage(id, folderId, messageId, date, sender, recipients,
-                        subject, flags, tags, threadId, threadParent, aCx);
-    Rooted<Value> message(aCx, ObjectValue(*obj));
-    JS_DefineElement(aCx, arr, count++, message, JSPROP_ENUMERATE);
+  PrepareStatement(mSelectGroupStmt);
+  if (mGrouping == nsILiveView::THREADED || mSortColumn == nsILiveView::DATE) {
+    nsresult rv;
+    int64_t groupInt = group.ToInteger(&rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    mSelectGroupStmt->BindInt64ByName("group"_ns, groupInt);
+  } else {
+    mSelectGroupStmt->BindUTF8StringByName("group"_ns, group);
   }
 
-  if (NS_WARN_IF(!SetArrayLength(aCx, arr, count))) {
-    return NS_ERROR_UNEXPECTED;
-  }
-  aMessages.set(ObjectValue(*arr));
+  Rooted<JSObject*> arr(cx);
+  CreateJSMessageArray(mSelectGroupStmt, cx, arr);
+
+  ErrorResult result;
+  RefPtr<Promise> promise = Promise::Create(CurrentNativeGlobal(cx), result);
+  promise->MaybeResolve(ObjectValue(*arr));
+  // TODO: reject if bad stuff happens.
+  promise.forget(retval);
 
   return NS_OK;
 }
@@ -461,7 +614,8 @@ void LiveView::OnMessageAdded(Message* aMessage) {
     return;
   }
 
-  JSObject* obj = CreateJSMessage(aMessage, mCx);
+  Rooted<JSObject*> obj(mCx);
+  CreateJSMessage(aMessage, mCx, obj);
   Rooted<Value> message(mCx, ObjectValue(*obj));
   MutableHandle<Value> handle(&message);
   mListener->OnMessageAdded(handle);
@@ -472,7 +626,8 @@ void LiveView::OnMessageRemoved(Message* aMessage, uint32_t oldFlags) {
     return;
   }
 
-  JSObject* obj = CreateJSMessage(aMessage, mCx);
+  Rooted<JSObject*> obj(mCx);
+  CreateJSMessage(aMessage, mCx, obj);
   Rooted<Value> message(mCx, ObjectValue(*obj));
   MutableHandle<Value> handle(&message);
   mListener->OnMessageRemoved(handle);

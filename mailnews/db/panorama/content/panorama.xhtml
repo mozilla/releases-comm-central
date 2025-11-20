@@ -48,14 +48,30 @@
       #messageList {
         flex: 1;
       }
+      tr[data-properties~="dummy"] {
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
     <ul id="folderList"></ul>
     <div>
-      <div>
+      <div id="grouping">
+        Grouping:
         <label
-          ><input id="threaded_messages" type="checkbox" /> Threads only</label
+          ><input id="unthreaded" type="radio" name="threadType" checked="" />
+          Unthreaded</label
+        >
+        <label
+          ><input id="threaded" type="radio" name="threadType" />
+          Threaded</label
+        >
+        <label
+          ><input id="grouped" type="radio" name="threadType" /> By Sort</label
+        >
+        <label
+          ><input id="conversations" type="radio" name="threadType" />
+          Conversations</label
         >
       </div>
       <auto-tree-view id="messageList"></auto-tree-view>

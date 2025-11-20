@@ -8,20 +8,24 @@
 #include "js/Context.h"
 #include "LiveViewFilters.h"
 #include "MessageDatabase.h"
+#include "mozilla/dom/Promise.h"
 #include "mozIStorageConnection.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
 #include "nsILiveView.h"
 #include "nsIVariant.h"
 
+using JS::Rooted;
+using mozilla::dom::Promise;
+
 namespace mozilla::mailnews {
 
 class LiveView : public nsILiveView, public MessageListener {
  public:
   LiveView()
-      : mThreadsOnly(false),
-        mSortColumn(nsILiveView::SortColumn::DATE),
-        mSortDescending(true) {}
+      : mSortColumn(nsILiveView::SortColumn::DATE),
+        mSortDescending(true),
+        mGrouping(nsILiveView::Grouping::UNTHREADED) {}
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSILIVEVIEW
@@ -34,10 +38,6 @@ class LiveView : public nsILiveView, public MessageListener {
  private:
   virtual ~LiveView() {
     delete mFolderFilter;
-
-    if (mCountStmt) mCountStmt->Finalize();
-    if (mCountUnreadStmt) mCountUnreadStmt->Finalize();
-    if (mSelectStmt) mSelectStmt->Finalize();
     ResetStatements();
   }
 
@@ -54,21 +54,23 @@ class LiveView : public nsILiveView, public MessageListener {
   nsTArray<RefPtr<nsIVariant>> mParams;
   LiveViewFilter* mFolderFilter = nullptr;
 
-  bool mThreadsOnly;
   nsILiveView::SortColumn mSortColumn;
   bool mSortDescending;
+  nsILiveView::Grouping mGrouping;
 
   nsCOMPtr<mozIStorageStatement> mCountStmt;
   nsCOMPtr<mozIStorageStatement> mCountUnreadStmt;
   nsCOMPtr<mozIStorageStatement> mSelectStmt;
+  nsCOMPtr<mozIStorageStatement> mSelectGroupStmt;
 
-  JSObject* CreateJSMessage(uint64_t id, uint64_t folderId,
-                            const char* messageId, PRTime date,
-                            const char* sender, const char* recipients,
-                            const char* subject, uint64_t flags,
-                            const char* tags, uint64_t threadId,
-                            uint64_t threadParent, JSContext* aCx);
-  JSObject* CreateJSMessage(Message* aMessage, JSContext* aCx);
+  void CreateJSMessageArray(mozIStorageStatement*, JSContext*,
+                            Rooted<JSObject*>&);
+  void CreateJSMessage(uint64_t id, uint64_t folderId, const char* messageId,
+                       PRTime date, const char* sender, const char* recipients,
+                       const char* subject, uint64_t flags, const char* tags,
+                       uint64_t threadId, uint64_t threadParent, JSContext* aCx,
+                       Rooted<JSObject*>&);
+  void CreateJSMessage(Message* aMessage, JSContext* aCx, Rooted<JSObject*>&);
 
   // The one and only listener for this live view, if set.
   nsCOMPtr<nsILiveViewListener> mListener;

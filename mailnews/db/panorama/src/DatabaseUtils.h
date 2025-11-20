@@ -12,6 +12,7 @@
 #include "nsIAbManager.h"
 #include "nsIObserver.h"
 #include "nsTString.h"
+#include "prtime.h"
 
 using mozilla::Preferences;
 
@@ -69,6 +70,23 @@ class AddressFormatFunction final : public mozIStorageFunction,
                              const nsACString& aEmailAddress);
   nsresult GetDisplayNameInAddressBook(const nsACString& aEmailAddress,
                                        nsACString& aDisplayName);
+};
+
+class GroupedByDateFunction final : public mozIStorageFunction {
+ public:
+  explicit GroupedByDateFunction() {};
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_MOZISTORAGEFUNCTION
+
+ private:
+  ~GroupedByDateFunction() = default;
+
+  PRTime mTomorrow;
+  PRTime mToday;
+  PRTime mYesterday;
+  PRTime mThisWeek;
+  PRTime mLastWeek;
 };
 
 }  // namespace mozilla::mailnews

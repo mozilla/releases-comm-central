@@ -40,6 +40,32 @@ ChromeUtils.defineLazyGetter(
       hourCycle: "h23",
     })
 );
+ChromeUtils.defineLazyGetter(lazy, "dateGroupLabels", () => {
+  // FIXME: We don't have a way to pass L10n IDs to the tree-view widget.
+  const l10n = new Localization(["messenger/messenger.ftl"], true);
+  return {
+    [Ci.nsILiveView.DATE_GROUP_FUTURE]: l10n.formatValueSync(
+      "message-group-future-date"
+    ),
+    [Ci.nsILiveView.DATE_GROUP_TODAY]: l10n.formatValueSync(
+      "message-group-today"
+    ),
+    [Ci.nsILiveView.DATE_GROUP_YESTERDAY]: l10n.formatValueSync(
+      "message-group-yesterday"
+    ),
+    [Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS]: l10n.formatValueSync(
+      "message-group-last-seven-days"
+    ),
+    [Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS]: l10n.formatValueSync(
+      "message-group-last-fourteen-days"
+    ),
+  };
+});
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "yearFormatter",
+  () => new Intl.DateTimeFormat(undefined, { year: "numeric" })
+);
 
 /**
  * Represents a message in the message database. These fields are not live.
@@ -57,13 +83,20 @@ ChromeUtils.defineLazyGetter(
  */
 
 /**
- * Adapts message data from nsILiveView for display in a TreeView.
+ * Adapts message data from nsILiveView for display in a TreeView. This class
+ * lists messages as a flat list.
  *
  * @augments {TreeDataAdapter}
  */
 export class LiveViewDataAdapter extends TreeDataAdapter {
-  constructor(liveView) {
+  /**
+   * @param {nsILiveView} liveView
+   * @param {nsILiveView_Grouping} [grouping=Ci.nsILiveView.UNTHREADED] -
+   *   set to Ci.nsILiveView.THREADED for one row only per thread.
+   */
+  constructor(liveView, grouping = Ci.nsILiveView.UNTHREADED) {
     super();
+    liveView.grouping = grouping;
     this._rowMap = new LiveViewRowMap(liveView, this);
   }
 
@@ -99,6 +132,9 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
    *   even if `sortColumn` and `sortDirection` match the current sort.
    */
   sortBy(sortColumn, sortDirection, _resort = false) {
+    if (!(sortColumn in columns)) {
+      sortColumn = "date";
+    }
     this._rowMap.sortBy(sortColumn, sortDirection);
     this.sortColumn = sortColumn;
     this.sortDirection = sortDirection;
@@ -188,6 +224,10 @@ class LiveViewRowMap {
   #sortDescending = true;
   #sortComparator = comparators.date;
 
+  /**
+   * @param {nsILiveView} liveView
+   * @param {LiveViewDataAdapter} dataAdapter
+   */
   constructor(liveView, dataAdapter) {
     this.#liveView = liveView;
     this.#dataAdapter = dataAdapter;
@@ -289,10 +329,13 @@ class LiveViewRowMap {
    * @param {"ascending"|"descending"} sortDirection
    */
   sortBy(sortColumn, sortDirection) {
-    this.#liveView.sortColumn = columns[sortColumn] ?? columns.date;
+    if (!(sortColumn in columns)) {
+      sortColumn = "date";
+    }
+    this.#liveView.sortColumn = columns[sortColumn];
     this.#sortDescending = this.#liveView.sortDescending =
       sortDirection == "descending";
-    this.#sortComparator = comparators[sortColumn] ?? comparators.date;
+    this.#sortComparator = comparators[sortColumn];
     this.resetRows();
   }
 
@@ -372,60 +415,270 @@ class LiveViewRowMap {
 }
 
 /**
+ * Adapts message data from nsILiveView for display in a TreeView. This class
+ * is like LiveViewDataAdapter but lists conversations instead of messages.
+ * It's also like LiveViewThreadedDataAdapter but without the option to expand
+ * thread rows.
+ *
+ * @augments {LiveViewDataAdapter}
+ */
+export class LiveViewConversationsDataAdapter extends LiveViewDataAdapter {
+  /**
+   * @param {nsILiveView} liveView
+   */
+  constructor(liveView) {
+    super(liveView, Ci.nsILiveView.THREADED);
+  }
+}
+
+/**
+ * Adapts message data from nsILiveView for display in a TreeView. This class
+ * lists messages grouped by thread. Threads are lazily loaded when the root
+ * message is expanded.
+ *
+ * @augments {TreeDataAdapter}
+ */
+export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
+  #liveView;
+
+  /**
+   * @param {nsILiveView} liveView
+   */
+  constructor(liveView) {
+    super();
+    this.#liveView = liveView;
+    liveView.grouping = Ci.nsILiveView.THREADED;
+  }
+
+  #getTopLevelRows() {
+    const conversations = this.#liveView.selectMessages();
+    this._rowMap = conversations.map(conversation => {
+      const row = new LiveViewDataRow(conversation);
+      row.liveView = this.#liveView;
+      row.threadId = conversation.threadId;
+      row.children.length = conversation.messageCount - 1;
+      return row;
+    });
+  }
+
+  sortBy(sortColumn, sortDirection, _resort = false) {
+    if (!(sortColumn in columns)) {
+      sortColumn = "date";
+    }
+    this.sortColumn = sortColumn;
+    this.sortDirection = sortDirection;
+    this.#liveView.sortColumn = columns[sortColumn];
+    this.#liveView.sortDescending = sortDirection == "descending";
+    this.#getTopLevelRows();
+  }
+}
+
+/**
  * A class representing a row in a TreeView.
  *
  * @augments {TreeDataRow}
  */
-export class LiveViewDataRow extends TreeDataRow {
+class LiveViewDataRow extends TreeDataRow {
+  /**
+   * The message to display when this row is open. Only available after
+   * `ensureChildren` has fetched the child messages.
+   *
+   * @type {Message}
+   */
+  #openMessage;
+
+  /**
+   * The message to display when this row is closed. Only available after
+   * `ensureChildren` has fetched the child messages.
+   *
+   * @type {Message}
+   */
+  #closedMessage;
+
+  /**
+   * @param {Message} message
+   */
   constructor(message) {
-    super(
-      {
-        ...message,
-        date: lazy.dateFormatter.format(message.date),
-        // Invert the read flag for unread messages.
-        unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
-        flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
-      },
-      { date: message.date.valueOf() }
-    );
+    super();
+    this.#initFromMessage(message);
+  }
+
+  /**
+   * Set up this row based on the values from `message`.
+   *
+   * @param {Message} message
+   */
+  #initFromMessage(message) {
+    this.texts = {
+      ...message,
+      date: lazy.dateFormatter.format(message.date),
+      // Invert the read flag for unread messages.
+      unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
+      flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
+    };
+    this.values = { date: message.date.valueOf() };
     this.message = message;
   }
 
   /**
-   * The actual text to display in the tree for the given column.
+   * Trigger loading of the child rows – it is an async function but you
+   * should not wait for it. This is called before `open` is set.
    *
-   * @param {string} columnID
-   * @returns {string}
+   * @param {TreeDataAdapter} dataAdapter - The adapter this row belongs to.
+   * @param {number} rootIndex - The current index of this row in the view.
    */
-  getText(columnID) {
-    return this.texts[columnID];
+  async ensureChildren(dataAdapter, rootIndex) {
+    if (this.children.length == 0 || this.children[0] !== undefined) {
+      return;
+    }
+
+    const messages = await this.liveView.selectMessagesInGroup(this.threadId);
+    this.#openMessage = messages[0];
+    // Don't overwrite this if for some weird reason we get here twice.
+    this.#closedMessage ??= this.message;
+
+    for (let i = 0; i < this.children.length; i++) {
+      const message = messages[i + 1];
+      this.children[i] = new LiveViewDataRow(message);
+      this.children[i].parent = this;
+      this.children[i].level = this.level + 1;
+    }
+    if (this.open) {
+      this.#initFromMessage(this.#openMessage);
+      // Notify the tree that the content is ready and it should redraw the rows.
+      dataAdapter._tree?.invalidateRange(
+        rootIndex,
+        rootIndex + this.children.length
+      );
+    }
   }
 
   /**
-   * The string or numeric value for the given column, to be used when
-   * comparing rows for sorting.
+   * Whether or not this row is open (its children are visible).
    *
-   * @param {string} columnID
-   * @returns {string|number}
+   * @type {boolean}
    */
-  getValue(columnID) {
-    return this.values[columnID];
+  get open() {
+    return this._open;
+  }
+
+  set open(value) {
+    this._open = value;
+
+    // Swap the contents of this row depending on whether it is open or not.
+    if (value) {
+      if (this.#openMessage) {
+        this.#initFromMessage(this.#openMessage);
+      }
+    } else if (this.#closedMessage) {
+      this.#initFromMessage(this.#closedMessage);
+    }
+  }
+}
+
+/**
+ * Adapts message data from nsILiveView for display in a TreeView. This class
+ * lists messages grouped by the current sort column. Each group contains a
+ * dummy header row. Groups are lazily loaded when the dummy row is expanded.
+ * Check for the "dummy" property to know if a row is a dummy row.
+ *
+ * @augments {TreeDataAdapter}
+ */
+export class LiveViewGroupedDataAdapter extends TreeDataAdapter {
+  #liveView;
+
+  /**
+   * @param {nsILiveView} liveView
+   */
+  constructor(liveView) {
+    super();
+    this.#liveView = liveView;
+    liveView.grouping = Ci.nsILiveView.GROUPED_BY_SORT;
+  }
+
+  #getTopLevelRows() {
+    const groups = this.#liveView.selectMessages();
+    this._rowMap = groups.map(group => {
+      const row = new LiveViewGroupedDataRow(this.#liveView, group);
+      row.liveView = this.#liveView;
+      row.children.length = group.messageCount;
+      return row;
+    });
+  }
+
+  sortBy(sortColumn, sortDirection, _resort = false) {
+    // Only some columns are allowed for this grouping. Reject others.
+    if (!["date", "subject", "sender", "recipients"].includes(sortColumn)) {
+      sortColumn = "date";
+    }
+    this.sortColumn = sortColumn;
+    this.sortDirection = sortDirection;
+    this.#liveView.sortColumn = columns[sortColumn];
+    this.#liveView.sortDescending = sortDirection == "descending";
+    this.#getTopLevelRows();
+  }
+}
+
+/**
+ * A dummy header row for the grouped-by-sort view.
+ *
+ * @augments {TreeDataRow}
+ */
+class LiveViewGroupedDataRow extends TreeDataRow {
+  /**
+   * @param {nsILiveView} liveView
+   * @param {Message} message
+   */
+  constructor(liveView, message) {
+    let label, group;
+    switch (liveView.sortColumn) {
+      case Ci.nsILiveView.DATE:
+        label =
+          lazy.dateGroupLabels[message.dateGroup] ??
+          // The value is a year. Format it for locales that display
+          // differently e.g. Japanese ("2025年").
+          lazy.yearFormatter.format(new Date(message.dateGroup, 0, 15));
+        group = message.dateGroup;
+        break;
+      case Ci.nsILiveView.SUBJECT:
+        label = group = message.subject;
+        break;
+      case Ci.nsILiveView.SENDER:
+        label = group = message.sender;
+        break;
+      case Ci.nsILiveView.RECIPIENTS:
+        label = group = message.recipients;
+        break;
+    }
+    super({ subject: label }, { date: message.dateGroup }, ["dummy"]);
+    this.group = group;
   }
 
   /**
-   * Properties of the row. Usually a space-separated list that gets assigned
-   * to an element's attribute and matched with CSS selectors.
+   * Trigger loading of the child rows – it is an async function but you
+   * should not wait for it. This is called before `open` is set.
    *
-   * @returns {string}
+   * @param {TreeDataAdapter} dataAdapter - The adapter this row belongs to.
+   * @param {number} rootIndex - The current index of this row in the view.
    */
-  getProperties() {
-    return this.properties;
-  }
+  async ensureChildren(dataAdapter, rootIndex) {
+    if (this.children.length == 0 || this.children[0] !== undefined) {
+      return;
+    }
 
-  /**
-   * Overrides TreeDataRow.appendRow to prevent it working.
-   */
-  appendRow() {
-    throw new Error("LiveViewDataRow.appendRow is not supported");
+    const messages = await this.liveView.selectMessagesInGroup(this.group);
+    for (let i = 0; i < this.children.length; i++) {
+      const message = messages[i];
+      this.children[i] = new LiveViewDataRow(message);
+      this.children[i].parent = this;
+      this.children[i].level = this.level + 1;
+    }
+    if (this.open) {
+      // Notify the tree that the content is ready and it should redraw the rows.
+      dataAdapter._tree?.invalidateRange(
+        rootIndex,
+        rootIndex + this.children.length
+      );
+    }
   }
 }

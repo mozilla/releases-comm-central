@@ -88,7 +88,9 @@ export class TreeDataAdapter {
       rowIndex--;
       if (topLevelRow.open) {
         if (rowIndex < topLevelRow.rowCount) {
-          return topLevelRow.rowAt(rowIndex);
+          // A subclass might return undefined here, if it loads rows
+          // asynchronously. Use a blank row in the interim.
+          return topLevelRow.rowAt(rowIndex) ?? new TreeDataRow();
         }
         rowIndex -= topLevelRow.rowCount;
       }
@@ -221,6 +223,9 @@ export class TreeDataAdapter {
       }
     } else {
       row.open = true;
+      // Tell the row it is being opened and it should prepare the child rows.
+      // (Used for subclasses.)
+      row.ensureChildren?.(this, rowIndex);
       if (rowCount) {
         this._tree?.rowCountChanged(rowIndex + 1, rowCount);
       }
@@ -314,9 +319,10 @@ export class TreeDataRow {
   /**
    * Whether or not this row is open (its children are visible).
    *
+   * @protected
    * @type {boolean}
    */
-  open = false;
+  _open = false;
 
   /**
    * The parent of this row, or null if this is a top-level row.
@@ -358,16 +364,33 @@ export class TreeDataRow {
   }
 
   /**
+   * Whether or not this row is open (its children are visible). Getter and
+   * setter can be overridden in a subclass to run extra code.
+   *
+   * @type {boolean}
+   */
+  get open() {
+    return this._open;
+  }
+
+  set open(value) {
+    this._open = value;
+  }
+
+  /**
    * The number of visible descendants of this row. Note: this is the same
    * value regardless of whether this row is open or closed.
    *
    * @returns {integer}
    */
   get rowCount() {
-    return this.children.reduce(
-      (total, current) => total + (current.open ? current.rowCount + 1 : 1),
-      0
-    );
+    // A subclass might have undefined elements in the children array (i.e. a
+    // sparse array), so don't call `reduce` on it.
+    let count = 0;
+    for (const child of this.children) {
+      count += child?.open ? child.rowCount + 1 : 1;
+    }
+    return count;
   }
 
   /**
