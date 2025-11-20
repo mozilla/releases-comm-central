@@ -217,11 +217,10 @@ add_task(async function test_inputChangeAndToggleAll() {
     `first ab checkbox should be visible`
   );
   firstAddressBookCheckbox.click();
-
-  await BrowserTestUtils.waitForMutationCondition(
-    firstAddressBookCheckbox,
-    { attributes: true },
-    () => !firstAddressBookCheckbox.checked
+  await TestUtils.waitForTick();
+  Assert.ok(
+    !firstAddressBookCheckbox.checked,
+    "first ab checkbox should be unchecked after click"
   );
 
   const selectAllAddressBooksLabel = abSyncSubview.querySelector(
