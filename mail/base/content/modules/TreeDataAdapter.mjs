@@ -335,6 +335,11 @@ export class TreeDataRow {
   /**
    * A set of string properties.
    *
+   * Setting `@name` and `@private` explicitly to work around jsdoc/sphinx-js
+   * not understanding private class fields (#properties).
+   *
+   * @name TreeDataAdapter.TreeDataRow._properties
+   * @private
    * @type {Set<string>}
    */
   #properties;
