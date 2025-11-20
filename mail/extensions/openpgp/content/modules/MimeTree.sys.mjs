@@ -1281,45 +1281,38 @@ export function mimeTreeToString(mimeTreePart, includeHeaders) {
 }
 
 /**
- * @callback MimeTreeFromUrlCallback
- *
- * Function is called when parsing is complete.
- * @param {MimeTreePart} mimeTreePart
- */
-
-/**
- * Parse a MIME message and return a tree structure of MimeTreePart
+ * Parse a MIME message and return a tree structure of MimeTreePart.
  *
  * @param {string} url - the URL to load and parse
- * @param {boolean} getBody - if true, delivers the body of each MimeTreePart
- * @param {MimeTreeFromUrlCallback} callbackFunc - the callback function that is
- *   called asynchronously when parsing is complete.
+ * @param {boolean} getBody - if true, delivers the body of each MimeTreePart.
+ * @returns {Promise<MimeTreePart>}
  */
-export function getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
-  function onData(data) {
-    const tree = getMimeTree(data, getBody);
-    callbackFunc(tree);
-  }
-
-  const chan = lazy.EnigmailStreams.createChannel(url);
-  const bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
-  chan.asyncOpen(bufferListener, null);
+export async function getMimeTreeFromUrl(url, getBody = false) {
+  return new Promise(resolve => {
+    const chan = lazy.EnigmailStreams.createChannel(url);
+    const bufferListener = lazy.EnigmailStreams.newStringStreamListener(
+      data => {
+        const tree = getMimeTree(data, getBody);
+        resolve(tree);
+      }
+    );
+    chan.asyncOpen(bufferListener, null);
+  });
 }
 
 /**
  * Return the contents of a message.
  *
  * @param {string} url - the URL to load and parse
- * @param {MimeTreeFromUrlCallback} callbackFunc - the callback function that is
- *   called asynchronously when parsing is complete.
+ * @returns {Promise<?string>} message data
  */
-export function getMessageFromUrl(url, callbackFunc) {
-  function onData(data) {
-    callbackFunc(data);
-  }
-  const chan = lazy.EnigmailStreams.createChannel(url);
-  const bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
-  chan.asyncOpen(bufferListener, null);
+export async function getMessageFromUrl(url) {
+  return new Promise(resolve => {
+    const chan = lazy.EnigmailStreams.createChannel(url);
+    const bufferListener =
+      lazy.EnigmailStreams.newStringStreamListener(resolve);
+    chan.asyncOpen(bufferListener, null);
+  });
 }
 
 /**

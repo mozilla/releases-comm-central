@@ -1,0 +1,117 @@
+Content-Type: multipart/mixed; boundary="------------wn6DUai7JprTeAquTCHlocgt"
+Message-ID: <0dd9117f-e22f-4bef-b6a0-fd827d376cd1@example.com>
+Date: Wed, 5 Nov 2025 14:17:57 +0200
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+References: <159e3867-5b53-475f-bbf3-4458dc47aa36@openpgp.example>
+Subject: Fwd: openpgp signed by alice
+Content-Language: en-US
+To: homer@example.com
+From: marge <marge@example.com>
+In-Reply-To: <159e3867-5b53-475f-bbf3-4458dc47aa36@openpgp.example>
+X-Forwarded-Message-Id: <159e3867-5b53-475f-bbf3-4458dc47aa36@openpgp.example>
+
+This is a multi-part message in MIME format.
+--------------wn6DUai7JprTeAquTCHlocgt
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+See the attached note from alice.
+
+--------------wn6DUai7JprTeAquTCHlocgt
+Content-Type: message/rfc822; name="openpgp signed by alice.eml"
+Content-Disposition: attachment; filename="openpgp signed by alice.eml"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <159e3867-5b53-475f-bbf3-4458dc47aa36@openpgp.example>
+Date: Wed, 5 Nov 2025 14:16:53 +0200
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+From: alice@openpgp.example
+Subject: openpgp signed by alice
+To: bob@example.com
+Content-Language: en-US
+Autocrypt: addr=alice@openpgp.example; keydata=
+ xjMEXEcE6RYJKwYBBAHaRw8BAQdArjWwk3FAqyiFbFBKT4TzXcVBqPTB3gmzlC/Ub7O1u13N
+ JkFsaWNlIExvdmVsYWNlIDxhbGljZUBvcGVucGdwLmV4YW1wbGU+wpAEExYIADgCGwMFCwkI
+ BwIGFQoJCAsCBBYCAwECHgECF4AWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCXaWfOgAKCRDy
+ MVUMT0fjjukrAPoDnHBSogOmsHOsd9qGsiZpgRnOdypvbm+QtXZqth9rvwD9HcDC0tC+PHAs
+ O7OTh1S1TC9RiJsvawAfCPaQZoed8gLOOARcRwTpEgorBgEEAZdVAQUBAQdAQv8GIa2rSTzg
+ qbXCpDDYMiKRVitCsy203x3sE9+eviIDAQgHwngEGBYIACAWIQTrhbtfozp14V6UTmPyMVUM
+ T0fjjgUCXEcE6QIbDAAKCRDyMVUMT0fjjlnQAQDFHUs6TIcxrNTtEZFjUFm1M0PJ1Dng/cDW
+ 4xN80fsn0QEA22Kr7VkCjeAEC08VSTeV+QFsmz55/lntWkwYWhmvOgE=
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------HOAbV0NGZhY0awMm9i3vggjy"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------HOAbV0NGZhY0awMm9i3vggjy
+Content-Type: multipart/mixed; boundary="------------4OfTSmbvn2oaV2iGM9U7p0g0";
+ protected-headers="v1"
+Message-ID: <159e3867-5b53-475f-bbf3-4458dc47aa36@openpgp.example>
+Date: Wed, 5 Nov 2025 14:16:53 +0200
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+From: alice@openpgp.example
+Subject: openpgp signed by alice
+To: bob@example.com
+Content-Language: en-US
+Autocrypt: addr=alice@openpgp.example; keydata=
+ xjMEXEcE6RYJKwYBBAHaRw8BAQdArjWwk3FAqyiFbFBKT4TzXcVBqPTB3gmzlC/Ub7O1u13N
+ JkFsaWNlIExvdmVsYWNlIDxhbGljZUBvcGVucGdwLmV4YW1wbGU+wpAEExYIADgCGwMFCwkI
+ BwIGFQoJCAsCBBYCAwECHgECF4AWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCXaWfOgAKCRDy
+ MVUMT0fjjukrAPoDnHBSogOmsHOsd9qGsiZpgRnOdypvbm+QtXZqth9rvwD9HcDC0tC+PHAs
+ O7OTh1S1TC9RiJsvawAfCPaQZoed8gLOOARcRwTpEgorBgEEAZdVAQUBAQdAQv8GIa2rSTzg
+ qbXCpDDYMiKRVitCsy203x3sE9+eviIDAQgHwngEGBYIACAWIQTrhbtfozp14V6UTmPyMVUM
+ T0fjjgUCXEcE6QIbDAAKCRDyMVUMT0fjjlnQAQDFHUs6TIcxrNTtEZFjUFm1M0PJ1Dng/cDW
+ 4xN80fsn0QEA22Kr7VkCjeAEC08VSTeV+QFsmz55/lntWkwYWhmvOgE=
+
+--------------4OfTSmbvn2oaV2iGM9U7p0g0
+Content-Type: multipart/mixed; boundary="------------QDomqPorOxCfDp7WIlfSDE1a"
+
+--------------QDomqPorOxCfDp7WIlfSDE1a
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+Q3J5cHRvZ3JhcGh5IGlzIG5vdCBtYWdpYyBwaXhpZSBkdXN0IHRoYXQgeW91IGNhbiBzcHJp
+bmtsZSBvbiBhIHN5c3RlbSANCnRvIG1ha2UgaXQgc2VjdXJlDQoNCg==
+--------------QDomqPorOxCfDp7WIlfSDE1a
+Content-Type: application/pgp-keys; name="OpenPGP_0xF231550C4F47E38E.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xF231550C4F47E38E.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEXEcE6RYJKwYBBAHaRw8BAQdArjWwk3FAqyiFbFBKT4TzXcVBqPTB3gmzlC/U
+b7O1u13NJkFsaWNlIExvdmVsYWNlIDxhbGljZUBvcGVucGdwLmV4YW1wbGU+wpAE
+ExYIADgCGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQTrhbtfozp14V6UTmPy
+MVUMT0fjjgUCXaWfOgAKCRDyMVUMT0fjjukrAPoDnHBSogOmsHOsd9qGsiZpgRnO
+dypvbm+QtXZqth9rvwD9HcDC0tC+PHAsO7OTh1S1TC9RiJsvawAfCPaQZoed8gLO
+OARcRwTpEgorBgEEAZdVAQUBAQdAQv8GIa2rSTzgqbXCpDDYMiKRVitCsy203x3s
+E9+eviIDAQgHwngEGBYIACAWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCXEcE6QIb
+DAAKCRDyMVUMT0fjjlnQAQDFHUs6TIcxrNTtEZFjUFm1M0PJ1Dng/cDW4xN80fsn
+0QEA22Kr7VkCjeAEC08VSTeV+QFsmz55/lntWkwYWhmvOgE=3D
+=3DQX3Q
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------QDomqPorOxCfDp7WIlfSDE1a--
+
+--------------4OfTSmbvn2oaV2iGM9U7p0g0--
+
+--------------HOAbV0NGZhY0awMm9i3vggjy
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wnsEABYIACMWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCaQtANQUDAAAAAAAKCRDyMVUMT0fjjsgr
+AP0QWNYpRDeWQDAC86pZeaVlYubw85gMeNkE567qqtagogEAjObA9SRuY2N2VgE0MkPYuHLrBITN
+cMEE0b4Bo9kBtAo=
+=u/NF
+-----END PGP SIGNATURE-----
+
+--------------HOAbV0NGZhY0awMm9i3vggjy--
+
+--------------wn6DUai7JprTeAquTCHlocgt--

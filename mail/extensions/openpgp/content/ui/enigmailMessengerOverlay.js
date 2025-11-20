@@ -291,13 +291,9 @@ Enigmail.msg = {
       await Enigmail.msg.notifyMessageDecryptDone();
       return;
     }
-    await new Promise(resolve => {
-      getMimeTreeFromUrl(url.spec, false, async function (mimeMsg) {
-        await Enigmail.msg.messageDecryptCb(interactive, isAuto, mimeMsg);
-        await Enigmail.msg.notifyMessageDecryptDone();
-        resolve();
-      });
-    });
+    const mimeMsg = await getMimeTreeFromUrl(url.spec);
+    await Enigmail.msg.messageDecryptCb(interactive, isAuto, mimeMsg);
+    await Enigmail.msg.notifyMessageDecryptDone();
   },
 
   /**

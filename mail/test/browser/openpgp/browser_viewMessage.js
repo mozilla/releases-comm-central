@@ -532,12 +532,15 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
  * We should not ignore the outer signature in this scenario.
  */
 add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
+  const openpgpprocessed = openpgpProcessed();
   const msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-with-mixed.eml")
     )
   );
   const aboutMessage = get_about_message(msgc);
+  await openpgpprocessed;
+  await TestUtils.waitForTick();
 
   Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
@@ -548,6 +551,103 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
+
+  const partsMessageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+
+  const button = aboutMessage.document.querySelector(
+    `button[data-l10n-id="openpgp-show-encrypted-parts"]`
+  );
+  const openpgpprocessed2 = openpgpProcessed();
+  EventUtils.synthesizeMouseAtCenter(
+    button,
+    { clickCount: 1 },
+    button.ownerGlobal
+  );
+  const win2 = await partsMessageWindowPromise;
+  const aboutMessage2 = get_about_message(win2);
+  await openpgpprocessed2;
+
+  Assert.stringContains(
+    getMsgBodyTxt(win2),
+    "Sundays are nothing without callaloo.",
+    "message text is in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage2.document),
+    "the part should not show signed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
+    "the parts should show as encrypted ok"
+  );
+
+  await BrowserTestUtils.closeWindow(win2);
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test "Open and show" an attached signed .eml
+ */
+add_task(async function testOpenAndShowAttachedEml() {
+  const openpgpprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/forwarded-eml-signed-by-alice.eml")
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+  await openpgpprocessed;
+  await TestUtils.waitForTick();
+
+  Assert.stringContains(
+    getMsgBodyTxt(msgc),
+    "See the attached note from alice.",
+    "message text is in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "the outer message is should not show as signed"
+  );
+
+  const partsMessageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+
+  const openpgpprocessed2 = openpgpProcessed();
+  const button = aboutMessage.document.querySelector(
+    `button[data-l10n-id="openpgp-show-signed-parts"]`
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    button,
+    { clickCount: 1 },
+    button.ownerGlobal
+  );
+  const win2 = await partsMessageWindowPromise;
+  const aboutMessage2 = get_about_message(win2);
+  await openpgpprocessed2;
+
+  Assert.ok(
+    getMsgBodyTxt(win2).includes("Cryptography is not magic"),
+    "message text is in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage2.document, "ok"),
+    "the part should show valid signature for your own personal key"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
+    "the parts should not show as encrypted"
+  );
+
+  await BrowserTestUtils.closeWindow(win2);
   await BrowserTestUtils.closeWindow(msgc);
 });
 

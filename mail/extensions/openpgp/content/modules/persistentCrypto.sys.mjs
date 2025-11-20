@@ -39,20 +39,12 @@ export var EnigmailPersistentCrypto = {
    * @returns {nsMsgKey} message key of the new message.
    */
   async cryptMessage(hdr, destFolder, move, targetKey) {
-    return new Promise(function (resolve, reject) {
-      const uri = hdr.folder.getUriForMsg(hdr);
-      const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
+    const uri = hdr.folder.getUriForMsg(hdr);
+    const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
 
-      const crypt = new CryptMessageIntoFolder(destFolder, move, targetKey);
-      getMimeTreeFromUrl(url, true, async function (mime) {
-        try {
-          const newMsgKey = await crypt.messageParseCallback(mime, hdr);
-          resolve(newMsgKey);
-        } catch (ex) {
-          reject(ex);
-        }
-      });
-    });
+    const crypt = new CryptMessageIntoFolder(destFolder, move, targetKey);
+    const mime = await getMimeTreeFromUrl(url, true);
+    return await crypt.messageParseCallback(mime, hdr);
   },
 
   changeMessageId(content, newMessageIdPrefix) {

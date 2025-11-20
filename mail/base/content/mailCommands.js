@@ -18,7 +18,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
-const { getMimeTreeFromUrl, getMessageFromUrl } = ChromeUtils.importESModule(
+const { getMimeTree, getMessageFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"
 );
 
@@ -639,84 +639,82 @@ async function msgOpenMessageFromString(data) {
 }
 
 /**
- * @param {string} message - Message URI.
+ * @param {string} msgURI - Message URI spec.
  */
-function viewEncryptedPart(message) {
-  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
+async function viewEncryptedPart(msgURI) {
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, msgWindow);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.
   url = url.replace(/type=application\/x-message-display&?/, "");
+
+  const msgData = await getMessageFromUrl(url);
 
   function recursiveEmitEncryptedParts(mimeTree) {
     for (const part of mimeTree.subParts) {
-      const ct = part.headers.contentType.type;
-      if (ct == "multipart/encrypted") {
-        const boundary = part.headers.contentType.get("boundary");
-        let full = `${part.headers.rawHeaderText}\n\n`;
-        for (const subPart of part.subParts) {
-          full += `${boundary}\n${subPart.headers.rawHeaderText}\n\n${subPart.body}\n`;
-        }
-        full += `${boundary}--\n`;
-        msgOpenMessageFromString(full);
+      if (part.headers.contentType.type != "multipart/encrypted") {
+        recursiveEmitEncryptedParts(part);
         continue;
       }
-      recursiveEmitEncryptedParts(part);
+      const boundary = part.headers.contentType.get("boundary");
+      let full = `${part.headers.rawHeaderText}\n\n`;
+      for (const subPart of part.subParts) {
+        full += `--${boundary}\n${subPart.headers.rawHeaderText}\n\n${subPart.body}\n`;
+      }
+      full += `--${boundary}--\n`;
+      msgOpenMessageFromString(full);
     }
   }
 
-  getMimeTreeFromUrl(url, true, recursiveEmitEncryptedParts);
-  return true;
+  const tree = getMimeTree(msgData, true);
+  recursiveEmitEncryptedParts(tree);
 }
 
-function viewSignedPart(message) {
-  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
+/**
+ * Open a signed part for viewing.
+ *
+ * @param {string} msgURI - Message URI spec.
+ */
+async function viewSignedPart(msgURI) {
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(msgURI, msgWindow);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.
   url = url.replace(/type=application\/x-message-display&?/, "");
 
-  function getConditionalHdr(mimeTree, hdr, label) {
-    const val = mimeTree.headers._rawHeaders.get(hdr);
-    return val ? label + val + "\r\n" : "";
-  }
+  const msgData = await getMessageFromUrl(url);
 
   function recursiveEmitSignedParts(mimeTree) {
     for (const part of mimeTree.subParts) {
-      const ct = part.headers.contentType.type;
-      if (ct == "multipart/signed") {
-        let hdr = "";
-        hdr += getConditionalHdr(mimeTree, "date", "Date: ");
-        hdr += getConditionalHdr(mimeTree, "from", "From: ");
-        hdr += getConditionalHdr(mimeTree, "sender", "Sender: ");
-        hdr += getConditionalHdr(mimeTree, "to", "To: ");
-        hdr += getConditionalHdr(mimeTree, "cc", "Cc: ");
-        hdr += getConditionalHdr(mimeTree, "subject", "Subject: ");
-        hdr += getConditionalHdr(mimeTree, "reply-to", "Reply-To: ");
-
-        const boundary = part.parent.headers.contentType.get("boundary");
-        function finalizeProcessing(data) {
-          let msg = "";
-          const separator = "--" + boundary + "\r\n";
-          const pos1 = data.indexOf(separator);
-          if (pos1 != -1) {
-            const pos2 = data.indexOf(separator, pos1 + boundary.length);
-            if (pos2 != -1) {
-              msg = data.substring(pos1 + separator.length, pos2);
-            }
-          }
-
-          if (msg) {
-            msgOpenMessageFromString(hdr + msg);
-          }
-        }
-        getMessageFromUrl(url, finalizeProcessing);
+      if (part.headers.contentType.type !== "multipart/signed") {
+        recursiveEmitSignedParts(part);
         continue;
       }
-      recursiveEmitSignedParts(part);
+
+      const boundary = part.headers.contentType.get("boundary");
+
+      // For an attached message, no headers should be added.
+      // When only parts of the message was signed. Extract the signed parts,
+      //  but we need to keep the message headers (apart from Content-Type).
+      let hdr = "";
+      if (part.parent.headers.contentType.type != "message/rfc822") {
+        hdr = part.parent.headers.rawHeaderText.replace(
+          /^Content-Type:[^\r\n]*(?:\r?\n[ \t].*)*/gim,
+          ""
+        );
+      }
+      hdr += `${part.headers.rawHeaderText}\r\n${part.body}\r\n`;
+
+      const safeBoundary = RegExp.escape(boundary);
+      const body = new RegExp(
+        `--${safeBoundary}\\r?\\n(.*?)\\r?\\n--${safeBoundary}--`,
+        "ms"
+      ).exec(msgData)?.[0];
+      msgOpenMessageFromString(hdr + body);
+      continue;
     }
   }
 
-  getMimeTreeFromUrl(url, true, recursiveEmitSignedParts);
-  return true;
+  const tree = getMimeTree(msgData, true);
+  recursiveEmitSignedParts(tree);
 }

@@ -246,16 +246,15 @@ Enigmail.msg = {
     return true;
   },
 
-  composeOpen() {
+  async composeOpen() {
     const uri = this.getOriginalMsgUri();
     if (uri) {
       const msgHdr = this.getMsgHdr(uri);
       if (msgHdr) {
         try {
           const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
-          getMimeTreeFromUrl(url.spec, false, mimeMsg => {
-            Enigmail.msg.continueComposeOpenWithMimeTree(uri, msgHdr, mimeMsg);
-          });
+          const mimeMsg = await getMimeTreeFromUrl(url.spec);
+          Enigmail.msg.continueComposeOpenWithMimeTree(uri, msgHdr, mimeMsg);
         } catch (ex) {
           console.warn(ex);
           this.continueComposeOpenWithMimeTree(uri, msgHdr, null);
