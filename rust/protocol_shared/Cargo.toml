@@ -4,3 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+base64 = "0.21.3"
+cstr = "0.2"
+log = "0.4.21"
+moz_http = { version = "0.1.0", path = "../moz_http" }
+nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
+nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
+thiserror = "1.0.56"
+url = "2.5.0"
+xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
+xpcom_async = { version = "0.1.0", path = "../xpcom_async" }

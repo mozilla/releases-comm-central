@@ -11,3 +11,4 @@ protocol_shared = { version = "0.1.0", path = "../protocol_shared" }
 xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
 xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
+url = "2.5.0"

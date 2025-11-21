@@ -1,0 +1,41 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+//! Error values available to multiple HTTPS-based protocols.
+//!
+//! Provides an error type that can be shared among protocol implementations
+//! that utilize HTTPS connections to interact with servers.
+
+use nserror::nsresult;
+use thiserror::Error;
+
+/// Error types for HTTPS-based protocols.
+#[derive(Debug, Error)]
+pub enum ProtocolError {
+    #[error("an error occurred in an XPCOM call")]
+    XpCom(#[from] nsresult),
+
+    #[error("an error occurred during HTTP transport")]
+    Http(#[from] moz_http::Error),
+
+    #[error("failed to authenticate")]
+    Authentication,
+}
+
+impl From<&ProtocolError> for nsresult {
+    fn from(value: &ProtocolError) -> Self {
+        match value {
+            ProtocolError::XpCom(value) => *value,
+            ProtocolError::Http(value) => value.into(),
+
+            _ => nserror::NS_ERROR_UNEXPECTED,
+        }
+    }
+}
+
+impl From<ProtocolError> for nsresult {
+    fn from(value: ProtocolError) -> Self {
+        (&value).into()
+    }
+}

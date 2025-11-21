@@ -43,18 +43,20 @@ use mailnews_ui_glue::{
     report_connection_success, AuthErrorOutcome, UserInteractiveServer,
 };
 use moz_http::Response;
-use nserror::nsresult;
-use thiserror::Error;
+use protocol_shared::{
+    authentication::{
+        credentials::{AuthValidationOutcome, AuthenticationProvider, Credentials},
+        ntlm::{self, NTLMAuthOutcome},
+    },
+    error::ProtocolError,
+};
 use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
-    authentication::{
-        credentials::{AuthValidationOutcome, AuthenticationProvider, Credentials},
-        ntlm::{self, NTLMAuthOutcome},
-    },
     client::server_version::{read_server_version, DEFAULT_EWS_SERVER_VERSION},
+    error::XpComEwsError,
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
         StaleMsgDbHeader, UpdatedMsgDbHeader,
@@ -645,7 +647,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         // authenticate again (by asking the user for new
                         // credentials if relevant), but only if the consumer
                         // asked us to.
-                        XpComEwsError::Authentication
+                        XpComEwsError::Protocol(ProtocolError::Authentication)
                             if matches!(
                                 options.auth_failure_behavior,
                                 AuthFailureBehavior::ReAuth
@@ -668,10 +670,12 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         // If the error is a transport security failure (e.g. an
                         // invalid certificate), handle it here by alerting the
                         // user, but only if the consumer asked us to.
-                        XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
-                            status: _,
-                            ref transport_security_info,
-                        }) if matches!(
+                        XpComEwsError::Protocol(ProtocolError::Http(
+                            moz_http::Error::TransportSecurityFailure {
+                                status: _,
+                                ref transport_security_info,
+                            },
+                        )) if matches!(
                             options.transport_sec_failure_behavior,
                             TransportSecFailureBehavior::Alert
                         ) =>
@@ -686,7 +690,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         // If the error is network-related, optionally alert the
                         // user (depending on which specific error it is) before
                         // propagating it.
-                        XpComEwsError::Http(ref http_error) => {
+                        XpComEwsError::Protocol(ProtocolError::Http(ref http_error)) => {
                             maybe_handle_connection_error(http_error.into(), self.server.clone())?;
                             return Err(err);
                         }
@@ -830,7 +834,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         // Catch authentication errors quickly so we can react to them
         // appropriately.
         if response_status.0 == 401 {
-            Err(XpComEwsError::Authentication)
+            Err(XpComEwsError::Protocol(ProtocolError::Authentication))
         } else {
             Ok(response)
         }
@@ -853,55 +857,6 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
         }
     } else {
         None
-    }
-}
-
-#[derive(Debug, Error)]
-pub(crate) enum XpComEwsError {
-    #[error("an error occurred in an XPCOM call")]
-    XpCom(#[from] nsresult),
-
-    #[error("an error occurred during HTTP transport")]
-    Http(#[from] moz_http::Error),
-
-    #[error("an error occurred while (de)serializing EWS traffic")]
-    Ews(#[from] ews::Error),
-
-    #[error("an error occurred while (de)serializing JSON")]
-    Json(#[from] serde_json::Error),
-
-    #[error("request resulted in an error: {0:?}")]
-    ResponseError(#[from] ResponseError),
-
-    #[error("error in processing response")]
-    Processing { message: String },
-
-    #[error("missing item or folder ID in response from Exchange")]
-    MissingIdInResponse,
-
-    #[error(
-        "response contained an unexpected number of response messages: expected {expected}, got {actual}"
-    )]
-    UnexpectedResponseMessageCount { expected: usize, actual: usize },
-
-    #[error("failed to authenticate")]
-    Authentication,
-}
-
-impl From<&XpComEwsError> for nsresult {
-    fn from(value: &XpComEwsError) -> Self {
-        match value {
-            XpComEwsError::XpCom(value) => *value,
-            XpComEwsError::Http(value) => value.into(),
-
-            _ => nserror::NS_ERROR_UNEXPECTED,
-        }
-    }
-}
-
-impl From<XpComEwsError> for nsresult {
-    fn from(value: XpComEwsError) -> Self {
-        (&value).into()
     }
 }
 

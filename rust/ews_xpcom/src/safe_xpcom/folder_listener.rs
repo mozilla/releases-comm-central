@@ -8,7 +8,7 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderListener};
 
-use crate::client::XpComEwsError;
+use crate::error::XpComEwsError;
 
 use super::{SafeListener, SafeListenerWrapper};
 

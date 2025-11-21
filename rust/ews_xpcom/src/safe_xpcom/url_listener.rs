@@ -8,7 +8,7 @@ use xpcom::{
     RefPtr,
 };
 
-use crate::client::XpComEwsError;
+use crate::error::XpComEwsError;
 
 use super::{SafeListener, SafeListenerWrapper, SafeUri};
 

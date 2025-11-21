@@ -7,6 +7,7 @@ use std::ffi::CString;
 use std::os::raw::c_void;
 
 use ews::{Mailbox, Recipient};
+use log::debug;
 use thin_vec::ThinVec;
 
 use cstr::cstr;
@@ -25,10 +26,10 @@ use xpcom::{
     nsIID, xpcom_method, RefPtr,
 };
 
-use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::XpComEwsClient;
 use crate::safe_xpcom::{SafeMsgOutgoingListener, SafeUri};
 use crate::xpcom_io;
+use protocol_shared::authentication::credentials::AuthenticationProvider;
 
 /// Whether a field is required to have a value (either in memory or in a pref)
 /// upon access.
@@ -763,6 +764,7 @@ impl EwsOutgoingServer {
 
     xpcom_method!(initialize => Initialize(ews_url: *const nsACString));
     fn initialize(&self, ews_url: &nsACString) -> Result<(), nsresult> {
+        debug!("Creating new outgoing server for {}", ews_url.to_string());
         let url = ews_url.to_string();
         let url = Url::parse(url.as_str()).or(Err(nserror::NS_ERROR_FAILURE))?;
 

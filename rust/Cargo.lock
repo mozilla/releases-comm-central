@@ -2756,6 +2756,7 @@ dependencies = [
  "nsstring",
  "protocol_shared",
  "thin-vec",
+ "url",
  "xpcom",
  "xpcom_async",
 ]
@@ -5004,6 +5005,18 @@ dependencies = [
 [[package]]
 name = "protocol_shared"
 version = "0.1.0"
+dependencies = [
+ "base64 0.21.999",
+ "cstr",
+ "log",
+ "moz_http",
+ "nserror",
+ "nsstring",
+ "thiserror 1.999.999",
+ "url",
+ "xpcom",
+ "xpcom_async",
+]
 
 [[package]]
 name = "pulse"

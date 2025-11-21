@@ -6,7 +6,7 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{getter_addrefs, interfaces::IEwsMessageSyncListener, RefPtr};
 
-use crate::client::XpComEwsError;
+use crate::error::XpComEwsError;
 
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 

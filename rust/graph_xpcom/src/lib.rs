@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::ffi::c_void;
+use std::{cell::OnceCell, ffi::c_void};
 
-use nserror::{nsresult, NS_OK};
+use nserror::{nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_OK};
 use nsstring::{nsACString, nsCString};
+use protocol_shared::{
+    authentication::credentials::AuthenticationProvider, ExchangeConnectionDetails,
+};
 use thin_vec::ThinVec;
+use url::Url;
 use xpcom::{
     interfaces::{
         nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderListener,
@@ -27,7 +31,9 @@ extern crate xpcom;
 #[allow(non_snake_case)]
 #[no_mangle]
 pub unsafe extern "C" fn NS_CreateGraphClient(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
-    let instance = XpcomGraphBridge::allocate(InitXpcomGraphBridge {});
+    let instance = XpcomGraphBridge::allocate(InitXpcomGraphBridge {
+        details: OnceCell::default(),
+    });
 
     instance.QueryInterface(iid, result)
 }
@@ -35,7 +41,9 @@ pub unsafe extern "C" fn NS_CreateGraphClient(iid: &nsIID, result: *mut *mut c_v
 /// `XpcomEwsBridge` provides an XPCOM interface implementation for mediating
 /// between C++ consumers and an async Rust Graph API client.
 #[xpcom::xpcom(implement(IEwsClient), atomic)]
-pub struct XpcomGraphBridge {}
+pub struct XpcomGraphBridge {
+    details: OnceCell<ExchangeConnectionDetails>,
+}
 
 impl XpcomGraphBridge {
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
@@ -48,10 +56,23 @@ impl XpcomGraphBridge {
         server: *const nsIMsgIncomingServer));
     fn initialize(
         &self,
-        _endpoint: &nsACString,
-        _server: &nsIMsgIncomingServer,
+        endpoint: &nsACString,
+        server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+
+        let credentials = server.get_credentials()?;
+        let server = RefPtr::new(server);
+
+        self.details
+            .set(ExchangeConnectionDetails {
+                endpoint,
+                server,
+                credentials,
+            })
+            .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
+
+        Ok(())
     }
 
     xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);

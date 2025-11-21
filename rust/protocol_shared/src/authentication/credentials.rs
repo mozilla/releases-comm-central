@@ -25,11 +25,11 @@ use crate::{
         ntlm::{self, NTLMAuthOutcome},
         oauth_listener::OAuthListener,
     },
-    client::XpComEwsError,
+    error::ProtocolError,
 };
 
 /// The outcome of [`Credentials::validate`].
-pub(crate) enum AuthValidationOutcome {
+pub enum AuthValidationOutcome {
     /// We've been able to confirm the credentials work with the current server.
     Valid,
 
@@ -40,7 +40,7 @@ pub(crate) enum AuthValidationOutcome {
 
 /// The credentials to use when authenticating against a server.
 #[derive(Clone)]
-pub(crate) enum Credentials {
+pub enum Credentials {
     /// The username and password to use for Basic authentication, as well as
     /// the URL to use when validating these credentials.
     Basic {
@@ -83,7 +83,7 @@ impl Credentials {
                     // When using OAuth2, `to_auth_header_value` will return an
                     // authentication error if it's failed to get credentials
                     // even after prompting the user again.
-                    Err(XpComEwsError::Authentication) => {
+                    Err(ProtocolError::Authentication) => {
                         return Ok(AuthValidationOutcome::Invalid)
                     }
 
@@ -125,7 +125,7 @@ impl Credentials {
 
     /// Formats credentials to be used as the value of an HTTP Authorization
     /// header.
-    pub async fn to_auth_header_value(&self) -> Result<Option<String>, XpComEwsError> {
+    pub async fn to_auth_header_value(&self) -> Result<Option<String>, ProtocolError> {
         match &self {
             Self::Basic {
                 username, password, ..
@@ -146,7 +146,7 @@ impl Credentials {
                     // The OAuth2 module will return `NS_ERROR_ABORT` if it's
                     // failed to get credentials even after prompting the user
                     // again, which qualifies as an authentication error.
-                    Err(nserror::NS_ERROR_ABORT) => return Err(XpComEwsError::Authentication),
+                    Err(nserror::NS_ERROR_ABORT) => return Err(ProtocolError::Authentication),
 
                     Err(err) => return Err(err.into()),
                 };
@@ -164,7 +164,7 @@ impl Credentials {
 }
 
 /// An entity which can provide details to use for authentication.
-pub(crate) trait AuthenticationProvider {
+pub trait AuthenticationProvider {
     /// Indicates the authentication method to use.
     fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult>;
 

@@ -4,12 +4,13 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
+use protocol_shared::error::ProtocolError;
 use xpcom::{
     interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
     RefPtr,
 };
 
-use crate::{cancellable_request::CancellableRequest, client::XpComEwsError};
+use crate::{cancellable_request::CancellableRequest, error::XpComEwsError};
 
 use super::{SafeListener, SafeListenerWrapper, SafeUri};
 
@@ -38,10 +39,12 @@ impl SafeMsgOutgoingListener {
         let (status, sec_info) = match error {
             None => (nserror::NS_OK, None),
             Some(rc) => match rc {
-                XpComEwsError::Http(moz_http::Error::TransportSecurityFailure {
-                    status,
-                    transport_security_info,
-                }) => (*status, Some(transport_security_info.0.clone())),
+                XpComEwsError::Protocol(ProtocolError::Http(
+                    moz_http::Error::TransportSecurityFailure {
+                        status,
+                        transport_security_info,
+                    },
+                )) => (*status, Some(transport_security_info.0.clone())),
                 err => (err.into(), None),
             },
         };

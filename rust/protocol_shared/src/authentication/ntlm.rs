@@ -24,7 +24,7 @@ unsafe extern "C" {
 }
 
 /// The outcome of [`authenticate`].
-pub(crate) enum NTLMAuthOutcome {
+pub enum NTLMAuthOutcome {
     /// We've successfully managed to authenticate over NTLM.
     Success,
 
@@ -120,7 +120,7 @@ fn next_b64_token_from_auth_module(
 /// overall.
 ///
 /// See <https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ntht/f09cf6e1-529e-403b-a8a5-7368ee096a6a>
-pub(crate) async fn authenticate(
+pub async fn authenticate(
     username: &str,
     password: &str,
     ews_url: &Url,

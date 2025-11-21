@@ -26,7 +26,7 @@ mod simple_operation_listener;
 mod uri;
 mod url_listener;
 
-use crate::client::XpComEwsError;
+use crate::error::XpComEwsError;
 
 /// A non-public trait to get the internal listener of a [`SafeListener`].
 trait UnsafeListener {
