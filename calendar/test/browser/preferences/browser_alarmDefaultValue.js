@@ -89,7 +89,7 @@ add_task(async function testDefaultAlarms() {
 async function handlePrefTab(prefsWindow, prefsDocument) {
   async function menuList(id, value) {
     const list = prefsDocument.getElementById(id);
-    list.scrollIntoView({ block: "start", behavior: "instant" });
+    list.scrollIntoView({ block: "end", behavior: "instant" });
     EventUtils.synthesizeMouseAtCenter(list, {}, list.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(list.menupopup, "shown");
     list.menupopup.activateItem(list.querySelector(`menuitem[value="${value}"]`));
@@ -103,17 +103,18 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
   await menuList("tododefalarmunit", "days");
   await menuList("eventdefalarmunit", "days");
 
-  function text(id, value) {
+  async function text(id, value) {
     const input = prefsDocument.getElementById(id);
-    input.scrollIntoView({ block: "start", behavior: "instant" });
+    input.scrollIntoView({ block: "end", behavior: "instant" });
     EventUtils.synthesizeMouse(input, 5, 5, {}, prefsWindow);
     Assert.equal(prefsDocument.activeElement, input);
     EventUtils.synthesizeKey("a", { accelKey: true }, prefsWindow);
     EventUtils.sendString(value, prefsWindow);
+    await TestUtils.waitForTick();
   }
   // Sets default alarm length for events to DEFVALUE.
-  text("eventdefalarmlen", DEFVALUE.toString());
-  text("tododefalarmlen", DEFVALUE.toString());
+  await text("eventdefalarmlen", DEFVALUE.toString());
+  await text("tododefalarmlen", DEFVALUE.toString());
 
   Assert.equal(Services.prefs.getIntPref("calendar.alarms.onforevents"), 1);
   Assert.equal(Services.prefs.getIntPref("calendar.alarms.eventalarmlen"), DEFVALUE);
