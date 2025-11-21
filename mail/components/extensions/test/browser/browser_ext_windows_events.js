@@ -14,6 +14,85 @@ add_task(async () => {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
+        // Semi-fork of browser/components/extensions/test/browser/browser_ext_windows_size.js
+        let _checkWindowPromise;
+        browser.test.onMessage.addListener((msg, arg) => {
+          if (msg == "checked-window") {
+            _checkWindowPromise.resolve(arg);
+            _checkWindowPromise = null;
+          }
+        });
+
+        const getWindowSize = () => {
+          return new Promise(resolve => {
+            _checkWindowPromise = { resolve };
+            browser.test.sendMessage("check-window");
+          });
+        };
+
+        const KEYS = ["width", "height"];
+        function checkGeom(expected, actual) {
+          for (const key of KEYS) {
+            browser.test.assertEq(
+              expected[key],
+              actual[key],
+              `Expected '${key}' value`
+            );
+          }
+        }
+
+        let windowId;
+        async function checkWindow(expected, retries = 5) {
+          let geom = await getWindowSize();
+          geom.width = geom.outerWidth;
+          geom.height = geom.outerHeight;
+          let usingInnerSizes = false;
+          if (navigator.platform.startsWith("Linux")) {
+            // Unfortunately, on GTK, when creating the initial window, we can
+            // only specify inner sizes (not outer), since we don't yet know the
+            // bounds of our window decorations. So we need to check inner rather
+            // than outer sizes there. This used to be wallpapered before
+            // bug 581863 because the outer sizes were just wrong (matching always
+            // inner sizes).
+            if (expected.height == geom.innerHeight) {
+              usingInnerSizes = true;
+              geom.height = geom.innerHeight;
+            }
+            if (expected.width == geom.innerWidth) {
+              usingInnerSizes = true;
+              geom.width = geom.innerWidth;
+            }
+          }
+
+          if (retries && KEYS.some(key => expected[key] != geom[key])) {
+            browser.test.log(
+              `Got mismatched size (${JSON.stringify(
+                expected
+              )} != ${JSON.stringify(geom)}). Retrying after a short delay.`
+            );
+
+            // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            await checkWindow(expected, retries - 1);
+            return;
+          }
+
+          browser.test.log(`Check actual window size`);
+          checkGeom(expected, geom);
+
+          if (usingInnerSizes) {
+            // Uncommon: see comment at usingInnerSizes.
+            browser.test.log(
+              "API-reported window size is inaccurate - skipping check"
+            );
+          } else {
+            browser.test.log("Check API-reported window size");
+            geom = await browser.windows.get(windowId);
+            checkGeom(expected, geom);
+          }
+        }
+
         // Executes a command, but first loads a second extension with terminated
         // background and waits for it to be restarted due to the executed command.
         async function capturePrimedEvent(eventName, callback) {
@@ -211,6 +290,8 @@ add_task(async () => {
 
         browser.test.log("Open a page in a popup window.");
 
+        const geom = { width: 800, height: 500 };
+
         const primedPopupWindowInfo = await capturePrimedEvent(
           "onCreated",
           () =>
@@ -221,14 +302,18 @@ add_task(async () => {
               height: 500,
             })
         );
+        windowId = primedPopupWindowInfo[0].id;
+        await checkWindow(geom);
+
         const [{ id: popupWindow }] = await listener.checkEvent(
           "windows.onCreated",
           {
             type: "popup",
-            width: 800,
-            height: 500,
           }
         );
+        windowId = popupWindow;
+        await checkWindow(geom);
+
         const [{ id: popupTab }] = await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: popupWindow,
@@ -240,13 +325,12 @@ add_task(async () => {
             {
               id: popupWindow,
               type: "popup",
-              width: 800,
-              height: 500,
             },
           ],
           primedPopupWindowInfo,
           "Info returned from the primed onCreated event should be correct"
         );
+        await checkWindow(geom);
 
         browser.test.log("Pause to let windows load properly.");
         // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -256,11 +340,11 @@ add_task(async () => {
 
         const focusInfoPromise = new Promise(resolve => {
           browser.windows.onFocusChanged.addListener(
-            function focusChangeListener(windowId) {
+            function focusChangeListener(winId) {
               browser.windows.onFocusChanged.removeListener(
                 focusChangeListener
               );
-              resolve(windowId);
+              resolve(winId);
             }
           );
         });
@@ -423,6 +507,25 @@ add_task(async () => {
       extension.sendMessage();
     });
     extension.sendMessage(...primedEventData);
+  });
+
+  let latestWindow;
+  const windowListener = (window, topic) => {
+    if (topic == "domwindowopened") {
+      latestWindow = window;
+    }
+  };
+  Services.ww.registerNotification(windowListener);
+
+  extension.onMessage("check-window", () => {
+    extension.sendMessage("checked-window", {
+      top: latestWindow.screenY,
+      left: latestWindow.screenX,
+      innerWidth: latestWindow.innerWidth,
+      innerHeight: latestWindow.innerHeight,
+      outerWidth: latestWindow.outerWidth,
+      outerHeight: latestWindow.outerHeight,
+    });
   });
 
   await extension.startup();
