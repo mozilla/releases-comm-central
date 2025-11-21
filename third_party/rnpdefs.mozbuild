@@ -26,8 +26,17 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "-Wno-inconsistent-dllimport",
         "-Wno-macro-redefined",  # 'WIN32_LEAN_AND_MEAN' macro redefined
     ]
+    CXXFLAGS += ["/EHs", "-Wno-deprecated-declarations"]
+
+    LOCAL_INCLUDES += [
+        "/comm/third_party/niwcompat",
+    ]
+
     USE_STATIC_MSVCRT = True
     DEFINES["RNP_USE_STD_REGEX"] = True
+
+    target_cpu = "i386" if CONFIG["TARGET_CPU"] == "x86" else CONFIG["TARGET_CPU"]
+    LDFLAGS += [f"clang_rt.builtins-{target_cpu}.lib"]
 
 if CONFIG["MOZ_STDCXX_COMPAT"]:
     # Use pre-GCC-5 strings abi
