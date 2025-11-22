@@ -3424,6 +3424,16 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
       return rv;
     }
 
+    // `CreateFolderAndCache` will return `NS_MSG_FOLDER_EXISTS` in two cases:
+    // 1. This folder object already has a child with the specified name.
+    // 2. This folder object already has a child with the specified URI.
+    // In both cases, that means `mSubFolders` already contains a child with the
+    // given name. This cannot be treated as an error condition because the
+    // folder lookup service reuses folder objects for the same URI, so a folder
+    // that already exists in the cache with this folder's URI will also already
+    // have children matching the child folder's URI. This can be changed once
+    // dangling folders are removed. See
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1679333
     if (NS_SUCCEEDED(rv)) {
       mSubFolders.AppendObject(folder);
     }

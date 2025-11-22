@@ -8,12 +8,17 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgPluggableStore.h"
+#include "nsPrintfCString.h"
 
 nsresult PopulateFolderHierarchy(nsIMsgFolder* parent,
                                  nsIMsgPluggableStore* messageStore,
                                  bool deep) {
   nsTArray<nsCString> childFolderNames;
   nsresult rv = messageStore->DiscoverChildFolders(parent, childFolderNames);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString parentName;
+  rv = parent->GetName(parentName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto&& childFolderName : childFolderNames) {
@@ -23,8 +28,13 @@ nsresult PopulateFolderHierarchy(nsIMsgFolder* parent,
     if (!childFolder) {
       rv = parent->AddSubfolder(childFolderName, getter_AddRefs(childFolder));
       if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
-        return rv;
+        NS_WARNING(
+            nsPrintfCString("Unable to add child folder %s to parent %s.",
+                            childFolderName.Data(), parentName.Data())
+                .get());
+        continue;
       }
+
       NS_ENSURE_TRUE(childFolder, NS_ERROR_UNEXPECTED);
 
       // Check that we got a name from the folder database.  If not, set the
@@ -39,7 +49,12 @@ nsresult PopulateFolderHierarchy(nsIMsgFolder* parent,
 
     if (deep) {
       rv = PopulateFolderHierarchy(childFolder, messageStore, deep);
-      NS_ENSURE_SUCCESS(rv, rv);
+      if (NS_FAILED(rv)) {
+        NS_WARNING(
+            nsPrintfCString("Unable to populate child folder %s in parent %s.",
+                            childFolderName.Data(), parentName.Data())
+                .get());
+      }
     }
   }
   return NS_OK;
