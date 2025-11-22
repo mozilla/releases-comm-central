@@ -221,6 +221,7 @@ memoffset = { path = "../../build/rust/memoffset" }
 hashbrown_0_13 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.13" }
 hashbrown_0_14 = { package = "hashbrown", path = "../../build/rust/hashbrown-0.14" }
 hashbrown_0_15 = { package = "hashbrown", path = "../../build/rust/hashbrown" }
+hashlink = { path = "../../build/rust/hashlink" }
 thiserror = { path = "../../build/rust/thiserror" }
 toml = { path = "../../build/rust/toml" }
 thin-vec = { path = "../../third_party/rust/thin-vec" }
@@ -268,7 +269,6 @@ logins = { git = "https://github.com/mozilla/application-services", rev = "799ae
 init_rust_components = { git = "https://github.com/mozilla/application-services", rev = "799ae231ba91f5b6634672a2737cc9efdf997b70" }
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
-hashlink = { git = "https://github.com/erichdongubler-contrib/hashlink", rev = "76dc47a12af5829c1e8bf4834e38b410dec2aeff" }
 
 [patch."https://github.com/mozilla/neqo"]
 neqo-common = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }

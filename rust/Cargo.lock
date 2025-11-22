@@ -2825,8 +2825,16 @@ dependencies = [
 
 [[package]]
 name = "hashlink"
-version = "0.10.0"
-source = "git+https://github.com/erichdongubler-contrib/hashlink?rev=76dc47a12af5829c1e8bf4834e38b410dec2aeff#76dc47a12af5829c1e8bf4834e38b410dec2aeff"
+version = "0.10.999"
+dependencies = [
+ "hashlink 0.11.0",
+]
+
+[[package]]
+name = "hashlink"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea0b22561a9c04a7cb1a302c013e0259cd3b4bb619f145b32f72b8b4bcbed230"
 dependencies = [
  "hashbrown 0.16.0",
 ]
@@ -5447,7 +5455,7 @@ dependencies = [
  "bitflags 2.9.0",
  "fallible-iterator",
  "fallible-streaming-iterator",
- "hashlink",
+ "hashlink 0.10.999",
  "libsqlite3-sys",
  "serde_json",
  "smallvec",
@@ -5793,7 +5801,7 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 name = "signature_cache"
 version = "0.1.0"
 dependencies = [
- "hashlink",
+ "hashlink 0.11.0",
 ]
 
 [[package]]
