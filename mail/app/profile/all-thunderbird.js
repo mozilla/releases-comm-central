@@ -227,6 +227,11 @@ pref("extensions.autoDisableScopes", 15);
 // Enable add-ons installed and owned by the application, like the default theme.
 pref("extensions.startupScanScopes", 4);
 
+// Explicitely set these to false. Firefox end up using a false default as
+// well since the default value is based on whether add-on signing is required.
+pref("extensions.update.requireBuiltInCerts", false);
+pref("extensions.install.requireBuiltInCerts", false);
+
 // Gecko Profiler
 pref("extensions.geckoProfiler.acceptedExtensionIds", "geckoprofiler@mozilla.com,quantum-foxfooding@mozilla.com,raptor@mozilla.org");
 
