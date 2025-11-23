@@ -269,8 +269,3 @@ logins = { git = "https://github.com/mozilla/application-services", rev = "799ae
 init_rust_components = { git = "https://github.com/mozilla/application-services", rev = "799ae231ba91f5b6634672a2737cc9efdf997b70" }
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
-
-[patch."https://github.com/mozilla/neqo"]
-neqo-common = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }
-neqo-udp = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }
-mtu = { git = "https://github.com/erichdongubler-mozilla/neqo", rev = "5bfb65919fb5804ec1dd68cc93e014cb9c830d94" }

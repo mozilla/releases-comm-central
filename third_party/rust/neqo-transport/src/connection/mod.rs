@@ -34,7 +34,7 @@ use crate::{
     addr_valid::{AddressValidation, NewTokenState},
     cid::{
         ConnectionId, ConnectionIdEntry, ConnectionIdGenerator, ConnectionIdManager,
-        ConnectionIdRef, ConnectionIdStore, LOCAL_ACTIVE_CID_LIMIT,
+        ConnectionIdRef, ConnectionIdStore,
     },
     crypto::{Crypto, CryptoDxState, Epoch},
     ecn,
@@ -49,6 +49,7 @@ use crate::{
     rtt::{RttEstimate, GRANULARITY},
     saved::SavedDatagrams,
     send_stream::{self, SendStream},
+    stateless_reset::Token as Srt,
     stats::{Stats, StatsCell},
     stream_id::StreamType,
     streams::{SendOrder, Streams},
@@ -282,7 +283,7 @@ pub struct Connection {
     cid_manager: ConnectionIdManager,
     address_validation: AddressValidationInfo,
     /// The connection IDs that were provided by the peer.
-    cids: ConnectionIdStore<[u8; 16]>,
+    cids: ConnectionIdStore<Srt>,
 
     /// The source connection ID that this endpoint uses for the handshake.
     /// Since we need to communicate this to our peer in tparams, setting this
@@ -1340,11 +1341,11 @@ impl Connection {
     fn is_stateless_reset(&self, path: &PathRef, d: &[u8]) -> bool {
         // If the datagram is too small, don't try.
         // If the connection is connected, then the reset token will be invalid.
-        if d.len() < 16 || !self.state.connected() {
+        if d.len() < Srt::LEN || !self.state.connected() {
             return false;
         }
-        <&[u8; 16]>::try_from(&d[d.len() - 16..])
-            .is_ok_and(|token| path.borrow().is_stateless_reset(token))
+        Srt::try_from(&d[d.len() - Srt::LEN..])
+            .is_ok_and(|token| path.borrow().is_stateless_reset(&token))
     }
 
     fn check_stateless_reset(
@@ -1357,7 +1358,10 @@ impl Connection {
         if first && self.is_stateless_reset(path, d) {
             // Failing to process a packet in a datagram might
             // indicate that there is a stateless reset present.
-            qdebug!("[{self}] Stateless reset: {}", hex(&d[d.len() - 16..]));
+            qdebug!(
+                "[{self}] Stateless reset: {}",
+                hex(&d[d.len() - Srt::LEN..])
+            );
             self.state_signaling.reset();
             self.set_state(
                 State::Draining {
@@ -2073,7 +2077,7 @@ impl Connection {
     }
 
     fn migrate_to_preferred_address(&mut self, now: Instant) -> Res<()> {
-        let spa: Option<(tparams::PreferredAddress, ConnectionIdEntry<[u8; 16]>)> = if matches!(
+        let spa: Option<(tparams::PreferredAddress, ConnectionIdEntry<Srt>)> = if matches!(
             self.conn_params.get_preferred_address(),
             PreferredAddressConfig::Disabled
         ) {
@@ -2199,7 +2203,12 @@ impl Connection {
         version: Version,
         grease_quic_bit: bool,
         limit: usize,
-    ) -> (packet::Type, packet::Builder<&'a mut Vec<u8>>) {
+        largest_acknowledged: Option<packet::Number>,
+    ) -> (
+        packet::Type,
+        packet::Builder<&'a mut Vec<u8>>,
+        packet::Number,
+    ) {
         let pt = packet::Type::from(epoch);
         let mut builder = if pt == packet::Type::Short {
             qdebug!("Building Short dcid {:?}", path.remote_cid());
@@ -2226,16 +2235,6 @@ impl Connection {
             }
         }
 
-        (pt, builder)
-    }
-
-    #[must_use]
-    fn add_packet_number(
-        builder: &mut packet::Builder<&mut Vec<u8>>,
-        tx: &CryptoDxState,
-        largest_acknowledged: Option<packet::Number>,
-    ) -> packet::Number {
-        // Get the packet number and work out how long it is.
         let pn = tx.next_pn();
         let unacked_range = largest_acknowledged.map_or_else(|| pn + 1, |la| (pn - la) << 1);
         // Count how many bytes in this range are non-zero.
@@ -2247,7 +2246,8 @@ impl Connection {
         );
         // TODO(mt) also use `4*path CWND/path MTU` to set a minimum length.
         builder.pn(pn, pn_len);
-        pn
+
+        (pt, builder, pn)
     }
 
     fn can_grease_quic_bit(&self) -> bool {
@@ -2677,7 +2677,7 @@ impl Connection {
 
             let header_start = encoder.len();
 
-            let (pt, mut builder) = Self::build_packet_header(
+            let (pt, mut builder, pn) = Self::build_packet_header(
                 &path.borrow(),
                 epoch,
                 encoder,
@@ -2688,10 +2688,6 @@ impl Connection {
                 // Limit the packet builder further to leave space for AEAD
                 // expansion added in `builder.build` below.
                 limit - aead_expansion,
-            );
-            let pn = Self::add_packet_number(
-                &mut builder,
-                tx,
                 self.loss_recovery.largest_acknowledged_pn(space),
             );
             // The builder will set the limit to 0 if there isn't enough space for the header.
@@ -2773,7 +2769,9 @@ impl Connection {
                 initial_sent = Some(sent);
                 needs_padding = true;
             } else {
-                if pt == packet::Type::Handshake && self.role == Role::Client {
+                if pt.is_long() && self.role == Role::Client && initial_sent.is_none() {
+                    // Disable padding for any long header packet if the UDP packet doesn't include
+                    // an Initial packet.
                     needs_padding = false;
                 }
                 self.loss_recovery.on_packet_sent(path, sent, now);
@@ -2931,8 +2929,8 @@ impl Connection {
             }
 
             let reset_token = remote.get_bytes(StatelessResetToken).map_or_else(
-                || Ok(ConnectionIdEntry::random_srt()),
-                |token| <[u8; 16]>::try_from(token).map_err(|_| Error::TransportParameter),
+                || Ok(Srt::random()),
+                |token| Srt::try_from(token).map_err(|_| Error::TransportParameter),
             )?;
             let path = self.paths.primary().ok_or(Error::NoAvailablePath)?;
             path.borrow_mut().set_reset_token(reset_token);
@@ -3279,10 +3277,10 @@ impl Connection {
                 self.cids.add_remote(ConnectionIdEntry::new(
                     sequence_number,
                     ConnectionId::from(connection_id),
-                    stateless_reset_token.to_owned(),
+                    stateless_reset_token,
                 ))?;
                 self.paths.retire_cids(retire_prior, &mut self.cids);
-                if self.cids.len() >= LOCAL_ACTIVE_CID_LIMIT {
+                if self.cids.len() >= ConnectionIdManager::ACTIVE_LIMIT {
                     qinfo!("[{self}] received too many connection IDs");
                     return Err(Error::ConnectionIdLimitExceeded);
                 }
@@ -3830,7 +3828,7 @@ impl Connection {
         let mut buffer = Vec::new();
         let encoder = Encoder::new_borrowed_vec(&mut buffer);
 
-        let (_, mut builder) = Self::build_packet_header(
+        let (_, builder, _) = Self::build_packet_header(
             &path.borrow(),
             epoch,
             encoder,
@@ -3839,10 +3837,6 @@ impl Connection {
             version,
             false,
             usize::MAX,
-        );
-        _ = Self::add_packet_number(
-            &mut builder,
-            tx,
             self.loss_recovery
                 .largest_acknowledged_pn(PacketNumberSpace::ApplicationData),
         );

@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-bin"
-version = "0.18.0"
+version = "0.19.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -39,6 +39,9 @@ categories = [
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/mozilla/neqo/"
 
+[package.metadata.bench.main.codspeed]
+mode = "walltime"
+
 [package.metadata.cargo-machete]
 ignored = ["log"]
 
@@ -49,7 +52,10 @@ bench = [
     "neqo-transport/bench",
     "log/release_max_level_info",
 ]
-draft-29 = []
+draft-29 = [
+    "neqo-http3/draft-29",
+    "neqo-transport/draft-29",
+]
 fast-apple-datapath = ["quinn-udp/fast-apple-datapath"]
 
 [lib]
@@ -158,23 +164,13 @@ features = ["std"]
 default-features = false
 
 [dev-dependencies.criterion]
-version = "0.6"
-features = [
-    "async_tokio",
-    "cargo_bench_support",
-]
+version = "4"
+features = ["async_tokio"]
 default-features = false
+package = "codspeed-criterion-compat"
 
 [dev-dependencies.neqo-bin]
 path = "."
-features = ["draft-29"]
-
-[dev-dependencies.neqo-http3]
-path = "./../neqo-http3"
-features = ["draft-29"]
-
-[dev-dependencies.neqo-transport]
-path = "./../neqo-transport"
 features = ["draft-29"]
 
 [dev-dependencies.tokio]

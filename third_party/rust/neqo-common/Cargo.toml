@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-common"
-version = "0.18.0"
+version = "0.19.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -95,9 +95,9 @@ version = "2.0.12"
 default-features = false
 
 [dev-dependencies.criterion]
-version = "0.6"
-features = ["cargo_bench_support"]
+version = "4"
 default-features = false
+package = "codspeed-criterion-compat"
 
 [dev-dependencies.neqo-crypto]
 path = "../neqo-crypto"

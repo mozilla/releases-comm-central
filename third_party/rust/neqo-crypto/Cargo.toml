@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-crypto"
-version = "0.18.0"
+version = "0.19.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -46,6 +46,7 @@ ignored = [
     "serde",
     "serde_derive",
     "toml",
+    "windows",
 ]
 
 [features]
@@ -115,7 +116,7 @@ default-features = false
 path = "../test-fixture"
 
 [build-dependencies.bindgen]
-version = "0.69"
+version = "0.72"
 features = ["runtime"]
 default-features = false
 
@@ -138,6 +139,11 @@ default-features = false
 
 [build-dependencies.toml]
 version = "0.5"
+default-features = false
+
+[target."cfg(windows)".dependencies.windows]
+version = ">=0.60,<0.63"
+features = ["Win32_Security_Authentication_Identity"]
 default-features = false
 
 [lints.clippy]
