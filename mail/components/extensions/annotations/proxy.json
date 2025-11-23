@@ -1,0 +1,45 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enums": {
+              "proxy": {
+                "annotations": [
+                  {
+                    "version_added": "147"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "proxy",
+    "annotations": [
+      {
+        "version_added": "147"
+      }
+    ],
+    "properties": {
+      "settings": {
+        "annotations": [
+          {
+            "version_added": "false"
+          },
+          {
+            "note": "Not supported in Thunderbird because it depends on private browsing functionality, which Thunderbird does not fully implement.",
+            "bcd": true
+          }
+        ]
+      }
+    }
+  }
+]
