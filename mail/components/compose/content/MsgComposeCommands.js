@@ -6462,11 +6462,11 @@ async function GenericSendMessage(msgType) {
     }
 
     await CompleteGenericSendMessage(msgType);
-    window.dispatchEvent(new CustomEvent("compose-prepare-message-success"));
+    window.dispatchEvent(new CustomEvent("compose-prepare-message-completed"));
   } catch (exception) {
     console.error(exception);
     window.dispatchEvent(
-      new CustomEvent("compose-prepare-message-failure", {
+      new CustomEvent("compose-prepare-message-completed", {
         detail: { exception },
       })
     );
