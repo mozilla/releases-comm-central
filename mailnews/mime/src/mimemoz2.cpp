@@ -841,7 +841,7 @@ extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
     return;
   }
 
-  MimeObject* obj = (msd ? msd->obj : 0);
+  MimeObject* obj = msd->obj;
   if (obj) {
     int status;
     bool abortNow = false;
@@ -897,7 +897,7 @@ extern "C" void mime_display_stream_abort(nsMIMESession* stream, int status) {
     return;
   }
 
-  MimeObject* obj = (msd ? msd->obj : 0);
+  MimeObject* obj = msd->obj;
   if (obj) {
     if (!obj->closed_p) obj->clazz->parse_eof(obj, true);
     if (!obj->parsed_p) obj->clazz->parse_end(obj, true);
