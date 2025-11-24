@@ -85,13 +85,6 @@ interface nsIMsgComposeService : nsISupports {
                             [optional] in mozIDOMWindowProxy aWindow,
                             [optional] in nsIDocShell aDocShell);
 
-  /**
-  * defaultIdentity
-  *
-  * @return the default identity, in case no identity has been setup yet, will return null
-  */
-  readonly attribute nsIMsgIdentity defaultIdentity;
-
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
 
   /**

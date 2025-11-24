@@ -511,8 +511,7 @@ NS_IMETHODIMP nsMsgComposeService::InitCompose(nsIMsgComposeParams* aParams,
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgComposeService::GetDefaultIdentity(nsIMsgIdentity** _retval) {
+nsresult nsMsgComposeService::GetDefaultIdentity(nsIMsgIdentity** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = nullptr;
 

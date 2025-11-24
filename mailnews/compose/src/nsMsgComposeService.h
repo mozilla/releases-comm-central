@@ -54,6 +54,8 @@ class nsMsgComposeService : public nsIMsgComposeService,
   // instead of the entire message.
   nsresult GetHTMLForSelection(mozilla::dom::Selection* selection,
                                nsACString& aSelHTML);
+
+  nsresult GetDefaultIdentity(nsIMsgIdentity** _retval);
 };
 
 #endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGCOMPOSESERVICE_H_
