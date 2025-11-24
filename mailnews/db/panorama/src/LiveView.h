@@ -8,7 +8,6 @@
 #include "js/Context.h"
 #include "LiveViewFilters.h"
 #include "MessageDatabase.h"
-#include "mozilla/dom/Promise.h"
 #include "mozIStorageConnection.h"
 #include "mozIStorageStatement.h"
 #include "nsCOMPtr.h"
@@ -16,7 +15,6 @@
 #include "nsIVariant.h"
 
 using JS::Rooted;
-using mozilla::dom::Promise;
 
 namespace mozilla::mailnews {
 
@@ -63,21 +61,19 @@ class LiveView : public nsILiveView, public MessageListener {
   nsCOMPtr<mozIStorageStatement> mSelectStmt;
   nsCOMPtr<mozIStorageStatement> mSelectGroupStmt;
 
-  void CreateJSMessageArray(mozIStorageStatement*, JSContext*,
-                            Rooted<JSObject*>&);
-  void CreateJSMessage(uint64_t id, uint64_t folderId, const char* messageId,
-                       PRTime date, const char* sender, const char* recipients,
-                       const char* subject, uint64_t flags, const char* tags,
-                       uint64_t threadId, uint64_t threadParent, JSContext* aCx,
-                       Rooted<JSObject*>&);
-  void CreateJSMessage(Message* aMessage, JSContext* aCx, Rooted<JSObject*>&);
-
   // The one and only listener for this live view, if set.
   nsCOMPtr<nsILiveViewListener> mListener;
   // The JS context containing `mListener`. Used for creating JS objects to
   // pass to the listener.
   JSContext* mCx;
 };
+
+void CreateJSMessage(uint64_t id, uint64_t folderId, const char* messageId,
+                     PRTime date, const char* sender, const char* recipients,
+                     const char* subject, uint64_t flags, const char* tags,
+                     uint64_t threadId, uint64_t threadParent, JSContext* aCx,
+                     Rooted<JSObject*>&);
+void CreateJSMessage(Message* aMessage, JSContext* aCx, Rooted<JSObject*>&);
 
 }  // namespace mozilla::mailnews
 

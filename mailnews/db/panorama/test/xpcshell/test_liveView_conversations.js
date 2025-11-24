@@ -37,7 +37,7 @@ add_task(async function testSingleMessage() {
   const liveView = new LiveView();
   liveView.initWithConversation(1);
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     1,
     "countMessages should return the total number of messages"
   );
@@ -51,11 +51,11 @@ add_task(async function testThreadInOrder() {
   const liveView = new LiveView();
   liveView.initWithConversation(3);
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     3,
     "countMessages should return the total number of messages"
   );
-  const messages = liveView.selectMessages();
+  const messages = await liveView.selectMessages();
   Assert.deepEqual(
     Array.from(messages, m => m.id),
     [3, 5, 6],
@@ -77,11 +77,11 @@ add_task(async function testThreadOutOfOrder() {
   const liveView = new LiveView();
   liveView.initWithConversation(7);
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     3,
     "countMessages should return the total number of messages"
   );
-  const messages = liveView.selectMessages();
+  const messages = await liveView.selectMessages();
   Assert.deepEqual(
     Array.from(messages, m => m.id),
     [7, 2, 4],
@@ -103,24 +103,24 @@ add_task(async function testThreadsOnly() {
   liveView.grouping = Ci.nsILiveView.THREADED;
 
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     6,
     "countMessages should only count threads"
   );
   Assert.equal(
-    liveView.countUnreadMessages(),
+    await liveView.countUnreadMessages(),
     0,
     "countUnreadMessages should only count threads"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [10, 9, 8, 6, 4, 1],
     "selectMessages should only return threads"
   );
 
   liveView.sortDescending = false;
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [1, 4, 6, 8, 9, 10],
     "selectMessages should only return threads"
   );

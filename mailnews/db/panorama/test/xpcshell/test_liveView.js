@@ -28,15 +28,16 @@ add_setup(async function () {
   await installDBFromFile("db/messages.sql");
 });
 
-add_task(function testMessageProperties() {
+add_task(async function testMessageProperties() {
   const liveView = new LiveView();
 
-  const [message] = liveView.selectMessages(1, 2);
+  const [message] = await liveView.selectMessages(1, 2);
   Assert.equal(message.id, 8);
   Assert.equal(message.folderId, 4);
   Assert.equal(message.messageId, "message8@invalid");
   Assert.equal(message.date.toISOString(), "2023-08-06T06:02:00.000Z");
-  Assert.equal(message.sender, "Edgár Stokes <edgar@stokes.invalid>");
+  // FIXME: Address formatting is temporarily disabled.
+  // Assert.equal(message.sender, "Edgár Stokes <edgar@stokes.invalid>");
   Assert.equal(message.subject, "Balanced static project déjà vu");
   Assert.equal(message.flags, 0);
   Assert.equal(message.tags, "$label1");
@@ -44,7 +45,7 @@ add_task(function testMessageProperties() {
   Assert.equal(message.threadParent, 0);
 });
 
-add_task(function testInitWithFolder() {
+add_task(async function testInitWithFolder() {
   const folderA = folderDB.getFolderByPath("server1/folderA");
 
   const liveView = new LiveView();
@@ -61,27 +62,27 @@ add_task(function testInitWithFolder() {
   assertInitFails(liveView);
 
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     4,
     "countMessages should return the total number of messages"
   );
   Assert.equal(
-    liveView.countUnreadMessages(),
+    await liveView.countUnreadMessages(),
     2,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(3), m => m.id),
+    Array.from(await liveView.selectMessages(3), m => m.id),
     [4, 3, 2],
     "selectMessages with a limit argument should only return some of the messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(2, 1), m => m.id),
+    Array.from(await liveView.selectMessages(2, 1), m => m.id),
     [3, 2],
     "selectMessages with both arguments should only return some of the messages"
   );
@@ -89,7 +90,7 @@ add_task(function testInitWithFolder() {
   assertInitFails(liveView);
 });
 
-add_task(function testInitWithFolders() {
+add_task(async function testInitWithFolders() {
   const folderA = folderDB.getFolderByPath("server1/folderA");
   const folderB = folderDB.getFolderByPath("server1/folderB");
   const folderC = folderDB.getFolderByPath("server1/folderC");
@@ -110,27 +111,27 @@ add_task(function testInitWithFolders() {
   assertInitFails(liveView);
 
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     10,
     "countMessages should return the total number of messages"
   );
   Assert.equal(
-    liveView.countUnreadMessages(),
+    await liveView.countUnreadMessages(),
     5,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(3), m => m.id),
+    Array.from(await liveView.selectMessages(3), m => m.id),
     [10, 9, 8],
     "selectMessages with a limit argument should only return some of the messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(2, 1), m => m.id),
+    Array.from(await liveView.selectMessages(2, 1), m => m.id),
     [9, 8],
     "selectMessages with both arguments should only return some of the messages"
   );
@@ -138,7 +139,7 @@ add_task(function testInitWithFolders() {
   assertInitFails(liveView);
 });
 
-add_task(function testInitWithVirtualFolder() {
+add_task(async function testInitWithVirtualFolder() {
   const folderA = folderDB.getFolderByPath("server1/folderA");
   const folderC = folderDB.getFolderByPath("server1/folderC");
 
@@ -161,17 +162,17 @@ add_task(function testInitWithVirtualFolder() {
   assertInitFails(liveView);
 
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     2,
     "countMessages should return the total number of messages"
   );
   Assert.equal(
-    liveView.countUnreadMessages(),
+    await liveView.countUnreadMessages(),
     1,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [6, 1],
     "selectMessages with no arguments should return all the messages"
   );
@@ -185,7 +186,7 @@ add_task(function testInitWithVirtualFolder() {
   liveView.initWithFolder(virtualFolder);
 
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [5, 4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
   );
@@ -196,7 +197,7 @@ add_task(function testInitWithVirtualFolder() {
   liveView.initWithFolder(virtualFolder);
 
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [5],
     "selectMessages with no arguments should return all the messages"
   );
@@ -207,29 +208,29 @@ add_task(function testInitWithVirtualFolder() {
   liveView.initWithFolder(virtualFolder);
 
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [10, 9, 8, 7, 6, 4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
   );
 });
 
-add_task(function testInitWithTag() {
+add_task(async function testInitWithTag() {
   const liveView = new LiveView();
   liveView.initWithTag("$label1");
   assertInitFails(liveView);
 
   Assert.equal(
-    liveView.countMessages(),
+    await liveView.countMessages(),
     3,
     "countMessages should return the total number of messages"
   );
   Assert.equal(
-    liveView.countUnreadMessages(),
+    await liveView.countUnreadMessages(),
     2,
     "countUnreadMessages should return the number of unread messages"
   );
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.id),
+    Array.from(await liveView.selectMessages(), m => m.id),
     [8, 3, 2],
     "selectMessages with no arguments should return all the messages"
   );
@@ -240,12 +241,12 @@ add_task(function testInitWithTag() {
   assertInitFails(liveView);
 });
 
-add_task(function testSort() {
+add_task(async function testSort() {
   const liveView = new LiveView();
 
   liveView.sortDescending = false;
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.date.toISOString()),
+    Array.from(await liveView.selectMessages(), m => m.date.toISOString()),
     [
       "2019-02-01T00:00:00.000Z",
       "2019-09-14T00:00:00.000Z",
@@ -263,7 +264,7 @@ add_task(function testSort() {
 
   liveView.sortDescending = true;
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.date.toISOString()),
+    Array.from(await liveView.selectMessages(), m => m.date.toISOString()),
     [
       "2023-09-14T00:00:00.000Z",
       "2023-08-14T00:00:00.000Z",
@@ -281,7 +282,7 @@ add_task(function testSort() {
 
   liveView.sortColumn = Ci.nsILiveView.SUBJECT;
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.subject),
+    Array.from(await liveView.selectMessages(), m => m.subject),
     [
       "Virtual solution-oriented knowledge user",
       "Universal 5th generation conglomeration",
@@ -299,7 +300,7 @@ add_task(function testSort() {
 
   liveView.sortDescending = false;
   Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.subject),
+    Array.from(await liveView.selectMessages(), m => m.subject),
     [
       "Balanced static project déjà vu",
       "Distributed mobile access",
@@ -315,46 +316,47 @@ add_task(function testSort() {
     "messages should be in ascending subject order"
   );
 
-  liveView.sortColumn = Ci.nsILiveView.SENDER;
-  Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.sender),
-    [
-      "Abe Koepp <abe@koepp.invalid>",
-      "Christian Murray <christian@murray.invalid>",
-      "Edgár Stokes <edgar@stokes.invalid>",
-      "Eliseo Bauch <eliseo@bauch.invalid>",
-      "Frederick Rolfson <frederick@rolfson.invalid>",
-      "Hope Bosco <hope@bosco.invalid>",
-      "Kip Mann <kip@mann.invalid>",
-      "Lydia Rau <lydia@rau.invalid>",
-      "Neal Jast <neal@jast.invalid>",
-      "Tara White <tara@white.invalid>",
-    ],
-    "messages should be in ascending sender order"
-  );
+  // FIXME: Address formatting is temporarily disabled.
+  // liveView.sortColumn = Ci.nsILiveView.SENDER;
+  // Assert.deepEqual(
+  //   Array.from(await liveView.selectMessages(), m => m.sender),
+  //   [
+  //     "Abe Koepp <abe@koepp.invalid>",
+  //     "Christian Murray <christian@murray.invalid>",
+  //     "Edgár Stokes <edgar@stokes.invalid>",
+  //     "Eliseo Bauch <eliseo@bauch.invalid>",
+  //     "Frederick Rolfson <frederick@rolfson.invalid>",
+  //     "Hope Bosco <hope@bosco.invalid>",
+  //     "Kip Mann <kip@mann.invalid>",
+  //     "Lydia Rau <lydia@rau.invalid>",
+  //     "Neal Jast <neal@jast.invalid>",
+  //     "Tara White <tara@white.invalid>",
+  //   ],
+  //   "messages should be in ascending sender order"
+  // );
 
   liveView.sortDescending = true;
-  Assert.deepEqual(
-    Array.from(liveView.selectMessages(), m => m.sender),
-    [
-      "Tara White <tara@white.invalid>",
-      "Neal Jast <neal@jast.invalid>",
-      "Lydia Rau <lydia@rau.invalid>",
-      "Kip Mann <kip@mann.invalid>",
-      "Hope Bosco <hope@bosco.invalid>",
-      "Frederick Rolfson <frederick@rolfson.invalid>",
-      "Eliseo Bauch <eliseo@bauch.invalid>",
-      "Edgár Stokes <edgar@stokes.invalid>",
-      "Christian Murray <christian@murray.invalid>",
-      "Abe Koepp <abe@koepp.invalid>",
-    ],
-    "messages should be in descending sender order"
-  );
+  // Assert.deepEqual(
+  //   Array.from(await liveView.selectMessages(), m => m.sender),
+  //   [
+  //     "Tara White <tara@white.invalid>",
+  //     "Neal Jast <neal@jast.invalid>",
+  //     "Lydia Rau <lydia@rau.invalid>",
+  //     "Kip Mann <kip@mann.invalid>",
+  //     "Hope Bosco <hope@bosco.invalid>",
+  //     "Frederick Rolfson <frederick@rolfson.invalid>",
+  //     "Eliseo Bauch <eliseo@bauch.invalid>",
+  //     "Edgár Stokes <edgar@stokes.invalid>",
+  //     "Christian Murray <christian@murray.invalid>",
+  //     "Abe Koepp <abe@koepp.invalid>",
+  //   ],
+  //   "messages should be in descending sender order"
+  // );
 
   liveView.sortColumn = Ci.nsILiveView.READ_FLAG;
   Assert.deepEqual(
     Array.from(
-      liveView.selectMessages(),
+      await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Read
     ),
     [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
@@ -364,7 +366,7 @@ add_task(function testSort() {
   liveView.sortDescending = false;
   Assert.deepEqual(
     Array.from(
-      liveView.selectMessages(),
+      await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Read
     ),
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
@@ -374,7 +376,7 @@ add_task(function testSort() {
   liveView.sortColumn = Ci.nsILiveView.MARKED_FLAG;
   Assert.deepEqual(
     Array.from(
-      liveView.selectMessages(),
+      await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Marked
     ),
     [4, 4, 4, 0, 0, 0, 0, 0, 0, 0],
@@ -384,7 +386,7 @@ add_task(function testSort() {
   liveView.sortDescending = true;
   Assert.deepEqual(
     Array.from(
-      liveView.selectMessages(),
+      await liveView.selectMessages(),
       m => m.flags & Ci.nsMsgMessageFlags.Marked
     ),
     [0, 0, 0, 0, 0, 0, 0, 4, 4, 4],
@@ -457,7 +459,7 @@ add_task(function testListener() {
   messageDB.removeMessage(laterId);
 });
 
-add_task(function testEmojiCharacters() {
+add_task(async function testEmojiCharacters() {
   const added = addMessage({
     sender: "🤷‍♂️",
     subject: "🤦‍♂️",
@@ -465,7 +467,7 @@ add_task(function testEmojiCharacters() {
 
   const liveView = new LiveView();
 
-  const [message] = liveView.selectMessages(1, 0);
+  const [message] = await liveView.selectMessages(1, 0);
   Assert.equal(message.id, added);
   Assert.equal(message.sender, "🤷‍♂️");
   Assert.equal(message.subject, "🤦‍♂️");

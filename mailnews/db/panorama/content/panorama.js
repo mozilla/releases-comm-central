@@ -70,7 +70,7 @@ window.addEventListener("load", async function () {
     } else if (tag) {
       liveView.initWithTag(tag);
     }
-    name.textContent += ` (${liveView.countUnreadMessages()}/${liveView.countMessages()})`;
+    name.textContent += ` (${await liveView.countUnreadMessages()}/${await liveView.countMessages()})`;
   }
 
   const messageList = document.body.querySelector("auto-tree-view#messageList");

@@ -114,11 +114,11 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
    * Get the row at a given row index, accounting for open rows. Overrides
    * TreeDataAdapter because _rowMap is overridden.
    *
-   * @param {number} rowIndex
+   * @param {number} rowIndex - A non-negative integer.
    * @returns {?TreeDataRow}
    */
   rowAt(rowIndex) {
-    return this._rowMap.at(rowIndex);
+    return this._rowMap.rowAt(rowIndex);
   }
 
   /**
@@ -231,7 +231,6 @@ class LiveViewRowMap {
   constructor(liveView, dataAdapter) {
     this.#liveView = liveView;
     this.#dataAdapter = dataAdapter;
-    this.resetRows();
     liveView.setListener(this);
   }
 
@@ -248,45 +247,58 @@ class LiveViewRowMap {
   /**
    * Empty the row cache then set its size to the row count.
    */
-  resetRows() {
+  async resetRows() {
+    const oldLength = this.#rows.length;
     this.#rows.length = 0;
-    this.#rows.length = this.#liveView.countMessages();
+    this.#dataAdapter?._tree?.rowCountChanged(0, -oldLength);
+    this.#rows.length = await this.#liveView.countMessages();
+    this.#dataAdapter?._tree?.rowCountChanged(0, this.#rows.length);
   }
 
   /**
    * Get a row from the cache, or call the LiveView to get some messages for
    * the cache, then return the row.
    *
-   * @param {integer} index
+   * @param {number} index - A non-negative integer.
    * @returns {LiveViewDataRow}
    */
-  at(index) {
-    const row = this.#rows.at(index);
-    if (row) {
-      return row;
+  rowAt(index) {
+    if (index in this.#rows) {
+      return this.#rows[index];
     }
 
     // Work out which rows to collect from the database.
     const fillMin = Math.max(0, index - lazy.bufferRows);
     const fillMax = Math.min(this.#rows.length - 1, index + lazy.bufferRows);
     let start = index;
-    while (start > fillMin && !this.#rows.at(start - 1)) {
+    while (start > fillMin && !this.#rows[start - 1]) {
       start--;
     }
     let end = index;
-    while (end < fillMax && !this.#rows.at(end)) {
+    while (end < fillMax && !this.#rows[end]) {
       end++;
     }
 
-    // Fetch the rows.
-    for (const message of this.#liveView.selectMessages(
-      end - start + 1,
-      start
-    )) {
-      this.#rows[start++] = new LiveViewDataRow(message);
+    // Temporarily add empty rows, so that we don't accidentally end up here
+    // again while fetching from the database.
+    for (let i = start; i <= end; i++) {
+      this.#rows[i] = new TreeDataRow();
     }
 
-    return this.#rows.at(index);
+    // Fetch the rows. Do not await this call, we must return synchronously.
+    this.#liveView.selectMessages(end - start + 1, start).then(messages => {
+      if (!this.#dataAdapter) {
+        // This dataAdapter expired while waiting.
+        return;
+      }
+      let i = start;
+      for (const message of messages) {
+        this.#rows[i++] = new LiveViewDataRow(message);
+      }
+      this.#dataAdapter._tree?.invalidateRange(start, end);
+    });
+
+    return this.#rows[index];
   }
 
   /**
@@ -451,13 +463,19 @@ export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
   }
 
   #getTopLevelRows() {
-    const conversations = this.#liveView.selectMessages();
-    this._rowMap = conversations.map(conversation => {
-      const row = new LiveViewDataRow(conversation);
-      row.liveView = this.#liveView;
-      row.threadId = conversation.threadId;
-      row.children.length = conversation.messageCount - 1;
-      return row;
+    const lengthBefore = this.rowCount;
+    if (lengthBefore) {
+      this._tree?.rowCountChanged(0, -lengthBefore);
+    }
+    this.#liveView.selectMessages().then(conversations => {
+      this._rowMap = conversations.map(conversation => {
+        const row = new LiveViewDataRow(conversation);
+        row.liveView = this.#liveView;
+        row.threadId = conversation.threadId;
+        row.children.length = conversation.messageCount - 1;
+        return row;
+      });
+      this._tree?.rowCountChanged(0, this.rowCount);
     });
   }
 
@@ -597,12 +615,18 @@ export class LiveViewGroupedDataAdapter extends TreeDataAdapter {
   }
 
   #getTopLevelRows() {
-    const groups = this.#liveView.selectMessages();
-    this._rowMap = groups.map(group => {
-      const row = new LiveViewGroupedDataRow(this.#liveView, group);
-      row.liveView = this.#liveView;
-      row.children.length = group.messageCount;
-      return row;
+    const lengthBefore = this.rowCount;
+    if (lengthBefore) {
+      this._tree?.rowCountChanged(0, -lengthBefore);
+    }
+    this.#liveView.selectMessages().then(groups => {
+      this._rowMap = groups.map(group => {
+        const row = new LiveViewGroupedDataRow(this.#liveView, group);
+        row.liveView = this.#liveView;
+        row.children.length = group.messageCount;
+        return row;
+      });
+      this._tree?.rowCountChanged(0, this.rowCount);
     });
   }
 

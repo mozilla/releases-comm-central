@@ -11,7 +11,12 @@
 #include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/RefPtr.h"
+#include "mozIStorageError.h"
+#include "mozIStorageResultSet.h"
+#include "mozIStorageRow.h"
+#include "mozIStorageStatementCallback.h"
 #include "mozStorageHelper.h"
 #include "nsMsgFolderFlags.h"
 #include "nsServiceManagerUtils.h"
@@ -19,6 +24,7 @@
 #include "xpcpublic.h"
 
 using JS::ConstUTF8CharsZ;
+using JS::Heap;
 using JS::MutableHandle;
 using JS::NewArrayObject;
 using JS::NewDateObject;
@@ -28,6 +34,7 @@ using JS::TimeClip;
 using JS::Value;
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
+using mozilla::dom::AutoJSAPI;
 using mozilla::dom::Promise;
 using xpc::CurrentNativeGlobal;
 
@@ -205,7 +212,48 @@ bool LiveView::Matches(Message& aMessage) {
   return true;
 }
 
-NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
+class CountMessagesListener final : public mozIStorageStatementCallback {
+ public:
+  nsMainThreadPtrHandle<Promise> mPromiseHolder;
+  int64_t mResult;
+  nsAutoCString mErrorMessage;
+
+  explicit CountMessagesListener(JSContext* cx) {
+    ErrorResult err;
+    RefPtr<Promise> promise = Promise::Create(CurrentNativeGlobal(cx), err);
+    mPromiseHolder = new nsMainThreadPtrHolder<Promise>(__func__, promise);
+  }
+
+  NS_DECL_ISUPPORTS
+
+  NS_IMETHOD HandleError(mozIStorageError* error) override {
+    error->GetMessage(mErrorMessage);
+    return NS_OK;
+  }
+  NS_IMETHOD HandleResult(mozIStorageResultSet* resultSet) override {
+    nsCOMPtr<mozIStorageRow> row;
+    if (NS_SUCCEEDED(resultSet->GetNextRow(getter_AddRefs(row))) && row) {
+      mResult = row->AsInt64(0);
+    }
+    return NS_OK;
+  }
+  NS_IMETHOD HandleCompletion(uint16_t reason) override {
+    if (reason == mozIStorageStatementCallback::REASON_CANCELED) {
+      mPromiseHolder.get()->MaybeRejectWithAbortError("SQL query cancelled.");
+    } else if (reason == mozIStorageStatementCallback::REASON_ERROR) {
+      mPromiseHolder.get()->MaybeRejectWithUnknownError(
+          "SQL query failed: "_ns + mErrorMessage);
+    }
+    mPromiseHolder.get()->MaybeResolve(mResult);
+    return NS_OK;
+  }
+
+ private:
+  ~CountMessagesListener() {}
+};
+NS_IMPL_ISUPPORTS(CountMessagesListener, mozIStorageStatementCallback)
+
+NS_IMETHODIMP LiveView::CountMessages(JSContext* cx, Promise** promise) {
   if (!mCountStmt) {
     nsAutoCString sql("SELECT COUNT(");
     if (mGrouping == nsILiveView::THREADED) {
@@ -240,14 +288,16 @@ NS_IMETHODIMP LiveView::CountMessages(uint64_t* aCount) {
   mozStorageStatementScoper scoper(mCountStmt);
 
   PrepareStatement(mCountStmt);
-  bool hasResult;
-  nsresult rv = mCountStmt->ExecuteStep(&hasResult);
+  CountMessagesListener* listener = new CountMessagesListener(cx);
+  nsCOMPtr<mozIStoragePendingStatement> unused;
+  nsresult rv = mCountStmt->ExecuteAsync(listener, getter_AddRefs(unused));
   NS_ENSURE_SUCCESS(rv, rv);
-  *aCount = mCountStmt->AsInt64(0);
+
+  NS_ADDREF(*promise = listener->mPromiseHolder.get());
   return NS_OK;
 }
 
-NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
+NS_IMETHODIMP LiveView::CountUnreadMessages(JSContext* cx, Promise** promise) {
   if (!mCountUnreadStmt) {
     nsAutoCString sql("SELECT COUNT(");
     if (mGrouping == nsILiveView::THREADED) {
@@ -284,78 +334,141 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(uint64_t* aCount) {
   mozStorageStatementScoper scoper(mCountUnreadStmt);
 
   PrepareStatement(mCountUnreadStmt);
-  bool hasResult;
-  nsresult rv = mCountUnreadStmt->ExecuteStep(&hasResult);
+  CountMessagesListener* listener = new CountMessagesListener(cx);
+  nsCOMPtr<mozIStoragePendingStatement> unused;
+  nsresult rv =
+      mCountUnreadStmt->ExecuteAsync(listener, getter_AddRefs(unused));
   NS_ENSURE_SUCCESS(rv, rv);
-  *aCount = mCountUnreadStmt->AsInt64(0);
+
+  NS_ADDREF(*promise = listener->mPromiseHolder.get());
   return NS_OK;
 }
 
-void LiveView::CreateJSMessageArray(mozIStorageStatement* stmt, JSContext* cx,
-                                    Rooted<JSObject*>& arr) {
-  arr.set(NewArrayObject(cx, 0));
-  uint32_t count = 0;
-  uint32_t columnCount;
-  stmt->GetColumnCount(&columnCount);
+class SelectMessagesListener final : public mozIStorageStatementCallback {
+ public:
+  nsMainThreadPtrHandle<Promise> mPromiseHolder;
+  nsILiveView::SortColumn mSortColumn;
+  nsILiveView::Grouping mGrouping;
+  uint32_t mColumnCount;
+  Heap<JSObject*> mArr;
+  uint32_t mCount;
+  nsAutoCString mErrorMessage;
 
-  bool hasResult;
-  uint32_t len;
-  double id;
-  const char* messageId;
-  double date;
-  const char* sender;
-  const char* recipients;
-  const char* subject;
-  double folderId;
-  double flags;
-  const char* tags;
-  double threadId;
-  double threadParent;
+  explicit SelectMessagesListener(JSContext* cx,
+                                  nsCOMPtr<mozIStorageStatement> stmt,
+                                  nsILiveView::SortColumn sortColumn,
+                                  nsILiveView::Grouping grouping)
+      : mSortColumn(sortColumn), mGrouping(grouping) {
+    ErrorResult err;
+    RefPtr<Promise> promise = Promise::Create(CurrentNativeGlobal(cx), err);
+    mPromiseHolder = new nsMainThreadPtrHolder<Promise>(__func__, promise);
+    stmt->GetColumnCount(&mColumnCount);
 
-  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
-    id = stmt->AsInt64(0);
-    folderId = stmt->AsInt64(1);
-    messageId = stmt->AsSharedUTF8String(2, &len);
-    date = stmt->AsDouble(3);
-    sender = stmt->AsSharedUTF8String(4, &len);
-    recipients = stmt->AsSharedUTF8String(5, &len);
-    subject = stmt->AsSharedUTF8String(6, &len);
-    flags = stmt->AsInt64(7);
-    tags = stmt->AsSharedUTF8String(8, &len);
-    threadId = stmt->AsInt64(9);
-    threadParent = stmt->AsInt64(10);
-
-    Rooted<JSObject*> obj(cx);
-    CreateJSMessage(id, folderId, messageId, date, sender, recipients, subject,
-                    flags, tags, threadId, threadParent, cx, obj);
-    if (columnCount > 11) {
-      if (mGrouping == nsILiveView::THREADED ||
-          mGrouping == nsILiveView::GROUPED_BY_SORT) {
-        double messageCount = stmt->AsInt64(11);
-        JS_DefineProperty(cx, obj, "messageCount", messageCount,
-                          JSPROP_ENUMERATE);
-      }
-      if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
-          mSortColumn == nsILiveView::DATE) {
-        double dateGroup = stmt->AsInt64(12);
-        JS_DefineProperty(cx, obj, "dateGroup", dateGroup, JSPROP_ENUMERATE);
-      }
-    }
-    Rooted<Value> message(cx, ObjectValue(*obj));
-    JS_DefineElement(cx, arr, count++, message, JSPROP_ENUMERATE);
+    mArr = NewArrayObject(cx, 0);
+    mCount = 0;
   }
-}
+
+  NS_DECL_ISUPPORTS
+
+  NS_IMETHOD HandleError(mozIStorageError* error) override {
+    error->GetMessage(mErrorMessage);
+    return NS_OK;
+  }
+  NS_IMETHOD HandleResult(mozIStorageResultSet* resultSet) override {
+    AUTO_PROFILER_LABEL("SelectMessagesListener::HandleResult", MAILNEWS);
+    AutoJSAPI jsapi;
+    if (!jsapi.Init(mPromiseHolder.get()->GetParentObject())) {
+      mPromiseHolder.get()->MaybeRejectWithUnknownError(
+          "Failed to get a JS API object");
+      return NS_ERROR_FAILURE;
+    }
+
+    JSContext* cx = jsapi.cx();
+    Rooted<JSObject*> arr(cx);
+    arr = mArr;
+
+    nsCOMPtr<mozIStorageRow> row;
+    while (NS_SUCCEEDED(resultSet->GetNextRow(getter_AddRefs(row))) && row) {
+      nsMsgKey id = (nsMsgKey)(row->AsInt64(0));
+      uint64_t folderId = row->AsInt64(1);
+      nsCString messageId;
+      row->GetUTF8String(2, messageId);
+      PRTime date = (PRTime)(row->AsDouble(3));
+      nsCString sender;
+      row->GetUTF8String(4, sender);
+      nsCString recipients;
+      row->GetUTF8String(5, recipients);
+      nsCString subject;
+      row->GetUTF8String(6, subject);
+      uint32_t flags = (uint32_t)(row->AsInt64(7));
+      nsCString tags;
+      row->GetUTF8String(8, tags);
+      nsMsgKey threadId = (nsMsgKey)(row->AsInt64(9));
+      nsMsgKey threadParent = (nsMsgKey)(row->AsInt64(10));
+
+      Rooted<JSObject*> obj(cx);
+      CreateJSMessage(id, folderId, messageId.get(), date, sender.get(),
+                      recipients.get(), subject.get(), flags, tags.get(),
+                      threadId, threadParent, cx, obj);
+
+      if (mColumnCount > 11) {
+        if (mGrouping == nsILiveView::THREADED ||
+            mGrouping == nsILiveView::GROUPED_BY_SORT) {
+          uint64_t messageCount = row->AsInt64(11);
+          JS_DefineProperty(cx, obj, "messageCount", (double)(messageCount),
+                            JSPROP_ENUMERATE);
+        }
+        if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
+            mSortColumn == nsILiveView::DATE) {
+          uint64_t dateGroup = row->AsInt64(12);
+          JS_DefineProperty(cx, obj, "dateGroup", (double)(dateGroup),
+                            JSPROP_ENUMERATE);
+        }
+      }
+
+      Rooted<Value> message(cx, ObjectValue(*obj));
+      JS_DefineElement(cx, arr, mCount++, message, JSPROP_ENUMERATE);
+    }
+    return NS_OK;
+  }
+  NS_IMETHOD HandleCompletion(uint16_t reason) override {
+    AUTO_PROFILER_LABEL("SelectMessagesListener::HandleCompletion", MAILNEWS);
+    if (reason == mozIStorageStatementCallback::REASON_CANCELED) {
+      mPromiseHolder.get()->MaybeRejectWithAbortError("SQL query cancelled.");
+      return NS_OK;
+    }
+    if (reason == mozIStorageStatementCallback::REASON_ERROR) {
+      mPromiseHolder.get()->MaybeRejectWithUnknownError(
+          "SQL query failed: "_ns + mErrorMessage);
+      return NS_OK;
+    }
+
+    AutoJSAPI jsapi;
+    if (!jsapi.Init(mPromiseHolder.get()->GetParentObject())) {
+      mPromiseHolder.get()->MaybeRejectWithUnknownError(
+          "Failed to get a JS API object");
+      return NS_ERROR_FAILURE;
+    }
+
+    JSContext* cx = jsapi.cx();
+    Rooted<JSObject*> arr(cx, mArr);
+    mPromiseHolder.get()->MaybeResolve(arr);
+    return NS_OK;
+  }
+
+ private:
+  ~SelectMessagesListener() {}
+};
+NS_IMPL_ISUPPORTS(SelectMessagesListener, mozIStorageStatementCallback)
 
 /**
  * Create an object of JS primitives representing a message.
  */
-void LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
-                               const char* messageId, PRTime date,
-                               const char* sender, const char* recipients,
-                               const char* subject, uint64_t flags,
-                               const char* tags, uint64_t threadId,
-                               uint64_t threadParent, JSContext* cx,
-                               Rooted<JSObject*>& obj) {
+void CreateJSMessage(uint64_t id, uint64_t folderId, const char* messageId,
+                     PRTime date, const char* sender, const char* recipients,
+                     const char* subject, uint64_t flags, const char* tags,
+                     uint64_t threadId, uint64_t threadParent, JSContext* cx,
+                     Rooted<JSObject*>& obj) {
   obj.set(JS_NewPlainObject(cx));
 
   JS_DefineProperty(cx, obj, "id", (double)(id), JSPROP_ENUMERATE);
@@ -411,8 +524,7 @@ void LiveView::CreateJSMessage(uint64_t id, uint64_t folderId,
 /**
  * Create an object of JS primitives representing a message.
  */
-void LiveView::CreateJSMessage(Message* aMessage, JSContext* cx,
-                               Rooted<JSObject*>& obj) {
+void CreateJSMessage(Message* aMessage, JSContext* cx, Rooted<JSObject*>& obj) {
   // Yes. This is a bit clunky for now.
   nsAutoCString messageId;
   PRTime date;
@@ -441,17 +553,17 @@ void LiveView::CreateJSMessage(Message* aMessage, JSContext* cx,
 }
 
 NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
-                                       JSContext* cx,
-                                       MutableHandle<Value> messages) {
+                                       JSContext* cx, Promise** promise) {
   if (!mSelectStmt) {
+    // FIXME: Address formatting is temporarily disabled.
     nsAutoCString sql(
         "SELECT \
           id, \
           folderId, \
           messageId, \
           date, \
-          ADDRESS_FORMAT(sender) AS formattedSender, \
-          ADDRESS_FORMAT(recipients) AS formattedRecipients, \
+          sender AS formattedSender, \
+          recipients AS formattedRecipients, \
           subject, \
           flags, \
           tags, \
@@ -530,29 +642,34 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
         sql, getter_AddRefs(mSelectStmt));
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  mozStorageStatementScoper scoper(mSelectStmt);
 
   PrepareStatement(mSelectStmt);
   mSelectStmt->BindInt64ByName("limit"_ns, limit ? limit : -1);
   mSelectStmt->BindInt64ByName("offset"_ns, offset);
 
-  Rooted<JSObject*> arr(cx);
-  CreateJSMessageArray(mSelectStmt, cx, arr);
-  messages.set(ObjectValue(*arr));
+  RefPtr<SelectMessagesListener> listener =
+      new SelectMessagesListener(cx, mSelectStmt, mSortColumn, mGrouping);
+  nsCOMPtr<mozIStoragePendingStatement> unused;
+  nsresult rv = mSelectStmt->ExecuteAsync(listener, getter_AddRefs(unused));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  NS_ADDREF(*promise = listener->mPromiseHolder.get());
   return NS_OK;
 }
 
-nsresult LiveView::SelectMessagesInGroup(const nsACString& group, JSContext* cx,
-                                         Promise** retval) {
+NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
+                                              JSContext* cx,
+                                              Promise** promise) {
   if (!mSelectGroupStmt) {
+    // FIXME: Address formatting is temporarily disabled.
     nsAutoCString sql(
         "SELECT \
           id, \
           folderId, \
           messageId, \
           date, \
-          ADDRESS_FORMAT(sender) AS formattedSender, \
-          ADDRESS_FORMAT(recipients) AS formattedRecipients, \
+          sender AS formattedSender, \
+          recipients AS formattedRecipients, \
           subject, \
           flags, \
           tags, \
@@ -601,15 +718,14 @@ nsresult LiveView::SelectMessagesInGroup(const nsACString& group, JSContext* cx,
     mSelectGroupStmt->BindUTF8StringByName("group"_ns, group);
   }
 
-  Rooted<JSObject*> arr(cx);
-  CreateJSMessageArray(mSelectGroupStmt, cx, arr);
+  RefPtr<SelectMessagesListener> listener =
+      new SelectMessagesListener(cx, mSelectGroupStmt, mSortColumn, mGrouping);
+  nsCOMPtr<mozIStoragePendingStatement> unused;
+  nsresult rv =
+      mSelectGroupStmt->ExecuteAsync(listener, getter_AddRefs(unused));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  ErrorResult result;
-  RefPtr<Promise> promise = Promise::Create(CurrentNativeGlobal(cx), result);
-  promise->MaybeResolve(ObjectValue(*arr));
-  // TODO: reject if bad stuff happens.
-  promise.forget(retval);
-
+  NS_ADDREF(*promise = listener->mPromiseHolder.get());
   return NS_OK;
 }
 

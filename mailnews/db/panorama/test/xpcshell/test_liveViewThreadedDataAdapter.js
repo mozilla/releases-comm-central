@@ -27,6 +27,7 @@ add_task(async function testThreadedView() {
   const adapter = new LiveViewThreadedDataAdapter(liveView);
   adapter.sortBy("date", "descending");
   adapter.setTree(tree);
+  await tree.promiseRowCountChanged(0, 6);
 
   try {
     Assert.equal(adapter.rowCount, 6);
@@ -52,7 +53,9 @@ add_task(async function testThreadedView() {
     // Open thread with ID 3, which is at row 3.
     adapter.toggleOpenState(3);
     await tree.promiseRowCountChanged(4, 2);
-    await tree.promiseInvalidated(3, 5);
+    await tree
+      .promiseInvalidated(3, 3)
+      .then(() => tree.promiseInvalidated(3, 5));
     Assert.equal(adapter.rowCount, 8);
     // Row 3 is no longer the newest message in thread 3, it's the oldest.
     Assert.equal(adapter.getCellText(3, "messageId"), "message3@invalid");
@@ -70,7 +73,9 @@ add_task(async function testThreadedView() {
     // Open thread with ID 7, which is at row 6.
     adapter.toggleOpenState(6);
     await tree.promiseRowCountChanged(7, 2);
-    await tree.promiseInvalidated(6, 8);
+    await tree
+      .promiseInvalidated(6, 6)
+      .then(() => tree.promiseInvalidated(6, 8));
     Assert.equal(adapter.rowCount, 10);
     // Row 6 is no longer the newest message in thread 7, it's the oldest.
     Assert.equal(adapter.getCellText(6, "messageId"), "message7@invalid");
@@ -115,6 +120,7 @@ add_task(async function testThreadedViewPartialThread() {
   const adapter = new LiveViewThreadedDataAdapter(liveView);
   adapter.sortBy("date", "descending");
   adapter.setTree(tree);
+  await tree.promiseRowCountChanged(0, 2);
 
   try {
     Assert.equal(adapter.rowCount, 2);
@@ -123,7 +129,9 @@ add_task(async function testThreadedViewPartialThread() {
 
     adapter.toggleOpenState(0);
     await tree.promiseRowCountChanged(1, 2);
-    await tree.promiseInvalidated(0, 2);
+    await tree
+      .promiseInvalidated(0, 0)
+      .then(() => tree.promiseInvalidated(0, 2));
     Assert.equal(adapter.rowCount, 4);
     Assert.equal(adapter.getCellText(0, "messageId"), "message3@invalid");
     Assert.equal(adapter.getCellText(1, "messageId"), "message5@invalid");

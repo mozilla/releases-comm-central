@@ -60,28 +60,30 @@ interface nsILiveView : nsISupports {
   /**
    * Get the total number of messages in the database matching this live view.
    */
-  unsigned long long countMessages();
+  [implicit_jscontext]
+  Promise countMessages();
 
   /**
    * Get the number of unread messages in the database matching this live view.
    */
-  unsigned long long countUnreadMessages();
+  [implicit_jscontext]
+  Promise countUnreadMessages();
 
   /**
    * Get the messages matching this live view from the database. Messages will
    * be sorted and grouped based on `sortColumn`, `sortDescending` and
-   * `grouping`. The return value is a JS array of plain objects containing
-   * the message properties.
+   * `grouping`. Returns a promise resolving to an array of plain JS objects
+   * containing the message properties.
    */
   [implicit_jscontext]
-  jsval selectMessages([optional] in unsigned long long limit,
-                       [optional] in unsigned long long offset);
+  Promise selectMessages([optional] in unsigned long long limit,
+                         [optional] in unsigned long long offset);
 
   /**
-   * Get the messages matching this live view and the specified group. The
-   * return value is a JS array of plain objects containing the message
-   * properties. Though the argument is a string, JS type conversion means
-   * an integer group identifier can be used, e.g. for date groups.
+   * Get the messages matching this live view and the specified group. Returns
+   * a promise resolving to an array of plain JS objects. Though the argument
+   * is a string, JS type coercion means an integer group identifier can be
+   * used, e.g. for date groups.
    */
   [implicit_jscontext]
   Promise selectMessagesInGroup(in AUTF8String group);
