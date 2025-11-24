@@ -111,6 +111,11 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
   /**
    * Set the selected folders, and open all ancestor rows of selected folders.
    *
+   * Setting @name and @private explicitly to work around jsdoc/sphinx-js
+   * treating this setter as the same symbol as the getter.
+   *
+   * @name FolderSelectionDataAdapter#setSelectedFolders
+   * @private
    * @param {Set<nsIMsgFolder>} selected
    */
   set selectedFolders(selected) {
