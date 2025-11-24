@@ -275,9 +275,8 @@ add_task(async function testSidebar() {
   async function inABEditingMode() {
     const topWindow = Services.wm.getMostRecentWindow("mail:3pane");
     const abWindow = await topWindow.toAddressBook();
-    await new Promise(resolve => abWindow.setTimeout(resolve));
     await TestUtils.waitForCondition(
-      () => abWindow.detailsPane.isEditing,
+      () => abWindow.detailsPane?.isEditing,
       "entering editing mode"
     );
     const tabmail = topWindow.document.getElementById("tabmail");

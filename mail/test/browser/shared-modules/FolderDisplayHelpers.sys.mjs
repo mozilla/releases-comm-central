@@ -1305,7 +1305,11 @@ export async function wait_for_message_display_completion(aWin, aLoadDemanded) {
     }
   }
 
-  await TestUtils.waitForCondition(() => win.document.readyState == "complete");
+  await TestUtils.waitForCondition(
+    () =>
+      win.document.readyState == "complete" &&
+      win.location.href == "about:message"
+  );
 
   const messagePaneBrowser = win.getMessagePaneBrowser();
 
