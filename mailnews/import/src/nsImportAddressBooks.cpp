@@ -339,6 +339,7 @@ AddressThreadData::AddressThreadData() {
   abort = false;
   currentTotal = 0;
   currentSize = 0;
+  dBs = nullptr;
 }
 
 AddressThreadData::~AddressThreadData() {}
