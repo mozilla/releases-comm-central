@@ -1215,7 +1215,6 @@ MimeDisplayOptions::MimeDisplayOptions() {
   make_image_html = nullptr;
   state = nullptr;
 
-#ifdef MIME_DRAFTS
   decompose_file_p = false;
   done_parsing_outer_headers = false;
   is_multipart_msg = false;
@@ -1227,7 +1226,6 @@ MimeDisplayOptions::MimeDisplayOptions() {
   decompose_file_init_fn = nullptr;
   decompose_file_output_fn = nullptr;
   decompose_file_close_fn = nullptr;
-#endif /* MIME_DRAFTS */
 
   attachment_icon_layer_id = 0;
 

@@ -485,7 +485,6 @@ static int MimeMultipartAlternative_display_cached_part(
   old_options_no_output_p = obj->options->no_output_p;
   if (!do_display) body->options->no_output_p = true;
 
-#ifdef MIME_DRAFTS
   /* if this object is a child of a multipart/related object, the parent is
      taking care of decomposing the whole part, don't need to do it at this
      level. However, we still have to call decompose_file_init_fn and
@@ -504,7 +503,6 @@ static int MimeMultipartAlternative_display_cached_part(
                                                   hdrs);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   /* Now that we've added this new object to our list of children,
    notify emitters and start its parser going. */
@@ -513,12 +511,10 @@ static int MimeMultipartAlternative_display_cached_part(
   status = body->clazz->parse_begin(body);
   if (status < 0) return status;
 
-#ifdef MIME_DRAFTS
   if (decomposeFile && !multipartRelatedChild)
     status = MimePartBufferRead(buffer, obj->options->decompose_file_output_fn,
                                 obj->options->stream_closure);
   else
-#endif /* MIME_DRAFTS */
 
     status = MimePartBufferRead(buffer, body->clazz->parse_buffer,
                                 MimeClosure(MimeClosure::isMimeObject, body));
@@ -531,13 +527,11 @@ static int MimeMultipartAlternative_display_cached_part(
   status = body->clazz->parse_end(body, false);
   if (status < 0) return status;
 
-#ifdef MIME_DRAFTS
   if (decomposeFile) {
     status =
         obj->options->decompose_file_close_fn(obj->options->stream_closure);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   /* Restore options to what parent classes expects. */
   obj->options->no_output_p = old_options_no_output_p;

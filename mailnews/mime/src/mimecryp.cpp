@@ -429,7 +429,6 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
     ct = MimeHeaders_get(enc->hdrs, HEADER_CONTENT_TYPE, true, false);
   body = mime_create((ct ? ct : TEXT_PLAIN), enc->hdrs, obj->options);
 
-#ifdef MIME_DRAFTS
   if (obj->options->decompose_file_p) {
     if (mime_typep(body, (MimeObjectClass*)&mimeMultipartClass))
       obj->options->is_multipart_msg = true;
@@ -437,7 +436,6 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
       obj->options->decompose_file_init_fn(obj->options->stream_closure,
                                            enc->hdrs);
   }
-#endif /* MIME_DRAFTS */
 
   PR_FREEIF(ct);
 
@@ -472,19 +470,14 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
 
   if (enc->part_buffer) /* part_buffer is 0 for 0-length encrypted data. */
   {
-#ifdef MIME_DRAFTS
     if (obj->options->decompose_file_p && !obj->options->is_multipart_msg) {
       status = MimePartBufferRead(enc->part_buffer,
                                   obj->options->decompose_file_output_fn,
                                   obj->options->stream_closure);
     } else {
-#endif /* MIME_DRAFTS */
-
       status = MimePartBufferRead(enc->part_buffer, body->clazz->parse_buffer,
                                   MimeClosure(MimeClosure::isMimeObject, body));
-#ifdef MIME_DRAFTS
     }
-#endif /* MIME_DRAFTS */
   }
   if (status < 0) return status;
 
@@ -496,10 +489,8 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
   status = body->clazz->parse_end(body, false);
   if (status < 0) return status;
 
-#ifdef MIME_DRAFTS
   if (obj->options->decompose_file_p && !obj->options->is_multipart_msg)
     obj->options->decompose_file_close_fn(obj->options->stream_closure);
-#endif /* MIME_DRAFTS */
 
   /* Put out a separator after every encrypted object. */
   status = MimeObject_write_separator(obj);

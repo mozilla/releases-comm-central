@@ -560,11 +560,8 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
       }
     }
   }
-  if (obj->options && !obj->options->write_html_p
-#ifdef MIME_DRAFTS
-      && !obj->options->decompose_file_p
-#endif /* MIME_DRAFTS */
-  ) {
+  if (obj->options && !obj->options->write_html_p &&
+      !obj->options->decompose_file_p) {
     return true;
   }
 
@@ -580,11 +577,8 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
   MimeMultipartRelated* relobj = (MimeMultipartRelated*)obj;
   MimeObject* kid;
 
-  if (obj->options && !obj->options->write_html_p
-#ifdef MIME_DRAFTS
-      && !obj->options->decompose_file_p
-#endif /* MIME_DRAFTS */
-  ) {
+  if (obj->options && !obj->options->write_html_p &&
+      !obj->options->decompose_file_p) {
     /* Oh, just go do the normal thing... */
     return ((MimeMultipartClass*)&MIME_SUPERCLASS)
         ->parse_child_line(obj, line, length, first_line_p);
@@ -688,7 +682,6 @@ static int real_write(MimeMultipartRelated* relobj, const char* buf,
   MimeObject* obj = (MimeObject*)relobj;
   MimeClosure closure = relobj->real_output_closure;
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->decompose_file_output_fn) {
     // the buf here has already been decoded, but we want to use general output
@@ -708,9 +701,7 @@ static int real_write(MimeMultipartRelated* relobj, const char* buf,
         buf, size, MimeClosure(MimeClosure::isMimeDraftData, mdd));
     mdd->decoder_data = old_decoder_data;
     return status;
-  } else
-#endif /* MIME_DRAFTS */
-  {
+  } else {
     if (!closure) {
       MimeObject* lobj = (MimeObject*)relobj;
       closure = lobj->options->stream_closure;
@@ -1002,7 +993,6 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
   body->dontShowAsAttachment =
       body->clazz->displayable_inline_p(body->clazz, body->headers);
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->decompose_file_init_fn &&
       (relobj->file_buffer || relobj->head_buffer)) {
@@ -1010,7 +1000,6 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
                                                   relobj->buffered_hdrs);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   /* if the emitter wants to know about nested bodies, then it needs
      to know that we jumped back to this body part. */
@@ -1093,7 +1082,6 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
 
 FAIL:
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->decompose_file_close_fn &&
       (relobj->file_buffer || relobj->head_buffer)) {
@@ -1101,7 +1089,6 @@ FAIL:
         obj->options->decompose_file_close_fn(obj->options->stream_closure);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   obj->options->output_fn = relobj->real_output_fn;
   obj->options->output_closure = relobj->real_output_closure;

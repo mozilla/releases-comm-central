@@ -16,8 +16,6 @@
 #include "nsCOMPtr.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
 
-#define MIME_DRAFTS
-
 /* Opaque object describing a block of message headers, and a couple of
    routines for extracting data from one.
  */
@@ -303,7 +301,6 @@ class MimeDisplayOptions {
                   initialize this to 0 and leave it alone.
                 */
 
-#ifdef MIME_DRAFTS
   /* =======================================================================
   Mail Draft hooks -- 09-19-1996
    */
@@ -336,7 +333,6 @@ class MimeDisplayOptions {
   MimeConverterOutputCallback decompose_file_output_fn;
 
   int (*decompose_file_close_fn)(MimeClosure stream_closure);
-#endif /* MIME_DRAFTS */
 
   int32_t attachment_icon_layer_id; /* Hackhackhack.  This is zero if we have
                                        not yet emitted the attachment layer

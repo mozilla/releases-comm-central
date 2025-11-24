@@ -149,7 +149,6 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
      */
     nl = (length > 0 && (line[length - 1] == '\r' || line[length - 1] == '\n'));
 
-#ifdef MIME_DRAFTS
     if (!mime_typep(kid, (MimeObjectClass*)&mimeMessageClass) && obj->options &&
         obj->options->decompose_file_p && !obj->options->is_multipart_msg &&
         obj->options->decompose_file_output_fn && !obj->options->decrypt_p) {
@@ -169,7 +168,6 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
         return status;
       }
     }
-#endif /* MIME_DRAFTS */
 
     if (nl)
       return kid->clazz->parse_buffer(
@@ -196,7 +194,6 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
     if (!msg->hdrs) return MIME_OUT_OF_MEMORY;
   }
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       !obj->options->is_multipart_msg &&
       obj->options->done_parsing_outer_headers &&
@@ -205,7 +202,6 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
         line, length, obj->options->stream_closure);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   status = MimeHeaders_parse_line(line, length, msg->hdrs);
   if (status < 0) return status;
@@ -264,22 +260,20 @@ static int MimeMessage_close_headers(MimeObject* obj) {
   if (msg->hdrs) {
     bool outer_p = !obj->headers; /* is this the outermost message? */
 
-#ifdef MIME_DRAFTS
     if (outer_p && obj->options &&
         (obj->options->decompose_file_p ||
          obj->options->caller_need_root_headers) &&
         obj->options->decompose_headers_info_fn) {
-#  ifdef ENABLE_SMIME
+#ifdef ENABLE_SMIME
       if (obj->options->decrypt_p &&
           !mime_crypto_object_p(msg->hdrs, false, obj->options))
         obj->options->decrypt_p = false;
-#  endif /* ENABLE_SMIME */
+#endif /* ENABLE_SMIME */
       if (!obj->options->caller_need_root_headers ||
           (obj == obj->options->state->root))
         status = obj->options->decompose_headers_info_fn(
             obj->options->stream_closure, msg->hdrs);
     }
-#endif /* MIME_DRAFTS */
 
     /* If this is the outermost message, we need to run the
      `generate_header' callback.  This happens here instead of
@@ -407,11 +401,9 @@ static int MimeMessage_close_headers(MimeObject* obj) {
   if (obj->options && obj->options->state)
     obj->options->state->separator_suppressed_p = true;
 
-#ifdef MIME_DRAFTS
   if (!obj->headers && /* outer most message header */
       obj->options && obj->options->decompose_file_p && ct)
     obj->options->is_multipart_msg = PL_strcasestr(ct, "multipart/") != NULL;
-#endif /* MIME_DRAFTS */
 
   body = mime_create(ct, msg->hdrs, obj->options);
 
@@ -531,7 +523,6 @@ static int MimeMessage_parse_eof(MimeObject* obj, bool abort_p) {
       mimeEmitterEndBody(obj->options);
   }
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->done_parsing_outer_headers &&
       !obj->options->is_multipart_msg &&
@@ -542,7 +533,6 @@ static int MimeMessage_parse_eof(MimeObject* obj, bool abort_p) {
 
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   /* Put out a separator after every message/rfc822 object. */
   if (!abort_p && !outer_p) {
@@ -562,7 +552,6 @@ static int MimeMessage_add_child(MimeObject* parent, MimeObject* child) {
   PR_ASSERT(cont->nchildren == 0);
   if (cont->nchildren != 0) return -1;
 
-#ifdef MIME_DRAFTS
   if (parent->options && parent->options->decompose_file_p &&
       !parent->options->is_multipart_msg &&
       !mime_typep(child, (MimeObjectClass*)&mimeEncryptedClass) &&
@@ -572,7 +561,6 @@ static int MimeMessage_add_child(MimeObject* parent, MimeObject* child) {
         parent->options->stream_closure, ((MimeMessage*)parent)->hdrs);
     if (status < 0) return status;
   }
-#endif /* MIME_DRAFTS */
 
   return ((MimeContainerClass*)&MIME_SUPERCLASS)->add_child(parent, child);
 }

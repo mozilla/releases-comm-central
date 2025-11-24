@@ -425,7 +425,6 @@ static int MimeMultipart_create_child(MimeObject* obj) {
     return status;
   }
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->is_multipart_msg && obj->options->decompose_file_init_fn) {
     if (!mime_typep(obj, (MimeObjectClass*)&mimeMultipartRelatedClass) &&
@@ -448,7 +447,6 @@ static int MimeMultipart_create_child(MimeObject* obj) {
       if (status < 0) return status;
     }
   }
-#endif /* MIME_DRAFTS */
 
   /* Now that we've added this new object to our list of children,
    start its parser going (if we want to display it.)
@@ -515,7 +513,6 @@ static int MimeMultipart_close_child(MimeObject* object) {
       status = kid->clazz->parse_end(kid, false);
       if (status < 0) return status;
 
-#ifdef MIME_DRAFTS
       if (object->options && object->options->decompose_file_p &&
           object->options->is_multipart_msg &&
           object->options->decompose_file_close_fn) {
@@ -541,7 +538,6 @@ static int MimeMultipart_close_child(MimeObject* object) {
         }
         // clang-format on
       }
-#endif /* MIME_DRAFTS */
     }
   }
   return 0;
@@ -560,7 +556,6 @@ static int MimeMultipart_parse_child_line(MimeObject* obj, const char* line,
   PR_ASSERT(kid);
   if (!kid) return -1;
 
-#ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->is_multipart_msg &&
       obj->options->decompose_file_output_fn) {
@@ -582,7 +577,6 @@ static int MimeMultipart_parse_child_line(MimeObject* obj, const char* line,
       return obj->options->decompose_file_output_fn(
           line, length, obj->options->stream_closure);
   }
-#endif /* MIME_DRAFTS */
 
   /* The newline issues here are tricky, since both the newlines before
    and after the boundary string are to be considered part of the

@@ -682,7 +682,6 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
         ->crypto_notify_suppressed_child(sig->crypto_closure);
   }
 
-#ifdef MIME_DRAFTS
   if (body->options->decompose_file_p) {
     body->options->signed_p = true;
     if (!mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
@@ -690,11 +689,9 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
       body->options->decompose_file_init_fn(body->options->stream_closure,
                                             body->headers);
   }
-#endif /* MIME_DRAFTS */
 
   /* If there's no part_buffer, this is a zero-length signed message? */
   if (sig->part_buffer) {
-#ifdef MIME_DRAFTS
     if (body->options->decompose_file_p &&
         !mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
         body->options->decompose_file_output_fn)
@@ -703,7 +700,6 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
                                   body->options->decompose_file_output_fn,
                                   body->options->stream_closure);
     else
-#endif /* MIME_DRAFTS */
 
       status = MimePartBufferRead(sig->part_buffer, body->clazz->parse_buffer,
                                   MimeClosure(MimeClosure::isMimeObject, body));
@@ -718,12 +714,10 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
   status = body->clazz->parse_end(body, false);
   if (status < 0) return status;
 
-#ifdef MIME_DRAFTS
   if (body->options->decompose_file_p &&
       !mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
       body->options->decompose_file_close_fn)
     body->options->decompose_file_close_fn(body->options->stream_closure);
-#endif /* MIME_DRAFTS */
 
   /* Put out a separator after every multipart/signed object. */
   status = MimeObject_write_separator(obj);
