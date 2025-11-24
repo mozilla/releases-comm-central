@@ -50,6 +50,8 @@ nsAddrDatabase::nsAddrDatabase()
       m_PabTableKind(0),
       m_DeletedCardsTableKind(0),
       m_CardRowScopeToken(0),
+      m_ListRowScopeToken(0),
+      m_DataRowScopeToken(0),
       m_UIDColumnToken(0),
       m_FirstNameColumnToken(0),
       m_LastNameColumnToken(0),
@@ -57,6 +59,8 @@ nsAddrDatabase::nsAddrDatabase()
       m_NickNameColumnToken(0),
       m_PriEmailColumnToken(0),
       m_2ndEmailColumnToken(0),
+      m_DefaultEmailColumnToken(0),
+      m_CardTypeColumnToken(0),
       m_WorkPhoneColumnToken(0),
       m_HomePhoneColumnToken(0),
       m_FaxColumnToken(0),
@@ -79,6 +83,8 @@ nsAddrDatabase::nsAddrDatabase()
       m_WorkStateColumnToken(0),
       m_WorkZipCodeColumnToken(0),
       m_WorkCountryColumnToken(0),
+      m_JobTitleColumnToken(0),
+      m_DepartmentColumnToken(0),
       m_CompanyColumnToken(0),
       m_AimScreenNameColumnToken(0),
       m_AnniversaryYearColumnToken(0),
@@ -99,8 +105,17 @@ nsAddrDatabase::nsAddrDatabase()
       m_Custom4ColumnToken(0),
       m_NotesColumnToken(0),
       m_LastModDateColumnToken(0),
+      m_RecordKeyColumnToken(0),
+      m_LowerPriEmailColumnToken(0),
+      m_Lower2ndEmailColumnToken(0),
       m_PopularityIndexColumnToken(0),
-      m_AddressCharSetColumnToken(0) {}
+      m_AddressCharSetColumnToken(0),
+      m_LastRecordKeyColumnToken(0),
+      m_ListNameColumnToken(0),
+      m_ListNickNameColumnToken(0),
+      m_ListDescriptionColumnToken(0),
+      m_ListTotalColumnToken(0),
+      m_LowerListNameColumnToken(0) {}
 
 nsAddrDatabase::~nsAddrDatabase() {
   Close(false);  // better have already been closed.
