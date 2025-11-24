@@ -1,7 +1,7 @@
 Directory ./rnp contains a copy of rnp which has been obtained from:
 https://github.com/rnpgp/rnp
 
-[tag v0.18.0]
+[tag v0.18.1]
 
 If MZLA applied patches on top, the version number in file
 third_party/rnp/src/lib/version.h will contain a suffix that lists
