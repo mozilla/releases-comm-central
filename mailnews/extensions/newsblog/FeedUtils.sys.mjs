@@ -1023,11 +1023,17 @@ export var FeedUtils = {
     const pageURI = Services.io.newURI(feedURL);
     const iconURI = Services.io.newURI(iconURL);
     const dataURL = await lazy.MailUtils.getFaviconDataURLFromNetwork(iconURI);
-    await lazy.PlacesUtils.favicons.setFaviconForPage(
-      pageURI,
-      iconURI,
-      dataURL
-    );
+    try {
+      await lazy.PlacesUtils.favicons.setFaviconForPage(
+        pageURI,
+        iconURI,
+        dataURL
+      );
+    } catch (e) {
+      // Likely image corrupt or truncated.
+      this.log.warn(`Discovered bad favicon for ${url}`, e);
+      return "";
+    }
 
     const favicon = await lazy.PlacesUtils.favicons.getFaviconForPage(pageURI);
     return favicon?.dataURI.spec;
