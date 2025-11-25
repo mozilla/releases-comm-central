@@ -94,7 +94,10 @@ var TESTS = [
     body: `<iframe id='testelement' src='${url}remoteimage.html' />\n`,
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
-      return element.contentDocument.readyState != "uninitialized";
+      return (
+        element.contentDocument.readyState != "uninitialized" &&
+        element.contentWindow.location.href != "about:blank"
+      );
     },
   },
   {
@@ -108,7 +111,10 @@ var TESTS = [
     body: `<iframe id='testelement' src='data:text/html,<html><p>data uri iframe with pic</p><img src='${url}pass.png' /></html>\n`,
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
-      return element.contentDocument.readyState != "uninitialized";
+      return (
+        element.contentDocument.readyState != "uninitialized" &&
+        element.contentWindow.location.href != "about:blank"
+      );
     },
   },
   {
@@ -164,7 +170,10 @@ var TESTS = [
 
     body: `<html><iframe id='testelement' srcdoc='<html><img src="${url}pass.png" alt="pichere"/>'></html>`,
     checkForAllowed: async element => {
-      if (element.contentDocument.readyState != "complete") {
+      if (
+        element.contentDocument.readyState != "complete" ||
+        element.contentWindow.location.href == "about:blank"
+      ) {
         await new Promise(resolve => element.addEventListener("load", resolve));
       }
       const img = element.contentDocument.querySelector("img");
@@ -462,6 +471,10 @@ async function showRemoteContent(aboutMessage) {
     prefButton,
     { clickCount: 1 },
     aboutMessage
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    aboutMessage.document.getElementById("remoteContentOptions"),
+    "shown"
   );
   aboutMessage.document
     .getElementById("remoteContentOptions")

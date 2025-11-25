@@ -56,9 +56,7 @@ add_task(async function testEditEditableItem() {
   await popupPromise;
   Assert.ok(!editMenu.disabled, 'context menu "Edit" item is not disabled for editable event');
 
-  const editDialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-
+  const editDialogPromise = CalendarTestUtils.waitForEventDialog("edit").then(async win => {
     const doc = win.document;
     Assert.equal(
       doc.documentURI,
@@ -67,8 +65,6 @@ add_task(async function testEditEditableItem() {
     );
 
     const iframe = doc.querySelector("#calendar-item-panel-iframe");
-    await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
-
     const iframeDoc = iframe.contentDocument;
     Assert.strictEqual(
       iframeDoc.querySelector("#item-title").value,

@@ -130,13 +130,12 @@ async function checkContentTab(msgURL) {
 
   Assert.notEqual(newTab.browser.currentURI.spec, "about:blank");
   Assert.strictEqual(newTab.browser.webProgress?.isLoadingDocument, false);
-  Assert.equal(
-    newTab.browser.browsingContext.children[0].currentWindowGlobal,
-    null,
-    "Message display/access has been blocked from remote content!"
-  );
-
   await SpecialPowers.spawn(newTab.browser, [], () => {
+    Assert.equal(
+      content.frames[0].document.readyState,
+      "complete",
+      "iframe document has finished loading"
+    );
     Assert.equal(
       content.frames[0].location.href,
       "about:blank",

@@ -1045,7 +1045,9 @@ class Tab extends TabBase {
     switch (this.type) {
       case "messageDisplay":
       case "addressBook":
-        isComplete = this.browser?.contentDocument?.readyState == "complete";
+        isComplete =
+          this.browser?.contentWindow?.location != "about:blank" &&
+          this.browser?.contentDocument?.readyState == "complete";
         break;
       case "mail":
         {

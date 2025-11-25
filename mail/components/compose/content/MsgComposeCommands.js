@@ -6257,7 +6257,10 @@ async function GenericSendMessage(msgType) {
         );
         // Opening a dialog as dependent doesn't wait until it's closed again,
         // so we have to do that explicitly.
-        if (spellCheckDialog.document.readyState != "complete") {
+        if (
+          spellCheckDialog.document.readyState != "complete" ||
+          spellCheckDialog.location.href == "about:blank"
+        ) {
           await new Promise(resolve =>
             spellCheckDialog.addEventListener("load", resolve, { once: true })
           );

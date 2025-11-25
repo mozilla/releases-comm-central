@@ -76,7 +76,13 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   );
 
   const iframe = tab.querySelector("iframe");
-  await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
+  await TestUtils.waitForCondition(
+    () =>
+      iframe.contentDocument.readyState == "complete" &&
+      iframe.contentWindow.location.href ==
+        "chrome://messenger/content/glodaFacetViewWrapper.xhtml",
+    "waiting for iframe to load"
+  );
 
   const browser = iframe.contentDocument.querySelector("browser");
   await TestUtils.waitForCondition(

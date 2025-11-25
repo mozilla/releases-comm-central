@@ -72,7 +72,10 @@ var glodaFacetTabType = {
       aTab.searchString = null;
     }
 
-    function xulLoadHandler() {
+    function xulLoadHandler(event) {
+      if (event.target.location.href == "about:blank") {
+        return;
+      }
       aTab.iframe.contentWindow.tab = aTab;
       aTab.browser = aTab.iframe.contentDocument.getElementById("browser");
       aTab.browser.setAttribute(
@@ -83,12 +86,12 @@ var glodaFacetTabType = {
       // Wire up the search input icon click event
       const searchInput = aTab.panel.querySelector(".remote-gloda-search");
       searchInput.focus();
+      aTab.iframe.removeEventListener("load", xulLoadHandler, {
+        capture: true,
+      });
     }
 
-    aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {
-      capture: false,
-      once: true,
-    });
+    aTab.iframe.addEventListener("load", xulLoadHandler, { capture: true });
     aTab.iframe.setAttribute(
       "src",
       "chrome://messenger/content/glodaFacetViewWrapper.xhtml"

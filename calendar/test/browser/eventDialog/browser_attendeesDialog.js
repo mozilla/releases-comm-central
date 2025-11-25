@@ -383,17 +383,7 @@ add_task(async () => {
 });
 
 function openEventWindow(calendar) {
-  const eventWindowPromise = BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-
-    const doc = win.document;
-    if (doc.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml") {
-      const iframe = doc.getElementById("calendar-item-panel-iframe");
-      await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
-      return true;
-    }
-    return false;
-  });
+  const eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   createEventWithDialog(calendar, null, null, "Event");
   return eventWindowPromise;
 }

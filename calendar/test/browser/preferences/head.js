@@ -14,7 +14,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL.startsWith("about:preferences")) {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
-        resolve(subject);
+        subject.ownerGlobal.setTimeout(() => resolve(subject));
       }
     }, "chrome-document-loaded");
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
