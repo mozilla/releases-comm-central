@@ -540,6 +540,8 @@ nsMimeBaseEmitter::AddHeaderField(const char* field, const char* value) {
     ptr->name = strdup(field);
     ptr->value = strdup(value);
     tPtr->AppendElement(ptr);
+  } else {
+    PR_FREEIF(ptr);
   }
 
   return NS_OK;
