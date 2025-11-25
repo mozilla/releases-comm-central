@@ -23,7 +23,6 @@ from gecko_taskgraph.util.taskgraph import (
 )
 
 from . import COMM
-from comm_taskgraph.files_changed import get_changed_files
 from comm_taskgraph.try_option_syntax import parse_message
 from comm_taskgraph.util.suite import is_suite_only_push
 
@@ -201,13 +200,18 @@ def get_decision_parameters(graph_config, parameters):
 
     # Calculate changed files here. Already have gecko's changed files when this
     # executes, so only need to add comm changed files
-    parameters["files_changed"] += sorted(
-        get_changed_files(
-            parameters["comm_head_repository"],
-            parameters["comm_head_rev"],
-            parameters["comm_src_path"],
+    changed_files_since_base = set(
+        repo.get_changed_files(
+            rev=parameters["comm_head_rev"], base=parameters["comm_base_rev"]
         )
     )
+    if "try-comm-central" in parameters["project"] and options["tasks_for"] == "hg-push":
+        parameters["files_changed"] = sorted(
+            set(repo.get_outgoing_files()) | changed_files_since_base
+        )
+    else:
+        parameters["files_changed"] = sorted(changed_files_since_base)
+
 
     # If the target method is nightly, we should build partials. This means
     # knowing what has been released previously.
