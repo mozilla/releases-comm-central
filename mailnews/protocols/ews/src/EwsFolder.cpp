@@ -1170,7 +1170,10 @@ NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
         return rv;
       },
       [trashUri, aListener = nsCOMPtr(aListener)](nsresult rv) {
-        return aListener->OnStopRunningUrl(trashUri, rv);
+        if (aListener) {
+          return aListener->OnStopRunningUrl(trashUri, rv);
+        }
+        return NS_OK;
       });
 
   nsCOMPtr<IEwsClient> client;
