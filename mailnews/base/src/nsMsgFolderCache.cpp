@@ -61,7 +61,7 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
       return NS_ERROR_NOT_AVAILABLE;  // Key not found.
     }
     mKey = newKey;
-    Obj() = obj;
+    Obj() = std::move(obj);
     mOwner->SetModified();
     return NS_OK;
   }
@@ -290,7 +290,7 @@ nsresult nsMsgFolderCache::LoadFolderCache(nsIFile* inFile) {
     MOZ_LOG(sFolderCacheLog, LogLevel::Error, ("JSON root is not an object"));
     return NS_ERROR_FAILURE;  // bad format.
   }
-  *mRoot = root;
+  *mRoot = std::move(root);
   return NS_OK;
 }
 
