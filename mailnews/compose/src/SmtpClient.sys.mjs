@@ -106,7 +106,7 @@ export class SmtpClient {
 
     this._numMessages = 0; // Count of number of messages sent on a connection.
 
-    this._isDelayedQuitSent = false; // Set true when delayed QUIT is sent
+    this._reuseConnection = true;
 
     // Event placeholders
     this.onerror = () => {}; // Will be run when an error occurs. The `onclose` event will fire subsequently.
@@ -125,16 +125,28 @@ export class SmtpClient {
    * send the message. This occurs each time a message is sent.
    */
   connect() {
-    // First, clear the QUIT timer if it's running.
+    // First, clear the QUIT delay timer if it's running.
     if (this._quitTimer) {
       clearTimeout(this._quitTimer);
       this._quitTimer = null;
     }
 
-    if (this.socket?.readyState == "open") {
+    const isSocketOpen = this.socket?.readyState == "open";
+    if (isSocketOpen && this._reuseConnection) {
       this.logger.debug("Reusing a connection");
       this.onidle();
     } else {
+      // Socket is not open OR connection is not to be reused. If the connection
+      // is still open, probably because QUIT has not yet caused the connection
+      // to be closed, then immediately close the old connection before making
+      // the new connection.
+      if (isSocketOpen) {
+        // Close the connection and skip calling _free() in _onClose to prevent
+        // an immediate call to connect() if another message is awaiting being
+        // sent.
+        this.socket.onclose = this._onClose(false); // Don't call _free()
+        this.close(true);
+      }
       const hostname = this._server.hostname.toLowerCase();
       const port = this._server.port || (this.options.requireTLS ? 465 : 587);
       this.logger.debug(`Connecting to smtp://${hostname}:${port}`);
@@ -544,11 +556,14 @@ export class SmtpClient {
 
   /**
    * Callback from network signaling that the socket is now closed
+   *
+   * @param {boolean} [doFree = true] - Don't call _free when false.
    */
-  _onClose = () => {
+  _onClose = (doFree = true) => {
     this.logger.debug("Socket closed.");
-    this._free();
-    this._isDelayedQuitSent = false;
+    if (doFree) {
+      this._free();
+    }
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._onAuthFailed({ data: "Socket closed." });
@@ -646,26 +661,8 @@ export class SmtpClient {
    *   so that debugging auth problems is easier.
    */
   _sendCommand(str, suppressLogging = false) {
-    const isSocketOpen = this.socket?.readyState == "open";
-    if (!isSocketOpen || this._isDelayedQuitSent) {
-      // If delayed QUIT is known to have been sent previously (i.e., we are
-      // just starting to reuse an existing connection), this connection is going
-      // down or it might already be down. So don't try to send now but restart
-      // this send again on a new connection.
-      if (this._isDelayedQuitSent) {
-        this.logger.debug(
-          "Will reconnect and resend because delayed QUIT was sent."
-        );
-        if (isSocketOpen) {
-          this.close(true); // Ensure socket is not "open" when connect() called.
-        }
-        this.isRetry = true; // Set this so sending gets re-init'd in onIdle
-        this._isDelayedQuitSent = false;
-        this.connect();
-      } else if (str != "QUIT") {
-        // Connection/socket is down and delayed QUIT was not previously sent.
-        // Just log this as a warning unless the current command is QUIT (which
-        // can occur, e.g., in _onError() when all cached connections are closed).
+    if (this.socket.readyState !== "open") {
+      if (str != "QUIT") {
         this.logger.warn(
           `Failed to send "${str}" because socket state is ${this.socket.readyState}`
         );
@@ -1331,7 +1328,7 @@ export class SmtpClient {
    * @param {object} command Parsed command from the server {statusCode, data}
    */
   _actionStream(command) {
-    let reuseConnection = true; // Stays true for LMTP, may go false for SMTP.
+    this._reuseConnection = true; // Stays true for LMTP, may go false for SMTP.
 
     if (this.options.lmtp) {
       // LMTP returns a response code for *every* successfully set recipient
@@ -1381,17 +1378,18 @@ export class SmtpClient {
         (messagesPerConnection > 0 &&
           this._numMessages >= messagesPerConnection)
       ) {
-        reuseConnection = false;
+        this._reuseConnection = false;
       }
 
       // If reuseConnection is set false above, don't start the QUIT timer
       // below since the connection will be closed and a new connection
-      // established (using next available SmtpClient instance).
+      // established for the next message sent.
       // If reuseConnection is true, the timer will be started if the command
-      // was successful (no retry needed). If timer is started, on timerout it
-      // will send QUIT if the connection remains open. If another message is
-      // sent before the timeout, the timer will be cleared so QUIT is not sent.
-      if (reuseConnection && command.success) {
+      // was successful (no retry needed). If timer is started, on timeout it
+      // will attempt to send QUIT. If another message is sent before the
+      // timeout, the timer will be cleared so delayed QUIT is not sent. This is
+      // handled in connect().
+      if (this._reuseConnection && command.success) {
         let delayInMs = this._server._getIntPrefWithDefault(
           "quit_delay_ms",
           5000
@@ -1399,10 +1397,8 @@ export class SmtpClient {
         delayInMs = delayInMs > 0 ? delayInMs : 0;
         this._quitTimer = setTimeout(() => {
           this._quitTimer = null;
-          if (this.socket?.readyState == "open") {
-            this.quit();
-            this._isDelayedQuitSent = true; // Must be set after _sendCommand
-          }
+          this._reuseConnection = false; // Make new connection in connect()
+          this.quit();
         }, delayInMs);
       }
 
@@ -1414,6 +1410,6 @@ export class SmtpClient {
       }
     }
 
-    this._free(!reuseConnection); // Send quit only if NOT reusing connection.
+    this._free(!this._reuseConnection); // Send quit only if NOT reusing connection.
   }
 }
