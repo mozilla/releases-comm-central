@@ -41,11 +41,13 @@ var preferencesTabType = {
     if (!this.tab) {
       return -1;
     }
-    this.tab.browser.contentWindow.selectPrefPane(
-      aArgs.paneID,
-      aArgs.scrollPaneTo,
-      aArgs.otherArgs
-    );
+    if (this.tab.pageLoaded) {
+      this.tab.browser.contentWindow.selectPrefPane(
+        aArgs.paneID,
+        aArgs.scrollPaneTo,
+        aArgs.otherArgs
+      );
+    }
     return document.getElementById("tabmail").tabInfo.indexOf(this.tab);
   },
 
