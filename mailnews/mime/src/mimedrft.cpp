@@ -1726,7 +1726,7 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
   if (!nAttachments && !mdd->messageBody) {
     // if we've been told to use an override charset then do so....otherwise use
     // the charset inside the message header...
-    if (mdd->options && mdd->options->override_charset) {
+    if (mdd->options->override_charset) {
       if (mdd->options->default_charset)
         mdd->mailcharset = strdup(mdd->options->default_charset);
       else {
