@@ -326,8 +326,8 @@ class WebExtMimeTreeEmitter extends MimeTreeEmitter {
       return name;
     }
 
-    // Handle related attachments.
-    if (mimeTreePart.headers._rawHeaders.has("content-id")) {
+    // Handle related attachments, but skip if they do not have a name.
+    if (name && mimeTreePart.headers._rawHeaders.has("content-id")) {
       return name;
     }
 

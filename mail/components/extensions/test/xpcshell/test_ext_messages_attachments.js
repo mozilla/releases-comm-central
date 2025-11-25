@@ -30,6 +30,11 @@ add_setup(
       "test3"
     );
 
+    const _testFolder4 = await createSubfolder(
+      _account.incomingServer.rootFolder,
+      "test4"
+    );
+
     const textAttachment = {
       body: "textAttachment",
       filename: "test.txt",
@@ -111,6 +116,20 @@ Content-Disposition: attachment
 PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxhPsO2PC9hPg==
 
 --------------PS4eoTwBacO1aHmKumdgIzBH--`
+    );
+
+    await createMessageFromString(
+      _testFolder4,
+      `Message-ID: <c1f3a2d4-8e56-4a7e-9f2b-3d6a1b7e9f12@mime.sample>
+MIME-Version: 1.0
+From: sender@example.invalid
+To: receiver@example.invalid
+Subject: Test message with a content-id header on a text part without a name
+Content-Type: text/plain; charset="UTF-8"
+Content-ID: <test-content-id@mime.sample>
+
+This is a short test message with a Content-ID header.
+`
     );
   }
 );
@@ -1160,6 +1179,56 @@ add_task(
           browser.test.assertEq(
             "Rechnung 2025-1056119.pdf",
             attachments[0].name
+          );
+
+          browser.test.notifyPass("finished");
+        },
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_IMAP,
+  },
+  async function test_plain_text_message_with_content_id_header_no_name() {
+    const extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          const [account] = await browser.accounts.list();
+          const testFolder = account.folders.find(f => f.name == "test4");
+          const { messages } = await browser.messages.list(testFolder.id);
+          browser.test.assertEq(1, messages.length);
+          const message = messages[0];
+
+          // Request attachments.
+          const attachments = await browser.messages.listAttachments(
+            message.id
+          );
+          browser.test.assertEq(
+            0,
+            attachments.length,
+            "Should find the correct number of attachments"
+          );
+
+          // Request text parts.
+          const textParts = await browser.messages.listInlineTextParts(
+            message.id
+          );
+          browser.test.assertEq(
+            1,
+            textParts.length,
+            "Should find the correct number of inline text parts"
           );
 
           browser.test.notifyPass("finished");

@@ -104,7 +104,7 @@ add_task(async function test_messages_getFullTextParts() {
                     },
                     size: 91,
                     partName: "1.1.2",
-                    name: "",
+                    body: "<html>\r\n <body>\r\n  <p>You have been invited to a meeting (RELATED)</p>\r\n </body>\r\n</html>\r\n",
                   },
                 ],
               },

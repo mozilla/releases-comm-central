@@ -235,6 +235,11 @@ add_task(async function test_messages_listInlineTextParts() {
               content:
                 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nDTSTART;TZID="FLE":20211026T090000\r\nDTEND;TZID="FLE":20211026T100000\r\nTRANSP:OPAQUE\r\nDTSTAMP:20211022T111520Z\r\nSEQUENCE:0\r\nCLASS:PUBLIC\r\nUID:36138BFC6A7B03EFC2258776003DB5C5\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n',
             },
+            {
+              contentType: "text/html",
+              content:
+                "<html>\r\n <body>\r\n  <p>You have been invited to a meeting (RELATED)</p>\r\n </body>\r\n</html>\r\n",
+            },
           ],
           [
             // An encrypted message.
