@@ -95,7 +95,7 @@ menulist::part(icon) {
 }
 
 panel[type="autocomplete-richlistbox"] {
-  border: 1px solid var(--in-content-box-border-color, ThreeDShadow);
+  border: 1px solid var(--border-color, ThreeDShadow);
 
   &::part(content) {
     border-width: 0;

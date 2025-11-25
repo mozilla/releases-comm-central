@@ -38,7 +38,7 @@ fieldset {
 .openpgp-more-btn > menupopup {
   appearance: none;
   font-size: 1em;
-  --panel-border-color: var(--in-content-box-border-color);
+  --panel-border-color: var(--border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
   --panel-color: var(--text-color);
@@ -289,7 +289,7 @@ richlistitem[default="true"],
 
 #smtpServerInfoBox {
   padding: 9px;
-  border: 1px solid var(--in-content-border-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   border-spacing: 0;
   background-color: rgba(215, 215, 219, 0.2);

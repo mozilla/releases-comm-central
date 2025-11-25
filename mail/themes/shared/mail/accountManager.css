@@ -197,7 +197,7 @@ body {
 #accountActionsDropdown {
   appearance: none;
   font-size: 1em;
-  --panel-border-color: var(--in-content-box-border-color);
+  --panel-border-color: var(--border-color);
   --panel-border-radius: 2px;
   --panel-background: var(--background-color-box);
   --panel-color: var(--text-color);

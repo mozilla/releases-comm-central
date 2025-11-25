@@ -92,7 +92,7 @@ html|moz-input-search {
 .subcategory:not([hidden]) ~ .subcategory {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--in-content-border-color);
+  border-top: 1px solid var(--border-color);
   /* Avoid being hidden under the sticky container. This value is the height
      of that container minus this element's border and padding. */
   scroll-margin-top: calc(var(--button-height) + 33px);
@@ -380,7 +380,7 @@ html|input[type="number"] {
   &::-moz-number-spin-down {
     appearance: none;
     min-width: 25px;
-    border: 1px solid var(--in-content-box-border-color);
+    border: 1px solid var(--border-color);
     background-color: var(--button-background-color);
     background-position: center;
     background-repeat: no-repeat;
@@ -1547,7 +1547,7 @@ qr-code-wizard {
 
 .privacy-detailedoption {
   margin: 3px 0;
-  border-color: var(--in-content-box-border-color);
+  border-color: var(--border-color);
 
   @media not (forced-colors) {
     background-color: rgba(215, 215, 219, 0.1);

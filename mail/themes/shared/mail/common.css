@@ -8,6 +8,7 @@
 :host,
 :root {
   --button-height: 2.2em;
+  --border-color: color-mix(in srgb, currentColor 46%, transparent);
   --button-border-radius: 3px;
   --button-border-color: color-mix(in srgb, currentColor 9%, transparent);
   --button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
@@ -41,6 +42,7 @@
     --in-content-box-info-border: currentColor;
     --in-content-categories-background: transparent;
     --in-content-categories-border: currentColor;
+    --border-color: -moz-DialogText;
     --button-background-color-primary: SelectedItem;
     --button-background-color-primary-hover: SelectedItem;
     --button-background-color-primary-active: SelectedItem;
@@ -113,7 +115,7 @@ menulist > menupopup {
 
 menupopup {
   @media not (-moz-windows-mica-popups) {
-    --panel-border-color: var(--in-content-box-border-color);
+    --panel-border-color: var(--border-color);
     --panel-background: var(--background-color-box);
     --panel-color: var(--text-color);
   }
@@ -131,7 +133,7 @@ menupopup {
 
   @media (-moz-windows-mica-popups) {
     & menupopup {
-      --panel-border-color: var(--in-content-box-border-color);
+      --panel-border-color: var(--border-color);
     }
   }
 }

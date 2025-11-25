@@ -588,7 +588,7 @@
 /* menupopup */
 
 .menupopup {
-  --panel-border-color: var(--in-content-box-border-color);
+  --panel-border-color: var(--border-color);
   appearance: none;
 }
 
