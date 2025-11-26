@@ -224,6 +224,7 @@ with only_when(in_tree_librnp):
         @imports(_from="mozbuild.dirutils", _import="ensureParentDir")
         @imports(_from="importlib", _import="import_module")
         @imports(_from="shutil", _import="move")
+        @imports(_from="shutil", _import="which")
         @imports(_from="shlex", _import="split")
         @imports(_from="__builtin__", _import="open")
         @imports(_from="__builtin__", _import="Exception")
@@ -318,9 +319,36 @@ with only_when(in_tree_librnp):
                 )
             )
 
+            # Initialize abi_flags with existing compiler flags to preserve target/sysroot settings.
+            abi_flags = list(getattr(cxx_compiler, "flags", []))
+            # The sysroot contains an embedded libstdc++ include tree. Inject that path so
+            # that <cstddef> and other standard headers are found.
+            if botan_os == "linux" and target.cpu in ("aarch64", "arm64"):
+                try:
+                    stdcpp_root = os.path.join(sysroot_path, "usr", "include", "c++")
+                    if os.path.isdir(stdcpp_root):
+                        versions = [d for d in os.listdir(stdcpp_root) if d.isdigit()]
+                        if versions:
+                            # Pick highest numeric version present
+                            versions.sort(key=lambda v: int(v), reverse=True)
+                            chosen = versions[0]
+                            include_version_dir = os.path.join(stdcpp_root, chosen)
+                            injected = []
+                            if os.path.isdir(include_version_dir):
+                                abi_flags.extend(["-isystem", include_version_dir])
+                                injected.append(include_version_dir)
+                            if injected:
+                                log.info(
+                                    "Botan: injected libstdc++ include dirs: {}".format(
+                                        ", ".join(injected)
+                                    )
+                                )
+                except Exception as e:
+                    log.info("Botan: failed to inject libstdc++ include dirs: {}".format(e))
+
             botan_flags = [
                 "--cc-bin={}".format(cxx_compiler.compiler),
-                "--cc-abi-flags=--target={}".format(target.alias),
+                "--cc-abi-flags={}".format(" ".join(abi_flags)),
                 "--cpu={}".format(target.cpu),
                 "--os={}".format(botan_os),
                 "--with-build-dir={}".format(botan_objdir),
