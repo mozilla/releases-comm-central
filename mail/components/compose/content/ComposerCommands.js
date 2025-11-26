@@ -701,8 +701,6 @@ function PromptAndSetTitleIfNone() {
   return confirmed;
 }
 
-var gPersistObj;
-
 // Don't forget to do these things after calling OutputFileWithPersistAPI:
 // we need to update the uri before notifying listeners
 //    UpdateWindowTitle();
@@ -716,7 +714,6 @@ function OutputFileWithPersistAPI(
   aRelatedFilesParentDir,
   aMimeType
 ) {
-  gPersistObj = null;
   var editor = GetCurrentEditor();
   try {
     editor.forceCompositionEnd();
@@ -738,7 +735,6 @@ function OutputFileWithPersistAPI(
     var persistObj = Cc[
       "@mozilla.org/embedding/browser/nsWebBrowserPersist;1"
     ].createInstance(Ci.nsIWebBrowserPersist);
-    persistObj.progressListener = gEditorOutputProgressListener;
 
     var wrapColumn = GetWrapColumn();
     var outputFlags = GetOutputFlags(aMimeType, wrapColumn);
@@ -777,7 +773,6 @@ function OutputFileWithPersistAPI(
       outputFlags,
       wrapColumn
     );
-    gPersistObj = persistObj;
   } catch (e) {
     dump("caught an error, bail\n");
     return false;
@@ -839,245 +834,6 @@ function GetWrapColumn() {
     return GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).wrapWidth;
   } catch (e) {}
   return 0;
-}
-
-const gShowDebugOutputStateChange = false;
-const gShowDebugOutputProgress = false;
-const gShowDebugOutputStatusChange = false;
-
-const gShowDebugOutputLocationChange = false;
-const gShowDebugOutputSecurityChange = false;
-
-const kErrorBindingAborted = 2152398850;
-const kErrorBindingRedirected = 2152398851;
-const kFileNotFound = 2152857618;
-
-var gEditorOutputProgressListener = {
-  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-    // Use this to access onStateChange flags
-    var requestSpec;
-    try {
-      var channel = aRequest.QueryInterface(Ci.nsIChannel);
-      requestSpec = StripUsernamePasswordFromURI(channel.URI);
-    } catch (e) {
-      if (gShowDebugOutputStateChange) {
-        dump("***** onStateChange; NO REQUEST CHANNEL\n");
-      }
-    }
-
-    if (gShowDebugOutputStateChange) {
-      dump("\n***** onStateChange request: " + requestSpec + "\n");
-      dump("      state flags: ");
-
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-        dump(" STATE_START, ");
-      }
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-        dump(" STATE_STOP, ");
-      }
-      if (aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
-        dump(" STATE_IS_NETWORK ");
-      }
-
-      dump(`\n * requestSpec=${requestSpec}, aStatus=${aStatus}\n`);
-
-      DumpDebugStatus(aStatus);
-    }
-  },
-
-  onProgressChange(
-    aWebProgress,
-    aRequest,
-    aCurSelfProgress,
-    aMaxSelfProgress,
-    aCurTotalProgress,
-    aMaxTotalProgress
-  ) {
-    if (!gPersistObj) {
-      return;
-    }
-
-    if (gShowDebugOutputProgress) {
-      dump(
-        "\n onProgressChange: gPersistObj.result=" + gPersistObj.result + "\n"
-      );
-      try {
-        var channel = aRequest.QueryInterface(Ci.nsIChannel);
-        dump("***** onProgressChange request: " + channel.URI.spec + "\n");
-      } catch (e) {}
-      dump(
-        "*****       self:  " +
-          aCurSelfProgress +
-          " / " +
-          aMaxSelfProgress +
-          "\n"
-      );
-      dump(
-        "*****       total: " +
-          aCurTotalProgress +
-          " / " +
-          aMaxTotalProgress +
-          "\n\n"
-      );
-
-      if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY) {
-        dump(" Persister is ready to save data\n\n");
-      } else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING) {
-        dump(" Persister is saving data.\n\n");
-      } else if (
-        gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED
-      ) {
-        dump(" PERSISTER HAS FINISHED SAVING DATA\n\n\n");
-      }
-    }
-  },
-
-  onLocationChange(aWebProgress, aRequest, aLocation) {
-    if (gShowDebugOutputLocationChange) {
-      dump("***** onLocationChange: " + aLocation.spec + "\n");
-      try {
-        var channel = aRequest.QueryInterface(Ci.nsIChannel);
-        dump("*****          request: " + channel.URI.spec + "\n");
-      } catch (e) {}
-    }
-  },
-
-  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {
-    if (gShowDebugOutputStatusChange) {
-      dump("***** onStatusChange: " + aMessage + "\n");
-      try {
-        var channel = aRequest.QueryInterface(Ci.nsIChannel);
-        dump("*****        request: " + channel.URI.spec + "\n");
-      } catch (e) {
-        dump("          couldn't get request\n");
-      }
-
-      DumpDebugStatus(aStatus);
-
-      if (gPersistObj) {
-        if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY) {
-          dump(" Persister is ready to save data\n\n");
-        } else if (
-          gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING
-        ) {
-          dump(" Persister is saving data.\n\n");
-        } else if (
-          gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED
-        ) {
-          dump(" PERSISTER HAS FINISHED SAVING DATA\n\n\n");
-        }
-      }
-    }
-  },
-
-  onSecurityChange(aWebProgress, aRequest) {
-    if (gShowDebugOutputSecurityChange) {
-      try {
-        var channel = aRequest.QueryInterface(Ci.nsIChannel);
-        dump("***** onSecurityChange request: " + channel.URI.spec + "\n");
-      } catch (e) {}
-    }
-  },
-
-  onContentBlockingEvent() {},
-
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIWebProgressListener",
-    "nsISupportsWeakReference",
-  ]),
-};
-
-function DumpDebugStatus(aStatus) {
-  // see nsError.h and netCore.h and ftpCore.h
-
-  if (aStatus == kErrorBindingAborted) {
-    dump("***** status is NS_BINDING_ABORTED\n");
-  } else if (aStatus == kErrorBindingRedirected) {
-    dump("***** status is NS_BINDING_REDIRECTED\n");
-  } else if (aStatus == 2152398859) {
-    // in netCore.h 11
-    dump("***** status is ALREADY_CONNECTED\n");
-  } else if (aStatus == 2152398860) {
-    // in netCore.h 12
-    dump("***** status is NOT_CONNECTED\n");
-  } else if (aStatus == 2152398861) {
-    //  in nsISocketTransportService.idl 13
-    dump("***** status is CONNECTION_REFUSED\n");
-  } else if (aStatus == 2152398862) {
-    // in nsISocketTransportService.idl 14
-    dump("***** status is NET_TIMEOUT\n");
-  } else if (aStatus == 2152398863) {
-    // in netCore.h 15
-    dump("***** status is IN_PROGRESS\n");
-  } else if (aStatus == 2152398864) {
-    // 0x804b0010 in netCore.h 16
-    dump("***** status is OFFLINE\n");
-  } else if (aStatus == 2152398865) {
-    // in netCore.h 17
-    dump("***** status is NO_CONTENT\n");
-  } else if (aStatus == 2152398866) {
-    // in netCore.h 18
-    dump("***** status is UNKNOWN_PROTOCOL\n");
-  } else if (aStatus == 2152398867) {
-    // in netCore.h 19
-    dump("***** status is PORT_ACCESS_NOT_ALLOWED\n");
-  } else if (aStatus == 2152398868) {
-    // in nsISocketTransportService.idl 20
-    dump("***** status is NET_RESET\n");
-  } else if (aStatus == 2152398869) {
-    // in ftpCore.h 21
-    dump("***** status is FTP_LOGIN\n");
-  } else if (aStatus == 2152398870) {
-    // in ftpCore.h 22
-    dump("***** status is FTP_CWD\n");
-  } else if (aStatus == 2152398871) {
-    // in ftpCore.h 23
-    dump("***** status is FTP_PASV\n");
-  } else if (aStatus == 2152398872) {
-    // in ftpCore.h 24
-    dump("***** status is FTP_PWD\n");
-  } else if (aStatus == 2152857601) {
-    dump("***** status is UNRECOGNIZED_PATH\n");
-  } else if (aStatus == 2152857602) {
-    dump("***** status is UNRESOLABLE SYMLINK\n");
-  } else if (aStatus == 2152857604) {
-    dump("***** status is UNKNOWN_TYPE\n");
-  } else if (aStatus == 2152857605) {
-    dump("***** status is DESTINATION_NOT_DIR\n");
-  } else if (aStatus == 2152857606) {
-    dump("***** status is TARGET_DOES_NOT_EXIST\n");
-  } else if (aStatus == 2152857608) {
-    dump("***** status is ALREADY_EXISTS\n");
-  } else if (aStatus == 2152857609) {
-    dump("***** status is INVALID_PATH\n");
-  } else if (aStatus == 2152857610) {
-    dump("***** status is DISK_FULL\n");
-  } else if (aStatus == 2152857612) {
-    dump("***** status is NOT_DIRECTORY\n");
-  } else if (aStatus == 2152857613) {
-    dump("***** status is IS_DIRECTORY\n");
-  } else if (aStatus == 2152857614) {
-    dump("***** status is IS_LOCKED\n");
-  } else if (aStatus == 2152857615) {
-    dump("***** status is TOO_BIG\n");
-  } else if (aStatus == 2152857616) {
-    dump("***** status is NO_DEVICE_SPACE\n");
-  } else if (aStatus == 2152857617) {
-    dump("***** status is NAME_TOO_LONG\n");
-  } else if (aStatus == 2152857618) {
-    // 80520012
-    dump("***** status is FILE_NOT_FOUND\n");
-  } else if (aStatus == 2152857619) {
-    dump("***** status is READ_ONLY\n");
-  } else if (aStatus == 2152857620) {
-    dump("***** status is DIR_NOT_EMPTY\n");
-  } else if (aStatus == 2152857621) {
-    dump("***** status is ACCESS_DENIED\n");
-  } else if (aStatus == 2152398878) {
-    dump("***** status is ? (No connection or time out?)\n");
-  } else {
-    dump("***** status is " + aStatus + "\n");
-  }
 }
 
 const kSupportedTextMimeTypes = [
