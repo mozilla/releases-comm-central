@@ -428,24 +428,14 @@
                      label="&lightning.toolbar.task.label;"
                      tooltiptext="&lightning.toolbar.task.tooltip;"
                      command="new_task_tab"/>
-      <toolbarbutton is="toolbarbutton-menu-button" id="extractEventButton"
-                     type="menu"
+      <toolbarbutton id="extractEventButton"
                      class="toolbarbutton-1"
                      data-l10n-id="calendar-extract-event-button"
-                     oncommand="calendarExtract.extractFromEmail(document.getElementById('messageBrowser').contentWindow.gMessage, true);">
-        <menupopup id="extractEventLocaleList"
-                   oncommand="calendarExtract.extractWithLocale(event, true);"
-                   onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
-      </toolbarbutton>
-      <toolbarbutton is="toolbarbutton-menu-button" id="extractTaskButton"
-                     type="menu"
+                     oncommand="calendarExtract.extractFromEmail(document.getElementById('messageBrowser').contentWindow.gMessage, true);"/>
+      <toolbarbutton id="extractTaskButton"
                      class="toolbarbutton-1"
                      data-l10n-id="calendar-extract-task-button"
-                     oncommand="calendarExtract.extractFromEmail(document.getElementById('messageBrowser').contentWindow.gMessage, false);">
-        <menupopup id="extractTaskLocaleList"
-                   oncommand="calendarExtract.extractWithLocale(event, false);"
-                   onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
-      </toolbarbutton>
+                     oncommand="calendarExtract.extractFromEmail(document.getElementById('messageBrowser').contentWindow.gMessage, false);"/>
     </toolbarpalette>
 
     <!-- If changes are made to the default set of toolbar buttons, you may need to rev the id
