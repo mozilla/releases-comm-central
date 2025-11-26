@@ -1666,12 +1666,12 @@ extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions* opt,
         msd->format_out == nsMimeOutput::nsMimeMessageSaveAs ||
         msd->format_out == nsMimeOutput::nsMimeMessagePrintOutput) {
       if (obj->headers) {
-        nsMsgAttachmentData attachment;
+        nsMsgAttachmentData attachments[1];
         attIndex = 0;
         nsresult rv = GenerateAttachmentData(obj, msd->url_name, opt, false, 0,
-                                             &attachment);
+                                             attachments);
 
-        if (NS_SUCCEEDED(rv)) name.Assign(attachment.m_realName);
+        if (NS_SUCCEEDED(rv)) name.Assign(attachments[0].m_realName);
       }
     }
 
