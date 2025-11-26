@@ -41,13 +41,18 @@ export async function registerExtension(id, spaces = ["mail"]) {
     return;
   }
   const addon = await lazy.AddonManager.getAddonByID(id);
+  if (!addon) {
+    console.warn(`Add-on ${id} not found.`);
+  }
   EXTENSIONS.push({
     id,
     spaces,
     installDate: addon?.installDate ?? new Date(),
   });
   EXTENSIONS.sort(
-    (extA, extB) => extA.installDate.valueOf() - extB.installDate.valueOf()
+    (extA, extB) =>
+      extA.installDate.valueOf() - extB.installDate.valueOf() ||
+      extA.id.localeCompare(extB.id)
   );
 }
 
