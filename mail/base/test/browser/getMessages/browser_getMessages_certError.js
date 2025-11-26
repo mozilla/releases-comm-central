@@ -337,6 +337,8 @@ async function subsubtest(
     "the alert text should state the problem"
   );
 
+  await TestUtils.waitForTick();
+
   // Check that the server's row in the folder tree has a warning icon.
 
   const folderRow = about3Pane.folderPane.getRowForFolder(
