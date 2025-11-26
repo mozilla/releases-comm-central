@@ -10,11 +10,6 @@ import logging
 
 from taskgraph.util.path import join as join_path
 
-from gecko_taskgraph.files_changed import get_locally_changed_files
-from mozbuild.util import memoize
-
-from comm_taskgraph import COMM
-
 logger = logging.getLogger(__name__)
 
 
