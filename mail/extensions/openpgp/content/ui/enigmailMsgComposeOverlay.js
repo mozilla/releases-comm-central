@@ -84,55 +84,32 @@ Enigmail.msg = {
     Enigmail.msg.composeOpen();
   },
 
-  getOriginalMsgUri() {
-    const draftId = gMsgCompose.compFields.draftId;
-    let msgUri = null;
-
-    if (draftId) {
-      // original message is draft
-      msgUri = draftId.replace(/\?.*$/, "");
-    } else if (gMsgCompose.originalMsgURI) {
-      // original message is a "true" mail
-      msgUri = gMsgCompose.originalMsgURI;
-    }
-
-    return msgUri;
-  },
-
-  /** @param {?string} msgUri */
-  getMsgHdr(msgUri) {
-    try {
-      if (!msgUri) {
-        msgUri = this.getOriginalMsgUri();
-      }
-      if (msgUri) {
-        return gMessenger.msgHdrFromURI(msgUri);
-      }
-    } catch (ex) {
-      // See also bug 1635648
-      console.warn(`Get msg hdr failed for msgUri=${msgUri}`, ex);
-    }
-    return null;
-  },
-
-  getMsgProperties(draft, msgUri, msgHdr, mimeMsg, obtainedDraftFlagsObj) {
-    obtainedDraftFlagsObj.value = false;
-
-    const self = this;
+  /**
+   * Get the status flags for a message by trying to retrieve the "enigmail"
+   * property from the message header and checking gEncryptedURIService.
+   *
+   * @param {string} msgUri - The URI for the message.
+   * @returns {number} status flags as defined in EnigmailConstants.
+   */
+  getMsgProperties(msgUri) {
     let properties = 0;
     try {
-      if (msgHdr) {
-        properties = msgHdr.getUint32Property("enigmail");
-
-        if (draft) {
-          if (self.getSavedDraftOptions(mimeMsg)) {
-            obtainedDraftFlagsObj.value = true;
-          }
-          updateEncryptionDependencies();
+      // Do not try to get a message header for an .eml message. This might
+      // fail for URIs mutated in nsMailboxService::FetchMessage, and the
+      // "enigmail" property would not be present anyway.
+      if (
+        !(
+          /(^file:.*)/.test(msgUri) ||
+          /(^mailbox(-message)?:.*\?.*\bnumber=0(\D|$))/.test(msgUri)
+        )
+      ) {
+        const msgHdr = gMessenger.msgHdrFromURI(msgUri);
+        if (msgHdr) {
+          properties = msgHdr.getUint32Property("enigmail");
         }
       }
     } catch (ex) {
-      console.error(ex);
+      console.warn(`Failure while getting msgHdr for URI ${msgUri}`, ex);
     }
 
     if (gEncryptedURIService.isEncrypted(msgUri)) {
@@ -142,7 +119,14 @@ Enigmail.msg = {
     return properties;
   },
 
-  getSavedDraftOptions(mimeMsg) {
+  /**
+   * Evaluate the x-enigmail-draft-status header, if present, in the provided
+   * MIME tree part.
+   *
+   * @param {MimeTreePart} mimeMsg - The MIME tree part to check.
+   * @returns {boolean} whether the draft status header has been found.
+   */
+  evaluateDraftStatus(mimeMsg) {
     if (!mimeMsg || !mimeMsg.headers.has("x-enigmail-draft-status")) {
       return false;
     }
@@ -242,37 +226,35 @@ Enigmail.msg = {
           break;
       }
     }
-    //Enigmail.msg.setOwnKeyStatus();
     return true;
   },
 
   async composeOpen() {
-    const uri = this.getOriginalMsgUri();
-    if (uri) {
-      const msgHdr = this.getMsgHdr(uri);
-      if (msgHdr) {
-        try {
-          const url = MailServices.messageServiceFromURI(uri).getUrlForUri(uri);
-          const mimeMsg = await getMimeTreeFromUrl(url.spec);
-          Enigmail.msg.continueComposeOpenWithMimeTree(uri, msgHdr, mimeMsg);
-        } catch (ex) {
-          console.warn(ex);
-          this.continueComposeOpenWithMimeTree(uri, msgHdr, null);
-        }
-      } else {
-        this.continueComposeOpenWithMimeTree(uri, msgHdr, null);
-      }
-    } else {
-      this.continueComposeOpenWithMimeTree(uri, null, null);
+    const uri = gMsgCompose.compFields.draftId
+      ? gMsgCompose.compFields.draftId
+      : gMsgCompose.originalMsgURI;
+    if (!uri) {
+      this.continueComposeOpenWithMimeTree(null, null);
+      return;
     }
+
+    let mimeMsg = null;
+    try {
+      mimeMsg = await getMimeTreeFromUrl(
+        MailServices.messageServiceFromURI(uri).getUrlForUri(uri).spec
+      );
+    } catch (ex) {
+      console.warn(`Failed to get MIME tree for URI ${uri}`, ex);
+    }
+
+    this.continueComposeOpenWithMimeTree(uri, mimeMsg);
   },
 
   /**
    * @param {string} msgUri
-   * @param {nsIMsgDBHdr} msgHdr
    * @param {MimeTreePart} mimeMsg
    */
-  continueComposeOpenWithMimeTree(msgUri, msgHdr, mimeMsg) {
+  continueComposeOpenWithMimeTree(msgUri, mimeMsg) {
     const selectedElement = document.activeElement;
 
     const msgIsDraft =
@@ -296,33 +278,29 @@ Enigmail.msg = {
         }
       }
 
-      const obtainedDraftFlagsObj = { value: false };
+      let draftStatusPresent = false;
       if (msgUri) {
-        const msgFlags = this.getMsgProperties(
-          msgIsDraft,
-          msgUri,
-          msgHdr,
-          mimeMsg,
-          obtainedDraftFlagsObj
-        );
+        if (msgIsDraft) {
+          draftStatusPresent = this.evaluateDraftStatus(mimeMsg);
+          updateEncryptionDependencies();
+        }
+        const msgFlags = this.getMsgProperties(msgUri);
         if (msgFlags & EnigmailConstants.DECRYPTION_OKAY) {
           usePGPUnlessWeKnowOtherwise = true;
           useSMIMEUnlessWeKnowOtherwise = false;
         }
-        if (msgIsDraft && obtainedDraftFlagsObj.value) {
+        if (msgIsDraft && draftStatusPresent) {
           useEncryptionUnlessWeHaveDraftInfo = false;
           usePGPUnlessWeKnowOtherwise = false;
           useSMIMEUnlessWeKnowOtherwise = false;
         }
-        if (!msgIsDraft) {
-          if (msgFlags & EnigmailConstants.DECRYPTION_OKAY) {
-            gSendEncrypted = true;
-            updateEncryptionDependencies();
-            gSelectedTechnologyIsPGP = true;
-            useEncryptionUnlessWeHaveDraftInfo = false;
-            usePGPUnlessWeKnowOtherwise = false;
-            useSMIMEUnlessWeKnowOtherwise = false;
-          }
+        if (!msgIsDraft && msgFlags & EnigmailConstants.DECRYPTION_OKAY) {
+          gSendEncrypted = true;
+          updateEncryptionDependencies();
+          gSelectedTechnologyIsPGP = true;
+          useEncryptionUnlessWeHaveDraftInfo = false;
+          usePGPUnlessWeKnowOtherwise = false;
+          useSMIMEUnlessWeKnowOtherwise = false;
         }
         this.removeAttachedKey();
       }
@@ -331,7 +309,7 @@ Enigmail.msg = {
         gSendEncrypted = true;
         updateEncryptionDependencies();
       }
-      if (gSendEncrypted && !obtainedDraftFlagsObj.value) {
+      if (gSendEncrypted && !draftStatusPresent) {
         gSendSigned = true;
       }
       if (usePGPUnlessWeKnowOtherwise) {
