@@ -744,6 +744,12 @@ this.tabs = class extends ExtensionAPIPersistent {
               context,
               moveProperties.windowId
             );
+            // Fail on an invalid window.
+            if (!destinationWindow) {
+              return Promise.reject({
+                message: `Invalid window ID: ${moveProperties.windowId}`,
+              });
+            }
           }
 
           /*
@@ -753,72 +759,90 @@ this.tabs = class extends ExtensionAPIPersistent {
               move([tabA, tabB], {index: 0})
                 -> tabA to 0, tabB to 0 if tabA and tabB are in different windows
           */
-          const indexMap = new Map();
-          const lastInsertion = new Map();
+
+          const lastInsertionMap = new Map();
 
           const tabs = tabIds.map(tabId => ({
             nativeTabInfo: tabTracker.getTab(tabId),
             tabId,
           }));
-          for (let { nativeTabInfo, tabId } of tabs) {
+          for (const { nativeTabInfo, tabId } of tabs) {
             if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
               return Promise.reject({
                 message: `Tab with ID ${tabId} does not belong to a normal window`,
               });
             }
+            if (nativeTabInfo.first) {
+              return Promise.reject({
+                message: `The primary mail tab in a normal Thunderbird window cannot be moved`,
+              });
+            }
+          }
 
-            // If the window is not specified, use the window from the tab.
-            const browser = getTabBrowser(nativeTabInfo);
+          for (let { nativeTabInfo } of tabs) {
+            // If the destination window is not specified, use the source window
+            // from the tab.
+            const sourceWindow = getTabWindow(nativeTabInfo);
+            const targetWindow = destinationWindow || sourceWindow;
+            const isSameWindow = sourceWindow == targetWindow;
 
-            const srcwindow = browser.ownerGlobal;
-            const tgtwindow = destinationWindow || browser.ownerGlobal;
-            const tgttabmail = tgtwindow.document.getElementById("tabmail");
-            const srctabmail = srcwindow.document.getElementById("tabmail");
+            const targetTabmail =
+              targetWindow.document.getElementById("tabmail");
+            const sourceTabmail =
+              sourceWindow.document.getElementById("tabmail");
 
-            // If we are not moving the tab to a different window, and the window
-            // only has one tab, do nothing.
-            if (srcwindow == tgtwindow && srctabmail.tabInfo.length === 1) {
-              continue;
+            let insertionPoint;
+            const lastInsertion = lastInsertionMap.get(targetWindow);
+            const tabPosition = sourceTabmail.tabInfo.indexOf(nativeTabInfo);
+
+            if (lastInsertion === undefined) {
+              // The first tab in a normal Thunderbird window is locked and
+              // cannot be moved (away). Silently change the target index to 1.
+              insertionPoint =
+                moveProperties.index == 0 ? 1 : moveProperties.index;
+              const maxIndex =
+                targetTabmail.tabInfo.length - (isSameWindow ? 1 : 0);
+              if (insertionPoint == -1) {
+                // If the index is -1 it should go to the end of the tabs.
+                insertionPoint = maxIndex;
+              } else {
+                insertionPoint = Math.min(insertionPoint, maxIndex);
+              }
+            } else if (isSameWindow && tabPosition <= lastInsertion) {
+              // lastInsertion is the current index of the last inserted tab.
+              // insertionPoint is the desired index of the current tab *after* moving it.
+              // When the tab is moved, the last inserted tab will no longer be at index
+              // lastInsertion, but (lastInsertion - 1). To position the tabs adjacent to
+              // each other, the tab should therefore be at index (lastInsertion - 1 + 1).
+              insertionPoint = lastInsertion;
+            } else {
+              // In this case the last inserted tab will stay at index lastInsertion,
+              // so we should move the current tab to index (lastInsertion + 1).
+              insertionPoint = lastInsertion + 1;
             }
 
-            let insertionPoint =
-              indexMap.get(tgtwindow) || moveProperties.index;
-            // If the index is -1 it should go to the end of the tabs.
-            if (insertionPoint == -1) {
-              insertionPoint = tgttabmail.tabInfo.length;
-            }
-
-            const tabPosition = srctabmail.tabInfo.indexOf(nativeTabInfo);
-
-            // If this is not the first tab to be inserted into this window and
-            // the insertion point is the same as the last insertion and
-            // the tab is further to the right than the current insertion point
-            // then you need to bump up the insertion point. See bug 1323311.
-            if (
-              lastInsertion.has(tgtwindow) &&
-              lastInsertion.get(tgtwindow) === insertionPoint &&
-              tabPosition > insertionPoint
-            ) {
-              insertionPoint++;
-              indexMap.set(tgtwindow, insertionPoint);
-            }
-
-            if (srcwindow == tgtwindow) {
+            if (isSameWindow) {
               // If the window we are moving is the same, just move the tab.
-              tgttabmail.moveTabTo(nativeTabInfo, insertionPoint);
+              // Note: We need to correct a different behaviour of moveTabTo()
+              // compared to the Firefox equivalent: When moving right, we need
+              // to use insertionPoint + 1, because the function calculates the
+              // target index before removing the tab, counting it twice.
+              if (insertionPoint > tabPosition) {
+                targetTabmail.moveTabTo(tabPosition, insertionPoint + 1);
+              } else if (insertionPoint < tabPosition) {
+                targetTabmail.moveTabTo(tabPosition, insertionPoint);
+              }
             } else {
               // If the window we are moving the tab in is different, then move the tab
               // to the new window.
-              srctabmail.replaceTabWithWindow(
+              sourceTabmail.replaceTabWithWindow(
                 nativeTabInfo,
-                tgtwindow,
+                targetWindow,
                 insertionPoint
               );
-              nativeTabInfo =
-                tgttabmail.tabInfo[insertionPoint] ||
-                tgttabmail.tabInfo[tgttabmail.tabInfo.length - 1];
+              nativeTabInfo = targetTabmail.tabInfo[insertionPoint];
             }
-            lastInsertion.set(tgtwindow, tabPosition);
+            lastInsertionMap.set(targetWindow, insertionPoint);
             tabsMoved.push(nativeTabInfo);
           }
 
