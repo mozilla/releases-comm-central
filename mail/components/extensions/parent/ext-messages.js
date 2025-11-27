@@ -62,15 +62,20 @@ function convertRawHeaders(mimeTreePart) {
 
 /**
  * Takes a MimeTreePart and returns the processed headers, to be used in the
- * WebExtension MessagePart. Adds a content-type header if missing.
+ * WebExtension MessagePart. Optionally adds a content-type header if missing.
  *
  * @param {MimeTreePart} mimeTreePart
+ * @param {object} options  - Options object.
+ * @param {boolean} [options.addMissingContentType=true] - Whether to add a
+ *   content-type header with value "text/plain" if the part has no content-type
+ *   header.
+ *
  * @returns {object} An <string, string[]> mapping. The headers of the part.
  *   Each key is the name of a header and its value is an array of the header
  *   values.
  * @see {MimeTree}
  */
-function convertHeaders(mimeTreePart) {
+function convertHeaders(mimeTreePart, { addMissingContentType = true } = {}) {
   // For convenience, the API has always decoded the returned headers. That turned
   // out to make it impossible to parse certain headers. For example, the following
   // TO header
@@ -99,7 +104,7 @@ function convertHeaders(mimeTreePart) {
           );
         });
   }
-  if (!partHeaders["content-type"]) {
+  if (addMissingContentType && !partHeaders["content-type"]) {
     partHeaders["content-type"] = ["text/plain"];
   }
   return partHeaders;
@@ -777,6 +782,34 @@ this.messages = class extends ExtensionAPIPersistent {
             decodeHeaders,
             decodeContent
           );
+        },
+        async getHeaders(messageId, options) {
+          const msgHdr = messageManager.get(messageId);
+          if (!msgHdr) {
+            throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+          const decodeHeaders = options?.decodeHeaders ?? true;
+
+          const parserOptions = {
+            strFormat: "unicode",
+            bodyFormat: "none",
+            stripContinuations: decodeHeaders,
+          };
+          const msgHdrProcessor = new MsgHdrProcessor(msgHdr, parserOptions);
+          let mimeTree;
+          try {
+            mimeTree = await msgHdrProcessor.getOriginalTree();
+          } catch (ex) {
+            console.error(ex);
+            throw new ExtensionError(`Error reading message ${messageId}`);
+          }
+
+          // Unlike getFull(), this is not MIME structure aware and simply returns all found headers
+          // before the first blank line.
+          if (decodeHeaders) {
+            return convertHeaders(mimeTree, { addMissingContentType: false });
+          }
+          return convertRawHeaders(mimeTree);
         },
         async getRaw(source, options) {
           // Default for decrypt is false (backward compatibility).

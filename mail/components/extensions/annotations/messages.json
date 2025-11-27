@@ -30,6 +30,14 @@
         ]
       },
       {
+        "name": "getHeaders",
+        "annotations": [
+          {
+            "note": "Unlike $(ref:messages.getFull), this function is not MIME-aware and simply returns every header line found before the first blank line that separates the headers from the RFC 822 message body. This includes headers such as <var>Content-Type</var> and <var>Content-Transfer-Encoding</var>, which are otherwise associated with a specific MIME part."
+          }
+        ]
+      },
+      {
         "name": "getRaw",
         "parameters": [
           {

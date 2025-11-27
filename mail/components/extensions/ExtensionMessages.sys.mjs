@@ -402,10 +402,16 @@ export class MsgHdrProcessor {
    */
   constructor(msgHdr, parserOptions) {
     this.#msgHdr = msgHdr;
-    this.#msgUri = getMsgStreamUrl(msgHdr);
     this.#bodyFormat = parserOptions?.bodyFormat ?? "decode";
     this.#strFormat = parserOptions?.strFormat ?? "unicode";
     this.#stripContinuations = parserOptions?.stripContinuations ?? true;
+  }
+
+  get msgUri() {
+    if (!this.#msgUri) {
+      this.#msgUri = getMsgStreamUrl(this.#msgHdr);
+    }
+    return this.#msgUri;
   }
 
   /**
@@ -550,7 +556,8 @@ export class MsgHdrProcessor {
       return this.#originalMessage;
     }
 
-    const msgUri = this.#msgUri;
+    const msgUri = this.msgUri;
+    const headersOnly = this.#bodyFormat == "none";
     const service = MailServices.messageServiceFromURI(msgUri);
 
     // Setup a connection timeout of 20s, to be able to fail if streaming stalls.
@@ -569,7 +576,9 @@ export class MsgHdrProcessor {
     const messagePromise = new Promise((resolve, reject) => {
       const streamlistener = {
         _data: [],
+        _carry: "",
         _stream: null,
+        _headersDoneEarly: false,
         onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
           if (!this._stream) {
             this._stream = Cc[
@@ -577,13 +586,48 @@ export class MsgHdrProcessor {
             ].createInstance(Ci.nsIScriptableInputStream);
             this._stream.init(aInputStream);
           }
-          this._data.push(this._stream.read(aCount));
+          const chunk = this._stream.read(aCount);
+
+          // The data needs to be read, otherwise the UI will flash the message,
+          // if it is currently viewed. We aborted the request and we should get
+          // here at most one more time after resolving early.
+          if (this._headersDoneEarly) {
+            return;
+          }
+
+          if (headersOnly) {
+            // The specs require \r\n\r\n to separate headers and body, but we have seen \n\n in the
+            // wild as well (for example local messages).
+            const boundaryTestData = `${this._carry}${chunk}`;
+            const headerEndMatch = boundaryTestData.match(/\r?\n\r?\n/);
+            if (headerEndMatch) {
+              this._data.push(
+                boundaryTestData.slice(
+                  this._carry.length,
+                  headerEndMatch.index + headerEndMatch[0].length
+                )
+              );
+              this._headersDoneEarly = true;
+              try {
+                aRequest.cancel(Cr.NS_BINDING_ABORTED);
+              } catch {
+                // Cancel could fail if the underlying stream does not support cancellation. This
+                // has been observed with our NNTP test server.
+                // TODO: Fix the test server to support cancellation and remove this catch.
+              }
+              return;
+            }
+            // Keep last 3 bytes for the next boundary check.
+            this._carry = boundaryTestData.slice(-3);
+          }
+
+          this._data.push(chunk);
         },
         onStartRequest() {
           connectionSuccess = true;
         },
         onStopRequest(request, status) {
-          if (Components.isSuccessCode(status)) {
+          if (this._headersDoneEarly || Components.isSuccessCode(status)) {
             if (!this._data) {
               reject(
                 new ExtensionError(
@@ -725,7 +769,7 @@ export class MsgHdrProcessor {
 
     const mimeTree = await this.#decryptMessage(rawMessage);
     if (mimeTree.decryptionStatus == "fail") {
-      const error = new Error(`Failed to decrypt ${this.#msgUri}`);
+      const error = new Error(`Failed to decrypt ${this.msgUri}`);
       error.cause = "MessageDecryptionError";
       throw error;
     }

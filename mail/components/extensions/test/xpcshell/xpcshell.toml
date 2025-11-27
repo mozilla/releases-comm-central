@@ -32,6 +32,9 @@ support-files = ["messages/**"]
 ["test_ext_messages_getFull_raw.js"]
 support-files = ["messages/**"]
 
+["test_ext_messages_getHeaders.js"]
+support-files = ["messages/**"]
+
 ["test_ext_messages_id.js"] # Disabled for NNTP (message move not supported)
 
 ["test_ext_messages_import.js"]

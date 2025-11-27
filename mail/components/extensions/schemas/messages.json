@@ -191,15 +191,9 @@
             "enum": ["none", "skipped", "success", "fail"]
           },
           "headers": {
-            "type": "object",
+            "$ref": "messages.HeadersDictionary",
             "description": "A <em>dictionary object</em> of RFC 2047 decoded part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>. Only present if requested, see the <var>decodeHeaders</var> option of $(ref:messages.getFull).",
-            "optional": true,
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+            "optional": true
           },
           "name": {
             "type": "string",
@@ -225,15 +219,9 @@
             "optional": true
           },
           "rawHeaders": {
-            "type": "object",
+            "$ref": "messages.HeadersDictionary",
             "description": "A <em>dictionary object</em> of raw part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>. Only present if requested, see the <var>decodeHeaders</var> option of $(ref:messages.getFull).",
-            "optional": true,
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+            "optional": true
           },
           "size": {
             "type": "integer",
@@ -291,14 +279,8 @@
             "description": "The content type of the attachment. A value of <var>text/x-moz-deleted</var> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
           },
           "headers": {
-            "type": "object",
-            "description": "A <em>dictionary object</em> of RFC 2047 decoded attachment headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>.",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+            "$ref": "messages.HeadersDictionary",
+            "description": "A <em>dictionary object</em> of RFC 2047 decoded attachment headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>."
           },
           "name": {
             "type": "string",
@@ -321,6 +303,17 @@
             "$ref": "messages.MessageHeader",
             "optional": true,
             "description": "A MessageHeader, if this attachment is a message."
+          }
+        }
+      },
+      {
+        "id": "HeadersDictionary",
+        "type": "object",
+        "description": "A <em>dictionary object</em> of headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>.",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       },
@@ -583,6 +576,40 @@
             "parameters": [
               {
                 "$ref": "messages.MessagePart"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getHeaders",
+        "type": "function",
+        "description": "Returns all message headers of the specified message, without MIME structure parsing. Throws an error if the message cannot be read, for example due to network issues. This function is significantly faster than $(ref:messages.getFull) when only the header information is required.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "messageId",
+            "$ref": "messages.MessageId"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "properties": {
+              "decodeHeaders": {
+                "type": "boolean",
+                "description": "Whether to decode RFC 2047 encoded headers. Defaults to <var>true</var>.",
+                "optional": true
+              }
+            },
+            "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.HeadersDictionary"
               }
             ]
           }
