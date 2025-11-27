@@ -271,6 +271,7 @@ var gSearchResultsPane = {
 
       let ts = performance.now();
       const FRAME_THRESHOLD = 10;
+      let underFoundSubcategory = false;
 
       // Showing or Hiding specific section depending on if words in query are found.
       for (const child of rootPreferencesChildren) {
@@ -285,6 +286,25 @@ var gSearchResultsPane = {
           if (query !== this.query) {
             return;
           }
+        }
+
+        if (underFoundSubcategory) {
+          if (!child.classList.contains("subcategory")) {
+            await this.searchWithinNode(child, this.query);
+            child.classList.remove("visually-hidden");
+            continue;
+          }
+          underFoundSubcategory = false;
+        }
+
+        if (
+          child.classList.contains("subcategory") &&
+          (await this.searchWithinNode(child, this.query))
+        ) {
+          child.classList.remove("visually-hidden");
+          underFoundSubcategory = true;
+          resultsFound = true;
+          continue;
         }
 
         if (
