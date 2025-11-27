@@ -205,3 +205,13 @@
 #qfb-upsell-line-one {
   font-weight: bold;
 }
+
+/* Hide the search glass in QFB search box when Gloda is disabled. */
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("mailnews.database.global.indexer.enabled") {
+  #qfb-qs-textbox {
+    --search-button-show: none;
+    --search-buttons-padding: var(--search-padding);
+  }
+}

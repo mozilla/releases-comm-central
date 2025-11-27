@@ -6,9 +6,13 @@
 
 @import url("chrome://messenger/skin/widgets.css");
 
-form {
+:host {
   --search-padding: 6px;
-  --search-buttons-padding: 24px;
+  --search-button-show: flex;
+  --search-buttons-padding: 28px;
+}
+
+form {
   position: relative;
   min-height: max(1.2em, calc(1.2em + 2 * var(--search-padding)));
   height: 100%;
@@ -77,6 +81,10 @@ input {
       }
     }
   }
+}
+
+#search-button {
+  display: var(--search-button-show);
 }
 
 div {

@@ -26,6 +26,10 @@
  * @cssproperty --search-bar-background - Background color of the search bar.
  * @cssproperty --search-bar-focus-background - Background color of the search
  *   bar when focused.
+ * @cssproperty --search-button-show - display property (flex or none) of the
+ *   search glass.
+ * @cssproperty --search-buttons-padding - Padding for the space of the
+ *   search glass.
  */
 export class SearchBar extends HTMLElement {
   static get observedAttributes() {
