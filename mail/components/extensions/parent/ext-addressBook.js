@@ -488,9 +488,9 @@ var addressBookCache = new (class extends EventEmitter {
     for (const addressBook of this.addressBooks.values()) {
       if (!addressBook.contacts) {
         this._populateContacts(addressBook);
-        if (addressBook.contacts.has(id)) {
-          return addressBook.contacts.get(id);
-        }
+      }
+      if (addressBook.contacts.has(id)) {
+        return addressBook.contacts.get(id);
       }
     }
     throw new ExtensionUtils.ExtensionError(
