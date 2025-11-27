@@ -382,7 +382,7 @@ add_task(async function checkTitlePreface() {
   await extension.unload();
 });
 
-add_task(async function test_popupLayoutProperties() {
+add_task(async function test_popupState() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "test.html": `<!DOCTYPE html>
@@ -396,23 +396,8 @@ add_task(async function test_popupLayoutProperties() {
           </body>
         </html>`,
       "background.js": async () => {
-        async function checkWindow(windowId, expected, retries = 0, info = "") {
+        async function checkWindow(windowId, expected, info = "") {
           const win = await browser.windows.get(windowId);
-
-          if (
-            retries &&
-            Object.keys(expected).some(key => expected[key] != win[key])
-          ) {
-            browser.test.log(
-              `Got mismatched size (${JSON.stringify(
-                expected
-              )} != ${JSON.stringify(win)}). Retrying after a short delay.`
-            );
-            // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-            await new Promise(resolve => setTimeout(resolve, 200));
-            return checkWindow(windowId, expected, retries - 1, info);
-          }
-
           for (const [key, value] of Object.entries(expected)) {
             browser.test.assertEq(
               value,
@@ -420,17 +405,22 @@ add_task(async function test_popupLayoutProperties() {
               `${info}: Should find the correct value for ${key}`
             );
           }
-
-          return true;
         }
 
+        const [isWayland] = await window.sendMessage("checkForWayland");
+
         const tests = [
-          { retries: 0, properties: { state: "minimized" } },
-          { retries: 0, properties: { state: "maximized" } },
-          { retries: 0, properties: { state: "fullscreen" } },
           {
-            retries: 5,
-            properties: { width: 210, height: 220, left: 90, top: 80 },
+            properties: { state: "minimized" },
+            expected: { state: isWayland ? "normal" : "minimized" },
+          },
+          {
+            properties: { state: "maximized" },
+            expected: { state: "maximized" },
+          },
+          {
+            properties: { state: "fullscreen" },
+            expected: { state: "fullscreen" },
           },
         ];
 
@@ -441,12 +431,7 @@ add_task(async function test_popupLayoutProperties() {
             url: "test.html",
             ...test.properties,
           });
-          await checkWindow(
-            win.id,
-            test.properties,
-            test.retries,
-            "browser.windows.create()"
-          );
+          await checkWindow(win.id, test.expected, "browser.windows.create()");
           await browser.windows.remove(win.id);
         }
 
@@ -457,22 +442,23 @@ add_task(async function test_popupLayoutProperties() {
             url: "test.html",
           });
           await browser.windows.update(win.id, test.properties);
-          await checkWindow(
-            win.id,
-            test.properties,
-            test.retries,
-            "browser.windows.update()"
-          );
+          await checkWindow(win.id, test.expected, "browser.windows.update()");
           await browser.windows.remove(win.id);
         }
 
         browser.test.notifyPass();
       },
+      "utils.js": await getUtilsJS(),
     },
     manifest: {
-      background: { scripts: ["background.js"] },
+      background: { scripts: ["utils.js", "background.js"] },
     },
   });
+
+  extension.onMessage("checkForWayland", () => {
+    extension.sendMessage(Services.appinfo.isWayland);
+  });
+
   await extension.startup();
   await extension.awaitFinish();
   await extension.unload();

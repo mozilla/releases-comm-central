@@ -72,6 +72,14 @@
             ]
           }
         }
+      },
+      {
+        "id": "WindowState",
+        "annotations": [
+          {
+            "note": "On Linux systems using Wayland, clients cannot detect whether a window is minimized. Minimized windows are therefore reported as <var>normal</var>."
+          }
+        ]
       }
     ],
     "events": [
