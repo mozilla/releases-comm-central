@@ -438,11 +438,12 @@ div:has(legend) {
   &.warning .icon-warning,
   &.info .icon-info {
     display: inline-block;
+    stroke: currentColor;
   }
 
   &.error {
     background-color: var(--color-critical-soft);
-    color: var(--color-critical-pressed);
+    color: light-dark(var(--color-critical-pressed-light), var(--color-text-base-dark));
     border-color: var(--color-critical-default);
   }
 
@@ -454,13 +455,13 @@ div:has(legend) {
 
   &.success {
     background-color: var(--color-success-soft);
-    color: var(--color-success-pressed);
-    border-color: var(--color-success-default);
+    color: light-dark(var(--color-success-pressed-light), var(--color-text-success-dark));
+    border-color: light-dark(var(--color-success-default-light), var(--color-text-success-dark));
   }
 
   &.info {
     background-color: var(--color-primary-soft);
-    color: var(--color-primary-pressed);
+    color: light-dark(var(--color-primary-pressed-light), var(--color-primary-default-dark));
     border-color: var(--color-primary-default);
   }
 }
