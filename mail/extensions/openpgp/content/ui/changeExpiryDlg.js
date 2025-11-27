@@ -78,7 +78,7 @@ async function onLoad() {
       today.getDate()
     );
     const option = document.createElement("option");
-    option.value = Math.floor(d.getTime() / 1000); // In seconds.
+    option.value = d.getTime();
     option.label = rtf.format(i, "month");
     gExpiryPopup.appendChild(option);
   }
@@ -89,7 +89,7 @@ async function onLoad() {
       today.getDate()
     );
     const option = document.createElement("option");
-    option.value = Math.floor(d.getTime() / 1000); // In seconds.
+    option.value = d.getTime();
     option.label = rtf.format(i, "year");
     gExpiryPopup.appendChild(option);
   }
@@ -165,7 +165,7 @@ async function keySelected(selectedIndex) {
 
   if (gKeyObjToEdit.expiryTime) {
     gExpiryPopup.selectedIndex = [...gExpiryPopup.children].findIndex(
-      o => o.value >= gKeyObjToEdit.expiryTime
+      o => o.value / 1000 >= gKeyObjToEdit.expiryTime
     );
   } else {
     gExpiryPopup.selectedIndex = 23; // 2 years
@@ -180,9 +180,7 @@ async function onAccept() {
     // Keep.
     return true;
   }
-  const date = expirySecs
-    ? new Date((gKeyObjToEdit.keyCreated + expirySecs) * 1000)
-    : null;
+  const date = expirySecs ? new Date(expirySecs) : null;
   return RNP.changeKeyExpiration(gKeyObj, gKeyObjToEdit, date, gSimpleMode);
 }
 
