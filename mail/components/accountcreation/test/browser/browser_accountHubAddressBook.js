@@ -28,6 +28,7 @@ add_setup(async function () {
   abView = tab.browser.contentWindow.document.querySelector(
     "account-hub-address-book"
   );
+  browser.contentWindow.toAddressBook = sinon.spy();
 
   testAccount = {
     account: { incomingServer: {}, defaultIdentity: {} },
@@ -373,7 +374,12 @@ add_task(async function test_syncAllAddressBooks() {
     "Select all input should not be indeterminate"
   );
 
+  const accountHubClose = BrowserTestUtils.waitForEvent(
+    abView,
+    "request-close"
+  );
   await subtest_clickContinue();
+  await accountHubClose;
 
   // Check if create() was called for each address book.
   Assert.equal(
@@ -386,9 +392,15 @@ add_task(async function test_syncAllAddressBooks() {
     1,
     "Second address book should have called create"
   );
+  Assert.equal(
+    abView.ownerGlobal.toAddressBook.callCount,
+    1,
+    "Should have asked to open address book"
+  );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
+  abView.ownerGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_syncOneAddressBook() {
@@ -416,22 +428,33 @@ add_task(async function test_syncOneAddressBook() {
     "Select all input should be indeterminate"
   );
 
+  const accountHubClose = BrowserTestUtils.waitForEvent(
+    abView,
+    "request-close"
+  );
   await subtest_clickContinue();
+  await accountHubClose;
 
   // Check if create() was called for the second address book.
   Assert.equal(
     testAccount.addressBooks[0].create.callCount,
     0,
-    "First address book should have called create"
+    "First address book shouldn't have called create"
   );
   Assert.equal(
     testAccount.addressBooks[1].create.callCount,
     1,
     "Second address book should have called create"
   );
+  Assert.equal(
+    abView.ownerGlobal.toAddressBook.callCount,
+    1,
+    "Should have asked to open address book"
+  );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
+  abView.ownerGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_syncNoAddressBooks() {
@@ -455,22 +478,33 @@ add_task(async function test_syncNoAddressBooks() {
     "Select all input should not be indeterminate"
   );
 
+  const accountHubClose = BrowserTestUtils.waitForEvent(
+    abView,
+    "request-close"
+  );
   await subtest_clickContinue();
+  await accountHubClose;
 
   // Check if create() wasn't called for either address book.
   Assert.equal(
     testAccount.addressBooks[0].create.callCount,
     0,
-    "First address book should have called create"
+    "First address book shouldn't have called create"
   );
   Assert.equal(
     testAccount.addressBooks[1].create.callCount,
     0,
-    "Second address book should have called create"
+    "Second address book shouldn't have called create"
+  );
+  Assert.equal(
+    abView.ownerGlobal.toAddressBook.callCount,
+    1,
+    "Should have asked to open address book"
   );
 
   abView.removeTestAccount(testAccount);
   await abView.reset();
+  abView.ownerGlobal.toAddressBook.resetHistory();
 });
 
 add_task(async function test_localAddressBookForwardEventAndCreation() {
