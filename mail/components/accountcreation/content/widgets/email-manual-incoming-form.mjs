@@ -406,7 +406,7 @@ class EmailIncomingForm extends AccountHubStep {
    * @returns {AccountConfig}
    */
   getIncomingUserConfig() {
-    let config = this.#currentConfig;
+    let config = this.#currentConfig.copy();
     config.source = AccountConfig.kSourceUser;
 
     // Update the type based on the current selection.

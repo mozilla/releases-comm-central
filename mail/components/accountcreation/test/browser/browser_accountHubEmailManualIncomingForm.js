@@ -191,3 +191,57 @@ add_task(async function test_getEWSConfig() {
 
   subview.resetState();
 });
+
+add_task(async function test_settingStateLeavesConfigIntact() {
+  const config = new AccountConfig();
+  config.incoming.type = "imap";
+  subview.setState(config);
+
+  const protocolSelector = subview.querySelector("#incomingProtocol");
+
+  Assert.equal(
+    protocolSelector.value,
+    "1",
+    "IMAP should be the selected protocol"
+  );
+
+  info("Switch to EWS");
+  const configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    subview,
+    "config-updated"
+  );
+  protocolSelector.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
+  protocolSelector.menupopup.activateItem(
+    protocolSelector.querySelector("#incomingProtocolEWS")
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    protocolSelector.menupopup,
+    "hidden"
+  );
+  const { detail: configUpdatedEvent } = await configUpdatedEventPromise;
+
+  Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
+
+  const updatedConfig = subview.captureState();
+  Assert.equal(
+    updatedConfig.config.incoming.type,
+    "ews",
+    "Should have EWS in the new config"
+  );
+  Assert.equal(
+    config.incoming.type,
+    "imap",
+    "Initial config should still be for IMAP"
+  );
+
+  subview.setState(config);
+
+  Assert.equal(
+    protocolSelector.value,
+    "1",
+    "Setting the state again should select IMAP again"
+  );
+
+  subview.resetState();
+});
