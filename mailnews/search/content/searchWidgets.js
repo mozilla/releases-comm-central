@@ -692,6 +692,7 @@
 
     connectedCallback() {
       this.classList.add("input-container");
+      MozXULElement.insertFTLIfNeeded("messenger/searchWidgets.ftl");
     }
 
     static get stringBundle() {
@@ -790,17 +791,23 @@
           case "priority":
             input = this.constructor._createMenulist([
               {
-                l10nID: "message-priority-highest",
+                l10nID: "search-val-priority-highest",
                 value: Ci.nsMsgPriority.highest,
               },
-              { l10nID: "message-priority-high", value: Ci.nsMsgPriority.high },
               {
-                l10nID: "message-priority-normal",
+                l10nID: "search-val-priority-high",
+                value: Ci.nsMsgPriority.high,
+              },
+              {
+                l10nID: "search-val-priority-normal",
                 value: Ci.nsMsgPriority.normal,
               },
-              { l10nID: "message-priority-low", value: Ci.nsMsgPriority.low },
               {
-                l10nID: "message-priority-lowest",
+                l10nID: "search-val-priority-low",
+                value: Ci.nsMsgPriority.low,
+              },
+              {
+                l10nID: "search-val-priority-lowest",
                 value: Ci.nsMsgPriority.lowest,
               },
             ]);
@@ -808,20 +815,23 @@
           case "status":
             input = this.constructor._createMenulist([
               {
-                l10nID: "message-flag-replied",
+                l10nID: "search-val-flag-replied",
                 value: Ci.nsMsgMessageFlags.Replied,
               },
               {
-                l10nID: "message-flag-read",
+                l10nID: "search-val-flag-read",
                 value: Ci.nsMsgMessageFlags.Read,
               },
-              { l10nID: "message-flag-new", value: Ci.nsMsgMessageFlags.New },
               {
-                l10nID: "message-flag-forwarded",
+                l10nID: "search-val-flag-new",
+                value: Ci.nsMsgMessageFlags.New,
+              },
+              {
+                l10nID: "search-val-flag-forwarded",
                 value: Ci.nsMsgMessageFlags.Forwarded,
               },
               {
-                l10nID: "message-flag-starred",
+                l10nID: "search-val-flag-starred",
                 value: Ci.nsMsgMessageFlags.Marked,
               },
             ]);
@@ -849,7 +859,7 @@
             input = this.constructor._createMenulist([
               {
                 value: Ci.nsIJunkMailPlugin.JUNK,
-                l10nID: "menuitem-label-spam",
+                l10nID: "search-val-spam",
               },
             ]);
             break;
