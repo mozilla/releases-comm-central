@@ -39,14 +39,14 @@ categories = [
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/mozilla/neqo/"
 
-[package.metadata.bench.streams.codspeed]
-mode = "walltime"
-
 [package.metadata.cargo-machete]
 ignored = [
     "criterion",
     "log",
 ]
+
+[package.metadata.bench.streams.codspeed]
+mode = "walltime"
 
 [features]
 bench = [
