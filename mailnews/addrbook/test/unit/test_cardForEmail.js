@@ -14,10 +14,7 @@ var { MailServices } = ChromeUtils.importESModule(
 
 function bumpDisplayNameVersion() {
   // Invalidate the AddrBookManager email->card cache.
-  Services.prefs.setIntPref(
-    "mail.displayname.version",
-    Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-  );
+  MailServices.ab.clearCache();
 }
 
 function check_correct_card(card) {

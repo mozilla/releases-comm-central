@@ -5044,9 +5044,9 @@ var threadPane = {
         break;
       case "addrbook-displayname-changed":
       case "custom-column-refreshed":
-        // addrbook-displayname-changed: This runs when mail.displayname.version
-        // preference observer is notified or the number of the
-        // mail.displayname.version preference has been updated.
+        // addrbook-displayname-changed: This runs when the cache of addressbook
+        // cards has been cleared because the display name of a contact changed,
+        // signaled by incrementing the mail.displayname.version preference.
         // custom-column-refreshed: This used to refresh just the column,
         // but now that filling the cells happens asynchronously, that's too
         // complicated, so it's better to invalidate the whole thing. Kept for

@@ -10,6 +10,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.sys.mjs",
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   compareAddressBooks: "resource:///modules/AddrBookUtils.sys.mjs",
   newUID: "resource:///modules/AddrBookUtils.sys.mjs",
@@ -637,12 +638,8 @@ export class AddrBookDirectory {
       }
     }
 
-    // Increment this preference if the the card changed.
-    // This will cause the UI to throw away cached values.
-    Services.prefs.setIntPref(
-      "mail.displayname.version",
-      Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-    );
+    // Force the UI to throw away cached card values.
+    lazy.MailServices.ab.clearCache();
 
     // Send the card as it is in this directory, not as passed to this function.
     const newCard = this.getCard(card.UID);
@@ -680,12 +677,8 @@ export class AddrBookDirectory {
       }
     }
 
-    // Increment this preference if one or more cards changed.
-    // This will cause the UI to throw away cached values.
-    Services.prefs.setIntPref(
-      "mail.displayname.version",
-      Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-    );
+    // Force the UI to throw away cached card values.
+    lazy.MailServices.ab.clearCache();
 
     for (const card of cards) {
       Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
@@ -723,12 +716,8 @@ export class AddrBookDirectory {
     }
     this.saveCardProperties(uid, newProperties);
 
-    // Increment this preference if the card was dropped.
-    // This will cause the UI to throw away cached values.
-    Services.prefs.setIntPref(
-      "mail.displayname.version",
-      Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-    );
+    // Force the UI to throw away cached card values.
+    lazy.MailServices.ab.clearCache();
 
     const newCard = this.getCard(uid);
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);

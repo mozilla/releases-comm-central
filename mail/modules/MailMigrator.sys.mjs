@@ -139,10 +139,7 @@ export var MailMigrator = {
       if (currentUIVersion < 42) {
         // Update the display name version pref so we force clear the cache of
         // sender names.
-        Services.prefs.setIntPref(
-          "mail.displayname.version",
-          Services.prefs.getIntPref("mail.displayname.version", 0) + 1
-        );
+        MailServices.ab.clearCache();
       }
 
       if (currentUIVersion < 43) {

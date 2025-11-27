@@ -104,6 +104,13 @@ interface nsIAbManager : nsISupports
   boolean directoryNameExists(in AString name);
 
   /**
+   * Forces the clearing of the cached cards when a contact is saved or edited.
+   * This is needed when the edit action is performed from the message header
+   * and we need to ensure new and accurate data of the edited contact.
+   */
+  void clearCache();
+
+  /**
    * Returns an address book card for the specified email address if found, in
    * any directory. The first matching card found is returned.
    *

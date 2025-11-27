@@ -592,6 +592,14 @@ AddrBookManager.prototype = {
   },
 
   /**
+   * Clears the addressbook cards cache, which is used to speed up lookups via
+   * cardForEmailAddress().
+   */
+  clearCache() {
+    incrementDisplayNameVersion();
+  },
+
+  /**
    * @param {string} emailAddress - Email address to look up.
    * @returns {?nsIAbCard} the found card, if any.
    */
