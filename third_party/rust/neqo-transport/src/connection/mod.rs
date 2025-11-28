@@ -39,7 +39,7 @@ use crate::{
     crypto::{Crypto, CryptoDxState, Epoch},
     ecn,
     events::{ConnectionEvent, ConnectionEvents, OutgoingDatagramOutcome},
-    frame::{CloseError, Frame, FrameType},
+    frame::{CloseError, Frame, FrameEncoder as _, FrameType},
     packet::{self},
     path::{Path, PathRef, Paths},
     qlog,
@@ -70,7 +70,7 @@ use crate::{
 mod idle;
 pub mod params;
 mod state;
-#[cfg(test)]
+#[cfg(any(test, feature = "build-fuzzing-corpus"))]
 #[cfg_attr(coverage_nightly, coverage(off))]
 pub mod test_internal;
 
@@ -327,7 +327,7 @@ pub struct Connection {
     /// For testing purposes it is sometimes necessary to inject frames that wouldn't
     /// otherwise be sent, just to see how a connection handles them.  Inserting them
     /// into packets proper mean that the frames follow the entire processing path.
-    #[cfg(test)]
+    #[cfg(any(test, feature = "build-fuzzing-corpus"))]
     test_frame_writer: Option<Box<dyn test_internal::FrameWriter>>,
 }
 
@@ -470,7 +470,7 @@ impl Connection {
             conn_params,
             hrtime: hrtime::Time::get(Self::LOOSE_TIMER_RESOLUTION),
             quic_datagrams,
-            #[cfg(test)]
+            #[cfg(any(test, feature = "build-fuzzing-corpus"))]
             test_frame_writer: None,
         };
         c.stats.borrow_mut().init(format!("{c}"));
@@ -1226,7 +1226,7 @@ impl Connection {
 
     /// A test-only output function that uses the provided writer to
     /// pack something extra into the output.
-    #[cfg(test)]
+    #[cfg(any(test, feature = "build-fuzzing-corpus"))]
     pub fn test_write_frames<W>(&mut self, writer: W, now: Instant) -> Output
     where
         W: test_internal::FrameWriter + 'static,
@@ -1264,7 +1264,7 @@ impl Connection {
             self.process_saved(now);
         }
         let output = self.process_multiple_output(now, max_datagrams);
-        #[cfg(all(feature = "build-fuzzing-corpus", test))]
+        #[cfg(feature = "build-fuzzing-corpus")]
         if self.test_frame_writer.is_none() {
             if let OutputBatch::DatagramBatch(batch) = &output {
                 for dgram in batch.iter() {
@@ -1735,7 +1735,11 @@ impl Connection {
             let slc_len = slc.len();
             let (mut packet, remainder) =
                 match packet::Public::decode(slc, self.cid_manager.decoder().as_ref()) {
-                    Ok((packet, remainder)) => (packet, remainder),
+                    Ok((packet, remainder)) => {
+                        #[cfg(feature = "build-fuzzing-corpus")]
+                        neqo_common::write_item_to_fuzzing_corpus("packet", packet.data());
+                        (packet, remainder)
+                    }
                     Err(e) => {
                         qinfo!("[{self}] Garbage packet: {e}");
                         self.stats.borrow_mut().pkt_dropped("Garbage packet");
@@ -2395,7 +2399,7 @@ impl Connection {
         if probe {
             // Nothing ack-eliciting and we need to probe; send PING.
             debug_assert_ne!(builder.remaining(), 0);
-            builder.encode_varint(FrameType::Ping);
+            builder.encode_frame(FrameType::Ping, |_| {});
             let stats = &mut self.stats.borrow_mut().frame_tx;
             stats.ping += 1;
         }

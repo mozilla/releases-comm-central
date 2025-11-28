@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-common"
-version = "0.19.0"
+version = "0.20.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -45,7 +45,10 @@ bench = [
     "test-fixture/bench",
     "log/release_max_level_info",
 ]
-build-fuzzing-corpus = ["hex/alloc"]
+build-fuzzing-corpus = [
+    "hex/alloc",
+    "sha1",
+]
 ci = []
 test-fixture = []
 
@@ -83,6 +86,11 @@ default-features = false
 
 [dependencies.qlog]
 version = "0.15.1"
+default-features = false
+
+[dependencies.sha1]
+version = "0.10"
+optional = true
 default-features = false
 
 [dependencies.strum]
@@ -204,4 +212,4 @@ unused_qualifications = "warn"
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = ["cfg(coverage,coverage_nightly)"]
+check-cfg = ["cfg(coverage,coverage_nightly,fuzzing)"]

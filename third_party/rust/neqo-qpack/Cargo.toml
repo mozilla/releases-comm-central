@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-qpack"
-version = "0.19.0"
+version = "0.20.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -47,6 +47,11 @@ bench = [
     "neqo-common/bench",
     "neqo-transport/bench",
     "log/release_max_level_info",
+]
+build-fuzzing-corpus = [
+    "neqo-common/build-fuzzing-corpus",
+    "neqo-transport/build-fuzzing-corpus",
+    "test-fixture/disable-random",
 ]
 
 [lib]
@@ -174,4 +179,4 @@ unused_qualifications = "warn"
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = ["cfg(coverage,coverage_nightly)"]
+check-cfg = ["cfg(coverage,coverage_nightly,fuzzing)"]

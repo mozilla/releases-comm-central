@@ -176,4 +176,4 @@ unused_qualifications = "warn"
 [lints.rust.unexpected_cfgs]
 level = "warn"
 priority = 0
-check-cfg = ["cfg(coverage,coverage_nightly)"]
+check-cfg = ["cfg(coverage,coverage_nightly,fuzzing)"]
