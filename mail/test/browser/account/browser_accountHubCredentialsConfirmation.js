@@ -177,12 +177,13 @@ add_task(async function test_cancel_credentials_confirmation() {
     "The socket type should be set to secure"
   );
 
-  // Clicking back should go back to the email form.
+  // Clicking cancel should continue finding a config with a rejected redirect.
   EventUtils.synthesizeMouseAtCenter(footerBack, {});
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", emailTemplate);
+  const manualIncomingForm = dialog.querySelector("email-manual-incoming-form");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", manualIncomingForm);
 
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog, emailTemplate);
+  await subtest_close_account_hub_dialog(dialog, manualIncomingForm);
 });
 
 add_task(async function test_credentials_confirmation() {
