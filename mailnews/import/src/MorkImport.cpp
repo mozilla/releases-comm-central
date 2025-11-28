@@ -46,8 +46,8 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
     card->GetPropertyAsUint32(kRowIDProperty, &rowId);
     cardMap.InsertOrUpdate(rowId, card);
 
-    nsIAbCard* outCard;
-    newDirectory->AddCard(card, &outCard);
+    nsCOMPtr<nsIAbCard> outCard;
+    newDirectory->AddCard(card, getter_AddRefs(outCard));
   }
 
   database.EnumerateCards(getter_AddRefs(enumerator));
@@ -81,8 +81,8 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
       mailList->SetDescription(description);
     }
 
-    nsIAbDirectory* outList;
-    rv = newDirectory->AddMailList(mailList, &outList);
+    nsCOMPtr<nsIAbDirectory> outList;
+    rv = newDirectory->AddMailList(mailList, getter_AddRefs(outList));
     if (NS_FAILED(rv)) {
       continue;
     }
@@ -104,8 +104,8 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
       listCard->GetPropertyAsUint32(kRowIDProperty, &rowId);
       cardMap.Get(rowId, getter_AddRefs(listCard));
 
-      nsIAbCard* outCard;
-      outList->AddCard(listCard, &outCard);
+      nsCOMPtr<nsIAbCard> outCard;
+      outList->AddCard(listCard, getter_AddRefs(outCard));
     }
   }
 

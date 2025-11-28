@@ -84,9 +84,9 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory* aDirectory,
       startPos = 0;
 
       while (NS_SUCCEEDED(GetLdifStringRecord(buf, len, startPos))) {
-        if (mLdifLine.Find("groupOfNames") == -1)
+        if (mLdifLine.Find("groupOfNames") == -1) {
           AddLdifRowToDatabase(aDirectory, false);
-        else {
+        } else {
           // keep file position for mailing list
           listPosArray.AppendElement(savedStartPos);
           listSizeArray.AppendElement(filePos + startPos - savedStartPos);
@@ -370,8 +370,8 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
     newCard->GetPropertyAsAString(kNotesProperty, temp);
     newList->SetDescription(temp);
 
-    nsIAbDirectory* outList;
-    nsresult rv = aDirectory->AddMailList(newList, &outList);
+    nsCOMPtr<nsIAbDirectory> outList;
+    nsresult rv = aDirectory->AddMailList(newList, getter_AddRefs(outList));
     NS_ENSURE_SUCCESS_VOID(rv);
 
     int32_t count = members.Length();
@@ -384,13 +384,13 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
       nsCOMPtr<nsIAbCard> emailCard;
       aDirectory->CardForEmailAddress(email, getter_AddRefs(emailCard));
       if (emailCard) {
-        nsIAbCard* outCard;
-        outList->AddCard(emailCard, &outCard);
+        nsCOMPtr<nsIAbCard> outCard;
+        outList->AddCard(emailCard, getter_AddRefs(outCard));
       }
     }
   } else {
-    nsIAbCard* outCard;
-    aDirectory->AddCard(newCard, &outCard);
+    nsCOMPtr<nsIAbCard> outCard;
+    aDirectory->AddCard(newCard, getter_AddRefs(outCard));
   }
 
   // Clear buffer for next record

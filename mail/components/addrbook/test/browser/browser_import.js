@@ -193,7 +193,7 @@ function checkImported(destinationBook, listsSupported) {
   Assert.equal(
     importedCards.length,
     listsSupported ? 2 : 1,
-    `1 contact${listsSupported ? "and 1 list" : ""} should be imported`
+    `1 contact${listsSupported ? " and 1 list" : ""} should be imported`
   );
 
   if (listsSupported) {
