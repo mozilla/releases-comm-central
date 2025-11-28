@@ -193,21 +193,6 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
     "Incoming username should be expected username"
   );
 
-  const footerBack = dialog.querySelector("#emailFooter #back");
-
-  info("Going back to start");
-  EventUtils.synthesizeMouseAtCenter(footerBack, {});
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", emailTemplate);
-
-  info("Searching for a config should still remember the password");
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", configFoundTemplate);
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(ewsOption),
-    "EWS should still be available as config"
-  );
-
   Services.logins.removeAllLogins();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
 });
@@ -312,20 +297,15 @@ add_task(
     EventUtils.synthesizeMouseAtCenter(footerBack, {});
     await BrowserTestUtils.waitForAttributeRemoval("hidden", emailTemplate);
 
-    info("Searching for a config should still remember the username");
+    info("Searching for a config should not remember the username");
     EventUtils.synthesizeMouseAtCenter(footerForward, {});
     await BrowserTestUtils.waitForAttributeRemoval(
       "hidden",
-      configFoundTemplate
-    );
-
-    Assert.ok(
-      BrowserTestUtils.isVisible(ewsOption),
-      "EWS should still be available as config"
+      authenticationStep
     );
 
     Services.logins.removeAllLogins();
-    await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
+    await subtest_close_account_hub_dialog(dialog, authenticationStep);
   }
 );
 

@@ -141,6 +141,53 @@ add_setup(async () => {
   });
 });
 
+// This test has to be first because the session stores redirect target hosts
+// accepted, and skips the step, meaning we can't view the step and do manual
+// config.
+add_task(async function test_credentials_confirmation_manual_configuration() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate);
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for credentials confirmation step to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting credentials confirmation prompt");
+  const confirmationStep = dialog.querySelector(
+    "email-credentials-confirmation"
+  );
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", confirmationStep);
+  const manualConfigButton = confirmationStep.querySelector(
+    "#manualConfiguration"
+  );
+  EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
+  const incomingConfigStep = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", incomingConfigStep);
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingHostname").value,
+    ".exchange.test",
+    "The incoming hostname should be the domain with a period at the beginning"
+  );
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingAuthMethod").value,
+    "0",
+    "The auth method should be Autodetect"
+  );
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingUsername").value,
+    "testExchange@exchange.test",
+    "The username input should have the email that was submitted"
+  );
+
+  Services.logins.removeAllLogins();
+  await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
+});
+
 add_task(async function test_cancel_credentials_confirmation() {
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
@@ -177,12 +224,13 @@ add_task(async function test_cancel_credentials_confirmation() {
     "The socket type should be set to secure"
   );
 
-  // Clicking back should go back to the email form.
+  // Clicking cancel should continue finding a config with a rejected redirect.
   EventUtils.synthesizeMouseAtCenter(footerBack, {});
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", emailTemplate);
+  const manualIncomingForm = dialog.querySelector("email-manual-incoming-form");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", manualIncomingForm);
 
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog, emailTemplate);
+  await subtest_close_account_hub_dialog(dialog, manualIncomingForm);
 });
 
 add_task(async function test_credentials_confirmation() {
@@ -263,50 +311,6 @@ add_task(async function test_credentials_confirmation() {
   redirectAccepted = false;
   Services.logins.removeAllLogins();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
-});
-
-add_task(async function test_credentials_confirmation_manual_configuration() {
-  const dialog = await subtest_open_account_hub_dialog();
-  const emailTemplate = dialog.querySelector("email-auto-form");
-  const footerForward = dialog.querySelector("#emailFooter #forward");
-
-  await fillUserInformation(emailTemplate);
-  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
-
-  // Click continue and wait for credentials confirmation step to be in view.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
-  info("Expecting credentials confirmation prompt");
-  const confirmationStep = dialog.querySelector(
-    "email-credentials-confirmation"
-  );
-
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", confirmationStep);
-  const manualConfigButton = confirmationStep.querySelector(
-    "#manualConfiguration"
-  );
-  EventUtils.synthesizeMouseAtCenter(manualConfigButton, {});
-  const incomingConfigStep = dialog.querySelector(
-    "#emailIncomingConfigSubview"
-  );
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", incomingConfigStep);
-  Assert.equal(
-    incomingConfigStep.querySelector("#incomingHostname").value,
-    ".exchange.test",
-    "The incoming hostname should be the domain with a period at the beginning"
-  );
-  Assert.equal(
-    incomingConfigStep.querySelector("#incomingAuthMethod").value,
-    "0",
-    "The auth method should be Autodetect"
-  );
-  Assert.equal(
-    incomingConfigStep.querySelector("#incomingUsername").value,
-    "testExchange@exchange.test",
-    "The username input should have the email that was submitted"
-  );
-
-  Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
 });
 
 /**

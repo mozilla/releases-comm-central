@@ -117,7 +117,14 @@ async function* parallelAutoDiscovery(
       // Must call error callback in any case to stop the discover mode.
       const errorCallback = autodiscoverCall.errorCallback();
       if (e instanceof CancelledException) {
-        reject(e);
+        // If we've cancelled a redirect, we must resolve so the logic for
+        // having all of the priorty calls completed can run.
+        if (cancelRedirect) {
+          resolve();
+        } else {
+          reject(e);
+        }
+
         errorCallback(e);
       } else if (allErrors && allErrors.some(error => error.code == 401)) {
         // Auth failed.
@@ -182,6 +189,10 @@ async function* parallelAutoDiscovery(
           cancelRedirect(new UserCancelledException());
         }
       }
+
+      // If we handled the redirect promise first, we need to make sure we handle
+      // the audodiscovery promise right after in case there were any errors.
+      await promise;
     }
   } catch (error) {
     if (error instanceof CancelledException) {
