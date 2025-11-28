@@ -9,13 +9,6 @@ import { AccountHubStep } from "./account-hub-step.mjs";
  * Template ID: #accountHubEmailCredentialsConfirmationTemplate (from accountHubEmailCredentialsConfirmationTemplate.inc.xhtml)
  */
 class EmailCredentialsConfirmation extends AccountHubStep {
-  /**
-   * The redirection host.
-   *
-   * @type {string}
-   */
-  #host = "";
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -59,8 +52,6 @@ class EmailCredentialsConfirmation extends AccountHubStep {
    * @param {string} credentials.scheme - Host scheme (HTTP/HTTPS);
    */
   setState(credentials) {
-    this.#host = credentials.host;
-
     this.querySelector("#hostname").textContent = credentials.host;
     this.querySelector("#username").textContent = credentials.username;
     const socketType = this.querySelector("#socketType");
@@ -80,12 +71,6 @@ class EmailCredentialsConfirmation extends AccountHubStep {
       }
     );
     return credentials;
-  }
-
-  captureState() {
-    return {
-      host: this.#host,
-    };
   }
 
   /**
