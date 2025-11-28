@@ -104,6 +104,9 @@ mailnews/base/prefs/content/removeAccount.xhtml
 docs/_templates/**
 docs/_build/**
 
+# npm generated files
+**/package-lock.json
+
 ##############################################################################
 # The list below is copied from ThirdPartyPaths.txt. Prettier doesn't currently
 # support multiple ignore files or dynamic ignore configurations.

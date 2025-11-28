@@ -7,7 +7,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import eslintConfigPrettier from "eslint-config-prettier";
 import mozilla from "eslint-plugin-mozilla";
-import json from "eslint-plugin-json";
+import json from "@eslint/json";
 import html from "eslint-plugin-html";
 import importPlugin from "eslint-plugin-import";
 import globals from "globals";
@@ -76,8 +76,15 @@ export default [
   ...mozilla.configs["flat/recommended"],
   {
     name: "json-recommended-with-comments",
-    files: ["**/*.{json,globals}"],
-    ...json.configs["recommended-with-comments"],
+    files: ["**/*.json"],
+    language: "json/jsonc",
+    ...json.configs.recommended,
+  },
+  {
+    name: "json-recommended-no-comments",
+    files: ["**/package.json", "**/*.globals"],
+    language: "json/json",
+    ...json.configs.recommended,
   },
   {
     name: "eslint-plugin-html",
