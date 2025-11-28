@@ -88,9 +88,21 @@ async function createExtension(idx) {
   const files = {
     "background.js": async () => {
       const { short_name } = browser.runtime.getManifest();
+
+      browser.test.onMessage.addListener(async (message, outerWindowID) => {
+        if (message == "tabIdRequest") {
+          browser.test.sendMessage(
+            "tabIdResponse",
+            await browser.tabs
+              .query({ windowId: outerWindowID })
+              .then(tabs => tabs[0].id)
+          );
+        }
+      });
+
       browser.compose.onAfterSend.addListener(async (tab, sendInfo) => {
         browser.test.sendMessage(
-          `${short_name}: onAfterSend received`,
+          `${short_name}@${tab.id}: onAfterSend received`,
           sendInfo
         );
       });
@@ -145,16 +157,22 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
   // The listeners should be persistent, but not primed.
   checkPersistentListeners({ primed: false });
 
-  // Trigger onAfterSend without terminating the background first.
   const firstComposeWindow = await openComposeWindow(gPopAccount);
   await focusWindow(firstComposeWindow);
+  _extensions.one.sendMessage(
+    `tabIdRequest`,
+    firstComposeWindow.docShell.outerWindowID
+  );
+  const firstComposeTabId = await _extensions.one.awaitMessage(`tabIdResponse`);
+
+  // Trigger onAfterSend without terminating the background first.
   firstComposeWindow.SetComposeDetails({ to: "first@invalid.net" });
   firstComposeWindow.SetComposeDetails({ subject: "First message" });
   firstComposeWindow.SendMessage();
 
   for (const [idx, extension] of extensions) {
     const firstSendInfo = await extension.awaitMessage(
-      `${idx}: onAfterSend received`
+      `${idx}@${firstComposeTabId}: onAfterSend received`
     );
     Assert.equal(
       "sendNow",
@@ -189,6 +207,15 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
     );
   }
 
+  const secondComposeWindow = await openComposeWindow(gPopAccount);
+  await focusWindow(secondComposeWindow);
+  _extensions.one.sendMessage(
+    `tabIdRequest`,
+    secondComposeWindow.docShell.outerWindowID
+  );
+  const secondComposeTabId =
+    await _extensions.one.awaitMessage(`tabIdResponse`);
+
   // Terminate background and re-trigger onAfterSend.
   await allExtensions((idx, ext) =>
     ext.terminateBackground({ disableResetIdleForTest: true })
@@ -197,14 +224,13 @@ add_task(async function test_onAfterSend_MV3_event_pages() {
   // The listeners should be primed.
   checkPersistentListeners({ primed: true });
 
-  const secondComposeWindow = await openComposeWindow(gPopAccount);
-  await focusWindow(secondComposeWindow);
   secondComposeWindow.SetComposeDetails({ to: "second@invalid.net" });
   secondComposeWindow.SetComposeDetails({ subject: "Second message" });
   secondComposeWindow.SendMessage();
+
   for (const [idx, extension] of extensions) {
     const secondSendInfo = await extension.awaitMessage(
-      `${idx}: onAfterSend received`
+      `${idx}@${secondComposeTabId}: onAfterSend received`
     );
     Assert.equal(
       "sendNow",
