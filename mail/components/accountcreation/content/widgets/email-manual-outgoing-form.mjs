@@ -369,7 +369,9 @@ class EmailOutgoingForm extends AccountHubStep {
       !this.#outgoingUsername.value
     );
 
-    return config;
+    // Copy so changes by the parent don't feed back here without properly
+    // getting synced.
+    return config.copy();
   }
 
   /**

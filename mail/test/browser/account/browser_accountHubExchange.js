@@ -43,7 +43,7 @@ const AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
         <PublicFolderServer>outlook.office365.com</PublicFolderServer>
         <AuthPackage>Anonymous</AuthPackage>
         <ASUrl>https://outlook.office365.com/EWS/Exchange.asmx</ASUrl>
-        <EwsUrl>https://outlook.office365.com/EWS/Exchange.asmx</EwsUrl>
+        <EwsUrl>http://exchange.test/EWS/Exchange.asmx</EwsUrl>
         <EmwsUrl>https://outlook.office365.com/EWS/Exchange.asmx</EmwsUrl>
         <SharingUrl>https://outlook.office365.com/EWS/Exchange.asmx</SharingUrl>
         <EcpUrl>https://outlook.office365.com/owa/</EcpUrl>
@@ -112,7 +112,7 @@ add_setup(async () => {
 
   const imapServer = await ServerTestUtils.createServer({
     type: "imap",
-    baseOptions: { username: USER, password: PASSWORD },
+    baseOptions: { username: USER, password: "abc123456" },
     hostname: "imap.exchange.test",
     port: 1993,
   });
@@ -175,7 +175,7 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
 
   Assert.equal(
     configFoundTemplate.querySelector("#incomingHost").textContent,
-    "outlook.office365.com",
+    "exchange.test",
     "Should have host from autoconfig"
   );
 
@@ -273,7 +273,7 @@ add_task(
 
     Assert.equal(
       configFoundTemplate.querySelector("#incomingHost").textContent,
-      "outlook.office365.com",
+      "exchange.test",
       "Should have host from autoconfig"
     );
 
@@ -390,9 +390,11 @@ add_task(async function test_exchange_manual_configuration() {
   );
 
   // The available config fields should be filled in with the correct info.
+  // The test server isn't set up with HTTPS, so we have an insecure URL here.
   Assert.equal(
     ewsConfigStep.querySelector("#incomingEwsUrl").value,
-    "https://outlook.office365.com/EWS/Exchange.asmx",
+    // eslint-disable-next-line @microsoft/sdl/no-insecure-url
+    "http://exchange.test/EWS/Exchange.asmx",
     "The EWS URL input should have the correct exchange url"
   );
   Assert.equal(
@@ -406,15 +408,8 @@ add_task(async function test_exchange_manual_configuration() {
     "The username input should have the exchange email from the config"
   );
 
-  // TODO: This test will expect the password step again when clicking continue
-  // but this will need to be updated as we should store the password and go
-  // directly to creating a new account.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
-  const passwordStep = dialog.querySelector("email-password-form");
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
-
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(dialog, passwordStep);
+  await subtest_close_account_hub_dialog(dialog, ewsConfigStep);
 });
 
 add_task(async function test_exchange_advanced_configuration() {
@@ -498,6 +493,190 @@ add_task(async function test_exchange_advanced_configuration() {
   MailServices.accounts.removeAccount(ewsAccount);
   await subtest_clear_status_bar();
   Services.logins.removeAllLogins();
+});
+
+add_task(async function test_exchange_credentials_to_imap() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate, {
+    ...emailUser,
+    email: "testExchange@exchange.test",
+  });
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting password entry");
+  const authenticationStep = dialog.querySelector("email-authentication-form");
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", authenticationStep);
+  await fillPasswordInput(authenticationStep);
+  info("Entering username");
+  const usernameInput = authenticationStep.querySelector("#username");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(usernameInput),
+    "The username form input should be visible."
+  );
+  EventUtils.synthesizeMouseAtCenter(usernameInput, {});
+
+  const inputEvent = BrowserTestUtils.waitForEvent(
+    usernameInput,
+    "input",
+    true,
+    event => event.target.value === USER
+  );
+  EventUtils.sendString(USER);
+  await inputEvent;
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundStep = dialog.querySelector("email-config-found");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", configFoundStep);
+  const imapOption = configFoundStep.querySelector("#imap");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(imapOption),
+    "The IMAP config option should be visible"
+  );
+
+  Assert.ok(
+    imapOption.classList.contains("selected"),
+    "IMAP should be the selected config option"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const passwordStep = dialog.querySelector("#emailPasswordSubview");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", passwordStep);
+
+  const header = passwordStep.shadowRoot.querySelector("account-hub-header");
+  const errorTitle = header.shadowRoot.querySelector(
+    "#emailFormNotificationTitle"
+  );
+  info(
+    "Waiting for account-setup-exchange-config-unverifiable in #emailPasswordSubview..."
+  );
+  await BrowserTestUtils.waitForMutationCondition(
+    header.shadowRoot.querySelector("#emailFormNotification"),
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isVisible(errorTitle)
+  );
+  await TestUtils.waitForTick();
+  Assert.equal(
+    document.l10n.getAttributes(errorTitle.querySelector(".localized-title"))
+      .id,
+    "account-setup-exchange-config-unverifiable",
+    "Should display error"
+  );
+
+  await subtest_close_account_hub_dialog(dialog, passwordStep);
+});
+
+add_task(async function test_full_exchange_account_creation() {
+  const ewsServer = await ServerTestUtils.createServer({
+    type: "ews",
+    options: {
+      username: USER,
+      password: PASSWORD,
+    },
+    hostname: "exchange.test",
+    port: 80,
+  });
+
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+
+  await fillUserInformation(emailTemplate, {
+    ...emailUser,
+    email: "testExchange@exchange.test",
+  });
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for config found template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting password entry");
+  const authenticationStep = dialog.querySelector("email-authentication-form");
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", authenticationStep);
+  await fillPasswordInput(authenticationStep);
+  info("Entering username");
+  const usernameInput = authenticationStep.querySelector("#username");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(usernameInput),
+    "The username form input should be visible."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const configFoundStep = dialog.querySelector("email-config-found");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", configFoundStep);
+  const imapOption = configFoundStep.querySelector("#imap");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(imapOption),
+    "The IMAP config option should be visible"
+  );
+
+  Assert.ok(
+    imapOption.classList.contains("selected"),
+    "IMAP should be the selected config option"
+  );
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+  const ewsOption = configFoundTemplate.querySelector("#ews");
+  Assert.ok(
+    BrowserTestUtils.isVisible(ewsOption),
+    "EWS should be available as config"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(ewsOption, {});
+
+  Assert.equal(
+    configFoundTemplate.querySelector("#incomingType").textContent,
+    "ews",
+    "Incoming type should be expected type"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const ewsAccount = await new Promise(resolve => {
+    const listener = {
+      onServerLoaded() {
+        const matchingAccount = MailServices.accounts.accounts.find(
+          account => account.identities[0]?.email === emailUser.email
+        );
+        if (matchingAccount) {
+          MailServices.accounts.removeIncomingServerListener(listener);
+          resolve(matchingAccount);
+        }
+      },
+      onServerUnloaded() {},
+      onServerChanged() {},
+    };
+    MailServices.accounts.addIncomingServerListener(listener);
+    listener.onServerLoaded();
+  });
+  const syncStep = dialog.querySelector("email-sync-accounts-form");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", syncStep);
+
+  Assert.equal(
+    ewsAccount.incomingServer.type,
+    "ews",
+    "Should get an EWS account"
+  );
+
+  MailServices.accounts.removeAccount(ewsAccount);
+  Services.logins.removeAllLogins();
+
+  ewsServer.stop();
+  await subtest_close_account_hub_dialog(dialog, syncStep);
 });
 
 /**

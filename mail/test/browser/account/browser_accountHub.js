@@ -459,10 +459,9 @@ add_task(async function test_account_enter_password_imap_account() {
   );
 
   // Updating rememberSignons pref should enable and check remember password.
-  const rememberSignonsPref = Services.prefs.getBoolPref(
-    "signon.rememberSignons"
-  );
-  Services.prefs.setBoolPref("signon.rememberSignons", true);
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", true]],
+  });
 
   const emailPasswordTemplate = dialog.querySelector("email-password-form");
   const rememberPasswordInput =
@@ -478,9 +477,12 @@ add_task(async function test_account_enter_password_imap_account() {
     "The remember password input should be unchecked."
   );
 
+  await SpecialPowers.popPrefEnv();
   // Reverting rememberSignons pref should disable and uncheck remember
   // password.
-  Services.prefs.setBoolPref("signon.rememberSignons", rememberSignonsPref);
+  await SpecialPowers.pushPrefEnv({
+    set: [["signon.rememberSignons", false]],
+  });
 
   Assert.ok(
     rememberPasswordInput.disabled,
@@ -567,6 +569,8 @@ add_task(async function test_account_enter_password_imap_account() {
     "imap",
     "The new account created should be an IMAP account"
   );
+
+  await SpecialPowers.popPrefEnv();
 
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(imapAccount);

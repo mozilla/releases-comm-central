@@ -395,7 +395,7 @@ AccountConfig.prototype = {
    * @returns {boolean}
    */
   hasPassword() {
-    return this.incoming.password || this.outgoing.password;
+    return Boolean(this.incoming.password || this.outgoing.password);
   },
 };
 

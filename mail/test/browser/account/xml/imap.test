@@ -7,16 +7,14 @@
       <hostname>localhost</hostname>
       <port>1993</port>
       <socketType>plain</socketType>
-      <username>john.doe@imap.test</username>
-      <password>abc12345</password>
+      <username>%EMAILADDRESS%</username>
       <authentication>plain</authentication>
     </incomingServer>
     <outgoingServer type="smtp">
       <hostname>localhost</hostname>
       <port>1587</port>
       <socketType>plain</socketType>
-      <username>john.doe@imap.test</username>
-      <password>abc12345</password>
+      <username>%EMAILADDRESS%</username>
       <authentication>plain</authentication>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>
     </outgoingServer>

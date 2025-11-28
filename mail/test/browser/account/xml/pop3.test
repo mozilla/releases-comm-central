@@ -8,7 +8,6 @@
       <port>1993</port>
       <socketType>plain</socketType>
       <username>john.doe@pop3.test</username>
-      <password>abc12345</password>
       <authentication>plain</authentication>
     </incomingServer>
     <incomingServer type="pop3">
@@ -16,7 +15,6 @@
       <port>110</port>
       <socketType>plain</socketType>
       <username>john.doe@pop3.test</username>
-      <password>abc12345</password>
       <authentication>plain</authentication>
     </incomingServer>
     <outgoingServer type="smtp">
@@ -24,7 +22,6 @@
       <port>1587</port>
       <socketType>plain</socketType>
       <username>john.doe@pop3.test</username>
-      <password>abc12345</password>
       <authentication>plain</authentication>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>
     </outgoingServer>

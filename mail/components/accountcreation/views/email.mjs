@@ -610,6 +610,7 @@ class AccountHubEmail extends HTMLElement {
           const stateData = this.#currentSubview.captureState();
           this.#email = stateData.email;
           this.#realName = stateData.realName;
+          this.#exchangeUsername = "";
         }
 
         // If we are in this step, we already have email and realName set.
@@ -777,7 +778,10 @@ class AccountHubEmail extends HTMLElement {
       case "autoConfigSubview":
         this.#startLoading("account-hub-lookup-email-configuration-title");
 
+        // Reset state so this always ends up doing the same from the same
+        // form inputs in the initial subview.
         this.#currentConfig = null;
+        this.#exchangeUsername = "";
 
         try {
           this.#email = stateData.email;
@@ -951,6 +955,10 @@ class AccountHubEmail extends HTMLElement {
           break;
         }
         await this.#initUI(this.#states[this.#currentState].nextStep);
+        if (this.#currentConfig?.hasPassword()) {
+          stateData.config.incoming.password =
+            this.#currentConfig.incoming.password;
+        }
         this.#currentConfig.incoming = stateData.config.incoming;
         this.#setCurrentConfigForSubview();
 
@@ -965,74 +973,13 @@ class AccountHubEmail extends HTMLElement {
         await this.#validateAccountConfig(stateData);
         break;
       case "emailPasswordSubview":
-        this.#startLoading("account-hub-creating-account");
-        // We don't want the user to be able to cancel account creation here,
-        // as the back button is available in this step. The next state doesn't
-        // have a back button, so we don't need to reset it after.
-        this.#emailFooter.canBack(false);
-        try {
-          // Get password and remember from the state and apply it to the config.
-          this.#currentConfig = this.#fillAccountConfig(
-            this.#currentConfig,
-            stateData.password
-          );
-          this.#currentConfig.rememberPassword = stateData.rememberPassword;
-          gAccountSetupLogger.debug("Create button clicked.");
-
-          await this.#validateAndFinish(this.#currentConfig.copy());
-        } catch (error) {
-          this.#stopLoading();
-          // Show the back button again if account creation failed.
-          this.#emailFooter.canBack(true);
-          throw error;
-        } finally {
-          this.#configVerifier?.cleanup();
-        }
-
-        this.#stopLoading();
-        await this.#initUI(this.#states[this.#currentState].nextStep);
-        try {
-          this.#startLoading("account-hub-fetching-sync-accounts");
-          this.abortable = new AbortController();
-          const syncAccounts = {};
-          syncAccounts.addressBooks = await this.#getAddressBooks(
-            stateData.password
-          );
-
-          // If the user hit cancel while loading, we won't fetch
-          // the calendars.
-          this.abortable.signal.throwIfAborted();
-
-          // If the user cancels while loading and calendars have been
-          // fetched, we won't show them and show the error instead.
-          syncAccounts.calendars = await this.#getCalendars(
-            stateData.password,
-            stateData.rememberPassword
-          );
-          this.abortable?.signal?.throwIfAborted();
-          this.abortable = null;
-
-          this.#currentSubview.setState(syncAccounts);
-          this.#stopLoading();
-
-          const accountsFound =
-            syncAccounts.addressBooks.length || syncAccounts.calendars.length;
-          this.#currentSubview.showNotification({
-            fluentTitleId: accountsFound
-              ? "account-hub-sync-accounts-found"
-              : "account-hub-sync-accounts-not-found",
-            type: accountsFound ? "success" : "info",
-          });
-        } catch (error) {
-          this.#stopLoading();
-          this.abortable = null;
-          this.#currentSubview.showNotification({
-            fluentTitleId: "account-hub-sync-accounts-not-found",
-            type: "error",
-            error,
-          });
-        }
-
+        // Get password and remember from the state and apply it to the config.
+        this.#currentConfig = this.#fillAccountConfig(
+          this.#currentConfig,
+          stateData.password
+        );
+        this.#currentConfig.rememberPassword = stateData.rememberPassword;
+        await this.#createAccount("account-hub-creating-account");
         break;
       case "emailSyncAccountsSubview":
         try {
@@ -1097,6 +1044,10 @@ class AccountHubEmail extends HTMLElement {
               type: "success",
             });
             this.#emailFooter.toggleForwardDisabled(false);
+            if (this.#currentConfig?.hasPassword()) {
+              config.incoming.password = this.#currentConfig.incoming.password;
+              config.outgoing.password = this.#currentConfig.outgoing.password;
+            }
             // The config is complete, therefore we can set the currentConfig
             // as the complete config, and update the outgoing config with any
             // changes the guess config made.
@@ -1208,7 +1159,6 @@ class AccountHubEmail extends HTMLElement {
   async #findConfig(userFeedback) {
     const emailSplit = this.#email.split("@");
     const domain = emailSplit[1];
-
     gAccountSetupLogger.debug("findConfig()");
     let config, discoveryDone;
 
@@ -1264,12 +1214,6 @@ class AccountHubEmail extends HTMLElement {
         initialConfig.incoming.username = emailLocal;
         initialConfig.outgoing.username = emailLocal;
 
-        if (this.#currentConfig?.hasPassword()) {
-          initialConfig.incoming.password =
-            this.#currentConfig.incoming.password;
-          initialConfig.outgoing.password =
-            this.#currentConfig.outgoing.password;
-        }
         config = await this.#guessConfig(domain, initialConfig);
       } catch (error) {
         this.#discoveryStream = null;
@@ -1389,81 +1333,111 @@ class AccountHubEmail extends HTMLElement {
     this.#currentConfig = this.#fillAccountConfig(accountConfig);
 
     if (this.#currentConfig.isOauthOnly()) {
-      //TODO share this with the code path for pw entry...
-      this.#startLoading("account-hub-oauth-pending");
-      gAccountSetupLogger.debug("Create button clicked.");
-      try {
-        // We don't want the user to be able to cancel account creation here,
-        // as the back button is available in this step. The next state doesn't
-        // have a back button, so we don't need to reset it after.
-        this.#emailFooter.canBack(false);
-        await this.#validateAndFinish(this.#currentConfig);
-      } catch (error) {
-        // Show the back button again if account creation failed.
-        this.#emailFooter.canBack(true);
-        throw error;
-      } finally {
-        this.#stopLoading();
-        this.#configVerifier?.cleanup();
-      }
-
-      await this.#initUI("emailSyncAccountsSubview");
-
-      try {
-        this.#startLoading("account-hub-fetching-sync-accounts");
-        this.abortable = new AbortController();
-        const syncAccounts = {};
-        //TODO fetch address books and calendars in parallel?
-        syncAccounts.addressBooks = await this.#getAddressBooks("");
-
-        // If the user hit cancel while loading, we won't fetch
-        // the calendars.
-        this.abortable.signal.throwIfAborted();
-
-        // If the user cancels while loading and calendars have been
-        // fetched, we won't show them and show the error instead.
-        syncAccounts.calendars = await this.#getCalendars("", false);
-        this.abortable?.signal?.throwIfAborted();
-        this.abortable = null;
-
-        this.#currentSubview.setState(syncAccounts);
-        this.#stopLoading();
-
-        const accountsFound =
-          syncAccounts.addressBooks.length || syncAccounts.calendars.length;
-        this.#currentSubview.showNotification({
-          fluentTitleId: accountsFound
-            ? "account-hub-sync-accounts-found"
-            : "account-hub-sync-accounts-not-found",
-          type: accountsFound ? "success" : "info",
-        });
-      } catch (error) {
-        this.abortable = null;
-        this.#stopLoading();
-        this.#currentSubview.showNotification({
-          fluentTitleId: "account-hub-sync-accounts-not-found",
-          type: "error",
-          error,
-        });
-      }
-
+      await this.#createAccount("account-hub-oauth-pending");
       return;
     }
-    // TODO Bug 1973959: Consider trying to go directly to validating the
-    // account credentials if we already have a password from autoconfig.
+
+    let creationError;
+    if (this.#currentConfig.incoming.password) {
+      try {
+        await this.#createAccount("account-hub-creating-account");
+        return;
+      } catch (error) {
+        // Show error in password view.
+        creationError = error;
+      }
+    }
 
     const currentState = this.#currentState;
     // Move to the password stage where validateAndFinish is run.
     await this.#initUI("emailPasswordSubview");
-    // The password stage should now have the outgoing subview as the
+    // The password step should now have the step we're coming from as its
     // previous step.
     this.#states[this.#currentState].previousStep = currentState;
     this.#currentSubview.setState();
 
-    this.#currentSubview.showNotification({
-      fluentTitleId: "account-hub-password-info",
-      type: "info",
-    });
+    if (creationError) {
+      this.#currentSubview.showNotification({
+        title: creationError.title || creationError.message,
+        description: creationError.text,
+        error: creationError,
+        type: "error",
+      });
+    } else {
+      this.#currentSubview.showNotification({
+        fluentTitleId: "account-hub-password-info",
+        type: "info",
+      });
+    }
+  }
+
+  /**
+   * Create account and advance to sync accounts step if successful.
+   *
+   * @param {string} loadReason - Fluent string ID with the load reason.
+   */
+  async #createAccount(loadReason) {
+    this.#startLoading(loadReason);
+    gAccountSetupLogger.debug("Create button clicked.");
+    try {
+      // We don't want the user to be able to cancel account creation here,
+      // as the back button is available in this step. The next state doesn't
+      // have a back button, so we don't need to reset it after.
+      this.#emailFooter.canBack(false);
+      await this.#validateAndFinish(this.#currentConfig.copy());
+    } catch (error) {
+      // Show the back button again if account creation failed.
+      this.#emailFooter.canBack(true);
+      throw error;
+    } finally {
+      this.#stopLoading();
+      this.#configVerifier?.cleanup();
+    }
+
+    await this.#initUI("emailSyncAccountsSubview");
+
+    try {
+      this.#startLoading("account-hub-fetching-sync-accounts");
+      this.abortable = new AbortController();
+      const syncAccounts = {};
+      //TODO fetch address books and calendars in parallel?
+      syncAccounts.addressBooks = await this.#getAddressBooks(
+        this.#currentConfig.incoming.password ?? ""
+      );
+
+      // If the user hit cancel while loading, we won't fetch
+      // the calendars.
+      this.abortable.signal.throwIfAborted();
+
+      // If the user cancels while loading and calendars have been
+      // fetched, we won't show them and show the error instead.
+      syncAccounts.calendars = await this.#getCalendars(
+        this.#currentConfig.incoming.password ?? "",
+        false
+      );
+      this.abortable?.signal?.throwIfAborted();
+      this.abortable = null;
+
+      this.#currentSubview.setState(syncAccounts);
+      this.#stopLoading();
+
+      const accountsFound =
+        syncAccounts.addressBooks.length || syncAccounts.calendars.length;
+      this.#currentSubview.showNotification({
+        fluentTitleId: accountsFound
+          ? "account-hub-sync-accounts-found"
+          : "account-hub-sync-accounts-not-found",
+        type: accountsFound ? "success" : "info",
+      });
+    } catch (error) {
+      this.abortable = null;
+      this.#stopLoading();
+      this.#currentSubview.showNotification({
+        fluentTitleId: "account-hub-sync-accounts-not-found",
+        type: "error",
+        error,
+      });
+    }
   }
 
   /**
@@ -1473,12 +1447,15 @@ class AccountHubEmail extends HTMLElement {
    * @param {string} [password=""] - The password for the account.
    * @returns {AccountConfig} - The concrete AccountConfig object.
    */
-  #fillAccountConfig(configData, password = "") {
+  #fillAccountConfig(configData, password) {
     lazy.AccountConfig.replaceVariables(
       configData,
       this.#realName,
       this.#email,
-      password
+      password ||
+        (configData.hasPassword()
+          ? configData.incoming.password || configData.outgoing.password
+          : "")
     );
     return configData;
   }

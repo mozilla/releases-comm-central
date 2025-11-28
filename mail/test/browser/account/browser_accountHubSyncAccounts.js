@@ -130,27 +130,43 @@ add_task(async function test_cancelling_sync_accounts_load() {
   await inputEvent;
 
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isHidden(emailPasswordTemplate),
-    "The email password subview should be hidden."
+  await BrowserTestUtils.waitForMutationCondition(
+    emailPasswordTemplate,
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isHidden(emailPasswordTemplate)
   );
 
-  let imapAccount;
+  const imapAccount = await new Promise(resolve => {
+    const listener = {
+      onServerLoaded() {
+        const matchingAccount = MailServices.accounts.accounts.find(
+          account => account.identities[0]?.email === emailUser.email
+        );
+        if (matchingAccount) {
+          MailServices.accounts.removeIncomingServerListener(listener);
+          resolve(matchingAccount);
+        }
+      },
+      onServerUnloaded() {},
+      onServerChanged() {},
+    };
+    MailServices.accounts.addIncomingServerListener(listener);
+    listener.onServerLoaded();
+  });
 
-  await TestUtils.waitForCondition(
-    () =>
-      (imapAccount = MailServices.accounts.accounts.find(
-        account => account.identities[0]?.email === emailUser.email
-      )),
-    "The imap account should be created."
-  );
-
-  await TestUtils.waitForCondition(
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog.querySelector("email-sync-accounts-form"),
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
     () =>
       BrowserTestUtils.isVisible(
         dialog.querySelector("email-sync-accounts-form")
-      ),
-    "The sync accounts view should be in view."
+      )
   );
 
   // Cancelling here should prevent showing any sync accounts, whether we've fetched them or not.
