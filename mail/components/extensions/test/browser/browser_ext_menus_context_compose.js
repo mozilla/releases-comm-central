@@ -64,7 +64,10 @@ async function subtest_compose(manifest) {
   const composeWindowPromise = BrowserTestUtils.domWindowOpened();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   const composeWindow = await composeWindowPromise;
-  await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+  await BrowserTestUtils.waitForEvent(
+    composeWindow,
+    "compose-editor-content-ready"
+  );
   const composeDocument = composeWindow.document;
   await focusWindow(composeWindow);
 

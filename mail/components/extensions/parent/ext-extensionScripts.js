@@ -23,9 +23,11 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
     // find the editor window:
     //   https://searchfox.org/mozilla-central/rev/fb2ad9ca7150890da5cadc458acdd10c87fd9a12/toolkit/components/extensions/ExtensionContent.sys.mjs#1245)
     // Calls to script.executeInWindow() succeed only after waiting for the
-    // compose-editor-ready event.
+    // compose-editor-content-ready event.
     await new Promise(resolve =>
-      win.addEventListener("compose-editor-ready", resolve, { once: true })
+      win.addEventListener("compose-editor-content-ready", resolve, {
+        once: true,
+      })
     );
     // Even after this point, the document could be modified by the compose API.
     // We currently do not have a notification once *all* modifications to the

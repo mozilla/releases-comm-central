@@ -113,11 +113,11 @@ async function parseComposeRecipientList(
 
 function composeWindowIsReady(composeWindow) {
   return new Promise(resolve => {
-    if (composeWindow.composeEditorReady) {
+    if (composeWindow.composeEditorContentReady) {
       resolve();
       return;
     }
-    composeWindow.addEventListener("compose-editor-ready", resolve, {
+    composeWindow.addEventListener("compose-editor-content-ready", resolve, {
       once: true,
     });
   });
@@ -209,11 +209,14 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
         const _type = composeWindow.gComposeType;
         if (_msgURI == msgURI && _type == type) {
           composeWindowTracker.add(composeWindow);
-          windowTracker.removeListener("compose-editor-ready", listener);
+          windowTracker.removeListener(
+            "compose-editor-content-ready",
+            listener
+          );
           resolve(composeWindow);
         }
       }
-      windowTracker.addListener("compose-editor-ready", listener);
+      windowTracker.addListener("compose-editor-content-ready", listener);
     });
     MailServices.compose.OpenComposeWindow(
       null,
