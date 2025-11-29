@@ -11183,73 +11183,7 @@ function removeQueryPart(aURL, aQuery) {
 }
 
 function InitEditor() {
-  const convertImgUrlToDataUrl = img => {
-    if (!img) {
-      return;
-    }
-    const src = img.src;
-    if (!src) {
-      return;
-    }
-    if (!/^file:/i.test(src)) {
-      // Check if this is a protocol that can fetch parts.
-      const protocol = src.substr(0, src.indexOf(":")).toLowerCase();
-      if (
-        !(
-          Services.io.getProtocolHandler(protocol) instanceof
-          Ci.nsIMsgMessageFetchPartService
-        )
-      ) {
-        // Can't fetch parts, don't try to load.
-        return;
-      }
-    }
-
-    if (img.classList.contains("loading-internal")) {
-      // We're already loading this, or tried so unsuccessfully.
-      return;
-    }
-    if (gOriginalMsgURI) {
-      const msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
-      const originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
-      if (
-        src.startsWith(
-          removeQueryPart(
-            originalMsgNeckoURI.spec,
-            "type=application/x-message-display"
-          )
-        ) ||
-        // Special hack for saved messages.
-        (src.includes("?number=0&") &&
-          originalMsgNeckoURI.spec.startsWith("file://") &&
-          src.startsWith(
-            removeQueryPart(
-              originalMsgNeckoURI.spec,
-              "type=application/x-message-display"
-            ).replace("file://", "mailbox://") + "number=0"
-          ))
-      ) {
-        // Reply/Forward/Edit Draft/Edit as New can contain references to
-        // images in the original message. Load those and make them data: URLs
-        // now.
-        img.classList.add("loading-internal");
-        try {
-          loadBlockedImage(src);
-        } catch (e) {
-          console.error(`Loading the referenced image at ${src} FAILED`, e);
-        }
-      } else {
-        // Appears to reference a random message. Notify and keep blocking.
-        gComposeNotificationBar.setBlockedContent(src);
-      }
-    } else {
-      // For file:, and references to parts of random messages, show the
-      // blocked content notification.
-      gComposeNotificationBar.setBlockedContent(src);
-    }
-  };
-
-  const editor = GetCurrentEditor();
+  var editor = GetCurrentEditor();
 
   // Set eEditorMailMask flag to avoid using content prefs for spell checker,
   // otherwise dictionary setting in preferences is ignored and dictionary is
@@ -11314,7 +11248,84 @@ function InitEditor() {
   // dictionary picked by the user via the right-click menu in the editor.
   document.addEventListener("spellcheck-changed", updateDocumentLanguage);
 
-  // Convert mailnews background image URL back to data: URL.
+  // XXX: the error event fires twice for each load. Why??
+  editor.document.body.addEventListener(
+    "error",
+    function (event) {
+      if (event.target.localName != "img") {
+        return;
+      }
+
+      if (event.target.getAttribute("moz-do-not-send") == "true") {
+        return;
+      }
+
+      const src = event.target.src;
+      if (!src) {
+        return;
+      }
+      if (!/^file:/i.test(src)) {
+        // Check if this is a protocol that can fetch parts.
+        const protocol = src.substr(0, src.indexOf(":")).toLowerCase();
+        if (
+          !(
+            Services.io.getProtocolHandler(protocol) instanceof
+            Ci.nsIMsgMessageFetchPartService
+          )
+        ) {
+          // Can't fetch parts, don't try to load.
+          return;
+        }
+      }
+
+      if (event.target.classList.contains("loading-internal")) {
+        // We're already loading this, or tried so unsuccessfully.
+        return;
+      }
+      if (gOriginalMsgURI) {
+        const msgSvc = MailServices.messageServiceFromURI(gOriginalMsgURI);
+        const originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
+        if (
+          src.startsWith(
+            removeQueryPart(
+              originalMsgNeckoURI.spec,
+              "type=application/x-message-display"
+            )
+          ) ||
+          // Special hack for saved messages.
+          (src.includes("?number=0&") &&
+            originalMsgNeckoURI.spec.startsWith("file://") &&
+            src.startsWith(
+              removeQueryPart(
+                originalMsgNeckoURI.spec,
+                "type=application/x-message-display"
+              ).replace("file://", "mailbox://") + "number=0"
+            ))
+        ) {
+          // Reply/Forward/Edit Draft/Edit as New can contain references to
+          // images in the original message. Load those and make them data: URLs
+          // now.
+          event.target.classList.add("loading-internal");
+          try {
+            loadBlockedImage(src);
+          } catch (e) {
+            // Couldn't load the referenced image.
+            console.error(e);
+          }
+        } else {
+          // Appears to reference a random message. Notify and keep blocking.
+          gComposeNotificationBar.setBlockedContent(src);
+        }
+      } else {
+        // For file:, and references to parts of random messages, show the
+        // blocked content notification.
+        gComposeNotificationBar.setBlockedContent(src);
+      }
+    },
+    true
+  );
+
+  // Convert mailnews URL back to data: URL.
   const background = editor.document.body.background;
   if (background && gOriginalMsgURI) {
     // Check that background has the same URL as the message itself.
@@ -11331,17 +11342,10 @@ function InitEditor() {
       try {
         editor.document.body.background = loadBlockedImage(background, true);
       } catch (e) {
-        console.error(`Loading bg image ${background} FAILED`, e);
+        // Couldn't load the referenced image.
+        console.error(e);
       }
     }
-  }
-
-  // Convert all other relevant mailnews image URLs in the document to data: URLs.
-  const inlineImages = editor.document.querySelectorAll(
-    'img:not([moz-do-not-send="true"])'
-  );
-  for (const img of inlineImages) {
-    convertImgUrlToDataUrl(img);
   }
 
   // Run menubar initialization first, to avoid CustomTitlebar code picking
@@ -11405,27 +11409,6 @@ function InitEditor() {
 
   const dictionaries = getValidSpellcheckerDictionaries(draftLanguages);
   ComposeChangeLanguage(dictionaries).catch(console.error);
-
-  window.composeEditorContentReady = true;
-  window.dispatchEvent(new CustomEvent("compose-editor-content-ready"));
-
-  // Convert any image which failed loading later (pasted by the user, or loaded
-  // on identity/signature change, etc).
-  editor.document.body.addEventListener(
-    "error",
-    function (event) {
-      if (event.target.localName != "img") {
-        return;
-      }
-
-      if (event.target.getAttribute("moz-do-not-send") == "true") {
-        return;
-      }
-
-      convertImgUrlToDataUrl(event.target);
-    },
-    true
-  );
 }
 
 function setFontSize(event) {
@@ -11651,7 +11634,8 @@ function onUnblockResource(aURL, aNode) {
   try {
     loadBlockedImage(aURL);
   } catch (e) {
-    console.error(`Loading the referenced image at ${aURL} FAILED`, e);
+    // Couldn't load the referenced image.
+    console.error(e);
   } finally {
     // Remove it from the list on success and failure.
     const urls = aNode.value.split(" ");

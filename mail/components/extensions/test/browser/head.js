@@ -472,7 +472,7 @@ async function openComposeWindow(account) {
       ) {
         return false;
       }
-      await BrowserTestUtils.waitForEvent(win, "compose-editor-content-ready");
+      await BrowserTestUtils.waitForEvent(win, "compose-editor-ready");
       return true;
     }
   );
