@@ -7,6 +7,9 @@
         "annotations": [
           {
             "note": "Registered scripts will only be applied to newly opened message compose tabs. To apply the script to already open message compose tabs, manually inject your script by calling $(ref:scripting.executeScript) for each of the open <var>messageCompose</var> tabs."
+          },
+          {
+            "hint": "There is a known issue in the logging mechanism of compose scripts: All entries logged to the console appear twice."
           }
         ]
       }
@@ -20,6 +23,9 @@
         "annotations": [
           {
             "note": "Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling $(ref:scripting.executeScript) for each of the open <var>messageDisplay</var> tabs."
+          },
+          {
+            "hint": "There is a known issue in the logging mechanism of message display scripts: All entries logged to the console appear twice."
           }
         ]
       }

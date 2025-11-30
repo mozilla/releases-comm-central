@@ -365,7 +365,7 @@ add_task(async function testExecuteScriptAlias() {
 /**
  * Tests `browser.scripting.messageDisplay.registerScripts()` correctly adds CSS
  * and JavaScript to message display windows. Also tests calling
- * `browser.scripting.messageDisplay.registerScripts()`.
+ * `browser.scripting.messageDisplay.unregisterScripts()`.
  */
 add_task(async function testRegister() {
   const extension = ExtensionTestUtils.loadExtension({
