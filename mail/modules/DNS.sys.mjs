@@ -8,15 +8,13 @@
  */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+import { AsyncShutdown } from "resource://gre/modules/AsyncShutdown.sys.mjs";
 import { BasePromiseWorker } from "resource://gre/modules/PromiseWorker.sys.mjs";
 
 // These constants are luckily shared, but with different names
 const NS_T_TXT = 16; // DNS_TYPE_TXT
 const NS_T_SRV = 33; // DNS_TYPE_SRV
 const NS_T_MX = 15; // DNS_TYPE_MX
-
-// References to all active workers, so they don't get GC'ed while busy.
-const workers = new Set();
 
 export const DNS = {
   /**
@@ -25,6 +23,8 @@ export const DNS = {
   TXT: NS_T_TXT,
   SRV: NS_T_SRV,
   MX: NS_T_MX,
+
+  worker: null,
 
   /**
    * Do an asynchronous DNS lookup. The returned promise resolves with
@@ -38,22 +38,37 @@ export const DNS = {
    * @returns {Promise<object[]>} records
    */
   async lookup(_name, _recordTypeID) {
-    const worker = new BasePromiseWorker("resource:///modules/DNS.worker.mjs", {
-      type: "module",
-    });
-    workers.add(worker);
-    let result;
-    try {
-      result = await worker.post("execute", [
-        AppConstants.platform,
-        AppConstants.unixstyle,
-        "lookup",
-        [...arguments],
-      ]);
-    } finally {
-      workers.delete(worker);
+    // The platform-specific C APIs used for DNS lookup are not necessarily
+    // thread safe, so we maintain a single worker and allow requests to queue
+    // so they are executed serially.
+    if (!this.worker) {
+      this.worker = new BasePromiseWorker(
+        "resource:///modules/DNS.worker.mjs",
+        {
+          type: "module",
+        }
+      );
+
+      const self = this;
+
+      // Ensure the worker is stopped prior to web worker shutdown.
+      AsyncShutdown.webWorkersShutdown.addBlocker(
+        "Thunderbird DNS: Shutting down.",
+        function () {
+          if (self.worker) {
+            self.worker.terminate();
+            // Allow GC.
+            self.worker = null;
+          }
+        }
+      );
     }
-    return result;
+    return await this.worker.post("execute", [
+      AppConstants.platform,
+      AppConstants.unixstyle,
+      "lookup",
+      [...arguments],
+    ]);
   },
 
   /**
