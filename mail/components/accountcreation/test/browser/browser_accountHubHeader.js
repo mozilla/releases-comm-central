@@ -134,3 +134,54 @@ add_task(async function test_subheader_showNotification_fluent_title() {
     "Clear should reset the l10n state of the title"
   );
 });
+
+add_task(async function test_showNotification_error_without_cause() {
+  const notification = header.shadowRoot.querySelector(
+    "#emailFormNotification"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(notification),
+    "Notification should be hidden before showing an error"
+  );
+
+  const errorMessage = "EWS initialization failed (test)";
+  const error = new Error(errorMessage);
+  // Don't set error.cause here. Test to ensure the header code handles that
+  // gracefully and doesn't try to access error.cause.fluentDescriptionId
+  // without a null-check.
+
+  header.showNotification({
+    error,
+    type: "error",
+  });
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(notification),
+    "Notification should be visible when showing an error without a cause"
+  );
+
+  const localizedTitle = notification.querySelector(".localized-title");
+  const rawTitle = notification.querySelector(".raw-title");
+
+  // With only an Error message and no fluentTitleId/fluentDescriptionId,
+  // the logic should use the title and not set l10n attributes.
+  Assert.equal(
+    rawTitle.textContent,
+    errorMessage,
+    "Raw title should be taken from error.message when there is no cause"
+  );
+
+  const l10nState = document.l10n.getAttributes(localizedTitle);
+  Assert.deepEqual(
+    l10nState,
+    { id: null, args: null },
+    "Localized title should not be used when we only have error.message"
+  );
+
+  header.clearNotifications();
+  Assert.ok(
+    BrowserTestUtils.isHidden(notification),
+    "Notification should be hidden again after clearNotifications()"
+  );
+});

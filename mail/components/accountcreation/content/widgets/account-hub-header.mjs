@@ -114,9 +114,14 @@ class AccountHubHeader extends HTMLElement {
         error,
         fluentTitleArguments,
       });
-    } else if (description || fluentDescriptionId || error?.message) {
+    } else if (
+      description ||
+      fluentDescriptionId ||
+      error?.message ||
+      error?.cause?.fluentDescriptionId
+    ) {
       this.#setNotificationTitle({
-        fluentTitleId: fluentDescriptionId || error.cause.fluentDescriptionId,
+        fluentTitleId: fluentDescriptionId || error?.cause?.fluentDescriptionId,
         title: description || error?.message,
         error,
       });
