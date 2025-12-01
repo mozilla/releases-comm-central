@@ -6,6 +6,12 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { XPCOMUtils } from "resource:///modules/XPCOMUtils.sys.mjs";
 
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   LanguageDetector:
@@ -512,21 +518,19 @@ export const MailNotificationManager = new (class {
       Ci.nsIAlertsService
     );
     const cookie = folder.generateMessageURI(msgHdr.messageKey);
-
-    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-      Ci.nsIAlertNotification
-    );
-    alert.init(
-      cookie,
+    const alert = new AlertNotification({
+      name: cookie,
       // Don't add an icon on macOS, the app icon is already shown.
-      AppConstants.platform == "macosx"
-        ? ""
-        : "chrome://branding/content/icon48.png",
+      imageURL:
+        AppConstants.platform == "macosx"
+          ? ""
+          : "chrome://branding/content/icon48.png",
       title,
-      body,
-      true /* text clickable */,
-      cookie
-    );
+      text: body,
+      textClickable: true,
+      cookie,
+    });
+
     if (numNewMessages == 1) {
       alert.actions = lazy.enabledActions.filter(action =>
         action.isValidFor(msgHdr)

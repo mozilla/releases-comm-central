@@ -4,6 +4,12 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
+
 const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(
   Ci.nsIAlertsService
 );
@@ -57,26 +63,17 @@ export const ConnectionNotifications = {
       const errorMessage = messengerStrings.formatStringFromName(errorName, [
         hostname,
       ]);
-      const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-        Ci.nsIAlertNotification
-      );
-      alert.init(
-        id, // name
-        AppConstants.platform == "macosx"
-          ? ""
-          : "chrome://branding/content/icon48.png", // imageURL
-        title, // title
-        errorMessage, // text
-        undefined, // textClickable
-        undefined, // cookie
-        undefined, // dir
-        undefined, // lang
-        undefined, // data
-        undefined, // principal
-        undefined, // inPrivateBrowsing
-        undefined, // requireInteraction
-        true // silent
-      );
+      const alert = new AlertNotification({
+        name: id,
+        // Don't add an icon on macOS, the app icon is already shown.
+        imageURL:
+          AppConstants.platform == "macosx"
+            ? ""
+            : "chrome://branding/content/icon48.png",
+        title,
+        text: errorMessage,
+        silent: true,
+      });
       alertsService.showAlert(alert, null);
     }
   },

@@ -10,6 +10,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
 
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
+
 function peekAlarmWindow() {
   return Services.wm.getMostRecentWindow("Calendar:AlarmWindow");
 }
@@ -173,17 +179,16 @@ CalAlarmMonitor.prototype = {
       return;
     }
 
-    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(Ci.nsIAlertNotification);
-    const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
-    alert.init(
-      item.id, // name
+    const alert = new AlertNotification({
+      name: item.id,
       // Don't add an icon on macOS, the app icon is already shown.
-      AppConstants.platform == "macosx" ? "" : "chrome://branding/content/icon48.png",
-      item.title,
-      item.getProperty("description"),
-      true, // clickable
-      item.id // cookie
-    );
+      imageURL: AppConstants.platform == "macosx" ? "" : "chrome://branding/content/icon48.png",
+      title: item.title,
+      text: item.getProperty("description"),
+      textClickable: true,
+      cookie: item.id,
+    });
+    const alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
     this._notifyingItems.set(item.id, item);
     alertsService.showAlert(alert, this);
   },

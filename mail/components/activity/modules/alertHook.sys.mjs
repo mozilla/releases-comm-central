@@ -2,15 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsActWarning = Components.Constructor(
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { setTimeout } from "resource:///modules/Timer.sys.mjs";
+
+const nsActWarning = Components.Constructor(
   "@mozilla.org/activity-warning;1",
   "nsIActivityWarning",
   "init"
 );
-
-import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-import { setTimeout } from "resource:///modules/Timer.sys.mjs";
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
 
 const activeAlerts = new Set();
 const l10n = new Localization([
@@ -93,20 +98,17 @@ export var alertHook = {
     }
 
     try {
-      const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-        Ci.nsIAlertNotification
-      );
-      alert.init(
-        "", // name
+      const alert = new AlertNotification({
         // Don't add an icon on macOS, the app icon is already shown.
-        AppConstants.platform == "macosx"
-          ? ""
-          : "chrome://branding/content/icon48.png",
-        this.brandShortName,
-        message,
-        false,
-        cookie
-      );
+        imageURL:
+          AppConstants.platform == "macosx"
+            ? ""
+            : "chrome://branding/content/icon48.png",
+        title: this.brandShortName,
+        text: message,
+        textClickable: false,
+        cookie,
+      });
       this.alertService.showAlert(alert, {
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
         observe(subject, topic) {
@@ -216,26 +218,18 @@ export var alertHook = {
     }
 
     try {
-      const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-        Ci.nsIAlertNotification
-      );
-      alert.init(
-        "" /* name */,
+      const alert = new AlertNotification({
         // Don't add an icon on macOS, the app icon is already shown.
-        AppConstants.platform == "macosx"
-          ? ""
-          : "chrome://branding/content/icon48.png",
-        this.brandShortName,
-        formattedString,
-        true /* clickable */,
+        imageURL:
+          AppConstants.platform == "macosx"
+            ? ""
+            : "chrome://branding/content/icon48.png",
+        title: this.brandShortName,
+        text: formattedString,
+        textClickable: true,
         cookie,
-        undefined /* dir */,
-        undefined /* lang */,
-        undefined /* data */,
-        undefined /* principal */,
-        undefined /* inPrivateBrowsing */,
-        true /* requireInteraction */
-      );
+        requireInteraction: true,
+      });
       this.alertService.showAlert(alert, {
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
         observe(subject, topic) {

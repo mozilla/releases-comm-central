@@ -132,11 +132,6 @@ class MockAlertsServiceInstance {
     MockAlertsService._shownDeferred?.resolve();
   }
 
-  showAlertNotification(imageUrl, title, text) {
-    dump(`showAlertNotification: ${text}\n`);
-    Assert.ok(false, "unexpected call to showAlertNotification");
-  }
-
   closeAlert(name) {
     dump(`closeAlert: ${name}\n`);
     if (MockAlertsService._closedDeferred) {

@@ -15,6 +15,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
+
 export function CalIcsParser() {
   this.wrappedJSObject = this;
   this.mItems = [];
@@ -107,11 +113,7 @@ CalIcsParser.prototype = {
           const title = lazy.l10n.formatValueSync("timezone-errors-alert-title");
           const text = lazy.l10n.formatValueSync("timezone-errors-see-console");
           try {
-            const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-              Ci.nsIAlertNotification
-            );
-            alert.init(title, "", title, text);
-            notifier.showAlert(alert);
+            notifier.showAlert(new AlertNotification({ name: title, title, text }));
           } catch (e) {
             // The notifier may not be available, e.g. on xpcshell tests
           }

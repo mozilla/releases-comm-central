@@ -9,6 +9,12 @@ import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { MailNotificationManager } from "resource:///modules/MailNotificationManager.sys.mjs";
 import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
+const AlertNotification = Components.Constructor(
+  "@mozilla.org/alert-notification;1",
+  "nsIAlertNotification",
+  "initWithObject"
+);
+
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
 var kTimeToWaitForMoreMsgs = 3;
@@ -123,16 +129,13 @@ export var Notifications = {
       }
     }
 
-    const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
-      Ci.nsIAlertNotification
-    );
-    alert.init(
-      "", // name
-      icon,
-      name, // title
-      messageText,
-      true // clickable
-    );
+    const alert = new AlertNotification({
+      imageURL: icon,
+      title: name,
+      text: messageText,
+      textClickable: true,
+    });
+
     // Show the notification!
     Cc["@mozilla.org/alerts-service;1"]
       .getService(Ci.nsIAlertsService)
