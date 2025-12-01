@@ -115,7 +115,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   nsCOMPtr<nsIMsgIdentity> m_identity;
   bool m_composeHTML;
   RefPtr<QuotingOutputStreamListener> mQuoteStreamListener;
-  nsCOMPtr<nsIOutputStream> mBaseStream;
 
   nsCOMPtr<nsIMsgSend> mMsgSend;  // for composition back end
   nsCOMPtr<nsIMsgProgress>
