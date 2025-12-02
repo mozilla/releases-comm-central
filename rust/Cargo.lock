@@ -2552,6 +2552,7 @@ dependencies = [
  "urlpattern",
  "urlpattern_glue",
  "viaduct",
+ "viaduct-necko",
  "webext-storage",
  "webrender_bindings",
  "wgpu_bindings",
@@ -6835,6 +6836,17 @@ dependencies = [
  "thiserror 2.0.12",
  "uniffi",
  "url",
+]
+
+[[package]]
+name = "viaduct-necko"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "error-support",
+ "futures-channel",
+ "url",
+ "viaduct",
 ]
 
 [[package]]
