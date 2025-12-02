@@ -5,7 +5,9 @@
 
 #include "nsLocalMailFolder.h"
 
+#include "nsIScriptError.h"
 #include "nsISeekableStream.h"
+#include "nsPrintfCString.h"
 #include "prlog.h"
 #include "CopyMessageStreamListener.h"
 #include "FolderCompactor.h"
@@ -201,7 +203,19 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
 
   // Start the parsing.
   rv = indexer->GoIndex(this, progressFn, completionFn);
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    nsAutoCString prettyPath;
+    GetPrettyPath(prettyPath);
+    nsPrintfCString msg("Unable to build summary file for %s (error 0x%08X).",
+                        prettyPath.get(), static_cast<uint32_t>(rv));
+    NS_WARNING(msg.get());
+    msg.Append("\nRepairing the folder may fix this issue."_ns);
+    MsgLogToConsole4(NS_ConvertUTF8toUTF16(msg), nsCString(__FILE__), __LINE__,
+                     nsIScriptError::errorFlag);
+    if (listener) listener->OnStopRunningUrl(nullptr, rv);
+    return rv;
+  }
+
   m_parsingFolder = true;
   mReparseListener = listener;
 

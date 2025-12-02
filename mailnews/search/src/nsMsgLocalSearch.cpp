@@ -701,8 +701,13 @@ NS_IMETHODIMP nsMsgSearchOfflineMail::OnStopRunningUrl(nsIURI* url,
                                                        nsresult aExitCode) {
   nsCOMPtr<nsIMsgSearchSession> searchSession;
   if (m_scope) m_scope->GetSearchSession(getter_AddRefs(searchSession));
-  if (searchSession) searchSession->ResumeSearch();
-
+  if (searchSession) {
+    if (NS_FAILED(aExitCode)) {
+      nsresult rv = searchSession->SkipSearch();
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+    searchSession->ResumeSearch();
+  }
   return NS_OK;
 }
 

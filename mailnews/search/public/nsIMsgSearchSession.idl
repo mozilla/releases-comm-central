@@ -116,6 +116,11 @@ interface nsIMsgSearchSession :  nsISupports {
   // current adapter is not using a timer.
   void pauseSearch();
   void resumeSearch();
+  /**
+   * If reparsing a local folder failed, this should be called to skip the
+   * current scope. This enables resuming the search safely.
+   */
+  void skipSearch();
 
   boolean MatchHdr(in nsIMsgDBHdr aMsgHdr, in nsIMsgDatabase aDatabase);
 

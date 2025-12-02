@@ -248,21 +248,29 @@ NS_IMETHODIMP nsMsgSearchSession::InterruptSearch() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSearchSession::PauseSearch() {
-  if (m_backgroundTimer) {
-    m_backgroundTimer->Cancel();
-    m_searchPaused = true;
-    return NS_OK;
-  } else
+NS_IMETHODIMP nsMsgSearchSession::SkipSearch() {
+  if (!m_searchPaused || m_idxRunningScope >= m_scopeList.Length()) {
     return NS_ERROR_FAILURE;
+  }
+
+  ReleaseFolderDBRef();
+  ++m_idxRunningScope;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgSearchSession::PauseSearch() {
+  if (!m_backgroundTimer) return NS_ERROR_FAILURE;
+
+  m_backgroundTimer->Cancel();
+  m_searchPaused = true;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgSearchSession::ResumeSearch() {
-  if (m_searchPaused) {
-    m_searchPaused = false;
-    return StartTimer();
-  } else
-    return NS_ERROR_FAILURE;
+  if (!m_searchPaused) return NS_ERROR_FAILURE;
+
+  m_searchPaused = false;
+  return StartTimer();
 }
 
 NS_IMETHODIMP nsMsgSearchSession::GetNumResults(int32_t* aNumResults) {
