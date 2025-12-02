@@ -106,7 +106,10 @@
                     checked="true"
                     persist="checked"/>
           <spacer style="flex: 10 10;"/>
-          <button label="&resetButton.label;" oncommand="onResetSearch(event);" accesskey="&resetButton.accesskey;"/>
+          <button id="clear-button"
+                  label="&resetButton.label;"
+                  oncommand="onResetSearch(event);"
+                  accesskey="&resetButton.accesskey;"/>
         </hbox>
         <hbox align="center">
           <checkbox id="checkSearchOnline"
@@ -342,8 +345,8 @@
 
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
     <label id="statusText" class="statusbarpanel" crop="end" flex="1"/>
-    <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="collapsed">
-      <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
+    <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" hidden="hidden">
+      <html:progress class="progressmeter-statusbar" id="statusbar-icon"/>
     </hbox>
   </hbox>
 </html:body>

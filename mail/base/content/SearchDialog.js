@@ -9,8 +9,6 @@
 /* globals validateFileName */ // From utilityOverlay.js
 /* globals messageFlavorDataProvider */ // From messenger.js
 
-/* globals nsMsgStatusFeedback */ // From mailWindow.js
-
 "use strict";
 
 ChromeUtils.importESModule("chrome://messenger/content/treecol-image.mjs", {
@@ -38,10 +36,12 @@ var gCurrentFolder;
 var gFolderDisplay;
 
 var gFolderPicker;
-var gStatusFeedback;
+var gStatusText;
+
 var gSearchBundle;
 
 var gSearchStopButton;
+var gClearButton;
 
 // Should we try to search online?
 var gSearchOnline = false;
@@ -992,6 +992,12 @@ SearchFolderDisplayWidget.prototype = {
   _showThreadPane() {},
 
   onSearching(aIsSearching) {
+    const progressBar = document.getElementById("statusbar-icon");
+    const progressBarContainer = document.getElementById(
+      "statusbar-progresspanel"
+    );
+    gClearButton.disabled = aIsSearching;
+    progressBarContainer.hidden = !aIsSearching;
     if (aIsSearching) {
       // Search button becomes the "stop" button
       gSearchStopButton.setAttribute(
@@ -1005,10 +1011,11 @@ SearchFolderDisplayWidget.prototype = {
 
       // update our toolbar equivalent
       UpdateMailSearch("new-search");
-      // spin the meteors
-      gStatusFeedback._startMeteors();
-      // tell the user that we're searching
-      gStatusFeedback.showStatusString(
+      // Set progress indicator to indeterminate state.
+      progressBar.removeAttribute("value");
+      // Tell the user that we're searching.
+      gStatusText.setAttribute(
+        "value",
         gSearchBundle.GetStringFromName("searchingMessage")
       );
     } else {
@@ -1024,9 +1031,9 @@ SearchFolderDisplayWidget.prototype = {
 
       // update our toolbar equivalent
       UpdateMailSearch("done-search");
-      // stop spinning the meteors
-      gStatusFeedback._stopMeteors();
-      // set the result test
+      // Reset progress indicator.
+      progressBar.value = 0;
+      // Show the result of the search.
       this.updateStatusResultText();
     }
   },
@@ -1057,7 +1064,7 @@ SearchFolderDisplayWidget.prototype = {
       statusMsg = statusMsg.replace("#1", rowCount);
     }
 
-    gStatusFeedback.showStatusString(statusMsg);
+    gStatusText.setAttribute("value", statusMsg);
   },
 };
 
@@ -1125,6 +1132,7 @@ function searchOnUnload() {
 function initializeSearchWindowWidgets() {
   gFolderPicker = document.getElementById("searchableFolders");
   gSearchStopButton = document.getElementById("search-button");
+  gClearButton = document.getElementById("clear-button");
   hideMatchAllItem();
 
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
@@ -1132,8 +1140,7 @@ function initializeSearchWindowWidgets() {
   );
   msgWindow.domWindow = window;
 
-  gStatusFeedback = new nsMsgStatusFeedback();
-  msgWindow.statusFeedback = gStatusFeedback;
+  gStatusText = document.getElementById("statusText");
 
   // functionality to enable/disable buttons using nsSearchResultsController
   // depending of whether items are selected in the search results thread pane.
@@ -1151,7 +1158,7 @@ function onResetSearch(event) {
   onReset(event);
   gFolderDisplay.view.search.clear();
 
-  gStatusFeedback.showStatusString("");
+  gStatusText.setAttribute("value", "");
 }
 
 function updateSearchFolderPicker(folder) {
