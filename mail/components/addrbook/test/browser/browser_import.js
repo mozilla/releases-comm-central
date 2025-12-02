@@ -24,7 +24,7 @@ let pickerFilters = [];
 add_setup(async function () {
   abWindow = await openAddressBookWindow();
 
-  MockFilePicker.init(window.browsingContext);
+  MockFilePicker.init(abWindow.browsingContext);
 
   registerCleanupFunction(async function () {
     MockFilePicker.cleanup();
@@ -63,18 +63,36 @@ async function startImport() {
   const directoriesPane = importDoc.getElementById("addr-book-directories");
   const summaryPane = importDoc.getElementById("addr-book-summary");
 
-  Assert.ok(BrowserTestUtils.isVisible(sourcesPane));
-  Assert.ok(BrowserTestUtils.isHidden(fieldMapPane));
-  Assert.ok(BrowserTestUtils.isHidden(directoriesPane));
-  Assert.ok(BrowserTestUtils.isHidden(summaryPane));
+  Assert.ok(
+    BrowserTestUtils.isVisible(sourcesPane),
+    "#addr-book-sources should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(fieldMapPane),
+    "#addr-book-csvFieldMap should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(directoriesPane),
+    "#addr-book-directories shoudl be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(summaryPane),
+    "#addr-book-summary should be hidden"
+  );
+  await new Promise(resolve => abWindow.requestIdleCallback(resolve));
 }
 
-function chooseFileType(type) {
-  const sourcesPane = importDoc.getElementById("addr-book-sources");
-  const radio = sourcesPane.querySelector(
-    `input[type="radio"][value="${type}"]`
+/**
+ * Choose file type.
+ *
+ * @param {string} type - The file type, like "vcard", "csv", "ldif".
+ */
+async function chooseFileType(type) {
+  const radio = importDoc.querySelector(
+    `#addr-book-sources input[type="radio"][value="${type}"]`
   );
   EventUtils.synthesizeMouseAtCenter(radio, {}, importWin);
+  await TestUtils.waitForTick();
   Assert.ok(radio.checked, `${type} radio should be checked`);
 }
 
@@ -233,7 +251,7 @@ add_task(async function testImportCSV() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([csvFile]);
   listenForFilters();
-  chooseFileType("csv");
+  await chooseFileType("csv");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await TestUtils.waitForCondition(
@@ -305,7 +323,7 @@ add_task(async function testImportLDIF() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([ldifFile]);
   listenForFilters();
-  chooseFileType("ldif");
+  await chooseFileType("ldif");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.ldif", "*.*"], ldifFile.path);
@@ -339,7 +357,7 @@ add_task(async function testImportVCard() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([vCardFile]);
   listenForFilters();
-  chooseFileType("vcard");
+  await chooseFileType("vcard");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   const newBookPromise = TestUtils.topicObserved("addrbook-directory-created");
@@ -381,7 +399,7 @@ add_task(async function testImportSQLite() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([sqliteFile]);
   listenForFilters();
-  chooseFileType("sqlite");
+  await chooseFileType("sqlite");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.sqlite", "*.*"], sqliteFile.path);
@@ -415,7 +433,7 @@ add_task(async function testImportMAB() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([mabFile]);
   listenForFilters();
-  chooseFileType("mab");
+  await chooseFileType("mab");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(historyBook.dirPrefId, ["*.mab", "*.*"], mabFile.path);
