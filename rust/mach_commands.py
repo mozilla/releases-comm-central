@@ -57,3 +57,14 @@ def check_upstream(command_context):
     from rocbuild.rust import verify_vendored_dependencies
 
     verify_vendored_dependencies(command_context.topsrcdir)
+
+
+@SubCommand(
+    "tb-rust",
+    "cleanup",
+    description="CLeanup the local Rust vendor directory.",
+)
+def cleanup_rust_vendor(command_context):
+    from rocbuild.rust import cleanup_vendor
+
+    cleanup_vendor(command_context)
