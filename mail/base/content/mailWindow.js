@@ -1120,10 +1120,14 @@ window.addEventListener("aboutMessageLoaded", event => {
   });
 });
 
-// Listener to correctly set the busy flag on the webBrowser in about:3pane. All
-// other content tabs are handled by tabmail.js.
 contentProgress.addListener({
-  onStateChange(browser, webProgress, request, stateFlags, statusCode) {
+  onLocationChange() {
+    // Clear any URL for a hovered link that is displayed in the status bar.
+    window.MsgStatusFeedback.setOverLink("");
+  },
+  // Listener to correctly set the busy flag on the webBrowser in about:3pane. All
+  // other content tabs are handled by tabmail.js.
+  onStateChange(browser, _webProgress, _request, stateFlags, statusCode) {
     // Skip if this is not the webBrowser in about:3pane.
     if (browser.id != "webBrowser") {
       return;
