@@ -50,10 +50,7 @@ const folderPaneContextData = {
     "multiselect-plain",
     "multiselect",
   ],
-  "folderPaneContext-compactAll": [
-    "server",
-    "rssRoot",
-  ],
+  "folderPaneContext-compactAll": ["server", "rssRoot"],
   "folderPaneContext-markMailFolderAllRead": [
     ...realFolders,
     "virtual",
