@@ -46,11 +46,13 @@ const folderPaneContextData = {
   ],
   "folderPaneContext-copyMenu": ["plain", "rssFeed", "multiselect-plain"],
   "folderPaneContext-compact": [
+    ...realFolders,
+    "multiselect-plain",
+    "multiselect",
+  ],
+  "folderPaneContext-compactAll": [
     "server",
     "rssRoot",
-    ...realFolders,
-    "multiselect",
-    "multiselect-plain",
   ],
   "folderPaneContext-markMailFolderAllRead": [
     ...realFolders,

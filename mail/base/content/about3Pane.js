@@ -237,6 +237,7 @@ var folderPaneContextMenu = {
     "folderPaneContext-remove": "cmd_deleteFolder",
     "folderPaneContext-rename": "cmd_renameFolder",
     "folderPaneContext-compact": "cmd_compactFolder",
+    "folderPaneContext-compactAll": "cmd_compactFolder",
     "folderPaneContext-properties": "cmd_properties",
     "folderPaneContext-favoriteFolder": "cmd_toggleFavoriteFolder",
   },
@@ -333,6 +334,68 @@ var folderPaneContextMenu = {
     }
 
     if (this._commandStates !== null) {
+      // This occurs on right-click folder context or File menu for each of the
+      // commands. It determines if command is made visible in folder context
+      // list or is grayed-out or active in File menu. Also sets the plural,
+      // singular variant fluent strings in folder context and File menu.
+      if (command == "cmd_compactFolder") {
+        // Set variant fluent strings once per menu popup occurrence. So only
+        // doing this on cmd_compactFolders which happens once per popup.
+        const folders = [...folderTree.selection.values()].map(row =>
+          MailServices.folderLookup.getFolderForURL(row.uri)
+        );
+        // Determine the proper "compact" string for File menu. Always only
+        // show one or the other, never both.
+        const folder = top.window.document.getElementById("menu_compactFolder");
+        const server = top.window.document.getElementById(
+          "menu_compactFolderAll"
+        );
+
+        if (
+          (folders.length && folders[0].isServer && !this._overrideFolder) ||
+          (this._overrideFolder && this._overrideFolder.isServer)
+        ) {
+          // One or more servers are selected and user has opened File menu or
+          // opened folder context on a selected server. Also occurs when folder
+          // context is opened on a not-selected (overridden) server. Show only
+          // the string indicating to act on ALL folders for the selected
+          // server(s).
+          folder.hidden = true;
+          server.hidden = false;
+        } else {
+          let count;
+          if (folders.length > 1 && !this._overrideFolder) {
+            // More than one folders are selected and user has opened File menu
+            // or opened folder context on any selected folder.
+            count = folders.length; // Show plural
+          } else {
+            // A single folder is selected and user has opened File menu or
+            // opened folder context on the selected folder. Also occurs when
+            // folder context is opened on any not-selected (overridden)
+            // non-server folder.
+            count = 1; // Show singular
+          }
+          // Only show only the string to act on selected folders, not servers.
+          folder.hidden = false;
+          server.hidden = true;
+
+          // Set the fluent strings based on count value, 1 => singular,
+          // 2 => implies plural.
+          document.l10n.setAttributes(
+            document.getElementById("folderPaneContext-markMailFolderAllRead"),
+            "folder-pane-context-mark-folder-read",
+            { count }
+          );
+          document.l10n.setAttributes(
+            document.getElementById("folderPaneContext-compact"),
+            "folder-pane-context-compact",
+            { count }
+          );
+          top.window.document.l10n.setAttributes(folder, "menu-file-compact", {
+            count,
+          });
+        }
+      }
       return this._commandStates[command];
     }
 
@@ -436,6 +499,7 @@ var folderPaneContextMenu = {
       deletable = true;
     }
 
+    // Sets the boolean state for each command type.
     this._commandStates = {
       cmd_newFolder: online && ((!isNNTP && canCreateSubfolders) || isInbox),
       cmd_deleteFolder:
@@ -504,29 +568,14 @@ var folderPaneContextMenu = {
   },
 
   /**
-   * Update the fluent strings of the context menu items that can be used for
-   * both single and multi selection. We pass a fake integer count to get the
-   * correct string because we might be showing the context menu for the an
-   * override folder that it's outside the current multiselection range, so
-   * relying on the actual selection count is not accurate.
-   *
-   * @param {integer} count - 1 or 2 depending if single or multiselection.
-   */
-  updateFluentStrings(count) {
-    document.l10n.setAttributes(
-      document.getElementById("folderPaneContext-markMailFolderAllRead"),
-      "folder-pane-context-mark-folder-read",
-      { count }
-    );
-  },
-
-  /**
    * Update the folder pane popup to show only the available actions supported
    * during a single folder selection state.
+   * Note: Plural/singular fluent strings now updated in getCommandState() so
+   * File popup menu is also updated. updatePopupForSingleSelection only updates
+   * folder context menu.
    */
   updatePopupForSingleSelection() {
     this.updatePopupCommandStates();
-    this.updateFluentStrings(1);
 
     const folder = this.activeFolder;
     const { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
@@ -631,6 +680,13 @@ var folderPaneContextMenu = {
     );
     this._showMenuItem("folderPaneContext-markAllFoldersRead", isServer);
 
+    // Determine proper "compact" string for folder context menu.
+    // Compact folder and compact all folders on a server are mutually exclusive.
+    if (this._commandStates?.cmd_compactFolder) {
+      this._showMenuItem("folderPaneContext-compact", !isServer);
+      this._showMenuItem("folderPaneContext-compactAll", isServer);
+    }
+
     this._showMenuItem("folderPaneContext-settings", isServer);
     this._showMenuItem("folderPaneContext-filters", isServer);
 
@@ -675,6 +731,9 @@ var folderPaneContextMenu = {
   /**
    * Update the folder pane popup to show only the available actions supported
    * during a multiselection state.
+   * Note: Plural/singular fluent strings now updated in getCommandState() so
+   * File popup menu is also updated. updatePopupForMultiselection only updates
+   * folder context menu.
    */
   updatePopupForMultiselection() {
     // Hide all menuitems to start from a clean state, except the separators.
@@ -688,7 +747,6 @@ var folderPaneContextMenu = {
     // Update the command states after we've hidden all the menuitems so we can
     // show only those that are active.
     this.updatePopupCommandStates();
-    this.updateFluentStrings(folderTree.selection.size);
 
     // Hide anything we know for sure we don't need in multiselection.
     this._showMenuItem("folderPaneContext-getMessages", false);
@@ -736,6 +794,15 @@ var folderPaneContextMenu = {
     // the selection range.
     this._showMenuItem("folderPaneContext-moveMenu", !hasSpecial && online);
     this._showMenuItem("folderPaneContext-copyMenu", !hasSpecial && online);
+
+    // Compact folders and compact all folders on servers are mutually exclusive.
+    if (this._commandStates.cmd_compactFolder) {
+      const isServer = folders.some(folder => {
+        return folder.isServer;
+      });
+      this._showMenuItem("folderPaneContext-compact", !isServer);
+      this._showMenuItem("folderPaneContext-compactAll", isServer);
+    }
 
     this._refreshMenuSeparator();
   },
@@ -6896,11 +6963,29 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_compactFolder",
   (folder = gFolder) => {
-    if (folder.isServer) {
-      folderPane.compactAllFoldersForAccount(folder);
-      return;
+    if (folder) {
+      if (folder.isServer) {
+        folderPane.compactAllFoldersForAccount(folder);
+        return;
+      }
+      folderPane.compactFolder(folder);
+    } else {
+      // gFolder is not defined and the folder is null, which means a File menu
+      // was selected for a multiselection of folders. Loop through all
+      // currently selected folders and do the appropriate compaction operation
+      // for individual folders or all folders in selected server (root)
+      // folders.
+      const folders = [...folderTree.selection.values()].map(row =>
+        MailServices.folderLookup.getFolderForURL(row.uri)
+      );
+      for (const selectedFolder of folders) {
+        if (selectedFolder.isServer) {
+          folderPane.compactAllFoldersForAccount(selectedFolder);
+        } else {
+          folderPane.compactFolder(selectedFolder);
+        }
+      }
     }
-    folderPane.compactFolder(folder);
   },
   () => folderPaneContextMenu.getCommandState("cmd_compactFolder")
 );

@@ -54,7 +54,10 @@ const fileMenuData = {
   menu_renameFolder: { disabled: true, hidden: ["mailMessageWindow"] },
   menu_compactFolder: {
     disabled: ["mailMessageTab", "contentTab"],
-    hidden: ["mailMessageWindow"],
+    hidden: ["mailMessageWindow", "mail3PaneTab"],
+  },
+  menu_compactFolderAll: {
+    hidden: ["mailMessageWindow", "mailMessageTab", "contentTab"],
   },
   menu_emptyTrash: {
     disabled: ["mailMessageTab", "contentTab"],

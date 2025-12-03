@@ -401,6 +401,11 @@ function HideMenus() {
     compactFolderMenu.toggleAttribute("hidden", true);
   }
 
+  var compactFolderAllMenu = document.getElementById("menu_compactFolderAll");
+  if (compactFolderAllMenu) {
+    compactFolderAllMenu.toggleAttribute("hidden", true);
+  }
+
   const trashSeparator = document.getElementById("trashMenuSeparator");
   if (trashSeparator) {
     trashSeparator.toggleAttribute("hidden", true);

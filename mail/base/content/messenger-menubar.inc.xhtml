@@ -176,8 +176,12 @@
 #endif
               command="cmd_renameFolder"/>
       <menuitem id="menu_compactFolder"
-                label="&compactFolders.label;"
-                accesskey="&compactFolders.accesskey;"
+                data-l10n-id="menu-file-compact"
+                data-l10n-args='{"count": 1}'
+                command="cmd_compactFolder"/>
+      <menuitem id="menu_compactFolderAll"
+                data-l10n-id="menu-file-compact-all"
+                hidden="hidden"
                 command="cmd_compactFolder"/>
       <menuitem id="menu_emptyTrash" label="&emptyTrashCmd.label;"
               accesskey="&emptyTrashCmd.accesskey;"
