@@ -596,3 +596,8 @@ nsLDAPURL::Mutate(nsIURIMutator** aMutator) {
   mutator.forget(aMutator);
   return NS_OK;
 }
+
+size_t nsLDAPURL::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) {
+  // We don't need to calcaulte this unless something requires it.
+  return 0;
+};

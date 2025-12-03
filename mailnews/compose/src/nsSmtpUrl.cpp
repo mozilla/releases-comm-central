@@ -580,6 +580,11 @@ nsresult nsMailtoUrl::NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
   return NS_OK;
 }
 
+size_t nsMailtoUrl::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) {
+  // We don't need to calcaulte this unless something requires it.
+  return 0;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////
 // smtp url definition
 /////////////////////////////////////////////////////////////////////////////////////
