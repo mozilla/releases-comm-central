@@ -45,6 +45,12 @@ skip-if = [
 
 ["test_qrExport.js"]
 
+["test_state_preferenceSlice.js"]
+
+["test_state_store.js"]
+
+["test_state_xulStoreSlice.js"]
+
 ["test_treeDataAdapter.js"]
 tags = ["dataadapter"]
 

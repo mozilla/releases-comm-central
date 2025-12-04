@@ -10,6 +10,12 @@ JAR_MANIFESTS += ["jar.mn"]
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "General")
 
+MOZ_SRC_FILES += [
+    "content/state/preferenceSlice.mjs",
+    "content/state/store.mjs",
+    "content/state/xulStoreSlice.mjs",
+]
+
 DEFINES["PRE_RELEASE_SUFFIX"] = ""
 DEFINES["MOZ_APP_VERSION"] = CONFIG["MOZ_APP_VERSION"]
 DEFINES["MOZ_APP_VERSION_DISPLAY"] = CONFIG["MOZ_APP_VERSION_DISPLAY"]
