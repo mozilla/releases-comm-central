@@ -28,6 +28,10 @@
   vertical-align: text-bottom;
 }
 
+.major-section {
+  font-size: 1.5em;
+}
+
 .gray-text {
   color: #888;
 }
