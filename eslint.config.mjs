@@ -458,6 +458,13 @@ export default [
       "mozilla/no-more-globals": "error",
     },
   },
+  {
+    name: "redux-immutable-slices",
+    files: ["**/*Slice.mjs"],
+    rules: {
+      "no-param-reassign": ["error", { props: false }],
+    },
+  },
   /**
    * The items below should always be the last items in this order:
    *
