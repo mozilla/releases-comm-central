@@ -24,8 +24,6 @@ interface nsIURI;
 
 [scriptable, uuid(577ead34-553e-4cd6-b484-76ff6662082d)]
 interface nsIMsgMailSession : nsISupports {
-  void Shutdown();
-
   /**
    * Adds a listener to be notified when folders update.
    *

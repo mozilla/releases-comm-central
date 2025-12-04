@@ -42,7 +42,7 @@ NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
 nsMsgMailSession::nsMsgMailSession() {}
 
-nsMsgMailSession::~nsMsgMailSession() { Shutdown(); }
+nsMsgMailSession::~nsMsgMailSession() { }
 
 nsresult nsMsgMailSession::Init() {
   // Ensures the shutdown service is initialised
@@ -51,8 +51,6 @@ nsresult nsMsgMailSession::Init() {
       do_GetService("@mozilla.org/messenger/msgshutdownservice;1", &rv);
   return rv;
 }
-
-nsresult nsMsgMailSession::Shutdown() { return NS_OK; }
 
 NS_IMETHODIMP nsMsgMailSession::AddFolderListener(nsIFolderListener* aListener,
                                                   uint32_t aNotifyFlags) {
