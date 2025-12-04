@@ -34,7 +34,7 @@ add_setup(async () => {
   do_get_profile();
 
   // FOG needs to be initialized in order for data to flow.
-  Services.fog.initializeFOG();
+  Services.fog.initializeFOG(undefined, "thunderbird.desktop");
 
   const server = new HttpServer();
   const raw = await IOUtils.readUTF8(

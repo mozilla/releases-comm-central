@@ -10,7 +10,7 @@ add_setup(function test_setup() {
   do_get_profile();
 
   // FOG needs to be initialized in order for data to flow.
-  Services.fog.initializeFOG();
+  Services.fog.initializeFOG(undefined, "thunderbird.desktop");
 });
 
 /**
