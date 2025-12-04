@@ -19,6 +19,9 @@ var {
   getActualSelectedMessages,
   getMsgHdrsForIndex,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionMailTabs.sys.mjs");
+var { sortMessages } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
+);
 var { ThreadPaneColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
@@ -580,28 +583,44 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           return updateMailTab(nativeTab, properties);
         },
 
-        async getListedMessages(tabId) {
-          const addListedMessages = async (dbView, messageList) => {
-            for (let i = 0; i < dbView.rowCount; i++) {
-              await messageList.addMessage(dbView.getMsgHdrAt(i));
+        async getListedMessages(tabId, options) {
+          const tab = await getTabOrActive(tabId);
+          const dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
+          if (!dbView) {
+            return messageListTracker.startList([], extension);
+          }
+
+          // Get the messages in the current view, and sort them as requested
+          // before returning them.
+          if (options?.sortType) {
+            const getMessages = () => {
+              const msgHdrs = [];
+              for (let i = 0; i < dbView.rowCount; i++) {
+                msgHdrs.push(dbView.getMsgHdrAt(i));
+              }
+              return msgHdrs;
+            };
+            const messages = getMessages();
+            return messageListTracker.startList(
+              sortMessages(messages, options, messageTracker),
+              extension
+            );
+          }
+
+          // Get the messages from the current view and return pages as fast as
+          // possible. The view could contain a lot of messages and looping over
+          // them could take some time. Instead of creating a static list of all
+          // messages, we push messages as soon as they are known and return pages
+          // as soon as they are filled. This is the same mechanism used for queries.
+          const addMessages = async (_dbView, messageList) => {
+            for (let i = 0; i < _dbView.rowCount; i++) {
+              await messageList.addMessage(_dbView.getMsgHdrAt(i));
             }
             messageList.done();
           };
-
-          const tab = await getTabOrActive(tabId);
-          const dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
-          if (dbView) {
-            // The view could contain a lot of messages and looping over them
-            // could take some time. Do not create a static list which pushes
-            // all messages at once into the list, but push messages as soon as
-            // they are known and return pages as soon as they are filled. This
-            // is the same mechanism used for queries.
-            const messageList = messageListTracker.createList(extension);
-            setTimeout(() => addListedMessages(dbView, messageList));
-            return messageListTracker.getNextPage(messageList);
-          }
-
-          return messageListTracker.startList([], extension);
+          const messageList = messageListTracker.createList(extension);
+          setTimeout(() => addMessages(dbView, messageList));
+          return messageListTracker.getNextPage(messageList);
         },
 
         async getSelectedFolders(tabId) {

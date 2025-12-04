@@ -334,11 +334,20 @@ async function createMessages(folder, makeMessagesArg) {
 }
 
 async function createMessageFromFile(folder, path) {
-  let message = await IOUtils.readUTF8(path);
+  const message = await IOUtils.readUTF8(path);
+  await addGeneratedMessage(folder, message);
+}
 
+async function createMessageFromString(folder, message) {
+  await addGeneratedMessage(folder, message);
+}
+
+async function addGeneratedMessage(folder, message) {
   // A cheap hack to make this acceptable to addMessageBatch. It works for
   // existing uses but may not work for future uses.
-  const fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
+  const fromAddress = message.match(
+    /From:\s*(?:.*<)?([^\s<>]+@[^\s<>]+)(?:>)?/i
+  )[0];
   message = `From ${fromAddress}\r\n${message}`;
 
   if (folder.server.type == "imap" && gIMAPServers.has(folder.server.key)) {

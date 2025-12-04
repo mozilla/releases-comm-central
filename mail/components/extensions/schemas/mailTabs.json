@@ -398,7 +398,7 @@
       {
         "name": "getListedMessages",
         "type": "function",
-        "description": "Lists the messages in the current view, honoring sort order and filters.",
+        "description": "Lists the messages in the current view, honoring sort order and filters as used in the UI. Sort order of the returned messages can be overridden via the <var>options</var> parameter",
         "permissions": ["messagesRead"],
         "async": "callback",
         "parameters": [
@@ -408,6 +408,37 @@
             "description": "Defaults to the active tab of the current window.",
             "optional": true,
             "minimum": 1
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "sortType": {
+                "type": "string",
+                "description": "Specifies how the returned messages should be sorted. This does not change the actual sort of the displayed messages. Default sort order is <var>descending</var>, if not specified otherwise. Returning sorted messages is faster than manually sorting the messages afterwards, but slower than returning the messages in their original order.",
+                "optional": true,
+                "enum": [
+                  "author",
+                  "date",
+                  "flagged",
+                  "junk",
+                  "junkScore",
+                  "priority",
+                  "read",
+                  "recipients",
+                  "size",
+                  "subject",
+                  "tags"
+                ]
+              },
+              "sortOrder": {
+                "type": "string",
+                "optional": true,
+                "description": "The sort order for the returned messages. Ignored if <var>sortType</var> is not specified.",
+                "enum": ["ascending", "descending"]
+              }
+            }
           },
           {
             "type": "function",

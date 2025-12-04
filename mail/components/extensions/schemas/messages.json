@@ -450,7 +450,7 @@
             "properties": {
               "sortType": {
                 "type": "string",
-                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise.",
+                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise. Returning sorted messages is faster than manually sorting the messages afterwards, but slower than returning the messages in their original order.",
                 "optional": true,
                 "enum": [
                   "author",
@@ -513,7 +513,7 @@
             "properties": {
               "sortType": {
                 "type": "string",
-                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise.",
+                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise. Returning sorted messages is faster than manually sorting the messages afterwards, but slower than returning the messages in their original order.",
                 "optional": true,
                 "enum": [
                   "author",
