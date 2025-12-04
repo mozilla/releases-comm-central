@@ -17,26 +17,8 @@ function doAttachmentUrlTest() {
   Assert.equal(attachment.url, nonAsciiUrl);
 }
 
-function doPrettyNameTest() {
-  // handles non-ascii url in nsIMsgCompose
-
-  const msgCompose = Cc[
-    "@mozilla.org/messengercompose/compose;1"
-  ].createInstance(Ci.nsIMsgCompose);
-  const params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-  msgCompose.initialize(params);
-
-  Assert.equal(
-    msgCompose.AttachmentPrettyName(nonAsciiUrl, null),
-    prettyResult
-  );
-}
-
 function run_test() {
   doAttachmentUrlTest();
-  doPrettyNameTest();
 
   do_test_finished();
 }

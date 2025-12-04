@@ -4054,39 +4054,6 @@ nsresult nsMsgCompose::NotifyStateListeners(int32_t aNotificationType,
   return NS_OK;
 }
 
-nsresult nsMsgCompose::AttachmentPrettyName(const nsACString& scheme,
-                                            const char* charset,
-                                            nsACString& _retval) {
-  nsresult rv;
-
-  if (StringHead(scheme, 5).LowerCaseEqualsLiteral("file:")) {
-    nsCOMPtr<nsIFile> file;
-    rv = NS_GetFileFromURLSpec(scheme, getter_AddRefs(file));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoString leafName;
-    rv = file->GetLeafName(leafName);
-    NS_ENSURE_SUCCESS(rv, rv);
-    CopyUTF16toUTF8(leafName, _retval);
-    return rv;
-  }
-
-  nsCOMPtr<nsITextToSubURI> textToSubURI =
-      do_GetService(NS_ITEXTTOSUBURI_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoString retUrl;
-  rv = textToSubURI->UnEscapeURIForUI(scheme, retUrl);
-
-  if (NS_SUCCEEDED(rv)) {
-    CopyUTF16toUTF8(retUrl, _retval);
-  } else {
-    _retval.Assign(scheme);
-  }
-  if (StringHead(scheme, 5).LowerCaseEqualsLiteral("http:")) _retval.Cut(0, 7);
-
-  return NS_OK;
-}
-
 /**
  * Retrieve address book directories and mailing lists.
  *

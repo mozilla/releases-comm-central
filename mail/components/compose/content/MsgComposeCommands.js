@@ -8285,7 +8285,9 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
     }
 
     if (!attachment.name) {
-      attachment.name = gMsgCompose.AttachmentPrettyName(attachment.url, null);
+      attachment.name = attachment.url.startsWith("file://")
+        ? decodeURIComponent(attachment.url.split("/").pop())
+        : attachment.url;
     }
 
     // For security reasons, don't allow *-message:// uris to leak out.
@@ -10281,7 +10283,9 @@ var envelopeDragObserver = {
       link.setAttribute("href", attachment.url);
       link.textContent =
         attachment.name ||
-        gMsgCompose.AttachmentPrettyName(attachment.url, null);
+        (attachment.url.startsWith("file://")
+          ? decodeURIComponent(attachment.url.split("/").pop())
+          : attachment.url);
       editor.insertElementAtSelection(link, true);
     }
   },

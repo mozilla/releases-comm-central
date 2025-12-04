@@ -21,10 +21,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var kAttachmentsAdded = "attachments-added";
-var kAttachmentsRemoved = "attachments-removed";
-var kAttachmentRenamed = "attachment-renamed";
-
 add_setup(async function () {
   const account = MailServices.accounts.createAccount();
   const identity = MailServices.accounts.createIdentity();
@@ -58,10 +54,10 @@ add_task(async function test_attachments_added_on_single() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsAdded, listener);
+    .addEventListener("attachments-added", listener);
 
   // Attach a single file
-  await add_attachments(cw, "http://www.example.com/1", 0, false);
+  await add_attachments(cw, "file://tmp/foo/g%C3%B6tt.txt", 0, false);
 
   // Make sure we only saw the event once
   Assert.equal(1, eventCount);
@@ -69,23 +65,28 @@ add_task(async function test_attachments_added_on_single() {
   // Make sure that we were passed the right subject
   let subjects = lastEvent.detail;
   Assert.equal(1, subjects.length);
-  Assert.equal("http://www.example.com/1", subjects[0].url);
+  Assert.equal("gött.txt", subjects[0].name, "name should be correct");
+  Assert.equal(
+    "file://tmp/foo/g%C3%B6tt.txt",
+    subjects[0].url,
+    "url should be correct"
+  );
 
   // Make sure that we can get that event again if we
   // attach more files.
-  await add_attachments(cw, "http://www.example.com/2", 0, false);
+  await add_attachments(cw, "http://www.example.com/tv%C3%A5.pdf", 0, false);
   Assert.equal(2, eventCount);
   subjects = lastEvent.detail;
-  Assert.equal("http://www.example.com/2", subjects[0].url);
+  Assert.equal("http://www.example.com/tv%C3%A5.pdf", subjects[0].url);
 
   // And check that we don't receive the event if we try to attach a file
   // that's already attached.
-  await add_attachments(cw, "http://www.example.com/2", null, false);
+  await add_attachments(cw, "http://www.example.com/tv%C3%A5.pdf", null, false);
   Assert.equal(2, eventCount);
 
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsAdded, listener);
+    .removeEventListener("attachments-added", listener);
   await close_compose_window(cw);
 });
 
@@ -104,13 +105,16 @@ add_task(async function test_attachments_added_on_multiple() {
 
   // Prepare the attachments - we store the names in attachmentNames to
   // make sure that we observed the right event subjects later on.
-  let attachmentUrls = ["http://www.example.com/1", "http://www.example.com/2"];
+  let attachmentUrls = [
+    "http://www.example.com/1",
+    "http://www.example.com/tv%C3%A5.pdf ",
+  ];
 
   // Open the compose window and add the attachments
   let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsAdded, listener);
+    .addEventListener("attachments-added", listener);
 
   await add_attachments(cw, attachmentUrls, null, false);
 
@@ -129,12 +133,12 @@ add_task(async function test_attachments_added_on_multiple() {
   // Close the compose window - let's try again with 3 attachments.
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsAdded, listener);
+    .removeEventListener("attachments-added", listener);
   await close_compose_window(cw);
 
   attachmentUrls = [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
     "http://www.example.com/3",
   ];
 
@@ -143,7 +147,7 @@ add_task(async function test_attachments_added_on_multiple() {
   cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsAdded, listener);
+    .addEventListener("attachments-added", listener);
 
   await add_attachments(cw, attachmentUrls, null, false);
   Assert.equal(2, eventCount);
@@ -163,7 +167,7 @@ add_task(async function test_attachments_added_on_multiple() {
 
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsAdded, listener);
+    .removeEventListener("attachments-added", listener);
   await close_compose_window(cw);
 });
 
@@ -184,7 +188,7 @@ add_task(async function test_attachments_removed_on_single() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsRemoved, listener);
+    .addEventListener("attachments-removed", listener);
 
   await add_attachments(cw, "http://www.example.com/1");
 
@@ -203,18 +207,18 @@ add_task(async function test_attachments_removed_on_single() {
 
   // Ok, let's attach it again, and remove it again to ensure that
   // we still see the event.
-  await add_attachments(cw, "http://www.example.com/2");
+  await add_attachments(cw, "http://www.example.com/tv%C3%A5.pdf");
   select_attachments(cw, 0);
   cw.goDoCommand("cmd_delete");
 
   Assert.equal(2, eventCount);
   subjects = lastEvent.detail;
   Assert.equal(1, subjects.length);
-  Assert.equal(subjects[0].url, "http://www.example.com/2");
+  Assert.equal(subjects[0].url, "http://www.example.com/tv%C3%A5.pdf");
 
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsRemoved, listener);
+    .removeEventListener("attachments-removed", listener);
   await close_compose_window(cw);
 });
 
@@ -235,11 +239,11 @@ add_task(async function test_attachments_removed_on_multiple() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsRemoved, listener);
+    .addEventListener("attachments-removed", listener);
 
   await add_attachments(cw, [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
     "http://www.example.com/3",
   ]);
 
@@ -267,7 +271,7 @@ add_task(async function test_attachments_removed_on_multiple() {
   // Ok, let's attach and remove some again to ensure that we still see the event.
   await add_attachments(cw, [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
   ]);
 
   select_attachments(cw, 0, 1);
@@ -276,7 +280,7 @@ add_task(async function test_attachments_removed_on_multiple() {
 
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsRemoved, listener);
+    .removeEventListener("attachments-removed", listener);
   await close_compose_window(cw);
 });
 
@@ -295,11 +299,11 @@ add_task(async function test_no_attachments_removed_on_none() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentsRemoved, listener);
+    .addEventListener("attachments-removed", listener);
 
   await add_attachments(cw, [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
     "http://www.example.com/3",
   ]);
 
@@ -311,7 +315,7 @@ add_task(async function test_no_attachments_removed_on_none() {
   Assert.equal(0, eventCount);
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentsRemoved, listener);
+    .removeEventListener("attachments-removed", listener);
 
   await close_compose_window(cw);
 });
@@ -339,11 +343,11 @@ add_task(async function test_attachment_renamed() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentRenamed, listener);
+    .addEventListener("attachment-renamed", listener);
 
   await add_attachments(cw, [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
     "http://www.example.com/3",
   ]);
 
@@ -373,7 +377,7 @@ add_task(async function test_attachment_renamed() {
   Assert.ok(renamedAttachment1 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo1, renamedAttachment1.name);
   Assert.ok(renamedAttachment1.url.includes("http://www.example.com/1"));
-  Assert.equal("www.example.com/1", originalAttachment1.name);
+  Assert.equal("http://www.example.com/1", originalAttachment1.name);
 
   // Ok, let's try renaming the same attachment.
 
@@ -422,13 +426,15 @@ add_task(async function test_attachment_renamed() {
   const originalAttachment3 = lastEvent.detail;
   Assert.ok(renamedAttachment3 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo3, renamedAttachment3.name);
-  Assert.ok(renamedAttachment3.url.includes("http://www.example.com/2"));
-  Assert.equal("www.example.com/2", originalAttachment3.name);
+  Assert.ok(
+    renamedAttachment3.url.includes("http://www.example.com/tv%C3%A5.pdf")
+  );
+  Assert.equal("http://www.example.com/tv%C3%A5.pdf", originalAttachment3.name);
 
   // Unregister the Mock Prompt service, and remove our observer.
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentRenamed, listener);
+    .removeEventListener("attachment-renamed", listener);
 
   await close_compose_window(cw);
 });
@@ -449,11 +455,11 @@ add_task(async function test_no_attachment_renamed_on_blank() {
   const cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
-    .addEventListener(kAttachmentRenamed, listener);
+    .addEventListener("attachment-renamed", listener);
 
   await add_attachments(cw, [
     "http://www.example.com/1",
-    "http://www.example.com/2",
+    "http://www.example.com/tv%C3%A5.pdf",
     "http://www.example.com/3",
   ]);
 
@@ -476,7 +482,7 @@ add_task(async function test_no_attachment_renamed_on_blank() {
   Assert.equal(0, eventCount);
   cw.document
     .getElementById("attachmentBucket")
-    .removeEventListener(kAttachmentRenamed, listener);
+    .removeEventListener("attachment-renamed", listener);
   await close_compose_window(cw);
 });
 
