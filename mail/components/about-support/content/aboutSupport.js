@@ -331,11 +331,11 @@ var snapshotFormatters = {
       }
     } catch (e) {}
     if (!reportURL) {
-      $("crashes-noConfig").style.display = "block";
+      $("crashes-noConfig").hidden = false;
       $("crashes-noConfig").classList.remove("no-copy");
       return;
     }
-    $("crashes-allReports").style.display = "block";
+    $("crashes-allReports").hidden = false;
 
     if (data.pending > 0) {
       document.l10n.setAttributes(
@@ -650,7 +650,7 @@ var snapshotFormatters = {
       }
       delete data.failures;
     } else {
-      $("graphics-failures-tbody").style.display = "none";
+      $("graphics-failures-tbody").hidden = true;
     }
 
     // Add a new row to the table, and take the key (or keys) out of data.
@@ -780,7 +780,7 @@ var snapshotFormatters = {
       }
 
       if (trs.length == 0) {
-        $("graphics-" + id + "-tbody").style.display = "none";
+        $("graphics-" + id + "-tbody").hidden = true;
         return;
       }
 
@@ -848,7 +848,7 @@ var snapshotFormatters = {
         addRow("decisions", "#" + feature.name, [$.new("table", trs)]);
       }
     } else {
-      $("graphics-decisions-tbody").style.display = "none";
+      $("graphics-decisions-tbody").hidden = true;
     }
 
     if (featureLog.fallbacks.length) {
@@ -858,7 +858,7 @@ var snapshotFormatters = {
         ]);
       }
     } else {
-      $("graphics-workarounds-tbody").style.display = "none";
+      $("graphics-workarounds-tbody").hidden = true;
     }
 
     const crashGuards = data.crashGuards;
@@ -879,7 +879,7 @@ var snapshotFormatters = {
         addRow("crashguards", guard.type + "CrashGuard", [resetButton]);
       }
     } else {
-      $("graphics-crashguards-tbody").style.display = "none";
+      $("graphics-crashguards-tbody").hidden = true;
     }
 
     // Now that we're done, grab any remaining keys in data and drop them into
@@ -996,7 +996,7 @@ var snapshotFormatters = {
       if (
         !Services.prefs.getBoolPref("media.mediacapabilities.from-database")
       ) {
-        $("media-capabilities-tbody").style.display = "none";
+        $("media-capabilities-tbody").hidden = true;
         return;
       }
       const button = $("enumerate-database-button");
@@ -1028,7 +1028,7 @@ var snapshotFormatters = {
               });
           }
 
-          $("enumerate-database-result").style.display = "block";
+          $("enumerate-database-result").hidden = false;
           $("enumerate-database-result").classList.remove("no-copy");
           $("enumerate-database-result").textContent = "";
 
@@ -1146,9 +1146,8 @@ var snapshotFormatters = {
     const userJSFile = Services.dirsvc.get("PrefD", Ci.nsIFile);
     userJSFile.append("user.js");
     $("prefs-user-js-link").href = Services.io.newFileURI(userJSFile).spec;
-    $("prefs-user-js-section").style.display = "";
-    // Clear the no-copy class
-    $("prefs-user-js-section").className = "";
+    $("prefs-user-js-section").hidden = false;
+    $("prefs-user-js-section").classList.remove("no-copy");
   },
 
   sandbox(data) {
@@ -1465,7 +1464,7 @@ Serializer.prototype = {
   },
 
   _isHiddenSubHeading(th) {
-    return th.parentNode.parentNode.style.display == "none";
+    return th.parentNode.parentNode.hidden;
   },
 
   _serializeTable(table) {
@@ -1576,10 +1575,10 @@ function openProfileDirectory() {
  */
 function populateActionBox() {
   if (ResetProfile.resetSupported()) {
-    $("reset-box").style.display = "block";
+    $("reset-box").hidden = false;
   }
   if (!Services.appinfo.inSafeMode && AppConstants.platform !== "android") {
-    $("safe-mode-box").style.display = "block";
+    $("safe-mode-box").hidden = false;
 
     if (Services.policies && !Services.policies.isAllowed("safeMode")) {
       $("restart-in-safe-mode-button").setAttribute("disabled", "true");
@@ -1617,14 +1616,14 @@ function onShowPrivateDataChange() {
  * Set up event listeners for buttons.
  */
 function setupEventListeners() {
-  /* not used by TB
+  /* ResetProfile not used by Thunderbird.
   let button = $("reset-box-button");
   if (button) {
     button.addEventListener("click", function(event) {
       ResetProfile.openConfirmationDialog(window);
     });
   }
-*/
+  */
   let button = $("clear-startup-cache-button");
   if (button) {
     button.addEventListener("click", async function () {
@@ -1712,7 +1711,7 @@ function setupEventListeners() {
           const prefix = value.succeeded ? "+ " : "- ";
           logs = logs.concat(value.logs.map(m => `${prefix}${m}`));
         }
-        $("verify-place-result").style.display = "block";
+        $("verify-place-result").hidden = false;
         $("verify-place-result").classList.remove("no-copy");
         $("verify-place-result").textContent = logs.join("\n");
       });
