@@ -19,6 +19,12 @@
     "resource:///modules/MailUtils.sys.mjs"
   );
 
+  ChromeUtils.defineLazyGetter(
+    this,
+    "l10n",
+    () => new Localization(["messenger/searchWidgets.ftl"], true)
+  );
+
   const updateParentNode = parentNode => {
     if (parentNode.hasAttribute("initialActionIndex")) {
       const actionIndex = parentNode.getAttribute("initialActionIndex");
@@ -507,10 +513,6 @@
   class MozSearchAttribute extends MozSearchMenulistAbstract {
     constructor() {
       super();
-
-      this.stringBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/search-attributes.properties"
-      );
     }
 
     connectedCallback() {
@@ -541,10 +543,10 @@
           "component javascript"
         );
         Services.console.logMessage(scriptError);
-        return this.stringBundle.GetStringFromName("MissingCustomTerm");
+        return l10n.formatValueSync("search-attrib-missing-custom-term");
       }
-      return this.stringBundle.GetStringFromName(
-        this.validityManager.getAttributeProperty(parseInt(this.value))
+      return l10n.formatValueSync(
+        this.validityManager.getAttributeL10nID(parseInt(this.value))
       );
     }
 
@@ -583,8 +585,8 @@
         } else if (ids[i] > Ci.nsMsgSearchAttrib.OtherHeader && hdrsArray) {
           strings[i] = hdrsArray[j++];
         } else {
-          strings[i] = this.stringBundle.GetStringFromName(
-            this.validityManager.getAttributeProperty(ids[i])
+          strings[i] = l10n.formatValueSync(
+            this.validityManager.getAttributeL10nID(ids[i])
           );
         }
       }
@@ -602,10 +604,6 @@
   class MozSearchOperator extends MozSearchMenulistAbstract {
     constructor() {
       super();
-
-      this.stringBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/search-operators.properties"
-      );
     }
 
     connectedCallback() {
@@ -615,7 +613,9 @@
     }
 
     get valueLabel() {
-      return this.stringBundle.GetStringFromName(this.value);
+      return l10n.formatValueSync(
+        this.validityManager.getOperatorL10nID(this.value)
+      );
     }
 
     get valueIds() {
@@ -636,7 +636,9 @@
       const strings = [];
       const ids = this.valueIds;
       for (let i = 0; i < ids.length; i++) {
-        strings[i] = this.stringBundle.GetStringFromID(ids[i]);
+        strings[i] = l10n.formatValueSync(
+          this.validityManager.getOperatorL10nID(ids[i])
+        );
       }
       return strings;
     }
@@ -695,23 +697,14 @@
       MozXULElement.insertFTLIfNeeded("messenger/searchWidgets.ftl");
     }
 
-    static get stringBundle() {
-      if (!this._stringBundle) {
-        this._stringBundle = Services.strings.createBundle(
-          "chrome://messenger/locale/messenger.properties"
-        );
-      }
-      return this._stringBundle;
-    }
-
     /**
      * Create a menulist to be used as the input.
      *
      * @param {object[]} itemDataList - An ordered list of items to add to the
      *   menulist. Each entry must have a 'value' property to be used as the
      *   item value. If the entry has a 'label' property, it will be used
-     *   directly as the item label, otherwise it must identify a bundle string
-     *   using the 'stringId' property.
+     *   directly as the item label, otherwise it must identify an ftl string
+     *   using the 'l10nID' property.
      *
      * @returns {MozMenuList} - The newly created menulist.
      */
@@ -721,16 +714,13 @@
       const menupopup = document.createXULElement("menupopup");
       menupopup.classList.add("search-value-popup");
 
-      const bundle = this.stringBundle;
-
       for (const itemData of itemDataList) {
         const item = document.createXULElement("menuitem");
         item.classList.add("search-value-menuitem");
         if (itemData.l10nID) {
           document.l10n.setAttributes(item, itemData.l10nID);
         } else {
-          item.label =
-            itemData.label || bundle.GetStringFromName(itemData.stringId);
+          item.label = itemData.label;
         }
         item.value = itemData.value;
         menupopup.appendChild(item);
@@ -858,24 +848,42 @@
             // "Junk Status is/isn't/is empty/isn't empty 'Junk'".
             input = this.constructor._createMenulist([
               {
-                value: Ci.nsIJunkMailPlugin.JUNK,
                 l10nID: "search-val-spam",
+                value: Ci.nsIJunkMailPlugin.JUNK,
               },
             ]);
             break;
           case "attachment-status":
             // "Attachment Status is/isn't 'Has Attachments'".
             input = this.constructor._createMenulist([
-              { stringId: "hasAttachments", value: "0" },
+              {
+                l10nID: "search-val-has-attachments",
+                value: "0",
+              },
             ]);
             break;
           case "junk-origin":
             input = this.constructor._createMenulist([
-              { stringId: "junkScoreOriginPlugin", value: "plugin" },
-              { stringId: "junkScoreOriginUser", value: "user" },
-              { stringId: "junkScoreOriginFilter", value: "filter" },
-              { stringId: "junkScoreOriginAllowlist", value: "allowlist" },
-              { stringId: "junkScoreOriginImapFlag", value: "imapflag" },
+              {
+                l10nID: "search-val-spam-score-origin-plugin",
+                value: "plugin",
+              },
+              {
+                l10nID: "search-val-spam-score-origin-user",
+                value: "user",
+              },
+              {
+                l10nID: "search-val-spam-score-origin-filter",
+                value: "filter",
+              },
+              {
+                l10nID: "search-val-spam-score-origin-allowlist",
+                value: "allowlist",
+              },
+              {
+                l10nID: "search-val-spam-score-origin-imap-flag",
+                value: "imapflag",
+              },
             ]);
             break;
           case "none":

@@ -15,9 +15,6 @@ var gSearchBooleanRadiogroup;
 var gUniqueSearchTermCounter = 0; // gets bumped every time we add a search term so we can always
 // dynamically generate unique IDs for the terms.
 
-// cache these so we don't have to hit the string bundle for them
-var gMoreButtonTooltipText;
-var gLessButtonTooltipText;
 var gLoading = true;
 
 function searchTermContainer() {}
@@ -150,13 +147,6 @@ searchTermContainer.prototype = {
 function initializeSearchWidgets() {
   gSearchBooleanRadiogroup = document.getElementById("booleanAndGroup");
   gSearchTermList = document.getElementById("searchTermList");
-
-  // initialize some strings
-  var bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/search.properties"
-  );
-  gMoreButtonTooltipText = bundle.GetStringFromName("moreButtonTooltipText");
-  gLessButtonTooltipText = bundle.GetStringFromName("lessButtonTooltipText");
 }
 
 function initializeBooleanWidgets() {
@@ -346,12 +336,10 @@ function createSearchRow(index, scope, searchTerm, aUserAdded) {
   var lessButton = document.createXULElement("button");
   moreButton.setAttribute("class", "small-button");
   moreButton.setAttribute("oncommand", "onMore(event);");
-  moreButton.setAttribute("label", "+");
-  moreButton.setAttribute("tooltiptext", gMoreButtonTooltipText);
+  moreButton.setAttribute("data-l10n-id", "search-add-rule-button");
   lessButton.setAttribute("class", "small-button");
   lessButton.setAttribute("oncommand", "onLess(event);");
-  lessButton.setAttribute("label", "\u2212");
-  lessButton.setAttribute("tooltiptext", gLessButtonTooltipText);
+  lessButton.setAttribute("data-l10n-id", "search-remove-rule-button");
 
   // now set up ids:
   searchAttr.id = "searchAttr" + gUniqueSearchTermCounter;

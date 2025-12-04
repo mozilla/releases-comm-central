@@ -8,9 +8,7 @@ var gValidityManager = Cc[
   "@mozilla.org/mail/search/validityManager;1"
 ].getService(Ci.nsIMsgSearchValidityManager);
 
-var gStringBundle = Services.strings.createBundle(
-  "chrome://messenger/locale/search-attributes.properties"
-);
+const l10n = new Localization(["messenger/searchWidgets.ftl"], true);
 
 // The following table of valid table scopes matches the allowable table
 // scopes in nsMsgSearchValidityManager::GetTable
@@ -35,11 +33,11 @@ function run_test() {
     const attributes = table.getAvailableAttributes();
     let attribute;
     while ((attribute = attributes.pop()) && attribute) {
-      const property = gValidityManager.getAttributeProperty(attribute);
+      const l10nID = gValidityManager.getAttributeL10nID(attribute);
       let valid = false;
       let localizedString;
       try {
-        localizedString = gStringBundle.GetStringFromName(property);
+        localizedString = l10n.formatValueSync(l10nID);
         valid = true;
       } catch (e) {
         dump("\n" + e);
@@ -47,12 +45,12 @@ function run_test() {
       valid = valid && localizedString && localizedString.length > 0;
       if (!valid) {
         dump(
-          "\nNo valid property for scope = " +
+          "\nNo valid string for scope = " +
             scope +
             " attribute = " +
             attribute +
-            " property = " +
-            property
+            " L10n ID = " +
+            l10nID
         );
       }
       Assert.ok(valid);

@@ -14,13 +14,23 @@ interface nsIMsgSearchValidityManager : nsISupports {
 
     /**
      * Given a search attribute (which is an internal numerical id), return
-     * the string name that you can use as a key to look up the localized
-     * string in the search-attributes.properties file.
+     * the Fluent ID that you can use as a key to look up the localized
+     * string in the searchWidgets.ftl file.
      *
      * @param aSearchAttribute  attribute type from interface nsMsgSearchAttrib
      *
-     * @return                  localization-friendly string representation
-     *                          of the attribute
+     * @return                  Fluent ID for the attribute
      */
-    AString getAttributeProperty(in nsMsgSearchAttribValue aSearchAttribute);
+    AString getAttributeL10nID(in nsMsgSearchAttribValue aSearchAttribute);
+
+     /**
+     * Given a search operator (which is an internal numerical id), return
+     * the Fluent ID that you can use as a key to look up the localized
+     * string in the searchWidgets.ftl file.
+     *
+     * @param aSearchOperator   operator type from interface nsMsgSearchOp
+     *
+     * @return                  Fluent ID for the attribute
+     */
+    AString getOperatorL10nID(in nsMsgSearchOpValue aSearchOperator);
 };

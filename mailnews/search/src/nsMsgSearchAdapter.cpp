@@ -703,56 +703,95 @@ NS_IMETHODIMP nsMsgSearchValidityManager::GetTable(
   return rv;
 }
 
-// mapping between ordered attribute values, and property strings
-// see search-attributes.properties
+// Mapping between ordered attribute values and Fluent L10n IDs defined in
+// searchWidgets.ftl.
 static struct {
   nsMsgSearchAttribValue id;
-  const char* property;
+  const char* l10nID;
 } nsMsgSearchAttribMap[] = {
-    {nsMsgSearchAttrib::Subject, "Subject"},
-    {nsMsgSearchAttrib::Sender, "From"},
-    {nsMsgSearchAttrib::Body, "Body"},
-    {nsMsgSearchAttrib::Date, "Date"},
-    {nsMsgSearchAttrib::Priority, "Priority"},
-    {nsMsgSearchAttrib::MsgStatus, "Status"},
-    {nsMsgSearchAttrib::To, "To"},
-    {nsMsgSearchAttrib::CC, "Cc"},
-    {nsMsgSearchAttrib::ToOrCC, "ToOrCc"},
-    {nsMsgSearchAttrib::AgeInDays, "AgeInDays"},
-    {nsMsgSearchAttrib::Size, "SizeKB"},
-    {nsMsgSearchAttrib::Keywords, "Tags"},
-    {nsMsgSearchAttrib::Name, "AnyName"},
-    {nsMsgSearchAttrib::DisplayName, "DisplayName"},
-    {nsMsgSearchAttrib::Nickname, "Nickname"},
-    {nsMsgSearchAttrib::ScreenName, "ScreenName"},
-    {nsMsgSearchAttrib::Email, "Email"},
-    {nsMsgSearchAttrib::AdditionalEmail, "AdditionalEmail"},
-    {nsMsgSearchAttrib::PhoneNumber, "AnyNumber"},
-    {nsMsgSearchAttrib::WorkPhone, "WorkPhone"},
-    {nsMsgSearchAttrib::HomePhone, "HomePhone"},
-    {nsMsgSearchAttrib::Fax, "Fax"},
-    {nsMsgSearchAttrib::Pager, "Pager"},
-    {nsMsgSearchAttrib::Mobile, "Mobile"},
-    {nsMsgSearchAttrib::City, "City"},
-    {nsMsgSearchAttrib::Street, "Street"},
-    {nsMsgSearchAttrib::Title, "Title"},
-    {nsMsgSearchAttrib::Organization, "Organization"},
-    {nsMsgSearchAttrib::Department, "Department"},
-    {nsMsgSearchAttrib::AllAddresses, "FromToCcOrBcc"},
-    {nsMsgSearchAttrib::JunkScoreOrigin, "JunkScoreOrigin"},
-    {nsMsgSearchAttrib::JunkPercent, "JunkPercent"},
-    {nsMsgSearchAttrib::HasAttachmentStatus, "AttachmentStatus"},
-    {nsMsgSearchAttrib::JunkStatus, "JunkStatus"},
-    {nsMsgSearchAttrib::OtherHeader, "Customize"},
-    // the last id is -1 to denote end of table
-    {-1, ""}};
+    {nsMsgSearchAttrib::Subject, "search-attrib-subject"},
+    {nsMsgSearchAttrib::Sender, "search-attrib-from"},
+    {nsMsgSearchAttrib::Body, "search-attrib-body"},
+    {nsMsgSearchAttrib::Date, "search-attrib-date"},
+    {nsMsgSearchAttrib::Priority, "search-attrib-priority"},
+    {nsMsgSearchAttrib::MsgStatus, "search-attrib-status"},
+    {nsMsgSearchAttrib::To, "search-attrib-to"},
+    {nsMsgSearchAttrib::CC, "search-attrib-cc"},
+    {nsMsgSearchAttrib::ToOrCC, "search-attrib-to-or-cc"},
+    {nsMsgSearchAttrib::AgeInDays, "search-attrib-age-in-days"},
+    {nsMsgSearchAttrib::Size, "search-attrib-size-kb"},
+    {nsMsgSearchAttrib::Keywords, "search-attrib-tags"},
+    {nsMsgSearchAttrib::Name, "search-attrib-any-name"},
+    {nsMsgSearchAttrib::DisplayName, "search-attrib-display-name"},
+    {nsMsgSearchAttrib::Nickname, "search-attrib-nickname"},
+    {nsMsgSearchAttrib::ScreenName, "search-attrib-screen-name"},
+    {nsMsgSearchAttrib::Email, "search-attrib-email"},
+    {nsMsgSearchAttrib::AdditionalEmail, "search-attrib-additional-email"},
+    {nsMsgSearchAttrib::PhoneNumber, "search-attrib-any-number"},
+    {nsMsgSearchAttrib::WorkPhone, "search-attrib-work-phone"},
+    {nsMsgSearchAttrib::HomePhone, "search-attrib-home-phone"},
+    {nsMsgSearchAttrib::Fax, "search-attrib-fax"},
+    {nsMsgSearchAttrib::Pager, "search-attrib-pager"},
+    {nsMsgSearchAttrib::Mobile, "search-attrib-mobile"},
+    {nsMsgSearchAttrib::City, "search-attrib-city"},
+    {nsMsgSearchAttrib::Street, "search-attrib-street"},
+    {nsMsgSearchAttrib::Title, "search-attrib-title"},
+    {nsMsgSearchAttrib::Organization, "search-attrib-organization"},
+    {nsMsgSearchAttrib::Department, "search-attrib-department"},
+    {nsMsgSearchAttrib::AllAddresses, "search-attrib-from-to-cc-or-bcc"},
+    {nsMsgSearchAttrib::JunkScoreOrigin, "search-attrib-spam-score-origin"},
+    {nsMsgSearchAttrib::JunkPercent, "search-attrib-spam-percent"},
+    {nsMsgSearchAttrib::HasAttachmentStatus, "search-attrib-attachment-status"},
+    {nsMsgSearchAttrib::JunkStatus, "search-attrib-spam-status"},
+    {nsMsgSearchAttrib::OtherHeader, "search-attrib-customize"},
+};
 
 NS_IMETHODIMP
-nsMsgSearchValidityManager::GetAttributeProperty(
-    nsMsgSearchAttribValue aSearchAttribute, nsAString& aProperty) {
-  for (int32_t i = 0; nsMsgSearchAttribMap[i].id >= 0; ++i) {
-    if (nsMsgSearchAttribMap[i].id == aSearchAttribute) {
-      aProperty.Assign(NS_ConvertUTF8toUTF16(nsMsgSearchAttribMap[i].property));
+nsMsgSearchValidityManager::GetAttributeL10nID(
+    nsMsgSearchAttribValue aSearchAttribute, nsAString& aL10nID) {
+  for (const auto& msgSearchAttrib : nsMsgSearchAttribMap) {
+    if (msgSearchAttrib.id == aSearchAttribute) {
+      aL10nID.Assign(NS_ConvertUTF8toUTF16(msgSearchAttrib.l10nID));
+      return NS_OK;
+    }
+  }
+  return NS_ERROR_FAILURE;
+}
+
+// Mapping between ordered operator values and Fluent L10n IDs defined in
+// searchWidgets.ftl.
+static struct {
+  nsMsgSearchOpValue id;
+  const char* l10nID;
+} nsMsgSearchOpMap[] = {
+    {nsMsgSearchOp::Contains, "search-op-contains"},
+    {nsMsgSearchOp::DoesntContain, "search-op-doesnt-contain"},
+    {nsMsgSearchOp::Is, "search-op-is"},
+    {nsMsgSearchOp::Isnt, "search-op-isnt"},
+    {nsMsgSearchOp::IsEmpty, "search-op-is-empty"},
+    {nsMsgSearchOp::IsBefore, "search-op-is-before"},
+    {nsMsgSearchOp::IsAfter, "search-op-is-after"},
+    {nsMsgSearchOp::IsHigherThan, "search-op-is-higher-than"},
+    {nsMsgSearchOp::IsLowerThan, "search-op-is-lower-than"},
+    {nsMsgSearchOp::BeginsWith, "search-op-begins-with"},
+    {nsMsgSearchOp::EndsWith, "search-op-ends-with"},
+    {nsMsgSearchOp::SoundsLike, "search-op-sounds-like"},
+    {nsMsgSearchOp::LdapDwim, "search-op-ldap-dwim"},
+    {nsMsgSearchOp::IsGreaterThan, "search-op-is-greater-than"},
+    {nsMsgSearchOp::IsLessThan, "search-op-is-less-than"},
+    {nsMsgSearchOp::NameCompletion, "search-op-name-completion"},
+    {nsMsgSearchOp::IsInAB, "search-op-is-in-ab"},
+    {nsMsgSearchOp::IsntInAB, "search-op-isnt-in-ab"},
+    {nsMsgSearchOp::IsntEmpty, "search-op-isnt-empty"},
+    {nsMsgSearchOp::Matches, "search-op-matches"},
+    {nsMsgSearchOp::DoesntMatch, "search-op-doesnt-match"}};
+
+NS_IMETHODIMP
+nsMsgSearchValidityManager::GetOperatorL10nID(
+    nsMsgSearchOpValue aSearchOperator, nsAString& aL10nID) {
+  for (const auto& msgSearchOp : nsMsgSearchOpMap) {
+    if (msgSearchOp.id == aSearchOperator) {
+      aL10nID.Assign(NS_ConvertUTF8toUTF16(msgSearchOp.l10nID));
       return NS_OK;
     }
   }
