@@ -110,7 +110,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   nsCOMPtr<nsIEditor> m_editor;
   mozIDOMWindowProxy* m_window;
   nsCOMPtr<nsIDocShell> mDocShell;
-  nsCOMPtr<nsIBaseWindow> m_baseWindow;
   RefPtr<nsMsgCompFields> m_compFields;
   nsCOMPtr<nsIMsgIdentity> m_identity;
   bool m_composeHTML;

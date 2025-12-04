@@ -819,20 +819,9 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   nsresult rv;
 
   aParams->GetIdentity(getter_AddRefs(m_identity));
-
   if (aWindow) {
     m_window = aWindow;
-    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(aWindow);
-    NS_ENSURE_TRUE(window, NS_ERROR_FAILURE);
-
-    nsCOMPtr<nsIDocShellTreeItem> treeItem = window->GetDocShell();
-    nsCOMPtr<nsIDocShellTreeOwner> treeOwner;
-    rv = treeItem->GetTreeOwner(getter_AddRefs(treeOwner));
-    if (NS_FAILED(rv)) return rv;
-
-    m_baseWindow = do_QueryInterface(treeOwner);
   }
-
   aParams->GetAutodetectCharset(&mAutodetectCharset);
 
   MSG_ComposeFormat format;
@@ -1338,18 +1327,13 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   // ensure that the destructor of nsMsgSend is invoked to remove
   // temporary files.
   mMsgSend = nullptr;
-
-  // We are going away for real, we need to do some clean up first
-  if (m_baseWindow) {
-    if (m_editor) {
-      // The editor will be destroyed during the close window.
-      // Set it to null to be sure we won't use it anymore.
-      m_editor = nullptr;
-    }
-    nsCOMPtr<nsIBaseWindow> window = m_baseWindow.forget();
-    rv = window->Destroy();
+  m_editor = nullptr;
+  nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(m_window);
+  if (!outerWin) {
+    NS_WARNING("Getting outer win FAILED");
+    return NS_ERROR_FAILURE;
   }
-
+  outerWin->Close();
   m_window = nullptr;
   return rv;
 }
