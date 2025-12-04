@@ -42,7 +42,7 @@ NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
 nsMsgMailSession::nsMsgMailSession() {}
 
-nsMsgMailSession::~nsMsgMailSession() { }
+nsMsgMailSession::~nsMsgMailSession() {}
 
 nsresult nsMsgMailSession::Init() {
   // Ensures the shutdown service is initialised
