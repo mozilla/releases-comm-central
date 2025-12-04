@@ -33,6 +33,8 @@ add_task(async function testProfileExport() {
       },
     });
   });
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
   const importDocument = tab.browser.contentDocument;
   const exportPane = importDocument.getElementById("tabPane-export");
 
@@ -44,7 +46,12 @@ add_task(async function testProfileExport() {
     BrowserTestUtils.isHidden(importDocument.getElementById("importDocs")),
     "Import docs link is hidden"
   );
-
+  ok(
+    BrowserTestUtils.isVisible(importDocument.getElementById("exportButton")),
+    "Export button should be visible at start"
+  );
+  importDocument.getElementById("exportButton").focus();
+  await TestUtils.waitForTick();
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "#exportButton",
     {},
@@ -60,7 +67,7 @@ add_task(async function testProfileExport() {
   );
   ok(
     BrowserTestUtils.isHidden(importDocument.getElementById("exportButton")),
-    "Export button is hidden while export is in progress"
+    "Export button should be hidden while export is in progress"
   );
 
   const finish = exportPane.querySelector(".progressFinish");
