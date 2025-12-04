@@ -683,6 +683,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-TEST4", value: "this is header #4" },
         { name: "X-EXPEDITEUR", value: "this is expediteur" },
         { name: "MSIP_Labels", value: "this is a MSIP label" },
+        { name: "List-Id", value: "A Mailing List <listname.invalid>" },
       ];
       await browser.compose.setComposeDetails(tab.id, { customHeaders });
       expectedHeaders = [
@@ -692,6 +693,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-Test4", value: "this is header #4" },
         { name: "X-Expediteur", value: "this is expediteur" },
         { name: "Msip_Labels", value: "this is a MSIP label" },
+        { name: "List-Id", value: "A Mailing List <listname.invalid>" },
       ];
       await checkCustomHeaders(tab, expectedHeaders);
 

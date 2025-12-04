@@ -293,8 +293,8 @@ const ALLOWED_CUSTOM_HEADER_NAMES = ["msip_labels"];
 
 /**
  * Checks if the provided header name is an allowed custom header and returns it
- * sanitized. It should start with X- (but not with X-Mozilla-) or be one of the
- * explicitly allowed header names.
+ * sanitized. It should start with X- (but not with X-Mozilla-), with List- or
+ * be one of the explicitly allowed header names.
  *
  * @param {string} headerName - The header name to be checked.
  * @returns {?string} The sanitized header name, or null if the header is invalid.
@@ -303,6 +303,7 @@ function sanitizeCustomHeaderName(headerName) {
   const sanitized = headerName.toLowerCase().trim();
   if (
     (sanitized.startsWith("x-") && !sanitized.startsWith("x-mozilla-")) ||
+    sanitized.startsWith("list-") ||
     ALLOWED_CUSTOM_HEADER_NAMES.includes(sanitized)
   ) {
     return sanitized;
@@ -729,7 +730,7 @@ async function setComposeDetails(composeWindow, details, extension) {
           throw new ExtensionError(
             `Invalid custom header: ${
               h.name
-            }. Name must be prefixed by "X-" (but not by "X-Mozilla-") or be one of the explicitly allowed headers (${ALLOWED_CUSTOM_HEADER_NAMES.join(
+            }. Name must be prefixed by "X-" (but not by "X-Mozilla-"), "List-" or be one of the explicitly allowed headers (${ALLOWED_CUSTOM_HEADER_NAMES.join(
               ", "
             )})`
           );
