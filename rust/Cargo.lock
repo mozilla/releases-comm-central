@@ -1042,6 +1042,7 @@ dependencies = [
 name = "crash_helper_common"
 version = "0.1.0"
 dependencies = [
+ "getrandom 0.3.3",
  "minidump-writer",
  "nix 0.30.1",
  "num-derive",
