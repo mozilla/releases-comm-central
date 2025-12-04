@@ -154,19 +154,19 @@ async function subtestColors(rows, defaultHex) {
   const defaultRGB = hexToRgb(defaultHex);
   assertRowColors(rows, defaultRGB);
 
-  // Accept the dialog without changing anything.
+  info("Accept the dialog without changing anything.");
   let dialog = await openFolderProperties(rows.all);
   dialog.assertColor(defaultHex);
   await dialog.accept();
   assertRowColors(rows, defaultRGB);
 
-  // Cancel the dialog without changing anything.
+  info("Cancel the dialog without changing anything.");
   dialog = await openFolderProperties(rows.favorite);
   dialog.assertColor(defaultHex);
   await dialog.cancel();
   assertRowColors(rows, defaultRGB);
 
-  // Set a non-default color.
+  info("Set a non-default color.");
   dialog = await openFolderProperties(rows.all);
   dialog.assertColor(defaultHex);
   await dialog.setColor("#ff6600");
@@ -174,7 +174,7 @@ async function subtestColors(rows, defaultHex) {
   await dialog.accept();
   assertRowColors(rows, "rgb(255, 102, 0)");
 
-  // Reset to the default color.
+  info("Reset to the default color.");
   dialog = await openFolderProperties(rows.favorite);
   dialog.assertColor("#ff6600");
   dialog.resetColor();
@@ -183,7 +183,7 @@ async function subtestColors(rows, defaultHex) {
   await dialog.accept();
   assertRowColors(rows, defaultRGB);
 
-  // Set a color, but cancel the dialog.
+  info("Set a color, but cancel the dialog.");
   dialog = await openFolderProperties(rows.all);
   dialog.assertColor(defaultHex);
   await dialog.setColor("#ffcc00");
@@ -191,7 +191,7 @@ async function subtestColors(rows, defaultHex) {
   await dialog.cancel();
   assertRowColors(rows, defaultRGB);
 
-  // Set a color, but reset it and accept the dialog.
+  info("Set a color, but reset it and accept the dialog.");
   dialog = await openFolderProperties(rows.favorite);
   dialog.assertColor(defaultHex);
   await dialog.setColor("#00cc00");
@@ -202,7 +202,7 @@ async function subtestColors(rows, defaultHex) {
   await dialog.accept();
   assertRowColors(rows, defaultRGB);
 
-  // Set a non-default color.
+  info("Set a non-default color.");
   dialog = await openFolderProperties(rows.all);
   dialog.assertColor(defaultHex);
   await dialog.setColor("#0000cc");
@@ -210,19 +210,19 @@ async function subtestColors(rows, defaultHex) {
   await dialog.accept();
   assertRowColors(rows, "rgb(0, 0, 204)");
 
-  // Accept the dialog without changing anything.
+  info("Accept the dialog without changing anything.");
   dialog = await openFolderProperties(rows.favorite);
   dialog.assertColor("#0000cc");
   await dialog.accept();
   assertRowColors(rows, "rgb(0, 0, 204)");
 
-  // Cancel the dialog without changing anything.
+  info("Cancel the dialog without changing anything.");
   dialog = await openFolderProperties(rows.all);
   dialog.assertColor("#0000cc");
   await dialog.cancel();
   assertRowColors(rows, "rgb(0, 0, 204)");
 
-  // Reset the color and cancel the dialog.
+  info("Reset the color and cancel the dialog.");
   dialog = await openFolderProperties(rows.favorite);
   dialog.assertColor("#0000cc");
   dialog.resetColor();
@@ -231,7 +231,7 @@ async function subtestColors(rows, defaultHex) {
   await dialog.cancel();
   assertRowColors(rows, "rgb(0, 0, 204)");
 
-  // Reset the color, pick a new one, and accept the dialog.
+  info("Reset the color, pick a new one, and accept the dialog.");
   dialog = await openFolderProperties(rows.all);
   dialog.assertColor("#0000cc");
   dialog.resetColor();
@@ -263,10 +263,17 @@ async function openFolderProperties(row) {
     { type: "contextmenu" },
     about3Pane
   );
+  info("Opening folder pane context menu...");
   await BrowserTestUtils.waitForPopupEvent(folderPaneContext, "shown");
-
   const windowOpenedPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  await TestUtils.waitForTick();
   folderPaneContext.activateItem(folderPaneContextProperties);
+  // The popup close might get paused while the dialog is open, so we only await
+  // the close once the dialog is closed again.
+  const popupClose = BrowserTestUtils.waitForPopupEvent(
+    folderPaneContext,
+    "hidden"
+  );
   const dialogWindow = await windowOpenedPromise;
   const dialogDocument = dialogWindow.document;
 
@@ -289,29 +296,40 @@ async function openFolderProperties(row) {
     resetColor() {
       EventUtils.synthesizeMouseAtCenter(resetColorButton, {}, dialogWindow);
     },
-    async accept() {
+    /**
+     * Close the dialog and wait for the main window to be ready for more
+     * interactions. To close the dialog, we want to click on one of its buttons,
+     * the name of which should be passed as the first parameter.
+     *
+     * @param {string} button - Dialog button to click to close it.
+     */
+    async _close(button) {
+      info(`Closing dialog by clicking ${button}`);
+      // We need to ensure the dialog has focus, so it properly gets returned
+      // to the main window when it closes.
+      await SimpleTest.promiseFocus(dialogWindow);
       const windowClosedPromise =
         BrowserTestUtils.domWindowClosed(dialogWindow);
       EventUtils.synthesizeMouseAtCenter(
-        folderPropertiesDialog.getButton("accept"),
+        folderPropertiesDialog.getButton(button),
         {},
         dialogWindow
       );
       await windowClosedPromise;
-      // Wait for removing 'inert' attribute taking effect.
-      await new Promise(resolve => requestAnimationFrame(resolve));
+      await BrowserTestUtils.waitForAttributeRemoval(
+        "inert",
+        about3Pane.document.documentElement
+      );
+      info("Waiting for the context menu poup to close...");
+      await popupClose;
+      info("Ensure focus is returned to the main window...");
+      await SimpleTest.promiseFocus(window);
+    },
+    async accept() {
+      return this._close("accept");
     },
     async cancel() {
-      const windowClosedPromise =
-        BrowserTestUtils.domWindowClosed(dialogWindow);
-      EventUtils.synthesizeMouseAtCenter(
-        folderPropertiesDialog.getButton("cancel"),
-        {},
-        dialogWindow
-      );
-      await windowClosedPromise;
-      // Wait for removing 'inert' attribute taking effect.
-      await new Promise(resolve => requestAnimationFrame(resolve));
+      return this._close("cancel");
     },
   };
 }
