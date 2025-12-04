@@ -27,3 +27,11 @@ if CONFIG["MZLA_LIBRNP"]:
     ]
     if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
         DIRS += ["botan"]
+
+MOZ_SRC_FILES += [
+    "redux/immer/immer.mjs",
+    "redux/redux-thunk/redux-thunk.mjs",
+    "redux/redux-toolkit/redux-toolkit.mjs",
+    "redux/redux/redux.mjs",
+    "redux/reselect/reselect.mjs",
+]

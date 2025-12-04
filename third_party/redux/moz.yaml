@@ -1,0 +1,177 @@
+# All fields are mandatory unless otherwise noted
+
+schema: 1
+# Version of this schema
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories.
+  product: Thunderbird
+  component: Mail Window Front-end
+
+origin:
+  name: '@reduxjs/toolkit'
+  description: The official, opinionated, batteries-included toolset for efficient Redux development
+  url: https://redux-toolkit.js.org/
+
+  release: v2.11.0 (2025-11-23T18:00:45-05:00).
+  revision: v2.11.0
+
+  license: MIT
+
+vendoring:
+  url: https://github.com/reduxjs/redux-toolkit
+  source-hosting: github
+  tracking: tag
+
+  # Skip things that don't work correctly in comm
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  exclude:
+    - '.*'
+    - docs/
+    - examples/
+    - website/
+    - packages
+    - CNAME
+    - CODE_OF_CONDUCT.md
+    - CONTRIBUTING.md
+    - netlify.toml
+    - LICENSE
+    - '*.json'
+    - yarn.lock
+
+  include:
+    - packages/toolkit/
+
+  generated:
+    - immer/
+    - redux/
+    - redux-thunk/
+    - redux-toolkit/
+    - reselect/
+
+  keep:
+    - LICENSE
+
+  update-actions:
+    # Build and copy relevant files for redux-toolkit
+    - action: run-command
+      command: yarn
+      args:
+      - install
+      - --non-interactive
+      cwd: '{yaml_dir}/packages/toolkit'
+    - action: run-command
+      command: yarn
+      args:
+      - add
+      - --non-interactive
+      - react-redux
+      cwd: '{yaml_dir}/packages/toolkit'
+    - action: run-command
+      command: yarn
+      args:
+      - build-only
+      cwd: '{yaml_dir}/packages/toolkit'
+    - action: move-file
+      from: 'packages/toolkit/dist/redux-toolkit.modern.mjs'
+      to: 'redux-toolkit/redux-toolkit.mjs'
+    - action: move-file
+      from: 'packages/toolkit/package.json'
+      to: 'redux-toolkit/package.json'
+    - action: move-file
+      from: 'packages/toolkit/LICENSE'
+      to: 'redux-toolkit/LICENSE'
+    - action: copy-file
+      from: 'redux-toolkit/LICENSE'
+      to: 'LICENSE'
+    - action: move-file
+      from: 'packages/toolkit/README.md'
+      to: 'redux-toolkit/README.md'
+    # Copy relevant files from dependencies.
+    # 1. immer:
+    - action: move-file
+      from: 'packages/toolkit/node_modules/immer/dist/immer.mjs'
+      to: 'immer/immer.mjs'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/immer/LICENSE'
+      to: 'immer/LICENSE'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/immer/package.json'
+      to: 'immer/package.json'
+    # 2. redux:
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux/dist/redux.mjs'
+      to: 'redux/redux.mjs'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux/LICENSE.md'
+      to: 'redux/LICENSE.md'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux/package.json'
+      to: 'redux/package.json'
+    # 3. redux-thunk:
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux-thunk/dist/redux-thunk.mjs'
+      to: 'redux-thunk/redux-thunk.mjs'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux-thunk/LICENSE.md'
+      to: 'redux-thunk/LICENSE.md'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/redux-thunk/package.json'
+      to: 'redux-thunk/package.json'
+    # 4. reselect:
+    - action: move-file
+      from: 'packages/toolkit/node_modules/reselect/dist/reselect.mjs'
+      to: 'reselect/reselect.mjs'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/reselect/LICENSE'
+      to: 'reselect/LICENSE'
+    - action: move-file
+      from: 'packages/toolkit/node_modules/reselect/package.json'
+      to: 'reselect/package.json'
+    # Clean up unused files
+    - action: delete-path
+      path: packages
+    - action: delete-path
+      path: errors.json
+    - action: delete-path
+      path: .codesandbox
+    - action: delete-path
+      path: .yarn
+    # Fix import paths in redux-toolkit
+    - action: replace-in-file
+      pattern: 'from "redux";'
+      with: 'from "../redux/redux.mjs";'
+      file: '{yaml_dir}/redux-toolkit/redux-toolkit.mjs'
+    - action: replace-in-file
+      pattern: 'from "immer";'
+      with: 'from "../immer/immer.mjs";'
+      file: '{yaml_dir}/redux-toolkit/redux-toolkit.mjs'
+    - action: replace-in-file
+      pattern: 'from "redux-thunk";'
+      with: 'from "../redux-thunk/redux-thunk.mjs";'
+      file: '{yaml_dir}/redux-toolkit/redux-toolkit.mjs'
+    - action: replace-in-file
+      pattern: 'from "reselect";'
+      with: 'from "../reselect/reselect.mjs";'
+      file: '{yaml_dir}/redux-toolkit/redux-toolkit.mjs'
+    # Set node env
+    - action: replace-in-file
+      pattern: 'process.env.NODE_ENV'
+      with: '"production"'
+      file: '{yaml_dir}/immer/immer.mjs'
+    - action: replace-in-file
+      pattern: 'process.env.NODE_ENV'
+      with: '"production"'
+      file: '{yaml_dir}/redux/redux.mjs'
+    - action: replace-in-file
+      pattern: 'process.env.NODE_ENV'
+      with: '"production"'
+      file: '{yaml_dir}/redux-toolkit/redux-toolkit.mjs'
+    - action: replace-in-file
+      pattern: 'process.env.NODE_ENV'
+      with: '"production"'
+      file: '{yaml_dir}/reselect/reselect.mjs'
