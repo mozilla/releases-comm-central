@@ -19,23 +19,61 @@ var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
 );
 
 this.messengerUtilities = class extends ExtensionAPIPersistent {
-  getAPI() {
+  getAPI(context) {
     const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );
+    const { extension } = context;
+
     return {
       messengerUtilities: {
         async formatFileSize(sizeInBytes) {
           return messenger.formatFileSize(sizeInBytes);
         },
-        async parseMailboxString(addrString, preserveGroups) {
-          return MailServices.headerParser
+        async parseMailboxString(addrString, preserveGroupsOrOptions) {
+          const options =
+            typeof preserveGroupsOrOptions == "boolean"
+              ? { preserveGroups: preserveGroupsOrOptions }
+              : preserveGroupsOrOptions;
+          const preserveGroups = options?.preserveGroups ?? false;
+          const expandMailingLists = options?.expandMailingLists ?? false;
+
+          const parsed = MailServices.headerParser
             .parseDecodedHeader(addrString, preserveGroups)
             .map(hdr => ({
               name: hdr.name || undefined,
               group: hdr.group || undefined,
               email: hdr.email || undefined,
             }));
+
+          if (!expandMailingLists) {
+            return parsed;
+          }
+          if (!extension.hasPermission("addressBooks")) {
+            console.error(
+              'Mailing list expansion requires "addressBooks" permission.'
+            );
+            return parsed;
+          }
+
+          return parsed.flatMap(entry => {
+            if (entry.name != entry.email) {
+              return [entry];
+            }
+            const mailList = MailServices.ab.getMailListFromName(entry.name);
+            if (!mailList) {
+              return [entry];
+            }
+            const members = mailList.childCards.map(card => ({
+              name:
+                card.displayName || [card.firstName, card.lastName].join(" "),
+              group: undefined,
+              email: card.primaryEmail,
+            }));
+            return preserveGroups
+              ? [{ name: entry.name, group: members, email: undefined }]
+              : members;
+          });
         },
         async convertToPlainText(body, options) {
           let wrapWidth = 0;

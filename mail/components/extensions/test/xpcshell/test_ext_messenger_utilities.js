@@ -8,6 +8,16 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
+add_setup(async () => {
+  // This test uses messengerUtilities.parseMailboxString() with the deprecated
+  // boolean value as second parameter. Since we need to ensure this is still
+  // working, even if deprecated, we need to disable fails on schema warnings.
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+  registerCleanupFunction(async () => {
+    ExtensionTestUtils.failOnSchemaWarnings(true);
+  });
+});
+
 add_task(async function test_formatFileSize() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -166,6 +176,121 @@ add_task(async function test_parseMailboxString() {
     manifest: {
       manifest_version: 2,
       background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function test_parseMailboxString_expand_mailing_lists() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const book_id = await browser.addressBooks.create({ name: "book1" });
+        const book_contacts = [
+          { firstName: "charlie", primaryEmail: "charlie@invalid" },
+          { firstName: "juliet", primaryEmail: "juliet@invalid" },
+          { firstName: "mike", primaryEmail: "mike@invalid" },
+          { firstName: "oscar", primaryEmail: "oscar@invalid" },
+          { firstName: "papa", primaryEmail: "papa@invalid" },
+          { firstName: "romeo", primaryEmail: "romeo@invalid" },
+        ];
+        const list_id = await browser.addressBooks.mailingLists.create(
+          book_id,
+          { name: "TestList" }
+        );
+        for (const contact of book_contacts) {
+          const contact_id = await browser.addressBooks.contacts.create(
+            book_id,
+            `BEGIN:VCARD\r\nVERSION:4.0\r\nFN:${contact.firstName}\r\nEMAIL;PREF=1:${contact.primaryEmail}\r\nEND:VCARD\r\n`
+          );
+          await browser.addressBooks.mailingLists.addMember(
+            list_id,
+            contact_id
+          );
+        }
+
+        const tests = [
+          {
+            addr: "TestList <TestList>",
+            options: undefined,
+            expected: [{ name: "TestList", email: "TestList" }],
+          },
+          {
+            addr: "TestList <TestList>",
+            options: {},
+            expected: [{ name: "TestList", email: "TestList" }],
+          },
+          {
+            addr: "TestList <TestList>",
+            options: { expandMailingLists: true },
+            expected: [
+              { name: "charlie", email: "charlie@invalid" },
+              { name: "juliet", email: "juliet@invalid" },
+              { name: "mike", email: "mike@invalid" },
+              { name: "oscar", email: "oscar@invalid" },
+              { name: "papa", email: "papa@invalid" },
+              { name: "romeo", email: "romeo@invalid" },
+            ],
+          },
+          {
+            addr: "TestList <TestList>",
+            options: { expandMailingLists: true, preserveGroups: true },
+            expected: [
+              {
+                name: "TestList",
+                group: [
+                  { name: "charlie", email: "charlie@invalid" },
+                  { name: "juliet", email: "juliet@invalid" },
+                  { name: "mike", email: "mike@invalid" },
+                  { name: "oscar", email: "oscar@invalid" },
+                  { name: "papa", email: "papa@invalid" },
+                  { name: "romeo", email: "romeo@invalid" },
+                ],
+              },
+            ],
+          },
+          {
+            addr: "TestList <TestList>",
+            options: { expandMailingLists: false, preserveGroups: true },
+            // There is no mailing list check done and since preserveGroups does
+            // not require the addressBooks permission, no lookup is done - this
+            // does not add an empty group array just because TestList is a actual
+            // mailing list.
+            expected: [{ name: "TestList", email: "TestList" }],
+          },
+          {
+            addr: "TestList <TestList>",
+            options: { expandMailingLists: false, preserveGroups: false },
+            expected: [{ name: "TestList", email: "TestList" }],
+          },
+          {
+            addr: "NoTestList <NoTestList>",
+            options: { expandMailingLists: true, preserveGroups: true },
+            expected: [{ name: "NoTestList", email: "NoTestList" }],
+          },
+        ];
+        for (const { addr, options, expected } of tests) {
+          const result = await browser.messengerUtilities.parseMailboxString(
+            addr,
+            options
+          );
+          window.assertDeepEqual(
+            expected,
+            result,
+            `The addr ${addr} should be parsed correctly.`
+          );
+        }
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks"],
     },
   });
 

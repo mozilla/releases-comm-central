@@ -22,7 +22,7 @@
         "choices": [
           {
             "type": "string",
-            "description": "A name and email address in the format <var>Name <email@example.com></var>, or just an email address."
+            "description": "A name and email address in mailbox format (<var>Name <email@example.com></var>), or just an email address. Mailing lists are specified as <var>ListName <ListName></var>. Use $(ref:messengerUtilities.parseMailboxString) to extract the name and/or the email from the mailbox string, or to expand mailing list entries."
           },
           {
             "type": "object",
