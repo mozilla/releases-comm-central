@@ -31,7 +31,14 @@ const POPUP_WINDOW_URI = "chrome://messenger/content/extensionPopup.xhtml";
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
 const MESSAGE_WINDOW_URI = "chrome://messenger/content/messageWindow.xhtml";
-const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
+const MESSAGE_PROTOCOLS = [
+  "imap",
+  "mailbox",
+  "news",
+  "nntp",
+  "snews",
+  "x-moz-ews",
+];
 
 (function () {
   // Monkey-patch all processes to add the "messenger" alias in all contexts.
