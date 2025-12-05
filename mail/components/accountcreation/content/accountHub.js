@@ -31,6 +31,20 @@ class AccountHubControllerClass {
   #modal = null;
 
   /**
+   * If the account hub is currently minimized.
+   *
+   * @type {boolean}
+   */
+  #minimized = false;
+
+  /**
+   * The placeholder element to show when the dialog is temporarily collapsed.
+   *
+   * @type {?HTMLElement}
+   */
+  #placeholder = null;
+
+  /**
    * The currently visible view inside the dialog.
    *
    * @type {?HTMLElement}
@@ -61,13 +75,40 @@ class AccountHubControllerClass {
     const element = document.createElement("account-hub-container");
     document.body.appendChild(element);
     this.#modal = element.modal;
+    this.#placeholder = element.placeholder;
 
     // Listen from closing requests coming from child elements.
     this.#modal.addEventListener(
       "request-close",
       event => {
         event.stopPropagation();
-        this.#modal.close();
+        if (!this.#minimized && this.#reset()) {
+          this.#modal.close();
+        }
+      },
+      {
+        capture: true,
+      }
+    );
+
+    this.#modal.addEventListener(
+      "request-toggle",
+      event => {
+        event.stopPropagation();
+        this.#toggle();
+      },
+      {
+        capture: true,
+      }
+    );
+
+    this.#modal.addEventListener(
+      "request-maximize",
+      event => {
+        event.stopPropagation();
+        if (this.#minimized) {
+          this.#toggle();
+        }
       },
       {
         capture: true,
@@ -85,15 +126,9 @@ class AccountHubControllerClass {
       }
     );
 
-    this.#modal.addEventListener("close", event => {
-      // Don't allow the dialog to be closed if some operations are can't be
-      // aborted or the UI can't be cleared.
-      if (!this.#reset()) {
-        event.preventDefault();
-      } else {
-        // Re-enable keyboard interaction.
-        document.getElementById("tabmail").globalOverlay = false;
-      }
+    this.#modal.addEventListener("close", () => {
+      // Re-enable keyboard interaction.
+      document.getElementById("tabmail").globalOverlay = false;
     });
 
     this.#modal.addEventListener("cancel", event => {
@@ -112,9 +147,6 @@ class AccountHubControllerClass {
       // cleared.
       if (!this.#reset()) {
         event.preventDefault();
-      } else {
-        // Re-enable keyboard interaction.
-        document.getElementById("tabmail").globalOverlay = false;
       }
     });
   }
@@ -175,17 +207,23 @@ class AccountHubControllerClass {
    * @param {?string} type - Which account flow to load when the modal opens.
    */
   async open(type = "MAIL") {
+    // If the dialog is currently minimized, restore it instead of loading a new
+    // view.
+    if (this.#minimized) {
+      this.#toggle();
+      return;
+    }
+
     // Interrupt if something went wrong while cleaning up a previously loaded
     // view.
     if (!this.#reset()) {
       return;
     }
 
-    // Disabled keyboard interaction while accounthub is open.
-    document.getElementById("tabmail").globalOverlay = true;
-
     await this.#views[type].call();
     if (!this.#modal.open) {
+      // Disabled keyboard interaction while accounthub is open.
+      document.getElementById("tabmail").globalOverlay = true;
       this.#modal.showModal();
     }
   }
@@ -205,6 +243,21 @@ class AccountHubControllerClass {
       this.#currentView = null;
     }
     return isClean;
+  }
+
+  /**
+   * Minimze or restore the account hub depending on the current state.
+   */
+  #toggle() {
+    if (this.#minimized) {
+      document.getElementById("tabmail").globalOverlay = true;
+      this.#modal.showModal();
+    } else {
+      this.#modal.close();
+    }
+    this.#placeholder.hidden = this.#minimized;
+    this.#modal.classList.toggle("minimized", !this.#minimized);
+    this.#minimized = !this.#minimized;
   }
 
   /**

@@ -34,13 +34,20 @@
               data-l10n-id="account-hub-title">
             </span>
           </h1>
-          <button
-            id="closeButton"
-            class="button button-flat button-round icon-button icon-only modal-close-button"
-            type="button"
-          >
-            <img class="icon-close-lg" src="" alt="" />
-          </button>
+          <div id="headerButtonsContainer">
+            <button id="minimizeButton"
+                    class="button button-flat button-round icon-button icon-only modal-close-button"
+                    data-l10n-id="account-hub-minimize-button"
+                    type="button">
+              <img class="icon-minimize" src="" alt="" />
+            </button>
+            <button id="closeButton"
+                    class="button button-flat button-round icon-button icon-only modal-close-button"
+                    data-l10n-id="account-hub-close-button"
+                    type="button">
+              <img class="icon-close-lg" src="" alt="" />
+            </button>
+          </div>
         </div>
         <!-- Title Text for Email Setup -->
         <h1 id="accountHubHeaderTitle"

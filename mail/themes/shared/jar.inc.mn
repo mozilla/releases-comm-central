@@ -793,6 +793,8 @@
   skin/classic/messenger/icons/sm/date-time.svg                (../shared/mail/icons/sm/date-time.svg)
   skin/classic/messenger/icons/sm/dot.svg                      (../shared/mail/icons/sm/dot.svg)
   skin/classic/messenger/icons/sm/folder-compact.svg           (../shared/mail/icons/sm/folder-compact.svg)
+  skin/classic/messenger/icons/sm/maximize.svg                 (../shared/mail/icons/sm/maximize.svg)
+  skin/classic/messenger/icons/sm/minimize.svg                 (../shared/mail/icons/sm/minimize.svg)
   skin/classic/messenger/icons/sm/mobile-export.svg            (../shared/mail/icons/sm/mobile-export.svg)
   skin/classic/messenger/icons/sm/mobile-import.svg            (../shared/mail/icons/sm/mobile-import.svg)
   skin/classic/messenger/icons/sm/recurrence.svg               (../shared/mail/icons/sm/recurrence.svg)

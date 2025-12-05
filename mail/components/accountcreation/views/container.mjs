@@ -8,6 +8,9 @@
  * NOTE: This could directly extend an HTMLDialogElement if it had a shadowRoot.
  */
 class AccountHubContainer extends HTMLElement {
+  /** @type {HTMLElement} */
+  placeholder;
+
   /** @type {HTMLDialogElement} */
   modal;
 
@@ -22,16 +25,14 @@ class AccountHubContainer extends HTMLElement {
 
     const shadowRoot = this.attachShadow({ mode: "open" });
 
+    const template = document
+      .getElementById("accountHubDialog")
+      .content.cloneNode(true);
+
     // Load styles in the shadowRoot so we don't leak it.
     const style = document.createElement("link");
     style.rel = "stylesheet";
     style.href = "chrome://messenger/skin/accountHub.css";
-    shadowRoot.appendChild(style);
-
-    const template = document.getElementById("accountHubDialog");
-    const clonedNode = template.content.cloneNode(true);
-    shadowRoot.appendChild(clonedNode);
-    this.modal = shadowRoot.querySelector("dialog");
 
     // We need to create an internal DOM localization in order to let fluent
     // see the IDs inside our shadowRoot.
@@ -41,10 +42,26 @@ class AccountHubContainer extends HTMLElement {
       "messenger/accountcreation/accountSetup.ftl",
     ]);
     this.l10n.connectRoot(shadowRoot);
+    shadowRoot.append(style, template);
+
+    this.modal = shadowRoot.querySelector("dialog");
+    this.placeholder = shadowRoot.querySelector("#accountHubPlaceholder");
+    this.placeholder.addEventListener("click", () =>
+      this.#maximizeAccountHub()
+    );
+  }
+
+  #maximizeAccountHub() {
+    const maximizeEvent = new CustomEvent("request-toggle", {
+      bubbles: true,
+      composed: true,
+    });
+    this.modal.dispatchEvent(maximizeEvent);
   }
 
   disconnectedCallback() {
     this.l10n.disconnectRoot(this.shadowRoot);
+    delete this.l10n;
   }
 }
 customElements.define("account-hub-container", AccountHubContainer);

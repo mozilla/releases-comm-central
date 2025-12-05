@@ -293,6 +293,13 @@ class AccountHubAddressBook extends HTMLElement {
     this.#hideSubviews();
     this.#currentState = subview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
+    // Always dispatch the maximized event to ensure that the account hub is
+    // fully visible when we change subview.
+    this.dispatchEvent(
+      new CustomEvent("request-maximize", {
+        bubbles: true,
+      })
+    );
     this.#currentSubview.hidden = false;
     this.#setFooterButtons();
   }
@@ -376,7 +383,7 @@ class AccountHubAddressBook extends HTMLElement {
       }
       case "remoteAccountSubview": {
         // Normalize server to a URI (there is no protocol if we extracted it
-        // from the username)
+        // from the username).
         if (!URL.canParse(stateData.server)) {
           stateData.server = `https://${stateData.server}`;
         }

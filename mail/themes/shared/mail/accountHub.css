@@ -45,7 +45,6 @@ dialog {
   --hub-floating-button-line-height: 1.3em;
   --hub-width: 500px;
 
-  --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
@@ -101,6 +100,48 @@ dialog {
   @media (prefers-color-scheme: dark) {
     &::after {
       background: linear-gradient(to right, rgb(11, 140, 134, 1), rgba(28, 99, 149, 1));
+    }
+  }
+
+  &.minimized .account-hub-view {
+    display: none;
+  }
+}
+
+#accountHubPlaceholder:not([hidden]) {
+  position: absolute;
+  z-index: 9;
+  inset-inline-end: 9px;
+  inset-block-end: 9px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 15px;
+  border: 1px solid light-dark(AccentColor, var(--color-primary-default));
+  border-radius: var(--arrowpanel-border-radius);
+  color: var(--layout-color-2);
+  background-color: var(--layout-background-1);
+  box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
+
+  & span {
+    font-size: 1.15rem;
+    font-weight: 400;
+  }
+
+  &:hover {
+    background-color: var(--layout-background-2);
+    color: var(--primary);
+
+    &:active {
+      background-color: var(--layout-background-3);
+    }
+  }
+
+  @media (prefers-contrast) {
+    &:hover,
+    &:hover:active {
+      background-color: SelectedItem;
+      color: SelectedItemText;
     }
   }
 }
@@ -255,10 +296,12 @@ dialog {
 /* Header */
 
 header {
+  position: relative;
   font-weight: 300;
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
+  z-index: 3;
 
   & .sub-view-title {
     font-size: 1.7rem;
@@ -291,11 +334,14 @@ header {
   }
 }
 
-#closeButton:not([hidden]) {
+#headerButtonsContainer:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   position: absolute;
-  inset-inline-end: 15px;
-  inset-block-start: 15px;
-  z-index: 2;
+  inset-inline-end: -5px;
+  inset-block-start: -25px;
+  z-index: 3;
 }
 
 #welcomeHeader > img {
@@ -730,25 +776,19 @@ header {
 .hub-footer {
   grid-area: footer;
 
-  .center-column {
+  & .center-column {
     justify-content: center;
   }
 
-  hr {
+  & hr {
     border: none;
     height: 1px;
     margin-block-start: var(--hub-footer-margin-block);
-    background: linear-gradient(to right, transparent, rgba(26, 32, 44, 0.2), transparent);
+    background: linear-gradient(to right, transparent, var(--color-surface-border), transparent);
     color: transparent;
   }
 
-  @media (prefers-color-scheme: dark) {
-    hr {
-      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
-    }
-  }
-
-  .footer-button {
+  & .footer-button {
     font-size: 1.1rem;
     min-width: 128px;
     padding: 10px 25px;
@@ -763,12 +803,26 @@ header {
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 10px;
+  gap: 3px 9px;
   justify-content: center;
-  align-items: baseline;
+  align-items: center;
   margin-block: var(--hub-footer-margin-block);
 
-  li > a {
+  & li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    &:not([hidden]) ~ li:not([hidden])::before {
+      content: "";
+      width: 2px;
+      height: 2px;
+      border-radius: 2px;
+      background-color: var(--color-text-muted);
+    }
+  }
+
+  & li > a {
     font-size: 1.1rem;
     text-decoration: none;
     letter-spacing: 0.2px;
@@ -779,13 +833,6 @@ header {
       text-decoration: underline;
     }
   }
-}
-
-.footer-links li:not([hidden]) ~ li:not([hidden])::before {
-  content: "·";
-  margin-inline-end: 10px;
-  font-size: 1.4rem;
-  font-weight: bold;
 }
 
 /* Success page */

@@ -369,6 +369,12 @@ account-hub-result-unknown-cert = Unverified Certificate
 account-hub-close-button =
   .title = Close
 
+account-hub-minimize-button =
+  .title = Minimize
+
+account-hub-maximize-button =
+  .title = Maximize Account Hub
+
 account-hub-email-manual-configuration = Manual configuration
 
 account-hub-notification-unknown-host = Setup information found on 3rd party domain

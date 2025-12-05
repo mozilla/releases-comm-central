@@ -31,6 +31,13 @@ class AccountHubHeader extends HTMLElement {
    */
   #closeButton;
 
+  /**
+   * The minimize button for the modal.
+   *
+   * @type {?HTMLElement}
+   */
+  #minimizeButton;
+
   connectedCallback() {
     if (this.shadowRoot) {
       return;
@@ -60,10 +67,14 @@ class AccountHubHeader extends HTMLElement {
     );
 
     this.#closeButton = this.shadowRoot.querySelector("#closeButton");
+    this.#minimizeButton = this.shadowRoot.querySelector("#minimizeButton");
     // TODO: Re-enable / re-think how this will work when first time experience
     // is enabled.
     // this.#closeButton.hidden = !MailServices.accounts.accounts.length;
     this.#closeButton.addEventListener("click", () => this.#closeAccountHub());
+    this.#minimizeButton.addEventListener("click", () =>
+      this.#minimizeAccountHub()
+    );
 
     this.clearNotifications();
   }
@@ -248,8 +259,12 @@ class AccountHubHeader extends HTMLElement {
     this.dispatchEvent(closeEvent);
   }
 
-  disconnectedCallback() {
-    this.#closeButton.removeEventListener("click", this.#closeAccountHub());
+  #minimizeAccountHub() {
+    const minimizeEvent = new CustomEvent("request-toggle", {
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(minimizeEvent);
   }
 
   showSubheader() {

@@ -466,6 +466,26 @@
   content: var(--icon-close-lg);
 }
 
+.icon-minimize {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  content: var(--icon-minimize-sm);
+
+  &:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}
+
+.icon-maximize {
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  content: var(--icon-maximize-sm);
+
+  &:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}
+
 .toggle-label {
   display: inline-block;
   line-height: 1;

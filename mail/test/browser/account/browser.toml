@@ -88,6 +88,8 @@ tags = ["oauth"]
 
 ["browser_accountHubOpen.js"]
 
+["browser_accountHubPlaceholder.js"]
+
 ["browser_accountHubSyncAccounts.js"]
 
 ["browser_accountOrder.js"]
