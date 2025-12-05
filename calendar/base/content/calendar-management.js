@@ -144,6 +144,9 @@ async function loadCalendarManager() {
     addCalendarItem(calendar);
   }
 
+  /**
+   * @param {calICalendar} calendar - Calendar to add to the calendar-list.
+   */
   function addCalendarItem(calendar) {
     const item = document
       .getElementById("calendar-list-item")
@@ -180,23 +183,24 @@ async function loadCalendarManager() {
       colorMarker.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
     }
 
-    const label = item.querySelector(".calendar-name");
-    label.textContent = calendar.name;
+    item.querySelector(".calendar-name").textContent = calendar.name;
 
     updateCalendarStatusIndicators(item);
 
-    const enable = item.querySelector(".calendar-enable-button");
-    document.l10n.setAttributes(enable, "calendar-enable-button");
-
-    enable.hidden = forceDisabled || !calendar.getProperty("disabled");
+    const enableButton = item.querySelector(".calendar-enable-button");
+    document.l10n.setAttributes(enableButton, "calendar-enable-button");
+    enableButton.hidden = forceDisabled || !calendar.getProperty("disabled");
 
     const displayedCheckbox = item.querySelector(".calendar-displayed");
     displayedCheckbox.checked = calendar.getProperty("calendar-main-in-composite");
     displayedCheckbox.hidden = calendar.getProperty("disabled");
-    const stringName = cal.view.getCompositeCalendar(window).getCalendarById(calendar.id)
-      ? "hide-calendar-title"
-      : "show-calendar-title";
-    document.l10n.setAttributes(displayedCheckbox, stringName, { name: calendar.name });
+    document.l10n.setAttributes(
+      displayedCheckbox,
+      displayedCheckbox.checked ? "show-calendar-title" : "hide-calendar-title",
+      {
+        name: calendar.name,
+      }
+    );
 
     calendarList.appendChild(item);
     if (calendar.getProperty("calendar-main-default")) {
@@ -235,14 +239,19 @@ async function loadCalendarManager() {
     const calendarId = item.getAttribute("calendar-id");
     const calendar = cal.manager.getCalendarById(calendarId);
 
-    if (event.target.checked) {
+    const displayedCheckbox = event.target;
+    if (displayedCheckbox.checked) {
       compositeCalendar.addCalendar(calendar);
     } else {
       compositeCalendar.removeCalendar(calendar);
     }
-
-    const stringName = event.target.checked ? "hide-calendar-title" : "show-calendar-title";
-    document.l10n.setAttributes(event.target, stringName, { name: calendar.name });
+    document.l10n.setAttributes(
+      displayedCheckbox,
+      displayedCheckbox.checked ? "show-calendar-title" : "hide-calendar-title",
+      {
+        name: calendar.name,
+      }
+    );
 
     calendarList.focus();
   });
@@ -279,17 +288,19 @@ async function loadCalendarManager() {
         promptDeleteCalendar(calendar);
         break;
       case " ": {
-        if (item.querySelector(".calendar-displayed").checked) {
+        const displayedCheckbox = item.querySelector(".calendar-displayed");
+        if (displayedCheckbox.checked) {
           compositeCalendar.removeCalendar(calendar);
         } else {
           compositeCalendar.addCalendar(calendar);
         }
-        const stringName = item.querySelector(".calendar-displayed").checked
-          ? "hide-calendar-title"
-          : "show-calendar-title";
-        document.l10n.setAttributes(item.querySelector(".calendar-displayed"), stringName, {
-          name: calendar.name,
-        });
+        document.l10n.setAttributes(
+          displayedCheckbox,
+          displayedCheckbox.checked ? "show-calendar-title" : "hide-calendar-title",
+          {
+            name: calendar.name,
+          }
+        );
         break;
       }
     }
@@ -439,7 +450,6 @@ function unloadCalendarManager() {
  *
  * @param {Event} event - The click DOMEvent.
  */
-
 function calendarListSetupContextMenu(event) {
   let calendar;
   const composite = cal.view.getCompositeCalendar(window);
