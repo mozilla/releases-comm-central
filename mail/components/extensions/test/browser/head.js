@@ -138,12 +138,11 @@ async function enforceState(state) {
 async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
   const tabmail = document.getElementById("tabmail");
   const tab = tabmail.currentTabInfo;
-  if (tab.chromeBrowser.contentDocument.readyState != "complete") {
-    await BrowserTestUtils.waitForEvent(
-      tab.chromeBrowser.contentWindow,
-      "load"
-    );
-  }
+  const doc = tab.chromeBrowser.contentDocument;
+
+  await TestUtils.waitForCondition(() => {
+    return doc.location.href == "about:3pane" && doc.readyState == "complete";
+  }, `The 3pane tab should be loaded`);
 
   const { paneLayout } = tabmail.currentAbout3Pane;
   if (folderPaneOpen !== null) {
