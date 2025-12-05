@@ -50,17 +50,43 @@ async function assertMailShown(win = window) {
 }
 
 async function assertAddressBookShown(win = window) {
+  info("assertAddressBookShown: waiting for Address Book tab to load");
+
   await TestUtils.waitForCondition(() => {
     const panel = win.document.querySelector(
-      // addressBookTabWrapper0, addressBookTabWrapper1, etc
       "#tabpanelcontainer > [id^=addressBookTabWrapper][selected]"
     );
     if (!panel) {
       return false;
     }
+
     const browser = panel.querySelector("[id^=addressBookTabBrowser]");
-    return browser.contentDocument.readyState == "complete";
-  }, "The address book tab should be visible and loaded");
+    if (!browser) {
+      return false;
+    }
+
+    const url = browser.currentURI?.spec || browser.contentWindow.location.href;
+    const readyState = browser.contentDocument?.readyState;
+
+    info(
+      `assertAddressBookShown(wait): panelId=${panel.id}, browserId=${browser.id}, readyState=${readyState}, url=${url}`
+    );
+
+    return readyState == "complete" && url?.startsWith("about:addressbook");
+  }, "The Address Book tab should be visible and fully loaded and not about:blank");
+
+  // Final snapshot after success
+  const panel = win.document.querySelector(
+    "#tabpanelcontainer > [id^=addressBookTabWrapper][selected]"
+  );
+  const browser = panel.querySelector("[id^=addressBookTabBrowser]");
+  const loadedUrl = browser.contentWindow.location.href;
+
+  Assert.stringMatches(
+    loadedUrl,
+    /^about:addressbook/,
+    `Expected address book URL - got ${loadedUrl}`
+  );
 }
 
 async function assertChatShown(win = window) {
@@ -93,17 +119,43 @@ async function assertTasksShown(win = window) {
 }
 
 async function assertSettingsShown(win = window) {
+  info("assertSettingsShown: waiting for Settings tab to load…");
+
   await TestUtils.waitForCondition(() => {
     const panel = win.document.querySelector(
-      // preferencesTabWrapper0, preferencesTabWrapper1, etc
       "#tabpanelcontainer > [id^=preferencesTabWrapper][selected]"
     );
     if (!panel) {
       return false;
     }
+
     const browser = panel.querySelector("[id^=preferencesTabBrowser]");
-    return browser.contentDocument.readyState == "complete";
-  }, "The settings tab should be visible and loaded");
+    if (!browser) {
+      return false;
+    }
+
+    const url = browser.currentURI?.spec || browser.contentWindow.location.href;
+    const readyState = browser.contentDocument?.readyState;
+
+    info(
+      `assertSettingsShown(wait): panelId=${panel.id}, browserId=${browser.id}, readyState=${readyState}, url=${url}`
+    );
+
+    return readyState == "complete" && url?.startsWith("about:preferences");
+  }, "The settings tab should be visible and fully loaded and not about:blank");
+
+  // Final snapshot once the condition above has passed.
+  const panel = win.document.querySelector(
+    "#tabpanelcontainer > [id^=preferencesTabWrapper][selected]"
+  );
+  const browser = panel.querySelector("[id^=preferencesTabBrowser]");
+  const loadedUrl = browser.contentWindow.location.href;
+
+  Assert.stringMatches(
+    loadedUrl,
+    /^about:preferences/,
+    `Expected preferences URL - got ${loadedUrl}`
+  );
 }
 
 async function assertContentShown(url, win = window) {
