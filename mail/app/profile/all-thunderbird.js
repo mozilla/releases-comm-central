@@ -650,8 +650,6 @@ pref("mail.allowed_unc_hosts", "");
 // be located at.
 pref("mail.allowed_attachment_hostnames", "");
 
-// Start compositions with (empty) attachment pane showing
-pref("mail.compose.show_attachment_pane", false);
 // Check for missing attachments?
 pref("mail.compose.attachment_reminder", true);
 // Words that should trigger a missing attachments warning.

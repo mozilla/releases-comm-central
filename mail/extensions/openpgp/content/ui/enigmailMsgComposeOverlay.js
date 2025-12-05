@@ -319,14 +319,15 @@ Enigmail.msg = {
       }
     }
 
-    // check for attached signature files and remove them
+    // Check for attached signature files and remove them.
     var bucketList = document.getElementById("attachmentBucket");
     if (bucketList.hasChildNodes()) {
       var node = bucketList.firstChild;
       while (node) {
         if (node.attachment.contentType == "application/pgp-signature") {
           if (!this.findRelatedAttachment(bucketList, node)) {
-            // Let's release the attachment object held by the node else it won't go away until the window is destroyed
+            // Let's release the attachment object held by the node else it
+            // won't go away until the window is destroyed
             node.attachment = null;
             node = bucketList.removeChild(node);
           }
@@ -334,12 +335,7 @@ Enigmail.msg = {
         node = node.nextSibling;
       }
     }
-
-    // If we removed all the children and the bucket wasn't meant
-    // to stay open, close it.
-    if (!Services.prefs.getBoolPref("mail.compose.show_attachment_pane")) {
-      UpdateAttachmentBucket(bucketList.hasChildNodes());
-    }
+    updateAttachmentPane(bucketList.hasChildNodes() ? "show" : "hide");
 
     if (selectedElement) {
       selectedElement.focus();
@@ -479,7 +475,7 @@ Enigmail.msg = {
       }
 
       // Update the visibility of the attachment pane.
-      UpdateAttachmentBucket(bucketList.itemCount);
+      updateAttachmentPane(bucketList.itemCount ? "show" : "hide");
     }
   },
 

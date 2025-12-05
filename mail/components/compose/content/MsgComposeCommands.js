@@ -5182,10 +5182,6 @@ async function ComposeStartup() {
     attachmentItem.attachment.sendViaCloud = false;
   }
 
-  if (Services.prefs.getBoolPref("mail.compose.show_attachment_pane")) {
-    toggleAttachmentPane("show");
-  }
-
   // Fill custom headers.
   const otherHeaders = Services.prefs
     .getCharPref("mail.compose.other.header", "")
@@ -8612,18 +8608,6 @@ async function RemoveAllAttachments() {
 }
 
 /**
- * Show or hide the attachment pane after updating its header bar information
- * (number and total file size of attachments) and tooltip.
- *
- * @param {boolean} aShowBucket - Show bucket or not:
- *   - true: show the attachment pane
- *   - false (or omitted): hide the attachment pane
- */
-function UpdateAttachmentBucket(aShowBucket) {
-  updateAttachmentPane(aShowBucket ? "show" : "hide");
-}
-
-/**
  * Update the header bar information (number and total file size of attachments)
  * and tooltip of attachment pane, then (optionally) show or hide the pane.
  *
@@ -8652,7 +8636,7 @@ function updateAttachmentPane(aShowPane) {
   }
 
   document.getElementById("attachmentBucketSize").textContent =
-    count > 0 ? gMessenger.formatFileSize(attachmentsSize) : "";
+    gMessenger.formatFileSize(attachmentsSize);
 
   document
     .getElementById("composeContentBox")
@@ -9238,24 +9222,6 @@ function reorderAttachmentsPanelOnPopupShowing() {
   // don't change after the panel is shown, and also because focus is still
   // in attachment bucket right now, which is required for updating them.
   updateReorderAttachmentsItems();
-}
-
-function attachmentHeaderContextOnPopupShowing() {
-  const initiallyShowItem = document.getElementById(
-    "attachmentHeaderContext_initiallyShowItem"
-  );
-
-  initiallyShowItem.setAttribute(
-    "checked",
-    Services.prefs.getBoolPref("mail.compose.show_attachment_pane")
-  );
-}
-
-function toggleInitiallyShowAttachmentPane(aMenuItem) {
-  Services.prefs.setBoolPref(
-    "mail.compose.show_attachment_pane",
-    aMenuItem.getAttribute("checked")
-  );
 }
 
 /**

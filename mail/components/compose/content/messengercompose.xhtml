@@ -762,15 +762,6 @@
             command="cmd_removeAllAttachments"/>
 </menupopup>
 
-<menupopup id="attachmentHeaderContext"
-           onpopupshowing="attachmentHeaderContextOnPopupShowing();">
-  <menuitem id="attachmentHeaderContext_initiallyShowItem"
-            type="checkbox"
-            label="&initiallyShowAttachmentPane.label;"
-            accesskey="&initiallyShowAttachmentPane.accesskey;"
-            oncommand="toggleInitiallyShowAttachmentPane(this);"/>
-</menupopup>
-
 <menupopup id="format-toolbar-context-menu"
            onpopupshowing="ToolbarContextMenu.updateExtension(this);">
   <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"

@@ -487,15 +487,11 @@ add_task(async function test_file_attachments() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    if (totalSize == 0) {
-      Assert.equal(bucketTotal.textContent, "");
-    } else {
-      Assert.equal(
-        bucketTotal.textContent,
-        messenger.formatFileSize(totalSize),
-        "Total size should match."
-      );
-    }
+    Assert.equal(
+      bucketTotal.textContent,
+      messenger.formatFileSize(totalSize),
+      "Total size should match."
+    );
 
     extension.sendMessage();
   });
@@ -1176,14 +1172,7 @@ add_task(async function test_compose_attachments() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    if (totalSize == 0) {
-      Assert.equal(bucketTotal.textContent, "");
-    } else {
-      Assert.equal(
-        bucketTotal.textContent,
-        messenger.formatFileSize(totalSize)
-      );
-    }
+    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
 
     extension.sendMessage();
   });
@@ -1605,14 +1594,7 @@ add_task(async function test_compose_attachments_immutable() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    if (totalSize == 0) {
-      Assert.equal(bucketTotal.textContent, "");
-    } else {
-      Assert.equal(
-        bucketTotal.textContent,
-        messenger.formatFileSize(totalSize)
-      );
-    }
+    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
 
     extension.sendMessage();
   });
@@ -2030,14 +2012,7 @@ add_task(async function test_compose_attachments_no_reuse() {
     }
 
     const bucketTotal = composeDocument.getElementById("attachmentBucketSize");
-    if (totalSize == 0) {
-      Assert.equal(bucketTotal.textContent, "");
-    } else {
-      Assert.equal(
-        bucketTotal.textContent,
-        messenger.formatFileSize(totalSize)
-      );
-    }
+    Assert.equal(bucketTotal.textContent, messenger.formatFileSize(totalSize));
 
     extension.sendMessage();
   });
