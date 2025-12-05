@@ -7238,8 +7238,13 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
       newPathFile->IsDirectory(&isDirectory);
       if (!isDirectory) {
         AddDirectorySeparator(newPathFile);
-        rv = newPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
+        bool exists = false;
+        rv = newPathFile->Exists(&exists);
         NS_ENSURE_SUCCESS(rv, rv);
+        if (!exists) {
+          rv = newPathFile->Create(nsIFile::DIRECTORY_TYPE, 0700);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
       }
 
       rv = CheckIfFolderExists(folderName, this, msgWindow);
@@ -7278,48 +7283,51 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
         parentPathFile->GetDirectoryEntries(getter_AddRefs(children));
         bool more;
         // checks if the directory is empty or not
-        if (children && NS_SUCCEEDED(children->HasMoreElements(&more)) && !more)
+        if (children && NS_SUCCEEDED(children->HasMoreElements(&more)) &&
+            !more) {
           parentPathFile->Remove(true);
-      }
-    } else  // non-virtual folder
-    {
-      nsCOMPtr<nsIImapService> imapService =
-          mozilla::components::Imap::Service();
-      nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
-      bool match = false;
-      bool confirmed = false;
-      if (mFlags & nsMsgFolderFlags::Trash) {
-        rv = srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
-        if (match) {
-          srcFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirmed);
-          // should we return an error to copy service?
-          // or send a notification?
-          if (!confirmed) return NS_OK;
         }
       }
-      rv = InitCopyState(srcSupport, {}, false, false, false, 0, EmptyCString(),
-                         listener, msgWindow, false);
-      if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
-
-      rv = imapService->MoveFolder(srcFolder, this, this, msgWindow);
+      nsCOMPtr<nsIMsgCopyService> copyService =
+          mozilla::components::Copy::Service();
+      return copyService->NotifyCompletion(srcFolder, this, rv);
     }
-  } else {
-    // !sameServer OR it's a copy. Unit tests expect a successful folder
-    // copy within the same IMAP server even though the UI forbids copy and
-    // only allows moves inside the same server. folderCopier, set below,
-    // handles the folder copy within an IMAP server (needed by unit tests) and
-    // the folder move or copy from another account or server into an IMAP
-    // account/server. The folder move from another account is "impure" since
-    // just the messages are moved and the source folder remains in place.
-    RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
-        this, srcFolder,
-        isMoveFolder,  // Always copy folders; if true only move the messages
-        msgWindow, listener);
-    // NOTE: the copystate object must hold itself in existence until complete,
-    // as we're not keeping hold of it here.
-    rv = folderCopier->StartNextCopy();
+
+    // non-virtual folder
+    nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
+    nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
+    bool match = false;
+    bool confirmed = false;
+    if (mFlags & nsMsgFolderFlags::Trash) {
+      rv = srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
+      if (match) {
+        srcFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirmed);
+        // should we return an error to copy service?
+        // or send a notification?
+        if (!confirmed) return NS_OK;
+      }
+    }
+    rv = InitCopyState(srcSupport, {}, false, false, false, 0, EmptyCString(),
+                       listener, msgWindow, false);
+    if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
+
+    return imapService->MoveFolder(srcFolder, this, this, msgWindow);
   }
-  return rv;
+
+  // !sameServer OR it's a copy. Unit tests expect a successful folder
+  // copy within the same IMAP server even though the UI forbids copy and
+  // only allows moves inside the same server. folderCopier, set below,
+  // handles the folder copy within an IMAP server (needed by unit tests) and
+  // the folder move or copy from another account or server into an IMAP
+  // account/server. The folder move from another account is "impure" since
+  // just the messages are moved and the source folder remains in place.
+  RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
+      this, srcFolder,
+      isMoveFolder,  // Always copy folders; if true only move the messages
+      msgWindow, listener);
+  // NOTE: the copystate object must hold itself in existence until complete,
+  // as we're not keeping hold of it here.
+  return rv = folderCopier->StartNextCopy();
 }
 
 NS_IMETHODIMP
