@@ -913,6 +913,7 @@ function onFilterListKeyPress(aEvent) {
       case KeyEvent.DOM_VK_RETURN:
         if (!gEditButton.disabled)
           onEditFilter();
+        aEvent.preventDefault();
         break;
     }
     return;
