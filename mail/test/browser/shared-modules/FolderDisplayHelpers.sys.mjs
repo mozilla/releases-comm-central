@@ -1005,8 +1005,6 @@ export function assert_folder_expanded(aFolder) {
  *
  * @param {nsIMsgFolder} aFolder - The folder to click on. This needs to be present in the
  *     current folder tree view, of course.
- *
- * @returns {integer} The view index that you clicked on.
  */
 export function select_click_folder(aFolder) {
   const win = get_about_3pane();

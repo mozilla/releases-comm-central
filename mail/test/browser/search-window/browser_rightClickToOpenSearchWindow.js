@@ -23,6 +23,16 @@ var folderA, folderB;
 add_setup(async function () {
   folderA = await create_folder("RightClickToOpenSearchWindowA");
   folderB = await create_folder("RightClickToOpenSearchWindowB");
+  registerCleanupFunction(() => {
+    folderA.deleteSelf(null);
+    folderB.deleteSelf(null);
+  });
+
+  await SimpleTest.promiseFocus();
+
+  // Someting needs time to settle. Unclear what.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
 });
 
 /**
