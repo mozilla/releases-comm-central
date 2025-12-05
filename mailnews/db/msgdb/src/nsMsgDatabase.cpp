@@ -2661,9 +2661,10 @@ NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
     }
   }
 
+  NS_ENSURE_STATE(m_dbFolderInfo);
+
   // force num new to 0.
   int32_t numUnreadMessages;
-
   rv = m_dbFolderInfo->GetNumUnreadMessages(&numUnreadMessages);
   if (NS_SUCCEEDED(rv)) {
     m_dbFolderInfo->ChangeNumUnreadMessages(-numUnreadMessages);
