@@ -587,12 +587,14 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
   rv = CreateDirectoryForFolder(newPath, isServer);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIFile> origPath;
-  rv = oldPath->Clone(getter_AddRefs(origPath));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = oldPath->CopyTo(newPath, safeFolderName16);
-  NS_ENSURE_SUCCESS(rv, rv);  // will fail if a file by that name exists
+  // Only copy existing Maildir folders. There is no actual folder present for
+  // a saved search (virtual folder).
+  bool exists;
+  oldPath->Exists(&exists);
+  if (exists) {
+    rv = oldPath->CopyTo(newPath, safeFolderName16);
+    NS_ENSURE_SUCCESS(rv, rv);  // Will fail if a file by that name exists.
+  }
 
   // Copy to dir can fail if file does not exist. If copy fails, we test
   // if the file exists or not, if it does not that's ok, we continue
@@ -607,8 +609,9 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
     int64_t fileSize;
     summaryFile->Exists(&exists);
     summaryFile->GetFileSize(&fileSize);
-    if (exists && fileSize > 0)
+    if (exists && fileSize > 0) {
       NS_ENSURE_SUCCESS(rv, rv);  // Yes, it should have worked!
+    }
     // else case is file is zero sized, no need to copy it,
     // not an error
     // else case is file does not exist - not an error

@@ -64,8 +64,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
   bool exists;
   path->Exists(&exists);
   if (!exists) {
-    // This code is executed only for the root folder, which needs to be a
-    // directory, unlike the MBOX file for all other folders.
+    // Apparently, this code is only used to create a real folder alongside
+    // the .msf file for a virtual folder. Although the empty folder seems
+    // useless, trying to move the virtual folder later on will fail without
+    // it.
     rv = path->Create(nsIFile::DIRECTORY_TYPE, 0755);
     NS_ENSURE_SUCCESS(rv, rv);
   }
