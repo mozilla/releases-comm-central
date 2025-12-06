@@ -142,9 +142,7 @@ static MimeClosure MimePgpe_init(MimeObject* obj,
                                  MimeClosure output_closure) {
   if (!(obj && obj->options && output_fn)) return MimeClosure::zero();
 
-  MimePgpeData* data = new MimePgpeData();
-  NS_ENSURE_TRUE(data, MimeClosure::zero());
-
+  RefPtr<MimePgpeData> data = new MimePgpeData();
   data->self = obj;
   data->output_fn = output_fn;
   data->output_closure = output_closure;
@@ -153,7 +151,9 @@ static MimeClosure MimePgpe_init(MimeObject* obj,
   // Create proxy object.
   nsresult rv;
   data->mimeDecrypt = do_CreateInstance(NS_PGPMIMEPROXY_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return MimeClosure(MimeClosure::isMimePgpeData, data);
+  if (NS_FAILED(rv)) {
+    return MimeClosure(MimeClosure::isMimePgpeData, data.forget().take());
+  }
 
   char* ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
 
@@ -212,7 +212,7 @@ static MimeClosure MimePgpe_init(MimeObject* obj,
           mailChannel)))
     return MimeClosure::zero();
 
-  return MimeClosure(MimeClosure::isMimePgpeData, data);
+  return MimeClosure(MimeClosure::isMimePgpeData, data.forget().take());
 }
 
 static int MimePgpe_write(const char* buf, int32_t buf_size,
@@ -270,6 +270,7 @@ static void MimePgpe_free(MimeClosure output_closure) {
     data->mimeDecrypt->RemoveMimeCallback();
     data->mimeDecrypt = nullptr;
   }
+  NS_IF_RELEASE(data);
 }
 
 /* Returns a string describing the location of the part (like "2.5.3").
