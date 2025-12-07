@@ -632,7 +632,7 @@ export var provider = {
         try {
           aListener.onOperationComplete(this.superCalendar, aStatus, aOperationType, aId, aDetail);
         } catch (exc) {
-          lazy.cal.ERROR(exc);
+          lazy.log.error(exc);
         }
       }
     }

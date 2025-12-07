@@ -62,7 +62,7 @@ class XMLResponseHandler {
     try {
       doc = parser.parseFromString(this._xmlString, "application/xml");
     } catch (e) {
-      cal.ERROR("CALDAV: DOMParser parse error: ", e);
+      lazy.log.error("CALDAV: DOMParser parse error: ", e);
       this.fatalError();
     }
 
@@ -586,7 +586,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
             await this.calendar.deleteTargetCalendarItem(path);
           } catch (ex) {
             // Don't let an exception here prevent us continuing.
-            cal.ERROR(`Delete item FAILED; path=${path}`, ex);
+            lazy.log.error(`Delete item FAILED; path=${path}`, ex);
           }
         }
       }
@@ -690,7 +690,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
               await this.calendar.deleteTargetCalendarItem(resp.href);
             } catch (ex) {
               // Don't let an exception here prevent us continuing.
-              cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
+              lazy.log.error(`Delete item FAILED; path=${resp.href}`, ex);
             }
           } else {
             lazy.log.debug("CalDAV: skipping unfound deleted item : " + resp.href);
@@ -1054,7 +1054,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
               await this.calendar.deleteTargetCalendarItem(resp.href);
             } catch (ex) {
               // Don't let an exception here prevent us continuing.
-              cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
+              lazy.log.error(`Delete item FAILED; path=${resp.href}`, ex);
             }
           } else {
             lazy.log.debug("CalDAV: skipping unfound deleted item : " + resp.href);
@@ -1086,7 +1086,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
               );
             } catch (ex) {
               // Don't let an exception here prevent us continuing.
-              cal.ERROR(`Add item FAILED; path=${resp.href}`, ex);
+              lazy.log.error(`Add item FAILED; path=${resp.href}`, ex);
             }
 
             // Every 10 items yield the event loop. Otherwise, we could end up parsing every

@@ -752,10 +752,7 @@ function onDetectionError(password, location, error) {
   } else {
     selectNetworkStatus("notfound");
   }
-  cal.ERROR(
-    "Error during calendar detection: " +
-      `${error.fileName || error.filename}:${error.lineNumber}: ${error}\n${error.stack}`
-  );
+  console.warn("Calendar detection failed", error);
 }
 
 /**

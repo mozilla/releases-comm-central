@@ -864,7 +864,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       } catch (e) {
         // Backup dir wasn't found. Likely because we are running in
         // xpcshell. Don't die, but continue the upload.
-        cal.ERROR("[calICSCalendar] Backup failed, no backupdir:" + e);
+        lazy.log.error("[calICSCalendar] Backup failed, no backupdir:" + e);
         resolve();
         return;
       }
@@ -879,7 +879,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       } catch (e) {
         // calendarmgr not found. Likely because we are running in
         // xpcshell. Don't die, but continue the upload.
-        cal.ERROR("[calICSCalendar] Backup failed, no calendarmanager:" + e);
+        lazy.log.error("[calICSCalendar] Backup failed, no calendarmanager:" + e);
         resolve();
         return;
       }
@@ -953,7 +953,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       } catch (e) {
         // For local files, asyncOpen throws on new (calendar) files
         // No problem, go and upload something
-        cal.ERROR("[calICSCalendar] Backup failed in asyncOpen:" + e);
+        lazy.log.error("[calICSCalendar] Backup failed in asyncOpen:" + e);
         resolve();
       }
     });

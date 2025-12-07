@@ -1239,7 +1239,7 @@ function changeOrderForElements(aPropKey, aPropParams) {
   for (const id of localeOrder) {
     const element = document.getElementById(id);
     if (!element) {
-      cal.ERROR(
+      console.error(
         `Localization error, could not find node "${id}". Please have your localizer check the string "${aPropKey}"`
       );
       continue;

@@ -491,7 +491,7 @@ calCachedCalendar.prototype = {
         filter = Ci.calICalendar.ITEM_FILTER_OFFLINE_DELETED;
         break;
       default:
-        cal.ERROR("[calCachedCalendar] Invalid playback type: " + aPlaybackType);
+        lazy.log.error("[calCachedCalendar] Invalid playback type: " + aPlaybackType);
         return;
     }
 
@@ -509,7 +509,7 @@ calCachedCalendar.prototype = {
           await uncachedOp(item);
         } catch (e) {
           error = e;
-          cal.ERROR(
+          lazy.log.error(
             "[calCachedCalendar] Could not perform playback operation " +
               debugOp +
               " for item " +

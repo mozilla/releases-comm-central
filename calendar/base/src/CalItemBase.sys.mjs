@@ -967,7 +967,7 @@ calItemBase.prototype = {
         alarm.icalComponent = alarmComp;
         this.addAlarm(alarm, true);
       } catch (e) {
-        cal.ERROR(
+        lazy.log.error(
           "Invalid alarm for item: " +
             this.id +
             " (" +

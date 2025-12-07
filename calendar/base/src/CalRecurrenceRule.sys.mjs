@@ -219,7 +219,7 @@ CalRecurrenceRule.prototype = {
       for (let i = 0; i < values.length; i++) {
         const match = /^([+-])?(5[0-3]|[1-4][0-9]|[1-9])?(SU|MO|TU|WE|TH|FR|SA)$/.exec(values[i]);
         if (!match) {
-          cal.ERROR("Malformed BYDAY rule\n" + cal.STACK(10));
+          lazy.log.error("Malformed BYDAY rule\n" + cal.STACK(10));
           return [];
         }
         values[i] = ICAL.Recur.icalDayToNumericDay(match[3]);

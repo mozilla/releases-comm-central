@@ -430,7 +430,7 @@ CalRecurrenceInfo.prototype = {
       // hangs", bail out after 100 runs. If this happens, it is most
       // likely a bug.
       if (bailCounter++ > 100) {
-        cal.ERROR("Could not find next occurrence after 100 runs!");
+        lazy.log.error("Could not find next occurrence after 100 runs!");
         return null;
       }
 
@@ -726,12 +726,14 @@ CalRecurrenceInfo.prototype = {
       anItem.parentItem.calendar != this.mBaseItem.calendar &&
       anItem.parentItem.id != this.mBaseItem.id
     ) {
-      cal.ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
+      lazy.log.error(
+        "recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!"
+      );
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (anItem.recurrenceId == null) {
-      cal.ERROR("recurrenceInfo::addException: item with null recurrenceId!");
+      lazy.log.error("recurrenceInfo::addException: item with null recurrenceId!");
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 

@@ -2145,9 +2145,7 @@ function attachFileByAccountKey(aAccountKey) {
  */
 function attachFile(cloudProvider) {
   if (!cloudProvider) {
-    cal.ERROR(
-      "[calendar-event-dialog] Could not attach file without cloud provider" + cal.STACK(10)
-    );
+    throw new Error("Need a filelink provider to attach a file!");
   }
 
   const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
@@ -2259,10 +2257,7 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
       updateAttachment();
     },
     statusCode => {
-      cal.ERROR(
-        "[calendar-event-dialog] Uploading cloud attachment failed. Status code: " +
-          statusCode.result
-      );
+      console.error("Uploading cloud attachment failed. Status code: " + statusCode.result);
 
       // Uploading failed. First of all, show an error icon. Also,
       // delete it from the attach map now, this will make sure it is
@@ -2398,20 +2393,15 @@ function deleteAttachment() {
         .deleteFile(null, item.attachCloudFileUpload.id)
         .catch(statusCode => {
           // TODO With a notification bar, we could actually show this error.
-          cal.ERROR(
-            "[calendar-event-dialog] Deleting cloud attachment " +
+          console.error(
+            "Deleting cloud attachment " +
               "failed, file will remain on server. " +
               " Status code: " +
               statusCode
           );
         });
     } catch (e) {
-      cal.ERROR(
-        "[calendar-event-dialog] Deleting cloud attachment " +
-          "failed, file will remain on server. " +
-          "Exception: " +
-          e
-      );
+      console.error("Deleting cloud attachment failed, file will remain on server", e);
     }
   }
   item.remove();

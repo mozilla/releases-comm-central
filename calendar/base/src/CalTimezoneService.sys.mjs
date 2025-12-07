@@ -111,7 +111,7 @@ CalTimezoneService.prototype = {
 
   getTimezone(tzid) {
     if (!tzid) {
-      cal.ERROR("Unknown timezone requested\n" + cal.STACK(10));
+      lazy.log.error("Unknown timezone requested\n" + cal.STACK(10));
       return null;
     }
 
@@ -138,7 +138,7 @@ CalTimezoneService.prototype = {
       const tzdef = this._timezoneDatabase.getTimezoneDefinition(tzid);
 
       if (!tzdef) {
-        cal.ERROR(`Could not find definition for ${tzid}`);
+        lazy.log.error(`Could not find definition for ${tzid}`);
         return null;
       }
 

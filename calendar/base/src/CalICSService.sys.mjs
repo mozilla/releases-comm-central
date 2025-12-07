@@ -4,8 +4,6 @@
 
 import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
-import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -596,7 +594,7 @@ CalICSService.prototype = {
       listener.onParsingComplete(Cr.OK, icalComp);
     };
     worker.onerror = function (event) {
-      cal.ERROR(`Parsing failed; ${event.message}. ICS data:\n${serialized}`);
+      lazy.log.error(`Parsing failed; ${event.message}. ICS data:\n${serialized}`);
       listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
     };
     worker.postMessage(serialized);

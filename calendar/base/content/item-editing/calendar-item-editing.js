@@ -869,7 +869,7 @@ function setContextPartstat(aTarget, aItems) {
       }
     }
   } catch (e) {
-    cal.ERROR("Error setting partstat: " + e + "\r\n");
+    console.error("Error setting partstat: " + e, e);
   } finally {
     endBatchTransaction();
   }

@@ -210,7 +210,7 @@ export function backupDB(db, currentVersion) {
       "Storage: Upgrading to v" + DB_SCHEMA_VERSION + ", a backup was written to: " + file.path
     );
   } catch (e) {
-    cal.ERROR("Storage: Error creating backup file: " + e);
+    lazy.log.error("Storage: Error creating backup file: " + e);
   }
 }
 
@@ -299,7 +299,7 @@ function handleTooNewSchema(storageCalendar) {
     hostApplication: appName,
     fileName: copyFileName,
   });
-  cal.ERROR(errorText);
+  lazy.log.error(errorText);
 
   storageCalendar.prepareInitDB();
 }
@@ -334,7 +334,7 @@ function createDBDelegate(funcName) {
       try {
         return db[funcName](...args);
       } catch (e) {
-        cal.ERROR(
+        lazy.log.error(
           "Error calling '" +
             funcName +
             "' db error: '" +
@@ -420,7 +420,7 @@ function reportErrorAndRollback(db, e) {
   if (db && db.transactionInProgress) {
     rollbackTransaction(db);
   }
-  cal.ERROR(
+  lazy.log.error(
     `++++++ Storage error! ++++++ DB Error: ${lastErrorString(db)}\n++++++ Exception: ${e}`
   );
   return e;
@@ -486,7 +486,7 @@ function ensureUpdatedTimezones(db) {
         }
       }
     } catch (e) {
-      cal.ERROR("Error updating timezones: " + e + "\nDB Error " + lastErrorString(db));
+      lazy.log.error("Error updating timezones: " + e + "\nDB Error " + lastErrorString(db));
     } finally {
       getZones.finalize();
     }
@@ -1299,7 +1299,7 @@ upgrade.v16 = function (db, version) {
         } catch (e) {
           // Errors in this function are not really logged. Do this
           // separately.
-          cal.ERROR("Error converting alarms: " + e);
+          lazy.log.error("Error converting alarms: " + e);
           throw e;
         }
       },
@@ -1631,7 +1631,7 @@ upgrade.v22 = function (db, version) {
           attach.encoding = aEncoding;
           return attach.icalString;
         } catch (e) {
-          cal.ERROR("Error converting attachment: " + e);
+          lazy.log.error("Error converting attachment: " + e);
           throw e;
         }
       },
@@ -1654,7 +1654,7 @@ upgrade.v22 = function (db, version) {
           relation.relId = aRelId;
           return relation.icalString;
         } catch (e) {
-          cal.ERROR("Error converting relation: " + e);
+          lazy.log.error("Error converting relation: " + e);
           throw e;
         }
       },
@@ -1706,7 +1706,7 @@ upgrade.v22 = function (db, version) {
         } catch (e) {
           // There are some attendees with a null ID. We are taking
           // the opportunity to remove them here.
-          cal.ERROR("Error converting attendee, removing: " + e);
+          lazy.log.error("Error converting attendee, removing: " + e);
           return null;
         }
       },
@@ -1812,7 +1812,7 @@ upgrade.v22 = function (db, version) {
 
           return ritem.icalString;
         } catch (e) {
-          cal.ERROR("Error converting recurrence: " + e);
+          lazy.log.error("Error converting recurrence: " + e);
           throw e;
         }
       },

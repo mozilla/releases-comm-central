@@ -326,7 +326,7 @@ export class CalStorageDatabase {
     if (exception) {
       logMessage += "\nException: " + exception;
     }
-    cal.ERROR("[calStorageCalendar] " + logMessage + "\n" + cal.STACK(10));
+    lazy.log.error("[calStorageCalendar] " + logMessage + "\n" + cal.STACK(10));
   }
 
   /**

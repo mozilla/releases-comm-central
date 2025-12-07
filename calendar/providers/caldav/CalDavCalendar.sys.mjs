@@ -234,7 +234,7 @@ CalDavCalendar.prototype = {
         lazy.log.debug("CalDAV: cannot store meta data without an id");
       }
     } else {
-      cal.ERROR("CalDAV: calendar storage does not support meta data");
+      lazy.log.error("CalDAV: calendar storage does not support meta data");
     }
   },
 
@@ -635,7 +635,7 @@ CalDavCalendar.prototype = {
         } else if (response.status) {
           // There is a response status, but we haven't handled it yet. Any
           // error occurring here should consider being handled!
-          cal.ERROR(
+          lazy.log.error(
             "CalDAV: Unexpected status adding item to " +
               this.name +
               ": " +
@@ -757,7 +757,7 @@ CalDavCalendar.prototype = {
         } else if (response.status) {
           // There is a response status, but we haven't handled it yet. Any error occurring
           // here should consider being handled!
-          cal.ERROR(
+          lazy.log.error(
             "CalDAV: Unexpected status modifying item to " +
               this.name +
               ": " +
@@ -897,7 +897,7 @@ CalDavCalendar.prototype = {
     } else if (response.serverError) {
       return onError(Cr.NS_ERROR_NOT_AVAILABLE, "Server Replied with " + response.status);
     } else if (response.status) {
-      cal.ERROR(
+      lazy.log.error(
         "CalDAV: Unexpected status deleting item from " +
           this.name +
           ": " +
@@ -979,7 +979,7 @@ CalDavCalendar.prototype = {
         this.deleteTargetCalendarItem(path);
       } catch (ex) {
         // Don't let an exception here prevent us continuing.
-        cal.ERROR(`Delete item FAILED; path=${path}, id=${item.id}`, ex);
+        lazy.log.error(`Delete item FAILED; path=${path}, id=${item.id}`, ex);
       }
     }
 
@@ -2388,7 +2388,7 @@ CalDavCalendar.prototype = {
         );
         result = imipTransport.sendItems(aRecipientList, aItipItem, aFromAttendee);
       } else {
-        cal.ERROR(
+        lazy.log.error(
           "No imip transport available for " +
             aCalendar.id +
             ", failed to notify" +

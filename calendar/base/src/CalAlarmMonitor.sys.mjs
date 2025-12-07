@@ -6,6 +6,13 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
@@ -136,7 +143,7 @@ CalAlarmMonitor.prototype = {
             this.mSound.beep();
           }
         } catch (exc) {
-          cal.ERROR("Error playing alarm sound: " + exc);
+          lazy.log.error("Error playing alarm sound: " + exc);
         }
       }
     }

@@ -128,7 +128,7 @@ export class CalItipMessageSender {
           autoResponse.mode = extResponse.responseMode;
           break;
         default:
-          cal.ERROR(
+          lazy.log.error(
             "cal.itip.checkAndSend(): Invalid value " +
               extResponse.responseMode +
               " provided for responseMode attribute in argument extResponse." +

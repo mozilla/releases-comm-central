@@ -6,7 +6,13 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
 
 const lazy = {};
-
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
@@ -52,9 +58,9 @@ CalIcsParser.prototype = {
         // we try to also provide the parsed component - if that fails due to an error in
         // libical, we append the error message of the caught exception, which includes
         // already a stack trace.
-        cal.ERROR(message + rootComp + "\n" + cal.STACK(10));
+        lazy.log.error(message + rootComp + "\n" + cal.STACK(10));
       } catch (e) {
-        cal.ERROR(message + e);
+        lazy.log.error(message + e);
       }
     }
 
@@ -153,7 +159,7 @@ CalIcsParser.prototype = {
         const icalComp = cal.icsService.parseICS(aICSString);
         this.processIcalComponent(icalComp);
       } catch (exc) {
-        cal.ERROR(exc.message + " when parsing\n" + aICSString);
+        lazy.log.error(exc.message + " when parsing\n" + aICSString);
       }
     }
   },
@@ -250,7 +256,7 @@ parserState.prototype = {
         };
         const msg = lazy.l10n.formatValueSync("unknown-timezone-in-item", msgArgs);
 
-        cal.ERROR(msg + "\n" + item.icalString);
+        lazy.log.error(msg + "\n" + item.icalString);
         this.tzErrors[hid] = true;
       }
     }

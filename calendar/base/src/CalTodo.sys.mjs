@@ -186,7 +186,7 @@ CalTodo.prototype = {
           icalcomp.addProperty(icalprop);
         }
       } catch (e) {
-        cal.ERROR("failed to set " + name + " to " + value + ": " + e + "\n");
+        lazy.log.error("failed to set " + name + " to " + value + ": " + e + "\n");
       }
     }
     return icalcomp;

@@ -214,11 +214,7 @@ async function loadCalendarManager() {
   function saveSortOrder() {
     const order = [...calendarList.children].map(i => i.getAttribute("calendar-id"));
     Services.prefs.setStringPref("calendar.list.sortOrder", order.join(" "));
-    try {
-      Services.prefs.savePrefFile(null);
-    } catch (ex) {
-      cal.ERROR(ex);
-    }
+    Services.prefs.savePrefFile(null);
   }
 
   calendarList.addEventListener("click", event => {

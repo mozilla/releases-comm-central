@@ -4,6 +4,15 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 /**
  * Handles remembering deleted items.
  *
@@ -66,7 +75,7 @@ CalDeletedItems.prototype = {
         return date.getInTimezone(cal.dtz.defaultTimezone);
       }
     } catch (e) {
-      cal.ERROR(e);
+      lazy.log.error(e);
     } finally {
       stmt.reset();
     }
@@ -175,7 +184,7 @@ CalDeletedItems.prototype = {
         this.mDB = null;
       }
     } catch (e) {
-      cal.ERROR("Error closing deleted items database: " + e);
+      lazy.log.error("Error closing deleted items database: " + e);
     }
 
     cal.manager.removeCalendarObserver(this);

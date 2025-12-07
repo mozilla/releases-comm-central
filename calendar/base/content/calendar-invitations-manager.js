@@ -121,7 +121,7 @@ InvitationsManager.prototype = {
     try {
       items = await cal.iterate.streamToArray(this.getInvitations());
     } catch (e) {
-      cal.ERROR(e);
+      console.error(e);
     }
     this.toggleInvitationsPanel(items);
   },

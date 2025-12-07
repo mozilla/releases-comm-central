@@ -183,7 +183,7 @@ CalCalendarManager.prototype = {
       });
 
       // Log the original exception via error console to provide more debug info
-      cal.ERROR(ex);
+      lazy.log.error(ex);
 
       // Log the possibly translated message via the UI.
       const paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
@@ -285,7 +285,7 @@ CalCalendarManager.prototype = {
         this.setupCalendar(replacement);
         needsRefresh.push(replacement);
       } catch (e) {
-        cal.ERROR(
+        lazy.log.error(
           `Can't create calendar for ${calendar.id} (${calendar.type}, ${calendar.uri.spec}): ${e}`
         );
       }
@@ -548,7 +548,7 @@ CalCalendarManager.prototype = {
         const calendar = this.initializeCalendar(id, ctype, uri);
         this.setupCalendar(calendar);
       } catch (exc) {
-        cal.ERROR(`Can't create calendar for ${id} (${ctype}, ${curi}): ${exc}`);
+        lazy.log.error(`Can't create calendar for ${id} (${ctype}, ${curi}): ${exc}`);
       }
     }
 

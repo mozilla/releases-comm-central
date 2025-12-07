@@ -31,8 +31,7 @@ ChromeUtils.defineESModuleGetters(this, {
  */
 async function loadCalendarComponent() {
   if (loadCalendarComponent.hasBeenCalled) {
-    cal.ERROR("loadCalendarComponent was called more than once for a single window");
-    return;
+    throw Error("loadCalendarComponent was called more than once for a single window");
   }
   loadCalendarComponent.hasBeenCalled = true;
 
@@ -226,7 +225,7 @@ function migrateCalendarUI() {
     }
     Services.prefs.setIntPref("calendar.ui.version", UI_VERSION);
   } catch (e) {
-    cal.ERROR("Error upgrading UI from " + currentUIVersion + " to " + UI_VERSION + ": " + e);
+    console.error("Error upgrading UI from " + currentUIVersion + " to " + UI_VERSION + ": " + e);
   }
 }
 
