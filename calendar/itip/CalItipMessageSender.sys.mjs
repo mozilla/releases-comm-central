@@ -128,24 +128,14 @@ export class CalItipMessageSender {
           autoResponse.mode = extResponse.responseMode;
           break;
         default:
-          lazy.log.error(
-            "cal.itip.checkAndSend(): Invalid value " +
-              extResponse.responseMode +
-              " provided for responseMode attribute in argument extResponse." +
-              " Falling back to USER mode.\r\n" +
-              cal.STACK(20)
-          );
+          lazy.log.warn(`Invalid responseMode: ${extResponse.responseMode}`);
       }
     } else if ((originalItem && originalItem.getAttendees().length) || item.getAttendees().length) {
       // let's log something useful to notify addon developers or find any
       // missing pieces in the conversions if the current or original item
       // has attendees - the latter is to prevent logging if creating events
       // by click and slide in day or week views
-      lazy.log.debug(
-        "cal.itip.checkAndSend: no response mode provided, " +
-          "falling back to USER mode.\r\n" +
-          cal.STACK(20)
-      );
+      lazy.log.debug("No response mode provided. Falling back to USER");
     }
     if (autoResponse.mode == Ci.calIItipItem.NONE) {
       // we stop here and don't send anything if the user opted out before

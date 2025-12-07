@@ -287,9 +287,9 @@ export class CalStorageDatabase {
    * last statement so the problem can be investigated more easily.
    *
    * @param {string} message - Error message to log.
-   * @param {Error} exception - Exception that caused the error.
+   * @param {Error} e - Exception that caused the error.
    */
-  logError(message, exception) {
+  logError(message, e) {
     let logMessage = "Message: " + message;
     if (this.db) {
       if (this.db.connectionReady) {
@@ -323,10 +323,10 @@ export class CalStorageDatabase {
       }
     }
 
-    if (exception) {
-      logMessage += "\nException: " + exception;
+    if (e) {
+      logMessage += "\nException: " + e;
     }
-    lazy.log.error("[calStorageCalendar] " + logMessage + "\n" + cal.STACK(10));
+    lazy.log.error(logMessage, e);
   }
 
   /**

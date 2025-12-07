@@ -146,7 +146,7 @@ CalEvent.prototype = {
           icalcomp.addProperty(icalprop);
         }
       } catch (e) {
-        lazy.log.error("failed to set " + name + " to " + value + ": " + e + "\n");
+        lazy.log.error(`Setting ${name}=${value} FAILED.`, e);
       }
     }
     return icalcomp;

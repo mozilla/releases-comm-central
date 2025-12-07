@@ -334,15 +334,7 @@ function createDBDelegate(funcName) {
       try {
         return db[funcName](...args);
       } catch (e) {
-        lazy.log.error(
-          "Error calling '" +
-            funcName +
-            "' db error: '" +
-            lastErrorString(db) +
-            "'.\nException: " +
-            e
-        );
-        lazy.log.warn(cal.STACK(10));
+        lazy.log.error(`${funcName} FAILED`, e);
       }
     }
     return null;

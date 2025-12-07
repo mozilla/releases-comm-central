@@ -286,7 +286,8 @@ CalCalendarManager.prototype = {
         needsRefresh.push(replacement);
       } catch (e) {
         lazy.log.error(
-          `Can't create calendar for ${calendar.id} (${calendar.type}, ${calendar.uri.spec}): ${e}`
+          `Can't create calendar for ${calendar.id} (${calendar.type}, ${calendar.uri.spec}): ${e}`,
+          e
         );
       }
     }

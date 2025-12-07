@@ -659,11 +659,8 @@ calItemBase.prototype = {
           if (attendee.isMutable) {
             attendee.commonName = commonName;
           } else {
-            lazy.log.debug(
-              "Failed to cleanup malformed commonName for immutable attendee " +
-                attendee.toString() +
-                "\n" +
-                cal.STACK(20)
+            lazy.log.warn(
+              `Failed to cleanup malformed commonName for immutable attendee ${attendee.commonName}`
             );
           }
         }

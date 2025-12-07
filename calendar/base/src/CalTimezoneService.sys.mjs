@@ -111,7 +111,6 @@ CalTimezoneService.prototype = {
 
   getTimezone(tzid) {
     if (!tzid) {
-      lazy.log.error("Unknown timezone requested\n" + cal.STACK(10));
       return null;
     }
 

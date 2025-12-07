@@ -522,7 +522,7 @@ export var itip = {
     );
     const addresses = compFields.splitRecipients(author, true);
     if (addresses.length != 1) {
-      lazy.log.debug("No unique email address for lookup in message.\r\n" + lazy.cal.STACK(20));
+      lazy.log.debug("No unique email address for lookup in message.");
     }
     return addresses[0] || null;
   },
