@@ -402,11 +402,23 @@ export class MessengerContentHandler {
 
     if (cmdLine.findFlag("compose", false) != -1) {
       // E.g. -compose "to=john@example.com,subject='Dinner tonight?'"
-      const uri = cmdLine.handleFlagWithParam("compose", false);
+      let param = "";
+      try {
+        param = cmdLine.handleFlagWithParam("compose", false);
+        // NS_ERROR_INVALID_ARG is thrown when flag exists, but has no param.
+      } catch (e) {
+        if (e.result != Cr.NS_ERROR_INVALID_ARG) {
+          throw Components.Exception(
+            "Error processing -compose command.",
+            e.result
+          );
+        }
+        cmdLine.handleFlag("compose", false);
+      }
       const arg = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
-      arg.data = uri;
+      arg.data = param;
       const args = Cc["@mozilla.org/array;1"].createInstance(
         Ci.nsIMutableArray
       );
