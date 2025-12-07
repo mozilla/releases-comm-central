@@ -1,7 +1,7 @@
 [DEFAULT]
 head = "head.js"
 prefs = [
-  "calendar.debug.log=true",
+  "calendar.loglevel=All",
   "calendar.item.promptDelete=false",
   "calendar.timezone.local=UTC",
   "calendar.timezone.useSystemTimezone=false",

@@ -47,9 +47,7 @@ class XMLResponseHandler {
    * @param {number} responseStatus
    */
   logResponse(responseStatus) {
-    if (this.calendar.verboseLogging()) {
-      lazy.log.debug(`CalDAV: recv (${responseStatus}): ${this._xmlString}`);
-    }
+    lazy.log.debug(`CalDAV: recv (${responseStatus}): ${this._xmlString}`);
   }
 
   /**
@@ -283,9 +281,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   characters(aValue) {
-    if (this.calendar.verboseLogging()) {
-      this.logXML += aValue;
-    }
+    this.logXML += aValue;
     if (this.tag) {
       this.currentResponse[this.tag] += aValue;
     }
@@ -316,9 +312,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
         this.currentResponse[aLocalName] = "";
         break;
     }
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "<" + aQName + ">";
-    }
+    this.logXML += "<" + aQName + ">";
   }
 
   endElement(aUri, aLocalName, aQName) {
@@ -368,9 +362,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
         break;
       }
     }
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "</" + aQName + ">";
-    }
+    this.logXML += "</" + aQName + ">";
   }
 
   processingInstruction() {}
@@ -438,9 +430,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
 
     const requestUri = this.calendar.makeUri(null, this.baseUri);
 
-    if (this.calendar.verboseLogging()) {
-      lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
-    }
+    lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
     lazy.log.debug("CalDAV: webdav-sync Token: " + this.calendar.mWebdavSyncToken);
 
     const onSetupChannel = channel => {
@@ -553,9 +543,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   characters(aValue) {
-    if (this.calendar.verboseLogging()) {
-      this.logXML += aValue;
-    }
+    this.logXML += aValue;
     this.currentResponse[this.tag] += aValue;
   }
 
@@ -650,9 +638,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
         this.currentResponse[this.tag] = "";
         break;
     }
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "<" + aQName + ">";
-    }
+    this.logXML += "<" + aQName + ">";
   }
 
   async endElement(aUri, aLocalName, aQName) {
@@ -774,9 +760,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       }
     }
     this.tag = null;
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "</" + aQName + ">";
-    }
+    this.logXML += "</" + aQName + ">";
   }
 
   processingInstruction() {}
@@ -863,9 +847,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       "</C:calendar-multiget>";
 
     const requestUri = this.calendar.makeUri(null, this.baseUri);
-    if (this.calendar.verboseLogging()) {
-      lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
-    }
+    lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
 
     const onSetupChannel = channel => {
       channel.requestMethod = "REPORT";
@@ -985,9 +967,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   characters(aValue) {
-    if (this.calendar.verboseLogging()) {
-      this.logXML += aValue;
-    }
+    this.logXML += aValue;
     if (this.tag) {
       this.currentResponse[this.tag] += aValue;
     }
@@ -1030,9 +1010,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
         this.currentResponse[this.tag] = "";
         break;
     }
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "<" + aQName + ">";
-    }
+    this.logXML += "<" + aQName + ">";
   }
 
   async endElement(aUri, aLocalName, aQName) {
@@ -1120,9 +1098,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       }
     }
     this.tag = null;
-    if (this.calendar.verboseLogging()) {
-      this.logXML += "</" + aQName + ">";
-    }
+    this.logXML += "</" + aQName + ">";
   }
 
   processingInstruction() {}

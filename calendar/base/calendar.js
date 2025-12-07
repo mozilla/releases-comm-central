@@ -6,10 +6,8 @@
 
 // This file contains all of the default preference values for Calendar.
 
-// Turns on basic calendar logging.
-pref("calendar.debug.log", false);
-// Turns on verbose calendar logging.
-pref("calendar.debug.log.verbose", false);
+// Log level for calendar related logging.
+pref("calendar.loglevel", "Warn");
 
 // general settings
 pref("calendar.date.format", 0);

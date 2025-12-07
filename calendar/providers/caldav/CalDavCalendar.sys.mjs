@@ -836,9 +836,7 @@ CalDavCalendar.prototype = {
       );
     }
 
-    if (this.verboseLogging()) {
-      lazy.log.debug("CalDAV: Deleting " + eventUri.spec);
-    }
+    lazy.log.debug("CalDAV: Deleting " + eventUri.spec);
 
     const sendEtag = ignoreEtag ? null : this.mItemInfoCache[item.id].etag;
     const request = new CalDavDeleteItemRequest(this.session, this, eventUri, sendEtag);
@@ -1354,15 +1352,9 @@ CalDavCalendar.prototype = {
         // ctag mismatch, need to fetch calendar-data
         this.mProposedCtag = ctag;
         this.getUpdatedItems(this.calendarUri, aChangeLogListener);
-        if (this.verboseLogging()) {
-          lazy.log.debug(
-            "CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name
-          );
-        }
+        lazy.log.debug("CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name);
       } else {
-        if (this.verboseLogging()) {
-          lazy.log.debug("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
-        }
+        lazy.log.debug("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
 
         // Notify the listener, but don't return just yet...
         notifyListener(Cr.NS_OK);
@@ -1639,9 +1631,7 @@ CalDavCalendar.prototype = {
           }
 
           this.mProposedCtag = ctag;
-          if (this.verboseLogging()) {
-            lazy.log.debug(`CalDAV: initial ctag ${ctag} for calendar ${this.name}`);
-          }
+          lazy.log.debug(`CalDAV: initial ctag ${ctag} for calendar ${this.name}`);
         }
 
         // Use supported-calendar-component-set if the server supports it; some do not.
@@ -1751,20 +1741,14 @@ CalDavCalendar.prototype = {
           return;
         }
 
-        if (this.verboseLogging()) {
-          lazy.log.debug("CalDAV: DAV features: " + [...response.features.values()].join(", "));
-        }
+        lazy.log.debug("CalDAV: DAV features: " + [...response.features.values()].join(", "));
 
         if (response.features.has("calendar-auto-schedule")) {
-          if (this.verboseLogging()) {
-            lazy.log.debug(`CalDAV: Calendar ${this.name} supports calendar-auto-schedule`);
-          }
+          lazy.log.debug(`CalDAV: Calendar ${this.name} supports calendar-auto-schedule`);
           this.mHasAutoScheduling = true;
           // leave outbound inbox/outbox scheduling off
         } else if (response.features.has("calendar-schedule")) {
-          if (this.verboseLogging()) {
-            lazy.log.debug(`CalDAV: Calendar ${this.name} generally supports calendar-schedule`);
-          }
+          lazy.log.debug(`CalDAV: Calendar ${this.name} generally supports calendar-schedule`);
           this.hasScheduling = true;
         }
 
@@ -1865,13 +1849,11 @@ CalDavCalendar.prototype = {
     };
 
     if (!aNameSpaceList.length) {
-      if (this.verboseLogging()) {
-        lazy.log.debug(
-          "CalDAV: principal namespace list empty, calendar " +
-            this.name +
-            " doesn't support scheduling"
-        );
-      }
+      lazy.log.debug(
+        "CalDAV: principal namespace list empty, calendar " +
+          this.name +
+          " doesn't support scheduling"
+      );
       doesntSupportScheduling();
       return;
     }
@@ -1939,9 +1921,7 @@ CalDavCalendar.prototype = {
           // The first address in the list is expected to be the primary address among the aliases.
           const firstAddr = addrSet.find(addr => addr.match(/^mailto:/i));
           if (firstAddr) {
-            if (this.verboseLogging()) {
-              lazy.log.debug("CalDAV: mCalendarUserAddress set to " + firstAddr);
-            }
+            lazy.log.debug("CalDAV: mCalendarUserAddress set to " + firstAddr);
             this.mCalendarUserAddress = firstAddr;
           }
 
@@ -1960,13 +1940,11 @@ CalDavCalendar.prototype = {
             // Check the next namespace to find the info we need.
             this.checkPrincipalsNameSpace(aNameSpaceList, aChangeLogListener);
           } else {
-            if (this.verboseLogging()) {
-              lazy.log.debug(
-                "CalDAV: principal namespace list empty, calendar " +
-                  this.name +
-                  " doesn't support scheduling"
-              );
-            }
+            lazy.log.debug(
+              "CalDAV: principal namespace list empty, calendar " +
+                this.name +
+                " doesn't support scheduling"
+            );
             doesntSupportScheduling();
           }
         } else {
@@ -2473,20 +2451,16 @@ CalDavCalendar.prototype = {
             }
           }
 
-          if (this.verboseLogging()) {
-            lazy.log.debug(
-              "CalDAV: Failed scheduling delivery to " +
-                remainingAttendees.map(att => att.id).join(", ")
-            );
-          }
+          lazy.log.debug(
+            "CalDAV: Failed scheduling delivery to " +
+              remainingAttendees.map(att => att.id).join(", ")
+          );
 
           if (remainingAttendees.length) {
             // try to fall back to email delivery if CalDAV-sched didn't work
             const imipTransport = cal.provider.getImipTransport(this);
             if (imipTransport) {
-              if (this.verboseLogging()) {
-                lazy.log.debug(`CalDAV: sending email to ${remainingAttendees.length} recipients`);
-              }
+              lazy.log.debug(`CalDAV: sending email to ${remainingAttendees.length} recipients`);
               imipTransport.sendItems(remainingAttendees, aItipItem, aFromAttendee);
             } else {
               lazy.log.debug("CalDAV: no fallback to iTIP/iMIP transport for " + this.name);
@@ -2501,23 +2475,13 @@ CalDavCalendar.prototype = {
     return true;
   },
 
-  mVerboseLogging: undefined,
-  verboseLogging() {
-    if (this.mVerboseLogging === undefined) {
-      this.mVerboseLogging = Services.prefs.getBoolPref("calendar.debug.log.verbose", false);
-    }
-    return this.mVerboseLogging;
-  },
-
   getSerializedItem(aItem) {
     const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
     serializer.addItems([aItem]);
     const serializedItem = serializer.serializeToString();
-    if (this.verboseLogging()) {
-      lazy.log.debug("CalDAV: send: " + serializedItem);
-    }
+    lazy.log.debug("CalDAV: send: " + serializedItem);
     return serializedItem;
   },
 };

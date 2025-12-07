@@ -69,9 +69,6 @@ var gMockCalendar = {
   makeUri(insert, base) {
     return base;
   },
-  verboseLogging() {
-    return true;
-  },
   ensureEncodedPath(x) {
     return x;
   },
@@ -469,9 +466,7 @@ class CalDavServer {
 }
 
 function run_test() {
-  Services.prefs.setBoolPref("calendar.debug.log", true);
-  Services.prefs.setBoolPref("calendar.debug.log.verbose", true);
-  cal.console.maxLogLevel = "debug";
+  Services.prefs.setCharPref("calendar.loglevel", "Debug");
 
   // TODO: make do_calendar_startup to work with this test and replace the startup code here
   do_get_profile();

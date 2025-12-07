@@ -9,13 +9,6 @@ import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 ICAL.design.strict = false;
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "log", () => {
-  return console.createInstance({
-    prefix: "calendar",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "calendar.loglevel",
-  });
-});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalDuration: "resource:///modules/CalDuration.sys.mjs",
@@ -24,12 +17,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
-
-const gCalendarConsole = console.createInstance({
-  prefix: "Calendar",
-  consoleID: "calendar",
-  maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "All" : "Warn",
-});
 
 export const cal = {
   // These functions exist to reduce boilerplate code for creating instances
@@ -64,28 +51,6 @@ export const cal = {
   },
 
   /**
-   * The calendar console instance
-   */
-  console: gCalendarConsole,
-
-  /**
-   * Logs a calendar message to the console. Needs calendar.debug.log enabled to show messages.
-   * Shortcut to cal.console.log()
-   */
-  LOG: gCalendarConsole.log.bind(gCalendarConsole),
-  LOGverbose: gCalendarConsole.debug.bind(gCalendarConsole),
-
-  /**
-   * Logs a calendar warning to the console. Shortcut to cal.console.warn()
-   */
-  WARN: gCalendarConsole.warn.bind(gCalendarConsole),
-
-  /**
-   * Logs a calendar error to the console. Shortcut to cal.console.error()
-   */
-  ERROR: gCalendarConsole.error.bind(gCalendarConsole),
-
-  /**
    * Uses the prompt service to display an error message. Use this sparingly,
    * as it interrupts the user.
    *
@@ -95,49 +60,6 @@ export const cal = {
    */
   showError(aMsg, aWindow = null) {
     Services.prompt.alert(aWindow, lazy.l10n.formatValueSync("generic-error-title"), aMsg);
-  },
-
-  /**
-   * Returns a string describing the current js-stack with filename and line
-   * numbers.
-   *
-   * @param {number} aDepth - (optional) The number of frames to include.
-   *   Defaults to 5.
-   * @param {number} aSkip - (optional) Number of frames to skip.
-   */
-  STACK(aDepth = 10, aSkip = 0) {
-    let stack = "";
-    let frame = Components.stack.caller;
-    for (let i = 1; i <= aDepth + aSkip && frame; i++) {
-      if (i > aSkip) {
-        stack += `${i}: [${frame.filename}:${frame.lineNumber}] ${frame.name}\n`;
-      }
-      frame = frame.caller;
-    }
-    return stack;
-  },
-
-  /**
-   * Logs a message and the current js-stack, if aCondition fails.
-   *
-   * @param {boolean} aCondition - The condition to test for.
-   * @param {string} aMessage - The message to report in the case the assert
-   *   fails.
-   * @param {boolean} aCritical - If true, throw an error to stop current code
-   *   execution. If false, code flow will continue. May be a result code.
-   */
-  ASSERT(aCondition, aMessage, aCritical = false) {
-    if (aCondition) {
-      return;
-    }
-
-    const string = `Assert failed: ${aMessage}\n ${cal.STACK(0, 1)}`;
-    if (aCritical) {
-      const rescode = aCritical === true ? Cr.NS_ERROR_UNEXPECTED : aCritical;
-      throw new Components.Exception(string, rescode);
-    } else {
-      console.error(string);
-    }
   },
 
   /**
@@ -153,11 +75,7 @@ export const cal = {
    */
   generateQI(aInterfaces) {
     if (aInterfaces.length == 1) {
-      lazy.log.warn(
-        "When generating QI for one interface, please use ChromeUtils.generateQI",
-        cal.STACK(10)
-      );
-      return ChromeUtils.generateQI(aInterfaces);
+      throw new Error("please use ChromeUtils.generateQI()");
     }
     /* Note that Ci[Ci.x] == Ci.x for all x */
     const names = [];
@@ -364,35 +282,6 @@ export const cal = {
   registerForShutdownCleanup: shutdownCleanup,
 };
 
-/**
- * Update the logging preferences for the calendar console based on the state of verbose logging and
- * normal calendar logging.
- */
-function updateLogPreferences() {
-  if (cal.verboseLogEnabled) {
-    gCalendarConsole.maxLogLevel = "all";
-  } else if (cal.debugLogEnabled) {
-    gCalendarConsole.maxLogLevel = "log";
-  } else {
-    gCalendarConsole.maxLogLevel = "warn";
-  }
-}
-
-// Preferences
-XPCOMUtils.defineLazyPreferenceGetter(
-  cal,
-  "debugLogEnabled",
-  "calendar.debug.log",
-  false,
-  updateLogPreferences
-);
-XPCOMUtils.defineLazyPreferenceGetter(
-  cal,
-  "verboseLogEnabled",
-  "calendar.debug.log.verbose",
-  false,
-  updateLogPreferences
-);
 XPCOMUtils.defineLazyPreferenceGetter(
   cal,
   "threadingEnabled",
