@@ -295,6 +295,8 @@ void LiveView::CreateJSMessageArray(mozIStorageStatement* stmt, JSContext* cx,
                                     Rooted<JSObject*>& arr) {
   arr.set(NewArrayObject(cx, 0));
   uint32_t count = 0;
+  uint32_t columnCount;
+  stmt->GetColumnCount(&columnCount);
 
   bool hasResult;
   uint32_t len;
@@ -326,16 +328,18 @@ void LiveView::CreateJSMessageArray(mozIStorageStatement* stmt, JSContext* cx,
     Rooted<JSObject*> obj(cx);
     CreateJSMessage(id, folderId, messageId, date, sender, recipients, subject,
                     flags, tags, threadId, threadParent, cx, obj);
-    if (mGrouping == nsILiveView::THREADED ||
-        mGrouping == nsILiveView::GROUPED_BY_SORT) {
-      double messageCount = stmt->AsInt64(11);
-      JS_DefineProperty(cx, obj, "messageCount", messageCount,
-                        JSPROP_ENUMERATE);
-    }
-    if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
-        mSortColumn == nsILiveView::DATE) {
-      double dateGroup = stmt->AsInt64(12);
-      JS_DefineProperty(cx, obj, "dateGroup", dateGroup, JSPROP_ENUMERATE);
+    if (columnCount > 11) {
+      if (mGrouping == nsILiveView::THREADED ||
+          mGrouping == nsILiveView::GROUPED_BY_SORT) {
+        double messageCount = stmt->AsInt64(11);
+        JS_DefineProperty(cx, obj, "messageCount", messageCount,
+                          JSPROP_ENUMERATE);
+      }
+      if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
+          mSortColumn == nsILiveView::DATE) {
+        double dateGroup = stmt->AsInt64(12);
+        JS_DefineProperty(cx, obj, "dateGroup", dateGroup, JSPROP_ENUMERATE);
+      }
     }
     Rooted<Value> message(cx, ObjectValue(*obj));
     JS_DefineElement(cx, arr, count++, message, JSPROP_ENUMERATE);
