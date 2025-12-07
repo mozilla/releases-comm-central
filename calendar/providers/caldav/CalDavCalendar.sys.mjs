@@ -932,7 +932,7 @@ CalDavCalendar.prototype = {
       // TODO As soon as we have activity manager integration,
       // this should be replace with logic to notify that a
       // certain event failed.
-      cal.WARN("Failed to parse item: " + calData + "\n\nException:" + e);
+      lazy.log.warn("Failed to parse item: " + calData + "\n\nException:" + e);
       return;
     }
     // with CalDAV there really should only be one item here
@@ -949,7 +949,7 @@ CalDavCalendar.prototype = {
     const item = items[0];
 
     if (!item) {
-      cal.WARN("Failed to parse item: " + calData);
+      lazy.log.warn("Failed to parse item: " + calData);
       return;
     }
 
@@ -958,7 +958,7 @@ CalDavCalendar.prototype = {
       if (this.hasScheduling) {
         this.processItipReply(item, path);
       }
-      cal.WARN("REPLY method but calendar does not support scheduling");
+      lazy.log.warn("REPLY method but calendar does not support scheduling");
       return;
     }
 
@@ -1141,7 +1141,7 @@ CalDavCalendar.prototype = {
    *   cached calendars.
    */
   notifyGetFailed(errorMsg, aListener, aChangeLogListener) {
-    cal.WARN("CalDAV: Get failed: " + errorMsg);
+    lazy.log.warn("CalDAV: Get failed: " + errorMsg);
 
     // Notify changelog listener
     if (this.isCached && aChangeLogListener) {
@@ -1316,7 +1316,7 @@ CalDavCalendar.prototype = {
           throw new Error("OPTIONS returned unexpected status code: " + headchannel.responseStatus);
         }
       } catch (e) {
-        cal.WARN("CalDAV: Exception: " + e);
+        lazy.log.warn("CalDAV: Exception: " + e);
         notifyListener(Cr.NS_ERROR_FAILURE);
       }
     }
@@ -1707,7 +1707,7 @@ CalDavCalendar.prototype = {
         }
       },
       e => {
-        cal.WARN(`CalDAV: Error during initial PROPFIND for calendar ${this.name}}`);
+        lazy.log.warn(`CalDAV: Error during initial PROPFIND for calendar ${this.name}`);
         this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV, e.streamStatus);
       }
     );
@@ -2209,7 +2209,7 @@ CalDavCalendar.prototype = {
     if (a && a[3]) {
       return a[3];
     }
-    cal.WARN("CalDAV: Spec could not be parsed, returning as-is: " + aSpec);
+    lazy.log.warn("CalDAV: Spec could not be parsed, returning as-is: " + aSpec);
     return aSpec;
   },
   /**
@@ -2244,7 +2244,9 @@ CalDavCalendar.prototype = {
       try {
         uriComponents[i] = decodeURIComponent(uriComponents[i]);
       } catch (e) {
-        cal.WARN("CalDAV: Exception decoding path " + aString + ", segment: " + uriComponents[i]);
+        lazy.log.warn(
+          "CalDAV: Exception decoding path " + aString + ", segment: " + uriComponents[i]
+        );
       }
     }
     return uriComponents.join("/");

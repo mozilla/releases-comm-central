@@ -162,11 +162,7 @@ async function unifinderSelect(_event) {
     currentSelection.getRangeAt(range, start, end);
 
     for (let i = start.value; i <= end.value; i++) {
-      try {
-        selectedItems.push(treeView.getItemAt(i));
-      } catch (e) {
-        cal.WARN("Error getting Event from row: " + e + "\n");
-      }
+      selectedItems.push(treeView.getItemAt(i));
     }
   }
 

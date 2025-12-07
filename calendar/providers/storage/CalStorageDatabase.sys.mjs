@@ -3,8 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AsyncShutdown } from "resource://gre/modules/AsyncShutdown.sys.mjs";
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 const connections = new Map();
 
@@ -239,7 +247,7 @@ export class CalStorageDatabase {
           }
         },
         handleError(aError) {
-          cal.WARN(aError);
+          lazy.log.warn(aError);
         },
         async handleCompletion(aReason) {
           await Promise.all(this.resultPromises);

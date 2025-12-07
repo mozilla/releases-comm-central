@@ -372,7 +372,7 @@ calCachedCalendar.prototype = {
                 // The item is still on the server, we just retrieved it in the listener above.
                 if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
                   // The item on the server has been modified, ask to overwrite
-                  cal.WARN(
+                  lazy.log.warn(
                     "[calCachedCalendar] Item '" +
                       item.title +
                       "' at the server seems to be modified recently."
@@ -384,7 +384,7 @@ calCachedCalendar.prototype = {
                 }
               } else {
                 // The item has been deleted from the server, ask if it should be added again
-                cal.WARN(
+                lazy.log.warn(
                   "[calCachedCalendar] Item '" + item.title + "' has been deleted from the server"
                 );
                 if (cal.provider.promptOverwrite("modify", item, null)) {
@@ -397,7 +397,7 @@ calCachedCalendar.prototype = {
                 // The item seems to exist on the server...
                 if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
                   // ...and has been modified on the server. Ask to overwrite
-                  cal.WARN(
+                  lazy.log.warn(
                     "[calCachedCalendar] Item '" +
                       item.title +
                       "' at the server seems to be modified recently."
@@ -528,7 +528,7 @@ calCachedCalendar.prototype = {
           // If the playback action could not be performed, then there
           // is no need for further action. The item still has the
           // offline flag, so it will be taken care of next time.
-          cal.WARN(
+          lazy.log.warn(
             "[calCachedCalendar] Unable to perform playback action " +
               debugOp +
               " to the server, will try again next time (" +

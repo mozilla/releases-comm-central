@@ -897,7 +897,7 @@ calMgrCalendarObserver.prototype = {
       console.error(summary);
       this.announceParamBlock(paramBlock);
     } else {
-      cal.WARN(summary);
+      lazy.log.warn(summary);
     }
   },
 

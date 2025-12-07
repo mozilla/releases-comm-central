@@ -165,7 +165,7 @@ async function saveEventsToFile(calendarEventArray, calendarName) {
     try {
       exporter = Cc[contractid].getService(Ci.calIExporter);
     } catch (e) {
-      cal.WARN("Could not initialize exporter: " + contractid + "\nError: " + e);
+      console.warn("Could not initialize exporter: " + contractid, e);
       continue;
     }
     const types = exporter.getFileTypes();

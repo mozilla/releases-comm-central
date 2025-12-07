@@ -401,7 +401,7 @@ export class CalItipEmailTransport {
           .getProperty("imip.account")
           .QueryInterface(Ci.nsIMsgAccount);
       } else {
-        cal.WARN("No email identity configured for calendar " + aItipItem.targetCalendar.name);
+        lazy.log.warn("No email identity configured for calendar " + aItipItem.targetCalendar.name);
       }
     }
     if (!identity) {

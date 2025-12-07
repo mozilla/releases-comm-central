@@ -3,10 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
-
 import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 // Storage flags. These are used in the Database |flags| column to give
 // information about the item's features. For example, if the item has
@@ -100,7 +107,7 @@ export function newDateTime(aNativeTime, aTimezone) {
   // Bug 751821 - Dates before 1970 were incorrectly stored with an unsigned nativeTime value, we need to
   // convert back to a negative value
   if (aNativeTime > 9223372036854776000) {
-    cal.WARN("[calStorageCalendar] Converting invalid native time value: " + aNativeTime);
+    lazy.log.warn("[calStorageCalendar] Converting invalid native time value: " + aNativeTime);
     aNativeTime = -9223372036854776000 + (aNativeTime - 9223372036854776000);
     // Round to nearest second to fix microsecond rounding errors
     aNativeTime = Math.round(aNativeTime / 1000000) * 1000000;

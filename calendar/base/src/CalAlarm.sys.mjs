@@ -606,7 +606,7 @@ CalAlarm.prototype = {
     const name = aName.toUpperCase();
     if (name in this.promotedProps) {
       if (this.promotedProps[name] === true) {
-        cal.WARN(`Attempted to set complex property ${name} to a simple value ${aValue}`);
+        lazy.log.warn(`Attempted to set complex property ${name} to a simple value ${aValue}`);
       } else {
         this[this.promotedProps[name]] = aValue;
       }

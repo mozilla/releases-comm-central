@@ -3,10 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalIcalProperty: "resource:///modules/CalICSService.sys.mjs",
@@ -58,7 +64,7 @@ CalRecurrenceRule.prototype = {
   freqSupported() {
     const { freq } = this.innerObject;
     if (freq == "SECONDLY" || freq == "MINUTELY") {
-      cal.WARN(
+      lazy.log.warn(
         `The frequency value "${freq}" is currently not supported. No occurrences will be generated.`
       );
       return false;

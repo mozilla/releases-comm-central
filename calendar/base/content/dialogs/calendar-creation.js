@@ -152,11 +152,10 @@ function registerCalendarType(type) {
 function unregisterCalendarType(id) {
   // Don't allow unregistration of built-in types.
   if (gCalendarTypes.get(id)?.builtIn) {
-    cal.WARN(
+    throw new Error(
       `calendar creation dialog: unregistering calendar type "${id}"` +
         " failed because it is a built in type"
     );
-    return;
   }
   // We are using the size of gCalendarTypes to generate unique IDs for
   // registered types, so don't fully remove the type.
@@ -239,7 +238,7 @@ var gProviderUsage = {
     const prefs = this._postDetectPreferences;
 
     if (this.detectPreferenceCycle(prefs, preferredType, nonPreferredType)) {
-      cal.WARN(
+      console.warn(
         `Adding a preference for provider type "${preferredType}" over ` +
           `type "${nonPreferredType}" would cause a preference cycle, ` +
           `not adding this preference to prevent a cycle`

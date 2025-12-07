@@ -9,6 +9,13 @@ import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 ICAL.design.strict = false;
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalDuration: "resource:///modules/CalDuration.sys.mjs",
@@ -146,7 +153,7 @@ export const cal = {
    */
   generateQI(aInterfaces) {
     if (aInterfaces.length == 1) {
-      cal.WARN(
+      lazy.log.warn(
         "When generating QI for one interface, please use ChromeUtils.generateQI",
         cal.STACK(10)
       );

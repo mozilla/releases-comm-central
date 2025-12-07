@@ -171,7 +171,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status getting etags for calendar " + this.calendar.name);
+      lazy.log.warn("CalDAV: No response status getting etags for calendar " + this.calendar.name);
     }
 
     if (responseStatus == 207) {
@@ -194,7 +194,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status getting etags for calendar " + this.calendar.name);
+      lazy.log.warn("CalDAV: No response status getting etags for calendar " + this.calendar.name);
     }
 
     this.logResponse(responseStatus);
@@ -276,7 +276,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   fatalError() {
-    cal.WARN("CalDAV: Fatal Error parsing etags for " + this.calendar.name);
+    lazy.log.warn("CalDAV: Fatal Error parsing etags for " + this.calendar.name);
   }
 
   /**
@@ -482,7 +482,9 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status doing webdav sync for calendar " + this.calendar.name);
+      lazy.log.warn(
+        "CalDAV: No response status doing webdav sync for calendar " + this.calendar.name
+      );
     }
 
     if (responseStatus == 207) {
@@ -499,7 +501,9 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status doing webdav sync for calendar " + this.calendar.name);
+      lazy.log.warn(
+        "CalDAV: No response status doing webdav sync for calendar " + this.calendar.name
+      );
     }
 
     this.logResponse(responseStatus);
@@ -511,7 +515,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       responseStatus == 429
     ) {
       // We're hitting the rate limit. Don't attempt to refresh now.
-      cal.WARN("CalDAV: rate limit reached, server returned status code: " + responseStatus);
+      lazy.log.warn("CalDAV: rate limit reached, server returned status code: " + responseStatus);
       if (this.calendar.isCached && this.changeLogListener) {
         // Not really okay, but we have to return something and an error code puts us in a bad state.
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
@@ -530,7 +534,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       this.calendar.saveCalendarProperties();
       this.calendar.safeRefresh(this.changeLogListener);
     } else {
-      cal.WARN("CalDAV: Error doing webdav sync: " + responseStatus);
+      lazy.log.warn("CalDAV: Error doing webdav sync: " + responseStatus);
       this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR, undefined, undefined, status);
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
@@ -542,7 +546,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   fatalError() {
-    cal.WARN("CalDAV: Fatal Error doing webdav sync for " + this.calendar.name);
+    lazy.log.warn("CalDAV: Fatal Error doing webdav sync for " + this.calendar.name);
   }
 
   /**
@@ -744,7 +748,9 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
           // don't care about response elements on non-calendar
           // resources or whose status is not indicating a deleted
           // resource.
-          cal.WARN("CalDAV: Unexpected response, status: " + resp.status + ", href: " + resp.href);
+          lazy.log.warn(
+            "CalDAV: Unexpected response, status: " + resp.status + ", href: " + resp.href
+          );
           this.unhandledErrors++;
         } else {
           lazy.log.debug(
@@ -896,7 +902,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status doing multiget for calendar " + this.calendar.name);
+      lazy.log.warn("CalDAV: No response status doing multiget for calendar " + this.calendar.name);
     }
 
     if (responseStatus == 207) {
@@ -922,7 +928,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
     try {
       responseStatus = httpchannel.responseStatus;
     } catch (ex) {
-      cal.WARN("CalDAV: No response status doing multiget for calendar " + this.calendar.name);
+      lazy.log.warn("CalDAV: No response status doing multiget for calendar " + this.calendar.name);
     }
 
     this.logResponse(responseStatus);
@@ -972,7 +978,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
    * @see XMLResponseHandler
    */
   fatalError(error) {
-    cal.WARN("CalDAV: Fatal Error doing multiget for " + this.calendar.name + ": " + error);
+    lazy.log.warn("CalDAV: Fatal Error doing multiget for " + this.calendar.name + ": " + error);
   }
 
   /**
@@ -1096,7 +1102,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
             lazy.log.debug("CalDAV: skipping item with unmodified etag : " + oldEtag);
           }
         } else {
-          cal.WARN(
+          lazy.log.warn(
             "CalDAV: Unexpected response, status: " +
               resp.status +
               ", href: " +

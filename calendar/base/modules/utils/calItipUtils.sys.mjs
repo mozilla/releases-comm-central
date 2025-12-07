@@ -1373,7 +1373,7 @@ export var itip = {
         }
       });
     } else {
-      lazy.cal.WARN("No unique email address for lookup!");
+      lazy.log.warn("No unique email address for lookup!");
     }
     return attendees;
   },
@@ -2130,7 +2130,7 @@ ItipItemFinder.prototype = {
 
                 const att = itip.getInvitedAttendee(newItem);
                 if (!att) {
-                  lazy.cal.WARN(
+                  lazy.log.warn(
                     `Encountered item without invited attendee! id=${newItem.id}, method=${method} Exiting...`
                   );
                   return null;

@@ -751,7 +751,7 @@ calFilter.prototype = {
     if (this.mFilterProperties) {
       this.updateFilterDates();
     } else {
-      cal.WARN("[calFilter] Unable to apply filter " + aFilter);
+      console.warn("Unable to apply filter " + aFilter);
     }
   },
 
@@ -852,7 +852,7 @@ calFilter.prototype = {
       }
 
       // we've hit the maximum number of iterations without finding a match
-      cal.WARN("[calFilter] getNextOccurrence: reached maximum iterations for " + aItem.title);
+      console.warn("getNextOccurrence: reached maximum iterations for " + aItem.title);
       return null;
     }
     // the parent item doesn't match the filter, we can return the first future exception

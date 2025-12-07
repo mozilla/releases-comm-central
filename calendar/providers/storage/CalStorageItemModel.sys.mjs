@@ -9,6 +9,13 @@ import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamF
 import { CalStorageModelBase } from "resource:///modules/calendar/CalStorageModelBase.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 ChromeUtils.defineESModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
@@ -531,7 +538,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
           item.addAttendee(attendee);
         }
       } else {
-        cal.WARN(
+        lazy.log.warn(
           "[calStorageCalendar] Skipping invalid attendee for item '" +
             item.title +
             "' (" +
@@ -785,7 +792,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
               item.addAttendee(attendee);
             }
           } else {
-            cal.WARN(
+            lazy.log.warn(
               `[calStorageCalendar] Skipping invalid attendee for item '${item.title}' (${item.id}).`
             );
           }

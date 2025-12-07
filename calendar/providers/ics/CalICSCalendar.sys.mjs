@@ -360,7 +360,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     } else {
       // Failure may be due to temporary connection issue, keep old data to
       // prevent potential data loss if it becomes available again.
-      cal.WARN(`[calICSCalendar] Unable to load stream - status: 0x${status.toString(16)}`);
+      lazy.log.warn(`[calICSCalendar] Unable to load stream - status: 0x${status.toString(16)}`);
 
       if (currentStatus == Cr.NS_OK) {
         lazy.ConnectionNotifications.connectionFailed(this.id, status, this.name, this.#uri.host);

@@ -206,7 +206,7 @@ export function backupDB(db, currentVersion) {
     // Create a backup file and notify the user via WARN, since LOG will not
     // be visible unless a pref is set.
     const file = Services.storage.backupDatabaseFile(db.databaseFile, backupFilename, backupPath);
-    cal.WARN(
+    lazy.log.warn(
       "Storage: Upgrading to v" + DB_SCHEMA_VERSION + ", a backup was written to: " + file.path
     );
   } catch (e) {
@@ -342,7 +342,7 @@ function createDBDelegate(funcName) {
             "'.\nException: " +
             e
         );
-        cal.WARN(cal.STACK(10));
+        lazy.log.warn(cal.STACK(10));
       }
     }
     return null;

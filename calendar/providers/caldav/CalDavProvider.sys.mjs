@@ -74,34 +74,34 @@ export var CalDavProvider = {
 
         // A special thing the OAuth2 code throws.
         if (e == '{ "error": "cancelled"}') {
-          cal.WARN(message + ` - OAuth2 '${e}'`);
+          lazy.log.warn(message + ` - OAuth2 '${e}'`);
           throw new cal.provider.detection.CanceledError("OAuth2 prompt canceled");
         }
 
         // We want to pass on any autodetect errors that will become results.
         if (e instanceof cal.provider.detection.Error) {
-          cal.WARN(message + errorDetails(e));
+          lazy.log.warn(message + errorDetails(e));
           throw e;
         }
 
         // Sometimes e is a CalDavResponseBase that is an auth error, so throw it.
         if (e.authError) {
-          cal.WARN(message + responseDetails(e));
+          lazy.log.warn(message + responseDetails(e));
           throw new cal.provider.detection.AuthFailedError();
         }
 
         // Sometimes e is a CalDavResponseBase that is a certificate error, so throw it.
         if (e.certError) {
-          cal.WARN(message + responseDetails(e));
+          lazy.log.warn(message + responseDetails(e));
           throw new cal.provider.detection.CertError();
         }
 
         if (e instanceof Error) {
-          cal.WARN(message + errorDetails(e));
+          lazy.log.warn(message + errorDetails(e));
         } else if (typeof e.status == "number") {
-          cal.WARN(message + responseDetails(e));
+          lazy.log.warn(message + responseDetails(e));
         } else {
-          cal.WARN(message);
+          lazy.log.warn(message);
         }
       }
     }

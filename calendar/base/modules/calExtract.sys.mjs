@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -50,7 +48,7 @@ export function Extractor(fallbackLocale, dayStart, fixedLang) {
   }
 
   if (!this.checkBundle(fallbackLocale)) {
-    cal.WARN(
+    lazy.log.warn(
       "Your installed Lightning only includes a single locale, extracting event info from other languages is likely inaccurate. You can install Lightning from addons.mozilla.org manually for multiple locale support."
     );
   }

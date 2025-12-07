@@ -4,6 +4,15 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 function getRidKey(date) {
   if (!date) {
     return null;
@@ -340,7 +349,7 @@ CalRecurrenceInfo.prototype = {
           negMap[getRidKey(rdate)] = true;
         }
       } else {
-        cal.WARN(
+        lazy.log.warn(
           "Item '" +
             this.mBaseItem.title +
             "'" +

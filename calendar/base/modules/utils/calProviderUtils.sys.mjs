@@ -12,6 +12,13 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 // including calUtils.sys.mjs under the cal.provider namespace.
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   CalPeriod: "resource:///modules/CalPeriod.sys.mjs",
   CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.sys.mjs",
@@ -392,7 +399,7 @@ export var provider = {
 
     if (!identity) {
       // dangling identity:
-      lazy.cal.WARN(
+      lazy.log.warn(
         "Calendar " +
           (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
           " has a dangling E-Mail identity configured."

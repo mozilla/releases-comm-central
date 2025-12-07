@@ -57,7 +57,7 @@ function changeMode(mode = "mail") {
  */
 function calSwitchToMode(mode) {
   if (!["mail", "chat", "calendarEvent", "calendarTask", "special"].includes(mode)) {
-    cal.WARN("Attempted to switch to unknown mode: " + mode);
+    console.warn("Attempted to switch to unknown mode: " + mode);
     return;
   }
   if (gCurrentMode != mode) {
