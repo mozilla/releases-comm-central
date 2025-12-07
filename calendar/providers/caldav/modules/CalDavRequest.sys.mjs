@@ -3,11 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import {
   CalDavTagsToXmlns,
   CalDavNsUnresolver,
 } from "resource:///modules/caldav/CalDavUtils.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
@@ -106,7 +114,7 @@ class CalDavRequestBase {
 
     if (cal.verboseLogEnabled && this.uploadData) {
       const method = this.channel.requestMethod;
-      cal.LOGverbose(`CalDAV: send (${method} ${this.uri.spec}): ${this.uploadData}`);
+      lazy.log.debug(`CalDAV: send (${method} ${this.uri.spec}): ${this.uploadData}`);
     }
 
     const ResponseClass = this.responseClass;
@@ -119,7 +127,7 @@ class CalDavRequestBase {
     if (cal.verboseLogEnabled) {
       const text = this.response.text;
       if (text) {
-        cal.LOGverbose("CalDAV: recv: " + text);
+        lazy.log.debug("CalDAV: recv: " + text);
       }
     }
 
@@ -1130,7 +1138,7 @@ class FreeBusyResponse extends CalDavSimpleResponse {
           try {
             component = cal.icsService.parseICS(caldata);
           } catch (e) {
-            cal.LOG("CalDAV: Could not parse freebusy data: " + e);
+            lazy.log.debug("CalDAV: Could not parse freebusy data: " + e);
             continue;
           }
 

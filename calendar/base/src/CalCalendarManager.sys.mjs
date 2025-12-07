@@ -21,6 +21,13 @@ export function CalCalendarManager() {
   this.providerImplementations = {};
 }
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
@@ -597,7 +604,9 @@ CalCalendarManager.prototype = {
           calendar.type == "caldav" &&
           calendar.uri.prePath == "https://apidata.googleusercontent.com"
         ) {
-          cal.LOG(`CalDAV: Resetting sync token of ${calendar.name} to perform a full resync`);
+          lazy.log.debug(
+            `CalDAV: Resetting sync token of ${calendar.name} to perform a full resync`
+          );
           const calDavCalendar = calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject;
           calDavCalendar.mWebdavSyncToken = null;
           calDavCalendar.saveCalendarProperties();

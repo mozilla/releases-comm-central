@@ -248,8 +248,6 @@ function setLocaleDefaultPreferences() {
     }
   }
 
-  cal.LOG("Start loading of locale dependent preference default values...");
-
   const defaultBranch = Services.prefs.getDefaultBranch("");
   const calendarInfo = cal.l10n.calendarInfo();
 
@@ -267,8 +265,6 @@ function setLocaleDefaultPreferences() {
   for (const prefDefault of prefDefaults) {
     setDefaultLocaleValue(prefDefault);
   }
-
-  cal.LOG("Loading of locale sensitive preference default values completed.");
 }
 
 /**

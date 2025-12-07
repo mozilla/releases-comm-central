@@ -56,9 +56,8 @@ var calendarExtract = {
       MailServices.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
     });
 
-    cal.LOG("[calExtract] Original email content: \n" + title + "\r\n" + content);
     const date = new Date(message.date / 1000);
-    const time = new Date().getTime();
+    // const time = new Date().getTime();
 
     const item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
@@ -113,7 +112,6 @@ var calendarExtract = {
 
     // if we only have email date then use default start and end
     if (!useService && collected.length <= 1) {
-      cal.LOG("[calExtract] Date and time information was not found in email/selection.");
       createEventWithDialog(null, null, null, null, item);
     } else {
       if (!useService) {
@@ -198,12 +196,7 @@ var calendarExtract = {
       }
     }
 
-    const timeSpent = new Date().getTime() - time;
-    cal.LOG(
-      "[calExtract] Total time spent for conversion (including loading of dictionaries): " +
-        timeSpent +
-        "ms"
-    );
+    // const timeSpent = new Date().getTime() - time;
   },
 };
 ChromeUtils.defineLazyGetter(

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import {
   CalDavGenericRequest,
   CalDavLegacySAXRequest,
@@ -15,7 +14,6 @@ import {
   CalDavOutboxRequest,
   CalDavFreeBusyRequest,
 } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
-
 import {
   CalDavEtagsHandler,
   CalDavWebDavSyncHandler,
@@ -24,11 +22,19 @@ import {
 import { CalDavSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
 var FORBIDDEN_PATH_CHARACTERS = /[^a-zA-Z0-9_\-\.]/g;
 
-const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 ChromeUtils.defineESModuleGetters(lazy, {
   ConnectionNotifications: "resource:///modules/ConnectionNotifications.sys.mjs",
@@ -225,7 +231,7 @@ CalDavCalendar.prototype = {
         const dataString = [etag, path, isInboxItem ? "true" : "false"].join("\u001A");
         this.mOfflineStorage.setMetaData(id, dataString);
       } else {
-        cal.LOG("CalDAV: cannot store meta data without an id");
+        lazy.log.debug("CalDAV: cannot store meta data without an id");
       }
     } else {
       cal.ERROR("CalDAV: calendar storage does not support meta data");
@@ -250,7 +256,7 @@ CalDavCalendar.prototype = {
       for (const item of items) {
         if (!(item.id in this.mItemInfoCache)) {
           const path = this.getItemLocationPath(item);
-          cal.LOG("Adding meta-data for cached item " + item.id);
+          lazy.log.debug("Adding meta-data for cached item " + item.id);
           this.mItemInfoCache[item.id] = {
             etag: null,
             isNew: false,
@@ -272,7 +278,7 @@ CalDavCalendar.prototype = {
   },
 
   fetchCachedMetaData() {
-    cal.LOG("CalDAV: Retrieving server info from cache for " + this.name);
+    lazy.log.debug("CalDAV: Retrieving server info from cache for " + this.name);
     const cacheIds = this.mOfflineStorage.getAllMetaDataIds();
     const cacheValues = this.mOfflineStorage.getAllMetaDataValues();
 
@@ -592,7 +598,7 @@ CalDavCalendar.prototype = {
 
     const locationPath = this.getItemLocationPath(parentItem);
     const itemUri = this.makeUri(locationPath);
-    cal.LOG("CalDAV: itemUri.spec = " + itemUri.spec);
+    lazy.log.debug("CalDAV: itemUri.spec = " + itemUri.spec);
 
     const serializedItem = this.getSerializedItem(aItem);
 
@@ -606,7 +612,7 @@ CalDavCalendar.prototype = {
 
         // Translate the HTTP status code to a status and message for the listener
         if (response.ok) {
-          cal.LOG(`CalDAV: Item added to ${this.name} successfully`);
+          lazy.log.debug(`CalDAV: Item added to ${this.name} successfully`);
 
           const uriComponentParts = this.makeUri()
             .pathQueryRef.replace(/\/{2,}/g, "/")
@@ -729,7 +735,7 @@ CalDavCalendar.prototype = {
 
         let shouldNotify = true;
         if (response.ok) {
-          cal.LOG("CalDAV: Item modified successfully on " + this.name);
+          lazy.log.debug("CalDAV: Item modified successfully on " + this.name);
 
           // Some CalDAV servers will modify items on PUT (add X-props, for instance) so we'd
           // best re-fetch in order to know the current state of the item Observers will be
@@ -831,7 +837,7 @@ CalDavCalendar.prototype = {
     }
 
     if (this.verboseLogging()) {
-      cal.LOG("CalDAV: Deleting " + eventUri.spec);
+      lazy.log.debug("CalDAV: Deleting " + eventUri.spec);
     }
 
     const sendEtag = ignoreEtag ? null : this.mItemInfoCache[item.id].etag;
@@ -849,7 +855,7 @@ CalDavCalendar.prototype = {
         const decodedPath = this.ensureDecodedPath(eventUri.pathQueryRef);
         delete this.mHrefIndex[decodedPath];
         delete this.mItemInfoCache[item.id];
-        cal.LOG("CalDAV: Item deleted successfully from calendar " + this.name);
+        lazy.log.debug("CalDAV: Item deleted successfully from calendar " + this.name);
 
         if (this.isCached) {
           this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.DELETE, null, null);
@@ -863,7 +869,7 @@ CalDavCalendar.prototype = {
       return null;
     } else if (response.conflict) {
       // item has either been modified or deleted by someone else check to see which
-      cal.LOG("CalDAV: Item has been modified on server, checking if it has been deleted");
+      lazy.log.debug("CalDAV: Item has been modified on server, checking if it has been deleted");
       const headRequest = new CalDavGenericRequest(this.session, this, "HEAD", eventUri);
       const headResponse = await headRequest.commit();
 
@@ -1073,7 +1079,7 @@ CalDavCalendar.prototype = {
     const foundItem = await this.mOfflineStorage.getItem(this.mHrefIndex[path]);
     const wasInboxItem = this.mItemInfoCache[foundItem.id].isInboxItem;
     if ((wasInboxItem && this.isInbox(path)) || (wasInboxItem === false && !this.isInbox(path))) {
-      cal.LOG("CalDAV: deleting item: " + path + ", uid: " + foundItem.id);
+      lazy.log.debug("CalDAV: deleting item: " + path + ", uid: " + foundItem.id);
       delete this.mHrefIndex[path];
       delete this.mItemInfoCache[foundItem.id];
       if (this.isCached) {
@@ -1091,7 +1097,7 @@ CalDavCalendar.prototype = {
    * @param {nsIURI} calendarURI - URI of the calendar whose items just got changed.
    */
   finalizeUpdatedItems(aChangeLogListener, calendarURI) {
-    cal.LOG(
+    lazy.log.debug(
       "aChangeLogListener=" +
         aChangeLogListener +
         "\n" +
@@ -1325,13 +1331,13 @@ CalDavCalendar.prototype = {
     const request = new CalDavPropfindRequest(this.session, this, this.makeUri(), ["CS:getctag"]);
 
     request.commit().then(response => {
-      cal.LOG(`CalDAV: Status ${response.status} checking ctag for calendar ${this.name}`);
+      lazy.log.debug(`CalDAV: Status ${response.status} checking ctag for calendar ${this.name}`);
 
       if (response.status == -1) {
         notifyListener(Cr.NS_OK);
         return;
       } else if (response.notFound) {
-        cal.LOG(`CalDAV: Disabling calendar ${this.name} due to 404`);
+        lazy.log.debug(`CalDAV: Disabling calendar ${this.name} due to 404`);
         notifyListener(Cr.NS_ERROR_FAILURE);
         return;
       } else if (response.ok && this.mDisabledByDavError) {
@@ -1340,7 +1346,7 @@ CalDavCalendar.prototype = {
         this.checkDavResourceType(aChangeLogListener);
         return;
       } else if (!response.ok) {
-        cal.LOG("CalDAV: Failed to get ctag from server for calendar " + this.name);
+        lazy.log.debug("CalDAV: Failed to get ctag from server for calendar " + this.name);
         notifyListener(Cr.NS_OK);
         return;
       }
@@ -1351,11 +1357,13 @@ CalDavCalendar.prototype = {
         this.mProposedCtag = ctag;
         this.getUpdatedItems(this.calendarUri, aChangeLogListener);
         if (this.verboseLogging()) {
-          cal.LOG("CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name);
+          lazy.log.debug(
+            "CalDAV: ctag mismatch on refresh, fetching data for calendar " + this.name
+          );
         }
       } else {
         if (this.verboseLogging()) {
-          cal.LOG("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
+          lazy.log.debug("CalDAV: ctag matches, no need to fetch data for calendar " + this.name);
         }
 
         // Notify the listener, but don't return just yet...
@@ -1555,7 +1563,9 @@ CalDavCalendar.prototype = {
 
     request.commit().then(
       response => {
-        cal.LOG(`CalDAV: Status ${response.status} on initial PROPFIND for calendar ${this.name}`);
+        lazy.log.debug(
+          `CalDAV: Status ${response.status} on initial PROPFIND for calendar ${this.name}`
+        );
 
         // If the URI was redirected, and the user rejects the redirect, disable the calendar.
         if (response.redirected && !this.openUriRedirectDialog(response)) {
@@ -1574,7 +1584,7 @@ CalDavCalendar.prototype = {
         } else if (response.serverError) {
           // 5xx codes, a server error. This could be a temporary failure, i.e a backend
           // server being disabled.
-          cal.LOG(
+          lazy.log.debug(
             "CalDAV: Server not available " +
               request.responseStatus +
               ", abort sync for calendar " +
@@ -1590,26 +1600,26 @@ CalDavCalendar.prototype = {
         if (this.mUriParams) {
           this.mAuthScheme = "Ticket";
         }
-        cal.LOG(`CalDAV: Authentication scheme for ${this.name} is ${this.mAuthScheme}`);
+        lazy.log.debug(`CalDAV: Authentication scheme for ${this.name} is ${this.mAuthScheme}`);
 
         // We only really need the authrealm for Digest auth since only Digest is going to time
         // out on us
         if (this.mAuthScheme == "Digest") {
           const realmChop = wwwauth.split('realm="')[1];
           this.mAuthRealm = realmChop.split('", ')[0];
-          cal.LOG("CalDAV: realm " + this.mAuthRealm);
+          lazy.log.debug("CalDAV: realm " + this.mAuthRealm);
         }
 
         if (!response.text || response.notFound) {
           // No response, or the calendar no longer exists.
-          cal.LOG("CalDAV: Failed to determine resource type for" + this.name);
+          lazy.log.debug("CalDAV: Failed to determine resource type for" + this.name);
           this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV);
           return;
         }
 
         const multistatus = response.xml;
         if (!multistatus) {
-          cal.LOG(`CalDAV: Failed to determine resource type for ${this.name}`);
+          lazy.log.debug(`CalDAV: Failed to determine resource type for ${this.name}`);
           this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV);
           return;
         }
@@ -1617,7 +1627,7 @@ CalDavCalendar.prototype = {
         // check for webdav-sync capability
         // http://tools.ietf.org/html/draft-daboo-webdav-sync
         if (response.firstProps["D:supported-report-set"]?.has("D:sync-collection")) {
-          cal.LOG("CalDAV: Collection has webdav sync support");
+          lazy.log.debug("CalDAV: Collection has webdav sync support");
           this.mHasWebdavSyncSupport = true;
         }
 
@@ -1632,7 +1642,7 @@ CalDavCalendar.prototype = {
 
           this.mProposedCtag = ctag;
           if (this.verboseLogging()) {
-            cal.LOG(`CalDAV: initial ctag ${ctag} for calendar ${this.name}`);
+            lazy.log.debug(`CalDAV: initial ctag ${ctag} for calendar ${this.name}`);
           }
         }
 
@@ -1642,7 +1652,7 @@ CalDavCalendar.prototype = {
           this.mSupportedItemTypes = [...this.mGenerallySupportedItemTypes].filter(itype => {
             return supportedComponents.has(itype);
           });
-          cal.LOG(
+          lazy.log.debug(
             `Adding supported items: ${this.mSupportedItemTypes.join(",")} for calendar: ${
               this.name
             }`
@@ -1655,12 +1665,12 @@ CalDavCalendar.prototype = {
         const cuprincipal = response.firstProps["D:current-user-principal"];
         if (cuprincipal) {
           this.mPrincipalUrl = cuprincipal;
-          cal.LOG(
+          lazy.log.debug(
             "CalDAV: Found principal url from DAV:current-user-principal " + this.mPrincipalUrl
           );
         } else if (owner) {
           this.mPrincipalUrl = owner;
-          cal.LOG("CalDAV: Found principal url from DAV:owner " + this.mPrincipalUrl);
+          lazy.log.debug("CalDAV: Found principal url from DAV:owner " + this.mPrincipalUrl);
         }
 
         const resourceType = response.firstProps["D:resourcetype"] || new Set();
@@ -1684,11 +1694,13 @@ CalDavCalendar.prototype = {
           this.checkServerCaps(aChangeLogListener);
         } else if (resourceType.has("D:collection")) {
           // Not a CalDAV calendar
-          cal.LOG(`CalDAV: ${this.name} points to a DAV resource, but not a CalDAV calendar`);
+          lazy.log.debug(
+            `CalDAV: ${this.name} points to a DAV resource, but not a CalDAV calendar`
+          );
           this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_DAV_NOT_CALDAV);
         } else {
           // Something else?
-          cal.LOG(
+          lazy.log.debug(
             `CalDAV: No resource type received, ${this.name} doesn't seem to point to a DAV resource`
           );
           this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV);
@@ -1724,14 +1736,14 @@ CalDavCalendar.prototype = {
         if (!response.ok) {
           if (!calHomeSetUrlRetry && response.notFound) {
             // try again with calendar URL, see https://bugzilla.mozilla.org/show_bug.cgi?id=588799
-            cal.LOG(
+            lazy.log.debug(
               "CalDAV: Calendar homeset was not found at parent url of calendar URL" +
                 ` while querying options ${this.name}, will try calendar URL itself now`
             );
             this.setCalHomeSet(false);
             this.checkServerCaps(aChangeLogListener, true);
           } else {
-            cal.LOG(
+            lazy.log.debug(
               `CalDAV: Unexpected status ${response.status} while querying options ${this.name}`
             );
             this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE);
@@ -1742,18 +1754,18 @@ CalDavCalendar.prototype = {
         }
 
         if (this.verboseLogging()) {
-          cal.LOG("CalDAV: DAV features: " + [...response.features.values()].join(", "));
+          lazy.log.debug("CalDAV: DAV features: " + [...response.features.values()].join(", "));
         }
 
         if (response.features.has("calendar-auto-schedule")) {
           if (this.verboseLogging()) {
-            cal.LOG(`CalDAV: Calendar ${this.name} supports calendar-auto-schedule`);
+            lazy.log.debug(`CalDAV: Calendar ${this.name} supports calendar-auto-schedule`);
           }
           this.mHasAutoScheduling = true;
           // leave outbound inbox/outbox scheduling off
         } else if (response.features.has("calendar-schedule")) {
           if (this.verboseLogging()) {
-            cal.LOG(`CalDAV: Calendar ${this.name} generally supports calendar-schedule`);
+            lazy.log.debug(`CalDAV: Calendar ${this.name} generally supports calendar-schedule`);
           }
           this.hasScheduling = true;
         }
@@ -1770,12 +1782,14 @@ CalDavCalendar.prototype = {
           }
           this.findPrincipalNS(aChangeLogListener);
         } else {
-          cal.LOG("CalDAV: Server does not support CalDAV scheduling.");
+          lazy.log.debug("CalDAV: Server does not support CalDAV scheduling.");
           this.completeCheckServerInfo(aChangeLogListener);
         }
       },
       e => {
-        cal.LOG(`CalDAV: Error checking server capabilities for calendar ${this.name}: ${e}`);
+        lazy.log.debug(
+          `CalDAV: Error checking server capabilities for calendar ${this.name}: ${e}`
+        );
         this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
       }
     );
@@ -1813,7 +1827,7 @@ CalDavCalendar.prototype = {
 
           this.checkPrincipalsNameSpace(nsList, aChangeLogListener);
         } else {
-          cal.LOG(
+          lazy.log.debug(
             "CalDAV: Unexpected status " +
               response.status +
               " while querying principal namespace for " +
@@ -1823,7 +1837,9 @@ CalDavCalendar.prototype = {
         }
       },
       e => {
-        cal.LOG(`CalDAV: Failed to propstat principal namespace for calendar ${this.name}: ${e}`);
+        lazy.log.debug(
+          `CalDAV: Failed to propstat principal namespace for calendar ${this.name}: ${e}`
+        );
         this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE, e.streamStatus);
       }
     );
@@ -1852,7 +1868,7 @@ CalDavCalendar.prototype = {
 
     if (!aNameSpaceList.length) {
       if (this.verboseLogging()) {
-        cal.LOG(
+        lazy.log.debug(
           "CalDAV: principal namespace list empty, calendar " +
             this.name +
             " doesn't support scheduling"
@@ -1909,7 +1925,7 @@ CalDavCalendar.prototype = {
         };
 
         if (!response.ok) {
-          cal.LOG(
+          lazy.log.debug(
             `CalDAV: Bad response to in/outbox query, status ${response.status} for ${this.name}`
           );
           doesntSupportScheduling();
@@ -1926,7 +1942,7 @@ CalDavCalendar.prototype = {
           const firstAddr = addrSet.find(addr => addr.match(/^mailto:/i));
           if (firstAddr) {
             if (this.verboseLogging()) {
-              cal.LOG("CalDAV: mCalendarUserAddress set to " + firstAddr);
+              lazy.log.debug("CalDAV: mCalendarUserAddress set to " + firstAddr);
             }
             this.mCalendarUserAddress = firstAddr;
           }
@@ -1947,7 +1963,7 @@ CalDavCalendar.prototype = {
             this.checkPrincipalsNameSpace(aNameSpaceList, aChangeLogListener);
           } else {
             if (this.verboseLogging()) {
-              cal.LOG(
+              lazy.log.debug(
                 "CalDAV: principal namespace list empty, calendar " +
                   this.name +
                   " doesn't support scheduling"
@@ -1961,7 +1977,9 @@ CalDavCalendar.prototype = {
         }
       },
       e => {
-        cal.LOG(`CalDAV: Failure checking principal namespace for calendar ${this.name}: ${e}`);
+        lazy.log.debug(
+          `CalDAV: Failure checking principal namespace for calendar ${this.name}: ${e}`
+        );
         doesntSupportScheduling();
       }
     );
@@ -2080,7 +2098,7 @@ CalDavCalendar.prototype = {
     // We explicitly don't check for hasScheduling here to allow free-busy queries
     // even in case sched is turned off.
     if (!this.outboxUrl || !this.calendarUserAddress) {
-      cal.LOG(
+      lazy.log.debug(
         "CalDAV: Calendar " +
           this.name +
           " doesn't support scheduling;" +
@@ -2130,7 +2148,7 @@ CalDavCalendar.prototype = {
     request.commit().then(
       response => {
         if (!response.xml || response.status != 200) {
-          cal.LOG(
+          lazy.log.debug(
             "CalDAV: Received status " + response.status + " from freebusy query for " + this.name
           );
           aListener.onResult(null, null);
@@ -2147,13 +2165,17 @@ CalDavCalendar.prototype = {
 
         const status = response.firstRecipient.status;
         if (!status || !status.startsWith("2")) {
-          cal.LOG(`CalDAV: Got status ${status} in response to freebusy query for ${this.name}`);
+          lazy.log.debug(
+            `CalDAV: Got status ${status} in response to freebusy query for ${this.name}`
+          );
           aListener.onResult(null, null);
           return;
         }
 
         if (!status.startsWith("2.0")) {
-          cal.LOG(`CalDAV: Got status ${status} in response to freebusy query for ${this.name}`);
+          lazy.log.debug(
+            `CalDAV: Got status ${status} in response to freebusy query for ${this.name}`
+          );
         }
 
         const intervals = response.firstRecipient.intervals.map(data => {
@@ -2164,7 +2186,7 @@ CalDavCalendar.prototype = {
         aListener.onResult(null, intervals);
       },
       e => {
-        cal.LOG(`CalDAV: Failed freebusy request for ${this.name}: ${e}`);
+        lazy.log.debug(`CalDAV: Failed freebusy request for ${this.name}: ${e}`);
         aListener.onResult(null, null);
       }
     );
@@ -2266,7 +2288,7 @@ CalDavCalendar.prototype = {
     const modListener = {};
     modListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
     modListener.onOperationComplete = function (aCalendar, aStatus) {
-      cal.LOG(`CalDAV: status ${aStatus} while processing iTIP REPLY for ${self.name}`);
+      lazy.log.debug(`CalDAV: status ${aStatus} while processing iTIP REPLY for ${self.name}`);
       // don't delete the REPLY item from inbox unless modifying the master
       // item was successful
       if (aStatus == 0) {
@@ -2324,7 +2346,7 @@ CalDavCalendar.prototype = {
         case "ADD":
           return true;
         default:
-          cal.LOG(
+          lazy.log.debug(
             "Not supported method " +
               aMethod +
               " detected - falling back to email based scheduling."
@@ -2357,7 +2379,7 @@ CalDavCalendar.prototype = {
       const recipients = [];
       aRecipientList.forEach(rec => recipients.push(rec.toString()));
       if (imipTransport) {
-        cal.LOG(
+        lazy.log.debug(
           "Enforcing client-side email scheduling instead of server-side scheduling" +
             " for " +
             recipients.join()
@@ -2431,7 +2453,9 @@ CalDavCalendar.prototype = {
       request.commit().then(
         response => {
           if (!response.ok) {
-            cal.LOG(`CalDAV: Sending iTIP failed with status ${response.status} for ${this.name}`);
+            lazy.log.debug(
+              `CalDAV: Sending iTIP failed with status ${response.status} for ${this.name}`
+            );
           }
 
           const lowerRecipients = new Map(
@@ -2450,7 +2474,7 @@ CalDavCalendar.prototype = {
           }
 
           if (this.verboseLogging()) {
-            cal.LOG(
+            lazy.log.debug(
               "CalDAV: Failed scheduling delivery to " +
                 remainingAttendees.map(att => att.id).join(", ")
             );
@@ -2461,16 +2485,16 @@ CalDavCalendar.prototype = {
             const imipTransport = cal.provider.getImipTransport(this);
             if (imipTransport) {
               if (this.verboseLogging()) {
-                cal.LOG(`CalDAV: sending email to ${remainingAttendees.length} recipients`);
+                lazy.log.debug(`CalDAV: sending email to ${remainingAttendees.length} recipients`);
               }
               imipTransport.sendItems(remainingAttendees, aItipItem, aFromAttendee);
             } else {
-              cal.LOG("CalDAV: no fallback to iTIP/iMIP transport for " + this.name);
+              lazy.log.debug("CalDAV: no fallback to iTIP/iMIP transport for " + this.name);
             }
           }
         },
         e => {
-          cal.LOG(`CalDAV: Failed itip request for ${this.name}: ${e}`);
+          lazy.log.debug(`CalDAV: Failed itip request for ${this.name}: ${e}`);
         }
       );
     }
@@ -2492,7 +2516,7 @@ CalDavCalendar.prototype = {
     serializer.addItems([aItem]);
     const serializedItem = serializer.serializeToString();
     if (this.verboseLogging()) {
-      cal.LOG("CalDAV: send: " + serializedItem);
+      lazy.log.debug("CalDAV: send: " + serializedItem);
     }
     return serializedItem;
   },

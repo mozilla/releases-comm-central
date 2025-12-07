@@ -4,6 +4,15 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 /**
  * Returns true if the exception passed is one that should cause the cache
  * layer to retry the operation. This is usually a network error or other
@@ -289,7 +298,7 @@ calCachedCalendar.prototype = {
     if (this.supportsChangeLog) {
       await new Promise((resolve, reject) => {
         const spec = this.uri.spec;
-        cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + spec);
+        lazy.log.debug("[calCachedCalendar] Doing changelog based sync for calendar " + spec);
         const opListener = {
           onResult(operation, result) {
             if (!operation || !operation.isPending) {
@@ -308,7 +317,7 @@ calCachedCalendar.prototype = {
                 );
                 return;
               }
-              cal.LOG("[calCachedCalendar] replayChangesOn finished.");
+              lazy.log.debug("[calCachedCalendar] replayChangesOn finished.");
               resolve();
             }
           },
@@ -318,7 +327,7 @@ calCachedCalendar.prototype = {
       return;
     }
 
-    cal.LOG("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
+    lazy.log.debug("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
 
     await this.getOfflineAddedItems();
     await this.getOfflineModifiedItems();
@@ -545,9 +554,9 @@ calCachedCalendar.prototype = {
     );
 
     if (this.offline) {
-      cal.LOG("[calCachedCalendar] back to offline mode, reconciliation aborted");
+      lazy.log.debug("[calCachedCalendar] back to offline mode, reconciliation aborted");
     } else {
-      cal.LOG(
+      lazy.log.debug(
         "[calCachedCalendar] Performing playback operation " +
           debugOp +
           " on " +
@@ -719,7 +728,7 @@ calCachedCalendar.prototype = {
           // The item couldn't be added to the (remote) location,
           // this is like being offline. Add the item to the cached
           // calendar instead.
-          cal.LOG(
+          lazy.log.debug(
             `[calCachedCalendar] Calendar ${calendar.name}' is unavailable, adding item offline`
           );
           await this.adoptOfflineItem(item).then(onSuccess, onError);
@@ -816,7 +825,7 @@ calCachedCalendar.prototype = {
         // The item couldn't be modified at the (remote) location,
         // this is like being offline. Add the item to the cache
         // instead.
-        cal.LOG(
+        lazy.log.debug(
           "[calCachedCalendar] Calendar " +
             calendar.name +
             " is unavailable, modifying item offline"
@@ -915,14 +924,14 @@ calCachedCalendar.prototype = {
           try {
             this.mCachedCalendar.QueryInterface(Ci.calISyncWriteCalendar).deleteMetaData(item.id);
           } catch (e) {
-            cal.LOG("[calCachedCalendar] Offline storage doesn't support metadata");
+            lazy.log.debug("[calCachedCalendar] Offline storage doesn't support metadata");
           }
         } catch (e) {
           if (isUnavailableCode(e.result)) {
             // The item couldn't be deleted at the (remote) location,
             // this is like being offline. Mark the item deleted in the
             // cache instead.
-            cal.LOG(
+            lazy.log.debug(
               "[calCachedCalendar] Calendar " +
                 item.calendar.name +
                 " is unavailable, deleting item offline"

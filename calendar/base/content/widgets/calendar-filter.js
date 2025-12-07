@@ -150,23 +150,6 @@ calFilterProperties.prototype = {
 
     return cloned;
   },
-
-  LOG(aString) {
-    cal.LOG(
-      "[calFilterProperties] " +
-        (aString || "") +
-        " start=" +
-        this.start +
-        " end=" +
-        this.end +
-        " status=" +
-        this.status +
-        " due=" +
-        this.due +
-        " category=" +
-        this.category
-    );
-  },
 };
 
 /**
@@ -767,7 +750,6 @@ calFilter.prototype = {
 
     if (this.mFilterProperties) {
       this.updateFilterDates();
-      // this.mFilterProperties.LOG("Applying filter:");
     } else {
       cal.WARN("[calFilter] Unable to apply filter " + aFilter);
     }

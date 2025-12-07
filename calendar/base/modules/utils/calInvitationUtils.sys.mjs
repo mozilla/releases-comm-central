@@ -12,6 +12,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 export var invitation = {
   /**
@@ -720,7 +727,7 @@ export var invitation = {
     // atm we only support a subset of properties, for a full list see RfC 5546 section 3.2.7
     let properties = ["SUMMARY", "LOCATION", "DTSTART", "DTEND", "COMMENT"];
     if (!isEvent) {
-      cal.LOG("Parsing of counterproposals is currently only supported for events.");
+      lazy.log.debug("Parsing of counterproposals is currently only supported for events.");
       properties = [];
     }
 

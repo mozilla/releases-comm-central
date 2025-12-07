@@ -3,8 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 /**
  * CalItipEmailTransport is used to send iTIP messages via email. Outside
@@ -66,7 +74,7 @@ export class CalItipEmailTransport {
       // Fall through to below.
     }
 
-    cal.LOG("CalITipEmailTransport.createInstance: No XPCOM Mail available.");
+    lazy.log.debug("CalITipEmailTransport.createInstance: No XPCOM Mail available.");
     return new CalItipNoEmailTransport();
   }
 
@@ -167,7 +175,7 @@ export class CalItipEmailTransport {
 
     switch (aItipItem.autoResponse) {
       case Ci.calIItipItem.USER: {
-        cal.LOG("sendXpcomMail: Found USER autoResponse type.");
+        lazy.log.debug("sendXpcomMail: Found USER autoResponse type.");
         // We still need this as a last resort if a user just deletes or
         //  drags an invitation related event
         let parent = Services.wm.getMostRecentWindow(null);
@@ -186,7 +194,7 @@ export class CalItipEmailTransport {
           {}
         );
         if (cancelled) {
-          cal.LOG("sendXpcomMail: Sending of invitation email aborted by user!");
+          lazy.log.debug("sendXpcomMail: Sending of invitation email aborted by user!");
           break;
         } // else go on with auto sending for now
       }
@@ -194,12 +202,14 @@ export class CalItipEmailTransport {
       case Ci.calIItipItem.AUTO: {
         // don't show log message in case of falling through
         if (aItipItem.autoResponse == Ci.calIItipItem.AUTO) {
-          cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
+          lazy.log.debug("sendXpcomMail: Found AUTO autoResponse type.");
         }
         const cbEmail = function (aVal) {
           const email = cal.email.getAttendeeEmail(aVal, true);
           if (!email.length) {
-            cal.LOG("sendXpcomMail: Invalid recipient for email transport: " + aVal.toString());
+            lazy.log.debug(
+              "sendXpcomMail: Invalid recipient for email transport: " + aVal.toString()
+            );
           }
           return email;
         };
@@ -273,7 +283,7 @@ export class CalItipEmailTransport {
       case Ci.calIItipItem.NONE: {
         // we shouldn't get here, as we stopped processing in this case
         // earlier in checkAndSend in calItipUtils.sys.mjs
-        cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
+        lazy.log.debug("sendXpcomMail: Found NONE autoResponse type.");
         break;
       }
       default: {
@@ -332,7 +342,7 @@ export class CalItipEmailTransport {
         utf8CalText +
         "\r\n\r\n" +
         "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
-      cal.LOG("mail text:\n" + mailText);
+      lazy.log.debug("mail text:\n" + mailText);
 
       const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
       tempFile.append("itipTemp");
@@ -354,7 +364,7 @@ export class CalItipEmailTransport {
       outputStream.write(mailText, mailText.length);
       outputStream.close();
 
-      cal.LOG("_createTempImipFile path: " + tempFile.path);
+      lazy.log.debug("_createTempImipFile path: " + tempFile.path);
       return tempFile;
     } catch (exc) {
       cal.ASSERT(false, exc);
@@ -403,7 +413,7 @@ export class CalItipEmailTransport {
   }
 
   sendItems(aRecipients, aItipItem, aFromAttendee) {
-    cal.LOG("sendItems: Preparing to send an invitation email...");
+    lazy.log.debug("sendItems: Preparing to send an invitation email...");
     const items = this._prepareItems(aItipItem, aFromAttendee);
     if (items === false) {
       return false;

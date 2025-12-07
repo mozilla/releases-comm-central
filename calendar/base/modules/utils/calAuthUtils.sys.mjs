@@ -10,6 +10,13 @@
 // calUtils.sys.mjs under the cal.auth namespace.
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 ChromeUtils.defineESModuleGetters(lazy, {
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.sys.mjs",
@@ -189,7 +196,7 @@ export var auth = {
           this.mReturnedLogins[keyStr] &&
           now.getTime() - this.mReturnedLogins[keyStr].getTime() < 60000
         ) {
-          lazy.cal.LOG(
+          lazy.log.debug(
             "Credentials removed for: user=" + username + ", host=" + prePath + ", realm=" + realm
           );
 

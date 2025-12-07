@@ -6,7 +6,14 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CalDavLegacySAXRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
-/* exported CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler */
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_XML = "text/xml; charset=utf-8";
@@ -41,7 +48,7 @@ class XMLResponseHandler {
    */
   logResponse(responseStatus) {
     if (this.calendar.verboseLogging()) {
-      cal.LOG(`CalDAV: recv (${responseStatus}): ${this._xmlString}`);
+      lazy.log.debug(`CalDAV: recv (${responseStatus}): ${this._xmlString}`);
     }
   }
 
@@ -172,7 +179,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
       // server error (i.e 50x).
       httpchannel.contentType = "application/xml";
     } else {
-      cal.LOG("CalDAV: Error fetching item etags");
+      lazy.log.debug("CalDAV: Error fetching item etags");
       this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
@@ -225,7 +232,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
             (wasInboxItem && this.calendar.isInbox(this.baseUri.spec)) ||
             (wasInboxItem === false && !this.calendar.isInbox(this.baseUri.spec))
           ) {
-            cal.LOG("Deleting local href: " + path);
+            lazy.log.debug("Deleting local href: " + path);
             delete this.calendar.mHrefIndex[path];
             await this.calendar.mOfflineStorage.deleteItem(foundItem);
             needsRefresh = true;
@@ -432,9 +439,9 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     const requestUri = this.calendar.makeUri(null, this.baseUri);
 
     if (this.calendar.verboseLogging()) {
-      cal.LOG(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
+      lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
     }
-    cal.LOG("CalDAV: webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+    lazy.log.debug("CalDAV: webdav-sync Token: " + this.calendar.mWebdavSyncToken);
 
     const onSetupChannel = channel => {
       // The depth header adheres to an older version of the webdav-sync
@@ -516,7 +523,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     ) {
       // Invalidate sync token with 4xx errors that could indicate the
       // sync token has become invalid and do a refresh.
-      cal.LOG(
+      lazy.log.debug(
         "CalDAV: Resetting sync token because server returned status code: " + responseStatus
       );
       this.calendar.mWebdavSyncToken = null;
@@ -597,7 +604,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
       if (this.newSyncToken) {
         this.calendar.mWebdavSyncToken = this.newSyncToken;
         this.calendar.saveCalendarProperties();
-        cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+        lazy.log.debug("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
 
         if (this.additionalSyncNeeded) {
           const wds = new CalDavWebDavSyncHandler(
@@ -682,7 +689,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
               cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
             }
           } else {
-            cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
+            lazy.log.debug("CalDAV: skipping unfound deleted item : " + resp.href);
           }
           // Only handle Created or Updated calendar items
         } else if (
@@ -740,7 +747,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
           cal.WARN("CalDAV: Unexpected response, status: " + resp.status + ", href: " + resp.href);
           this.unhandledErrors++;
         } else {
-          cal.LOG(
+          lazy.log.debug(
             "CalDAV: Unhandled response element, status: " +
               resp.status +
               ", href: " +
@@ -851,7 +858,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
 
     const requestUri = this.calendar.makeUri(null, this.baseUri);
     if (this.calendar.verboseLogging()) {
-      cal.LOG(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
+      lazy.log.debug(`CalDAV: send (REPORT ${requestUri.spec}): ${queryXml}`);
     }
 
     const onSetupChannel = channel => {
@@ -937,12 +944,12 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       if (this.newSyncToken) {
         this.calendar.mWebdavSyncToken = this.newSyncToken;
         this.calendar.saveCalendarProperties();
-        cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
+        lazy.log.debug("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
       }
     }
     await this.handleResponse();
     if (this.itemsNeedFetching.length > 0) {
-      cal.LOG("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
+      lazy.log.debug("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
       this.resetXMLResponseHandler();
       const timerCallback = {
         requestHandler: this,
@@ -1044,7 +1051,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
               cal.ERROR(`Delete item FAILED; path=${resp.href}`, ex);
             }
           } else {
-            cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
+            lazy.log.debug("CalDAV: skipping unfound deleted item : " + resp.href);
           }
           // Created or Updated item
         } else if (
@@ -1086,7 +1093,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
               this.shouldYieldEventLoop = 0;
             }
           } else {
-            cal.LOG("CalDAV: skipping item with unmodified etag : " + oldEtag);
+            lazy.log.debug("CalDAV: skipping item with unmodified etag : " + oldEtag);
           }
         } else {
           cal.WARN(

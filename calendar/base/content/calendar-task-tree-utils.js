@@ -248,8 +248,7 @@ function contextChangeTaskPriority(aPriority) {
 function contextPostponeTask(aDuration) {
   const duration = cal.createDuration(aDuration);
   if (!duration) {
-    cal.LOG("[calendar-task-tree] Postpone Task - Invalid duration " + aDuration);
-    return;
+    throw new Error("Invalid duration");
   }
 
   if (gTabmail && gTabmail.currentTabInfo.mode.type == "calendarTask") {

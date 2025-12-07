@@ -12,8 +12,12 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineESModuleGetters(lazy, {
-  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
 });
 
 export const email = {
@@ -93,7 +97,7 @@ export const email = {
     const cbEmail = function (aVal) {
       const attendeeEmail = email.getAttendeeEmail(aVal, true);
       if (!attendeeEmail.length) {
-        lazy.cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
+        lazy.log.debug("Dropping invalid recipient for email transport: " + aVal.toString());
       }
       return attendeeEmail;
     };

@@ -5,6 +5,15 @@
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { calItemBase } from "resource:///modules/CalItemBase.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 /**
  * Constructor for `calIEvent` objects.
  *
@@ -122,7 +131,7 @@ CalEvent.prototype = {
                 if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
                   // Illegal values should be ignored, but we could log them if
                   // the user has enabled logging.
-                  cal.LOG(
+                  lazy.log.debug(
                     "Warning: Invalid event parameter value " +
                       paramName +
                       "=" +

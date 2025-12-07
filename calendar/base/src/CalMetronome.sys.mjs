@@ -2,9 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 const MINUTE_IN_MS = 60000;
 const HOUR_IN_MS = 3600000;
@@ -77,7 +84,7 @@ export var CalMetronome = {
 
   observe(subject, topic) {
     if (topic == "wake_notification") {
-      cal.LOGverbose("[CalMetronome] Observed wake_notification");
+      lazy.log.debug("[CalMetronome] Observed wake_notification");
       this.notify();
     } else if (topic == "quit-application") {
       this._timer.cancel();
@@ -98,12 +105,12 @@ export var CalMetronome = {
       now.getMinutes() + 1,
       0
     );
-    cal.LOGverbose(`[CalMetronome] Scheduling one-off event in ${next - now}ms`);
+    lazy.log.debug(`[CalMetronome] Scheduling one-off event in ${next - now}ms`);
     this._timer.initWithCallback(this, next - now, Ci.nsITimer.TYPE_ONE_SHOT);
   },
 
   _startRepeating() {
-    cal.LOGverbose(`[CalMetronome] Starting repeating events`);
+    lazy.log.debug(`[CalMetronome] Starting repeating events`);
     this._timer.initWithCallback(this, MINUTE_IN_MS, Ci.nsITimer.TYPE_REPEATING_SLACK);
   },
 

@@ -3,8 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { CalItipOutgoingMessage } from "resource:///modules/CalItipOutgoingMessage.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 /**
  * CalItipMessageSender is responsible for sending out the appropriate iTIP
@@ -133,7 +141,7 @@ export class CalItipMessageSender {
       // missing pieces in the conversions if the current or original item
       // has attendees - the latter is to prevent logging if creating events
       // by click and slide in day or week views
-      cal.LOG(
+      lazy.log.debug(
         "cal.itip.checkAndSend: no response mode provided, " +
           "falling back to USER mode.\r\n" +
           cal.STACK(20)

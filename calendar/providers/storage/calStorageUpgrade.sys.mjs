@@ -67,7 +67,6 @@
  */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import {
   CAL_ITEM_FLAG,
   textToDate,
@@ -76,6 +75,13 @@ import {
 } from "resource:///modules/calendar/calStorageHelpers.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 ChromeUtils.defineESModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
@@ -132,7 +138,7 @@ export function getAllSql(version) {
   for (const tblName in tblData) {
     sql += getSql(tblName, tblData) + "\n\n";
   }
-  cal.LOG("Storage: Full SQL statement is " + sql);
+  lazy.log.debug("Storage: Full SQL statement is " + sql);
   return sql;
 }
 
@@ -187,7 +193,7 @@ function getVersion(db) {
  * Backup the database and notify the user via error console of the process
  */
 export function backupDB(db, currentVersion) {
-  cal.LOG("Storage: Backing up current database...");
+  lazy.log.debug("Storage: Backing up current database...");
   try {
     // Prepare filenames and path
     const backupFilename = "local.v" + currentVersion + ".sqlite";
@@ -240,7 +246,7 @@ export function upgradeDB(storageCalendar) {
  * @param {mozIStorageAsyncConnection} db - New database to upgrade.
  */
 function upgradeBrandNewDB(db) {
-  cal.LOG("Storage: Creating tables from scratch");
+  lazy.log.debug("Storage: Creating tables from scratch");
   beginTransaction(db);
   try {
     executeSimpleSQL(db, getAllSql());
@@ -261,7 +267,7 @@ function upgradeExistingDB(db, version) {
   backupDB(db, version);
 
   // Then start the latest upgrader
-  cal.LOG("Storage: Preparing to upgrade v" + version + " to v" + DB_SCHEMA_VERSION);
+  lazy.log.debug("Storage: Preparing to upgrade v" + version + " to v" + DB_SCHEMA_VERSION);
   upgrade["v" + DB_SCHEMA_VERSION](db, version);
 }
 
@@ -399,7 +405,7 @@ function createIndex(tblData, tblName, colNameArray, db) {
  */
 function LOGdb(db, msg) {
   if (db) {
-    cal.LOG(msg);
+    lazy.log.debug(msg);
   }
 }
 
@@ -442,7 +448,7 @@ function ensureUpdatedTimezones(db) {
   }
 
   if (versionComp != 0) {
-    cal.LOG(
+    lazy.log.debug(
       "[calStorageCalendar] Timezones have been changed from " +
         version +
         " to " +

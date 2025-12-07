@@ -3,12 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
-
 import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 const TIMEZONE_CHANGED_TOPIC = "default-timezone-changed";
 
@@ -64,7 +70,7 @@ CalTimezoneService.prototype = {
 
     // Fetch the version of the backing database
     this.mVersion = this._timezoneDatabase.version;
-    cal.LOG("[CalTimezoneService] Timezones version " + this.version + " loaded");
+    lazy.log.debug("[CalTimezoneService] Timezones version " + this.version + " loaded");
 
     // Set up zones for special values
     const utc = new CalTimezone(ICAL.Timezone.utcTimezone);

@@ -3,13 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { DNS } from "resource:///modules/DNS.sys.mjs";
-
 import { CalDavPropfindRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 import { CalDavDetectionSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.sys.mjs under the cal.provider.caldav namespace.
@@ -52,7 +57,7 @@ export var CalDavProvider = {
       "attemptRoot",
     ]) {
       try {
-        cal.LOG(`[CalDavProvider] Trying to detect calendar using ${method} method`);
+        lazy.log.debug(`[CalDavProvider] Trying to detect calendar using ${method} method`);
         const calendars = await detector[method](uri);
         if (calendars) {
           return calendars;
@@ -153,7 +158,7 @@ class CalDavDetector {
     const dnsres = await DNS.srv(host);
 
     if (!dnsres.length) {
-      cal.LOG(`[CalDavProvider] Found no SRV record for for ${host}`);
+      lazy.log.debug(`[CalDavProvider] Found no SRV record for for ${host}`);
       return null;
     }
     dnsres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
@@ -170,7 +175,7 @@ class CalDavDetector {
     if (path) {
       // If the server has SRV and TXT entries, we already have a full context path to test.
       const uri = `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`;
-      cal.LOG(`[CalDavProvider] Trying ${uri} from SRV and TXT response`);
+      lazy.log.debug(`[CalDavProvider] Trying ${uri} from SRV and TXT response`);
       calendars = await this.detectCollection(Services.io.newURI(uri));
     }
 
@@ -182,7 +187,7 @@ class CalDavDetector {
       const baseloc = Services.io.newURI(
         `http${secure}://${dnsres[0].host}:${dnsres[0].port}/.well-known/caldav`
       );
-      cal.LOG(`[CalDavProvider] Trying ${baseloc.spec} from SRV response with .well-known`);
+      lazy.log.debug(`[CalDavProvider] Trying ${baseloc.spec} from SRV response with .well-known`);
 
       calendars = await this.detectCollection(baseloc);
     }
@@ -198,7 +203,7 @@ class CalDavDetector {
    */
   async wellKnown(location) {
     const wellKnownUri = Services.io.newURI("/.well-known/caldav", null, location);
-    cal.LOG(`[CalDavProvider] Trying .well-known URI without dns at ${wellKnownUri.spec}`);
+    lazy.log.debug(`[CalDavProvider] Trying .well-known URI without dns at ${wellKnownUri.spec}`);
     return this.detectCollection(wellKnownUri);
   }
 
@@ -259,7 +264,7 @@ class CalDavDetector {
       "C:calendar-home-set",
     ];
 
-    cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
+    lazy.log.debug(`[CalDavProvider] Checking collection type at ${location.spec}`);
     const request = new CalDavPropfindRequest(this.session, null, location, props);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
@@ -269,7 +274,7 @@ class CalDavDetector {
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
     } else if (!response.ok) {
-      cal.LOG(`[CalDavProvider] ${target.spec} did not respond properly to PROPFIND`);
+      lazy.log.debug(`[CalDavProvider] ${target.spec} did not respond properly to PROPFIND`);
       return null;
     }
 
@@ -277,20 +282,22 @@ class CalDavDetector {
     const resourceType = resprops["D:resourcetype"];
 
     if (resourceType.has("C:calendar")) {
-      cal.LOG(`[CalDavProvider] ${target.spec} is a calendar`);
+      lazy.log.debug(`[CalDavProvider] ${target.spec} is a calendar`);
       return [this.handleCalendar(target, resprops)];
     } else if (resprops["C:calendar-home-set"]?.length) {
-      cal.LOG(`[CalDavProvider] ${target.spec} has a home set, looking at it`);
+      lazy.log.debug(`[CalDavProvider] ${target.spec} has a home set, looking at it`);
       const homeSetUrl = Services.io.newURI(resprops["C:calendar-home-set"][0], null, target);
       return this.handleHomeSet(homeSetUrl);
     } else if (resprops["D:current-user-principal"]) {
-      cal.LOG(
+      lazy.log.debug(
         `[CalDavProvider] ${target.spec} is something else, looking at current-user-principal`
       );
       const principalUrl = Services.io.newURI(resprops["D:current-user-principal"], null, target);
       return this.handlePrincipal(principalUrl);
     } else if (resprops["D:owner"]) {
-      cal.LOG(`[CalDavProvider] ${target.spec} is something else, looking at collection owner`);
+      lazy.log.debug(
+        `[CalDavProvider] ${target.spec} is something else, looking at collection owner`
+      );
       const principalUrl = Services.io.newURI(resprops["D:owner"], null, target);
       return this.handlePrincipal(principalUrl);
     }
@@ -309,7 +316,7 @@ class CalDavDetector {
   async handlePrincipal(location) {
     const props = ["C:calendar-home-set"];
     const request = new CalDavPropfindRequest(this.session, null, location, props);
-    cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
+    lazy.log.debug(`[CalDavProvider] Checking collection type at ${location.spec}`);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
     const response = await request.commit();
@@ -321,7 +328,9 @@ class CalDavDetector {
     } else if (homeSets) {
       const calendars = [];
       for (const homeSet of homeSets) {
-        cal.LOG(`[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`);
+        lazy.log.debug(
+          `[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`
+        );
         const homeSetUrl = Services.io.newURI(homeSet, null, target);
         const discoveredCalendars = await this.handleHomeSet(homeSetUrl);
         if (discoveredCalendars) {
@@ -330,7 +339,7 @@ class CalDavDetector {
       }
       return calendars.length ? calendars : null;
     } else {
-      cal.LOG(`[CalDavProvider] ${target.spec} doesn't have a home set`);
+      lazy.log.debug(`[CalDavProvider] ${target.spec} doesn't have a home set`);
       return null;
     }
   }
@@ -366,7 +375,9 @@ class CalDavDetector {
         calendars.push(this.handleCalendar(hrefUri, resprops));
       }
     }
-    cal.LOG(`[CalDavProvider] ${target.spec} is a home set, found ${calendars.length} calendars`);
+    lazy.log.debug(
+      `[CalDavProvider] ${target.spec} is a home set, found ${calendars.length} calendars`
+    );
 
     return calendars.length ? calendars : null;
   }

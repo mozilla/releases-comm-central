@@ -4,6 +4,15 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 /**
  * Constructor for `calIRelation` objects.
  *
@@ -61,7 +70,7 @@ CalRelation.prototype = {
         if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
           // Illegal values should be ignored, but we could log them if
           // the user has enabled logging.
-          cal.LOG("Warning: Invalid relation property value " + key + "=" + value);
+          lazy.log.debug("Warning: Invalid relation property value " + key + "=" + value);
         } else {
           throw e;
         }

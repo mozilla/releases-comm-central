@@ -4139,7 +4139,6 @@ function displayCounterProposal() {
   } else if (partStat == "NEEDS-ACTION") {
     partStat = "counterSummaryNeedsAction";
   } else {
-    cal.LOG("Unexpected partstat " + partStat + " detected.");
     // we simply reset partStat not display the summary text of the counter box
     // to avoid the window of death
     partStat = null;
@@ -4193,19 +4192,11 @@ function lookupCounterLabel(aProperty) {
   const labels =
     nodeIds.has(aProperty.property) &&
     document.getElementsByAttribute("control", nodeIds.get(aProperty.property));
-  let labelValue;
   if (labels && labels.length) {
     // as label control assignment should be unique, we can just take the first result
-    labelValue = labels[0].value;
-  } else {
-    cal.LOG(
-      "Unsupported property " +
-        aProperty.property +
-        " detected when setting up counter " +
-        "box labels."
-    );
+    return labels[0].value;
   }
-  return labelValue;
+  return null;
 }
 
 /**
@@ -4228,10 +4219,6 @@ function formatCounterValue(aProperty) {
     }
   } else if (stringProps.includes(aProperty.property)) {
     val = aProperty.proposed;
-  } else {
-    cal.LOG(
-      "Unsupported property " + aProperty.property + " detected when setting up counter box values."
-    );
   }
   return val;
 }

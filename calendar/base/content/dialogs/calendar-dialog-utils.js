@@ -589,7 +589,6 @@ function adaptScheduleAgent(aItem) {
     const isOrganizerAction =
       aItem.organizer && orgEmail && aItem.organizer.id.toLowerCase() == "mailto:" + orgEmail;
     if (aItem.calendar.getProperty("forceEmailScheduling")) {
-      cal.LOG("Enforcing clientside email based scheduling.");
       // For attendees, we change schedule-agent only in case of an
       // organizer triggered action
       if (isOrganizerAction) {
