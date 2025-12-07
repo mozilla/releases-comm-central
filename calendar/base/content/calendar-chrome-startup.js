@@ -37,7 +37,7 @@ async function loadCalendarComponent() {
 
   if (
     cal.manager.wrappedJSObject.mCache &&
-    [...Services.wm.getEnumerator("mail:3pane")].length > 1
+    [...Services.wm.getEnumerator("mail:3pane")].length == 1
   ) {
     console.error(
       "Calendar manager initialised calendars before loadCalendarComponent ran on the first " +
