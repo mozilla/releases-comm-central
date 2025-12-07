@@ -329,7 +329,9 @@
     }
 
     set occurrence(val) {
-      cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
+      if (this.mOccurrence) {
+        throw new Error("Can't yet set occurrence twice");
+      }
       this.mOccurrence = val;
       let displayTime;
       if (val.isEvent()) {

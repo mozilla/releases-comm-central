@@ -783,7 +783,9 @@ CalRecurrenceInfo.prototype = {
   onStartDateChange(aNewStartTime, aOldStartTime) {
     // passing null for the new starttime would indicate an error condition,
     // since having a recurrence without a starttime is invalid.
-    cal.ASSERT(aNewStartTime, "invalid arg!", true);
+    if (!aNewStartTime) {
+      throw new Error("starttime is required");
+    }
 
     // no need to check for changes if there's no previous starttime.
     if (!aOldStartTime) {

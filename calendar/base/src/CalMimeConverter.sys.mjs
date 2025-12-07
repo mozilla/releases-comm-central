@@ -4,6 +4,15 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
+
 export function CalMimeConverter() {
   this.wrappedJSObject = this;
 }
@@ -24,9 +33,10 @@ CalMimeConverter.prototype = {
         if (item.hasProperty("X-MOZ-FAKED-MASTER")) {
           // if it's a faked master, take any overridden item to get a real occurrence:
           const exc = item.recurrenceInfo.getExceptionFor(item.startDate);
-          cal.ASSERT(exc, "unexpected!");
           if (exc) {
             item = exc;
+          } else {
+            lazy.log.warn(`Could not get exception for ${item.startDate}`);
           }
         }
         event = item;

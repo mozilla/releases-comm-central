@@ -45,7 +45,7 @@ XPCOMUtils.defineLazyServiceGetter(
  * @implements {calIItemBase}
  */
 export function calItemBase() {
-  cal.ASSERT(false, "Inheriting objects call initItemBase()!");
+  throw new Error("calIItemBase is abstract");
 }
 
 calItemBase.prototype = {

@@ -221,7 +221,9 @@ export function backupDB(db, currentVersion) {
  */
 export function upgradeDB(storageCalendar) {
   const db = storageCalendar.db;
-  cal.ASSERT(db, "Database has not been opened!", true);
+  if (!db) {
+    throw new Error("db has not been opened");
+  }
 
   if (db.tableExists("cal_calendar_schema_version")) {
     const version = getVersion(db);
@@ -510,7 +512,7 @@ function ensureUpdatedTimezones(db) {
       );
       commitTransaction(db);
     } catch (e) {
-      cal.ASSERT(false, "Timezone update failed! DB Error: " + lastErrorString(db));
+      lazy.log.error(`Timezone update failed! DB Error: ${lastErrorString(db)}`, e);
       rollbackTransaction(db);
       throw e;
     }
@@ -527,7 +529,9 @@ function ensureUpdatedTimezones(db) {
  * @param {mozIStorageAsyncConnection} [db] - The optional database to apply the operation on
  */
 function addColumn(tblData, tblName, colName, colType, db) {
-  cal.ASSERT(tblName in tblData, `Table ${tblName} is missing from table def`, true);
+  if (!(tblName in tblData)) {
+    throw new Error(`Table ${tblName} is missing from table def`);
+  }
   tblData[tblName][colName] = colType;
 
   executeSimpleSQL(db, `ALTER TABLE ${tblName} ADD COLUMN ${colName} ${colType}`);

@@ -3,8 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 
 /**
  * Calendar specific utility functions
@@ -112,7 +120,9 @@ CalCompositeCalendar.prototype = {
   },
 
   addCalendar(aCalendar) {
-    cal.ASSERT(aCalendar.id, "calendar does not have an id!", true);
+    if (!aCalendar.id) {
+      throw new Error("Calendar must have an id");
+    }
 
     // check if the calendar already exists
     if (this.getCalendarById(aCalendar.id)) {
@@ -295,7 +305,7 @@ CalCompositeCalendar.prototype = {
           calendar.refresh();
         }
       } catch (e) {
-        cal.ASSERT(false, e);
+        lazy.log.warn("Refreshing calendar FAILED.", e);
       }
     }
     // send out a single onLoad for this composite calendar,
@@ -307,16 +317,23 @@ CalCompositeCalendar.prototype = {
 
   // Promise<calIItemBase> modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem)
   async modifyItem(aNewItem, aOldItem) {
-    cal.ASSERT(aNewItem.calendar, "Composite can't modify item with null calendar", true);
-    cal.ASSERT(aNewItem.calendar != this, "Composite can't modify item with this calendar", true);
-
+    if (!aNewItem.calendar) {
+      throw new Error("Composite can't modify item with null calendar");
+    }
+    if (aNewItem.calendar == this) {
+      throw new Error("Composite can't modify item with this calendar");
+    }
     return aNewItem.calendar.modifyItem(aNewItem, aOldItem);
   },
 
   // Promise<void> deleteItem(in calIItemBase aItem);
   async deleteItem(aItem) {
-    cal.ASSERT(aItem.calendar, "Composite can't delete item with null calendar", true);
-    cal.ASSERT(aItem.calendar != this, "Composite can't delete item with this calendar", true);
+    if (!aItem.calendar) {
+      throw new Error("Composite can't delete item with null calendar");
+    }
+    if (aItem.calendar == this) {
+      throw new Error("Composite can't delete item with this calendar");
+    }
 
     return aItem.calendar.deleteItem(aItem);
   },

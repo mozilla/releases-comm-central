@@ -231,54 +231,51 @@ export class CalItipEmailTransport {
           identity,
           messageId
         );
-        if (mailFile) {
-          // compose fields for message: from/to etc need to be specified both here and in the file
-          const composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
-            Ci.nsIMsgCompFields
-          );
-          composeFields.to = toList;
-          const mailfrom = identity.fullName.length
-            ? identity.fullName + " <" + identity.email + ">"
-            : identity.email;
-          composeFields.from =
-            cal.email.validateRecipientList(mailfrom) == mailfrom ? mailfrom : identity.email;
-          composeFields.replyTo = identity.replyTo;
-          composeFields.organization = identity.organization;
-          composeFields.messageId = messageId;
-          let validRecipients;
-          if (identity.doCc) {
-            validRecipients = cal.email.validateRecipientList(identity.doCcList);
-            if (validRecipients != "") {
-              composeFields.cc = validRecipients;
-            }
+        // compose fields for message: from/to etc need to be specified both here and in the file
+        const composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
+          Ci.nsIMsgCompFields
+        );
+        composeFields.to = toList;
+        const mailfrom = identity.fullName.length
+          ? identity.fullName + " <" + identity.email + ">"
+          : identity.email;
+        composeFields.from =
+          cal.email.validateRecipientList(mailfrom) == mailfrom ? mailfrom : identity.email;
+        composeFields.replyTo = identity.replyTo;
+        composeFields.organization = identity.organization;
+        composeFields.messageId = messageId;
+        let validRecipients;
+        if (identity.doCc) {
+          validRecipients = cal.email.validateRecipientList(identity.doCcList);
+          if (validRecipients != "") {
+            composeFields.cc = validRecipients;
           }
-          if (identity.doBcc) {
-            validRecipients = cal.email.validateRecipientList(identity.doBccList);
-            if (validRecipients != "") {
-              composeFields.bcc = validRecipients;
-            }
-          }
-
-          // xxx todo: add send/progress UI, maybe recycle
-          //           "@mozilla.org/messengercompose/composesendlistener;1"
-          //           and/or "chrome://messenger/content/messengercompose/sendProgress.xhtml"
-          // i.e. bug 432662
-          this.getMsgSend().sendMessageFile(
-            identity,
-            account.key,
-            composeFields,
-            mailFile,
-            true, // deleteSendFileOnCompletion
-            false, // digest_p
-            Services.io.offline ? Ci.nsIMsgSend.nsMsgQueueForLater : Ci.nsIMsgSend.nsMsgDeliverNow,
-            null, // nsIMsgDBHdr msgToReplace
-            null, // nsIMsgSendListener aListener
-            null, // nsIMsgStatusFeedback aStatusFeedback
-            ""
-          ); // password
-          return true;
         }
-        break;
+        if (identity.doBcc) {
+          validRecipients = cal.email.validateRecipientList(identity.doBccList);
+          if (validRecipients != "") {
+            composeFields.bcc = validRecipients;
+          }
+        }
+
+        // xxx todo: add send/progress UI, maybe recycle
+        //           "@mozilla.org/messengercompose/composesendlistener;1"
+        //           and/or "chrome://messenger/content/messengercompose/sendProgress.xhtml"
+        // i.e. bug 432662
+        this.getMsgSend().sendMessageFile(
+          identity,
+          account.key,
+          composeFields,
+          mailFile,
+          true, // deleteSendFileOnCompletion
+          false, // digest_p
+          Services.io.offline ? Ci.nsIMsgSend.nsMsgQueueForLater : Ci.nsIMsgSend.nsMsgDeliverNow,
+          null, // nsIMsgDBHdr msgToReplace
+          null, // nsIMsgSendListener aListener
+          null, // nsIMsgStatusFeedback aStatusFeedback
+          ""
+        ); // password
+        return true;
       }
       case Ci.calIItipItem.NONE: {
         // we shouldn't get here, as we stopped processing in this case
@@ -295,81 +292,71 @@ export class CalItipEmailTransport {
   }
 
   _createTempImipFile(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
-    try {
-      const itemList = aItipItem.getItemList();
-      const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
-        Ci.calIIcsSerializer
-      );
-      serializer.addItems(itemList);
-      const methodProp = cal.icsService.createIcalProperty("METHOD");
-      methodProp.value = aItipItem.responseMethod;
-      serializer.addProperty(methodProp);
-      const calText = serializer.serializeToString();
-      const utf8CalText = cal.invitation.encodeUTF8(calText);
+    const itemList = aItipItem.getItemList();
+    const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+      Ci.calIIcsSerializer
+    );
+    serializer.addItems(itemList);
+    const methodProp = cal.icsService.createIcalProperty("METHOD");
+    methodProp.value = aItipItem.responseMethod;
+    serializer.addProperty(methodProp);
+    const calText = serializer.serializeToString();
+    const utf8CalText = cal.invitation.encodeUTF8(calText);
 
-      // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
-      // it can cope with nested attachments,
-      // like multipart/alternative with enclosed text/calendar and text/plain.
-      let mailText = cal.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
-      mailText +=
-        'Content-type: multipart/mixed; boundary="Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)"\r\n' +
-        "\r\n\r\n" +
-        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-        "Content-type: multipart/alternative;\r\n" +
-        ' boundary="Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)"\r\n' +
-        "\r\n\r\n" +
-        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-        "Content-type: text/plain; charset=UTF-8\r\n" +
-        "Content-transfer-encoding: 8BIT\r\n" +
-        "\r\n" +
-        cal.invitation.encodeUTF8(aBody) +
-        "\r\n\r\n\r\n" +
-        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
-        "Content-type: text/calendar; method=" +
-        aItipItem.responseMethod +
-        "; charset=UTF-8\r\n" +
-        "Content-transfer-encoding: 8BIT\r\n" +
-        "\r\n" +
-        utf8CalText +
-        "\r\n\r\n" +
-        "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
-        "\r\n" +
-        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
-        "Content-type: application/ics; name=invite.ics\r\n" +
-        "Content-transfer-encoding: 8BIT\r\n" +
-        "Content-disposition: attachment; filename=invite.ics\r\n" +
-        "\r\n" +
-        utf8CalText +
-        "\r\n\r\n" +
-        "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
-      lazy.log.debug("mail text:\n" + mailText);
+    // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
+    // it can cope with nested attachments,
+    // like multipart/alternative with enclosed text/calendar and text/plain.
+    let mailText = cal.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
+    mailText +=
+      'Content-type: multipart/mixed; boundary="Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)"\r\n' +
+      "\r\n\r\n" +
+      "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+      "Content-type: multipart/alternative;\r\n" +
+      ' boundary="Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)"\r\n' +
+      "\r\n\r\n" +
+      "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+      "Content-type: text/plain; charset=UTF-8\r\n" +
+      "Content-transfer-encoding: 8BIT\r\n" +
+      "\r\n" +
+      cal.invitation.encodeUTF8(aBody) +
+      "\r\n\r\n\r\n" +
+      "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
+      "Content-type: text/calendar; method=" +
+      aItipItem.responseMethod +
+      "; charset=UTF-8\r\n" +
+      "Content-transfer-encoding: 8BIT\r\n" +
+      "\r\n" +
+      utf8CalText +
+      "\r\n\r\n" +
+      "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)--\r\n" +
+      "\r\n" +
+      "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)\r\n" +
+      "Content-type: application/ics; name=invite.ics\r\n" +
+      "Content-transfer-encoding: 8BIT\r\n" +
+      "Content-disposition: attachment; filename=invite.ics\r\n" +
+      "\r\n" +
+      utf8CalText +
+      "\r\n\r\n" +
+      "--Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)--\r\n";
+    lazy.log.debug("mail text:\n" + mailText);
 
-      const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-      tempFile.append("itipTemp");
-      tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+    const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    tempFile.append("itipTemp");
+    tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
-      const outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
-        Ci.nsIFileOutputStream
-      );
-      // Let's write the file - constants from file-utils.js
-      const MODE_WRONLY = 0x02;
-      const MODE_CREATE = 0x08;
-      const MODE_TRUNCATE = 0x20;
-      outputStream.init(
-        tempFile,
-        MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE,
-        parseInt("0600", 8),
-        0
-      );
-      outputStream.write(mailText, mailText.length);
-      outputStream.close();
+    const outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(
+      Ci.nsIFileOutputStream
+    );
+    // Let's write the file - constants from file-utils.js
+    const MODE_WRONLY = 0x02;
+    const MODE_CREATE = 0x08;
+    const MODE_TRUNCATE = 0x20;
+    outputStream.init(tempFile, MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE, parseInt("0600", 8), 0);
+    outputStream.write(mailText, mailText.length);
+    outputStream.close();
 
-      lazy.log.debug("_createTempImipFile path: " + tempFile.path);
-      return tempFile;
-    } catch (exc) {
-      cal.ASSERT(false, exc);
-      return null;
-    }
+    lazy.log.debug(`Created itipTemp file: ${tempFile.path}`);
+    return tempFile;
   }
 
   /**

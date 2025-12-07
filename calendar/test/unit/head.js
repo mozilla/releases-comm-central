@@ -35,7 +35,9 @@ function createEventFromIcalString(icalString) {
     const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(icalString);
     const items = parser.getItems();
-    cal.ASSERT(items.length == 1);
+    if (items.length != 1) {
+      throw new Error(`Should get one item; got ${items.length} items`);
+    }
     return items[0].QueryInterface(Ci.calIEvent);
   }
   const event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);

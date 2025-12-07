@@ -199,7 +199,9 @@ CalTimezoneService.prototype = {
     // Update default timezone and preference if necessary
     if (!this.mDefaultTimezone || this.mDefaultTimezone.tzid != tzid) {
       this.mDefaultTimezone = this.getTimezone(tzid);
-      cal.ASSERT(this.mDefaultTimezone, `Timezone not found: ${tzid}`);
+      if (!this.mDefaultTimezone) {
+        lazy.log.warn(`Timezone not found: ${tzid}`);
+      }
       Services.obs.notifyObservers(null, "defaultTimezoneChanged");
 
       if (this.mDefaultTimezone.tzid != prefTzid) {

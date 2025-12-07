@@ -1287,9 +1287,7 @@ CalDavCalendar.prototype = {
       const self = this;
       const opListener = {
         QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-        onGetResult() {
-          cal.ASSERT(false, "unexpected!");
-        },
+        onGetResult() {},
         onOperationComplete(opCalendar, opStatus, opType, opId, opDetail) {
           self.mACLEntry = opDetail;
           self.fillACLProperties();

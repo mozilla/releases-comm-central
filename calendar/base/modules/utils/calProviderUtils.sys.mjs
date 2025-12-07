@@ -351,7 +351,9 @@ export var provider = {
    * @returns {nsIMsgIdentity} The configured identity
    */
   getEmailIdentityOfCalendar(aCalendar, outAccount) {
-    lazy.cal.ASSERT(aCalendar, "no calendar!", Cr.NS_ERROR_INVALID_ARG);
+    if (!aCalendar) {
+      throw new Error("Calendar is a required argument");
+    }
     const key = aCalendar.getProperty("imip.identity.key");
     if (key === null) {
       // take default account/identity:
@@ -443,12 +445,7 @@ export var provider = {
       const dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       dir.append("calendar-data");
       if (!dir.exists()) {
-        try {
-          dir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
-        } catch (exc) {
-          lazy.cal.ASSERT(false, exc);
-          throw exc;
-        }
+        dir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
       }
       provider.getCalendarDirectory.mDir = dir;
     }
@@ -589,7 +586,7 @@ export var provider = {
           this.mObservers.notify("onEndBatch", [this]);
         }
       } else {
-        lazy.cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");
+        lazy.log.warn("Unexpected endBatch");
       }
     }
 

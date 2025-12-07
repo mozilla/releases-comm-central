@@ -425,8 +425,12 @@ export var auth = {
    * @param {string} aRealm - The password realm (unused on branch)
    */
   async passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
-    lazy.cal.ASSERT(aUsername);
-    lazy.cal.ASSERT(aPassword);
+    if (!aUsername) {
+      throw new Error("username required");
+    }
+    if (!aPassword) {
+      throw new Error("password required");
+    }
 
     const origin = this._ensureOrigin(aOrigin);
 
@@ -451,10 +455,12 @@ export var auth = {
         }
       }
       await Services.logins.addLoginAsync(newLoginInfo);
-    } catch (exc) {
+    } catch (e) {
       // Only show the message if its not an abort, which can happen if
       // the user canceled the primary password dialog
-      lazy.cal.ASSERT(exc.result == Cr.NS_ERROR_ABORT, exc);
+      if (e.result != Cr.NS_ERROR_ABORT) {
+        lazy.log.error("Saving password FAILED", e);
+      }
     }
   },
 
@@ -468,7 +474,9 @@ export var auth = {
    * @returns {boolean} True, if an entry exists in the password manager
    */
   passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
-    lazy.cal.ASSERT(aUsername);
+    if (!aUsername) {
+      throw new Error("username required");
+    }
 
     if (typeof aPassword != "object") {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
@@ -487,8 +495,8 @@ export var auth = {
           return true;
         }
       }
-    } catch (exc) {
-      lazy.cal.ASSERT(false, exc);
+    } catch (e) {
+      lazy.log.error("Get password FAILED", e);
     }
     return false;
   },
@@ -502,7 +510,9 @@ export var auth = {
    * @returns {boolean} Could the user be removed?
    */
   passwordManagerRemove(aUsername, aOrigin, aRealm) {
-    lazy.cal.ASSERT(aUsername);
+    if (!aUsername) {
+      throw new Error("username required");
+    }
 
     const origin = this._ensureOrigin(aOrigin);
 

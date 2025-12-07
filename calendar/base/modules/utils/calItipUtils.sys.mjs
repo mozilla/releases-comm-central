@@ -1117,8 +1117,8 @@ export var itip = {
       // XXX todo: there's still the bug that modifyItem is called with mixed occurrence/parent,
       //           find original occurrence
       oldItem = oldItem.recurrenceInfo.getOccurrenceFor(newItem.recurrenceId);
-      lazy.cal.ASSERT(oldItem, "unexpected!");
       if (!oldItem) {
+        lazy.log.warn(`Could not get occurrence for recurrenceId=${newItem.recurrenceId}`);
         return newItem;
       }
     }
@@ -1471,7 +1471,6 @@ function updateItem(item, itipItemItem) {
     // keep care of installing all overridden items, and mind existing alarms, categories:
     for (const rid of recInfo.getExceptionIds()) {
       const excItem = recInfo.getExceptionFor(rid).clone();
-      lazy.cal.ASSERT(excItem, "unexpected!");
       const newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();
       newExc.icalComponent = excItem.icalComponent;
       setReceivedInfo(newExc, itipItemItem);
@@ -1553,9 +1552,10 @@ ItipOpListener.prototype = {
   mExtResponse: null,
 
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-    lazy.cal.ASSERT(Components.isSuccessCode(aStatus), `iTIP processing failed: ${aDetail}`);
     if (Components.isSuccessCode(aStatus)) {
       itip.checkAndSend(aOperationType, aDetail, this.mOldItem, this.mExtResponse);
+    } else {
+      lazy.log.warn(`iTIP processing failed: ${aDetail}`);
     }
     if (this.mOpListener) {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);
@@ -1759,7 +1759,9 @@ ItipItemFinder.prototype = {
                 case "REFRESH": {
                   // xxx todo test
                   const attendees = itipItemItem.getAttendees();
-                  lazy.cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
+                  if (attendees.length != 1) {
+                    lazy.log.warn(`Should not have ${attendees.length} attendees in REFRESH`);
+                  }
                   if (attendees.length > 0) {
                     const action = function () {
                       if (!item.organizer) {
@@ -1781,10 +1783,11 @@ ItipItemFinder.prototype = {
                   break;
                 }
                 case "PUBLISH":
-                  lazy.cal.ASSERT(
-                    itipItemItem.getAttendees().length == 0,
-                    "invalid number of attendees in PUBLISH!"
-                  );
+                  if (itipItemItem.getAttendees().length != 0) {
+                    lazy.log.warn(
+                      `Should not have ${itipItemItem.getAttendees().length} attendees in PUBLISH`
+                    );
+                  }
                   if (
                     item.calendar.getProperty("itip.disableRevisionChecks") ||
                     itip.compare(itipItemItem, item) > 0
@@ -1937,16 +1940,17 @@ ItipItemFinder.prototype = {
                 case "REPLY": {
                   let attendees = itipItemItem.getAttendees();
                   if (method == "REPLY") {
-                    lazy.cal.ASSERT(attendees.length == 1, "invalid number of attendees in REPLY!");
+                    if (attendees.length != 1) {
+                      lazy.log.warn(`Should not have ${attendees.length} attendees in REPLY`);
+                    }
                   } else {
                     attendees = lazy.cal.itip.getAttendeesBySender(
                       attendees,
                       this.mItipItem.sender
                     );
-                    lazy.cal.ASSERT(
-                      attendees.length == 1,
-                      "ambiguous resolution of replying attendee in COUNTER!"
-                    );
+                    if (attendees.length != 1) {
+                      lazy.log.warn(`Should not have ${attendees.length} attendees in COUNTER`);
+                    }
                   }
                   // we get the attendee from the event stored in the calendar
                   let replyer = item.getAttendeeById(attendees[0].id);
@@ -2137,10 +2141,11 @@ ItipItemFinder.prototype = {
                 }
                 att.participationStatus = partStat;
               } else {
-                lazy.cal.ASSERT(
-                  itipItemItem.getAttendees().length == 0,
-                  "invalid number of attendees in PUBLISH!"
-                );
+                if (itipItemItem.getAttendees().length != 0) {
+                  lazy.log.warn(
+                    `Should not have ${itipItemItem.getAttendees().length} attendees in PUBLISH`
+                  );
+                }
                 lazy.cal.alarms.setDefaultValues(newItem);
               }
 

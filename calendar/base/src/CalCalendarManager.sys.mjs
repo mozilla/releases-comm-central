@@ -308,11 +308,9 @@ CalCalendarManager.prototype = {
   registerCalendarProvider(type, impl) {
     this.assureCache();
 
-    cal.ASSERT(
-      !this.providerImplementations.hasOwnProperty(type),
-      "[CalCalendarManager::registerCalendarProvider] provider already exists",
-      true
-    );
+    if (this.providerImplementations.hasOwnProperty(type)) {
+      throw new Error(`Provider already exists; type=${type}`);
+    }
 
     this.providerImplementations[type] = impl;
     this.updateDummyCalendarRegistration(type);
@@ -326,11 +324,9 @@ CalCalendarManager.prototype = {
    * @param {boolean} temporary - If true, cached calendars will not be cleared.
    */
   unregisterCalendarProvider(type, temporary = false) {
-    cal.ASSERT(
-      this.providerImplementations.hasOwnProperty(type),
-      "[CalCalendarManager::unregisterCalendarProvider] provider doesn't exist or is builtin",
-      true
-    );
+    if (!this.providerImplementations.hasOwnProperty(type)) {
+      throw new Error(`Provider doesn't exist or is built-in; type=${type}`);
+    }
     delete this.providerImplementations[type];
     this.updateDummyCalendarRegistration(type, !temporary);
   },
@@ -349,15 +345,12 @@ CalCalendarManager.prototype = {
   registerCalendar(calendar) {
     this.assureCache();
 
-    // If the calendar is already registered, bail out
-    cal.ASSERT(
-      !calendar.id || !(calendar.id in this.mCache),
-      `[CalCalendarManager::registerCalendar] calendar ${calendar.name} - ${calendar.id} - already registered!`,
-      true
-    );
-
     if (!calendar.id) {
       calendar.id = cal.getUUID();
+    }
+
+    if (calendar.id in this.mCache) {
+      throw new Error(`${calendar.name} - ${calendar.id} - already registered!`);
     }
 
     Services.prefs.setStringPref(getPrefBranchFor(calendar.id) + "type", calendar.type);
@@ -624,9 +617,15 @@ CalCalendarManager.prototype = {
   },
 
   getCalendarPref_(calendar, name) {
-    cal.ASSERT(calendar, "Invalid Calendar!");
-    cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
-    cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
+    if (!calendar) {
+      throw new Error("calendar must be set");
+    }
+    if (!calendar.id) {
+      throw new Error("calendar.id must be set");
+    }
+    if (!name) {
+      throw new Error("pref name must be set");
+    }
 
     const branch = getPrefBranchFor(calendar.id) + name;
     let value = Preferences.get(branch, null);
@@ -641,10 +640,15 @@ CalCalendarManager.prototype = {
   },
 
   setCalendarPref_(calendar, name, value) {
-    cal.ASSERT(calendar, "Invalid Calendar!");
-    cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
-    cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
-
+    if (!calendar) {
+      throw new Error("calendar must be set");
+    }
+    if (!calendar.id) {
+      throw new Error("calendar.id must be set");
+    }
+    if (!name) {
+      throw new Error("pref name must be set");
+    }
     const branch = getPrefBranchFor(calendar.id) + name;
 
     if (
@@ -664,9 +668,15 @@ CalCalendarManager.prototype = {
   },
 
   deleteCalendarPref_(calendar, name) {
-    cal.ASSERT(calendar, "Invalid Calendar!");
-    cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
-    cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
+    if (!calendar) {
+      throw new Error("calendar must be set");
+    }
+    if (!calendar.id) {
+      throw new Error("calendar.id must be set");
+    }
+    if (!name) {
+      throw new Error("pref name must be set");
+    }
     Services.prefs.clearUserPref(getPrefBranchFor(calendar.id) + name);
   },
 

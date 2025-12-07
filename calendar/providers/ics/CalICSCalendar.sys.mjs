@@ -738,7 +738,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   }
 
   #unlock(errCode) {
-    cal.ASSERT(this.#locked, "unexpected!");
+    if (!this.#locked) {
+      lazy.log.warn("Calendar already unlocked.");
+    }
 
     this.#modificationActions.forEach(action => {
       const listener = action.listener;
@@ -746,7 +748,10 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         listener(action.item);
       } else if (listener) {
         const args = action.opCompleteArgs;
-        cal.ASSERT(args, "missing onOperationComplete call!");
+        // FIXME: dead code? opCompleteArgs doesn't seem like its ever set
+        if (!args) {
+          lazy.log.warn("opCompleteArgs missing");
+        }
         if (Components.isSuccessCode(args[1]) && errCode && !Components.isSuccessCode(errCode)) {
           listener.onOperationComplete(args[0], errCode, args[2], args[3], null);
         } else {

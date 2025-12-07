@@ -70,7 +70,9 @@ export class CalStorageItemModel extends CalStorageModelBase {
    * @param {calIItemBase} oldItem - The previous version of the item.
    */
   async updateItem(item, oldItem) {
-    cal.ASSERT(!item.recurrenceId, "no parent item passed!", true);
+    if (item.recurrenceId) {
+      throw new Error("Updated item should not have recurrenceId");
+    }
     await this.deleteItemById(oldItem.id, true);
     await this.addItem(item);
   }

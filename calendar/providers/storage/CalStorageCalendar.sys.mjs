@@ -474,7 +474,9 @@ CalStorageCalendar.prototype = {
   // assumes this.mStorageDb is valid
 
   initDB() {
-    cal.ASSERT(this.mStorageDb, "Database has not been opened!", true);
+    if (!this.mStorageDb) {
+      throw new Error("Database has not been opened!");
+    }
 
     try {
       this.mStorageDb.executeSimpleSQL("PRAGMA journal_mode=WAL");

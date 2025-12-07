@@ -10,6 +10,13 @@
 // including calUtils.sys.mjs under the cal.data namespace.
 
 const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "calendar",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.loglevel",
+  });
+});
 ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
@@ -132,7 +139,9 @@ class OperationGroup {
   }
 
   notifyCompleted(aStatus) {
-    lazy.cal.ASSERT(this.isPending, "[OperationGroup_notifyCompleted] this.isPending");
+    if (!this.isPending) {
+      lazy.log.warn(`Notify completed non-pending operation; id=${this.id}`);
+    }
     if (this.isPending) {
       this.mIsPending = false;
       if (aStatus) {

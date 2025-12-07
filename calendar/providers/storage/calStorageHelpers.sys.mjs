@@ -119,7 +119,7 @@ export function newDateTime(aNativeTime, aTimezone) {
     if (timezone) {
       date = date.getInTimezone(timezone);
     } else {
-      cal.ASSERT(false, "Timezone not available: " + aTimezone);
+      lazy.log.warn(`Timezone N/A: ${aTimezone}`);
     }
   } else {
     date.timezone = cal.dtz.floating;
