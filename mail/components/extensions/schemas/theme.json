@@ -377,13 +377,13 @@
                 "description": "If set, overrides the general theme (context menus, toolbars, content area).",
                 "optional": true,
                 "type": "string",
-                "enum": ["light", "dark", "auto"]
+                "enum": ["auto", "light", "dark", "system"]
               },
               "content_color_scheme": {
                 "description": "If set, overrides the color scheme for the content area.",
                 "optional": true,
                 "type": "string",
-                "enum": ["light", "dark", "auto"]
+                "enum": ["auto", "light", "dark", "system"]
               }
             },
             "additionalProperties": {
