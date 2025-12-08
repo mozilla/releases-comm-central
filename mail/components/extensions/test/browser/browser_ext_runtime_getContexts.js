@@ -4,6 +4,22 @@
 
 "use strict";
 
+async function withNewTab(options, taskFn) {
+  if (typeof options == "string") {
+    options = { url: options };
+  }
+  const tab = window.openContentTab(options.url);
+  await BrowserTestUtils.browserLoaded(tab.browser, {
+    wantLoad: options.url,
+  });
+
+  const result = await taskFn(tab.browser);
+
+  const tabmail = document.getElementById("tabmail");
+  tabmail.closeTab(tab);
+  return Promise.resolve(result);
+}
+
 async function genericChecker() {
   const params = new URLSearchParams(window.location.search);
   const kind = params.get("kind");
@@ -417,20 +433,20 @@ add_task(async function test_runtime_getContexts() {
   }
 
   // Test the options page.
-  {
-    info(
-      "Test getContexts after opening an options page embedded in an about:addons tab"
-    );
-    const tabmail = firstWin.document.getElementById("tabmail");
-    const nativeTab = tabmail.openTab("contentTab", { url: "about:addons" });
-    await awaitBrowserLoaded(nativeTab.browser, "about:addons");
+
+  info(
+    "Test getContexts after opening an options page embedded in an about:addons tab"
+  );
+  await withNewTab("about:addons", async browser => {
     extension.sendMessage("background-open-options-page");
     await extension.awaitMessage("options-loaded");
     Assert.equal(
-      nativeTab.browser.currentURI.spec,
+      browser.currentURI.spec,
       "about:addons",
       "Expect an about:addons tab to be current active tab"
     );
+    const tabmail = firstWin.document.getElementById("tabmail");
+    const nativeTab = tabmail.getTabForBrowser(browser);
     const optionsTabId = tabTracker.getId(nativeTab);
     const actual = await getGetContextsResults({
       filter: { windowIds: [firstWinId], tabIds: [optionsTabId] },
@@ -447,8 +463,7 @@ add_task(async function test_runtime_getContexts() {
       ],
       "Got the expected results from runtime.getContexts for an options_page"
     );
-    tabmail.closeTab(nativeTab);
-  }
+  });
 
   await extension.unload();
 });
