@@ -80,9 +80,12 @@ html|input.textbox-addressingWidget:disabled {
   --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
   width: 16px;
   height: 16px;
-  background-image: url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
-                    url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
-  background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
+  background-image:
+    url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
+    url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
+  background-position:
+    var(--itip-icon-partstat),
+    var(--itip-icon-usertype) var(--itip-icon-role);
 }
 .itip-icon[partstat="ACCEPTED"] {
   --itip-icon-partstat: 0px 0px;

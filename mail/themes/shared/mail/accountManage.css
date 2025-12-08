@@ -758,5 +758,7 @@ certificate-check {
 }
 
 @keyframes activity-indicator {
-  100% { object-position: -480px 0; }
+  100% {
+    object-position: -480px 0;
+  }
 }

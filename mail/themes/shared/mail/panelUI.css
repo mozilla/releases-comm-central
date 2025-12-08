@@ -29,8 +29,7 @@
     --appmenu-warning-background-color-active: light-dark(#ffe38f, hsla(55, 100%, 50%, 0.3));
     --appmenu-warning-color: light-dark(black, #f9f9fa);
     --appmenu-warning-border-color: light-dark(hsl(45, 100%, 77%), hsla(55, 100%, 50%, 0.3));
-    --appmenu-icons-fill: light-dark(color-mix(in srgb, var(--color-ink-70) 20%, transparent),
-                                     color-mix(in srgb, var(--color-ink-10) 20%, transparent));
+    --appmenu-icons-fill: light-dark(color-mix(in srgb, var(--color-ink-70) 20%, transparent), color-mix(in srgb, var(--color-ink-10) 20%, transparent));
     --appmenu-icons-stroke: light-dark(var(--color-ink-70), var(--color-ink-10));
   }
 
@@ -126,7 +125,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   }
 }
 
-#wrapper-edit-controls:is([place="palette"],[place="menu-panel"]) > #edit-controls {
+#wrapper-edit-controls:is([place="palette"], [place="menu-panel"]) > #edit-controls {
   margin-inline-start: 0;
 }
 
@@ -139,7 +138,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   }
 }
 
-panelview[id^=PanelUI-webext-] {
+panelview[id^="PanelUI-webext-"] {
   overflow: hidden;
 }
 
@@ -184,8 +183,8 @@ panelview:not([mainview]) .toolbarbutton-text,
     transform: scale(1);
   }
   100% {
-    opacity: 0 ;
-    transform: scale(.5);
+    opacity: 0;
+    transform: scale(0.5);
   }
 }
 
@@ -236,7 +235,6 @@ menuitem.subviewbutton {
 }
 
 .subviewbutton {
-
   &:focus {
     outline: 0;
   }
@@ -407,7 +405,7 @@ menu.subviewbutton,
     }
   }
 
-  &:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) {
+  &:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"]) {
     & > toolbarbutton {
       border: 0;
       margin: 0;
@@ -429,7 +427,7 @@ menu.subviewbutton,
     & > separator {
       appearance: none;
       align-items: stretch;
-      margin: .5em 0;
+      margin: 0.5em 0;
       width: 1px;
       height: auto;
       background: var(--panel-separator-color);
@@ -460,38 +458,37 @@ panelview .toolbarbutton-1 {
   margin-top: 6px;
 }
 
-panelview .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
-toolbarbutton.subviewbutton:not([disabled],[open],:active):is(:hover,:focus-visible),
-menu.subviewbutton:not([disabled],:active)[_moz-menuactive],
-menuitem.subviewbutton:not([disabled],:active)[_moz-menuactive],
-.widget-overflow-list .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) >
-  toolbarbutton:not([disabled],[open],:active):is(:hover,:focus-visible) {
+panelview .toolbarbutton-1:not([disabled], [open], :active):is(:hover, :focus-visible),
+toolbarbutton.subviewbutton:not([disabled], [open], :active):is(:hover, :focus-visible),
+menu.subviewbutton:not([disabled], :active)[_moz-menuactive],
+menuitem.subviewbutton:not([disabled], :active)[_moz-menuactive],
+.widget-overflow-list .toolbarbutton-1:not([disabled], [open], :active):is(:hover, :focus-visible),
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"])
+  > toolbarbutton:not([disabled], [open], :active):is(:hover, :focus-visible) {
   color: inherit;
   background-color: var(--arrowpanel-dimmed);
 }
 
-panelview .toolbarbutton-1:not([disabled]):is([open],:hover:active),
-toolbarbutton.subviewbutton:not([disabled]):is([open],:hover:active),
+panelview .toolbarbutton-1:not([disabled]):is([open], :hover:active),
+toolbarbutton.subviewbutton:not([disabled]):is([open], :hover:active),
 menu.subviewbutton:not([disabled])[_moz-menuactive]:active,
 menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
-.widget-overflow-list .toolbarbutton-1:not([disabled]):is([open],:hover:active),
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) >
-  toolbarbutton:not([disabled]):is([open],:hover:active) {
+.widget-overflow-list .toolbarbutton-1:not([disabled]):is([open], :hover:active),
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]), [overflowedItem="true"]) > toolbarbutton:not([disabled]):is([open], :hover:active) {
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
-  box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
 }
 
-menuitem.panel-subview-footer:not([disabled],:active)[_moz-menuactive],
-.subviewbutton.panel-subview-footer:not([disabled],[open],:active):is(:hover,:focus-visible) {
+menuitem.panel-subview-footer:not([disabled], :active)[_moz-menuactive],
+.subviewbutton.panel-subview-footer:not([disabled], [open], :active):is(:hover, :focus-visible) {
   background-color: var(--arrowpanel-dimmed-further);
 }
 
 menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
-.subviewbutton.panel-subview-footer:not([disabled]):is([open],:hover:active) {
+.subviewbutton.panel-subview-footer:not([disabled]):is([open], :hover:active) {
   background-color: var(--arrowpanel-dimmed-even-further);
-  box-shadow: 0 1px 0 hsla(210,4%,10%,.05) inset;
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.05) inset;
 }
 
 #widget-overflow-mainView > .panel-subview-body > toolbarseparator,
@@ -561,11 +558,11 @@ toolbarpaletteitem[place="palette"] > #search-container {
 
   & .toolbarbutton-1:not(.toolbarbutton-combined) > .toolbarbutton-text {
     text-align: start;
-    padding-inline-start: .5em;
+    padding-inline-start: 0.5em;
   }
 }
 
-toolbaritem[overflowedItem=true],
+toolbaritem[overflowedItem="true"],
 .widget-overflow-list .toolbarbutton-1 {
   width: 100%;
   max-width: var(--wide-menu-panel-width);
@@ -586,13 +583,13 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border-radius: 2px;
   border: 1px solid transparent;
 
-  &:not([disabled],[open],:active):is(:hover,:focus-visible) {
+  &:not([disabled], [open], :active):is(:hover, :focus-visible) {
     background-color: var(--arrowpanel-dimmed);
     border-color: var(--panel-separator-color);
   }
 
   &:is([selected], [selected]:hover),
-  &:not([disabled]):is([open],:hover:active) {
+  &:not([disabled]):is([open], :hover:active) {
     background-color: var(--arrowpanel-dimmed-further);
     border-color: var(--panel-separator-color);
     box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
@@ -630,8 +627,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     text-align: center;
 
     & > span {
-     display: inline-block;
-     white-space: pre-wrap;
+      display: inline-block;
+      white-space: pre-wrap;
     }
   }
 
@@ -682,12 +679,11 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
   & > .toolbarbutton-text > .status-text {
     color: var(--text-color-deemphasized);
-    font-size: .9em;
+    font-size: 0.9em;
   }
 }
 
 .button-appmenu {
-
   &:focus-visible {
     outline: var(--focus-outline);
     outline-offset: var(--focus-outline-offset);
@@ -704,9 +700,15 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     padding: 0;
   }
 
-  &:is([badge-status="update-available"], [badge-status="update-downloading"],
-       [badge-status="update-manual"], [badge-status="update-other-instance"],
-       [badge-status="update-restart"]) > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  &:is(
+      [badge-status="update-available"],
+      [badge-status="update-downloading"],
+      [badge-status="update-manual"],
+      [badge-status="update-other-instance"],
+      [badge-status="update-restart"]
+    )
+    > .toolbarbutton-badge-stack
+    > .toolbarbutton-badge {
     margin-top: -4px !important;
     margin-inline-end: -3px !important;
     -moz-context-properties: fill;
@@ -736,7 +738,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   padding-block: calc(var(--appmenu-button-padding) + 3px);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   color: var(--button-text-color);
-  background-color: color-mix(in srgb, currentColor 7%, transparent);;
+  background-color: color-mix(in srgb, currentColor 7%, transparent);
   margin-bottom: 4px;
   font-weight: 600;
 
@@ -760,9 +762,14 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     order: 2;
   }
 
-  &:is([notificationid="update-available"], [notificationid="update-downloading"],
-       [notificationid="update-manual"], [notificationid="update-other-instance"],
-       [notificationid="update-restart"]) > .toolbarbutton-icon {
+  &:is(
+      [notificationid="update-available"],
+      [notificationid="update-downloading"],
+      [notificationid="update-manual"],
+      [notificationid="update-other-instance"],
+      [notificationid="update-restart"]
+    )
+    > .toolbarbutton-icon {
     background-image: url(chrome://messenger/skin/icons/app-update-badge.svg);
     background-repeat: no-repeat;
     background-position: center;
@@ -826,7 +833,7 @@ menulist {
   border: 1px solid var(--button-border-color);
   background-color: var(--button-background-color);
 
-  &:not([disabled="true"],[open="true"]):hover,
+  &:not([disabled="true"], [open="true"]):hover,
   &[open="true"]:not([disabled="true"]) {
     background-color: var(--button-hover-background-color);
     border-color: var(--button-border-color);
@@ -852,8 +859,12 @@ menulist {
 }
 
 @keyframes syncRotate {
-  from { transform: rotate(0); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #appmenu-submenu-sync-settings {

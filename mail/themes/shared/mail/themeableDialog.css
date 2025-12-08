@@ -99,7 +99,7 @@
   button[open],
   button:not([disabled="true"]):hover,
   button:not([disabled="true"]):hover:active,
-  menulist:not([disabled="true"],[open="true"]):hover,
+  menulist:not([disabled="true"], [open="true"]):hover,
   menulist[open="true"]:not([disabled="true"]),
   select:not([size], [multiple], [disabled]):is(:hover, :active),
   tab:hover,
@@ -145,8 +145,7 @@ html|textarea {
   }
 }
 
-html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
-  [type="url"],[type="number"]):disabled {
+html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"], [type="number"]):disabled {
   opacity: 0.4;
 }
 
@@ -232,7 +231,7 @@ button:focus-visible {
 }
 
 button:not([disabled="true"]):hover,
-menulist:not([disabled="true"],[open="true"]):hover,
+menulist:not([disabled="true"], [open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]),
 html|input[type="color"]:not([disabled="true"]):hover,
 select:not([size], [multiple]):is(:hover, :active) {
@@ -439,8 +438,7 @@ richlistbox > richlistitem {
   & button,
   & menulist {
     background-color: var(--richlist-button-background);
-    background-image: linear-gradient(var(--button-background-color),
-                                      var(--button-background-color));
+    background-image: linear-gradient(var(--button-background-color), var(--button-background-color));
     color: var(--field-text-color) !important;
 
     :root[lwtheme] & {
@@ -452,16 +450,14 @@ richlistbox > richlistitem {
   & menulist:not([disabled="true"]):hover,
   & menulist[open="true"]:not([disabled="true"]) {
     background-color: var(--richlist-button-background);
-    background-image: linear-gradient(var(--button-hover-background-color),
-                                      var(--button-hover-background-color));
+    background-image: linear-gradient(var(--button-hover-background-color), var(--button-hover-background-color));
   }
 
   & button[open],
   & button[open]:hover,
   & button:not([disabled="true"]):hover:active {
     background-color: var(--richlist-button-background);
-    background-image: linear-gradient(var(--button-active-background-color),
-                                      var(--button-active-background-color));
+    background-image: linear-gradient(var(--button-active-background-color), var(--button-active-background-color));
   }
 }
 
@@ -522,7 +518,7 @@ separator.groove:not([orient="vertical"]) {
 
 .tip-caption {
   opacity: 0.7;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 
 :root[lwt-tree-brighttext] .text-link {

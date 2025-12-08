@@ -5,7 +5,7 @@
 .inline-notification-container {
   color: inherit;
 
-  &:not([collapsed="collapsed"],[hidden]) {
+  &:not([collapsed="collapsed"], [hidden]) {
     display: flex;
     border-radius: 3px;
     padding: 6px 8px;

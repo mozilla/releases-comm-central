@@ -46,7 +46,7 @@ calendar-minimonth {
     --mmBoxBackground: var(--color-gray-20);
     --mmBoxBorderColor: var(--color-gray-30);
     --mmBoxItemColor: var(--color-gray-30);
-    --mmBoxItemBorderColor:  transparent;
+    --mmBoxItemBorderColor: transparent;
     --mmDayTodayColor: var(--color-gray-90);
     --mmDayTodayBorderColor: transparent;
     --mmDayColor: var(--color-gray-70);
@@ -197,7 +197,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   }
 }
 
-.minimonth-nav-btn:dir(rtl)[dir="-1"] ,
+.minimonth-nav-btn:dir(rtl)[dir="-1"],
 .minimonth-nav-btn:dir(rtl)[dir="1"] {
   transform: scaleX(-1);
 }

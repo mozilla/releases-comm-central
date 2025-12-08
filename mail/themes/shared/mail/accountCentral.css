@@ -234,9 +234,10 @@ aside.settings-btn-container {
 
 /* Custom buttons style */
 .btn-hub {
-  transition: background-color 280ms ease,
-              color 280ms ease,
-              box-shadow 280ms ease;
+  transition:
+    background-color 280ms ease,
+    color 280ms ease,
+    box-shadow 280ms ease;
   appearance: none;
   display: flex;
   flex-direction: column;
@@ -261,8 +262,9 @@ aside.settings-btn-container {
   &:not([disabled="true"]):hover {
     color: var(--btn-color-hover) !important;
     background-color: var(--btn-bg-hover);
-    box-shadow: 0 14px 16px -12px var(--btn-shadow-hover),
-                inset 20px 20px 50px -30px rgba(255, 255, 255, .35);
+    box-shadow:
+      0 14px 16px -12px var(--btn-shadow-hover),
+      inset 20px 20px 50px -30px rgba(255, 255, 255, 0.35);
   }
 
   &.btn-inline {
@@ -281,7 +283,7 @@ aside.settings-btn-container {
   &::before {
     position: relative;
     display: block;
-    content: '';
+    content: "";
     margin-block-end: 10px;
     margin-inline-end: 0;
     width: 20px;
@@ -335,11 +337,11 @@ aside.settings-btn-container {
 }
 
 #setupNewsgroups::before {
-  background-image:  var(--account-central-newsletter);
+  background-image: var(--account-central-newsletter);
 }
 
 #importButton::before {
-  background-image:  var(--icon-import);
+  background-image: var(--icon-import);
 }
 
 #setupEmail.btn-inline::before {
@@ -372,7 +374,7 @@ aside.settings-btn-container {
 }
 
 #setupNewsgroups.btn-inline::before {
-  background-image:  var(--icon-newsletter);
+  background-image: var(--icon-newsletter);
 }
 
 .account-description {
@@ -428,7 +430,7 @@ aside.settings-btn-container {
   padding: 0;
   line-height: 1em;
   align-items: center;
-  transition: color .2s;
+  transition: color 0.2s;
 
   &.btn-inline {
     margin-block-end: 20px;
@@ -442,7 +444,7 @@ aside.settings-btn-container {
   stroke: currentColor;
   margin-block-end: 10px;
   margin-inline: 10px 30px;
-  transition: color .2s;
+  transition: color 0.2s;
   cursor: pointer;
 
   &:focus-visible:not(:hover) {
@@ -455,7 +457,7 @@ aside.settings-btn-container {
 .resource-link::before {
   position: relative;
   display: inline-block;
-  content: '';
+  content: "";
   background-repeat: no-repeat;
   width: 16px;
   height: 16px;

@@ -18,7 +18,6 @@ xul|button[dlgtype="help"] {
 }
 
 xul|menulist {
-
   & > xul|menupopup:not([position]) {
     margin-inline-start: 0;
   }

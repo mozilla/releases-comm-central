@@ -16,9 +16,10 @@ body {
 
 .convert-area {
   display: grid;
-  grid-template: "icon text text" auto
-                 "icon progress-bar progress-percent" auto
-                 "buttons buttons buttons" 1fr / auto 70% 1fr;
+  grid-template:
+    "icon text text" auto
+    "icon progress-bar progress-percent" auto
+    "buttons buttons buttons" 1fr / auto 70% 1fr;
   gap: 10px 15px;
 
   &[hidden] {

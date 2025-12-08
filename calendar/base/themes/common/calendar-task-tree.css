@@ -62,10 +62,10 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
   }
 }
 
-.calendar-task-tree >
-  treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, focus),
-.calendar-task-tree >
-  treechildren::-moz-tree-image(calendar-task-tree-col-completed, selected, focus),
+.calendar-task-tree
+  > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, focus),
+.calendar-task-tree
+  > treechildren::-moz-tree-image(calendar-task-tree-col-completed, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-image(inprogress, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-image(overdue, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus),
@@ -99,7 +99,8 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
 }
 
 @media (prefers-color-scheme: dark) {
-  .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
+  .calendar-task-tree
+    > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
     stroke: var(--color-red-40);
   }
 }
@@ -110,7 +111,8 @@ tree > treechildren::-moz-tree-cell-text(selected, focus) {
 }
 
 @media (prefers-color-scheme: dark) {
-  .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
+  .calendar-task-tree
+    > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
     stroke: var(--color-white);
   }
 }
@@ -123,7 +125,7 @@ treecol.calendar-task-tree-col-percentcomplete {
   text-align: end;
 }
 
-.calendar-task-tree-col-completed >.treecol-icon,
+.calendar-task-tree-col-completed > .treecol-icon,
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
   width: 14px;
   height: 14px;
@@ -133,7 +135,7 @@ treecol.calendar-task-tree-col-percentcomplete {
   stroke-opacity: 0;
 }
 
-.calendar-task-tree-col-completed >.treecol-icon {
+.calendar-task-tree-col-completed > .treecol-icon {
   fill-opacity: 1;
 }
 

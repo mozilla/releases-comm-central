@@ -17,5 +17,5 @@
 }
 
 #extractTaskButton {
-  list-style-image:var(--icon-new-task);
+  list-style-image: var(--icon-new-task);
 }

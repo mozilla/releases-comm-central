@@ -30,10 +30,7 @@
   }
 
   @media not (prefers-contrast) {
-    --tree-card-border: light-dark(
-      color-mix(in srgb, var(--tree-card-background) 90%, black),
-      color-mix(in srgb, var(--tree-card-background) 90%, white)
-    );
+    --tree-card-border: light-dark(color-mix(in srgb, var(--tree-card-background) 90%, black), color-mix(in srgb, var(--tree-card-background) 90%, white));
     --read-status-fill: transparent;
     --read-status-stroke: transparent;
     --new-subject-color: light-dark(var(--color-blue-60), var(--color-blue-40));
@@ -124,7 +121,6 @@
     }
 
     &[data-properties~="hasUnread"] {
-
       & .replies-icon,
       & .thread-replies {
         font-weight: bold;
@@ -169,7 +165,6 @@
 
       /* hasNew shouldn't affect any style unless we also have hasUnread. */
       &[data-properties~="hasNew"] {
-
         & .replies-icon,
         & .thread-replies {
           color: var(--new-color);
@@ -188,7 +183,6 @@
     }
 
     &[data-properties~="replied"] {
-
       & .state.replied {
         display: inline-flex;
       }
@@ -213,8 +207,7 @@
         stroke: var(--color-purple-50);
       }
 
-      &[data-properties~="forwarded"][data-properties~="redirected"]
-        .subject-line img {
+      &[data-properties~="forwarded"][data-properties~="redirected"] .subject-line img {
         visibility: initial;
         content: var(--icon-reply-forward-redirect-col);
         fill: var(--color-blue-50);
@@ -223,7 +216,6 @@
     }
 
     &[data-properties~="forwarded"] {
-
       & .state.forwarded {
         display: inline-flex;
       }
@@ -244,7 +236,6 @@
     }
 
     &[data-properties~="redirected"] {
-
       & .state.redirected {
         display: inline-flex;
       }
@@ -258,7 +249,6 @@
     }
 
     & td {
-
       & button {
         min-height: 16px;
         min-width: 16px;
@@ -358,9 +348,10 @@
 
         & .thread-card-dynamic-row {
           display: grid;
-          grid-template: "subject subject" max-content
-                         "button info" minmax(auto, 1fr)
-                         / auto 1fr;
+          grid-template:
+            "subject subject" max-content
+            "button info" minmax(auto, 1fr)
+            / auto 1fr;
           gap: var(--thread-card-content-gap);
           align-items: center;
           padding: 0;
@@ -443,7 +434,7 @@
         & .tree-button-more {
           --button-padding: 0;
           color: inherit;
-          opacity: .5;
+          opacity: 0.5;
           background-image: var(--icon-kebab);
           -moz-context-properties: fill, stroke;
           fill: currentColor;
@@ -475,7 +466,7 @@
 
           &:dir(rtl) {
             background-image: var(--icon-nav-back);
-            background-position-x: 100%
+            background-position-x: 100%;
           }
         }
       }
@@ -499,8 +490,9 @@
   /* 2 Rows cards variation */
   &.cards-row-compact td .card-container {
     & .thread-card-dynamic-row {
-        grid-template: "button subject info" max-content
-                       / auto 1fr auto;
+      grid-template:
+        "button subject info" max-content
+        / auto 1fr auto;
     }
 
     & .thread-card-subject-container {
@@ -588,7 +580,6 @@
 
   /* Grouped By Sort */
   &[data-show-grouped-by-sort~="true"] {
-
     & button.twisty :is(.replies-icon, .thread-replies) {
       display: none;
     }
@@ -631,9 +622,10 @@
         grid-template-columns: 1fr;
 
         & .thread-card-dynamic-row {
-          grid-template: "subject subject" max-content
-                         "sort button" minmax(auto, 1fr)
-                         / 1fr auto;
+          grid-template:
+            "subject subject" max-content
+            "sort button" minmax(auto, 1fr)
+            / 1fr auto;
         }
 
         & .thread-card-subject-container {

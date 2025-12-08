@@ -133,14 +133,12 @@
 
 #imip-view-toolbar {
   --imip-button-background: linear-gradient(var(--layout-background-1), var(--layout-background-1));
-  --imip-button-background-hover: linear-gradient(var(--toolbarbutton-hover-background),
-                                                  var(--toolbarbutton-hover-background)),
-                                  linear-gradient(var(--layout-background-1),
-                                                  var(--layout-background-1));
-  --imip-button-background-active: linear-gradient(var(--toolbarbutton-active-background),
-                                                   var(--toolbarbutton-active-background)),
-                                   linear-gradient(var(--layout-background-1),
-                                                   var(--layout-background-1));
+  --imip-button-background-hover:
+    linear-gradient(var(--toolbarbutton-hover-background), var(--toolbarbutton-hover-background)),
+    linear-gradient(var(--layout-background-1), var(--layout-background-1));
+  --imip-button-background-active:
+    linear-gradient(var(--toolbarbutton-active-background), var(--toolbarbutton-active-background)),
+    linear-gradient(var(--layout-background-1), var(--layout-background-1));
 }
 
 #imip-bar > img {
@@ -178,18 +176,26 @@
   &.imipMoreButton {
     padding-inline-end: 22px;
     background-image: var(--icon-nav-down-sm), var(--imip-button-background);
-    background-position: calc(100% - 6px) center, 0%;
+    background-position:
+      calc(100% - 6px) center,
+      0%;
     background-repeat: no-repeat, repeat;
 
     &:hover {
       background-image: var(--icon-nav-down-sm), var(--imip-button-background-hover);
-      background-position: calc(100% - 6px) center, 0%, 0%;
+      background-position:
+        calc(100% - 6px) center,
+        0%,
+        0%;
       background-repeat: no-repeat, repeat, repeat;
     }
 
     &[open="true"] {
       background-image: var(--icon-nav-down-sm), var(--imip-button-background-active);
-      background-position: calc(100% - 6px) center, 0%, 0%;
+      background-position:
+        calc(100% - 6px) center,
+        0%,
+        0%;
       background-repeat: no-repeat, repeat, repeat;
     }
 
@@ -267,7 +273,7 @@
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in;
+  transition: border-width 0.3s ease-in;
 }
 
 #calsidebar_splitter[state="collapsed"] {

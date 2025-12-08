@@ -41,8 +41,8 @@
   }
 
   /* This is needed for Windows 10, see bug 1963783 */
-  :root[customtitlebar][sizemode=normal] {
-    border-top: .5px solid rgba(0, 0, 0, 0.7);
+  :root[customtitlebar][sizemode="normal"] {
+    border-top: 0.5px solid rgba(0, 0, 0, 0.7);
 
     @media (-moz-windows-accent-color-in-titlebar) or (-moz-windows-mica) {
       border-top-color: ActiveBorder;

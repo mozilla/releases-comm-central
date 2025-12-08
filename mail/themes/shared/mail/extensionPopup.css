@@ -10,5 +10,5 @@
 }
 
 :root[chromehidden~="location"] #header {
-  display: none
+  display: none;
 }

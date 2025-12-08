@@ -19,7 +19,7 @@
 #listSplitter,
 #contextSplitter,
 .splitter[orient="vertical"],
- #logsSplitter {
+#logsSplitter {
   appearance: none;
 }
 
@@ -28,7 +28,6 @@
 }
 
 #listPaneBox {
-
   & > * {
     background: transparent !important;
     appearance: none !important;

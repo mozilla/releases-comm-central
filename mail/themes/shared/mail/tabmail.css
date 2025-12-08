@@ -31,8 +31,7 @@
 #tabs-toolbar {
   appearance: none;
   --tabs-top-border-width: 1px;
-  background-image: linear-gradient(to top, var(--chrome-content-separator-color) 0,
-                                    var(--tabs-toolbar-background-color) 1px);
+  background-image: linear-gradient(to top, var(--chrome-content-separator-color) 0, var(--tabs-toolbar-background-color) 1px);
   box-shadow: var(--tabs-toolbar-box-shadow);
   color-scheme: light dark;
   padding-top: 3px;
@@ -66,7 +65,7 @@
 
   /* The selected tab should appear above adjacent tabs and the highlight
      of #tabs-toolbar */
-  &[selected=true] {
+  &[selected="true"] {
     -moz-user-focus: ignore;
     position: relative;
     z-index: 2;
@@ -76,7 +75,7 @@
   :root[lwtheme] & {
     color: inherit;
 
-    &[visuallyselected=true] {
+    &[visuallyselected="true"] {
       color: var(--lwt-tab-text, var(--toolbar-color, inherit));
     }
   }
@@ -173,13 +172,21 @@ button.tab-close-button {
 }
 
 @keyframes tab-throbber-animation {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes tab-throbber-animation-rtl {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .tab-label {
@@ -214,7 +221,7 @@ button.tab-close-button {
   margin-inline: 3px;
   border-radius: 3px;
 
-  &[selected=true] {
+  &[selected="true"] {
     background-color: var(--tabline-color);
   }
 }
@@ -222,7 +229,7 @@ button.tab-close-button {
 .tab-background {
   background-clip: padding-box;
 
-  &[selected=true] {
+  &[selected="true"] {
     background-color: var(--toolbar-bgcolor);
     background-repeat: repeat-x;
   }
@@ -234,32 +241,38 @@ button.tab-close-button {
  */
 
 /* Lightweight theme on tabs */
-:root[lwtheme] .tabmail-tab .tab-background[selected=true] {
+:root[lwtheme] .tabmail-tab .tab-background[selected="true"] {
   background-attachment: scroll, scroll, fixed;
   background-color: transparent;
-  background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
-                    var(--lwt-selected-tab-background-color, transparent)),
-                    linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
-                    var(--lwt-header-image, none);
-  background-position: 0 0, 0 0, right top;
+  background-image:
+    linear-gradient(var(--lwt-selected-tab-background-color, transparent), var(--lwt-selected-tab-background-color, transparent)),
+    linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image, none);
+  background-position:
+    0 0,
+    0 0,
+    right top;
   background-repeat: repeat-x, repeat-x, no-repeat;
-  background-size: auto 100%, auto 100%, auto auto;
+  background-size:
+    auto 100%,
+    auto 100%,
+    auto auto;
 }
 
 /* Tab hover */
 
-.tabmail-tab:hover .tab-background:not([selected=true]) {
+.tabmail-tab:hover .tab-background:not([selected="true"]) {
   background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.05));
 }
 
-.tab-line:not([selected=true]) {
+.tab-line:not([selected="true"]) {
   opacity: 0;
   transform: scaleX(0);
-  transition: transform 250ms var(--animation-easing-function),
-              opacity 250ms var(--animation-easing-function);
+  transition:
+    transform 250ms var(--animation-easing-function),
+    opacity 250ms var(--animation-easing-function);
 }
 
-.tabmail-tab:hover .tab-line:not([selected=true]) {
+.tabmail-tab:hover .tab-line:not([selected="true"]) {
   opacity: 1;
   transform: none;
   background-color: light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.15));
@@ -290,9 +303,11 @@ button.tab-close-button {
     background-size: 17px 100%;
     background-repeat: no-repeat;
     border-left: 1px solid;
-    border-image: linear-gradient(rgba(255,255,255,.2),
-                                  rgba(255,255,255,.2) calc(100% - var(--tabs-tabbar-border-size)),
-                                  transparent calc(100% - var(--tabs-tabbar-border-size)));
+    border-image: linear-gradient(
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.2) calc(100% - var(--tabs-tabbar-border-size)),
+      transparent calc(100% - var(--tabs-tabbar-border-size))
+    );
     border-image-slice: 1;
     margin-bottom: var(--tabs-tabbar-border-size);
     pointer-events: none;
@@ -344,7 +359,6 @@ button.tab-close-button {
 /* All Tabs Menupopup */
 
 .alltabs-item {
-
   &[selected] {
     font-weight: bold;
   }
@@ -372,7 +386,9 @@ button.tab-close-button {
 }
 
 @keyframes alltabs-throbber-animation {
-  100% { object-position: -480px 0; }
+  100% {
+    object-position: -480px 0;
+  }
 }
 
 /* Content Tabs */

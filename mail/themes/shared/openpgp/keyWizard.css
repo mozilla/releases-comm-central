@@ -26,7 +26,9 @@ description {
 }
 
 .wizard-section {
-  transition: transform 230ms ease, opacity 230ms ease;
+  transition:
+    transform 230ms ease,
+    opacity 230ms ease;
 
   &.hide {
     transform: translateY(-100%);
@@ -153,7 +155,7 @@ description {
 
 .tip-caption {
   color: var(--in-content-deemphasized-text);
-  font-size: .9em;
+  font-size: 0.9em;
 }
 
 .description-centered {
@@ -166,7 +168,7 @@ description {
   align-items: center;
   flex-wrap: nowrap;
 
-  & input:not([type="number"],[type="color"]) {
+  & input:not([type="number"], [type="color"]) {
     flex: 1;
   }
 }

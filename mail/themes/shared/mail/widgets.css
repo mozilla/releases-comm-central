@@ -25,7 +25,9 @@
   font-size: inherit;
 
   @media (prefers-reduced-motion: no-preference) {
-    transition: background-color .15s, border-color .15s;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
   }
 
   &:enabled {
@@ -112,7 +114,7 @@
       box-shadow: var(--button-pressed-shadow);
 
       &:hover {
-         background-color: var(--toolbar-button-hover-checked-color);
+        background-color: var(--toolbar-button-hover-checked-color);
       }
     }
   }
@@ -261,7 +263,7 @@
     }
 
     &::before {
-      content: '';
+      content: "";
       box-sizing: border-box;
       background-color: color-mix(in srgb, currentColor 10%, transparent);
       border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
@@ -357,7 +359,7 @@
   color: var(--button-text-color);
   border: var(--button-border-size) solid var(--button-border-color);
   border-radius: var(--button-border-radius);
-  padding: var( --button-padding);
+  padding: var(--button-padding);
   margin: var(--button-margin);
   font-size: 1em;
 
@@ -597,10 +599,13 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .toggle-checkbox {
-    transition: opacity .15s ease, background-color .15s ease, border-color .15s ease;
+    transition:
+      opacity 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
 
     &::before {
-      transition: translate .21s ease;
+      transition: translate 0.21s ease;
     }
   }
 }

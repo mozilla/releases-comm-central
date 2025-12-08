@@ -48,8 +48,8 @@
   font-size: 2em;
   font-weight: lighter;
   line-height: 1.2;
-  margin: 0 0 .3em;
-  padding-bottom: .2em;
+  margin: 0 0 0.3em;
+  padding-bottom: 0.2em;
   border-bottom: 1px solid var(--splitter-color);
 }
 
@@ -72,7 +72,6 @@
 
 /* List Items */
 richlistitem {
-
   &[state="disconnected"]:not([selected="true"]) {
     color: #999;
   }
@@ -188,7 +187,7 @@ richlistitem {
   &:hover {
     border-color: hsla(0, 0%, 50%, 0.5);
     background-color: hsla(0, 0%, 50%, 0.3);
-    opacity: .4;
+    opacity: 0.4;
   }
 }
 

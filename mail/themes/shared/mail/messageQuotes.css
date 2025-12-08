@@ -30,15 +30,14 @@ body {
 /* ::::: Turn on borders and padding for quotes. ::::: */
 /* ::::: Colorize block quote borders. We only go 5 levels deep. ::::: */
 
-body blockquote[type=cite] {
+body blockquote[type="cite"] {
   margin-block: 1ex;
   margin-inline: 0;
   padding: 0.4ex 1ex;
   border-inline-start: 2px solid rgb(114, 159, 207); /* Sky Blue 1 */
 }
 
-blockquote[type=cite] {
-
+blockquote[type="cite"] {
   & & {
     border-inline-start-color: rgb(173, 127, 168); /* Plum 1 */
 

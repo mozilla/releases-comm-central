@@ -5,7 +5,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 html|input {
-
   &.plain {
     background-color: transparent;
   }
@@ -48,9 +47,7 @@ html|textarea.no-resize {
     flex-wrap: wrap;
   }
 
-  & :is(html|input:not([type="number"],[type="color"]),
-        .label-inline,
-        .spacer-inline) {
+  & :is(html|input:not([type="number"], [type="color"]), .label-inline, .spacer-inline) {
     flex: 1;
   }
 }

@@ -400,7 +400,6 @@ vcard-adr select {
 }
 
 .add-property-button {
-
   &.button {
     -moz-context-properties: fill;
     color: var(--button-background-color-primary);

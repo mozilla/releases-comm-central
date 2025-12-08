@@ -29,19 +29,13 @@ tbody[is="tree-view-table-body"] {
     }
   }
 
-  & tr:is(
-    [data-properties~="server-type-imap"],
-    [data-properties~="server-type-pop3"],
-    [data-properties~="server-type-ews"]
-  ) img.icon {
+  & tr:is([data-properties~="server-type-imap"], [data-properties~="server-type-pop3"], [data-properties~="server-type-ews"]) img.icon {
     content: var(--icon-mail);
   }
 
-  & tr:is(
-    [data-properties~="server-type-imap"],
-    [data-properties~="server-type-pop3"],
-    [data-properties~="server-type-ews"]
-  )[data-properties~="server-secure"] img.icon {
+  &
+    tr:is([data-properties~="server-type-imap"], [data-properties~="server-type-pop3"], [data-properties~="server-type-ews"])[data-properties~="server-secure"]
+    img.icon {
     content: var(--icon-mail-secure);
   }
 
@@ -98,14 +92,16 @@ tbody[is="tree-view-table-body"] {
     width: 100%;
   }
 
-  & tr:is(
-    [data-properties~="server-type-imap"],
-    [data-properties~="server-type-pop3"],
-    [data-properties~="server-type-ews"],
-    [data-properties~="server-type-nntp"],
-    [data-properties~="server-type-rss"],
-    [data-properties~="server-type-none"]
-  ) .name-column {
+  &
+    tr:is(
+      [data-properties~="server-type-imap"],
+      [data-properties~="server-type-pop3"],
+      [data-properties~="server-type-ews"],
+      [data-properties~="server-type-nntp"],
+      [data-properties~="server-type-rss"],
+      [data-properties~="server-type-none"]
+    )
+    .name-column {
     font-weight: bold;
 
     & img.icon {

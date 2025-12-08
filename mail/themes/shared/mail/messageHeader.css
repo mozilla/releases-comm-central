@@ -70,7 +70,6 @@
 }
 
 .message-header-row {
-
   &:not([hidden]) {
     display: flex;
   }
@@ -182,27 +181,24 @@ mail-tagfield[collapsed] {
   }
 }
 
-#messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"]),
-#messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
-#messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker,
+#messageHeader:not(.message-header-buttons-only-icons) .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"]),
+#messageHeader:not(.message-header-buttons-only-icons) .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+#messageHeader:not(.message-header-buttons-only-icons) .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker,
 #headingWrapper .toolbarbutton-1.message-header-view-button {
   border-color: var(--toolbarbutton-header-bordercolor);
 }
 
 #messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([disabled=true]):is(:hover,[open]) >
-  .toolbarbutton-menubutton-button,
+  .toolbarbutton-1.message-header-view-button:not([disabled="true"]):is(:hover, [open])
+  > .toolbarbutton-menubutton-button,
 #messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([disabled=true]):is(:hover,[open]) >
-  .toolbarbutton-menubutton-dropmarker,
+  .toolbarbutton-1.message-header-view-button:not([disabled="true"]):is(:hover, [open])
+  > .toolbarbutton-menubutton-dropmarker,
 #messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"],[disabled=true],[checked=true],[open],:active):hover,
+  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"], [disabled="true"], [checked="true"], [open], :active):hover,
 #messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([buttonover],[open],:active):hover >
-  .toolbarbutton-menubutton-dropmarker:not([disabled]),
+  .toolbarbutton-1.message-header-view-button:not([buttonover], [open], :active):hover
+  > .toolbarbutton-menubutton-dropmarker:not([disabled]),
 #headingWrapper .toolbarbutton-1.message-header-view-button:hover {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
@@ -388,7 +384,9 @@ mail-tagfield[collapsed] {
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in, border-color .3s;
+  transition:
+    border-width 0.3s ease-in,
+    border-color 0.3s;
 
   &:not([state="collapsed"]) {
     border-bottom: 1px solid transparent;
@@ -515,7 +513,6 @@ button.email-action-button {
 }
 
 :root[lwt-tree] {
-
   & #singleMessage,
   & #attachmentView {
     background-color: var(--toolbar-bgcolor) !important;
@@ -621,7 +618,6 @@ html|header.message-security-header {
 }
 
 #signatureLabel {
-
   &.ok {
     background-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
   }
@@ -644,7 +640,6 @@ html|header.message-security-header {
 }
 
 #encryptionLabel {
-
   &.ok {
     background-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
   }
@@ -748,10 +743,7 @@ button.email-action-flagged {
     display: none;
   }
 
-  & :is(.multi-recipient-row:not(#expandedfromBox),
-        .multi-url-header-row,
-        .multi-message-ids-row,
-        .header-newsgroups-row) {
+  & :is(.multi-recipient-row:not(#expandedfromBox), .multi-url-header-row, .multi-message-ids-row, .header-newsgroups-row) {
     display: flex;
 
     & ol {
@@ -777,7 +769,6 @@ button.email-action-flagged {
 }
 
 .message-header-large-subject {
-
   & #expandedsubjectBox {
     font-weight: 500;
     font-size: 1.35em;
@@ -986,7 +977,7 @@ button.email-action-flagged {
   align-self: center;
 }
 
-.message-header-show-recipient-avatar:not(.message-header-show-sender-full-address ) #expandedfromLabel {
+.message-header-show-recipient-avatar:not(.message-header-show-sender-full-address) #expandedfromLabel {
   padding-block-start: 0;
 }
 
@@ -1008,7 +999,6 @@ button.email-action-flagged {
 }
 
 .message-header-show-sender-full-address #expandedfromBox {
-
   & .recipient-multi-line {
     display: inline-flex;
   }

@@ -133,7 +133,7 @@ unified-toolbar-customization {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--layout-color-2);
-  margin-block: .5em;
+  margin-block: 0.5em;
 }
 
 #unifiedToolbarCustomizationContainer {

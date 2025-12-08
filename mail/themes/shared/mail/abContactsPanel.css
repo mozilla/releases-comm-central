@@ -16,13 +16,13 @@
   text-shadow: none;
 
   &:not([lwt-tree]) {
-    --button-background: rgba(128, 128, 128, .15);
-    --button-background-hover: rgba(128, 128, 128, .25);
-    --button-background-active: rgba(128, 128, 128, .35);
+    --button-background: rgba(128, 128, 128, 0.15);
+    --button-background-hover: rgba(128, 128, 128, 0.25);
+    --button-background-active: rgba(128, 128, 128, 0.35);
     --box-text-color: MenuText;
     --box-background-color: Menu;
     --box-border-color: ThreeDShadow;
-    --field-border-color: rgba(128, 128, 128, .6);
+    --field-border-color: rgba(128, 128, 128, 0.6);
   }
 
   &[lwt-tree] {

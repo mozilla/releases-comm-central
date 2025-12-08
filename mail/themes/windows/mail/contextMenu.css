@@ -5,7 +5,6 @@
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
 menupopup {
-
   &:not([type="arrow"]) {
     margin-top: -1px;
   }
@@ -30,24 +29,20 @@ menupopup {
 
   &.webextension-menupopup > menu:not([icon], .menu-iconic),
   &.webextension-menupopup > menuitem:not([checked="true"], [icon], .menuitem-iconic),
-  &.gutter-popup:not([needsgutter]) >
-    :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])),
-  menubar > menu
-    &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
+  &.gutter-popup:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])),
+  menubar > menu &:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
     padding-inline-start: 32px;
   }
 
   /* Override menu.css rule. */
   &:not([needsgutter], .webextension-menupopup) {
-
-    & > menuitem:is([type="checkbox"],[type="radio"]):not([checked="true"]) > .menu-icon {
+    & > menuitem:is([type="checkbox"], [type="radio"]):not([checked="true"]) > .menu-icon {
       padding-inline-end: 8px;
       display: flex;
     }
   }
 
-  & > :is(menu, menuitem):not([needsgutter]) >
-    menuitem:not([icon], .menuitem-iconic) {
+  & > :is(menu, menuitem):not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 1em;
   }
 

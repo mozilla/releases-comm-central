@@ -37,7 +37,6 @@ ul.activityview {
 }
 
 li {
-
   &.activitygroup {
     display: block;
   }
@@ -92,12 +91,7 @@ li {
   margin: 2px 6px;
 }
 
-:is(
-  .contextDisplayText,
-  .dateTime,
-  .displayText,
-  .statusText
-):empty {
+:is(.contextDisplayText, .dateTime, .displayText, .statusText):empty {
   display: none;
 }
 
@@ -116,5 +110,5 @@ h2.contextDisplayText {
 .dateTime,
 .statusText {
   font-size: smaller;
-  opacity: .8;
+  opacity: 0.8;
 }

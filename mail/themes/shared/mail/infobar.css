@@ -42,52 +42,52 @@
   }
 }
 
-:host([message-bar-type=infobar]) {
+:host([message-bar-type="infobar"]) {
   --close-icon-size: 24px;
   margin: 0 4px 4px;
 }
 
-:host([message-bar-type=infobar]:first-of-type) {
+:host([message-bar-type="infobar"]:first-of-type) {
   margin-top: 4px;
 }
 
-:host(notification-message[type=warning]) {
+:host(notification-message[type="warning"]) {
   --message-bar-background-color: light-dark(#fff160, #ffe900);
   --message-bar-text-color: #000;
   --message-bar-icon-url: var(--icon-warning);
 }
 
-:host(notification-message[type=success]) {
+:host(notification-message[type="success"]) {
   --message-bar-background-color: var(--color-green-60);
   --message-bar-text-color: #ffffff;
   --message-bar-icon-url: var(--icon-check);
   --icon-color-success: #fff;
 }
 
-:host(notification-message:is([type=error], [type=critical])) {
+:host(notification-message:is([type="error"], [type="critical"])) {
   --message-bar-background-color: var(--color-red-60);
   --message-bar-text-color: #fff;
   --message-bar-icon-url: var(--icon-error-circle);
   --icon-color-critical: #fff;
 }
 
-:host(notification-message[value=attachmentReminder]) {
+:host(notification-message[value="attachmentReminder"]) {
   --message-bar-icon-url: var(--icon-attachment);
 }
 
-:host(notification-message[value=draftMsgContent]) {
+:host(notification-message[value="draftMsgContent"]) {
   --message-bar-icon-url: var(--icon-pencil);
 }
 
-:host(notification-message[value=junkContent]) {
+:host(notification-message[value="junkContent"]) {
   --message-bar-icon-url: var(--icon-spam);
 }
 
-:host(notification-message[value=remoteContent]) {
+:host(notification-message[value="remoteContent"]) {
   --message-bar-icon-url: var(--icon-photo-ban);
 }
 
-:host(notification-message[value=accountSetupLoading]) {
+:host(notification-message[value="accountSetupLoading"]) {
   --message-bar-icon-url: url("chrome://messenger/skin/icons/hourglass.svg");
 
   & .icon-container {
@@ -148,22 +148,22 @@ div.content {
 
 img.icon {
   padding: 4px;
-  fill: color-mix(in srgb ,currentColor 20%, transparent);
+  fill: color-mix(in srgb, currentColor 20%, transparent);
   content: var(--message-bar-icon-url);
 
-  :host([type=system]) & {
+  :host([type="system"]) & {
     display: none;
   }
 
-  :host([type=info]) & {
+  :host([type="info"]) & {
     color: light-dark(#0090ed, #45a1ff);
   }
 
-  :host([type=warning]) & {
+  :host([type="warning"]) & {
     color: inherit;
   }
 
-  :host([value=draftMsgContent]) & {
+  :host([value="draftMsgContent"]) & {
     color: inherit;
   }
 }
@@ -178,7 +178,7 @@ moz-button::part(button) {
   color: var(--message-bar-text-color);
   background-image: var(--icon-close) !important;
   -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb ,currentColor 20%, transparent);
+  fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   width: var(--close-icon-size);
   height: var(--close-icon-size);
@@ -222,10 +222,14 @@ strong {
 
 @media (prefers-reduced-motion: no-preference) {
   @keyframes loading-animation {
-    100% { transform: translateX(-480px); }
+    100% {
+      transform: translateX(-480px);
+    }
   }
 
   @keyframes loading-animation-rtl {
-    100% { transform: translateX(100%); }
+    100% {
+      transform: translateX(100%);
+    }
   }
 }

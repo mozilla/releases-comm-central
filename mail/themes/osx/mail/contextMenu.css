@@ -21,7 +21,6 @@ menupopup {
   }
 
   & > menuitem:is([type="checkbox"], [type="radio"]) {
-
     &:before {
       display: none;
     }
@@ -53,8 +52,7 @@ menupopup {
     }
   }
 
-  &:not([needsgutter], .no-icon-menupopup, .textbox-contextmenu) >
-    :is(menu, menuitem, menucaption) > .menu-icon {
+  &:not([needsgutter], .no-icon-menupopup, .textbox-contextmenu) > :is(menu, menuitem, menucaption) > .menu-icon {
     display: flex;
   }
 
@@ -68,7 +66,6 @@ menupopup {
 
   & > .webextension-rootElement,
   &.webextension-menupopup > :is(menu, menuitem) {
-
     & > .menu-icon {
       display: flex;
     }
@@ -99,7 +96,6 @@ menupopup {
 }
 
 .menu-accel {
-
   menupopup[type="arrow"] & {
     margin-inline-end: 0;
   }

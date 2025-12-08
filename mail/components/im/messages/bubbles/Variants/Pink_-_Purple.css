@@ -15,9 +15,8 @@
 .outgoing > .indicator {
   margin-left: -17px;
   padding-left: 32px;
-  background: url('../Bitmaps/indicator_320.png') no-repeat center left;
+  background: url("../Bitmaps/indicator_320.png") no-repeat center left;
 }
-
 
 .bubble.incoming {
   background-color: hsl(270, 100%, 97%);
@@ -32,5 +31,5 @@
 .incoming > .indicator {
   margin-left: -17px;
   padding-left: 32px;
-  background: url('../Bitmaps/indicator_270.png') no-repeat center left;
+  background: url("../Bitmaps/indicator_270.png") no-repeat center left;
 }

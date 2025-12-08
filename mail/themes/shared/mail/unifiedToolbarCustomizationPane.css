@@ -64,7 +64,7 @@
 
     &::before,
     &::after {
-      content: '';
+      content: "";
       width: 16px;
       position: absolute;
       height: 100%;

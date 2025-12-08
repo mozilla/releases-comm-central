@@ -37,7 +37,7 @@ form {
       border: 1px solid var(--color-surface-border);
       background-color: var(--color-surface-subtle);
 
-      &+.checkbox-label {
+      & + .checkbox-label {
         color: var(--color-text-muted);
       }
     }
@@ -84,12 +84,16 @@ form {
       cursor: text;
 
       @media (prefers-reduced-motion: no-preference) {
-        transition: transform 200ms, color 200ms, font-weight 200ms, background-color 200ms;
+        transition:
+          transform 200ms,
+          color 200ms,
+          font-weight 200ms,
+          background-color 200ms;
       }
     }
   }
 
-  label:has(+ .input-control input:required)::after ,
+  label:has(+ .input-control input:required)::after,
   input:required + label::after {
     content: "*";
     color: var(--color-text-critical);
@@ -224,7 +228,7 @@ form {
 
   .menulist,
   .input-field {
-     & ~ .input-error-message {
+    & ~ .input-error-message {
       color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
       display: none;
       position: absolute;
@@ -378,7 +382,7 @@ div:has(legend) {
     }
 
     span:last-of-type {
-      display: flex
+      display: flex;
     }
   }
 
@@ -518,7 +522,7 @@ div:has(legend) {
     }
 
     & .config-title {
-      color: light-dark( var(--color-primary-default), #feffff);
+      color: light-dark(var(--color-primary-default), #feffff);
       display: flex;
       align-items: center;
       flex-wrap: wrap;
@@ -564,7 +568,6 @@ div:has(legend) {
       padding-inline: var(--hub-config-option-padding-inline);
       font-size: 1.1rem;
     }
-
 
     &.selected {
       border-color: var(--color-primary-default);
@@ -884,7 +887,8 @@ button.account-hub-option-button {
   border: none;
   background-color: var(--color-surface-base);
   width: 100%;
-  box-shadow: 0 12px 10px -10px rgba(0, 79, 155, 0.25),
+  box-shadow:
+    0 12px 10px -10px rgba(0, 79, 155, 0.25),
     0 0 5px 0 rgba(23, 95, 182, 0.1);
   overflow: hidden;
   flex-shrink: 0;
@@ -894,7 +898,9 @@ button.account-hub-option-button {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    transition: background-color 220ms ease, box-shadow 220ms ease;
+    transition:
+      background-color 220ms ease,
+      box-shadow 220ms ease;
   }
 
   &:enabled {
@@ -908,12 +914,15 @@ button.account-hub-option-button {
     }
 
     &:hover {
-      box-shadow: 0 25px 10px -20px rgba(0, 79, 155, 0.35),
+      box-shadow:
+        0 25px 10px -20px rgba(0, 79, 155, 0.35),
         0 0 5px 0 rgba(23, 95, 182, 0.2);
     }
 
     &:hover:active {
-      box-shadow: 0 5px 5px -5px rgba(0, 79, 155, 0.35), 0 0 5px 0 rgba(23, 95, 182, 0.2);
+      box-shadow:
+        0 5px 5px -5px rgba(0, 79, 155, 0.35),
+        0 0 5px 0 rgba(23, 95, 182, 0.2);
     }
   }
 
@@ -953,7 +962,9 @@ button.account-hub-option-button {
     &.address-book-option-icon {
       padding: 6px;
       background-color: var(--color-primary-default);
-      box-shadow: 0 3px 4px -2px rgba(25, 81, 143, 0.5), 0 -2px 0 0 rgb(0, 0, 0, 0.25) inset;
+      box-shadow:
+        0 3px 4px -2px rgba(25, 81, 143, 0.5),
+        0 -2px 0 0 rgb(0, 0, 0, 0.25) inset;
       border-radius: 5px;
     }
 
@@ -1061,8 +1072,12 @@ button.account-hub-option-button {
 }
 
 @keyframes spinning-animation {
-  0% { transform: rotate(0); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #advancedConfigurationLdap,

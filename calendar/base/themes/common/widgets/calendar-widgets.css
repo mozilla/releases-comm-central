@@ -120,11 +120,13 @@ checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbo
     transition: transform 150ms ease;
   }
   #calendar-list > li,
-  #calendar-list > li > :is(.calendar-displayed,.calendar-more-button) {
+  #calendar-list > li > :is(.calendar-displayed, .calendar-more-button) {
     transition: opacity 250ms ease;
   }
   #calendar-list > li {
-    transition: background-color 250ms ease, color 250ms ease;
+    transition:
+      background-color 250ms ease,
+      color 250ms ease;
   }
 }
 
@@ -160,7 +162,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 
 .categories-textbox .textbox-search-icon {
   list-style-image: none;
-  cursor:default;
+  cursor: default;
 }
 
 .categories-textbox {
@@ -230,23 +232,23 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 :root[lwt-tree] #calendar-list > li.selected {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
+  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree] #calendar-list:focus > li.selected {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+  border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.6));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] #calendar-list > li.selected {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
+  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }
 
 :root[lwt-tree-brighttext] #calendar-list:focus > li.selected {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
+  border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
@@ -269,7 +271,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   background: #2c4c82;
 }
 
-#calendar-list > li > :is(.calendar-displayed,.calendar-more-button) {
+#calendar-list > li > :is(.calendar-displayed, .calendar-more-button) {
   appearance: none;
   color: inherit;
   background-color: transparent !important;

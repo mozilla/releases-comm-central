@@ -16,26 +16,47 @@
   --viewTodayLabelBackground: var(--selected-item-color);
   --viewTodayOffBackground: color-mix(in srgb, var(--viewTodayBackground) 95%, black);
   --viewTodayDayLabelBackground: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
-  --viewTodayWeekendBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewWeekendBackground));
-  --viewWeekendBackground: light-dark(var(--color-ink-10), color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40)));
-  --viewHeaderSelectedBackground: light-dark(var(--selected-item-color),
-                                             color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground)));
-  --viewDayBoxSelectedBackground: light-dark(color-mix(in srgb, var(--selected-item-color) 20%, var(--viewBackground)),
-                                             color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground)));
-  --viewDayBoxOffSelectedBackground: light-dark(color-mix(in srgb, var(--selected-item-color) 20%, var(--viewTodayOffBackground)),
-                                                color-mix(in srgb, var(--selected-item-color) 15%, var(--viewTodayOffBackground)));
-  --viewDayBoxOtherSelectedBackground: light-dark(color-mix(in srgb, var(--selected-item-color) 20%, var(--viewMonthOtherBackground)),
-                                                  color-mix(in srgb, var(--selected-item-color) 15%, var(--viewMonthOtherBackground)));
+  --viewTodayWeekendBackground: color-mix(
+    in srgb,
+    var(--color-blue-10) 20%,
+    var(--viewWeekendBackground)
+  );
+  --viewWeekendBackground: light-dark(
+    var(--color-ink-10),
+    color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40))
+  );
+  --viewHeaderSelectedBackground: light-dark(
+    var(--selected-item-color),
+    color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground))
+  );
+  --viewDayBoxSelectedBackground: light-dark(
+    color-mix(in srgb, var(--selected-item-color) 20%, var(--viewBackground)),
+    color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground))
+  );
+  --viewDayBoxOffSelectedBackground: light-dark(
+    color-mix(in srgb, var(--selected-item-color) 20%, var(--viewTodayOffBackground)),
+    color-mix(in srgb, var(--selected-item-color) 15%, var(--viewTodayOffBackground))
+  );
+  --viewDayBoxOtherSelectedBackground: light-dark(
+    color-mix(in srgb, var(--selected-item-color) 20%, var(--viewMonthOtherBackground)),
+    color-mix(in srgb, var(--selected-item-color) 15%, var(--viewMonthOtherBackground))
+  );
   --viewMonthOtherBackground: light-dark(var(--layout-background-2), var(--layout-background-1));
   --viewMonthDayBoxSelectedColor: var(--layout-color-1);
   --viewMonthDayBoxLabelColor: var(--layout-color-1);
   --viewMonthWeekLabelBackground: light-dark(var(--color-ink-20), var(--color-ink-60));
-  --viewMonthDayOtherBackground: light-dark(color-mix(in srgb, var(--layout-background-2) 50%, var(--viewWeekendBackground)),
-                                            color-mix(in srgb, var(--layout-background-1) 50%, var(--viewWeekendBackground)));
-  --viewMonthDayOffLabelBackground: light-dark(color-mix(in srgb, var(--viewWeekendBackground) 95%, black),
-                                               color-mix(in srgb, var(--viewWeekendBackground) 95%, var(--color-ink-30)));
-  --viewOffTimeBackground: light-dark(color-mix(in srgb, var(--viewBackground) 95%, black),
-                                      color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30)));
+  --viewMonthDayOtherBackground: light-dark(
+    color-mix(in srgb, var(--layout-background-2) 50%, var(--viewWeekendBackground)),
+    color-mix(in srgb, var(--layout-background-1) 50%, var(--viewWeekendBackground))
+  );
+  --viewMonthDayOffLabelBackground: light-dark(
+    color-mix(in srgb, var(--viewWeekendBackground) 95%, black),
+    color-mix(in srgb, var(--viewWeekendBackground) 95%, var(--color-ink-30))
+  );
+  --viewOffTimeBackground: light-dark(
+    color-mix(in srgb, var(--viewBackground) 95%, black),
+    color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30))
+  );
   --viewTimeBoxColor: var(--layout-color-2);
   --viewDayLabelSelectedColor: currentColor;
   --viewDayLabelSelectedBackground: var(--color-blue-50);
@@ -48,13 +69,21 @@
   --calendar-view-toolbar-gap: 9px;
   --button-border-radius: 3px;
   --calendar-view-toggle-background: var(--layout-background-3);
-  --calendar-view-toggle-hover-background: light-dark(var(--layout-background-2), var(--layout-background-4));
-  --calendar-view-toggle-active-background: light-dark(var(--layout-background-4), var(--layout-background-2));
+  --calendar-view-toggle-hover-background: light-dark(
+    var(--layout-background-2),
+    var(--layout-background-4)
+  );
+  --calendar-view-toggle-active-background: light-dark(
+    var(--layout-background-4),
+    var(--layout-background-2)
+  );
   --calendar-view-toggle-selected-background: var(--layout-background-1);
   --calendar-view-toggle-selected-hover-background: var(--layout-background-0);
   --calendar-view-toggle-border-color: transparent;
-  --calendar-view-toggle-shadow-color: light-dark(color-mix(in srgb, var(--color-black) 30%, transparent),
-                                                  color-mix(in srgb, var(--color-black) 50%, transparent));
+  --calendar-view-toggle-shadow-color: light-dark(
+    color-mix(in srgb, var(--color-black) 30%, transparent),
+    color-mix(in srgb, var(--color-black) 50%, transparent)
+  );
   --calendar-month-day-box-padding: 2px;
   --today-week-pill-padding-block: 3px;
   --today-week-pill-padding-inline: 6px;
@@ -341,7 +370,6 @@
   }
 }
 
-
 calendar-header-container {
   position: sticky;
   z-index: 2;
@@ -484,10 +512,7 @@ calendar-event-column,
   border-block: none;
 }
 
-.multiday-grid-rotated :is(
-  calendar-event-column,
-  .multiday-end-border
-) {
+.multiday-grid-rotated :is(calendar-event-column, .multiday-end-border) {
   border-block-start: 1px solid var(--viewBorderColor);
   border-block-end: none;
   border-inline: none;
@@ -526,17 +551,11 @@ calendar-event-column,
   background-color: var(--viewBackground);
 }
 
-.day-column-weekend :is(
-  calendar-header-container,
-  .multiday-hour-box
-) {
+.day-column-weekend :is(calendar-header-container, .multiday-hour-box) {
   background-color: var(--viewWeekendBackground);
 }
 
-.day-column-today :is(
-  calendar-header-container,
-  .multiday-hour-box
-) {
+.day-column-today :is(calendar-header-container, .multiday-hour-box) {
   background-color: var(--viewTodayBackground);
 }
 
@@ -548,15 +567,12 @@ calendar-event-column,
   }
 }
 
-.day-column-today.day-column-weekend:not(.day-column-selected) :is(
-  calendar-header-container,
-  .multiday-hour-box
-) {
+.day-column-today.day-column-weekend:not(.day-column-selected)
+  :is(calendar-header-container, .multiday-hour-box) {
   background-color: var(--viewTodayWeekendBackground);
 }
 
 .multiday-grid:not(.multiday-grid-rotated) .day-column-selected {
-
   & calendar-header-container {
     background-color: var(--viewDayBoxSelectedBackground);
     border-inline: 1px solid var(--viewHighlightBorderColor);
@@ -577,7 +593,6 @@ calendar-event-column,
 }
 
 .multiday-grid.multiday-grid-rotated .day-column-selected {
-
   & calendar-header-container {
     background-color: var(--viewDayBoxSelectedBackground);
     border-block: 1px solid var(--viewHighlightBorderColor);
@@ -905,8 +920,9 @@ calendar-month-day-box {
 }
 
 calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, black 35%, var(--item-backcolor)),
-              inset 0 0 0 2px color-mix(in srgb, white 50%, var(--item-backcolor));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, black 35%, var(--item-backcolor)),
+    inset 0 0 0 2px color-mix(in srgb, white 50%, var(--item-backcolor));
 }
 
 .dropshadow {
@@ -983,17 +999,13 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
   padding-block: 0;
 }
 
-.multiday-grid-rotated :is(
-  .gripbar-start:-moz-locale-dir(ltr),
-  .gripbar-end:-moz-locale-dir(rtl),
-) {
+.multiday-grid-rotated
+  :is(.gripbar-start:-moz-locale-dir(ltr), .gripbar-end:-moz-locale-dir(rtl), ) {
   cursor: w-resize;
 }
 
-.multiday-grid-rotated :is(
-  .gripbar-end:-moz-locale-dir(ltr),
-  .gripbar-start:-moz-locale-dir(rtl),
-) {
+.multiday-grid-rotated
+  :is(.gripbar-end:-moz-locale-dir(ltr), .gripbar-start:-moz-locale-dir(rtl), ) {
   cursor: e-resize;
 }
 
@@ -1133,7 +1145,7 @@ calendar-editable-item[status="CANCELLED"],
   gap: 6px;
 }
 
- #calendarViewHeader > div > span {
+#calendarViewHeader > div > span {
   -webkit-line-clamp: 2;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -1229,8 +1241,8 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover {
-  background: rgba(255, 255, 255, .25);
-  border-color: rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .today-navigation-button:not([disabled="true"]):hover:active {
@@ -1240,10 +1252,10 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
   transition-duration: 10ms;
 }
 
- :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
-  background: rgba(255, 255, 255, .4);
-  border-color: rgba(255, 255, 255, .7);
-  box-shadow: inset 0 0 rgba(255, 255, 255, .4);
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 rgba(255, 255, 255, 0.4);
 }
 
 #calendarControlBarMenu {
@@ -1258,7 +1270,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 .fgdragcontainer {
   min-width: 1px;
   min-height: 1px;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .multiday-events-list,

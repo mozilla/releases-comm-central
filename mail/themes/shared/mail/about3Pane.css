@@ -80,37 +80,37 @@ body {
 
   /* Classic layout: folder tree on the left, thread tree and message browser on the right. */
   &.layout-classic {
-    grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
-                   "folders folderPaneSplitter messagePaneSplitter" min-content
-                   "folders folderPaneSplitter message" minmax(auto, var(--messagePaneSplitter-height))
-                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+    grid-template:
+      "folders folderPaneSplitter threads" minmax(auto, 1fr)
+      "folders folderPaneSplitter messagePaneSplitter" min-content
+      "folders folderPaneSplitter message" minmax(auto, var(--messagePaneSplitter-height))
+      / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
   }
 
   /* Vertical layout: three columns. */
   &.layout-vertical {
-    grid-template: "folders folderPaneSplitter threads messagePaneSplitter message" auto
-                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--messagePaneSplitter-width));
+    grid-template:
+      "folders folderPaneSplitter threads messagePaneSplitter message" auto
+      / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr) min-content minmax(auto, var(--messagePaneSplitter-width));
   }
 
   /* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
   &.layout-wide {
-    grid-template: "folders folderPaneSplitter threads" minmax(auto, 1fr)
-                   "messagePaneSplitter messagePaneSplitter messagePaneSplitter" min-content
-                   "message message message" minmax(auto, var(--messagePaneSplitter-height))
-                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+    grid-template:
+      "folders folderPaneSplitter threads" minmax(auto, 1fr)
+      "messagePaneSplitter messagePaneSplitter messagePaneSplitter" min-content
+      "message message message" minmax(auto, var(--messagePaneSplitter-height))
+      / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
   }
 
   /* If Account Central is shown, it overrides the layout setting. */
   &.account-central {
-    grid-template: "folders folderPaneSplitter account-central" auto
-                   / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
+    grid-template:
+      "folders folderPaneSplitter account-central" auto
+      / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(auto, 1fr);
   }
 
-  &.account-central :is(
-    #threadPane,
-    #messagePaneSplitter,
-    #messagePane,
-  ) {
+  &.account-central :is(#threadPane, #messagePaneSplitter, #messagePane, ) {
     display: none;
   }
 
@@ -175,10 +175,7 @@ body {
   min-width: 400px;
 }
 
-:is(
-  #messagePane,
-  #folderPane
-).collapsed-by-splitter {
+:is(#messagePane, #folderPane).collapsed-by-splitter {
   /* NOTE: We use "display: none" rather than "visibility: collapse". In the
    * latter case, the min-width of min-height of the element would still
    * influence the "auto" track sizing in the grid layout. In the former case
@@ -295,8 +292,7 @@ body {
       background-image: var(--icon-mail);
     }
 
-    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"]
-      > .container > .icon {
+    &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"] > .container > .icon {
       background-image: var(--icon-mail-secure);
     }
 
@@ -420,9 +416,7 @@ body {
   }
 
   &:focus-within li {
-
     &.selected > .container {
-
       & > .folder-size {
         color: currentColor;
       }
@@ -450,12 +444,10 @@ body {
     }
 
     @media (prefers-contrast) {
-
       &.selected.new-messages > .container > .name {
         color: currentColor;
       }
     }
-
   }
 
   & > li {
@@ -490,9 +482,11 @@ body {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-     .icon {
-       transition: fill 300ms ease, stroke 300ms ease;
-     }
+    .icon {
+      transition:
+        fill 300ms ease,
+        stroke 300ms ease;
+    }
   }
 }
 
@@ -523,7 +517,9 @@ body {
 }
 
 @keyframes activity-indicator-3pane {
-  100% { object-position: -480px 0; }
+  100% {
+    object-position: -480px 0;
+  }
 }
 
 .name {
@@ -622,7 +618,7 @@ body {
 }
 
 .folder-size {
-  font-size: .8rem;
+  font-size: 0.8rem;
   font-weight: bold;
   color: var(--layout-color-3);
   margin-inline-end: 6px;

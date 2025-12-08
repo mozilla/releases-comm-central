@@ -61,10 +61,7 @@
     --tree-focus-outline: transparent;
     --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black));
     --tree-card-background: var(--layout-background-0);
-    --tree-card-border: light-dark(
-      color-mix(in srgb, var(--tree-view-bg) 90%, black),
-      color-mix(in srgb, var(--tree-view-bg) 90%, white)
-    );
+    --tree-card-border: light-dark(color-mix(in srgb, var(--tree-view-bg) 90%, black), color-mix(in srgb, var(--tree-view-bg) 90%, white));
     --tree-card-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
     --tree-card-border-focus: var(--selected-item-color);
     --tree-card-hover: var(--selected-item-color);
@@ -105,10 +102,7 @@
     --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
     --indicator-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-60));
 
-    --listbox-color: light-dark(
-      var(--sidebar-text-color, var(--color-gray-80)),
-      var(--sidebar-text-color, var(--color-gray-05))
-    );
+    --listbox-color: light-dark(var(--sidebar-text-color, var(--color-gray-80)), var(--sidebar-text-color, var(--color-gray-05)));
     --listbox-selected-bg: light-dark(var(--color-gray-30), var(--color-gray-70));
     --listbox-focused-selected-bg: var(--selected-item-color);
     --listbox-selected-color: var(--selected-item-text-color);
@@ -187,7 +181,6 @@
 }
 
 [is="tree-view-table-body"] {
-
   &:focus {
     outline: none;
   }
@@ -199,7 +192,6 @@
   /* Table mode */
 
   & > .table-layout {
-
     &:hover {
       background-color: var(--listbox-hover);
 
@@ -222,7 +214,6 @@
   }
 
   &:is(:focus, :focus-within) {
-
     & > .table-layout {
       &.selected {
         color: var(--listbox-selected-color);
@@ -259,11 +250,17 @@
 
     @media (prefers-reduced-motion: no-preference) {
       & .card-container {
-        transition: background-color 300ms ease, color 300ms ease,
-                    border-color 300ms ease, box-shadow 300ms ease;
+        transition:
+          background-color 300ms ease,
+          color 300ms ease,
+          border-color 300ms ease,
+          box-shadow 300ms ease;
 
         &::before {
-          transition: transform 200ms ease, background-color 300ms ease, border-color 300ms;
+          transition:
+            transform 200ms ease,
+            background-color 300ms ease,
+            border-color 300ms;
         }
       }
     }
@@ -281,7 +278,6 @@
 
   /* Selection */
   &:is(:focus, :focus-within) .card-layout {
-
     &.current {
       --tree-card-background: var(--tree-card-background-current);
       --tree-card-border: var(--tree-card-focus);
@@ -312,7 +308,6 @@
 
   /* Unfocused */
   &:not(:focus, :focus-within) .card-layout {
-
     &.current {
       --tree-card-background: var(--tree-card-background-current-unfocused);
     }
@@ -404,7 +399,7 @@ thead[is="tree-view-table-header"] {
   z-index: 1;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     inset-inline: 0;
     height: 0;
@@ -417,7 +412,7 @@ thead[is="tree-view-table-header"] {
     inset-inline-end: 4px;
     inset-block: 3px;
 
-    &:hover:not(:active,[disabled]) {
+    &:hover:not(:active, [disabled]) {
       background-color: var(--selected-item-color);
     }
   }
@@ -466,10 +461,8 @@ th[is="tree-view-table-header-cell"] {
   stroke-opacity: 0;
 }
 
-[is="tree-view-table-body"]:is(:focus, :focus-within) >
-  .selected :is(.tree-view-header-select, .tree-view-row-select) img,
-[is="tree-view-table-body"] > .selected:focus-within
-  :is(.tree-view-header-select, .tree-view-row-select) img {
+[is="tree-view-table-body"]:is(:focus, :focus-within) > .selected :is(.tree-view-header-select, .tree-view-row-select) img,
+[is="tree-view-table-body"] > .selected:focus-within :is(.tree-view-header-select, .tree-view-row-select) img {
   color: currentColor;
 }
 
@@ -780,7 +773,7 @@ slot[name="placeholders"] {
   }
 }
 
-:is(ul, ol):is([role="tree"],[role="treegrid"],[role="group"]) li > div {
+:is(ul, ol):is([role="tree"], [role="treegrid"], [role="group"]) li > div {
   min-height: var(--list-item-min-height);
 }
 

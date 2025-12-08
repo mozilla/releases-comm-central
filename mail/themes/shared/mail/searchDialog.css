@@ -131,7 +131,7 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
-:root:not([lwtheme])  #searchTermList:focus > richlistitem[selected="true"] {
+:root:not([lwtheme]) #searchTermList:focus > richlistitem[selected="true"] {
   color: inherit;
 }
 

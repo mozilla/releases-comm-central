@@ -42,7 +42,7 @@ menulist {
 button,
 menulist,
 html|select,
-html|input:is([type="email"],[type="number"],[type="color"],[type="text"],[type="password"],[type="url"]),
+html|input:is([type="email"], [type="number"], [type="color"], [type="text"], [type="password"], [type="url"]),
 html|textarea,
 html|moz-input-search {
   border-radius: var(--button-border-radius);
@@ -296,7 +296,7 @@ menulist::part(dropmarker-icon) {
 }
 
 .tip-caption {
-  font-size: .9em;
+  font-size: 0.9em;
   color: var(--in-content-deemphasized-text);
 }
 
@@ -750,7 +750,7 @@ treechildren::-moz-tree-cell-text(selected) {
 
 /* Menulist styles */
 .label-item {
-  font-size: .8em;
+  font-size: 0.8em;
 }
 
 #datePrefsBox {
@@ -946,7 +946,7 @@ calendar-notifications-setting {
     position: absolute;
     inset: 0;
     border-radius: 100%;
-    }
+  }
 
   &:is(:focus-visible, :hover) #photoOverlay {
     background-color: color-mix(in srgb, var(--color-gray-90) 75%, transparent);
@@ -977,7 +977,7 @@ calendar-notifications-setting {
 }
 
 #fxaEmailAddress {
-  margin-bottom: 6px
+  margin-bottom: 6px;
 }
 
 .place-self-start {
@@ -1071,8 +1071,8 @@ calendar-notifications-setting {
   margin-inline-end: 6px;
 }
 
- #showSyncedList,
- #configSyncList {
+#showSyncedList,
+#configSyncList {
   grid-template-columns: 1fr 1fr;
 }
 
@@ -1210,7 +1210,6 @@ calendar-notifications-setting {
 }
 
 /* QR Export for Mobile */
-
 
 #qrExportContent {
   --qr-legend-icon-gap: 6px;

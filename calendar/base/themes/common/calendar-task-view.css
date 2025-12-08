@@ -5,13 +5,32 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwt-tree-brighttext] #calendar-task-details-container {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
-  --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
-  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
-  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
+  --toolbarbutton-hover-background: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.25)
+  );
+  --toolbarbutton-hover-bordercolor: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.5)
+  );
+  --toolbarbutton-header-bordercolor: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.25)
+  );
+  --toolbarbutton-active-background: var(
+    --lwt-toolbarbutton-active-background,
+    rgba(255, 255, 255, 0.4)
+  );
+  --toolbarbutton-active-bordercolor: var(
+    --lwt-toolbarbutton-active-background,
+    rgba(255, 255, 255, 0.7)
+  );
+  --toolbarbutton-active-boxshadow: 0 0 0 1px
+    var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, 0.4)) inset;
+  --toolbarbutton-checked-background: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.3)
+  );
 }
 
 #task-text-filter-field {
@@ -83,12 +102,12 @@
   background-color: var(--toolbar-bgcolor);
   background-image: none;
   color: var(--toolbar-color);
-  border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-color: var(--sidebar-border-color, hsla(0, 0%, 60%, 0.4));
 }
 
 :root[lwt-tree-brighttext] #task-addition-box,
 :root[lwt-tree-brighttext] #calendar-task-details-container {
-  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
 }
 
 #calendar-task-details-box {

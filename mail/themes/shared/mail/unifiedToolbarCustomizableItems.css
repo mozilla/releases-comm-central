@@ -129,7 +129,7 @@
   }
 
   .chat & {
-    content: var(--icon-chat)
+    content: var(--icon-chat);
   }
 
   .add-ons-and-themes & {
@@ -141,7 +141,7 @@
   }
 
   .tasks & {
-    content: var(--icon-tasks)
+    content: var(--icon-tasks);
   }
 
   .mail & {

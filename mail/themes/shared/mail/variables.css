@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- @import url("chrome://messenger/skin/layout.css");
+@import url("chrome://messenger/skin/layout.css");
 
 /* Default variables */
 
@@ -46,8 +46,10 @@
   --button-destructive-border-color: light-dark(var(--color-red-80), var(--color-red-50));
   --button-link-text-color: light-dark(var(--color-blue-60), var(--color-blue-40));
   --button-link-active-text-color: light-dark(var(--color-blue-70), var(--color-blue-50));
-  --button-pressed-shadow: light-dark(inset 0 1px 3px color-mix(in srgb, var(--color-gray-90) 30%, transparent),
-                                      inset 0 1px 3px color-mix(in srgb, var(--color-black) 50%, transparent));
+  --button-pressed-shadow: light-dark(
+    inset 0 1px 3px color-mix(in srgb, var(--color-gray-90) 30%, transparent),
+    inset 0 1px 3px color-mix(in srgb, var(--color-black) 50%, transparent)
+  );
   --button-pressed-indicator-shadow: light-dark(0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.25));
   --button-pressed-indicator-padding: 6px;
   --chrome-content-separator-color: light-dark(var(--color-gray-30), var(--color-gray-90));
@@ -79,35 +81,31 @@
   --toolbar-button-hover-checked-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-button-active-background-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-button-active-border-color: color-mix(in srgb, currentColor 40%, transparent);
-  --toolbarbutton-icon-fill-opacity: .85;
-  --toolbarbutton-hover-background: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                               rgba(0, 0, 0, .05)),
-                                               var(--lwt-toolbarbutton-hover-background,
-                                               rgba(255, 255, 255, .25)));
-  --toolbarbutton-hover-bordercolor: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                                rgba(0, 0, 0, .25)),
-                                                var(--lwt-toolbarbutton-hover-background,
-                                                rgba(255, 255, 255, .5)));
-  --toolbarbutton-header-bordercolor: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                                 rgba(0, 0, 0, .25)),
-                                                 var(--lwt-toolbarbutton-hover-background,
-                                                 rgba(255, 255, 255, .25)));
+  --toolbarbutton-icon-fill-opacity: 0.85;
+  --toolbarbutton-hover-background: light-dark(
+    var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, 0.05)),
+    var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, 0.25))
+  );
+  --toolbarbutton-hover-bordercolor: light-dark(
+    var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, 0.25)),
+    var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, 0.5))
+  );
+  --toolbarbutton-header-bordercolor: light-dark(
+    var(--lwt-toolbarbutton-hover-background, rgba(0, 0, 0, 0.25)),
+    var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, 0.25))
+  );
   --toolbarbutton-hover-boxshadow: none;
-  --toolbarbutton-active-background: light-dark(var(--lwt-toolbarbutton-active-background,
-                                                rgba(0, 0, 0, .1)),
-                                                var(--lwt-toolbarbutton-active-background,
-                                                rgba(255, 255, 255, .4)));
-  --toolbarbutton-active-bordercolor: light-dark(var(--lwt-toolbarbutton-active-background,
-                                                 rgba(0, 0, 0, .3)),
-                                                 var(--lwt-toolbarbutton-active-background,
-                                                 rgba(255, 255, 255, .7)));
-  --toolbarbutton-default-active-boxshadow: rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3);
-  --toolbarbutton-active-boxshadow: light-dark(0 1px 1px var(--lwt-toolbarbutton-active-background,
-                                               var(--toolbarbutton-default-active-boxshadow)) inset,
-                                               none);
-  --toolbarbutton-checked-background: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                                 rgba(200, 200, 200, .5)),
-                                                 rgba(0, 0, 0, .25));
+  --toolbarbutton-active-background: light-dark(
+    var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, 0.1)),
+    var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, 0.4))
+  );
+  --toolbarbutton-active-bordercolor: light-dark(
+    var(--lwt-toolbarbutton-active-background, rgba(0, 0, 0, 0.3)),
+    var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, 0.7))
+  );
+  --toolbarbutton-default-active-boxshadow: rgba(0, 0, 0, 0.1) inset, 0 0 1px rgba(0, 0, 0, 0.3);
+  --toolbarbutton-active-boxshadow: light-dark(0 1px 1px var(--lwt-toolbarbutton-active-background, var(--toolbarbutton-default-active-boxshadow)) inset, none);
+  --toolbarbutton-checked-background: light-dark(var(--lwt-toolbarbutton-hover-background, rgba(200, 200, 200, 0.5)), rgba(0, 0, 0, 0.25));
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, var(--selected-item-color));
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-color: var(--layout-color-1);
@@ -158,10 +156,10 @@
     --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
-    --row-grouped-header-bg-color-selected: light-dark(var(--sidebar-highlight-background-color,
-                                                       hsla(0, 0%, 80%, 0.6)),
-                                                       var(--sidebar-highlight-background-color,
-                                                       rgba(249, 249, 250, 0.3)));
+    --row-grouped-header-bg-color-selected: light-dark(
+      var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.6)),
+      var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.3))
+    );
   }
 
   @media (prefers-color-scheme: dark) {

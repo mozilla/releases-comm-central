@@ -17,22 +17,22 @@
 }
 
 #tabs-toolbar {
-  --toolbarbutton-hover-background: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                               hsla(240, 5%, 5%, .1)),
-                                               var(--lwt-toolbarbutton-hover-background,
-                                               hsla(0, 0%, 70%, .4)));
-  --toolbarbutton-hover-bordercolor: light-dark(var(--lwt-toolbarbutton-hover-background,
-                                                hsla(240, 5%, 5%, .1)),
-                                                var(--lwt-toolbarbutton-hover-background,
-                                                hsla(0, 0%, 70%, .4)));
-  --toolbarbutton-active-background: light-dark(var(--lwt-toolbarbutton-active-background,
-                                                hsla(240, 5%, 5%, .15)),
-                                                var(--lwt-toolbarbutton-active-background,
-                                                hsla(0, 0%, 70%, .6)));
-  --toolbarbutton-active-bordercolor: light-dark(var(--lwt-toolbarbutton-active-background,
-                                                 hsla(240, 5%, 5%, .15)),
-                                                 var(--lwt-toolbarbutton-active-background,
-                                                 hsla(0, 0%, 70%, .6)));
+  --toolbarbutton-hover-background: light-dark(
+    var(--lwt-toolbarbutton-hover-background, hsla(240, 5%, 5%, 0.1)),
+    var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 70%, 0.4))
+  );
+  --toolbarbutton-hover-bordercolor: light-dark(
+    var(--lwt-toolbarbutton-hover-background, hsla(240, 5%, 5%, 0.1)),
+    var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 70%, 0.4))
+  );
+  --toolbarbutton-active-background: light-dark(
+    var(--lwt-toolbarbutton-active-background, hsla(240, 5%, 5%, 0.15)),
+    var(--lwt-toolbarbutton-active-background, hsla(0, 0%, 70%, 0.6))
+  );
+  --toolbarbutton-active-bordercolor: light-dark(
+    var(--lwt-toolbarbutton-active-background, hsla(240, 5%, 5%, 0.15)),
+    var(--lwt-toolbarbutton-active-background, hsla(0, 0%, 70%, 0.6))
+  );
 }
 
 #navigation-toolbox {
@@ -153,9 +153,7 @@
   padding-inline: var(--titlebar-button-spacing);
   padding-inline-end: max(
     var(--titlebar-button-spacing),
-    var(--titlebar-button-end-spacing) *
-    (var(--titlebar-button-position) -
-    var(--max-titlebar-button-position) + 1)
+    var(--titlebar-button-end-spacing) * (var(--titlebar-button-position) - var(--max-titlebar-button-position) + 1)
   );
   order: var(--titlebar-button-position);
   /* In GTK applications, you can drag the window by titlebar buttons */
@@ -174,7 +172,7 @@
 
     @media not (-moz-gtk-theme-family: breeze) {
       /* Matches the libadwaita transition */
-      transition: background-color .2s ease;
+      transition: background-color 0.2s ease;
     }
 
     @media (-moz-gtk-theme-family: adwaita) or (-moz-gtk-theme-family: yaru) {
@@ -282,13 +280,9 @@ menulist {
  * check-marks. radio-marks and folder icons. bug 443516
  */
 .menulist-menupopup > menuitem > .menu-icon,
-menulist > menupopup >
-  menuitem:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
-  .menu-icon,
+menulist > menupopup > menuitem:is(.menuitem-iconic, [type="radio"], [type="checkbox"]) > .menu-icon,
 .menulist-menupopup > menu > .menu-icon,
-menulist > menupopup >
-  menu:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
-  .menu-icon {
+menulist > menupopup > menu:is(.menuitem-iconic, [type="radio"], [type="checkbox"]) > .menu-icon {
   display: flex;
 }
 
@@ -324,10 +318,10 @@ toolbar[mode="text"] .toolbarbutton-text {
   padding-inline: 2px !important;
 }
 
-.toolbarbutton-1[disabled=true] .toolbarbutton-icon,
-.toolbarbutton-1[disabled=true] .toolbarbutton-text,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker {
-  opacity: .4;
+.toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
+.toolbarbutton-1[disabled="true"] .toolbarbutton-text,
+.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+  opacity: 0.4;
 }
 
 .sidebar-header .toolbarbutton-text:not([value]) {
@@ -341,7 +335,6 @@ button[is="toolbarbutton-menu-button"] > .button-box > button {
 /* message column icons */
 
 .treecol-sortdirection {
-
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   }
@@ -376,14 +369,14 @@ treechildren::-moz-tree-cell-text {
   &:-moz-locale-dir(ltr):not([mirror]),
   &:-moz-locale-dir(rtl)[mirror] {
     border-right-style: solid;
-    border-top-right-radius: .3em;
+    border-top-right-radius: 0.3em;
     margin-right: 1em;
   }
 
   &:-moz-locale-dir(rtl):not([mirror]),
   &:-moz-locale-dir(ltr)[mirror] {
     border-left-style: solid;
-    border-top-left-radius: .3em;
+    border-top-left-radius: 0.3em;
     margin-left: 1em;
   }
 }

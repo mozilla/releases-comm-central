@@ -14,8 +14,7 @@
   --button-margin: 3px;
   background-color: var(--layout-background-1);
   padding: var(--qfb-padding);
-  border-bottom: 1px solid
-    var(--sidebar-border-color, var(--tree-view-header-border-color));
+  border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 
   :root[lwtheme][lwt-tree] & {
     background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
@@ -83,7 +82,7 @@
     min-width: 22px;
   }
 
-  .button-group.quickFilterButtons{
+  .button-group.quickFilterButtons {
     display: none;
   }
 }

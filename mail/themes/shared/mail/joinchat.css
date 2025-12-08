@@ -16,7 +16,7 @@
     align-items: center;
   }
 
-  & input:not([type="number"],[type="color"]) {
+  & input:not([type="number"], [type="color"]) {
     flex: 1;
   }
 }

@@ -30,7 +30,7 @@
 }
 
 #calendar-add-task-button[disabled="true"] {
-  fill-opacity: .5;
+  fill-opacity: 0.5;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

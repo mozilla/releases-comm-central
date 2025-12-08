@@ -141,7 +141,6 @@ timepicker > menulist::part(text-input) {
   cursor: pointer !important;
 }
 
-
 .time-picker-minute-box-class {
   align-items: center;
   border-inline-end: 1px solid var(--tpBorderColor);
@@ -172,7 +171,6 @@ timepicker > menulist::part(text-input) {
   color: var(--tpFiveminColor);
 }
 
-
 /* box in five-minute grid elements */
 
 .time-picker-five-minute-class:hover {
@@ -186,7 +184,6 @@ timepicker > menulist::part(text-input) {
   color: var(--tbHighlightColor);
   cursor: pointer;
 }
-
 
 /* selected five-minute grid element box */
 
@@ -224,7 +221,7 @@ timepicker > menulist::part(text-input) {
   cursor: pointer;
 }
 
-.time-picker-one-minute-class[selected="true"]>label:hover {
+.time-picker-one-minute-class[selected="true"] > label:hover {
   background-color: var(--tbHighlightBackground) !important;
   color: var(--tbHighlightColor) !important;
   cursor: pointer;
@@ -232,7 +229,7 @@ timepicker > menulist::part(text-input) {
 
 /* selected one-minute grid element box */
 
-.time-picker-one-minute-class[selected="true"]{
+.time-picker-one-minute-class[selected="true"] {
   background-color: var(--tbHighlightBackground);
   color: var(--tbHighlightColor);
 }

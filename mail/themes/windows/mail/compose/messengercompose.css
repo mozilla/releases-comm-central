@@ -46,7 +46,6 @@
   }
 
   #MsgHeadersToolbar {
-
     & .address-pill {
       box-shadow: inset 0 0 0 1px ThreeDShadow;
 
@@ -57,10 +56,14 @@
       &[selected] {
         color: SelectedItemText;
         background-color: SelectedItem;
-        box-shadow: inset 0 0 0 1px SelectedItem, inset 0 0 0 2em SelectedItem;
+        box-shadow:
+          inset 0 0 0 1px SelectedItem,
+          inset 0 0 0 2em SelectedItem;
 
         &:where(:hover, :focus):not(.editing) {
-          box-shadow: inset 0 0 0 1px SelectedItemText, inset 0 0 0 2em SelectedItem;
+          box-shadow:
+            inset 0 0 0 1px SelectedItemText,
+            inset 0 0 0 2em SelectedItem;
           text-shadow: none;
         }
       }

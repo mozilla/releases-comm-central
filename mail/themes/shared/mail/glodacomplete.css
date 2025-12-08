@@ -9,7 +9,6 @@
 }
 
 #PopupGlodaAutocomplete {
-
   & .autocomplete-richlistbox {
     display: flex;
     justify-content: flex-start;

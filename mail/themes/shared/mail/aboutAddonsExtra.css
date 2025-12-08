@@ -119,7 +119,7 @@ section > .addon-detail-row-private-browsing,
 
 /* Hide the options entry in the options menu, as we have a dedicated button */
 addon-options panel-item[action="preferences"] {
-  display:none;
+  display: none;
 }
 
 .extension-options-button {

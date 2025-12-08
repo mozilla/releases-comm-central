@@ -6,7 +6,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 menulist {
-
   &::part(text-input) {
     padding: 2px 2px 3px;
   }

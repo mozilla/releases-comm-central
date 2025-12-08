@@ -58,11 +58,11 @@ body {
 }
 
 .wrap {
- width: 1em;
+  width: 1em;
 }
 
 .menuitem-highlight-1 {
-  font-weight : bold;
+  font-weight: bold;
 }
 
 .color-well {
@@ -234,23 +234,23 @@ tree.list {
 
 .align-menu {
   &[value="top"] {
-    list-style-image:url("chrome://editor/skin/icons/img-align-top.gif");
+    list-style-image: url("chrome://editor/skin/icons/img-align-top.gif");
   }
 
   &[value="middle"] {
-    list-style-image:url("chrome://editor/skin/icons/img-align-middle.gif");
+    list-style-image: url("chrome://editor/skin/icons/img-align-middle.gif");
   }
 
   &[value="bottom"] {
-    list-style-image:url("chrome://editor/skin/icons/img-align-bottom.gif");
+    list-style-image: url("chrome://editor/skin/icons/img-align-bottom.gif");
   }
 
   &[value="right"] {
-    list-style-image:url("chrome://editor/skin/icons/img-align-right.gif");
+    list-style-image: url("chrome://editor/skin/icons/img-align-right.gif");
   }
 
   &[value="left"] {
-    list-style-image:url("chrome://editor/skin/icons/img-align-left.gif");
+    list-style-image: url("chrome://editor/skin/icons/img-align-left.gif");
   }
 }
 

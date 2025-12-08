@@ -38,8 +38,8 @@
   width: 9em;
   text-align: end;
   font-weight: normal;
-  border-inline-end: 1px solid hsla(0, 0%, 50%, .2);
-  background-color: hsla(0, 0%, 50%, .2);
+  border-inline-end: 1px solid hsla(0, 0%, 50%, 0.2);
+  background-color: hsla(0, 0%, 50%, 0.2);
 }
 
 .invitation-table .content {

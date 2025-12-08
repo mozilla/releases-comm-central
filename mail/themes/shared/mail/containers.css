@@ -39,7 +39,7 @@
 
     &::before {
       position: sticky;
-      background-image: radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .15), rgba(0, 0, 0, 0));
+      background-image: radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
     }
 
     &::after {

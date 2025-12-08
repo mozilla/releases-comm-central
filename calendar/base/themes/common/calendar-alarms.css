@@ -18,7 +18,7 @@
 }
 
 .reminder-list-icon[value="DISPLAY"] {
-  list-style-image: var(--icon-bell)
+  list-style-image: var(--icon-bell);
 }
 
 .reminder-list-icon[value="EMAIL"] {

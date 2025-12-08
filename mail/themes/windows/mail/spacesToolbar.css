@@ -4,7 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
-:root[sizemode=normal][customtitlebar] #spacesToolbar {
+:root[sizemode="normal"][customtitlebar] #spacesToolbar {
   margin-top: 0.5px;
 }
 

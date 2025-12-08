@@ -66,7 +66,6 @@
 
   &[SpecialFolder="Virtual"] {
     --menuitem-icon: var(--icon-folder-filter);
-
   }
 
   /* IMAP/POP server */
@@ -113,7 +112,7 @@
   }
 
   :is(label, description)[value][crop="start"]:-moz-locale-dir(rtl)::before {
-     /* Mark text as isolated RTL to preserve punctuation/numeric order. */
+    /* Mark text as isolated RTL to preserve punctuation/numeric order. */
     content: "\2067" -moz-label-content "\2069";
   }
 }

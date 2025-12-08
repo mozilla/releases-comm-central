@@ -50,8 +50,8 @@ hr {
   border-bottom: 0;
 }
 
-:root:not([sizemode=maximized]) .titlebar-restore,
-:root:is([sizemode=maximized]) .titlebar-max {
+:root:not([sizemode="maximized"]) .titlebar-restore,
+:root:is([sizemode="maximized"]) .titlebar-max {
   display: none;
 }
 
@@ -89,7 +89,9 @@ hr {
 :root[lwtheme-image] #compose-toolbox {
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   background-repeat: no-repeat, var(--lwt-background-tiling);
-  background-position: right top, var(--lwt-background-alignment);
+  background-position:
+    right top,
+    var(--lwt-background-alignment);
 }
 
 :root[lwtheme][customtitlebar] #navigation-toolbox:-moz-window-inactive,
@@ -125,7 +127,6 @@ treechildren::-moz-tree-row(current, focus) {
 }
 
 tree {
-
   & treecolpicker {
     border-inline-start: 1px solid ThreeDLightShadow;
   }
@@ -195,7 +196,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
 
   & tree:not(:focus) treechildren::-moz-tree-image(selected),
   & #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
-  & tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
+  & tree:not(#threadTree, :focus) treechildren::-moz-tree-cell-text(selected) {
     color: var(--sidebar-text-color);
   }
 
@@ -295,12 +296,14 @@ toolbar[customizing="true"][collapsed] {
   & > .toolbarbutton-menubutton-dropmarker {
     border: 1px solid transparent;
     border-radius: var(--button-border-radius);
-    transition: background-color .15s, border-color .15s;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
   }
 
-  &:not([disabled="true"]):is(:hover,[open="true"]) > .toolbarbutton-menubutton-button,
+  &:not([disabled="true"]):is(:hover, [open="true"]) > .toolbarbutton-menubutton-button,
   &:not([disabled="true"]):hover > .toolbarbutton-menubutton-dropmarker,
-  &:not([is="toolbarbutton-menu-button"],[disabled="true"],[checked="true"],[open="true"],:active):hover {
+  &:not([is="toolbarbutton-menu-button"], [disabled="true"], [checked="true"], [open="true"], :active):hover {
     background-color: var(--toolbarbutton-hover-background);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -308,15 +311,15 @@ toolbar[customizing="true"][collapsed] {
 
   & > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
   &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
-  &:not([is="toolbarbutton-menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+  &:not([is="toolbarbutton-menu-button"], [disabled="true"]):is([open="true"], [checked="true"], :hover:active) {
     background-color: var(--toolbarbutton-checked-background);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
     transition-duration: 10ms;
   }
 
-  &:not([is="toolbarbutton-menu-button"],[disabled="true"]):hover:active,
-  &:not([is="toolbarbutton-menu-button"],[disabled="true"])[open="true"],
+  &:not([is="toolbarbutton-menu-button"], [disabled="true"]):hover:active,
+  &:not([is="toolbarbutton-menu-button"], [disabled="true"])[open="true"],
   & > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
   &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
     background-color: var(--toolbarbutton-active-background) !important;
@@ -396,13 +399,12 @@ toolbar[customizing="true"][collapsed] {
   }
 
   /* Separator between menu and split type buttons */
-  &:not(:hover,:active,[open],[checked]) > .toolbarbutton-menubutton-dropmarker,
+  &:not(:hover, :active, [open], [checked]) > .toolbarbutton-menubutton-dropmarker,
   &[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
     border-inline-start-color: color-mix(in srgb, currentColor 20%, transparent);
   }
 
-  toolbox:not([labelalign="end"]) > toolbar[mode="full"]
-    &:not(.button-appmenu,[is="toolbarbutton-menu-button"])[type="menu"] {
+  toolbox:not([labelalign="end"]) > toolbar[mode="full"] &:not(.button-appmenu, [is="toolbarbutton-menu-button"])[type="menu"] {
     padding-inline-end: 15px !important;
     background-image: var(--icon-nav-down-sm);
     background-size: 12px;
@@ -425,7 +427,7 @@ toolbar[customizing="true"][collapsed] {
     }
   }
 
-  toolbar[brighttext] &:not(:hover,:active,[open]) > .toolbarbutton-menubutton-dropmarker {
+  toolbar[brighttext] &:not(:hover, :active, [open]) > .toolbarbutton-menubutton-dropmarker {
     border-inline-start-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 
@@ -527,7 +529,7 @@ menulist {
     background-color: var(--toolbarbutton-hover-background);
   }
 
-  &:not([disabled="true"],[open="true"]):hover {
+  &:not([disabled="true"], [open="true"]):hover {
     background-color: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
   }
@@ -762,10 +764,11 @@ html|ul.addon-installed-list {
     appearance: none;
     min-width: 1px;
     background-image: linear-gradient(
-                      transparent 4px,
-                      var(--toolbarseparator-color) 4px,
-                      var(--toolbarseparator-color) calc(100% - 4px),
-                      transparent calc(100% - 4px));
+      transparent 4px,
+      var(--toolbarseparator-color) 4px,
+      var(--toolbarseparator-color) calc(100% - 4px),
+      transparent calc(100% - 4px)
+    );
     margin-inline: 1px;
     padding: 0;
 
@@ -862,7 +865,9 @@ statuspanel {
   bottom: 0;
   z-index: 20;
   max-width: 50%;
-  transition: opacity 120ms ease-out, visibility 120ms;
+  transition:
+    opacity 120ms ease-out,
+    visibility 120ms;
 
   &:-moz-locale-dir(ltr)[mirror],
   &:-moz-locale-dir(rtl):not([mirror]) {
@@ -898,7 +903,9 @@ statuspanel {
 :root[lwtheme] #status-bar {
   appearance: none;
   background-repeat: no-repeat, var(--lwt-background-tiling);
-  background-position: bottom right, var(--lwt-background-alignment);
+  background-position:
+    bottom right,
+    var(--lwt-background-alignment);
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
@@ -941,19 +948,25 @@ label.statusbarpanel {
     /* Make a white reflecting animation.
        Create a gradient with 2 identical pattern, and enlarge the size to 200%.
        This allows us to animate background-position with percentage. */
-    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%,
-                                             rgba(255, 255, 255, 0.2) 25%,
-                                             rgba(255, 255, 255, 0.8) 50%,
-                                             rgba(255, 255, 255, 0.2) 75%,
-                                             rgba(255, 255, 255, 0.8) 100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(255, 255, 255, 0.2) 25%,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      rgba(255, 255, 255, 0.8) 100%
+    );
     background-size: 200% 100%;
 
     @media (prefers-color-scheme: dark) {
-      background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 0%,
-                                               rgba(0, 0, 0, 0.1) 25%,
-                                               rgba(0, 0, 0, 0.5) 50%,
-                                               rgba(0, 0, 0, 0.1) 75%,
-                                               rgba(0, 0, 0, 0.5) 100%);
+      background-image: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        rgba(0, 0, 0, 0.1) 25%,
+        rgba(0, 0, 0, 0.5) 50%,
+        rgba(0, 0, 0, 0.1) 75%,
+        rgba(0, 0, 0, 0.5) 100%
+      );
     }
   }
 }
@@ -1007,7 +1020,7 @@ label.statusbarpanel {
   & ::-moz-progress-bar {
     appearance: none;
     background-color: #45a1ff;
-    opacity: .75;
+    opacity: 0.75;
     border-radius: 0;
   }
 
@@ -1017,7 +1030,7 @@ label.statusbarpanel {
 
   &.alert-critical ::-moz-progress-bar {
     background-color: red;
-    opacity: .6;
+    opacity: 0.6;
   }
 }
 
@@ -1031,12 +1044,16 @@ label.statusbarpanel {
 /* searchTermOverlay */
 @media (prefers-reduced-motion: no-preference) {
   #searchTermList > richlistitem[highlight="true"] {
-    animation: highlight .4s ease-in;
+    animation: highlight 0.4s ease-in;
   }
 
   @keyframes highlight {
-    from { background-color: Highlight; }
-    to { background-color: transparent; }
+    from {
+      background-color: Highlight;
+    }
+    to {
+      background-color: transparent;
+    }
   }
 }
 
@@ -1053,15 +1070,19 @@ findbar {
     background-color: var(--lwt-accent-color);
     background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-additional-images);
     background-repeat: no-repeat, var(--lwt-background-tiling);
-    background-position: right bottom, var(--lwt-background-alignment);
+    background-position:
+      right bottom,
+      var(--lwt-background-alignment);
     background-position-y: bottom;
   }
 
   :root[lwtheme-image] & {
-    background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
-                                      var(--lwt-header-image), var(--lwt-additional-images);
+    background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-header-image), var(--lwt-additional-images);
     background-repeat: no-repeat, no-repeat, var(--lwt-background-tiling);
-    background-position: center, right bottom, var(--lwt-background-alignment);
+    background-position:
+      center,
+      right bottom,
+      var(--lwt-background-alignment);
   }
 }
 
@@ -1097,13 +1118,13 @@ findbar {
     outline: 0;
   }
 
-  &:not([disabled],[open],:active):is(:hover,:focus-visible) {
+  &:not([disabled], [open], :active):is(:hover, :focus-visible) {
     background-color: var(--arrowpanel-dimmed);
   }
 
-  &:not([disabled]):is([open],:hover:active) {
+  &:not([disabled]):is([open], :hover:active) {
     background-color: var(--arrowpanel-dimmed-further);
-    box-shadow: 0 1px 0 hsla(210, 4%, 10%, .03) inset;
+    box-shadow: 0 1px 0 hsla(210, 4%, 10%, 0.03) inset;
   }
 
   & > .toolbarbutton-text {
@@ -1213,8 +1234,7 @@ toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
   margin-inline: 6px;
   opacity: 0.5;
   border-inline: 2px solid currentColor;
-  background-image: linear-gradient(transparent calc(50% - 1px), currentColor calc(50% - 1px),
-                                    currentColor calc(50% + 1px), transparent calc(50% + 1px));
+  background-image: linear-gradient(transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + 1px), transparent calc(50% + 1px));
 }
 
 toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
@@ -1228,7 +1248,7 @@ toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   margin-bottom: 2px;
   border: 1px solid currentColor;
-  background-color: hsla(0, 0%, 100%, .3) !important;
+  background-color: hsla(0, 0%, 100%, 0.3) !important;
 }
 
 toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
@@ -1346,7 +1366,6 @@ panel[type="arrow"].panel-block-padding::part(content) {
   /* Make dialogs overlap with upper chrome UI. */
   margin-top: 5px;
 }
-
 
 /* Infobar styles */
 

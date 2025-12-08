@@ -11,18 +11,18 @@
   color: -moz-DialogText;
   text-shadow: none;
 
-  --button-background: rgba(128, 128, 128, .15);
-  --button-background-hover: rgba(128, 128, 128, .25);
-  --button-background-active: rgba(128, 128, 128, .35);
-  --button-border-color: rgba(128, 128, 128, .4);
+  --button-background: rgba(128, 128, 128, 0.15);
+  --button-background-hover: rgba(128, 128, 128, 0.25);
+  --button-background-active: rgba(128, 128, 128, 0.35);
+  --button-border-color: rgba(128, 128, 128, 0.4);
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
   --field-text-color: FieldText;
   --field-background-color: Field;
-  --field-border-color: rgba(128, 128, 128, .6);
-  --field-border-hover-color: rgba(128, 128, 128, .8);
-  --popup-item-hover: rgba(128, 128, 128, .2);
+  --field-border-color: rgba(128, 128, 128, 0.6);
+  --field-border-hover-color: rgba(128, 128, 128, 0.8);
+  --popup-item-hover: rgba(128, 128, 128, 0.2);
   --popup-item-hover-text: MenuText;
   --popup-item-selected: var(--selected-item-color);
   --popup-selected-text: var(--selected-item-text-color);

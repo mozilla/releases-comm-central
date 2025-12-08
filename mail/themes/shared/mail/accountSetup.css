@@ -92,7 +92,9 @@ header {
 
   @media (prefers-reduced-motion: no-preference) {
     & article {
-      transition: opacity .3s ease, transform .3s ease;
+      transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
 
       &.hide {
         opacity: 0;
@@ -317,8 +319,9 @@ input:user-invalid ~ .form-icon {
 
 .result-details-row {
   display: grid;
-  grid-template: "icon heading" auto
-                 ". info" auto / auto 1fr;
+  grid-template:
+    "icon heading" auto
+    ". info" auto / auto 1fr;
   gap: 3px 6px;
 
   & img {
@@ -376,7 +379,7 @@ input:user-invalid ~ .form-icon {
   margin-block-end: 15px;
 
   & select,
-  & input:not([type="radio"],[type="checkbox"]) {
+  & input:not([type="radio"], [type="checkbox"]) {
     margin: 0;
     width: 4em;
     flex: 1;
@@ -386,8 +389,7 @@ input:user-invalid ~ .form-icon {
     padding-inline-start: 6px;
     padding-block: 0;
 
-    @media (-moz-platform: linux),
-           (-moz-platform: windows) {
+    @media (-moz-platform: linux), (-moz-platform: windows) {
       line-height: 1.7;
     }
 
@@ -654,7 +656,7 @@ button.linked-services-button {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    transition: color .2s ease;
+    transition: color 0.2s ease;
   }
 
   .quick-link:is(:hover, :hover:active) {
@@ -691,7 +693,6 @@ button.linked-services-button {
 }
 
 #linkedServices {
-
   & h3 {
     font-size: 1.6rem;
     font-weight: 300;
@@ -762,7 +763,7 @@ button.linked-services-button {
 
 .linked-service-dropdown {
   @media (prefers-reduced-motion: no-preference) {
-    transition: transform .2s ease;
+    transition: transform 0.2s ease;
   }
 
   &:dir(rtl) {

@@ -69,7 +69,6 @@ mailattachcount {
 }
 
 .moz-text-plain {
-
   & pre {
     margin: 0;
     font-family: inherit;
@@ -116,7 +115,9 @@ mailattachcount {
 
 /* Ignore named pages when printing. */
 @media print {
-  * { page: auto !important; }
+  * {
+    page: auto !important;
+  }
 }
 
 /* ::::: images ::::: */
@@ -167,11 +168,11 @@ img {
   background-size: 100% 100%;
   background-color: transparent;
   display: block;
-  opacity: .7;
+  opacity: 0.7;
   cursor: pointer;
 
   &:hover {
-    opacity: .8;
+    opacity: 0.8;
 
     &:active {
       opacity: 1;

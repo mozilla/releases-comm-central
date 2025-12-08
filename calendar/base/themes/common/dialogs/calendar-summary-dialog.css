@@ -37,7 +37,7 @@ notification {
 #calendar-summary-dialog {
   min-height: 20em;
 
-  &:has(#calendar-event-summary-dialog.resize){
+  &:has(#calendar-event-summary-dialog.resize) {
     height: auto;
   }
 }

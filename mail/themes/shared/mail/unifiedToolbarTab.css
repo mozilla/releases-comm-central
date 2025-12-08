@@ -20,7 +20,7 @@ button {
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     height: 2px;
     margin-top: 3px;
     margin-inline: 3px;

@@ -91,8 +91,6 @@ td {
   filter: grayscale(1);
 }
 
-#network-calendar-list
-  > richlistitem[calendar-disabled]:not([selected="true"])
-  > .calendar-name {
+#network-calendar-list > richlistitem[calendar-disabled]:not([selected="true"]) > .calendar-name {
   color: #808080;
 }

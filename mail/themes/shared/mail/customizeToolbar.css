@@ -56,7 +56,7 @@ toolbarpaletteitem {
     vertical-align: top;
   }
 
-  &[place=palette]::after {
+  &[place="palette"]::after {
     content: attr(title);
     display: block;
     text-align: center;

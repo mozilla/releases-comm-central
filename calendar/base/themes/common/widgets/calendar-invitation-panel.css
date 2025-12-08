@@ -47,7 +47,7 @@
 
 .calendar-invitation-panel-response-buttons button {
   min-height: 2.5em;
-  font-size: .8em;
+  font-size: 0.8em;
 }
 
 .calendar-invitation-panel-details-footer:not([hidden]) {
@@ -88,15 +88,14 @@ calendar-invitation-interval {
 }
 
 .calendar-invitation-panel-partstat-breakdown:before {
-  content: "("
+  content: "(";
 }
 
 .calendar-invitation-panel-partstat-breakdown:after {
-  content: ")"
+  content: ")";
 }
 
-.calendar-invitation-panel-partstat-summary +
-.calendar-invitation-panel-partstat-summary {
+.calendar-invitation-panel-partstat-summary + .calendar-invitation-panel-partstat-summary {
   margin-inline-start: 0.5em;
 }
 

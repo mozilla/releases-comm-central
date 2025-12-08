@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
- @import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/colors.css");
 
 dialog {
   border: 1px solid transparent;
@@ -105,8 +105,8 @@ dialog {
 
   & button {
     &:not([disabled]):hover {
-    background-color: var(--dialog-button-background-color-hover);
-    color: var(--dialog-button-text-color-hover);
+      background-color: var(--dialog-button-background-color-hover);
+      color: var(--dialog-button-text-color-hover);
 
       &:active {
         background-color: var(--dialog-button-background-color-active);
@@ -250,13 +250,21 @@ menu.dialog-menu-container {
 /* Loading states */
 
 @keyframes loading-animation {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes loading-animation-rtl {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 span.loading-inline {
@@ -272,7 +280,7 @@ span.loading-inline {
 
   &::after {
     position: absolute;
-    content: '';
+    content: "";
     background-image: url("chrome://messenger/skin/icons/loading.svg");
     background-position: right center;
     background-repeat: no-repeat;

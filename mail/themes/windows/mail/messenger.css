@@ -44,7 +44,7 @@
 
 :root[lwtheme] menubar > menu[disabled="true"] {
   color: inherit;
-  opacity: .4;
+  opacity: 0.4;
 }
 
 /* ::::: Toolbar customization ::::: */
@@ -94,7 +94,6 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
 }
 
 .treecol-sortdirection {
-
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
   }
@@ -211,10 +210,10 @@ button.notification-button[is="toolbarbutton-menu-button"] {
     appearance: none;
   }
 
-  &[disabled=true] .toolbarbutton-icon,
-  &[disabled=true] .toolbarbutton-text,
-  &[disabled=true] > .toolbarbutton-menubutton-dropmarker {
-    opacity: .4;
+  &[disabled="true"] .toolbarbutton-icon,
+  &[disabled="true"] .toolbarbutton-text,
+  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+    opacity: 0.4;
   }
 
   toolbox[labelalign="end"] > toolbar[mode="full"] & .toolbarbutton-text {

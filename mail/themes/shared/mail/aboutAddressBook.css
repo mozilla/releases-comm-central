@@ -94,18 +94,20 @@ body {
   --ab-details-pane-min-width: 500px;
 
   display: grid;
-  grid-template: "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
-                 / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content
-                   minmax(var(--ab-cards-pane-min-width), var(--sharedSplitter-width)) min-content
-                   minmax(var(--ab-details-pane-min-width), 1fr);
+  grid-template:
+    "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
+    / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content
+    minmax(var(--ab-cards-pane-min-width), var(--sharedSplitter-width)) min-content
+    minmax(var(--ab-details-pane-min-width), 1fr);
   text-shadow: none;
   font-size: 1.1rem;
 
   &.layout-table {
-    grid-template: "books booksSplitter cards" minmax(var(--ab-card-min-height), 1fr)
-                   "books booksSplitter sharedSplitter" min-content
-                   "books booksSplitter details" minmax(auto, var(--sharedSplitter-height))
-                   / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--ab-details-pane-min-width), 1fr);
+    grid-template:
+      "books booksSplitter cards" minmax(var(--ab-card-min-height), 1fr)
+      "books booksSplitter sharedSplitter" min-content
+      "books booksSplitter details" minmax(auto, var(--sharedSplitter-height))
+      / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--ab-details-pane-min-width), 1fr);
   }
 }
 
@@ -253,13 +255,21 @@ body {
   }
 
   @keyframes tab-throbber-animation {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 
   @keyframes tab-throbber-animation-rtl {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 }
 
@@ -335,14 +345,12 @@ body {
 }
 
 /* Hide list items for sorting in table view. */
-body.layout-table ~ menupopup#sortContext >
-  :where(menuitem:is([name="sort"], [value="addrbook"]), menuseparator:last-of-type) {
+body.layout-table ~ menupopup#sortContext > :where(menuitem:is([name="sort"], [value="addrbook"]), menuseparator:last-of-type) {
   display: none;
 }
 
 /* Hide address book toggle in the list view if All Address Book is not selected. */
-body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext >
-  menuitem[value="addrbook"] {
+body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext > menuitem[value="addrbook"] {
   display: none;
 }
 
@@ -483,8 +491,9 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 
   &:not([hidden]) {
     display: grid;
-    grid-template: "scroll-content" 1fr
-                   "footer" auto / 1fr;
+    grid-template:
+      "scroll-content" 1fr
+      "footer" auto / 1fr;
   }
 
   &.collapsed-by-splitter {
@@ -497,7 +506,7 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
     color: var(--layout-color-0);
     box-shadow: 0 2px 6px -5px #000;
 
-    @media(forced-colors) {
+    @media (forced-colors) {
       background-color: Canvas;
       color: CanvasText;
     }
@@ -595,7 +604,7 @@ body:not(.is-editing) #editContactForm {
   -moz-context-properties: stroke;
   stroke: color-mix(in srgb, transparent 50%, var(--recipient-avatar-color));
 
-  @media(forced-colors) {
+  @media (forced-colors) {
     --recipient-avatar-color: Canvas;
   }
 }
@@ -756,7 +765,7 @@ body:not(.is-editing) #editContactForm {
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
-  opacity: .85;
+  opacity: 0.85;
 }
 
 .entry-value {
@@ -808,7 +817,10 @@ section#selectedCards {
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    transition: color .15s, background-color .15s, border-color .15s;
+    transition:
+      color 0.15s,
+      background-color 0.15s,
+      border-color 0.15s;
   }
 }
 

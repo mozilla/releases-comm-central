@@ -5,7 +5,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 menulist {
-
   & > html|input {
     margin: 0;
   }

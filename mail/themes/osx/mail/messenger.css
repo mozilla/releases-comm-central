@@ -116,24 +116,21 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   }
 
   &[disabled="true"] .toolbarbutton-text,
-  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
-    > .toolbarbutton-icon {
-    opacity: .4;
+  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+    opacity: 0.4;
   }
 
   &[disabled="true"] .toolbarbutton-icon,
-  &[is="toolbarbutton-menu-button"]
-    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
+  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
   &[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
   &:not(:hover):-moz-window-inactive .toolbarbutton-icon,
   &:not(:hover):-moz-window-inactive > .toolbarbutton-menubutton-dropmarker {
-    opacity: .5;
+    opacity: 0.5;
   }
 
   &:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
-  &:-moz-window-inactive[is="toolbarbutton-menu-button"]
-    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
-    opacity: .25;
+  &:-moz-window-inactive[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+    opacity: 0.25;
   }
 }
 
@@ -197,7 +194,7 @@ toolbarbutton > menupopup menu:-moz-locale-dir(rtl)::after {
   fill-opacity: 1;
 
   &[disabled="true"] {
-    fill-opacity: .5;
+    fill-opacity: 0.5;
   }
 }
 
@@ -244,7 +241,6 @@ treechildren::-moz-tree-line(selected, focus) {
 }
 
 .treecol-sortdirection {
-
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
   }
@@ -316,7 +312,7 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
 
 /* Status bar */
 
-:root[lwtheme] #status-bar  {
+:root[lwtheme] #status-bar {
   padding-top: 1px;
 }
 
@@ -350,14 +346,14 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
   &:-moz-locale-dir(ltr):not([mirror]),
   &:-moz-locale-dir(rtl)[mirror] {
     border-right-style: solid;
-    border-top-right-radius: .3em;
+    border-top-right-radius: 0.3em;
     margin-right: 1em;
   }
 
   &:-moz-locale-dir(rtl):not([mirror]),
   &:-moz-locale-dir(ltr)[mirror] {
     border-left-style: solid;
-    border-top-left-radius: .3em;
+    border-top-left-radius: 0.3em;
     margin-left: 1em;
   }
 }

@@ -65,7 +65,6 @@
 }
 
 :is(ul, ol)[role="tree"] {
-
   & .container {
     display: flex;
     align-items: center;
@@ -89,7 +88,10 @@
           stroke var(--transition-duration) var(--transition-timing);
 
         &::before {
-          transition: transform 200ms ease, background-color 300ms ease, border-color 300ms ease;
+          transition:
+            transform 200ms ease,
+            background-color 300ms ease,
+            border-color 300ms ease;
         }
       }
     }
@@ -153,8 +155,8 @@
     }
 
     li.children.collapsed > & .twisty-icon {
-        transform: rotate(-90deg);
-      }
+      transform: rotate(-90deg);
+    }
 
     li.children.collapsed:dir(rtl) > & .twisty-icon {
       transform: rotate(90deg);

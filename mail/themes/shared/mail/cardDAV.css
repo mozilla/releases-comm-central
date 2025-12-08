@@ -9,13 +9,13 @@
   padding: 3px 4px;
   color: var(--text-color);
 
-  &[status=error] {
+  &[status="error"] {
     background-color: #ffe900;
     border-color: #f2d00f;
     color: var(--color-ink-90);
   }
 
-  &[status=loading] {
+  &[status="loading"] {
     background-color: rgba(0, 0, 0, 0.05);
     border-color: rgba(0, 0, 0, 0.1);
   }

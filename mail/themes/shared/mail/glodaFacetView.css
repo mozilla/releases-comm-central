@@ -80,7 +80,7 @@ body {
   border: 1px solid var(--arrowpanel-border-color);
   border-radius: 8px;
   background-color: var(--arrowpanel-background);
-  box-shadow: 0 0 4px hsla(210, 4%, 10%, .2);
+  box-shadow: 0 0 4px hsla(210, 4%, 10%, 0.2);
 
   &[variety="remainder"] .undo {
     display: none;
@@ -489,7 +489,10 @@ facet-boolean[disabled] {
 
   &:hover {
     border-color: lightgrey;
-    box-shadow: 0 0 1px lightgrey inset, 0 0 1px lightgrey inset, 0 0 1px lightgrey inset;
+    box-shadow:
+      0 0 1px lightgrey inset,
+      0 0 1px lightgrey inset,
+      0 0 1px lightgrey inset;
 
     & .message-subject {
       color: var(--selected-item-color);
@@ -654,7 +657,6 @@ facet-boolean[disabled] {
 }
 
 .empty {
-
   div& {
     display: none;
   }

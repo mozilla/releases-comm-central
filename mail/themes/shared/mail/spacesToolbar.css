@@ -26,7 +26,7 @@
     --spaces-border-color: var(--splitter-color);
   }
 
-/* Density variations */
+  /* Density variations */
 
   --messenger-body-border: 1px;
   --spaces-icon-size: 20px;
@@ -164,15 +164,23 @@
   }
 
   .spaces-toolbar-button {
-    transition: background-color 280ms ease, opacity 280ms ease, color 280ms;
+    transition:
+      background-color 280ms ease,
+      opacity 280ms ease,
+      color 280ms;
 
     & > img {
-      transition: fill 280ms ease, stroke 280ms ease, opacity 280ms ease;
+      transition:
+        fill 280ms ease,
+        stroke 280ms ease,
+        opacity 280ms ease;
     }
   }
 
   .spaces-toolbar-pinned-button {
-    transition: background-color 280ms ease, box-shadow 280ms ease;
+    transition:
+      background-color 280ms ease,
+      box-shadow 280ms ease;
   }
 }
 
@@ -186,7 +194,7 @@
 }
 
 .spaces-popup-menuitem.current > .menu-icon:before {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   inset-block: 0;

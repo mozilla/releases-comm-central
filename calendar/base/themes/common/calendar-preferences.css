@@ -18,7 +18,7 @@
 
 #default_task_start,
 #default_task_due {
-  width: calc(100% - 16px);  /* 16px is the sum of the element margins. */
+  width: calc(100% - 16px); /* 16px is the sum of the element margins. */
 }
 
 #defaultsnoozelength {

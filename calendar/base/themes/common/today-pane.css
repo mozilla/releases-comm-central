@@ -3,11 +3,24 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root[lwt-tree-brighttext] #today-pane-panel {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
-  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
+  --toolbarbutton-hover-background: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.25)
+  );
+  --toolbarbutton-hover-bordercolor: var(
+    --lwt-toolbarbutton-hover-background,
+    rgba(255, 255, 255, 0.5)
+  );
+  --toolbarbutton-active-background: var(
+    --lwt-toolbarbutton-active-background,
+    rgba(255, 255, 255, 0.4)
+  );
+  --toolbarbutton-active-bordercolor: var(
+    --lwt-toolbarbutton-active-background,
+    rgba(255, 255, 255, 0.7)
+  );
+  --toolbarbutton-active-boxshadow: 0 0 0 1px
+    var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, 0.4)) inset;
 }
 
 .today-subpane {
@@ -104,8 +117,7 @@
 }
 
 :root[lwt-tree-brighttext] #today-pane-panel > vbox {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.05),
-                                    rgba(255, 255, 255, 0.05));
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
 
 :root[lwt-tree] #agenda-panel > modebox {
@@ -121,7 +133,12 @@
 }
 
 #weekdayNameLabel {
-  font-family: Trebuchet MS, Lucida Grande, Arial, Helvetica, sans-serif;
+  font-family:
+    Trebuchet MS,
+    Lucida Grande,
+    Arial,
+    Helvetica,
+    sans-serif;
   padding-top: 4px;
   font-weight: bold;
   font-size: 18px;
@@ -132,7 +149,12 @@
 }
 
 .dateValue {
-  font-family: Arial, Helvetica, Trebuchet MS, Lucida Grande, sans-serif;
+  font-family:
+    Arial,
+    Helvetica,
+    Trebuchet MS,
+    Lucida Grande,
+    sans-serif;
   margin-top: initial;
   margin-bottom: initial;
   font-size: 36px;
@@ -155,7 +177,7 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 
   &[disabled] {
-    opacity: .3;
+    opacity: 0.3;
   }
 
   & > .toolbarbutton-icon {
@@ -261,7 +283,7 @@
   }
 
   & > .toolbarbutton-text {
-   padding-inline-start: 5px;
+    padding-inline-start: 5px;
   }
 }
 
@@ -312,12 +334,12 @@
 }
 
 :root[lwt-tree] #agenda {
-  --selected-background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+  --selected-background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   --selected-foreground: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] #agenda {
-  --selected-background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+  --selected-background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }
 
 .agenda-date-header,

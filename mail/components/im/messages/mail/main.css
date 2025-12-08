@@ -85,7 +85,7 @@
 .ib-sender.message-encrypted::before {
   position: relative;
   display: inline-block;
-  content: '';
+  content: "";
   width: 11px;
   height: 11px;
   opacity: 0.5;
@@ -142,7 +142,7 @@ p *:any-link img {
   opacity: 1;
 }
 
-.hide-children > :is(.event-row,hr):not(:first-of-type,:last-of-type,.no-collapse) {
+.hide-children > :is(.event-row, hr):not(:first-of-type, :last-of-type, .no-collapse) {
   display: none;
 }
 

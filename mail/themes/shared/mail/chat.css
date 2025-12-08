@@ -36,7 +36,7 @@
   -moz-context-properties: fill;
   fill: currentColor;
   background-size: 3em;
-  margin-inline: .5em;
+  margin-inline: 0.5em;
   padding-inline: 4.5em;
 
   &:-moz-locale-dir(rtl) {
@@ -45,7 +45,7 @@
 }
 
 .im-placeholder-innerbox {
-  opacity: .8;
+  opacity: 0.8;
 }
 
 .im-placeholder-title {
@@ -53,8 +53,8 @@
   font-weight: lighter;
   line-height: 1.2;
   margin: 0;
-  margin-bottom: .5em;
-  padding-bottom: .4em;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.4em;
   border-bottom: 1px solid var(--splitter-color);
 }
 
@@ -106,12 +106,12 @@
 
   /* move the scrollbar to the left */
   &:-moz-locale-dir(ltr),
-  &:-moz-locale-dir(rtl) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
+  &:-moz-locale-dir(rtl) > richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
     direction: rtl;
   }
 
   &:-moz-locale-dir(rtl),
-  &:-moz-locale-dir(ltr) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
+  &:-moz-locale-dir(ltr) > richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
     direction: ltr;
   }
 }
@@ -174,11 +174,11 @@ richlistitem[is="chat-contact-richlistitem"] {
   align-items: center;
 }
 
-richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
+richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
   pointer-events: auto;
 }
 
-richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
+richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -188,22 +188,24 @@ richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"]
   color: var(--sidebar-text-color);
 }
 
-richlistitem[is="chat-imconv-richlistitem"][selected=true],
-richlistitem[is="chat-contact-richlistitem"][selected=true] {
+richlistitem[is="chat-imconv-richlistitem"][selected="true"],
+richlistitem[is="chat-contact-richlistitem"][selected="true"] {
   background-color: var(--imbox-selected-background-color) !important;
   border-color: var(--splitter-color) !important;
   color: var(--imbox-selected-text-color) !important;
 }
 
 :root[lwt-tree] richlistitem[is="chat-group-richlistitem"][selected],
-:root[lwt-tree] richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
-  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+:root[lwt-tree]
+  richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
+  background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] richlistitem[is="chat-group-richlistitem"][selected],
-:root[lwt-tree-brighttext] richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
-  background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+:root[lwt-tree-brighttext]
+  richlistitem:is([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected="true"]):hover {
+  background-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }
 
 richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButton {
@@ -223,7 +225,7 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   width: 2px;
   height: 100%;
 
-  &[selected=true] {
+  &[selected="true"] {
     background-color: var(--tabline-color);
   }
 
@@ -635,7 +637,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in;
+  transition: border-width 0.3s ease-in;
 }
 
 #listSplitter {
@@ -723,7 +725,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   width: 15em;
 }
 
-#statusMessageLabel:not([statusType="offline"],[disabled]) {
+#statusMessageLabel:not([statusType="offline"], [disabled]) {
   cursor: text;
 }
 
@@ -836,7 +838,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 :root[lwt-tree] .conv-nicklist > richlistitem[selected="true"],
 :root[lwt-tree] .conv-nicklist:focus > richlistitem[current="true"],
 :root[lwt-tree] .conv-nicklist:focus > richlistitem[selected="true"] {
-  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
+  background-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.3));
   background-image: none;
   border-color: var(--sidebar-border-color);
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
@@ -845,13 +847,13 @@ richlistitem:not([selected]) .protoIconDimmed {
 :root[lwt-tree-brighttext] .conv-nicklist > richlistitem[selected="true"],
 :root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[current="true"],
 :root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[selected="true"] {
-  background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
+  background-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
+  border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.1));
 }
 
 :root[lwt-tree] #nicklist > richlistitem[inactive]:not([selected]) > label {
   color: var(--sidebar-text-color) !important;
-  opacity: .55;
+  opacity: 0.55;
 }
 
 :root[lwt-tree] #nicklist > richlistitem[inactive][selected] > label,
@@ -885,7 +887,6 @@ richlistitem:not([selected]) .protoIconDimmed {
   }
 }
 
-
 /* Chat Toolbar button. */
 toolbar[mode="text"] #button-chat {
   flex-direction: row;
@@ -897,7 +898,11 @@ toolbar[mode="text"] #button-chat {
   border-radius: 1em;
   box-shadow: 1px 1px 1px black;
   color: white;
-  font: xx-small Helvetica, Verdana, Tahoma, sans-serif;
+  font:
+    xx-small Helvetica,
+    Verdana,
+    Tahoma,
+    sans-serif;
   height: -moz-fit-content;
   min-width: 1em;
   text-align: center;

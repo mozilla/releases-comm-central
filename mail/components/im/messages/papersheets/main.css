@@ -31,7 +31,7 @@ div.event {
   background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
 }
 
-div.context+div.event {
+div.context + div.event {
   background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
 }
 
@@ -82,11 +82,11 @@ span.pseudo {
 }
 
 p.outgoing > span.pseudo {
-  color: rgb(80,80,200);
+  color: rgb(80, 80, 200);
 }
 
 p.incoming > span.pseudo {
-  color: rgb(200,80,80);
+  color: rgb(200, 80, 80);
 }
 
 p.nick > span.message-style {
@@ -104,7 +104,7 @@ p.action > span.message-style::before {
 p.event {
   margin-left: 0;
   min-height: 16px;
-  background: url('Bitmaps/information.png') no-repeat top left;
+  background: url("Bitmaps/information.png") no-repeat top left;
 }
 
 p.event > span.message-style {
@@ -127,7 +127,7 @@ p *:any-link img {
 .ib-sender.message-encrypted::after {
   position: relative;
   display: inline-block;
-  content: '';
+  content: "";
   width: 11px;
   height: 11px;
   opacity: 0.7;
@@ -157,11 +157,11 @@ p *:any-link img {
   height: 9px;
   width: 9px;
   cursor: pointer;
-  background: url('Bitmaps/minus.png') no-repeat left top;
+  background: url("Bitmaps/minus.png") no-repeat left top;
 }
 
 .hide-children > .eventToggle {
-  background-image: url('Bitmaps/plus.png');
+  background-image: url("Bitmaps/plus.png");
 }
 
 .hide-children > p.event:first-of-type > .message-style::after {
@@ -171,7 +171,7 @@ p *:any-link img {
   font-size: smaller;
 }
 
-.hide-children > p.event:not(:first-of-type,:last-of-type) {
+.hide-children > p.event:not(:first-of-type, :last-of-type) {
   display: none;
 }
 

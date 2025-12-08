@@ -12,9 +12,9 @@ td > input {
   width: -moz-available;
 }
 
-#cookiesList{
-   min-height: 10em;
-   flex: 1 1 0;
+#cookiesList {
+  min-height: 10em;
+  flex: 1 1 0;
 }
 
 #filter {

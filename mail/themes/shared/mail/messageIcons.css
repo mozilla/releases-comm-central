@@ -125,7 +125,7 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
   -moz-context-properties: stroke, fill, fill-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  fill-opacity: .25;
+  fill-opacity: 0.25;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
@@ -353,7 +353,7 @@ treechildren::-moz-tree-image(subjectCol, selected, focus) {
 
 treechildren::-moz-tree-image(subjectCol, dummy),
 treechildren::-moz-tree-image(flaggedCol, dummy),
-treechildren::-moz-tree-image(junkStatusCol, dummy) ,
+treechildren::-moz-tree-image(junkStatusCol, dummy),
 treechildren::-moz-tree-image(correspondentCol, dummy),
 treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
   list-style-image: none !important;

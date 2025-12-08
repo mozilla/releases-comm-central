@@ -187,7 +187,7 @@
   }
 
   & .chat .button-icon {
-    content: var(--icon-chat)
+    content: var(--icon-chat);
   }
 
   & .add-ons-and-themes .button-icon {
@@ -199,7 +199,7 @@
   }
 
   & .tasks .button-icon {
-    content: var(--icon-tasks)
+    content: var(--icon-tasks);
   }
 
   & .mail .button-icon {
@@ -294,7 +294,9 @@
   }
 
   @keyframes activity-indicator-throbber {
-    100% { object-position: -480px 0; }
+    100% {
+      object-position: -480px 0;
+    }
   }
 }
 

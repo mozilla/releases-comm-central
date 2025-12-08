@@ -35,7 +35,7 @@ tabpanels {
 
 #tabmail-arrowscrollbox {
   &[overflow="true"] > .tabmail-tab:first-child::before {
-    content: '';
+    content: "";
     display: flex;
     margin-inline-start: 0;
   }
@@ -51,7 +51,7 @@ tabpanels {
 
   &[scrolledtostart]::part(scrollbutton-up),
   &[scrolledtoend]::part(scrollbutton-down) {
-    --toolbarbutton-icon-fill-opacity: .4;
+    --toolbarbutton-icon-fill-opacity: 0.4;
   }
 
   &:-moz-locale-dir(rtl)::part(scrollbutton-up),

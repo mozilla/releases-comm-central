@@ -212,16 +212,27 @@
 
 @media (prefers-reduced-motion: no-preference) {
   @keyframes hiding-animation {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
   @keyframes showing-animation {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   .drop-attachment-box {
-    transition: color 120ms ease, background-color 120ms ease, border 120ms ease;
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      border 120ms ease;
   }
 
   .drop-attachment-box span {
@@ -235,12 +246,20 @@
   * need the timing for the animationend JavaScript event.
   */
   @keyframes hiding-animation {
-    0% { opacity: 1; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
   }
   @keyframes showing-animation {
-    0% { opacity: 1; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 }
 
@@ -343,13 +362,14 @@
   margin-inline: -3px;
   padding-inline: 3px;
   display: grid;
-  grid-template: "contacts contacts-splitter headers" minmax(auto, var(--headersSplitter-height))
-                 "contacts contacts-splitter format-toolbar" min-content
-                 "contacts contacts-splitter headers-splitter" min-content
-                 "contacts contacts-splitter message" minmax(33%, 1fr)
-                 "contacts contacts-splitter attachment-splitter" min-content
-                 "contacts contacts-splitter attachment-area" min-content
-                 / minmax(auto, var(--contactsSplitter-width)) min-content minmax(auto, 1fr);
+  grid-template:
+    "contacts contacts-splitter headers" minmax(auto, var(--headersSplitter-height))
+    "contacts contacts-splitter format-toolbar" min-content
+    "contacts contacts-splitter headers-splitter" min-content
+    "contacts contacts-splitter message" minmax(33%, 1fr)
+    "contacts contacts-splitter attachment-splitter" min-content
+    "contacts contacts-splitter attachment-area" min-content
+    / minmax(auto, var(--contactsSplitter-width)) min-content minmax(auto, 1fr);
   /* If the splitter is not used, the header and attachment areas will try and
    * grow to their content size. */
   --headersSplitter-height: min-content;
@@ -441,8 +461,7 @@
     height: 30px;
     text-shadow: none;
     background-color: -moz-Dialog;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.05),
-                                      rgba(0, 0, 0, 0.05));
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
     color: -moz-dialogText;
     border-bottom: 1px solid var(--lwt-tabs-border-color);
 
@@ -453,8 +472,7 @@
     }
 
     :root[lwt-tree-brighttext] & {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.05),
-                                        rgba(255, 255, 255, 0.05));
+      background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
     }
   }
 
@@ -605,10 +623,10 @@
     }
 
     &::part(label-box) {
-     text-shadow: none;
+      text-shadow: none;
     }
 
-    &:not([disabled="true"],[open="true"]):hover {
+    &:not([disabled="true"], [open="true"]):hover {
       background: var(--toolbarbutton-hover-background);
     }
 
@@ -658,13 +676,13 @@ toolbarbutton.formatting-button {
       box-shadow: var(--toolbarbutton-hover-boxshadow);
     }
 
-    &:is([open="true"],[checked="true"],:hover:active) {
+    &:is([open="true"], [checked="true"], :hover:active) {
       background-color: var(--toolbarbutton-checked-background);
       border-color: var(--toolbarbutton-active-bordercolor);
       box-shadow: var(--toolbarbutton-active-boxshadow);
     }
 
-    &:is([open="true"],:hover:active) {
+    &:is([open="true"], :hover:active) {
       background-color: var(--toolbarbutton-active-background) !important;
     }
   }
@@ -800,7 +818,10 @@ toolbarbutton.formatting-button {
   border: 1px solid transparent;
   border-radius: var(--button-border-radius);
   background-color: transparent;
-  transition: border .2s, box-shadow .2s, background-color .2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
 
   /* XUL element needs the full [disabled="true"] attribute. */
   &[disabled="true"] {
@@ -866,7 +887,7 @@ toolbarbutton.formatting-button {
 
 #extraAddressRowsArea.addressingWidget-separator::before {
   display: block;
-  content: '';
+  content: "";
   width: 1px;
   border-inline-start: 1px solid var(--toolbarbutton-hover-bordercolor);
   height: 14px;
@@ -883,7 +904,7 @@ toolbarbutton.formatting-button {
   &[is="menulist-editable"]::part(label-box)::before {
     display: block;
     position: relative;
-    content: '';
+    content: "";
     width: 6px;
     height: 6px;
     border-radius: 3px;
@@ -897,7 +918,7 @@ toolbarbutton.formatting-button {
     &::before {
       display: block;
       position: relative;
-      content: '';
+      content: "";
       width: 6px;
       height: 6px;
       border-radius: 3px;
@@ -934,7 +955,9 @@ toolbarbutton.formatting-button {
   border-radius: var(--button-border-radius);
   padding-block: 0;
   padding-inline: 4px 2px;
-  transition: border .2s, box-shadow .2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
 
   &.with-icon {
     padding-inline-start: 25px;
@@ -979,7 +1002,7 @@ toolbarbutton.formatting-button {
   }
 
   & > .aw-firstColBox {
-    transition: opacity .2s ease;
+    transition: opacity 0.2s ease;
     opacity: 0;
     flex: 0 0 auto;
     align-self: center;
@@ -1003,7 +1026,9 @@ toolbarbutton.formatting-button {
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--button-border-radius);
   background-color: Field;
-  transition: border .2s, box-shadow .2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
 
   :root[lwt-tree] & {
     background-color: var(--toolbar-field-background-color);
@@ -1051,9 +1076,12 @@ toolbarbutton.formatting-button {
   margin-inline-end: 3px;
   margin-block: 2px;
   padding-inline: 7px;
-  background-color: rgba(0,0,0,0.1);
-  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease,
-    text-shadow .2s ease;
+  background-color: rgba(0, 0, 0, 0.1);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    text-shadow 0.2s ease;
   -moz-user-focus: normal;
   cursor: default;
   box-shadow: inset 0 0 0 1px transparent;
@@ -1068,14 +1096,14 @@ toolbarbutton.formatting-button {
 
   &::before {
     display: block;
-    content: '';
+    content: "";
     position: relative;
     width: 3px;
     background-color: var(--focus-outline-color);
     height: 15px;
     border-radius: 2px;
     margin-inline: -10px 5px;
-    transition: all .2s ease;
+    transition: all 0.2s ease;
     transform: scaleY(0);
   }
 
@@ -1087,23 +1115,27 @@ toolbarbutton.formatting-button {
   }
 
   &:where(:hover, :focus):not(.editing) {
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3),
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.3),
       inset 0 0 0 2em rgba(0, 0, 0, 0.1);
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.3),
         inset 0 0 0 2em rgba(255, 255, 255, 0.1);
     }
   }
 
   &[selected]:where(:hover, :focus):not(.editing) {
-    box-shadow: 0 1px 5px -2px var(--focus-outline-color),
+    box-shadow:
+      0 1px 5px -2px var(--focus-outline-color),
       inset 0 0 0 1px rgba(0, 0, 0, 0.3),
       inset 0 0 0 2em rgba(0, 0, 0, 0.15);
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 1px 5px -2px var(--focus-outline-color),
+      box-shadow:
+        0 1px 5px -2px var(--focus-outline-color),
         inset 0 0 0 1px rgba(255, 255, 255, 0.3),
         inset 0 0 0 2em rgba(0, 0, 0, 0.2);
       text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
@@ -1180,7 +1212,9 @@ toolbarbutton.formatting-button {
   width: 8px;
   margin-inline-end: -8px;
   margin-bottom: 1em;
-  transition: fill .2s ease, stroke .2s ease;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
 
   :root[lwt-tree] & {
     stroke: var(--toolbar-field-background-color);
@@ -1230,11 +1264,7 @@ button.recipient-button {
   margin: 0;
 }
 
-button:is(
-  #extraAddressRowsMenuButton,
-  .remove-field-button,
-  .recipient-button
-):focus-visible {
+button:is(#extraAddressRowsMenuButton, .remove-field-button, .recipient-button):focus-visible {
   outline: 2px solid var(--focus-outline-color);
 }
 

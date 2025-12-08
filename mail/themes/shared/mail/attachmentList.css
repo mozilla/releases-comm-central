@@ -103,8 +103,7 @@
     outline: 1px solid;
 
     &[selected="true"] {
-      border-color: var(--sidebar-highlight-border-color,
-                        var(--item-focus-selected-border-color));
+      border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
     }
   }
 

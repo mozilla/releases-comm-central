@@ -57,11 +57,11 @@
   margin: 10px;
   position: relative;
   z-index: 10;
-  transition: border-width .3s ease-in;
+  transition: border-width 0.3s ease-in;
 }
 
 .item-summary-splitter[state="collapsed"] {
-  transition: border-color .3s;
+  transition: border-color 0.3s;
 }
 
 .item-summary-splitter[state="collapsed"]:hover {

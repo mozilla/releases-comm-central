@@ -29,11 +29,14 @@ html|label {
   /* Make a white reflecting animation.
      Create a gradient with 2 identical pattern, and enlarge the size to 200%.
      This allows us to animate background-position with percentage. */
-  background-image: linear-gradient(90deg, transparent 0%,
-                                           rgba(255, 255, 255, 0.5) 25%,
-                                           transparent 50%,
-                                           rgba(255, 255, 255, 0.5) 75%,
-                                           transparent 100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 100%
+  );
   background-size: 200% 100%;
 }
 

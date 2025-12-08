@@ -14,7 +14,7 @@
 }
 
 .today-closebutton > .toolbarbutton-text {
-   display: none;
+  display: none;
 }
 
 .monthlabel {
@@ -22,7 +22,7 @@
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 #todaypane-new-event-button > .toolbarbutton-text {

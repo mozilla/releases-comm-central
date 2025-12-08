@@ -36,7 +36,7 @@ dialog {
   --hub-account-secondary-button-border: var(--color-surface-border);
   --hub-account-secondary-button-border-active: var(--color-surface-border-intense);
   --hub-account-button-outline-focus: var(--color-primary-hover);
-  --hub-account-button-hover-active-color:  light-dark(var(--color-surface-border), var(--color-surface-lower));
+  --hub-account-button-hover-active-color: light-dark(var(--color-surface-border), var(--color-surface-lower));
   --hub-account-footer-link-color: var(--color-primary-default);
   --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
   --hub-divider-color: var(--color-surface-base);
@@ -50,7 +50,7 @@ dialog {
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
   --hub-close-button-color: light-dark(#18181b, #eeeef0);
   --hub-close-button-hover-background: var(--color-surface-subtle);
-  --hub-close-button-active-background:var(--color-text-muted);
+  --hub-close-button-active-background: var(--color-text-muted);
   --hub-close-button-focus-background: var(--color-surface-subtle);
   --hub-close-button-focus-outline-color: var(--color-surface-border-intense);
 
@@ -87,7 +87,7 @@ dialog {
 
   &::after {
     --hub-blur-radius: 15px;
-    content: '';
+    content: "";
     position: absolute;
     inset-block-end: -2px;
     inset-inline: calc(2 * var(--hub-blur-radius) + 5px);
@@ -250,22 +250,16 @@ dialog {
   position: relative;
   height: var(--hub-loader-size);
   aspect-ratio: 1;
-  background-image: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    var(--hub-loader-color) 360deg,
-    transparent var(--hub-trail-offset)
-  );
+  background-image: conic-gradient(from 0deg, transparent 0deg, var(--hub-loader-color) 360deg, transparent var(--hub-trail-offset));
   border-radius: 50%;
   pointer-events: none;
-
 
   @media (prefers-reduced-motion: no-preference) {
     animation: 1.1s cubic-bezier(0.61, 0.12, 0, 0.99) 0s infinite hub-loader-loading;
   }
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: var(--hub-loader-width);
     height: calc(var(--hub-loader-size) - 2 * var(--hub-loader-width));
@@ -281,7 +275,7 @@ dialog {
     border-radius: 50%;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       height: var(--hub-loader-width);
       aspect-ratio: 1;
@@ -544,7 +538,7 @@ header {
   border-inline-end: 1px solid var(--hub-account-button-border-color);
   overflow-y: auto;
   margin-block: 20px;
-  padding-inline: 20px
+  padding-inline: 20px;
 }
 
 .hub-body-grid {
@@ -569,24 +563,30 @@ header {
   color: var(--hub-button-color);
   background-color: var(--hub-account-button-background);
   border: 1px solid var(--hub-account-button-border-color);
-  box-shadow: 0 4px 6px -6px rgba(0, 0, 0, 0.3), inset 0 0 0 transparent;
+  box-shadow:
+    0 4px 6px -6px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 transparent;
 }
 
 .button-account:hover {
   color: var(--hub-button-color) !important;
   background-color: var(--hub-account-button-background-hover) !important;
-  box-shadow: 0 8px 12px -8px rgba(0, 0, 0, 0.3), inset 0 0 0 transparent;
+  box-shadow:
+    0 8px 12px -8px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 transparent;
 }
 
 .button-account:hover:active {
   color: var(--hub-button-color) !important;
   background-color: var(--hub-account-button-background-hover-active) !important;
-  box-shadow: 0 0 0 transparent, inset 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 0 transparent,
+    inset 0 4px 6px -2px rgba(0, 0, 0, 0.4);
 }
 
 .button-account::before {
   display: block;
-  content: '';
+  content: "";
   width: 24px;
   height: 24px;
   -moz-context-properties: fill, stroke;
@@ -663,7 +663,7 @@ header {
 }
 
 #hubSyncButton::after {
-  content: '';
+  content: "";
   position: absolute;
   background: var(--color-blue-50);
   background-image: linear-gradient(127deg, var(--color-teal-50), var(--color-magenta-50));
@@ -843,7 +843,7 @@ header {
     background-image: var(--success-illustration);
     background-size: cover;
     width: var(--hub-success-hub-illustration-width);
-    height: var(--hub-success-hub-illustration-height)
+    height: var(--hub-success-hub-illustration-height);
   }
 
   & .account-hub-success-links-title {
@@ -870,7 +870,9 @@ header {
 
 @media (prefers-reduced-motion: no-preference) {
   .button-account {
-    transition: background 220ms ease, box-shadow 200ms ease;
+    transition:
+      background 220ms ease,
+      box-shadow 200ms ease;
   }
 
   #hubSyncButton {
@@ -878,6 +880,8 @@ header {
   }
 
   #hubSyncButton::after {
-    transition: transform 200ms ease, filter 200ms ease;
+    transition:
+      transform 200ms ease,
+      filter 200ms ease;
   }
 }

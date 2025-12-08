@@ -156,7 +156,6 @@ tab[selected] {
   border-bottom-color: var(--in-content-accent-color);
 }
 
-
 input[type="search"] {
   padding-inline: 30px 6px;
   background-image: var(--icon-search);

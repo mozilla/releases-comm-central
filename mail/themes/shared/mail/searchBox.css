@@ -112,7 +112,7 @@ input::-moz-search-clear-button {
   margin-bottom: 2px;
 }
 
-.ac-url:not([selected=true]) > .ac-url-text {
+.ac-url:not([selected="true"]) > .ac-url-text {
   color: var(--autocomplete-popup-url-color);
 }
 
