@@ -22,7 +22,8 @@ const folderTypes = [
   { flag: Ci.nsMsgFolderFlags.Trash, name: "Trash", type: "trash" },
   // { flag: Ci.nsMsgFolderFlags.Queue, name: "Outbox", type: "outbox" },
 ];
-const allFlags = folderTypes.reduce((all, cur) => all | cur.flag, 0);
+const allSpecialFolderFlags =
+  Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual;
 
 class SmartMailbox {
   #tagsFolder = null;
@@ -174,9 +175,9 @@ class SmartMailbox {
         }
 
         for (const sf of subFolders) {
-          // Add all of the subfolders except the ones that belong to
+          // Add all real subfolders except the ones that belong to
           // a different folder type.
-          if (!(sf.flags & allFlags)) {
+          if (!(sf.flags & allSpecialFolderFlags)) {
             searchFolders.push(sf);
             recurse(sf);
           }
