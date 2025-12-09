@@ -90,6 +90,11 @@ add_task(async function test_account_oauth_imap_account() {
     Ci.nsMsgAuthMethod.OAuth2,
     "Should use OAuth as auth method"
   );
+
+  // Creating an account with no address books and calendars should lead to
+  // the success view.
+  const successStep = dialog.querySelector("email-added-success");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
   Assert.ok(
     dialog.querySelector("account-hub-email:not(.busy)"),
     "Should no longer be loading"
@@ -103,10 +108,7 @@ add_task(async function test_account_oauth_imap_account() {
   oauthSmtp.close();
   OAuth2TestUtils.forgetObjects();
   Services.logins.removeAllLogins();
-  await subtest_close_account_hub_dialog(
-    dialog,
-    dialog.querySelector("email-sync-accounts-form")
-  );
+  await subtest_close_account_hub_dialog(dialog, successStep);
 });
 
 add_task(async function test_account_oauth_cancel() {

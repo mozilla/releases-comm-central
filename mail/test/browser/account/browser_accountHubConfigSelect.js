@@ -126,6 +126,11 @@ add_task(async function test_choosing_pop3_account_creation() {
     "The new account created should be a POP3 account"
   );
 
+  // Creating an account with no address books and calendars should lead to
+  // the success view.
+  const successStep = dialog.querySelector("email-added-success");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
+
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(popAccount);
   Services.logins.removeAllLogins();
@@ -133,8 +138,5 @@ add_task(async function test_choosing_pop3_account_creation() {
   pop3Server.close();
   IMAPServer.close();
   SMTPServer.close();
-  await subtest_close_account_hub_dialog(
-    dialog,
-    dialog.querySelector("email-sync-accounts-form")
-  );
+  await subtest_close_account_hub_dialog(dialog, successStep);
 });

@@ -42,6 +42,8 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-f
 
 class AuthenticationRequiredError extends Error {}
 
+class UserSkippedError extends Error {}
+
 class AccountHubEmail extends HTMLElement {
   /**
    * Email config footer.
@@ -232,9 +234,10 @@ class AccountHubEmail extends HTMLElement {
     emailSyncAccountsSubview: {
       id: "emailSyncAccountsSubview",
       nextStep: "emailAddedSuccessSubview",
-      previousStep: "",
+      previousStep: "emailAddedSuccessSubview",
       forwardEnabled: true,
       customActionFluentID: "",
+      customBackFluentID: "account-hub-email-skip-button",
       subview: {},
       templateId: "email-sync-accounts-form",
     },
@@ -401,7 +404,7 @@ class AccountHubEmail extends HTMLElement {
       // We don't clear the abortable here because we need to check if the
       // abortable has aborted when using an AbortController. It is cleared
       // after the check.
-      this.abortable.abort();
+      this.abortable.abort(new UserSkippedError());
     }
 
     this.#stopLoading();
@@ -515,6 +518,7 @@ class AccountHubEmail extends HTMLElement {
     this.classList.add("busy");
     this.#states[this.#currentState].subview.disabled = true;
     this.#emailFooter.disabled = true;
+
     this.#loadingTimeout = setTimeout(() => {
       this.classList.add("spinner");
       this.#loadingTimeout = null;
@@ -529,11 +533,11 @@ class AccountHubEmail extends HTMLElement {
     this.#clearNotifications();
     this.#states[this.#currentState].subview.disabled = false;
     this.#emailFooter.disabled = false;
-    this.classList.remove("busy", "spinner");
     if (this.#loadingTimeout) {
       clearTimeout(this.#loadingTimeout);
       this.#loadingTimeout = null;
     }
+    this.classList.remove("busy", "spinner");
   }
 
   /**
@@ -957,6 +961,13 @@ class AccountHubEmail extends HTMLElement {
       case "incomingConfigSubview":
         if (stateData.config.incoming.type == "ews") {
           await this.#validateAccountConfig(stateData.config);
+
+          // If we are not in the password subview, that means the account
+          // has been created and we can fetch the sync accounts.
+          if (this.#currentState != "emailPasswordSubview") {
+            await this.#fetchSyncAccounts();
+          }
+
           break;
         }
         await this.#initUI(this.#states[this.#currentState].nextStep);
@@ -976,6 +987,13 @@ class AccountHubEmail extends HTMLElement {
       case "emailConfigFoundSubview":
       case "outgoingConfigSubview":
         await this.#validateAccountConfig(stateData);
+
+        // If we are not in the password subview, that means the account
+        // has been created and we can fetch the sync accounts.
+        if (this.#currentState != "emailPasswordSubview") {
+          await this.#fetchSyncAccounts();
+        }
+
         break;
       case "emailPasswordSubview":
         // Get password and remember from the state and apply it to the config.
@@ -984,7 +1002,10 @@ class AccountHubEmail extends HTMLElement {
           stateData.password
         );
         this.#currentConfig.rememberPassword = stateData.rememberPassword;
+
         await this.#createAccount("account-hub-creating-account");
+        await this.#fetchSyncAccounts();
+
         break;
       case "emailSyncAccountsSubview":
         try {
@@ -1395,54 +1416,90 @@ class AccountHubEmail extends HTMLElement {
       this.#emailFooter.canBack(true);
       throw error;
     } finally {
-      this.#stopLoading();
       this.#configVerifier?.cleanup();
+      this.#stopLoading();
     }
+  }
 
-    await this.#initUI("emailSyncAccountsSubview");
-
+  /**
+   * Fetch and show calendars and address books for the account.
+   */
+  async #fetchSyncAccounts() {
     try {
-      this.#startLoading("account-hub-fetching-sync-accounts");
+      this.#startLoading("account-hub-finding-sync-accounts");
+
       this.abortable = new AbortController();
+      this.#emailFooter.setDirectionalButtonText(
+        "back",
+        "account-hub-email-skip-button"
+      );
       const syncAccounts = {};
-      //TODO fetch address books and calendars in parallel?
+      // TODO: fetch address books and calendars in parallel?
       syncAccounts.addressBooks = await this.#getAddressBooks(
         this.#currentConfig.incoming.password ?? ""
       );
 
+      // Add a 1 second delay here to give the users a chance to skip this
+      // altogether.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // If the user hit cancel while loading, we won't fetch
-      // the calendars.
+      // the calendars and a UserSkippedError will be thrown.
       this.abortable.signal.throwIfAborted();
 
-      // If the user cancels while loading and calendars have been
-      // fetched, we won't show them and show the error instead.
       syncAccounts.calendars = await this.#getCalendars(
         this.#currentConfig.incoming.password ?? "",
         false
       );
+
+      // If the user hit cancel while loading, a UserSkippedError will be
+      // thrown.
       this.abortable?.signal?.throwIfAborted();
       this.abortable = null;
 
-      this.#currentSubview.setState(syncAccounts);
-      this.#stopLoading();
-
-      const accountsFound =
-        syncAccounts.addressBooks.length || syncAccounts.calendars.length;
-      this.#currentSubview.showNotification({
-        fluentTitleId: accountsFound
-          ? "account-hub-sync-accounts-found"
-          : "account-hub-sync-accounts-not-found",
-        type: accountsFound ? "success" : "info",
-      });
+      // If there are no syncable accounts, we should go to the email added
+      // success view.
+      if (
+        !(syncAccounts.addressBooks.length || syncAccounts.calendars.length)
+      ) {
+        await this.#initUI("emailAddedSuccessSubview");
+        this.#currentSubview.setState(this.#currentConfig);
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-email-added-success",
+          type: "success",
+        });
+      } else {
+        await this.#initUI("emailSyncAccountsSubview");
+        this.#currentSubview.setState(syncAccounts);
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-sync-accounts-found",
+          type: "success",
+        });
+      }
     } catch (error) {
+      // If there's an error, we should just move to the success subview.
+      await this.#initUI("emailAddedSuccessSubview");
+      this.#currentSubview.setState(this.#currentConfig);
+
+      if (error instanceof UserSkippedError) {
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-email-added-success",
+          type: "success",
+        });
+      } else {
+        // Let the user know of the error with fetching accounts on the succcess
+        // subview.
+        this.#currentSubview.showNotification({
+          fluentTitleId: "account-hub-sync-accounts-not-found",
+          type: "info",
+          error,
+        });
+      }
+
       this.abortable = null;
-      this.#stopLoading();
-      this.#currentSubview.showNotification({
-        fluentTitleId: "account-hub-sync-accounts-not-found",
-        type: "error",
-        error,
-      });
     }
+
+    this.#stopLoading();
   }
 
   /**

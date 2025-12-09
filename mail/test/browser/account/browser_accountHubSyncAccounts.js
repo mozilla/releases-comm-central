@@ -70,7 +70,7 @@ registerCleanupFunction(function () {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
-add_task(async function test_cancelling_sync_accounts_load() {
+add_task(async function test_skip_sync_accounts_load() {
   IMAPServer.open();
   SMTPServer.open();
   const emailUser = {
@@ -139,6 +139,15 @@ add_task(async function test_cancelling_sync_accounts_load() {
     () => BrowserTestUtils.isHidden(emailPasswordTemplate)
   );
 
+  // Cancelling here should prevent showing any sync accounts, and move to
+  // the success view.
+  Assert.ok(
+    BrowserTestUtils.isVisible(footerBack),
+    "The skip button should be visible."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+
   const imapAccount = await new Promise(resolve => {
     const listener = {
       onServerLoaded() {
@@ -157,52 +166,8 @@ add_task(async function test_cancelling_sync_accounts_load() {
     listener.onServerLoaded();
   });
 
-  await BrowserTestUtils.waitForMutationCondition(
-    dialog.querySelector("email-sync-accounts-form"),
-    {
-      attributes: true,
-      attributeFilter: ["hidden"],
-    },
-    () =>
-      BrowserTestUtils.isVisible(
-        dialog.querySelector("email-sync-accounts-form")
-      )
-  );
-
-  // Cancelling here should prevent showing any sync accounts, whether we've fetched them or not.
-  Assert.ok(
-    BrowserTestUtils.isVisible(footerBack),
-    "The cancel button should be visible."
-  );
-  EventUtils.synthesizeMouseAtCenter(footerBack, {});
-  const syncAccountsTemplate = dialog.querySelector("email-sync-accounts-form");
-  const selectAllAddressBooks = syncAccountsTemplate.querySelector(
-    "#selectAllAddressBooks"
-  );
-  const selectAllCalendars = syncAccountsTemplate.querySelector(
-    "#selectAllCalendars"
-  );
-
-  // Cancelling should show an error notificaiton.
-  const header =
-    syncAccountsTemplate.shadowRoot.querySelector("account-hub-header");
-  await TestUtils.waitForCondition(
-    () =>
-      header.shadowRoot
-        .querySelector("#emailFormNotification")
-        .classList.contains("error"),
-    "The error notification should be present."
-  );
-
-  // The toggle buttons should be hidden as we haven't set the state of the sync view.
-  Assert.ok(
-    BrowserTestUtils.isHidden(selectAllAddressBooks),
-    "The address book select all button should be hidden."
-  );
-  Assert.ok(
-    BrowserTestUtils.isHidden(selectAllCalendars),
-    "The calendar select all button should be hidden."
-  );
+  const successStep = dialog.querySelector("email-added-success");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
 
   await subtest_clear_status_bar();
   MailServices.accounts.removeAccount(imapAccount);
@@ -210,7 +175,7 @@ add_task(async function test_cancelling_sync_accounts_load() {
 
   IMAPServer.close();
   SMTPServer.close();
-  await subtest_close_account_hub_dialog(dialog, syncAccountsTemplate);
+  await subtest_close_account_hub_dialog(dialog, successStep);
 });
 
 add_task(async function test_account_load_sync_accounts_imap_account() {
@@ -294,6 +259,7 @@ add_task(async function test_account_load_sync_accounts_imap_account() {
       ),
     "The sync accounts view should be in view."
   );
+
   const syncAccountsTemplate = dialog.querySelector("email-sync-accounts-form");
   // Wait for the select all buttons to be in view to show the sync accounts.
   const selectAllAddressBooksButtonPromise = await TestUtils.waitForCondition(

@@ -723,8 +723,11 @@ add_task(async function test_full_exchange_account_creation() {
     MailServices.accounts.addIncomingServerListener(listener);
     listener.onServerLoaded();
   });
-  const syncStep = dialog.querySelector("email-sync-accounts-form");
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", syncStep);
+
+  // Creating an account with no address books and calendars should lead to
+  // the success view.
+  const successStep = dialog.querySelector("email-added-success");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", successStep);
 
   Assert.equal(
     ewsAccount.incomingServer.type,
@@ -736,7 +739,7 @@ add_task(async function test_full_exchange_account_creation() {
   Services.logins.removeAllLogins();
 
   ewsServer.stop();
-  await subtest_close_account_hub_dialog(dialog, syncStep);
+  await subtest_close_account_hub_dialog(dialog, successStep);
 });
 
 /**
