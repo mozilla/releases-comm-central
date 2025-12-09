@@ -131,8 +131,8 @@ export function readFromXML(clientConfigXML, subSource) {
           console.error(e);
         }
         try {
-          if ("ewsURL" in iX) {
-            iO.ewsURL = lazy.Sanitizer.url(iX.ewsURL);
+          if ("exchangeURL" in iX) {
+            iO.exchangeURL = lazy.Sanitizer.url(iX.exchangeURL);
           }
         } catch (e) {
           console.error(e);

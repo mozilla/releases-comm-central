@@ -126,7 +126,7 @@ AccountConfig.prototype = {
 
       // for Microsoft Exchange servers. Optional.
       owaURL: null,
-      ewsURL: null,
+      exchangeURL: null,
       easURL: null,
       // for when an addon overrides the account type. Optional.
       addonAccountType: null,
@@ -254,11 +254,11 @@ AccountConfig.prototype = {
 
   isIncomingEditedComplete() {
     return (
-      (this.incoming.type == "ews" &&
-        this.incoming.ewsURL &&
+      (this.isExchangeConfig() &&
+        this.incoming.exchangeURL &&
         this.incoming.username &&
         this.incoming.auth) ||
-      (this.incoming.type != "ews" &&
+      (!this.isExchangeConfig() &&
         !!this.incoming.hostname &&
         !!this.incoming.port &&
         !!this.incoming.username)
@@ -396,6 +396,23 @@ AccountConfig.prototype = {
    */
   hasPassword() {
     return Boolean(this.incoming.password || this.outgoing.password);
+  },
+
+  /**
+   * Return true if the configuration is for a Microsoft Exchange server (EWS or
+   * Graph).
+   *
+   * @returns {boolean}
+   */
+  isExchangeConfig() {
+    const isGraphEnabled = Services.prefs.getBoolPref(
+      "mail.graph.enabled",
+      false
+    );
+    if (isGraphEnabled) {
+      return this.incoming.type == "ews" || this.incoming.type == "graph";
+    }
+    return this.incoming.type == "ews";
   },
 };
 

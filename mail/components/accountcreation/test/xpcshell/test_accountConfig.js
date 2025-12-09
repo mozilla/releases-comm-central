@@ -60,7 +60,7 @@ add_task(function test_isIncomingEditedComplete() {
   const config = new AccountConfig();
 
   config.incoming.type = "ews";
-  config.incoming.ewsURL = "https://example.com";
+  config.incoming.exchangeURL = "https://example.com";
   config.incoming.username = "test";
   config.incoming.auth = 3;
 
@@ -77,7 +77,7 @@ add_task(function test_isIncomingEditedComplete() {
   );
 
   config.incoming.auth = 0;
-  config.incoming.ewsURL = null;
+  config.incoming.exchangeURL = null;
   config.incoming.hostname = "example.com";
   config.incoming.port = 443;
 

@@ -385,14 +385,16 @@ add_task(async function test_exchange_manual_configuration() {
     "Incoming port input should be hidden"
   );
   Assert.ok(
-    BrowserTestUtils.isVisible(ewsConfigStep.querySelector("#incomingEwsUrl")),
+    BrowserTestUtils.isVisible(
+      ewsConfigStep.querySelector("#incomingExchangeUrl")
+    ),
     "EWS URL input should be visible"
   );
 
   // The available config fields should be filled in with the correct info.
   // The test server isn't set up with HTTPS, so we have an insecure URL here.
   Assert.equal(
-    ewsConfigStep.querySelector("#incomingEwsUrl").value,
+    ewsConfigStep.querySelector("#incomingExchangeUrl").value,
     // eslint-disable-next-line @microsoft/sdl/no-insecure-url
     "http://exchange.test/EWS/Exchange.asmx",
     "The EWS URL input should have the correct exchange url"
@@ -412,7 +414,7 @@ add_task(async function test_exchange_manual_configuration() {
   await subtest_close_account_hub_dialog(dialog, ewsConfigStep);
 });
 
-add_task(async function test_exchange_advanced_configuration() {
+add_task(async function test_exchange_ews_advanced_configuration() {
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -458,41 +460,99 @@ add_task(async function test_exchange_advanced_configuration() {
   const ewsConfigStep = dialog.querySelector("#emailIncomingConfigSubview");
   await BrowserTestUtils.waitForAttributeRemoval("hidden", ewsConfigStep);
 
-  // Clicking advanced config and confirming the dialog should create the ews
-  // account and close the dialog.
-  const advancedConfigButton = ewsConfigStep.querySelector(
-    "#advancedConfigurationIncoming"
-  );
-  EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
+  const tabmail = await chooseAdvancedSetup(ewsConfigStep, dialog);
+  const ewsAccount = await waitForAccount(emailUser.email);
+  await cleanupAdvancedConfigurationTest(tabmail, ewsAccount);
+});
 
-  const tabmail = document.getElementById("tabmail");
-  const oldTab = tabmail.selectedTab;
+add_task(async function test_exchange_graph_advanced_configuration() {
+  await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
 
-  await BrowserTestUtils.promiseAlertDialog("accept");
-
-  // The dialog should automatically close after clicking advanced config
-  await BrowserTestUtils.waitForEvent(dialog, "close");
-
-  await BrowserTestUtils.waitForCondition(
-    () => tabmail.selectedTab != oldTab,
-    "The tab should change to the account settings tab"
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const manualConfigurationButton = dialog.querySelector(
+    "#manualConfiguration"
   );
 
-  let ewsAccount;
+  Assert.ok(
+    !BrowserTestUtils.isVisible(manualConfigurationButton),
+    "Manual configuration button should be invisible."
+  );
+
+  await fillUserInformation(emailTemplate);
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(manualConfigurationButton),
+    "Manual configuration button should be visible."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(manualConfigurationButton, {});
+
+  const incomingForm = dialog.querySelector("#emailIncomingConfigSubview");
   await TestUtils.waitForCondition(
-    () =>
-      (ewsAccount = MailServices.accounts.accounts.find(
-        account => account.identities[0]?.email === emailUser.email
-      )),
-    "The ews account should be created"
+    () => BrowserTestUtils.isVisible(incomingForm),
+    "The incoming server config form should be visible"
   );
 
-  // Close the account settings tab.
-  tabmail.closeTab(tabmail.currentTabInfo);
+  const protocolSelector = incomingForm.querySelector("#incomingProtocol");
+  Assert.ok(
+    BrowserTestUtils.isVisible(protocolSelector),
+    "Default protocol dropdown should be visible"
+  );
 
-  MailServices.accounts.removeAccount(ewsAccount);
-  await subtest_clear_status_bar();
-  Services.logins.removeAllLogins();
+  info("Switch to Graph");
+  let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    incomingForm,
+    "config-updated"
+  );
+  protocolSelector.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
+  const graphSelection = protocolSelector.querySelector(
+    "#incomingProtocolGraph"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(graphSelection),
+    "Graph menu item should be visible."
+  );
+  EventUtils.synthesizeMouseAtCenter(graphSelection, {});
+  let { detail: configUpdatedEvent } = await configUpdatedEventPromise;
+  Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
+
+  const exchangeURLField = incomingForm.querySelector("#incomingExchangeUrl");
+  Assert.ok(
+    BrowserTestUtils.isVisible(exchangeURLField),
+    "Should show Exchange URL field for Graph"
+  );
+
+  info("Focus Exchange URL field");
+  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
+    incomingForm,
+    "config-updated",
+    false,
+    () => exchangeURLField.value == "https://graph.microsoft.com/v1.0"
+  );
+  const focusEvent = BrowserTestUtils.waitForEvent(exchangeURLField, "focus");
+  EventUtils.synthesizeMouseAtCenter(exchangeURLField, {});
+  await focusEvent;
+  EventUtils.sendString("https://graph.microsoft.com/v1.0");
+  ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
+
+  Assert.ok(
+    configUpdatedEvent.completed,
+    "Should indicate that the form is complete"
+  );
+
+  const tabmail = await chooseAdvancedSetup(incomingForm, dialog);
+  const graphAccount = await waitForAccount(emailUser.email);
+
+  Assert.equal(
+    graphAccount.incomingServer.type,
+    "graph",
+    "New account should be a Graph account."
+  );
+
+  await cleanupAdvancedConfigurationTest(tabmail, graphAccount);
+  SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_exchange_credentials_to_imap() {
@@ -739,4 +799,67 @@ async function fillPasswordInput(passwordStep) {
   );
   EventUtils.sendString(PASSWORD);
   await inputEvent;
+}
+
+/**
+ * Chooses the "Advanced Configuration" option from the incoming server configuration form.
+ *
+ * @param {HTMLElement} incomingConfigForm - The incoming server configuration form.
+ * @param {HTMLElement} dialog - The AccountHub dialog.
+ * @returns {HTMLElement} The tab manager for the window.
+ */
+async function chooseAdvancedSetup(incomingConfigForm, dialog) {
+  // Clicking advanced config and confirming the dialog should create the ews
+  // account and close the dialog.
+  const advancedConfigButton = incomingConfigForm.querySelector(
+    "#advancedConfigurationIncoming"
+  );
+  EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
+
+  const tabmail = document.getElementById("tabmail");
+  const oldTab = tabmail.selectedTab;
+
+  await BrowserTestUtils.promiseAlertDialog("accept");
+
+  // The dialog should automatically close after clicking advanced config
+  await BrowserTestUtils.waitForEvent(dialog, "close");
+
+  await BrowserTestUtils.waitForCondition(
+    () => tabmail.selectedTab != oldTab,
+    "The tab should change to the account settings tab"
+  );
+
+  return tabmail;
+}
+
+/**
+ * Wait for an account to exist for the given email address.
+ *
+ * @param {string} emailAddress
+ * @returns {nsIMsgAccount} The account for the address.
+ */
+async function waitForAccount(emailAddress) {
+  const foundAccount = await TestUtils.waitForCondition(
+    () =>
+      MailServices.accounts.accounts.find(
+        account => account.identities[0]?.email === emailAddress
+      ),
+    `The account for ${emailAddress} should be created.`
+  );
+  return foundAccount;
+}
+
+/**
+ * Cleanup after an advanced configuration test that created a new account.
+ *
+ * @param {HTMLElement} tabmail - The tab manager for the window.
+ * @param {nsIMsgAccount} account - The new account.
+ */
+async function cleanupAdvancedConfigurationTest(tabmail, account) {
+  // Close the account settings tab.
+  tabmail.closeTab(tabmail.currentTabInfo);
+
+  MailServices.accounts.removeAccount(account);
+  await subtest_clear_status_bar();
+  Services.logins.removeAllLogins();
 }
