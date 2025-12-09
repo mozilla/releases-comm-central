@@ -136,6 +136,11 @@ interface nsIAutoSyncManager : nsISupports {
   void onDownloadCompleted(in nsIAutoSyncState aAutoSyncStateObj, in nsresult aExitCode);
 
   /**
+   * If the manager has a running timer.
+   */
+  readonly attribute boolean timerIsRunning;
+
+  /**
    * Number of elements in the discovery queue.
    * @see nsAutoSyncManager.h for details
    */

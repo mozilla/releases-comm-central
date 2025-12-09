@@ -260,11 +260,21 @@ void nsAutoSyncManager::StartTimerIfNeeded() {
   if ((mUpdateQ.Count() > 0 || mDiscoveryQ.Count() > 0) && !mTimer) InitTimer();
 }
 
+NS_IMETHODIMP nsAutoSyncManager::GetTimerIsRunning(bool* timerIsRunning) {
+  // If we have a timer, it is running.
+  *timerIsRunning = !!mTimer;
+  return NS_OK;
+}
+
 void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
   MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Timer callback"));
   if (!aClosure) return;
 
   nsAutoSyncManager* autoSyncMgr = static_cast<nsAutoSyncManager*>(aClosure);
+  MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+              "idleState={}, mDiscoveryQ count={}, mUpdateQ count={}",
+              (int32_t)autoSyncMgr->GetIdleState(),
+              autoSyncMgr->mDiscoveryQ.Count(), autoSyncMgr->mUpdateQ.Count());
   if (autoSyncMgr->GetIdleState() == notIdle ||
       (autoSyncMgr->mDiscoveryQ.Count() <= 0 &&
        autoSyncMgr->mUpdateQ.Count() <= 0)) {
@@ -279,18 +289,28 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
     // There should be no reason for `autoSyncStateObj` not to exist, but
     // check anyway.
     MOZ_ASSERT(autoSyncStateObj);
-
-    uint32_t leftToProcess = 0;
-    autoSyncStateObj->ProcessExistingHeaders(kNumberOfHeadersToProcess,
-                                             &leftToProcess);
-
     nsCOMPtr<nsIMsgFolder> folder;
     autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
+
+    uint32_t leftToProcess = 0;
     if (folder) {
+      autoSyncStateObj->ProcessExistingHeaders(kNumberOfHeadersToProcess,
+                                               &leftToProcess);
       NOTIFY_LISTENERS_STATIC(
           autoSyncMgr, OnDiscoveryQProcessed,
           (folder, kNumberOfHeadersToProcess, leftToProcess));
+
+      MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                  "{}: processed discovery q for folder={}, msgs left to "
+                  "process in folder={}",
+                  __func__, folder->URI().get(), leftToProcess);
+    } else {
+      MOZ_LOG_FMT(
+          gAutoSyncLog, LogLevel::Error,
+          "{}: found an item in the discovery q, but the folder is null",
+          __func__);
     }
+
     if (leftToProcess == 0) {
       autoSyncMgr->mDiscoveryQ.RemoveObjectAt(0);
       if (folder) {
@@ -298,14 +318,6 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
             autoSyncMgr, OnFolderRemovedFromQ,
             (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
       }
-    }
-    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-      nsCString folderName;
-      folder->GetURI(folderName);
-      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-              ("%s: processed discovery q for folder=%s, "
-               "msgs left to process in folder=%d",
-               __func__, folderName.get(), leftToProcess));
     }
   }
 
@@ -347,39 +359,34 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
               NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnAutoSyncInitiated,
                                       (folder));
             }
-          }
-          if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-            nsCString folderName;
-            folder->GetURI(folderName);
-            MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                    ("%s: process update q for folder=%s", __func__,
-                     folderName.get()));
+            MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                        "{}: process update q for folder={}", __func__,
+                        folder->URI().get());
+          } else {
+            MOZ_LOG_FMT(
+                gAutoSyncLog, LogLevel::Error,
+                "{}: found an item in the update q, but the folder is null",
+                __func__);
           }
         }
       }
     }
-    // if initiation is not successful for some reason, or
-    // if there is an on going download for this folder,
-    // remove it from q and continue with the next one
+    // If initiation is not successful for some reason, or if there is an
+    // ongoing download for this folder, remove it from q and continue with
+    // the next one.
     if (!autoSyncMgr->mUpdateInProgress) {
       nsCOMPtr<nsIMsgFolder> folder;
       autoSyncMgr->mUpdateQ[0]->GetOwnerFolder(getter_AddRefs(folder));
-
       autoSyncMgr->mUpdateQ.RemoveObjectAt(0);
 
       if (folder) {
         NOTIFY_LISTENERS_STATIC(autoSyncMgr, OnFolderRemovedFromQ,
                                 (nsIAutoSyncMgrListener::UpdateQueue, folder));
-      }
-      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Error)) {
-        nsCString folderName;
-        folder->GetURI(folderName);
-        MOZ_LOG(gAutoSyncLog, LogLevel::Error,
-                ("%s: update q init failed for folder=%s", __func__,
-                 folderName.get()));
+        MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Error,
+                    "{}: update q init failed for folder={}", __func__,
+                    folder->URI().get());
       }
     }
-
   }  // endif
 }
 
@@ -723,14 +730,9 @@ nsresult nsAutoSyncManager::StartIdleProcessing() {
     autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
     if (folder) NOTIFY_LISTENERS(OnDownloadCompleted, (folder));
 
-    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-      nsCString folderName;
-      folder->GetURI(folderName);
-      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-              ("%s: folder=%s has no pending msgs, "
-               "remove from priority q",
-               __func__, folderName.get()));
-    }
+    MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                "{}: folder={} has no pending msgs, remove from priority q",
+                __func__, folder->URI().get());
     autoSyncStateObj->SetState(nsAutoSyncState::stCompletedIdle);
 
     if (mPriorityQ.RemoveObject(autoSyncStateObj)) {
@@ -859,13 +861,8 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
 
         int32_t state;
         rv = autoSyncState->GetState(&state);
-        nsCString folderName;
-        if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-          folder->GetURI(folderName);
-          MOZ_LOG(
-              gAutoSyncLog, LogLevel::Debug,
-              ("%s: folder=%s, state=%d", __func__, folderName.get(), state));
-        }
+        MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug, "{}: folder={}, state={}",
+                    __func__, folder->URI().get(), state);
         if (state == nsAutoSyncState::stCompletedIdle ||
             state == nsAutoSyncState::stUpdateNeeded ||
             state == nsAutoSyncState::stUpdateIssued) {
@@ -884,10 +881,10 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
               bool downloadQEmpty;
               autoSyncState->IsDownloadQEmpty(&downloadQEmpty);
               if (downloadQEmpty) {
-                MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                        ("%s: nothing to download for folder %s, "
-                         "set state to stCompletedIdle, updateQ idx=%d",
-                         __func__, folderName.get(), idx));
+                MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                            "{}: nothing to download for folder {}, set state "
+                            "to stCompletedIdle, updateQ idx={}",
+                            __func__, folder->URI().get(), idx);
                 autoSyncState->SetState(nsAutoSyncState::stCompletedIdle);
 
                 // This should already be done by
@@ -914,13 +911,11 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
             // Now q or re-q the update for this folder unless it's still q'd.
             if (idx < 0) {
               mUpdateQ.AppendObject(autoSyncState);
-              MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                      ("%s: folder=%s added to update q", __func__,
-                       folderName.get()));
-              if (folder) {
-                NOTIFY_LISTENERS(OnFolderAddedIntoQ,
-                                 (nsIAutoSyncMgrListener::UpdateQueue, folder));
-              }
+              MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                          "{}: folder={} added to update q", __func__,
+                          folder->URI().get());
+              NOTIFY_LISTENERS(OnFolderAddedIntoQ,
+                               (nsIAutoSyncMgrListener::UpdateQueue, folder));
             }
           }
         }
@@ -934,14 +929,11 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
           // and discover messages not downloaded yet
           if (mDiscoveryQ.IndexOf(autoSyncState) == -1) {
             mDiscoveryQ.AppendObject(autoSyncState);
-            MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                    ("%s: folder=%s added to discovery q", __func__,
-                     folderName.get()));
-            if (folder) {
-              NOTIFY_LISTENERS(
-                  OnFolderAddedIntoQ,
-                  (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
-            }
+            MOZ_LOG_FMT(gAutoSyncLog, LogLevel::Debug,
+                        "{}: folder={} added to discovery q", __func__,
+                        folder->URI().get());
+            NOTIFY_LISTENERS(OnFolderAddedIntoQ,
+                             (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
           }
         }
       }  // endfor

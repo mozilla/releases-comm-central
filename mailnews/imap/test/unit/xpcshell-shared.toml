@@ -2,6 +2,11 @@
 
 ["test_autosync_date_constraints.js"]
 
+["test_autosync_stops.js"]
+environment = [
+  "MOZ_LOG=IMAPAutoSync:4",
+]
+
 ["test_bccProperty.js"]
 
 ["test_bug460636.js"]
