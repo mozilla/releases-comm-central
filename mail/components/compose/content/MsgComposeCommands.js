@@ -11201,25 +11201,8 @@ function InitEditor() {
   window.content.browsingContext.allowJavascript = false;
   window.content.browsingContext.docShell.allowAuth = false;
   window.content.browsingContext.docShell.allowMetaRedirects = false;
-  gMsgCompose.initEditor(editor, window.content);
 
-  if (!editor.document.doctype) {
-    editor.document.insertBefore(
-      editor.document.implementation.createDocumentType("html", "", ""),
-      editor.document.firstChild
-    );
-  }
-
-  // Then, we enable related UI entries.
-  enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
-  gAttachmentNotifier.init(editor.document);
-
-  // Listen for spellchecker changes, set document language to
-  // dictionary picked by the user via the right-click menu in the editor.
-  document.addEventListener("spellcheck-changed", updateDocumentLanguage);
-
-  // XXX: the error event fires twice for each load. Why??
-  editor.document.body.addEventListener(
+  editor.document.addEventListener(
     "error",
     function (event) {
       if (event.target.localName != "img") {
@@ -11294,6 +11277,23 @@ function InitEditor() {
     },
     true
   );
+
+  gMsgCompose.initEditor(editor, window.content);
+
+  if (!editor.document.doctype) {
+    editor.document.insertBefore(
+      editor.document.implementation.createDocumentType("html", "", ""),
+      editor.document.firstChild
+    );
+  }
+
+  // Then, we enable related UI entries.
+  enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
+  gAttachmentNotifier.init(editor.document);
+
+  // Listen for spellchecker changes, set document language to
+  // dictionary picked by the user via the right-click menu in the editor.
+  document.addEventListener("spellcheck-changed", updateDocumentLanguage);
 
   // Convert mailnews URL back to data: URL.
   const background = editor.document.body.background;

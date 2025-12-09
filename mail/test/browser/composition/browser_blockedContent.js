@@ -53,6 +53,23 @@ function putHTMLOnClipboard(html) {
  */
 add_task(async function test_paste_file_urls() {
   const cwc = await open_compose_new_mail();
+
+  // Wait for compose-editor-ready, which ensures NotifyComposeBodyReady() was
+  // called and the listener for the "error" event for blocked images has been
+  // set up.
+  await new Promise(resolve => {
+    if (cwc.composeEditorReady) {
+      resolve();
+      return;
+    }
+    cwc.addEventListener("compose-editor-ready", resolve, {
+      once: true,
+    });
+  });
+  // Call SetComposeDetails(), which must not clear the "error" event listner. If
+  // it does, the test will fail since handling of blocked images will not work.
+  cwc.SetComposeDetails({ body: "<html><body>PLACEHOLDER</body></html>" });
+
   await setup_msg_contents(
     cwc,
     "someone@example.com",
