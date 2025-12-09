@@ -807,7 +807,7 @@ dependencies = [
  "bitflags 1.999.999",
  "strsim 0.8.0",
  "textwrap 0.11.0",
- "unicode-width 0.1.999",
+ "unicode-width 0.1.14",
  "vec_map",
 ]
 
@@ -6235,7 +6235,7 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 dependencies = [
- "unicode-width 0.1.999",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
@@ -6591,10 +6591,9 @@ checksum = "84a22b9f218b40614adcb3f4ff08b703773ad44fa9423e4e0d346d5db86e4ebc"
 
 [[package]]
 name = "unicode-width"
-version = "0.1.999"
-dependencies = [
- "unicode-width 0.2.0",
-]
+version = "0.1.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 
 [[package]]
 name = "unicode-width"

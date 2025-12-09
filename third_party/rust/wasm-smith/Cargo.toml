@@ -13,10 +13,11 @@
 edition = "2021"
 rust-version = "1.76.0"
 name = "wasm-smith"
-version = "0.219.1"
+version = "0.225.0"
 authors = ["Nick Fitzgerald <fitzgen@gmail.com>"]
 build = false
 exclude = ["/benches/corpus"]
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -76,13 +77,6 @@ optional = true
 [dependencies.flagset]
 version = "0.4"
 
-[dependencies.indexmap]
-version = "2.0.0"
-default-features = false
-
-[dependencies.leb128]
-version = "0.2.4"
-
 [dependencies.serde]
 version = "1.0.166"
 features = ["alloc"]
@@ -94,20 +88,24 @@ version = "1.0.166"
 optional = true
 
 [dependencies.wasm-encoder]
-version = "0.219.1"
+version = "0.225.0"
+features = ["std"]
 default-features = false
 
 [dependencies.wasmparser]
-version = "0.219.1"
+version = "0.225.0"
 features = [
+    "simd",
     "std",
     "validate",
+    "features",
+    "simd",
 ]
 optional = true
 default-features = false
 
 [dependencies.wat]
-version = "1.219.1"
+version = "1.225.0"
 optional = true
 default-features = false
 
@@ -120,20 +118,22 @@ version = "0.8.4"
 features = ["small_rng"]
 
 [dev-dependencies.wasmparser]
-version = "0.219.1"
+version = "0.225.0"
 features = [
+    "simd",
     "std",
     "validate",
     "features",
+    "simd",
 ]
 default-features = false
 
 [dev-dependencies.wasmprinter]
-version = "0.219.1"
+version = "0.225.0"
 default-features = false
 
 [dev-dependencies.wat]
-version = "1.219.1"
+version = "1.225.0"
 default-features = false
 
 [features]

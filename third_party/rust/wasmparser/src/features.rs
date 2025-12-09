@@ -179,7 +179,7 @@ define_wasm_features! {
         /// The WebAssembly exception handling proposal.
         pub exceptions: EXCEPTIONS(1 << 13) = true;
         /// The WebAssembly memory64 proposal.
-        pub memory64: MEMORY64(1 << 14) = false;
+        pub memory64: MEMORY64(1 << 14) = true;
         /// The WebAssembly extended_const proposal.
         pub extended_const: EXTENDED_CONST(1 << 15) = true;
         /// The WebAssembly component model proposal.
@@ -229,23 +229,40 @@ define_wasm_features! {
         pub stack_switching: STACK_SWITCHING(1 << 27) = false;
         /// The WebAssembly [wide-arithmetic proposal](https://github.com/WebAssembly/wide-arithmetic).
         pub wide_arithmetic: WIDE_ARITHMETIC(1 << 28) = false;
+        /// Support for component model async lift/lower ABI, as well as streams, futures, and errors.
+        pub component_model_async: COMPONENT_MODEL_ASYNC(1 << 29) = false;
     }
 }
 
 impl WasmFeatures {
-    /// The feature set associated with the 1.0 version of the
-    /// WebAssembly specification or the "MVP" feature set.
+    /// The feature set associated with the MVP release of WebAssembly (its
+    /// first release).
+    //
+    // Note that the features listed here are the wasmparser-specific built-in
+    // features such as "floats" and "gc-types". These don't actually correspond
+    // to any wasm proposals themselves and instead just gate constructs in
+    // wasm. They're listed here so they otherwise don't have to be listed
+    // below, but for example wasm with `externref` will be rejected due to lack
+    // of `externref` first.
     #[cfg(feature = "features")]
-    pub const WASM1: WasmFeatures = WasmFeatures::FLOATS.union(WasmFeatures::GC_TYPES);
+    pub const MVP: WasmFeatures = WasmFeatures::FLOATS.union(WasmFeatures::GC_TYPES);
+
+    /// The feature set associated with the 1.0 version of the
+    /// WebAssembly specification circa 2017.
+    ///
+    /// <https://webassembly.github.io/spec/versions/core/WebAssembly-1.0.pdf>
+    #[cfg(feature = "features")]
+    pub const WASM1: WasmFeatures = WasmFeatures::MVP.union(WasmFeatures::MUTABLE_GLOBAL);
 
     /// The feature set associated with the 2.0 version of the
-    /// WebAssembly specification.
+    /// WebAssembly specification circa 2022.
+    ///
+    /// <https://webassembly.github.io/spec/versions/core/WebAssembly-2.0.pdf>
     #[cfg(feature = "features")]
     pub const WASM2: WasmFeatures = WasmFeatures::WASM1
         .union(WasmFeatures::BULK_MEMORY)
         .union(WasmFeatures::REFERENCE_TYPES)
         .union(WasmFeatures::SIGN_EXTENSION)
-        .union(WasmFeatures::MUTABLE_GLOBAL)
         .union(WasmFeatures::SATURATING_FLOAT_TO_INT)
         .union(WasmFeatures::MULTI_VALUE)
         .union(WasmFeatures::SIMD);
@@ -256,6 +273,9 @@ impl WasmFeatures {
     /// Note that as of the time of this writing the 3.0 version of the
     /// specification is not yet published. The precise set of features set
     /// here may change as that continues to evolve.
+    ///
+    /// (draft)
+    /// <https://webassembly.github.io/spec/versions/core/WebAssembly-3.0-draft.pdf>
     #[cfg(feature = "features")]
     pub const WASM3: WasmFeatures = WasmFeatures::WASM2
         .union(WasmFeatures::GC)
@@ -265,7 +285,8 @@ impl WasmFeatures {
         .union(WasmFeatures::MULTI_MEMORY)
         .union(WasmFeatures::RELAXED_SIMD)
         .union(WasmFeatures::THREADS)
-        .union(WasmFeatures::EXCEPTIONS);
+        .union(WasmFeatures::EXCEPTIONS)
+        .union(WasmFeatures::MEMORY64);
 }
 
 #[cfg(feature = "features")]
@@ -281,5 +302,43 @@ impl From<WasmFeatures> for WasmFeaturesInflated {
     #[inline]
     fn from(features: WasmFeatures) -> Self {
         features.inflate()
+    }
+}
+
+impl WasmFeatures {
+    /// Returns whether any types considered valid with this set of
+    /// `WasmFeatures` requires any type canonicalization/interning internally.
+    #[cfg(feature = "validate")]
+    pub(crate) fn needs_type_canonicalization(&self) -> bool {
+        #[cfg(feature = "features")]
+        {
+            // Types from the function-references proposal and beyond (namely
+            // GC) need type canonicalization for inter-type references and for
+            // rec-groups to work. Prior proposals have no such inter-type
+            // references structurally and as such can hit various fast paths in
+            // the validator to do a bit less work when processing the type
+            // section.
+            //
+            // None of these proposals below support inter-type references. If
+            // `self` contains any proposal outside of this set then it requires
+            // type canonicalization.
+            const FAST_VALIDATION_FEATURES: WasmFeatures = WasmFeatures::WASM2
+                .union(WasmFeatures::CUSTOM_PAGE_SIZES)
+                .union(WasmFeatures::EXTENDED_CONST)
+                .union(WasmFeatures::MEMORY64)
+                .union(WasmFeatures::MULTI_MEMORY)
+                .union(WasmFeatures::RELAXED_SIMD)
+                .union(WasmFeatures::TAIL_CALL)
+                .union(WasmFeatures::THREADS)
+                .union(WasmFeatures::WIDE_ARITHMETIC);
+            !FAST_VALIDATION_FEATURES.contains(*self)
+        }
+        #[cfg(not(feature = "features"))]
+        {
+            // GC/function-references are enabled by default, so
+            // canonicalization is required if feature flags aren't enabled at
+            // runtime.
+            true
+        }
     }
 }

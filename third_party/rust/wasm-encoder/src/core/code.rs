@@ -1,5 +1,7 @@
 use crate::{encode_section, Encode, HeapType, RefType, Section, SectionId, ValType};
-use std::borrow::Cow;
+use alloc::borrow::Cow;
+use alloc::vec;
+use alloc::vec::Vec;
 
 /// An encoder for the code section.
 ///
@@ -242,7 +244,7 @@ impl Function {
     ///
     /// This encoding doesn't include the variable-width size field
     /// that `encode` will write before the added bytes. As such, its
-    /// length will match the return value of [`byte_len`].
+    /// length will match the return value of [`Function::byte_len`].
     ///
     /// # Use Case
     ///
@@ -3861,6 +3863,15 @@ impl ConstExpr {
         }
     }
 
+    /// Create a constant expression with the sequence of instructions
+    pub fn extended<'a>(insns: impl IntoIterator<Item = Instruction<'a>>) -> Self {
+        let mut bytes = vec![];
+        for insn in insns {
+            insn.encode(&mut bytes);
+        }
+        Self { bytes }
+    }
+
     fn new_insn(insn: Instruction) -> Self {
         let mut bytes = vec![];
         insn.encode(&mut bytes);
@@ -3990,10 +4001,7 @@ impl ConstExpr {
         if prefix != 0xd2 {
             return None;
         }
-        leb128::read::unsigned(&mut &self.bytes[1..])
-            .ok()?
-            .try_into()
-            .ok()
+        leb128fmt::decode_uint_slice::<u32, 32>(&self.bytes[1..], &mut 0).ok()
     }
 }
 

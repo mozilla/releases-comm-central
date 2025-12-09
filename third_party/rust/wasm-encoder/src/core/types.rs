@@ -1,4 +1,6 @@
 use crate::{encode_section, Encode, Section, SectionId};
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 /// Represents a subtype of possible other types in a WebAssembly module.
 #[derive(Debug, Clone)]
@@ -292,6 +294,14 @@ impl RefType {
             ty: AbstractHeapType::Exn,
         },
     };
+
+    /// Create a new abstract reference type.
+    pub fn new_abstract(ty: AbstractHeapType, nullable: bool, shared: bool) -> Self {
+        Self {
+            nullable,
+            heap_type: HeapType::Abstract { shared, ty },
+        }
+    }
 
     /// Set the nullability of this reference type.
     pub fn nullable(mut self, nullable: bool) -> Self {

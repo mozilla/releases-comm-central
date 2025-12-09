@@ -13,9 +13,10 @@
 edition = "2021"
 rust-version = "1.76.0"
 name = "wasm-encoder"
-version = "0.219.1"
+version = "0.225.0"
 authors = ["Nick Fitzgerald <fitzgen@gmail.com>"]
-build = false
+build = "build.rs"
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -36,12 +37,16 @@ all-features = true
 name = "wasm_encoder"
 path = "src/lib.rs"
 
-[dependencies.leb128]
-version = "0.2.4"
+[dependencies.leb128fmt]
+version = "0.1.0"
+default-features = false
 
 [dependencies.wasmparser]
-version = "0.219.1"
-features = ["std"]
+version = "0.225.0"
+features = [
+    "simd",
+    "simd",
+]
 optional = true
 default-features = false
 
@@ -52,12 +57,16 @@ version = "1.0.58"
 version = "3.2.0"
 
 [dev-dependencies.wasmprinter]
-version = "0.219.1"
+version = "0.225.0"
 default-features = false
 
 [features]
 component-model = ["wasmparser?/component-model"]
-default = ["component-model"]
+default = [
+    "std",
+    "component-model",
+]
+std = ["wasmparser?/std"]
 
 [lints.clippy]
 clone_on_copy = "warn"

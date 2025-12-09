@@ -69,7 +69,13 @@
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![no_std]
 #![deny(missing_docs, missing_debug_implementations)]
+
+extern crate alloc;
+#[cfg(feature = "std")]
+#[macro_use]
+extern crate std;
 
 #[cfg(feature = "component-model")]
 mod component;
@@ -82,6 +88,8 @@ pub mod reencode;
 pub use self::component::*;
 pub use self::core::*;
 pub use self::raw::*;
+
+use alloc::vec::Vec;
 
 /// Implemented by types that can be encoded into a byte sink.
 pub trait Encode {
@@ -127,25 +135,29 @@ impl Encode for usize {
 
 impl Encode for u32 {
     fn encode(&self, sink: &mut Vec<u8>) {
-        leb128::write::unsigned(sink, (*self).into()).unwrap();
+        let (value, pos) = leb128fmt::encode_u32(*self).unwrap();
+        sink.extend_from_slice(&value[..pos]);
     }
 }
 
 impl Encode for i32 {
     fn encode(&self, sink: &mut Vec<u8>) {
-        leb128::write::signed(sink, (*self).into()).unwrap();
+        let (value, pos) = leb128fmt::encode_s32(*self).unwrap();
+        sink.extend_from_slice(&value[..pos]);
     }
 }
 
 impl Encode for u64 {
     fn encode(&self, sink: &mut Vec<u8>) {
-        leb128::write::unsigned(sink, *self).unwrap();
+        let (value, pos) = leb128fmt::encode_u64(*self).unwrap();
+        sink.extend_from_slice(&value[..pos]);
     }
 }
 
 impl Encode for i64 {
     fn encode(&self, sink: &mut Vec<u8>) {
-        leb128::write::signed(sink, *self).unwrap();
+        let (value, pos) = leb128fmt::encode_s64(*self).unwrap();
+        sink.extend_from_slice(&value[..pos]);
     }
 }
 
@@ -192,8 +204,8 @@ where
 }
 
 fn encoding_size(n: u32) -> usize {
-    let mut buf = [0u8; 5];
-    leb128::write::unsigned(&mut &mut buf[..], n.into()).unwrap()
+    let (_value, pos) = leb128fmt::encode_u32(n).unwrap();
+    pos
 }
 
 fn encode_section(sink: &mut Vec<u8>, count: u32, bytes: &[u8]) {
@@ -205,6 +217,11 @@ fn encode_section(sink: &mut Vec<u8>, count: u32, bytes: &[u8]) {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_encoding_size() {
+        assert_eq!(encoding_size(624485), 3);
+    }
 
     #[test]
     fn it_encodes_an_empty_module() {

@@ -4,6 +4,7 @@ use once_cell::unsync::Lazy;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
+use wasmparser::VisitSimdOperator;
 use wasmparser::{DataKind, ElementKind, Parser, Payload, Validator, VisitOperator, WasmFeatures};
 
 /// A benchmark input.
@@ -272,6 +273,9 @@ fn define_benchmarks(c: &mut Criterion) {
     fn validator() -> Validator {
         Validator::new_with_features(WasmFeatures::all())
     }
+    fn old_validator() -> Validator {
+        Validator::new_with_features(WasmFeatures::WASM2)
+    }
 
     let test_inputs = once_cell::unsync::Lazy::new(collect_benchmark_inputs);
 
@@ -329,6 +333,14 @@ fn define_benchmarks(c: &mut Criterion) {
                 validator().validate_all(&wasm).unwrap();
             })
         });
+        if old_validator().validate_all(&wasm).is_ok() {
+            c.bench_function(&format!("validate-old/{name}"), |b| {
+                Lazy::force(&wasm);
+                b.iter(|| {
+                    old_validator().validate_all(&wasm).unwrap();
+                })
+            });
+        }
         c.bench_function(&format!("parse/{name}"), |b| {
             Lazy::force(&wasm);
             b.iter(|| {
@@ -364,5 +376,14 @@ macro_rules! define_visit_operator {
 impl<'a> VisitOperator<'a> for NopVisit {
     type Output = ();
 
-    wasmparser::for_each_operator!(define_visit_operator);
+    fn simd_visitor(&mut self) -> Option<&mut dyn VisitSimdOperator<'a, Output = Self::Output>> {
+        Some(self)
+    }
+
+    wasmparser::for_each_visit_operator!(define_visit_operator);
+}
+
+#[allow(unused_variables)]
+impl<'a> VisitSimdOperator<'a> for NopVisit {
+    wasmparser::for_each_visit_simd_operator!(define_visit_operator);
 }

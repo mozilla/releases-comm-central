@@ -10,6 +10,8 @@ use super::{
     operators::{ty_to_str, OperatorValidator, OperatorValidatorAllocations},
     types::{CoreTypeId, EntityType, RecGroupId, TypeAlloc, TypeList},
 };
+#[cfg(feature = "simd")]
+use crate::VisitSimdOperator;
 use crate::{
     limits::*, BinaryReaderError, ConstExpr, Data, DataKind, Element, ElementKind, ExternalKind,
     FuncType, Global, GlobalType, HeapType, MemoryType, RecGroup, RefType, Result, SubType, Table,
@@ -405,6 +407,13 @@ impl ModuleState {
                         .insert(index);
                 }
             }
+
+            fn not_const(&self, instr: &str) -> BinaryReaderError {
+                BinaryReaderError::new(
+                    format!("constant expression required: non-constant operator: {instr}"),
+                    self.offset,
+                )
+            }
         }
 
         macro_rules! define_visit_operator {
@@ -431,7 +440,7 @@ impl ModuleState {
                 $self.validator().visit_f64_const($val)
             }};
             (@visit $self:ident visit_v128_const $val:ident) => {{
-                $self.validator().visit_v128_const($val)
+                $self.validator().simd_visitor().unwrap().visit_v128_const($val)
             }};
             (@visit $self:ident visit_ref_null $val:ident) => {{
                 $self.validator().visit_ref_null($val)
@@ -512,17 +521,26 @@ impl ModuleState {
             }};
 
             (@visit $self:ident $op:ident $($args:tt)*) => {{
-                Err(BinaryReaderError::new(
-                    format!("constant expression required: non-constant operator: {}", stringify!($op)),
-                    $self.offset,
-                ))
+                Err($self.not_const(stringify!($op)))
             }}
         }
 
         impl<'a> VisitOperator<'a> for VisitConstOperator<'a> {
             type Output = Result<()>;
 
-            for_each_operator!(define_visit_operator);
+            #[cfg(feature = "simd")]
+            fn simd_visitor(
+                &mut self,
+            ) -> Option<&mut dyn crate::VisitSimdOperator<'a, Output = Self::Output>> {
+                Some(self)
+            }
+
+            crate::for_each_visit_operator!(define_visit_operator);
+        }
+
+        #[cfg(feature = "simd")]
+        impl<'a> VisitSimdOperator<'a> for VisitConstOperator<'a> {
+            crate::for_each_visit_simd_operator!(define_visit_operator);
         }
     }
 }
@@ -761,12 +779,6 @@ impl Module {
         }
 
         self.check_limits(ty.initial, ty.maximum, offset)?;
-        if ty.initial > MAX_WASM_TABLE_ENTRIES as u64 {
-            return Err(BinaryReaderError::new(
-                "minimum table size is out of bounds",
-                offset,
-            ));
-        }
 
         if ty.shared {
             if !features.shared_everything_threads() {
@@ -867,7 +879,8 @@ impl Module {
         &self,
         offset: usize,
     ) -> Result<IndexMap<(String, String), EntityType>> {
-        // Ensure imports are unique, which is a requirement of the component model
+        // Ensure imports are unique, which is a requirement of the component model:
+        // https://github.com/WebAssembly/component-model/blob/d09f907/design/mvp/Explainer.md#import-and-export-definitions
         self.imports
             .iter()
             .map(|((module, name), types)| {
