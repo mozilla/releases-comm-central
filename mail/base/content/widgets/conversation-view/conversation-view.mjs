@@ -317,55 +317,70 @@ class ConversationView extends HTMLElement {
     const browser = this.#main.querySelector("browser");
 
     browser.docShell.allowDNSPrefetch = false;
-    if (browser.contentDocument.readyState != "complete") {
-      browser.addEventListener(
-        "load",
-        () => {
-          const folder = message.folder;
-          const msgUri = folder.getUriForMsg(message);
-          browser.contentWindow.displayMessage(msgUri, gViewWrapper);
-          browser.hidden = false;
-        },
-        {
-          capture: true,
-          once: true,
-        }
+    browser.addEventListener(
+      "load",
+      () => {
+        this.#displayMessage(message, browser);
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
+
+    browser.addEventListener(
+      "MsgLoaded",
+      () => {
+        this.#setOpenMessageAttributes(message, browser);
+      },
+      {
+        capture: true,
+        once: true,
+      }
+    );
+  }
+
+  /**
+   * Render the full message in the currently opened browser.
+   *
+   * @param {nsIMsgDBHdr} message
+   * @param {XULBrowser} browser
+   */
+  #displayMessage(message, browser) {
+    const folder = message.folder;
+    const msgUri = folder.getUriForMsg(message);
+    browser.contentWindow.displayMessage(msgUri, gViewWrapper);
+    browser.hidden = false;
+  }
+
+  /**
+   * Add needed attributes to the currently opened message.
+   *
+   * @param {nsIMsgDBHdr} message
+   * @param {XULBrowser} browser
+   */
+  #setOpenMessageAttributes(message, browser) {
+    const html =
+      browser.contentDocument.querySelector("#messagepane").contentDocument
+        .documentElement;
+    const header = browser.contentDocument.querySelector("#singleMessage");
+    header.classList.add("in-conversation");
+
+    const minHeight =
+      Math.max(
+        html.outerHeight || 0,
+        html.offsetHeight || 0,
+        html.scrollHeight || 0
+      ) +
+      Math.max(
+        header.outerHeight || 0,
+        header.offsetHeight || 0,
+        header.scrollHeight || 0
       );
 
-      browser.addEventListener(
-        "MsgLoaded",
-        () => {
-          const html =
-            browser.contentDocument.querySelector("#messagepane")
-              .contentDocument.documentElement;
-          const header =
-            browser.contentDocument.querySelector("#singleMessage");
-          header.classList.add("in-conversation");
-
-          const minHeight =
-            Math.max(
-              html.outerHeight || 0,
-              html.offsetHeight || 0,
-              html.scrollHeight || 0
-            ) +
-            Math.max(
-              header.outerHeight || 0,
-              header.offsetHeight || 0,
-              header.scrollHeight || 0
-            );
-
-          const article = this.#main.querySelector(
-            `article[aria-expanded="true"]`
-          );
-          article.dataset.messageId = message.messageId;
-          article.style.minHeight = `${minHeight}px`;
-        },
-        {
-          capture: true,
-          once: true,
-        }
-      );
-    }
+    const article = this.#main.querySelector(`article[aria-expanded="true"]`);
+    article.dataset.messageId = message.messageId;
+    article.style.minHeight = `${minHeight}px`;
   }
 }
 customElements.define("conversation-view", ConversationView);
