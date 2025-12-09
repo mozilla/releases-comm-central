@@ -13,54 +13,41 @@ mod erase_folder;
 mod get_message;
 mod mark_as_junk;
 mod send_message;
-pub(crate) mod server_version;
 mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
 mod update_folder;
 
-use std::{
-    cell::{Cell, RefCell},
-    collections::VecDeque,
-    env,
-    ops::ControlFlow,
-};
+use std::{collections::VecDeque, sync::Arc};
 
 use ews::{
-    create_item::CreateItem,
-    get_folder::{GetFolder, GetFolderResponseMessage},
-    get_item::GetItem,
+    create_item::{CreateItem, CreateItemResponse},
+    get_folder::{GetFolder, GetFolderResponse, GetFolderResponseMessage},
+    get_item::{GetItem, GetItemResponse},
     response::{ResponseClass, ResponseCode, ResponseError},
-    server_version::ExchangeServerVersion,
-    soap,
     update_item::{UpdateItem, UpdateItemResponse},
     BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
     ItemShape, Operation, OperationResponse, PathToElement, RealItem,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
-use mailnews_ui_glue::{
-    handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
-    report_connection_success, AuthErrorOutcome, UserInteractiveServer,
-};
-use moz_http::Response;
-use protocol_shared::{
-    authentication::{
-        credentials::{AuthValidationOutcome, AuthenticationProvider, Credentials},
-        ntlm::{self, NTLMAuthOutcome},
-    },
-    error::ProtocolError,
-};
+use mailnews_ui_glue::UserInteractiveServer;
+use protocol_shared::authentication::credentials::AuthenticationProvider;
 use url::Url;
-use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
-    client::server_version::{read_server_version, DEFAULT_EWS_SERVER_VERSION},
     error::XpComEwsError,
+    macros::queue_operation,
+    operation_queue::OperationQueue,
+    operation_sender::{
+        observable_server::ObservableServer, OperationRequestOptions, OperationSender,
+        TransportSecFailureBehavior,
+    },
     safe_xpcom::{
         handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
         StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
+    server_version::ServerVersionHandler,
 };
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
@@ -79,79 +66,61 @@ const MSGFLAG_UNSENT: i32 = 0x00000008;
 
 const EWS_ROOT_FOLDER: &str = "msgfolderroot";
 
-// The environment variable that controls whether to include request/response
-// payloads when logging. We only check for the variable's presence, not any
-// specific value.
-const LOG_NETWORK_PAYLOADS_ENV_VAR: &str = "THUNDERBIRD_LOG_NETWORK_PAYLOADS";
-
-/// Options to to control the behavior of
-/// [`XpComEwsClient::make_operation_request`].
-#[derive(Debug, Clone, Copy, Default)]
-struct OperationRequestOptions {
-    /// Behavior to follow when an authentication failure arises.
-    auth_failure_behavior: AuthFailureBehavior,
-
-    /// Behavior to follow when a transport security failure arises.
-    transport_sec_failure_behavior: TransportSecFailureBehavior,
-}
-
-/// The behavior to follow when an operation request results in an
-/// authentication failure.
-#[derive(Debug, Clone, Copy, Default)]
-enum AuthFailureBehavior {
-    /// Attempt to authenticate again or ask the user for new credentials.
-    #[default]
-    ReAuth,
-
-    /// Fail immediately without attempting to authenticate again or asking the
-    /// user for new credentials.
-    Silent,
-}
-
-/// The behavior to follow when an operation request results in a transport
-/// security failure (e.g. because of an invalid certificate). This specifically
-/// controls the behaviour of `XpComEwsClient::make_operation_request`.
-#[derive(Debug, Clone, Copy, Default)]
-enum TransportSecFailureBehavior {
-    /// Immediately alert the user about the security failure.
-    #[default]
-    Alert,
-
-    /// Don't alert the user and propagate the failure to the consumer (which
-    /// might or might not alert the user).
-    Silent,
-}
-
-pub(crate) struct XpComEwsClient<ServerT: RefCounted + 'static> {
-    endpoint: Url,
-    server: RefPtr<ServerT>,
-    credentials: RefCell<Credentials>,
-    client: moz_http::Client,
-    server_version: Cell<ExchangeServerVersion>,
-}
-
 /// Shorthand for the most common server type constraints.
 pub(crate) trait ServerType:
-    AuthenticationProvider + UserInteractiveServer + RefCounted
+    AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
 {
 }
-impl<T> ServerType for T where T: AuthenticationProvider + UserInteractiveServer + RefCounted {}
+impl<T> ServerType for T where
+    T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
+{
+}
+
+pub(crate) struct XpComEwsClient<ServerT: ServerType + 'static> {
+    version_handler: Arc<ServerVersionHandler>,
+    queue: Arc<OperationQueue<ServerT>>,
+    op_sender: Arc<OperationSender<ServerT>>,
+}
 
 impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
+    // See the design consideration section from `operation_queue.rs` regarding
+    // the use of `Arc`.
+    #[allow(clippy::arc_with_non_send_sync)]
     pub(crate) fn new(
         endpoint: Url,
         server: RefPtr<ServerT>,
-        credentials: Credentials,
     ) -> Result<XpComEwsClient<ServerT>, XpComEwsError> {
-        let server_version = read_server_version(&endpoint)?.unwrap_or(DEFAULT_EWS_SERVER_VERSION);
+        let version_handler = ServerVersionHandler::new(endpoint.clone())?;
+        let version_handler = Arc::new(version_handler);
+
+        let op_sender = OperationSender::new(endpoint, server, version_handler.clone())?;
+        let op_sender = Arc::new(op_sender);
+
+        let queue = OperationQueue::new(op_sender.clone());
+        queue.clone().start(1);
 
         Ok(XpComEwsClient {
-            endpoint,
-            server,
-            credentials: RefCell::new(credentials),
-            client: moz_http::Client::new(),
-            server_version: Cell::new(server_version),
+            version_handler,
+            queue,
+            op_sender,
         })
+    }
+
+    /// Shuts the client down by performing the relevant operations on its
+    /// fields (e.g. stopping the operation queue).
+    pub(crate) fn shutdown(&self) {
+        self.queue.stop();
+    }
+
+    /// Checks whether the client is still running (i.e. at least one of the
+    /// operation queue's runners is still active).
+    pub(crate) fn running(&self) -> bool {
+        self.queue.running()
+    }
+
+    /// Returns the [`Url`] currently used as the endpoint to send requests to.
+    pub(crate) fn url(&self) -> Url {
+        self.op_sender.url()
     }
 
     /// Builds a map from remote folder ID to distinguished folder ID.
@@ -202,7 +171,8 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
             folder_ids: ids,
         };
 
-        let response = self.make_operation_request(op, Default::default()).await?;
+        let rcv = queue_operation!(self, GetFolder, op, Default::default());
+        let response = rcv.await??;
 
         let response_messages = response.into_response_messages();
         validate_response_message_count(&response_messages, DISTINGUISHED_IDS.len())?;
@@ -350,7 +320,8 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                 folder_ids: to_fetch,
             };
 
-            let response = self.make_operation_request(op, Default::default()).await?;
+            let rcv = queue_operation!(self, GetFolder, op, Default::default());
+            let response = rcv.await??;
             let messages = response.into_response_messages();
 
             let mut fetched = messages
@@ -477,7 +448,9 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                 item_ids: batch_ids,
             };
 
-            let response = self.make_operation_request(op, Default::default()).await?;
+            let rcv = queue_operation!(self, GetItem, op, Default::default());
+            let response = rcv.await??;
+
             for response_message in response.into_response_messages() {
                 let message = process_response_message_class(GetItem::NAME, response_message)?;
 
@@ -509,15 +482,17 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         create_item: CreateItem,
         transport_sec_failure_behavior: TransportSecFailureBehavior,
     ) -> Result<ItemResponseMessage, XpComEwsError> {
-        let response = self
-            .make_operation_request(
-                create_item,
-                OperationRequestOptions {
-                    transport_sec_failure_behavior,
-                    ..Default::default()
-                },
-            )
-            .await?;
+        let rcv = queue_operation!(
+            self,
+            CreateItem,
+            create_item,
+            OperationRequestOptions {
+                transport_sec_failure_behavior,
+                ..Default::default()
+            }
+        );
+
+        let response = rcv.await??;
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
@@ -535,328 +510,15 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         update_item: UpdateItem,
     ) -> Result<UpdateItemResponse, XpComEwsError> {
         let expected_response_count = update_item.item_changes.len();
-        // Make the operation request using the provided parameters.
-        let response = self
-            .make_operation_request(update_item, Default::default())
-            .await?;
+
+        let rcv = queue_operation!(self, UpdateItem, update_item, Default::default());
+        let response = rcv.await??;
 
         // Get all response messages.
         let response_messages = response.response_messages();
         validate_response_message_count(response_messages, expected_response_count)?;
 
         Ok(response)
-    }
-
-    /// Handles an authentication failure from the server.
-    ///
-    /// This method instructs its consumer on whether to retry
-    /// ([`ControlFlow::Continue`]) or cancel the request
-    /// ([`ControlFlow::Break`]) based on user input and the authentication
-    /// method.
-    // Clippy warns that this method keeps a borrow on `self.credentials` while
-    // awaiting futures. This is not an issue here, because we never take a
-    // mutable borrow of `self.credentials`, and we only call `replace()` on it
-    // outside of blocks that take an immutable borrow on it.
-    #[allow(clippy::await_holding_refcell_ref)]
-    async fn handle_authentication_failure(&self) -> Result<ControlFlow<()>, XpComEwsError> {
-        if let Credentials::Ntlm {
-            username,
-            password,
-            ews_url,
-        } = &*self.credentials.borrow()
-        {
-            // NTLM is a bit special since it authenticates through additional
-            // requests to complete a challenge, and the result of this flow is
-            // persisted through a cookie. This means we might be getting a 401
-            // response because the cookie expired, so we should try refreshing
-            // it before prompting for a new password.
-            match ntlm::authenticate(username, password, ews_url).await? {
-                NTLMAuthOutcome::Success => return Ok(ControlFlow::Continue(())),
-                NTLMAuthOutcome::Failure => (),
-            }
-        }
-
-        loop {
-            let outcome = handle_auth_failure(self.server.clone())?;
-
-            // Refresh the credentials before potentially retrying, because they
-            // might have changed (e.g. if the user entered a new password after
-            // being prompted for one), and should we emit more requests using
-            // this client, we should be using up to date credentials.
-            let credentials = self.server.get_credentials()?;
-            self.credentials.replace(credentials);
-
-            match outcome {
-                AuthErrorOutcome::RETRY => {
-                    match self.credentials.borrow().validate().await? {
-                        // The credentials work, let's move on.
-                        AuthValidationOutcome::Valid => break,
-
-                        // The credentials are still invalid, let's prompt the
-                        // user for more info.
-                        AuthValidationOutcome::Invalid => continue,
-                    }
-                }
-
-                // The user has cancelled from the password prompt, or the
-                // selected authentication method does not support retrying at
-                // this stage, let's stop here.
-                AuthErrorOutcome::ABORT => return Ok(ControlFlow::Break(())),
-            }
-        }
-
-        Ok(ControlFlow::Continue(()))
-    }
-
-    /// Makes a request to the EWS endpoint to perform an operation.
-    ///
-    /// If the entire request or first response is throttled, the request will
-    /// be repeatedly retried (after the delay given in the response) until it
-    /// succeeds or some other error occurs.
-    async fn make_operation_request<Op>(
-        &self,
-        op: Op,
-        options: OperationRequestOptions,
-    ) -> Result<Op::Response, XpComEwsError>
-    where
-        Op: Operation,
-    {
-        let op_name = <Op as Operation>::NAME;
-        let envelope = soap::Envelope {
-            headers: vec![soap::Header::RequestServerVersion {
-                version: self.server_version.get(),
-            }],
-            body: op,
-        };
-        let request_body = envelope.as_xml_document()?;
-
-        // Loop in case we need to retry the request after a delay or an
-        // authentication failure.
-        loop {
-            let response = match self
-                .send_authenticated_request(&request_body, op_name)
-                .await
-            {
-                Ok(response) => response,
-                Err(err) => {
-                    // Handle authentication, network and transport security
-                    // failures early because we know how to process them
-                    // without requiring more data from the response body.
-                    match err {
-                        // If the error is an authentication failure, try to
-                        // authenticate again (by asking the user for new
-                        // credentials if relevant), but only if the consumer
-                        // asked us to.
-                        XpComEwsError::Protocol(ProtocolError::Authentication)
-                            if matches!(
-                                options.auth_failure_behavior,
-                                AuthFailureBehavior::ReAuth
-                            ) =>
-                        {
-                            match self.handle_authentication_failure().await? {
-                                // We should continue with the authentication
-                                // attempts, and retry the request with
-                                // refreshed credentials.
-                                ControlFlow::Continue(_) => continue,
-
-                                // We've been instructed to abort the request
-                                // here (either because the user asked us to, or
-                                // because the selected authentication method
-                                // does not support retrying at this stage).
-                                ControlFlow::Break(_) => return Err(err),
-                            }
-                        }
-
-                        // If the error is a transport security failure (e.g. an
-                        // invalid certificate), handle it here by alerting the
-                        // user, but only if the consumer asked us to.
-                        XpComEwsError::Protocol(ProtocolError::Http(
-                            moz_http::Error::TransportSecurityFailure {
-                                status: _,
-                                ref transport_security_info,
-                            },
-                        )) if matches!(
-                            options.transport_sec_failure_behavior,
-                            TransportSecFailureBehavior::Alert
-                        ) =>
-                        {
-                            handle_transport_sec_failure(
-                                self.server.clone(),
-                                transport_security_info.0.clone(),
-                            )?;
-                            return Err(err);
-                        }
-
-                        // If the error is network-related, optionally alert the
-                        // user (depending on which specific error it is) before
-                        // propagating it.
-                        XpComEwsError::Protocol(ProtocolError::Http(ref http_error)) => {
-                            maybe_handle_connection_error(http_error.into(), self.server.clone())?;
-                            return Err(err);
-                        }
-
-                        _ => return Err(err),
-                    };
-                }
-            };
-
-            // If we managed to connect to the server, but the response's HTTP
-            // status code is an error (e.g. because the server encountered an
-            // internal error, the path is invalid, etc.), we should also raise
-            // a connection error. From manual testing, it does not look like
-            // throttling results in actual 429 responses (but instead in 200
-            // responses with the relevant response message).
-            let response = match response.error_from_status() {
-                Ok(response) => {
-                    report_connection_success(self.server.clone())?;
-                    response
-                }
-                Err(moz_http::Error::StatusCode { status, response }) if status.0 == 500 => {
-                    log::error!("Request FAILED with status 500, attempting to parse for backoff");
-                    response
-                }
-                Err(err) => {
-                    if let moz_http::Error::StatusCode { ref response, .. } = err {
-                        log::error!("Request FAILED with status {}: {err}", response.status()?);
-                    } else {
-                        log::error!("moz_http::Response::error_from_status returned an unexpected error: {err:?}");
-                    }
-
-                    maybe_handle_connection_error((&err).into(), self.server.clone())?;
-                    return Err(err.into());
-                }
-            };
-
-            // Don't immediately propagate in case the error represents a
-            // throttled request, which we can address with retry.
-            let op_result: Result<soap::Envelope<Op::Response>, _> =
-                soap::Envelope::from_xml_document(response.body());
-
-            break match op_result {
-                Ok(envelope) => {
-                    // If the server responded with a version identifier, store
-                    // it so we can use it later.
-                    if let Some(header) = envelope
-                        .headers
-                        .into_iter()
-                        // Filter out headers we don't care about.
-                        .filter_map(|hdr| match hdr {
-                            soap::Header::ServerVersionInfo(server_version_info) => {
-                                Some(server_version_info)
-                            }
-                            _ => None,
-                        })
-                        .next()
-                    {
-                        self.update_server_version(header)?;
-                    }
-
-                    // Check if the first response is a back off message, and
-                    // retry if so.
-                    if let Some(ResponseClass::Error(ResponseError {
-                        message_xml: Some(ews::MessageXml::ServerBusy(server_busy)),
-                        ..
-                    })) = envelope.body.response_messages().first()
-                    {
-                        let delay_ms = server_busy.back_off_milliseconds;
-                        log::debug!(
-                            "{op_name} returned busy message, will retry after {delay_ms} milliseconds"
-                        );
-                        xpcom_async::sleep(delay_ms).await?;
-                        continue;
-                    }
-
-                    Ok(envelope.body)
-                }
-                Err(err) => {
-                    // Check first to see if the request has been throttled and
-                    // needs to be retried.
-                    let backoff_delay_ms = maybe_get_backoff_delay_ms(&err);
-                    if let Some(backoff_delay_ms) = backoff_delay_ms {
-                        log::debug!(
-                            "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
-                        );
-
-                        xpcom_async::sleep(backoff_delay_ms).await?;
-                        continue;
-                    }
-
-                    // If not, propagate the error.
-                    Err(err.into())
-                }
-            };
-        }
-    }
-
-    /// Send an authenticated EWS operation request with the given body.
-    async fn send_authenticated_request(
-        &self,
-        request_body: &[u8],
-        op_name: &str,
-    ) -> Result<Response, XpComEwsError> {
-        // Fetch the Authorization header value for each request in case of
-        // token expiration between requests.
-        let credentials = self.credentials.borrow().clone();
-        let auth_header_value = credentials.to_auth_header_value().await?;
-
-        // Generate random id for logging purposes.
-        let request_id = Uuid::new_v4();
-        log::info!("Making operation request {request_id}: {op_name}");
-
-        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-            // Also log the request body if requested.
-            log::info!("C: {}", String::from_utf8_lossy(request_body));
-        }
-
-        let mut request_builder = self.client.post(&self.endpoint)?;
-
-        if let Some(ref hdr_value) = auth_header_value {
-            // Only set an `Authorization` header if necessary.
-            request_builder = request_builder.header("Authorization", hdr_value);
-        }
-
-        let response = request_builder
-            .body(request_body, "text/xml; charset=utf-8")
-            .send()
-            .await?;
-
-        let response_body = response.body();
-        let response_status = response.status()?;
-        log::info!(
-            "Response received for request {request_id} (status {response_status}): {op_name}"
-        );
-
-        if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
-            // Also log the response body if requested.
-            log::info!("S: {}", String::from_utf8_lossy(response_body));
-        }
-
-        // Catch authentication errors quickly so we can react to them
-        // appropriately.
-        if response_status.0 == 401 {
-            Err(XpComEwsError::Protocol(ProtocolError::Authentication))
-        } else {
-            Ok(response)
-        }
-    }
-}
-
-/// Gets the time to wait before retrying a throttled request, if any.
-///
-/// When an Exchange server throttles a request, the response will specify a
-/// delay which should be observed before the request is retried.
-fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
-    if let ews::Error::RequestFault(fault) = err {
-        // We successfully sent a request, but it was rejected for some reason.
-        // Whatever the reason, retry if we're provided with a backoff delay.
-        let message_xml = fault.as_ref().detail.as_ref()?.message_xml.as_ref()?;
-
-        match message_xml {
-            ews::MessageXml::ServerBusy(server_busy) => Some(server_busy.back_off_milliseconds),
-            _ => None,
-        }
-    } else {
-        None
     }
 }
 

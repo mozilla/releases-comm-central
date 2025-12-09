@@ -6,7 +6,6 @@
 #define COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_
 
 #include "IEwsIncomingServer.h"
-#include "msgIOAuth2Module.h"
 #include "nsMsgIncomingServer.h"
 
 #define EWS_INCOMING_SERVER_IID \
@@ -53,6 +52,7 @@ class EwsIncomingServer : public nsMsgIncomingServer,
                             nsIUrlListener* aUrlListener) override;
   NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD PerformExpand(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD Shutdown() override;
   NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow,
                          nsIURI** _retval) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
@@ -93,7 +93,8 @@ class EwsIncomingServer : public nsMsgIncomingServer,
    */
   nsresult UpdateTrashFolder();
 
-  nsCOMPtr<msgIOAuth2Module> mOAuth2Module;
+  // An `IEwsClient` that will be reused for each request.
+  nsCOMPtr<IEwsClient> mClient;
 };
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSINCOMINGSERVER_H_

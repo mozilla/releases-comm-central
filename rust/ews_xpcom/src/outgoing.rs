@@ -5,6 +5,7 @@
 use std::cell::{OnceCell, RefCell};
 use std::ffi::CString;
 use std::os::raw::c_void;
+use std::sync::Arc;
 
 use ews::{Mailbox, Recipient};
 use log::debug;
@@ -15,6 +16,8 @@ use nserror::{nsresult, NS_ERROR_UNEXPECTED, NS_OK};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
+use xpcom::components;
+use xpcom::interfaces::nsIObserverService;
 use xpcom::{
     get_service, getter_addrefs,
     interfaces::{
@@ -27,9 +30,9 @@ use xpcom::{
 };
 
 use crate::client::XpComEwsClient;
+use crate::observers::OutgoingRemovalObserver;
 use crate::safe_xpcom::{SafeMsgOutgoingListener, SafeUri};
 use crate::xpcom_io;
-use protocol_shared::authentication::credentials::AuthenticationProvider;
 
 /// Whether a field is required to have a value (either in memory or in a pref)
 /// upon access.
@@ -91,6 +94,7 @@ pub struct EwsOutgoingServer {
     auth_method: RefCell<Option<nsMsgAuthMethodValue>>,
     ews_url: OnceCell<Url>,
     pref_branch: OnceCell<RefPtr<nsIPrefBranch>>,
+    client: OnceCell<Arc<XpComEwsClient<nsIMsgOutgoingServer>>>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -110,7 +114,52 @@ impl EwsOutgoingServer {
             auth_method: Default::default(),
             ews_url: Default::default(),
             pref_branch: Default::default(),
+            client: Default::default(),
         }))
+    }
+
+    /// Retrieves the existing [`XpComEwsClient`], or creates it if there isn't
+    /// one.
+    // See the design consideration section from `operation_queue.rs` regarding
+    // the use of `Arc`.
+    #[allow(clippy::arc_with_non_send_sync)]
+    fn client(&self) -> Result<Arc<XpComEwsClient<nsIMsgOutgoingServer>>, nsresult> {
+        let client = match self.client.get() {
+            Some(client) => client.clone(),
+            None => {
+                let url = self.ews_url()?;
+
+                let outgoing_server = self
+                    .query_interface::<nsIMsgOutgoingServer>()
+                    .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+
+                // Set up the client to build and send the request.
+                let client = XpComEwsClient::new(url, outgoing_server)?;
+                let client = Arc::new(client);
+
+                // Register the observer that will take care of shutting down
+                // the client if the server gets removed.
+                let key = self.key()?;
+                let obs = OutgoingRemovalObserver::new_observer(client.clone(), key.to_string())?;
+                let observer_service = components::Observer::service::<nsIObserverService>()?;
+                unsafe {
+                    observer_service.AddObserver(
+                        obs.coerce(),
+                        c"message-smtpserver-removed".as_ptr(),
+                        false,
+                    )
+                }
+                .to_result()?;
+
+                // We don't need to check the result because this only runs if
+                // no client was set yet.
+                let _ = self.client.set(client.clone());
+
+                client
+            }
+        };
+
+        Ok(client)
     }
 
     /// Retrieves the pref branch for this server, or initializes it if it isn't
@@ -472,8 +521,8 @@ impl EwsOutgoingServer {
         // Otherwise, look it up in the login manager.
         let ews_url = self.ews_url()?;
 
-        // The URI we use to store logins into the login manager uses the format
-        // "protocol://hostname", so start by building one that matches.
+        // The URI we use to store passwords into the login manager uses the
+        // format "protocol://hostname", so start by building one that matches.
         let login_uri = match ews_url.host() {
             Some(host) => nsString::from(format!("ews://{host}").as_str()),
             None => {
@@ -525,8 +574,7 @@ impl EwsOutgoingServer {
 
     xpcom_method!(set_password => SetPassword(password: *const nsACString));
     fn set_password(&self, password: &nsACString) -> Result<(), nsresult> {
-        unsafe { self.password_module.borrow().SetCachedPassword(&*password) };
-        Ok(())
+        unsafe { self.password_module.borrow().SetCachedPassword(password) }.to_result()
     }
 
     // Display name
@@ -600,19 +648,17 @@ impl EwsOutgoingServer {
         let username = self.username()?;
         let server_type = self.server_type()?;
         let ews_url = self.ews_url()?;
-        let host = ews_url.host().map(|x| x);
-        if let Some(host) = host {
-            unsafe {
-                self.password_module.borrow().ForgetPassword(
-                    &*username,
-                    &*nsCString::from(host.to_string()),
-                    &*server_type,
-                )
-            };
-            Ok(())
-        } else {
-            Err(NS_ERROR_UNEXPECTED)
-        }
+        let host = ews_url.host().ok_or(NS_ERROR_UNEXPECTED)?;
+
+        unsafe {
+            self.password_module.borrow().ForgetPassword(
+                &*username,
+                &*nsCString::from(host.to_string()),
+                &*server_type,
+            )
+        };
+
+        Ok(())
     }
 
     xpcom_method!(send_mail => SendMailMessage(
@@ -677,16 +723,7 @@ impl EwsOutgoingServer {
             })
             .collect::<Result<Vec<Recipient>, nsresult>>()?;
 
-        let url = self.ews_url()?;
-
-        let outgoing_server = self
-            .query_interface::<nsIMsgOutgoingServer>()
-            .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
-
-        let credentials = outgoing_server.get_credentials()?;
-
-        // Set up the client to build and send the request.
-        let client = XpComEwsClient::new(url, outgoing_server, credentials)?;
+        let client = self.client()?;
 
         // Send the request asynchronously.
         moz_task::spawn_local(
@@ -727,7 +764,7 @@ impl EwsOutgoingServer {
         let username = self.username()?;
         let server_type = self.server_type()?;
         let ews_url = self.ews_url()?;
-        let host = ews_url.host().map(|x| x);
+        let host = ews_url.host();
         if let Some(host) = host {
             let mut password = nsCString::new();
             unsafe {

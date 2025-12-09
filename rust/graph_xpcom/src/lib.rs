@@ -46,6 +46,11 @@ pub struct XpcomGraphBridge {
 }
 
 impl XpcomGraphBridge {
+    xpcom_method!(running => GetRunning() -> bool);
+    fn running(&self) -> Result<bool, nsresult> {
+        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    }
+
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
     fn record_telemetry(&self, _server_url: &nsACString) -> Result<(), nsresult> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
@@ -72,6 +77,19 @@ impl XpcomGraphBridge {
             })
             .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
 
+        Ok(())
+    }
+
+    xpcom_method!(shutdown => Shutdown());
+    fn shutdown(&self) -> Result<(), nsresult> {
+        // There's currently no shutdown operation for the Graph client.
+        Ok(())
+    }
+
+    xpcom_method!(on_auth_changed => OnAuthChanged());
+    fn on_auth_changed(&self) -> Result<(), nsresult> {
+        // There's currently no in-memory storage of auth credentials for the
+        // Graph client.
         Ok(())
     }
 

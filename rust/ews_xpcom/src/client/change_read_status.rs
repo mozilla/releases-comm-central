@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ews::{
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
@@ -151,7 +153,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     ///
     /// [`UpdateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/updateitem-operation
     pub async fn change_read_status(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         message_ids: ThinVec<nsCString>,
         is_read: bool,

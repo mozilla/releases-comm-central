@@ -53,9 +53,15 @@ function setupEwsTestServer(serverConfig = {}) {
   ewsAccount.addIdentity(MailServices.accounts.createIdentity());
   ewsAccount.incomingServer = incomingServer;
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    incomingServer.shutdown();
+    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    await TestUtils.waitForCondition(
+      () => !incomingServer.protocolClientRunning,
+      "waiting for the EWS client to shut down"
+    );
+
     ewsServer.stop();
-    incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
   });
 

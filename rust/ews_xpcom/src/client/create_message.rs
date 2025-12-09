@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::CreateItem, BaseFolderId, ExtendedFieldURI, ExtendedProperty, Message,
@@ -106,7 +108,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     ///
     /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
     pub async fn create_message(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         folder_id: String,
         is_draft: bool,
         is_read: bool,

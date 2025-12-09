@@ -57,7 +57,7 @@ pub enum Error {
 
     /// A network-related error that does not fit within any other
     /// network-related category.
-    #[error("unexpected error")]
+    #[error("unexpected network error: {0}")]
     UnknownNetworkError(#[source] nsresult),
 
     /// A redirect loop was detected and the request was aborted.

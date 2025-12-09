@@ -41,6 +41,18 @@ interface IEwsFallibleOperationListener;
 interface IEwsClient : nsISupports
 {
   /**
+   * Whether the client is currently running.
+   *
+   * This will be false if `initialize()` hasn't been called yet. If
+   * `shutdown()` has been called, this will become false once all of the queued
+   * operations have finished.
+   *
+   * The client is considered running if it's either performing operations, or
+   * waiting for new ones.
+   */
+  readonly attribute boolean running;
+
+  /**
    * Record in telemetry (Glean) the version for the Exchange Server with the
    * provided URL, and whether it refers to Office365 or an on-premise server.
    *
@@ -73,6 +85,11 @@ interface IEwsClient : nsISupports
   void initialize(
     in AUTF8String endpoint,
     in nsIMsgIncomingServer server);
+
+  /**
+   * Shuts down the client.
+   */
+  void shutdown();
 
   /**
    * Checks that the current client configuration is able to connect and

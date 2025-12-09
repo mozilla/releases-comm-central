@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::cell::Cell;
 use std::{collections::HashMap, ffi::CStr};
 
 use firefox_on_glean::metrics::mailnews_ews::VersionLabel;
@@ -11,9 +12,9 @@ use url::Url;
 
 use ews::server_version::{ExchangeServerVersion, ServerVersionInfo};
 use xpcom::interfaces::{nsIPrefBranch, nsIPrefService};
-use xpcom::{get_service, RefCounted, RefPtr, XpCom};
+use xpcom::{get_service, RefPtr, XpCom};
 
-use super::{XpComEwsClient, XpComEwsError};
+use crate::error::XpComEwsError;
 
 /// The Exchange Server version to use in requests when we cannot figure out
 /// which one to use (e.g. if the server hasn't provided us with a version
@@ -53,8 +54,8 @@ fn get_root_pref_branch() -> Result<RefPtr<nsIPrefBranch>, nsresult> {
 ///
 /// [`None`] is also returned if the pref does not contain any valid JSON. The
 /// rationale for doing so is we expect the server will respond with a version
-/// identifier, which will cause [`XpComEwsClient::update_server_version`] to
-/// rewrite the pref with valid JSON.
+/// identifier, which will cause [`ServerVersionHandler::update_server_version`]
+/// to rewrite the pref with valid JSON.
 fn parse_server_version_pref() -> Result<Option<HashMap<String, String>>, XpComEwsError> {
     let pref_branch = get_root_pref_branch()?;
 
@@ -122,8 +123,8 @@ pub(crate) fn read_server_version(
     Ok(version)
 }
 
-/// Turn a given [`ExchangeServerVersion`] into an [`ServerVersionLabel`] that
-/// can be used to record telemetry data with Glean.
+/// Turn a given [`ExchangeServerVersion`] into a [`VersionLabel`] that can be
+/// used to record telemetry data with Glean.
 pub(crate) fn to_glean_label(version: &ExchangeServerVersion) -> VersionLabel {
     match version {
         ExchangeServerVersion::Exchange2007 => VersionLabel::EExchange2007,
@@ -136,16 +137,27 @@ pub(crate) fn to_glean_label(version: &ExchangeServerVersion) -> VersionLabel {
     }
 }
 
-impl<ServerT> XpComEwsClient<ServerT>
-where
-    ServerT: RefCounted,
-{
+pub(crate) struct ServerVersionHandler {
+    version: Cell<ExchangeServerVersion>,
+    endpoint: Url,
+}
+
+impl ServerVersionHandler {
+    pub fn new(endpoint: Url) -> Result<ServerVersionHandler, XpComEwsError> {
+        let version = read_server_version(&endpoint)?.unwrap_or(DEFAULT_EWS_SERVER_VERSION);
+        Ok(ServerVersionHandler {
+            version: Cell::new(version),
+            endpoint,
+        })
+    }
+
+    pub fn get_version(&self) -> ExchangeServerVersion {
+        self.version.get()
+    }
+
     /// Updates the server version associated with the client's current endpoint
     /// in the relevant pref.
-    pub(super) fn update_server_version(
-        &self,
-        header: ServerVersionInfo,
-    ) -> Result<(), XpComEwsError> {
+    pub fn update_server_version(&self, header: ServerVersionInfo) -> Result<(), XpComEwsError> {
         let version = match header.version {
             Some(version) if !version.is_empty() => version,
             // If the server did not include a version identifier in the
@@ -165,7 +177,7 @@ where
 
         // Update the in-memory representation of the server version, in case
         // the client will be reused later.
-        self.server_version.set(version);
+        self.version.set(version);
 
         let mut known_versions = parse_server_version_pref()?.unwrap_or_default();
         let endpoint = self.endpoint.to_string();

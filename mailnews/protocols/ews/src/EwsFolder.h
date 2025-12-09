@@ -121,7 +121,7 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    * Generate or retrieve an EWS API client capable of interacting with the EWS
    * server this folder depends from.
    */
-  nsresult CreateProtocolClient(IEwsClient** ewsClient);
+  nsresult GetProtocolClient(IEwsClient** ewsClient);
 
   /**
    * Locally look up the EWS ID for the current folder.

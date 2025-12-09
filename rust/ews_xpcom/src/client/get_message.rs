@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{get_item::GetItem, Operation};
 
@@ -66,7 +68,11 @@ impl DoOperation for DoGetMessage<'_> {
 }
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
-    pub(crate) async fn get_message(self, listener: SafeEwsMessageFetchListener, id: String) {
+    pub(crate) async fn get_message(
+        self: Arc<XpComEwsClient<ServerT>>,
+        listener: SafeEwsMessageFetchListener,
+        id: String,
+    ) {
         let operation = DoGetMessage {
             listener: &listener,
             id,

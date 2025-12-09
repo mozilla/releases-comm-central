@@ -5,6 +5,7 @@ edition = "2021"
 rust-version.workspace = true
 
 [dependencies]
+async-channel = "2.5.0"
 base64 = "0.21.3"
 cstr = "0.2"
 ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "397aea31b0401c482b9a463d372d2c0a0651602f", version = "0.1.0", features = [
@@ -19,6 +20,8 @@ moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
 nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
+oneshot = "0.1.11"
+paste = "1.0.11"
 protocol_shared = { version = "0.1.0", path = "../protocol_shared" }
 quick-xml = { version = "0.31.0", features = ["serde"] }
 serde = { version = "1.0.196", features = ["derive"] }

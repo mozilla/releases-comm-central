@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    sync_folder_hierarchy::{self, SyncFolderHierarchy},
+    sync_folder_hierarchy::{self, SyncFolderHierarchy, SyncFolderHierarchyResponse},
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc};
 
 use super::{
     process_response_message_class, single_response_or_error, DoOperation, ServerType,
     XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::safe_xpcom::SafeEwsFolderListener;
+use crate::{macros::queue_operation, safe_xpcom::SafeEwsFolderListener};
 
 struct DoSyncFolderHierarchy<'a> {
     pub listener: &'a SafeEwsFolderListener,
@@ -58,11 +58,10 @@ impl DoOperation for DoSyncFolderHierarchy<'_> {
                 sync_state: self.sync_state_token.clone(),
             };
 
-            let response = client
-                .make_operation_request(op, Default::default())
-                .await?
-                .into_response_messages();
-            let response = single_response_or_error(response)?;
+            let rcv = queue_operation!(client, SyncFolderHierarchy, op, Default::default());
+            let response_messages = rcv.await??.into_response_messages();
+
+            let response = single_response_or_error(response_messages)?;
             let message = process_response_message_class("SyncFolderHierarchy", response)?;
 
             let mut create_ids = Vec::new();
@@ -137,7 +136,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     ///
     /// [`SyncFolderHierarchy` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy-operation
     pub(crate) async fn sync_folder_hierarchy(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsFolderListener,
         sync_state_token: Option<String>,
     ) {

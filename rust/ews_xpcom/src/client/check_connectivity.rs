@@ -2,15 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::{Operation, OperationResponse};
+use std::sync::Arc;
+
+use ews::{get_folder::GetFolderResponse, Operation, OperationResponse};
 
 use super::{
     process_response_message_class, single_response_or_error, validate_get_folder_response_message,
-    AuthFailureBehavior, BaseFolderId, BaseShape, DoOperation, FolderShape, GetFolder,
-    OperationRequestOptions, ServerType, XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
+    BaseFolderId, BaseShape, DoOperation, FolderShape, GetFolder, OperationRequestOptions,
+    ServerType, XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::safe_xpcom::{SafeUri, SafeUrlListener};
+use crate::{
+    macros::queue_operation,
+    operation_sender::AuthFailureBehavior,
+    safe_xpcom::{SafeUri, SafeUrlListener},
+};
 
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,
@@ -39,18 +45,18 @@ impl DoOperation for DoCheckConnectivity<'_> {
             }],
         };
 
-        let response_messages = client
+        let rcv = queue_operation!(
+            client,
+            GetFolder,
+            get_root_folder,
             // Make authentication failure silent, since all we want to know is
             // whether our credentials are valid.
-            .make_operation_request(
-                get_root_folder,
-                OperationRequestOptions {
-                    auth_failure_behavior: AuthFailureBehavior::Silent,
-                    ..Default::default()
-                },
-            )
-            .await?
-            .into_response_messages();
+            OperationRequestOptions {
+                auth_failure_behavior: AuthFailureBehavior::Silent,
+                ..Default::default()
+            }
+        );
+        let response_messages = rcv.await??.into_response_messages();
 
         // Get the first (and only) response message so we can inspect it.
         let response_class = single_response_or_error(response_messages)?;
@@ -80,7 +86,11 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// authentication, we try to look up the ID of the account's root mail
     /// folder, since it produces a fairly small request and represents the
     /// first operation performed when adding a new account to Thunderbird.
-    pub(crate) async fn check_connectivity(self, uri: SafeUri, listener: SafeUrlListener) {
+    pub(crate) async fn check_connectivity(
+        self: Arc<XpComEwsClient<ServerT>>,
+        uri: SafeUri,
+        listener: SafeUrlListener,
+    ) {
         let operation = DoCheckConnectivity {
             listener: &listener,
             uri,

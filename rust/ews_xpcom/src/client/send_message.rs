@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::CreateItem, ArrayOfRecipients, Message, MessageDisposition, MimeContent,
@@ -63,6 +65,9 @@ impl DoOperation for DoSendMessage<'_> {
             saved_item_folder_id: None,
         };
 
+        // We don't propagate transport security failures to users here, because
+        // `SafeMsgOutgoingListener::on_send_stop` takes care of identifying
+        // such errors and bubbling them up to the MessageSend module.
         client
             .make_create_item_request(create_item, TransportSecFailureBehavior::Silent)
             .await?;
@@ -87,7 +92,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     ///
     /// [`CreateItem` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
     pub async fn send_message(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         mime_content: String,
         message_id: String,
         should_request_dsn: bool,

@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -51,9 +55,15 @@ function setupBasicEwsTestServer({ version = "Exchange2013" }) {
     `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
   );
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    incomingServer.shutdown();
+    incomingServer.QueryInterface(Ci.IEwsIncomingServer);
+    await TestUtils.waitForCondition(
+      () => !incomingServer.protocolClientRunning,
+      "waiting for the EWS client to shut down"
+    );
+
     ewsServer.stop();
-    incomingServer.closeCachedConnections();
   });
 
   return [ewsServer, incomingServer];

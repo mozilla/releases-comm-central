@@ -24,11 +24,20 @@ interface nsIMsgWindow;
 interface IEwsIncomingServer : nsISupports
 {
   /**
-   * Create the client for interacting with the remote server protocol.
+   * Whether the protocol client is currently running.
    *
-   * This method will construct a new client on every call.
+   * This will be false if no protocol client has been initialized (via
+   * `getProtocolClient()`) yet. If the server is in the process of shutting
+   * down, this will return false only once the protocol client has fully shut
+   * down.
    */
-  IEwsClient createProtocolClient();
+  readonly attribute boolean protocolClientRunning;
+
+  /**
+   * Get the client for interacting with the remote server protocol, creating a
+   * new one if one hasn't already been created.
+   */
+  IEwsClient getProtocolClient();
 
   /** The URL for the EWS Server */
   attribute AUTF8String ewsUrl;
@@ -50,7 +59,6 @@ interface IEwsIncomingServer : nsISupports
 
   /** Override value for OAuth scopes. */
   attribute AUTF8String ewsOAuthScopes;
-
 
   /**
    * An enumeration of what to do when we delete an item.

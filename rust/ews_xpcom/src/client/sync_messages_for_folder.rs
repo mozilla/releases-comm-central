@@ -4,17 +4,20 @@
 
 use ews::{
     server_version::ExchangeServerVersion,
-    sync_folder_items::{self, SyncFolderItems},
+    sync_folder_items::{self, SyncFolderItems, SyncFolderItemsResponse},
     ItemShape, Operation, OperationResponse,
 };
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 use super::{
     process_response_message_class, single_response_or_error, BaseFolderId, BaseShape, DoOperation,
     ServerType, XpComEwsClient, XpComEwsError,
 };
 
-use crate::safe_xpcom::SafeEwsMessageSyncListener;
+use crate::{macros::queue_operation, safe_xpcom::SafeEwsMessageSyncListener};
 
 struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
@@ -53,11 +56,10 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
                 sync_scope: None,
             };
 
-            let response = client
-                .make_operation_request(op, Default::default())
-                .await?
-                .into_response_messages();
-            let response_class = single_response_or_error(response)?;
+            let rcv = queue_operation!(client, SyncFolderItems, op, Default::default());
+            let response_messages = rcv.await??.into_response_messages();
+
+            let response_class = single_response_or_error(response_messages)?;
             let message = process_response_message_class(SyncFolderItems::NAME, response_class)?;
 
             // We only fetch unique messages, as we ignore the `ChangeKey` and
@@ -109,7 +111,7 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
                 "item:Size",
             ];
 
-            if client.server_version.get() >= ExchangeServerVersion::Exchange2013 {
+            if client.version_handler.get_version() >= ExchangeServerVersion::Exchange2013 {
                 fields_to_fetch.push("item:Preview");
             }
 
@@ -270,7 +272,7 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn sync_messages_for_folder(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,

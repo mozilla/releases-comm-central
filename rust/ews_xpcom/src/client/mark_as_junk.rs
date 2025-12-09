@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ews::{
-    mark_as_junk::MarkAsJunk, move_item::MoveItem, server_version::ExchangeServerVersion,
+    mark_as_junk::{MarkAsJunk, MarkAsJunkResponse},
+    move_item::MoveItem,
+    server_version::ExchangeServerVersion,
     BaseItemId, Operation, OperationResponse,
 };
 use nsstring::nsCString;
@@ -11,9 +15,11 @@ use thin_vec::ThinVec;
 
 use crate::{
     client::{
-        copy_move_operations::move_generic::CopyMoveSuccess, process_response_message_class,
-        validate_response_message_count, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
+        copy_move_operations::move_generic::{CopyMoveSuccess, RequiresResync},
+        process_response_message_class, validate_response_message_count, DoOperation, ServerType,
+        XpComEwsClient, XpComEwsError,
     },
+    macros::queue_operation,
     safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener},
 };
 
@@ -32,7 +38,7 @@ impl DoOperation for DoMarkAsJunk {
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
-        let server_version = client.server_version.get();
+        let server_version = client.version_handler.get_version();
 
         // The `MarkAsJunk` operation was added in Exchange2013.
         let use_mark_as_junk = server_version >= ExchangeServerVersion::Exchange2013;
@@ -53,9 +59,8 @@ impl DoOperation for DoMarkAsJunk {
                 item_ids,
             };
 
-            let response = client
-                .make_operation_request(mark_as_junk, Default::default())
-                .await?;
+            let rcv = queue_operation!(client, MarkAsJunk, mark_as_junk, Default::default());
+            let response = rcv.await??;
 
             let response_messages = response.into_response_messages();
             validate_response_message_count(&response_messages, self.ews_ids.len())?;
@@ -80,11 +85,12 @@ impl DoOperation for DoMarkAsJunk {
                     self.ews_ids.iter().map(|s| s.to_string()).collect(),
                 )
                 .await?;
-            Ok(if requires_resync {
-                None
-            } else {
-                Some(new_ids.iter().map(nsCString::from).collect())
-            })
+
+            let new_ids = match requires_resync {
+                RequiresResync::Yes => None,
+                RequiresResync::No => Some(new_ids.iter().map(nsCString::from).collect()),
+            };
+            Ok(new_ids)
         } else {
             Err(XpComEwsError::Processing { message: "Unable to determine junk folder and Exchange version is too old for `MarkAsJunk` operation.".to_string() })
         }
@@ -100,7 +106,7 @@ impl DoOperation for DoMarkAsJunk {
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn mark_as_junk(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,
         is_junk: bool,

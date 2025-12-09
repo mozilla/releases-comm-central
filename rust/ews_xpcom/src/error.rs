@@ -5,12 +5,16 @@
 //! EWS error values.
 //!
 //! Provides an error type specific to EWS operations that may wrap an
-//! underlying [`protocol_shared::ProtocolError`].
+//! underlying [`protocol_shared::error::ProtocolError`].
 
+use async_channel::SendError;
 use ews::response::ResponseError;
 use nserror::nsresult;
+use oneshot::RecvError;
 use protocol_shared::error::ProtocolError;
 use thiserror::Error;
+
+use crate::operation_queue::QueuedOperation;
 
 /// Error types for EWS operations.
 #[derive(Debug, Error)]
@@ -37,6 +41,12 @@ pub(crate) enum XpComEwsError {
 
     #[error("error in processing response")]
     Processing { message: String },
+
+    #[error("async communication error: could not receive the operation response: {0}")]
+    OperationReceiver(#[from] RecvError),
+
+    #[error("async communication error: could not send operation to queue: {0}")]
+    QueueSender(#[from] SendError<QueuedOperation>),
 }
 
 impl From<&XpComEwsError> for nsresult {

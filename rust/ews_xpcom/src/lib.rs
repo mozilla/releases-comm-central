@@ -14,10 +14,8 @@ use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
 use nsstring::{nsACString, nsCString};
-use protocol_shared::{
-    authentication::credentials::AuthenticationProvider, ExchangeConnectionDetails,
-};
-use std::{cell::OnceCell, ffi::c_void};
+use protocol_shared::ExchangeConnectionDetails;
+use std::{cell::OnceCell, ffi::c_void, sync::Arc};
 use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
@@ -29,7 +27,6 @@ use xpcom::{
     nsIID, xpcom_method, RefPtr,
 };
 
-use client::server_version;
 use client::XpComEwsClient;
 use safe_xpcom::{
     SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
@@ -40,8 +37,13 @@ mod cancellable_request;
 mod client;
 mod error;
 mod headers;
+mod macros;
+mod observers;
+mod operation_queue;
+mod operation_sender;
 mod outgoing;
 mod safe_xpcom;
+mod server_version;
 mod xpcom_io;
 
 /// The base domains for Office365-hosted accounts. At the time of writing, the
@@ -68,6 +70,7 @@ pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_voi
     let instance = XpcomEwsBridge::allocate(InitXpcomEwsBridge {
         server: OnceCell::default(),
         details: OnceCell::default(),
+        client: OnceCell::default(),
     });
 
     instance.QueryInterface(iid, result)
@@ -76,12 +79,24 @@ pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_voi
 /// `XpcomEwsBridge` provides an XPCOM interface implementation for mediating
 /// between C++ consumers and an async Rust EWS client.
 #[xpcom::xpcom(implement(IEwsClient), atomic)]
-pub struct XpcomEwsBridge {
+pub(crate) struct XpcomEwsBridge {
     server: OnceCell<Box<dyn UserInteractiveServer>>,
     details: OnceCell<ExchangeConnectionDetails>,
+    client: OnceCell<Arc<XpComEwsClient<nsIMsgIncomingServer>>>,
 }
 
 impl XpcomEwsBridge {
+    xpcom_method!(running => GetRunning() -> bool);
+    fn running(&self) -> Result<bool, nsresult> {
+        let client = match self.client() {
+            Ok(client) => client,
+            Err(err) if err == NS_ERROR_NOT_INITIALIZED => return Ok(false),
+            Err(err) => return Err(err),
+        };
+
+        Ok(client.running())
+    }
+
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
     fn record_telemetry(&self, server_url: &nsACString) -> Result<(), nsresult> {
         // Try to parse the URL.
@@ -123,44 +138,41 @@ impl XpcomEwsBridge {
     xpcom_method!(initialize => Initialize(
         endpoint: *const nsACString,
         server: *const nsIMsgIncomingServer));
+    // See the design consideration section from `operation_queue.rs` regarding
+    // the use of `Arc`.
+    #[allow(clippy::arc_with_non_send_sync)]
     fn initialize(
         &self,
         endpoint: &nsACString,
         server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
         let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
-
-        let credentials = server.get_credentials()?;
         let server = RefPtr::new(server);
 
-        self.details
-            .set(ExchangeConnectionDetails {
-                endpoint,
-                server,
-                credentials,
-            })
+        let client = XpComEwsClient::new(endpoint, server)?;
+        self.client
+            .set(Arc::new(client))
             .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
 
         Ok(())
     }
 
+    xpcom_method!(shutdown => Shutdown());
+    fn shutdown(&self) -> Result<(), nsresult> {
+        let client = self.client()?;
+        client.shutdown();
+        Ok(())
+    }
+
     xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);
     fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
-        // Extract the endpoint URL from the existing server details (or error
-        // if these haven't been set yet).
-        let uri = self
-            .details
-            .get()
-            .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)?
-            .endpoint
-            .to_string();
-
-        // Turn the string URI into an `nsIURI`.
-        let uri = SafeUri::new(uri)?;
-
         // Get an EWS client and make a request to check connectivity to the EWS
         // server.
-        let client = self.try_new_client()?;
+        let client = self.client()?;
+
+        // Extract the client's URL and turn it into an `nsIURI`.
+        let uri = client.url().to_string();
+        let uri = SafeUri::new(uri)?;
 
         moz_task::spawn_local(
             "check_connectivity",
@@ -188,7 +200,7 @@ impl XpcomEwsBridge {
             Some(sync_state.to_utf8().into_owned())
         };
 
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -216,7 +228,7 @@ impl XpcomEwsBridge {
             return Err(nserror::NS_ERROR_INVALID_ARG);
         }
 
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -242,7 +254,7 @@ impl XpcomEwsBridge {
         listener: &IEwsSimpleOperationListener,
         folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -274,7 +286,7 @@ impl XpcomEwsBridge {
         subfolder_ids: &ThinVec<nsCString>,
         message_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         let folder_ids = folder_ids
             .iter()
@@ -316,7 +328,7 @@ impl XpcomEwsBridge {
         folder_id: &nsACString,
         folder_name: &nsACString,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -352,7 +364,7 @@ impl XpcomEwsBridge {
             Some(sync_state.to_utf8().into_owned())
         };
 
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -378,7 +390,7 @@ impl XpcomEwsBridge {
         listener: &IEwsMessageFetchListener,
         id: &nsACString,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -405,7 +417,7 @@ impl XpcomEwsBridge {
         message_ids: &ThinVec<nsCString>,
         is_read: bool,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -435,7 +447,7 @@ impl XpcomEwsBridge {
         is_read: bool,
         suppress_read_receipts: bool,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -470,7 +482,7 @@ impl XpcomEwsBridge {
     ) -> Result<(), nsresult> {
         let content = crate::xpcom_io::read_stream(message_stream)?;
 
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -500,7 +512,7 @@ impl XpcomEwsBridge {
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "move_items",
@@ -526,7 +538,7 @@ impl XpcomEwsBridge {
         destination_folder_id: &nsACString,
         item_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "copy_items",
@@ -552,7 +564,7 @@ impl XpcomEwsBridge {
         destination_folder_id: &nsACString,
         folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "move_folders",
@@ -578,7 +590,7 @@ impl XpcomEwsBridge {
         destination_folder_id: &nsACString,
         folder_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "copy_folders",
@@ -602,7 +614,7 @@ impl XpcomEwsBridge {
         listener: &IEwsSimpleOperationListener,
         ews_ids: &ThinVec<nsCString>,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
@@ -631,7 +643,7 @@ impl XpcomEwsBridge {
         is_junk: bool,
         legacy_destination_folder_id: &nsACString,
     ) -> Result<(), nsresult> {
-        let client = self.try_new_client()?;
+        let client = self.client()?;
 
         moz_task::spawn_local(
             "mark_items_as_junk",
@@ -646,17 +658,14 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
-    /// Gets a new EWS client if initialized.
-    fn try_new_client(&self) -> Result<XpComEwsClient<nsIMsgIncomingServer>, nsresult> {
-        // We only get a reference out of the cell, but we need ownership in
-        // order for the `XpcomEwsClient` to be `Send`, so we're forced to
-        // clone.
-        let ExchangeConnectionDetails {
-            endpoint,
-            server,
-            credentials,
-        } = self.details.get().ok_or(NS_ERROR_NOT_INITIALIZED)?.clone();
-
-        Ok(XpComEwsClient::new(endpoint, server, credentials)?)
+    /// Gets a new EWS client if initialized. The client is wrapped into an
+    /// `Arc`, which is cloned from `self.client` so the consumer does not need
+    /// to clone it again.
+    ///
+    /// If the [`XpcomEwsBridge`] hasn't been initialized yet,
+    /// [`NS_ERROR_NOT_INITIALIZED`] is returned.
+    fn client(&self) -> Result<Arc<XpComEwsClient<nsIMsgIncomingServer>>, nsresult> {
+        let client = self.client.get().ok_or(NS_ERROR_NOT_INITIALIZED)?.clone();
+        Ok(client)
     }
 }

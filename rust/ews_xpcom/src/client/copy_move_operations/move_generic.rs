@@ -4,22 +4,45 @@
 
 use ews::{Operation, OperationResponse};
 
-use crate::client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError};
+use crate::{
+    client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError},
+    safe_xpcom::UseLegacyFallback,
+};
+
+/// Whether the EWS copy/move operation should be followed by a resync to pick
+/// up updated IDs.
+pub(crate) enum RequiresResync {
+    /// A resync is needed.
+    Yes,
+
+    /// A resync is not needed, because either IDs won't change over this
+    /// operation, or the server version is recent enough that the server can
+    /// provide us with new IDs in the response.
+    No,
+}
+
+impl From<RequiresResync> for UseLegacyFallback {
+    fn from(value: RequiresResync) -> Self {
+        match value {
+            RequiresResync::Yes => UseLegacyFallback::Yes,
+            RequiresResync::No => UseLegacyFallback::No,
+        }
+    }
+}
 
 /// An EWS operation that copies or moves folders or items.
 pub(crate) trait CopyMoveOperation: Operation + Clone {
-    /// Whether the consumer should sync the folder or account again after this
-    /// operation has completed.
-    fn requires_resync(&self) -> bool;
-
-    /// Specifies the mapping from the available input data, including the EWS
-    /// client, the destination EWS ID, and the input collection of EWS IDs to
-    /// be moved, to the input to the EWS operation.
-    fn operation_builder<ServerT: ServerType>(
+    /// Pushes a new copy/move operation with the given parameters to the back
+    /// of the client's queue and waits for a response.
+    ///
+    /// The success return value is the operation's response, as well as an
+    /// indication of whether a resync is needed to pick up the new IDs of the
+    /// copied/moved elements.
+    async fn queue_operation<ServerT: ServerType>(
         client: &XpComEwsClient<ServerT>,
         destination_folder_id: String,
         ids: Vec<String>,
-    ) -> Self;
+    ) -> Result<(Self::Response, RequiresResync), XpComEwsError>;
 
     /// Maps from the EWS response object to the collection of EWS IDs for the
     /// moved objects.
@@ -31,7 +54,7 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
 /// The result of a successful copy or move operation.
 pub(crate) struct CopyMoveSuccess {
     pub new_ids: Vec<String>,
-    pub requires_resync: bool,
+    pub requires_resync: RequiresResync,
 }
 
 /// Perform a generic copy/move operation.
@@ -57,12 +80,8 @@ where
     ServerT: ServerType,
     OperationDataT: CopyMoveOperation,
 {
-    let operation_data = OperationDataT::operation_builder(client, destination_folder_id, ids);
-    let requires_resync = operation_data.requires_resync();
-
-    let resp = client
-        .make_operation_request(operation_data, Default::default())
-        .await?;
+    let (resp, requires_resync) =
+        OperationDataT::queue_operation(client, destination_folder_id, ids).await?;
 
     let messages = response_into_messages(resp)?;
     let new_ids = OperationDataT::response_to_ids(messages);

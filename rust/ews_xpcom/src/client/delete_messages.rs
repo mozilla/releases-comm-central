@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ews::{
-    delete_item::DeleteItem,
+    delete_item::{DeleteItem, DeleteItemResponse},
     response::{ResponseCode, ResponseError},
     BaseItemId, DeleteType, Operation, OperationResponse,
 };
@@ -15,7 +17,10 @@ use super::{
     XpComEwsClient, XpComEwsError,
 };
 
-use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
+use crate::{
+    macros::queue_operation,
+    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
+};
 
 struct DoDeleteMessages {
     pub ews_ids: ThinVec<nsCString>,
@@ -47,9 +52,8 @@ impl DoOperation for DoDeleteMessages {
             suppress_read_receipts: None,
         };
 
-        let response = client
-            .make_operation_request(delete_item, Default::default())
-            .await?;
+        let rcv = queue_operation!(client, DeleteItem, delete_item, Default::default());
+        let response = rcv.await??;
 
         // Make sure we got the amount of response messages matches the amount
         // of messages we requested to have deleted.
@@ -100,7 +104,7 @@ impl DoOperation for DoDeleteMessages {
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_messages(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         ews_ids: ThinVec<nsCString>,
     ) {

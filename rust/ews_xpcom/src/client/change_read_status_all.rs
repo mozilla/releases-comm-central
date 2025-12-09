@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ews::{
-    mark_all_read::MarkAllItemsAsRead, server_version::ExchangeServerVersion, BaseFolderId,
-    Operation, OperationResponse,
+    mark_all_read::{MarkAllItemsAsRead, MarkAllItemsAsReadResponse},
+    server_version::ExchangeServerVersion,
+    BaseFolderId, Operation, OperationResponse,
 };
 use nsstring::nsCString;
 use thin_vec::ThinVec;
@@ -14,6 +17,7 @@ use crate::{
         process_response_message_class, single_response_or_error, DoOperation, ServerType,
         XpComEwsClient, XpComEwsError,
     },
+    macros::queue_operation,
     safe_xpcom::{SafeEwsSimpleOperationListener, SimpleOperationSuccessArgs, UseLegacyFallback},
 };
 
@@ -32,7 +36,7 @@ impl DoOperation for DoChangeReadStatusAll {
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
-        let server_version = client.server_version.get();
+        let server_version = client.version_handler.get_version();
 
         // The `MarkAllItemsAsRead` operation was added in Exchange2013
         if server_version < ExchangeServerVersion::Exchange2013 {
@@ -58,9 +62,13 @@ impl DoOperation for DoChangeReadStatusAll {
             folder_ids,
         };
 
-        let response = client
-            .make_operation_request(mark_all_items, Default::default())
-            .await?;
+        let rcv = queue_operation!(
+            client,
+            MarkAllItemsAsRead,
+            mark_all_items,
+            Default::default()
+        );
+        let response = rcv.await??;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.
@@ -83,7 +91,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     ///
     /// [`MarkAllItemsAsRead` operation]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/markallitemsasread-operation
     pub async fn change_read_status_all(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         folder_ids: ThinVec<nsCString>,
         is_read: bool,

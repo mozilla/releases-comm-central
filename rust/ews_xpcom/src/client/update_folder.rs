@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use std::sync::Arc;
+
 use ews::{
-    update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates},
+    update_folder::{FolderChange, FolderChanges, UpdateFolder, UpdateFolderResponse, Updates},
     BaseFolderId, Folder, Operation, OperationResponse, PathToElement,
 };
 
@@ -12,7 +14,10 @@ use super::{
     XpComEwsClient, XpComEwsError,
 };
 
-use crate::safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback};
+use crate::{
+    macros::queue_operation,
+    safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
+};
 
 struct DoUpdateFolder {
     pub folder_id: String,
@@ -54,9 +59,9 @@ impl DoOperation for DoUpdateFolder {
             },
         };
 
-        let response = client
-            .make_operation_request(update_folder, Default::default())
-            .await?;
+        let rcv = queue_operation!(client, UpdateFolder, update_folder, Default::default());
+        let response = rcv.await??;
+
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;
         process_response_message_class(Self::NAME, response_message)?;
@@ -76,7 +81,7 @@ impl DoOperation for DoUpdateFolder {
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn update_folder(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         folder_id: String,
         folder_name: String,

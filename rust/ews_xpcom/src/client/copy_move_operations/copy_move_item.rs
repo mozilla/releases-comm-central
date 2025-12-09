@@ -3,16 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    copy_item::CopyItem, move_item::MoveItem, server_version::ExchangeServerVersion, BaseItemId,
-    CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
+    copy_item::{CopyItem, CopyItemResponse},
+    move_item::{MoveItem, MoveItemResponse},
+    server_version::ExchangeServerVersion,
+    BaseItemId, CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
 };
-use std::marker::PhantomData;
-use xpcom::RefCounted;
+use std::{marker::PhantomData, sync::Arc};
 
 use crate::client::copy_move_operations::move_generic::{
-    move_generic, CopyMoveOperation, CopyMoveSuccess,
+    move_generic, CopyMoveOperation, CopyMoveSuccess, RequiresResync,
 };
 use crate::client::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
+use crate::macros::queue_operation;
 use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 
 struct DoCopyMoveItem<RequestT> {
@@ -62,7 +64,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     /// collection of EWS item IDs to copy or move. The `listener` parameter
     /// contains the callbacks to execute upon success or failure.
     pub(crate) async fn copy_move_item<RequestT>(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         destination_folder_id: String,
         item_ids: Vec<String>,
@@ -116,9 +118,9 @@ fn construct_request<RequestT, ServerT>(
 ) -> RequestT
 where
     RequestT: From<CopyMoveItemData>,
-    ServerT: RefCounted,
+    ServerT: ServerType,
 {
-    let server_version = client.server_version.get();
+    let server_version = client.version_handler.get_version();
 
     // `ReturnNewItemIds` was introduced in Exchange Server 2010 SP1.
     let return_new_item_ids = if server_version <= ExchangeServerVersion::Exchange2010 {
@@ -159,18 +161,20 @@ fn get_new_ews_ids_from_response(response: Vec<ItemResponseMessage>) -> Vec<Stri
 }
 
 impl CopyMoveOperation for CopyItem {
-    fn requires_resync(&self) -> bool {
-        // If we don't expect the response to give us the new IDs for the items
-        // we've copied, we should get them by syncing again.
-        self.inner.return_new_item_ids != Some(true)
-    }
-
-    fn operation_builder<ServerT: ServerType>(
+    async fn queue_operation<ServerT: ServerType>(
         client: &XpComEwsClient<ServerT>,
         destination_folder_id: String,
         ids: Vec<String>,
-    ) -> Self {
-        construct_request(client, destination_folder_id, ids)
+    ) -> Result<(Self::Response, RequiresResync), XpComEwsError> {
+        let op: Self = construct_request(client, destination_folder_id, ids);
+        let requires_resync = if let Some(true) = op.inner.return_new_item_ids {
+            RequiresResync::No
+        } else {
+            RequiresResync::Yes
+        };
+
+        let rcv = queue_operation!(client, CopyItem, op, Default::default());
+        rcv.await?.map(|resp| (resp, requires_resync))
     }
 
     fn response_to_ids(
@@ -181,18 +185,20 @@ impl CopyMoveOperation for CopyItem {
 }
 
 impl CopyMoveOperation for MoveItem {
-    fn requires_resync(&self) -> bool {
-        // If we don't expect the response to give us the new IDs for the items
-        // we've moved, we should get them by syncing again.
-        self.inner.return_new_item_ids != Some(true)
-    }
-
-    fn operation_builder<ServerT: ServerType>(
+    async fn queue_operation<ServerT: ServerType>(
         client: &XpComEwsClient<ServerT>,
         destination_folder_id: String,
         ids: Vec<String>,
-    ) -> Self {
-        construct_request(client, destination_folder_id, ids)
+    ) -> Result<(Self::Response, RequiresResync), XpComEwsError> {
+        let op: Self = construct_request(client, destination_folder_id, ids);
+        let requires_resync = if let Some(true) = op.inner.return_new_item_ids {
+            RequiresResync::No
+        } else {
+            RequiresResync::Yes
+        };
+
+        let rcv = queue_operation!(client, MoveItem, op, Default::default());
+        rcv.await?.map(|resp| (resp, requires_resync))
     }
 
     fn response_to_ids(

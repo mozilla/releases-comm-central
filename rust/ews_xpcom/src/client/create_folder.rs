@@ -2,9 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ews::{create_folder::CreateFolder, BaseFolderId, Folder, Operation, OperationResponse};
+use std::sync::Arc;
 
-use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback};
+use ews::{
+    create_folder::{CreateFolder, CreateFolderResponse},
+    BaseFolderId, Folder, Operation, OperationResponse,
+};
+
+use crate::{
+    macros::queue_operation,
+    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
+};
 
 use super::{
     process_response_message_class, single_response_or_error, DoOperation, ServerType,
@@ -42,9 +50,8 @@ impl DoOperation for DoCreateFolder {
             }],
         };
 
-        let response = client
-            .make_operation_request(op, Default::default())
-            .await?;
+        let rcv = queue_operation!(client, CreateFolder, op, Default::default());
+        let response = rcv.await??;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.
@@ -90,7 +97,7 @@ impl DoOperation for DoCreateFolder {
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub(crate) async fn create_folder(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         parent_id: String,
         name: String,

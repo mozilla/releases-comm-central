@@ -13,10 +13,10 @@ use thiserror::Error;
 /// Error types for HTTPS-based protocols.
 #[derive(Debug, Error)]
 pub enum ProtocolError {
-    #[error("an error occurred in an XPCOM call")]
+    #[error("an error occurred in an XPCOM call: {0}")]
     XpCom(#[from] nsresult),
 
-    #[error("an error occurred during HTTP transport")]
+    #[error("an error occurred during HTTP transport: {0}")]
     Http(#[from] moz_http::Error),
 
     #[error("failed to authenticate")]

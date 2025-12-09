@@ -5,7 +5,7 @@
 use ews::{
     delete_folder::DeleteFolder, empty_folder::EmptyFolder, server_version::ExchangeServerVersion,
 };
-use std::marker::PhantomData;
+use std::{marker::PhantomData, sync::Arc};
 
 use super::{DoEraseFolder, DoOperation, XpComEwsClient};
 
@@ -16,7 +16,7 @@ use crate::{
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn empty_folder(
-        self,
+        self: Arc<XpComEwsClient<ServerT>>,
         listener: SafeEwsSimpleOperationListener,
         folder_ids: Vec<String>,
         subfolder_ids: Vec<String>,
@@ -25,7 +25,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
         // This is more complicated than typical because we need to fall back on other operations to
         // handle the fallback case
 
-        let server_version = self.server_version.get();
+        let server_version = self.version_handler.get_version();
         // EmptyFolder was added in Exchange 2010
         if server_version >= ExchangeServerVersion::Exchange2010 {
             // we have support for the EmptyFolder operation, just use that
