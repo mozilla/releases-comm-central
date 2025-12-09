@@ -14,7 +14,12 @@ function readFile(filePath) {
     .readFileSync(filePath, { encoding: "utf-8" })
     .split("\n")
     .filter(p => p && !p.startsWith("#"))
-    .map(p => p.replace(/^comm\//, ""));
+    .map(p => p.replace(/^comm\//, ""))
+    .map(p =>
+      !path.basename(p).includes(".") && !p.includes("*")
+        ? path.join(p, "**")
+        : p
+    );
 }
 
 const ignoreFiles = [
