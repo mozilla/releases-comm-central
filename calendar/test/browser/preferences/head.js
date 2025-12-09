@@ -8,29 +8,23 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   const tabmail = document.getElementById("tabmail");
   const prefsTabMode = tabmail.tabModes.preferencesTab;
 
-  Assert.equal(prefsTabMode.tabs.length, 0, "Prefs tab is not open");
+  is(prefsTabMode.tabs.length, 0, "Prefs tab should not open from start");
 
-  let prefsDocument = await new Promise(resolve => {
-    Services.obs.addObserver(function documentLoaded(subject) {
-      if (subject.URL.startsWith("about:preferences")) {
-        Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
-        subject.ownerGlobal.setTimeout(() => resolve(subject));
-      }
-    }, "chrome-document-loaded");
-    openPreferencesTab(paneID, scrollPaneTo, otherArgs);
-  });
-  Assert.ok(prefsDocument.URL.startsWith("about:preferences"), "Prefs tab is open");
+  const prefsWindow = await openPreferencesTab(paneID, scrollPaneTo, otherArgs);
+  ok(
+    prefsWindow.location.href.startsWith("about:preferences"),
+    "Prefs tab should be open after openPreferencesTab()"
+  );
 
-  prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
-  const prefsWindow = prefsDocument.ownerGlobal;
-  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
+  const prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
+  is(prefsWindow, prefsDocument.ownerGlobal, "prefsWindow should be correct");
+  window.resizeTo(screen.availWidth, screen.availHeight);
+
+  // If we don't wait here for other scripts to run, they
+  // could be in a bad state if our test closes the tab.
+  await new Promise(resolve => prefsWindow.setTimeout(resolve));
   if (paneID) {
-    await new Promise(resolve => prefsWindow.setTimeout(resolve));
-    Assert.equal(prefsWindow.gLastCategory.category, paneID, `Selected pane is ${paneID}`);
-  } else {
-    // If we don't wait here for other scripts to run, they
-    // could be in a bad state if our test closes the tab.
-    await new Promise(resolve => prefsWindow.setTimeout(resolve));
+    is(prefsWindow.gLastCategory.category, paneID, `Selected pane is ${paneID}`);
   }
 
   registerCleanupOnce();

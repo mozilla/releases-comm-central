@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", init, { once: true });
 var gCategoryInits = new Map();
 var gLastCategory = { category: undefined, subcategory: undefined };
 
-function init_category_if_required(category) {
+async function init_category_if_required(category) {
   const categoryInfo = gCategoryInits.get(category);
   if (!categoryInfo) {
     throw new Error(
@@ -134,7 +134,7 @@ function register_module(categoryName, categoryObject) {
   });
 }
 
-function init() {
+async function init() {
   register_module("paneGeneral", gGeneralPane);
   register_module("paneAppearance", appearancePane);
   register_module("paneCompose", gComposePane);
@@ -183,16 +183,19 @@ function init() {
     "paneDeck",
     "lastSelected"
   );
-  gotoPref(lastSelected);
+  await gotoPref(lastSelected);
 
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
 }
 
-function onHashChange() {
-  gotoPref();
+async function onHashChange() {
+  await gotoPref();
 }
 
+/**
+ * @param {string} aCategory - ID of prefpane to go to.
+ */
 async function gotoPref(aCategory) {
   const categories = document.getElementById("categories");
   const kDefaultCategoryInternalName = "paneGeneral";
@@ -410,10 +413,10 @@ function scrollContentTo(element) {
  * @param {object} otherArgs
  * @param {string} otherArgs.subdialog - ID of button to activate, opening a subdialog
  */
-function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
+async function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
     if (gLastCategory.category != paneID) {
-      gotoPref(paneID);
+      await gotoPref(paneID);
     }
     if (scrollPaneTo) {
       showTab(scrollPaneTo, otherArgs ? otherArgs.subdialog : undefined);

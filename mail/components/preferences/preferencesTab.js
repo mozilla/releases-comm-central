@@ -42,6 +42,7 @@ var preferencesTabType = {
       return -1;
     }
     if (this.tab.pageLoaded) {
+      // FIXME: selectPrefPane is async, but we can't await it here.
       this.tab.browser.contentWindow.selectPrefPane(
         aArgs.paneID,
         aArgs.scrollPaneTo,
