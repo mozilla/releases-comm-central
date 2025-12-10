@@ -49,7 +49,7 @@ export function CalDavCalendar() {
   this.mCalHomeSet = null;
   this.mInboxUrl = null;
   this.mOutboxUrl = null;
-  this.mCalendarUserAddress = null;
+  this.mCalendarUserAddresses = [];
   this.mCheckedServerInfo = null;
   this.mPrincipalUrl = null;
   this.mSenderAddress = null;
@@ -176,7 +176,7 @@ CalDavCalendar.prototype = {
       "mShouldPollInbox",
       "mHasAutoScheduling",
       "mHaveScheduling",
-      "mCalendarUserAddress",
+      "mCalendarUserAddresses",
       "mOutboxUrl",
       "hasFreeBusy",
     ];
@@ -331,9 +331,9 @@ CalDavCalendar.prototype = {
 
   mDisabledByDavError: true,
 
-  mCalendarUserAddress: null,
-  get calendarUserAddress() {
-    return this.mCalendarUserAddress;
+  mCalendarUserAddresses: null,
+  get calendarUserAddresses() {
+    return this.mCalendarUserAddresses || [];
   },
 
   mPrincipalUrl: null,
@@ -482,8 +482,8 @@ CalDavCalendar.prototype = {
 
     switch (aName) {
       case "organizerId":
-        if (this.calendarUserAddress) {
-          return this.calendarUserAddress;
+        if (this.mCalendarUserAddresses.length) {
+          return this.mCalendarUserAddresses[0];
         } // else use configured email identity
         break;
       case "organizerCN":
@@ -1258,9 +1258,18 @@ CalDavCalendar.prototype = {
   },
 
   fillACLProperties() {
-    const orgId = this.calendarUserAddress;
+    const orgId = this.mCalendarUserAddresses[0];
     if (orgId) {
       this.mACLProperties.organizerId = orgId;
+    } else if (this.mACLEntry) {
+      // if no address provided by caldav, set to organizer to first entry in ACL manager
+      const ownerIdentities = this.mACLEntry.getOwnerIdentities();
+      if (ownerIdentities.length > 0) {
+        const identity = ownerIdentities[0];
+        this.mACLProperties.organizerId = `mailto:${identity.email}`;
+        this.mACLProperties.organizerCN = identity.fullName;
+        this.mACLProperties["imip.identity"] = identity;
+      }
     }
 
     if (this.mACLEntry && this.mACLEntry.hasAccessControl) {
@@ -1917,12 +1926,16 @@ CalDavCalendar.prototype = {
         // TODO with multiple address sets, we should just use the ACL manager.
         const homeSets = response.firstProps["C:calendar-home-set"];
         if (homeSets.length == 1 || homeSets.some(homeSetMatches)) {
-          const addrSet = response.firstProps["C:calendar-user-address-set"];
-          // The first address in the list is expected to be the primary address among the aliases.
-          const firstAddr = addrSet.find(addr => addr.match(/^mailto:/i));
-          if (firstAddr) {
-            lazy.log.debug("CalDAV: mCalendarUserAddress set to " + firstAddr);
-            this.mCalendarUserAddress = firstAddr;
+          const addrSet = response.firstProps["C:calendar-user-address-set"] || [];
+          const mailtoAddrs = addrSet
+            .filter(addr => /^mailto:/i.test(addr))
+            .map(addr => addr.toLowerCase());
+          if (mailtoAddrs.length) {
+            const uniqueMailtoAddrs = [...new Set(mailtoAddrs)];
+            this.mCalendarUserAddresses = uniqueMailtoAddrs;
+            for (const addr of uniqueMailtoAddrs) {
+              lazy.log.debug("CalDAV: added to mCalendarUserAddresses: " + addr);
+            }
           }
 
           this.mInboxUrl = createBoxUrl(response.firstProps["C:schedule-inbox-URL"]);
@@ -1935,7 +1948,7 @@ CalDavCalendar.prototype = {
           }
         }
 
-        if (!this.calendarUserAddress || !this.mInboxUrl || !this.mOutboxUrl) {
+        if (!this.mCalendarUserAddresses.length || !this.mInboxUrl || !this.mOutboxUrl) {
           if (aNameSpaceList.length) {
             // Check the next namespace to find the info we need.
             this.checkPrincipalsNameSpace(aNameSpaceList, aChangeLogListener);
@@ -2073,7 +2086,7 @@ CalDavCalendar.prototype = {
   getFreeBusyIntervals(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
     // We explicitly don't check for hasScheduling here to allow free-busy queries
     // even in case sched is turned off.
-    if (!this.outboxUrl || !this.calendarUserAddress) {
+    if (!this.outboxUrl || !this.mCalendarUserAddresses.length) {
       lazy.log.debug(
         "CalDAV: Calendar " +
           this.name +
@@ -2095,7 +2108,7 @@ CalDavCalendar.prototype = {
     // not match against the calendar-user-address:
     const orgId = this.getProperty("organizerId");
     if (orgId && orgId.toLowerCase() == aCalId.toLowerCase()) {
-      aCalId = this.calendarUserAddress; // continue with calendar-user-address
+      aCalId = this.mCalendarUserAddresses[0]; // continue with calendar-user-address
     }
 
     // the caller prepends MAILTO: to calid strings containing @
@@ -2107,7 +2120,7 @@ CalDavCalendar.prototype = {
       return;
     }
 
-    const organizer = this.calendarUserAddress;
+    const organizer = this.mCalendarUserAddresses[0];
     const recipient = aCalIdParts.join(":");
     const fbUri = this.makeUri(null, this.outboxUrl);
 
@@ -2344,7 +2357,7 @@ CalDavCalendar.prototype = {
 
   mSenderAddress: null,
   get senderAddress() {
-    return this.mSenderAddress || this.calendarUserAddress;
+    return this.mSenderAddress || this.mCalendarUserAddresses[0];
   },
   set senderAddress(aString) {
     this.mSenderAddress = aString;
@@ -2409,7 +2422,7 @@ CalDavCalendar.prototype = {
     // from here on this code for explicit caldav scheduling
     if (aItipItem.responseMethod == "REPLY") {
       // Get my participation status
-      const attendee = aItipItem.getItemList()[0].getAttendeeById(this.calendarUserAddress);
+      const attendee = aItipItem.getItemList()[0].getAttendeeById(this.mCalendarUserAddresses[0]);
       if (!attendee) {
         return false;
       }
@@ -2423,7 +2436,7 @@ CalDavCalendar.prototype = {
         this.session,
         this,
         requestUri,
-        this.calendarUserAddress,
+        this.mCalendarUserAddresses[0],
         aRecipients,
         item
       );

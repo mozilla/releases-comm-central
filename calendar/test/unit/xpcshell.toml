@@ -57,6 +57,8 @@ tags = ["import"]
 
 ["test_calIteratorUtils.js"]
 
+["test_calProviderUtils.js"]
+
 ["test_calStorageHelpers.js"]
 
 ["test_caldav_requests.js"]

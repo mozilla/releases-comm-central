@@ -797,47 +797,56 @@ export var provider = {
 
     // calISchedulingSupport: Implementation corresponding to our iTIP/iMIP support
     isInvitation(aItem) {
-      if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
-        // No ACL support - fallback to the old method
-        const id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE") || this.getProperty("organizerId");
-        if (id) {
-          const org = aItem.organizer;
-          if (!org || !org.id || org.id.toLowerCase() == id.toLowerCase()) {
-            return false;
-          }
-          return aItem.getAttendeeById(id) != null;
-        }
+      // if we don't have an organizer, this is perhaps because it's an exception
+      // to a recurring event. We check the parent item.
+      const org = aItem.organizer || aItem.parentItem?.organizer;
+      if (!org?.id) {
         return false;
       }
+      const orgId = org.id.toLowerCase();
 
-      let org = aItem.organizer;
-      if (!org || !org.id) {
-        // HACK
-        // if we don't have an organizer, this is perhaps because it's an exception
-        // to a recurring event. We check the parent item.
-        if (aItem.parentItem) {
-          org = aItem.parentItem.organizer;
-          if (!org || !org.id) {
-            return false;
-          }
-        } else {
-          return false;
+      // cache Atteendees
+      const attendeesById = new Map();
+      for (const itemAttendee of aItem.getAttendees()) {
+        const attendeeId = itemAttendee.id?.toLowerCase();
+        if (attendeeId && !attendeesById.has(attendeeId)) {
+          attendeesById.set(attendeeId, itemAttendee);
         }
+      }
+
+      // We check if :
+      // - the organizer of the event is NOT within the calenderUserAddresses
+      // - if the one of the calendarUserAddresses of this calendar is in the attendees
+      if (this.calendarUserAddresses?.includes(orgId)) {
+        return false;
+      }
+      if (this.calendarUserAddresses?.some(i => attendeesById.has(i))) {
+        return true;
       }
 
       // We check if :
       // - the organizer of the event is NOT within the owner's identities of this calendar
       // - if the one of the owner's identities of this calendar is in the attendees
-      const ownerIdentities = this.mACLEntry.getOwnerIdentities();
-      for (let i = 0; i < ownerIdentities.length; i++) {
-        const identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
-        if (org.id.toLowerCase() == identity) {
-          return false;
+      if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
+        // No ACL support - fallback to the old method
+        const id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE") || this.getProperty("organizerId");
+        if (id) {
+          if (orgId == id.toLowerCase()) {
+            return false;
+          }
+          return attendeesById.get(id.toLowerCase()) != null;
         }
+        return false;
+      }
 
-        if (aItem.getAttendeeById(identity) != null) {
-          return true;
-        }
+      const ownerIdentities = this.mACLEntry
+        .getOwnerIdentities()
+        .map(o => `mailto:${o.email.toLowerCase()}`);
+      if (ownerIdentities.includes(orgId)) {
+        return false;
+      }
+      if (ownerIdentities.some(id => attendeesById.has(id))) {
+        return true;
       }
 
       return false;
@@ -847,19 +856,38 @@ export var provider = {
     getInvitedAttendee(aItem) {
       const id = this.getProperty("organizerId");
       let attendee = id ? aItem.getAttendeeById(id) : null;
+      if (attendee) {
+        return attendee;
+      }
 
-      if (!attendee && this.mACLEntry && this.mACLEntry.hasAccessControl) {
+      const attendeesById = new Map();
+      for (const itemAttendee of aItem.getAttendees()) {
+        const attendeeId = itemAttendee.id?.toLowerCase();
+        if (attendeeId && !attendeesById.has(attendeeId)) {
+          attendeesById.set(attendeeId, itemAttendee);
+        }
+      }
+
+      if (this.mACLEntry && this.mACLEntry.hasAccessControl) {
         const ownerIdentities = this.mACLEntry.getOwnerIdentities();
-        if (ownerIdentities.length > 0) {
-          let identity;
-          for (let i = 0; !attendee && i < ownerIdentities.length; i++) {
-            identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
-            attendee = aItem.getAttendeeById(identity);
+        for (const identity of ownerIdentities) {
+          attendee = attendeesById.get("mailto:" + identity.email.toLowerCase());
+          if (attendee) {
+            return attendee;
           }
         }
       }
 
-      return attendee;
+      // check against calendarUserAddresses
+      if (this.calendarUserAddresses) {
+        for (const addr of this.calendarUserAddresses) {
+          attendee = attendeesById.get(addr);
+          if (attendee) {
+            return attendee;
+          }
+        }
+      }
+      return null;
     }
 
     // boolean canNotify(in AUTF8String aMethod, in calIItemBase aItem);
