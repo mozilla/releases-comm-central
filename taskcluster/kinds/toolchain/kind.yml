@@ -39,6 +39,7 @@ reference-tasks:
     - linux64-pkgconf
     - linux64-python
     - linux64-rust
+    - linux64-rust-1.83
     - linux64-rust-cross
     - linux64-rust-dev
     - linux64-rust-macos
@@ -96,6 +97,7 @@ reference-tasks:
     - win64-node
     - win64-python
     - win64-rust
+    - win64-rust-1.83
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
