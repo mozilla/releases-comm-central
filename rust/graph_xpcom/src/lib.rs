@@ -86,13 +86,6 @@ impl XpcomGraphBridge {
         Ok(())
     }
 
-    xpcom_method!(on_auth_changed => OnAuthChanged());
-    fn on_auth_changed(&self) -> Result<(), nsresult> {
-        // There's currently no in-memory storage of auth credentials for the
-        // Graph client.
-        Ok(())
-    }
-
     xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);
     fn check_connectivity(&self, _listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
