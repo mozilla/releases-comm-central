@@ -685,6 +685,11 @@ pub struct Limits {
     pub max_push_constant_size: u32,
     /// Maximum number of live non-sampler bindings.
     ///
+    /// <div class="warning">
+    /// The default value is **1_000_000**, On systems with integrated GPUs (iGPUs)—particularly on Windows using the D3D12
+    /// backend—this can lead to significant system RAM consumption since iGPUs share system memory directly with the CPU.
+    /// </div>
+    ///
     /// This limit only affects the d3d12 backend. Using a large number will allow the device
     /// to create many bind groups at the cost of a large up-front allocation at device creation.
     pub max_non_sampler_bindings: u32,
@@ -1057,14 +1062,12 @@ impl Limits {
     #[must_use]
     pub const fn using_recommended_minimum_mesh_shader_values(self) -> Self {
         Self {
-            // Literally just made this up as 256^2 or 2^16.
-            // My GPU supports 2^22, and compute shaders don't have this kind of limit.
-            // This very likely is never a real limiter
-            max_task_workgroup_total_count: 65536,
-            max_task_workgroups_per_dimension: 256,
+            // This is a common limit for apple devices. It's not immediately clear why.
+            max_task_workgroup_total_count: 1024,
+            max_task_workgroups_per_dimension: 1024,
             // llvmpipe reports 0 multiview count, which just means no multiview is allowed
             max_mesh_multiview_view_count: 0,
-            // llvmpipe once again requires this to be 8. An RTX 3060 supports well over 1024.
+            // llvmpipe once again requires this to be <=8. An RTX 3060 supports well over 1024.
             max_mesh_output_layers: 8,
             ..self
         }
@@ -7972,6 +7975,20 @@ pub struct ShaderRuntimeChecks {
     /// conclusions about other safety-critical code paths. This option SHOULD NOT be disabled
     /// when running untrusted code.
     pub force_loop_bounding: bool,
+    /// If false, the caller **MUST** ensure that in all passed shaders every function operating
+    /// on a ray query must obey these rules (functions using wgsl naming)
+    /// - `rayQueryInitialize` must have called before `rayQueryProceed`
+    /// - `rayQueryProceed` must have been called, returned true and have hit an AABB before
+    ///   `rayQueryGenerateIntersection` is called
+    /// - `rayQueryProceed` must have been called, returned true and have hit a triangle before
+    ///   `rayQueryConfirmIntersection` is called
+    /// - `rayQueryProceed` must have been called and have returned true before `rayQueryTerminate`,
+    ///   `getCandidateHitVertexPositions` or `rayQueryGetCandidateIntersection` is called
+    /// - `rayQueryProceed` must have been called and have returned false before `rayQueryGetCommittedIntersection`
+    ///   or `getCommittedHitVertexPositions` are called
+    ///
+    /// It is the aim that these cases will not cause UB if this is set to true, but currently this will still happen on DX12 and Metal.
+    pub ray_query_initialization_tracking: bool,
 }
 
 impl ShaderRuntimeChecks {
@@ -8004,6 +8021,7 @@ impl ShaderRuntimeChecks {
         Self {
             bounds_checks: all_checks,
             force_loop_bounding: all_checks,
+            ray_query_initialization_tracking: all_checks,
         }
     }
 }
