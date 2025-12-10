@@ -581,7 +581,7 @@ win64-ccov/opt:
             - win64-mozmake
             - win64-nasm
             - win64-node
-            - win64-rust-1.83
+            - win64-rust-dev
             - win64-rust-size
             - win64-sccache
             - win64-winchecksec
