@@ -65,7 +65,9 @@ win64-clang-20:
         toolchain-alias:
             by-project:
                 toolchains: null
-                default: win64-clang
+                default:
+                    - win64-clang
+                    - win64-clang-toolchain
         toolchain-artifact: public/build/clang.tar.zst
     fetches:
         toolchain:
