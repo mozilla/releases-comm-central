@@ -29,7 +29,7 @@ const ignoreFiles = [
 
 module.exports = {
   extends: ["stylelint-config-recommended"],
-  plugins: ["@stylistic/stylelint-plugin", "stylelint-use-logical"],
+  plugins: ["stylelint-use-logical"],
   ignoreFiles,
   rules: {
     /* Disabled because of `-moz-element(#foo)` which gets misparsed. */
@@ -261,14 +261,6 @@ module.exports = {
     "media-feature-name-no-unknown": true,
     "media-feature-name-value-no-unknown": true,
     "max-nesting-depth": 5,
-
-    "@stylistic/color-hex-case": "lower",
-    "@stylistic/selector-list-comma-newline-after": "always",
-    "@stylistic/selector-max-empty-lines": 0,
-    // attribute selector should "look like html"
-    "@stylistic/selector-attribute-operator-space-before": "never",
-    "@stylistic/selector-attribute-operator-space-after": "never",
-    "@stylistic/selector-attribute-brackets-space-inside": "never",
 
     "csstools/use-logical": "always",
   },
