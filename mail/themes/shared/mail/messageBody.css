@@ -128,9 +128,7 @@ img {
 
     &[overflowing] {
       cursor: zoom-in;
-      /* If we detect we're shrinking the image, force it to keep its aspect
-       * ratio, since it possibly had hard-coded sizings. */
-      block-size: auto !important;
+      object-fit: scale-down;
     }
   }
 

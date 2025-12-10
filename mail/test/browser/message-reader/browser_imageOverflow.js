@@ -146,7 +146,7 @@ add_task(async function test_imageOverflow() {
       messageDisplayWidth,
       "Image should occupy all available space without horizontal overflow"
     );
-    Assert.less(
+    Assert.lessOrEqual(
       image.clientHeight,
       image.naturalHeight,
       "Image height should naturally shrink"
