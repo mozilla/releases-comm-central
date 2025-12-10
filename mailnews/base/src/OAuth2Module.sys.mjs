@@ -72,24 +72,6 @@ OAuth2Module.prototype = {
 
     const { issuer, allScopes, requiredScopes } = details;
 
-    // Set pref for Yahoo/AOL/AT&T users if applicable
-    // TODO: Remove this when PKCE is fully rolled out for Yahoo/AOL/AT&T
-    const yahooLikeIssuer = ["login.yahoo.com", "login.aol.com"].includes(
-      details.issuer
-    );
-    if (
-      yahooLikeIssuer &&
-      !Services.prefs.getBoolPref(
-        "mail.inappnotifications.pkceUpgradeForYahooAol",
-        false
-      )
-    ) {
-      Services.prefs.setBoolPref(
-        "mail.inappnotifications.pkceUpgradeForYahooAol",
-        true
-      );
-    }
-
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
@@ -100,6 +82,16 @@ OAuth2Module.prototype = {
     if (!issuerDetails.clientId) {
       return false;
     }
+
+    // Set pref for Yahoo/AOL/AT&T users if applicable
+    // TODO: Remove this block when PKCE is fully rolled out for Yahoo/AOL/AT&T
+    if (["login.yahoo.com", "login.aol.com"].includes(issuer)) {
+      Services.prefs.setBoolPref(
+        "mail.inappnotifications.pkceUpgradeForYahooAol",
+        !issuerDetails.usePKCE
+      );
+    }
+    // TODO: END
 
     // Username is needed to generate the XOAUTH2 string.
     this._username = username;
