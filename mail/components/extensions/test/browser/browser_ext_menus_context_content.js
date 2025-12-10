@@ -82,7 +82,7 @@ add_task(async function test_content_mv2() {
 });
 add_task(async function test_content_tab_mv2() {
   const tab = window.openContentTab(`${URL_BASE}/content.html`);
-  await awaitBrowserLoaded(tab.browser);
+  await awaitBrowserLoaded(tab.browser, url => url != "about:blank");
 
   const extension = await getMenuExtension({
     manifest_version: 2,
@@ -110,9 +110,13 @@ add_task(async function test_content_tab_mv2() {
   tabmail.closeOtherTabs(0);
 });
 add_task(async function test_content_window_mv2() {
-  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const extensionWindowUri = "chrome://messenger/content/extensionPopup.xhtml";
+  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win => win.document.documentURI == extensionWindowUri
+  );
   window.openDialog(
-    "chrome://messenger/content/extensionPopup.xhtml",
+    extensionWindowUri,
     "_blank",
     "width=800,height=500,resizable",
     `${URL_BASE}/content.html`
@@ -192,7 +196,7 @@ add_task(async function test_content_mv3() {
 });
 add_task(async function test_content_tab_mv3() {
   const tab = window.openContentTab(`${URL_BASE}/content.html`);
-  await awaitBrowserLoaded(tab.browser);
+  await awaitBrowserLoaded(tab.browser, url => url != "about:blank");
 
   const extension = await getMenuExtension({
     manifest_version: 3,
@@ -220,9 +224,13 @@ add_task(async function test_content_tab_mv3() {
   tabmail.closeOtherTabs(0);
 });
 add_task(async function test_content_window_mv3() {
-  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const extensionWindowUri = "chrome://messenger/content/extensionPopup.xhtml";
+  const extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win => win.document.documentURI == extensionWindowUri
+  );
   window.openDialog(
-    "chrome://messenger/content/extensionPopup.xhtml",
+    extensionWindowUri,
     "_blank",
     "width=800,height=500,resizable",
     `${URL_BASE}/content.html`
