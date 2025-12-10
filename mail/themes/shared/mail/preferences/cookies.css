@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 body {
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 td > input {
-  width: -moz-available;
+  inline-size: -moz-available;
 }
 
 #cookiesList {
-  min-height: 10em;
+  min-block-size: 10em;
   flex: 1 1 0;
 }
 

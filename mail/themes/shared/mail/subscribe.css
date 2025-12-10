@@ -10,8 +10,8 @@
 
 #subscribeWindow,
 dialog {
-  min-width: 40em;
-  min-height: 30em;
+  min-inline-size: 40em;
+  min-block-size: 30em;
 }
 
 #nameColumn,

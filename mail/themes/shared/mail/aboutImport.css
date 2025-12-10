@@ -19,7 +19,7 @@ body {
 }
 
 h1 {
-  padding-top: 0;
+  padding-block-start: 0;
   margin: 0 0 8px;
   font-size: var(--main-title-size);
   font-weight: 300;
@@ -49,7 +49,7 @@ p {
 }
 
 progress {
-  width: 100%;
+  inline-size: 100%;
 }
 
 dl {
@@ -76,13 +76,13 @@ dd {
 }
 
 #csvFieldMap {
-  margin-top: 2rem;
+  margin-block-start: 2rem;
   display: block;
 
   & table {
-    margin-top: 1rem;
+    margin-block-start: 1rem;
     table-layout: fixed;
-    width: 100%;
+    inline-size: 100%;
     border-collapse: collapse;
     font-size: 1rem;
   }
@@ -93,11 +93,11 @@ dd {
 
   & th,
   & td {
-    border-bottom: 1px solid var(--text-color);
+    border-block-end: 1px solid var(--text-color);
   }
 
   & th:last-child {
-    width: 2rem;
+    inline-size: 2rem;
   }
 
   & td:last-child {
@@ -109,7 +109,7 @@ dd {
     background-position-x: right 10px;
     padding-inline-start: 8px;
     margin-inline-start: 0;
-    width: 100%;
+    inline-size: 100%;
 
     &:dir(rtl) {
       background-position-x: left 10px;
@@ -117,17 +117,17 @@ dd {
   }
 
   & input {
-    margin-top: 4px;
+    margin-block-start: 4px;
   }
 }
 
 #main {
   margin: 4em;
-  min-width: 400px;
-  max-width: 600px;
+  min-inline-size: 400px;
+  max-inline-size: 600px;
 
   & .buttons-container {
-    margin-top: 1.5em;
+    margin-block-start: 1.5em;
     display: flex;
     justify-content: space-between;
 
@@ -157,8 +157,8 @@ dd {
     background-repeat: no-repeat;
     background-position: bottom center;
     display: inline-block;
-    width: 24px;
-    height: 24px;
+    inline-size: 24px;
+    block-size: 24px;
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
@@ -186,7 +186,7 @@ dd {
 }
 
 .profile-list {
-  padding-top: 0.5em;
+  padding-block-start: 0.5em;
 }
 
 .option-list {
@@ -195,14 +195,14 @@ dd {
 }
 
 #calendarItemsTools {
-  margin-top: 1rem;
+  margin-block-start: 1rem;
   display: flex;
   align-items: center;
 
   & search-bar {
     flex: 1;
     padding-inline: 0.5rem;
-    height: 32px;
+    block-size: 32px;
   }
 
   & [slot="search-button"] {
@@ -211,10 +211,10 @@ dd {
 }
 
 #calendar-item-list {
-  height: 60vh;
+  block-size: 60vh;
   overflow: auto;
   background-color: rgba(215, 215, 219, 0.2);
-  margin-top: 1rem;
+  margin-block-start: 1rem;
   margin-inline: 2px;
 }
 
@@ -261,13 +261,13 @@ dd {
 }
 
 #tabPane-export p {
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 /* Override calendar-item-summary.css */
 calendar-item-summary {
   font-size: 1rem;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .calendar-caption {
@@ -277,7 +277,7 @@ calendar-item-summary {
 .item-description {
   border: 1px solid var(--text-color);
   margin: 2px 4px 0;
-  min-height: 10em;
+  min-block-size: 10em;
 }
 
 .summary-items {
@@ -294,7 +294,7 @@ calendar-item-summary {
   margin-inline: auto;
 
   a& {
-    max-width: max-content;
+    max-inline-size: max-content;
   }
 }
 
@@ -383,9 +383,9 @@ calendar-item-summary {
 
   & button {
     border-radius: var(--step-size);
-    height: var(--step-size);
-    width: var(--step-size);
-    min-width: var(--step-size);
+    block-size: var(--step-size);
+    inline-size: var(--step-size);
+    min-inline-size: var(--step-size);
     padding: 0;
     margin: 0;
     opacity: 1;
@@ -431,7 +431,7 @@ calendar-item-summary {
 
 #navConfirm button {
   border-radius: var(--button-border-radius);
-  width: auto;
+  inline-size: auto;
   font-size: 1rem;
   padding-inline: 0.5em;
 }

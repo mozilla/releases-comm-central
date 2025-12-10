@@ -18,7 +18,7 @@ body {
   background-color: var(--in-content-categories-background);
 
   & > #categories {
-    width: inherit;
+    inline-size: inherit;
     padding-inline-end: 0;
 
     & > .category {
@@ -101,8 +101,8 @@ button[name="plugin"] {
 
 .page-options-menu > .more-options-button {
   background-image: url("chrome://messenger/skin/icons/new/touch/settings.svg");
-  width: 24px;
-  height: 24px;
+  inline-size: 24px;
+  block-size: 24px;
 }
 
 .more-options-button {
@@ -123,10 +123,10 @@ addon-options panel-item[action="preferences"] {
 }
 
 .extension-options-button {
-  min-width: auto;
-  min-height: auto;
-  width: 24px;
-  height: 24px;
+  min-inline-size: auto;
+  min-block-size: auto;
+  inline-size: 24px;
+  block-size: 24px;
   margin: 0;
   margin-inline-start: 8px;
   -moz-context-properties: fill;

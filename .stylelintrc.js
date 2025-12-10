@@ -29,7 +29,7 @@ const ignoreFiles = [
 
 module.exports = {
   extends: ["stylelint-config-recommended"],
-  plugins: ["@stylistic/stylelint-plugin"],
+  plugins: ["@stylistic/stylelint-plugin", "stylelint-use-logical"],
   ignoreFiles,
   rules: {
     /* Disabled because of `-moz-element(#foo)` which gets misparsed. */
@@ -269,5 +269,7 @@ module.exports = {
     "@stylistic/selector-attribute-operator-space-before": "never",
     "@stylistic/selector-attribute-operator-space-after": "never",
     "@stylistic/selector-attribute-brackets-space-inside": "never",
+
+    "csstools/use-logical": "always",
   },
 };

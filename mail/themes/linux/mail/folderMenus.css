@@ -9,6 +9,6 @@
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
 menulist.folderMenuItem::part(icon) {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }

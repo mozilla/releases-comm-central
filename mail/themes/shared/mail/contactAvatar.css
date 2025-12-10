@@ -26,8 +26,8 @@
 .recipient-avatar {
   box-sizing: border-box;
   display: inline-flex;
-  height: var(--recipient-avatar-size);
-  width: var(--recipient-avatar-size);
+  block-size: var(--recipient-avatar-size);
+  inline-size: var(--recipient-avatar-size);
   border-radius: 50%;
   margin-inline-end: 6px;
   text-align: center;
@@ -40,8 +40,8 @@
   flex: 0 0 auto;
 
   & img {
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     object-fit: cover;
   }
 

@@ -13,8 +13,8 @@
 }
 
 .outgoing > .indicator {
-  margin-left: -17px;
-  padding-left: 32px;
+  margin-inline-start: -17px;
+  padding-inline-start: 32px;
   background: url("../Bitmaps/indicator_320.png") no-repeat center left;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .incoming > .indicator {
-  margin-right: -19px;
-  padding-right: 34px;
+  margin-inline-end: -19px;
+  padding-inline-end: 34px;
   background: url("../Bitmaps/indicator_270_alt.png") no-repeat center right;
 }

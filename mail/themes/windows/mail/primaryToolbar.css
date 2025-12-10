@@ -8,8 +8,8 @@
 .contentTabToolbox::after {
   content: "";
   display: flex;
-  height: 1px;
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  block-size: 1px;
+  border-block-end: 1px solid var(--chrome-content-separator-color);
 }
 
 .mail-toolbox > toolbar:not([type="menubar"]) {

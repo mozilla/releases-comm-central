@@ -12,26 +12,24 @@
 
 #searchTerms {
   flex: 1 auto;
-  min-height: 12em;
-  margin-top: 8px;
+  min-block-size: 12em;
+  margin-block-start: 8px;
 }
 
 #searchTermListBox > #booleanAndGroup,
 #searchTermListBox > #searchTermBox,
 #searchTerms > vbox > hbox {
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-inline: 6px;
 }
 
 #searchTermBox {
-  min-height: 0;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  min-block-size: 0;
+  padding-block: 2px;
 }
 
 #searchResults {
   flex: 1 auto;
-  min-height: 8em;
+  min-block-size: 8em;
   padding: 0 6px 6px;
   text-shadow: none;
 }
@@ -42,7 +40,7 @@
 
 #searchResultListBox {
   margin: 4px;
-  min-height: 50px;
+  min-block-size: 50px;
 }
 
 .search-value-menulist {
@@ -50,7 +48,7 @@
 }
 
 .search-value-input {
-  width: -moz-available;
+  inline-size: -moz-available;
 }
 
 .search-menulist[unavailable="true"] {
@@ -70,7 +68,7 @@ radio[value="and"] {
 
 #virtualFolderSearchTermListBoxWrapper {
   flex: 1;
-  min-height: 0;
+  min-block-size: 0;
 }
 
 #virtualFolderSearchTermListBox {
@@ -78,7 +76,7 @@ radio[value="and"] {
 }
 
 #searchTermTree {
-  min-height: 50px;
+  min-block-size: 50px;
 }
 
 #threadTree:not(:focus) > treechildren::-moz-tree-cell-text(untagged, selected) {
@@ -107,10 +105,10 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 }
 
 #gray_horizontal_splitter {
-  min-height: 4px;
+  min-block-size: 4px;
   background-color: -moz-Dialog;
-  border-top: 1px solid ThreeDHighlight;
-  border-bottom: 1px solid ThreeDShadow;
+  border-block-start: 1px solid ThreeDHighlight;
+  border-block-end: 1px solid ThreeDShadow;
 }
 
 /* ::::: theme support ::::: */

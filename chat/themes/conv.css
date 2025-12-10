@@ -23,9 +23,9 @@
 
 #unread-ruler {
   margin: 0;
-  width: 100%;
+  inline-size: 100%;
   border: none;
-  border-top: 1px dashed red;
+  border-block-start: 1px dashed red;
 }
 
 .ib-nick {

@@ -6,8 +6,8 @@
 @namespace html "http://www.w3.org/1999/xhtml";
 
 html|h2 {
-  border-bottom-width: 0;
-  padding-bottom: 2px !important;
+  border-block-end-width: 0;
+  padding-block-end: 2px !important;
   padding-inline-start: 0;
 }
 
@@ -25,7 +25,7 @@ tab:-moz-focusring > .tab-middle > .tab-text {
 
 /* Add to Cookies dialog a bottom padding */
 #CookiesDialog > hbox > .actionButtons {
-  padding-bottom: 10px;
+  padding-block-end: 10px;
 }
 
 #defaultWebSearchPopup > menuitem > .menu-icon {

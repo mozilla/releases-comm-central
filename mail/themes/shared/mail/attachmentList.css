@@ -20,7 +20,7 @@
 
   &[collapsed] {
     display: none;
-    height: 0;
+    block-size: 0;
   }
 
   :root[lwt-tree] & {
@@ -32,7 +32,7 @@
 .attachmentItem {
   position: relative;
   border: 1px solid transparent;
-  min-width: 10em;
+  min-inline-size: 10em;
   padding: 1px 3px;
   border-radius: 2px;
   display: flex;
@@ -149,8 +149,8 @@
 
 .attachmentcell-icon {
   margin: 1px;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 .attachmentcell-name,

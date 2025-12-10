@@ -10,5 +10,5 @@
 
 #accountName {
   /* Prevents UI jumping when dynamically changing the content. */
-  min-height: 17px;
+  min-block-size: 17px;
 }

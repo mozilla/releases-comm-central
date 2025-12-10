@@ -102,7 +102,7 @@ mailattachcount {
 
 .moz-txt-formfeed {
   display: block;
-  height: 100vh;
+  block-size: 100vh;
 }
 
 /* stylelint-disable-next-line media-query-no-invalid */
@@ -124,22 +124,22 @@ mailattachcount {
 
 img {
   &[shrinktofit] {
-    max-width: 100% !important;
+    max-inline-size: 100% !important;
 
     &[overflowing] {
       cursor: zoom-in;
       /* If we detect we're shrinking the image, force it to keep its aspect
        * ratio, since it possibly had hard-coded sizings. */
-      height: auto !important;
+      block-size: auto !important;
     }
   }
 
   &[overflowing]:not([shrinktofit]) {
     cursor: zoom-out;
     /* Unbound the sizing of the image so it is displayed at full size. */
-    height: auto !important;
-    width: auto !important;
-    max-width: none !important;
+    block-size: auto !important;
+    inline-size: auto !important;
+    max-inline-size: none !important;
   }
 }
 
@@ -150,7 +150,7 @@ img {
 /* ::::: vcard ::::: */
 
 .moz-vcard-table {
-  margin-top: 10px;
+  margin-block-start: 10px;
   border-radius: 3px;
   box-shadow: 0 1px 3px hsla(0, 0%, 50%, 0.6);
 }
@@ -161,9 +161,9 @@ img {
 }
 
 .moz-vcard-badge {
-  margin-top: 2px;
-  height: 32px;
-  width: 32px;
+  margin-block-start: 2px;
+  block-size: 32px;
+  inline-size: 32px;
   background-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
   background-size: 100% 100%;
   background-color: transparent;
@@ -188,21 +188,21 @@ img {
 #_mailrssiframe {
   position: fixed;
   display: block;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   border: none;
 }
 
 /* Attachment display styling (for inline attachments and printing) */
 .moz-mime-attachment-header {
   border-style: none;
-  border-top: 1px solid GrayText;
+  border-block-start: 1px solid GrayText;
   padding-block: 0.625em 0.2em;
 
   &.moz-print-only {
-    margin-top: 1em;
+    margin-block-start: 1em;
   }
 }
 
@@ -217,13 +217,13 @@ img {
 }
 
 .moz-mime-attachment-table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 
   & tr + tr > td {
-    border-top: 1px solid GrayText;
-    padding-top: 0.25em;
+    border-block-start: 1px solid GrayText;
+    padding-block-start: 0.25em;
   }
 }
 
@@ -233,7 +233,7 @@ img {
 
 .moz-mime-attachment-size {
   vertical-align: top;
-  width: 10ch;
+  inline-size: 10ch;
   text-align: end;
 }
 

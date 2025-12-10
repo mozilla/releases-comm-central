@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 html {
-  width: 700px;
-  min-width: 700px;
-  max-width: 700px;
+  inline-size: 700px;
+  min-inline-size: 700px;
+  max-inline-size: 700px;
 }
 
 fieldset {

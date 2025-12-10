@@ -34,16 +34,16 @@
   background-image: linear-gradient(to top, var(--chrome-content-separator-color) 0, var(--tabs-toolbar-background-color) 1px);
   box-shadow: var(--tabs-toolbar-box-shadow);
   color-scheme: light dark;
-  padding-top: 3px;
+  padding-block-start: 3px;
   padding-inline: 3px;
 }
 
 #tabpanelcontainer {
-  min-height: 0;
+  min-block-size: 0;
 }
 
 .tab-stack {
-  min-height: inherit;
+  min-block-size: inherit;
 }
 
 .tabmail-tab {
@@ -58,9 +58,9 @@
   margin: 0;
   margin-inline-end: 1px;
   padding: 0;
-  max-width: var(--tab-max-width);
-  min-width: var(--tab-min-width);
-  width: 0;
+  max-inline-size: var(--tab-max-width);
+  min-inline-size: var(--tab-min-width);
+  inline-size: 0;
   overflow: hidden;
 
   /* The selected tab should appear above adjacent tabs and the highlight
@@ -89,7 +89,7 @@
   padding-inline: 9px;
   display: flex;
   align-items: center;
-  min-width: 0;
+  min-inline-size: 0;
 
   & > :is(.tab-throbber, .tab-icon-image, .tab-close-button) {
     flex: 0 0 auto;
@@ -117,8 +117,8 @@ button.tab-close-button {
 
 .tab-throbber,
 .tab-icon-image {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   margin-inline-end: 6px;
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -157,8 +157,8 @@ button.tab-close-button {
           background-image: var(--icon-loading);
           background-position: left center;
           background-repeat: no-repeat;
-          width: 480px;
-          height: 100%;
+          inline-size: 480px;
+          block-size: 100%;
           animation: tab-throbber-animation 1.05s steps(30) infinite;
           opacity: 0.7;
         }
@@ -208,16 +208,16 @@ button.tab-close-button {
 }
 
 .tab-close-icon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .tab-line {
-  height: 2px;
-  margin-top: 3px;
+  block-size: 2px;
+  margin-block-start: 3px;
   margin-inline: 3px;
   border-radius: 3px;
 
@@ -283,7 +283,7 @@ button.tab-close-button {
  */
 
 #tabmail-arrowscrollbox {
-  min-height: var(--tab-min-height);
+  min-block-size: var(--tab-min-height);
 
   &::part(scrollbox) {
     contain: inline-size;
@@ -298,18 +298,18 @@ button.tab-close-button {
   /* Tab Overflow */
   &:not([scrolledtostart])::part(overflow-start-indicator),
   &:not([scrolledtoend])::part(overflow-end-indicator) {
-    width: 18px;
+    inline-size: 18px;
     background-image: url("chrome://messenger/skin/icons/overflow-indicator.png");
     background-size: 17px 100%;
     background-repeat: no-repeat;
-    border-left: 1px solid;
+    border-inline-start: 1px solid;
     border-image: linear-gradient(
       rgba(255, 255, 255, 0.2),
       rgba(255, 255, 255, 0.2) calc(100% - var(--tabs-tabbar-border-size)),
       transparent calc(100% - var(--tabs-tabbar-border-size))
     );
     border-image-slice: 1;
-    margin-bottom: var(--tabs-tabbar-border-size);
+    margin-block-end: var(--tabs-tabbar-border-size);
     pointer-events: none;
     position: relative;
     z-index: 3; /* the selected tab's z-index + 1 */
@@ -347,8 +347,8 @@ button.tab-close-button {
   list-style-image: var(--icon-nav-down-sm);
 
   & .toolbarbutton-icon {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
   }
 
   & > .toolbarbutton-text {
@@ -411,8 +411,8 @@ button.tab-close-button {
 }
 
 .contentTabSecurity {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   -moz-context-properties: fill;
   fill: currentColor;
   /* Position within the input. */

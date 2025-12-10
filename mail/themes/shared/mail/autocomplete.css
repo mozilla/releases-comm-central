@@ -7,7 +7,7 @@
 }
 
 #PopupAutoComplete > richlistbox > richlistitem {
-  min-height: 20px;
+  min-block-size: 20px;
   border: 0;
   border-radius: 0;
   padding: 0 1px;
@@ -32,7 +32,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    inline-size: 100%;
 
     & > .ac-secondary-action {
       display: none;
@@ -45,7 +45,7 @@
   }
 
   &[originaltype="insecureWarning"] {
-    height: auto;
+    block-size: auto;
 
     & > .ac-title > .ac-text-overflow-container > .ac-title-text {
       text-overflow: initial;
@@ -83,7 +83,7 @@
     flex-direction: row;
     gap: 8px;
     margin: 0;
-    min-width: 0;
+    min-inline-size: 0;
 
     & > .ac-site-icon {
       margin-inline-start: 6px;
@@ -97,7 +97,7 @@
       /* The text should flex while the icon should not */
       flex: 1;
       /* min-width is needed to get the text-overflow: ellipsis to work for the children */
-      min-width: 0;
+      min-inline-size: 0;
 
       & > .label-row {
         overflow: hidden;
@@ -106,7 +106,7 @@
       }
 
       & .line2-label {
-        padding-top: 2px !important;
+        padding-block-start: 2px !important;
         color: var(--text-color-deemphasized);
       }
     }
@@ -143,8 +143,8 @@
     text-align: center;
     background-color: var(--status-background-color);
     color: var(--status-text-color);
-    width: 100%;
-    border-bottom: 1px solid var(--panel-separator-color);
+    inline-size: 100%;
+    border-block-end: 1px solid var(--panel-separator-color);
     font-size: calc(10 / 12 * 1em);
   }
 
@@ -157,10 +157,10 @@
     grid-template-columns: 32px 1fr;
 
     & > .ac-site-icon {
-      width: auto;
-      height: 16px;
-      max-width: 32px;
-      max-height: 16px;
+      inline-size: auto;
+      block-size: 16px;
+      max-inline-size: 32px;
+      max-block-size: 16px;
     }
   }
 
@@ -168,7 +168,7 @@
   &[originaltype="insecureWarning"] {
     background-color: var(--arrowpanel-dimmed);
     color: inherit;
-    border-bottom: 1px solid var(--panel-separator-color);
+    border-block-end: 1px solid var(--panel-separator-color);
     padding-block: 4px;
 
     &[selected] {

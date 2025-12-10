@@ -35,7 +35,7 @@
 
 #menubar-items {
   flex-direction: column; /* for flex hack */
-  margin-bottom: 1px;
+  margin-block-end: 1px;
 
   & > menubar {
     flex: 1; /* make menu items expand to fill toolbar height */
@@ -50,7 +50,7 @@
 /* ::::: Toolbar customization ::::: */
 
 toolbarpaletteitem[place="toolbar"] > toolbarspacer {
-  width: 11px;
+  inline-size: 11px;
 }
 
 /* ::::: toolbarbutton menu-button ::::: */
@@ -64,7 +64,7 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 .toolbarbutton-menubutton-dropmarker {
   appearance: none;
   padding: 3px 7px;
-  width: auto;
+  inline-size: auto;
 }
 
 .toolbarbutton-icon {
@@ -90,7 +90,7 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
 .thread-tree-col-picker image,
 .thread-tree-icon-header img {
   padding-inline: 1px 2px;
-  padding-bottom: 2px;
+  padding-block-end: 2px;
 }
 
 .treecol-sortdirection {
@@ -168,7 +168,7 @@ treechildren::-moz-tree-cell-text {
 }
 
 treechildren::-moz-tree-indentation {
-  width: 12px;
+  inline-size: 12px;
 }
 
 menulist {
@@ -241,7 +241,7 @@ toolbar[mode="text"] .toolbarbutton-text {
   padding: 2px 4px;
   background-color: -moz-dialog;
   border: 1px none ThreeDLightShadow;
-  border-top-style: solid;
+  border-block-start-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
 
@@ -284,12 +284,12 @@ fieldset {
   & > hbox,
   & > vbox,
   & > radiogroup {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 }
 
 legend {
-  margin-top: -1em;
+  margin-block-start: -1em;
   margin-inline-start: 3px;
   padding-inline: 3px;
   background-color: -moz-dialog;
@@ -299,15 +299,15 @@ legend {
 /* UI Density customization */
 
 treechildren::-moz-tree-row {
-  height: 1.8rem;
+  block-size: 1.8rem;
 }
 
 :root[uidensity="compact"] treechildren::-moz-tree-row {
-  height: 1.6rem;
+  block-size: 1.6rem;
 }
 
 :root[uidensity="touch"] treechildren::-moz-tree-row {
-  height: 2.4rem;
+  block-size: 2.4rem;
 }
 
 /* Infobar styles */
@@ -317,10 +317,10 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
 
   & > .toolbarbutton-menubutton-button {
     appearance: none;
-    min-height: calc(1.8em - 2px);
+    min-block-size: calc(1.8em - 2px);
   }
 }
 
 #reminderBarPopup {
-  margin-top: -4px;
+  margin-block-start: -4px;
 }

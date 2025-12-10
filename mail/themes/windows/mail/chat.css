@@ -36,10 +36,10 @@
 }
 
 .conv-counter {
-  padding-bottom: 0;
+  padding-block-end: 0;
   padding-inline-end: 5px;
   margin-inline-end: 2px;
-  margin-bottom: 2px !important; /* override 4px from description */
+  margin-block-end: 2px !important; /* override 4px from description */
 
   &[value^="-"] {
     margin-inline-end: 2px;
@@ -67,7 +67,7 @@
 .conv-logs-header-label {
   margin: 0;
   padding-block: 2px;
-  border-bottom: 1px solid ThreeDShadow;
+  border-block-end: 1px solid ThreeDShadow;
   background-color: -moz-Dialog;
 }
 
@@ -92,7 +92,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 @media not (prefers-contrast) {
   .conv-status-container {
-    border-bottom-color: var(--color-gray-30);
+    border-block-end-color: var(--color-gray-30);
   }
 
   #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {

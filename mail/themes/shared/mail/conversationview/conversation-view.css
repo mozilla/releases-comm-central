@@ -17,11 +17,11 @@ header {
   gap: 9px 6px;
   align-items: center;
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   padding: 9px 12px;
   background: var(--color-surface-base);
   color: var(--color-text-base);
-  border-bottom: 1px solid var(--color-surface-border);
+  border-block-end: 1px solid var(--color-surface-border);
 
   & .info {
     display: flex;
@@ -57,7 +57,7 @@ header {
 #mainConversation {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  block-size: 100%;
 
   & article {
     display: grid;
@@ -78,13 +78,13 @@ header {
 
       & xul|browser {
         display: block;
-        height: 100%;
-        width: 100%;
+        block-size: 100%;
+        inline-size: 100%;
       }
     }
 
     & + article {
-      border-top: 1px solid var(--color-surface-border);
+      border-block-start: 1px solid var(--color-surface-border);
     }
 
     & address {

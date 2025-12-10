@@ -7,7 +7,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 #contactMoveDisabledText {
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 html|input.editContactTextbox {
@@ -15,6 +15,6 @@ html|input.editContactTextbox {
 }
 
 #messageHeaderCustomizationPanel {
-  margin-top: -10px;
+  margin-block-start: -10px;
   margin-inline-end: 1px;
 }

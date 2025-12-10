@@ -11,7 +11,7 @@ html|input {
 
   &[type="number"]::-moz-number-spin-up,
   &[type="number"]::-moz-number-spin-down {
-    min-height: 0.55em;
+    min-block-size: 0.55em;
   }
 }
 
@@ -27,7 +27,7 @@ menu > menupopup > menu {
 }
 
 .menu-right {
-  height: 12px;
+  block-size: 12px;
 }
 
 .menu-right:-moz-locale-dir(rtl) {

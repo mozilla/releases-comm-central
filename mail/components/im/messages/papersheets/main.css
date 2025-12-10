@@ -40,13 +40,13 @@ div.context:not(:hover) > p {
 }
 
 div.messages-group:last-child {
-  padding-bottom: 10px;
+  padding-block-end: 10px;
 }
 
 div.messages-group > hr {
   margin: 3px 50px 0 20px;
   background-color: rgba(0, 0, 0, 0.05);
-  height: 1px;
+  block-size: 1px;
   border: 0;
 }
 
@@ -59,14 +59,14 @@ span.message-style {
 span.date {
   color: rgba(0, 0, 0, 0.4);
   font-size: smaller;
-  text-align: right;
+  text-align: end;
   float: inline-end;
   display: block;
 }
 
 span.date-next {
   opacity: 0.4;
-  margin-top: -6px;
+  margin-block-start: -6px;
   transition-property: opacity;
   transition-duration: 0.3s;
 }
@@ -102,8 +102,8 @@ p.action > span.message-style::before {
 }
 
 p.event {
-  margin-left: 0;
-  min-height: 16px;
+  margin-inline-start: 0;
+  min-block-size: 16px;
   background: url("Bitmaps/information.png") no-repeat top left;
 }
 
@@ -116,8 +116,8 @@ p.event > span.message-style {
 }
 
 p *:any-link img {
-  margin-bottom: 1px;
-  border-bottom: solid 1px;
+  margin-block-end: 1px;
+  border-block-end: solid 1px;
 }
 
 .ib-sender.message-encrypted {
@@ -128,8 +128,8 @@ p *:any-link img {
   position: relative;
   display: inline-block;
   content: "";
-  width: 11px;
-  height: 11px;
+  inline-size: 11px;
+  block-size: 11px;
   opacity: 0.7;
   background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
   background-size: contain;
@@ -152,10 +152,10 @@ p *:any-link img {
 }
 
 .eventToggle {
-  margin-top: -2px;
-  margin-left: -4px;
-  height: 9px;
-  width: 9px;
+  margin-block-start: -2px;
+  margin-inline-start: -4px;
+  block-size: 9px;
+  inline-size: 9px;
   cursor: pointer;
   background: url("Bitmaps/minus.png") no-repeat left top;
 }
@@ -166,7 +166,7 @@ p *:any-link img {
 
 .hide-children > p.event:first-of-type > .message-style::after {
   content: "[\2026]"; /* &hellip; */
-  margin-left: 1em;
+  margin-inline-start: 1em;
   color: #5a7ac6;
   font-size: smaller;
 }
@@ -178,11 +178,11 @@ p *:any-link img {
 /* Adapt styles to narrow windows */
 @media all and (max-width: 400px) {
   div.messages-group > hr {
-    margin-right: 0;
+    margin-inline-end: 0;
   }
 
   span.message-style {
-    margin-right: 0;
+    margin-inline-end: 0;
   }
 
   span.date-next {
@@ -199,10 +199,10 @@ p *:any-link img {
 /* Adapt styles when the window is very low */
 @media all and (max-height: 200px) {
   div.messages-group {
-    padding-bottom: 8px;
+    padding-block-end: 8px;
   }
 
   div.messages-group:last-child {
-    padding-bottom: 8px;
+    padding-block-end: 8px;
   }
 }

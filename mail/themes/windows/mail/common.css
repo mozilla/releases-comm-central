@@ -19,9 +19,9 @@ xul|menulist[disabled="true"] {
 
 html|button {
   /* XUL button min-width */
-  min-width: 6.3em;
+  min-inline-size: 6.3em;
 }
 
 xul|tab {
-  min-height: 2.5em;
+  min-block-size: 2.5em;
 }

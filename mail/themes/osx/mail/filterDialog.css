@@ -25,12 +25,12 @@
 
 .search-menulist,
 .search-value-menulist {
-  width: 14.5em;
+  inline-size: 14.5em;
 }
 
 .small-button {
-  min-width: 22px;
-  height: 20px;
+  min-inline-size: 22px;
+  block-size: 20px;
   padding-block: 0 1px;
   padding-inline: 0 1px;
   margin: 4px 0;
@@ -54,5 +54,5 @@ hbox > .small-button + .small-button {
 }
 
 toolbarbutton[is="toolbarbutton-menu-button"] > toolbarbutton {
-  min-height: 0;
+  min-block-size: 0;
 }

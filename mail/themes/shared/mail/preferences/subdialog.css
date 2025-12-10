@@ -37,8 +37,8 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   &[resizable="true"] {
     resize: both;
     overflow: hidden;
-    min-height: 20em;
-    min-width: 66ch;
+    min-block-size: 20em;
+    min-inline-size: 66ch;
   }
 }
 
@@ -68,8 +68,8 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   margin: 10px;
   flex: 1;
   /* Default dialog dimensions */
-  height: 12em;
-  min-width: 40ch;
+  block-size: 12em;
+  min-inline-size: 40ch;
 }
 
 .contentPane {
@@ -83,7 +83,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 .largeDialogContainer.doScroll {
   overflow-y: auto;
   flex: 1;
-  min-height: 100vh;
+  min-block-size: 100vh;
 }
 
 #selectOffline {

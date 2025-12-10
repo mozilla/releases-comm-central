@@ -10,9 +10,9 @@
   background-image: url("chrome://branding/content/about-logo.svg");
   background-repeat: no-repeat;
   /* min-width and min-height create room for the logo */
-  min-width: 210px;
-  min-height: 210px;
-  margin-top: 20px;
+  min-inline-size: 210px;
+  min-block-size: 210px;
+  margin-block-start: 20px;
   margin-inline-start: 30px;
 }
 
@@ -21,8 +21,8 @@
 }
 
 #codenameLogo {
-  height: 28px;
-  width: 90px;
+  block-size: 28px;
+  inline-size: 90px;
   margin-block-start: 12px;
 }
 

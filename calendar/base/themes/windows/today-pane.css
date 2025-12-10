@@ -5,18 +5,18 @@
 @import url(chrome://calendar/skin/shared/today-pane.css);
 
 #today-pane-splitter {
-  border-top-width: 0;
-  min-height: 0;
+  border-block-start-width: 0;
+  min-block-size: 0;
   background-color: transparent;
 }
 
 #today-pane-panel > .sidebar-header {
-  height: 1.5em;
-  min-height: 35px;
+  block-size: 1.5em;
+  min-block-size: 35px;
 }
 
 #today-none-box {
-  border-top: 1px solid ThreeDShadow;
+  border-block-start: 1px solid ThreeDShadow;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {

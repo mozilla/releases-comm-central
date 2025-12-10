@@ -30,8 +30,8 @@
 
 :host([data-branded="true"]) .wizard-header-icon {
   list-style-image: url("chrome://branding/content/icon128.png");
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
 }
 
 html|*.wizard-page-box {

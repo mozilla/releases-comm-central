@@ -6,9 +6,9 @@
 
 /* added for new id ..... search box ..... */
 #unifinder-searchBox {
-  border-bottom: 1px solid #bebebe;
-  height: 1.5em;
-  min-height: 32px;
+  border-block-end: 1px solid #bebebe;
+  block-size: 1.5em;
+  min-block-size: 32px;
 }
 
 .unifinder-closebutton > .toolbarbutton-text {
@@ -17,6 +17,6 @@
 
 @media not (prefers-color-scheme: dark) {
   #unifinder-searchBox:-moz-window-inactive {
-    border-bottom-color: hsl(0, 0%, 85%);
+    border-block-end-color: hsl(0, 0%, 85%);
   }
 }

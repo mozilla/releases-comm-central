@@ -14,10 +14,10 @@ body {
 #activityContainer {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  block-size: 100vh;
 
   & > #activityView {
-    min-height: 0;
+    min-block-size: 0;
     flex: 1 1 auto;
   }
 
@@ -32,7 +32,7 @@ ul.activityview {
   margin: 0;
   padding-inline-start: 0;
   overflow: auto;
-  border-bottom: 1px solid var(--field-border-color);
+  border-block-end: 1px solid var(--field-border-color);
   background-color: var(--field-background-color);
 }
 
@@ -53,15 +53,15 @@ li {
 
 .activityitem {
   padding: 7px 4px;
-  border-bottom: 1px solid var(--field-border-color);
+  border-block-end: 1px solid var(--field-border-color);
 
   .activitygroup-list & {
     padding-inline-start: 12px;
   }
 
   & > img {
-    width: 48px;
-    height: 48px;
+    inline-size: 48px;
+    block-size: 48px;
     grid-area: icon;
     align-self: start;
   }

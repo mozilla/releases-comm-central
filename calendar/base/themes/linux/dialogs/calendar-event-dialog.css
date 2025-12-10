@@ -15,7 +15,7 @@
  *-------------------------------------------------------------------*/
 
 #keepduration-button {
-  min-width: 18px;
+  min-inline-size: 18px;
 }
 
 #timezone-endtime {

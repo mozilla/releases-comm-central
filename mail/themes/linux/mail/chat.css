@@ -13,7 +13,7 @@
 .convDisplayName,
 .contactStatusText,
 .convStatusText {
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 #listSplitter,
@@ -44,10 +44,10 @@
 }
 
 .conv-counter {
-  padding-bottom: 0;
+  padding-block-end: 0;
   padding-inline-end: 5px;
   margin-inline-end: 2px;
-  margin-bottom: 2px !important; /* override 4px from description */
+  margin-block-end: 2px !important; /* override 4px from description */
 }
 
 :root:not([lwt-tree]) #conv-top-info {

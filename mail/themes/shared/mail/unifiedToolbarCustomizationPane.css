@@ -15,9 +15,9 @@
 .palette-search {
   display: block;
   margin: 12px 0;
-  max-width: 50ch;
-  height: 2em;
-  width: 100%;
+  max-inline-size: 50ch;
+  block-size: 2em;
+  inline-size: 100%;
   align-self: center;
 }
 
@@ -42,10 +42,10 @@
   padding-inline: 9px;
   padding-block: var(--unified-toolbar-padding);
   margin: 1rem;
-  max-width: 100vw;
+  max-inline-size: 100vw;
   border: 1px solid var(--layout-border-0);
   gap: 6px;
-  min-height: calc(1rem + 3 * var(--button-padding));
+  min-block-size: calc(1rem + 3 * var(--button-padding));
 
   & .button.unified-toolbar-button {
     margin-block: 0;
@@ -58,28 +58,28 @@
     background-position: 5px center;
     background-repeat: repeat-x;
     position: relative;
-    height: 100%;
+    block-size: 100%;
     -moz-context-properties: stroke;
     stroke: currentColor;
 
     &::before,
     &::after {
       content: "";
-      width: 16px;
+      inline-size: 16px;
       position: absolute;
-      height: 100%;
+      block-size: 100%;
       background-repeat: no-repeat;
       background-position-y: center;
     }
 
     &::before {
       background-image: var(--icon-nav-left);
-      left: -5px;
+      inset-inline-start: -5px;
     }
 
     &::after {
       background-image: var(--icon-nav-right);
-      right: -5px;
+      inset-inline-end: -5px;
     }
   }
 
@@ -124,8 +124,8 @@
   }
 
   & [is="customizable-element"] {
-    width: 96px;
-    height: calc(25px + 2.4rem); /* icon: 16px, gap: 9px, 2.4rem = ~2lh */
+    inline-size: 96px;
+    block-size: calc(25px + 2.4rem); /* icon: 16px, gap: 9px, 2.4rem = ~2lh */
     background: var(--layout-background-3);
     padding: 9px;
     border-radius: 6px;
@@ -166,8 +166,8 @@ h2 {
 }
 
 .preview-icon {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   object-fit: contain;
   pointer-events: none;
 }
@@ -181,7 +181,7 @@ h2 {
   text-overflow: ellipsis;
   user-select: none;
   padding-inline: 3px;
-  max-width: 100%;
+  max-inline-size: 100%;
 }
 
 /* Drag and drop state styling */

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 body {
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -27,15 +27,15 @@ body {
   background-color: hsla(0, 0%, 50%, 0.2);
   border: 1px solid hsl(0, 0%, 50%);
   border-radius: 4px;
-  margin-top: 8px;
+  margin-block-start: 8px;
   margin-inline: 4px;
   padding: 16px;
 }
 
 #sanitizeEverythingWarningIcon {
   list-style-image: var(--icon-warning-dialog);
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
 }
 
 #sanitizeEverythingWarningDescBox {

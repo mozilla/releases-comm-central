@@ -32,11 +32,11 @@
 
 #titlebar {
   -moz-window-dragging: drag;
-  height: 22px;
+  block-size: 22px;
 }
 
 .titlebar-buttonbox-container {
-  margin-top: 3px;
+  margin-block-start: 3px;
   margin-inline-start: 7px;
 }
 
@@ -55,7 +55,7 @@
 }
 
 .mail-toolbox {
-  border-bottom: 0;
+  border-block-end: 0;
 }
 
 :root[lwtheme] #mail-toolbox {
@@ -64,7 +64,7 @@
 
 #messagepaneboxwrapper {
   overflow: hidden;
-  min-height: 0;
+  min-block-size: 0;
 }
 
 #messagepanebox {

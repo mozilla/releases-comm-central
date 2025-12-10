@@ -27,7 +27,7 @@
 
 .grid-two-column-equalsize {
   display: inline-grid;
-  min-width: max-content;
+  min-inline-size: max-content;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -51,7 +51,7 @@
 .grid-two-column textarea,
 .grid-three-column menulist,
 .grid-three-column textarea {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .grid-items-baseline {

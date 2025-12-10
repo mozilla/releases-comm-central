@@ -5,6 +5,5 @@
 @import url(chrome://calendar/skin/shared/imip.css);
 
 .invitation-table {
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-block: 1em;
 }

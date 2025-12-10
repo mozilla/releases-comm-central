@@ -7,26 +7,26 @@
 /* restyle splitter-border to match Thunderbird's layout */
 #calendar-view-splitter {
   appearance: none;
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
   /* splitter grip area */
-  height: 5px;
+  block-size: 5px;
   /* make only the splitter border visible */
-  margin-top: -5px;
+  margin-block-start: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
 }
 
 #bottom-events-box {
-  border-left: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
 }
 
 /* added for new id ..... search box ..... */
 #unifinder-searchBox {
   background-color: transparent;
-  border-bottom: 1px solid ThreeDShadow;
-  height: 1.5em;
-  min-height: 35px;
+  border-block-end: 1px solid ThreeDShadow;
+  block-size: 1.5em;
+  min-block-size: 35px;
 }
 
 .unifinder-closebutton {

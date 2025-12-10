@@ -19,7 +19,7 @@
 #notification-popup {
   appearance: none;
   background: transparent;
-  margin-top: 4px;
+  margin-block-start: 4px;
 
   &::part(content) {
     margin: 1px;

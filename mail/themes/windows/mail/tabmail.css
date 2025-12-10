@@ -75,6 +75,6 @@ tabpanels {
 
 /* Content Tabs */
 .contentTabAddress {
-  height: 34px;
+  block-size: 34px;
   padding-inline: 10px;
 }

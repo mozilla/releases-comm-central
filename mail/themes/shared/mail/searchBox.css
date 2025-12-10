@@ -19,8 +19,8 @@ input[type="search"] {
 }
 
 input::-moz-search-clear-button {
-  width: 22px;
-  height: 22px;
+  inline-size: 22px;
+  block-size: 22px;
   margin-block: auto;
   padding: 0;
   background-image: var(--icon-close);
@@ -39,7 +39,7 @@ input::-moz-search-clear-button {
   border-radius: var(--button-border-radius);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   outline: none;
-  min-height: 24px;
+  min-block-size: 24px;
 }
 
 .textbox-search-clear {
@@ -109,7 +109,7 @@ input::-moz-search-clear-button {
 
 #PopupGlodaAutocomplete .ac-url {
   display: flex;
-  margin-bottom: 2px;
+  margin-block-end: 2px;
 }
 
 .ac-url:not([selected="true"]) > .ac-url-text {
@@ -132,6 +132,6 @@ input::-moz-search-clear-button {
 }
 
 .remote-gloda-search-container {
-  min-width: 10em;
+  min-inline-size: 10em;
   align-items: center;
 }

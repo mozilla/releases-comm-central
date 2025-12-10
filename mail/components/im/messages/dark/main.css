@@ -18,8 +18,8 @@ p {
 p.message {
   margin: 0;
   padding: 4px 15px 6px 15px;
-  border-bottom: 1px solid black;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-block-end: 1px solid black;
+  border-block-start: 1px solid rgba(255, 255, 255, 0.3);
   background: -moz-linear-gradient(top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.07) 30px);
 }
 
@@ -50,7 +50,7 @@ p.event-messages:hover {
 }
 
 .pseudo {
-  margin-bottom: 3px;
+  margin-block-end: 3px;
   font-weight: bold;
   color: white;
   display: block;
@@ -86,8 +86,8 @@ a:visited {
 }
 
 p *:any-link img {
-  margin-bottom: 1px;
-  border-bottom: solid 1px;
+  margin-block-end: 1px;
+  border-block-end: solid 1px;
 }
 
 .ib-nick {
@@ -116,8 +116,8 @@ p *:any-link img {
   position: relative;
   display: inline-block;
   content: "";
-  width: 11px;
-  height: 11px;
+  inline-size: 11px;
+  block-size: 11px;
   opacity: 0.5;
   background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
   background-size: contain;

@@ -6,7 +6,7 @@
 @import url("chrome://messenger/skin/icons.css");
 
 html {
-  height: 100%;
+  block-size: 100%;
 }
 
 :root {
@@ -61,7 +61,7 @@ body {
   display: block;
   overflow: auto;
   margin: 0;
-  height: 100vh;
+  block-size: 100vh;
   background-color: var(--body-background-color);
   text-shadow: none;
 }
@@ -74,12 +74,12 @@ body {
   background-position: bottom right;
   background-repeat: no-repeat;
   color: var(--text-color);
-  height: 100%;
+  block-size: 100%;
 }
 
 #brandLogo {
-  width: 64px;
-  height: 64px;
+  inline-size: 64px;
+  block-size: 64px;
   margin-inline-end: 20px;
   flex-shrink: 0;
 }
@@ -97,7 +97,7 @@ body {
   & > aside {
     display: flex;
     align-items: center;
-    width: 160px;
+    inline-size: 160px;
     flex: 1 1 auto;
   }
 }
@@ -107,8 +107,8 @@ body {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   color: var(--primary-color);
-  width: 20px;
-  height: 20px;
+  inline-size: 20px;
+  block-size: 20px;
   margin-inline-end: 10px;
   flex-shrink: 0;
   background: var(--account-central-mail) center no-repeat;
@@ -137,7 +137,7 @@ body {
   overflow: hidden;
   margin-block: 0;
   /* Prevents UI jumping when dynamically changing the content. */
-  min-height: 21px;
+  min-block-size: 21px;
 }
 
 aside.settings-btn-container {
@@ -158,7 +158,7 @@ aside.settings-btn-container {
   align-items: center;
   flex-shrink: 0;
   font-size: small;
-  margin-top: 10px;
+  margin-block-start: 10px;
   line-height: 1em;
 
   & > label {
@@ -175,8 +175,8 @@ aside.settings-btn-container {
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
     fill-opacity: 1;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     margin-inline-start: 3px;
 
     &:where(:hover, :focus) {
@@ -210,7 +210,7 @@ aside.settings-btn-container {
   color: var(--title-color);
   margin-block: 10px 20px;
   /* Prevents UI jumping when dynamically changing the content. */
-  min-height: 21px;
+  min-block-size: 21px;
 }
 
 .row-container {
@@ -221,8 +221,8 @@ aside.settings-btn-container {
   & > p {
     flex: 1;
     display: block;
-    min-width: 300px;
-    max-width: 550px;
+    min-inline-size: 300px;
+    max-inline-size: 550px;
     margin: 0 10px 20px;
   }
 
@@ -249,8 +249,8 @@ aside.settings-btn-container {
   -moz-context-properties: fill, stroke, stroke-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  min-width: 110px;
-  height: 90px;
+  min-inline-size: 110px;
+  block-size: 90px;
   padding: 10px;
   border: none;
   border-radius: 4px;
@@ -269,11 +269,11 @@ aside.settings-btn-container {
 
   &.btn-inline {
     flex-direction: row;
-    width: auto;
-    height: auto;
+    inline-size: auto;
+    block-size: auto;
     padding: 8px 12px;
     justify-content: flex-start;
-    min-width: 140px;
+    min-inline-size: 140px;
   }
 
   &:focus-visible:not(:hover) {
@@ -286,8 +286,8 @@ aside.settings-btn-container {
     content: "";
     margin-block-end: 10px;
     margin-inline-end: 0;
-    width: 20px;
-    height: 20px;
+    inline-size: 20px;
+    block-size: 20px;
     color: var(--primary-color);
     background-position: center;
     background-repeat: no-repeat;
@@ -298,8 +298,8 @@ aside.settings-btn-container {
   &.btn-inline::before {
     margin-block-end: 0;
     margin-inline-end: 10px;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
   }
 
   &:hover::before {
@@ -380,9 +380,9 @@ aside.settings-btn-container {
 .account-description {
   position: absolute;
   opacity: 0;
-  top: 100%;
-  margin-top: -30px;
-  width: 90vw;
+  inset-block-start: 100%;
+  margin-block-start: -30px;
+  inline-size: 90vw;
   inset-inline-start: 30px;
   transition: opacity 280ms ease;
   z-index: 1;
@@ -459,8 +459,8 @@ aside.settings-btn-container {
   display: inline-block;
   content: "";
   background-repeat: no-repeat;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   margin-inline-end: 5px;
   vertical-align: sub;
 }

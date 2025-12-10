@@ -79,8 +79,8 @@ dialog {
 
 .account-hub-dialog {
   display: grid;
-  width: 800px;
-  min-height: 600px;
+  inline-size: 800px;
+  min-block-size: 600px;
   overflow: initial;
   padding: 0;
   box-shadow: none;
@@ -91,7 +91,7 @@ dialog {
     position: absolute;
     inset-block-end: -2px;
     inset-inline: calc(2 * var(--hub-blur-radius) + 5px);
-    min-height: calc(3 * var(--hub-blur-radius));
+    min-block-size: calc(3 * var(--hub-blur-radius));
     background: linear-gradient(to right, rgba(159, 244, 240, 1), rgba(76, 177, 249, 1), rgba(168, 85, 247, 1));
     filter: blur(var(--hub-blur-radius));
     z-index: -1;
@@ -163,10 +163,10 @@ dialog {
 .account-hub-form,
 .account-hub-success-container,
 .account-hub-address-book-form {
-  max-height: 40vh;
+  max-block-size: 40vh;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  block-size: 100%;
   overflow-y: auto;
   justify-content: center;
 }
@@ -176,7 +176,7 @@ dialog {
 }
 
 .account-hub-view:not([hidden]) {
-  max-height: 90vh;
+  max-block-size: 90vh;
   padding-inline: 20px;
   padding-block-start: 40px;
   border-radius: inherit;
@@ -248,7 +248,7 @@ dialog {
   --hub-trail-offset: 360deg;
 
   position: relative;
-  height: var(--hub-loader-size);
+  block-size: var(--hub-loader-size);
   aspect-ratio: 1;
   background-image: conic-gradient(from 0deg, transparent 0deg, var(--hub-loader-color) 360deg, transparent var(--hub-trail-offset));
   border-radius: 50%;
@@ -262,7 +262,7 @@ dialog {
     content: "";
     position: absolute;
     inset: var(--hub-loader-width);
-    height: calc(var(--hub-loader-size) - 2 * var(--hub-loader-width));
+    block-size: calc(var(--hub-loader-size) - 2 * var(--hub-loader-width));
     aspect-ratio: 1;
     background: var(--hub-loader-background);
     border-radius: 50%;
@@ -277,7 +277,7 @@ dialog {
     &::before {
       content: "";
       position: absolute;
-      height: var(--hub-loader-width);
+      block-size: var(--hub-loader-width);
       aspect-ratio: 1;
       border-radius: 50%;
       background: var(--hub-loader-color);
@@ -339,13 +339,13 @@ header {
 }
 
 #welcomeHeader > img {
-  width: 90px;
-  height: 90px;
+  inline-size: 90px;
+  block-size: 90px;
 }
 
 #brandingHeader > img {
-  width: 45px;
-  height: 45px;
+  inline-size: 45px;
+  block-size: 45px;
 }
 
 #brandingHeader .branding-header-name {
@@ -387,8 +387,8 @@ header {
   justify-content: flex-start;
   place-self: center;
   gap: var(--hub-body-elements-column-gap);
-  width: 100%;
-  max-width: var(--hub-width);
+  inline-size: 100%;
+  max-inline-size: var(--hub-width);
   text-align: start;
   margin-inline: 0;
 
@@ -397,7 +397,7 @@ header {
   }
 
   &.auto-config-body {
-    max-width: 650px;
+    max-inline-size: 650px;
   }
 
   &.manual-form-body {
@@ -472,7 +472,7 @@ header {
       }
 
       & .input-field {
-        width: 100%;
+        inline-size: 100%;
       }
     }
 
@@ -496,17 +496,17 @@ header {
   &.email-form-body,
   &.option-select-body,
   &.remote-ab-form-body {
-    max-width: 400px;
+    max-inline-size: 400px;
   }
 
   &.account-select-body,
   &.credentials-confirmation-body {
-    max-width: 500px;
+    max-inline-size: 500px;
   }
 
   &.sync-accounts-form-body {
     & .sync-accounts-container {
-      width: 100%;
+      inline-size: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 15px;
@@ -517,7 +517,7 @@ header {
     }
 
     .stacked & .sync-type-container {
-      height: auto;
+      block-size: auto;
     }
   }
 
@@ -549,8 +549,8 @@ header {
 }
 
 .button-account {
-  width: 170px;
-  min-height: 93px;
+  inline-size: 170px;
+  min-block-size: 93px;
   font-size: 1.2rem;
   font-weight: normal;
   display: flex;
@@ -587,8 +587,8 @@ header {
 .button-account::before {
   display: block;
   content: "";
-  width: 24px;
-  height: 24px;
+  inline-size: 24px;
+  block-size: 24px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--primary) 10%, transparent);
   stroke: var(--primary);
@@ -630,8 +630,8 @@ header {
 }
 
 #hubLoader {
-  width: 16px;
-  min-height: 16px;
+  inline-size: 16px;
+  min-block-size: 16px;
   vertical-align: middle;
   content: url("chrome://messenger/skin/icons/spinning.svg");
   -moz-context-properties: fill;
@@ -689,8 +689,8 @@ header {
   &.button-sm {
     padding: 4px 9px;
     font-size: 0.8rem;
-    min-width: auto;
-    min-height: auto;
+    min-inline-size: auto;
+    min-block-size: auto;
     text-transform: uppercase;
     font-weight: bold;
     line-height: var(--hub-floating-button-line-height);
@@ -768,7 +768,7 @@ header {
   display: inline-block;
   font-size: 0.77rem;
   color: var(--color-text-muted);
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 /* Footer */
@@ -782,7 +782,7 @@ header {
 
   & hr {
     border: none;
-    height: 1px;
+    block-size: 1px;
     margin-block-start: var(--hub-footer-margin-block);
     background: linear-gradient(to right, transparent, var(--color-surface-border), transparent);
     color: transparent;
@@ -790,7 +790,7 @@ header {
 
   & .footer-button {
     font-size: 1.1rem;
-    min-width: 128px;
+    min-inline-size: 128px;
     padding: 10px 25px;
     text-align: center;
   }
@@ -815,8 +815,8 @@ header {
 
     &:not([hidden]) ~ li:not([hidden])::before {
       content: "";
-      width: 2px;
-      height: 2px;
+      inline-size: 2px;
+      block-size: 2px;
       border-radius: 2px;
       background-color: var(--color-text-muted);
     }
@@ -842,8 +842,8 @@ header {
   & .account-hub-success-illustration {
     background-image: var(--success-illustration);
     background-size: cover;
-    width: var(--hub-success-hub-illustration-width);
-    height: var(--hub-success-hub-illustration-height);
+    inline-size: var(--hub-success-hub-illustration-width);
+    block-size: var(--hub-success-hub-illustration-height);
   }
 
   & .account-hub-success-links-title {

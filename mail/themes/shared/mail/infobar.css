@@ -48,7 +48,7 @@
 }
 
 :host([message-bar-type="infobar"]:first-of-type) {
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 :host(notification-message[type="warning"]) {
@@ -92,7 +92,7 @@
 
   & .icon-container {
     overflow: hidden;
-    width: var(--message-bar-icon-size);
+    inline-size: var(--message-bar-icon-size);
     justify-content: start;
   }
 
@@ -101,7 +101,7 @@
     opacity: 0.7;
 
     @media (prefers-reduced-motion: no-preference) {
-      width: 480px;
+      inline-size: 480px;
       content: var(--icon-loading);
       padding: 0;
       animation: loading-animation 1.05s steps(30) infinite;
@@ -180,8 +180,8 @@ moz-button::part(button) {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  width: var(--close-icon-size);
-  height: var(--close-icon-size);
+  inline-size: var(--close-icon-size);
+  block-size: var(--close-icon-size);
 }
 
 @media (prefers-contrast) {

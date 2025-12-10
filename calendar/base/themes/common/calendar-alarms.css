@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .reminder-details > .alarm-icons-box {
-  width: 15px;
+  inline-size: 15px;
 }
 
 /**
@@ -35,8 +35,8 @@
 }
 
 .reminder-details > .alarm-icons-box > .reminder-icon {
-  width: 12px;
-  height: 12px;
+  inline-size: 12px;
+  block-size: 12px;
   margin-inline-start: 3px;
 }
 
@@ -46,7 +46,7 @@
  * dialogs.
  */
 #reminder-listbox {
-  min-height: 100px;
+  min-block-size: 100px;
 }
 
 #reminder-relative-radio > .radio-label-center-box > .radio-label-box,
@@ -59,8 +59,8 @@
 }
 
 #reminder-notifications > notification[type="warning"] > hbox > .messageImage {
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
   fill: #ffbf00;
 }
 
@@ -70,14 +70,14 @@
 
 #reminder-actions-caption,
 #reminder-details-caption {
-  padding-top: 20px;
+  padding-block-start: 20px;
 }
 
 #reminder-actions-menulist {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .reminder-icon > .menu-icon {
-  width: auto;
-  height: auto;
+  inline-size: auto;
+  block-size: auto;
 }

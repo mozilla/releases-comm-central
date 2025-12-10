@@ -30,8 +30,8 @@
 }
 
 .im-placeholder-box {
-  max-width: calc(500px + 9em);
-  min-height: 3em;
+  max-inline-size: calc(500px + 9em);
+  min-block-size: 3em;
   background: url("chrome://global/skin/icons/info.svg") left 0 no-repeat;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -53,9 +53,9 @@
   font-weight: lighter;
   line-height: 1.2;
   margin: 0;
-  margin-bottom: 0.5em;
-  padding-bottom: 0.4em;
-  border-bottom: 1px solid var(--splitter-color);
+  margin-block-end: 0.5em;
+  padding-block-end: 0.4em;
+  border-block-end: 1px solid var(--splitter-color);
 }
 
 .im-placeholder-desc {
@@ -69,7 +69,7 @@
 .im-placeholder-button-box > button {
   /* override forms.css */
   font: inherit;
-  min-height: 30px;
+  min-block-size: 30px;
 
   &:focus-visible {
     outline: var(--focus-outline);
@@ -136,9 +136,9 @@ richlistitem[is="chat-group-richlistitem"] {
   }
 
   & .twisty {
-    padding-top: 1px;
-    width: 10px;
-    height: 10px;
+    padding-block-start: 1px;
+    inline-size: 10px;
+    block-size: 10px;
     margin-inline-start: 5px;
     background: var(--icon-nav-down-sm) no-repeat center;
     background-size: contain;
@@ -222,8 +222,8 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 }
 
 .box-line {
-  width: 2px;
-  height: 100%;
+  inline-size: 2px;
+  block-size: 100%;
 
   &[selected="true"] {
     background-color: var(--tabline-color);
@@ -290,7 +290,7 @@ richlistitem[is="chat-group-richlistitem"] > label {
 
 /* Avoid a strange jumping bug when hovering and the startChatBubble appears */
 .contact-vbox {
-  min-height: 40px;
+  min-block-size: 40px;
 }
 
 .startChatBubble,
@@ -300,10 +300,10 @@ richlistitem[is="chat-group-richlistitem"] > label {
   border: none;
   background: transparent;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  min-height: 16px;
-  min-width: 16px;
+  inline-size: 16px;
+  block-size: 16px;
+  min-block-size: 16px;
+  min-inline-size: 16px;
   cursor: pointer;
   -moz-user-focus: ignore;
 }
@@ -321,8 +321,8 @@ richlistitem[is="chat-group-richlistitem"] > label {
 }
 
 .closeConversationButton > .button-box > .button-icon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 /* From im/themes/conversation.css */
@@ -336,12 +336,12 @@ richlistitem[is="chat-group-richlistitem"] > label {
 }
 
 .convBox {
-  min-height: 135px;
-  min-width: 200px;
+  min-block-size: 135px;
+  min-inline-size: 200px;
 }
 
 .conv-top {
-  min-height: 60px;
+  min-block-size: 60px;
 }
 
 .conv-top-info {
@@ -349,15 +349,15 @@ richlistitem[is="chat-group-richlistitem"] > label {
   border-style: none;
   appearance: none;
   -moz-window-dragging: no-drag;
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
 }
 
 .userIcon {
   border: 2px solid rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   object-fit: contain;
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
 
   :root[lwt-tree-brighttext] & {
     border-color: rgba(255, 255, 255, 0.15);
@@ -384,8 +384,8 @@ richlistitem[is="chat-group-richlistitem"] > label {
 }
 
 .statusTypeIcon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, var(--color-ink-50) 20%, transparent);
   stroke: var(--color-ink-50);
@@ -399,8 +399,8 @@ richlistitem[is="chat-group-richlistitem"] > label {
 
 /* Used with protoIcon. */
 .smallStatusIcon {
-  width: 10px;
-  height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
   -moz-context-properties: fill;
   fill: var(--selected-item-color);
 }
@@ -410,8 +410,8 @@ richlistitem[is="chat-group-richlistitem"] > label {
 }
 
 .protoIcon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   object-fit: contain;
 }
 
@@ -432,7 +432,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 #statusTypeIcon {
-  min-width: 40px;
+  min-inline-size: 40px;
 
   &:not([disabled]) {
     cursor: pointer;
@@ -506,7 +506,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   }
 
   & > hr {
-    height: 0;
+    block-size: 0;
     border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
     border-block-end: none;
     border-inline: none;
@@ -535,14 +535,14 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 .conv-messages {
-  min-width: 150px;
+  min-inline-size: 150px;
 }
 
 .conv-status-container {
   display: block;
-  height: 20px;
+  block-size: 20px;
   padding: 3px;
-  border-bottom: 1px solid ThreeDShadow;
+  border-block-end: 1px solid ThreeDShadow;
   transition-property: margin-top, opacity, visibility;
   transition-duration: 150ms, 150ms, 0s;
   transition-timing-function: ease-in-out, ease-in-out, linear;
@@ -551,7 +551,7 @@ richlistitem:not([selected]) .protoIconDimmed {
     /* Override display:none to make the transition work. */
     display: flex;
     visibility: collapse;
-    margin-top: -1em;
+    margin-block-start: -1em;
     opacity: 0;
     transition-delay: 0s, 0s, 150ms;
   }
@@ -587,7 +587,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   color: #000;
   background-color: rgba(246, 246, 246, 0.7);
   border-inline-start: 1px solid rgb(200, 200, 200);
-  border-top: 1px solid rgb(200, 200, 200);
+  border-block-start: 1px solid rgb(200, 200, 200);
   border-start-start-radius: 3px;
   /* Padding that gets flipped to margins in .conv-counter[value^="0"] to avoid the red border. */
   font-size: 130%;
@@ -599,7 +599,7 @@ richlistitem:not([selected]) .protoIconDimmed {
     color: var(--sidebar-text-color);
     background-color: rgba(22, 22, 22, 0.2);
     border-inline-start: 1px solid var(--splitter-color);
-    border-top: 1px solid var(--splitter-color);
+    border-block-start: 1px solid var(--splitter-color);
   }
 
   &[value=""] {
@@ -615,25 +615,25 @@ richlistitem:not([selected]) .protoIconDimmed {
 .splitter[orient="vertical"],
 #logsSplitter {
   border-style: none;
-  min-height: 0;
+  min-block-size: 0;
   /* splitter grip area */
-  height: 5px;
+  block-size: 5px;
   background-color: transparent;
   /* make only the splitter border visible */
-  margin-top: -5px;
+  margin-block-start: -5px;
   margin-inline-start: 0;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
 }
 
 /* Adaptation of #folderpane_splitter */
 #listSplitter,
 #contextSplitter {
-  margin-top: 0;
+  margin-block-start: 0;
   /* splitter grip area */
-  width: 5px;
+  inline-size: 5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
@@ -677,7 +677,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 .conv-nicklist-image {
   pointer-events: none;
-  width: 16px;
+  inline-size: 16px;
   margin: 0 2px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -722,7 +722,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 .status-container {
-  width: 15em;
+  inline-size: 15em;
 }
 
 #statusMessageLabel:not([statusType="offline"], [disabled]) {
@@ -783,7 +783,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 :root[lwt-tree] #contextPane {
   background-color: var(--sidebar-background-color);
-  border-bottom: 1px solid var(--sidebar-border-color);
+  border-block-end: 1px solid var(--sidebar-border-color);
   color: var(--sidebar-text-color);
 }
 
@@ -794,7 +794,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
   & vbox.conv-chat {
     flex: 1 1 0;
-    min-height: 0;
+    min-block-size: 0;
   }
 }
 
@@ -807,14 +807,14 @@ richlistitem:not([selected]) .protoIconDimmed {
 :root[lwt-tree] .conv-logs-header-label {
   appearance: none;
   background-color: var(--sidebar-background-color);
-  border-bottom: 1px solid var(--sidebar-border-color);
+  border-block-end: 1px solid var(--sidebar-border-color);
   color: var(--sidebar-text-color);
 }
 
 :root[lwt-tree-brighttext] #nicklist,
 :root[lwt-tree-brighttext] .conv-nicklist-header,
 :root[lwt-tree-brighttext] .conv-logs-header-label {
-  border-bottom-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
+  border-block-end-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
 }
 
 .conv-header-label {
@@ -823,7 +823,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 #participantCount {
   background: transparent;
-  width: 0;
+  inline-size: 0;
 
   :root[lwt-tree] & {
     color: var(--sidebar-text-color);
@@ -903,10 +903,10 @@ toolbar[mode="text"] #button-chat {
     Verdana,
     Tahoma,
     sans-serif;
-  height: -moz-fit-content;
-  min-width: 1em;
+  block-size: -moz-fit-content;
+  min-inline-size: 1em;
   text-align: center;
-  margin-top: -4px;
+  margin-block-start: -4px;
   margin-inline: 5px 0;
   padding: 1px 1px 0;
 
@@ -922,8 +922,8 @@ toolbar[mode="text"] #button-chat {
 /* encryption status selector */
 
 .encryption-container {
-  border-top: 1px solid var(--splitter-color);
-  min-height: 32px;
+  border-block-start: 1px solid var(--splitter-color);
+  min-block-size: 32px;
   padding: 4px;
 }
 
@@ -933,7 +933,7 @@ toolbar[mode="text"] #button-chat {
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
-  min-width: 0;
+  min-inline-size: 0;
 }
 
 .encryption-not-private > image {
@@ -978,7 +978,7 @@ toolbar[mode="text"] #button-chat {
 
   & > image {
     margin-inline-end: 3px !important;
-    width: 14px;
+    inline-size: 14px;
   }
 
   &[wantdropmarker="true"] {
@@ -995,13 +995,13 @@ toolbar[mode="text"] #button-chat {
 
 @media not (-moz-platform: macos) {
   .splitter.conv-chat {
-    border-left: 1px solid rgba(0, 0, 0, 0.25);
+    border-inline-start: 1px solid rgba(0, 0, 0, 0.25);
   }
 
   #listSplitter,
   #contextSplitter {
     background-color: transparent;
-    min-width: 0;
+    min-inline-size: 0;
   }
 
   #listSplitter {

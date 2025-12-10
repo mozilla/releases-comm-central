@@ -21,6 +21,6 @@ html|input {
 
   &[type="number"]::-moz-number-spin-up,
   &[type="number"]::-moz-number-spin-down {
-    min-height: 0.7em;
+    min-block-size: 0.7em;
   }
 }

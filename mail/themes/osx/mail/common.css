@@ -14,7 +14,7 @@ xul|tabs {
 
 xul|button[dlgtype="help"] {
   appearance: none;
-  width: auto;
+  inline-size: auto;
 }
 
 xul|menulist {
@@ -54,7 +54,7 @@ xul|search-textbox::part(search-sign) {
 
 html|button {
   /* XUL button min-width */
-  min-width: 79px;
+  min-inline-size: 79px;
 }
 
 html|input[type="email"],
@@ -67,5 +67,5 @@ html|textarea {
 }
 
 xul|tab {
-  min-height: 2.5em;
+  min-block-size: 2.5em;
 }

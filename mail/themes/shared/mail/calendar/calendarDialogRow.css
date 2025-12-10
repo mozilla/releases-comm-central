@@ -27,8 +27,8 @@
 }
 
 slot[name="icon"]::slotted(img) {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;

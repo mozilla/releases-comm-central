@@ -42,13 +42,13 @@
 
   /* This is needed for Windows 10, see bug 1963783 */
   :root[customtitlebar][sizemode="normal"] {
-    border-top: 0.5px solid rgba(0, 0, 0, 0.7);
+    border-block-start: 0.5px solid rgba(0, 0, 0, 0.7);
 
     @media (-moz-windows-accent-color-in-titlebar) or (-moz-windows-mica) {
-      border-top-color: ActiveBorder;
+      border-block-start-color: ActiveBorder;
 
       &:-moz-window-inactive {
-        border-top-color: InactiveBorder;
+        border-block-start-color: InactiveBorder;
       }
     }
   }
@@ -69,7 +69,7 @@
 
 @media (prefers-contrast) {
   :root[customtitlebar]:not([lwtheme]) {
-    padding-top: 2px;
+    padding-block-start: 2px;
     background-color: ActiveCaption;
     color: CaptionText;
 
@@ -186,7 +186,7 @@
 }
 
 #messagepanebox {
-  border-top-width: 0;
+  border-block-start-width: 0;
   border-inline-start: none;
 }
 

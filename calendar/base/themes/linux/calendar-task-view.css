@@ -6,23 +6,23 @@
 
 #calendar-task-view-splitter {
   appearance: none;
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
   /* splitter grip area */
-  height: 5px;
+  block-size: 5px;
   /* make only the splitter border visible */
-  margin-top: -5px;
+  margin-block-start: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
 }
 
 #task-addition-box {
-  height: 1.5em;
-  min-height: 35px;
+  block-size: 1.5em;
+  min-block-size: 35px;
 }
 
 #calendar-task-details-container {
-  padding-top: 1px;
+  padding-block-start: 1px;
 }
 
 #task-text-filter-field {

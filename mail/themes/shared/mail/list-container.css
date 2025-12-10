@@ -104,7 +104,7 @@
       background-color: var(--indicator-background);
       border: 1px solid var(--indicator-border);
       border-radius: var(--indicator-width);
-      width: var(--indicator-width);
+      inline-size: var(--indicator-width);
       box-sizing: border-box;
       transform: translateX(-12px);
     }
@@ -146,8 +146,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: var(--list-item-buttons-size);
-      height: var(--list-item-buttons-size);
+      inline-size: var(--list-item-buttons-size);
+      block-size: var(--list-item-buttons-size);
     }
 
     li:not(.children) > & .twisty-icon {

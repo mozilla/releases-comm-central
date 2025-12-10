@@ -13,7 +13,7 @@ a {
   color-scheme: light dark;
 
   &[name] {
-    margin-top: 2px;
+    margin-block-start: 2px;
     margin-inline-start: 2px;
     padding-inline-start: 20px;
     background-image: url(chrome://messenger/content/messengercompose/images/tag-anchor.gif);
@@ -71,9 +71,9 @@ img {
   & .remove-card {
     position: absolute;
     inset-inline-end: 15px;
-    top: 15px;
-    width: 20px;
-    height: 20px;
+    inset-block-start: 15px;
+    inline-size: 20px;
+    block-size: 20px;
     opacity: 0.3;
     cursor: pointer;
 

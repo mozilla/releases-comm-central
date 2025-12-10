@@ -5,13 +5,13 @@
 @import url("chrome://global/skin/in-content/common.css");
 
 html {
-  height: 100%;
+  block-size: 100%;
 }
 
 body {
   display: flex;
   align-items: stretch;
-  height: 100%;
+  block-size: 100%;
 }
 
 #sectionTitle {
@@ -22,7 +22,7 @@ body {
 /** Categories **/
 
 #categories hr {
-  border-top-color: rgba(255, 255, 255, 0.15);
+  border-block-start-color: rgba(255, 255, 255, 0.15);
 }
 
 .category {
@@ -47,7 +47,7 @@ body {
 }
 
 .tab table {
-  width: 100%;
+  inline-size: 100%;
 }
 
 tbody {
@@ -91,15 +91,15 @@ tbody:nth-child(4n + 1) {
 }
 
 .arr_sep.odd:not(:last-child) td:not(:first-child) {
-  border-bottom: 2px solid #f9f9fa;
+  border-block-end: 2px solid #f9f9fa;
 }
 
 .arr_sep.even:not(:last-child) td:not(:first-child) {
-  border-bottom: 2px solid #ededf0;
+  border-block-end: 2px solid #ededf0;
 }
 
 .last_row:not(:last-child) td {
-  border-bottom: 2px solid #d7d7db !important;
+  border-block-end: 2px solid #d7d7db !important;
 }
 
 .icon {
@@ -109,10 +109,10 @@ tbody:nth-child(4n + 1) {
   -moz-context-properties: fill;
   display: inline-block;
   fill: var(--newtab-icon-primary-color);
-  height: 14px;
+  block-size: 14px;
   vertical-align: middle;
-  width: 14px;
-  margin-top: -0.125rem;
+  inline-size: 14px;
+  margin-block-start: -0.125rem;
   margin-inline-start: 0.5rem;
 }
 
@@ -132,7 +132,7 @@ tbody:nth-child(4n + 1) {
 }
 
 tbody.collapsible td {
-  padding-bottom: 1rem;
+  padding-block-end: 1rem;
 }
 
 .schema {

@@ -5,7 +5,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 td {
-  width: 100%;
+  inline-size: 100%;
 }
 
 th {
@@ -16,11 +16,11 @@ th {
 /* Match row spacing of calendar properties dialog. */
 th,
 td {
-  min-height: 26px;
+  min-block-size: 26px;
 }
 
 .calendar-creation-text-input {
-  width: -moz-available;
+  inline-size: -moz-available;
 }
 
 /* Network status messages and images. */
@@ -28,12 +28,12 @@ td {
 .network-status-image {
   -moz-context-properties: fill;
   fill: var(--selected-item-color);
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 .network-status-row {
-  margin-top: 1ex;
+  margin-block-start: 1ex;
 }
 
 .network-status-row .status-label {
@@ -73,8 +73,8 @@ td {
 }
 
 #network-calendar-list > richlistitem .calendar-color {
-  width: 10px;
-  height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
   border-radius: 5px;
 }
 
@@ -83,7 +83,7 @@ td {
 }
 
 #network-calendar-list > richlistitem .calendar-edit-button {
-  min-width: 0;
+  min-inline-size: 0;
   font-size: 0.82em;
 }
 

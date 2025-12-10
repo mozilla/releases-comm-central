@@ -9,12 +9,11 @@
 }
 
 .conv-counter[value^="-"] {
-  margin-bottom: 1px;
+  margin-block-end: 1px;
   /* The 6px padding-end from .conv-counter is split into a 1px margin-end
      (to avoid the border) and 5px padding-end (as regular padding). */
   margin-inline-end: 1px;
-  padding-top: 1px;
-  padding-bottom: 0;
+  padding-block: 1px 0;
   padding-inline-end: 5px;
 }
 
@@ -25,9 +24,9 @@
 .conv-nicklist-header,
 .conv-logs-header-label {
   padding-block: 2px;
-  border-bottom: 1px solid ThreeDShadow;
+  border-block-end: 1px solid ThreeDShadow;
   background-color: -moz-Dialog;
-  margin-right: -1px;
+  margin-inline-end: -1px;
 }
 
 .conv-nicklist-header-label {
@@ -38,7 +37,7 @@
 .conv-nicklist,
 #logTree {
   appearance: none;
-  width: 250px;
+  inline-size: 250px;
   border: 0;
 }
 
@@ -75,7 +74,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 .convDisplayName,
 .contactStatusText,
 .convStatusText {
-  margin-top: 3px;
+  margin-block-start: 3px;
 }
 
 #statusTypeIcon {
@@ -89,18 +88,18 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 .statusMessageToolbarItem {
   margin-inline-start: -3px;
-  margin-bottom: 2px;
-  padding-bottom: 3px;
+  margin-block-end: 2px;
+  padding-block-end: 3px;
 }
 
 /* Adaptation of #folderpane_splitter */
 #listSplitter,
 #contextSplitter {
-  min-width: 5px;
+  min-inline-size: 5px;
 }
 
 .conv-status-container {
-  border-bottom-color: #8b8b8b;
+  border-block-end-color: #8b8b8b;
 }
 
 .startChatBubble > .button-box > .button-icon,

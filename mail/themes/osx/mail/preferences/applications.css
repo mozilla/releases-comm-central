@@ -18,7 +18,7 @@
   }
 
   & > input {
-    min-height: unset !important;
+    min-block-size: unset !important;
     margin: 0 !important;
     padding-block: 2px 3px !important;
     padding-inline: 4px 3px !important;

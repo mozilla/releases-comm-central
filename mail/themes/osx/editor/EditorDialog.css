@@ -7,7 +7,7 @@
 groupbox {
   padding: 0 8px 5px;
   margin: 6px;
-  margin-top: 1.5em;
+  margin-block-start: 1.5em;
 
   & > .groupbox-title > .header {
     font-size: 1.18em;

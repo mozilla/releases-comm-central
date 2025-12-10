@@ -5,7 +5,7 @@
 @import url(chrome://calendar/skin/shared/calendar-task-view.css);
 
 #calendar-task-details-container {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 #task-text-filter-field {
@@ -13,7 +13,7 @@
 }
 
 #task-text-filter-field .textbox-search-icons {
-  margin-bottom: -1px;
+  margin-block-end: -1px;
 }
 
 /* ::::: task actions toolbar ::::: */
@@ -24,23 +24,23 @@
 
 #view-task-edit-field,
 #task-text-filter-field {
-  width: 15em;
+  inline-size: 15em;
 }
 
 #calendar-task-box #calendar-task-view-splitter {
   border-width: 0;
-  border-bottom: 1px solid var(--splitter-color);
-  min-height: 0;
-  height: 5px;
+  border-block-end: 1px solid var(--splitter-color);
+  min-block-size: 0;
+  block-size: 5px;
   background-color: transparent;
-  margin-top: -5px;
+  margin-block-start: -5px;
   position: relative;
   z-index: 10;
 }
 
 #task-addition-box {
-  height: 1.5em;
-  min-height: 35px;
+  block-size: 1.5em;
+  min-block-size: 35px;
 }
 
 @media not (prefers-color-scheme: dark) {

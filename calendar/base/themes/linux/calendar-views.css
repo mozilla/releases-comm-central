@@ -5,5 +5,5 @@
 @import url(chrome://calendar/skin/shared/calendar-views.css);
 
 .navigation-inner-box {
-  padding-top: 1px;
+  padding-block-start: 1px;
 }

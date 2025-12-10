@@ -170,7 +170,7 @@
   align-items: start;
   overflow-y: auto;
   overscroll-behavior-y: none;
-  height: 100%;
+  block-size: 100%;
   background-color: var(--tree-view-bg);
 }
 
@@ -349,7 +349,7 @@
     }
 
     & > .card-container {
-      height: 100%;
+      block-size: 100%;
       background-color: var(--tree-card-background);
       border: 1px solid var(--tree-card-border);
       border-radius: var(--tree-card-content-radius);
@@ -363,7 +363,7 @@
         background-color: var(--indicator-background);
         border: 1px solid var(--indicator-border);
         border-radius: var(--indicator-width);
-        width: var(--indicator-width);
+        inline-size: var(--indicator-width);
         box-sizing: border-box;
         transform: translateX(calc(var(--tree-card-inline) * -1));
       }
@@ -392,7 +392,7 @@ table[is="tree-view-table"] {
 }
 
 thead[is="tree-view-table-header"] {
-  height: var(--tree-header-table-height);
+  block-size: var(--tree-header-table-height);
   position: sticky;
   inset-inline: 0;
   inset-block-start: 0;
@@ -402,9 +402,9 @@ thead[is="tree-view-table-header"] {
     content: "";
     position: absolute;
     inset-inline: 0;
-    height: 0;
+    block-size: 0;
     z-index: 1;
-    border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
+    border-block-end: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
   }
 
   & hr[is="pane-splitter"] {
@@ -419,16 +419,16 @@ thead[is="tree-view-table-header"] {
 }
 
 th[is="tree-view-table-header-cell"] {
-  height: var(--tree-header-table-height);
-  min-width: 5ch;
+  block-size: var(--tree-header-table-height);
+  min-inline-size: 5ch;
   padding: 0;
   position: relative;
   overflow: hidden;
   background-color: var(--tree-view-bg);
 
   &[data-type="icon"] {
-    width: var(--table-header-cell-icon-width);
-    min-width: var(--table-header-cell-icon-min-width);
+    inline-size: var(--table-header-cell-icon-width);
+    min-inline-size: var(--table-header-cell-icon-min-width);
 
     & button {
       padding: var(--table-header-cell-icon-button-padding, var(--tree-header-cell-padding));
@@ -527,10 +527,10 @@ th[is="tree-view-table-header-cell"] {
   text-align: start;
   padding: var(--tree-header-cell-padding);
   margin: 0;
-  width: 100%;
-  height: 100%;
-  min-width: auto;
-  min-height: auto;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: auto;
+  min-block-size: auto;
   color: inherit;
   border: none;
   border-radius: 0;
@@ -579,8 +579,8 @@ th[is="tree-view-table-header-cell"] {
 
 th[is="tree-view-table-column-picker"] {
   position: relative;
-  width: 25px;
-  min-width: 25px;
+  inline-size: 25px;
+  min-inline-size: 25px;
   padding: 0;
   background-color: var(--tree-view-bg);
 
@@ -607,13 +607,13 @@ table[is="tree-view-table"] tr.selected td.current-cell {
 
 table[is="tree-view-table"] {
   tbody .table-layout td:not([colspan="2"]) button:not(.twisty) {
-    height: 100%;
-    width: 100%;
+    block-size: 100%;
+    inline-size: 100%;
   }
 
   td {
-    max-width: 0;
-    height: inherit;
+    max-inline-size: 0;
+    block-size: inherit;
     overflow-x: clip;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -658,7 +658,7 @@ table[is="tree-view-table"] {
       inset: 0;
       display: flex;
       align-items: center;
-      max-height: inherit;
+      max-block-size: inherit;
       box-sizing: border-box;
 
       tr:not(.children) & .twisty {
@@ -666,10 +666,10 @@ table[is="tree-view-table"] {
       }
 
       & .twisty {
-        width: 16px;
-        height: 16px;
-        min-height: auto;
-        min-width: auto;
+        inline-size: 16px;
+        block-size: 16px;
+        min-block-size: auto;
+        min-inline-size: auto;
         flex-shrink: 0;
         padding: 0;
         margin: 0;
@@ -681,8 +681,8 @@ table[is="tree-view-table"] {
       }
 
       & .twisty-icon {
-        width: 12px;
-        height: 12px;
+        inline-size: 12px;
+        block-size: 12px;
         content: var(--icon-nav-down-sm);
 
         @media (prefers-reduced-motion: no-preference) {
@@ -736,7 +736,7 @@ slot[name="placeholders"] {
   & div::before {
     content: "";
     display: block;
-    height: 32px;
+    block-size: 32px;
     margin-block-end: 9px;
     background-position: center top;
     background-size: contain;
@@ -774,7 +774,7 @@ slot[name="placeholders"] {
 }
 
 :is(ul, ol):is([role="tree"], [role="treegrid"], [role="group"]) li > div {
-  min-height: var(--list-item-min-height);
+  min-block-size: var(--list-item-min-height);
 }
 
 /* Drag and Drop */

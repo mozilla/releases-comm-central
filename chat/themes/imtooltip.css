@@ -20,7 +20,7 @@
 }
 
 .chatTooltipSeparator {
-  border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
+  border-block-end: 1px solid hsla(0, 0%, 50%, 0.5);
 }
 
 .displayUserAccount.tooltipDisplayUserAccount {

@@ -9,7 +9,7 @@
 
 #main-box {
   padding: 8px;
-  height: 100%;
+  block-size: 100%;
 }
 
 #instructions {
@@ -21,7 +21,7 @@
 #palette-box {
   overflow: auto;
   display: block;
-  min-height: 3em;
+  min-block-size: 3em;
   background-color: hsla(0, 0%, 100%, 0.3);
   border: 1px solid hsla(0, 0%, 50%, 0.4);
 
@@ -45,11 +45,11 @@ toolbarpaletteitem {
 
   &[place="palette"] {
     flex-direction: column;
-    width: 10em;
-    max-width: 10em;
+    inline-size: 10em;
+    max-inline-size: 10em;
     /* icon (16) + margin (9 + 12) + 4 lines of text: */
-    height: calc(39px + 4em);
-    margin-bottom: 5px;
+    block-size: calc(39px + 4em);
+    margin-block-end: 5px;
     margin-inline-end: 24px;
     overflow: visible;
     display: inline-flex;
@@ -105,5 +105,5 @@ toolbarbutton > .toolbarbutton-menubutton-dropmarker {
 }
 
 #modelistLabel {
-  margin-top: 2px;
+  margin-block-start: 2px;
 }

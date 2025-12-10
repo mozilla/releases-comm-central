@@ -10,8 +10,8 @@ body {
   color: -moz-DialogText;
   font: message-box;
   position: relative;
-  min-width: 330px;
-  max-width: 50em;
+  min-inline-size: 330px;
+  max-inline-size: 50em;
 }
 
 .convert-area {
@@ -28,8 +28,8 @@ body {
 }
 
 .infoIcon {
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
   grid-area: icon;
   align-self: start;
 }

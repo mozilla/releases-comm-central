@@ -4,15 +4,15 @@
 
 #searchResults {
   flex: 1 1 0;
-  min-height: 150px;
+  min-block-size: 150px;
 }
 
 #searchResultListBox {
   flex: 1 1 0;
-  min-height: 0;
+  min-block-size: 0;
   overflow: hidden;
 }
 
 #abResultsTree {
-  min-height: 0;
+  min-block-size: 0;
 }

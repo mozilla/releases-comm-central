@@ -6,7 +6,7 @@ button {
   margin: 0;
   padding: 0 12px;
   border-radius: var(--button-border-radius);
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
 
   & + & {
     margin-inline-start: 6px;
@@ -14,16 +14,16 @@ button {
 }
 
 input[type="number"] {
-  min-height: calc(var(--button-height) - 4px);
+  min-block-size: calc(var(--button-height) - 4px);
   padding: 1px;
   border-radius: var(--button-border-radius);
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
   input[type="number"].size3 {
-    width: calc(3ch + 55px);
+    inline-size: calc(3ch + 55px);
   }
   &.size5 {
-    width: calc(5ch + 55px);
+    inline-size: calc(5ch + 55px);
   }
 
   &::-moz-number-spin-box {
@@ -33,7 +33,7 @@ input[type="number"] {
   &::-moz-number-spin-up,
   &::-moz-number-spin-down {
     appearance: none;
-    min-width: 25px;
+    min-inline-size: 25px;
     border: 1px solid var(--border-color);
     border-radius: 0;
     background-color: var(--button-background-color);
@@ -49,15 +49,15 @@ input[type="number"] {
   }
 
   &::-moz-number-spin-up {
-    min-height: calc(var(--button-height) * 0.5 - 3px);
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
+    min-block-size: calc(var(--button-height) * 0.5 - 3px);
+    border-block-end-width: 1px;
+    border-block-end-style: solid;
     border-start-end-radius: var(--button-border-radius);
     background-image: var(--icon-nav-up-sm);
   }
 
   &::-moz-number-spin-down {
-    min-height: calc(var(--button-height) * 0.5 - 4px);
+    min-block-size: calc(var(--button-height) * 0.5 - 4px);
     border-end-end-radius: var(--button-border-radius);
     background-image: var(--icon-nav-down-sm);
   }
@@ -68,5 +68,5 @@ input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="
   border-radius: var(--button-border-radius);
   padding-block: initial;
   /* it should be --button-height but input doesn't include the border */
-  min-height: calc(var(--button-height) - 2px);
+  min-block-size: calc(var(--button-height) - 2px);
 }

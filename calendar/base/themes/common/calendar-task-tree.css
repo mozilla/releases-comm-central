@@ -10,8 +10,7 @@
 
 /* align the treechildren text */
 .calendar-task-tree > treechildren::-moz-tree-cell-text {
-  margin-top: 1px;
-  margin-bottom: 1px;
+  margin-block: 1px;
 }
 
 tree > treechildren::-moz-tree-cell-text(selected) {
@@ -127,8 +126,8 @@ treecol.calendar-task-tree-col-percentcomplete {
 
 .calendar-task-tree-col-completed > .treecol-icon,
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
-  width: 14px;
-  height: 14px;
+  inline-size: 14px;
+  block-size: 14px;
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   stroke: currentColor;

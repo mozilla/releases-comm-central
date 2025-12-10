@@ -10,13 +10,13 @@
 @import url("chrome://messenger/skin/primaryToolbar.css");
 
 .mail-toolbox {
-  margin-top: 0;
-  padding-top: 0;
+  margin-block-start: 0;
+  padding-block-start: 0;
 }
 
 #messagepaneboxwrapper {
   overflow: hidden;
-  min-height: 0;
+  min-block-size: 0;
 }
 
 #messagepanebox {

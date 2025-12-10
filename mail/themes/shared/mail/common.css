@@ -138,7 +138,7 @@ menupopup {
 
   & > :is(menu, menuitem) {
     margin: var(--menu-item-margin);
-    min-height: 24px;
+    min-block-size: 24px;
     padding-block: var(--menu-item-padding);
     border-radius: 3px;
   }
@@ -153,7 +153,7 @@ menupopup {
 tab[selected] {
   color: var(--button-text-color);
   background-color: var(--button-background-color);
-  border-bottom-color: var(--in-content-accent-color);
+  border-block-end-color: var(--in-content-accent-color);
 }
 
 input[type="search"] {
@@ -171,8 +171,8 @@ input[type="search"] {
 }
 
 input::-moz-search-clear-button {
-  width: 28px;
-  height: 28px;
+  inline-size: 28px;
+  block-size: 28px;
   margin-block: auto;
   padding: 0;
   background-image: var(--icon-close);
@@ -183,7 +183,7 @@ input::-moz-search-clear-button {
 }
 
 :host(dialog[subdialog]) .dialog-button-box > button {
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
   padding-block: initial;
   padding-inline: 15px;
   border-color: transparent;

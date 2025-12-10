@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/panelUI.css");
 
 #appMenu-popup {
-  margin-top: 4px;
+  margin-block-start: 4px;
   margin-inline: 0 -8px;
 }
 
@@ -19,7 +19,7 @@
 
 panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   /* 8px + 18px toolbarbutton margin start/padding + 16px icon + 4px label padding start */
-  width: 46px;
+  inline-size: 46px;
 }
 
 .subviewbutton[shortcut]::after {
@@ -41,7 +41,7 @@ menupopup[type="arrow"] {
 }
 
 menuitem.subviewbutton-iconic > .menu-icon {
-  width: 16px;
+  inline-size: 16px;
 }
 
 menu.subviewbutton > .menu-text,

@@ -44,7 +44,7 @@ timepicker-grids {
 
 /* menulist */
 datepicker > menulist::part(text-input) {
-  width: 9em;
+  inline-size: 9em;
 }
 
 /*-------------------------------------------------------------------
@@ -52,7 +52,7 @@ datepicker > menulist::part(text-input) {
  *-------------------------------------------------------------------*/
 
 timepicker > menulist::part(text-input) {
-  width: 6em;
+  inline-size: 6em;
 }
 
 /*-------------------------------------------------------------------
@@ -96,23 +96,23 @@ timepicker > menulist::part(text-input) {
 }
 
 .time-picker-hour-grid[format12hours="false"] .time-picker-hour-box-class {
-  min-width: 28px;
+  min-inline-size: 28px;
   align-items: center;
   border-inline-start: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-hour-grid[format12hours="true"] .time-picker-hour-box-class {
-  min-width: 24px;
+  min-inline-size: 24px;
   align-items: center;
   border-inline-start: 1px solid var(--tpBorderColor);
 }
 
 .timepicker-topRow-hour-class {
-  border-bottom: 1px solid var(--tpBorderColor);
+  border-block-end: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-hour-grid[format12hours="true"] .timepicker-topRow-hour-class {
-  border-bottom: 3px double var(--tpBorderColor);
+  border-block-end: 3px double var(--tpBorderColor);
 }
 
 .time-picker-hour-box-class:hover {
@@ -144,7 +144,7 @@ timepicker > menulist::part(text-input) {
 .time-picker-minute-box-class {
   align-items: center;
   border-inline-end: 1px solid var(--tpBorderColor);
-  border-bottom: 1px solid var(--tpBorderColor);
+  border-block-end: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-minute-box-class:hover {
@@ -156,16 +156,16 @@ timepicker > menulist::part(text-input) {
 /* box around five minute grid */
 
 .time-picker-five-minute-grid-box {
-  min-width: 195px;
+  min-inline-size: 195px;
   margin-inline-start: 1px;
 }
 
 /* five minute grid */
 
 .time-picker-five-minute-grid {
-  margin-top: 2px;
+  margin-block-start: 2px;
   margin-inline-end: 1px;
-  border-top: 1px solid var(--tpBorderColor);
+  border-block-start: 1px solid var(--tpBorderColor);
   border-inline: 1px solid var(--tpBorderColor);
   background-color: var(--tpFiveminBackground);
   color: var(--tpFiveminColor);
@@ -194,16 +194,16 @@ timepicker > menulist::part(text-input) {
 
 /* box around one minute grid */
 .time-picker-one-minute-grid-box {
-  min-width: 195px;
+  min-inline-size: 195px;
   margin-inline-start: 1px;
 }
 
 /* one minute grid */
 
 .time-picker-one-minute-grid {
-  margin-top: 2px;
+  margin-block-start: 2px;
   margin-inline-end: 1px;
-  border-top: 1px solid var(--tpBorderColor);
+  border-block-start: 1px solid var(--tpBorderColor);
   border-inline: 1px solid var(--tpBorderColor);
   background-color: var(--tpFiveminBackground);
   color: var(--tpFiveminColor);

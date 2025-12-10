@@ -8,8 +8,8 @@
 
 .timezone-highlight {
   object-fit: none;
-  width: 460px;
-  height: 287px;
+  inline-size: 460px;
+  block-size: 287px;
 }
 .timezone-highlight[tzid="none"] {
   display: none;

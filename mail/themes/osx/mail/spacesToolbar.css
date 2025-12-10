@@ -5,5 +5,5 @@
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
 :root:not([sizemode="fullscreen"]) .spaces-toolbar:not([hidden]) {
-  margin-top: 0;
+  margin-block-start: 0;
 }

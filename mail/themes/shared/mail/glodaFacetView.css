@@ -14,7 +14,7 @@ body {
 }
 
 body {
-  height: 100%;
+  block-size: 100%;
   overflow-y: auto;
 }
 
@@ -41,8 +41,8 @@ body {
 }
 
 .facets-sidebar {
-  width: 20em;
-  max-width: 20em;
+  inline-size: 20em;
+  max-inline-size: 20em;
   padding: 4px;
   padding-inline-start: 1em;
   background-color: var(--layout-background-1);
@@ -52,21 +52,21 @@ body {
 #main-column {
   flex: 1;
   padding-inline-start: 1em;
-  min-height: 100vh;
+  min-block-size: 100vh;
 }
 
 #header {
-  max-width: 60em;
+  max-inline-size: 60em;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 2em;
+  margin-block-start: 2em;
 }
 
 #data-column {
-  margin-top: 1em;
+  margin-block-start: 1em;
   margin-inline-end: 1em;
-  max-width: 60em;
+  max-inline-size: 60em;
   display: flex;
   flex-direction: column;
 }
@@ -171,7 +171,7 @@ h3 {
 
 .date-wrapper {
   position: relative;
-  height: 80px;
+  block-size: 80px;
   display: block;
   margin-inline-end: 1em;
   padding-block: 0.5em 1em;
@@ -189,8 +189,8 @@ h3 {
 
   & > img {
     /* Icon is squashed. */
-    width: 14px;
-    height: 10px;
+    inline-size: 14px;
+    block-size: 10px;
     margin-inline-end: 2px;
     -moz-context-properties: fill;
     fill: currentColor;
@@ -199,10 +199,10 @@ h3 {
 
 .facet-date-zoom-out {
   position: absolute;
-  top: -18px;
+  inset-block-start: -18px;
   inset-inline-start: 0;
-  width: 24px !important;
-  height: 24px !important;
+  inline-size: 24px !important;
+  block-size: 24px !important;
   background-position: center center;
   background-repeat: no-repeat;
   border: 1px solid transparent;
@@ -228,7 +228,7 @@ h3 {
 
 .date-vis-frame {
   position: absolute;
-  top: 0;
+  inset-block-start: 0;
   inset-inline-start: 0;
 }
 
@@ -312,14 +312,14 @@ facet-boolean[disabled] {
 /* === Discrete Facet === */
 
 .facet-content {
-  max-height: 32em;
+  max-block-size: 32em;
   overflow: auto;
 }
 
 .facet-more {
   display: none;
   margin: 1px;
-  margin-top: 0.5em;
+  margin-block-start: 0.5em;
   cursor: pointer;
 
   &[needed="true"] {
@@ -330,13 +330,13 @@ facet-boolean[disabled] {
 .barry {
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--layout-color-3);
+  border-block-start: 1px solid var(--layout-color-3);
 }
 
 .bar {
   position: relative;
   cursor: pointer;
-  border-bottom: 1px solid var(--layout-color-3);
+  border-block-end: 1px solid var(--layout-color-3);
 
   &[selected="true"] {
     background-color: var(--selected-item-color);
@@ -391,10 +391,10 @@ facet-boolean[disabled] {
 
 .results-message-header {
   display: none; /* $('.results-message-header').show() is run if there are results */
-  border-bottom: 2px solid hsla(0, 0%, 60%, 0.25);
+  border-block-end: 2px solid hsla(0, 0%, 60%, 0.25);
   padding: 4px 2px;
   padding-inline-end: 0;
-  margin-bottom: 0.5em;
+  margin-block-end: 0.5em;
 
   #results[state="some"] & {
     display: flex;
@@ -441,7 +441,7 @@ facet-boolean[disabled] {
 
 #sortby {
   appearance: none;
-  min-height: 24px;
+  min-block-size: 24px;
   color: inherit;
   margin: 1px 5px;
   padding-block: 0;
@@ -474,17 +474,17 @@ facet-boolean[disabled] {
   font-size: small;
   padding: 3px 5px;
   border: 1px solid transparent;
-  border-bottom-color: lightgrey;
+  border-block-end-color: lightgrey;
   border-radius: var(--button-border-radius);
   color: var(--layout-color-1);
   overflow: hidden;
 
   &:not(:first-child) {
-    border-top-style: none;
+    border-block-start-style: none;
   }
 
   &:last-child {
-    border-bottom-color: transparent;
+    border-block-end-color: transparent;
   }
 
   &:hover {
@@ -512,15 +512,15 @@ facet-boolean[disabled] {
 }
 
 .message-header {
-  margin-bottom: 0.5em;
+  margin-block-end: 0.5em;
 }
 
 .message-meta {
   float: inline-end;
   padding-inline-start: 2em;
   text-align: end;
-  max-width: 20em;
-  max-height: 10em;
+  max-inline-size: 20em;
+  max-block-size: 10em;
   overflow: hidden;
   color: var(--layout-color-3);
 }
@@ -531,7 +531,7 @@ facet-boolean[disabled] {
 }
 
 .message-attachment {
-  max-width: 20em;
+  max-inline-size: 20em;
   text-align: start;
   display: inline-block;
   white-space: nowrap;
@@ -547,8 +547,8 @@ facet-boolean[disabled] {
 
 .message-attachment-icon {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   background: url("chrome://messenger/skin/icons/attach.svg") transparent no-repeat center;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -564,8 +564,8 @@ facet-boolean[disabled] {
 
 .message-star[starred="true"] {
   display: inline-block;
-  width: 12px !important;
-  height: 12px;
+  inline-size: 12px !important;
+  block-size: 12px;
   background-image: url("chrome://messenger/skin/icons/flagged.svg");
   background-size: contain;
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
@@ -681,14 +681,14 @@ img.loading {
 }
 
 #facet-date {
-  max-height: 104px;
+  max-block-size: 104px;
   padding-block: 2px;
   overflow: visible;
   /* Put facet-date at the top */
   order: -1;
 
   &[hide="true"] {
-    max-height: 0;
+    max-block-size: 0;
     padding-block: 0;
   }
 }

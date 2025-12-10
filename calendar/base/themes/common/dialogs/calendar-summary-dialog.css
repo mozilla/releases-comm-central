@@ -26,19 +26,19 @@ notification {
 
 .item-attendees,
 .item-attendees-list-container {
-  height: 90px;
-  min-height: 50px;
+  block-size: 90px;
+  min-block-size: 50px;
 }
 
 .item-description-box {
-  height: 100%;
+  block-size: 100%;
 }
 
 #calendar-summary-dialog {
-  min-height: 20em;
+  min-block-size: 20em;
 
   &:has(#calendar-event-summary-dialog.resize) {
-    height: auto;
+    block-size: auto;
   }
 }
 

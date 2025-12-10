@@ -9,7 +9,7 @@ description {
 }
 
 .awIdentityLabel {
-  width: 8em;
+  inline-size: 8em;
   margin-inline-start: 5px;
 }
 
@@ -23,5 +23,5 @@ description {
 }
 
 #value-column {
-  min-width: 15em;
+  min-inline-size: 15em;
 }

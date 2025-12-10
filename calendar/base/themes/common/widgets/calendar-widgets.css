@@ -40,8 +40,8 @@
   align-items: center;
   -moz-context-properties: stroke;
   stroke: currentColor;
-  min-height: auto;
-  min-width: auto;
+  min-block-size: auto;
+  min-inline-size: auto;
   margin: 0;
   background-color: transparent;
   border-color: transparent;
@@ -73,7 +73,7 @@
   margin-inline: 3px;
   padding: 3px !important;
   border: none !important;
-  min-width: auto;
+  min-inline-size: auto;
 }
 
 .calendar-list-create .toolbarbutton-text:not([value]) {
@@ -94,8 +94,8 @@ checkbox.treenode-checkbox > .checkbox-check {
   appearance: none;
   align-items: center;
   border: none;
-  width: 10px;
-  height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
   color: inherit;
   background-image: var(--icon-nav-down-sm);
   background-size: contain;
@@ -144,7 +144,7 @@ checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbo
 
 checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox-label {
   font-weight: bold;
-  border-bottom: 1px solid -moz-Dialog;
+  border-block-end: 1px solid -moz-Dialog;
 }
 
 #task-tree-filtergroup {
@@ -200,7 +200,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   margin: 0;
   padding: 0;
   flex: 1 1 0;
-  min-width: 150px;
+  min-inline-size: 150px;
 }
 
 #calendar-list > li {
@@ -261,8 +261,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   font-weight: 700;
   border-radius: 12px;
   margin: 0;
-  min-width: auto;
-  min-height: auto;
+  min-inline-size: auto;
+  min-block-size: auto;
 }
 
 #calendar-list > li > button.calendar-enable-button:hover,
@@ -280,10 +280,10 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   margin: 0;
-  min-width: 16px;
-  min-height: 16px;
-  width: 16px;
-  height: 16px;
+  min-inline-size: 16px;
+  min-block-size: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 #calendar-list > li > .calendar-displayed {
@@ -314,8 +314,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > :is(li, richlistitem) > .calendar-color {
-  width: var(--calendar-list-item-dot-size);
-  height: var(--calendar-list-item-dot-size);
+  inline-size: var(--calendar-list-item-dot-size);
+  block-size: var(--calendar-list-item-dot-size);
   border-radius: 5px;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -333,8 +333,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > li > .calendar-list-icon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;

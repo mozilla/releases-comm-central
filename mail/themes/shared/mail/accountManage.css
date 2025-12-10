@@ -18,9 +18,9 @@
 }
 
 #containerBox {
-  width: 100%;
-  max-width: 800px;
-  min-width: 600px;
+  inline-size: 100%;
+  max-inline-size: 800px;
+  min-inline-size: 600px;
   padding-block: 40px;
   padding-inline: 24px 28px;
 }
@@ -31,7 +31,7 @@ fieldset {
   border-style: none;
 
   &:last-of-type {
-    margin-bottom: 0;
+    margin-block-end: 0;
   }
 }
 
@@ -84,7 +84,7 @@ fieldset {
   font-weight: 600;
   line-height: 1.4em;
   margin-block: 16px 4px;
-  padding-bottom: 0;
+  padding-block-end: 0;
 }
 
 .input-container:not([hidden]) {
@@ -169,8 +169,8 @@ menulist > menupopup {
       appearance: none;
       margin: 0;
       padding: 0;
-      border-top: 1px solid var(--in-content-box-border-color);
-      border-bottom: none;
+      border-block-start: 1px solid var(--in-content-box-border-color);
+      border-block-end: none;
     }
   }
 
@@ -206,7 +206,7 @@ richlistitem[default="true"],
 
 .label-inline {
   margin-block: auto;
-  min-width: 200px;
+  min-inline-size: 200px;
 }
 
 .option-description {
@@ -225,7 +225,7 @@ richlistitem[default="true"],
 }
 
 #identity\.smtpServerKey {
-  width: 0;
+  inline-size: 0;
 }
 
 #autosyncNotDownload {
@@ -245,7 +245,7 @@ richlistitem[default="true"],
 #identitiesList richlistitem {
   align-items: center;
   padding-inline-start: 10px;
-  height: 34px;
+  block-size: 34px;
 }
 
 #identityDialog.doScroll {
@@ -258,7 +258,7 @@ richlistitem[default="true"],
 
 #identityTabsPanels > vbox {
   overflow-y: auto;
-  height: calc(100vh - 7em); /* Don't include the tabbar and buttons. */
+  block-size: calc(100vh - 7em); /* Don't include the tabbar and buttons. */
 }
 
 /* ::::: Server Settings :::::: */
@@ -275,7 +275,7 @@ richlistitem[default="true"],
 
   & .input-flex {
     flex-grow: 1;
-    width: 14ch;
+    inline-size: 14ch;
   }
 }
 
@@ -284,7 +284,7 @@ richlistitem[default="true"],
 .smtpServerListItem {
   align-items: center;
   padding-inline-start: 10px;
-  height: 34px;
+  block-size: 34px;
 }
 
 #smtpServerInfoBox {
@@ -295,10 +295,10 @@ richlistitem[default="true"],
   background-color: rgba(215, 215, 219, 0.2);
 
   & th {
-    height: 1.7em;
+    block-size: 1.7em;
     padding: 0;
     text-align: end;
-    width: 10%;
+    inline-size: 10%;
     white-space: nowrap;
     vertical-align: baseline;
   }
@@ -313,10 +313,10 @@ richlistitem[default="true"],
 /* ::::: dialog header ::::: */
 
 #am-main-title {
-  padding-bottom: 8px;
+  padding-block-end: 8px;
 
   & > button {
-    min-width: unset;
+    min-inline-size: unset;
   }
 }
 
@@ -347,7 +347,7 @@ richlistitem[default="true"],
     padding-inline-end: 10px;
 
     & input {
-      width: 100%;
+      inline-size: 100%;
     }
   }
 }
@@ -359,8 +359,8 @@ richlistitem[default="true"],
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   fill-opacity: 0.5;
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
   margin-inline-end: 10px;
 }
 
@@ -378,7 +378,7 @@ richlistitem[default="true"],
   vertical-align: text-top;
   -moz-context-properties: fill, stroke;
   margin-inline-end: 2px;
-  width: 16px;
+  inline-size: 16px;
 
   &.status-success {
     fill: color-mix(in srgb, var(--color-green-50) 20%, transparent);
@@ -394,15 +394,15 @@ richlistitem[default="true"],
 /* ::::: OpenPGP key selection ::::: */
 
 .openpgp-container {
-  margin-top: 10px;
+  margin-block-start: 10px;
 }
 
 .opengpg-intro-section {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 #openPgpKeyList {
-  margin-top: 16px;
+  margin-block-start: 16px;
 }
 
 .content-blocking-category .checkbox-label-box,
@@ -438,7 +438,7 @@ richlistitem[default="true"],
       display: flex;
       flex-direction: column;
       align-content: stretch;
-      margin-bottom: 10px;
+      margin-block-end: 10px;
     }
 
     &:not(.selected) .content-blocking-warning {
@@ -463,10 +463,10 @@ richlistitem[default="true"],
   appearance: none;
   border: none;
   border-radius: 2px;
-  min-height: 20px;
-  min-width: 20px;
-  max-height: 20px;
-  max-width: 20px;
+  min-block-size: 20px;
+  min-inline-size: 20px;
+  max-block-size: 20px;
+  max-inline-size: 20px;
   list-style-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
   background-color: transparent;
   padding: 3px;
@@ -520,7 +520,7 @@ richlistitem[default="true"],
   margin: 10px 0;
 
   &:not([hidden]) + & {
-    margin-top: 0;
+    margin-block-start: 0;
   }
 }
 
@@ -535,7 +535,7 @@ richlistitem[default="true"],
   margin-inline-end: 4px;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-  width: 16px;
+  inline-size: 16px;
 
   &:not([src]) {
     display: none;
@@ -565,7 +565,7 @@ richlistitem[default="true"],
 .button-small {
   margin-inline-start: 8px;
   font-size: 0.9em;
-  min-height: 28px;
+  min-block-size: 28px;
   margin-block: 0;
 }
 
@@ -575,14 +575,14 @@ richlistitem[default="true"],
 }
 
 .openpgp-key-details {
-  margin-bottom: 18px;
+  margin-block-end: 18px;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 4px;
   overflow: hidden;
   background-color: var(--background-color-canvas);
 
   & tabs {
-    border-top: none;
+    border-block-start: none;
   }
 
   & tabpanels {
@@ -681,8 +681,8 @@ certificate-check {
   & > img {
     grid-column: 1;
     content: "";
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;

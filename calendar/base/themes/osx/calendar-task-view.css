@@ -6,13 +6,13 @@
 
 #calendar-task-details-container {
   background-color: ButtonFace;
-  padding-top: 2px;
+  padding-block-start: 2px;
 }
 
 #task-addition-box {
-  border-bottom-color: #bebebe;
-  height: 1.5em;
-  min-height: 32px;
+  border-block-end-color: #bebebe;
+  block-size: 1.5em;
+  min-block-size: 32px;
 }
 
 /* Hide the magnifying glass icon */
@@ -25,7 +25,7 @@
 
 @media not (prefers-color-scheme: dark) {
   #task-addition-box:-moz-window-inactive {
-    border-bottom-color: hsl(0, 0%, 85%);
+    border-block-end-color: hsl(0, 0%, 85%);
   }
 }
 

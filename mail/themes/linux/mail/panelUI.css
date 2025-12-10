@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/panelUI.css");
 
 #appMenu-popup {
-  margin-top: -1px;
+  margin-block-start: -1px;
   margin-inline: 0 -13px;
 }
 

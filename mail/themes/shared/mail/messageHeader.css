@@ -47,11 +47,11 @@
 #messagepanebox {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
-  min-width: 0;
+  min-inline-size: 0;
 }
 
 .main-header-area {
-  border-bottom-style: none;
+  border-block-end-style: none;
   display: block;
 }
 
@@ -132,7 +132,7 @@
 }
 
 #mail-notification-top {
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
 
   & > .notificationbox-stack[notificationside="top"] {
     background-color: var(--layout-background-1);
@@ -145,12 +145,12 @@
 #messageHeader.scrollable {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 14em;
+  max-block-size: 14em;
 }
 
 #expandedBoxSpacer {
   display: block;
-  height: 4px;
+  block-size: 4px;
 }
 
 mail-tagfield[collapsed] {
@@ -161,7 +161,7 @@ mail-tagfield[collapsed] {
 
 .message-header-view-button {
   flex-direction: row;
-  min-width: 24px;
+  min-inline-size: 24px;
   margin: 0;
   padding-inline: 3px;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -293,7 +293,7 @@ mail-tagfield[collapsed] {
 #attachmentToggle {
   /* Override button appearance */
   appearance: none;
-  min-width: 20px;
+  min-inline-size: 20px;
   margin-block: 0;
   margin-inline: 1px 0;
   border: 0;
@@ -376,11 +376,11 @@ mail-tagfield[collapsed] {
   appearance: none;
   background-color: transparent;
   border-width: 0;
-  border-bottom: 1px solid var(--color-gray-30);
+  border-block-end: 1px solid var(--color-gray-30);
   /* splitter grip area */
-  height: 5px;
+  block-size: 5px;
   /* make only the splitter border visible */
-  margin-top: -5px;
+  margin-block-start: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
@@ -389,11 +389,11 @@ mail-tagfield[collapsed] {
     border-color 0.3s;
 
   &:not([state="collapsed"]) {
-    border-bottom: 1px solid transparent;
+    border-block-end: 1px solid transparent;
   }
 
   &[state="collapsed"]:hover {
-    border-bottom: 4px solid var(--selected-item-color);
+    border-block-end: 4px solid var(--selected-item-color);
   }
 }
 
@@ -408,7 +408,7 @@ mail-tagfield[collapsed] {
   opacity: var(--message-header-label-opacity);
 
   @media (max-width: 768px) {
-    min-width: 0 !important;
+    min-inline-size: 0 !important;
     margin-inline-start: 0;
     text-align: start;
   }
@@ -496,20 +496,20 @@ button.email-action-button {
   flex-direction: column;
   justify-content: stretch;
   /* Allow the area to shrink. */
-  min-width: 0;
+  min-inline-size: 0;
   overflow: hidden;
   flex: 0 1 auto;
 
   &.list-expanded {
     /* By design, attachmentView should not take up more than 1/4 of the message
        pane space. */
-    max-height: min(var(--preferred-height), 25%);
+    max-block-size: min(var(--preferred-height), 25%);
   }
 }
 
 #attachmentView,
 #attachmentList {
-  border-top: 1px solid var(--splitter-color); /* The same color as the splitters */
+  border-block-start: 1px solid var(--splitter-color); /* The same color as the splitters */
 }
 
 :root[lwt-tree] {
@@ -542,7 +542,7 @@ button.email-action-button {
 }
 
 .crypto-button {
-  min-width: initial;
+  min-inline-size: initial;
   margin-block: 0;
   margin-inline-end: 3px;
   fill: currentColor;
@@ -578,7 +578,7 @@ html|header.message-security-header {
   flex-wrap: nowrap;
   text-align: center;
   align-items: center;
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 
   & html|h3 {
     flex: 1;
@@ -591,7 +591,7 @@ html|header.message-security-header {
   flex: 1;
 
   & > description {
-    margin-bottom: 18px;
+    margin-block-end: 18px;
   }
 }
 
@@ -602,7 +602,7 @@ html|header.message-security-header {
   background-position: left center;
   background-repeat: no-repeat;
   background-size: 16px;
-  margin-bottom: 6px;
+  margin-block-end: 6px;
   fill: currentColor;
   -moz-context-properties: fill;
 
@@ -660,7 +660,7 @@ html|header.message-security-header {
 }
 
 .message-security-container {
-  margin-bottom: 21px;
+  margin-block-end: 21px;
 }
 
 #signatureKeyId,
@@ -682,7 +682,7 @@ html|header.message-security-header {
   padding: 3px 2px;
   border: 1px solid var(--button-border-color);
   background-color: rgba(215, 215, 219, 0.2);
-  margin-bottom: 3px;
+  margin-block-end: 3px;
 }
 
 .openpgp-key-id {
@@ -776,7 +776,7 @@ button.email-action-flagged {
   }
 
   & #expandedsubjectLabel {
-    margin-top: 5px;
+    margin-block-start: 5px;
   }
 }
 
@@ -853,17 +853,17 @@ button.email-action-flagged {
   padding: 0;
   list-style: none;
   margin-inline-start: calc(var(--message-header-field-offset) * -1);
-  min-width: 100px;
+  min-inline-size: 100px;
 }
 
 .header-message-url a {
   display: inline-block;
-  max-width: 80vw;
+  max-inline-size: 80vw;
 }
 
 .tags-list {
   column-gap: 3px;
-  min-width: fit-content;
+  min-inline-size: fit-content;
 }
 
 .recipient-address-book-button {
@@ -908,8 +908,8 @@ button.email-action-flagged {
 
 .show-more-recipients,
 .show-more-ids {
-  min-height: auto;
-  min-width: auto;
+  min-block-size: auto;
+  min-inline-size: auto;
   border-radius: 12px;
   line-height: 1;
   text-transform: uppercase;
@@ -943,8 +943,8 @@ button.email-action-flagged {
 
 .recipient-avatar {
   display: none;
-  height: var(--recipient-avatar-size);
-  width: var(--recipient-avatar-size);
+  block-size: var(--recipient-avatar-size);
+  inline-size: var(--recipient-avatar-size);
   border-radius: 50%;
   margin-block-start: var(--recipient-avatar-margin-block-start);
   margin-inline-end: 6px;
@@ -956,8 +956,8 @@ button.email-action-flagged {
   justify-content: center;
 
   & img {
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     object-fit: cover;
   }
 

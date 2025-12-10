@@ -65,11 +65,11 @@
 }
 
 html {
-  height: 100%;
+  block-size: 100%;
 }
 
 body {
-  height: 100%;
+  block-size: 100%;
   margin: 0;
   text-shadow: none;
 
@@ -125,7 +125,7 @@ body {
   grid-area: folders;
   box-sizing: border-box;
   /* Matches the collapse-width on the splitter. */
-  min-width: 100px;
+  min-inline-size: 100px;
   overflow: hidden;
   background-color: var(--sidebar-background);
   color: var(--sidebar-text-color, var(--layout-color-1));
@@ -144,8 +144,8 @@ body {
   container-type: inline-size;
   grid-area: threads;
   box-sizing: border-box;
-  min-height: 110px;
-  min-width: 300px;
+  min-block-size: 110px;
+  min-inline-size: 300px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -161,8 +161,8 @@ body {
   box-sizing: border-box;
   background-color: var(--layout-background-1);
   /* Matches the collapse-height and collapse-width on the splitter. */
-  min-height: 100px;
-  min-width: 300px;
+  min-block-size: 100px;
+  min-inline-size: 300px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -172,7 +172,7 @@ body {
 #accountCentralBrowser {
   grid-area: account-central;
   box-sizing: border-box;
-  min-width: 400px;
+  min-inline-size: 400px;
 }
 
 :is(#messagePane, #folderPane).collapsed-by-splitter {
@@ -236,7 +236,7 @@ body {
 
   & ul {
     overflow: hidden;
-    height: auto;
+    block-size: auto;
   }
 
   &:focus-visible {
@@ -244,17 +244,17 @@ body {
   }
 
   & li[data-mode] {
-    margin-bottom: 3px;
+    margin-block-end: 3px;
   }
 
   #folderPaneHeaderBar[hidden] + & > li.unselectable:first-of-type > .mode-container {
-    border-top-style: none;
+    border-block-start-style: none;
   }
 
   & .icon {
     position: relative;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     background-image: var(--icon-folder);
     background-repeat: no-repeat;
     --icon-color: var(--folder-color-folder);
@@ -453,7 +453,7 @@ body {
   & > li {
     &:not(:first-of-type) > .mode-container {
       justify-content: space-between;
-      border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
+      border-block-start: 1px solid var(--sidebar-border-color, var(--splitter-color));
     }
 
     &.unselectable > .mode-container {
@@ -469,7 +469,7 @@ body {
       & > .mode-name {
         font-weight: 600;
         font-size: 1.1rem;
-        min-height: initial;
+        min-block-size: initial;
         padding-block: var(--folder-mode-name-padding);
         padding-inline-start: 12px;
         flex: 1;
@@ -576,7 +576,7 @@ body {
   font-size: 0.85em;
   font-weight: bold;
   font-variant-numeric: tabular-nums;
-  min-width: 16px;
+  min-inline-size: 16px;
   text-align: center;
   line-height: initial;
   box-sizing: border-box;

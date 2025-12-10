@@ -3,28 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #calendar-item-summary {
-  max-width: 100vw;
+  max-inline-size: 100vw;
 }
 
 .calendar-summary-table {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .calendar-summary-table th {
   user-select: text;
   font-weight: normal;
   padding-inline-end: 5px;
-  text-align: right;
+  text-align: end;
   vertical-align: baseline;
   white-space: nowrap;
 }
 
 .calendar-summary-table td {
   user-select: text;
-  padding-top: 0;
+  padding-block-start: 0;
   vertical-align: baseline;
-  width: 100%;
-  max-width: 0;
+  inline-size: 100%;
+  max-inline-size: 0;
 }
 
 .calendar-summary-table td.item-location {
@@ -36,7 +36,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .calendar-summary-table .item-organizer-cell {
@@ -50,9 +50,9 @@
 .item-summary-splitter {
   appearance: none;
   border-style: none;
-  border-bottom: 1px solid var(--field-border-color);
-  min-height: 0;
-  height: 10px;
+  border-block-end: 1px solid var(--field-border-color);
+  min-block-size: 0;
+  block-size: 10px;
   background-color: transparent;
   margin: 10px;
   position: relative;
@@ -65,7 +65,7 @@
 }
 
 .item-summary-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid var(--selected-item-color);
+  border-block-end: 4px solid var(--selected-item-color);
 }
 
 .item-description-box {

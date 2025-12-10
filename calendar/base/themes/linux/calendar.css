@@ -17,7 +17,7 @@
 
 /* Calendar list rules */
 #calendar-panel {
-  padding-bottom: 5px;
+  padding-block-end: 5px;
 }
 
 /* Today pane button in status bar */
@@ -31,7 +31,7 @@
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 /* shift the today pane button label up by one pixel to center it */

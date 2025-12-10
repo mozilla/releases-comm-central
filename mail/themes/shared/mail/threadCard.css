@@ -250,8 +250,8 @@
 
     & td {
       & button {
-        min-height: 16px;
-        min-width: 16px;
+        min-block-size: 16px;
+        min-inline-size: 16px;
         opacity: 0.7;
 
         &:hover {
@@ -259,10 +259,10 @@
         }
 
         &.twisty {
-          width: auto;
-          height: auto;
-          min-width: 12px;
-          min-height: 13px;
+          inline-size: auto;
+          block-size: auto;
+          min-inline-size: 12px;
+          min-block-size: 13px;
           padding: 0;
           border: 1px solid transparent;
           position: relative;
@@ -295,8 +295,8 @@
           }
 
           & .replies-icon {
-            height: 12px;
-            width: 12px;
+            block-size: 12px;
+            inline-size: 12px;
             margin: 1px;
             content: var(--icon-replies-xs);
           }
@@ -306,8 +306,8 @@
           }
 
           & .twisty-icon {
-            height: 10px;
-            width: 10px;
+            block-size: 10px;
+            inline-size: 10px;
           }
         }
       }
@@ -368,8 +368,8 @@
 
         & .read-status {
           content: var(--read-status-icon);
-          height: var(--read-status-size);
-          width: var(--read-status-size);
+          block-size: var(--read-status-size);
+          inline-size: var(--read-status-size);
           -moz-context-properties: fill, stroke;
           fill: var(--read-status-fill);
           stroke: var(--read-status-stroke);
@@ -406,8 +406,8 @@
           background-color: var(--account-color);
           border: 1px solid color-mix(in srgb, var(--account-color) 80%, black);
           border-radius: 4px;
-          width: 4px;
-          height: 12px;
+          inline-size: 4px;
+          block-size: 12px;
           margin-inline-end: -3px;
         }
 
@@ -502,8 +502,8 @@
     & button.twisty::before {
       inset-inline-start: -2px;
       inset-block-start: -2px;
-      width: 12px;
-      height: 12px;
+      inline-size: 12px;
+      block-size: 12px;
     }
 
     & .replies-icon,
@@ -521,8 +521,8 @@
       &::after {
         position: absolute;
         content: var(--icon-dot-xs);
-        height: var(--circle-size);
-        width: var(--circle-size);
+        block-size: var(--circle-size);
+        inline-size: var(--circle-size);
         inset-block: calc(50% - var(--circle-size) / 2);
         inset-inline-start: calc((var(--tree-card-inline) * 2) - var(--circle-size) / 2);
         -moz-context-properties: fill, stroke;
@@ -535,9 +535,9 @@
         display: block;
         content: "";
         position: absolute;
-        height: var(--thread-line-height);
+        block-size: var(--thread-line-height);
         --line-width: 1px;
-        width: var(--line-width);
+        inline-size: var(--line-width);
         border-inline-start: var(--line-width) dashed var(--thread-line-color);
         inset-inline-start: calc((var(--tree-card-inline) * 2) - var(--line-width) / 2);
         inset-block: 0;
@@ -556,10 +556,10 @@
       content: "";
       display: block;
       position: absolute;
-      height: 0;
-      width: 100%;
-      border-top: 1px solid light-dark(var(--color-gray-20), var(--color-gray-80));
-      margin-top: -3px;
+      block-size: 0;
+      inline-size: 100%;
+      border-block-start: 1px solid light-dark(var(--color-gray-20), var(--color-gray-80));
+      margin-block-start: -3px;
       opacity: 0;
     }
 

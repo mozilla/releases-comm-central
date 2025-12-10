@@ -23,7 +23,7 @@ body {
 img {
   position: absolute;
   inset-inline-end: -3em;
-  bottom: -3em;
+  inset-block-end: -3em;
   opacity: 0.66;
 }
 
@@ -34,7 +34,7 @@ h1 {
 }
 
 ol {
-  width: 25em;
+  inline-size: 25em;
   line-height: 24px;
   list-style: none;
   padding-inline: 8px;
@@ -51,8 +51,8 @@ li {
 
 .task-icon {
   margin-inline-end: 8px;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill;
   fill: currentColor;
 
@@ -70,8 +70,8 @@ li {
       content: "";
       position: absolute;
       background-image: url("chrome://messenger/skin/icons/loading.svg");
-      width: 480px;
-      height: 100%;
+      inline-size: 480px;
+      block-size: 100%;
       animation: tab-throbber-animation 1.05s steps(30) infinite;
     }
 
@@ -103,7 +103,7 @@ li {
 
 progress {
   appearance: none;
-  height: 4px;
+  block-size: 4px;
   background-color: hsla(0, 0%, 60%, 0.2);
   border-style: none;
   border-radius: 2px;

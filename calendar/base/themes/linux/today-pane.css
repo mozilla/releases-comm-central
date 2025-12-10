@@ -9,16 +9,16 @@
 }
 
 #today-pane-panel > .sidebar-header {
-  height: 1.5em;
-  min-height: 35px;
+  block-size: 1.5em;
+  min-block-size: 35px;
 }
 
 .miniday-nav-buttons {
-  max-width: 19px;
+  max-inline-size: 19px;
 }
 
 #today-button {
-  max-width: none;
+  max-inline-size: none;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {

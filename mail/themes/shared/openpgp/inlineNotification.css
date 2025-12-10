@@ -41,7 +41,7 @@
     align-items: center;
 
     & .notification-image {
-      margin-top: 0;
+      margin-block-start: 0;
     }
   }
 
@@ -54,6 +54,6 @@
   -moz-context-properties: fill;
   fill: currentColor;
   margin-inline: 4px 8px;
-  margin-top: 4px;
-  width: 16px;
+  margin-block-start: 4px;
+  inline-size: 16px;
 }

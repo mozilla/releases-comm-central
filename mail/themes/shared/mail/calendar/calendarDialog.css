@@ -32,8 +32,8 @@
   box-shadow: 0 2px 24px rgba(0, 0, 0, 0.15);
   margin: 0;
   padding: 0;
-  width: 424px;
-  max-height: calc(100vh - 24px);
+  inline-size: 424px;
+  max-block-size: calc(100vh - 24px);
   z-index: 999;
   box-sizing: border-box;
 }
@@ -48,7 +48,7 @@
     position: absolute;
     inset-block-start: -11px;
     inset-inline: 0;
-    height: 6px;
+    block-size: 6px;
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
   }
 
@@ -132,7 +132,7 @@ calendar-dialog-date-row {
     padding-inline: var(--calendar-dialog-row-expand-button-padding-inline-start) var(--calendar-dialog-row-padding-inline);
     padding-block: 0;
     margin: 0;
-    min-width: 0;
+    min-inline-size: 0;
     align-self: stretch;
     aspect-ratio: 0;
     border: 0;
@@ -144,7 +144,7 @@ calendar-dialog-subview-manager {
   overflow-y: auto;
 
   & > *:not([hidden]) {
-    height: 100%;
+    block-size: 100%;
     display: flex;
     flex-direction: column;
   }
@@ -170,7 +170,7 @@ calendar-dialog-description-row {
 
     & [slot="content"] {
       display: flex;
-      height: 100%;
+      block-size: 100%;
     }
 
     & .rich-description {

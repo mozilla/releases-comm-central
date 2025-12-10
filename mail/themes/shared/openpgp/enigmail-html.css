@@ -24,12 +24,12 @@ h1 {
 
 h2 {
   font-size: 1.4em;
-  margin-top: 1.3em;
+  margin-block-start: 1.3em;
 }
 
 h3 {
   font-size: 1.2em;
-  margin-top: 1.3em;
+  margin-block-start: 1.3em;
 }
 
 ul {
@@ -60,36 +60,36 @@ a:hover {
   margin-inline: 0;
   padding-inline: 15px;
   position: relative;
-  min-height: 80px;
+  min-block-size: 80px;
   background-color: #0077bb;
 }
 
 .header-icon {
   box-sizing: border-box;
-  float: left;
+  float: inline-start;
   font-size: 14px;
   line-height: 16.8px;
   margin-inline: 0 10px;
 }
 
 .spacer {
-  padding-top: 40px;
+  padding-block-start: 40px;
 }
 
 .body {
-  max-width: 800px;
+  max-inline-size: 800px;
 }
 
 .logo-img {
-  max-height: 90px;
+  max-block-size: 90px;
 }
 
 button {
   font-size: 1.2em;
-  margin-top: 1.3em;
+  margin-block-start: 1.3em;
 }
 
 .hidden {
   visibility: collapse;
-  max-height: 0;
+  max-block-size: 0;
 }

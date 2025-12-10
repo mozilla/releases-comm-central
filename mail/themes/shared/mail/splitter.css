@@ -27,13 +27,13 @@ hr[is="pane-splitter"] {
 
   &:not([resize-direction="horizontal"]) {
     &:not(.splitter-before) {
-      height: var(--splitter-content-size);
+      block-size: var(--splitter-content-size);
       border-block-start-style: solid;
       margin-block-end: var(--splitter-margin-size);
     }
 
     &.splitter-before {
-      height: var(--splitter-content-size);
+      block-size: var(--splitter-content-size);
       border-block-end-style: solid;
       margin-block-start: var(--splitter-margin-size);
     }
@@ -41,13 +41,13 @@ hr[is="pane-splitter"] {
 
   &[resize-direction="horizontal"] {
     &:not(.splitter-before) {
-      width: var(--splitter-content-size);
+      inline-size: var(--splitter-content-size);
       border-inline-start-style: solid;
       margin-inline-end: var(--splitter-margin-size);
     }
 
     &.splitter-before {
-      width: var(--splitter-content-size);
+      inline-size: var(--splitter-content-size);
       border-inline-end-style: solid;
       margin-inline-start: var(--splitter-margin-size);
     }
@@ -68,8 +68,8 @@ hr[is="pane-splitter"] {
     background-color: var(--selected-item-color);
     content: "";
     display: block;
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     /* We hide this element with scaleY(0) or scaleX(0) so we can smoothly
      * grow the element between the hidden and full-height or full-width
      * states. */

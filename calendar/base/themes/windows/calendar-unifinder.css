@@ -9,9 +9,9 @@
 }
 
 #unifinder-searchBox {
-  height: 1.5em;
-  min-height: 35px;
-  border-bottom: 1px solid ThreeDShadow;
+  block-size: 1.5em;
+  min-block-size: 35px;
+  border-block-end: 1px solid ThreeDShadow;
 }
 
 .unifinder-closebutton {

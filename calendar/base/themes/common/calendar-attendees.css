@@ -6,7 +6,7 @@
 
 /* this is for attendee and organizer decoration in summary and event dialog */
 html|input.textbox-addressingWidget {
-  width: 100%;
+  inline-size: 100%;
   background-color: transparent !important;
   flex: 1;
 }
@@ -16,11 +16,11 @@ html|input.textbox-addressingWidget:disabled {
 }
 
 #outer {
-  max-height: calc(100vh - 210px);
+  max-block-size: calc(100vh - 210px);
 }
 
 .attendee-list-container {
-  width: 350px;
+  inline-size: 350px;
 }
 
 .item-attendees-list-container {
@@ -78,8 +78,8 @@ html|input.textbox-addressingWidget:disabled {
   --itip-icon-partstat: -16px -16px; /* default: NEEDS-ACTION */
   --itip-icon-role: 0px; /* default: REQ-PARTICIPANT */
   --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   background-image:
     url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
     url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
@@ -143,8 +143,8 @@ html|span.ac-emphasize-text {
 
 .role-icon {
   margin: 0 3px;
-  width: 21px;
-  height: 16px;
+  inline-size: 21px;
+  block-size: 16px;
   object-fit: none;
   object-position: top 0 left -138px;
 }
@@ -183,8 +183,8 @@ html|span.ac-emphasize-text {
 
 .usertype-icon {
   margin: 0 3px;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   object-fit: none;
   object-position: top 0 left 0;
 }

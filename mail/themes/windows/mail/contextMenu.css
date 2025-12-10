@@ -6,7 +6,7 @@
 
 menupopup {
   &:not([type="arrow"]) {
-    margin-top: -1px;
+    margin-block-start: -1px;
   }
 
   @media (prefers-contrast) {
@@ -50,6 +50,6 @@ menupopup {
   & menuitem[disabled="true"]:not(.menuitem-iconic) {
     /* This is 16px for an icon + 3px for its margins + 1px for its padding +
      * 2px for its border. */
-    min-height: 22px;
+    min-block-size: 22px;
   }
 }

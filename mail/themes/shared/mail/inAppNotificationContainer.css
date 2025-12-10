@@ -31,7 +31,7 @@
 
 .in-app-notification-container {
   position: relative;
-  width: 288px;
+  inline-size: 288px;
   background: var(--container-background);
   background-size: cover;
   background-position: center;
@@ -76,7 +76,7 @@
     text-wrap: nowrap;
     overflow: clip;
     text-overflow: ellipsis;
-    max-width: calc(100% - 52px);
+    max-inline-size: calc(100% - 52px);
 
     &:hover,
     &:focus {
@@ -106,8 +106,8 @@
     border: 1px solid var(--close-button-border);
     border-radius: 50%;
     color: var(--close-button-text);
-    height: 20px;
-    width: 20px;
+    block-size: 20px;
+    inline-size: 20px;
     margin: 0;
     padding: 0;
     -moz-context-properties: fill, stroke;
@@ -152,10 +152,10 @@
   & .in-app-notification-description {
     color: var(--text);
     font-size: 0.9rem;
-    min-height: 2lh;
+    min-block-size: 2lh;
     margin: 0;
     hyphens: auto;
-    max-height: 20lh;
+    max-block-size: 20lh;
     overflow: auto;
   }
 

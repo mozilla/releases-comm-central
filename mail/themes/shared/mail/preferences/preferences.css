@@ -16,11 +16,11 @@ button,
 menulist,
 html|select,
 html|input[type="color"] {
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
 }
 
 html|moz-input-search {
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
 }
 
 button {
@@ -59,7 +59,7 @@ html|moz-input-search {
 #pref-category-box {
   background-color: var(--in-content-categories-background);
   border-inline-end: 1px solid var(--in-content-categories-border);
-  width: 18em;
+  inline-size: 18em;
 }
 
 /* Temporary styles for the supernova icons */
@@ -77,12 +77,12 @@ html|moz-input-search {
   the stack to be smaller than its content height so it can fit the viewport size.
 */
 #preferences-stack {
-  min-height: 0;
+  min-block-size: 0;
 }
 
 .main-content {
   padding: 0;
-  height: 100vh;
+  block-size: 100vh;
 }
 
 /**
@@ -90,9 +90,9 @@ html|moz-input-search {
  */
 
 .subcategory:not([hidden]) ~ .subcategory {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--border-color);
   /* Avoid being hidden under the sticky container. This value is the height
      of that container minus this element's border and padding. */
   scroll-margin-top: calc(var(--button-height) + 33px);
@@ -104,7 +104,7 @@ fieldset {
   border-style: none !important;
 
   & > :where(hbox, vbox, radiogroup) {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 }
 
@@ -153,8 +153,8 @@ button > hbox > label {
 }
 
 menulist::part(dropmarker-icon) {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
@@ -170,18 +170,18 @@ menulist::part(dropmarker-icon) {
 
 .paneDeckContainer {
   display: block;
-  width: min(100%, 800px);
-  min-width: min-content;
+  inline-size: min(100%, 800px);
+  min-inline-size: min-content;
 }
 
 #paneDeck {
-  width: 100%;
+  inline-size: 100%;
 }
 
 #policies-container,
 #searchInput {
   /* If these sizes change, update the scroll margin of .subcategory. */
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
   margin: 20px 0 30px;
 }
 
@@ -211,25 +211,25 @@ menulist::part(dropmarker-icon) {
 
 .info-icon {
   content: url("chrome://global/skin/icons/info.svg");
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   margin-inline-end: 6px;
   align-self: start;
-  margin-top: 0.4em;
+  margin-block-start: 0.4em;
   flex-shrink: 0;
 }
 
 .info-box-container.smaller-font-size .info-icon {
-  margin-top: 0.3em;
+  margin-block-start: 0.3em;
 }
 
 .sticky-container {
   position: sticky;
   background-color: var(--background-color-canvas);
-  top: 0;
+  inset-block-start: 0;
   z-index: 1;
   /* The sticky-container should have the capability to cover all spotlight area. */
-  width: calc(100% + 8px);
+  inline-size: calc(100% + 8px);
   margin-inline: -4px;
   padding-inline: 4px;
 }
@@ -239,14 +239,14 @@ menulist::part(dropmarker-icon) {
 }
 
 .search-tooltip {
-  max-width: 150px;
+  max-inline-size: 150px;
   font-size: 1.25rem;
   position: absolute;
   padding: 0 10px;
   background-color: #ffe900;
   color: #000;
   border: 1px solid #d7b600;
-  bottom: 36px;
+  inset-block-end: 36px;
   opacity: 0.85;
 
   &:hover {
@@ -257,8 +257,8 @@ menulist::part(dropmarker-icon) {
     position: absolute;
     content: "";
     border: 7px solid transparent;
-    border-top-color: #d7b600;
-    top: 100%;
+    border-block-start-color: #d7b600;
+    inset-block-start: 100%;
     inset-inline-start: calc(50% - 7px);
     forced-color-adjust: none;
   }
@@ -267,19 +267,19 @@ menulist::part(dropmarker-icon) {
     position: absolute;
     content: "";
     border: 6px solid transparent;
-    border-top-color: #ffe900;
-    top: 100%;
+    border-block-start-color: #ffe900;
+    inset-block-start: 100%;
     inset-inline-start: calc(50% - 6px);
     forced-color-adjust: none;
   }
 
   @media (forced-colors: active) {
     &::before {
-      border-top-color: CanvasText;
+      border-block-start-color: CanvasText;
     }
 
     &::after {
-      border-top-color: Canvas;
+      border-block-start-color: Canvas;
     }
   }
 
@@ -313,15 +313,15 @@ tabpanel > hbox > description {
 /* Web search menulist */
 #defaultWebSearch::part(icon) {
   margin-inline: 5px 8px;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 /* Category List */
 
 #categories {
   overflow: visible;
-  min-height: auto;
+  min-block-size: auto;
 }
 
 .sidebar-footer-link {
@@ -332,7 +332,7 @@ tabpanel > hbox > description {
 @media (max-width: 830px) {
   #pref-category-box,
   #categories {
-    width: auto;
+    inline-size: auto;
   }
 
   #categories > .category {
@@ -350,26 +350,26 @@ tabpanel > hbox > description {
 
 html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   padding-block: initial;
-  min-height: var(--button-height);
+  min-block-size: var(--button-height);
 }
 
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
-  min-height: calc(var(--button-height) - 4px);
+  min-block-size: calc(var(--button-height) - 4px);
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
   &.size2 {
-    width: calc(2ch + 55px);
+    inline-size: calc(2ch + 55px);
   }
   &.size3 {
-    width: calc(3ch + 55px);
+    inline-size: calc(3ch + 55px);
   }
   &.size4 {
-    width: calc(4ch + 55px);
+    inline-size: calc(4ch + 55px);
   }
   &.size5 {
-    width: calc(5ch + 55px);
+    inline-size: calc(5ch + 55px);
   }
 
   &::-moz-number-spin-box {
@@ -379,7 +379,7 @@ html|input[type="number"] {
   &::-moz-number-spin-up,
   &::-moz-number-spin-down {
     appearance: none;
-    min-width: 25px;
+    min-inline-size: 25px;
     border: 1px solid var(--border-color);
     background-color: var(--button-background-color);
     background-position: center;
@@ -396,28 +396,28 @@ html|input[type="number"] {
   }
 
   &::-moz-number-spin-up {
-    min-height: calc(var(--button-height) * 0.5 - 3px);
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
+    min-block-size: calc(var(--button-height) * 0.5 - 3px);
+    border-block-end-width: 1px;
+    border-block-end-style: solid;
     border-radius: 1px 1px 0 0;
     background-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
   }
 
   &::-moz-number-spin-down {
-    min-height: calc(var(--button-height) * 0.5 - 4px);
+    min-block-size: calc(var(--button-height) * 0.5 - 4px);
     border-radius: 0 0 1px 1px;
     background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
   }
 }
 
 separator.groove:not([orient="vertical"]) {
-  border-top-color: #c1c1c1;
-  border-bottom-width: 0;
+  border-block-start-color: #c1c1c1;
+  border-block-end-width: 0;
 }
 
 tab {
   &:not([selected="true"]):hover {
-    border-bottom-color: transparent;
+    border-block-end-color: transparent;
   }
 
   &:focus-visible {
@@ -452,7 +452,7 @@ description > html|a {
 }
 
 #previewBox {
-  height: 220px;
+  block-size: 220px;
 }
 
 .indent,
@@ -493,19 +493,19 @@ treechildren::-moz-tree-cell-text(selected) {
 }
 
 .accessory-button {
-  min-width: 150px;
+  min-inline-size: 150px;
 }
 
 #tagList {
-  height: 180px;
+  block-size: 180px;
 }
 
 #keywordList {
-  height: 250px;
+  block-size: 250px;
 }
 
 #signonsTree {
-  height: 20em;
+  block-size: 20em;
 }
 
 .update-deck-container {
@@ -527,8 +527,8 @@ treechildren::-moz-tree-cell-text(selected) {
 }
 
 .update-throbber {
-  width: 1.3em;
-  min-height: 1.3em;
+  inline-size: 1.3em;
+  min-block-size: 1.3em;
   margin-inline-end: 8px;
   content: url("chrome://messenger/skin/icons/spinning.svg");
   -moz-context-properties: fill;
@@ -576,7 +576,7 @@ treechildren::-moz-tree-cell-text(selected) {
   font-size: 85%;
   padding: 3px;
   margin-block: 4px;
-  width: 100%;
+  inline-size: 100%;
   display: flex;
 
   &[hidden] {
@@ -587,8 +587,8 @@ treechildren::-moz-tree-cell-text(selected) {
 #telemetryInfoIcon {
   flex: 0 0 auto;
   align-self: start;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   padding: 2px;
 }
 
@@ -645,7 +645,7 @@ treechildren::-moz-tree-cell-text(selected) {
 #serif,
 #sans-serif,
 #monospace {
-  min-width: 30ch;
+  min-inline-size: 30ch;
 }
 
 /**
@@ -700,12 +700,12 @@ treechildren::-moz-tree-cell-text(selected) {
 }
 
 #messengerLanguagesDialogPane {
-  min-height: 360px;
+  min-block-size: 360px;
 }
 
 #primaryMessengerLocale {
   margin-inline: 0 4px;
-  min-width: 20em;
+  min-inline-size: 20em;
 }
 
 #availableLocales {
@@ -718,10 +718,10 @@ treechildren::-moz-tree-cell-text(selected) {
 }
 
 #warning-message {
-  margin-top: 8px;
+  margin-block-start: 8px;
 
   & > .message-bar-description {
-    width: 32em;
+    inline-size: 32em;
   }
 }
 
@@ -736,11 +736,11 @@ treechildren::-moz-tree-cell-text(selected) {
 
 #new-tag-button,
 #newCButton {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 #PermissionsDialog > body {
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
 }
 
@@ -784,8 +784,8 @@ treechildren::-moz-tree-cell-text(selected) {
   flex: 1 1 auto;
 
   & > img {
-    height: 20px;
-    width: 20px;
+    block-size: 20px;
+    inline-size: 20px;
     vertical-align: text-bottom;
     -moz-context-properties: fill;
     fill: currentColor;
@@ -810,13 +810,13 @@ treechildren::-moz-tree-cell-text(selected) {
 
 #proxy-grid > .thin {
   grid-column: span 2;
-  height: 20px;
+  block-size: 20px;
 }
 
 calendar-notifications-setting {
   display: flex;
   flex-direction: column;
-  margin-bottom: 9px;
+  margin-block-end: 9px;
 
   & .add-button {
     list-style-image: var(--icon-add);
@@ -829,8 +829,8 @@ calendar-notifications-setting {
   }
 
   & .remove-button {
-    width: 32px;
-    min-width: 0;
+    inline-size: 32px;
+    min-inline-size: 0;
     padding: 0;
     list-style-image: var(--icon-trash);
     -moz-context-properties: fill, stroke;
@@ -867,17 +867,17 @@ calendar-notifications-setting {
 
 #noFxaDescription {
   padding-inline-end: 52px;
-  padding-bottom: 52px;
+  padding-block-end: 52px;
 }
 
 #noFxaSignIn {
   margin-inline-start: 8px;
-  max-width: 151px;
+  max-inline-size: 151px;
   margin: 4px 0;
 }
 
 #noFxaSyncIllustration {
-  width: 169px;
+  inline-size: 169px;
   flex-grow: 2;
 }
 
@@ -907,8 +907,8 @@ calendar-notifications-setting {
 }
 
 .contact-photo {
-  width: 78px;
-  height: 78px;
+  inline-size: 78px;
+  block-size: 78px;
   object-fit: cover;
   object-position: center;
   border: 1px solid var(--button-background-color);
@@ -926,9 +926,9 @@ calendar-notifications-setting {
 
 #photoButton {
   position: relative;
-  width: 80px;
-  height: 80px;
-  min-width: 80px;
+  inline-size: 80px;
+  block-size: 80px;
+  min-inline-size: 80px;
   overflow: hidden;
   background-color: transparent;
   border: none;
@@ -977,7 +977,7 @@ calendar-notifications-setting {
 }
 
 #fxaEmailAddress {
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 .place-self-start {
@@ -1004,7 +1004,7 @@ calendar-notifications-setting {
 }
 
 .sync-section {
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 
 #showSyncedHeader,
@@ -1066,8 +1066,8 @@ calendar-notifications-setting {
 
 .synced-item::before,
 .synced-item-label::before {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   margin-inline-end: 6px;
 }
 
@@ -1183,8 +1183,8 @@ calendar-notifications-setting {
 
   & label::before {
     display: inline-block;
-    height: 16px;
-    width: 16px;
+    block-size: 16px;
+    inline-size: 16px;
     margin-inline-end: 6px;
     vertical-align: sub;
   }
@@ -1231,7 +1231,7 @@ calendar-notifications-setting {
     font-weight: normal;
     font-size: 1.2rem;
     margin: 0;
-    margin-bottom: var(--qr-gap);
+    margin-block-end: var(--qr-gap);
   }
 
   .qr-panel {
@@ -1359,7 +1359,7 @@ qr-code-wizard {
   }
 
   img {
-    max-width: 420px;
+    max-inline-size: 420px;
     image-rendering: pixelated;
   }
 }
@@ -1600,15 +1600,15 @@ qr-code-wizard {
 }
 
 .extra-information-label {
-  margin-top: 18px;
+  margin-block-start: 18px;
 }
 
 .arrowhead {
   border-color: transparent;
-  min-height: 20px;
-  min-width: 20px;
-  max-height: 20px;
-  max-width: 20px;
+  min-block-size: 20px;
+  min-inline-size: 20px;
+  max-block-size: 20px;
+  max-inline-size: 20px;
   list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   background-color: transparent;
   padding: 3px;

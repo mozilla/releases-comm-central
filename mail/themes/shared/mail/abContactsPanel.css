@@ -36,9 +36,9 @@
   gap: 3px;
 
   & #abContextMenuButton {
-    min-width: unset;
-    width: 24px;
-    min-height: 24px;
+    min-inline-size: unset;
+    inline-size: 24px;
+    min-block-size: 24px;
     margin: 0;
     padding: 0;
     list-style-image: var(--icon-more);
@@ -54,7 +54,7 @@
     margin: 0;
 
     &::part(label-box) {
-      width: 0; /* Make the label crop if necessary. */
+      inline-size: 0; /* Make the label crop if necessary. */
     }
   }
 }
@@ -71,6 +71,6 @@
   border-block: 1px solid var(--sidebar-border-color);
 
   & .tree-table {
-    width: 100%;
+    inline-size: 100%;
   }
 }

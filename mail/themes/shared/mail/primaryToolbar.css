@@ -91,7 +91,7 @@
 
 .button-appmenu {
   list-style-image: var(--icon-app-menu);
-  min-width: 35px !important;
+  min-inline-size: 35px !important;
   margin-inline: 4px;
 
   &[badge-status] {
@@ -156,7 +156,7 @@
 
 .msgNotificationBarText {
   font-weight: bold;
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .msgNotificaton-smallText {

@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 html {
-  min-width: 52em;
-  min-height: 22em;
+  min-inline-size: 52em;
+  min-block-size: 22em;
 }
 
 body {
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
   flex-direction: column;
   margin: 0;

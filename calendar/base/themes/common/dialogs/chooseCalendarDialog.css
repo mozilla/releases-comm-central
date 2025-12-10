@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  min-width: 300px;
-  min-height: 200px;
+  min-inline-size: 300px;
+  min-block-size: 200px;
 }
 
 #calendar-list {
@@ -17,7 +17,7 @@ richlistitem {
 }
 
 richlistitem > box:first-child {
-  width: 10px;
-  height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
   border-radius: 5px;
 }

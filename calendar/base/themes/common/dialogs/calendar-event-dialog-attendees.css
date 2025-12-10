@@ -17,13 +17,13 @@
 }
 
 .attendees-grid-container {
-  width: 540px;
+  inline-size: 540px;
   overflow-y: auto;
 }
 
 event-attendee {
   flex: 0 0 21px;
-  height: 21px;
+  block-size: 21px;
   padding: 0 4px 1px;
   display: flex;
   align-items: center;
@@ -63,7 +63,7 @@ span.ac-emphasize-text {
 }
 
 .ac-url-text {
-  max-width: unset !important;
+  max-inline-size: unset !important;
 }
 
 #outer > splitter {
@@ -73,7 +73,7 @@ span.ac-emphasize-text {
 
 #day-header-outer {
   border: 1px solid var(--field-border-color);
-  border-bottom: none;
+  border-block-end: none;
   overflow: hidden;
   background-color: var(--field-background-color);
   color: var(--field-text-color);
@@ -81,7 +81,7 @@ span.ac-emphasize-text {
 }
 
 #day-header-inner {
-  padding-bottom: 6px;
+  padding-block-end: 6px;
   background-position: left bottom;
   background-repeat: repeat-x;
 }
@@ -120,8 +120,7 @@ calendar-day {
 
 .day-column {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  inset-block: 0;
 }
 
 .day-off {
@@ -130,8 +129,7 @@ calendar-day {
 
 .time-off {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  inset-block: 0;
   background-color: var(--viewOffTimeBackground);
 }
 
@@ -153,15 +151,14 @@ calendar-day {
 
 .freebusy-row {
   position: relative;
-  height: 21px;
+  block-size: 21px;
   box-sizing: border-box;
   padding: 2px 0 3px;
 }
 
 .freebusy-row > .pending {
   position: absolute;
-  top: 0;
-  bottom: 1px;
+  inset-block: 0 1px;
   background-color: #999;
 }
 
@@ -170,8 +167,7 @@ calendar-day {
 .freebusy-row > .unavailable,
 .freebusy-row > .unknown {
   position: absolute;
-  top: 2px;
-  bottom: 3px;
+  inset-block: 2px 3px;
 }
 .freebusy-row > .busy {
   background-color: #153e7e;
@@ -188,22 +184,20 @@ calendar-day {
 
 #event-bar-top {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  inset-block: 0;
   box-sizing: border-box;
   border: 1px #f045a5 solid;
-  border-bottom: none;
+  border-block-end: none;
   cursor: move;
   background-color: rgba(240, 69, 165, 0.44);
 }
 
 #event-bar-bottom {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  inset-block: 0;
   box-sizing: border-box;
   border: 1px #f045a5 solid;
-  border-top: none;
+  border-block-start: none;
   background-color: rgba(240, 69, 165, 0.44);
 }
 
@@ -232,10 +226,10 @@ calendar-day {
 
 .legend {
   display: flex;
-  width: 3em;
-  height: 1em;
-  border-top: 1px solid #a1a1a1;
-  border-bottom: 1px solid #dddddd;
+  inline-size: 3em;
+  block-size: 1em;
+  border-block-start: 1px solid #a1a1a1;
+  border-block-end: 1px solid #dddddd;
   border-inline: 1px solid #c3c3c3;
 }
 

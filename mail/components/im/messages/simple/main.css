@@ -69,8 +69,8 @@ p {
 }
 
 p *:any-link img {
-  margin-bottom: 1px;
-  border-bottom: solid 1px;
+  margin-block-end: 1px;
+  border-block-end: solid 1px;
 }
 
 .ib-sender.message-encrypted {
@@ -81,8 +81,8 @@ p *:any-link img {
   position: relative;
   display: inline-block;
   content: "";
-  width: 11px;
-  height: 10px;
+  inline-size: 11px;
+  block-size: 10px;
   opacity: 0.5;
   background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
   background-size: contain;

@@ -10,5 +10,5 @@ groupbox {
 }
 
 .spell-check {
-  min-width: 8.5em;
+  min-inline-size: 8.5em;
 }

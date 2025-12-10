@@ -18,5 +18,5 @@
 
 .message-security-label {
   /* Necessary to not cut the background icon */
-  min-height: 16px;
+  min-block-size: 16px;
 }

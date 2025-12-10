@@ -81,7 +81,7 @@ tabmail > tabbox > tabpanels {
   /* Tab Overflow */
   &:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator),
   &:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {
-    margin-bottom: 0;
+    margin-block-end: 0;
   }
 }
 
@@ -95,7 +95,7 @@ tabmail > tabbox > tabpanels {
 
 /* Content Tabs */
 .contentTabAddress {
-  height: 31px;
+  block-size: 31px;
   padding-inline: 10px;
 }
 

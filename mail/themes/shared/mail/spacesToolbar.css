@@ -98,7 +98,7 @@
   }
 
   :root:not(.customizingUnifiedToolbar) & ~ #navigation-toolbox #unifiedToolbarContainer {
-    width: calc(100vw - var(--spaces-total-width));
+    inline-size: calc(100vw - var(--spaces-total-width));
   }
 }
 
@@ -111,8 +111,8 @@
 
 .spaces-toolbar-button {
   position: relative;
-  height: auto;
-  min-width: auto;
+  block-size: auto;
+  min-inline-size: auto;
   margin: 0;
   padding: var(--spaces-button-padding);
   line-height: 0; /* We never show text in these buttons */
@@ -153,8 +153,8 @@
   }
 
   & > img {
-    width: var(--spaces-icon-size);
-    height: var(--spaces-icon-size);
+    inline-size: var(--spaces-icon-size);
+    block-size: var(--spaces-icon-size);
   }
 }
 
@@ -199,7 +199,7 @@
   position: absolute;
   inset-block: 0;
   inset-inline-start: calc(var(--spaces-menuitem-current-indicator-size) * -1.75);
-  width: var(--spaces-menuitem-current-indicator-size);
+  inline-size: var(--spaces-menuitem-current-indicator-size);
   border-radius: 2px;
   background-color: var(--spaces-button-active-bg-color);
 }
@@ -214,8 +214,8 @@
 }
 
 .spaces-toolbar-statusbar-button {
-  min-width: auto;
-  min-height: auto;
+  min-inline-size: auto;
+  min-block-size: auto;
   padding-inline: 2px;
   margin-inline: 3px 0 !important;
   line-height: 0;
@@ -231,7 +231,7 @@
 #spacesPinnedButton {
   margin-inline-start: var(--spaces-pinned-button-margin);
   list-style-image: var(--icon-spaces-menu);
-  min-width: auto;
+  min-inline-size: auto;
 
   & .toolbarbutton-text {
     display: none;
@@ -272,8 +272,8 @@ img {
   }
 
   #spacesToolbarReveal & {
-    height: 16px;
-    width: 16px;
+    block-size: 16px;
+    inline-size: 16px;
   }
 }
 
@@ -325,7 +325,7 @@ img {
 
 #spacesToolbarAddonsContainer {
   flex: 1 1 0;
-  min-height: 0;
+  min-block-size: 0;
 }
 
 .spaces-badge-container {
@@ -357,9 +357,9 @@ img {
     box-shadow: none;
     box-sizing: content-box;
     margin: -2px -3px 0 !important;
-    min-width: 6px;
-    height: 6px;
-    width: 6px;
+    min-inline-size: 6px;
+    block-size: 6px;
+    inline-size: 6px;
     padding: 0;
     background: var(--spaces-button-badge-bg-color);
     border: 2px solid var(--lwt-accent-color-inactive, var(--lwt-accent-color));
@@ -369,8 +369,8 @@ img {
   & > .menu-icon::after {
     display: block;
     content: "";
-    height: 6px;
-    width: 6px;
+    block-size: 6px;
+    inline-size: 6px;
     background: var(--spaces-button-badge-bg-color);
     border: 2px solid var(--arrowpanel-background);
     border-radius: 6px;

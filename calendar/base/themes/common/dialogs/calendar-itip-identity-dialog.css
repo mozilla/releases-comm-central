@@ -3,9 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #calendar-itip-identity-warning {
-  margin-bottom: 1em;
+  margin-block-end: 1em;
 }
 
 #identity-menu-label {
-  height: 1.3em;
+  block-size: 1.3em;
 }

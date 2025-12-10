@@ -35,7 +35,7 @@ body {
 }
 
 #aboutDialogContainer {
-  width: 670px;
+  inline-size: 670px;
   color: var(--dialog-box-color);
   background-color: var(--dialog-background);
 }
@@ -44,8 +44,8 @@ body {
   background-image: url("chrome://branding/content/about-wordmark.svg");
   background-repeat: no-repeat;
   /* padding-top creates room for the wordmark */
-  padding-top: 38px;
-  margin-top: 20px;
+  padding-block-start: 38px;
+  margin-block-start: 20px;
   margin-inline: 30px;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -56,12 +56,12 @@ body {
 }
 
 #detailsBox {
-  padding-top: 10px;
+  padding-block-start: 10px;
 }
 
 #updateDeck {
   align-items: center;
-  min-height: 33px;
+  min-block-size: 33px;
 }
 
 #bottomBox {
@@ -70,7 +70,7 @@ body {
 
 #version {
   font-weight: bold;
-  margin-top: 10px;
+  margin-block-start: 10px;
   margin-inline-start: 0;
   user-select: text;
   -moz-user-focus: normal;
@@ -88,7 +88,7 @@ body {
 }
 
 .text-blurb {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
   margin-inline-start: 0;
   padding-inline-start: 0;
 }
@@ -145,8 +145,8 @@ body {
 #icons {
   -moz-context-properties: fill;
   margin: 10px 5px;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 
   &.noUpdatesFound {
     content: url("chrome://global/skin/icons/check.svg");

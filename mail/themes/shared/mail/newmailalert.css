@@ -59,8 +59,8 @@
 }
 
 #alertImage {
-  width: 64px;
-  height: 64px;
+  inline-size: 64px;
+  block-size: 64px;
 }
 
 #alertTextBox {
@@ -75,10 +75,10 @@
 }
 
 #alertSeparator {
-  height: 0;
+  block-size: 0;
   margin-block: 0.4em;
   margin-inline-start: 11px;
-  border-top: 1px solid -moz-DialogText;
+  border-block-start: 1px solid -moz-DialogText;
 }
 
 folder-summary {
@@ -89,7 +89,7 @@ folder-summary {
   /* This max width ends up dictating the overall width of the alert window
      because it controls how large the preview, subject and sender text can be
      before cropping kicks in */
-  max-width: 450px;
+  max-inline-size: 450px;
   padding: 0 5px;
 
   .folderSummaryMessage:hover > & {
@@ -109,12 +109,12 @@ folder-summary {
 
 .folderSummary-subject {
   font-weight: bold;
-  width: 300px;
+  inline-size: 300px;
   overflow-wrap: anywhere;
 }
 
 .folderSummary-sender {
-  width: 150px;
+  inline-size: 150px;
 }
 
 .folderSummary-previewText {
@@ -124,7 +124,7 @@ folder-summary {
 
 #closeButton {
   align-items: flex-start;
-  width: auto;
+  inline-size: auto;
 
   & > .toolbarbutton-icon {
     padding: 5px;

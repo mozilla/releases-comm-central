@@ -10,7 +10,7 @@
 }
 
 body {
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -18,23 +18,23 @@ body {
 
 #imageDlg {
   overflow: auto;
-  max-width: inherit;
+  max-inline-size: inherit;
 }
 
 .MinWidth5em {
-  min-width: 5em;
+  min-inline-size: 5em;
 }
 
 .MinWidth10em {
-  min-width: 10em;
+  min-inline-size: 10em;
 }
 
 .MinWidth15em {
-  min-width: 15em;
+  min-inline-size: 15em;
 }
 
 .MinWidth20em {
-  min-width: 20em;
+  min-inline-size: 20em;
 }
 
 .bold {
@@ -50,15 +50,15 @@ body {
 }
 
 *|*.narrow {
-  width: 4em;
+  inline-size: 4em;
 }
 
 .menulist-narrow {
-  width: 10em;
+  inline-size: 10em;
 }
 
 .wrap {
-  width: 1em;
+  inline-size: 1em;
 }
 
 .menuitem-highlight-1 {
@@ -66,8 +66,8 @@ body {
 }
 
 .color-well {
-  width: 30px;
-  height: 12px;
+  inline-size: 30px;
+  block-size: 12px;
   border: 1px inset #cccccc;
   margin: auto;
 
@@ -82,7 +82,7 @@ body {
 }
 
 .color-button {
-  min-width: 0;
+  min-inline-size: 0;
   margin: 2px;
 
   & .button-text {
@@ -93,12 +93,12 @@ body {
 #spacingLabel,
 #alignLabel,
 #imagemapLabel {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 #ColorPickerSwatch {
-  width: 12px;
-  height: 12px;
+  inline-size: 12px;
+  block-size: 12px;
   border-radius: 50%;
   margin-inline: -21px 10px;
   border: 1px solid var(--field-border-color);
@@ -113,8 +113,8 @@ body {
 }
 
 #LastPickedColor {
-  width: 12px;
-  height: 12px;
+  inline-size: 12px;
+  block-size: 12px;
   border-radius: 50%;
   margin-inline-start: 2px;
   border: 1px solid var(--field-border-color);
@@ -133,8 +133,8 @@ tree.list {
   border: 1px inset #ccc;
   margin-inline-start: 10px;
   padding: 0 5px;
-  min-width: 100px;
-  min-height: 50px;
+  min-inline-size: 100px;
+  min-block-size: 50px;
 }
 
 #alignTypeSelect {
@@ -170,17 +170,17 @@ tree.list {
 
 #MisspelledWord {
   font-weight: bold;
-  max-width: 16em;
+  max-inline-size: 16em;
   text-overflow: ellipsis;
 }
 
 #ReplaceWordInput {
-  min-width: 16em;
-  width: 16em;
+  min-inline-size: 16em;
+  inline-size: 16em;
 }
 
 .spell-check {
-  min-width: 8em;
+  min-inline-size: 8em;
 }
 
 /* ::::: color picker ::::: */
@@ -191,7 +191,7 @@ tree.list {
   /* This should be the same as for textbox */
   margin-inline-start: 4px;
   /* For a little extra space between buttons */
-  margin-bottom: 2px;
+  margin-block-end: 2px;
 
   &:active {
     border: 1px inset #cccccc;
@@ -199,37 +199,37 @@ tree.list {
 }
 
 .smallspacer {
-  width: 3px;
-  height: 3px;
-  min-width: 3px;
-  min-height: 3px;
+  inline-size: 3px;
+  block-size: 3px;
+  min-inline-size: 3px;
+  min-block-size: 3px;
 }
 
 .spacer {
-  width: 5px;
-  height: 5px;
-  min-width: 5px;
-  min-height: 5px;
+  inline-size: 5px;
+  block-size: 5px;
+  min-inline-size: 5px;
+  min-block-size: 5px;
 }
 
 .bigspacer {
-  width: 10px;
-  height: 10px;
-  min-width: 10px;
-  min-height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
+  min-inline-size: 10px;
+  min-block-size: 10px;
 }
 
 /* These should be the width of the checkbox and radio button images + margin + padding
    Used to indent below those to the level of the text label next to image
 */
 .checkbox-spacer {
-  width: 2em;
-  min-width: 2em;
+  inline-size: 2em;
+  min-inline-size: 2em;
 }
 
 .radio-spacer {
-  width: 2em;
-  min-width: 2em;
+  inline-size: 2em;
+  min-inline-size: 2em;
 }
 
 .align-menu {
@@ -259,12 +259,12 @@ tree.list {
 */
 #preview-image-box {
   border: 1px inset #cccccc;
-  width: 82px;
-  max-width: 82px;
-  min-width: 82px;
-  height: 52px;
-  max-height: 52px;
-  min-height: 52px;
+  inline-size: 82px;
+  max-inline-size: 82px;
+  min-inline-size: 82px;
+  block-size: 52px;
+  max-block-size: 52px;
+  min-block-size: 52px;
   margin: 6px 5px;
   overflow: clip;
 }
@@ -279,8 +279,8 @@ tree.list {
 }
 
 .AttributesTree {
-  min-width: 200px;
-  min-height: 200px;
+  min-inline-size: 200px;
+  min-block-size: 200px;
 }
 
 html|fieldset {
@@ -289,13 +289,13 @@ html|fieldset {
   border: none;
 
   & > :is(hbox, vbox, radiogroup, menulist) {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 }
 
 html|legend {
   font-weight: bold;
-  margin-top: -1em;
+  margin-block-start: -1em;
   margin-inline-start: 3px;
   padding-inline: 3px;
 }
@@ -315,14 +315,14 @@ html|table html|th {
 
 #SuggestedList {
   flex-direction: column;
-  max-height: 10em;
+  max-block-size: 10em;
 }
 
 #dictionary-list {
   list-style-type: none;
   padding: 6px 3px;
   margin: 0;
-  max-height: 5em;
+  max-block-size: 5em;
   overflow-y: auto;
 }
 

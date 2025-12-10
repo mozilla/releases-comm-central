@@ -35,8 +35,8 @@ vcard-special-date select:not([size], [multiple]) {
   margin: 0;
   border: var(--input-border-density) solid var(--toolbar-field-border-color);
   padding-block: 0;
-  min-height: initial;
-  height: calc(var(--button-height) - 2px);
+  min-block-size: initial;
+  block-size: calc(var(--button-height) - 2px);
   margin-block-end: 3px;
   margin-inline-end: 3px;
   font-weight: normal;
@@ -65,7 +65,7 @@ vcard-edit {
   }
 
   & input[type="email"] {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 
   & input[type="url"],
@@ -96,7 +96,7 @@ vcard-edit {
 
   & textarea {
     /* 3px is for the margin-end. */
-    width: calc(100% - 3px);
+    inline-size: calc(100% - 3px);
     box-sizing: border-box;
     border: var(--input-border-density) solid var(--toolbar-field-border-color);
     margin-block: 0 3px;
@@ -124,8 +124,8 @@ vcard-n {
   flex-direction: column;
 
   & button {
-    min-width: auto;
-    min-height: auto;
+    min-inline-size: auto;
+    min-block-size: auto;
     display: inline-flex;
     margin: 0;
     padding: 3px;
@@ -138,8 +138,8 @@ vcard-n {
   & button img {
     -moz-context-properties: fill;
     fill: currentColor;
-    width: 9px;
-    height: 9px;
+    inline-size: 9px;
+    block-size: 9px;
   }
 
   & button[hidden] {
@@ -152,7 +152,7 @@ vcard-n {
   flex: 0 0 0%;
 
   & input {
-    width: 10ch;
+    inline-size: 10ch;
     box-sizing: border-box;
   }
 }
@@ -163,9 +163,9 @@ vcard-n {
   flex: 1 0 0%;
 
   & input {
-    min-width: 20ch;
+    min-inline-size: 20ch;
     box-sizing: border-box;
-    width: 100%;
+    inline-size: 100%;
   }
 }
 
@@ -223,12 +223,12 @@ vcard-nickname {
   }
 
   & td.email-column {
-    width: 100%;
+    inline-size: 100%;
   }
 
   /* Email fieldset styles */
   & table {
-    width: 100%;
+    inline-size: 100%;
     border-collapse: collapse;
   }
 }
@@ -240,8 +240,8 @@ vcard-nickname {
 #vcard-email {
   & input[type="checkbox"]:not([hidden]) {
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     margin-inline: 0;
     margin-block: 0 3px;
     display: inline-grid;
@@ -266,8 +266,8 @@ vcard-nickname {
       &::before {
         content: "";
         display: block;
-        height: 8px;
-        width: 8px;
+        block-size: 8px;
+        inline-size: 8px;
         background-color: var(--button-background-color-primary);
         border-radius: 50%;
         position: absolute;
@@ -385,8 +385,8 @@ vcard-adr select {
   font-size: 1rem;
   font-weight: 500;
   border-radius: var(--button-border-radius);
-  min-height: auto;
-  width: fit-content;
+  min-block-size: auto;
+  inline-size: fit-content;
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
@@ -418,8 +418,8 @@ vcard-adr select {
     content: "";
     border-radius: 8px;
     background-color: var(--button-background-color-primary);
-    width: 13px;
-    height: 13px;
+    inline-size: 13px;
+    block-size: 13px;
     background-image: url("chrome://global/skin/icons/add.svg");
     background-position: center;
     background-repeat: no-repeat;
@@ -431,7 +431,7 @@ vcard-adr select {
 }
 
 .remove-property-button {
-  min-width: 0;
+  min-inline-size: 0;
   color: var(--vcard-remove-color);
   margin-block-end: 3px;
   -moz-context-properties: fill, stroke;
@@ -441,15 +441,15 @@ vcard-adr select {
 
   &.only-icon {
     justify-content: center;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     padding: 0;
   }
 
   &::before {
     content: "";
-    width: 12px;
-    height: 12px;
+    inline-size: 12px;
+    block-size: 12px;
     background-image: var(--icon-subtract-circle-sm);
     background-repeat: no-repeat;
     background-position: center;

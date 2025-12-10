@@ -13,7 +13,7 @@ body {
 #downloadTopBox {
   background-color: var(--toolbar-bgcolor);
   padding: 10px 18px;
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  border-block-end: 1px solid var(--chrome-content-separator-color);
 }
 
 #downloadBottomBox {
@@ -28,8 +28,8 @@ body {
   margin-block: 0;
 
   & > .download {
-    min-height: 5em;
-    border-bottom: 1px solid hsla(0, 0%, 50%, 0.3);
+    min-block-size: 5em;
+    border-block-end: 1px solid hsla(0, 0%, 50%, 0.3);
     border-radius: 3px;
   }
 
@@ -53,7 +53,7 @@ body {
 }
 
 #searchBox {
-  width: 22em;
+  inline-size: 22em;
   margin-inline-end: 0;
   --input-text-max-width: none;
 }
@@ -61,8 +61,8 @@ body {
 .fileTypeIcon {
   margin-inline: 8px;
   /* explicitly size the icon, so size doesn't vary on hidpi systems */
-  height: 32px;
-  width: 32px;
+  block-size: 32px;
+  inline-size: 32px;
 }
 
 .sender,
@@ -84,8 +84,8 @@ body {
 .downloadButton {
   align-items: center;
   background: transparent !important;
-  min-width: 0;
-  height: unset;
+  min-inline-size: 0;
+  block-size: unset;
   margin: 0;
   border: none !important;
   outline: none !important;
@@ -97,8 +97,8 @@ body {
     padding: 8px;
 
     & > .button-icon {
-      width: 16px;
-      height: 16px;
+      inline-size: 16px;
+      block-size: 16px;
       margin: 0;
       -moz-context-properties: fill;
       fill: currentColor;

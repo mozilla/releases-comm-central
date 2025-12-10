@@ -37,7 +37,7 @@
 
 #navigation-toolbox {
   background-color: transparent;
-  border-top: none;
+  border-block-start: none;
 
   :root:not([lwtheme]) & {
     background-color: -moz-headerbar;
@@ -70,15 +70,15 @@
 
       #navigation-toolbox,
       ::backdrop {
-        border-top-left-radius: env(-moz-gtk-csd-titlebar-radius);
-        border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
+        border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
+        border-start-end-radius: env(-moz-gtk-csd-titlebar-radius);
       }
 
       /* stylelint-disable-next-line media-query-no-invalid */
       @media -moz-pref("widget.gtk.rounded-bottom-corners.enabled") {
         body {
-          border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
-          border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);
+          border-end-start-radius: env(-moz-gtk-csd-titlebar-radius);
+          border-end-end-radius: env(-moz-gtk-csd-titlebar-radius);
         }
       }
     }
@@ -167,8 +167,8 @@
     background-repeat: no-repeat;
     -moz-context-properties: stroke;
     stroke: currentColor;
-    width: var(--titlebar-button-size);
-    height: var(--titlebar-button-size);
+    inline-size: var(--titlebar-button-size);
+    block-size: var(--titlebar-button-size);
 
     @media not (-moz-gtk-theme-family: breeze) {
       /* Matches the libadwaita transition */
@@ -259,12 +259,12 @@
 .inline-toolbar,
 .contentTabToolbar {
   appearance: none;
-  min-height: 15px;
+  min-block-size: 15px;
   padding: 0;
 }
 
 .inline-toolbar > toolbarseparator {
-  height: 28px;
+  block-size: 28px;
 }
 
 menubar > menu[disabled="true"] {
@@ -289,7 +289,7 @@ menulist > menupopup > menu:is(.menuitem-iconic, [type="radio"], [type="checkbox
 /* ::::: Toolbar customization ::::: */
 
 toolbarpaletteitem[place="toolbar"] > toolbarspacer {
-  width: 11px;
+  inline-size: 11px;
 }
 
 /* ::::: toolbarbutton menu-button ::::: */
@@ -362,7 +362,7 @@ treechildren::-moz-tree-cell-text {
   padding: 2px 4px;
   background-color: -moz-dialog;
   border: 1px none ThreeDShadow;
-  border-top-style: solid;
+  border-block-start-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
 
@@ -398,7 +398,7 @@ fieldset {
   & > hbox,
   & > vbox,
   & > radiogroup {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 }
 
@@ -409,15 +409,15 @@ legend {
 /* UI Density customization */
 
 treechildren::-moz-tree-row {
-  min-height: 1.6rem;
+  min-block-size: 1.6rem;
 }
 
 :root[uidensity="compact"] treechildren::-moz-tree-row {
-  min-height: 1.3rem;
+  min-block-size: 1.3rem;
 }
 
 :root[uidensity="touch"] treechildren::-moz-tree-row {
-  min-height: 2.4rem;
+  min-block-size: 2.4rem;
 }
 
 /* Infobar styles */
@@ -426,11 +426,11 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
   padding-inline: 0 12px;
 
   & > .toolbarbutton-menubutton-button {
-    min-height: calc(1.8em - 2px);
-    padding-top: 1px;
+    min-block-size: calc(1.8em - 2px);
+    padding-block-start: 1px;
   }
 }
 
 #reminderBarPopup {
-  margin-top: -4px;
+  margin-block-start: -4px;
 }

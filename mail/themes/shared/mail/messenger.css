@@ -24,8 +24,8 @@
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  block-size: 100%;
+  inline-size: 100%;
   overflow: clip;
 }
 
@@ -36,8 +36,8 @@ body {
 
 #messengerWindow {
   text-rendering: optimizeLegibility;
-  min-height: 95px;
-  min-width: 95px;
+  min-block-size: 95px;
+  min-inline-size: 95px;
 }
 
 p {
@@ -45,9 +45,9 @@ p {
 }
 
 hr {
-  width: 100%;
-  border-top: 1px solid var(--field-border-color);
-  border-bottom: 0;
+  inline-size: 100%;
+  border-block-start: 1px solid var(--field-border-color);
+  border-block-end: 0;
 }
 
 :root:not([sizemode="maximized"]) .titlebar-restore,
@@ -59,8 +59,8 @@ hr {
   overflow: hidden;
 
   &[inactive="true"]:not([customizing="true"]) {
-    min-height: 0 !important;
-    height: 0 !important;
+    min-block-size: 0 !important;
+    block-size: 0 !important;
     padding: 0 !important;
     appearance: none !important;
   }
@@ -267,8 +267,8 @@ toolbar[type="menubar"][autohide] {
   overflow: hidden;
 
   &[inactive="true"]:not([customizing="true"]) {
-    min-height: 0 !important;
-    height: 0 !important;
+    min-block-size: 0 !important;
+    block-size: 0 !important;
     appearance: none !important;
   }
 }
@@ -282,8 +282,8 @@ toolbar[customizing="true"][collapsed] {
 
 .toolbarbutton-1 {
   flex-direction: column;
-  min-height: 24px;
-  min-width: 32px;
+  min-block-size: 24px;
+  min-inline-size: 32px;
   margin: 4px 1px;
   padding: 1px 5px;
   -moz-context-properties: fill, stroke, fill-opacity;
@@ -331,7 +331,7 @@ toolbar[customizing="true"][collapsed] {
   }
 
   & > .toolbarbutton-menubutton-dropmarker {
-    min-width: 24px;
+    min-inline-size: 24px;
     background-image: var(--icon-nav-down-sm);
     background-position: center;
     background-repeat: no-repeat;
@@ -367,7 +367,7 @@ toolbar[customizing="true"][collapsed] {
   }
 
   toolbar[mode="full"] &:not([hideWebExtensionLabel="true"]) {
-    min-width: 55px;
+    min-inline-size: 55px;
   }
 
   toolbar:not([mode="text"]) &[hideWebExtensionLabel="true"] .toolbarbutton-text {
@@ -394,8 +394,8 @@ toolbar[customizing="true"][collapsed] {
      * default content-box sizing. */
     box-sizing: border-box;
     padding: 1px;
-    width: 18px;
-    height: 18px;
+    inline-size: 18px;
+    block-size: 18px;
   }
 
   /* Separator between menu and split type buttons */
@@ -445,8 +445,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  min-height: 24px;
-  min-width: 32px;
+  min-block-size: 24px;
+  min-inline-size: 32px;
   margin: 4px 1px;
   padding: 1px 5px;
 
@@ -486,7 +486,7 @@ description.error {
 }
 
 .sidebar-header {
-  min-height: 25px;
+  min-block-size: 25px;
   text-shadow: none;
 
   & > xul|label {
@@ -509,7 +509,7 @@ menubar {
 }
 
 menulist {
-  min-height: 24px;
+  min-block-size: 24px;
   margin-block: 4px;
   color: var(--button-text-color);
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
@@ -551,7 +551,7 @@ menulist {
   &::part(dropmarker-icon) {
     -moz-context-properties: stroke;
     stroke: currentColor;
-    width: 16px;
+    inline-size: 16px;
   }
 }
 
@@ -560,8 +560,8 @@ menulist {
 button,
 html|input[type="color"] {
   appearance: none;
-  min-height: 24px;
-  min-width: 5.5em;
+  min-block-size: 24px;
+  min-inline-size: 5.5em;
   color: inherit;
   border: 1px solid var(--button-border-color);
   border-radius: var(--button-border-radius);
@@ -596,9 +596,9 @@ button.plain-button {
   /* grid display ensures the button only takes up the same room as its
    * content. */
   display: inline grid;
-  height: -moz-fit-content;
-  min-height: auto;
-  min-width: -moz-fit-content;
+  block-size: -moz-fit-content;
+  min-block-size: auto;
+  min-inline-size: -moz-fit-content;
   border: none;
   background: none;
 
@@ -612,7 +612,7 @@ button[is="toolbarbutton-menu-button"] {
 
   & > .button-box > button {
     appearance: none;
-    min-width: 5.5em;
+    min-inline-size: 5.5em;
     background: transparent;
     border-color: transparent;
     border-inline-end-color: var(--toolbarbutton-active-bordercolor);
@@ -633,7 +633,7 @@ img.invisible-on-broken:-moz-broken {
 }
 
 .popup-notification-button {
-  height: auto;
+  block-size: auto;
   border-style: none;
   border-radius: 0;
 }
@@ -644,8 +644,8 @@ img.invisible-on-broken:-moz-broken {
   gap: 9px;
 
   & > .notification-anchor-icon {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     -moz-context-properties: fill, stroke;
     fill: color-mix(in srgb, var(--toolbarbutton-icon-fill, currentColor) 20%, transparent);
     stroke: var(--toolbarbutton-icon-fill, currentColor);
@@ -664,8 +664,8 @@ img.invisible-on-broken:-moz-broken {
 }
 
 .popup-notification-icon {
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
   margin-inline-end: 12px;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -699,8 +699,8 @@ img.invisible-on-broken:-moz-broken {
 
 .popup-notification-body[popupid="addon-progress"],
 .popup-notification-body[popupid="addon-install-confirmation"] {
-  width: 28em;
-  max-width: 28em;
+  inline-size: 28em;
+  max-inline-size: 28em;
 }
 
 .addon-install-confirmation-name {
@@ -718,7 +718,7 @@ html|*.addon-webext-perm-list {
 }
 
 .addon-webext-perm-title-required {
-  margin-top: 11px;
+  margin-block-start: 11px;
   margin-inline-start: -1px;
   font-weight: bold;
 }
@@ -735,7 +735,7 @@ html|*.addon-webext-perm-list {
 }
 
 #addon-webext-experiment-warning {
-  margin-top: 11px;
+  margin-block-start: 11px;
   margin-inline-start: 0;
 }
 
@@ -754,7 +754,7 @@ html|*.addon-webext-perm-list {
 }
 
 html|ul.addon-installed-list {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .chromeclass-toolbar {
@@ -762,7 +762,7 @@ html|ul.addon-installed-list {
 
   & toolbarseparator {
     appearance: none;
-    min-width: 1px;
+    min-inline-size: 1px;
     background-image: linear-gradient(
       transparent 4px,
       var(--toolbarseparator-color) 4px,
@@ -802,8 +802,8 @@ toolbarpaletteitem toolbarbutton {
   display: grid;
 
   & img {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     align-self: center;
     justify-self: center;
     -moz-context-properties: fill;
@@ -835,9 +835,9 @@ panelmultiview[transitioning] {
 .panel-viewcontainer {
   overflow: hidden;
   flex-shrink: 0;
-  min-width: 0;
-  min-height: 0;
-  max-height: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  max-block-size: 100%;
 
   &[panelopen] {
     transition-property: height;
@@ -861,10 +861,10 @@ panelmultiview[transitioning] {
 statuspanel {
   position: fixed;
   display: block;
-  left: 0;
-  bottom: 0;
+  inset-inline-start: 0;
+  inset-block-end: 0;
   z-index: 20;
-  max-width: 50%;
+  max-inline-size: 50%;
   transition:
     opacity 120ms ease-out,
     visibility 120ms;
@@ -884,7 +884,7 @@ statuspanel {
 }
 
 .statuspanel-inner {
-  height: 3em;
+  block-size: 3em;
   align-items: flex-end;
 }
 
@@ -896,8 +896,8 @@ statuspanel {
 
 .statusbar {
   background-color: var(--layout-background-1);
-  border-top: 1px solid var(--splitter-color);
-  min-height: 22px;
+  border-block-start: 1px solid var(--splitter-color);
+  min-block-size: 22px;
 }
 
 :root[lwtheme] #status-bar {
@@ -909,7 +909,7 @@ statuspanel {
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
-  border-top-color: var(--lwt-tabs-border-color);
+  border-block-start-color: var(--lwt-tabs-border-color);
 
   & toolbarbutton {
     color: var(--lwt-text-color, inherit);
@@ -933,7 +933,7 @@ label.statusbarpanel {
 #shutdown_progressmeter,
 .progressmeter-statusbar {
   appearance: none;
-  height: 4px;
+  block-size: 4px;
   background-color: hsla(0, 0%, 60%, 0.2);
   border-style: none;
   border-radius: 2px;
@@ -1006,9 +1006,9 @@ label.statusbarpanel {
 /* status bar adjustments */
 
 #quotaMeter {
-  min-width: 8em;
-  max-width: 8em;
-  height: 10px;
+  min-inline-size: 8em;
+  max-inline-size: 8em;
+  block-size: 10px;
   border: 1px solid var(--chrome-content-separator-color);
 }
 
@@ -1038,7 +1038,7 @@ label.statusbarpanel {
   text-align: center;
   font-size: 0.8rem;
   text-decoration: none;
-  margin-top: -1px;
+  margin-block-start: -1px;
 }
 
 /* searchTermOverlay */
@@ -1058,13 +1058,13 @@ label.statusbarpanel {
 }
 
 #findbar-beforeReplaceSeparator {
-  height: 16px;
+  block-size: 16px;
 }
 
 findbar {
   background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color);
-  border-top-color: var(--chrome-content-separator-color, ThreeDShadow);
+  border-block-start-color: var(--chrome-content-separator-color, ThreeDShadow);
 
   :root[lwtheme] & {
     background-color: var(--lwt-accent-color);
@@ -1090,10 +1090,10 @@ findbar {
 #messagepanebox > findbar {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
-  border-top-color: var(--splitter-color);
+  border-block-start-color: var(--splitter-color);
 
   & > .findbar-container {
-    min-width: 100px;
+    min-inline-size: 100px;
   }
 }
 
@@ -1107,7 +1107,7 @@ findbar {
 
 .panelButton {
   appearance: none;
-  min-height: 24px;
+  min-block-size: 24px;
   padding: 4px 6px;
   background-color: transparent;
   -moz-context-properties: fill, fill-opacity;
@@ -1177,7 +1177,7 @@ html|span.ac-emphasize-text {
 }
 
 .ac-url-text {
-  max-width: unset !important;
+  max-inline-size: unset !important;
 }
 
 /* Date/time picker anchor */
@@ -1193,22 +1193,22 @@ html|input[type="number"] {
 
   /* sizes: chars + 8px padding + 1px borders + spin buttons 14+0+10px  */
   &.size2 {
-    width: calc(2ch + 44px);
+    inline-size: calc(2ch + 44px);
   }
   &.size3 {
-    width: calc(3ch + 44px);
+    inline-size: calc(3ch + 44px);
   }
   &.size4 {
-    width: calc(4ch + 44px);
+    inline-size: calc(4ch + 44px);
   }
   &.size5 {
-    width: calc(5ch + 44px);
+    inline-size: calc(5ch + 44px);
   }
 }
 
 /* Fix the height of the print preview toolbar */
 #print-preview-toolbar {
-  max-height: 2.5em;
+  max-block-size: 2.5em;
 }
 
 /* Toolbar customization */
@@ -1230,7 +1230,7 @@ toolbarpaletteitem[type="spring"][place="toolbar"] {
 
 toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
-  height: 16px;
+  block-size: 16px;
   margin-inline: 6px;
   opacity: 0.5;
   border-inline: 2px solid currentColor;
@@ -1239,14 +1239,14 @@ toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
 
 toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
   appearance: none;
-  width: 1px;
-  height: 50px;
+  inline-size: 1px;
+  block-size: 50px;
   background-color: currentColor;
 }
 
 toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
-  margin-bottom: 2px;
+  margin-block-end: 2px;
   border: 1px solid currentColor;
   background-color: hsla(0, 0%, 100%, 0.3) !important;
 }
@@ -1267,7 +1267,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
 }
 
 .image-container > html|img {
-  width: 32px;
+  inline-size: 32px;
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -1327,7 +1327,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
   &[resizable="true"] {
     resize: both;
     overflow: hidden;
-    min-height: 20em;
+    min-block-size: 20em;
   }
 
   &[sizeto="available"] {
@@ -1339,10 +1339,10 @@ panel[type="arrow"].panel-block-padding::part(content) {
     --box-max-height-margin: calc(100vh - var(--box-top-px) - var(--box-block-margin));
     --box-max-width-ratio: 70vw;
     --box-max-height-ratio: calc(var(--box-ideal-height) / var(--box-ideal-width) * var(--box-max-width-ratio));
-    max-width: min(max(var(--box-ideal-width) * 1px, var(--box-max-width-ratio)), var(--box-max-width-margin));
-    max-height: min(max(var(--box-ideal-height) * 1px, var(--box-max-height-ratio)), var(--box-max-height-margin));
-    width: 100vw;
-    height: 85vh; /* This is 100vh in Firefox but we have less space to work with. */
+    max-inline-size: min(max(var(--box-ideal-width) * 1px, var(--box-max-width-ratio)), var(--box-max-width-margin));
+    max-block-size: min(max(var(--box-ideal-height) * 1px, var(--box-max-height-ratio)), var(--box-max-height-margin));
+    inline-size: 100vw;
+    block-size: 85vh; /* This is 100vh in Firefox but we have less space to work with. */
 
     @media (min-width: 550px) {
       --box-inline-margin: min(calc(4px + (100vw - 550px) / 4), 16px);
@@ -1364,7 +1364,7 @@ panel[type="arrow"].panel-block-padding::part(content) {
 
 :not(.content-prompt-dialog) > .dialogOverlay > .dialogBox {
   /* Make dialogs overlap with upper chrome UI. */
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 /* Infobar styles */
@@ -1399,8 +1399,8 @@ panel[type="arrow"].panel-block-padding::part(content) {
   &.small-button {
     font-size: inherit;
     font-weight: 400;
-    max-height: 1.8em;
-    min-height: 24px;
+    max-block-size: 1.8em;
+    min-block-size: 24px;
     margin: 4px;
   }
 

@@ -14,8 +14,8 @@
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  block-size: 100%;
+  inline-size: 100%;
 }
 
 body {
@@ -56,7 +56,7 @@ header {
 }
 
 .main-container {
-  max-width: 80rem;
+  max-inline-size: 80rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -65,15 +65,15 @@ header {
 
 .column {
   flex: 1;
-  min-width: 400px;
+  min-inline-size: 400px;
 }
 
 .first-column {
-  max-width: 425px;
+  max-inline-size: 425px;
 }
 
 .column-wide {
-  max-width: 525px;
+  max-inline-size: 525px;
 }
 
 .second-column {
@@ -82,8 +82,8 @@ header {
   text-align: center;
 
   @media (max-width: 57rem) {
-    max-width: 425px;
-    margin-top: 2rem;
+    max-inline-size: 425px;
+    margin-block-start: 2rem;
 
     & img {
       display: none;
@@ -104,7 +104,7 @@ header {
   }
 
   & article p {
-    max-width: 40rem;
+    max-inline-size: 40rem;
     padding-inline: 4rem;
   }
 }
@@ -119,7 +119,7 @@ header {
     margin-inline: 0;
     padding-block: 0;
     padding-inline-end: 33px;
-    min-height: var(--button-height);
+    min-block-size: var(--button-height);
     border-radius: var(--button-border-radius);
 
     &[type="password"] {
@@ -161,8 +161,8 @@ header {
   border: none;
   padding: 0 4px;
   margin-inline: -30px 6px;
-  min-width: auto;
-  min-height: auto;
+  min-inline-size: auto;
+  min-block-size: auto;
   margin-block: 0;
   line-height: 0;
 
@@ -198,7 +198,7 @@ input:user-invalid ~ .form-icon {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: auto;
+  min-block-size: auto;
   border-radius: var(--button-border-radius);
 
   &:hover {
@@ -330,8 +330,8 @@ input:user-invalid ~ .form-icon {
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: currentColor;
     color: inherit;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
   }
 }
 
@@ -365,11 +365,11 @@ input:user-invalid ~ .form-icon {
 /* Confirmation dialog */
 
 .account-setup-dialog {
-  max-width: 500px;
+  max-inline-size: 500px;
 
   /* Insecure dialog */
   &.dialog-critical {
-    max-width: 700px;
+    max-inline-size: 700px;
   }
 }
 
@@ -381,7 +381,7 @@ input:user-invalid ~ .form-icon {
   & select,
   & input:not([type="radio"], [type="checkbox"]) {
     margin: 0;
-    width: 4em;
+    inline-size: 4em;
     flex: 1;
   }
 
@@ -411,7 +411,7 @@ input:user-invalid ~ .form-icon {
   }
 
   & legend {
-    margin-top: 0;
+    margin-block-start: 0;
     background-color: var(--button-background-color-primary);
     border-radius: var(--button-border-radius);
     padding: 2px 6px;
@@ -421,7 +421,7 @@ input:user-invalid ~ .form-icon {
   }
 
   & input[type="number"] {
-    width: calc(2ch + 60px);
+    inline-size: calc(2ch + 60px);
     text-align: end;
   }
 }
@@ -431,7 +431,7 @@ input:user-invalid ~ .form-icon {
   row-gap: 12px;
 
   & ~ & {
-    margin-top: 15px;
+    margin-block-start: 15px;
   }
 
   & aside {
@@ -466,7 +466,7 @@ input:user-invalid ~ .form-icon {
 
 #outgoingProtocol {
   display: flex;
-  height: 100%;
+  block-size: 100%;
   align-items: center;
   font-weight: 500;
   margin-inline: 4px;
@@ -527,8 +527,8 @@ input:user-invalid ~ .form-icon {
 }
 
 #resultAddonInstallRows .icon {
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
   margin-inline-end: 6px;
 }
 
@@ -564,7 +564,7 @@ select[disabled] {
   column-gap: 6px;
   padding: 3px 9px;
   border-radius: var(--button-border-radius);
-  min-height: 39px;
+  min-block-size: 39px;
   line-height: 1em;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -583,8 +583,8 @@ button.linked-services-button {
   appearance: none;
   margin: 0;
   padding-inline: 0;
-  width: 100%;
-  height: auto;
+  inline-size: 100%;
+  block-size: auto;
 
   &:hover {
     background-color: transparent;
@@ -646,7 +646,7 @@ button.linked-services-button {
   background-repeat: no-repeat;
   background-size: 16px;
   background-color: transparent;
-  min-height: auto;
+  min-block-size: auto;
   border-radius: 0;
   cursor: pointer;
   text-align: start;
@@ -696,7 +696,7 @@ button.linked-services-button {
   & h3 {
     font-size: 1.6rem;
     font-weight: 300;
-    margin-bottom: 0;
+    margin-block-end: 0;
   }
 
   & p.tip-caption {
@@ -716,14 +716,14 @@ button.linked-services-button {
 }
 
 .linked-services-section {
-  margin-top: 18px;
+  margin-block-start: 18px;
 }
 
 .linked-services-list {
   list-style: none;
   padding-inline: 0 3px;
   margin-block: 0;
-  max-height: 15em;
+  max-block-size: 15em;
   overflow: auto;
 
   & li {
@@ -794,7 +794,7 @@ button.existing {
 }
 
 #calendarDialog {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .input-grow {

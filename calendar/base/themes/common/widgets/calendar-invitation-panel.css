@@ -5,12 +5,12 @@
 
 :host(calendar-invitation-panel) {
   background-color: Field;
-  width: auto;
+  inline-size: auto;
   border: 1px solid var(--splitter-color);
 }
 
 :host(calendar-invitation-panel) .notificationbox-stack {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px 20px;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .calendar-invitation-panel-title {
-  margin-bottom: 5px;
+  margin-block-end: 5px;
   display: flex;
   justify-content: center;
 }
@@ -46,7 +46,7 @@
 }
 
 .calendar-invitation-panel-response-buttons button {
-  min-height: 2.5em;
+  min-block-size: 2.5em;
   font-size: 0.8em;
 }
 
@@ -79,7 +79,7 @@
 
 .calendar-invitation-panel-props td.content {
   overflow-y: auto;
-  max-width: 28em;
+  max-inline-size: 28em;
   word-break: break-word;
 }
 
@@ -116,8 +116,8 @@ calendar-invitation-interval {
 }
 
 .calendar-invitation-panel-list li img {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 .calendar-invitation-panel-list li span.removed {

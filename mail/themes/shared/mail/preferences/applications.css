@@ -15,7 +15,7 @@
 }
 
 #filter {
-  width: 100%;
+  inline-size: 100%;
 }
 
 #handlersSortSelect {
@@ -23,19 +23,19 @@
 }
 
 #handlersView {
-  height: 210px;
+  block-size: 210px;
   overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
 #handlersTable {
-  width: 100%;
+  inline-size: 100%;
   border-spacing: 0;
 
   & thead > tr {
     position: sticky;
-    top: 0;
+    inset-block-start: 0;
     /* Background color is needed for sticky headers. */
     background-color: var(--background-color-canvas);
 
@@ -77,7 +77,7 @@
 
   & :is(th, td) {
     padding: 0;
-    width: 50%;
+    inline-size: 50%;
   }
 }
 
@@ -87,7 +87,7 @@
   border: none;
   border-radius: 0;
   margin: 0;
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -103,7 +103,7 @@
 
 .handlerSortHeaderIcon {
   display: inline-block;
-  width: 12px;
+  inline-size: 12px;
   -moz-context-properties: stroke;
   stroke: currentColor;
 
@@ -131,8 +131,8 @@
 }
 
 .typeIcon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   margin-inline: 10px 9px;
 
   &:not([srcset], [src]) {
@@ -143,7 +143,7 @@
 .actionsMenu {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  inline-size: 100%;
   border-radius: 0;
   margin: 0;
   padding-block: 0;
@@ -154,8 +154,8 @@
 
   &::part(icon) {
     margin-inline: 5px !important;
-    height: 16px;
-    width: 16px;
+    block-size: 16px;
+    inline-size: 16px;
   }
 
   & > menupopup > menuitem > .menu-icon {
@@ -164,7 +164,7 @@
       * Note: we display the icon box for every item whether or not it has an icon
       * so the labels of all the items align vertically. */
     display: flex;
-    min-width: 16px;
+    min-inline-size: 16px;
   }
 }
 
@@ -173,12 +173,12 @@
  */
 
 #provider-listing {
-  width: 200px;
+  inline-size: 200px;
 }
 
 #cloudFileDefaultPanel {
   text-align: center;
-  padding-top: 150px;
+  padding-block-start: 150px;
 }
 
 #addCloudFileAccount {
@@ -205,8 +205,8 @@
   }
 
   & .button-icon {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     margin-inline-end: 8px;
   }
 }
@@ -229,7 +229,7 @@
 }
 
 #cloudFileView > richlistitem {
-  min-height: 35px;
+  min-block-size: 35px;
 }
 
 .cloudfileAccount {
@@ -240,8 +240,8 @@
   }
 
   & > input {
-    min-width: 10ch !important;
-    width: 10ch;
+    min-inline-size: 10ch !important;
+    inline-size: 10ch;
   }
 
   &:not([selected]) > label {
@@ -250,5 +250,5 @@
 }
 
 #cloudFileToggleAndThreshold {
-  padding-bottom: 6px;
+  padding-block-end: 6px;
 }

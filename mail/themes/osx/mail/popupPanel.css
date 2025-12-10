@@ -24,6 +24,6 @@ html|input.editContactTextbox {
 }
 
 #messageHeaderCustomizationPanel {
-  margin-top: -6px;
+  margin-block-start: -6px;
   margin-inline-end: 6px;
 }

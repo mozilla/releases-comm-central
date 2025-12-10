@@ -38,8 +38,8 @@
 
 #threadTree tbody {
   & button {
-    min-height: auto;
-    min-width: auto;
+    min-block-size: auto;
+    min-inline-size: auto;
     padding: 0;
     margin: 0;
     background-color: transparent;
@@ -114,7 +114,7 @@
 #sizeCol,
 #unreadCol,
 #totalCol {
-  min-width: 4ch;
+  min-inline-size: 4ch;
 }
 
 #sizeColButton,
@@ -260,7 +260,7 @@ tr[data-properties~="flagged"] .button-star {
 :is(.attachmentcol-column img, .attachment-icon) {
   content: var(--icon-attachment-sm);
   color: var(--tree-view-color);
-  margin-top: 1px;
+  margin-block-start: 1px;
   opacity: 0.7;
 }
 
@@ -339,7 +339,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
     display: flex;
     align-items: center;
     gap: 6px;
-    max-height: inherit;
+    max-block-size: inherit;
     box-sizing: border-box;
   }
 
@@ -352,8 +352,8 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 
     & img {
       visibility: hidden;
-      width: 16px;
-      height: 16px;
+      inline-size: 16px;
+      block-size: 16px;
       vertical-align: middle;
       margin-block-start: -2px;
       margin-inline-end: 3px;
@@ -430,8 +430,8 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
 }
 
 .table-layout .twisty {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   flex-shrink: 0;
   color: var(--tree-view-color);
 }
@@ -444,8 +444,8 @@ tr:is(.table-layout, .card-layout) {
   }
 
   & .twisty-icon {
-    width: 12px;
-    height: 12px;
+    inline-size: 12px;
+    block-size: 12px;
     content: var(--icon-nav-down-sm);
     margin: 1px;
 
@@ -557,7 +557,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   color: var(--layout-color-1);
   padding-inline: var(--thread-pane-header-padding);
   background-color: var(--layout-background-1);
-  border-bottom: 1px solid var(--layout-border-0);
+  border-block-end: 1px solid var(--layout-border-0);
 }
 
 :root[lwtheme][lwt-tree] .list-header-bar {

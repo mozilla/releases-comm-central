@@ -8,18 +8,18 @@ button.calendar-daypicker {
 }
 
 button.calendar-daypicker[mode="monthly-days"] {
-  min-width: 35px;
-  height: 15px;
+  min-inline-size: 35px;
+  block-size: 15px;
 }
 
 button.calendar-daypicker[mode="daypicker-weekday"] {
-  min-width: 36px;
-  height: 32px;
+  min-inline-size: 36px;
+  block-size: 32px;
 }
 
 hbox:last-child > button.calendar-daypicker:last-child[mode="monthly-days"] {
-  width: 140px;
-  height: 15px;
+  inline-size: 140px;
+  block-size: 15px;
 }
 
 button.calendar-daypicker[checked="true"] {

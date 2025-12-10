@@ -54,7 +54,7 @@
 
 #calendar-task-details-grid {
   padding: 1px 2px 0.2em;
-  width: 100%;
+  inline-size: 100%;
 }
 
 #calendar-task-details-title {
@@ -70,8 +70,8 @@
 
 #calendar-task-details-grid > tr > td {
   padding-inline-start: 6px;
-  text-align: left;
-  width: 100%;
+  text-align: start;
+  inline-size: 100%;
 }
 
 #calendar-task-details-grid > tr > td > label {
@@ -85,7 +85,7 @@
 }
 
 #task-addition-box {
-  border-bottom: 1px solid ThreeDShadow;
+  border-block-end: 1px solid ThreeDShadow;
 
   :root[lwt-tree] & {
     background-color: var(--toolbar-bgcolor);
@@ -119,11 +119,11 @@
 }
 
 #calendar-task-details-description {
-  width: 100%;
+  inline-size: 100%;
   box-sizing: border-box;
   background-color: var(--layout-background-1);
   border-width: 0;
-  border-top: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--splitter-color);
   margin-block: 0;
   padding-inline: 4px;
   outline: none;
@@ -131,7 +131,7 @@
 }
 
 .task-details-name {
-  text-align: right;
+  text-align: end;
   color: windowtext;
   opacity: 0.5; /* lower contrast */
 }
@@ -143,16 +143,16 @@
 }
 
 #calendar-task-details-attachment-row {
-  border-top: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--splitter-color);
   padding-block: 2px;
 }
 
 #calendar-task-details-attachment-rows {
-  max-height: 60px;
+  max-block-size: 60px;
 }
 
 .task-details-value {
-  text-align: left;
+  text-align: start;
   color: WindowText;
 }
 
@@ -165,16 +165,16 @@
 #calendar-task-tree {
   background-color: var(--layout-background-0);
   color: var(--layout-color-1);
-  min-height: 98px;
+  min-block-size: 98px;
   margin-inline: 1px;
 }
 
 #calendar-task-tree-detail {
-  border-top: 1px solid ThreeDShadow;
+  border-block-start: 1px solid ThreeDShadow;
   margin: 3px 0;
 
   :root[lwtheme] & {
-    border-top-color: var(--splitter-color);
+    border-block-start-color: var(--splitter-color);
   }
 }
 
@@ -192,7 +192,7 @@
 }
 
 #unifinder-todo-tree > .calendar-task-tree {
-  margin-bottom: 3px;
+  margin-block-end: 3px;
 }
 
 /* ::::: task actions toolbar ::::: */

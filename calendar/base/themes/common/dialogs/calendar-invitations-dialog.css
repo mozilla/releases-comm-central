@@ -4,7 +4,7 @@
 
 #dialog-box {
   overflow: auto;
-  height: 290px;
+  block-size: 290px;
 }
 
 .calendar-invitations-updating-icon {
@@ -22,13 +22,13 @@
 #invitationContainer {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-block-size: 0;
 }
 
 richlistitem[is="calendar-invitations-richlistitem"] {
   padding: 6px 7px;
-  min-height: 25px;
-  border-bottom: 1px dotted #808080;
+  min-block-size: 25px;
+  border-block-end: 1px dotted #808080;
 
   @media (-moz-overlay-scrollbars) {
     padding-inline-end: env(scrollbar-inline-size);
@@ -47,8 +47,8 @@ richlistitem[is="calendar-invitations-richlistitem"] {
 .calendar-invitations-richlistitem-icon {
   /* Crops the src of the image. */
   object-fit: none;
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
   margin-inline-end: 3px;
 }
 
@@ -65,7 +65,7 @@ richlistitem[is="calendar-invitations-richlistitem"] {
 }
 
 .calendar-invitations-richlistitem-button {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
   visibility: hidden;
 }
 

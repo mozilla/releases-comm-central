@@ -30,7 +30,7 @@ menupopup {
   font: menu;
   font-size: inherit;
   text-align: start;
-  min-width: 12ch;
+  min-inline-size: 12ch;
 
   @media not (-moz-windows-mica-popups) {
     --panel-background: var(--arrowpanel-background);
@@ -46,7 +46,7 @@ menupopup {
   & > :is(menu, menuitem) {
     appearance: none;
     margin: var(--menu-item-margin);
-    min-height: 24px;
+    min-block-size: 24px;
     padding-inline: 8px;
     padding-block: var(--menu-item-padding);
     border-radius: 3px;
@@ -216,8 +216,8 @@ menupopup {
         box-sizing: border-box;
         background-color: var(--indicator-background);
         border-radius: 4px;
-        width: 12px;
-        height: 4px;
+        inline-size: 12px;
+        block-size: 4px;
         margin-block: -6px 1px;
       }
     }

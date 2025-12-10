@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #feedSubscriptions {
-  min-width: 60em;
-  min-height: 40em;
+  min-inline-size: 60em;
+  min-block-size: 40em;
 }
 
 #rssSubscriptionsList > treechildren::-moz-tree-image {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, fill-opacity, stroke;
   fill: color-mix(in srgb, var(--default) 20%, transparent);
   stroke: var(--default);
@@ -22,7 +22,7 @@
 #rssFeedInfoBox {
   border: 1px solid ThreeDShadow;
   margin: 4px;
-  padding-top: 4px;
+  padding-block-start: 4px;
   background-color: rgba(0, 0, 0, 0.05);
 
   :root[lwt-tree] & {
@@ -35,9 +35,9 @@
 }
 
 #autotagPrefix {
-  max-width: 15em;
+  max-inline-size: 15em;
 }
 
 #statusContainerBox {
-  height: 2.4em;
+  block-size: 2.4em;
 }

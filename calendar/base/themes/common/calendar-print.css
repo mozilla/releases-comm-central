@@ -31,7 +31,7 @@
 }
 
 #calendar-print select {
-  width: 100%;
+  inline-size: 100%;
 }
 
 #calendar-print label.indent {
@@ -41,7 +41,7 @@
 
 calendar-minimonth {
   padding: 0;
-  width: 100%;
+  inline-size: 100%;
 }
 
 #next-button-container,
@@ -58,9 +58,9 @@ calendar-minimonth {
 }
 
 #back-button-container {
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 #button-container {
-  margin-top: 8px;
+  margin-block-start: 8px;
 }

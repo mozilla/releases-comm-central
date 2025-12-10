@@ -34,7 +34,7 @@ html|input {
 
   &[type="number"]::-moz-number-spin-up,
   &[type="number"]::-moz-number-spin-down {
-    min-height: 0.7em;
+    min-block-size: 0.7em;
   }
 }
 
@@ -50,7 +50,7 @@ menulist[is="menulist-editable"][editable="true"] {
   }
 
   &::part(dropmarker) {
-    width: initial;
+    inline-size: initial;
     margin-inline-end: 3px;
   }
 }
@@ -64,7 +64,7 @@ button menupopup menuitem {
 }
 
 menupopup > menu::after {
-  height: 1em;
+  block-size: 1em;
   margin-inline-end: 3px;
   transform: scale(0.7);
 }

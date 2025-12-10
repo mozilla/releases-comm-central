@@ -36,13 +36,13 @@
 
 .selectColumnHeader {
   cursor: pointer;
-  min-width: 28px;
+  min-inline-size: 28px;
 }
 
 .selectColumnHeader > .treecol-icon,
 treechildren::-moz-tree-image(selectCol) {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   stroke: currentColor;
@@ -91,7 +91,7 @@ treechildren::-moz-tree-image(deleteCol, selected, focus) {
 
 .threadColumnHeader {
   padding-inline-end: 1px;
-  width: 20px;
+  inline-size: 20px;
 }
 
 treechildren::-moz-tree-image(threadCol, container) {
@@ -233,8 +233,8 @@ treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
 treechildren::-moz-tree-image(subjectCol) {
   margin-inline-end: 2px;
   -moz-context-properties: fill, stroke;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 }
 
 treechildren::-moz-tree-image(subjectCol, replied) {

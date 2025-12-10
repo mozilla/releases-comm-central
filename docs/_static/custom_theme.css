@@ -4,12 +4,12 @@
 
 /* Increase the size of the content */
 .wy-nav-content {
-  max-width: 80% !important;
+  max-inline-size: 80% !important;
 }
 
 /* Increase the size of the tables */
 table.docutils {
-  width: 90%;
+  inline-size: 90%;
 }
 
 /* Override the default values for multiline text in a table */
@@ -19,7 +19,7 @@ table.docutils th {
 }
 
 .rst-content .line-block {
-  margin-bottom: 0 !important;
+  margin-block-end: 0 !important;
 }
 
 /* Add the strikethrough feature */
@@ -68,9 +68,9 @@ kbd {
 }
 
 table.docutils {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .rst-content td > ul {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }

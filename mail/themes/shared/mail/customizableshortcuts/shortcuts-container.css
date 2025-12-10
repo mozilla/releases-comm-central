@@ -11,8 +11,8 @@ dialog {
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: auto;
-  width: 600px;
-  height: 400px;
+  inline-size: 600px;
+  block-size: 400px;
   overflow: hidden;
   padding: 0;
   border: none;
@@ -61,7 +61,7 @@ shortcut-row {
   align-items: center;
   gap: 9px;
   padding-block: 6px;
-  border-bottom: 1px dashed var(--color-surface-border-intense);
+  border-block-end: 1px dashed var(--color-surface-border-intense);
   font-size: 1.1rem;
 
   & .content-area {

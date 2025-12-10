@@ -38,9 +38,9 @@
 
 #compose-toolbox {
   :root[lwtheme] &::after {
-    top: 100%;
-    margin-top: -1px;
-    border-bottom: 1px solid var(--chrome-content-separator-color);
+    inset-block-start: 100%;
+    margin-block-start: -1px;
+    border-block-end: 1px solid var(--chrome-content-separator-color);
     z-index: 1;
   }
 
@@ -50,14 +50,14 @@
 
   /* Inactive window state */
   & > toolbar:-moz-window-inactive {
-    border-top-color: rgba(255, 255, 255, 0.45);
-    border-bottom-color: rgba(0, 0, 0, 0.35);
+    border-block-start-color: rgba(255, 255, 255, 0.45);
+    border-block-end-color: rgba(0, 0, 0, 0.35);
   }
 }
 
 #composeToolbar2 {
   /* Cover the titlebar with the toolbox background */
-  margin-top: -22px;
+  margin-block-start: -22px;
   padding: 22px 4px 0;
 }
 
@@ -68,7 +68,7 @@ toolbar[nowindowdrag="true"] {
 /* Findbar */
 
 #findbar-replaceButton {
-  height: 18px;
+  block-size: 18px;
   margin-inline-start: 5px;
   padding-block: 2px;
 }
@@ -90,7 +90,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 #identityLabel-box {
-  margin-top: 3px;
+  margin-block-start: 3px;
 }
 
 #msgIdentity {
@@ -115,11 +115,11 @@ toolbar[nowindowdrag="true"] {
 /* ::::: attachment reminder ::::: */
 
 .notification-button[is="toolbarbutton-menu-button"] {
-  padding-top: 0;
+  padding-block-start: 0;
 
   & > button {
     appearance: none;
-    margin-bottom: -1px;
+    margin-block-end: -1px;
     margin-inline: -3px 3px;
     padding-inline-end: 5px;
     border-inline-end: 1px solid #9b9b9b;
@@ -127,12 +127,12 @@ toolbar[nowindowdrag="true"] {
 }
 
 #subjectLabel {
-  margin-top: 3px;
+  margin-block-start: 3px;
   margin-inline-end: 6px;
 }
 
 .address-label-container {
-  padding-top: 7px;
+  padding-block-start: 7px;
 }
 
 .address-container {
@@ -140,14 +140,14 @@ toolbar[nowindowdrag="true"] {
 
   & > .address-input {
     padding-block: 5px;
-    min-height: 14px;
+    min-block-size: 14px;
   }
 }
 
 #msgIdentity,
 .address-container,
 #msgSubject {
-  min-height: 26px;
+  min-block-size: 26px;
 }
 
 .address-pill {
@@ -159,7 +159,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 .pill-indicator {
-  margin-top: -2px;
+  margin-block-start: -2px;
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -192,7 +192,7 @@ toolbarbutton.formatting-button {
 }
 
 #FontFaceSelect {
-  max-width: 15em;
+  max-inline-size: 15em;
 }
 
 /* ::::: address book sidebar ::::: */
@@ -203,11 +203,11 @@ toolbarbutton.formatting-button {
 
 #titlebar {
   z-index: 1;
-  height: 22px;
+  block-size: 22px;
 }
 
 .titlebar-buttonbox-container {
-  margin-top: 3px;
+  margin-block-start: 3px;
   margin-inline-start: 7px;
 }
 

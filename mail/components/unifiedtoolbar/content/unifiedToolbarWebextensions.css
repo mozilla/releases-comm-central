@@ -5,8 +5,8 @@
 /* This file needs to be in content so it can load the moz-extension:// images. */
 
 .unified-toolbar .extension-action .button-icon {
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   margin-inline: 1px;
   content: var(--webextension-toolbar-image, inherit);
 

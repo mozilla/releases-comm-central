@@ -6,13 +6,13 @@
 
 html|label {
   white-space: nowrap;
-  margin-right: 0.5em;
+  margin-inline-end: 0.5em;
 }
 
 #publish-progressmeter {
-  width: -moz-available;
+  inline-size: -moz-available;
   appearance: none;
-  height: 4px;
+  block-size: 4px;
   margin: 10px 4px;
   background-color: hsla(0, 0%, 60%, 0.2);
   border-style: none;

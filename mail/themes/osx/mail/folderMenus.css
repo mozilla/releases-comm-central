@@ -11,7 +11,7 @@
 @media (min-resolution: 2dppx) {
   .folderMenuItem > .menu-icon,
   .folderMenuItem::part(icon) {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
   }
 }

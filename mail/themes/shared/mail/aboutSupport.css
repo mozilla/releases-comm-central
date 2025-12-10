@@ -20,7 +20,7 @@
 }
 
 #safe-mode-box > h3 {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 #check-show-private-data {
@@ -47,15 +47,15 @@ td.data-private {
 
 .calendar-table {
   & + & {
-    margin-top: 3em;
+    margin-block-start: 3em;
   }
 
   & > thead > th:nth-of-type(1) {
-    width: 25%;
+    inline-size: 25%;
   }
 
   & caption {
-    margin-bottom: 5px;
+    margin-block-end: 5px;
     font-weight: bold;
   }
 }

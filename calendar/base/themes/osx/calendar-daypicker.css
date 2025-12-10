@@ -5,14 +5,14 @@
 @import url(chrome://calendar/skin/shared/calendar-daypicker.css);
 
 button.calendar-daypicker {
-  border-top: 1px solid #808080;
-  border-left: 1px solid #808080;
+  border-block-start: 1px solid #808080;
+  border-inline-start: 1px solid #808080;
 }
 
 hbox:last-child > button.calendar-daypicker {
-  border-bottom: 1px solid #808080;
+  border-block-end: 1px solid #808080;
 }
 
 button.calendar-daypicker:last-child {
-  border-right: 1px solid #808080;
+  border-inline-end: 1px solid #808080;
 }

@@ -14,13 +14,13 @@ body {
 }
 
 dialog {
-  width: 100vw;
-  height: 100vh;
+  inline-size: 100vw;
+  block-size: 100vh;
 }
 
 .label-title {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
   color: var(--text-color);
 }
 
@@ -63,7 +63,7 @@ dialog {
   -moz-context-properties: fill, stroke-opacity;
   fill: currentColor;
   color: var(--primary-color);
-  width: 3.5em;
+  inline-size: 3.5em;
   margin: 10px;
 }
 

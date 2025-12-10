@@ -18,12 +18,11 @@
 
 #default_task_start,
 #default_task_due {
-  width: calc(100% - 16px); /* 16px is the sum of the element margins. */
+  inline-size: calc(100% - 16px); /* 16px is the sum of the element margins. */
 }
 
 #defaultsnoozelength {
-  margin-right: 10px;
-  margin-left: 10px;
+  margin-inline: 10px;
 }
 
 #alarm-sound-table {
@@ -38,16 +37,16 @@
 #eventdefalarm,
 #tododefalarm,
 #alarmSoundFileField {
-  width: calc(100% - 8px); /* 8px is the sum of the element margins. */
+  inline-size: calc(100% - 8px); /* 8px is the sum of the element margins. */
 }
 
 #alarm-sound-buttons-box,
 #calendar\.prefs\.alarm\.sound\.useDefault {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .defaultTimeBox {
-  width: 100%;
+  inline-size: 100%;
   margin-inline-start: 8px;
 }
 
@@ -58,7 +57,7 @@
 
 .dayOffCheckbox {
   flex-direction: row-reverse;
-  margin-top: -5px;
+  margin-block-start: -5px;
   margin-inline-end: -5px;
   padding-inline-start: 6px;
 }
@@ -72,5 +71,5 @@
 }
 
 #categorieslist {
-  height: 210px;
+  block-size: 210px;
 }

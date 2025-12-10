@@ -10,7 +10,7 @@
 
 .search-menulist,
 .search-value-menulist {
-  width: 11em;
+  inline-size: 11em;
 }
 
 .input-inline.search-value-input {
@@ -18,7 +18,7 @@
 }
 
 .small-button {
-  min-width: 3em;
+  min-inline-size: 3em;
   margin: 2px;
 }
 

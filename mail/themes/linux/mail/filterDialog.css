@@ -25,11 +25,11 @@
 
 .search-menulist,
 .search-value-menulist {
-  width: 16em;
+  inline-size: 16em;
 }
 
 .small-button {
-  min-width: 3em;
+  min-inline-size: 3em;
   padding: 0;
   margin: 2px;
 

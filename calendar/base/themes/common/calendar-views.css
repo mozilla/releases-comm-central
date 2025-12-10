@@ -161,8 +161,8 @@
 .calendar-item-container {
   display: flow-root;
   overflow: hidden;
-  min-height: 100%;
-  width: 100%;
+  min-block-size: 100%;
+  inline-size: 100%;
 }
 
 .calendar-item-container > .location-desc {
@@ -189,8 +189,8 @@
 
 .calendar-item-flex img {
   flex: 0 0 auto;
-  width: 12px;
-  height: 12px;
+  inline-size: 12px;
+  block-size: 12px;
 }
 
 .item-type-icon {
@@ -261,7 +261,7 @@
 
 .calendar-category-box {
   display: block;
-  width: 4px;
+  inline-size: 4px;
   position: absolute;
   inset-block: 2px;
   inset-inline-end: 2px;
@@ -274,7 +274,7 @@
 :is(calendar-day-view, calendar-week-view):not([hidden]) {
   flex: 1 auto;
   display: grid;
-  height: 0;
+  block-size: 0;
 }
 
 .multiday-grid {
@@ -318,12 +318,12 @@
 }
 
 .multiday-grid:not(.multiday-grid-rotated) .multiday-timebar {
-  min-width: 10ex;
+  min-inline-size: 10ex;
   inset-inline-start: 0;
 }
 
 .multiday-grid.multiday-grid-rotated .multiday-timebar {
-  min-height: 40px;
+  min-block-size: 40px;
   inset-block-start: 0;
 }
 
@@ -381,9 +381,9 @@ calendar-header-container {
 
 .allday-events-list {
   display: block;
-  min-height: 30px;
-  max-height: 120px;
-  min-width: 100px;
+  min-block-size: 30px;
+  max-block-size: 120px;
+  min-inline-size: 100px;
   overflow-y: auto;
   overflow-x: hidden;
   margin: 0;
@@ -396,7 +396,7 @@ calendar-header-container {
 }
 
 .multiday-grid-rotated .allday-events-list:not(:empty) {
-  min-width: 150px;
+  min-inline-size: 150px;
 }
 
 .allday-event-listitem {
@@ -639,8 +639,8 @@ calendar-event-column,
     background: var(--viewDragboxBackground);
     border: 5px var(--viewBackground);
     opacity: 0.5;
-    min-height: 2px;
-    min-width: 2px;
+    min-block-size: 2px;
+    min-inline-size: 2px;
   }
 }
 
@@ -670,13 +670,13 @@ calendar-event-column,
 }
 
 .multiday-grid:not(.multiday-grid-rotated) .timeIndicator {
-  min-width: 1px;
+  min-inline-size: 1px;
   margin-inline: -1px;
   border-block-start: 2px solid var(--color-red-50);
 }
 
 .multiday-grid.multiday-grid-rotated .timeIndicator {
-  min-height: 1px;
+  min-block-size: 1px;
   margin-block: -1px;
   border-inline-start: 2px solid var(--color-red-50);
 }
@@ -692,15 +692,15 @@ calendar-event-column,
 .multiday-grid:not(.multiday-grid-rotated) .multiday-timebar-now-indicator {
   margin-block-start: -4px;
   margin-inline-end: -6px;
-  height: 6px;
-  width: 6px;
+  block-size: 6px;
+  inline-size: 6px;
   inset-inline-end: 0;
 }
 
 .multiday-grid.multiday-grid-rotated .multiday-timebar-now-indicator {
   margin-inline-start: -1px;
-  height: 8px;
-  width: 4px;
+  block-size: 8px;
+  inline-size: 4px;
   inset-block-end: 0;
 }
 
@@ -892,7 +892,7 @@ calendar-month-day-box {
   color: var(--viewMonthDayBoxLabelColor);
   font-size: 0.9rem;
   font-weight: normal;
-  text-align: right;
+  text-align: end;
   margin: 0;
   padding: 2px;
 }
@@ -911,7 +911,7 @@ calendar-month-day-box {
 
 .calendar-color-box {
   /* FIXME: Is min-height needed? */
-  min-height: 13px;
+  min-block-size: 13px;
   border-radius: 2px;
   background-color: var(--item-backcolor);
   color: var(--item-forecolor);
@@ -926,7 +926,7 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
 }
 
 .dropshadow {
-  height: 1.2em;
+  block-size: 1.2em;
   background-color: color-mix(in srgb, var(--viewDropshadowBackground) 30%, transparent);
   border: 2px dashed var(--viewDropshadowBackground);
   border-radius: 3px;
@@ -982,7 +982,7 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
   /* Explicitly set the content width to 3px (the height of the event-grippy.png
    * img src) since we rotated the image. Otherwise the auto-width uses the
    * width of the src. */
-  width: 3px;
+  inline-size: 3px;
 }
 
 .multiday-grid-rotated .gripbar-start {
@@ -1011,11 +1011,11 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
 
 /* tooltips */
 .tooltipBox {
-  max-width: 40em;
+  max-inline-size: 40em;
 }
 
 .tooltipValueColumn {
-  max-width: 35em; /* tooltipBox max-width minus space for label */
+  max-inline-size: 35em; /* tooltipBox max-width minus space for label */
 }
 
 .tooltipHeaderTable {
@@ -1028,7 +1028,7 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
 }
 
 .tooltipBodySeparator {
-  height: 1ex; /* 1ex space above body text, below last header. */
+  block-size: 1ex; /* 1ex space above body text, below last header. */
 }
 
 .tooltipBody {
@@ -1046,7 +1046,7 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
 #conflicts-vbox {
   display: flex;
   flex: 1 1 0;
-  min-height: 250px;
+  min-block-size: 250px;
   overflow: hidden;
   margin: 2px 4px;
 }
@@ -1056,8 +1056,8 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
 }
 
 #conflicts-description {
-  max-width: 40em;
-  margin-top: 1ex;
+  max-inline-size: 40em;
+  margin-block-start: 1ex;
 }
 
 #calendar-view-context-menu[type="event"] .todo-only,
@@ -1152,7 +1152,7 @@ calendar-editable-item[status="CANCELLED"],
   flex: 1;
   text-overflow: ellipsis;
   overflow: hidden;
-  min-width: 0;
+  min-inline-size: 0;
 }
 
 .navigation-inner-box {
@@ -1197,8 +1197,8 @@ calendar-editable-item[status="CANCELLED"],
 
 button.calview-toggle-item {
   appearance: none;
-  min-width: unset;
-  min-height: unset;
+  min-inline-size: unset;
+  min-block-size: unset;
   border: 1px solid transparent;
   border-radius: 1000px;
   background-color: var(--calendar-view-toggle-background);
@@ -1268,8 +1268,8 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 .fgdragcontainer {
-  min-width: 1px;
-  min-height: 1px;
+  min-inline-size: 1px;
+  min-block-size: 1px;
   overflow: hidden;
 }
 

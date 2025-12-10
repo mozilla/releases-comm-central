@@ -14,7 +14,7 @@
   --button-margin: 3px;
   background-color: var(--layout-background-1);
   padding: var(--qfb-padding);
-  border-bottom: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
+  border-block-end: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 
   :root[lwtheme][lwt-tree] & {
     background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
@@ -24,7 +24,7 @@
 
 #qfb-sticky {
   background-image: var(--icon-pin);
-  height: auto;
+  block-size: auto;
 }
 
 #qfb-unread {
@@ -65,7 +65,7 @@
 #qfb-qs-textbox {
   flex: 1;
   margin: 3px;
-  max-width: 450px;
+  max-inline-size: 450px;
 }
 
 .qfb-search-button-icon {
@@ -74,12 +74,12 @@
 
 @container threadPane (max-width: 499px) {
   #qfb-qs-textbox {
-    min-width: 200px;
+    min-inline-size: 200px;
   }
 
   #qfd-dropdown {
     display: inline-block;
-    min-width: 22px;
+    min-inline-size: 22px;
   }
 
   .button-group.quickFilterButtons {
@@ -96,7 +96,7 @@
 
 #qfb-boolean-mode {
   line-height: unset;
-  min-height: 0;
+  min-block-size: 0;
   margin: 3px;
   padding-block: 3px;
 }
@@ -111,8 +111,8 @@
   border-color: var(--tag-color);
   border-radius: 100px;
   padding-inline: 9px;
-  min-height: 0;
-  min-width: 0;
+  min-block-size: 0;
+  min-inline-size: 0;
   line-height: 1;
 
   &:enabled:hover:not([aria-pressed="true"]) {
@@ -175,15 +175,15 @@
   flex-wrap: wrap;
 
   & > .button-group > .button {
-    min-width: 0;
+    min-inline-size: 0;
   }
 }
 
 #quick-filter-bar {
   #qfb-searching-throbber {
     margin-inline-end: 3px;
-    width: 12px;
-    min-height: 12px;
+    inline-size: 12px;
+    min-block-size: 12px;
     vertical-align: middle;
     content: url("chrome://messenger/skin/icons/spinning.svg");
     -moz-context-properties: fill;

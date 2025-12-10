@@ -8,7 +8,7 @@
 
   & textbox,
   & menulist {
-    width: 100%;
+    inline-size: 100%;
   }
 
   & div {

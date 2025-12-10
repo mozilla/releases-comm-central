@@ -12,7 +12,7 @@
 
 /* Calendar list rules */
 #calendar-panel {
-  padding-bottom: 5px;
+  padding-block-end: 5px;
 }
 
 /* Today pane button in status bar */
@@ -22,12 +22,12 @@
 }
 
 #calendar-status-todaypane-button[hideLabel] > stack {
-  margin-top: -2px;
+  margin-block-start: -2px;
   margin-inline-start: 5px;
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 /* shift the today pane button label up by one pixel to center it */

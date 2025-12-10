@@ -30,11 +30,11 @@
 }
 
 html {
-  height: 100%;
+  block-size: 100%;
 }
 
 body {
-  height: 100%;
+  block-size: 100%;
   display: grid;
   grid-template-columns: min-content auto;
 }
@@ -42,9 +42,9 @@ body {
 #accountTreeBox {
   display: flex;
   flex-direction: column;
-  max-width: 25em;
-  min-width: 18em;
-  height: 100vh;
+  max-inline-size: 25em;
+  min-inline-size: 18em;
+  block-size: 100vh;
   box-sizing: border-box;
   background-color: var(--sidebar-background);
   border-inline-end: 1px solid var(--in-content-categories-border);
@@ -57,7 +57,7 @@ body {
 
 #accountTreeCreateAccount {
   background-image: var(--account-tree-icon-new);
-  min-height: 24px;
+  min-block-size: 24px;
   --icon-size: var(--account-tree-icon-size);
 }
 
@@ -95,8 +95,8 @@ body {
     }
 
     & .icon {
-      width: 16px;
-      height: 16px;
+      inline-size: 16px;
+      block-size: 16px;
       background-image: var(--icon-mail);
       background-position: center center;
       background-repeat: no-repeat;
@@ -159,7 +159,7 @@ body {
 
     & ul:empty,
     &.collapsed ul {
-      height: 0;
+      block-size: 0;
     }
   }
 
@@ -169,7 +169,7 @@ body {
 
   & ul {
     overflow: hidden;
-    height: auto;
+    block-size: auto;
 
     & > li > div {
       padding-inline-start: 42px;
@@ -188,8 +188,8 @@ body {
     content: url("chrome://global/skin/icons/arrow-down-12.svg");
     -moz-context-properties: fill;
     fill: currentColor;
-    width: 12px;
-    height: 12px;
+    inline-size: 12px;
+    block-size: 12px;
   }
 }
 
@@ -232,7 +232,7 @@ body {
 }
 
 .sidebar-footer-list {
-  margin-top: 24px;
+  margin-block-start: 24px;
   margin-inline: 0;
 }
 
@@ -243,8 +243,8 @@ body {
 
 #contentFrame {
   display: block;
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
 }
 
 #dialogStack {
@@ -254,7 +254,7 @@ body {
 
 #editVCardDialog {
   /* Two <vcard-edit> columns. */
-  width: 64em;
+  inline-size: 64em;
 
   & form {
     display: flex;

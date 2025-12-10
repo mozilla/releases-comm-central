@@ -45,8 +45,8 @@
 .inline-toolbar,
 .contentTabToolbar {
   appearance: none;
-  min-width: 50px;
-  min-height: 14px;
+  min-inline-size: 50px;
+  min-block-size: 14px;
 }
 
 .mail-toolbox,
@@ -55,8 +55,8 @@
 }
 
 .inline-toolbar > toolbarseparator {
-  height: 20px;
-  margin-top: 2px;
+  block-size: 20px;
+  margin-block-start: 2px;
 }
 
 #titlebar {
@@ -135,7 +135,7 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 }
 
 toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
-  margin-top: 1px;
+  margin-block-start: 1px;
 }
 
 menulist {
@@ -188,7 +188,7 @@ toolbarbutton > menupopup menu:-moz-locale-dir(rtl)::after {
 
 .up,
 .down {
-  min-width: 0;
+  min-inline-size: 0;
   -moz-context-properties: stroke, fill-opacity;
   stroke: currentColor;
   fill-opacity: 1;
@@ -313,13 +313,13 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
 /* Status bar */
 
 :root[lwtheme] #status-bar {
-  padding-top: 1px;
+  padding-block-start: 1px;
 }
 
 .statusbar {
-  min-width: 1px; /* DON'T DELETE!
+  min-inline-size: 1px; /* DON'T DELETE!
   Prevents hiding of scrollbars in browser when window is made smaller.*/
-  min-height: 15px !important;
+  min-block-size: 15px !important;
   margin: 0 !important;
   /* need to use padding-inline-end when/if bug 631729 gets fixed: */
   padding: 0 16px 1px 1px;
@@ -339,7 +339,7 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
   padding: 2px 4px;
   background-color: #f9f9fa;
   border: 1px none #ddd;
-  border-top-style: solid;
+  border-block-start-style: solid;
   color: #444;
   text-shadow: none;
 
@@ -379,14 +379,13 @@ fieldset {
   & > hbox,
   & > vbox,
   & > radiogroup {
-    width: -moz-available;
+    inline-size: -moz-available;
   }
 }
 
 legend {
   font-size: 1.18em;
-  margin-top: -1.3em;
-  margin-bottom: 5px;
+  margin-block: -1.3em 5px;
   margin-inline-start: -5px;
   font-weight: bold;
 }
@@ -394,15 +393,15 @@ legend {
 /* UI Density customization */
 
 treechildren::-moz-tree-row {
-  min-height: 1.8rem;
+  min-block-size: 1.8rem;
 }
 
 :root[uidensity="compact"] treechildren::-moz-tree-row {
-  min-height: 1.6rem;
+  min-block-size: 1.6rem;
 }
 
 :root[uidensity="touch"] treechildren::-moz-tree-row {
-  min-height: 2.4rem;
+  min-block-size: 2.4rem;
 }
 
 /* Infobar styles */
@@ -415,7 +414,7 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] {
   padding-inline: 0 6px;
 
   & > .toolbarbutton-menubutton-button {
-    min-height: 1.8em;
-    padding-top: 1px;
+    min-block-size: 1.8em;
+    padding-block-start: 1px;
   }
 }

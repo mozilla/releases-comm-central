@@ -48,7 +48,7 @@
   list-style-type: none;
   overflow: hidden;
   flex-wrap: nowrap;
-  min-width: 0;
+  min-inline-size: 0;
 
   & li {
     padding: 0;
@@ -66,7 +66,7 @@
 
   & .search-bar {
     flex: 1 1 33%;
-    min-width: 5em;
+    min-inline-size: 5em;
   }
 
   & .search-button-icon {
@@ -253,8 +253,8 @@
   & .throbber .throbber-icon {
     stroke: var(--button-primary-background-color);
     -moz-context-properties: stroke, fill;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     visibility: hidden;
     margin: var(--button-margin);
     vertical-align: middle;
@@ -305,7 +305,7 @@
   gap: 3px;
   align-items: center;
   flex-wrap: nowrap;
-  min-width: initial;
+  min-inline-size: initial;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 
   .icons-above-text & {
@@ -339,7 +339,7 @@
       position: absolute;
       inset-inline-end: var(--badge-inset-inline-end);
       inset-block-start: var(--badge-inset-block-start);
-      max-width: 3ch;
+      max-inline-size: 3ch;
       overflow: hidden;
       text-overflow: ellipsis;
       text-overflow: clip;
@@ -383,7 +383,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
-    max-width: 50ch;
+    max-inline-size: 50ch;
     pointer-events: none;
 
     .icons-only & {

@@ -5,23 +5,23 @@
 @import url("chrome://messenger/skin/messenger.css");
 
 html {
-  min-width: 55em;
-  min-height: 560px;
+  min-inline-size: 55em;
+  min-block-size: 560px;
 }
 
 #confirmPubkeyImportDialog {
-  height: 100vh;
-  width: 100vw;
+  block-size: 100vh;
+  inline-size: 100vw;
 
   @media not (-moz-platform: macos) {
     &::part(content-box) {
-      width: calc(55em - 18px); /* dialog width - padding. */
+      inline-size: calc(55em - 18px); /* dialog width - padding. */
     }
   }
 
   @media (-moz-platform: macos) {
     &::part(content-box) {
-      width: calc(55em - 28px); /* dialog width - padding. */
+      inline-size: calc(55em - 28px); /* dialog width - padding. */
     }
   }
 }
@@ -50,7 +50,7 @@ description {
 }
 
 #importKeyListContainer {
-  height: 25em;
+  block-size: 25em;
   overflow-y: auto;
 }
 
@@ -68,7 +68,7 @@ description {
   padding: 3px 6px;
   border: 1px solid var(--border-color);
   background-color: rgba(215, 215, 219, 0.2);
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 .openpgp-key-id {

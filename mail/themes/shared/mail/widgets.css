@@ -15,7 +15,7 @@
   border-radius: var(--button-border-radius);
   padding: var(--button-padding);
   margin: var(--button-margin);
-  min-width: 6em;
+  min-inline-size: 6em;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -73,13 +73,13 @@
     background-repeat: no-repeat;
     padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size));
     padding-inline-end: calc(var(--button-padding) * 2);
-    min-width: 0;
+    min-inline-size: 0;
   }
 
   &.icon-only {
     background-position: center;
     /* 2px at the end for the border. */
-    height: calc(var(--button-padding) * 2 + var(--icon-size) + 2px);
+    block-size: calc(var(--button-padding) * 2 + var(--icon-size) + 2px);
     padding: 0;
     aspect-ratio: 1;
 
@@ -268,8 +268,8 @@
       background-color: color-mix(in srgb, currentColor 10%, transparent);
       border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
       border-radius: 4px;
-      width: 4px;
-      height: 12px;
+      inline-size: 4px;
+      block-size: 12px;
       margin: auto 3px;
       position: absolute;
       inset-block: 0;
@@ -290,7 +290,7 @@
       & span {
         display: inline-block;
         visibility: hidden;
-        width: 0;
+        inline-size: 0;
       }
     }
   }
@@ -506,8 +506,8 @@
   padding: 0;
   background-color: var(--color-surface-lower);
   border: 1px solid var(--color-surface-border);
-  height: 22px;
-  width: 44px;
+  block-size: 22px;
+  inline-size: 44px;
   border-radius: 14px;
   cursor: pointer;
 
@@ -517,8 +517,8 @@
     box-sizing: border-box;
     background-color: var(--color-surface-base);
     border: 1px solid var(--color-surface-border);
-    height: 18px;
-    width: 18px;
+    block-size: 18px;
+    inline-size: 18px;
     margin-block-start: 1px;
     margin-inline-start: 1px;
     border-radius: 10px;
@@ -553,12 +553,12 @@
   }
 
   &.toggle-checkbox-sm {
-    height: 18px;
-    width: 38px;
+    block-size: 18px;
+    inline-size: 38px;
 
     &::before {
-      height: 14px;
-      width: 14px;
+      block-size: 14px;
+      inline-size: 14px;
     }
 
     &:checked::before {
@@ -634,13 +634,13 @@
   margin: 0;
   padding: 0;
   /* The custom element depends on fixed width and height values. */
-  width: 12px;
-  height: 29px;
+  inline-size: 12px;
+  block-size: 29px;
 
   &[horizontal] {
     content: url("chrome://messenger/skin/icons/drop-indicator-horizontal.svg");
-    width: 29px;
-    height: 12px;
+    inline-size: 29px;
+    block-size: 12px;
 
     &:dir(rtl) {
       transform: scaleX(-1);

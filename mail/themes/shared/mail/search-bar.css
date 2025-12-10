@@ -14,16 +14,16 @@
 
 form {
   position: relative;
-  min-height: max(1.2em, calc(1.2em + 2 * var(--search-padding)));
-  height: 100%;
+  min-block-size: max(1.2em, calc(1.2em + 2 * var(--search-padding)));
+  block-size: 100%;
   color: var(--search-bar-color);
 }
 
 input {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
   font-size: 1rem;
   color: var(--search-bar-color);
   border: 1px solid var(--search-bar-border-color);
@@ -40,8 +40,8 @@ input {
   }
 
   &::-moz-search-clear-button {
-    width: 22px;
-    height: 22px;
+    inline-size: 22px;
+    block-size: 22px;
     margin-block: auto;
     padding: 0;
     background-image: var(--icon-close);

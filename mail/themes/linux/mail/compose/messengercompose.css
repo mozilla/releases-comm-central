@@ -16,7 +16,7 @@
 }
 
 #compose-toolbox {
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  border-block-end: 1px solid var(--chrome-content-separator-color);
 }
 
 :root:not([lwtheme]) #composeToolbar2 {
@@ -26,7 +26,7 @@
 /* ::::: special toolbar colors ::::: */
 
 #subjectLabel {
-  margin-bottom: 0;
+  margin-block-end: 0;
   margin-inline-end: 6px;
 }
 
@@ -57,16 +57,16 @@
 }
 
 .address-label-container {
-  padding-top: 6px;
+  padding-block-start: 6px;
 }
 
 #msgIdentity,
 .address-container {
-  min-height: 30px;
+  min-block-size: 30px;
 }
 
 #msgSubject {
-  min-height: 28px;
+  min-block-size: 28px;
 }
 
 .address-pill {
@@ -78,11 +78,11 @@
 }
 
 .pill-indicator {
-  margin-top: -2px;
+  margin-block-start: -2px;
 }
 
 #identityLabel-box {
-  margin-top: 1px;
+  margin-block-start: 1px;
 }
 
 #msgIdentity {
@@ -105,7 +105,7 @@
 
   &[editable="true"]::part(dropmarker) {
     margin-inline-end: 0;
-    width: 12px;
+    inline-size: 12px;
   }
 
   &[open="true"] {

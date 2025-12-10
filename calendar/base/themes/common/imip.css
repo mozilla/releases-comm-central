@@ -9,20 +9,20 @@
 }
 
 .invitation-details[open] > summary {
-  margin-bottom: 0.5em;
+  margin-block-end: 0.5em;
 }
 
 .invitation-border {
   border: 3px solid -moz-default-color;
   margin-inline-start: auto;
   margin-inline-end: auto;
-  width: -moz-fit-content;
-  height: -moz-fit-content;
+  inline-size: -moz-fit-content;
+  block-size: -moz-fit-content;
 }
 
 .invitation-table {
   border-collapse: collapse;
-  width: 40em;
+  inline-size: 40em;
 }
 
 .invitation-table :is(td, th) {
@@ -35,7 +35,7 @@
 }
 
 .invitation-table .description {
-  width: 9em;
+  inline-size: 9em;
   text-align: end;
   font-weight: normal;
   border-inline-end: 1px solid hsla(0, 0%, 50%, 0.2);
@@ -43,7 +43,7 @@
 }
 
 .invitation-table .content {
-  width: 29em;
+  inline-size: 29em;
 }
 
 .invitation-table .added {

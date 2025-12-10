@@ -4,15 +4,15 @@
 
 #calendar-occurrence-prompt {
   padding: 0;
-  width: 25em;
-  height: 34ex;
-  min-width: 25em;
-  min-height: 34ex;
+  inline-size: 25em;
+  block-size: 34ex;
+  min-inline-size: 25em;
+  min-block-size: 34ex;
   -moz-user-focus: ignore;
 }
 
 #occurrence-prompt-header {
-  height: 50px;
+  block-size: 50px;
   padding: 0 15px;
   border: 1px solid var(--field-border-color);
   background-color: var(--field-background-color);
@@ -32,8 +32,8 @@
 }
 
 .occurrence-accept-buttons > .button-box > .button-icon {
-  width: 18px;
-  height: 18px;
+  inline-size: 18px;
+  block-size: 18px;
 }
 
 .occurrence-accept-buttons > .button-box > .button-text {

@@ -44,15 +44,15 @@ window {
 }
 
 .YearWidth {
-  width: 8ch;
+  inline-size: 8ch;
 }
 
 .ZipWidth {
-  max-width: 14ch !important;
+  max-inline-size: 14ch !important;
 }
 
 .DepartmentWidth {
-  max-width: 20ch !important;
+  max-inline-size: 20ch !important;
 }
 
 /* ::::: List dialogs ::::: */
@@ -66,8 +66,8 @@ menulist::part(icon) {
 
 #addressingWidget {
   -moz-user-focus: none;
-  height: 15em;
-  margin-bottom: 12px;
+  block-size: 15em;
+  margin-block-end: 12px;
 }
 
 .dummy-row,
@@ -75,7 +75,7 @@ menulist::part(icon) {
   border: none !important;
   background-color: inherit !important;
   color: inherit !important;
-  min-height: 30px;
+  min-block-size: 30px;
 }
 
 .addressingWidgetItem:hover,
@@ -84,14 +84,14 @@ menulist::part(icon) {
 }
 
 .textbox-addressingWidget {
-  min-height: 30px;
+  min-block-size: 30px;
   padding-inline: 5px;
   outline-offset: -2px;
 }
 
 .dummy-row-cell,
 .addressingWidgetCell {
-  border-bottom: 1px solid hsla(0, 0%, 50%, 0.3);
+  border-block-end: 1px solid hsla(0, 0%, 50%, 0.3);
 }
 
 panel[type="autocomplete-richlistbox"] {
@@ -132,7 +132,7 @@ panel[type="autocomplete-richlistbox"] {
 }
 
 #PhotoDropTarget {
-  margin-top: 5px;
+  margin-block-start: 5px;
 
   &:hover {
     border: 1px dashed hsla(0, 0%, 50%, 0.5);
@@ -146,12 +146,12 @@ panel[type="autocomplete-richlistbox"] {
 }
 
 #ProgressContainer {
-  max-height: 0;
+  max-block-size: 0;
   transition: all 0.5s ease-out;
   overflow: hidden;
 
   &.expanded {
-    margin-top: 10px;
-    max-height: 40px; /* something higher than the actual height, but not too large */
+    margin-block-start: 10px;
+    max-block-size: 40px; /* something higher than the actual height, but not too large */
   }
 }

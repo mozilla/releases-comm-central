@@ -24,14 +24,14 @@
 }
 
 .today-subpane {
-  border-bottom-color: var(--splitter-color);
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
+  border-block-end-color: var(--splitter-color);
+  border-block-end-style: solid;
+  border-block-end-width: 1px;
   padding: 0;
 }
 
 #buttonspacer {
-  width: 5px;
+  inline-size: 5px;
 }
 
 #today-pane-panel {
@@ -50,7 +50,7 @@
 #today-pane-panel > .sidebar-header {
   appearance: none;
   background-color: var(--layout-background-0);
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
 }
 
 :root[lwt-tree] #today-pane-panel > .sidebar-header {
@@ -68,8 +68,7 @@
 .today-pane-cycler {
   appearance: none;
   border-radius: var(--button-border-radius);
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-inline: 5px;
   -moz-context-properties: stroke;
   stroke: currentColor;
   list-style-image: var(--icon-nav-right);
@@ -139,7 +138,7 @@
     Arial,
     Helvetica,
     sans-serif;
-  padding-top: 4px;
+  padding-block-start: 4px;
   font-weight: bold;
   font-size: 18px;
 }
@@ -155,11 +154,10 @@
     Trebuchet MS,
     Lucida Grande,
     sans-serif;
-  margin-top: initial;
-  margin-bottom: initial;
+  margin-block: initial;
   font-size: 36px;
   font-weight: bold;
-  width: 1em;
+  inline-size: 1em;
   text-align: center;
 }
 
@@ -168,8 +166,8 @@
 }
 
 .miniday-nav-buttons {
-  margin-top: 2px;
-  min-width: 19px;
+  margin-block-start: 2px;
+  min-inline-size: 19px;
   -moz-user-focus: normal;
   -moz-context-properties: stroke, fill-opacity;
   list-style-image: var(--icon-nav-right-sm);
@@ -224,7 +222,7 @@
 }
 
 #miniday-dropdown-button {
-  width: 18px;
+  inline-size: 18px;
   margin: 2px;
   -moz-user-focus: normal;
   background-image: var(--icon-nav-down-sm);
@@ -240,8 +238,8 @@
   }
 
   #miniday-dropdown-button > .toolbarbutton-menu-dropmarker::part(icon) {
-    width: 12px;
-    height: 12px;
+    inline-size: 12px;
+    block-size: 12px;
   }
 }
 
@@ -288,27 +286,27 @@
 }
 
 #today-pane-splitter {
-  border-bottom: 1px solid var(--splitter-color);
+  border-block-end: 1px solid var(--splitter-color);
   /* splitter grip area */
-  height: 5px;
+  block-size: 5px;
   /* make only the splitter border visible */
-  margin-top: -5px;
+  margin-block-start: -5px;
   /* because of the negative margin needed to make the splitter visible */
   position: relative;
   z-index: 10;
 }
 
 #todo-tab-panel {
-  height: 40%;
-  min-height: 160px;
+  block-size: 40%;
+  min-block-size: 160px;
 }
 
 #today-pane-splitter[hidden] + #todo-tab-panel {
-  height: 100%;
+  block-size: 100%;
 }
 
 #show-completed-checkbox-box {
-  padding-top: 3px;
+  padding-block-start: 3px;
   padding-inline-start: 5px;
 }
 
@@ -316,19 +314,19 @@
   flex: 1 auto;
   display: flex;
   flex-direction: column;
-  min-height: 7em; /* Show at least the #agenda-toolbar and a part of the events. */
-  height: 0; /* Allow shrinking with flexbox emulation. */
+  min-block-size: 7em; /* Show at least the #agenda-toolbar and a part of the events. */
+  block-size: 0; /* Allow shrinking with flexbox emulation. */
 }
 
 #agenda {
   flex: 1;
   overflow: auto;
-  height: 0;
+  block-size: 0;
   margin: 0;
   padding: 3px 6px;
   list-style: none;
   background-color: var(--layout-background-1);
-  border-top: 1px solid var(--splitter-color);
+  border-block-start: 1px solid var(--splitter-color);
   --selected-background: var(--selected-item-color);
   --selected-foreground: var(--selected-item-text-color);
 }
@@ -395,8 +393,8 @@
 }
 
 .agenda-listitem-calendar {
-  width: 10px;
-  height: 10px;
+  inline-size: 10px;
+  block-size: 10px;
   margin-inline-end: 6px;
   display: inline-block;
   border-radius: 5px;

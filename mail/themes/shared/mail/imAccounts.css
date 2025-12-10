@@ -27,7 +27,7 @@
 }
 
 #noAccountBox {
-  max-width: 30em;
+  max-inline-size: 30em;
   background: url("chrome://global/skin/icons/info.svg") left 5px no-repeat;
   background-size: 2.5em;
   -moz-context-properties: fill;
@@ -49,8 +49,8 @@
   font-weight: lighter;
   line-height: 1.2;
   margin: 0 0 0.3em;
-  padding-bottom: 0.2em;
-  border-bottom: 1px solid var(--splitter-color);
+  padding-block-end: 0.2em;
+  border-block-end: 1px solid var(--splitter-color);
 }
 
 #noAccountDesc {
@@ -77,19 +77,19 @@ richlistitem {
   }
 
   &[dragover="down"] {
-    border-bottom: 3px solid var(--selected-item-color);
+    border-block-end: 3px solid var(--selected-item-color);
   }
 
   &[dragover="up"] {
-    border-top: 3px solid var(--selected-item-color);
+    border-block-start: 3px solid var(--selected-item-color);
   }
 
   & .account-buttons {
-    margin-top: 2px;
+    margin-block-start: 2px;
 
     /* When the error message was too long, the buttons were too small */
     & button {
-      min-height: 1.8em;
+      min-block-size: 1.8em;
     }
   }
 
@@ -150,8 +150,8 @@ richlistitem {
 }
 
 .accountIcon {
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
 }
 
 #displayNameAndstatusMessageGrid {
@@ -165,7 +165,7 @@ richlistitem {
   }
 
   & > hr {
-    height: 0;
+    block-size: 0;
     border: none;
     border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
   }
@@ -193,7 +193,7 @@ richlistitem {
 
 #statusImageStack > #statusTypeIcon {
   /* Need min-width since #statusTypeIcon overlaps with rule in chat.css. */
-  min-width: 16px;
+  min-inline-size: 16px;
   padding-inline: 0;
   appearance: none;
   background: transparent;

@@ -26,7 +26,7 @@
   align-items: center;
   gap: 4px;
   /* center align */
-  max-width: max-content;
+  max-inline-size: max-content;
   margin-inline: auto;
 
   & > #carddav-statusImage {
@@ -41,8 +41,8 @@
 #carddav-statusImage {
   -moz-context-properties: fill;
   fill: currentColor;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
 
   &:not([src]) {
     display: none;

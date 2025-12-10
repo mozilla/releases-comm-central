@@ -99,10 +99,10 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 
 .subviewbutton.panel-subview-footer {
   box-sizing: border-box;
-  min-height: 41px;
+  min-block-size: 41px;
   margin: 0;
   background-color: var(--arrowpanel-dimmed);
-  border-top: 1px solid var(--panel-separator-color);
+  border-block-start: 1px solid var(--panel-separator-color);
   border-radius: 0;
 
   .cui-widget-panelview menuitem& {
@@ -151,23 +151,23 @@ panelview:not([mainview]) .toolbarbutton-text,
 
 #appMenu-popup panelview,
 #customizationui-widget-multiview panelview:not([extension]) {
-  min-width: var(--menu-panel-width);
-  max-width: 35em;
+  min-inline-size: var(--menu-panel-width);
+  max-inline-size: 35em;
 }
 
 #customizationui-widget-multiview #appMenu-libraryView,
 #widget-overflow panelview {
-  min-width: var(--wide-menu-panel-width);
-  max-width: var(--wide-menu-panel-width);
+  min-inline-size: var(--wide-menu-panel-width);
+  max-inline-size: var(--wide-menu-panel-width);
 }
 
 /* Add 2 * 16px extra width for touch mode button padding. */
 #appMenu-popup[touchmode] panelview {
-  min-width: calc(var(--menu-panel-width) + 32px);
+  min-inline-size: calc(var(--menu-panel-width) + 32px);
 }
 
 .cui-widget-panel.cui-widget-panelWithFooter::part(content) {
-  padding-bottom: 0;
+  padding-block-end: 0;
 }
 
 .animate-out {
@@ -197,8 +197,8 @@ toolbarpaletteitem[place="palette"] > toolbarbutton[constrain-size="true"] > .to
 toolbarpaletteitem[place="palette"] > toolbarbutton[constrain-size="true"] > .toolbarbutton-badge-stack > .toolbarbutton-icon,
 toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton-icon,
 toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-  height: var(--panel-palette-icon-size);
-  width: var(--panel-palette-icon-size);
+  block-size: var(--panel-palette-icon-size);
+  inline-size: var(--panel-palette-icon-size);
 }
 
 #customization-palette .toolbarbutton-1 {
@@ -212,10 +212,10 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
 /* badge itself is positioned correctly. Here we make sure that the icon itself
 /* has the minimum size we want, but no padding/margin. */
 .customization-palette .toolbarbutton-1 > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-  width: var(--panel-palette-icon-size);
-  height: var(--panel-palette-icon-size);
-  min-width: var(--panel-palette-icon-size);
-  min-height: var(--panel-palette-icon-size);
+  inline-size: var(--panel-palette-icon-size);
+  block-size: var(--panel-palette-icon-size);
+  min-block-size: var(--panel-palette-icon-size);
+  min-inline-size: var(--panel-palette-icon-size);
   margin: 0;
   padding: 0;
 }
@@ -281,7 +281,7 @@ menu.subviewbutton,
 .widget-overflow-list .toolbarbutton-1 {
   appearance: none;
   margin: var(--appmenu-button-margin);
-  min-height: 24px;
+  min-block-size: 24px;
   padding-inline: 8px;
   padding-block: var(--appmenu-button-padding);
   border-radius: var(--arrowpanel-menuitem-border-radius);
@@ -300,8 +300,8 @@ menu.subviewbutton,
 
 .addon-banner-item > .toolbarbutton-icon,
 .subviewbutton-iconic > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   -moz-context-properties: fill, stroke;
 }
 
@@ -341,19 +341,19 @@ menu.subviewbutton,
   }
 
   & > spacer.before-label {
-    width: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
+    inline-size: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
   }
 
   & > spacer.after-label {
     flex: 1;
-    width: 20px; /* a little bigger than the width of the scrollbar */
+    inline-size: 20px; /* a little bigger than the width of the scrollbar */
   }
 
   & > .subviewbutton {
     flex: 0 0;
-    height: auto;
+    block-size: auto;
     margin-inline-start: 18px;
-    min-width: auto;
+    min-inline-size: auto;
     padding-inline: 5px;
     padding-block: var(--appmenu-button-padding);
     --focus-outline-offset: 1px;
@@ -376,7 +376,7 @@ menu.subviewbutton,
     margin-inline-start: 0;
     margin-block: 1px;
     padding: var(--appmenu-combined-radio-button-padding);
-    min-height: 22px;
+    min-block-size: 22px;
     border: 1px solid var(--appmenu-button-border-color);
     border-radius: 0;
 
@@ -418,8 +418,8 @@ menu.subviewbutton,
       }
 
       & > .toolbarbutton-icon {
-        min-width: 0;
-        min-height: 0;
+        min-inline-size: 0;
+        min-block-size: 0;
         margin: 0;
       }
     }
@@ -428,8 +428,8 @@ menu.subviewbutton,
       appearance: none;
       align-items: stretch;
       margin: 0.5em 0;
-      width: 1px;
-      height: auto;
+      inline-size: 1px;
+      block-size: auto;
       background: var(--panel-separator-color);
       transition-property: margin;
       transition-duration: 10ms;
@@ -443,8 +443,8 @@ menu.subviewbutton,
 
   /* In customize mode, extend the buttons *only* in the panel, just to make them not look stupid */
   toolbarpaletteitem[place="menu-panel"] > & > toolbarbutton {
-    min-width: var(--menu-panel-button-width);
-    max-width: var(--menu-panel-button-width);
+    min-inline-size: var(--menu-panel-button-width);
+    max-inline-size: var(--menu-panel-button-width);
   }
 }
 
@@ -455,7 +455,7 @@ menu.subviewbutton,
 }
 
 panelview .toolbarbutton-1 {
-  margin-top: 6px;
+  margin-block-start: 6px;
 }
 
 panelview .toolbarbutton-1:not([disabled], [open], :active):is(:hover, :focus-visible),
@@ -497,7 +497,7 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 .cui-widget-panelview menuseparator,
 .cui-widget-panel toolbarseparator {
   appearance: none;
-  min-height: 0;
+  min-block-size: 0;
   margin: var(--panel-separator-margin);
   padding: 0;
 
@@ -507,7 +507,7 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 }
 
 .PanelUI-subView toolbarseparator[orient="vertical"] {
-  height: 24px;
+  block-size: 24px;
   margin: 0;
   margin-inline: 6px 7px;
 }
@@ -517,10 +517,10 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 }
 
 toolbarpaletteitem[place="palette"] > #search-container {
-  min-width: 7em;
-  width: 7em;
-  min-height: 37px;
-  max-height: 37px;
+  min-inline-size: 7em;
+  inline-size: 7em;
+  min-block-size: 37px;
+  max-block-size: 37px;
 }
 
 #widget-overflow-mainView .panel-subview-body {
@@ -529,13 +529,13 @@ toolbarpaletteitem[place="palette"] > #search-container {
 }
 
 .widget-overflow-list {
-  width: var(--wide-menu-panel-width);
+  inline-size: var(--wide-menu-panel-width);
 
   /* In customize mode, the overflow list is constrained by its container,
    * so we set width: auto to avoid the scrollbar not fitting.
    */
   #customization-panelHolder > & {
-    width: auto;
+    inline-size: auto;
   }
 
   & .toolbarbutton-1 {
@@ -564,8 +564,8 @@ toolbarpaletteitem[place="palette"] > #search-container {
 
 toolbaritem[overflowedItem="true"],
 .widget-overflow-list .toolbarbutton-1 {
-  width: 100%;
-  max-width: var(--wide-menu-panel-width);
+  inline-size: 100%;
+  max-inline-size: var(--wide-menu-panel-width);
   background-repeat: no-repeat;
   background-position: 0 center;
 }
@@ -597,8 +597,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
   & > .radio-check {
     appearance: none;
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     border: 1px solid #e7e7e7;
     border-radius: 50%;
     margin: 1px 5px;
@@ -613,9 +613,9 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .panel-header {
   align-items: center;
-  border-bottom: 1px solid var(--panel-separator-color);
+  border-block-end: 1px solid var(--panel-separator-color);
   display: flex;
-  height: 40px; /* fixed item height to prevent flex sizing; height + 2*4px padding */
+  block-size: 40px; /* fixed item height to prevent flex sizing; height + 2*4px padding */
   padding: 4px;
 
   & > h1 {
@@ -650,8 +650,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     }
 
     & > .toolbarbutton-icon {
-      width: 12px;
-      height: 12px;
+      inline-size: 12px;
+      block-size: 12px;
     }
 
     & > .toolbarbutton-text {
@@ -664,7 +664,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .subviewbutton.download {
   align-items: flex-start;
-  min-height: 48px;
+  min-block-size: 48px;
   padding-inline-start: 8px;
 
   & > .toolbarbutton-icon,
@@ -673,8 +673,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   }
 
   & > .toolbarbutton-icon {
-    width: 32px;
-    height: 32px;
+    inline-size: 32px;
+    block-size: 32px;
   }
 
   & > .toolbarbutton-text > .status-text {
@@ -695,8 +695,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     background-size: contain;
     border: none;
     box-shadow: none;
-    min-width: 12px;
-    min-height: 12px;
+    min-inline-size: 12px;
+    min-block-size: 12px;
     padding: 0;
   }
 
@@ -709,7 +709,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     )
     > .toolbarbutton-badge-stack
     > .toolbarbutton-badge {
-    margin-top: -4px !important;
+    margin-block-start: -4px !important;
     margin-inline-end: -3px !important;
     -moz-context-properties: fill;
     fill: var(--color-green-60);
@@ -718,7 +718,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   }
 
   &[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-    margin-top: -3px !important;
+    margin-block-start: -3px !important;
     margin-inline-end: -5px !important;
     background-image: var(--icon-warning-sm);
     border-radius: 0;
@@ -739,7 +739,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border-radius: var(--arrowpanel-menuitem-border-radius);
   color: var(--button-text-color);
   background-color: color-mix(in srgb, currentColor 7%, transparent);
-  margin-bottom: 4px;
+  margin-block-end: 4px;
   font-weight: 600;
 
   &:not([disabled]):hover {
@@ -756,8 +756,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   }
 
   & > .toolbarbutton-icon {
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     /* Move the icon to appear after the text label. */
     order: 2;
   }
@@ -789,7 +789,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   box-shadow: none;
   color: var(--appmenu-warning-color);
   background-color: var(--appmenu-warning-background-color);
-  border-top: 1px solid var(--appmenu-warning-border-color);
+  border-block-start: 1px solid var(--appmenu-warning-border-color);
   border-inline: 1px solid var(--appmenu-warning-border-color);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   transition: background-color;
@@ -799,8 +799,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
   &::after {
     content: "";
-    width: 16px;
-    height: 16px;
+    inline-size: 16px;
+    block-size: 16px;
     margin-inline: 10px 0;
     display: flex;
     background: var(--icon-warning) no-repeat center;
@@ -812,7 +812,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   }
 
   &:last-child {
-    border-bottom: 1px solid var(--appmenu-warning-border-color);
+    border-block-end: 1px solid var(--appmenu-warning-border-color);
   }
 
   &:is(:focus, :hover) {
@@ -878,7 +878,7 @@ menulist {
 #syncSeparator {
   background-color: var(--color-blue-50);
   background-image: linear-gradient(to right, var(--color-teal-40), var(--color-magenta-60));
-  height: 1px;
+  block-size: 1px;
   border: none;
   border-radius: 2px;
 }
@@ -1024,8 +1024,8 @@ menulist {
 
 #appMenu-fontSizeReduce-button > .toolbarbutton-icon,
 #appMenu-fontSizeEnlarge-button > .toolbarbutton-icon {
-  width: var(--appmenu-fontsize-icon-size);
-  height: var(--appmenu-fontsize-icon-size);
+  inline-size: var(--appmenu-fontsize-icon-size);
+  block-size: var(--appmenu-fontsize-icon-size);
   -moz-context-properties: fill, stroke;
   fill: var(--button-background-color, ButtonFace);
   stroke: var(--button-text-color);
@@ -1062,7 +1062,7 @@ menulist {
   justify-content: center;
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 2px;
-  min-width: var(--appmenu-fontsize-reset-button-width);
+  min-inline-size: var(--appmenu-fontsize-reset-button-width);
   text-align: center;
   padding: 2px;
 }

@@ -5,8 +5,8 @@
 @import url(chrome://calendar/skin/shared/today-pane.css);
 
 #today-pane-panel > .sidebar-header {
-  height: 1.5em;
-  min-height: 32px;
+  block-size: 1.5em;
+  min-block-size: 32px;
 }
 
 :root[lwtheme] #today-pane-panel > .sidebar-header {
@@ -18,7 +18,7 @@
 }
 
 .monthlabel {
-  margin-bottom: 1px;
+  margin-block-end: 1px;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
@@ -30,5 +30,5 @@
 }
 
 #today-pane-splitter {
-  min-height: 5px;
+  min-block-size: 5px;
 }

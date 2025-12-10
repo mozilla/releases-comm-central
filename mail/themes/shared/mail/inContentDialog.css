@@ -96,7 +96,7 @@ dialog {
     margin: 0;
     font-weight: 600;
     cursor: pointer;
-    min-height: auto;
+    min-block-size: auto;
 
     &:hover {
       text-decoration: underline;
@@ -157,7 +157,7 @@ dialog {
 .dialog-container {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 
   &.vertical {
     flex-direction: column;
@@ -170,10 +170,10 @@ dialog {
   fill: color-mix(in srgb, var(--dialog-highlight-color) 20%, transparent);
   stroke: var(--dialog-highlight-color);
   margin-inline-end: 12px;
-  height: 32px;
+  block-size: 32px;
 
   &.small {
-    height: 16px;
+    block-size: 16px;
   }
 }
 
@@ -187,7 +187,7 @@ dialog {
 .warning-title {
   display: flex;
   align-items: center;
-  margin-top: 0;
+  margin-block-start: 0;
   background-color: var(--red-60);
   color: var(--color-white);
   border-radius: var(--button-border-radius);
@@ -200,7 +200,7 @@ dialog {
 }
 
 .insecure-section h3 {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .insecure-section-description {
@@ -235,8 +235,8 @@ menu.dialog-menu-container {
   justify-content: end;
   background-color: var(--dialog-background-color);
   position: sticky;
-  bottom: 0;
-  max-width: none;
+  inset-block-end: 0;
+  max-inline-size: none;
 
   &.two-columns {
     justify-content: space-between;
@@ -273,8 +273,8 @@ span.loading-inline {
   display: inline-block;
   position: relative;
   overflow: hidden;
-  height: 16px;
-  width: 16px;
+  block-size: 16px;
+  inline-size: 16px;
   color: var(--selected-item-color);
   vertical-align: sub;
 
@@ -284,8 +284,8 @@ span.loading-inline {
     background-image: url("chrome://messenger/skin/icons/loading.svg");
     background-position: right center;
     background-repeat: no-repeat;
-    width: 480px;
-    height: 100%;
+    inline-size: 480px;
+    block-size: 100%;
     animation: loading-animation 1.05s steps(30) infinite;
   }
 

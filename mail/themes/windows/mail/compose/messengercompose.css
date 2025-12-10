@@ -18,7 +18,7 @@
   color: -moz-dialogtext;
   background-color: -moz-Dialog;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
-  border-top-width: 0;
+  border-block-start-width: 0;
 
   &:-moz-window-inactive {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
@@ -31,7 +31,7 @@
 }
 
 #subjectLabel {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 @media (prefers-contrast) {
@@ -80,7 +80,7 @@
 }
 
 #identityLabel-box {
-  margin-top: 1px;
+  margin-block-start: 1px;
 }
 
 #msgIdentity {
@@ -105,7 +105,7 @@
 }
 
 .address-label-container {
-  padding-top: 5px;
+  padding-block-start: 5px;
 }
 
 .address-container {
@@ -114,12 +114,12 @@
 
 #msgIdentity,
 .address-container {
-  min-height: 28px;
+  min-block-size: 28px;
 }
 
 #msgSubject {
-  min-height: 26px;
-  margin-top: 0;
+  min-block-size: 26px;
+  margin-block-start: 0;
   padding-inline-start: 5px;
 }
 
@@ -130,7 +130,7 @@
 }
 
 #FontFaceSelect {
-  max-width: 35ch;
+  max-inline-size: 35ch;
 }
 
 toolbarbutton.formatting-button {
@@ -140,7 +140,7 @@ toolbarbutton.formatting-button {
 /* ::::: address book sidebar ::::: */
 
 #compose-toolbox {
-  border-bottom: 1px solid var(--chrome-content-separator-color);
+  border-block-end: 1px solid var(--chrome-content-separator-color);
 }
 
 #compose-toolbox > toolbar:not([type="menubar"]) {

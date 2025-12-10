@@ -12,7 +12,7 @@ body {
 }
 
 #Chat #unread-ruler {
-  border-top: 1px solid #30e60b;
+  border-block-start: 1px solid #30e60b;
 }
 
 .message:hover,
@@ -41,7 +41,7 @@ body {
 }
 
 .sessionstart-ruler {
-  border-top: 1px solid #e9e9ea;
+  border-block-start: 1px solid #e9e9ea;
 }
 
 .eventToggle {

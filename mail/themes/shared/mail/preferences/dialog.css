@@ -32,7 +32,7 @@ dialog.doScroll::part(content-box) {
 }
 
 dialog.doScroll {
-  min-height: 100vh;
+  min-block-size: 100vh;
   margin-inline: -4px;
 
   &::part(content-box) {
@@ -60,11 +60,11 @@ description,
    it, but we need to calculate the document height before then. The value is
    the same as the line-height for a label in preferences.css. */
 label#signonsIntro {
-  height: 1.8em;
+  block-size: 1.8em;
 }
 
 tree {
-  min-height: 150px;
+  min-block-size: 150px;
 }
 
 caption {
@@ -72,7 +72,7 @@ caption {
 }
 
 groupbox {
-  margin-top: 0;
+  margin-block-start: 0;
   margin-inline: 4px;
   padding-block: 0 5px;
 
@@ -134,12 +134,12 @@ textbox.tree-input {
 
 /* Adjust the Lightning Edit Category dialog */
 #colorSelectRow {
-  margin-top: 10px;
+  margin-block-start: 10px;
   margin-inline-start: 4px;
 }
 
 #totalOpenTime {
-  min-width: calc(3ch + 55px);
+  min-inline-size: calc(3ch + 55px);
 }
 
 #logView {
@@ -148,7 +148,7 @@ textbox.tree-input {
 }
 
 #cookieInfoSettings {
-  margin-top: 8px;
+  margin-block-start: 8px;
   margin-inline-end: -4px;
 }
 

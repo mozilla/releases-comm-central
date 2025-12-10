@@ -5,11 +5,11 @@
 @import url("chrome://messenger/skin/messenger.css");
 
 dialog {
-  height: 100%;
+  block-size: 100%;
 }
 
 dialog::part(content-box) {
-  height: 0;
+  block-size: 0;
 }
 
 auto-tree-view {
@@ -88,8 +88,8 @@ tbody[is="tree-view-table-body"] {
   }
 
   & .name-column {
-    max-width: unset;
-    width: 100%;
+    max-inline-size: unset;
+    inline-size: 100%;
   }
 
   &
@@ -115,7 +115,7 @@ tbody[is="tree-view-table-body"] {
   }
 
   & .folderselected-column {
-    max-width: unset;
+    max-inline-size: unset;
 
     & input {
       margin: 0;

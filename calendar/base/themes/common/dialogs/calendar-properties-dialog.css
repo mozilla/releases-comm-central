@@ -19,7 +19,7 @@ body {
 
 #calendar-properties-table th,
 #calendar-properties-table td {
-  min-height: 26px;
+  min-block-size: 26px;
 }
 
 #calendar-properties-table th {
@@ -28,11 +28,11 @@ body {
 }
 
 #calendar-properties-table td {
-  width: 100%;
+  inline-size: 100%;
 }
 
 #calendar-properties-table html|input[type="number"].size3 {
-  width: calc(3ch + 55px);
+  inline-size: calc(3ch + 55px);
 }
 
 #calendar-email-identity-row > td,
@@ -69,8 +69,8 @@ calendar-notifications-setting .add-button .button-icon {
 }
 
 calendar-notifications-setting .remove-button {
-  width: 26px;
-  min-width: 0;
+  inline-size: 26px;
+  min-inline-size: 0;
   padding: 0 4px;
   list-style-image: var(--icon-trash);
   -moz-context-properties: fill, stroke;
@@ -81,9 +81,9 @@ calendar-notifications-setting .remove-button {
 }
 
 calendar-notifications-setting .calendar-notifications-row:last-child {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 #global-notifications-row {
-  width: 100%;
+  inline-size: 100%;
 }
