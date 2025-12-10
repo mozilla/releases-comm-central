@@ -86,6 +86,10 @@ export class TestView {
     return false;
   }
 
+  getLevel(_index) {
+    return 0;
+  }
+
   selectionChanged() {}
 
   setTree() {}

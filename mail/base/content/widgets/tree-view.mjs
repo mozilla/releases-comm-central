@@ -782,6 +782,7 @@ export class TreeView extends HTMLElement {
         this._removeRowAtIndex(index);
       } else {
         row.index = index;
+        this._setRowAriaAttributes(row);
         row.selected = this._selection.isSelected(index);
       }
     } else if (
@@ -1302,10 +1303,10 @@ export class TreeView extends HTMLElement {
     const row = document.createElement("tr", { is: this._rowElementName });
     row.setAttribute("is", this._rowElementName);
     this.table.body.insertBefore(row, before);
-    row.setAttribute("aria-setsize", this._view.rowCount);
+
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
     row.index = index;
-    row.id = `${this.id}-row${index}`; // See fillRow()
+    this._setRowAriaAttributes(row);
     if (fillImmediately) {
       row.fillRow();
     }
@@ -1318,6 +1319,49 @@ export class TreeView extends HTMLElement {
       this.table.body.setAttribute("aria-activedescendant", row.id);
     }
     this._rows.set(index, row);
+  }
+
+  /**
+   * Set a row's a11y attributes based on its position in the heirarchy.
+   *
+   * @param {HTMLTableRowElement} row
+   */
+  _setRowAriaAttributes(row) {
+    if (!Services.appinfo.accessibilityEnabled && !Cu.isInAutomation) {
+      // Avoid doing any of this (potentially expensive) calculation if
+      // there's nothing enabled to use it.
+      return;
+    }
+
+    const index = row.index;
+    const level = this._view.getLevel(index);
+    const rowCount = this._view.rowCount;
+
+    let topCount = 1;
+    for (let i = index - 1; i >= 0; i--) {
+      const l = this._view.getLevel(i);
+      if (l < level) {
+        break;
+      }
+      if (l == level) {
+        topCount++;
+      }
+    }
+
+    let bottomCount = 0;
+    for (let i = index + 1; i < rowCount; i++) {
+      const l = this._view.getLevel(i);
+      if (l < level) {
+        break;
+      }
+      if (l == level) {
+        bottomCount++;
+      }
+    }
+
+    row.ariaLevel = level + 1;
+    row.ariaSetSize = topCount + bottomCount;
+    row.ariaPosInSet = topCount;
   }
 
   /**
@@ -2819,7 +2863,6 @@ export class TreeViewTableRow extends HTMLTableRowElement {
         ? "row"
         : "option"
     );
-    this.setAttribute("aria-posinset", this._index + 1);
     this.id = `${this.list.id}-row${this._index}`;
 
     const isGroup = this.view.isContainer(this._index);

@@ -1256,26 +1256,7 @@ async function subtestExpandCollapse() {
 
   await new Promise(resolve => content.requestAnimationFrame(resolve));
 
-  Assert.equal(
-    list.querySelectorAll("collapsed").length,
-    0,
-    "no rows are collapsed"
-  );
-  Assert.equal(list.view.rowCount, 8, "row count");
-  Assert.deepEqual(
-    Array.from(list.table.body.children, r => r.id),
-    [
-      "row-1",
-      "row-2",
-      "row-2-1",
-      "row-2-2",
-      "row-3",
-      "row-3-1",
-      "row-3-1-1",
-      "row-3-1-2",
-    ],
-    "rows property"
-  );
+  await checkRowsAreHidden();
 
   function checkCurrent(expectedIndex) {
     Assert.equal(list.currentIndex, expectedIndex, "currentIndex is correct");
@@ -1386,6 +1367,8 @@ async function subtestExpandCollapse() {
   function checkRowsAreHidden(...hiddenIds) {
     const remainingIds = allIds.slice();
 
+    // Check we don't have the hidden rows (anywhere in the document) and do
+    // have the visible rows.
     for (const id of allIds) {
       if (hiddenIds.includes(id)) {
         Assert.ok(!doc.getElementById(id), `${id} is hidden`);
@@ -1399,12 +1382,46 @@ async function subtestExpandCollapse() {
       }
     }
 
-    Assert.equal(list.view.rowCount, 8 - hiddenIds.length, "row count");
-    Assert.deepEqual(
-      Array.from(list.table.body.children, r => r.id),
-      remainingIds,
-      "rows property"
+    // Check we have the right number of row elements.
+    const visibleRowCount = 8 - hiddenIds.length;
+    Assert.equal(list.view.rowCount, visibleRowCount, "row count");
+    Assert.equal(
+      list.table.body.childElementCount,
+      visibleRowCount,
+      "row element count"
     );
+
+    // Check the attributes of the row elements.
+    const setSizes = {
+      "row-1": 3,
+      "row-2": 3,
+      "row-2-1": 2,
+      "row-2-2": 2,
+      "row-3": 3,
+      "row-3-1": 1,
+      "row-3-1-1": 2,
+      "row-3-1-2": 2,
+    };
+    for (let i = 0; i < visibleRowCount; i++) {
+      const rowElement = list.table.body.children[i];
+      const id = remainingIds[i];
+      Assert.equal(rowElement.id, id, `id at index ${i}`);
+      Assert.equal(
+        rowElement.ariaLevel,
+        id.split("-").length - 1, // IDs have one dash per level.
+        `ariaLevel at index ${i}`
+      );
+      Assert.equal(
+        rowElement.ariaSetSize,
+        setSizes[id],
+        `ariaSetSize at index ${i}`
+      );
+      Assert.equal(
+        rowElement.ariaPosInSet,
+        id.split("-").at(-1), // IDs end with the position in the set.
+        `ariaPosInSet at index ${i}`
+      );
+    }
   }
 
   // Collapse row 2.
