@@ -36,7 +36,7 @@ tasks:
                             default: listed
                     default: unlisted
             command:
-                - /builds/worker/bin/run-task
+                - /builds/worker/bin/run-task-hg
                 - "--"
                 - /builds/worker/venv/bin/python
                 - /builds/worker/bin/atn_langpack.py
