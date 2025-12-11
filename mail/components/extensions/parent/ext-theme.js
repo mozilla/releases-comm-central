@@ -64,42 +64,38 @@ class Theme {
       // In this case we would still be using the old interpretation instead of
       // the new one, until the user disables and re-enables/installs the theme.
       this.lwtData = startupData.lwtData;
-      this.lwtStyles = startupData.lwtStyles;
-      this.lwtDarkStyles = startupData.lwtDarkStyles;
-      this.experiment = startupData.experiment;
+      this.experiment = startupData.lwtData.experiment;
     } else {
-      // lwtData will be populated by load().
-      this.lwtData = null;
-      // TODO: Update this part after bug 1550090.
-      this.lwtStyles = {};
-      this.lwtDarkStyles = darkDetails ? {} : null;
-
-      this.experiment = null;
-
       if (experiment) {
         if (extension.canUseThemeExperiment()) {
-          this.lwtStyles.experimental = {
-            colors: {},
-            images: {},
-            properties: {},
-          };
-          if (this.lwtDarkStyles) {
-            this.lwtDarkStyles.experimental = {
-              colors: {},
-              images: {},
-              properties: {},
-            };
-          }
-
           if (experiment.stylesheet) {
             experiment.stylesheet = this.getFileUrl(experiment.stylesheet);
           }
-          this.experiment = experiment;
         } else {
           const { logger } = this.extension;
           logger.warn("This extension is not allowed to run theme experiments");
           return;
         }
+      }
+      this.lwtData = LightweightThemeManager.themeDataFrom(
+        details,
+        darkDetails,
+        experiment,
+        this.extension.baseURI,
+        this.extension.id,
+        this.extension.version,
+        this.extension.logger
+      );
+
+      if (this.extension.type === "theme") {
+        // Store the parsed theme in startupData, so it is available early at
+        // browser startup, to use as LightweightThemeManager.fallbackThemeData,
+        // which is assigned from Extension.sys.mjs to avoid having to wait for
+        // this ext-theme.js file to be loaded.
+        this.extension.startupData = {
+          lwtData: this.lwtData,
+        };
+        this.extension.saveStartupData();
       }
     }
     this.load();
@@ -119,37 +115,6 @@ class Theme {
    * This method will override any currently applied theme.
    */
   load() {
-    // this.lwtData is usually null, unless populated from startupData.
-    if (!this.lwtData) {
-      this.loadDetails(this.details, this.lwtStyles);
-      if (this.darkDetails) {
-        this.loadDetails(this.darkDetails, this.lwtDarkStyles);
-      }
-
-      this.lwtData = {
-        theme: this.lwtStyles,
-        darkTheme: this.lwtDarkStyles,
-      };
-
-      if (this.experiment) {
-        this.lwtData.experiment = this.experiment;
-      }
-
-      if (this.extension.type === "theme") {
-        // Store the parsed theme in startupData, so it is available early at
-        // browser startup, to use as LightweightThemeManager.fallbackThemeData,
-        // which is assigned from Extension.sys.mjs to avoid having to wait for
-        // this ext-theme.js file to be loaded.
-        this.extension.startupData = {
-          lwtData: this.lwtData,
-          lwtStyles: this.lwtStyles,
-          lwtDarkStyles: this.lwtDarkStyles,
-          experiment: this.experiment,
-        };
-        this.extension.saveStartupData();
-      }
-    }
-
     if (this.windowId) {
       this.lwtData.window = windowTracker.getWindow(
         this.windowId
