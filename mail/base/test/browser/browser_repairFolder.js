@@ -202,10 +202,10 @@ function assert_visible_columns(desiredColumns) {
  */
 async function toggleColumn(columnID) {
   const colPicker = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+    "#threadTree .last-column .button-column-picker"
   );
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);

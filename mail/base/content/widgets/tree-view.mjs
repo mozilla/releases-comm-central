@@ -15,9 +15,6 @@ import { TreeSelection } from "chrome://messenger/content/TreeSelection.mjs";
 const accelKeyName = AppConstants.platform == "macosx" ? "metaKey" : "ctrlKey";
 const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
 
-const ANIMATION_DURATION_MS = 200;
-const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
-
 /**
  * Definition of a TreeView table column. Not all of these properties are for
  * every TreeView, and their implementation should be moved out of this file.
@@ -1996,6 +1993,7 @@ class TreeViewTable extends HTMLTableElement {
    * Update the visibility of the currently available columns.
    */
   #updateView() {
+    const lastColumn = this.columns.findLast(c => !c.hidden);
     const lastResizableColumn = this.columns.findLast(
       c => !c.hidden && (c.resizable ?? true)
     );
@@ -2003,6 +2001,7 @@ class TreeViewTable extends HTMLTableElement {
     for (const column of this.columns) {
       const headerCell = document.getElementById(column.id);
       headerCell.hidden = column.hidden;
+      headerCell.classList.toggle("last-column", column == lastColumn);
 
       // No need to update the splitter visibility if the column is
       // specifically not resizable.
@@ -2030,6 +2029,13 @@ customElements.define("tree-view-table", TreeViewTable, { extends: "table" });
  */
 class TreeViewTableHeader extends HTMLTableSectionElement {
   /**
+   * The menu popup for column selection. This lives outside of the table.
+   *
+   * @type {XULMenuPopupElement}
+   */
+  #pickerContext;
+
+  /**
    * @type {ResizeObserver}
    */
   #resizeObserver = null;
@@ -2048,13 +2054,11 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
    * DOM position.
    *
    * @param {HTMLTableRowElement} element - The row to animate.
-   * @param {number} to - The new Y position of the element after animation.
+   * @param {number} to - The new X position of the element after animation.
    */
   static _transitionTranslation(element, to) {
-    if (!reducedMotionMedia.matches) {
-      element.style.transition = `transform ${ANIMATION_DURATION_MS}ms ease`;
-    }
     element.style.transform = to ? `translateX(${to}px)` : null;
+    element.classList.toggle("column-moved-by-dragging", to);
   }
 
   connectedCallback() {
@@ -2086,6 +2090,106 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
       }
     });
     this.#resizeObserver.observe(this);
+
+    this.#pickerContext = document.createXULElement("menupopup");
+    this.#pickerContext.classList.add("menupopup-column-picker");
+    this.#pickerContext.setAttribute("position", "bottomleft topleft");
+    this.#pickerContext.addEventListener("popupshowing", event => {
+      // Bail out if we're opening a submenu.
+      if (event.target != this.#pickerContext) {
+        return;
+      }
+
+      const table = this.closest("table");
+      const columns = table.columns;
+      const items = new DocumentFragment();
+      for (const column of columns) {
+        const menuitem = document.createXULElement("menuitem");
+        items.append(menuitem);
+        menuitem.setAttribute("type", "checkbox");
+        menuitem.setAttribute("name", "toggle");
+        menuitem.setAttribute("value", column.id);
+        menuitem.setAttribute("closemenu", "none");
+        if (column.l10n?.menuitem) {
+          document.l10n.setAttributes(menuitem, column.l10n.menuitem);
+        } else if (column.name) {
+          menuitem.label = column.name;
+        }
+
+        if (!column.hidden) {
+          menuitem.setAttribute("checked", "true");
+        } else {
+          menuitem.removeAttribute("checked");
+        }
+
+        // Disable those columns we don't want to allow hiding.
+        if (column.picker === false) {
+          menuitem.disabled = true;
+          continue;
+        }
+
+        menuitem.addEventListener("command", () => {
+          this.dispatchEvent(
+            new CustomEvent("columns-changed", {
+              bubbles: true,
+              detail: {
+                target: menuitem,
+                value: column.id,
+              },
+            })
+          );
+        });
+      }
+
+      items.append(document.createXULElement("menuseparator"));
+      const restoreItem = document.createXULElement("menuitem");
+      restoreItem.id = "restoreColumnOrder";
+      restoreItem.addEventListener("command", () =>
+        this.dispatchEvent(
+          new CustomEvent("restore-columns", { bubbles: true })
+        )
+      );
+      document.l10n.setAttributes(
+        restoreItem,
+        "tree-list-view-column-picker-restore-default-columns"
+      );
+      items.append(restoreItem);
+
+      for (const templateID of table.popupMenuTemplates) {
+        items.append(
+          document.getElementById(templateID).content.cloneNode(true)
+        );
+      }
+
+      this.#pickerContext.replaceChildren(items);
+    });
+
+    // The menu elements live outside of the table.
+    const treeView = this.closest(".tree-view-scrollable-container");
+    treeView.appendChild(this.#pickerContext);
+
+    this.addEventListener("contextmenu", event => {
+      event.stopPropagation();
+      event.preventDefault();
+      const table = this.closest("table");
+      if (table.editable) {
+        this.#pickerContext.openPopup(event.target, { triggerEvent: event });
+      }
+    });
+    this.addEventListener("click", event => {
+      const button = event.target.closest(".button-column-picker");
+      if (button) {
+        event.stopPropagation();
+        event.preventDefault();
+        const table = this.closest("table");
+        if (table.editable) {
+          this.#pickerContext.openPopup(button, {
+            position: "after_end",
+            triggerEvent: event,
+          });
+        }
+      }
+    });
   }
 
   disconnectedCallback() {
@@ -2247,6 +2351,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     for (const headerCell of this.#orderableChildren) {
       headerCell.style.transform = null;
       headerCell.style.transition = null;
+      headerCell.classList.remove("column-moved-by-dragging");
     }
   }
 
@@ -2299,50 +2404,30 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
    * Create all the table header cells based on the currently set columns.
    */
   setColumns() {
-    // Remove all header cells that aren't the column picker. Don't remove the
-    // column picker, we're probably in this function because of an event
-    // fired by one of its descendants. Removing the picker (even if we put it
-    // straight back) breaks the event flow.
-    for (const cell of this.row.querySelectorAll(
-      `th[is="tree-view-table-header-cell"]`
-    )) {
-      cell.remove();
-    }
+    this.row.replaceChildren();
 
-    let picker = this.row.querySelector(
-      `th[is="tree-view-table-column-picker"]`
-    );
     for (const column of this.parentNode.columns) {
       /** @type {TreeViewTableHeaderCell} */
       const cell = document.createElement("th", {
         is: "tree-view-table-header-cell",
       });
-      this.row.insertBefore(cell, picker);
+      this.row.appendChild(cell);
       cell.setColumn(column);
-    }
-
-    // Create a column picker if the table is editable.
-    if (this.parentNode.editable) {
-      if (!picker) {
-        picker = document.createElement("th", {
-          is: "tree-view-table-column-picker",
-        });
-        this.row.appendChild(picker);
-      }
-    } else if (picker) {
-      picker.remove();
     }
 
     this.updateRovingTab();
   }
 
   /**
-   * Get all currently visible columns of the table header.
+   * Get all currently visible column buttons of the table header, and the
+   * currently visible column picker button.
    *
    * @returns {Array} An array of buttons.
    */
   get headerColumns() {
-    return this.row.querySelectorAll(`th:not([hidden]) button`);
+    return this.row.querySelectorAll(
+      `th:not([hidden]) button:not(.button-column-picker), th.last-column .button-column-picker`
+    );
   }
 
   /**
@@ -2353,7 +2438,9 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
       button.tabIndex = -1;
     }
     // Allow focus on the first available button.
-    this.headerColumns[0].tabIndex = 0;
+    if (this.headerColumns.length) {
+      this.headerColumns[0].tabIndex = 0;
+    }
   }
 
   /**
@@ -2452,6 +2539,10 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
 
     this.#button = document.createElement("button");
     this.#container.appendChild(this.#button);
+    const pickerButton = document.createElement("button");
+    pickerButton.classList.add("button-flat", "button-column-picker");
+    pickerButton.appendChild(document.createElement("img"));
+    this.#container.appendChild(pickerButton);
     this.appendChild(this.#container);
   }
 
@@ -2502,16 +2593,6 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
         );
       });
     }
-
-    this.#button.addEventListener("contextmenu", event => {
-      event.stopPropagation();
-      const table = this.closest("table");
-      if (table.editable) {
-        table
-          .querySelector("#columnPickerMenuPopup")
-          .openPopup(event.target, { triggerEvent: event });
-      }
-    });
 
     // This is the column handling the thread toggling.
     if (column.thread) {
@@ -2609,136 +2690,6 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
 customElements.define("tree-view-table-header-cell", TreeViewTableHeaderCell, {
   extends: "th",
 });
-
-/**
- * Class used to generate a column picker used for the TreeViewTableHeader in
- * case the visibility of the columns of a table can be changed.
- *
- * Include treeView.ftl for strings.
- */
-class TreeViewTableColumnPicker extends HTMLTableCellElement {
-  /**
-   * The clickable button triggering the picker context menu.
-   *
-   * @type {HTMLButtonElement}
-   */
-  #button;
-
-  /**
-   * The menupopup allowing users to show and hide columns.
-   *
-   * @type {XULElement}
-   */
-  #context;
-
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-    this.hasConnected = true;
-
-    this.setAttribute("is", "tree-view-table-column-picker");
-    this.classList.add("tree-table-cell-container");
-
-    this.#button = document.createElement("button");
-    document.l10n.setAttributes(this.#button, "tree-list-view-column-picker");
-    this.#button.classList.add("button-flat", "button-column-picker");
-    this.appendChild(this.#button);
-
-    const img = document.createElement("img");
-    img.src = "";
-    img.alt = "";
-    this.#button.appendChild(img);
-
-    this.#context = document.createXULElement("menupopup");
-    this.#context.id = "columnPickerMenuPopup";
-    this.#context.setAttribute("position", "bottomleft topleft");
-    this.appendChild(this.#context);
-    this.#context.addEventListener("popupshowing", event => {
-      // Bail out if we're opening a submenu.
-      if (event.target.id != this.#context.id) {
-        return;
-      }
-
-      const table = this.closest("table");
-      const columns = table.columns;
-      const items = new DocumentFragment();
-      for (const column of columns) {
-        const menuitem = document.createXULElement("menuitem");
-        items.append(menuitem);
-        menuitem.setAttribute("type", "checkbox");
-        menuitem.setAttribute("name", "toggle");
-        menuitem.setAttribute("value", column.id);
-        menuitem.setAttribute("closemenu", "none");
-        if (column.l10n?.menuitem) {
-          document.l10n.setAttributes(menuitem, column.l10n.menuitem);
-        } else if (column.name) {
-          menuitem.label = column.name;
-        }
-
-        if (!column.hidden) {
-          menuitem.setAttribute("checked", "true");
-        } else {
-          menuitem.removeAttribute("checked");
-        }
-
-        // Disable those columns we don't want to allow hiding.
-        if (column.picker === false) {
-          menuitem.disabled = true;
-          continue;
-        }
-
-        menuitem.addEventListener("command", () => {
-          this.dispatchEvent(
-            new CustomEvent("columns-changed", {
-              bubbles: true,
-              detail: {
-                target: menuitem,
-                value: column.id,
-              },
-            })
-          );
-        });
-      }
-
-      items.append(document.createXULElement("menuseparator"));
-      const restoreItem = document.createXULElement("menuitem");
-      restoreItem.id = "restoreColumnOrder";
-      restoreItem.addEventListener("command", () => {
-        this.dispatchEvent(
-          new CustomEvent("restore-columns", {
-            bubbles: true,
-          })
-        );
-      });
-      document.l10n.setAttributes(
-        restoreItem,
-        "tree-list-view-column-picker-restore-default-columns"
-      );
-      items.append(restoreItem);
-
-      for (const templateID of table.popupMenuTemplates) {
-        items.append(
-          document.getElementById(templateID).content.cloneNode(true)
-        );
-      }
-
-      this.#context.replaceChildren(items);
-    });
-
-    this.#button.addEventListener("click", event => {
-      this.#context.openPopup(event.target, {
-        position: "after_end",
-        triggerEvent: event,
-      });
-    });
-  }
-}
-customElements.define(
-  "tree-view-table-column-picker",
-  TreeViewTableColumnPicker,
-  { extends: "th" }
-);
 
 /**
  * A powerful list designed to be used with a view (nsITreeView or
@@ -2885,9 +2836,6 @@ export class TreeViewTableRow extends HTMLTableRowElement {
         continue;
       }
 
-      // Always clear the colspan when updating the columns.
-      cell.removeAttribute("colspan");
-
       // Set role as gridcell for keyboard navigation
       if (this.getAttribute("role") == "row") {
         cell.setAttribute("role", "gridcell");
@@ -2923,16 +2871,6 @@ export class TreeViewTableRow extends HTMLTableRowElement {
       if (cell.firstElementChild) {
         continue;
       }
-    }
-
-    // Account for the column picker in the last visible column if the table
-    // if editable.
-    if (table.editable) {
-      const last = table.columns.filter(c => !c.hidden).pop();
-      this.querySelector(`.${last.id.toLowerCase()}-column`)?.setAttribute(
-        "colspan",
-        "2"
-      );
     }
   }
 

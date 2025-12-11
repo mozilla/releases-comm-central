@@ -213,10 +213,10 @@ async function toggleColumn(columnID) {
   const about3Pane = tabmail.currentAbout3Pane;
 
   const colPicker = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+    "#threadTree .last-column .button-column-picker"
   );
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
@@ -279,10 +279,9 @@ add_task(async function test_keypress_on_columns() {
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, about3Pane);
   EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
 
-  Assert.equal(
-    about3Pane.document.activeElement,
-    about3Pane.document.querySelector(
-      `th[is="tree-view-table-column-picker"] button`
+  Assert.ok(
+    about3Pane.document.activeElement.matches(
+      "#threadTree th.last-column #dateColButton + .button-column-picker"
     ),
     "The column picker should be focused"
   );
@@ -290,7 +289,7 @@ add_task(async function test_keypress_on_columns() {
   Assert.equal(tabmail.tabInfo.length, 1, "Only 1 tab should be visible");
 
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
   // Pressing Enter should open the column picker popup.
   EventUtils.synthesizeKey("VK_RETURN", {}, about3Pane);
@@ -302,15 +301,9 @@ add_task(async function test_keypress_on_columns() {
     "The selected message shouldn't be opened in another tab"
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popuphidden",
-    undefined,
-    event => event.originalTarget == colPickerPopup
-  );
   // Close the column picker.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
 
   // Move the focus to another column.
   EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
@@ -331,15 +324,9 @@ add_task(async function test_keypress_on_columns() {
   );
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
 
-  hiddenPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popuphidden",
-    undefined,
-    event => event.originalTarget == colPickerPopup
-  );
   // Close the column picker.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
 });
 
 /**
@@ -560,7 +547,7 @@ add_task(async function test_column_picker_from_header() {
   const about3Pane = tabmail.currentAbout3Pane;
 
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
   EventUtils.synthesizeMouseAtCenter(
@@ -589,10 +576,10 @@ async function open_column_picker() {
   const about3Pane = tabmail.currentAbout3Pane;
 
   const colPicker = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+    "#threadTree .last-column .button-column-picker"
   );
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
@@ -1101,31 +1088,21 @@ add_task(async function test_double_click_column_picker() {
   const about3Pane = tabmail.currentAbout3Pane;
 
   const colPicker = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+    "#threadTree .last-column .button-column-picker"
   );
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
-  const shownPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popupshown"
-  );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
-  await shownPromise;
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popuphidden",
-    undefined,
-    event => event.originalTarget == colPickerPopup
-  );
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
 
   const menuItem = colPickerPopup.querySelector('[value="threadCol"]');
   menuItem.dispatchEvent(new MouseEvent("dblclick", { button: 0 }));
 
   // The column picker menupopup doesn't close automatically on purpose.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
 
   Assert.deepEqual(
     tabmail.currentTabInfo,

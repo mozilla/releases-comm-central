@@ -476,12 +476,11 @@ async function showSortMenu(name, value) {
  */
 async function showPickerMenu(name, value) {
   const abWindow = getAddressBookWindow();
-  const cardsHeader = abWindow.cardsPane.table.header;
-  const pickerButton = cardsHeader.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+  const pickerButton = abWindow.document.querySelector(
+    "#cards .last-column .button-column-picker"
   );
-  const menupopup = cardsHeader.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+  const menupopup = abWindow.document.querySelector(
+    "#cards .menupopup-column-picker"
   );
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, abWindow);
   await BrowserTestUtils.waitForPopupEvent(menupopup, "shown");

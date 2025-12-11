@@ -173,9 +173,10 @@ add_task(async function testSidebar() {
   }
 
   async function checkListColumns(expectedColumns, addrbookItemDisabled) {
-    const picker = cardsList.querySelector("th:last-child");
-    const pickerButton = picker.querySelector("button");
-    const pickerPopup = picker.querySelector("menupopup");
+    const pickerButton = cardsList.querySelector(
+      ".last-column .button-column-picker"
+    );
+    const pickerPopup = cardsList.querySelector(".menupopup-column-picker");
 
     for (const header of cardsList.querySelectorAll("th[id]")) {
       Assert.equal(
@@ -203,9 +204,10 @@ add_task(async function testSidebar() {
   }
 
   async function toggleListColumn(columnID) {
-    const picker = cardsList.querySelector("th:last-child");
-    const pickerButton = picker.querySelector("button");
-    const pickerPopup = picker.querySelector("menupopup");
+    const pickerButton = cardsList.querySelector(
+      ".last-column .button-column-picker"
+    );
+    const pickerPopup = cardsList.querySelector(".menupopup-column-picker");
 
     EventUtils.synthesizeMouseAtCenter(pickerButton, {}, sidebarWindow);
     await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");

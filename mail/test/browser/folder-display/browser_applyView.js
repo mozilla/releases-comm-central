@@ -106,10 +106,10 @@ async function invoke_column_picker_option(aActions) {
   const about3Pane = tabmail.currentAbout3Pane;
 
   const colPicker = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] button`
+    "#threadTree .last-column .button-column-picker"
   );
   const colPickerPopup = about3Pane.document.querySelector(
-    `th[is="tree-view-table-column-picker"] menupopup`
+    "#threadTree .menupopup-column-picker"
   );
 
   const shownPromise = BrowserTestUtils.waitForEvent(

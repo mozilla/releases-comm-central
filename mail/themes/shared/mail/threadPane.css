@@ -275,7 +275,7 @@ tr:not([data-properties~="attach"]) :is(.attachmentcol-column img, .attachment-i
 
 /* Unread column variations */
 
-#unreadButtonColHeader img {
+#unreadButtonColHeaderButton img {
   content: var(--icon-unread-sm);
 }
 
@@ -465,7 +465,7 @@ tr:is(.table-layout, .card-layout) {
 
 /* Spam column variations */
 
-#junkStatusCol img {
+#junkStatusColButton img {
   content: var(--icon-spam-sm);
 }
 

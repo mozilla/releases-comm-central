@@ -69,20 +69,16 @@ class AutoTreeView extends TreeDataAdapter {
       this._rowMap.push(row);
     }
     const australia = this._rowMap[3];
-    australia.children.push(
+    australia.appendRow(
       new TreeDataRow({ continent: "australian capital territory" })
     );
-    australia.children.push(new TreeDataRow({ continent: "new south wales" }));
-    australia.children.push(
-      new TreeDataRow({ continent: "northern territory" })
-    );
-    australia.children.push(new TreeDataRow({ continent: "queensland" }));
-    australia.children.push(new TreeDataRow({ continent: "south australia" }));
-    australia.children.push(new TreeDataRow({ continent: "tasmania" }));
-    australia.children.push(new TreeDataRow({ continent: "victoria" }));
-    australia.children.push(
-      new TreeDataRow({ continent: "western australia" })
-    );
+    australia.appendRow(new TreeDataRow({ continent: "new south wales" }));
+    australia.appendRow(new TreeDataRow({ continent: "northern territory" }));
+    australia.appendRow(new TreeDataRow({ continent: "queensland" }));
+    australia.appendRow(new TreeDataRow({ continent: "south australia" }));
+    australia.appendRow(new TreeDataRow({ continent: "tasmania" }));
+    australia.appendRow(new TreeDataRow({ continent: "victoria" }));
+    australia.appendRow(new TreeDataRow({ continent: "western australia" }));
   }
 }
 
@@ -90,19 +86,15 @@ L10nRegistry.getInstance().registerSources([
   L10nFileSource.createMock("mock", "app", ["en-US"], "/localization/", [
     {
       path: "/localization/mock.ftl",
-      // Those weird column header names are a work-around for a bug that
-      // means columns can only be dragged from the text of the header.
-      // We need to have some text in the centre of the header cell.
-      // See bug 1908314.
       source: `
-colour-header = ColourColourColourColourColourColour
+colour-header = Colour
   .title = Sort by Colour
 colour-menuitem =
   .label = Colour
 colour-cell =
   .aria-label = Colour
   .title = The sky is { $title }
-continent-header = ContinentContinentContinent
+continent-header = Continent
   .title = Sort by Continent
 continent-menuitem =
   .label = Continent

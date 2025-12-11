@@ -32,12 +32,12 @@ add_task(async function () {
   // First we'll check that the header was constructed correctly.
 
   let headerRow = table.tHead.rows[0];
-  Assert.equal(headerRow.childElementCount, 7);
+  Assert.equal(headerRow.childElementCount, 6);
 
   let headerButtons;
   function updateHeaderButtons() {
     headerButtons = headerRow.querySelectorAll(
-      `th[is="tree-view-table-header-cell"] > div > button`
+      `th[is="tree-view-table-header-cell"] > div > button:not(.button-column-picker)`
     );
   }
   function checkHeaderLabels(expectedOrder) {
@@ -74,8 +74,10 @@ add_task(async function () {
 
   // Now the column picker.
 
-  let pickerButton = headerRow.lastElementChild.querySelector("button");
-  let pickerPopup = headerRow.lastElementChild.querySelector("menupopup");
+  let pickerButton = headerRow.querySelector(
+    ".last-column .button-column-picker"
+  );
+  let pickerPopup = tree.querySelector(".menupopup-column-picker");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
 
@@ -356,6 +358,9 @@ add_task(async function () {
   checkPersistedValue("columns", "");
 
   async function toggleColumn(columnID, expectedOrder, expectedChecked) {
+    pickerButton = headerRow.querySelector(
+      ".last-column .button-column-picker"
+    );
     EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
     await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
     checkPickerLabels(expectedOrder);
@@ -786,6 +791,7 @@ add_task(async function () {
     ["yellow", "antarctica", "", "", "", null],
   ]);
 
+  pickerButton = headerRow.querySelector(".last-column .button-column-picker");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, win);
   await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
   checkPickerLabels([
@@ -824,8 +830,8 @@ add_task(async function () {
   tree = doc.getElementById("autoTree");
   table = tree.querySelector("table");
   headerRow = table.tHead.rows[0];
-  pickerButton = headerRow.lastElementChild.querySelector("button");
-  pickerPopup = headerRow.lastElementChild.querySelector("menupopup");
+  pickerButton = headerRow.querySelector(".last-column .button-column-picker");
+  pickerPopup = tree.querySelector(".menupopup-column-picker");
 
   checkHeaderLabels([
     "continent",
