@@ -62,6 +62,14 @@ add_setup(async () => {
     }
     is(tabmail.tabInfo.length, 1, "One tab open from start");
   }
+  // Remove state information (for example position and size) for the compose and
+  // message window, which might have leaked in from previous tests.
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messageWindow.xhtml"
+  );
 });
 
 // Keep tack of the origial value of the pref extensions.webextensions.uuids to

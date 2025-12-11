@@ -8,6 +8,9 @@ prefs = [
   "mailnews.message_display.disable_remote_image=false",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
+  # Suppress the bar because it sometimes steals focus or causes other unexpected
+  # issues.
+  "mail.rights.override=true",
 ]
 subsuite = "thunderbird"
 support-files = [
