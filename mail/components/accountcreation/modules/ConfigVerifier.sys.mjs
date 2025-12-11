@@ -360,8 +360,8 @@ export class ConfigVerifier {
         if (config.incoming.owaURL) {
           this.server.setStringValue("owa_url", config.incoming.owaURL);
         }
-        if (config.incoming.exchangeURL) {
-          this.server.setStringValue("ews_url", config.incoming.exchangeURL);
+        if (config.incoming.ewsURL) {
+          this.server.setStringValue("ews_url", config.incoming.ewsURL);
         }
         if (config.incoming.easURL) {
           this.server.setStringValue("eas_url", config.incoming.easURL);

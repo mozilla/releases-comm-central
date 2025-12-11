@@ -279,7 +279,7 @@ add_task(async function test_account_email_manual_form() {
   );
   Assert.ok(
     BrowserTestUtils.isHidden(
-      incomingConfigTemplate.querySelector("#incomingExchangeUrl")
+      incomingConfigTemplate.querySelector("#incomingEwsUrl")
     ),
     "EWS URL input should be hidden"
   );
@@ -674,12 +674,10 @@ add_task(async function test_account_email_manual_to_ews() {
 
   await BrowserTestUtils.waitForAttributeRemoval(
     "hidden",
-    incomingConfigSubview.querySelector("#incomingExchangeUrlFormGroup")
+    incomingConfigSubview.querySelector("#incomingEwsUrlFormGroup")
   );
 
-  const ewsURLInput = incomingConfigSubview.querySelector(
-    "#incomingExchangeUrl"
-  );
+  const ewsURLInput = incomingConfigSubview.querySelector("#incomingEwsUrl");
   const focusEvent = BrowserTestUtils.waitForEvent(ewsURLInput, "focus");
   EventUtils.synthesizeMouseAtCenter(ewsURLInput, {});
   await focusEvent;

@@ -670,11 +670,13 @@ class AccountHubEmail extends HTMLElement {
 
           // If we couldn't find a configuration when directed to manual
           // config, the default config doesn't have an outgoing type.
-          if (!stateData.isExchangeConfig() && !stateData.outgoing.type) {
+          if (stateData.incoming.type != "ews" && !stateData.outgoing.type) {
             stateData.outgoing.type = "smtp";
           }
 
-          if (stateData.isExchangeConfig()) {
+          // If the configuration is for EWS, set the outgoing type to use EWS
+          // as well.
+          if (stateData.incoming.type == "ews") {
             stateData.incoming.handlesOutgoing = true;
           }
 

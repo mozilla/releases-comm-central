@@ -128,9 +128,9 @@ export class OutgoingServerService {
     type = type?.toLowerCase();
     return this.servers.find(server => {
       if (
-        (username && server.username?.toLowerCase() != username) ||
-        (hostname && server.serverURI?.host?.toLowerCase() != hostname) ||
-        (type && server.type?.toLowerCase() != type)
+        (username && server.username.toLowerCase() != username) ||
+        (hostname && server.serverURI.host.toLowerCase() != hostname) ||
+        (type && server.type.toLowerCase() != type)
       ) {
         return false;
       }

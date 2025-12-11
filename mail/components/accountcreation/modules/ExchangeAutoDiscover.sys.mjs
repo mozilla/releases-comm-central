@@ -530,13 +530,11 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         if (urlsX) {
           config.incoming.owaURL = lazy.Sanitizer.url(urlsX.OWAUrl.value);
           if (
-            !config.incoming.exchangeURL &&
+            !config.incoming.ewsURL &&
             "Protocol" in urlsX &&
             "ASUrl" in urlsX.Protocol
           ) {
-            config.incoming.exchangeURL = lazy.Sanitizer.url(
-              urlsX.Protocol.ASUrl
-            );
+            config.incoming.ewsURL = lazy.Sanitizer.url(urlsX.Protocol.ASUrl);
           }
           config.incoming.type = "exchange";
           const parsedURL = new URL(config.incoming.owaURL);
@@ -548,12 +546,12 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           }
         }
       } else if (type == "EXHTTP" || type == "EXCH") {
-        config.incoming.exchangeURL = lazy.Sanitizer.url(protocolX.EwsUrl);
-        if (!config.incoming.exchangeURL) {
-          config.incoming.exchangeURL = lazy.Sanitizer.url(protocolX.ASUrl);
+        config.incoming.ewsURL = lazy.Sanitizer.url(protocolX.EwsUrl);
+        if (!config.incoming.ewsURL) {
+          config.incoming.ewsURL = lazy.Sanitizer.url(protocolX.ASUrl);
         }
         config.incoming.type = "exchange";
-        const parsedURL = new URL(config.incoming.exchangeURL);
+        const parsedURL = new URL(config.incoming.ewsURL);
         config.incoming.hostname = lazy.Sanitizer.hostname(parsedURL.hostname);
         if (parsedURL.port) {
           config.incoming.port = lazy.Sanitizer.integer(parsedURL.port);
@@ -669,7 +667,7 @@ export function getAddonsList(config, successCallback, errorCallback) {
         addon.useType = addon.supportedTypes.find(
           type =>
             (incoming.owaURL && type.protocolType == "owa") ||
-            (incoming.exchangeURL && type.protocolType == "ews") ||
+            (incoming.ewsURL && type.protocolType == "ews") ||
             (incoming.easURL && type.protocolType == "eas")
         );
         return !!addon.useType;

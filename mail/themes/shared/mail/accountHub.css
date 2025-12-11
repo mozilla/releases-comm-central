@@ -885,10 +885,3 @@ header {
       filter 200ms ease;
   }
 }
-
-/* stylelint-disable-next-line media-query-no-invalid */
-@media not -moz-pref("mail.graph.enabled") {
-  #incomingProtocolGraph {
-    display: none;
-  }
-}

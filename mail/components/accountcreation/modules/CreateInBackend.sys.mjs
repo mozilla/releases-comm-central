@@ -109,8 +109,8 @@ async function createAccountInBackend(config) {
   if (config.incoming.owaURL) {
     inServer.setStringValue("owa_url", config.incoming.owaURL);
   }
-  if (config.incoming.exchangeURL) {
-    inServer.setStringValue("ews_url", config.incoming.exchangeURL);
+  if (config.incoming.ewsURL) {
+    inServer.setStringValue("ews_url", config.incoming.ewsURL);
   }
   if (config.incoming.easURL) {
     inServer.setStringValue("eas_url", config.incoming.easURL);
@@ -166,12 +166,9 @@ async function createAccountInBackend(config) {
       // types (e.g. EWS) it is derived from the URL used to configure the
       // server.
       outServer.socketType = config.outgoing.socketType;
-    } else if (
-      config.outgoing.type == "ews" ||
-      config.outgoing.type == "graph"
-    ) {
+    } else if (config.outgoing.type == "ews") {
       const ewsServer = outServer.QueryInterface(Ci.nsIEwsServer);
-      ewsServer.initialize(config.outgoing.exchangeURL);
+      ewsServer.initialize(config.outgoing.ewsURL);
     } else {
       // Note: createServer should already have thrown if given a type we don't
       // support, so if we're able to reach this then something has gone very
@@ -266,7 +263,7 @@ async function createAccountInBackend(config) {
 
   verifyLocalFoldersAccount();
 
-  if (!["ews", "graph"].includes(inServer.type)) {
+  if (inServer.type != "ews") {
     // EWS doesn't use the same names as IMAP et al for its notable folders, and
     // there's no guarantee the folder names will always be the same and not be
     // e.g. localized depending on the organization's primary language. The EWS

@@ -36,7 +36,7 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
   subview.setState(config);
 
   const protocolSelector = subview.querySelector("#incomingProtocol");
-  const ewsURLField = subview.querySelector("#incomingExchangeUrl");
+  const ewsURLField = subview.querySelector("#incomingEwsUrl");
   const incomingAuthMethod = subview.querySelector("#incomingAuthMethod");
   const usernameField = subview.querySelector("#incomingUsername");
 
@@ -166,7 +166,7 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
 add_task(async function test_getEWSConfig() {
   const config = new AccountConfig();
   config.incoming.type = "ews";
-  config.incoming.exchangeURL = "https://example.com/";
+  config.incoming.ewsURL = "https://example.com/";
   config.incoming.username = "test@example.com";
   config.incoming.auth = 3;
 
@@ -184,7 +184,7 @@ add_task(async function test_getEWSConfig() {
   Assert.ok(!state.edited, "Should indicate that the config is unedited");
   Assert.equal(state.config.incoming.type, "ews", "Should be an EWS config");
   Assert.equal(
-    state.config.incoming.exchangeURL,
+    state.config.incoming.ewsURL,
     "https://example.com/",
     "Should include EWS url"
   );
@@ -244,154 +244,4 @@ add_task(async function test_settingStateLeavesConfigIntact() {
   );
 
   subview.resetState();
-});
-
-add_task(async function test_graphIsDisabledByDefault() {
-  const config = new AccountConfig();
-  config.incoming.type = "ews";
-  subview.setState(config);
-
-  const protocolSelector = subview.querySelector("#incomingProtocol");
-
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  const graphSelector = protocolSelector.querySelector(
-    "#incomingProtocolGraph"
-  );
-
-  Assert.ok(
-    BrowserTestUtils.isHidden(graphSelector),
-    "Graph selection should be unavailable by default."
-  );
-
-  protocolSelector.menupopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
-  subview.resetState();
-});
-
-add_task(async function test_graphIsEnabledByPref() {
-  await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
-  const config = new AccountConfig();
-  config.incoming.type = "ews";
-  subview.setState(config);
-
-  const protocolSelector = subview.querySelector("#incomingProtocol");
-
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  const graphSelector = protocolSelector.querySelector(
-    "#incomingProtocolGraph"
-  );
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(graphSelector),
-    "Graph selection should be available when mail.graph.enabled is set."
-  );
-
-  protocolSelector.menupopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
-  subview.resetState();
-  await SpecialPowers.popPrefEnv();
-});
-
-add_task(async function test_switchBetweenIMAPAndGraph() {
-  await SpecialPowers.pushPrefEnv({ set: [["mail.graph.enabled", true]] });
-  const config = new AccountConfig();
-  config.incoming.type = "imap";
-  subview.setState(config);
-
-  const protocolSelector = subview.querySelector("#incomingProtocol");
-  const exchangeURLField = subview.querySelector("#incomingExchangeUrl");
-  const incomingAuthMethod = subview.querySelector("#incomingAuthMethod");
-  const usernameField = subview.querySelector("#incomingUsername");
-
-  info("Switch to Graph");
-  let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
-    subview,
-    "config-updated"
-  );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  protocolSelector.menupopup.activateItem(
-    protocolSelector.querySelector("#incomingProtocolGraph")
-  );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
-  let { detail: configUpdatedEvent } = await configUpdatedEventPromise;
-
-  const state = subview.captureState();
-  Assert.equal(
-    state.config.incoming.type,
-    "graph",
-    "Incoming server should be Graph server."
-  );
-
-  Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
-  Assert.ok(
-    BrowserTestUtils.isVisible(exchangeURLField),
-    "Should show Exchange URL field for Graph"
-  );
-  Assert.equal(
-    incomingAuthMethod.value,
-    "3",
-    "Should replace autodetect with cleartext auth"
-  );
-  Assert.ok(
-    BrowserTestUtils.isVisible(usernameField),
-    "Username field should stay visible"
-  );
-
-  info("Set a username");
-  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
-    subview,
-    "config-updated",
-    false,
-    () => usernameField.value == "test@example.com"
-  );
-
-  let focusEvent = BrowserTestUtils.waitForEvent(usernameField, "focus");
-  EventUtils.synthesizeMouseAtCenter(usernameField, {}, browser.contentWindow);
-  await focusEvent;
-
-  info("Typing username...");
-  EventUtils.sendString("test@example.com", browser.contentWindow);
-  ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
-  Assert.equal(
-    usernameField.value,
-    "test@example.com",
-    "Username should carry over"
-  );
-
-  info("Focus Exchange URL field");
-  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
-    subview,
-    "config-updated",
-    false,
-    () => exchangeURLField.value == "https://example.com/"
-  );
-  focusEvent = BrowserTestUtils.waitForEvent(exchangeURLField, "focus");
-  EventUtils.synthesizeMouseAtCenter(
-    exchangeURLField,
-    {},
-    browser.contentWindow
-  );
-  await focusEvent;
-  EventUtils.sendString("https://example.com/", browser.contentWindow);
-  ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
-
-  Assert.ok(
-    configUpdatedEvent.completed,
-    "Should indicate that the form is complete"
-  );
-
-  subview.resetState();
-  await SpecialPowers.popPrefEnv();
 });

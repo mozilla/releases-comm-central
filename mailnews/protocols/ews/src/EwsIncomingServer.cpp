@@ -549,13 +549,8 @@ NS_IMETHODIMP EwsIncomingServer::GetPassword(nsAString& password) {
 
 NS_IMETHODIMP EwsIncomingServer::GetLocalStoreType(
     nsACString& aLocalStoreType) {
-  if (StaticPrefs::mail_graph_enabled()) {
-    // For EWS and graph, the local store type is the same value as the server
-    // type.
-    return GetType(aLocalStoreType);
-  }
+  aLocalStoreType.AssignLiteral("ews");
 
-  aLocalStoreType.Assign("ews");
   return NS_OK;
 }
 
