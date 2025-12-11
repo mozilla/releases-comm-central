@@ -8,6 +8,10 @@ const { MsgUtils } = ChromeUtils.importESModule(
   "resource:///modules/MimeMessageUtils.sys.mjs"
 );
 
+const { ComposeUtils } = ChromeUtils.importESModule(
+  "resource:///modules/ComposeUtils.sys.mjs"
+);
+
 var gCloudAttachmentLinkManager = {
   init() {
     this.cloudAttachments = [];
@@ -637,11 +641,9 @@ var gCloudAttachmentLinkManager = {
           "url(" + aCloudFileUpload.serviceIcon + ")";
       } else {
         try {
-          // Let's use the goodness from MsgComposeCommands.js since we're
-          // sitting right in a compose window.
           serviceIcon.style.backgroundImage =
             "url(" +
-            window.loadBlockedImage(aCloudFileUpload.serviceIcon, true) +
+            ComposeUtils.loadBlockedImage(aCloudFileUpload.serviceIcon) +
             ")";
         } catch (e) {
           // Couldn't load the referenced image.

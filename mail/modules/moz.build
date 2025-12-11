@@ -13,6 +13,7 @@ EXTRA_JS_MODULES += [
     "AttachmentInfo.sys.mjs",
     "BrowserWindowTracker.sys.mjs",
     "CommandController.mjs",
+    "ComposeUtils.sys.mjs",
     "ConnectionNotifications.sys.mjs",
     "ConversationOpener.sys.mjs",
     "DBViewWrapper.sys.mjs",

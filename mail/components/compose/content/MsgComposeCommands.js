@@ -113,6 +113,7 @@ XPCOMUtils.defineLazyScriptGetter(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  ComposeUtils: "resource:///modules/ComposeUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
@@ -10553,8 +10554,10 @@ var envelopeDragObserver = {
 
       editor.insertElementAtSelection(imageElement, true);
 
+      imageElement.classList.add("loading-internal");
       try {
-        loadBlockedImage(src);
+        imageElement.src = lazy.ComposeUtils.loadBlockedImage(src);
+        imageElement.classList.remove("loading-internal");
       } catch (e) {
         dump("Failed to load the appended image!\n");
         console.error(e);
@@ -11260,7 +11263,8 @@ function InitEditor() {
           // now.
           event.target.classList.add("loading-internal");
           try {
-            loadBlockedImage(src);
+            event.target.src = lazy.ComposeUtils.loadBlockedImage(src);
+            event.target.classList.remove("loading-internal");
           } catch (e) {
             // Couldn't load the referenced image.
             console.error(e);
@@ -11310,7 +11314,8 @@ function InitEditor() {
       )
     ) {
       try {
-        editor.document.body.background = loadBlockedImage(background, true);
+        editor.document.body.background =
+          lazy.ComposeUtils.loadBlockedImage(background);
       } catch (e) {
         // Couldn't load the referenced image.
         console.error(e);
@@ -11602,7 +11607,13 @@ function onBlockedContentOptionsShowing(aEvent) {
  */
 function onUnblockResource(aURL, aNode) {
   try {
-    loadBlockedImage(aURL);
+    const dataUrl = lazy.ComposeUtils.loadBlockedImage(aURL);
+    const editor = GetCurrentEditor();
+    for (const img of editor.document.images) {
+      if (img.src == aURL) {
+        img.src = dataUrl;
+      }
+    }
   } catch (e) {
     // Couldn't load the referenced image.
     console.error(e);
@@ -11620,91 +11631,6 @@ function onUnblockResource(aURL, aNode) {
       }
     }
   }
-}
-
-/**
- * Convert the blocked content to a data URL and swap the src to that for the
- * elements that were using it.
- *
- * @param {string} aURL - (necko) URL to unblock.
- * @param {boolean} aReturnDataURL - Return data: URL instead of processing image.
- * @returns {string} the image as data: URL.
- * @throws Error() if reading the data failed.
- */
-function loadBlockedImage(aURL, aReturnDataURL = false) {
-  let filename;
-  if (/^(file|chrome|moz-extension):/i.test(aURL)) {
-    filename = aURL.substr(aURL.lastIndexOf("/") + 1);
-  } else {
-    const fnMatch = /[?&;]filename=([^?&]+)/.exec(aURL);
-    filename = (fnMatch && fnMatch[1]) || "";
-  }
-  filename = decodeURIComponent(filename);
-  const uri = Services.io.newURI(aURL);
-  let contentType;
-  if (filename) {
-    try {
-      contentType = Cc["@mozilla.org/mime;1"]
-        .getService(Ci.nsIMIMEService)
-        .getTypeFromURI(uri);
-    } catch (ex) {
-      contentType = "image/png";
-    }
-
-    if (!contentType.startsWith("image/")) {
-      // Unsafe to unblock this. It would just be garbage either way.
-      throw new Error(
-        "Won't unblock; URL=" + aURL + ", contentType=" + contentType
-      );
-    }
-  } else {
-    // Assuming image/png is the best we can do.
-    contentType = "image/png";
-  }
-  const channel = Services.io.newChannelFromURI(
-    uri,
-    null,
-    Services.scriptSecurityManager.getSystemPrincipal(),
-    null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER
-  );
-  const inputStream = channel.open();
-  const stream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
-    Ci.nsIBinaryInputStream
-  );
-  stream.setInputStream(inputStream);
-  let streamData = "";
-  try {
-    while (stream.available() > 0) {
-      streamData += stream.readBytes(stream.available());
-    }
-  } catch (e) {
-    stream.close();
-    throw new Error("Couldn't read all data from URL=" + aURL + " (" + e + ")");
-  }
-  stream.close();
-  const encoded = btoa(streamData);
-  const dataURL =
-    "data:" +
-    contentType +
-    (filename ? ";filename=" + encodeURIComponent(filename) : "") +
-    ";base64," +
-    encoded;
-
-  if (aReturnDataURL) {
-    return dataURL;
-  }
-
-  const editor = GetCurrentEditor();
-  for (const img of editor.document.images) {
-    if (img.src == aURL) {
-      img.src = dataURL; // Swap to data URL.
-      img.classList.remove("loading-internal");
-    }
-  }
-
-  return null;
 }
 
 /**
