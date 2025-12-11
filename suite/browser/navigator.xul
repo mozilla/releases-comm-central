@@ -234,7 +234,7 @@
              grippytooltiptext="&navigationToolbar.tooltip;"
              fullscreentoolbar="true" customizable="true"
              toolbarname="&navbarCmd.label;" accesskey="&navbarCmd.accesskey;"
-             defaultset="back-button,forward-button,reload-button,stop-button,nav-bar-inner,search-button-container,print-button,throbber-box,window-controls"
+             defaultset="home-button,spacer,back-button,forward-button,reload-button,stop-button,nav-bar-inner,search-button-container,print-button,throbber-box,window-controls"
              context="toolbar-context-menu">
 
       <hbox id="window-controls" hidden="true" fullscreencontrol="true">
@@ -262,7 +262,7 @@
              toolbarname="&bookmarksToolbarCmd.label;"
              nowindowdrag="true"
              customizable="true"
-             defaultset="home-button,separator,bookmarks-button,personal-bookmarks"
+             defaultset="bookmarks-button,personal-bookmarks"
              mode="full"
              iconsize="small"
              labelalign="end"
