@@ -283,6 +283,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
                 size: 442,
                 tags: [],
                 external: true,
+                priority: "none",
               },
             },
             {
@@ -518,6 +519,7 @@ add_task(async function test_openpgp_enc_nested_messages() {
                 size: 100,
                 tags: [],
                 external: true,
+                priority: "none",
               },
             },
           ],

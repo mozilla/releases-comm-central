@@ -77,6 +77,7 @@
             }
           },
           "date": {
+            "description": "The date and time when the message was sent, according to the Date header in the message.",
             "$ref": "extensionTypes.Date"
           },
           "external": {
@@ -112,6 +113,11 @@
             "description": "The junk score associated with the message. Always <var>0</var> for news/nntp messages and external messages.",
             "minimum": 0,
             "maximum": 100
+          },
+          "priority": {
+            "type": "string",
+            "description": "The priority of the message.",
+            "enum": ["none", "lowest", "low", "normal", "high", "highest"]
           },
           "read": {
             "type": "boolean",
@@ -438,6 +444,37 @@
             "$ref": "folders.MailFolderId"
           },
           {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "sortType": {
+                "type": "string",
+                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise.",
+                "optional": true,
+                "enum": [
+                  "author",
+                  "date",
+                  "flagged",
+                  "junk",
+                  "junkScore",
+                  "priority",
+                  "read",
+                  "recipients",
+                  "size",
+                  "subject",
+                  "tags"
+                ]
+              },
+              "sortOrder": {
+                "type": "string",
+                "description": "The sort order for the returned messages. Ignored if <var>sortType</var> is not specified.",
+                "optional": true,
+                "enum": ["ascending", "descending"]
+              }
+            }
+          },
+          {
             "type": "function",
             "name": "callback",
             "optional": true,
@@ -468,6 +505,37 @@
                 "$ref": "folders.MailFolderId"
               }
             ]
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "sortType": {
+                "type": "string",
+                "description": "Specifies how the returned messages should be sorted. Default sort order is <var>descending</var>, if not specified otherwise.",
+                "optional": true,
+                "enum": [
+                  "author",
+                  "date",
+                  "flagged",
+                  "junk",
+                  "junkScore",
+                  "priority",
+                  "read",
+                  "recipients",
+                  "size",
+                  "subject",
+                  "tags"
+                ]
+              },
+              "sortOrder": {
+                "type": "string",
+                "optional": true,
+                "description": "The sort order for the returned messages. Ignored if <var>sortType</var> is not specified.",
+                "enum": ["ascending", "descending"]
+              }
+            }
           },
           {
             "type": "function",

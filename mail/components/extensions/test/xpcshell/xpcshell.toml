@@ -40,6 +40,8 @@ support-files = ["messages/**"]
 ["test_ext_messages_import.js"]
 support-files = ["messages/**"]
 
+["test_ext_messages_list_options.js"]
+
 ["test_ext_messages_move_copy_delete.js"] # Disabled for NNTP (no support for Trash folder)
 
 ["test_ext_messages_onNewMailReceived.js"]

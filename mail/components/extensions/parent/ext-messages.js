@@ -20,6 +20,7 @@ var {
   getMessagesInFolder,
   messagePartToRaw,
   parseEncodedAddrHeader,
+  sortMessages,
   CachedMsgHeader,
   FolderPropertyChangeListener,
   MAILBOX_HEADERS,
@@ -709,10 +710,13 @@ this.messages = class extends ExtensionAPIPersistent {
           event: "onDeleted",
           extensionApi: this,
         }).api(),
-        async list(target) {
+        async list(target, options) {
           const { folder } = getFolder(target);
           const messages = getMessagesInFolder(folder);
-          return messageListTracker.startList(messages, context.extension);
+          return messageListTracker.startList(
+            sortMessages(messages, options, messageTracker),
+            context.extension
+          );
         },
         async continueList(messageListId) {
           const messageList = messageListTracker.getList(

@@ -45,6 +45,15 @@ XPCOMUtils.defineLazyPreferenceGetter(
   100
 );
 
+// A Map with all the specific priority values, which should not map to "none".
+const TB_SPECIFIC_PRIORITY_MAP = new Map([
+  [Ci.nsMsgPriority.lowest, "lowest"],
+  [Ci.nsMsgPriority.low, "low"],
+  [Ci.nsMsgPriority.normal, "normal"],
+  [Ci.nsMsgPriority.high, "high"],
+  [Ci.nsMsgPriority.highest, "highest"],
+]);
+
 // Headers holding multiple mailbox strings needs special handling during encoding
 // and decoding. For example, the following TO header
 //   =?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug
@@ -963,6 +972,7 @@ export class CachedMsgHeader {
     this.isFlagged = false;
     this.messageSize = 0;
     this.folder = null;
+    this.priority = Ci.nsMsgPriority.none;
 
     // Additional properties.
     this.accountKey = "";
@@ -981,6 +991,7 @@ export class CachedMsgHeader {
       this.isFlagged = msgHdr.isFlagged;
       this.messageSize = msgHdr.messageSize;
       this.folder = msgHdr.folder;
+      this.priority = msgHdr.priority ?? Ci.nsMsgPriority.none;
 
       // Also cache the additional elements.
       this.accountKey = msgHdr.accountKey;
@@ -2025,9 +2036,11 @@ export class MessageManager {
 
     const junkScore =
       parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
-    const tags = (cachedHdr.getStringProperty("keywords") || "")
-      .split(" ")
-      .filter(MailServices.tags.isValidKey);
+
+    const allTags = MailServices.tags.getAllTags().map(e => e.key);
+    const keywords = (cachedHdr.getStringProperty("keywords") || "").split(" ");
+    // Keep sort order from allTags.
+    const tags = allTags.filter(tag => keywords.includes(tag));
 
     const messageObject = {
       id: cachedHdr.id,
@@ -2047,6 +2060,7 @@ export class MessageManager {
       size: cachedHdr.messageSize,
       tags,
       external: !cachedHdr.folder,
+      priority: TB_SPECIFIC_PRIORITY_MAP.get(cachedHdr.priority) || "none",
     };
 
     if (
@@ -2713,6 +2727,116 @@ async function retrieveMessageFromServer(mid, server) {
 
   const uri = Services.io.newFileURI(tempFile).spec;
   return MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
+}
+
+export function sortMessages(msgHdrs, options, messageTracker) {
+  const sortOrder = options?.sortOrder || "none";
+  const sortType = options?.sortType || "none";
+  if (sortOrder == "none" && sortType == "none") {
+    return msgHdrs;
+  }
+
+  // MessageManager.convert() will do this anyhow, so we might as well
+  // create the cached headers here directly.
+  const cachedMsgHeaders = msgHdrs.map(
+    msgHdr => new CachedMsgHeader(messageTracker, msgHdr)
+  );
+
+  // Enrich chached headers with additional information for faster
+  // sorting.
+  if (["junk", "junkScore"].includes(sortType)) {
+    for (const cachedHdr of cachedMsgHeaders) {
+      const junkScore =
+        parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
+      const junk = junkScore >= lazy.gJunkThreshold ? 1 : 0;
+      cachedHdr.junkScore = junkScore;
+      cachedHdr.junk = junk;
+    }
+  }
+  if (["tags"].includes(sortType)) {
+    const allTags = MailServices.tags.getAllTags().map(e => e.key);
+    for (const cachedHdr of cachedMsgHeaders) {
+      const keywords = cachedHdr.getStringProperty("keywords") || "";
+      const tags = keywords.split(" ");
+      // Keep sort order from allTags.
+      const usedTags = allTags.filter(tag => tags.includes(tag));
+
+      // Make sure that empty tags are sorted to the bottom.
+      cachedHdr._tagsSortKey =
+        usedTags.length === 0 ? "1:" : "0:" + usedTags.join(" ");
+    }
+  }
+  if (["recipients"].includes(sortType)) {
+    for (const cachedHdr of cachedMsgHeaders) {
+      cachedHdr.recipients = parseEncodedAddrHeader(
+        cachedHdr.recipients,
+        false
+      ).join(", ");
+    }
+  }
+  if (["author"].includes(sortType)) {
+    for (const cachedHdr of cachedMsgHeaders) {
+      cachedHdr.author = parseEncodedAddrHeader(cachedHdr.author).shift() || "";
+    }
+  }
+  if (["priority"].includes(sortType)) {
+    for (const cachedHdr of cachedMsgHeaders) {
+      // All non-specific values are sorted as Default.
+      cachedHdr._prioritySortKey = TB_SPECIFIC_PRIORITY_MAP.has(
+        cachedHdr.priority
+      )
+        ? cachedHdr.priority
+        : Ci.nsMsgPriority.Default;
+    }
+  }
+  const factor = sortOrder === "ascending" ? 1 : -1;
+  // Currently unsupported sort types known from mailTabs API, as they
+  // are not exposed in the WebExtension MessageHeader:
+  //  - correspondent, thread, custom, attachments,
+  //  - status, received
+  // Not needed, since this is a per folder sort, or not useful:
+  //  - id, account, location
+  switch (sortType) {
+    case "date":
+      return cachedMsgHeaders.sort((a, b) => factor * (a.date - b.date));
+    case "size":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * (a.messageSize - b.messageSize)
+      );
+    case "subject":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * a.subject.localeCompare(b.subject)
+      );
+    case "author":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * a.author.localeCompare(b.author)
+      );
+    case "recipients":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * a.recipients.localeCompare(b.recipients)
+      );
+    case "read":
+      return cachedMsgHeaders.sort((a, b) => factor * (a.isRead - b.isRead));
+    case "priority":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * (a._prioritySortKey - b._prioritySortKey)
+      );
+    case "junkScore":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * (a.junkScore - b.junkScore)
+      );
+    case "junk":
+      return cachedMsgHeaders.sort((a, b) => factor * (a.junk - b.junk));
+    case "flagged":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * (a.isFlagged - b.isFlagged)
+      );
+    case "tags":
+      return cachedMsgHeaders.sort(
+        (a, b) => factor * a._tagsSortKey.localeCompare(b._tagsSortKey)
+      );
+  }
+  return cachedMsgHeaders;
 }
 
 /**
