@@ -145,10 +145,17 @@ export class InAppNotificationManager extends HTMLElement {
    * @param {object} notification  - Notification data from the back-end.
    */
   async #showNotification(notification) {
-    await lazy.NotificationScheduler.waitForActive({
-      currentWindow: window,
-      id: notification.id,
-    });
+    try {
+      await lazy.NotificationScheduler.waitForActive({
+        currentWindow: window,
+        id: notification.id,
+      });
+    } catch {
+      // Nothing to do here the promise was rejected. This happens for many
+      // expected reasons like the window being unloaded, the notification
+      // expiring, it being shown in another window etc.
+      return;
+    }
 
     const notificationElement = document.createElement("in-app-notification");
 

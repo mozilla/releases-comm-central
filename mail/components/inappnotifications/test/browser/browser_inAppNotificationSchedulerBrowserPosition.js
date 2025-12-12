@@ -15,7 +15,9 @@ const { MockExternalProtocolService } = ChromeUtils.importESModule(
 const expectedURI = "https://example.com/notificationTarget";
 
 add_setup(async function () {
-  NotificationScheduler._startupDelay = 0;
+  NotificationScheduler._resolveStartupDelay();
+  await NotificationScheduler._startupDelayPromise;
+  await TestUtils.waitForTick();
   NotificationScheduler._idleService.disabled = true;
   NotificationManager._PER_TIME_UNIT = 1;
   NotificationScheduler.observe(null, "active");
@@ -44,7 +46,6 @@ add_task(async function test_showWhenOffFullyScreenXLinux() {
 }).skip(AppConstants.platform !== "linux");
 
 add_task(async function test_dontShowWhenOffFullyScreenX() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(-(window.screen.width * 2), 0);
 
   showNotification({ type: "donation_browser" });
@@ -57,13 +58,22 @@ add_task(async function test_dontShowWhenOffFullyScreenX() {
     "browser was not opened when offscreen"
   );
 
-  await moveWindowTo(0, 0);
+  await moveWindowTo(window.screen.availLeft, window.screen.availTop);
 
-  await promise;
+  const promise = MockExternalProtocolService.promiseLoad();
 
-  await resetWindow();
+  await waitASecond();
+
+  const openedURL = await promise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window becomes visible again"
+  );
 
   MockExternalProtocolService.reset();
+  await resetWindow();
 }).skip(AppConstants.platform === "linux");
 
 add_task(async function test_showWhenOffScreen150XLinux() {
@@ -78,10 +88,11 @@ add_task(async function test_showWhenOffScreen150XLinux() {
 }).skip(AppConstants.platform !== "linux");
 
 add_task(async function test_dontShowWhenOffScreen150X() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(-150, 0);
 
   await showNotification({ type: "donation_browser" });
+
+  await waitASecond();
 
   Assert.equal(
     MockExternalProtocolService.urls.length,
@@ -89,26 +100,43 @@ add_task(async function test_dontShowWhenOffScreen150X() {
     "browser was not opened when offscreen"
   );
 
-  await moveWindowTo(0, 0);
+  await moveWindowTo(window.screen.availLeft, window.screen.availTop);
 
-  await promise;
+  const promise = MockExternalProtocolService.promiseLoad();
 
-  await resetWindow();
+  await waitASecond();
+
+  const openedURL = await promise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window becomes visible again"
+  );
 
   MockExternalProtocolService.reset();
+  await resetWindow();
 }).skip(AppConstants.platform === "linux");
 
 add_task(async function test_showWhenOffScreen100X() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(-100, 0);
+
+  const promise = MockExternalProtocolService.promiseLoad();
 
   await showNotification({ type: "donation_browser" });
 
-  await promise;
+  await waitASecond();
 
-  await resetWindow();
+  const openedURL = await promise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window is mostly visible"
+  );
 
   MockExternalProtocolService.reset();
+  await resetWindow();
 });
 
 add_task(async function test_showWhenOffFullyScreenYLinux() {
@@ -123,10 +151,11 @@ add_task(async function test_showWhenOffFullyScreenYLinux() {
 }).skip(AppConstants.platform !== "linux");
 
 add_task(async function test_dontShowWhenOffFullyScreenY() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(0, window.screen.height * 3);
 
   await showNotification({ type: "donation_browser" });
+
+  await waitASecond();
 
   Assert.equal(
     MockExternalProtocolService.urls.length,
@@ -134,13 +163,22 @@ add_task(async function test_dontShowWhenOffFullyScreenY() {
     "browser was not opened when offscreen"
   );
 
-  await moveWindowTo(0, 0);
+  await moveWindowTo(window.screen.availLeft, window.screen.availTop);
 
-  await promise;
+  const loadPromise = MockExternalProtocolService.promiseLoad();
 
-  await resetWindow();
+  await waitASecond();
+
+  const openedURL = await loadPromise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window becomes visible again"
+  );
 
   MockExternalProtocolService.reset();
+  await resetWindow();
 }).skip(AppConstants.platform === "linux");
 
 add_task(async function test_showWhenOffScreen150YLinux() {
@@ -155,7 +193,6 @@ add_task(async function test_showWhenOffScreen150YLinux() {
 }).skip(AppConstants.platform !== "linux");
 
 add_task(async function test_dontShowWhenOffScreen150Y() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(
     0,
     window.screen.availHeight -
@@ -166,6 +203,8 @@ add_task(async function test_dontShowWhenOffScreen150Y() {
 
   await showNotification({ type: "donation_browser" });
 
+  await waitASecond();
+
   Assert.equal(
     MockExternalProtocolService.urls.length,
     0,
@@ -174,18 +213,39 @@ add_task(async function test_dontShowWhenOffScreen150Y() {
 
   await moveWindowTo(window.screen.availLeft, window.top.availTop);
 
-  await promise;
+  const promise = MockExternalProtocolService.promiseLoad();
 
+  await waitASecond();
+
+  const openedURL = await promise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window becomes visible again"
+  );
+
+  MockExternalProtocolService.reset();
   await resetWindow();
 }).skip(AppConstants.platform === "linux");
 
 add_task(async function test_showWhenOffScreen100Y() {
-  const promise = MockExternalProtocolService.promiseLoad();
   await moveWindowTo(0, window.screen.availHeight - window.outerHeight + 100);
+
+  const promise = MockExternalProtocolService.promiseLoad();
 
   await showNotification({ type: "donation_browser" });
 
-  await promise;
+  await waitASecond();
 
+  const openedURL = await promise;
+
+  Assert.equal(
+    openedURL,
+    expectedURI,
+    "browser was opened when window is mostly visible"
+  );
+
+  MockExternalProtocolService.reset();
   await resetWindow();
 });
