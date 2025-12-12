@@ -12,7 +12,6 @@
 #include "nsPrintfCString.h"
 #include "nsString.h"
 #include "mozilla/Components.h"
-#include "mozilla/Preferences.h"
 #include "nsIRequest.h"
 #include "nsIStringBundle.h"
 #include "nsIURI.h"
@@ -25,8 +24,6 @@
 #include "plstr.h"
 #include "nsIPgpMimeProxy.h"
 #include "nsComponentManagerUtils.h"
-
-using mozilla::Preferences;
 
 /**
  * Overall description

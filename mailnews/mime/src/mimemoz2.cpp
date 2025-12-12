@@ -5,44 +5,44 @@
 
 #include "mimemoz2.h"
 
+#include "mimeebod.h"
 #include "mimehdrs.h"
+#include "mimei.h"
 #include "mimeleaf.h"
-#include "mimetext.h"
-#include "nsMailHeaders.h"
-#include "prlog.h"
-#include "nsCOMPtr.h"
-#include "modlmime.h"
+#include "mimemapl.h"
 #include "mimemsg.h"
 #include "mimemsig.h"
-#include "mimemapl.h"
-#include "prprf.h"
-#include "mimei.h" /* for moved MimeDisplayData struct */
-#include "prmem.h"
-#include "plstr.h"
-#include "prmem.h"
-#include "nsIStringBundle.h"
-#include "nsString.h"
-#include "nsMimeStringResources.h"
-#include "nsStreamConverter.h"
-#include "nsIMsgMailNewsUrl.h"
-#include "mozITXTToHTMLConv.h"
-#include "nsCExternalHandlerService.h"
-#include "nsIMIMEService.h"
-#include "nsMsgI18N.h"
-#include "nsICharsetConverterManager.h"
-#include "nsMimeTypes.h"
-#include "nsIIOService.h"
-#include "nsIURI.h"
-#include "nsMsgUtils.h"
-#include "nsIChannel.h"
-#include "nsIMailChannel.h"
-#include "mimeebod.h"
-// <for functions="HTML2Plaintext,HTMLSantinize">
-#include "nsXPCOM.h"
-#include "nsIParserUtils.h"
-// </for>
+#include "mimetext.h"
+#include "modlmime.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/StaticPrefs_mailnews.h"
+#include "mozITXTToHTMLConv.h"
+#include "nsCExternalHandlerService.h"
+#include "nsCOMPtr.h"
+#include "nsIChannel.h"
+#include "nsICharsetConverterManager.h"
+#include "nsIIOService.h"
+#include "nsIMailChannel.h"
+#include "nsIMIMEService.h"
+#include "nsIMsgMailNewsUrl.h"
+#include "nsIParserUtils.h"
+#include "nsIStringBundle.h"
+#include "nsIURI.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMimeTypes.h"
+#include "nsMsgI18N.h"
+#include "nsMsgUtils.h"
+#include "nsStreamConverter.h"
+#include "nsString.h"
+#include "nsXPCOM.h"
+#include "plstr.h"
+#include "prlog.h"
+#include "prmem.h"
+#include "prmem.h"
+#include "prprf.h"
 
 using mozilla::Preferences;
 using mozilla::PrefValueKind;
@@ -1352,13 +1352,10 @@ extern "C" void* mime_bridge_create_display_stream(
   // Now, get the libmime prefs...
   ////////////////////////////////////////////////////////////
 
-  MIME_WrapLongLines = true;
-  MIME_VariableWidthPlaintext = true;
-  msd->options->force_user_charset = false;
+  MIME_WrapLongLines = mozilla::StaticPrefs::mail_wrap_long_lines();
+  MIME_VariableWidthPlaintext =
+      mozilla::StaticPrefs::mail_fixed_width_messages();
 
-  Preferences::GetBool("mail.wrap_long_lines", &MIME_WrapLongLines);
-  Preferences::GetBool("mail.fixed_width_messages",
-                       &MIME_VariableWidthPlaintext);
   //
   // Charset overrides takes place here
   //
@@ -1368,15 +1365,15 @@ extern "C" void* mime_bridge_create_display_stream(
   // 2) If false, then we try to use the charset of the part and if not
   //    available, the charset of the root message
   //
-  Preferences::GetBool("mail.force_user_charset",
-                       &(msd->options->force_user_charset));
-  Preferences::GetBool("mail.inline_attachments",
-                       &(msd->options->show_attachment_inline_p));
-  Preferences::GetBool("mail.inline_attachments.text",
-                       &(msd->options->show_attachment_inline_text));
-  Preferences::GetBool("mail.reply_quote_inline",
-                       &(msd->options->quote_attachment_inline_p));
-  Preferences::GetInt("mailnews.display.html_as", &(msd->options->html_as_p));
+  msd->options->force_user_charset =
+      mozilla::StaticPrefs::mail_force_user_charset();
+  msd->options->show_attachment_inline_p =
+      mozilla::StaticPrefs::mail_inline_attachments();
+  msd->options->show_attachment_inline_text =
+      mozilla::StaticPrefs::mail_inline_attachments_text();
+  msd->options->quote_attachment_inline_p =
+      mozilla::StaticPrefs::mail_reply_quote_inline();
+  msd->options->html_as_p = mozilla::StaticPrefs::mailnews_display_html_as();
 
   /* This pref is written down in with the
      opposite sense of what we like to use... */
@@ -1876,10 +1873,10 @@ nsresult HTMLSanitize(const nsString& inString, nsString& outString) {
   uint32_t flags = nsIParserUtils::SanitizerCidEmbedsOnly |
                    nsIParserUtils::SanitizerDropForms;
 
-  if (Preferences::GetBool(
-          "mailnews.display.html_sanitizer.drop_non_css_presentation", true))
+  if (mozilla::StaticPrefs::
+          mailnews_display_html_sanitizer_drop_non_css_presentation())
     flags |= nsIParserUtils::SanitizerDropNonCSSPresentation;
-  if (Preferences::GetBool("mailnews.display.html_sanitizer.drop_media"))
+  if (mozilla::StaticPrefs::mailnews_display_html_sanitizer_drop_media())
     flags |= nsIParserUtils::SanitizerDropMedia;
 
   nsCOMPtr<nsIParserUtils> utils = do_GetService(NS_PARSERUTILS_CONTRACTID);

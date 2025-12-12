@@ -21,19 +21,18 @@
 */
 
 #include "mimeTextHTMLParsed.h"
-#include "prmem.h"
-#include "prlog.h"
-#include "nsContentUtils.h"
-#include "mozilla/dom/DOMParser.h"
-#include "mozilla/dom/Document.h"
-#include "nsGenericHTMLElement.h"
-#include "mozilla/Preferences.h"
-#include "nsIParserUtils.h"
-#include "nsIDocumentEncoder.h"
-#include "mozilla/ErrorResult.h"
-#include "mimethtm.h"
 
-using mozilla::Preferences;
+#include "mimethtm.h"
+#include "mozilla/dom/Document.h"
+#include "mozilla/dom/DOMParser.h"
+#include "mozilla/ErrorResult.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "nsContentUtils.h"
+#include "nsGenericHTMLElement.h"
+#include "nsIDocumentEncoder.h"
+#include "nsIParserUtils.h"
+#include "prlog.h"
+#include "prmem.h"
 
 #define MIME_SUPERCLASS mimeInlineTextHTMLClass
 MimeDefClass(MimeInlineTextHTMLParsed, MimeInlineTextHTMLParsedClass,
@@ -113,11 +112,8 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   rv = encoder->EncodeToString(parsed);
   NS_ENSURE_SUCCESS(rv, -1);
 
-  bool stripConditionalCSS =
-      Preferences::GetBool("mail.html_sanitize.drop_conditional_css", true);
-
   nsCString resultCStr;
-  if (stripConditionalCSS) {
+  if (mozilla::StaticPrefs::mail_html_sanitize_drop_conditional_css()) {
     nsString cssCondStripped;
     nsCOMPtr<nsIParserUtils> parserUtils =
         do_GetService(NS_PARSERUTILS_CONTRACTID);

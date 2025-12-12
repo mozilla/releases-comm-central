@@ -10,14 +10,6 @@
 // SpaceHit() function: whether spacebar advances to next unread message.
 pref("mail.advance_on_spacebar", true);
 
-pref("mail.wrap_long_lines", true);
-
-// Show attachments of supported types rendered directly in the message body view.
-pref("mail.inline_attachments", true);
-// When rendering attachments inline, show also text attachments (e.g. CSV, HTML,
-// plain text) which are potentially very long.
-pref("mail.inline_attachments.text", false);
-pref("mail.reply_quote_inline", false);
 // When in a message the List-Post header contains the content of the Reply-To
 // (which is called "Reply-To Munging") we override the Reply-To header with
 // the From header.
@@ -190,7 +182,6 @@ pref("mail.strict_threading", true);
 // if true, makes sure threading works correctly always (see bug 181446)
 pref("mail.correct_threading", true);
 pref("mail.pop3.deleteFromServerOnMove", false);
-pref("mail.fixed_width_messages", true);
 #ifdef MOZ_SUITE
 // quoted color
 pref("mail.citation_color", "#000000");
@@ -198,16 +189,6 @@ pref("mail.citation_color", "#000000");
 // quoted color
 pref("mail.citation_color", "#007cff");
 #endif
-// If true, remove the everything after the "-- \n" signature delimiter when replying.
-pref("mail.strip_sig_on_reply", true);
-// 0=plain, 1=bold, 2=italic, 3=bolditalic
-pref("mail.quoted_style", 0);
-// 0=normal, 1=big, 2=small
-pref("mail.quoted_size", 0);
-// use HTML-style quoting for displaying plain text
-pref("mail.quoted_graphical", true);
-// use HTML-style quoting for quoting plain text
-pref("mail.quoteasblock", true);
 // Use CTE quoted-printable for mail bodies.
 pref("mail.strictly_mime", false);
 // The maximum number of entries in the "Recent" menu of the folder picker.
@@ -217,7 +198,6 @@ pref("mail.folder_widget.max_recent", 25);
 pref("mail.strictly_mime.parm_folding", 1);
 pref("mail.label_ascii_only_mail_as_us_ascii", false);
 pref("mail.file_attach_binary", false);
-pref("mail.show_headers", 1);
 // some S/MIME parts are not external (but inline decrypted).
 pref("mailnews.p7m_external", false);
 pref("mail.pane_config.dynamic", 0);
@@ -341,7 +321,6 @@ pref("mailnews.nntp.loglevel", "Warn");
 
 pref("mailnews.pop3.loglevel", "Warn");
 
-pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);
 pref("news.warn_on_delete", true);
@@ -707,45 +686,11 @@ pref("mail.smtpserver.default.try_ssl", 0);
 // If true, SMTP LOGIN auth and POP3 USER/PASS auth, the last of the methods to try, will use Latin1.
 pref("mail.smtp_login_pop3_user_pass_auth_is_latin1", true);
 
-// Strip CSS conditional rules in received and sent mail
-pref("mail.html_sanitize.drop_conditional_css", true);
-
-// For the next 3 prefs, see <http://www.bucksch.org/1/projects/mozilla/16507>
-// TXT->HTML :-) etc. in viewer
-pref("mail.display_glyph", true);
-// TXT->HTML *bold* etc. in viewer; ditto
-pref("mail.display_struct", true);
-// HTML->HTML *bold* etc. during Send; ditto
+// HTML->HTML *bold* etc. during Send.
+// https://www.bucksch.org/1/projects/mozilla/16507
 pref("mail.send_struct", false);
-// display time and date using senders timezone in message pane and when printing
-pref("mailnews.display.date_senders_timezone", false);
-// For the next 4 prefs, see <http://www.bucksch.org/1/projects/mozilla/108153>
-// Ignore HTML parts in multipart/alternative
-pref("mailnews.display.prefer_plaintext", false);
-// How to display HTML/MIME parts.
-// 0 = Render the sender's HTML;
-// 1 = HTML->TXT->HTML;
-// 2 = Show HTML source;
-// 3 = Sanitize HTML;
-// 4 = Show all body parts
-pref("mailnews.display.html_as", 0);
 // Whether the View > Message body as > All body parts menu item is available
 pref("mailnews.display.show_all_body_parts_menu", false);
-// whether to drop <font>, <center>, align='...', etc.
-pref("mailnews.display.html_sanitizer.drop_non_css_presentation", true);
-// whether to drop <img>, <video> and <audio>
-pref("mailnews.display.html_sanitizer.drop_media", false);
-// Let only a few classes process incoming data. This protects from bugs (e.g. buffer overflows) and from security loopholes
-// (e.g. allowing unchecked HTML in some obscure classes, although the user has html_as > 0).
-pref("mailnews.display.disallow_mime_handlers", 0);
-// This option is mainly for the UI of html_as.
-// 0 = allow all available classes
-// 1 = Use hardcoded blacklist to avoid rendering (incoming) HTML
-// 2 = ... and inline images
-// 3 = ... and some other uncommon content types
-// 100 = Use hardcoded whitelist to avoid even more bugs(buffer overflows).
-//       This mode will limit the features available (e.g. uncommon
-//       attachment types and inline images) and is for paranoid users.
 
 // Feed message display (summary or web page), on select.
 // 0 - global override, load web page
@@ -779,7 +724,6 @@ pref("mail.forward_subject_prefix", "Fwd");
 
 // RFC 2646=======
 pref("mailnews.send_plaintext_flowed", true);
-pref("mailnews.display.disable_format_flowed_support", false);
 // prompt user when crossing folders
 pref("mailnews.nav_crosses_folders", 1);
 

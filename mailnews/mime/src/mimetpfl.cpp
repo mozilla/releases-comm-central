@@ -5,16 +5,17 @@
 
 #include "mimetpfl.h"
 
-#include "nsMailHeaders.h"
-#include "prmem.h"
-#include "plstr.h"
-#include "mozITXTToHTMLConv.h"
-#include "nsString.h"
-#include "nsMimeStringResources.h"
 #include "mimemoz2.h"
-#include "prprf.h"
-#include "nsMsgI18N.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozITXTToHTMLConv.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMsgI18N.h"
+#include "nsString.h"
+#include "plstr.h"
+#include "prmem.h"
+#include "prprf.h"
 
 using mozilla::Preferences;
 
@@ -109,18 +110,14 @@ static int MimeInlineTextPlainFlowed_parse_begin(MimeObject* obj) {
 
   // Get Prefs for viewing
 
-  exdata->fixedwidthfont = false;
+  exdata->fixedwidthfont = mozilla::StaticPrefs::mail_fixed_width_messages();
   //  Quotes
-  text->mQuotedSizeSetting = 0;     // mail.quoted_size
-  text->mQuotedStyleSetting = 0;    // mail.quoted_style
+  text->mQuotedSizeSetting = mozilla::StaticPrefs::mail_quoted_size();
+  text->mQuotedStyleSetting = mozilla::StaticPrefs::mail_quoted_style();
   text->mCitationColor.Truncate();  // mail.citation_color
-  text->mStripSig = true;           // mail.strip_sig_on_reply
+  text->mStripSig = mozilla::StaticPrefs::mail_strip_sig_on_reply();
 
-  Preferences::GetInt("mail.quoted_size", &(text->mQuotedSizeSetting));
-  Preferences::GetInt("mail.quoted_style", &(text->mQuotedStyleSetting));
   Preferences::GetCString("mail.citation_color", text->mCitationColor);
-  Preferences::GetBool("mail.strip_sig_on_reply", &(text->mStripSig));
-  Preferences::GetBool("mail.fixed_width_messages", &(exdata->fixedwidthfont));
 
   // Get font
   // only used for viewing (!plainHTML)

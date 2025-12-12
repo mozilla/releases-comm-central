@@ -7,23 +7,23 @@
 
 #include <stdio.h>
 
+#include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
+#include "mozilla/ProfilerMarkers.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "nsCOMPtr.h"
-#include "plstr.h"
-#include "nsMailHeaders.h"
 #include "nscore.h"
+#include "nsIMailChannel.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsINntpUrl.h"  // hack: include this to fix opening news attachments.
+#include "nsMailHeaders.h"
 #include "nsMimeTypes.h"
-#include "prtime.h"
-#include "prprf.h"
-#include "nsServiceManagerUtils.h"
-// hack: include this to fix opening news attachments.
-#include "nsINntpUrl.h"
 #include "nsMsgUtils.h"
-#include "mozilla/Components.h"
-#include "nsIMailChannel.h"
-#include "mozilla/ProfilerMarkers.h"
-#include "mozilla/Preferences.h"
+#include "nsServiceManagerUtils.h"
+#include "plstr.h"
+#include "prprf.h"
+#include "prtime.h"
 
 using mozilla::Preferences;
 
@@ -218,7 +218,7 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     return NS_OK;
   }
 
-  return BroadcastHeaders(Preferences::GetInt("mail.show_headers"));
+  return BroadcastHeaders(mozilla::StaticPrefs::mail_show_headers());
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {

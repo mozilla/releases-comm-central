@@ -51,10 +51,174 @@
   value: false
   mirror: always
 
+# See nsMimeHeaderDisplayTypes.
+# - 0: MicroHeaders
+# - 1: NormalHeaders
+# - 2: AllHeaders
+- name: mail.show_headers
+  type: int32_t
+  value: 1
+  mirror: always
+
+# TXT->HTML :-) etc. in viewer.
+# https://www.bucksch.org/1/projects/mozilla/16507
+- name: mail.display_glyph
+  type: bool
+  value: true
+  mirror: always
+
+# TXT->HTML *bold* etc. in viewer.
+# https://www.bucksch.org/1/projects/mozilla/16507
+- name: mail.display_struct
+  type: bool
+  value: true
+  mirror: always
+
+- name: mail.operate_on_msgs_in_collapsed_threads
+  type: bool
+  value: true
+  mirror: always
+
+- name: mail.wrap_long_lines
+  type: bool
+  value: true
+  mirror: always
+
+- name: mail.fixed_width_messages
+  type: bool
+  value: true
+  mirror: always
+
+- name: mail.force_user_charset
+  type: bool
+  value: false
+  mirror: always
+
+# Show attachments of supported types directly in the message body view.
+- name: mail.inline_attachments
+  type: bool
+  value: true
+  mirror: always
+
+# When rendering attachments inline, show also text attachments (e.g. CSV,
+# HTML, plain text) which are potentially very long.
+- name: mail.inline_attachments.text
+  type: bool
+  value: false
+  mirror: always
+
+- name: mail.reply_quote_inline
+  type: bool
+  value: false
+  mirror: always
+
+# Strip CSS conditional rules in received and sent mail.
+- name: mail.html_sanitize.drop_conditional_css
+  type: bool
+  value: true
+  mirror: always
+
+# If true, remove the everything after the "-- \n" signature delimiter when replying.
+- name: mail.strip_sig_on_reply
+  type: bool
+  value: true
+  mirror: always
+
+# - 0: plain
+# - 1: bold
+# - 2: italic
+# - 3: bolditalic
+- name: mail.quoted_style
+  type: int32_t
+  value: 0
+  mirror: always
+
+# - 0: normal
+# - 1: big
+# - 2: small
+- name: mail.quoted_size
+  type: int32_t
+  value: 0
+  mirror: always
+
+# Use HTML-style quoting for displaying plain text.
+- name: mail.quoted_graphical
+  type: bool
+  value: true
+  mirror: always
+
+# Use HTML-style quoting for quoting plain text.
+- name: mail.quoteasblock
+  type: bool
+  value: true
+  mirror: always
+
+
 # Whether the colors from tags should be applied only to the message(s)
 # actually tagged, or also to any collapsed threads which contain tagged
 # messages.
 - name: mailnews.display_reply_tag_colors_for_collapsed_threads
   type: bool
   value: true
+  mirror: always
+
+# Whether to display time and date using senders timezone in the message pane
+# and when printing.
+- name: mailnews.display.date_senders_timezone
+  type: bool
+  value: false
+  mirror: always
+
+# Ignore HTML parts in multipart/alternative?
+# https://www.bucksch.org/1/projects/mozilla/108153
+- name: mailnews.display.prefer_plaintext
+  type: bool
+  value: false
+  mirror: always
+
+# How to display HTML/MIME parts.
+# - 0: Render the sender's HTML
+# - 1: HTML->TXT->HTML
+# - 2: Show HTML source
+# - 3: Sanitize HTML
+# - 4: Show all body parts
+# https://www.bucksch.org/1/projects/mozilla/108153
+- name: mailnews.display.html_as
+  type: int32_t
+  value: 0
+  mirror: always
+
+# Whether to drop <font>, <center>, align='...', etc..
+- name: mailnews.display.html_sanitizer.drop_non_css_presentation
+  type: bool
+  value: true
+  mirror: always
+
+# Whether to drop <img>, <video> and <audio>.
+- name: mailnews.display.html_sanitizer.drop_media
+  type: bool
+  value: false
+  mirror: always
+
+# Let only a few classes process incoming data. This protects from bugs (e.g.
+# buffer overflows) and from security loopholes (e.g. allowing unchecked HTML
+# in some obscure classes, although the user has html_as > 0).
+#
+# This option is mainly for the UI of html_as.
+# - 0: Allow all available classes.
+# - 1: Use hardcoded blacklist to avoid rendering (incoming) HTML,
+# - 2: ... and inline images,
+# - 3: ... and some other uncommon content types.
+# - 100: Use hardcoded whitelist to avoid even more bugs (buffer overflows).
+#     This mode will limit the features available (e.g. uncommon attachment
+#     types and inline images) and is for paranoid users.
+# https://www.bucksch.org/1/projects/mozilla/108153
+- name: mailnews.display.disallow_mime_handlers
+  type: int32_t
+  value: 0
+  mirror: always
+
+- name: mailnews.display.disable_format_flowed_support
+  type: bool
+  value: false
   mirror: always

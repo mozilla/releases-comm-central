@@ -3,29 +3,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsCOMPtr.h"
-#include <stdio.h>
 #include "nsMimeBaseEmitter.h"
-#include "nsMailHeaders.h"
-#include "nscore.h"
-#include "prmem.h"
-#include "nsEmitterUtils.h"
-#include "nsMimeStringResources.h"
-#include "nsEmitterUtils.h"
-#include "nsIMimeStreamConverter.h"
-#include "mozilla/Logging.h"
-#include "prprf.h"
-#include "nsIMimeHeaders.h"
-#include "nsIMsgMailNewsUrl.h"
-#include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
-#include "nsMsgUtils.h"
-#include "nsTextFormatter.h"
+
+#include <stdio.h>
+
 #include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
-#include "mozilla/Preferences.h"
-
-using mozilla::Preferences;
+#include "mozilla/Logging.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozilla/StaticPrefs_mailnews.h"
+#include "nsComponentManagerUtils.h"
+#include "nsCOMPtr.h"
+#include "nscore.h"
+#include "nsEmitterUtils.h"
+#include "nsEmitterUtils.h"
+#include "nsIMimeHeaders.h"
+#include "nsIMimeStreamConverter.h"
+#include "nsIMsgMailNewsUrl.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMsgUtils.h"
+#include "nsServiceManagerUtils.h"
+#include "nsTextFormatter.h"
+#include "prmem.h"
+#include "prprf.h"
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
@@ -74,7 +75,7 @@ nsMimeBaseEmitter::nsMimeBaseEmitter() {
   mUnicodeConverter = mozilla::components::MimeConverter::Service();
 
   // Do prefs last since we can live without this if it fails...
-  mHeaderDisplayType = Preferences::GetInt("mail.show_headers");
+  mHeaderDisplayType = mozilla::StaticPrefs::mail_show_headers();
 }
 
 nsMimeBaseEmitter::~nsMimeBaseEmitter(void) {
@@ -580,7 +581,7 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
    * timezone (including the timezone offset).
    */
   bool displaySenderTimezone =
-      Preferences::GetBool("mailnews.display.date_senders_timezone");
+      mozilla::StaticPrefs::mailnews_display_date_senders_timezone();
 
   PRExplodedTime explodedMsgTime;
 
@@ -653,7 +654,7 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
 char* nsMimeBaseEmitter::GetLocalizedDateString(const char* dateString) {
   char* i18nValue = nullptr;
 
-  if (!Preferences::GetBool("mailnews.display.date_senders_timezone")) {
+  if (!mozilla::StaticPrefs::mailnews_display_date_senders_timezone()) {
     nsAutoCString convertedDateString;
     nsresult rv = GenerateDateString(dateString, convertedDateString, true);
     if (NS_SUCCEEDED(rv))

@@ -7,31 +7,26 @@
 
 #include <stdio.h>
 
+#include "mimemoz2.h"
+#include "mozilla/Components.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"
 #include "nscore.h"
+#include "nsICategoryManager.h"
+#include "nsIMsgMailNewsUrl.h"
+#include "nsIMsgQuote.h"
+#include "nsINntpUrl.h"
+#include "nsIPipe.h"
+#include "nsMimeTypes.h"
+#include "nsMsgUtils.h"
+#include "nsNetUtil.h"
+#include "nsNetUtil.h"
+#include "nsString.h"
+#include "plstr.h"
+#include "prlog.h"
 #include "prmem.h"
 #include "prprf.h"
-#include "prlog.h"
-#include "plstr.h"
-#include "mimemoz2.h"
-#include "nsMimeTypes.h"
-#include "nsString.h"
-#include "nsIPipe.h"
-#include "nsNetUtil.h"
-#include "nsIMsgQuote.h"
-#include "nsNetUtil.h"
-#include "mozITXTToHTMLConv.h"
-#include "nsIMsgMailNewsUrl.h"
-#include "nsINntpUrl.h"
-#include "nsICategoryManager.h"
-#include "nsMsgUtils.h"
-#include "mozilla/Components.h"
-#include "mozilla/Preferences.h"
-
-using mozilla::Preferences;
-
-#define PREF_MAIL_DISPLAY_GLYPH "mail.display_glyph"
-#define PREF_MAIL_DISPLAY_STRUCT "mail.display_struct"
 
 ////////////////////////////////////////////////////////////////
 // Bridge routines for new stream converter XP-COM interface
@@ -517,10 +512,10 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   }
 
   uint32_t whattodo = mozITXTToHTMLConv::kURLs;
-  if (Preferences::GetBool(PREF_MAIL_DISPLAY_GLYPH, true)) {
+  if (mozilla::StaticPrefs::mail_display_glyph()) {
     whattodo = whattodo | mozITXTToHTMLConv::kGlyphSubstitution;
   }
-  if (Preferences::GetBool(PREF_MAIL_DISPLAY_STRUCT, true)) {
+  if (mozilla::StaticPrefs::mail_display_struct()) {
     whattodo = whattodo | mozITXTToHTMLConv::kStructPhrase;
   }
 

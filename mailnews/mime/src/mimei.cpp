@@ -53,30 +53,30 @@
                        /* If you add classes here,also add them to mimei.h */
 // clang-format on
 
-#include "prlog.h"
-#include "prmem.h"
-#include "prenv.h"
-#include "plstr.h"
-#include "prlink.h"
-#include "prprf.h"
+#include "imgLoader.h"
 #include "mimecth.h"
 #include "mimemoz2.h"
-#include "nsIMimeContentTypeHandler.h"
+#include "mozilla/Components.h"
+#include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mailnews.h"
 #include "nsICategoryManager.h"
-#include "nsXPCOMCID.h"
+#include "nsIMailChannel.h"
+#include "nsIMimeContentTypeHandler.h"
+#include "nsIMsgHdr.h"
+#include "nsIMsgMailNewsUrl.h"
 #include "nsISimpleMimeConverter.h"
-#include "nsSimpleMimeConverterStub.h"
-#include "nsTArray.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
-#include "imgLoader.h"
-
-#include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgHdr.h"
-#include "nsIMailChannel.h"
-#include "mozilla/Components.h"
-#include "mozilla/Preferences.h"
+#include "nsSimpleMimeConverterStub.h"
+#include "nsTArray.h"
+#include "nsXPCOMCID.h"
+#include "plstr.h"
+#include "prenv.h"
+#include "prlink.h"
+#include "prlog.h"
+#include "prmem.h"
+#include "prprf.h"
 
 using namespace mozilla;
 
@@ -374,9 +374,9 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
   if (opts && opts->format_out != nsMimeOutput::nsMimeMessageFilterSniffer &&
       opts->format_out != nsMimeOutput::nsMimeMessageDecrypt &&
       opts->format_out != nsMimeOutput::nsMimeMessageAttach) {
-    Preferences::GetInt("mailnews.display.html_as", &html_as);
-    Preferences::GetInt("mailnews.display.disallow_mime_handlers",
-                        &types_of_classes_to_disallow);
+    html_as = mozilla::StaticPrefs::mailnews_display_html_as();
+    types_of_classes_to_disallow =
+        mozilla::StaticPrefs::mailnews_display_disallow_mime_handlers();
     if (types_of_classes_to_disallow > 0 && html_as == 0)
       // We have non-sensical prefs. Do some fixup.
       html_as = 1;
@@ -512,8 +512,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
             opts->format_out != nsMimeOutput::nsMimeMessageFilterSniffer &&
             opts->format_out != nsMimeOutput::nsMimeMessageAttach &&
             opts->format_out != nsMimeOutput::nsMimeMessageRaw) {
-          if (!Preferences::GetBool(
-                  "mailnews.display.disable_format_flowed_support")) {
+          if (!mozilla::StaticPrefs::
+                  mailnews_display_disable_format_flowed_support()) {
             // Check for format=flowed, damn, it is already stripped away from
             // the contenttype!
             // Look in headers instead even though it's expensive and clumsy

@@ -3,46 +3,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <algorithm>
-#include "mozilla/StaticPtr.h"
-#include "msgCore.h"
-#include "prmem.h"
-#include "nsIMsgCustomColumnHandler.h"
 #include "nsMsgDBView.h"
-#include "nsISupports.h"
-#include "nsIMsgFolder.h"
-#include "nsIDBFolderInfo.h"
-#include "nsIMsgDatabase.h"
-#include "nsIMsgFolder.h"
+
+#include <algorithm>
+
 #include "MailNewsTypes2.h"
-#include "nsIMsgImapMailFolder.h"
-#include "nsMsgFolderFlags.h"
-#include "nsMsgUtils.h"
-#include "nsIMsgLocalMailFolder.h"
-#include "nsIMsgSearchSession.h"
-#include "nsIMsgCopyService.h"
-#include "nsISpamSettings.h"
-#include "nsIMsgAccountManager.h"
-#include "nsTreeColumns.h"
-#include "nsMsgDBFolder.h"
-#include "nsMsgMessageFlags.h"
-#include "nsIMsgFolderNotificationService.h"
-#include "nsServiceManagerUtils.h"
-#include "nsIAbManager.h"
-#include "nsIAbDirectory.h"
-#include "nsIAbCard.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/DataTransfer.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
+#include "mozilla/intl/LocaleService.h"
+#include "mozilla/intl/Localization.h"
+#include "mozilla/intl/OSPreferences.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
-#include "nsTArray.h"
-#include "mozilla/intl/OSPreferences.h"
-#include "mozilla/intl/LocaleService.h"
-#include "mozilla/intl/AppDateTimeFormat.h"
-#include "nsIMsgMessageService.h"
 #include "mozilla/StaticPrefs_mail.h"
 #include "mozilla/StaticPrefs_mailnews.h"
-#include "mozilla/intl/Localization.h"
+#include "mozilla/StaticPtr.h"
+#include "msgCore.h"
+#include "nsIAbCard.h"
+#include "nsIAbDirectory.h"
+#include "nsIAbManager.h"
+#include "nsIDBFolderInfo.h"
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgCopyService.h"
+#include "nsIMsgCustomColumnHandler.h"
+#include "nsIMsgDatabase.h"
+#include "nsIMsgFolder.h"
+#include "nsIMsgFolder.h"
+#include "nsIMsgFolderNotificationService.h"
+#include "nsIMsgImapMailFolder.h"
+#include "nsIMsgLocalMailFolder.h"
+#include "nsIMsgMessageService.h"
+#include "nsIMsgSearchSession.h"
+#include "nsISpamSettings.h"
+#include "nsISupports.h"
+#include "nsMsgDBFolder.h"
+#include "nsMsgFolderFlags.h"
+#include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
+#include "nsServiceManagerUtils.h"
+#include "nsTArray.h"
+#include "nsTreeColumns.h"
+#include "prmem.h"
 
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
@@ -2555,7 +2557,7 @@ bool nsMsgDBView::OperateOnMsgsInCollapsedThreads() {
     if (!selTree) return false;
   }
 
-  return Preferences::GetBool("mail.operate_on_msgs_in_collapsed_threads");
+  return mozilla::StaticPrefs::mail_operate_on_msgs_in_collapsed_threads();
 }
 
 nsresult nsMsgDBView::GetHeadersFromSelection(

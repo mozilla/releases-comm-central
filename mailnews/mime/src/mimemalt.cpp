@@ -88,17 +88,15 @@
 
 #include "mimemalt.h"
 
+#include "mimemoz2.h"
+#include "modmimee.h"
+#include "mozilla/StaticPrefs_mailnews.h"
 #include "nsMailHeaders.h"
-#include "prmem.h"
+#include "nsMimeStringResources.h"
+#include "nsMimeTypes.h"
 #include "plstr.h"
 #include "prlog.h"
-#include "nsMimeTypes.h"
-#include "nsMimeStringResources.h"
-#include "mimemoz2.h"  // for prefs
-#include "modmimee.h"  // for MimeConverterOutputCallback
-#include "mozilla/Preferences.h"
-
-using mozilla::Preferences;
+#include "prmem.h"
 
 extern "C" MimeObjectClass mimeMultipartRelatedClass;
 
@@ -367,7 +365,7 @@ static priority_t MimeMultipartAlternative_display_part_p(
   if (clazz && clazz->displayable_inline_p(clazz, sub_hdrs)) {
     // prefer_plaintext pref
     bool prefer_plaintext =
-        Preferences::GetBool("mailnews.display.prefer_plaintext");
+        mozilla::StaticPrefs::mailnews_display_prefer_plaintext();
     prefer_plaintext =
         prefer_plaintext &&
         (self->options->format_out != nsMimeOutput::nsMimeMessageSaveAs) &&

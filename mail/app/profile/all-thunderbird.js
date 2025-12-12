@@ -401,7 +401,6 @@ pref("mailnews.headers.minNumHeaders", 0); // 0 means we ignore this pref
 // 3="<author> wrote On <date>:", 4=user specified
 pref("mailnews.reply_header_type", 2);
 
-pref("mail.operate_on_msgs_in_collapsed_threads", true);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);
 

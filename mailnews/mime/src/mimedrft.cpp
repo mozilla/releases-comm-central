@@ -12,43 +12,44 @@
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
 
+#include <ctype.h>
+
+#include "comi18n.h"
 #include "mimehdrs.h"
-#include "nsCOMPtr.h"
-#include "nsMailHeaders.h"
-#include "modmimee.h"
-#include "mimeobj.h"
-#include "modlmime.h"
 #include "mimei.h"
 #include "mimemoz2.h"
 #include "mimemsg.h"
-#include "nsMimeTypes.h"
-#include <ctype.h>
-
-#include "prmem.h"
-#include "plstr.h"
-#include "prprf.h"
-#include "prio.h"
-#include "msgCore.h"
-#include "nsIMsgSend.h"
-#include "nsMimeStringResources.h"
-#include "nsNetUtil.h"
-#include "comi18n.h"
-#include "nsIMsgAttachment.h"
-#include "nsIMsgCompFields.h"
-#include "nsIMsgComposeService.h"
-#include "nsMsgAttachmentData.h"
-#include "nsMsgI18N.h"
-#include "nsIMsgMessageService.h"
-#include "nsMsgUtils.h"
-#include "nsMsgCompUtils.h"
-#include "nsCExternalHandlerService.h"
-#include "nsIMIMEService.h"
-#include "nsIMsgAccountManager.h"
-#include "modmimee.h"  // for MimeConverterOutputCallback
+#include "mimeobj.h"
+#include "modlmime.h"
+#include "modmimee.h"
+#include "modmimee.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/StaticPrefs_mail.h"
+#include "msgCore.h"
+#include "nsCExternalHandlerService.h"
+#include "nsCOMPtr.h"
+#include "nsIMIMEService.h"
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgAttachment.h"
+#include "nsIMsgCompFields.h"
+#include "nsIMsgComposeService.h"
+#include "nsIMsgMessageService.h"
+#include "nsIMsgSend.h"
+#include "nsMailHeaders.h"
+#include "nsMimeStringResources.h"
+#include "nsMimeTypes.h"
+#include "nsMsgAttachmentData.h"
+#include "nsMsgCompUtils.h"
+#include "nsMsgI18N.h"
+#include "nsMsgUtils.h"
+#include "nsNetUtil.h"
+#include "plstr.h"
+#include "prio.h"
+#include "prmem.h"
+#include "prprf.h"
 
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
@@ -935,15 +936,15 @@ static void mime_insert_forwarded_message_headers(
     char* mailcharset) {
   if (!body || !headers) return;
 
-  switch (Preferences::GetInt("mail.show_headers")) {
-    case 0:
+  switch (mozilla::StaticPrefs::mail_show_headers()) {
+    case nsMimeHeaderDisplayTypes::MicroHeaders:
       mime_insert_micro_headers(body, headers, composeFormat, mailcharset);
       break;
     default:
-    case 1:
+    case nsMimeHeaderDisplayTypes::NormalHeaders:
       mime_insert_normal_headers(body, headers, composeFormat, mailcharset);
       break;
-    case 2:
+    case nsMimeHeaderDisplayTypes::AllHeaders:
       mime_insert_all_headers(body, headers, composeFormat, mailcharset);
       break;
   }
