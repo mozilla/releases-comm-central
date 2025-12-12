@@ -255,7 +255,7 @@ body {
     position: relative;
     inline-size: 16px;
     block-size: 16px;
-    background-image: var(--icon-folder);
+    content: var(--icon-folder);
     background-repeat: no-repeat;
     --icon-color: var(--folder-color-folder);
     -moz-context-properties: fill, stroke;
@@ -289,27 +289,27 @@ body {
     }
 
     &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"]) > .container > .icon {
-      background-image: var(--icon-mail);
+      content: var(--icon-mail);
     }
 
     &:is([data-server-type="imap"], [data-server-type="pop3"], [data-server-type="ews"])[data-server-secure="true"] > .container > .icon {
-      background-image: var(--icon-mail-secure);
+      content: var(--icon-mail-secure);
     }
 
     &[data-server-type="none"] > .container > .icon {
-      background-image: var(--icon-folder);
+      content: var(--icon-folder);
     }
 
     &[data-server-type="nntp"] > .container > .icon {
-      background-image: var(--icon-globe);
+      content: var(--icon-globe);
     }
 
     &[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
-      background-image: var(--icon-globe-secure);
+      content: var(--icon-globe-secure);
     }
 
     &[data-server-type="rss"] > .container > .icon {
-      background-image: var(--icon-rss);
+      content: var(--icon-rss);
     }
 
     &[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"], [data-has-error="true"]) .icon {
@@ -318,52 +318,52 @@ body {
     }
 
     &[data-folder-type="archive"] > .container > .icon {
-      background-image: var(--icon-archive);
+      content: var(--icon-archive);
       --icon-color: var(--folder-color-archive);
     }
 
     &[data-folder-type="drafts"] > .container > .icon {
-      background-image: var(--icon-draft);
+      content: var(--icon-draft);
       --icon-color: var(--folder-color-draft);
     }
 
     &[data-folder-type="inbox"] > .container > .icon {
-      background-image: var(--icon-inbox);
+      content: var(--icon-inbox);
       --icon-color: var(--folder-color-inbox);
     }
 
     &[data-folder-type="junk"] > .container > .icon {
-      background-image: var(--icon-spam);
+      content: var(--icon-spam);
       --icon-color: var(--folder-color-spam);
     }
 
     &[data-folder-type="outbox"] > .container > .icon {
-      background-image: var(--icon-outbox);
+      content: var(--icon-outbox);
       --icon-color: var(--folder-color-outbox);
     }
 
     &[data-folder-type="sent"] > .container > .icon {
-      background-image: var(--icon-sent);
+      content: var(--icon-sent);
       --icon-color: var(--folder-color-sent);
     }
 
     &[data-folder-type="templates"] > .container > .icon {
-      background-image: var(--icon-template);
+      content: var(--icon-template);
       --icon-color: var(--folder-color-template);
     }
 
     &[data-folder-type="trash"] > .container > .icon {
-      background-image: var(--icon-trash);
+      content: var(--icon-trash);
       --icon-color: var(--folder-color-trash);
     }
 
     &[data-folder-type="virtual"] > .container > .icon {
-      background-image: var(--icon-folder-filter);
+      content: var(--icon-folder-filter);
       --icon-color: var(--folder-color-folder-filter);
     }
 
     &[data-server-type="nntp"] ul .icon {
-      background-image: var(--icon-newsletter);
+      content: var(--icon-newsletter);
       --icon-color: var(--folder-color-newsletter);
     }
 
@@ -376,7 +376,7 @@ body {
 
     &[data-is-busy="true"] > .container > .icon {
       content: var(--icon-clock) !important;
-      background-image: none;
+      content: none;
       --icon-color: var(--primary) !important;
 
       @media (prefers-reduced-motion: no-preference) {
@@ -389,12 +389,11 @@ body {
 
     &[data-has-error="true"] > .container > .icon {
       content: var(--icon-warning) !important;
-      background-image: none;
       --icon-color: var(--folder-color-warning) !important;
     }
 
     &[data-tag-key] > .container > .icon {
-      background-image: var(--icon-tag);
+      content: var(--icon-tag);
     }
 
     &[data-server-type] > .container > .name {

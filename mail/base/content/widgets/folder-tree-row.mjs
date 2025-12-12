@@ -452,7 +452,7 @@ class FolderTreeRow extends HTMLLIElement {
       : null;
     if (urls?.length == 1) {
       const url = urls[0];
-      this.icon.style = `content: url("page-icon:${url}"); background-image: none;`;
+      this.icon.style = `content: url("page-icon:${url}");`;
     }
     const props = lazy.FeedUtils.getFolderProperties(folder);
     for (const property of ["hasError", "isBusy", "isPaused"]) {
