@@ -52,6 +52,8 @@ requestLongerTimeout = factor => {
 };
 requestLongerTimeout(1);
 
+let openedMsgWindowCount = 0;
+
 add_setup(async () => {
   await check3PaneState(true, true);
   const tabmail = document.getElementById("tabmail");
@@ -513,6 +515,23 @@ async function openMessageInWindow(msgHdr) {
     throw new Error("No message passed to openMessageInWindow");
   }
 
+  // Temporary logging
+  dump(
+    ` ---- A - ${openedMsgWindowCount} ${JSON.stringify(
+      ["chrome://messenger/content/messageWindow.xhtml"].map(url =>
+        Array.from(Services.xulStore.getIDsEnumerator(url)).map(id => ({
+          [id]: Array.from(
+            Services.xulStore.getAttributeEnumerator(url, id)
+          ).map(attr => ({
+            [attr]: Services.xulStore.getValue(url, id, attr),
+          })),
+        }))
+      ),
+      null,
+      2
+    )}`
+  );
+
   const messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     undefined,
     async win =>
@@ -523,6 +542,25 @@ async function openMessageInWindow(msgHdr) {
 
   const messageWindow = await messageWindowPromise;
   await BrowserTestUtils.waitForEvent(messageWindow, "MsgLoaded");
+  openedMsgWindowCount++;
+
+  // Temporary logging
+  dump(
+    ` ---- B - ${openedMsgWindowCount} ${JSON.stringify(
+      ["chrome://messenger/content/messageWindow.xhtml"].map(url =>
+        Array.from(Services.xulStore.getIDsEnumerator(url)).map(id => ({
+          [id]: Array.from(
+            Services.xulStore.getAttributeEnumerator(url, id)
+          ).map(attr => ({
+            [attr]: Services.xulStore.getValue(url, id, attr),
+          })),
+        }))
+      ),
+      null,
+      2
+    )}`
+  );
+
   return messageWindow;
 }
 
