@@ -306,6 +306,12 @@ class FolderTreeRow extends HTMLLIElement {
     this._nameStyle = nameStyle;
     this.updateFolderNames(folder);
     const isCollapsed = this.classList.contains("collapsed");
+    this.classList.toggle(
+      "new-messages",
+      isCollapsed
+        ? folder.hasFolderOrSubfolderNewMessages
+        : folder.hasNewMessages
+    );
     this.unreadCount = folder.getNumUnread(isCollapsed);
     this.totalCount = folder.getTotalMessages(isCollapsed);
     if (lazy.XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")) {
