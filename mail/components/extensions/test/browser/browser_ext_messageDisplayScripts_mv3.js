@@ -4,6 +4,9 @@
 
 "use strict";
 
+const CONTENT_PAGE =
+  "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html";
+
 let gAccount, gMessages;
 let gDefaultTabmail, gDefaultAbout3Pane, gDefaultMessagePane;
 
@@ -617,7 +620,8 @@ add_task(async function testRegister() {
   await testDonePromise;
 
   // Open a content tab. The CSS and script shouldn't apply.
-  const contentTab = window.openContentTab("http://mochi.test:8888/");
+  const contentTab = window.openContentTab(CONTENT_PAGE);
+  await awaitBrowserLoaded(contentTab.browser, CONTENT_PAGE);
   // Let's wait a while and see if anything happens:
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1014,7 +1018,8 @@ add_task(async function testRunAt() {
   // Open a content tab. The message display scripts should not be injected.
   // If they DO get injected, we will end up with 3 additional messages from the
   // extension and the test will fail.
-  const contentTab = window.openContentTab("http://mochi.test:8888/");
+  const contentTab = window.openContentTab(CONTENT_PAGE);
+  await awaitBrowserLoaded(contentTab.browser, CONTENT_PAGE);
   Assert.equal(gDefaultTabmail.tabInfo.length, 3);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
