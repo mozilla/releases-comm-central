@@ -6,8 +6,6 @@
 <!DOCTYPE html [
   <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
   %abResultsPaneDTD;
-  <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
-  %SearchDialogDTD;
 ]>
 <html id="searchAddressBookWindow" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -18,7 +16,7 @@
       style="min-width: 52em; min-height: 34em;"
       scrolling="false">
 <head>
-  <title>&abSearchDialogTitle.label;</title>
+  <title data-l10n-id="ab-search-dialog-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -45,7 +43,7 @@
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <keyset id="mailKeys">
-    <key key="&closeCmd.key;" modifiers="accel" oncommand="onSearchStop(); window.close();"/>
+    <key data-l10n-id="ab-search-dialog-close-cmd" modifiers="accel" oncommand="onSearchStop(); window.close();"/>
     <key keycode="VK_ESCAPE" oncommand="onSearchStop(); window.close();"/>
   </keyset>
 
@@ -58,17 +56,18 @@
   <vbox id="searchTerms" class="themeable-brighttext" persist="height">
     <vbox>
       <hbox align="center">
-        <label value="&abSearchHeading.label;" accesskey="&abSearchHeading.accesskey;" control="abPopup"/>
+        <label data-l10n-id="ab-search-dialog-search-heading" control="abPopup"/>
         <menulist is="menulist-addrbooks" id="abPopup"
                   oncommand="SelectDirectory(this.value);"
                   alladdressbooks="true"
                   flex="1"/>
         <spacer style="flex: 3 3;"/>
-        <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
+        <button id="search-button" data-l10n-id="ab-search-dialog-search-button"
+        oncommand="onSearchButton(event);" default="true"/>
       </hbox>
       <hbox align="center">
         <spacer flex="1"/>
-        <button id="reset-button" label="&resetButton.label;" oncommand="onAbSearchReset(event);" accesskey="&resetButton.accesskey;"/>
+        <button id="reset-button" data-l10n-id="ab-search-dialog-reset-button" oncommand="onAbSearchReset(event);"/>
       </hbox>
     </vbox>
 
@@ -88,15 +87,9 @@
       </html:auto-tree-view>
     </vbox>
     <hbox align="start">
-      <button label="&propertiesButton.label;"
-              accesskey="&propertiesButton.accesskey;"
-              command="cmd_properties"/>
-      <button label="&composeButton.label;"
-              accesskey="&composeButton.accesskey;"
-              command="cmd_compose"/>
-      <button label="&deleteCardButton.label;"
-              accesskey="&deleteCardButton.accesskey;"
-              command="cmd_deleteCard"/>
+      <button data-l10n-id="ab-search-dialog-properties-button" command="cmd_properties"/>
+      <button data-l10n-id="ab-search-dialog-compose-button" command="cmd_compose"/>
+      <button data-l10n-id="ab-search-dialog-delete-button" command="cmd_deleteCard"/>
     </hbox>
   </vbox>
 

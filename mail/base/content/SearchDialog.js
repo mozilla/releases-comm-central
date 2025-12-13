@@ -17,7 +17,6 @@ ChromeUtils.importESModule("chrome://messenger/content/treecol-image.mjs", {
 ChromeUtils.defineESModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   ThreadPaneColumns: "chrome://messenger/content/ThreadPaneColumns.mjs",
   TreeSelection: "chrome://messenger/content/TreeSelection.mjs",
@@ -37,8 +36,6 @@ var gFolderDisplay;
 
 var gFolderPicker;
 var gStatusText;
-
-var gSearchBundle;
 
 var gSearchStopButton;
 var gClearButton;
@@ -453,7 +450,6 @@ FolderDisplayWidget.prototype = {
         this.view.primarySortColumnId,
         this.view.primarySortOrder
       );
-      SetNewsFolderColumns();
       UpdateSelectCol();
     }
   },
@@ -864,25 +860,6 @@ FolderDisplayWidget.prototype = {
   // @}
 };
 
-function SetNewsFolderColumns() {
-  var sizeColumn = document.getElementById("sizeCol");
-  var bundle = document.getElementById("bundle_messenger");
-
-  if (gDBView.usingLines) {
-    sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
-    sizeColumn.setAttribute(
-      "tooltiptext",
-      bundle.getString("linesColumnTooltip2")
-    );
-  } else {
-    sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
-    sizeColumn.setAttribute(
-      "tooltiptext",
-      bundle.getString("sizeColumnTooltip2")
-    );
-  }
-}
-
 // Controller object for search results thread pane
 var nsSearchResultsController = {
   supportsCommand(command) {
@@ -1000,35 +977,16 @@ SearchFolderDisplayWidget.prototype = {
     progressBarContainer.hidden = !aIsSearching;
     if (aIsSearching) {
       // Search button becomes the "stop" button
-      gSearchStopButton.setAttribute(
-        "label",
-        gSearchBundle.GetStringFromName("labelForStopButton")
-      );
-      gSearchStopButton.setAttribute(
-        "accesskey",
-        gSearchBundle.GetStringFromName("labelForStopButton.accesskey")
-      );
-
+      document.l10n.setAttributes(gSearchStopButton, "stop-button");
       // update our toolbar equivalent
       UpdateMailSearch("new-search");
       // Set progress indicator to indeterminate state.
       progressBar.removeAttribute("value");
       // Tell the user that we're searching.
-      gStatusText.setAttribute(
-        "value",
-        gSearchBundle.GetStringFromName("searchingMessage")
-      );
+      document.l10n.setAttributes(gStatusText, "searching-message");
     } else {
       // Stop button resumes being the "search" button
-      gSearchStopButton.setAttribute(
-        "label",
-        gSearchBundle.GetStringFromName("labelForSearchButton")
-      );
-      gSearchStopButton.setAttribute(
-        "accesskey",
-        gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
-      );
-
+      document.l10n.setAttributes(gSearchStopButton, "search-button");
       // update our toolbar equivalent
       UpdateMailSearch("done-search");
       // Reset progress indicator.
@@ -1052,19 +1010,13 @@ SearchFolderDisplayWidget.prototype = {
 
   updateStatusResultText() {
     const rowCount = this.view.dbView.rowCount;
-    let statusMsg;
-
     if (rowCount == 0) {
-      statusMsg = gSearchBundle.GetStringFromName("noMatchesFound");
+      document.l10n.setAttributes(gStatusText, "no-matches-found");
     } else {
-      statusMsg = PluralForm.get(
-        rowCount,
-        gSearchBundle.GetStringFromName("matchesFound")
-      );
-      statusMsg = statusMsg.replace("#1", rowCount);
+      document.l10n.setAttributes(gStatusText, "matches-found", {
+        count: rowCount,
+      });
     }
-
-    gStatusText.setAttribute("value", statusMsg);
   },
 };
 
@@ -1075,18 +1027,6 @@ function searchOnLoad() {
   initializeSearchWindowWidgets();
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
-  gSearchBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/search.properties"
-  );
-  gSearchStopButton.setAttribute(
-    "label",
-    gSearchBundle.GetStringFromName("labelForSearchButton")
-  );
-  gSearchStopButton.setAttribute(
-    "accesskey",
-    gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
-  );
 
   gFolderDisplay = new SearchFolderDisplayWidget();
   gFolderDisplay.messenger = messenger;
@@ -1158,7 +1098,8 @@ function onResetSearch(event) {
   onReset(event);
   gFolderDisplay.view.search.clear();
 
-  gStatusText.setAttribute("value", "");
+  gStatusText.removeAttribute("data-l10n-id");
+  gStatusText.value = "";
 }
 
 function updateSearchFolderPicker(folder) {
@@ -1194,10 +1135,7 @@ function onEnterInSearchTerm() {
   // on enter
   // if not searching, start the search
   // if searching, stop and then start again
-  if (
-    gSearchStopButton.getAttribute("label") ==
-    gSearchBundle.GetStringFromName("labelForSearchButton")
-  ) {
+  if (gSearchStopButton.getAttribute("data-l10n-id") == "search-button") {
     onSearch();
   } else {
     onSearchStop();
@@ -1392,10 +1330,7 @@ function goUpdateSearchItems(commandset) {
 
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
-  if (
-    event.target.label ==
-    gSearchBundle.GetStringFromName("labelForSearchButton")
-  ) {
+  if (event.target.getAttribute("data-l10n-id") == "search-button") {
     onSearch();
   } else {
     onSearchStop();

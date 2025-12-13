@@ -97,7 +97,7 @@ add_task(async function () {
     await BrowserTestUtils.waitForPopupEvent(item.menupopup, "hidden");
   }
 
-  function checkSearchResults(expectedCards) {
+  async function checkSearchResults(expectedCards) {
     Assert.equal(
       resultsTree.view.rowCount,
       expectedCards.length,
@@ -107,6 +107,12 @@ add_task(async function () {
       Assert.equal(
         resultsTree.view.getCellText(i, "GeneratedName"),
         expectedCards[i].displayName
+      );
+    }
+    if (searchWindow.document.hasPendingL10nMutations) {
+      await BrowserTestUtils.waitForEvent(
+        searchWindow.document,
+        "L10nMutationsFinished"
       );
     }
     if (expectedCards.length) {
@@ -134,7 +140,7 @@ add_task(async function () {
   // Search with no defined criteria. This should find everybody.
 
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([
+  await checkSearchResults([
     cards.daniel,
     cards.danielle,
     cards.jonathan,
@@ -147,7 +153,7 @@ add_task(async function () {
   // Test sorting the results.
 
   EventUtils.synthesizeMouseAtCenter(bookColumn, {}, searchWindow);
-  checkSearchResults([
+  await checkSearchResults([
     cards.danielle,
     cards.katherine,
     cards.natalie,
@@ -157,7 +163,7 @@ add_task(async function () {
     cards.nathan,
   ]);
   EventUtils.synthesizeMouseAtCenter(bookColumn, {}, searchWindow);
-  checkSearchResults([
+  await checkSearchResults([
     cards.daniel,
     cards.jonathan,
     cards.nathan,
@@ -167,7 +173,7 @@ add_task(async function () {
     cards.susanah,
   ]);
   EventUtils.synthesizeMouseAtCenter(nameColumn, {}, searchWindow);
-  checkSearchResults([
+  await checkSearchResults([
     cards.daniel,
     cards.danielle,
     cards.jonathan,
@@ -190,13 +196,13 @@ add_task(async function () {
   input0.select();
   EventUtils.sendString("daniel", searchWindow);
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([cards.daniel, cards.danielle]);
+  await checkSearchResults([cards.daniel, cards.danielle]);
 
   await changeBook(personalBook.URI);
   input0.select();
   EventUtils.sendString("nathan", searchWindow);
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([cards.jonathan, cards.nathan]);
+  await checkSearchResults([cards.jonathan, cards.nathan]);
 
   // Check phone number search works.
   const searchMenuList0 = searchTerm0.querySelector(".search-menulist");
@@ -206,19 +212,19 @@ add_task(async function () {
   EventUtils.sendString("+1 555 9876 54321", searchWindow); // +1555987654321
 
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([cards.daniel]);
+  await checkSearchResults([cards.daniel]);
 
   input0.select();
   EventUtils.sendString("555.123.456", searchWindow); // 555-123-456
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([cards.nathan]);
+  await checkSearchResults([cards.nathan]);
 
   // Now change check both are in collecetd addresses.
 
   await changeBook(historyBook.URI);
-  checkSearchResults([cards.nathan]); // previous result still showing
+  await checkSearchResults([cards.nathan]); // previous result still showing
   EventUtils.synthesizeMouseAtCenter(searchButton, {}, searchWindow);
-  checkSearchResults([]); // No match now.
+  await checkSearchResults([]); // No match now.
 
   // Pressing Enter from the criteria input should start a search.
 
@@ -226,7 +232,7 @@ add_task(async function () {
   input0.select();
   EventUtils.synthesizeKey("KEY_Backspace", {}, searchWindow);
   EventUtils.synthesizeKey("KEY_Enter", {}, searchWindow);
-  checkSearchResults([
+  await checkSearchResults([
     cards.daniel,
     cards.danielle,
     cards.jonathan,
@@ -323,7 +329,7 @@ add_task(async function () {
     "correct card should be deleted"
   );
 
-  checkSearchResults([
+  await checkSearchResults([
     cards.daniel,
     cards.danielle,
     cards.natalie,
@@ -344,7 +350,7 @@ add_task(async function () {
   await promptPromise;
   await deletedPromise;
 
-  checkSearchResults([cards.natalie, cards.nathan, cards.susanah]);
+  await checkSearchResults([cards.natalie, cards.nathan, cards.susanah]);
   Assert.equal(
     resultsTree.view.selection.count,
     0,

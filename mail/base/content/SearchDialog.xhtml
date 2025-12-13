@@ -9,8 +9,6 @@
 <!DOCTYPE html [
   <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
   %messengerDTD;
-  <!ENTITY % SearchDialogDTD SYSTEM "chrome://messenger/locale/SearchDialog.dtd">
-  %SearchDialogDTD;
 ]>
 <html id="searchMailWindow" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -21,7 +19,7 @@
       lightweightthemes="true"
       persist="screenX screenY width height sizemode">
 <head>
-  <title>&searchDialogTitle.label;</title>
+  <title data-l10n-id="search-dialog-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -36,6 +34,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/searchWidgets.ftl" />
+  <link rel="localization" href="messenger/searchDialog.ftl" />
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
@@ -67,7 +66,7 @@
   </commands>
 
   <keyset id="mailKeys">
-    <key key="&closeCmd.key;" modifiers="accel" oncommand="window.close();"/>
+    <key data-l10n-id="close-cmd" modifiers="accel" oncommand="window.close();"/>
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
 #ifdef XP_MACOSX
       <key id="key_delete" keycode="VK_BACK"     command="cmd_delete"/>
@@ -86,7 +85,7 @@
     <vbox id="searchTerms" class="themeable-brighttext" persist="height">
       <vbox>
         <hbox align="center">
-          <label value="&searchHeading.label;" accesskey="&searchHeading.accesskey;"
+          <label data-l10n-id="search-heading"
                  control="searchableFolders"/>
           <menulist id="searchableFolders" class="folderMenuItem"
                     displayformat="verbose">
@@ -95,25 +94,25 @@
                        oncommand="updateSearchFolderPicker(event.target._folder);"/>
           </menulist>
           <spacer style="flex: 10 10;"/>
-          <button id="search-button" oncommand="onSearchButton(event);" default="true"/>
+          <button id="search-button"
+                  data-l10n-id="search-button"
+                  oncommand="onSearchButton(event);"
+                  default="true"/>
         </hbox>
 
         <hbox align="center">
           <checkbox id="checkSearchSubFolders"
-                    label="&searchSubfolders.label;"
-                    accesskey="&searchSubfolders.accesskey;"
+                    data-l10n-id="search-subfolders"
                     checked="true"
                     persist="checked"/>
           <spacer style="flex: 10 10;"/>
-          <button id="clear-button"
-                  label="&resetButton.label;"
-                  oncommand="onResetSearch(event);"
-                  accesskey="&resetButton.accesskey;"/>
+           <button id="clear-button"
+                   data-l10n-id="clear-button"
+                   oncommand="onResetSearch(event);"/>
         </hbox>
         <hbox align="center">
           <checkbox id="checkSearchOnline"
-                    label="&searchOnServer.label;"
-                    accesskey="&searchOnServer.accesskey;"
+                    data-l10n-id="search-on-server"
                     oncommand="updateSearchLocalSystem();"
                     persist="checked"/>
         </hbox>
@@ -328,16 +327,16 @@
         </tree>
       </vbox>
       <hbox align="start">
-        <button label="&openButton.label;" id="openButton" command="cmd_open" accesskey="&openButton.accesskey;"/>
-        <button id="fileMessageButton" type="menu" label="&moveButton.label;"
-                accesskey="&moveButton.accesskey;"
+        <button id="openButton" data-l10n-id="open-button" command="cmd_open"/>
+        <button id="fileMessageButton" type="menu" data-l10n-id="move-button"
                 command="file_message_button">
           <menupopup is="folder-menupopup" showFileHereLabel="true" mode="filing"/>
         </button>
 
-      <button label="&deleteButton.label;" id="deleteButton" command="button_delete" accesskey="&deleteButton.accesskey;"/>
-      <button label="&openInFolder.label;" id="openInFolderButton" command="open_in_folder_button" accesskey="&openInFolder.accesskey;" />
-      <button label="&saveAsVFButton.label;" id="saveAsVFButton" command="saveas_vf_button" accesskey="&saveAsVFButton.accesskey;" />
+
+        <button id="deleteButton" data-l10n-id="delete-button" command="button_delete"/>
+        <button id="openInFolderButton" data-l10n-id="open-in-folder" command="open_in_folder_button" />
+        <button id="saveAsVFButton" data-l10n-id="save-as-vf-button" command="saveas_vf_button" />
       <spacer flex="1" />
     </hbox>
   </vbox>

@@ -14,9 +14,6 @@ var { encodeABTermValue } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { UIDensity } = ChromeUtils.importESModule(
   "resource:///modules/UIDensity.sys.mjs"
 );
@@ -32,8 +29,6 @@ var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
 
 var gStatusText;
-var gSearchBundle;
-var gAddressBookBundle;
 
 var gSearchStopButton;
 var gPropertiesCmd;
@@ -45,17 +40,20 @@ var gSearchAbViewListener = {
     UpdateCardView();
   },
   onCountChanged(aTotal) {
-    let statusText;
     if (aTotal == 0) {
-      statusText = gAddressBookBundle.GetStringFromName("noMatchFound");
-    } else {
-      statusText = PluralForm.get(
-        aTotal,
-        gAddressBookBundle.GetStringFromName("matchesFound1")
-      ).replace("#1", aTotal);
+      document.l10n.setAttributes(
+        gStatusText,
+        "ab-search-dialog-no-matches-found"
+      );
+    } else if (aTotal) {
+      document.l10n.setAttributes(
+        gStatusText,
+        "ab-search-dialog-matches-found",
+        {
+          count: aTotal,
+        }
+      );
     }
-
-    gStatusText.setAttribute("value", statusText);
   },
 };
 
@@ -63,20 +61,6 @@ function searchOnLoad() {
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
 
-  gSearchBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/search.properties"
-  );
-  gSearchStopButton.setAttribute(
-    "label",
-    gSearchBundle.GetStringFromName("labelForSearchButton")
-  );
-  gSearchStopButton.setAttribute(
-    "accesskey",
-    gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
-  );
-  gAddressBookBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
   gSearchSession = Cc[searchSessionContractID].createInstance(
     Ci.nsIMsgSearchSession
   );
@@ -215,7 +199,8 @@ function onAbSearchReset(event) {
   CloseAbView();
 
   onReset(event);
-  gStatusText.setAttribute("value", "");
+  gStatusText.removeAttribute("data-l10n-id");
+  gStatusText.value = "";
 }
 
 function SelectDirectory(aURI) {
@@ -257,8 +242,8 @@ function onEnterInSearchTerm() {
   // if not searching, start the search
   // if searching, stop and then start again
   if (
-    gSearchStopButton.getAttribute("label") ==
-    gSearchBundle.GetStringFromName("labelForSearchButton")
+    gSearchStopButton.getAttribute("data-l10n-id") ==
+    "ab-search-dialog-search-button"
   ) {
     onSearch();
   } else {
@@ -268,7 +253,8 @@ function onEnterInSearchTerm() {
 }
 
 function onSearch() {
-  gStatusText.setAttribute("value", "");
+  gStatusText.removeAttribute("data-l10n-id");
+  gStatusText.value = "";
   disableCommands();
 
   gSearchSession.clearScopes();
@@ -430,8 +416,8 @@ function onSearch() {
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
   if (
-    event.target.label ==
-    gSearchBundle.GetStringFromName("labelForSearchButton")
+    event.target.getAttribute("data-l10n-id") ==
+    "ab-search-dialog-search-button"
   ) {
     onSearch();
   } else {
