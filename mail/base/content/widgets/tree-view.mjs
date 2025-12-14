@@ -2541,6 +2541,7 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     this.#container.appendChild(this.#button);
     const pickerButton = document.createElement("button");
     pickerButton.classList.add("button-flat", "button-column-picker");
+    pickerButton.tabIndex = -1;
     pickerButton.appendChild(document.createElement("img"));
     this.#container.appendChild(pickerButton);
     this.appendChild(this.#container);
