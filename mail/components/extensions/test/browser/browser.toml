@@ -262,6 +262,8 @@ tags = ["contextmenu"]
 
 ["browser_ext_messageDisplayScripts_mv3.js"]
 
+["browser_ext_messageDisplay_address_book_widget.js"]
+
 ["browser_ext_messageDisplay_bug1827032.js"]
 
 ["browser_ext_messageDisplay_bug1828056.js"]
