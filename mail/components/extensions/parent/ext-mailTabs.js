@@ -761,18 +761,20 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               subject: state.text.subject || false,
               body: state.text.body || false,
             };
+            // Enforce null for falsy values for text.text
+            const text = state.text.text || null;
             if (
               about3Pane.document
                 .getElementById("qfb-qs-textbox")
-                .overrideSearchTerm(state.text.text)
+                .overrideSearchTerm(text)
             ) {
               filterer.filterValues.text = {
                 states,
-                text: state.text.text,
+                text,
               };
               about3Pane.document.getElementById(
                 "quick-filter-bar-filter-text-bar"
-              ).hidden = !state.text.text;
+              ).hidden = !text;
             } else {
               filterer.filterValues.text = {
                 states,
@@ -780,7 +782,6 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               };
             }
           }
-
           about3Pane.quickFilterBar.reflectFiltererState();
           about3Pane.quickFilterBar.updateSearch();
         },

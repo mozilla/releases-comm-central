@@ -55,53 +55,53 @@ add_setup(async () => {
 
 add_task(async () => {
   async function background() {
-    browser.mailTabs.setQuickFilter({ unread: true });
+    await browser.mailTabs.setQuickFilter({ unread: true });
     await window.sendMessage("checkVisible", 8, 6, 4, 2, 0);
 
-    browser.mailTabs.setQuickFilter({ flagged: true });
+    await browser.mailTabs.setQuickFilter({ flagged: true });
     await window.sendMessage("checkVisible", 8, 3);
 
-    browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
+    await browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
     await window.sendMessage("checkVisible", 8);
 
-    browser.mailTabs.setQuickFilter({ tags: true });
+    await browser.mailTabs.setQuickFilter({ tags: true });
     await window.sendMessage("checkVisible", 9, 8, 6, 4, 3, 2, 1, 0);
 
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true } },
     });
     await window.sendMessage("checkVisible", 9, 6, 3, 0);
 
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label2: true } },
     });
     await window.sendMessage("checkVisible", 8, 6, 4, 2, 0);
 
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true, $label2: true } },
     });
     await window.sendMessage("checkVisible", 9, 8, 6, 4, 3, 2, 0);
 
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: true } },
     });
     await window.sendMessage("checkVisible", 6, 0);
 
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: false } },
     });
     await window.sendMessage("checkVisible", 9, 3);
 
-    browser.mailTabs.setQuickFilter({ attachment: true });
+    await browser.mailTabs.setQuickFilter({ attachment: true });
     await window.sendMessage("checkVisible", 0);
 
-    browser.mailTabs.setQuickFilter({ attachment: false });
+    await browser.mailTabs.setQuickFilter({ attachment: false });
     await window.sendMessage("checkVisible", 9, 8, 7, 6, 5, 4, 3, 2, 1);
 
-    browser.mailTabs.setQuickFilter({ contact: true });
+    await browser.mailTabs.setQuickFilter({ contact: true });
     await window.sendMessage("checkVisible", 2);
 
-    browser.mailTabs.setQuickFilter({ contact: false });
+    await browser.mailTabs.setQuickFilter({ contact: false });
     await window.sendMessage("checkVisible", 9, 8, 7, 6, 5, 4, 3, 1, 0);
 
     browser.test.notifyPass("quickFilter");
@@ -141,7 +141,7 @@ add_task(async () => {
 
 add_task(async function test_setQuickFilter_UI() {
   async function background() {
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       show: true,
       text: {
         subject: true,
@@ -156,7 +156,7 @@ add_task(async function test_setQuickFilter_UI() {
         text: "test",
       },
     });
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       text: {
         text: "",
       },
@@ -166,10 +166,10 @@ add_task(async function test_setQuickFilter_UI() {
       flagged: undefined,
       text: {
         subject: false,
-        text: "",
+        text: null,
       },
     });
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       flagged: true,
     });
     await window.sendMessage("checkState", {
@@ -180,7 +180,7 @@ add_task(async function test_setQuickFilter_UI() {
         text: null,
       },
     });
-    browser.mailTabs.setQuickFilter({
+    await browser.mailTabs.setQuickFilter({
       show: false,
     });
     await window.sendMessage("checkState", {
