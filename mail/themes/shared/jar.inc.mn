@@ -498,6 +498,7 @@
   skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
   skin/classic/messenger/layout.css                           (../shared/mail/layout.css)
   skin/classic/messenger/folderColors.css                     (../shared/mail/folderColors.css)
+  skin/classic/messenger/spacings.css                          (../shared/mail/spacings.css)
   skin/classic/messenger/splitter.css                         (../shared/mail/splitter.css)
   skin/classic/messenger/widgets.css                          (../shared/mail/widgets.css)
 

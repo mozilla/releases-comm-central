@@ -74,7 +74,10 @@
 
   --color-neutral-200: light-dark(#d9d9de, #4c4d58);
 
-  /* Bolt Colors */
+  /*
+   * Bolt Colors
+   * https://bolt.thunderbird.net/8b179dbfd/p/61e4c7-color
+   */
   --color-surface-base-light: #feffff;
   --color-surface-raised-light: #feffff;
   --color-surface-subtle-light: #f7f7f7;

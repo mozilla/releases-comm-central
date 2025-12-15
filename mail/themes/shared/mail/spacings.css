@@ -1,0 +1,39 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * Application of the rules set out in Bolt:
+ * https://bolt.thunderbird.net/8b179dbfd/p/3599eb-layout
+ */
+
+:root,
+:host {
+  /*
+   * This is the base token used to build the pixel based sizes. All layout
+   * spacings that aren't font-size linked should be a multiple of this.
+   */
+  --space-step: 3px;
+  /*
+   * Density aware step. This is 3px for compact, 6px for normal and 9px for
+   * touch. Allowing us to just build spaces from the constant amount provided
+   * by the --space-step and the density aware amount based on --space-base in
+   * a calc statement. The following example will be 6px for compact, 9px for
+   * default and 12px for relaxed:
+   * calc(var(--space-base) + var(--space-step));
+   *
+   * If compact should be bigger or smaler, we'd tweak the amount of --space-step
+   * (either by multiplying it or by removing it altogether). If the difference
+   * between the density steps should be bigger, multiply the --space-base by a
+   * constant factor.
+   */
+  --space-base: calc(var(--space-step) * 2);
+
+  &[uidensity="compact"] {
+    --space-base: var(--space-step);
+  }
+
+  &[uidensity="touch"] {
+    --space-base: calc(var(--space-step) * 3);
+  }
+}
