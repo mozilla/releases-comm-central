@@ -1292,7 +1292,11 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
 
   // first of all disable the datetime picker if we don't have a date
   const hasDate = document.getElementById(aCheckboxId).checked;
-  datePicker.setAttribute("disabled", !hasDate);
+  if (!hasDate) {
+    datePicker.setAttribute("disabled", "true");
+  } else {
+    datePicker.removeAttribute("disabled");
+  }
 
   // create a new datetime object if date is now checked for the first time
   if (hasDate && !aDateTime.isValid()) {
