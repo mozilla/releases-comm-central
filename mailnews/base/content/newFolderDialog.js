@@ -25,16 +25,9 @@ function onLoad() {
 
   // pre select the folderPicker, based on what they selected in the folder pane
   dialog.folder = windowArgs.folder;
-  try {
-    document
-      .getElementById("MsgNewFolderPopup")
-      .selectFolder(windowArgs.folder);
-  } catch (ex) {
-    // selected a child folder
-    document
-      .getElementById("msgNewFolderPicker")
-      .setAttribute("label", windowArgs.folder.localizedName);
-  }
+  dialog.folderSelected = document
+    .getElementById("MsgNewFolderPopup")
+    .selectFolder(windowArgs.folder);
 
   // can folders contain both folders and messages?
   if (windowArgs.dualUseFolders) {
@@ -49,13 +42,8 @@ function onLoad() {
   }
 
   // Handle enabling/disabling of the OK button.
-  dialog.nameField.addEventListener("input", event => {
-    const childName = event.target.value;
-    // Disable if no value set, or if child folder with that name already exists.
-    document.querySelector("dialog").getButton("accept").disabled =
-      !childName || dialog.folder.getChildNamed(childName);
-  });
-  document.querySelector("dialog").getButton("accept").disabled = true;
+  dialog.nameField.addEventListener("input", doEnabling);
+  doEnabling();
 
   UIFontSize.registerWindow(window);
 }
@@ -65,6 +53,8 @@ function onFolderSelect(event) {
   document
     .getElementById("msgNewFolderPicker")
     .setAttribute("label", dialog.folder.localizedName);
+  dialog.folderSelected = true;
+  doEnabling();
 }
 
 function onOK() {
@@ -83,4 +73,14 @@ function onFoldersOnly() {
 
 function onMessagesOnly() {
   dialog.folderType = MESSAGES;
+}
+
+function doEnabling() {
+  const childName = dialog.nameField.value;
+  // Disable if no value set, no folder selected, or if child folder with that
+  // name already exists.
+  document.querySelector("dialog").getButton("accept").disabled =
+    !childName ||
+    !dialog.folderSelected ||
+    dialog.folder.getChildNamed(childName);
 }
