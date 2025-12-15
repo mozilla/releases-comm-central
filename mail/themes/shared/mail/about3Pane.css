@@ -376,7 +376,6 @@ body {
 
     &[data-is-busy="true"] > .container > .icon {
       content: var(--icon-clock) !important;
-      content: none;
       --icon-color: var(--primary) !important;
 
       @media (prefers-reduced-motion: no-preference) {
