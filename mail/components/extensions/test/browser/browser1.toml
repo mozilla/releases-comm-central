@@ -1,0 +1,75 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.message_display.disable_remote_image=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  # Suppress the bar because it sometimes steals focus or causes other unexpected
+  # issues.
+  "mail.rights.override=true",
+]
+subsuite = "thunderbird"
+support-files = [
+  "head_menus.js",
+  "head_spaces.js",
+  "test_browserAction.js",
+  "../xpcshell/data/utils.js",
+]
+tags = ["webextensions"]
+
+# Tests in this folder are split across multiple manifests. When adding a test,
+# please put it in the manifest with its (alphabetical) neighbours.
+
+["browser_ext_addressBooksUI.js"]
+tags = ["addrbook"]
+
+["browser_ext_browserAction_customized.js"]
+
+["browser_ext_browserAction_not_customized.js"]
+
+["browser_ext_browserAction_popup_click.js"]
+
+["browser_ext_browserAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_browserAction_popup_focus.js"]
+
+["browser_ext_browserAction_properties.js"]
+
+["browser_ext_bug1812530.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
+
+["browser_ext_clickHandler.js"]
+support-files = [
+  "data/content.html",
+  "data/linktest.html",
+  "messages/messageWithLink.eml",
+]
+
+["browser_ext_cloudFile.js"]
+support-files = [
+  "data/cloudFile1.txt",
+  "data/cloudFile2.txt",
+]
+
+["browser_ext_commands_execute_browser_action.js"]
+
+["browser_ext_commands_execute_compose_action.js"]
+
+["browser_ext_commands_execute_message_display_action.js"]
+
+["browser_ext_commands_getAll.js"]
+
+["browser_ext_commands_onChanged.js"]
+
+["browser_ext_commands_onCommand.js"]
+
+["browser_ext_commands_onCommand_bug1845236.js"]
+
+["browser_ext_commands_openShortcutSettings.js"]
+
+["browser_ext_commands_update.js"]

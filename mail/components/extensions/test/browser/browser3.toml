@@ -1,0 +1,63 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.message_display.disable_remote_image=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  # Suppress the bar because it sometimes steals focus or causes other unexpected
+  # issues.
+  "mail.rights.override=true",
+]
+subsuite = "thunderbird"
+support-files = [
+  "head_menus.js",
+  "head_spaces.js",
+  "test_browserAction.js",
+  "../xpcshell/data/utils.js",
+]
+tags = ["webextensions"]
+
+# Tests in this folder are split across multiple manifests. When adding a test,
+# please put it in the manifest with its (alphabetical) neighbours.
+
+["browser_ext_compose_details.js"]
+
+["browser_ext_compose_details_body.js"]
+
+["browser_ext_compose_details_headers.js"]
+
+["browser_ext_compose_details_mv3.js"]
+
+["browser_ext_compose_dictionaries.js"]
+
+["browser_ext_compose_onBeforeSend.js"]
+
+["browser_ext_compose_printPreview.js"]
+
+["browser_ext_compose_saveAuto.js"]
+
+["browser_ext_compose_saveDraft.js"]
+
+["browser_ext_compose_saveTemplate.js"]
+
+["browser_ext_compose_sendMessage.js"]
+
+["browser_ext_compose_sendMessage_mv3.js"]
+
+["browser_ext_contentScripts.js"]
+
+["browser_ext_contentScripts_mv3.js"]
+
+["browser_ext_content_handler.js"]
+
+["browser_ext_content_handler_with_prompt.js"]
+
+["browser_ext_content_tabs_navigation_menu.js"]
+support-files = ["data/content.html"]
+tags = ["contextmenu"]
+
+["browser_ext_extension_check_for_IAN.js"]

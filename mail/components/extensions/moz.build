@@ -27,7 +27,14 @@ TESTING_JS_MODULES += [
     "test/AppUiTestDelegate.sys.mjs",
 ]
 
-BROWSER_CHROME_MANIFESTS += ["test/browser/browser.toml"]
+BROWSER_CHROME_MANIFESTS += [
+    "test/browser/browser1.toml",
+    "test/browser/browser2.toml",
+    "test/browser/browser3.toml",
+    "test/browser/browser4.toml",
+    "test/browser/browser5.toml",
+    "test/browser/browser6.toml",
+]
 XPCSHELL_TESTS_MANIFESTS += [
     "test/xpcshell/xpcshell-ews.toml",
     "test/xpcshell/xpcshell-imap.toml",

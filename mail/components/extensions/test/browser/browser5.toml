@@ -1,0 +1,68 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spellcheck.inline=false",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.message_display.disable_remote_image=false",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+  # Suppress the bar because it sometimes steals focus or causes other unexpected
+  # issues.
+  "mail.rights.override=true",
+]
+subsuite = "thunderbird"
+support-files = [
+  "head_menus.js",
+  "head_spaces.js",
+  "test_browserAction.js",
+  "../xpcshell/data/utils.js",
+]
+tags = ["webextensions"]
+
+# Tests in this folder are split across multiple manifests. When adding a test,
+# please put it in the manifest with its (alphabetical) neighbours.
+
+["browser_ext_messageDisplay.js"]
+
+["browser_ext_messageDisplayAction.js"]
+
+["browser_ext_messageDisplayAction_popup_click.js"]
+
+["browser_ext_messageDisplayAction_popup_click_mv3_event_pages.js"]
+
+["browser_ext_messageDisplayAction_properties.js"]
+
+["browser_ext_messageDisplayScripts.js"]
+
+["browser_ext_messageDisplayScripts_ews.js"]
+
+["browser_ext_messageDisplayScripts_mv3.js"]
+
+["browser_ext_messageDisplay_address_book_widget.js"]
+
+["browser_ext_messageDisplay_bug1827032.js"]
+
+["browser_ext_messageDisplay_bug1828056.js"]
+
+["browser_ext_messageDisplay_open_file.js"]
+
+["browser_ext_messageDisplay_open_headerMessageId.js"]
+
+["browser_ext_messageDisplay_open_messageId.js"]
+
+["browser_ext_message_external.js"]
+support-files = ["messages/attachedMessageSample.eml"]
+
+["browser_ext_messages_delete_attachments.js"]
+
+["browser_ext_messages_open_attachment.js"]
+
+["browser_ext_messages_update_ui.js"]
+
+["browser_ext_messages_user_action.js"]
+
+["browser_ext_quickFilter.js"]
+
+["browser_ext_runtime_getContexts.js"]
