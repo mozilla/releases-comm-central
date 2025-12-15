@@ -1434,14 +1434,52 @@ var folderPane = {
         }
       },
 
+      /**
+       * Folders that don't pass this filter can be automatically removed from the tree.
+       *
+       * @param {nsIMsgFolder} folder
+       * @returns {boolean} True if the folder should have a row in the tree.
+       */
+      _automaticRemovalFilter(folder) {
+        if (this._unreadFilter(folder, !folderPane._isCompact)) {
+          return true;
+        }
+        // Check if this row (or one of its descendants) is currently selected.
+        // Removing a selected row is annoying since it forces focus to another folder.
+        const rowToRemove = folderPane.getRowForFolder(folder, this.name);
+        if (!rowToRemove) {
+          return false;
+        }
+        for (const selectedRow of folderTree.selection.values()) {
+          if (rowToRemove.contains(selectedRow)) {
+            return true;
+          }
+        }
+        return false;
+      },
+
       changeUnreadCount(folder, newValue) {
         if (newValue > 0) {
           this._addFolder(folder);
+        } else {
+          const filter = this._automaticRemovalFilter.bind(this);
+          if (!filter(folder)) {
+            folderPane._removeFolderAndAncestors(folder, this.name, filter);
+          }
         }
       },
 
       changeAccountOrder() {
         folderPane._reapplyServerOrder(this.containerList);
+      },
+
+      onFolderSelected() {
+        for (const row of this.containerList.querySelectorAll("li")) {
+          const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+          if (folder && !this._automaticRemovalFilter(folder)) {
+            row.remove();
+          }
+        }
       },
     },
     favorite: {
@@ -2791,6 +2829,7 @@ var folderPane = {
       window.dispatchEvent(
         new CustomEvent("folderURIChanged", { bubbles: true })
       );
+      this._forAllActiveModes("onFolderSelected");
       return;
     }
 
@@ -2852,6 +2891,7 @@ var folderPane = {
     window.dispatchEvent(
       new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
     );
+    this._forAllActiveModes("onFolderSelected");
   },
 
   /**

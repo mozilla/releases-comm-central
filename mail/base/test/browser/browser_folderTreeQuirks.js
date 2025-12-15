@@ -117,29 +117,29 @@ add_task(async function testFavoriteFolders() {
 add_task(async function testCompactFavoriteFolders() {
   folderPane.activeModes = ["all", "favorite"];
   folderPane.isCompact = true;
-  await checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", [], "compact");
 
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderA]);
+  await checkModeListItems("favorite", [folderA], "compact");
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", [], "compact");
 
   folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderB]);
+  await checkModeListItems("favorite", [folderB], "compact");
 
   folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", [], "compact");
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderA, folderC]); // c, a
+  await checkModeListItems("favorite", [folderA, folderC], "compact"); // c, a
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderC]);
+  await checkModeListItems("favorite", [folderC], "compact");
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", [], "compact");
 
   // Test with multiple accounts.
 
@@ -153,27 +153,27 @@ add_task(async function testCompactFavoriteFolders() {
   const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
 
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [fooTrashFolder]);
+  await checkModeListItems("favorite", [fooTrashFolder], "compact");
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [fooTrashFolder, folderC]);
+  await checkModeListItems("favorite", [fooTrashFolder, folderC], "compact");
 
   MailServices.accounts.reorderAccounts([account.key, foo.key]);
-  await checkModeListItems("favorite", [folderC, fooTrashFolder]);
+  await checkModeListItems("favorite", [folderC, fooTrashFolder], "compact");
 
   fooTrashFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderC]);
+  await checkModeListItems("favorite", [folderC], "compact");
 
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [folderC, fooTrashFolder]);
+  await checkModeListItems("favorite", [folderC, fooTrashFolder], "compact");
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [fooTrashFolder]);
+  await checkModeListItems("favorite", [fooTrashFolder], "compact");
 
   // Clean up.
 
   MailServices.accounts.removeAccount(foo, false);
-  await checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", [], "compact");
   folderPane.isCompact = false;
 });
 
@@ -196,7 +196,7 @@ add_task(async function testUnreadFolders() {
   await checkModeListItems("unread", [rootFolder, folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  await checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
@@ -212,7 +212,7 @@ add_task(async function testUnreadFolders() {
   await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", []);
 
   folderCMessages[0].markRead(false);
   await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
@@ -222,7 +222,143 @@ add_task(async function testUnreadFolders() {
   await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", []);
+});
+
+/**
+ * Tests the interaction between folder selection and
+ * automatic folder removal in the Unread Folders mode.
+ */
+add_task(async function testUnreadFoldersAutoRemovalWithSelection() {
+  const folderB1 = folderA
+    .createLocalSubfolder("folderTreeQuirksB1")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderB1.addMessageBatch(
+    generator.makeMessages({}).map(message => message.toMessageString())
+  );
+  folderB1.markAllMessagesRead(null);
+
+  const folderAMessages = [...folderA.messages];
+  const folderBMessages = [...folderB.messages];
+  const folderB1Messages = [...folderB1.messages];
+  const folderCMessages = [...folderC.messages];
+
+  folderPane.activeModes = ["all", "unread"];
+  await checkModeListItems("unread", [], "with selection");
+
+  // This test uses folder.markMessagesRead instead of message.markRead
+  // because moving the selection around tends to cause folders' databases
+  // to be closed. In that situation, markMessagesRead triggers folder
+  // listeners, but markRead doesn't.
+  folderC.markMessagesRead([folderCMessages[0]], false);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderC],
+    "with selection"
+  );
+
+  // Marking the selected folder read:
+  await selectFolder(folderC, "unread");
+  folderC.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderC],
+    "with selection"
+  );
+
+  // Marking an ancestor of the selected folder as read:
+  folderA.markMessagesRead([folderAMessages[0]], false);
+  folderA.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderC],
+    "with selection"
+  );
+
+  // Marking a descendant of the selected folder as read:
+  folderC.markMessagesRead([folderCMessages[0]], false);
+  await selectFolder(folderA, "unread");
+  folderC.markAllMessagesRead(null);
+  await checkModeListItems("unread", [rootFolder, folderA], "with selection");
+
+  // Marking a descendant of the selected folder as read, but there's an intermediate unread folder.
+  folderB.markMessagesRead([folderBMessages[0]], false);
+  folderC.markMessagesRead([folderCMessages[0]], false);
+  folderC.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB],
+    "with selection"
+  );
+  folderB.markAllMessagesRead(null);
+
+  // Marking a descendant of the selected folder as read, but there's an unread sibling.
+  folderB.markMessagesRead([folderBMessages[0]], false);
+  folderB1.markMessagesRead([folderB1Messages[0]], false);
+  folderB.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB1],
+    "with selection"
+  );
+  folderB1.markAllMessagesRead(null);
+
+  // Moving selection from a read folder to its descendant:
+  folderB.markMessagesRead([folderBMessages[0]], false); // Can't select the folder if it's not in the view.
+  await selectFolder(folderB, "unread");
+  folderB.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB],
+    "with selection"
+  );
+
+  // Moving selection from a read folder to its ancestor:
+  await selectFolder(folderA, "unread");
+  await checkModeListItems("unread", [rootFolder, folderA], "with selection");
+
+  // Moving selection from a read folder to its sibling:
+  folderB.markMessagesRead([folderBMessages[0]], false);
+  folderB1.markMessagesRead([folderB1Messages[0]], false);
+  await selectFolder(folderB1, "unread");
+  folderB1.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderB1],
+    "with selection"
+  );
+  await selectFolder(folderB, "unread");
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB],
+    "with selection"
+  );
+  folderB.markAllMessagesRead(null);
+
+  // Moving selection from a read folder to its sibling, but the previously selected
+  // folder has a child with unread messages
+  folderB1.markMessagesRead([folderB1Messages[0]], false);
+  folderC.markMessagesRead([folderCMessages[0]], false);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderC, folderB1],
+    "with selection"
+  );
+  await selectFolder(folderB1, "unread");
+  folderB1.markAllMessagesRead(null);
+  await checkModeListItems(
+    "unread",
+    [rootFolder, folderA, folderB, folderC, folderB1],
+    "with selection"
+  );
+  folderC.markAllMessagesRead(null);
+
+  // Clean up.
+  // Deselecting the folder should be enough to remove it from the unread list.
+  await selectFolder(folderA, null);
+  await checkModeListItems("unread", [], "with selection");
+  folderB1.deleteSelf(null);
+  rootFolder.emptyTrash(null, null);
 });
 
 /**
@@ -235,43 +371,43 @@ add_task(async function testCompactUnreadFolders() {
 
   folderPane.activeModes = ["all", "unread"];
   folderPane.isCompact = true;
-  await checkModeListItems("unread", []);
+  await checkModeListItems("unread", [], "compact");
 
   folderAMessages[0].markRead(false);
-  await checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [folderA], "compact");
 
   folderAMessages[1].markRead(false);
   folderAMessages[2].markRead(false);
-  await checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [folderA], "compact");
 
   window.MsgMarkAllRead([folderA]);
-  await checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [], "compact");
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
-  await checkModeListItems("unread", [folderA, folderB]);
+  await checkModeListItems("unread", [folderA, folderB], "compact");
 
   folderCMessages[0].markRead(false);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC], "compact");
 
   folderBMessages[0].markRead(true);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderC], "compact");
 
   folderAMessages[0].markRead(true);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderC], "compact");
 
   folderCMessages[0].markRead(true);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [], "compact");
 
   folderCMessages[0].markRead(false);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderC], "compact");
 
   folderCMessages[1].markRead(false);
   folderCMessages[2].markRead(false);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderC], "compact");
 
   window.MsgMarkAllRead([folderC]);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [], "compact");
 
   // Test with multiple accounts.
 
@@ -290,57 +426,65 @@ add_task(async function testCompactUnreadFolders() {
   const fooMessages = [...fooTrashFolder.messages];
 
   fooMessages[0].markRead(false);
-  await checkModeListItems("unread", [
-    fooTrashFolder,
-    folderA,
-    folderB,
-    folderC,
-  ]);
+  await checkModeListItems("unread", [fooTrashFolder], "compact");
 
   folderCMessages[0].markRead(false);
-  await checkModeListItems("unread", [
-    fooTrashFolder,
-    folderA,
-    folderB,
-    folderC,
-  ]);
+  await checkModeListItems("unread", [fooTrashFolder, folderC], "compact");
 
   MailServices.accounts.reorderAccounts([account.key, foo.key]);
-  await checkModeListItems("unread", [
-    folderA,
-    folderB,
-    folderC,
-    fooTrashFolder,
-  ]);
+  await checkModeListItems("unread", [folderC, fooTrashFolder], "compact");
 
   fooMessages[0].markRead(true);
-  await checkModeListItems("unread", [
-    folderA,
-    folderB,
-    folderC,
-    fooTrashFolder,
-  ]);
+  await checkModeListItems("unread", [folderC], "compact");
 
   fooMessages[0].markRead(false);
-  await checkModeListItems("unread", [
-    folderA,
-    folderB,
-    folderC,
-    fooTrashFolder,
-  ]);
+  await checkModeListItems("unread", [folderC, fooTrashFolder], "compact");
 
   folderCMessages[0].markRead(true);
-  await checkModeListItems("unread", [
-    folderA,
-    folderB,
-    folderC,
-    fooTrashFolder,
-  ]);
+  await checkModeListItems("unread", [fooTrashFolder], "compact");
 
   // Clean up.
 
   MailServices.accounts.removeAccount(foo, false);
-  await checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [], "compact");
+  folderPane.isCompact = false;
+});
+
+/**
+ * Tests the interation between folder selection and automatic
+ * folder removal in the compact Unread Folders mode.
+ */
+add_task(async function testCompactUnreadFoldersAutoRemovalWithSelection() {
+  const folderAMessages = [...folderA.messages];
+  const folderBMessages = [...folderB.messages];
+  const folderCMessages = [...folderC.messages];
+
+  folderPane.activeModes = ["all", "unread"];
+  folderPane.isCompact = true;
+  await checkModeListItems("unread", [], "compact with selection");
+
+  folderBMessages[0].markRead(false);
+  await checkModeListItems("unread", [folderB], "compact with selection");
+
+  // Marking the selected folder read:
+  await selectFolder(folderB, "unread");
+  folderB.markAllMessagesRead(null);
+  await checkModeListItems("unread", [folderB], "compact with selection");
+
+  // Marking an ancestor of the selected folder as read:
+  folderAMessages[0].markRead(false);
+  folderA.markAllMessagesRead(null);
+  await checkModeListItems("unread", [folderB], "compact with selection");
+
+  // Marking a descendant of the selected folder as read:
+  folderCMessages[0].markRead(false);
+  folderC.markAllMessagesRead(null);
+  await checkModeListItems("unread", [folderB], "compact with selection");
+
+  // Clean up.
+  // Deselecting the folder should be enough to remove it from the unread list.
+  await selectFolder(folderA, null);
+  await checkModeListItems("unread", [], "compact with selection");
   folderPane.isCompact = false;
 });
 
@@ -1533,7 +1677,7 @@ add_task(async function testAccountOrder() {
     trashFolder,
     ...localExtraFolders,
   ]);
-  await checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("unread", []);
   await checkModeListItems("favorite", []);
 
   // Test hiding the Local Folders.
@@ -1669,8 +1813,9 @@ add_task(async function testMultiSelectionDelete() {
 /**
  * @param {string} modeName
  * @param {nsIMsgFolder[]} folders
+ * @param {string|null} context
  */
-async function checkModeListItems(modeName, folders) {
+async function checkModeListItems(modeName, folders, context = null) {
   // Let things settle so that any code listening for changes
   // can run first.
   await new Promise(resolve => window.requestIdleCallback(resolve));
@@ -1681,12 +1826,31 @@ async function checkModeListItems(modeName, folders) {
     await new Promise(resolve => requestAnimationFrame(resolve));
   }
 
+  const contextMsg = context == null ? "" : ` (${context})`;
   Assert.deepEqual(
     Array.from(
       folderPane._modes[modeName].containerList.querySelectorAll("li"),
       folderTreeRow => folderTreeRow.uri
     ),
     folders.map(folder => folder.URI),
-    `should show correct items in ${modeName} mode`
+    `should show correct items in ${modeName} mode${contextMsg}`
   );
+}
+
+/**
+ * Selects the row for the given folder in the given pane mode.
+ * By default, the header in the "All Folders" view is selected.
+ *
+ * @param {nsIMsgFolder} folder
+ * @param {string|null} mode
+ */
+async function selectFolder(folder, mode = null) {
+  const row = about3Pane.folderPane.getRowForFolder(folder, mode);
+  Assert.notEqual(row, null);
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".name"),
+    {},
+    about3Pane
+  );
+  await TestUtils.waitForCondition(() => folderTree.selectedRow == row);
 }
