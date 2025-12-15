@@ -15,6 +15,9 @@ prefs = [
   "mail.winsearch.firstRunDone=true",
   "mailnews.start_page.override_url=about:blank",
   "mailnews.start_page.url=about:blank",
+  # Suppress the bar because it sometimes steals focus or causes other unexpected
+  # issues.
+  "mail.rights.override=true",
 ]
 subsuite = "thunderbird"
 
