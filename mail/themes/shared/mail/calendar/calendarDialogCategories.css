@@ -4,7 +4,7 @@
 
 :host {
   display: flex;
-  gap: 9px;
+  gap: calc(3 * var(--space-step));
   padding-inline: var(--calendar-dialog-row-padding-inline);
   font-size: 0.77rem;
   align-items: center;
@@ -19,14 +19,14 @@
   display: inline-flex;
   flex-wrap: nowrap;
   flex-direction: row;
-  gap: 9px;
+  gap: calc(3 * var(--space-step));
   flex: 0 1 auto;
   overflow: hidden;
 
   li {
     display: inline-block;
-    padding: 3px 6px;
-    border-radius: 3px;
+    padding: var(--space-step) calc(2 * var(--space-step));
+    border-radius: var(--space-step);
     color: var(--item-text-color, var(--button-primary-text-color, currentColor));
     background: var(--item-color, var(--button-primary-background-color, transparent));
     text-overflow: ellipsis;

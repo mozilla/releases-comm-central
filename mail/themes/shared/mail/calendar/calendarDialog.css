@@ -3,37 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --calendar-dialog-row-padding-inline: 12px;
-  --calendar-dialog-row-column-gap: 9px;
-  --calendar-dialog-row-content-gap: 3px;
-  --calendar-dialog-row-expand-button-padding-inline-start: 9px;
-  --calendar-dialog-expanded-row-content-gap: 6px;
-  --calendar-dialog-expanded-row-padding-block: 12px;
-
-  &[uidensity="compact"] {
-    --calendar-dialog-row-padding-inline: 6px;
-    --calendar-dialog-row-column-gap: 5px;
-    --calendar-dialog-row-content-gap: 1px;
-    --calendar-dialog-expanded-row-content-gap: 3px;
-    --calendar-dialog-expanded-row-padding-block: 6px;
-  }
-
-  &[uidensity="touch"] {
-    --calendar-dialog-row-column-gap: 18px;
-    --calendar-dialog-row-content-gap: 6px;
-    --calendar-dialog-expanded-row-content-gap: 9px;
-    --calendar-dialog-expanded-row-padding-block: 15px;
-  }
+  --calendar-dialog-row-padding-inline: calc(var(--space-base) + 2 * var(--space-step));
+  --calendar-dialog-row-column-gap: calc(var(--space-base) + var(--space-step));
+  --calendar-dialog-row-content-gap: var(--space-step);
+  --calendar-dialog-row-expand-button-padding-inline-start: calc(var(--space-base) + var(--space-step));
+  --calendar-dialog-expanded-row-content-gap: var(--space-base);
+  --calendar-dialog-expanded-row-padding-block: calc(var(--space-base) + 2 * var(--space-step));
+  --calendar-border-radius: calc(2 * var(--space-step));
 }
 
 [is="calendar-dialog"] {
-  border-radius: 6px;
+  border-radius: var(--calendar-border-radius);
   border: 1px solid var(--color-surface-border);
   box-shadow: 0 2px 24px rgba(0, 0, 0, 0.15);
   margin: 0;
   padding: 0;
   inline-size: 424px;
-  max-block-size: calc(100vh - 24px);
+  max-block-size: calc(100vh - 8 * var(--space-step));
   z-index: 999;
   box-sizing: border-box;
 }
@@ -43,12 +29,12 @@
   position: relative;
 
   &::before {
-    border-radius: 6px 6px 0 0;
+    border-radius: var(--calendar-border-radius) var(--calendar-border-radius) 0 0;
     content: "";
     position: absolute;
-    inset-block-start: -11px;
+    inset-block-start: 0;
     inset-inline: 0;
-    block-size: 6px;
+    block-size: var(--calendar-border-radius);
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
   }
 
@@ -98,7 +84,7 @@
 calendar-dialog-date-row {
   display: block;
   background: var(--color-surface-subtle);
-  padding-block: 6px;
+  padding-block: var(--space-step);
 }
 
 .button.close-button {
@@ -147,6 +133,7 @@ calendar-dialog-subview-manager {
     block-size: 100%;
     display: flex;
     flex-direction: column;
+    gap: calc(var(--space-base) + var(--space-step));
   }
 }
 
