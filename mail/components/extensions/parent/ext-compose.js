@@ -1446,10 +1446,10 @@ var beforeSendEventTracker = {
   },
 };
 
-var composeAttachmentTracker = {
-  _nextId: 1,
-  _attachments: new Map(),
-  _attachmentIds: new Map(),
+var composeAttachmentTracker = new (class extends EventEmitter {
+  _nextId = 1;
+  _attachments = new Map();
+  _attachmentIds = new Map();
 
   getId(attachment, window) {
     if (this._attachmentIds.has(attachment)) {
@@ -1459,15 +1459,15 @@ var composeAttachmentTracker = {
     this._attachments.set(id, { attachment, window });
     this._attachmentIds.set(attachment, { id, window });
     return id;
-  },
+  }
 
   getAttachment(id) {
     return this._attachments.get(id);
-  },
+  }
 
   hasAttachment(id) {
     return this._attachments.has(id);
-  },
+  }
 
   forgetAttachment(attachment) {
     // This is called on all attachments when the window closes, whether the
@@ -1477,7 +1477,7 @@ var composeAttachmentTracker = {
       this._attachmentIds.delete(attachment);
       this._attachments.delete(id);
     }
-  },
+  }
 
   forgetAttachments(window) {
     if (window.location.href == COMPOSE_WINDOW_URI) {
@@ -1486,7 +1486,7 @@ var composeAttachmentTracker = {
         this.forgetAttachment(item.attachment);
       }
     }
-  },
+  }
 
   convert(attachment, window) {
     return {
@@ -1494,7 +1494,7 @@ var composeAttachmentTracker = {
       name: attachment.name,
       size: attachment.size,
     };
-  },
+  }
 
   getFile(attachment) {
     if (!attachment) {
@@ -1506,9 +1506,27 @@ var composeAttachmentTracker = {
     // Enforce the actual filename used in the composer, do not leak internal or
     // temporary filenames.
     return File.createFromNsIFile(uri.file, { name: attachment.name });
-  },
-};
+  }
+})();
 
+// Listen for attachments being removed and, after firing events to any
+// listeners, forget about them to avoid leaking.
+windowTracker.addListener("attachments-removed", event => {
+  for (const attachment of event.detail) {
+    const attachmentId = composeAttachmentTracker.getId(
+      attachment,
+      event.target.ownerGlobal
+    );
+    composeAttachmentTracker.emit(
+      "attachment-removed",
+      attachmentId,
+      event.target.ownerGlobal
+    );
+  }
+  for (const attachment of event.detail) {
+    composeAttachmentTracker.forgetAttachment(attachment);
+  }
+});
 windowTracker.addCloseListener(
   composeAttachmentTracker.forgetAttachments.bind(composeAttachmentTracker)
 );
@@ -1664,26 +1682,16 @@ this.compose = class extends ExtensionAPIPersistent {
     onAttachmentRemoved({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
-      async function listener(event) {
+      async function listener(event, attachmentId, win) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        for (const attachment of event.detail) {
-          const attachmentId = composeAttachmentTracker.getId(
-            attachment,
-            event.target.ownerGlobal
-          );
-          fire.async(
-            tabManager.convert(event.target.ownerGlobal),
-            attachmentId
-          );
-          composeAttachmentTracker.forgetAttachment(attachment);
-        }
+        fire.async(tabManager.convert(win), attachmentId);
       }
-      windowTracker.addListener("attachments-removed", listener);
+      composeAttachmentTracker.on("attachment-removed", listener);
       return {
         unregister: () => {
-          windowTracker.removeListener("attachments-removed", listener);
+          composeAttachmentTracker.off("attachment-removed", listener);
         },
         convert(newFire) {
           fire = newFire;
