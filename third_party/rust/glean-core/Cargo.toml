@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean-core"
-version = "66.1.2"
+version = "66.2.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -45,6 +45,7 @@ glean-parser = "18.0.6"
 [lib]
 name = "glean_core"
 path = "src/lib.rs"
+bench = false
 
 [[example]]
 name = "rkv-open"
@@ -197,6 +198,9 @@ features = ["v4"]
 [dependencies.zeitstempel]
 version = "0.2.0"
 
+[dev-dependencies.criterion]
+version = "0.7.0"
+
 [dev-dependencies.ctor]
 version = "0.2.2"
 
@@ -217,6 +221,7 @@ features = ["build"]
 default-features = false
 
 [features]
+benchmark = []
 enable_env_logger = ["env_logger"]
 gecko = []
 
