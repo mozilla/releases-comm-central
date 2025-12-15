@@ -45,6 +45,12 @@ XPCOMUtils.defineLazyPreferenceGetter(
   100
 );
 
+function automationOnlyLog(type, msg, ...args) {
+  if (Cu.isInAutomation) {
+    console.warn(` ---- ${type} :: ${msg}`, ...args);
+  }
+}
+
 // A Map with all the specific priority values, which should not map to "none".
 const TB_SPECIFIC_PRIORITY_MAP = new Map([
   [Ci.nsMsgPriority.lowest, "lowest"],
@@ -1614,6 +1620,7 @@ export class MessageTracker extends EventEmitter {
    */
   msgKeyChanged(oldKey, newMsgHdr) {
     const newKey = newMsgHdr.messageKey;
+    automationOnlyLog("msgKeyChanged", "swapping", oldKey, newKey);
 
     // In some cases, the new key is already used by another message, and the keys
     // have to be swapped in the message tracker. When this occurs, we immediately
@@ -1642,6 +1649,7 @@ export class MessageTracker extends EventEmitter {
 
     // Check if we are left with a no-op swap and exit early.
     if (oldKey == newKey) {
+      automationOnlyLog("msgKeyChanged", "no-op", oldKey, newKey);
       this._pendingKeyChanges.delete(oldKey);
       return;
     }
@@ -1654,20 +1662,43 @@ export class MessageTracker extends EventEmitter {
     const idAssociatedWithOldKey = this._get(createIdentifier(oldKey));
     const idAssociatedWithNewKey = this._get(createIdentifier(newKey));
 
+    automationOnlyLog("msgKeyChanged", "replayed keys", oldKey, newKey);
+    automationOnlyLog(
+      "msgKeyChanged",
+      `currently old key ${oldKey} is associated with id ${idAssociatedWithOldKey}`
+    );
+    automationOnlyLog(
+      "msgKeyChanged",
+      `currently new key ${newKey} is associated with id ${idAssociatedWithNewKey}`
+    );
+
     // Update the tracker entries for the ID associated with the old key and make
     // it point to the new key.
     this._set(idAssociatedWithOldKey, createIdentifier(newKey));
+    automationOnlyLog(
+      "msgKeyChanged",
+      `associating new key ${newKey} with id ${idAssociatedWithOldKey}`
+    );
 
     if (idAssociatedWithNewKey) {
       // If the new key was already in use, make its associated ID point to the
       // old key (swapping the keys).
       this._set(idAssociatedWithNewKey, createIdentifier(oldKey));
+      automationOnlyLog(
+        "msgKeyChanged",
+        `associating old key ${oldKey} with id ${idAssociatedWithNewKey}`
+      );
+
       // Log the executed mirror swap as pending.
       this._pendingKeyChanges.set(newKey, oldKey);
     } else {
       // Decouple the obsolete message identifier for the old key from the ID it
       // was associated with and remove it from the tracker.
       this._decouple(createIdentifier(oldKey));
+      automationOnlyLog(
+        "msgKeyChanged",
+        `decoupling old key ${oldKey} from message tracker`
+      );
     }
   }
 
@@ -1680,19 +1711,40 @@ export class MessageTracker extends EventEmitter {
   observe(subject, topic, data) {
     if (topic == "attachment-delete-msgkey-changed") {
       data = JSON.parse(data);
+      automationOnlyLog("attachment-delete-msgkey-changed", "swapping", data);
+
       if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
         const createIdentifier = messageKey => ({
           folderURI: data.folderURI,
           messageKey,
         });
 
-        const id = this._get(createIdentifier(data.oldMessageKey));
-        if (id) {
+        const oldId = this._get(createIdentifier(data.oldMessageKey));
+        automationOnlyLog(
+          "attachment-delete-msgkey-changed",
+          `currently old key ${data.oldMessageKey} is associated with id ${oldId}`
+        );
+        const newId = this._get(createIdentifier(data.newMessageKey));
+        automationOnlyLog(
+          "attachment-delete-msgkey-changed",
+          `currently new key ${data.newMessageKey} is associated with id ${newId}`
+        );
+
+        if (oldId) {
           // Update the tracker entry for ID to point to the new key.
-          this._set(id, createIdentifier(data.newMessageKey));
+          this._set(oldId, createIdentifier(data.newMessageKey));
+          automationOnlyLog(
+            "attachment-delete-msgkey-changed",
+            `associating new key ${data.newMessageKey} with id ${oldId}`
+          );
+
           // Decouple the obsolete message identifier from the ID it was associated
           // with and remove it from the tracker.
           this._decouple(createIdentifier(data.oldMessageKey));
+          automationOnlyLog(
+            "attachment-delete-msgkey-changed",
+            `decoupling old key ${data.oldMessageKey} from message tracker`
+          );
         }
       }
     } else if (topic == "quit-application-granted") {
