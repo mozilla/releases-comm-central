@@ -4,22 +4,6 @@
 
 "use strict";
 
-async function withNewTab(options, taskFn) {
-  if (typeof options == "string") {
-    options = { url: options };
-  }
-  const tab = window.openContentTab(options.url);
-  await BrowserTestUtils.browserLoaded(tab.browser, {
-    wantLoad: options.url,
-  });
-
-  const result = await taskFn(tab.browser);
-
-  const tabmail = document.getElementById("tabmail");
-  tabmail.closeTab(tab);
-  return Promise.resolve(result);
-}
-
 async function genericChecker() {
   const params = new URLSearchParams(window.location.search);
   const kind = params.get("kind");
@@ -56,6 +40,7 @@ async function genericChecker() {
       iframe.src = iframeUrl;
       document.body.appendChild(iframe);
     } else if (msg == `${kind}-open-options-page`) {
+      browser.test.log(`Opening extension options page`);
       browser.runtime.openOptionsPage();
     }
   });
@@ -112,6 +97,7 @@ add_task(async function test_runtime_getContexts() {
 
       action: {
         default_popup: "page.html?kind=action",
+        allowed_spaces: [],
       },
 
       options_ui: {
@@ -437,16 +423,20 @@ add_task(async function test_runtime_getContexts() {
   info(
     "Test getContexts after opening an options page embedded in an about:addons tab"
   );
-  await withNewTab("about:addons", async browser => {
+  {
+    // Mozilla seems to pre-open about:addons and then call runtime.openOptionsPage().
+    // For us, the load of the initial page (recommendations) overlaps with the
+    // load of the options page and cause the options page to not be shown. Instead,
+    // let's use runtime.openOptionsPage() to load the add-on manager.
     extension.sendMessage("background-open-options-page");
     await extension.awaitMessage("options-loaded");
+    const tabmail = firstWin.document.getElementById("tabmail");
     Assert.equal(
-      browser.currentURI.spec,
+      tabmail.currentTabInfo.browser.currentURI.spec,
       "about:addons",
       "Expect an about:addons tab to be current active tab"
     );
-    const tabmail = firstWin.document.getElementById("tabmail");
-    const nativeTab = tabmail.getTabForBrowser(browser);
+    const nativeTab = tabmail.currentTabInfo;
     const optionsTabId = tabTracker.getId(nativeTab);
     const actual = await getGetContextsResults({
       filter: { windowIds: [firstWinId], tabIds: [optionsTabId] },
@@ -463,7 +453,8 @@ add_task(async function test_runtime_getContexts() {
       ],
       "Got the expected results from runtime.getContexts for an options_page"
     );
-  });
+    tabmail.closeTab(nativeTab);
+  }
 
   await extension.unload();
 });
