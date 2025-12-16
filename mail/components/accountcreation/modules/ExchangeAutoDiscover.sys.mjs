@@ -14,6 +14,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
 const {
@@ -83,7 +84,7 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   // associated with the provided domain.
   const uri = Services.io.newURI(url);
   call.setAbortable(new OAuthAbortable(oauth2Module));
-  const isOAuth2Available = oauth2Module.initFromHostname(
+  let isOAuth2Available = oauth2Module.initFromHostname(
     uri.host,
     username,
     // We pretend to be an IMAP server so we don't try to request unnecessary
@@ -93,6 +94,13 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
     // restrict the use of scopes like the EWS ones to a small allow-list of
     // clients for security reasons.
     "imap"
+  );
+  // Using the actual exchange type for the check so we only get positive
+  // feedback if the provider is expected to support exchange in the first
+  // place.
+  isOAuth2Available &&= lazy.OAuth2Providers.getHostnameDetails(
+    uri.host,
+    "exchange"
   );
   if (isOAuth2Available) {
     oauth2Module.getAccessToken({
