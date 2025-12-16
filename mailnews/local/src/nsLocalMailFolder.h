@@ -95,6 +95,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
   NS_DECL_ISUPPORTS_INHERITED
 
+  nsString GetLocalizedNameInternal() override;
+
   // nsIUrlListener methods
   NS_IMETHOD OnStartRunningUrl(nsIURI* aUrl) override;
   NS_IMETHOD OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) override;

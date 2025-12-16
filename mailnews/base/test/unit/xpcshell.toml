@@ -68,8 +68,14 @@ tags = ["compact"]
 ["test_folderLookupService.js"]
 
 ["test_folderNames.js"]
+tags = ["foldernames"]
 
 ["test_folderNamesExisting.js"]
+tags = ["foldernames"]
+
+["test_folderNames_preffedOff.js"]
+prefs = ["mail.useLocalizedFolderNames=false"]
+tags = ["foldernames"]
 
 ["test_folderStringProperties.js"]
 

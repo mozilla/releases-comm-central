@@ -202,7 +202,7 @@ add_task(async function testType() {
       const messages = (await browser.messages.list(testFolder.id)).messages;
       browser.test.assertEq(4, messages.length, "number of messages");
 
-      const draftFolder = accounts[0].folders.find(f => f.name == "Drafts");
+      const draftFolder = accounts[0].folders.find(f => f.name == "something");
       const drafts = (await browser.messages.list(draftFolder.id)).messages;
       browser.test.assertEq(2, drafts.length, "number of drafts");
 
@@ -373,7 +373,7 @@ add_task(async function testFcc() {
 
       const [account] = await browser.accounts.list();
       const folder1 = account.folders.find(f => f.name == "Trash");
-      const folder2 = account.folders.find(f => f.name == "Drafts");
+      const folder2 = account.folders.find(f => f.name == "something");
 
       // Start a new message.
 

@@ -126,6 +126,43 @@ nsMsgLocalMailFolder::~nsMsgLocalMailFolder(void) {}
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgLocalMailFolder, nsMsgDBFolder,
                             nsICopyMessageListener, nsIMsgLocalMailFolder)
 
+nsString nsMsgLocalMailFolder::GetLocalizedNameInternal() {
+  // Localized names for local folders.
+
+  if (mFlags & nsMsgFolderFlags::Inbox &&
+      mName.LowerCaseEqualsLiteral("inbox")) {
+    return kLocalizedInboxName;
+  }
+  if (mFlags & nsMsgFolderFlags::SentMail &&
+      mName.LowerCaseEqualsLiteral("sent")) {
+    return kLocalizedSentName;
+  }
+  if (mFlags & nsMsgFolderFlags::Drafts &&
+      mName.LowerCaseEqualsLiteral("drafts")) {
+    return kLocalizedDraftsName;
+  }
+  if (mFlags & nsMsgFolderFlags::Templates &&
+      mName.LowerCaseEqualsLiteral("templates")) {
+    return kLocalizedTemplatesName;
+  }
+  if (mFlags & nsMsgFolderFlags::Trash &&
+      mName.LowerCaseEqualsLiteral("trash")) {
+    return kLocalizedTrashName;
+  }
+  if (mFlags & nsMsgFolderFlags::Queue &&
+      mName.LowerCaseEqualsLiteral("unsent messages")) {
+    return kLocalizedUnsentName;
+  }
+  if (mFlags & nsMsgFolderFlags::Junk && mName.LowerCaseEqualsLiteral("junk")) {
+    return kLocalizedJunkName;
+  }
+  if (mFlags & nsMsgFolderFlags::Archive &&
+      mName.LowerCaseEqualsLiteral("archives")) {
+    return kLocalizedArchivesName;
+  }
+  return u""_ns;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(

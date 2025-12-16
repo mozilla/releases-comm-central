@@ -33,6 +33,11 @@ tags = ["compact"]
 ["test_filterNeedsBody.js"]
 
 ["test_folderNamesImap.js"]
+tags = ["foldernames"]
+
+["test_folderNamesImap_preffedOff.js"]
+prefs = ["mail.useLocalizedFolderNames=false"]
+tags = ["foldernames"]
 
 ["test_folderOfflineFlags.js"]
 

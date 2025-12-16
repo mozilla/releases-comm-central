@@ -31,6 +31,13 @@
   value: 0
   mirror: always
 
+# If special folders (trash, drafts, etc.) on remote servers should use names
+# provided by localizers, instead of names from the server.
+- name: mail.useLocalizedFolderNames
+  type: bool
+  value: true
+  mirror: once
+
 # Is Panorama enabled? This should not be set to true unless you are working
 # on the project.
 - name: mail.panorama.enabled

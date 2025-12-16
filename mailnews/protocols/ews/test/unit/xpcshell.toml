@@ -10,6 +10,13 @@ support-files = ["data/*"]
 
 ["test_ewsFolder.js"]
 
+["test_folderNamesEws.js"]
+tags = ["foldernames"]
+
+["test_folderNamesEws_preffedOff.js"]
+prefs = ["mail.useLocalizedFolderNames=false"]
+tags = ["foldernames"]
+
 ["test_folder_operations.js"]
 
 ["test_folder_sync.js"]

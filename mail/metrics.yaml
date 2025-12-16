@@ -232,6 +232,7 @@ mail:
       - mail.SpellCheckBeforeSend
       - mail.thread.conversation.enabled
       - mail.threadpane.table.horizontal_scroll
+      - mail.useLocalizedFolderNames
       - mail.warn_on_send_accel_key
       - mailnews.database.global.indexer.enabled
       - mailnews.downloadToTempFile

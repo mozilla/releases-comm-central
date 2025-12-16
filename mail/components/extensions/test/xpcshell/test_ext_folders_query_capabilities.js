@@ -515,18 +515,9 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         await window.sendMessage("setAsDraft");
         await folderUpdatedPromise;
 
-        // Outside of Local Folders, the folder name is localised to Drafts,
-        // because it has that flag.
-        const expectedName = account.type == "none" ? "Trash" : "Drafts";
-        for (let i = 0; i < expectedAccountFolders.length; i++) {
-          if (expectedAccountFolders[i] == "Trash") {
-            expectedAccountFolders[i] = expectedName;
-          }
-        }
-
         await queryCheck(
           { folderId: rootFolder.id, specialUse: ["drafts", "trash"] },
-          expectedAccountFolders.filter(f => f == expectedName)
+          expectedAccountFolders.filter(f => f == "Trash")
         );
       }
 

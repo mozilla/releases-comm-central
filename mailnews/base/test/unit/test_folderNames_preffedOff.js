@@ -5,6 +5,10 @@
 /**
  * Tests local folders which should have a localised name that is different
  * from the folder's name.
+ *
+ * This version of the test runs with mail.useLocalizedFolderNames set to false.
+ * It's the same as the version with the pref set to true, as the pref has no
+ * effect on local folders.
  */
 
 add_task(function () {

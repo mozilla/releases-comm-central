@@ -9,6 +9,15 @@
  */
 
 add_task(async function () {
+  // Get the localized strings. This test should work in any locale, or if you
+  // change the string values in messenger.properties/messenger.ftl.
+
+  const bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  );
+  const trashFolderName = bundle.GetStringFromName("trashFolderName");
+  const outboxFolderName = bundle.GetStringFromName("outboxFolderName");
+
   do_get_profile();
   Services.prefs.setStringPref("mail.account.account1.identities", "id1");
   Services.prefs.setStringPref("mail.account.account1.server", "server1");
@@ -59,14 +68,14 @@ add_task(async function () {
     Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Mail
   );
   Assert.equal(localFolders[0].name, "Trash");
-  Assert.equal(localFolders[0].localizedName, "Trash");
+  Assert.equal(localFolders[0].localizedName, trashFolderName);
   Assert.equal(localFolders[0].URI, "mailbox://nobody@Local%20Folders/Trash");
   Assert.equal(
     localFolders[1].flags,
     Ci.nsMsgFolderFlags.Queue | Ci.nsMsgFolderFlags.Mail
   );
   Assert.equal(localFolders[1].name, "Unsent Messages");
-  Assert.equal(localFolders[1].localizedName, "Outbox");
+  Assert.equal(localFolders[1].localizedName, outboxFolderName);
   Assert.equal(
     localFolders[1].URI,
     "mailbox://nobody@Local%20Folders/Unsent%20Messages"
