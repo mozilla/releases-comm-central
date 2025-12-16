@@ -584,7 +584,6 @@ class EmailIncomingForm extends AccountHubStep {
       "#incomingAuthMethodAutodetect": isExchange,
       "#incomingAuthMethodEncrypted": isExchange,
       "#incomingAuthMethodKerbos": isExchange,
-      "#incomingAuthMethodNtlm": isExchange,
     };
 
     for (const [optionID, hide] of Object.entries(configOptions)) {
@@ -609,7 +608,7 @@ class EmailIncomingForm extends AccountHubStep {
     // is selected.
     if (
       isExchange &&
-      !["3", "10"].includes(this.#incomingAuthenticationMethod.value)
+      !["3", "6", "10"].includes(this.#incomingAuthenticationMethod.value)
     ) {
       this.#incomingAuthenticationMethod.value = "3";
     }

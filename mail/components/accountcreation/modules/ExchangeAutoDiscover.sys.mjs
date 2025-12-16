@@ -517,7 +517,10 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
   config.incoming.socketType = Ci.nsMsgSocketType.SSL; // only https supported
   config.incoming.port = 443;
   config.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
-  config.incoming.authAlternatives = [Ci.nsMsgAuthMethod.OAuth2];
+  config.incoming.authAlternatives = [
+    Ci.nsMsgAuthMethod.OAuth2,
+    Ci.nsMsgAuthMethod.NTLM,
+  ];
   config.outgoing.addThisServer = false;
   config.outgoing.useGlobalPreferredServer = true;
 

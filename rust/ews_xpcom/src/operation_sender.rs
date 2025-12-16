@@ -257,14 +257,13 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         log::warn!("handling early failure: {err}");
 
         match err {
-            // If the error is an authentication failure, try to
-            // authenticate again (by asking the user for new
-            // credentials if relevant), but only if the consumer
-            // asked us to.
-            XpComEwsError::Protocol(ProtocolError::Authentication)
-                if matches!(options.auth_failure_behavior, AuthFailureBehavior::ReAuth) =>
-            {
-                match self.handle_authentication_failure().await? {
+            // If the error is an authentication failure, try to authenticate
+            // again (as far as the operation's configuration allows us to).
+            XpComEwsError::Protocol(ProtocolError::Authentication) => {
+                match self
+                    .handle_authentication_failure(&options.auth_failure_behavior)
+                    .await?
+                {
                     // We should continue with the authentication
                     // attempts, and retry the request with
                     // refreshed credentials.
@@ -314,9 +313,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     ///
     /// This method instructs its consumer on whether to retry
     /// ([`ControlFlow::Continue`]) or cancel the request
-    /// ([`ControlFlow::Break`]) based on user input and the authentication
-    /// method.
-    async fn handle_authentication_failure(&self) -> Result<ControlFlow<()>, XpComEwsError> {
+    /// ([`ControlFlow::Break`]) based on the configured behavior, user input
+    /// and the authentication method.
+    async fn handle_authentication_failure(
+        &self,
+        behavior: &AuthFailureBehavior,
+    ) -> Result<ControlFlow<()>, XpComEwsError> {
         let credentials = self.server.get_credentials()?;
 
         if let Credentials::Ntlm {
@@ -328,12 +330,23 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // NTLM is a bit special since it authenticates through additional
             // requests to complete a challenge, and the result of this flow is
             // persisted through a cookie. This means we might be getting a 401
-            // response because the cookie expired, so we should try refreshing
-            // it before prompting for a new password.
+            // response because the cookie expired, or hasn't been set yet (e.g.
+            // if we're running the connectivity check), so we should try
+            // refreshing it before prompting for a new password. This step
+            // should be completely silent, so we run it even if the configured
+            // behaviour isn't to re-auth.
             match ntlm::authenticate(username, password, ews_url).await? {
                 NTLMAuthOutcome::Success => return Ok(ControlFlow::Continue(())),
                 NTLMAuthOutcome::Failure => (),
             }
+        }
+
+        // If this is an operation for which we should always silently fail on
+        // authentication failure, this is as far as we can go so bail out now.
+        // `mailnews_ui_glue::handle_auth_failure` might not always prompt the
+        // user to re-auth, but it will in a number of cases.
+        if let AuthFailureBehavior::Silent = behavior {
+            return Ok(ControlFlow::Break(()));
         }
 
         loop {
