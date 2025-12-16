@@ -216,14 +216,21 @@ nsresult nsMsgBiffManager::SetupNextBiff() {
   }
 
   mBiffArray.Sort([](const auto& entryA, const auto& entryB) {
-    return int(entryA.nextBiffTime - entryB.nextBiffTime);
+    if (entryA.nextBiffTime < entryB.nextBiffTime) return -1;
+    if (entryA.nextBiffTime > entryB.nextBiffTime) return 1;
+
+    // For the very unlikely case of two servers having the exact same biff
+    // time, compare by server key to have a deterministic result.
+    nsAutoCString keyA, keyB;
+    entryA.server->GetKey(keyA);
+    entryB.server->GetKey(keyB);
+    return strcmp(keyA.get(), keyB.get());
   });
 
   // Get the next biff entry
   const nsBiffEntry& biffEntry = mBiffArray[0];
   PRTime currentTime = PR_Now();
   int64_t biffDelay;
-  int64_t ms(1000);
 
   if (currentTime > biffEntry.nextBiffTime) {
     // Let's wait 30 seconds before firing biff again
@@ -232,9 +239,11 @@ nsresult nsMsgBiffManager::SetupNextBiff() {
     biffDelay = biffEntry.nextBiffTime - currentTime;
   }
 
-  // Convert biffDelay into milliseconds
-  int64_t timeInMS = biffDelay / ms;
-  uint32_t timeInMSUint32 = (uint32_t)timeInMS;
+  // Convert biffDelay into milliseconds. Adding 1 ensures that for values
+  // under 1000µs the timer is not due immediately. Since PerformBiff considers
+  // the exact time in microseconds, this might otherwise result in multiple
+  // futile calls of this function in a row.
+  uint32_t timeInMSUint32 = (uint32_t)(biffDelay / 1000LL) + 1;
 
   // Can't currently reset a timer when it's in the process of
   // calling Notify. So, just release the timer here and create a new one.
@@ -260,7 +269,7 @@ nsresult nsMsgBiffManager::PerformBiff() {
   MOZ_LOG(MsgBiffLogModule, mozilla::LogLevel::Info, ("performing biffs"));
 
   for (auto& current : mBiffArray) {
-    if (current.nextBiffTime >= currentTime) {
+    if (current.nextBiffTime > currentTime) {
       // Since mBiffArray should have been sorted by SetupNextBiff(), we could
       // break the loop here, but let's be fault-tolerant.
       continue;
