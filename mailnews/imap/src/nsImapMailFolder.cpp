@@ -2216,10 +2216,10 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
     rv = IMAPGetStringBundle(getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsAutoCString folderName;
-    rv = GetName(folderName);
+    nsAutoString localizedName;
+    rv = GetLocalizedName(localizedName);
     NS_ENSURE_SUCCESS(rv, rv);
-    AutoTArray<nsString, 1> formatStrings = {NS_ConvertUTF8toUTF16(folderName)};
+    AutoTArray<nsString, 1> formatStrings = {localizedName};
 
     nsAutoString deleteFolderDialogTitle;
     rv = bundle->GetStringFromName("imapDeleteFolderDialogTitle",
@@ -5445,12 +5445,10 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol* aProtocol) {
         if (MOZ_LOG_TEST(gAutoSyncLog, mozilla::LogLevel::Debug)) {
           int32_t flags = 0;
           GetFlags((uint32_t*)&flags);
-          nsCString folderName;
-          GetName(folderName);
           MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-                  ("%s: foldername=%s, flags=0x%X, "
+                  ("%s: folder=%s, flags=0x%X, "
                    "isOffline=%s, nsMsgFolderFlags::Offline=0x%X",
-                   __func__, folderName.get(), flags,
+                   __func__, mURI.get(), flags,
                    (flags & nsMsgFolderFlags::Offline) ? "true" : "false",
                    nsMsgFolderFlags::Offline));
           MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
@@ -6187,8 +6185,9 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
             // Use the localized (pretty) name and not the the standard imap
             // name. I.e., don't use INBOX but use the local name, e.g.,
             // "Bandeja de entrada".
-            AutoTArray<nsString, 3> params = {current, expected,
-                                              NS_ConvertUTF8toUTF16(mName)};
+            nsAutoString localizedName;
+            GetLocalizedName(localizedName);
+            AutoTArray<nsString, 3> params = {current, expected, localizedName};
 
             nsCOMPtr<nsIStringBundle> bundle;
             nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
@@ -7413,16 +7412,16 @@ nsresult nsImapMailFolder::CopyStreamMessage(
   if (NS_SUCCEEDED(rv) && m_copyState->m_msgService) {
     // put up status message here, if copying more than one message.
     if (m_copyState->m_messages.Length() > 1) {
-      nsAutoCString dstFolderName;
+      nsAutoString dstFolderName;
       nsString progressText;
-      GetName(dstFolderName);
+      dstFolder->GetLocalizedName(dstFolderName);
       nsAutoString curMsgString;
       nsAutoString totalMsgString;
       totalMsgString.AppendInt((int32_t)m_copyState->m_messages.Length());
       curMsgString.AppendInt(m_copyState->m_curIndex + 1);
 
-      AutoTArray<nsString, 3> formatStrings = {
-          curMsgString, totalMsgString, NS_ConvertUTF8toUTF16(dstFolderName)};
+      AutoTArray<nsString, 3> formatStrings = {curMsgString, totalMsgString,
+                                               dstFolderName};
 
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
@@ -8620,10 +8619,8 @@ NS_IMETHODIMP nsImapMailFolder::GetAutoSyncStateObj(
 }
 
 NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
-  nsCString folderName;
-  GetURI(folderName);
   MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-          ("%s: Updating folder: %s", __func__, folderName.get()));
+          ("%s: Updating folder: %s", __func__, mURI.get()));
 
   // HACK: if UpdateFolder finds out that it can't open
   // the folder, it doesn't set the url listener and returns
@@ -8634,7 +8631,7 @@ NS_IMETHODIMP nsImapMailFolder::InitiateAutoSync(nsIUrlListener* aUrlListener) {
 
   if (!canOpenThisFolder) {
     MOZ_LOG(gAutoSyncLog, mozilla::LogLevel::Debug,
-            ("%s: Cannot update folder: %s", __func__, folderName.get()));
+            ("%s: Cannot update folder: %s", __func__, mURI.get()));
     return NS_ERROR_FAILURE;
   }
 
