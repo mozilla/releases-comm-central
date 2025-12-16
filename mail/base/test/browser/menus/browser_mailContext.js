@@ -397,6 +397,11 @@ add_setup(async function () {
   // changes straight away and we don't have to wait ages for it.
   GlodaTestHelper.prepareIndexerForTesting();
 
+  // Clear persisted position/size possibly left from earlier tests.
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messageWindow.xhtml"
+  );
+
   registerCleanupFunction(() => {
     for (const folder of MailServices.accounts.allFolders) {
       Gloda.setFolderIndexingPriority(folder, -1);
