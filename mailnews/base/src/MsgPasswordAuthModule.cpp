@@ -38,9 +38,9 @@ MsgPasswordAuthModule::QueryPasswordFromUserAndCache(
     nsAutoCString managerPassword;
     rv = QueryPasswordFromManagerAndCache(username, hostname, localStoreType,
                                           managerPassword);
-    // If GetPasswordWithoutUI returns NS_ERROR_ABORT, the most likely case
-    // is the user canceled getting the master password, so just return
-    // straight away, as they won't want to get prompted again.
+    // If QueryPasswordFromManagerAndCache returns NS_ERROR_ABORT, the most
+    // likely case is the user canceled getting the master password, so just
+    // return straight away, as they won't want to get prompted again.
     if (rv == NS_ERROR_ABORT) return NS_MSG_PASSWORD_PROMPT_CANCELLED;
   }
   if (mPassword.IsEmpty()) {

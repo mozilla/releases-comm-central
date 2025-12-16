@@ -53,6 +53,14 @@ interface IEwsClient : nsISupports
   readonly attribute boolean running;
 
   /**
+   * Whether the client is not currently processing any operation and is fully
+   * waiting for one to be triggered.
+   *
+   * If `running` is `false`, then `idle` will also be `false`.
+   */
+  readonly attribute boolean idle;
+
+  /**
    * Record in telemetry (Glean) the version for the Exchange Server with the
    * provided URL, and whether it refers to Office365 or an on-premise server.
    *

@@ -360,6 +360,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
             match outcome {
                 AuthErrorOutcome::RETRY => {
+                    log::debug!("retrying auth with new credentials");
+
                     match credentials.validate().await? {
                         // The credentials work, let's move on.
                         AuthValidationOutcome::Valid => break,
@@ -373,7 +375,10 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 // The user has cancelled from the password prompt, or the
                 // selected authentication method does not support retrying at
                 // this stage, let's stop here.
-                AuthErrorOutcome::ABORT => return Ok(ControlFlow::Break(())),
+                AuthErrorOutcome::ABORT => {
+                    log::debug!("aborting attempt to re-authenticate");
+                    return Ok(ControlFlow::Break(()));
+                }
             }
         }
 

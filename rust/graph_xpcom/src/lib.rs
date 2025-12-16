@@ -51,6 +51,11 @@ impl XpcomGraphBridge {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
+    xpcom_method!(idle => GetIdle() -> bool);
+    fn idle(&self) -> Result<bool, nsresult> {
+        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    }
+
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
     fn record_telemetry(&self, _server_url: &nsACString) -> Result<(), nsresult> {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)

@@ -118,6 +118,12 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         self.queue.running()
     }
 
+    /// Checks whether the client is fully idle, i.e. it's not doing anything
+    /// besides waiting for new operations to be triggered.
+    pub(crate) fn idle(&self) -> bool {
+        self.queue.idle()
+    }
+
     /// Returns the [`Url`] currently used as the endpoint to send requests to.
     pub(crate) fn url(&self) -> Url {
         self.op_sender.url()

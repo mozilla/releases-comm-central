@@ -850,12 +850,25 @@ NS_IMETHODIMP EwsIncomingServer::Shutdown() {
 }
 
 NS_IMETHODIMP EwsIncomingServer::GetProtocolClientRunning(bool* running) {
+  NS_ENSURE_ARG_POINTER(running);
+
   if (!mClient) {
     *running = false;
     return NS_OK;
   }
 
   return mClient->GetRunning(running);
+}
+
+NS_IMETHODIMP EwsIncomingServer::GetProtocolClientIdle(bool* idle) {
+  NS_ENSURE_ARG_POINTER(idle);
+
+  if (!mClient) {
+    *idle = false;
+    return NS_OK;
+  }
+
+  return mClient->GetIdle(idle);
 }
 
 namespace {

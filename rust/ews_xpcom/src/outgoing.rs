@@ -12,7 +12,7 @@ use log::debug;
 use thin_vec::ThinVec;
 
 use cstr::cstr;
-use nserror::{nsresult, NS_ERROR_UNEXPECTED, NS_OK};
+use nserror::{nsresult, NS_OK};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
@@ -648,7 +648,7 @@ impl EwsOutgoingServer {
         let username = self.username()?;
         let server_type = self.server_type()?;
         let ews_url = self.ews_url()?;
-        let host = ews_url.host().ok_or(NS_ERROR_UNEXPECTED)?;
+        let host = ews_url.host().ok_or(nserror::NS_ERROR_UNEXPECTED)?;
 
         unsafe {
             self.password_module.borrow().ForgetPassword(
@@ -752,22 +752,46 @@ impl EwsOutgoingServer {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
-    xpcom_method!(get_password_with_ui => GetPasswordWithUI(
+    // Using `xpcom_method!` isn't possible here, because we might need to
+    // forward `NS_MSG_PASSWORD_PROMPT_CANCELLED` from the password module if
+    // the user cancels. Since this status code is a success, and
+    // `xpcom_method!` essentially overwrites all successes with `NS_OK`, we'd
+    // lose an important bit of information in the process.
+    #[allow(non_snake_case)]
+    unsafe fn GetPasswordWithUI(
+        &self,
         promptString: *const nsACString,
-        promptTitle: *const nsACString
-    ) -> nsACString);
-    fn get_password_with_ui(
+        promptTitle: *const nsACString,
+        retval: *mut nsACString,
+    ) -> nsresult {
+        match self.get_password_with_ui(promptString, promptTitle) {
+            Ok(new_password) => match new_password {
+                Some(new_password) => {
+                    (*retval).assign(&new_password);
+                    NS_OK
+                }
+                None => nserror::NS_MSG_PASSWORD_PROMPT_CANCELLED,
+            },
+            Err(err) => err,
+        }
+    }
+
+    /// Prompts the user for a password.
+    ///
+    /// Returns `Ok(None)` if the user cancelled the prompt.
+    unsafe fn get_password_with_ui(
         &self,
         prompt_string: *const nsACString,
         prompt_title: *const nsACString,
-    ) -> Result<nsCString, nsresult> {
+    ) -> Result<Option<nsCString>, nsresult> {
         let username = self.username()?;
         let server_type = self.server_type()?;
         let ews_url = self.ews_url()?;
+
         let host = ews_url.host();
         if let Some(host) = host {
             let mut password = nsCString::new();
-            unsafe {
+            let status = unsafe {
                 self.password_module.borrow().QueryPasswordFromUserAndCache(
                     &*username,
                     &*nsCString::from(host.to_string()),
@@ -777,9 +801,23 @@ impl EwsOutgoingServer {
                     &mut *password,
                 )
             };
+
+            let password = if status == nserror::NS_MSG_PASSWORD_PROMPT_CANCELLED {
+                // The user has cancelled the password prompt.
+                // `NS_MSG_PASSWORD_PROMPT_CANCELLED` is a success, and as , so we need
+                // to turn it into an error so the operation is properly
+                // aborted.
+                None
+            } else {
+                // We know the status code isn't a success we care about, now
+                // check if it's an error we should propagate.
+                status.to_result()?;
+                Some(password)
+            };
+
             Ok(password)
         } else {
-            Err(NS_ERROR_UNEXPECTED)
+            Err(nserror::NS_ERROR_UNEXPECTED)
         }
     }
 

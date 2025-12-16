@@ -12,6 +12,17 @@ use xpcom::interfaces::{
 };
 use xpcom::{getter_addrefs, RefPtr};
 
+/// The outcome of a password prompt.
+pub enum PasswordPromptResult {
+    /// The user has cancelled the prompt.
+    Cancelled,
+
+    /// The user has answered the prompt with a new password. Note the new
+    /// password might be the same as the previous one, this just means the user
+    /// has not cancelled the prompt.
+    NewPassword,
+}
+
 /// A server capable of prompting the user for a password.
 pub trait UserInteractiveServer {
     /// Get the server's authentication method.
@@ -47,7 +58,7 @@ pub trait UserInteractiveServer {
         message: String,
         title: String,
         old_password: String,
-    ) -> Result<(), nsresult>;
+    ) -> Result<PasswordPromptResult, nsresult>;
 }
 
 impl UserInteractiveServer for nsIMsgIncomingServer {
@@ -100,11 +111,27 @@ impl UserInteractiveServer for nsIMsgIncomingServer {
         message: String,
         title: String,
         old_password: String,
-    ) -> Result<(), nsresult> {
+    ) -> Result<PasswordPromptResult, nsresult> {
         let message = nsString::from(&message);
         let title = nsString::from(&title);
         let mut old_password = nsString::from(&old_password);
-        unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) }.to_result()
+
+        // Get the `nsresult` without turning it into a `Result` just yet. We
+        // need it to compare it to `NS_MSG_PASSWORD_PROMPT_CANCELLED`, which is
+        // a success.
+        let status = unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) };
+
+        // Bail now if the status is an error. `nsresult` implements `Copy`, so
+        // we don't need to clone despite `to_result()` taking ownership.
+        status.to_result()?;
+
+        let res = if status == nserror::NS_MSG_PASSWORD_PROMPT_CANCELLED {
+            PasswordPromptResult::Cancelled
+        } else {
+            PasswordPromptResult::NewPassword
+        };
+
+        Ok(res)
     }
 }
 
@@ -152,11 +179,27 @@ impl UserInteractiveServer for nsIMsgOutgoingServer {
         &self,
         message: String,
         title: String,
-        old_password: String,
-    ) -> Result<(), nsresult> {
+        current_password: String,
+    ) -> Result<PasswordPromptResult, nsresult> {
         let message = nsCString::from(&message);
         let title = nsCString::from(&title);
-        let mut old_password = nsCString::from(&old_password);
-        unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) }.to_result()
+        let mut old_password = nsCString::from(&current_password);
+
+        // Get the `nsresult` without turning it into a `Result` just yet. We
+        // need it to compare it to `NS_MSG_PASSWORD_PROMPT_CANCELLED`, which is
+        // a success.
+        let status = unsafe { self.GetPasswordWithUI(&*message, &*title, &mut *old_password) };
+
+        // Bail now if the status is an error. `nsresult` implements `Copy`, so
+        // we don't need to clone despite `to_result()` taking ownership.
+        status.to_result()?;
+
+        let res = if status == nserror::NS_MSG_PASSWORD_PROMPT_CANCELLED {
+            PasswordPromptResult::Cancelled
+        } else {
+            PasswordPromptResult::NewPassword
+        };
+
+        Ok(res)
     }
 }

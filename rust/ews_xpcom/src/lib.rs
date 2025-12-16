@@ -97,6 +97,17 @@ impl XpcomEwsBridge {
         Ok(client.running())
     }
 
+    xpcom_method!(idle => GetIdle() -> bool);
+    fn idle(&self) -> Result<bool, nsresult> {
+        let client = match self.client() {
+            Ok(client) => client,
+            Err(err) if err == NS_ERROR_NOT_INITIALIZED => return Ok(false),
+            Err(err) => return Err(err),
+        };
+
+        Ok(client.idle())
+    }
+
     xpcom_method!(record_telemetry => RecordTelemetry(server_url: *const nsACString));
     fn record_telemetry(&self, server_url: &nsACString) -> Result<(), nsresult> {
         // Try to parse the URL.

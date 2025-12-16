@@ -219,26 +219,52 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     /// in this count. Thus a runner being active means it's in any state other
     /// than fully stopped.
     pub fn running(&self) -> bool {
-        // Count the amount of running/pending runners.
-        //
-        // Borrowing here *should* be fine, since the only place we mutably
-        // borrow `self.runners` is `start` and:
-        //  * both `start` and `stopped` are expected to be run in the same
+        // Count every runner that's not permanently stopped. This should be
+        // fine, since the only place we mutably borrow `self.runners` is
+        // `start` and:
+        //  * both `start` and `running` are expected to be run in the same
         //    thread/routine, and
         //  * both are synchronous functions so there should be no risk of one
         //    happening while the other waits.
-        let active_runners = self
-            .runners
-            .borrow()
-            .iter()
-            // Filter out every runner that's permanently stopped.
-            .filter(|runner| !matches!(runner.state(), RunnerState::Stopped))
-            .count();
+        let active_runners =
+            self.count_matching_runners(|runner| !matches!(runner.state(), RunnerState::Stopped));
 
-        log::debug!("{active_runners} runners currently active");
+        log::debug!("{active_runners} runner(s) currently active");
 
         // Check if there's at least one runner currently active.
         active_runners > 0
+    }
+
+    pub fn idle(&self) -> bool {
+        // Count every runner that's waiting for a new operation to perform.
+        // This should be fine, since the only place we mutably borrow
+        // `self.runners` is `start` and:
+        //  * both `start` and `idle` are expected to be run in the same
+        //    thread/routine, and
+        //  * both are synchronous functions so there should be no risk of one
+        //    happening while the other waits.
+        let idle_runners =
+            self.count_matching_runners(|runner| matches!(runner.state(), RunnerState::Waiting));
+
+        log::debug!("{idle_runners} runner(s) currently idle");
+
+        // If `self.runner` was being mutably borrowed here, we would have
+        // already panicked when calling `self.count_matching_runners()`.
+        idle_runners == self.runners.borrow().len()
+    }
+
+    /// Counts the number of runners matching the given closure. The type of the
+    /// closure is the same that would be used by [`Iterator::filter`].
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if it's called while `self.runners` is being
+    /// mutably borrowed.
+    fn count_matching_runners<PredicateT>(&self, predicate: PredicateT) -> usize
+    where
+        PredicateT: FnMut(&&Arc<Runner<ServerT>>) -> bool,
+    {
+        self.runners.borrow().iter().filter(predicate).count()
     }
 }
 

@@ -13,8 +13,8 @@ use xpcom::{get_service, RefCounted, RefPtr};
 
 use crate::user_interactive_server::UserInteractiveServer;
 use crate::{
-    get_formatted_string, get_string, get_string_bundle, register_alert, IMAP_MSG_STRING_BUNDLE,
-    MESSENGER_STRING_BUNDLE,
+    get_formatted_string, get_string, get_string_bundle, register_alert, PasswordPromptResult,
+    IMAP_MSG_STRING_BUNDLE, MESSENGER_STRING_BUNDLE,
 };
 
 /// The outcome of the handling of an authentication error, and the action that
@@ -124,8 +124,19 @@ where
     // one.
     let password = server.password()?;
     if password.is_empty() {
-        prompt_for_password(server, String::new())?;
-        return Ok(AuthErrorOutcome::RETRY);
+        let outcome = match prompt_for_password(server, String::new())? {
+            // The prompt has been cancelled by the user, we should stop trying
+            // to re-auth now.
+            PasswordPromptResult::Cancelled => AuthErrorOutcome::ABORT,
+
+            // The user has provided a password, let's try again using it. The
+            // password might stil be empty, in which case it will likely fail
+            // again, but if we're reaching this branch then the user has
+            // explicitly asked us to try again.
+            PasswordPromptResult::NewPassword => AuthErrorOutcome::RETRY,
+        };
+
+        return Ok(outcome);
     }
 
     let host_name = server.host_name()?;
@@ -194,7 +205,11 @@ where
         2 => {
             let password = server.password()?;
             server.forget_password()?;
-            prompt_for_password(server, password)?;
+
+            match prompt_for_password(server, password)? {
+                PasswordPromptResult::Cancelled => AuthErrorOutcome::ABORT,
+                PasswordPromptResult::NewPassword => AuthErrorOutcome::RETRY,
+            };
             AuthErrorOutcome::RETRY
         }
         // Anything else, including the Cancel button.
@@ -204,7 +219,7 @@ where
     Ok(action)
 }
 
-/// Prompt the user to enter a new password.
+/// Prompt the user to enter a new password and return it.
 ///
 /// This ends up calling `GetPasswordWithUI` on the relevant `nsIMsg[...]Server`
 /// interface, which is expected to handle the storage of the password once the
@@ -212,7 +227,7 @@ where
 fn prompt_for_password<ServerT>(
     server: RefPtr<ServerT>,
     old_password: String,
-) -> Result<(), nsresult>
+) -> Result<PasswordPromptResult, nsresult>
 where
     ServerT: UserInteractiveServer + RefCounted,
 {

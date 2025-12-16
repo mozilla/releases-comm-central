@@ -34,6 +34,14 @@ interface IEwsIncomingServer : nsISupports
   readonly attribute boolean protocolClientRunning;
 
   /**
+   * Whether the protocol client is currently idle, i.e. fully waiting for new
+   * operations to happen.
+   *
+   * This is `false` if `protocolClientRunning` is `false`.
+   */
+  readonly attribute boolean protocolClientIdle;
+
+  /**
    * Get the client for interacting with the remote server protocol, creating a
    * new one if one hasn't already been created.
    */

@@ -677,7 +677,10 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
 
   aPassword = NS_ConvertUTF8toUTF16(password);
 
-  return NS_OK;
+  // We return `rv` here rather than a blanket `NS_OK`, because the password
+  // module might have returned `NS_MSG_PASSWORD_PROMPT_CANCELLED`, which is a
+  // success.
+  return rv;
 }
 
 nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
