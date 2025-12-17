@@ -79,8 +79,15 @@ export const PluralForm = {
    *   function to figure out the index.
    */
   getPluralRule() {
-    const appLocales = Services.locale.appLocalesAsLangTags;
-    const locale = new Intl.Locale(appLocales[0]);
+    let appLocale = Services.locale.appLocalesAsLangTags[0];
+
+    // See https://searchfox.org/firefox-main/rev/f6385e6644d5d4343d33b692810275c434122199/intl/docs/locale.rst#463-471
+    // Swap ja-JP-mac (legacy locale in gecko, but invalid) with the valid ja-JP-macos
+    if (appLocale == "ja-JP-mac") {
+      appLocale = "ja-JP-macos";
+    }
+
+    const locale = new Intl.Locale(appLocale);
     switch (locale.language) {
       case "bo":
       case "id":
