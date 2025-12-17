@@ -276,20 +276,31 @@ class EmailIncomingForm extends AccountHubStep {
     // Get current config.
     const config = accountConfig || this.getIncomingUserConfig();
 
-    const host =
-      config.incoming.type === "ews"
-        ? URL.parse(config.incoming.ewsURL)?.hostname
-        : config.incoming.hostname;
+    // If it's an exchange account and the experimental pref to allow
+    // OAuth customization is enabled, always allow OAuth since they
+    // will be able to customize the account later.
+    const oauthCustomizationEnabled = Services.prefs.getBoolPref(
+      "experimental.mail.ews.overrideOAuth.enabled",
+      false
+    );
+    if (oauthCustomizationEnabled && config.incoming.type == "ews") {
+      this.querySelector("#incomingAuthMethodOAuth2").hidden = false;
+    } else {
+      const host =
+        config.incoming.type === "ews"
+          ? URL.parse(config.incoming.ewsURL)?.hostname
+          : config.incoming.hostname;
 
-    // If the incoming server hostname supports OAuth2, enable it.
-    const incomingDetails =
-      host && OAuth2Providers.getHostnameDetails(host, config.incoming.type);
+      // If the incoming server hostname supports OAuth2, enable it.
+      const incomingDetails =
+        host && OAuth2Providers.getHostnameDetails(host, config.incoming.type);
 
-    this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;
-    if (incomingDetails) {
-      gAccountSetupLogger.debug(
-        `OAuth2 details for incoming server ${config.incoming.hostname} is ${incomingDetails}`
-      );
+      this.querySelector("#incomingAuthMethodOAuth2").hidden = !incomingDetails;
+      if (incomingDetails) {
+        gAccountSetupLogger.debug(
+          `OAuth2 details for incoming server ${config.incoming.hostname} is ${incomingDetails}`
+        );
+      }
     }
 
     this.#currentConfig = config;
