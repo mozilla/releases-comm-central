@@ -46,7 +46,9 @@ var calendarExtract = {
         },
         onStartRequest() {},
         onStopRequest(request, statusCode) {
-          if (!Components.isSuccessCode(statusCode)) {
+          // Sometimes we get NS_BINDING_ABORTED here, even though we received the
+          // desired content. Do not reject in these cases.
+          if (!Components.isSuccessCode(statusCode) && !content) {
             reject(new Error(statusCode));
           }
           resolve();
