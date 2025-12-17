@@ -33,25 +33,22 @@ function setTitleFromFolder(msgfolder, subject)
       if (title)
         title += " - ";
 
-      title += msgfolder.prettyName;
+      let name = msgfolder.prettyName;
 
       if (!msgfolder.isServer)
       {
         var server = msgfolder.server;
-        var middle;
-        var end;
         if (server.type == "nntp") {
           // <folder> on <hostname>
-          middle = gMessengerBundle.getString("titleNewsPreHost");
-          end = server.hostName;
+          name = gMessengerBundle.getFormattedString("titleNewsHost",
+                                                     [name, server.hostName]);
         } else {
           // <folder> for <accountname>
-          middle = gMessengerBundle.getString("titleMailPreHost");
-          end = server.prettyName;
+          name = gMessengerBundle.getFormattedString("titleMailHost",
+                                                     [name, server.prettyName]);
         }
-        if (middle) title += " " + middle;
-        if (end) title += " " + end;
       }
+      title += name;
     }
 
     if (AppConstants.platform != "macosx") {
