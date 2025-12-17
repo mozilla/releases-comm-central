@@ -126,7 +126,7 @@ add_task(async function test_sendMessageLater2_message1() {
   Assert.equal(gSentFolder.getTotalMessages(false), 0);
 
   // Reset the server.
-  server.stop();
+  await server.stop();
   server.resetTest();
 
   // Reset counts.

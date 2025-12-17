@@ -208,7 +208,7 @@ export class nsMailServer {
     this._socket = socket;
   }
 
-  stop() {
+  async stop() {
     if (!this._socket) {
       return;
     }
@@ -217,7 +217,7 @@ export class nsMailServer {
     this._socket = null;
 
     for (const reader of this._readers) {
-      reader._realCloseSocket(true);
+      await reader._realCloseSocket();
     }
 
     if (this._readers.some(e => e.observer.forced)) {
@@ -540,25 +540,17 @@ class nsMailReader {
   closeSocket() {
     this._signalStop = true;
   }
-  _realCloseSocket(immediately) {
+  async _realCloseSocket() {
     this._isRunning = false;
     this._server.stopTest();
-
-    const cleanUp = () => {
-      this._transport?.close(Cr.NS_OK);
-      this._transport = null;
-      this._output = null;
-    };
-
-    if (immediately) {
-      cleanUp();
-      return;
-    }
 
     // Wait a moment, then close the connection. Closing immediately can
     // prevent the last output stream message from reaching the client
     // (although that's not supposed to happen).
-    setTimeout(cleanUp, 50);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    this._transport?.close(Cr.NS_OK);
+    this._transport = null;
+    this._output = null;
   }
 
   setMultiline(multi) {
