@@ -296,8 +296,8 @@ class nsImapProtocol : public nsIImapProtocol,
   void AlertCertError(nsITransportSecurityInfo* securityInfo);
 
   void ProgressEventFunctionUsingName(const char* aMsgId);
-  void ProgressEventFunctionUsingNameWithString(const char* aMsgName,
-                                                const char* aExtraInfo);
+  void ProgressEventFunctionUsingNameWithString(const char* msgName,
+                                                const char* mailboxName);
   void PercentProgressUpdateEvent(nsACString const& fmtStringName,
                                   int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();

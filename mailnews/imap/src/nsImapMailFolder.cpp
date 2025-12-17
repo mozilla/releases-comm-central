@@ -2608,7 +2608,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     bool gettingNewMessages;
     GetGettingNewMessages(&gettingNewMessages);
     if (gettingNewMessages)
-      ProgressStatusString(aProtocol, "imapNoNewMessages", nullptr);
+      ProgressStatusString(aProtocol, "imapNoNewMessages", EmptyCString());
     SetPerformingBiff(false);
   }
   aSpec->GetNumMessages(&m_numServerTotalMessages);
@@ -6130,7 +6130,7 @@ nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl* aImapUrl,
 NS_IMETHODIMP
 nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
                                        const char* aMsgName,
-                                       const char16_t* extraInfo) {
+                                       const nsACString& mailboxName) {
   nsString progressMsg;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -6146,9 +6146,26 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
     nsCOMPtr<nsIImapUrl> imapUrl;
     aProtocol->GetRunningImapURL(getter_AddRefs(imapUrl));
     if (imapUrl) {
-      if (extraInfo) {
+      if (!mailboxName.IsEmpty()) {
+        nsAutoString extraInfo;
+        nsCOMPtr<nsIMsgFolder> rootFolder;
+        server->GetRootFolder(getter_AddRefs(rootFolder));
+        if (rootFolder) {
+          nsCOMPtr<nsIMsgImapMailFolder> imapRootFolder =
+              do_QueryInterface(rootFolder);
+          nsCOMPtr<nsIMsgImapMailFolder> imapActualFolder;
+          imapRootFolder->FindOnlineSubFolder(mailboxName,
+                                              getter_AddRefs(imapActualFolder));
+          if (imapActualFolder) {
+            nsCOMPtr<nsIMsgFolder> actualFolder =
+                do_QueryInterface(imapActualFolder);
+            actualFolder->GetLocalizedName(extraInfo);
+          }
+        }
+
         nsString printfString;
-        nsTextFormatter::ssprintf(printfString, progressMsg.get(), extraInfo);
+        nsTextFormatter::ssprintf(printfString, progressMsg.get(),
+                                  extraInfo.get());
         progressMsg = printfString;
       }
 
@@ -6284,7 +6301,7 @@ nsImapMailFolder::SetUrlState(nsIImapProtocol* aProtocol,
   // no point in doing anything...
   if (!mPath) return NS_OK;
   if (!isRunning) {
-    ProgressStatusString(aProtocol, "imapDone", nullptr);
+    ProgressStatusString(aProtocol, "imapDone", EmptyCString());
     m_urlRunning = false;
     // if no protocol, then we're reading from the mem or disk cache
     // and we don't want to end the offline download just yet.

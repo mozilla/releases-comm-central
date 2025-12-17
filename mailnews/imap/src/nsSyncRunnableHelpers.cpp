@@ -366,7 +366,7 @@ NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, HeaderFetchCompleted,
                        nsIImapProtocol*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, SetBiffStateAndUpdate, int32_t)
 NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, ProgressStatusString,
-                       nsIImapProtocol*, const char*, const char16_t*)
+                       nsIImapProtocol*, const char*, const nsACString&)
 NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, PercentProgress, nsIImapProtocol*,
                        nsACString const&, int64_t, int64_t)
 NS_SYNCRUNNABLEMETHOD0(ImapMailFolderSink, ClearFolderRights)

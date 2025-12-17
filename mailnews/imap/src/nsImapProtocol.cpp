@@ -5312,7 +5312,7 @@ void nsImapProtocol::ProgressEventFunctionUsingName(const char* aMsgName) {
     return;
   }
   if (m_imapMailFolderSink && !m_lastProgressStringName.Equals(aMsgName)) {
-    m_imapMailFolderSink->ProgressStatusString(this, aMsgName, nullptr);
+    m_imapMailFolderSink->ProgressStatusString(this, aMsgName, EmptyCString());
     m_lastProgressStringName.Assign(aMsgName);
     // who's going to free this? Does ProgressStatusString complete
     // synchronously?
@@ -5320,14 +5320,10 @@ void nsImapProtocol::ProgressEventFunctionUsingName(const char* aMsgName) {
 }
 
 void nsImapProtocol::ProgressEventFunctionUsingNameWithString(
-    const char* aMsgName, const char* aExtraInfo) {
+    const char* msgName, const char* mailboxName) {
   if (m_imapMailFolderSink) {
-    nsString unicodeStr;
-    nsresult rv =
-        CopyFolderNameToUTF16(nsDependentCString(aExtraInfo), unicodeStr);
-    if (NS_SUCCEEDED(rv))
-      m_imapMailFolderSink->ProgressStatusString(this, aMsgName,
-                                                 unicodeStr.get());
+    m_imapMailFolderSink->ProgressStatusString(this, msgName,
+                                               nsCString(mailboxName));
   }
 }
 

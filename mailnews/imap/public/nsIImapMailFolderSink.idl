@@ -106,7 +106,9 @@ interface nsIImapMailFolderSink : nsISupports {
 
   void headerFetchCompleted(in nsIImapProtocol aProtocol);
   void setBiffStateAndUpdate(in long biffState);
-  void progressStatusString(in nsIImapProtocol aProtocol, in string aMsgId, in wstring extraInfo);
+  void progressStatusString(in nsIImapProtocol aProtocol,
+                            in string aMsgId,
+                            in AUTF8String mailboxName);
   void percentProgress(in nsIImapProtocol aProtocol,
                        in ACString aFmtStringName, in long long aCurrentProgress,
                        in long long aMaxProgressProgressInfo);
