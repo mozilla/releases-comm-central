@@ -1401,6 +1401,7 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
 
     if (!(flags & nsMsgMessageFlags::Offline)) {
       // Bail early if there's nothing to remove.
+      existingHdr.forget(hdr);
       return NS_OK;
     }
 
