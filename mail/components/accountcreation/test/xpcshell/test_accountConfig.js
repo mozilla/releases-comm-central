@@ -60,7 +60,7 @@ add_task(function test_isIncomingEditedComplete() {
   const config = new AccountConfig();
 
   config.incoming.type = "ews";
-  config.incoming.ewsURL = "https://example.com";
+  config.incoming.exchangeURL = "https://example.com";
   config.incoming.username = "test";
   config.incoming.auth = 3;
 
@@ -77,7 +77,7 @@ add_task(function test_isIncomingEditedComplete() {
   );
 
   config.incoming.auth = 0;
-  config.incoming.ewsURL = null;
+  config.incoming.exchangeURL = null;
   config.incoming.hostname = "example.com";
   config.incoming.port = 443;
 
@@ -92,4 +92,76 @@ add_task(function test_isIncomingEditedComplete() {
     !config.isIncomingEditedComplete(),
     "Should be an incomplete incoming config with IMAP value but EWS type"
   );
+});
+
+add_task(function test_isExchangeConfig_graphDisabled() {
+  const ewsConfig = new AccountConfig();
+  ewsConfig.incoming.type = "ews";
+  Assert.ok(
+    ewsConfig.isExchangeConfig(),
+    "Config with type `ews` should be Exchange."
+  );
+
+  const graphConfig = new AccountConfig();
+  graphConfig.incoming.type = "graph";
+  Assert.ok(
+    !graphConfig.isExchangeConfig(),
+    "Config with type `graph` should not be Exchange if Graph is disabled."
+  );
+
+  const imapConfig = new AccountConfig();
+  imapConfig.incoming.type = "imap";
+  Assert.ok(
+    !imapConfig.isExchangeConfig(),
+    "Config with type `imap` should not be Exchange."
+  );
+});
+
+add_task(function test_isExchangeConfig_graphEnabled() {
+  Services.prefs.setBoolPref("mail.graph.enabled", true);
+  const ewsConfig = new AccountConfig();
+  ewsConfig.incoming.type = "ews";
+  Assert.ok(
+    ewsConfig.isExchangeConfig(),
+    "Config with type `ews` should be Exchange."
+  );
+
+  const graphConfig = new AccountConfig();
+  graphConfig.incoming.type = "graph";
+  Assert.ok(
+    graphConfig.isExchangeConfig(),
+    "Config with type `graph` should be Exchange."
+  );
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
+});
+
+add_task(function test_getConfiguredHost() {
+  Services.prefs.setBoolPref("mail.graph.enabled", true);
+  const ewsConfig = new AccountConfig();
+  ewsConfig.incoming.type = "ews";
+  ewsConfig.incoming.exchangeURL = "https://ews.example.com/EWS/Exchange.asmx";
+  Assert.equal(
+    ewsConfig.getConfiguredHost(),
+    "ews.example.com",
+    "EWS configured host should be derived from EWS URL."
+  );
+
+  const graphConfig = new AccountConfig();
+  graphConfig.incoming.type = "graph";
+  graphConfig.incoming.exchangeURL = "https://graph.example.com/v1.0";
+  Assert.equal(
+    graphConfig.getConfiguredHost(),
+    "graph.example.com",
+    "Graph configured host should be derived from Graph URL."
+  );
+
+  const imapConfig = new AccountConfig();
+  imapConfig.incoming.type = "imap";
+  imapConfig.incoming.hostname = "imap.example.com";
+  Assert.equal(
+    imapConfig.getConfiguredHost(),
+    "imap.example.com",
+    "IMAP configured host should be derived from incoming hostname."
+  );
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
 });

@@ -74,6 +74,8 @@ var kHostnames = new Map([
 
   // outlook.office365.com, smtp.office365.com
   ["office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
+  // graph.microsoft.com
+  ["graph.microsoft.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
   // autodiscover-s.outlook.com, smtp-mail.outlook.com
   ["outlook.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
   // autodiscover.hotmail.com

@@ -356,7 +356,7 @@ address-book-ldap-creation-error = Could not create LDAP Directory.
 
 account-hub-email-setup-ews = Server Settings
 
-account-hub-result-host-url-label = EWS endpoint URL
+account-hub-result-exchange-url-label = Exchange endpoint URL
 
 account-hub-email-credentials-confirmation = Account Configuration
 
