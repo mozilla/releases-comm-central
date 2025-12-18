@@ -4,6 +4,9 @@
 
 "use strict";
 
+var { clearStatusBar } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/CleanupHelpers.sys.mjs"
+);
 var { MailConsts } = ChromeUtils.importESModule(
   "resource:///modules/MailConsts.sys.mjs"
 );
@@ -79,7 +82,7 @@ add_setup(async () => {
 const webextensions_uuids = Services.prefs.getStringPref(
   "extensions.webextensions.uuids"
 );
-registerCleanupFunction(() => {
+registerCleanupFunction(async () => {
   const tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1, "Only one tab open at end of test");
 
@@ -87,9 +90,12 @@ registerCleanupFunction(() => {
     tabmail.closeTab(tabmail.tabInfo[1]);
   }
 
+  await clearStatusBar(window);
+
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
+
   // Focus an element in the main window, then blur it again to avoid it
   // hijacking keypresses.
   const mainWindowElement = document.getElementById("button-appmenu");

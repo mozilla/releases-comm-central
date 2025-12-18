@@ -7,6 +7,7 @@ TESTING_JS_MODULES.mail += [
     "AccountManagerHelpers.sys.mjs",
     "AddressBookHelpers.sys.mjs",
     "AttachmentHelpers.sys.mjs",
+    "CleanupHelpers.sys.mjs",
     "CloudfileHelpers.sys.mjs",
     "ComposeHelpers.sys.mjs",
     "ContentTabHelpers.sys.mjs",

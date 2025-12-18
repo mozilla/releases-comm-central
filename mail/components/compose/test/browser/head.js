@@ -13,6 +13,9 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
+const { clearStatusBar } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/CleanupHelpers.sys.mjs"
+);
 
 const generator = new MessageGenerator();
 
@@ -137,3 +140,7 @@ async function addLoginInfo(hostname, username, password, realm = hostname) {
   loginInfo.init(hostname, null, realm, username, password, "", "");
   await Services.logins.addLoginAsync(loginInfo);
 }
+
+registerCleanupFunction(async function () {
+  await clearStatusBar(window);
+});
