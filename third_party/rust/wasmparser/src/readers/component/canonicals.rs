@@ -1,8 +1,6 @@
 use crate::limits::MAX_WASM_CANONICAL_OPTIONS;
 use crate::prelude::*;
-use crate::{
-    BinaryReader, BinaryReaderError, ComponentValType, FromReader, Result, SectionLimited,
-};
+use crate::{BinaryReader, ComponentValType, FromReader, Result, SectionLimited};
 
 /// Represents options for component functions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -30,6 +28,10 @@ pub enum CanonicalOption {
     /// The function to use if the async lifting of a function should receive task/stream/future progress events
     /// using a callback.
     Callback(u32),
+    /// The core function type to lower this component function to.
+    CoreType(u32),
+    /// Use the GC version of the canonical ABI.
+    Gc,
 }
 
 /// Represents a canonical function in a WebAssembly component.
@@ -61,6 +63,11 @@ pub enum CanonicalFunction {
         /// The type index of the resource that's being dropped.
         resource: u32,
     },
+    /// Same as `ResourceDrop`, but implements the `async` ABI.
+    ResourceDropAsync {
+        /// The type index of the resource that's being dropped.
+        resource: u32,
+    },
     /// A function which returns the underlying i32-based representation of the
     /// specified resource.
     ResourceRep {
@@ -68,48 +75,59 @@ pub enum CanonicalFunction {
         resource: u32,
     },
     /// A function which spawns a new thread by invoking the shared function.
-    ThreadSpawn {
-        /// The index of the function to spawn.
+    ThreadSpawnRef {
+        /// The index of the function type to spawn.
         func_ty_index: u32,
+    },
+    /// A function which spawns a new thread by invoking the shared function
+    /// passed as an index into a `funcref` table.
+    ThreadSpawnIndirect {
+        /// The index of the function type to spawn.
+        func_ty_index: u32,
+        /// The index of the table to use for the indirect spawn.
+        table_index: u32,
     },
     /// A function which returns the number of threads that can be expected to
     /// execute concurrently
-    ThreadHwConcurrency,
+    ThreadAvailableParallelism,
     /// A function which tells the host to enable or disable backpressure for
     /// the caller's instance.
-    TaskBackpressure,
+    BackpressureSet,
+    /// A function which tells the host to enable backpressure by incrementing
+    /// the component's counter by 1.
+    BackpressureInc,
+    /// A function which tells the host to disable backpressure by decrementing
+    /// the component's counter by 1.
+    BackpressureDec,
     /// A function which returns a result to the caller of a lifted export
     /// function.  This allows the callee to continue executing after returning
     /// a result.
     TaskReturn {
         /// The result type, if any.
         result: Option<ComponentValType>,
+        /// The canonical options for the function.
+        options: Box<[CanonicalOption]>,
     },
-    /// A function which waits for at least one outstanding async
-    /// task/stream/future to make progress, returning the first such event.
-    TaskWait {
-        /// If `true`, indicates the caller instance maybe reentered.
-        async_: bool,
-        /// Memory to use when storing the event.
-        memory: u32,
-    },
-    /// A function which checks whether any outstanding async task/stream/future
-    /// has made progress.  Unlike `task.wait`, this does not block and may
-    /// return nothing if no such event has occurred.
-    TaskPoll {
-        /// If `true`, indicates the caller instance maybe reentered.
-        async_: bool,
-        /// Memory to use when storing the event, if any.
-        memory: u32,
-    },
+    /// A function to acknowledge cancellation of the current task.
+    TaskCancel,
+    /// A `context.get` intrinsic for the `i`th slot of task-local storage.
+    ContextGet(u32),
+    /// A `context.set` intrinsic for the `i`th slot of task-local storage.
+    ContextSet(u32),
     /// A function which yields control to the host so that other tasks are able
     /// to make progress, if any.
-    TaskYield {
+    ThreadYield {
         /// If `true`, indicates the caller instance maybe reentered.
-        async_: bool,
+        cancellable: bool,
     },
     /// A function to drop a specified task which has completed.
     SubtaskDrop,
+    /// A function to cancel an in-progress task.
+    SubtaskCancel {
+        /// If `false`, block until cancellation completes rather than return
+        /// `BLOCKED`.
+        async_: bool,
+    },
     /// A function to create a new `stream` handle of the specified type.
     StreamNew {
         /// The `stream` type to instantiate.
@@ -149,15 +167,15 @@ pub enum CanonicalFunction {
         /// `BLOCKED`.
         async_: bool,
     },
-    /// A function to close the readable end of a `stream` of the specified
+    /// A function to drop the readable end of a `stream` of the specified
     /// type.
-    StreamCloseReadable {
+    StreamDropReadable {
         /// The `stream` type to expect.
         ty: u32,
     },
-    /// A function to close the writable end of a `stream` of the specified
+    /// A function to drop the writable end of a `stream` of the specified
     /// type.
-    StreamCloseWritable {
+    StreamDropWritable {
         /// The `stream` type to expect.
         ty: u32,
     },
@@ -200,15 +218,15 @@ pub enum CanonicalFunction {
         /// `BLOCKED`.
         async_: bool,
     },
-    /// A function to close the readable end of a `future` of the specified
+    /// A function to drop the readable end of a `future` of the specified
     /// type.
-    FutureCloseReadable {
+    FutureDropReadable {
         /// The `future` type to expect.
         ty: u32,
     },
-    /// A function to close the writable end of a `future` of the specified
+    /// A function to drop the writable end of a `future` of the specified
     /// type.
-    FutureCloseWritable {
+    FutureDropWritable {
         /// The `future` type to expect.
         ty: u32,
     },
@@ -228,6 +246,54 @@ pub enum CanonicalFunction {
     },
     /// A function to drop a specified `error-context`.
     ErrorContextDrop,
+    /// A function to create a new `waitable-set`.
+    WaitableSetNew,
+    /// A function to block on the next item within a `waitable-set`.
+    WaitableSetWait {
+        /// Whether or not the guest can be reentered while calling this
+        /// function.
+        cancellable: bool,
+        /// Which memory the results of this operation are stored in.
+        memory: u32,
+    },
+    /// A function to check if any items are ready within a `waitable-set`.
+    WaitableSetPoll {
+        /// Whether or not the guest can be reentered while calling this
+        /// function.
+        cancellable: bool,
+        /// Which memory the results of this operation are stored in.
+        memory: u32,
+    },
+    /// A function to drop a `waitable-set`.
+    WaitableSetDrop,
+    /// A function to add an item to a `waitable-set`.
+    WaitableJoin,
+    /// A function to get the index of the current thread.
+    ThreadIndex,
+    /// A function to create a new thread with the specified start function.
+    ThreadNewIndirect {
+        /// The index of the function type to use as the start function.
+        func_ty_index: u32,
+        /// The index of the table to use.
+        table_index: u32,
+    },
+    /// A function to suspend the current thread and switch to the given thread.
+    ThreadSwitchTo {
+        /// Whether or not the thread can be cancelled while awaiting resumption.
+        cancellable: bool,
+    },
+    /// A function to suspend the current thread, immediately yielding to any transitive async-lowered calling component.
+    ThreadSuspend {
+        /// Whether or not the thread can be cancelled while suspended.
+        cancellable: bool,
+    },
+    /// A function to schedule the given thread to be resumed later.
+    ThreadResumeLater,
+    /// A function to suspend the current thread and switch to the given thread.
+    ThreadYieldTo {
+        /// Whether or not the thread can be cancelled while yielding.
+        cancellable: bool,
+    },
 }
 
 /// A reader for the canonical section of a WebAssembly component.
@@ -237,26 +303,17 @@ impl<'a> FromReader<'a> for CanonicalFunction {
     fn from_reader(reader: &mut BinaryReader<'a>) -> Result<CanonicalFunction> {
         Ok(match reader.read_u8()? {
             0x00 => match reader.read_u8()? {
-                0x00 => {
-                    let core_func_index = reader.read_var_u32()?;
-                    let options = reader
-                        .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                        .collect::<Result<_>>()?;
-                    let type_index = reader.read_var_u32()?;
-                    CanonicalFunction::Lift {
-                        core_func_index,
-                        options,
-                        type_index,
-                    }
-                }
+                0x00 => CanonicalFunction::Lift {
+                    core_func_index: reader.read_var_u32()?,
+                    options: read_opts(reader)?,
+                    type_index: reader.read_var_u32()?,
+                },
                 x => return reader.invalid_leading_byte(x, "canonical function lift"),
             },
             0x01 => match reader.read_u8()? {
                 0x00 => CanonicalFunction::Lower {
                     func_index: reader.read_var_u32()?,
-                    options: reader
-                        .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                        .collect::<Result<_>>()?,
+                    options: read_opts(reader)?,
                 },
                 x => return reader.invalid_leading_byte(x, "canonical function lower"),
             },
@@ -266,54 +323,39 @@ impl<'a> FromReader<'a> for CanonicalFunction {
             0x03 => CanonicalFunction::ResourceDrop {
                 resource: reader.read()?,
             },
+            0x07 => CanonicalFunction::ResourceDropAsync {
+                resource: reader.read()?,
+            },
             0x04 => CanonicalFunction::ResourceRep {
                 resource: reader.read()?,
             },
-            0x05 => CanonicalFunction::ThreadSpawn {
-                func_ty_index: reader.read()?,
-            },
-            0x06 => CanonicalFunction::ThreadHwConcurrency,
-            0x08 => CanonicalFunction::TaskBackpressure,
+            0x08 => CanonicalFunction::BackpressureSet,
+            0x24 => CanonicalFunction::BackpressureInc,
+            0x25 => CanonicalFunction::BackpressureDec,
             0x09 => CanonicalFunction::TaskReturn {
-                result: match reader.read_u8()? {
-                    0x00 => Some(reader.read()?),
-                    0x01 => {
-                        if reader.read_u8()? == 0 {
-                            None
-                        } else {
-                            return Err(BinaryReaderError::new(
-                                "named results not allowed for `task.return` intrinsic",
-                                reader.original_position() - 2,
-                            ));
-                        }
-                    }
-                    x => return reader.invalid_leading_byte(x, "`task.return` result"),
-                },
+                result: crate::read_resultlist(reader)?,
+                options: read_opts(reader)?,
             },
-            0x0a => CanonicalFunction::TaskWait {
-                async_: reader.read()?,
-                memory: reader.read()?,
+            0x0a => match reader.read_u8()? {
+                0x7f => CanonicalFunction::ContextGet(reader.read_var_u32()?),
+                x => return reader.invalid_leading_byte(x, "context.get intrinsic type"),
             },
-            0x0b => CanonicalFunction::TaskPoll {
-                async_: reader.read()?,
-                memory: reader.read()?,
+            0x0b => match reader.read_u8()? {
+                0x7f => CanonicalFunction::ContextSet(reader.read_var_u32()?),
+                x => return reader.invalid_leading_byte(x, "context.set intrinsic type"),
             },
-            0x0c => CanonicalFunction::TaskYield {
-                async_: reader.read()?,
+            0x0c => CanonicalFunction::ThreadYield {
+                cancellable: reader.read()?,
             },
             0x0d => CanonicalFunction::SubtaskDrop,
             0x0e => CanonicalFunction::StreamNew { ty: reader.read()? },
             0x0f => CanonicalFunction::StreamRead {
                 ty: reader.read()?,
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x10 => CanonicalFunction::StreamWrite {
                 ty: reader.read()?,
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x11 => CanonicalFunction::StreamCancelRead {
                 ty: reader.read()?,
@@ -323,20 +365,16 @@ impl<'a> FromReader<'a> for CanonicalFunction {
                 ty: reader.read()?,
                 async_: reader.read()?,
             },
-            0x13 => CanonicalFunction::StreamCloseReadable { ty: reader.read()? },
-            0x14 => CanonicalFunction::StreamCloseWritable { ty: reader.read()? },
+            0x13 => CanonicalFunction::StreamDropReadable { ty: reader.read()? },
+            0x14 => CanonicalFunction::StreamDropWritable { ty: reader.read()? },
             0x15 => CanonicalFunction::FutureNew { ty: reader.read()? },
             0x16 => CanonicalFunction::FutureRead {
                 ty: reader.read()?,
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x17 => CanonicalFunction::FutureWrite {
                 ty: reader.read()?,
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x18 => CanonicalFunction::FutureCancelRead {
                 ty: reader.read()?,
@@ -346,22 +384,63 @@ impl<'a> FromReader<'a> for CanonicalFunction {
                 ty: reader.read()?,
                 async_: reader.read()?,
             },
-            0x1a => CanonicalFunction::FutureCloseReadable { ty: reader.read()? },
-            0x1b => CanonicalFunction::FutureCloseWritable { ty: reader.read()? },
+            0x1a => CanonicalFunction::FutureDropReadable { ty: reader.read()? },
+            0x1b => CanonicalFunction::FutureDropWritable { ty: reader.read()? },
             0x1c => CanonicalFunction::ErrorContextNew {
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x1d => CanonicalFunction::ErrorContextDebugMessage {
-                options: reader
-                    .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
-                    .collect::<Result<_>>()?,
+                options: read_opts(reader)?,
             },
             0x1e => CanonicalFunction::ErrorContextDrop,
+
+            0x1f => CanonicalFunction::WaitableSetNew,
+            0x20 => CanonicalFunction::WaitableSetWait {
+                cancellable: reader.read()?,
+                memory: reader.read()?,
+            },
+            0x21 => CanonicalFunction::WaitableSetPoll {
+                cancellable: reader.read()?,
+                memory: reader.read()?,
+            },
+            0x22 => CanonicalFunction::WaitableSetDrop,
+            0x23 => CanonicalFunction::WaitableJoin,
+            0x26 => CanonicalFunction::ThreadIndex,
+            0x27 => CanonicalFunction::ThreadNewIndirect {
+                func_ty_index: reader.read()?,
+                table_index: reader.read()?,
+            },
+            0x28 => CanonicalFunction::ThreadSwitchTo {
+                cancellable: reader.read()?,
+            },
+            0x29 => CanonicalFunction::ThreadSuspend {
+                cancellable: reader.read()?,
+            },
+            0x2a => CanonicalFunction::ThreadResumeLater,
+            0x2b => CanonicalFunction::ThreadYieldTo {
+                cancellable: reader.read()?,
+            },
+            0x06 => CanonicalFunction::SubtaskCancel {
+                async_: reader.read()?,
+            },
+            0x05 => CanonicalFunction::TaskCancel,
+            0x40 => CanonicalFunction::ThreadSpawnRef {
+                func_ty_index: reader.read()?,
+            },
+            0x41 => CanonicalFunction::ThreadSpawnIndirect {
+                func_ty_index: reader.read()?,
+                table_index: reader.read()?,
+            },
+            0x42 => CanonicalFunction::ThreadAvailableParallelism,
             x => return reader.invalid_leading_byte(x, "canonical function"),
         })
     }
+}
+
+fn read_opts(reader: &mut BinaryReader<'_>) -> Result<Box<[CanonicalOption]>> {
+    reader
+        .read_iter(MAX_WASM_CANONICAL_OPTIONS, "canonical options")?
+        .collect::<Result<_>>()
 }
 
 impl<'a> FromReader<'a> for CanonicalOption {
@@ -375,6 +454,8 @@ impl<'a> FromReader<'a> for CanonicalOption {
             0x05 => CanonicalOption::PostReturn(reader.read_var_u32()?),
             0x06 => CanonicalOption::Async,
             0x07 => CanonicalOption::Callback(reader.read_var_u32()?),
+            0x08 => CanonicalOption::CoreType(reader.read_var_u32()?),
+            0x09 => CanonicalOption::Gc,
             x => return reader.invalid_leading_byte(x, "canonical option"),
         })
     }

@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.76.0"
 name = "wast"
-version = "225.0.0"
+version = "243.0.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 build = false
 autolib = false
@@ -32,6 +32,18 @@ repository = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wa
 
 [package.metadata.docs.rs]
 all-features = true
+
+[features]
+component-model = [
+    "wasm-module",
+    "wasm-encoder/component-model",
+]
+default = [
+    "wasm-module",
+    "component-model",
+]
+dwarf = ["dep:gimli"]
+wasm-module = []
 
 [lib]
 name = "wast"
@@ -58,7 +70,7 @@ path = "tests/recursive.rs"
 version = "3.14.0"
 
 [dependencies.gimli]
-version = "0.30.0"
+version = "0.31.1"
 optional = true
 
 [dependencies.leb128fmt]
@@ -72,7 +84,7 @@ version = "2.4.1"
 version = "0.2.0"
 
 [dependencies.wasm-encoder]
-version = "0.225.0"
+version = "0.243.0"
 features = ["std"]
 default-features = false
 
@@ -80,28 +92,21 @@ default-features = false
 version = "1.0.58"
 
 [dev-dependencies.libtest-mimic]
-version = "0.7.0"
+version = "0.8.1"
 
 [dev-dependencies.rand]
-version = "0.8.4"
+version = "0.9.1"
 features = ["small_rng"]
 
-[features]
-component-model = [
-    "wasm-module",
-    "wasm-encoder/component-model",
-]
-default = [
-    "wasm-module",
-    "component-model",
-]
-dwarf = ["dep:gimli"]
-wasm-module = []
-
 [lints.clippy]
+allow_attributes_without_reason = "warn"
 clone_on_copy = "warn"
 manual_strip = "warn"
 map_clone = "warn"
+uninlined_format_args = "warn"
+unnecessary_cast = "warn"
+unnecessary_fallible_conversions = "warn"
+unnecessary_mut_passed = "warn"
 unnecessary_to_owned = "warn"
 
 [lints.clippy.all]
@@ -109,4 +114,22 @@ level = "allow"
 priority = -1
 
 [lints.rust]
+deprecated-safe-2024 = "warn"
+keyword_idents_2024 = "warn"
+missing-unsafe-on-extern = "warn"
+rust-2024-guarded-string-incompatible-syntax = "warn"
+rust-2024-incompatible-pat = "warn"
+rust-2024-prelude-collisions = "warn"
+unsafe-attr-outside-unsafe = "warn"
+unsafe-op-in-unsafe-fn = "warn"
 unsafe_code = "deny"
+unstable_features = "warn"
+unused-lifetimes = "warn"
+unused-macro-rules = "warn"
+unused_extern_crates = "warn"
+unused_import_braces = "warn"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ["cfg(fuzzing)"]

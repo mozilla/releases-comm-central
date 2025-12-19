@@ -28,11 +28,7 @@ impl KebabStr {
     /// Returns `None` if the given string is not a valid kebab string.
     pub fn new<'a>(s: impl AsRef<str> + 'a) -> Option<&'a Self> {
         let s = Self::new_unchecked(s);
-        if s.is_kebab_case() {
-            Some(s)
-        } else {
-            None
-        }
+        if s.is_kebab_case() { Some(s) } else { None }
     }
 
     pub(crate) fn new_unchecked<'a>(s: impl AsRef<str> + 'a) -> &'a Self {
@@ -57,16 +53,21 @@ impl KebabStr {
     fn is_kebab_case(&self) -> bool {
         let mut lower = false;
         let mut upper = false;
+        let mut is_first = true;
+        let mut has_digit = false;
         for c in self.chars() {
             match c {
                 'a'..='z' if !lower && !upper => lower = true,
                 'A'..='Z' if !lower && !upper => upper = true,
+                '0'..='9' if !lower && !upper && !is_first => has_digit = true,
                 'a'..='z' if lower => {}
                 'A'..='Z' if upper => {}
-                '0'..='9' if lower || upper => {}
-                '-' if lower || upper => {
+                '0'..='9' if lower || upper => has_digit = true,
+                '-' if lower || upper || has_digit => {
                     lower = false;
                     upper = false;
+                    is_first = false;
+                    has_digit = false;
                 }
                 _ => return false,
             }
@@ -412,26 +413,34 @@ impl ComponentNameKind<'_> {
 
 impl Ord for ComponentNameKind<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.kind().cmp(&other.kind()) {
-            Ordering::Equal => (),
-            unequal => return unequal,
-        }
+        use ComponentNameKind::*;
+
         match (self, other) {
-            (ComponentNameKind::Label(lhs), ComponentNameKind::Label(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Constructor(lhs), ComponentNameKind::Constructor(rhs)) => {
-                lhs.cmp(rhs)
+            (Label(lhs), Label(rhs)) => lhs.cmp(rhs),
+            (Constructor(lhs), Constructor(rhs)) => lhs.cmp(rhs),
+            (Method(lhs) | Static(lhs), Method(rhs) | Static(rhs)) => lhs.cmp(rhs),
+
+            // `[..]l.l` is equivalent to `l`
+            (Label(plain), Method(method) | Static(method))
+            | (Method(method) | Static(method), Label(plain))
+                if *plain == method.resource() && *plain == method.method() =>
+            {
+                Ordering::Equal
             }
-            (ComponentNameKind::Method(lhs), ComponentNameKind::Method(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Method(lhs), ComponentNameKind::Static(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Static(lhs), ComponentNameKind::Method(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Static(lhs), ComponentNameKind::Static(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Interface(lhs), ComponentNameKind::Interface(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Dependency(lhs), ComponentNameKind::Dependency(rhs)) => {
-                lhs.cmp(rhs)
-            }
-            (ComponentNameKind::Url(lhs), ComponentNameKind::Url(rhs)) => lhs.cmp(rhs),
-            (ComponentNameKind::Hash(lhs), ComponentNameKind::Hash(rhs)) => lhs.cmp(rhs),
-            _ => unreachable!("already compared for different kinds above"),
+
+            (Interface(lhs), Interface(rhs)) => lhs.cmp(rhs),
+            (Dependency(lhs), Dependency(rhs)) => lhs.cmp(rhs),
+            (Url(lhs), Url(rhs)) => lhs.cmp(rhs),
+            (Hash(lhs), Hash(rhs)) => lhs.cmp(rhs),
+
+            (Label(_), _)
+            | (Constructor(_), _)
+            | (Method(_), _)
+            | (Static(_), _)
+            | (Interface(_), _)
+            | (Dependency(_), _)
+            | (Url(_), _)
+            | (Hash(_), _) => self.kind().cmp(&other.kind()),
         }
     }
 }
@@ -448,8 +457,18 @@ impl Hash for ComponentNameKind<'_> {
         match self {
             Label(name) => (0u8, name).hash(hasher),
             Constructor(name) => (1u8, name).hash(hasher),
-            // for hashing method == static
-            Method(name) | Static(name) => (2u8, name).hash(hasher),
+
+            Method(name) | Static(name) => {
+                // `l.l` hashes the same as `l` since they're equal above,
+                // otherwise everything is hashed as `a.b` with a unique
+                // prefix.
+                if name.resource() == name.method() {
+                    (0u8, name.resource()).hash(hasher)
+                } else {
+                    (2u8, name).hash(hasher)
+                }
+            }
+
             Interface(name) => (3u8, name).hash(hasher),
             Dependency(name) => (4u8, name).hash(hasher),
             Url(name) => (5u8, name).hash(hasher),
@@ -460,32 +479,7 @@ impl Hash for ComponentNameKind<'_> {
 
 impl PartialEq for ComponentNameKind<'_> {
     fn eq(&self, other: &ComponentNameKind<'_>) -> bool {
-        use ComponentNameKind::*;
-        match (self, other) {
-            (Label(a), Label(b)) => a == b,
-            (Label(_), _) => false,
-            (Constructor(a), Constructor(b)) => a == b,
-            (Constructor(_), _) => false,
-
-            // method == static for the purposes of hashing so equate them here
-            // as well.
-            (Method(a), Method(b))
-            | (Static(a), Static(b))
-            | (Method(a), Static(b))
-            | (Static(a), Method(b)) => a == b,
-
-            (Method(_), _) => false,
-            (Static(_), _) => false,
-
-            (Interface(a), Interface(b)) => a == b,
-            (Interface(_), _) => false,
-            (Dependency(a), Dependency(b)) => a == b,
-            (Dependency(_), _) => false,
-            (Url(a), Url(b)) => a == b,
-            (Url(_), _) => false,
-            (Hash(a), Hash(b)) => a == b,
-            (Hash(_), _) => false,
-        }
+        self.cmp(other) == Ordering::Equal
     }
 }
 
@@ -496,7 +490,7 @@ impl Eq for ComponentNameKind<'_> {}
 pub struct ResourceFunc<'a>(&'a str);
 
 impl<'a> ResourceFunc<'a> {
-    /// Returns the the underlying string as `a.b`
+    /// Returns the underlying string as `a.b`
     pub fn as_str(&self) -> &'a str {
         self.0
     }
@@ -505,6 +499,12 @@ impl<'a> ResourceFunc<'a> {
     pub fn resource(&self) -> &'a KebabStr {
         let dot = self.0.find('.').unwrap();
         KebabStr::new_unchecked(&self.0[..dot])
+    }
+
+    /// Returns the method name or the `b` in `a.b`
+    pub fn method(&self) -> &'a KebabStr {
+        let dot = self.0.find('.').unwrap();
+        KebabStr::new_unchecked(&self.0[dot + 1..])
     }
 }
 
@@ -703,7 +703,7 @@ impl<'a> ComponentNameParser<'a> {
         self.expect_str(":")?;
         self.take_lowercase_kebab()?;
 
-        if self.features.component_model_nested_names() {
+        if self.features.cm_nested_names() {
             // Take the remaining package namespaces and name
             while self.next.starts_with(':') {
                 self.expect_str(":")?;
@@ -716,7 +716,7 @@ impl<'a> ComponentNameParser<'a> {
             self.expect_str("/")?;
             self.take_kebab()?;
 
-            if self.features.component_model_nested_names() {
+            if self.features.cm_nested_names() {
                 while self.next.starts_with('/') {
                     self.expect_str("/")?;
                     self.take_kebab()?;
@@ -944,7 +944,11 @@ mod tests {
         assert!(KebabStr::new("¶").is_none());
         assert!(KebabStr::new("0").is_none());
         assert!(KebabStr::new("a0").is_some());
-        assert!(KebabStr::new("a-0").is_none());
+        assert!(KebabStr::new("a-0").is_some());
+        assert!(KebabStr::new("0-a").is_none());
+        assert!(KebabStr::new("a-b--c").is_none());
+        assert!(KebabStr::new("a0-000-3d4a-54FF").is_some());
+        assert!(KebabStr::new("a0-000-3d4A-54Ff").is_none());
     }
 
     #[test]
@@ -954,6 +958,7 @@ mod tests {
         assert!(parse_kebab_name("[constructor]a").is_some());
         assert!(parse_kebab_name("[method]a").is_none());
         assert!(parse_kebab_name("[method]a.b").is_some());
+        assert!(parse_kebab_name("[method]a-0.b-1").is_some());
         assert!(parse_kebab_name("[method]a.b.c").is_none());
         assert!(parse_kebab_name("[static]a.b").is_some());
         assert!(parse_kebab_name("[static]a").is_none());

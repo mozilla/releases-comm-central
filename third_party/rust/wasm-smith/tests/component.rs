@@ -1,7 +1,7 @@
 #![cfg(feature = "component-model")]
 
 use arbitrary::{Arbitrary, Unstructured};
-use rand::{rngs::SmallRng, RngCore, SeedableRng};
+use rand::{RngCore, SeedableRng, rngs::SmallRng};
 use wasm_smith::Component;
 
 #[test]
@@ -27,8 +27,7 @@ fn smoke_test_component() {
                 std::fs::write("component.wasm", &component).unwrap();
                 panic!(
                     "generated component should be valid; failing binary written \
-                     to `component.wasm`. Error: {}",
-                    e
+                     to `component.wasm`. Error: {e}"
                 );
             }
         }

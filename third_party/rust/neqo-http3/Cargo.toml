@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-http3"
-version = "0.20.0"
+version = "0.21.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -55,6 +55,13 @@ bench = [
     "neqo-qpack/bench",
     "neqo-transport/bench",
     "log/release_max_level_info",
+]
+build-fuzzing-corpus = [
+    "neqo-common/build-fuzzing-corpus",
+    "neqo-transport/disable-encryption",
+    "neqo-crypto/disable-encryption",
+    "neqo-crypto/disable-random",
+    "test-fixture/disable-random",
 ]
 disable-encryption = [
     "neqo-transport/disable-encryption",

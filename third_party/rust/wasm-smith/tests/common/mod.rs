@@ -1,4 +1,4 @@
-use wasmparser::{types::Types, Validator};
+use wasmparser::{Validator, types::Types};
 
 pub fn validate(validator: &mut Validator, bytes: &[u8]) -> Types {
     let err = match validator.validate_all(bytes) {
@@ -11,5 +11,5 @@ pub fn validate(validator: &mut Validator, bytes: &[u8]) -> Types {
         eprintln!("Writing WAT to `test.wat`");
         drop(std::fs::write("test.wat", &text));
     }
-    panic!("wasm failed to validate: {}", err);
+    panic!("wasm failed to validate: {err}");
 }

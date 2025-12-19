@@ -69,22 +69,22 @@
 
 use super::{RecGroupId, TypeAlloc, TypeList};
 use crate::{
-    types::{CoreTypeId, TypeIdentifier},
     BinaryReaderError, CompositeInnerType, CompositeType, PackedIndex, RecGroup, Result,
     StorageType, UnpackedIndex, ValType, WasmFeatures,
+    types::{CoreTypeId, TypeIdentifier},
 };
 
 pub(crate) trait InternRecGroup {
     fn add_type_id(&mut self, id: CoreTypeId);
     fn type_id_at(&self, idx: u32, offset: usize) -> Result<CoreTypeId>;
     fn types_len(&self) -> u32;
+    fn features(&self) -> &WasmFeatures;
 
     /// Canonicalize the rec group and return its id and whether it is a new group
     /// (we added its types to the `TypeAlloc`) or not (we deduplicated it with an
     /// existing canonical rec group).
     fn canonicalize_and_intern_rec_group(
         &mut self,
-        features: &WasmFeatures,
         types: &mut TypeAlloc,
         mut rec_group: RecGroup,
         offset: usize,
@@ -93,19 +93,17 @@ pub(crate) trait InternRecGroup {
         Self: Sized,
     {
         debug_assert!(rec_group.is_explicit_rec_group() || rec_group.types().len() == 1);
-        if rec_group.is_explicit_rec_group() && !features.gc() {
+        if rec_group.is_explicit_rec_group() && !self.features().gc() {
             bail!(
                 offset,
                 "rec group usage requires `gc` proposal to be enabled"
             );
         }
-        if features.needs_type_canonicalization() {
-            TypeCanonicalizer::new(self, offset)
-                .with_features(features)
-                .canonicalize_rec_group(&mut rec_group)?;
+        if self.features().needs_type_canonicalization() {
+            TypeCanonicalizer::new(self, offset).canonicalize_rec_group(&mut rec_group)?;
         }
-        let (is_new, rec_group_id) =
-            types.intern_canonical_rec_group(features.needs_type_canonicalization(), rec_group);
+        let (is_new, rec_group_id) = types
+            .intern_canonical_rec_group(self.features().needs_type_canonicalization(), rec_group);
         let range = &types[rec_group_id];
         let start = range.start.index();
         let end = range.end.index();
@@ -116,7 +114,8 @@ pub(crate) trait InternRecGroup {
             debug_assert!(types.get(id).is_some());
             self.add_type_id(id);
             if is_new {
-                self.check_subtype(rec_group_id, id, features, types, offset)?;
+                self.check_subtype(rec_group_id, id, types, offset)?;
+                self.check_descriptors(rec_group_id, id, types, offset)?;
             }
         }
 
@@ -127,16 +126,15 @@ pub(crate) trait InternRecGroup {
         &mut self,
         rec_group: RecGroupId,
         id: CoreTypeId,
-        features: &WasmFeatures,
         types: &mut TypeAlloc,
         offset: usize,
     ) -> Result<()> {
         let ty = &types[id];
-        if !features.gc() && (!ty.is_final || ty.supertype_idx.is_some()) {
+        if !self.features().gc() && (!ty.is_final || ty.supertype_idx.is_some()) {
             bail!(offset, "gc proposal must be enabled to use subtypes");
         }
 
-        self.check_composite_type(&ty.composite_type, features, &types, offset)?;
+        self.check_composite_type(&ty.composite_type, &types, offset)?;
 
         let depth = if let Some(supertype_index) = ty.supertype_idx {
             debug_assert!(supertype_index.is_canonical());
@@ -165,13 +163,130 @@ pub(crate) trait InternRecGroup {
         Ok(())
     }
 
-    fn check_composite_type(
+    fn check_descriptors(
         &mut self,
-        ty: &CompositeType,
-        features: &WasmFeatures,
+        rec_group: RecGroupId,
+        id: CoreTypeId,
         types: &TypeList,
         offset: usize,
     ) -> Result<()> {
+        let ty = &types[id].composite_type;
+        if ty.descriptor_idx.is_some() || ty.describes_idx.is_some() {
+            if !self.features().custom_descriptors() {
+                return Err(BinaryReaderError::new(
+                    "custom descriptors proposal must be enabled to use descriptor and describes",
+                    offset,
+                ));
+            }
+            match &ty.inner {
+                CompositeInnerType::Struct(_) => (),
+                _ => {
+                    return Err(BinaryReaderError::new(
+                        if ty.descriptor_idx.is_some() {
+                            "descriptor clause on non-struct type"
+                        } else {
+                            "describes clause on non-struct type"
+                        },
+                        offset,
+                    ));
+                }
+            }
+        }
+
+        let map_cannonical = |idx: PackedIndex| -> Result<CoreTypeId> {
+            self.at_packed_index(types, rec_group, idx, offset)
+        };
+
+        let descriptor_idx = if let Some(i) = ty.descriptor_idx {
+            Some(map_cannonical(i)?)
+        } else {
+            None
+        };
+        let describes_idx = if let Some(i) = ty.describes_idx {
+            Some(map_cannonical(i)?)
+        } else {
+            None
+        };
+
+        if let Some(supertype_index) = types[id].supertype_idx {
+            debug_assert!(supertype_index.is_canonical());
+            let sup_id = map_cannonical(supertype_index)?;
+            if let Some(descriptor_idx) = descriptor_idx {
+                if types[sup_id].composite_type.descriptor_idx.is_some()
+                    && (types[descriptor_idx].supertype_idx.is_none()
+                        || (map_cannonical(types[descriptor_idx].supertype_idx.unwrap())?
+                            != map_cannonical(
+                                types[sup_id].composite_type.descriptor_idx.unwrap(),
+                            )?))
+                {
+                    bail!(
+                        offset,
+                        "supertype of described type must be described by supertype of descriptor",
+                    );
+                }
+            } else if types[sup_id].composite_type.descriptor_idx.is_some() {
+                bail!(
+                    offset,
+                    "supertype of type without descriptor cannot have descriptor",
+                );
+            }
+            match (
+                types[id].composite_type.describes_idx,
+                types[sup_id].composite_type.describes_idx,
+            ) {
+                (Some(a), Some(b)) => {
+                    let a_id = self.at_packed_index(types, rec_group, a, offset)?;
+                    if types[a_id].supertype_idx.is_none()
+                        || (map_cannonical(types[a_id].supertype_idx.unwrap())?
+                            != map_cannonical(b)?)
+                    {
+                        bail!(offset, "supertype of descriptor does not match");
+                    }
+                }
+                (None, None) => (),
+                (None, Some(_)) => {
+                    bail!(
+                        offset,
+                        "supertype of non-descriptor type cannot be a descriptor"
+                    );
+                }
+                (Some(_), None) => {
+                    bail!(offset, "supertype of descriptor must be a descriptor");
+                }
+            }
+        }
+        if let Some(descriptor_idx) = descriptor_idx {
+            let describes_idx = if let Some(i) = types[descriptor_idx].composite_type.describes_idx
+            {
+                Some(map_cannonical(i)?)
+            } else {
+                None
+            };
+            if describes_idx.is_none() || id != describes_idx.unwrap() {
+                bail!(offset, "descriptor with no matching describes",);
+            }
+        }
+        if let Some(describes_idx) = describes_idx {
+            let descriptor_idx = if let Some(i) = types[describes_idx].composite_type.descriptor_idx
+            {
+                Some(map_cannonical(i)?)
+            } else {
+                None
+            };
+            if descriptor_idx.is_none() || id != descriptor_idx.unwrap() {
+                bail!(offset, "describes with no matching descriptor",);
+            }
+        }
+        Ok(())
+    }
+
+    fn check_composite_type(
+        &mut self,
+        ty: &CompositeType,
+        types: &TypeList,
+        offset: usize,
+    ) -> Result<()> {
+        let features = self.features();
         let check = |ty: &ValType, shared: bool| {
             features
                 .check_value_type(*ty)
@@ -305,7 +420,6 @@ enum CanonicalizationMode {
 
 pub(crate) struct TypeCanonicalizer<'a> {
     module: &'a dyn InternRecGroup,
-    features: Option<&'a WasmFeatures>,
     rec_group_start: u32,
     rec_group_len: u32,
     offset: usize,
@@ -323,7 +437,6 @@ impl<'a> TypeCanonicalizer<'a> {
 
         Self {
             module,
-            features: None,
             rec_group_start,
             rec_group_len,
             offset,
@@ -332,14 +445,8 @@ impl<'a> TypeCanonicalizer<'a> {
         }
     }
 
-    pub fn with_features(&mut self, features: &'a WasmFeatures) -> &mut Self {
-        debug_assert!(self.features.is_none());
-        self.features = Some(features);
-        self
-    }
-
     fn allow_gc(&self) -> bool {
-        self.features.map_or(true, |f| f.gc())
+        self.module.features().gc()
     }
 
     fn canonicalize_rec_group(&mut self, rec_group: &mut RecGroup) -> Result<()> {
@@ -356,6 +463,12 @@ impl<'a> TypeCanonicalizer<'a> {
             if let Some(sup) = ty.supertype_idx.as_mut() {
                 if sup.as_module_index().map_or(false, |i| i >= type_index) {
                     bail!(self.offset, "supertypes must be defined before subtypes");
+                }
+            }
+
+            if let Some(idx) = ty.composite_type.describes_idx.as_mut() {
+                if idx.as_module_index().map_or(false, |i| i >= type_index) {
+                    bail!(self.offset, "forward describes reference");
                 }
             }
 
@@ -388,14 +501,21 @@ impl<'a> TypeCanonicalizer<'a> {
                 // typed function references proposal, only the GC proposal.
                 debug_assert!(self.allow_gc() || self.rec_group_len == 1);
                 let local = index - self.rec_group_start;
-                if self.allow_gc() && local < self.rec_group_len {
-                    if let Some(id) = PackedIndex::from_rec_group_index(local) {
-                        *ty = id;
-                        return Ok(());
+                if local < self.rec_group_len {
+                    if self.allow_gc() {
+                        if let Some(id) = PackedIndex::from_rec_group_index(local) {
+                            *ty = id;
+                            return Ok(());
+                        } else {
+                            bail!(
+                                self.offset,
+                                "implementation limit: too many types in a recursion group"
+                            )
+                        }
                     } else {
                         bail!(
                             self.offset,
-                            "implementation limit: too many types in a recursion group"
+                            "unknown type {index}: type index out of bounds because the GC proposal is disabled"
                         )
                     }
                 }

@@ -17,40 +17,43 @@ mod component;
 #[cfg(feature = "component-model")]
 pub use self::component::*;
 
+#[cfg(feature = "wasmparser")]
+use alloc::vec::Vec;
+
 #[allow(missing_docs)] // FIXME
 pub trait Reencode {
     type Error;
 
-    fn data_index(&mut self, data: u32) -> u32 {
-        utils::data_index(self, data)
+    fn data_index(&mut self, data: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::data_index(self, data))
     }
 
-    fn element_index(&mut self, element: u32) -> u32 {
-        utils::element_index(self, element)
+    fn element_index(&mut self, element: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::element_index(self, element))
     }
 
-    fn function_index(&mut self, func: u32) -> u32 {
-        utils::function_index(self, func)
+    fn function_index(&mut self, func: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::function_index(self, func))
     }
 
-    fn global_index(&mut self, global: u32) -> u32 {
-        utils::global_index(self, global)
+    fn global_index(&mut self, global: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::global_index(self, global))
     }
 
-    fn memory_index(&mut self, memory: u32) -> u32 {
-        utils::memory_index(self, memory)
+    fn memory_index(&mut self, memory: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::memory_index(self, memory))
     }
 
-    fn table_index(&mut self, table: u32) -> u32 {
-        utils::table_index(self, table)
+    fn table_index(&mut self, table: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::table_index(self, table))
     }
 
-    fn tag_index(&mut self, tag: u32) -> u32 {
-        utils::tag_index(self, tag)
+    fn tag_index(&mut self, tag: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::tag_index(self, tag))
     }
 
-    fn type_index(&mut self, ty: u32) -> u32 {
-        utils::type_index(self, ty)
+    fn type_index(&mut self, ty: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(utils::type_index(self, ty))
     }
 
     fn type_index_unpacked(
@@ -60,9 +63,15 @@ pub trait Reencode {
         utils::type_index_unpacked(self, ty)
     }
 
-    fn external_index(&mut self, kind: wasmparser::ExternalKind, index: u32) -> u32 {
+    fn external_index(
+        &mut self,
+        kind: wasmparser::ExternalKind,
+        index: u32,
+    ) -> Result<u32, Error<Self::Error>> {
         match kind {
-            wasmparser::ExternalKind::Func => self.function_index(index),
+            wasmparser::ExternalKind::Func | wasmparser::ExternalKind::FuncExact => {
+                self.function_index(index)
+            }
             wasmparser::ExternalKind::Table => self.table_index(index),
             wasmparser::ExternalKind::Memory => self.memory_index(index),
             wasmparser::ExternalKind::Global => self.global_index(index),
@@ -73,8 +82,8 @@ pub trait Reencode {
     fn abstract_heap_type(
         &mut self,
         value: wasmparser::AbstractHeapType,
-    ) -> crate::AbstractHeapType {
-        utils::abstract_heap_type(self, value)
+    ) -> Result<crate::AbstractHeapType, Error<Self::Error>> {
+        Ok(utils::abstract_heap_type(self, value))
     }
 
     fn array_type(
@@ -98,7 +107,7 @@ pub trait Reencode {
         utils::const_expr(self, const_expr)
     }
 
-    fn catch(&mut self, arg: wasmparser::Catch) -> crate::Catch {
+    fn catch(&mut self, arg: wasmparser::Catch) -> Result<crate::Catch, Error<Self::Error>> {
         utils::catch(self, arg)
     }
 
@@ -116,8 +125,11 @@ pub trait Reencode {
         utils::entity_type(self, type_ref)
     }
 
-    fn export_kind(&mut self, external_kind: wasmparser::ExternalKind) -> crate::ExportKind {
-        utils::export_kind(self, external_kind)
+    fn export_kind(
+        &mut self,
+        external_kind: wasmparser::ExternalKind,
+    ) -> Result<crate::ExportKind, Error<Self::Error>> {
+        Ok(utils::export_kind(self, external_kind))
     }
 
     fn field_type(
@@ -148,7 +160,7 @@ pub trait Reencode {
         utils::global_type(self, global_ty)
     }
 
-    fn handle(&mut self, on: wasmparser::Handle) -> crate::Handle {
+    fn handle(&mut self, on: wasmparser::Handle) -> Result<crate::Handle, Error<Self::Error>> {
         utils::handle(self, on)
     }
 
@@ -166,16 +178,30 @@ pub trait Reencode {
         utils::instruction(self, arg)
     }
 
-    fn memory_type(&mut self, memory_ty: wasmparser::MemoryType) -> crate::MemoryType {
-        utils::memory_type(self, memory_ty)
+    fn memory_type(
+        &mut self,
+        memory_ty: wasmparser::MemoryType,
+    ) -> Result<crate::MemoryType, Error<Self::Error>> {
+        Ok(utils::memory_type(self, memory_ty))
     }
 
-    fn mem_arg(&mut self, arg: wasmparser::MemArg) -> crate::MemArg {
+    fn ieee32_arg(&mut self, arg: wasmparser::Ieee32) -> Result<crate::Ieee32, Error<Self::Error>> {
+        Ok(utils::ieee32_arg(self, arg))
+    }
+
+    fn ieee64_arg(&mut self, arg: wasmparser::Ieee64) -> Result<crate::Ieee64, Error<Self::Error>> {
+        Ok(utils::ieee64_arg(self, arg))
+    }
+
+    fn mem_arg(&mut self, arg: wasmparser::MemArg) -> Result<crate::MemArg, Error<Self::Error>> {
         utils::mem_arg(self, arg)
     }
 
-    fn ordering(&mut self, arg: wasmparser::Ordering) -> crate::Ordering {
-        utils::ordering(self, arg)
+    fn ordering(
+        &mut self,
+        arg: wasmparser::Ordering,
+    ) -> Result<crate::Ordering, Error<Self::Error>> {
+        Ok(utils::ordering(self, arg))
     }
 
     fn ref_type(
@@ -213,11 +239,17 @@ pub trait Reencode {
         utils::table_type(self, table_ty)
     }
 
-    fn tag_kind(&mut self, kind: wasmparser::TagKind) -> crate::TagKind {
-        utils::tag_kind(self, kind)
+    fn tag_kind(
+        &mut self,
+        kind: wasmparser::TagKind,
+    ) -> Result<crate::TagKind, Error<Self::Error>> {
+        Ok(utils::tag_kind(self, kind))
     }
 
-    fn tag_type(&mut self, tag_ty: wasmparser::TagType) -> crate::TagType {
+    fn tag_type(
+        &mut self,
+        tag_ty: wasmparser::TagType,
+    ) -> Result<crate::TagType, Error<Self::Error>> {
         utils::tag_type(self, tag_ty)
     }
 
@@ -226,6 +258,16 @@ pub trait Reencode {
         val_ty: wasmparser::ValType,
     ) -> Result<crate::ValType, Error<Self::Error>> {
         utils::val_type(self, val_ty)
+    }
+
+    fn val_types(
+        &mut self,
+        val_tys: Vec<wasmparser::ValType>,
+    ) -> Result<Vec<crate::ValType>, Error<Self::Error>> {
+        val_tys
+            .iter()
+            .map(|ty| utils::val_type(self, *ty))
+            .collect()
     }
 
     /// Parses the input `section` given from the `wasmparser` crate and
@@ -243,8 +285,8 @@ pub trait Reencode {
     fn custom_section<'a>(
         &mut self,
         section: wasmparser::CustomSectionReader<'a>,
-    ) -> crate::CustomSection<'a> {
-        utils::custom_section(self, section)
+    ) -> Result<crate::CustomSection<'a>, Error<Self::Error>> {
+        Ok(utils::custom_section(self, section))
     }
 
     /// Parses the input `section` given from the `wasmparser` crate and adds
@@ -341,7 +383,11 @@ pub trait Reencode {
 
     /// Parses the single [`wasmparser::Export`] provided and adds it to the
     /// `exports` section.
-    fn parse_export(&mut self, exports: &mut crate::ExportSection, export: wasmparser::Export<'_>) {
+    fn parse_export(
+        &mut self,
+        exports: &mut crate::ExportSection,
+        export: wasmparser::Export<'_>,
+    ) -> Result<(), Error<Self::Error>> {
         utils::parse_export(self, exports, export)
     }
 
@@ -512,11 +558,11 @@ pub trait Reencode {
         utils::parse_custom_name_subsection(self, names, section)
     }
 
-    fn data_count(&mut self, count: u32) -> u32 {
-        count
+    fn data_count(&mut self, count: u32) -> Result<u32, Error<Self::Error>> {
+        Ok(count)
     }
 
-    fn start_section(&mut self, start: u32) -> u32 {
+    fn start_section(&mut self, start: u32) -> Result<u32, Error<Self::Error>> {
         self.function_index(start)
     }
 }
@@ -533,9 +579,9 @@ pub enum Error<E = Infallible> {
     InvalidConstExpr,
     /// The code section size listed was not valid for the wasm binary provided.
     InvalidCodeSectionSize,
-    /// There was a section that does not belong into a core wasm module.
+    /// There was a section that does not belong in a core wasm module.
     UnexpectedNonCoreModuleSection,
-    /// There was a section that does not belong into a compoennt module.
+    /// There was a section that does not belong in a component module.
     UnexpectedNonComponentSection,
     /// A core type definition was found in a component that's not supported.
     UnsupportedCoreTypeInComponent,
@@ -561,11 +607,11 @@ impl<E: core::fmt::Display> core::fmt::Display for Error<E> {
             Self::InvalidConstExpr => write!(fmt, "The const expression was invalid"),
             Self::UnexpectedNonCoreModuleSection => write!(
                 fmt,
-                "There was a section that does not belong into a core wasm module"
+                "There was a section that does not belong in a core wasm module"
             ),
             Self::UnexpectedNonComponentSection => write!(
                 fmt,
-                "There was a section that does not belong into a component"
+                "There was a section that does not belong in a component"
             ),
             Self::CanonicalizedHeapTypeReference => write!(
                 fmt,
@@ -632,7 +678,7 @@ pub mod utils {
         // accounting for various offsets. Then create a
         // `CodeSectionReader` (which notably the payload does not
         // give us here) and recurse with that. This means that
-        // users overridding `parse_code_section` always get that
+        // users overriding `parse_code_section` always get that
         // function called.
         let orig_offset = parser.offset() as usize;
         let get_original_section = |range: Range<usize>| {
@@ -648,7 +694,7 @@ pub mod utils {
                     ..
                 } => (),
                 wasmparser::Payload::Version { .. } => {
-                    return Err(Error::UnexpectedNonCoreModuleSection)
+                    return Err(Error::UnexpectedNonCoreModuleSection);
                 }
                 wasmparser::Payload::TypeSection(section) => {
                     handle_intersperse_section_hook(
@@ -746,7 +792,7 @@ pub mod utils {
                         Some(crate::SectionId::Start),
                     )?;
                     module.section(&crate::StartSection {
-                        function_index: reencoder.start_section(func),
+                        function_index: reencoder.start_section(func)?,
                     });
                 }
                 wasmparser::Payload::ElementSection(section) => {
@@ -767,7 +813,7 @@ pub mod utils {
                         &mut last_section,
                         Some(crate::SectionId::DataCount),
                     )?;
-                    let count = reencoder.data_count(count);
+                    let count = reencoder.data_count(count)?;
                     module.section(&crate::DataCountSection { count });
                 }
                 wasmparser::Payload::DataSection(section) => {
@@ -794,7 +840,7 @@ pub mod utils {
                     // accounting for various offsets. Then create a
                     // `CodeSectionReader` (which notably the payload does not
                     // give us here) and recurse with that. This means that
-                    // users overridding `parse_code_section` always get that
+                    // users overriding `parse_code_section` always get that
                     // function called.
                     let section = get_original_section(range.clone())?;
                     let reader = wasmparser::BinaryReader::new(section, range.start);
@@ -820,7 +866,7 @@ pub mod utils {
                 | wasmparser::Payload::ComponentStartSection { .. }
                 | wasmparser::Payload::ComponentImportSection(_)
                 | wasmparser::Payload::ComponentExportSection(_) => {
-                    return Err(Error::UnexpectedNonCoreModuleSection)
+                    return Err(Error::UnexpectedNonCoreModuleSection);
                 }
                 wasmparser::Payload::CustomSection(section) => {
                     reencoder.parse_custom_section(module, section)?;
@@ -872,15 +918,29 @@ pub mod utils {
         memory
     }
 
+    pub fn ieee32_arg<T: ?Sized + Reencode>(
+        _reencoder: &mut T,
+        arg: wasmparser::Ieee32,
+    ) -> crate::Ieee32 {
+        crate::Ieee32(arg.bits())
+    }
+
+    pub fn ieee64_arg<T: ?Sized + Reencode>(
+        _reencoder: &mut T,
+        arg: wasmparser::Ieee64,
+    ) -> crate::Ieee64 {
+        crate::Ieee64(arg.bits())
+    }
+
     pub fn mem_arg<T: ?Sized + Reencode>(
         reencoder: &mut T,
         arg: wasmparser::MemArg,
-    ) -> crate::MemArg {
-        crate::MemArg {
+    ) -> Result<crate::MemArg, Error<T::Error>> {
+        Ok(crate::MemArg {
             offset: arg.offset,
             align: arg.align.into(),
-            memory_index: reencoder.memory_index(arg.memory),
-        }
+            memory_index: reencoder.memory_index(arg.memory)?,
+        })
     }
 
     pub fn ordering<T: ?Sized + Reencode>(
@@ -901,34 +961,37 @@ pub mod utils {
         tag
     }
 
-    pub fn catch<T: ?Sized + Reencode>(reencoder: &mut T, arg: wasmparser::Catch) -> crate::Catch {
-        match arg {
+    pub fn catch<T: ?Sized + Reencode>(
+        reencoder: &mut T,
+        arg: wasmparser::Catch,
+    ) -> Result<crate::Catch, Error<T::Error>> {
+        Ok(match arg {
             wasmparser::Catch::One { tag, label } => crate::Catch::One {
-                tag: reencoder.tag_index(tag),
+                tag: reencoder.tag_index(tag)?,
                 label,
             },
             wasmparser::Catch::OneRef { tag, label } => crate::Catch::OneRef {
-                tag: reencoder.tag_index(tag),
+                tag: reencoder.tag_index(tag)?,
                 label,
             },
             wasmparser::Catch::All { label } => crate::Catch::All { label },
             wasmparser::Catch::AllRef { label } => crate::Catch::AllRef { label },
-        }
+        })
     }
 
     pub fn handle<T: ?Sized + Reencode>(
         reencoder: &mut T,
         arg: wasmparser::Handle,
-    ) -> crate::Handle {
-        match arg {
+    ) -> Result<crate::Handle, Error<T::Error>> {
+        Ok(match arg {
             wasmparser::Handle::OnLabel { tag, label } => crate::Handle::OnLabel {
-                tag: reencoder.tag_index(tag),
+                tag: reencoder.tag_index(tag)?,
                 label,
             },
             wasmparser::Handle::OnSwitch { tag } => crate::Handle::OnSwitch {
-                tag: reencoder.tag_index(tag),
+                tag: reencoder.tag_index(tag)?,
             },
-        }
+        })
     }
 
     /// Parses the input `section` given from the `wasmparser` crate and
@@ -943,7 +1006,7 @@ pub mod utils {
                 module.section(&reencoder.custom_name_section(name)?);
             }
             _ => {
-                module.section(&reencoder.custom_section(section));
+                module.section(&reencoder.custom_section(section)?);
             }
         }
         Ok(())
@@ -966,7 +1029,9 @@ pub mod utils {
         external_kind: wasmparser::ExternalKind,
     ) -> crate::ExportKind {
         match external_kind {
-            wasmparser::ExternalKind::Func => crate::ExportKind::Func,
+            wasmparser::ExternalKind::Func | wasmparser::ExternalKind::FuncExact => {
+                crate::ExportKind::Func
+            }
             wasmparser::ExternalKind::Table => crate::ExportKind::Table,
             wasmparser::ExternalKind::Memory => crate::ExportKind::Memory,
             wasmparser::ExternalKind::Global => crate::ExportKind::Global,
@@ -1005,18 +1070,18 @@ pub mod utils {
         ty: wasmparser::UnpackedIndex,
     ) -> Result<u32, Error<T::Error>> {
         ty.as_module_index()
-            .map(|ty| reencoder.type_index(ty))
             .ok_or(Error::CanonicalizedHeapTypeReference)
+            .and_then(|ty| reencoder.type_index(ty))
     }
 
     pub fn tag_type<T: ?Sized + Reencode>(
         reencoder: &mut T,
         tag_ty: wasmparser::TagType,
-    ) -> crate::TagType {
-        crate::TagType {
-            kind: reencoder.tag_kind(tag_ty.kind),
-            func_type_idx: reencoder.type_index(tag_ty.func_type_idx),
-        }
+    ) -> Result<crate::TagType, Error<T::Error>> {
+        Ok(crate::TagType {
+            kind: reencoder.tag_kind(tag_ty.kind)?,
+            func_type_idx: reencoder.type_index(tag_ty.func_type_idx)?,
+        })
     }
 
     pub fn abstract_heap_type<T: ?Sized + Reencode>(
@@ -1109,6 +1174,14 @@ pub mod utils {
         Ok(crate::CompositeType {
             inner,
             shared: composite_ty.shared,
+            descriptor: composite_ty
+                .descriptor_idx
+                .map(|i| reencoder.type_index_unpacked(i.unpack()))
+                .transpose()?,
+            describes: composite_ty
+                .describes_idx
+                .map(|i| reencoder.type_index_unpacked(i.unpack()))
+                .transpose()?,
         })
     }
 
@@ -1208,9 +1281,12 @@ pub mod utils {
             wasmparser::HeapType::Concrete(i) => {
                 crate::HeapType::Concrete(reencoder.type_index_unpacked(i)?)
             }
+            wasmparser::HeapType::Exact(i) => {
+                crate::HeapType::Exact(reencoder.type_index_unpacked(i)?)
+            }
             wasmparser::HeapType::Abstract { shared, ty } => crate::HeapType::Abstract {
                 shared,
-                ty: reencoder.abstract_heap_type(ty),
+                ty: reencoder.abstract_heap_type(ty)?,
             },
         })
     }
@@ -1268,7 +1344,7 @@ pub mod utils {
     ) -> Result<(), Error<T::Error>> {
         for tag in section {
             let tag = tag?;
-            tags.tag(reencoder.tag_type(tag));
+            tags.tag(reencoder.tag_type(tag)?);
         }
         Ok(())
     }
@@ -1281,7 +1357,7 @@ pub mod utils {
         section: wasmparser::ExportSectionReader<'_>,
     ) -> Result<(), Error<T::Error>> {
         for export in section {
-            reencoder.parse_export(exports, export?);
+            reencoder.parse_export(exports, export?)?;
         }
         Ok(())
     }
@@ -1292,12 +1368,13 @@ pub mod utils {
         reencoder: &mut T,
         exports: &mut crate::ExportSection,
         export: wasmparser::Export<'_>,
-    ) {
+    ) -> Result<(), Error<T::Error>> {
         exports.export(
             export.name,
-            reencoder.export_kind(export.kind),
-            reencoder.external_index(export.kind, export.index),
+            reencoder.export_kind(export.kind)?,
+            reencoder.external_index(export.kind, export.index)?,
         );
+        Ok(())
     }
 
     /// Parses the input `section` given from the `wasmparser` crate and adds
@@ -1343,11 +1420,14 @@ pub mod utils {
         type_ref: wasmparser::TypeRef,
     ) -> Result<crate::EntityType, Error<T::Error>> {
         Ok(match type_ref {
-            wasmparser::TypeRef::Func(i) => crate::EntityType::Function(reencoder.type_index(i)),
+            wasmparser::TypeRef::Func(i) => crate::EntityType::Function(reencoder.type_index(i)?),
+            wasmparser::TypeRef::FuncExact(i) => {
+                crate::EntityType::FunctionExact(reencoder.type_index(i)?)
+            }
             wasmparser::TypeRef::Table(t) => crate::EntityType::Table(reencoder.table_type(t)?),
-            wasmparser::TypeRef::Memory(m) => crate::EntityType::Memory(reencoder.memory_type(m)),
+            wasmparser::TypeRef::Memory(m) => crate::EntityType::Memory(reencoder.memory_type(m)?),
             wasmparser::TypeRef::Global(g) => crate::EntityType::Global(reencoder.global_type(g)?),
-            wasmparser::TypeRef::Tag(t) => crate::EntityType::Tag(reencoder.tag_type(t)),
+            wasmparser::TypeRef::Tag(t) => crate::EntityType::Tag(reencoder.tag_type(t)?),
         })
     }
 
@@ -1388,7 +1468,7 @@ pub mod utils {
     ) -> Result<(), Error<T::Error>> {
         for memory in section {
             let memory = memory?;
-            memories.memory(reencoder.memory_type(memory));
+            memories.memory(reencoder.memory_type(memory)?);
         }
         Ok(())
     }
@@ -1401,7 +1481,7 @@ pub mod utils {
         section: wasmparser::FunctionSectionReader<'_>,
     ) -> Result<(), Error<T::Error>> {
         for func in section {
-            functions.function(reencoder.type_index(func?));
+            functions.function(reencoder.type_index(func?)?);
         }
         Ok(())
     }
@@ -1430,7 +1510,7 @@ pub mod utils {
                 memory_index,
                 offset_expr,
             } => data.active(
-                reencoder.memory_index(memory_index),
+                reencoder.memory_index(memory_index)?,
                 &reencoder.const_expr(offset_expr)?,
                 datum.data.iter().copied(),
             ),
@@ -1474,7 +1554,10 @@ pub mod utils {
                 // preserve this encoding and keep it at `None`. Otherwise if
                 // the result is nonzero or it was previously nonzero then keep
                 // that encoding too.
-                match (table_index, reencoder.table_index(table_index.unwrap_or(0))) {
+                match (
+                    table_index,
+                    reencoder.table_index(table_index.unwrap_or(0))?,
+                ) {
                     (None, 0) => None,
                     (_, n) => Some(n),
                 },
@@ -1495,7 +1578,7 @@ pub mod utils {
             wasmparser::ElementItems::Functions(f) => {
                 let mut funcs = Vec::new();
                 for func in f {
-                    funcs.push(reencoder.function_index(func?));
+                    funcs.push(reencoder.function_index(func?)?);
                 }
                 crate::Elements::Functions(funcs.into())
             }
@@ -1547,7 +1630,7 @@ pub mod utils {
         match arg {
             wasmparser::BlockType::Empty => Ok(crate::BlockType::Empty),
             wasmparser::BlockType::FuncType(n) => {
-                Ok(crate::BlockType::FunctionType(reencoder.type_index(n)))
+                Ok(crate::BlockType::FunctionType(reencoder.type_index(n)?))
             }
             wasmparser::BlockType::Type(t) => Ok(crate::BlockType::Result(reencoder.val_type(t)?)),
         }
@@ -1558,6 +1641,7 @@ pub mod utils {
         arg: wasmparser::Operator<'a>,
     ) -> Result<crate::Instruction<'a>, Error<T::Error>> {
         use crate::Instruction;
+        use alloc::borrow::Cow;
 
         macro_rules! translate {
             ($( @$proposal:ident $op:ident $({ $($arg:ident: $argty:ty),* })? => $visit:ident ($($ann:tt)*))*) => {
@@ -1577,25 +1661,25 @@ pub mod utils {
             // This case is used to map, based on the name of the field, from the
             // wasmparser payload type to the wasm-encoder payload type through
             // `Translator` as applicable.
-            (map $arg:ident tag_index) => (reencoder.tag_index($arg));
-            (map $arg:ident function_index) => (reencoder.function_index($arg));
-            (map $arg:ident table) => (reencoder.table_index($arg));
-            (map $arg:ident table_index) => (reencoder.table_index($arg));
-            (map $arg:ident dst_table) => (reencoder.table_index($arg));
-            (map $arg:ident src_table) => (reencoder.table_index($arg));
-            (map $arg:ident type_index) => (reencoder.type_index($arg));
-            (map $arg:ident array_type_index) => (reencoder.type_index($arg));
-            (map $arg:ident array_type_index_dst) => (reencoder.type_index($arg));
-            (map $arg:ident array_type_index_src) => (reencoder.type_index($arg));
-            (map $arg:ident struct_type_index) => (reencoder.type_index($arg));
-            (map $arg:ident global_index) => (reencoder.global_index($arg));
-            (map $arg:ident mem) => (reencoder.memory_index($arg));
-            (map $arg:ident src_mem) => (reencoder.memory_index($arg));
-            (map $arg:ident dst_mem) => (reencoder.memory_index($arg));
-            (map $arg:ident data_index) => (reencoder.data_index($arg));
-            (map $arg:ident elem_index) => (reencoder.element_index($arg));
-            (map $arg:ident array_data_index) => (reencoder.data_index($arg));
-            (map $arg:ident array_elem_index) => (reencoder.element_index($arg));
+            (map $arg:ident tag_index) => (reencoder.tag_index($arg)?);
+            (map $arg:ident function_index) => (reencoder.function_index($arg)?);
+            (map $arg:ident table) => (reencoder.table_index($arg)?);
+            (map $arg:ident table_index) => (reencoder.table_index($arg)?);
+            (map $arg:ident dst_table) => (reencoder.table_index($arg)?);
+            (map $arg:ident src_table) => (reencoder.table_index($arg)?);
+            (map $arg:ident type_index) => (reencoder.type_index($arg)?);
+            (map $arg:ident array_type_index) => (reencoder.type_index($arg)?);
+            (map $arg:ident array_type_index_dst) => (reencoder.type_index($arg)?);
+            (map $arg:ident array_type_index_src) => (reencoder.type_index($arg)?);
+            (map $arg:ident struct_type_index) => (reencoder.type_index($arg)?);
+            (map $arg:ident global_index) => (reencoder.global_index($arg)?);
+            (map $arg:ident mem) => (reencoder.memory_index($arg)?);
+            (map $arg:ident src_mem) => (reencoder.memory_index($arg)?);
+            (map $arg:ident dst_mem) => (reencoder.memory_index($arg)?);
+            (map $arg:ident data_index) => (reencoder.data_index($arg)?);
+            (map $arg:ident elem_index) => (reencoder.element_index($arg)?);
+            (map $arg:ident array_data_index) => (reencoder.data_index($arg)?);
+            (map $arg:ident array_elem_index) => (reencoder.element_index($arg)?);
             (map $arg:ident blockty) => (reencoder.block_type($arg)?);
             (map $arg:ident relative_depth) => ($arg);
             (map $arg:ident targets) => ((
@@ -1606,11 +1690,12 @@ pub mod utils {
                 $arg.default(),
             ));
             (map $arg:ident ty) => (reencoder.val_type($arg)?);
+            (map $arg:ident tys) => (reencoder.val_types($arg)?);
             (map $arg:ident hty) => (reencoder.heap_type($arg)?);
             (map $arg:ident from_ref_type) => (reencoder.ref_type($arg)?);
             (map $arg:ident to_ref_type) => (reencoder.ref_type($arg)?);
-            (map $arg:ident memarg) => (reencoder.mem_arg($arg));
-            (map $arg:ident ordering) => (reencoder.ordering($arg));
+            (map $arg:ident memarg) => (reencoder.mem_arg($arg)?);
+            (map $arg:ident ordering) => (reencoder.ordering($arg)?);
             (map $arg:ident local_index) => ($arg);
             (map $arg:ident value) => ($arg);
             (map $arg:ident lane) => ($arg);
@@ -1618,11 +1703,14 @@ pub mod utils {
             (map $arg:ident array_size) => ($arg);
             (map $arg:ident field_index) => ($arg);
             (map $arg:ident try_table) => ($arg);
-            (map $arg:ident argument_index) => (reencoder.type_index($arg));
-            (map $arg:ident result_index) => (reencoder.type_index($arg));
-            (map $arg:ident cont_type_index) => (reencoder.type_index($arg));
+            (map $arg:ident argument_index) => (reencoder.type_index($arg)?);
+            (map $arg:ident result_index) => (reencoder.type_index($arg)?);
+            (map $arg:ident cont_type_index) => (reencoder.type_index($arg)?);
             (map $arg:ident resume_table) => ((
-                $arg.handlers.into_iter().map(|h| reencoder.handle(h)).collect::<Vec<_>>().into()
+                $arg.handlers.into_iter()
+                    .map(|h| reencoder.handle(h))
+                    .collect::<Result<Vec<_>, _>>()?
+                    .into()
             ));
 
             // This case takes the arguments of a wasmparser instruction and creates
@@ -1631,13 +1719,17 @@ pub mod utils {
             // wasm-encoder.
             (build $op:ident) => (Instruction::$op);
             (build BrTable $arg:ident) => (Instruction::BrTable($arg.0, $arg.1));
+            (build TypedSelectMulti $arg:ident) => (Instruction::TypedSelectMulti(Cow::from($arg)));
             (build I32Const $arg:ident) => (Instruction::I32Const($arg));
             (build I64Const $arg:ident) => (Instruction::I64Const($arg));
-            (build F32Const $arg:ident) => (Instruction::F32Const(f32::from_bits($arg.bits())));
-            (build F64Const $arg:ident) => (Instruction::F64Const(f64::from_bits($arg.bits())));
+            (build F32Const $arg:ident) => (Instruction::F32Const($arg.into()));
+            (build F64Const $arg:ident) => (Instruction::F64Const($arg.into()));
             (build V128Const $arg:ident) => (Instruction::V128Const($arg.i128()));
             (build TryTable $table:ident) => (Instruction::TryTable(reencoder.block_type($table.ty)?, {
-                $table.catches.into_iter().map(|c| reencoder.catch(c)).collect::<Vec<_>>().into()
+                $table.catches.into_iter()
+                    .map(|c| reencoder.catch(c))
+                    .collect::<Result<Vec<_>, _>>()?
+                    .into()
             }));
             (build $op:ident $arg:ident) => (Instruction::$op($arg));
             (build $op:ident $($arg:ident)*) => (Instruction::$op { $($arg),* });
@@ -1767,40 +1859,56 @@ pub mod utils {
         Ok(())
     }
 
-    pub fn name_map(
+    pub fn name_map<E>(
         map: wasmparser::NameMap<'_>,
-        mut map_index: impl FnMut(u32) -> u32,
-    ) -> wasmparser::Result<crate::NameMap> {
+        mut map_index: impl FnMut(u32) -> Result<u32, Error<E>>,
+    ) -> Result<crate::NameMap, Error<E>> {
         let mut ret = crate::NameMap::new();
         for naming in map {
             let naming = naming?;
-            ret.append(map_index(naming.index), naming.name);
+            ret.append(map_index(naming.index)?, naming.name);
         }
         Ok(ret)
     }
 
-    pub fn indirect_name_map(
+    pub fn indirect_name_map<E>(
         map: wasmparser::IndirectNameMap<'_>,
-        mut map_index: impl FnMut(u32) -> u32,
-    ) -> wasmparser::Result<crate::IndirectNameMap> {
+        mut map_index: impl FnMut(u32) -> Result<u32, Error<E>>,
+    ) -> Result<crate::IndirectNameMap, Error<E>> {
         let mut ret = crate::IndirectNameMap::new();
         for naming in map {
             let naming = naming?;
-            ret.append(map_index(naming.index), &name_map(naming.names, |i| i)?);
+            ret.append(
+                map_index(naming.index)?,
+                &name_map(naming.names, |i| Ok(i))?,
+            );
         }
         Ok(ret)
     }
 }
 
-impl From<wasmparser::MemArg> for crate::MemArg {
-    fn from(arg: wasmparser::MemArg) -> Self {
+impl From<wasmparser::Ieee32> for crate::Ieee32 {
+    fn from(arg: wasmparser::Ieee32) -> Self {
+        utils::ieee32_arg(&mut RoundtripReencoder, arg)
+    }
+}
+
+impl From<wasmparser::Ieee64> for crate::Ieee64 {
+    fn from(arg: wasmparser::Ieee64) -> Self {
+        utils::ieee64_arg(&mut RoundtripReencoder, arg)
+    }
+}
+
+impl TryFrom<wasmparser::MemArg> for crate::MemArg {
+    type Error = Error;
+    fn try_from(arg: wasmparser::MemArg) -> Result<Self, Self::Error> {
         RoundtripReencoder.mem_arg(arg)
     }
 }
 
 impl From<wasmparser::Ordering> for crate::Ordering {
     fn from(arg: wasmparser::Ordering) -> Self {
-        RoundtripReencoder.ordering(arg)
+        utils::ordering(&mut RoundtripReencoder, arg)
     }
 }
 
@@ -1820,8 +1928,10 @@ impl<'a> TryFrom<wasmparser::Operator<'a>> for crate::Instruction<'a> {
     }
 }
 
-impl From<wasmparser::Catch> for crate::Catch {
-    fn from(arg: wasmparser::Catch) -> Self {
+impl TryFrom<wasmparser::Catch> for crate::Catch {
+    type Error = Error;
+
+    fn try_from(arg: wasmparser::Catch) -> Result<Self, Self::Error> {
         RoundtripReencoder.catch(arg)
     }
 }
@@ -1836,13 +1946,13 @@ impl<'a> TryFrom<wasmparser::ConstExpr<'a>> for crate::ConstExpr {
 
 impl<'a> From<wasmparser::CustomSectionReader<'a>> for crate::CustomSection<'a> {
     fn from(section: wasmparser::CustomSectionReader<'a>) -> Self {
-        RoundtripReencoder.custom_section(section)
+        utils::custom_section(&mut RoundtripReencoder, section)
     }
 }
 
 impl From<wasmparser::ExternalKind> for crate::ExportKind {
     fn from(external_kind: wasmparser::ExternalKind) -> Self {
-        RoundtripReencoder.export_kind(external_kind)
+        utils::export_kind(&mut RoundtripReencoder, external_kind)
     }
 }
 
@@ -1854,8 +1964,9 @@ impl TryFrom<wasmparser::GlobalType> for crate::GlobalType {
     }
 }
 
-impl From<wasmparser::Handle> for crate::Handle {
-    fn from(arg: wasmparser::Handle) -> Self {
+impl TryFrom<wasmparser::Handle> for crate::Handle {
+    type Error = Error;
+    fn try_from(arg: wasmparser::Handle) -> Result<Self, Self::Error> {
         RoundtripReencoder.handle(arg)
     }
 }
@@ -1870,7 +1981,7 @@ impl TryFrom<wasmparser::TypeRef> for crate::EntityType {
 
 impl From<wasmparser::MemoryType> for crate::MemoryType {
     fn from(memory_ty: wasmparser::MemoryType) -> Self {
-        RoundtripReencoder.memory_type(memory_ty)
+        utils::memory_type(&mut RoundtripReencoder, memory_ty)
     }
 }
 
@@ -1884,12 +1995,13 @@ impl TryFrom<wasmparser::TableType> for crate::TableType {
 
 impl From<wasmparser::TagKind> for crate::TagKind {
     fn from(kind: wasmparser::TagKind) -> Self {
-        RoundtripReencoder.tag_kind(kind)
+        utils::tag_kind(&mut RoundtripReencoder, kind)
     }
 }
 
-impl From<wasmparser::TagType> for crate::TagType {
-    fn from(tag_ty: wasmparser::TagType) -> Self {
+impl TryFrom<wasmparser::TagType> for crate::TagType {
+    type Error = Error;
+    fn try_from(tag_ty: wasmparser::TagType) -> Result<Self, Self::Error> {
         RoundtripReencoder.tag_type(tag_ty)
     }
 }
@@ -1976,6 +2088,6 @@ impl TryFrom<wasmparser::HeapType> for crate::HeapType {
 
 impl From<wasmparser::AbstractHeapType> for crate::AbstractHeapType {
     fn from(value: wasmparser::AbstractHeapType) -> Self {
-        RoundtripReencoder.abstract_heap_type(value)
+        utils::abstract_heap_type(&mut RoundtripReencoder, value)
     }
 }

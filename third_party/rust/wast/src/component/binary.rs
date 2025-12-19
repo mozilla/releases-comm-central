@@ -74,13 +74,9 @@ fn encode_type(encoder: ComponentTypeEncoder, ty: &TypeDef) {
         }
         TypeDef::Func(f) => {
             let mut encoder = encoder.function();
+            encoder.async_(f.async_);
             encoder.params(f.params.iter().map(|p| (p.name, &p.ty)));
-
-            if f.results.len() == 1 && f.results[0].name.is_none() {
-                encoder.result(&f.results[0].ty);
-            } else {
-                encoder.results(f.results.iter().map(|r| (r.name.unwrap_or(""), &r.ty)));
-            }
+            encoder.result(f.result.as_ref().map(|ty| ty.into()));
         }
         TypeDef::Component(c) => {
             encoder.component(&c.into());
@@ -112,6 +108,9 @@ fn encode_defined_type(encoder: ComponentDefinedTypeEncoder, ty: &ComponentDefin
         }
         ComponentDefinedType::List(l) => {
             encoder.list(l.element.as_ref());
+        }
+        ComponentDefinedType::FixedSizeList(l) => {
+            encoder.fixed_size_list(l.element.as_ref(), l.elements);
         }
         ComponentDefinedType::Tuple(t) => {
             encoder.tuple(t.fields.iter());
@@ -164,6 +163,7 @@ struct Encoder<'a> {
     core_type_names: Vec<Option<&'a str>>,
     core_module_names: Vec<Option<&'a str>>,
     core_instance_names: Vec<Option<&'a str>>,
+    core_tag_names: Vec<Option<&'a str>>,
     func_names: Vec<Option<&'a str>>,
     value_names: Vec<Option<&'a str>>,
     type_names: Vec<Option<&'a str>>,
@@ -332,133 +332,211 @@ impl<'a> Encoder<'a> {
                     info.opts.iter().map(Into::into),
                 );
             }
-            CanonicalFuncKind::Lower(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .lower(info.func.idx.into(), info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::ResourceNew(info) => {
-                self.core_func_names.push(name);
-                self.funcs.resource_new(info.ty.into());
-            }
-            CanonicalFuncKind::ResourceDrop(info) => {
-                self.core_func_names.push(name);
-                self.funcs.resource_drop(info.ty.into());
-            }
-            CanonicalFuncKind::ResourceRep(info) => {
-                self.core_func_names.push(name);
-                self.funcs.resource_rep(info.ty.into());
-            }
-            CanonicalFuncKind::ThreadSpawn(info) => {
-                self.core_func_names.push(name);
-                self.funcs.thread_spawn(info.ty.into());
-            }
-            CanonicalFuncKind::ThreadHwConcurrency(_info) => {
-                self.core_func_names.push(name);
-                self.funcs.thread_hw_concurrency();
-            }
-            CanonicalFuncKind::TaskBackpressure => {
-                self.core_func_names.push(name);
-                self.funcs.task_backpressure();
-            }
-            CanonicalFuncKind::TaskReturn(info) => {
-                self.core_func_names.push(name);
-                self.funcs.task_return(
-                    info.result
-                        .as_ref()
-                        .map(|ty| wasm_encoder::ComponentValType::from(ty)),
-                );
-            }
-            CanonicalFuncKind::TaskWait(info) => {
-                self.core_func_names.push(name);
-                self.funcs.task_wait(info.async_, info.memory.idx.into());
-            }
-            CanonicalFuncKind::TaskPoll(info) => {
-                self.core_func_names.push(name);
-                self.funcs.task_poll(info.async_, info.memory.idx.into());
-            }
-            CanonicalFuncKind::TaskYield(info) => {
-                self.core_func_names.push(name);
-                self.funcs.task_yield(info.async_);
-            }
-            CanonicalFuncKind::SubtaskDrop => {
-                self.core_func_names.push(name);
-                self.funcs.subtask_drop();
-            }
-            CanonicalFuncKind::StreamNew(info) => {
-                self.core_func_names.push(name);
-                self.funcs.stream_new(info.ty.into());
-            }
-            CanonicalFuncKind::StreamRead(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .stream_read(info.ty.into(), info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::StreamWrite(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .stream_write(info.ty.into(), info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::StreamCancelRead(info) => {
-                self.core_func_names.push(name);
-                self.funcs.stream_cancel_read(info.ty.into(), info.async_);
-            }
-            CanonicalFuncKind::StreamCancelWrite(info) => {
-                self.core_func_names.push(name);
-                self.funcs.stream_cancel_write(info.ty.into(), info.async_);
-            }
-            CanonicalFuncKind::StreamCloseReadable(info) => {
-                self.core_func_names.push(name);
-                self.funcs.stream_close_readable(info.ty.into());
-            }
-            CanonicalFuncKind::StreamCloseWritable(info) => {
-                self.core_func_names.push(name);
-                self.funcs.stream_close_writable(info.ty.into());
-            }
-            CanonicalFuncKind::FutureNew(info) => {
-                self.core_func_names.push(name);
-                self.funcs.future_new(info.ty.into());
-            }
-            CanonicalFuncKind::FutureRead(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .future_read(info.ty.into(), info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::FutureWrite(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .future_write(info.ty.into(), info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::FutureCancelRead(info) => {
-                self.core_func_names.push(name);
-                self.funcs.future_cancel_read(info.ty.into(), info.async_);
-            }
-            CanonicalFuncKind::FutureCancelWrite(info) => {
-                self.core_func_names.push(name);
-                self.funcs.future_cancel_write(info.ty.into(), info.async_);
-            }
-            CanonicalFuncKind::FutureCloseReadable(info) => {
-                self.core_func_names.push(name);
-                self.funcs.future_close_readable(info.ty.into());
-            }
-            CanonicalFuncKind::FutureCloseWritable(info) => {
-                self.core_func_names.push(name);
-                self.funcs.future_close_writable(info.ty.into());
-            }
-            CanonicalFuncKind::ErrorContextNew(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .error_context_new(info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::ErrorContextDebugMessage(info) => {
-                self.core_func_names.push(name);
-                self.funcs
-                    .error_context_debug_message(info.opts.iter().map(Into::into));
-            }
-            CanonicalFuncKind::ErrorContextDrop => {
-                self.core_func_names.push(name);
-                self.funcs.error_context_drop();
-            }
+            CanonicalFuncKind::Core(core) => match core {
+                CoreFuncKind::Alias(_) => {
+                    panic!("should have been removed during expansion")
+                }
+                CoreFuncKind::Lower(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .lower(info.func.idx.into(), info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::ResourceNew(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.resource_new(info.ty.into());
+                }
+                CoreFuncKind::ResourceDrop(info) => {
+                    self.core_func_names.push(name);
+                    if info.async_ {
+                        self.funcs.resource_drop_async(info.ty.into());
+                    } else {
+                        self.funcs.resource_drop(info.ty.into());
+                    }
+                }
+                CoreFuncKind::ResourceRep(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.resource_rep(info.ty.into());
+                }
+                CoreFuncKind::ThreadSpawnRef(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_spawn_ref(info.ty.into());
+                }
+                CoreFuncKind::ThreadSpawnIndirect(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .thread_spawn_indirect(info.ty.into(), info.table.idx.into());
+                }
+                CoreFuncKind::ThreadAvailableParallelism(_info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_available_parallelism();
+                }
+                CoreFuncKind::BackpressureSet => {
+                    self.core_func_names.push(name);
+                    self.funcs.backpressure_set();
+                }
+                CoreFuncKind::BackpressureInc => {
+                    self.core_func_names.push(name);
+                    self.funcs.backpressure_inc();
+                }
+                CoreFuncKind::BackpressureDec => {
+                    self.core_func_names.push(name);
+                    self.funcs.backpressure_dec();
+                }
+                CoreFuncKind::TaskReturn(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.task_return(
+                        info.result
+                            .as_ref()
+                            .map(|ty| wasm_encoder::ComponentValType::from(ty)),
+                        info.opts.iter().map(Into::into),
+                    );
+                }
+                CoreFuncKind::TaskCancel => {
+                    self.core_func_names.push(name);
+                    self.funcs.task_cancel();
+                }
+                CoreFuncKind::ContextGet(i) => {
+                    self.core_func_names.push(name);
+                    self.funcs.context_get(*i);
+                }
+                CoreFuncKind::ContextSet(i) => {
+                    self.core_func_names.push(name);
+                    self.funcs.context_set(*i);
+                }
+                CoreFuncKind::ThreadYield(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_yield(info.cancellable);
+                }
+                CoreFuncKind::SubtaskDrop => {
+                    self.core_func_names.push(name);
+                    self.funcs.subtask_drop();
+                }
+                CoreFuncKind::SubtaskCancel(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.subtask_cancel(info.async_);
+                }
+                CoreFuncKind::StreamNew(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.stream_new(info.ty.into());
+                }
+                CoreFuncKind::StreamRead(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .stream_read(info.ty.into(), info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::StreamWrite(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .stream_write(info.ty.into(), info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::StreamCancelRead(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.stream_cancel_read(info.ty.into(), info.async_);
+                }
+                CoreFuncKind::StreamCancelWrite(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.stream_cancel_write(info.ty.into(), info.async_);
+                }
+                CoreFuncKind::StreamDropReadable(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.stream_drop_readable(info.ty.into());
+                }
+                CoreFuncKind::StreamDropWritable(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.stream_drop_writable(info.ty.into());
+                }
+                CoreFuncKind::FutureNew(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.future_new(info.ty.into());
+                }
+                CoreFuncKind::FutureRead(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .future_read(info.ty.into(), info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::FutureWrite(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .future_write(info.ty.into(), info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::FutureCancelRead(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.future_cancel_read(info.ty.into(), info.async_);
+                }
+                CoreFuncKind::FutureCancelWrite(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.future_cancel_write(info.ty.into(), info.async_);
+                }
+                CoreFuncKind::FutureDropReadable(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.future_drop_readable(info.ty.into());
+                }
+                CoreFuncKind::FutureDropWritable(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.future_drop_writable(info.ty.into());
+                }
+                CoreFuncKind::ErrorContextNew(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .error_context_new(info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::ErrorContextDebugMessage(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .error_context_debug_message(info.opts.iter().map(Into::into));
+                }
+                CoreFuncKind::ErrorContextDrop => {
+                    self.core_func_names.push(name);
+                    self.funcs.error_context_drop();
+                }
+                CoreFuncKind::WaitableSetNew => {
+                    self.core_func_names.push(name);
+                    self.funcs.waitable_set_new();
+                }
+                CoreFuncKind::WaitableSetWait(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .waitable_set_wait(info.async_, info.memory.idx.into());
+                }
+                CoreFuncKind::WaitableSetPoll(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .waitable_set_poll(info.async_, info.memory.idx.into());
+                }
+                CoreFuncKind::WaitableSetDrop => {
+                    self.core_func_names.push(name);
+                    self.funcs.waitable_set_drop();
+                }
+                CoreFuncKind::WaitableJoin => {
+                    self.core_func_names.push(name);
+                    self.funcs.waitable_join();
+                }
+                CoreFuncKind::ThreadIndex => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_index();
+                }
+                CoreFuncKind::ThreadNewIndirect(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs
+                        .thread_new_indirect(info.ty.into(), info.table.idx.into());
+                }
+                CoreFuncKind::ThreadSwitchTo(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_switch_to(info.cancellable);
+                }
+                CoreFuncKind::ThreadSuspend(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_suspend(info.cancellable);
+                }
+                CoreFuncKind::ThreadResumeLater => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_resume_later();
+                }
+                CoreFuncKind::ThreadYieldTo(info) => {
+                    self.core_func_names.push(name);
+                    self.funcs.thread_yield_to(info.cancellable);
+                }
+            },
         }
 
         self.flush(Some(self.funcs.id()));
@@ -576,6 +654,7 @@ impl<'a> Encoder<'a> {
         funcs(&self.core_table_names, ComponentNameSection::core_tables);
         funcs(&self.core_memory_names, ComponentNameSection::core_memories);
         funcs(&self.core_global_names, ComponentNameSection::core_globals);
+        funcs(&self.core_tag_names, ComponentNameSection::core_tags);
         funcs(&self.core_type_names, ComponentNameSection::core_types);
         funcs(&self.core_module_names, ComponentNameSection::core_modules);
         funcs(
@@ -625,7 +704,7 @@ impl<'a> Encoder<'a> {
             core::ExportKind::Global => &mut self.core_global_names,
             core::ExportKind::Table => &mut self.core_table_names,
             core::ExportKind::Memory => &mut self.core_memory_names,
-            core::ExportKind::Tag => unimplemented!(),
+            core::ExportKind::Tag => &mut self.core_tag_names,
         }
     }
 
@@ -744,6 +823,7 @@ impl From<PrimitiveValType> for wasm_encoder::PrimitiveValType {
             PrimitiveValType::F64 => Self::F64,
             PrimitiveValType::Char => Self::Char,
             PrimitiveValType::String => Self::String,
+            PrimitiveValType::ErrorContext => Self::ErrorContext,
         }
     }
 }
@@ -928,6 +1008,8 @@ impl From<&CanonOpt<'_>> for wasm_encoder::CanonicalOption {
             CanonOpt::PostReturn(f) => Self::PostReturn(f.idx.into()),
             CanonOpt::Async => Self::Async,
             CanonOpt::Callback(f) => Self::Callback(f.idx.into()),
+            CanonOpt::CoreType(t) => Self::CoreType(t.idx.into()),
+            CanonOpt::Gc => Self::Gc,
         }
     }
 }

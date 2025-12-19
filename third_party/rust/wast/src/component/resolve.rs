@@ -1,10 +1,10 @@
+use crate::Error;
 use crate::component::*;
-use crate::core::{self, resolve::ResolveCoreType, ValType};
+use crate::core::{self, ValType, resolve::ResolveCoreType};
 use crate::kw;
 use crate::names::Namespace;
 use crate::token::Span;
 use crate::token::{Id, Index};
-use crate::Error;
 
 /// Resolve the fields of a component and everything nested within it, changing
 /// `Index::Id` to `Index::Num` and expanding alias syntax sugar.
@@ -327,7 +327,7 @@ impl<'a> Resolver<'a> {
         if depth as usize >= self.stack.len() {
             return Err(Error::new(
                 span,
-                format!("outer count of `{}` is too large", depth),
+                format!("outer count of `{depth}` is too large"),
             ));
         }
 
@@ -370,90 +370,117 @@ impl<'a> Resolver<'a> {
                 self.core_item_ref(&mut info.func)?;
                 self.canon_opts(&mut info.opts)?;
             }
-            CanonicalFuncKind::Lower(info) => {
-                self.component_item_ref(&mut info.func)?;
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::ResourceNew(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::ResourceRep(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::ResourceDrop(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::ThreadSpawn(info) => {
-                self.resolve_ns(&mut info.ty, Ns::CoreType)?;
-            }
-            CanonicalFuncKind::ThreadHwConcurrency(_)
-            | CanonicalFuncKind::TaskBackpressure
-            | CanonicalFuncKind::TaskYield(_)
-            | CanonicalFuncKind::SubtaskDrop
-            | CanonicalFuncKind::ErrorContextDrop => {}
-            CanonicalFuncKind::TaskReturn(info) => {
-                if let Some(ty) = &mut info.result {
-                    self.component_val_type(ty)?;
+            CanonicalFuncKind::Core(core) => match core {
+                CoreFuncKind::Alias(_) => {
+                    panic!("should have been removed during expansion")
                 }
-            }
-            CanonicalFuncKind::TaskWait(info) => {
-                self.core_item_ref(&mut info.memory)?;
-            }
-            CanonicalFuncKind::TaskPoll(info) => {
-                self.core_item_ref(&mut info.memory)?;
-            }
-            CanonicalFuncKind::StreamNew(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::StreamRead(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::StreamWrite(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::StreamCancelRead(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::StreamCancelWrite(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::StreamCloseReadable(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::StreamCloseWritable(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::FutureNew(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::FutureRead(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::FutureWrite(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::FutureCancelRead(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::FutureCancelWrite(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::FutureCloseReadable(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::FutureCloseWritable(info) => {
-                self.resolve_ns(&mut info.ty, Ns::Type)?;
-            }
-            CanonicalFuncKind::ErrorContextNew(info) => {
-                self.canon_opts(&mut info.opts)?;
-            }
-            CanonicalFuncKind::ErrorContextDebugMessage(info) => {
-                self.canon_opts(&mut info.opts)?;
-            }
+                CoreFuncKind::Lower(info) => {
+                    self.component_item_ref(&mut info.func)?;
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::ResourceNew(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::ResourceRep(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::ResourceDrop(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::ThreadSpawnRef(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::CoreType)?;
+                }
+                CoreFuncKind::ThreadSpawnIndirect(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::CoreType)?;
+                    self.core_item_ref(&mut info.table)?;
+                }
+                CoreFuncKind::ThreadAvailableParallelism(_)
+                | CoreFuncKind::BackpressureSet
+                | CoreFuncKind::BackpressureInc
+                | CoreFuncKind::BackpressureDec
+                | CoreFuncKind::TaskCancel
+                | CoreFuncKind::ThreadYield(_)
+                | CoreFuncKind::SubtaskDrop
+                | CoreFuncKind::SubtaskCancel(_)
+                | CoreFuncKind::ErrorContextDrop => {}
+                CoreFuncKind::TaskReturn(info) => {
+                    if let Some(ty) = &mut info.result {
+                        self.component_val_type(ty)?;
+                    }
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::ContextGet(_) | CoreFuncKind::ContextSet(_) => {}
+                CoreFuncKind::StreamNew(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::StreamRead(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::StreamWrite(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::StreamCancelRead(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::StreamCancelWrite(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::StreamDropReadable(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::StreamDropWritable(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::FutureNew(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::FutureRead(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::FutureWrite(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::FutureCancelRead(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::FutureCancelWrite(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::FutureDropReadable(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::FutureDropWritable(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::Type)?;
+                }
+                CoreFuncKind::ErrorContextNew(info) => {
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::ErrorContextDebugMessage(info) => {
+                    self.canon_opts(&mut info.opts)?;
+                }
+                CoreFuncKind::WaitableSetNew => {}
+                CoreFuncKind::WaitableSetWait(info) => {
+                    self.core_item_ref(&mut info.memory)?;
+                }
+                CoreFuncKind::WaitableSetPoll(info) => {
+                    self.core_item_ref(&mut info.memory)?;
+                }
+                CoreFuncKind::WaitableSetDrop => {}
+                CoreFuncKind::WaitableJoin => {}
+                CoreFuncKind::ThreadIndex => {}
+                CoreFuncKind::ThreadNewIndirect(info) => {
+                    self.resolve_ns(&mut info.ty, Ns::CoreType)?;
+                    self.core_item_ref(&mut info.table)?;
+                }
+                CoreFuncKind::ThreadSwitchTo(_) => {}
+                CoreFuncKind::ThreadSuspend(_) => {}
+                CoreFuncKind::ThreadResumeLater => {}
+                CoreFuncKind::ThreadYieldTo(_) => {}
+            },
         }
 
         Ok(())
@@ -465,11 +492,13 @@ impl<'a> Resolver<'a> {
                 CanonOpt::StringUtf8
                 | CanonOpt::StringUtf16
                 | CanonOpt::StringLatin1Utf16
-                | CanonOpt::Async => {}
+                | CanonOpt::Async
+                | CanonOpt::Gc => {}
                 CanonOpt::Memory(r) => self.core_item_ref(r)?,
                 CanonOpt::Realloc(r) | CanonOpt::PostReturn(r) | CanonOpt::Callback(r) => {
                     self.core_item_ref(r)?
                 }
+                CanonOpt::CoreType(t) => self.core_item_ref(t)?,
             }
         }
 
@@ -531,8 +560,12 @@ impl<'a> Resolver<'a> {
                     }
                 }
             }
-            ComponentDefinedType::List(l) => {
-                self.component_val_type(&mut l.element)?;
+            ComponentDefinedType::List(List { element: t })
+            | ComponentDefinedType::FixedSizeList(FixedSizeList {
+                element: t,
+                elements: _,
+            }) => {
+                self.component_val_type(t)?;
             }
             ComponentDefinedType::Tuple(t) => {
                 for field in t.fields.iter_mut() {
@@ -620,8 +653,8 @@ impl<'a> Resolver<'a> {
                     self.component_val_type(&mut param.ty)?;
                 }
 
-                for result in f.results.iter_mut() {
-                    self.component_val_type(&mut result.ty)?;
+                if let Some(result) = &mut f.result {
+                    self.component_val_type(result)?;
                 }
             }
             TypeDef::Component(c) => {
@@ -639,7 +672,7 @@ impl<'a> Resolver<'a> {
                     ValType::I32 | ValType::I64 | ValType::F32 | ValType::F64 | ValType::V128 => {}
                     ValType::Ref(r) => match &mut r.heap {
                         core::HeapType::Abstract { .. } => {}
-                        core::HeapType::Concrete(id) => {
+                        core::HeapType::Concrete(id) | core::HeapType::Exact(id) => {
                             self.resolve_ns(id, Ns::Type)?;
                         }
                     },
@@ -827,7 +860,21 @@ impl<'a> Resolver<'a> {
                 target: AliasTarget::Outer {
                     outer: Index::Num(depth, span),
                     index: Index::Num(found, span),
-                    kind: ns.into(),
+                    kind: match ns {
+                        Ns::CoreModule => ComponentOuterAliasKind::CoreModule,
+                        Ns::CoreType => ComponentOuterAliasKind::CoreType,
+                        Ns::Type => ComponentOuterAliasKind::Type,
+                        Ns::Component => ComponentOuterAliasKind::Component,
+                        _ => {
+                            return Err(Error::new(
+                                span,
+                                format!(
+                                    "outer item `{}` is not a module, type, or component",
+                                    id.name(),
+                                ),
+                            ));
+                        }
+                    },
                 },
             };
             let local_index = self.current().register_alias(&alias)?;
@@ -904,7 +951,9 @@ impl<'a> Resolver<'a> {
             sig: &mut core::ItemSig<'a>,
         ) -> Result<(), Error> {
             match &mut sig.kind {
-                core::ItemKind::Func(ty) | core::ItemKind::Tag(core::TagType::Exception(ty)) => {
+                core::ItemKind::Func(ty)
+                | core::ItemKind::FuncExact(ty)
+                | core::ItemKind::Tag(core::TagType::Exception(ty)) => {
                     let idx = ty.index.as_mut().expect("index should be filled in");
                     resolver
                         .stack
@@ -959,37 +1008,7 @@ impl<'a> ComponentState<'a> {
             ComponentField::Type(t) => self.types.register(t.id, "type")?,
             ComponentField::CanonicalFunc(f) => match &f.kind {
                 CanonicalFuncKind::Lift { .. } => self.funcs.register(f.id, "func")?,
-                CanonicalFuncKind::Lower(_)
-                | CanonicalFuncKind::ResourceNew(_)
-                | CanonicalFuncKind::ResourceRep(_)
-                | CanonicalFuncKind::ResourceDrop(_)
-                | CanonicalFuncKind::ThreadSpawn(_)
-                | CanonicalFuncKind::ThreadHwConcurrency(_)
-                | CanonicalFuncKind::TaskBackpressure
-                | CanonicalFuncKind::TaskReturn(_)
-                | CanonicalFuncKind::TaskWait(_)
-                | CanonicalFuncKind::TaskPoll(_)
-                | CanonicalFuncKind::TaskYield(_)
-                | CanonicalFuncKind::SubtaskDrop
-                | CanonicalFuncKind::StreamNew(_)
-                | CanonicalFuncKind::StreamRead(_)
-                | CanonicalFuncKind::StreamWrite(_)
-                | CanonicalFuncKind::StreamCancelRead(_)
-                | CanonicalFuncKind::StreamCancelWrite(_)
-                | CanonicalFuncKind::StreamCloseReadable(_)
-                | CanonicalFuncKind::StreamCloseWritable(_)
-                | CanonicalFuncKind::FutureNew(_)
-                | CanonicalFuncKind::FutureRead(_)
-                | CanonicalFuncKind::FutureWrite(_)
-                | CanonicalFuncKind::FutureCancelRead(_)
-                | CanonicalFuncKind::FutureCancelWrite(_)
-                | CanonicalFuncKind::FutureCloseReadable(_)
-                | CanonicalFuncKind::FutureCloseWritable(_)
-                | CanonicalFuncKind::ErrorContextNew(_)
-                | CanonicalFuncKind::ErrorContextDebugMessage(_)
-                | CanonicalFuncKind::ErrorContextDrop => {
-                    self.core_funcs.register(f.id, "core func")?
-                }
+                CanonicalFuncKind::Core(_) => self.core_funcs.register(f.id, "core func")?,
             },
             ComponentField::CoreFunc(_) | ComponentField::Func(_) => {
                 unreachable!("should be expanded already")
@@ -1114,6 +1133,7 @@ component_item!(kw::module, CoreModule);
 
 core_item!(kw::func, CoreFunc);
 core_item!(kw::memory, CoreMemory);
+core_item!(kw::table, CoreTable);
 core_item!(kw::r#type, CoreType);
 core_item!(kw::r#instance, CoreInstance);
 
@@ -1127,18 +1147,6 @@ impl From<Ns> for ComponentExportAliasKind {
             Ns::Component => Self::Component,
             Ns::Value => Self::Value,
             _ => unreachable!("not a component exportable namespace"),
-        }
-    }
-}
-
-impl From<Ns> for ComponentOuterAliasKind {
-    fn from(ns: Ns) -> Self {
-        match ns {
-            Ns::CoreModule => Self::CoreModule,
-            Ns::CoreType => Self::CoreType,
-            Ns::Type => Self::Type,
-            Ns::Component => Self::Component,
-            _ => unreachable!("not an outer alias namespace"),
         }
     }
 }

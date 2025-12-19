@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81.0"
 name = "neqo-crypto"
-version = "0.20.0"
+version = "0.21.0"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -131,6 +131,7 @@ default-features = false
 
 [build-dependencies.serde]
 version = "1.0"
+features = ["std"]
 default-features = false
 
 [build-dependencies.serde_derive]
@@ -138,7 +139,11 @@ version = "1.0"
 default-features = false
 
 [build-dependencies.toml]
-version = "0.5"
+version = "0.9"
+features = [
+    "parse",
+    "serde",
+]
 default-features = false
 
 [target."cfg(windows)".dependencies.windows]

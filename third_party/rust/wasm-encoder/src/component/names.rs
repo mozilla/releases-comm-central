@@ -2,7 +2,7 @@ use alloc::borrow::Cow;
 use alloc::vec::Vec;
 
 use super::*;
-use crate::{encoding_size, ExportKind, NameMap, SectionId};
+use crate::{ExportKind, NameMap, SectionId, encoding_size};
 
 /// Encoding for the `component-name` custom section which assigns
 /// human-readable names to items within a component.
@@ -55,6 +55,12 @@ impl ComponentNameSection {
     /// component.
     pub fn core_globals(&mut self, names: &NameMap) {
         self.core_decls(ExportKind::Global as u8, names)
+    }
+
+    /// Appends a decls name subsection to name core tags within the
+    /// component.
+    pub fn core_tags(&mut self, names: &NameMap) {
+        self.core_decls(ExportKind::Tag as u8, names)
     }
 
     /// Appends a decls name subsection to name core types within the

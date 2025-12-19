@@ -26,7 +26,7 @@
 //!
 //! ```
 //! use wasm_encoder::{
-//!     CodeSection, ExportKind, ExportSection, Function, FunctionSection, Instruction,
+//!     CodeSection, ExportKind, ExportSection, Function, FunctionSection,
 //!     Module, TypeSection, ValType,
 //! };
 //!
@@ -54,10 +54,11 @@
 //! let mut codes = CodeSection::new();
 //! let locals = vec![];
 //! let mut f = Function::new(locals);
-//! f.instruction(&Instruction::LocalGet(0));
-//! f.instruction(&Instruction::LocalGet(1));
-//! f.instruction(&Instruction::I32Add);
-//! f.instruction(&Instruction::End);
+//! f.instructions()
+//!     .local_get(0)
+//!     .local_get(1)
+//!     .i32_add()
+//!     .end();
 //! codes.function(&f);
 //! module.section(&codes);
 //!
@@ -68,7 +69,7 @@
 //! assert!(wasmparser::validate(&wasm_bytes).is_ok());
 //! ```
 
-#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![no_std]
 #![deny(missing_docs, missing_debug_implementations)]
 
@@ -158,20 +159,6 @@ impl Encode for i64 {
     fn encode(&self, sink: &mut Vec<u8>) {
         let (value, pos) = leb128fmt::encode_s64(*self).unwrap();
         sink.extend_from_slice(&value[..pos]);
-    }
-}
-
-impl Encode for f32 {
-    fn encode(&self, sink: &mut Vec<u8>) {
-        let bits = self.to_bits();
-        sink.extend(bits.to_le_bytes())
-    }
-}
-
-impl Encode for f64 {
-    fn encode(&self, sink: &mut Vec<u8>) {
-        let bits = self.to_bits();
-        sink.extend(bits.to_le_bytes())
     }
 }
 

@@ -5,8 +5,8 @@ use super::core::Module;
 use crate::validator::component::ComponentState;
 #[cfg(feature = "component-model")]
 use crate::validator::component_types::{ComponentTypeAlloc, ComponentTypeList};
-use crate::{collections::map::Entry, AbstractHeapType};
-use crate::{prelude::*, CompositeInnerType};
+use crate::{AbstractHeapType, collections::map::Entry};
+use crate::{CompositeInnerType, prelude::*};
 use crate::{
     Export, ExternalKind, GlobalType, Import, Matches, MemoryType, PackedIndex, RecGroup, RefType,
     Result, SubType, TableType, TypeRef, UnpackedIndex, ValType, WithRecGroup,
@@ -46,11 +46,14 @@ pub trait TypeIdentifier: core::fmt::Debug + Copy + Eq + Sized + 'static {
 
 /// A trait shared by all types within a `Types`.
 ///
-/// This is the data that can be retreived by indexing with the associated
+/// This is the data that can be retrieved by indexing with the associated
 /// [`TypeIdentifier`].
 pub trait TypeData: core::fmt::Debug {
     /// The identifier for this type data.
     type Id: TypeIdentifier<Data = Self>;
+
+    /// Is this type a core sub type (or rec group of sub types)?
+    const IS_CORE_SUB_TYPE: bool;
 
     /// Get the info for this type.
     #[doc(hidden)]
@@ -134,7 +137,7 @@ impl TypeIdentifier for CoreTypeId {
 
 impl TypeData for SubType {
     type Id = CoreTypeId;
-
+    const IS_CORE_SUB_TYPE: bool = true;
     fn type_info(&self, _types: &TypeList) -> TypeInfo {
         // TODO(#1036): calculate actual size for func, array, struct.
         let size = 1 + match &self.composite_type.inner {
@@ -156,7 +159,7 @@ define_type_id!(
 
 impl TypeData for Range<CoreTypeId> {
     type Id = RecGroupId;
-
+    const IS_CORE_SUB_TYPE: bool = true;
     fn type_info(&self, _types: &TypeList) -> TypeInfo {
         let size = self.end.index() - self.start.index();
         TypeInfo::core(u32::try_from(size).unwrap())
@@ -245,7 +248,7 @@ impl TypeInfo {
 }
 
 /// The entity type for imports and exports of a module.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntityType {
     /// The entity is a function.
     Func(CoreTypeId),
@@ -257,6 +260,8 @@ pub enum EntityType {
     Global(GlobalType),
     /// The entity is a tag.
     Tag(CoreTypeId),
+    /// The entity is a function with exact type.
+    FuncExact(CoreTypeId),
 }
 
 impl EntityType {
@@ -268,12 +273,13 @@ impl EntityType {
             Self::Memory(_) => "memory",
             Self::Global(_) => "global",
             Self::Tag(_) => "tag",
+            Self::FuncExact(_) => "func_exact",
         }
     }
 
     pub(crate) fn info(&self, types: &TypeList) -> TypeInfo {
         match self {
-            Self::Func(id) | Self::Tag(id) => types[*id].type_info(types),
+            Self::Func(id) | Self::Tag(id) | Self::FuncExact(id) => types[*id].type_info(types),
             Self::Table(_) | Self::Memory(_) | Self::Global(_) => TypeInfo::new(),
         }
     }
@@ -544,6 +550,7 @@ impl<'a> TypesRef<'a> {
         match &self.kind {
             TypesRefKind::Module(module) => Some(match import.ty {
                 TypeRef::Func(idx) => EntityType::Func(*module.types.get(idx as usize)?),
+                TypeRef::FuncExact(idx) => EntityType::FuncExact(*module.types.get(idx as usize)?),
                 TypeRef::Table(ty) => EntityType::Table(ty),
                 TypeRef::Memory(ty) => EntityType::Memory(ty),
                 TypeRef::Global(ty) => EntityType::Global(ty),
@@ -558,7 +565,7 @@ impl<'a> TypesRef<'a> {
     pub fn entity_type_from_export(&self, export: &Export) -> Option<EntityType> {
         match &self.kind {
             TypesRefKind::Module(module) => Some(match export.kind {
-                ExternalKind::Func => EntityType::Func(
+                ExternalKind::Func | ExternalKind::FuncExact => EntityType::Func(
                     module.types[*module.functions.get(export.index as usize)? as usize],
                 ),
                 ExternalKind::Table => {
@@ -570,9 +577,7 @@ impl<'a> TypesRef<'a> {
                 ExternalKind::Global => {
                     EntityType::Global(*module.globals.get(export.index as usize)?)
                 }
-                ExternalKind::Tag => EntityType::Tag(
-                    module.types[*module.functions.get(export.index as usize)? as usize],
-                ),
+                ExternalKind::Tag => EntityType::Tag(*module.tags.get(export.index as usize)?),
             }),
             #[cfg(feature = "component-model")]
             TypesRefKind::Component(_) => None,
@@ -780,7 +785,13 @@ impl<T> Index<usize> for SnapshotList<T> {
 
     #[inline]
     fn index(&self, index: usize) -> &T {
-        self.get(index).unwrap()
+        match self.get(index) {
+            Some(x) => x,
+            None => panic!(
+                "out-of-bounds indexing into `SnapshotList`: index is {index}, but length is {}",
+                self.len()
+            ),
+        }
     }
 }
 
@@ -947,7 +958,7 @@ impl TypeList {
     /// [`Self::intern_canonical_rec_group`].
     pub fn intern_sub_type(&mut self, sub_ty: SubType, offset: usize) -> CoreTypeId {
         let (_is_new, group_id) =
-            self.intern_canonical_rec_group(false, RecGroup::implicit(offset, sub_ty));
+            self.intern_canonical_rec_group(true, RecGroup::implicit(offset, sub_ty));
         self[group_id].start
     }
 
@@ -1129,7 +1140,8 @@ impl TypeList {
                 },
             ) => a_shared == b_shared && a_ty.is_subtype_of(b_ty),
 
-            (HT::Concrete(a), HT::Abstract { shared, ty }) => {
+            (HT::Concrete(a), HT::Abstract { shared, ty })
+            | (HT::Exact(a), HT::Abstract { shared, ty }) => {
                 let a_ty = &subtype(a_group, a).composite_type;
                 if a_ty.shared != shared {
                     return false;
@@ -1146,7 +1158,8 @@ impl TypeList {
                 }
             }
 
-            (HT::Abstract { shared, ty }, HT::Concrete(b)) => {
+            (HT::Abstract { shared, ty }, HT::Concrete(b))
+            | (HT::Abstract { shared, ty }, HT::Exact(b)) => {
                 let b_ty = &subtype(b_group, b).composite_type;
                 if shared != b_ty.shared {
                     return false;
@@ -1162,9 +1175,13 @@ impl TypeList {
                 }
             }
 
-            (HT::Concrete(a), HT::Concrete(b)) => {
+            (HT::Concrete(a), HT::Concrete(b)) | (HT::Exact(a), HT::Concrete(b)) => {
                 self.id_is_subtype(core_type_id(a_group, a), core_type_id(b_group, b))
             }
+
+            (HT::Exact(a), HT::Exact(b)) => core_type_id(a_group, a) == core_type_id(b_group, b),
+
+            (HT::Concrete(_), HT::Exact(_)) => false,
         }
     }
 
@@ -1199,7 +1216,7 @@ impl TypeList {
     pub fn reftype_is_shared(&self, ty: RefType) -> bool {
         match ty.heap_type() {
             HeapType::Abstract { shared, .. } => shared,
-            HeapType::Concrete(index) => {
+            HeapType::Concrete(index) | HeapType::Exact(index) => {
                 self[index.as_core_type_id().unwrap()].composite_type.shared
             }
         }
@@ -1212,7 +1229,7 @@ impl TypeList {
     pub fn top_type(&self, heap_type: &HeapType) -> HeapType {
         use AbstractHeapType::*;
         match *heap_type {
-            HeapType::Concrete(idx) => {
+            HeapType::Concrete(idx) | HeapType::Exact(idx) => {
                 let ty = &self[idx.as_core_type_id().unwrap()].composite_type;
                 let shared = ty.shared;
                 match ty.inner {

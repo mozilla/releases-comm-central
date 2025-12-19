@@ -90,21 +90,6 @@ impl<'a> Component<'a> {
         crate::core::EncodeOptions::default().encode_component(self)
     }
 
-    pub(crate) fn validate(&self, parser: Parser<'_>) -> Result<()> {
-        let mut starts = 0;
-        if let ComponentKind::Text(fields) = &self.kind {
-            for item in fields.iter() {
-                if let ComponentField::Start(_) = item {
-                    starts += 1;
-                }
-            }
-        }
-        if starts > 1 {
-            return Err(parser.error("multiple start sections found"));
-        }
-        Ok(())
-    }
-
     pub(crate) fn parse_without_component_keyword(
         component_keyword_span: Span,
         parser: Parser<'a>,
@@ -215,6 +200,9 @@ impl<'a> Parse<'a> for ComponentField<'a> {
             }
             if parser.peek::<kw::start>()? {
                 return Ok(Self::Start(parser.parse()?));
+            }
+            if parser.peek::<kw::canon>()? {
+                return Ok(Self::CanonicalFunc(parser.parse()?));
             }
             if parser.peek::<annotation::custom>()? {
                 return Ok(Self::Custom(parser.parse()?));

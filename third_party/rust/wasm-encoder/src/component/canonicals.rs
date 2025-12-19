@@ -1,4 +1,4 @@
-use crate::{encode_section, ComponentSection, ComponentSectionId, ComponentValType, Encode};
+use crate::{ComponentSection, ComponentSectionId, ComponentValType, Encode, encode_section};
 use alloc::vec::Vec;
 
 /// Represents options for canonical function definitions.
@@ -27,6 +27,10 @@ pub enum CanonicalOption {
     /// The function to use if the async lifting of a function should receive task/stream/future progress events
     /// using a callback.
     Callback(u32),
+    /// The core function type to lower a component function into.
+    CoreType(u32),
+    /// Use the GC variant of the canonical ABI.
+    Gc,
 }
 
 impl Encode for CanonicalOption {
@@ -53,6 +57,13 @@ impl Encode for CanonicalOption {
             Self::Callback(idx) => {
                 sink.push(0x07);
                 idx.encode(sink);
+            }
+            Self::CoreType(idx) => {
+                sink.push(0x08);
+                idx.encode(sink);
+            }
+            Self::Gc => {
+                sink.push(0x09);
             }
         }
     }
@@ -101,14 +112,10 @@ impl CanonicalFunctionSection {
         O: IntoIterator<Item = CanonicalOption>,
         O::IntoIter: ExactSizeIterator,
     {
-        let options = options.into_iter();
         self.bytes.push(0x00);
         self.bytes.push(0x00);
         core_func_index.encode(&mut self.bytes);
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         type_index.encode(&mut self.bytes);
         self.num_added += 1;
         self
@@ -120,14 +127,10 @@ impl CanonicalFunctionSection {
         O: IntoIterator<Item = CanonicalOption>,
         O::IntoIter: ExactSizeIterator,
     {
-        let options = options.into_iter();
         self.bytes.push(0x01);
         self.bytes.push(0x00);
         func_index.encode(&mut self.bytes);
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -149,6 +152,14 @@ impl CanonicalFunctionSection {
         self
     }
 
+    /// Defines a function which will drop the specified type of handle.
+    pub fn resource_drop_async(&mut self, ty_index: u32) -> &mut Self {
+        self.bytes.push(0x07);
+        ty_index.encode(&mut self.bytes);
+        self.num_added += 1;
+        self
+    }
+
     /// Defines a function which will return the representation of the specified
     /// resource type.
     pub fn resource_rep(&mut self, ty_index: u32) -> &mut Self {
@@ -158,19 +169,29 @@ impl CanonicalFunctionSection {
         self
     }
 
-    /// Defines a function which will spawns a new thread by invoking a shared
+    /// Defines a function which will spawn a new thread by invoking a shared
     /// function of type `ty_index`.
-    pub fn thread_spawn(&mut self, ty_index: u32) -> &mut Self {
-        self.bytes.push(0x05);
+    pub fn thread_spawn_ref(&mut self, ty_index: u32) -> &mut Self {
+        self.bytes.push(0x40);
         ty_index.encode(&mut self.bytes);
+        self.num_added += 1;
+        self
+    }
+
+    /// Defines a function which will spawn a new thread by invoking a shared
+    /// function indirectly through a `funcref` table.
+    pub fn thread_spawn_indirect(&mut self, ty_index: u32, table_index: u32) -> &mut Self {
+        self.bytes.push(0x41);
+        ty_index.encode(&mut self.bytes);
+        table_index.encode(&mut self.bytes);
         self.num_added += 1;
         self
     }
 
     /// Defines a function which will return the number of threads that can be
     /// expected to execute concurrently.
-    pub fn thread_hw_concurrency(&mut self) -> &mut Self {
-        self.bytes.push(0x06);
+    pub fn thread_available_parallelism(&mut self) -> &mut Self {
+        self.bytes.push(0x42);
         self.num_added += 1;
         self
     }
@@ -179,8 +200,24 @@ impl CanonicalFunctionSection {
     /// backpressure for the caller's instance.  When backpressure is enabled,
     /// the host must not start any new calls to that instance until
     /// backpressure is disabled.
-    pub fn task_backpressure(&mut self) -> &mut Self {
+    pub fn backpressure_set(&mut self) -> &mut Self {
         self.bytes.push(0x08);
+        self.num_added += 1;
+        self
+    }
+
+    /// Defines a function which tells the host to increment the backpressure
+    /// counter.
+    pub fn backpressure_inc(&mut self) -> &mut Self {
+        self.bytes.push(0x24);
+        self.num_added += 1;
+        self
+    }
+
+    /// Defines a function which tells the host to decrement the backpressure
+    /// counter.
+    pub fn backpressure_dec(&mut self) -> &mut Self {
+        self.bytes.push(0x25);
         self.num_added += 1;
         self
     }
@@ -188,40 +225,39 @@ impl CanonicalFunctionSection {
     /// Defines a function which returns a result to the caller of a lifted
     /// export function.  This allows the callee to continue executing after
     /// returning a result.
-    pub fn task_return(&mut self, ty: Option<impl Into<ComponentValType>>) -> &mut Self {
+    pub fn task_return<O>(&mut self, ty: Option<ComponentValType>, options: O) -> &mut Self
+    where
+        O: IntoIterator<Item = CanonicalOption>,
+        O::IntoIter: ExactSizeIterator,
+    {
         self.bytes.push(0x09);
-        if let Some(ty) = ty {
-            self.bytes.push(0x00);
-            ty.into().encode(&mut self.bytes);
-        } else {
-            self.bytes.push(0x01);
-            0_usize.encode(&mut self.bytes);
-        }
+        crate::encode_resultlist(&mut self.bytes, ty);
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
 
-    /// Defines a function which waits for at least one outstanding async
-    /// task/stream/future to make progress, returning the first such event.
-    ///
-    /// If `async_` is true, the caller instance may be reentered.
-    pub fn task_wait(&mut self, async_: bool, memory: u32) -> &mut Self {
+    /// Defines a function to acknowledge cancellation of the current task.
+    pub fn task_cancel(&mut self) -> &mut Self {
+        self.bytes.push(0x05);
+        self.num_added += 1;
+        self
+    }
+
+    /// Defines a new `context.get` intrinsic of the ith slot.
+    pub fn context_get(&mut self, i: u32) -> &mut Self {
         self.bytes.push(0x0a);
-        self.bytes.push(if async_ { 1 } else { 0 });
-        memory.encode(&mut self.bytes);
+        self.bytes.push(0x7f);
+        i.encode(&mut self.bytes);
         self.num_added += 1;
         self
     }
 
-    /// Defines a function which checks whether any outstanding async
-    /// task/stream/future has made progress.  Unlike `task.wait`, this does not
-    /// block and may return nothing if no such event has occurred.
-    ///
-    /// If `async_` is true, the caller instance may be reentered.
-    pub fn task_poll(&mut self, async_: bool, memory: u32) -> &mut Self {
+    /// Defines a new `context.set` intrinsic of the ith slot.
+    pub fn context_set(&mut self, i: u32) -> &mut Self {
         self.bytes.push(0x0b);
-        self.bytes.push(if async_ { 1 } else { 0 });
-        memory.encode(&mut self.bytes);
+        self.bytes.push(0x7f);
+        i.encode(&mut self.bytes);
         self.num_added += 1;
         self
     }
@@ -229,10 +265,10 @@ impl CanonicalFunctionSection {
     /// Defines a function which yields control to the host so that other tasks
     /// are able to make progress, if any.
     ///
-    /// If `async_` is true, the caller instance may be reentered.
-    pub fn task_yield(&mut self, async_: bool) -> &mut Self {
+    /// If `cancellable` is true, the caller instance may be reentered.
+    pub fn thread_yield(&mut self, cancellable: bool) -> &mut Self {
         self.bytes.push(0x0c);
-        self.bytes.push(if async_ { 1 } else { 0 });
+        self.bytes.push(if cancellable { 1 } else { 0 });
         self.num_added += 1;
         self
     }
@@ -240,6 +276,14 @@ impl CanonicalFunctionSection {
     /// Defines a function to drop a specified task which has completed.
     pub fn subtask_drop(&mut self) -> &mut Self {
         self.bytes.push(0x0d);
+        self.num_added += 1;
+        self
+    }
+
+    /// Defines a function to cancel an in-progress task.
+    pub fn subtask_cancel(&mut self, async_: bool) -> &mut Self {
+        self.bytes.push(0x06);
+        self.bytes.push(if async_ { 1 } else { 0 });
         self.num_added += 1;
         self
     }
@@ -261,11 +305,7 @@ impl CanonicalFunctionSection {
     {
         self.bytes.push(0x0f);
         ty.encode(&mut self.bytes);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -278,11 +318,7 @@ impl CanonicalFunctionSection {
     {
         self.bytes.push(0x10);
         ty.encode(&mut self.bytes);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -307,18 +343,18 @@ impl CanonicalFunctionSection {
         self
     }
 
-    /// Defines a function to close the readable end of a `stream` of the
+    /// Defines a function to drop the readable end of a `stream` of the
     /// specified type.
-    pub fn stream_close_readable(&mut self, ty: u32) -> &mut Self {
+    pub fn stream_drop_readable(&mut self, ty: u32) -> &mut Self {
         self.bytes.push(0x13);
         ty.encode(&mut self.bytes);
         self.num_added += 1;
         self
     }
 
-    /// Defines a function to close the writable end of a `stream` of the
+    /// Defines a function to drop the writable end of a `stream` of the
     /// specified type.
-    pub fn stream_close_writable(&mut self, ty: u32) -> &mut Self {
+    pub fn stream_drop_writable(&mut self, ty: u32) -> &mut Self {
         self.bytes.push(0x14);
         ty.encode(&mut self.bytes);
         self.num_added += 1;
@@ -342,11 +378,7 @@ impl CanonicalFunctionSection {
     {
         self.bytes.push(0x16);
         ty.encode(&mut self.bytes);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -359,11 +391,7 @@ impl CanonicalFunctionSection {
     {
         self.bytes.push(0x17);
         ty.encode(&mut self.bytes);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -388,18 +416,18 @@ impl CanonicalFunctionSection {
         self
     }
 
-    /// Defines a function to close the readable end of a `future` of the
+    /// Defines a function to drop the readable end of a `future` of the
     /// specified type.
-    pub fn future_close_readable(&mut self, ty: u32) -> &mut Self {
+    pub fn future_drop_readable(&mut self, ty: u32) -> &mut Self {
         self.bytes.push(0x1a);
         ty.encode(&mut self.bytes);
         self.num_added += 1;
         self
     }
 
-    /// Defines a function to close the writable end of a `future` of the
+    /// Defines a function to drop the writable end of a `future` of the
     /// specified type.
-    pub fn future_close_writable(&mut self, ty: u32) -> &mut Self {
+    pub fn future_drop_writable(&mut self, ty: u32) -> &mut Self {
         self.bytes.push(0x1b);
         ty.encode(&mut self.bytes);
         self.num_added += 1;
@@ -414,11 +442,7 @@ impl CanonicalFunctionSection {
         O::IntoIter: ExactSizeIterator,
     {
         self.bytes.push(0x1c);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -434,11 +458,7 @@ impl CanonicalFunctionSection {
         O::IntoIter: ExactSizeIterator,
     {
         self.bytes.push(0x1d);
-        let options = options.into_iter();
-        options.len().encode(&mut self.bytes);
-        for option in options {
-            option.encode(&mut self.bytes);
-        }
+        self.encode_options(options);
         self.num_added += 1;
         self
     }
@@ -447,6 +467,116 @@ impl CanonicalFunctionSection {
     pub fn error_context_drop(&mut self) -> &mut Self {
         self.bytes.push(0x1e);
         self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `waitable-set.new` intrinsic, used to create a
+    /// `waitable-set` pseudo-resource.
+    pub fn waitable_set_new(&mut self) -> &mut Self {
+        self.bytes.push(0x1f);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `waitable-set.wait` intrinsic, used to block on a
+    /// `waitable-set`.
+    pub fn waitable_set_wait(&mut self, async_: bool, memory: u32) -> &mut Self {
+        self.bytes.push(0x20);
+        self.bytes.push(if async_ { 1 } else { 0 });
+        memory.encode(&mut self.bytes);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `waitable-set.wait` intrinsic, used to check, without
+    /// blocking, if anything in a `waitable-set` is ready.
+    pub fn waitable_set_poll(&mut self, async_: bool, memory: u32) -> &mut Self {
+        self.bytes.push(0x21);
+        self.bytes.push(if async_ { 1 } else { 0 });
+        memory.encode(&mut self.bytes);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `waitable-set.drop` intrinsic, used to dispose a
+    /// `waitable-set` pseudo-resource.
+    pub fn waitable_set_drop(&mut self) -> &mut Self {
+        self.bytes.push(0x22);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `waitable.join` intrinsic, used to add an item to a
+    /// `waitable-set`.
+    pub fn waitable_join(&mut self) -> &mut Self {
+        self.bytes.push(0x23);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.index` intrinsic, used to get the index of the
+    /// current thread.
+    pub fn thread_index(&mut self) -> &mut Self {
+        self.bytes.push(0x26);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.new-indirect` intrinsic, used to create a new
+    /// thread by invoking a function indirectly through a `funcref` table.
+    pub fn thread_new_indirect(&mut self, ty_index: u32, table_index: u32) -> &mut Self {
+        self.bytes.push(0x27);
+        ty_index.encode(&mut self.bytes);
+        table_index.encode(&mut self.bytes);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.switch-to` intrinsic, used to switch execution to
+    /// another thread.
+    pub fn thread_switch_to(&mut self, cancellable: bool) -> &mut Self {
+        self.bytes.push(0x28);
+        self.bytes.push(if cancellable { 1 } else { 0 });
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.suspend` intrinsic, used to suspend execution of
+    /// the current thread.
+    pub fn thread_suspend(&mut self, cancellable: bool) -> &mut Self {
+        self.bytes.push(0x29);
+        self.bytes.push(if cancellable { 1 } else { 0 });
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.resume-later` intrinsic, used to resume execution
+    /// of the given thread.
+    pub fn thread_resume_later(&mut self) -> &mut Self {
+        self.bytes.push(0x2a);
+        self.num_added += 1;
+        self
+    }
+
+    /// Declare a new `thread.yield-to` intrinsic, used to yield execution to
+    /// a given thread.
+    pub fn thread_yield_to(&mut self, cancellable: bool) -> &mut Self {
+        self.bytes.push(0x2b);
+        self.bytes.push(if cancellable { 1 } else { 0 });
+        self.num_added += 1;
+        self
+    }
+
+    fn encode_options<O>(&mut self, options: O) -> &mut Self
+    where
+        O: IntoIterator<Item = CanonicalOption>,
+        O::IntoIter: ExactSizeIterator,
+    {
+        let options = options.into_iter();
+        options.len().encode(&mut self.bytes);
+        for option in options {
+            option.encode(&mut self.bytes);
+        }
         self
     }
 }

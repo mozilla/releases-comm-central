@@ -71,9 +71,9 @@ git = "https://github.com/martinthomson/ohttp.git"
 rev = "bf6a983845cc0b540effb3a615e92d914dfcfd0b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/application-services?rev=799ae231ba91f5b6634672a2737cc9efdf997b70"]
+[source."git+https://github.com/mozilla/application-services?rev=0376c542e4a31cde8d33dd0e8da17dcfbc6c58b2"]
 git = "https://github.com/mozilla/application-services"
-rev = "799ae231ba91f5b6634672a2737cc9efdf997b70"
+rev = "0376c542e4a31cde8d33dd0e8da17dcfbc6c58b2"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/audioipc?rev=82fe7fa7e3aaa35468137239a0e4c2f867457214"]
@@ -106,9 +106,9 @@ git = "https://github.com/mozilla/mp4parse-rust"
 rev = "f955be5d2a04a631c0f1777d6f35370ea1a99e2d"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/neqo?tag=v0.20.0"]
+[source."git+https://github.com/mozilla/neqo?tag=v0.21.0"]
 git = "https://github.com/mozilla/neqo"
-tag = "v0.20.0"
+tag = "v0.21.0"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/rust-lang/rust-bindgen?rev=9366e0af8da529c958b4cd4fcbe492d951c86f5c"]

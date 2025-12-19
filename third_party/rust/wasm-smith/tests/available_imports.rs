@@ -1,7 +1,7 @@
 #![cfg(feature = "wasmparser")]
 
-use arbitrary::{Arbitrary, Unstructured};
-use rand::{rngs::SmallRng, RngCore, SeedableRng};
+use arbitrary::Unstructured;
+use rand::{RngCore, SeedableRng, rngs::SmallRng};
 use std::collections::HashMap;
 use wasm_smith::{Config, Module};
 use wasmparser::Validator;
@@ -38,8 +38,16 @@ fn smoke_test_imports_config() {
                 if let wasmparser::Payload::TypeSection(rdr) = payload {
                     // Gather the signature types to later check function types
                     // against.
-                    for ty in rdr.into_iter_err_on_gc_types() {
-                        sig_types.push(ty.unwrap());
+                    for recgrp in rdr {
+                        let recgrp = recgrp.unwrap();
+                        for subtype in recgrp.into_types() {
+                            match subtype.composite_type.inner {
+                                wasmparser::CompositeInnerType::Func(func_type) => {
+                                    sig_types.push(Some(func_type))
+                                }
+                                _ => sig_types.push(None),
+                            }
+                        }
                     }
                 } else if let wasmparser::Payload::ImportSection(rdr) = payload {
                     // Read out imports, checking that they all are within the
@@ -51,7 +59,7 @@ fn smoke_test_imports_config() {
                         use AvailableImportKind as I;
                         let entry = imports_seen.get_mut(&(import.module, import.name));
                         match (entry, &import.ty) {
-                            (Some((true, _)), _) => panic!("duplicate import of {:?}", import),
+                            (Some((true, _)), _) => panic!("duplicate import of {import:?}"),
                             (Some((seen, I::Memory)), TypeRef::Memory(_)) => *seen = true,
                             (Some((seen, I::Global(t))), TypeRef::Global(gt))
                                 if *t == gt.content_type =>
@@ -64,24 +72,29 @@ fn smoke_test_imports_config() {
                                 *seen = true
                             }
                             (Some((seen, I::Func(p, r))), TypeRef::Func(sig_idx))
-                                if sig_types[*sig_idx as usize].params() == *p
-                                    && sig_types[*sig_idx as usize].results() == *r =>
+                                if sig_types[*sig_idx as usize].clone().unwrap().params() == *p
+                                    && sig_types[*sig_idx as usize].clone().unwrap().results()
+                                        == *r =>
                             {
                                 *seen = true
                             }
                             (
                                 Some((seen, I::Tag(p))),
                                 TypeRef::Tag(wasmparser::TagType { func_type_idx, .. }),
-                            ) if sig_types[*func_type_idx as usize].params() == *p
-                                && sig_types[*func_type_idx as usize].results().is_empty() =>
+                            ) if sig_types[*func_type_idx as usize].clone().unwrap().params()
+                                == *p
+                                && sig_types[*func_type_idx as usize]
+                                    .clone()
+                                    .unwrap()
+                                    .results()
+                                    .is_empty() =>
                             {
                                 *seen = true
                             }
-                            (Some((_, expected)), _) => panic!(
-                                "import {:?} type mismatch, expected: {:?}",
-                                import, expected
-                            ),
-                            (None, _) => panic!("import of an unknown entity: {:?}", import),
+                            (Some((_, expected)), _) => {
+                                panic!("import {import:?} type mismatch, expected: {expected:?}")
+                            }
+                            (None, _) => panic!("import of an unknown entity: {import:?}"),
                         }
                     }
                 }
@@ -109,8 +122,8 @@ fn smoke_test_imports_config() {
 
 #[derive(Debug)]
 enum AvailableImportKind {
-    Func(&'static [ValType], &'static [ValType]),
-    Tag(&'static [ValType]),
+    Func(Vec<ValType>, Vec<ValType>),
+    Tag(Vec<ValType>),
     Global(ValType),
     Table(ValType),
     Memory,
@@ -122,28 +135,43 @@ fn import_config(
     Config,
     Vec<(&'static str, &'static str, AvailableImportKind)>,
 ) {
-    let mut config = Config::arbitrary(u).expect("arbitrary swarm");
-    config.gc_enabled = false;
+    let mut config = Config::default();
     config.exceptions_enabled = u.arbitrary().expect("exceptions enabled for swarm");
     let available = {
-        use {AvailableImportKind::*, ValType::*};
+        use {
+            AvailableImportKind::*,
+            ValType::*,
+            wasmparser::{PackedIndex, RefType},
+        };
         vec![
-            ("env", "pi", Func(&[I32], &[])),
-            ("env", "pi2", Func(&[I32], &[])),
-            ("env", "pipi2", Func(&[I32, I32], &[])),
-            ("env", "po", Func(&[], &[I32])),
-            ("env", "pipo", Func(&[I32], &[I32])),
-            ("env", "popo", Func(&[], &[I32, I32])),
+            ("env", "pi", Func(vec![I32], vec![])),
+            ("env", "pi2", Func(vec![I32], vec![])),
+            ("env", "pipi2", Func(vec![I32, I32], vec![])),
+            ("env", "po", Func(vec![], vec![I32])),
+            ("env", "pipo", Func(vec![I32], vec![I32])),
+            ("env", "popo", Func(vec![], vec![I32, I32])),
             ("env", "mem", Memory),
             ("env", "tbl", Table(ValType::FUNCREF)),
             ("vars", "g", Global(I64)),
-            ("tags", "tag1", Tag(&[I32])),
+            ("tags", "tag1", Tag(vec![I32])),
+            (
+                "tags",
+                "tag2",
+                Tag(vec![Ref(RefType::concrete(
+                    true,
+                    PackedIndex::from_module_index(0).unwrap(),
+                ))]),
+            ),
         ]
     };
     config.available_imports = Some(
         wat::parse_str(
             r#"
             (module
+                (rec
+                    (type $s0 (array (ref $s1)))
+                    (type $s1 (array (ref $s0)))
+                )
                 (import "env" "pi" (func (param i32)))
                 (import "env" "pi2" (func (param i32)))
                 (import "env" "pipi2" (func (param i32 i32)))
@@ -154,6 +182,7 @@ fn import_config(
                 (import "env" "tbl" (table 1 16 funcref))
                 (import "vars" "g" (global i64))
                 (import "tags" "tag1" (tag (param i32)))
+                (import "tags" "tag2" (tag (param (ref null $s0))))
             )
             "#,
         )

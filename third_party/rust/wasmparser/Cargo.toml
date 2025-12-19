@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.76.0"
 name = "wasmparser"
-version = "0.225.0"
+version = "0.243.0"
 authors = ["Yury Delendik <ydelendik@mozilla.com>"]
 build = "build.rs"
 exclude = ["benches/*.wasm"]
@@ -37,6 +37,32 @@ repository = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wa
 
 [package.metadata.docs.rs]
 all-features = true
+
+[features]
+component-model = ["dep:semver"]
+default = [
+    "std",
+    "validate",
+    "serde",
+    "features",
+    "component-model",
+    "hash-collections",
+    "simd",
+]
+features = []
+hash-collections = [
+    "dep:hashbrown",
+    "dep:indexmap",
+]
+prefer-btree-collections = []
+serde = [
+    "dep:serde",
+    "indexmap?/serde",
+    "hashbrown?/serde",
+]
+simd = []
+std = ["indexmap?/std"]
+validate = []
 
 [lib]
 name = "wasmparser"
@@ -99,36 +125,15 @@ version = "1.13.0"
 [dev-dependencies.rayon]
 version = "1.3"
 
-[features]
-component-model = ["dep:semver"]
-default = [
-    "std",
-    "validate",
-    "serde",
-    "features",
-    "component-model",
-    "hash-collections",
-    "simd",
-]
-features = []
-hash-collections = [
-    "dep:hashbrown",
-    "dep:indexmap",
-]
-prefer-btree-collections = []
-serde = [
-    "dep:serde",
-    "indexmap?/serde",
-    "hashbrown?/serde",
-]
-simd = []
-std = ["indexmap?/std"]
-validate = []
-
 [lints.clippy]
+allow_attributes_without_reason = "warn"
 clone_on_copy = "warn"
 manual_strip = "warn"
 map_clone = "warn"
+uninlined_format_args = "warn"
+unnecessary_cast = "warn"
+unnecessary_fallible_conversions = "warn"
+unnecessary_mut_passed = "warn"
 unnecessary_to_owned = "warn"
 
 [lints.clippy.all]
@@ -136,4 +141,22 @@ level = "allow"
 priority = -1
 
 [lints.rust]
+deprecated-safe-2024 = "warn"
+keyword_idents_2024 = "warn"
+missing-unsafe-on-extern = "warn"
+rust-2024-guarded-string-incompatible-syntax = "warn"
+rust-2024-incompatible-pat = "warn"
+rust-2024-prelude-collisions = "warn"
+unsafe-attr-outside-unsafe = "warn"
+unsafe-op-in-unsafe-fn = "warn"
 unsafe_code = "deny"
+unstable_features = "warn"
+unused-lifetimes = "warn"
+unused-macro-rules = "warn"
+unused_extern_crates = "warn"
+unused_import_braces = "warn"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+priority = 0
+check-cfg = ["cfg(fuzzing)"]
