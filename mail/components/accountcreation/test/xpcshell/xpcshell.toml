@@ -25,3 +25,5 @@ tags = ["addrbook"]
 
 ["test_remoteAddressBookUtils.js"]
 tags = ["addrbook", "carddav"]
+
+["test_sanitizer.js"]

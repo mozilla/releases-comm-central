@@ -23,12 +23,16 @@ import {
  */
 
 // To debug, set mail.setup.loglevel="All" and kDebug = true.
-var kDebug = false;
+var kDebug = Cu.isInAutomation;
 
 export const Sanitizer = {
   integer(unchecked) {
-    if (typeof unchecked == "number" && !isNaN(unchecked)) {
+    if (Number.isInteger(unchecked)) {
       return unchecked;
+    }
+
+    if (typeof unchecked == "number" && !isNaN(unchecked)) {
+      return Math.trunc(unchecked);
     }
 
     var r = parseInt(unchecked);
@@ -52,6 +56,15 @@ export const Sanitizer = {
     return int;
   },
 
+  /**
+   * Returns the boolean value of the unchecked value if it is a boolean already
+   * or if the string is "true" or "false". Otherwise throws a malformed
+   * exception.
+   *
+   * @param {any} unchecked - The value to ensure to boolean.
+   * @returns {boolean} The boolean value.
+   * @throws {MalformedException}
+   */
   boolean(unchecked) {
     if (typeof unchecked == "boolean") {
       return unchecked;
@@ -206,7 +219,7 @@ export const Sanitizer = {
    * otherwise throw. This allows to translate string enums into integer enums.
    *
    * @param {*} unchecked - The value to check.
-   * @param {object[]} mapping - Associative array. property name is the input
+   * @param {object} mapping - Associative array. property name is the input
    *   value, property value is the output value. E.g. the example above
    *   would be: { foo: 1, bar : 2 }.
    *   Use quotes when you need freaky characters: "baz-" : 3.
