@@ -29,6 +29,7 @@ export const NotificationOpener = {
         });
       } catch {
         // Do nothing, this means the notification was dismissed.
+        return;
       }
     }
     const currentWindow = Services.wm.getMostRecentWindow("mail:3pane");

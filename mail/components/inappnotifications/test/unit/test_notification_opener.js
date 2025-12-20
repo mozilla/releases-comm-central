@@ -265,3 +265,41 @@ add_task(async function test_opensTabWaitTrue() {
 
   MockExternalProtocolService.reset();
 });
+
+add_task(async function test_doesNotOpenWhenRejected() {
+  const { promise, reject } = Promise.withResolvers();
+  const waitForActive = NotificationScheduler.waitForActive;
+  let called = false;
+
+  NotificationScheduler.waitForActive = async () => {
+    called = true;
+    await promise;
+  };
+
+  NotificationOpener.openLink(getMockNotification("donation_tab"), true);
+
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
+  Assert.ok(called, "promise is awaited");
+
+  reject();
+
+  await TestUtils.waitForTick();
+
+  // Wait one second to ensure the notifiation is not shown
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  Assert.equal(
+    MockExternalProtocolService.urls.length,
+    0,
+    "Link was not opened"
+  );
+
+  NotificationScheduler.waitForActive = waitForActive;
+
+  MockExternalProtocolService.reset();
+});
