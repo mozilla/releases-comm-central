@@ -94,7 +94,17 @@ function setMessageCryptoBox(
     encryptedIcon.removeAttribute("src");
   }
 
-  if (signedState) {
+  // For messages without encryption, we don't want to warn
+  // when there is an invalid signature, because that shouldn't be
+  // shown as being worse as a plain message without any signature.
+  // However, if the message contains encryption, we want to avoid
+  // that the user falsely concludes that encrypted means completely
+  // safe and secure. That's why we still remind the user about
+  // bad signatures in encrypted messages.
+  if (
+    signedState &&
+    (encryptedState || !["notok", "mismatch", "unknown"].includes(signedState))
+  ) {
     if (signedState === "notok") {
       // Show the same as mismatch.
       signedState = "mismatch";

@@ -101,8 +101,8 @@ add_task(async function testMessageUTF8() {
     "bodyText should be correct"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "should not show as signed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status unknown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
@@ -127,8 +127,8 @@ add_task(async function testMessageUTF8() {
     "bodyText should be correct"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "should not show as signed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status unknown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),

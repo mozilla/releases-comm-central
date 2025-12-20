@@ -216,8 +216,8 @@ add_task(async function testPartialInlinePGPDecrypt() {
         );
       } else {
         Assert.ok(
-          OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-          "unknown verification icon is shown"
+          OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+          "signed icon should NOT be shown for status unknown"
         );
       }
     }

@@ -164,8 +164,8 @@ add_task(async function testOpenSignedDateMismatch() {
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
-    "signed unknown icon is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status mismatch"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -322,8 +322,8 @@ add_task(async function testOpenForwardedSigned() {
     "message text should be shown"
   );
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage2.document, "unknown"),
-    "signed icon is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status unknown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
@@ -422,8 +422,8 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed unknown icon is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status unknown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -544,8 +544,8 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
 
   Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed unknown icon is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status unknown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -721,8 +721,8 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
   // Note this is an S/MIME signature status, at the time of writing
   // this test, string "mismatch" is used for status "notok".
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
-    "signed icon with a mismatch status is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status mismatch"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -752,8 +752,8 @@ add_task(async function testUncommonContentType() {
   // Note this is an S/MIME signature status, at the time of writing
   // this test, string "mismatch" is used for status "notok".
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
-    "signed icon with a mismatch status is displayed"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status mismatch"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -1107,8 +1107,8 @@ add_task(async function testStrippedSig() {
   );
 
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
-    "should say signed mismatch"
+    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
+    "signed icon should NOT be shown for status mismatch"
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
