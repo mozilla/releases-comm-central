@@ -37,10 +37,16 @@ ALL_PROJECTS = RELEASE_PROMOTION_PROJECTS | TRUNK_PROJECTS | TEMPORARY_PROJECTS
 RUN_ON_PROJECT_ALIASES = {
     # key is alias, value is lambda to test it against
     "all": lambda project: True,
-    "integration": lambda project: (project in INTEGRATION_PROJECTS or project == "toolchains"),
-    "release": lambda project: (project in RELEASE_PROJECTS or project == "toolchains"),
-    "trunk": lambda project: (project in TRUNK_PROJECTS or project == "toolchains"),
-    "trunk-only": lambda project: project in TRUNK_PROJECTS,
+    "integration":  lambda params: (
+        params["project"] in INTEGRATION_PROJECTS or params["project"] == "toolchains"
+    ),
+    "release": lambda params: (
+        release_level(params) == "production" or params["project"] == "toolchains"
+    ),
+    "trunk": lambda params: (
+        params["project"] in TRUNK_PROJECTS or params["project"] == "toolchains"
+    ),
+    "trunk-only": lambda params: params["project"] in TRUNK_PROJECTS,
 }
 
 # gecko_taskgraph.util.scriptworker
