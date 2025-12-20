@@ -70,7 +70,7 @@ def drop_task(config, tasks):
 
     for task in tasks:
         # Do not attempt to run when staging releases on try-comm-central
-        if release_level(config.params["project"]) != "production":
+        if release_level(config.params) != "production":
             continue
 
         if version.is_beta:

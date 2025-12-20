@@ -34,7 +34,7 @@ def format(config, tasks):
                 k,
                 "flatpak envs",
                 **{
-                    "release-level": release_level(config.params["project"]),
+                    "release-level": release_level(config.params),
                     "project": config.params["project"],
                 },
             )

@@ -28,7 +28,7 @@ def add_hardened_sign_config(config, jobs):
 
         dep_job = get_primary_dependency(config, job)
         assert dep_job
-        project_level = release_level(config.params["project"])
+        project_level = release_level(config.params)
         is_shippable = dep_job.attributes.get("shippable", False)
         hardened_signing_type = "developer"
 
