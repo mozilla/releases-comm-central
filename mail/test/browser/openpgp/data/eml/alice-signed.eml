@@ -1,0 +1,22 @@
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Hello world
+From: "Alice Lovelace" <alice@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Message-Id: <0@made.up.invalid>
+Date: Wed, 10 Dec 2025 13:30:23 +0100
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Hello Bob,
+
+can we meet tomorrow?
+
+Alice
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCaTln3wAKCRDyMVUMT0fj
+jkWcAQD15C6LqOfnAYh50+wWc7sXXQ5KxGRik2PCxi2s+yQMPgD9Gq4WpGhHU+b+
+72v6PMGhFt1OcYq/mp+IA6eZWX6N8AU=
+=7FV6
+-----END PGP SIGNATURE-----

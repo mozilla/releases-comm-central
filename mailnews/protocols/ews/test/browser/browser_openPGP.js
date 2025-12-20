@@ -18,24 +18,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-const signed_body = `
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-àèìòù
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEE0qdgEJpR3689Qr1MDieSjyQbTSAFAmZUSBkACgkQDieSjyQb
-TSCUvQgA06lf3Xwhsa7iQrU7kK3COnnoGuRU2OBtLtwjMkV1HEtA/+xNYREqXQgJ
-EmApeXgcBGxKRwnWMwkdDSX3q6++i2tXjiSci3dEmdrwsAqj8nAqFvilDfAAGdpX
-dOnKawhwK8Lqld0va07Oe9zMeyOfTt/HLMKCnsqB1cORR5M9oj2gtmPz1jFbXGs1
-RLP0bPrc1w24ouFM6lBH2lQz5Ldq7mJzc/zraVs4rqr6ddCHj2qmfP1dr4WVV6cz
-QLpgDJR/hRbl5IfWJwv6A3Pry5JbfH+YG9caJWB0z8xm/eP6UetUGjbwvo5PYcgX
-HPoJ0DZpsU867j+BVbGKshTlOfY2BA==
-=zoKi
------END PGP SIGNATURE-----
-`;
-
 var ewsServer;
 var incomingServer;
 
@@ -86,6 +68,16 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(ewsAccount, false);
     Services.logins.removeAllLogins();
   });
+
+  // Import and accept the public key of Alice
+  await OpenPGPTestUtils.importPublicKey(
+    window,
+    new FileUtils.File(
+      getTestFilePath(
+        "../../../../../mail/test/browser/openpgp/data/keys/alice@openpgp.example-0xf231550c4f47e38e-pub.asc"
+      )
+    )
+  );
 });
 
 /**
@@ -99,14 +91,24 @@ add_task(async function test_openpgp_signed() {
     new RemoteFolder(folderName, "root", folderName, null)
   );
 
-  // Create a fake message with the signed body and add it to the newly created
-  // folder.
+  const rfc5322Msg = await IOUtils.readUTF8(
+    new FileUtils.File(
+      getTestFilePath(
+        "../../../../../mail/test/browser/openpgp/data/eml/alice-signed.eml"
+      )
+    ).path
+  );
+
+  const msgBody = rfc5322Msg.substring(
+    rfc5322Msg.indexOf("-----BEGIN PGP SIGNED MESSAGE-----")
+  );
   const msgGen = new MessageGenerator();
   const msg = msgGen.makeMessage({
-    from: ["Tinderbox", "tinderbox@foo.invalid"],
-    to: [["Tinderbox", "tinderbox@foo.invalid"]],
+    from: ["Alice Lovelace", "alice@openpgp.example"],
+    to: [["Alice Lovelace", "alice@openpgp.example>"]],
     subject: "Hello world",
-    body: { body: signed_body },
+    date: new Date("2025-12-10T13:30:23.000+01:00"),
+    body: { body: msgBody },
   });
 
   ewsServer.addMessages(folderName, [msg]);
@@ -151,7 +153,7 @@ add_task(async function test_openpgp_signed() {
   // Check that the message's signature is properly picked up by the OpenPGP
   // integration.
   Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
     "message should be shown as containing a signature"
   );
 });
