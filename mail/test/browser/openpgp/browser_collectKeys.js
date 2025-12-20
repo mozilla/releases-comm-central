@@ -86,11 +86,11 @@ add_task(async function testCollectKeyAttachment() {
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await keycollected;
 
@@ -127,11 +127,11 @@ add_task(async function testCollectAutocrypt() {
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await keycollected;
 
@@ -178,11 +178,11 @@ add_task(async function testCollectAutocryptGossip() {
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed icon is displayed"
+    "signed icon should be shown for status unknown on encrypted message"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
 
   await keycollected;
@@ -231,11 +231,11 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   const db = await CollectedKeysDB.getInstance();
@@ -280,11 +280,11 @@ add_task(async function testSkipDuplicateKeys() {
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   const db = await CollectedKeysDB.getInstance();

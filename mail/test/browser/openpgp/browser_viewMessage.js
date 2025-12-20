@@ -116,11 +116,11 @@ add_task(async function testOpenNoPGPSecurity() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -141,11 +141,11 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
-    "signed verified icon is displayed"
+    "signed icon should be shown for status verified"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -169,7 +169,7 @@ add_task(async function testOpenSignedDateMismatch() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -190,11 +190,11 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -219,11 +219,11 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   // Delete should not work.
@@ -253,11 +253,11 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage2.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(mc2);
 
@@ -298,11 +298,11 @@ add_task(async function testOpenForwardedSigned() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   const newWindowPromise = promise_new_window("mail:messageWindow");
@@ -327,7 +327,7 @@ add_task(async function testOpenForwardedSigned() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   await BrowserTestUtils.closeWindow(mc2);
@@ -369,11 +369,11 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
-    "signed verified icon is displayed"
+    "signed icon should be shown for status verified"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -427,7 +427,7 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -447,7 +447,7 @@ add_task(async function testOpenSignedWithOuterLayer() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -468,11 +468,11 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -492,11 +492,11 @@ add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -516,11 +516,11 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -549,7 +549,7 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   const partsMessageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
@@ -611,7 +611,7 @@ add_task(async function testOpenAndShowAttachedEml() {
   );
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "the outer message is should not show as signed"
+    "signed icon for outer message should NOT be shown"
   );
 
   const partsMessageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
@@ -668,11 +668,11 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed unknown icon is displayed"
+    "signed icon should be shown for status unknown on encrypted message"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -692,11 +692,11 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed unknown icon is displayed"
+    "signed icon should be shown for status unknown on encrypted message"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -726,7 +726,7 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -757,7 +757,7 @@ add_task(async function testUncommonContentType() {
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -777,11 +777,11 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
-    "signed unknown icon is displayed"
+    "signed icon should be shown for status unknown on encrypted message"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
@@ -804,7 +804,7 @@ add_task(async function testUpdateMessageSignature() {
   // Verify current signature acceptance.
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
-    "signed verified icon is displayed"
+    "signed icon should be shown for status verified"
   );
 
   const popupshown = BrowserTestUtils.waitForEvent(
@@ -891,11 +891,11 @@ add_task(async function testOpenSignedInlineWithUTF8() {
   await TestUtils.waitForCondition(
     () =>
       OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unverified"),
-    "signed unverified icon is displayed"
+    "signed icon should be shown for status unverified on encrypted message"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });

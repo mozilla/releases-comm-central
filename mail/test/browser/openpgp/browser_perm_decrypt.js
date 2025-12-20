@@ -126,7 +126,7 @@ add_task(async function testPermanentDecrypt() {
   Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
 
   // Get header of selected message

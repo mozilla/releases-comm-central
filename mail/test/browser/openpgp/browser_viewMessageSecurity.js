@@ -174,11 +174,11 @@ add_task(async function testSmimeOpenPgpSelection() {
   Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
-    "signed verified icon is displayed"
+    "signed icon should be shown for status verified on encrypted message"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
 
   // Delete the two generated messages.
@@ -249,7 +249,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   // Assert that the message was repaired and decrypted.
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
 
   // Delete the message.

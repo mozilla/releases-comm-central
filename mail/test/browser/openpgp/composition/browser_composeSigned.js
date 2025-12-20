@@ -146,7 +146,7 @@ add_task(async function testSignedMessageComposition() {
 
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   // Delete the message so other tests work.
@@ -201,7 +201,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
 
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is not displayed"
+    "encrypted icon should NOT be shown"
   );
 
   // Delete the message so other tests work.

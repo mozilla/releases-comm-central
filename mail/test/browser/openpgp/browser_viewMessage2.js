@@ -104,11 +104,11 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    "signed icon should NOT be shown"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-    "encrypted icon is displayed"
+    "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(msgc);
 });
