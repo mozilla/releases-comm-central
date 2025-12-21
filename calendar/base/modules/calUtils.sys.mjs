@@ -282,13 +282,6 @@ export const cal = {
   registerForShutdownCleanup: shutdownCleanup,
 };
 
-XPCOMUtils.defineLazyPreferenceGetter(
-  cal,
-  "threadingEnabled",
-  "calendar.threading.disabled",
-  false
-);
-
 // Services
 XPCOMUtils.defineLazyServiceGetter(
   cal,

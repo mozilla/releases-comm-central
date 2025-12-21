@@ -136,9 +136,6 @@ pref("calendar.timezone.recent", "[]");
 //     and include a list of locale specific default categories
 pref("calendar.categories.names", "");
 
-// Disable use of worker threads. Restart needed.
-pref("calendar.threading.disabled", false);
-
 // The maximum time in microseconds that a cal.iterate.forEach event can take (soft limit).
 pref("calendar.threading.latency ", 250);
 
