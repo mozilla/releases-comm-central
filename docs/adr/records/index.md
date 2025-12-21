@@ -4,4 +4,5 @@
 0000-adr-template.md
 0001-technology-transitions
 0002-imap-should-not-use-uid-as-message-key
+0004-state-management
 ```
