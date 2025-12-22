@@ -9,7 +9,7 @@ only the Thunderbird repositories are included.
 
 from importlib import import_module
 
-from comm_taskcluster.comm_taskgraph.util.release_level import release_level
+from gecko_taskgraph.util.attributes import release_level
 
 # gecko_taskgraph.util.attributes
 INTEGRATION_PROJECTS = set({})
