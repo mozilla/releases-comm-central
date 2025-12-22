@@ -34,6 +34,11 @@ var gPopAccount,
   gComposeCtrl;
 
 add_setup(async function () {
+  // Temporarily disable the new HTML color picker for this test.
+  // See bug 2007435 for adapting the tests to the new picker behavior.
+  await SpecialPowers.pushPrefEnv({
+    set: [["dom.forms.html_color_picker.enabled", false]],
+  });
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 

@@ -41,6 +41,11 @@ add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
     set: [["ui.prefersReducedMotion", 1]],
   });
+  // Temporarily disable the new HTML color picker for this test.
+  // See bug 2007435 for adapting the tests to the new picker behavior.
+  await SpecialPowers.pushPrefEnv({
+    set: [["dom.forms.html_color_picker.enabled", false]],
+  });
   FolderTreeProperties.resetColors();
 
   const account = MailServices.accounts.createAccount();
