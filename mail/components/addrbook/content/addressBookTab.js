@@ -40,7 +40,10 @@ var addressBookTabType = {
     }
 
     if ("onLoad" in aArgs) {
-      if (this.tab.browser.contentDocument.readyState != "complete") {
+      if (
+        this.tab.browser.contentDocument.readyState != "complete" ||
+        this.tab.browser.contentWindow.location.href == "about:blank"
+      ) {
         this.tab.browser.addEventListener(
           "about-addressbook-ready",
           event => aArgs.onLoad(event, this.tab.browser),

@@ -1109,7 +1109,10 @@ var messageProgressListener = {
       }
     }
 
-    if (browser.contentDocument.readyState != "complete") {
+    if (
+      browser.contentDocument.readyState != "complete" ||
+      browser.contentWindow.location.href == "about:blank"
+    ) {
       await new Promise(resolve => {
         browser.contentWindow.addEventListener("load", resolve, {
           once: true,

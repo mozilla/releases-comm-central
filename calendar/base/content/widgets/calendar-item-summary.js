@@ -352,7 +352,7 @@
      * Update the item details in the UI. To be called when this element is
      * first rendered and when the item changes.
      */
-    updateItemDetails() {
+    async updateItemDetails() {
       if (!this.item) {
         // Setup not complete, do nothing for now.
         return;
@@ -497,7 +497,7 @@
 
       const descriptionText = item.descriptionText?.trim();
       if (descriptionText) {
-        this.updateDescription(descriptionText, item.descriptionHTML);
+        await this.updateDescription(descriptionText, item.descriptionHTML);
       }
 
       const attachments = item.getAttachments();
@@ -670,6 +670,9 @@
               "nsISupportsWeakReference",
             ]),
             onStateChange(webProgress, request, stateFlags) {
+              if (request.URI.spec == "about:blank") {
+                return;
+              }
               if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
                 itemDescription.browsingContext.webProgress.removeProgressListener(this);
                 delete itemDescription._listener;

@@ -89,7 +89,7 @@ async function onLoad() {
   }
 
   // Finish setting up the item summary custom element.
-  itemSummary.updateItemDetails();
+  await itemSummary.updateItemDetails();
 
   updateToolbar();
   updateDialogButtons(item);

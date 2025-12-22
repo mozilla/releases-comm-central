@@ -149,8 +149,9 @@ async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
       return false;
     }
     if (
-      aDetails.contentDocument &&
-      aDetails.contentDocument.readyState != "complete"
+      (aDetails.contentDocument &&
+        aDetails.contentDocument.readyState != "complete") ||
+      aDetails.contentWindow?.location.href == "about:blank"
     ) {
       return false;
     }

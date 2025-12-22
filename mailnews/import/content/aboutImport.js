@@ -1204,7 +1204,7 @@ class CalendarImporterController extends ImporterController {
       const summary = document.createXULElement("calendar-item-summary");
       wrapper.appendChild(summary);
       summary.item = item;
-      summary.updateItemDetails();
+      await summary.updateItemDetails();
 
       const input = document.createElement("input");
       input.type = "checkbox";
