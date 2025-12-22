@@ -48,7 +48,7 @@ async function checkABrowser(browser) {
 
   // Click in the middle of the picker. This should always land on a date and
   // close the picker.
-  const frame = picker.querySelector("#dateTimePopupFrame");
+  const frame = picker.querySelector("#DateTimePickerPanelPopupFrame");
   EventUtils.synthesizeMouseAtCenter(
     frame.contentDocument.querySelector(".days-view td"),
     {},
