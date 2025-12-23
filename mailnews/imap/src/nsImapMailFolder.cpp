@@ -6131,14 +6131,13 @@ NS_IMETHODIMP
 nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
                                        const char* aMsgName,
                                        const nsACString& mailboxName) {
-  nsString progressMsg;
-
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
-  if (NS_SUCCEEDED(rv) && server) {
-    nsCOMPtr<nsIImapServerSink> serverSink = do_QueryInterface(server);
-    if (serverSink) serverSink->GetImapStringByName(aMsgName, progressMsg);
-  }
+  NS_ENSURE_STATE(server);
+
+  nsCOMPtr<nsIImapServerSink> serverSink = do_QueryInterface(server);
+  nsString progressMsg;
+  if (serverSink) serverSink->GetImapStringByName(aMsgName, progressMsg);
   if (progressMsg.IsEmpty())
     IMAPGetStringByName(aMsgName, getter_Copies(progressMsg));
 
