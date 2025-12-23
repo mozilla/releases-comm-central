@@ -6171,7 +6171,7 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
       DisplayStatusMsg(imapUrl, progressMsg);
     }
   }
-  return NS_OK;
+  return rv;
 }
 
 NS_IMETHODIMP
