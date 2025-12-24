@@ -24,7 +24,9 @@ pub use namer::{EntryPointIndex, ExternalTextureNameKey, NameKey, Namer};
 pub use overloads::{Conclusion, MissingSpecialType, OverloadSet, Rule};
 pub use terminator::ensure_block_returns;
 use thiserror::Error;
-pub use type_methods::min_max_float_representable_by;
+pub use type_methods::{
+    concrete_int_scalars, min_max_float_representable_by, vector_size_str, vector_sizes,
+};
 pub use typifier::{compare_types, ResolveContext, ResolveError, TypeResolution};
 
 use crate::non_max_u32::NonMaxU32;
@@ -180,7 +182,7 @@ impl super::AddressSpace {
             crate::AddressSpace::Uniform => Sa::LOAD,
             crate::AddressSpace::Storage { access } => access,
             crate::AddressSpace::Handle => Sa::LOAD,
-            crate::AddressSpace::PushConstant => Sa::LOAD,
+            crate::AddressSpace::Immediate => Sa::LOAD,
             // TaskPayload isn't always writable, but this is checked for elsewhere,
             // when not using multiple payloads and matching the entry payload is checked.
             crate::AddressSpace::TaskPayload => Sa::LOAD | Sa::STORE,
@@ -438,7 +440,18 @@ pub struct GlobalCtx<'a> {
 
 impl GlobalCtx<'_> {
     /// Try to evaluate the expression in `self.global_expressions` using its `handle` and return it as a `u32`.
-    #[allow(dead_code)]
+    #[cfg_attr(
+        not(any(
+            feature = "glsl-in",
+            feature = "spv-in",
+            feature = "wgsl-in",
+            glsl_out,
+            hlsl_out,
+            msl_out,
+            wgsl_out
+        )),
+        allow(dead_code)
+    )]
     pub(super) fn eval_expr_to_u32(
         &self,
         handle: crate::Handle<crate::Expression>,
@@ -461,8 +474,17 @@ impl GlobalCtx<'_> {
         }
     }
 
+    /// Try to evaluate the expression in `self.global_expressions` using its `handle` and return it as a `bool`.
+    #[cfg_attr(not(feature = "wgsl-in"), allow(dead_code))]
+    pub(super) fn eval_expr_to_bool(
+        &self,
+        handle: crate::Handle<crate::Expression>,
+    ) -> Option<bool> {
+        self.eval_expr_to_bool_from(handle, self.global_expressions)
+    }
+
     /// Try to evaluate the expression in the `arena` using its `handle` and return it as a `bool`.
-    #[allow(dead_code)]
+    #[cfg_attr(not(feature = "wgsl-in"), allow(dead_code))]
     pub(super) fn eval_expr_to_bool_from(
         &self,
         handle: crate::Handle<crate::Expression>,
@@ -474,7 +496,7 @@ impl GlobalCtx<'_> {
         }
     }
 
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     pub(crate) fn eval_expr_to_literal(
         &self,
         handle: crate::Handle<crate::Expression>,

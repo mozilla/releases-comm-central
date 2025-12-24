@@ -2752,30 +2752,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "gpu-alloc"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbcd2dba93594b227a1f57ee09b8b9da8892c34d55aa332e034a228d0fe6a171"
-dependencies = [
- "bitflags 2.9.0",
- "gpu-alloc-types",
-]
-
-[[package]]
-name = "gpu-alloc-types"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98ff03b468aa837d70984d55f5d3f846f6ec31fe34bbb97c4f85219caeee1ca4"
-dependencies = [
- "bitflags 2.9.0",
-]
-
-[[package]]
 name = "gpu-allocator"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51255ea7cfaadb6c5f1528d43e92a82acb2b96c43365989a28b2d44ee38f8795"
 dependencies = [
+ "ash",
  "hashbrown 0.16.0",
  "log",
  "presser",
@@ -3827,9 +3809,9 @@ dependencies = [
 
 [[package]]
 name = "metal"
-version = "0.32.0"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00c15a6f673ff72ddcc22394663290f870fb224c1bfce55734a75c414150e605"
+checksum = "c7047791b5bc903b8cd963014b355f71dc9864a9a0b727057676c1dcae5cbc15"
 dependencies = [
  "bitflags 2.9.0",
  "block",
@@ -4272,8 +4254,8 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 
 [[package]]
 name = "naga"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -5438,14 +5420,15 @@ dependencies = [
 
 [[package]]
 name = "ron"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db09040cc89e461f1a265139777a2bde7f8d8c67c4936f700c63ce3e2904d468"
+checksum = "fd490c5b18261893f14449cbd28cb9c0b637aebf161cd77900bfdedaff21ec32"
 dependencies = [
- "base64 0.22.1",
  "bitflags 2.9.0",
+ "once_cell",
  "serde",
  "serde_derive",
+ "typeid",
  "unicode-ident",
 ]
 
@@ -6555,6 +6538,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfc9d8d4e8c94375df96d6ac01a18c263d3d529bc4a53a207580ae9bc30e87c1"
 
 [[package]]
+name = "typeid"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc7d623258602320d5c55d1bc22793b57daff0ec7efc270ea7d55ce1d5f5471c"
+
+[[package]]
 name = "typenum"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7080,8 +7069,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -7111,24 +7100,24 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core-deps-apple"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "wgpu-hal",
 ]
 
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "wgpu-hal",
 ]
 
 [[package]]
 name = "wgpu-hal"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -7140,7 +7129,6 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "core-graphics-types 0.2.0",
- "gpu-alloc",
  "gpu-allocator",
  "gpu-descriptor",
  "hashbrown 0.16.0",
@@ -7165,8 +7153,8 @@ dependencies = [
 
 [[package]]
 name = "wgpu-types"
-version = "27.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=9a975b24deb379b31a8a7cb999d2da5f3227a91a#9a975b24deb379b31a8a7cb999d2da5f3227a91a"
+version = "28.0.0"
+source = "git+https://github.com/gfx-rs/wgpu?rev=3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc#3f02781bb5a0a1fe1922ea36c9bdacf9792abcbc"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",

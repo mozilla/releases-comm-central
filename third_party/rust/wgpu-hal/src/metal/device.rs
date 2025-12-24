@@ -2,8 +2,6 @@ use alloc::{borrow::ToOwned as _, sync::Arc, vec::Vec};
 use core::{ptr::NonNull, sync::atomic};
 use std::{thread, time};
 
-use parking_lot::Mutex;
-
 use super::{conv, PassthroughShader};
 use crate::auxil::map_naga_stage;
 use crate::metal::ShaderModuleSource;
@@ -215,10 +213,9 @@ impl super::Device {
                 let library = self
                     .shared
                     .device
-                    .lock()
                     .new_library_with_source(source.as_ref(), &options)
                     .map_err(|err| {
-                        log::warn!("Naga generated shader:\n{source}");
+                        log::debug!("Naga generated shader:\n{source}");
                         crate::PipelineError::Linkage(stage_bit, format!("Metal: {err}"))
                     })?;
 
@@ -362,7 +359,7 @@ impl super::Device {
         super::Buffer { raw, size }
     }
 
-    pub fn raw_device(&self) -> &Mutex<metal::Device> {
+    pub fn raw_device(&self) -> &metal::Device {
         &self.shared.device
     }
 }
@@ -386,7 +383,7 @@ impl crate::Device for super::Device {
         //TODO: HazardTrackingModeUntracked
 
         objc::rc::autoreleasepool(|| {
-            let raw = self.shared.device.lock().new_buffer(desc.size, options);
+            let raw = self.shared.device.new_buffer(desc.size, options);
             if let Some(label) = desc.label {
                 raw.set_label(label);
             }
@@ -468,7 +465,7 @@ impl crate::Device for super::Device {
             descriptor.set_usage(conv::map_texture_usage(desc.format, desc.usage));
             descriptor.set_storage_mode(mtl_storage_mode);
 
-            let raw = self.shared.device.lock().new_texture(&descriptor);
+            let raw = self.shared.device.new_texture(&descriptor);
             if raw.as_ptr().is_null() {
                 return Err(crate::DeviceError::OutOfMemory);
             }
@@ -620,7 +617,7 @@ impl crate::Device for super::Device {
             if self.features.contains(wgt::Features::TEXTURE_BINDING_ARRAY) {
                 descriptor.set_support_argument_buffers(true);
             }
-            let raw = self.shared.device.lock().new_sampler(&descriptor);
+            let raw = self.shared.device.new_sampler(&descriptor);
 
             self.counters.samplers.add(1);
 
@@ -687,31 +684,15 @@ impl crate::Device for super::Device {
         });
         let mut bind_group_infos = arrayvec::ArrayVec::new();
 
-        // First, place the push constants
-        let mut total_push_constants = 0;
+        // First, place the immediates
         for info in stage_data.iter_mut() {
-            for pcr in desc.push_constant_ranges {
-                if pcr.stages.contains(map_naga_stage(info.stage)) {
-                    debug_assert_eq!(pcr.range.end % 4, 0);
-                    info.pc_limit = (pcr.range.end / 4).max(info.pc_limit);
-                }
-            }
+            info.pc_limit = desc.immediate_size;
 
-            // round up the limits alignment to 4, so that it matches MTL compiler logic
-            const LIMIT_MASK: u32 = 3;
-            //TODO: figure out what and how exactly does the alignment. Clearly, it's not
-            // straightforward, given that value of 2 stays non-aligned.
-            if info.pc_limit > LIMIT_MASK {
-                info.pc_limit = (info.pc_limit + LIMIT_MASK) & !LIMIT_MASK;
-            }
-
-            // handle the push constant buffer assignment and shader overrides
+            // handle the immediate data buffer assignment and shader overrides
             if info.pc_limit != 0 {
                 info.pc_buffer = Some(info.counters.buffers);
                 info.counters.buffers += 1;
             }
-
-            total_push_constants = total_push_constants.max(info.pc_limit);
         }
 
         // Second, place the described resources
@@ -820,8 +801,8 @@ impl crate::Device for super::Device {
             }
         }
 
-        let push_constants_infos = stage_data.map_ref(|info| {
-            info.pc_buffer.map(|buffer_index| super::PushConstantsInfo {
+        let immediates_infos = stage_data.map_ref(|info| {
+            info.pc_buffer.map(|buffer_index| super::ImmediateDataInfo {
                 count: info.pc_limit,
                 buffer_index,
             })
@@ -830,7 +811,7 @@ impl crate::Device for super::Device {
         let total_counters = stage_data.map_ref(|info| info.counters.clone());
 
         let per_stage_map = stage_data.map(|info| naga::back::msl::EntryPointResources {
-            push_constant_buffer: info
+            immediates_buffer: info
                 .pc_buffer
                 .map(|buffer_index| buffer_index as naga::back::msl::Slot),
             sizes_buffer: info
@@ -843,9 +824,9 @@ impl crate::Device for super::Device {
 
         Ok(super::PipelineLayout {
             bind_group_infos,
-            push_constants_infos,
+            immediates_infos,
             total_counters,
-            total_push_constants,
+            total_immediates: desc.immediate_size,
             per_stage_map,
         })
     }
@@ -891,7 +872,7 @@ impl crate::Device for super::Device {
                         let uses = conv::map_resource_usage(&layout.ty);
 
                         // Create argument buffer for this array
-                        let buffer = self.shared.device.lock().new_buffer(
+                        let buffer = self.shared.device.new_buffer(
                             8 * count as u64,
                             MTLResourceOptions::HazardTrackingModeUntracked
                                 | MTLResourceOptions::StorageModeShared,
@@ -1073,8 +1054,8 @@ impl crate::Device for super::Device {
                 num_workgroups,
             } => {
                 let options = metal::CompileOptions::new();
-                // Obtain the locked device from shared
-                let device = self.shared.device.lock();
+                // Obtain the device from shared
+                let device = &self.shared.device;
                 let library = device
                     .new_library_with_source(source, &options)
                     .map_err(|e| crate::ShaderError::Compilation(format!("MSL: {e:?}")))?;
@@ -1233,7 +1214,7 @@ impl crate::Device for super::Device {
                         }
 
                         vs_info = Some(super::PipelineStageInfo {
-                            push_constants: desc.layout.push_constants_infos.vs,
+                            immediates: desc.layout.immediates_infos.vs,
                             sizes_slot: desc.layout.per_stage_map.vs.sizes_buffer,
                             sized_bindings: vs.sized_bindings,
                             vertex_buffer_mappings,
@@ -1326,7 +1307,7 @@ impl crate::Device for super::Device {
                             );
                         }
                         ts_info = Some(super::PipelineStageInfo {
-                            push_constants: desc.layout.push_constants_infos.ts,
+                            immediates: desc.layout.immediates_infos.ts,
                             sizes_slot: desc.layout.per_stage_map.ts.sizes_buffer,
                             sized_bindings: ts.sized_bindings,
                             vertex_buffer_mappings: vec![],
@@ -1355,7 +1336,7 @@ impl crate::Device for super::Device {
                             );
                         }
                         ms_info = Some(super::PipelineStageInfo {
-                            push_constants: desc.layout.push_constants_infos.ms,
+                            immediates: desc.layout.immediates_infos.ms,
                             sizes_slot: desc.layout.per_stage_map.ms.sizes_buffer,
                             sized_bindings: ms.sized_bindings,
                             vertex_buffer_mappings: vec![],
@@ -1398,7 +1379,7 @@ impl crate::Device for super::Device {
                     }
 
                     Some(super::PipelineStageInfo {
-                        push_constants: desc.layout.push_constants_infos.fs,
+                        immediates: desc.layout.immediates_infos.fs,
                         sizes_slot: desc.layout.per_stage_map.fs.sizes_buffer,
                         sized_bindings: fs.sized_bindings,
                         vertex_buffer_mappings: vec![],
@@ -1459,11 +1440,7 @@ impl crate::Device for super::Device {
                     }
 
                     let ds_descriptor = create_depth_stencil_desc(ds);
-                    let raw = self
-                        .shared
-                        .device
-                        .lock()
-                        .new_depth_stencil_state(&ds_descriptor);
+                    let raw = self.shared.device.new_depth_stencil_state(&ds_descriptor);
                     Some((raw, ds.bias))
                 }
                 None => None,
@@ -1496,10 +1473,10 @@ impl crate::Device for super::Device {
             // Create the pipeline from descriptor
             let raw = match descriptor {
                 MetalGenericRenderPipelineDescriptor::Standard(d) => {
-                    self.shared.device.lock().new_render_pipeline_state(&d)
+                    self.shared.device.new_render_pipeline_state(&d)
                 }
                 MetalGenericRenderPipelineDescriptor::Mesh(d) => {
-                    self.shared.device.lock().new_mesh_render_pipeline_state(&d)
+                    self.shared.device.new_mesh_render_pipeline_state(&d)
                 }
             }
             .map_err(|e| {
@@ -1585,7 +1562,7 @@ impl crate::Device for super::Device {
 
             let cs_info = super::PipelineStageInfo {
                 library: Some(cs.library),
-                push_constants: desc.layout.push_constants_infos.cs,
+                immediates: desc.layout.immediates_infos.cs,
                 sizes_slot: desc.layout.per_stage_map.cs.sizes_buffer,
                 sized_bindings: cs.sized_bindings,
                 vertex_buffer_mappings: vec![],
@@ -1600,7 +1577,6 @@ impl crate::Device for super::Device {
             let raw = self
                 .shared
                 .device
-                .lock()
                 .new_compute_pipeline_state(&descriptor)
                 .map_err(|e| {
                     crate::PipelineError::Linkage(
@@ -1637,7 +1613,7 @@ impl crate::Device for super::Device {
                     let size = desc.count as u64 * crate::QUERY_SIZE;
                     let options = MTLResourceOptions::empty();
                     //TODO: HazardTrackingModeUntracked
-                    let raw_buffer = self.shared.device.lock().new_buffer(size, options);
+                    let raw_buffer = self.shared.device.new_buffer(size, options);
                     if let Some(label) = desc.label {
                         raw_buffer.set_label(label);
                     }
@@ -1649,7 +1625,7 @@ impl crate::Device for super::Device {
                 }
                 wgt::QueryType::Timestamp => {
                     let size = desc.count as u64 * crate::QUERY_SIZE;
-                    let device = self.shared.device.lock();
+                    let device = &self.shared.device;
                     let destination_buffer = device.new_buffer(size, MTLResourceOptions::empty());
 
                     let csb_desc = metal::CounterSampleBufferDescriptor::new();
@@ -1695,13 +1671,13 @@ impl crate::Device for super::Device {
     }
 
     unsafe fn destroy_query_set(&self, _set: super::QuerySet) {
-        self.counters.query_sets.add(1);
+        self.counters.query_sets.sub(1);
     }
 
     unsafe fn create_fence(&self) -> DeviceResult<super::Fence> {
         self.counters.fences.add(1);
         let shared_event = if self.shared.private_caps.supports_shared_event {
-            Some(self.shared.device.lock().new_shared_event())
+            Some(self.shared.device.new_shared_event())
         } else {
             None
         };
@@ -1765,9 +1741,9 @@ impl crate::Device for super::Device {
         if !self.shared.private_caps.supports_capture_manager {
             return false;
         }
-        let device = self.shared.device.lock();
+        let device = &self.shared.device;
         let shared_capture_manager = metal::CaptureManager::shared();
-        let default_capture_scope = shared_capture_manager.new_capture_scope_with_device(&device);
+        let default_capture_scope = shared_capture_manager.new_capture_scope_with_device(device);
         shared_capture_manager.set_default_capture_scope(&default_capture_scope);
         shared_capture_manager.start_capture_with_scope(&default_capture_scope);
         default_capture_scope.begin_scope();

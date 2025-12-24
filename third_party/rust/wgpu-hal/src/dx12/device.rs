@@ -362,7 +362,7 @@ impl super::Device {
 
                     (source, entry_point)
                 };
-                log::info!(
+                log::debug!(
                     "Naga generated shader for {entry_point:?} at {naga_stage:?}:\n{source}"
                 );
 
@@ -867,7 +867,7 @@ impl crate::Device for super::Device {
         use naga::back::hlsl;
         // Pipeline layouts are implemented as RootSignature for D3D12.
         //
-        // Push Constants are implemented as root constants.
+        // Immediates are implemented as root constants.
         //
         // Each bind group layout will be one table entry of the root signature.
         // We have the additional restriction that SRV/CBV/UAV and samplers need to be
@@ -908,20 +908,12 @@ impl crate::Device for super::Device {
         let mut bind_srv = hlsl::BindTarget::default();
         let mut bind_uav = hlsl::BindTarget::default();
         let mut parameters = Vec::new();
-        let mut push_constants_target = None;
+        let mut immediates_target = None;
         let mut root_constant_info = None;
 
-        let mut pc_start = u32::MAX;
-        let mut pc_end = u32::MIN;
-
-        for pc in desc.push_constant_ranges.iter() {
-            pc_start = pc_start.min(pc.range.start);
-            pc_end = pc_end.max(pc.range.end);
-        }
-
-        if pc_start != u32::MAX && pc_end != u32::MIN {
+        if desc.immediate_size != 0 {
             let parameter_index = parameters.len();
-            let size = (pc_end - pc_start) / 4;
+            let size = desc.immediate_size / 4;
             parameters.push(Direct3D12::D3D12_ROOT_PARAMETER {
                 ParameterType: Direct3D12::D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
                 Anonymous: Direct3D12::D3D12_ROOT_PARAMETER_0 {
@@ -937,9 +929,9 @@ impl crate::Device for super::Device {
             bind_cbv.register += 1;
             root_constant_info = Some(super::RootConstantInfo {
                 root_index: parameter_index as u32,
-                range: (pc_start / 4)..(pc_end / 4),
+                range: 0..size,
             });
-            push_constants_target = Some(binding);
+            immediates_target = Some(binding);
 
             bind_cbv.space += 1;
         }
@@ -1333,7 +1325,14 @@ impl crate::Device for super::Device {
                 ShaderVisibility: Direct3D12::D3D12_SHADER_VISIBILITY_ALL, // really needed for VS and CS only,
             });
             let binding = bind_cbv;
-            bind_cbv.register += 1;
+            // This is the last time we use this, but lets increment
+            // it so if we add more later, the value behaves correctly.
+
+            // This is an allow as it doesn't trigger on 1.82, hal's MSRV.
+            #[allow(unused_assignments)]
+            {
+                bind_cbv.register += 1;
+            }
             (Some(parameter_index as u32), Some(binding))
         } else {
             (None, None)
@@ -1481,7 +1480,7 @@ impl crate::Device for super::Device {
                 binding_map,
                 fake_missing_bindings: false,
                 special_constants_binding,
-                push_constants_target,
+                immediates_target,
                 dynamic_storage_buffer_offsets_targets,
                 zero_initialize_workgroup_memory: true,
                 restrict_indexing: true,
@@ -1953,8 +1952,7 @@ impl crate::Device for super::Device {
         };
         let flags = Direct3D12::D3D12_PIPELINE_STATE_FLAG_NONE;
 
-        let mut view_instancing =
-            core::pin::pin!(ArrayVec::<Direct3D12::D3D12_VIEW_INSTANCE_LOCATION, 32>::new());
+        let mut view_instancing = ArrayVec::<Direct3D12::D3D12_VIEW_INSTANCE_LOCATION, 32>::new();
         if let Some(mask) = desc.multiview_mask {
             let mask = mask.get();
             // This array is just what _could_ be rendered to. We actually apply the mask at
@@ -1968,6 +1966,9 @@ impl crate::Device for super::Device {
                 });
             }
         }
+
+        // Borrow view instancing slice, so we can be sure that it won't be moved while we have pointers into this buffer.
+        let view_instancing_slice = view_instancing.as_slice();
 
         let mut stream_desc = RenderPipelineStateStreamDesc {
             // Shared by vertex and mesh pipelines
@@ -1987,10 +1988,10 @@ impl crate::Device for super::Device {
             node_mask: 0,
             cached_pso,
             flags,
-            view_instancing: if !view_instancing.is_empty() {
+            view_instancing: if !view_instancing_slice.is_empty() {
                 Some(Direct3D12::D3D12_VIEW_INSTANCING_DESC {
-                    ViewInstanceCount: view_instancing.len() as u32,
-                    pViewInstanceLocations: view_instancing.as_ptr(),
+                    ViewInstanceCount: view_instancing_slice.len() as u32,
+                    pViewInstanceLocations: view_instancing_slice.as_ptr(),
                     // This lets us hide/mask certain values later, at renderpass creation time.
                     Flags: Direct3D12::D3D12_VIEW_INSTANCING_FLAG_ENABLE_VIEW_INSTANCE_MASKING,
                 })

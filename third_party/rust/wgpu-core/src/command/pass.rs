@@ -1,6 +1,6 @@
 //! Generic pass functions that both compute and render passes need.
 
-use crate::binding_model::{BindError, BindGroup, PushConstantUploadError};
+use crate::binding_model::{BindError, BindGroup, ImmediateUploadError};
 use crate::command::bind::Binder;
 use crate::command::encoder::EncodingState;
 use crate::command::memory_init::SurfacesInDiscardState;
@@ -74,13 +74,10 @@ where
         + From<DestroyedResourceError>
         + From<BindError>,
 {
-    if bind_group.is_none() {
-        api_log!("Pass::set_bind_group {index} None");
+    if let Some(ref bind_group) = bind_group {
+        api_log!("Pass::set_bind_group {index} {}", bind_group.error_ident());
     } else {
-        api_log!(
-            "Pass::set_bind_group {index} {}",
-            bind_group.as_ref().unwrap().error_ident()
-        );
+        api_log!("Pass::set_bind_group {index} None");
     }
 
     let max_bind_groups = state.base.device.limits.max_bind_groups;
@@ -202,59 +199,45 @@ pub(super) fn change_pipeline_layout<E, F: FnOnce()>(
 where
     E: From<DestroyedResourceError>,
 {
-    if state.binder.pipeline_layout.is_none()
-        || !state
-            .binder
-            .pipeline_layout
-            .as_ref()
-            .unwrap()
-            .is_equal(pipeline_layout)
+    if state
+        .binder
+        .change_pipeline_layout(pipeline_layout, late_sized_buffer_groups)
     {
-        state
-            .binder
-            .change_pipeline_layout(pipeline_layout, late_sized_buffer_groups);
-
         f();
 
-        let non_overlapping =
-            super::bind::compute_nonoverlapping_ranges(&pipeline_layout.push_constant_ranges);
-
-        // Clear push constant ranges
-        for range in non_overlapping {
-            let offset = range.range.start;
-            let size_bytes = range.range.end - offset;
-            super::push_constant_clear(offset, size_bytes, |clear_offset, clear_data| unsafe {
-                state.base.raw_encoder.set_push_constants(
+        super::immediates_clear(
+            0,
+            pipeline_layout.immediate_size,
+            |clear_offset, clear_data| unsafe {
+                state.base.raw_encoder.set_immediates(
                     pipeline_layout.raw(),
-                    range.stages,
                     clear_offset,
                     clear_data,
                 );
-            });
-        }
+            },
+        );
     }
     Ok(())
 }
 
-pub(crate) fn set_push_constant<E, F: FnOnce(&[u32])>(
+pub(crate) fn set_immediates<E, F: FnOnce(&[u32])>(
     state: &mut PassState,
-    push_constant_data: &[u32],
-    stages: wgt::ShaderStages,
+    immediates_data: &[u32],
     offset: u32,
     size_bytes: u32,
     values_offset: Option<u32>,
     f: F,
 ) -> Result<(), E>
 where
-    E: From<PushConstantUploadError> + From<InvalidValuesOffset> + From<MissingPipeline>,
+    E: From<ImmediateUploadError> + From<InvalidValuesOffset> + From<MissingPipeline>,
 {
-    api_log!("Pass::set_push_constants");
+    api_log!("Pass::set_immediates");
 
     let values_offset = values_offset.ok_or(InvalidValuesOffset)?;
 
     let end_offset_bytes = offset + size_bytes;
-    let values_end_offset = (values_offset + size_bytes / wgt::PUSH_CONSTANT_ALIGNMENT) as usize;
-    let data_slice = &push_constant_data[(values_offset as usize)..values_end_offset];
+    let values_end_offset = (values_offset + size_bytes / wgt::IMMEDIATE_DATA_ALIGNMENT) as usize;
+    let data_slice = &immediates_data[(values_offset as usize)..values_end_offset];
 
     let pipeline_layout = state
         .binder
@@ -262,7 +245,7 @@ where
         .as_ref()
         .ok_or(MissingPipeline)?;
 
-    pipeline_layout.validate_push_constant_ranges(stages, offset, end_offset_bytes)?;
+    pipeline_layout.validate_immediates_ranges(offset, end_offset_bytes)?;
 
     f(data_slice);
 
@@ -270,7 +253,7 @@ where
         state
             .base
             .raw_encoder
-            .set_push_constants(pipeline_layout.raw(), stages, offset, data_slice)
+            .set_immediates(pipeline_layout.raw(), offset, data_slice)
     }
     Ok(())
 }
