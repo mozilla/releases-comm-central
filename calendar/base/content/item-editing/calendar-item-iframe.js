@@ -1066,6 +1066,7 @@ function toggleKeepDuration() {
   // To make the "keep" attribute persistent, it mustn't be removed when in
   // false state (bug 15232).
   kdb.setAttribute("keep", keepAttribute ? "false" : "true");
+  kdb.setAttribute("aria-pressed", keepAttribute ? "false" : "true");
   document.getElementById("link-image-top").setAttribute("keep", !keepAttribute);
 }
 
