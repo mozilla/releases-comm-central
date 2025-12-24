@@ -13,16 +13,20 @@ function test_listener_set() {
   let listener1Id = null;
   let listener2Id = null;
 
-  const listener1 = cal.createAdapter("calIOperationListener", {
+  /** @type {calIOperationListener} */
+  const listener1 = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
     onOperationComplete(aCalendar, aStatus, aOpType, aId) {
       listener1Id = aId;
     },
-  });
-  const listener2 = cal.createAdapter("calIOperationListener", {
+  };
+  /** @type {calIOperationListener} */
+  const listener2 = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
     onOperationComplete(aCalendar, aStatus, aOpType, aId) {
       listener2Id = aId;
     },
-  });
+  };
 
   set.add(listener1);
   set.add(listener2);
@@ -39,7 +43,9 @@ function test_listener_set() {
   // Re-adding the listener may lead to an endless loop if the notify
   // function uses a live list of observers.
   let called = 0;
-  const listener3 = cal.createAdapter("calIOperationListener", {
+  /** @type {calIOperationListener} */
+  const listener3 = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
     onOperationComplete() {
       set.delete(listener3);
       if (called == 0) {
@@ -47,7 +53,7 @@ function test_listener_set() {
       }
       called++;
     },
-  });
+  };
 
   set.add(listener3);
   set.notify("onOperationComplete", [null, null, null, "test3", null]);
@@ -61,22 +67,26 @@ function test_observer_set() {
   let listenerCountEnd1 = 0;
   let listenerCountEnd2 = 0;
 
-  const listener1 = cal.createAdapter("calIObserver", {
+  /** @type {calIObserver} */
+  const listener1 = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
     onStartBatch() {
       listenerCountBegin1++;
     },
     onEndBatch() {
       listenerCountEnd1++;
     },
-  });
-  const listener2 = cal.createAdapter("calIObserver", {
+  };
+  /** @type {calIObserver} */
+  const listener2 = {
+    QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
     onStartBatch() {
       listenerCountBegin2++;
     },
     onEndBatch() {
       listenerCountEnd2++;
     },
-  });
+  };
 
   set.add(listener1);
   equal(listenerCountBegin1, 0);

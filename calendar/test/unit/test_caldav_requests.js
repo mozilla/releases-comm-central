@@ -152,7 +152,8 @@ class CalDavServer {
 
   waitForLoad(aCalendar) {
     return new Promise((resolve, reject) => {
-      const observer = cal.createAdapter(Ci.calIObserver, {
+      /** @type {calIObserver} */
+      const observer = {
         onLoad() {
           const uncached = aCalendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject;
           aCalendar.removeObserver(observer);
@@ -163,7 +164,7 @@ class CalDavServer {
             reject(uncached._lastMessage);
           }
         },
-      });
+      };
       aCalendar.addObserver(observer);
     });
   }

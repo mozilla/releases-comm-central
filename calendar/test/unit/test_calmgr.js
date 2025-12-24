@@ -71,13 +71,14 @@ add_test(function test_builtin_registration() {
   const calmgrObserver = new CalendarManagerObserver();
 
   let readOnly = false;
-  const calendarObserver = cal.createAdapter(Ci.calIObserver, {
+  /** @type {calIObserver} */
+  const calendarObserver = {
     onPropertyChanged(aCalendar, aName, aValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
       readOnly = aValue;
     },
-  });
+  };
 
   memory.addObserver(calendarObserver);
   cal.manager.addObserver(calmgrObserver);
@@ -239,16 +240,18 @@ add_test(function test_calobserver() {
   let calcounter, allcounter;
 
   // These observers will end up counting calls which we will use later on
-  const calobs = cal.createAdapter(Ci.calIObserver, {
+  /** @type {calIObserver} */
+  const calobs = {
     onAddItem: () => calcounter.addItem++,
     onModifyItem: () => calcounter.modifyItem++,
     onDeleteItem: () => calcounter.deleteItem++,
-  });
-  const allobs = cal.createAdapter(Ci.calIObserver, {
+  };
+  /** @type {calIObserver} */
+  const allobs = {
     onAddItem: () => allcounter.addItem++,
     onModifyItem: () => allcounter.modifyItem++,
     onDeleteItem: () => allcounter.deleteItem++,
-  });
+  };
 
   // Set up counters and observers
   resetCounters();

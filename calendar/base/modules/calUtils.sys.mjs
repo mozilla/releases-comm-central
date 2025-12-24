@@ -127,63 +127,6 @@ export const cal = {
   },
 
   /**
-   * Create an adapter for the given interface. If passed, methods will be
-   * added to the template object, otherwise a new object will be returned.
-   *
-   * @param {(object|string)} iface - The interface to adapt, either using
-   *   Components.interfaces or the name as a string.
-   * @param {?object} template - (optional) A template object to extend.
-   * @returns {object} If passed the adapted template object, otherwise a clean
-   *   adapter.
-   *
-   * Currently supported interfaces are:
-   *  - calIObserver
-   *  - calICalendarManagerObserver
-   *  - calIOperationListener
-   *  - calICompositeObserver
-   */
-  createAdapter(iface, template) {
-    let methods;
-    const adapter = template || {};
-    switch (iface.name || iface) {
-      case "calIObserver":
-        methods = [
-          "onStartBatch",
-          "onEndBatch",
-          "onLoad",
-          "onAddItem",
-          "onModifyItem",
-          "onDeleteItem",
-          "onError",
-          "onPropertyChanged",
-          "onPropertyDeleting",
-        ];
-        break;
-      case "calICalendarManagerObserver":
-        methods = ["onCalendarRegistered", "onCalendarUnregistering", "onCalendarDeleting"];
-        break;
-      case "calIOperationListener":
-        methods = ["onGetResult", "onOperationComplete"];
-        break;
-      case "calICompositeObserver":
-        methods = ["onCalendarAdded", "onCalendarRemoved", "onDefaultCalendarChanged"];
-        break;
-      default:
-        methods = [];
-        break;
-    }
-
-    for (const method of methods) {
-      if (!(method in template)) {
-        adapter[method] = function () {};
-      }
-    }
-    adapter.QueryInterface = ChromeUtils.generateQI([iface]);
-
-    return adapter;
-  },
-
-  /**
    * Make a UUID, without enclosing brackets, e.g. 0d3950fd-22e5-4508-91ba-0489bdac513f
    *
    * @returns {string} The generated UUID

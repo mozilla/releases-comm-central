@@ -514,9 +514,6 @@ interface calICompositeCalendar : calICalendar
 /**
  * Make a more general nsIObserverService2 and friends to support
  * nsISupports data and use that instead?
- *
- * NOTE: When adding methods here, please also add them in calUtils.sys.mjs's
- * createAdapter() method.
  */
 [scriptable, uuid(2953c9b2-2c73-11d9-80b6-00045ace3b8d)]
 interface calIObserver : nsISupports
@@ -556,9 +553,6 @@ interface calICompositeObserver : calIObserver
  * Async operations are called back via this interface.  If you know that your
  * object is not going to get called back for either of these methods, having
  * them return NS_ERROR_NOT_IMPLEMENTED is reasonable.
- *
- * NOTE: When adding methods here, please also add them in calUtils.sys.mjs's
- * createAdapter() method.
  */
 [scriptable, uuid(ed3d87d8-2c77-11d9-8f5f-00045ace3b8d)]
 interface calIOperationListener : nsISupports
