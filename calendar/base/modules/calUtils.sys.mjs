@@ -138,28 +138,6 @@ export const cal = {
   },
 
   /**
-   * Adds an observer listening for the topic.
-   *
-   * @param {Function} func - Function to execute on topic.
-   * @param {string} topic - Topic to listen for.
-   * @param {boolean} oneTime - Whether to listen only once.
-   */
-  addObserver(func, topic, oneTime) {
-    const observer = {
-      // nsIObserver:
-      observe(subject, topic_, data) {
-        if (topic == topic_) {
-          if (oneTime) {
-            Services.obs.removeObserver(this, topic);
-          }
-          func(subject, topic, data);
-        }
-      },
-    };
-    Services.obs.addObserver(observer, topic);
-  },
-
-  /**
    * Wraps an instance, making sure the xpcom wrapped object is used.
    *
    * @param {object} aObj - The object under consideration.
@@ -204,25 +182,6 @@ export const cal = {
   unwrapInstance(aObj) {
     return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
   },
-
-  /**
-   * Adds an xpcom shutdown observer.
-   *
-   * @param {Function} func - Function to execute.
-   */
-  addShutdownObserver(func) {
-    cal.addObserver(func, "xpcom-shutdown", true /* one time */);
-  },
-
-  /**
-   * Due to wrapped JS objects, some objects may have cyclic references.
-   * You can register properties of objects to be cleaned up on XPCOM-shutdown.
-   *
-   * @param {object} obj - Object.
-   * @param {?object} prop - Property to be deleted on shutdown (if null,
-   *   |object| will be deleted).
-   */
-  registerForShutdownCleanup: shutdownCleanup,
 };
 
 // Services
@@ -289,25 +248,6 @@ ChromeUtils.defineESModuleGetters(cal, {
   window: "resource:///modules/calendar/utils/calWindowUtils.sys.mjs",
   xml: "resource:///modules/calendar/utils/calXMLUtils.sys.mjs",
 });
-
-// will be used to clean up global objects on shutdown
-// some objects have cyclic references due to wrappers
-function shutdownCleanup(obj, prop) {
-  if (!shutdownCleanup.mEntries) {
-    shutdownCleanup.mEntries = [];
-    cal.addShutdownObserver(() => {
-      for (const entry of shutdownCleanup.mEntries) {
-        if (entry.mProp) {
-          delete entry.mObj[entry.mProp];
-        } else {
-          delete entry.mObj;
-        }
-      }
-      delete shutdownCleanup.mEntries;
-    });
-  }
-  shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
-}
 
 /**
  * This is the makeQI function from XPCOMUtils.sys.mjs, it is separate to avoid

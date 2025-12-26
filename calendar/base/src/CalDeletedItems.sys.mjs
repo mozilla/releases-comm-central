@@ -127,7 +127,14 @@ CalDeletedItems.prototype = {
     // We will not init the statements now, we can still do that the
     // first time this interface is used. What we should do though is
     // to clean up at shutdown
-    cal.addShutdownObserver(this.shutdown.bind(this));
+    const self = this;
+    const observer = {
+      observe(subject, topic) {
+        Services.obs.removeObserver(this, topic);
+        self.shutdown();
+      },
+    };
+    Services.obs.addObserver(observer, "xpcom-shutdown");
   },
 
   observe(aSubject, aTopic) {
