@@ -1188,9 +1188,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
     const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
     const params = this.db.prepareAsyncParams(array);
     params.bindByName("key", propName);
-    const wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
-    if (wPropValue) {
-      params.bindByName("value", wPropValue.nativeTime);
+    if (propValue instanceof Ci.calIDateTime) {
+      params.bindByName("value", propValue.nativeTime);
     } else {
       try {
         params.bindByName("value", propValue);
@@ -1214,9 +1213,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
     const params = this.db.prepareAsyncParams(array);
     params.bindByName("key1", propName);
     params.bindByName("key2", paramName);
-    const wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
-    if (wPropValue) {
-      params.bindByName("value", wPropValue.nativeTime);
+    if (propValue instanceof Ci.calIDateTime) {
+      params.bindByName("value", propValue.nativeTime);
     } else {
       try {
         params.bindByName("value", propValue);

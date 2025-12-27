@@ -454,7 +454,7 @@ function onLoad() {
       // Deal with the rules
       if (rules.length > 0) {
         // We only handle 1 rule currently
-        rule = cal.wrapInstance(rules[0], Ci.calIRecurrenceRule);
+        rule = rules[0]?.QueryInterface(Ci.calIRecurrenceRule);
       }
     } catch (ex) {
       console.error(ex);

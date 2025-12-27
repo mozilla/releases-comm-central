@@ -580,7 +580,7 @@ calCachedCalendar.prototype = {
     return Services.io.offline;
   },
   get supportsChangeLog() {
-    return cal.wrapInstance(this.mUncachedCalendar, Ci.calIChangeLog) != null;
+    return this.mUncachedCalendar instanceof Ci.calIChangeLog;
   },
 
   get canRefresh() {

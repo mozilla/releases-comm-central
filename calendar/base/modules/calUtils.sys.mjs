@@ -138,41 +138,6 @@ export const cal = {
   },
 
   /**
-   * Wraps an instance, making sure the xpcom wrapped object is used.
-   *
-   * @param {object} aObj - The object under consideration.
-   * @param {object} aInterface - The interface to be wrapped.
-   *
-   * Use this function to QueryInterface the object to a particular interface.
-   * You may only expect the return value to be wrapped, not the original passed
-   * object.
-   *
-   * For example:
-   *
-   * // BAD USAGE:
-   * if (cal.wrapInstance(foo, Ci.nsIBar)) {
-   *   foo.barMethod();
-   * }
-   *
-   * // GOOD USAGE:
-   * foo = cal.wrapInstance(foo, Ci.nsIBar);
-   * if (foo) {
-   *   foo.barMethod();
-   * }
-   */
-  wrapInstance(aObj, aInterface) {
-    if (!aObj) {
-      return null;
-    }
-
-    try {
-      return aObj.QueryInterface(aInterface);
-    } catch (e) {
-      return null;
-    }
-  },
-
-  /**
    * Tries to get rid of wrappers, if this is not possible then return the
    * passed object.
    *

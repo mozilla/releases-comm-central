@@ -560,8 +560,9 @@ function updateLink(itemUrlString, linkRow, urlLink) {
 
     // Only show if its either an internal protocol handler, or its external
     // and there is an external app for the scheme
-    handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
-    const show = !handler || handler.externalAppExistsForScheme(uri.scheme);
+    const show =
+      !(handler instanceof Ci.nsIExternalProtocolHandler) ||
+      handler.externalAppExistsForScheme(uri.scheme);
     linkRow.hidden = !show;
 
     setTimeout(() => {

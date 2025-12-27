@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported recurrenceStringFromItem, recurrenceRule2String, splitRecurrenceRules,
- *          checkRecurrenceRule, countOccurrences
- */
-
 import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
-
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
@@ -102,322 +97,324 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
   }
 
   const rrules = splitRecurrenceRules(recurrenceInfo);
-  if (rrules[0].length == 1) {
-    const rule = cal.wrapInstance(rrules[0][0], Ci.calIRecurrenceRule);
-    // Currently we allow only for BYDAY, BYMONTHDAY, BYMONTH rules.
-    const byparts = [
-      "BYSECOND",
-      "BYMINUTE",
-      /* "BYDAY", */
-      "BYHOUR",
-      /* "BYMONTHDAY", */
-      "BYYEARDAY",
-      "BYWEEKNO",
-      /* "BYMONTH", */
-      "BYSETPOS",
-    ];
+  if (rrules[0].length != 1) {
+    // Not supported.
+    return null;
+  }
 
-    if (rule && !checkRecurrenceRule(rule, byparts)) {
-      const dateFormatter = cal.dtz.formatter;
-      let ruleString;
-      if (rule.type == "DAILY") {
-        if (checkRecurrenceRule(rule, ["BYDAY"])) {
-          const days = rule.getComponent("BYDAY");
-          const weekdays = [2, 3, 4, 5, 6];
-          if (weekdays.length == days.length) {
-            let i;
-            for (i = 0; i < weekdays.length; i++) {
-              if (weekdays[i] != days[i]) {
-                break;
-              }
-            }
-            if (i == weekdays.length) {
-              ruleString = getRString("repeatDetailsRuleDaily4");
-            }
-          } else {
-            return null;
+  const rule = rrules[0][0];
+  if (!(rule instanceof lazy.CalRecurrenceRule || rule instanceof Ci.calIRecurrenceRule)) {
+    return null;
+  }
+
+  // Currently we allow only for BYDAY, BYMONTHDAY, BYMONTH rules.
+  const byparts = [
+    "BYSECOND",
+    "BYMINUTE",
+    /* "BYDAY", */
+    "BYHOUR",
+    /* "BYMONTHDAY", */
+    "BYYEARDAY",
+    "BYWEEKNO",
+    /* "BYMONTH", */
+    "BYSETPOS",
+  ];
+
+  if (checkRecurrenceRule(rule, byparts)) {
+    return null;
+  }
+  const dateFormatter = cal.dtz.formatter;
+  let ruleString;
+  if (rule.type == "DAILY") {
+    if (checkRecurrenceRule(rule, ["BYDAY"])) {
+      const days = rule.getComponent("BYDAY");
+      const weekdays = [2, 3, 4, 5, 6];
+      if (weekdays.length == days.length) {
+        let i;
+        for (i = 0; i < weekdays.length; i++) {
+          if (weekdays[i] != days[i]) {
+            break;
           }
-        } else {
-          const dailyString = getRString("dailyEveryNth");
-          ruleString = PluralForm.get(rule.interval, dailyString).replace("#1", rule.interval);
         }
-      } else if (rule.type == "WEEKLY") {
-        // weekly recurrence, currently we
-        // support a single 'BYDAY'-rule only.
-        if (checkRecurrenceRule(rule, ["BYDAY"])) {
-          // create a string like 'Monday, Tuesday and Wednesday'
-          const days = rule.getComponent("BYDAY");
-          let weekdays = "";
-          // select noun class (grammatical gender) according to the
-          // first day of the list
-          let weeklyString = nounClass("repeatDetailsDay" + days[0], "weeklyNthOn");
-          for (let i = 0; i < days.length; i++) {
-            if (rule.interval == 1) {
-              weekdays += getRString(pluralWeekday("repeatDetailsDay" + days[i]));
-            } else {
-              weekdays += getRString("repeatDetailsDay" + days[i]);
-            }
-            if (days.length > 1 && i == days.length - 2) {
-              weekdays += " " + getRString("repeatDetailsAnd") + " ";
-            } else if (i < days.length - 1) {
-              weekdays += ", ";
-            }
-          }
-
-          weeklyString = getRString(weeklyString, [weekdays]);
-          ruleString = PluralForm.get(rule.interval, weeklyString).replace("#2", rule.interval);
-        } else {
-          const weeklyString = getRString("weeklyEveryNth");
-          ruleString = PluralForm.get(rule.interval, weeklyString).replace("#1", rule.interval);
-        }
-      } else if (rule.type == "MONTHLY") {
-        if (checkRecurrenceRule(rule, ["BYDAY"])) {
-          const byday = rule.getComponent("BYDAY");
-          if (everyWeekDay(byday)) {
-            // Rule every day of the month.
-            ruleString = getRString("monthlyEveryDayOfNth");
-            ruleString = PluralForm.get(rule.interval, ruleString).replace("#2", rule.interval);
-          } else {
-            // For rules with generic number of weekdays with and
-            // without "position" prefix we build two separate
-            // strings depending on the position and then join them.
-            // Notice: we build the description string but currently
-            // the UI can manage only rules with only one weekday.
-            let weekdaysString_every = "";
-            let weekdaysString_position = "";
-            let firstDay = byday[0];
-            for (let i = 0; i < byday.length; i++) {
-              if (day_position(byday[i]) == 0) {
-                if (!weekdaysString_every) {
-                  firstDay = byday[i];
-                }
-                weekdaysString_every +=
-                  getRString(pluralWeekday("repeatDetailsDay" + byday[i])) + ", ";
-              } else {
-                if (day_position(byday[i]) < -1 || day_position(byday[i]) > 5) {
-                  // We support only weekdays with -1 as negative
-                  // position ('THE LAST ...').
-                  return null;
-                }
-
-                const duplicateWeekday = byday.some(element => {
-                  return (
-                    day_position(element) == 0 && day_of_week(byday[i]) == day_of_week(element)
-                  );
-                });
-                if (duplicateWeekday) {
-                  // Prevent to build strings such as for example:
-                  // "every Monday and the second Monday...".
-                  continue;
-                }
-
-                let ordinalString = "repeatOrdinal" + day_position(byday[i]);
-                let dayString = "repeatDetailsDay" + day_of_week(byday[i]);
-                ordinalString = nounClass(dayString, ordinalString);
-                ordinalString = getRString(ordinalString);
-                dayString = getRString(dayString);
-                const stringOrdinalWeekday = getRString("ordinalWeekdayOrder", [
-                  ordinalString,
-                  dayString,
-                ]);
-                weekdaysString_position += stringOrdinalWeekday + ", ";
-              }
-            }
-            let weekdaysString = weekdaysString_every + weekdaysString_position;
-            weekdaysString = weekdaysString
-              .slice(0, -2)
-              .replace(/,(?= [^,]*$)/, " " + getRString("repeatDetailsAnd"));
-
-            let monthlyString = weekdaysString_every
-              ? "monthlyEveryOfEvery"
-              : "monthlyRuleNthOfEvery";
-            monthlyString = nounClass("repeatDetailsDay" + day_of_week(firstDay), monthlyString);
-            monthlyString = getRString(monthlyString, [weekdaysString]);
-            ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
-          }
-        } else if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
-          const component = rule.getComponent("BYMONTHDAY");
-
-          // First, find out if the 'BYMONTHDAY' component contains
-          // any elements with a negative value lesser than -1 ("the
-          // last day"). If so we currently don't support any rule
-          if (component.some(element => element < -1)) {
-            // we don't support any other combination for now...
-            return getRString("ruleTooComplex");
-          } else if (component.length == 1 && component[0] == -1) {
-            // i.e. one day, the last day of the month
-            const monthlyString = getRString("monthlyLastDayOfNth");
-            ruleString = PluralForm.get(rule.interval, monthlyString).replace("#1", rule.interval);
-          } else {
-            // i.e. one or more monthdays every N months.
-
-            // Build a string with a list of days separated with commas.
-            let day_string = "";
-            let lastDay = false;
-            for (let i = 0; i < component.length; i++) {
-              if (component[i] == -1) {
-                lastDay = true;
-                continue;
-              }
-              day_string += dateFormatter.formatDayWithOrdinal(component[i]) + ", ";
-            }
-            if (lastDay) {
-              day_string += getRString("monthlyLastDay") + ", ";
-            }
-            day_string = day_string
-              .slice(0, -2)
-              .replace(/,(?= [^,]*$)/, " " + getRString("repeatDetailsAnd"));
-
-            // Add the word "day" in plural form to the list of days then
-            // compose the final string with the interval of months
-            let monthlyDayString = getRString("monthlyDaysOfNth_day", [day_string]);
-            monthlyDayString = PluralForm.get(component.length, monthlyDayString);
-            const monthlyString = getRString("monthlyDaysOfNth", [monthlyDayString]);
-            ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
-          }
-        } else {
-          const monthlyString = getRString("monthlyDaysOfNth", [startDate.day]);
-          ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
-        }
-      } else if (rule.type == "YEARLY") {
-        let bymonthday = null;
-        let bymonth = null;
-        if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
-          bymonthday = rule.getComponent("BYMONTHDAY");
-        }
-        if (checkRecurrenceRule(rule, ["BYMONTH"])) {
-          bymonth = rule.getComponent("BYMONTH");
-        }
-        if (
-          (bymonth && bymonth.length > 1) ||
-          (bymonthday && (bymonthday.length > 1 || bymonthday[0] < -1))
-        ) {
-          // Don't build a string for a recurrence rule that the UI
-          // currently can't show completely (with more than one month
-          // or than one monthday, or bymonthdays lesser than -1).
-          return getRString("ruleTooComplex");
-        }
-
-        if (
-          checkRecurrenceRule(rule, ["BYMONTHDAY"]) &&
-          (checkRecurrenceRule(rule, ["BYMONTH"]) || !checkRecurrenceRule(rule, ["BYDAY"]))
-        ) {
-          // RRULE:FREQ=YEARLY;BYMONTH=x;BYMONTHDAY=y.
-          // RRULE:FREQ=YEARLY;BYMONTHDAY=x (takes the month from the start date).
-          const monthNumber = bymonth ? bymonth[0] - 1 : startDate.month;
-          const month = cal.dtz.formatter.monthNames[monthNumber];
-          const monthDay =
-            bymonthday[0] == -1
-              ? getRString("monthlyLastDay")
-              : dateFormatter.formatDayWithOrdinal(bymonthday[0]);
-          const yearlyString = getRString("yearlyNthOn", [month, monthDay]);
-          ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
-        } else if (checkRecurrenceRule(rule, ["BYMONTH"]) && checkRecurrenceRule(rule, ["BYDAY"])) {
-          // RRULE:FREQ=YEARLY;BYMONTH=x;BYDAY=y1,y2,....
-          const byday = rule.getComponent("BYDAY");
-          const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
-          if (everyWeekDay(byday)) {
-            // Every day of the month.
-            let yearlyString = "yearlyEveryDayOf";
-            yearlyString = getRString(yearlyString, [month]);
-            ruleString = PluralForm.get(rule.interval, yearlyString).replace("#2", rule.interval);
-          } else if (byday.length == 1) {
-            const dayString = "repeatDetailsDay" + day_of_week(byday[0]);
-            if (day_position(byday[0]) == 0) {
-              // Every any weekday.
-              let yearlyString = "yearlyOnEveryNthOfNth";
-              yearlyString = nounClass(dayString, yearlyString);
-              const day = getRString(pluralWeekday(dayString));
-              yearlyString = getRString(yearlyString, [day, month]);
-              ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
-            } else if (day_position(byday[0]) >= -1 || day_position(byday[0]) <= 5) {
-              // The first|the second|...|the last  Monday, Tuesday, ..., day.
-              let yearlyString = "yearlyNthOnNthOf";
-              yearlyString = nounClass(dayString, yearlyString);
-              let ordinalString = "repeatOrdinal" + day_position(byday[0]);
-              ordinalString = nounClass(dayString, ordinalString);
-              const ordinal = getRString(ordinalString);
-              const day = getRString(dayString);
-              yearlyString = getRString(yearlyString, [ordinal, day, month]);
-              ruleString = PluralForm.get(rule.interval, yearlyString).replace("#4", rule.interval);
-            } else {
-              return getRString("ruleTooComplex");
-            }
-          } else {
-            // Currently we don't support yearly rules with
-            // more than one BYDAY element or exactly 7 elements
-            // with all the weekdays (the "every day" case).
-            return getRString("ruleTooComplex");
-          }
-        } else if (checkRecurrenceRule(rule, ["BYMONTH"])) {
-          // RRULE:FREQ=YEARLY;BYMONTH=x (takes the day from the start date).
-          const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
-          const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
-          ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
-        } else {
-          const month = cal.dtz.formatter.monthNames[startDate.month];
-          const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
-          ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
-        }
-      }
-
-      const kDefaultTimezone = cal.dtz.defaultTimezone;
-
-      let detailsString;
-      if (!endDate || allDay) {
-        if (rule.isFinite) {
-          if (rule.isByCount) {
-            const countString = getRString("repeatCountAllDay", [
-              ruleString,
-              dateFormatter.formatDateShort(startDate),
-            ]);
-
-            detailsString = PluralForm.get(rule.count, countString).replace("#3", rule.count);
-          } else {
-            const untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
-            detailsString = getRString("repeatDetailsUntilAllDay", [
-              ruleString,
-              dateFormatter.formatDateShort(startDate),
-              dateFormatter.formatDateShort(untilDate),
-            ]);
-          }
-        } else {
-          detailsString = getRString("repeatDetailsInfiniteAllDay", [
-            ruleString,
-            dateFormatter.formatDateShort(startDate),
-          ]);
-        }
-      } else if (rule.isFinite) {
-        if (rule.isByCount) {
-          const countString = getRString("repeatCount", [
-            ruleString,
-            dateFormatter.formatDateShort(startDate),
-            dateFormatter.formatTime(startDate),
-            dateFormatter.formatTime(endDate),
-          ]);
-          detailsString = PluralForm.get(rule.count, countString).replace("#5", rule.count);
-        } else {
-          const untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
-          detailsString = getRString("repeatDetailsUntil", [
-            ruleString,
-            dateFormatter.formatDateShort(startDate),
-            dateFormatter.formatDateShort(untilDate),
-            dateFormatter.formatTime(startDate),
-            dateFormatter.formatTime(endDate),
-          ]);
+        if (i == weekdays.length) {
+          ruleString = getRString("repeatDetailsRuleDaily4");
         }
       } else {
-        detailsString = getRString("repeatDetailsInfinite", [
-          ruleString,
-          dateFormatter.formatDateShort(startDate),
-          dateFormatter.formatTime(startDate),
-          dateFormatter.formatTime(endDate),
-        ]);
+        return null;
       }
-      return detailsString;
+    } else {
+      const dailyString = getRString("dailyEveryNth");
+      ruleString = PluralForm.get(rule.interval, dailyString).replace("#1", rule.interval);
+    }
+  } else if (rule.type == "WEEKLY") {
+    // weekly recurrence, currently we
+    // support a single 'BYDAY'-rule only.
+    if (checkRecurrenceRule(rule, ["BYDAY"])) {
+      // create a string like 'Monday, Tuesday and Wednesday'
+      const days = rule.getComponent("BYDAY");
+      let weekdays = "";
+      // select noun class (grammatical gender) according to the
+      // first day of the list
+      let weeklyString = nounClass("repeatDetailsDay" + days[0], "weeklyNthOn");
+      for (let i = 0; i < days.length; i++) {
+        if (rule.interval == 1) {
+          weekdays += getRString(pluralWeekday("repeatDetailsDay" + days[i]));
+        } else {
+          weekdays += getRString("repeatDetailsDay" + days[i]);
+        }
+        if (days.length > 1 && i == days.length - 2) {
+          weekdays += " " + getRString("repeatDetailsAnd") + " ";
+        } else if (i < days.length - 1) {
+          weekdays += ", ";
+        }
+      }
+
+      weeklyString = getRString(weeklyString, [weekdays]);
+      ruleString = PluralForm.get(rule.interval, weeklyString).replace("#2", rule.interval);
+    } else {
+      const weeklyString = getRString("weeklyEveryNth");
+      ruleString = PluralForm.get(rule.interval, weeklyString).replace("#1", rule.interval);
+    }
+  } else if (rule.type == "MONTHLY") {
+    if (checkRecurrenceRule(rule, ["BYDAY"])) {
+      const byday = rule.getComponent("BYDAY");
+      if (everyWeekDay(byday)) {
+        // Rule every day of the month.
+        ruleString = getRString("monthlyEveryDayOfNth");
+        ruleString = PluralForm.get(rule.interval, ruleString).replace("#2", rule.interval);
+      } else {
+        // For rules with generic number of weekdays with and
+        // without "position" prefix we build two separate
+        // strings depending on the position and then join them.
+        // Notice: we build the description string but currently
+        // the UI can manage only rules with only one weekday.
+        let weekdaysString_every = "";
+        let weekdaysString_position = "";
+        let firstDay = byday[0];
+        for (let i = 0; i < byday.length; i++) {
+          if (day_position(byday[i]) == 0) {
+            if (!weekdaysString_every) {
+              firstDay = byday[i];
+            }
+            weekdaysString_every += getRString(pluralWeekday("repeatDetailsDay" + byday[i])) + ", ";
+          } else {
+            if (day_position(byday[i]) < -1 || day_position(byday[i]) > 5) {
+              // We support only weekdays with -1 as negative
+              // position ('THE LAST ...').
+              return null;
+            }
+
+            const duplicateWeekday = byday.some(element => {
+              return day_position(element) == 0 && day_of_week(byday[i]) == day_of_week(element);
+            });
+            if (duplicateWeekday) {
+              // Prevent to build strings such as for example:
+              // "every Monday and the second Monday...".
+              continue;
+            }
+
+            let ordinalString = "repeatOrdinal" + day_position(byday[i]);
+            let dayString = "repeatDetailsDay" + day_of_week(byday[i]);
+            ordinalString = nounClass(dayString, ordinalString);
+            ordinalString = getRString(ordinalString);
+            dayString = getRString(dayString);
+            const stringOrdinalWeekday = getRString("ordinalWeekdayOrder", [
+              ordinalString,
+              dayString,
+            ]);
+            weekdaysString_position += stringOrdinalWeekday + ", ";
+          }
+        }
+        let weekdaysString = weekdaysString_every + weekdaysString_position;
+        weekdaysString = weekdaysString
+          .slice(0, -2)
+          .replace(/,(?= [^,]*$)/, " " + getRString("repeatDetailsAnd"));
+
+        let monthlyString = weekdaysString_every ? "monthlyEveryOfEvery" : "monthlyRuleNthOfEvery";
+        monthlyString = nounClass("repeatDetailsDay" + day_of_week(firstDay), monthlyString);
+        monthlyString = getRString(monthlyString, [weekdaysString]);
+        ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
+      }
+    } else if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
+      const component = rule.getComponent("BYMONTHDAY");
+
+      // First, find out if the 'BYMONTHDAY' component contains
+      // any elements with a negative value lesser than -1 ("the
+      // last day"). If so we currently don't support any rule
+      if (component.some(element => element < -1)) {
+        // we don't support any other combination for now...
+        return getRString("ruleTooComplex");
+      } else if (component.length == 1 && component[0] == -1) {
+        // i.e. one day, the last day of the month
+        const monthlyString = getRString("monthlyLastDayOfNth");
+        ruleString = PluralForm.get(rule.interval, monthlyString).replace("#1", rule.interval);
+      } else {
+        // i.e. one or more monthdays every N months.
+
+        // Build a string with a list of days separated with commas.
+        let day_string = "";
+        let lastDay = false;
+        for (let i = 0; i < component.length; i++) {
+          if (component[i] == -1) {
+            lastDay = true;
+            continue;
+          }
+          day_string += dateFormatter.formatDayWithOrdinal(component[i]) + ", ";
+        }
+        if (lastDay) {
+          day_string += getRString("monthlyLastDay") + ", ";
+        }
+        day_string = day_string
+          .slice(0, -2)
+          .replace(/,(?= [^,]*$)/, " " + getRString("repeatDetailsAnd"));
+
+        // Add the word "day" in plural form to the list of days then
+        // compose the final string with the interval of months
+        let monthlyDayString = getRString("monthlyDaysOfNth_day", [day_string]);
+        monthlyDayString = PluralForm.get(component.length, monthlyDayString);
+        const monthlyString = getRString("monthlyDaysOfNth", [monthlyDayString]);
+        ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
+      }
+    } else {
+      const monthlyString = getRString("monthlyDaysOfNth", [startDate.day]);
+      ruleString = PluralForm.get(rule.interval, monthlyString).replace("#2", rule.interval);
+    }
+  } else if (rule.type == "YEARLY") {
+    let bymonthday = null;
+    let bymonth = null;
+    if (checkRecurrenceRule(rule, ["BYMONTHDAY"])) {
+      bymonthday = rule.getComponent("BYMONTHDAY");
+    }
+    if (checkRecurrenceRule(rule, ["BYMONTH"])) {
+      bymonth = rule.getComponent("BYMONTH");
+    }
+    if (
+      (bymonth && bymonth.length > 1) ||
+      (bymonthday && (bymonthday.length > 1 || bymonthday[0] < -1))
+    ) {
+      // Don't build a string for a recurrence rule that the UI
+      // currently can't show completely (with more than one month
+      // or than one monthday, or bymonthdays lesser than -1).
+      return getRString("ruleTooComplex");
+    }
+
+    if (
+      checkRecurrenceRule(rule, ["BYMONTHDAY"]) &&
+      (checkRecurrenceRule(rule, ["BYMONTH"]) || !checkRecurrenceRule(rule, ["BYDAY"]))
+    ) {
+      // RRULE:FREQ=YEARLY;BYMONTH=x;BYMONTHDAY=y.
+      // RRULE:FREQ=YEARLY;BYMONTHDAY=x (takes the month from the start date).
+      const monthNumber = bymonth ? bymonth[0] - 1 : startDate.month;
+      const month = cal.dtz.formatter.monthNames[monthNumber];
+      const monthDay =
+        bymonthday[0] == -1
+          ? getRString("monthlyLastDay")
+          : dateFormatter.formatDayWithOrdinal(bymonthday[0]);
+      const yearlyString = getRString("yearlyNthOn", [month, monthDay]);
+      ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
+    } else if (checkRecurrenceRule(rule, ["BYMONTH"]) && checkRecurrenceRule(rule, ["BYDAY"])) {
+      // RRULE:FREQ=YEARLY;BYMONTH=x;BYDAY=y1,y2,....
+      const byday = rule.getComponent("BYDAY");
+      const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
+      if (everyWeekDay(byday)) {
+        // Every day of the month.
+        let yearlyString = "yearlyEveryDayOf";
+        yearlyString = getRString(yearlyString, [month]);
+        ruleString = PluralForm.get(rule.interval, yearlyString).replace("#2", rule.interval);
+      } else if (byday.length == 1) {
+        const dayString = "repeatDetailsDay" + day_of_week(byday[0]);
+        if (day_position(byday[0]) == 0) {
+          // Every any weekday.
+          let yearlyString = "yearlyOnEveryNthOfNth";
+          yearlyString = nounClass(dayString, yearlyString);
+          const day = getRString(pluralWeekday(dayString));
+          yearlyString = getRString(yearlyString, [day, month]);
+          ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
+        } else if (day_position(byday[0]) >= -1 || day_position(byday[0]) <= 5) {
+          // The first|the second|...|the last  Monday, Tuesday, ..., day.
+          let yearlyString = "yearlyNthOnNthOf";
+          yearlyString = nounClass(dayString, yearlyString);
+          let ordinalString = "repeatOrdinal" + day_position(byday[0]);
+          ordinalString = nounClass(dayString, ordinalString);
+          const ordinal = getRString(ordinalString);
+          const day = getRString(dayString);
+          yearlyString = getRString(yearlyString, [ordinal, day, month]);
+          ruleString = PluralForm.get(rule.interval, yearlyString).replace("#4", rule.interval);
+        } else {
+          return getRString("ruleTooComplex");
+        }
+      } else {
+        // Currently we don't support yearly rules with
+        // more than one BYDAY element or exactly 7 elements
+        // with all the weekdays (the "every day" case).
+        return getRString("ruleTooComplex");
+      }
+    } else if (checkRecurrenceRule(rule, ["BYMONTH"])) {
+      // RRULE:FREQ=YEARLY;BYMONTH=x (takes the day from the start date).
+      const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
+      const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
+      ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
+    } else {
+      const month = cal.dtz.formatter.monthNames[startDate.month];
+      const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
+      ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
     }
   }
-  return null;
+
+  const kDefaultTimezone = cal.dtz.defaultTimezone;
+
+  let detailsString;
+  if (!endDate || allDay) {
+    if (rule.isFinite) {
+      if (rule.isByCount) {
+        const countString = getRString("repeatCountAllDay", [
+          ruleString,
+          dateFormatter.formatDateShort(startDate),
+        ]);
+
+        detailsString = PluralForm.get(rule.count, countString).replace("#3", rule.count);
+      } else {
+        const untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
+        detailsString = getRString("repeatDetailsUntilAllDay", [
+          ruleString,
+          dateFormatter.formatDateShort(startDate),
+          dateFormatter.formatDateShort(untilDate),
+        ]);
+      }
+    } else {
+      detailsString = getRString("repeatDetailsInfiniteAllDay", [
+        ruleString,
+        dateFormatter.formatDateShort(startDate),
+      ]);
+    }
+  } else if (rule.isFinite) {
+    if (rule.isByCount) {
+      const countString = getRString("repeatCount", [
+        ruleString,
+        dateFormatter.formatDateShort(startDate),
+        dateFormatter.formatTime(startDate),
+        dateFormatter.formatTime(endDate),
+      ]);
+      detailsString = PluralForm.get(rule.count, countString).replace("#5", rule.count);
+    } else {
+      const untilDate = rule.untilDate.getInTimezone(kDefaultTimezone);
+      detailsString = getRString("repeatDetailsUntil", [
+        ruleString,
+        dateFormatter.formatDateShort(startDate),
+        dateFormatter.formatDateShort(untilDate),
+        dateFormatter.formatTime(startDate),
+        dateFormatter.formatTime(endDate),
+      ]);
+    }
+  } else {
+    detailsString = getRString("repeatDetailsInfinite", [
+      ruleString,
+      dateFormatter.formatDateShort(startDate),
+      dateFormatter.formatTime(startDate),
+      dateFormatter.formatTime(endDate),
+    ]);
+  }
+  return detailsString;
 }
 
 /**

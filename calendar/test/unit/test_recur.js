@@ -1087,8 +1087,9 @@ function test_startdate_change() {
 
   // Event with an exception item
   item = makeRecEvent("RRULE:FREQ=DAILY\r\n");
-  let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20020406T114500Z"));
-  occ.QueryInterface(Ci.calIEvent);
+  let occ = item.recurrenceInfo
+    .getOccurrenceFor(cal.createDateTime("20020406T114500Z"))
+    .QueryInterface(Ci.calIEvent);
   occ.startDate = cal.createDateTime("20020406T124500Z");
   item.recurrenceInfo.modifyException(occ, true);
   changeBy(item, "PT3H"); // Change series by 3h.

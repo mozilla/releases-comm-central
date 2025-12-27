@@ -190,8 +190,8 @@ class CalDavRequestBase {
     }
 
     let uploadData, uploadContent;
-    const oldUploadChannel = cal.wrapInstance(aOldChannel, Ci.nsIUploadChannel);
-    const oldHttpChannel = cal.wrapInstance(aOldChannel, Ci.nsIHttpChannel);
+    const oldUploadChannel = aOldChannel?.QueryInterface(Ci.nsIUploadChannel);
+    const oldHttpChannel = aOldChannel?.QueryInterface(Ci.nsIHttpChannel);
     if (oldUploadChannel && oldHttpChannel && oldUploadChannel.uploadStream) {
       uploadData = oldUploadChannel.uploadStream;
       uploadContent = oldHttpChannel.getRequestHeader("Content-Type");

@@ -13,6 +13,9 @@ ChromeUtils.defineLazyGetter(lazy, "log", () => {
     maxLogLevelPref: "calendar.loglevel",
   });
 });
+ChromeUtils.defineESModuleGetters(lazy, {
+  CalRecurrenceDate: "resource:///modules/CalRecurrenceDate.sys.mjs",
+});
 
 /**
  * CalItipMessageSender is responsible for sending out the appropriate iTIP
@@ -89,18 +92,23 @@ export class CalItipMessageSender {
         const clonedItem = item.clone();
         const exdates = [];
         for (const ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
-          const wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
+          if (
+            !(ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate)
+          ) {
+            continue;
+          }
           if (
             ritem.isNegative &&
-            wrappedRItem &&
             !originalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
-              const wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
               return (
-                recitem.isNegative && wrappedR && wrappedR.date.compare(wrappedRItem.date) == 0
+                (recitem instanceof lazy.CalRecurrenceDate ||
+                  recitem instanceof Ci.calIRecurrenceDate) &&
+                recitem.isNegative &&
+                recitem.date.compare(ritem.date) == 0
               );
             })
           ) {
-            exdates.push(wrappedRItem);
+            exdates.push(ritem);
           }
         }
         if (exdates.length > 0) {
