@@ -77,7 +77,8 @@ body {
   cursor: text;
 }
 
-#releasenotes {
+#releasenotes,
+#updateNotes {
   margin-inline-start: 0.5em;
 }
 
