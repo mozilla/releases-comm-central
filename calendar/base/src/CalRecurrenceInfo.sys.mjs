@@ -138,7 +138,7 @@ CalRecurrenceInfo.prototype = {
   set item(value) {
     this.ensureMutable();
 
-    value = cal.unwrapInstance(value);
+    value = value?.wrappedJSObject || value;
     this.mBaseItem = value;
     // patch exception's parentItem:
     for (const ex in this.mExceptionMap) {
@@ -258,7 +258,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureMutable();
     this.ensureSortedRecurrenceRules();
 
-    aItem = cal.unwrapInstance(aItem);
+    aItem = aItem?.wrappedJSObject || aItem;
     this.mRecurrenceItems.push(aItem);
     if (aItem.isNegative) {
       this.mNegativeRules.push(aItem);
@@ -285,7 +285,7 @@ CalRecurrenceInfo.prototype = {
   },
 
   deleteRecurrenceItem(aItem) {
-    aItem = cal.unwrapInstance(aItem);
+    aItem = aItem?.wrappedJSObject || aItem;
     const pos = this.mRecurrenceItems.indexOf(aItem);
     if (pos > -1) {
       this.deleteRecurrenceItemAt(pos);
@@ -303,7 +303,7 @@ CalRecurrenceInfo.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    aItem = cal.unwrapInstance(aItem);
+    aItem = aItem?.wrappedJSObject || aItem;
     if (aItem.isNegative) {
       this.mNegativeRules.push(aItem);
     } else {
@@ -734,7 +734,7 @@ CalRecurrenceInfo.prototype = {
   modifyException(anItem, aTakeOverOwnership) {
     this.ensureBaseItem();
 
-    anItem = cal.unwrapInstance(anItem);
+    anItem = anItem?.wrappedJSObject || anItem;
 
     if (
       anItem.parentItem.calendar != this.mBaseItem.calendar &&

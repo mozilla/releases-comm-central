@@ -136,17 +136,6 @@ export const cal = {
     // CalDAV servers that don't support filenames with {}
     return Services.uuid.generateUUID().toString().replace(/[{}]/g, "");
   },
-
-  /**
-   * Tries to get rid of wrappers, if this is not possible then return the
-   * passed object.
-   *
-   * @param {object} aObj - The object under consideration.
-   * @returns {object} The possibly unwrapped object.
-   */
-  unwrapInstance(aObj) {
-    return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
-  },
 };
 
 // Services

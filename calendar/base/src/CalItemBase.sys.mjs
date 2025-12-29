@@ -149,7 +149,7 @@ calItemBase.prototype = {
   },
   set recurrenceInfo(value) {
     this.modify();
-    this.mRecurrenceInfo = cal.unwrapInstance(value);
+    this.mRecurrenceInfo = value?.wrappedJSObject || value;
   },
 
   // attribute calIItemBase parentItem;
@@ -160,7 +160,7 @@ calItemBase.prototype = {
     if (this.mImmutable) {
       throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
-    this.mParentItem = cal.unwrapInstance(value);
+    this.mParentItem = value?.wrappedJSObject || value;
   },
 
   /**
@@ -176,7 +176,7 @@ calItemBase.prototype = {
   initializeProxy(aParentItem, aRecurrenceId) {
     this.mIsProxy = true;
 
-    aParentItem = cal.unwrapInstance(aParentItem);
+    aParentItem = aParentItem?.wrappedJSObject || aParentItem;
     this.mParentItem = aParentItem;
     this.mCalendar = aParentItem.mCalendar;
     this.recurrenceId = aRecurrenceId;
@@ -303,11 +303,14 @@ calItemBase.prototype = {
     cloned.mImmutable = false;
     cloned.mACLEntry = this.mACLEntry;
     cloned.mIsProxy = this.mIsProxy;
-    cloned.mParentItem = cal.unwrapInstance(aNewParent) || this.mParentItem;
+    cloned.mParentItem = aNewParent?.wrappedJSObject || aNewParent || this.mParentItem;
     cloned.mHashId = this.mHashId;
     cloned.mCalendar = this.mCalendar;
     if (this.mRecurrenceInfo) {
-      cloned.mRecurrenceInfo = cal.unwrapInstance(this.mRecurrenceInfo.clone());
+      cloned.mRecurrenceInfo = this.mRecurrenceInfo.clone();
+      if (cloned.mRecurrenceInfo.wrappedJSObject) {
+        cloned.mRecurrenceInfo = cloned.mRecurrenceInfo.wrappedJSObject;
+      }
       cloned.mRecurrenceInfo.item = cloned;
     }
 
