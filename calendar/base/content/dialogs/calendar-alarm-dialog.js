@@ -296,8 +296,11 @@ function aboveSnoozeLimit(aDuration) {
 
   const durationUntilLimit = limitTime.subtractDate(currentTime);
   if (aDuration.compare(durationUntilLimit) > 0) {
-    const msg = lazy.l10n.formatValueSync("alarm-snooze-limit-exceeded", { count: LIMIT });
-    cal.showError(msg, window);
+    Services.prompt.alert(
+      window,
+      lazy.l10n.formatValueSync("generic-error-title"),
+      lazy.l10n.formatValueSync("alarm-snooze-limit-exceeded", { count: LIMIT })
+    );
     return true;
   }
   return false;

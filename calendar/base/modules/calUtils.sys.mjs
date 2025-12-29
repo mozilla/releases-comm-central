@@ -16,8 +16,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
-
 export const cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
@@ -48,18 +46,6 @@ export const cal = {
       instance.icalString = value;
     }
     return instance;
-  },
-
-  /**
-   * Uses the prompt service to display an error message. Use this sparingly,
-   * as it interrupts the user.
-   *
-   * @param {string} aMsg - The message to be shown
-   * @param {?nsIWindow} aWindow - The window to show the message in, or null
-   *   for any window.
-   */
-  showError(aMsg, aWindow = null) {
-    Services.prompt.alert(aWindow, lazy.l10n.formatValueSync("generic-error-title"), aMsg);
   },
 
   /**

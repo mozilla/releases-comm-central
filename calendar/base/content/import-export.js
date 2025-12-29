@@ -37,10 +37,18 @@ function getItemsFromIcsFile(file) {
     exception = ex;
     switch (ex.result) {
       case Ci.calIErrors.INVALID_TIMEZONE:
-        cal.showError(lazy.l10n.formatValueSync("timezone-error", { filePath: file.path }), window);
+        Services.prompt.alert(
+          window,
+          lazy.l10n.formatValueSync("generic-error-title"),
+          lazy.l10n.formatValueSync("timezone-error", { filePath: file.path })
+        );
         break;
       default:
-        cal.showError(lazy.l10n.formatValueSync("unable-to-read") + file.path + "\n" + ex, window);
+        Services.prompt.alert(
+          window,
+          lazy.l10n.formatValueSync("generic-error-title"),
+          lazy.l10n.formatValueSync("unable-to-read") + file.path + "\n" + ex
+        );
     }
   } finally {
     inputStream.close();
@@ -49,9 +57,10 @@ function getItemsFromIcsFile(file) {
   if (!items.length && !exception) {
     // The ics did not contain any events, so we should
     // notify the user about it, if we haven't before.
-    cal.showError(
-      lazy.l10n.formatValueSync("no-items-in-calendar-file2", { filePath: file.path }),
-      window
+    Services.prompt.alert(
+      window,
+      lazy.l10n.formatValueSync("generic-error-title"),
+      lazy.l10n.formatValueSync("no-items-in-calendar-file2", { filePath: file.path })
     );
   }
 
@@ -212,7 +221,11 @@ async function saveEventsToFile(calendarEventArray, calendarName) {
     exporter.exportToStream(outputStream, calendarEventArray, calendarName);
     outputStream.close();
   } catch (ex) {
-    cal.showError(lazy.l10n.formatValueSync("unable-to-write", { filePath }), window);
+    Services.prompt.alert(
+      window,
+      lazy.l10n.formatValueSync("generic-error-title"),
+      lazy.l10n.formatValueSync("unable-to-write", { filePath })
+    );
   }
 }
 

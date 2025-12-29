@@ -277,15 +277,17 @@ var gDataMigrator = {
     } catch (ex) {
       switch (ex.result) {
         case Ci.calIErrors.INVALID_TIMEZONE:
-          cal.showError(
-            lazy.l10n.formatValueSync("timezone-error", { filePath: icsFile.path }),
-            window
+          Services.prompt.alert(
+            window,
+            lazy.l10n.formatValueSync("generic-error-title"),
+            lazy.l10n.formatValueSync("timezone-error", { filePath: icsFile.path })
           );
           break;
         default:
-          cal.showError(
-            lazy.l10n.formatValueSync("unable-to-read") + icsFile.path + "\n" + ex,
-            window
+          Services.prompt.alert(
+            window,
+            lazy.l10n.formatValueSync("generic-error-title"),
+            lazy.l10n.formatValueSync("unable-to-read") + icsFile.path + "\n" + ex
           );
       }
     } finally {
@@ -307,20 +309,22 @@ var gDataMigrator = {
       },
       onEnd() {
         if (this.failedCount) {
-          cal.showError(
+          Services.prompt.alert(
+            window,
+            lazy.l10n.formatValueSync("generic-error-title"),
             lazy.l10n.formatValueSync("import-items-failed", {
               count: this.failedCount,
               error: this.lastError.toString(),
-            }),
-            window
+            })
           );
         } else if (this.duplicateCount) {
-          cal.showError(
+          Services.prompt.alert(
+            window,
+            lazy.l10n.formatValueSync("generic-error-title"),
             lazy.l10n.formatValueSync("duplicate-error", {
               count: this.duplicateCount,
               filePath: icsFile.path,
-            }),
-            window
+            })
           );
         }
       },

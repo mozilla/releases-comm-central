@@ -711,7 +711,7 @@ export var itip = {
             aUpdateFunction({ label });
 
             if (!Components.isSuccessCode(aStatus)) {
-              lazy.cal.showError(label);
+              Services.prompt.alert(null, lazy.l10n.formatValueSync("generic-error-title"), label);
               return;
             }
 
