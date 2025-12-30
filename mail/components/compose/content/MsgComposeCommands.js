@@ -4769,7 +4769,17 @@ async function ComposeStartup() {
         composeFields.subject = args.subject;
       }
       if (args.attachment && window.arguments[1] instanceof Ci.nsICommandLine) {
-        const attachmentList = args.attachment.split(",");
+        // Workaround to support 'file:' URIs for attachments with commas in
+        // their paths.
+        // Note: Per RFC 3986, commas are 'sub-delimiters' and are technically
+        // legal in 'file:' URIs without encoding. Consequently, utilities like
+        // xdg-email pass literal commas in URIs, for example for the 'Send
+        // To/Mail Recipient' action in file managers.
+        const isUriMode = args.attachment.toLowerCase().startsWith("file:");
+        const processedAttachments = isUriMode
+          ? args.attachment.replace(/,(?!file:)/gi, "%2C")
+          : args.attachment;
+        const attachmentList = processedAttachments.split(",");
         for (const attachmentName of attachmentList) {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
