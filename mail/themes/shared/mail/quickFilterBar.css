@@ -92,16 +92,20 @@
   align-items: center;
   margin-inline-start: -3px;
   flex-wrap: wrap;
+
+  &.none-mode-selected button.qfb-tag-button {
+    display: none;
+  }
 }
 
-#qfb-boolean-mode {
+#qfb-tag-filter-mode {
   line-height: unset;
   min-block-size: 0;
   margin: 3px;
   padding-block: 3px;
 }
 
-.qfb-tag-button {
+button.qfb-tag-button {
   --tag-color: currentColor;
   --tag-contrast-color: currentColor;
   --button-padding: 3px;

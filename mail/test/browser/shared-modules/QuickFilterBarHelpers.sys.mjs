@@ -166,17 +166,22 @@ export async function toggle_tag_constraints(...aArgs) {
 
 /**
  * Set the tag filtering mode. Wait for messages after.
+ *
+ * @param {string} mode - The tags filter mode state to switch the selection to.
  */
-export async function toggle_tag_mode() {
-  const qbm = about3Pane.document.getElementById("qfb-boolean-mode");
-  if (qbm.value === "AND") {
-    qbm.selectedIndex--; // = move to "OR";
-    Assert.equal(qbm.value, "OR", "qfb-boolean-mode has wrong state");
-  } else if (qbm.value === "OR") {
-    qbm.selectedIndex++; // = move to "AND";
-    Assert.equal(qbm.value, "AND", "qfb-boolean-mode has wrong state");
+export async function switch_tag_mode(mode) {
+  const qbm = about3Pane.document.getElementById("qfb-tag-filter-mode");
+  if (mode === "OR") {
+    qbm.selectedIndex = 0;
+    Assert.equal(qbm.value, "OR", "qfb-tag-filter-mode has wrong state");
+  } else if (mode === "AND") {
+    qbm.selectedIndex = 1;
+    Assert.equal(qbm.value, "AND", "qfb-tag-filter-mode has wrong state");
+  } else if (mode === "NONE") {
+    qbm.selectedIndex = 2;
+    Assert.equal(qbm.value, "NONE", "qfb-tag-filter-mode has wrong state");
   } else {
-    throw new Error("qfb-boolean-mode value=" + qbm.value);
+    throw new Error(`qfb-tag-filter-mode value = ${qbm.value}`);
   }
   await wait_for_all_messages_to_load(mc);
 }
@@ -198,7 +203,7 @@ export function assert_tag_constraints_visible(...aArgs) {
   }
 
   const kids = tagBar.children;
-  const tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
+  const tagLength = kids.length - 1; // -1 for the qfb-tag-filter-mode widget
   // this is bad error reporting in here for now.
   if (tagLength != aArgs.length) {
     throw new Error(

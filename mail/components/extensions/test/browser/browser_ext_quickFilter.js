@@ -73,6 +73,11 @@ add_task(async () => {
     await window.sendMessage("checkVisible", 9, 6, 3, 0);
 
     await browser.mailTabs.setQuickFilter({
+      tags: { mode: "none", tags: {} },
+    });
+    await window.sendMessage("checkVisible", 7, 5);
+
+    await browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label2: true } },
     });
     await window.sendMessage("checkVisible", 8, 6, 4, 2, 0);

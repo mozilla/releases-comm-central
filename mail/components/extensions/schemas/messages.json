@@ -1556,8 +1556,8 @@
           },
           "mode": {
             "type": "string",
-            "description": "Whether all of the tag filters must apply, or any of them.",
-            "enum": ["all", "any"]
+            "description": "Whether <var>all</var> of the tag filters must apply, <var>any</var> of them, or <var>none</var>. The <var>none</var> mode ignores the provided filters and selects only messages without any tags.",
+            "enum": ["all", "any", "none"]
           }
         }
       }

@@ -705,6 +705,20 @@ var TagFacetingFilter = {
     }
 
     let term, value;
+    const mode = aFilterValue.mode;
+
+    // Show only messages that have no filters assigned.
+    if (mode === "NONE") {
+      term = aTermCreator.createTerm();
+      term.attrib = Ci.nsMsgSearchAttrib.Keywords;
+      value = term.value;
+      value.str = "";
+      term.value = value;
+      term.op = Ci.nsMsgSearchOp.IsEmpty;
+      term.booleanAnd = true;
+      aTerms.push(term);
+      return null;
+    }
 
     // just the true/false case
     if (this.isSimple(aFilterValue)) {
@@ -731,7 +745,6 @@ var TagFacetingFilter = {
 
       const excludeTerms = [];
 
-      const mode = aFilterValue.mode;
       for (const key in aFilterValue.tags) {
         const shouldFilter = aFilterValue.tags[key];
         if (shouldFilter !== null) {
@@ -866,10 +879,13 @@ var TagFacetingFilter = {
         TagFacetingFilter.name
       );
       filterValue.mode = aEvent.target.value;
+      aDocument
+        .getElementById("quickFilterBarTagsContainer")
+        .classList.toggle("none-mode-selected", filterValue.mode === "NONE");
       aMuxer.updateSearch();
     }
     aDocument
-      .getElementById("qfb-boolean-mode")
+      .getElementById("qfb-tag-filter-mode")
       .addEventListener("ValueChange", commandHandler);
   },
 
@@ -895,7 +911,7 @@ var TagFacetingFilter = {
     // If we have a mode stored use that. If we don't have a mode, then update
     // our state to agree with what the UI is currently displaying;
     // this will happen for fresh profiles.
-    const qbm = aDocument.getElementById("qfb-boolean-mode");
+    const qbm = aDocument.getElementById("qfb-tag-filter-mode");
     if (aState.mode) {
       qbm.value = aState.mode;
     } else {

@@ -76,15 +76,18 @@
           </div>
         </div>
         <div id="quickFilterBarTagsContainer" hidden="hidden">
-          <xul:menulist id="qfb-boolean-mode" value="OR">
-            <xul:menupopup>
-              <xul:menuitem id="qfb-boolean-mode-or"
+          <xul:menulist id="qfb-tag-filter-mode" value="OR">
+            <xul:menupopup class="no-icon-menupopup">
+              <xul:menuitem id="qfb-tag-filter-mode-or"
                             value="OR"
                             data-l10n-id="quick-filter-bar-boolean-mode-any"
                             default="default"/>
-              <xul:menuitem id="qfb-boolean-mode-and"
+              <xul:menuitem id="qfb-tag-filter-mode-and"
                             value="AND"
                             data-l10n-id="quick-filter-bar-boolean-mode-all"/>
+              <xul:menuitem id="qfb-tag-filter-mode-none"
+                            value="NONE"
+                            data-l10n-id="quick-filter-bar-tag-mode-none"/>
             </xul:menupopup>
           </xul:menulist>
         </div>

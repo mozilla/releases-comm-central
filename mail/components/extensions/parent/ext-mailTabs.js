@@ -766,8 +766,18 @@ this.mailTabs = class extends ExtensionAPIPersistent {
               filterer.filterValues.tags[tag.key] = null;
             }
             if (typeof state.tags == "object") {
-              filterer.filterValues.tags.mode =
-                state.tags.mode == "any" ? "OR" : "AND";
+              switch (state.tags.mode) {
+                case "all":
+                  filterer.filterValues.tags.mode = "AND";
+                  break;
+                case "none":
+                  filterer.filterValues.tags.mode = "NONE";
+                  break;
+                case "any":
+                default:
+                  filterer.filterValues.tags.mode = "OR";
+                  break;
+              }
               for (const [key, value] of Object.entries(state.tags.tags)) {
                 filterer.filterValues.tags.tags[key] = value;
               }

@@ -157,6 +157,10 @@ quick-filter-bar-boolean-mode-any =
 quick-filter-bar-boolean-mode-all =
     .label = All of
     .title = All of the selected tag criteria must match
+# The None tagging mode.
+quick-filter-bar-tag-mode-none =
+    .label = Untagged only
+    .title = Only messages without tags
 
 # This label explains what the sender/recipients/subject/body buttons do.
 # This string should ideally be kept short because the label and the text
