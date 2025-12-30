@@ -98,7 +98,11 @@ pub fn canonicalize_pathname(value: &str) -> Result<String, Error> {
   let mut url = url::Url::parse("http://dummy.test").unwrap();
   url.set_path(&modified_value);
   let mut pathname = url::quirks::pathname(&url);
-  if !leading_slash {
+
+  // If the original value didn't have a leading slash, we prepended "/-".
+  // Only strip this prefix if it's still there after URL parsing.
+  // If the ".." segments were resolved, the "/-" prefix may have been removed.
+  if !leading_slash && pathname.starts_with("/-") {
     pathname = &pathname[2..];
   }
   Ok(pathname.to_string())

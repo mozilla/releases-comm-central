@@ -113,7 +113,7 @@ unicode-bidi = { version = "0.3.15" }
 unicode-bidi-ffi = { path = "../../../intl/bidi/rust/unicode-bidi-ffi" }
 uritemplate_glue = { path = "../../../netwerk/base/uritemplate_glue" }
 url = { version = "2.5.7" }
-urlpattern = { version = "0.4.1" }
+urlpattern = { version = "0.4.2" }
 urlpattern_glue = { path = "../../../netwerk/base/urlpattern_glue" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }

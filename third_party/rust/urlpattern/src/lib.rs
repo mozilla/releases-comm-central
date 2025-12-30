@@ -1132,4 +1132,10 @@ mod tests {
     )
     .unwrap();
   }
+
+  #[test]
+  fn issue78() {
+    use crate::canonicalize_and_process::canonicalize_pathname;
+    assert!(canonicalize_pathname("3�/..").is_ok());
+  }
 }

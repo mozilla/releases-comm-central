@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "urlpattern"
-version = "0.4.1"
+version = "0.4.2"
 authors = [
     "the Deno authors",
     "crowlKats <crowlkats@toaxl.com>",
