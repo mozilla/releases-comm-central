@@ -426,10 +426,12 @@ void nsMsgSearchSession::TimerCallback(nsITimer* aTimer, void* aClosure) {
 }
 
 nsresult nsMsgSearchSession::StartTimer() {
-  nsresult rv;
-
-  m_backgroundTimer = do_CreateInstance("@mozilla.org/timer;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // Only create the instance if we don't already have one.
+  if (!m_backgroundTimer) {
+    m_backgroundTimer = NS_NewTimer();
+  }
+  // Re-initialize the existing timer. Per nsITimer.idl, this implicitly
+  // cancels any pending firing of this instance.
   m_backgroundTimer->InitWithNamedFuncCallback(
       TimerCallback, (void*)this, 0, nsITimer::TYPE_REPEATING_SLACK,
       "nsMsgSearchSession::TimerCallback"_ns);

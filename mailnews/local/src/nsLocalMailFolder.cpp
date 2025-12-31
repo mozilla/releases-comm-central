@@ -212,7 +212,15 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
     msg.Append("\nRepairing the folder may fix this issue."_ns);
     MsgLogToConsole4(NS_ConvertUTF8toUTF16(msg), nsCString(__FILE__), __LINE__,
                      nsIScriptError::errorFlag);
-    if (listener) listener->OnStopRunningUrl(nullptr, rv);
+    if (listener) {
+      // Avoid synchronous re-entrancy: notify the listener via the event loop
+      // to ensure the initiating caller has returned and cleared the stack.
+      NS_DispatchToCurrentThread(
+          NS_NewRunnableFunction("nsMsgLocalMailFolder::OnStopRunningUrl",
+                                 [listener = RefPtr{listener}, rv]() {
+                                   listener->OnStopRunningUrl(nullptr, rv);
+                                 }));
+    }
     return rv;
   }
 

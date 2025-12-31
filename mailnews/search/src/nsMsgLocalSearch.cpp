@@ -247,28 +247,26 @@ nsresult nsMsgSearchOfflineMail::ValidateTerms() {
   return nsMsgSearchAdapter::ValidateTerms();
 }
 
+/**
+ * Try to open the summary file for the folder. If it is missing or out of date,
+ * the search is paused and we ask the folder to initiate a reparse of the
+ * folder to create it. In this case, while also returning NS_OK, the still
+ * uninitialized m_db will indicate that the search should be continued
+ * in the nsMsgSearchOfflineMail::OnStopRunningUrl callback.
+ */
 nsresult nsMsgSearchOfflineMail::OpenSummaryFile() {
   nsCOMPtr<nsIMsgDatabase> mailDB;
 
   nsresult err = NS_OK;
-  // do password protection of local cache thing.
-#ifdef DOING_FOLDER_CACHE_PASSWORDS
-  if (m_scope->m_folder &&
-      m_scope->m_folder->UserNeedsToAuthenticateForFolder(false) &&
-      m_scope->m_folder->GetMaster()->PromptForHostPassword(
-          m_scope->m_frame->GetContext(), m_scope->m_folder) != 0) {
-    m_scope->m_frame->StopRunning();
-    return SearchError_ScopeDone;
-  }
-#endif
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   nsCOMPtr<nsIMsgFolder> scopeFolder;
   err = m_scope->GetFolder(getter_AddRefs(scopeFolder));
   if (NS_SUCCEEDED(err) && scopeFolder) {
     err = scopeFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
                                             getter_AddRefs(m_db));
-  } else
+  } else {
     return err;  // not sure why m_folder wouldn't be set.
+  }
 
   if (NS_SUCCEEDED(err)) return NS_OK;
 
@@ -285,6 +283,8 @@ nsresult nsMsgSearchOfflineMail::OpenSummaryFile() {
         searchSession->GetWindow(getter_AddRefs(searchWindow));
         searchSession->PauseSearch();
         localFolder->ParseFolder(searchWindow, this);
+        // The OnStopRunningUrl method will be called once the parsing has
+        // finished.
       }
     }
   } else {
@@ -606,38 +606,43 @@ nsresult nsMsgSearchOfflineMail::MatchTerms(
 }
 
 nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
+  RefPtr<nsIMsgSearchAdapter> kungFuDeathGrip(this);
+  NS_ENSURE_ARG(aDone);
+  *aDone = false;
+  const uint32_t kTimeSliceInMS = 200;
   nsresult err = NS_OK;
 
-  NS_ENSURE_ARG(aDone);
-  nsresult dbErr = NS_OK;
-  nsMsgSearchBoolExpression* expressionTree = nullptr;
-
-  const uint32_t kTimeSliceInMS = 200;
-
-  *aDone = false;
-  // Try to open the DB lazily. This will set up a parser if one is required
-  if (!m_db) err = OpenSummaryFile();
-  if (!m_db)  // must be reparsing.
+  if (!m_db) {
+    // Try to open the DB lazily. This will set up a parser if one is required.
+    err = OpenSummaryFile();
+  }
+  if (!m_db) {
+    // If a reparsing has been initiated, this will return NS_OK. In case of
+    // any error, the search session will continue with the next scope.
     return err;
+  }
 
-  // Reparsing is unnecessary or completed
   if (NS_SUCCEEDED(err)) {
-    if (!m_listContext)
+    // Reparsing is unnecessary or completed.
+    nsresult dbErr = NS_OK;
+    if (!m_listContext) {
       dbErr = m_db->ReverseEnumerateMessages(getter_AddRefs(m_listContext));
+    }
     if (NS_SUCCEEDED(dbErr) && m_listContext) {
       PRIntervalTime startTime = PR_IntervalNow();
       nsAutoString folderCharset;
       GetSearchCharset(folderCharset);
       NS_ConvertUTF16toUTF8 charset(folderCharset);
+      nsMsgSearchBoolExpression* expressionTree = nullptr;
       while (!*aDone)  // we'll break out of the loop after kTimeSliceInMS
                        // milliseconds
       {
         nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
         dbErr = m_listContext->GetNext(getter_AddRefs(msgDBHdr));
-        if (NS_FAILED(dbErr))
+        if (NS_FAILED(dbErr)) {
           *aDone = true;  // ###phil dbErr is dropped on the floor. just note
                           //  that we did have an error so we'll clean up later
-        else {
+        } else {
           bool match = false;
           // Is this message a hit?
           err = MatchTermsForSearch(msgDBHdr, m_searchTerms, charset.get(),
@@ -652,12 +657,13 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
           if (PR_IntervalToMilliseconds(elapsedTime) > kTimeSliceInMS) break;
         }
       }
+      delete expressionTree;
     }
-  } else
-    *aDone = true;  // we couldn't open up the DB. This is an unrecoverable
-                    // error so mark the scope as done.
-
-  delete expressionTree;
+  } else {
+    // We couldn't open up the DB. This is an unrecoverable error, so mark the
+    // scope as done.
+    *aDone = true;
+  }
 
   // in the past an error here would cause an "infinite" search because the url
   // would continue to run... i.e. if we couldn't open the database, it returns
