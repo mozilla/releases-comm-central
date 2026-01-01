@@ -5,10 +5,11 @@ but no other commits are pending.
 
 NOTE: these commits pollute the commit history. Where possible try to avoid them.
 Some considerations:
- - Spread out landings so that there is something to push next as well,
-   if patches in the tb-checkin-needed queue aren't urgent
- - Check the review queue: something quick and easy to grab from there?
- - Instead fix or improve documentation. Over time these fixes add up.
+
+- Spread out landings so that there is something to push next as well,
+  if patches in the tb-checkin-needed queue aren't urgent
+- Check the review queue: something quick and easy to grab from there?
+- Instead fix or improve documentation. Over time these fixes add up.
 
 Instructions:
 
@@ -18,4 +19,4 @@ and make a change below the line.
 
 ---
 
-...
+....
