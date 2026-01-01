@@ -92,7 +92,9 @@
      */
     setAttribute(aAttr, aVal) {
       if (aAttr == "dropbox") {
-        const session = cal.dragService.getCurrentSession();
+        const session = Cc["@mozilla.org/widget/dragservice;1"]
+          .getService(Ci.nsIDragService)
+          .getCurrentSession();
         if (session) {
           session.canDrop = true;
           // no shadows when dragging in the initial position

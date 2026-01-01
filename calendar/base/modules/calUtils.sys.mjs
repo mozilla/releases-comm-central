@@ -155,12 +155,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/calendar/weekinfo-service;1",
   Ci.calIWeekInfoService
 );
-XPCOMUtils.defineLazyServiceGetter(
-  cal,
-  "dragService",
-  "@mozilla.org/widget/dragservice;1",
-  Ci.nsIDragService
-);
 
 // Sub-modules for calUtils
 // XXX: https://bugzilla.mozilla.org/show_bug.cgi?id=1745807 should drop the
