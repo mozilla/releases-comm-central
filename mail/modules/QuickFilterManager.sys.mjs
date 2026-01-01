@@ -707,7 +707,7 @@ var TagFacetingFilter = {
     let term, value;
     const mode = aFilterValue.mode;
 
-    // Show only messages that have no filters assigned.
+    // Show only messages that have no tags assigned.
     if (mode === "NONE") {
       term = aTermCreator.createTerm();
       term.attrib = Ci.nsMsgSearchAttrib.Keywords;
