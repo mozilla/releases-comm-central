@@ -69,7 +69,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   virtual ~nsImapIncomingServer();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);
   nsresult ResetFoldersToUnverified(nsIMsgFolder* parentFolder);
-  nsresult CloseFoldersDB(nsIMsgFolder* parentFolder);
   void GetUnverifiedSubFolders(nsIMsgFolder* parentFolder,
                                nsCOMArray<nsIMsgImapMailFolder>& aFoldersArray);
   void GetUnverifiedFolders(nsCOMArray<nsIMsgImapMailFolder>& aFolderArray);
