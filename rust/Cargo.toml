@@ -5,7 +5,7 @@ name = "mozilla-central-workspace-hack"
 version = "0.1.0"
 license = "MPL-2.0"
 description = "Thunderbird extensions to mozilla-central-workspace-hack"
-rust-version = "1.82.0"
+rust-version = "1.87.0"
 edition = "2021"
 
 [features]
@@ -16,7 +16,7 @@ gkrust-gtest = ["gkrust"]
 members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue', 'graph_xpcom', 'protocol_shared']
 
 [workspace.package]
-rust-version = "1.82.0"
+rust-version = "1.87.0"
 
 [workspace.dependencies]
 uniffi = { version = "0.29.3" }
