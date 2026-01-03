@@ -265,11 +265,8 @@
               const recentSubMenu =
                 this._menu._getSubMenuForMenuItem(recentMenuItem);
 
-              // If this folder is already in the recent menu, return.
-              if (
-                !recentSubMenu ||
-                this._getChildForItem(folder, recentSubMenu)
-              ) {
+              // If the recent submenu hasn't been built yet, return.
+              if (!recentSubMenu) {
                 return;
               }
             } else if (eventName == "RenameCompleted") {
