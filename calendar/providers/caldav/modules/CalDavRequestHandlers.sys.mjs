@@ -401,6 +401,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
   itemsReported = null;
   itemsNeedFetching = null;
   additionalSyncNeeded = false;
+  shouldYieldEventLoop = 0;
 
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
@@ -747,6 +748,13 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
               " contenttype:" +
               resp.getcontenttype
           );
+        }
+
+        // Every 25 items yield the event loop to avoid blocking the main thread
+        // and appearing unresponsive.
+        if (++this.shouldYieldEventLoop == 25) {
+          await new Promise(resolve => setTimeout(resolve));
+          this.shouldYieldEventLoop = 0;
         }
         break;
       }
