@@ -449,16 +449,9 @@ class FolderTreeRow extends HTMLLIElement {
    *
    * @param {nsIMsgFolder} folder
    */
-  setFolderPropertiesFromFolder(folder) {
+  async setFolderPropertiesFromFolder(folder) {
     if (folder.server.type != "rss") {
       return;
-    }
-    const urls = !folder.isServer
-      ? lazy.FeedUtils.getFeedUrlsInFolder(folder)
-      : null;
-    if (urls?.length == 1) {
-      const url = urls[0];
-      this.icon.style = `content: url("page-icon:${url}");`;
     }
     const props = lazy.FeedUtils.getFolderProperties(folder);
     for (const property of ["hasError", "isBusy", "isPaused"]) {
@@ -467,6 +460,21 @@ class FolderTreeRow extends HTMLLIElement {
       } else {
         delete this.dataset[property];
       }
+    }
+    const urls = !folder.isServer
+      ? lazy.FeedUtils.getFeedUrlsInFolder(folder)
+      : null;
+    if (urls?.length == 1) {
+      const url = urls[0];
+      if (document.readyState != "complete") {
+        // If about:3pane isn't fully loaded, wait until it is before setting
+        // the row icon, otherwise the icon will be included in the page's
+        // load group and delay everything else that's waiting on the load.
+        await new Promise(resolve =>
+          window.addEventListener("load", resolve, { once: true })
+        );
+      }
+      this.icon.style = `content: url("page-icon:${url}");`;
     }
   }
 
