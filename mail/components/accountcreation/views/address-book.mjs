@@ -8,7 +8,7 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-f
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.sys.mjs",
-  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   RemoteAddressBookUtils:
     "resource:///modules/accountcreation/RemoteAddressBookUtils.sys.mjs",
   LDAPDirectoryUtils:
@@ -391,11 +391,9 @@ class AccountHubAddressBook extends HTMLElement {
           stateData.server = `https://${stateData.server}`;
         }
         this.#remoteAddressBookState = stateData;
-        const oAuth = new lazy.OAuth2Module();
         if (
-          !oAuth.initFromHostname(
+          !lazy.OAuth2Providers.getHostnameDetails(
             new URL(stateData.server).hostname,
-            stateData.username,
             "carddav"
           )
         ) {

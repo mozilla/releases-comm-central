@@ -6,7 +6,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
-  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
 /**
@@ -113,11 +113,9 @@ export const RemoteAddressBookUtils = {
         }
         // If auth method is OAuth, and CardDAV scope wasn't granted, bail out.
         if (account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2) {
-          const oAuth2 = new lazy.OAuth2Module();
           if (
-            !oAuth2.initFromHostname(
+            !lazy.OAuth2Providers.getHostnameDetails(
               account.incomingServer.hostName,
-              account.incomingServer.username,
               "carddav"
             )
           ) {
