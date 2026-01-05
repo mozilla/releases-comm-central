@@ -1104,6 +1104,7 @@ pref("devtools.netmonitor.enabled", true);
 
 pref("devtools.netmonitor.features.search", true);
 pref("devtools.netmonitor.features.requestBlocking", true);
+pref("devtools.netmonitor.features.webtransport", true);
 
 // Enable the Application panel
 pref("devtools.application.enabled", true);
