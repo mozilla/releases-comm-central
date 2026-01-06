@@ -48,3 +48,25 @@ impl Select for Get {
         self.selection.extend(properties)
     }
 }
+#[doc = "Update user\n\nUpdate the properties of a user object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
+#[derive(Debug, Default)]
+pub struct Patch<'a> {
+    body: User<'a>,
+}
+impl<'a> Patch<'a> {
+    pub fn new(body: User<'a>) -> Self {
+        Self { body }
+    }
+}
+impl<'a> Operation for Patch<'a> {
+    const METHOD: Method = Method::PATCH;
+    type Body = User<'a>;
+    fn build(&self) -> http::Request<Self::Body> {
+        let p_and_q = PATH;
+        http::Request::builder()
+            .uri(p_and_q)
+            .method(Self::METHOD)
+            .body(self.body.clone())
+            .unwrap()
+    }
+}

@@ -31,7 +31,7 @@ pub struct Operation {
     pub description: Option<String>,
     pub external_docs: Option<String>,
     pub parameters: Option<Vec<Parameter>>,
-    pub _body: Option<RequestBody>, // FIXME: use
+    pub body: Option<RequestBody>,
     pub success: Success,
 }
 
@@ -185,7 +185,7 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
                 description,
                 external_docs,
                 parameters,
-                _body: body,
+                body,
                 success,
             }
         })

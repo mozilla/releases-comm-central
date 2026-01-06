@@ -8,7 +8,7 @@ use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use crate::extract::path::{Method, Operation, Path, Success};
 use crate::GENERATION_DISCLOSURE;
 
-use super::{markup_doc_comment, RustType};
+use super::{markup_doc_comment, Reference, RustType};
 
 pub struct RequestDef {
     struct_def: StructDef,
@@ -92,15 +92,58 @@ impl ToTokens for Path {
                         let struct_def = StructDef {
                             description,
                             method,
+                            lifetime: None,
+                            body_line: None,
                             selection_type: selection_type.clone(),
                         };
-                        let impl_def = ImplDef { method, selectable };
+                        let impl_def = ImplDef { method, lifetime: None, arg: None, selectable };
                         let operation_def = OperationDef {
                             method: method.to_string(),
-                            body: quote!(()),
+                            lifetime: None,
+                            body: None,
                             selectable,
                         };
                         let select_def = SelectDef { selection_type };
+                        Some(RequestDef {
+                            struct_def,
+                            impl_def,
+                            operation_def,
+                            select_def,
+                        })
+                    }
+                    Method::Patch => {
+                        let op_body = operation
+                            .body
+                            .clone()
+                            .expect("Patch operations should have a body");
+                        let mut body = op_body
+                                .property
+                                .rust_type
+                                .base_token(false, Reference::Own);
+                        if op_body.property.is_ref {
+                            body = quote!(#body<'a>);
+                        }
+                        let lifetime = Some(quote!(<'a>));
+                        let struct_def = StructDef {
+                            description,
+                            method,
+                            lifetime: lifetime.clone(),
+                            body_line: Some(quote!(body: #body,)),
+                            selection_type: None,
+                        };
+                        let impl_def = ImplDef {
+                            method,
+                            lifetime: lifetime.clone(),
+                            arg: Some(quote!(body: #body)),
+                            selectable: false
+                        };
+                        let operation_def = OperationDef {
+                            method: method.to_string(),
+                            lifetime,
+                            body: Some(body),
+                            selectable: false,
+                        };
+                        let select_def = SelectDef { selection_type: None };
                         Some(RequestDef {
                             struct_def,
                             impl_def,
@@ -143,6 +186,8 @@ impl ToTokens for Path {
 struct StructDef {
     description: Option<TokenStream>,
     method: Method,
+    lifetime: Option<TokenStream>,
+    body_line: Option<TokenStream>,
     selection_type: Option<Ident>,
 }
 
@@ -151,6 +196,8 @@ impl ToTokens for StructDef {
         let Self {
             description,
             method,
+            lifetime,
+            body_line: body,
             selection_type,
         } = self;
         let selection_line = selection_type
@@ -159,28 +206,46 @@ impl ToTokens for StructDef {
         tokens.append_all(quote! {
             #description
             #[derive(Debug, Default)]
-            pub struct #method {#selection_line}
+            pub struct #method #lifetime {
+                #body
+                #selection_line
+            }
         })
     }
 }
 
 struct ImplDef {
     method: Method,
+    lifetime: Option<TokenStream>,
+    arg: Option<TokenStream>,
     selectable: bool,
 }
 
 impl ToTokens for ImplDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let Self { method, selectable } = self;
+        let Self {
+            method,
+            lifetime,
+            arg,
+            selectable,
+        } = self;
+        let body_line = if arg.is_some() {
+            Some(quote!(body,))
+        } else {
+            None
+        };
         let selection_line = if *selectable {
             Some(quote!(selection: Selection::default(),))
         } else {
             None
         };
         tokens.append_all(quote! {
-            impl #method {
-                pub fn new() -> Self {
-                    Self {#selection_line}
+            impl #lifetime #method #lifetime {
+                pub fn new(#arg) -> Self {
+                    Self {
+                        #body_line
+                        #selection_line
+                    }
                 }
             }
         })
@@ -189,7 +254,8 @@ impl ToTokens for ImplDef {
 
 struct OperationDef {
     method: String,
-    body: TokenStream,
+    lifetime: Option<TokenStream>,
+    body: Option<TokenStream>,
     selectable: bool,
 }
 
@@ -197,11 +263,20 @@ impl ToTokens for OperationDef {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let OperationDef {
             method,
+            lifetime,
             body,
             selectable,
         } = self;
         let upper_method = format_ident!("{}", method.to_ascii_uppercase());
         let method = format_ident!("{method}");
+
+        // Clippy gets confused if you clone (), so handle that case separately
+        let (body_type, body_clone) = if let Some(body) = body {
+            (body, quote!(self.body.clone()))
+        } else {
+            (&quote!(()), quote!(()))
+        };
+
         let selection_str = if *selectable {
             quote! {
                 let mut params = Serializer::new(String::new());
@@ -215,16 +290,16 @@ impl ToTokens for OperationDef {
         };
 
         tokens.append_all(quote! {
-            impl Operation for #method {
+            impl #lifetime Operation for #method #lifetime {
                 const METHOD: Method = Method::#upper_method;
-                type Body = #body;
+                type Body = #body_type;
 
                 fn build(&self) -> http::Request<Self::Body> {
                     #selection_str
                     http::Request::builder()
                         .uri(p_and_q)
                         .method(Self::METHOD)
-                        .body(())
+                        .body(#body_clone)
                         .unwrap()
                 }
             }
