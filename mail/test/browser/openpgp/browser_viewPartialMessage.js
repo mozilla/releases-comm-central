@@ -8,10 +8,16 @@
 
 "use strict";
 
-const { get_about_message, open_message_from_file } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
-  );
+const {
+  get_about_message,
+  open_message_from_file,
+  wait_for_message_display_completion,
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
+);
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 const { get_notification_button, wait_for_notification_to_show } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
@@ -71,50 +77,18 @@ add_setup(async function () {
 const partialInlineTests = [
   {
     filename: "partial-encrypt-for-carol-plaintext.eml",
-    expectDecryption: true,
-    expectVerification: false,
     expectSuccess: false,
   },
   {
     filename: "partial-encrypt-for-carol-html.eml",
-    expectDecryption: true,
-    expectVerification: false,
     expectSuccess: false,
   },
   {
     filename: "partial-encrypt-for-alice-plaintext.eml",
-    expectDecryption: true,
-    expectVerification: false,
     expectSuccess: true,
   },
   {
     filename: "partial-encrypt-for-alice-html.eml",
-    expectDecryption: true,
-    expectVerification: false,
-    expectSuccess: true,
-  },
-  {
-    filename: "partial-signed-from-carol-plaintext.eml",
-    expectDecryption: false,
-    expectVerification: true,
-    expectSuccess: false,
-  },
-  {
-    filename: "partial-signed-from-carol-html.eml",
-    expectDecryption: false,
-    expectVerification: true,
-    expectSuccess: false,
-  },
-  {
-    filename: "partial-signed-from-bob-plaintext.eml",
-    expectDecryption: false,
-    expectVerification: true,
-    expectSuccess: true,
-  },
-  {
-    filename: "partial-signed-from-bob-html.eml",
-    expectDecryption: false,
-    expectVerification: true,
     expectSuccess: true,
   },
 ];
@@ -157,6 +131,8 @@ add_task(async function testPartialInlinePGPDecrypt() {
     Assert.ok(body.includes("prefix"), "prefix should still be shown");
     Assert.ok(body.includes("suffix"), "suffix should still be shown");
 
+    const newWindowPromise = promise_new_window("mail:messageWindow");
+
     // Click on the button to process the message subset.
     const processButton = get_notification_button(
       aboutMessage,
@@ -168,60 +144,36 @@ add_task(async function testPartialInlinePGPDecrypt() {
     );
     EventUtils.synthesizeMouseAtCenter(processButton, {}, aboutMessage);
 
-    // Assert that the message was processed and the partial content reminder
-    // notification is visible.
-    await wait_for_notification_to_show(
-      aboutMessage,
-      notificationBox,
-      "decryptInlinePGReminder"
-    );
+    const msgc2 = await newWindowPromise;
+    await wait_for_message_display_completion(msgc2, true);
+    const aboutMessage2 = get_about_message(msgc2);
 
-    // Get updated body text after processing the PGP subset.
-    body = getMsgBodyTxt(msgc);
+    body = getMsgBodyTxt(msgc2);
 
     Assert.ok(!body.includes("prefix"), "prefix should not be shown");
     Assert.ok(!body.includes("suffix"), "suffix should not be shown");
 
-    if (test.expectDecryption) {
-      const containsSecret = body.includes(
-        "Insert a coin to play your personal lucky melody."
+    const containsSecret = body.includes(
+      "Insert a coin to play your personal lucky melody."
+    );
+    if (test.expectSuccess) {
+      Assert.ok(containsSecret, "secret decrypted content should be shown");
+      Assert.ok(
+        OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
+        "decryption success icon is shown"
       );
-      if (test.expectSuccess) {
-        Assert.ok(containsSecret, "secret decrypted content should be shown");
-        Assert.ok(
-          OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
-          "decryption success icon is shown"
-        );
-      } else {
-        Assert.ok(
-          !containsSecret,
-          "secret decrypted content should not be shown"
-        );
-        Assert.ok(
-          OpenPGPTestUtils.hasEncryptedIconState(
-            aboutMessage.document,
-            "notok"
-          ),
-          "decryption failure icon is shown"
-        );
-      }
-    } else if (test.expectVerification) {
-      if (test.expectSuccess) {
-        Assert.ok(
-          OpenPGPTestUtils.hasSignedIconState(
-            aboutMessage.document,
-            "verified"
-          ),
-          "ok verification icon is shown for " + test.filename
-        );
-      } else {
-        Assert.ok(
-          OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-          "signed icon should NOT be shown for status unknown"
-        );
-      }
+    } else {
+      Assert.ok(
+        !containsSecret,
+        "secret decrypted content should not be shown"
+      );
+      Assert.ok(
+        OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "notok"),
+        "decryption failure icon is shown"
+      );
     }
 
+    await BrowserTestUtils.closeWindow(msgc2);
     await BrowserTestUtils.closeWindow(msgc);
   }
 });

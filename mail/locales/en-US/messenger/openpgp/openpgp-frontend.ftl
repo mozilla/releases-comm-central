@@ -57,18 +57,11 @@ openpgp-cannot-decrypt-because-mdc =
 openpgp-cannot-decrypt-because-missing-key =
     The secret key that is required to decrypt this message is not available.
 
-openpgp-partially-signed =
-    Only a subset of this message was digitally signed using OpenPGP.
-    If you click the verify button, the unprotected parts will be hidden, and the status of the digital signature will be shown.
-
 openpgp-partially-encrypted =
     Only a subset of this message was encrypted using OpenPGP.
     The readable parts of the message that are already shown were not encrypted.
     If you click the decrypt button, the contents of the encrypted parts will be shown.
 
-openpgp-reminder-partial-display = Reminder: The message shown below is only a subset of the original message.
-
-openpgp-partial-verify-button = Verify
 openpgp-partial-decrypt-button = Decrypt
 
 openpgp-unexpected-key-for-you = Warning: This message contains an unknown OpenPGP key that refers to one of your own email addresses. If this isn’t one of your own keys, it could be an attempt to trick other correspondents.
