@@ -47,6 +47,14 @@ add_setup(async function () {
   gLocalAccount = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
+  if (!gLocalAccount.defaultIdentity) {
+    const localIdentity = MailServices.accounts.createIdentity();
+    // We don't need an email for this test, but adding one could prevent
+    // weird failures in later tests. And we can use it to say where this
+    // identity came from.
+    localIdentity.email = "added.by.browser_identityColors.js@localhost";
+    gLocalAccount.addIdentity(localIdentity);
+  }
   localAMUtils = new AccountManagerUtils(gLocalAccount);
   localAMUtils.updateServerColor("#0000ff");
 
