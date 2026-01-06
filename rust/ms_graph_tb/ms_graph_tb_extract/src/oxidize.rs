@@ -9,6 +9,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{collections::HashSet, fmt};
 
+pub mod paths;
 pub mod types;
 
 fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {

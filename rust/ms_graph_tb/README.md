@@ -12,6 +12,7 @@ using the `ms_graph_tb_extract` program. To extract types, download the
 then run `cargo run --manifest-path ms_graph_tb_extract/Cargo.toml path/to/openapi.yaml .`
 from the directory with this README. The generated code will not have any
 formatting by default, so run `cargo clippy --fix` and `cargo fmt` before
-viewing or committing the new code. Support for extracting more types can be
-added by including their names in the `SUPPORTED_TYPES` constant near the top of
+viewing or committing the new code. Support for extracting more types and paths
+can be added by including their names in the `SUPPORTED_TYPES` and
+`SUPPORTED_PATHS` constants, respectively, near the top of
 `ms_graph_tb_extract/src/main.rs`.

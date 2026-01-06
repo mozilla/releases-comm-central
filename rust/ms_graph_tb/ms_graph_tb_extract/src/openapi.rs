@@ -8,12 +8,15 @@
 use std::collections::HashMap;
 use yaml_rust2::{yaml::Hash as YamlHash, Yaml, YamlLoader};
 
+pub mod path;
 pub mod schema;
 
+use path::{parse_path, OaPath};
 use schema::{parse_schema, OaSchema};
 
 /// A parsed OpenAPI yaml file, not yet interpreted.
 pub struct LoadedYaml {
+    pub paths: HashMap<String, OaPath>,
     pub schemas: HashMap<String, OaSchema>,
 }
 
@@ -23,9 +26,17 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
     println!("yaml loaded");
     let doc = docs.into_iter().next().ok_or("Empty YAML document")?;
 
+    let paths = get_map_key(&doc, "paths").ok_or("Missing 'paths'")?;
     let components = get_map_key(&doc, "components").ok_or("Missing 'components'")?;
     let schemas = get_map_key(components, "schemas").ok_or("Missing 'components.schemas'")?;
     println!("loaded roots");
+
+    let paths = paths
+        .as_hash()
+        .expect("paths should be a compound YAML ojbect")
+        .into_iter()
+        .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_path(v))))
+        .collect();
 
     let schemas = schemas
         .as_hash()
@@ -34,7 +45,7 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
         .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_schema(v))))
         .collect();
 
-    Ok(LoadedYaml { schemas })
+    Ok(LoadedYaml { paths, schemas })
 }
 
 fn get_map_key<'a>(y: &'a Yaml, key: &str) -> Option<&'a Yaml> {
@@ -45,8 +56,8 @@ fn get_map_key<'a>(y: &'a Yaml, key: &str) -> Option<&'a Yaml> {
     }
 }
 
-fn get_str_in<'a>(h: &'a YamlHash, key: &str) -> Option<&'a str> {
-    h.get(&Yaml::from_str(key))?.as_str()
+fn get_str_in<'a>(h: &'a YamlHash, key: &str) -> Option<String> {
+    h.get(&Yaml::from_str(key))?.as_str().map(str::to_string)
 }
 
 fn get_bool_in(h: &YamlHash, key: &str) -> Option<bool> {

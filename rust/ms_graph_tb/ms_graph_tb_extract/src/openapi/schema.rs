@@ -65,10 +65,10 @@ pub(super) fn parse_schema(node: &Yaml) -> OaSchema {
         };
     }
 
-    let typ = get_str_in(map, "type").map(str::to_string);
-    let format = get_str_in(map, "format").map(str::to_string);
+    let typ = get_str_in(map, "type");
+    let format = get_str_in(map, "format");
     let nullable = get_bool_in(map, "nullable");
-    let description = get_str_in(map, "description").map(str::to_string);
+    let description = get_str_in(map, "description");
 
     let properties = get_map_in(map, "properties").map(|props| {
         props

@@ -4,4 +4,5 @@
 
 //! Modules for turning generic OpenAPI representations into our internal
 //! representations of the Graph API.
+pub mod path;
 pub mod schema;
