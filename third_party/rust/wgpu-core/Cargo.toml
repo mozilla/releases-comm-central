@@ -67,7 +67,6 @@ portable-atomic = [
     "dep:portable-atomic",
     "wgpu-hal/portable-atomic",
 ]
-raw-window-handle = ["dep:raw-window-handle"]
 renderdoc = ["wgpu-core-deps-windows-linux-android/renderdoc"]
 replay = [
     "serde",
@@ -167,7 +166,6 @@ default-features = false
 
 [dependencies.raw-window-handle]
 version = "0.6.2"
-optional = true
 default-features = false
 
 [dependencies.ron]

@@ -78,6 +78,10 @@ features = [
 [dependencies.log]
 version = "0.4.21"
 
+[dependencies.raw-window-handle]
+version = "0.6.2"
+default-features = false
+
 [dependencies.serde]
 version = "1.0.219"
 features = [

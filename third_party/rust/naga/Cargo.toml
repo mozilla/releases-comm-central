@@ -177,6 +177,8 @@ default-features = false
 
 [dependencies.spirv]
 version = "0.3"
+git = "https://github.com/gfx-rs/rspirv"
+rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
 optional = true
 
 [dependencies.thiserror]
@@ -217,6 +219,8 @@ version = "0.12"
 
 [dev-dependencies.rspirv]
 version = "0.12"
+git = "https://github.com/gfx-rs/rspirv"
+rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
 
 [dev-dependencies.serde]
 version = "1.0.219"
@@ -228,6 +232,8 @@ default-features = false
 
 [dev-dependencies.spirv]
 version = "0.3"
+git = "https://github.com/gfx-rs/rspirv"
+rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
 
 [dev-dependencies.strum]
 version = "0.27.1"
