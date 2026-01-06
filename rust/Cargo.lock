@@ -2925,6 +2925,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
+name = "http"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd6effc99afb63425aff9b05836f029929e345a6148a14b7ecd5ab67af944482"
+dependencies = [
+ "bytes",
+ "fnv",
+ "itoa",
+]
+
+[[package]]
 name = "http_sfv"
 version = "0.1.0"
 dependencies = [
@@ -4231,6 +4242,18 @@ dependencies = [
  "log",
  "mp4parse",
  "num-traits",
+]
+
+[[package]]
+name = "ms_graph_tb"
+version = "0.1.0"
+dependencies = [
+ "form_urlencoded",
+ "http",
+ "serde",
+ "serde_json",
+ "strum",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
