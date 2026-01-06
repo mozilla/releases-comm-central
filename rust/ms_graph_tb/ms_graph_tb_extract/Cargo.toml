@@ -1,0 +1,12 @@
+[package]
+name = "graph_tb_extract"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+proc-macro2 = "1.0.101"
+quote = "1.0.40"
+strum = { version = "0.27.1", features = ["derive"] }
+yaml-rust2 = "0.10.3"
+
+[workspace]
