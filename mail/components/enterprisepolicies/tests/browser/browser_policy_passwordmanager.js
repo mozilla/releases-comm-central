@@ -10,15 +10,10 @@ add_task(async function test_pwmanagerbutton() {
     },
   });
 
-  window.openPreferencesTab("panePrivacy");
-  await BrowserTestUtils.browserLoaded(window.preferencesTabType.tab.browser);
-  await new Promise(resolve => setTimeout(resolve));
-
-  is(
-    window.preferencesTabType.tab.browser.contentDocument.getElementById(
-      "showPasswords"
-    ).disabled,
-    true,
+  const prefWin = await window.openPreferencesTab("panePrivacy");
+  await new Promise(resolve => prefWin.setTimeout(resolve));
+  Assert.ok(
+    prefWin.document.getElementById("showPasswords").disabled,
     "showPasswords should be disabled."
   );
 
