@@ -33,8 +33,91 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
     quote!(#( use crate::types::#imports::*; )*)
 }
 
-/// Currently a no-op, this will eventually do some basic cleaning of doc comments.
-fn markup_doc_comment(doc_comment: String) -> String {
+/// Does some (very) basic clean up of descriptions to make them better
+/// formatted as doc comments.
+// This is dumb and buggy, and will eventually need proper regex, but is good
+// enough for now to prevent major doc bugs/warnings.
+fn markup_doc_comment(mut doc_comment: String) -> String {
+    fn escape(s: &str) -> String {
+        format!("`{s}`")
+    }
+
+    fn escape_in_place(s: &mut String, start_idx: usize, end_idx: usize) {
+        s.reserve(2);
+        // Make sure the end ` gets inserted first, so the index doesn't change
+        s.insert(end_idx, '`');
+        s.insert(start_idx, '`');
+    }
+
+    /// Escape members of a string of the form "Foo, Bar, and Baz" into
+    /// "`Foo`, `Bar`, and `Baz`."
+    fn escape_list(list: &str) -> String {
+        let list = list.split(", ");
+        let list = list
+            .map(|item| {
+                if item.starts_with("and ") {
+                    let word = item
+                        .split_ascii_whitespace()
+                        .nth(1)
+                        .expect("and is followed by a word");
+                    let replacement = escape(word);
+                    item.replace(word, &replacement)
+                } else {
+                    escape(item.trim_ascii())
+                }
+            })
+            .collect::<Vec<_>>();
+        list.join(", ")
+    }
+
+    // find all instances of " [Ff]or example: ", which are always followed by
+    // something that can or should be escaped as code.
+    let example_str = "for example: ";
+    let lowered_comment = doc_comment.to_ascii_lowercase();
+    let mut search_idx = 0;
+    while let Some(match_idx) = lowered_comment[search_idx..].find(example_str) {
+        let example_start = match_idx + example_str.len();
+
+        // Examples always seem to have *some* text after them, so this match
+        // always works in practice, but this is fragile.
+        if let Some(example_len) = doc_comment[example_start..].find(". ") {
+            let example_end = example_start + example_len;
+            escape_in_place(&mut doc_comment, example_start, example_end);
+            search_idx = example_end;
+        } else {
+            search_idx = example_start;
+        }
+    }
+
+    // match against known lists of escaped words and escape them
+    let list_wrappers = [("$filter (", ")"), ("Allowed values: ", ". ")];
+    for (left, right) in list_wrappers {
+        if let Some(match_idx) = doc_comment.find(left) {
+            let start_idx = match_idx + left.len();
+            if let Some(match_len) = doc_comment[start_idx..].find(right) {
+                let before_list = &doc_comment[start_idx..start_idx + match_len];
+                let after_list = escape_list(before_list);
+                doc_comment = doc_comment.replace(before_list, &after_list);
+            }
+        }
+    }
+
+    // escape all keywords known to always benefit from escaping
+    for word in [
+        "$expand", "$filter", "$orderby", "$OrderBy", "$search", "$select", "$top",
+    ] {
+        let replacement = escape(word);
+        doc_comment = doc_comment.replace(word, &replacement);
+    }
+
+    // if the doc comment doesn't have a summary line, turn the first sentence
+    // into one
+    if !doc_comment.contains("\n\n") {
+        if let Some(idx) = doc_comment.find(". ") {
+            doc_comment.insert_str(idx + 1, "\n\n");
+        }
+    }
+
     doc_comment
 }
 
@@ -215,4 +298,28 @@ pub fn is_rust_keyword(s: &str) -> bool {
     ];
 
     keywords.contains(&s)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test that lists of escaped values don't escape the word "and" at the end
+    /// of the list.
+    #[test]
+    fn markup_list_with_and() {
+        let input = r"The name of the company that the user is associated with. This property can be useful for describing the company that a guest comes from. The maximum length is 64 characters.Returned only on $select. Supports $filter (eq, ne, not, ge, le, in, startsWith, and eq on null values).".to_string();
+        let expected = "The name of the company that the user is associated with.\n\n This property can be useful for describing the company that a guest comes from. The maximum length is 64 characters.Returned only on `$select`. Supports `$filter` (`eq`, `ne`, `not`, `ge`, `le`, `in`, `startsWith`, and `eq` on null values).";
+
+        assert_eq!(markup_doc_comment(input), expected);
+    }
+
+    /// Test that "for example:" followed by an example escapes the example.
+    #[test]
+    fn markup_doc_with_examples() {
+        let input = r"A list of other email addresses for the user; for example: ['bob@contoso.com', 'Robert@fabrikam.com']. Can store up to 250 values, each with a limit of 250 characters. NOTE: This property can't contain accent characters. Returned only on $select. Supports $filter (eq, not, ge, le, in, startsWith, endsWith, /$count eq 0, /$count ne 0).".to_string();
+        let expected = "A list of other email addresses for the user; for example: `['bob@contoso.com', 'Robert@fabrikam.com']`.\n\n Can store up to 250 values, each with a limit of 250 characters. NOTE: This property can't contain accent characters. Returned only on `$select`. Supports `$filter` (`eq`, `not`, `ge`, `le`, `in`, `startsWith`, `endsWith`, `/$count eq 0`, `/$count ne 0`).";
+
+        assert_eq!(markup_doc_comment(input), expected);
+    }
 }

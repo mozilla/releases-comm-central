@@ -30,7 +30,7 @@ impl<'a> DirectoryObject<'a> {
             properties: Cow::Borrowed(properties),
         }
     }
-    #[doc = "Date and time when this object was deleted. Always null when the object hasn't been deleted."]
+    #[doc = "Date and time when this object was deleted.\n\n Always null when the object hasn't been deleted."]
     pub fn deleted_date_time(&self) -> Result<Option<&str>, Error> {
         let val = self
             .properties

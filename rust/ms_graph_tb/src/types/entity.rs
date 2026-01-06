@@ -28,7 +28,7 @@ impl<'a> Entity<'a> {
             properties: Cow::Borrowed(properties),
         }
     }
-    #[doc = "The unique identifier for an entity. Read-only."]
+    #[doc = "The unique identifier for an entity.\n\n Read-only."]
     pub fn id(&self) -> Result<&str, Error> {
         let val = self.properties.get("id").ok_or(Error::NotFound)?;
         val.as_str()
