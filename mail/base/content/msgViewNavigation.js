@@ -196,6 +196,7 @@ function CrossFolderNavigation(type, navigateFunction) {
   } else {
     // In standalone about:message. Do just enough to call
     // `commandController._navigate` again.
+    gViewWrapper.close();
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
     gViewWrapper.open(folder);
