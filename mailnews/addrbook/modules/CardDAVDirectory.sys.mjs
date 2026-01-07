@@ -321,8 +321,10 @@ export class CardDAVDirectory extends SQLiteDirectory {
     // Do not use await while it is set, and use a try/finally block to ensure
     // it is cleared.
 
+    let addPromise;
     try {
       this._overrideReadOnly = true;
+      const cardsToAdd = [];
       for (const { href, properties } of this._readResponse(response.dom)) {
         if (!properties) {
           continue;
@@ -338,14 +340,24 @@ export class CardDAVDirectory extends SQLiteDirectory {
         abCard.setProperty("_href", href);
 
         if (!this.cards.has(abCard.UID)) {
-          super.dropCard(abCard, false);
+          cardsToAdd.push(abCard);
         } else if (this.loadCardProperties(abCard.UID).get("_etag") != etag) {
           super.modifyCard(abCard);
+        }
+      }
+      if (cardsToAdd.length > 25) {
+        // Don't make observers work too hard, especially if the book is
+        // currently displayed in the address book tab.
+        addPromise = super.bulkAddCards(cardsToAdd);
+      } else {
+        for (const abCard of cardsToAdd) {
+          super.dropCard(abCard, false);
         }
       }
     } finally {
       this._overrideReadOnly = false;
     }
+    await addPromise;
   }
 
   /**
@@ -862,8 +874,10 @@ export class CardDAVDirectory extends SQLiteDirectory {
     // it is cleared.
 
     const hrefsToFetch = [];
+    let addPromise;
     try {
       this._overrideReadOnly = true;
+      const cardsToAdd = [];
       const cardsToDelete = [];
       for (const { href, notFound, properties } of this._readResponse(dom)) {
         const card = this.getCardFromProperty("_href", href, true);
@@ -897,16 +911,26 @@ export class CardDAVDirectory extends SQLiteDirectory {
             super.modifyCard(abCard);
           }
         } else {
-          super.dropCard(abCard, false);
+          cardsToAdd.push(abCard);
         }
       }
 
       if (cardsToDelete.length > 0) {
         super.deleteCards(cardsToDelete);
       }
+      if (cardsToAdd.length > 25) {
+        // Don't make observers work too hard, especially if the book is
+        // currently displayed in the address book tab.
+        addPromise = super.bulkAddCards(cardsToAdd);
+      } else {
+        for (const abCard of cardsToAdd) {
+          super.dropCard(abCard, false);
+        }
+      }
     } finally {
       this._overrideReadOnly = false;
     }
+    await addPromise;
 
     await this._fetchAndStore(hrefsToFetch);
 
