@@ -844,11 +844,7 @@ function rebuildFilterList() {
     listitem.setAttribute("label", filter.filterName);
     // Set the listitem values to represent the current filter.
     nameCell.setAttribute("value", filter.filterName);
-    if (filter.enabled) {
-      enabledCell.setAttribute("checked", "true");
-    } else {
-      enabledCell.removeAttribute("checked");
-    }
+    enabledCell.toggleAttribute("checked", filter.enabled);
     listitem.setAttribute("aria-checked", filter.enabled);
     listitem._filter = filter;
 

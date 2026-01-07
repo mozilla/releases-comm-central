@@ -89,7 +89,7 @@ var accountOptionsHelper = {
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);
           if (opt.getBool()) {
-            chk.setAttribute("checked", "true");
+            chk.toggleAttribute("checked", true);
           }
           // Span two columns.
           chk.classList.add("grid-item-span-row");

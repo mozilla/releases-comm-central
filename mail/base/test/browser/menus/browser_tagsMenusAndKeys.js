@@ -633,7 +633,7 @@ function checkTagItems(tagsPopup, expectedTags, expectedChecked = []) {
       "menu item color"
     );
     Assert.equal(
-      element.getAttribute("checked") == "true",
+      element.hasAttribute("checked"),
       expectedChecked.includes(key),
       "menu item checked state"
     );

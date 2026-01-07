@@ -359,7 +359,7 @@ function updateTodayPaneButton() {
   todaypane.appendChild(iconEnd);
 
   const calSidebar = document.getElementById("calSidebar");
-  todaypane.setAttribute("checked", !calSidebar.collapsed);
+  todaypane.toggleAttribute("checked", !calSidebar.collapsed);
 }
 
 /**
@@ -441,7 +441,7 @@ function customizeMailToolbarForTabType() {
 function initViewCalendarPaneMenu() {
   const calSidebar = document.getElementById("calSidebar");
 
-  document.getElementById("calViewCalendarPane").setAttribute("checked", !calSidebar.collapsed);
+  document.getElementById("calViewCalendarPane").toggleAttribute("checked", !calSidebar.collapsed);
 
   if (document.getElementById("appmenu_calViewCalendarPane")) {
     document.getElementById("appmenu_calViewCalendarPane").checked = !calSidebar.collapsed;

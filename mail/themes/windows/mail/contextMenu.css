@@ -23,12 +23,12 @@ menupopup {
     padding-inline-end: 5px;
   }
 
-  menuitem[checked="true"] > .menu-icon {
+  menuitem[checked] > .menu-icon {
     display: flex;
   }
 
   &.webextension-menupopup > menu:not([icon], .menu-iconic),
-  &.webextension-menupopup > menuitem:not([checked="true"], [icon], .menuitem-iconic),
+  &.webextension-menupopup > menuitem:not([checked], [icon], .menuitem-iconic),
   &.gutter-popup:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])),
   menubar > menu &:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic, [type="checkbox"], [type="radio"])) {
     padding-inline-start: 32px;
@@ -36,7 +36,7 @@ menupopup {
 
   /* Override menu.css rule. */
   &:not([needsgutter], .webextension-menupopup) {
-    & > menuitem:is([type="checkbox"], [type="radio"]):not([checked="true"]) > .menu-icon {
+    & > menuitem:is([type="checkbox"], [type="radio"]):not([checked]) > .menu-icon {
       padding-inline-end: 8px;
       display: flex;
     }

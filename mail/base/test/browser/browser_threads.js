@@ -386,14 +386,13 @@ async function checkMessageMenu(expectedStates) {
 function assertCheckedState(menuItem, checkedState, itemId) {
   if (checkedState) {
     Assert.equal(
-      menuItem.getAttribute("checked"),
-      "true",
+      menuItem.hasAttribute("checked"),
+      true,
       `Menu item ${itemId} should be checked`
     );
   } else {
     Assert.ok(
-      !menuItem.hasAttribute("checked") ||
-        menuItem.getAttribute("checked") == "false",
+      !menuItem.hasAttribute("checked"),
       `Menu item ${itemId} should not be checked`
     );
   }

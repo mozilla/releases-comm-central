@@ -312,7 +312,6 @@
               type="checkbox"
               label="&menuFavoriteFolder.label;"
               accesskey="&menuFavoriteFolder.accesskey;"
-              checked="false"
               command="cmd_toggleFavoriteFolder"/>
     <menuitem id="menu_properties"
               command="cmd_properties"/>
@@ -362,7 +361,7 @@
                   label="&showTaskbarCmd.label;"
                   accesskey="&showTaskbarCmd.accesskey;"
                   oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"
-                  checked="true"/>
+                  checked=""/>
         <menuseparator id="viewMenuBeforeCustomizeMailToolbarsSeparator"/>
         <menuitem id="customizeMailToolbars"
                   command="cmd_CustomizeMailToolbar"
@@ -483,7 +482,7 @@
             <menuseparator id="fullZoomAfterResetSeparator"/>
             <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                       accesskey="&fullZoomToggleCmd.accesskey;"
-                      type="checkbox" command="cmd_fullZoomToggle" checked="false"/>
+                      type="checkbox" command="cmd_fullZoomToggle"/>
           </menupopup>
         </menu>
         <menu id="menu_uiFontSize"
@@ -742,7 +741,7 @@
         </menupopup>
       </menu>
       <menuitem id="viewAttachmentsInlineMenuitem" label="&viewAttachmentsInlineCmd.label;" accesskey="&viewAttachmentsInlineCmd.accesskey;"
-        oncommand="ToggleInlineAttachment(event.target)" type="checkbox" checked="true"/>
+        oncommand="ToggleInlineAttachment(event.target)" type="checkbox" checked=""/>
       <menuseparator id="viewAfterAttachmentsSeparator"/>
       <menuitem id="pageSourceMenuItem"
                 label="&pageSourceCmd.label;"

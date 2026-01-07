@@ -78,7 +78,7 @@ add_task(async function testSwitchToCardsView() {
   Assert.ok(
     displayContext
       .querySelector("#threadPaneCardsView")
-      .getAttribute("checked"),
+      .hasAttribute("checked"),
     "The cards view menuitem should be checked"
   );
 
@@ -131,7 +131,7 @@ add_task(async function testSwitchToCardsView() {
   Assert.ok(
     displayContext
       .querySelector("#threadPaneTableView")
-      .getAttribute("checked"),
+      .hasAttribute("checked"),
     "The table view menuitem should be checked"
   );
 
@@ -246,7 +246,7 @@ add_task(async function testTagsInVerticalView() {
   Assert.ok(
     displayContext
       .querySelector("#threadPaneCardsView")
-      .getAttribute("checked"),
+      .hasAttribute("checked"),
     "The cards view menuitem should be checked"
   );
 

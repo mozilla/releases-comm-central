@@ -231,7 +231,7 @@ class UnifiedToolbar extends HTMLElement {
     const menuBarMenuItem = document.getElementById("menuBarToggleVisible");
     if (AppConstants.platform != "macosx") {
       const menubarToolbar = document.getElementById("toolbar-menubar");
-      menuBarMenuItem.setAttribute(
+      menuBarMenuItem.toggleAttribute(
         "checked",
         !menubarToolbar.hasAttribute("autohide")
       );
@@ -269,8 +269,8 @@ class UnifiedToolbar extends HTMLElement {
       menubarToolbar.toggleAttribute("autohide", true);
       menuItem.removeAttribute("checked");
     } else {
-      menuItem.setAttribute("checked", true);
       menubarToolbar.removeAttribute("autohide");
+      menuItem.toggleAttribute("checked", true);
     }
     Services.xulStore.persist(menubarToolbar, "autohide");
   };

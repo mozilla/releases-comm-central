@@ -29,7 +29,7 @@ var gMigrateWizard = {
 
     for (const migrator of window.arguments[0]) {
       const checkbox = document.createXULElement("checkbox");
-      checkbox.setAttribute("checked", true);
+      checkbox.toggleAttribute("checked", true);
       checkbox.setAttribute("label", migrator.title);
       checkbox.migrator = migrator;
       listbox.appendChild(checkbox);
@@ -47,7 +47,7 @@ var gMigrateWizard = {
     // Get all the checked migrators into an array
     const listbox = document.getElementById("datasource-list");
     for (let i = listbox.children.length - 1; i >= 0; i--) {
-      if (listbox.children[i].getAttribute("checked")) {
+      if (listbox.children[i].hasAttribute("checked")) {
         migrators.push(listbox.children[i].migrator);
       }
     }

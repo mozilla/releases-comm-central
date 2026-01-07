@@ -539,7 +539,7 @@ var folderPaneContextMenu = {
     const item = document.getElementById(id);
     if (item) {
       // Always convert truthy/falsy to boolean before string.
-      item.setAttribute("checked", !!checked);
+      item.toggleAttribute("checked", !!checked);
     }
   },
 
@@ -902,13 +902,13 @@ var folderPaneContextMenu = {
       case "folderPaneContext-pauseAllUpdates":
         topChromeWindow.MsgPauseUpdates(
           [folder],
-          event.target.getAttribute("checked") == "true"
+          event.target.hasAttribute("checked")
         );
         break;
       case "folderPaneContext-pauseUpdates":
         topChromeWindow.MsgPauseUpdates(
           [folder],
-          event.target.getAttribute("checked") == "true"
+          event.target.hasAttribute("checked")
         );
         break;
       case "folderPaneContext-openNewTab":
@@ -1995,7 +1995,7 @@ var folderPane = {
   updateContextCheckedFolderMode() {
     for (const item of document.querySelectorAll(".folder-pane-mode")) {
       if (this.activeModes.includes(item.value)) {
-        item.setAttribute("checked", true);
+        item.toggleAttribute("checked", true);
         continue;
       }
       item.removeAttribute("checked");
@@ -2045,7 +2045,7 @@ var folderPane = {
       return;
     }
     if (this.isCompact) {
-      compactMenuItem.setAttribute("checked", true);
+      compactMenuItem.toggleAttribute("checked", true);
     }
   },
 
@@ -4182,38 +4182,38 @@ var folderPane = {
         case "folderPaneHeaderToggleGetMessages":
           XULStoreUtils.isItemHidden("messenger", "folderPaneGetMessages")
             ? item.removeAttribute("checked")
-            : item.setAttribute("checked", true);
+            : item.toggleAttribute("checked", true);
           break;
         case "folderPaneHeaderToggleNewMessage":
           XULStoreUtils.isItemHidden("messenger", "folderPaneWriteMessage")
             ? item.removeAttribute("checked")
-            : item.setAttribute("checked", true);
+            : item.toggleAttribute("checked", true);
           break;
         case "folderPaneHeaderToggleTotalCount":
           XULStoreUtils.isItemVisible("messenger", "totalMsgCount")
-            ? item.setAttribute("checked", true)
+            ? item.toggleAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
         case "folderPaneMoreContextCompactToggle":
           this.isCompact
-            ? item.setAttribute("checked", true)
+            ? item.toggleAttribute("checked", true)
             : item.removeAttribute("checked");
           this.toggleCompactViewMenuItem();
           break;
         case "folderPaneHeaderToggleFolderSize":
           XULStoreUtils.isItemVisible("messenger", "folderPaneFolderSize")
-            ? item.setAttribute("checked", true)
+            ? item.toggleAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
         case "folderPaneHeaderToggleFullPath":
           XULStoreUtils.isItemVisible("messenger", "folderPaneFullPath")
-            ? item.setAttribute("checked", true)
+            ? item.toggleAttribute("checked", true)
             : item.removeAttribute("checked");
           this.toggleFullPathMenuItem();
           break;
         case "folderPaneHeaderToggleLocalFolders":
           XULStoreUtils.isItemHidden("messenger", "folderPaneLocalFolders")
-            ? item.setAttribute("checked", true)
+            ? item.toggleAttribute("checked", true)
             : item.removeAttribute("checked");
           break;
         default:
@@ -4715,7 +4715,7 @@ var threadPaneHeader = {
           ? "threadPaneTableView"
           : "threadPaneCardsView"
       )
-      .setAttribute("checked", "true");
+      .toggleAttribute("checked", true);
   },
 
   /**
@@ -4731,7 +4731,7 @@ var threadPaneHeader = {
     // Update menuitem to reflect sort key.
     for (const menuitem of event.target.querySelectorAll(`[name="sortby"]`)) {
       const sortKey = menuitem.getAttribute("value");
-      menuitem.setAttribute(
+      menuitem.toggleAttribute(
         "checked",
         gViewWrapper.primarySortColumnId == sortKey
       );
@@ -4740,21 +4740,21 @@ var threadPaneHeader = {
     // Update sort direction menu items.
     event.target
       .querySelector(`[value="ascending"]`)
-      .setAttribute("checked", gViewWrapper.isSortedAscending);
+      .toggleAttribute("checked", gViewWrapper.isSortedAscending);
     event.target
       .querySelector(`[value="descending"]`)
-      .setAttribute("checked", !gViewWrapper.isSortedAscending);
+      .toggleAttribute("checked", !gViewWrapper.isSortedAscending);
 
     // Update the threaded and groupedBy menu items.
     event.target
       .querySelector(`[value="threaded"]`)
-      .setAttribute("checked", gViewWrapper.showThreaded);
+      .toggleAttribute("checked", gViewWrapper.showThreaded);
     event.target
       .querySelector(`[value="unthreaded"]`)
-      .setAttribute("checked", gViewWrapper.showUnthreaded);
+      .toggleAttribute("checked", gViewWrapper.showUnthreaded);
     event.target
       .querySelector(`[value="group"]`)
-      .setAttribute("checked", gViewWrapper.showGroupedBySort);
+      .toggleAttribute("checked", gViewWrapper.showGroupedBySort);
   },
 
   /**

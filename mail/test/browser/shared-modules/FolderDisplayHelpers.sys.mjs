@@ -1526,8 +1526,8 @@ export function assert_message_pane_visible() {
   mc.view_init(); // Force the view menu to update.
   const paneMenuItem = mc.document.getElementById("menu_showMessage");
   Assert.equal(
-    paneMenuItem.getAttribute("checked"),
-    "true",
+    paneMenuItem.hasAttribute("checked"),
+    true,
     "The Message Pane menu item should be checked."
   );
 }
@@ -1558,8 +1558,8 @@ export function assert_message_pane_hidden() {
   mc.view_init(); // Force the view menu to update.
   const paneMenuItem = mc.document.getElementById("menu_showMessage");
   Assert.notEqual(
-    paneMenuItem.getAttribute("checked"),
-    "true",
+    paneMenuItem.hasAttribute("checked"),
+    true,
     "The Message Pane menu item should not be checked."
   );
 }

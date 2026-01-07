@@ -242,7 +242,7 @@ function onSaveWhiteList() {
     // as they may not return the right value or may even not exist.
     // Always get the attributes only.
     var wlNode = wList.getItemAtIndex(i);
-    if (wlNode.firstElementChild.getAttribute("checked") == "true") {
+    if (wlNode.firstElementChild.hasAttribute("checked")) {
       const abURI = wlNode.getAttribute("value");
       wlArray.push(abURI);
     }

@@ -245,7 +245,7 @@
 
       this.mObserver = new CalendarViewObserver(this);
 
-      const isChecked = id => document.getElementById(id).getAttribute("checked") == "true";
+      const isChecked = id => document.getElementById(id).hasAttribute("checked");
 
       this.workdaysOnly = isChecked("calendar_toggle_workdays_only_command");
       this.tasksInView = isChecked("calendar_toggle_tasks_in_view_command");

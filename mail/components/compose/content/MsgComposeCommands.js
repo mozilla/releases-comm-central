@@ -1059,7 +1059,7 @@ var defaultController = {
     cmd_attachVCard: {
       isEnabled() {
         const cmd = document.getElementById("cmd_attachVCard");
-        cmd.setAttribute("checked", gMsgCompose.compFields.attachVCard);
+        cmd.toggleAttribute("checked", gMsgCompose.compFields.attachVCard);
         return !!gCurrentIdentity?.escapedVCard;
       },
       doCommand() {},
@@ -1068,7 +1068,7 @@ var defaultController = {
     cmd_attachPublicKey: {
       isEnabled() {
         const cmd = document.getElementById("cmd_attachPublicKey");
-        cmd.setAttribute("checked", gAttachMyPublicPGPKey);
+        cmd.toggleAttribute("checked", gAttachMyPublicPGPKey);
         return isPgpConfigured();
       },
       doCommand() {},
@@ -1818,13 +1818,13 @@ function updateAllItems(disable) {
 function InitFileSaveAsMenu() {
   document
     .getElementById("cmd_saveAsFile")
-    .setAttribute("checked", defaultSaveOperation == "file");
+    .toggleAttribute("checked", defaultSaveOperation == "file");
   document
     .getElementById("cmd_saveAsDraft")
-    .setAttribute("checked", defaultSaveOperation == "draft");
+    .toggleAttribute("checked", defaultSaveOperation == "draft");
   document
     .getElementById("cmd_saveAsTemplate")
-    .setAttribute("checked", defaultSaveOperation == "template");
+    .toggleAttribute("checked", defaultSaveOperation == "template");
 }
 
 function isSmimeSigningConfigured() {
@@ -1878,8 +1878,8 @@ function toggleEncryptMessage() {
 }
 
 function toggleAttachMyPublicKey(target) {
-  gAttachMyPublicPGPKey = target.getAttribute("checked") != "true";
-  target.setAttribute("checked", gAttachMyPublicPGPKey);
+  gAttachMyPublicPGPKey = !target.hasAttribute("checked");
+  target.toggleAttribute("checked", gAttachMyPublicPGPKey);
   gUserTouchedAttachMyPubKey = true;
 }
 
@@ -1911,7 +1911,7 @@ function toggleEncryptedSubject() {
  */
 function setSecuritySettings(menu_id) {
   const encItem = document.getElementById("menu_securityEncrypt" + menu_id);
-  encItem.setAttribute("checked", gSendEncrypted);
+  encItem.toggleAttribute("checked", gSendEncrypted);
 
   let disableSig = false;
   let disableEnc = false;
@@ -1931,7 +1931,7 @@ function setSecuritySettings(menu_id) {
   }
 
   const sigItem = document.getElementById("menu_securitySign" + menu_id);
-  sigItem.setAttribute("checked", gSendSigned && !disableSig);
+  sigItem.toggleAttribute("checked", gSendSigned && !disableSig);
 
   // The radio button to disable encryption is always active.
   // This is necessary, even if the current identity doesn't have
@@ -1952,9 +1952,9 @@ function setSecuritySettings(menu_id) {
     `menu_securityEncryptSubject${menu_id}`
   );
 
-  pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
-  smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
-  encryptSubjectItem.setAttribute(
+  pgpItem.toggleAttribute("checked", gSelectedTechnologyIsPGP);
+  smimeItem.toggleAttribute("checked", !gSelectedTechnologyIsPGP);
+  encryptSubjectItem.toggleAttribute(
     "checked",
     !disableEnc && gSelectedTechnologyIsPGP && gSendEncrypted && gEncryptSubject
   );
@@ -2024,7 +2024,7 @@ function msgComposeContextOnShowing(event) {
   document.getElementById("spellCheckEnable").hidden = !canSpell;
   document
     .getElementById("spellCheckEnable")
-    .setAttribute("checked", canSpell && gSpellCheckingEnabled);
+    .toggleAttribute("checked", canSpell && gSpellCheckingEnabled);
 
   document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
   document.getElementById("spellCheckUndoAddToDictionary").hidden = !showUndo;
@@ -2324,7 +2324,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     const item = document.getElementById(
       "convertCloudMenuItems_popup_convertAttachment"
     );
-    item.setAttribute("checked", "true");
+    item.toggleAttribute("checked", true);
   }
 
   for (const account of cloudFileAccounts.configuredAccounts) {
@@ -2340,7 +2340,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
       gAttachmentBucket.selectedItem.cloudFileAccount.accountKey ==
         account.accountKey
     ) {
-      item.setAttribute("checked", "true");
+      item.toggleAttribute("checked", true);
     } else if (iconURL) {
       item.setAttribute("class", "menu-iconic");
       item.setAttribute("image", iconURL);
@@ -5041,13 +5041,13 @@ async function ComposeStartup() {
 
   document
     .getElementById("dsnMenu")
-    .setAttribute("checked", gMsgCompose.compFields.DSN);
+    .toggleAttribute("checked", gMsgCompose.compFields.DSN);
   document
     .getElementById("cmd_attachVCard")
-    .setAttribute("checked", gMsgCompose.compFields.attachVCard);
+    .toggleAttribute("checked", gMsgCompose.compFields.attachVCard);
   document
     .getElementById("cmd_attachPublicKey")
-    .setAttribute("checked", gAttachMyPublicPGPKey);
+    .toggleAttribute("checked", gAttachMyPublicPGPKey);
   toggleAttachmentReminder(gMsgCompose.compFields.attachmentReminder);
   initSendFormatMenu();
 
@@ -7264,11 +7264,7 @@ function updateOptionsMenu() {
   setSecuritySettings("_Menubar");
 
   const menuItem = document.getElementById("menu_inlineSpellCheck");
-  if (gSpellCheckingEnabled) {
-    menuItem.setAttribute("checked", "true");
-  } else {
-    menuItem.removeAttribute("checked");
-  }
+  menuItem.toggleAttribute("checked", gSpellCheckingEnabled);
 }
 
 function updatePriorityMenu() {
@@ -7276,10 +7272,10 @@ function updatePriorityMenu() {
     var msgCompFields = gMsgCompose.compFields;
     if (msgCompFields && msgCompFields.priority) {
       var priorityMenu = document.getElementById("priorityMenu");
-      priorityMenu.querySelector('[checked="true"]').removeAttribute("checked");
+      priorityMenu.querySelector("[checked]").removeAttribute("checked");
       priorityMenu
         .querySelector('[value="' + msgCompFields.priority + '"]')
-        .setAttribute("checked", "true");
+        .toggleAttribute("checked", true);
     }
   }
 }
@@ -7335,11 +7331,7 @@ function initSendFormatMenu() {
   for (const [format, id] of formatToId.entries()) {
     const menuitem = document.getElementById(id);
     menuitem.value = String(format);
-    if (format == sendFormat) {
-      menuitem.setAttribute("checked", "true");
-    } else {
-      menuitem.removeAttribute("checked");
-    }
+    menuitem.toggleAttribute("checked", format == sendFormat);
   }
 
   document
@@ -7573,7 +7565,7 @@ function OnShowDictionaryMenu(aTarget) {
   InitLanguageMenu();
 
   for (const item of aTarget.children) {
-    item.setAttribute(
+    item.toggleAttribute(
       "checked",
       gActiveDictionaries.has(item.getAttribute("value"))
     );
@@ -7779,7 +7771,7 @@ function ToggleReturnReceipt(forcedState) {
   }
   for (const item of document.querySelectorAll(`menuitem[command="cmd_toggleReturnReceipt"],
                                               toolbarbutton[command="cmd_toggleReturnReceipt"]`)) {
-    item.setAttribute("checked", msgCompFields.returnReceipt);
+    item.toggleAttribute("checked", msgCompFields.returnReceipt);
   }
 }
 
@@ -7787,7 +7779,7 @@ function ToggleDSN(target) {
   const msgCompFields = gMsgCompose.compFields;
   if (msgCompFields) {
     msgCompFields.DSN = !msgCompFields.DSN;
-    target.setAttribute("checked", msgCompFields.DSN);
+    target.toggleAttribute("checked", msgCompFields.DSN);
     gDSNOptionChanged = true;
   }
 }
@@ -7796,7 +7788,7 @@ function ToggleAttachVCard(target) {
   var msgCompFields = gMsgCompose.compFields;
   if (msgCompFields) {
     msgCompFields.attachVCard = !msgCompFields.attachVCard;
-    target.setAttribute("checked", msgCompFields.attachVCard);
+    target.toggleAttribute("checked", msgCompFields.attachVCard);
     gAttachVCardOptionChanged = true;
   }
 }
@@ -7814,7 +7806,7 @@ function ToggleAttachVCard(target) {
  */
 function toggleAttachmentReminder(aState = !gManualAttachmentReminder) {
   gManualAttachmentReminder = aState;
-  document.getElementById("cmd_remindLater").setAttribute("checked", aState);
+  document.getElementById("cmd_remindLater").toggleAttribute("checked", aState);
   gMsgCompose.compFields.attachmentReminder = aState;
 
   // If we enabled manual reminder, the reminder can't be turned off.
@@ -9083,11 +9075,7 @@ function attachmentAreaOnToggle() {
   for (const menuitem of document.querySelectorAll(
     'menuitem[command="cmd_toggleAttachmentPane"]'
   )) {
-    if (attachmentArea.open) {
-      menuitem.setAttribute("checked", "true");
-      continue;
-    }
-    menuitem.removeAttribute("checked");
+    menuitem.toggleAttribute("checked", attachmentArea.open);
   }
 
   // Update the title based on the collapsed status of the bucket.
@@ -9650,7 +9638,7 @@ function LoadIdentity(startup) {
       msgCompFields.DSN = newDSN;
       document
         .getElementById("dsnMenu")
-        .setAttribute("checked", msgCompFields.DSN);
+        .toggleAttribute("checked", msgCompFields.DSN);
     }
 
     if (
@@ -9661,7 +9649,7 @@ function LoadIdentity(startup) {
       msgCompFields.attachVCard = newAttachVCard;
       document
         .getElementById("cmd_attachVCard")
-        .setAttribute("checked", msgCompFields.attachVCard);
+        .toggleAttribute("checked", msgCompFields.attachVCard);
     }
 
     if (newReplyTo != prevReplyTo) {
@@ -10842,9 +10830,9 @@ function setContactsSidebarVisibility(show, focus) {
 
   if (show) {
     contactsSplitter.expand();
-    sidebarAddrMenu.setAttribute("checked", "true");
+    sidebarAddrMenu.toggleAttribute("checked", true);
     if (contactsButton) {
-      contactsButton.setAttribute("checked", "true");
+      contactsButton.toggleAttribute("checked", true);
     }
 
     const contactsBrowser = document.getElementById("contactsBrowser");
@@ -11438,7 +11426,7 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
   const menuItem = document.getElementById("menu_fullZoomToggle");
-  menuItem.setAttribute("checked", !ZoomManager.useFullZoom);
+  menuItem.toggleAttribute("checked", !ZoomManager.useFullZoom);
 }
 
 /**
@@ -11644,22 +11632,9 @@ function onUnblockResource(aURL, aNode) {
  */
 function showSendEncryptedAndSigned() {
   const encToggle = document.getElementById("button-encryption");
-  if (encToggle) {
-    if (gSendEncrypted) {
-      encToggle.setAttribute("checked", "true");
-    } else {
-      encToggle.removeAttribute("checked");
-    }
-  }
-
+  encToggle?.toggleAttribute("checked", gSendEncrypted);
   const sigToggle = document.getElementById("button-signing");
-  if (sigToggle) {
-    if (gSendSigned) {
-      sigToggle.setAttribute("checked", "true");
-    } else {
-      sigToggle.removeAttribute("checked");
-    }
-  }
+  sigToggle?.toggleAttribute("checked", gSendSigned);
 
   // Should button remain enabled? Identity might be unable to
   // encrypt, but we might have kept button enabled after identity change.

@@ -389,13 +389,13 @@ var gMenuBuilder = {
     if (item.type == "checkbox") {
       element.setAttribute("type", "checkbox");
       if (item.checked) {
-        element.setAttribute("checked", "true");
+        element.toggleAttribute("checked", true);
       }
     } else if (item.type == "radio") {
       element.setAttribute("type", "radio");
       element.setAttribute("name", item.groupName);
       if (item.checked) {
-        element.setAttribute("checked", "true");
+        element.toggleAttribute("checked", true);
       }
     }
 

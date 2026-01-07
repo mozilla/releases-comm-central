@@ -714,7 +714,7 @@ function messageHistoryMenu_init(popup) {
       commandEvent.stopPropagation();
     });
     if (relativePosition === 0 && !messageHistory.canPop(0)) {
-      newMenuItem.setAttribute("checked", true);
+      newMenuItem.toggleAttribute("checked", true);
       newMenuItem.setAttribute("type", "radio");
     }
     items.push(newMenuItem);

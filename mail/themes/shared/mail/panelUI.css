@@ -239,7 +239,7 @@ menuitem.subviewbutton {
     outline: 0;
   }
 
-  &:is([disabled], [disabled]:hover, [checked="true"][disabled], [checked="true"][disabled]:hover) {
+  &:is([disabled], [disabled]:hover, [checked][disabled], [checked][disabled]:hover) {
     color: var(--text-color-deemphasized);
     background-color: transparent;
   }
@@ -249,7 +249,7 @@ menuitem.subviewbutton {
     float: inline-end;
   }
 
-  &[checked="true"] {
+  &[checked] {
     list-style-image: var(--icon-check);
     -moz-context-properties: stroke;
     stroke: currentColor;
@@ -294,7 +294,7 @@ menu.subviewbutton,
 .subviewbutton[targetURI] > .toolbarbutton-text,
 .subviewbutton.restoreallitem > .toolbarbutton-text,
 .subviewbutton.bookmark-item > .toolbarbutton-text,
-.subviewbutton[checked="true"] > .toolbarbutton-text {
+.subviewbutton[checked] > .toolbarbutton-text {
   padding-inline-start: 8px; /* See '.subviewbutton-iconic > .toolbarbutton-text' rule above. */
 }
 
@@ -397,7 +397,7 @@ menu.subviewbutton,
       border-end-end-radius: var(--arrowpanel-menuitem-border-radius);
     }
 
-    &[checked="true"] {
+    &[checked] {
       --appmenu-icons-fill: color-mix(in srgb, currentColor 20%, transparent);
       --appmenu-icons-stroke: currentColor;
       background-color: var(--button-primary-background-color);

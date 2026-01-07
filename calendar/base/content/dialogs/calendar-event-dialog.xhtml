@@ -143,12 +143,7 @@
         <command id="cmd_accept" disable-on-readonly="true" oncommand="acceptDialog();" />
         <command id="cmd_attach_url" disable-on-readonly="true" oncommand="attachURL()" />
         <command id="cmd_attach_cloud" disable-on-readonly="true" />
-        <command
-          id="cmd_timezone"
-          persist="checked"
-          checked="false"
-          oncommand="toggleTimezoneLinks()"
-        />
+        <command id="cmd_timezone" persist="checked" oncommand="toggleTimezoneLinks()" />
       </commandset>
 
       <keyset id="calendar-event-dialog-keyset">
@@ -348,7 +343,7 @@
                       label="&event.menu.view.toolbars.event.label;"
                       accesskey="&event.menu.view.toolbars.event.accesskey;"
                       type="checkbox"
-                      checked="true"
+                      checked=""
                       command="cmd_toolbar"
                     />
                     <menuseparator id="view-toolbars-menuseparator1" />

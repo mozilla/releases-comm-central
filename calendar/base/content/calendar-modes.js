@@ -39,7 +39,7 @@ function changeMode(mode = "mail") {
        toolbarbutton[command="switch2calendar"],toolbarbutton[command="switch2task"]`
     )
     .forEach(elem => {
-      elem.setAttribute("checked", elem.getAttribute("value") == gCurrentMode);
+      elem.toggleAttribute("checked", elem.getAttribute("value") == gCurrentMode);
     });
 
   document.querySelectorAll("calendar-modebox,calendar-modevbox").forEach(elem => {

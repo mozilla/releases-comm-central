@@ -820,7 +820,7 @@ function loadCategories(aItem) {
     document.l10n.setAttributes(item, "calendar-none");
     item.setAttribute("type", "radio");
     if (itemCategories.length === 0) {
-      item.setAttribute("checked", "true");
+      item.toggleAttribute("checked", true);
     }
     categoryPopup.appendChild(item);
   }
@@ -831,7 +831,7 @@ function loadCategories(aItem) {
     item.setAttribute("value", cat);
     item.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
     if (itemCategories.includes(cat)) {
-      item.setAttribute("checked", "true");
+      item.toggleAttribute("checked", true);
     }
     const cssSafeId = cal.view.formatStringForCSSRule(cat);
     item.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
@@ -947,7 +947,7 @@ function categoryTextboxKeypress(event) {
 
   let newIndex = categories.indexOf(category);
   if (newIndex > -1) {
-    categoryList[newIndex].setAttribute("checked", true);
+    categoryList[newIndex].toggleAttribute("checked", true);
   } else {
     const localeCollator = new Intl.Collator();
     const compare = localeCollator.compare;
@@ -961,7 +961,7 @@ function categoryTextboxKeypress(event) {
     item.setAttribute("label", category);
     item.setAttribute("value", category);
     item.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
-    item.setAttribute("checked", true);
+    item.toggleAttribute("checked", true);
     categoryPopup.insertBefore(item, categoryList[newIndex]);
   }
 

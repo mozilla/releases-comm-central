@@ -181,7 +181,7 @@ h3 {
 .gloda-timeline-button {
   margin-inline-start: 8px;
 
-  &[checked="true"] {
+  &[checked] {
     background: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
@@ -265,8 +265,8 @@ h3 {
 
   facet-boolean:not([disabled]):hover > &,
   facet-boolean-filtered:not([disabled]):hover > &,
-  facet-boolean[checked="true"]:not([disabled]) > &,
-  facet-boolean-filtered[checked="true"]:not([disabled]) > & {
+  facet-boolean[checked]:not([disabled]) > &,
+  facet-boolean-filtered[checked]:not([disabled]) > & {
     background-color: var(--selected-item-color);
     color: var(--selected-item-text-color);
   }

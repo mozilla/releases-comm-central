@@ -57,8 +57,8 @@ function assert_folder_pane_visible() {
   window.view_init(); // Force the view menu to update.
   const paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.equal(
-    paneMenuItem.getAttribute("checked"),
-    "true",
+    paneMenuItem.hasAttribute("checked"),
+    true,
     "The Folder Pane menu item should be checked."
   );
 }
@@ -88,8 +88,8 @@ function assert_folder_pane_hidden() {
   window.view_init(); // Force the view menu to update.
   const paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.notEqual(
-    paneMenuItem.getAttribute("checked"),
-    "true",
+    paneMenuItem.hasAttribute("checked"),
+    true,
     "The Folder Pane menu item should not be checked."
   );
 }

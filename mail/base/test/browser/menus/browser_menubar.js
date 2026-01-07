@@ -79,7 +79,7 @@ async function subtestAutohidePersists(callback) {
 
   // Show the menu bar in window 0 using the callback function.
 
-  await callback(window, "false");
+  await callback(window, false);
   await assertVisible(window);
 
   // Open a new window to check the visible state was reproduced correctly.
@@ -90,7 +90,7 @@ async function subtestAutohidePersists(callback) {
 
   // Hide the menu bar in window 1 using the callback function.
 
-  await callback(newWindow1, "true");
+  await callback(newWindow1, true);
   await assertHidden(newWindow1);
 
   // Open a new window to check the hidden state was reproduced correctly.
@@ -108,7 +108,7 @@ async function subtestAutohidePersists(callback) {
   // windows, the bar is still visible from the first step.
 
   await SimpleTest.promiseFocus(window);
-  await callback(window, "true");
+  await callback(window, true);
   await assertHidden(window);
 }
 
@@ -123,9 +123,9 @@ add_task(async function testToolbarPopup() {
     EventUtils.synthesizeMouseAtCenter(toolbar, { type: "contextmenu" }, win);
     await BrowserTestUtils.waitForPopupEvent(menuPopup, "shown");
     Assert.equal(
-      menuItem.getAttribute("checked"),
+      menuItem.hasAttribute("checked"),
       expectChecked,
-      `menu item should have checked="${expectChecked}" attribute`
+      `menu item ${expectChecked ? "should" : "should not"} have checked attribute`
     );
     menuPopup.activateItem(menuItem);
     await BrowserTestUtils.waitForPopupEvent(menuPopup, "hidden");
@@ -158,9 +158,9 @@ add_task(async function testViewMenu() {
       )
     );
     Assert.equal(
-      submenuItem.getAttribute("checked"),
+      submenuItem.hasAttribute("checked"),
       expectChecked,
-      `menu item should have checked="${expectChecked}" attribute`
+      `menu item ${expectChecked ? "should" : "should not"} have checked attribute`
     );
     submenuPopup.activateItem(submenuItem);
     await BrowserTestUtils.waitForPopupEvent(submenuPopup, "hidden");
@@ -201,9 +201,9 @@ add_task(async function testAppMenu() {
     );
 
     Assert.equal(
-      toolbarsMenuItem.getAttribute("checked"),
+      toolbarsMenuItem.hasAttribute("checked"),
       expectChecked,
-      `menu item should have checked="${expectChecked}" attribute`
+      `menu item ${expectChecked ? "should" : "should not"} have checked attribute`
     );
     EventUtils.synthesizeMouseAtCenter(toolbarsMenuItem, {}, win);
 

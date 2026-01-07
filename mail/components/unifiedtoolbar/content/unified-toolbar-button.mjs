@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../base/content/globalOverlay.js */
+/* global getEnabledControllerForCommand */ // From ../../../base/content/globalOverlay.js
 
 /**
  * Toolbar button implementation for the unified toolbar.
@@ -75,7 +75,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
           observedAttributes.push("checked");
 
           // Update the pressed state from the command
-          this.ariaPressed = command.getAttribute("checked") || "false";
+          this.ariaPressed = command.hasAttribute("checked") || "false";
         }
         this.#observer.observe(command, {
           attributes: true,
@@ -227,7 +227,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       if (mutation.attributeName === "disabled") {
         this.disabled = mutation.target.hasAttribute("disabled");
       } else if (mutation.attributeName === "checked") {
-        this.ariaPressed = mutation.target.getAttribute("checked") || "false";
+        this.ariaPressed = mutation.target.hasAttribute("checked") || "false";
       }
     }
   };

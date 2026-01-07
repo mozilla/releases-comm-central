@@ -272,11 +272,11 @@
   <command id="cmd_attachFile" oncommand="goDoCommand('cmd_attachFile')"/>
   <command id="cmd_attachCloud" oncommand="attachToCloud(event)"/>
   <command id="cmd_attachPage" oncommand="goDoCommand('cmd_attachPage')"/>
-  <command id="cmd_attachVCard" checked="false"
+  <command id="cmd_attachVCard"
            oncommand="ToggleAttachVCard(event.target)"/>
-  <command id="cmd_attachPublicKey" checked="false"
+  <command id="cmd_attachPublicKey"
            oncommand="toggleAttachMyPublicKey(event.target)"/>
-  <command id="cmd_remindLater" checked="false"
+  <command id="cmd_remindLater"
            oncommand="toggleAttachmentReminder()"/>
   <command id="cmd_close" oncommand="goDoCommand('cmd_close')"/>
   <command id="cmd_saveDefault" oncommand="goDoCommand('cmd_saveDefault')"/>
@@ -376,7 +376,7 @@
   <command id="cmd_convertAttachment" oncommand="goDoCommand('cmd_convertAttachment')"/>
   <command id="cmd_cancelUpload" oncommand="goDoCommand('cmd_cancelUpload')"/>
   <command id="cmd_customizeFromAddress" oncommand="MakeFromFieldEditable();"
-           checked="false" label="&customizeFromAddress.label;"/>
+           label="&customizeFromAddress.label;"/>
 </commandset>
 
   <commandset>
@@ -1055,13 +1055,13 @@
                         label="&showFormattingBarCmd.label;"
                         accesskey="&showFormattingBarCmd.accesskey;"
                         command="cmd_showFormatToolbar"
-                        checked="true"/>
+                        checked=""/>
               <menuitem id="menu_showTaskbar"
                         type="checkbox"
                         label="&showTaskbarCmd.label;"
                         accesskey="&showTaskbarCmd.accesskey;"
                         oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"
-                        checked="true"/>
+                        checked=""/>
               <menuseparator id="viewMenuBeforeCustomizeComposeToolbarsSeparator"/>
               <menuitem id="customizeComposeToolbars"
                         label="&customizeToolbar.label;"
@@ -1088,7 +1088,7 @@
               <menuseparator id="fullZoomAfterResetSeparator"/>
               <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                         accesskey="&fullZoomToggleCmd.accesskey;"
-                        type="checkbox" command="cmd_fullZoomToggle" checked="false"/>
+                        type="checkbox" command="cmd_fullZoomToggle"/>
             </menupopup>
           </menu>
           <menuseparator id="viewMenuBeforeShowToFieldSeparator"/>
@@ -1726,7 +1726,6 @@
           <menuitem id="returnReceiptMenu" type="checkbox"
                     label="&returnReceiptMenu.label;"
                     accesskey="&returnReceiptMenu.accesskey;"
-                    checked="false"
                     command="cmd_toggleReturnReceipt"/>
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
@@ -1742,7 +1741,7 @@
             <menupopup id="priorityMenuPopup">
               <menuitem type="radio" name="priority" label="&highestPriorityCmd.label;" accesskey="&highestPriorityCmd.accesskey;" value="Highest" id="priority_highest"/>
               <menuitem type="radio" name="priority" label="&highPriorityCmd.label;" accesskey="&highPriorityCmd.accesskey;" value="High" id="priority_high"/>
-              <menuitem type="radio" name="priority" label="&normalPriorityCmd.label;" accesskey="&normalPriorityCmd.accesskey;" value="" id="priority_normal" checked="true"/>
+              <menuitem type="radio" name="priority" label="&normalPriorityCmd.label;" accesskey="&normalPriorityCmd.accesskey;" value="" id="priority_normal" checked=""/>
               <menuitem type="radio" name="priority" label="&lowPriorityCmd.label;" accesskey="&lowPriorityCmd.accesskey;" value="Low" id="priority_low"/>
               <menuitem type="radio" name="priority" label="&lowestPriorityCmd.label;" accesskey="&lowestPriorityCmd.accesskey;" value="Lowest"  id="priority_lowest"/>
             </menupopup>

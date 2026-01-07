@@ -224,7 +224,7 @@ add_task(async function test_setupWithObservesAndToggling() {
   };
   const command = testDocument.createElementNS(XUL_NS, "command");
   command.id = "test-command";
-  command.setAttribute("checked", "true");
+  command.toggleAttribute("checked", true);
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
@@ -430,7 +430,7 @@ add_task(async function test_observeChecked() {
 
   Assert.equal(button.ariaPressed, "false", "Initially not checked");
 
-  command.setAttribute("checked", "true");
+  command.toggleAttribute("checked", true);
   await TestUtils.waitForTick();
 
   Assert.equal(
@@ -439,7 +439,7 @@ add_task(async function test_observeChecked() {
     "Checked command leads to pressed button"
   );
 
-  command.setAttribute("checked", "false");
+  command.toggleAttribute("checked", false);
   await TestUtils.waitForTick();
 
   Assert.equal(

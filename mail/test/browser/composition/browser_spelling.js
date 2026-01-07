@@ -79,8 +79,8 @@ add_task(async function () {
     EventUtils.synthesizeMouseAtCenter(optionsMenu, {}, composeWindow);
     await shownPromise;
     Assert.equal(
-      optionsMenuEnabled.getAttribute("checked"),
-      "true",
+      optionsMenuEnabled.hasAttribute("checked"),
+      true,
       "options menu item is checked"
     );
     hiddenPromise = BrowserTestUtils.waitForEvent(optionsMenu, "popuphidden");
@@ -96,8 +96,8 @@ add_task(async function () {
   );
   await shownPromise;
   Assert.equal(
-    contextMenuEnabled.getAttribute("checked"),
-    "true",
+    contextMenuEnabled.hasAttribute("checked"),
+    true,
     "context menu item is checked"
   );
 
@@ -149,8 +149,8 @@ add_task(async function () {
   );
   await shownPromise;
   Assert.equal(
-    contextMenuEnabled.getAttribute("checked"),
-    "false",
+    contextMenuEnabled.hasAttribute("checked"),
+    false,
     "context menu item is not checked"
   );
 
@@ -187,9 +187,9 @@ add_task(async function () {
 
   Assert.equal(languageList.childElementCount, 4);
   Assert.equal(languageList.children[0].value, "en-NZ");
-  Assert.equal(languageList.children[0].getAttribute("checked"), "false");
+  Assert.equal(languageList.children[0].hasAttribute("checked"), false);
   Assert.equal(languageList.children[1].value, "en-US");
-  Assert.equal(languageList.children[1].getAttribute("checked"), "true");
+  Assert.equal(languageList.children[1].hasAttribute("checked"), true);
   Assert.equal(languageList.children[2].localName, "menuseparator");
   Assert.equal(
     languageList.children[3].dataset.l10nId,
@@ -199,7 +199,7 @@ add_task(async function () {
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
   languageList.activateItem(languageList.children[0]);
   await TestUtils.waitForCondition(
-    () => languageList.children[0].getAttribute("checked") == "true",
+    () => languageList.children[0].hasAttribute("checked"),
     "en-NZ menu item checked"
   );
   await TestUtils.waitForCondition(
@@ -225,9 +225,9 @@ add_task(async function () {
 
   Assert.equal(languageList.childElementCount, 4);
   Assert.equal(languageList.children[0].value, "en-NZ");
-  Assert.equal(languageList.children[0].getAttribute("checked"), "true");
+  Assert.equal(languageList.children[0].hasAttribute("checked"), true);
   Assert.equal(languageList.children[1].value, "en-US");
-  Assert.equal(languageList.children[1].getAttribute("checked"), "true");
+  Assert.equal(languageList.children[1].hasAttribute("checked"), true);
   Assert.equal(languageList.children[2].localName, "menuseparator");
   Assert.equal(
     languageList.children[3].dataset.l10nId,

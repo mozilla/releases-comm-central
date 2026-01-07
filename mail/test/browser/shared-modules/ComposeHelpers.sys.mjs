@@ -2024,8 +2024,7 @@ export class FormatHelper {
       this.paragraphStateMenu,
       () =>
         this.paragraphStateMenuItems.every(
-          item =>
-            (item.getAttribute("checked") === "true") === (item.value === state)
+          item => item.hasAttribute("checked") === (item.value === state)
         ),
       `${message}: Only state="${state}" menu item should be checked`
     );
@@ -2085,8 +2084,7 @@ export class FormatHelper {
       this.fontMenu,
       () =>
         this.fontMenuItems.every(
-          item =>
-            (item.getAttribute("checked") === "true") === (item.value === font)
+          item => item.hasAttribute("checked") === (item.value === font)
         ),
       `${message}: Only font="${font}" menu item should be checked`
     );
@@ -2120,8 +2118,7 @@ export class FormatHelper {
       this.sizeMenu,
       () =>
         this.sizeMenuItems.every(
-          item =>
-            (item.getAttribute("checked") === "true") === (item.value === size)
+          item => item.hasAttribute("checked") === (item.value === size)
         ),
       `${message}: Only size=${size} Format menu item should be checked`
       // Don't have to wait for size menu.
@@ -2130,8 +2127,7 @@ export class FormatHelper {
     await this._openMenu(this.sizeSelectorMenu);
     Assert.ok(
       this.sizeSelectorMenuItems.every(
-        item =>
-          (item.getAttribute("checked") === "true") === (item.value === size)
+        item => item.hasAttribute("checked") === (item.value === size)
       ),
       `${message}: Only size=${size} Toolbar menu item should be checked`
     );
@@ -2327,7 +2323,7 @@ export class FormatHelper {
       this.styleMenu,
       () => {
         const checkedIds = this.styleMenuItems
-          .filter(i => i.getAttribute("checked") === "true")
+          .filter(i => i.hasAttribute("checked"))
           .map(m => m.id);
         if (expectItems.length != checkedIds.length) {
           dump(
@@ -2335,9 +2331,7 @@ export class FormatHelper {
           );
         }
         return this.styleMenuItems.every(
-          item =>
-            (item.getAttribute("checked") === "true") ===
-            expectItems.includes(item)
+          item => item.hasAttribute("checked") === expectItems.includes(item)
         );
       },
       `${message}: ${expectString} should be checked`,

@@ -104,11 +104,11 @@ checkbox.treenode-checkbox > .checkbox-check {
   stroke: currentColor;
 }
 
-checkbox.treenode-checkbox:not([checked="true"]) > .checkbox-check {
+checkbox.treenode-checkbox:not([checked]) > .checkbox-check {
   transform: rotate(-90deg);
 }
 
-checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbox-check {
+checkbox.treenode-checkbox:not([checked]):-moz-locale-dir(rtl) > .checkbox-check {
   transform: rotate(90deg);
 }
 

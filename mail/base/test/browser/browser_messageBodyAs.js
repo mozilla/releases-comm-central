@@ -170,8 +170,8 @@ async function clickBodyDisplayMode(
   await openBodyDisplayModeMenu(entryId, mainPopupId, displayAsMenuId, doc);
 
   Assert.equal(
-    doc.getElementById(expectedModeId).getAttribute("checked"),
-    "true",
+    doc.getElementById(expectedModeId).hasAttribute("checked"),
+    true,
     `Previous mode ${expectedModeId} should be checked`
   );
 

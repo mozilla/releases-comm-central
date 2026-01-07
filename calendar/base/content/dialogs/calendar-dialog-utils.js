@@ -543,7 +543,7 @@ function updateLink(itemUrlString, linkRow, urlLink) {
     linkCommand.disabled = !itemUrlString;
   }
 
-  if ((linkCommand && linkCommand.getAttribute("checked") != "true") || !itemUrlString.length) {
+  if ((linkCommand && !linkCommand.hasAttribute("checked")) || !itemUrlString) {
     // Hide if there is no url, or the menuitem was chosen so that the url
     // should be hidden
     linkRow.hidden = true;

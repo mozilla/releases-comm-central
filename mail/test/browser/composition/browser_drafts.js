@@ -156,7 +156,7 @@ async function internal_check_delivery_format(editDraft) {
     );
     const formatItem = cwc.document
       .getElementById("outputFormatMenuPopup")
-      .querySelector("[name=output_format][checked=true]");
+      .querySelector("[name=output_format][checked]");
     Assert.equal(formatItem.id, aMenuItemId);
     await close_popup_sequence(formatMenu);
   }

@@ -264,7 +264,7 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
     sortMenu.openMenu(true);
     await BrowserTestUtils.waitForPopupEvent(sortMenuPopup, "shown");
 
-    const items = sortMenuPopup.querySelectorAll(`menuitem[checked="true"]`);
+    const items = sortMenuPopup.querySelectorAll(`menuitem[checked]`);
     Assert.equal(items.length, 3, "only one sort type checked");
     Assert.equal(items[0].value, `${type}Col`, `sort type ${type} is checked`);
     Assert.equal(items[1].value, order, `sort order ${order} is checked`);

@@ -395,7 +395,7 @@ var quickFilterBar = {
   updateCheckedStateQuickFilterButtons() {
     for (const item of document.querySelectorAll(".quick-filter-menuitem")) {
       if (Object.hasOwn(this.filterer.filterValues, `${item.value}`)) {
-        item.setAttribute("checked", true);
+        item.toggleAttribute("checked", true);
         continue;
       }
       item.removeAttribute("checked");

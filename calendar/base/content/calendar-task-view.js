@@ -239,7 +239,7 @@ var taskDetailsView = {
       document.l10n.setAttributes(menuitem, "no-categories");
       menuitem.setAttribute("type", "radio");
       if (itemCategories.length === 0) {
-        menuitem.setAttribute("checked", "true");
+        menuitem.toggleAttribute("checked", true);
       }
       categoryPopup.appendChild(menuitem);
     }
@@ -250,7 +250,7 @@ var taskDetailsView = {
       menuitem.setAttribute("value", cat);
       menuitem.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
       if (itemCategories.includes(cat)) {
-        menuitem.setAttribute("checked", "true");
+        menuitem.toggleAttribute("checked", true);
       }
       const cssSafeId = cal.view.formatStringForCSSRule(cat);
       menuitem.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
@@ -333,8 +333,8 @@ var taskDetailsView = {
     let modified = false;
     let newIndex = categories.indexOf(category);
     if (newIndex > -1) {
-      if (categoryList[newIndex].getAttribute("checked") != "true") {
-        categoryList[newIndex].setAttribute("checked", "true");
+      if (!categoryList[newIndex].hasAttribute("checked")) {
+        categoryList[newIndex].toggleAttribute("checked", true);
         modified = true;
       }
     } else {
@@ -350,7 +350,7 @@ var taskDetailsView = {
       menuitem.setAttribute("label", category);
       menuitem.setAttribute("value", category);
       menuitem.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
-      menuitem.setAttribute("checked", true);
+      menuitem.toggleAttribute("checked", true);
       categoryPopup.insertBefore(menuitem, categoryList[newIndex]);
 
       modified = true;
@@ -393,7 +393,7 @@ function taskViewUpdate(filter) {
       )
       .forEach(item => {
         if (item.getAttribute("value") == filter) {
-          item.setAttribute("checked", "true");
+          item.toggleAttribute("checked", true);
         } else {
           item.removeAttribute("checked");
         }

@@ -494,7 +494,7 @@ function convertComposeDetails(composeWindow, extension) {
   // but the API should always use the actual button state, if available.
   const encButton = composeWindow.document.getElementById("button-encryption");
   const encryptionEnabled = encButton
-    ? !!encButton.getAttribute("checked")
+    ? encButton.hasAttribute("checked")
     : composeWindow.gSendEncrypted;
   const isPgpConfigured = composeWindow.isPgpConfigured();
   const isSmimeSigningConfigured = composeWindow.isSmimeSigningConfigured();

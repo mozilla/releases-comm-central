@@ -106,8 +106,8 @@ async function subtestCycleThroughFeedFormat(
   const folderSpecificItem = doc.getElementById(folderSpecificItemId);
 
   Assert.equal(
-    summaryItem.getAttribute("checked"),
-    "true",
+    summaryItem.hasAttribute("checked"),
+    true,
     "Summary should be selected"
   );
 
@@ -135,8 +135,8 @@ async function subtestCycleThroughFeedFormat(
   await openBodyDisplayModeMenu(entryId, mainPopupId, displayAsMenuId, doc);
 
   Assert.equal(
-    webPageItem.getAttribute("checked"),
-    "true",
+    webPageItem.hasAttribute("checked"),
+    true,
     "Summary should be selected"
   );
 

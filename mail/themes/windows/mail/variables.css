@@ -55,7 +55,7 @@
     & .toolbarbutton-1:not(.qfb-tag-button):hover,
     & #calendar-add-task-button:hover,
     & #todaypane-new-event-button:hover,
-    & .toolbarbutton-1[checked="true"],
+    & .toolbarbutton-1[checked],
     & .toolbarbutton-menubutton-button:hover {
       color: SelectedItemText !important;
     }

@@ -1668,7 +1668,7 @@ function onShowAttachmentToolbarContextMenu() {
   const expanded = Services.prefs.getBoolPref(
     "mailnews.attachments.display.start_expanded"
   );
-  expandBar.setAttribute("checked", expanded);
+  expandBar.toggleAttribute("checked", expanded);
 }
 
 /**
@@ -2610,28 +2610,28 @@ function InitOtherActionsViewBodyMenu(isFeed = false) {
     !disallow_classes &&
     AllowHTML_menuitem
   ) {
-    AllowHTML_menuitem.setAttribute("checked", true);
+    AllowHTML_menuitem.toggleAttribute("checked", true);
   } else if (
     !prefer_plaintext &&
     html_as == 3 &&
     disallow_classes > 0 &&
     Sanitized_menuitem
   ) {
-    Sanitized_menuitem.setAttribute("checked", true);
+    Sanitized_menuitem.toggleAttribute("checked", true);
   } else if (
     prefer_plaintext &&
     html_as == 1 &&
     disallow_classes > 0 &&
     AsPlaintext_menuitem
   ) {
-    AsPlaintext_menuitem.setAttribute("checked", true);
+    AsPlaintext_menuitem.toggleAttribute("checked", true);
   } else if (
     !prefer_plaintext &&
     html_as == 4 &&
     !disallow_classes &&
     AllBodyParts_menuitem
   ) {
-    AllBodyParts_menuitem.setAttribute("checked", true);
+    AllBodyParts_menuitem.toggleAttribute("checked", true);
   }
   // else (the user edited prefs/user.js) check none of the radio menu items
 
@@ -2643,7 +2643,7 @@ function InitOtherActionsViewBodyMenu(isFeed = false) {
     ];
     const checked = FeedMessageHandler.onSelectPref;
     for (const [index, id] of viewRssMenuItemIds.entries()) {
-      document.getElementById(id).setAttribute("checked", index == checked);
+      document.getElementById(id).toggleAttribute("checked", index == checked);
     }
     // Unlike the global menu we use the variable here to possibly have the
     // value relevant to the current mode if the per folder option is selected.

@@ -128,10 +128,9 @@ function assert_manual_reminder_state(aCwc, aChecked) {
     remindCommand
   );
 
-  const checkedValue = aChecked ? "true" : "false";
   Assert.equal(
-    aCwc.document.getElementById(remindCommand).getAttribute("checked"),
-    checkedValue
+    aCwc.document.getElementById(remindCommand).hasAttribute("checked"),
+    aChecked
   );
 }
 
@@ -454,8 +453,7 @@ add_task(async function test_manual_attachment_reminder() {
   await dialogPromise;
   await TestUtils.waitForCondition(
     () =>
-      cwc.document.getElementById("cmd_remindLater").getAttribute("checked") ==
-      "false",
+      !cwc.document.getElementById("cmd_remindLater").hasAttribute("checked"),
     "The manual reminder should get disabled"
   );
 
@@ -466,8 +464,7 @@ add_task(async function test_manual_attachment_reminder() {
   await click_manual_reminder(cwc, true);
   await TestUtils.waitForCondition(
     () =>
-      cwc.document.getElementById("cmd_remindLater").getAttribute("checked") ==
-      "true",
+      cwc.document.getElementById("cmd_remindLater").hasAttribute("checked"),
     "The manual reminder should get enabled"
   );
 

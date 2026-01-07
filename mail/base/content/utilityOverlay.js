@@ -153,7 +153,7 @@ function goToggleToolbar(id, elementID) {
   if (!element) {
     return;
   }
-  element.setAttribute("checked", !isHidden);
+  element.toggleAttribute("checked", !isHidden);
   Services.xulStore.persist(element, "checked");
 }
 

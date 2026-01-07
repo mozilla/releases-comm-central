@@ -22,7 +22,7 @@ hbox:last-child > button.calendar-daypicker:last-child[mode="monthly-days"] {
   block-size: 15px;
 }
 
-button.calendar-daypicker[checked="true"] {
+button.calendar-daypicker[checked] {
   background-color: var(--selected-item-color) !important;
   color: var(--selected-item-text-color) !important;
 }

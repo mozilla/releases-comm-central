@@ -157,7 +157,7 @@ export async function setData(dialogWindow, iframeWindow, data) {
   // timezonedisplay
   if (data.timezonedisplay !== undefined) {
     const menuitem = dialogDocument.getElementById("options-timezones-menuitem");
-    if (menuitem.getAttribute("checked") != data.timezonedisplay) {
+    if (menuitem.hasAttribute("checked") != data.timezonedisplay) {
       synthesizeMouseAtCenter(menuitem, {}, iframeWindow);
     }
   }
@@ -448,11 +448,7 @@ async function setCategories(iframeWindow, categories) {
 
   // Iterate over categories and check if needed.
   for (const item of menupopup.children) {
-    if (categories.includes(item.label)) {
-      item.setAttribute("checked", "true");
-    } else {
-      item.removeAttribute("checked");
-    }
+    item.toggleAttribute("checked", categories.includes(item.label));
   }
 
   menupopup.hidePopup();

@@ -1077,11 +1077,7 @@ customElements.whenDefined("tree-listbox").then(() => {
             directory.URI;
       }
 
-      if (isDefault) {
-        startupDefaultItem.setAttribute("checked", "true");
-      } else {
-        startupDefaultItem.removeAttribute("checked");
-      }
+      startupDefaultItem.toggleAttribute("checked", isDefault);
 
       if (event.type == "contextmenu" && event.button == 2) {
         // This is a right-click. Open where it happened.
@@ -1270,7 +1266,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         document
           .getElementById("sortContext")
           .querySelector(`menuitem[value="addrbook"]`)
-          .getAttribute("checked") === "true"
+          .hasAttribute("checked")
       ) {
         let addressBookName = this.querySelector(".address-book-name");
         if (!addressBookName) {
@@ -1489,7 +1485,7 @@ var cardsPane = {
     );
     this.sortContext
       .querySelector(`[name="format"][value="${nameFormat}"]`)
-      ?.setAttribute("checked", "true");
+      ?.toggleAttribute("checked", true);
 
     let columns = XULStoreUtils.getValue("addressBook", "cards", "columns");
     if (columns) {
@@ -1517,7 +1513,7 @@ var cardsPane = {
       document.l10n.setAttributes(menuitem, abColumn.l10n.menuitem);
     }
     if (!abColumn.hidden) {
-      menuitem.setAttribute("checked", "true");
+      menuitem.toggleAttribute("checked", true);
     }
 
     menuitem.addEventListener("command", () =>
@@ -1672,7 +1668,7 @@ var cardsPane = {
     if (isTableLayout) {
       this.sortContext
         .querySelector("#sortContextTableLayout")
-        .setAttribute("checked", "true");
+        .toggleAttribute("checked", true);
     } else {
       this.sortContext
         .querySelector("#sortContextTableLayout")
@@ -1846,7 +1842,7 @@ var cardsPane = {
       ?.removeAttribute("checked");
     this.sortContext
       .querySelector(`[name="sort"][value="${column} ${direction}"]`)
-      ?.setAttribute("checked", "true");
+      ?.toggleAttribute("checked", true);
 
     // Unmark the header of previously sorted column, then mark the header of
     // the column to be sorted.
@@ -2195,7 +2191,7 @@ var cardsPane = {
   _onCommand(event) {
     switch (event.target.id) {
       case "sortContextTableLayout":
-        this.toggleLayout(event.target.getAttribute("checked") === "true");
+        this.toggleLayout(event.target.hasAttribute("checked"));
         break;
       case "cardContextWrite":
         this.writeToSelected();

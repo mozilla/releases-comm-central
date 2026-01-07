@@ -662,7 +662,7 @@ function initFontFaceMenu(menuPopup) {
 
           // First compare the entire font string to match items that contain commas.
           if (menuFont == editorFont) {
-            menuItem.setAttribute("checked", "true");
+            menuItem.toggleAttribute("checked", true);
             break;
           } else if (editorFontOptions.length > 1) {
             // Next compare the individual options.
@@ -670,7 +670,7 @@ function initFontFaceMenu(menuPopup) {
             if (matchPos >= 0 && matchPos < matchedOption) {
               // This menu font comes earlier in the list of options,
               // so prefer it.
-              menuItem.setAttribute("checked", "true");
+              menuItem.toggleAttribute("checked", true);
 
               // If we matched the first option, we don't need to look for
               // a better match.
@@ -786,7 +786,7 @@ function initFontSizeMenu(menuPopup) {
     const fontSize = getLegacyFontSize();
     for (const menuitem of menuPopup.children) {
       if (menuitem.getAttribute("value") == fontSize) {
-        menuitem.setAttribute("checked", true);
+        menuitem.toggleAttribute("checked", true);
       }
     }
   }
@@ -1498,11 +1498,11 @@ function InitParagraphMenu() {
 
   // Set "radio" check on one item, but...
   var menuItem = document.getElementById("menu_" + IDSuffix);
-  menuItem.setAttribute("checked", "true");
+  menuItem.toggleAttribute("checked", true);
 
   // ..."bodyText" is returned if mixed selection, so remove checkmark
   if (mixedObj.value) {
-    menuItem.setAttribute("checked", "false");
+    menuItem.toggleAttribute("checked", false);
   }
 }
 
@@ -1564,7 +1564,7 @@ function InitListMenu() {
   // we won't find a match if it's "mixed"
   var menuItem = document.getElementById("menu_" + IDSuffix);
   if (menuItem) {
-    menuItem.setAttribute("checked", "true");
+    menuItem.toggleAttribute("checked", true);
   }
 }
 
@@ -1605,7 +1605,7 @@ function InitAlignMenu() {
   // we won't find a match if it's "mixed"
   var menuItem = document.getElementById("menu_" + IDSuffix);
   if (menuItem) {
-    menuItem.setAttribute("checked", "true");
+    menuItem.toggleAttribute("checked", true);
   }
 }
 
@@ -1765,7 +1765,7 @@ function initFontStyleMenu(menuPopup) {
     var menuItem = menuPopup.children[i];
     var theStyle = menuItem.getAttribute("state");
     if (theStyle) {
-      menuItem.setAttribute("checked", theStyle);
+      menuItem.toggleAttribute("checked", theStyle === "true");
     }
   }
 }

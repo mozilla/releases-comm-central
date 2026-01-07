@@ -138,7 +138,7 @@ function addItemToDayboxNodate(document, item) {
 
   // Fill in details of the task
   if (item.isCompleted) {
-    taskNode.querySelector(".task-checkbox").setAttribute("checked", "checked");
+    taskNode.querySelector(".task-checkbox").toggleAttribute("checked", true);
   }
 
   taskNode.querySelector(".task-title").textContent = item.title;

@@ -166,7 +166,7 @@
       if (notifyRefControl && this.hasAttribute("refcontrol")) {
         const command = document.getElementById(this.getAttribute("refcontrol"));
         if (command) {
-          command.setAttribute("checked", display);
+          command.toggleAttribute("checked", display);
           command.disabled = !this.isVisibleInMode();
         }
       }
@@ -206,9 +206,8 @@
      */
     togglePane(event) {
       const command = event.target;
-      const newValue = command.getAttribute("checked") == "true" ? "false" : "true";
-      command.setAttribute("checked", newValue);
-      this.setVisible(newValue == "true", true, true);
+      const newValue = command.toggleAttribute("checked");
+      this.setVisible(newValue, true, true);
     }
 
     /**

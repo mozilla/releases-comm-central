@@ -52,7 +52,7 @@ async function set_autohide_menubar(win, elem, hide) {
   const menuitem = win.document.querySelector(
     `menuitem[toolbarid="${elem.id}"]`
   );
-  if (menuitem.getAttribute("checked") == hide + "") {
+  if (menuitem.hasAttribute("checked") == hide) {
     EventUtils.synthesizeMouseAtCenter(menuitem, {}, win);
     await new Promise(resolve => win.setTimeout(resolve, 50));
   }

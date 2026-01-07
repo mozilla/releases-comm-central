@@ -21,7 +21,7 @@ menulist[is="menulist-editable"][editable="true"] {
     display: none;
   }
 
-  & > menupopup > menuitem[checked="true"]::before,
+  & > menupopup > menuitem[checked]::before,
   & > menupopup > menuitem[selected="true"]::before {
     display: none;
     margin-inline-start: 0;

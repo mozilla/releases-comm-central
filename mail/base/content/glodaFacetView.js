@@ -788,7 +788,7 @@ var FacetContext = {
     };
     facetDate.addEventListener("transitionend", listener, { once: true });
     facetDate.removeAttribute("hide");
-    document.getElementById("date-toggle").setAttribute("checked", "true");
+    document.getElementById("date-toggle").toggleAttribute("checked", true);
     Services.prefs.setBoolPref("gloda.facetview.hidetimeline", false);
   },
 

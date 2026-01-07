@@ -11,13 +11,13 @@ menupopup {
     visibility: hidden;
   }
 
-  menuitem[checked="true"] > .menu-icon {
+  menuitem[checked] > .menu-icon {
     content: var(--menuitem-icon);
     visibility: inherit;
   }
 
   &.webextension-menupopup > menu:not([icon], .menu-iconic),
-  &.webextension-menupopup > menuitem:not([checked="true"], [icon], .menuitem-iconic),
+  &.webextension-menupopup > menuitem:not([checked], [icon], .menuitem-iconic),
   menubar > menu &:not([needsgutter]) > :is(menu:not(.menu-iconic), menuitem:not(.menuitem-iconic)) {
     padding-inline-start: calc(24px + 0.5em);
   }

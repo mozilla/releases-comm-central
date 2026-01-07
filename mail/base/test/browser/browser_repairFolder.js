@@ -212,12 +212,12 @@ async function toggleColumn(columnID) {
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
 
   const menuItem = colPickerPopup.querySelector(`[value="${columnID}"]`);
-  const checkedState = menuItem.getAttribute("checked");
+  const checkedState = menuItem.hasAttribute("checked");
   colPickerPopup.activateItem(menuItem);
   await BrowserTestUtils.waitForMutationCondition(
     menuItem,
     { attributes: true },
-    () => checkedState != menuItem.getAttribute("checked")
+    () => checkedState != menuItem.hasAttribute("checked")
   );
 
   // The column picker menupopup doesn't close automatically on purpose.

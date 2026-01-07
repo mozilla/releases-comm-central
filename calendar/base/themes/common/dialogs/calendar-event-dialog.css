@@ -430,7 +430,7 @@ label.label {
       box-shadow: var(--toolbarbutton-hover-boxshadow);
     }
 
-    &:is([open="true"], [checked="true"], :hover:active) {
+    &:is([open="true"], [checked], :hover:active) {
       background-color: var(--toolbarbutton-checked-background);
       border-color: var(--toolbarbutton-active-bordercolor);
       box-shadow: var(--toolbarbutton-active-boxshadow);

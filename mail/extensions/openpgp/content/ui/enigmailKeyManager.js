@@ -1245,8 +1245,8 @@ var gKeyListView = {
    *   or null (= display ALL keys).
    */
   showOrHideAllKeys() {
-    var showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
-    var showOthersKeys = gShowOthersKeys.getAttribute("checked") == "true";
+    var showInvalidKeys = gShowInvalidKeys.hasAttribute("checked");
+    var showOthersKeys = gShowOthersKeys.hasAttribute("checked");
 
     document.getElementById("nothingFound").hidePopup();
 
@@ -1280,8 +1280,8 @@ var gKeyListView = {
     if (!gKeyList) {
       return [];
     }
-    const showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
-    const showOthersKeys = gShowOthersKeys.getAttribute("checked") == "true";
+    const showInvalidKeys = gShowInvalidKeys.hasAttribute("checked");
+    const showOthersKeys = gShowOthersKeys.hasAttribute("checked");
 
     // skip leading 0x in case we search for a key:
     if (searchTxt.length > 2 && searchTxt.substr(0, 2).toLowerCase() == "0x") {

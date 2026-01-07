@@ -30,7 +30,7 @@ menupopup {
       content: var(--menuitem-icon);
     }
 
-    &[checked="true"] > .menu-icon {
+    &[checked] > .menu-icon {
       visibility: inherit;
     }
   }
@@ -80,7 +80,7 @@ menupopup {
       display: none;
     }
 
-    &[checked="true"] > .menu-icon {
+    &[checked] > .menu-icon {
       visibility: inherit;
     }
 

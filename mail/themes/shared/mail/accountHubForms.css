@@ -299,7 +299,7 @@ form {
         font-weight: 400;
       }
 
-      &:is([checked="true"], [selected="true"]) {
+      &:is([checked], [selected="true"]) {
         background-color: var(--hub-menuitem-background-color-selected);
 
         & label {

@@ -303,7 +303,7 @@ toolbar[customizing="true"][collapsed] {
 
   &:not([disabled]):is(:hover, [open="true"]) > .toolbarbutton-menubutton-button,
   &:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker,
-  &:not([is="toolbarbutton-menu-button"], [disabled], [checked="true"], [open="true"], :active):hover {
+  &:not([is="toolbarbutton-menu-button"], [disabled], [checked], [open="true"], :active):hover {
     background-color: var(--toolbarbutton-hover-background);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -311,7 +311,7 @@ toolbar[customizing="true"][collapsed] {
 
   & > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
   &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled]),
-  &:not([is="toolbarbutton-menu-button"], [disabled]):is([open="true"], [checked="true"], :hover:active) {
+  &:not([is="toolbarbutton-menu-button"], [disabled]):is([open="true"], [checked], :hover:active) {
     background-color: var(--toolbarbutton-checked-background);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);

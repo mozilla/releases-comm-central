@@ -310,7 +310,7 @@ const DaypickerWeekday = {
     const days = [];
     for (let i = 0; i < numChilds; i++) {
       const child = mainbox.children[i];
-      if (child.getAttribute("checked") == "true") {
+      if (child.hasAttribute("checked")) {
         let index = i + this.weekStartOffset;
         if (index >= 7) {
           index -= 7;
@@ -336,7 +336,7 @@ const DaypickerWeekday = {
       if (index < 0) {
         index += 7;
       }
-      mainbox.children[index].setAttribute("checked", "true");
+      mainbox.children[index].toggleAttribute("checked", true);
     }
   },
 };
@@ -373,7 +373,7 @@ const DaypickerMonthday = {
     for (const i in val) {
       const lastDayOffset = val[i] == -1 ? 0 : -1;
       const index = val[i] < 0 ? val[i] + days.length + lastDayOffset : val[i] - 1;
-      days[index].setAttribute("checked", "true");
+      days[index].toggleAttribute("checked", true);
     }
   },
   /**
@@ -384,7 +384,7 @@ const DaypickerMonthday = {
     const days = [];
     for (const row of mainbox.children) {
       for (const child of row.children) {
-        if (child.getAttribute("checked") == "true") {
+        if (child.hasAttribute("checked")) {
           days.push(Number(child.label) ? Number(child.label) : -1);
         }
       }

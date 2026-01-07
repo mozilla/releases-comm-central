@@ -105,7 +105,7 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
     text-shadow: none;
   }
 
-  &[checked="true"]:-moz-window-inactive {
+  &[checked]:-moz-window-inactive {
     box-shadow: var(--toolbarbutton-inactive-boxshadow);
     border-color: var(--toolbarbutton-inactive-bordercolor);
     background: transparent !important;

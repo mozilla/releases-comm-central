@@ -223,9 +223,9 @@ async function toggleColumn(columnID) {
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
 
   const menuItem = colPickerPopup.querySelector(`[value="${columnID}"]`);
-  const checkedState = menuItem.getAttribute("checked");
+  const checkedState = menuItem.hasAttribute("checked");
   const checkedStateChanged = TestUtils.waitForCondition(
-    () => checkedState != menuItem.getAttribute("checked"),
+    () => checkedState != menuItem.hasAttribute("checked"),
     "The checked status changed"
   );
   const columnsChangedEvent = BrowserTestUtils.waitForEvent(
@@ -669,8 +669,8 @@ add_task(async function test_custom_columns() {
   );
   Assert.ok(columnItem, "Column item should exist");
   Assert.equal(
-    columnItem.getAttribute("checked"),
-    "true",
+    columnItem.hasAttribute("checked"),
+    true,
     "Column item should be checked"
   );
   colPickerPopup.hidePopup();

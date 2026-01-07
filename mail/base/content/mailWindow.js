@@ -700,7 +700,7 @@ function getBrowser() {
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
   const cmdItem = document.getElementById("cmd_fullZoomToggle");
-  cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
+  cmdItem.toggleAttribute("checked", !ZoomManager.useFullZoom);
 }
 
 window.addEventListener("DoZoomEnlargeBy10", event =>

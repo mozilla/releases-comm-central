@@ -235,7 +235,7 @@ function fillSettings() {
 
     var secure = ldapUrl.options & ldapUrl.OPT_SECURE;
     if (secure) {
-      document.getElementById("secure").setAttribute("checked", "true");
+      document.getElementById("secure").toggleAttribute("checked", true);
     }
 
     if (ldapUrl.port == -1) {

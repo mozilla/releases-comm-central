@@ -514,7 +514,7 @@ const PanelUI = {
     if (XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar")) {
       paneHeaderMenuitem.removeAttribute("checked");
     } else {
-      paneHeaderMenuitem.setAttribute("checked", "true");
+      paneHeaderMenuitem.toggleAttribute("checked", true);
     }
 
     const { activeModes, canBeCompact, isCompact } = about3Pane.folderPane;
@@ -525,7 +525,7 @@ const PanelUI = {
     for (const item of event.target.querySelectorAll('[name="viewmessages"]')) {
       const mode = item.getAttribute("value");
       if (activeModes.includes(mode)) {
-        item.setAttribute("checked", "true");
+        item.toggleAttribute("checked", true);
         if (mode == "all") {
           item.disabled = activeModes.length == 1;
         }
@@ -554,11 +554,10 @@ const PanelUI = {
     const favoriteFolderMenu = document.getElementById(
       "appmenu_favoriteFolder"
     );
-    if (folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)) {
-      favoriteFolderMenu.setAttribute("checked", "true");
-    } else {
-      favoriteFolderMenu.removeAttribute("checked");
-    }
+    favoriteFolderMenu.toggleAttribute(
+      "checked",
+      folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)
+    );
   },
 
   _onToolsMenuShown(event) {

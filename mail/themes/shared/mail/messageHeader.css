@@ -195,7 +195,7 @@ mail-tagfield[collapsed] {
   .toolbarbutton-1.message-header-view-button:not([disabled]):is(:hover, [open])
   > .toolbarbutton-menubutton-dropmarker,
 #messageHeader:not(.message-header-buttons-only-icons)
-  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"], [disabled], [checked="true"], [open], :active):hover,
+  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"], [disabled], [checked], [open], :active):hover,
 #messageHeader:not(.message-header-buttons-only-icons)
   .toolbarbutton-1.message-header-view-button:not([buttonover], [open], :active):hover
   > .toolbarbutton-menubutton-dropmarker:not([disabled]),
@@ -310,7 +310,7 @@ mail-tagfield[collapsed] {
     outline-offset: -2px;
   }
 
-  &:not([checked="true"]) > .button-box > .button-icon {
+  &:not([checked]) > .button-box > .button-icon {
     transform: rotate(-90deg);
 
     &:-moz-locale-dir(rtl) {

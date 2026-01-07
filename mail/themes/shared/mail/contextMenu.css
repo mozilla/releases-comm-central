@@ -56,7 +56,7 @@ menupopup {
       outline: 0;
     }
 
-    &[checked="true"],
+    &[checked],
     &[selected="true"] {
       --menuitem-icon: var(--icon-check);
       -moz-context-properties: fill, stroke;
@@ -77,8 +77,8 @@ menupopup {
 
     &[disabled],
     &[disabled]:hover,
-    &[checked="true"][disabled],
-    &[checked="true"][disabled]:hover {
+    &[checked][disabled],
+    &[checked][disabled]:hover {
       color: var(--text-color-disabled);
       background-color: transparent;
     }

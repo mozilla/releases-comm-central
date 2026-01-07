@@ -242,7 +242,7 @@ export class nsContextMenu {
     this.showItem("browserContext-spell-separator", canSpell);
     this.document
       .getElementById("browserContext-spell-check-enabled")
-      .setAttribute("checked", canSpell && gSpellChecker.enabled);
+      .toggleAttribute("checked", canSpell && gSpellChecker.enabled);
 
     this.showItem("browserContext-spell-add-to-dictionary", onMisspelling);
     this.showItem("browserContext-spell-undo-add-to-dictionary", showUndo);
