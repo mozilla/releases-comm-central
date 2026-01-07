@@ -196,22 +196,22 @@ function initializeSearchRows(scope, searchTerms) {
  */
 function updateSearchTermsListbox(matchAllValue) {
   var searchTerms = document.getElementById("searchTermList");
-  searchTerms.setAttribute("disabled", matchAllValue);
+  searchTerms.toggleAttribute("disabled", matchAllValue);
   var searchAttributeList =
     searchTerms.getElementsByTagName("search-attribute");
   var searchOperatorList = searchTerms.getElementsByTagName("search-operator");
   var searchValueList = searchTerms.getElementsByTagName("search-value");
   for (let i = 0; i < searchAttributeList.length; i++) {
-    searchAttributeList[i].setAttribute("disabled", matchAllValue);
-    searchOperatorList[i].setAttribute("disabled", matchAllValue);
-    searchValueList[i].setAttribute("disabled", matchAllValue);
+    searchAttributeList[i].toggleAttribute("disabled", matchAllValue);
+    searchOperatorList[i].toggleAttribute("disabled", matchAllValue);
+    searchValueList[i].toggleAttribute("disabled", matchAllValue);
     if (!matchAllValue) {
       searchValueList[i].removeAttribute("disabled");
     }
   }
   var moreOrLessButtonsList = searchTerms.getElementsByTagName("button");
   for (let i = 0; i < moreOrLessButtonsList.length; i++) {
-    moreOrLessButtonsList[i].setAttribute("disabled", matchAllValue);
+    moreOrLessButtonsList[i].toggleAttribute("disabled", matchAllValue);
   }
   if (!matchAllValue) {
     updateRemoveRowButton();

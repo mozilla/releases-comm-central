@@ -93,5 +93,5 @@ function updateArchiveExample() {
   }
 
   // Disable "recreate inbox" if necessary.
-  ri.setAttribute("disabled", !kfs.checked);
+  ri.toggleAttribute("disabled", !kfs.checked);
 }

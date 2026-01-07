@@ -97,10 +97,10 @@
   }
 
   button[open],
-  button:not([disabled="true"]):hover,
-  button:not([disabled="true"]):hover:active,
-  menulist:not([disabled="true"], [open="true"]):hover,
-  menulist[open="true"]:not([disabled="true"]),
+  button:not([disabled]):hover,
+  button:not([disabled]):hover:active,
+  menulist:not([disabled], [open="true"]):hover,
+  menulist[open="true"]:not([disabled]),
   select:not([size], [multiple], [disabled]):is(:hover, :active),
   tab:hover,
   tab[visuallyselected="true"] {
@@ -230,18 +230,18 @@ button:focus-visible {
   outline-offset: -1px;
 }
 
-button:not([disabled="true"]):hover,
-menulist:not([disabled="true"], [open="true"]):hover,
-menulist[open="true"]:not([disabled="true"]),
-html|input[type="color"]:not([disabled="true"]):hover,
+button:not([disabled]):hover,
+menulist:not([disabled], [open="true"]):hover,
+menulist[open="true"]:not([disabled]),
+html|input[type="color"]:not([disabled]):hover,
 select:not([size], [multiple]):is(:hover, :active) {
   background-color: var(--button-hover-background-color);
 }
 
 button[open],
 button[open]:hover,
-button:not([disabled="true"]):hover:active,
-html|input[type="color"]:not([disabled="true"]):hover:active {
+button:not([disabled]):hover:active,
+html|input[type="color"]:not([disabled]):hover:active {
   background-color: var(--button-active-background-color);
 }
 
@@ -254,7 +254,7 @@ button[default] {
     outline-offset: 0;
   }
 
-  &:not([disabled="true"]):hover {
+  &:not([disabled]):hover {
     background-color: var(--button-primary-hover-background-color);
 
     &:active {
@@ -271,8 +271,8 @@ button > .button-box > dropmarker {
   padding-inline-start: 3px;
 }
 
-button[disabled="true"],
-menulist[disabled="true"],
+button[disabled],
+menulist[disabled],
 select[disabled]:not([size], [multiple]) {
   opacity: 0.4;
 }
@@ -446,23 +446,23 @@ richlistbox > richlistitem {
     }
   }
 
-  & button:not([disabled="true"]):hover,
-  & menulist:not([disabled="true"]):hover,
-  & menulist[open="true"]:not([disabled="true"]) {
+  & button:not([disabled]):hover,
+  & menulist:not([disabled]):hover,
+  & menulist[open="true"]:not([disabled]) {
     background-color: var(--richlist-button-background);
     background-image: linear-gradient(var(--button-hover-background-color), var(--button-hover-background-color));
   }
 
   & button[open],
   & button[open]:hover,
-  & button:not([disabled="true"]):hover:active {
+  & button:not([disabled]):hover:active {
     background-color: var(--richlist-button-background);
     background-image: linear-gradient(var(--button-active-background-color), var(--button-active-background-color));
   }
 }
 
 menulist[open="true"],
-menulist:not([disabled="true"], [open="true"]):hover,
+menulist:not([disabled], [open="true"]):hover,
 select:not([size], [multiple]):is(:hover, :active) {
   border-color: var(--button-border-color);
 }

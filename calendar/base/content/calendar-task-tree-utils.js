@@ -98,8 +98,10 @@ function changeContextMenuForTask(aEvent) {
     document.getElementById("calendar_new_todo_command").removeAttribute("disabled");
     document.getElementById("calendar_new_todo_todaypane_command").removeAttribute("disabled");
   } else {
-    document.getElementById("calendar_new_todo_command").setAttribute("disabled", "true");
-    document.getElementById("calendar_new_todo_todaypane_command").setAttribute("disabled", "true");
+    document.getElementById("calendar_new_todo_command").toggleAttribute("disabled", true);
+    document
+      .getElementById("calendar_new_todo_todaypane_command")
+      .toggleAttribute("disabled", true);
   }
 
   // make sure the "Paste" and "Cut" menu items are enabled

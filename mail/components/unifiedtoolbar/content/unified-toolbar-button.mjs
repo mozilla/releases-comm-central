@@ -89,10 +89,10 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
         this.disabled =
           !getEnabledControllerForCommand(this.observedCommand) &&
           (!command?.hasAttribute("oncommand") ||
-            command.getAttribute("disabled") === "true");
+            command.hasAttribute("disabled"));
       } catch {
         if (command) {
-          this.disabled = command.getAttribute("disabled") === "true";
+          this.disabled = command.hasAttribute("disabled");
         } else {
           this.disabled = true;
         }
@@ -225,7 +225,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
         continue;
       }
       if (mutation.attributeName === "disabled") {
-        this.disabled = mutation.target.getAttribute("disabled") === "true";
+        this.disabled = mutation.target.hasAttribute("disabled");
       } else if (mutation.attributeName === "checked") {
         this.ariaPressed = mutation.target.getAttribute("checked") || "false";
       }

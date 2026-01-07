@@ -64,17 +64,17 @@ function menu_new_init() {
   if (Services.prefs.prefIsLocked("mail.disable_new_account_addition")) {
     document
       .getElementById("newNewsgroupAccountMenuItem")
-      .setAttribute("disabled", "true");
+      .toggleAttribute("disabled", true);
     document
       .getElementById("appmenu_newNewsgroupAccountMenuItem")
-      .setAttribute("disabled", "true");
+      .toggleAttribute("disabled", true);
   }
 
   var isInbox = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox);
   var showNew =
     (folder.canCreateSubfolders ||
       (isInbox && !folder.getFlag(Ci.nsMsgFolderFlags.Virtual))) &&
-    document.getElementById("cmd_newFolder").getAttribute("disabled") != "true";
+    !document.getElementById("cmd_newFolder").hasAttribute("disabled");
   ShowMenuItem("menu_newFolder", showNew);
   ShowMenuItem("menu_newVirtualFolder", showNew);
   ShowMenuItem("newAccountPopupMenuSeparator", showNew);
@@ -342,7 +342,7 @@ function view_init(event) {
   const threadPaneMenuItem = document.getElementById(
     "menu_toggleThreadPaneHeader"
   );
-  threadPaneMenuItem.setAttribute("disabled", !threadPaneHeaderVisible);
+  threadPaneMenuItem.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
   const threadPaneAppMenuItem = document.getElementById(
     "appmenu_toggleThreadPaneHeader"
@@ -543,7 +543,7 @@ function InitViewSortByMenu() {
     .setAttribute("checked", !showThreaded && !showGroupedBySort);
 
   const groupBySortOrderMenuItem = document.getElementById("groupBySort");
-  groupBySortOrderMenuItem.setAttribute(
+  groupBySortOrderMenuItem.toggleAttribute(
     "disabled",
     !isSortTypeValidForGrouping
   );
@@ -1969,7 +1969,7 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("openLabel"));
   menuitem.setAttribute("accesskey", getString("openLabelAccesskey"));
-  menuitem.setAttribute("disabled", deleted);
+  menuitem.toggleAttribute("disabled", deleted);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "save" menu item
@@ -1980,7 +1980,7 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("saveLabel"));
   menuitem.setAttribute("accesskey", getString("saveLabelAccesskey"));
-  menuitem.setAttribute("disabled", deleted);
+  menuitem.toggleAttribute("disabled", deleted);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "detach" menu item
@@ -1991,7 +1991,7 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("detachLabel"));
   menuitem.setAttribute("accesskey", getString("detachLabelAccesskey"));
-  menuitem.setAttribute("disabled", !canDetach);
+  menuitem.toggleAttribute("disabled", !canDetach);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "delete" menu item
@@ -2002,7 +2002,7 @@ function addAttachmentToPopup(
   );
   menuitem.setAttribute("label", getString("deleteLabel"));
   menuitem.setAttribute("accesskey", getString("deleteLabelAccesskey"));
-  menuitem.setAttribute("disabled", !canDetach);
+  menuitem.toggleAttribute("disabled", !canDetach);
   menuitem = menupopup.appendChild(menuitem);
 
   // Create the "open containing folder" menu item, for existing detached only.
@@ -2014,7 +2014,7 @@ function addAttachmentToPopup(
     menuitem.setAttribute("oncommand", "this.attachment.openFolder();");
     menuitem.setAttribute("label", getString("openFolderLabel"));
     menuitem.setAttribute("accesskey", getString("openFolderLabelAccesskey"));
-    menuitem.setAttribute("disabled", !attachment.hasFile);
+    menuitem.toggleAttribute("disabled", !attachment.hasFile);
     menuitem = menupopup.appendChild(menuitem);
   }
 }

@@ -47,13 +47,13 @@ addEventListener("load", () => {
 
   document
     .getElementById("repair-text-encoding")
-    .setAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
+    .toggleAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
   gBrowser.addEventListener(
     "load",
     () => {
       document
         .getElementById("repair-text-encoding")
-        .setAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
+        .toggleAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
     },
     true
   );

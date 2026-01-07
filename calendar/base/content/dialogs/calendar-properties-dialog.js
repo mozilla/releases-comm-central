@@ -90,7 +90,7 @@ function onLoad() {
   let calendarDisabled = false;
   if (gCalendar.getProperty("force-disabled")) {
     document.getElementById("force-disabled-description").removeAttribute("hidden");
-    document.getElementById("calendar-enabled-checkbox").setAttribute("disabled", "true");
+    document.getElementById("calendar-enabled-checkbox").toggleAttribute("disabled", true);
   } else {
     calendarDisabled = gCalendar.getProperty("disabled");
     document.getElementById("calendar-enabled-checkbox").checked = !calendarDisabled;
@@ -282,7 +282,7 @@ function updateForceEmailSchedulingControl() {
     checkbox.removeAttribute("disabled");
   } else {
     checkbox.setAttribute("disable-capability", "true");
-    checkbox.setAttribute("disabled", "true");
+    checkbox.toggleAttribute("disabled", true);
   }
 }
 

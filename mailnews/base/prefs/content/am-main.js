@@ -41,14 +41,14 @@ function onInit() {
   ) {
     defaultAccount.removeAttribute("disabled");
   } else {
-    defaultAccount.setAttribute("disabled", true);
+    defaultAccount.toggleAttribute("disabled", true);
   }
 
   const deleteAccount = document.getElementById("deleteAccount");
   if (gAccount.incomingServer.protocolInfo.canDelete) {
     deleteAccount.removeAttribute("disabled");
   } else {
-    deleteAccount.setAttribute("disabled", true);
+    deleteAccount.toggleAttribute("disabled", true);
   }
 }
 

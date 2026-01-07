@@ -72,7 +72,7 @@ function loadCalendars() {
     listbox.timedSelect(listbox.getItemAtIndex(selectedIndex), 0);
   } else {
     // If there are no calendars, then disable the accept button
-    accept.setAttribute("disabled", "true");
+    accept.toggleAttribute("disabled", true);
   }
 
   // Workaround for #calendar-list not showing properly.

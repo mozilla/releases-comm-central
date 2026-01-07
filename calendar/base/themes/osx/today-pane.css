@@ -21,7 +21,7 @@
   margin-block-end: 1px;
 }
 
-#todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
+#todaypane-new-event-button[disabled] > .toolbarbutton-icon {
   opacity: 0.5;
 }
 

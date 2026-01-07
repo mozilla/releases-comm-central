@@ -63,7 +63,7 @@ add_task(async function test_move_message() {
   const recentMenu = popups[popups.length - 2].querySelector(
     '[label="Recent Destinations"]'
   );
-  Assert.equal(recentMenu.getAttribute("disabled"), "true");
+  Assert.equal(recentMenu.hasAttribute("disabled"), true);
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
   await close_popup_sequence(popups);

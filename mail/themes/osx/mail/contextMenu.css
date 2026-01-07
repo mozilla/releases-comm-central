@@ -12,7 +12,7 @@ menupopup {
     margin: 1px;
   }
 
-  & > :is(menu, menuitem)[disabled="true"][_moz-menuactive="true"] {
+  & > :is(menu, menuitem)[disabled][_moz-menuactive="true"] {
     background-color: transparent !important;
   }
 
@@ -100,8 +100,8 @@ menupopup {
     margin-inline-end: 0;
   }
 
-  menuitem:not([disabled="true"]):hover &,
-  menuitem:not([disabled="true"]):focus & {
+  menuitem:not([disabled]):hover &,
+  menuitem:not([disabled]):focus & {
     opacity: 1;
   }
 }

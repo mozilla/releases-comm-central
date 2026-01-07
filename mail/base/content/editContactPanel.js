@@ -21,11 +21,11 @@ var editContactInlineUI = {
         continue;
       }
 
-      if (elt.getAttribute("disabled") == "true") {
+      if (elt.hasAttribute("disabled")) {
         elt.setAttribute("wasDisabled", "true");
       } else {
         elt.setAttribute("wasDisabled", "false");
-        elt.setAttribute("disabled", "true");
+        elt.toggleAttribute("disabled", true);
       }
     }
   },

@@ -1232,7 +1232,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
   background-color: var(--calendar-view-toggle-active-background);
 }
 
-.today-navigation-button:not([disabled="true"]):hover {
+.today-navigation-button:not([disabled]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -1240,19 +1240,19 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
   outline: none;
 }
 
-:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover {
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled]):hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.today-navigation-button:not([disabled="true"]):hover:active {
+.today-navigation-button:not([disabled]):hover:active {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
 }
 
-:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled]):hover:active {
   background: rgba(255, 255, 255, 0.4);
   border-color: rgba(255, 255, 255, 0.7);
   box-shadow: inset 0 0 rgba(255, 255, 255, 0.4);

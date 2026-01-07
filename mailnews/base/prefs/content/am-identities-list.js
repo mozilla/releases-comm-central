@@ -124,20 +124,17 @@ function updateButtons() {
   ) {
     // But in case this is not met (e.g. there is no identity for some reason,
     // or the list is being rebuilt), disable all buttons.
-    gEditButton.setAttribute("disabled", "true");
-    gDeleteButton.setAttribute("disabled", "true");
-    gSetDefaultButton.setAttribute("disabled", "true");
+    gEditButton.toggleAttribute("disabled", true);
+    gDeleteButton.toggleAttribute("disabled", true);
+    gSetDefaultButton.toggleAttribute("disabled", true);
     return;
   }
 
-  gEditButton.setAttribute("disabled", "false");
-  gDeleteButton.setAttribute(
+  gEditButton.toggleAttribute("disabled", false);
+  gDeleteButton.toggleAttribute("disabled", gIdentityListBox.itemCount <= 1);
+  gSetDefaultButton.toggleAttribute(
     "disabled",
-    gIdentityListBox.itemCount <= 1 ? "true" : "false"
-  );
-  gSetDefaultButton.setAttribute(
-    "disabled",
-    gIdentityListBox.selectedIndex == 0 ? "true" : "false"
+    gIdentityListBox.selectedIndex == 0
   );
   // The Add command is always enabled.
 }

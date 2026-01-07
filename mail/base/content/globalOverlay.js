@@ -117,11 +117,7 @@ function goSetCommandEnabled(id, enabled) {
   const node = document.getElementById(id);
 
   if (node) {
-    if (enabled) {
-      node.removeAttribute("disabled");
-    } else {
-      node.setAttribute("disabled", "true");
-    }
+    node.toggleAttribute("disabled", !enabled);
   } else {
     const commandStateEvent = new CustomEvent("commandstate", {
       detail: { command: id, enabled },

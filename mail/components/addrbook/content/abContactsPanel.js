@@ -271,10 +271,10 @@ function AbPanelUnload() {
 
 function CommandUpdate_AddressBook() {
   // Toggle disable state of to,cc,bcc buttons.
-  const disabled = GetNumSelectedCards() == 0 ? "true" : "false";
-  document.getElementById("cmd_addrTo").setAttribute("disabled", disabled);
-  document.getElementById("cmd_addrCc").setAttribute("disabled", disabled);
-  document.getElementById("cmd_addrBcc").setAttribute("disabled", disabled);
+  const disabled = GetNumSelectedCards() == 0;
+  document.getElementById("cmd_addrTo").toggleAttribute("disabled", disabled);
+  document.getElementById("cmd_addrCc").toggleAttribute("disabled", disabled);
+  document.getElementById("cmd_addrBcc").toggleAttribute("disabled", disabled);
 
   goUpdateCommand("cmd_delete");
 }

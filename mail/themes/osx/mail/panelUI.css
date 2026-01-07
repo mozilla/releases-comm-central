@@ -26,8 +26,8 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   opacity: 0.5;
 }
 
-.subviewbutton[shortcut]:not([disabled="true"]):hover::after,
-.subviewbutton[shortcut]:not([disabled="true"]):focus::after {
+.subviewbutton[shortcut]:not([disabled]):hover::after,
+.subviewbutton[shortcut]:not([disabled]):focus::after {
   opacity: 1;
 }
 

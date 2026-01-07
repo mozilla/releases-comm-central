@@ -250,7 +250,7 @@ function Startup() {
 
   // If only one cell in table, disable change-selection widgets
   if (gRowCount == 1 && gColCount == 1) {
-    gDialog.SelectionList.setAttribute("disabled", "true");
+    gDialog.SelectionList.toggleAttribute("disabled", true);
   }
 
   // User can change these via textboxes
@@ -843,8 +843,8 @@ function SetSelectionButtons() {
 }
 
 function DisableSelectionButtons(disable) {
-  gDialog.PreviousButton.setAttribute("disabled", disable ? "true" : "false");
-  gDialog.NextButton.setAttribute("disabled", disable ? "true" : "false");
+  gDialog.PreviousButton.toggleAttribute("disabled", disable);
+  gDialog.NextButton.toggleAttribute("disabled", disable);
 }
 
 function SwitchToValidatePanel() {

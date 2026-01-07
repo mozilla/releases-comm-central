@@ -51,13 +51,13 @@ function onSave() {}
 
 function EnableDisableCustomSettings() {
   if (useCustomPrefs && useCustomPrefs.getAttribute("value") == "false") {
-    requestReceipt.setAttribute("disabled", "true");
-    leaveInInbox.setAttribute("disabled", "true");
-    moveToSent.setAttribute("disabled", "true");
-    neverReturn.setAttribute("disabled", "true");
-    returnSome.setAttribute("disabled", "true");
-    receiptArriveLabel.setAttribute("disabled", "true");
-    receiptRequestLabel.setAttribute("disabled", "true");
+    requestReceipt.toggleAttribute("disabled", true);
+    leaveInInbox.toggleAttribute("disabled", true);
+    moveToSent.toggleAttribute("disabled", true);
+    neverReturn.toggleAttribute("disabled", true);
+    returnSome.toggleAttribute("disabled", true);
+    receiptArriveLabel.toggleAttribute("disabled", true);
+    receiptRequestLabel.toggleAttribute("disabled", true);
   } else {
     requestReceipt.removeAttribute("disabled");
     leaveInInbox.removeAttribute("disabled");
@@ -78,7 +78,7 @@ function EnableDisableCustomSettings() {
 function EnableDisableAllowedReceipts() {
   if (receiptSend) {
     if (
-      !neverReturn.getAttribute("disabled") &&
+      !neverReturn.hasAttribute("disabled") &&
       receiptSend.getAttribute("value") != "false"
     ) {
       notInToCcPref.removeAttribute("disabled");
@@ -88,12 +88,12 @@ function EnableDisableAllowedReceipts() {
       otherCasesPref.removeAttribute("disabled");
       otherCasesLabel.removeAttribute("disabled");
     } else {
-      notInToCcPref.setAttribute("disabled", "true");
-      notInToCcLabel.setAttribute("disabled", "true");
-      outsideDomainPref.setAttribute("disabled", "true");
-      outsideDomainLabel.setAttribute("disabled", "true");
-      otherCasesPref.setAttribute("disabled", "true");
-      otherCasesLabel.setAttribute("disabled", "true");
+      notInToCcPref.toggleAttribute("disabled", true);
+      notInToCcLabel.toggleAttribute("disabled", true);
+      outsideDomainPref.toggleAttribute("disabled", true);
+      outsideDomainLabel.toggleAttribute("disabled", true);
+      otherCasesPref.toggleAttribute("disabled", true);
+      otherCasesLabel.toggleAttribute("disabled", true);
     }
   }
   return true;
@@ -138,12 +138,12 @@ function disableIfLocked(prefstrArray) {
       if (id == "server.incorporate_return_receipt") {
         document
           .getElementById("leave_in_inbox")
-          .setAttribute("disabled", "true");
+          .toggleAttribute("disabled", true);
         document
           .getElementById("move_to_sent")
-          .setAttribute("disabled", "true");
+          .toggleAttribute("disabled", true);
       } else {
-        element.setAttribute("disabled", "true");
+        element.toggleAttribute("disabled", true);
       }
     }
   }

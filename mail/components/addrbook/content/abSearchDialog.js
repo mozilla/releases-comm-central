@@ -176,9 +176,9 @@ function searchOnUnload() {
 }
 
 function disableCommands() {
-  gPropertiesCmd.setAttribute("disabled", "true");
-  gComposeCmd.setAttribute("disabled", "true");
-  gDeleteCmd.setAttribute("disabled", "true");
+  gPropertiesCmd.toggleAttribute("disabled", true);
+  gComposeCmd.toggleAttribute("disabled", true);
+  gDeleteCmd.toggleAttribute("disabled", true);
 }
 
 function initializeSearchWindowWidgets() {

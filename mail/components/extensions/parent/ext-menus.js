@@ -400,7 +400,7 @@ var gMenuBuilder = {
     }
 
     if (!item.enabled) {
-      element.setAttribute("disabled", "true");
+      element.toggleAttribute("disabled", true);
     }
 
     let button;

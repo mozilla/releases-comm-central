@@ -112,15 +112,15 @@ var gSmtpServerListWindow = {
 
     // can't delete default server
     if (server && MailServices.outgoingServer.defaultServer == server) {
-      this.mSetDefaultServerButton.setAttribute("disabled", "true");
-      this.mDeleteButton.setAttribute("disabled", "true");
+      this.mSetDefaultServerButton.toggleAttribute("disabled", true);
+      this.mDeleteButton.toggleAttribute("disabled", true);
     } else {
       this.mSetDefaultServerButton.removeAttribute("disabled");
       this.mDeleteButton.removeAttribute("disabled");
     }
 
     if (!server) {
-      this.mEditButton.setAttribute("disabled", "true");
+      this.mEditButton.toggleAttribute("disabled", true);
     } else {
       this.mEditButton.removeAttribute("disabled");
     }

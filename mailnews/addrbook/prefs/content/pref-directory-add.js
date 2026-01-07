@@ -270,7 +270,7 @@ function fillSettings() {
 
 function DisableElementIfPrefIsLocked(aPrefName, aElementId) {
   if (Services.prefs.prefIsLocked(aPrefName)) {
-    document.getElementById(aElementId).setAttribute("disabled", true);
+    document.getElementById(aElementId).toggleAttribute("disabled", true);
   }
 }
 
@@ -281,7 +281,7 @@ function DisableUriFields(aPrefName) {
       '[disableiflocked="true"]'
     );
     for (let i = 0; i < lockedElements.length; i++) {
-      lockedElements[i].setAttribute("disabled", "true");
+      lockedElements[i].toggleAttribute("disabled", true);
     }
   }
 }

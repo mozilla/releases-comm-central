@@ -188,8 +188,8 @@ function onAdaptiveJunkToggle() {
 
   for (let i = 0; i < wList.getRowCount(); i++) {
     const item = wList.getItemAtIndex(i);
-    item.setAttribute("disabled", wListDisabled);
-    item.firstElementChild.setAttribute("disabled", wListDisabled);
+    item.toggleAttribute("disabled", wListDisabled);
+    item.firstElementChild.toggleAttribute("disabled", wListDisabled);
   }
 }
 

@@ -53,9 +53,7 @@ class CreateAddressBookButton extends UnifiedToolbarButton {
         );
         if (menuitem) {
           menuitem.disabled = !event.detail.enabled;
-          this.disabled = !popup.querySelector(
-            'menuitem:not([disabled="true"])'
-          );
+          this.disabled = !popup.querySelector("menuitem:not([disabled])");
           break;
         }
         super.handleEvent(event);

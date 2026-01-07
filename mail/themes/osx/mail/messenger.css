@@ -115,21 +115,21 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
     padding: 0;
   }
 
-  &[disabled="true"] .toolbarbutton-text,
-  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+  &[disabled] .toolbarbutton-text,
+  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon {
     opacity: 0.4;
   }
 
-  &[disabled="true"] .toolbarbutton-icon,
-  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
-  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
+  &[disabled] .toolbarbutton-icon,
+  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon,
+  &[disabled] > .toolbarbutton-menubutton-dropmarker,
   &:not(:hover):-moz-window-inactive .toolbarbutton-icon,
   &:not(:hover):-moz-window-inactive > .toolbarbutton-menubutton-dropmarker {
     opacity: 0.5;
   }
 
-  &:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
-  &:-moz-window-inactive[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+  &:-moz-window-inactive[disabled] > .toolbarbutton-icon,
+  &:-moz-window-inactive[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled] > .toolbarbutton-icon {
     opacity: 0.25;
   }
 }
@@ -193,7 +193,7 @@ toolbarbutton > menupopup menu:-moz-locale-dir(rtl)::after {
   stroke: currentColor;
   fill-opacity: 1;
 
-  &[disabled="true"] {
+  &[disabled] {
     fill-opacity: 0.5;
   }
 }

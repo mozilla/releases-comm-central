@@ -13,7 +13,7 @@ xul|radio {
 }
 
 /* Override menulist.css */
-xul|menulist[disabled="true"] {
+xul|menulist[disabled] {
   background-color: var(--button-background-color);
 }
 

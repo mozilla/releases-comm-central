@@ -14,14 +14,14 @@ add_task(async function test_help_menu() {
   buildHelpMenu();
   const safeModeMenu = document.getElementById("helpTroubleshootMode");
   is(
-    safeModeMenu.getAttribute("disabled"),
-    "true",
+    safeModeMenu.hasAttribute("disabled"),
+    true,
     "The `Restart with Add-ons Disabled...` item should be disabled"
   );
   const safeModeAppMenu = document.getElementById("appmenu_troubleshootMode");
   is(
-    safeModeAppMenu.getAttribute("disabled"),
-    "true",
+    safeModeAppMenu.hasAttribute("disabled"),
+    true,
     "The `Restart with Add-ons Disabled...` appmenu item should be disabled"
   );
 });
@@ -32,8 +32,8 @@ add_task(async function test_safemode_from_about_support() {
       "restart-in-safe-mode-button"
     );
     is(
-      button.getAttribute("disabled"),
-      "true",
+      button.hasAttribute("disabled"),
+      true,
       "The `Restart with Add-ons Disabled...` button should be disabled"
     );
   });
@@ -45,8 +45,8 @@ add_task(async function test_safemode_from_about_profiles() {
       "restart-in-safe-mode-button"
     );
     is(
-      button.getAttribute("disabled"),
-      "true",
+      button.hasAttribute("disabled"),
+      true,
       "The `Restart with Add-ons Disabled...` button should be disabled"
     );
   });

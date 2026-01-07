@@ -104,7 +104,7 @@ function SetGlobalRadioElemChoices() {
     "identity.fccFolderPickerMode"
   );
   gFccRadioElemChoice = pickerModeElement.getAttribute("value");
-  gFccRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  gFccRadioElemChoiceLocked = pickerModeElement.hasAttribute("disabled");
   if (!gFccRadioElemChoice) {
     gFccRadioElemChoice = gDefaultPickerMode;
   }
@@ -113,7 +113,7 @@ function SetGlobalRadioElemChoices() {
     "identity.archivesFolderPickerMode"
   );
   gArchivesRadioElemChoice = pickerModeElement.getAttribute("value");
-  gArchivesRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  gArchivesRadioElemChoiceLocked = pickerModeElement.hasAttribute("disabled");
   if (!gArchivesRadioElemChoice) {
     gArchivesRadioElemChoice = gDefaultPickerMode;
   }
@@ -122,7 +122,7 @@ function SetGlobalRadioElemChoices() {
     "identity.draftsFolderPickerMode"
   );
   gDraftsRadioElemChoice = pickerModeElement.getAttribute("value");
-  gDraftsRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  gDraftsRadioElemChoiceLocked = pickerModeElement.hasAttribute("disabled");
   if (!gDraftsRadioElemChoice) {
     gDraftsRadioElemChoice = gDefaultPickerMode;
   }
@@ -131,7 +131,7 @@ function SetGlobalRadioElemChoices() {
     "identity.templatesFolderPickerMode"
   );
   gTmplRadioElemChoice = pickerModeElement.getAttribute("value");
-  gTmplRadioElemChoiceLocked = pickerModeElement.getAttribute("disabled");
+  gTmplRadioElemChoiceLocked = pickerModeElement.hasAttribute("disabled");
   if (!gTmplRadioElemChoice) {
     gTmplRadioElemChoice = gDefaultPickerMode;
   }
@@ -210,10 +210,10 @@ function SetFolderDisplay(
   // Check to see if we need to lock page elements. Disable radio buttons
   // and account/folder pickers when locked.
   if (disableMode) {
-    selectAccountRadioElem.setAttribute("disabled", "true");
-    selectFolderRadioElem.setAttribute("disabled", "true");
-    accountPicker.setAttribute("disabled", "true");
-    folderPicker.setAttribute("disabled", "true");
+    selectAccountRadioElem.toggleAttribute("disabled", true);
+    selectFolderRadioElem.toggleAttribute("disabled", true);
+    accountPicker.toggleAttribute("disabled", true);
+    folderPicker.toggleAttribute("disabled", true);
   }
 }
 
@@ -370,7 +370,7 @@ function setupFccItems() {
     if (checked) {
       e.removeAttribute("disabled");
     } else {
-      e.setAttribute("disabled", "true");
+      e.toggleAttribute("disabled", true);
     }
   });
   if (!checked) {
@@ -462,7 +462,7 @@ function SetPickerEnabling(enablePickerId, disablePickerId) {
   activePicker.removeAttribute("disabled");
 
   var inactivePicker = document.getElementById(disablePickerId);
-  inactivePicker.setAttribute("disabled", "true");
+  inactivePicker.toggleAttribute("disabled", true);
 }
 
 // Set radio element choices and picker states
@@ -530,7 +530,7 @@ function setupArchiveItems() {
     if (checked) {
       e.removeAttribute("disabled");
     } else {
-      e.setAttribute("disabled", "true");
+      e.toggleAttribute("disabled", true);
     }
   });
   if (!checked) {

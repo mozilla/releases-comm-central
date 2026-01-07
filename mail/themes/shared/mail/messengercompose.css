@@ -626,7 +626,7 @@
       text-shadow: none;
     }
 
-    &:not([disabled="true"], [open="true"]):hover {
+    &:not([disabled], [open="true"]):hover {
       background: var(--toolbarbutton-hover-background);
     }
 
@@ -669,7 +669,7 @@ toolbarbutton.formatting-button {
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
 
-  &:not([disabled="true"]) {
+  &:not([disabled]) {
     &:hover {
       background-color: var(--toolbarbutton-hover-background);
       border-color: var(--toolbarbutton-hover-bordercolor);
@@ -698,7 +698,7 @@ toolbarbutton.formatting-button {
     }
   }
 
-  &[disabled="true"] {
+  &[disabled] {
     opacity: 0.4;
   }
 }
@@ -720,7 +720,7 @@ toolbarbutton.formatting-button {
   block-size: 15px;
   margin: 2px;
 
-  &[disabled="true"] {
+  &[disabled] {
     opacity: 0.5;
   }
 }
@@ -823,8 +823,8 @@ toolbarbutton.formatting-button {
     box-shadow 0.2s,
     background-color 0.2s;
 
-  /* XUL element needs the full [disabled="true"] attribute. */
-  &[disabled="true"] {
+  /* XUL element needs the full [disabled] attribute. */
+  &[disabled] {
     opacity: 0.6;
   }
 

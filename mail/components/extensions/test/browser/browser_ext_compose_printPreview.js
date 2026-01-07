@@ -96,9 +96,7 @@ add_task(async function testLockedComposeWindow() {
 
   const elements = new Map();
 
-  const isDisabled = element =>
-    element.hasAttribute("disabled") &&
-    element.getAttribute("disabled") !== "false";
+  const isDisabled = element => element.hasAttribute("disabled");
 
   const clickComposeActionButton = async composeWindow => {
     await promiseAnimationFrame(composeWindow);

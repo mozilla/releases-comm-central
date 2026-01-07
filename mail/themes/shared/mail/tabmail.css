@@ -451,7 +451,7 @@ button.tab-close-button {
   -moz-context-properties: stroke;
   stroke: currentColor;
 
-  &[disabled="true"] {
+  &[disabled] {
     color: inherit;
 
     & > .toolbarbutton-icon {
@@ -459,7 +459,7 @@ button.tab-close-button {
     }
   }
 
-  &:not([disabled="true"]):hover {
+  &:not([disabled]):hover {
     background-color: var(--toolbarbutton-hover-background);
     cursor: pointer;
   }

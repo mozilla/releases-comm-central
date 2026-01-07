@@ -97,7 +97,7 @@
   }
 
   &.toolbar-button[open="true"],
-  &.toolbar-button:not([disabled="true"]):hover,
+  &.toolbar-button:not([disabled]):hover,
   &.unified-toolbar-button:enabled:is([aria-pressed="true"], :hover) {
     color: var(--button-hover-text-color);
     background-color: var(--toolbar-button-hover-background-color);
@@ -119,7 +119,7 @@
     }
   }
 
-  &.toolbar-button:not([disabled="true"]):hover:active,
+  &.toolbar-button:not([disabled]):hover:active,
   &.unified-toolbar-button:enabled:hover:active {
     background-color: var(--toolbar-button-active-background-color);
     border-color: var(--toolbar-button-active-border-color);

@@ -38,8 +38,8 @@ function quoteEnabling() {
     placebox.firstElementChild.removeAttribute("disabled");
     placebox.lastElementChild.removeAttribute("disabled");
   } else {
-    placebox.firstElementChild.setAttribute("disabled", "true");
-    placebox.lastElementChild.setAttribute("disabled", "true");
+    placebox.firstElementChild.toggleAttribute("disabled", true);
+    placebox.lastElementChild.toggleAttribute("disabled", true);
   }
 }
 

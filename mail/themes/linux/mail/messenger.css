@@ -267,7 +267,7 @@
   block-size: 28px;
 }
 
-menubar > menu[disabled="true"] {
+menubar > menu[disabled] {
   color: var(--text-color-disabled);
 }
 
@@ -318,9 +318,9 @@ toolbar[mode="text"] .toolbarbutton-text {
   padding-inline: 2px !important;
 }
 
-.toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
-.toolbarbutton-1[disabled="true"] .toolbarbutton-text,
-.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+.toolbarbutton-1[disabled] .toolbarbutton-icon,
+.toolbarbutton-1[disabled] .toolbarbutton-text,
+.toolbarbutton-1[disabled] > .toolbarbutton-menubutton-dropmarker {
   opacity: 0.4;
 }
 

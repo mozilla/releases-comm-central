@@ -50,7 +50,7 @@ function Startup() {
     var menuitem = document.getElementById("header" + i + "none");
     var textbox = document.getElementById("header" + i + "Class");
     menulist.selectedItem = menuitem;
-    textbox.setAttribute("disabled", "true");
+    textbox.toggleAttribute("disabled", true);
   }
 
   var theDocument = GetCurrentEditor().document;
@@ -361,7 +361,7 @@ function selectHeader(elt, index) {
   tocHeadersArray[index - 1][0] = tag;
   var textbox = document.getElementById("header" + index + "Class");
   if (tag == "") {
-    textbox.setAttribute("disabled", "true");
+    textbox.toggleAttribute("disabled", true);
   } else {
     textbox.removeAttribute("disabled");
   }

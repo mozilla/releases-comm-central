@@ -656,15 +656,15 @@
 
       <menu label="&threads.label;" id="viewMessagesMenu" accesskey="&threads.accesskey;">
         <menupopup id="menu_ThreadsPopup" onpopupshowing="InitViewMessagesMenu()">
-          <menuitem id="viewAllMessagesMenuItem" type="radio" name="viewmessages" label="&allMsgsCmd.label;" accesskey="&allMsgsCmd.accesskey;" disabled="true" command="cmd_viewAllMsgs"/>
-          <menuitem id="viewUnreadMessagesMenuItem" type="radio" name="viewmessages" label="&unreadMsgsCmd.label;" accesskey="&unreadMsgsCmd.accesskey;" disabled="true" command="cmd_viewUnreadMsgs"/>
-          <menuitem id="viewThreadsWithUnreadMenuItem" type="radio" name="viewmessages" label="&threadsWithUnreadCmd.label;" accesskey="&threadsWithUnreadCmd.accesskey;" disabled="true" command="cmd_viewThreadsWithUnread"/>
-          <menuitem id="viewWatchedThreadsWithUnreadMenuItem" type="radio" name="viewmessages" label="&watchedThreadsWithUnreadCmd.label;" accesskey="&watchedThreadsWithUnreadCmd.accesskey;" disabled="true" command="cmd_viewWatchedThreadsWithUnread"/>
+          <menuitem id="viewAllMessagesMenuItem" type="radio" name="viewmessages" label="&allMsgsCmd.label;" accesskey="&allMsgsCmd.accesskey;" disabled="" command="cmd_viewAllMsgs"/>
+          <menuitem id="viewUnreadMessagesMenuItem" type="radio" name="viewmessages" label="&unreadMsgsCmd.label;" accesskey="&unreadMsgsCmd.accesskey;" disabled="" command="cmd_viewUnreadMsgs"/>
+          <menuitem id="viewThreadsWithUnreadMenuItem" type="radio" name="viewmessages" label="&threadsWithUnreadCmd.label;" accesskey="&threadsWithUnreadCmd.accesskey;" disabled="" command="cmd_viewThreadsWithUnread"/>
+          <menuitem id="viewWatchedThreadsWithUnreadMenuItem" type="radio" name="viewmessages" label="&watchedThreadsWithUnreadCmd.label;" accesskey="&watchedThreadsWithUnreadCmd.accesskey;" disabled="" command="cmd_viewWatchedThreadsWithUnread"/>
           <menuseparator id="threadsAfterWatchedSeparator"/>
-          <menuitem id="viewIgnoredThreadsMenuItem" type="checkbox" label="&ignoredThreadsCmd.label;" disabled="true" command="cmd_viewIgnoredThreads" accesskey="&ignoredThreadsCmd.accesskey;"/>
+          <menuitem id="viewIgnoredThreadsMenuItem" type="checkbox" label="&ignoredThreadsCmd.label;" disabled="" command="cmd_viewIgnoredThreads" accesskey="&ignoredThreadsCmd.accesskey;"/>
           <menuseparator id="threadsAfterIgnoredSeparator"/>
-          <menuitem id="menu_expandAllThreads" label="&expandAllThreadsCmd.label;" accesskey="&expandAllThreadsCmd.accesskey;" key="key_expandAllThreads" disabled="true" command="cmd_expandAllThreads"/>
-          <menuitem id="collapseAllThreads" label="&collapseAllThreadsCmd.label;" accesskey="&collapseAllThreadsCmd.accesskey;" key="key_collapseAllThreads" disabled="true" command="cmd_collapseAllThreads"/>
+          <menuitem id="menu_expandAllThreads" label="&expandAllThreadsCmd.label;" accesskey="&expandAllThreadsCmd.accesskey;" key="key_expandAllThreads" disabled="" command="cmd_expandAllThreads"/>
+          <menuitem id="collapseAllThreads" label="&collapseAllThreadsCmd.label;" accesskey="&collapseAllThreadsCmd.accesskey;" key="key_collapseAllThreads" disabled="" command="cmd_collapseAllThreads"/>
         </menupopup>
       </menu>
       <menuseparator id="viewAfterThreadsSeparator"/>
@@ -993,7 +993,7 @@
         <menu id="msgAttachmentMenu"
               label="&openAttachmentListCmd.label;"
               accesskey="&openAttachmentListCmd.accesskey;"
-              disabled="true">
+              disabled="">
           <menupopup id="attachmentMenuList"
                      onpopupshowing="fillAttachmentListPopup(event);">
             <menuseparator/>

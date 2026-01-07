@@ -131,11 +131,11 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
   // Disable the toolbar context menu items
   var menubar = document.getElementById("mail-menubar");
   for (var i = 0; i < menubar.children.length; ++i) {
-    menubar.children[i].setAttribute("disabled", true);
+    menubar.children[i].toggleAttribute("disabled", true);
   }
 
   var customizePopup = document.getElementById(customizePopupId);
-  customizePopup.setAttribute("disabled", "true");
+  customizePopup.toggleAttribute("disabled", true);
 
   var toolbox = document.getElementById(toolboxId);
 
@@ -209,7 +209,7 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
   // Re-enable parts of the UI we disabled during the dialog
   var menubar = document.getElementById("mail-menubar");
   for (var i = 0; i < menubar.children.length; ++i) {
-    menubar.children[i].setAttribute("disabled", false);
+    menubar.children[i].toggleAttribute("disabled", false);
   }
 
   var customizePopup = document.getElementById(customizePopupId);

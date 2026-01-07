@@ -384,7 +384,7 @@ add_task(async function test_clickCommandElement() {
 add_task(async function test_observeDisabled() {
   const command = testDocument.createElementNS(XUL_NS, "command");
   command.id = "test-command";
-  command.setAttribute("disabled", "true");
+  command.toggleAttribute("disabled", true);
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
@@ -399,7 +399,7 @@ add_task(async function test_observeDisabled() {
 
   Assert.ok(!button.disabled, "Button follows the command to become enabled");
 
-  command.setAttribute("disabled", "true");
+  command.toggleAttribute("disabled", true);
   await TestUtils.waitForTick();
 
   Assert.ok(button.disabled, "Button follows command to disable itself");
@@ -464,7 +464,7 @@ add_task(async function test_observeChecked() {
 add_task(async function test_moveNodeWithObserve() {
   const command = testDocument.createElementNS(XUL_NS, "command");
   command.id = "test-command";
-  command.setAttribute("disabled", "true");
+  command.toggleAttribute("disabled", true);
   const button = testDocument.createElement("button", {
     is: "unified-toolbar-button",
   });
@@ -482,7 +482,7 @@ add_task(async function test_moveNodeWithObserve() {
     "Button still remembers that it once connected"
   );
 
-  command.setAttribute("disabled", "false");
+  command.toggleAttribute("disabled", false);
 
   testDocument.body.append(button);
   await waitForRender();
@@ -494,7 +494,7 @@ add_task(async function test_moveNodeWithObserve() {
     "Didn't change label element on re-insertion"
   );
 
-  command.setAttribute("disabled", "true");
+  command.toggleAttribute("disabled", true);
   await TestUtils.waitForTick();
 
   Assert.ok(button.disabled, "Observing the command again after re-insertion");

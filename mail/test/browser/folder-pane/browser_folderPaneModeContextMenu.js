@@ -75,8 +75,8 @@ add_task(async function testMoveFolderModeUp() {
   // Ensure that the move down element is disabled asit is the last element.
 
   Assert.equal(
-    folderPaneModeMoveDownMenuItem.getAttribute("disabled"),
-    "true",
+    folderPaneModeMoveDownMenuItem.hasAttribute("disabled"),
+    true,
     "Move down element is enabled."
   );
 
@@ -191,8 +191,8 @@ add_task(async function testCantMoveFolderPaneModeUp() {
   await shownPromise;
 
   Assert.equal(
-    folderPaneModeMoveUpMenuItem.getAttribute("disabled"),
-    "true",
+    folderPaneModeMoveUpMenuItem.hasAttribute("disabled"),
+    true,
     "Move down element is enabled."
   );
 

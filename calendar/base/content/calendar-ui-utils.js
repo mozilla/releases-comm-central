@@ -30,7 +30,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUti
  */
 function disableElementWithLock(elementId, lockId) {
   // unconditionally disable the element.
-  document.getElementById(elementId).setAttribute("disabled", "true");
+  document.getElementById(elementId).toggleAttribute("disabled", true);
 
   // remember that this element has been locked with
   // the key passed as argument. we keep a primitive

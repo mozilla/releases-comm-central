@@ -334,8 +334,8 @@ async function LoadSignons() {
 
   // disable "remove all signons" button if there are no signons
   if (signons.length == 0) {
-    removeAllButton.setAttribute("disabled", "true");
-    togglePasswordsButton.setAttribute("disabled", "true");
+    removeAllButton.toggleAttribute("disabled", true);
+    togglePasswordsButton.toggleAttribute("disabled", true);
   } else {
     removeAllButton.removeAttribute("disabled");
     togglePasswordsButton.removeAttribute("disabled");
@@ -368,12 +368,7 @@ function GetTreeSelections() {
 }
 
 function SignonSelected() {
-  const selections = GetTreeSelections();
-  if (selections.length) {
-    removeButton.removeAttribute("disabled");
-  } else {
-    removeButton.setAttribute("disabled", true);
-  }
+  removeButton.toggleAttribute("disabled", !GetTreeSelections().length);
 }
 
 async function DeleteSignon() {
@@ -414,8 +409,8 @@ async function DeleteSignon() {
     tree.view.selection.select(nextSelection);
   } else {
     // disable buttons
-    removeButton.setAttribute("disabled", "true");
-    removeAllButton.setAttribute("disabled", "true");
+    removeButton.toggleAttribute("disabled", true);
+    removeAllButton.toggleAttribute("disabled", true);
   }
   tree.view.selection.selectEventsSuppressed = false;
   await FinalizeSignonDeletions(syncNeeded);
@@ -465,8 +460,8 @@ async function DeleteAllSignons() {
   signonsTree.invalidate();
 
   // disable buttons
-  removeButton.setAttribute("disabled", "true");
-  removeAllButton.setAttribute("disabled", "true");
+  removeButton.toggleAttribute("disabled", true);
+  removeAllButton.toggleAttribute("disabled", true);
   await FinalizeSignonDeletions(syncNeeded);
 }
 
@@ -650,11 +645,10 @@ async function FilterPasswords() {
 
   document.l10n.setAttributes(signonsIntro, "logins-description-filtered");
   document.l10n.setAttributes(removeAllButton, "remove-all-shown");
-  if (signonsTreeView._filterSet.length == 0) {
-    removeAllButton.setAttribute("disabled", "true");
-  } else {
-    removeAllButton.removeAttribute("disabled");
-  }
+  removeAllButton.toggleAttribute(
+    "disabled",
+    signonsTreeView._filterSet.length == 0
+  );
 }
 
 function CopyProviderUrl() {
@@ -711,7 +705,7 @@ function UpdateContextMenu() {
 
   if (!singleSelection) {
     for (const menuItem of menuItems.values()) {
-      menuItem.setAttribute("disabled", "true");
+      menuItem.toggleAttribute("disabled", true);
     }
     return;
   }
@@ -722,7 +716,7 @@ function UpdateContextMenu() {
   if (signonsTreeView.getCellText(selectedRow, { id: "userCol" }) != "") {
     menuItems.get("context-copyusername").removeAttribute("disabled");
   } else {
-    menuItems.get("context-copyusername").setAttribute("disabled", "true");
+    menuItems.get("context-copyusername").toggleAttribute("disabled", true);
   }
 
   menuItems.get("context-copyproviderurl").removeAttribute("disabled");
@@ -733,7 +727,7 @@ function UpdateContextMenu() {
   if (!document.getElementById("passwordCol").hidden) {
     menuItems.get("context-editpassword").removeAttribute("disabled");
   } else {
-    menuItems.get("context-editpassword").setAttribute("disabled", "true");
+    menuItems.get("context-editpassword").toggleAttribute("disabled", true);
   }
 }
 

@@ -347,7 +347,7 @@ function search(aQuery, aAttribute) {
     if (attributeValue == aQuery) {
       element.removeAttribute("disabled");
     } else {
-      element.setAttribute("disabled", true);
+      element.toggleAttribute("disabled", true);
     }
   }
 }

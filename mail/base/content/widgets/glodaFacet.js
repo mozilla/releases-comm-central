@@ -278,17 +278,12 @@
     }
 
     set disabled(val) {
-      if (val) {
-        this.setAttribute("disabled", "true");
-        this.checkbox.setAttribute("disabled", "true");
-      } else {
-        this.removeAttribute("disabled");
-        this.checkbox.removeAttribute("disabled");
-      }
+      this.toggleAttribute("disabled", val);
+      this.checkbox.toggleAttribute("disabled", val);
     }
 
     get disabled() {
-      return this.getAttribute("disabled") == "true";
+      return this.hasAttribute("disabled");
     }
 
     set checked(val) {
@@ -426,11 +421,7 @@
         this.checkbox.removeAttribute("checked");
       }
 
-      if (this.hasAttribute("disabled")) {
-        this.checkbox.setAttribute("disabled", this.getAttribute("disabled"));
-      } else {
-        this.checkbox.removeAttribute("disabled");
-      }
+      this.checkbox.toggleAttribute("disabled", this.hasAttribute("disabled"));
     }
 
     extraSetup() {

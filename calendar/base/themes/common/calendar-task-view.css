@@ -210,7 +210,7 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-#calendar-add-task-button:not([disabled="true"]):hover {
+#calendar-add-task-button:not([disabled]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -218,7 +218,7 @@
   outline: none;
 }
 
-#calendar-add-task-button:not([disabled="true"]):hover:active {
+#calendar-add-task-button:not([disabled]):hover:active {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);

@@ -96,33 +96,28 @@
     <!-- style related commands that update on creation, and on selection change -->
     <!-- not using commandupdater directly, as it has to listen to the parent -->
     <commandset id="styleMenuItems" oncommandupdate="goUpdateComposerMenuItems(this)">
-      <command id="cmd_renderedHTMLEnabler" disabled="true" />
-      <command
-        id="cmd_bold"
-        state="false"
-        oncommand="doStyleUICommand('cmd_bold')"
-        disabled="true"
-      />
+      <command id="cmd_renderedHTMLEnabler" disabled="" />
+      <command id="cmd_bold" state="false" oncommand="doStyleUICommand('cmd_bold')" disabled="" />
       <command
         id="cmd_italic"
         state="false"
         oncommand="doStyleUICommand('cmd_italic')"
-        disabled="true"
+        disabled=""
       />
       <command
         id="cmd_underline"
         state="false"
         oncommand="doStyleUICommand('cmd_underline')"
-        disabled="true"
+        disabled=""
       />
 
-      <command id="cmd_ul" state="false" oncommand="doStyleUICommand('cmd_ul')" disabled="true" />
-      <command id="cmd_ol" state="false" oncommand="doStyleUICommand('cmd_ol')" disabled="true" />
+      <command id="cmd_ul" state="false" oncommand="doStyleUICommand('cmd_ul')" disabled="" />
+      <command id="cmd_ol" state="false" oncommand="doStyleUICommand('cmd_ol')" disabled="" />
 
-      <command id="cmd_indent" oncommand="goDoCommand('cmd_indent')" disabled="true" />
-      <command id="cmd_outdent" oncommand="goDoCommand('cmd_outdent')" disabled="true" />
+      <command id="cmd_indent" oncommand="goDoCommand('cmd_indent')" disabled="" />
+      <command id="cmd_outdent" oncommand="goDoCommand('cmd_outdent')" disabled="" />
 
-      <command id="cmd_align" state="" disabled="true" />
+      <command id="cmd_align" state="" disabled="" />
     </commandset>
 
     <keyset id="editorKeys">
@@ -201,7 +196,7 @@
           crop="end"
           command="cmd_applyOriginal"
           orient="horizontal"
-          disabled="true"
+          disabled=""
           class="counter-buttons"
           accesskey="&counter.button.original.accesskey;"
           tooltip="&counter.button.original.tooltip2;"
@@ -513,7 +508,7 @@
               id="completed-date-picker"
               class="todo-only"
               disable-on-readonly="true"
-              disabled="true"
+              disabled=""
               value=""
             />
             <html:input

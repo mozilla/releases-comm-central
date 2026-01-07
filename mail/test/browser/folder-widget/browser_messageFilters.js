@@ -65,7 +65,7 @@ add_task(async function key_navigation_test() {
   const filterc = await openFiltersDialogs();
 
   const filterWinDoc = filterc.document;
-  const BUTTONS_SELECTOR = `toolbarbutton:not([disabled="true"],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([disabled],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
   const filterButtonList = filterWinDoc.getElementById("filterActionButtons");
   const navigableButtons = filterButtonList.querySelectorAll(BUTTONS_SELECTOR);
   const menupopupNewFilter = filterWinDoc.getElementById("newFilterMenupopup");

@@ -423,7 +423,7 @@ label.label {
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
 
-  &:not([disabled="true"]) {
+  &:not([disabled]) {
     &:hover {
       background-color: var(--toolbarbutton-hover-background);
       border-color: var(--toolbarbutton-hover-bordercolor);
@@ -452,7 +452,7 @@ label.label {
     }
   }
 
-  &[disabled="true"] {
+  &[disabled] {
     opacity: 0.4;
   }
 }
@@ -491,7 +491,7 @@ label.label {
   fill: var(--selected-item-color);
 }
 
-#keepduration-button[disabled="true"] {
+#keepduration-button[disabled] {
   fill: GrayText;
 }
 

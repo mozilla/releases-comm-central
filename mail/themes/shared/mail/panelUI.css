@@ -239,7 +239,7 @@ menuitem.subviewbutton {
     outline: 0;
   }
 
-  &:is([disabled="true"], [disabled="true"]:hover, [checked="true"][disabled="true"], [checked="true"][disabled="true"]:hover) {
+  &:is([disabled], [disabled]:hover, [checked="true"][disabled], [checked="true"][disabled]:hover) {
     color: var(--text-color-deemphasized);
     background-color: transparent;
   }
@@ -833,8 +833,8 @@ menulist {
   border: 1px solid var(--button-border-color);
   background-color: var(--button-background-color);
 
-  &:not([disabled="true"], [open="true"]):hover,
-  &[open="true"]:not([disabled="true"]) {
+  &:not([disabled], [open="true"]):hover,
+  &[open="true"]:not([disabled]) {
     background-color: var(--button-hover-background-color);
     border-color: var(--button-border-color);
   }

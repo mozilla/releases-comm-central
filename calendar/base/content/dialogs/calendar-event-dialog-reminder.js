@@ -159,7 +159,7 @@ function setupRadioEnabledState(aDisableAll) {
   document.getElementById("reminder-unit").disabled = relativeDisabled;
   document.getElementById("reminder-relation-origin").disabled = relativeDisabled;
 
-  document.getElementById("reminder-absolute-date").setAttribute("disabled", !!absoluteDisabled);
+  document.getElementById("reminder-absolute-date").toggleAttribute("disabled", !!absoluteDisabled);
 
   document.getElementById("reminder-relative-radio").disabled = aDisableAll;
   document.getElementById("reminder-absolute-radio").disabled = aDisableAll;

@@ -332,11 +332,7 @@
     }
 
     set isDisabled(disabled) {
-      if (disabled) {
-        this.setAttribute("disabled", true);
-        return;
-      }
-      this.removeAttribute("disabled");
+      this.toggleAttribute("disabled", disabled);
     }
 
     /**

@@ -14,11 +14,11 @@
 }
 
 @media (prefers-contrast) {
-  #menubar-items > #mail-menubar > menu:not([disabled="true"]) {
+  #menubar-items > #mail-menubar > menu:not([disabled]) {
     color: inherit;
   }
 
-  #menubar-items > #mail-menubar > menu:not([disabled="true"])[_moz-menuactive="true"] {
+  #menubar-items > #mail-menubar > menu:not([disabled])[_moz-menuactive="true"] {
     color: -moz-MenuHoverText;
   }
 }
@@ -42,7 +42,7 @@
   }
 }
 
-:root[lwtheme] menubar > menu[disabled="true"] {
+:root[lwtheme] menubar > menu[disabled] {
   color: inherit;
   opacity: 0.4;
 }
@@ -210,9 +210,9 @@ button.notification-button[is="toolbarbutton-menu-button"] {
     appearance: none;
   }
 
-  &[disabled="true"] .toolbarbutton-icon,
-  &[disabled="true"] .toolbarbutton-text,
-  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+  &[disabled] .toolbarbutton-icon,
+  &[disabled] .toolbarbutton-text,
+  &[disabled] > .toolbarbutton-menubutton-dropmarker {
     opacity: 0.4;
   }
 

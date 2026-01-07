@@ -72,13 +72,12 @@ function toggleColor() {
   const useColor = document.getElementById("useColor").checked;
   const categoryColor = document.getElementById("categoryColor");
 
+  categoryColor.toggleAttribute("disabled", !useColor);
   if (useColor) {
-    categoryColor.removeAttribute("disabled");
     if (toggleColor.lastColor) {
       categoryColor.value = toggleColor.lastColor;
     }
   } else {
-    categoryColor.setAttribute("disabled", "disabled");
     toggleColor.lastColor = categoryColor.value;
     categoryColor.value = "";
   }

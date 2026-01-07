@@ -483,11 +483,8 @@ function restoreItemForToolbar(aItem, aWrapper) {
     const commandID = aWrapper.getAttribute("itemcommand");
     aItem.setAttribute("command", commandID);
 
-    // XXX Bug 309953 - toolbarbuttons aren't in sync with their commands after customizing
     const command = gToolboxDocument.getElementById(commandID);
-    if (command && command.hasAttribute("disabled")) {
-      aItem.setAttribute("disabled", command.getAttribute("disabled"));
-    }
+    aItem.toggleAttribute("disabled", command?.hasAttribute("disabled"));
   }
 }
 

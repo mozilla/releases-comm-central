@@ -1581,7 +1581,7 @@ function populateActionBox() {
     $("safe-mode-box").hidden = false;
 
     if (Services.policies && !Services.policies.isAllowed("safeMode")) {
-      $("restart-in-safe-mode-button").setAttribute("disabled", "true");
+      $("restart-in-safe-mode-button").toggleAttribute("disabled", true);
     }
   }
 }

@@ -160,7 +160,7 @@ class UnifiedToolbar extends HTMLElement {
       });
       document
         .getElementById("cmd_CustomizeMailToolbar")
-        .setAttribute("disabled", true);
+        .toggleAttribute("disabled", true);
     }
 
     this.append(template);
@@ -252,7 +252,7 @@ class UnifiedToolbar extends HTMLElement {
     } else {
       document
         .getElementById("unifiedToolbarCustomize")
-        .setAttribute("disabled", true);
+        .toggleAttribute("disabled", true);
     }
     ToolbarContextMenu.updateExtension(popup);
   };

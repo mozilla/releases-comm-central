@@ -965,7 +965,7 @@ toolbar[mode="text"] #button-chat {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 
-  &:not([disabled="true"]):not([open="true"]):hover {
+  &:not([disabled]):not([open="true"]):hover {
     background: var(--toolbarbutton-active-background) !important;
     border-color: var(--toolbarbutton-active-bordercolor);
   }

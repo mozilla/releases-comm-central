@@ -38,7 +38,7 @@ var gAddressBookAbListener = {
 function onInitEditDirectories() {
   // If the pref is locked disable the "Add" button
   if (Services.prefs.prefIsLocked("ldap_2.disable_button_add")) {
-    document.getElementById("addButton").setAttribute("disabled", true);
+    document.getElementById("addButton").toggleAttribute("disabled", true);
   }
 
   // Fill out the directory list
@@ -103,14 +103,10 @@ function selectDirectory() {
       ab.dirPrefId + ".disable_delete",
       false
     );
-    if (disable) {
-      removeButton.setAttribute("disabled", true);
-    } else {
-      removeButton.removeAttribute("disabled");
-    }
+    removeButton.toggleAttribute("disabled", disable);
   } else {
-    editButton.setAttribute("disabled", true);
-    removeButton.setAttribute("disabled", true);
+    editButton.toggleAttribute("disabled", true);
+    removeButton.toggleAttribute("disabled", true);
   }
 }
 

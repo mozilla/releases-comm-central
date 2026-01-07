@@ -53,19 +53,19 @@
       <hbox pack="end">
         <button
           id="btnBlock"
-          disabled="true"
+          disabled=""
           data-l10n-id="block-button"
           oncommand="gPermissionManager.addPermission(Ci.nsIPermissionManager.DENY_ACTION);"
         />
         <button
           id="btnSession"
-          disabled="true"
+          disabled=""
           data-l10n-id="allow-session-button"
           oncommand="gPermissionManager.addPermission(Ci.nsICookiePermission.ACCESS_SESSION);"
         />
         <button
           id="btnAllow"
-          disabled="true"
+          disabled=""
           data-l10n-id="allow-button"
           default="true"
           oncommand="gPermissionManager.addPermission(Ci.nsIPermissionManager.ALLOW_ACTION);"
@@ -98,7 +98,7 @@
       <hbox class="actionButtons">
         <button
           id="removePermission"
-          disabled="true"
+          disabled=""
           data-l10n-id="remove-site-button"
           oncommand="gPermissionManager.onPermissionDeleted();"
         />

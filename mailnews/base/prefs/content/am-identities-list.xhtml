@@ -43,13 +43,13 @@
 
       <commandset>
         <command id="cmd_add" oncommand="openIdentityEditor(null);" />
-        <command id="cmd_edit" oncommand="onEdit(event);" disabled="true" />
+        <command id="cmd_edit" oncommand="onEdit(event);" disabled="" />
         <command
           id="cmd_default"
           oncommand="onSetDefault(event);"
-          disabled="true"
+          disabled=""
         />
-        <command id="cmd_delete" oncommand="onDelete(event);" disabled="true" />
+        <command id="cmd_delete" oncommand="onDelete(event);" disabled="" />
       </commandset>
 
       <keyset>
@@ -80,21 +80,21 @@
           />
           <button
             id="editButton"
-            disabled="true"
+            disabled=""
             command="cmd_edit"
             label="&identitiesListEdit.label;"
             accesskey="&identitiesListEdit.accesskey;"
           />
           <button
             id="setDefaultButton"
-            disabled="true"
+            disabled=""
             command="cmd_default"
             label="&identitiesListDefault.label;"
             accesskey="&identitiesListDefault.accesskey;"
           />
           <button
             id="deleteButton"
-            disabled="true"
+            disabled=""
             command="cmd_delete"
             label="&identitiesListDelete.label;"
             accesskey="&identitiesListDelete.accesskey;"

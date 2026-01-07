@@ -21,6 +21,6 @@
   max-inline-size: none;
 }
 
-#todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
+#todaypane-new-event-button[disabled] > .toolbarbutton-icon {
   opacity: 0.4;
 }

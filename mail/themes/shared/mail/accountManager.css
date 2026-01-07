@@ -208,17 +208,17 @@ body {
     padding-block: 0.2em;
     padding-inline: 10px 30px;
 
-    &:not([disabled="true"])[_moz-menuactive="true"] {
+    &:not([disabled])[_moz-menuactive="true"] {
       color: var(--in-content-item-hover-text);
       background-color: var(--in-content-item-hover);
     }
 
-    &:not([disabled="true"])[selected="true"] {
+    &:not([disabled])[selected="true"] {
       color: var(--text-color-accent-primary-selected);
       background-color: var(--color-accent-primary-selected);
     }
 
-    &[disabled="true"] {
+    &[disabled] {
       color: #999;
       /* override the [_moz-menuactive="true"] background color from
          global/menu.css */

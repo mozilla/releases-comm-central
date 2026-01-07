@@ -164,11 +164,7 @@ async function updateToolbar() {
     if (window.attendee) {
       // we disable the control which represents the current partstat
       const status = window.attendee.participationStatus || "NEEDS-ACTION";
-      if (element.getAttribute("value") == status) {
-        element.setAttribute("disabled", "true");
-      } else {
-        element.removeAttribute("disabled");
-      }
+      element.toggleAttribute("disabled", element.getAttribute("value") == status);
     }
   }
 

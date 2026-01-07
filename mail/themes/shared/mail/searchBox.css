@@ -77,7 +77,7 @@ input::-moz-search-clear-button {
 
 .gloda-search:focus,
 .searchBox[focused="true"],
-.themeableSearchBox:not([disabled="true"]):is(:focus, [focused="true"]) {
+.themeableSearchBox:not([disabled]):is(:focus, [focused="true"]) {
   border-color: var(--toolbar-field-focus-border-color);
   outline: 1px solid var(--toolbar-field-focus-border-color);
 }

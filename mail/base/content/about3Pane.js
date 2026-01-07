@@ -1974,7 +1974,7 @@ var folderPane = {
       subMenuCompactBtn.removeAttribute("disabled");
       return;
     }
-    subMenuCompactBtn.setAttribute("disabled", "true");
+    subMenuCompactBtn.toggleAttribute("disabled", true);
   },
 
   toggleFullPathMenuItem() {
@@ -1984,7 +1984,7 @@ var folderPane = {
     if (this.canBeCompact && this.isCompact) {
       fullPathBtn.removeAttribute("disabled");
     } else {
-      fullPathBtn.setAttribute("disabled", "true");
+      fullPathBtn.toggleAttribute("disabled", true);
     }
   },
 
@@ -2020,7 +2020,7 @@ var folderPane = {
     // Apply attribute mode to context menu option to allow
     // for sorting later
     if (this.activeModes.at(0) == this.mode) {
-      moveUpMenuItem.setAttribute("disabled", "true");
+      moveUpMenuItem.toggleAttribute("disabled", true);
     }
 
     // If folder mode is at the bottom or the only one,
@@ -2032,7 +2032,7 @@ var folderPane = {
     // Apply attribute mode to context menu option to allow
     // for sorting later
     if (this.activeModes.at(-1) == this.mode) {
-      moveDownMenuItem.setAttribute("disabled", "true");
+      moveDownMenuItem.toggleAttribute("disabled", true);
     }
 
     const compactMenuItem = this.folderPaneModeContext.querySelector(
@@ -2041,7 +2041,7 @@ var folderPane = {
     compactMenuItem.removeAttribute("checked");
     compactMenuItem.removeAttribute("disabled");
     if (!this.canModeBeCompact(this.mode)) {
-      compactMenuItem.setAttribute("disabled", "true");
+      compactMenuItem.toggleAttribute("disabled", true);
       return;
     }
     if (this.isCompact) {

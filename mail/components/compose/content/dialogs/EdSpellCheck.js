@@ -249,7 +249,7 @@ function CheckWord() {
         ""
       );
       if (item) {
-        item.setAttribute("disabled", "true");
+        item.toggleAttribute("disabled", true);
       }
       // Suppress being able to select the message text
       gAllowSelectWord = false;
@@ -432,7 +432,7 @@ function FillSuggestedList(misspelledWord) {
       // No suggestions - show a message but don't let user select it
       item = list.appendItem(GetString("NoSuggestedWords"));
       if (item) {
-        item.setAttribute("disabled", "true");
+        item.toggleAttribute("disabled", true);
       }
       gAllowSelectWord = false;
     } else {
@@ -443,7 +443,7 @@ function FillSuggestedList(misspelledWord) {
   } else {
     item = list.appendItem("", "");
     if (item) {
-      item.setAttribute("disabled", "true");
+      item.toggleAttribute("disabled", true);
     }
   }
 }

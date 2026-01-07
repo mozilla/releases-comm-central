@@ -149,35 +149,35 @@ html|span.ac-emphasize-text {
   object-position: top 0 left -138px;
 }
 
-.role-icon[disabled="true"] {
+.role-icon[disabled] {
   object-position: top 0 left -138px;
 }
 
 .role-icon[attendeerole="REQ-PARTICIPANT"] {
   object-position: top 0 left -138px;
 }
-.role-icon[attendeerole="REQ-PARTICIPANT"][disabled="true"] {
+.role-icon[attendeerole="REQ-PARTICIPANT"][disabled] {
   object-position: top 0 left -138px;
 }
 
 .role-icon[attendeerole="OPT-PARTICIPANT"] {
   object-position: top 0 left -159px;
 }
-.role-icon[attendeerole="OPT-PARTICIPANT"][disabled="true"] {
+.role-icon[attendeerole="OPT-PARTICIPANT"][disabled] {
   object-position: top 0 left -159px;
 }
 
 .role-icon[attendeerole="CHAIR"] {
   object-position: top 0 left -180px;
 }
-.role-icon[attendeerole="CHAIR"][disabled="true"] {
+.role-icon[attendeerole="CHAIR"][disabled] {
   object-position: top 0 left -180px;
 }
 
 .role-icon[attendeerole="NON-PARTICIPANT"] {
   object-position: top 0 left -201px;
 }
-.role-icon[attendeerole="NON-PARTICIPANT"][disabled="true"] {
+.role-icon[attendeerole="NON-PARTICIPANT"][disabled] {
   object-position: top 0 left -201px;
 }
 
@@ -192,28 +192,28 @@ html|span.ac-emphasize-text {
 .usertype-icon[usertype="INDIVIDUAL"] {
   object-position: top 0 left 0;
 }
-.usertype-icon[disabled="true"],
-.usertype-icon[usertype="INDIVIDUAL"][disabled="true"] {
+.usertype-icon[disabled],
+.usertype-icon[usertype="INDIVIDUAL"][disabled] {
   object-position: top -16px left 0;
 }
 
 .usertype-icon[usertype="GROUP"] {
   object-position: top 0 left -16px;
 }
-.usertype-icon[usertype="GROUP"][disabled="true"] {
+.usertype-icon[usertype="GROUP"][disabled] {
   object-position: top -16px left -16px;
 }
 
 .usertype-icon[usertype="RESOURCE"] {
   object-position: top 0 left -32px;
 }
-.usertype-icon[usertype="RESOURCE"][disabled="true"] {
+.usertype-icon[usertype="RESOURCE"][disabled] {
   object-position: top -16px left -32px;
 }
 
 .usertype-icon[usertype="ROOM"] {
   object-position: top 0 left -48px;
 }
-.usertype-icon[usertype="ROOM"][disabled="true"] {
+.usertype-icon[usertype="ROOM"][disabled] {
   object-position: top -16px left -48px;
 }

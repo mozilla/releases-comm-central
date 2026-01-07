@@ -565,7 +565,7 @@ function adjustCheckboxesForAllCalendars(checked) {
  */
 function updateNoCredentials(noCredentials) {
   if (noCredentials) {
-    document.getElementById("network-username-input").setAttribute("disabled", "true");
+    document.getElementById("network-username-input").toggleAttribute("disabled", true);
     document.getElementById("network-username-input").value = "";
   } else {
     document.getElementById("network-username-input").removeAttribute("disabled");

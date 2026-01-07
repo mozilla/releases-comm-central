@@ -259,7 +259,7 @@ aside.settings-btn-container {
   cursor: pointer;
   box-shadow: 0 5px 20px -5px var(--btn-shadow-hover);
 
-  &:not([disabled="true"]):hover {
+  &:not([disabled]):hover {
     color: var(--btn-color-hover) !important;
     background-color: var(--btn-bg-hover);
     box-shadow:

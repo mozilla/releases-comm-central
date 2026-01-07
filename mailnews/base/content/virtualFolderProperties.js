@@ -150,12 +150,8 @@ function updateOnlineSearchState() {
       );
 
   const checkbox = document.getElementById("searchOnline");
-  if (includesOnlineServers) {
-    checkbox.removeAttribute("disabled");
-  } else {
-    checkbox.setAttribute("disabled", true);
-    checkbox.checked = false;
-  }
+  checkbox.toggleAttribute("disabled", !includesOnlineServers);
+  checkbox.checked = !includesOnlineServers;
 }
 
 function InitDialogWithVirtualFolder(aVirtualFolder) {

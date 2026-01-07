@@ -509,10 +509,10 @@ export var OTRUI = {
     otrButton.setAttribute("label", _str("state-" + trust.class + "-label"));
     otrButton.className = "encryption-button encryption-" + trust.class;
     otrStart.setAttribute("label", trust.startLabel);
-    otrStart.setAttribute("disabled", trust.disableStart);
-    otrEnd.setAttribute("disabled", trust.disableEnd);
+    otrStart.toggleAttribute("disabled", trust.disableStart);
+    otrEnd.toggleAttribute("disabled", trust.disableEnd);
     otrAuth.setAttribute("label", trust.authLabel);
-    otrAuth.setAttribute("disabled", trust.disableAuth);
+    otrAuth.toggleAttribute("disabled", trust.disableAuth);
     OTRUI.hideAllOTRNotifications();
     OTRUI.showUserNotifications(context);
   },

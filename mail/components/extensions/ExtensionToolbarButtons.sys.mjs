@@ -484,12 +484,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     };
 
     let success = false;
-    if (
-      button &&
-      enabled &&
-      (!button.hasAttribute("disabled") ||
-        button.getAttribute("disabled") === "false")
-    ) {
+    if (button && enabled && !button.hasAttribute("disabled")) {
       await focusWindow(window);
 
       if (popupURL) {
@@ -614,11 +609,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         node.removeAttribute("badge");
       }
 
-      if (tabData.enabled) {
-        node.removeAttribute("disabled");
-      } else {
-        node.setAttribute("disabled", "true");
-      }
+      node.toggleAttribute("disabled", !tabData.enabled);
 
       const styles = [];
       let bgColor = tabData.badgeBackgroundColor;

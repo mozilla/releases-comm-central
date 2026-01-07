@@ -80,7 +80,7 @@ html|input.editContactTextbox {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
 
-  &:not([disabled="true"], [open="true"]):hover {
+  &:not([disabled], [open="true"]):hover {
     background-image: linear-gradient(var(--arrowpanel-dimmed), var(--arrowpanel-dimmed));
     background-color: var(--arrowpanel-dimmed);
   }

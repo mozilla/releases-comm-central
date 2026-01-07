@@ -301,27 +301,27 @@ toolbar[customizing="true"][collapsed] {
       border-color 0.15s;
   }
 
-  &:not([disabled="true"]):is(:hover, [open="true"]) > .toolbarbutton-menubutton-button,
-  &:not([disabled="true"]):hover > .toolbarbutton-menubutton-dropmarker,
-  &:not([is="toolbarbutton-menu-button"], [disabled="true"], [checked="true"], [open="true"], :active):hover {
+  &:not([disabled]):is(:hover, [open="true"]) > .toolbarbutton-menubutton-button,
+  &:not([disabled]):hover > .toolbarbutton-menubutton-dropmarker,
+  &:not([is="toolbarbutton-menu-button"], [disabled], [checked="true"], [open="true"], :active):hover {
     background-color: var(--toolbarbutton-hover-background);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
   }
 
-  & > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
-  &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
-  &:not([is="toolbarbutton-menu-button"], [disabled="true"]):is([open="true"], [checked="true"], :hover:active) {
+  & > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
+  &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled]),
+  &:not([is="toolbarbutton-menu-button"], [disabled]):is([open="true"], [checked="true"], :hover:active) {
     background-color: var(--toolbarbutton-checked-background);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
     transition-duration: 10ms;
   }
 
-  &:not([is="toolbarbutton-menu-button"], [disabled="true"]):hover:active,
-  &:not([is="toolbarbutton-menu-button"], [disabled="true"])[open="true"],
-  & > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
-  &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
+  &:not([is="toolbarbutton-menu-button"], [disabled]):hover:active,
+  &:not([is="toolbarbutton-menu-button"], [disabled])[open="true"],
+  & > .toolbarbutton-menubutton-button:not([disabled]):hover:active,
+  &[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled]) {
     background-color: var(--toolbarbutton-active-background) !important;
   }
 
@@ -400,7 +400,7 @@ toolbar[customizing="true"][collapsed] {
 
   /* Separator between menu and split type buttons */
   &:not(:hover, :active, [open], [checked]) > .toolbarbutton-menubutton-dropmarker,
-  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker {
+  &[disabled] > .toolbarbutton-menubutton-dropmarker {
     border-inline-start-color: color-mix(in srgb, currentColor 20%, transparent);
   }
 
@@ -416,13 +416,13 @@ toolbar[customizing="true"][collapsed] {
       background-position: 4px center;
     }
 
-    &[disabled="true"] {
+    &[disabled] {
       opacity: 0.4;
     }
 
     /* Don't set a reduced opacity because we set it on the whole button. */
-    &[disabled="true"] .toolbarbutton-icon,
-    &[disabled="true"] .toolbarbutton-text {
+    &[disabled] .toolbarbutton-icon,
+    &[disabled] .toolbarbutton-text {
       opacity: 1;
     }
   }
@@ -503,7 +503,7 @@ menubar {
   color-scheme: light dark;
 }
 
-#mail-menubar > menu[_moz-menuactive="true"]:not([disabled="true"]) {
+#mail-menubar > menu[_moz-menuactive="true"]:not([disabled]) {
   background-color: light-dark(hsla(0, 0%, 0%, 0.12), hsla(0, 0%, 100%, 0.22));
   color: inherit;
 }
@@ -524,12 +524,12 @@ menulist {
   }
 
   /* Override the not existing rule in menu.css */
-  &[disabled="true"]:hover,
+  &[disabled]:hover,
   &[open="true"]:hover {
     background-color: var(--toolbarbutton-hover-background);
   }
 
-  &:not([disabled="true"], [open="true"]):hover {
+  &:not([disabled], [open="true"]):hover {
     background-color: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
   }
@@ -540,7 +540,7 @@ menulist {
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }
 
-  &[disabled="true"] {
+  &[disabled] {
     opacity: 0.6;
   }
 
@@ -571,17 +571,17 @@ html|input[type="color"] {
   box-shadow: none;
 }
 
-xul|button:is(:not([disabled="true"])):hover,
+xul|button:is(:not([disabled])):hover,
 html|button:is(:not([disabled])):hover {
   border-color: var(--button-border-color);
   background-color: var(--button-hover-background-color);
 }
 
-xul|button:is(:not([disabled="true"])):hover:active,
+xul|button:is(:not([disabled])):hover:active,
 html|button:is(:not([disabled])):hover:active,
-xul|button:is(:not([disabled="true"]))[open="true"],
-html|input[type="color"]:not([disabled="true"]):hover,
-html|input[type="color"]:not([disabled="true"]):hover:active {
+xul|button:is(:not([disabled]))[open="true"],
+html|input[type="color"]:not([disabled]):hover,
+html|input[type="color"]:not([disabled]):hover:active {
   border-color: var(--button-border-color);
   background-color: var(--button-active-background-color);
 }

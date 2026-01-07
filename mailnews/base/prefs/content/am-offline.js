@@ -364,7 +364,7 @@ function onCheckItem1(changeElementId, checkElementId) {
   if (checked && !gLockedPref[checkElementId]) {
     element.removeAttribute("disabled");
   } else {
-    element.setAttribute("disabled", "true");
+    element.toggleAttribute("disabled", true);
   }
 }
 
