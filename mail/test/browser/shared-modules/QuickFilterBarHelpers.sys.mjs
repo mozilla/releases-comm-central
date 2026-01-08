@@ -187,6 +187,21 @@ export async function switch_tag_mode(mode) {
 }
 
 /**
+ * Assert that the current tags filter doropdown selection mode matches the
+ * expected mode.
+ *
+ * @param {string} mode - The tags filter mode that should be selected.
+ */
+export function assert_tag_mode(mode) {
+  const qbm = about3Pane.document.getElementById("qfb-tag-filter-mode");
+  Assert.equal(
+    qbm.value,
+    mode,
+    "qfb-tag-filter-mode should have the correct state"
+  );
+}
+
+/**
  * Verify that tag buttons exist for exactly the given set of tag keys in the
  *  provided variable argument list.  Ordering is significant.
  */

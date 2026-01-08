@@ -720,7 +720,7 @@ var TagFacetingFilter = {
       return null;
     }
 
-    // just the true/false case
+    // Just the true/false case.
     if (this.isSimple(aFilterValue)) {
       term = aTermCreator.createTerm();
       term.attrib = Ci.nsMsgSearchAttrib.Keywords;
@@ -873,11 +873,17 @@ var TagFacetingFilter = {
   },
 
   domBindExtra(aDocument, aMuxer) {
-    // Tag filtering mode menu (All of/Any of)
+    // Tag filtering mode menu: All of/Any of/None.
     function commandHandler(aEvent) {
       const filterValue = aMuxer.getFilterValueForMutation(
         TagFacetingFilter.name
       );
+      // The search was triggered when the filter was being cleared, no need
+      // to do anything.
+      if (!filterValue) {
+        return;
+      }
+
       filterValue.mode = aEvent.target.value;
       aDocument
         .getElementById("quickFilterBarTagsContainer")
@@ -900,7 +906,13 @@ var TagFacetingFilter = {
     if (aFilterValue != null && typeof aFilterValue == "object") {
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
     } else {
-      aDocument.getElementById("quickFilterBarTagsContainer").hidden = true;
+      // Properly reset the tags container to its initial state since
+      // re-enabling the tags filtering won't account for any previously
+      // modified values.
+      const container = aDocument.getElementById("quickFilterBarTagsContainer");
+      container.hidden = true;
+      container.classList.remove("none-mode-selected");
+      aDocument.getElementById("qfb-tag-filter-mode").selectedIndex = 0;
     }
   },
 

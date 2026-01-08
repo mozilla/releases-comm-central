@@ -24,6 +24,7 @@ var { delete_messages, make_message_sets_in_folders } =
   );
 var {
   assert_results_label_count,
+  assert_tag_mode,
   assert_text_constraints_checked,
   clear_constraints,
   set_filter_text,
@@ -227,6 +228,7 @@ add_task(async function test_filter_tags() {
 
   await be_in_folder(folder);
   await toggle_boolean_constraints("tags"); // must have a tag
+  assert_tag_mode("OR");
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
 
   await toggle_tag_constraints(tagA); // must have tag A
@@ -258,6 +260,10 @@ add_task(async function test_filter_tags() {
   // entirely, make sure that when we turn it back on we are just back to "any
   // tag".
   await toggle_boolean_constraints("tags");
+  // The tags filter should be back to "OR" and any tags should be shown.
+  assert_tag_mode("OR");
+  assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
+
   await switch_tag_mode("AND");
   subtest_assert_tags_visibility(true);
   await toggle_tag_constraints(tagC);
