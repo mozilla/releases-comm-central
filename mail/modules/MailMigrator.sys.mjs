@@ -30,7 +30,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 56;
+    const UI_VERSION = 57;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -373,6 +373,45 @@ export var MailMigrator = {
         // EWS support), we should clear it from user's profiles if its value
         // has been changed.
         Services.prefs.clearUserPref("experimental.mail.ews.enabled");
+      }
+
+      if (currentUIVersion < 57) {
+        function updateValue(url, id) {
+          if (Services.xulStore.hasValue(url, id, "checked")) {
+            const oldValue = Services.xulStore.getValue(url, id, "checked");
+            Services.xulStore.setValue(
+              url,
+              id,
+              "checked",
+              oldValue == "false" ? "-moz-missing\n" : ""
+            );
+          }
+        }
+
+        updateValue(
+          "chrome://calendar/content/calendar-event-dialog.xhtml",
+          "cmd_timezone"
+        );
+        updateValue(
+          "chrome://calendar/content/calendar-item-panel.inc.xhtml",
+          "cmd_timezone"
+        );
+        updateValue(
+          "chrome://messenger/content/SearchDialog.xhtml",
+          "checkSearchSubFolders"
+        );
+        updateValue(
+          "chrome://messenger/content/messengercompose/EdConvertToTable.xhtml",
+          "CollapseSpaces"
+        );
+        updateValue(
+          "chrome://openpgp/content/ui/enigmailKeyManager.xhtml",
+          "showInvalidKeys"
+        );
+        updateValue(
+          "chrome://openpgp/content/ui/enigmailKeyManager.xhtml",
+          "showOthersKeys"
+        );
       }
 
       // Migration tasks that may take a long time are not run immediately, but
