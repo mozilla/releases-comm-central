@@ -111,6 +111,10 @@ add_task(async function test_popup_open_with_menu_command_mv3() {
   }
 });
 
+const DEFAULT_ICON = "default.png";
+const LIGHT_THEME_ICON = "dark.png";
+const DARK_THEME_ICON = "light.png";
+
 add_task(async function test_theme_icons() {
   const extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "temporary",
@@ -122,11 +126,11 @@ add_task(async function test_theme_icons() {
       },
       browser_action: {
         default_title: "default",
-        default_icon: "default.png",
+        default_icon: DEFAULT_ICON,
         theme_icons: [
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: DARK_THEME_ICON,
+            light: LIGHT_THEME_ICON,
             size: 16,
           },
         ],
@@ -170,7 +174,10 @@ add_task(async function test_theme_icons() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     window.getComputedStyle(icon).content,
-    makeIconSet(`url("moz-extension://${uuid}/light.png")`, defaultIcon),
+    makeIconSet(
+      `url("moz-extension://${uuid}/${DARK_THEME_ICON}")`,
+      defaultIcon
+    ),
     `Dark theme should use light icon.`
   );
 
@@ -192,7 +199,10 @@ add_task(async function test_theme_icons() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     window.getComputedStyle(icon).content,
-    makeIconSet(`url("moz-extension://${uuid}/dark.png")`, defaultIcon),
+    makeIconSet(
+      `url("moz-extension://${uuid}/${LIGHT_THEME_ICON}")`,
+      defaultIcon
+    ),
     `Light theme should use dark icon.`
   );
 
@@ -202,12 +212,17 @@ add_task(async function test_theme_icons() {
     light_theme.unload(),
   ]);
   Assert.equal(
-    window.getComputedStyle(icon).content,
+    makeIconSet(`url("moz-extension://${uuid}/${DEFAULT_ICON}")`, defaultIcon),
     makeIconSet(defaultIcon),
     `Default theme should use default icon.`
   );
   await extension.unload();
 });
+
+const LIGHT_THEME_ICON_16 = "dark16.png";
+const LIGHT_THEME_ICON_32 = "dark32.png";
+const DARK_THEME_ICON_16 = "light16.png";
+const DARK_THEME_ICON_32 = "light32.png";
 
 add_task(async function test_theme_icons_messagewindow() {
   const messageWindow = await openMessageInWindow(gMessages.getNext());
@@ -221,17 +236,17 @@ add_task(async function test_theme_icons_messagewindow() {
       },
       browser_action: {
         default_title: "default",
-        default_icon: "default.png",
+        default_icon: DEFAULT_ICON,
         default_windows: ["messageDisplay"],
         theme_icons: [
           {
-            dark: "dark16.png",
-            light: "light16.png",
+            dark: DARK_THEME_ICON_16,
+            light: LIGHT_THEME_ICON_16,
             size: 16,
           },
           {
-            dark: "dark32.png",
-            light: "light32.png",
+            dark: DARK_THEME_ICON_32,
+            light: LIGHT_THEME_ICON_32,
             size: 32,
           },
         ],

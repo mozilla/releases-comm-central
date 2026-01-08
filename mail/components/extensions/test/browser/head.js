@@ -1929,12 +1929,12 @@ async function testThemeIcons(button, uuid) {
     BrowserTestUtils.waitForEvent(win, "windowlwthemeupdate"),
     lightBuiltInTheme.enable(),
   ]);
-  await checkIcons("Light built-in theme", "default");
+  await checkIcons("Light built-in theme", "light");
 
   // Disabling a theme will enable the default theme.
   await Promise.all([
     BrowserTestUtils.waitForEvent(win, "windowlwthemeupdate"),
     lightBuiltInTheme.disable(),
   ]);
-  await checkIcons("Default theme", "default");
+  await checkIcons("Default theme", "light");
 }
