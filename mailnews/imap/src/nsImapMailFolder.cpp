@@ -2468,8 +2468,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   m_uidValidity = folderValidity;
 
   if (imapUIDValidity != folderValidity) {
-    NS_ASSERTION(imapUIDValidity == kUidUnknown,
-                 "uid validity seems to have changed, blowing away db");
+    NS_WARNING("uid validity seems to have changed, blowing away db");
     nsCOMPtr<nsIFile> pathFile;
     rv = GetFilePath(getter_AddRefs(pathFile));
     if (NS_FAILED(rv)) return rv;
