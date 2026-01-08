@@ -74,9 +74,11 @@ CallbackStreamListener.prototype = {
 
   OnStartRunningUrl() {},
   OnStopRunningUrl(aUrl, aExitCode) {
-    if (!Components.isSuccessCode(aExitCode)) {
+    if (!Components.isSuccessCode(aExitCode) || this._msgHdr) {
       // Connection errors are not seen by onStopRequest, so we finalize on
-      // fails here.
+      // fails here. For offline IMAP folders, the exit code might differ from
+      // the one passed to onStopRequest, so we ensure the message is finalized
+      // to avoid the indexing process hanging.
       this._finalize(null);
     }
   },

@@ -18,7 +18,11 @@ prefs = ["gloda.loglevel=Debug"]
 
 ["test_index_addressbook.js"]
 
-["test_index_bad_messages.js"]
+["test_index_bad_messages_local.js"]
+
+["test_index_bad_messages_imap_offline.js"]
+
+["test_index_bad_messages_imap_online.js"]
 
 ["test_index_compaction.js"]
 tags = ["compact"]
