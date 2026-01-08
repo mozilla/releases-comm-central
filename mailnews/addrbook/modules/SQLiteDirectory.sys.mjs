@@ -347,12 +347,17 @@ export class SQLiteDirectory extends AddrBookDirectory {
       "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)"
     );
   }
+  /**
+   * Adds cards to the database without individual notifications.
+   *
+   * @param {nsIAbCard[]} cards
+   */
   async bulkAddCards(cards) {
     if (cards.length == 0) {
       return;
     }
 
-    const usedUIDs = new Set();
+    const usedUIDs = new Set(this.cards.keys());
     const propertiesStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
     );
@@ -408,7 +413,7 @@ export class SQLiteDirectory extends AddrBookDirectory {
       }
       this._dbConnection.commitTransaction();
 
-      Services.obs.notifyObservers(this, "addrbook-directory-invalidated");
+      Services.obs.notifyObservers(null, "addrbook-contacts-created", this.UID);
     } catch (ex) {
       this._dbConnection.rollbackTransaction();
       throw ex;

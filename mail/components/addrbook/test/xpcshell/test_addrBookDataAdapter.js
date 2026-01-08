@@ -257,3 +257,136 @@ add_task(function testCellText() {
   view.setTree(null);
   personalBook.deleteCards(personalBook.childCards);
 });
+
+add_task(async function testManyContactsCreated() {
+  // If the notification addrbook-contacts-created is emitted, all of the
+  // contacts are added and the tree is notified only once.
+  class ListenerTree {
+    _rowCountsChanged = 0;
+    _resets = 0;
+    rowCountChanged() {
+      this._rowCountsChanged++;
+    }
+    reset() {
+      this._resets++;
+    }
+  }
+
+  const allView = new AddrBookDataAdapter();
+  Assert.equal(allView.rowCount, 0);
+  allView.setTree(new ListenerTree());
+
+  const personalView = new AddrBookDataAdapter(personalBook);
+  Assert.equal(personalView.rowCount, 0);
+  personalView.setTree(new ListenerTree());
+
+  const historyView = new AddrBookDataAdapter(historyBook);
+  Assert.equal(historyView.rowCount, 0);
+  historyView.setTree(new ListenerTree());
+
+  await personalBook.wrappedJSObject.bulkAddCards([
+    createContact("first", "person"),
+    createContact("second", "person"),
+    createContact("third", "person"),
+  ]);
+  Assert.equal(
+    allView._tree._resets,
+    1,
+    "All Address Books view should be updated"
+  );
+  Assert.equal(
+    allView.rowCount,
+    3,
+    "All Address Books view should have new cards"
+  );
+  Assert.equal(
+    personalView._tree._resets,
+    1,
+    "Personal view should be updated"
+  );
+  Assert.equal(personalView.rowCount, 3, "Personal view should have new cards");
+  Assert.equal(
+    historyView._tree._resets,
+    0,
+    "History view should NOT be updated"
+  );
+  Assert.equal(
+    historyView.rowCount,
+    0,
+    "History view should NOT have new cards"
+  );
+
+  await historyBook.wrappedJSObject.bulkAddCards([
+    createContact("fourth", "person"),
+    createContact("fifth", "person"),
+  ]);
+  Assert.equal(
+    allView._tree._resets,
+    2,
+    "All Address Books view should be updated"
+  );
+  Assert.equal(
+    allView.rowCount,
+    5,
+    "All Address Books view should have new cards"
+  );
+  Assert.equal(
+    personalView._tree._resets,
+    1,
+    "Personal view should NOT be updated"
+  );
+  Assert.equal(
+    personalView.rowCount,
+    3,
+    "Personal view should NOT have new cards"
+  );
+  Assert.equal(historyView._tree._resets, 1, "History view should be updated");
+  Assert.equal(historyView.rowCount, 2, "History view should have new cards");
+
+  await personalBook.wrappedJSObject.bulkAddCards([
+    createContact("sixth", "person"),
+    createContact("seventh", "person"),
+  ]);
+  Assert.equal(
+    allView._tree._resets,
+    3,
+    "All Address Books view should be updated"
+  );
+  Assert.equal(
+    allView.rowCount,
+    7,
+    "All Address Books view should have new cards"
+  );
+  Assert.equal(
+    personalView._tree._resets,
+    2,
+    "Personal view should be updated"
+  );
+  Assert.equal(personalView.rowCount, 5, "Personal view should have new cards");
+  Assert.equal(
+    historyView._tree._resets,
+    1,
+    "History view should NOT be updated"
+  );
+  Assert.equal(
+    historyView.rowCount,
+    2,
+    "History view should NOT have new cards"
+  );
+
+  Assert.equal(
+    allView._tree._rowCountsChanged,
+    0,
+    "All Address Books view should never have fired rowCountChanged"
+  );
+  Assert.equal(
+    personalView._tree._rowCountsChanged,
+    0,
+    "Personal view should never have fired rowCountChanged"
+  );
+  Assert.equal(
+    historyView._tree._rowCountsChanged,
+    0,
+    "History view should never have fired rowCountChanged"
+  );
+});

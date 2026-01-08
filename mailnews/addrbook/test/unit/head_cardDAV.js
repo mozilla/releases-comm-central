@@ -113,6 +113,7 @@ const observer = {
     for (const array of Object.values(this.notifications)) {
       array.length = 0;
     }
+    Assert.ok(!this.pendingPromise, "should not be awaiting a notification");
   },
   observe(subject, topic) {
     const uid = subject.QueryInterface(Ci.nsIAbCard).UID;

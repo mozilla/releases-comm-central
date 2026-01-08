@@ -629,7 +629,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
           const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
           abCard.setProperty("_etag", etag);
           abCard.setProperty("_href", href);
-          abCards.push(abCard);
+          if (abCard.UID && this.cards.has(abCard.UID)) {
+            super.modifyCard(abCard);
+          } else {
+            abCards.push(abCard);
+          }
         } catch (ex) {
           log.error(`Error parsing: ${vCard}`);
           console.error(ex);

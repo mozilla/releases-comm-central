@@ -213,6 +213,7 @@ async function subtest() {
     });
   } catch (ex) {
     Assert.ok(directory.readOnly, "read-write directory should not throw");
+    observer.pendingPromise = null;
   }
 
   // Change a card on the client, but this time only non-vCard properties.
@@ -252,6 +253,7 @@ async function subtest() {
     cardMap.set("change-me", changeMeCard);
   } catch (ex) {
     Assert.ok(directory.readOnly, "read-write directory should not throw");
+    observer.pendingPromise = null;
   }
 
   // Add a new card on the client.
@@ -309,6 +311,7 @@ async function subtest() {
     });
   } catch (ex) {
     Assert.ok(directory.readOnly, "read-write directory should not throw");
+    observer.pendingPromise = null;
   }
 
   info("Fourth sync with server. No changes expected.");

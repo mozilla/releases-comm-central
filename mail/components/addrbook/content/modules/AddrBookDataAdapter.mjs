@@ -50,7 +50,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
   directory = null;
   #notifications = [
     "addrbook-directory-deleted",
-    "addrbook-directory-invalidated",
+    "addrbook-contacts-created",
     "addrbook-contact-created",
     "addrbook-contact-updated",
     "addrbook-contact-deleted",
@@ -198,8 +198,8 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         return;
       }
       AddrBookDataAdapter.nameFormat = Services.prefs.getIntPref(data, 0);
-      for (const card of this._rowMap) {
-        card.forgetCachedName();
+      for (const row of this._rowMap) {
+        row.forgetCachedName();
       }
       if (this._tree) {
         if (this.sortColumn == "GeneratedName") {
@@ -238,16 +238,23 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         }
         break;
       }
-      case "addrbook-directory-invalidated":
-        subject.QueryInterface(Ci.nsIAbDirectory);
-        if (subject == this.directory) {
-          this._rowMap.length = 0;
-          for (const card of this.directory.childCards) {
-            this._rowMap.push(new AddrBookDataRow(card, this.directory));
+      case "addrbook-contacts-created": {
+        const parentDir = MailServices.ab.getDirectoryFromUID(data);
+
+        const existingUIDs = new Set();
+        for (const row of this._rowMap) {
+          if (row.directory.UID == data) {
+            existingUIDs.add(row.card.UID);
           }
-          this.sortBy(this.sortColumn, this.sortDirection, true);
         }
+        for (const card of parentDir.childCards) {
+          if (!existingUIDs.has(card.UID)) {
+            this._rowMap.push(new AddrBookDataRow(card, parentDir));
+          }
+        }
+        this.sortBy(this.sortColumn, this.sortDirection, true);
         break;
+      }
       case "addrbook-list-created": {
         const parentDir = MailServices.ab.getDirectoryFromUID(data);
         // `subject` is an nsIAbDirectory, make it the matching card instead.
@@ -267,8 +274,8 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         }
 
         subject.QueryInterface(Ci.nsIAbCard);
-        const viewCard = new AddrBookDataRow(subject);
-        const sortText = viewCard.getText(this.sortColumn);
+        const row = new AddrBookDataRow(subject);
+        const sortText = row.getText(this.sortColumn);
         let addIndex = null;
         for (let i = 0; addIndex === null && i < this._rowMap.length; i++) {
           const comparison = TreeDataAdapter.collator.compare(
@@ -285,7 +292,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         if (addIndex === null) {
           addIndex = this._rowMap.length;
         }
-        this._rowMap.splice(addIndex, 0, viewCard);
+        this._rowMap.splice(addIndex, 0, row);
         if (this._tree) {
           this._tree.rowCountChanged(addIndex, 1);
         }
