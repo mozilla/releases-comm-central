@@ -95,6 +95,19 @@ async function subscribeToFeed(feedURL) {
         EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
         await feedButtonHiddenPromise;
 
+        Assert.ok(
+          BrowserTestUtils.isHidden(
+            dialogDocument.getElementById("validationText")
+          ),
+          "After adding a feed the validation text should not be shown"
+        );
+        Assert.ok(
+          BrowserTestUtils.isHidden(
+            dialogDocument.getElementById("addCertException")
+          ),
+          "After adding a feed, the certificate exception button should not be shown"
+        );
+
         EventUtils.synthesizeMouseAtCenter(
           dialogDocument.querySelector("dialog").getButton("accept"),
           {},

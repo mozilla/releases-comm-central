@@ -2140,13 +2140,13 @@ var FeedSubscriptions = {
     el = document.getElementById("validationText");
     el.toggleAttribute(
       "collapsed",
-      aErrorCode == FeedUtils.kNewsBlogInvalidFeed
+      aErrorCode != FeedUtils.kNewsBlogInvalidFeed
     );
 
     el = document.getElementById("addCertException");
     el.toggleAttribute(
       "collapsed",
-      aErrorCode == FeedUtils.kNewsBlogBadCertError
+      aErrorCode != FeedUtils.kNewsBlogBadCertError
     );
   },
 
