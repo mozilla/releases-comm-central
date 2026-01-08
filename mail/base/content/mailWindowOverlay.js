@@ -113,39 +113,62 @@ function goUpdateMailMenuItems(commandset) {
     }
   }
 
-  updateCheckedStateForIgnoreAndWatchThreadCmds();
-}
-
-/**
- * Update the ignore (sub)thread, and watch thread commands so the menus
- * using them get the checked state set up properly.
- */
-function updateCheckedStateForIgnoreAndWatchThreadCmds() {
   let message;
+  let folder;
+  let accountCentralVisible;
+  let folderPaneVisible;
+  let messagePaneVisible;
+  let quickFilterBarVisible;
 
   const tab = document.getElementById("tabmail")?.currentTabInfo;
-  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+  if (tab?.mode.name == "mail3PaneTab") {
     message = tab.message;
+    folder = tab.chromeBrowser.contentWindow.gFolder;
+    const { chromeBrowser } = tab;
+    const { paneLayout, quickFilterBar } = chromeBrowser.contentWindow;
+    ({ accountCentralVisible, folderPaneVisible, messagePaneVisible } =
+      paneLayout);
+    quickFilterBarVisible = quickFilterBar.filterer.visible;
+  } else if (tab?.mode.name == "mailMessageTab") {
+    message = tab.message;
+    messagePaneVisible = true;
   }
 
-  const folder = message?.folder;
-
-  const killThreadItem = document.getElementById("cmd_killThread");
-  killThreadItem.toggleAttribute(
-    "checked",
-    folder?.msgDatabase.isIgnored(message.messageKey)
+  function checkItem(id, checked) {
+    document.getElementById(id)?.toggleAttribute("checked", Boolean(checked));
+  }
+  checkItem(
+    "cmd_toggleFavoriteFolder",
+    folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)
+  );
+  checkItem("cmd_toggleQuickFilterBar", quickFilterBarVisible);
+  checkItem("cmd_toggleFolderPane", folderPaneVisible);
+  checkItem(
+    "cmd_toggleThreadPaneHeader",
+    !XULStoreUtils.isItemHidden("messenger", "threadPaneHeader")
+  );
+  checkItem(
+    "cmd_toggleMessagePane",
+    messagePaneVisible && !accountCentralVisible
   );
 
-  const killSubthreadItem = document.getElementById("cmd_killSubthread");
-  killSubthreadItem.toggleAttribute(
-    "checked",
-    folder && message.flags & Ci.nsMsgMessageFlags.Ignored
-  );
+  const paneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
+  checkItem("cmd_viewClassicMailLayout", paneConfig == 0);
+  checkItem("cmd_viewWideMailLayout", paneConfig == 1);
+  checkItem("cmd_viewVerticalMailLayout", paneConfig == 2);
 
-  const watchThreadItem = document.getElementById("cmd_watchThread");
-  watchThreadItem.toggleAttribute(
-    "checked",
-    folder?.msgDatabase.isWatched(message.messageKey)
+  checkItem("cmd_markAsFlagged", message?.isFlagged);
+  checkItem(
+    "cmd_killThread",
+    message?.folder?.msgDatabase.isIgnored(message.messageKey)
+  );
+  checkItem(
+    "cmd_killSubthread",
+    message?.folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+  );
+  checkItem(
+    "cmd_watchThread",
+    message?.folder?.msgDatabase.isWatched(message.messageKey)
   );
 }
 
@@ -214,13 +237,6 @@ function InitEditMessagesMenu() {
     deleteMenuItem.setAttribute("command", "cmd_delete");
   }
 
-  // Initialize the Favorite Folder checkbox in the Edit menu.
-  const favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
-  favoriteFolderMenu.toggleAttribute(
-    "checked",
-    folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)
-  );
-
   const propertiesController = getEnabledControllerForCommand("cmd_properties");
   const propertiesMenuItem = document.getElementById("menu_properties");
   if (tab?.mode.name == "mail3PaneTab" && propertiesController) {
@@ -261,85 +277,33 @@ function view_init(event) {
   }
 
   let accountCentralVisible;
-  let folderPaneVisible;
   let message;
-  let messagePaneVisible;
-  let quickFilterBarVisible;
-  let threadPaneHeaderVisible;
   let isMultiSelection;
 
   const tab = document.getElementById("tabmail")?.currentTabInfo;
   if (tab?.mode.name == "mail3PaneTab") {
     let chromeBrowser;
     ({ chromeBrowser, message } = tab);
-    const { paneLayout, quickFilterBar, folderPane } =
-      chromeBrowser.contentWindow;
-    ({ accountCentralVisible, folderPaneVisible, messagePaneVisible } =
-      paneLayout);
-    quickFilterBarVisible = quickFilterBar.filterer.visible;
-    threadPaneHeaderVisible = true;
+    const { paneLayout, folderPane } = chromeBrowser.contentWindow;
+    ({ accountCentralVisible } = paneLayout);
     isMultiSelection = folderPane.isMultiSelection;
   } else if (tab?.mode.name == "mailMessageTab") {
     message = tab.message;
-    messagePaneVisible = true;
-    threadPaneHeaderVisible = false;
   }
 
   const isFeed = FeedUtils.isFeedMessage(message);
 
-  const qfbMenuItem = document.getElementById(
-    "view_toolbars_popup_quickFilterBar"
-  );
-  if (qfbMenuItem) {
-    qfbMenuItem.toggleAttribute("checked", quickFilterBarVisible);
-  }
-
-  const qfbAppMenuItem = document.getElementById("appmenu_quickFilterBar");
-  qfbAppMenuItem?.toggleAttribute("checked", quickFilterBarVisible);
-
   const messagePaneMenuItem = document.getElementById("menu_showMessage");
   if (!messagePaneMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    messagePaneMenuItem.toggleAttribute(
-      "checked",
-      accountCentralVisible ? false : messagePaneVisible
-    );
     messagePaneMenuItem.disabled = isMultiSelection || accountCentralVisible;
   }
 
   const messagePaneAppMenuItem = document.getElementById("appmenu_showMessage");
   if (messagePaneAppMenuItem && !messagePaneAppMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    messagePaneAppMenuItem.toggleAttribute(
-      "checked",
-      accountCentralVisible ? false : messagePaneVisible
-    );
     messagePaneAppMenuItem.disabled = isMultiSelection || accountCentralVisible;
   }
-
-  const folderPaneMenuItem = document.getElementById("menu_showFolderPane");
-  if (!folderPaneMenuItem.hidden) {
-    // Hidden in the standalone msg window.
-    folderPaneMenuItem.toggleAttribute("checked", folderPaneVisible);
-  }
-
-  const folderPaneAppMenuItem = document.getElementById(
-    "appmenu_showFolderPane"
-  );
-  if (folderPaneAppMenuItem && !folderPaneAppMenuItem.hidden) {
-    // Hidden in the standalone msg window.
-    folderPaneAppMenuItem.toggleAttribute("checked", folderPaneVisible);
-  }
-
-  const threadPaneMenuItem = document.getElementById(
-    "menu_toggleThreadPaneHeader"
-  );
-  threadPaneMenuItem.toggleAttribute("disabled", !threadPaneHeaderVisible);
-
-  const threadPaneAppMenuItem = document.getElementById(
-    "appmenu_toggleThreadPaneHeader"
-  );
-  threadPaneAppMenuItem?.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled =
@@ -429,26 +393,8 @@ function initUiDensityAppMenu() {
   }
 }
 
-function InitViewLayoutStyleMenu(event, appmenu) {
-  // Prevent submenus from unnecessarily triggering onViewToolbarsPopupShowing
-  // via bubbling of events.
-  event.stopImmediatePropagation();
-  const paneConfig = Services.prefs.getIntPref("mail.pane_config.dynamic");
-
-  const parent = appmenu
-    ? event.target.querySelector(".panel-subview-body")
-    : event.target;
-
-  const layoutStyleMenuitem = parent.children[paneConfig];
-  layoutStyleMenuitem?.toggleAttribute("checked", true);
-
-  if (XULStoreUtils.isItemHidden("messenger", "threadPaneHeader")) {
-    parent.querySelector(`[name="threadheader"]`).removeAttribute("checked");
-  } else {
-    parent
-      .querySelector(`[name="threadheader"]`)
-      .toggleAttribute("checked", true);
-  }
+function InitViewLayoutStyleMenu() {
+  document.commandDispatcher.updateCommands("create-menu-view");
 }
 
 /**
@@ -659,12 +605,6 @@ function InitMessageMenu() {
   document.getElementById("markMenu").disabled = !folder || folder.isServer;
 
   document.commandDispatcher.updateCommands("create-menu-message");
-
-  for (const id of ["killThread", "killSubthread", "watchThread"]) {
-    const item = document.getElementById(id);
-    const command = document.getElementById(item.getAttribute("command"));
-    item.toggleAttribute("checked", command.hasAttribute("checked"));
-  }
 }
 
 /**
@@ -953,10 +893,6 @@ function getMsgToolbarMenu_init() {
 }
 
 function InitMessageMark() {
-  const tab = document.getElementById("tabmail")?.currentTabInfo;
-  const flaggedItem = document.getElementById("markFlaggedMenuItem");
-  flaggedItem.toggleAttribute("checked", tab?.message?.isFlagged);
-
   document.commandDispatcher.updateCommands("create-menu-mark");
 }
 

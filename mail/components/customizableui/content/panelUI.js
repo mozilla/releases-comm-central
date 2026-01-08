@@ -488,15 +488,9 @@ const PanelUI = {
   /**
    * Event handler for showing the Preferences/Layout view. Removes "checked"
    * from all layout menu items and then checks the current layout menu item.
-   *
-   * @param {ViewShowingEvent} event - ViewShowing event.
    */
-  _onPreferencesLayoutViewShow(event) {
-    event.target
-      .querySelectorAll("[name='viewlayoutgroup']")
-      .forEach(item => item.removeAttribute("checked"));
-
-    InitViewLayoutStyleMenu(event, true);
+  _onPreferencesLayoutViewShow() {
+    document.commandDispatcher.updateCommands("create-menu-view");
   },
 
   /**

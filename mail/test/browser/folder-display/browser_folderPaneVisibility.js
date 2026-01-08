@@ -54,12 +54,11 @@ function assert_folder_pane_visible() {
     "The folder tree splitter should not be collapsed!"
   );
 
-  window.view_init(); // Force the view menu to update.
-  const paneMenuItem = document.getElementById("menu_showFolderPane");
-  Assert.equal(
-    paneMenuItem.hasAttribute("checked"),
-    true,
-    "The Folder Pane menu item should be checked."
+  window.view_init(); // Force the command to update.
+  const paneCommand = document.getElementById("cmd_toggleFolderPane");
+  Assert.ok(
+    paneCommand.hasAttribute("checked"),
+    "The Folder Pane command should be checked."
   );
 }
 
@@ -85,12 +84,11 @@ function assert_folder_pane_hidden() {
     "The folder tree splitter should be collapsed!"
   );
 
-  window.view_init(); // Force the view menu to update.
-  const paneMenuItem = document.getElementById("menu_showFolderPane");
-  Assert.notEqual(
-    paneMenuItem.hasAttribute("checked"),
-    true,
-    "The Folder Pane menu item should not be checked."
+  window.view_init(); // Force the command to update.
+  const paneCommand = document.getElementById("cmd_toggleFolderPane");
+  Assert.ok(
+    !paneCommand.hasAttribute("checked"),
+    "The Folder Pane command should not be checked."
   );
 }
 
