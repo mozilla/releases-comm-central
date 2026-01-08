@@ -940,6 +940,8 @@ class AccountHubEmail extends HTMLElement {
             config,
             stateData.password
           );
+
+          this.#currentConfig.rememberPassword = stateData.rememberPassword;
         } catch (error) {
           // Reset footer back button state.
           this.#emailFooter.canBack(true);
