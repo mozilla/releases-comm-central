@@ -16,7 +16,8 @@ add_setup(async () => {
   MockExternalProtocolService.init();
 
   NotificationScheduler.observe(null, "active");
-
+  NotificationScheduler._resolveStartupDelay();
+  await NotificationScheduler._startupDelayPromise;
   await TestUtils.waitForTick();
 
   registerCleanupFunction(async () => {
