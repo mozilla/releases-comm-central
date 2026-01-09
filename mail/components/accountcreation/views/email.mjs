@@ -674,10 +674,6 @@ class AccountHubEmail extends HTMLElement {
             stateData.outgoing.type = "smtp";
           }
 
-          if (stateData.isExchangeConfig()) {
-            stateData.incoming.handlesOutgoing = true;
-          }
-
           const config = this.#fillAccountConfig(stateData);
           await this.#advancedSetup(config);
         } catch (error) {
@@ -961,7 +957,7 @@ class AccountHubEmail extends HTMLElement {
         this.#setCurrentConfigForSubview();
         break;
       case "incomingConfigSubview":
-        if (stateData.config.incoming.type == "ews") {
+        if (stateData.config.isExchangeConfig()) {
           await this.#validateAccountConfig(stateData.config);
 
           // If we are not in the password subview, that means the account

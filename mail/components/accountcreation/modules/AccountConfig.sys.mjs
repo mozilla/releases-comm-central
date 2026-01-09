@@ -130,9 +130,6 @@ AccountConfig.prototype = {
       easURL: null,
       // for when an addon overrides the account type. Optional.
       addonAccountType: null,
-
-      // Whether to use this config for the outgoing server as well.
-      handlesOutgoing: false,
     };
   },
   /**
@@ -384,7 +381,8 @@ AccountConfig.prototype = {
   isOauthOnly() {
     return (
       this.incoming.auth === Ci.nsMsgAuthMethod.OAuth2 &&
-      this.outgoing.auth === Ci.nsMsgAuthMethod.OAuth2
+      (this.configureOutgoingFromIncoming() ||
+        this.outgoing.auth === Ci.nsMsgAuthMethod.OAuth2)
     );
   },
 
@@ -428,6 +426,17 @@ AccountConfig.prototype = {
       return URL.parse(this.incoming.exchangeURL)?.hostname;
     }
     return this.incoming.hostname;
+  },
+
+  /**
+   * Determine if the outgoing server configuration values should be derived
+   * from the incoming server configuration values for this config.
+   *
+   * @returns {boolean}
+   */
+  configureOutgoingFromIncoming() {
+    // For now this is true if, and only if, the server is an Exchange server.
+    return this.isExchangeConfig();
   },
 };
 

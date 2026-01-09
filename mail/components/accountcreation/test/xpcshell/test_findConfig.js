@@ -478,23 +478,22 @@ add_task(function testEWSifyConfig() {
     true
   );
 
-  const exchangeConfig = {
-    incoming: {},
-    incomingAlternatives: [
-      {
-        type: "exchange",
-        hostname: "outlook.office365.com",
-        useGlobalPreferredServer: false,
-        oauthSettings: {
-          issuer: "outlook.office365.com",
-          scope: "https://outlook.office365.com/owa/exchange.test/",
-        },
-        handlesOutgoing: false,
+  const exchangeConfig = new AccountConfig();
+  exchangeConfig.incoming = {};
+  exchangeConfig.incomingAlternatives = [
+    {
+      type: "exchange",
+      hostname: "outlook.office365.com",
+      useGlobalPreferredServer: false,
+      oauthSettings: {
+        issuer: "outlook.office365.com",
+        scope: "https://outlook.office365.com/owa/exchange.test/",
       },
-    ],
-  };
+    },
+  ];
 
   FindConfig.ewsifyConfig(exchangeConfig);
+
   const ewsConfigAlternative = [
     exchangeConfig.incoming,
     ...exchangeConfig.incomingAlternatives,
@@ -503,11 +502,6 @@ add_task(function testEWSifyConfig() {
   Assert.ok(
     !ewsConfigAlternative.useGlobalPreferredServer,
     "useGlobalPreferredServer should be false for ews config."
-  );
-
-  Assert.ok(
-    ewsConfigAlternative.handlesOutgoing,
-    "handlesOutgoing should be true for ews config."
   );
 
   Assert.equal(

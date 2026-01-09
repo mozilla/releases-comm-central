@@ -27,6 +27,28 @@ add_task(function test_isOauthOnly() {
     config.isOauthOnly(),
     "When both incoming and outgoing use oauth, the config should be oAuth only"
   );
+
+  const configIncomingHandlesOutgoing = new AccountConfig();
+  configIncomingHandlesOutgoing.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  configIncomingHandlesOutgoing.incoming.type = "ews";
+
+  Assert.ok(config.isOauthOnly(), "Config should be oAuth only.");
+});
+
+add_task(function test_configureOutgoingFromIncoming() {
+  const imapConfig = new AccountConfig();
+  imapConfig.incoming.type = "imap";
+  Assert.ok(
+    !imapConfig.configureOutgoingFromIncoming(),
+    "IMAP should not use incoming settings for outgoing"
+  );
+
+  const ewsConfig = new AccountConfig();
+  ewsConfig.incoming.type = "ews";
+  Assert.ok(
+    ewsConfig.configureOutgoingFromIncoming(),
+    "EWS should use incoming settings for outgoing"
+  );
 });
 
 add_task(function test_hasPassword() {

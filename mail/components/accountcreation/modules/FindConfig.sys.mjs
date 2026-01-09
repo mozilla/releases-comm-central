@@ -266,16 +266,12 @@ function ewsifyConfig(config) {
 
   const ewsIncoming = structuredClone(exchangeIncoming);
   ewsIncoming.type = "ews";
-  // When using the native EWS support, we want to reuse the incoming config
-  // for the outgoing server, since there is no difference in settings between
-  // receiving and sending mail.
-  ewsIncoming.handlesOutgoing = true;
   // When using an add-on for Exchange, we need to explicitly tell the
-  // CreateInBackend module to create an outgoing server because the addon
-  // will not create one (and instead override the `nsIMsgSend` instance used
-  // to send a message). This is not the case here, so we explicitly set this
-  // to false. We do it on the incoming config, as at this point we don't have
-  // an outgoing one, and we've just toggled `handlesOutgoing`.
+  // CreateInBackend module to create an outgoing server because the addon will
+  // not create one (and instead override the `nsIMsgSend` instance used to send
+  // a message). This is not the case here, so we explicitly set this to false.
+  // We do it on the incoming config, as at this point we don't have an outgoing
+  // one, and for Exchange the incoming config is used for the outgoing config.
   ewsIncoming.useGlobalPreferredServer = false;
 
   config.incomingAlternatives.push(ewsIncoming);

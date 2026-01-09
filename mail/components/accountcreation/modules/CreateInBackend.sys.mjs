@@ -117,7 +117,7 @@ async function createAccountInBackend(config) {
   }
   inServer.valid = true;
 
-  if (config.incoming.handlesOutgoing) {
+  if (config.configureOutgoingFromIncoming()) {
     // If this type does not differentiate between incoming and outgoing
     // configuration, then use the incoming settings to configure the outgoing
     // server.

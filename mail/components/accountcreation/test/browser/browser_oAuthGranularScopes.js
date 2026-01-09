@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
+);
 const { ConfigVerifier } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
 );
@@ -39,29 +42,28 @@ async function subtest(grantedScope, expectFailure) {
   Services.logins.removeAllLogins();
   Services.fog.testResetFOG();
 
-  const config = {
-    incoming: {
-      type: "imap",
-      hostname: "test.test",
-      port: 143,
-      socketType: Ci.nsMsgSocketType.plain,
-      auth: Ci.nsMsgAuthMethod.OAuth2,
-      username: "user",
-      password: "not using a password",
-    },
-    outgoing: {
-      type: "smtp",
-      hostname: "test.test",
-      port: 587,
-      socketType: Ci.nsMsgSocketType.plain,
-      auth: Ci.nsMsgAuthMethod.OAuth2,
-      username: "user",
-      password: "not using a password",
-      addThisServer: true,
-    },
-    identity: {
-      emailAddress: "test@test.test",
-    },
+  const config = new AccountConfig();
+  config.incoming = {
+    type: "imap",
+    hostname: "test.test",
+    port: 143,
+    socketType: Ci.nsMsgSocketType.plain,
+    auth: Ci.nsMsgAuthMethod.OAuth2,
+    username: "user",
+    password: "not using a password",
+  };
+  config.outgoing = {
+    type: "smtp",
+    hostname: "test.test",
+    port: 587,
+    socketType: Ci.nsMsgSocketType.plain,
+    auth: Ci.nsMsgAuthMethod.OAuth2,
+    username: "user",
+    password: "not using a password",
+    addThisServer: true,
+  };
+  config.identity = {
+    emailAddress: "test@test.test",
   };
 
   expectOAuthDialog(grantedScope);
