@@ -7,6 +7,7 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CAL_ITEM_FLAG, newDateTime } from "resource:///modules/calendar/calStorageHelpers.sys.mjs";
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 import { CalStorageModelBase } from "resource:///modules/calendar/CalStorageModelBase.sys.mjs";
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
@@ -177,6 +178,16 @@ export class CalStorageItemModel extends CalStorageModelBase {
       {
         async start(controller) {
           await startupPromise;
+          let lastYield = Date.now();
+          async function yieldIfNecessary() {
+            const now = Date.now();
+            if (now - lastYield > 15) {
+              // Yield the event loop to keep the program responsive. Try to maintain 60 FPS.
+              await new Promise(resolve => setTimeout(resolve));
+              lastYield = now;
+            }
+          }
+
           // first get non-recurring events that happen to fall within the range
           try {
             self.db.prepareStatement(self.statements.mSelectNonRecurringEventsByRange);
@@ -198,6 +209,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                   filters
                 );
                 controller.enqueue(event);
+                await yieldIfNecessary();
               }
             );
           } catch (e) {
@@ -222,6 +234,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                 if (controller.maxTotalItemsReached) {
                   break;
                 }
+                await yieldIfNecessary();
               }
             }
           }
@@ -272,6 +285,16 @@ export class CalStorageItemModel extends CalStorageModelBase {
       {
         async start(controller) {
           await startupPromise;
+          let lastYield = Date.now();
+          async function yieldIfNecessary() {
+            const now = Date.now();
+            if (now - lastYield > 15) {
+              // Yield the event loop to keep the program responsive.
+              await new Promise(resolve => setTimeout(resolve));
+              lastYield = now;
+            }
+          }
+
           // first get non-recurring todos that happen to fall within the range
           try {
             self.db.prepareStatement(self.statements.mSelectNonRecurringTodosByRange);
@@ -294,6 +317,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                   checkCompleted
                 );
                 controller.enqueue(todo);
+                await yieldIfNecessary();
               }
             );
           } catch (e) {
@@ -329,6 +353,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                 if (controller.maxTotalItemsReached) {
                   break;
                 }
+                await yieldIfNecessary();
               }
             }
           }
