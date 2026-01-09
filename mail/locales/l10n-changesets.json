@@ -2,7 +2,6 @@
     "af": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -13,7 +12,6 @@
     "ar": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -24,7 +22,6 @@
     "ast": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -35,7 +32,6 @@
     "be": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -46,7 +42,6 @@
     "bg": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -57,7 +52,6 @@
     "br": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -68,7 +62,6 @@
     "ca": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -79,7 +72,6 @@
     "cak": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -90,7 +82,6 @@
     "cs": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -101,7 +92,6 @@
     "cy": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -112,7 +102,6 @@
     "da": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -123,7 +112,6 @@
     "de": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -134,7 +122,6 @@
     "dsb": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -145,7 +132,6 @@
     "el": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -156,7 +142,6 @@
     "en-CA": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -167,7 +152,6 @@
     "en-GB": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -178,7 +162,6 @@
     "es-AR": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -189,7 +172,6 @@
     "es-ES": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -200,7 +182,6 @@
     "es-MX": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -211,7 +192,6 @@
     "et": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -222,7 +202,6 @@
     "eu": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -233,7 +212,6 @@
     "fi": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -244,7 +222,6 @@
     "fr": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -255,7 +232,6 @@
     "fy-NL": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -266,7 +242,6 @@
     "ga-IE": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -277,7 +252,6 @@
     "gd": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -288,7 +262,6 @@
     "gl": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -299,7 +272,6 @@
     "he": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -310,7 +282,6 @@
     "hr": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -321,7 +292,6 @@
     "hsb": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -332,7 +302,6 @@
     "hu": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -343,7 +312,6 @@
     "hy-AM": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -354,7 +322,6 @@
     "id": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -365,7 +332,6 @@
     "is": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -376,7 +342,6 @@
     "it": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -387,7 +352,6 @@
     "ja": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "win32",
             "win64"
@@ -404,7 +368,6 @@
     "ka": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -415,7 +378,6 @@
     "kab": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -426,7 +388,6 @@
     "kk": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -437,7 +398,6 @@
     "ko": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -448,7 +408,6 @@
     "lt": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -459,7 +418,6 @@
     "lv": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -470,7 +428,6 @@
     "mk": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -481,7 +438,6 @@
     "ms": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -492,7 +448,6 @@
     "nb-NO": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -503,7 +458,6 @@
     "nl": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -514,7 +468,6 @@
     "nn-NO": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -525,7 +478,6 @@
     "pa-IN": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -536,7 +488,6 @@
     "pl": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -547,7 +498,6 @@
     "pt-BR": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -558,7 +508,6 @@
     "pt-PT": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -569,7 +518,6 @@
     "rm": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -580,7 +528,6 @@
     "ro": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -591,7 +538,6 @@
     "ru": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -602,7 +548,6 @@
     "sk": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -613,7 +558,6 @@
     "sl": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -624,7 +568,6 @@
     "sq": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -635,7 +578,6 @@
     "sr": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -646,7 +588,6 @@
     "sv-SE": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -657,7 +598,6 @@
     "th": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -668,7 +608,6 @@
     "tr": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -679,7 +618,6 @@
     "uk": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -690,7 +628,6 @@
     "uz": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -701,7 +638,6 @@
     "vi": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -712,7 +648,6 @@
     "zh-CN": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
@@ -723,7 +658,6 @@
     "zh-TW": {
         "pin": false,
         "platforms": [
-            "linux",
             "linux64",
             "macosx64",
             "win32",
