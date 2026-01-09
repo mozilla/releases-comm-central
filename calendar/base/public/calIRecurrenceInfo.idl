@@ -45,13 +45,6 @@ interface calIRecurrenceInfo : nsISupports
    */
   void onIdChange(in AUTF8String aNewId);
 
-  /**
-   * The end point of the last occurrence, to avoid calculating occurrences for
-   * items that have finished recurring. If the object is mutable, or the
-   * recurrence is not finite, this value is the maximum possible PRTime.
-   */
-  readonly attribute PRTime recurrenceEndDate;
-
   Array<calIRecurrenceItem> getRecurrenceItems();
   /**
    * Set of recurrence items; the order of these matters.

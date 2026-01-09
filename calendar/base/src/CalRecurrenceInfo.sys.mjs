@@ -180,47 +180,6 @@ CalRecurrenceInfo.prototype = {
     return null;
   },
 
-  get recurrenceEndDate() {
-    // The lowest and highest possible values of a PRTime (64-bit integer) when in javascript,
-    // which stores them as floating-point values.
-    const MIN_PRTIME = -9223372036854775000;
-    const MAX_PRTIME = 9223372036854775000;
-
-    // If this object is mutable, skip this optimisation, so that we don't have to work out every
-    // possible modification and invalidate the cached value. Immutable objects are unlikely to
-    // exist for long enough to really benefit anyway.
-    if (this.isMutable) {
-      return MAX_PRTIME;
-    }
-
-    if (this.mEndDate === null) {
-      if (this.isFinite) {
-        this.mEndDate = MIN_PRTIME;
-        const lastOccurrence = this.getPreviousOccurrence(cal.createDateTime("99991231T235959Z"));
-        if (lastOccurrence) {
-          const endingDate = this.getItemEndingDate(lastOccurrence);
-          if (endingDate) {
-            this.mEndDate = endingDate.nativeTime;
-          }
-        }
-
-        // A modified occurrence may have a new ending date positioned after last occurrence one.
-        for (const rid in this.mExceptionMap) {
-          const item = this.mExceptionMap[rid];
-
-          const endingDate = this.getItemEndingDate(item);
-          if (endingDate && this.mEndDate < endingDate.nativeTime) {
-            this.mEndDate = endingDate.nativeTime;
-          }
-        }
-      } else {
-        this.mEndDate = MAX_PRTIME;
-      }
-    }
-
-    return this.mEndDate;
-  },
-
   getRecurrenceItems() {
     this.ensureBaseItem();
 

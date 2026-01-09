@@ -203,7 +203,6 @@ export class CalStorageItemModel extends CalStorageModelBase {
               async row => {
                 const event = self.#expandOccurrences(
                   await self.getEventFromRow(row),
-                  startTime,
                   rangeStart,
                   rangeEnd,
                   filters
@@ -228,9 +227,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                   cachedJournalFlag != Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD) ||
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
-                controller.enqueue(
-                  self.#expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters)
-                );
+                controller.enqueue(self.#expandOccurrences(evitem, rangeStart, rangeEnd, filters));
                 if (controller.maxTotalItemsReached) {
                   break;
                 }
@@ -310,7 +307,6 @@ export class CalStorageItemModel extends CalStorageModelBase {
               async row => {
                 const todo = self.#expandOccurrences(
                   await self.getTodoFromRow(row),
-                  startTime,
                   rangeStart,
                   rangeEnd,
                   filters,
@@ -341,14 +337,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
                 (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
               ) {
                 controller.enqueue(
-                  self.#expandOccurrences(
-                    todoitem,
-                    startTime,
-                    rangeStart,
-                    rangeEnd,
-                    filters,
-                    checkCompleted
-                  )
+                  self.#expandOccurrences(todoitem, rangeStart, rangeEnd, filters, checkCompleted)
                 );
                 if (controller.maxTotalItemsReached) {
                   break;
@@ -368,11 +357,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
     return att && att.participationStatus == "NEEDS-ACTION";
   }
 
-  #expandOccurrences(item, startTime, rangeStart, rangeEnd, filters, optionalFilterFunc) {
-    if (item.recurrenceInfo && item.recurrenceInfo.recurrenceEndDate < startTime) {
-      return [];
-    }
-
+  #expandOccurrences(item, rangeStart, rangeEnd, filters, optionalFilterFunc) {
     let expandedItems = [];
     if (item.recurrenceInfo && filters.asOccurrences) {
       // If the item is recurring, get all occurrences that fall in

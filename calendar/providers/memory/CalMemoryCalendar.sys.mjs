@@ -365,10 +365,6 @@ CalMemoryCalendar.prototype = {
 
     rangeStart = cal.dtz.ensureDateTime(rangeStart);
     rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
-    let startTime = -9223372036854775000;
-    if (rangeStart) {
-      startTime = rangeStart.nativeTime;
-    }
 
     let requestedFlag = 0;
     if ((itemFilter & Ci.calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
@@ -423,10 +419,6 @@ CalMemoryCalendar.prototype = {
                 }
 
                 if (itemReturnOccurrences && item.recurrenceInfo) {
-                  if (item.recurrenceInfo.recurrenceEndDate < startTime) {
-                    return cal.iterate.forEach.CONTINUE;
-                  }
-
                   let startDate = rangeStart;
                   if (!rangeStart && item.isTodo()) {
                     startDate = item.entryDate;

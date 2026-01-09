@@ -82,6 +82,7 @@ CalRecurrenceRule.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
 
+  cachingIterator: null,
   getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
     if (!this.freqSupported()) {
       return [];
@@ -110,11 +111,57 @@ CalRecurrenceRule.prototype = {
       }
     }
 
-    const iter = this.innerObject.iterator(aStartTime);
+    let iter;
+    if (this.isMutable) {
+      const _iter = this.innerObject.iterator(aStartTime);
+      iter = (function* () {
+        for (let next = _iter.next(); next; next = _iter.next()) {
+          next = next.clone();
+          yield next;
+        }
+      })();
+    } else {
+      if (this.cachingIterator) {
+        if (this.cachingIterator.startTime.compare(aStartTime) != 0) {
+          throw new Error(
+            `Immutable recurrence rule iteration with different starts: ${this.cachingIterator.startTime} and ${aStartTime}`
+          );
+        }
+      } else {
+        // An object that does the recurrence calculation once for all callers,
+        // remembering calculated occurrences to use them again later.
+        this.cachingIterator = {
+          iterator: this.innerObject.iterator(aStartTime),
+          values: [],
+          startTime: aStartTime.clone(),
+          *newInstance() {
+            // Yield all values already calculated.
+            for (const value of this.values) {
+              yield value;
+            }
+            // Continue calculation of new values.
+            for (let next = this.iterator.next(); next; next = this.iterator.next()) {
+              next = next.clone();
+              if (aStartTime.zone) {
+                next.zone = aStartTime.zone;
+              }
+              this.values.push(next);
+              yield next;
+            }
+          },
+        };
+      }
+      iter = this.cachingIterator.newInstance();
+    }
 
-    for (let next = iter.next(); next; next = iter.next()) {
-      const dtNext = next.clone();
-      dtNext.isDate = false;
+    for (const next of iter) {
+      let dtNext;
+      if (next.isDate) {
+        dtNext = next.clone();
+        dtNext.isDate = false;
+      } else {
+        dtNext = next;
+      }
 
       if (dtNext.compare(rangeStart) < 0) {
         continue;
@@ -122,12 +169,6 @@ CalRecurrenceRule.prototype = {
 
       if (dtend && dtNext.compare(dtend) >= 0) {
         break;
-      }
-
-      next = next.clone();
-
-      if (aStartTime.zone) {
-        next.zone = aStartTime.zone;
       }
 
       occurrences.push(new lazy.CalDateTime(next));

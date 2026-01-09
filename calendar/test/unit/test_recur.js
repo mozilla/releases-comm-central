@@ -33,9 +33,6 @@ function test_rules() {
   function check_recur(event, expected, endDate, ignoreNextOccCheck) {
     dump("Checking '" + event.getProperty("DESCRIPTION") + "'\n");
 
-    // Immutability is required for testing the recurrenceEndDate property.
-    event.makeImmutable();
-
     // Get recurrence dates
     const start = createDate(1990, 0, 1);
     const end = createDate(2020, 0, 1);
@@ -104,11 +101,6 @@ function test_rules() {
         equal(prevOcc, null);
       }
     }
-
-    if (typeof endDate == "string") {
-      endDate = cal.createDateTime(endDate).nativeTime;
-    }
-    equal(event.recurrenceInfo.recurrenceEndDate, endDate);
 
     //  Make sure recurrenceInfo.clone works correctly
     test_clone(event);
