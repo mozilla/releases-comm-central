@@ -90,8 +90,20 @@
     }
   }
 
-  & .table-layout.children.collapsed[data-properties~="hasUnread"][data-properties~="read"] :where(td, .subject-line) {
-    text-decoration: underline;
+  & .table-layout.children.collapsed[data-properties~="hasUnread"][data-properties~="read"] {
+    & :where(td, .subject-line) {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    :not(.selected) & .tree-button-unread img {
+      fill: transparent;
+      stroke: var(--primary);
+    }
+
+    & .tree-button-unread img {
+      stroke: currentColor;
+    }
   }
 
   & [data-properties~="ignore"] .tree-view-row-thread img {

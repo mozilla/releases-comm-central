@@ -444,6 +444,10 @@ th[is="tree-view-table-header-cell"] {
       content: var(--icon-column-menu);
       margin-inline: 0;
     }
+
+    @media (-moz-overlay-scrollbars) {
+      padding-inline-end: env(scrollbar-inline-size);
+    }
   }
 
   &.last-column:not(.column-dragging, .column-moved-by-dragging) .button-column-picker {
