@@ -439,6 +439,10 @@ static void ImportMailThread(void* stuff) {
 
   nsresult rv = NS_OK;
 
+  if (!pData->destRoot) {
+    IMPORT_LOG0("ImportMailThread: Error. No destRoot.");
+    return;
+  }
   nsCOMPtr<nsIMsgFolder> destRoot(pData->destRoot);
 
   uint32_t count = pData->boxes.Length();
@@ -501,11 +505,15 @@ static void ImportMailThread(void* stuff) {
       // Make sure this new parent folder obj has the correct subfolder list
       // so far.
       rv = ProxyGetSubFolders(curFolder);
+      if (NS_WARN_IF(NS_FAILED(rv))) {
+        continue;
+      }
     } else if (newDepth < depth) {
       rv = NS_OK;
       while ((newDepth < depth) && NS_SUCCEEDED(rv)) {
-        rv = curFolder->GetParent(getter_AddRefs(curFolder));
-        if (NS_FAILED(rv) || !curFolder) {
+        nsCOMPtr<nsIMsgFolder> parent;
+        rv = curFolder->GetParent(getter_AddRefs(parent));
+        if (NS_FAILED(rv) || !parent) {
           IMPORT_LOG1(
               "*** ImportMailThread: Failed to get parent folder for '%s'.",
               NS_ConvertUTF16toUTF8(lastName).get());
@@ -516,6 +524,7 @@ static void ImportMailThread(void* stuff) {
           break;
         }
         depth--;
+        curFolder = parent;
       }
       if (NS_FAILED(rv)) {
         IMPORT_LOG1(
@@ -545,6 +554,9 @@ static void ImportMailThread(void* stuff) {
     exists = false;
     rv = ProxyContainsChildNamed(curFolder, NS_ConvertUTF16toUTF8(lastName),
                                  &exists);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      continue;
+    }
 
     // If we are performing profile migration (as opposed to importing) then
     // we are starting with empty local folders. In that case, always choose
