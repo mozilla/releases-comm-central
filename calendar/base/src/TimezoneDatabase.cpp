@@ -81,6 +81,20 @@ TimezoneDatabase::GetTimezoneDefinition(const nsACString& tzid,
   icu::UnicodeString icuTzid(convertedTzidPtr,
                              static_cast<int>(convertedTzid.Length()));
 
+  // Try to convert Windows timezone IDs (like "Romance Standard Time") to
+  // IANA timezone IDs (like "Europe/Paris"). This is necessary because
+  // Exchange/Office 365 calendars often use Windows timezone names, which
+  // ICU doesn't recognize on non-Windows platforms.
+  UErrorCode err = U_ZERO_ERROR;
+  icu::UnicodeString convertedIcuTzid;
+  icu::TimeZone::getIDForWindowsID(icuTzid, nullptr, convertedIcuTzid, err);
+
+  // If the conversion succeeded and returned a non-empty result, use the
+  // converted IANA timezone ID. Otherwise, continue with the original ID.
+  if (U_SUCCESS(err) && !convertedIcuTzid.isEmpty()) {
+    icuTzid = convertedIcuTzid;
+  }
+
   auto* icuTimezone = icu::VTimeZone::createVTimeZoneByID(icuTzid);
   if (icuTimezone == nullptr) {
     return NS_OK;
@@ -112,7 +126,7 @@ TimezoneDatabase::GetTimezoneDefinition(const nsACString& tzid,
 
   // Extract the VTIMEZONE definition from the timezone object as a string.
   icu::UnicodeString vtimezoneDef;
-  UErrorCode err = U_ZERO_ERROR;
+  err = U_ZERO_ERROR;
   icuTimezone->write(vtimezoneDef, err);
   delete icuTimezone;
 
