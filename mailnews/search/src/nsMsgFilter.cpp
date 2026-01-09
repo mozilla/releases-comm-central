@@ -507,14 +507,25 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
     nsCString msgId;
     aMsgHdr->GetMessageId(msgId);
 
-    AutoTArray<nsString, 2> logMoveFormatStrings;
-    CopyUTF8toUTF16(msgId, *logMoveFormatStrings.AppendElement());
-    CopyUTF8toUTF16(actionFolderUri, *logMoveFormatStrings.AppendElement());
-    nsString logMoveStr;
-    rv = bundle->FormatStringFromName(
-        (actionType == nsMsgFilterAction::MoveToFolder) ? "logMoveStr"
-                                                        : "logCopyStr",
-        logMoveFormatStrings, logMoveStr);
+    nsAutoString logMoveStr;
+    // TODO: Remove this special casing after migrating all filter.properties
+    // strings to fluent.
+    if (actionType == nsMsgFilterAction::MoveToFolder) {
+      RefPtr<mozilla::intl::Localization> l10n =
+          mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                              true);
+      nsAutoCString movedMessage;
+      rv = LocalizeMessage(l10n, "moved-message-log"_ns,
+                           {{"id"_ns, msgId}, {"folder"_ns, actionFolderUri}},
+                           movedMessage);
+      CopyUTF8toUTF16(movedMessage, logMoveStr);
+    } else {
+      AutoTArray<nsString, 2> logMoveFormatStrings;
+      CopyUTF8toUTF16(msgId, *logMoveFormatStrings.AppendElement());
+      CopyUTF8toUTF16(actionFolderUri, *logMoveFormatStrings.AppendElement());
+      rv = bundle->FormatStringFromName("logCopyStr", logMoveFormatStrings,
+                                        logMoveStr);
+    }
     NS_ENSURE_SUCCESS(rv, rv);
 
     buffer += logMoveStr;
