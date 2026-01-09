@@ -1,51 +1,36 @@
 #![deny(warnings, clippy::pedantic)]
 #![allow(clippy::missing_errors_doc)] // Too lazy to document these.
 
-#[cfg(feature = "read-bhttp")]
-use std::convert::TryFrom;
-#[cfg(any(
-    feature = "read-http",
-    feature = "write-http",
-    feature = "read-bhttp",
-    feature = "write-bhttp"
-))]
-use std::io;
+use std::{
+    borrow::BorrowMut,
+    io,
+    ops::{Deref, DerefMut},
+};
 
-#[cfg(feature = "read-http")]
+#[cfg(feature = "http")]
 use url::Url;
 
 mod err;
 mod parse;
-#[cfg(any(feature = "read-bhttp", feature = "write-bhttp"))]
 mod rw;
-
-#[cfg(any(feature = "read-http", feature = "read-bhttp",))]
-use std::borrow::BorrowMut;
+#[cfg(feature = "stream")]
+pub mod stream;
 
 pub use err::Error;
-#[cfg(any(
-    feature = "read-http",
-    feature = "write-http",
-    feature = "read-bhttp",
-    feature = "write-bhttp"
-))]
 use err::Res;
-#[cfg(feature = "read-http")]
+#[cfg(feature = "http")]
 use parse::{downcase, is_ows, read_line, split_at, COLON, SEMICOLON, SLASH, SP};
 use parse::{index_of, trim_ows, COMMA};
-#[cfg(feature = "read-bhttp")]
-use rw::{read_varint, read_vec};
-#[cfg(feature = "write-bhttp")]
-use rw::{write_len, write_varint, write_vec};
+use rw::{read_varint, read_vec, write_len, write_varint, write_vec};
 
-#[cfg(feature = "read-http")]
+#[cfg(feature = "http")]
 const CONTENT_LENGTH: &[u8] = b"content-length";
-#[cfg(feature = "read-bhttp")]
 const COOKIE: &[u8] = b"cookie";
 const TRANSFER_ENCODING: &[u8] = b"transfer-encoding";
 const CHUNKED: &[u8] = b"chunked";
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+/// An HTTP status code.
+#[derive(Clone, Copy, Debug)]
 pub struct StatusCode(u16);
 
 impl StatusCode {
@@ -88,17 +73,49 @@ impl From<StatusCode> for u16 {
     }
 }
 
+#[cfg(test)]
+impl<T> PartialEq<T> for StatusCode
+where
+    Self: TryFrom<T>,
+    T: Copy,
+{
+    fn eq(&self, other: &T) -> bool {
+        StatusCode::try_from(*other).is_ok_and(|o| o.0 == self.0)
+    }
+}
+
+#[cfg(not(test))]
+impl PartialEq<StatusCode> for StatusCode {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl Eq for StatusCode {}
+
 pub trait ReadSeek: io::BufRead + io::Seek {}
 impl<T> ReadSeek for io::Cursor<T> where T: AsRef<[u8]> {}
 impl<T> ReadSeek for io::BufReader<T> where T: io::Read + io::Seek {}
 
+/// The encoding mode of a binary HTTP message.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[cfg(any(feature = "read-bhttp", feature = "write-bhttp"))]
 pub enum Mode {
     KnownLength,
     IndeterminateLength,
 }
 
+impl TryFrom<u64> for Mode {
+    type Error = Error;
+    fn try_from(t: u64) -> Result<Self, Self::Error> {
+        match t {
+            0 | 1 => Ok(Self::KnownLength),
+            2 | 3 => Ok(Self::IndeterminateLength),
+            _ => Err(Error::InvalidMode),
+        }
+    }
+}
+
+/// A single HTTP field.
 pub struct Field {
     name: Vec<u8>,
     value: Vec<u8>,
@@ -120,7 +137,7 @@ impl Field {
         &self.value
     }
 
-    #[cfg(feature = "write-http")]
+    #[cfg(feature = "http")]
     pub fn write_http(&self, w: &mut impl io::Write) -> Res<()> {
         w.write_all(&self.name)?;
         w.write_all(b": ")?;
@@ -129,37 +146,64 @@ impl Field {
         Ok(())
     }
 
-    #[cfg(feature = "write-bhttp")]
     pub fn write_bhttp(&self, w: &mut impl io::Write) -> Res<()> {
         write_vec(&self.name, w)?;
         write_vec(&self.value, w)?;
         Ok(())
     }
 
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     pub fn obs_fold(&mut self, extra: &[u8]) {
         self.value.push(SP);
         self.value.extend(trim_ows(extra));
     }
 }
 
+#[cfg(test)]
+impl std::fmt::Debug for Field {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(
+            f,
+            "{n}: {v}",
+            n = String::from_utf8_lossy(&self.name),
+            v = String::from_utf8_lossy(&self.value),
+        )
+    }
+}
+
+/// A field section (headers or trailers).
 #[derive(Default)]
 pub struct FieldSection(Vec<Field>);
+
 impl FieldSection {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
     /// Gets the value from the first instance of the field.
     #[must_use]
     pub fn get(&self, n: &[u8]) -> Option<&[u8]> {
-        for f in &self.0 {
+        self.get_all(n).next()
+    }
+
+    /// Gets all of the values of the named field.
+    pub fn get_all<'a, 'b>(&'a self, n: &'b [u8]) -> impl Iterator<Item = &'a [u8]> + 'b
+    where
+        'a: 'b,
+    {
+        self.0.iter().filter_map(move |f| {
             if &f.name[..] == n {
-                return Some(&f.value);
+                Some(&f.value[..])
+            } else {
+                None
             }
-        }
-        None
+        })
     }
 
     pub fn put(&mut self, name: impl Into<Vec<u8>>, value: impl Into<Vec<u8>>) {
@@ -192,7 +236,7 @@ impl FieldSection {
 
     /// As required by the HTTP specification, remove the Connection header
     /// field, everything it refers to, and a few extra fields.
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     fn strip_connection_headers(&mut self) {
         const CONNECTION: &[u8] = b"connection";
         const PROXY_CONNECTION: &[u8] = b"proxy-connection";
@@ -232,7 +276,7 @@ impl FieldSection {
         });
     }
 
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     fn parse_line(fields: &mut Vec<Field>, line: Vec<u8>) -> Res<()> {
         // obs-fold is helpful in specs, so support it here too
         let f = if is_ows(line[0]) {
@@ -251,7 +295,7 @@ impl FieldSection {
         Ok(())
     }
 
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     pub fn read_http<T, R>(r: &mut T) -> Res<Self>
     where
         T: BorrowMut<R> + ?Sized,
@@ -267,7 +311,6 @@ impl FieldSection {
         }
     }
 
-    #[cfg(feature = "read-bhttp")]
     fn read_bhttp_fields<T, R>(terminator: bool, r: &mut T) -> Res<Vec<Field>>
     where
         T: BorrowMut<R> + ?Sized,
@@ -302,7 +345,6 @@ impl FieldSection {
         }
     }
 
-    #[cfg(feature = "read-bhttp")]
     pub fn read_bhttp<T, R>(mode: Mode, r: &mut T) -> Res<Self>
     where
         T: BorrowMut<R> + ?Sized,
@@ -320,7 +362,6 @@ impl FieldSection {
         Ok(Self(fields))
     }
 
-    #[cfg(feature = "write-bhttp")]
     fn write_bhttp_headers(&self, w: &mut impl io::Write) -> Res<()> {
         for f in &self.0 {
             f.write_bhttp(w)?;
@@ -328,7 +369,6 @@ impl FieldSection {
         Ok(())
     }
 
-    #[cfg(feature = "write-bhttp")]
     pub fn write_bhttp(&self, mode: Mode, w: &mut impl io::Write) -> Res<()> {
         if mode == Mode::KnownLength {
             let mut buf = Vec::new();
@@ -341,7 +381,7 @@ impl FieldSection {
         Ok(())
     }
 
-    #[cfg(feature = "write-http")]
+    #[cfg(feature = "http")]
     pub fn write_http(&self, w: &mut impl io::Write) -> Res<()> {
         for f in &self.0 {
             f.write_http(w)?;
@@ -351,6 +391,17 @@ impl FieldSection {
     }
 }
 
+#[cfg(test)]
+impl std::fmt::Debug for FieldSection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        for fv in self.fields() {
+            fv.fmt(f)?;
+        }
+        Ok(())
+    }
+}
+
+/// Control data for an HTTP message, either request or response.
 pub enum ControlData {
     Request {
         method: Vec<u8>,
@@ -420,7 +471,7 @@ impl ControlData {
         }
     }
 
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     pub fn read_http(line: Vec<u8>) -> Res<Self> {
         //  request-line = method SP request-target SP HTTP-version
         //  status-line = HTTP-version SP status-code SP [reason-phrase]
@@ -467,7 +518,6 @@ impl ControlData {
         }
     }
 
-    #[cfg(feature = "read-bhttp")]
     pub fn read_bhttp<T, R>(request: bool, r: &mut T) -> Res<Self>
     where
         T: BorrowMut<R> + ?Sized,
@@ -493,7 +543,6 @@ impl ControlData {
     }
 
     /// If this is an informational response.
-    #[cfg(any(feature = "read-bhttp", feature = "read-http"))]
     #[must_use]
     fn informational(&self) -> Option<StatusCode> {
         match self {
@@ -502,7 +551,6 @@ impl ControlData {
         }
     }
 
-    #[cfg(feature = "write-bhttp")]
     #[must_use]
     fn code(&self, mode: Mode) -> u64 {
         match (self, mode) {
@@ -513,7 +561,6 @@ impl ControlData {
         }
     }
 
-    #[cfg(feature = "write-bhttp")]
     pub fn write_bhttp(&self, w: &mut impl io::Write) -> Res<()> {
         match self {
             Self::Request {
@@ -532,7 +579,7 @@ impl ControlData {
         Ok(())
     }
 
-    #[cfg(feature = "write-http")]
+    #[cfg(feature = "http")]
     pub fn write_http(&self, w: &mut impl io::Write) -> Res<()> {
         match self {
             Self::Request {
@@ -560,6 +607,69 @@ impl ControlData {
     }
 }
 
+#[cfg(test)]
+impl<M, S, A, P> PartialEq<(M, S, A, P)> for ControlData
+where
+    M: AsRef<[u8]>,
+    S: AsRef<[u8]>,
+    A: AsRef<[u8]>,
+    P: AsRef<[u8]>,
+{
+    fn eq(&self, other: &(M, S, A, P)) -> bool {
+        match self {
+            Self::Request {
+                method,
+                scheme,
+                authority,
+                path,
+            } => {
+                method == other.0.as_ref()
+                    && scheme == other.1.as_ref()
+                    && authority == other.2.as_ref()
+                    && path == other.3.as_ref()
+            }
+            Self::Response(_) => false,
+        }
+    }
+}
+
+#[cfg(test)]
+impl<T> PartialEq<T> for ControlData
+where
+    StatusCode: TryFrom<T>,
+    T: Copy,
+{
+    fn eq(&self, other: &T) -> bool {
+        match self {
+            Self::Request { .. } => false,
+            Self::Response(code) => code == other,
+        }
+    }
+}
+
+#[cfg(test)]
+impl std::fmt::Debug for ControlData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            Self::Request {
+                method,
+                scheme,
+                authority,
+                path,
+            } => write!(
+                f,
+                "{m} {s}://{a}{p}",
+                m = String::from_utf8_lossy(method),
+                s = String::from_utf8_lossy(scheme),
+                a = String::from_utf8_lossy(authority),
+                p = String::from_utf8_lossy(path),
+            ),
+            Self::Response(code) => write!(f, "{code:?}"),
+        }
+    }
+}
+
+/// An informational status code and the associated header fields.
 pub struct InformationalResponse {
     status: StatusCode,
     fields: FieldSection,
@@ -581,7 +691,6 @@ impl InformationalResponse {
         &self.fields
     }
 
-    #[cfg(feature = "write-bhttp")]
     fn write_bhttp(&self, mode: Mode, w: &mut impl io::Write) -> Res<()> {
         write_varint(self.status.code(), w)?;
         self.fields.write_bhttp(mode, w)?;
@@ -589,80 +698,152 @@ impl InformationalResponse {
     }
 }
 
+impl Deref for InformationalResponse {
+    type Target = FieldSection;
+
+    fn deref(&self) -> &Self::Target {
+        &self.fields
+    }
+}
+
+impl DerefMut for InformationalResponse {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.fields
+    }
+}
+
+/// A header block, including control data and headers.
+pub struct Header {
+    control: ControlData,
+    fields: FieldSection,
+}
+
+impl Header {
+    #[must_use]
+    pub fn control(&self) -> &ControlData {
+        &self.control
+    }
+}
+
+impl From<ControlData> for Header {
+    fn from(control: ControlData) -> Self {
+        Self {
+            control,
+            fields: FieldSection::default(),
+        }
+    }
+}
+
+impl From<(ControlData, FieldSection)> for Header {
+    fn from((control, fields): (ControlData, FieldSection)) -> Self {
+        Self { control, fields }
+    }
+}
+
+impl std::ops::Deref for Header {
+    type Target = FieldSection;
+    fn deref(&self) -> &Self::Target {
+        &self.fields
+    }
+}
+
+impl std::ops::DerefMut for Header {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.fields
+    }
+}
+
+#[cfg(test)]
+impl std::fmt::Debug for Header {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        self.control.fmt(f)?;
+        self.fields.fmt(f)
+    }
+}
+
+/// An HTTP message, either request or response,
+/// including any optional informational responses on a response.
 pub struct Message {
     informational: Vec<InformationalResponse>,
-    control: ControlData,
-    header: FieldSection,
+    header: Header,
     content: Vec<u8>,
     trailer: FieldSection,
 }
 
 impl Message {
+    /// Construct a minimal request message.
     #[must_use]
     pub fn request(method: Vec<u8>, scheme: Vec<u8>, authority: Vec<u8>, path: Vec<u8>) -> Self {
         Self {
             informational: Vec::new(),
-            control: ControlData::Request {
+            header: Header::from(ControlData::Request {
                 method,
                 scheme,
                 authority,
                 path,
-            },
-            header: FieldSection::default(),
+            }),
             content: Vec::new(),
             trailer: FieldSection::default(),
         }
     }
 
+    /// Construct a minimal response message.
     #[must_use]
     pub fn response(status: StatusCode) -> Self {
         Self {
             informational: Vec::new(),
-            control: ControlData::Response(status),
-            header: FieldSection::default(),
+            header: Header::from(ControlData::Response(status)),
             content: Vec::new(),
             trailer: FieldSection::default(),
         }
     }
 
+    /// Set a header field value.
     pub fn put_header(&mut self, name: impl Into<Vec<u8>>, value: impl Into<Vec<u8>>) {
         self.header.put(name, value);
     }
 
+    /// Set a trailer field value.
     pub fn put_trailer(&mut self, name: impl Into<Vec<u8>>, value: impl Into<Vec<u8>>) {
         self.trailer.put(name, value);
     }
 
+    /// Extend the content of the message with the given bytes.
     pub fn write_content(&mut self, d: impl AsRef<[u8]>) {
         self.content.extend_from_slice(d.as_ref());
     }
 
+    /// Access informational status responses.
     #[must_use]
     pub fn informational(&self) -> &[InformationalResponse] {
         &self.informational
     }
 
+    /// Access control data.
     #[must_use]
     pub fn control(&self) -> &ControlData {
-        &self.control
+        self.header.control()
     }
 
+    /// Get the header.
     #[must_use]
-    pub fn header(&self) -> &FieldSection {
+    pub fn header(&self) -> &Header {
         &self.header
     }
 
+    /// Get the content of the message.
     #[must_use]
     pub fn content(&self) -> &[u8] {
         &self.content
     }
 
+    /// Get the trailer fields.
     #[must_use]
     pub fn trailer(&self) -> &FieldSection {
         &self.trailer
     }
 
-    #[cfg(feature = "read-http")]
+    #[cfg(feature = "http")]
     fn read_chunked<T, R>(r: &mut T) -> Res<Vec<u8>>
     where
         T: BorrowMut<R> + ?Sized,
@@ -686,7 +867,8 @@ impl Message {
         }
     }
 
-    #[cfg(feature = "read-http")]
+    /// Read an HTTP/1.1 message.
+    #[cfg(feature = "http")]
     #[allow(clippy::read_zero_byte_vec)] // https://github.com/rust-lang/rust-clippy/issues/9274
     pub fn read_http<T, R>(r: &mut T) -> Res<Self>
     where
@@ -703,20 +885,20 @@ impl Message {
             control = ControlData::read_http(line)?;
         }
 
-        let mut header = FieldSection::read_http(r)?;
+        let mut hfields = FieldSection::read_http(r)?;
 
         let (content, trailer) =
             if matches!(control.status().map(StatusCode::code), Some(204 | 304)) {
                 // 204 and 304 have no body, no matter what Content-Length says.
                 // Unfortunately, we can't do the same for responses to HEAD.
                 (Vec::new(), FieldSection::default())
-            } else if header.is_chunked() {
+            } else if hfields.is_chunked() {
                 let content = Self::read_chunked(r)?;
                 let trailer = FieldSection::read_http(r)?;
                 (content, trailer)
             } else {
                 let mut content = Vec::new();
-                if let Some(cl) = header.get(CONTENT_LENGTH) {
+                if let Some(cl) = hfields.get(CONTENT_LENGTH) {
                     let cl_str = String::from_utf8(Vec::from(cl))?;
                     let cl_int = cl_str.parse::<usize>()?;
                     if cl_int > 0 {
@@ -731,23 +913,23 @@ impl Message {
                 (content, FieldSection::default())
             };
 
-        header.strip_connection_headers();
+        hfields.strip_connection_headers();
         Ok(Self {
             informational,
-            control,
-            header,
+            header: Header::from((control, hfields)),
             content,
             trailer,
         })
     }
 
-    #[cfg(feature = "write-http")]
+    /// Write out an HTTP/1.1 message.
+    #[cfg(feature = "http")]
     pub fn write_http(&self, w: &mut impl io::Write) -> Res<()> {
         for info in &self.informational {
             ControlData::Response(info.status()).write_http(w)?;
             info.fields().write_http(w)?;
         }
-        self.control.write_http(w)?;
+        self.header.control.write_http(w)?;
         if !self.content.is_empty() {
             if self.trailer.is_empty() {
                 write!(w, "Content-Length: {}\r\n", self.content.len())?;
@@ -770,7 +952,6 @@ impl Message {
     }
 
     /// Read a BHTTP message.
-    #[cfg(feature = "read-bhttp")]
     pub fn read_bhttp<T, R>(r: &mut T) -> Res<Self>
     where
         T: BorrowMut<R> + ?Sized,
@@ -778,11 +959,7 @@ impl Message {
     {
         let t = read_varint(r)?.ok_or(Error::Truncated)?;
         let request = t == 0 || t == 2;
-        let mode = match t {
-            0 | 1 => Mode::KnownLength,
-            2 | 3 => Mode::IndeterminateLength,
-            _ => return Err(Error::InvalidMode),
-        };
+        let mode = Mode::try_from(t)?;
 
         let mut control = ControlData::read_bhttp(request, r)?;
         let mut informational = Vec::new();
@@ -791,7 +968,7 @@ impl Message {
             informational.push(InformationalResponse::new(status, fields));
             control = ControlData::read_bhttp(request, r)?;
         }
-        let header = FieldSection::read_bhttp(mode, r)?;
+        let hfields = FieldSection::read_bhttp(mode, r)?;
 
         let mut content = read_vec(r)?.unwrap_or_default();
         if mode == Mode::IndeterminateLength && !content.is_empty() {
@@ -808,20 +985,19 @@ impl Message {
 
         Ok(Self {
             informational,
-            control,
-            header,
+            header: Header::from((control, hfields)),
             content,
             trailer,
         })
     }
 
-    #[cfg(feature = "write-bhttp")]
+    /// Write a BHTTP message.
     pub fn write_bhttp(&self, mode: Mode, w: &mut impl io::Write) -> Res<()> {
-        write_varint(self.control.code(mode), w)?;
+        write_varint(self.header.control.code(mode), w)?;
         for info in &self.informational {
             info.write_bhttp(mode, w)?;
         }
-        self.control.write_bhttp(w)?;
+        self.header.control.write_bhttp(w)?;
         self.header.write_bhttp(mode, w)?;
 
         write_vec(&self.content, w)?;
@@ -833,7 +1009,7 @@ impl Message {
     }
 }
 
-#[cfg(feature = "write-http")]
+#[cfg(feature = "http")]
 impl std::fmt::Debug for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         let mut buf = Vec::new();

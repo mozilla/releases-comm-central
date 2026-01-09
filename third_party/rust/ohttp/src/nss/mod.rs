@@ -1,8 +1,4 @@
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
+#![allow(clippy::incompatible_msrv)] // This feature needs 1.70
 
 mod err;
 #[macro_use]
@@ -11,10 +7,12 @@ pub mod aead;
 pub mod hkdf;
 pub mod hpke;
 
-pub use self::p11::{random, PrivateKey, PublicKey};
+use std::{ptr::null, sync::OnceLock};
+
 use err::secstatus_to_res;
 pub use err::Error;
-use std::{ptr::null, sync::OnceLock};
+
+pub use self::p11::{random, PrivateKey, PublicKey, SymKey};
 
 #[allow(clippy::pedantic, non_upper_case_globals, clippy::upper_case_acronyms)]
 mod nss_init {

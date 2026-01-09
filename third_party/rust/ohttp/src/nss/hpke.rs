@@ -13,7 +13,10 @@ use super::{
     err::{sec::SEC_ERROR_INVALID_ARGS, secstatus_to_res, Error},
     p11::{sys, Item, PrivateKey, PublicKey, Slot, SymKey},
 };
-use crate::err::Res;
+use crate::{
+    crypto::{Decrypt, Encrypt},
+    err::Res,
+};
 
 /// Configuration for `Hpke`.
 #[derive(Clone, Copy)]
@@ -113,11 +116,17 @@ pub struct HpkeS {
 impl HpkeS {
     /// Create a new context that uses the KEM mode for sending.
     #[allow(clippy::similar_names)]
-    pub fn new(config: Config, pk_r: &mut PublicKey, info: &[u8]) -> Res<Self> {
+    pub fn new(config: Config, pk_r: &PublicKey, info: &[u8]) -> Res<Self> {
         let (sk_e, pk_e) = generate_key_pair(config.kem)?;
         let context = HpkeContext::new(config)?;
         secstatus_to_res(unsafe {
-            sys::PK11_HPKE_SetupS(*context, *pk_e, *sk_e, **pk_r, &Item::wrap(info))
+            sys::PK11_HPKE_SetupS(
+                context.ptr(),
+                pk_e.ptr(),
+                sk_e.ptr(),
+                pk_r.ptr(),
+                &Item::wrap(info),
+            )
         })?;
         Ok(Self { context, config })
     }
@@ -128,19 +137,21 @@ impl HpkeS {
 
     /// Get the encapsulated KEM secret.
     pub fn enc(&self) -> Res<Vec<u8>> {
-        let v = unsafe { sys::PK11_HPKE_GetEncapPubKey(*self.context) };
+        let v = unsafe { sys::PK11_HPKE_GetEncapPubKey(self.context.ptr()) };
         let r = unsafe { v.as_ref() }.ok_or_else(|| Error::from(SEC_ERROR_INVALID_ARGS))?;
         // This is just an alias, so we can't use `Item`.
         let len = usize::try_from(r.len).unwrap();
         let slc = unsafe { std::slice::from_raw_parts(r.data, len) };
         Ok(Vec::from(slc))
     }
+}
 
-    pub fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
+impl Encrypt for HpkeS {
+    fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
         let mut out: *mut sys::SECItem = null_mut();
         secstatus_to_res(unsafe {
             sys::PK11_HPKE_Seal(
-                *self.context,
+                self.context.ptr(),
                 &Item::wrap(aad),
                 &Item::wrap(pt),
                 &raw mut out,
@@ -148,6 +159,10 @@ impl HpkeS {
         })?;
         let v = Item::from_ptr(out)?;
         Ok(unsafe { v.into_vec() })
+    }
+
+    fn alg(&self) -> Aead {
+        self.config.aead()
     }
 }
 
@@ -183,9 +198,9 @@ impl HpkeR {
         let context = HpkeContext::new(config)?;
         secstatus_to_res(unsafe {
             sys::PK11_HPKE_SetupR(
-                *context,
-                **pk_r,
-                **sk_r,
+                context.ptr(),
+                pk_r.ptr(),
+                sk_r.ptr(),
                 &Item::wrap(enc),
                 &Item::wrap(info),
             )
@@ -206,7 +221,7 @@ impl HpkeR {
         let mut ptr: *mut sys::SECKEYPublicKey = null_mut();
         secstatus_to_res(unsafe {
             sys::PK11_HPKE_Deserialize(
-                *context,
+                context.ptr(),
                 k.as_ptr(),
                 c_uint::try_from(k.len()).unwrap(),
                 &raw mut ptr,
@@ -214,12 +229,14 @@ impl HpkeR {
         })?;
         PublicKey::from_ptr(ptr)
     }
+}
 
-    pub fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
+impl Decrypt for HpkeR {
+    fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
         let mut out: *mut sys::SECItem = null_mut();
         secstatus_to_res(unsafe {
             sys::PK11_HPKE_Open(
-                *self.context,
+                self.context.ptr(),
                 &Item::wrap(aad),
                 &Item::wrap(ct),
                 &raw mut out,
@@ -227,6 +244,10 @@ impl HpkeR {
         })?;
         let v = Item::from_ptr(out)?;
         Ok(unsafe { v.into_vec() })
+    }
+
+    fn alg(&self) -> Aead {
+        self.config.aead()
     }
 }
 
@@ -264,7 +285,7 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
     let insensitive_secret_ptr = if log_enabled!(log::Level::Trace) {
         unsafe {
             sys::PK11_GenerateKeyPairWithOpFlags(
-                *slot,
+                slot.ptr(),
                 sys::CK_MECHANISM_TYPE::from(sys::CKM_EC_KEY_PAIR_GEN),
                 addr_of_mut!(wrapped).cast(),
                 &raw mut public_ptr,
@@ -281,7 +302,7 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
     let secret_ptr = if insensitive_secret_ptr.is_null() {
         unsafe {
             sys::PK11_GenerateKeyPairWithOpFlags(
-                *slot,
+                slot.ptr(),
                 sys::CK_MECHANISM_TYPE::from(sys::CKM_EC_KEY_PAIR_GEN),
                 addr_of_mut!(wrapped).cast(),
                 &raw mut public_ptr,
@@ -304,7 +325,11 @@ pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
 #[cfg(test)]
 mod test {
     use super::{generate_key_pair, Config, HpkeContext, HpkeR, HpkeS};
-    use crate::{hpke::Aead, init};
+    use crate::{
+        crypto::{Decrypt, Encrypt},
+        hpke::Aead,
+        init,
+    };
 
     const INFO: &[u8] = b"info";
     const AAD: &[u8] = b"aad";
@@ -315,8 +340,8 @@ mod test {
     fn make() {
         init();
         let cfg = Config::default();
-        let (sk_r, mut pk_r) = generate_key_pair(cfg.kem()).unwrap();
-        let hpke_s = HpkeS::new(cfg, &mut pk_r, INFO).unwrap();
+        let (sk_r, pk_r) = generate_key_pair(cfg.kem()).unwrap();
+        let hpke_s = HpkeS::new(cfg, &pk_r, INFO).unwrap();
         let _hpke_r = HpkeR::new(cfg, &pk_r, &sk_r, &hpke_s.enc().unwrap(), INFO).unwrap();
     }
 
@@ -329,10 +354,10 @@ mod test {
             ..Config::default()
         };
         assert!(cfg.supported());
-        let (sk_r, mut pk_r) = generate_key_pair(cfg.kem()).unwrap();
+        let (sk_r, pk_r) = generate_key_pair(cfg.kem()).unwrap();
 
         // Send
-        let mut hpke_s = HpkeS::new(cfg, &mut pk_r, INFO).unwrap();
+        let mut hpke_s = HpkeS::new(cfg, &pk_r, INFO).unwrap();
         let enc = hpke_s.enc().unwrap();
         let ct = hpke_s.seal(AAD, PT).unwrap();
 

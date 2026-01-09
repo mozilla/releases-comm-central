@@ -1,3 +1,7 @@
+use std::{convert::TryFrom, os::raw::c_int, ptr::null_mut};
+
+use log::trace;
+
 use super::{
     super::hpke::{Aead, Kdf},
     p11::{
@@ -10,8 +14,6 @@ use super::{
     },
 };
 use crate::err::Res;
-use log::trace;
-use std::{convert::TryFrom, os::raw::c_int, ptr::null_mut};
 
 #[derive(Clone, Copy)]
 pub enum KeyMechanism {
@@ -51,7 +53,7 @@ impl Hkdf {
         let slot = super::p11::Slot::internal()?;
         let ptr = unsafe {
             sys::PK11_ImportSymKey(
-                *slot,
+                slot.ptr(),
                 CK_MECHANISM_TYPE::from(sys::CKM_HKDF_KEY_GEN),
                 sys::PK11Origin::PK11_OriginUnwrap,
                 sys::CK_ATTRIBUTE_TYPE::from(sys::CKA_SIGN),
@@ -89,7 +91,7 @@ impl Hkdf {
         let mut params_item = ParamItem::new(&mut params);
         let ptr = unsafe {
             sys::PK11_Derive(
-                **ikm,
+                ikm.ptr(),
                 CK_MECHANISM_TYPE::from(CKM_HKDF_DERIVE),
                 params_item.ptr(),
                 CK_MECHANISM_TYPE::from(CKM_HKDF_DERIVE),
@@ -128,7 +130,7 @@ impl Hkdf {
         let mut params_item = ParamItem::new(&mut params);
         let ptr = unsafe {
             sys::PK11_Derive(
-                **prk,
+                prk.ptr(),
                 CK_MECHANISM_TYPE::from(CKM_HKDF_DERIVE),
                 params_item.ptr(),
                 key_mech.mech(),
@@ -151,7 +153,7 @@ impl Hkdf {
         let mut params_item = ParamItem::new(&mut params);
         let ptr = unsafe {
             sys::PK11_Derive(
-                **prk,
+                prk.ptr(),
                 CK_MECHANISM_TYPE::from(CKM_HKDF_DATA),
                 params_item.ptr(),
                 CK_MECHANISM_TYPE::from(CKM_HKDF_DERIVE),

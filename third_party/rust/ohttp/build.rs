@@ -168,8 +168,8 @@ mod nss {
             "armv8_c_lib",
             "gcm-aes-arm32-neon_c_lib",
             "gcm-aes-aarch64_c_lib",
-            // NOTE: The intel-gcm-* libraries are already automatically
-            //       included in freebl_static as source files.
+            "intel-gcm-s_lib",
+            "intel-gcm-wrap_c_lib",
         ];
 
         // Build rules are complex, so simply check the lib directory to see if
@@ -191,6 +191,9 @@ mod nss {
     }
 
     fn static_link(nsslibdir: &Path, use_static_softoken: bool, use_static_nspr: bool) {
+        let target_os =
+            env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS must be set by Cargo");
+
         // The ordering of these libraries is critical for the linker.
         let mut static_libs = vec!["cryptohi", "nss_static"];
         let mut dynamic_libs = vec![];
@@ -211,15 +214,22 @@ mod nss {
             dynamic_libs.append(&mut nspr_libs());
         }
 
-        if cfg!(not(feature = "external-sqlite")) && env::consts::OS != "macos" {
+        if cfg!(not(feature = "external-sqlite")) && target_os != "macos" {
             static_libs.push("sqlite");
         }
 
         // Dynamic libs that aren't transitively included by NSS libs.
-        if env::consts::OS != "windows" {
-            dynamic_libs.extend_from_slice(&["pthread", "dl", "c", "z"]);
+        match target_os.as_str() {
+            // Windows doesn't need these
+            "windows" => {}
+            // Android has pthread built into libc (bionic), don't link it separately
+            // pthread is not available as a separate library on Android
+            "android" => dynamic_libs.extend_from_slice(&["dl", "c", "z"]),
+            // Other Unix-like systems (Linux, macOS, etc.)
+            _ => dynamic_libs.extend_from_slice(&["pthread", "dl", "c", "z"]),
         }
-        if cfg!(not(feature = "external-sqlite")) && env::consts::OS == "macos" {
+
+        if cfg!(not(feature = "external-sqlite")) && target_os == "macos" {
             dynamic_libs.push("sqlite3");
         }
 
@@ -344,7 +354,7 @@ mod nss {
         assert_eq!(
             v.next(),
             Some("3"),
-            "NSS version 3.62 or higher is needed (or set $NSS_DIR)"
+            "  version 3.62 or higher is needed (or set $NSS_DIR)"
         );
         if let Some(minor) = v.next() {
             let minor = minor

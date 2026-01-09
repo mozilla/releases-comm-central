@@ -4,11 +4,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use ::rand::{thread_rng, RngCore};
+use ::rand::{rng, RngCore};
 
 #[must_use]
 pub fn random(size: usize) -> Vec<u8> {
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let mut buf = vec![0; size];
     rng.fill_bytes(&mut buf);
     buf

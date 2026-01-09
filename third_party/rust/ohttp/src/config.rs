@@ -1,23 +1,23 @@
-use crate::{
-    err::{Error, Res},
-    hpke::{Aead as AeadId, Kdf, Kem},
-    KeyId,
-};
-use byteorder::{NetworkEndian, ReadBytesExt, WriteBytesExt};
 use std::{
     convert::TryFrom,
     io::{BufRead, BufReader, Cursor, Read},
 };
+
+use byteorder::{NetworkEndian, ReadBytesExt, WriteBytesExt};
 
 #[cfg(feature = "nss")]
 use crate::nss::{
     hpke::{generate_key_pair, Config as HpkeConfig, HpkeR},
     PrivateKey, PublicKey,
 };
-
 #[cfg(feature = "rust-hpke")]
 use crate::rh::hpke::{
     derive_key_pair, generate_key_pair, Config as HpkeConfig, HpkeR, PrivateKey, PublicKey,
+};
+use crate::{
+    err::{Error, Res},
+    hpke::{Aead as AeadId, Kdf, Kem},
+    KeyId,
 };
 
 /// A tuple of KDF and AEAD identifiers.
@@ -95,18 +95,15 @@ impl KeyConfig {
             Self::strip_unsupported(&mut symmetric, kem);
             assert!(!symmetric.is_empty());
             let (sk, pk) = derive_key_pair(kem, ikm)?;
-            Ok(Self {
+            return Ok(Self {
                 key_id,
                 kem,
                 symmetric,
                 sk: Some(sk),
                 pk,
-            })
+            });
         }
-        #[cfg(not(feature = "rust-hpke"))]
-        {
-            Err(Error::Unsupported)
-        }
+        Err(Error::Unsupported)
     }
 
     /// Encode a list of key configurations.
@@ -260,6 +257,22 @@ impl KeyConfig {
             Err(Error::Unsupported)
         }
     }
+
+    #[allow(clippy::similar_names)] // for kem_id and key_id
+    pub(crate) fn decode_hpke_config(&self, r: &mut Cursor<&[u8]>) -> Res<HpkeConfig> {
+        let key_id = r.read_u8()?;
+        if key_id != self.key_id {
+            return Err(Error::KeyId);
+        }
+        let kem_id = Kem::try_from(r.read_u16::<NetworkEndian>()?)?;
+        if kem_id != self.kem {
+            return Err(Error::InvalidKem);
+        }
+        let kdf_id = Kdf::try_from(r.read_u16::<NetworkEndian>()?)?;
+        let aead_id = AeadId::try_from(r.read_u16::<NetworkEndian>()?)?;
+        let hpke_config = HpkeConfig::new(self.kem, kdf_id, aead_id);
+        Ok(hpke_config)
+    }
 }
 
 impl AsRef<Self> for KeyConfig {
@@ -270,11 +283,12 @@ impl AsRef<Self> for KeyConfig {
 
 #[cfg(test)]
 mod test {
+    use std::iter::zip;
+
     use crate::{
         hpke::{Aead, Kdf, Kem},
         init, Error, KeyConfig, KeyId, SymmetricSuite,
     };
-    use std::iter::zip;
 
     const KEY_ID: KeyId = 1;
     const KEM: Kem = Kem::X25519Sha256;

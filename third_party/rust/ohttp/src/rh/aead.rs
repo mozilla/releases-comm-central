@@ -1,16 +1,19 @@
-#![allow(dead_code)] // TODO: remove
+use std::convert::TryFrom;
 
-use super::SymKey;
-use crate::{err::Res, hpke::Aead as AeadId};
-use aead::{AeadMut, Key, NewAead, Nonce, Payload};
+use aead::{AeadMut, Key, KeyInit, Nonce, Payload};
 use aes_gcm::{Aes128Gcm, Aes256Gcm};
 use chacha20poly1305::ChaCha20Poly1305;
-use std::convert::TryFrom;
+
+use super::SymKey;
+use crate::{
+    crypto::{Decrypt, Encrypt},
+    err::Res,
+    hpke::Aead as AeadId,
+};
 
 /// All the nonces are the same length.  Exploit that.
 pub const NONCE_LEN: usize = 12;
 const COUNTER_LEN: usize = 8;
-const TAG_LEN: usize = 16;
 
 type SequenceNumber = u64;
 
@@ -54,6 +57,8 @@ impl AeadEngine {
 /// A switch-hitting AEAD that uses a selected primitive.
 pub struct Aead {
     mode: Mode,
+    #[allow(dead_code, reason = "Used by stream feature")]
+    algorithm: AeadId,
     engine: AeadEngine,
     nonce_base: [u8; NONCE_LEN],
     seq: SequenceNumber,
@@ -80,6 +85,7 @@ impl Aead {
         };
         Ok(Self {
             mode,
+            algorithm,
             engine: aead,
             nonce_base,
             seq: 0,
@@ -100,7 +106,28 @@ impl Aead {
         nonce
     }
 
-    pub fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
+    pub fn open_seq(&mut self, aad: &[u8], seq: SequenceNumber, ct: &[u8]) -> Res<Vec<u8>> {
+        assert_eq!(self.mode, Mode::Decrypt);
+        let nonce = self.nonce(seq);
+        let pt = self.engine.decrypt(&nonce, Payload { msg: ct, aad })?;
+        Ok(pt)
+    }
+}
+
+impl Decrypt for Aead {
+    fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
+        let res = self.open_seq(aad, self.seq, ct);
+        self.seq += 1;
+        res
+    }
+
+    fn alg(&self) -> AeadId {
+        self.algorithm
+    }
+}
+
+impl Encrypt for Aead {
+    fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
         assert_eq!(self.mode, Mode::Encrypt);
         // A copy for the nonce generator to write into.  But we don't use the value.
         let nonce = self.nonce(self.seq);
@@ -109,19 +136,18 @@ impl Aead {
         Ok(ct)
     }
 
-    pub fn open(&mut self, aad: &[u8], seq: SequenceNumber, ct: &[u8]) -> Res<Vec<u8>> {
-        assert_eq!(self.mode, Mode::Decrypt);
-        let nonce = self.nonce(seq);
-        let pt = self.engine.decrypt(&nonce, Payload { msg: ct, aad })?;
-        Ok(pt)
+    fn alg(&self) -> AeadId {
+        self.algorithm
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::{
-        super::super::{hpke::Aead as AeadId, init},
-        Aead, Mode, SequenceNumber, NONCE_LEN,
+    use super::SequenceNumber;
+    use crate::{
+        crypto::{Decrypt, Encrypt},
+        hpke::Aead as AeadId,
+        init, Aead, Mode, NONCE_LEN,
     };
 
     /// Check that the first invocation of encryption matches expected values.
@@ -142,7 +168,7 @@ mod test {
         assert_eq!(&ciphertext[..], ct);
 
         let mut dec = Aead::new(Mode::Decrypt, algorithm, &k, *nonce).unwrap();
-        let plaintext = dec.open(aad, 0, ct).unwrap();
+        let plaintext = dec.open(aad, ct).unwrap();
         assert_eq!(&plaintext[..], pt);
     }
 
@@ -157,7 +183,7 @@ mod test {
     ) {
         let k = Aead::import_key(algorithm, key).unwrap();
         let mut dec = Aead::new(Mode::Decrypt, algorithm, &k, *nonce).unwrap();
-        let plaintext = dec.open(aad, seq, ct).unwrap();
+        let plaintext = dec.open_seq(aad, seq, ct).unwrap();
         assert_eq!(&plaintext[..], pt);
     }
 
@@ -253,5 +279,27 @@ mod test {
         check0(ALG, KEY, NONCE, AAD, PT, CT);
         // Now use the real nonce and sequence number from the example.
         decrypt(ALG, KEY, NONCE_BASE, 654_360_564, AAD, PT, CT);
+    }
+
+    #[test]
+    fn seal_open_many() {
+        const PT: &[u8] = b"abc";
+        const ALG: AeadId = AeadId::Aes128Gcm;
+        const KEY: &[u8] = &[0; 16];
+        const NONCE: [u8; NONCE_LEN] = [0; NONCE_LEN];
+
+        init();
+        let k = Aead::import_key(ALG, KEY).unwrap();
+
+        let mut e = Aead::new(Mode::Encrypt, ALG, &k, NONCE).unwrap();
+        let mut d = Aead::new(Mode::Decrypt, ALG, &k, NONCE).unwrap();
+
+        for i in 1..5 {
+            let ct = e.seal(&[], PT).unwrap();
+            println!("ct{i}: {}", hex::encode(&ct));
+
+            let pt = d.open(&[], &ct).unwrap();
+            assert_eq!(pt, PT);
+        }
     }
 }

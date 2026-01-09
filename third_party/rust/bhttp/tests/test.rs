@@ -1,5 +1,5 @@
 // Rather than grapple with #[cfg(...)] for every variable and import.
-#![cfg(all(feature = "http", feature = "bhttp"))]
+#![cfg(feature = "http")]
 
 use std::{io::Cursor, mem::drop};
 

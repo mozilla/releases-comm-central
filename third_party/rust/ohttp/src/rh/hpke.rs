@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use ::hpke as rust_hpke;
-use ::rand::thread_rng;
+use ::rand::rng;
 use log::trace;
 use rust_hpke::{
     aead::{AeadCtxR, AeadCtxS, AeadTag, AesGcm128, ChaCha20Poly1305},
@@ -12,6 +12,7 @@ use rust_hpke::{
 
 use super::SymKey;
 use crate::{
+    crypto::{Decrypt, Encrypt},
     hpke::{Aead, Kdf, Kem},
     Error, Res,
 };
@@ -171,8 +172,8 @@ pub struct HpkeS {
 
 impl HpkeS {
     /// Create a new context that uses the KEM mode for sending.
-    pub fn new(config: Config, pk_r: &mut PublicKey, info: &[u8]) -> Res<Self> {
-        let mut csprng = thread_rng();
+    pub fn new(config: Config, pk_r: &PublicKey, info: &[u8]) -> Res<Self> {
+        let mut csprng = rng();
 
         macro_rules! dispatch_hpkes_new {
             {
@@ -248,12 +249,18 @@ impl HpkeS {
     pub fn enc(&self) -> Res<Vec<u8>> {
         Ok(self.enc.clone())
     }
+}
 
-    pub fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
+impl Encrypt for HpkeS {
+    fn seal(&mut self, aad: &[u8], pt: &[u8]) -> Res<Vec<u8>> {
         let mut buf = pt.to_owned();
         let mut tag = self.context.seal(&mut buf, aad)?;
         buf.append(&mut tag);
         Ok(buf)
+    }
+
+    fn alg(&self) -> Aead {
+        self.config.aead()
     }
 }
 
@@ -417,12 +424,18 @@ impl HpkeR {
             }
         })
     }
+}
 
-    pub fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
+impl Decrypt for HpkeR {
+    fn open(&mut self, aad: &[u8], ct: &[u8]) -> Res<Vec<u8>> {
         let mut buf = ct.to_owned();
         let pt_len = self.context.open(&mut buf, aad)?.len();
         buf.truncate(pt_len);
         Ok(buf)
+    }
+
+    fn alg(&self) -> Aead {
+        self.config.aead()
     }
 }
 
@@ -444,7 +457,7 @@ impl Deref for HpkeR {
 /// Generate a key pair for the identified KEM.
 #[allow(clippy::unnecessary_wraps)]
 pub fn generate_key_pair(kem: Kem) -> Res<(PrivateKey, PublicKey)> {
-    let mut csprng = thread_rng();
+    let mut csprng = rng();
     let (sk, pk) = match kem {
         Kem::X25519Sha256 => {
             let (sk, pk) = X25519HkdfSha256::gen_keypair(&mut csprng);
@@ -471,6 +484,7 @@ pub fn derive_key_pair(kem: Kem, ikm: &[u8]) -> Res<(PrivateKey, PublicKey)> {
 mod test {
     use super::{generate_key_pair, Config, HpkeR, HpkeS};
     use crate::{
+        crypto::{Decrypt, Encrypt},
         hpke::{Aead, Kem},
         init,
     };
@@ -484,8 +498,8 @@ mod test {
     fn make() {
         init();
         let cfg = Config::default();
-        let (sk_r, mut pk_r) = generate_key_pair(cfg.kem()).unwrap();
-        let hpke_s = HpkeS::new(cfg, &mut pk_r, INFO).unwrap();
+        let (sk_r, pk_r) = generate_key_pair(cfg.kem()).unwrap();
+        let hpke_s = HpkeS::new(cfg, &pk_r, INFO).unwrap();
         let _hpke_r = HpkeR::new(cfg, &pk_r, &sk_r, &hpke_s.enc().unwrap(), INFO).unwrap();
     }
 
@@ -499,10 +513,10 @@ mod test {
             ..Config::default()
         };
         assert!(cfg.supported());
-        let (sk_r, mut pk_r) = generate_key_pair(cfg.kem()).unwrap();
+        let (sk_r, pk_r) = generate_key_pair(cfg.kem()).unwrap();
 
         // Send
-        let mut hpke_s = HpkeS::new(cfg, &mut pk_r, INFO).unwrap();
+        let mut hpke_s = HpkeS::new(cfg, &pk_r, INFO).unwrap();
         let enc = hpke_s.enc().unwrap();
         let ct = hpke_s.seal(AAD, PT).unwrap();
 

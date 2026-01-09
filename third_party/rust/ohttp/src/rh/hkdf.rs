@@ -1,13 +1,14 @@
 #![allow(dead_code)] // TODO: remove
 
+use hkdf::Hkdf as HkdfImpl;
+use log::trace;
+use sha2::{Sha256, Sha384, Sha512};
+
 use super::SymKey;
 use crate::{
     err::{Error, Res},
     hpke::{Aead, Kdf},
 };
-use hkdf::Hkdf as HkdfImpl;
-use log::trace;
-use sha2::{Sha256, Sha384, Sha512};
 
 #[derive(Clone, Copy)]
 pub enum KeyMechanism {
