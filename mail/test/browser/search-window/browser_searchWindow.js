@@ -81,12 +81,17 @@ add_task(async function test_show_search_window() {
 /**
  * Set up the search.
  */
-add_task(function test_enter_some_stuff() {
+add_task(async function test_enter_some_stuff() {
   // - turn off search subfolders
   // (we're not testing the UI, direct access is fine)
   swc.document
     .getElementById("checkSearchSubFolders")
     .removeAttribute("checked");
+
+  await TestUtils.waitForCondition(
+    () => swc.document.querySelector("#searchRow0 button[label='+']"),
+    "waiting for row to connect"
+  );
 
   // - put "foo" in the subject contains box
   // Each filter criterion is a listitem in the listbox with id=searchTermList.
