@@ -1,4 +1,4 @@
-# IMAP Should Not Use Server UID as Local Message Key
+# ADR 0002 IMAP Should Not Use Server UID as Local Message Key
 
 ## Links
 

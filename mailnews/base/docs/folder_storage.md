@@ -1,9 +1,9 @@
-# Introduction
+# Folder Storage
 
 Thunderbird uses a per-folder database model and this document aims to describe
 the roles and interactions of a folder, its database, and the local storage.
 
-# Foundational concepts
+## Foundational concepts
 
 It is important to note that locally each folder will contain both:
 
@@ -13,7 +13,7 @@ It is important to note that locally each folder will contain both:
 the folder (can be quite large). Currently this is either an `mbox` file or a
 `maildir` directory.
 
-# Message Database File
+## Message Database File
 
 Folders group messages and each folder has a message database file ending in
 `.msf` (e.g. `INBOX.msf`) that describes what is in the folder. This file is a
@@ -21,15 +21,12 @@ Folders group messages and each folder has a message database file ending in
 database file that contains the header information for each message in the
 folder.
 
----
-***NOTE***
-
+```{note}
 Mork is a Mozilla specific technology that will eventually be phased out with
 upcoming work to implement a global message database ([Bug
 1572000](https://bugzilla.mozilla.org/show_bug.cgi?id=1572000)) where it will be
 replaced with a single SQLite database that spans all folders.
-
----
+```
 
 This database file contains metadata about each message, some of which parsed
 from the message headers, and some are added later (e.g. read status, tags, spam
@@ -70,15 +67,12 @@ servers have to send Thunderbird the raw message (or just the raw headers) in
 RFC5322 form. As long as they do that, we don't care how they store things
 locally.
 
----
-***NOTE***
-
+```{note}
 Other protocols could use a wire format other than RFC 5322 (e.g. JMAP uses JSON
 and RSS uses atom or XML). But we come from an email-centric viewpoint and
 RFC5322 is used for local storage and display. So non-RFC 5322 messages need to
 be converted (forcibly coerced!) into RFC 5322.
-
----
+```
 
 Our .msf database files are also used for the other folder types: local folders,
 NNTP, rss, etc. The database "schema" is largely the same, although the various
@@ -89,7 +83,7 @@ meanings to different protocols (eg
 the database has all the info needed to display a list of messages in a folder,
 regardless of folder type.
 
-# Local Message Storage
+## Local Message Storage
 
 The local message storage is implemented in either an `mbox` file or a `maildir`
 directory.  It uses the `nsIMsgPluggableStore` interface to represent the
@@ -99,19 +93,16 @@ complete raw message information for each message in that folder that has been
 locally downloaded. For the rest of this document, we will refer to this stored
 complete set of message information in the folder as the **message archive**.
 
----
-***NOTE***
-
+```{note}
 Auto downloading of messages is optional for IMAP, so it is possible to have a
 populated database while the message archive is empty. However, the IMAP folder
 default is to generate the database file and download all of the messages in the
 background (into the message archive). Conversely, EWS currently only stores
 database entries, and downloads messages as needed (e.g. when the user requests
 to display a message).
+```
 
----
-
-## IMAP
+### IMAP
 
 When Thunderbird requests folder information from an IMAP server, if the folder
 is set to not automatically download all of the messages in the folder, then the
@@ -125,14 +116,14 @@ populated. This makes the list of messages appear immediately to the user. Then
 the actual full downloading proceeds in the background to create a fully
 populated message archive.
 
-## EWS
+### EWS
 
 When Thunderbird requests folder information from an EWS server, the server
 sends over the list of the message headers and the database file is generated.
 The message archive remains empty until a user views a message, triggering the
 downloading of that message and initially populating the message archive.
 
-# Locating a specific message in a folder
+## Locating a specific message in a folder
 
 The database file contains a column for the `storeToken` that points to a
 location of a specific message within the folder.
@@ -143,7 +134,7 @@ start of the database file.
 
 The message database references local messages with this `storeToken`.
 
-# Deleting a message from a folder
+## Deleting a message from a folder
 
 Since `mbox` is the default for local storage, we will focus on the `mbox` case.
 If a folder has many messages, then the corresponding `mbox` file can become
@@ -163,9 +154,9 @@ Folder compaction reclaims disk space by rebuilding the mbox, discarding any del
 It can be instigated manually or run automatically, according to criteria in
 the Thunderbird settings.
 
-## IMAP Example
+### IMAP Example
 
-### Folder marked to not download messages
+#### Folder marked to not download messages
 
 Consider the scenario where a new employee sets up Thunderbird with their
 corporate email and is given access to shared folders that contain thousands of
@@ -189,7 +180,7 @@ Then either the user initiates a folder compaction operation or it happens on
 the scheduled frequency. Now their database file has those messages removed from
 it and a delete operation kicks off on the IMAP server.
 
-### Folder marked to download messages
+#### Folder marked to download messages
 
 Consider the scenario where a person sets up Thunderbird with their personal
 gmail account. The inbox of gmail by default is set to download messages. When
@@ -206,7 +197,7 @@ the scheduled frequency. Now their database file has those messages removed from
 it, their mbox file is rewritten to remove those messages, and a delete
 operation kicks off on the IMAP server.
 
-## EWS Example
+### EWS Example
 
 Consider any case involving an EWS folder. When an EWS server is connected, the
 message headers are gathered to generate the message database for a given folder

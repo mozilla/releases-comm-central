@@ -1,53 +1,51 @@
-.. Thunderbird documentation master file, created by
-   sphinx-quickstart on Thu Sep 15 02:19:30 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Thunderbird Source Tree Documentation
 =====================================
 
 .. toctree::
    :caption: Overview
-   :maxdepth: 2
+   :maxdepth: 1
 
-   {overview_doc}
-
-.. toctree::
-   :caption: Building Thunderbird
-   :maxdepth: 2
-
-   {build_doc}
+   /mots/index
+   /adr/index
+   /documentation/index
 
 .. toctree::
-   :caption: Localization
-   :maxdepth: 2
+   :caption: Development
+   :maxdepth: 1
 
-   {loc_doc}
-
-.. toctree::
-   :caption: Telemetry
-   :maxdepth: 2
-
-   {data_doc}
+   /build/index
+   /l10n/index
+   /rust/index
 
 .. toctree::
-   :caption: Front End
-   :maxdepth: 2
+   :caption: Front-End Components
+   :maxdepth: 1
 
-   {ui_doc}
-
-.. toctree::
-   :caption: Rust in Thunderbird
-   :maxdepth: 2
-
-   {rust_doc}
+   /frontend/custom_element_conventions
+   /frontend/state_management
+   /storybook/index
 
 .. toctree::
-   :caption: Panorama
-   :maxdepth: 2
+   :caption: Mail Front End
+   :maxdepth: 1
 
-   {panorama_doc}
+   /frontend/quick_filter_bar
 
+.. toctree::
+   :caption: Mail Back End
+   :maxdepth: 1
+
+   /backend/email_protocols
+   /backend/folder_compaction
+   /backend/folder_storage
+   /panorama/index
+
+.. toctree::
+   :caption: Other Components
+   :maxdepth: 1
+
+   /inappnotifications/index
+   /telemetry/index
 
 Indices and tables
 ==================

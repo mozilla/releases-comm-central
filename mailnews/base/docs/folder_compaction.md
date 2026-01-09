@@ -7,11 +7,13 @@ concatenated to the end of the mbox file and you can't really delete them
 without rewriting the entire file. So deleted messages are usually just left
 in place and cleaned up later, via compaction.
 
-NOTE: compaction is currently an mbox-specific operation.
+```{note}
+Compaction is currently an mbox-specific operation.
 But it _might_ also be required for other storage back-ends.
 For example, maildir stores could potentially end up with messages on disk which are no longer in the database.
 
 But for the sake of simplicity, this document will just talk about mbox.
+```
 
 ## The Process
 
@@ -75,23 +77,21 @@ However, the combination of `.compacted` and `.original` files gives us enough i
 
 This table gives the state of the relevant files and where they appear at each step of the compaction process.
 
-```
-after                  foo  foo.msf    foo foo.msf
-step    foo  foo.msf   .compacted      .original
----------------------------------------------------------------
-1       old  old       -    -          -    -
-2       old  old       -    -          -    -
-3       old  old       -    -          -    -
-4       old  old       yes  -          -    -
-5       old  old       yes  -          -    -
-6       -    old       yes  -          yes  -
-7       -    old       yes  yes        yes  -
-8       -    -         yes  yes        yes  yes
-9       -    new       yes  -          yes  yes
-10      new  new       -    -          yes  yes
-11      new  new       -    -          yes  yes
-12      new  new       -    -          -    -
-```
+| after step | foo | foo.msf | temporary mbox | temporary summary  | backup mbox  | backup summary   |
+| ---------- | --- | ------- | -------------- | ------------------ | ------------ | ---------------- |
+| 1          | old | old     | -              | -                  | -            | -                |
+| 2          | old | old     | -              | foo.msf.compacting | -            | -                |
+| 3          | old | old     | foo.compacting | foo.msf.compacting | -            | -                |
+| 4          | old | old     | foo.compacted  | foo.msf.compacting | -            | -                |
+| 5          | old | old     | foo.compacted  | foo.msf.compacting | -            | -                |
+| 6          | -   | old     | foo.compacted  | foo.msf.compacting | foo.original | -                |
+| 7          | -   | old     | foo.compacted  | foo.msf.compacted  | foo.original | -                |
+| 8          | -   | -       | foo.compacted  | foo.msf.compacted  | foo.original | foo.msf.original |
+| 9          | -   | new     | foo.compacted  | -                  | foo.original | foo.msf.original |
+| 10         | new | new     | -              | -                  | foo.original | foo.msf.original |
+| 11         | new | new     | -              | -                  | foo.original | foo.msf.original |
+| 12         | new | new     | -              | -                  | -            | -                |
+
 
 There's not currently an automatic process to detect and recover from incomplete compaction.
 But we can use this table to map out the steps such a process would need to follow.

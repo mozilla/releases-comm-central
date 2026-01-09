@@ -1,4 +1,4 @@
-# State management
+# State Management
 
 The libraries used for state management are [Redux Toolkit](https://redux-toolkit.js.org/)
 with its dependencies Redux, Reselect, Immer and Redux-Thunk. However, we should
@@ -15,7 +15,7 @@ document should render the same, since they should have the same state. This is
 not how our user interface is expected to behave. Alternatively, pages would
 have to be aware of some kind of instance identifier to query their state.
 Separating the in-memory state by page simplifies this a great deal (and is
-essentially what we've already beend doing).
+essentially what we've already been doing).
 
 Similarly heavily reused custom elements (like a button or an input field)
 probably shouldn't store state specific to their instance in Redux and instead

@@ -95,8 +95,6 @@ class CCSphinxManager(object):
             sphinx.ext.apidoc.main(args)
 
     def _synchronize_docs(self, app):
-        tree_config = self.config["categories"]
-
         staging_dir = Path(self.staging_dir)
         if staging_dir.exists():
             if staging_dir.is_dir():
@@ -114,52 +112,7 @@ class CCSphinxManager(object):
             target_dir = os.fspath(staging_dir / dest)
             shutil.copytree(source_dir, target_dir, copy_function=link_or_copy)
 
-        with open(self.index_path, "r") as fh:
-            data = fh.read()
-
-        def is_toplevel(key):
-            """Whether the tree is nested under the toplevel index, or is
-            nested under another tree's index.
-            """
-            for k in self.trees:
-                if k == key:
-                    continue
-                if key.startswith(k):
-                    return False
-            return True
-
-        def format_paths(paths):
-            source_doc = ["%s/index" % p for p in paths]
-            return "\n   ".join(source_doc)
-
-        toplevel_trees = {k: v for k, v in self.trees.items() if is_toplevel(k)}
-
-        CATEGORIES = {}
-        # generate the datastructure to deal with the tree
-        for t in tree_config:
-            CATEGORIES[t] = format_paths(tree_config[t])
-
-        # During livereload, we don't correctly rebuild the full document
-        # tree (Bug 1557020). The page is no longer referenced within the index
-        # tree, thus we shall check categorisation only if complete tree is being rebuilt.
-        if app.srcdir == self.topcommdir:
-            indexes = set(
-                [os.path.normpath(os.path.join(p, "index")) for p in toplevel_trees.keys()]
-            )
-            # Format categories like indexes
-            cats = "\n".join(CATEGORIES.values()).split("\n")
-            # Remove heading spaces
-            cats = [os.path.normpath(x.strip()) for x in cats]
-            indexes = tuple(set(indexes) - set(cats))
-            if indexes:
-                # In case a new doc isn't categorized
-                print(indexes)
-                raise Exception("Uncategorized documentation. Please add it in docs/config.yml")
-
-        data = data.format(**CATEGORIES)
-
-        with open(os.path.join(self.staging_dir, "index.rst"), "w") as fh:
-            fh.write(data)
+        link_or_copy(self.index_path, staging_dir / "index.rst")
 
 
 manager = CCSphinxManager(topcommdir, MAIN_DOC_PATH)

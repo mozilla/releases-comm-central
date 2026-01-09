@@ -1,4 +1,4 @@
-# Notes on Glean/Telemetry in Thunderbird
+# Telemetry
 
 ## Hooking into the build process
 

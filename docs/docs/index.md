@@ -1,4 +1,4 @@
-# Writing documentation
+# Writing Documentation
 
 The Thunderbird source documentation is based on [Sphinx](https://www.sphinx-doc.org/en/master/)
 with the Read the Docs theme.
@@ -46,11 +46,8 @@ make sure your new documentation page is included:
 some documentation to a component in an area that didn't already have a `docs`
 folder then create one. That new `docs` folder should have an index file as well
 as your new documentation page.
-- [ ] Add the path to this new docs folder in
-`comm/docs/config.yaml`, under both the `categories` and `doc_trees` section.
-Even sub-folders of `comm/docs/` need to be added in these places as well. For
-example, `comm/docs/architecture` has been added in both sections of
-`config.yaml`.
+- [ ] Add the path to this new docs folder in `comm/docs/config.yaml`, under the
+`doc_trees` section. Even sub-folders of `comm/docs/` need to be added.
 
 ### Linking to other pages
 

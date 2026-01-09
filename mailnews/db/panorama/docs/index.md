@@ -1,18 +1,18 @@
-# Panorama
+# New Database (AKA Panorama)
 
-*“An unbroken view of an entire surrounding area.”*
+```{pull-quote}
+**panorama** *n.* An unbroken view of an entire surrounding area.
+```
 
 Panorama is the working name of Thunderbird's new global message database. All folders and messages
 will be stored in a single database, instead of one database per folder as currently happens.
 
 Code for updating the front end's message list is also within scope.
 
-<div class="note"><div class="admonition-title">Note</div>
-
+```{warning}
 Panorama is under development. It is not live and there are currently no user-facing parts. Feel
 free to explore, but you do so at your own risk.
-
-</div>
+```
 
 ## Enabling it
 

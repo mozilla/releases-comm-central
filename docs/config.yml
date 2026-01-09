@@ -1,44 +1,21 @@
 ---
 
-# The order of categories defined in index.rst
-
-categories:
-    overview_doc:
-        - documentation
-        - mots
-        - adr
-        - architecture
-        - inappnotifications
-    build_doc:
-        - build
-    loc_doc:
-        - l10n
-    data_doc:
-        - telemetry
-    ui_doc:
-        - storybook
-        - frontend
-    rust_doc:
-        - rust
-    panorama_doc:
-        - panorama
-
 # Note: doc_trees does not include the "comm/" prefix to paths
 # Note: In order for CI to pick up the need to rebuild docs, documentation
 #  paths must include a "docs/" directory.
 doc_trees:
     adr: docs/adr
-    architecture: docs/architecture
+    backend: mailnews/base/docs
     build: docs/build
-    frontend: docs/frontend
+    documentation: docs/docs
+    frontend: mail/base/docs
+    inappnotifications: mail/components/inappnotifications/docs
     l10n: docs/l10n
     mots: docs/mots
+    panorama: mailnews/db/panorama/docs
     rust: rust/docs
     storybook: mail/components/storybook/docs
     telemetry: docs/telemetry
-    inappnotifications: mail/components/inappnotifications/docs
-    documentation: docs/docs
-    panorama: mailnews/db/panorama/docs
 
 python_package_dirs: []
 

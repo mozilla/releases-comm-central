@@ -1,4 +1,4 @@
-# Implementation architecture for email protocols
+# Email Protocols
 
 This document describes the code architecture used by protocol implementations
 in Thunderbird. Its aim is to give more insight into existing protocol

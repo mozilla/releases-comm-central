@@ -10,7 +10,7 @@ Thunderbird's OpenPGP support is provided by [RNP](https://github.com/rnpgp/rnp)
 There are several configure options that can be added to mozconfig to control
 how it is built.
 
-* --with-system-librnp
+* `--with-system-librnp`
 
   Use system RNP (librnp) for OpenPGP support.
 
@@ -19,14 +19,14 @@ how it is built.
   DEB) and located where the dynamic loader will find it or copied separately
   into Thunderbird's application directory.
 
-* --with-system-jsonc
+* `--with-system-jsonc`
 
   Use system JSON-C for librnp (located with pkgconfig)
 
   Build librnp from the in-tree sources, but link with a system-installed
   libjson-c. Build flags are determined with Pkg-config/pkgconf.
 
-* --with-system-bz2[=prefix]
+* `--with-system-bz2[=prefix]`
 
   Use system Bzip2 for librnp (pkgconfig/given prefix)
 
@@ -35,11 +35,11 @@ how it is built.
   (Bzip2 itself does not provide a pkgconfig file. Some Linux distributions
   include their own so the build system will look for one.)
 
-* --with-system-zlib
+* `--with-system-zlib`
 
   Link librnp to a system zlib. Pkgconfig only.
 
-* --with-librnp-backend=(**botan**|openssl)
+* `--with-librnp-backend=(**botan**|openssl)`
 
   **"openssl" is only supported when targeting Linux.**
 
@@ -48,14 +48,14 @@ how it is built.
 
   When set to "openssl", OpenSSL will be located via Pkgconfig.
 
-* --with-system-botan
+* `--with-system-botan`
 
   Link librnp to a system libbotan.
 
   Pkgconfig only. Note that it is not necessary to also set
   "--with-librnp-backend=botan".
 
-* --with-openssl=prefix (Linux only)
+* `--with-openssl=prefix (Linux only)`
 
   Used with "--with-librnp-backend=openssl" to use OpenSSL installed at "prefix"
   instead of one provided by Pkgconfig. Ex: --with-openssl=/usr/openssl-3
@@ -87,7 +87,7 @@ and map to builds as follows:
   - "tb_beta" is used for Beta builds
   - "nightly" is used for Nightly and unofficial builds
 
-When building with official branding[1], the appropriate branding directory
+When building with official branding[^1], the appropriate branding directory
 will be set automatically based on:
 
   - If `--enable-update-channel` is set to "release" or "beta", branding
@@ -109,7 +109,7 @@ is being used, and "THUNDERBIRD_OFFICIAL_BRANDING" will be set to what configure
 auto-detection found.
 
 "THUNDERBIRD_OFFICIAL_BRANDING" is only used when the official branding build
-flag is set[1].
+flag is set[^1].
 
-[1] - This flag is intentionally undocumented due to trademark and distribution
+[^1]: - This flag is intentionally undocumented due to trademark and distribution
 requirements. See [the policy](https://www.mozilla.org/en-US/foundation/trademarks/distribution-policy/).
