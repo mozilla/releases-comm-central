@@ -36,10 +36,13 @@
 </menupopup>
 <menupopup is="folder-menupopup" id="toolbarMoveToPopup"
            mode="filing"
-           showRecent="true"
            showFileHereLabel="true"
-           recentLabel="&moveCopyMsgRecentMenu.label;"
-           recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"
+           showRecent="true"
+           recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
+           recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
+           showFavorites="true"
+           favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+           favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
            oncommand="goDoCommand('cmd_moveMessage', event.target._folder);event.stopPropagation()"/>
 <menupopup is="folder-menupopup" id="toolbarFolderLocationPopup"
            class="menulist-menupopup"

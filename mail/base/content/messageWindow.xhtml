@@ -255,10 +255,14 @@
                      oncommand="goDoCommand('cmd_moveMessage', event.target._folder)">
         <menupopup is="folder-menupopup" id="button-filePopup"
                    mode="filing"
-                   showRecent="true"
                    showFileHereLabel="true"
-                   recentLabel="&moveCopyMsgRecentMenu.label;"
-                   recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
+                   showRecent="true"
+                   recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
+                   recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
+                   showFavorites="true"
+                   favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                   favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+
       </toolbarbutton>
       <toolbarbutton id="button-showconversation"
                      class="toolbarbutton-1"
