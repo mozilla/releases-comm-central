@@ -13,7 +13,6 @@
  * - addCard
  * - modifyCard
  * - deleteCards
- * - dropCard
  * - addressLists
  * - addMailList
  * - listNickName

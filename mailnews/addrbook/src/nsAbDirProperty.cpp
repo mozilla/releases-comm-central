@@ -305,7 +305,7 @@ NS_IMETHODIMP nsAbDirProperty::EditMailListToDatabase(nsIAbCard* listCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::AddCard(nsIAbCard* childCard,
+NS_IMETHODIMP nsAbDirProperty::AddCard(nsIAbCard* childCard, bool withNewUID,
                                        nsIAbCard** addedCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -316,11 +316,6 @@ NS_IMETHODIMP nsAbDirProperty::ModifyCard(nsIAbCard* aModifiedCard) {
 
 NS_IMETHODIMP nsAbDirProperty::DeleteCards(
     const nsTArray<RefPtr<nsIAbCard>>& aCards) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsAbDirProperty::DropCard(nsIAbCard* childCard,
-                                        bool needToCopyCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

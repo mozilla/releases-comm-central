@@ -47,7 +47,7 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
     cardMap.InsertOrUpdate(rowId, card);
 
     nsCOMPtr<nsIAbCard> outCard;
-    newDirectory->AddCard(card, getter_AddRefs(outCard));
+    newDirectory->AddCard(card, false, getter_AddRefs(outCard));
   }
 
   database.EnumerateCards(getter_AddRefs(enumerator));
@@ -105,7 +105,7 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
       cardMap.Get(rowId, getter_AddRefs(listCard));
 
       nsCOMPtr<nsIAbCard> outCard;
-      outList->AddCard(listCard, getter_AddRefs(outCard));
+      outList->AddCard(listCard, false, getter_AddRefs(outCard));
     }
   }
 

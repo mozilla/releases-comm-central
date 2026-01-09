@@ -114,6 +114,13 @@ export class CardDAVDirectory extends SQLiteDirectory {
     return false;
   }
 
+  addCard(card, withNewUID) {
+    // Ideally, we'd not add the card until it was on the server, but we have
+    // to return newCard synchronously.
+    const newCard = super.addCard(card, withNewUID);
+    this._sendCardToServer(newCard).catch(console.error);
+    return newCard;
+  }
   modifyCard(card) {
     // Well this is awkward. Because it's defined in nsIAbDirectory,
     // modifyCard must not be async, but we need to do async operations.
@@ -148,13 +155,6 @@ export class CardDAVDirectory extends SQLiteDirectory {
     for (const card of cards) {
       this._uidsToSync.delete(card.UID);
     }
-  }
-  dropCard(card, needToCopyCard) {
-    // Ideally, we'd not add the card until it was on the server, but we have
-    // to return newCard synchronously.
-    const newCard = super.dropCard(card, needToCopyCard);
-    this._sendCardToServer(newCard).catch(console.error);
-    return newCard;
   }
   addMailList() {
     throw Components.Exception(
@@ -351,7 +351,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         addPromise = super.bulkAddCards(cardsToAdd);
       } else {
         for (const abCard of cardsToAdd) {
-          super.dropCard(abCard, false);
+          super.addCard(abCard);
         }
       }
     } finally {
@@ -493,7 +493,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         // Add a property so the UI can work out if it's still displaying the
         // old card and respond appropriately.
         abCard.setProperty("_originalUID", card.UID);
-        super.dropCard(abCard, false);
+        super.addCard(abCard);
         super.deleteCards([card]);
       }
     }
@@ -928,7 +928,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         addPromise = super.bulkAddCards(cardsToAdd);
       } else {
         for (const abCard of cardsToAdd) {
-          super.dropCard(abCard, false);
+          super.addCard(abCard);
         }
       }
     } finally {

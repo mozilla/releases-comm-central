@@ -35,9 +35,9 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
                           bool* aHasDirectory) override;
   NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>>& aCards) override;
   NS_IMETHOD DeleteDirectory(nsIAbDirectory* aDirectory) override;
-  NS_IMETHOD AddCard(nsIAbCard* aData, nsIAbCard** addedCard) override;
+  NS_IMETHOD AddCard(nsIAbCard* aData, bool withNewUID,
+                     nsIAbCard** addedCard) override;
   NS_IMETHOD ModifyCard(nsIAbCard* aModifiedCard) override;
-  NS_IMETHOD DropCard(nsIAbCard* aData, bool needToCopyCard) override;
   NS_IMETHOD AddMailList(nsIAbDirectory* aMailList,
                          nsIAbDirectory** addedList) override;
   NS_IMETHOD EditMailListToDatabase(nsIAbCard* listCard) override;

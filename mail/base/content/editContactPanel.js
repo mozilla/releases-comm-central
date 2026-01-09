@@ -236,7 +236,7 @@ var editContactInlineUI = {
       // We changed address books for the card.
 
       // Add it to the chosen address book (with a new UID) ...
-      this._cardDetails.book.dropCard(this._cardDetails.card, true);
+      this._cardDetails.book.addCard(this._cardDetails.card, true);
 
       // ...and delete it from the old place.
       originalBook.deleteCards([this._cardDetails.card]);

@@ -991,7 +991,7 @@ customElements.whenDefined("tree-listbox").then(() => {
         }
       } else if (event.dataTransfer.dropEffect == "copy") {
         for (const card of cards) {
-          row._book.dropCard(card, true);
+          row._book.addCard(card, true);
         }
       } else {
         const booksMap = new Map();
@@ -1000,7 +1000,7 @@ customElements.whenDefined("tree-listbox").then(() => {
           if (bookUID == card.directoryUID) {
             continue;
           }
-          row._book.dropCard(card, false);
+          row._book.addCard(card);
           let bookSet = booksMap.get(card.directoryUID);
           if (!bookSet) {
             bookSet = new Set();

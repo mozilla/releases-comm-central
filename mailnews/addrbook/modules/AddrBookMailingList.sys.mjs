@@ -196,7 +196,7 @@ AddrBookMailingList.prototype = {
         }
         listener.onSearchFinished(Cr.NS_OK, true, null, "");
       },
-      addCard(card) {
+      addCard(card, withNewUID) {
         if (this.readOnly) {
           throw new Components.Exception(
             "Directory is read-only",
@@ -207,7 +207,9 @@ AddrBookMailingList.prototype = {
         if (!card.primaryEmail) {
           return card;
         }
-        if (!self._parent.hasCard(card)) {
+        if (withNewUID) {
+          card = self._parent.addCard(card, true);
+        } else if (!self._parent.hasCard(card)) {
           card = self._parent.addCard(card);
         }
         const insertStatement = self._parent._dbConnection.createStatement(
@@ -249,24 +251,6 @@ AddrBookMailingList.prototype = {
           deleteCardStatement.reset();
         }
         deleteCardStatement.finalize();
-      },
-      dropCard(card, needToCopyCard) {
-        if (this.readOnly) {
-          throw new Components.Exception(
-            "Directory is read-only",
-            Cr.NS_ERROR_FAILURE
-          );
-        }
-
-        if (needToCopyCard) {
-          card = self._parent.dropCard(card, true);
-        }
-        this.addCard(card);
-        Services.obs.notifyObservers(
-          card,
-          "addrbook-list-member-added",
-          self._uid
-        );
       },
       editMailListToDatabase() {
         if (this.readOnly) {

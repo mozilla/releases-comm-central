@@ -731,7 +731,7 @@ add_task(
     // Add the card to a new address book, and insert it into a mailing list
     // under that address book.
     const ab = create_address_book(ADDRESS_BOOK_NAME);
-    ab.dropCard(cards[0], false);
+    ab.addCard(cards[0]);
     let ml = create_mailing_list(MAILING_LIST_DIRNAME);
     ab.addMailList(ml);
 

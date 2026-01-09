@@ -226,7 +226,9 @@ interface nsIAbDirectory : nsISupports {
   boolean hasMailListWithName(in AString aName);
 
   /**
-   * Adds a card to the database.
+   * Adds a card to the database. Set `withNewUID` to add the card with a
+   * fresh UID if a card is being copied (rather than moved) from one
+   * directory to another.
    *
    * This card does not need to be of the same type as the database, e.g., one
    * can add an nsIAbLDAPCard to an nsIAbMDBDirectory.
@@ -234,7 +236,7 @@ interface nsIAbDirectory : nsISupports {
    * @return "Real" card (eg nsIAbLDAPCard) that can be used for some
    *         extra functions.
    */
-  nsIAbCard addCard(in nsIAbCard card);
+  nsIAbCard addCard(in nsIAbCard card, [optional] in boolean withNewUID);
 
   /**
    * Modifies a card in the database to match that supplied.
@@ -247,8 +249,6 @@ interface nsIAbDirectory : nsISupports {
    * @param  aCards  The cards to delete from the database.
    */
   void deleteCards(in Array<nsIAbCard> aCards);
-
-  void dropCard(in nsIAbCard card, in boolean needToCopyCard);
 
   /**
    * Whether or not the directory should be searched when doing autocomplete,

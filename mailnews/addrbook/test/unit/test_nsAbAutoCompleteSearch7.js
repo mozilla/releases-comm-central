@@ -68,7 +68,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   MailServices.ab.directories;
 
   for (const card of ab.childCards) {
-    ab.dropCard(card, false);
+    ab.addCard(card);
   }
 
   aCardData.forEach(function (cd) {

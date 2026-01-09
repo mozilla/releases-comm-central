@@ -368,7 +368,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
   return retCode;
 }
 
-NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard,
+NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard, bool withNewUID,
                                             nsIAbCard** aNewCard) {
   NS_ENSURE_ARG_POINTER(aCard);
   NS_ENSURE_ARG_POINTER(aNewCard);
@@ -493,12 +493,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard,
 
   newCard.forget(aNewCard);
   return NS_OK;
-}
-
-NS_IMETHODIMP nsAbOutlookDirectory::DropCard(nsIAbCard* aData,
-                                             bool needToCopyCard) {
-  nsCOMPtr<nsIAbCard> addedCard;
-  return AddCard(aData, getter_AddRefs(addedCard));
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,

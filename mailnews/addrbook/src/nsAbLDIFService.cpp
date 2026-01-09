@@ -385,12 +385,12 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
       aDirectory->CardForEmailAddress(email, getter_AddRefs(emailCard));
       if (emailCard) {
         nsCOMPtr<nsIAbCard> outCard;
-        outList->AddCard(emailCard, getter_AddRefs(outCard));
+        outList->AddCard(emailCard, false, getter_AddRefs(outCard));
       }
     }
   } else {
     nsCOMPtr<nsIAbCard> outCard;
-    aDirectory->AddCard(newCard, getter_AddRefs(outCard));
+    aDirectory->AddCard(newCard, false, getter_AddRefs(outCard));
   }
 
   // Clear buffer for next record

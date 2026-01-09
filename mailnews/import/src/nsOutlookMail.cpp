@@ -578,7 +578,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
           if (newCard) {
             if (BuildCard(subject.get(), pDirectory, newCard, lpMsg)) {
               nsIAbCard* outCard;
-              pDirectory->AddCard(newCard, &outCard);
+              pDirectory->AddCard(newCard, false, &outCard);
             }
           }
         } else if (type.EqualsLiteral("IPM.DistList")) {
@@ -662,7 +662,7 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
     if (newCard) {
       if (BuildCard(subject.get(), pDirectory, newCard, lpMsg)) {
         nsIAbCard* outCard;
-        newList->AddCard(newCard, &outCard);
+        newList->AddCard(newCard, false, &outCard);
       }
     }
   }

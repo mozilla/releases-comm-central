@@ -601,8 +601,37 @@ export class AddrBookDirectory {
   hasMailListWithName(name) {
     return this.getMailListFromName(name) != null;
   }
-  addCard(card) {
-    return this.dropCard(card, false);
+  addCard(card, withNewUID) {
+    if (this._readOnly && !this._overrideReadOnly) {
+      throw new Components.Exception(
+        "Directory is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    if (!card.UID) {
+      throw new Error("Card must have a UID to be added to this directory.");
+    }
+
+    const uid = withNewUID ? lazy.newUID() : card.UID;
+    const newProperties = this.prepareToSaveCard(card, uid);
+    if (card.directoryUID && card.directoryUID != this._uid) {
+      // These properties belong to a different directory. Don't keep them.
+      newProperties.delete("_etag");
+      newProperties.delete("_href");
+    }
+
+    if (this.hasOwnProperty("cards")) {
+      this.cards.set(uid, newProperties);
+    }
+    this.saveCardProperties(uid, newProperties);
+
+    // Force the UI to throw away cached card values.
+    lazy.MailServices.ab.clearCache();
+
+    const newCard = this.getCard(uid);
+    Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
+    return newCard;
   }
   modifyCard(card) {
     if (this._readOnly && !this._overrideReadOnly) {
@@ -690,38 +719,6 @@ export class AddrBookDirectory {
     for (const list of this.childNodes) {
       list.deleteCards(cards);
     }
-  }
-  dropCard(card, needToCopyCard) {
-    if (this._readOnly && !this._overrideReadOnly) {
-      throw new Components.Exception(
-        "Directory is read-only",
-        Cr.NS_ERROR_FAILURE
-      );
-    }
-
-    if (!card.UID) {
-      throw new Error("Card must have a UID to be added to this directory.");
-    }
-
-    const uid = needToCopyCard ? lazy.newUID() : card.UID;
-    const newProperties = this.prepareToSaveCard(card, uid);
-    if (card.directoryUID && card.directoryUID != this._uid) {
-      // These properties belong to a different directory. Don't keep them.
-      newProperties.delete("_etag");
-      newProperties.delete("_href");
-    }
-
-    if (this.hasOwnProperty("cards")) {
-      this.cards.set(uid, newProperties);
-    }
-    this.saveCardProperties(uid, newProperties);
-
-    // Force the UI to throw away cached card values.
-    lazy.MailServices.ab.clearCache();
-
-    const newCard = this.getCard(uid);
-    Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
-    return newCard;
   }
   useForAutocomplete() {
     return (

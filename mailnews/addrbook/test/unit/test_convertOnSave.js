@@ -252,7 +252,7 @@ function saveCardAndTest(card, useNewUID) {
 
   Assert.equal(book.childCardCount, 0);
 
-  const savedCard = book.dropCard(card, useNewUID);
+  const savedCard = book.addCard(card, useNewUID);
   Assert.deepEqual(Array.from(savedCard.properties, p => p.name).sort(), [
     "DisplayName",
     "FakeProperty",

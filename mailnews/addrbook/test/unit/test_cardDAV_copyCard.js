@@ -40,7 +40,7 @@ add_task(async () => {
 
 /** Copy the card to the local directory. */
 add_task(async function copyCardToLocal() {
-  localDirectory.dropCard(initialCard, true);
+  localDirectory.addCard(initialCard, true);
   Assert.equal(localDirectory.childCards.length, 1);
 
   localCard = localDirectory.childCards[0];
@@ -89,7 +89,7 @@ add_task(async function () {
 
 /** Copy the card back to the CardDAV directory. */
 add_task(async function copyCardToCardDAV() {
-  cardDAVDirectory.dropCard(localCard, true);
+  cardDAVDirectory.addCard(localCard, true);
   Assert.equal(cardDAVDirectory.childCards.length, 1);
 
   const newCard = cardDAVDirectory.childCards[0];
