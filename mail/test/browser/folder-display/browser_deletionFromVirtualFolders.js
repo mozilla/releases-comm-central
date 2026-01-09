@@ -90,7 +90,8 @@ add_setup(async function () {
     () => document.querySelector("#unifiedToolbarContent .view-picker")
   );
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    baseFolder.deleteSelf(null);
     storeState({});
     Services.prefs.clearUserPref("mailnews.default_view_flags");
     get_about_3pane().folderPane.activeModes = ["all"];
@@ -155,17 +156,19 @@ add_task(async function test_create_virtual_folders() {
   // - save it
   const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderProperties",
-    subtest_save_mail_view
+    win => win.document.querySelector("dialog").acceptDialog()
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
   window.ViewChange(MailViewConstants.kViewItemVirtual);
   await dialogPromise;
-});
 
-function subtest_save_mail_view(savc) {
-  savc.document.querySelector("dialog").acceptDialog();
-}
+  folder = baseFolder.getChildNamed(baseFolder.name + "-Important");
+  Assert.ok(
+    folder,
+    "DeletionFromVirtualFoldersA-Important should have been created!"
+  );
+});
 
 async function _open_first_message() {
   // Enter the folder and open a message
@@ -190,18 +193,13 @@ async function _open_first_message() {
   await assert_selected_and_displayed(msgc, curMessage);
 }
 
-add_task(async function test_open_first_message_in_virtual_folder() {
-  folder = baseFolder.getChildNamed(baseFolder.name + "-Important");
-  Assert.ok(folder, "DeletionFromVirtualFoldersA-Important was not created!");
-
-  await _open_first_message();
-});
-
 /**
  * Perform a deletion from the folder tab, verify the others update correctly
  * (advancing to the next message).
  */
 add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
+  await _open_first_message();
+
   const { gDBView } = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
   curMessage = gDBView.getMsgHdrAt(1);
@@ -238,6 +236,9 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
  *  correctly (advancing to the next message).
  */
 add_task(async function test_delete_from_virtual_folder_in_message_window() {
+  await SimpleTest.promiseFocus(msgc);
+  await assert_selected_and_displayed(curMessage);
+
   // - delete
   await press_delete(msgc);
   curMessage = nextMessage;

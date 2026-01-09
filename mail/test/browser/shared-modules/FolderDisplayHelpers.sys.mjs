@@ -1157,7 +1157,6 @@ export async function press_delete(aWin = mc, aModifiers) {
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
-
   EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aWin);
   await wait_for_folder_events();
 }
