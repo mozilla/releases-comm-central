@@ -223,8 +223,8 @@ class TestTryOptionSyntax(unittest.TestCase):
                         "platforms": [
                             "linux64",
                             "linux64-asan",
-                            "linux1804-64",
-                            "linux1804-64-asan",
+                            "linux2404-64",
+                            "linux2404-64-asan",
                         ],
                     },
                 ]

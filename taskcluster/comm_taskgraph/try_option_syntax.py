@@ -75,10 +75,10 @@ UNITTEST_PLATFORM_PRETTY_NAMES = {
     "Ubuntu": [
         "linux64",
         "linux64-asan",
-        "linux1804-64",
-        "linux1804-64-asan",
+        "linux2404-64",
+        "linux2404-64-asan",
     ],
-    "x64": ["linux64", "linux64-asan", "linux1804-64", "linux1804-64-asan"],
+    "x64": ["linux64", "linux64-asan", "linux2404-64", "linux2404-64-asan"],
     "Windows 10": ["windows10-64"],
 }
 

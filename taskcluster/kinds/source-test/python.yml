@@ -4,7 +4,7 @@
 ---
 task-defaults:
     run-on-repo-type: [hg]
-    platform: linux1804-64/opt
+    platform: linux2404-64/opt
     always-target: true
     worker-type: t-linux-docker-amd
     worker:

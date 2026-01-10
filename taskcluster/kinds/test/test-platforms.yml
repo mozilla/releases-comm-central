@@ -16,52 +16,6 @@
 # generation.
 
 ##
-# Linux platforms (Ubuntu 18.04, matching /linux.*/)
-
-linux1804-64-qr/opt:
-    build-platform: linux64/opt
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-linux1804-64-shippable-qr/opt:
-    build-platform: linux64-shippable/opt
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-linux1804-64-qr/debug:
-    build-platform: linux64/debug
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-linux1804-64-asan-qr/opt:
-    build-platform: linux64-asan/opt
-    test-sets:
-        - mochitest-tests
-        - xpcshell-tests
-
-linux1804-64-tsan-qr/opt:
-    build-platform: linux64-tsan/opt
-    test-sets:
-        - mochitest-tests
-        - xpcshell-tests
-
-linux1804-64-ccov-qr/opt:
-    build-platform: linux64-ccov/opt
-    test-sets:
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-##
 # Linux platforms (Ubuntu 24.04, matching /linux.*/, no -qr)
 
 linux2404-64/opt:
