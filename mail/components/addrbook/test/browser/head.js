@@ -545,60 +545,14 @@ function promiseDirectoryRemoved(uri) {
   return removePromise;
 }
 
-function promiseLoadSubDialog(url) {
-  const abWindow = getAddressBookWindow();
-
-  return new Promise(resolve => {
-    abWindow.SubDialog._dialogStack.addEventListener(
-      "dialogopen",
-      function dialogopen(aEvent) {
-        if (
-          aEvent.detail.dialog._frame.contentWindow.location == "about:blank"
-        ) {
-          return;
-        }
-        abWindow.SubDialog._dialogStack.removeEventListener(
-          "dialogopen",
-          dialogopen
-        );
-
-        Assert.equal(
-          aEvent.detail.dialog._frame.contentWindow.location.toString(),
-          url,
-          "Check the proper URL is loaded"
-        );
-
-        // Check visibility
-        Assert.ok(
-          BrowserTestUtils.isVisible(
-            aEvent.detail.dialog._overlay,
-            "Overlay is visible"
-          )
-        );
-
-        // Check that stylesheets were injected
-        const expectedStyleSheetURLs =
-          aEvent.detail.dialog._injectedStyleSheets.slice(0);
-        for (const styleSheet of aEvent.detail.dialog._frame.contentDocument
-          .styleSheets) {
-          const i = expectedStyleSheetURLs.indexOf(styleSheet.href);
-          if (i >= 0) {
-            info("found " + styleSheet.href);
-            expectedStyleSheetURLs.splice(i, 1);
-          }
-        }
-        Assert.equal(
-          expectedStyleSheetURLs.length,
-          0,
-          "All expectedStyleSheetURLs should have been found"
-        );
-
-        // Wait for the next event tick to make sure the remaining part of the
-        // testcase runs after the dialog gets ready for input.
-        executeSoon(() => resolve(aEvent.detail.dialog._frame.contentWindow));
-      }
-    );
-  });
+async function promiseLoadSubDialog(url) {
+  const dialogWindow = await BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    url,
+    { isSubDialog: true }
+  );
+  await new Promise(resolve => dialogWindow.setTimeout(resolve));
+  return dialogWindow;
 }
 
 function formatVCard(strings, ...values) {

@@ -597,6 +597,7 @@ add_task(async function testEveryThingOK() {
 
   Assert.equal(abWindow.booksList.rowCount, 3);
 
+  let dialogClosedPromise;
   const dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   ).then(async function (dialogWindow) {
@@ -612,6 +613,7 @@ add_task(async function testEveryThingOK() {
     );
     availableBooks.children[0].checked = false;
 
+    dialogClosedPromise = BrowserTestUtils.waitForEvent(dialogWindow, "unload");
     dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
   const syncPromise = new Promise(resolve => {
@@ -627,6 +629,7 @@ add_task(async function testEveryThingOK() {
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   await dialogPromise;
+  await dialogClosedPromise;
   const directory = await syncPromise;
   const davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
