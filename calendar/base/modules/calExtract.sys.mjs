@@ -5,7 +5,7 @@
 const lazy = {};
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
-    prefix: "calendar",
+    prefix: "calendar.calExtract",
     maxLogLevel: "Warn",
     maxLogLevelPref: "calendar.loglevel",
   });
@@ -109,7 +109,7 @@ Extractor.prototype = {
     }
 
     const nonAscii = sum / cnt || 0;
-    lazy.log.debug("[calExtract] Average non-ascii charcode: " + nonAscii);
+    lazy.log.debug("Average non-ascii charcode: " + nonAscii);
     return nonAscii;
   },
 
@@ -118,13 +118,9 @@ Extractor.prototype = {
 
     if (this.fixedLang) {
       if (this.checkBundle(this.fallbackLocale)) {
-        lazy.log.debug(
-          "[calExtract] Fixed locale was used to choose " + this.fallbackLocale + " patterns."
-        );
+        lazy.log.debug("Fixed locale was used to choose " + this.fallbackLocale + " patterns.");
       } else {
-        lazy.log.debug(
-          "[calExtract] " + this.fallbackLocale + " patterns were not found. Using en-US instead"
-        );
+        lazy.log.debug(this.fallbackLocale + " patterns were not found. Using en-US instead");
         this.fallbackLocale = "en-US";
       }
 
@@ -153,7 +149,7 @@ Extractor.prototype = {
 
       if (dicts.length == 0) {
         lazy.log.debug(
-          "[calExtract] There are no dictionaries installed and " +
+          "There are no dictionaries installed and " +
             "enabled. You might want to add some if date and time " +
             "extraction from emails seems inaccurate."
         );
@@ -169,18 +165,18 @@ Extractor.prototype = {
           const time1 = new Date().getTime();
           spellchecker.dictionaries = [dicts[dict]];
           const dur = new Date().getTime() - time1;
-          lazy.log.debug("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
+          lazy.log.debug("Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict];
           // beginning of dictionary locale matches patterns locale
         } else if (this.checkBundle(dicts[dict].substring(0, 2))) {
           const time1 = new Date().getTime();
           spellchecker.dictionaries = [dicts[dict]];
           const dur = new Date().getTime() - time1;
-          lazy.log.debug("[calExtract] Loading " + dicts[dict] + " dictionary took " + dur + "ms");
+          lazy.log.debug("Loading " + dicts[dict] + " dictionary took " + dur + "ms");
           patterns = dicts[dict].substring(0, 2);
           // dictionary for which patterns aren't present
         } else {
-          lazy.log.debug("[calExtract] Dictionary present, rules missing: " + dicts[dict]);
+          lazy.log.debug("Dictionary present, rules missing: " + dicts[dict]);
           continue;
         }
 
@@ -197,9 +193,7 @@ Extractor.prototype = {
         }
 
         const percentage = (correct / total) * 100.0;
-        lazy.log.debug(
-          "[calExtract] " + dicts[dict] + " dictionary matches " + percentage + "% of words"
-        );
+        lazy.log.debug(dicts[dict] + " dictionary matches " + percentage + "% of words");
 
         if (percentage > 50.0 && percentage > most) {
           mostLocale = patterns;
@@ -212,34 +206,34 @@ Extractor.prototype = {
       // using dictionaries for language recognition with non-latin letters doesn't work
       // very well, possibly because of bug 471799
       if (avgCharCode > 48000 && avgCharCode < 50000) {
-        lazy.log.debug("[calExtract] Using ko patterns based on charcodes");
+        lazy.log.debug("Using ko patterns based on charcodes");
         path = this.bundleUrl.replace(/LOCALE/g, "ko");
         // is it possible to differentiate zh-TW and zh-CN?
       } else if (avgCharCode > 24000 && avgCharCode < 32000) {
-        lazy.log.debug("[calExtract] Using zh-TW patterns based on charcodes");
+        lazy.log.debug("Using zh-TW patterns based on charcodes");
         path = this.bundleUrl.replace(/LOCALE/g, "zh-TW");
       } else if (avgCharCode > 14000 && avgCharCode < 24000) {
-        lazy.log.debug("[calExtract] Using ja patterns based on charcodes");
+        lazy.log.debug("Using ja patterns based on charcodes");
         path = this.bundleUrl.replace(/LOCALE/g, "ja");
         // Bulgarian also looks like that
       } else if (avgCharCode > 1000 && avgCharCode < 1200) {
-        lazy.log.debug("[calExtract] Using ru patterns based on charcodes");
+        lazy.log.debug("Using ru patterns based on charcodes");
         path = this.bundleUrl.replace(/LOCALE/g, "ru");
         // dictionary based
       } else if (most > 0) {
-        lazy.log.debug("[calExtract] Using " + mostLocale + " patterns based on dictionary");
+        lazy.log.debug("Using " + mostLocale + " patterns based on dictionary");
         path = this.bundleUrl.replace(/LOCALE/g, mostLocale);
         // fallbackLocale matches patterns exactly
       } else if (this.checkBundle(this.fallbackLocale)) {
-        lazy.log.debug("[calExtract] Falling back to " + this.fallbackLocale);
+        lazy.log.debug("Falling back to " + this.fallbackLocale);
         path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
         // beginning of fallbackLocale matches patterns
       } else if (this.checkBundle(this.fallbackLocale.substring(0, 2))) {
         this.fallbackLocale = this.fallbackLocale.substring(0, 2);
-        lazy.log.debug("[calExtract] Falling back to " + this.fallbackLocale);
+        lazy.log.debug("Falling back to " + this.fallbackLocale);
         path = this.bundleUrl.replace(/LOCALE/g, this.fallbackLocale);
       } else {
-        lazy.log.debug("[calExtract] Using en-US");
+        lazy.log.debug("Using en-US");
         path = this.bundleUrl.replace(/LOCALE/g, "en-US");
       }
     }
@@ -281,7 +275,7 @@ Extractor.prototype = {
     });
 
     this.cleanup();
-    lazy.log.debug("[calExtract] Email after processing for extraction: \n" + this.email);
+    lazy.log.debug("Email after processing for extraction: \n" + this.email);
 
     this.overrides = JSON.parse(Services.prefs.getStringPref("calendar.patterns.override", "{}"));
     this.setLanguage();
@@ -832,10 +826,7 @@ Extractor.prototype = {
           )
         ) {
           lazy.log.debug(
-            "[calExtract] " +
-              this.collected[outer].str +
-              " found as well, discarding " +
-              this.collected[inner].str
+            this.collected[outer].str + " found as well, discarding " + this.collected[inner].str
           );
           this.collected[inner].relation = "notadatetime";
         }
@@ -847,7 +838,7 @@ Extractor.prototype = {
     if (sel.rangeCount > 0) {
       // mark the ones to not use
       for (let i = 0; i < sel.rangeCount; i++) {
-        lazy.log.debug("[calExtract] Selection " + i + " is " + sel);
+        lazy.log.debug("Selection " + i + " is " + sel);
         for (let j = 0; j < this.collected.length; j++) {
           const selection = sel.getRangeAt(i).toString();
 
@@ -857,9 +848,7 @@ Extractor.prototype = {
             this.collected[j].start != null
           ) {
             // always keep email date, needed for tasks
-            lazy.log.debug(
-              "[calExtract] Marking " + JSON.stringify(this.collected[j]) + " as notadatetime"
-            );
+            lazy.log.debug("Marking " + JSON.stringify(this.collected[j]) + " as notadatetime");
             this.collected[j].relation = "notadatetime";
           }
         }
@@ -911,7 +900,7 @@ Extractor.prototype = {
     }
 
     for (const val in startTimes) {
-      lazy.log.debug("[calExtract] Start: " + JSON.stringify(startTimes[val]));
+      lazy.log.debug("Start: " + JSON.stringify(startTimes[val]));
     }
 
     const guess = {};
@@ -969,7 +958,7 @@ Extractor.prototype = {
       guess.day = wDayInit[0].day;
     }
 
-    lazy.log.debug("[calExtract] Start picked: " + JSON.stringify(guess));
+    lazy.log.debug("Start picked: " + JSON.stringify(guess));
     return guess;
   },
 
@@ -989,7 +978,7 @@ Extractor.prototype = {
       return {};
     }
     for (const val in endTimes) {
-      lazy.log.debug("[calExtract] End: " + JSON.stringify(endTimes[val]));
+      lazy.log.debug("End: " + JSON.stringify(endTimes[val]));
     }
 
     const wDay = endTimes.filter(val => val.day != null);
@@ -1060,7 +1049,7 @@ Extractor.prototype = {
 
       for (const val in durations) {
         duration += durations[val].duration;
-        lazy.log.debug("[calExtract] Dur: " + JSON.stringify(durations[val]));
+        lazy.log.debug("Dur: " + JSON.stringify(durations[val]));
       }
 
       if (duration != 0) {
@@ -1112,7 +1101,7 @@ Extractor.prototype = {
       guess.minute = 0;
     }
 
-    lazy.log.debug("[calExtract] End picked: " + JSON.stringify(guess));
+    lazy.log.debug("End picked: " + JSON.stringify(guess));
     return guess;
   },
 
@@ -1121,7 +1110,7 @@ Extractor.prototype = {
     try {
       value = this.bundle.GetStringFromName(name);
       if (value.trim() == "") {
-        lazy.log.debug("[calExtract] Pattern not found: " + name);
+        lazy.log.debug("Pattern not found: " + name);
         return this.defPattern;
       }
 
@@ -1129,7 +1118,7 @@ Extractor.prototype = {
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
-          console.error("[calExtract] Faulty extraction pattern " + value + " for " + name);
+          console.error("Faulty extraction pattern " + value + " for " + name);
         }
       }
 
@@ -1138,7 +1127,7 @@ Extractor.prototype = {
         additions = this.cleanPatterns(additions).split("|");
         for (const pattern in additions) {
           vals.push(additions[pattern]);
-          lazy.log.debug("[calExtract] Added " + additions[pattern] + " to " + name);
+          lazy.log.debug("Added " + additions[pattern] + " to " + name);
         }
       }
 
@@ -1149,7 +1138,7 @@ Extractor.prototype = {
           const idx = vals.indexOf(removals[pattern]);
           if (idx != -1) {
             vals.splice(idx, 1);
-            lazy.log.debug("[calExtract] Removed " + removals[pattern] + " from " + name);
+            lazy.log.debug("Removed " + removals[pattern] + " from " + name);
           }
         }
       }
@@ -1157,7 +1146,7 @@ Extractor.prototype = {
       vals.sort((a, b) => b.length - a.length);
       return vals.join("|");
     } catch (ex) {
-      lazy.log.debug("[calExtract] Pattern not found: " + name);
+      lazy.log.debug("Pattern not found: " + name);
 
       // fake a value to avoid empty regexes creating endless loops
       return this.defPattern;
@@ -1171,7 +1160,7 @@ Extractor.prototype = {
     try {
       const value = this.bundle.GetStringFromName(name);
       if (value.trim() == "") {
-        lazy.log.debug("[calExtract] Pattern empty: " + name);
+        lazy.log.debug("Pattern empty: " + name);
         return alts;
       }
 
@@ -1179,7 +1168,7 @@ Extractor.prototype = {
       for (let idx = vals.length - 1; idx >= 0; idx--) {
         if (vals[idx].trim() == "") {
           vals.splice(idx, 1);
-          console.error("[calExtract] Faulty extraction pattern " + value + " for " + name);
+          console.error("Faulty extraction pattern " + value + " for " + name);
         }
       }
 
@@ -1188,7 +1177,7 @@ Extractor.prototype = {
         additions = this.cleanPatterns(additions).split("|");
         for (const pattern in additions) {
           vals.push(additions[pattern]);
-          lazy.log.debug("[calExtract] Added " + additions[pattern] + " to " + name);
+          lazy.log.debug("Added " + additions[pattern] + " to " + name);
         }
       }
 
@@ -1199,7 +1188,7 @@ Extractor.prototype = {
           const idx = vals.indexOf(removals[pattern]);
           if (idx != -1) {
             vals.splice(idx, 1);
-            lazy.log.debug("[calExtract] Removed " + removals[pattern] + " from " + name);
+            lazy.log.debug("Removed " + removals[pattern] + " from " + name);
           }
         }
       }
@@ -1223,7 +1212,7 @@ Extractor.prototype = {
         alts[val] = { pattern: patterns[val], positions };
       }
     } catch (ex) {
-      lazy.log.debug("[calExtract] Pattern not found: " + name);
+      lazy.log.debug("Pattern not found: " + name);
     }
     return alts;
   },
@@ -1241,9 +1230,7 @@ Extractor.prototype = {
     // correctness checking
     for (i = 1; i <= count; i++) {
       if (positions[i] === undefined) {
-        console.error(
-          "[calExtract] Faulty extraction pattern " + name + ", missing parameter #" + i
-        );
+        console.error("Faulty extraction pattern " + name + ", missing parameter #" + i);
       }
     }
     return positions;
