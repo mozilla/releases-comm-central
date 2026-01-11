@@ -9,12 +9,19 @@
   --unified-toolbar-padding: 4px;
   --unified-drag-space: 30px;
   --unified-customization-padding: 30px;
-  --unified-toolbar-content-min-height: 28px;
+  /* minimal possible toolbar height */
+  --unified-toolbar-minimal-height: 30px;
+  /* button border + button padding */
+  --unified-toolbar-button-spacing-height: calc(2px + var(--button-padding) * 2);
+  /* 1lh for the text */
+  --unified-toolbar-content-min-height: calc(1lh + var(--unified-toolbar-button-spacing-height));
+  /* searchbar field height + border + block padding */
+  --unified-toolbar-searchbar-height: calc(1.45lh + 4px);
 
   &[uidensity="compact"] {
     --unified-toolbar-padding: 1px;
     --unified-drag-space: 15px;
-    --unified-toolbar-content-min-height: 24px;
+    --unified-toolbar-minimal-height: 24px;
   }
 
   &[uidensity="touch"] {
@@ -24,6 +31,16 @@
   &[sizemode="fullscreen"],
   &:not([customtitlebar]) {
     --unified-drag-space: 3px;
+  }
+
+  & .icons-above-text {
+    /* icon plus gap is 19px, 1lh for the text */
+    --unified-toolbar-content-min-height: calc(19px + 1lh + var(--unified-toolbar-button-spacing-height));
+  }
+
+  & .icons-only {
+    /* icon size is 16px */
+    --unified-toolbar-content-min-height: calc(16px + var(--unified-toolbar-button-spacing-height));
   }
 }
 
@@ -72,7 +89,7 @@ unified-toolbar {
 
 #unifiedToolbarContent {
   flex: 1 1 auto;
-  min-block-size: var(--unified-toolbar-content-min-height);
+  min-block-size: max(var(--unified-toolbar-minimal-height), var(--unified-toolbar-searchbar-height), var(--unified-toolbar-content-min-height));
   margin: 0;
   /* Padding needed for the children's focus ring. */
   padding-block: 3px;
