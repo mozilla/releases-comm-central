@@ -1162,10 +1162,6 @@ function passphrasePromptCallback(win, promptString, resultFlags) {
   return !prompt ? "" : passphrase.value;
 }
 
-function toggleSaveButton(event) {
-  kDialog.getButton("accept").disabled = !event.target.reportValidity();
-}
-
 /**
  * Return the normalized key from input that may be the full fingerprint.
  *
