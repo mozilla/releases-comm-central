@@ -166,18 +166,6 @@ mingw-cap:
     optimization:
         skip-unless-mozlint: mingw-capitalization.yml
 
-py-black:
-    description: black run over the gecko codebase
-    treeherder:
-        symbol: py(black)
-    run:
-        mach: >
-              commlint -v -l black -f treeherder
-              -f json:/builds/worker/mozlint.json
-              comm/*
-    optimization:
-        skip-unless-mozlint: black.yml
-
 py-ruff:
     description: Run ruff over the codebase
     treeherder:

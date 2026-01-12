@@ -194,7 +194,6 @@ existing_tasks:
   source-test-mozlint-license: UMk-jRkpQyKeIYsdDbE1SA
   source-test-mozlint-lintpref: BYs0YQhCRN-i52rON2VEDA
   source-test-mozlint-mingw-cap: CjPMn_4YSc6Lg3gpJfqW9A
-  source-test-mozlint-py-black: eo8-MYVuTSqx8Q1YPcZ7Ow
   source-test-mozlint-py-ruff: K4QoztL5Rq2gXprOSADijA
   source-test-mozlint-rustfmt: BOUqzRf1TOq8KkY9FqjSwg
   source-test-mozlint-stylelint: dC3bUjVDT96iwy3IanzlGg
