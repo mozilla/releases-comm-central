@@ -31,7 +31,6 @@ export var FolderUtils = {
   getFolderProperties,
   getMostRecentFolders,
   getSpecialFolderString,
-  canRenameDeleteJunkMail,
   isSmartTagsFolder,
   isSmartVirtualFolder,
   ONE_MONTH_IN_MILLISECONDS,
@@ -325,28 +324,4 @@ function isSmartTagsFolder(folder) {
     folder.server.hostName == "smart mailboxes" &&
     folder.parent?.name == "tags"
   );
-}
-
-/**
- * Checks if the configured junk mail can be renamed or deleted. In practice
- * we no longer permit renaming folders with the Junk flag as the name is
- * overridden by a localised name.
- *
- * @param {string} aFolderUri
- */
-function canRenameDeleteJunkMail(aFolderUri) {
-  // Go through junk mail settings for all servers and see if the folder is set/used by anyone.
-  for (const server of MailServices.accounts.allServers) {
-    const settings = server.spamSettings;
-    // If junk mail control or move junk mail to folder option is disabled then
-    // allow the folder to be removed/renamed since the folder is not used in this case.
-    if (!settings.level || !settings.moveOnSpam) {
-      continue;
-    }
-    if (settings.spamFolderURI == aFolderUri) {
-      return false;
-    }
-  }
-
-  return true;
 }

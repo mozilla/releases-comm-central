@@ -408,11 +408,9 @@ var folderPaneContextMenu = {
     let isJunk;
     let isVirtual;
     let isInbox;
-    let canRenameDeleteJunkMail;
     let isSmartTagsFolder;
     let deletable;
     let server;
-    let URI;
     let flags;
     let online;
 
@@ -433,7 +431,6 @@ var folderPaneContextMenu = {
       isVirtual = true;
       isCompactEnabled = true;
       isJunk = true;
-      canRenameDeleteJunkMail = true;
 
       for (const row of folderTree.selection.values()) {
         const folder = MailServices.folderLookup.getFolderForURL(row.uri);
@@ -448,9 +445,6 @@ var folderPaneContextMenu = {
         isNNTP &&= folder.server.type == "nntp";
         isVirtual &&= folder.flags & Ci.nsMsgFolderFlags.Virtual;
         isJunk &&= folder.flags & Ci.nsMsgFolderFlags.Junk;
-        canRenameDeleteJunkMail &&= FolderUtils.canRenameDeleteJunkMail(
-          folder.URI
-        );
         isCompactEnabled &&= folder.isCommandEnabled("cmd_compactFolder");
 
         // Tiny performance failsafe in case all of the variables are already
@@ -462,7 +456,6 @@ var folderPaneContextMenu = {
           !isNNTP &&
           !isVirtual &&
           !isJunk &&
-          !canRenameDeleteJunkMail &&
           !isCompactEnabled
         ) {
           break;
@@ -477,7 +470,6 @@ var folderPaneContextMenu = {
         flags,
         isServer,
         server,
-        URI,
       } = this.activeFolder);
       online =
         !Services.io.offline || !this.activeFolder.server.offlineSupportLevel;
@@ -487,7 +479,6 @@ var folderPaneContextMenu = {
       isJunk = flags & Ci.nsMsgFolderFlags.Junk;
       isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
       isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
-      canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
       isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
     }
 
@@ -499,8 +490,7 @@ var folderPaneContextMenu = {
     // Sets the boolean state for each command type.
     this._commandStates = {
       cmd_newFolder: online && ((!isNNTP && canCreateSubfolders) || isInbox),
-      cmd_deleteFolder:
-        online && (isJunk ? canRenameDeleteJunkMail : deletable),
+      cmd_deleteFolder: online && deletable,
       cmd_renameFolder: online && canRename,
       cmd_compactFolder:
         !isVirtual && !isNNTP && (isServer || canCompact) && isCompactEnabled,
@@ -3875,11 +3865,7 @@ var folderPane = {
       return;
     }
 
-    const canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)
-      ? FolderUtils.canRenameDeleteJunkMail(folder.URI)
-      : folder.deletable;
-
-    if (!canDelete) {
+    if (!folder.deletable) {
       throw new Error("Can't delete folder: " + folder.localizedName);
     }
 

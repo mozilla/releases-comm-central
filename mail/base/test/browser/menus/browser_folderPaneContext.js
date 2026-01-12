@@ -31,7 +31,6 @@ const folderPaneContextData = {
   "folderPaneContext-new": ["server", "rssRoot", ...realFolders, "unified"],
   "folderPaneContext-remove": [
     "plain",
-    "junk",
     ...virtualFolders,
     "nntpGroup",
     "rssFeed",
