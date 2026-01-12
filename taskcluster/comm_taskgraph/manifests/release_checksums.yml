@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-s3_bucket_paths:
+bucket_paths:
     by-platform:
         thunderbird-release:
             - pub/thunderbird/candidates
@@ -14,7 +14,7 @@ tasktype_map:  # Map task reference to task type.
 
 # A default entry, which the mappings below extend and override.
 # Final 'destinations' will be the product of:
-# s3_bucket_paths + destinations + locale_prefix + pretty_name
+# bucket_paths + destinations + locale_prefix + pretty_name
 default: &default
     from:
         - release-generate-checksums-signing
