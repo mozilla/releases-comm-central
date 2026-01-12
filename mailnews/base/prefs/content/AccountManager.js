@@ -1148,17 +1148,6 @@ function updateBlockedItems(aItems, aMustBeTrue) {
   }
 }
 
-/**
- * Set enabled/disabled state for the control.
- */
-function setEnabled(control, enabled) {
-  if (!control) {
-    return;
-  }
-
-  control.toggleAttribute("disabled", !enabled);
-}
-
 // Called when someone clicks on an account. Figure out context by what they
 // clicked on. This is also called when an account is removed. In this case,
 // nothing is selected.
@@ -1498,7 +1487,7 @@ function restorePage(pageId, account) {
             break;
         }
         var isLocked = getAccountValueIsLocked(pageElements[i]);
-        setEnabled(pageElements[i], !isLocked);
+        pageElements[i]?.toggleAttribute("disabled", isLocked);
       }
     }
   }
