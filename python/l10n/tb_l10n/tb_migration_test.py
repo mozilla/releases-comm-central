@@ -167,7 +167,7 @@ def test_migration(
             {"file": to_test},
             "Missing or wrong bug number for {file}",
         )
-    if any("part {}".format(n + 1) not in msg for n, msg in enumerate(reversed(messages))):
+    if any("part {}".format(n + 1) not in msg for n, msg in enumerate(messages)):
         rv = 1
         cmd.log(
             logging.ERROR,
