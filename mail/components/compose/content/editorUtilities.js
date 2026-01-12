@@ -613,23 +613,6 @@ function StripPassword(urlspec, passwordObj) {
   return urlspec;
 }
 
-// Version to use when you have an nsIURI object
-function StripUsernamePasswordFromURI(uri) {
-  var urlspec = "";
-  if (uri) {
-    try {
-      urlspec = uri.spec;
-      var userPass = uri.userPass;
-      if (userPass) {
-        const start = urlspec.indexOf(userPass);
-        urlspec =
-          urlspec.slice(0, start) + urlspec.slice(start + userPass.length + 1);
-      }
-    } catch (e) {}
-  }
-  return urlspec;
-}
-
 function ConvertRGBColorIntoHEXColor(color) {
   if (/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/.test(color)) {
     var r = Number(RegExp.$1).toString(16);
