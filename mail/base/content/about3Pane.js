@@ -408,7 +408,6 @@ var folderPaneContextMenu = {
     let isJunk;
     let isVirtual;
     let isInbox;
-    let isSpecialUse;
     let canRenameDeleteJunkMail;
     let isSmartTagsFolder;
     let deletable;
@@ -423,7 +422,6 @@ var folderPaneContextMenu = {
       canCreateSubfolders = false;
       canRename = false;
       isSmartTagsFolder = false;
-      isSpecialUse = true;
       isInbox = false;
 
       // Set some variables to TRUE to help during the folder lookup loop.
@@ -489,7 +487,6 @@ var folderPaneContextMenu = {
       isJunk = flags & Ci.nsMsgFolderFlags.Junk;
       isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
       isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
-      isSpecialUse = flags & Ci.nsMsgFolderFlags.SpecialUse;
       canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
       isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
     }
@@ -504,8 +501,7 @@ var folderPaneContextMenu = {
       cmd_newFolder: online && ((!isNNTP && canCreateSubfolders) || isInbox),
       cmd_deleteFolder:
         online && (isJunk ? canRenameDeleteJunkMail : deletable),
-      cmd_renameFolder:
-        online && ((!isServer && canRename && !isSpecialUse) || isVirtual),
+      cmd_renameFolder: online && canRename,
       cmd_compactFolder:
         !isVirtual && !isNNTP && (isServer || canCompact) && isCompactEnabled,
       cmd_emptyTrash: online && !isNNTP,
