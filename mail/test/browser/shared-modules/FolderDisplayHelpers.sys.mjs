@@ -1856,14 +1856,6 @@ function _assert_elided_helper(aShouldBeElided, ...aArgs) {
 }
 
 /**
- * Assert that all of the messages at the given view indices are collapsed.
- * Arguments should be of the type accepted by |assert_selected_and_displayed|.
- */
-export function assert_collapsed(...aArgs) {
-  _assert_elided_helper(true, ...aArgs);
-}
-
-/**
  * Assert that all of the messages at the given view indices are expanded.
  * Arguments should be of the type accepted by |assert_selected_and_displayed|.
  */
