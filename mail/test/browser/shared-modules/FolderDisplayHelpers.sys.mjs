@@ -1832,37 +1832,6 @@ export function assert_not_shown(aMessages) {
   });
 }
 
-/**
- * @param {boolean} aShouldBeElided - Should the messages at the view indices be elided?
- * @param {...*} aArgs - Arguments of the form processed by
- *     |_process_row_message_arguments|.
- */
-function _assert_elided_helper(aShouldBeElided, ...aArgs) {
-  const [troller, viewIndices] = _process_row_message_arguments(...aArgs);
-
-  const dbView = get_db_view(troller);
-  for (const viewIndex of viewIndices) {
-    const flags = dbView.getFlagsAt(viewIndex);
-    if (Boolean(flags & Ci.nsMsgMessageFlags.Elided) != aShouldBeElided) {
-      throw new Error(
-        "Message at view index " +
-          viewIndex +
-          (aShouldBeElided
-            ? " should be elided but is not!"
-            : " should not be elided but is!")
-      );
-    }
-  }
-}
-
-/**
- * Assert that all of the messages at the given view indices are expanded.
- * Arguments should be of the type accepted by |assert_selected_and_displayed|.
- */
-export function assert_expanded(...aArgs) {
-  _assert_elided_helper(false, ...aArgs);
-}
-
 var RECOGNIZED_WINDOWS = ["messagepane", "multimessage"];
 var RECOGNIZED_ELEMENTS = ["folderTree", "threadTree", "attachmentList"];
 
