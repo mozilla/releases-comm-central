@@ -7,7 +7,7 @@ import {
   TYPE_ICO,
   TRUSTED_FAVICON_SCHEMES,
   blobAsDataURL,
-} from "moz-src:///browser/modules/FaviconUtils.sys.mjs";
+} from "moz-src:///toolkit/modules/FaviconUtils.sys.mjs";
 
 async function drawImageOnCanvas(canvas, image) {
   const data = await image.blob.bytes();
