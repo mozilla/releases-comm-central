@@ -25,7 +25,7 @@ const standardPorts = [143, 993, 110, 995, 587, 25, 465, 443];
 function assert(test, errorMsg) {
   if (!test) {
     throw new NotReached(
-      errorMsg ? errorMsg : "Programming bug. Assertion failed, see log."
+      errorMsg || "Programming bug. Assertion failed, see log."
     );
   }
 }
@@ -226,30 +226,30 @@ class AddonInstaller {
  * and structuredClone). Only arrays and objects are actually copied, everything
  * else is kept the same.
  *
- * @param {any} org
+ * @param {any} original
  * @returns {any}
  */
-function deepCopy(org) {
-  if (typeof org == "undefined") {
+function deepCopy(original) {
+  if (typeof original == "undefined") {
     return undefined;
   }
-  if (org == null) {
+  if (original == null) {
     return null;
   }
-  if (["string", "number", "boolean", "function"].includes(typeof org)) {
-    return org;
+  if (["string", "number", "boolean", "function"].includes(typeof original)) {
+    return original;
   }
-  if (typeof org != "object") {
-    throw new Error("can't copy objects of type " + typeof org + " yet");
+  if (typeof original != "object") {
+    throw new Error("can't copy objects of type " + typeof original + " yet");
   }
-  if (Array.isArray(org)) {
-    return org.map(value => deepCopy(value));
+  if (Array.isArray(original)) {
+    return original.map(value => deepCopy(value));
   }
 
   // TODO still instanceof org != instanceof copy
   var result = {};
-  for (var prop in org) {
-    result[prop] = deepCopy(org[prop]);
+  for (var prop in original) {
+    result[prop] = deepCopy(original[prop]);
   }
   return result;
 }

@@ -13,6 +13,10 @@ const { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
 
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+
 add_task(async function test_promiseFirstSuccessful_success() {
   const firstPromise = Promise.withResolvers();
   const secondPromise = Promise.withResolvers();
@@ -102,4 +106,130 @@ add_task(async function test_abortableTimeout() {
   );
   abortController.abort(abortError);
   await rejection;
+});
+
+add_task(function test_deepCopy() {
+  const primitiveValues = [
+    undefined,
+    null,
+    "string",
+    0,
+    1,
+    NaN,
+    true,
+    () => {},
+  ];
+  for (const value of primitiveValues) {
+    // Special case for NaN since NaN != NaN
+    if (Number.isNaN(value)) {
+      Assert.ok(Number.isNaN(value), "Should return NaN when passed NaN");
+    } else {
+      Assert.equal(
+        AccountCreationUtils.deepCopy(value),
+        value,
+        "Should return the same value as passed in"
+      );
+    }
+  }
+
+  const obj = {
+    foo: "bar",
+    theAnswer: 42,
+    isUseful: false,
+    explicitlyUndefined: undefined,
+    justNull: null,
+    method: () => {},
+    anArray: [1, "???", () => "profit"],
+    subObject: {
+      evenMore: true,
+    },
+    anInstance: new Error("test"),
+  };
+
+  const clone = AccountCreationUtils.deepCopy(obj);
+
+  Assert.deepEqual(
+    clone,
+    obj,
+    "deepCopy should create an identical looking clone"
+  );
+  Assert.notStrictEqual(
+    clone,
+    obj,
+    "deepCopy should return a different object"
+  );
+  Assert.notStrictEqual(
+    clone.anArray,
+    obj.anArray,
+    "deepCopy should  clone the array"
+  );
+  Assert.notStrictEqual(
+    clone.subObject,
+    obj.subObject,
+    "deepCopy should clone nested objects"
+  );
+});
+
+add_task(async function test_exceptions() {
+  const exceptionTypes = [
+    AccountCreationUtils.CancelledException,
+    AccountCreationUtils.NotReached,
+    AccountCreationUtils.UserCancelledException,
+  ];
+
+  for (const Exception of exceptionTypes) {
+    const instance = new Exception("test");
+    Assert.ok(Error.isError(instance));
+    Assert.equal(instance.message, "test", "Message param is passed on");
+  }
+
+  Assert.equal(
+    Object.getPrototypeOf(AccountCreationUtils.UserCancelledException),
+    AccountCreationUtils.CancelledException,
+    "UserCancelledException should extend CancelledException"
+  );
+  Assert.ok(
+    new AccountCreationUtils.UserCancelledException().message,
+    "UserCancelledException should have a message by default"
+  );
+
+  info("Checking that NotReached logs the error...");
+  const consolePromise = TestUtils.consoleMessageObserved(
+    message => message?.wrappedJSObject?.arguments[0]?.message == "foo"
+  );
+  new AccountCreationUtils.NotReached("foo");
+  await consolePromise;
+});
+
+add_task(function test_assert() {
+  Assert.throws(
+    () => AccountCreationUtils.assert(false, "foo"),
+    error => Error.isError(error) && error.message == "foo",
+    "Should throw error with the given message if assertion fails"
+  );
+  Assert.throws(
+    () => AccountCreationUtils.assert(false),
+    error => Error.isError(error) && Boolean(error.message),
+    "Should throw an error with a generic message if no assertion message is specified"
+  );
+
+  info("Making sure assertions that pass don't throw...");
+  AccountCreationUtils.assert(true, "This shouldn't be thrown");
+});
+
+add_task(function test_standardPorts() {
+  Assert.ok(
+    Array.isArray(AccountCreationUtils.standardPorts),
+    "Standard ports should be an array"
+  );
+  for (const port of AccountCreationUtils.standardPorts) {
+    Assert.equal(typeof port, "number", `Port ${port} should be a number`);
+    Assert.ok(Number.isInteger(port), `Port ${port} should be an integer`);
+    Assert.greater(port, 0, `Port ${port} should be a positive number`);
+    Assert.lessOrEqual(
+      port,
+      65535,
+      `Port ${port} should fit in a 16 bit integer`
+    );
+  }
 });
