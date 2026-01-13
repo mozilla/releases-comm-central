@@ -18,7 +18,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 const {
   assert,
-  Exception,
   gAccountSetupLogger,
   getStringBundle,
   UserCancelledException,
@@ -346,7 +345,7 @@ var gLoopCounter = 0;
  * @param {AbortSignal} abortSignal - The abort signal that can cancel this
  *   operation.
  * @returns {AccountConfig}
- * @throws {Exception} Throws if no complete config can be found.
+ * @throws {Error} Throws if no complete config can be found.
  */
 async function readAutoDiscoverResponse(
   autoDiscoverXML,
@@ -386,7 +385,7 @@ async function readAutoDiscoverResponse(
     throw new Error("Only an incomplete config found");
   } catch (error) {
     gAccountSetupLogger.log(error);
-    throw new Exception("No valid configs found in AutoDiscover XML");
+    throw new Error("No valid configs found in AutoDiscover XML");
   }
 }
 
@@ -409,9 +408,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
     const stringBundle = getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
-    throw new Exception(
-      stringBundle.GetStringFromName("no_autodiscover.error")
-    );
+    throw new Error(stringBundle.GetStringFromName("no_autodiscover.error"));
   }
   var xml = autoDiscoverXML.Autodiscover.Response.Account;
 
@@ -573,7 +570,7 @@ export async function getAddonsList(config, abortSignal) {
   }
   const url = Services.prefs.getCharPref("mailnews.auto_config.addons_url");
   if (!url) {
-    throw new Exception("no URL for addons list configured");
+    throw new Error("no URL for addons list configured");
   }
   const json = await lazy.fetchHTTP(url, {
     allowCache: true,
@@ -594,9 +591,7 @@ export async function getAddonsList(config, abortSignal) {
     return !!addon.useType;
   });
   if (addons.length == 0) {
-    throw new Exception(
-      "Config found, but no addons known to handle the config"
-    );
+    throw new Error("Config found, but no addons known to handle the config");
   }
   config.addons = addons;
   return config;

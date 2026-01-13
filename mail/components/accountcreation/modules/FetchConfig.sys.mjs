@@ -15,8 +15,7 @@ import { DNS } from "resource:///modules/DNS.sys.mjs";
 
 import { JXON } from "resource:///modules/JXON.sys.mjs";
 
-const { Exception, gAccountSetupLogger, promiseFirstSuccessful } =
-  AccountCreationUtils;
+const { gAccountSetupLogger, promiseFirstSuccessful } = AccountCreationUtils;
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
@@ -37,7 +36,7 @@ async function fetchConfigFromDisk(domain, abortSignal) {
     !(await IOUtils.exists(configLocation.path)) ||
     !configLocation.isReadable()
   ) {
-    throw new Exception("local file not found");
+    throw new Error("local file not found");
   }
   abortSignal.throwIfAborted();
   var contents = await IOUtils.readUTF8(configLocation.path);
@@ -97,7 +96,7 @@ async function _fetchConfigFromIsp(
   if (
     !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.enabled")
   ) {
-    throw new Exception("ISP fetch disabled per user preference");
+    throw new Error("ISP fetch disabled per user preference");
   }
 
   const sanitizedDomain = lazy.Sanitizer.hostname(domain);
@@ -157,7 +156,7 @@ async function _fetchConfigFromIsp(
 async function fetchConfigFromDB(domain, abortSignal) {
   let url = Services.prefs.getCharPref("mailnews.auto_config_url");
   if (!url) {
-    throw new Exception("no URL for ISP DB configured");
+    throw new Error("no URL for ISP DB configured");
   }
   domain = lazy.Sanitizer.hostname(domain);
 
@@ -209,7 +208,7 @@ async function fetchConfigForMX(domain, emailAddress, abortSignal) {
   const sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
   gAccountSetupLogger.debug("base domain", sld, "for", mxHostname);
   if (sld == sanitizedDomain) {
-    throw new Exception("MX lookup would be no different from domain");
+    throw new Error("MX lookup would be no different from domain");
   }
 
   // In addition to just the base domain, also check the full domain of the MX server
@@ -274,7 +273,7 @@ async function getMX(sanitizedDomain, abortSignal) {
     const firstHost = sortedRecs[0].host;
     return firstHost;
   }
-  throw new Exception(
+  throw new Error(
     "No hostname found in MX records for sanitizedDomain=" + sanitizedDomain
   );
 }

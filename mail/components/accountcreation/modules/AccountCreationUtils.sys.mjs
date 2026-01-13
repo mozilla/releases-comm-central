@@ -38,7 +38,7 @@ function getStringBundle(bundleURI) {
   try {
     return Services.strings.createBundle(bundleURI);
   } catch (e) {
-    throw new Exception(
+    throw new Error(
       "Failed to get stringbundle URI <" + bundleURI + ">. Error: " + e
     );
   }
@@ -47,17 +47,14 @@ function getStringBundle(bundleURI) {
 // ---------
 // Exception
 
-//TODO remove this class alltogether and just use Errors.
-class Exception extends Error {}
-
-class NotReached extends Exception {
+class NotReached extends Error {
   constructor(msg) {
     super(msg); // call super constructor
     console.error(this);
   }
 }
 
-class CancelledException extends Exception {}
+class CancelledException extends Error {}
 
 class UserCancelledException extends CancelledException {
   constructor(msg) {
@@ -206,7 +203,7 @@ class AddonInstaller {
   prompt = async info => {
     if (!this.matches(info.addon)) {
       // happens only when we got the wrong XPI
-      throw new Exception(
+      throw new Error(
         "The downloaded addon XPI does not match the minimum requirements"
       );
     }
@@ -340,7 +337,6 @@ export const AccountCreationUtils = {
   assert,
   CancelledException,
   deepCopy,
-  Exception,
   gAccountSetupLogger,
   getStringBundle,
   NotReached,

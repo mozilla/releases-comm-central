@@ -290,16 +290,16 @@ const CASES = [
     label: String(Sanitizer.integer),
   },
   {
-    value: AccountCreationUtils.Exception,
+    value: AccountCreationUtils.NotReached,
     integer: { throws: "no_number.error" },
     boolean: { throws: "boolean.error" },
-    string: String(AccountCreationUtils.Exception),
-    nonemptystring: String(AccountCreationUtils.Exception),
+    string: String(AccountCreationUtils.NotReached),
+    nonemptystring: String(AccountCreationUtils.NotReached),
     alphanumdash: { throws: "alphanumdash.error" },
     hostname: { throws: "hostname_syntax.error" },
     emailAddress: { throws: "emailaddress_syntax.error" },
     url: { throws: "url_scheme.error" },
-    label: String(AccountCreationUtils.Exception),
+    label: String(AccountCreationUtils.NotReached),
   },
   {
     value: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
@@ -668,9 +668,7 @@ function subtestThrowsMalformedException(sanitizerMethod, args, errorMessage) {
   const message = ERROR_BUNDLE.GetStringFromName(errorMessage);
   Assert.throws(
     () => Sanitizer[sanitizerMethod](...args),
-    error =>
-      error.message.startsWith(message) &&
-      error instanceof AccountCreationUtils.Exception,
+    error => Error.isError(error) && error.message.startsWith(message),
     `Sanitizer.${sanitizerMethod} should throw ${errorMessage} with ${JSON.stringify(args)}`
   );
 }

@@ -23,7 +23,6 @@ const {
   assert,
   CancelledException,
   deepCopy,
-  Exception,
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
@@ -664,7 +663,7 @@ class HostDetector {
       const errorMsg = getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties"
       ).GetStringFromName("cannot_find_server.error");
-      throw new Exception(errorMsg);
+      throw new Error(errorMsg);
       // no need to cancel, all failed
     } else if (!this.#abortSignal.aborted) {
       throw new Error("Need more try results");

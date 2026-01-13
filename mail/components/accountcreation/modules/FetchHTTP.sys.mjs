@@ -23,7 +23,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
-const { Exception, gAccountSetupLogger, getStringBundle, abortSignalTimeout } =
+const { gAccountSetupLogger, getStringBundle, abortSignalTimeout } =
   AccountCreationUtils;
 
 /**
@@ -255,7 +255,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
   }
 }
 
-class ServerException extends Exception {
+class ServerException extends Error {
   constructor(message, code, uri, cause) {
     super(message, { cause });
     this.code = code;

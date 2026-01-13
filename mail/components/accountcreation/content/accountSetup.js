@@ -37,7 +37,6 @@ var {
   alertPrompt,
   assert,
   CancelledException,
-  Exception,
   gAccountSetupLogger,
   NotReached,
   UserCancelledException,
@@ -2864,7 +2863,7 @@ function serverMatches(a, b) {
   );
 }
 
-class ExchangeUsernameException extends Exception {}
+class ExchangeUsernameException extends Error {}
 
 /**
  * Warning dialog, warning user about lack of, or inappropriate, encryption.

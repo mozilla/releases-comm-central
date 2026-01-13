@@ -243,7 +243,7 @@ export const Sanitizer = {
   },
 };
 
-class MalformedException extends AccountCreationUtils.Exception {
+class MalformedException extends Error {
   /**
    * @param {string} msgID - Id for localized string in accountCreationUtil.properties
    * @param {*} uncheckedBadValue
