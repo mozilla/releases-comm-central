@@ -1,12 +1,12 @@
 use std::fmt::Debug;
-use zerocopy_derive::{FromBytes, FromZeroes, Unaligned};
+use zerocopy_derive::*;
 
 use super::unaligned::{U16, U32};
 
 // Written with help from https://gankra.github.io/blah/compact-unwinding/
 
 /// The `__unwind_info` header.
-#[derive(Unaligned, FromZeroes, FromBytes, Debug, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct CompactUnwindInfoHeader {
     /// The version. Only version 1 is currently defined
@@ -40,7 +40,7 @@ pub struct CompactUnwindInfoHeader {
 }
 
 /// One element of the array of pages.
-#[derive(Unaligned, FromZeroes, FromBytes, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Clone, Copy)]
 #[repr(C)]
 pub struct PageEntry {
     /// The first address mapped by this page.
@@ -63,7 +63,7 @@ pub struct PageEntry {
 }
 
 /// A non-compressed page.
-#[derive(Unaligned, FromZeroes, FromBytes, Debug, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct RegularPage {
     /// Always 2 (use to distinguish from CompressedPage).
@@ -75,7 +75,7 @@ pub struct RegularPage {
 }
 
 /// A "compressed" page.
-#[derive(Unaligned, FromZeroes, FromBytes, Debug, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct CompressedPage {
     /// Always 3 (use to distinguish from RegularPage).
@@ -98,12 +98,12 @@ pub struct CompressedPage {
 }
 
 /// An opcode.
-#[derive(Unaligned, FromZeroes, FromBytes, Debug, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct Opcode(pub U32);
 
 /// A function entry from a non-compressed page.
-#[derive(Unaligned, FromZeroes, FromBytes, Debug, Clone, Copy)]
+#[derive(Unaligned, FromBytes, KnownLayout, Immutable, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct RegularFunctionEntry {
     /// The address in the binary for this function entry (absolute).

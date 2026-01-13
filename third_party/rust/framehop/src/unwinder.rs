@@ -105,7 +105,7 @@ pub trait Unwinder: Clone {
 ///  - `'u`: The lifetime of the [`Unwinder`].
 ///  - `'c`: The lifetime of the unwinder cache.
 ///  - `'r`: The lifetime of the exclusive access to the `read_stack` callback.
-pub struct UnwindIterator<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>> {
+pub struct UnwindIterator<'u, 'c, 'r, U: Unwinder, F: FnMut(u64) -> Result<u64, ()>> {
     unwinder: &'u U,
     state: UnwindIteratorState,
     regs: U::UnwindRegs,
@@ -119,9 +119,7 @@ enum UnwindIteratorState {
     Done,
 }
 
-impl<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>>
-    UnwindIterator<'u, 'c, 'r, U, F>
-{
+impl<'u, 'c, 'r, U: Unwinder, F: FnMut(u64) -> Result<u64, ()>> UnwindIterator<'u, 'c, 'r, U, F> {
     /// Create a new iterator. You'd usually use [`Unwinder::iter_frames`] instead.
     pub fn new(
         unwinder: &'u U,
@@ -140,9 +138,7 @@ impl<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>>
     }
 }
 
-impl<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>>
-    UnwindIterator<'u, 'c, 'r, U, F>
-{
+impl<U: Unwinder, F: FnMut(u64) -> Result<u64, ()>> UnwindIterator<'_, '_, '_, U, F> {
     /// Yield the next frame in the stack.
     ///
     /// The first frame is `Ok(Some(FrameAddress::InstructionPointer(...)))`.
@@ -179,8 +175,8 @@ impl<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>>
     }
 }
 
-impl<'u, 'c, 'r, U: Unwinder + ?Sized, F: FnMut(u64) -> Result<u64, ()>> FallibleIterator
-    for UnwindIterator<'u, 'c, 'r, U, F>
+impl<U: Unwinder, F: FnMut(u64) -> Result<u64, ()>> FallibleIterator
+    for UnwindIterator<'_, '_, '_, U, F>
 {
     type Item = FrameAddress;
     type Error = Error;
@@ -265,14 +261,7 @@ impl<D: Deref<Target = [u8]>, A: Unwinding, P: AllocationPolicy> UnwinderInterna
             .modules
             .binary_search_by_key(&module.avma_range.start, |module| module.avma_range.start)
         {
-            Ok(i) => {
-                #[cfg(feature = "std")]
-                eprintln!(
-                    "Now we have two modules at the same start address 0x{:x}. This can't be good.",
-                    module.avma_range.start
-                );
-                i
-            }
+            Ok(i) => i, // unexpected
             Err(i) => i,
         };
         self.modules.insert(insertion_index, module);

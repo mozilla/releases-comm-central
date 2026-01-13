@@ -309,6 +309,10 @@ pub enum MINIDUMP_STREAM_TYPE {
     /// See [`MINIDUMP_CRASHPAD_INFO`].
     CrashpadInfoStream = 0x43500001,
 
+    /// Chromium stability report stream
+    /// <https://source.chromium.org/chromium/chromium/src/+/main:components/stability_report/>
+    StabilityReportStream = 0x4b6b0002,
+
     /// Data from the __DATA,__crash_info section of every module which contains
     /// one that has useful data. Only available on macOS. 0x4D7A = "Mz".
     ///
@@ -580,12 +584,12 @@ pub struct GUID {
 /// ```
 impl From<[u8; 16]> for GUID {
     fn from(uuid: [u8; 16]) -> Self {
-        let data1 = (uuid[0] as u32) << 24
-            | (uuid[1] as u32) << 16
-            | (uuid[2] as u32) << 8
+        let data1 = ((uuid[0] as u32) << 24)
+            | ((uuid[1] as u32) << 16)
+            | ((uuid[2] as u32) << 8)
             | uuid[3] as u32;
-        let data2 = (uuid[4] as u16) << 8 | uuid[5] as u16;
-        let data3 = (uuid[6] as u16) << 8 | uuid[7] as u16;
+        let data2 = ((uuid[4] as u16) << 8) | uuid[5] as u16;
+        let data3 = ((uuid[6] as u16) << 8) | uuid[7] as u16;
         let mut data4 = [0u8; 8];
         data4.copy_from_slice(&uuid[8..]);
 
@@ -1733,7 +1737,7 @@ impl Default for XSTATE_CONFIG_FEATURE_MSC_INFO {
 
 impl XSTATE_CONFIG_FEATURE_MSC_INFO {
     /// Gets an iterator of all the enabled features.
-    pub fn iter(&self) -> XstateFeatureIter {
+    pub fn iter(&self) -> XstateFeatureIter<'_> {
         XstateFeatureIter { info: self, idx: 0 }
     }
 }

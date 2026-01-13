@@ -12,13 +12,19 @@
 [package]
 edition = "2021"
 name = "macho-unwind-info"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Markus Stange <mstange.moz@gmail.com>"]
+build = false
 exclude = [
     "/.github",
     "/tests",
     "/fixtures",
 ]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "A parser for Apple's Compact Unwinding Format, which is used in the __unwind_info section of mach-O binaries."
 readme = "Readme.md"
 keywords = [
@@ -32,20 +38,26 @@ categories = ["development-tools::debugging"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/mstange/macho-unwind-info"
 
+[lib]
+name = "macho_unwind_info"
+path = "src/lib.rs"
+
 [[example]]
 name = "unwindinfodump"
+path = "examples/unwindinfodump.rs"
 
 [[example]]
 name = "unwindinfolookup"
+path = "examples/unwindinfolookup.rs"
 
 [dependencies.thiserror]
-version = "1.0.56"
+version = "2"
 
 [dependencies.zerocopy]
-version = "0.7.32"
+version = "0.8"
 
 [dependencies.zerocopy-derive]
-version = "0.7.32"
+version = "0.8"
 
 [dev-dependencies.object]
-version = "0.32.2"
+version = "0.36"

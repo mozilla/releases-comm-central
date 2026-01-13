@@ -6,6 +6,7 @@ use memmap2::Mmap;
 use num_traits::FromPrimitive;
 use procfs_core::prelude::*;
 use procfs_core::process::{MMPermissions, MemoryMap, MemoryMaps};
+use prost::Message;
 use scroll::ctx::{SizeWith, TryFromCtx};
 use scroll::{Pread, BE, LE};
 use std::borrow::Cow;
@@ -27,6 +28,7 @@ use tracing::warn;
 use uuid::Uuid;
 
 pub use crate::context::*;
+use crate::stability_report::StabilityReport;
 use crate::strings::*;
 use crate::system_info::{Cpu, Os, PointerWidth};
 use minidump_common::errors::{self as err};
@@ -501,6 +503,12 @@ pub struct MinidumpLinuxProcLimits<'a> {
     data: &'a [u8],
 }
 
+/// Soft errors encountered by minidump-writer during generation
+#[derive(Default, Debug)]
+pub struct MinidumpSoftErrors<'a> {
+    json_str: &'a str,
+}
+
 /// The reason for a process crash.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum CrashReason {
@@ -704,7 +712,7 @@ fn location_slice<'a>(
 fn read_string_utf16(offset: &mut usize, bytes: &[u8], endian: scroll::Endian) -> Option<String> {
     let u: u32 = bytes.gread_with(offset, endian).ok()?;
     let size = u as usize;
-    if size % 2 != 0 || (*offset + size) > bytes.len() {
+    if !size.is_multiple_of(2) || (*offset + size) > bytes.len() {
         return None;
     }
     let encoding = match endian {
@@ -1424,7 +1432,7 @@ impl<'a> MinidumpStream<'a> for MinidumpThreadNames {
 }
 
 impl MinidumpThreadNames {
-    pub fn get_name(&self, thread_id: u32) -> Option<Cow<str>> {
+    pub fn get_name(&self, thread_id: u32) -> Option<Cow<'_, str>> {
         self.names
             .get(&thread_id)
             .map(|name| Cow::Borrowed(&**name))
@@ -1772,18 +1780,21 @@ impl MinidumpHandleDescriptor {
         offset: usize,
         ctx: HandleDescriptorContext,
     ) -> Option<MinidumpHandleObjectInformation> {
-        if offset != 0 {
-            ctx.bytes
-                .pread_with::<md::MINIDUMP_HANDLE_OBJECT_INFORMATION>(offset, ctx.endianess)
-                .ok()
-                .map(|raw| MinidumpHandleObjectInformation {
-                    raw: raw.clone(),
-                    info_type: md::MINIDUMP_HANDLE_OBJECT_INFORMATION_TYPE::from_u32(raw.info_type)
-                        .unwrap(),
-                })
-        } else {
-            None
+        if offset == 0 {
+            return None;
         }
+
+        ctx.bytes
+            .pread_with::<md::MINIDUMP_HANDLE_OBJECT_INFORMATION>(offset, ctx.endianess)
+            .ok()
+            .and_then(|raw| {
+                Some(MinidumpHandleObjectInformation {
+                    raw: raw.clone(),
+                    info_type: md::MINIDUMP_HANDLE_OBJECT_INFORMATION_TYPE::from_u32(
+                        raw.info_type,
+                    )?,
+                })
+            })
     }
 }
 
@@ -2552,7 +2563,7 @@ impl<'a> MinidumpStream<'a> for MinidumpLinuxMaps<'a> {
         _system_info: Option<&MinidumpSystemInfo>,
     ) -> Result<MinidumpLinuxMaps<'a>, Error> {
         let maps = MemoryMaps::from_read(std::io::Cursor::new(bytes)).map_err(|e| {
-            tracing::error!("linux memory map read error: {e}");
+            tracing::warn!("linux memory map read error: {e}");
             Error::StreamReadFailure
         })?;
 
@@ -2721,7 +2732,7 @@ impl<'a> UnifiedMemoryInfoList<'a> {
     }
 
     /// Return a `MinidumpMemory` containing memory at `address`, if one exists.
-    pub fn memory_info_at_address(&self, address: u64) -> Option<UnifiedMemoryInfo> {
+    pub fn memory_info_at_address(&self, address: u64) -> Option<UnifiedMemoryInfo<'_>> {
         match self {
             Self::Info(info) => info
                 .memory_info_at_address(address)
@@ -2733,7 +2744,7 @@ impl<'a> UnifiedMemoryInfoList<'a> {
     }
 
     /// Iterate over the memory regions in the order contained in the minidump.
-    pub fn iter(&self) -> impl Iterator<Item = UnifiedMemoryInfo> {
+    pub fn iter(&self) -> impl Iterator<Item = UnifiedMemoryInfo<'_>> {
         // Use `flat_map` and `chain` to create a unified stream of the two types
         // (only one of which will conatin any values). Note that we are using
         // the fact that `Option` can be iterated (producing 1 to 0 values).
@@ -2750,7 +2761,7 @@ impl<'a> UnifiedMemoryInfoList<'a> {
     }
 
     /// Iterate over the memory regions in order by memory address.
-    pub fn by_addr(&self) -> impl Iterator<Item = UnifiedMemoryInfo> {
+    pub fn by_addr(&self) -> impl Iterator<Item = UnifiedMemoryInfo<'_>> {
         let info = self
             .info()
             .into_iter()
@@ -2835,7 +2846,7 @@ impl<'a> MinidumpThread<'a> {
         &self,
         system_info: &MinidumpSystemInfo,
         misc: Option<&MinidumpMiscInfo>,
-    ) -> Option<Cow<MinidumpContext>> {
+    ) -> Option<Cow<'_, MinidumpContext>> {
         MinidumpContext::read(self.context?, self.endian, system_info, misc)
             .ok()
             .map(Cow::Owned)
@@ -3114,7 +3125,7 @@ impl MinidumpThreadInfoList {
             self.thread_infos.len()
         )?;
         for (i, thread_info) in self.thread_infos.iter().enumerate() {
-            writeln!(f, "thread info[{}]", i)?;
+            writeln!(f, "thread info[{i}]")?;
             thread_info.print(f)?;
         }
         Ok(())
@@ -3364,12 +3375,12 @@ impl MinidumpSystemInfo {
     /// - Windows: Returns the the name of the Service Pack.
     /// - macOS: Returns the product build number.
     /// - Linux: Returns the contents of `uname -srvmo`.
-    pub fn csd_version(&self) -> Option<Cow<str>> {
+    pub fn csd_version(&self) -> Option<Cow<'_, str>> {
         self.csd_version.as_deref().map(Cow::Borrowed)
     }
 
     /// Returns a string describing the cpu's vendor and model.
-    pub fn cpu_info(&self) -> Option<Cow<str>> {
+    pub fn cpu_info(&self) -> Option<Cow<'_, str>> {
         self.cpu_info.as_deref().map(Cow::Borrowed)
     }
 
@@ -3914,6 +3925,26 @@ impl<'a> MinidumpStream<'a> for MinidumpLinuxProcLimits<'a> {
         _system_info: Option<&MinidumpSystemInfo>,
     ) -> Result<MinidumpLinuxProcLimits<'a>, Error> {
         Ok(Self { data: bytes })
+    }
+}
+
+impl<'a> MinidumpStream<'a> for MinidumpSoftErrors<'a> {
+    const STREAM_TYPE: u32 = MINIDUMP_STREAM_TYPE::MozSoftErrors as u32;
+
+    fn read(
+        bytes: &'a [u8],
+        _all: &'a [u8],
+        _endian: scroll::Endian,
+        _system_info: Option<&MinidumpSystemInfo>,
+    ) -> Result<MinidumpSoftErrors<'a>, Error> {
+        let json_str = std::str::from_utf8(bytes).map_err(|_| Error::DataError)?;
+        Ok(Self { json_str })
+    }
+}
+
+impl AsRef<str> for MinidumpSoftErrors<'_> {
+    fn as_ref(&self) -> &str {
+        self.json_str
     }
 }
 
@@ -5315,6 +5346,107 @@ impl MinidumpCrashpadInfo {
 
         writeln!(f)?;
 
+        Ok(())
+    }
+}
+
+impl<'a> MinidumpStream<'a> for StabilityReport {
+    const STREAM_TYPE: u32 = MINIDUMP_STREAM_TYPE::StabilityReportStream as u32;
+
+    fn read(
+        bytes: &'a [u8],
+        _all: &'a [u8],
+        _endian: scroll::Endian,
+        _system_info: Option<&MinidumpSystemInfo>,
+    ) -> Result<Self, Error> {
+        StabilityReport::decode(bytes).map_err(|_| Error::DataError)
+    }
+}
+
+impl StabilityReport {
+    pub fn print<T: std::io::Write>(&self, f: &mut T) -> std::io::Result<()> {
+        writeln!(f, "StabilityReport")?;
+        for (index, process_state) in self.process_states.iter().enumerate() {
+            if let Some(process_id) = process_state.process_id {
+                writeln!(f, "  process_state[{index}].process_id = {process_id}",)?;
+            }
+
+            if let Some(memory_state) = &process_state.memory_state {
+                if let Some(windows_memory) = &memory_state.windows_memory {
+                    if let Some(process_private_usage) = &windows_memory.process_private_usage {
+                        writeln!(
+                            f,
+                            "  process_state[{index}].memory_state.process_private_usage = {process_private_usage}",
+                        )?;
+                    }
+                    if let Some(process_peak_workingset_size) =
+                        &windows_memory.process_peak_workingset_size
+                    {
+                        writeln!(
+                            f,
+                            "  process_state[{index}].memory_state.process_peak_workingset_size = {process_peak_workingset_size}",
+                        )?;
+                    }
+                    if let Some(process_peak_pagefile_usage) =
+                        &windows_memory.process_peak_pagefile_usage
+                    {
+                        writeln!(
+                            f,
+                            "  process_state[{index}].memory_state.process_peak_pagefile_usage = {process_peak_pagefile_usage}",
+                        )?;
+                    }
+                    if let Some(process_allocation_attempt) =
+                        &windows_memory.process_allocation_attempt
+                    {
+                        writeln!(
+                            f,
+                            "  process_state[{index}].memory_state.process_allocation_attempt = {process_allocation_attempt}",
+                        )?;
+                    }
+                }
+            }
+            if let Some(file_system_state) = &process_state.file_system_state {
+                if let Some(posix_file_system_state) = &file_system_state.posix_file_system_state {
+                    if let Some(open_file_descriptors) =
+                        posix_file_system_state.open_file_descriptors
+                    {
+                        writeln!(
+                            f,
+                            "  file_system_state.posix_file_system_state.open_file_descriptors = {open_file_descriptors}",
+                        )?;
+                    }
+                }
+                if let Some(windows_file_system_state) =
+                    &file_system_state.windows_file_system_state
+                {
+                    if let Some(process_handle_count) =
+                        &windows_file_system_state.process_handle_count
+                    {
+                        writeln!(
+                            f,
+                            "  file_system_state.windows_file_system_state.process_handle_count = {process_handle_count}",
+                        )?;
+                    }
+                }
+            }
+        }
+
+        if let Some(system_memory_state) = &self.system_memory_state {
+            if let Some(windows_memory) = &system_memory_state.windows_memory {
+                if let Some(system_commit_limit) = &windows_memory.system_commit_limit {
+                    writeln!(f, "  system_memory_state.windows_memory.system_commit_limit = {system_commit_limit}",)?;
+                }
+                if let Some(system_commit_remaining) = &windows_memory.system_commit_remaining {
+                    writeln!(
+                        f,
+                        "  system_memory_state.windows_memory.system_commit_remaining = {system_commit_remaining}",
+                    )?;
+                }
+                if let Some(system_handle_count) = &windows_memory.system_handle_count {
+                    writeln!(f, "  system_memory_state.windows_memory.system_handle_count = {system_handle_count}",)?;
+                }
+            }
+        }
         Ok(())
     }
 }
@@ -7171,6 +7303,62 @@ mod test {
         assert_eq!(
             module.annotation_objects["invalid"],
             MinidumpAnnotation::Invalid
+        );
+    }
+
+    #[test]
+    fn test_stability_report() {
+        let stability_report_stream = SimpleStream {
+            stream_type: MINIDUMP_STREAM_TYPE::StabilityReportStream as u32,
+            // This data was copied from a real stability report.
+            section: Section::with_endian(Endian::Little).append_bytes(&[
+                18, 24, 24, 236, 118, 34, 12, 10, 10, 8, 143, 84, 16, 198, 160, 1, 24, 154, 84, 58,
+                5, 18, 3, 8, 174, 2, 58, 16, 10, 14, 8, 159, 222, 139, 3, 16, 213, 203, 215, 1, 24,
+                225, 161, 7,
+            ]),
+        };
+
+        let dump = SynthMinidump::with_endian(Endian::Little).add_stream(stability_report_stream);
+
+        let dump = read_synth_dump(dump).unwrap();
+        let stability_report = dump.get_stream::<StabilityReport>().unwrap();
+
+        let process_states = stability_report.process_states.first().unwrap();
+        assert_eq!(process_states.process_id, Some(15212));
+
+        assert_eq!(
+            process_states.memory_state,
+            Some(crate::process_state::MemoryState {
+                windows_memory: Some(crate::process_state::memory_state::WindowsMemory {
+                    process_peak_pagefile_usage: Some(10778),
+                    process_peak_workingset_size: Some(20550),
+                    process_private_usage: Some(10767),
+                    process_allocation_attempt: None,
+                })
+            })
+        );
+
+        assert_eq!(
+            process_states.file_system_state,
+            Some(crate::process_state::FileSystemState {
+                posix_file_system_state: None,
+                windows_file_system_state: Some(
+                    crate::process_state::file_system_state::WindowsFileSystemState {
+                        process_handle_count: Some(302),
+                    }
+                )
+            })
+        );
+
+        assert_eq!(
+            stability_report.system_memory_state,
+            Some(crate::SystemMemoryState {
+                windows_memory: Some(crate::system_memory_state::WindowsMemory {
+                    system_commit_limit: Some(6483743),
+                    system_commit_remaining: Some(3532245),
+                    system_handle_count: Some(119009),
+                })
+            })
         );
     }
 

@@ -1,10 +1,21 @@
 use std::fmt::Debug;
 
-use zerocopy_derive::{FromBytes, FromZeroes, Unaligned};
+use zerocopy_derive::*;
 
 /// An unaligned little-endian `u32` value.
 #[derive(
-    Unaligned, FromZeroes, FromBytes, Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash,
+    Unaligned,
+    FromBytes,
+    KnownLayout,
+    Immutable,
+    Default,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
 )]
 #[repr(transparent)]
 pub struct U32([u8; 4]);
@@ -29,7 +40,18 @@ impl Debug for U32 {
 
 /// An unaligned little-endian `u16` value.
 #[derive(
-    Unaligned, FromZeroes, FromBytes, Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash,
+    Unaligned,
+    FromBytes,
+    KnownLayout,
+    Immutable,
+    Default,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
 )]
 #[repr(transparent)]
 pub struct U16([u8; 2]);

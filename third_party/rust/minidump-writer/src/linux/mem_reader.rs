@@ -1,6 +1,6 @@
 //! Functionality for reading a remote process's memory
 
-use crate::{errors::CopyFromProcessError, ptrace_dumper::PtraceDumper, Pid};
+use super::{minidump_writer::MinidumpWriter, serializers::*, Pid};
 
 enum Style {
     /// Uses [`process_vm_readv`](https://linux.die.net/man/2/process_vm_readv)
@@ -26,6 +26,17 @@ enum Style {
         file: nix::Error,
         ptrace: nix::Error,
     },
+}
+
+#[derive(Debug, thiserror::Error, serde::Serialize)]
+#[error("Copy from process {child} failed (source {src}, offset: {offset}, length: {length})")]
+pub struct CopyFromProcessError {
+    pub child: Pid,
+    pub src: usize,
+    pub offset: usize,
+    pub length: usize,
+    #[serde(serialize_with = "serialize_nix_error")]
+    pub source: nix::Error,
 }
 
 pub struct MemReader {
@@ -99,44 +110,10 @@ impl MemReader {
         src: usize,
         length: std::num::NonZeroUsize,
     ) -> Result<Vec<u8>, CopyFromProcessError> {
-        let length = length.into();
-        let layout =
-            std::alloc::Layout::array::<u8>(length).map_err(|_err| CopyFromProcessError {
-                child: self.pid.as_raw(),
-                src,
-                offset: 0,
-                length,
-                source: nix::errno::Errno::EINVAL,
-            })?;
-
-        // SAFETY: we've guaranteed the layout we're allocating is valid at this point
-        let output = unsafe {
-            let ptr = std::alloc::alloc(layout);
-            if ptr.is_null() {
-                return Err(CopyFromProcessError {
-                    child: self.pid.as_raw(),
-                    src,
-                    offset: 0,
-                    length,
-                    source: nix::errno::Errno::ENOMEM,
-                });
-            }
-            std::slice::from_raw_parts_mut(ptr, length)
-        };
-
-        match self.read(src, output) {
-            Ok(read) => {
-                // SAFETY: we've filled initialized read bytes of our allocation block
-                unsafe { Ok(Vec::from_raw_parts(output.as_mut_ptr(), read, length)) }
-            }
-            Err(err) => {
-                // SAFETY: the pointer and layout are the same we just allocated
-                unsafe {
-                    std::alloc::dealloc(output.as_mut_ptr(), layout);
-                }
-                Err(err)
-            }
-        }
+        let mut output = vec![0u8; length.into()];
+        let bytes_read = self.read(src, &mut output)?;
+        output.truncate(bytes_read);
+        Ok(output)
     }
 
     pub fn read(&mut self, src: usize, dst: &mut [u8]) -> Result<usize, CopyFromProcessError> {
@@ -249,7 +226,7 @@ impl MemReader {
     }
 }
 
-impl PtraceDumper {
+impl MinidumpWriter {
     /// Copies a block of bytes from the target process, returning the heap
     /// allocated copy
     #[inline]
@@ -257,21 +234,19 @@ impl PtraceDumper {
         pid: Pid,
         src: usize,
         length: usize,
-    ) -> Result<Vec<u8>, crate::errors::DumperError> {
-        let length = std::num::NonZeroUsize::new(length).ok_or(
-            crate::errors::DumperError::CopyFromProcessError(CopyFromProcessError {
-                src,
-                child: pid,
-                offset: 0,
-                length,
-                // TODO: We should make copy_from_process also take a NonZero,
-                // as EINVAL could also come from the syscalls that actually read
-                // memory as well which could be confusing
-                source: nix::errno::Errno::EINVAL,
-            }),
-        )?;
+    ) -> Result<Vec<u8>, CopyFromProcessError> {
+        let length = std::num::NonZeroUsize::new(length).ok_or(CopyFromProcessError {
+            src,
+            child: pid,
+            offset: 0,
+            length,
+            // TODO: We should make copy_from_process also take a NonZero,
+            // as EINVAL could also come from the syscalls that actually read
+            // memory as well which could be confusing
+            source: nix::errno::Errno::EINVAL,
+        })?;
 
         let mut mem = MemReader::new(pid);
-        Ok(mem.read_to_vec(src, length)?)
+        mem.read_to_vec(src, length)
     }
 }

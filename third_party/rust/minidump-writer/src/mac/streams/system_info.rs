@@ -1,5 +1,4 @@
-use super::*;
-use crate::minidump_format::*;
+use {super::*, crate::minidump_format::*};
 
 /// Retrieve the OS version information.
 ///

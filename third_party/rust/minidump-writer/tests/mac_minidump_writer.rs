@@ -1,13 +1,15 @@
 #![cfg(target_os = "macos")]
 
-mod common;
-use common::start_child_and_return;
-
-use minidump::{
-    CrashReason, Minidump, MinidumpBreakpadInfo, MinidumpMemoryList, MinidumpMiscInfo,
-    MinidumpModuleList, MinidumpSystemInfo, MinidumpThreadList,
+use {
+    common::start_child_and_return,
+    minidump::{
+        CrashReason, Minidump, MinidumpBreakpadInfo, MinidumpMemoryList, MinidumpMiscInfo,
+        MinidumpModuleList, MinidumpSystemInfo, MinidumpThreadList,
+    },
+    minidump_writer::minidump_writer::MinidumpWriter,
 };
-use minidump_writer::minidump_writer::MinidumpWriter;
+
+mod common;
 
 fn get_crash_reason<'a, T: std::ops::Deref<Target = [u8]> + 'a>(
     md: &Minidump<'a, T>,
@@ -30,6 +32,7 @@ fn get_crash_reason<'a, T: std::ops::Deref<Target = [u8]> + 'a>(
 struct Captured<'md> {
     #[allow(dead_code)]
     task: u32,
+    #[allow(dead_code)]
     thread: u32,
     minidump: Minidump<'md, memmap2::Mmap>,
 }

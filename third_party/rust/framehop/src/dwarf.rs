@@ -126,10 +126,7 @@ where
         let eh_frame_hdr = match eh_frame_hdr_data {
             Some(eh_frame_hdr_data) => {
                 let hdr = EhFrameHdr::new(eh_frame_hdr_data, unwind_section_data.endian());
-                match hdr.parse(&bases, 8) {
-                    Ok(hdr) => Some(hdr),
-                    Err(_) => None,
-                }
+                hdr.parse(&bases, 8).ok()
             }
             None => None,
         };

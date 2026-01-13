@@ -1,19 +1,87 @@
-use crate::errors::ModuleReaderError as Error;
-use crate::mem_reader::MemReader;
-use crate::minidump_format::GUID;
-use goblin::{
-    container::{Container, Ctx, Endian},
-    elf,
+use {
+    super::{mem_reader::MemReader, serializers::*},
+    crate::{minidump_format::GUID, serializers::*},
+    goblin::{
+        container::{Container, Ctx, Endian},
+        elf,
+    },
+    std::{borrow::Cow, ffi::CStr},
 };
-use std::{borrow::Cow, ffi::CStr};
 
 type Buf<'buf> = Cow<'buf, [u8]>;
+type Error = ModuleReaderError;
 
 const NOTE_SECTION_NAME: &[u8] = b".note.gnu.build-id\0";
 
 pub struct ProcessReader {
     inner: MemReader,
     start_address: u64,
+}
+
+#[derive(Debug, thiserror::Error, serde::Serialize)]
+pub enum ModuleReaderError {
+    #[error("failed to read module file ({path}): {error}")]
+    MapFile {
+        path: std::path::PathBuf,
+        #[source]
+        #[serde(serialize_with = "serialize_io_error")]
+        error: std::io::Error,
+    },
+    #[error("failed to read module memory: {length} bytes at {offset}{}: {error}", .start_address.map(|addr| format!(" (start address: {addr})")).unwrap_or_default())]
+    ReadModuleMemory {
+        offset: u64,
+        length: u64,
+        start_address: Option<u64>,
+        #[source]
+        #[serde(serialize_with = "serialize_nix_error")]
+        error: nix::Error,
+    },
+    #[error("failed to parse ELF memory: {0}")]
+    Parsing(
+        #[from]
+        #[serde(serialize_with = "serialize_goblin_error")]
+        goblin::error::Error,
+    ),
+    #[error("no build id notes in program headers")]
+    NoProgramHeaderNote,
+    #[error("no string table available to locate note sections")]
+    NoStrTab,
+    #[error("no build id note sections")]
+    NoSectionNote,
+    #[error("the ELF data contains no program headers")]
+    NoProgramHeaders,
+    #[error("the ELF data contains no sections")]
+    NoSections,
+    #[error("the ELF data does not have a .text section from which to generate a build id")]
+    NoTextSection,
+    #[error(
+        "failed to calculate build id\n\
+    ... from program headers: {program_headers}\n\
+    ... from sections: {section}\n\
+    ... from the text section: {section}"
+    )]
+    NoBuildId {
+        program_headers: Box<Self>,
+        section: Box<Self>,
+        generated: Box<Self>,
+    },
+    #[error("no dynamic string table section")]
+    NoDynStrSection,
+    #[error("a string in the strtab did not have a terminating nul byte")]
+    StrTabNoNulByte,
+    #[error("no SONAME found in dynamic linking information")]
+    NoSoNameEntry,
+    #[error("no dynamic linking information section")]
+    NoDynamicSection,
+    #[error(
+        "failed to retrieve soname\n\
+    ... from program headers: {program_headers}\n\
+    ... from sections: {section}"
+    )]
+    NoSoName {
+        program_headers: Box<Self>,
+        section: Box<Self>,
+    },
 }
 
 impl ProcessReader {
@@ -134,7 +202,7 @@ fn section_header_with_name<'sc>(
     for header in section_headers {
         let sh_name = header.sh_name as u64;
         if sh_name >= strtab_section_header.sh_size {
-            log::warn!("invalid sh_name offset for {:?}", name);
+            log::warn!("invalid sh_name offset for {name:?}");
             continue;
         }
         if sh_name + name.len() as u64 >= strtab_section_header.sh_size {

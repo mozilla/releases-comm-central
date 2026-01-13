@@ -3,7 +3,7 @@
 use {
     common::*,
     minidump::Minidump,
-    minidump_writer::{minidump_writer::MinidumpWriter, FailSpotName},
+    minidump_writer::{minidump_writer::MinidumpWriterConfig, FailSpotName},
     serde_json::json,
 };
 
@@ -23,8 +23,8 @@ fn soft_error_stream() {
     fail_client.set_enabled(FailSpotName::StopProcess, true);
 
     // Write a minidump
-    MinidumpWriter::new(pid, pid)
-        .dump(&mut tmpfile)
+    MinidumpWriterConfig::new(pid, pid)
+        .write(&mut tmpfile)
         .expect("cound not write minidump");
     child.kill().expect("Failed to kill process");
     child.wait().expect("Failed to wait on killed process");
@@ -47,9 +47,9 @@ fn soft_error_stream_content() {
                         error: \"testing requested failure reading thread name\",\n\
                     }"
                 }
-            ]}
+            ]},
+            {"SuspendThreadsErrors": [{"PtraceAttachError": [1234, "EPERM"]}]}
         ]}),
-        json!({"SuspendThreadsErrors": [{"PtraceAttachError": [1234, "EPERM"]}]}),
         json!({"WriteSystemInfoErrors": [
             {"WriteCpuInformationFailed": {"IOError": "\
                 Custom {\n    \
@@ -80,8 +80,8 @@ fn soft_error_stream_content() {
     }
 
     // Write a minidump
-    MinidumpWriter::new(pid, pid)
-        .dump(&mut tmpfile)
+    MinidumpWriterConfig::new(pid, pid)
+        .write(&mut tmpfile)
         .expect("cound not write minidump");
     child.kill().expect("Failed to kill process");
     child.wait().expect("Failed to wait on killed process");

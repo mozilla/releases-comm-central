@@ -89,15 +89,31 @@ documented guarantees do not hold.
 
 ## MSRV
 
-Our minimum supported Rust version (MSRV) is encoded in our `Cargo.toml` file.
-We consider an increase in MSRV to be a semver-breaking change, and will only
-increase our MSRV during semver-breaking version changes (e.g., 0.1 -> 0.2, 1.0
--> 2.0, etc).
+<!-- Our policy used to be simply that MSRV was a breaking change in all
+circumstances. This implicitly relied on syn having the same MSRV policy, which
+it does not. See #1085 and #1088. -->
+
+Without the `derive` feature enabled, zerocopy's minimum supported Rust version
+(MSRV) is encoded the `package.rust-version` field in its `Cargo.toml` file. For
+zerocopy, we consider an increase in MSRV to be a semver-breaking change, and
+will only increase our MSRV during semver-breaking version changes (e.g., 0.1 ->
+0.2, 1.0 -> 2.0, etc).
+
+For zerocopy with the `derive` feature enabled, and for the zerocopy-derive
+crate, we inherit the maximum MSRV any of our dependencies. As of this writing
+(2024-10-03), at least one dependency (syn) does *not* consider MSRV increases
+to be semver-breaking changes. Thus, using the `derive` feature may result in
+the effective MSRV increasing within a semver version train.
 
 ## Yanking
 
 Whenever a bug or regression is identified, we will yank any affected versions
 which are part of the current version train. For example, if the most recent
 version is 0.10.20 and a bug is uncovered, we will release a fix in 0.10.21 and
-yank all 0.10.X versions which are affected. We *may* also yank versions in previous
-version trains on a case-by-case basis, but we don't guarantee it.
+yank all 0.10.X versions which are affected. We *may* also yank versions in
+previous version trains on a case-by-case basis, but we don't guarantee it.
+
+For information about a particular yanked or un-yanked version, see our [yank
+log][yank-log].
+
+[yank-log]: https://github.com/google/zerocopy/blob/main/CHANGELOG.md#yanks-and-regressions

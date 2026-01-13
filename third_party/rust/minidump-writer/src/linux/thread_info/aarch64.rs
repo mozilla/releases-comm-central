@@ -1,10 +1,8 @@
-use super::{CommonThreadInfo, NT_Elf};
-use crate::{
-    errors::ThreadInfoError,
-    minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
-    Pid,
+use {
+    super::{CommonThreadInfo, NT_Elf, Pid, ThreadInfoError},
+    crate::minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
+    nix::sys::ptrace,
 };
-use nix::sys::ptrace;
 
 /// https://github.com/rust-lang/libc/pull/2719
 #[derive(Debug)]

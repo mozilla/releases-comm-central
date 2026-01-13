@@ -55,12 +55,13 @@ pub enum OpcodeX86_64 {
         /// instruction, pointing right at the instruction's "immediate" which
         /// is a u32 value with the offset we need. (NOTE: not divided by anything!)
         /// Example:
-        ///   - function_start is 0x1c20
-        ///   - immediate_offset_from_function_start is 13 (= 0xd),
-        ///   - there's sub instruction at 0x1c2a: sub rsp, 0xc28.
-        ///   This instruction is encoded as 48 81 EC 28 0C 00 00, with the 28
-        ///   byte at 0x1c2d (= 0x1c20 + 13). The immediate is 28 0C 00 00,
-        ///   interpreted as a little-endian u32: 0xc28.
+        /// - function_start is 0x1c20
+        /// - immediate_offset_from_function_start is 13 (= 0xd),
+        /// - there's sub instruction at 0x1c2a: sub rsp, 0xc28.
+        ///
+        /// This instruction is encoded as 48 81 EC 28 0C 00 00, with the 28
+        /// byte at 0x1c2d (= 0x1c20 + 13). The immediate is 28 0C 00 00,
+        /// interpreted as a little-endian u32: 0xc28.
         immediate_offset_from_function_start: u8,
 
         /// An offset to add to the loaded stack size.

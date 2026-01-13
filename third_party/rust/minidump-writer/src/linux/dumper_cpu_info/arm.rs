@@ -1,10 +1,13 @@
-use crate::{errors::CpuInfoError, minidump_format::*};
-use scroll::Pwrite;
-use std::{
-    collections::HashSet,
-    fs::File,
-    io::{BufRead, BufReader, Read},
-    path,
+use {
+    super::CpuInfoError,
+    crate::minidump_format::*,
+    scroll::Pwrite,
+    std::{
+        collections::HashSet,
+        fs::File,
+        io::{BufRead, BufReader, Read},
+        path,
+    },
 };
 
 type Result<T> = std::result::Result<T, CpuInfoError>;

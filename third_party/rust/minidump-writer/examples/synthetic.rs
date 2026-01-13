@@ -1,11 +1,12 @@
 //! Emits default minidump with no streams to specified path
 
-use std::fs::File;
-
-use minidump_writer::{
-    dir_section::DirSection,
-    mem_writer::{Buffer, MemoryWriter},
-    minidump_format::{MDRawHeader, MD_HEADER_SIGNATURE, MD_HEADER_VERSION},
+use {
+    minidump_writer::{
+        dir_section::DirSection,
+        mem_writer::{Buffer, MemoryWriter},
+        minidump_format::{MDRawHeader, MD_HEADER_SIGNATURE, MD_HEADER_VERSION},
+    },
+    std::fs::File,
 };
 
 // usage: `cargo run --example synthetic /tmp/micro-minidump.dmp`

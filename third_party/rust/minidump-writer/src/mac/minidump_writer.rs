@@ -1,10 +1,12 @@
-use crate::{
-    dir_section::{DirSection, DumpBuf},
-    mac::{errors::WriterError, task_dumper::TaskDumper},
-    mem_writer::*,
-    minidump_format::{self, MDMemoryDescriptor, MDRawDirectory, MDRawHeader},
+use {
+    super::{errors::WriterError, task_dumper::TaskDumper},
+    crate::{
+        dir_section::{DirSection, DumpBuf},
+        mem_writer::*,
+        minidump_format::{self, MDMemoryDescriptor, MDRawDirectory, MDRawHeader},
+    },
+    std::io::{Seek, Write},
 };
-use std::io::{Seek, Write};
 
 pub use mach2::mach_types::{task_t, thread_t};
 

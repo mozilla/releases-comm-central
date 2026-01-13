@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "minidump-writer"
-version = "0.10.2"
+version = "0.11.0"
 authors = ["Martin Sirringhaus"]
 build = "build.rs"
 autolib = false
@@ -88,7 +88,7 @@ version = "0.4"
 version = "0.9"
 
 [dependencies.minidump-common]
-version = "0.24"
+version = "0.26"
 
 [dependencies.scroll]
 version = "0.12"
@@ -121,7 +121,7 @@ features = ["executor"]
 version = "0.9"
 
 [dev-dependencies.minidump]
-version = "0.24"
+version = "0.26"
 
 [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies.nix]
 version = "0.29"
@@ -148,7 +148,7 @@ version = "2.2"
 default-features = false
 
 [target.'cfg(target_os = "macos")'.dev-dependencies.minidump-unwind]
-version = "0.24"
+version = "0.26"
 features = ["debuginfo"]
 
 [target.'cfg(target_os = "macos")'.dev-dependencies.similar-asserts]

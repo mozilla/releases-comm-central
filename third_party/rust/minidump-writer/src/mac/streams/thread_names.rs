@@ -49,12 +49,6 @@ impl MinidumpWriter {
         dumper: &TaskDumper,
         tid: u32,
     ) -> Result<MDLocationDescriptor, WriterError> {
-        // As noted in usr/include/mach/thread_info.h, the THREAD_EXTENDED_INFO
-        // return is exactly the same as proc_pidinfo(..., proc_threadinfo)
-        impl mach::ThreadInfo for libc::proc_threadinfo {
-            const FLAVOR: u32 = 5; // THREAD_EXTENDED_INFO
-        }
-
         let thread_info: libc::proc_threadinfo = dumper.thread_info(tid)?;
 
         let name = std::str::from_utf8(
@@ -76,4 +70,11 @@ impl MinidumpWriter {
 
         Ok(write_string_to_location(buffer, tname)?)
     }
+}
+
+/// As noted in `usr/include/mach/thread_info.h`, the `THREAD_EXTENDED_INFO`
+/// return is exactly the same as `proc_pidinfo(..., proc_threadinfo)`
+impl mach::ThreadInfo for libc::proc_threadinfo {
+    /// `THREAD_EXTENDED_INFO`
+    const FLAVOR: u32 = 5;
 }

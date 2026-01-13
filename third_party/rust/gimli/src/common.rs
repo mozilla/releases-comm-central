@@ -99,6 +99,10 @@ pub struct Register(pub u16);
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DebugAbbrevOffset<T = usize>(pub T);
 
+/// An offset into the `.debug_addr` section.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DebugAddrOffset<T = usize>(pub T);
+
 /// An offset to a set of entries in the `.debug_addr` section.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DebugAddrBase<T = usize>(pub T);
@@ -364,6 +368,13 @@ impl SectionId {
             SectionId::DebugStr => ".dwstr",
             _ => return None,
         })
+    }
+
+    /// Returns true if this is a mergeable string section.
+    ///
+    /// This is useful for determining the correct section flags.
+    pub fn is_string(self) -> bool {
+        matches!(self, SectionId::DebugStr | SectionId::DebugLineStr)
     }
 }
 

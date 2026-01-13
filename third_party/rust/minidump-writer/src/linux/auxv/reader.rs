@@ -99,6 +99,6 @@ fn read_long(reader: &mut dyn Read) -> std::io::Result<AuxvType> {
     match std::mem::size_of::<AuxvType>() {
         4 => reader.read_u32::<NativeEndian>().map(|u| u as AuxvType),
         8 => reader.read_u64::<NativeEndian>().map(|u| u as AuxvType),
-        x => panic!("Unexpected type width: {}", x),
+        x => panic!("Unexpected type width: {x}"),
     }
 }

@@ -1,27 +1,27 @@
 [package]
 name = "pe-unwind-info"
-version = "0.2.3"
+version = "0.6.0"
 authors = ["Alex Franchuk <alex.franchuk@gmail.com>"]
 edition = "2021"
 keywords = ["unwind", "pe", "microsoft", "x86_64", "x64"]
 categories = ["parser-implementations"]
 description = "Parsers for PE unwind info"
-homepage = "https://github.com/afranchuk/pe-unwind-info"
+repository = "https://github.com/mozilla/pe-unwind-info"
 readme = "README.md"
 license = "MIT"
 exclude = ["/fixture"]
 
 [dependencies]
 bitflags = "2"
-thiserror = "1"
-zerocopy = "0.7.32"
-zerocopy-derive = "0.7.32"
+thiserror = "2"
+zerocopy = "0.8"
+zerocopy-derive = "0.8"
 arrayvec = "0.7"
 
 [dev-dependencies]
-hex-literal = "0.4"
-memmap2 = "0.7"
-object = "0.31"
+hex-literal = "1"
+memmap2 = "0.9"
+object = "0.37"
 
 [package.metadata.release]
 tag-name = "{{version}}"

@@ -1,5 +1,4 @@
-use super::CrashContext;
-use crate::minidump_cpu::RawContextCPU;
+use {super::CrashContext, crate::minidump_cpu::RawContextCPU};
 
 impl CrashContext {
     pub fn get_instruction_pointer(&self) -> usize {

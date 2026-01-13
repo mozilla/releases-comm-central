@@ -1,8 +1,10 @@
-use super::CrashContext;
-use crate::{minidump_cpu::RawContextCPU, minidump_format::format::ContextFlagsX86};
-use libc::{
-    REG_CS, REG_DS, REG_EAX, REG_EBP, REG_EBX, REG_ECX, REG_EDI, REG_EDX, REG_EFL, REG_EIP, REG_ES,
-    REG_ESI, REG_ESP, REG_FS, REG_GS, REG_SS, REG_UESP,
+use {
+    super::CrashContext,
+    crate::{minidump_cpu::RawContextCPU, minidump_format::format::ContextFlagsX86},
+    libc::{
+        REG_CS, REG_DS, REG_EAX, REG_EBP, REG_EBX, REG_ECX, REG_EDI, REG_EDX, REG_EFL, REG_EIP,
+        REG_ES, REG_ESI, REG_ESP, REG_FS, REG_GS, REG_SS, REG_UESP,
+    },
 };
 impl CrashContext {
     pub fn get_instruction_pointer(&self) -> usize {

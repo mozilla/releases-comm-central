@@ -1,12 +1,15 @@
-use super::{CommonThreadInfo, NT_Elf};
-use crate::{errors::ThreadInfoError, minidump_cpu::RawContextCPU, minidump_format::format, Pid};
-use core::mem::size_of_val;
+use {
+    super::{CommonThreadInfo, NT_Elf, Pid, ThreadInfoError},
+    crate::{minidump_cpu::RawContextCPU, minidump_format::format},
+    core::mem::size_of_val,
+    nix::sys::ptrace,
+    scroll::Pwrite,
+};
+
 #[cfg(all(not(target_os = "android"), target_arch = "x86"))]
 use libc::user_fpxregs_struct;
 #[cfg(not(all(target_os = "android", target_arch = "x86")))]
 use libc::{user, user_fpregs_struct, user_regs_struct};
-use nix::sys::ptrace;
-use scroll::Pwrite;
 
 type Result<T> = std::result::Result<T, ThreadInfoError>;
 

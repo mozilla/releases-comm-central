@@ -1,5 +1,7 @@
-use super::*;
-use format::{BreakpadInfoValid, MINIDUMP_BREAKPAD_INFO as BreakpadInfo};
+use {
+    super::*,
+    format::{BreakpadInfoValid, MINIDUMP_BREAKPAD_INFO as BreakpadInfo},
+};
 
 impl MinidumpWriter {
     /// Writes the [`BreakpadInfo`] stream.

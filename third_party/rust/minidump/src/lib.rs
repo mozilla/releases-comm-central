@@ -392,6 +392,16 @@
 //!
 //!
 //!
+//! ### Protobuf Streams
+//!
+//! A stream encoded as a protobuf message.
+//!
+//! There is currently only one stream that uses this format:
+//!
+//! * [`StabilityReport`][]
+//!
+//!
+//!
 //! [MINIDUMP_TYPE]: https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/ne-minidumpapiset-minidump_type
 //! [minidump]: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680369%28v=vs.85%29.aspx
 //! [minidumpwritedump]: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680360%28v=vs.85%29.aspx
@@ -407,12 +417,14 @@ pub use scroll::Endian;
 mod context;
 mod iostuff;
 mod minidump;
+mod stability_report;
 
 pub use minidump_common::format;
 pub use minidump_common::traits::Module;
 
 pub use crate::iostuff::Readable;
 pub use crate::minidump::*;
+pub use crate::stability_report::*;
 
 pub mod strings;
 pub mod system_info;

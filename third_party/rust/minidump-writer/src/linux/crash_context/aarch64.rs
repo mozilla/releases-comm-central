@@ -1,7 +1,9 @@
-use super::CrashContext;
-use crate::{
-    minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
-    minidump_format::format,
+use {
+    super::CrashContext,
+    crate::{
+        minidump_cpu::{RawContextCPU, FP_REG_COUNT, GP_REG_COUNT},
+        minidump_format::format,
+    },
 };
 
 impl CrashContext {

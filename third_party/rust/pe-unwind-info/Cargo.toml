@@ -12,11 +12,16 @@
 [package]
 edition = "2021"
 name = "pe-unwind-info"
-version = "0.2.3"
+version = "0.6.0"
 authors = ["Alex Franchuk <alex.franchuk@gmail.com>"]
+build = false
 exclude = ["/fixture"]
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Parsers for PE unwind info"
-homepage = "https://github.com/afranchuk/pe-unwind-info"
 readme = "README.md"
 keywords = [
     "unwind",
@@ -27,6 +32,7 @@ keywords = [
 ]
 categories = ["parser-implementations"]
 license = "MIT"
+repository = "https://github.com/mozilla/pe-unwind-info"
 
 [package.metadata.release]
 pre-release-commit-message = "Prepare for version {{version}}"
@@ -48,6 +54,10 @@ replace = """
 [{{version}}]: $1/$2...{{tag_name}}"""
 search = '\[Unreleased\]: (.*)/(.*)\.\.\.HEAD$'
 
+[lib]
+name = "pe_unwind_info"
+path = "src/lib.rs"
+
 [dependencies.arrayvec]
 version = "0.7"
 
@@ -55,19 +65,19 @@ version = "0.7"
 version = "2"
 
 [dependencies.thiserror]
-version = "1"
+version = "2"
 
 [dependencies.zerocopy]
-version = "0.7.32"
+version = "0.8"
 
 [dependencies.zerocopy-derive]
-version = "0.7.32"
+version = "0.8"
 
 [dev-dependencies.hex-literal]
-version = "0.4"
+version = "1"
 
 [dev-dependencies.memmap2]
-version = "0.7"
+version = "0.9"
 
 [dev-dependencies.object]
-version = "0.31"
+version = "0.37"

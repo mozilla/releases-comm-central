@@ -2,8 +2,9 @@
 #![cfg(any(target_os = "linux", target_os = "android"))]
 
 use {
+    common::*,
     error_graph::ErrorList,
-    minidump_writer::ptrace_dumper::PtraceDumper,
+    minidump_writer::minidump_writer::MinidumpWriterConfig,
     nix::{
         sys::mman::{mmap, MapFlags, ProtFlags},
         sys::signal::Signal,
@@ -17,7 +18,6 @@ use {
 };
 
 mod common;
-use common::*;
 
 /// These tests generally aren't consistent in resource-deprived environments like CI runners and
 /// android emulators.
@@ -106,24 +106,17 @@ fn test_thread_list_from_parent() {
     let mut child = start_child_and_wait_for_threads(num_of_threads);
     let pid = child.id() as i32;
 
-    let mut dumper = assert_no_soft_errors!(
+    let dumper = assert_no_soft_errors!(
         soft_errors,
-        PtraceDumper::new_report_soft_errors(
-            pid,
-            minidump_writer::minidump_writer::STOP_TIMEOUT,
-            Default::default(),
-            &mut soft_errors,
-        )
+        MinidumpWriterConfig::new(pid, pid).build_for_testing(&mut soft_errors)
     )
     .expect("Couldn't init dumper");
 
     assert_eq!(dumper.threads.len(), num_of_threads);
 
-    assert_no_soft_errors!(soft_errors, dumper.suspend_threads(&mut soft_errors));
-
     // let mut matching_threads = 0;
     for (idx, curr_thread) in dumper.threads.iter().enumerate() {
-        println!("curr_thread: {:?}", curr_thread);
+        println!("curr_thread: {curr_thread:?}");
         let info = dumper
             .get_thread_info_by_index(idx)
             .expect("Could not get thread info by index");
@@ -167,7 +160,7 @@ fn test_thread_list_from_parent() {
             0
         }; */
     }
-    assert_no_soft_errors!(soft_errors, dumper.resume_threads(&mut soft_errors));
+    drop(dumper);
     child.kill().expect("Failed to kill process");
 
     // Reap child
@@ -293,19 +286,12 @@ fn test_sanitize_stack_copy() {
     let heap_addr = usize::from_str_radix(output.next().unwrap().trim_start_matches("0x"), 16)
         .expect("unable to parse mmap_addr");
 
-    let mut dumper = assert_no_soft_errors!(
+    let dumper = assert_no_soft_errors!(
         soft_errors,
-        PtraceDumper::new_report_soft_errors(
-            pid,
-            minidump_writer::minidump_writer::STOP_TIMEOUT,
-            Default::default(),
-            &mut soft_errors,
-        )
+        MinidumpWriterConfig::new(pid, pid).build_for_testing(&mut soft_errors)
     )
     .expect("Couldn't init dumper");
     assert_eq!(dumper.threads.len(), num_of_threads);
-
-    assert_no_soft_errors!(soft_errors, dumper.suspend_threads(&mut soft_errors));
 
     let thread_info = dumper
         .get_thread_info_by_index(0)
@@ -401,7 +387,7 @@ fn test_sanitize_stack_copy() {
 
     assert_eq!(simulated_stack[0..size_of::<usize>()], defaced);
 
-    assert_no_soft_errors!(soft_errors, dumper.resume_threads(&mut soft_errors));
+    drop(dumper);
 
     child.kill().expect("Failed to kill process");
 

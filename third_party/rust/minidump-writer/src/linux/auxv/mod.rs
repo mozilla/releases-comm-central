@@ -1,6 +1,7 @@
 use {
     self::reader::ProcfsAuxvIter,
-    crate::{serializers::*, Pid},
+    super::Pid,
+    crate::serializers::*,
     error_graph::WriteErrorList,
     failspot::failspot,
     std::{fs::File, io::BufReader},

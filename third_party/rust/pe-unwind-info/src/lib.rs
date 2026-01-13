@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), no_std)]
+
 //! Zero-copy parsers of the contents of the `.pdata` section and unwind information in PE
 //! binaries.
 //!

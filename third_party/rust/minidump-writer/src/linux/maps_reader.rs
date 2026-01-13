@@ -1,5 +1,6 @@
 use {
-    crate::{auxv::AuxvType, errors::MapsReaderError},
+    super::{auxv::AuxvType, module_reader::ModuleReaderError, serializers::*},
+    crate::serializers::*,
     byteorder::{NativeEndian, ReadBytesExt},
     goblin::elf,
     memmap2::{Mmap, MmapOptions},
@@ -55,10 +56,46 @@ pub struct MappingEntry {
 // A list of <MappingInfo, GUID>
 pub type MappingList = Vec<MappingEntry>;
 
-#[derive(Debug)]
-pub enum MappingInfoParsingResult {
-    SkipLine,
-    Success(MappingInfo),
+#[derive(thiserror::Error, Debug, serde::Serialize)]
+pub enum MapsReaderError {
+    #[error("Couldn't parse as ELF file")]
+    ELFParsingFailed(
+        #[from]
+        #[serde(serialize_with = "serialize_goblin_error")]
+        goblin::error::Error,
+    ),
+    #[error("No soname found (filename: {})", .0.to_string_lossy())]
+    NoSoName(OsString, #[source] ModuleReaderError),
+
+    // parse_from_line()
+    #[error("Map entry malformed: No {0} found")]
+    MapEntryMalformed(&'static str),
+    #[error("Couldn't parse address")]
+    UnparsableInteger(
+        #[from]
+        #[serde(skip)]
+        std::num::ParseIntError,
+    ),
+    #[error("Linux gate location doesn't fit in the required integer type")]
+    LinuxGateNotConvertable(
+        #[from]
+        #[serde(skip)]
+        std::num::TryFromIntError,
+    ),
+
+    // get_mmap()
+    #[error("Not safe to open mapping {}", .0.to_string_lossy())]
+    NotSafeToOpenMapping(OsString),
+    #[error("IO Error")]
+    FileError(
+        #[from]
+        #[serde(serialize_with = "serialize_io_error")]
+        std::io::Error,
+    ),
+    #[error("Mmapped file empty or not an ELF file")]
+    MmapSanityCheckFailed,
+    #[error("Symlink does not match ({0} vs. {1})")]
+    SymlinkError(std::path::PathBuf, std::path::PathBuf),
 }
 
 fn is_mapping_a_path(pathname: Option<&OsStr>) -> bool {
@@ -236,7 +273,7 @@ impl MappingInfo {
                     .as_ref()
                     .read_u64::<NativeEndian>()
                     .map(|u| u as usize),
-                x => panic!("Unexpected type width: {}", x),
+                x => panic!("Unexpected type width: {x}"),
             };
             if let Ok(addr) = addr {
                 if low_addr <= addr && addr <= high_addr {

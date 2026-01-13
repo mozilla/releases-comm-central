@@ -3886,9 +3886,9 @@ dependencies = [
 
 [[package]]
 name = "minidump-common"
-version = "0.24.0"
+version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5273687f49325b3977f7d372a1bbe2e528694d18128de8dcac78d134448e83b4"
+checksum = "2e16d10087ae9e375bad7a40e8ef5504bc08e808ccc6019067ff9de42a84570f"
 dependencies = [
  "bitflags 2.9.0",
  "debugid",
@@ -3901,9 +3901,9 @@ dependencies = [
 
 [[package]]
 name = "minidump-writer"
-version = "0.10.2"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e9370e1f326cb4385f78355d8a0f68f429e9002fd3ca53fff9b43fded234473"
+checksum = "0e1fc14d6ded915b8e850801465e7096f77ed60bf87e4e85878d463720d9dc4d"
 dependencies = [
  "bitflags 2.9.0",
  "byteorder",
