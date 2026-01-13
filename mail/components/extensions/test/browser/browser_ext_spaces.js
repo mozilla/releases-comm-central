@@ -256,6 +256,10 @@ add_task(async function test_open_reload_close() {
 
 add_task(async function test_icons() {
   async function background() {
+    const DEFAULT_ICON = "default.png";
+    const LIGHT_THEME_ICON = "dark.png";
+    const DARK_THEME_ICON = "light.png";
+
     const manifest = browser.runtime.getManifest();
     const propertyClearValue = manifest.manifest_version == 2 ? "" : null;
     const extensionIcon = manifest.icons
@@ -271,11 +275,11 @@ add_task(async function test_icons() {
       },
       {
         title: "Google",
-        defaultIcons: "default.png",
+        defaultIcons: DEFAULT_ICON,
         themeIcons: [
           {
-            dark: "dark.png",
-            light: "light.png",
+            dark: DARK_THEME_ICON,
+            light: LIGHT_THEME_ICON,
             size: 16,
           },
         ],
@@ -286,9 +290,9 @@ add_task(async function test_icons() {
       title: "Google",
       url: "https://test.invalid",
       icons: {
-        default: `url("${browser.runtime.getURL("default.png")}")`,
-        dark: `url("${browser.runtime.getURL("dark.png")}")`,
-        light: `url("${browser.runtime.getURL("light.png")}")`,
+        default: `url("${browser.runtime.getURL(DEFAULT_ICON)}")`,
+        dark: `url("${browser.runtime.getURL(LIGHT_THEME_ICON)}")`,
+        light: `url("${browser.runtime.getURL(DARK_THEME_ICON)}")`,
       },
     };
     await window.sendMessage("checkUI", [expected_space_1]);
@@ -299,8 +303,8 @@ add_task(async function test_icons() {
     });
     expected_space_1.icons = {
       default: null,
-      dark: `url("${browser.runtime.getURL("dark.png")}")`,
-      light: `url("${browser.runtime.getURL("light.png")}")`,
+      dark: `url("${browser.runtime.getURL(LIGHT_THEME_ICON)}")`,
+      light: `url("${browser.runtime.getURL(DARK_THEME_ICON)}")`,
     };
     await window.sendMessage("checkUI", [expected_space_1]);
 
@@ -310,8 +314,8 @@ add_task(async function test_icons() {
     });
     expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
-      dark: `url("${browser.runtime.getURL("dark.png")}")`,
-      light: `url("${browser.runtime.getURL("light.png")}")`,
+      dark: `url("${browser.runtime.getURL(LIGHT_THEME_ICON)}")`,
+      light: `url("${browser.runtime.getURL(DARK_THEME_ICON)}")`,
     };
     await window.sendMessage("checkUI", [expected_space_1]);
 
@@ -338,8 +342,8 @@ add_task(async function test_icons() {
     });
     expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
-      dark: `url("${browser.runtime.getURL("dark2.png")}")`,
-      light: `url("${browser.runtime.getURL("light2.png")}")`,
+      dark: `url("${browser.runtime.getURL("light2.png")}")`,
+      light: `url("${browser.runtime.getURL("dark2.png")}")`,
     };
     await window.sendMessage("checkUI", [expected_space_1]);
 
@@ -367,8 +371,8 @@ add_task(async function test_icons() {
       url: "https://test.other.invalid",
       icons: {
         default: null,
-        dark: `url("${browser.runtime.getURL("dark2.png")}")`,
-        light: `url("${browser.runtime.getURL("light2.png")}")`,
+        dark: `url("${browser.runtime.getURL("light2.png")}")`,
+        light: `url("${browser.runtime.getURL("dark2.png")}")`,
       },
     };
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
@@ -423,8 +427,8 @@ add_task(async function test_icons() {
     });
     expected_space_3.icons = {
       default: null,
-      dark: `url("${browser.runtime.getURL("dark3.png")}")`,
-      light: `url("${browser.runtime.getURL("light3.png")}")`,
+      dark: `url("${browser.runtime.getURL("light3.png")}")`,
+      light: `url("${browser.runtime.getURL("dark3.png")}")`,
     };
     await window.sendMessage("checkUI", [
       expected_space_1,
@@ -532,7 +536,7 @@ add_task(async function test_icons() {
 
       await lightBuiltInTheme.enable();
       await test_space(background, {
-        selectedTheme: "default",
+        selectedTheme: "light",
         manifestIcons,
         manifestVersion,
       });
@@ -540,7 +544,7 @@ add_task(async function test_icons() {
       // Disabling a theme will enable the default theme.
       await lightBuiltInTheme.disable();
       await test_space(background, {
-        selectedTheme: "default",
+        selectedTheme: "light",
         manifestIcons,
         manifestVersion,
       });
