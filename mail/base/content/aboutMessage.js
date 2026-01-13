@@ -112,6 +112,7 @@ function ReloadMessage() {
 }
 
 function MailSetCharacterSet() {
+  ClearCurrentHeaders();
   const messageService = MailServices.messageServiceFromURI(gMessageURI);
   gMessage = messageService.messageURIToMsgHdr(gMessageURI);
   messageService.loadMessage(

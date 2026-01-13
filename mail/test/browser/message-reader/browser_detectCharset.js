@@ -71,6 +71,13 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
     aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
       .textContent;
   const charset = aboutMessage.currentCharacterSet;
+  Assert.equal(
+    aboutMessage.document.querySelector("#expandedtoBox > ol")
+      .childElementCount,
+    1,
+    "should have one To"
+  );
+
   await BrowserTestUtils.closeWindow(msgc);
   return { textContent, charset };
 }
