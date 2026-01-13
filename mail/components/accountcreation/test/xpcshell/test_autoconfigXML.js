@@ -29,18 +29,11 @@ var { JXON } = ChromeUtils.importESModule("resource:///modules/JXON.sys.mjs");
  * UTILITIES
  */
 
-function assert_equal(aA, aB, aWhy) {
-  if (aA != aB) {
-    do_throw(aWhy);
-  }
-  Assert.equal(aA, aB);
-}
-
 /**
  * Test that two config entries are the same.
  */
 function assert_equal_config(aA, aB, field) {
-  assert_equal(aA, aB, "Configured " + field + " is incorrect.");
+  Assert.equal(aA, aB, "Configured " + field + " is incorrect.");
 }
 
 /*
@@ -51,7 +44,7 @@ function assert_equal_config(aA, aB, field) {
  * Test that the xml reader returns a proper config and
  * is also forwards-compatible to new additions to the data format.
  */
-function test_readFromXML_config1() {
+add_task(function test_readFromXML_config1() {
   var clientConfigXML =
     "<clientConfig>" +
     '<emailProvider id="example.com">' +
@@ -181,12 +174,12 @@ function test_readFromXML_config1() {
   Assert.equal(1, server.auth); // no auth
   // no other SMTP servers
   Assert.equal(0, config.outgoingAlternatives.length);
-}
+});
 
 /**
  * Test the replaceVariables method.
  */
-function test_replaceVariables() {
+add_task(function test_replaceVariables() {
   var clientConfigXML =
     "<clientConfig>" +
     '<emailProvider id="example.com">' +
@@ -319,9 +312,9 @@ function test_replaceVariables() {
     "abc12345",
     "incoming server alternative password"
   );
-}
+});
 
-function test_unsupported_OAuth_with_alternative_auth() {
+add_task(function test_unsupported_OAuth_with_alternative_auth() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -356,9 +349,9 @@ function test_unsupported_OAuth_with_alternative_auth() {
 
   Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
   Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
-}
+});
 
-function test_unsupported_OAuth_with_alternative_servers() {
+add_task(function test_unsupported_OAuth_with_alternative_servers() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -409,9 +402,9 @@ function test_unsupported_OAuth_with_alternative_servers() {
   Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
   Assert.equal(result.outgoing.hostname, "smtp-legacy.domain.example");
   Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
-}
+});
 
-function test_unsupported_OAuth_without_alternatives() {
+add_task(function test_unsupported_OAuth_without_alternatives() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -444,9 +437,9 @@ function test_unsupported_OAuth_without_alternatives() {
   } catch (e) {
     Assert.equal(e.message, "Lacking OAuth2 config for imap.domain.example");
   }
-}
+});
 
-function test_supported_OAuth() {
+add_task(function test_supported_OAuth() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -477,9 +470,9 @@ function test_supported_OAuth() {
 
   Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.OAuth2);
   Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.OAuth2);
-}
+});
 
-function test_supported_OAuth_in_alternative_servers() {
+add_task(function test_supported_OAuth_in_alternative_servers() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -530,9 +523,9 @@ function test_supported_OAuth_in_alternative_servers() {
   Assert.equal(result.incomingAlternatives[0].auth, Ci.nsMsgAuthMethod.OAuth2);
   Assert.equal(result.outgoingAlternatives[0].hostname, "mochi.test");
   Assert.equal(result.outgoingAlternatives[0].auth, Ci.nsMsgAuthMethod.OAuth2);
-}
+});
 
-function test_supported_auth_methods_for_incoming_server() {
+add_task(function test_supported_auth_methods_for_incoming_server() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -646,9 +639,9 @@ function test_supported_auth_methods_for_incoming_server() {
   Assert.equal(result.incomingAlternatives[3].auth, Ci.nsMsgAuthMethod.GSSAPI);
   Assert.equal(result.incomingAlternatives[4].auth, Ci.nsMsgAuthMethod.NTLM);
   Assert.equal(result.incomingAlternatives.length, 5);
-}
+});
 
-function test_supported_auth_methods_for_outgoing_server() {
+add_task(function test_supported_auth_methods_for_outgoing_server() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -765,9 +758,9 @@ function test_supported_auth_methods_for_outgoing_server() {
   Assert.equal(result.outgoingAlternatives[6].auth, Ci.nsMsgAuthMethod.GSSAPI);
   Assert.equal(result.outgoingAlternatives[7].auth, Ci.nsMsgAuthMethod.NTLM);
   Assert.equal(result.outgoingAlternatives.length, 8);
-}
+});
 
-function test_ews_exchange_config() {
+add_task(function test_ews_exchange_config() {
   const ewsJXON = parseToJXON(`
 <clientConfig version="1.1">
   <emailProvider id="office365.com">
@@ -819,9 +812,9 @@ function test_ews_exchange_config() {
     "https://outlook.office365.com/owa/",
     "OWA URL should be correct."
   );
-}
+});
 
-function test_missing_auth_method_for_incoming_server() {
+add_task(function test_missing_auth_method_for_incoming_server() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -851,9 +844,9 @@ function test_missing_auth_method_for_incoming_server() {
   } catch (e) {
     Assert.equal(e.message, "need proper <authentication> in XML");
   }
-}
+});
 
-function test_missing_auth_method_for_outgoing_server() {
+add_task(function test_missing_auth_method_for_outgoing_server() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -883,9 +876,9 @@ function test_missing_auth_method_for_outgoing_server() {
   } catch (e) {
     Assert.equal(e.message, "need proper <authentication> in XML");
   }
-}
+});
 
-function test_skipping_unsupported_auth_methods() {
+add_task(function test_skipping_unsupported_auth_methods() {
   const configJXON = parseToJXON(`
 <clientConfig>
   <emailProvider id="domain.example">
@@ -916,29 +909,10 @@ function test_skipping_unsupported_auth_methods() {
 
   Assert.equal(result.incoming.auth, Ci.nsMsgAuthMethod.passwordCleartext);
   Assert.equal(result.outgoing.auth, Ci.nsMsgAuthMethod.passwordCleartext);
-}
+});
 
 function parseToJXON(xmlString) {
   const domParser = new DOMParser();
   const xmlDocument = domParser.parseFromString(xmlString, "text/xml");
   return JXON.build(xmlDocument);
-}
-
-function run_test() {
-  test_readFromXML_config1();
-  test_replaceVariables();
-
-  test_unsupported_OAuth_with_alternative_auth();
-  test_unsupported_OAuth_with_alternative_servers();
-  test_unsupported_OAuth_without_alternatives();
-  test_supported_OAuth();
-  test_supported_OAuth_in_alternative_servers();
-
-  test_ews_exchange_config();
-
-  test_supported_auth_methods_for_incoming_server();
-  test_supported_auth_methods_for_outgoing_server();
-  test_missing_auth_method_for_incoming_server();
-  test_missing_auth_method_for_outgoing_server();
-  test_skipping_unsupported_auth_methods();
 }

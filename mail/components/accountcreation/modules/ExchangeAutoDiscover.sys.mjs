@@ -18,7 +18,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 const {
   assert,
-  ddump,
   Exception,
   gAccountSetupLogger,
   getStringBundle,
@@ -690,12 +689,12 @@ function readAddonsJSON(json) {
             ),
           });
         } catch (e) {
-          ddump(e);
+          gAccountSetupLogger.error(e);
         }
       }
       addons.push(addon);
     } catch (e) {
-      ddump(e);
+      gAccountSetupLogger.error(e);
     }
   }
   return addons;

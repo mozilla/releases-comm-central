@@ -243,21 +243,19 @@ export const Sanitizer = {
   },
 };
 
-/**
- * @param {string} msgID - Id for localized string in accountCreationUtil.properties
- * @param {*} uncheckedBadValue
- */
-function MalformedException(msgID, uncheckedBadValue) {
-  var stringBundle = AccountCreationUtils.getStringBundle(
-    "chrome://messenger/locale/accountCreationUtil.properties"
-  );
-  var msg = stringBundle.GetStringFromName(msgID);
-  if (typeof kDebug != "undefined" && kDebug) {
-    msg += " (bad value: " + uncheckedBadValue + ")";
+class MalformedException extends AccountCreationUtils.Exception {
+  /**
+   * @param {string} msgID - Id for localized string in accountCreationUtil.properties
+   * @param {*} uncheckedBadValue
+   */
+  constructor(msgID, uncheckedBadValue) {
+    const stringBundle = AccountCreationUtils.getStringBundle(
+      "chrome://messenger/locale/accountCreationUtil.properties"
+    );
+    let msg = stringBundle.GetStringFromName(msgID);
+    if (typeof kDebug != "undefined" && kDebug) {
+      msg += " (bad value: " + uncheckedBadValue + ")";
+    }
+    super(msg);
   }
-  AccountCreationUtils.Exception.call(this, msg);
 }
-MalformedException.prototype = Object.create(
-  AccountCreationUtils.Exception.prototype
-);
-MalformedException.prototype.constructor = MalformedException;

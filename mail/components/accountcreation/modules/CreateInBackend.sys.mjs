@@ -281,7 +281,10 @@ async function createAccountInBackend(config) {
   try {
     Services.prefs.savePrefFile(null);
   } catch (ex) {
-    lazy.AccountCreationUtils.ddump("Could not write out prefs: " + ex);
+    lazy.AccountCreationUtils.gAccountSetupLogger.warn(
+      "Could not write out prefs:",
+      ex
+    );
   }
   return account;
 }
@@ -446,14 +449,16 @@ function verifyLocalFoldersAccount() {
       try {
         localMailServer = MailServices.accounts.localFoldersServer;
       } catch (ex) {
-        lazy.AccountCreationUtils.ddump(
-          "Error! we should have found the local mail server " +
-            "after we created it."
+        lazy.AccountCreationUtils.gAccountSetupLogger.error(
+          "Error! We should have found the local mail server after we created it."
         );
       }
     }
   } catch (ex) {
-    lazy.AccountCreationUtils.ddump("Error in verifyLocalFoldersAccount " + ex);
+    lazy.AccountCreationUtils.gAccountSetupLogger.error(
+      "Error in verifyLocalFoldersAccount",
+      ex
+    );
   }
 }
 

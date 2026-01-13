@@ -31,6 +31,42 @@ const {
   abortableTimeout,
 } = AccountCreationUtils;
 
+// Constants that follow are not to be used outside this file.
+const kNotTried = 0;
+const kOngoing = 1;
+const kFailed = 2;
+const kSuccess = 3;
+
+// Protocol Types
+const UNKNOWN = -1;
+const IMAP = 0;
+const POP = 1;
+const SMTP = 2;
+
+const IMAP_PORTS = {
+  [Ci.nsMsgSocketType.plain]: 143,
+  [Ci.nsMsgSocketType.alwaysSTARTTLS]: 143,
+  [Ci.nsMsgSocketType.SSL]: 993,
+};
+
+const POP_PORTS = {
+  [Ci.nsMsgSocketType.plain]: 110,
+  [Ci.nsMsgSocketType.alwaysSTARTTLS]: 110,
+  [Ci.nsMsgSocketType.SSL]: 995,
+};
+
+const SMTP_PORTS = {
+  [Ci.nsMsgSocketType.plain]: 587,
+  [Ci.nsMsgSocketType.alwaysSTARTTLS]: 587,
+  [Ci.nsMsgSocketType.SSL]: 465,
+};
+
+const CMDS = {
+  [IMAP]: ["1 CAPABILITY\r\n", "2 LOGOUT\r\n"],
+  [POP]: ["CAPA\r\n", "QUIT\r\n"],
+  [SMTP]: ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"],
+};
+
 /**
  * Try to guess the config, by:
  * - guessing hostnames (pop3.<domain>, pop.<domain>, imap.<domain>,
@@ -74,21 +110,17 @@ async function guessConfig(
     return resultConfig;
   }
 
-  if (!resultConfig) {
-    resultConfig = new lazy.AccountConfig();
-  }
+  resultConfig ??= new lazy.AccountConfig();
   resultConfig.source = lazy.AccountConfig.kSourceGuess;
 
-  if (!which) {
-    which = "both";
-  }
+  which ??= "both";
 
   if (!Services.prefs.getBoolPref("mailnews.auto_config.guess.enabled")) {
     throw new Error("Guessing config disabled per user preference");
   }
 
-  var incomingHostDetector = null;
-  var outgoingHostDetector = null;
+  let incomingHostDetector = null;
+  let outgoingHostDetector = null;
   // If we're offline, we're going to pick the most common settings.
   // (Not the "best" settings, but common).
   if (Services.io.offline) {
@@ -116,7 +148,7 @@ async function guessConfig(
     });
     return resultConfig;
   }
-  var progress = function (thisTry) {
+  const progress = thisTry => {
     progressCallback(
       protocolToString(thisTry.protocol),
       thisTry.hostname,
@@ -127,7 +159,6 @@ async function guessConfig(
     );
   };
 
-  var logger = gAccountSetupLogger;
   const hostTryToAccountServer = (thisTry, server) => {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
@@ -141,7 +172,7 @@ async function guessConfig(
     // Fix SSLErrorHandler and security warning dialog in accountSetup.js.
     server.badCert = thisTry.selfSignedCert;
     server.targetSite = thisTry.targetSite;
-    logger.info(
+    gAccountSetupLogger.info(
       "CHOOSING " +
         server.type +
         " " +
@@ -159,7 +190,7 @@ async function guessConfig(
     );
   };
 
-  var outgoingSuccess = function (thisTry, alternativeTries) {
+  const outgoingSuccess = (thisTry, alternativeTries) => {
     assert(thisTry.protocol == SMTP, "I only know SMTP for outgoing");
     hostTryToAccountServer(thisTry, resultConfig.outgoing);
 
@@ -181,7 +212,7 @@ async function guessConfig(
     );
   };
 
-  var incomingSuccess = function (thisTry, alternativeTries) {
+  const incomingSuccess = (thisTry, alternativeTries) => {
     hostTryToAccountServer(thisTry, resultConfig.incoming);
 
     for (const alternativeTry of alternativeTries) {
@@ -256,13 +287,6 @@ async function guessConfig(
 // --------------
 // Implementation
 
-// Objects, functions and constants that follow are not to be used outside
-// this file.
-var kNotTried = 0;
-var kOngoing = 1;
-var kFailed = 2;
-var kSuccess = 3;
-
 /**
  * Internal object holding one server that we should try or did try.
  * Used as |thisTry|.
@@ -309,11 +333,11 @@ class HostTry {
  * which happened in parallel, this ex is used as param for cancel(), so that
  * the cancel doesn't trigger another callback.
  */
-function CancelOthersException() {
-  CancelledException.call(this, "we're done, cancelling the other probes");
+class CancelOthersException extends CancelledException {
+  constructor() {
+    super("we're done, cancelling the other probes");
+  }
 }
-CancelOthersException.prototype = Object.create(CancelledException.prototype);
-CancelOthersException.prototype.constructor = CancelOthersException;
 
 class HostDetector {
   #abortSignal = null;
@@ -377,7 +401,7 @@ class HostDetector {
     if (!hostIsPrecise) {
       hostIsPrecise = false;
     }
-    var protocol = lazy.Sanitizer.translate(
+    const protocol = lazy.Sanitizer.translate(
       type,
       { imap: IMAP, pop3: POP, smtp: SMTP },
       UNKNOWN
@@ -385,7 +409,7 @@ class HostDetector {
     if (!port) {
       port = UNKNOWN;
     }
-    var ssl_only = Services.prefs.getBoolPref(
+    const sslOnly = Services.prefs.getBoolPref(
       "mailnews.auto_config.guess.sslOnly"
     );
     this._log.info(
@@ -396,7 +420,7 @@ class HostDetector {
 
     // fill this._hostsToTry
     this._hostsToTry = [];
-    var hostnamesToTry = [];
+    let hostnamesToTry = [];
     // if hostIsPrecise is true, it's because that's what the user input
     // explicitly, and we'll just try it, nothing else.
     if (hostIsPrecise) {
@@ -413,9 +437,8 @@ class HostDetector {
         socketType,
         port
       );
-      for (let j = 0; j < hostEntries.length; j++) {
-        const hostTry = hostEntries[j]; // from getHostEntry()
-        if (ssl_only && hostTry.socketType == NONE) {
+      for (const hostTry of hostEntries) {
+        if (sslOnly && hostTry.socketType == Ci.nsMsgSocketType.plain) {
           continue;
         }
         hostTry.hostname = hostname;
@@ -544,7 +567,7 @@ class HostDetector {
       wiredata
     );
     if (
-      thisTry.socketType == STARTTLS &&
+      thisTry.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS &&
       !this._hasSTARTTLS(thisTry, wiredata)
     ) {
       this._log.info(thisTry.desc + ": STARTTLS wanted, but not offered");
@@ -610,12 +633,11 @@ class HostDetector {
   }
 
   _checkFinished() {
-    var successfulTry = null;
-    var successfulTryAlternative = null; // POP3
-    var unfinishedBusiness = false;
+    let successfulTry = null;
+    let successfulTryAlternative = null; // POP3
+    let unfinishedBusiness = false;
     // this._hostsToTry is ordered by decreasing preference
-    for (let i = 0; i < this._hostsToTry.length; i++) {
-      const thisTry = this._hostsToTry[i];
+    for (const thisTry of this._hostsToTry) {
       if (thisTry.status == kNotTried || thisTry.status == kOngoing) {
         unfinishedBusiness = true;
       } else if (thisTry.status == kSuccess && !unfinishedBusiness) {
@@ -639,7 +661,7 @@ class HostDetector {
     } else if (!unfinishedBusiness) {
       // all failed
       this._log.info("ran out of options");
-      var errorMsg = getStringBundle(
+      const errorMsg = getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties"
       ).GetStringFromName("cannot_find_server.error");
       throw new Exception(errorMsg);
@@ -671,9 +693,9 @@ class HostDetector {
     // For SMTP, EHLO will return AUTH and then a list of the
     // mechanism(s) supported, e.g.,
     // AUTH LOGIN NTLM MSN CRAM-MD5 GSSAPI
-    var supported = new Set();
-    var line = capaResponse.join("\n").toUpperCase();
-    var prefix = "";
+    const supported = new Set();
+    const line = capaResponse.join("\n").toUpperCase();
+    let prefix = "";
     if (protocol == POP) {
       prefix = "";
     } else if (protocol == IMAP) {
@@ -707,9 +729,9 @@ class HostDetector {
   }
 
   _hasSTARTTLS(thisTry, wiredata) {
-    var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
+    const capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
     return (
-      thisTry.socketType == STARTTLS &&
+      thisTry.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS &&
       wiredata.join("").toUpperCase().includes(capa)
     );
   }
@@ -732,7 +754,7 @@ function chooseBestAuthMethod(authMethods) {
 
 class IncomingHostDetector extends HostDetector {
   _hostnamesToTry(protocol, domain) {
-    var hostnamesToTry = [];
+    const hostnamesToTry = [];
     if (protocol != POP) {
       hostnamesToTry.push("imap." + domain);
     }
@@ -749,7 +771,7 @@ class IncomingHostDetector extends HostDetector {
 
 class OutgoingHostDetector extends HostDetector {
   _hostnamesToTry(protocol, domain) {
-    var hostnamesToTry = [];
+    const hostnamesToTry = [];
     hostnamesToTry.push("smtp." + domain);
     hostnamesToTry.push("mail." + domain);
     hostnamesToTry.push(domain);
@@ -761,36 +783,6 @@ class OutgoingHostDetector extends HostDetector {
 // ---------------------------------------------
 // Encode protocol ports and order of preference
 
-// Protocol Types
-var UNKNOWN = -1;
-var IMAP = 0;
-var POP = 1;
-var SMTP = 2;
-// Security Types
-var NONE = Ci.nsMsgSocketType.plain;
-var STARTTLS = Ci.nsMsgSocketType.alwaysSTARTTLS;
-var SSL = Ci.nsMsgSocketType.SSL;
-
-var IMAP_PORTS = {};
-IMAP_PORTS[NONE] = 143;
-IMAP_PORTS[STARTTLS] = 143;
-IMAP_PORTS[SSL] = 993;
-
-var POP_PORTS = {};
-POP_PORTS[NONE] = 110;
-POP_PORTS[STARTTLS] = 110;
-POP_PORTS[SSL] = 995;
-
-var SMTP_PORTS = {};
-SMTP_PORTS[NONE] = 587;
-SMTP_PORTS[STARTTLS] = 587;
-SMTP_PORTS[SSL] = 465;
-
-var CMDS = {};
-CMDS[IMAP] = ["1 CAPABILITY\r\n", "2 LOGOUT\r\n"];
-CMDS[POP] = ["CAPA\r\n", "QUIT\r\n"];
-CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
-
 /**
  * Sort by preference of SSL, IMAP etc.
  *
@@ -798,13 +790,19 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
  * @returns {HostTry[]}
  */
 function sortTriesByPreference(tries) {
-  return tries.sort(function (a, b) {
+  return tries.sort((a, b) => {
     // -1 = a is better; 1 = b is better; 0 = equal
     // Prefer SSL/STARTTLS above all else
-    if (a.socketType != NONE && b.socketType == NONE) {
+    if (
+      a.socketType != Ci.nsMsgSocketType.plain &&
+      b.socketType == Ci.nsMsgSocketType.plain
+    ) {
       return -1;
     }
-    if (b.socketType != NONE && a.socketType == NONE) {
+    if (
+      b.socketType != Ci.nsMsgSocketType.plain &&
+      a.socketType == Ci.nsMsgSocketType.plain
+    ) {
       return 1;
     }
     // Prefer IMAP over POP
@@ -815,10 +813,16 @@ function sortTriesByPreference(tries) {
       return 1;
     }
     // Prefer SSL/TLS over STARTTLS
-    if (a.socketType == SSL && b.socketType == STARTTLS) {
+    if (
+      a.socketType == Ci.nsMsgSocketType.SSL &&
+      b.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
+    ) {
       return -1;
     }
-    if (a.socketType == STARTTLS && b.socketType == SSL) {
+    if (
+      a.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS &&
+      b.socketType == Ci.nsMsgSocketType.SSL
+    ) {
       return 1;
     }
     // For hostnames, leave existing sorting, as in _hostnamesToTry()
@@ -835,7 +839,7 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
     [UNKNOWN, IMAP, POP].includes(protocol),
     `need IMAP or POP3 as protocol for incoming, is: ${protocol}`
   );
-  var lowerCaseHost = host.toLowerCase();
+  const lowerCaseHost = host.toLowerCase();
 
   if (
     protocol == UNKNOWN &&
@@ -849,21 +853,21 @@ function getIncomingTryOrder(host, protocol, socketType, port) {
   if (protocol != UNKNOWN) {
     if (socketType == UNKNOWN) {
       return [
-        getHostEntry(protocol, STARTTLS, port),
-        getHostEntry(protocol, SSL, port),
-        getHostEntry(protocol, NONE, port),
+        getHostEntry(protocol, Ci.nsMsgSocketType.alwaysSTARTTLS, port),
+        getHostEntry(protocol, Ci.nsMsgSocketType.SSL, port),
+        getHostEntry(protocol, Ci.nsMsgSocketType.plain, port),
       ];
     }
     return [getHostEntry(protocol, socketType, port)];
   }
   if (socketType == UNKNOWN) {
     return [
-      getHostEntry(IMAP, STARTTLS, port),
-      getHostEntry(IMAP, SSL, port),
-      getHostEntry(POP, STARTTLS, port),
-      getHostEntry(POP, SSL, port),
-      getHostEntry(IMAP, NONE, port),
-      getHostEntry(POP, NONE, port),
+      getHostEntry(IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, port),
+      getHostEntry(IMAP, Ci.nsMsgSocketType.SSL, port),
+      getHostEntry(POP, Ci.nsMsgSocketType.alwaysSTARTTLS, port),
+      getHostEntry(POP, Ci.nsMsgSocketType.SSL, port),
+      getHostEntry(IMAP, Ci.nsMsgSocketType.plain, port),
+      getHostEntry(POP, Ci.nsMsgSocketType.plain, port),
     ];
   }
   return [
@@ -884,24 +888,24 @@ function getOutgoingTryOrder(host, protocol, socketType, port) {
     if (port == UNKNOWN) {
       // neither SSL nor port known
       return [
-        getHostEntry(SMTP, STARTTLS, UNKNOWN),
-        getHostEntry(SMTP, STARTTLS, 25),
-        getHostEntry(SMTP, SSL, UNKNOWN),
-        getHostEntry(SMTP, NONE, UNKNOWN),
-        getHostEntry(SMTP, NONE, 25),
+        getHostEntry(SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, UNKNOWN),
+        getHostEntry(SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, 25),
+        getHostEntry(SMTP, Ci.nsMsgSocketType.SSL, UNKNOWN),
+        getHostEntry(SMTP, Ci.nsMsgSocketType.plain, UNKNOWN),
+        getHostEntry(SMTP, Ci.nsMsgSocketType.plain, 25),
       ];
     }
     // port known, SSL not
     return [
-      getHostEntry(SMTP, STARTTLS, port),
-      getHostEntry(SMTP, SSL, port),
-      getHostEntry(SMTP, NONE, port),
+      getHostEntry(SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, port),
+      getHostEntry(SMTP, Ci.nsMsgSocketType.SSL, port),
+      getHostEntry(SMTP, Ci.nsMsgSocketType.plain, port),
     ];
   }
   // SSL known, port not
   if (port == UNKNOWN) {
-    if (socketType == SSL) {
-      return [getHostEntry(SMTP, SSL, UNKNOWN)];
+    if (socketType == Ci.nsMsgSocketType.SSL) {
+      return [getHostEntry(SMTP, Ci.nsMsgSocketType.SSL, UNKNOWN)];
     }
     return [
       getHostEntry(SMTP, socketType, UNKNOWN),
@@ -935,7 +939,7 @@ function getHostEntry(protocol, socketType, port) {
     }
   }
 
-  var r = new HostTry();
+  const r = new HostTry();
   r.protocol = protocol;
   r.socketType = socketType;
   r.port = port;
@@ -960,20 +964,21 @@ function protocolToString(type) {
   throw new NotReached(`Unexpected protocol; type=${type}`);
 }
 
-/**
- * SSL cert error handler.
- *
- * @param {HostTry} thisTry
- * @param {Console} logger
- */
-function SSLErrorHandler(thisTry, logger) {
-  this._try = thisTry;
-  this._log = logger;
-  // _ gotCertError will be set to an error code (one of those defined in
-  // nsICertOverrideService)
-  this._gotCertError = 0;
-}
-SSLErrorHandler.prototype = {
+class SSLErrorHandler {
+  /**
+   * SSL cert error handler.
+   *
+   * @param {HostTry} thisTry
+   * @param {Console} logger
+   */
+  constructor(thisTry, logger) {
+    this._try = thisTry;
+    this._log = logger;
+    // _ gotCertError will be set to an error code (one of those defined in
+    // nsICertOverrideService)
+    this._gotCertError = 0;
+  }
+
   processCertError(secInfo, targetSite) {
     this._log.error("Got Cert error for " + targetSite);
 
@@ -1048,8 +1053,8 @@ SSLErrorHandler.prototype = {
       .getService(Ci.nsICertOverrideService)
       .rememberValidityOverride(host, port, {}, cert, true); // temporary override
     this._log.warn(`Added temporary override of bad cert for: ${host}:${port}`);
-  },
-};
+  }
+}
 
 // -----------
 // Socket Util
@@ -1091,20 +1096,20 @@ async function socketUtil(
     abortController.signal,
   ]);
 
-  var transportService = Cc[
+  const transportService = Cc[
     "@mozilla.org/network/socket-transport-service;1"
   ].getService(Ci.nsISocketTransportService);
 
   // @see NS_NETWORK_SOCKET_CONTRACTID_PREFIX
-  var socketTypeName;
-  if (socketType == SSL) {
+  let socketTypeName;
+  if (socketType == Ci.nsMsgSocketType.SSL) {
     socketTypeName = ["ssl"];
-  } else if (socketType == STARTTLS) {
+  } else if (socketType == Ci.nsMsgSocketType.alwaysSTARTTLS) {
     socketTypeName = ["starttls"];
   } else {
     socketTypeName = [];
   }
-  var transport = transportService.createTransport(
+  const transport = transportService.createTransport(
     socketTypeName,
     hostname,
     port,
@@ -1123,14 +1128,14 @@ async function socketUtil(
     { once: true }
   );
 
-  var outstream = transport.openOutputStream(0, 0, 0);
-  var stream = transport.openInputStream(0, 0, 0);
-  var instream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+  const outstream = transport.openOutputStream(0, 0, 0);
+  const stream = transport.openInputStream(0, 0, 0);
+  const instream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
   );
   instream.init(stream);
 
-  var dataListener = {
+  const dataListener = {
     data: [],
     onStartRequest() {
       try {
@@ -1220,7 +1225,7 @@ async function socketUtil(
     },
   };
 
-  var pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+  const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
     Ci.nsIInputStreamPump
   );
 
@@ -1251,10 +1256,10 @@ async function doProxy(hostname) {
     "@mozilla.org/network/protocol-proxy-service;1"
   ].getService(Ci.nsIProtocolProxyService);
   // Use some arbitrary scheme just because it is required...
-  var uri = Services.io.newURI("http://" + hostname);
+  const uri = Services.io.newURI("http://" + hostname);
   // ... we'll ignore it any way. We prefer SOCKS since that's the
   // only thing we can use for email protocols.
-  var proxyFlags =
+  let proxyFlags =
     Ci.nsIProtocolProxyService.RESOLVE_IGNORE_URI_SCHEME |
     Ci.nsIProtocolProxyService.RESOLVE_PREFER_SOCKS_PROXY;
   if (Services.prefs.getBoolPref("network.proxy.socks_remote_dns")) {
@@ -1269,9 +1274,6 @@ export const GuessConfig = {
   IMAP,
   POP,
   SMTP,
-  NONE,
-  STARTTLS,
-  SSL,
   getHostEntry,
   getIncomingTryOrder,
   getOutgoingTryOrder,

@@ -255,11 +255,11 @@ export async function fetchHTTP(url, args = {}, isRetry) {
   }
 }
 
-function ServerException(msg, code, uri) {
-  Exception.call(this, msg);
-  this.code = code;
-  this.uri = uri;
-  this.url = uri;
+class ServerException extends Exception {
+  constructor(message, code, uri, cause) {
+    super(message, { cause });
+    this.code = code;
+    this.uri = uri;
+    this.url = uri;
+  }
 }
-ServerException.prototype = Object.create(Exception.prototype);
-ServerException.prototype.constructor = ServerException;

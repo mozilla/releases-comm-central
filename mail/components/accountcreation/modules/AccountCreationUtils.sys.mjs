@@ -31,60 +31,6 @@ function assert(test, errorMsg) {
 }
 
 /**
- * Runs the given function sometime later
- *
- * Currently implemented using setTimeout(), but
- * can later be replaced with an nsITimer impl,
- * when code wants to use it in a module.
- *
- * @see |TimeoutAbortable|
- */
-function runAsync(func) {
-  return setTimeout(func, 0);
-}
-
-/**
- * Reads UTF8 data from a URL.
- *
- * @param {nsIURI} uri - What you want to read.
- * @returns {string[]} the contents of the file, one string per line.
- */
-function readURLasUTF8(uri) {
-  assert(uri instanceof Ci.nsIURI, "uri must be an nsIURI");
-  const chan = Services.io.newChannelFromURI(
-    uri,
-    null,
-    Services.scriptSecurityManager.getSystemPrincipal(),
-    null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER
-  );
-  const is = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
-    Ci.nsIConverterInputStream
-  );
-  is.init(
-    chan.open(),
-    "UTF-8",
-    1024,
-    Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER
-  );
-
-  let content = "";
-  const strOut = {};
-  try {
-    while (is.readString(1024, strOut) != 0) {
-      content += strOut.value;
-    }
-  } finally {
-    is.close();
-  }
-
-  return content;
-  // TODO this has a numeric error message. We need to ship translations
-  // into human language.
-}
-
-/**
  * @param {string} bundleURI - chrome URL to properties file
  * @returns {nsIStringBundle}
  */
@@ -101,42 +47,28 @@ function getStringBundle(bundleURI) {
 // ---------
 // Exception
 
-function Exception(msg) {
-  this._message = msg;
-  this.stack = Components.stack.formattedStack;
-}
-Exception.prototype = {
-  get message() {
-    return this._message;
-  },
-  toString() {
-    return this._message;
-  },
-};
+//TODO remove this class alltogether and just use Errors.
+class Exception extends Error {}
 
-function NotReached(msg) {
-  Exception.call(this, msg); // call super constructor
-  console.error(this);
-}
-// Make NotReached extend Exception.
-NotReached.prototype = Object.create(Exception.prototype);
-NotReached.prototype.constructor = NotReached;
-function CancelledException(msg) {
-  Exception.call(this, msg);
-}
-CancelledException.prototype = Object.create(Exception.prototype);
-CancelledException.prototype.constructor = CancelledException;
-
-function UserCancelledException(msg) {
-  // The user knows they cancelled so I don't see a need
-  // for a message to that effect.
-  if (!msg) {
-    msg = "User cancelled";
+class NotReached extends Exception {
+  constructor(msg) {
+    super(msg); // call super constructor
+    console.error(this);
   }
-  CancelledException.call(this, msg);
 }
-UserCancelledException.prototype = Object.create(CancelledException.prototype);
-UserCancelledException.prototype.constructor = UserCancelledException;
+
+class CancelledException extends Exception {}
+
+class UserCancelledException extends CancelledException {
+  constructor(msg) {
+    // The user knows they cancelled so I don't see a need
+    // for a message to that effect.
+    if (!msg) {
+      msg = "User cancelled";
+    }
+    super(msg);
+  }
+}
 
 // -------------------
 // High level features
@@ -292,9 +224,6 @@ class AddonInstaller {
   };
 }
 
-// ------------
-// Debug output
-
 /**
  * Deep copy method that supports functions (as opposed to JSON based cloning
  * and structuredClone). Only arrays and objects are actually copied, everything
@@ -333,18 +262,6 @@ var gAccountSetupLogger = console.createInstance({
   maxLogLevel: "Warn",
   maxLogLevelPref: "mail.setup.loglevel",
 });
-
-function ddump(text) {
-  gAccountSetupLogger.info(text);
-}
-
-function alertPrompt(alertTitle, alertMsg) {
-  Services.prompt.alert(
-    Services.wm.getMostRecentWindow(""),
-    alertTitle,
-    alertMsg
-  );
-}
 
 /**
  * Resolves with the value of the first promise in the order that they are
@@ -420,18 +337,14 @@ export const AccountCreationUtils = {
   abortableTimeout,
   abortSignalTimeout,
   AddonInstaller,
-  alertPrompt,
   assert,
   CancelledException,
-  ddump,
   deepCopy,
   Exception,
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
   promiseFirstSuccessful,
-  readURLasUTF8,
-  runAsync,
   standardPorts,
   UserCancelledException,
 };

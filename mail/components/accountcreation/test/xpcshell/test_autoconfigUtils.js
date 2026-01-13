@@ -25,9 +25,6 @@ var {
   IMAP,
   POP,
   SMTP,
-  NONE,
-  STARTTLS,
-  SSL,
   getHostEntry,
   getIncomingTryOrder,
   getOutgoingTryOrder,
@@ -37,27 +34,20 @@ var {
  * UTILITIES
  */
 
-function assert_equal(aA, aB, aWhy) {
-  if (aA != aB) {
-    do_throw(aWhy);
-  }
-  Assert.equal(aA, aB);
-}
-
 /**
  * Test that two host entries are the same, ignoring the commands.
  */
 function assert_equal_host_entries(hostEntry, expected) {
-  assert_equal(hostEntry.protocol, expected[0], "Protocols are different");
-  assert_equal(hostEntry.socketType, expected[1], "SSL values are different");
-  assert_equal(hostEntry.port, expected[2], "Port values are different");
+  Assert.equal(hostEntry.protocol, expected[0], "Protocols are different");
+  Assert.equal(hostEntry.socketType, expected[1], "SSL values are different");
+  Assert.equal(hostEntry.port, expected[2], "Port values are different");
 }
 
 /**
  * Assert that the list of tryOrders are the same.
  */
 function assert_equal_try_orders(aA, aB) {
-  assert_equal(aA.length, aB.length, "tryOrders have different length");
+  Assert.equal(aA.length, aB.length, "tryOrders have different length");
   for (const [i, subA] of aA.entries()) {
     const subB = aB[i];
     assert_equal_host_entries(subA, subB);
@@ -73,30 +63,30 @@ function checkPop(host, protocol) {
   // getIncomingTryOrder() in guessConfig.js.
 
   // port == UNKNOWN
-  // [POP, STARTTLS, 110], [POP, SSL, 995], [POP, NONE, 110]
+  // [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, 110], [POP, Ci.nsMsgSocketType.SSL, 995], [POP, NONE, 110]
   // port != UNKNOWN
   // ssl == UNKNOWN
-  // [POP, STARTTLS, port], [POP, SSL, port], [POP, NONE, port]
+  // [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, port], [POP, Ci.nsMsgSocketType.SSL, port], [POP, NONE, port]
   // ssl != UNKNOWN
   // [POP, ssl, port]
   let ssl = UNKNOWN;
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [POP, STARTTLS, 110],
-    [POP, SSL, 995],
-    [POP, NONE, 110],
+    [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, 110],
+    [POP, Ci.nsMsgSocketType.SSL, 995],
+    [POP, Ci.nsMsgSocketType.plain, 110],
   ]);
 
-  ssl = STARTTLS;
+  ssl = Ci.nsMsgSocketType.alwaysSTARTTLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[POP, ssl, 110]]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[POP, ssl, 995]]);
 
-  ssl = NONE;
+  ssl = Ci.nsMsgSocketType.plain;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[POP, ssl, 110]]);
 
@@ -104,12 +94,16 @@ function checkPop(host, protocol) {
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [POP, STARTTLS, port],
-    [POP, SSL, port],
-    [POP, NONE, port],
+    [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, port],
+    [POP, Ci.nsMsgSocketType.SSL, port],
+    [POP, Ci.nsMsgSocketType.plain, port],
   ]);
 
-  for (ssl in [STARTTLS, SSL, NONE]) {
+  for (ssl in [
+    Ci.nsMsgSocketType.alwaysSTARTTLS,
+    Ci.nsMsgSocketType.SSL,
+    Ci.nsMsgSocketType.plain,
+  ]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
     assert_equal_try_orders(tryOrder, [[POP, ssl, port]]);
   }
@@ -124,10 +118,10 @@ function checkImap(host, protocol) {
   // getIncomingTryOrder() in guessConfig.js.
 
   // port == UNKNOWN
-  // [IMAP, STARTTLS, 143], [IMAP, SSL, 993], [IMAP, NONE, 143]
+  // [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, 143], [IMAP, SSL, 993], [IMAP, Ci.nsMsgSocketType.plain, 143]
   // port != UNKNOWN
   // ssl == UNKNOWN
-  // [IMAP, STARTTLS, port], [IMAP, SSL, port], [IMAP, NONE, port]
+  // [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, port], [IMAP, SSL, port], [IMAP, Ci.nsMsgSocketType.plain, port]
   // ssl != UNKNOWN
   // [IMAP, ssl, port];
 
@@ -135,20 +129,20 @@ function checkImap(host, protocol) {
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, STARTTLS, 143],
-    [IMAP, SSL, 993],
-    [IMAP, NONE, 143],
+    [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, 143],
+    [IMAP, Ci.nsMsgSocketType.SSL, 993],
+    [IMAP, Ci.nsMsgSocketType.plain, 143],
   ]);
 
-  ssl = STARTTLS;
+  ssl = Ci.nsMsgSocketType.alwaysSTARTTLS;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[IMAP, ssl, 143]]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[IMAP, ssl, 993]]);
 
-  ssl = NONE;
+  ssl = Ci.nsMsgSocketType.plain;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [[IMAP, ssl, 143]]);
 
@@ -156,12 +150,16 @@ function checkImap(host, protocol) {
   port = 31337;
   tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, STARTTLS, port],
-    [IMAP, SSL, port],
-    [IMAP, NONE, port],
+    [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, port],
+    [IMAP, Ci.nsMsgSocketType.SSL, port],
+    [IMAP, Ci.nsMsgSocketType.plain, port],
   ]);
 
-  for (ssl in [STARTTLS, SSL, NONE]) {
+  for (ssl in [
+    Ci.nsMsgSocketType.alwaysSTARTTLS,
+    Ci.nsMsgSocketType.SSL,
+    Ci.nsMsgSocketType.plain,
+  ]) {
     tryOrder = getIncomingTryOrder(host, protocol, ssl, port);
     assert_equal_try_orders(tryOrder, [[IMAP, ssl, port]]);
   }
@@ -177,47 +175,54 @@ function checkImap(host, protocol) {
  * TODO:
  * - Test the returned commands as well.
  */
-function test_getHostEntry() {
+add_task(function test_getHostEntry() {
   // IMAP port numbers.
-  assert_equal_host_entries(getHostEntry(IMAP, STARTTLS, UNKNOWN), [
-    IMAP,
-    STARTTLS,
-    143,
-  ]);
-  assert_equal_host_entries(getHostEntry(IMAP, SSL, UNKNOWN), [IMAP, SSL, 993]);
-  assert_equal_host_entries(getHostEntry(IMAP, NONE, UNKNOWN), [
-    IMAP,
-    NONE,
-    143,
-  ]);
+  assert_equal_host_entries(
+    getHostEntry(IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, UNKNOWN),
+    [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, 143]
+  );
+  assert_equal_host_entries(
+    getHostEntry(IMAP, Ci.nsMsgSocketType.SSL, UNKNOWN),
+    [IMAP, Ci.nsMsgSocketType.SSL, 993]
+  );
+  assert_equal_host_entries(
+    getHostEntry(IMAP, Ci.nsMsgSocketType.plain, UNKNOWN),
+    [IMAP, Ci.nsMsgSocketType.plain, 143]
+  );
 
   // POP port numbers.
-  assert_equal_host_entries(getHostEntry(POP, STARTTLS, UNKNOWN), [
-    POP,
-    STARTTLS,
-    110,
-  ]);
-  assert_equal_host_entries(getHostEntry(POP, SSL, UNKNOWN), [POP, SSL, 995]);
-  assert_equal_host_entries(getHostEntry(POP, NONE, UNKNOWN), [POP, NONE, 110]);
+  assert_equal_host_entries(
+    getHostEntry(POP, Ci.nsMsgSocketType.alwaysSTARTTLS, UNKNOWN),
+    [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, 110]
+  );
+  assert_equal_host_entries(
+    getHostEntry(POP, Ci.nsMsgSocketType.SSL, UNKNOWN),
+    [POP, Ci.nsMsgSocketType.SSL, 995]
+  );
+  assert_equal_host_entries(
+    getHostEntry(POP, Ci.nsMsgSocketType.plain, UNKNOWN),
+    [POP, Ci.nsMsgSocketType.plain, 110]
+  );
 
   // SMTP port numbers.
-  assert_equal_host_entries(getHostEntry(SMTP, STARTTLS, UNKNOWN), [
-    SMTP,
-    STARTTLS,
-    587,
-  ]);
-  assert_equal_host_entries(getHostEntry(SMTP, SSL, UNKNOWN), [SMTP, SSL, 465]);
-  assert_equal_host_entries(getHostEntry(SMTP, NONE, UNKNOWN), [
-    SMTP,
-    NONE,
-    587,
-  ]);
-}
+  assert_equal_host_entries(
+    getHostEntry(SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, UNKNOWN),
+    [SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, 587]
+  );
+  assert_equal_host_entries(
+    getHostEntry(SMTP, Ci.nsMsgSocketType.SSL, UNKNOWN),
+    [SMTP, Ci.nsMsgSocketType.SSL, 465]
+  );
+  assert_equal_host_entries(
+    getHostEntry(SMTP, Ci.nsMsgSocketType.plain, UNKNOWN),
+    [SMTP, Ci.nsMsgSocketType.plain, 587]
+  );
+});
 
 /**
  * Test the getIncomingTryOrder method.
  */
-function test_getIncomingTryOrder() {
+add_task(function test_getIncomingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getIncomingTryOrder() in guessConfig.js.
 
@@ -238,45 +243,45 @@ function test_getIncomingTryOrder() {
   let port = UNKNOWN;
   let tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, STARTTLS, 143],
-    [IMAP, SSL, 993],
-    [POP, STARTTLS, 110],
-    [POP, SSL, 995],
-    [IMAP, NONE, 143],
-    [POP, NONE, 110],
+    [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, 143],
+    [IMAP, Ci.nsMsgSocketType.SSL, 993],
+    [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, 110],
+    [POP, Ci.nsMsgSocketType.SSL, 995],
+    [IMAP, Ci.nsMsgSocketType.plain, 143],
+    [POP, Ci.nsMsgSocketType.plain, 110],
   ]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, SSL, 993],
-    [POP, SSL, 995],
+    [IMAP, Ci.nsMsgSocketType.SSL, 993],
+    [POP, Ci.nsMsgSocketType.SSL, 995],
   ]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, STARTTLS, port],
-    [IMAP, SSL, port],
-    [POP, STARTTLS, port],
-    [POP, SSL, port],
-    [IMAP, NONE, port],
-    [POP, NONE, port],
+    [IMAP, Ci.nsMsgSocketType.alwaysSTARTTLS, port],
+    [IMAP, Ci.nsMsgSocketType.SSL, port],
+    [POP, Ci.nsMsgSocketType.alwaysSTARTTLS, port],
+    [POP, Ci.nsMsgSocketType.SSL, port],
+    [IMAP, Ci.nsMsgSocketType.plain, port],
+    [POP, Ci.nsMsgSocketType.plain, port],
   ]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [IMAP, SSL, port],
-    [POP, SSL, port],
+    [IMAP, Ci.nsMsgSocketType.SSL, port],
+    [POP, Ci.nsMsgSocketType.SSL, port],
   ]);
-}
+});
 
 /**
  * Test the getOutgoingTryOrder method.
  */
-function test_getOutgoingTryOrder() {
+add_task(function test_getOutgoingTryOrder() {
   // The list of protocol+ssl+port configurations should match
   // getOutgoingTryOrder() in guessConfig.js.
   const domain = "example.com";
@@ -285,33 +290,27 @@ function test_getOutgoingTryOrder() {
   let port = UNKNOWN;
   let tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [SMTP, STARTTLS, 587],
-    [SMTP, STARTTLS, 25],
-    [SMTP, SSL, 465],
-    [SMTP, NONE, 587],
-    [SMTP, NONE, 25],
+    [SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, 587],
+    [SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, 25],
+    [SMTP, Ci.nsMsgSocketType.SSL, 465],
+    [SMTP, Ci.nsMsgSocketType.plain, 587],
+    [SMTP, Ci.nsMsgSocketType.plain, 25],
   ]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder, [[SMTP, SSL, 465]]);
+  assert_equal_try_orders(tryOrder, [[SMTP, Ci.nsMsgSocketType.SSL, 465]]);
 
   ssl = UNKNOWN;
   port = 31337;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
   assert_equal_try_orders(tryOrder, [
-    [SMTP, STARTTLS, port],
-    [SMTP, SSL, port],
-    [SMTP, NONE, port],
+    [SMTP, Ci.nsMsgSocketType.alwaysSTARTTLS, port],
+    [SMTP, Ci.nsMsgSocketType.SSL, port],
+    [SMTP, Ci.nsMsgSocketType.plain, port],
   ]);
 
-  ssl = SSL;
+  ssl = Ci.nsMsgSocketType.SSL;
   tryOrder = getOutgoingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder, [[SMTP, SSL, port]]);
-}
-
-function run_test() {
-  test_getHostEntry();
-  test_getIncomingTryOrder();
-  test_getOutgoingTryOrder();
-}
+  assert_equal_try_orders(tryOrder, [[SMTP, Ci.nsMsgSocketType.SSL, port]]);
+});
