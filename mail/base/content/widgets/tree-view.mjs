@@ -779,7 +779,6 @@ export class TreeView extends HTMLElement {
         this._removeRowAtIndex(index);
       } else {
         row.index = index;
-        this._setRowAriaAttributes(row);
         row.selected = this._selection.isSelected(index);
       }
     } else if (
@@ -1303,7 +1302,6 @@ export class TreeView extends HTMLElement {
 
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
     row.index = index;
-    this._setRowAriaAttributes(row);
     if (fillImmediately) {
       row.fillRow();
     }
@@ -1327,6 +1325,16 @@ export class TreeView extends HTMLElement {
     if (!Services.appinfo.accessibilityEnabled && !Cu.isInAutomation) {
       // Avoid doing any of this (potentially expensive) calculation if
       // there's nothing enabled to use it.
+      return;
+    }
+
+    // If this._view is a `TreeDataAdapter`, we should be able to get the view
+    // row object, and that'll be much faster than the other method below.
+    const viewRow = this._view.rowAt?.(row.index);
+    if (viewRow?.parent) {
+      row.ariaLevel = viewRow.level + 1;
+      row.ariaSetSize = viewRow.parent.children.length;
+      row.ariaPosInSet = viewRow.parent.children.indexOf(viewRow) + 1;
       return;
     }
 
@@ -2744,6 +2752,15 @@ export class TreeViewTableRow extends HTMLTableRowElement {
    */
   static ROW_HEIGHT = 50;
 
+  /**
+   * A `requestAnimationFrame` identifier that fills the table row one frame
+   * after `index` is set.
+   *
+   * @protected
+   * @type {?number}
+   */
+  _animationFrame = null;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -2775,17 +2792,15 @@ export class TreeViewTableRow extends HTMLTableRowElement {
     return this._index;
   }
 
-  #animationFrame = null;
-
   set index(index) {
     this._index = index;
 
     // Wait before filling the row. This setter could be called many times
     // before it even appears on the screen, and calling (potentially very
     // expensive) code each time would be a waste.
-    if (!this.#animationFrame) {
-      this.#animationFrame = requestAnimationFrame(() => {
-        this.#animationFrame = null;
+    if (!this._animationFrame) {
+      this._animationFrame = requestAnimationFrame(() => {
+        this._animationFrame = null;
         // The row may no longer be attached to the tree. Don't waste time
         // filling it in that case.
         if (this.parentNode) {
@@ -2800,11 +2815,12 @@ export class TreeViewTableRow extends HTMLTableRowElement {
    * Subclasses should override this setter and call back to it.
    */
   fillRow() {
-    if (this.#animationFrame) {
-      cancelAnimationFrame(this.#animationFrame);
-      this.#animationFrame = null;
+    if (this._animationFrame) {
+      cancelAnimationFrame(this._animationFrame);
+      this._animationFrame = null;
     }
 
+    this.list._setRowAriaAttributes(this);
     this.setAttribute(
       "role",
       this.list.table.body.getAttribute("role") === "treegrid"

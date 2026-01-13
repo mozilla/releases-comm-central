@@ -421,17 +421,52 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     }
   }
 
+  /**
+   * Fill out the row with content based on the current value of `this._index`.
+   * This overrides the TreeViewTableRow function, but does not call it, to
+   * avoid making multiple expensive calls to the view. Instead one call is
+   * made to `view.rowAt` to collect the view row, and that provides all
+   * needed data. (All `AutoTreeView` views are `TreeDataAdapter` rather than
+   * `nsITreeView`, so this is possible.)
+   */
   fillRow() {
-    super.fillRow();
+    if (this._animationFrame) {
+      cancelAnimationFrame(this._animationFrame);
+      this._animationFrame = null;
+    }
 
     const viewRow = this.view.rowAt(this._index);
-    this.dataset.properties = this.view.getRowProperties(this._index);
+    if (viewRow.parent) {
+      this.ariaLevel = viewRow.level + 1;
+      this.ariaSetSize = viewRow.parent.children.length;
+      this.ariaPosInSet = viewRow.parent.children.indexOf(viewRow) + 1;
+    }
+    this.role = this.list.table.body.role === "treegrid" ? "row" : "option";
+    this.id = `${this.list.id}-row${this._index}`;
+
+    const isGroup = viewRow.children.length > 0;
+    this.classList.toggle("children", isGroup);
+
+    const isGroupOpen = viewRow.open;
+    if (isGroup) {
+      this.setAttribute("aria-expanded", isGroupOpen);
+    } else {
+      this.removeAttribute("aria-expanded");
+    }
+    this.classList.toggle("collapsed", !isGroupOpen);
+
+    this.dataset.properties = [...viewRow.properties].join(" ");
 
     for (const column of this.list.table.columns) {
       const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
       if (column.hidden) {
         cell.hidden = true;
         continue;
+      }
+
+      // Set role as gridcell for keyboard navigation
+      if (this.role == "row") {
+        cell.role = "gridcell";
       }
 
       cell.replaceChildren();
@@ -445,20 +480,19 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
         checkbox.checked = viewRow.hasProperty(column.checkbox);
         checkbox.addEventListener("change", () => {
           viewRow.toggleProperty(column.checkbox, checkbox.checked);
-          this.dataset.properties = this.view.getRowProperties(this._index);
+          this.dataset.properties = [...viewRow.properties].join(" ");
         });
         continue;
       }
 
-      const text = this.view.getCellText(this._index, column.id);
+      const text = viewRow.getText(column.id);
       let container = cell;
       if (column.twisty || column.cellIcon) {
         container = cell.appendChild(document.createElement("div"));
         container.classList.add("container");
       }
       if (column.twisty) {
-        container.style.paddingInlineStart =
-          this.view.getLevel(this._index) * 16 + "px";
+        container.style.paddingInlineStart = viewRow.level * 16 + "px";
         const twistyButton = container.appendChild(
           document.createElement("button")
         );

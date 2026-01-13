@@ -106,6 +106,9 @@ export class TreeDataAdapter {
    * @returns {number} The index of the row (can be used with rowAt) or -1.
    */
   indexOf(row) {
+    if (!row) {
+      return -1;
+    }
     let rowIndex = 0;
     for (const topLevelRow of this._rowMap) {
       if (topLevelRow == row) {

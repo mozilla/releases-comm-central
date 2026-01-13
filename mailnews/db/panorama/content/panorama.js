@@ -8,7 +8,8 @@ const {
   LiveViewGroupedDataAdapter,
   LiveViewThreadedDataAdapter,
 } = ChromeUtils.importESModule(
-  "chrome://messenger/content/LiveViewDataAdapter.mjs"
+  "chrome://messenger/content/LiveViewDataAdapter.mjs",
+  { global: "current" }
 );
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"

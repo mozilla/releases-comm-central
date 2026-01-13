@@ -462,21 +462,40 @@ export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
     liveView.grouping = Ci.nsILiveView.THREADED;
   }
 
-  #getTopLevelRows() {
+  async #getTopLevelRows() {
     const lengthBefore = this.rowCount;
+    this._rowMap.length = 0;
     if (lengthBefore) {
       this._tree?.rowCountChanged(0, -lengthBefore);
     }
-    this.#liveView.selectMessages().then(conversations => {
-      this._rowMap = conversations.map(conversation => {
+
+    const conversations = await this.#liveView.selectMessages();
+    const callback = async () => {
+      let y = 0;
+      for (const conversation of conversations) {
         const row = new LiveViewDataRow(conversation);
         row.liveView = this.#liveView;
         row.threadId = conversation.threadId;
         row.children.length = conversation.messageCount - 1;
-        return row;
+        row.parent = { children: this._rowMap };
+        this._rowMap.push(row);
+        if (globalThis.scheduler && ++y == 250) {
+          // Yield the main thread to maintain responsiveness. But not too often.
+          y = 0;
+          await globalThis.scheduler.yield();
+        }
+      }
+    };
+    if (globalThis.scheduler) {
+      await globalThis.scheduler.postTask(callback, {
+        priority: "user-blocking",
       });
-      this._tree?.rowCountChanged(0, this.rowCount);
-    });
+    } else {
+      // This is an XPCShell test.
+      await callback();
+    }
+
+    this._tree?.rowCountChanged(0, this.rowCount);
   }
 
   sortBy(sortColumn, sortDirection, _resort = false) {
