@@ -33,7 +33,6 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 var {
-  Abortable,
   AddonInstaller,
   alertPrompt,
   assert,
@@ -41,9 +40,8 @@ var {
   Exception,
   gAccountSetupLogger,
   NotReached,
-  ParallelAbortable,
-  PriorityOrderAbortable,
   UserCancelledException,
+  promiseFirstSuccessful,
 } = AccountCreationUtils;
 
 /**
@@ -107,13 +105,12 @@ function onSetupComplete() {
  * Prompt a native HTML confirmation dialog for the Exchange auto discover.
  *
  * @param {string} domain - Text with the question.
- * @param {Function} okCallback - Called when the user clicks OK.
- * @param {function(Error):void} cancelCallback - Called when the user clicks Cancel
- *   or if you call `Abortable.cancel()`.
- * @returns {Abortable} - If `Abortable.cancel()` is called,
+ * @param {string} _protocol
+ * @param {AbortSignal} abortSignal - If the signal indicates an abort,
  *   the dialog is closed and the `cancelCallback()` is called.
+ * @returns {Promise}
  */
-function confirmExchange(domain, okCallback, cancelCallback) {
+function confirmExchange(domain, _protocol, abortSignal) {
   const dialog = document.getElementById("exchangeDialog");
 
   document.l10n.setAttributes(
@@ -124,25 +121,29 @@ function confirmExchange(domain, okCallback, cancelCallback) {
     }
   );
 
+  const { resolve, reject, promise } = Promise.withResolvers();
   document.getElementById("exchangeDialogConfirmButton").onclick = () => {
     dialog.close();
-    okCallback();
+    resolve();
   };
 
   document.getElementById("exchangeDialogCancelButton").onclick = () => {
     dialog.close();
-    cancelCallback(new UserCancelledException());
+    reject(new UserCancelledException());
   };
 
   // Show the dialog.
   dialog.showModal();
 
-  const abortable = new Abortable();
-  abortable.cancel = ex => {
-    dialog.close();
-    cancelCallback(ex);
-  };
-  return abortable;
+  abortSignal.addEventListener(
+    "abort",
+    error => {
+      dialog.close();
+      reject(error);
+    },
+    { once: true }
+  );
+  return promise;
 }
 
 /**
@@ -559,48 +560,114 @@ var gAccountSetup = {
    * Try to find an account configuration for this email address.
    * This is the function which runs the autoconfig.
    */
-  findConfig(domain, emailAddress) {
+  async findConfig(domain, emailAddress) {
     gAccountSetupLogger.debug("findConfig()");
-    if (this._abortable) {
+    if (this._running) {
       this.onStop();
     }
+    this._running = true;
     this.switchToMode("find-config");
     this.startLoadingState("account-setup-looking-up-settings");
+    this._abortable = new AbortController();
 
     // We use several discovery mechanisms running in parallel in order to avoid
     // excess delays if several of them in a row fail to find an appropriate
     // configuration.
-    const discoveryTasks = new ParallelAbortable();
-    this._abortable = discoveryTasks;
 
     // Set up abortable calls before kicking off tasks so that our observer is
     // guaranteed to not miss completion of any of them.
-    const priorityCall = discoveryTasks.addCall();
-    const autodiscoverCall = discoveryTasks.addCall();
 
-    // Wait for both our priority discovery and Autodiscover search to complete
-    // before deciding on a configuration to ensure we get an Exchange config if
-    // one exists.
-    discoveryTasks.addAllFinishedObserver(() => {
+    const priorityAbortController = new AbortController();
+    const priorityAbortSignal = AbortSignal.any([
+      this._abortable.signal,
+      priorityAbortController.signal,
+    ]);
+
+    // We prefer some discovery mechanisms over others to allow for local
+    // configuration and to attempt to favor more up-to-date/accurate configs.
+    // These will be run in parallel for speed, with successful discovery from a
+    // source resulting in all lower-priority sources being cancelled. The
+    // highest-priority mechanism to succeed wins.
+    const priorityQueue = [];
+
+    try {
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Thunderbird installation…"
+      );
+      priorityQueue.push(FetchConfig.fromDisk(domain, priorityAbortSignal));
+
+      gAccountSetupLogger.debug("Looking up configuration: Email provider…");
+      priorityQueue.push(
+        FetchConfig.fromISP(domain, emailAddress, priorityAbortSignal)
+      );
+
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Mozilla ISP database…"
+      );
+      priorityQueue.push(FetchConfig.fromDB(domain, priorityAbortSignal));
+
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Incoming mail domain…"
+      );
+      priorityQueue.push(
+        FetchConfig.forMX(domain, emailAddress, priorityAbortSignal)
+      );
+
+      // Microsoft Autodiscover is outside the priority ordering, as most of
+      // those mechanisms are unlikely to produce an Exchange configuration even
+      // when using Exchange is possible. Autodiscover should always produce an
+      // Exchange config if available, so we want it to always complete.
+      gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
+      const autodiscoverTask = fetchConfigFromExchange(
+        domain,
+        emailAddress,
+        this._abortable.signal,
+        this._exchangeUsername,
+        this._password,
+        confirmExchange
+      ).catch(error => {
+        if (error instanceof CancelledException) {
+          throw error;
+          //TODO allErrors isn't a thing atm
+        } else if (
+          error instanceof AggregateError &&
+          error.errors.some(err => err.code == 401)
+        ) {
+          // Auth failed.
+          throw new ExchangeUsernameException();
+        }
+        throw error;
+      });
+
+      // Wait for both our priority discovery and Autodiscover search to complete
+      // before deciding on a configuration to ensure we get an Exchange config if
+      // one exists.
+      const [priorityCall, autodiscoverCall] = await Promise.allSettled([
+        promiseFirstSuccessful(priorityQueue, priorityAbortController),
+        autodiscoverTask,
+      ]);
       let config;
 
       // All abortable tasks have completed.
       this._abortable = null;
 
-      if (priorityCall.succeeded) {
+      if (priorityCall.status == "fulfilled") {
         // One of the priority-ordered discovery mechanisms has succeeded. If
         // that mechanism did not produce an Exchange configuration and
         // Autodiscover also succeeded, we will add any Exchange configuration
         // it produced as an alternative.
-        config = priorityCall.result;
+        config = priorityCall.value.value;
 
         const hasExchangeConfigAlready = [
           config.incoming,
           ...config.incomingAlternatives,
         ].some(incoming => incoming.type == "exchange");
 
-        if (!hasExchangeConfigAlready && autodiscoverCall.succeeded) {
-          const autodiscoverConfig = autodiscoverCall.result;
+        if (
+          !hasExchangeConfigAlready &&
+          autodiscoverCall.status == "fulfilled"
+        ) {
+          const autodiscoverConfig = autodiscoverCall.value;
 
           const exchangeIncoming = [
             autodiscoverConfig.incoming,
@@ -615,8 +682,8 @@ var gAccountSetup = {
         // None of the priority-ordered mechanisms produced a config. If
         // Autodiscover also produced nothing, we make a best effort to guess a
         // valid configuration.
-        if (!autodiscoverCall.succeeded) {
-          if (autodiscoverCall.e instanceof ExchangeUsernameException) {
+        if (autodiscoverCall.status != "fulfilled") {
+          if (autodiscoverCall.reason instanceof ExchangeUsernameException) {
             this._showExchangeUsername();
             return;
           }
@@ -627,102 +694,17 @@ var gAccountSetup = {
           return;
         }
 
-        config = autodiscoverCall.result;
+        config = autodiscoverCall.value;
       }
 
       this.stopLoadingState(this._getConfigSourceStringName(config));
       this.foundConfig(config);
-    });
-
-    // We prefer some discovery mechanisms over others to allow for local
-    // configuration and to attempt to favor more up-to-date/accurate configs.
-    // These will be run in parallel for speed, with successful discovery from a
-    // source resulting in all lower-priority sources being cancelled. The
-    // highest-priority mechanism to succeed wins.
-    const priorityQueue = new PriorityOrderAbortable(
-      priorityCall.successCallback(),
-      priorityCall.errorCallback()
-    );
-    priorityCall.setAbortable(priorityQueue);
-
-    try {
-      let call = null;
-      let fetch = null;
-
-      call = priorityQueue.addCall();
-      gAccountSetupLogger.debug(
-        "Looking up configuration: Thunderbird installation…"
-      );
-      fetch = FetchConfig.fromDisk(
-        domain,
-        call.successCallback(),
-        call.errorCallback()
-      );
-      call.setAbortable(fetch);
-
-      call = priorityQueue.addCall();
-      gAccountSetupLogger.debug("Looking up configuration: Email provider…");
-      fetch = FetchConfig.fromISP(
-        domain,
-        emailAddress,
-        call.successCallback(),
-        call.errorCallback()
-      );
-      call.setAbortable(fetch);
-
-      call = priorityQueue.addCall();
-      gAccountSetupLogger.debug(
-        "Looking up configuration: Mozilla ISP database…"
-      );
-      fetch = FetchConfig.fromDB(
-        domain,
-        call.successCallback(),
-        call.errorCallback()
-      );
-      call.setAbortable(fetch);
-
-      call = priorityQueue.addCall();
-      gAccountSetupLogger.debug(
-        "Looking up configuration: Incoming mail domain…"
-      );
-      fetch = FetchConfig.forMX(
-        domain,
-        emailAddress,
-        call.successCallback(),
-        call.errorCallback()
-      );
-      call.setAbortable(fetch);
-
-      // Microsoft Autodiscover is outside the priority ordering, as most of
-      // those mechanisms are unlikely to produce an Exchange configuration even
-      // when using Exchange is possible. Autodiscover should always produce an
-      // Exchange config if available, so we want it to always complete.
-      gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
-      const autodiscoverTask = fetchConfigFromExchange(
-        domain,
-        emailAddress,
-        this._exchangeUsername,
-        this._password,
-        confirmExchange,
-        autodiscoverCall.successCallback(),
-        (e, allErrors) => {
-          // Must call error callback in any case to stop the discover mode.
-          const errorCallback = autodiscoverCall.errorCallback();
-          if (e instanceof CancelledException) {
-            errorCallback(e);
-          } else if (allErrors && allErrors.some(err => err.code == 401)) {
-            // Auth failed.
-            errorCallback(new ExchangeUsernameException());
-          } else {
-            errorCallback(e);
-          }
-        }
-      );
-      autodiscoverCall.setAbortable(autodiscoverTask);
     } catch (e) {
       this.onStop();
       // e.g. when entering an invalid domain like "c@c.-com"
       this.showErrorNotification(e, true);
+    } finally {
+      this._running = false;
     }
   },
 
@@ -776,40 +758,39 @@ var gAccountSetup = {
   /**
    * Just a continuation of findConfig()
    */
-  _guessConfig(domain, initialConfig) {
+  async _guessConfig(domain, initialConfig) {
     this.startLoadingState("account-setup-looking-up-settings-guess");
-    const self = this;
-    self._abortable = GuessConfig.guessConfig(
-      domain,
-      function (type, hostname, port, socketType) {
-        // progress
-        gAccountSetupLogger.debug(
-          `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
-        );
-      },
-      function (config) {
-        // success
-        self._abortable = null;
-        self.foundConfig(config);
-        self.stopLoadingState(
-          Services.io.offline
-            ? "account-setup-success-guess-offline"
-            : "account-setup-success-guess"
-        );
-      },
-      function (e) {
-        // guessconfig failed
-        if (e instanceof CancelledException) {
-          return;
-        }
-        self._abortable = null;
-        gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
-        self.showErrorNotification("account-setup-find-settings-failed");
-        self.editConfigDetails();
-      },
-      initialConfig,
-      "both"
-    );
+    this._abortable = new AbortController();
+    try {
+      const config = await GuessConfig.guessConfig(
+        domain,
+        function (type, hostname, port, socketType) {
+          // progress
+          gAccountSetupLogger.debug(
+            `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
+          );
+        },
+        initialConfig,
+        "both",
+        this._abortable.signal
+      );
+      this._abortable = null;
+      this.foundConfig(config);
+      this.stopLoadingState(
+        Services.io.offline
+          ? "account-setup-success-guess-offline"
+          : "account-setup-success-guess"
+      );
+    } catch (error) {
+      // guessconfig failed
+      if (error instanceof CancelledException) {
+        return;
+      }
+      this._abortable = null;
+      gAccountSetupLogger.warn("guessConfig failed:", error);
+      this.showErrorNotification("account-setup-find-settings-failed");
+      this.editConfigDetails();
+    }
   },
 
   /**
@@ -817,7 +798,7 @@ var gAccountSetup = {
    *
    * @param {AccountConfig} config - The config to present to the user.
    */
-  foundConfig(config) {
+  async foundConfig(config) {
     gAccountSetupLogger.debug("found config:\n" + config);
     assert(
       config instanceof AccountConfig,
@@ -836,16 +817,16 @@ var gAccountSetup = {
     this._ewsifyConfig(config);
 
     config.addons = [];
-    const successCallback = () => {
-      this._abortable = null;
-      this.displayConfigResult(config);
-      this.switchToMode("result");
-      this.ensureVisibleButtons();
-    };
-    this._abortable = getAddonsList(config, successCallback, e => {
-      successCallback();
-      this.showErrorNotification(e, true);
-    });
+    this._abortable = new AbortController();
+    try {
+      config = await getAddonsList(config, this._abortable.signal);
+    } catch (error) {
+      this.showErrorNotification(error, true);
+    }
+    this._abortable = null;
+    this.displayConfigResult(config);
+    this.switchToMode("result");
+    this.ensureVisibleButtons();
   },
 
   /**
@@ -904,7 +885,7 @@ var gAccountSetup = {
       throw new NotReached("onStop called although there's nothing to stop");
     }
     gAccountSetupLogger.debug("onStop cancelled _abortable");
-    this._abortable.cancel(new UserCancelledException());
+    this._abortable.abort(new UserCancelledException());
     this._abortable = null;
     this.stopLoadingState();
   },
@@ -1503,8 +1484,9 @@ var gAccountSetup = {
     this.clearNotifications();
     await this.startLoadingState("account-setup-installing-addon");
 
+    this._abortable = new AbortController();
     try {
-      const installer = (this._abortable = new AddonInstaller(addon));
+      const installer = new AddonInstaller(addon, this._abortable);
       await installer.install();
 
       this._abortable = null;
@@ -1522,6 +1504,7 @@ var gAccountSetup = {
       console.error(e);
       this.showErrorNotification(e, true);
       addonInfoArea.hidden = false;
+      this._abortable = null;
     }
   },
 
@@ -2070,35 +2053,35 @@ var gAccountSetup = {
 
     this.switchToMode("manual-edit-testing");
     // if (this._userPickedOutgoingServer) TODO
-    const self = this;
-    this._abortable = GuessConfig.guessConfig(
-      this._domain,
-      function (type, hostname, port) {
-        // Progress.
-        gAccountSetupLogger.debug(
-          `progress callback host: ${hostname}, port: ${port}, type: ${type}`
-        );
-      },
-      function (config) {
-        // Success.
-        self._abortable = null;
-        self._fillManualEditFields(config);
-        self.stopLoadingState("account-setup-success-half-manual");
-        self.validateManualEditComplete();
-      },
-      function (e) {
-        // guessConfig failed.
-        if (e instanceof CancelledException) {
-          return;
-        }
-        self._abortable = null;
-        gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
-        self.showErrorNotification("account-setup-find-settings-failed");
-        self.switchToMode("manual-edit-have-hostname");
-      },
-      newConfig,
-      newConfig.outgoing.existingServerKey ? "incoming" : "both"
-    );
+    this._abortable = new AbortController();
+    try {
+      const config = await GuessConfig.guessConfig(
+        this._domain,
+        function (type, hostname, port) {
+          // Progress.
+          gAccountSetupLogger.debug(
+            `progress callback host: ${hostname}, port: ${port}, type: ${type}`
+          );
+        },
+        newConfig,
+        newConfig.outgoing.existingServerKey ? "incoming" : "both",
+        this._abortable.signal
+      );
+      // Success.
+      this._abortable = null;
+      this._fillManualEditFields(config);
+      this.stopLoadingState("account-setup-success-half-manual");
+      this.validateManualEditComplete();
+    } catch (error) {
+      // guessConfig failed.
+      if (error instanceof CancelledException) {
+        return;
+      }
+      this._abortable = null;
+      gAccountSetupLogger.warn("guessConfig failed:", error);
+      this.showErrorNotification("account-setup-find-settings-failed");
+      this.switchToMode("manual-edit-have-hostname");
+    }
   },
 
   // -------------------
@@ -2205,7 +2188,7 @@ var gAccountSetup = {
 
   checkIfAbortable() {
     if (this._abortable) {
-      this._abortable.cancel(new UserCancelledException());
+      this._abortable.abort(new UserCancelledException());
     }
   },
 

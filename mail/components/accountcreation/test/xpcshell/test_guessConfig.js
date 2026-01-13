@@ -23,7 +23,7 @@ const { createServers, getCertificate, serverDefs } = ServerTestUtils;
 const { GuessConfig, GuessConfigForTests } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/GuessConfig.sys.mjs"
 );
-const { doProxy, HostDetector, SocketUtil, SSLErrorHandler } =
+const { doProxy, HostDetector, socketUtil, SSLErrorHandler } =
   GuessConfigForTests;
 
 const certOverrideService = Cc[
@@ -65,10 +65,10 @@ registerCleanupFunction(function () {
 });
 
 async function callSocketUtil(hostname, port, socketType, commands) {
-  const proxy = await new Promise(resolve => doProxy(hostname, resolve));
-  const { promise, resolve, reject } = Promise.withResolvers();
+  const proxy = await doProxy(hostname);
+  const abortController = new AbortController();
   const sslErrors = {};
-  SocketUtil(
+  const promise = socketUtil(
     hostname,
     port,
     socketType,
@@ -76,8 +76,7 @@ async function callSocketUtil(hostname, port, socketType, commands) {
     10, // timeout
     proxy,
     new SSLErrorHandler(sslErrors, console),
-    resolve,
-    reject
+    abortController.signal
   );
   return { promise, sslErrors };
 }
@@ -446,20 +445,14 @@ async function subtestHostDetector({
   hostnamesToTry,
   portsToTry,
 }) {
-  const { promise, resolve, reject } = Promise.withResolvers();
+  const abortController = new AbortController();
   const detector = new HostDetector(
     function progressCallback() {},
-    function successCallback(result, alts) {
-      resolve({ result, alts });
-    },
-    function errorCallback(exception) {
-      reject(exception);
-    }
+    abortController.signal
   );
   detector._hostnamesToTry = hostnamesToTry;
   detector._portsToTry = portsToTry;
-  detector.start(hostname, false, type, port, socketType, authMethod);
-  return promise;
+  return detector.start(hostname, false, type, port, socketType, authMethod);
 }
 
 async function subtestHostDetectorGivenValues({
@@ -469,7 +462,7 @@ async function subtestHostDetectorGivenValues({
   socketType,
   portsToTry,
 }) {
-  const { result } = await subtestHostDetector({
+  const { successful: result } = await subtestHostDetector({
     hostname,
     type,
     port,
@@ -620,7 +613,7 @@ add_task(async function testHostDetectorGivenValuesSMTPSecure() {
 });
 
 async function subtestHostDetectorAuto(type, portsToTry, expectedPort) {
-  const { result } = await subtestHostDetector({
+  const { successful: result } = await subtestHostDetector({
     type,
     hostnamesToTry(protocol, domain) {
       return [domain];
@@ -671,7 +664,7 @@ async function subtestHostDetectorAlternateHostname(
   portsToTry,
   expectedPort
 ) {
-  const { result, alts } = await subtestHostDetector({
+  const { successful: result, alternative: alts } = await subtestHostDetector({
     type,
     hostnamesToTry(protocol, domain) {
       return [`bad.${domain}`, `alt.${domain}`, domain];
@@ -735,19 +728,15 @@ add_task(async function testHostDetectorAlternateHostnameSMTP() {
  * result for the configured servers.
  */
 add_task(async function testGuessConfig() {
-  const { promise, resolve, reject } = Promise.withResolvers();
-  GuessConfig.guessConfig(
+  const abortController = new AbortController();
+  const accountConfig = await GuessConfig.guessConfig(
     "test.test",
     function progressCallback() {},
-    function successCallback(accountConfig) {
-      resolve(accountConfig);
-    },
-    function errorCallback(exception) {
-      reject(exception);
-    }
+    undefined,
+    "both",
+    abortController.signal
   );
 
-  const accountConfig = await promise;
   const { incoming, incomingAlternatives, outgoing, outgoingAlternatives } =
     accountConfig;
 
@@ -797,19 +786,15 @@ add_task(async function testGuessConfigKnownSubdomains() {
     { ...serverDefs.smtp.tls, hostname: "smtp.test.test" },
   ]);
 
-  const { promise, resolve, reject } = Promise.withResolvers();
-  GuessConfig.guessConfig(
+  const abortController = new AbortController();
+  const accountConfig = await GuessConfig.guessConfig(
     "test.test",
     function progressCallback() {},
-    function successCallback(accountConfig) {
-      resolve(accountConfig);
-    },
-    function errorCallback(exception) {
-      reject(exception);
-    }
+    undefined,
+    "both",
+    abortController.signal
   );
 
-  const accountConfig = await promise;
   const { incoming, incomingAlternatives, outgoing, outgoingAlternatives } =
     accountConfig;
 
@@ -866,19 +851,15 @@ add_task(async function testGuessConfigExpiredCert() {
     false
   );
 
-  const { promise, resolve, reject } = Promise.withResolvers();
-  GuessConfig.guessConfig(
+  const abortController = new AbortController();
+  const accountConfig = await GuessConfig.guessConfig(
     "expired.test.test",
     function progressCallback() {},
-    function successCallback(accountConfig) {
-      resolve(accountConfig);
-    },
-    function errorCallback(exception) {
-      reject(exception);
-    }
+    undefined,
+    undefined,
+    abortController.signal
   );
 
-  const accountConfig = await promise;
   const { incoming, incomingAlternatives, outgoing, outgoingAlternatives } =
     accountConfig;
 

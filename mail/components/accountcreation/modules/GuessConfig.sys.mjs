@@ -20,17 +20,15 @@ XPCOMUtils.defineLazyServiceGetter(
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 const {
-  Abortable,
-  alertPrompt,
   assert,
   CancelledException,
-  ddump,
   deepCopy,
   Exception,
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
-  UserCancelledException,
+  abortSignalTimeout,
+  abortableTimeout,
 } = AccountCreationUtils;
 
 /**
@@ -56,38 +54,24 @@ const {
  *   - done {Boolean} - false, if we start probing this host/port, true if we're
  *       done and the host is good.  (there is no notification when a host is
  *       bad, we'll just tell about the next host tried)
- * @param {function(AccountCofig):void} successCallback - A function {function(config {AccountConfig})}
- *   Called when we could guess the config.
- *   - accountConfig {AccountConfig} The guessed account config.
- *       username, password, realname, emailaddress etc. are not filled out,
- *       but placeholders to be filled out via replaceVariables().
- * @param {function(Error):void} errorCallback - A function(ex)
- *   Called when we could guess not the config, either
- *   because we have not found anything or
- *   because there was an error (e.g. no network connection).
- *   The ex.message will contain a user-presentable message.
  * @param {AccountConfig} [resultConfig] - A config which may be partially
  *   filled in. If so, it will be used as base for the guess.
  * @param {"incoming"|"outgoing"|"both"} [which="both"] - Whether to guess only
  *   the incoming or outgoing server.
- * @returns {Abortable} Allows you to cancel the guess.
+ * @param {AbortSignal} abortSignal
  */
-function guessConfig(
+async function guessConfig(
   domain,
   progressCallback,
-  successCallback,
-  errorCallback,
   resultConfig,
-  which
+  which,
+  abortSignal
 ) {
   assert(typeof progressCallback == "function", "need progressCallback");
-  assert(typeof successCallback == "function", "need successCallback");
-  assert(typeof errorCallback == "function", "need errorCallback");
 
   // Servers that we know enough that they support OAuth2 do not need guessing.
   if (resultConfig?.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
-    successCallback(resultConfig);
-    return new Abortable();
+    return resultConfig;
   }
 
   if (!resultConfig) {
@@ -100,16 +84,11 @@ function guessConfig(
   }
 
   if (!Services.prefs.getBoolPref("mailnews.auto_config.guess.enabled")) {
-    errorCallback("Guessing config disabled per user preference");
-    return new Abortable();
+    throw new Error("Guessing config disabled per user preference");
   }
 
   var incomingHostDetector = null;
   var outgoingHostDetector = null;
-  var incomingEx = null; // if incoming had error, store ex here
-  var outgoingEx = null; // if incoming had error, store ex here
-  var incomingDone = which == "outgoing";
-  var outgoingDone = which == "incoming";
   // If we're offline, we're going to pick the most common settings.
   // (Not the "best" settings, but common).
   if (Services.io.offline) {
@@ -135,8 +114,7 @@ function guessConfig(
       socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
       auth: Ci.nsMsgAuthMethod.passwordCleartext,
     });
-    successCallback(resultConfig);
-    return new Abortable();
+    return resultConfig;
   }
   var progress = function (thisTry) {
     progressCallback(
@@ -149,41 +127,8 @@ function guessConfig(
     );
   };
 
-  var checkDone = function () {
-    if (incomingEx) {
-      try {
-        errorCallback(incomingEx, resultConfig);
-      } catch (e) {
-        console.error(e);
-        alertPrompt("Error in errorCallback for guessConfig()", e);
-      }
-      return;
-    }
-    if (outgoingEx) {
-      try {
-        errorCallback(outgoingEx, resultConfig);
-      } catch (e) {
-        console.error(e);
-        alertPrompt("Error in errorCallback for guessConfig()", e);
-      }
-      return;
-    }
-    if (incomingDone && outgoingDone) {
-      try {
-        successCallback(resultConfig);
-      } catch (e) {
-        try {
-          errorCallback(e);
-        } catch (ex) {
-          console.error(ex);
-          alertPrompt("Error in errorCallback for guessConfig()", ex);
-        }
-      }
-    }
-  };
-
   var logger = gAccountSetupLogger;
-  var HostTryToAccountServer = function (thisTry, server) {
+  const hostTryToAccountServer = (thisTry, server) => {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
     server.port = thisTry.port;
@@ -216,15 +161,12 @@ function guessConfig(
 
   var outgoingSuccess = function (thisTry, alternativeTries) {
     assert(thisTry.protocol == SMTP, "I only know SMTP for outgoing");
-    // Ensure there are no previously saved outgoing errors, if we've got
-    // success here.
-    outgoingEx = null;
-    HostTryToAccountServer(thisTry, resultConfig.outgoing);
+    hostTryToAccountServer(thisTry, resultConfig.outgoing);
 
     for (const alternativeTry of alternativeTries) {
       // resultConfig.createNewOutgoing(); misses username etc., so copy
       const altServer = deepCopy(resultConfig.outgoing);
-      HostTryToAccountServer(alternativeTry, altServer);
+      hostTryToAccountServer(alternativeTry, altServer);
       assert(resultConfig.outgoingAlternatives);
       resultConfig.outgoingAlternatives.push(altServer);
     }
@@ -237,20 +179,15 @@ function guessConfig(
       true,
       resultConfig
     );
-    outgoingDone = true;
-    checkDone();
   };
 
   var incomingSuccess = function (thisTry, alternativeTries) {
-    // Ensure there are no previously saved incoming errors, if we've got
-    // success here.
-    incomingEx = null;
-    HostTryToAccountServer(thisTry, resultConfig.incoming);
+    hostTryToAccountServer(thisTry, resultConfig.incoming);
 
     for (const alternativeTry of alternativeTries) {
       // resultConfig.createNewIncoming(); misses username etc., so copy
       const altServer = deepCopy(resultConfig.incoming);
-      HostTryToAccountServer(alternativeTry, altServer);
+      hostTryToAccountServer(alternativeTry, altServer);
       assert(resultConfig.incomingAlternatives);
       resultConfig.incomingAlternatives.push(altServer);
     }
@@ -263,69 +200,58 @@ function guessConfig(
       true,
       resultConfig
     );
-    incomingDone = true;
-    checkDone();
   };
 
-  var incomingError = function (ex) {
-    incomingEx = ex;
-    checkDone();
-    incomingHostDetector.cancel(new CancelOthersException());
-    outgoingHostDetector.cancel(new CancelOthersException());
-  };
-
-  var outgoingError = function (ex) {
-    outgoingEx = ex;
-    checkDone();
-    incomingHostDetector.cancel(new CancelOthersException());
-    outgoingHostDetector.cancel(new CancelOthersException());
-  };
-
-  incomingHostDetector = new IncomingHostDetector(
-    progress,
-    incomingSuccess,
-    incomingError
-  );
-  outgoingHostDetector = new OutgoingHostDetector(
-    progress,
-    outgoingSuccess,
-    outgoingError
-  );
+  incomingHostDetector = new IncomingHostDetector(progress, abortSignal);
+  outgoingHostDetector = new OutgoingHostDetector(progress, abortSignal);
+  const promises = [];
   if (which == "incoming" || which == "both") {
-    incomingHostDetector.start(
-      resultConfig.incoming.hostname ? resultConfig.incoming.hostname : domain,
-      !!resultConfig.incoming.hostname,
-      resultConfig.incoming.type,
-      resultConfig.incoming.port,
-      resultConfig.incoming.socketType,
-      resultConfig.incoming.auth
+    promises.push(
+      incomingHostDetector
+        .start(
+          resultConfig.incoming.hostname || domain,
+          !!resultConfig.incoming.hostname,
+          resultConfig.incoming.type,
+          resultConfig.incoming.port,
+          resultConfig.incoming.socketType,
+          resultConfig.incoming.auth
+        )
+        .then(({ successful, alternative }) =>
+          incomingSuccess(successful, alternative)
+        )
     );
   }
   if (which == "outgoing" || which == "both") {
-    outgoingHostDetector.start(
-      resultConfig.outgoing.hostname ? resultConfig.outgoing.hostname : domain,
-      !!resultConfig.outgoing.hostname,
-      "smtp",
-      resultConfig.outgoing.port,
-      resultConfig.outgoing.socketType,
-      resultConfig.outgoing.auth
+    promises.push(
+      outgoingHostDetector
+        .start(
+          resultConfig.outgoing.hostname || domain,
+          !!resultConfig.outgoing.hostname,
+          "smtp",
+          resultConfig.outgoing.port,
+          resultConfig.outgoing.socketType,
+          resultConfig.outgoing.auth
+        )
+        .then(({ successful, alternative }) =>
+          outgoingSuccess(successful, alternative)
+        )
     );
   }
 
-  return new GuessAbortable(incomingHostDetector, outgoingHostDetector);
-}
+  if (!promises.length) {
+    return resultConfig;
+  }
 
-function GuessAbortable(incomingHostDetector, outgoingHostDetector) {
-  Abortable.call(this);
-  this._incomingHostDetector = incomingHostDetector;
-  this._outgoingHostDetector = outgoingHostDetector;
+  try {
+    await Promise.all(promises);
+  } catch (error) {
+    incomingHostDetector.cancel(new CancelOthersException());
+    outgoingHostDetector.cancel(new CancelOthersException());
+    throw error;
+  }
+
+  return resultConfig;
 }
-GuessAbortable.prototype = Object.create(Abortable.prototype);
-GuessAbortable.prototype.constructor = GuessAbortable;
-GuessAbortable.prototype.cancel = function (ex) {
-  this._incomingHostDetector.cancel(ex);
-  this._outgoingHostDetector.cancel(ex);
-};
 
 // --------------
 // Implementation
@@ -345,38 +271,38 @@ var kSuccess = 3;
  * and not the same as those used in AccountConfig (type). (fix
  * this)
  */
-function HostTry() {}
-HostTry.prototype = {
+class HostTry {
   /** @type {integer} - IMAP, POP or SMTP */
-  protocol: UNKNOWN,
+  protocol = UNKNOWN;
   /** @type {string} */
-  hostname: undefined,
+  hostname = undefined;
   /** @type {integer} */
-  port: undefined,
+  port = undefined;
   /** @type {nsMsgSocketType} */
-  socketType: UNKNOWN,
+  socketType = UNKNOWN;
   /** @type {string} - What to send to server. */
-  commands: null,
+  commands = null;
   /** @type {integer} - kNotTried, kOngoing, kFailed or kSuccess */
-  status: kNotTried,
-  /** @type {Abortable} - Allows to cancel the socket comm. */
-  abortable: null,
+  status = kNotTried;
+
+  /** @type {?AbortSignal} */
+  signal = null;
 
   /**
    * @type {integer[]}
    * @see _advertisesAuthMethods() result
    * Info about the server, from the protocol and SSL chat.
    */
-  authMethods: null,
+  authMethods = null;
 
   /** @type {boolean} - Whether the SSL cert is not from a proper CA. */
-  selfSignedCert: false,
+  selfSignedCert = false;
   /**
    * @type {string} - If set, this is an SSL error. Which host the SSL cert
    * is made for, if not hostname.
    */
-  targetSite: null,
-};
+  targetSite = null;
+}
 
 /**
  * When the success or errorCallbacks are called to abort the other requests
@@ -389,55 +315,49 @@ function CancelOthersException() {
 CancelOthersException.prototype = Object.create(CancelledException.prototype);
 CancelOthersException.prototype.constructor = CancelOthersException;
 
-/**
- * @param {function(HostTry):void} progressCallback - A function
- *   {function(server {HostTry})}. Called when we tried(will try?) a new
- *   hostname and port.
- * @param {function(Function,Function):void} successCallback - A function
- *   {function(result {HostTry}, alts {Array of HostTry})}
- *    Called when the config is OK
- *    |result| is the most preferred server.
- *    |alts| currently exists only for |IncomingHostDetector| and contains
- *    some servers of the other type (POP3 instead of IMAP), if available.
- * @param {function(Error):void} errorCallback - A function {function(ex)}.
- *   Called when we could not find a config.
- */
-function HostDetector(progressCallback, successCallback, errorCallback) {
-  this.mSuccessCallback = successCallback;
-  this.mProgressCallback = progressCallback;
-  this.mErrorCallback = errorCallback;
-  this._cancel = false;
-  // {Array of {HostTry}}, ordered by decreasing preference
-  this._hostsToTry = [];
+class HostDetector {
+  #abortSignal = null;
+  #abortController = new AbortController();
 
-  // init logging
-  this._log = gAccountSetupLogger;
-  this._log.info("created host detector");
-}
+  /**
+   * @param {function(HostTry):void} progressCallback - A function
+   *   {function(server {HostTry})}. Called when we tried(will try?) a new
+   *   hostname and port.
+   */
+  constructor(progressCallback, abortSignal) {
+    this.mProgressCallback = progressCallback;
+    this._cancel = false;
+    /**
+     * ordered by decreasing preference
+     *
+     * @type {HostTry[]}
+     */
+    this._hostsToTry = [];
 
-HostDetector.prototype = {
+    this.#abortSignal = AbortSignal.any([
+      abortSignal,
+      this.#abortController.signal,
+    ]);
+
+    // init logging
+    this._log = gAccountSetupLogger;
+    this._log.info("created host detector");
+  }
+
   cancel(ex) {
-    this._cancel = true;
+    if (!ex) {
+      ex = new CancelledException();
+    }
+    this.#abortController.abort(ex);
     // We have to actively stop the network calls, as they may result in
     // callbacks e.g. to the cert handler. If the dialog is gone by the time
     // this happens, the javascript stack is horked.
-    for (let i = 0; i < this._hostsToTry.length; i++) {
-      const thisTry = this._hostsToTry[i]; // {HostTry}
-      if (thisTry.abortable) {
-        thisTry.abortable.cancel(ex);
-      }
+    for (const thisTry of this._hostsToTry) {
       if (thisTry.status != kSuccess) {
         thisTry.status = kFailed;
       }
     }
-    if (ex instanceof CancelOthersException) {
-      return;
-    }
-    if (!ex) {
-      ex = new CancelledException();
-    }
-    this.mErrorCallback(ex);
-  },
+  }
 
   /**
    * Start the detection.
@@ -468,7 +388,6 @@ HostDetector.prototype = {
     var ssl_only = Services.prefs.getBoolPref(
       "mailnews.auto_config.guess.sslOnly"
     );
-    this._cancel = false;
     this._log.info(
       `Starting ${protocol} detection on ${
         !hostIsPrecise ? "~ " : ""
@@ -510,92 +429,94 @@ HostDetector.prototype = {
           " " +
           protocolToString(hostTry.protocol);
         hostTry.authMethod = authMethod;
+        hostTry.signal = this.#abortSignal;
         this._hostsToTry.push(hostTry);
       }
     }
 
     this._hostsToTry = sortTriesByPreference(this._hostsToTry);
-    this._tryAll();
-  },
+    return this._tryAll();
+  }
 
   // We make all host/port combinations run in parallel, store their
   // results in an array, and as soon as one finishes successfully and all
   // higher-priority ones have failed, we abort all lower-priority ones.
 
-  _tryAll() {
-    if (this._cancel) {
-      return;
-    }
-    var me = this;
-    var timeout = Services.prefs.getIntPref(
-      "mailnews.auto_config.guess.timeout"
-    );
+  async _tryAll() {
+    this.#abortSignal.throwIfAborted();
     // We assume we'll resolve the same proxy for all tries, and
     // proceed to use the first resolved proxy for all tries. This
     // assumption is generally sound, but not always: mechanisms like
     // the pref network.proxy.no_proxies_on can make imap.domain and
     // pop.domain resolve differently.
-    doProxy(this._hostsToTry[0].hostname, async function (proxy) {
-      for (let i = 0; i < me._hostsToTry.length; i++) {
-        const thisTry = me._hostsToTry[i]; // {HostTry}
-        if (thisTry.status != kNotTried) {
-          continue;
-        }
-        me._log.info(thisTry.desc + ": initializing probe...");
-        if (i == 0) {
-          // showing 50 servers at once is pointless
-          me.mProgressCallback(thisTry);
-        }
-
-        thisTry.abortable = SocketUtil(
-          thisTry.hostname,
-          thisTry.port,
-          thisTry.socketType,
-          thisTry.commands,
-          timeout,
-          proxy,
-          new SSLErrorHandler(thisTry, me._log),
-          function (wiredata) {
-            // result callback
-            if (me._cancel) {
-              // Don't use response anymore.
-              return;
-            }
-            me.mProgressCallback(thisTry);
-            me._processResult(thisTry, wiredata);
-            me._checkFinished();
-          },
-          function (e) {
-            // error callback
-            if (me._cancel) {
-              // Who set cancel to true already called mErrorCallback().
-              return;
-            }
-            me._log.warn(thisTry.desc + ": " + e);
-            thisTry.status = kFailed;
-            me._checkFinished();
-          }
-        );
-        thisTry.status = kOngoing;
-
-        // Pause briefly before testing the next candidate. This is to stop
+    const proxy = await doProxy(this._hostsToTry[0].hostname);
+    this.#abortSignal.throwIfAborted();
+    const timeout = Services.prefs.getIntPref(
+      "mailnews.auto_config.guess.timeout"
+    );
+    const promises = this._hostsToTry.map(async (thisTry, index) => {
+      if (thisTry.status != kNotTried) {
+        return Promise.resolve();
+      }
+      this._log.info(thisTry.desc + ": initializing probe...");
+      if (index == 0) {
+        // showing 50 servers at once is pointless
+        this.mProgressCallback(thisTry);
+      } else {
+        // Stagger testing the next candidate. This is to stop
         // the fake servers failing in a test, but giving the UI a moment
         // to breathe can't hurt.
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await abortableTimeout(index * 100, thisTry.signal);
+      }
+
+      thisTry.status = kOngoing;
+      try {
+        await this.#runTry(thisTry, timeout, proxy);
+        return thisTry;
+      } catch (error) {
+        // error callback
+        if (thisTry.signal.aborted) {
+          // Who set cancel to true already called mErrorCallback().
+          return Promise.resolve();
+        }
+        this._log.warn(thisTry.desc + ":", error);
+        thisTry.status = kFailed;
+        throw new Error("Try failed.", { cause: error });
       }
     });
-  },
+    // Wait for promises to resolve in order, returning as soon as one
+    // satisfies the finish requirements. This is different from what
+    // promiseFirstSuccessful implements, since _checkFinished might want more
+    // than one successful result.
+    for (const promise of promises) {
+      try {
+        await promise;
+        this.#abortSignal.throwIfAborted();
+        // Consume the rejections
+        Promise.allSettled(promises);
+        const result = this._checkFinished();
+        this.cancel(new Error("No longer needed"));
+        return result;
+      } catch {
+        continue;
+      }
+    }
+    this.#abortSignal.throwIfAborted();
+    // If we get here all attempts probably failed.
+    return this._checkFinished();
+  }
 
   /**
    * @param {HostTry} thisTry
    * @param {string[]} wiredata - What the server returned in response to our protocol chat.
+   * @returns {boolean} True if the try should be re-run
    */
   _processResult(thisTry, wiredata) {
     if (thisTry._gotCertError) {
       if (thisTry._gotCertError == "ERROR_MISMATCH") {
         thisTry._gotCertError = 0;
         thisTry.status = kFailed;
-        return;
+        return false;
       }
 
       if (
@@ -608,15 +529,14 @@ HostDetector.prototype = {
         thisTry._gotCertError = 0;
         thisTry.selfSignedCert = true; // _next_ run gets this exception
         thisTry.status = kNotTried; // try again (with exception)
-        this._tryAll();
-        return;
+        return true;
       }
     }
 
     if (wiredata == null || wiredata === undefined) {
       this._log.info(thisTry.desc + ": no data");
       thisTry.status = kFailed;
-      return;
+      return false;
     }
     this._log.info(thisTry.desc + ": wiredata: " + wiredata.join(""));
     thisTry.authMethods = this._advertisesAuthMethods(
@@ -629,7 +549,7 @@ HostDetector.prototype = {
     ) {
       this._log.info(thisTry.desc + ": STARTTLS wanted, but not offered");
       thisTry.status = kFailed;
-      return;
+      return false;
     }
     this._log.info(
       thisTry.desc +
@@ -651,7 +571,43 @@ HostDetector.prototype = {
         .getService(Ci.nsICertOverrideService)
         .clearValidityOverride(thisTry.hostname, thisTry.port, {});
     }
-  },
+    return false;
+  }
+
+  /**
+   * Execute a try. Will re-try if _processResult asks for it.
+   *
+   * @param {HostTry} thisTry - The try to attempt.
+   * @param {number} timeout - Timeout before aborting the request.
+   * @param {nsIProxyInfo} proxy - Proxy config for the request.
+   * @param {number} [runNumber = 0] - Retry counter.
+   */
+  async #runTry(thisTry, timeout, proxy, runNumber = 0) {
+    const wiredata = await socketUtil(
+      thisTry.hostname,
+      thisTry.port,
+      thisTry.socketType,
+      thisTry.commands,
+      timeout,
+      proxy,
+      new SSLErrorHandler(thisTry, this._log),
+      thisTry.signal
+    );
+    // result callback
+    if (thisTry.signal.aborted) {
+      // Don't use response anymore.
+      return;
+    }
+    this.mProgressCallback(thisTry);
+    const retry = this._processResult(thisTry, wiredata);
+    // Only retry once.
+    if (retry && runNumber < 1) {
+      await this.#runTry(thisTry, timeout, proxy, runNumber + 1);
+    }
+    if (thisTry.status != kSuccess) {
+      throw new Error("Try failed with " + thisTry.status);
+    }
+  }
 
   _checkFinished() {
     var successfulTry = null;
@@ -676,22 +632,24 @@ HostDetector.prototype = {
       }
     }
     if (successfulTry && (successfulTryAlternative || !unfinishedBusiness)) {
-      this.mSuccessCallback(
-        successfulTry,
-        successfulTryAlternative ? [successfulTryAlternative] : []
-      );
-      this.cancel(new CancelOthersException());
+      return {
+        successful: successfulTry,
+        alternative: successfulTryAlternative ? [successfulTryAlternative] : [],
+      };
     } else if (!unfinishedBusiness) {
       // all failed
       this._log.info("ran out of options");
       var errorMsg = getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties"
       ).GetStringFromName("cannot_find_server.error");
-      this.mErrorCallback(new Exception(errorMsg));
+      throw new Exception(errorMsg);
       // no need to cancel, all failed
+    } else if (!this.#abortSignal.aborted) {
+      throw new Error("Need more try results");
     }
-    // else let ongoing calls continue
-  },
+    // Pretend everything is fine if we aborted.
+    return {};
+  }
 
   /**
    * Which auth mechanism the server claims to support.
@@ -746,7 +704,7 @@ HostDetector.prototype = {
     }
     // The array elements will be in the Set's order of addition.
     return Array.from(supported);
-  },
+  }
 
   _hasSTARTTLS(thisTry, wiredata) {
     var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
@@ -754,8 +712,8 @@ HostDetector.prototype = {
       thisTry.socketType == STARTTLS &&
       wiredata.join("").toUpperCase().includes(capa)
     );
-  },
-};
+  }
+}
 
 /**
  * @param {nsMsgAuthMethod[]} authMethods - Authentication methods to choose from.
@@ -772,15 +730,7 @@ function chooseBestAuthMethod(authMethods) {
   return authMethods.shift(); // take first (= most preferred)
 }
 
-function IncomingHostDetector(
-  progressCallback,
-  successCallback,
-  errorCallback
-) {
-  HostDetector.call(this, progressCallback, successCallback, errorCallback);
-}
-IncomingHostDetector.prototype = {
-  __proto__: HostDetector.prototype,
+class IncomingHostDetector extends HostDetector {
   _hostnamesToTry(protocol, domain) {
     var hostnamesToTry = [];
     if (protocol != POP) {
@@ -793,28 +743,20 @@ IncomingHostDetector.prototype = {
     hostnamesToTry.push("mail." + domain);
     hostnamesToTry.push(domain);
     return hostnamesToTry;
-  },
-  _portsToTry: getIncomingTryOrder,
-};
-
-function OutgoingHostDetector(
-  progressCallback,
-  successCallback,
-  errorCallback
-) {
-  HostDetector.call(this, progressCallback, successCallback, errorCallback);
+  }
+  _portsToTry = getIncomingTryOrder;
 }
-OutgoingHostDetector.prototype = {
-  __proto__: HostDetector.prototype,
+
+class OutgoingHostDetector extends HostDetector {
   _hostnamesToTry(protocol, domain) {
     var hostnamesToTry = [];
     hostnamesToTry.push("smtp." + domain);
     hostnamesToTry.push("mail." + domain);
     hostnamesToTry.push(domain);
     return hostnamesToTry;
-  },
-  _portsToTry: getOutgoingTryOrder,
-};
+  }
+  _portsToTry = getOutgoingTryOrder;
+}
 
 // ---------------------------------------------
 // Encode protocol ports and order of preference
@@ -1120,12 +1062,9 @@ SSLErrorHandler.prototype = {
  * @param {integer} timeout - Seconds to wait for a server response, then cancel.
  * @param {?nsIProxyInfo} proxy - The proxy to use (or null to not use any).
  * @param {SSLErrorHandler} sslErrorHandler
- * @param {function(?string):void} resultCallback - This function will
- *   be called with the result string array from the server
- *   or null if no communication occurred.
- * @param {function(Error):void} errorCallback
+ * @param {AbortSignal} abortSignal
  */
-function SocketUtil(
+async function socketUtil(
   hostname,
   port,
   socketType,
@@ -1133,37 +1072,24 @@ function SocketUtil(
   timeout,
   proxy,
   sslErrorHandler,
-  resultCallback,
-  errorCallback
+  abortSignal
 ) {
   assert(commands && commands.length, "need commands");
 
-  var index = 0; // commands[index] is next to send to server
-  var initialized = false;
-  var aborted = false;
+  let index = 0; // commands[index] is next to send to server
 
-  function _error(e) {
-    if (aborted) {
-      return;
-    }
-    aborted = true;
-    errorCallback(e);
-  }
+  const promiseResolvers = Promise.withResolvers();
+  const abortController = new AbortController();
 
-  function timeoutFunc() {
-    if (!initialized) {
-      _error("timeout");
-    }
-  }
-
-  // In case DNS takes too long or does not resolve or another blocking
-  // issue occurs before the timeout can be set on the socket, this
-  // ensures that the listener callback will be fired in a timely manner.
-  // XXX There might to be some clean up needed after the timeout is fired
-  // for socket and io resources.
-
-  // The timeout value plus 2 seconds
-  setTimeout(timeoutFunc, timeout * 1000 + 2000);
+  const signal = AbortSignal.any([
+    // In case DNS takes too long or does not resolve or another blocking
+    // issue occurs before the timeout can be set on the socket, this
+    // ensures that the listener callback will be fired in a timely manner.
+    // The timeout value plus 2 seconds
+    abortSignalTimeout(timeout * 1000 + 2000),
+    abortSignal,
+    abortController.signal,
+  ]);
 
   var transportService = Cc[
     "@mozilla.org/network/socket-transport-service;1"
@@ -1189,6 +1115,14 @@ function SocketUtil(
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, timeout);
 
+  signal.addEventListener(
+    "abort",
+    () => {
+      transport.close(Cr.NS_ERROR_ABORT);
+    },
+    { once: true }
+  );
+
   var outstream = transport.openOutputStream(0, 0, 0);
   var stream = transport.openInputStream(0, 0, 0);
   var instream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
@@ -1200,14 +1134,14 @@ function SocketUtil(
     data: [],
     onStartRequest() {
       try {
-        initialized = true;
-        if (!aborted) {
+        if (!signal.aborted) {
           // Send the first request
           const outputData = commands[index++];
           outstream.write(outputData, outputData.length);
         }
-      } catch (e) {
-        _error(e);
+      } catch (error) {
+        abortController.abort(error);
+        promiseResolvers.reject(error);
       }
     },
     async onStopRequest(request, status) {
@@ -1258,14 +1192,15 @@ function SocketUtil(
             status
           );
         }
-        resultCallback(this.data.length ? this.data : null);
-      } catch (e) {
-        _error(e);
+        promiseResolvers.resolve(this.data.length ? this.data : null);
+      } catch (error) {
+        abortController.abort(error);
+        promiseResolvers.reject(error);
       }
     },
     onDataAvailable(request, inputStream, offset, count) {
       try {
-        if (!aborted) {
+        if (!signal.aborted) {
           const inputData = instream.read(count);
           this.data.push(inputData);
           if (index < commands.length) {
@@ -1278,62 +1213,41 @@ function SocketUtil(
             setTimeout(() => transport.close(Cr.NS_OK), 500);
           }
         }
-      } catch (e) {
-        _error(e);
+      } catch (error) {
+        abortController.abort(error);
+        promiseResolvers.reject(error);
       }
     },
   };
 
-  try {
-    var pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
-      Ci.nsIInputStreamPump
-    );
+  var pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+    Ci.nsIInputStreamPump
+  );
 
-    pump.init(stream, 0, 0, false);
-    pump.asyncRead(dataListener);
-    return new SocketAbortable(transport);
-  } catch (e) {
-    _error(e);
-  }
-  return null;
-}
+  pump.init(stream, 0, 0, false);
+  pump.asyncRead(dataListener);
 
-function SocketAbortable(transport) {
-  Abortable.call(this);
-  assert(transport instanceof Ci.nsITransport, "need transport");
-  this._transport = transport;
+  return promiseResolvers.promise;
 }
-SocketAbortable.prototype = Object.create(Abortable.prototype);
-SocketAbortable.prototype.constructor = UserCancelledException;
-SocketAbortable.prototype.cancel = function () {
-  try {
-    this._transport.close(Cr.NS_ERROR_ABORT);
-  } catch (e) {
-    ddump("canceling socket failed: " + e);
-  }
-};
 
 /**
  * Resolve a proxy for some domain and expose it via a callback.
  *
  * @param {string} hostname - The hostname which a proxy will be resolved for
- * @param {function(?nsIProxyInfo):void} resultCallback - Called after the proxy
- *   has been resolved for hostname with the resolved proxy, or null if none
- *   were found for hostname.
  */
-function doProxy(hostname, resultCallback) {
-  // This implements the nsIProtocolProxyCallback interface:
-  function ProxyResolveCallback() {}
-  ProxyResolveCallback.prototype = {
+async function doProxy(hostname) {
+  /** @implements {nsIProtocolProxyCallback} */
+  const promiseWithResolvers = Promise.withResolvers();
+  const proxyResolveCallback = {
     onProxyAvailable(req, uri, proxy) {
       // Anything but a SOCKS proxy will be unusable for email.
       if (proxy != null && proxy.type != "socks" && proxy.type != "socks4") {
         proxy = null;
       }
-      resultCallback(proxy);
+      promiseWithResolvers.resolve(proxy);
     },
   };
-  var proxyService = Cc[
+  const proxyService = Cc[
     "@mozilla.org/network/protocol-proxy-service;1"
   ].getService(Ci.nsIProtocolProxyService);
   // Use some arbitrary scheme just because it is required...
@@ -1346,7 +1260,8 @@ function doProxy(hostname, resultCallback) {
   if (Services.prefs.getBoolPref("network.proxy.socks_remote_dns")) {
     proxyFlags |= Ci.nsIProtocolProxyService.RESOLVE_ALWAYS_TUNNEL;
   }
-  proxyService.asyncResolve(uri, proxyFlags, new ProxyResolveCallback());
+  proxyService.asyncResolve(uri, proxyFlags, proxyResolveCallback);
+  return promiseWithResolvers.promise;
 }
 
 export const GuessConfig = {
@@ -1366,6 +1281,6 @@ export const GuessConfig = {
 export const GuessConfigForTests = {
   doProxy,
   HostDetector,
-  SocketUtil,
+  socketUtil,
   SSLErrorHandler,
 };

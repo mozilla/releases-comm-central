@@ -4,6 +4,8 @@ prefs = ["mail.setup.loglevel=Debug"]
 
 ["test_accountConfig.js"]
 
+["test_accountCreationUtils.js"]
+
 ["test_autoconfigUtils.js"]
 
 ["test_autoconfigXML.js"]

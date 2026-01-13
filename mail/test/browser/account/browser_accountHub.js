@@ -407,7 +407,7 @@ add_task(async function test_cancel_finding_config() {
   Assert.equal(
     document.l10n.getAttributes(footerBack).id,
     "account-hub-email-cancel-button",
-    "Should cancel text on the back button."
+    "Should show cancel text on the back button."
   );
 
   // Clicking cancel should stop loading and hide the back button again.

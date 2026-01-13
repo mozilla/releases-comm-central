@@ -13,6 +13,9 @@ const { HttpsProxy } = ChromeUtils.importESModule(
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
+const { MailStringUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailStringUtils.sys.mjs"
+);
 
 requestLongerTimeout(4);
 
@@ -20,7 +23,7 @@ const PASSWORD = "hunter2";
 const USER = "testExchange@exchange.test";
 // Encoding matches what FetchHTTP.sys.mjs uses.
 const BASIC_AUTH = btoa(
-  String.fromCharCode(...new TextEncoder().encode(`${USER}:${PASSWORD}`))
+  MailStringUtils.stringToByteString(`${USER}:${PASSWORD}`)
 );
 const emailUser = {
   name: "John Doe",

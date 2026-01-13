@@ -12,10 +12,6 @@ const { FindConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FindConfig.sys.mjs"
 );
 
-const { AccountCreationUtils } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
-);
-
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );
@@ -30,8 +26,6 @@ const { AccountConfig } = ChromeUtils.importESModule(
 const { HttpsProxy } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
 );
-
-const { Abortable, SuccessiveAbortable } = AccountCreationUtils;
 
 let server;
 
@@ -63,11 +57,11 @@ add_task(async function testFindConfigFound() {
     do_get_file("data/basic.imap.test.xml")
   );
 
-  const abortable = new SuccessiveAbortable();
+  const abortable = new AbortController();
   const discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "imap.test",
-    "yamatoo.nadeshiko@imap.test"
+    "yamatoo.nadeshiko@imap.test",
+    abortable.signal
   );
 
   const { value: config } = await discoveryStream.next();
@@ -110,11 +104,11 @@ add_task(async function testFindConfigNotFound() {
     do_get_file("data/basic.imap.test.xml")
   );
 
-  const abortable = new SuccessiveAbortable();
+  const abortable = new AbortController();
   const discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "imap.testtt",
-    "yamatoo.nadeshiko@imap.testtt"
+    "yamatoo.nadeshiko@imap.testtt",
+    abortable.signal
   );
 
   const { value: config } = await discoveryStream.next();
@@ -152,11 +146,11 @@ add_task(async function testFindConfigExchange() {
     do_get_file("data/exchange.test.xml")
   );
 
-  const abortable = new SuccessiveAbortable();
+  const abortable = new AbortController();
   const discoveryStream = await FindConfig.parallelAutoDiscovery(
-    abortable,
     "exchange.test",
-    "testExchange@exchange.test"
+    "testExchange@exchange.test",
+    abortable.signal
   );
 
   const { value: config } = await discoveryStream.next();
@@ -236,9 +230,13 @@ add_task(async function testFindConfigExchangeAuthRequired() {
     }
   );
 
-  let abortable = new SuccessiveAbortable();
+  let abortable = new AbortController();
   await Assert.rejects(
-    FindConfig.parallelAutoDiscovery(abortable, "exchange.test", user).next(),
+    FindConfig.parallelAutoDiscovery(
+      "exchange.test",
+      user,
+      abortable.signal
+    ).next(),
     error =>
       error.message === "Exchange auth error" &&
       error.cause.fluentTitleId === "account-setup-credentials-wrong",
@@ -246,11 +244,11 @@ add_task(async function testFindConfigExchangeAuthRequired() {
   );
 
   expectSuccess = true;
-  abortable = new SuccessiveAbortable();
+  abortable = new AbortController();
   const discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "exchange.test",
     user,
+    abortable.signal,
     password
   );
 
@@ -315,13 +313,13 @@ add_task(async function testFindConfigExchangeWithUsername() {
     }
   );
 
-  const abortable = new SuccessiveAbortable();
+  const abortable = new AbortController();
 
   await Assert.rejects(
     FindConfig.parallelAutoDiscovery(
-      abortable,
       "exchange.test",
       "testExchange@exchange.test",
+      abortable.signal,
       password
     ).next(),
     error =>
@@ -332,9 +330,9 @@ add_task(async function testFindConfigExchangeWithUsername() {
 
   expectSuccess = true;
   const discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "exchange.test",
     "testExchange@exchange.test",
+    abortable.signal,
     password,
     user
   );
@@ -413,11 +411,11 @@ add_task(async function testFindConfigExchangeFromRedirect() {
     }
   );
 
-  const abortable = new SuccessiveAbortable();
+  const abortable = new AbortController();
   let discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "exchange.test",
-    user
+    user,
+    abortable.signal
   );
 
   let config;
@@ -441,9 +439,9 @@ add_task(async function testFindConfigExchangeFromRedirect() {
 
   // Trying again by accepting the redirect should return a config.
   discoveryStream = FindConfig.parallelAutoDiscovery(
-    abortable,
     "exchange.test",
-    user
+    user,
+    abortable.signal
   );
   ({ value: config } = await discoveryStream.next());
 

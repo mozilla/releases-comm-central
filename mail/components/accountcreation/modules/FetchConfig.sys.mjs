@@ -6,7 +6,7 @@ import { AccountCreationUtils } from "resource:///modules/accountcreation/Accoun
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
+  fetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
   readFromXML: "resource:///modules/accountcreation/readFromXML.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
@@ -15,64 +15,36 @@ import { DNS } from "resource:///modules/DNS.sys.mjs";
 
 import { JXON } from "resource:///modules/JXON.sys.mjs";
 
-const {
-  Abortable,
-  ddump,
-  Exception,
-  PriorityOrderAbortable,
-  PromiseAbortable,
-  readURLasUTF8,
-  runAsync,
-  SuccessiveAbortable,
-  TimeoutAbortable,
-} = AccountCreationUtils;
-
-/**
- * A callback that will be called when a configuration was retrieved and
- * parsed successfully.
- *
- * @callback SuccessCallback
- * @param {AccountConfig} config - The AccountConfig object.
- */
-
-/**
- * A callback that will be called when there was an error while retrieving
- * or parsing the configuration.
- *
- * This is expected (e.g. when there's no config for a domain at the checked
- * location). So do not unconditionally show this to the user.
- *
- * @callback ErrorCallback
- * @param {Error|string} error - An Error instance or error string.
- */
+const { Exception, gAccountSetupLogger, promiseFirstSuccessful } =
+  AccountCreationUtils;
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
  * application install directory's "isp" subdirectory.
- * Params @see fetchConfigFromISP()
+ *
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the operation.
+ * @returns {AccountConfig} The account config.
+ * @throws {Error} If no config is found.
  */
-function fetchConfigFromDisk(domain, successCallback, errorCallback) {
-  return new TimeoutAbortable(
-    runAsync(function () {
-      try {
-        // <TB installdir>/isp/example.com.xml
-        var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
-        configLocation.append("isp");
-        configLocation.append(lazy.Sanitizer.hostname(domain) + ".xml");
+async function fetchConfigFromDisk(domain, abortSignal) {
+  // <TB installdir>/isp/example.com.xml
+  var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
+  configLocation.append("isp");
+  configLocation.append(lazy.Sanitizer.hostname(domain) + ".xml");
 
-        if (!configLocation.exists() || !configLocation.isReadable()) {
-          errorCallback(new Exception("local file not found"));
-          return;
-        }
-        var contents = readURLasUTF8(Services.io.newFileURI(configLocation));
-        const domParser = new DOMParser();
-        const xml = JXON.build(domParser.parseFromString(contents, "text/xml"));
-        successCallback(lazy.readFromXML(xml, "disk"));
-      } catch (e) {
-        errorCallback(e);
-      }
-    })
-  );
+  if (
+    !(await IOUtils.exists(configLocation.path)) ||
+    !configLocation.isReadable()
+  ) {
+    throw new Exception("local file not found");
+  }
+  abortSignal.throwIfAborted();
+  var contents = await IOUtils.readUTF8(configLocation.path);
+  abortSignal.throwIfAborted();
+  const domParser = new DOMParser();
+  const xml = JXON.build(domParser.parseFromString(contents, "text/xml"));
+  return lazy.readFromXML(xml, "disk");
 }
 
 /**
@@ -83,24 +55,13 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
  *   rely on insecure DNS and http, which means the results may be
  *   forged when under attack. The same is true for guessConfig(), though.
  *
- * @param {string} domain - The domain part of the user's email address
- * @param {string} emailAddress - The user's email address
- * @param {function(AccountConfig):void} successCallback - A callback that
- *   will be called when we could retrieve a configuration.
- *   The AccountConfig object will be passed in as first parameter.
- * @param {function(Error):void} errorCallback - A callback that
- *   will be called when we could not retrieve a configuration,
- *   for whatever reason. This is expected (e.g. when there's no config
- *   for this domain at this location),
- *   so do not unconditionally show this to the user.
- *   The first parameter will be an exception object or error string.
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {string} emailAddress - The user's email address.
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the operation.
+ * @returns {AccountConfig} The account config.
+ * @throws {Error} If no config is found.
  */
-function fetchConfigFromISP(
-  domain,
-  emailAddress,
-  successCallback,
-  errorCallback
-) {
+async function fetchConfigFromISP(domain, emailAddress, abortSignal) {
   const httpsOnly = Services.prefs.getBoolPref(
     "mailnews.auto_config.fetchFromISP.sslOnly"
   );
@@ -109,8 +70,7 @@ function fetchConfigFromISP(
     emailAddress,
     httpsOnly,
     true, // useOptionalUrl
-    successCallback,
-    errorCallback
+    abortSignal
   );
 }
 
@@ -123,26 +83,21 @@ function fetchConfigFromISP(
  *   autoconfig URLs.
  * @param {boolean} useOptionalUrl - If false, the /.well-known URLs will be
  *   skipped when checking for a configuration.
- * @param {SuccessCallback} successCallback - Will be called when a valid
- *   config was successfully retrieved.
- * @param {ErrorCallback} errorCallback - Will be called when no valid config
- *   could be retrieved.
- *
- * @returns {Abortable} - A handle for this async operation which you can cancel.
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the operation.
+ * @returns {AccountConfig} The account config.
+ * @throws {Error} If no config is found.
  */
-function _fetchConfigFromIsp(
+async function _fetchConfigFromIsp(
   domain,
   emailAddress,
   httpsOnly,
   useOptionalUrl,
-  successCallback,
-  errorCallback
+  abortSignal
 ) {
   if (
     !Services.prefs.getBoolPref("mailnews.auto_config.fetchFromISP.enabled")
   ) {
-    errorCallback(new Exception("ISP fetch disabled per user preference"));
-    return new Abortable();
+    throw new Exception("ISP fetch disabled per user preference");
   }
 
   const sanitizedDomain = lazy.Sanitizer.hostname(domain);
@@ -164,10 +119,12 @@ function _fetchConfigFromIsp(
       urls.push("http://" + conf2);
     }
   }
+  const priorityAbortController = new AbortController();
   const callArgs = {
     urlArgs: {
       emailaddress: emailAddress,
     },
+    signal: AbortSignal.any([abortSignal, priorityAbortController.signal]),
   };
   if (
     !Services.prefs.getBoolPref(
@@ -177,37 +134,30 @@ function _fetchConfigFromIsp(
     delete callArgs.urlArgs.emailaddress;
   }
 
-  const priority = new PriorityOrderAbortable(
-    (xml, call) =>
-      successCallback(lazy.readFromXML(xml, `isp-${call.foundMsg}`)),
-    errorCallback
+  const foundMsgs = [];
+  const { value: xml, index } = await promiseFirstSuccessful(
+    urls.map((url, i) => {
+      foundMsgs[i] = url.startsWith("https") ? "https" : "http";
+      return lazy.fetchHTTP(url, callArgs);
+    }),
+    priorityAbortController
   );
-  for (const url of urls) {
-    const call = priority.addCall();
-    call.foundMsg = url.startsWith("https") ? "https" : "http";
-    const fetchHttp = lazy.FetchHTTP.create(
-      url,
-      callArgs,
-      call.successCallback(),
-      call.errorCallback()
-    );
-    call.setAbortable(fetchHttp);
-    fetchHttp.start();
-  }
-
-  return priority;
+  return lazy.readFromXML(xml, `isp-${foundMsgs[index]}`);
 }
 
 /**
  * Tries to get a configuration for this ISP from a central database at
  * Mozilla servers.
- * Params @see fetchConfigFromISP()
+ *
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the operation.
+ * @returns {AccountConfig} The account config.
+ * @throws {Error} If no config is found.
  */
-function fetchConfigFromDB(domain, successCallback, errorCallback) {
+async function fetchConfigFromDB(domain, abortSignal) {
   let url = Services.prefs.getCharPref("mailnews.auto_config_url");
   if (!url) {
-    errorCallback(new Exception("no URL for ISP DB configured"));
-    return new Abortable();
+    throw new Exception("no URL for ISP DB configured");
   }
   domain = lazy.Sanitizer.hostname(domain);
 
@@ -218,16 +168,11 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url = url.replace("{{domain}}", domain);
   }
 
-  const fetchHttp = lazy.FetchHTTP.create(
+  const result = await lazy.fetchHTTP(
     url,
-    { timeout: 10000 }, // 10 seconds
-    function (result) {
-      successCallback(lazy.readFromXML(result, "db"));
-    },
-    errorCallback
+    { timeout: 10000, signal: abortSignal } // 10 seconds
   );
-  fetchHttp.start();
-  return fetchHttp;
+  return lazy.readFromXML(result, "db");
 }
 
 /**
@@ -249,112 +194,88 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  *   mx1.incoming.servers.hoster.com, we look up hoster.com.
  *   Thanks to Services.eTLD, we also get bbc.co.uk right.
  *
- * Params @see fetchConfigFromISP()
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {string} emailAddress - The user's email address.
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the operation.
+ * @returns {AccountConfig} The account config.
+ * @throws {Error} If no config is found.
  */
-function fetchConfigForMX(
-  domain,
-  emailAddress,
-  successCallback,
-  errorCallback
-) {
-  function fetchConfig(runner, lookupDomain) {
-    const ispCall = runner.addCall();
+async function fetchConfigForMX(domain, emailAddress, abortSignal) {
+  const sanitizedDomain = lazy.Sanitizer.hostname(domain);
+  const time = Date.now();
+
+  const mxHostname = await getMX(sanitizedDomain, abortSignal);
+  gAccountSetupLogger.debug("getmx took", Date.now() - time, "ms");
+  const sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
+  gAccountSetupLogger.debug("base domain", sld, "for", mxHostname);
+  if (sld == sanitizedDomain) {
+    throw new Exception("MX lookup would be no different from domain");
+  }
+
+  // In addition to just the base domain, also check the full domain of the MX server
+  // to differentiate between Outlook.com/Hotmail and Office365 business domains.
+  let mxDomain;
+  try {
+    mxDomain = Services.eTLD.getNextSubDomain(mxHostname);
+  } catch (ex) {
+    // e.g. hostname doesn't have enough components
+    gAccountSetupLogger.error(ex); // not fatal
+  }
+
+  const priorityAbortController = new AbortController();
+  const priorityAbortSignal = AbortSignal.any([
+    abortSignal,
+    priorityAbortController.signal,
+  ]);
+  function fetchConfig(lookupDomain) {
     const ispFetch = _fetchConfigFromIsp(
       lookupDomain,
       emailAddress,
       true, // httpsOnly
       false, // useOptionalUrl
-      ispCall.successCallback(),
-      ispCall.errorCallback()
+      priorityAbortSignal
     );
-    ispCall.setAbortable(ispFetch);
-
-    const dbCall = runner.addCall();
-    const dbFetch = fetchConfigFromDB(
-      lookupDomain,
-      dbCall.successCallback(),
-      dbCall.errorCallback()
-    );
-    dbCall.setAbortable(dbFetch);
+    const dbFetch = fetchConfigFromDB(lookupDomain, priorityAbortSignal);
+    return [ispFetch, dbFetch];
   }
 
-  const sanitizedDomain = lazy.Sanitizer.hostname(domain);
-  const sucAbortable = new SuccessiveAbortable();
-  const time = Date.now();
-
-  sucAbortable.current = getMX(
-    sanitizedDomain,
-    function (mxHostname) {
-      // success
-      ddump("getmx took " + (Date.now() - time) + "ms");
-      const sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
-      ddump("base domain " + sld + " for " + mxHostname);
-      if (sld == sanitizedDomain) {
-        errorCallback(
-          new Exception("MX lookup would be no different from domain")
-        );
-        return;
-      }
-
-      // In addition to just the base domain, also check the full domain of the MX server
-      // to differentiate between Outlook.com/Hotmail and Office365 business domains.
-      let mxDomain;
-      try {
-        mxDomain = Services.eTLD.getNextSubDomain(mxHostname);
-      } catch (ex) {
-        // e.g. hostname doesn't have enough components
-        console.error(ex); // not fatal
-      }
-      const priority = new PriorityOrderAbortable(
-        successCallback,
-        errorCallback
-      );
-
-      if (mxDomain && sld != mxDomain) {
-        fetchConfig(priority, mxDomain);
-      }
-      fetchConfig(priority, sld);
-
-      sucAbortable.current = priority;
-    },
-    errorCallback
+  const queue = [];
+  if (mxDomain && sld != mxDomain) {
+    queue.push(...fetchConfig(mxDomain));
+  }
+  queue.push(...fetchConfig(sld));
+  const { value } = await promiseFirstSuccessful(
+    queue,
+    priorityAbortController
   );
-  return sucAbortable;
+  return value;
 }
 
 /**
  * Queries the DNS MX records for a given domain. Calls `successCallback` with
  * the hostname of the MX server. If there are several entries with different
- * preference values, only the most preferred (i.e. has the lowest value)
- * is used. If there are several most preferred servers (i.e. round robin),
- * only one of them is used.
+ * preference values, only the most preferred (i.e. has the lowest value) is
+ * used. If there are several most preferred servers (i.e. round robin), only
+ * one of them is used.
  *
  * @param {string} sanitizedDomain - @see fetchConfigFromISP()
- * @param {function(string):void} successCallback - Function, taking hostname
- *   as argument. Called when we found an MX for the domain.
- *   For |hostname|, see description above.
- * @param {function(Exception|string):void} errorCallback - @see fetchConfigFromISP()
+ * @param {AbortSignal} abortSignal - Abort signal that should cancel the
+ *   operation.
+ * @returns {string} The host found in the MX record.
+ * @throws {Error} When there is no suitable DNS response.
  */
-function getMX(sanitizedDomain, successCallback, errorCallback) {
-  return new PromiseAbortable(
-    DNS.mx(sanitizedDomain),
-    function (records) {
-      const filteredRecs = records.filter(record => record.host);
+async function getMX(sanitizedDomain, abortSignal) {
+  const records = await DNS.mx(sanitizedDomain);
+  abortSignal.throwIfAborted();
+  const filteredRecs = records.filter(record => record.host);
 
-      if (filteredRecs.length > 0) {
-        const sortedRecs = filteredRecs.sort((a, b) => a.prio > b.prio);
-        const firstHost = sortedRecs[0].host;
-        successCallback(firstHost);
-      } else {
-        errorCallback(
-          new Exception(
-            "No hostname found in MX records for sanitizedDomain=" +
-              sanitizedDomain
-          )
-        );
-      }
-    },
-    errorCallback
+  if (filteredRecs.length > 0) {
+    const sortedRecs = filteredRecs.sort((a, b) => a.prio > b.prio);
+    const firstHost = sortedRecs[0].host;
+    return firstHost;
+  }
+  throw new Exception(
+    "No hostname found in MX records for sanitizedDomain=" + sanitizedDomain
   );
 }
 

@@ -19,20 +19,12 @@ import { AccountCreationUtils } from "resource:///modules/accountcreation/Accoun
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+  JXON: "resource:///modules/JXON.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
-import { JXON } from "resource:///modules/JXON.sys.mjs";
-
-const {
-  Abortable,
-  alertPrompt,
-  assert,
-  ddump,
-  Exception,
-  gAccountSetupLogger,
-  getStringBundle,
-  UserCancelledException,
-} = AccountCreationUtils;
+const { Exception, gAccountSetupLogger, getStringBundle, abortSignalTimeout } =
+  AccountCreationUtils;
 
 /**
  * Set up a fetch.
@@ -78,326 +70,196 @@ const {
  * @param {boolean} [args.requireSecureAuth=false]
  *   Ignore the username and password unless we are using https:
  *   This also applies to both https: to http: and http: to https: redirects.
- * @param {function(string):void} successCallback - Success callback.
- *   Called when the server call worked (no errors).
- *   |result| will contain the body of the HTTP response, as string.
- * @param {function(Error):void} errorCallback - Error callback.
- *   Called in case of error. ex contains the error
- *   with a user-displayable but not localized |.message| and maybe a
- *   |.code|, which can be either
- *  - an nsresult error code,
- *  - an HTTP result error code (0...1000) or
- *  - negative: 0...-100 :
- *     -2 = can't resolve server in DNS etc.
- *     -4 = response body (e.g. XML) malformed
+ * @param {AbortSignal} [args.signal] - Optional abort signal to cancel the
+ *   request.
+ * @returns {string|object}
+ * @throws {ServerException}
  */
-export function FetchHTTP(url, args, successCallback, errorCallback) {
-  assert(typeof successCallback == "function", "BUG: successCallback");
-  assert(typeof errorCallback == "function", "BUG: errorCallback");
-  this._url = lazy.Sanitizer.string(url);
-  if (!args) {
-    args = {};
-  }
-  if (!args.urlArgs) {
-    args.urlArgs = {};
-  }
-  if (!args.headers) {
-    args.headers = {};
+export async function fetchHTTP(url, args = {}, isRetry) {
+  const urlObject = new URL(lazy.Sanitizer.string(url));
+  args.urlArgs ??= {};
+  args.headers ??= {};
+
+  const fetchArgs = {
+    method: args.post || args.uploadBody ? "POST" : "GET",
+    cache: !args.allowCache ? "reload" : "default",
+    body: args.uploadBody,
+    headers: args.headers,
+  };
+
+  for (const [name, value] of Object.entries(args.urlArgs)) {
+    urlObject.searchParams.append(name, value);
   }
 
-  this._args = args;
-  this._args.post = lazy.Sanitizer.boolean(args.post || false); // default false
-  this._args.allowCache =
-    "allowCache" in args ? lazy.Sanitizer.boolean(args.allowCache) : true; // default true
-  this._args.allowAuthPrompt = lazy.Sanitizer.boolean(
-    args.allowAuthPrompt || false
-  ); // default false
-  this._args.requireSecureAuth = lazy.Sanitizer.boolean(
-    args.requireSecureAuth || false
-  ); // default false
-  this._args.timeout = lazy.Sanitizer.integer(args.timeout || 5000); // default 5 seconds
-  this._successCallback = successCallback;
-  this._errorCallback = errorCallback;
-  this._logger = gAccountSetupLogger;
-  this._logger.info("Requesting <" + url + ">");
-}
+  if (typeof args.uploadBody == "object" && "nodeType" in args.uploadBody) {
+    // XML
+    fetchArgs.headers["Content-Type"] ??= "text/xml; charset=UTF-8";
+    fetchArgs.body = new XMLSerializer().serializeToString(args.uploadBody);
+  } else if (typeof args.uploadBody == "object") {
+    // JSON
+    fetchArgs.headers["Content-Type"] ??= "text/json; charset=UTF-8";
+    fetchArgs.body = JSON.stringify(args.uploadBody);
+  } else if (typeof args.uploadBody == "string") {
+    // Plaintext
+    // You can override the mimetype with { headers: {"Content-Type" : "text/foo" } }
+    fetchArgs.headers["Content-Type"] ??= "text/plain; charset=UTF-8";
+  } else if (args.bodyFormArgs) {
+    // Form url encoded
+    fetchArgs.headers["Content-Type"] ??=
+      "application/x-www-form-urlencoded; charset=UTF-8";
+    fetchArgs.body = new URLSearchParams(args.bodyFormArgs);
+  }
 
-FetchHTTP.prototype = {
-  __proto__: Abortable.prototype,
-  _url: null, // URL as passed to ctor, without arguments
-  _args: null,
-  _successCallback: null,
-  _errorCallback: null,
-  _request: null, // the XMLHttpRequest object
-  result: null,
+  if (
+    (args.requireSecureAuth || urlObject.protocol == "https:") &&
+    args.username &&
+    args.password
+  ) {
+    const authorization = btoa(
+      lazy.MailStringUtils.stringToByteString(
+        `${args.username}:${args.password}`
+      )
+    );
+    fetchArgs.headers.Authorization = `Basic ${authorization}`;
+  }
 
-  start() {
-    let url = this._url;
-    for (const name in this._args.urlArgs) {
-      url +=
-        (!url.includes("?") ? "?" : "&") +
-        name +
-        "=" +
-        encodeURIComponent(this._args.urlArgs[name]);
-    }
-    this._request = new XMLHttpRequest();
-    const request = this._request;
-    request.mozBackgroundRequest = !this._args.allowAuthPrompt;
-    let username = null,
-      password = null;
-    if (url.startsWith("https:") || !this._args.requireSecureAuth) {
-      username = this._args.username;
-      password = this._args.password;
-    }
+  args.timeout = lazy.Sanitizer.integer(args.timeout || 5000); // default 5 seconds
+
+  const timeoutAbort = abortSignalTimeout(args.timeout);
+  fetchArgs.signal = AbortSignal.any([timeoutAbort, args.signal]);
+
+  gAccountSetupLogger.info("Requesting", urlObject);
+
+  let response;
+  try {
+    const request = new XMLHttpRequest();
+    request.mozBackgroundRequest = args.allowAuthPrompt ?? true;
     request.open(
-      this._args.post ? "POST" : "GET",
-      url,
+      fetchArgs.method,
+      urlObject.toString(),
       true,
-      username,
-      password
+      fetchArgs.headers.Authorization && args.username,
+      fetchArgs.headers.Authorization && args.password
     );
     request.channel.loadGroup = null;
-    request.timeout = this._args.timeout;
-    // needs bug 407190 patch v4 (or higher) - uncomment if that lands.
-    // try {
-    //    var channel = request.channel.QueryInterface(Ci.nsIHttpChannel2);
-    //    channel.connectTimeout = 5;
-    //    channel.requestTimeout = 5;
-    //    } catch (e) { dump(e + "\n"); }
-
-    if (!this._args.allowCache) {
+    request.timeout = args.timeout;
+    if (fetchArgs.cache == "reload") {
       // Disable Mozilla HTTP cache
       request.channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
     }
+    for (const [header, value] of Object.entries(fetchArgs.headers)) {
+      request.setRequestHeader(header, value);
+    }
 
-    // body
-    let mimetype = null;
-    let body = this._args.uploadBody;
-    if (typeof body == "object" && "nodeType" in body) {
-      // XML
-      mimetype = "text/xml; charset=UTF-8";
-      body = new XMLSerializer().serializeToString(body);
-    } else if (typeof body == "object") {
-      // JSON
-      mimetype = "text/json; charset=UTF-8";
-      body = JSON.stringify(body);
-    } else if (typeof body == "string") {
-      // Plaintext
-      // You can override the mimetype with { headers: {"Content-Type" : "text/foo" } }
-      mimetype = "text/plain; charset=UTF-8";
-      // body already set above
-    } else if (this._args.bodyFormArgs) {
-      mimetype = "application/x-www-form-urlencoded; charset=UTF-8";
-      body = "";
-      for (const name in this._args.bodyFormArgs) {
-        body +=
-          (body ? "&" : "") +
-          name +
-          "=" +
-          encodeURIComponent(this._args.bodyFormArgs[name]);
+    response = request;
+    await new Promise((resolve, reject) => {
+      request.onload = resolve;
+      request.onerror = reject;
+      request.ontimeout = reject;
+      fetchArgs.signal.addEventListener(
+        "abort",
+        () => {
+          request.abort();
+          reject(fetchArgs.signal.reason);
+        },
+        { once: true }
+      );
+      request.send(fetchArgs.body?.toString());
+    });
+  } catch (error) {
+    if (
+      response.status >= 300 &&
+      fetchArgs.headers.Authorization &&
+      response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
+      response.responseURL.startsWith(
+        args.requireSecureAuth ? "https" : "http"
+      ) &&
+      !isRetry
+    ) {
+      gAccountSetupLogger.info(
+        "Call to ",
+        urlObject,
+        " was redirected to ",
+        response.responseURL,
+        ", and failed. Re-trying the new URL with authentication again."
+      );
+      return fetchHTTP(response.responseURL, { ...args, urlArgs: {} }, true);
+    }
+    const message = getStringBundle(
+      "chrome://messenger/locale/accountCreationUtil.properties"
+    ).GetStringFromName("cannot_contact_server.error");
+    throw new ServerException(
+      response.statusText || message,
+      response.status || -2,
+      response.responseURL,
+      error
+    );
+  }
+
+  if (response.status >= 200 && response.status < 300) {
+    try {
+      const responseType = response.getResponseHeader("Content-Type");
+      if (
+        ["text/xml", "application/xml", "text/rdf"].some(mimetype =>
+          responseType?.startsWith(mimetype)
+        )
+      ) {
+        return lazy.JXON.build(response.responseXML);
+      } else if (
+        ["text/json", "application/json"].some(mimetype =>
+          responseType?.startsWith(mimetype)
+        )
+      ) {
+        const json = JSON.parse(response.responseText);
+        return json;
       }
-    }
-
-    // Headers
-    if (mimetype && !("Content-Type" in this._args.headers)) {
-      request.setRequestHeader("Content-Type", mimetype);
-    }
-    if (username && password) {
-      // workaround, because open(..., username, password) does not work.
-      request.setRequestHeader(
-        "Authorization",
-        "Basic " +
-          btoa(
-            // btoa() takes a BinaryString.
-            String.fromCharCode(
-              ...new TextEncoder().encode(username + ":" + password)
-            )
-          )
+      return response.responseText;
+    } catch (error) {
+      throw new ServerException(
+        getStringBundle(
+          "chrome://messenger/locale/accountCreationUtil.properties"
+        ).GetStringFromName("bad_response_content.error"),
+        -4,
+        response.responseURL,
+        error
       );
     }
-    for (const name in this._args.headers) {
-      request.setRequestHeader(name, this._args.headers[name]);
-      if (name == "Cookie") {
-        // Websites are not allowed to set this, but chrome is.
-        // Nevertheless, the cookie lib later overwrites our header.
-        // request.channel.setCookie(this._args.headers[name]); -- crashes
-        // So, deactivate that Firefox cookie lib.
-        request.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
-      }
+  } else if (
+    fetchArgs.headers.Authorization &&
+    response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
+    response.responseURL.startsWith(
+      args.requireSecureAuth ? "https" : "http"
+    ) &&
+    !isRetry
+  ) {
+    gAccountSetupLogger.info(
+      "Call to ",
+      urlObject,
+      " was redirected to ",
+      response.responseURL,
+      ", and failed. Re-trying the new URL with authentication again."
+    );
+    return fetchHTTP(response.responseURL, { ...args, urlArgs: {} }, true);
+  } else {
+    let message = response.statusText;
+    if (!response.status) {
+      message = getStringBundle(
+        "chrome://messenger/locale/accountCreationUtil.properties"
+      ).GetStringFromName("cannot_contact_server.error");
     }
-
-    var me = this;
-    request.onload = function () {
-      me._response(true);
-    };
-    request.onerror = function () {
-      me._response(false);
-    };
-    request.ontimeout = function () {
-      me._response(false);
-    };
-    request.send(body);
-    // Store the original stack so we can use it if there is an exception
-    this._callStack = Error().stack;
-  },
-  _response(success, exStored) {
-    try {
-      var errorCode = null;
-      var errorStr = null;
-
-      if (
-        success &&
-        this._request.status >= 200 &&
-        this._request.status < 300
-      ) {
-        // HTTP level success
-        try {
-          // response
-          var mimetype = this._request.getResponseHeader("Content-Type");
-          if (!mimetype) {
-            mimetype = "";
-          }
-          mimetype = mimetype.split(";")[0];
-          if (
-            mimetype == "text/xml" ||
-            mimetype == "application/xml" ||
-            mimetype == "text/rdf"
-          ) {
-            // XML
-            this.result = JXON.build(this._request.responseXML);
-          } else if (
-            mimetype == "text/json" ||
-            mimetype == "application/json"
-          ) {
-            // JSON
-            this.result = JSON.parse(this._request.responseText);
-          } else {
-            // Plaintext (fallback)
-            // ddump("mimetype: " + mimetype + " only supported as text");
-            this.result = this._request.responseText;
-          }
-        } catch (e) {
-          success = false;
-          errorStr = getStringBundle(
-            "chrome://messenger/locale/accountCreationUtil.properties"
-          ).GetStringFromName("bad_response_content.error");
-          errorCode = -4;
-        }
-      } else if (
-        this._args.username &&
-        this._request.responseURL.replace(/\/\/.*@/, "//") != this._url &&
-        this._request.responseURL.startsWith(
-          this._args.requireSecureAuth ? "https" : "http"
-        ) &&
-        !this._isRetry
-      ) {
-        // Redirects lack auth, see <https://stackoverflow.com/a/28411170>
-        this._logger.info(
-          "Call to <" +
-            this._url +
-            "> was redirected to <" +
-            this._request.responseURL +
-            ">, and failed. Re-trying the new URL with authentication again."
-        );
-        this._url = this._request.responseURL;
-        this._isRetry = true;
-        this.start();
-        return;
-      } else {
-        success = false;
-        try {
-          errorCode = this._request.status;
-          errorStr = this._request.statusText;
-        } catch (e) {
-          // In case .statusText throws (it's marked as [Throws] in the webidl),
-          // continue with empty errorStr.
-        }
-        if (!errorCode) {
-          // If we can't resolve the hostname in DNS etc., .status is zero.
-          errorCode = -2;
-          errorStr = getStringBundle(
-            "chrome://messenger/locale/accountCreationUtil.properties"
-          ).GetStringFromName("cannot_contact_server.error");
-          ddump(errorStr + " on <" + this._url + ">");
-        }
-      }
-
-      // Callbacks
-      if (success) {
-        try {
-          this._successCallback(this.result);
-        } catch (e) {
-          e.stack = this._callStack;
-          this._error(e);
-        }
-      } else if (exStored) {
-        this._error(exStored);
-      } else {
-        // Put the caller's stack into the exception
-        const e = new ServerException(errorStr, errorCode, this._url);
-        e.stack = this._callStack;
-        this._error(e);
-      }
-
-      if (this._finishedCallback) {
-        try {
-          this._finishedCallback(this);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    } catch (e) {
-      // error in our fetchhttp._response() code
-      this._error(e);
-    }
-  },
-  _error(e) {
-    try {
-      this._errorCallback(e);
-    } catch (ex) {
-      // error in errorCallback, too!
-      console.error(ex);
-      alertPrompt("Error in errorCallback for fetchhttp", ex);
-    }
-  },
-  /**
-   * Call this between start() and finishedCallback fired.
-   */
-  cancel(ex) {
-    assert(!this.result, "Call already returned");
-
-    this._request.abort();
-
-    // Need to manually call error handler
-    // <https://bugzilla.mozilla.org/show_bug.cgi?id=218236#c11>
-    this._response(false, ex ? ex : new UserCancelledException());
-  },
-  /**
-   * Allows caller or lib to be notified when the call is done.
-   * This is useful to enable and disable a Cancel button in the UI,
-   * which allows to cancel the network request.
-   */
-  setFinishedCallback(finishedCallback) {
-    this._finishedCallback = finishedCallback;
-  },
-};
+    throw new ServerException(
+      message,
+      response.status || -2,
+      response.responseURL
+    );
+  }
+}
 
 function ServerException(msg, code, uri) {
   Exception.call(this, msg);
   this.code = code;
   this.uri = uri;
+  this.url = uri;
 }
 ServerException.prototype = Object.create(Exception.prototype);
 ServerException.prototype.constructor = ServerException;
-
-/**
- * Creates a FetchHTTP instance.
- *
- * Use this instead of the constructor if you want to replace FetchHTTP during
- * testing, e.g. because HttpServer can't or shouldn't be used.
- *
- * @see {@link FetchHTTP}
- */
-FetchHTTP.create = (url, args, successCallback, errorCallback) => {
-  return new FetchHTTP(url, args, successCallback, errorCallback);
-};

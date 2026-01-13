@@ -12,11 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-import {
-  clearInterval,
-  clearTimeout,
-  setTimeout,
-} from "resource://gre/modules/Timer.sys.mjs";
+import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 // Helper constants.
 // TODO: Convert to map.
@@ -32,10 +28,6 @@ function assert(test, errorMsg) {
       errorMsg ? errorMsg : "Programming bug. Assertion failed, see log."
     );
   }
-}
-
-function makeCallback(obj, func) {
-  return func.bind(obj);
 }
 
 /**
@@ -129,20 +121,6 @@ function NotReached(msg) {
 // Make NotReached extend Exception.
 NotReached.prototype = Object.create(Exception.prototype);
 NotReached.prototype.constructor = NotReached;
-
-// ---------
-// Abortable
-
-/**
- * A handle for an async function which you can cancel.
- * The async function will return an object of this type (a subtype)
- * and you can call cancel() when you feel like killing the function.
- */
-function Abortable() {}
-Abortable.prototype = {
-  cancel() {},
-};
-
 function CancelledException(msg) {
   Exception.call(this, msg);
 }
@@ -160,491 +138,171 @@ function UserCancelledException(msg) {
 UserCancelledException.prototype = Object.create(CancelledException.prototype);
 UserCancelledException.prototype.constructor = UserCancelledException;
 
-/**
- * Utility implementation, for waiting for a promise to resolve,
- * but allowing its result to be cancelled.
- */
-function PromiseAbortable(promise, successCallback, errorCallback) {
-  Abortable.call(this); // call super constructor
-  let complete = false;
-  this.cancel = function (e) {
-    if (!complete) {
-      complete = true;
-      errorCallback(e || new CancelledException());
-    }
-  };
-  promise
-    .then(function (result) {
-      if (!complete) {
-        successCallback(result);
-        complete = true;
-      }
-    })
-    .catch(function (e) {
-      if (!complete) {
-        complete = true;
-        errorCallback(e);
-      }
-    });
-}
-PromiseAbortable.prototype = Object.create(Abortable.prototype);
-PromiseAbortable.prototype.constructor = PromiseAbortable;
-
-/**
- * Utility implementation, for allowing to abort a setTimeout.
- * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
- *
- * @param {integer} setTimeoutID - Return value of setTimeout().
- */
-function TimeoutAbortable(setTimeoutID) {
-  Abortable.call(this); // call super constructor
-  this._id = setTimeoutID;
-}
-TimeoutAbortable.prototype = Object.create(Abortable.prototype);
-TimeoutAbortable.prototype.constructor = TimeoutAbortable;
-TimeoutAbortable.prototype.cancel = function () {
-  clearTimeout(this._id);
-};
-
-/**
- * Utility implementation, for allowing to abort a setTimeout.
- * Use like: return new TimeoutAbortable(setTimeout(function(){ ... }, 0));
- *
- * @param {integer} setIntervalID - Return value of setInterval().
- */
-function IntervalAbortable(setIntervalID) {
-  Abortable.call(this); // call super constructor
-  this._id = setIntervalID;
-}
-IntervalAbortable.prototype = Object.create(Abortable.prototype);
-IntervalAbortable.prototype.constructor = IntervalAbortable;
-IntervalAbortable.prototype.cancel = function () {
-  clearInterval(this._id);
-};
-
-/**
- * Allows you to make several network calls,
- * but return only one |Abortable| object.
- */
-function SuccessiveAbortable() {
-  Abortable.call(this); // call super constructor
-  this._current = null;
-}
-SuccessiveAbortable.prototype = {
-  __proto__: Abortable.prototype,
-  get current() {
-    return this._current;
-  },
-  set current(abortable) {
-    assert(
-      abortable instanceof Abortable || abortable == null,
-      "need an Abortable object (or null)"
-    );
-    this._current = abortable;
-  },
-  cancel(e) {
-    if (this._current) {
-      this._current.cancel(e);
-    }
-  },
-};
-
-/**
- * Allows you to make several network calls in parallel.
- */
-function ParallelAbortable() {
-  Abortable.call(this); // call super constructor
-  // { Array of ParallelCall }
-  this._calls = [];
-  // { Array of Function }
-  this._finishedObservers = [];
-}
-ParallelAbortable.prototype = {
-  __proto__: Abortable.prototype,
-  /**
-   * @returns {ParallelCall[]}
-   */
-  get results() {
-    return this._calls;
-  },
-  /**
-   * @returns {ParallelCall}
-   */
-  addCall() {
-    const call = new ParallelCall(this);
-    call.position = this._calls.length;
-    this._calls.push(call);
-    return call;
-  },
-  /**
-   * Observers will be called once one of the functions
-   * finishes, i.e. returns successfully or fails.
-   *
-   * @param {function(ParallelCall):void} func
-   */
-  addOneFinishedObserver(func) {
-    assert(typeof func == "function");
-    this._finishedObservers.push(func);
-  },
-  /**
-   * Will be called once *all* of the functions finished,
-   * It gives you a list of all functions that succeeded or failed,
-   * respectively.
-   *
-   * @param {function(ParallelCall[],ParallelCall[]):void} func - Function like
-   *   {Function(
-   *      {ParallelCall[]} succeeded,
-   *      {ParallelCall[]} failed
-   *   )}
-   */
-  addAllFinishedObserver(func) {
-    assert(typeof func == "function");
-    this.addOneFinishedObserver(() => {
-      if (this._calls.some(call => !call.finished)) {
-        return;
-      }
-      const succeeded = this._calls.filter(call => call.succeeded);
-      const failed = this._calls.filter(call => !call.succeeded);
-      func(succeeded, failed);
-    });
-  },
-  _notifyFinished(call) {
-    for (const observer of this._finishedObservers) {
-      try {
-        observer(call);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  },
-  cancel(e) {
-    for (const call of this._calls) {
-      if (!call.finished && call.callerAbortable) {
-        call.callerAbortable.cancel(e);
-      }
-    }
-  },
-};
-
-/**
- * Returned by ParallelAbortable.addCall().
- * Do not create this object directly
- *
- * @param {ParallelAbortable} parallelAbortable - The controlling ParallelAbortable
- */
-function ParallelCall(parallelAbortable) {
-  assert(parallelAbortable instanceof ParallelAbortable);
-  // {ParallelAbortable} the parent
-  this._parallelAbortable = parallelAbortable;
-  // {Abortable} Abortable of the caller function that should run in parallel
-  this.callerAbortable = null;
-  // {Integer} the order in which the function was added, and its priority
-  this.position = null;
-  // {boolean} false = running, pending, false = success or failure
-  this.finished = false;
-  // {boolean} if finished: true = returned with success, false = returned with error
-  this.succeeded = false;
-  // {Exception} if failed: the error or exception that the caller function returned
-  this.e = null;
-  // {Object} if succeeded: the result of the caller function
-  this.result = null;
-
-  this._time = Date.now();
-}
-ParallelCall.prototype = {
-  /**
-   * Returns a successCallback(result) function that you pass
-   * to your function that runs in parallel.
-   *
-   * @returns {function(AccountConfig):void} successCallback
-   */
-  successCallback() {
-    return result => {
-      ddump(
-        "call " +
-          this.position +
-          " took " +
-          (Date.now() - this._time) +
-          "ms and succeeded" +
-          (this.callerAbortable && this.callerAbortable._url
-            ? " at <" + this.callerAbortable._url + ">"
-            : "")
-      );
-      this.result = result;
-      this.finished = true;
-      this.succeeded = true;
-      this._parallelAbortable._notifyFinished(this);
-    };
-  },
-  /**
-   * Returns an errorCallback(e) function that you pass
-   * to your function that runs in parallel.
-   *
-   * @returns {function(Error):void} errorCallback
-   */
-  errorCallback() {
-    return e => {
-      ddump(
-        "call " +
-          this.position +
-          " took " +
-          (Date.now() - this._time) +
-          "ms and failed with " +
-          (typeof e.code == "number" ? e.code + " " : "") +
-          (e.toString()
-            ? e.toString()
-            : "unknown error, probably no host connection") +
-          (this.callerAbortable && this.callerAbortable._url
-            ? " at <" + this.callerAbortable._url + ">"
-            : "")
-      );
-      this.e = e;
-      this.finished = true;
-      this.succeeded = false;
-      this._parallelAbortable._notifyFinished(this);
-    };
-  },
-  /**
-   * Call your function that needs to run in parallel
-   * and pass the resulting |Abortable| of your function here.
-   *
-   * @param {Abortable} abortable
-   */
-  setAbortable(abortable) {
-    assert(abortable instanceof Abortable);
-    this.callerAbortable = abortable;
-  },
-};
-
-/**
- * Runs several calls in parallel.
- * Returns the result of the "highest" priority call that succeeds.
- * Unlike Promise.race(), does not return the fastest,
- * but the first in the order they were added.
- * So, the order in which the calls were added determines their priority,
- * with the first to be added being the most desirable.
- *
- * E.g. the first failed, the second is pending, the third succeeded, and the forth is pending.
- * It aborts the forth (because the third succeeded), and it waits for the second to return.
- * If the second succeeds, it is the result, otherwise the third is the result.
- *
- * @param {function(object, ParallelCall): void} successCallback -  A call
- *   returned successfully. Function like
- *   {Function(
- *     {Object} result - Result of winner call
- *     {ParallelCall} call - Winner call info
- *   )}
- * @param {function(Exception,Exception[]):void} errorCallback - All calls failed.
- *   Function like
- *   {Function(e, allErrors)}
- *     {Exception} e - The first CancelledException, and otherwise
- *       the exception returned by the first call.
- *     This is just to adhere to the standard API of errorCallback(e).
- *     {Exception[]} allErrors - The exceptions from all calls.
- */
-function PriorityOrderAbortable(successCallback, errorCallback) {
-  assert(typeof successCallback == "function");
-  assert(typeof errorCallback == "function");
-  ParallelAbortable.call(this); // call super constructor
-  this._successfulCall = null;
-
-  this.addOneFinishedObserver(() => {
-    for (const call of this._calls) {
-      if (!call.finished) {
-        if (this._successfulCall) {
-          // abort
-          if (call.callerAbortable) {
-            call.callerAbortable.cancel(
-              new NoLongerNeededException("Another higher call succeeded")
-            );
-          }
-          continue;
-        }
-        // It's pending. do nothing and wait for it.
-        return;
-      }
-      if (!call.succeeded) {
-        // it failed. ignore it.
-        continue;
-      }
-      if (this._successfulCall) {
-        // we already have a winner. ignore it.
-        continue;
-      }
-      try {
-        successCallback(call.result, call);
-        // This is the winner.
-        this._successfulCall = call;
-      } catch (e) {
-        console.error(e);
-        // If the handler failed with this data, treat this call as failed.
-        call.e = e;
-        call.succeeded = false;
-      }
-    }
-    if (!this._successfulCall) {
-      // all failed
-      const allErrors = this._calls.map(call => call.e);
-      const err =
-        allErrors.find(e => e instanceof CancelledException) || allErrors[0];
-      errorCallback(err, allErrors); // see docs above
-    }
-  });
-}
-PriorityOrderAbortable.prototype = Object.create(ParallelAbortable.prototype);
-PriorityOrderAbortable.prototype.constructor = PriorityOrderAbortable;
-
-function NoLongerNeededException(msg) {
-  CancelledException.call(this, msg);
-}
-NoLongerNeededException.prototype = Object.create(CancelledException.prototype);
-NoLongerNeededException.prototype.constructor = NoLongerNeededException;
-
 // -------------------
 // High level features
 
-/**
- * Allows you to install an addon.
- *
- * Example:
- * var installer = new AddonInstaller({ xpiURL : "https://...xpi", id: "...", ...});
- * installer.install();
- *
- * @param {object} args - Contains parameters:
- * @param {string} [args.name] - Name of the addon (not important).
- * @param {string} [args.id] - Addon ID.
- *   If you pass an ID, and the addon is already installed (and the version
- *   matches), then install() will do nothing.
- *   After the XPI is downloaded, the ID will be verified. If it doesn't match,
- *   the install will fail.
- *   If you don't pass an ID, these checks will be skipped and the addon be
- *   installed unconditionally.
- *   It is recommended to pass at least an ID, because it can confuse some
- *   addons to be reloaded at runtime.
- * @param {string} [args.minVersion] - Minimum version of the addon.
- *   If you pass a minVersion (in addition to ID), and the installed addon is
- *   older than this, the install will be done anyway.
- *   If the downloaded addon has a lower version, the install will fail.
- *   If you do not pass a minVersion, there will be no version check.
- * @param {string} args.xpiURL - Where to download the XPI from.
- */
-function AddonInstaller(args) {
-  Abortable.call(this);
-  this._name = lazy.Sanitizer.label(args.name);
-  this._id = lazy.Sanitizer.string(args.id);
-  this._minVersion = lazy.Sanitizer.string(args.minVersion);
-  this._url = lazy.Sanitizer.url(args.xpiURL);
-}
-AddonInstaller.prototype = Object.create(Abortable.prototype);
-AddonInstaller.prototype.constructor = AddonInstaller;
+class AddonInstaller {
+  /**
+   * @type {AbortSignal}
+   */
+  #signal;
 
-/**
- * Checks whether the passed-in addon matches the
- * id and minVersion requested by the caller.
- *
- * @param {object} addon
- * @returns {boolean} true if matches
- */
-AddonInstaller.prototype.matches = function (addon) {
-  return (
-    !this._id ||
-    (this._id == addon.id &&
-      (!this._minVersion ||
-        Services.vc.compare(addon.version, this._minVersion) >= 0))
-  );
-};
-
-/**
- * Start the installation.
- *
- * @throws {Error} in case of failure
- */
-AddonInstaller.prototype.install = async function () {
-  if (await this.isInstalled()) {
-    return;
+  /**
+   * Allows you to install an addon.
+   *
+   * Example:
+   * var installer = new AddonInstaller({ xpiURL : "https://...xpi", id: "...", ...});
+   * installer.install();
+   *
+   * @param {object} args - Contains parameters:
+   * @param {string} [args.name] - Name of the addon (not important).
+   * @param {string} [args.id] - Addon ID.
+   *   If you pass an ID, and the addon is already installed (and the version
+   *   matches), then install() will do nothing.
+   *   After the XPI is downloaded, the ID will be verified. If it doesn't match,
+   *   the install will fail.
+   *   If you don't pass an ID, these checks will be skipped and the addon be
+   *   installed unconditionally.
+   *   It is recommended to pass at least an ID, because it can confuse some
+   *   addons to be reloaded at runtime.
+   * @param {string} [args.minVersion] - Minimum version of the addon.
+   *   If you pass a minVersion (in addition to ID), and the installed addon is
+   *   older than this, the install will be done anyway.
+   *   If the downloaded addon has a lower version, the install will fail.
+   *   If you do not pass a minVersion, there will be no version check.
+   * @param {string} args.xpiURL - Where to download the XPI from.
+   * @param {AbortSignal} signal - Signal indicating when the installation
+   *   should be aborted (if possible).
+   */
+  constructor(args, signal) {
+    this._name = lazy.Sanitizer.label(args.name);
+    this._id = lazy.Sanitizer.string(args.id);
+    this._minVersion = lazy.Sanitizer.string(args.minVersion);
+    this._url = lazy.Sanitizer.url(args.xpiURL);
+    this.#signal = signal;
   }
-  await this._installDirect();
-};
 
-/**
- * Checks whether we already have an addon installed that matches the
- * id and minVersion requested by the caller.
- *
- * @returns {boolean} true if the add-on is already installed and enabled.
- */
-AddonInstaller.prototype.isInstalled = async function () {
-  if (!this._id) {
-    return false;
-  }
-  const addon = await lazy.AddonManager.getAddonByID(this._id);
-  return addon && this.matches(addon) && addon.isActive;
-};
-
-/**
- * Checks whether we already have an addon but it is disabled.
- *
- * @returns {boolean} true if the add-on is already installed but disabled.
- */
-AddonInstaller.prototype.isDisabled = async function () {
-  if (!this._id) {
-    return false;
-  }
-  const addon = await lazy.AddonManager.getAddonByID(this._id);
-  return addon && !addon.isActive;
-};
-
-/**
- * Downloads and installs the addon.
- * The downloaded XPI will be checked using prompt().
- */
-AddonInstaller.prototype._installDirect = async function () {
-  const installer = (this._installer = await lazy.AddonManager.getInstallForURL(
-    this._url,
-    { name: this._name }
-  ));
-  installer.promptHandler = makeCallback(this, this.prompt);
-  await installer.install(); // throws, if failed
-
-  const addon = await lazy.AddonManager.getAddonByID(this._id);
-  await addon.enable();
-
-  // Wait for addon startup code to finish
-  // Fixes: verify password fails with NOT_AVAILABLE in createIncomingServer()
-  if ("startupPromise" in addon) {
-    await addon.startupPromise;
-  }
-  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-  await wait(1000);
-};
-
-/**
- * Install confirmation. You may override this, if needed.
- *
- * @throws {Error} If you want to cancel install, then throw an exception.
- */
-AddonInstaller.prototype.prompt = async function (info) {
-  if (!this.matches(info.addon)) {
-    // happens only when we got the wrong XPI
-    throw new Exception(
-      "The downloaded addon XPI does not match the minimum requirements"
+  /**
+   * Checks whether the passed-in addon matches the
+   * id and minVersion requested by the caller.
+   *
+   * @param {object} addon
+   * @returns {boolean} true if matches
+   */
+  matches(addon) {
+    return (
+      !this._id ||
+      (this._id == addon.id &&
+        (!this._minVersion ||
+          Services.vc.compare(addon.version, this._minVersion) >= 0))
     );
   }
-};
 
-AddonInstaller.prototype.cancel = function () {
-  if (this._installer) {
-    try {
-      this._installer.cancel();
-    } catch (e) {
-      // if install failed
-      ddump(e);
+  /**
+   * Start the installation.
+   *
+   * @throws {Error} in case of failure
+   */
+  async install() {
+    if (await this.isInstalled()) {
+      return;
     }
+    await this._installDirect();
   }
-};
+
+  /**
+   * Checks whether we already have an addon installed that matches the
+   * id and minVersion requested by the caller.
+   *
+   * @returns {boolean} true if the add-on is already installed and enabled.
+   */
+  async isInstalled() {
+    if (!this._id) {
+      return false;
+    }
+    const addon = await lazy.AddonManager.getAddonByID(this._id);
+    return addon && this.matches(addon) && addon.isActive;
+  }
+
+  /**
+   * Checks whether we already have an addon but it is disabled.
+   *
+   * @returns {boolean} true if the add-on is already installed but disabled.
+   */
+  async isDisabled() {
+    if (!this._id) {
+      return false;
+    }
+    const addon = await lazy.AddonManager.getAddonByID(this._id);
+    return addon && !addon.isActive;
+  }
+
+  /**
+   * Downloads and installs the addon.
+   * The downloaded XPI will be checked using prompt().
+   */
+  async _installDirect() {
+    this.#signal.addEventListener("abort", this.cancel, { once: true });
+    try {
+      this._installer = await lazy.AddonManager.getInstallForURL(this._url, {
+        name: this._name,
+      });
+      this._installer.promptHandler = this.prompt;
+      await this._installer.install(); // throws, if failed
+    } finally {
+      this.#signal.removeEventListener("abort", this.cancel, { once: true });
+      delete this._installer;
+    }
+
+    const addon = await lazy.AddonManager.getAddonByID(this._id);
+    await addon.enable();
+
+    // Wait for addon startup code to finish
+    // Fixes: verify password fails with NOT_AVAILABLE in createIncomingServer()
+    if ("startupPromise" in addon) {
+      await addon.startupPromise;
+    }
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await wait(1000);
+  }
+
+  /**
+   * Install confirmation. You may override this, if needed.
+   *
+   * @throws {Error} If you want to cancel install, then throw an exception.
+   */
+  prompt = async info => {
+    if (!this.matches(info.addon)) {
+      // happens only when we got the wrong XPI
+      throw new Exception(
+        "The downloaded addon XPI does not match the minimum requirements"
+      );
+    }
+  };
+
+  cancel = () => {
+    if (this._installer) {
+      try {
+        this._installer.cancel();
+      } catch (e) {
+        // if install failed
+        gAccountSetupLogger.warn(e);
+      }
+    }
+  };
+}
 
 // ------------
 // Debug output
 
+/**
+ * Deep copy method that supports functions (as opposed to JSON based cloning
+ * and structuredClone). Only arrays and objects are actually copied, everything
+ * else is kept the same.
+ *
+ * @param {any} org
+ * @returns {any}
+ */
 function deepCopy(org) {
   if (typeof org == "undefined") {
     return undefined;
@@ -652,27 +310,18 @@ function deepCopy(org) {
   if (org == null) {
     return null;
   }
-  if (typeof org == "string") {
-    return org;
-  }
-  if (typeof org == "number") {
-    return org;
-  }
-  if (typeof org == "boolean") {
-    return org;
-  }
-  if (typeof org == "function") {
+  if (["string", "number", "boolean", "function"].includes(typeof org)) {
     return org;
   }
   if (typeof org != "object") {
     throw new Error("can't copy objects of type " + typeof org + " yet");
   }
+  if (Array.isArray(org)) {
+    return org.map(value => deepCopy(value));
+  }
 
   // TODO still instanceof org != instanceof copy
   var result = {};
-  if (typeof org.length != "undefined") {
-    result = [];
-  }
   for (var prop in org) {
     result[prop] = deepCopy(org[prop]);
   }
@@ -698,44 +347,78 @@ function alertPrompt(alertTitle, alertMsg) {
 }
 
 /**
- * An abortable that closes the OAuth prompt if it is cancelled. No effects of
- * OAuth are monitored by this abortable.
+ * Resolves with the value of the first promise in the order that they are
+ * passed that resolves successfully. This is slightly different from
+ * Promise.any, which waits for the quickest successful promise. If an
+ * AbortController is passed as second parameter, abort is called once the first
+ * resolution happens. If all promises fail, abort is never used.
+ *
+ * @param {Promise[]} priorityQueue - The promises to wait for.
+ * @param {AbortController} abortController - Abort controller to call abort on
+ *   if a promise succeeds.
+ * @returns {{value: any, index: number}} - The value the first successful promise
+ *   resolved with and its position in the arguments.
+ * @throws {AggregateError} If all calls failed an AggregateError of the rejection
+ *   resons is thrown.
  */
-class OAuthAbortable extends Abortable {
-  /**
-   * OAuth2 System Module
-   *
-   * @type {OAuth2Module}
-   */
-  #oauthModule = null;
-
-  /**
-   * Boolean to store cancelled state.
-   *
-   * @type {boolean}
-   */
-  cancelled = false;
-
-  /**
-   * Creates module abortable.
-   *
-   * @param {OAuth2Module} oauthModule - The OAuth2 system module.
-   */
-  constructor(oauthModule) {
-    super();
-    this.#oauthModule = oauthModule;
+async function promiseFirstSuccessful(priorityQueue, abortController) {
+  for (const [index, promise] of priorityQueue.entries()) {
+    try {
+      const result = await promise;
+      abortController.abort(new Error("Higher priority promise succeeded"));
+      // Consume all rejections.
+      Promise.allSettled(priorityQueue).catch(error =>
+        gAccountSetupLogger.debug(error)
+      );
+      return {
+        value: result,
+        index,
+      };
+    } catch (error) {
+      continue;
+    }
   }
-  /**
-   * Cancels module abortable and sets cancelled property to true;
-   */
-  cancel() {
-    this.#oauthModule.cancelPrompt();
-    this.cancelled = true;
-  }
+  return Promise.any(priorityQueue);
+}
+
+/**
+ * This is a implementation equivalent to AbortSignal.timeout which we can't use
+ * at this time, since it looks for a window global to run its timers in.
+ *
+ * @param {number} time - Time to wait before aborting in miliseconds.
+ * @returns {AbortSignal} Abort signal that will abort the given amount of time
+ *  in the future.
+ */
+function abortSignalTimeout(time) {
+  const abortController = new AbortController();
+  setTimeout(() => abortController.abort(new Error(`${time}ms timeout`)), time);
+  return abortController.signal;
+}
+
+/**
+ * A timeout that can be aborted with an abort signal.
+ *
+ * @param {number} time - Time in miliseconds to wait for.
+ * @param {AbortSignal} signal - The signal to listen to if the timeout should
+ *   be aborted.
+ * @returns {Promsie} A promise that resolves if the time has expired or rejects
+ *   if the signal indicated an abort.
+ */
+async function abortableTimeout(time, signal) {
+  const promiseWithResolvers = Promise.withResolvers();
+  const timeout = setTimeout(promiseWithResolvers.resolve, time);
+  const abortListener = () => {
+    clearTimeout(timeout);
+    promiseWithResolvers.reject(signal.reason);
+  };
+  signal.addEventListener("abort", abortListener, { once: true });
+  await promiseWithResolvers.promise;
+  signal.removeEventListener("abort", abortListener, { once: true });
 }
 
 export const AccountCreationUtils = {
-  Abortable,
+  abortableTimeout,
+  abortSignalTimeout,
   AddonInstaller,
   alertPrompt,
   assert,
@@ -746,14 +429,9 @@ export const AccountCreationUtils = {
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
-  OAuthAbortable,
-  ParallelAbortable,
-  PriorityOrderAbortable,
-  PromiseAbortable,
+  promiseFirstSuccessful,
   readURLasUTF8,
   runAsync,
   standardPorts,
-  SuccessiveAbortable,
-  TimeoutAbortable,
   UserCancelledException,
 };

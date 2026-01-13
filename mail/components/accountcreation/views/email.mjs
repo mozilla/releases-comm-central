@@ -5,10 +5,9 @@
 const {
   AccountCreationUtils: {
     gAccountSetupLogger,
-    SuccessiveAbortable,
     UserCancelledException,
     AddonInstaller,
-    Abortable,
+    abortableTimeout,
   },
 } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
@@ -113,12 +112,10 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Store methods to interrupt abortable operations like testing
    * a server configuration or installing an add-on.
-   * Name is overridden to avoid conflict in JSDoc generation.
    *
-   * @name AccountHub~abortable
-   * @type {Abortable}
+   * @type {AbortController}
    */
-  #abortable;
+  #abortController;
 
   /**
    * The current Account Config object based on the users form inputs.
@@ -347,7 +344,7 @@ class AccountHubEmail extends HTMLElement {
       this
     );
 
-    this.#abortable = null;
+    this.#abortController = null;
     this.#currentConfig = null;
     this.#email = "";
     this.#realName = "";
@@ -372,22 +369,22 @@ class AccountHubEmail extends HTMLElement {
    * Handle for async operation that's cancellable. Setting the abortable
    * property updates the hidden state of the cancel button.
    *
-   * @type {?Abortable|?AbortController}
+   * @type {?AbortController}
    */
-  set abortable(abortablePromise) {
+  set abortable(abortController) {
     const stateDetails = this.#states[this.#currentState];
-    this.#emailFooter.canBack(abortablePromise || stateDetails.previousStep);
+    this.#emailFooter.canBack(abortController || stateDetails.previousStep);
     this.#emailFooter.setDirectionalButtonText(
       "back",
-      abortablePromise
+      abortController
         ? "account-hub-email-cancel-button"
         : "account-hub-email-back-button"
     );
-    this.#abortable = abortablePromise;
+    this.#abortController = abortController;
   }
 
   get abortable() {
-    return this.#abortable;
+    return this.#abortController;
   }
 
   /**
@@ -395,11 +392,6 @@ class AccountHubEmail extends HTMLElement {
    * for a redirect confirmation, the redirect is rejected.
    */
   #handleAbortable() {
-    if (this.abortable instanceof Abortable) {
-      this.abortable.cancel(new UserCancelledException());
-      this.abortable = null;
-    }
-
     if (AbortController.isInstance(this.abortable)) {
       // We don't clear the abortable here because we need to check if the
       // abortable has aborted when using an AbortController. It is cleared
@@ -413,6 +405,10 @@ class AccountHubEmail extends HTMLElement {
     // the disoveryStream. Because we've aborted the autodiscovery before this,
     // any network requests will have already been cancelled.
     if (this.#discoveryStream) {
+      // Allow the discovery stream to handle the abort.
+      this.#discoveryStream
+        .next({ acceptRedirect: false })
+        .catch(error => gAccountSetupLogger.debug(error));
       this.#discoveryStream = null;
     }
   }
@@ -557,6 +553,7 @@ class AccountHubEmail extends HTMLElement {
           if (this.#currentState == "emailCredentialsConfirmationSubview") {
             if (this.classList.contains("busy")) {
               this.#handleAbortable();
+              this.abortable = null;
               await this.#initUI(stateDetails.previousStep);
             }
             await this.#handleBackAction(this.#currentState);
@@ -567,6 +564,7 @@ class AccountHubEmail extends HTMLElement {
           // abortable and stay in the current subview.
           if (this.abortable) {
             this.#handleAbortable();
+            this.abortable = null;
             break;
           }
 
@@ -576,6 +574,7 @@ class AccountHubEmail extends HTMLElement {
           await this.#handleBackAction(this.#currentState);
         } catch (error) {
           this.#handleAbortable();
+          this.abortable = null;
           this.#currentSubview.showNotification({
             title: error.title || error.message,
             description: error.text,
@@ -596,6 +595,7 @@ class AccountHubEmail extends HTMLElement {
           await this.#handleForwardAction(this.#currentState, stateData);
         } catch (error) {
           this.#handleAbortable();
+          this.abortable = null;
           this.#currentSubview.showNotification({
             title: error.title || error.message,
             description: error.text,
@@ -627,6 +627,7 @@ class AccountHubEmail extends HTMLElement {
         // If we are in this step, we already have email and realName set.
         if (this.#currentState == "emailCredentialsConfirmationSubview") {
           this.#handleAbortable();
+          this.abortable = null;
         }
 
         const configData =
@@ -826,7 +827,7 @@ class AccountHubEmail extends HTMLElement {
             }
           }
 
-          this.#abortable = null;
+          this.#abortController = null;
           await this.#initConfigView(config);
           break;
         } catch (error) {
@@ -840,7 +841,12 @@ class AccountHubEmail extends HTMLElement {
             break;
           }
 
-          if (!(error instanceof UserCancelledException)) {
+          if (
+            !(
+              error instanceof UserCancelledException ||
+              error instanceof UserSkippedError
+            )
+          ) {
             throw error;
           }
           break;
@@ -878,7 +884,12 @@ class AccountHubEmail extends HTMLElement {
             break;
           }
 
-          if (!(error instanceof UserCancelledException)) {
+          if (
+            !(
+              error instanceof UserCancelledException ||
+              error instanceof UserSkippedError
+            )
+          ) {
             throw error;
           }
 
@@ -942,7 +953,12 @@ class AccountHubEmail extends HTMLElement {
           // Reset footer back button state.
           this.#emailFooter.canBack(true);
 
-          if (!(error instanceof UserCancelledException)) {
+          if (
+            !(
+              error instanceof UserCancelledException ||
+              error instanceof UserSkippedError
+            )
+          ) {
             // Stay on the password view.
             throw error;
           }
@@ -1088,12 +1104,17 @@ class AccountHubEmail extends HTMLElement {
             });
           }
         } catch (error) {
-          if (error instanceof UserCancelledException) {
+          if (
+            error instanceof UserCancelledException ||
+            error instanceof UserSkippedError
+          ) {
             break;
           }
 
           this.#stopLoading();
-          this.#initUI(this.#states[this.#currentState].previousStep);
+          this.#initUI(
+            this.#states[this.#currentState].previousStep || this.#currentState
+          );
           this.#currentSubview.showNotification({
             fluentTitleId: "account-setup-find-settings-failed",
             error,
@@ -1194,12 +1215,12 @@ class AccountHubEmail extends HTMLElement {
           this.#handleAbortable();
         }
 
-        this.abortable = new SuccessiveAbortable();
+        this.abortable = new AbortController();
 
         this.#discoveryStream = lazy.FindConfig.parallelAutoDiscovery(
-          this.abortable,
           domain,
           this.#email,
+          this.abortable.signal,
           this.#currentConfig?.incoming.password ||
             this.#currentConfig?.outgoing.password,
           this.#exchangeUsername
@@ -1221,7 +1242,7 @@ class AccountHubEmail extends HTMLElement {
     } finally {
       // If the user hit cancel, but the abortable shows a completed status,
       // the null abortable should tell us to throw a cancelled exception.
-      if (!this.abortable) {
+      if (!this.abortable || this.abortable.signal.aborted) {
         // eslint-disable-next-line no-unsafe-finally
         throw new UserCancelledException();
       }
@@ -1241,7 +1262,10 @@ class AccountHubEmail extends HTMLElement {
         config = await this.#guessConfig(domain, initialConfig);
       } catch (error) {
         this.#discoveryStream = null;
-        if (error instanceof UserCancelledException) {
+        if (
+          error instanceof UserCancelledException ||
+          error instanceof UserSkippedError
+        ) {
           throw error;
         }
       }
@@ -1252,7 +1276,10 @@ class AccountHubEmail extends HTMLElement {
         config = await this.#getExchangeAddons(config);
       } catch (error) {
         this.#discoveryStream = null;
-        if (error instanceof UserCancelledException) {
+        if (
+          error instanceof UserCancelledException ||
+          error instanceof UserSkippedError
+        ) {
           throw error;
         }
       }
@@ -1281,37 +1308,34 @@ class AccountHubEmail extends HTMLElement {
    *
    * @returns {Promise} - A promise waiting for guessConfig to complete.
    */
-  #guessConfig(domain, initialConfig) {
+  async #guessConfig(domain, initialConfig) {
     let configType = "both";
 
     if (initialConfig.outgoing?.existingServerKey) {
       configType = "incoming";
     }
 
-    const { promise, resolve, reject } = Promise.withResolvers();
-    this.abortable = lazy.GuessConfig.guessConfig(
-      domain,
-      (type, hostname, port, socketType) => {
-        // The guessConfig search progress is ongoing.
-        gAccountSetupLogger.debug(
-          `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
-        );
-      },
-      config => {
-        // The guessConfig was successful.
-        this.abortable = null;
-        resolve(config);
-      },
-      error => {
-        gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
-        reject(error);
-        this.abortable = null;
-      },
-      initialConfig,
-      configType
-    );
-
-    return promise;
+    this.abortable = new AbortController();
+    try {
+      const config = await lazy.GuessConfig.guessConfig(
+        domain,
+        (type, hostname, port, socketType) => {
+          // The guessConfig search progress is ongoing.
+          gAccountSetupLogger.debug(
+            `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
+          );
+        },
+        initialConfig,
+        configType,
+        this.abortable.signal
+      );
+      return config;
+    } catch (error) {
+      gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
+      throw error;
+    } finally {
+      this.abortable = null;
+    }
   }
 
   /**
@@ -1437,13 +1461,13 @@ class AccountHubEmail extends HTMLElement {
         this.#currentConfig.incoming.password ?? ""
       );
 
-      // Add a 1 second delay here to give the users a chance to skip this
-      // altogether.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
       // If the user hit cancel while loading, we won't fetch
       // the calendars and a UserSkippedError will be thrown.
       this.abortable.signal.throwIfAborted();
+
+      // Add a 1 second delay here to give the users a chance to skip this
+      // altogether.
+      await abortableTimeout(1000, this.abortable.signal);
 
       syncAccounts.calendars = await this.#getCalendars(
         this.#currentConfig.incoming.password ?? "",
@@ -1774,22 +1798,18 @@ class AccountHubEmail extends HTMLElement {
    * @returns {Promise} - A promise waiting for getAddonsList to complete.
    */
   async #getExchangeAddons(config) {
-    const { promise, resolve, reject } = Promise.withResolvers();
-
-    this.abortable = lazy.getAddonsList(
-      config,
-      () => {
-        resolve(config);
-      },
-      error => {
-        // We reject here, but this will silently fail as we don't need to
-        // show the user if we were unable to find add-ons for the config.
-        gAccountSetupLogger.error(`getExchangeAddons failed:`, error);
-        reject(error);
-      }
-    );
-
-    return promise;
+    this.abortable = new AbortController();
+    try {
+      config = await lazy.getAddonsList(config, this.abortable.signal);
+      return config;
+    } catch (error) {
+      // We reject here, but this will silently fail as we don't need to
+      // show the user if we were unable to find add-ons for the config.
+      gAccountSetupLogger.error(`getExchangeAddons failed:`, error);
+      throw error;
+    } finally {
+      this.abortable = null;
+    }
   }
 
   /**
@@ -1797,7 +1817,8 @@ class AccountHubEmail extends HTMLElement {
    */
   async #installAddon() {
     const addon = this.#currentConfig.addons[0];
-    const installer = (this.abortable = new AddonInstaller(addon));
+    this.abortable = new AbortController();
+    const installer = new AddonInstaller(addon, this.abortable.signal);
     await installer.install();
     this.abortable = null;
   }
@@ -1857,6 +1878,7 @@ class AccountHubEmail extends HTMLElement {
   async reset() {
     if (this.abortable) {
       this.#handleAbortable();
+      this.abortable = null;
     }
 
     this.#stopLoading();

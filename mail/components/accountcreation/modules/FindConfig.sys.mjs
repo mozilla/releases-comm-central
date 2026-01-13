@@ -15,9 +15,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
 const {
   CancelledException,
   gAccountSetupLogger,
-  ParallelAbortable,
-  PriorityOrderAbortable,
   UserCancelledException,
+  promiseFirstSuccessful,
 } = AccountCreationUtils;
 
 /**
@@ -30,10 +29,9 @@ const {
  *
  * @generator
  *
- * @param {SuccessiveAbortable} successiveAbortable - Encapsulates abortables
- *   in function call.
  * @param {string} domain - The domain of the emailAddress used for discovery.
  * @param {string} emailAddress - The emailAddress used for discovery.
+ * @param {AbortSignal} abortSignal
  * @param {string} [password] - Password if available, used for exchange.
  * @param {string} [exchangeUsername] - Separate username to authenticate
  *   exchange autodiscovery lookups with.
@@ -42,54 +40,38 @@ const {
  * @returns {?AccountConfig} @see AccountConfig.sys.mjs
  */
 async function* parallelAutoDiscovery(
-  successiveAbortable,
   domain,
   emailAddress,
+  abortSignal,
   password,
   exchangeUsername
 ) {
-  // We use several discovery mechanisms running in parallel in order to avoid
-  // excess delays if several of them in a row fail to find an appropriate
-  // configuration.
-  const discoveryTasks = new ParallelAbortable();
-
-  // Set up abortable calls before kicking off tasks so that our observer is
-  // guaranteed to not miss completion of any of them.
-  const priorityCall = discoveryTasks.addCall();
-  const autodiscoverCall = discoveryTasks.addCall();
-  successiveAbortable.current = discoveryTasks;
-
   // We prefer some discovery mechanisms over others to allow for local
   // configuration and to attempt to favor more up-to-date/accurate configs.
   // These will be run in parallel for speed, with successful discovery from a
   // source resulting in all lower-priority sources being cancelled. The
   // highest-priority mechanism to succeed wins.
-  const priorityQueue = new PriorityOrderAbortable(
-    priorityCall.successCallback(),
-    priorityCall.errorCallback()
-  );
-  priorityCall.setAbortable(priorityQueue);
+
+  const abortController = new AbortController();
+  // Construct a signal that will abort if either this code or external code
+  // requests an abort.
+  const signal = AbortSignal.any([abortSignal, abortController.signal]);
 
   // These are in order of importance.
   const lookups = ["fromDisk", "fromISP", "fromDB", "forMX"];
+  const allFinishedPromise = promiseFirstSuccessful(
+    lookups.map(lookup => {
+      const args = [domain, emailAddress, signal];
 
-  for (const lookup of lookups) {
-    const call = priorityQueue.addCall();
-    const args = [
-      domain,
-      emailAddress,
-      call.successCallback(),
-      call.errorCallback(),
-    ];
+      if (lookup === "fromDB" || lookup === "fromDisk") {
+        args.splice(1, 1);
+      }
 
-    if (lookup === "fromDB" || lookup === "fromDisk") {
-      args.splice(1, 1);
-    }
-
-    gAccountSetupLogger.debug(`Looking up configuration: using ${lookup}`);
-    const fetchConfiguration = lazy.FetchConfig[lookup](...args);
-    call.setAbortable(fetchConfiguration);
-  }
+      gAccountSetupLogger.debug(`Looking up configuration: using ${lookup}`);
+      return lazy.FetchConfig[lookup](...args);
+    }),
+    abortController
+  );
 
   // Microsoft Autodiscover is outside the priority ordering, as most of
   // those mechanisms are unlikely to produce an Exchange configuration even
@@ -97,82 +79,60 @@ async function* parallelAutoDiscovery(
   // Exchange config if available, so we want it to always complete.
   gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
   const redirectCallbackResolvers = Promise.withResolvers();
-  const { promise, resolve, reject } = Promise.withResolvers();
-  let acceptRedirect, cancelRedirect;
-  const autodiscoverTask = fetchConfigFromExchange(
+  let redirectResultResolvers;
+  const exchangePromise = fetchConfigFromExchange(
     domain,
     emailAddress,
+    abortSignal,
     exchangeUsername,
     password,
-    (host, accept, cancel, scheme) => {
-      acceptRedirect = accept;
-      cancelRedirect = cancel;
+    async (host, scheme, redirectSignal) => {
+      redirectResultResolvers = Promise.withResolvers();
       redirectCallbackResolvers.resolve({ host, scheme });
-    },
-    (...args) => {
-      autodiscoverCall.successCallback()(...args);
-      resolve();
-    },
-    (e, allErrors) => {
-      // Must call error callback in any case to stop the discover mode.
-      const errorCallback = autodiscoverCall.errorCallback();
-      if (e instanceof CancelledException) {
-        // If we've cancelled a redirect, we must resolve so the logic for
-        // having all of the priorty calls completed can run.
-        if (cancelRedirect) {
-          resolve();
-        } else {
-          reject(e);
-        }
-
-        errorCallback(e);
-      } else if (allErrors && allErrors.some(error => error.code == 401)) {
-        // Auth failed.
-        reject(
-          new Error("Exchange auth error", {
-            cause: {
-              fluentTitleId: "account-setup-credentials-wrong",
-            },
-          })
-        );
-
-        errorCallback(new CancelledException());
-      } else {
-        // This needs to resolve here so the logic for having all of the
-        // priority calls completed can run. Even if the autodiscover fails,
-        // we need to check the status of the priority calls below. The outside
-        // function can throw an error for the other instances of autodiscover
-        // failing (the two instances above).
-        resolve();
-        errorCallback(
-          new Error(e.message, {
-            ...e,
-            cause: {
-              error: e,
-              fluentTitleId: "account-setup-credentials-wrong",
-            },
-          })
-        );
-      }
+      const result = await redirectResultResolvers.promise;
+      redirectSignal.throwIfAborted();
+      return result;
     }
-  );
+  ).catch(exchangeError => {
+    // Must call error callback in any case to stop the discover mode.
+    if (exchangeError instanceof CancelledException) {
+      // If we've cancelled a redirect, we must resolve so the logic for
+      // having all of the priorty calls completed can run.
+      if (redirectResultResolvers) {
+        return;
+      }
 
-  autodiscoverCall.setAbortable(autodiscoverTask);
-
-  const allFinishedPromise = new Promise(resolvePromise => {
-    discoveryTasks.addAllFinishedObserver(() => resolvePromise());
+      throw exchangeError;
+    } else if (
+      exchangeError instanceof AggregateError &&
+      exchangeError.errors.some(error => error.code == 401)
+    ) {
+      // Auth failed.
+      throw new Error("Exchange auth error", {
+        cause: {
+          fluentTitleId: "account-setup-credentials-wrong",
+        },
+      });
+    } else {
+      // This needs to resolve here so the logic for having all of the
+      // priority calls completed can run. Even if the autodiscover fails,
+      // we need to check the status of the priority calls below. The outside
+      // function can throw an error for the other instances of autodiscover
+      // failing (the two instances above).
+    }
   });
 
+  let autodiscoverConfig;
   // If there is a 401 error with fetchConfigWithExchange, we need to throw an
   // error back to the function caller. If there is a 301 error, autodiscovery
   // will resolve the redirectCallbackResovlers promise, and we will yield here
   // to make sure the user confirms they want to submit their credentials.
   try {
     // Handle the 3rd party redirect callback as a promise.
-    await Promise.race([promise, redirectCallbackResolvers.promise]);
+    await Promise.race([exchangePromise, redirectCallbackResolvers.promise]);
     // acceptRedirect is set when exchange autodiscover requires confirmation
     // for submitting credentials to a 3rd party host.
-    if (acceptRedirect) {
+    if (redirectResultResolvers) {
       const { host, scheme } = await redirectCallbackResolvers.promise;
       const result = yield {
         isRedirect: true,
@@ -184,66 +144,71 @@ async function* parallelAutoDiscovery(
       // respond.
       if (result) {
         if (result.acceptRedirect) {
-          acceptRedirect();
+          redirectResultResolvers.resolve();
         } else {
-          cancelRedirect(new UserCancelledException());
+          redirectResultResolvers.reject(new UserCancelledException());
         }
       }
-
-      // If we handled the redirect promise first, we need to make sure we handle
-      // the audodiscovery promise right after in case there were any errors.
-      await promise;
     }
+    // If we handled the redirect promise first, we need to make sure we handle
+    // the audodiscovery promise right after in case there were any errors.
+    autodiscoverConfig = await exchangePromise;
   } catch (error) {
+    // "Handle" the rejections from the priority queue, by ignoring them.
+    allFinishedPromise.catch(rejectionError =>
+      gAccountSetupLogger.debug(rejectionError)
+    );
+
     if (error instanceof CancelledException) {
       throw new UserCancelledException();
     }
 
     let newError;
-    if (!error.cause.fluentTitleId) {
+    if (!error.cause?.fluentTitleId) {
       newError = new Error(error.message, {
         ...error,
         cause: { error, fluentTitleId: "account-setup-credentials-incomplete" },
       });
     }
 
-    discoveryTasks.cancel(error);
+    abortController.abort(newError || error);
 
     throw newError || error;
   }
 
-  await allFinishedPromise;
+  let config;
+  try {
+    ({ value: config } = await allFinishedPromise);
+  } catch (error) {
+    gAccountSetupLogger.debug(
+      "All priority-ordered config fetching mechanisms failed.",
+      error
+    );
+  }
 
   // Wait for both our priority discovery and Autodiscover search to complete
   // before deciding on a configuration to ensure we get an Exchange config if
   // one exists.
-  let config;
-
-  if (priorityCall.succeeded) {
+  if (config) {
     // One of the priority-ordered discovery mechanisms has succeeded. If
     // that mechanism did not produce an Exchange configuration and
     // Autodiscover also succeeded, we will add any Exchange configuration
     // it produced as an alternative.
-    config = priorityCall.result;
-
-    if (!getIncomingExchangeConfig(config) && autodiscoverCall.succeeded) {
-      const autodiscoverConfig = autodiscoverCall.result;
+    if (!getIncomingExchangeConfig(config) && autodiscoverConfig) {
       const exchangeIncoming = getIncomingExchangeConfig(autodiscoverConfig);
 
       if (exchangeIncoming) {
         config.incomingAlternatives.push(exchangeIncoming);
       }
     }
-  } else {
-    // None of the priority-ordered mechanisms produced a config.
-    if (!autodiscoverCall.succeeded) {
-      return null;
-    }
-
-    config = autodiscoverCall.result;
+    return config;
+  }
+  // None of the priority-ordered mechanisms produced a config.
+  if (!autodiscoverConfig) {
+    return null;
   }
 
-  return config;
+  return autodiscoverConfig;
 }
 
 /**

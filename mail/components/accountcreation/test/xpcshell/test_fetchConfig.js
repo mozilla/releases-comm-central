@@ -27,23 +27,22 @@ const { FetchConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FetchConfig.sys.mjs"
 );
 
-const { AccountCreationUtils } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
-);
-const { FetchHTTP } = ChromeUtils.importESModule(
+const { fetchHTTP } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FetchHTTP.sys.mjs"
 );
 const { JXON } = ChromeUtils.importESModule("resource:///modules/JXON.sys.mjs");
 
-const { Abortable, runAsync } = AccountCreationUtils;
+const { HttpsProxy } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+);
 
 // Save original references so we can restore them at the end of the test
 const _mx = DNS.mx;
-const _fetchHttpCreate = FetchHTTP.create;
 
 let server;
 
 add_setup(function () {
+  do_get_profile();
   server = new HttpServer();
   server.start(-1);
 });
@@ -53,7 +52,6 @@ registerCleanupFunction(function () {
   NetworkTestUtils.clearProxy();
   Services.prefs.clearUserPref("mailnews.auto_config_url");
   DNS.mx = _mx;
-  FetchHTTP.create = _fetchHttpCreate;
 });
 
 /**
@@ -76,17 +74,12 @@ add_task(async function testFetchConfigFromDisk() {
   });
 
   // Now run the actual test.
-  // Note we keep a global copy of this so that the abortable doesn't get
-  // garbage collected before the async operation has finished.
-  const { promise, resolve, reject } = Promise.withResolvers();
-  // eslint-disable-next-line no-unused-vars
-  const fetchConfigAbortable = FetchConfig.fromDisk(
+  const abortController = new AbortController();
+  const config = await FetchConfig.fromDisk(
     "example.com",
-    resolve,
-    reject
+    abortController.signal
   );
 
-  const config = await promise;
   // Check that we got the expected config.
   AccountConfig.replaceVariables(
     config,
@@ -125,14 +118,12 @@ add_task(async function testFetchConfigFromISP() {
 
   // Fetch the configuration file.
 
-  let { promise, resolve, reject } = Promise.withResolvers();
-  FetchConfig.fromISP(
+  const abortController = new AbortController();
+  let config = await FetchConfig.fromISP(
     "test.test",
     "yamato.nadeshiko@test.test",
-    resolve,
-    reject
+    abortController.signal
   );
-  let config = await promise;
 
   AccountConfig.replaceVariables(
     config,
@@ -172,14 +163,11 @@ add_task(async function testFetchConfigFromISP() {
 
   // Fetch the configuration file.
 
-  ({ promise, resolve, reject } = Promise.withResolvers());
-  FetchConfig.fromISP(
+  config = await FetchConfig.fromISP(
     "test.test",
     "yamato.nadeshiko@test.test",
-    resolve,
-    reject
+    abortController.signal
   );
-  config = await promise;
 
   AccountConfig.replaceVariables(
     config,
@@ -234,9 +222,8 @@ add_task(async function testFetchConfigFromDB() {
 
   // Fetch the configuration file.
 
-  let { promise, resolve, reject } = Promise.withResolvers();
-  FetchConfig.fromDB("test.test", resolve, reject);
-  let config = await promise;
+  const abortController = new AbortController();
+  let config = await FetchConfig.fromDB("test.test", abortController.signal);
 
   AccountConfig.replaceVariables(
     config,
@@ -276,9 +263,7 @@ add_task(async function testFetchConfigFromDB() {
 
   // Fetch the configuration file.
 
-  ({ promise, resolve, reject } = Promise.withResolvers());
-  FetchConfig.fromDB("test.test", resolve, reject);
-  config = await promise;
+  config = await FetchConfig.fromDB("test.test", abortController.signal);
 
   AccountConfig.replaceVariables(
     config,
@@ -338,14 +323,12 @@ add_task(async function testFetchConfigForMX() {
 
   // Fetch the configuration file.
 
-  let { promise, resolve, reject } = Promise.withResolvers();
-  FetchConfig.forMX(
+  const abortController = new AbortController();
+  let config = await FetchConfig.forMX(
     "example.com",
     "yamato.nadeshiko@example.com",
-    resolve,
-    reject
+    abortController.signal
   );
-  let config = await promise;
   AccountConfig.replaceVariables(
     config,
     "Yamato Nadeshiko",
@@ -380,14 +363,11 @@ add_task(async function testFetchConfigForMX() {
 
   // Fetch the configuration file.
 
-  ({ promise, resolve, reject } = Promise.withResolvers());
-  FetchConfig.forMX(
+  config = await FetchConfig.forMX(
     "example.com",
     "yamato.nadeshiko@example.com",
-    resolve,
-    reject
+    abortController.signal
   );
-  config = await promise;
 
   AccountConfig.replaceVariables(
     config,
@@ -422,28 +402,54 @@ add_task(async function testFetchConfigFromProviderViaMX() {
   // Set fallback database URL
   Services.prefs.setCharPref(
     "mailnews.auto_config_url",
-    "https://autoconfig.thunderbird.test/{{domain}}"
+    "https://alt.test.test/{{domain}}"
+  );
+
+  const providerConfigServer = new HttpServer();
+  const requests = [];
+  providerConfigServer.start(-1);
+  providerConfigServer.registerFile(
+    "/mail/config-v1.1.xml",
+    do_get_file("data/example.com.xml"),
+    request => {
+      requests.push(request);
+    }
+  );
+  providerConfigServer.registerPathHandler(
+    "/test.test",
+    (request, response) => {
+      requests.push(request);
+      response.setStatusLine("1.1", 404, "Not Found");
+      response.finish();
+    }
+  );
+  providerConfigServer.identity.add("https", "test.test");
+  providerConfigServer.identity.add("https", "alt.test.test");
+  //TODO need a cert that starts with autoconfig.
+  const secureProxy = await HttpsProxy.create(
+    providerConfigServer.identity.primaryPort,
+    "valid",
+    "autoconfig.test.test"
+  );
+  const secureAltProxy = await HttpsProxy.create(
+    providerConfigServer.identity.primaryPort,
+    "valid",
+    "alt.test.test"
   );
 
   // Mock DNS
   DNS.mx = function (name) {
     Assert.equal(name, "domain.test");
-    return Promise.resolve([{ prio: 0, host: "mx.provider.test" }]);
+    return Promise.resolve([{ prio: 0, host: "mx.test.test" }]);
   };
 
-  // Mock HTTP
-  const mockManager = new MockFetchHttpManager();
-  mockManager.addResponse(
-    "https://autoconfig.provider.test/mail/config-v1.1.xml",
-    await readFileToJxon("data/example.com.xml")
-  );
-  FetchHTTP.create = (url, args, successCallback, errorCallback) =>
-    mockManager.createMock(url, successCallback, errorCallback);
-
   // Fetch the configuration file
-  const { promise, resolve, reject } = Promise.withResolvers();
-  FetchConfig.forMX("domain.test", "user@domain.test", resolve, reject);
-  const config = await promise;
+  const abortController = new AbortController();
+  const config = await FetchConfig.forMX(
+    "domain.test",
+    "user@domain.test",
+    abortController.signal
+  );
 
   AccountConfig.replaceVariables(
     config,
@@ -461,67 +467,25 @@ add_task(async function testFetchConfigFromProviderViaMX() {
   Assert.equal(config.identity.emailAddress, "user@domain.test");
   Assert.equal(config.subSource, "xml-from-isp-https");
 
-  // Check the issued HTTP requests
-  Assert.deepEqual(mockManager.requests, [
-    "https://autoconfig.provider.test/mail/config-v1.1.xml",
-    "https://autoconfig.thunderbird.test/provider.test",
-  ]);
+  // Check the issued HTTP requests. We sort the arrays since the order of the
+  // requests is not absolutely stable.
+  Assert.deepEqual(
+    requests
+      .map(request => `${request.scheme}://${request.host}${request.path}`)
+      .sort(),
+    [
+      "http://localhost/mail/config-v1.1.xml",
+      "http://localhost/test.test",
+    ].sort()
+  );
+
+  secureProxy.destroy();
+  secureAltProxy.destroy();
+  providerConfigServer.stop();
 });
 
 async function readFileToJxon(filename) {
   const fileContents = await IOUtils.readUTF8(do_get_file(filename).path);
   const domParser = new DOMParser();
   return JXON.build(domParser.parseFromString(fileContents, "text/xml"));
-}
-
-/**
- * Can create `FetchHTTP`-like instances and records all HTTP requests made using them.
- */
-class MockFetchHttpManager {
-  responses = new Map();
-  requests = [];
-
-  addResponse(url, response) {
-    this.responses.set(url, response);
-  }
-
-  recordRequest(url) {
-    this.requests.push(url);
-  }
-
-  createMock(url, successCallback, errorCallback) {
-    const response = this.responses.get(url);
-    if (!response) {
-      return new MockFetchHttp(
-        this,
-        url,
-        new Error("No response configured"),
-        errorCallback
-      );
-    }
-
-    return new MockFetchHttp(this, url, response, successCallback);
-  }
-}
-
-/**
- * "Implementation" of `FetchHTTP` that returns a canned response.
- *
- * Use via `MockFetchHttpManager`.
- */
-class MockFetchHttp extends Abortable {
-  constructor(manager, url, response, callback) {
-    super();
-    this.manager = manager;
-    this.url = url;
-    this.response = response;
-    this.callback = callback;
-  }
-
-  start() {
-    this.manager.recordRequest(this.url);
-    runAsync(() => {
-      this.callback(this.response);
-    });
-  }
 }

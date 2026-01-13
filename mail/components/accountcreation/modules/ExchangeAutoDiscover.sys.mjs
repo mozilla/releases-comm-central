@@ -9,28 +9,22 @@ import { DNS } from "resource:///modules/DNS.sys.mjs";
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  setTimeout: "resource://gre/modules/Timer.sys.mjs",
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
-  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
+  fetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
 const {
-  Abortable,
   assert,
   ddump,
-  deepCopy,
   Exception,
   gAccountSetupLogger,
   getStringBundle,
-  OAuthAbortable,
-  PriorityOrderAbortable,
-  PromiseAbortable,
-  SuccessiveAbortable,
-  TimeoutAbortable,
   UserCancelledException,
+  promiseFirstSuccessful,
+  abortableTimeout,
 } = AccountCreationUtils;
 
 /**
@@ -45,37 +39,24 @@ const {
  * A deep copy of `callArgs` is always done before modifying it, so it can be
  * reused between calls.
  *
- * @param {ParallelCall} call - The abortable call to register the FetchHTTP
- *   object with.
  * @param {string} url - The URL to fetch.
  * @param {string} username - The username to use for Basic auth and OAuth2.
  * @param {string} password - The password to use for Basic auth.
- * @param {object} callArgs - The arguments to use when creating the new
- *   FetchHTTP object. This object is not expected to include any authentication
- *   parameters or headers.
+ * @param {object} callArgs - The arguments to use when calling fetchHTTP. This
+ *   object is not expected to include any authentication parameters or headers.
+ * @returns {any} The response body from the target URL, probably an object.
  */
-function startFetchWithAuth(call, url, username, password, callArgs) {
-  // Creates a new FetchHTTP object with the given arguments, registers it with
-  // the abortable call, and initiates the fetch.
-  function setUpAndStart(args) {
-    const fetchHttp = new lazy.FetchHTTP(
-      url,
-      args,
-      call.successCallback(),
-      call.errorCallback()
-    );
-    call.setAbortable(fetchHttp);
-    fetchHttp.start();
-  }
-
+async function startFetchWithAuth(url, username, password, callArgs) {
   // Start a fetch with Basic auth using the credentials provided by the
   // consumer.
   function fetchWithBasicAuth() {
-    const args = deepCopy(callArgs);
-    args.username = username;
-    args.password = password;
+    const args = {
+      ...callArgs,
+      username,
+      password,
+    };
 
-    setUpAndStart(args);
+    return lazy.fetchHTTP(url, args);
   }
 
   const oauth2Module = new OAuth2Module();
@@ -83,7 +64,6 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   // Initialize an OAuth2 module and determine whether we support a provider
   // associated with the provided domain.
   const uri = Services.io.newURI(url);
-  call.setAbortable(new OAuthAbortable(oauth2Module));
   let isOAuth2Available = oauth2Module.initFromHostname(
     uri.host,
     username,
@@ -103,36 +83,49 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
     "exchange"
   );
   if (isOAuth2Available) {
-    oauth2Module.getAccessToken({
-      onSuccess: token => {
-        gAccountSetupLogger.debug(
-          "Exchange Autodiscover: Successfully retrieved an OAuth2 token"
-        );
+    const abortOauth = () => {
+      oauth2Module.cancelPrompt();
+    };
+    callArgs.signal.addEventListener("abort", abortOauth, { once: true });
+    try {
+      const token = await new Promise((resolve, reject) => {
+        oauth2Module.getAccessToken({
+          onSuccess: resolve,
+          onFailure: reject,
+        });
+      });
+      callArgs.signal.removeEventListener("abort", abortOauth, { once: true });
 
-        // Adapt the call args so we auth via OAuth2. We need to clone the args
-        // in case we need to fall back to Basic auth in order to avoid any
-        // potential side effects.
-        const args = deepCopy(callArgs);
-        args.headers.Authorization = `Bearer ${token}`;
+      gAccountSetupLogger.debug(
+        "Exchange Autodiscover: Successfully retrieved an OAuth2 token"
+      );
 
-        setUpAndStart(args);
-      },
-      onFailure: () => {
-        if (call.callerAbortable.cancelled) {
-          call.errorCallback()(new UserCancelledException("OAuth cancelled"));
-          return;
-        }
+      // Adapt the call args so we auth via OAuth2. We need to clone the args
+      // in case we need to fall back to Basic auth in order to avoid any
+      // potential side effects.
+      const args = {
+        ...callArgs,
+        headers: {
+          ...callArgs.headers,
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-        gAccountSetupLogger.warn(
-          "Exchange Autodiscover: Could not retrieve an OAuth2 token; falling back to Basic auth"
-        );
+      return lazy.fetchHTTP(url, args);
+    } catch (error) {
+      if (callArgs.signal.aborted) {
+        throw new UserCancelledException("OAuth cancelled");
+      }
 
-        fetchWithBasicAuth();
-      },
-    });
+      gAccountSetupLogger.warn(
+        "Exchange Autodiscover: Could not retrieve an OAuth2 token; falling back to Basic auth"
+      );
+
+      return fetchWithBasicAuth();
+    }
   } else {
     // If we can't do OAuth2 for this domain, fall back to Basic auth.
-    fetchWithBasicAuth();
+    return fetchWithBasicAuth();
   }
 }
 
@@ -148,40 +141,31 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
  * wish to continue and send an authenticated request to the new URL, or to
  * cancel.
  *
- * @param {PriorityOrderAbortable} priority - The `PriorityOrderAbortable` to
- *   use for creating new calls.
  * @param {string} newURL - The new URL to fetch if deemed safe.
  * @param {string} srcDomain - The domain part of the user's address.
  * @param {string} username - The username to use for authentication.
  * @param {string} password - The password to use for authentication.
- * @param {object} httpArgs - The arguments to pass to FetchHTTP.
- * @param {Function} confirmCallback - A function that prompts the user to
- *   confirm (or cancel) if the domain on which the new request would be sent is
- *   deemed potentially unsafe.
- * @param {Function} errorCallback - A function that handles any error that
- *   might occur throughout the process.
+ * @param {object} httpArgs - The arguments to pass to fetchHTTP.
+ * @param {function(string):Promise} confirmCallback - A function that prompts
+ *   the user to confirm (or cancel) if the domain on which the new request
+ *   would be sent is deemed potentially unsafe.
+ * @returns {any} The response body from the target, probably an object.
  */
-function fetchFromPotentiallyUnsafeAddress(
-  priority,
+async function fetchFromPotentiallyUnsafeAddress(
   newURL,
   srcDomain,
   username,
   password,
   httpArgs,
-  confirmCallback,
-  errorCallback
+  confirmCallback
 ) {
   const newURI = Services.io.newURI(newURL);
   const newDomain = Services.eTLD.getBaseDomain(newURI);
   const originalDomain = Services.eTLD.getBaseDomainFromHost(srcDomain);
 
   function fetchNewURL() {
-    // Note: We need the call to be added here so `priority` does not
-    // believe it has exhausted all of its calls when we move into further
-    // async layers.
-    const fetchCall = priority.addCall();
     // Now that we're on an HTTPS URL, try again with authentication.
-    startFetchWithAuth(fetchCall, newURL, username, password, httpArgs);
+    return startFetchWithAuth(newURL, username, password, httpArgs);
   }
 
   const kSafeDomains = ["office365.com", "outlook.com"];
@@ -191,37 +175,13 @@ function fetchFromPotentiallyUnsafeAddress(
     gAccountSetupLogger.info(
       `Trying new domain for Autodiscover from HTTP redirect or SRV lookup: ${newDomain}`
     );
-    const dialogSuccessive = new SuccessiveAbortable();
-    // Because the dialog implements Abortable, the dialog will cancel and
-    // close automatically, if a slow higher priority call returns late.
-    const dialogCall = priority.addCall();
-    dialogCall.setAbortable(dialogSuccessive);
-    errorCallback(new Exception("Redirected"));
-    dialogSuccessive.current = new TimeoutAbortable(
-      lazy.setTimeout(() => {
-        dialogSuccessive.current = confirmCallback(
-          newDomain,
-          () => {
-            // User agreed.
-            fetchNewURL();
-            // Remove the dialog from the call stack.
-            dialogCall.errorCallback()(new Exception("Proceed to fetch"));
-          },
-          e => {
-            // User rejected, or action cancelled otherwise.
-            dialogCall.errorCallback()(e);
-          },
-          newURI.scheme
-        );
-        // Account for a slow server response.
-        // This will prevent showing the warning message when not necessary.
-        // The timeout is just for optics. The Abortable ensures that it works.
-      }, 2000)
-    );
-  } else {
-    fetchNewURL();
-    errorCallback(new Exception("Redirected"));
+    // Account for a slow server response.
+    // This will prevent showing the warning message when not necessary.
+    await abortableTimeout(2000, httpArgs.signal);
+    await confirmCallback(newDomain, newURI.scheme, httpArgs.signal);
+    httpArgs.signal.throwIfAborted();
   }
+  return fetchNewURL();
 }
 
 /**
@@ -235,42 +195,31 @@ function fetchFromPotentiallyUnsafeAddress(
  *
  * @param {string} domain - The domain part of the user's email address
  * @param {string} emailAddress - The user's email address
+ * @param {AbortSignal} abortSignal
  * @param {?string} username - (Optional) The user's login name.
  *   If null, email address will be used.
  * @param {string} password - The user's password for that email address
- * @param {function(string,Function,Function):void} confirmCallback - A callback
- *   Function(domain, okCallback, cancelCallback) that will be called to confirm
- *   redirection to another domain.
- * @param {function(AccountConfig):void} successCallback - A callback function
- *   {Function(config {AccountConfig})} that
- *   will be called when we could retrieve a configuration.
- *   The AccountConfig object will be passed in as first parameter.
- * @param {function(Error):void} errorCallback - A callback that
- *   will be called when we could not retrieve a configuration,
- *   for whatever reason. This is expected (e.g. when there's no config
- *   for this domain at this location),
- *   so do not unconditionally show this to the user.
- *   The first parameter will be an exception object or error string.
+ * @param {function(string):Promise} confirmCallback - A callback
+ *   Function(domain) that will be called to confirm redirection to another
+ *   domain. It is expected to return a promise that resolves if the request
+ *   should continue, and rejects if the redirect shouldn't be followed.
+ * @returns {AccountConfig}
  */
-export function fetchConfigFromExchange(
+export async function fetchConfigFromExchange(
   domain,
   emailAddress,
+  abortSignal,
   username,
   password,
-  confirmCallback,
-  successCallback,
-  errorCallback
+  confirmCallback
 ) {
-  assert(typeof successCallback == "function");
-  assert(typeof errorCallback == "function");
   if (
     !Services.prefs.getBoolPref(
       "mailnews.auto_config.fetchFromExchange.enabled",
       true
     )
   ) {
-    errorCallback("Exchange AutoDiscover disabled per user preference");
-    return new Abortable();
+    throw new Error("Exchange AutoDiscover disabled per user preference");
   }
 
   // <https://technet.microsoft.com/en-us/library/bb124251(v=exchg.160).aspx#Autodiscover%20services%20in%20Outlook>
@@ -294,6 +243,7 @@ export function fetchConfigFromExchange(
         <AcceptableResponseSchema>http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a</AcceptableResponseSchema>
       </Request>
     </Autodiscover>`;
+  const priorityAbortController = new AbortController();
   const callArgs = {
     uploadBody: body,
     post: true,
@@ -302,147 +252,111 @@ export function fetchConfigFromExchange(
       // Compare bug 1454325 comment 15.
       "Content-Type": "text/xml; charset=utf-8",
     },
-    allowAuthPrompt: false,
+    signal: AbortSignal.any([abortSignal, priorityAbortController.signal]),
   };
-  const successive = new SuccessiveAbortable();
-  const priority = new PriorityOrderAbortable(function (xml, call) {
-    // success
-    readAutoDiscoverResponse(
-      xml,
-      successive,
-      emailAddress,
-      username,
-      password,
-      confirmCallback,
-      config => {
-        config.subSource = `exchange-from-${call.foundMsg}`;
-        return detectStandardProtocols(config, domain, successCallback);
-      },
-      errorCallback
-    );
-  }, errorCallback); // all failed
-
   const authUsername = username || emailAddress;
-
-  const call1 = priority.addCall();
-  call1.foundMsg = "url1";
-  startFetchWithAuth(call1, url1, authUsername, password, callArgs);
-
-  const call2 = priority.addCall();
-  call2.foundMsg = "url2";
-  startFetchWithAuth(call2, url2, authUsername, password, callArgs);
-
-  const call3 = priority.addCall();
-  call3.foundMsg = "url3";
-  const call3ErrorCallback = call3.errorCallback();
-  // url3 is HTTP (not HTTPS), so don't authenticate. Even MS spec demands so.
-  const fetch3 = new lazy.FetchHTTP(
-    url3,
-    callArgs,
-    call3.successCallback(),
-    ex => {
-      gAccountSetupLogger.debug("HTTP request failed with: " + ex);
-      // url3 is an HTTP URL that will redirect to the real one, usually a
-      // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
-      // parameters, drops the auth, drops the body, and turns POST into GET,
-      // which cause the call to fail. For AutoDiscover mechanism to work,
-      // we need to repeat the call with the correct parameters again.
-      const redirectURL = fetch3._request.responseURL;
-      if (!redirectURL.startsWith("https:")) {
-        call3ErrorCallback(ex);
-        return;
-      }
-
-      fetchFromPotentiallyUnsafeAddress(
-        priority,
-        redirectURL,
-        domain,
-        authUsername,
-        password,
-        callArgs,
-        confirmCallback,
-        call3ErrorCallback
-      );
-    }
-  );
-  fetch3.start();
-  call3.setAbortable(fetch3);
-
-  // On top of the HTTP(S) calls we perform, we also want to see if there's at
-  // least one SRV record for Autodiscover on the domain. If there is, we'll
-  // treat the URL we derive from it the same way we treat the URLs we get from
-  // HTTP redirects (i.e. using `fetchFromPotentiallyUnsafeAddress`), since they
-  // both come from insecure, unauthenticated sources.
-  const call4 = priority.addCall();
-  call4.foundMsg = "srv";
-  const call4ErrorCallback = call4.errorCallback();
-  const srvAbortable = new PromiseAbortable(
-    DNS.srv(`_autodiscover._tcp.${domain}`),
-    records => {
-      // Sort the records by weight. RFC 2782 says hosts with higher weight
-      // should be given a higher probability of being selected.
-      const hostname = records.sort((a, b) => a.weight - b.weight)[0]?.host;
-
-      // It's not clear how likely it is that the lookup succeeds but does not
-      // provide any answer. It's unlikely to happen, but this is here just to
-      // be safe.
-      if (!hostname) {
-        call4ErrorCallback(
-          new Error(`no SRV record for _autodiscover._tcp.${domain}`)
+  const { value: xml, index } = await promiseFirstSuccessful(
+    [
+      startFetchWithAuth(url1, authUsername, password, callArgs),
+      startFetchWithAuth(url2, authUsername, password, callArgs),
+      // url3 is HTTP (not HTTPS), so don't authenticate. Even MS spec demands so.
+      lazy.fetchHTTP(url3, callArgs).catch(error => {
+        gAccountSetupLogger.debug(
+          "HTTP request failed with:",
+          error.url,
+          error.code,
+          error
         );
-      }
+        // url3 is an HTTP URL that will redirect to the real one, usually a
+        // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
+        // parameters, drops the auth, drops the body, and turns POST into GET,
+        // which cause the call to fail. For AutoDiscover mechanism to work,
+        // we need to repeat the call with the correct parameters again.
+        if (!error.url?.startsWith("https:")) {
+          throw error;
+        }
 
-      // Build the full URL for autodiscover using the hostname with the highest
-      // priority.
-      const autodiscoverURL = `https://${lazy.Sanitizer.hostname(hostname)}/autodiscover/autodiscover.xml`;
+        return fetchFromPotentiallyUnsafeAddress(
+          error.url,
+          domain,
+          authUsername,
+          password,
+          callArgs,
+          confirmCallback
+        );
+      }),
+      // On top of the HTTP(S) calls we perform, we also want to see if there's at
+      // least one SRV record for Autodiscover on the domain. If there is, we'll
+      // treat the URL we derive from it the same way we treat the URLs we get from
+      // HTTP redirects (i.e. using `fetchFromPotentiallyUnsafeAddress`), since they
+      // both come from insecure, unauthenticated sources.
+      DNS.srv(`_autodiscover._tcp.${domain}`).then(records => {
+        callArgs.signal.throwIfAborted();
+        // Sort the records by weight. RFC 2782 says hosts with higher weight
+        // should be given a higher probability of being selected.
+        const hostname = records.toSorted((a, b) => a.weight - b.weight)[0]
+          ?.host;
 
-      fetchFromPotentiallyUnsafeAddress(
-        priority,
-        autodiscoverURL,
-        domain,
-        authUsername,
-        password,
-        callArgs,
-        confirmCallback,
-        call4ErrorCallback
-      );
-    },
-    call4ErrorCallback
+        // It's not clear how likely it is that the lookup succeeds but does not
+        // provide any answer. It's unlikely to happen, but this is here just to
+        // be safe.
+        if (!hostname) {
+          throw new Error(`no SRV record for _autodiscover._tcp.${domain}`);
+        }
+
+        // Build the full URL for autodiscover using the hostname with the highest
+        // priority.
+        const autodiscoverURL = `https://${lazy.Sanitizer.hostname(hostname)}/autodiscover/autodiscover.xml`;
+
+        return fetchFromPotentiallyUnsafeAddress(
+          autodiscoverURL,
+          domain,
+          authUsername,
+          password,
+          callArgs,
+          confirmCallback
+        );
+      }),
+    ],
+    priorityAbortController
   );
-  call4.setAbortable(srvAbortable);
-
-  successive.current = priority;
-  return successive;
+  const config = await readAutoDiscoverResponse(
+    xml,
+    emailAddress,
+    username,
+    password,
+    confirmCallback,
+    abortSignal
+  );
+  const names = ["url1", "url2", "url3", "srv"];
+  config.subSource = `exchange-from-${names[index]}`;
+  return detectStandardProtocols(config, domain, abortSignal);
 }
 
 var gLoopCounter = 0;
 
 /**
  * @param {object} autoDiscoverXML - The Exchange server AutoDiscover response, as JXON.
- * @param {Abortable} successive
  * @param {string} emailAddress - Email address.
  * @param {string} username - Username.
  * @param {string} password - Password.
- * @param {function(string,Function,Function):void} confirmCallback - A callback
- *   Function(domain, okCallback, cancelCallback) that will be called to confirm
- *   redirection to another domain.
- * @param {function(AccountConfig):void} successCallback - @see accountConfig.js
- * @param {function(Error):void} errorCallback - @see accountConfig.js
+ * @param {function(string):Promise} confirmCallback - A callback
+ *   Function(domain) that will be called to confirm redirection to another
+ *   domain. It is expected to return a promise that resolves if the request
+ *   should continue, and rejects if the redirect shouldn't be followed.
+ * @param {AbortSignal} abortSignal - The abort signal that can cancel this
+ *   operation.
+ * @returns {AccountConfig}
+ * @throws {Exception} Throws if no complete config can be found.
  */
-function readAutoDiscoverResponse(
+async function readAutoDiscoverResponse(
   autoDiscoverXML,
-  successive,
   emailAddress,
   username,
   password,
   confirmCallback,
-  successCallback,
-  errorCallback
+  abortSignal
 ) {
-  assert(successive instanceof SuccessiveAbortable);
-  assert(typeof successCallback == "function");
-  assert(typeof errorCallback == "function");
-
   // redirect to other email address
   if (autoDiscoverXML?.Autodiscover?.Response?.Account?.RedirectAddr) {
     // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
@@ -453,7 +367,7 @@ function readAutoDiscoverResponse(
     if (++gLoopCounter > 2) {
       throw new Error("Too many redirects in XML response; domain=" + domain);
     }
-    successive.current = fetchConfigFromExchange(
+    return fetchConfigFromExchange(
       domain,
       redirectEmailAddress,
       // Per spec, need to authenticate with the original email address,
@@ -461,24 +375,19 @@ function readAutoDiscoverResponse(
       username || emailAddress,
       password,
       confirmCallback,
-      successCallback,
-      errorCallback
+      abortSignal
     );
-    return;
   }
 
-  let success = false;
-  let config;
   try {
-    config = readAutoDiscoverXML(autoDiscoverXML, username);
-    success = config.isComplete();
+    const config = readAutoDiscoverXML(autoDiscoverXML, username);
+    if (config.isComplete()) {
+      return config;
+    }
+    throw new Error("Only an incomplete config found");
   } catch (error) {
     gAccountSetupLogger.log(error);
-  }
-  if (success) {
-    successCallback(config);
-  } else {
-    errorCallback(new Exception("No valid configs found in AutoDiscover XML"));
+    throw new Exception("No valid configs found in AutoDiscover XML");
   }
 }
 
@@ -649,57 +558,49 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 }
 
 /**
- * Ask server which addons can handle this config.
+ * Ask server which add-ons can handle this config.
  *
  * @param {AccountConfig} config
- * @param {function(AccountConfig):void} successCallback
- * @returns {Abortable}
+ * @param {AbortSignal} abortSignal
+ * @returns {AccountConfig} Same config to the one passed in, possibly augmented
+ *   with available add-ons.
  */
-export function getAddonsList(config, successCallback, errorCallback) {
+export async function getAddonsList(config, abortSignal) {
   const incoming = [config.incoming, ...config.incomingAlternatives].find(
     alt => alt.type == "exchange"
   );
   if (!incoming) {
-    successCallback();
-    return new Abortable();
+    return config;
   }
   const url = Services.prefs.getCharPref("mailnews.auto_config.addons_url");
   if (!url) {
-    errorCallback(new Exception("no URL for addons list configured"));
-    return new Abortable();
+    throw new Exception("no URL for addons list configured");
   }
-  const fetchHttp = new lazy.FetchHTTP(
-    url,
-    { allowCache: true, timeout: 10000 },
-    function (json) {
-      let addons = readAddonsJSON(json);
-      addons = addons.filter(addon => {
-        // Find types matching the current config.
-        // Pick the first in the list as the preferred one and
-        // tell the UI to use that one.
-        addon.useType = addon.supportedTypes.find(
-          type =>
-            (incoming.owaURL && type.protocolType == "owa") ||
-            (incoming.exchangeURL && type.protocolType == "ews") ||
-            (incoming.easURL && type.protocolType == "eas")
-        );
-        return !!addon.useType;
-      });
-      if (addons.length == 0) {
-        errorCallback(
-          new Exception(
-            "Config found, but no addons known to handle the config"
-          )
-        );
-        return;
-      }
-      config.addons = addons;
-      successCallback(config);
-    },
-    errorCallback
-  );
-  fetchHttp.start();
-  return fetchHttp;
+  const json = await lazy.fetchHTTP(url, {
+    allowCache: true,
+    timeout: 10000,
+    signal: abortSignal,
+  });
+  let addons = readAddonsJSON(json);
+  addons = addons.filter(addon => {
+    // Find types matching the current config.
+    // Pick the first in the list as the preferred one and
+    // tell the UI to use that one.
+    addon.useType = addon.supportedTypes.find(
+      type =>
+        (incoming.owaURL && type.protocolType == "owa") ||
+        (incoming.exchangeURL && type.protocolType == "ews") ||
+        (incoming.easURL && type.protocolType == "eas")
+    );
+    return !!addon.useType;
+  });
+  if (addons.length == 0) {
+    throw new Exception(
+      "Config found, but no addons known to handle the config"
+    );
+  }
+  config.addons = addons;
+  return config;
 }
 
 /**
@@ -804,20 +705,20 @@ function readAddonsJSON(json) {
  * Probe a found Exchange server for IMAP/POP3 and SMTP support.
  *
  * @param {AccountConfig} config - The initial detected Exchange configuration.
- * @param {string} domain - The domain part of the user's email address
- * @param {function(AccountConfig):void} successCallback - A callback that
- *   will be called when we found an appropriate configuration.
- *   The AccountConfig object will be passed in as first parameter.
+ * @param {string} domain - The domain part of the user's email address.
+ * @param {AbortSignal} abortSignal - Signal indicating when the operation
+ *   should be aborted.
+ * @returns {AccountConfig} The resulting config that includes standard
+ *   protocols.
  */
-function detectStandardProtocols(config, domain, successCallback) {
+async function detectStandardProtocols(config, domain, abortSignal) {
   gAccountSetupLogger.info("Exchange Autodiscover gave some results.");
   const alts = [config.incoming, ...config.incomingAlternatives];
   if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
     // Autodiscover found an exchange server with advertised IMAP and/or
     // POP3 support. We're done then.
     config.preferStandardProtocols();
-    successCallback(config);
-    return;
+    return config;
   }
 
   // Autodiscover is known not to advertise all that it supports. Let's see
@@ -841,24 +742,23 @@ function detectStandardProtocols(config, domain, successCallback) {
     config2.outgoingAlternatives.push(config.outgoing);
   }
 
-  lazy.GuessConfig.guessConfig(
-    domain,
-    function (type, hostname) {
-      gAccountSetupLogger.info(
-        `Probing exchange server ${hostname} for ${type} protocol support.`
-      );
-    },
-    function (probedConfig) {
-      // Probing succeeded: found open protocols, yay!
-      successCallback(probedConfig);
-    },
-    function () {
-      // Probing didn't find any open protocols.
-      // Let's use the exchange (only) config that was listed then.
-      config.subSource += "-guess";
-      successCallback(config);
-    },
-    config2,
-    "both"
-  );
+  try {
+    const config3 = await lazy.GuessConfig.guessConfig(
+      domain,
+      function (type, hostname) {
+        gAccountSetupLogger.info(
+          `Probing exchange server ${hostname} for ${type} protocol support.`
+        );
+      },
+      config2,
+      "both",
+      abortSignal
+    );
+    return config3;
+  } catch (error) {
+    // Probing didn't find any open protocols.
+    // Let's use the exchange (only) config that was listed then.
+    config.subSource += "-guess";
+    return config;
+  }
 }
