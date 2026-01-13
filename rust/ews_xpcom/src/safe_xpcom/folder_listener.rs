@@ -8,9 +8,10 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderListener};
 
-use crate::error::XpComEwsError;
-
-use super::{SafeListener, SafeListenerWrapper};
+use crate::{
+    error::XpComEwsError,
+    safe_xpcom::{SafeListener, SafeListenerWrapper},
+};
 
 /// See [`SafeListenerWrapper`].
 pub(crate) type SafeEwsFolderListener = SafeListenerWrapper<IEwsFolderListener>;

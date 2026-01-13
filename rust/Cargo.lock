@@ -2790,10 +2790,19 @@ dependencies = [
 name = "graph_xpcom"
 version = "0.1.0"
 dependencies = [
+ "http",
+ "log",
+ "mailnews_ui_glue",
+ "moz_http",
+ "moz_task",
+ "ms_graph_tb",
  "nserror",
  "nsstring",
  "protocol_shared",
+ "serde",
+ "serde_json",
  "thin-vec",
+ "thiserror 1.999.999",
  "url",
  "xpcom",
  "xpcom_async",

@@ -5,6 +5,8 @@ edition = "2021"
 rust-version.workspace = true
 
 [dependencies]
+http = "0.2.9"
+ms_graph_tb = { version = "0.1.0", path = "../ms_graph_tb" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
 nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 protocol_shared = { version = "0.1.0", path = "../protocol_shared" }
@@ -12,3 +14,10 @@ xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
 xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 url = "2.5.0"
+mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
+moz_http = { version = "0.1.0", path = "../moz_http" }
+moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
+log = "0.4.21"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0.56"

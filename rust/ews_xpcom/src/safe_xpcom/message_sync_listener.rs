@@ -13,7 +13,7 @@ use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHea
 /// See [`SafeListenerWrapper`].
 pub(crate) type SafeEwsMessageSyncListener = SafeListenerWrapper<IEwsMessageSyncListener>;
 
-impl SafeListenerWrapper<IEwsMessageSyncListener> {
+impl SafeEwsMessageSyncListener {
     /// Convert types and forward to
     /// [`IEwsMessageSyncListener::OnMessageCreated`].
     pub fn on_message_created<S: AsRef<str>>(
@@ -89,7 +89,7 @@ impl SafeListenerWrapper<IEwsMessageSyncListener> {
     }
 }
 
-impl SafeListener for SafeListenerWrapper<IEwsMessageSyncListener> {
+impl SafeListener for SafeEwsMessageSyncListener {
     type OnSuccessArg = ();
     type OnFailureArg = ();
 

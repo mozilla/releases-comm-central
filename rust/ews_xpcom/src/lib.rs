@@ -14,7 +14,10 @@ use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
 use nsstring::{nsACString, nsCString};
-use protocol_shared::ExchangeConnectionDetails;
+use protocol_shared::{
+    safe_xpcom::{uri::SafeUri, SafeUrlListener},
+    ExchangeConnectionDetails,
+};
 use std::{cell::OnceCell, ffi::c_void, sync::Arc};
 use thin_vec::ThinVec;
 use url::Url;
@@ -30,7 +33,7 @@ use xpcom::{
 use client::XpComEwsClient;
 use safe_xpcom::{
     SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
-    SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUri, SafeUrlListener,
+    SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
 };
 
 mod cancellable_request;

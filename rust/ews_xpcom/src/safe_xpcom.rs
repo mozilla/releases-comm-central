@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use nserror::nsresult;
+use protocol_shared::safe_xpcom::SafeUrlListener;
 use std::ops::Deref;
 use xpcom::{interfaces::IEwsFallibleOperationListener, RefCounted, RefPtr, XpCom};
 
@@ -13,8 +14,8 @@ pub(crate) use message_sync_listener::*;
 pub(crate) use msg_db_hdr::*;
 pub(crate) use msg_outgoing_listener::*;
 pub(crate) use simple_operation_listener::*;
-pub(crate) use uri::*;
-pub(crate) use url_listener::*;
+
+use crate::error::XpComEwsError;
 
 mod folder_listener;
 mod message_create_listener;
@@ -23,10 +24,6 @@ mod message_sync_listener;
 mod msg_db_hdr;
 mod msg_outgoing_listener;
 mod simple_operation_listener;
-mod uri;
-mod url_listener;
-
-use crate::error::XpComEwsError;
 
 /// A non-public trait to get the internal listener of a [`SafeListener`].
 trait UnsafeListener {
@@ -70,7 +67,7 @@ pub(crate) trait SafeListener: UnsafeListener {
 /// Wrapper newtype for the various listeners that utilizes only safe Rust types
 /// in its public interface and handles converting to unsafe types and call to
 /// the underlying unsafe C++ callbacks with validated data.
-pub struct SafeListenerWrapper<L: RefCounted + 'static>(RefPtr<L>);
+pub(crate) struct SafeListenerWrapper<L: RefCounted + 'static>(RefPtr<L>);
 
 impl<L: RefCounted + 'static> SafeListenerWrapper<L> {
     /// Return a new wrapper for the given listener. The given borrow is placed
@@ -90,7 +87,7 @@ impl<L: XpCom> UnsafeListener for SafeListenerWrapper<L> {
 }
 
 /// Perform any actions appropriate when an error associated with the listener is encountered.
-pub fn handle_error<L: SafeListener>(
+pub(crate) fn handle_error<L: SafeListener>(
     listener: &L,
     op_name: &str,
     err: &XpComEwsError,
@@ -100,5 +97,15 @@ pub fn handle_error<L: SafeListener>(
 
     if let Err(err) = listener.on_failure(err, on_failure_arg) {
         log::error!("the error callback returned a failure ({err})");
+    }
+}
+
+// We are implementing this trait in this module as an interim step while we
+// move more of the safe listener implementations to `protocol_shared`.
+impl UnsafeListener for SafeUrlListener {
+    fn unsafe_listener(&self) -> impl std::ops::Deref<Target = impl xpcom::XpCom> {
+        // SAFETY: The private connection here with the safe listener framework
+        // is the only place it is safe to call this function.
+        unsafe { self.unsafe_listener() }
     }
 }

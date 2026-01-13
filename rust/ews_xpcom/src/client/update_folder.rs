@@ -16,7 +16,7 @@ use super::{
 
 use crate::{
     macros::queue_operation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, UseLegacyFallback},
+    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
 };
 
 struct DoUpdateFolder {
@@ -69,10 +69,7 @@ impl DoOperation for DoUpdateFolder {
         Ok(())
     }
 
-    fn into_success_arg(
-        self,
-        _ok: Self::Okay,
-    ) -> <Self::Listener as crate::safe_xpcom::SafeListener>::OnSuccessArg {
+    fn into_success_arg(self, _ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg {
         (std::iter::empty::<String>(), UseLegacyFallback::No).into()
     }
 

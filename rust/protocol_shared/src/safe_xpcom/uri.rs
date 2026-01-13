@@ -15,7 +15,7 @@ use xpcom::{
 /// its public interface and handles converting to unsafe types and call to the
 /// underlying unsafe C++ interface with validated data.
 #[derive(Clone)]
-pub(crate) struct SafeUri(RefPtr<nsIURI>);
+pub struct SafeUri(RefPtr<nsIURI>);
 
 impl SafeUri {
     /// Constructs a new `SafeUri` using [`nsIIOService::NewURI`].

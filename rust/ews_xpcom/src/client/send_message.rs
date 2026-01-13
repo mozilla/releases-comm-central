@@ -9,10 +9,11 @@ use ews::{
     create_item::CreateItem, ArrayOfRecipients, Message, MessageDisposition, MimeContent,
     Operation, RealItem, Recipient,
 };
+use protocol_shared::safe_xpcom::uri::SafeUri;
 
 use super::{DoOperation, ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
 
-use crate::safe_xpcom::{SafeListener, SafeMsgOutgoingListener, SafeUri};
+use crate::safe_xpcom::{SafeListener, SafeMsgOutgoingListener};
 
 struct DoSendMessage<'a> {
     listener: &'a SafeMsgOutgoingListener,

@@ -9,10 +9,13 @@ use ews::{
 };
 use std::{marker::PhantomData, sync::Arc};
 
-use crate::client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync};
 use crate::client::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
 use crate::macros::queue_operation;
-use crate::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
+use crate::safe_xpcom::SafeEwsSimpleOperationListener;
+use crate::{
+    client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync},
+    safe_xpcom::SafeListener,
+};
 
 use super::move_generic::{move_generic, CopyMoveSuccess};
 

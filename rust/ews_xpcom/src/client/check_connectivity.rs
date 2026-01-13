@@ -5,6 +5,8 @@
 use std::sync::Arc;
 
 use ews::{get_folder::GetFolderResponse, Operation, OperationResponse};
+use nserror::nsresult;
+use protocol_shared::safe_xpcom::{SafeUri, SafeUrlListener};
 
 use super::{
     process_response_message_class, single_response_or_error, validate_get_folder_response_message,
@@ -13,9 +15,7 @@ use super::{
 };
 
 use crate::{
-    macros::queue_operation,
-    operation_sender::AuthFailureBehavior,
-    safe_xpcom::{SafeUri, SafeUrlListener},
+    macros::queue_operation, operation_sender::AuthFailureBehavior, safe_xpcom::SafeListener,
 };
 
 struct DoCheckConnectivity<'a> {
@@ -96,5 +96,24 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
             uri,
         };
         operation.handle_operation(&self, &listener).await;
+    }
+}
+
+impl SafeListener for SafeUrlListener {
+    type OnSuccessArg = SafeUri;
+    type OnFailureArg = SafeUri;
+
+    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
+    /// arguments.
+    fn on_success(&self, uri: SafeUri) -> Result<(), nsresult> {
+        self.on_stop_running_url(uri, nserror::NS_OK).to_result()?;
+        Ok(())
+    }
+
+    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
+    /// arguments.
+    fn on_failure(&self, err: &XpComEwsError, uri: SafeUri) -> Result<(), nsresult> {
+        self.on_stop_running_url(uri, err.into()).to_result()?;
+        Ok(())
     }
 }

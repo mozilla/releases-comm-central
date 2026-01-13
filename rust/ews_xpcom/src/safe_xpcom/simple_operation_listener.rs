@@ -7,9 +7,10 @@ use nsstring::nsCString;
 use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsSimpleOperationListener;
 
-use crate::client::copy_move_operations::move_generic::CopyMoveSuccess;
-
-use super::{SafeListener, SafeListenerWrapper};
+use crate::{
+    client::copy_move_operations::move_generic::CopyMoveSuccess,
+    safe_xpcom::{SafeListener, SafeListenerWrapper},
+};
 
 /// See [`SafeListenerWrapper`].
 pub(crate) type SafeEwsSimpleOperationListener = SafeListenerWrapper<IEwsSimpleOperationListener>;

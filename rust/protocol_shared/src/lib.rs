@@ -9,6 +9,7 @@ use crate::authentication::credentials::Credentials;
 
 pub mod authentication;
 pub mod error;
+pub mod safe_xpcom;
 
 /// Connection details required for HTTPS-based Exchange protocols.
 #[derive(Clone)]

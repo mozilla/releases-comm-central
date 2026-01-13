@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use ews::{Mailbox, Recipient};
 use log::debug;
+use protocol_shared::safe_xpcom::uri::SafeUri;
 use thin_vec::ThinVec;
 
 use cstr::cstr;
@@ -31,7 +32,7 @@ use xpcom::{
 
 use crate::client::XpComEwsClient;
 use crate::observers::OutgoingRemovalObserver;
-use crate::safe_xpcom::{SafeMsgOutgoingListener, SafeUri};
+use crate::safe_xpcom::SafeMsgOutgoingListener;
 use crate::xpcom_io;
 
 /// Whether a field is required to have a value (either in memory or in a pref)

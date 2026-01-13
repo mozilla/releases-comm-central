@@ -4,7 +4,7 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use protocol_shared::error::ProtocolError;
+use protocol_shared::{error::ProtocolError, safe_xpcom::uri::SafeUri};
 use xpcom::{
     interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
     RefPtr,
@@ -12,7 +12,7 @@ use xpcom::{
 
 use crate::{cancellable_request::CancellableRequest, error::XpComEwsError};
 
-use super::{SafeListener, SafeListenerWrapper, SafeUri};
+use super::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
 pub(crate) type SafeMsgOutgoingListener = SafeListenerWrapper<nsIMsgOutgoingListener>;

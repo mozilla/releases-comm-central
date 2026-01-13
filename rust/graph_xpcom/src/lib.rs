@@ -7,7 +7,9 @@ use std::{cell::OnceCell, ffi::c_void};
 use nserror::{nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_OK};
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    authentication::credentials::AuthenticationProvider, ExchangeConnectionDetails,
+    authentication::credentials::AuthenticationProvider,
+    safe_xpcom::{uri::SafeUri, SafeUrlListener},
+    ExchangeConnectionDetails,
 };
 use thin_vec::ThinVec;
 use url::Url;
@@ -20,7 +22,12 @@ use xpcom::{
     nsIID, xpcom_method, RefPtr,
 };
 
+use crate::client::XpComGraphClient;
+
 extern crate xpcom;
+
+mod client;
+mod error;
 
 /// Creates a new instance of the XPCOM/Graph bridge interface [`XpcomGraphBridge`].
 ///
@@ -69,6 +76,11 @@ impl XpcomGraphBridge {
         endpoint: &nsACString,
         server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
+        log::debug!(
+            "Initializing XpcomGraphBridge with endpoint {}",
+            endpoint.to_string()
+        );
+
         let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
 
         let credentials = server.get_credentials()?;
@@ -92,8 +104,22 @@ impl XpcomGraphBridge {
     }
 
     xpcom_method!(check_connectivity => CheckConnectivity(listener: *const nsIUrlListener) -> *const nsIURI);
-    fn check_connectivity(&self, _listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    fn check_connectivity(&self, listener: &nsIUrlListener) -> Result<RefPtr<nsIURI>, nsresult> {
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let uri = endpoint.to_string();
+        let uri = SafeUri::new(uri)?;
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        let listener = SafeUrlListener::new(listener);
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local("check_connectivity", client.check_connectivity(listener)).detach();
+
+        Ok(uri.into())
     }
 
     xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(

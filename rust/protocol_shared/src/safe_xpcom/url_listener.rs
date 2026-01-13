@@ -8,14 +8,16 @@ use xpcom::{
     RefPtr,
 };
 
-use crate::error::XpComEwsError;
-
-use super::{SafeListener, SafeListenerWrapper, SafeUri};
+use crate::safe_xpcom::SafeUri;
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeUrlListener = SafeListenerWrapper<nsIUrlListener>;
+pub struct SafeUrlListener(RefPtr<nsIUrlListener>);
 
 impl SafeUrlListener {
+    pub fn new(unsafe_listener: &nsIUrlListener) -> Self {
+        Self(RefPtr::new(unsafe_listener))
+    }
+
     /// Convert types and forward to [`nsIUrlListener::OnStartRunningUrl`].
     pub fn on_start_running_url(&self, uri: SafeUri) -> nsresult {
         let uri: RefPtr<nsIURI> = uri.into();
@@ -25,28 +27,18 @@ impl SafeUrlListener {
 
     /// Convert types and forward to [`nsIUrlListener::OnStopRunningUrl`]. This
     /// is invoked by [`Self::on_success`] and [`Self::on_failure`].
-    fn on_stop_running_url(&self, uri: SafeUri, status: nsresult) -> nsresult {
+    pub fn on_stop_running_url(&self, uri: SafeUri, status: nsresult) -> nsresult {
         let uri: RefPtr<nsIURI> = uri.into();
         // SAFETY: uri points to a valid nsIRUI
         unsafe { self.0.OnStopRunningUrl(&*uri, status) }
     }
-}
 
-impl SafeListener for SafeUrlListener {
-    type OnSuccessArg = SafeUri;
-    type OnFailureArg = SafeUri;
-
-    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
-    /// arguments.
-    fn on_success(&self, uri: SafeUri) -> Result<(), nsresult> {
-        self.on_stop_running_url(uri, nserror::NS_OK).to_result()?;
-        Ok(())
-    }
-
-    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
-    /// arguments.
-    fn on_failure(&self, err: &XpComEwsError, uri: SafeUri) -> Result<(), nsresult> {
-        self.on_stop_running_url(uri, err.into()).to_result()?;
-        Ok(())
+    /// Get the internal unsafe listener.
+    ///
+    /// NOTE: This function should not be used. It is implemented here only
+    /// while more of the safe listener implementations are moved into this
+    /// crate.
+    pub unsafe fn unsafe_listener(&self) -> RefPtr<nsIUrlListener> {
+        self.0.clone()
     }
 }
