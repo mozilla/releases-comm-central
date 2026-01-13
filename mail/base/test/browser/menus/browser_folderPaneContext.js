@@ -28,7 +28,7 @@ const folderPaneContextData = {
   "folderPaneContext-searchMessages": [...servers, ...realFolders, "nntpGroup"],
   "folderPaneContext-subscribe": ["nntpRoot", "rssRoot", "rssFeed"],
   "folderPaneContext-newsUnsubscribe": ["nntpGroup"],
-  "folderPaneContext-new": ["server", "rssRoot", ...realFolders, "unified"],
+  "folderPaneContext-new": ["server", "rssRoot", ...realFolders],
   "folderPaneContext-remove": [
     "plain",
     ...virtualFolders,

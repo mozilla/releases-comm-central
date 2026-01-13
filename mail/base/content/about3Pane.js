@@ -407,7 +407,6 @@ var folderPaneContextMenu = {
     let isNNTP;
     let isJunk;
     let isVirtual;
-    let isInbox;
     let isSmartTagsFolder;
     let deletable;
     let server;
@@ -420,7 +419,6 @@ var folderPaneContextMenu = {
       canCreateSubfolders = false;
       canRename = false;
       isSmartTagsFolder = false;
-      isInbox = false;
 
       // Set some variables to TRUE to help during the folder lookup loop.
       online = true;
@@ -478,7 +476,6 @@ var folderPaneContextMenu = {
       isNNTP = server.type == "nntp";
       isJunk = flags & Ci.nsMsgFolderFlags.Junk;
       isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-      isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
       isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
     }
 
@@ -489,7 +486,7 @@ var folderPaneContextMenu = {
 
     // Sets the boolean state for each command type.
     this._commandStates = {
-      cmd_newFolder: online && ((!isNNTP && canCreateSubfolders) || isInbox),
+      cmd_newFolder: online && canCreateSubfolders,
       cmd_deleteFolder: online && deletable,
       cmd_renameFolder: online && canRename,
       cmd_compactFolder:
@@ -623,10 +620,7 @@ var folderPaneContextMenu = {
       isRealFolder && serverType == "nntp"
     );
 
-    const showNewFolderItem =
-      (serverType != "nntp" && canCreateSubfolders) ||
-      flags & Ci.nsMsgFolderFlags.Inbox;
-    if (showNewFolderItem) {
+    if (canCreateSubfolders) {
       document
         .getElementById("folderPaneContext-new")
         .setAttribute(
