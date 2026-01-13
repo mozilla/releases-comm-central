@@ -77,23 +77,6 @@ def stylelint_wrapper(paths, config, **lintargs):
     return rv
 
 
-def black_lint(paths, config, fix=None, **lintargs):
-    from python.black import run_black
-
-    files = list(expand_exclusions(paths, config, lintargs["root"]))
-
-    # prepend "--line-length 99" to files, it will be processed as an argument
-    black_args = ["-l", "99"] + files
-
-    return run_black(
-        config,
-        black_args,
-        fix=fix,
-        log=lintargs["log"],
-        virtualenv_bin_path=lintargs.get("virtualenv_bin_path"),
-    )
-
-
 def rust_lint(paths, config, fix=None, **lintargs):
     """Mostly copied from m-c:/tools/lint/rust/__init__.py:lint().
     Modified:
