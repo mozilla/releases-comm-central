@@ -547,6 +547,26 @@ export class CardDAVDirectory extends SQLiteDirectory {
   }
 
   /**
+   * Get a map of all known cards, indexed by their hrefs. The map's values
+   * are objects containing the UID and etag of the card. The returned map is
+   * not updated when cards change, so it should not be stored.
+   *
+   * @returns {Map<string, object>}
+   */
+  _getCardsByHref() {
+    const cardsByHref = new Map();
+    for (const [uid, properties] of this.cards) {
+      if (properties.has("_href")) {
+        cardsByHref.set(properties.get("_href"), {
+          uid,
+          etag: properties.get("_etag"),
+        });
+      }
+    }
+    return cardsByHref;
+  }
+
+  /**
    * Get all cards on the server and add them to this directory.
    *
    * This is usually used for the initial population of a directory, but it
@@ -575,12 +595,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     // A map of all existing hrefs and etags. If the etag for an href matches
     // what we already have, we won't fetch it.
-    const currentHrefs = new Map(
-      Array.from(
-        this.cards.values().filter(c => c.get("_href")),
-        c => [c.get("_href"), c.get("_etag")]
-      )
-    );
+    const currentHrefs = this._getCardsByHref();
 
     const hrefsToFetch = [];
     for (const { href, properties } of this._readResponse(response.dom)) {
@@ -588,11 +603,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
         continue;
       }
 
-      const currentEtag = currentHrefs.get(href);
+      const cardByHref = currentHrefs.get(href);
       currentHrefs.delete(href);
 
       const etag = properties.querySelector("getetag")?.textContent;
-      if (etag && currentEtag == etag) {
+      if (etag && cardByHref?.etag == etag) {
         continue;
       }
 
@@ -601,12 +616,12 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     // Delete any existing cards we didn't see. They're not on the server so
     // they shouldn't be on the client.
-    const cardsToDelete = [];
-    for (const href of currentHrefs.keys()) {
-      cardsToDelete.push(this.getCardFromProperty("_href", href, true));
-    }
-    if (cardsToDelete.length > 0) {
-      super.deleteCards(cardsToDelete);
+    if (currentHrefs.size > 0) {
+      super.deleteCards(
+        Array.from(currentHrefs.values(), cardByHref =>
+          this.getCard(cardByHref.uid)
+        )
+      );
     }
 
     // Fetch any cards we don't already have, or that have changed.
@@ -868,6 +883,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
       return;
     }
 
+    const currentHrefs = this._getCardsByHref();
     const dom = response.dom;
 
     // If this directory is set to read-only, the following operations would
@@ -884,10 +900,10 @@ export class CardDAVDirectory extends SQLiteDirectory {
       const cardsToAdd = [];
       const cardsToDelete = [];
       for (const { href, notFound, properties } of this._readResponse(dom)) {
-        const card = this.getCardFromProperty("_href", href, true);
+        const cardByHref = currentHrefs.get(href);
         if (notFound) {
-          if (card) {
-            cardsToDelete.push(card);
+          if (cardByHref) {
+            cardsToDelete.push(cardByHref);
           }
           continue;
         }
@@ -910,8 +926,8 @@ export class CardDAVDirectory extends SQLiteDirectory {
         abCard.setProperty("_etag", etag);
         abCard.setProperty("_href", href);
 
-        if (card) {
-          if (card.getProperty("_etag", "") != etag) {
+        if (cardByHref) {
+          if (cardByHref.etag != etag) {
             super.modifyCard(abCard);
           }
         } else {
@@ -920,7 +936,9 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
 
       if (cardsToDelete.length > 0) {
-        super.deleteCards(cardsToDelete);
+        super.deleteCards(
+          cardsToDelete.map(cardByHref => this.getCard(cardByHref.uid))
+        );
       }
       if (cardsToAdd.length > 25) {
         // Don't make observers work too hard, especially if the book is
