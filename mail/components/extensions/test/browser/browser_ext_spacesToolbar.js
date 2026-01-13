@@ -471,8 +471,8 @@ add_task(async function test_icons() {
       defaultIcons: "default.png",
       themeIcons: [
         {
-          dark: "dark.png",
-          light: "light.png",
+          dark: "light.png",
+          light: "dark.png",
           size: 16,
         },
       ],
@@ -483,8 +483,8 @@ add_task(async function test_icons() {
       url: "https://test.invalid",
       icons: {
         default: `url("${browser.runtime.getURL("default.png")}")`,
-        dark: `url("${browser.runtime.getURL("dark.png")}")`,
-        light: `url("${browser.runtime.getURL("light.png")}")`,
+        dark: `url("${browser.runtime.getURL("light.png")}")`,
+        light: `url("${browser.runtime.getURL("dark.png")}")`,
       },
     };
     await window.sendMessage("checkUI", [expected_button_1]);
@@ -495,8 +495,8 @@ add_task(async function test_icons() {
     });
     expected_button_1.icons = {
       default: null,
-      dark: `url("${browser.runtime.getURL("dark.png")}")`,
-      light: `url("${browser.runtime.getURL("light.png")}")`,
+      dark: `url("${browser.runtime.getURL("light.png")}")`,
+      light: `url("${browser.runtime.getURL("dark.png")}")`,
     };
     await window.sendMessage("checkUI", [expected_button_1]);
 
@@ -506,8 +506,8 @@ add_task(async function test_icons() {
     });
     expected_button_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
-      dark: `url("${browser.runtime.getURL("dark.png")}")`,
-      light: `url("${browser.runtime.getURL("light.png")}")`,
+      dark: `url("${browser.runtime.getURL("light.png")}")`,
+      light: `url("${browser.runtime.getURL("dark.png")}")`,
     };
     await window.sendMessage("checkUI", [expected_button_1]);
 
@@ -689,23 +689,23 @@ add_task(async function test_icons() {
   for (const manifestIcons of [null, { 16: "manifest16.png" }]) {
     const darkCustomTheme = makeDarkTheme();
     await darkCustomTheme.startup();
-    await test_spaceToolbar(background, "light", manifestIcons);
+    await test_spaceToolbar(background, "dark", manifestIcons);
     await darkCustomTheme.unload();
 
     const lightCustomTheme = makeLightTheme();
     await lightCustomTheme.startup();
-    await test_spaceToolbar(background, "dark", manifestIcons);
+    await test_spaceToolbar(background, "light", manifestIcons);
     await lightCustomTheme.unload();
 
     await darkBuiltInTheme.enable();
-    await test_spaceToolbar(background, "light", manifestIcons);
+    await test_spaceToolbar(background, "dark", manifestIcons);
 
     await lightBuiltInTheme.enable();
-    await test_spaceToolbar(background, "default", manifestIcons);
+    await test_spaceToolbar(background, "dark", manifestIcons);
 
     // Disabling a theme will enable the default theme.
     await lightBuiltInTheme.disable();
-    await test_spaceToolbar(background, "default", manifestIcons);
+    await test_spaceToolbar(background, "dark", manifestIcons);
   }
 });
 
