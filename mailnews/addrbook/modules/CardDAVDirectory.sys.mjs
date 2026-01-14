@@ -314,50 +314,36 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     const response = await this._multigetRequest(hrefsToFetch);
 
-    // If this directory is set to read-only, the following operations would
-    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
-    // directory, so set this._overrideReadOnly to avoid the exception.
-    //
-    // Do not use await while it is set, and use a try/finally block to ensure
-    // it is cleared.
-
-    let addPromise;
-    try {
-      this._overrideReadOnly = true;
-      const cardsToAdd = [];
-      for (const { href, properties } of this._readResponse(response.dom)) {
-        if (!properties) {
-          continue;
-        }
-
-        const etag = properties.querySelector("getetag")?.textContent;
-        const vCard = normalizeLineEndings(
-          properties.querySelector("address-data")?.textContent
-        );
-
-        const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
-        abCard.setProperty("_etag", etag);
-        abCard.setProperty("_href", href);
-
-        if (!this.cards.has(abCard.UID)) {
-          cardsToAdd.push(abCard);
-        } else if (this.loadCardProperties(abCard.UID).get("_etag") != etag) {
-          super.modifyCard(abCard);
-        }
+    const cardsToAdd = [];
+    for (const { href, properties } of this._readResponse(response.dom)) {
+      if (!properties) {
+        continue;
       }
-      if (cardsToAdd.length > 25) {
-        // Don't make observers work too hard, especially if the book is
-        // currently displayed in the address book tab.
-        addPromise = super.bulkAddCards(cardsToAdd);
-      } else {
-        for (const abCard of cardsToAdd) {
-          super.addCard(abCard);
-        }
+
+      const etag = properties.querySelector("getetag")?.textContent;
+      const vCard = normalizeLineEndings(
+        properties.querySelector("address-data")?.textContent
+      );
+
+      const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+      abCard.setProperty("_etag", etag);
+      abCard.setProperty("_href", href);
+
+      if (!this.cards.has(abCard.UID)) {
+        cardsToAdd.push(abCard);
+      } else if (this.loadCardProperties(abCard.UID).get("_etag") != etag) {
+        super.modifyCardInternal(abCard);
       }
-    } finally {
-      this._overrideReadOnly = false;
     }
-    await addPromise;
+    if (cardsToAdd.length > 25) {
+      // Don't make observers work too hard, especially if the book is
+      // currently displayed in the address book tab.
+      await super.bulkAddCardsInternal(cardsToAdd);
+    } else {
+      for (const abCard of cardsToAdd) {
+        super.addCardInternal(abCard);
+      }
+    }
   }
 
   /**
@@ -655,7 +641,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
         }
       }
 
-      await this.bulkAddCards(abCards);
+      await this.bulkAddCardsInternal(abCards);
     }
 
     await this._getSyncToken();
@@ -783,20 +769,8 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    // If this directory is set to read-only, the following operations would
-    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
-    // directory, so set this._overrideReadOnly to avoid the exception.
-    //
-    // Do not use await while it is set, and use a try/finally block to ensure
-    // it is cleared.
-
     if (cardsToDelete.length > 0) {
-      this._overrideReadOnly = true;
-      try {
-        super.deleteCards(cardsToDelete);
-      } finally {
-        this._overrideReadOnly = false;
-      }
+      super.deleteCardsInternal(cardsToDelete);
     }
 
     await this._fetchAndStore(hrefsToFetch);
@@ -886,73 +860,59 @@ export class CardDAVDirectory extends SQLiteDirectory {
     const currentHrefs = this._getCardsByHref();
     const dom = response.dom;
 
-    // If this directory is set to read-only, the following operations would
-    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
-    // directory, so set this._overrideReadOnly to avoid the exception.
-    //
-    // Do not use await while it is set, and use a try/finally block to ensure
-    // it is cleared.
-
     const hrefsToFetch = [];
-    let addPromise;
-    try {
-      this._overrideReadOnly = true;
-      const cardsToAdd = [];
-      const cardsToDelete = [];
-      for (const { href, notFound, properties } of this._readResponse(dom)) {
-        const cardByHref = currentHrefs.get(href);
-        if (notFound) {
-          if (cardByHref) {
-            cardsToDelete.push(cardByHref);
-          }
-          continue;
-        }
-        if (!properties) {
-          continue;
-        }
-
-        const etag = properties.querySelector("getetag")?.textContent;
-        if (!etag) {
-          continue;
-        }
-        let vCard = properties.querySelector("address-data")?.textContent;
-        if (!vCard) {
-          hrefsToFetch.push(href);
-          continue;
-        }
-        vCard = normalizeLineEndings(vCard);
-
-        const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
-        abCard.setProperty("_etag", etag);
-        abCard.setProperty("_href", href);
-
+    const cardsToAdd = [];
+    const cardsToDelete = [];
+    for (const { href, notFound, properties } of this._readResponse(dom)) {
+      const cardByHref = currentHrefs.get(href);
+      if (notFound) {
         if (cardByHref) {
-          if (cardByHref.etag != etag) {
-            super.modifyCard(abCard);
-          }
-        } else {
-          cardsToAdd.push(abCard);
+          cardsToDelete.push(cardByHref);
         }
+        continue;
+      }
+      if (!properties) {
+        continue;
       }
 
-      if (cardsToDelete.length > 0) {
-        super.deleteCards(
-          cardsToDelete.map(cardByHref => this.getCard(cardByHref.uid))
-        );
+      const etag = properties.querySelector("getetag")?.textContent;
+      if (!etag) {
+        continue;
       }
-      if (cardsToAdd.length > 25) {
-        // Don't make observers work too hard, especially if the book is
-        // currently displayed in the address book tab.
-        addPromise = super.bulkAddCards(cardsToAdd);
-      } else {
-        for (const abCard of cardsToAdd) {
-          super.addCard(abCard);
+      let vCard = properties.querySelector("address-data")?.textContent;
+      if (!vCard) {
+        hrefsToFetch.push(href);
+        continue;
+      }
+      vCard = normalizeLineEndings(vCard);
+
+      const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+      abCard.setProperty("_etag", etag);
+      abCard.setProperty("_href", href);
+
+      if (cardByHref) {
+        if (cardByHref.etag != etag) {
+          super.modifyCardInternal(abCard);
         }
+      } else {
+        cardsToAdd.push(abCard);
       }
-    } finally {
-      this._overrideReadOnly = false;
     }
-    await addPromise;
+
+    if (cardsToDelete.length > 0) {
+      super.deleteCardsInternal(
+        cardsToDelete.map(cardByHref => this.getCard(cardByHref.uid))
+      );
+    }
+    if (cardsToAdd.length > 25) {
+      // Don't make observers work too hard, especially if the book is
+      // currently displayed in the address book tab.
+      await super.bulkAddCardsInternal(cardsToAdd);
+    } else {
+      for (const abCard of cardsToAdd) {
+        super.addCardInternal(abCard);
+      }
+    }
 
     await this._fetchAndStore(hrefsToFetch);
 

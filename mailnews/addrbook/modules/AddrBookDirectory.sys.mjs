@@ -47,8 +47,7 @@ export class AddrBookDirectory {
 
     // If this._readOnly is true, the user is prevented from making changes to
     // the contacts. Subclasses may override this (for example to sync with a
-    // server) by setting this._overrideReadOnly to true, but must clear it
-    // before yielding to another thread (e.g. awaiting a Promise).
+    // server) by calling the "Internal" variant of functions.
 
     if (this._dirPrefId) {
       XPCOMUtils.defineLazyPreferenceGetter(
@@ -602,13 +601,25 @@ export class AddrBookDirectory {
     return this.getMailListFromName(name) != null;
   }
   addCard(card, withNewUID) {
-    if (this._readOnly && !this._overrideReadOnly) {
+    if (this._readOnly) {
       throw new Components.Exception(
         "Directory is read-only",
         Cr.NS_ERROR_FAILURE
       );
     }
-
+    return this.addCardInternal(card, withNewUID);
+  }
+  /**
+   * The implementation of `addCard`, without a read-only check. This
+   * must not be called directly except by subclasses when syncing with a
+   * server. All other calls should go through `addCard`.
+   *
+   * @param {nsIAbCard} card - The card to add.
+   * @param {boolean} [withNewUID] - If true, replaces the card's UID with a
+   *   new one.
+   * @returns {nsIAbCard}
+   */
+  addCardInternal(card, withNewUID) {
     if (!card.UID) {
       throw new Error("Card must have a UID to be added to this directory.");
     }
@@ -634,13 +645,23 @@ export class AddrBookDirectory {
     return newCard;
   }
   modifyCard(card) {
-    if (this._readOnly && !this._overrideReadOnly) {
+    if (this._readOnly) {
       throw new Components.Exception(
         "Directory is read-only",
         Cr.NS_ERROR_FAILURE
       );
     }
-
+    return this.modifyCardInternal(card);
+  }
+  /**
+   * The implementation of `modifyCard`, without a read-only check. This
+   * must not be called directly except by subclasses when syncing with a
+   * server. All other calls should go through `modifyCard`.
+   *
+   * @param {nsIAbCard} card - The card to modify.
+   * @returns {nsIAbCard}
+   */
+  modifyCardInternal(card) {
     const oldProperties = this.loadCardProperties(card.UID);
     const newProperties = this.prepareToSaveCard(card);
 
@@ -685,13 +706,22 @@ export class AddrBookDirectory {
     return newCard;
   }
   deleteCards(cards) {
-    if (this._readOnly && !this._overrideReadOnly) {
+    if (this._readOnly) {
       throw new Components.Exception(
         "Directory is read-only",
         Cr.NS_ERROR_FAILURE
       );
     }
-
+    return this.deleteCardsInternal(cards);
+  }
+  /**
+   * The implementation of `deleteCards`, without a read-only check. This
+   * must not be called directly except by subclasses when syncing with a
+   * server. All other calls should go through `deleteCards`.
+   *
+   * @param {nsIAbCard[]} cards - The card to delete.
+   */
+  deleteCardsInternal(cards) {
     if (cards === null) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
     }

@@ -351,8 +351,25 @@ export class SQLiteDirectory extends AddrBookDirectory {
    * Adds cards to the database without individual notifications.
    *
    * @param {nsIAbCard[]} cards
+   * @returns {Promise}
    */
   async bulkAddCards(cards) {
+    if (this._readOnly) {
+      throw new Components.Exception(
+        "Directory is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    return this.bulkAddCardsInternal(cards);
+  }
+  /**
+   * The implementation of `bulkAddCards`, without a read-only check. This
+   * must not be called directly except by subclasses when syncing with a
+   * server. All other calls should go through `bulkAddCards`.
+   *
+   * @param {nsIAbCard[]} cards - The card to add.
+   */
+  async bulkAddCardsInternal(cards) {
     if (cards.length == 0) {
       return;
     }
