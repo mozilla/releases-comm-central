@@ -30,20 +30,6 @@ function assert(test, errorMsg) {
   }
 }
 
-/**
- * @param {string} bundleURI - chrome URL to properties file
- * @returns {nsIStringBundle}
- */
-function getStringBundle(bundleURI) {
-  try {
-    return Services.strings.createBundle(bundleURI);
-  } catch (e) {
-    throw new Error(
-      "Failed to get stringbundle URI <" + bundleURI + ">. Error: " + e
-    );
-  }
-}
-
 // ---------
 // Exception
 
@@ -338,7 +324,6 @@ export const AccountCreationUtils = {
   CancelledException,
   deepCopy,
   gAccountSetupLogger,
-  getStringBundle,
   NotReached,
   promiseFirstSuccessful,
   standardPorts,
