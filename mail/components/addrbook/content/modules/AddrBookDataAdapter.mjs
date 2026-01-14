@@ -127,6 +127,10 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
     }
     Services.prefs.addObserver("mail.addr_book.lastnamefirst", this, true);
   }
+  getLevel(_rowIndex) {
+    // This is a flat list, everything's at level 0.
+    return 0;
+  }
 
   // nsIAbDirSearchListener
 
