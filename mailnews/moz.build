@@ -57,6 +57,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Auth.sys.mjs",
     "test/fakeserver/Binaryd.sys.mjs",
     "test/fakeserver/EwsServer.sys.mjs",
+    "test/fakeserver/GraphServer.sys.mjs",
     "test/fakeserver/Imapd.sys.mjs",
     "test/fakeserver/IMAPServer.sys.mjs",
     "test/fakeserver/Ldapd.sys.mjs",

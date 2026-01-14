@@ -2804,6 +2804,7 @@ dependencies = [
  "thin-vec",
  "thiserror 1.999.999",
  "url",
+ "uuid",
  "xpcom",
  "xpcom_async",
 ]
