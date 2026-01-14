@@ -5,12 +5,17 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
-  AccountCreationUtils:
-    "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
+
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], true)
+);
 
 /**
  * Takes an XML snipplet (as JXON) and reads the values into
@@ -40,10 +45,7 @@ export function readFromXML(clientConfigXML, subSource) {
     dump(
       `client config xml = ${JSON.stringify(clientConfigXML).substr(0, 50)} \n`
     );
-    const stringBundle = lazy.AccountCreationUtils.getStringBundle(
-      "chrome://messenger/locale/accountCreationModel.properties"
-    );
-    throw stringBundle.GetStringFromName("no_emailProvider.error");
+    throw new Error(lazy.l10n.formatValueSync("no-email-provider-error"));
   }
   var xml = clientConfigXML.clientConfig.emailProvider;
 
@@ -203,10 +205,7 @@ export function readFromXML(clientConfigXML, subSource) {
     const oO = d.createNewOutgoing(); // output (object)
     try {
       if (oX["@type"] != "smtp") {
-        const stringBundle = lazy.AccountCreationUtils.getStringBundle(
-          "chrome://messenger/locale/accountCreationModel.properties"
-        );
-        throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
+        throw new Error(lazy.l10n.formatValueSync("outgoing-not-smtp-error"));
       }
       oO.type = "smtp";
       oO.hostname = lazy.Sanitizer.hostname(oX.hostname);

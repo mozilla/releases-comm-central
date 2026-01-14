@@ -16,10 +16,16 @@ ChromeUtils.defineESModuleGetters(lazy, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
 });
 
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], true)
+);
+
 const {
   assert,
   gAccountSetupLogger,
-  getStringBundle,
   UserCancelledException,
   promiseFirstSuccessful,
   abortableTimeout,
@@ -405,10 +411,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
     !("Account" in autoDiscoverXML.Autodiscover.Response) ||
     !("Protocol" in autoDiscoverXML.Autodiscover.Response.Account)
   ) {
-    const stringBundle = getStringBundle(
-      "chrome://messenger/locale/accountCreationModel.properties"
-    );
-    throw new Error(stringBundle.GetStringFromName("no_autodiscover.error"));
+    throw new Error(lazy.l10n.formatValueSync("no-autodiscover-error"));
   }
   var xml = autoDiscoverXML.Autodiscover.Response.Account;
 

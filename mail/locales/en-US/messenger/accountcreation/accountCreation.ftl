@@ -34,3 +34,21 @@ emailaddress-syntax-error = Not a valid e-mail address
 cannot-contact-server-error = Cannot contact server
 
 bad-response-content-error = Bad response content
+
+## readFromXML.sys.mjs
+
+no-email-provider-error = The config file XML does not contain an email account configuration.
+
+outgoing-not-smtp-error = The outgoing server must be of type SMTP
+
+## ConfigVerifier.sys.mjs
+
+cannot-login-error = Unable to log in at server. Probably wrong configuration, username or password.
+
+## GuessConfig.sys.mjs
+
+cannot-find-server-error = Can’t find a server
+
+## ExhcangeAutoDiscover.sys.mjs
+
+no-autodiscover-error = The Exchange AutoDiscover XML is invalid.

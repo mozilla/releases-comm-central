@@ -5,7 +5,14 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
-import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], true)
+);
 
 /**
  * @implements {nsIUrlListener}
@@ -212,9 +219,7 @@ export class ConfigVerifier {
       code == "pop3PasswordFailed" ||
       code == "imapOAuth2Error"
     ) {
-      msg = AccountCreationUtils.getStringBundle(
-        "chrome://messenger/locale/accountCreationModel.properties"
-      ).GetStringFromName("cannot_login.error");
+      msg = lazy.l10n.formatValueSync("cannot-login-error");
     }
     this.errorCallback(new Error(msg));
   }
@@ -258,9 +263,7 @@ export class ConfigVerifier {
     if (!params.exceptionAdded) {
       this._log.debug(`Did not accept exception for ${location.asciiHostPort}`);
       this.cleanup();
-      const errorMsg = AccountCreationUtils.getStringBundle(
-        "chrome://messenger/locale/accountCreationModel.properties"
-      ).GetStringFromName("cannot_login.error");
+      const errorMsg = lazy.l10n.formatValueSync("cannot-login-error");
       this.errorCallback(new Error(errorMsg));
     } else {
       this._log.debug(

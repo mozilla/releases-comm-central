@@ -16,6 +16,12 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/nss_errors_service;1",
   Ci.nsINSSErrorsService
 );
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], false)
+);
 
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
@@ -24,7 +30,6 @@ const {
   CancelledException,
   deepCopy,
   gAccountSetupLogger,
-  getStringBundle,
   NotReached,
   abortSignalTimeout,
   abortableTimeout,
@@ -516,7 +521,7 @@ class HostDetector {
         this.#abortSignal.throwIfAborted();
         // Consume the rejections
         Promise.allSettled(promises);
-        const result = this._checkFinished();
+        const result = await this._checkFinished();
         this.cancel(new Error("No longer needed"));
         return result;
       } catch {
@@ -631,7 +636,7 @@ class HostDetector {
     }
   }
 
-  _checkFinished() {
+  async _checkFinished() {
     let successfulTry = null;
     let successfulTryAlternative = null; // POP3
     let unfinishedBusiness = false;
@@ -657,16 +662,12 @@ class HostDetector {
         successful: successfulTry,
         alternative: successfulTryAlternative ? [successfulTryAlternative] : [],
       };
-    } else if (!unfinishedBusiness) {
+    } else if (!unfinishedBusiness || !this.#abortSignal.aborted) {
       // all failed
       this._log.info("ran out of options");
-      const errorMsg = getStringBundle(
-        "chrome://messenger/locale/accountCreationModel.properties"
-      ).GetStringFromName("cannot_find_server.error");
+      const errorMsg = await lazy.l10n.formatValue("cannot-find-server-error");
       throw new Error(errorMsg);
       // no need to cancel, all failed
-    } else if (!this.#abortSignal.aborted) {
-      throw new Error("Need more try results");
     }
     // Pretend everything is fine if we aborted.
     return {};
