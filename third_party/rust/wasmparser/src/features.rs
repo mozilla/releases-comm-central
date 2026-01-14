@@ -303,6 +303,15 @@ define_wasm_features! {
 
         // Custom descriptors proposal.
         pub custom_descriptors: CUSTOM_DESCRIPTORS(1 << 36) = false;
+
+        // Compact import section proposal.
+        pub compact_imports: COMPACT_IMPORTS(1 << 37) = false;
+
+        /// Support for maps in the component model proposal.
+        ///
+        /// Corresponds to the 🗺️ character in
+        /// <https://github.com/WebAssembly/component-model/blob/main/design/mvp/Explainer.md>.
+        pub cm_map: CM_MAP(1 << 38) = false;
     }
 }
 

@@ -533,6 +533,7 @@ pub mod kw {
     custom_keyword!(option);
     custom_keyword!(tuple);
     custom_keyword!(list);
+    custom_keyword!(map);
     custom_keyword!(error);
     custom_keyword!(canon);
     custom_keyword!(lift);
@@ -563,7 +564,6 @@ pub mod kw {
     custom_keyword!(thread_spawn_ref = "thread.spawn-ref");
     custom_keyword!(thread_spawn_indirect = "thread.spawn-indirect");
     custom_keyword!(thread_available_parallelism = "thread.available_parallelism");
-    custom_keyword!(backpressure_set = "backpressure.set");
     custom_keyword!(backpressure_inc = "backpressure.inc");
     custom_keyword!(backpressure_dec = "backpressure.dec");
     custom_keyword!(task_return = "task.return");

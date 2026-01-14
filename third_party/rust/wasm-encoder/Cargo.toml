@@ -11,11 +11,11 @@
 
 [package]
 edition = "2021"
-rust-version = "1.76.0"
+rust-version = "1.81.0"
 name = "wasm-encoder"
-version = "0.243.0"
+version = "0.244.0"
 authors = ["Nick Fitzgerald <fitzgen@gmail.com>"]
-build = "build.rs"
+build = false
 autolib = false
 autobins = false
 autoexamples = false
@@ -50,7 +50,7 @@ version = "0.1.0"
 default-features = false
 
 [dependencies.wasmparser]
-version = "0.243.0"
+version = "0.244.0"
 features = [
     "simd",
     "simd",
@@ -65,11 +65,10 @@ version = "1.0.58"
 version = "3.2.0"
 
 [dev-dependencies.wasmprinter]
-version = "0.243.0"
+version = "0.244.0"
 default-features = false
 
 [lints.clippy]
-allow_attributes_without_reason = "warn"
 clone_on_copy = "warn"
 manual_strip = "warn"
 map_clone = "warn"

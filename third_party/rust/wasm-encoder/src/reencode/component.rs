@@ -769,6 +769,12 @@ pub mod component_utils {
             wasmparser::ComponentDefinedType::List(t) => {
                 defined.list(reencoder.component_val_type(t));
             }
+            wasmparser::ComponentDefinedType::Map(k, v) => {
+                defined.map(
+                    reencoder.component_val_type(k),
+                    reencoder.component_val_type(v),
+                );
+            }
             wasmparser::ComponentDefinedType::FixedSizeList(t, elements) => {
                 defined.fixed_size_list(reencoder.component_val_type(t), elements);
             }
@@ -976,9 +982,6 @@ pub mod component_utils {
             }
             wasmparser::CanonicalFunction::ThreadAvailableParallelism => {
                 section.thread_available_parallelism();
-            }
-            wasmparser::CanonicalFunction::BackpressureSet => {
-                section.backpressure_set();
             }
             wasmparser::CanonicalFunction::BackpressureInc => {
                 section.backpressure_inc();

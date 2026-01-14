@@ -395,7 +395,6 @@ impl<'a> Resolver<'a> {
                     self.core_item_ref(&mut info.table)?;
                 }
                 CoreFuncKind::ThreadAvailableParallelism(_)
-                | CoreFuncKind::BackpressureSet
                 | CoreFuncKind::BackpressureInc
                 | CoreFuncKind::BackpressureDec
                 | CoreFuncKind::TaskCancel
@@ -566,6 +565,10 @@ impl<'a> Resolver<'a> {
                 elements: _,
             }) => {
                 self.component_val_type(t)?;
+            }
+            ComponentDefinedType::Map(Map { key: k, value: v }) => {
+                self.component_val_type(k)?;
+                self.component_val_type(v)?;
             }
             ComponentDefinedType::Tuple(t) => {
                 for field in t.fields.iter_mut() {
@@ -928,7 +931,12 @@ impl<'a> Resolver<'a> {
                     Ok(())
                 }
 
-                ModuleTypeDecl::Import(import) => resolve_item_sig(resolver, &mut import.item),
+                ModuleTypeDecl::Import(imports) => {
+                    for sig in imports.unique_sigs_mut() {
+                        resolve_item_sig(resolver, sig)?;
+                    }
+                    Ok(())
+                }
                 ModuleTypeDecl::Export(_, item) => resolve_item_sig(resolver, item),
             },
             |state, decl| {

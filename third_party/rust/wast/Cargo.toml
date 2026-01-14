@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.76.0"
+rust-version = "1.81.0"
 name = "wast"
-version = "243.0.0"
+version = "244.0.0"
 authors = ["Alex Crichton <alex@alexcrichton.com>"]
 build = false
 autolib = false
@@ -84,7 +84,7 @@ version = "2.4.1"
 version = "0.2.0"
 
 [dependencies.wasm-encoder]
-version = "0.243.0"
+version = "0.244.0"
 features = ["std"]
 default-features = false
 
@@ -99,7 +99,6 @@ version = "0.9.1"
 features = ["small_rng"]
 
 [lints.clippy]
-allow_attributes_without_reason = "warn"
 clone_on_copy = "warn"
 manual_strip = "warn"
 map_clone = "warn"

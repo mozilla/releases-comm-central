@@ -109,6 +109,9 @@ fn encode_defined_type(encoder: ComponentDefinedTypeEncoder, ty: &ComponentDefin
         ComponentDefinedType::List(l) => {
             encoder.list(l.element.as_ref());
         }
+        ComponentDefinedType::Map(m) => {
+            encoder.map(m.key.as_ref(), m.value.as_ref());
+        }
         ComponentDefinedType::FixedSizeList(l) => {
             encoder.fixed_size_list(l.element.as_ref(), l.elements);
         }
@@ -369,10 +372,6 @@ impl<'a> Encoder<'a> {
                 CoreFuncKind::ThreadAvailableParallelism(_info) => {
                     self.core_func_names.push(name);
                     self.funcs.thread_available_parallelism();
-                }
-                CoreFuncKind::BackpressureSet => {
-                    self.core_func_names.push(name);
-                    self.funcs.backpressure_set();
                 }
                 CoreFuncKind::BackpressureInc => {
                     self.core_func_names.push(name);
@@ -930,9 +929,21 @@ impl From<&ModuleType<'_>> for wasm_encoder::ModuleType {
                     }
                     _ => unreachable!("only outer type aliases are supported"),
                 },
-                ModuleTypeDecl::Import(i) => {
-                    encoded.import(i.module, i.field, i.item.to_entity_type());
-                }
+                ModuleTypeDecl::Import(imports) => match &imports.items {
+                    core::ImportItems::Single { module, name, sig } => {
+                        encoded.import(module, name, sig.to_entity_type());
+                    }
+                    core::ImportItems::Group1 { module, items } => {
+                        for item in items {
+                            encoded.import(module, item.name, item.sig.to_entity_type());
+                        }
+                    }
+                    core::ImportItems::Group2 { module, sig, items } => {
+                        for item in items {
+                            encoded.import(module, item.name, sig.to_entity_type());
+                        }
+                    }
+                },
                 ModuleTypeDecl::Export(name, item) => {
                     encoded.export(name, item.to_entity_type());
                 }

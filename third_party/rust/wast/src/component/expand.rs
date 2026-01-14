@@ -436,8 +436,10 @@ impl<'a> Expander<'a> {
                 },
                 ModuleTypeDecl::Rec(_) => {}
                 ModuleTypeDecl::Alias(_) => {}
-                ModuleTypeDecl::Import(ty) => {
-                    expand_sig(&mut ty.item, &mut to_prepend, &mut func_type_to_idx);
+                ModuleTypeDecl::Import(imports) => {
+                    for sig in imports.unique_sigs_mut() {
+                        expand_sig(sig, &mut to_prepend, &mut func_type_to_idx);
+                    }
                 }
                 ModuleTypeDecl::Export(_, item) => {
                     expand_sig(item, &mut to_prepend, &mut func_type_to_idx);
@@ -556,6 +558,10 @@ impl<'a> Expander<'a> {
                 elements: _,
             }) => {
                 self.expand_component_val_ty(t);
+            }
+            ComponentDefinedType::Map(Map { key: k, value: v }) => {
+                self.expand_component_val_ty(k);
+                self.expand_component_val_ty(v);
             }
             ComponentDefinedType::Tuple(t) => {
                 for field in t.fields.iter_mut() {

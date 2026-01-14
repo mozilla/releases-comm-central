@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.76.0"
+rust-version = "1.81.0"
 name = "wasm-smith"
-version = "0.243.0"
+version = "0.244.0"
 authors = ["Nick Fitzgerald <fitzgen@gmail.com>"]
 build = false
 exclude = ["/benches/corpus"]
@@ -111,12 +111,12 @@ version = "1.0.166"
 optional = true
 
 [dependencies.wasm-encoder]
-version = "0.243.0"
+version = "0.244.0"
 features = ["std"]
 default-features = false
 
 [dependencies.wasmparser]
-version = "0.243.0"
+version = "0.244.0"
 features = [
     "simd",
     "std",
@@ -128,7 +128,7 @@ optional = true
 default-features = false
 
 [dependencies.wat]
-version = "1.243.0"
+version = "1.244.0"
 optional = true
 default-features = false
 
@@ -141,7 +141,7 @@ version = "0.9.1"
 features = ["small_rng"]
 
 [dev-dependencies.wasmparser]
-version = "0.243.0"
+version = "0.244.0"
 features = [
     "simd",
     "std",
@@ -152,18 +152,17 @@ features = [
 default-features = false
 
 [dev-dependencies.wasmprinter]
-version = "0.243.0"
+version = "0.244.0"
 default-features = false
 
 [dev-dependencies.wat]
-version = "1.243.0"
+version = "1.244.0"
 default-features = false
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies.libfuzzer-sys]
 version = "0.4.0"
 
 [lints.clippy]
-allow_attributes_without_reason = "warn"
 clone_on_copy = "warn"
 manual_strip = "warn"
 map_clone = "warn"
