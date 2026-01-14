@@ -64,7 +64,7 @@ function onCancel() {
 function onLoad() {
   document
     .getElementById("tasks")
-    .addEventListener("CheckboxStateChange", updateOKButtonState);
+    .addEventListener("command", updateOKButtonState);
 
   document.addEventListener("dialogaccept", onOK);
   document.addEventListener("dialogcancel", onCancel);

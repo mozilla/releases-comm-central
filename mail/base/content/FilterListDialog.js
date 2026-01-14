@@ -831,7 +831,7 @@ function rebuildFilterList() {
       nameCell.setAttribute("crop", "end");
       enabledCell = document.createXULElement("checkbox");
       enabledCell.setAttribute("style", "padding-inline-start: 25px;");
-      enabledCell.addEventListener("CheckboxStateChange", onFilterClick, true);
+      enabledCell.addEventListener("command", onFilterClick, true);
       listitem.appendChild(nameCell);
       listitem.appendChild(enabledCell);
       gFilterListbox.appendChild(listitem);

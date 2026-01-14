@@ -48,7 +48,7 @@
       if (this.hasAttribute("refcontrol")) {
         this.mRefControl = document.getElementById(this.getAttribute("refcontrol"));
         if (this.mRefControl && this.mRefControl.localName == "checkbox") {
-          this.mRefControl.addEventListener("CheckboxStateChange", this, true);
+          this.mRefControl.addEventListener("command", this, true);
         }
       }
     }
@@ -70,7 +70,7 @@
      * @param {Event} event - The event.
      */
     handleEvent(event) {
-      if (event.type == "CheckboxStateChange") {
+      if (event.type == "command") {
         this.onCheckboxStateChange(event);
       }
     }
