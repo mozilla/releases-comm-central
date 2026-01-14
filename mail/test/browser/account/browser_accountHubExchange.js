@@ -398,8 +398,7 @@ add_task(async function test_exchange_manual_configuration() {
   // The test server isn't set up with HTTPS, so we have an insecure URL here.
   Assert.equal(
     ewsConfigStep.querySelector("#incomingExchangeUrl").value,
-
-    "https://exchange.test/EWS/Exchange.asmx",
+    "http://exchange.test/EWS/Exchange.asmx", // eslint-disable @microsoft/sdl/no-insecure-url
     "The EWS URL input should have the correct exchange url"
   );
   Assert.equal(
