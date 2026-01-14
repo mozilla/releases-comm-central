@@ -22,16 +22,16 @@
     <script src="chrome://messenger/content/converterDialog.js"></script>
   </head>
 
-  <body onload="placeAccountName(window.arguments[0]);">
+  <body onload="placeAccountName(window.arguments[0])">
     <div id="warningArea" class="convert-area">
       <img class="infoIcon" alt="" />
       <p id="warningSpan"></p>
       <div class="controls">
-        <button onclick="cancelConversion(window.arguments[2]);">
+        <button onclick="cancelConversion(window.arguments[2])">
           &converterDialog.cancelButton;
         </button>
         <button
-          onclick="startContinue(window.arguments[1], window.arguments[2]);"
+          onclick="startContinue(window.arguments[1], window.arguments[2])"
         >
           &converterDialog.continueButton;
         </button>
@@ -45,10 +45,10 @@
       <progress id="progress" value="0" max="100"></progress>
       <span id="progressPercent"></span>
       <div class="controls">
-        <button id="cancel" onclick="cancelConversion(window.arguments[1]);">
+        <button id="cancel" onclick="cancelConversion(window.arguments[1])">
           &converterDialog.cancelButton;
         </button>
-        <button id="finish" onclick="finishConversion();" hidden="hidden">
+        <button id="finish" onclick="finishConversion()" hidden="hidden">
           &converterDialog.finishButton;
         </button>
       </div>

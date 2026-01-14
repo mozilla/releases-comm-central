@@ -196,12 +196,12 @@
                 id="networkProxyAutoconfigURL"
                 type="url"
                 preference="network.proxy.autoconfig_url"
-                oninput="gConnectionsDialog.updateReloadButton();"
+                oninput="gConnectionsDialog.updateReloadButton()"
               />
               <button
                 id="autoReload"
                 data-l10n-id="proxy-reload-label"
-                oncommand="gConnectionsDialog.reloadPAC();"
+                oncommand="gConnectionsDialog.reloadPAC()"
                 preference="pref.advanced.proxies.disable_button.reload"
               />
             </hbox>

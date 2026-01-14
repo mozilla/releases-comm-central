@@ -86,7 +86,7 @@
           <button
             class="spell-check"
             label="&recheckButton2.label;"
-            oncommand="Recheck();"
+            oncommand="Recheck()"
             accesskey="&recheckButton2.accessKey;"
           />
         </html:div>
@@ -132,7 +132,11 @@
               id="SuggestedList"
               class="display-flex flex-1"
               onselect="SelectSuggestedWord()"
-              ondblclick="if (gAllowSelectWord) { Replace(event.target.value); }"
+              ondblclick="
+                if (gAllowSelectWord) {
+                  Replace(event.target.value);
+                }
+              "
             />
           </html:div>
           <html:div>
@@ -142,27 +146,27 @@
                   id="Replace"
                   class="spell-check"
                   label="&replaceButton.label;"
-                  oncommand="Replace(gDialog.ReplaceWordInput.value);"
+                  oncommand="Replace(gDialog.ReplaceWordInput.value)"
                   accesskey="&replaceButton.accessKey;"
                 />
                 <button
                   id="Ignore"
                   class="spell-check"
-                  oncommand="Ignore();"
+                  oncommand="Ignore()"
                   label="&ignoreButton.label;"
                   accesskey="&ignoreButton.accessKey;"
                 />
                 <button
                   id="ReplaceAll"
                   class="spell-check"
-                  oncommand="ReplaceAll();"
+                  oncommand="ReplaceAll()"
                   label="&replaceAllButton.label;"
                   accesskey="&replaceAllButton.accessKey;"
                 />
                 <button
                   id="IgnoreAll"
                   class="spell-check"
-                  oncommand="IgnoreAll();"
+                  oncommand="IgnoreAll()"
                   label="&ignoreAllButton.label;"
                   accesskey="&ignoreAllButton.accessKey;"
                 />
@@ -214,7 +218,7 @@
                 class="spell-check"
                 dlgtype="cancel"
                 label="&stopButton.label;"
-                oncommand="CancelSpellCheck();"
+                oncommand="CancelSpellCheck()"
                 accesskey="&stopButton.accessKey;"
               />
               <spacer class="flex-1" />
@@ -222,14 +226,14 @@
                 id="Close"
                 class="spell-check"
                 label="&closeButton.label;"
-                oncommand="onClose();"
+                oncommand="onClose()"
                 accesskey="&closeButton.accessKey;"
               />
               <button
                 id="Send"
                 class="spell-check"
                 label="&sendButton.label;"
-                oncommand="onClose();"
+                oncommand="onClose()"
                 accesskey="&sendButton.accessKey;"
                 hidden="hidden"
               />

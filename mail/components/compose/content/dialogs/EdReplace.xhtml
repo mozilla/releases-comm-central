@@ -71,7 +71,7 @@
               <html:input
                 id="dialog.findInput"
                 class="input-inline"
-                oninput="doEnabling();"
+                oninput="doEnabling()"
               />
             </html:div>
             <html:div class="flex-items-center">
@@ -85,7 +85,7 @@
               <html:input
                 id="dialog.replaceInput"
                 class="input-inline"
-                oninput="doEnabling();"
+                oninput="doEnabling()"
               />
             </html:div>
             <html:div class="grid-item-col2">
@@ -115,26 +115,29 @@
             id="findNext"
             label="&findNextButton.label;"
             accesskey="&findNextButton.accesskey;"
-            oncommand="onFindNext();"
+            oncommand="onFindNext()"
             default="true"
           />
           <button
             id="replace"
             label="&replaceButton.label;"
             accesskey="&replaceButton.accesskey;"
-            oncommand="onReplace();"
+            oncommand="onReplace()"
           />
           <button
             id="replaceAndFind"
             label="&replaceAndFindButton.label;"
             accesskey="&replaceAndFindButton.accesskey;"
-            oncommand="onReplace(); onFindNext();"
+            oncommand="
+              onReplace();
+              onFindNext();
+            "
           />
           <button
             id="replaceAll"
             label="&replaceAllButton.label;"
             accesskey="&replaceAllButton.accesskey;"
-            oncommand="onReplaceAll();"
+            oncommand="onReplaceAll()"
           />
           <button
             dlgtype="cancel"

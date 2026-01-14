@@ -152,7 +152,10 @@
               id="network-username-input"
               class="calendar-creation-text-input"
               flex="1"
-              oninput="fillLocationPlaceholder(); checkRequired()"
+              oninput="
+                fillLocationPlaceholder();
+                checkRequired();
+              "
             />
           </html:td>
         </html:tr>

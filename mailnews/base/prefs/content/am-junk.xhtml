@@ -102,7 +102,7 @@
 
           <checkbox
             id="server.spamLevel.visible"
-            oncommand="updateSpamLevel(this.checked);"
+            oncommand="updateSpamLevel(this.checked)"
             data-l10n-id="spam-level-checkbox"
             prefstring="mail.server.%serverkey%.spamLevel"
           />
@@ -143,12 +143,12 @@
                 pref="true"
                 wsm_persist="true"
                 preftype="bool"
-                oncommand="onCheckItem('useServerFilterList', [this.id]);"
+                oncommand="onCheckItem('useServerFilterList', [this.id])"
                 prefstring="mail.server.%serverkey%.useServerFilter"
               />
               <menulist
                 id="useServerFilterList"
-                oncommand="onServerFilterListChange();"
+                oncommand="onServerFilterListChange()"
                 aria-labelledby="server.useServerFilter"
               />
             </hbox>
@@ -173,7 +173,7 @@
           <checkbox
             id="server.moveOnSpam"
             data-l10n-id="move-spam-message-menuitem"
-            oncommand="updateJunkTargetsAndRetention();"
+            oncommand="updateJunkTargetsAndRetention()"
             wsm_persist="true"
             pref="true"
             preftype="bool"
@@ -189,7 +189,7 @@
             pref="true"
             preftype="int"
             genericattr="true"
-            oncommand="updateJunkTargets();"
+            oncommand="updateJunkTargets()"
             prefvalue="value"
           >
             <hbox class="specialFolderPickerGrid indent">
@@ -221,7 +221,12 @@
                     class="menulist-menupopup"
                     expandFolders="false"
                     mode="filing"
-                    oncommand="onActionTargetChange(event, 'server.spamActionTargetAccount');"
+                    oncommand="
+                      onActionTargetChange(
+                        event,
+                        'server.spamActionTargetAccount'
+                      )
+                    "
                   />
                 </menulist>
                 <menulist
@@ -235,7 +240,12 @@
                     id="actionFolderPopup"
                     mode="junk"
                     showFileHereLabel="true"
-                    oncommand="onActionTargetChange(event, 'server.spamActionTargetFolder');"
+                    oncommand="
+                      onActionTargetChange(
+                        event,
+                        'server.spamActionTargetFolder'
+                      )
+                    "
                   />
                 </menulist>
               </vbox>
@@ -251,7 +261,7 @@
               wsm_persist="true"
               preftype="bool"
               prefstring="mail.server.%serverkey%.purgeSpam"
-              oncommand="updateJunkRetention();"
+              oncommand="updateJunkRetention()"
             />
             <html:input
               id="server.purgeSpamInterval"
@@ -280,7 +290,7 @@
         <button
           id="globalJunkPrefsLink"
           data-l10n-id="global-spam-preferences-button"
-          oncommand="showGlobalJunkPrefs();"
+          oncommand="showGlobalJunkPrefs()"
         />
       </hbox>
     </vbox>

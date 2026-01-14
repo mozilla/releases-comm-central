@@ -62,7 +62,7 @@
           <vbox flex="1">
             <menulist
               id="period-list"
-              oncommand="updateRecurrenceBox();"
+              oncommand="updateRecurrenceBox()"
               disable-on-readonly="true"
               disable-on-occurrence="true"
             >
@@ -90,7 +90,7 @@
               </menupopup>
             </menulist>
             <html:input id="week-start" type="hidden" value="1" />
-            <hbox id="period-box" oncommand="updateRecurrenceControls();">
+            <hbox id="period-box" oncommand="updateRecurrenceControls()">
               <!-- Daily -->
               <box id="period-box-daily-box" orient="vertical" align="start">
                 <radiogroup id="daily-group">
@@ -109,7 +109,7 @@
                       min="1"
                       max="32767"
                       value="1"
-                      oninput="updateRecurrenceControls();"
+                      oninput="updateRecurrenceControls()"
                       disable-on-readonly="true"
                       disable-on-occurrence="true"
                     />
@@ -146,7 +146,7 @@
                     min="1"
                     max="32767"
                     value="1"
-                    oninput="updateRecurrenceControls();"
+                    oninput="updateRecurrenceControls()"
                     disable-on-readonly="true"
                     disable-on-occurrence="true"
                   />
@@ -249,7 +249,7 @@
                     min="1"
                     max="32767"
                     value="1"
-                    oninput="updateRecurrenceControls();"
+                    oninput="updateRecurrenceControls()"
                     disable-on-readonly="true"
                     disable-on-occurrence="true"
                   />
@@ -655,7 +655,7 @@
                     min="1"
                     max="32767"
                     value="1"
-                    oninput="updateRecurrenceControls();"
+                    oninput="updateRecurrenceControls()"
                     disable-on-readonly="true"
                     disable-on-occurrence="true"
                   />
@@ -678,7 +678,7 @@
                           class="size3 input-inline"
                           min="1"
                           value="1"
-                          oninput="checkYearlyAbsoluteDate();"
+                          oninput="checkYearlyAbsoluteDate()"
                           disable-on-readonly="true"
                           disable-on-occurrence="true"
                         />
@@ -826,7 +826,7 @@
                 min="1"
                 max="32767"
                 value="5"
-                oninput="updateRecurrenceControls();"
+                oninput="updateRecurrenceControls()"
                 disable-on-readonly="true"
                 disable-on-occurrence="true"
               />
@@ -848,7 +848,7 @@
               />
               <datepicker
                 id="repeat-until-date"
-                onchange="checkUntilDate();"
+                onchange="checkUntilDate()"
                 disable-on-readonly="true"
                 disable-on-occurrence="true"
               />

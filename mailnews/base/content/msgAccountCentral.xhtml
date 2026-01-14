@@ -51,8 +51,12 @@
             <a
               id="releasenotes"
               data-l10n-id="release-notes"
-              onclick="openAboutDialog();"
-              onkeypress="if (event.key == 'Enter') { openAboutDialog(); }"
+              onclick="openAboutDialog()"
+              onkeypress="
+                if (event.key == 'Enter') {
+                  openAboutDialog();
+                }
+              "
             >
               <img
                 src="chrome://messenger/skin/icons/new/compact/info.svg"
@@ -77,7 +81,7 @@
             type="button"
             data-l10n-id="account-settings"
             class="btn-link"
-            onclick="viewSettings(null);"
+            onclick="viewSettings(null)"
           ></button>
         </aside>
       </header>
@@ -89,14 +93,14 @@
             type="button"
             data-l10n-id="read"
             class="btn-link btn-inline"
-            onclick="readMessages();"
+            onclick="readMessages()"
           ></button>
           <button
             id="nntpSubscriptionButton"
             type="button"
             data-l10n-id="nntp-subscription"
             class="btn-link btn-inline"
-            onclick="subscribe();"
+            onclick="subscribe()"
             hidden="hidden"
           ></button>
           <button
@@ -104,7 +108,7 @@
             type="button"
             data-l10n-id="rss-subscription"
             class="btn-link btn-inline"
-            onclick="subscribe();"
+            onclick="subscribe()"
             hidden="hidden"
           ></button>
           <button
@@ -112,7 +116,9 @@
             type="button"
             data-l10n-id="compose"
             class="btn-link btn-inline"
-            onclick="window.browsingContext.topChromeWindow.MsgNewMessage(event);"
+            onclick="
+              window.browsingContext.topChromeWindow.MsgNewMessage(event)
+            "
             hidden="hidden"
           ></button>
           <button
@@ -120,7 +126,7 @@
             type="button"
             data-l10n-id="search"
             class="btn-link btn-inline"
-            onclick="searchMessages();"
+            onclick="searchMessages()"
             hidden="hidden"
           ></button>
           <button
@@ -128,7 +134,7 @@
             type="button"
             data-l10n-id="filter"
             class="btn-link btn-inline"
-            onclick="createMsgFilters();"
+            onclick="createMsgFilters()"
             hidden="hidden"
           ></button>
           <button
@@ -136,7 +142,7 @@
             type="button"
             data-l10n-id="e2e"
             class="btn-link btn-inline"
-            onclick="viewSettings('am-e2e.xhtml');"
+            onclick="viewSettings('am-e2e.xhtml')"
             hidden="hidden"
           ></button>
         </aside>
@@ -154,7 +160,7 @@
             type="button"
             data-l10n-id="email-label"
             class="btn-hub btn-inline"
-            onclick="top.openAccountSetup();"
+            onclick="top.openAccountSetup()"
           ></button>
           <div class="account-description">
             <p data-l10n-id="email-description"></p>
@@ -165,7 +171,7 @@
             type="button"
             data-l10n-id="addressbook-label"
             class="btn-hub btn-inline"
-            onclick="top.addNewAddressBook('CARDDAV');"
+            onclick="top.addNewAddressBook('CARDDAV')"
           ></button>
           <div class="account-description">
             <p data-l10n-id="addressbook-description"></p>
@@ -176,7 +182,11 @@
             type="button"
             data-l10n-id="calendar-label"
             class="btn-hub btn-inline"
-            onclick="window.browsingContext.topChromeWindow.cal.window.openCalendarWizard(window);"
+            onclick="
+              window.browsingContext.topChromeWindow.cal.window.openCalendarWizard(
+                window
+              )
+            "
           ></button>
           <div class="account-description">
             <p data-l10n-id="calendar-description"></p>
@@ -187,7 +197,7 @@
             type="button"
             data-l10n-id="chat-label"
             class="btn-hub btn-inline"
-            onclick="top.AddIMAccount();"
+            onclick="top.AddIMAccount()"
           ></button>
           <div class="account-description">
             <p data-l10n-id="chat-description"></p>
@@ -198,7 +208,12 @@
             type="button"
             data-l10n-id="filelink-label"
             class="btn-hub btn-inline"
-            onclick="top.openOptionsDialog('paneCompose', 'compositionAttachmentsCategory');"
+            onclick="
+              top.openOptionsDialog(
+                'paneCompose',
+                'compositionAttachmentsCategory'
+              )
+            "
           ></button>
           <div class="account-description">
             <p data-l10n-id="filelink-description"></p>
@@ -209,7 +224,7 @@
             type="button"
             data-l10n-id="feeds-label"
             class="btn-hub btn-inline"
-            onclick="top.AddFeedAccount();"
+            onclick="top.AddFeedAccount()"
           ></button>
           <div class="account-description">
             <p data-l10n-id="feeds-description"></p>
@@ -220,7 +235,7 @@
             type="button"
             data-l10n-id="newsgroups-label"
             class="btn-hub btn-inline"
-            onclick="top.openNewsgroupAccountWizard();"
+            onclick="top.openNewsgroupAccountWizard()"
           ></button>
           <div class="account-description">
             <p data-l10n-id="newsgroups-description"></p>
@@ -240,7 +255,7 @@
             type="button"
             data-l10n-id="import-label"
             class="btn-hub btn-inline"
-            onclick="top.toImport();"
+            onclick="top.toImport()"
           ></button>
         </aside>
       </section>
@@ -258,8 +273,12 @@
               href="https://www.thunderbird.net/donate/?utm_source=account_hub_tb_release&amp;utm_medium=referral&amp;utm_content=paragraph_text"
               class="donation-link"
               data-l10n-name="donation-link"
-              onclick="openLink(event);"
-              onkeypress="if (event.key == 'Enter') { openLink(event); }"
+              onclick="openLink(event)"
+              onkeypress="
+                if (event.key == 'Enter') {
+                  openLink(event);
+                }
+              "
               tabindex="0"
             ></a>
           </p>
@@ -275,8 +294,12 @@
             href="https://support.mozilla.org/products/thunderbird"
             class="resource-link"
             data-l10n-id="support-link"
-            onclick="openLink(event);"
-            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            onclick="openLink(event)"
+            onkeypress="
+              if (event.key == 'Enter') {
+                openLink(event);
+              }
+            "
             tabindex="0"
           ></a>
           <a
@@ -284,8 +307,12 @@
             href="https://www.thunderbird.net/participate/"
             class="resource-link"
             data-l10n-id="involved-link"
-            onclick="openLink(event);"
-            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            onclick="openLink(event)"
+            onkeypress="
+              if (event.key == 'Enter') {
+                openLink(event);
+              }
+            "
             tabindex="0"
           ></a>
           <a
@@ -293,8 +320,12 @@
             href="https://developer.thunderbird.net/"
             class="resource-link"
             data-l10n-id="developer-link"
-            onclick="openLink(event);"
-            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            onclick="openLink(event)"
+            onkeypress="
+              if (event.key == 'Enter') {
+                openLink(event);
+              }
+            "
             tabindex="0"
           ></a>
         </aside>

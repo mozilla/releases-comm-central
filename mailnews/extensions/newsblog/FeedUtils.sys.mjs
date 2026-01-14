@@ -646,8 +646,8 @@ export var FeedUtils = {
   isFeedMessage(aMsgHdr) {
     return Boolean(
       aMsgHdr instanceof Ci.nsIMsgDBHdr &&
-        (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
-          this.isFeedFolder(aMsgHdr.folder))
+      (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
+        this.isFeedFolder(aMsgHdr.folder))
     );
   },
 
@@ -663,7 +663,7 @@ export var FeedUtils = {
   isFeedFolder(aFolder) {
     return Boolean(
       aFolder instanceof Ci.nsIMsgFolder &&
-        this.FEED_ACCOUNT_TYPES.includes(aFolder.server.type)
+      this.FEED_ACCOUNT_TYPES.includes(aFolder.server.type)
     );
   },
 

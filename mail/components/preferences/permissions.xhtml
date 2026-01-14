@@ -46,8 +46,8 @@
         <html:input
           id="url"
           type="text"
-          oninput="gPermissionManager.onHostInput(event.target);"
-          onkeypress="gPermissionManager.onHostKeyPress(event);"
+          oninput="gPermissionManager.onHostInput(event.target)"
+          onkeypress="gPermissionManager.onHostKeyPress(event)"
         />
       </hbox>
       <hbox pack="end">
@@ -55,20 +55,32 @@
           id="btnBlock"
           disabled=""
           data-l10n-id="block-button"
-          oncommand="gPermissionManager.addPermission(Ci.nsIPermissionManager.DENY_ACTION);"
+          oncommand="
+            gPermissionManager.addPermission(
+              Ci.nsIPermissionManager.DENY_ACTION
+            )
+          "
         />
         <button
           id="btnSession"
           disabled=""
           data-l10n-id="allow-session-button"
-          oncommand="gPermissionManager.addPermission(Ci.nsICookiePermission.ACCESS_SESSION);"
+          oncommand="
+            gPermissionManager.addPermission(
+              Ci.nsICookiePermission.ACCESS_SESSION
+            )
+          "
         />
         <button
           id="btnAllow"
           disabled=""
           data-l10n-id="allow-button"
           default="true"
-          oncommand="gPermissionManager.addPermission(Ci.nsIPermissionManager.ALLOW_ACTION);"
+          oncommand="
+            gPermissionManager.addPermission(
+              Ci.nsIPermissionManager.ALLOW_ACTION
+            )
+          "
         />
       </hbox>
       <separator class="thin" />
@@ -76,7 +88,7 @@
         id="permissionsTree"
         hidecolumnpicker="true"
         onkeypress="gPermissionManager.onPermissionKeyPress(event)"
-        onselect="gPermissionManager.onPermissionSelected();"
+        onselect="gPermissionManager.onPermissionSelected()"
       >
         <treecols>
           <treecol
@@ -100,23 +112,23 @@
           id="removePermission"
           disabled=""
           data-l10n-id="remove-site-button"
-          oncommand="gPermissionManager.onPermissionDeleted();"
+          oncommand="gPermissionManager.onPermissionDeleted()"
         />
         <button
           id="removeAllPermissions"
           data-l10n-id="remove-all-site-button"
-          oncommand="gPermissionManager.onAllPermissionsDeleted();"
+          oncommand="gPermissionManager.onAllPermissionsDeleted()"
         />
       </hbox>
       <hbox class="actionButtons" pack="end">
         <button
           id="closeButton"
-          oncommand="window.close();"
+          oncommand="window.close()"
           data-l10n-id="cancel-button"
         />
         <button
           id="btnApplyChanges"
-          oncommand="gPermissionManager.onApplyChanges();"
+          oncommand="gPermissionManager.onApplyChanges()"
           data-l10n-id="save-button"
         />
       </hbox>

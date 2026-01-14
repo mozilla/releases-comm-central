@@ -36,7 +36,7 @@
   <body
     id="body"
     onload="reachOutAndTouchFrame()"
-    onmouseup="return clickOnBody(event)"
+    onmouseup="return clickOnBody(event);"
   >
     <facet-popup-menu class="popup-menu" variety="invisible" />
     <div id="gloda-facet-view">
@@ -78,8 +78,13 @@
             id="gloda-showall"
             class="results-message-showall-button"
             title="&glodaFacetView.openEmailAsList.tooltip;"
-            onclick="FacetContext.showActiveSetInTab();"
-            onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showActiveSetInTab(); event.preventDefault(); }"
+            onclick="FacetContext.showActiveSetInTab()"
+            onkeypress="
+              if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+                FacetContext.showActiveSetInTab();
+                event.preventDefault();
+              }
+            "
             tabindex="0"
           >
             &glodaFacetView.openEmailAsList.label;
@@ -117,7 +122,12 @@
             class="show-more"
             tabindex="0"
             onclick="FacetContext.showMore()"
-            onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showMore(); event.preventDefault() }"
+            onkeypress="
+              if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+                FacetContext.showMore();
+                event.preventDefault();
+              }
+            "
           >
             &glodaFacetView.pageMore.label;
           </button>

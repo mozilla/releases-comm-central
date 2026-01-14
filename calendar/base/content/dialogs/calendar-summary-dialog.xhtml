@@ -77,7 +77,7 @@
             id="saveandcloseButton"
             tooltiptext="&summary.dialog.saveclose.tooltiptext;"
             label="&summary.dialog.saveclose.label;"
-            oncommand="saveAndClose('NONE');"
+            oncommand="saveAndClose('NONE')"
             class="cal-event-toolbarbutton toolbarbutton-1 saveandcloseButton"
           />
           <toolbarbutton
@@ -86,7 +86,7 @@
             type="menu"
             tooltiptext="&summary.dialog.accept.tooltiptext;"
             label="&summary.dialog.accept.label;"
-            oncommand="reply('AUTO', 'ACCEPTED');"
+            oncommand="reply('AUTO', 'ACCEPTED')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
             <menupopup id="acceptDropdown">
@@ -94,13 +94,19 @@
                 id="acceptButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
                 label="&summary.dialog.send.label;"
-                oncommand="reply('AUTO', 'ACCEPTED'); event.stopPropagation();"
+                oncommand="
+                  reply('AUTO', 'ACCEPTED');
+                  event.stopPropagation();
+                "
               />
               <menuitem
                 id="acceptButton_DontSend"
                 tooltiptext="&summary.dialog.dontsend.tooltiptext;"
                 label="&summary.dialog.dontsend.label;"
-                oncommand="reply('NONE', 'ACCEPTED'); event.stopPropagation();"
+                oncommand="
+                  reply('NONE', 'ACCEPTED');
+                  event.stopPropagation();
+                "
               />
             </menupopup>
           </toolbarbutton>
@@ -110,7 +116,7 @@
             type="menu"
             tooltiptext="&summary.dialog.tentative.tooltiptext;"
             label="&summary.dialog.tentative.label;"
-            oncommand="reply('AUTO', 'TENTATIVE');"
+            oncommand="reply('AUTO', 'TENTATIVE')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
             <menupopup id="tentativeDropdown">
@@ -118,13 +124,19 @@
                 id="tenatativeButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
                 label="&summary.dialog.send.label;"
-                oncommand="reply('AUTO', 'TENTATIVE'); event.stopPropagation();"
+                oncommand="
+                  reply('AUTO', 'TENTATIVE');
+                  event.stopPropagation();
+                "
               />
               <menuitem
                 id="tenativeButton_DontSend"
                 tooltiptext="&summary.dialog.dontsend.tooltiptext;"
                 label="&summary.dialog.dontsend.label;"
-                oncommand="reply('NONE', 'TENTATIVE'); event.stopPropagation();"
+                oncommand="
+                  reply('NONE', 'TENTATIVE');
+                  event.stopPropagation();
+                "
               />
             </menupopup>
           </toolbarbutton>
@@ -134,7 +146,7 @@
             type="menu"
             tooltiptext="&summary.dialog.decline.tooltiptext;"
             label="&summary.dialog.decline.label;"
-            oncommand="reply('AUTO', 'DECLINED');"
+            oncommand="reply('AUTO', 'DECLINED')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
             <menupopup id="declineDropdown">
@@ -142,13 +154,19 @@
                 id="declineButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
                 label="&summary.dialog.send.label;"
-                oncommand="reply('AUTO', 'DECLINED'); event.stopPropagation();"
+                oncommand="
+                  reply('AUTO', 'DECLINED');
+                  event.stopPropagation();
+                "
               />
               <menuitem
                 id="declineButton_DontSend"
                 tooltiptext="&summary.dialog.dontsend.tooltiptext;"
                 label="&summary.dialog.dontsend.label;"
-                oncommand="reply('NONE', 'DECLINED'); event.stopPropagation();"
+                oncommand="
+                  reply('NONE', 'DECLINED');
+                  event.stopPropagation();
+                "
               />
             </menupopup>
           </toolbarbutton>

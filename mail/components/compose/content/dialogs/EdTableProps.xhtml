@@ -256,7 +256,7 @@
               <button
                 id="tableBackground"
                 class="color-button"
-                oncommand="GetColorAndUpdate('tableBackgroundCW');"
+                oncommand="GetColorAndUpdate('tableBackgroundCW')"
               >
                 <spacer id="tableBackgroundCW" class="color-well" />
               </button>
@@ -272,7 +272,7 @@
               <spacer flex="1" />
               <button
                 id="AdvancedEditButton"
-                oncommand="onAdvancedEdit();"
+                oncommand="onAdvancedEdit()"
                 label="&AdvancedEditButton.label;"
                 accesskey="&AdvancedEditButton.accessKey;"
                 tooltiptext="&AdvancedEditButton.tooltip;"
@@ -343,7 +343,7 @@
                         id="CellHeightInput"
                         type="number"
                         class="narrow input-inline"
-                        onchange="ChangeIntTextbox('CellHeightCheckbox');"
+                        onchange="ChangeIntTextbox('CellHeightCheckbox')"
                         aria-labelledby="CellHeightCheckbox"
                       />
                     </hbox>
@@ -352,7 +352,7 @@
                         id="CellWidthInput"
                         type="number"
                         class="narrow input-inline"
-                        onchange="ChangeIntTextbox('CellWidthCheckbox');"
+                        onchange="ChangeIntTextbox('CellWidthCheckbox')"
                         aria-labelledby="CellWidthCheckbox"
                       />
                     </hbox>
@@ -361,13 +361,13 @@
                     <hbox flex="1" align="center">
                       <menulist
                         id="CellHeightUnits"
-                        oncommand="SetCheckbox('CellHeightCheckbox');"
+                        oncommand="SetCheckbox('CellHeightCheckbox')"
                       />
                     </hbox>
                     <hbox flex="1" align="center">
                       <menulist
                         id="CellWidthUnits"
-                        oncommand="SetCheckbox('CellWidthCheckbox');"
+                        oncommand="SetCheckbox('CellWidthCheckbox')"
                       />
                     </hbox>
                   </vbox>
@@ -395,7 +395,7 @@
                   <vbox flex="1">
                     <menulist
                       id="CellVAlignList"
-                      oncommand="SetCheckbox('CellVAlignCheckbox');"
+                      oncommand="SetCheckbox('CellVAlignCheckbox')"
                     >
                       <menupopup>
                         <menuitem label="&cellAlignTop.label;" value="top" />
@@ -436,7 +436,7 @@
               />
               <menulist
                 id="CellStyleList"
-                oncommand="SetCheckbox('CellStyleCheckbox');"
+                oncommand="SetCheckbox('CellStyleCheckbox')"
               >
                 <menupopup>
                   <menuitem label="&cellNormal.label;" value="td" />
@@ -451,7 +451,7 @@
               />
               <menulist
                 id="TextWrapList"
-                oncommand="SetCheckbox('TextWrapCheckbox');"
+                oncommand="SetCheckbox('TextWrapCheckbox')"
               >
                 <menupopup>
                   <menuitem label="&cellWrap.label;" value="wrap" />
@@ -468,7 +468,7 @@
               />
               <button
                 class="color-button"
-                oncommand="GetColorAndUpdate('cellBackgroundCW');"
+                oncommand="GetColorAndUpdate('cellBackgroundCW')"
               >
                 <spacer id="cellBackgroundCW" class="color-well" />
               </button>

@@ -925,7 +925,7 @@ DBViewWrapper.prototype = {
 
     this._threadExpandAll = Boolean(
       Services.prefs.getIntPref("mailnews.default_view_flags", 1) &
-        Ci.nsMsgViewFlagsType.kExpandAll
+      Ci.nsMsgViewFlagsType.kExpandAll
     );
 
     this._applyViewChanges();
@@ -1565,14 +1565,14 @@ DBViewWrapper.prototype = {
   get isMailFolder() {
     return Boolean(
       this.displayedFolder &&
-        this.displayedFolder.flags & Ci.nsMsgFolderFlags.Mail
+      this.displayedFolder.flags & Ci.nsMsgFolderFlags.Mail
     );
   },
 
   get isNewsFolder() {
     return Boolean(
       this.displayedFolder &&
-        this.displayedFolder.flags & Ci.nsMsgFolderFlags.Newsgroup
+      this.displayedFolder.flags & Ci.nsMsgFolderFlags.Newsgroup
     );
   },
 
@@ -1607,7 +1607,7 @@ DBViewWrapper.prototype = {
   get isVirtual() {
     return Boolean(
       this.displayedFolder &&
-        this.displayedFolder.flags & Ci.nsMsgFolderFlags.Virtual
+      this.displayedFolder.flags & Ci.nsMsgFolderFlags.Virtual
     );
   },
 
@@ -1867,7 +1867,7 @@ DBViewWrapper.prototype = {
   get showThreaded() {
     return Boolean(
       this._viewFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay &&
-        !(this._viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
+      !(this._viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
     );
   },
   /**

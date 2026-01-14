@@ -47,7 +47,7 @@
       <commandset id="appManagerCommandSet">
         <command
           id="cmd_delete"
-          oncommand="gAppManagerDialog.remove();"
+          oncommand="gAppManagerDialog.remove()"
           disabled=""
         />
       </commandset>
@@ -70,7 +70,7 @@
       <hbox flex="1">
         <richlistbox
           id="appList"
-          onselect="gAppManagerDialog.onSelect();"
+          onselect="gAppManagerDialog.onSelect()"
           flex="1"
           style="min-height: 150px"
         />

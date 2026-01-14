@@ -60,12 +60,12 @@
   </head>
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <commandset id="">
-      <command id="cmd_recurrence" oncommand="editRepeat();" />
-      <command id="cmd_attendees" oncommand="editAttendees();" />
-      <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees);" />
+      <command id="cmd_recurrence" oncommand="editRepeat()" />
+      <command id="cmd_attendees" oncommand="editAttendees()" />
+      <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees)" />
       <command
         id="cmd_email_undecided"
-        oncommand="sendMailToUndecidedAttendees(window.attendees);"
+        oncommand="sendMailToUndecidedAttendees(window.attendees)"
       />
       <command id="cmd_attach_url" disable-on-readonly="true" oncommand="attachURL()" />
       <command id="cmd_attach_cloud" disable-on-readonly="true" />
@@ -221,7 +221,7 @@
           />
         </html:th>
         <html:td id="event-grid-item-calendar-td">
-          <menulist id="item-calendar" disable-on-readonly="true" oncommand="updateCalendar();" />
+          <menulist id="item-calendar" disable-on-readonly="true" oncommand="updateCalendar()" />
         </html:td>
       </html:tr>
 
@@ -288,9 +288,9 @@
               <html:input
                 id="item-categories-textbox"
                 placeholder="&event.categories.textbox.label;"
-                onblur="this.parentNode.removeAttribute('ignorekeys');"
-                onfocus="this.parentNode.setAttribute('ignorekeys', 'true');"
-                onkeypress="categoryTextboxKeypress(event);"
+                onblur="this.parentNode.removeAttribute('ignorekeys')"
+                onfocus="this.parentNode.setAttribute('ignorekeys', 'true')"
+                onkeypress="categoryTextboxKeypress(event)"
               />
               <menuseparator />
             </menupopup>
@@ -311,7 +311,7 @@
             disable-on-readonly="true"
             label="&event.alldayevent.label;"
             accesskey="&event.alldayevent.accesskey;"
-            oncommand="onUpdateAllDay();"
+            oncommand="onUpdateAllDay()"
           />
         </html:td>
       </html:tr>
@@ -342,19 +342,19 @@
               id="event-starttime"
               class="event-only"
               disable-on-readonly="true"
-              onchange="dateTimeControls2State(true);"
+              onchange="dateTimeControls2State(true)"
             />
             <checkbox
               id="todo-has-entrydate"
               class="todo-only checkbox-no-label"
               disable-on-readonly="true"
-              oncommand="updateEntryDate();"
+              oncommand="updateEntryDate()"
             />
             <datetimepicker
               id="todo-entrydate"
               class="todo-only"
               disable-on-readonly="true"
-              onchange="dateTimeControls2State(true);"
+              onchange="dateTimeControls2State(true)"
             />
             <vbox>
               <hbox>
@@ -370,7 +370,7 @@
               <toolbarbutton
                 id="keepduration-button"
                 accesskey="&event.dialog.keepDurationButton.accesskey;"
-                oncommand="toggleKeepDuration();"
+                oncommand="toggleKeepDuration()"
                 persist="keep"
                 keep="false"
                 aria-pressed="false"
@@ -385,7 +385,13 @@
                 crop="end"
                 disable-on-readonly="true"
                 hyperlink="true"
-                onclick="showTimezonePopup(event, gStartTime.getInTimezone(gStartTimezone), editStartTimezone)"
+                onclick="
+                  showTimezonePopup(
+                    event,
+                    gStartTime.getInTimezone(gStartTimezone),
+                    editStartTimezone
+                  )
+                "
               />
             </hbox>
           </hbox>
@@ -419,19 +425,19 @@
                 id="event-endtime"
                 class="event-only"
                 disable-on-readonly="true"
-                onchange="dateTimeControls2State(false);"
+                onchange="dateTimeControls2State(false)"
               />
               <checkbox
                 id="todo-has-duedate"
                 class="todo-only checkbox-no-label"
                 disable-on-readonly="true"
-                oncommand="updateDueDate();"
+                oncommand="updateDueDate()"
               />
               <datetimepicker
                 id="todo-duedate"
                 class="todo-only"
                 disable-on-readonly="true"
-                onchange="dateTimeControls2State(false);"
+                onchange="dateTimeControls2State(false)"
               />
               <vbox pack="end">
                 <html:img
@@ -450,7 +456,9 @@
                   disable-on-readonly="true"
                   flex="1"
                   hyperlink="true"
-                  onclick="showTimezonePopup(event, gEndTime.getInTimezone(gEndTimezone), editEndTimezone)"
+                  onclick="
+                    showTimezonePopup(event, gEndTime.getInTimezone(gEndTimezone), editEndTimezone)
+                  "
                 />
               </hbox>
             </hbox>
@@ -474,7 +482,7 @@
               id="todo-status"
               class="todo-only"
               disable-on-readonly="true"
-              oncommand="updateToDoStatus(this.value);"
+              oncommand="updateToDoStatus(this.value)"
             >
               <menupopup id="todo-status-menupopup">
                 <menuitem
@@ -605,7 +613,11 @@
                 flex="1"
                 type="forever"
                 disable-on-readonly="true"
-                onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
+                onchange="
+                  if (onLoad.hasLoaded) {
+                    checkUntilDate();
+                  }
+                "
                 value=""
               />
             </hbox>
@@ -617,7 +629,11 @@
                 disable-on-readonly="true"
                 hyperlink="true"
                 flex="1"
-                onclick="if (onLoad.hasLoaded) { updateRepeat(); }"
+                onclick="
+                  if (onLoad.hasLoaded) {
+                    updateRepeat();
+                  }
+                "
               />
             </vbox>
           </hbox>
@@ -829,7 +845,7 @@
                     wantdropmarker="true"
                     class="formatting-button"
                     tooltiptext="&ParagraphSelect.tooltip;"
-                    oncommand="goDoCommandParams('cmd_paragraphState', event.target.value);"
+                    oncommand="goDoCommandParams('cmd_paragraphState', event.target.value)"
                     observes="cmd_renderedHTMLEnabler"
                   >
                     <menupopup id="paragraphPopup">
@@ -947,7 +963,7 @@
                     id="linkButton"
                     class="formatting-button"
                     tooltiptext="&linkToolbarCmd.label;"
-                    oncommand="insertLink();"
+                    oncommand="insertLink()"
                     observes="cmd_renderedHTMLEnabler"
                   />
                   <toolbarbutton
@@ -1064,7 +1080,7 @@
                 type="content"
                 primary="true"
                 editortype="html"
-                oncontextmenu="openEditorContextMenu(event);"
+                oncontextmenu="openEditorContextMenu(event)"
                 disable-on-readonly="true"
                 flex="1"
               />
@@ -1079,7 +1095,7 @@
                   flex="1"
                   disable-on-readonly="true"
                   onkeypress="attachmentLinkKeyPress(event)"
-                  ondblclick="attachmentDblClick(event);"
+                  ondblclick="attachmentDblClick(event)"
                 />
               </vbox>
             </tabpanel>
@@ -1110,7 +1126,7 @@
               id="notify-attendees-checkbox"
               label="&event.attendees.notify.label;"
               accesskey="&event.attendees.notify.accesskey;"
-              oncommand="changeUndiscloseCheckboxStatus();"
+              oncommand="changeUndiscloseCheckboxStatus()"
               pack="start"
             />
             <checkbox

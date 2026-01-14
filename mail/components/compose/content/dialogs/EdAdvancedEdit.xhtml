@@ -100,9 +100,9 @@
               flex="1"
               hidecolumnpicker="true"
               seltype="single"
-              onselect="onSelectHTMLTreeItem();"
-              onclick="onSelectHTMLTreeItem();"
-              ondblclick="editHTMLAttributeValue(event.target);"
+              onselect="onSelectHTMLTreeItem()"
+              onclick="onSelectHTMLTreeItem()"
+              ondblclick="editHTMLAttributeValue(event.target)"
             >
               <treecols>
                 <treecol
@@ -119,7 +119,7 @@
               <spacer flex="1" />
               <button
                 label="&removeAttribute.label;"
-                oncommand="RemoveHTMLAttribute();"
+                oncommand="RemoveHTMLAttribute()"
               />
             </hbox>
             <hbox>
@@ -134,8 +134,8 @@
                   class="editorAdvancedEditableMenulist"
                   editable="true"
                   flex="1"
-                  oninput="onInputHTMLAttributeName();"
-                  oncommand="onInputHTMLAttributeName();"
+                  oninput="onInputHTMLAttributeName()"
+                  oncommand="onInputHTMLAttributeName()"
                 />
               </vbox>
               <vbox flex="1">
@@ -150,7 +150,7 @@
                       id="AddHTMLAttributeValueTextbox"
                       type="text"
                       class="input-inline"
-                      onchange="onInputHTMLAttributeValue();"
+                      onchange="onInputHTMLAttributeValue()"
                       aria-labelledby="AddHTMLAttributeValueLabel"
                     />
                   </hbox>
@@ -160,8 +160,8 @@
                       id="AddHTMLAttributeValueMenulist"
                       editable="true"
                       flex="1"
-                      oninput="onInputHTMLAttributeValue();"
-                      oncommand="onInputHTMLAttributeValue();"
+                      oninput="onInputHTMLAttributeValue()"
+                      oncommand="onInputHTMLAttributeValue()"
                     />
                   </hbox>
                 </vbox>
@@ -178,9 +178,9 @@
               flex="1"
               hidecolumnpicker="true"
               seltype="single"
-              onselect="onSelectCSSTreeItem();"
-              onclick="onSelectCSSTreeItem();"
-              ondblclick="editCSSAttributeValue(event.target);"
+              onselect="onSelectCSSTreeItem()"
+              onclick="onSelectCSSTreeItem()"
+              ondblclick="editCSSAttributeValue(event.target)"
             >
               <treecols>
                 <treecol id="CSSPropCol" label="&tree.propertyHeader.label;" />
@@ -194,7 +194,7 @@
               <spacer flex="1" />
               <button
                 label="&removeAttribute.label;"
-                oncommand="RemoveCSSAttribute();"
+                oncommand="RemoveCSSAttribute()"
               />
             </hbox>
             <hbox>
@@ -207,7 +207,7 @@
                   id="AddCSSAttributeNameInput"
                   type="text"
                   class="input-inline"
-                  onchange="onInputCSSAttributeName();"
+                  onchange="onInputCSSAttributeName()"
                   aria-labelledby="AddCSSAttributeNameLabel"
                 />
               </vbox>
@@ -220,7 +220,7 @@
                   id="AddCSSAttributeValueInput"
                   type="text"
                   class="input-inline"
-                  onchange="onChangeCSSAttribute();"
+                  onchange="onChangeCSSAttribute()"
                   aria-labelledby="AddCSSAttributeValueLabel"
                 />
               </vbox>
@@ -236,9 +236,9 @@
               flex="1"
               hidecolumnpicker="true"
               seltype="single"
-              onselect="onSelectJSETreeItem();"
-              onclick="onSelectJSETreeItem();"
-              ondblclick="editJSEAttributeValue(event.target);"
+              onselect="onSelectJSETreeItem()"
+              onclick="onSelectJSETreeItem()"
+              ondblclick="editJSEAttributeValue(event.target)"
             >
               <treecols>
                 <treecol id="AttrCol" label="&tree.attributeHeader.label;" />
@@ -260,7 +260,7 @@
                 <label value="&AttName.label;" />
                 <menulist
                   id="AddJSEAttributeNameList"
-                  oncommand="onSelectJSEAttribute();"
+                  oncommand="onSelectJSEAttribute()"
                 />
               </vbox>
               <vbox flex="1">
@@ -273,7 +273,7 @@
                     id="AddJSEAttributeValueInput"
                     type="text"
                     class="input-inline"
-                    onchange="onInputJSEAttributeValue();"
+                    onchange="onInputJSEAttributeValue()"
                     aria-labelledby="AddJSEAttributeValueLabel"
                   />
                 </hbox>

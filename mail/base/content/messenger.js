@@ -316,9 +316,7 @@ var gMailInit = {
     }
 
     if (Services.prefs.getBoolPref("mail.inappnotifications.enabled", false)) {
-      import(
-        "moz-src:///comm/mail/components/inappnotifications/content/in-app-notification-manager.mjs"
-      )
+      import("moz-src:///comm/mail/components/inappnotifications/content/in-app-notification-manager.mjs")
         .then(() => {
           document
             .querySelector(".in-app-notification-root")

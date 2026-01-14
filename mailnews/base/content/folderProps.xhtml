@@ -84,7 +84,7 @@
                   id="name"
                   type="text"
                   readonly="readonly"
-                  oninput="doEnabling();"
+                  oninput="doEnabling()"
                   class="input-inline"
                   aria-labelledby="nameLabel"
                 />
@@ -153,7 +153,7 @@
                 <button
                   id="folderRebuildSummaryButton"
                   label="&folderRebuildSummaryFile2.label;"
-                  oncommand="RebuildSummaryInformation(event);"
+                  oncommand="RebuildSummaryInformation(event)"
                   accesskey="&folderRebuildSummaryFile2.accesskey;"
                   tooltiptext="&folderRebuildSummaryFileTip2.label;"
                   align="center"
@@ -195,7 +195,7 @@
                     value="1"
                     accesskey="&retentionKeepAll.accesskey;"
                     label="&retentionKeepAll.label;"
-                    oncommand="onCheckKeepMsg();"
+                    oncommand="onCheckKeepMsg()"
                   />
                   <hbox flex="1" align="center">
                     <radio
@@ -204,7 +204,7 @@
                       accesskey="&retentionKeepRecent.accesskey;"
                       value="3"
                       label="&retentionKeepRecent.label;"
-                      oncommand="onCheckKeepMsg();"
+                      oncommand="onCheckKeepMsg()"
                     />
                     <html:input
                       id="retention.keepNewMsgMin"
@@ -228,7 +228,7 @@
                       accesskey="&retentionDeleteMsg.accesskey;"
                       value="2"
                       label="&retentionDeleteMsg.label;"
-                      oncommand="onCheckKeepMsg();"
+                      oncommand="onCheckKeepMsg()"
                     />
                     <html:input
                       id="retention.keepOldMsgMin"
@@ -280,7 +280,7 @@
             <button
               hidefor="nntp"
               label="&offlineFolder.button.label;"
-              oncommand="onOfflineFolderDownload();"
+              oncommand="onOfflineFolderDownload()"
               accesskey="&offlineFolder.button.accesskey;"
               id="offline.offlineFolderDownloadButton"
               orient="right"
@@ -288,7 +288,7 @@
             <button
               hidefor="imap,ews"
               label="&offlineNewsgroup.button.label;"
-              oncommand="onOfflineFolderDownload();"
+              oncommand="onOfflineFolderDownload()"
               accesskey="&offlineNewsgroup.button.accesskey;"
               id="offline.offlineNewsgroupDownloadButton"
               orient="right"
@@ -321,7 +321,7 @@
                 id="imap.FolderPrivileges"
                 hidefor="pop3,none,rss,nntp,ews"
                 label="&privileges.button.label;"
-                oncommand="onFolderPrivileges();"
+                oncommand="onFolderPrivileges()"
                 accesskey="&privileges.button.accesskey;"
                 orient="right"
               />

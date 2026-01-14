@@ -68,7 +68,7 @@
         <button
           id="deleteAccount"
           data-l10n-id="delete-account-button"
-          oncommand="top.onRemoveAccount(event);"
+          oncommand="top.onRemoveAccount(event)"
         />
       </hbox>
 
@@ -88,7 +88,7 @@
             wsm_persist="true"
             class="input-inline"
             aria-labelledby="server.prettyNameLabel"
-            onblur="serverPrettyNameOnBlur(event);"
+            onblur="serverPrettyNameOnBlur(event)"
             prefstring="mail.server.%serverkey%.name"
           />
         </div>
@@ -208,7 +208,9 @@
         <button
           label="&manageSubscriptions.label;"
           accesskey="&manageSubscriptions.accesskey;"
-          oncommand="openSubscriptionsDialog(gAccount.incomingServer.rootFolder);"
+          oncommand="
+            openSubscriptionsDialog(gAccount.incomingServer.rootFolder)
+          "
         />
       </hbox>
 
@@ -253,7 +255,7 @@
                 label="&browseFolder.label;"
                 filepickertitle="&localFolderPicker.label;"
                 accesskey="&browseFolder.accesskey;"
-                oncommand="BrowseForLocalFolders();"
+                oncommand="BrowseForLocalFolders()"
               />
             </hbox>
           </vbox>

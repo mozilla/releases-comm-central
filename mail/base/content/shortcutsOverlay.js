@@ -153,9 +153,7 @@ async function openCustomizableShortcuts() {
   let element = document.querySelector("shortcuts-container");
   // If we don't already have the element import it and append it to the DOM.
   if (!element) {
-    await import(
-      "chrome://messenger/content/customizableshortcuts/shortcuts-container.mjs"
-    );
+    await import("chrome://messenger/content/customizableshortcuts/shortcuts-container.mjs");
     element = document.createElement("shortcuts-container");
     document.body.appendChild(element);
   }

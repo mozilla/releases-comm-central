@@ -37,7 +37,10 @@
         <checkbox
           id="useColor"
           data-l10n-id="category-color-label"
-          oncommand="toggleColor(); categoryNameChanged()"
+          oncommand="
+            toggleColor();
+            categoryNameChanged();
+          "
         />
         <html:input
           id="categoryColor"

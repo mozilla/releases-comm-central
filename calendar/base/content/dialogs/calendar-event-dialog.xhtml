@@ -101,8 +101,7 @@
         <!-- View menu -->
         <command
           id="cmd_toolbar"
-          oncommand="onCommandViewToolbar('event-toolbar',
-                                             'view-toolbars-event-menuitem')"
+          oncommand="onCommandViewToolbar('event-toolbar', 'view-toolbars-event-menuitem')"
         />
         <command id="cmd_customize" oncommand="onCommandCustomize()" />
 
@@ -132,15 +131,15 @@
         />
 
         <!-- attendees -->
-        <command id="cmd_attendees" oncommand="editAttendees();" />
-        <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees);" />
+        <command id="cmd_attendees" oncommand="editAttendees()" />
+        <command id="cmd_email" oncommand="sendMailToAttendees(window.attendees)" />
         <command
           id="cmd_email_undecided"
-          oncommand="sendMailToUndecidedAttendees(window.attendees);"
+          oncommand="sendMailToUndecidedAttendees(window.attendees)"
         />
 
         <!-- accept, attachments, timezone -->
-        <command id="cmd_accept" disable-on-readonly="true" oncommand="acceptDialog();" />
+        <command id="cmd_accept" disable-on-readonly="true" oncommand="acceptDialog()" />
         <command id="cmd_attach_url" disable-on-readonly="true" oncommand="attachURL()" />
         <command id="cmd_attach_cloud" disable-on-readonly="true" />
         <command id="cmd_timezone" persist="checked" oncommand="toggleTimezoneLinks()" />

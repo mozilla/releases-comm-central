@@ -91,7 +91,7 @@
               <menuitem
                 id="importPubFromFile"
                 data-l10n-id="openpgp-key-man-import-public-from-file"
-                oncommand="EnigmailCommon_importObjectFromFile('pub');"
+                oncommand="EnigmailCommon_importObjectFromFile('pub')"
               />
               <menuitem
                 id="importSecFromFile"
@@ -101,37 +101,37 @@
               <menuitem
                 id="importSigFromFile"
                 data-l10n-id="openpgp-key-man-import-sig-from-file"
-                oncommand="EnigmailCommon_importObjectFromFile('rev');"
+                oncommand="EnigmailCommon_importObjectFromFile('rev')"
               />
               <menuseparator />
               <menuitem
                 id="exportPublicKey"
                 class="requires-key-selection"
                 data-l10n-id="openpgp-key-man-export-to-file"
-                oncommand="enigmailExportKeys('public');"
+                oncommand="enigmailExportKeys('public')"
               />
               <menuitem
                 id="sendKey"
                 data-l10n-id="openpgp-key-man-send-keys"
                 class="requires-key-selection"
-                oncommand="enigCreateKeyMsg();"
+                oncommand="enigCreateKeyMsg()"
               />
               <menuseparator />
               <menuitem
                 id="backupSecretKey"
                 data-l10n-id="openpgp-key-man-backup-secret-keys"
-                oncommand="enigmailExportKeys('secret');"
+                oncommand="enigmailExportKeys('secret')"
               />
               <menuitem
                 id="prepareRevocationID"
                 data-l10n-id="openpgp-key-man-gen-revocation"
-                oncommand="prepareRevocation();"
+                oncommand="prepareRevocation()"
               />
               <menuseparator />
               <menuitem
                 id="refreshKeys"
                 data-l10n-id="openpgp-key-man-reload"
-                oncommand="clearKeyCache();"
+                oncommand="clearKeyCache()"
               />
               <!-- add Close and Exit menu items -->
               <menuitem
@@ -147,12 +147,12 @@
               <menuitem
                 id="importFromClipbrd"
                 data-l10n-id="openpgp-key-man-import-from-clipbrd"
-                oncommand="enigmailImportFromClipbrd();"
+                oncommand="enigmailImportFromClipbrd()"
               />
               <menuitem
                 id="importFromUrl"
                 data-l10n-id="openpgp-key-man-import-from-url"
-                oncommand="enigmailImportKeysFromUrl();"
+                oncommand="enigmailImportKeysFromUrl()"
               />
               <menuitem
                 id="copyFprs"
@@ -173,7 +173,7 @@
                 data-l10n-id="openpgp-key-man-copy-to-clipboard"
                 data-l10n-args='{"count": 0}'
                 class="requires-key-selection enigmail-bulk-key-operation"
-                oncommand="enigmailCopyToClipbrd();"
+                oncommand="enigmailCopyToClipbrd()"
               />
               <menuseparator />
 
@@ -188,7 +188,7 @@
                 data-l10n-id="openpgp-key-man-del-key"
                 key="key_enigDelete"
                 class="requires-key-selection"
-                oncommand="enigmailDeleteKey();"
+                oncommand="enigmailDeleteKey()"
               />
 
               <menuseparator />
@@ -210,7 +210,7 @@
                 data-l10n-id="openpgp-key-man-key-props"
                 class="requires-single-key-selection"
                 key="key_keyDetails"
-                oncommand="enigmailKeyDetails();"
+                oncommand="enigmailKeyDetails()"
               />
               <menuseparator />
               <menuitem
@@ -219,7 +219,7 @@
                 type="checkbox"
                 checked=""
                 persist="checked"
-                oncommand="gKeyListView.applyFilter();"
+                oncommand="gKeyListView.applyFilter()"
               />
               <menuitem
                 id="showOthersKeys"
@@ -227,7 +227,7 @@
                 type="checkbox"
                 checked=""
                 persist="checked"
-                oncommand="gKeyListView.applyFilter();"
+                oncommand="gKeyListView.applyFilter()"
               />
             </menupopup>
           </menu>

@@ -108,7 +108,7 @@
         oncommand="addSelectedAddresses('addr_bcc')"
         disabled=""
       />
-      <command id="cmd_delete" oncommand="goDoCommand('cmd_delete');" />
+      <command id="cmd_delete" oncommand="goDoCommand('cmd_delete')" />
     </commandset>
 
     <keyset id="keyset_abContactsPanel">
@@ -145,7 +145,7 @@
         id="abContextEditContact"
         label="&editContactContext.label;"
         accesskey="&editContactContext.accesskey;"
-        oncommand="editSelectedAddress();"
+        oncommand="editSelectedAddress()"
         hidden="hidden"
       />
     </menupopup>
@@ -160,7 +160,7 @@
         label="&showAsDefault.label;"
         accesskey="&showAsDefault.accesskey;"
         type="checkbox"
-        oncommand="abToggleSelectedDirStartup();"
+        oncommand="abToggleSelectedDirStartup()"
       />
     </menupopup>
 
@@ -176,13 +176,13 @@
         is="menulist-addrbooks"
         id="addressbookList"
         alladdressbooks="true"
-        oncommand="AddressBookMenuListChange(this.value);"
+        oncommand="AddressBookMenuListChange(this.value)"
         flex="1"
       />
       <button
         id="abContextMenuButton"
         tooltiptext="&abContextMenuButton.tooltip;"
-        oncommand="abContextMenuButtonOnCommand(event);"
+        oncommand="abContextMenuButtonOnCommand(event)"
       />
     </hbox>
 

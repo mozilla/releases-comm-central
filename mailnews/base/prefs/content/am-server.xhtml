@@ -175,7 +175,7 @@
                 <html:select
                   wsm_persist="true"
                   id="server.socketType"
-                  onchange="secureSelect();"
+                  onchange="secureSelect()"
                 >
                   <html:option
                     value="0"
@@ -247,7 +247,7 @@
               id="server.doBiff"
               label="&biffStart.label;"
               accesskey="&biffStart.accesskey;"
-              oncommand="onCheckItem('server.biffMinutes', [this.id]);"
+              oncommand="onCheckItem('server.biffMinutes', [this.id])"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.check_new_mail"
             />
@@ -309,7 +309,7 @@
               wsm_persist="true"
               id="pop3.leaveMessagesOnServer"
               label="&leaveOnServer.label;"
-              oncommand="setupMailOnServerUI();"
+              oncommand="setupMailOnServerUI()"
               accesskey="&leaveOnServer.accesskey;"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.leave_on_server"
@@ -321,7 +321,7 @@
                 id="pop3.deleteByAgeFromServer"
                 class="indent"
                 label="&deleteByAgeFromServer.label;"
-                oncommand="setupAgeMsgOnServerUI();"
+                oncommand="setupAgeMsgOnServerUI()"
                 accesskey="&deleteByAgeFromServer.accesskey;"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.delete_by_age_from_server"
@@ -399,7 +399,7 @@
               <radiogroup
                 id="imap.deleteModel"
                 wsm_persist="true"
-                oncommand="selectImapDeleteModel(this.value);"
+                oncommand="selectImapDeleteModel(this.value)"
                 prefstring="mail.server.%serverkey%.delete_model"
               >
                 <hbox class="specialFolderPickerGrid">
@@ -425,7 +425,7 @@
                           id="msgTrashFolderPopup"
                           mode="filing"
                           showFileHereLabel="true"
-                          oncommand="folderPickerChange(event);"
+                          oncommand="folderPickerChange(event)"
                         />
                       </menulist>
                     </hbox>
@@ -455,7 +455,7 @@
               <button
                 label="&advancedButton.label;"
                 accesskey="&advancedButton.accesskey;"
-                oncommand="onAdvanced();"
+                oncommand="onAdvanced()"
                 wsm_persist="true"
                 id="server.imapAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
@@ -541,7 +541,7 @@
               <radiogroup
                 id="ews.deleteModel"
                 wsm_persist="true"
-                oncommand="selectEwsDeleteModel(this.value);"
+                oncommand="selectEwsDeleteModel(this.value)"
                 prefstring="mail.server.%serverkey%.delete_model"
               >
                 <hbox class="specialFolderPickerGrid">
@@ -567,7 +567,7 @@
                           id="ewsMsgTrashFolderPopup"
                           mode="filing"
                           showFileHereLabel="true"
-                          oncommand="ewsFolderPickerChange(event);"
+                          oncommand="ewsFolderPickerChange(event)"
                         />
                       </menulist>
                     </hbox>
@@ -590,7 +590,7 @@
                 id="server.ewsAdvancedButton"
                 label="&advancedButton.label;"
                 accesskey="&advancedButton.accesskey;"
-                oncommand="onAdvanced();"
+                oncommand="onAdvanced()"
                 wsm_persist="true"
                 prefstring="mail.server.%serverkey%.advanced.disable"
                 hidefor="pop3,nntp,imap"
@@ -630,7 +630,7 @@
               wsm_persist="true"
               label="&maxMessagesStart.label;"
               accesskey="&maxMessagesStart.accesskey;"
-              oncommand="onCheckItem('nntp.maxArticles', [this.id]);"
+              oncommand="onCheckItem('nntp.maxArticles', [this.id])"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.notify.on"
             />
@@ -690,7 +690,7 @@
             <button
               label="&advancedButton.label;"
               accesskey="&advancedButton.accesskey;"
-              oncommand="onAdvanced();"
+              oncommand="onAdvanced()"
               wsm_persist="true"
               id="server.popAdvancedButton"
               prefstring="mail.server.%serverkey%.advanced.disable"
@@ -705,7 +705,7 @@
             />
             <menulist
               id="server.storeTypeMenulist"
-              oncommand="clickStoreTypeMenu(this);"
+              oncommand="clickStoreTypeMenu(this)"
             >
               <menupopup id="server.storeTypeMenupopup">
                 <menuitem
@@ -745,7 +745,7 @@
               label="&browseNewsrc.label;"
               filepickertitle="&newsrcPicker1.label;"
               accesskey="&browseNewsrc.accesskey;"
-              oncommand="BrowseForNewsrc();"
+              oncommand="BrowseForNewsrc()"
             />
           </hbox>
 
@@ -774,7 +774,7 @@
               label="&browseFolder.label;"
               filepickertitle="&localFolderPicker.label;"
               accesskey="&browseFolder.accesskey;"
-              oncommand="BrowseForLocalFolders();"
+              oncommand="BrowseForLocalFolders()"
             />
           </hbox>
         </html:fieldset>

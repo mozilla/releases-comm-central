@@ -46,18 +46,18 @@
       src="chrome://messenger/locale/preferences/preferences.properties"
     />
     <keyset>
-      <key keycode="VK_ESCAPE" oncommand="window.close();" />
+      <key keycode="VK_ESCAPE" oncommand="window.close()" />
       <key
         data-l10n-id="window-focus-search-key"
         data-l10n-attrs="key"
         modifiers="accel"
-        oncommand="gCookiesWindow.focusFilterBox();"
+        oncommand="gCookiesWindow.focusFilterBox()"
       />
       <key
         data-l10n-id="window-focus-search-alt-key"
         data-l10n-attrs="key"
         modifiers="accel"
-        oncommand="gCookiesWindow.focusFilterBox();"
+        oncommand="gCookiesWindow.focusFilterBox()"
       />
     </keyset>
 
@@ -68,7 +68,7 @@
           type="search"
           id="filter"
           aria-controls="cookiesList"
-          oninput="gCookiesWindow.filter();"
+          oninput="gCookiesWindow.filter()"
         />
       </hbox>
       <separator class="thin" />
@@ -81,7 +81,7 @@
       <tree
         id="cookiesList"
         onkeypress="gCookiesWindow.onCookieKeyPress(event)"
-        onselect="gCookiesWindow.onCookieSelected();"
+        onselect="gCookiesWindow.onCookieSelected()"
         hidecolumnpicker="true"
         seltype="single"
       >
@@ -91,14 +91,14 @@
             data-l10n-id="treecol-site-header"
             primary="true"
             persist="width"
-            onclick="gCookiesWindow.sort('rawHost');"
+            onclick="gCookiesWindow.sort('rawHost')"
           />
           <splitter class="tree-splitter" />
           <treecol
             id="nameCol"
             data-l10n-id="treecol-name-header"
             persist="width"
-            onclick="gCookiesWindow.sort('name');"
+            onclick="gCookiesWindow.sort('name')"
           />
         </treecols>
         <treechildren id="cookiesChildren" />
@@ -191,18 +191,18 @@
             id="removeSelectedCookies"
             disabled=""
             data-l10n-id="remove-cookie-button"
-            oncommand="gCookiesWindow.deleteCookie();"
+            oncommand="gCookiesWindow.deleteCookie()"
           />
           <button
             id="removeAllCookies"
             disabled=""
             data-l10n-id="remove-all-cookies-button"
-            oncommand="gCookiesWindow.deleteAllCookies();"
+            oncommand="gCookiesWindow.deleteAllCookies()"
           />
           <spacer flex="1" />
           <button
             id="closeButton"
-            oncommand="window.close();"
+            oncommand="window.close()"
             data-l10n-id="cookie-close-button"
           />
         </hbox>

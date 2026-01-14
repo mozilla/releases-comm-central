@@ -78,7 +78,7 @@
           <input
             id="useWithoutAccount"
             type="checkbox"
-            onchange="gAccountSetup.toggleExitDialogButton(event);"
+            onchange="gAccountSetup.toggleExitDialogButton(event)"
           />
           <span
             data-l10n-id="account-setup-no-account-checkbox"
@@ -179,7 +179,7 @@
             <input
               id="acknowledgeWarning"
               type="checkbox"
-              onchange="gSecurityWarningDialog.toggleAcknowledge();"
+              onchange="gSecurityWarningDialog.toggleAcknowledge()"
             />
             <span
               data-l10n-id="account-setup-insecure-server-checkbox"
@@ -192,14 +192,14 @@
         <aside>
           <button
             data-l10n-id="insecure-dialog-cancel-button"
-            onclick="gSecurityWarningDialog.onCancel();"
+            onclick="gSecurityWarningDialog.onCancel()"
           ></button>
           <button
             id="insecureConfirmButton"
             data-l10n-id="insecure-dialog-confirm-button"
             class="primary"
             disable="disabled"
-            onclick="gSecurityWarningDialog.onOK();"
+            onclick="gSecurityWarningDialog.onOK()"
           ></button>
         </aside>
       </menu>
@@ -371,7 +371,7 @@
 
     <section class="main-container">
       <aside id="setupView" class="column first-column">
-        <form id="form" onsubmit="gAccountSetup.onFormSubmit(event);">
+        <form id="form" onsubmit="gAccountSetup.onFormSubmit(event)">
           <!-- Hidden submit field to enable the natural Enter keypress to
           submit the form. We do this because we have the Continue and Done
           button outside the form and we want to only handle the Enter to
@@ -390,7 +390,7 @@
               autocomplete="off"
               class="input-field"
               data-l10n-id="account-setup-name-input"
-              oninput="gAccountSetup.onInputRealname();"
+              oninput="gAccountSetup.onInputRealname()"
               required="required"
             />
             <img
@@ -422,7 +422,7 @@
               autocomplete="off"
               data-l10n-id="account-setup-email-input"
               class="input-field"
-              oninput="gAccountSetup.onInputEmail();"
+              oninput="gAccountSetup.onInputEmail()"
               required="required"
             />
             <img
@@ -453,7 +453,7 @@
               type="password"
               autocomplete="off"
               class="input-field"
-              oninput="gAccountSetup.onInputPassword();"
+              oninput="gAccountSetup.onInputPassword()"
             />
           </div>
 
@@ -483,7 +483,7 @@
                 type="text"
                 data-l10n-id="account-setup-exchange-input"
                 class="input-field"
-                oninput="gAccountSetup.onInputUsername();"
+                oninput="gAccountSetup.onInputUsername()"
               />
               <img
                 id="usernameExInfo"
@@ -518,7 +518,7 @@
                 type="radio"
                 value="imap"
                 name="resultsServerType"
-                onchange="gAccountSetup.onResultServerTypeChanged();"
+                onchange="gAccountSetup.onResultServerTypeChanged()"
               />
               <span class="strong">IMAP</span>
               <p
@@ -573,7 +573,7 @@
                 type="radio"
                 value="pop3"
                 name="resultsServerType"
-                onchange="gAccountSetup.onResultServerTypeChanged();"
+                onchange="gAccountSetup.onResultServerTypeChanged()"
               />
               <span class="strong">POP3</span>
               <p
@@ -628,7 +628,7 @@
                 type="radio"
                 value="ews"
                 name="resultsServerType"
-                onchange="gAccountSetup.onResultServerTypeChanged();"
+                onchange="gAccountSetup.onResultServerTypeChanged()"
               />
               <span
                 class="strong"
@@ -675,7 +675,7 @@
                 type="radio"
                 value="exchange"
                 name="resultsServerType"
-                onchange="gAccountSetup.onResultServerTypeChanged();"
+                onchange="gAccountSetup.onResultServerTypeChanged()"
               />
               <span class="strong"> Exchange/Office365 </span>
               <p
@@ -730,7 +730,7 @@
               <div class="input-control">
                 <select
                   id="incomingProtocol"
-                  onchange="gAccountSetup.onChangedProtocolIncoming();"
+                  onchange="gAccountSetup.onChangedProtocolIncoming()"
                 >
                   <option value="1">IMAP</option>
                   <option value="2">POP3</option>
@@ -758,8 +758,8 @@
                   id="incomingHostname"
                   type="text"
                   placeholder="mail.example.com"
-                  onchange="gAccountSetup.onChangeHostname();"
-                  oninput="gAccountSetup.manualConfigChanged();"
+                  onchange="gAccountSetup.onChangeHostname()"
+                  oninput="gAccountSetup.manualConfigChanged()"
                   class="host uri-element input-field"
                 />
               </div>
@@ -779,8 +779,8 @@
                   type="number"
                   min="1"
                   max="65535"
-                  onchange="gAccountSetup.onChangedPortIncoming();"
-                  oninput="gAccountSetup.manualConfigChanged();"
+                  onchange="gAccountSetup.onChangedPortIncoming()"
+                  oninput="gAccountSetup.manualConfigChanged()"
                   class="input-field"
                 />
               </aside>
@@ -798,7 +798,7 @@
                 <select
                   id="incomingSsl"
                   class="security"
-                  onchange="gAccountSetup.onChangedSSLIncoming();"
+                  onchange="gAccountSetup.onChangedSSLIncoming()"
                 >
                   <!-- @see nsMsgSocketType -->
                   <option
@@ -827,7 +827,7 @@
                 <select
                   id="incomingAuthMethod"
                   class="auth"
-                  onchange="gAccountSetup.onChangedInAuth();"
+                  onchange="gAccountSetup.onChangedInAuth()"
                 >
                   <option
                     data-l10n-id="ssl-autodetect-option"
@@ -864,7 +864,7 @@
                   id="incomingUsername"
                   type="text"
                   data-l10n-id="account-setup-email-input"
-                  oninput="gAccountSetup.onInputInUsername();"
+                  oninput="gAccountSetup.onInputInUsername()"
                   class="username input-field"
                 />
               </div>
@@ -893,8 +893,8 @@
                   id="outgoingHostname"
                   type="text"
                   placeholder="mail.example.com"
-                  onchange="gAccountSetup.onChangeHostname();"
-                  oninput="gAccountSetup.manualConfigChanged();"
+                  onchange="gAccountSetup.onChangeHostname()"
+                  oninput="gAccountSetup.manualConfigChanged()"
                   class="input-field"
                 />
               </div>
@@ -914,8 +914,8 @@
                   type="number"
                   min="1"
                   max="65535"
-                  onchange="gAccountSetup.onChangedPortOutgoing();"
-                  oninput="gAccountSetup.manualConfigChanged();"
+                  onchange="gAccountSetup.onChangedPortOutgoing()"
+                  oninput="gAccountSetup.manualConfigChanged()"
                   class="input-field"
                 />
               </aside>
@@ -933,7 +933,7 @@
                 <select
                   id="outgoingSsl"
                   class="security"
-                  onchange="gAccountSetup.onChangedSSLOutgoing();"
+                  onchange="gAccountSetup.onChangedSSLOutgoing()"
                 >
                   <!-- Values defined in nsMsgSocketType. -->
                   <option
@@ -962,7 +962,7 @@
                 <select
                   id="outgoingAuthMethod"
                   class="auth"
-                  onchange="gAccountSetup.onChangedOutAuth(event);"
+                  onchange="gAccountSetup.onChangedOutAuth(event)"
                 >
                   <option
                     data-l10n-id="ssl-autodetect-option"
@@ -1004,7 +1004,7 @@
                   id="outgoingUsername"
                   type="text"
                   data-l10n-id="account-setup-email-input"
-                  oninput="gAccountSetup.onInputOutUsername();"
+                  oninput="gAccountSetup.onInputOutUsername()"
                   class="username input-field"
                 />
               </div>
@@ -1017,7 +1017,7 @@
               class="btn-link"
               data-l10n-id="account-setup-advanced-setup-button"
               data-l10n-attrs="accesskey"
-              onclick="gAccountSetup.onAdvancedSetup();"
+              onclick="gAccountSetup.onAdvancedSetup()"
             ></button>
           </div>
         </section>
@@ -1030,7 +1030,7 @@
               type="button"
               data-l10n-id="account-setup-button-stop"
               data-l10n-attrs="accesskey"
-              onclick="gAccountSetup.onStop();"
+              onclick="gAccountSetup.onStop()"
               hidden="hidden"
             ></button>
             <button
@@ -1038,7 +1038,7 @@
               type="button"
               data-l10n-id="account-setup-button-retest"
               data-l10n-attrs="accesskey"
-              onclick="gAccountSetup.testManualConfig();"
+              onclick="gAccountSetup.testManualConfig()"
               hidden="hidden"
             ></button>
             <button
@@ -1047,7 +1047,7 @@
               data-l10n-id="account-setup-button-manual-config"
               data-l10n-attrs="accesskey"
               class="btn-link"
-              onclick="gAccountSetup.onManualEdit();"
+              onclick="gAccountSetup.onManualEdit()"
               hidden="hidden"
             ></button>
           </aside>
@@ -1058,7 +1058,7 @@
               type="button"
               data-l10n-id="account-setup-button-cancel"
               data-l10n-attrs="accesskey"
-              onclick="gAccountSetup.onCancel();"
+              onclick="gAccountSetup.onCancel()"
             ></button>
             <button
               id="continueButton"
@@ -1066,7 +1066,7 @@
               data-l10n-id="account-setup-button-continue"
               data-l10n-attrs="accesskey"
               class="primary"
-              onclick="gAccountSetup.onContinue();"
+              onclick="gAccountSetup.onContinue()"
               disabled="disabled"
             ></button>
             <button
@@ -1075,7 +1075,7 @@
               data-l10n-id="account-setup-button-done"
               data-l10n-attrs="accesskey"
               class="primary"
-              onclick="gAccountSetup.onCreate();"
+              onclick="gAccountSetup.onCreate()"
               hidden="hidden"
               disabled="disabled"
             ></button>
@@ -1139,7 +1139,7 @@
             type="button"
             data-l10n-id="account-setup-dictionaries-button"
             class="quick-link"
-            onclick="openDictionariesTab();"
+            onclick="openDictionariesTab()"
           ></button>
         </section>
 
@@ -1160,7 +1160,7 @@
               <button
                 type="button"
                 class="linked-services-button"
-                onclick="gAccountSetup.toggleSetupContainer(event);"
+                onclick="gAccountSetup.toggleSetupContainer(event)"
               >
                 <aside>
                   <span
@@ -1187,7 +1187,7 @@
                   id="addressBooksSetupAll"
                   data-l10n-id="account-setup-connect-all-address-books"
                   class="btn-link self-center"
-                  onclick="gAccountSetup.setupAllAddressBooks();"
+                  onclick="gAccountSetup.setupAllAddressBooks()"
                   hidden="hidden"
                 ></button>
               </div>
@@ -1199,7 +1199,7 @@
                 type="button"
                 data-l10n-id="account-setup-address-book-carddav-button"
                 class="quick-link"
-                onclick="addNewAddressBook('CARDDAV');"
+                onclick="addNewAddressBook('CARDDAV')"
               ></button>
 
               <button
@@ -1207,7 +1207,7 @@
                 type="button"
                 data-l10n-id="account-setup-address-book-ldap-button"
                 class="quick-link"
-                onclick="addNewAddressBook('LDAP');"
+                onclick="addNewAddressBook('LDAP')"
               ></button>
             </section>
 
@@ -1219,7 +1219,7 @@
               <button
                 type="button"
                 class="linked-services-button"
-                onclick="gAccountSetup.toggleSetupContainer(event);"
+                onclick="gAccountSetup.toggleSetupContainer(event)"
               >
                 <aside>
                   <span
@@ -1246,7 +1246,7 @@
                   id="calendarsSetupAll"
                   data-l10n-id="account-setup-connect-all-calendars"
                   class="btn-link self-center"
-                  onclick="gAccountSetup.setupAllCalendars();"
+                  onclick="gAccountSetup.setupAllCalendars()"
                   hidden="hidden"
                 ></button>
               </div>
@@ -1258,7 +1258,7 @@
                 type="button"
                 data-l10n-id="account-setup-calendar-button"
                 class="quick-link"
-                onclick="showCalendarWizard();"
+                onclick="showCalendarWizard()"
               ></button>
             </section>
           </aside>
@@ -1271,7 +1271,7 @@
             data-l10n-id="account-setup-button-finish"
             data-l10n-attrs="accesskey"
             class="primary"
-            onclick="gAccountSetup.onFinish();"
+            onclick="gAccountSetup.onFinish()"
           ></button>
         </section>
       </aside>

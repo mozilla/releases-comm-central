@@ -60,7 +60,7 @@
       <html:textarea
         id="input"
         rows="5"
-        oninput="updateMath();"
+        oninput="updateMath()"
         placeholder="\sqrt{x_1} + \frac{π^3}{2}"
       />
       <vbox flex="1" style="overflow: auto; width: 30em; height: 5em">
@@ -68,13 +68,13 @@
       </vbox>
       <tabbox id="tabboxInsertLaTeXCommand">
         <tabs />
-        <tabpanels oncommand="insertLaTeXCommand(event.target);" />
+        <tabpanels oncommand="insertLaTeXCommand(event.target)" />
       </tabbox>
       <spacer class="spacer" />
       <html:fieldset>
         <html:legend>&options.label;</html:legend>
         <hbox>
-          <radiogroup id="optionMode" oncommand="updateMode();">
+          <radiogroup id="optionMode" oncommand="updateMode()">
             <radio
               label="&optionInline.label;"
               accesskey="&optionInline.accesskey;"
@@ -84,7 +84,7 @@
               accesskey="&optionDisplay.accesskey;"
             />
           </radiogroup>
-          <radiogroup id="optionDirection" oncommand="updateDirection();">
+          <radiogroup id="optionDirection" oncommand="updateDirection()">
             <radio
               label="&optionLTR.label;"
               accesskey="&optionLTR.accesskey;"

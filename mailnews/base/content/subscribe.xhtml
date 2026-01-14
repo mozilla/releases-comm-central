@@ -76,7 +76,7 @@
                 is="folder-menupopup"
                 mode="subscribe"
                 expandFolders="false"
-                oncommand="onServerClick(event.target._folder);"
+                oncommand="onServerClick(event.target._folder)"
               />
             </menulist>
           </vbox>
@@ -95,7 +95,7 @@
               class="themeableSearchBox"
               timeout="300"
               aria-controls="subscribeTree"
-              oninput="Search();"
+              oninput="Search()"
             />
           </vbox>
         </vbox>
@@ -109,14 +109,14 @@
               <tab
                 id="currentListTab"
                 selected="true"
-                onclick="if (!event.target.disabled) ShowCurrentList()"
+                onclick="if (!event.target.disabled) ShowCurrentList();"
                 oncommand="ShowCurrentList()"
               />
               <tab
                 id="newGroupsTab"
                 label="&newGroupsTab.label;"
                 accesskey="&newGroupsTab.accesskey;"
-                onclick="if (!event.target.disabled) ShowNewGroupsList()"
+                onclick="if (!event.target.disabled) ShowNewGroupsList();"
                 oncommand="ShowNewGroupsList()"
               />
             </tabs>
@@ -131,8 +131,8 @@
                       hidecolumnpicker="true"
                       seltype="multiple"
                       disableKeyNavigation="true"
-                      onkeypress="onSubscribeTreeKeyPress(event);"
-                      onclick="SubscribeOnClick(event);"
+                      onkeypress="onSubscribeTreeKeyPress(event)"
+                      onclick="SubscribeOnClick(event)"
                     >
                       <treecols id="theSubscribeColumns">
                         <treecol
@@ -158,8 +158,8 @@
                       flex="1"
                       disableKeyNavigation="true"
                       hidecolumnpicker="true"
-                      onkeypress="onSearchTreeKeyPress(event);"
-                      onclick="SearchOnClick(event);"
+                      onkeypress="onSearchTreeKeyPress(event)"
+                      onclick="SearchOnClick(event)"
                     >
                       <treecols>
                         <treecol

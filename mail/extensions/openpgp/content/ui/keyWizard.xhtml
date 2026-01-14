@@ -78,12 +78,12 @@
           <hbox>
             <button
               data-l10n-id="openpgp-keygen-dismiss"
-              oncommand="closeOverlay();"
+              oncommand="closeOverlay()"
             />
             <button
               id="openPgpKeygenConfirmButton"
               data-l10n-id="openpgp-keygen-confirm"
-              oncommand="openPgpKeygenConfirm();"
+              oncommand="openPgpKeygenConfirm()"
             />
           </hbox>
         </vbox>
@@ -103,7 +103,7 @@
           <button
             data-l10n-id="openpgp-keygen-cancel"
             class="self-center"
-            oncommand="openPgpKeygenCancel();"
+            oncommand="openPgpKeygenCancel()"
           />
         </vbox>
       </html:div>
@@ -191,7 +191,7 @@
                 data-l10n-id="openpgp-import-identity-label"
               >
               </html:legend>
-              <menulist id="userIdentity" flex="1" oncommand="setIdentity();">
+              <menulist id="userIdentity" flex="1" oncommand="setIdentity()">
                 <menupopup id="userIdentityPopup" />
               </menulist>
             </hbox>
@@ -208,7 +208,7 @@
               <radio
                 id="keygenAutoProtection"
                 value="0"
-                oncommand="onProtectionChange();"
+                oncommand="onProtectionChange()"
               />
               <vbox>
                 <hbox>
@@ -216,12 +216,12 @@
                     id="keygenPassphraseProtection"
                     value="1"
                     data-l10n-id="radio-keygen-passphrase-protection"
-                    oncommand="onProtectionChange();"
+                    oncommand="onProtectionChange()"
                   />
                   <html:input
                     id="passwordInput"
                     type="password"
-                    oninput="onProtectionChange();"
+                    oninput="onProtectionChange()"
                   />
                 </hbox>
                 <hbox align="center" class="indent">
@@ -233,7 +233,7 @@
                     id="passwordConfirm"
                     type="password"
                     class="input-inline"
-                    oninput="onProtectionChange();"
+                    oninput="onProtectionChange()"
                   />
                 </hbox>
               </vbox>
@@ -256,7 +256,7 @@
                   id="keygenExpiration"
                   value="0"
                   data-l10n-id="radio-keygen-expiry"
-                  oncommand="onExpirationChange(event);"
+                  oncommand="onExpirationChange(event)"
                 />
                 <html:input
                   id="expireInput"
@@ -267,7 +267,7 @@
                   min="1"
                   max="100"
                   aria-labelledby="keygenExpiration"
-                  oninput="validateExpiration();"
+                  oninput="validateExpiration()"
                 />
                 <menulist id="timeScale">
                   <menupopup>
@@ -276,19 +276,19 @@
                       value="365"
                       data-l10n-id="openpgp-keygen-years-label"
                       selected="true"
-                      oncommand="validateExpiration();"
+                      oncommand="validateExpiration()"
                     />
                     <menuitem
                       id="months"
                       value="30"
                       data-l10n-id="openpgp-keygen-months-label"
-                      oncommand="validateExpiration();"
+                      oncommand="validateExpiration()"
                     />
                     <menuitem
                       id="days"
                       value="1"
                       data-l10n-id="openpgp-keygen-days-label"
-                      oncommand="validateExpiration();"
+                      oncommand="validateExpiration()"
                     />
                   </menupopup>
                 </menulist>
@@ -297,7 +297,7 @@
                 id="keygenDoesNotExpire"
                 value="1"
                 data-l10n-id="radio-keygen-no-expiry"
-                oncommand="onExpirationChange(event);"
+                oncommand="onExpirationChange(event)"
               />
             </radiogroup>
           </html:fieldset>
@@ -324,13 +324,13 @@
                       value="RSA"
                       data-l10n-id="openpgp-keygen-type-rsa"
                       selected="true"
-                      oncommand="onKeyTypeChange(event);"
+                      oncommand="onKeyTypeChange(event)"
                     />
                     <menuitem
                       id="keyType_ecc"
                       value="ECC"
                       data-l10n-id="openpgp-keygen-type-ecc"
-                      oncommand="onKeyTypeChange(event);"
+                      oncommand="onKeyTypeChange(event)"
                     />
                   </menupopup>
                 </menulist>
@@ -405,7 +405,7 @@
 
               <button
                 data-l10n-id="openpgp-import-key-button"
-                oncommand="importSecretKey();"
+                oncommand="importSecretKey()"
               />
 
               <separator class="thin" />
@@ -544,7 +544,7 @@
             <button
               id="importPublicKeyButton"
               data-l10n-id="openpgp-import-key-button"
-              oncommand="importPublicKey();"
+              oncommand="importPublicKey()"
             />
 
             <separator class="thin" />

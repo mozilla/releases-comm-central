@@ -42,14 +42,10 @@
       />
 
       <commandset>
-        <command id="cmd_add" oncommand="openIdentityEditor(null);" />
-        <command id="cmd_edit" oncommand="onEdit(event);" disabled="" />
-        <command
-          id="cmd_default"
-          oncommand="onSetDefault(event);"
-          disabled=""
-        />
-        <command id="cmd_delete" oncommand="onDelete(event);" disabled="" />
+        <command id="cmd_add" oncommand="openIdentityEditor(null)" />
+        <command id="cmd_edit" oncommand="onEdit(event)" disabled="" />
+        <command id="cmd_default" oncommand="onSetDefault(event)" disabled="" />
+        <command id="cmd_delete" oncommand="onDelete(event)" disabled="" />
       </commandset>
 
       <keyset>
@@ -64,8 +60,8 @@
       <html:div class="grid-two-column-auto-min" style="flex: 1">
         <richlistbox
           id="identitiesList"
-          ondblclick="onEdit(event);"
-          onselect="updateButtons();"
+          ondblclick="onEdit(event)"
+          onselect="updateButtons()"
           seltype="single"
           flex="1"
           style="min-height: 10em; max-height: 20em"

@@ -84,7 +84,7 @@
       <command
         id="cmd_copyDebugLog"
         data-l10n-id="account-copy-debug-log"
-        oncommand="gAccountManager.copyDebugLog();"
+        oncommand="gAccountManager.copyDebugLog()"
       />
       <command
         id="cmd_edit"
@@ -149,7 +149,7 @@
           id="userIcon"
           class="userIcon"
           alt=""
-          onclick="statusSelector.userIconClick();"
+          onclick="statusSelector.userIconClick()"
         />
         <button
           type="menu"
@@ -159,7 +159,7 @@
         >
           <menupopup
             id="setStatusTypeMenupopup"
-            oncommand="statusSelector.editStatus(event);"
+            oncommand="statusSelector.editStatus(event)"
           >
             <menuitem
               id="statusTypeAvailable"
@@ -186,7 +186,7 @@
       <html:div id="displayNameAndstatusMessageGrid">
         <label
           id="displayName"
-          onclick="statusSelector.displayNameClick();"
+          onclick="statusSelector.displayNameClick()"
           align="center"
           pack="center"
         />
@@ -202,7 +202,7 @@
           id="statusMessageLabel"
           crop="end"
           value=""
-          onclick="statusSelector.statusMessageClick();"
+          onclick="statusSelector.statusMessageClick()"
         />
         <html:input
           id="statusMessageInput"
@@ -213,7 +213,7 @@
       </html:div>
     </html:div>
 
-    <hbox flex="1" ondblclick="gAccountManager.new();">
+    <hbox flex="1" ondblclick="gAccountManager.new()">
       <vbox flex="1" id="noAccountScreen" align="center" pack="center">
         <hbox id="noAccountBox" align="start">
           <vbox id="noAccountInnerBox" flex="1">
@@ -235,7 +235,7 @@
           id="accountlist"
           flex="1"
           context="accountsContextMenu"
-          onselect="gAccountManager.onAccountSelect();"
+          onselect="gAccountManager.onAccountSelect()"
         />
       </vbox>
     </hbox>

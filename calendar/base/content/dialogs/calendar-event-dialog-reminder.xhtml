@@ -52,7 +52,7 @@
           id="reminder-listbox"
           seltype="single"
           class="event-dialog-listbox"
-          onselect="onReminderSelected();"
+          onselect="onReminderSelected()"
           flex="1"
         />
         <hbox id="reminder-action-buttons-box" pack="end">
@@ -60,13 +60,13 @@
             id="reminder-new-button"
             label="&reminder.add.label;"
             accesskey="&reminder.add.accesskey;"
-            oncommand="onNewReminder();"
+            oncommand="onNewReminder()"
           />
           <button
             id="reminder-remove-button"
             label="&reminder.remove.label;"
             accesskey="&reminder.remove.accesskey;"
-            oncommand="onRemoveReminder();"
+            oncommand="onRemoveReminder()"
           />
         </hbox>
       </vbox>
@@ -77,7 +77,10 @@
       </hbox>
       <radiogroup
         id="reminder-relation-radiogroup"
-        onselect="setupRadioEnabledState(); updateReminder(event)"
+        onselect="
+          setupRadioEnabledState();
+          updateReminder(event);
+        "
       >
         <hbox id="reminder-relative-box" align="start" flex="1">
           <radio

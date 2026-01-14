@@ -70,10 +70,14 @@
         <html:input
           type="color"
           id="ColorPicker"
-          onclick="SetDefaultToOk();"
-          ondblclick="if (onAccept()) { window.close(); }"
-          onkeypress="SelectColorByKeypress(event);"
-          oninput="SelectColor();"
+          onclick="SetDefaultToOk()"
+          ondblclick="
+            if (onAccept()) {
+              window.close();
+            }
+          "
+          onkeypress="SelectColorByKeypress(event)"
+          oninput="SelectColor()"
         />
         <spacer flex="1" />
         <button
@@ -81,7 +85,7 @@
           label="&lastPickedColor.label;"
           accesskey="&lastPickedColor.accessKey;"
           crop="right"
-          oncommand="SelectLastPickedColor();"
+          oncommand="SelectLastPickedColor()"
         >
           <spacer
             id="LastPickedColor"
@@ -107,7 +111,10 @@
           id="ColorInput"
           type="text"
           style="width: 8em"
-          oninput="SetColorSwatch(); SetDefaultToOk();"
+          oninput="
+            SetColorSwatch();
+            SetDefaultToOk();
+          "
         />
         <label id="ColorPickerSwatch" />
         <spacer flex="1" />

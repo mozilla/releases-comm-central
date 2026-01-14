@@ -62,8 +62,8 @@
         <hbox flex="1">
           <richlistbox
             id="smtpList"
-            onselect="gSmtpServerListWindow.onSelectionChanged(event);"
-            ondblclick="gSmtpServerListWindow.onEditServer(event);"
+            onselect="gSmtpServerListWindow.onSelectionChanged(event)"
+            ondblclick="gSmtpServerListWindow.onEditServer(event)"
             seltype="single"
             flex="1"
             style="height: 400px"
@@ -72,13 +72,13 @@
           <vbox>
             <button
               id="addButton"
-              oncommand="gSmtpServerListWindow.onAddServer(event);"
+              oncommand="gSmtpServerListWindow.onAddServer(event)"
               label="&smtpListAdd.label;"
               accesskey="&smtpListAdd.accesskey;"
             />
             <button
               id="editButton"
-              oncommand="gSmtpServerListWindow.onEditServer(event);"
+              oncommand="gSmtpServerListWindow.onEditServer(event)"
               label="&smtpListEdit.label;"
               accesskey="&smtpListEdit.accesskey;"
             />
@@ -86,14 +86,14 @@
             <button
               id="deleteButton"
               disabled=""
-              oncommand="gSmtpServerListWindow.onDeleteServer(event);"
+              oncommand="gSmtpServerListWindow.onDeleteServer(event)"
               label="&smtpListDelete.label;"
               accesskey="&smtpListDelete.accesskey;"
             />
             <button
               id="setDefaultButton"
               disabled=""
-              oncommand="gSmtpServerListWindow.onSetDefaultServer(event);"
+              oncommand="gSmtpServerListWindow.onSetDefaultServer(event)"
               label="&smtpListSetDefault.label;"
               accesskey="&smtpListSetDefault.accesskey;"
             />

@@ -72,8 +72,8 @@
     />
 
     <keyset id="CustomizeToolbarKeyset">
-      <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();" />
-      <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose();" />
+      <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose()" />
+      <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose()" />
     </keyset>
 
     <vbox id="main-box" flex="1">
@@ -91,7 +91,7 @@
         <hbox id="titlebarSettings" hidden="hidden">
           <checkbox
             id="showTitlebar"
-            oncommand="updateTitlebar();"
+            oncommand="updateTitlebar()"
             label="&showTitlebar2.label;"
           />
         </hbox>
@@ -99,7 +99,7 @@
         <menulist
           id="modelist"
           value="icons"
-          oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');"
+          oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox')"
         >
           <menupopup id="modelistpopup">
             <menuitem id="modefull" value="full" label="&iconsAndText.label;" />
@@ -114,7 +114,7 @@
         </menulist>
         <checkbox
           id="smallicons"
-          oncommand="updateIconSize(this.checked ? 'small' : 'large');"
+          oncommand="updateIconSize(this.checked ? 'small' : 'large')"
           label="&useSmallIcons.label;"
         />
       </hbox>
@@ -122,13 +122,13 @@
         <button
           id="restoreDefault"
           label="&restoreDefaultSet.label;"
-          oncommand="restoreDefaultSet();"
+          oncommand="restoreDefaultSet()"
         />
         <spacer flex="1" />
         <button
           id="donebutton"
           label="&saveChanges.label;"
-          oncommand="onClose();"
+          oncommand="onClose()"
           default="true"
         />
       </hbox>

@@ -96,7 +96,7 @@
             <html:input
               id="srcInput"
               type="text"
-              oninput="ChangeImageSrc();"
+              oninput="ChangeImageSrc()"
               tabindex="1"
               class="uri-element input-inline"
               title="&locationEditField.tooltip;"
@@ -141,7 +141,7 @@
                       accesskey="&altText.accessKey;"
                       tooltiptext="&altTextEditField.tooltip;"
                       persist="selected"
-                      oncommand="SetAltTextDisabled(false);"
+                      oncommand="SetAltTextDisabled(false)"
                       tabindex="5"
                     />
                   </hbox>
@@ -160,7 +160,7 @@
                     type="text"
                     class="MinWidth20em input-inline"
                     title="&altTextEditField.tooltip;"
-                    oninput="SetAltTextDisabled(false);"
+                    oninput="SetAltTextDisabled(false)"
                     tabindex="6"
                     aria-labelledby="altTextRadio"
                   />
@@ -172,7 +172,7 @@
                 label="&noAltText.label;"
                 accesskey="&noAltText.accessKey;"
                 persist="selected"
-                oncommand="SetAltTextDisabled(true);"
+                oncommand="SetAltTextDisabled(true)"
               />
             </radiogroup>
           </vbox>
@@ -195,7 +195,7 @@
                   selected="true"
                   accesskey="&customSizeRadio.accessKey;"
                   tooltiptext="&customSizeRadio.tooltip;"
-                  oncommand="doDimensionEnabling();"
+                  oncommand="doDimensionEnabling()"
                   value="custom"
                 />
               </radiogroup>
@@ -230,14 +230,14 @@
                       type="number"
                       min="0"
                       class="narrow input-inline"
-                      oninput="constrainProportions(this.id,'heightInput')"
+                      oninput="constrainProportions(this.id, 'heightInput')"
                       aria-labelledby="widthLabel"
                     />
                   </html:td>
                   <html:td>
                     <menulist
                       id="widthUnitsMenulist"
-                      oncommand="doDimensionEnabling();"
+                      oncommand="doDimensionEnabling()"
                     />
                   </html:td>
                 </html:tr>
@@ -256,14 +256,14 @@
                       type="number"
                       min="0"
                       class="narrow input-inline"
-                      oninput="constrainProportions(this.id,'widthInput')"
+                      oninput="constrainProportions(this.id, 'widthInput')"
                       aria-labelledby="heightLabel"
                     />
                   </html:td>
                   <html:td>
                     <menulist
                       id="heightUnitsMenulist"
-                      oncommand="doDimensionEnabling();"
+                      oncommand="doDimensionEnabling()"
                     />
                   </html:td>
                 </html:tr>
@@ -406,7 +406,7 @@
                 id="hrefInput"
                 type="text"
                 class="uri-element padded input-inline"
-                oninput="ChangeLinkLocation();"
+                oninput="ChangeLinkLocation()"
                 aria-labelledby="hrefLabel"
               />
               <hbox align="center">
@@ -414,7 +414,7 @@
                 <button
                   label="&chooseFileLinkButton.label;"
                   accesskey="&chooseFileLinkButton.accessKey;"
-                  oncommand="chooseLinkFile();"
+                  oncommand="chooseLinkFile()"
                 />
               </hbox>
             </vbox>
@@ -424,7 +424,7 @@
                 id="showLinkBorder"
                 label="&showImageLinkBorder.label;"
                 accesskey="&showImageLinkBorder.accessKey;"
-                oncommand="ToggleShowLinkBorder();"
+                oncommand="ToggleShowLinkBorder()"
               />
               <spacer flex="1" />
             </hbox>
@@ -435,7 +435,7 @@
                 label="&LinkAdvancedEditButton.label;"
                 accesskey="&LinkAdvancedEditButton.accessKey;"
                 tooltiptext="&LinkAdvancedEditButton.tooltip;"
-                oncommand="onLinkAdvancedEdit();"
+                oncommand="onLinkAdvancedEdit()"
               />
             </hbox>
           </vbox>

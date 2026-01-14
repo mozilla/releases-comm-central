@@ -83,9 +83,9 @@
           id="key_close"
           key="&cmd.close.commandKey;"
           modifiers="accel"
-          oncommand="window.close();"
+          oncommand="window.close()"
         />
-        <key id="key_close2" keycode="VK_ESCAPE" oncommand="window.close();" />
+        <key id="key_close2" keycode="VK_ESCAPE" oncommand="window.close()" />
       </keyset>
 
       <stringbundle
@@ -112,7 +112,7 @@
           id="rssSubscriptionsList"
           flex="1"
           hidecolumnpicker="true"
-          onselect="FeedSubscriptions.onSelect();"
+          onselect="FeedSubscriptions.onSelect()"
           seltype="single"
         >
           <treecols>
@@ -120,8 +120,8 @@
           </treecols>
           <treechildren
             id="subscriptionChildren"
-            ondragstart="FeedSubscriptions.onDragStart(event);"
-            ondragover="FeedSubscriptions.onDragOver(event);"
+            ondragstart="FeedSubscriptions.onDragStart(event)"
+            ondragover="FeedSubscriptions.onDragOver(event)"
           />
         </tree>
 
@@ -160,7 +160,7 @@
                   type="text"
                   class="input-inline"
                   aria-labelledby="nameLabel"
-                  onchange="FeedSubscriptions.setPrefs(this);"
+                  onchange="FeedSubscriptions.setPrefs(this)"
                 />
                 <hbox class="input-container">
                   <html:input
@@ -169,9 +169,9 @@
                     class="uri-element input-inline"
                     aria-labelledby="locationLabel"
                     placeholder="&feedLocation2.placeholder;"
-                    onchange="FeedSubscriptions.setPrefs(this);"
-                    onfocus="FeedSubscriptions.onFocusChange();"
-                    onblur="FeedSubscriptions.onFocusChange();"
+                    onchange="FeedSubscriptions.setPrefs(this)"
+                    onfocus="FeedSubscriptions.onFocusChange()"
+                    onblur="FeedSubscriptions.onFocusChange()"
                   />
                   <hbox align="center">
                     <label
@@ -180,7 +180,7 @@
                       collapsed="collapsed"
                       crop="end"
                       value="&locationValidate.label;"
-                      onclick="FeedSubscriptions.checkValidation(event);"
+                      onclick="FeedSubscriptions.checkValidation(event)"
                     />
                   </hbox>
                 </hbox>
@@ -198,7 +198,7 @@
                       mode="feeds"
                       showFileHereLabel="true"
                       showAccountsFileHere="true"
-                      oncommand="FeedSubscriptions.setNewFolder(event);"
+                      oncommand="FeedSubscriptions.setNewFolder(event)"
                     />
                   </menulist>
                   <html:input
@@ -206,8 +206,10 @@
                     class="input-inline"
                     readonly="readonly"
                     aria-labelledby="feedFolderLabel"
-                    onkeypress="FeedSubscriptions.onClickSelectFolderValue(event);"
-                    onclick="FeedSubscriptions.onClickSelectFolderValue(event);"
+                    onkeypress="
+                      FeedSubscriptions.onClickSelectFolderValue(event)
+                    "
+                    onclick="FeedSubscriptions.onClickSelectFolderValue(event)"
                   />
                 </hbox>
               </vbox>
@@ -218,7 +220,7 @@
                 id="updateEnabled"
                 label="&biffStart.label;"
                 accesskey="&biffStart.accesskey;"
-                oncommand="FeedSubscriptions.setPrefs(this);"
+                oncommand="FeedSubscriptions.setPrefs(this)"
               />
               <html:input
                 id="updateValue"
@@ -226,13 +228,13 @@
                 class="size3 input-inline"
                 min="1"
                 aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
-                oninput="FeedSubscriptions.setPrefs(this);"
-                onchange="FeedSubscriptions.setPrefs(this);"
+                oninput="FeedSubscriptions.setPrefs(this)"
+                onchange="FeedSubscriptions.setPrefs(this)"
               />
               <radiogroup
                 id="biffUnits"
                 orient="horizontal"
-                oncommand="FeedSubscriptions.setPrefs(this);"
+                oncommand="FeedSubscriptions.setPrefs(this)"
               >
                 <radio
                   id="biffMinutes"
@@ -266,13 +268,13 @@
               id="quickMode"
               accesskey="&quickMode.accesskey;"
               label="&quickMode.label;"
-              oncommand="FeedSubscriptions.setSummary(this.checked);"
+              oncommand="FeedSubscriptions.setSummary(this.checked)"
             />
             <checkbox
               id="autotagEnable"
               accesskey="&autotagEnable.accesskey;"
               label="&autotagEnable.label;"
-              oncommand="FeedSubscriptions.setPrefs(this);"
+              oncommand="FeedSubscriptions.setPrefs(this)"
             />
             <hbox class="input-container">
               <checkbox
@@ -280,14 +282,14 @@
                 class="indent"
                 accesskey="&autotagUsePrefix.accesskey;"
                 label="&autotagUsePrefix.label;"
-                oncommand="FeedSubscriptions.setPrefs(this);"
+                oncommand="FeedSubscriptions.setPrefs(this)"
               />
               <html:input
                 id="autotagPrefix"
                 type="text"
                 class="input-inline"
                 placeholder="&autoTagPrefix.placeholder;"
-                onchange="FeedSubscriptions.setPrefs(this);"
+                onchange="FeedSubscriptions.setPrefs(this)"
               />
             </hbox>
             <separator class="thin" />
@@ -305,13 +307,13 @@
             class="text-link"
             crop="end"
             value="&validateText.label;"
-            onclick="FeedSubscriptions.checkValidation(event);"
+            onclick="FeedSubscriptions.checkValidation(event)"
           />
           <button
             id="addCertException"
             collapsed="collapsed"
             data-l10n-id="certmgr-add-exception"
-            oncommand="FeedSubscriptions.addCertExceptionDialog();"
+            oncommand="FeedSubscriptions.addCertExceptionDialog()"
           />
           <html:progress
             id="progressMeter"
@@ -329,7 +331,7 @@
               disabled=""
               label="&button.addFeed.label;"
               accesskey="&button.addFeed.accesskey;"
-              oncommand="FeedSubscriptions.addFeed();"
+              oncommand="FeedSubscriptions.addFeed()"
             />
 
             <button
@@ -342,7 +344,7 @@
               verifyaccesskey="&button.verifyFeed.accesskey;"
               updatelabel="&button.updateFeed.label;"
               updateaccesskey="&button.updateFeed.accesskey;"
-              oncommand="FeedSubscriptions.updateFeed();"
+              oncommand="FeedSubscriptions.updateFeed()"
             />
 
             <button
@@ -350,7 +352,7 @@
               hidden="hidden"
               label="&button.removeFeed.label;"
               accesskey="&button.removeFeed.accesskey;"
-              oncommand="FeedSubscriptions.removeFeed(true);"
+              oncommand="FeedSubscriptions.removeFeed(true)"
             />
 
             <spacer flex="1" />
@@ -360,7 +362,7 @@
               hidden="hidden"
               label="&button.importOPML.label;"
               accesskey="&button.importOPML.accesskey;"
-              oncommand="FeedSubscriptions.importOPML();"
+              oncommand="FeedSubscriptions.importOPML()"
             />
 
             <button
@@ -369,7 +371,7 @@
               label="&button.exportOPML.label;"
               accesskey="&button.exportOPML.accesskey;"
               tooltiptext="&button.exportOPML.tooltip;"
-              oncommand="FeedSubscriptions.exportOPML(event);"
+              oncommand="FeedSubscriptions.exportOPML(event)"
             />
           </hbox>
         </hbox>

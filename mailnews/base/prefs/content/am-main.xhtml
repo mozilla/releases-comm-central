@@ -52,12 +52,12 @@
         <button
           id="defaultAccount"
           data-l10n-id="default-account-button"
-          oncommand="top.onSetDefault(event);"
+          oncommand="top.onSetDefault(event)"
         />
         <button
           id="deleteAccount"
           data-l10n-id="delete-account-button"
-          oncommand="top.onRemoveAccount(event);"
+          oncommand="top.onRemoveAccount(event)"
         />
       </hbox>
 
@@ -76,7 +76,7 @@
             type="text"
             wsm_persist="true"
             class="input-inline"
-            onblur="serverPrettyNameOnBlur(event);"
+            onblur="serverPrettyNameOnBlur(event)"
             prefstring="mail.server.%serverkey%.name"
             aria-labelledby="server.prettyName.label"
           />
@@ -233,7 +233,7 @@
               label="&signatureFile.label;"
               flex="1"
               accesskey="&signatureFile.accesskey;"
-              oncommand="setupSignatureItems();"
+              oncommand="setupSignatureItems()"
               prefattribute="value"
               prefstring="mail.identity.%identitykey%.attach_signature"
             />
@@ -309,7 +309,7 @@
               wsm_persist="true"
               prefstring="mail.identity.%identitykey%.catchAllHint"
               class="input-inline"
-              oninput="handleInputCatchAllHint(event);"
+              oninput="handleInputCatchAllHint(event)"
               placeholder="list@example.com, *@example.com"
               aria-labelledby="identity.catchAll"
             />
@@ -344,7 +344,7 @@
             <button
               id="editSmtp"
               data-l10n-id="outgoing-server-edit"
-              oncommand="editCurrentSMTP();"
+              oncommand="editCurrentSMTP()"
             />
           </hbox>
         </html:fieldset>
@@ -356,7 +356,7 @@
         <spacer flex="1" />
         <button
           label="&manageIdentities.label;"
-          oncommand="manageIdentities(event);"
+          oncommand="manageIdentities(event)"
           accesskey="&manageIdentities.accesskey;"
           wsm_persist="true"
           id="identity.manageIdentitiesbutton"

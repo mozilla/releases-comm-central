@@ -75,14 +75,18 @@
         <richlistbox
           flex="1"
           id="protolist"
-          ondblclick="document.getElementById('wizard').advance();"
+          ondblclick="document.getElementById('wizard').advance()"
         />
         <hbox pack="end">
           <label
             id="getMoreProtocols"
             class="text-link"
             value="&accountProtocolGetMore.label;"
-            onclick="if (event.button == 0) { accountWizard.openURL(this.getAttribute('getMoreURL')); }"
+            onclick="
+              if (event.button == 0) {
+                accountWizard.openURL(this.getAttribute('getMoreURL'));
+              }
+            "
           />
         </hbox>
       </wizardpage>
