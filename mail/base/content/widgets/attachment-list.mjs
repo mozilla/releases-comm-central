@@ -3,6 +3,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /* global MozElements */
+/* global goDoCommand */
 
 /**
  * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
@@ -69,6 +70,12 @@ class MozAttachmentlist extends MozElements.RichListBox {
       .forEach(child =>
         child.setAttribute("context", this.getAttribute("itemcontext"))
       );
+
+    this.addEventListener("keydown", event => {
+      if (event.key == "Enter") {
+        goDoCommand("cmd_openAttachment");
+      }
+    });
   }
 
   get itemCount() {
@@ -181,11 +188,7 @@ class MozAttachmentlist extends MozElements.RichListBox {
     item.classList.add("attachmentItem");
     item.setAttribute("role", "option");
 
-    item.addEventListener("dblclick", () => {
-      item.dispatchEvent(
-        new CustomEvent("command", { bubbles: true, cancelable: true })
-      );
-    });
+    item.addEventListener("dblclick", () => goDoCommand("cmd_openAttachment"));
 
     const makeDropIndicator = placementClass => {
       const img = document.createElement("img", { is: "drop-indicator" });

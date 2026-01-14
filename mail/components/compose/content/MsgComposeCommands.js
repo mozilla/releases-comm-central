@@ -8371,7 +8371,6 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
       tooltiptext = attachment.url;
     }
     item.setAttribute("tooltiptext", tooltiptext);
-    item.addEventListener("command", OpenSelectedAttachment);
     items.push(item);
   }
 

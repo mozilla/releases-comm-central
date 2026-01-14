@@ -1802,16 +1802,6 @@ function onShowSaveAttachmentMenuMultiple() {
   deleteAllItem.disabled = !canDetach || !allAllowedURL;
 }
 
-/**
- * This is our oncommand handler for the attachment list items. A double click
- * or enter press in an attachmentitem simulates "opening" the attachment.
- *
- * @param {Event} _event - The event.
- */
-function attachmentItemCommand(_event) {
-  HandleSelectedAttachments("open");
-}
-
 var AttachmentListController = {
   supportsCommand(command) {
     switch (command) {
@@ -1919,7 +1909,6 @@ async function displayAttachmentsForExpandedView() {
       var displayName = SanitizeAttachmentDisplayName(attachment);
       var item = attachmentList.appendItem(attachment, displayName);
       item.setAttribute("tooltiptext", attachment.name);
-      item.addEventListener("command", attachmentItemCommand);
 
       // Get a detached file's size. For link attachments, the user must always
       // initiate the fetch for privacy reasons.
