@@ -2,12 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
-
 import {
   cleanUpHostName,
   isLegalHostNameOrIP,
 } from "resource:///modules/hostnameUtils.sys.mjs";
+
+const lazy = {};
+
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], true)
+);
 
 /**
  * This is a generic input validation lib. Use it when you process
@@ -37,7 +44,7 @@ export const Sanitizer = {
 
     var r = parseInt(unchecked);
     if (isNaN(r)) {
-      throw new MalformedException("no_number.error", unchecked);
+      throw new MalformedException("no-number-error", unchecked);
     }
 
     return r;
@@ -46,11 +53,11 @@ export const Sanitizer = {
   integerRange(unchecked, min, max) {
     var int = this.integer(unchecked);
     if (int < min) {
-      throw new MalformedException("number_too_small.error", unchecked);
+      throw new MalformedException("number-too-small-error", unchecked);
     }
 
     if (int > max) {
-      throw new MalformedException("number_too_large.error", unchecked);
+      throw new MalformedException("number-too-large-error", unchecked);
     }
 
     return int;
@@ -78,7 +85,7 @@ export const Sanitizer = {
       return false;
     }
 
-    throw new MalformedException("boolean.error", unchecked);
+    throw new MalformedException("boolean-error", unchecked);
   },
 
   string(unchecked) {
@@ -87,7 +94,7 @@ export const Sanitizer = {
 
   nonemptystring(unchecked) {
     if (!unchecked) {
-      throw new MalformedException("string_empty.error", unchecked);
+      throw new MalformedException("string-empty-error", unchecked);
     }
 
     return this.string(unchecked);
@@ -101,7 +108,7 @@ export const Sanitizer = {
   alphanumdash(unchecked) {
     var str = this.nonemptystring(unchecked);
     if (!/^[a-zA-Z0-9\-\_]*$/.test(str)) {
-      throw new MalformedException("alphanumdash.error", unchecked);
+      throw new MalformedException("alphanumdash-error", unchecked);
     }
 
     return str;
@@ -125,7 +132,7 @@ export const Sanitizer = {
     }
 
     if (!isLegalHostNameOrIP(str)) {
-      throw new MalformedException("hostname_syntax.error", unchecked);
+      throw new MalformedException("hostname-syntax-error", unchecked);
     }
 
     return str.toLowerCase();
@@ -137,7 +144,7 @@ export const Sanitizer = {
   emailAddress(unchecked) {
     const str = this.nonemptystring(unchecked);
     if (!/^[a-z0-9\-%+_\.\*]+@[a-z0-9\-\.]+\.[a-z]+$/i.test(str)) {
-      throw new MalformedException("emailaddress_syntax.error", unchecked);
+      throw new MalformedException("emailaddress-syntax-error", unchecked);
     }
 
     return str.toLowerCase();
@@ -163,7 +170,7 @@ export const Sanitizer = {
     }
 
     if (!str.startsWith("http:") && !str.startsWith("https:")) {
-      throw new MalformedException("url_scheme.error", unchecked);
+      throw new MalformedException("url-scheme-error", unchecked);
     }
 
     var uri;
@@ -171,11 +178,11 @@ export const Sanitizer = {
       uri = Services.io.newURI(str);
       uri = uri.QueryInterface(Ci.nsIURL);
     } catch (e) {
-      throw new MalformedException("url_parsing.error", unchecked);
+      throw new MalformedException("url-parsing-error", unchecked);
     }
 
     if (uri.scheme != "http" && uri.scheme != "https") {
-      throw new MalformedException("url_scheme.error", unchecked);
+      throw new MalformedException("url-scheme-error", unchecked);
     }
 
     return uri.spec;
@@ -207,7 +214,7 @@ export const Sanitizer = {
     }
     // value is bad
     if (typeof defaultValue == "undefined") {
-      throw new MalformedException("allowed_value.error", unchecked);
+      throw new MalformedException("allowed-value-error", unchecked);
     }
     return defaultValue;
   },
@@ -237,7 +244,7 @@ export const Sanitizer = {
     }
     // value is bad
     if (typeof defaultValue == "undefined") {
-      throw new MalformedException("allowed_value.error", unchecked);
+      throw new MalformedException("allowed-value-error", unchecked);
     }
     return defaultValue;
   },
@@ -245,17 +252,15 @@ export const Sanitizer = {
 
 class MalformedException extends Error {
   /**
-   * @param {string} msgID - Id for localized string in accountCreationUtil.properties
+   * @param {string} msgID - Id for localized string in accountCreation.ftl
    * @param {*} uncheckedBadValue
    */
   constructor(msgID, uncheckedBadValue) {
-    const stringBundle = AccountCreationUtils.getStringBundle(
-      "chrome://messenger/locale/accountCreationUtil.properties"
-    );
-    let msg = stringBundle.GetStringFromName(msgID);
+    let msg = lazy.l10n.formatValueSync(msgID);
     if (typeof kDebug != "undefined" && kDebug) {
       msg += " (bad value: " + uncheckedBadValue + ")";
     }
     super(msg);
+    this.fluentTitleId = msgID;
   }
 }

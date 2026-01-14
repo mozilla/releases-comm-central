@@ -23,8 +23,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
-const { gAccountSetupLogger, getStringBundle, abortSignalTimeout } =
-  AccountCreationUtils;
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(["messenger/accountcreation/accountCreation.ftl"], false)
+);
+
+const { gAccountSetupLogger, abortSignalTimeout } = AccountCreationUtils;
 
 /**
  * Set up a fetch.
@@ -185,9 +191,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
       );
       return fetchHTTP(response.responseURL, { ...args, urlArgs: {} }, true);
     }
-    const message = getStringBundle(
-      "chrome://messenger/locale/accountCreationUtil.properties"
-    ).GetStringFromName("cannot_contact_server.error");
+    const message = await lazy.l10n.formatValue("cannot-contact-server-error");
     throw new ServerException(
       response.statusText || message,
       response.status || -2,
@@ -216,9 +220,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
       return response.responseText;
     } catch (error) {
       throw new ServerException(
-        getStringBundle(
-          "chrome://messenger/locale/accountCreationUtil.properties"
-        ).GetStringFromName("bad_response_content.error"),
+        await lazy.l10n.formatValue("bad-response-content-error"),
         -4,
         response.responseURL,
         error
@@ -243,9 +245,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
   } else {
     let message = response.statusText;
     if (!response.status) {
-      message = getStringBundle(
-        "chrome://messenger/locale/accountCreationUtil.properties"
-      ).GetStringFromName("cannot_contact_server.error");
+      message = await lazy.l10n.formatValue("cannot-contact-server-error");
     }
     throw new ServerException(
       message,
