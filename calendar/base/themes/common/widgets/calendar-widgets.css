@@ -57,14 +57,15 @@
 
 .calendar-list-header:hover {
   border-color: transparent !important;
-}
-
-#calendarListHeader:hover {
   background-color: var(--layout-background-3);
 }
 
-#calendarListHeader[checked="false"] > img {
+.calendar-list-header:not([checked]) > img {
   transform: rotate(-90deg);
+
+  &:-moz-locale-dir(rtl) {
+    transform: rotate(90deg);
+  }
 }
 
 .calendar-list-create {
@@ -80,43 +81,8 @@
   display: none;
 }
 
-checkbox.treenode-checkbox {
-  margin-inline: 6px;
-  margin-block: 0;
-  font-weight: bold;
-}
-
-checkbox.treenode-checkbox.agenda-checkbox {
-  padding-block: 6px;
-}
-
-checkbox.treenode-checkbox > .checkbox-check {
-  appearance: none;
-  align-items: center;
-  border: none;
-  inline-size: 10px;
-  block-size: 10px;
-  color: inherit;
-  background-image: var(--icon-nav-down-sm);
-  background-size: contain;
-  background-color: transparent !important;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
-
-checkbox.treenode-checkbox:not([checked]) > .checkbox-check {
-  transform: rotate(-90deg);
-}
-
-checkbox.treenode-checkbox:not([checked]):-moz-locale-dir(rtl) > .checkbox-check {
-  transform: rotate(90deg);
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  checkbox.treenode-checkbox > .checkbox-check {
-    transition: transform 200ms ease;
-  }
-  #calendarListHeader > img {
+  .calendar-list-header > img {
     transition: transform 150ms ease;
   }
   #calendar-list > li,
@@ -140,11 +106,6 @@ checkbox.treenode-checkbox:not([checked]):-moz-locale-dir(rtl) > .checkbox-check
 
 .checkbox-label {
   margin: 0 !important;
-}
-
-checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > .checkbox-label {
-  font-weight: bold;
-  border-block-end: 1px solid -moz-Dialog;
 }
 
 #task-tree-filtergroup {

@@ -38,10 +38,14 @@
         <calendar-modevbox id="task-filter-pane"
                            mode="task"
                            refcontrol="calendar_toggle_filter_command">
-          <checkbox id="task-tree-filter-header"
-                           checked=""
-                           class="treenode-checkbox"
-                           data-l10n-id="calendar-task-filter-title"/>
+          <html:button id="task-tree-filter-header"
+                           class="calendar-list-header button-flat"
+                           onclick="toggleTaskFilterPane(event);">
+            <html:span data-l10n-id="calendar-task-filter-title2"></html:span>
+            <html:img id="toggleCalendarIcon"
+                      src="chrome://messenger/skin/icons/new/nav-down-sm.svg"
+                      alt="" />
+          </html:button>
           <calendar-modevbox id="task-filtertree-pane"
                              flex="1"
                              mode="task"
@@ -70,7 +74,7 @@
             <html:img id="toggleCalendarIcon"
                       src="chrome://messenger/skin/icons/new/nav-down-sm.svg"
                       alt="" />
-              </html:button>
+          </html:button>
           <calendar-modevbox id="calendar-list-inner-pane"
                              flex="1"
                              mode="calendar,task"

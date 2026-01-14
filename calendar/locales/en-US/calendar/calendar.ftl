@@ -979,7 +979,7 @@ calendar-context-convert-to-task =
     .label = Task…
     .accesskey = T
 
-calendar-task-filter-title = Show
+calendar-task-filter-title2 = Filter Tasks
 
 calendar-task-filter-all =
     .label = All

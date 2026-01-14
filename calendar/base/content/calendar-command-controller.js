@@ -854,6 +854,16 @@ async function printCalendar() {
   await PrintUtils.loadPrintBrowser("chrome://calendar/content/printing-template.html");
   PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
 }
+
+/**
+ * Toggle the visibility of the task filters list.
+ *
+ * @param {Event} event - The click DOMEvent.
+ */
+function toggleTaskFilterPane(event) {
+  document.getElementById("task-filtertree-pane").togglePane(event);
+}
+
 /**
  * Toggle the visibility of the calendars list.
  *

@@ -47,9 +47,6 @@
 
       if (this.hasAttribute("refcontrol")) {
         this.mRefControl = document.getElementById(this.getAttribute("refcontrol"));
-        if (this.mRefControl && this.mRefControl.localName == "checkbox") {
-          this.mRefControl.addEventListener("command", this, true);
-        }
       }
     }
 
@@ -62,17 +59,6 @@
 
     get currentMode() {
       return this.getAttribute("current");
-    }
-
-    /**
-     * The event handler for various events relevant to CalendarModebox.
-     *
-     * @param {Event} event - The event.
-     */
-    handleEvent(event) {
-      if (event.type == "command") {
-        this.onCheckboxStateChange(event);
-      }
     }
 
     /**
@@ -207,16 +193,6 @@
     togglePane(event) {
       const command = event.target;
       const newValue = command.toggleAttribute("checked");
-      this.setVisible(newValue, true, true);
-    }
-
-    /**
-     * Handles a change in a checkbox state, by making this modebox visible or not.
-     *
-     * @param {Event} event - An event with a target that has a `checked` attribute.
-     */
-    onCheckboxStateChange(event) {
-      const newValue = event.target.checked;
       this.setVisible(newValue, true, true);
     }
   }
