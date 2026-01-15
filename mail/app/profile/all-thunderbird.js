@@ -1504,11 +1504,7 @@ pref("mail.dark-reader.show-toggle", true);
 pref("mail.accounthub.enabled", true);
 
 // Enable address book setup via account hub
-#if defined(EARLY_BETA_OR_EARLIER)
 pref("mail.accounthub.addressbook.enabled", true);
-#else
-pref("mail.accounthub.addressbook.enabled", false);
-#endif
 
 // Export to mobile logging level.
 pref("mail.qrexport.loglevel", "Warn");
