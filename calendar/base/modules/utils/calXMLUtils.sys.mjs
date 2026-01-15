@@ -118,21 +118,6 @@ export var xml = {
   },
 
   /**
-   * Read an XML file synchronously. This method should be avoided, consider
-   * rewriting the caller to be asynchronous.
-   *
-   * @param {string} uri - The URI to read.
-   * @returns {Document} The DOM Document resulting from the file.
-   */
-  parseFile(uri) {
-    const req = new XMLHttpRequest();
-    req.open("GET", uri, false);
-    req.overrideMimeType("text/xml");
-    req.send(null);
-    return req.responseXML;
-  },
-
-  /**
    * Serialize the DOM tree into a string.
    *
    * @param {Document} doc - The DOM document to serialize.

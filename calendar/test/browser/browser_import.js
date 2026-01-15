@@ -88,7 +88,7 @@ add_task(async function () {
   );
   is(
     items[1].querySelector(".item-title").textContent,
-    "Event Two",
+    "Event Två",
     "event 2 title should be correct"
   );
   is(
@@ -163,12 +163,12 @@ add_task(async function () {
     );
   }
 
-  await check_filter("event", ["Event One", "Event Two", "Event Three", "Event Four"]);
+  await check_filter("event", ["Event One", "Event Två", "Event Three", "Event Four"]);
   await check_filter("four", ["Event Four"]);
   await check_filter("no match", []);
   await check_filter("ONE", ["Event One"]);
-  await check_filter(`"event t"`, ["Event Two", "Event Three"]);
-  await check_filter("", ["Event One", "Event Two", "Event Three", "Event Four"]);
+  await check_filter(`"event t"`, ["Event Två", "Event Three"]);
+  await check_filter("", ["Event One", "Event Två", "Event Three", "Event Four"]);
 
   EventUtils.synthesizeMouseAtCenter(doc.getElementById("calendarSelectAll"), {}, win);
 
@@ -222,11 +222,13 @@ add_task(async function () {
 
   await CalendarTestUtils.monthView.waitForItemAt(window, 1, 3, 4);
 
+  const context = document.getElementById("list-calendars-context-menu");
+
   // While we're here, make sure we can export the "Test" calendar as well.
+  // First export the calendar as .ics
   const exportedFile = await IOUtils.getFile(PathUtils.tempDir, "export.ics");
   MockFilePicker.setFiles([exportedFile]);
 
-  const context = document.getElementById("list-calendars-context-menu");
   EventUtils.synthesizeMouseAtCenter(
     document.querySelector("#calendar-list li:nth-child(2)"),
     { type: "contextmenu" },
@@ -238,10 +240,45 @@ add_task(async function () {
   await TestUtils.waitForCondition(() => exportedFile.exists());
 
   const icsExported = await IOUtils.readUTF8(exportedFile.path);
-  Assert.ok(icsExported.includes("\r\nNAME:Test\r\n"), "ics export should contain calendar NAME");
-  Assert.ok(
-    icsExported.includes("\r\nX-WR-CALNAME:Test\r\n"),
+  Assert.stringContains(
+    icsExported,
+    "\r\nNAME:Test\r\n",
+    "ics export should contain calendar NAME"
+  );
+  Assert.stringContains(
+    icsExported,
+    "\r\nX-WR-CALNAME:Test\r\n",
     "ics export should contain calendar X-WR-CALNAME"
+  );
+
+  // Then export the calendar as .html
+  const exportedFile2 = await IOUtils.getFile(PathUtils.tempDir, "export.html");
+  MockFilePicker.reset();
+  MockFilePicker.showCallback = picker => {
+    picker.filterIndex = 0; // .html
+  };
+
+  MockFilePicker.setFiles([exportedFile2]);
+  EventUtils.synthesizeMouseAtCenter(
+    document.querySelector("#calendar-list li:nth-child(2)"),
+    { type: "contextmenu" },
+    window
+  );
+  await BrowserTestUtils.waitForPopupEvent(context, "shown");
+  context.activateItem(document.getElementById("list-calendars-context-export"));
+
+  await TestUtils.waitForCondition(() => exportedFile2.exists());
+
+  const htmlExported = await IOUtils.readUTF8(exportedFile2.path);
+  Assert.stringContains(
+    htmlExported,
+    '<title id="title">Test</title>',
+    "html export should contain calendar NAME"
+  );
+  Assert.stringContains(
+    htmlExported,
+    '<div class="value summary">Event Två</div>',
+    "html export should contain event data"
   );
 
   for (const item of result) {

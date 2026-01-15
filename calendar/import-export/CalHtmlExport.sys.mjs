@@ -5,17 +5,23 @@
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
-/**
- * HTML Export Plugin
- */
-export function CalHtmlExporter() {
-  this.wrappedJSObject = this;
-}
 
-CalHtmlExporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIExporter"]),
-  classID: Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}"),
+/**
+ * Calendar HTML Exporter.
+ *
+ * @implements {calIExporter}
+ */
+export class CalHtmlExporter {
+  QueryInterface = ChromeUtils.generateQI(["calIExporter"]);
+  classID = Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}");
+
+  constructor() {
+    this.wrappedJSObject = this;
+  }
 
   getFileTypes() {
     const wildmat = "*.html; *.htm";
@@ -28,10 +34,23 @@ CalHtmlExporter.prototype = {
         description: label,
       },
     ];
-  },
+  }
 
+  /**
+   * Export the items into the stream.
+   *
+   * @param {nsIOutputStream} aStream - The stream to put the data into.
+   * @param {calIItemBase[]} aItems - The items to be exported.
+   * @param {?string} aTitle - Title the exporter can choose to use.
+   */
   exportToStream(aStream, aItems, aTitle) {
-    const document = cal.xml.parseFile("chrome://calendar/content/printing/calHtmlExport.html");
+    const stream = lazy.NetUtil.newChannel({
+      uri: "chrome://calendar/content/printing/calHtmlExport.html",
+      loadUsingSystemPrincipal: true,
+    }).open();
+    const str = lazy.NetUtil.readInputStreamToString(stream, stream.available());
+    const document = new DOMParser().parseFromString(str, "application/xml");
+
     const itemContainer = document.getElementById("item-container");
     document.getElementById("title").textContent =
       aTitle || lazy.l10n.formatValueSync("html-title");
@@ -113,5 +132,5 @@ CalHtmlExporter.prototype = {
     );
     convStream.init(aStream, "UTF-8");
     convStream.writeString(cal.xml.serializeDOM(document));
-  },
-};
+  }
+}
