@@ -579,12 +579,6 @@ account-hub-checkbox-label =
 
 account-hub-checkbox-description = Experimental new mail account creation flow
 
-account-hub-ab-checkbox-label =
-    .label = Create address books in the new Account Hub
-    .accesskey = A
-
-account-hub-ab-checkbox-description = Experimental new address book creation flow
-
 ## Compose Tab
 
 forward-label =

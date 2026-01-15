@@ -63,7 +63,6 @@ Preferences.addAll([
   { id: "mailnews.start_page.enabled", type: "bool" },
   { id: "mailnews.start_page.url", type: "string" },
   { id: "mail.accounthub.enabled", type: "bool" },
-  { id: "mail.accounthub.addressbook.enabled", type: "bool" },
   { id: "mail.biff.show_tray_icon", type: "bool" },
   { id: "mail.biff.play_sound", type: "bool" },
   { id: "mail.biff.play_sound.type", type: "int" },
