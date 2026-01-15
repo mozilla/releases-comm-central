@@ -140,28 +140,35 @@ pub enum PathToElement {
 pub struct ExtendedFieldURI {
     /// A well-known identifier for a property set.
     #[xml_struct(attribute)]
+    #[serde(rename = "@DistinguishedPropertySetId")]
     pub distinguished_property_set_id: Option<DistinguishedPropertySet>,
 
     /// A GUID representing a property set.
     // TODO: This could use a strong type for representing a GUID.
     #[xml_struct(attribute)]
+    #[serde(rename = "@PropertySetId")]
     pub property_set_id: Option<String>,
 
     /// Specifies a property by integer tag.
     #[xml_struct(attribute)]
+    #[serde(rename = "@PropertyTag")]
     pub property_tag: Option<String>,
 
     /// The name of a property within a specified property set.
     #[xml_struct(attribute)]
+    #[serde(rename = "@PropertyTag")]
     pub property_name: Option<String>,
 
     /// The dispatch ID of a property within a specified property set.
     #[xml_struct(attribute)]
+    #[serde(rename = "@PropertyId")]
     pub property_id: Option<String>,
 
     /// The value type of the desired property.
+    // TODO: This is a *required* field in the ms docs, but we seem to be receiving XML without it?
     #[xml_struct(attribute)]
-    pub property_type: PropertyType,
+    #[serde(rename = "@PropertyType")]
+    pub property_type: Option<PropertyType>,
 }
 
 /// A well-known MAPI property set identifier.
@@ -542,56 +549,55 @@ pub struct Folders {
 #[xml_struct(variant_ns_prefix = "t")]
 #[non_exhaustive]
 pub enum RealItem {
-    CalendarItem(Message),
+    Item(Message),
     Message(Message),
+    CalendarItem(Message),
+    Contact(Message),
+    DistributionList(Message),
     MeetingMessage(Message),
     MeetingRequest(Message),
     MeetingResponse(Message),
     MeetingCancellation(Message),
+    Task(Message),
+    PostItem(Message),
 }
 
 impl RealItem {
     /// Return the [`Message`] object contained within this [`RealItem`].
     pub fn inner_message(&self) -> &Message {
+        use RealItem::*;
         match self {
-            RealItem::CalendarItem(message)
-            | RealItem::Message(message)
-            | RealItem::MeetingMessage(message)
-            | RealItem::MeetingRequest(message)
-            | RealItem::MeetingResponse(message)
-            | RealItem::MeetingCancellation(message) => message,
+            Item(message)
+            | Message(message)
+            | CalendarItem(message)
+            | Contact(message)
+            | DistributionList(message)
+            | MeetingMessage(message)
+            | MeetingRequest(message)
+            | MeetingResponse(message)
+            | MeetingCancellation(message)
+            | Task(message)
+            | PostItem(message) => message,
         }
     }
 
     /// Take ownership of the inner [`Message`].
     pub fn into_inner_message(self) -> Message {
+        use RealItem::*;
         match self {
-            RealItem::CalendarItem(message)
-            | RealItem::Message(message)
-            | RealItem::MeetingMessage(message)
-            | RealItem::MeetingRequest(message)
-            | RealItem::MeetingResponse(message)
-            | RealItem::MeetingCancellation(message) => message,
+            Item(message)
+            | Message(message)
+            | CalendarItem(message)
+            | Contact(message)
+            | DistributionList(message)
+            | MeetingMessage(message)
+            | MeetingRequest(message)
+            | MeetingResponse(message)
+            | MeetingCancellation(message)
+            | Task(message)
+            | PostItem(message) => message,
         }
     }
-}
-
-/// An item which may appear in an item-based attachment.
-///
-/// See [`Attachment::ItemAttachment`] for details.
-// N.B.: Commented-out variants are not yet implemented.
-#[non_exhaustive]
-#[derive(Clone, Debug, Deserialize)]
-pub enum AttachmentItem {
-    // Item(Item),
-    Message(Message),
-    // CalendarItem(CalendarItem),
-    // Contact(Contact),
-    // Task(Task),
-    // MeetingMessage(MeetingMessage),
-    // MeetingRequest(MeetingRequest),
-    // MeetingResponse(MeetingResponse),
-    // MeetingCancellation(MeetingCancellation),
 }
 
 /// A date and time with second precision.
@@ -804,8 +810,10 @@ pub struct Message {
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedproperty>
 #[allow(non_snake_case)]
 #[derive(Clone, Debug, Deserialize, XmlSerialize, Eq, PartialEq)]
+#[serde(rename_all = "PascalCase")]
 pub struct ExtendedProperty {
     #[xml_struct(ns_prefix = "t")]
+    #[serde(rename = "ExtendedFieldURI")]
     pub extended_field_URI: ExtendedFieldURI,
 
     #[xml_struct(ns_prefix = "t")]
@@ -1054,12 +1062,10 @@ pub enum Attachment {
         ///
         /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/isinline>
         is_inline: Option<bool>,
-        // XXX: With this field in place, parsing will fail if there is no
-        // `AttachmentItem` in the response.
-        // See https://github.com/tafia/quick-xml/issues/683
-        // /// The attached item.
-        // #[serde(rename = "$value")]
-        // content: Option<AttachmentItem>,
+
+        /// The attached item.
+        #[serde(flatten)]
+        content: Option<Box<RealItem>>,
     },
 
     /// An attachment containing a file.
@@ -1178,6 +1184,99 @@ pub struct InternetMessageHeader {
     pub value: String,
 }
 
+/// View for `FindItem` and `FindConversation` operations
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/indexedpageitemview>
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/fractionalpageitemview>
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/calendarview>
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/contactsview>
+#[derive(Clone, Debug, XmlSerialize)]
+pub enum View {
+    /// Describes how paged conversation or item information is
+    /// returned for a `FindItem` operation or `FindConversation` operation request.
+    IndexedPageItemView {
+        #[xml_struct(attribute)]
+        max_entries_returned: Option<usize>,
+
+        #[xml_struct(attribute)]
+        base_point: BasePoint,
+
+        #[xml_struct(attribute)]
+        offset: usize,
+    },
+
+    /// Describes where the paged view starts and the
+    /// maximum number of items returned in a `FindItem` request.
+    FractionalPageItemView {
+        /// Identifies the maximum number of results to return in the FindItem response.
+        /// If this attribute is not specified, the call will return all available items.
+        #[xml_struct(attribute)]
+        max_entries_returned: Option<usize>,
+
+        /// Represents the numerator of the fractional offset from the start of the result set.
+        /// The numerator must be equal to or less than the denominator.
+        /// This attribute must represent an integral value that is equal to or greater than zero.
+        #[xml_struct(attribute)]
+        numerator: usize,
+
+        /// Represents the denominator of the fractional offset from the start
+        /// of the total number of items in the result set.
+        /// This attribute must represent an integral value that is greater than one.
+        #[xml_struct(attribute)]
+        denominator: usize,
+    },
+
+    CalendarView {
+        /// Describes the maximum number of results to return in the response.
+        #[xml_struct(attribute)]
+        max_entries_returned: Option<usize>,
+
+        #[xml_struct(attribute)]
+        start_date: String,
+
+        #[xml_struct(attribute)]
+        end_date: String,
+    },
+
+    ContactsView {
+        /// Describes the maximum number of results to return in the response.
+        #[xml_struct(attribute)]
+        max_entries_returned: Option<usize>,
+
+        #[xml_struct(attribute)]
+        initial_name: Option<String>,
+
+        #[xml_struct(attribute)]
+        final_name: Option<String>,
+    },
+}
+
+/// Describes whether the page of items or conversations will start from the
+/// beginning or the end of the set of items or conversations that are found by using
+/// the search criteria.
+/// Seeking from the end always searches backward.
+#[derive(Clone, Debug, XmlSerialize)]
+#[xml_struct(text)]
+pub enum BasePoint {
+    Beginning,
+    End,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "PascalCase")]
+pub struct Groups {
+    #[serde(rename = "$value", default)]
+    pub inner: Vec<GroupedItems>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "PascalCase")]
+pub struct GroupedItems {
+    pub group_index: Option<usize>,
+
+    pub items: Items,
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -1288,5 +1387,110 @@ mod tests {
         );
 
         Ok(())
+    }
+
+    /// Test that [`ExtendedProperty`] correctly serializes into XML and back again.
+    #[test]
+    fn test_extended_property() -> Result<(), Error> {
+        let data = ExtendedProperty {
+            extended_field_URI: ExtendedFieldURI {
+                distinguished_property_set_id: None,
+                property_set_id: None,
+                property_tag: Some("0x007D".into()),
+                property_name: None,
+                property_id: None,
+                property_type: Some(PropertyType::String),
+            },
+            value: "data goes here".into(),
+        };
+
+        let xml = r#"<ExtendedProperty><t:ExtendedFieldURI PropertyTag="0x007D" PropertyType="String"/><t:Value>data goes here</t:Value></ExtendedProperty>"#;
+
+        // Make sure data serializes into expected XML.
+        assert_serialized_content(&data, "ExtendedProperty", xml);
+
+        // Make sure XML deserializes into expected data.
+        let mut de = quick_xml::de::Deserializer::from_reader(xml.as_bytes());
+        let deserialized: ExtendedProperty = serde_path_to_error::deserialize(&mut de)?;
+        assert_eq!(deserialized, data);
+        Ok(())
+    }
+
+    /// Test that attachments are parsed properly
+    #[test]
+    fn test_attachment_parsing() {
+        let item_attachment_xml = r#"
+<m:Attachments>
+  <t:ItemAttachment>
+    <t:AttachmentId Id="Ktum21o=" />
+    <t:Name>Attached Message Item</t:Name>
+    <t:ContentType>message/rfc822</t:ContentType>
+    <t:Message>
+      <t:ItemId Id="AAMkAd" ChangeKey="FwAAABY" />
+    </t:Message>
+  </t:ItemAttachment>
+</m:Attachments>
+"#;
+
+        let data = Attachments {
+            inner: vec![Attachment::ItemAttachment {
+                attachment_id: AttachmentId {
+                    id: "Ktum21o=".to_string(),
+                    root_item_id: None,
+                    root_item_change_key: None,
+                },
+                name: "Attached Message Item".to_string(),
+                content_type: "message/rfc822".to_string(),
+                content_id: None,
+                content_location: None,
+                size: None,
+                last_modified_time: None,
+                is_inline: None,
+                content: Some(Box::new(RealItem::Message(Message {
+                    item_id: Some(ItemId {
+                        id: "AAMkAd".to_string(),
+                        change_key: Some("FwAAABY".to_string()),
+                    }),
+                    ..Default::default()
+                }))),
+            }],
+        };
+
+        let mut de = quick_xml::de::Deserializer::from_reader(item_attachment_xml.as_bytes());
+        let item_attachments: Attachments = serde_path_to_error::deserialize(&mut de).unwrap();
+        assert_eq!(item_attachments, data);
+
+        let file_attachment_xml = r#"
+<m:Attachments>
+  <t:FileAttachment>
+    <t:AttachmentId Id="AAAtAEFkbWluaX..."/>
+    <t:Name>SomeFile</t:Name>
+    <t:ContentType>message/rfc822</t:ContentType>
+    <t:Content>AQIDBAU=</t:Content>
+  </t:FileAttachment>
+</m:Attachments>
+"#;
+        let data = Attachments {
+            inner: vec![Attachment::FileAttachment {
+                attachment_id: AttachmentId {
+                    id: "AAAtAEFkbWluaX...".to_string(),
+                    root_item_id: None,
+                    root_item_change_key: None,
+                },
+                name: "SomeFile".to_string(),
+                content_type: "message/rfc822".to_string(),
+                content_id: None,
+                content_location: None,
+                size: None,
+                last_modified_time: None,
+                is_inline: None,
+                is_contact_photo: None,
+                content: Some("AQIDBAU=".to_string()),
+            }],
+        };
+
+        let mut de = quick_xml::de::Deserializer::from_reader(file_attachment_xml.as_bytes());
+        let file_attachments: Attachments = serde_path_to_error::deserialize(&mut de).unwrap();
+        assert_eq!(file_attachments, data);
     }
 }

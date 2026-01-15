@@ -108,6 +108,26 @@ where
     }
 }
 
+/// Serializes the contents of a `Box<T>` using the implementation from the referenced type.
+impl<T> XmlSerialize for Box<T>
+where
+    T: XmlSerialize,
+{
+    fn serialize_as_element<W>(&self, writer: &mut Writer<W>, name: &str) -> Result<(), Error>
+    where
+        W: std::io::Write,
+    {
+        <T as XmlSerialize>::serialize_as_element(self, writer, name)
+    }
+
+    fn serialize_child_nodes<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: std::io::Write,
+    {
+        <T as XmlSerialize>::serialize_child_nodes(self, writer)
+    }
+}
+
 /// Serializes the contents of a `Vec<T>` as content nodes.
 ///
 /// Each element of the `Vec` is serialized via its `serialize_child_nodes()`

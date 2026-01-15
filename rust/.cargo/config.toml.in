@@ -121,14 +121,14 @@ git = "https://github.com/servo/unicode-bidi"
 rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/thunderbird/ews-rs.git?rev=397aea31b0401c482b9a463d372d2c0a0651602f"]
+[source."git+https://github.com/thunderbird/ews-rs.git?rev=46b20809aea6267a6876e7a364f019858778968b"]
 git = "https://github.com/thunderbird/ews-rs.git"
-rev = "397aea31b0401c482b9a463d372d2c0a0651602f"
+rev = "46b20809aea6267a6876e7a364f019858778968b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=87723b90425d474fd29095d8b710baefd7c9b13a"]
+[source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=5b42f8d0d262bad2c2ff697d5a229b5187625022"]
 git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "87723b90425d474fd29095d8b710baefd7c9b13a"
+rev = "5b42f8d0d262bad2c2ff697d5a229b5187625022"
 replace-with = "vendored-sources"
 
 

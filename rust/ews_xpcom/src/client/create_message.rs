@@ -66,7 +66,7 @@ impl DoOperation for DoCreateMessage<'_> {
 
                 // 3591 (0x0E07) is the `PR_MESSAGE_FLAGS` MAPI property.
                 property_tag: Some("3591".into()),
-                property_type: ews::PropertyType::Integer,
+                property_type: Some(ews::PropertyType::Integer),
             },
             value: mapi_flags.to_string(),
         }]);
