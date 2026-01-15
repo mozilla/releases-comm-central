@@ -2025,6 +2025,7 @@ var gAccountSetup = {
     gAccountSetupLogger.debug("creating account in backend");
     const newAccount =
       await CreateInBackend.createAccountInBackend(configFilledIn);
+    Glean.mail.successfulEmailAccountSetup["advanced-config"].add(1);
 
     window.close();
     gMainWindow.postMessage("account-created-in-backend", "*");

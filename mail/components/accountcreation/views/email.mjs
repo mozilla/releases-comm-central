@@ -1368,6 +1368,7 @@ class AccountHubEmail extends HTMLElement {
     gAccountSetupLogger.debug("Creating account in backend.");
     const newAccount =
       await lazy.CreateInBackend.createAccountInBackend(accountConfig);
+    Glean.mail.successfulEmailAccountSetup["advanced-config"].add(1);
 
     await this.#moveToAccountManager(newAccount.incomingServer);
   }

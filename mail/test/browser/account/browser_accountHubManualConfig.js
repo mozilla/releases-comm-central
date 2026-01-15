@@ -756,6 +756,7 @@ add_task(async function test_direct_to_manual_config() {
 });
 
 add_task(async function test_account_invalid_email_advanced_setup_incoming() {
+  Services.fog.testResetFOG();
   // Fill in email auto form and click continue, incoming config step to show
   // a base invalid configuration.
   const dialog = await subtest_open_account_hub_dialog();
@@ -813,6 +814,12 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
   await BrowserTestUtils.waitForCondition(
     () => !!accountTab.browser.contentWindow.currentAccount,
     "The new account should have been created"
+  );
+
+  Assert.equal(
+    Glean.mail.successfulEmailAccountSetup["advanced-config"].testGetValue(),
+    1,
+    "should have recorded advanced-config"
   );
 
   const account = accountTab.browser.contentWindow.currentAccount;
