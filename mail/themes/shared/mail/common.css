@@ -13,7 +13,7 @@
   --button-border-color: color-mix(in srgb, currentColor 9%, transparent);
   --button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
   --in-content-deemphasized-text: color-mix(in srgb, currentColor 60%, transparent);
-  --in-content-sidebar-width: auto;
+  --size-sidebar: auto;
   --menu-item-margin: 0 3px;
 
   @media not (forced-colors) {
