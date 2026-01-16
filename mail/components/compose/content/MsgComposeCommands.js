@@ -3475,6 +3475,11 @@ function manageAttachmentNotification(force = false) {
       notification2.setAttribute("id", "attachmentNotificationBox");
       notification2.messageText.appendChild(msg);
       notification2.buttonContainer.appendChild(remindButton);
+      notification2.shadowRoot
+        .querySelector(".close")
+        .addEventListener("click", () => {
+          focusMsgBody();
+        });
     }, console.warn);
 }
 
