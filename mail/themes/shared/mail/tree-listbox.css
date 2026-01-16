@@ -7,40 +7,29 @@
   --listbox-selected-outline: none;
   --list-item-min-height: 26px;
   --list-item-buttons-size: 22px;
-  --indicator-width: 4px;
-  --indicator-height-offset: 6px;
-  --indicator-background: transparent;
-  --indicator-border: transparent;
-  --indicator-inline-start: 2px;
   --table-header-cell-icon-width: 24px;
   --table-header-cell-icon-min-width: 24px;
   --table-row-cell-img-margin-inline-start: 6px;
   --table-row-cell-button-margin-inline-start: 4px;
-  --tree-card-block: 2px;
-  --tree-card-inline: 8px;
-  --tree-card-content-radius: 6px;
   --tree-card-content-inline: 6px;
   --tree-header-table-height: calc(round(up, 1.7em, 1px) + 7px);
   --tree-header-cell-padding: 6px;
   --tree-header-cell-indent: 0;
+  --card-container-padding-block: 2px;
 
   &[uidensity="compact"] {
     --list-item-min-height: 18px;
     --list-item-buttons-size: 18px;
-    --indicator-width: 3px;
-    --indicator-inline-start: 1px;
     --table-header-cell-icon-width: 18px;
     --table-header-cell-icon-min-width: 18px;
     --table-header-cell-icon-button-padding: 0;
     --table-row-cell-img-margin-inline-start: 3px;
     --table-row-cell-button-margin-inline-start: 1px;
-    --tree-card-block: 1px;
-    --tree-card-inline: 6px;
     --tree-card-content-inline: 3px;
-    --tree-card-content-radius: 3px;
     --tree-header-table-height: max(27px, round(up, 1.4em, 1px));
     --tree-header-cell-padding: 3px;
     --tree-header-cell-indent: 3px;
+    --card-container-padding-block: 1px;
   }
 
   &[uidensity="touch"] {
@@ -49,8 +38,6 @@
     --table-header-cell-icon-min-width: 33px;
     --table-row-cell-img-margin-inline-start: 11px;
     --table-row-cell-button-margin-inline-start: 9px;
-    --tree-card-block: 3px;
-    --tree-card-inline: 8px;
     --tree-card-content-inline: 9px;
     --tree-header-table-height: calc(round(up, 2em, 1px) + 13px);
     --tree-header-cell-padding: 9px;
@@ -80,11 +67,7 @@
       color-mix(in srgb, var(--selected-item-color) 30%, var(--tree-view-bg))
     );
     --tree-card-border-selected: color-mix(in srgb, var(--selected-item-color) 30%, transparent);
-    --indicator-background-selected: var(--selected-item-color);
-    --indicator-border-selected: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 80%, black),
-      color-mix(in srgb, var(--selected-item-color) 80%, white)
-    );
+
     /* Unfocused Colors */
     --tree-card-background-current-unfocused: light-dark(
       color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
@@ -94,13 +77,8 @@
       color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
       color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-50))
     );
-    --tree-card-background-selected-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-50))
-    );
-    --tree-card-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-80));
-    --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
-    --indicator-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-60));
+    --tree-card-background-selected-current-unfocused: var(--layout-background-2);
+    --tree-card-border-selected-unfocused: var(--layout-border-1);
 
     --listbox-color: light-dark(var(--sidebar-text-color, var(--color-gray-80)), var(--sidebar-text-color, var(--color-gray-05)));
     --listbox-selected-bg: light-dark(var(--color-gray-30), var(--color-gray-70));
@@ -133,15 +111,9 @@
     --tree-card-background-selected-current: SelectedItem;
     --tree-card-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
     --tree-card-border-focus: color-mix(in srgb, CanvasText 20%, SelectedItem);
-    --indicator-background-selected: SelectedItem;
-    --indicator-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
     /* Unfocused Colors */
     --tree-card-background-current-unfocused: color-mix(in srgb, Canvas 90%, CanvasText);
     --tree-card-background-selected-unfocused: color-mix(in srgb, Canvas 80%, CanvasText);
-    --tree-card-background-selected-current-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
-    --tree-card-border-selected-unfocused: CanvasText;
-    --indicator-background-selected-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
-    --indicator-border-selected-unfocused: color-mix(in srgb, Canvas 50%, CanvasText);
 
     --tree-view-color: CanvasText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
@@ -171,7 +143,6 @@
   overflow-y: auto;
   overscroll-behavior-y: none;
   block-size: 100%;
-  background-color: var(--tree-view-bg);
 }
 
 [is="tree-view-table"] img {
@@ -246,38 +217,32 @@
   /* Card mode */
 
   & > .card-layout {
-    background-color: var(--tree-pane-background);
+    /* Hover */
+    &:is(:hover, :focus, :focus-within) {
+      --tree-card-background: var(--tree-card-background-current);
+      --tree-card-border: var(--tree-card-border-hover);
+
+      & .card-container {
+        border-color: var(--tree-card-border);
+      }
+    }
 
     @media (prefers-reduced-motion: no-preference) {
       & .card-container {
         transition:
-          background-color 300ms ease,
-          color 300ms ease,
-          border-color 300ms ease,
-          box-shadow 300ms ease;
-
-        &::before {
-          transition:
-            transform 200ms ease,
-            background-color 300ms ease,
-            border-color 300ms;
-        }
-      }
-    }
-
-    /* Hover */
-    &:is(:hover, :focus, :focus-within) {
-      --tree-card-border: var(--tree-card-border-hover);
-      --tree-card-background: var(--tree-card-background-current);
-
-      & .card-container {
-        box-shadow: 0 0 5px color-mix(in srgb, var(--tree-card-hover) 50%, transparent);
+          background-color var(--transition-duration) ease,
+          color var(--transition-duration) ease,
+          border-color var(--transition-duration) ease;
       }
     }
   }
 
   /* Selection */
   &:is(:focus, :focus-within) .card-layout {
+    &:active {
+      --tree-card-background: var(--tree-card-background-selected-current);
+    }
+
     &.current {
       --tree-card-background: var(--tree-card-background-current);
       --tree-card-border: var(--tree-card-focus);
@@ -286,16 +251,14 @@
     &.selected {
       --tree-card-background: var(--tree-card-background-selected);
       --tree-card-border: var(--tree-card-border-selected);
-      --indicator-background: var(--indicator-background-selected);
-      --indicator-border: var(--indicator-border-selected);
 
       &.current {
         --tree-card-background: var(--tree-card-background-selected-current);
         --tree-card-border: var(--tree-card-border-focus);
-      }
 
-      .card-container::before {
-        transform: translateX(0);
+        &:hover:not(:active) {
+          --tree-card-background: var(--tree-card-background-current);
+        }
       }
     }
 
@@ -315,12 +278,6 @@
     &.selected {
       --tree-card-background: var(--tree-card-background-selected-unfocused);
       --tree-card-border: var(--tree-card-border-selected-unfocused);
-      --indicator-background: var(--indicator-background-selected-unfocused);
-      --indicator-border: var(--indicator-border-selected-unfocused);
-
-      .card-container::before {
-        transform: translateX(0);
-      }
     }
 
     &.selected.current {
@@ -341,35 +298,16 @@
   }
 
   & > .card-layout > td {
-    padding-inline: var(--tree-card-inline);
-    padding-block: var(--tree-card-block);
-
-    @media (-moz-overlay-scrollbars) {
-      padding-inline-end: max(env(scrollbar-inline-size), var(--tree-card-inline));
-    }
+    padding: var(--card-container-padding-block) 3px;
 
     & > .card-container {
       block-size: 100%;
       background-color: var(--tree-card-background);
       border: 1px solid var(--tree-card-border);
-      border-radius: var(--tree-card-content-radius);
-      padding-inline: var(--tree-card-content-inline);
+      border-radius: var(--listbox-border-radius);
 
-      &::before {
-        position: absolute;
-        content: "";
-        inset-block: var(--indicator-height-offset);
-        inset-inline-start: var(--indicator-inline-start);
-        background-color: var(--indicator-background);
-        border: 1px solid var(--indicator-border);
-        border-radius: var(--indicator-width);
-        inline-size: var(--indicator-width);
-        box-sizing: border-box;
-        transform: translateX(calc(var(--tree-card-inline) * -1));
-      }
-
-      &:dir(rtl)::before {
-        transform: translateX(var(--tree-card-inline));
+      @media (-moz-overlay-scrollbars) {
+        padding-inline-end: env(scrollbar-inline-size);
       }
     }
   }

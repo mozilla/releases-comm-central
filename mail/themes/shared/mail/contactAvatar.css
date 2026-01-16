@@ -29,7 +29,7 @@
   block-size: var(--recipient-avatar-size);
   inline-size: var(--recipient-avatar-size);
   border-radius: 50%;
-  margin-inline-end: 6px;
+  margin-inline: 6px;
   text-align: center;
   overflow: hidden;
   color: var(--color-text-base);

@@ -9,7 +9,7 @@
 :host,
 :root {
   --account-color: var(--selected-item-color);
-  --transition-duration: 120ms;
+  --transition-duration: 200ms;
   --transition-timing: ease;
   --arrowpanel-background: var(--layout-background-1);
   --arrowpanel-color: var(--layout-color-1);

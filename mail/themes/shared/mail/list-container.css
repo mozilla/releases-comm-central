@@ -3,12 +3,6 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --list-indicator-height-offset: 3px;
-
-  &[uidensity="compact"] {
-    --list-indicator-height-offset: 1px;
-  }
-
   @media not (forced-colors) {
     --list-container-border: transparent;
     --list-container-background-selected: light-dark(
@@ -17,12 +11,10 @@
     );
     --list-container-border-selected: light-dark(var(--color-gray-40), var(--color-gray-60));
     --list-container-background-selected-current: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 82%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 77%, var(--color-gray-30))
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-30))
     );
-    --list-indicator-background-selected: light-dark(var(--color-gray-30), var(--color-gray-70));
-    --list-indicator-border-selected: light-dark(var(--color-gray-40), var(--color-gray-60));
-    --list-container-border-selected-current: light-dark(var(--color-gray-40), var(--color-gray-50));
+    --list-container-border-selected-current: var(--layout-border-1);
     --list-container-background-hover: light-dark(
       color-mix(in srgb, var(--selected-item-color) 5%, var(--sidebar-background)),
       color-mix(in srgb, var(--selected-item-color) 10%, var(--sidebar-background))
@@ -38,11 +30,6 @@
       color-mix(in srgb, var(--selected-item-color) 15%, var(--sidebar-background)),
       color-mix(in srgb, var(--selected-item-color) 30%, var(--sidebar-background))
     );
-    --list-indicator-background-selected-focused: var(--selected-item-color);
-    --list-indicator-border-selected-focused: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 80%, black),
-      color-mix(in srgb, var(--selected-item-color) 80%, white)
-    );
   }
 
   @media (forced-colors) {
@@ -51,16 +38,12 @@
     --list-container-border-selected: CanvasText;
     --list-container-background-selected-current: color-mix(in srgb, Canvas 70%, CanvasText);
     --list-container-border-selected-current: CanvasText;
-    --list-indicator-background-selected: color-mix(in srgb, Canvas 70%, CanvasText);
-    --list-indicator-border-selected: color-mix(in srgb, Canvas 50%, CanvasText);
     --list-container-background-hover: SelectedItem;
     --list-container-border-hover: SelectedItem;
     --list-container-background-selected-focused: color-mix(in srgb, Canvas 70%, CanvasText);
     --list-container-border-selected-focused: color-mix(in srgb, CanvasText 30%, SelectedItem);
     --list-container-border-selected-current-focused: color-mix(in srgb, CanvasText 20%, SelectedItem);
     --list-container-background-selected-current-focused: SelectedItem;
-    --list-indicator-background-selected-focused: SelectedItem;
-    --list-indicator-border-selected-focused: color-mix(in srgb, CanvasText 30%, SelectedItem);
   }
 }
 
@@ -70,62 +53,17 @@
     align-items: center;
     position: relative;
     -moz-context-properties: fill;
-    margin-inline: 6px;
+    margin-inline: 3px;
     border: 1px solid var(--list-container-border);
     border-radius: var(--listbox-border-radius);
     fill: currentColor;
     cursor: default;
     padding-inline-start: var(--indent);
     outline: none;
-    --indicator-width: 3px;
-
-    @media (prefers-reduced-motion: no-preference) {
-      & {
-        transition:
-          color var(--transition-duration) var(--transition-timing),
-          background-color var(--transition-duration) var(--transition-timing),
-          fill var(--transition-duration) var(--transition-timing),
-          stroke var(--transition-duration) var(--transition-timing);
-
-        &::before {
-          transition:
-            transform 200ms ease,
-            background-color 300ms ease,
-            border-color 300ms ease;
-        }
-      }
-    }
-
-    &::before {
-      position: absolute;
-      content: "";
-      inset-block: var(--list-indicator-height-offset);
-      inset-inline-start: 1px;
-      background-color: var(--indicator-background);
-      border: 1px solid var(--indicator-border);
-      border-radius: var(--indicator-width);
-      inline-size: var(--indicator-width);
-      box-sizing: border-box;
-      transform: translateX(-12px);
-    }
-
-    &:dir(rtl)::before {
-      transform: translateX(12px);
-    }
 
     li.selected > & {
       border-color: var(--list-container-border-selected);
       background-color: var(--list-container-background-selected);
-      --indicator-border: var(--list-indicator-border-selected);
-      --indicator-background: var(--list-indicator-background-selected);
-
-      &::before {
-        transform: translateX(-6px);
-      }
-
-      &:dir(rtl)::before {
-        transform: translateX(6px);
-      }
     }
 
     li.selected.current > & {
@@ -136,10 +74,14 @@
     li:not(.selected) > &:hover {
       border-color: var(--list-container-border-hover);
       background-color: var(--list-container-background-hover);
+    }
 
-      @media (forced-colors) {
-        color: var(--selected-item-text-color);
-      }
+    li:not(.selected) > &:active {
+      background-color: var(--list-container-background-selected-current-focused);
+    }
+
+    li.selected > &:hover {
+      background-color: var(--list-container-background-selected);
     }
 
     & .twisty {
@@ -163,6 +105,15 @@
     }
 
     @media (prefers-reduced-motion: no-preference) {
+      & {
+        transition:
+          color var(--transition-duration) var(--transition-timing),
+          background-color var(--transition-duration) var(--transition-timing),
+          border-color var(--transition-duration) var(--transition-timing),
+          fill var(--transition-duration) var(--transition-timing),
+          stroke var(--transition-duration) var(--transition-timing);
+      }
+
       & .twisty-icon {
         transition: transform var(--transition-duration) var(--transition-timing);
       }
@@ -172,8 +123,6 @@
   &:focus-within li.selected > .container {
     border-color: var(--list-container-border-selected-focused);
     background-color: var(--list-container-background-selected-focused);
-    --indicator-border: var(--list-indicator-border-selected-focused);
-    --indicator-background: var(--list-indicator-background-selected-focused);
 
     @media (forced-colors) {
       outline: 1px solid SelectedItemText;
@@ -185,6 +134,10 @@
   & li[role="treeitem"].drop-target > .container {
     border-color: var(--list-container-border-selected-current-focused);
     background-color: var(--list-container-background-selected-current-focused);
+
+    &:hover:not(:active) {
+      background-color: var(--list-container-background-hover);
+    }
 
     @media (forced-colors) {
       color: var(--selected-item-text-color);

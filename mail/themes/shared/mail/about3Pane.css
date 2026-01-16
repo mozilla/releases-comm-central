@@ -18,7 +18,7 @@
   --sidebar-background: var(--sidebar-background-color, var(--foldertree-background));
 
   @media not (prefers-contrast) {
-    --foldertree-background: light-dark(var(--color-gray-10), var(--color-gray-80));
+    --foldertree-background: var(--layout-background-1);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
     --folderpane-total-count-background: light-dark(var(--color-gray-20), var(--color-gray-60));
@@ -482,8 +482,8 @@ body {
   @media (prefers-reduced-motion: no-preference) {
     .icon {
       transition:
-        fill 300ms ease,
-        stroke 300ms ease;
+        fill var(--transition-duration) ease,
+        stroke var(--transition-duration) ease;
     }
   }
 }

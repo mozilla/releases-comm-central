@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
+  --tree-card-inline: 8px;
   --thread-child-start: 20px;
   --thread-card-content-gap: 3px;
   --thread-card-button-padding: 1px 3px;
@@ -10,7 +11,6 @@
   --read-status-new: var(--icon-sparkle-star-sm);
   --read-status-icon: var(--icon-dot);
   --read-status-size: 16px;
-  --indicator-gap: 3px;
   --inset-inline-start: 0;
 
   &[uidensity="compact"] {
@@ -20,7 +20,6 @@
     --thread-card-button-padding: 0 3px;
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
-    --indicator-gap: 2px;
   }
 
   &[uidensity="touch"] {
@@ -66,8 +65,6 @@
       color-mix(in srgb, var(--layout-background-0) 80%, var(--color-red-90))
     );
     --tree-card-border-selected-spam: light-dark(var(--color-red-50), var(--color-red-70));
-    --indicator-background-selected-spam: var(--color-red-50);
-    --indicator-border-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
   }
 
   @media (prefers-contrast) {
@@ -85,19 +82,15 @@
     --tree-card-background-selected-spam: color-mix(in srgb, Canvas 70%, var(--color-red-50));
     --tree-card-background-selected-current-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --tree-card-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
-    --indicator-background-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    --indicator-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
   }
 }
 
 #threadTree[rows="thread-card"] {
-  background-color: var(--tree-pane-background);
-  padding-block: var(--tree-card-block);
+  padding-block: 2px;
 
   /* Default Card */
   & .card-layout {
     outline-color: transparent;
-    background-color: var(--tree-pane-background);
 
     /* Unread Message */
     &[data-properties~="unread"] {
@@ -315,15 +308,10 @@
       & .card-container {
         display: grid;
         grid-template-columns: auto 1fr;
-        padding-inline-start: 3px; /* Keep the start indicator close to the front */
         box-sizing: border-box;
         position: relative;
         overflow: visible;
         isolation: isolate;
-
-        &::before {
-          inset-inline-start: calc(var(--indicator-width) * -1 - var(--indicator-gap));
-        }
 
         & .thread-card-column {
           display: flex;
@@ -665,8 +653,6 @@
     --tree-card-border-selected: var(--tree-card-border-selected-spam);
     --tree-card-border-focus: var(--tree-card-border-selected-spam);
     --thread-card-focus: var(--thread-card-focus-spam);
-    --indicator-background-selected: var(--indicator-background-selected-spam);
-    --indicator-border-selected: var(--indicator-border-selected-spam);
   }
 
   /* Unfocused */
@@ -679,8 +665,6 @@
     &.selected {
       --tree-card-background: var(--tree-card-background-selected-unfocused);
       --tree-card-border: var(--tree-card-border-selected-unfocused);
-      --indicator-background: var(--indicator-background-selected-unfocused);
-      --indicator-border: var(--indicator-border-selected-unfocused);
     }
 
     &.selected.current {

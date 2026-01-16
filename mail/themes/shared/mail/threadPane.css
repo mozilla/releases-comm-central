@@ -31,7 +31,7 @@
 #threadPane > tree-view {
   -moz-context-properties: fill;
   fill: currentColor;
-  background-color: var(--tree-view-bg);
+  background-color: var(--layout-background-1);
   color: var(--tree-view-color);
   overflow-anchor: none;
 }
@@ -48,7 +48,7 @@
 
   & [data-properties~="dummy"] {
     &:not(.card-layout, :hover, .selected) {
-      background-color: var(--layout-background-2);
+      background-color: var(--layout-background-1);
     }
 
     & .subject-line {
@@ -254,6 +254,12 @@
   [is="tree-view-table-body"]:is(:focus, :focus-within) > .selected:not([data-properties~="flagged"]) & {
     fill: color-mix(in srgb, currentColor 20%, transparent);
     stroke: color-mix(in srgb, currentColor 70%, transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      fill var(--transition-duration) ease,
+      stroke var(--transition-duration) ease;
   }
 }
 
