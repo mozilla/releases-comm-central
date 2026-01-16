@@ -8,15 +8,16 @@ use ews::{
     create_folder::{CreateFolder, CreateFolderResponse},
     BaseFolderId, Folder, Operation, OperationResponse,
 };
-
-use crate::{
-    macros::queue_operation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{
+    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
 
+use crate::macros::queue_operation;
+
 use super::{
-    process_response_message_class, single_response_or_error, DoOperation, ServerType,
-    XpComEwsClient, XpComEwsError,
+    process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
+    XpComEwsError,
 };
 
 struct DoCreateFolder {
@@ -24,12 +25,12 @@ struct DoCreateFolder {
     name: String,
 }
 
-impl DoOperation for DoCreateFolder {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoCreateFolder {
     const NAME: &'static str = CreateFolder::NAME;
     type Okay = String;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

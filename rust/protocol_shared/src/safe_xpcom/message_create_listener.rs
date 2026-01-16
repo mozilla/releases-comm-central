@@ -6,12 +6,10 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{getter_addrefs, interfaces::IEwsMessageCreateListener, RefPtr};
 
-use crate::error::XpComEwsError;
-
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeEwsMessageCreateListener = SafeListenerWrapper<IEwsMessageCreateListener>;
+pub type SafeEwsMessageCreateListener = SafeListenerWrapper<IEwsMessageCreateListener>;
 
 impl SafeEwsMessageCreateListener {
     /// A safe wrapper for [`IEwsMessageCreateListener::OnStopCreate`]. This is
@@ -63,7 +61,11 @@ impl SafeListener for SafeEwsMessageCreateListener {
 
     /// Calls [`IEwsMessageCreateListener::OnStopCreate`] with the appropriate
     /// arguments.
-    fn on_failure(&self, err: &XpComEwsError, _arg: ()) -> Result<(), nsresult> {
+    fn on_failure<E>(&self, err: &E, _arg: ()) -> Result<(), nsresult>
+    where
+        for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
+        E: std::fmt::Debug,
+    {
         self.on_stop_create(err.into())
     }
 }

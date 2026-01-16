@@ -4,48 +4,47 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use protocol_shared::{error::ProtocolError, safe_xpcom::uri::SafeUri};
 use xpcom::{
     interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
     RefPtr,
 };
 
-use crate::{cancellable_request::CancellableRequest, error::XpComEwsError};
-
-use super::{SafeListener, SafeListenerWrapper};
+use super::{uri::SafeUri, SafeListener, SafeListenerWrapper};
+use crate::cancellable_request::CancellableRequest;
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeMsgOutgoingListener = SafeListenerWrapper<nsIMsgOutgoingListener>;
+pub type SafeMsgOutgoingListener = SafeListenerWrapper<nsIMsgOutgoingListener>;
 
 impl SafeMsgOutgoingListener {
     /// A safe wrapper for [`nsIMsgOutgoingListener::OnSendStart`].
     pub fn on_send_start(&self) -> Result<(), nsresult> {
         let cancellable_request = CancellableRequest::new();
         let request: &nsIRequest = cancellable_request.coerce();
-        // SAFETY: CancellableRequest coerced to an nsIRequest means it's safe
-        // to cross the XPCOM Rust/C++ boundary.
         unsafe { self.0.OnSendStart(request) }.to_result()
     }
 
     /// Convert types and forward to
     /// [`nsIMsgOutgoingListener::OnSendStop`]. This is invoked by
     /// [`Self::on_success`] and [`Self::on_failure`].
-    fn on_send_stop(
+    fn on_send_stop<E>(
         &self,
         server_uri: SafeUri,
-        error: Option<&XpComEwsError>,
+        error: Option<&E>,
         err_msg: Option<nsCString>,
-    ) -> Result<(), nsresult> {
+    ) -> Result<(), nsresult>
+    where
+        for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
+        E: std::fmt::Debug,
+    {
         let (status, sec_info) = match error {
             None => (nserror::NS_OK, None),
-            Some(rc) => match rc {
-                XpComEwsError::Protocol(ProtocolError::Http(
-                    moz_http::Error::TransportSecurityFailure {
-                        status,
-                        transport_security_info,
-                    },
-                )) => (*status, Some(transport_security_info.0.clone())),
-                err => (err.into(), None),
+            Some(err) => match err.try_into() {
+                Ok(moz_http::Error::TransportSecurityFailure {
+                    status,
+                    transport_security_info,
+                }) => (*status, Some(transport_security_info.0.clone())),
+                Ok(other) => (other.into(), None),
+                Err(_) => (err.into(), None),
             },
         };
 
@@ -63,7 +62,7 @@ impl SafeMsgOutgoingListener {
 
         // SAFETY: server_uri is behind a RefPtr, `nsresult`s are safe to use
         // across the Rust/C++ boundary, sec_info is a null pointer iff there
-        // was a security error, err_msg is always a valid nsCString.
+        // was no security error, err_msg is always a valid nsCString.
         unsafe { self.0.OnSendStop(&*server_uri, status, sec_info, &*err_msg) }.to_result()
     }
 }
@@ -91,11 +90,15 @@ impl SafeListener for SafeMsgOutgoingListener {
 
     /// Calls [`nsIMsgOutgoingListener::OnSendStop`] with the appropriate arguments.
     fn on_success(&self, arg: SafeUri) -> Result<(), nsresult> {
-        self.on_send_stop(arg, None, None)
+        self.on_send_stop::<crate::error::ProtocolError>(arg, None, None)
     }
 
     /// Calls [`nsIMsgOutgoingListener::OnSendStop`] with the appropriate arguments.
-    fn on_failure(&self, err: &XpComEwsError, arg: OnSendStopArg) -> Result<(), nsresult> {
+    fn on_failure<E>(&self, err: &E, arg: OnSendStopArg) -> Result<(), nsresult>
+    where
+        for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
+        E: std::fmt::Debug,
+    {
         self.on_send_stop(arg.server_uri, Some(err), arg.err_msg)
     }
 }

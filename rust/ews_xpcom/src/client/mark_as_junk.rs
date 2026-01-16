@@ -11,16 +11,17 @@ use ews::{
     BaseItemId, Operation, OperationResponse,
 };
 use nsstring::nsCString;
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 use thin_vec::ThinVec;
 
 use crate::{
     client::{
         copy_move_operations::move_generic::{CopyMoveSuccess, RequiresResync},
-        process_response_message_class, validate_response_message_count, DoOperation, ServerType,
+        process_response_message_class, validate_response_message_count, ServerType,
         XpComEwsClient, XpComEwsError,
     },
     macros::queue_operation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener},
 };
 
 struct DoMarkAsJunk {
@@ -29,12 +30,12 @@ struct DoMarkAsJunk {
     legacy_destination_folder_id: String,
 }
 
-impl DoOperation for DoMarkAsJunk {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoMarkAsJunk {
     const NAME: &'static str = MarkAsJunk::NAME;
     type Okay = Option<ThinVec<nsCString>>;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

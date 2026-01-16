@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{Operation, OperationResponse};
+use protocol_shared::safe_xpcom::{SimpleOperationSuccessArgs, UseLegacyFallback};
 
-use crate::{
-    client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError},
-    safe_xpcom::UseLegacyFallback,
-};
+use crate::client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError};
 
 /// Whether the EWS copy/move operation should be followed by a resync to pick
 /// up updated IDs.
@@ -55,6 +53,17 @@ pub(crate) trait CopyMoveOperation: Operation + Clone {
 pub(crate) struct CopyMoveSuccess {
     pub new_ids: Vec<String>,
     pub requires_resync: RequiresResync,
+}
+
+impl From<CopyMoveSuccess> for SimpleOperationSuccessArgs {
+    fn from(
+        CopyMoveSuccess {
+            new_ids,
+            requires_resync,
+        }: CopyMoveSuccess,
+    ) -> Self {
+        (new_ids, requires_resync.into()).into()
+    }
 }
 
 /// Perform a generic copy/move operation.

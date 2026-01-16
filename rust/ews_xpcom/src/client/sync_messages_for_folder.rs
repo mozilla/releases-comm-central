@@ -7,17 +7,19 @@ use ews::{
     sync_folder_items::{self, SyncFolderItems, SyncFolderItemsResponse},
     ItemShape, Operation, OperationResponse,
 };
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::SafeEwsMessageSyncListener;
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
 
 use super::{
-    process_response_message_class, single_response_or_error, BaseFolderId, BaseShape, DoOperation,
-    ServerType, XpComEwsClient, XpComEwsError,
+    process_response_message_class, single_response_or_error, BaseFolderId, BaseShape, ServerType,
+    XpComEwsClient, XpComEwsError,
 };
 
-use crate::{macros::queue_operation, safe_xpcom::SafeEwsMessageSyncListener};
+use crate::macros::queue_operation;
 
 struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
@@ -25,12 +27,14 @@ struct DoSyncMessagesForFolder<'a> {
     pub sync_state_token: Option<String>,
 }
 
-impl DoOperation for DoSyncMessagesForFolder<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoSyncMessagesForFolder<'_>
+{
     const NAME: &'static str = SyncFolderItems::NAME;
     type Okay = ();
     type Listener = SafeEwsMessageSyncListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
@@ -171,7 +175,8 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
                             continue;
                         }
 
-                        let header = result?.populate_from_message_headers(msg)?;
+                        let header =
+                            result?.populate_from_message_headers(crate::headers::Message(msg))?;
                         self.listener.on_detached_hdr_populated(header)?;
                     }
 
@@ -217,7 +222,8 @@ impl DoOperation for DoSyncMessagesForFolder<'_> {
                         // readability depend on the context, and which ones can
                         // always be updated, so we copy the remote state onto
                         // the database entry and commit.
-                        let header = result?.populate_from_message_headers(msg)?;
+                        let header =
+                            result?.populate_from_message_headers(crate::headers::Message(msg))?;
 
                         // Persist the database entry. If it's a new one
                         // (because we've missed the creation event), then we

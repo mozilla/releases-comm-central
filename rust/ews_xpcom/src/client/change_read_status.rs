@@ -11,17 +11,16 @@ use ews::{
     BaseItemId, Message, MessageDisposition, Operation, OperationResponse, PathToElement,
 };
 use nsstring::nsCString;
-use thin_vec::ThinVec;
-
-use crate::{
-    client::{
-        process_response_message_class, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
-    },
+use protocol_shared::{
+    client::DoOperation,
     safe_xpcom::{
         handle_error, SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
         UseLegacyFallback,
     },
 };
+use thin_vec::ThinVec;
+
+use crate::client::{process_response_message_class, ServerType, XpComEwsClient, XpComEwsError};
 
 struct DoChangeReadStatus<'a> {
     listener: &'a SafeEwsSimpleOperationListener,
@@ -29,12 +28,14 @@ struct DoChangeReadStatus<'a> {
     is_read: bool,
 }
 
-impl DoOperation for DoChangeReadStatus<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoChangeReadStatus<'_>
+{
     const NAME: &'static str = "change read status";
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
@@ -132,7 +133,7 @@ impl DoOperation for DoChangeReadStatus<'_> {
     /// This uses a custom implementation, since this operation has the unusual
     /// behavior of returning any successful responses to the success listener,
     /// even if the operation had failures.
-    async fn handle_operation<ServerT: ServerType>(
+    async fn handle_operation(
         mut self,
         client: &XpComEwsClient<ServerT>,
         listener: &Self::Listener,
@@ -142,7 +143,8 @@ impl DoOperation for DoChangeReadStatus<'_> {
                 // the operation has already called on_success
             }
             Err(err) => {
-                handle_error(listener, Self::NAME, &err, ());
+                let name = <Self as DoOperation<XpComEwsClient<ServerT>, _>>::NAME;
+                handle_error(listener, name, &err, ());
             }
         }
     }

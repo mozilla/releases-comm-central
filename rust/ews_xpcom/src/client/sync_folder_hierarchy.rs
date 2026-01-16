@@ -6,26 +6,30 @@ use ews::{
     sync_folder_hierarchy::{self, SyncFolderHierarchy, SyncFolderHierarchyResponse},
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
 };
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::SafeEwsFolderListener;
 use std::{collections::HashSet, sync::Arc};
 
 use super::{
-    process_response_message_class, single_response_or_error, DoOperation, ServerType,
-    XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
+    process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
+    XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::{macros::queue_operation, safe_xpcom::SafeEwsFolderListener};
+use crate::macros::queue_operation;
 
 struct DoSyncFolderHierarchy<'a> {
     pub listener: &'a SafeEwsFolderListener,
     pub sync_state_token: Option<String>,
 }
 
-impl DoOperation for DoSyncFolderHierarchy<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoSyncFolderHierarchy<'_>
+{
     const NAME: &'static str = SyncFolderHierarchy::NAME;
     type Okay = ();
     type Listener = SafeEwsFolderListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

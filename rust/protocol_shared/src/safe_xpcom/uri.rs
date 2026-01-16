@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use nserror::nsresult;
-use nsstring::nsCString;
-use std::ptr;
+use nsstring::{nsACString, nsCString};
+use std::{fmt, ptr};
 use xpcom::{
     get_service, getter_addrefs,
     interfaces::{nsIIOService, nsIURI},
@@ -35,5 +35,16 @@ impl SafeUri {
 impl From<SafeUri> for RefPtr<nsIURI> {
     fn from(value: SafeUri) -> Self {
         value.0
+    }
+}
+
+impl fmt::Display for SafeUri {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut out_param = nsCString::new();
+        let out: *mut nsACString = (&mut *out_param) as *mut nsACString;
+
+        // SAFETY: out is a pointer to a valid nsCString
+        unsafe { self.0.GetSpec(out) };
+        write!(f, "{}", out_param)
     }
 }

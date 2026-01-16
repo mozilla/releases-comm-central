@@ -15,7 +15,11 @@ use nserror::{
 };
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    safe_xpcom::{uri::SafeUri, SafeUrlListener},
+    safe_xpcom::{
+        uri::SafeUri, SafeEwsFolderListener, SafeEwsMessageCreateListener,
+        SafeEwsMessageFetchListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
+        SafeUrlListener,
+    },
     ExchangeConnectionDetails,
 };
 use std::{cell::OnceCell, ffi::c_void, sync::Arc};
@@ -31,12 +35,7 @@ use xpcom::{
 };
 
 use client::XpComEwsClient;
-use safe_xpcom::{
-    SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
-    SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
-};
 
-mod cancellable_request;
 mod client;
 mod error;
 mod headers;
@@ -45,7 +44,6 @@ mod observers;
 mod operation_queue;
 mod operation_sender;
 mod outgoing;
-mod safe_xpcom;
 mod server_version;
 mod xpcom_io;
 

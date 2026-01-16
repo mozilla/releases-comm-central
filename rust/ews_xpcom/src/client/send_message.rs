@@ -9,11 +9,10 @@ use ews::{
     create_item::CreateItem, ArrayOfRecipients, Message, MessageDisposition, MimeContent,
     Operation, RealItem, Recipient,
 };
-use protocol_shared::safe_xpcom::uri::SafeUri;
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{uri::SafeUri, SafeListener, SafeMsgOutgoingListener};
 
-use super::{DoOperation, ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
-
-use crate::safe_xpcom::{SafeListener, SafeMsgOutgoingListener};
+use super::{ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
 
 struct DoSendMessage<'a> {
     listener: &'a SafeMsgOutgoingListener,
@@ -24,12 +23,14 @@ struct DoSendMessage<'a> {
     server_uri: SafeUri,
 }
 
-impl DoOperation for DoSendMessage<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoSendMessage<'_>
+{
     const NAME: &'static str = CreateItem::NAME;
     type Okay = ();
     type Listener = SafeMsgOutgoingListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

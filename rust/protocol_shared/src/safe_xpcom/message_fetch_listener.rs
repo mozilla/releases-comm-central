@@ -6,12 +6,11 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::interfaces::{nsIInputStream, nsIStringInputStream, IEwsMessageFetchListener};
 
-use crate::error::XpComEwsError;
-
 use super::{SafeListener, SafeListenerWrapper};
+use crate::error::ProtocolError;
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeEwsMessageFetchListener = SafeListenerWrapper<IEwsMessageFetchListener>;
+pub type SafeEwsMessageFetchListener = SafeListenerWrapper<IEwsMessageFetchListener>;
 
 impl SafeEwsMessageFetchListener {
     /// A safe wrapper for [`IEwsMessageFetchListener::OnFetchStart`].
@@ -29,15 +28,10 @@ impl SafeEwsMessageFetchListener {
 
     /// Convert types and forward to
     /// [`IEwsMessageFetchListener::OnFetchedDataAvailable`].
-    pub fn on_fetched_data_available(&self, data: impl AsRef<[u8]>) -> Result<(), XpComEwsError> {
+    pub fn on_fetched_data_available(&self, data: impl AsRef<[u8]>) -> Result<(), ProtocolError> {
         let data = data.as_ref();
         if data.len() > i32::MAX as usize {
-            return Err(XpComEwsError::Processing {
-                message: format!(
-                    "item is of length {}, larger than supported size of 2GiB",
-                    data.len()
-                ),
-            });
+            return Err(ProtocolError::Size(data.len()));
         }
 
         let stream = xpcom::create_instance::<nsIStringInputStream>(cstr::cstr!(
@@ -55,6 +49,7 @@ impl SafeEwsMessageFetchListener {
         let stream: &nsIInputStream = stream.coerce();
         // Safety: nsIInputStream is safe to use across the Rust/C++ boundary.
         unsafe { self.0.OnFetchedDataAvailable(stream) }.to_result()?;
+
         Ok(())
     }
 }
@@ -69,7 +64,11 @@ impl SafeListener for SafeEwsMessageFetchListener {
     }
 
     /// Calls [`IEwsMessageFetchListener::OnFetchStop`] with the appropriate arguments.
-    fn on_failure(&self, err: &XpComEwsError, _arg: ()) -> Result<(), nsresult> {
+    fn on_failure<E>(&self, err: &E, _arg: ()) -> Result<(), nsresult>
+    where
+        for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
+        E: std::fmt::Debug,
+    {
         self.on_fetch_stop(err.into())
     }
 }

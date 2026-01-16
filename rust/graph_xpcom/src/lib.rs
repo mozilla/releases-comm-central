@@ -117,7 +117,11 @@ impl XpcomGraphBridge {
 
         // The client operation is async and we want it to survive the end of
         // this scope, so spawn it as a detached `moz_task`.
-        moz_task::spawn_local("check_connectivity", client.check_connectivity(listener)).detach();
+        moz_task::spawn_local(
+            "check_connectivity",
+            client.check_connectivity(uri.clone(), listener),
+        )
+        .detach();
 
         Ok(uri.into())
     }

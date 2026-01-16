@@ -31,7 +31,12 @@ use ews::{
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
 use mailnews_ui_glue::UserInteractiveServer;
-use protocol_shared::authentication::credentials::AuthenticationProvider;
+use protocol_shared::{
+    authentication::credentials::AuthenticationProvider,
+    safe_xpcom::{
+        SafeEwsFolderListener, SafeEwsMessageCreateListener, StaleMsgDbHeader, UpdatedMsgDbHeader,
+    },
+};
 use url::Url;
 use xpcom::{RefCounted, RefPtr};
 
@@ -42,10 +47,6 @@ use crate::{
     operation_sender::{
         observable_server::ObservableServer, OperationRequestOptions, OperationSender,
         TransportSecFailureBehavior,
-    },
-    safe_xpcom::{
-        handle_error, SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeListener,
-        StaleMsgDbHeader, UpdatedMsgDbHeader,
     },
     server_version::ServerVersionHandler,
 };
@@ -199,7 +200,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         // Any error fetching the root folder is fatal, since we can't correctly
         // set the parents of any folders it contains without knowing its ID.
         let root_folder_id = validate_get_folder_response_message(&message)?;
-        listener.on_new_root_folder(root_folder_id)?;
+        listener.on_new_root_folder(root_folder_id.id)?;
 
         // Build the mapping for the remaining folders.
         message_iter
@@ -254,8 +255,8 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         display_name,
                         ..
                     } => listener.on_folder_created(
-                        folder_id,
-                        parent_folder_id,
+                        folder_id.map(|f| f.id),
+                        parent_folder_id.map(|f| f.id),
                         display_name,
                         well_known_map,
                     )?,
@@ -273,7 +274,11 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         parent_folder_id,
                         display_name,
                         ..
-                    } => listener.on_folder_updated(folder_id, parent_folder_id, display_name)?,
+                    } => listener.on_folder_updated(
+                        folder_id.map(|f| f.id),
+                        parent_folder_id.map(|f| f.id),
+                        display_name,
+                    )?,
                     _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
@@ -667,56 +672,4 @@ fn response_into_messages<OpResponse: OperationResponse>(
             }
         })
         .collect()
-}
-
-/// Where [`Operation`] represents the types and (de)serialization of an EWS operation,
-/// this trait represents the client implementation of performing an operation.
-pub(crate) trait DoOperation {
-    /// A name of the operation for logging purposes.
-    ///
-    /// This is usually the same as [`Operation::NAME`], but not always, because some
-    /// implementations of `DoOperation` don't correspond 1-to-1 with an EWS operation.
-    const NAME: &str;
-
-    /// The success case return type of [`Self::do_operation`].
-    type Okay;
-
-    /// The listener this operation uses to report success/failure.
-    type Listener: SafeListener;
-
-    /// Do the operation represented. Includes most of the logic, returning any errors encountered.
-    async fn do_operation<ServerT: ServerType>(
-        &mut self,
-        client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Okay, XpComEwsError>;
-
-    /// Turn the succesesfully completed operation into the argument for [`SafeListener::on_success`].
-    fn into_success_arg(self, ok: Self::Okay) -> <Self::Listener as SafeListener>::OnSuccessArg;
-
-    /// Turn the failed operation into the argument for [`SafeListener::on_failure`].
-    fn into_failure_arg(self) -> <Self::Listener as SafeListener>::OnFailureArg;
-
-    /// Handle the operation done in [`Self::do_operation`]. I.e., calls `do_operation`, and handles
-    /// any errors returned as appropriate.
-    async fn handle_operation<ServerT: ServerType>(
-        mut self,
-        client: &XpComEwsClient<ServerT>,
-        listener: &Self::Listener,
-    ) where
-        Self: Sized,
-    {
-        match self.do_operation(client).await {
-            Ok(okay) => {
-                if let Err(err) = listener.on_success(self.into_success_arg(okay)) {
-                    log::warn!(
-                        "listener for {} success callback returned an error: {err}",
-                        Self::NAME
-                    );
-                }
-            }
-            Err(err) => {
-                handle_error(listener, Self::NAME, &err, self.into_failure_arg());
-            }
-        }
-    }
 }

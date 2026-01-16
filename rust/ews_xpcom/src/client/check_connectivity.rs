@@ -5,31 +5,31 @@
 use std::sync::Arc;
 
 use ews::{get_folder::GetFolderResponse, Operation, OperationResponse};
-use nserror::nsresult;
+use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeUri, SafeUrlListener};
 
 use super::{
     process_response_message_class, single_response_or_error, validate_get_folder_response_message,
-    BaseFolderId, BaseShape, DoOperation, FolderShape, GetFolder, OperationRequestOptions,
-    ServerType, XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
+    BaseFolderId, BaseShape, FolderShape, GetFolder, OperationRequestOptions, ServerType,
+    XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
 };
 
-use crate::{
-    macros::queue_operation, operation_sender::AuthFailureBehavior, safe_xpcom::SafeListener,
-};
+use crate::{macros::queue_operation, operation_sender::AuthFailureBehavior};
 
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,
     pub uri: SafeUri,
 }
 
-impl DoOperation for DoCheckConnectivity<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoCheckConnectivity<'_>
+{
     // the connectivity check is ad hoc, not an operation, so this "name" is more a description
     const NAME: &'static str = "check connectivity";
     type Okay = ();
     type Listener = SafeUrlListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
@@ -96,24 +96,5 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
             uri,
         };
         operation.handle_operation(&self, &listener).await;
-    }
-}
-
-impl SafeListener for SafeUrlListener {
-    type OnSuccessArg = SafeUri;
-    type OnFailureArg = SafeUri;
-
-    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
-    /// arguments.
-    fn on_success(&self, uri: SafeUri) -> Result<(), nsresult> {
-        self.on_stop_running_url(uri, nserror::NS_OK).to_result()?;
-        Ok(())
-    }
-
-    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
-    /// arguments.
-    fn on_failure(&self, err: &XpComEwsError, uri: SafeUri) -> Result<(), nsresult> {
-        self.on_stop_running_url(uri, err.into()).to_result()?;
-        Ok(())
     }
 }

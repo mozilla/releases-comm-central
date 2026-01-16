@@ -6,12 +6,10 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{getter_addrefs, interfaces::IEwsMessageSyncListener, RefPtr};
 
-use crate::error::XpComEwsError;
-
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeEwsMessageSyncListener = SafeListenerWrapper<IEwsMessageSyncListener>;
+pub type SafeEwsMessageSyncListener = SafeListenerWrapper<IEwsMessageSyncListener>;
 
 impl SafeEwsMessageSyncListener {
     /// Convert types and forward to
@@ -64,12 +62,11 @@ impl SafeEwsMessageSyncListener {
 
     /// Convert types and forward to
     /// [`IEwsMessageSyncListener::OnSyncStateTokenChanged`].
-    pub fn on_sync_state_token_changed(&self, sync_state_token: &str) -> Result<(), XpComEwsError> {
+    pub fn on_sync_state_token_changed(&self, sync_state_token: &str) -> Result<(), nsresult> {
         let sync_state = nsCString::from(sync_state_token);
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()?;
-        Ok(())
+        unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()
     }
 
     /// Convert types and forward to

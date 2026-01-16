@@ -21,6 +21,9 @@ pub enum ProtocolError {
 
     #[error("failed to authenticate")]
     Authentication,
+
+    #[error("an item was too large to process: {0}")]
+    Size(usize),
 }
 
 impl From<&ProtocolError> for nsresult {
@@ -37,5 +40,16 @@ impl From<&ProtocolError> for nsresult {
 impl From<ProtocolError> for nsresult {
     fn from(value: ProtocolError) -> Self {
         (&value).into()
+    }
+}
+
+impl<'a> TryFrom<&'a ProtocolError> for &'a moz_http::Error {
+    type Error = ();
+
+    fn try_from(value: &'a ProtocolError) -> Result<Self, Self::Error> {
+        match value {
+            ProtocolError::Http(err) => Ok(err),
+            _ => Err(()),
+        }
     }
 }

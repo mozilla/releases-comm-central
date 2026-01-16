@@ -5,14 +5,13 @@
 use ews::{
     delete_folder::DeleteFolder, empty_folder::EmptyFolder, server_version::ExchangeServerVersion,
 };
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{handle_error, SafeEwsSimpleOperationListener};
 use std::{marker::PhantomData, sync::Arc};
 
-use super::{DoEraseFolder, DoOperation, XpComEwsClient};
+use super::{DoEraseFolder, XpComEwsClient};
 
-use crate::{
-    client::ServerType,
-    safe_xpcom::{handle_error, SafeEwsSimpleOperationListener},
-};
+use crate::client::ServerType;
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn empty_folder(

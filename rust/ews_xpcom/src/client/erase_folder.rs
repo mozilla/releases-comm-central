@@ -11,16 +11,15 @@ use ews::{
     response::{ResponseCode, ResponseError},
     BaseFolderId, DeleteType, Operation, OperationResponse,
 };
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{
+    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
+};
 use std::marker::PhantomData;
 
-use super::{
-    process_response_message_class, DoOperation, ServerType, XpComEwsClient, XpComEwsError,
-};
+use super::{process_response_message_class, ServerType, XpComEwsClient, XpComEwsError};
 
-use crate::{
-    macros::queue_operation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
-};
+use crate::macros::queue_operation;
 
 /// Marker trait for [`DeleteFolder`] and [`EmptyFolder`], which are nearly
 /// identical in their purpose and implementation, differing primarily in
@@ -39,12 +38,14 @@ struct DoEraseFolder<Op: EraseFolder> {
     pub _op_type: PhantomData<Op>,
 }
 
-impl<Op: EraseFolder + 'static> DoOperation for DoEraseFolder<Op> {
+impl<ServerT: ServerType, Op: EraseFolder + 'static>
+    DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoEraseFolder<Op>
+{
     const NAME: &'static str = <Op as Operation>::NAME;
     type Okay = UseLegacyFallback;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
@@ -60,8 +61,9 @@ impl<Op: EraseFolder + 'static> DoOperation for DoEraseFolder<Op> {
         let response = Op::queue_operation(client, base_folder_ids).await?;
 
         let response_messages = response.into_response_messages();
+        let name = <Self as DoOperation<XpComEwsClient<ServerT>, _>>::NAME;
         for (folder_id, response_message) in self.folder_ids.iter().zip(response_messages) {
-            if let Err(err) = process_response_message_class(Self::NAME, response_message) {
+            if let Err(err) = process_response_message_class(name, response_message) {
                 match err {
                     XpComEwsError::ResponseError(ResponseError {
                         response_code: ResponseCode::ErrorItemNotFound,

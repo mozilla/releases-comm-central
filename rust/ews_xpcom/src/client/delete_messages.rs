@@ -10,28 +10,29 @@ use ews::{
     BaseItemId, DeleteType, Operation, OperationResponse,
 };
 use nsstring::nsCString;
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{
+    SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
+};
 use thin_vec::ThinVec;
 
 use super::{
-    process_response_message_class, validate_response_message_count, DoOperation, ServerType,
-    XpComEwsClient, XpComEwsError,
+    process_response_message_class, validate_response_message_count, ServerType, XpComEwsClient,
+    XpComEwsError,
 };
 
-use crate::{
-    macros::queue_operation,
-    safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback},
-};
+use crate::macros::queue_operation;
 
 struct DoDeleteMessages {
     pub ews_ids: ThinVec<nsCString>,
 }
 
-impl DoOperation for DoDeleteMessages {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoDeleteMessages {
     const NAME: &'static str = DeleteItem::NAME;
     type Okay = ();
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

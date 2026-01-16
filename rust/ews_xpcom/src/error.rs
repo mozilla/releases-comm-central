@@ -77,3 +77,14 @@ impl From<moz_http::Error> for XpComEwsError {
         XpComEwsError::Protocol(ProtocolError::Http(value))
     }
 }
+
+impl<'a> TryFrom<&'a XpComEwsError> for &'a moz_http::Error {
+    type Error = ();
+
+    fn try_from(value: &'a XpComEwsError) -> Result<Self, Self::Error> {
+        match value {
+            XpComEwsError::Protocol(ProtocolError::Http(err)) => Ok(err),
+            _ => Err(()),
+        }
+    }
+}

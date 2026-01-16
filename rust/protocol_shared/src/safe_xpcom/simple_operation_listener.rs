@@ -7,13 +7,10 @@ use nsstring::nsCString;
 use thin_vec::ThinVec;
 use xpcom::interfaces::IEwsSimpleOperationListener;
 
-use crate::{
-    client::copy_move_operations::move_generic::CopyMoveSuccess,
-    safe_xpcom::{SafeListener, SafeListenerWrapper},
-};
+use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
-pub(crate) type SafeEwsSimpleOperationListener = SafeListenerWrapper<IEwsSimpleOperationListener>;
+pub type SafeEwsSimpleOperationListener = SafeListenerWrapper<IEwsSimpleOperationListener>;
 
 impl SafeEwsSimpleOperationListener {
     /// Convert types and forward to [`IEwsSimpleOperationListener::OnOperationSuccess`].
@@ -71,17 +68,6 @@ where
             new_ids: ids.into_iter().map(Into::into).collect(),
             use_legacy_fallback,
         }
-    }
-}
-
-impl From<CopyMoveSuccess> for SimpleOperationSuccessArgs {
-    fn from(
-        CopyMoveSuccess {
-            new_ids,
-            requires_resync,
-        }: CopyMoveSuccess,
-    ) -> Self {
-        (new_ids, requires_resync.into()).into()
     }
 }
 

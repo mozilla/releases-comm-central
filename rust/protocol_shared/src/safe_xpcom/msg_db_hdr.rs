@@ -15,7 +15,7 @@ use crate::headers::{Mailbox, MessageHeaders};
 /// Wrapper newtype for an [`nsIMsgDBHdr`] that has not yet had its fields
 /// updated. This type only exposes safe methods for setting fields, which turns
 /// the underlying type into an [`UpdatedMsgDbHeader`].
-pub(crate) struct StaleMsgDbHeader(RefPtr<nsIMsgDBHdr>);
+pub struct StaleMsgDbHeader(RefPtr<nsIMsgDBHdr>);
 
 impl StaleMsgDbHeader {
     /// Sets the fields of a database header object from a collection of message
@@ -227,7 +227,7 @@ impl StaleMsgDbHeader {
 /// fields of a [`StaleMsgDbHeader`]. Because of this, `UpdatedMsgDbHeader` (and
 /// its unwrapped version) is safe to use anywhere that assumes an updated
 /// `nsIMsgDBHdr`.
-pub(crate) struct UpdatedMsgDbHeader(RefPtr<nsIMsgDBHdr>);
+pub struct UpdatedMsgDbHeader(RefPtr<nsIMsgDBHdr>);
 
 impl UpdatedMsgDbHeader {
     /// A safe wrapper for [`nsIMsgDBHdr::GetMessageKey`].

@@ -6,22 +6,22 @@ use std::sync::Arc;
 
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{get_item::GetItem, Operation};
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::SafeEwsMessageFetchListener;
 
-use super::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
-
-use crate::safe_xpcom::SafeEwsMessageFetchListener;
+use super::{ServerType, XpComEwsClient, XpComEwsError};
 
 struct DoGetMessage<'a> {
     pub listener: &'a SafeEwsMessageFetchListener,
     pub id: String,
 }
 
-impl DoOperation for DoGetMessage<'_> {
+impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> for DoGetMessage<'_> {
     const NAME: &'static str = GetItem::NAME;
     type Okay = ();
     type Listener = SafeEwsMessageFetchListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {
@@ -60,7 +60,7 @@ impl DoOperation for DoGetMessage<'_> {
                     message: "MIME content for item is not validly base64 encoded".to_string(),
                 })?;
 
-        self.listener.on_fetched_data_available(mime_content)
+        Ok(self.listener.on_fetched_data_available(mime_content)?)
     }
 
     fn into_success_arg(self, _ok: Self::Okay) {}

@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::delete_folder::DeleteFolder;
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::SafeEwsSimpleOperationListener;
 use std::{marker::PhantomData, sync::Arc};
 
-use super::{DoEraseFolder, DoOperation, XpComEwsClient};
+use super::{DoEraseFolder, XpComEwsClient};
 
-use crate::{client::ServerType, safe_xpcom::SafeEwsSimpleOperationListener};
+use crate::client::ServerType;
 
 impl<ServerT: ServerType> XpComEwsClient<ServerT> {
     pub async fn delete_folder(

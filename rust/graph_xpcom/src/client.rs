@@ -4,19 +4,16 @@
 
 use std::env;
 
-use ms_graph_tb::{paths, types::user, Operation, Select};
-use nserror::nsresult;
-use protocol_shared::{
-    authentication::credentials::AuthenticationProvider,
-    error::ProtocolError,
-    safe_xpcom::{uri::SafeUri, SafeUrlListener},
-};
+use ms_graph_tb::Operation;
+use protocol_shared::{authentication::credentials::AuthenticationProvider, error::ProtocolError};
 use serde::Deserialize;
 use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::error::XpComGraphError;
+
+mod check_connectivity;
 
 // The environment variable that controls whether to include request/response
 // payloads when logging. We only check for the variable's presence, not any
@@ -31,26 +28,6 @@ pub(crate) struct XpComGraphClient<ServerT: AuthenticationProvider + RefCounted 
 impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     pub fn new(server: RefPtr<ServerT>, endpoint: Url) -> Self {
         XpComGraphClient { server, endpoint }
-    }
-
-    /// Perform a connectivity check by querying the user information endpoint.
-    pub async fn check_connectivity(self, listener: SafeUrlListener) -> Result<(), nsresult> {
-        let uri = SafeUri::new(self.endpoint.to_string())?;
-        log::info!("Start running for URI {}", self.endpoint.to_string());
-        listener.on_start_running_url(uri.clone());
-
-        let mut get_me = paths::me::Get::new();
-        get_me.select(vec![user::UserSelection::AboutMe]);
-
-        match self
-            .send_request::<user::User, paths::me::Get>(get_me)
-            .await
-        {
-            Ok(_) => listener.on_stop_running_url(uri, nserror::NS_OK),
-            Err(e) => listener.on_stop_running_url(uri, e.into()),
-        };
-
-        Ok(())
     }
 
     async fn send_request<GraphResponseType, Op>(

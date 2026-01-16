@@ -51,3 +51,14 @@ impl From<moz_http::Error> for XpComGraphError {
         XpComGraphError::Protocol(ProtocolError::Http(value))
     }
 }
+
+impl<'a> TryFrom<&'a XpComGraphError> for &'a moz_http::Error {
+    type Error = ();
+
+    fn try_from(value: &'a XpComGraphError) -> Result<Self, Self::Error> {
+        match value {
+            XpComGraphError::Protocol(ProtocolError::Http(err)) => Ok(err),
+            _ => Err(()),
+        }
+    }
+}

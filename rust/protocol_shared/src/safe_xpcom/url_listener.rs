@@ -8,37 +8,49 @@ use xpcom::{
     RefPtr,
 };
 
-use crate::safe_xpcom::SafeUri;
+use crate::safe_xpcom::{SafeListener, SafeListenerWrapper, SafeUri};
 
 /// See [`SafeListenerWrapper`].
-pub struct SafeUrlListener(RefPtr<nsIUrlListener>);
+pub type SafeUrlListener = SafeListenerWrapper<nsIUrlListener>;
 
 impl SafeUrlListener {
-    pub fn new(unsafe_listener: &nsIUrlListener) -> Self {
-        Self(RefPtr::new(unsafe_listener))
-    }
-
     /// Convert types and forward to [`nsIUrlListener::OnStartRunningUrl`].
     pub fn on_start_running_url(&self, uri: SafeUri) -> nsresult {
         let uri: RefPtr<nsIURI> = uri.into();
+
         // SAFETY: uri points to a valid nsIRUI
         unsafe { self.0.OnStartRunningUrl(&*uri) }
     }
 
     /// Convert types and forward to [`nsIUrlListener::OnStopRunningUrl`]. This
     /// is invoked by [`Self::on_success`] and [`Self::on_failure`].
-    pub fn on_stop_running_url(&self, uri: SafeUri, status: nsresult) -> nsresult {
+    fn on_stop_running_url(&self, uri: SafeUri, status: nsresult) -> nsresult {
         let uri: RefPtr<nsIURI> = uri.into();
+
         // SAFETY: uri points to a valid nsIRUI
         unsafe { self.0.OnStopRunningUrl(&*uri, status) }
     }
+}
 
-    /// Get the internal unsafe listener.
-    ///
-    /// NOTE: This function should not be used. It is implemented here only
-    /// while more of the safe listener implementations are moved into this
-    /// crate.
-    pub unsafe fn unsafe_listener(&self) -> RefPtr<nsIUrlListener> {
-        self.0.clone()
+impl SafeListener for SafeUrlListener {
+    type OnSuccessArg = SafeUri;
+    type OnFailureArg = SafeUri;
+
+    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
+    /// arguments.
+    fn on_success(&self, uri: SafeUri) -> Result<(), nsresult> {
+        self.on_stop_running_url(uri, nserror::NS_OK).to_result()?;
+        Ok(())
+    }
+
+    /// Calls [`nsIUrlListener::OnStopRunningUrl`] with the appropriate
+    /// arguments.
+    fn on_failure<E>(&self, err: &E, uri: SafeUri) -> Result<(), nsresult>
+    where
+        for<'a> &'a E: Into<nsresult> + TryInto<&'a moz_http::Error>,
+        E: std::fmt::Debug,
+    {
+        self.on_stop_running_url(uri, err.into()).to_result()?;
+        Ok(())
     }
 }

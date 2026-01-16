@@ -7,15 +7,13 @@ use ews::{
     move_folder::{MoveFolder, MoveFolderResponse},
     BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
 };
+use protocol_shared::client::DoOperation;
+use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 use std::{marker::PhantomData, sync::Arc};
 
-use crate::client::{DoOperation, ServerType, XpComEwsClient, XpComEwsError};
+use crate::client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync};
+use crate::client::{ServerType, XpComEwsClient, XpComEwsError};
 use crate::macros::queue_operation;
-use crate::safe_xpcom::SafeEwsSimpleOperationListener;
-use crate::{
-    client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync},
-    safe_xpcom::SafeListener,
-};
 
 use super::move_generic::{move_generic, CopyMoveSuccess};
 
@@ -25,7 +23,8 @@ struct DoCopyMoveFolder<RequestT> {
     _request_type: PhantomData<RequestT>,
 }
 
-impl<RequestT> DoOperation for DoCopyMoveFolder<RequestT>
+impl<ServerT: ServerType, RequestT> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
+    for DoCopyMoveFolder<RequestT>
 where
     RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData>,
     <RequestT as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
@@ -34,7 +33,7 @@ where
     type Okay = CopyMoveSuccess;
     type Listener = SafeEwsSimpleOperationListener;
 
-    async fn do_operation<ServerT: ServerType>(
+    async fn do_operation(
         &mut self,
         client: &XpComEwsClient<ServerT>,
     ) -> Result<Self::Okay, XpComEwsError> {

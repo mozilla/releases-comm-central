@@ -8,7 +8,10 @@ use xpcom::{interfaces::nsIMsgIncomingServer, RefPtr};
 use crate::authentication::credentials::Credentials;
 
 pub mod authentication;
+pub mod cancellable_request;
+pub mod client;
 pub mod error;
+pub mod headers;
 pub mod safe_xpcom;
 
 /// Connection details required for HTTPS-based Exchange protocols.
