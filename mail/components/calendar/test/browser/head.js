@@ -20,6 +20,9 @@ const { DEFAULT_DIALOG_MARGIN } = ChromeUtils.importESModule(
   "chrome://messenger/content/calendar-dialog.mjs",
   { global: "current" }
 );
+const { CalAlarm } = ChromeUtils.importESModule(
+  "resource:///modules/CalAlarm.sys.mjs"
+);
 
 const { weekView } = CalendarTestUtils;
 const SCREEN_MARGIN = 10;
@@ -139,7 +142,6 @@ function createCalendar({
  * @param {string} [options.description=""] - Description for the event.
  * @param {string} [options.descriptionHTML] - HTML version of the
  *   description. Overrides description if truthy.
- *
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
@@ -559,4 +561,19 @@ async function runPositioningTest(windowSizes) {
   }
 
   CalendarTestUtils.removeCalendar(calendar);
+}
+
+/**
+ * Creates a calendar alarm.
+ *
+ * @param {string} offset - Offset string code.
+ * @returns {CalAlarm}
+ */
+function createAlarmFromDuration(offset) {
+  const alarm = new CalAlarm();
+
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
+  alarm.offset = cal.createDuration(offset);
+
+  return alarm;
 }

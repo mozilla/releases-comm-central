@@ -1,0 +1,39 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Reminders Row Test</title>
+    <linkr rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css" />
+    <linkr rel="localization" href="messenger/calendarDialog.ftl" />
+    <script type="module" src="chrome://messenger/content/calendar-dialog-reminders-row.mjs"></script>
+  </head>
+  <body>
+    <template id="calendarDialogRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <slot name="label"></slot>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="calendarDialogRemindersRowTemplate">
+      <calendar-dialog-row>
+        <img
+          slot="icon"
+          class="icon-reminder"
+          src=""
+          data-l10n-id="calendar-dialog-reminders-row-icon"
+        />
+        <div slot="label">
+          <span id="reminderCount" class="row-label"></span>
+        </div>
+        <div id="reminders" slot="content">
+          <ul id="reminderList"></ul>
+        </div>
+      </calendar-dialog-row>
+    </template>
+    <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
+  </body>
+</html>

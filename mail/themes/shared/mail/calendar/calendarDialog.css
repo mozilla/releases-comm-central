@@ -71,6 +71,10 @@
   content: var(--icon-file-draft);
 }
 
+.icon-delete {
+  content: var(--icon-close);
+}
+
 .icon-nav-right {
   content: var(--icon-nav-right);
   -moz-context-properties: stroke;
@@ -110,11 +114,13 @@ calendar-dialog-date-row {
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.expanding-row {
+.expanding-row,
+.actionable-item {
   display: grid;
   grid-template-columns: 1fr auto;
 
-  & .expand-button {
+  & .expand-button,
+  & .delete-button {
     padding-inline: var(--calendar-dialog-row-expand-button-padding-inline-start) var(--calendar-dialog-row-padding-inline);
     padding-block: 0;
     margin: 0;
@@ -123,6 +129,15 @@ calendar-dialog-date-row {
     aspect-ratio: 0;
     border: 0;
   }
+}
+
+.actionable-item {
+  align-items: center;
+}
+
+#reminderList {
+  padding-inline-start: 0;
+  margin-block: 0;
 }
 
 calendar-dialog-subview-manager {

@@ -11,6 +11,7 @@ messenger.jar:
   content/messenger/calendar-dialog-categories.mjs                                 (content/calendar-dialog-categories.mjs)
   content/messenger/calendar-dialog-date-row.mjs                                   (content/calendar-dialog-date-row.mjs)
   content/messenger/calendar-dialog-description-row.mjs                            (content/calendar-dialog-description-row.mjs)
+  content/messenger/calendar-dialog-reminders-row.mjs                              (content/calendar-dialog-reminders-row.mjs)
   content/messenger/calendar-dialog-row.mjs                                        (content/calendar-dialog-row.mjs)
   content/messenger/calendar-dialog-subview-manager.mjs                            (content/calendar-dialog-subview-manager.mjs)
   content/messenger/positioned-dialog.mjs                                          (content/positioned-dialog.mjs)

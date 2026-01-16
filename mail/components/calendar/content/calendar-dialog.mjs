@@ -7,6 +7,7 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
 // Eagerly loading modules, since we assume that an event will be displayed soon
 // after this is loaded. Any module in an optional path for displaying an event
