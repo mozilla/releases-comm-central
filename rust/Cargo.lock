@@ -2594,6 +2594,7 @@ dependencies = [
  "rsdparsa_capi",
  "rure",
  "rusqlite 0.37.0",
+ "shell_windows",
  "signature_cache",
  "static_prefs",
  "storage",
@@ -5860,6 +5861,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shell_windows"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "log",
+ "nserror",
+ "nsstring",
+ "sha2",
+ "windows",
+ "xpcom",
 ]
 
 [[package]]
