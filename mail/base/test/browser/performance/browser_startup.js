@@ -76,7 +76,6 @@ const startupPhases = {
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.sys.mjs",
-        // "resource://gre/modules/Preferences.sys.mjs",
         // These can probably be pushed back even further.
       ]),
       services: new Set(["@mozilla.org/browser/search-service;1"]),

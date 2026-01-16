@@ -77,29 +77,11 @@ async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
 }
 
 function checkLockedPref(prefName, prefValue) {
-  equal(
-    Preferences.locked(prefName),
-    true,
-    `Pref ${prefName} is correctly locked`
-  );
-  equal(
-    Preferences.get(prefName),
-    prefValue,
-    `Pref ${prefName} has the correct value`
-  );
+  EnterprisePolicyTesting.checkPolicyPref(prefName, prefValue, true);
 }
 
 function checkUnlockedPref(prefName, prefValue) {
-  equal(
-    Preferences.locked(prefName),
-    false,
-    `Pref ${prefName} is correctly unlocked`
-  );
-  equal(
-    Preferences.get(prefName),
-    prefValue,
-    `Pref ${prefName} has the correct value`
-  );
+  EnterprisePolicyTesting.checkPolicyPref(prefName, prefValue, false);
 }
 
 function checkUserPref(prefName, prefValue) {

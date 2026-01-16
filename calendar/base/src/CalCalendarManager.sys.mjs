@@ -4,7 +4,6 @@
 
 // eslint-disable-next-line no-shadow
 import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
-import { Preferences } from "resource://gre/modules/Preferences.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { calCachedCalendar } from "resource:///modules/CalCachedCalendar.sys.mjs";
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
@@ -627,8 +626,25 @@ CalCalendarManager.prototype = {
       throw new Error("pref name must be set");
     }
 
-    const branch = getPrefBranchFor(calendar.id) + name;
-    let value = Preferences.get(branch, null);
+    const prefName = getPrefBranchFor(calendar.id) + name;
+    const prefType = Services.prefs.getPrefType(prefName);
+    let value;
+    switch (prefType) {
+      case Ci.nsIPrefBranch.PREF_STRING:
+        value = Services.prefs.getStringPref(prefName);
+        break;
+      case Ci.nsIPrefBranch.PREF_INT:
+        value = Services.prefs.getIntPref(prefName);
+        break;
+      case Ci.nsIPrefBranch.PREF_BOOL:
+        value = Services.prefs.getBoolPref(prefName);
+        break;
+      case Ci.nsIPrefBranch.PREF_INVALID:
+        value = null;
+        break;
+      default:
+        throw new Error(`Error getting pref ${prefName}; its value's type is ${prefType}`);
+    }
 
     if (typeof value == "string" && value.startsWith("bignum:")) {
       const converted = Number(value.substr(7));
@@ -649,7 +665,7 @@ CalCalendarManager.prototype = {
     if (!name) {
       throw new Error("pref name must be set");
     }
-    const branch = getPrefBranchFor(calendar.id) + name;
+    const prefName = getPrefBranchFor(calendar.id) + name;
 
     if (
       typeof value == "number" &&
@@ -661,9 +677,43 @@ CalCalendarManager.prototype = {
     }
 
     // Delete before to allow pref-type changes, then set the pref.
-    Services.prefs.clearUserPref(branch);
+    Services.prefs.clearUserPref(prefName);
     if (value !== null && value !== undefined) {
-      Preferences.set(branch, value);
+      let prefType;
+      if (typeof value != "undefined" && value != null) {
+        prefType = value.constructor.name;
+      }
+
+      switch (prefType) {
+        case "String":
+          Services.prefs.setStringPref(prefName, value);
+          break;
+
+        case "Number":
+          // We throw if the number is outside the range, since the result
+          // will never be what the consumer wanted to store, but we only warn
+          // if the number is non-integer, since the consumer might not mind
+          // the loss of precision.
+          if (value > MAX_INT || value < MIN_INT) {
+            throw new Error(
+              `Cannot set the ${prefName} pref to the number ` +
+                `${value}, as number pref values must be in the signed ` +
+                `32-bit integer range -(2^31-1) to 2^31-1.  To store numbers ` +
+                `outside that range, store them as strings.`
+            );
+          }
+          Services.prefs.setIntPref(prefName, value);
+          break;
+
+        case "Boolean":
+          Services.prefs.setBoolPref(prefName, value);
+          break;
+
+        default:
+          throw new Error(
+            `Can't set pref ${prefName} to value '${value}'; it isn't a String, Number, or Boolean`
+          );
+      }
     }
   },
 
@@ -969,6 +1019,12 @@ calDummyCalendar.prototype = {
   },
 };
 
+/**
+ * Return the name of the branch that should be used for the given id.
+ *
+ * @param {string} id
+ * @returns {string}
+ */
 function getPrefBranchFor(id) {
   return REGISTRY_BRANCH + id + ".";
 }
