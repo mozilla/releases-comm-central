@@ -1522,11 +1522,12 @@ export function assert_message_pane_visible() {
     "The message pane splitter should not be collapsed!"
   );
 
-  mc.view_init(); // Force the command to update.
-  const paneCommand = mc.document.getElementById("cmd_toggleMessagePane");
-  Assert.ok(
-    paneCommand.hasAttribute("checked"),
-    "The Message Pane command should be checked."
+  mc.view_init(); // Force the view menu to update.
+  const paneMenuItem = mc.document.getElementById("menu_showMessage");
+  Assert.equal(
+    paneMenuItem.hasAttribute("checked"),
+    true,
+    "The Message Pane menu item should be checked."
   );
 }
 
@@ -1554,10 +1555,11 @@ export function assert_message_pane_hidden() {
   );
 
   mc.view_init(); // Force the view menu to update.
-  const paneCommand = mc.document.getElementById("cmd_toggleMessagePane");
-  Assert.ok(
-    !paneCommand.hasAttribute("checked"),
-    "The Message Pane command should not be checked."
+  const paneMenuItem = mc.document.getElementById("menu_showMessage");
+  Assert.notEqual(
+    paneMenuItem.hasAttribute("checked"),
+    true,
+    "The Message Pane menu item should not be checked."
   );
 }
 
