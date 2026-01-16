@@ -130,22 +130,22 @@ function updateCheckedStateForIgnoreAndWatchThreadCmds() {
 
   const folder = message?.folder;
 
-  const killThreadItem = document.getElementById("cmd_killThread");
+  const killThreadItem = document.getElementById("killThread");
   killThreadItem.toggleAttribute(
     "checked",
-    folder?.msgDatabase.isIgnored(message.messageKey)
+    Boolean(folder?.msgDatabase.isIgnored(message.messageKey))
   );
 
-  const killSubthreadItem = document.getElementById("cmd_killSubthread");
+  const killSubthreadItem = document.getElementById("killSubthread");
   killSubthreadItem.toggleAttribute(
     "checked",
-    folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+    Boolean(folder && message.flags & Ci.nsMsgMessageFlags.Ignored)
   );
 
-  const watchThreadItem = document.getElementById("cmd_watchThread");
+  const watchThreadItem = document.getElementById("watchThread");
   watchThreadItem.toggleAttribute(
     "checked",
-    folder?.msgDatabase.isWatched(message.messageKey)
+    Boolean(folder?.msgDatabase.isWatched(message.messageKey))
   );
 }
 
@@ -659,12 +659,6 @@ function InitMessageMenu() {
   document.getElementById("markMenu").disabled = !folder || folder.isServer;
 
   document.commandDispatcher.updateCommands("create-menu-message");
-
-  for (const id of ["killThread", "killSubthread", "watchThread"]) {
-    const item = document.getElementById(id);
-    const command = document.getElementById(item.getAttribute("command"));
-    item.toggleAttribute("checked", command.hasAttribute("checked"));
-  }
 }
 
 /**
@@ -743,13 +737,13 @@ function initMoveToFolderAgainMenu(aMenuItem) {
 function InitViewHeadersMenu() {
   const headerchoice = Services.prefs.getIntPref("mail.show_headers");
   document
-    .getElementById("cmd_viewAllHeader")
+    .getElementById("viewallheaders")
     .toggleAttribute(
       "checked",
       headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders
     );
   document
-    .getElementById("cmd_viewNormalHeader")
+    .getElementById("viewnormalheaders")
     .toggleAttribute(
       "checked",
       headerchoice == Ci.nsMimeHeaderDisplayTypes.NormalHeaders
@@ -959,7 +953,7 @@ function getMsgToolbarMenu_init() {
 function InitMessageMark() {
   const tab = document.getElementById("tabmail")?.currentTabInfo;
   const flaggedItem = document.getElementById("markFlaggedMenuItem");
-  flaggedItem.toggleAttribute("checked", tab?.message?.isFlagged);
+  flaggedItem.toggleAttribute("checked", Boolean(tab?.message?.isFlagged));
 
   document.commandDispatcher.updateCommands("create-menu-mark");
 }
