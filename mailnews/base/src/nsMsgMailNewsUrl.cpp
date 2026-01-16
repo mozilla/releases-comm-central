@@ -32,6 +32,7 @@
 #include "nsIObjectInputStream.h"
 #include "nsIObjectOutputStream.h"
 #include "nsIChannel.h"
+#include "SaveAsListener.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl() {
   // nsIURI specific state
@@ -866,189 +867,25 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
   return docShell->LoadURI(loadState, false);
 }
 
-#define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE
-class nsMsgSaveAsListener : public nsIStreamListener {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIREQUESTOBSERVER
-  NS_DECL_NSISTREAMLISTENER
-
-  nsMsgSaveAsListener(nsIFile* aFile, bool addDummyEnvelope);
-  nsresult SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope);
-
- protected:
-  virtual ~nsMsgSaveAsListener();
-  nsCOMPtr<nsIOutputStream> m_outputStream;
-  nsCOMPtr<nsIFile> m_outputFile;
-  bool m_addDummyEnvelope;
-  bool m_writtenData;
-  uint32_t m_leftOver;
-  char m_dataBuffer[SAVE_BUF_SIZE +
-                    1];  // temporary buffer for this save operation
-};
-
-NS_IMPL_ISUPPORTS(nsMsgSaveAsListener, nsIStreamListener, nsIRequestObserver)
-
-nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile* aFile,
-                                         bool addDummyEnvelope) {
-  m_outputFile = aFile;
-  m_writtenData = false;
-  m_addDummyEnvelope = addDummyEnvelope;
-  m_leftOver = 0;
-}
-
-nsMsgSaveAsListener::~nsMsgSaveAsListener() {}
-
-NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest* request) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgSaveAsListener::OnStopRequest(nsIRequest* request, nsresult aStatus) {
-  if (m_outputStream) {
-    m_outputStream->Flush();
-    m_outputStream->Close();
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
-                                                   nsIInputStream* inStream,
-                                                   uint64_t srcOffset,
-                                                   uint32_t count) {
-  nsresult rv;
-  uint64_t available;
-  rv = inStream->Available(&available);
-  if (!m_writtenData) {
-    m_writtenData = true;
-    rv = SetupMsgWriteStream(m_outputFile, m_addDummyEnvelope);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  bool useCanonicalEnding = false;
-  // We know the request is an nsIChannel we can get a URI from, but this is
-  // probably bad form. See Bug 1528662.
-  nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
-                       "error QI nsIRequest to nsIChannel failed");
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIURI> uri;
-  rv = channel->GetURI(getter_AddRefs(uri));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
-  if (msgUrl) msgUrl->GetCanonicalLineEnding(&useCanonicalEnding);
-
-  const char* lineEnding = (useCanonicalEnding) ? CRLF : MSG_LINEBREAK;
-  uint32_t lineEndingLength = (useCanonicalEnding) ? 2 : MSG_LINEBREAK_LEN;
-
-  uint32_t readCount, maxReadCount = SAVE_BUF_SIZE - m_leftOver;
-  uint32_t writeCount;
-  char *start, *end, lastCharInPrevBuf = '\0';
-  uint32_t linebreak_len = 0;
-
-  while (count > 0) {
-    if (count < maxReadCount) maxReadCount = count;
-    rv = inStream->Read(m_dataBuffer + m_leftOver, maxReadCount, &readCount);
-    if (NS_FAILED(rv)) return rv;
-
-    m_leftOver += readCount;
-    m_dataBuffer[m_leftOver] = '\0';
-
-    start = m_dataBuffer;
-    // make sure we don't insert another LF, accidentally, by ignoring
-    // second half of CRLF spanning blocks.
-    if (lastCharInPrevBuf == '\r' && *start == '\n') start++;
-
-    end = PL_strpbrk(start, "\r\n");
-    if (end) linebreak_len = (end[0] == '\r' && end[1] == '\n') ? 2 : 1;
-
-    count -= readCount;
-    maxReadCount = SAVE_BUF_SIZE - m_leftOver;
-
-    if (!end && count > maxReadCount)
-      // must be a very very long line; sorry cannot handle it
-      return NS_ERROR_FAILURE;
-
-    while (start && end) {
-      if (m_outputStream && PL_strncasecmp(start, "X-Mozilla-Status:", 17) &&
-          PL_strncasecmp(start, "X-Mozilla-Status2:", 18) &&
-          PL_strncmp(start, "From - ", 7)) {
-        rv = m_outputStream->Write(start, end - start, &writeCount);
-        nsresult tmp =
-            m_outputStream->Write(lineEnding, lineEndingLength, &writeCount);
-        if (NS_FAILED(tmp)) {
-          rv = tmp;
-        }
-      }
-      start = end + linebreak_len;
-      if (start >= m_dataBuffer + m_leftOver) {
-        maxReadCount = SAVE_BUF_SIZE;
-        m_leftOver = 0;
-        break;
-      }
-      end = PL_strpbrk(start, "\r\n");
-      if (end) linebreak_len = (end[0] == '\r' && end[1] == '\n') ? 2 : 1;
-      if (start && !end) {
-        m_leftOver -= (start - m_dataBuffer);
-        memcpy(m_dataBuffer, start,
-               m_leftOver + 1);  // including null
-        maxReadCount = SAVE_BUF_SIZE - m_leftOver;
-      }
-    }
-    if (NS_FAILED(rv)) return rv;
-    if (end) lastCharInPrevBuf = *end;
-  }
-  return rv;
-
-  //  rv = m_outputStream->WriteFrom(inStream, std::min(available, count),
-  //  &bytesWritten);
-}
-
-nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile* aFile,
-                                                  bool addDummyEnvelope) {
-  // If the file already exists, delete it, but do this before
-  // getting the outputstream.
-  // Due to bug 328027, the nsSaveMsgListener created in
-  // nsMessenger::SaveAs now opens the stream on the nsIFile
-  // object, thus creating an empty file. Actual save operations for
-  // IMAP and NNTP use this nsMsgSaveAsListener here, though, so we
-  // have to close the stream before deleting the file, else data
-  // would still be written happily into a now non-existing file.
-  // (Windows doesn't care, btw, just unixoids do...)
-  aFile->Remove(false);
-
-  nsresult rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_outputStream),
-                                               aFile, -1, 0666);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (m_outputStream && addDummyEnvelope) {
-    nsAutoCString result;
-    uint32_t writeCount;
-
-    time_t now = time((time_t*)0);
-    char* ct = ctime(&now);
-    // Remove the ending new-line character.
-    ct[24] = '\0';
-    result = "From - ";
-    result += ct;
-    result += MSG_LINEBREAK;
-    m_outputStream->Write(result.get(), result.Length(), &writeCount);
-
-    result = "X-Mozilla-Status: 0001";
-    result += MSG_LINEBREAK;
-    result += "X-Mozilla-Status2: 00000000";
-    result += MSG_LINEBREAK;
-    m_outputStream->Write(result.get(), result.Length(), &writeCount);
-  }
-
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
     bool addDummyEnvelope, nsIFile* aFile, nsIStreamListener** aSaveListener) {
   NS_ENSURE_ARG_POINTER(aSaveListener);
-  nsMsgSaveAsListener* saveAsListener =
-      new nsMsgSaveAsListener(aFile, addDummyEnvelope);
+
+  // Figure out whether we should use canonical line ending (i.e. CRLF). If we
+  // can't figure this out from the current URI, then we'll default to using
+  // `MSG_LINEBREAK` to preserve the legacy behavior.
+  nsCOMPtr<nsIMsgMessageUrl> msgUrl;
+  nsresult rv = this->QueryInterface(NS_GET_IID(nsIMsgMessageUrl),
+                                     getter_AddRefs(msgUrl));
+
+  bool useCanonicalLineEnding = false;
+  if (NS_SUCCEEDED(rv)) {
+    MOZ_TRY(msgUrl->GetCanonicalLineEnding(&useCanonicalLineEnding));
+  }
+
+  RefPtr<SaveAsListener> saveAsListener = new SaveAsListener(
+      aFile, addDummyEnvelope, useCanonicalLineEnding, nullptr, nullptr);
+
   return saveAsListener->QueryInterface(NS_GET_IID(nsIStreamListener),
                                         (void**)aSaveListener);
 }

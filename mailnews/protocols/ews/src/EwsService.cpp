@@ -20,6 +20,7 @@
 #include "nsDocShellLoadState.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+#include "SaveAsListener.h"
 
 NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService)
@@ -73,8 +74,19 @@ NS_IMETHODIMP EwsService::SaveMessageToDisk(const nsACString& aMessageURI,
                                             nsIUrlListener* aUrlListener,
                                             bool canonicalLineEnding,
                                             nsIMsgWindow* aMsgWindow) {
-  NS_WARNING("SaveMessageToDisk");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // Build the "channel" URI now so we can pass it over to the `SaveAsListener`,
+  // which will use it to signal the start and end of the operation to the
+  // consumer (via `aUrlListener`).
+  nsCOMPtr<nsIURI> channelURI;
+  MOZ_TRY(GetUrlForUri(aMessageURI, aMsgWindow, getter_AddRefs(channelURI)));
+
+  // Build a listener that will write the message's content to the file as it
+  // comes down from either the server or the local store.
+  RefPtr<SaveAsListener> listener =
+      new SaveAsListener(aFile, aGenerateDummyEnvelope, canonicalLineEnding,
+                         aUrlListener, channelURI);
+
+  return FetchMessage(channelURI, listener);
 }
 
 NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
@@ -86,7 +98,7 @@ NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
   // At this point, the path to the message URI is expected to look like
   // /Path/To/Folder#MessageKey. With this format, if the user switches between
   // messages in the same folder, the docshell believes we're still in the same
-  // document (because only the fragment/ref changed), and skip creating a
+  // document (because only the fragment/ref changed), and skips creating a
   // channel for any message except the first one. So we need to transform the
   // path into /Path/To/Folder/MessageKey.
   nsAutoCString ref;

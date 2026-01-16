@@ -7,12 +7,14 @@ EXPORTS += [
     "mailnews_ffi_glue.h",
     "mailnews_ui_glue.h",
     "OfflineStorage.h",
+    "SaveAsListener.h",
 ]
 
 SOURCES += [
     "FolderPopulation.cpp",
     "mailnews_ffi_glue.cpp",
     "OfflineStorage.cpp",
+    "SaveAsListener.cpp",
 ]
 
 FINAL_LIBRARY = "mail"
