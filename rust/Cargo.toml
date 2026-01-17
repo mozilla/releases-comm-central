@@ -230,6 +230,7 @@ wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }
 web-sys = { path = "../../build/rust/dummy-web/web-sys" }
 core-foundation = { path = "../../build/rust/core-foundation" }
 core-graphics-types = { path = "../../build/rust/core-graphics-types" }
+dispatch2 = { path = "../../build/rust/dispatch2" }
 half = { path = "../../build/rust/half" }
 rusqlite = { path = "../../build/rust/rusqlite" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
