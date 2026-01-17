@@ -280,16 +280,26 @@ export class RemoteFolder {
    */
   parentId;
 
+  /**
+   * The value of the FolderClass attribute to use for this folder.
+   * Defaults to `IPF.Note`, the correct value for Exchange folders.
+   *
+   * @type {?string}
+   */
+  folderClass;
+
   constructor(
     folderId,
     parentId = null,
     displayName = null,
-    distinguishedFolderId = null
+    distinguishedFolderId = null,
+    folderClass = "IPF.Note"
   ) {
     this.id = folderId;
     this.parentId = parentId;
     this.displayName = displayName || folderId;
     this.distinguishedId = distinguishedFolderId;
+    this.folderClass = folderClass;
   }
 }
 
@@ -1061,12 +1071,12 @@ export class EwsServer {
     responseFolders.forEach(folder => {
       if (folder) {
         const folderEl = resDoc.createElement("t:Folder");
-        // Add folder class.
-        const folderClassEl = resDoc.createElement("t:FolderClass");
-        // TODO: Allow the value to be configured, to test we correctly filter out
-        // unsupported classes.
-        folderClassEl.appendChild(resDoc.createTextNode("IPF.Note"));
-        folderEl.appendChild(folderClassEl);
+        // Add folder class, if the folder has one.
+        if (folder.folderClass) {
+          const folderClassEl = resDoc.createElement("t:FolderClass");
+          folderClassEl.appendChild(resDoc.createTextNode(folder.folderClass));
+          folderEl.appendChild(folderClassEl);
+        }
 
         // Add parent if available.
         if (folder.parentId) {

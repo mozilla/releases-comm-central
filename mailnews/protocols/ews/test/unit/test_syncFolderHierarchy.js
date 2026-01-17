@@ -91,6 +91,36 @@ add_task(async function testSimpleSync() {
 });
 
 /**
+ * Test sync when a folder does not have a folder class.
+ *
+ * These should be created even though they don't have a class.
+ * See https://bugzilla.mozilla.org/show_bug.cgi?id=2009429
+ */
+add_task(async function testSyncClasslessFolder() {
+  ewsServer.appendRemoteFolder(
+    new RemoteFolder("classless", "root", "classless", "classless", null)
+  );
+
+  const listener = new EwsFolderCallbackListener();
+  client.syncFolderHierarchy(listener, null);
+  await listener._deferred.promise;
+
+  Assert.deepEqual(
+    [...listener._createdFolderIds],
+    [
+      "inbox",
+      "deleteditems",
+      "drafts",
+      "outbox",
+      "sentitems",
+      "junkemail",
+      "archive",
+      "classless",
+    ]
+  );
+});
+
+/**
  * Test sync where the server tells us that not all changes are included
  * and we have to loop.
  */

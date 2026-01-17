@@ -354,7 +354,6 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                         .and_then(|folder| match &folder {
                             Folder::Folder {
                                 folder_class,
-                                display_name,
                                 ..
                             } => {
                                 let folder_class =
@@ -380,12 +379,11 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                                         }
                                     }
                                     None => {
-                                        log::warn!(
-                                            "Skipping folder without a class: {}",
-                                            display_name.clone().unwrap_or("unknown".to_string())
-                                        );
-
-                                        None
+                                        // See https://bugzilla.mozilla.org/show_bug.cgi?id=2009429 .
+                                        // Folders without a class do happen, so we still want
+                                        // to see those folders even though other clients hide
+                                        // certain folders without a class (but not all of them).
+                                        Some(Ok(folder))
                                     }
                                 }
                             }
