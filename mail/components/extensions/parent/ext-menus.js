@@ -514,7 +514,22 @@ var gMenuBuilder = {
       element.setAttribute("class", "menuitem-iconic");
     }
 
-    element.setAttribute("image", resolvedURL);
+    element.setAttribute("image", ChromeUtils.encodeURIForSrcset(resolvedURL));
+
+    // Workaround for a regression introduced in Bug 1979338.
+    // When a menu is dynamically constructed via JS Actors (as is the case
+    // for extension context menus) and positioned outside the parent
+    // window's bounds, 'loading="lazy"' icons fail to resolve because they
+    // fall outside the primary window's intersection observer viewport.
+    // We use a microtask to wait for the toolkit to construct the anonymous
+    // <html:img> and then force 'loading="eager"' to ensure the icon is
+    // painted regardless of window overflow.
+    parentWindow.Promise.resolve().then(() => {
+      const menuIcon = element.querySelector(".menu-icon");
+      if (menuIcon) {
+        menuIcon.loading = "eager";
+      }
+    });
   },
 
   // Undo changes from setMenuItemIcon.
