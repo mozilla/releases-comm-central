@@ -24,7 +24,7 @@ export class MailTabButton extends UnifiedToolbarButton {
    *
    * @type {string[]}
    */
-  observedAboutMessageEvents = ["load"];
+  observedAboutMessageEvents = ["load", "MsgLoaded"];
 
   /**
    * Listeners we've added in tabs.

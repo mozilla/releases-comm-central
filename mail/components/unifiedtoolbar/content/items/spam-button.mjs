@@ -12,7 +12,6 @@ import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-ta
  * @augments {MailTabButton}
  */
 class SpamButton extends MailTabButton {
-  observedAboutMessageEvents = ["load", "MsgLoaded"];
   /**
    * Sets the spam button label according to the spam score of the first
    * selected message. Without any message whose spam score can be changed,
