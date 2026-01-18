@@ -601,3 +601,109 @@ add_task(async function test_calendarDailogName() {
 
   dialog.close();
 });
+
+add_task(async function test_dialogReminders() {
+  dialog.show();
+  const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
+  const reminderLabel = remindersRow.querySelector("#reminderCount");
+  const reminderList = remindersRow.querySelector("#reminderList");
+
+  const hourReminder = createAlarmFromDuration("-PT1H");
+  const alarms = [hourReminder];
+  const oneReminder = await createEvent({
+    name: "One Alarm",
+    calendar,
+    offset: 7,
+    alarms,
+  });
+  dialog.setCalendarEvent(oneReminder);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    reminderList,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () =>
+      reminderList.childNodes.length == 1 &&
+      reminderList.childNodes[0].textContent == hourReminder.toString()
+  );
+  let fluentData = document.l10n.getAttributes(reminderLabel);
+
+  Assert.equal(
+    fluentData.id,
+    "calendar-dialog-reminder-count",
+    "Reminder count label should be set"
+  );
+
+  Assert.equal(
+    fluentData.args.count,
+    1,
+    "Reminder count label should have the right count"
+  );
+
+  const dayReminder = createAlarmFromDuration("-P1D");
+  const sixDayReminder = createAlarmFromDuration("-P6D");
+  alarms.push(sixDayReminder);
+  alarms.push(dayReminder);
+
+  // Setting multiple reminders should show the load more text.
+  const multipleReminders = await createEvent({
+    name: "Multiple Alarms",
+    calendar,
+    offset: 7,
+    alarms,
+  });
+
+  dialog.setCalendarEvent(multipleReminders);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    reminderList,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () => reminderList.childNodes.length == 3
+  );
+
+  fluentData = document.l10n.getAttributes(reminderLabel);
+  Assert.equal(
+    fluentData.args.count,
+    3,
+    "Reminder count label should have the right count"
+  );
+
+  // Reminders should be in sequential order.
+  Assert.equal(
+    reminderList.childNodes[0].textContent,
+    hourReminder.toString(),
+    "First reminder should be in correct order"
+  );
+  Assert.equal(
+    reminderList.childNodes[1].textContent,
+    dayReminder.toString(),
+    "Second reminder should be in correct order"
+  );
+  Assert.equal(
+    reminderList.childNodes[2].textContent,
+    sixDayReminder.toString(),
+    "Third reminder should be in correct order"
+  );
+
+  resetDialog();
+  await BrowserTestUtils.waitForMutationCondition(
+    reminderList,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () => reminderList.childNodes.length == 0
+  );
+
+  fluentData = document.l10n.getAttributes(reminderLabel);
+  Assert.equal(
+    fluentData.args.count,
+    0,
+    "Reminder count label should have the right count"
+  );
+});

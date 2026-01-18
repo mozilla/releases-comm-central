@@ -142,6 +142,7 @@ function createCalendar({
  * @param {string} [options.description=""] - Description for the event.
  * @param {string} [options.descriptionHTML] - HTML version of the
  *   description. Overrides description if truthy.
+ * @param {CalAlarm[]} [options.alarms=[]] - Calendar alarms.
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
@@ -155,6 +156,7 @@ async function createEvent({
   location,
   description = "",
   descriptionHTML,
+  alarms = [],
 } = {}) {
   let start = new Date(baseDate);
   start.setDate(baseDate.getDate() + offset);
@@ -183,6 +185,10 @@ async function createEvent({
   }
 
   event.setCategories(categories);
+
+  alarms.forEach(alarm => {
+    event.addAlarm(alarm);
+  });
 
   if (location) {
     event.setProperty("LOCATION", location);

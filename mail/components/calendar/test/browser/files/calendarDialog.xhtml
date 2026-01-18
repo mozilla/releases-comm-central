@@ -84,6 +84,22 @@
         </div>
       </calendar-dialog-row>
     </template>
+    <template id="calendarDialogRemindersRowTemplate">
+      <calendar-dialog-row>
+        <img
+          slot="icon"
+          class="icon-reminder"
+          src=""
+          data-l10n-id="calendar-dialog-reminders-row-icon"
+        />
+        <div slot="label">
+          <span id="reminderCount" class="row-label"></span>
+        </div>
+        <div id="reminders" slot="content">
+          <ul id="reminderList"></ul>
+        </div>
+      </calendar-dialog-row>
+    </template>
     <template id="calendarDialogTemplate">
       <div class="titlebar">
         <button
@@ -121,6 +137,7 @@
                 <span id="locationText" hidden="hidden"></span>
               </div>
             </calendar-dialog-row>
+            <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
             <div id="descriptionRow" class="expanding-row">
               <calendar-dialog-description-row id="expandingDescription">
               </calendar-dialog-description-row>

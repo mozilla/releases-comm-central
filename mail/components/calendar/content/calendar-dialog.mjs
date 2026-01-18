@@ -247,6 +247,17 @@ export class CalendarDialog extends PositionedDialog {
 
     this.#setLocation(event.getProperty("LOCATION") ?? "");
 
+    // Sort the reminders by offset from event date.
+    const reminders = event
+      .getAlarms()
+      .sort((a, b) =>
+        cal.alarms
+          .calculateAlarmDate(event, b)
+          .compare(cal.alarms.calculateAlarmDate(event, a))
+      );
+
+    this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
+
     const plainDescriptionPromise = this.querySelector(
       "#expandingDescription"
     ).setDescription(event.descriptionText);
@@ -271,6 +282,7 @@ export class CalendarDialog extends PositionedDialog {
     this.style.removeProperty("--calendar-bar-color");
     await this.querySelector("#expandingDescription").setDescription("");
     await this.querySelector("#expandedDescription").setDescription("");
+    this.querySelector("calendar-dialog-reminders-row").setReminders([]);
   }
 
   /**
