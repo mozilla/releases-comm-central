@@ -417,13 +417,8 @@ class AccountHubEmail extends HTMLElement {
    * Initialize the UI of one of the email setup subviews.
    *
    * @param {string} subview - Subview for which the UI is being initialized.
-   * @param {boolean} [isReset=false] - Initing to reset the view (like on close).
    */
-  async #initUI(subview, isReset = false) {
-    if (!isReset) {
-      Glean.mail.accountHubLoaded.record({ view_name: subview });
-    }
-
+  async #initUI(subview) {
     this.#hideSubviews();
     this.#clearNotifications();
     this.#currentState = subview;
@@ -1888,7 +1883,7 @@ class AccountHubEmail extends HTMLElement {
     }
 
     this.#stopLoading();
-    await this.#initUI("autoConfigSubview", true);
+    await this.#initUI("autoConfigSubview");
     this.#currentState = "autoConfigSubview";
     this.#currentConfig = null;
     this.#exchangeUsername = "";

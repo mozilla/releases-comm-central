@@ -642,21 +642,3 @@ mail:
       ui:
         description: Identifies the code handling the certificate exception.
         type: string
-
-  account_hub_loaded:
-    type: event
-    description: >
-      Tracks each time an account hub view was loaded.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983678
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983678#cXXX
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-    extra_keys:
-      view_name:
-        description: Name of the view or subview.
-        type: string
