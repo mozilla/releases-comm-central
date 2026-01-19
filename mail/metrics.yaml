@@ -650,7 +650,7 @@ mail:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1983678
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983678#c4
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983678#cXXX
     data_sensitivity:
       - technical
     notification_emails:
