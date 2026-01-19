@@ -660,3 +660,17 @@ mail:
       view_name:
         description: Name of the view or subview.
         type: string
+
+  account_hub_error:
+    type: labeled_counter
+    description:
+      Tracks account hub error counts, keyed by data-l10n-id.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983827
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1983827#c3
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

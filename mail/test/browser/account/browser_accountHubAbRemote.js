@@ -606,6 +606,7 @@ add_task(async function test_remoteAddressBookRememberPassword() {
 });
 
 add_task(async function test_unsupportedCardDAVServer() {
+  Services.fog.testResetFOG();
   const login = await createLogin("https://bad.invalid");
 
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
@@ -623,6 +624,13 @@ add_task(async function test_unsupportedCardDAVServer() {
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
   await dialog.querySelector("account-hub-address-book").reset();
+  Assert.equal(
+    Glean.mail.accountHubError[
+      "address-book-carddav-known-incompatible"
+    ].testGetValue(),
+    1,
+    "should have recorded one incompatibility error"
+  );
 });
 
 /**
