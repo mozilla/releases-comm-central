@@ -452,26 +452,21 @@ async function smimeGenCSR() {
         return;
       }
 
-      filePicker = Cc["@mozilla.org/filepicker;1"]
-        .createInstance()
-        .QueryInterface(Ci.nsIFilePicker);
+      filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+        Ci.nsIFilePicker
+      );
       filePicker.init(
-        window.browsingContext,
+        window.browsingContext.topChromeWindow.browsingContext,
         csrTitle,
         Ci.nsIFilePicker.modeSave
       );
       filePicker.defaultExtension = "txt";
-      filePicker.defaultString = "CSR-" + gIdentity.email + ".txt";
-
+      filePicker.defaultString = `CSR-${gIdentity.email}.txt`;
       filePicker.appendFilter(textFileInfo, "*.txt");
       filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
 
-      const goodResults = [
-        Ci.nsIFilePicker.returnOK,
-        Ci.nsIFilePicker.returnReplace,
-      ];
       const rv = await new Promise(resolve => filePicker.open(resolve));
-      if (!goodResults.includes(rv) || !filePicker.file) {
+      if (rv == Ci.nsIFilePicker.returnCancel || !filePicker.file) {
         return;
       }
 
