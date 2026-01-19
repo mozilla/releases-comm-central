@@ -665,7 +665,7 @@
 
             if (this.hasAttribute("fileHereLabel")) {
               attributes.label = this.getAttribute("fileHereLabel");
-              attributes.accesskey = this.getAttribute("fileHereAccessKey");
+              attributes.accessKey = this.getAttribute("fileHereAccessKey");
             } else {
               attributes.label = folder.localizedName;
               Object.assign(attributes, this._getCssSelectorAttributes(folder));
