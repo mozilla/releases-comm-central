@@ -338,12 +338,7 @@ add_task(async function test_address_book_sync_account() {
   const events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.deepEqual(
     events.map(v => v.extra.view_name),
-    [
-      "ADDRESS_BOOK",
-      "optionSelectSubview",
-      "accountSelectSubview",
-      "syncAddressBooksSubview",
-    ]
+    ["ADDRESS_BOOK", "accountSelectSubview", "syncAddressBooksSubview"]
   );
 
   info("Opening address book tab...");
@@ -463,12 +458,7 @@ add_task(async function test_address_book_remote_account() {
   const events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.deepEqual(
     events.map(v => v.extra.view_name),
-    [
-      "ADDRESS_BOOK",
-      "optionSelectSubview",
-      "remoteAccountSubview",
-      "optionSelectSubview",
-    ]
+    ["ADDRESS_BOOK", "remoteAccountSubview", "optionSelectSubview"]
   );
 });
 
@@ -552,7 +542,7 @@ add_task(async function test_localAddressBookCreation() {
   const events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.deepEqual(
     events.map(v => v.extra.view_name),
-    ["ADDRESS_BOOK", "optionSelectSubview", "localAddressBookSubview"]
+    ["ADDRESS_BOOK", "localAddressBookSubview"]
   );
 
   Assert.equal(
