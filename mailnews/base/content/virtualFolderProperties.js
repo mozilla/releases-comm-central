@@ -64,7 +64,7 @@ function onLoad() {
     acceptButton.label = document
       .querySelector("dialog")
       .getAttribute("editFolderAcceptButtonLabel");
-    acceptButton.accesskey = document
+    acceptButton.accessKey = document
       .querySelector("dialog")
       .getAttribute("editFolderAcceptButtonAccessKey");
     InitDialogWithVirtualFolder(windowArgs.folder);
@@ -73,7 +73,7 @@ function onLoad() {
     acceptButton.label = document
       .querySelector("dialog")
       .getAttribute("newFolderAcceptButtonLabel");
-    acceptButton.accesskey = document
+    acceptButton.accessKey = document
       .querySelector("dialog")
       .getAttribute("newFolderAcceptButtonAccessKey");
     // it is possible that we were given arguments to pre-fill the dialog with...
