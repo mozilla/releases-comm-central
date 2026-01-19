@@ -728,7 +728,7 @@ function initMoveToFolderAgainMenu(aMenuItem) {
     `${destMsgFolder.prettyPath} - ${destMsgFolder.server.prettyName}`
   );
   // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
-  aMenuItem.accesskey = bundle.getString(stringName + "AccessKey");
+  aMenuItem.accessKey = bundle.getString(stringName + "AccessKey");
 }
 
 /**
