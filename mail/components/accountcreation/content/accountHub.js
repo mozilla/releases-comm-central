@@ -84,6 +84,7 @@ class AccountHubControllerClass {
         event.stopPropagation();
         if (!this.#minimized && this.#reset()) {
           this.#modal.close();
+          this.#modal.replaceChildren();
         }
       },
       {
@@ -219,6 +220,7 @@ class AccountHubControllerClass {
     if (!this.#reset()) {
       return;
     }
+    Glean.mail.accountHubLoaded.record({ view_name: type });
 
     await this.#views[type].call();
     if (!this.#modal.open) {
