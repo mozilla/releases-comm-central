@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.81"
 name = "diplomat-runtime"
-version = "0.11.0"
+version = "0.14.0"
 authors = [
     "Shadaj Laddad <shadaj@users.noreply.github.com>",
     "Manish Goregaokar <manishsmail@gmail.com>",
@@ -38,6 +38,10 @@ categories = [
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/rust-diplomat/diplomat"
 
+[features]
+jvm-callback-support = ["dep:jni"]
+log = ["dep:log"]
+
 [lib]
 name = "diplomat_runtime"
 path = "src/lib.rs"
@@ -49,7 +53,3 @@ optional = true
 [dependencies.log]
 version = "0.4"
 optional = true
-
-[features]
-jvm-callback-support = ["dep:jni"]
-log = ["dep:log"]

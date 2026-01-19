@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.83"
 name = "icu_segmenter"
-version = "2.0.0"
+version = "2.1.2"
 authors = ["The ICU4X Project Developers"]
 build = false
 include = [
@@ -77,6 +77,11 @@ path = "src/lib.rs"
 bench = false
 
 [[test]]
+name = "cnn"
+path = "tests/cnn/main.rs"
+required-features = []
+
+[[test]]
 name = "complex_word"
 path = "tests/complex_word.rs"
 required-features = ["auto"]
@@ -117,34 +122,26 @@ features = ["derive"]
 optional = true
 default-features = false
 
-[dependencies.displaydoc]
-version = "0.2.3"
-default-features = false
-
 [dependencies.icu_collections]
-version = "~2.0.0"
+version = "~2.1.1"
 default-features = false
 
 [dependencies.icu_locale]
-version = "~2.0.0"
+version = "~2.1.1"
 optional = true
 default-features = false
 
-[dependencies.icu_locale_core]
-version = "2.0.0"
-default-features = false
-
 [dependencies.icu_provider]
-version = "2.0.0"
+version = "2.1.1"
 default-features = false
 
 [dependencies.icu_segmenter_data]
-version = "~2.0.0"
+version = "~2.1.1"
 optional = true
 default-features = false
 
 [dependencies.potential_utf]
-version = "0.1.1"
+version = "0.1.3"
 features = [
     "alloc",
     "zerovec",
@@ -152,7 +149,7 @@ features = [
 default-features = false
 
 [dependencies.serde]
-version = "1.0.110"
+version = "1.0.220"
 features = [
     "derive",
     "alloc",
@@ -165,18 +162,25 @@ version = "1.0.2"
 default-features = false
 
 [dependencies.zerovec]
-version = "0.11.1"
+version = "0.11.3"
 features = [
     "alloc",
     "yoke",
 ]
 default-features = false
 
+[dev-dependencies.icu_locale_core]
+version = "2.1.1"
+default-features = false
+
 [dev-dependencies.itertools]
 version = "0.14.0"
 
+[dev-dependencies.ndarray]
+version = "0.16.0"
+
 [dev-dependencies.serde]
-version = "1.0.110"
+version = "1.0.220"
 features = ["derive"]
 default-features = false
 

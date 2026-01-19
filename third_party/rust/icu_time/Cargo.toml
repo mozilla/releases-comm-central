@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.83"
 name = "icu_time"
-version = "2.0.0"
+version = "2.1.1"
 authors = ["The ICU4X Project Developers"]
 build = false
 include = [
@@ -42,11 +42,14 @@ repository = "https://github.com/unicode-org/icu4x"
 [package.metadata.docs.rs]
 all-features = true
 
+[package.metadata.cargo-semver-checks.lints]
+workspace = true
+
 [features]
 alloc = [
-    "tinystr/alloc",
     "zerotrie/alloc",
     "serde?/alloc",
+    "zerovec/alloc",
 ]
 compiled_data = [
     "dep:icu_time_data",
@@ -58,9 +61,9 @@ datagen = [
     "dep:databake",
     "zerovec/databake",
     "zerotrie/databake",
-    "tinystr/databake",
     "icu_provider/export",
     "icu_locale_core/databake",
+    "alloc",
 ]
 default = [
     "compiled_data",
@@ -74,9 +77,9 @@ serde = [
     "dep:serde",
     "zerovec/serde",
     "zerotrie/serde",
-    "tinystr/serde",
     "icu_provider/serde",
     "icu_locale_core/serde",
+    "alloc",
 ]
 
 [lib]
@@ -84,7 +87,7 @@ name = "icu_time"
 path = "src/lib.rs"
 
 [dependencies.calendrical_calculations]
-version = "0.2.0"
+version = "0.2.3"
 default-features = false
 
 [dependencies.databake]
@@ -98,41 +101,32 @@ version = "0.2.3"
 default-features = false
 
 [dependencies.icu_calendar]
-version = "~2.0.0"
+version = "~2.1.1"
 default-features = false
 
 [dependencies.icu_locale_core]
-version = "2.0.0"
+version = "2.1.1"
 features = ["zerovec"]
 default-features = false
 
 [dependencies.icu_provider]
-version = "2.0.0"
+version = "2.1.1"
 default-features = false
 
 [dependencies.icu_time_data]
-version = "~2.0.0"
+version = "~2.1.1"
 optional = true
 default-features = false
 
 [dependencies.ixdtf]
-version = "0.5.0"
+version = "0.6.0"
 optional = true
 default-features = false
 
 [dependencies.serde]
-version = "1.0.110"
+version = "1.0.220"
 features = ["derive"]
 optional = true
-default-features = false
-
-[dependencies.tinystr]
-version = "0.8.0"
-features = ["zerovec"]
-default-features = false
-
-[dependencies.writeable]
-version = "0.6.0"
 default-features = false
 
 [dependencies.zerotrie]
@@ -144,11 +138,9 @@ features = [
 default-features = false
 
 [dependencies.zerovec]
-version = "0.11.1"
+version = "0.11.3"
 features = [
     "derive",
     "yoke",
 ]
 default-features = false
-
-[dev-dependencies]
