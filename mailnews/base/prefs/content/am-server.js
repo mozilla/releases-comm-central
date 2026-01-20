@@ -121,11 +121,12 @@ function onInit(aPageId, aServerId) {
   );
   storeTypeElement.selectedItem = targetItem[0];
   // Disable store type change if store has not been used yet.
-  storeTypeElement.setAttribute(
+  storeTypeElement.toggleAttribute(
     "disabled",
-    gServer.getBoolValue("canChangeStoreType")
-      ? "false"
-      : !Services.prefs.getBoolPref("mail.store_conversion_enabled")
+    !(
+      gServer.getBoolValue("canChangeStoreType") ||
+      Services.prefs.getBoolPref("mail.store_conversion_enabled")
+    )
   );
   // Initialise 'gOriginalStoreType' to the item that was originally selected.
   gOriginalStoreType = storeTypeElement.value;
