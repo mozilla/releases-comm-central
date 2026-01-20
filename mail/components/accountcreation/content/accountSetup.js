@@ -627,7 +627,6 @@ var gAccountSetup = {
       ).catch(error => {
         if (error instanceof CancelledException) {
           throw error;
-          //TODO allErrors isn't a thing atm
         } else if (
           error instanceof AggregateError &&
           error.errors.some(err => err.code == 401)

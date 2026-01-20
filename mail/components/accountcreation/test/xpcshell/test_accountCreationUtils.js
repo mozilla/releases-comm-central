@@ -68,6 +68,37 @@ add_task(async function test_promiseFirstSuccessful_allFailed() {
   );
 });
 
+add_task(async function test_promiseFirstSuccessful_cleanupRemainingFailures() {
+  const firstPromise = Promise.withResolvers();
+  const secondPromise = Promise.withResolvers();
+  const thirdPromise = Promise.withResolvers();
+  const queue = [
+    firstPromise.promise,
+    secondPromise.promise,
+    thirdPromise.promise,
+  ];
+  const controller = new AbortController();
+  const promise = AccountCreationUtils.promiseFirstSuccessful(
+    queue,
+    controller
+  );
+
+  firstPromise.reject(new Error("first failed"));
+  // This failure could be unhandled if not explicitly cleaned up after handling
+  // the resolution of the second promise.
+  thirdPromise.reject(new Error("third failed"));
+  secondPromise.resolve("second ftw");
+
+  const result = await promise;
+  Assert.deepEqual(
+    result,
+    { value: "second ftw", index: 1 },
+    "Should get the result from the second promise"
+  );
+
+  Assert.ok(controller.signal.aborted, "Should have aborted the signal");
+});
+
 add_task(async function test_abortSignalTimeout() {
   const start = Date.now();
   const signal = AccountCreationUtils.abortSignalTimeout(100);
@@ -167,6 +198,14 @@ add_task(function test_deepCopy() {
     clone.subObject,
     obj.subObject,
     "deepCopy should clone nested objects"
+  );
+
+  Assert.throws(
+    () => AccountCreationUtils.deepCopy(Symbol("test")),
+    error =>
+      Error.isError(error) &&
+      error.message == "can't copy objects of type symbol yet",
+    "Should throw when trying to copy a symbol"
   );
 });
 
