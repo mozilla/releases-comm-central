@@ -14,8 +14,12 @@ var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
-var { EwsServer, RemoteFolder } = ChromeUtils.importESModule(
+var { EwsServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/EwsServer.sys.mjs"
+);
+
+var { RemoteFolder } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 
 var { GraphServer } = ChromeUtils.importESModule(

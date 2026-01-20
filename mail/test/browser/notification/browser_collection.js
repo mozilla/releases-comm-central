@@ -21,7 +21,7 @@ const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 const { RemoteFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+  "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"

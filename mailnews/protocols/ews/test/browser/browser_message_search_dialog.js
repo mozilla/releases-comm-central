@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { RemoteFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+  "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 
 var { promise_new_window } = ChromeUtils.importESModule(

@@ -4,10 +4,12 @@
 
 import { HttpServer } from "resource://testing-common/httpd.sys.mjs";
 
+import { MockServer } from "resource://testing-common/mailnews/MockServer.sys.mjs";
+
 /**
  * A mock server to mimic operations with Graph API.
  */
-export class GraphServer {
+export class GraphServer extends MockServer {
   /**
    * The mock HTTP server to use to handle Graph requests.
    *
@@ -46,6 +48,7 @@ export class GraphServer {
   #listenPort;
 
   constructor(username = "user", password = "password", listenPort = -1) {
+    super();
     this.#httpServer = new HttpServer();
     this.#httpServer.registerPrefixHandler("/", (request, response) => {
       try {

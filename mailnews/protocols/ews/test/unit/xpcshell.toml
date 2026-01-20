@@ -22,8 +22,6 @@ tags = ["foldernames"]
 
 ["test_folder_sync.js"]
 
-["test_graph_verifyLogon.js"]
-
 ["test_item_operations.js"]
 
 ["test_item_operations_exchange_2010.js"]
@@ -41,3 +39,5 @@ tags = ["foldernames"]
 ["test_syncMessagesForFolder.js"]
 
 ["test_undo.js"]
+
+["test_verifyLogon.js"]

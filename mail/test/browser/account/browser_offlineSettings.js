@@ -11,7 +11,7 @@ const { click_account_tree_row, get_account_tree_row, openAccountSettings } =
     "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 const { RemoteFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
+  "resource://testing-common/mailnews/MockServer.sys.mjs"
 );
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
