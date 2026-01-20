@@ -20,6 +20,8 @@ use core::fmt;
 use core::hash::Hash;
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 #[cfg(feature = "mint")]
 use mint;
 use num_traits::real::Real;
@@ -103,6 +105,13 @@ unsafe impl<T: Zeroable, U> Zeroable for Point2D<T, U> {}
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for Point2D<T, U> {}
 
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Point2D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops)
+    }
+}
+
 impl<T, U> Eq for Point2D<T, U> where T: Eq {}
 
 impl<T, U> PartialEq for Point2D<T, U>
@@ -148,7 +157,7 @@ impl<T, U> Point2D<T, U> {
         point2(Zero::zero(), Zero::zero())
     }
 
-    /// The same as [`origin()`](#method.origin).
+    /// The same as [`Point2D::origin`].
     #[inline]
     pub fn zero() -> Self
     where
@@ -509,7 +518,7 @@ impl<T: NumCast + Copy, U> Point2D<T, U> {
         self.cast()
     }
 
-    /// Cast into an i32 point, truncating decimals if any.
+    /// Cast into an `i32` point, truncating decimals if any.
     ///
     /// When casting from floating point points, it is worth considering whether
     /// to `round()`, `ceil()` or `floor()` before the cast in order to obtain
@@ -519,7 +528,7 @@ impl<T: NumCast + Copy, U> Point2D<T, U> {
         self.cast()
     }
 
-    /// Cast into an i64 point, truncating decimals if any.
+    /// Cast into an `i64` point, truncating decimals if any.
     ///
     /// When casting from floating point points, it is worth considering whether
     /// to `round()`, `ceil()` or `floor()` before the cast in order to obtain
@@ -531,7 +540,7 @@ impl<T: NumCast + Copy, U> Point2D<T, U> {
 }
 
 impl<T: Float, U> Point2D<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite()
@@ -590,7 +599,7 @@ impl<T: Add, U> Add<Vector2D<T, U>> for Point2D<T, U> {
 impl<T: Copy + Add<T, Output = T>, U> AddAssign<Vector2D<T, U>> for Point2D<T, U> {
     #[inline]
     fn add_assign(&mut self, other: Vector2D<T, U>) {
-        *self = *self + other
+        *self = *self + other;
     }
 }
 
@@ -632,7 +641,7 @@ impl<T: Sub, U> Sub<Vector2D<T, U>> for Point2D<T, U> {
 impl<T: Copy + Sub<T, Output = T>, U> SubAssign<Vector2D<T, U>> for Point2D<T, U> {
     #[inline]
     fn sub_assign(&mut self, other: Vector2D<T, U>) {
-        *self = *self - other
+        *self = *self - other;
     }
 }
 
@@ -648,7 +657,7 @@ impl<T: Copy + Mul, U> Mul<T> for Point2D<T, U> {
 impl<T: Copy + Mul<T, Output = T>, U> MulAssign<T> for Point2D<T, U> {
     #[inline]
     fn mul_assign(&mut self, scale: T) {
-        *self = *self * scale
+        *self = *self * scale;
     }
 }
 
@@ -681,7 +690,7 @@ impl<T: Copy + Div, U> Div<T> for Point2D<T, U> {
 impl<T: Copy + Div<T, Output = T>, U> DivAssign<T> for Point2D<T, U> {
     #[inline]
     fn div_assign(&mut self, scale: T) {
-        *self = *self / scale
+        *self = *self / scale;
     }
 }
 
@@ -710,7 +719,7 @@ impl<T: Zero, U> Zero for Point2D<T, U> {
 }
 
 impl<T: Round, U> Round for Point2D<T, U> {
-    /// See [Point2D::round()](#method.round)
+    /// See [`Point2D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -718,7 +727,7 @@ impl<T: Round, U> Round for Point2D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Point2D<T, U> {
-    /// See [Point2D::ceil()](#method.ceil)
+    /// See [`Point2D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -726,7 +735,7 @@ impl<T: Ceil, U> Ceil for Point2D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Point2D<T, U> {
-    /// See [Point2D::floor()](#method.floor)
+    /// See [`Point2D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()
@@ -874,11 +883,34 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, U> arbitrary::Arbitrary<'a> for Point3D<T, U>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (x, y, z) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(Point3D {
+            x,
+            y,
+            z,
+            _unit: PhantomData,
+        })
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, U> Zeroable for Point3D<T, U> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for Point3D<T, U> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Point3D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops) + self.z.size_of(ops)
+    }
+}
 
 impl<T, U> Eq for Point3D<T, U> where T: Eq {}
 
@@ -928,7 +960,7 @@ impl<T, U> Point3D<T, U> {
         point3(Zero::zero(), Zero::zero(), Zero::zero())
     }
 
-    /// The same as [`origin()`](#method.origin).
+    /// The same as [`Point3D::origin`].
     #[inline]
     pub fn zero() -> Self
     where
@@ -1340,7 +1372,7 @@ impl<T: NumCast + Copy, U> Point3D<T, U> {
 }
 
 impl<T: Float, U> Point3D<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
@@ -1408,7 +1440,7 @@ impl<T: Add, U> Add<Vector3D<T, U>> for Point3D<T, U> {
 impl<T: Copy + Add<T, Output = T>, U> AddAssign<Vector3D<T, U>> for Point3D<T, U> {
     #[inline]
     fn add_assign(&mut self, other: Vector3D<T, U>) {
-        *self = *self + other
+        *self = *self + other;
     }
 }
 
@@ -1455,7 +1487,7 @@ impl<T: Sub, U> Sub<Vector3D<T, U>> for Point3D<T, U> {
 impl<T: Copy + Sub<T, Output = T>, U> SubAssign<Vector3D<T, U>> for Point3D<T, U> {
     #[inline]
     fn sub_assign(&mut self, other: Vector3D<T, U>) {
-        *self = *self - other
+        *self = *self - other;
     }
 }
 
@@ -1535,7 +1567,7 @@ impl<T: Zero, U> Zero for Point3D<T, U> {
 }
 
 impl<T: Round, U> Round for Point3D<T, U> {
-    /// See [Point3D::round()](#method.round)
+    /// See [`Point3D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -1543,7 +1575,7 @@ impl<T: Round, U> Round for Point3D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Point3D<T, U> {
-    /// See [Point3D::ceil()](#method.ceil)
+    /// See [`Point3D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -1551,7 +1583,7 @@ impl<T: Ceil, U> Ceil for Point3D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Point3D<T, U> {
-    /// See [Point3D::floor()](#method.floor)
+    /// See [`Point3D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()
@@ -1587,7 +1619,7 @@ impl<T: Euclid, U> Point3D<T, U> {
     ///
     /// let p = Point3D::new(7.0, -7.0, 0.0);
     /// let s = Size3D::new(4.0, -4.0, 12.0);
-
+    ///
     /// assert_eq!(p.rem_euclid(&s), point3(3.0, 1.0, 0.0));
     /// assert_eq!((-p).rem_euclid(&s), point3(1.0, 3.0, 0.0));
     /// assert_eq!(p.rem_euclid(&-s), point3(3.0, 1.0, 0.0));

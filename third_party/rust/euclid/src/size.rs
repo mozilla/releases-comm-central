@@ -24,6 +24,8 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAss
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 #[cfg(feature = "mint")]
 use mint;
 use num_traits::{Float, NumCast, Signed};
@@ -107,6 +109,13 @@ unsafe impl<T: Zeroable, U> Zeroable for Size2D<T, U> {}
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for Size2D<T, U> {}
 
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Size2D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.width.size_of(ops) + self.height.size_of(ops)
+    }
+}
+
 impl<T, U> Eq for Size2D<T, U> where T: Eq {}
 
 impl<T, U> PartialEq for Size2D<T, U>
@@ -143,9 +152,9 @@ impl<T: Default, U> Default for Size2D<T, U> {
 }
 
 impl<T, U> Size2D<T, U> {
-    /// The same as [`Zero::zero()`] but available without importing trait.
+    /// The same as [`Zero::zero`] but available without importing trait.
     ///
-    /// [`Zero::zero()`]: ./num/trait.Zero.html#tymethod.zero
+    /// [`Zero::zero`]: crate::num::Zero::zero
     #[inline]
     pub fn zero() -> Self
     where
@@ -401,7 +410,7 @@ impl<T: NumCast + Copy, U> Size2D<T, U> {
 }
 
 impl<T: Float, U> Size2D<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.width.is_finite() && self.height.is_finite()
@@ -502,7 +511,7 @@ impl<T: PartialEq, U> Size2D<T, U> {
 }
 
 impl<T: Round, U> Round for Size2D<T, U> {
-    /// See [`Size2D::round()`](#method.round).
+    /// See [`Size2D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -510,7 +519,7 @@ impl<T: Round, U> Round for Size2D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Size2D<T, U> {
-    /// See [`Size2D::ceil()`](#method.ceil).
+    /// See [`Size2D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -518,7 +527,7 @@ impl<T: Ceil, U> Ceil for Size2D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Size2D<T, U> {
-    /// See [`Size2D::floor()`](#method.floor).
+    /// See [`Size2D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()
@@ -997,11 +1006,34 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, U> arbitrary::Arbitrary<'a> for Size3D<T, U>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (width, height, depth) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(Size3D {
+            width,
+            height,
+            depth,
+            _unit: PhantomData,
+        })
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, U> Zeroable for Size3D<T, U> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for Size3D<T, U> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Size3D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.width.size_of(ops) + self.height.size_of(ops) + self.depth.size_of(ops)
+    }
+}
 
 impl<T, U> Eq for Size3D<T, U> where T: Eq {}
 
@@ -1042,9 +1074,9 @@ impl<T: Default, U> Default for Size3D<T, U> {
 }
 
 impl<T, U> Size3D<T, U> {
-    /// The same as [`Zero::zero()`] but available without importing trait.
+    /// The same as [`Zero::zero`] but available without importing trait.
     ///
-    /// [`Zero::zero()`]: ./num/trait.Zero.html#tymethod.zero
+    /// [`Zero::zero`]: crate::num::Zero::zero
     pub fn zero() -> Self
     where
         T: Zero,
@@ -1295,7 +1327,7 @@ impl<T: NumCast + Copy, U> Size3D<T, U> {
 }
 
 impl<T: Float, U> Size3D<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.width.is_finite() && self.height.is_finite() && self.depth.is_finite()
@@ -1406,7 +1438,7 @@ impl<T: PartialEq, U> Size3D<T, U> {
 }
 
 impl<T: Round, U> Round for Size3D<T, U> {
-    /// See [`Size3D::round()`](#method.round).
+    /// See [`Size3D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -1414,7 +1446,7 @@ impl<T: Round, U> Round for Size3D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Size3D<T, U> {
-    /// See [`Size3D::ceil()`](#method.ceil).
+    /// See [`Size3D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -1422,7 +1454,7 @@ impl<T: Ceil, U> Ceil for Size3D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Size3D<T, U> {
-    /// See [`Size3D::floor()`](#method.floor).
+    /// See [`Size3D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()

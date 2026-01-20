@@ -25,6 +25,8 @@ use core::hash::Hash;
 use core::iter::Sum;
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 #[cfg(feature = "mint")]
 use mint;
 use num_traits::real::Real;
@@ -57,6 +59,13 @@ impl<T: Clone, U> Clone for Vector2D<T, U> {
             y: self.y.clone(),
             _unit: PhantomData,
         }
+    }
+}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Vector2D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops)
     }
 }
 
@@ -497,7 +506,7 @@ impl<T: Float, U> Vector2D<T, U> {
         }
     }
 
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite()
@@ -520,7 +529,7 @@ impl<T: Real, U> Vector2D<T, U> {
 
     /// Returns the vector with length of one unit.
     ///
-    /// Unlike [`Vector2D::normalize`](#method.normalize), this returns None in the case that the
+    /// Unlike [`Vector2D::normalize`], this returns `None` in the case that the
     /// length of the vector is zero.
     #[inline]
     #[must_use]
@@ -715,6 +724,16 @@ impl<T: NumCast + Copy, U> Vector2D<T, U> {
         self.cast()
     }
 
+    /// Cast into an `isize` vector, truncating decimals if any.
+    ///
+    /// When casting from floating vector vectors, it is worth considering whether
+    /// to `round()`, `ceil()` or `floor()` before the cast in order to obtain
+    /// the desired conversion behavior.
+    #[inline]
+    pub fn to_isize(self) -> Vector2D<isize, U> {
+        self.cast()
+    }
+
     /// Cast into an `u32` vector, truncating decimals if any.
     ///
     /// When casting from floating vector vectors, it is worth considering whether
@@ -788,7 +807,7 @@ impl<'a, T: 'a + Add<Output = T> + Copy + Zero, U: 'a> Sum<&'a Self> for Vector2
 impl<T: Copy + Add<T, Output = T>, U> AddAssign for Vector2D<T, U> {
     #[inline]
     fn add_assign(&mut self, other: Self) {
-        *self = *self + other
+        *self = *self + other;
     }
 }
 
@@ -804,7 +823,7 @@ impl<T: Sub, U> Sub for Vector2D<T, U> {
 impl<T: Copy + Sub<T, Output = T>, U> SubAssign<Vector2D<T, U>> for Vector2D<T, U> {
     #[inline]
     fn sub_assign(&mut self, other: Self) {
-        *self = *self - other
+        *self = *self - other;
     }
 }
 
@@ -820,7 +839,7 @@ impl<T: Copy + Mul, U> Mul<T> for Vector2D<T, U> {
 impl<T: Copy + Mul<T, Output = T>, U> MulAssign<T> for Vector2D<T, U> {
     #[inline]
     fn mul_assign(&mut self, scale: T) {
-        *self = *self * scale
+        *self = *self * scale;
     }
 }
 
@@ -853,7 +872,7 @@ impl<T: Copy + Div, U> Div<T> for Vector2D<T, U> {
 impl<T: Copy + Div<T, Output = T>, U> DivAssign<T> for Vector2D<T, U> {
     #[inline]
     fn div_assign(&mut self, scale: T) {
-        *self = *self / scale
+        *self = *self / scale;
     }
 }
 
@@ -875,7 +894,7 @@ impl<T: Copy + DivAssign, U> DivAssign<Scale<T, U, U>> for Vector2D<T, U> {
 }
 
 impl<T: Round, U> Round for Vector2D<T, U> {
-    /// See [`Vector2D::round()`](#method.round)
+    /// See [`Vector2D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -883,7 +902,7 @@ impl<T: Round, U> Round for Vector2D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Vector2D<T, U> {
-    /// See [`Vector2D::ceil()`](#method.ceil)
+    /// See [`Vector2D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -891,7 +910,7 @@ impl<T: Ceil, U> Ceil for Vector2D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Vector2D<T, U> {
-    /// See [`Vector2D::floor()`](#method.floor)
+    /// See [`Vector2D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()
@@ -1000,11 +1019,34 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, U> arbitrary::Arbitrary<'a> for Vector3D<T, U>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (x, y, z) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(Vector3D {
+            x,
+            y,
+            z,
+            _unit: PhantomData,
+        })
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, U> Zeroable for Vector3D<T, U> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for Vector3D<T, U> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Vector3D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops) + self.z.size_of(ops)
+    }
+}
 
 impl<T: Eq, U> Eq for Vector3D<T, U> {}
 
@@ -1383,7 +1425,7 @@ impl<T: Float, U> Vector3D<T, U> {
         }
     }
 
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
@@ -1419,7 +1461,7 @@ impl<T: Real, U> Vector3D<T, U> {
 
     /// Returns the vector with length of one unit.
     ///
-    /// Unlike [`Vector2D::normalize`](#method.normalize), this returns None in the case that the
+    /// Unlike [`Vector2D::normalize`], this returns `None` in the case that the
     /// length of the vector is zero.
     #[inline]
     #[must_use]
@@ -1624,6 +1666,16 @@ impl<T: NumCast + Copy, U> Vector3D<T, U> {
         self.cast()
     }
 
+    /// Cast into an `isize` vector, truncating decimals if any.
+    ///
+    /// When casting from floating vector vectors, it is worth considering whether
+    /// to `round()`, `ceil()` or `floor()` before the cast in order to obtain
+    /// the desired conversion behavior.
+    #[inline]
+    pub fn to_isize(self) -> Vector3D<isize, U> {
+        self.cast()
+    }
+
     /// Cast into an `u32` vector, truncating decimals if any.
     ///
     /// When casting from floating vector vectors, it is worth considering whether
@@ -1697,7 +1749,7 @@ impl<'a, T: 'a + Add<Output = T> + Copy + Zero, U: 'a> Sum<&'a Self> for Vector3
 impl<T: Copy + Add<T, Output = T>, U> AddAssign for Vector3D<T, U> {
     #[inline]
     fn add_assign(&mut self, other: Self) {
-        *self = *self + other
+        *self = *self + other;
     }
 }
 
@@ -1713,7 +1765,7 @@ impl<T: Sub, U> Sub for Vector3D<T, U> {
 impl<T: Copy + Sub<T, Output = T>, U> SubAssign<Vector3D<T, U>> for Vector3D<T, U> {
     #[inline]
     fn sub_assign(&mut self, other: Self) {
-        *self = *self - other
+        *self = *self - other;
     }
 }
 
@@ -1729,7 +1781,7 @@ impl<T: Copy + Mul, U> Mul<T> for Vector3D<T, U> {
 impl<T: Copy + Mul<T, Output = T>, U> MulAssign<T> for Vector3D<T, U> {
     #[inline]
     fn mul_assign(&mut self, scale: T) {
-        *self = *self * scale
+        *self = *self * scale;
     }
 }
 
@@ -1763,7 +1815,7 @@ impl<T: Copy + Div, U> Div<T> for Vector3D<T, U> {
 impl<T: Copy + Div<T, Output = T>, U> DivAssign<T> for Vector3D<T, U> {
     #[inline]
     fn div_assign(&mut self, scale: T) {
-        *self = *self / scale
+        *self = *self / scale;
     }
 }
 
@@ -1786,7 +1838,7 @@ impl<T: Copy + DivAssign, U> DivAssign<Scale<T, U, U>> for Vector3D<T, U> {
 }
 
 impl<T: Round, U> Round for Vector3D<T, U> {
-    /// See [`Vector3D::round()`](#method.round)
+    /// See [`Vector3D::round`].
     #[inline]
     fn round(self) -> Self {
         self.round()
@@ -1794,7 +1846,7 @@ impl<T: Round, U> Round for Vector3D<T, U> {
 }
 
 impl<T: Ceil, U> Ceil for Vector3D<T, U> {
-    /// See [`Vector3D::ceil()`](#method.ceil)
+    /// See [`Vector3D::ceil`].
     #[inline]
     fn ceil(self) -> Self {
         self.ceil()
@@ -1802,7 +1854,7 @@ impl<T: Ceil, U> Ceil for Vector3D<T, U> {
 }
 
 impl<T: Floor, U> Floor for Vector3D<T, U> {
-    /// See [`Vector3D::floor()`](#method.floor)
+    /// See [`Vector3D::floor`].
     #[inline]
     fn floor(self) -> Self {
         self.floor()
@@ -2051,6 +2103,27 @@ impl BoolVector3D {
             x: self.y,
             y: self.z,
         }
+    }
+}
+
+#[cfg(feature = "arbitrary")]
+impl<'a> arbitrary::Arbitrary<'a> for BoolVector2D {
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        Ok(BoolVector2D {
+            x: arbitrary::Arbitrary::arbitrary(u)?,
+            y: arbitrary::Arbitrary::arbitrary(u)?,
+        })
+    }
+}
+
+#[cfg(feature = "arbitrary")]
+impl<'a> arbitrary::Arbitrary<'a> for BoolVector3D {
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        Ok(BoolVector3D {
+            x: arbitrary::Arbitrary::arbitrary(u)?,
+            y: arbitrary::Arbitrary::arbitrary(u)?,
+            z: arbitrary::Arbitrary::arbitrary(u)?,
+        })
     }
 }
 

@@ -19,6 +19,8 @@ use crate::vector::{vec2, Vector2D};
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 use num_traits::{Float, NumCast};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -53,11 +55,10 @@ use core::ops::{Add, Div, DivAssign, Mul, MulAssign, Range, Sub};
 /// - it's area is negative (`min.x > max.x` or `min.y > max.y`),
 /// - it contains NaNs.
 ///
-/// [`Rect`]: struct.Rect.html
-/// [`intersection`]: #method.intersection
-/// [`is_empty`]: #method.is_empty
-/// [`union`]: #method.union
-/// [`size`]: #method.size
+/// [`intersection`]: Self::intersection
+/// [`is_empty`]: Self::is_empty
+/// [`union`]: Self::union
+/// [`size`]: Self::size
 #[repr(C)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -101,6 +102,19 @@ impl<T: fmt::Debug, U> fmt::Debug for Box2D<T, U> {
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, U> arbitrary::Arbitrary<'a> for Box2D<T, U>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        Ok(Box2D::new(
+            arbitrary::Arbitrary::arbitrary(u)?,
+            arbitrary::Arbitrary::arbitrary(u)?,
+        ))
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, U> Zeroable for Box2D<T, U> {}
 
@@ -126,7 +140,7 @@ impl<T, U> Box2D<T, U> {
         }
     }
 
-    /// Creates a Box2D of the given size, at offset zero.
+    /// Creates a `Box2D` of the given size, at offset zero.
     #[inline]
     pub fn from_size(size: Size2D<T, U>) -> Self
     where
@@ -139,11 +153,18 @@ impl<T, U> Box2D<T, U> {
     }
 }
 
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Box2D<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.min.size_of(ops) + self.max.size_of(ops)
+    }
+}
+
 impl<T, U> Box2D<T, U>
 where
     T: PartialOrd,
 {
-    /// Returns true if the box has a negative area.
+    /// Returns `true` if the box has a negative area.
     ///
     /// The common interpretation for a negative box is to consider it empty. It can be obtained
     /// by calculating the intersection of two boxes that do not intersect.
@@ -152,7 +173,7 @@ where
         self.max.x < self.min.x || self.max.y < self.min.y
     }
 
-    /// Returns true if the size is zero, negative or NaN.
+    /// Returns `true` if the size is zero, negative or NaN.
     #[inline]
     pub fn is_empty(&self) -> bool {
         !(self.max.x > self.min.x && self.max.y > self.min.y)
@@ -168,17 +189,57 @@ where
             & (self.max.y > other.min.y)
     }
 
-    /// Returns `true` if this box2d contains the point `p`. A point is considered
-    /// in the box2d if it lies on the left or top edges, but outside if it lies
-    /// on the right or bottom edges.
+    /// Returns `true` if this [`Box2D`] contains the point `p`.
+    ///
+    /// Points on the top and left edges are inside the box, whereas
+    /// points on the bottom and right edges are outside the box.
+    /// See [`Box2D::contains_inclusive`] for a variant that also includes those
+    /// latter points.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use euclid::default::{Box2D, Point2D};
+    ///
+    /// let rect = Box2D::new(Point2D::origin(), Point2D::new(2, 2));
+    ///
+    /// assert!(rect.contains(Point2D::new(1, 1)));
+    ///
+    /// assert!(rect.contains(Point2D::new(0, 1))); // left edge
+    /// assert!(rect.contains(Point2D::new(1, 0))); // top edge
+    /// assert!(rect.contains(Point2D::origin()));
+    ///
+    /// assert!(!rect.contains(Point2D::new(2, 1))); // right edge
+    /// assert!(!rect.contains(Point2D::new(1, 2))); // bottom edge
+    /// assert!(!rect.contains(Point2D::new(2, 2)));
+    /// ```
     #[inline]
     pub fn contains(&self, p: Point2D<T, U>) -> bool {
         // Use bitwise and instead of && to avoid emitting branches.
         (self.min.x <= p.x) & (p.x < self.max.x) & (self.min.y <= p.y) & (p.y < self.max.y)
     }
 
-    /// Returns `true` if this box contains the point `p`. A point is considered
-    /// in the box2d if it lies on any edge of the box2d.
+    /// Returns `true` if this box contains the point `p`.
+    ///
+    /// This is like [`Box2D::contains`], but points on the bottom and right
+    /// edges are also inside the box.
+    ///
+    /// # Examples
+    /// ```
+    /// use euclid::default::{Box2D, Point2D};
+    ///
+    /// let rect = Box2D::new(Point2D::origin(), Point2D::new(2, 2));
+    ///
+    /// assert!(rect.contains_inclusive(Point2D::new(1, 1)));
+    ///
+    /// assert!(rect.contains_inclusive(Point2D::new(0, 1))); // left edge
+    /// assert!(rect.contains_inclusive(Point2D::new(1, 0))); // top edge
+    /// assert!(rect.contains_inclusive(Point2D::origin()));
+    ///
+    /// assert!(rect.contains_inclusive(Point2D::new(2, 1))); // right edge
+    /// assert!(rect.contains_inclusive(Point2D::new(1, 2))); // bottom edge
+    /// assert!(rect.contains_inclusive(Point2D::new(2, 2)));
+    /// ```
     #[inline]
     pub fn contains_inclusive(&self, p: Point2D<T, U>) -> bool {
         // Use bitwise and instead of && to avoid emitting branches.
@@ -227,7 +288,7 @@ where
     ///
     /// The result is a negative box if the boxes do not intersect.
     /// This can be useful for computing the intersection of more than two boxes, as
-    /// it is possible to chain multiple intersection_unchecked calls and check for
+    /// it is possible to chain multiple `intersection_unchecked` calls and check for
     /// empty/negative result at the end.
     #[inline]
     pub fn intersection_unchecked(&self, other: &Self) -> Self {
@@ -346,7 +407,53 @@ impl<T, U> Box2D<T, U>
 where
     T: Copy + Zero + PartialOrd,
 {
-    /// Returns the smallest box containing all of the provided points.
+    /// Returns the smallest box enclosing all of the provided points.
+    ///
+    /// The top/bottom/left/right-most points are exactly on the box's edges.
+    /// Since [`Box2D::contains`] excludes points that are on the right-most and
+    /// bottom-most edges, not all points passed to [`Box2D::from_points`] are
+    /// contained in the returned [`Box2D`] when probed with [`Box2D::contains`], but
+    /// are when probed with [`Box2D::contains_inclusive`].
+    ///
+    /// For example:
+    ///
+    /// ```
+    /// use euclid::default::{Point2D, Box2D};
+    ///
+    /// let a = Point2D::origin();
+    /// let b = Point2D::new(1, 2);
+    /// let rect = Box2D::from_points([a, b]);
+    ///
+    /// assert_eq!(rect.width(), 1);
+    /// assert_eq!(rect.height(), 2);
+    ///
+    /// assert!(rect.contains(a));
+    /// assert!(!rect.contains(b));
+    /// assert!(rect.contains_inclusive(b));
+    /// ```
+    ///
+    /// In particular, calling [`Box2D::from_points`] with a single point
+    /// results in an empty [`Box2D`]:
+    ///
+    /// ```
+    /// use euclid::default::{Point2D, Box2D};
+    ///
+    /// let a = Point2D::new(1, 0);
+    /// let rect = Box2D::from_points([a]);
+    ///
+    /// assert!(rect.is_empty());
+    /// assert!(!rect.contains(a));
+    /// assert!(rect.contains_inclusive(a));
+    /// ```
+    ///
+    /// The [`Box2D`] enclosing no points is also empty:
+    ///
+    /// ```
+    /// use euclid::default::{Box2D, Point2D};
+    ///
+    /// let rect = Box2D::from_points(std::iter::empty::<Point2D<i32>>());
+    /// assert!(rect.is_empty());
+    /// ```
     pub fn from_points<I>(points: I) -> Self
     where
         I: IntoIterator,
@@ -363,16 +470,16 @@ where
         for point in points {
             let p = point.borrow();
             if p.x < min_x {
-                min_x = p.x
+                min_x = p.x;
             }
             if p.x > max_x {
-                max_x = p.x
+                max_x = p.x;
             }
             if p.y < min_y {
-                min_y = p.y
+                min_y = p.y;
             }
             if p.y > max_y {
-                max_y = p.y
+                max_y = p.y;
             }
         }
 
@@ -540,7 +647,11 @@ impl<T: NumCast + Copy, U> Box2D<T, U> {
     ///
     /// When casting from floating point to integer coordinates, the decimals are truncated
     /// as one would expect from a simple cast, but this behavior does not always make sense
-    /// geometrically. Consider using round(), round_in or round_out() before casting.
+    /// geometrically. Consider using [`round`], [`round_in`] or [`round_out`] before casting.
+    ///
+    /// [`round`]: Self::round
+    /// [`round_in`]: Self::round_in
+    /// [`round_out`]: Self::round_out
     #[inline]
     pub fn cast<NewT: NumCast>(&self) -> Box2D<NewT, U> {
         Box2D::new(self.min.cast(), self.max.cast())
@@ -550,7 +661,11 @@ impl<T: NumCast + Copy, U> Box2D<T, U> {
     ///
     /// When casting from floating point to integer coordinates, the decimals are truncated
     /// as one would expect from a simple cast, but this behavior does not always make sense
-    /// geometrically. Consider using round(), round_in or round_out() before casting.
+    /// geometrically. Consider using [`round`], [`round_in`] or [`round_out`] before casting.
+    ///
+    /// [`round`]: Self::round
+    /// [`round_in`]: Self::round_in
+    /// [`round_out`]: Self::round_out
     pub fn try_cast<NewT: NumCast>(&self) -> Option<Box2D<NewT, U>> {
         match (self.min.try_cast(), self.max.try_cast()) {
             (Some(a), Some(b)) => Some(Box2D::new(a, b)),
@@ -614,7 +729,7 @@ impl<T: NumCast + Copy, U> Box2D<T, U> {
 }
 
 impl<T: Float, U> Box2D<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.min.is_finite() && self.max.is_finite()
@@ -669,6 +784,15 @@ where
 {
     fn from(b: Size2D<T, U>) -> Self {
         Self::from_size(b)
+    }
+}
+
+impl<T, U> From<Rect<T, U>> for Box2D<T, U>
+where
+    T: Copy + Add<T, Output = T>,
+{
+    fn from(r: Rect<T, U>) -> Self {
+        r.to_box2d()
     }
 }
 

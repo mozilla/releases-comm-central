@@ -19,6 +19,8 @@ use core::fmt;
 use core::hash::Hash;
 use core::marker::PhantomData;
 use core::ops::Div;
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 #[cfg(feature = "serde")]
 use serde;
 
@@ -80,11 +82,35 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, U> arbitrary::Arbitrary<'a> for HomogeneousVector<T, U>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (x, y, z, w) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(HomogeneousVector {
+            x,
+            y,
+            z,
+            w,
+            _unit: PhantomData,
+        })
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, U> Zeroable for HomogeneousVector<T, U> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, U: 'static> Pod for HomogeneousVector<T, U> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for HomogeneousVector<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops) + self.z.size_of(ops) + self.w.size_of(ops)
+    }
+}
 
 impl<T, U> Eq for HomogeneousVector<T, U> where T: Eq {}
 
@@ -126,7 +152,7 @@ impl<T, U> HomogeneousVector<T, U> {
 impl<T: Copy + Div<T, Output = T> + Zero + PartialOrd, U> HomogeneousVector<T, U> {
     /// Convert into Cartesian 2D point.
     ///
-    /// Returns None if the point is on or behind the W=0 hemisphere.
+    /// Returns `None` if the point is on or behind the W=0 hemisphere.
     #[inline]
     pub fn to_point2d(self) -> Option<Point2D<T, U>> {
         if self.w > T::zero() {
@@ -138,7 +164,7 @@ impl<T: Copy + Div<T, Output = T> + Zero + PartialOrd, U> HomogeneousVector<T, U
 
     /// Convert into Cartesian 3D point.
     ///
-    /// Returns None if the point is on or behind the W=0 hemisphere.
+    /// Returns `None` if the point is on or behind the W=0 hemisphere.
     #[inline]
     pub fn to_point3d(self) -> Option<Point3D<T, U>> {
         if self.w > T::zero() {

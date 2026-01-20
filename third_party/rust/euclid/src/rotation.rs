@@ -8,6 +8,7 @@
 // except according to those terms.
 
 use crate::approxeq::ApproxEq;
+use crate::num::{One, Zero};
 use crate::trig::Trig;
 use crate::{point2, point3, vec3, Angle, Point2D, Point3D, Vector2D, Vector3D};
 use crate::{Transform2D, Transform3D, UnknownUnit};
@@ -20,8 +21,10 @@ use core::ops::{Add, Mul, Neg, Sub};
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 use num_traits::real::Real;
-use num_traits::{NumCast, One, Zero};
+use num_traits::NumCast;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -73,11 +76,28 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a, T, Src, Dst> arbitrary::Arbitrary<'a> for Rotation2D<T, Src, Dst>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        Ok(Rotation2D::new(arbitrary::Arbitrary::arbitrary(u)?))
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, Src, Dst> Zeroable for Rotation2D<T, Src, Dst> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, Src: 'static, Dst: 'static> Pod for Rotation2D<T, Src, Dst> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, Src, Dst> MallocSizeOf for Rotation2D<T, Src, Dst> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.angle.size_of(ops)
+    }
+}
 
 impl<T, Src, Dst> Rotation2D<T, Src, Dst> {
     /// Creates a rotation from an angle in radians.
@@ -225,15 +245,37 @@ where
     }
 }
 
+impl<T: fmt::Debug, Src, Dst> fmt::Debug for Rotation2D<T, Src, Dst> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Rotation({:?} rad)", self.angle)
+    }
+}
+
+impl<T, Src, Dst> ApproxEq<T> for Rotation2D<T, Src, Dst>
+where
+    T: Copy + Neg<Output = T> + ApproxEq<T>,
+{
+    fn approx_epsilon() -> T {
+        T::approx_epsilon()
+    }
+
+    fn approx_eq_eps(&self, other: &Self, eps: &T) -> bool {
+        self.angle.approx_eq_eps(&other.angle, eps)
+    }
+}
+
 /// A transform that can represent rotations in 3d, represented as a quaternion.
 ///
 /// Most methods expect the quaternion to be normalized.
-/// When in doubt, use `unit_quaternion` instead of `quaternion` to create
+/// When in doubt, use [`unit_quaternion`] instead of [`quaternion`] to create
 /// a rotation as the former will ensure that its result is normalized.
 ///
 /// Some people use the `x, y, z, w` (or `w, x, y, z`) notations. The equivalence is
 /// as follows: `x -> i`, `y -> j`, `z -> k`, `w -> r`.
 /// The memory layout of this type corresponds to the `x, y, z, w` notation
+///
+/// [`quaternion`]: Self::quaternion
+/// [`unit_quaternion`]: Self::unit_quaternion
 #[repr(C)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -293,11 +335,32 @@ where
     }
 }
 
+/// Note: the quaternions produced by this implementation are not normalized
+/// (nor even necessarily finite). That is, this is not appropriate to use to
+/// choose an actual “arbitrary rotation”, at least not without postprocessing.
+#[cfg(feature = "arbitrary")]
+impl<'a, T, Src, Dst> arbitrary::Arbitrary<'a> for Rotation3D<T, Src, Dst>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (i, j, k, r) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(Rotation3D::quaternion(i, j, k, r))
+    }
+}
+
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Zeroable, Src, Dst> Zeroable for Rotation3D<T, Src, Dst> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, Src: 'static, Dst: 'static> Pod for Rotation3D<T, Src, Dst> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, Src, Dst> MallocSizeOf for Rotation3D<T, Src, Dst> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.i.size_of(ops) + self.j.size_of(ops) + self.k.size_of(ops) + self.r.size_of(ops)
+    }
+}
 
 impl<T, Src, Dst> Rotation3D<T, Src, Dst> {
     /// Creates a rotation around from a quaternion representation.
@@ -308,7 +371,7 @@ impl<T, Src, Dst> Rotation3D<T, Src, Dst> {
     ///
     /// The resulting quaternion is not necessarily normalized. See [`unit_quaternion`].
     ///
-    /// [`unit_quaternion`]: #method.unit_quaternion
+    /// [`unit_quaternion`]: Self::unit_quaternion
     #[inline]
     pub fn quaternion(a: T, b: T, c: T, r: T) -> Self {
         Rotation3D {
@@ -510,7 +573,7 @@ where
 
     /// Returns `true` if [norm] of this quaternion is (approximately) one.
     ///
-    /// [norm]: #method.norm
+    /// [norm]: Self::norm
     #[inline]
     pub fn is_normalized(&self) -> bool
     where
@@ -742,6 +805,15 @@ where
                 && self.j.approx_eq_eps(&-other.j, eps)
                 && self.k.approx_eq_eps(&-other.k, eps)
                 && self.r.approx_eq_eps(&-other.r, eps))
+    }
+}
+
+impl<T, Src, Dst> From<Rotation3D<T, Src, Dst>> for Transform3D<T, Src, Dst>
+where
+    T: Real + ApproxEq<T>,
+{
+    fn from(r: Rotation3D<T, Src, Dst>) -> Self {
+        r.to_transform()
     }
 }
 

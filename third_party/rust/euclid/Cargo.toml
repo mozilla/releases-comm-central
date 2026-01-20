@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.56.0"
+rust-version = "1.63.0"
 name = "euclid"
-version = "0.22.10"
+version = "0.22.13"
 authors = ["The Servo Project Developers"]
 description = "Geometry primitives"
 documentation = "https://docs.rs/euclid/"
@@ -27,15 +27,20 @@ keywords = [
 categories = ["science"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/servo/euclid"
+resolver = "2"
 
 [dependencies.arbitrary]
 version = "1"
-features = ["derive"]
 optional = true
 
 [dependencies.bytemuck]
 version = "1.9"
 optional = true
+
+[dependencies.malloc_size_of]
+version = "0.1"
+optional = true
+default-features = false
 
 [dependencies.mint]
 version = "0.5.1"

@@ -18,6 +18,8 @@ use crate::vector::Vector2D;
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 use num_traits::{Float, NumCast};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -43,8 +45,7 @@ use core::ops::{Add, Div, DivAssign, Mul, MulAssign, Range, Sub};
 /// - it's area is negative (`size.x < 0` or `size.y < 0`),
 /// - it contains NaNs.
 ///
-/// [`is_empty`]: #method.is_empty
-/// [`Box2D`]: struct.Box2D.html
+/// [`is_empty`]: Self::is_empty
 #[repr(C)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -77,6 +78,13 @@ impl<T: Hash, U> Hash for Rect<T, U> {
     fn hash<H: Hasher>(&self, h: &mut H) {
         self.origin.hash(h);
         self.size.hash(h);
+    }
+}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, U> MallocSizeOf for Rect<T, U> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.origin.size_of(ops) + self.size.size_of(ops)
     }
 }
 
@@ -214,7 +222,7 @@ impl<T, U> Rect<T, U>
 where
     T: Copy + PartialOrd + Add<T, Output = T>,
 {
-    /// Returns true if this rectangle contains the point. Points are considered
+    /// Returns `true` if this rectangle contains the point. Points are considered
     /// in the rectangle if they are on the left or top edge, but outside if they
     /// are on the right or bottom edge.
     #[inline]
@@ -265,8 +273,8 @@ impl<T, U> Rect<T, U>
 where
     T: Copy + Zero + PartialOrd + Add<T, Output = T>,
 {
-    /// Returns true if this rectangle contains the interior of rect. Always
-    /// returns true if rect is empty, and always returns false if rect is
+    /// Returns `true` if this rectangle contains the interior of `rect`. Always
+    /// returns `true` if `rect` is empty, and always returns `false` if `rect` is
     /// nonempty but this rectangle is empty.
     #[inline]
     pub fn contains_rect(&self, rect: &Self) -> bool {
@@ -329,10 +337,12 @@ where
     ///
     /// Note: This function has a behavior that can be surprising because
     /// the right-most and bottom-most points are exactly on the edge
-    /// of the rectangle while the `contains` function is has exclusive
+    /// of the rectangle while the [`Rect::contains`] function is has exclusive
     /// semantic on these edges. This means that the right-most and bottom-most
-    /// points provided to `from_points` will count as not contained by the rect.
+    /// points provided to [`Rect::from_points`] will count as not contained by the rect.
     /// This behavior may change in the future.
+    ///
+    /// See [`Box2D::from_points`] for more details.
     pub fn from_points<I>(points: I) -> Self
     where
         I: IntoIterator,
@@ -508,7 +518,11 @@ impl<T: NumCast + Copy, U> Rect<T, U> {
     ///
     /// When casting from floating point to integer coordinates, the decimals are truncated
     /// as one would expect from a simple cast, but this behavior does not always make sense
-    /// geometrically. Consider using round(), round_in or round_out() before casting.
+    /// geometrically. Consider using [`round`], [`round_in`] or [`round_out`] before casting.
+    ///
+    /// [`round`]: Self::round
+    /// [`round_in`]: Self::round_in
+    /// [`round_out`]: Self::round_out
     #[inline]
     pub fn cast<NewT: NumCast>(&self) -> Rect<NewT, U> {
         Rect::new(self.origin.cast(), self.size.cast())
@@ -518,7 +532,11 @@ impl<T: NumCast + Copy, U> Rect<T, U> {
     ///
     /// When casting from floating point to integer coordinates, the decimals are truncated
     /// as one would expect from a simple cast, but this behavior does not always make sense
-    /// geometrically. Consider using round(), round_in or round_out() before casting.
+    /// geometrically. Consider using [`round`], [`round_in`] or [`round_out` before casting.
+    ///
+    /// [`round`]: Self::round
+    /// [`round_in`]: Self::round_in
+    /// [`round_out`]: Self::round_out
     pub fn try_cast<NewT: NumCast>(&self) -> Option<Rect<NewT, U>> {
         match (self.origin.try_cast(), self.size.try_cast()) {
             (Some(origin), Some(size)) => Some(Rect::new(origin, size)),
@@ -592,7 +610,7 @@ impl<T: NumCast + Copy, U> Rect<T, U> {
 }
 
 impl<T: Float, U> Rect<T, U> {
-    /// Returns true if all members are finite.
+    /// Returns `true` if all members are finite.
     #[inline]
     pub fn is_finite(self) -> bool {
         self.origin.is_finite() && self.size.is_finite()
@@ -612,10 +630,8 @@ impl<T: Floor + Ceil + Round + Add<T, Output = T> + Sub<T, Output = T>, U> Rect<
     ///
     /// # Usage notes
     /// Note, that when using with floating-point `T` types that method can significantly
-    /// loose precision for large values, so if you need to call this method very often it
+    /// lose precision for large values, so if you need to call this method very often it
     /// is better to use [`Box2D`].
-    ///
-    /// [`Box2D`]: struct.Box2D.html
     #[must_use]
     pub fn round(&self) -> Self {
         self.to_box2d().round().to_rect()
@@ -626,10 +642,8 @@ impl<T: Floor + Ceil + Round + Add<T, Output = T> + Sub<T, Output = T>, U> Rect<
     ///
     /// # Usage notes
     /// Note, that when using with floating-point `T` types that method can significantly
-    /// loose precision for large values, so if you need to call this method very often it
+    /// lose precision for large values, so if you need to call this method very often it
     /// is better to use [`Box2D`].
-    ///
-    /// [`Box2D`]: struct.Box2D.html
     #[must_use]
     pub fn round_in(&self) -> Self {
         self.to_box2d().round_in().to_rect()
@@ -640,10 +654,8 @@ impl<T: Floor + Ceil + Round + Add<T, Output = T> + Sub<T, Output = T>, U> Rect<
     ///
     /// # Usage notes
     /// Note, that when using with floating-point `T` types that method can significantly
-    /// loose precision for large values, so if you need to call this method very often it
+    /// lose precision for large values, so if you need to call this method very often it
     /// is better to use [`Box2D`].
-    ///
-    /// [`Box2D`]: struct.Box2D.html
     #[must_use]
     pub fn round_out(&self) -> Self {
         self.to_box2d().round_out().to_rect()
@@ -656,6 +668,15 @@ where
 {
     fn from(size: Size2D<T, U>) -> Self {
         Self::from_size(size)
+    }
+}
+
+impl<T, U> From<Box2D<T, U>> for Rect<T, U>
+where
+    T: Copy + Sub<T, Output = T>,
+{
+    fn from(b: Box2D<T, U>) -> Self {
+        b.to_rect()
     }
 }
 
@@ -904,7 +925,7 @@ mod tests {
                 }
                 y += 0.1;
             }
-            x += 0.1
+            x += 0.1;
         }
     }
 

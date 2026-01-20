@@ -1748,9 +1748,9 @@ dependencies = [
 
 [[package]]
 name = "euclid"
-version = "0.22.10"
+version = "0.22.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0f0eb73b934648cd7a4a61f1b15391cd95dab0b4da6e2e66c2a072c144b4a20"
+checksum = "df61bf483e837f88d5c2291dcf55c67be7e676b3a51acc48db3a7b163b91ed63"
 dependencies = [
  "num-traits",
  "serde",
@@ -2668,9 +2668,9 @@ dependencies = [
 
 [[package]]
 name = "glean"
-version = "66.2.0"
+version = "66.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bd66fe38baf2f972ca9fb63015533f05a11c971462a289c923270803da68b91"
+checksum = "c2cff88cbb3ec5ecd45a8ba642772a5fb88cc61350b6960d72a7452de138d9e2"
 dependencies = [
  "crossbeam-channel",
  "glean-core",
@@ -2683,9 +2683,9 @@ dependencies = [
 
 [[package]]
 name = "glean-core"
-version = "66.2.0"
+version = "66.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "416be389bdbac4b784bc226950607acaa9e56888e6fbc91ee2ac9ba5f6bbee1c"
+checksum = "b34409d1d4bc10da8ddcb584a0a1825d8ad6a5a268bf711320da95c615c30245"
 dependencies = [
  "android_logger",
  "bincode",

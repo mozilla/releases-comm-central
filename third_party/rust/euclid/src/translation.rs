@@ -20,14 +20,16 @@ use core::ops::{Add, AddAssign, Neg, Sub, SubAssign};
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 use num_traits::NumCast;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 /// A 2d transformation from a space to another that can only express translations.
 ///
-/// The main benefit of this type over a Vector2D is the ability to cast
-/// between a source and a destination spaces.
+/// The main benefit of this type over a [`Vector2D`] is the ability to cast
+/// between source and destination spaces.
 ///
 /// Example:
 ///
@@ -72,6 +74,13 @@ where
             y,
             _unit: PhantomData,
         })
+    }
+}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, Src, Dst> MallocSizeOf for Translation2D<T, Src, Dst> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops)
     }
 }
 
@@ -408,8 +417,8 @@ impl<T: fmt::Debug, Src, Dst> fmt::Debug for Translation2D<T, Src, Dst> {
 
 /// A 3d transformation from a space to another that can only express translations.
 ///
-/// The main benefit of this type over a Vector3D is the ability to cast
-/// between a source and a destination spaces.
+/// The main benefit of this type over a [`Vector3D`] is the ability to cast
+/// between source and destination spaces.
 #[repr(C)]
 pub struct Translation3D<T, Src, Dst> {
     pub x: T,
@@ -417,6 +426,29 @@ pub struct Translation3D<T, Src, Dst> {
     pub z: T,
     #[doc(hidden)]
     pub _unit: PhantomData<(Src, Dst)>,
+}
+
+#[cfg(feature = "arbitrary")]
+impl<'a, T, Src, Dst> arbitrary::Arbitrary<'a> for Translation3D<T, Src, Dst>
+where
+    T: arbitrary::Arbitrary<'a>,
+{
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let (x, y, z) = arbitrary::Arbitrary::arbitrary(u)?;
+        Ok(Translation3D {
+            x,
+            y,
+            z,
+            _unit: PhantomData,
+        })
+    }
+}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, Src, Dst> MallocSizeOf for Translation3D<T, Src, Dst> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.x.size_of(ops) + self.y.size_of(ops) + self.z.size_of(ops)
+    }
 }
 
 impl<T: Copy, Src, Dst> Copy for Translation3D<T, Src, Dst> {}

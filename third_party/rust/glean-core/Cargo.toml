@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.82"
 name = "glean-core"
-version = "66.2.0"
+version = "66.3.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -24,6 +24,7 @@ include = [
     "/LICENSE",
     "/src",
     "/examples",
+    "/benches",
     "/tests",
     "/Cargo.toml",
     "/uniffi.toml",
@@ -40,7 +41,7 @@ license = "MPL-2.0"
 repository = "https://github.com/mozilla/glean"
 
 [package.metadata.glean]
-glean-parser = "18.0.6"
+glean-parser = "18.2.0"
 
 [lib]
 name = "glean_core"
@@ -138,6 +139,11 @@ path = "tests/timing_distribution.rs"
 [[test]]
 name = "uuid"
 path = "tests/uuid.rs"
+
+[[bench]]
+name = "dispatcher"
+path = "benches/dispatcher.rs"
+harness = false
 
 [dependencies.bincode]
 version = "1.2.1"

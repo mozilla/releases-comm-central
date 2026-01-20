@@ -21,6 +21,7 @@ use crate::scale::Scale;
 use crate::transform2d::Transform2D;
 use crate::trig::Trig;
 use crate::vector::{vec2, vec3, Vector2D, Vector3D};
+use crate::ScaleOffset2D;
 
 use core::cmp::{Eq, PartialEq};
 use core::fmt;
@@ -30,9 +31,11 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 
 #[cfg(feature = "bytemuck")]
 use bytemuck::{Pod, Zeroable};
+#[cfg(feature = "malloc_size_of")]
+use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
 #[cfg(feature = "mint")]
 use mint;
-use num_traits::NumCast;
+use num_traits::{NumCast, Signed};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +51,7 @@ use serde::{Deserialize, Serialize};
 /// applied before the rest of the transformation, while post-transformations (`then_*`
 /// methods) add an operation that is applied after.
 ///
-/// When translating Transform3D into general matrix representations, consider that the
+/// When translating `Transform3D` into general matrix representations, consider that the
 /// representation follows the column major notation with column vectors.
 ///
 /// ```text
@@ -58,7 +61,7 @@ use serde::{Deserialize, Serialize};
 ///  |w |   | m41 m42 m43 m44 |   |1|
 /// ```
 ///
-/// The translation terms are m41, m42 and m43.
+/// The translation terms are `m41`, `m42` and `m43`.
 #[repr(C)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(
@@ -113,6 +116,28 @@ unsafe impl<T: Zeroable, Src, Dst> Zeroable for Transform3D<T, Src, Dst> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Pod, Src: 'static, Dst: 'static> Pod for Transform3D<T, Src, Dst> {}
+
+#[cfg(feature = "malloc_size_of")]
+impl<T: MallocSizeOf, Src, Dst> MallocSizeOf for Transform3D<T, Src, Dst> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.m11.size_of(ops)
+            + self.m12.size_of(ops)
+            + self.m13.size_of(ops)
+            + self.m14.size_of(ops)
+            + self.m21.size_of(ops)
+            + self.m22.size_of(ops)
+            + self.m23.size_of(ops)
+            + self.m24.size_of(ops)
+            + self.m31.size_of(ops)
+            + self.m32.size_of(ops)
+            + self.m33.size_of(ops)
+            + self.m34.size_of(ops)
+            + self.m41.size_of(ops)
+            + self.m42.size_of(ops)
+            + self.m43.size_of(ops)
+            + self.m44.size_of(ops)
+    }
+}
 
 impl<T: Copy, Src, Dst> Copy for Transform3D<T, Src, Dst> {}
 
@@ -427,11 +452,58 @@ impl<T: Copy, Src, Dst> Transform3D<T, Src, Dst> {
     /// Create a 2D transform picking the relevant terms from this transform.
     ///
     /// This method assumes that self represents a 2d transformation, callers
-    /// should check that [`self.is_2d()`] returns `true` beforehand.
+    /// should check that [`is_2d`] returns `true` beforehand.
     ///
-    /// [`self.is_2d()`]: #method.is_2d
+    /// [`is_2d`]: Self::is_2d
     pub fn to_2d(&self) -> Transform2D<T, Src, Dst> {
         Transform2D::new(self.m11, self.m12, self.m21, self.m22, self.m41, self.m42)
+    }
+
+    /// Returns true if self can be represented as a 2d scale+offset
+    /// transform, using `T`'s default epsilon value.
+    pub fn is_scale_offset_2d(&self) -> bool
+    where
+        T: Signed + PartialOrd + ApproxEq<T>,
+    {
+        self.is_scale_offset_2d_eps(T::approx_epsilon())
+    }
+
+    /// Returns true if self can be represented as a 2d scale+offset
+    /// transform.
+    pub fn is_scale_offset_2d_eps(&self, epsilon: T) -> bool
+    where
+        T: Signed + PartialOrd,
+    {
+        (self.m12.abs() < epsilon)
+            & (self.m13.abs() < epsilon)
+            & (self.m14.abs() < epsilon)
+            & (self.m21.abs() < epsilon)
+            & (self.m23.abs() < epsilon)
+            & (self.m24.abs() < epsilon)
+            & (self.m31.abs() < epsilon)
+            & (self.m32.abs() < epsilon)
+            & ((self.m33 - T::one()).abs() < epsilon)
+            & (self.m34.abs() < epsilon)
+            & (self.m43.abs() < epsilon)
+            & ((self.m44 - T::one()).abs() < epsilon)
+    }
+
+    /// Creates a 2D scale+offset transform from the current transform.
+    ///
+    /// This method assumes that self can be represented as a 2d scale+offset
+    /// transformation, callers should check that [`is_scale_offset_2d`] or
+    /// [`is_scale_offset_2d_eps`] returns `true` beforehand.
+    pub fn to_scale_offset2d(&self) -> Option<ScaleOffset2D<T, Src, Dst>>
+    where
+        T: Signed + One + PartialOrd,
+    {
+        Some(ScaleOffset2D {
+            sx: self.m11,
+            sy: self.m22,
+            tx: self.m41,
+            ty: self.m42,
+            _unit: PhantomData,
+        })
     }
 }
 
@@ -1110,26 +1182,22 @@ impl<T: NumCast + Copy, Src, Dst> Transform3D<T, Src, Dst> {
 }
 
 impl<T: ApproxEq<T>, Src, Dst> Transform3D<T, Src, Dst> {
-    /// Returns true is this transform is approximately equal to the other one, using
-    /// T's default epsilon value.
+    /// Returns `true` if this transform is approximately equal to the other one, using
+    /// `T`'s default epsilon value.
     ///
-    /// The same as [`ApproxEq::approx_eq()`] but available without importing trait.
-    ///
-    /// [`ApproxEq::approx_eq()`]: ./approxeq/trait.ApproxEq.html#method.approx_eq
+    /// The same as [`ApproxEq::approx_eq`] but available without importing trait.
     #[inline]
     pub fn approx_eq(&self, other: &Self) -> bool {
-        <Self as ApproxEq<T>>::approx_eq(&self, &other)
+        <Self as ApproxEq<T>>::approx_eq(self, other)
     }
 
-    /// Returns true is this transform is approximately equal to the other one, using
+    /// Returns `true` if this transform is approximately equal to the other one, using
     /// a provided epsilon value.
     ///
-    /// The same as [`ApproxEq::approx_eq_eps()`] but available without importing trait.
-    ///
-    /// [`ApproxEq::approx_eq_eps()`]: ./approxeq/trait.ApproxEq.html#method.approx_eq_eps
+    /// The same as [`ApproxEq::approx_eq_eps`] but available without importing trait.
     #[inline]
     pub fn approx_eq_eps(&self, other: &Self, eps: &T) -> bool {
-        <Self as ApproxEq<T>>::approx_eq_eps(&self, &other, &eps)
+        <Self as ApproxEq<T>>::approx_eq_eps(self, other, eps)
     }
 }
 
@@ -1156,7 +1224,7 @@ impl<T, Src, Dst> Default for Transform3D<T, Src, Dst>
 where
     T: Zero + One,
 {
-    /// Returns the [identity transform](#method.identity).
+    /// Returns the [identity transform](Self::identity).
     fn default() -> Self {
         Self::identity()
     }
@@ -1198,6 +1266,18 @@ impl<T, Src, Dst> From<Transform3D<T, Src, Dst>> for mint::RowMatrix4<T> {
             z: mint::Vector4 { x: t.m31, y: t.m32, z: t.m33, w: t.m34 },
             w: mint::Vector4 { x: t.m41, y: t.m42, z: t.m43, w: t.m44 },
         }
+    }
+}
+
+impl<T: Copy + Zero + One, Src, Dst> From<Transform2D<T, Src, Dst>> for Transform3D<T, Src, Dst> {
+    fn from(t: Transform2D<T, Src, Dst>) -> Self {
+        t.to_3d()
+    }
+}
+
+impl<T: Copy + Zero + One, Src, Dst> From<Scale<T, Src, Dst>> for Transform3D<T, Src, Dst> {
+    fn from(s: Scale<T, Src, Dst>) -> Self {
+        Transform3D::scale(s.get(), s.get(), s.get())
     }
 }
 

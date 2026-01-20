@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         features: ["", "--features serde", "--no-default-features --features libm"]
-        version: ["1.56.0", "stable", "beta", "nightly"]
+        version: ["1.63.0", "stable", "beta", "nightly"]
         include:
           - version: stable
             features: --features mint
@@ -23,13 +23,15 @@ jobs:
             features: --features bytemuck
           - version: stable
             features: --features arbitrary
+          - version: stable
+            features: --features malloc_size_of
           - version: nightly
             features: --features unstable
           - version: nightly
             features: --features unstable,serde
         
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@v1
@@ -49,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # GitHub runners already have a usable version of cargo & rustfmt, so an install is not needed
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: cargo fmt --check
 
   build_result:
