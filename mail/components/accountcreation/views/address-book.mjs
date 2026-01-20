@@ -291,8 +291,12 @@ class AccountHubAddressBook extends HTMLElement {
    * Initialize the UI of one of the address book subviews.
    *
    * @param {string} subview - Subview for which the UI is being initialized.
+   * @param {boolean} [isReset=false] - Initing to reset the view (like on close).
    */
-  async #initUI(subview) {
+  async #initUI(subview, isReset = false) {
+    if (!isReset) {
+      Glean.mail.accountHubLoaded.record({ view_name: subview });
+    }
     this.#hideSubviews();
     this.#currentState = subview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
@@ -558,7 +562,7 @@ class AccountHubAddressBook extends HTMLElement {
     this.#currentSubview.clearNotifications?.();
     this.#hideSubviews();
     this.#remoteAddressBookState = {};
-    await this.#initUI("optionSelectSubview");
+    await this.#initUI("optionSelectSubview", true);
     this.#setFooterButtons();
     // Reset all subviews that require a reset.
     for (const subviewName of Object.keys(this.#states)) {

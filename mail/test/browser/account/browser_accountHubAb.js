@@ -61,11 +61,19 @@ registerCleanupFunction(function () {
 });
 
 add_task(async function test_address_book_option_select_account_with_ab() {
+  Services.fog.testResetFOG();
   IMAPServer.open();
   const abAccount = await loginToAddressBookAccount();
 
   // Open the dialog.
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
+
+  let events = Glean.mail.accountHubLoaded.testGetValue();
+  Assert.equal(events.length, 2);
+  Assert.deepEqual(
+    events.map(v => v.extra.view_name),
+    ["ADDRESS_BOOK", "optionSelectSubview"]
+  );
 
   const optionSelectTemplate = dialog.querySelector(
     "address-book-option-select"
@@ -93,6 +101,9 @@ add_task(async function test_address_book_option_select_account_with_ab() {
   );
 
   await subtest_close_account_hub_dialog(dialog, optionSelectTemplate);
+
+  events = Glean.mail.accountHubLoaded.testGetValue();
+  Assert.equal(events.length, 2, "should still recorded 2 events");
 
   Services.logins.removeAllLogins();
   MailServices.accounts.removeAccount(abAccount);
@@ -191,6 +202,8 @@ add_task(async function test_address_book_option_selection() {
 });
 
 add_task(async function test_address_book_sync_account() {
+  Services.fog.testResetFOG();
+
   // Add an account so the sync option is not disabled.
   IMAPServer.open();
   const abAccount = await loginToAddressBookAccount();
@@ -322,6 +335,12 @@ add_task(async function test_address_book_sync_account() {
     {}
   );
 
+  const events = Glean.mail.accountHubLoaded.testGetValue();
+  Assert.deepEqual(
+    events.map(v => v.extra.view_name),
+    ["ADDRESS_BOOK", "accountSelectSubview", "syncAddressBooksSubview"]
+  );
+
   info("Opening address book tab...");
   const {
     detail: { tabInfo: addressBookTab },
@@ -375,6 +394,7 @@ add_task(async function test_address_book_sync_account() {
 });
 
 add_task(async function test_address_book_remote_account() {
+  Services.fog.testResetFOG();
   const dialog = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   const remoteAccountFormSubview = dialog.querySelector(
     "#addressBookRemoteAccountFormSubview"
@@ -434,11 +454,19 @@ add_task(async function test_address_book_remote_account() {
     dialog,
     dialog.querySelector("#addressBookOptionSelectSubview")
   );
+
+  const events = Glean.mail.accountHubLoaded.testGetValue();
+  Assert.deepEqual(
+    events.map(v => v.extra.view_name),
+    ["ADDRESS_BOOK", "remoteAccountSubview", "optionSelectSubview"]
+  );
 });
 
 add_task(async function test_localAddressBookCreation() {
+  Services.fog.testResetFOG();
   const accountHub = await subtest_open_account_hub_dialog("ADDRESS_BOOK");
   let optionSelect;
+  let localForm;
 
   await TestUtils.waitForCondition(() => {
     optionSelect = accountHub.querySelector("address-book-option-select");
@@ -451,7 +479,11 @@ add_task(async function test_localAddressBookCreation() {
 
   EventUtils.synthesizeMouseAtCenter(localAddressBookButton, {});
 
-  const localForm = accountHub.querySelector("address-book-local-form form");
+  await TestUtils.waitForCondition(() => {
+    localForm = accountHub.querySelector("address-book-local-form form");
+    return !!localForm;
+  }, "address-book-local-form form should exist");
+
   await TestUtils.waitForCondition(() => {
     return localForm.getBoundingClientRect().width;
   }, "New local address book subview should be visible");
@@ -506,6 +538,12 @@ add_task(async function test_localAddressBookCreation() {
   });
 
   await readyEvent;
+
+  const events = Glean.mail.accountHubLoaded.testGetValue();
+  Assert.deepEqual(
+    events.map(v => v.extra.view_name),
+    ["ADDRESS_BOOK", "localAddressBookSubview"]
+  );
 
   Assert.equal(
     tabmail.currentTabInfo.mode.type,

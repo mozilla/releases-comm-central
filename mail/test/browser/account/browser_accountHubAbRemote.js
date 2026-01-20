@@ -587,7 +587,6 @@ add_task(async function test_remoteAddressBookRememberPassword() {
   );
   Services.logins.removeLogin(logins[0]);
 
-  await dialog.querySelector("account-hub-address-book").reset();
   await SpecialPowers.popPrefEnv();
 });
 
