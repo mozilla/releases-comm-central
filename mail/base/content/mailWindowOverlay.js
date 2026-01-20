@@ -548,7 +548,7 @@ function InitViewMessagesMenu() {
 
   document
     .getElementById("viewAllMessagesMenuItem")
-    .toggleAttribute(
+    .setAttribute(
       "checked",
       !viewWrapper || (!viewWrapper.showUnreadOnly && !viewWrapper.specialView)
     );
