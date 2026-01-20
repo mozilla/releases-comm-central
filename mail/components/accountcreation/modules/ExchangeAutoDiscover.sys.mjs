@@ -576,7 +576,6 @@ export async function getAddonsList(config, abortSignal) {
     throw new Error("no URL for addons list configured");
   }
   const json = await lazy.fetchHTTP(url, {
-    allowCache: true,
     timeout: 10000,
     signal: abortSignal,
   });

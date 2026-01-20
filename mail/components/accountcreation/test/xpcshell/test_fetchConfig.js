@@ -27,9 +27,6 @@ const { FetchConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FetchConfig.sys.mjs"
 );
 
-const { fetchHTTP } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/FetchHTTP.sys.mjs"
-);
 const { JXON } = ChromeUtils.importESModule("resource:///modules/JXON.sys.mjs");
 
 const { HttpsProxy } = ChromeUtils.importESModule(

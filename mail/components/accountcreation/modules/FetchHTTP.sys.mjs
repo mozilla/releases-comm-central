@@ -33,62 +33,55 @@ ChromeUtils.defineLazyGetter(
 const { gAccountSetupLogger, abortSignalTimeout } = AccountCreationUtils;
 
 /**
- * Set up a fetch.
+ * Make a HTTP request. Wrapper similar to fetch, but not quite. Uses
+ * XMLHttpRequest, so redirects can be handled as errors.
  *
- * @param {string} url - URL of the server function.
- *    ATTENTION: The caller needs to make sure that the URL is secure to call.
- * @param {object} args - Additional parameters as properties, see below
- * @param {object} [args.urlArgs] - Parameters to add to the end of the URL as
- *   query string.
- *   E.g. { foo: "bla", bar: "blub blub" } will add "?foo=bla&bar=blub%20blub"
- *   to the URL (unless the URL already has a "?", then it adds "&foo...").
- *   The values will be urlComponentEncoded, so pass them unencoded.
- * @param {object} [args.headers] - HTTP headers to be added to the HTTP request.
- *   { foo: "blub blub" } will add HTTP header "Foo: Blub blub".
- *   The values will be passed verbatim.
- * @param {boolean} [args.post] - HTTP GET or POST
- *   Only influences the HTTP request method,
- *   i.e. first line of the HTTP request, not the body or parameters.
- *   Use POST when you modify server state,
- *   GET when you only request information.
- *   Default is GET.
- * @param {object} [args.bodyFormArgs] - Like urlArgs,
- *   just that the params will be sent x-url-encoded in the body,
- *   like a HTML form post.
- *   The values will be urlComponentEncoded, so pass them unencoded.
- *   This cannot be used together with |uploadBody|.
- * @param {object} [args.uploadBody=null] - Arbitrary object, which to use as
- *   body of the HTTP request. Will also set the mimetype accordingly.
- *   Only supported object types, currently only JXON is supported
- *   (sending XML).
- *   Usually, you have nothing to upload, so just pass |null|.
- *   Only supported object types, currently supported:
- *   JXON -> sending XML
- *   JS object -> sending JSON
- *   string -> sending text/plain
+ * @param {string} url - URL of the server function. ATTENTION: The caller needs
+ *   to make sure that the URL is secure to call.
+ * @param {object} [args={}] - Additional parameters as properties, see below
+ * @param {object} [args.urlArgs={}] - Parameters to add to the end of the URL
+ *   as query string. E.g. { foo: "bla", bar: "blub blub" } will add
+ *   "?foo=bla&bar=blub%20blub" to the URL (unless the URL already has a "?",
+ *   then it adds "&foo..."). The values will be urlComponentEncoded, so pass
+ *   them unencoded.
+ * @param {object} [args.headers={}] - HTTP headers to be added to the HTTP
+ *   request. { foo: "blub blub" } will add HTTP header "Foo: Blub blub". The
+ *   values will be passed verbatim.
+ * @param {boolean} [args.post] - HTTP GET or POST Only influences the HTTP
+ *   request method, i.e. first line of the HTTP request, not the body or
+ *   parameters. Use POST when you modify server state, GET when you only
+ *   request information. Default is GET, but POST is automatically set when a
+ *   body is provided.
+ * @param {object|string} [args.uploadBody] - Arbitrary object or string,
+ *   which to use as body of the HTTP request. Will also set the mimetype
+ *   accordingly. Only supported object types, currently supported:
+ *    - JXON -> sending XML
+ *    - JS object -> sending JSON
+ *    - string -> sending text/plain
  *   If you want to override the body mimetype, set header Content-Type below.
- *   Usually, you have nothing to upload, so just leave it at |null|.
- *   Default |null|.
- * @param {boolean} [args.allowCache=true]
- * @param {string} [args.username=null] (default null = no authentication)
- * @param {string} [args.password=null] (default null = no authentication)
- * @param {boolean} [args.allowAuthPrompt=true]
- * @param {boolean} [args.requireSecureAuth=false]
- *   Ignore the username and password unless we are using https:
- *   This also applies to both https: to http: and http: to https: redirects.
+ *   Usually, you have nothing to upload, so just leave it unset.
+ * @param {string} [args.username] - Default unset = no authentication.
+ * @param {string} [args.password] - Default unset = no authentication.
  * @param {AbortSignal} [args.signal] - Optional abort signal to cancel the
  *   request.
- * @returns {string|object}
- * @throws {ServerException}
+ * @param {number} [args.timeout=5000] - The forced timeout for the request in
+ *   miliseconds.
+ * @param {boolean} [isRetry = false] - Internal parameter used to indicate if
+ *   this is a recursive call.
+ * @returns {string|object} The response body from the server. If it is JSON or
+ *   XML the data is parsed into object from (JXON for XML).
+ * @throws {ServerException} The ServerException's code is either the HTTP
+ *   status code, -4 if there was an error parsing the response body or -2 if
+ *   any other error occurred. Other error types might also be thrown, for
+ *   example if the abort signal is aborted before the request is even set up.
  */
-export async function fetchHTTP(url, args = {}, isRetry) {
+export async function fetchHTTP(url, args = {}, isRetry = false) {
   const urlObject = new URL(lazy.Sanitizer.string(url));
   args.urlArgs ??= {};
   args.headers ??= {};
 
   const fetchArgs = {
     method: args.post || args.uploadBody ? "POST" : "GET",
-    cache: !args.allowCache ? "reload" : "default",
     body: args.uploadBody,
     headers: args.headers,
   };
@@ -109,18 +102,9 @@ export async function fetchHTTP(url, args = {}, isRetry) {
     // Plaintext
     // You can override the mimetype with { headers: {"Content-Type" : "text/foo" } }
     fetchArgs.headers["Content-Type"] ??= "text/plain; charset=UTF-8";
-  } else if (args.bodyFormArgs) {
-    // Form url encoded
-    fetchArgs.headers["Content-Type"] ??=
-      "application/x-www-form-urlencoded; charset=UTF-8";
-    fetchArgs.body = new URLSearchParams(args.bodyFormArgs);
   }
 
-  if (
-    (args.requireSecureAuth || urlObject.protocol == "https:") &&
-    args.username &&
-    args.password
-  ) {
+  if (args.username && args.password) {
     const authorization = btoa(
       lazy.MailStringUtils.stringToByteString(
         `${args.username}:${args.password}`
@@ -132,14 +116,19 @@ export async function fetchHTTP(url, args = {}, isRetry) {
   args.timeout = lazy.Sanitizer.integer(args.timeout || 5000); // default 5 seconds
 
   const timeoutAbort = abortSignalTimeout(args.timeout);
-  fetchArgs.signal = AbortSignal.any([timeoutAbort, args.signal]);
+  const signals = [timeoutAbort];
+  if (args.signal) {
+    args.signal.throwIfAborted();
+    signals.push(args.signal);
+  }
+  fetchArgs.signal = AbortSignal.any(signals);
 
   gAccountSetupLogger.info("Requesting", urlObject);
 
   let response;
   try {
     const request = new XMLHttpRequest();
-    request.mozBackgroundRequest = args.allowAuthPrompt ?? true;
+    request.mozBackgroundRequest = true;
     request.open(
       fetchArgs.method,
       urlObject.toString(),
@@ -149,10 +138,6 @@ export async function fetchHTTP(url, args = {}, isRetry) {
     );
     request.channel.loadGroup = null;
     request.timeout = args.timeout;
-    if (fetchArgs.cache == "reload") {
-      // Disable Mozilla HTTP cache
-      request.channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
-    }
     for (const [header, value] of Object.entries(fetchArgs.headers)) {
       request.setRequestHeader(header, value);
     }
@@ -177,9 +162,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
       response.status >= 300 &&
       fetchArgs.headers.Authorization &&
       response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
-      response.responseURL.startsWith(
-        args.requireSecureAuth ? "https" : "http"
-      ) &&
+      response.responseURL.startsWith("http") &&
       !isRetry
     ) {
       gAccountSetupLogger.info(
@@ -195,7 +178,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
     throw new ServerException(
       response.statusText || message,
       response.status || -2,
-      response.responseURL,
+      response.responseURL || urlObject.toString(),
       error
     );
   }
@@ -229,9 +212,7 @@ export async function fetchHTTP(url, args = {}, isRetry) {
   } else if (
     fetchArgs.headers.Authorization &&
     response.responseURL.replace(/\/\/.*@/, "//") != urlObject.toString() &&
-    response.responseURL.startsWith(
-      args.requireSecureAuth ? "https" : "http"
-    ) &&
+    response.responseURL.startsWith("http") &&
     !isRetry
   ) {
     gAccountSetupLogger.info(
