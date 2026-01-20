@@ -4,7 +4,49 @@
 
 //! Helper functions for converting strings to properly formatted names.
 
+use std::path::{Path, PathBuf};
+
 use crate::oxidize::is_rust_keyword;
+
+const GRAPH_PREFIX: &str = "microsoft.graph.";
+
+/// Strip the "microsoft.graph." prefix from a potentially fully qualified
+/// OpenAPI name (e.g. "microsoft.graph.user").
+pub fn base_name(full: &str) -> String {
+    full.replace(GRAPH_PREFIX, "")
+}
+
+/// Get a [`PathBuf`] representing the position of the schema represented by the
+/// given OpenAPI name in the hierarchy.
+///
+/// For example, this means that "microsoft.graph.security.user" will have
+/// "security/" as its path.
+///
+/// If the schema exists at the top level of the hierarchy, an empty path is
+/// returned.
+pub fn path(full: &str) -> PathBuf {
+    // Strip out the type's prefix.
+    let path = base_name(full);
+    assert!(!path.is_empty(), "invalid type name: {full}");
+
+    if !path.contains(".") {
+        // The current type is at the top level.
+        return PathBuf::new();
+    }
+
+    // Replace the delimiter to turn the type's name into a path `Path`
+    // understands.
+    let path = path.replace(".", "/");
+
+    Path::new(path.as_str())
+        .parent()
+        // `parent()` only returns `None` in two cases: if the path is empty
+        // (which we've already checked for earlier), or if we're dealing with
+        // an absolute top-level path (which we shouldn't since we also stripped
+        // out the trailing period after "microsoft.graph").
+        .expect("unexpected empty or absolute path")
+        .to_owned()
+}
 
 /// Given a potentially fully qualified OpenAPI name ("microsoft.graph.user"),
 /// produce the simple name for use here ("user").

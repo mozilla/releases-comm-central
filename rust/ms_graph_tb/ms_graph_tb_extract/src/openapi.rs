@@ -5,7 +5,7 @@
 //! Modules for simple representations of generic OpenAPI data from the yaml
 //! source, primarily for initial parsing.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use yaml_rust2::{yaml::Hash as YamlHash, Yaml, YamlLoader};
 
 pub mod path;
@@ -16,8 +16,8 @@ use schema::{parse_schema, OaSchema};
 
 /// A parsed OpenAPI yaml file, not yet interpreted.
 pub struct LoadedYaml {
-    pub paths: HashMap<String, OaPath>,
-    pub schemas: HashMap<String, OaSchema>,
+    pub paths: BTreeMap<String, OaPath>,
+    pub schemas: BTreeMap<String, OaSchema>,
 }
 
 /// Parse the given yaml text as an OpenAPI specification.
@@ -56,7 +56,7 @@ fn get_map_key<'a>(y: &'a Yaml, key: &str) -> Option<&'a Yaml> {
     }
 }
 
-fn get_str_in<'a>(h: &'a YamlHash, key: &str) -> Option<String> {
+fn get_str_in(h: &YamlHash, key: &str) -> Option<String> {
     h.get(&Yaml::from_str(key))?.as_str().map(str::to_string)
 }
 

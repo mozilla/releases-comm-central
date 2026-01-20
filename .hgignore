@@ -45,5 +45,6 @@ third_party/asn1js/node_modules/
 # Ruff
 \.ruff_cache/
 
-# Built documentation
+# Built Rust artifacts
 ^rust/target/
+^rust/ms_graph_tb/ms_graph_tb_extract/target/
