@@ -16,26 +16,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 
 let ewsServer, incomingServer, ewsAccount, identity;
 
-// The content we expect to see written to disk.
-const EXPECTED_MSG_CONTENT =
-  `Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Subject: test mail
-From: from_B@foo.invalid
-To: to_B@foo.invalid
-Message-Id: <0@made.up.invalid>
-Date: Tue, 01 Feb 2000 00:00:00 +0000
-
-test message
-`
-    // Fixup the line endings so they're the same on every platform. The
-    // save-to-file backend code applies the same line endings irrespective of
-    // platform so this ensures we can make this string match what we *actually*
-    // expect to be generated.
-    .replaceAll("\r\n", "\n")
-    // We'll instruct the message service to use "canonical" line ending, which
-    // here means CRLF, when writing the message to disk.
-    .replaceAll("\n", "\r\n");
-
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer({});
 });
@@ -94,7 +74,10 @@ add_task(async function test_save_to_file() {
 
   // Read the file and make sure it matches the expected output.
   const savedMessageContent = await IOUtils.readUTF8(file.path);
-  Assert.equal(savedMessageContent, EXPECTED_MSG_CONTENT);
+  // `.toMessageString()` serializes to rfc822 format, which includes using
+  // `\r\n` line endings. We add an empty line to the end to match the saved
+  // message.
+  Assert.equal(savedMessageContent, srcMsg.toMessageString() + "\r\n");
 
   // Remove the file. This won't happen if the test failed, so the resulting
   // file can be analyzed to debug the failure.
