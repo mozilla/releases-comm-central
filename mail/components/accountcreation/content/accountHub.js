@@ -219,6 +219,7 @@ class AccountHubControllerClass {
     if (!this.#reset()) {
       return;
     }
+    Glean.mail.accountHubLoaded.record({ view_name: type });
 
     await this.#views[type].call();
     if (!this.#modal.open) {

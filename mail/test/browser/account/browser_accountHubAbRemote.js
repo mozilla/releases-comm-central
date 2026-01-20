@@ -87,8 +87,6 @@ add_task(async function test_remoteAddressBookPassword() {
   EventUtils.synthesizeMouseAtCenter(forward, {}, window);
 
   await checkSyncSubview(dialog);
-
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_remoteAddressBookFormPwFromStorage() {
@@ -107,8 +105,6 @@ add_task(async function test_remoteAddressBookFormPwFromStorage() {
   await checkSyncSubview(dialog);
 
   Services.logins.removeLogin(login);
-
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(
@@ -146,7 +142,6 @@ add_task(
     );
     Services.logins.removeLogin(logins[0]);
     DNS.srv = _srv;
-    await dialog.querySelector("account-hub-address-book").reset();
   }
 );
 
@@ -202,7 +197,6 @@ add_task(async function test_remoteAddressBookFormOauth() {
     "OAuth credential should have refresh token as password"
   );
 
-  await dialog.querySelector("account-hub-address-book").reset();
   Services.logins.removeLogin(logins[0]);
   proxy.destroy();
   OAuth2TestUtils.stopServer();
@@ -235,7 +229,6 @@ add_task(async function test_notACardDAVServer() {
 
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_noCardDAVWellKnown() {
@@ -249,7 +242,6 @@ add_task(async function test_noCardDAVWellKnown() {
 
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_appleCardDAVServer() {
@@ -282,7 +274,6 @@ add_task(async function test_appleCardDAVServer() {
 
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_wrongPassword() {
@@ -332,8 +323,6 @@ add_task(async function test_wrongPassword() {
   EventUtils.synthesizeMouseAtCenter(forward, {}, window);
 
   await checkSyncSubview(dialog);
-
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_emailWithoutServer() {
@@ -357,7 +346,6 @@ add_task(async function test_emailWithoutServer() {
   );
 
   Services.logins.removeLogin(login);
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_dnsWithTXT() {
@@ -485,7 +473,6 @@ add_task(async function test_directoryWithNoName() {
   Services.logins.removeLogin(login);
   CardDAVServer.books = books;
   CardDAVServer.resetHandlers();
-  await dialog.querySelector("account-hub-address-book").reset();
 });
 
 add_task(async function test_invalidCertificate() {
@@ -556,7 +543,6 @@ add_task(async function test_invalidCertificateWithException() {
 
   Services.logins.removeLogin(login);
   CardDAVServer.resetHandlers();
-  await dialog.querySelector("account-hub-address-book").reset();
   certOverrideService.clearAllOverrides();
 });
 
