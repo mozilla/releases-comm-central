@@ -35,6 +35,17 @@ function getMsgBodyTxt(msgc) {
   return msgPane.contentDocument.documentElement.textContent;
 }
 
+async function openpgpProcessed() {
+  const [subject] = await TestUtils.topicObserved(
+    "document-element-inserted",
+    document => {
+      return document.ownerGlobal?.location == "about:message";
+    }
+  );
+
+  return BrowserTestUtils.waitForEvent(subject, "openpgpprocessed");
+}
+
 var aliceAcct;
 
 /**
@@ -109,6 +120,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     const msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
     );
+    await wait_for_message_display_completion(msgc, true);
     const aboutMessage = get_about_message(msgc);
 
     const notificationBox = "mail-notification-top";
@@ -131,6 +143,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     Assert.ok(body.includes("prefix"), "prefix should still be shown");
     Assert.ok(body.includes("suffix"), "suffix should still be shown");
 
+    const opengpgprocessed = openpgpProcessed();
     const newWindowPromise = promise_new_window("mail:messageWindow");
 
     // Click on the button to process the message subset.
@@ -147,6 +160,8 @@ add_task(async function testPartialInlinePGPDecrypt() {
     const msgc2 = await newWindowPromise;
     await wait_for_message_display_completion(msgc2, true);
     const aboutMessage2 = get_about_message(msgc2);
+
+    await opengpgprocessed;
 
     body = getMsgBodyTxt(msgc2);
 
