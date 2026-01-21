@@ -103,14 +103,6 @@ async function onLoad() {
   onAcceptanceChanged();
 }
 
-/***
- * Set the label text of a HTML element
- */
-function setLabel(elementId, label) {
-  const node = document.getElementById(elementId);
-  node.setAttribute("value", label);
-}
-
 async function changeExpiry() {
   const keyObj = EnigmailKeyRing.getKeyById(gKeyId);
   if (!keyObj || !keyObj.secretAvailable) {
@@ -368,12 +360,11 @@ async function reloadData(firstLoad) {
     return;
   }
 
-  let acceptanceIntroText = "";
-  let acceptanceVerificationText = "";
-
   if (keyObj.fpr) {
     gFingerprint = keyObj.fpr;
-    setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
+    document.getElementById("fingerprint").value = EnigmailKey.formatFpr(
+      keyObj.fpr
+    );
   }
 
   gSigTree = document.getElementById("signatures_tree");
@@ -384,42 +375,77 @@ async function reloadData(firstLoad) {
 
   gUserId = keyObj.userId;
 
-  setLabel("keyId", "0x" + keyObj.keyId);
-  setLabel("keyCreated", keyObj.created);
+  document.getElementById("keyId").value = keyObj.keyId;
+  document.getElementById("keyCreated").value = keyObj.created;
 
   const keyIsExpired =
     keyObj.effectiveExpiryTime &&
     keyObj.effectiveExpiryTime < Math.floor(Date.now() / 1000);
 
   let expiryInfo;
-  let expireArgument = null;
-  let expiryInfoKey = "";
   if (keyObj.keyTrust == "r") {
-    expiryInfoKey = "key-revoked-simple";
+    expiryInfo = l10n.formatValueSync("key-revoked-simple");
   } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-    expiryInfoKey = "key-expired-date";
-    expireArgument = keyObj.effectiveExpiry;
+    expiryInfo = l10n.formatValueSync("key-expired-date", {
+      keyExpiry: keyObj.effectiveExpiry,
+    });
   } else if (keyObj.effectiveExpiry.length === 0) {
-    expiryInfoKey = "key-does-not-expire";
+    expiryInfo = l10n.formatValueSync("key-does-not-expire");
   } else {
     expiryInfo = keyObj.effectiveExpiry;
   }
-  if (expiryInfoKey) {
-    expiryInfo = l10n.formatValueSync(expiryInfoKey, {
-      keyExpiry: expireArgument,
-    });
-  }
-  setLabel("keyExpiry", expiryInfo);
+  document.getElementById("keyExpiry").value = expiryInfo;
 
   gModePersonal = keyObj.secretAvailable;
 
-  if (gModePersonal) {
-    gPersonalRadio.removeAttribute("hidden");
-    gAcceptanceRadio.toggleAttribute("hidden", true);
-    acceptanceIntroText = "key-accept-personal";
-    const value = l10n.formatValueSync("key-type-pair");
-    setLabel("keyType", value);
+  document.getElementById("revocationReasonCode").hidden =
+    keyObj.keyTrust != "r";
+  document.getElementById("revocationReasonReason").hidden =
+    keyObj.keyTrust != "r";
 
+  document.getElementById("acceptanceSelection").hidden =
+    keyObj.keyTrust == "r";
+
+  document.getElementById("keyType").value = l10n.formatValueSync(
+    gModePersonal ? "key-type-pair" : "key-type-public"
+  );
+  gPersonalRadio.hidden = !gModePersonal;
+
+  if (keyObj.keyTrust == "r") {
+    document.l10n.setAttributes(
+      document.getElementById("acceptanceIntro"),
+      "key-revoked-simple"
+    );
+    try {
+      const { code, reason } = RNP.getKeyRevocationReasonByKeyId(
+        `0x${keyObj.keyId}`
+      );
+      // key-revoked-revocation-code-superseded
+      // key-revoked-revocation-code-compromised
+      // key-revoked-revocation-code-retired
+      if (code && code != "no") {
+        document.l10n.setAttributes(
+          document.getElementById("revocationReasonCode"),
+          `key-revoked-revocation-code-${code}`,
+          { code }
+        );
+      }
+
+      document.getElementById("revocationReasonReason").hidden = !reason;
+      if (reason) {
+        document.l10n.setAttributes(
+          document.getElementById("revocationReasonReason"),
+          `key-revoked-revocation-reason`,
+          { reason }
+        );
+      }
+    } catch (e) {
+      console.warn("Getting revocation reason FAILED!", e);
+    }
+  }
+
+  if (gModePersonal) {
+    gAcceptanceRadio.hidden = true;
     gUpdateAllowed = true;
     if (firstLoad) {
       gOriginalPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
@@ -429,32 +455,40 @@ async function reloadData(firstLoad) {
     }
 
     if (keyObj.keyTrust != "r") {
-      document.getElementById("changeExpiryButton").removeAttribute("hidden");
+      document.l10n.setAttributes(
+        document.getElementById("acceptanceIntro"),
+        "key-accept-personal"
+      );
+      document.getElementById("changeExpiryButton").hidden = false;
     }
   } else {
-    gPersonalRadio.toggleAttribute("hidden", true);
-    const value = l10n.formatValueSync("key-type-public");
-    setLabel("keyType", value);
-
     const isStillValid = !(
       keyObj.keyTrust == "r" ||
       keyObj.keyTrust == "e" ||
       keyIsExpired
     );
     if (!isStillValid) {
-      gAcceptanceRadio.toggleAttribute("hidden", true);
-      if (keyObj.keyTrust == "r") {
-        acceptanceIntroText = "key-revoked-simple";
-      } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-        acceptanceIntroText = "key-expired-simple";
+      gAcceptanceRadio.hidden = true;
+      if (keyObj.keyTrust == "e" || keyIsExpired) {
+        document.l10n.setAttributes(
+          document.getElementById("acceptanceIntro"),
+          "key-expired-simple"
+        );
       }
     } else {
-      gAcceptanceRadio.removeAttribute("hidden");
-      acceptanceIntroText = "key-do-you-accept";
-      acceptanceVerificationText = "key-verification";
+      gAcceptanceRadio.hidden = false;
+      document.l10n.setAttributes(
+        document.getElementById("acceptanceIntro"),
+        "key-do-you-accept"
+      );
+      document.l10n.setAttributes(
+        document.getElementById("acceptanceVerification"),
+        "key-verification",
+        {
+          addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase(),
+        }
+      );
       gUpdateAllowed = true;
-
-      //await RNP.calculateAcceptance(keyObj.keyId, null);
 
       const acceptanceResult = await PgpSqliteDb2.getFingerprintAcceptance(
         null,
@@ -505,24 +539,6 @@ async function reloadData(firstLoad) {
   }
 
   await createUidData(keyObj);
-
-  if (acceptanceIntroText) {
-    const acceptanceIntro = document.getElementById("acceptanceIntro");
-    document.l10n.setAttributes(acceptanceIntro, acceptanceIntroText);
-  }
-
-  if (acceptanceVerificationText) {
-    const acceptanceVerification = document.getElementById(
-      "acceptanceVerification"
-    );
-    document.l10n.setAttributes(
-      acceptanceVerification,
-      acceptanceVerificationText,
-      {
-        addr: EnigmailFuncs.getEmailFromUserID(gUserId).toLowerCase(),
-      }
-    );
-  }
 
   document.getElementById("key-detail-has-insecure").hidden =
     !keyObj.hasIgnoredAttributes;

@@ -1929,6 +1929,23 @@ function enableRNPLibJS() {
       ctypes.bool.ptr
     ),
 
+    rnp_signature_get_revocation_reason: librnp.declare(
+      "rnp_signature_get_revocation_reason",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      ctypes.char.ptr.ptr,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_key_get_revocation_signature: librnp.declare(
+      "rnp_key_get_revocation_signature",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      rnp_signature_handle_t.ptr
+    ),
+
     rnp_signature_is_valid: librnp.declare(
       "rnp_signature_is_valid",
       abi,

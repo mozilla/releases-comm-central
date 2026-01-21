@@ -821,7 +821,7 @@ export var RNP = {
             continue;
           }
         } catch (ex) {
-          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`);
+          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`, ex);
           continue;
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
@@ -882,7 +882,7 @@ export var RNP = {
           }
         } catch (ex) {
           const id = RNP.getKeyIDFromHandle(handle);
-          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`);
+          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`, ex);
           continue;
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
@@ -1069,7 +1069,15 @@ export var RNP = {
     return level.value < RNPLib.RNP_SECURITY_DEFAULT;
   },
 
-  // return false if handle refers to subkey and should be ignored
+  /**
+   * @param {rnp_ffi_t} ffi
+   * @param {rnp_key_handle_t} handle
+   * @param {KeyObj} keyObj
+   * @param {boolean} usePrimaryIfSubkey
+   * @param {boolean} forListing
+   * @param {boolean} onlyIfSecret
+   * @returns {boolean} false if handle refers to subkey and should be ignored
+   */
   getKeyInfoFromHandle(
     ffi,
     handle,
@@ -1133,7 +1141,7 @@ export var RNP = {
 
     let hasAnySecretKey = keyObj.secretAvailable;
 
-    /* The remaining actions are done for primary keys, only. */
+    // The remaining actions are done for primary keys, only.
     if (!is_subkey.value) {
       if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
         throw new Error("rnp_key_get_uid_count failed");
@@ -1495,10 +1503,8 @@ export var RNP = {
   },
 
   getUidSignatureQuality(self_key_id, uid_handle) {
-    const result = {
-      hasGoodSignature: false,
-      hasWeakSignature: false,
-    };
+    let hasGoodSignature = false;
+    let hasWeakSignature = false;
 
     const sig_count = new lazy.ctypes.size_t();
     if (RNPLib.rnp_uid_get_signature_count(uid_handle, sig_count.address())) {
@@ -1520,18 +1526,15 @@ export var RNP = {
       }
 
       if (sig_id_str.readString() == self_key_id) {
-        if (!result.hasGoodSignature) {
+        if (!hasGoodSignature) {
           const sig_validity = RNPLib.rnp_signature_is_valid(sig_handle, 0);
-          result.hasGoodSignature =
+          hasGoodSignature =
             sig_validity == RNPLib.RNP_SUCCESS ||
             sig_validity == RNPLib.RNP_ERROR_SIGNATURE_EXPIRED;
         }
 
-        if (!result.hasWeakSignature) {
-          result.hasWeakSignature = RNP.isWeakSelfSignature(
-            self_key_id,
-            sig_handle
-          );
+        if (!hasWeakSignature) {
+          hasWeakSignature = RNP.isWeakSelfSignature(self_key_id, sig_handle);
         }
       }
 
@@ -1539,7 +1542,72 @@ export var RNP = {
       RNPLib.rnp_signature_handle_destroy(sig_handle);
     }
 
-    return result;
+    return {
+      hasGoodSignature,
+      hasWeakSignature,
+    };
+  },
+
+  /**
+   * Get revocation reason for a key.
+   *
+   * @param {string} keyId
+   * @returns {object} revocationReason - Textual explanation for revocation.
+   * @returns {"no"|"superseded"|"compromised"|"retired"|null} revocationReason.code - Code.
+   *   See revocation_code_map.
+   * @returns {?string} revocationReason.reason
+   * @see https://www.rfc-editor.org/rfc/rfc9580.html#section-5.2.3.31
+   */
+  getKeyRevocationReasonByKeyId(keyId) {
+    const key_handle = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, keyId);
+    if (key_handle?.isNull()) {
+      return { code: null, reason: null };
+    }
+    const reason = this.getKeyRevocationReasonByKeyHandle(key_handle);
+    RNPLib.rnp_key_handle_destroy(key_handle);
+    return reason;
+  },
+
+  /**
+   * Get revocation reason for a key.
+   *
+   * @param {rnp_key_handle_t} key_handle
+   * @returns {?object} revocationReason - Textual explanation for revocation.
+   * @returns {"no"|"superseded"|"compromised"|"retired"|null} revocationReason.code - Code.
+   *   See revocation_code_map.
+   * @returns {?string} revocationReason.reason
+   * @see https://www.rfc-editor.org/rfc/rfc9580.html#section-5.2.3.31
+   */
+  getKeyRevocationReasonByKeyHandle(key_handle) {
+    const sig_handle = new RNPLib.rnp_signature_handle_t();
+    if (
+      RNPLib.rnp_key_get_revocation_signature(key_handle, sig_handle.address())
+    ) {
+      throw new Error("rnp_key_get_revocation_signature failed");
+    }
+    if (sig_handle.isNull()) {
+      return { code: null, reason: null };
+    }
+
+    const codePtr = new lazy.ctypes.char.ptr();
+    const reasonPtr = new lazy.ctypes.char.ptr();
+    if (
+      RNPLib.rnp_signature_get_revocation_reason(
+        sig_handle,
+        codePtr.address(),
+        reasonPtr.address()
+      )
+    ) {
+      throw new Error("rnp_signature_get_revocation_reason failed");
+    }
+    const code = !codePtr.isNull() ? codePtr.readString() : null;
+    const reason = !reasonPtr.isNull() ? reasonPtr.readString() : null;
+
+    RNPLib.rnp_buffer_destroy(codePtr);
+    RNPLib.rnp_buffer_destroy(reasonPtr);
+    RNPLib.rnp_signature_handle_destroy(sig_handle);
+
+    return { code, reason };
   },
 
   isBadUid(uid_handle) {

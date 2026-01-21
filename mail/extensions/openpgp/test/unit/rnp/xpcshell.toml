@@ -12,6 +12,8 @@ tags = ["openpgp"]
 
 ["test_encryptAndOrSign.js"]
 
+["test_revocation.js"]
+
 ["test_secretKeys.js"]
 
 ["test_strip.js"]

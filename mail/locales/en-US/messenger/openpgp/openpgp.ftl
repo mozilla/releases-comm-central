@@ -481,6 +481,14 @@ key-does-not-expire = The key does not expire
 key-expired-date = The key expired on { $keyExpiry }
 key-expired-simple = The key has expired
 key-revoked-simple = The key was revoked
+
+key-revoked-revocation-code-superseded = The key was revoked because the key is superseded.
+key-revoked-revocation-code-compromised = The key was revoked because the key material has been compromised.
+key-revoked-revocation-code-retired = The key was revoked because the key is retired and no longer used.
+
+# Variables:
+# $reason (String) - Key owner entered reason for revocation.
+key-revoked-revocation-reason = Revocation reason as stated by key owner: { $reason }
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
 # Variables:
 # $addr (String) - Email address the key claims it belongs to.
