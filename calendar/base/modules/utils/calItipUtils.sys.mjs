@@ -1338,7 +1338,10 @@ export var itip = {
   getInvitedAttendee(aItem, aCalendar) {
     const id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE");
     if (id) {
-      return aItem.getAttendeeById(id);
+      const attendee = aItem.getAttendeeById(id);
+      if (attendee) {
+        return attendee;
+      }
     }
     if (!aCalendar) {
       aCalendar = aItem.calendar;

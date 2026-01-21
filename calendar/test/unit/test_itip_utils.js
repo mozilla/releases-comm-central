@@ -14,6 +14,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
   CalItipEmailTransport: "resource:///modules/CalItipEmailTransport.sys.mjs",
+  CalMemoryCalendar: "resource:///modules/CalMemoryCalendar.sys.mjs",
 });
 
 // tests for calItipUtils.sys.mjs
@@ -762,6 +763,43 @@ add_task(async function test_getInvitedAttendee() {
   Assert.ok(
     !cal.itip.getInvitedAttendee(event),
     "returns falsy for non-existent X-MOZ-INVITED-ATTENDEE"
+  );
+});
+
+/**
+ * Tests that getInvitedAttendee falls back to calendarUserAddresses when
+ * X-MOZ-INVITED-ATTENDEE does not match any attendee.
+ */
+add_task(function test_getInvitedAttendee_xmoz_invited_attendee_fallback() {
+  const event = new CalEvent(CalendarTestUtils.dedent`
+        BEGIN:VEVENT
+        UID:calendar-user-addresses-xmoz
+        DTSTAMP:20260109T101239Z
+        DTSTART:20260112T143000Z
+        DTEND:20260112T150000Z
+        ORGANIZER:mailto:organizer@example.invalid
+        ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:attendee-one@example.invalid
+        ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:attendee-two@example.invalid
+        X-MOZ-INVITED-ATTENDEE:mailto:other-invitee@example.invalid
+        END:VEVENT
+      `);
+
+  const calendar = new CalMemoryCalendar();
+  calendar.calendarUserAddresses = [
+    "mailto:primary@example.invalid",
+    "mailto:attendee-two@example.invalid",
+  ];
+  event.calendar = calendar;
+
+  const attendee = cal.itip.getInvitedAttendee(event);
+  Assert.ok(
+    attendee,
+    "returns a non-null attendee when X-MOZ-INVITED-ATTENDEE does not match any attendee"
+  );
+  Assert.equal(
+    attendee?.id,
+    "mailto:attendee-two@example.invalid",
+    "falls back to calendarUserAddresses when X-MOZ-INVITED-ATTENDEE does not match"
   );
 });
 
