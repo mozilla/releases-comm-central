@@ -108,6 +108,9 @@ class AccountHubHeader extends HTMLElement {
         `Account setup error: ${error?.cause?.title || error?.message}. ${error?.cause?.text}`,
         error
       );
+      if (fluentTitleId) {
+        Glean.mail.accountHubError[fluentTitleId].add(1);
+      }
     }
 
     // Hide the notification bar.

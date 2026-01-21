@@ -59,38 +59,48 @@ support-files = ["xml/**"]
 ["browser_accountColors.js"]
 
 ["browser_accountHub.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubAb.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubAbLDAP.js"]
-tags = ["addrbook"]
+tags = ["addrbook", "accounthub"]
 
 ["browser_accountHubAbRemote.js"]
-tags = ["addrbook", "carddav", "oauth"]
+tags = ["addrbook", "carddav", "oauth", "accounthub"]
 
 ["browser_accountHubBackground.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubConfigAlternatives.js"]
-tags = ["oauth"]
+tags = ["oauth", "accounthub"]
 
 ["browser_accountHubConfigSelect.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubCredentialsConfirmation.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubEmailConfigFound.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubExchange.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubManualConfig.js"]
 
 ["browser_accountHubOAuth.js"]
-tags = ["oauth"]
+tags = ["oauth", "accounthub"]
 
 ["browser_accountHubOpen.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubPlaceholder.js"]
+tags = ["accounthub"]
 
 ["browser_accountHubSyncAccounts.js"]
+tags = ["accounthub"]
 
 ["browser_accountOrder.js"]
 
