@@ -52,11 +52,10 @@ class EmailConfigFound extends AccountHubStep {
 
   connectedCallback() {
     if (this.hasConnected) {
-      super.connectedCallback();
       return;
     }
-
     this.hasConnected = true;
+
     super.connectedCallback();
 
     const template = document

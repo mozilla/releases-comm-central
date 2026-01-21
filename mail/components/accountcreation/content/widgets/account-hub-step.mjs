@@ -27,7 +27,7 @@ export class AccountHubStep extends HTMLElement {
    */
   #header;
 
-  async connectedCallback() {
+  connectedCallback() {
     if (this.shadowRoot) {
       // Already connected, no need to run it again.
       return;

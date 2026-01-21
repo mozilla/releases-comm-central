@@ -20,9 +20,9 @@ class EmailCredentialsConfirmation extends AccountHubStep {
     if (this.hasConnected) {
       return;
     }
+    this.hasConnected = true;
 
     super.connectedCallback();
-    this.hasConnected = true;
 
     const template = document
       .getElementById("accountHubEmailCredentialsConfirmationTemplate")
