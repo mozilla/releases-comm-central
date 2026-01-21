@@ -13,9 +13,13 @@ var { MessageListTracker, MessageTracker, MessageManager, TagTracker } =
 var { SpaceTracker } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSpaces.sys.mjs"
 );
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
 
 XPCOMUtils.defineLazyGlobalGetters(this, [
@@ -257,7 +261,7 @@ global.TabContext = class extends EventEmitter {
 // It is assumed that it is started at some point. That might never happen,
 // e.g. if the application shuts down before the search service initializes.
 ChromeUtils.defineLazyGetter(global, "searchInitialized", () => {
-  if (Services.search.isInitialized) {
+  if (SearchService.isInitialized) {
     return Promise.resolve();
   }
   return ExtensionUtils.promiseObserved(

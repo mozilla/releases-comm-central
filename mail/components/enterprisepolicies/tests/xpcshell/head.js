@@ -19,6 +19,7 @@ const { PermissionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/PermissionTestUtils.sys.mjs"
 );
 ChromeUtils.defineESModuleGetters(lazy, {
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
   SearchTestUtils: "resource://testing-common/SearchTestUtils.sys.mjs",
 });
 const { EnterprisePolicyTesting } = ChromeUtils.importESModule(
@@ -59,7 +60,7 @@ async function setupPolicyEngineWithJson(json, customSchema) {
  *   enterprise policy.
  */
 async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
-  Services.search.wrappedJSObject.reset();
+  lazy.SearchService.wrappedJSObject.reset();
   if (typeof json != "object") {
     const filePath = do_get_file(json ? json : "non-existing-file.json").path;
     await EnterprisePolicyTesting.setupPolicyEngineWithJson(
@@ -72,7 +73,7 @@ async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
   const settingsWritten = lazy.SearchTestUtils.promiseSearchNotification(
     "write-settings-to-disk-complete"
   );
-  await Services.search.init();
+  await lazy.SearchService.init();
   return settingsWritten;
 }
 

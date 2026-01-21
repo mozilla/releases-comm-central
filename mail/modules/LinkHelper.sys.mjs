@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PlacesUtils } from "resource://gre/modules/PlacesUtils.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
 
 /**
  * Clone principal and add permission to use the application associated with
@@ -123,8 +128,8 @@ export function openLinkInNewTab(url, params = {}) {
  * @param {string} query - The string to search for.
  */
 export function openWebSearch(query) {
-  return Services.search.init().then(async () => {
-    const engine = await Services.search.getDefault();
+  return lazy.SearchService.init().then(async () => {
+    const engine = await lazy.SearchService.getDefault();
     openLinkExternally(engine.getSubmission(query).uri.spec);
 
     Glean.mail.websearchUsage[engine.name.toLowerCase()].add(1);

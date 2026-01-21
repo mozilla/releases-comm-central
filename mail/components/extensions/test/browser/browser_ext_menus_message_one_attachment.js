@@ -4,6 +4,10 @@
 
 "use strict";
 
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
+
 let gAccount, gFolders, gMessage, gExpectedAttachments;
 let gDefaultTabmail, gDefaultAbout3Pane;
 
@@ -145,7 +149,7 @@ function getExtensionDetails(...permissions) {
 }
 
 add_setup(async () => {
-  await Services.search.init();
+  await lazy.SearchService.init();
 
   gAccount = createAccount();
   addIdentity(gAccount);

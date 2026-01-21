@@ -5,6 +5,10 @@
 
 "use strict";
 
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
+
 /* import-globals-from ../../base/content/aboutDialog-appUpdater.js */
 /* import-globals-from ../../../../toolkit/mozapps/preferences/fontbuilder.js */
 /* import-globals-from preferences.js */
@@ -50,6 +54,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailNotificationManager:
     "resource:///modules/MailNotificationManager.sys.mjs",
   SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
 
 const TYPE_PDF = "application/pdf";
@@ -664,10 +669,10 @@ var gGeneralPane = {
 
   async updateWebSearch() {
     const self = this;
-    Services.search.init().then(async () => {
-      const defaultEngine = await Services.search.getDefault();
+    lazy.SearchService.init().then(async () => {
+      const defaultEngine = await lazy.SearchService.getDefault();
       const engineList = document.getElementById("defaultWebSearch");
-      for (const engine of await Services.search.getVisibleEngines()) {
+      for (const engine of await lazy.SearchService.getVisibleEngines()) {
         const item = engineList.appendItem(engine.name);
         item.engine = engine;
         item.className = "menuitem-iconic";
@@ -680,11 +685,11 @@ var gGeneralPane = {
           engineList.selectedItem = item;
         }
       }
-      self.defaultEngines = await Services.search.getAppProvidedEngines();
+      self.defaultEngines = await lazy.SearchService.getAppProvidedEngines();
       self.updateRemoveButton();
 
       engineList.addEventListener("command", async () => {
-        await Services.search.setDefault(
+        await lazy.SearchService.setDefault(
           engineList.selectedItem.engine,
           Ci.nsISearchService.CHANGE_REASON_USER
         );
@@ -699,7 +704,7 @@ var gGeneralPane = {
   async updateRemoveButton() {
     const engineList = document.getElementById("defaultWebSearch");
     const removeButton = document.getElementById("removeSearchEngine");
-    if (this.defaultEngines.includes(await Services.search.getDefault())) {
+    if (this.defaultEngines.includes(await lazy.SearchService.getDefault())) {
       // Don't allow deletion of a default engine (saves us having a 'restore' button).
       removeButton.disabled = true;
     } else {
@@ -760,7 +765,7 @@ var gGeneralPane = {
     let engine;
     try {
       url = await this.lookupOpenSearch(url);
-      engine = await Services.search.addOpenSearchEngine(url, null);
+      engine = await lazy.SearchService.addOpenSearchEngine(url, null);
     } catch (reason) {
       const [failTitle, failText] = await document.l10n.formatValues([
         { id: "adding-opensearch-provider-failed-title" },
@@ -784,7 +789,7 @@ var gGeneralPane = {
     );
     engineList.selectedIndex =
       engineList.firstElementChild.childElementCount - 1;
-    await Services.search.setDefault(
+    await lazy.SearchService.setDefault(
       engineList.selectedItem.engine,
       Ci.nsISearchService.CHANGE_REASON_USER
     );
@@ -794,15 +799,15 @@ var gGeneralPane = {
   async removeSearchEngine() {
     // Deletes the current engine. Firefox does a better job since it
     // shows all the engines in the list. But better than nothing.
-    const defaultEngine = await Services.search.getDefault();
+    const defaultEngine = await lazy.SearchService.getDefault();
     const engineList = document.getElementById("defaultWebSearch");
     for (let i = 0; i < engineList.itemCount; i++) {
       const item = engineList.getItemAtIndex(i);
       if (item.engine == defaultEngine) {
-        await Services.search.removeEngine(item.engine);
+        await lazy.SearchService.removeEngine(item.engine);
         item.remove();
         engineList.selectedIndex = 0;
-        await Services.search.setDefault(
+        await lazy.SearchService.setDefault(
           engineList.selectedItem.engine,
           Ci.nsISearchService.CHANGE_REASON_USER
         );

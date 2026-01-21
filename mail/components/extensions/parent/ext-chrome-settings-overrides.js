@@ -16,10 +16,14 @@ var { ExtensionPreferencesManager } = ChromeUtils.importESModule(
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionSettingsStore:
     "resource://gre/modules/ExtensionSettingsStore.sys.mjs",
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
 const DEFAULT_SEARCH_STORE_TYPE = "default_search";
 const DEFAULT_SEARCH_SETTING_NAME = "defaultSearch";
@@ -55,11 +59,11 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     );
     if (item && control == "controlled_by_this_extension") {
       try {
-        const engine = Services.search.getEngineByName(
+        const engine = SearchService.getEngineByName(
           item.value || item.initialValue
         );
         if (engine) {
-          await Services.search.setDefault(
+          await SearchService.setDefault(
             engine,
             action == "enable"
               ? Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
@@ -74,7 +78,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
 
   static async removeEngine(id) {
     try {
-      await Services.search.removeWebExtensionEngine(id);
+      await SearchService.removeWebExtensionEngine(id);
     } catch (e) {
       console.error(e);
     }
@@ -152,7 +156,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       extension.id
     );
     if (!item) {
-      const defaultEngine = await Services.search.getDefault();
+      const defaultEngine = await SearchService.getDefault();
       item = await ExtensionSettingsStore.addSetting(
         extension.id,
         DEFAULT_SEARCH_STORE_TYPE,
@@ -184,8 +188,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   async promptDefaultSearch(engineName) {
     const { extension } = this;
     // Don't ask if it is already the current engine
-    const engine = Services.search.getEngineByName(engineName);
-    const defaultEngine = await Services.search.getDefault();
+    const engine = SearchService.getEngineByName(engineName);
+    const defaultEngine = await SearchService.getDefault();
     if (defaultEngine.name == engine.name) {
       return;
     }
@@ -213,8 +217,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
               "enable",
               extension.id
             );
-            await Services.search.setDefault(
-              Services.search.getEngineByName(engineName),
+            await SearchService.setDefault(
+              SearchService.getEngineByName(engineName),
               Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
             );
           }
@@ -253,7 +257,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     }
 
     const engineName = searchProvider.name.trim();
-    const result = await Services.search.maybeSetAndOverrideDefault(extension);
+    const result = await SearchService.maybeSetAndOverrideDefault(extension);
     // This will only be set to true when the specified engine is a config
     // engine, or when it is an allowed add-on defined in the list stored in
     // SearchDefaultOverrideAllowlistHandler.
@@ -281,8 +285,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       // engine to default and we are ignoring the addons other engine settings.
       // In this case we do not show the prompt to the user.
       const item = await this.ensureSetting(engineName);
-      await Services.search.setDefault(
-        Services.search.getEngineByName(item.value),
+      await SearchService.setDefault(
+        SearchService.getEngineByName(item.value),
         Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
       );
     } else if (
@@ -302,7 +306,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       // and the current engine actually set.
       if (
         control === "controlled_by_this_extension" &&
-        Services.search.defaultEngine.name !== engineName
+        SearchService.defaultEngine.name !== engineName
       ) {
         // Check for and fix any inconsistency between the extensions settings storage
         // and the current engine actually set.  If settings claims the extension is default
@@ -313,7 +317,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
           DEFAULT_SEARCH_SETTING_NAME
         );
         for (const setting of allSettings) {
-          if (setting.value !== Services.search.defaultEngine.name) {
+          if (setting.value !== SearchService.defaultEngine.name) {
             await ExtensionSettingsStore.disable(
               setting.id,
               DEFAULT_SEARCH_STORE_TYPE,
@@ -329,8 +333,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       }
 
       if (control === "controlled_by_this_extension") {
-        await Services.search.setDefault(
-          Services.search.getEngineByName(engineName),
+        await SearchService.setDefault(
+          SearchService.getEngineByName(engineName),
           Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
         );
       } else if (control === "controllable_by_this_extension") {
@@ -341,8 +345,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
             "enable",
             extension.id
           );
-          await Services.search.setDefault(
-            Services.search.getEngineByName(engineName),
+          await SearchService.setDefault(
+            SearchService.getEngineByName(engineName),
             Ci.nsISearchService.CHANGE_REASON_ADDON_INSTALL
           );
         } else if (extension.startupReason == "ADDON_ENABLE") {
@@ -356,7 +360,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   async addSearchEngine() {
     const { extension } = this;
     try {
-      await Services.search.addEnginesFromExtension(extension);
+      await SearchService.addEnginesFromExtension(extension);
     } catch (e) {
       console.error(e);
       return false;

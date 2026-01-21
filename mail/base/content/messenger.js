@@ -44,6 +44,7 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource:///modules/MailNotificationManager.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.sys.mjs",
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
   SessionStoreManager: "resource:///modules/SessionStoreManager.sys.mjs",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.sys.mjs",
 });
@@ -270,7 +271,7 @@ var gMailInit = {
     PanelUI.init();
     gExtensionsNotifications.init();
 
-    Services.search.init();
+    SearchService.init();
 
     PeriodicFilterManager.setupFiltering();
 

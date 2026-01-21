@@ -29,6 +29,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   nsContextMenu: "chrome://messenger/content/nsContextMenu.sys.mjs",
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
 });
 
@@ -287,7 +288,7 @@ var mailContextMenu = {
       }
 
       searchTheWeb.label = messengerBundle.formatStringFromName(key, [
-        Services.search.defaultEngine.name,
+        SearchService.defaultEngine.name,
         abbrSelection,
       ]);
     }

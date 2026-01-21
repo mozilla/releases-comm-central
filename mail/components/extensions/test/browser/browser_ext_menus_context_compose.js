@@ -4,6 +4,10 @@
 
 "use strict";
 
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
+
 // Load subscript shared with all menu tests.
 Services.scriptloader.loadSubScript(
   new URL("head_menus.js", gTestPath).href,
@@ -13,7 +17,7 @@ Services.scriptloader.loadSubScript(
 let gAccount, gFolders, gMessage;
 
 add_setup(async () => {
-  await Services.search.init();
+  await lazy.SearchService.init();
 
   gAccount = createAccount("pop3");
   addIdentity(gAccount);

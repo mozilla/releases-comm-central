@@ -4,6 +4,10 @@
 
 "use strict";
 
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
+
 let gAccount, gFolder, gMessage, gHeaderMessageIds, gExpectedInfo;
 let gDefaultTabmail, gDefaultAbout3Pane;
 
@@ -139,7 +143,7 @@ add_setup(async () => {
     },
   ];
 
-  await Services.search.init();
+  await lazy.SearchService.init();
 
   // Temporarily set this preference to show all headers.
   Services.prefs.setIntPref("mail.show_headers", 2);

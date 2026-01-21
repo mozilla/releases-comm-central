@@ -4,6 +4,10 @@
 
 "use strict";
 
+const lazy = XPCOMUtils.declareLazy({
+  SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
+});
+
 const { ensure_table_view } = ChromeUtils.importESModule(
   "resource://testing-common/MailViewHelpers.sys.mjs"
 );
@@ -17,7 +21,7 @@ Services.scriptloader.loadSubScript(
 let gAccount, gFolders, gMessage;
 
 add_setup(async () => {
-  await Services.search.init();
+  await lazy.SearchService.init();
 
   gAccount = createAccount();
   addIdentity(gAccount);
