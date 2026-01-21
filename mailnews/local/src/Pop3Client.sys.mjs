@@ -285,13 +285,17 @@ export class Pop3Client {
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
     this._nextAction = res => {
-      // See if there is an APOP timestamp.
-      // eslint-disable-next-line no-control-regex
-      const matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
-      if (matches?.[0]) {
-        this._apopTimestamp = matches[0];
+      if (res.success) {
+        // See if there is an APOP timestamp.
+        // eslint-disable-next-line no-control-regex
+        const matches = res.statusText.match(/<[\x00-\x7F]+@[\x00-\x7F]+>/);
+        if (matches?.[0]) {
+          this._apopTimestamp = matches[0];
+        }
+        this.onOpen();
+      } else {
+        this._actionError("pop3ServerError", [], res.statusText);
       }
-      this.onOpen();
     };
     this._socket.transport.setTimeout(
       Ci.nsISocketTransport.TIMEOUT_READ_WRITE,

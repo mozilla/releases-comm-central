@@ -100,6 +100,8 @@ requesttimeoutfactor = 8
 
 ["test_pop3Pump.js"]
 
+["test_pop3ServerDisconnect.js"]
+
 ["test_pop3ServerFromPrefs.js"]
 
 ["test_preview.js"]
