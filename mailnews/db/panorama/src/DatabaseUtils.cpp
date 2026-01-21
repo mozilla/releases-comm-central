@@ -69,14 +69,37 @@ NS_IMETHODIMP TagsMatchFunction::OnFunctionCall(
 
     nsAutoCString haystack;
     aArguments->GetUTF8String(0, haystack);
+    size_t haystackLength = haystack.Length();
+    size_t h = 0;
+
     nsAutoCString needle;
     aArguments->GetUTF8String(1, needle);
+    size_t needleLength = needle.Length();
+    size_t n = 0;
 
-    for (auto field : haystack.Split(' ')) {
-      if (field.Equals(needle)) {
-        found = true;
-        break;
+    bool matchingStart = true;
+    for (; h < haystackLength; ++h) {
+      char c = haystack[h];
+      if (c == ' ') {
+        // At the end of a token.
+        if (n == needleLength) {
+          // Found the needle. Stop.
+          found = true;
+          break;
+        }
+        // Reset.
+        matchingStart = true;
+        n = 0;
+      } else if (matchingStart && n < needleLength && c == needle[n]) {
+        // In a token and it matches the needle so far.
+        n++;
+      } else {
+        // In a token and it doesn't match the needle.
+        matchingStart = false;
       }
+    }
+    if (h == haystackLength && n == needleLength) {
+      found = true;
     }
   }
 
