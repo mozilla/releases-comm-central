@@ -135,21 +135,31 @@ add_task(async function test_accountSettings() {
     );
     await click_account_tree_row(accountSettingsTab, accountRow);
 
-    const iframe =
+    const doc =
       accountSettingsTab.browser.contentWindow.document.getElementById(
         "contentFrame"
       ).contentDocument;
 
+    if (doc.hasPendingL10nMutations) {
+      await BrowserTestUtils.waitForEvent(doc, "L10nMutationsFinished");
+    }
+
+    await SimpleTest.promiseFocus(doc.ownerGlobal);
+
     // The button to edit the settings of the selected outgoing server, which
     // state we'll observe throughout the test.
-    const editButton = iframe.getElementById("editSmtp");
+    const editButton = doc.getElementById("editSmtp");
 
     // The list of outgoing servers available for the current account.
-    const menu = iframe.getElementById("identity.smtpServerKey");
+    const menu = doc.getElementById("identity.smtpServerKey");
     const serverList = menu.getElementsByTagName("menuitem");
+
+    menu.scrollIntoView({ block: "start", behavior: "instant" });
 
     // Open the menu and select the first server we created (SMTP). The element at
     // index 0 is the "Use Default Server" option.
+    info("Opening Outgoing Server menu to select first created server...");
+
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 
@@ -173,6 +183,7 @@ add_task(async function test_accountSettings() {
     );
 
     // Now open the menu again and select the second server we created (EWS).
+    info("Opening Outgoing Server menu again to select ews server...");
     EventUtils.synthesizeMouseAtCenter(menu, {}, menu.ownerGlobal);
     await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 
