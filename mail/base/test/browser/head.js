@@ -323,6 +323,17 @@ async function promiseServerIdle(server) {
   await clearStatusBar(window);
 }
 
+add_setup(async () => {
+  // Remove state information (for example position and size) for the compose and
+  // message window, which might have leaked in from previous tests.
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messageWindow.xhtml"
+  );
+});
+
 // Report and remove any remaining accounts/servers. If we register a cleanup
 // function here, it will run before any other cleanup function has had a
 // chance to run. Instead, when it runs register another cleanup function
