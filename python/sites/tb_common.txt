@@ -10,7 +10,6 @@ vendored:third_party/python/fluent.migrate
 vendored:third_party/python/fluent.syntax
 vendored:third_party/python/mohawk
 vendored:third_party/python/packaging
-vendored:third_party/python/pathspec
 vendored:third_party/python/slugid
 vendored:third_party/python/taskcluster
 vendored:third_party/python/taskcluster_urls
