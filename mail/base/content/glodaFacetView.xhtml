@@ -43,6 +43,14 @@
       <div class="facets facets-sidebar" id="facets">
         <h1 id="filter-header-label">&glodaFacetView.filters.label;</h1>
         <div>
+          <!-- Sort Mode Toggle -->
+          <div style="margin-bottom: 10px;">
+            <label for="facet-sort-mode" style="font-weight: bold;">Sort contacts:</label>
+            <select id="facet-sort-mode" onchange="FacetContext.updateSortMode(this.value)">
+              <option value="frequency">Sort by Frequency</option>
+              <option value="alphabetical">Sort Alphabetically</option>
+            </select>
+          </div>
           <facet-boolean
             id="facet-fromMe"
             type="boolean"
@@ -55,6 +63,7 @@
             attr="toMe"
             uninitialized="true"
           />
+          
           <facet-boolean
             id="facet-star"
             type="boolean"
