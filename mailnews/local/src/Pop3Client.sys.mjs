@@ -1677,7 +1677,15 @@ export class Pop3Client {
 
     this._actionDone(Cr.NS_ERROR_FAILURE);
 
-    if (!this._msgWindow) {
+    let msgWindow = this._msgWindow;
+    if (!msgWindow) {
+      // If there's a message window on the URI, use that.
+      // (The getter for `msgWindow` may throw).
+      try {
+        msgWindow = this.runningUri?.msgWindow;
+      } catch {}
+    }
+    if (!msgWindow) {
       return;
     }
 
@@ -1699,7 +1707,7 @@ export class Pop3Client {
       "pop3ErrorDialogTitle",
       [this._server.prettyName]
     );
-    Services.prompt.alert(this._msgWindow.domWindow, errorTitle, errorMsg);
+    Services.prompt.alert(msgWindow.domWindow, errorTitle, errorMsg);
   }
 
   /**
