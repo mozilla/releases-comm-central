@@ -24,6 +24,7 @@ Thunderbird Source Tree Documentation
    /frontend/custom_element_conventions
    /frontend/state_management
    /storybook/index
+   /frontend/tabmail
    /frontend/trees
 
 .. toctree::
