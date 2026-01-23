@@ -28,6 +28,13 @@ pref("openpgp.loglevel", "Warn");
 pref("mail.openpgp.allow_external_gnupg", false);
 // If allow_external_gnupg is true: Optionally use a different gpg executable
 pref("mail.openpgp.alternative_gpg_path", "");
+
+// If allow_external_gnupg is true, you may use this pref to allow
+// loading of an GPGME version that is untested (officially unsupported)
+// by the current software release. Example value: "45"
+// Set it to the empty string to load only expected library versions.
+pref("mail.openpgp.load_untested_gpgme_version", "");
+
 // The hexadecimal OpenPGP key ID used for an identity.
 pref("mail.identity.default.openpgp_key_id", "");
 // If true, then openpgp_key_id is managed externally by GnuPG

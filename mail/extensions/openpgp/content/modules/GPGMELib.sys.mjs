@@ -61,8 +61,31 @@ function tryLoadGPGME(name, suffix) {
 
 function loadExternalGPGMELib() {
   if (!libgpgme) {
+    let optionalGPGMEVersion = Services.prefs.getStringPref(
+      "mail.openpgp.load_untested_gpgme_version"
+    );
+
+    // Only allow characters expected in version numbers,
+    // which will disallow things like path separators.
+    if (optionalGPGMEVersion && !/^[A-Za-z0-9]+$/.test(optionalGPGMEVersion)) {
+      log.debug(`Ignoring invalid value in load_untested_gpgme_version`);
+      optionalGPGMEVersion = "";
+    }
+
     if (Services.appinfo.OS === "WINNT") {
-      tryLoadGPGME("libgpgme6-11", "");
+      if (optionalGPGMEVersion) {
+        if (!libgpgme) {
+          tryLoadGPGME("libgpgme-" + optionalGPGMEVersion, "");
+        }
+
+        if (!libgpgme) {
+          tryLoadGPGME("gpgme-" + optionalGPGMEVersion, "");
+        }
+      }
+
+      if (!libgpgme) {
+        tryLoadGPGME("libgpgme6-11", "");
+      }
 
       if (!libgpgme) {
         tryLoadGPGME("libgpgme-11", "");
@@ -70,6 +93,16 @@ function loadExternalGPGMELib() {
 
       if (!libgpgme) {
         tryLoadGPGME("gpgme-11", "");
+      }
+    }
+
+    if (optionalGPGMEVersion) {
+      if (!libgpgme) {
+        tryLoadGPGME("gpgme", "." + optionalGPGMEVersion);
+      }
+
+      if (!libgpgme) {
+        tryLoadGPGME("gpgme." + optionalGPGMEVersion, "");
       }
     }
 
