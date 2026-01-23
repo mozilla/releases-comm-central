@@ -344,19 +344,10 @@ export class MessageSend {
       lazy.MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
-      this._sendReport.setError(
-        Ci.nsIMsgSendReport.process_Current,
-        exitCode,
-        false
-      );
       if (errorMsg) {
-        this._sendReport.setMessage(
-          Ci.nsIMsgSendReport.process_Current,
-          errorMsg,
-          false
-        );
+        this._sendReport.errMessage = errorMsg;
       }
-      exitCode = this._sendReport.displayReport(this._parentWindow, true, true);
+      this._sendReport.displayReport(this._parentWindow);
     }
     this.abort();
 

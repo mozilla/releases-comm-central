@@ -37,8 +37,7 @@ static void PRTimeToLocalDateString(PRTime time, nsAString& result) {
   mozilla::intl::DateTimeFormat::StyleBag style;
   style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
   style.time = mozilla::Nothing();
-  (void)intl::AppDateTimeFormat::Format(style, &explodedTime,
-                                                     result);
+  (void)intl::AppDateTimeFormat::Format(style, &explodedTime, result);
 }
 
 MOZ_TYPE_SPECIFIC_UNIQUE_PTR_TEMPLATE(UniqueCERTCertNicknames,

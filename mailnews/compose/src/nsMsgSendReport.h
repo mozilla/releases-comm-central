@@ -10,20 +10,6 @@
 #include "nsString.h"
 #include "nsCOMPtr.h"
 
-class nsMsgProcessReport : public nsIMsgProcessReport {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIMSGPROCESSREPORT
-
-  nsMsgProcessReport();
-
- private:
-  virtual ~nsMsgProcessReport();
-  bool mProceeded;
-  nsresult mError;
-  nsString mMessage;
-};
-
 class nsMsgSendReport : public nsIMsgSendReport {
  public:
   NS_DECL_ISUPPORTS
@@ -36,10 +22,11 @@ class nsMsgSendReport : public nsIMsgSendReport {
 
  private:
 #define SEND_LAST_PROCESS process_FCC
-  nsCOMPtr<nsIMsgProcessReport> mProcessReport[SEND_LAST_PROCESS + 1];
   int32_t mDeliveryMode;
   int32_t mCurrentProcess;
   bool mAlreadyDisplayReport;
+  bool mNNTPProcessed;
+  nsString mCurrErrMessage;
 };
 
 #endif  // COMM_MAILNEWS_COMPOSE_SRC_NSMSGSENDREPORT_H_

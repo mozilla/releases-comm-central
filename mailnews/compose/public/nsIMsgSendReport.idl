@@ -7,16 +7,6 @@
 
 interface mozIDOMWindowProxy;
 
-[scriptable, uuid(2ec81175-bc65-44b9-ba87-462bc3f938db)]
-interface nsIMsgProcessReport : nsISupports {
-
-  attribute boolean proceeded;
-  attribute nsresult error;
-  attribute wstring message;
-
-  void reset();
-};
-
 [scriptable, uuid(428c5bde-29f5-4bfe-830a-ec795a1c2975)]
 interface nsIMsgSendReport : nsISupports {
 
@@ -33,15 +23,11 @@ interface nsIMsgSendReport : nsISupports {
 
   void reset();
 
-  void setProceeded(in long process, in boolean proceeded);
-  void setError(in long process, in nsresult error, in boolean overwriteError);
-  void setMessage(in long process, in wstring message, in boolean overwriteMessage);
-
-  nsIMsgProcessReport getProcessReport(in long process);
+  attribute AString errMessage;
 
   /* Display Report will analyze data collected during the send and will show the most appropriate error.
      Also it will return the error code. In case of no error or if the error has been canceld, it will return
      NS_OK.
   */
-  nsresult displayReport(in mozIDOMWindowProxy prompt, in boolean showErrorOnly, in boolean dontShowReportTwice);
+  nsresult displayReport(in mozIDOMWindowProxy prompt);
 };

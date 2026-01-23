@@ -11,68 +11,11 @@
 #include "nsIStringBundle.h"
 #include "mozilla/Components.h"
 
-NS_IMPL_ISUPPORTS(nsMsgProcessReport, nsIMsgProcessReport)
-
-nsMsgProcessReport::nsMsgProcessReport() { Reset(); }
-
-nsMsgProcessReport::~nsMsgProcessReport() {}
-
-/* attribute boolean proceeded; */
-NS_IMETHODIMP nsMsgProcessReport::GetProceeded(bool* aProceeded) {
-  NS_ENSURE_ARG_POINTER(aProceeded);
-  *aProceeded = mProceeded;
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgProcessReport::SetProceeded(bool aProceeded) {
-  mProceeded = aProceeded;
-  return NS_OK;
-}
-
-/* attribute nsresult error; */
-NS_IMETHODIMP nsMsgProcessReport::GetError(nsresult* aError) {
-  NS_ENSURE_ARG_POINTER(aError);
-  *aError = mError;
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgProcessReport::SetError(nsresult aError) {
-  mError = aError;
-  return NS_OK;
-}
-
-/* attribute wstring message; */
-NS_IMETHODIMP nsMsgProcessReport::GetMessage(char16_t** aMessage) {
-  NS_ENSURE_ARG_POINTER(aMessage);
-  *aMessage = ToNewUnicode(mMessage);
-  return NS_OK;
-}
-NS_IMETHODIMP nsMsgProcessReport::SetMessage(const char16_t* aMessage) {
-  mMessage = aMessage;
-  return NS_OK;
-}
-
-/* void Reset (); */
-NS_IMETHODIMP nsMsgProcessReport::Reset() {
-  mProceeded = false;
-  mError = NS_OK;
-  mMessage.Truncate();
-
-  return NS_OK;
-}
-
 NS_IMPL_ISUPPORTS(nsMsgSendReport, nsIMsgSendReport)
 
-nsMsgSendReport::nsMsgSendReport() {
-  uint32_t i;
-  for (i = 0; i <= SEND_LAST_PROCESS; i++)
-    mProcessReport[i] = new nsMsgProcessReport();
+nsMsgSendReport::nsMsgSendReport() { Reset(); }
 
-  Reset();
-}
-
-nsMsgSendReport::~nsMsgSendReport() {
-  uint32_t i;
-  for (i = 0; i <= SEND_LAST_PROCESS; i++) mProcessReport[i] = nullptr;
-}
+nsMsgSendReport::~nsMsgSendReport() {}
 
 /* attribute long currentProcess; */
 NS_IMETHODIMP nsMsgSendReport::GetCurrentProcess(int32_t* aCurrentProcess) {
@@ -85,8 +28,7 @@ NS_IMETHODIMP nsMsgSendReport::SetCurrentProcess(int32_t aCurrentProcess) {
     return NS_ERROR_ILLEGAL_VALUE;
 
   mCurrentProcess = aCurrentProcess;
-  if (mProcessReport[mCurrentProcess])
-    mProcessReport[mCurrentProcess]->SetProceeded(true);
+  if (aCurrentProcess == process_NNTP) mNNTPProcessed = true;
 
   return NS_OK;
 }
@@ -104,118 +46,33 @@ NS_IMETHODIMP nsMsgSendReport::SetDeliveryMode(int32_t aDeliveryMode) {
 
 /* void Reset (); */
 NS_IMETHODIMP nsMsgSendReport::Reset() {
-  uint32_t i;
-  for (i = 0; i <= SEND_LAST_PROCESS; i++)
-    if (mProcessReport[i]) mProcessReport[i]->Reset();
-
   mCurrentProcess = 0;
   mDeliveryMode = 0;
   mAlreadyDisplayReport = false;
+  mNNTPProcessed = false;
+  mCurrErrMessage.Truncate();
 
   return NS_OK;
 }
 
-/* void setProceeded (in long process, in boolean proceeded); */
-NS_IMETHODIMP nsMsgSendReport::SetProceeded(int32_t process, bool proceeded) {
-  if (process < process_Current || process > SEND_LAST_PROCESS)
-    return NS_ERROR_ILLEGAL_VALUE;
-
-  if (process == process_Current) process = mCurrentProcess;
-
-  if (!mProcessReport[process]) return NS_ERROR_NOT_INITIALIZED;
-
-  return mProcessReport[process]->SetProceeded(proceeded);
+NS_IMETHODIMP nsMsgSendReport::GetErrMessage(nsAString& message) {
+  message = mCurrErrMessage;
+  return NS_OK;
 }
 
-/* void setError (in long process, in nsresult error, in boolean
- * overwriteError); */
-NS_IMETHODIMP nsMsgSendReport::SetError(int32_t process, nsresult newError,
-                                        bool overwriteError) {
-  if (process < process_Current || process > SEND_LAST_PROCESS)
-    return NS_ERROR_ILLEGAL_VALUE;
-
-  if (process == process_Current) {
-    if (mCurrentProcess == process_Current)
-      // We don't know what we're currently trying to do
-      return NS_ERROR_ILLEGAL_VALUE;
-
-    process = mCurrentProcess;
-  }
-
-  if (!mProcessReport[process]) return NS_ERROR_NOT_INITIALIZED;
-
-  nsresult currError = NS_OK;
-  mProcessReport[process]->GetError(&currError);
-  if (overwriteError || NS_SUCCEEDED(currError))
-    return mProcessReport[process]->SetError(newError);
-  else
-    return NS_OK;
-}
-
-/* void setMessage (in long process, in wstring message, in boolean
- * overwriteMessage); */
-NS_IMETHODIMP nsMsgSendReport::SetMessage(int32_t process,
-                                          const char16_t* message,
-                                          bool overwriteMessage) {
-  if (process < process_Current || process > SEND_LAST_PROCESS)
-    return NS_ERROR_ILLEGAL_VALUE;
-
-  if (process == process_Current) {
-    if (mCurrentProcess == process_Current)
-      // We don't know what we're currently trying to do
-      return NS_ERROR_ILLEGAL_VALUE;
-
-    process = mCurrentProcess;
-  }
-
-  if (!mProcessReport[process]) return NS_ERROR_NOT_INITIALIZED;
-
-  nsString currMessage;
-  mProcessReport[process]->GetMessage(getter_Copies(currMessage));
-  if (overwriteMessage || currMessage.IsEmpty())
-    return mProcessReport[process]->SetMessage(message);
-  else
-    return NS_OK;
-}
-
-/* nsIMsgProcessReport getProcessReport (in long process); */
-NS_IMETHODIMP nsMsgSendReport::GetProcessReport(int32_t process,
-                                                nsIMsgProcessReport** _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  if (process < process_Current || process > SEND_LAST_PROCESS)
-    return NS_ERROR_ILLEGAL_VALUE;
-
-  if (process == process_Current) {
-    if (mCurrentProcess == process_Current)
-      // We don't know what we're currently trying to do
-      return NS_ERROR_ILLEGAL_VALUE;
-
-    process = mCurrentProcess;
-  }
-
-  NS_IF_ADDREF(*_retval = mProcessReport[process]);
+NS_IMETHODIMP nsMsgSendReport::SetErrMessage(const nsAString& message) {
+  mCurrErrMessage = message;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
-                                             bool showErrorOnly,
-                                             bool dontShowReportTwice,
                                              nsresult* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
-  NS_ENSURE_TRUE(mCurrentProcess >= 0 && mCurrentProcess <= SEND_LAST_PROCESS,
-                 NS_ERROR_NOT_INITIALIZED);
-
   nsresult currError = NS_OK;
-  mProcessReport[mCurrentProcess]->GetError(&currError);
   *_retval = currError;
 
-  if (dontShowReportTwice && mAlreadyDisplayReport) return NS_OK;
-
-  if (showErrorOnly && NS_SUCCEEDED(currError)) return NS_OK;
-
-  nsString currMessage;
-  mProcessReport[mCurrentProcess]->GetMessage(getter_Copies(currMessage));
+  if (mAlreadyDisplayReport) return NS_OK;
 
   nsresult rv;  // don't step on currError.
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -225,50 +82,20 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
   rv = bundleService->CreateBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties",
       getter_AddRefs(bundle));
-  if (NS_FAILED(rv)) {
-    // TODO need to display a generic hardcoded message
-    mAlreadyDisplayReport = true;
-    return NS_OK;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsString dialogTitle;
   nsString dialogMessage;
 
-  if (NS_SUCCEEDED(currError)) {
-    // TODO display a success error message
-    return NS_OK;
-  }
+  nsString currMessage = mCurrErrMessage;
 
   // Do we have an explanation of the error? if no, try to build one...
   if (currMessage.IsEmpty()) {
-#ifdef __GNUC__
-// Temporary workaround until bug 783526 is fixed.
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wswitch"
-#endif
-    switch (currError) {
-      case NS_BINDING_ABORTED:
-        // Ignore, don't need to repeat ourself.
-        break;
-      default:
-        nsMsgGetMessageByName("sendFailed", currMessage);
-        break;
-    }
-#ifdef __GNUC__
-#  pragma GCC diagnostic pop
-#endif
+    nsMsgGetMessageByName("sendFailed", currMessage);
   }
 
   if (mDeliveryMode == nsIMsgCompDeliverMode::Now ||
       mDeliveryMode == nsIMsgCompDeliverMode::SendUnsent) {
-    // SMTP is taking care of its own error message and will return
-    // NS_ERROR_ABORT as error code. In that case, we must not
-    // show an alert ourself.
-    if (currError == NS_ERROR_ABORT) {
-      mAlreadyDisplayReport = true;
-      return NS_OK;
-    }
-
     bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
     const char* preStrName = "sendFailed";
@@ -283,9 +110,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
         askToGoBackToCompose = false;
         break;
       case process_SMTP:
-        bool nntpProceeded;
-        mProcessReport[process_NNTP]->GetProceeded(&nntpProceeded);
-        if (nntpProceeded)
+        if (mNNTPProcessed)
           preStrName = "sendFailedButNntpOk";
         else
           preStrName = "sendFailed";

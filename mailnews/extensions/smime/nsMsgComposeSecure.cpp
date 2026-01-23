@@ -201,9 +201,8 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport* sendReport,
 
   nsString errorString;
   nsresult res = GetSMIMEBundleString(bundle_string, errorString);
-  if (NS_SUCCEEDED(res) && !errorString.IsEmpty()) {
-    sendReport->SetMessage(nsIMsgSendReport::process_Current, errorString.get(),
-                           true);
+  if (NS_SUCCEEDED(res)) {
+    sendReport->SetErrMessage(errorString);
   }
 }
 
@@ -222,9 +221,8 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport* sendReport,
   CopyASCIItoUTF16(MakeStringSpan(param), *params.AppendElement());
   res = SMIMEBundleFormatStringFromName(bundle_string, params, errorString);
 
-  if (NS_SUCCEEDED(res) && !errorString.IsEmpty()) {
-    sendReport->SetMessage(nsIMsgSendReport::process_Current, errorString.get(),
-                           true);
+  if (NS_SUCCEEDED(res)) {
+    sendReport->SetErrMessage(errorString);
   }
 }
 
