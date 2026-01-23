@@ -25,9 +25,9 @@ interface nsIMsgSendReport : nsISupports {
 
   attribute AString errMessage;
 
-  /* Display Report will analyze data collected during the send and will show the most appropriate error.
-     Also it will return the error code. In case of no error or if the error has been canceld, it will return
-     NS_OK.
-  */
-  nsresult displayReport(in mozIDOMWindowProxy prompt);
+  /**
+   * Display Report will analyze data collected during the send and will show
+   * the most appropriate error.
+   */
+  void displayReport(in mozIDOMWindowProxy window);
 };

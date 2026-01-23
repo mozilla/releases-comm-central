@@ -1260,8 +1260,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     if (self->mMsgSend)
       self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
     if (sendReport) {
-      nsresult theError;
-      sendReport->DisplayReport(self->m_window, &theError);
+      sendReport->DisplayReport(self->m_window);
     } else {
       // If we come here it's because we got an error before we could initialize
       // a send report! Let's try our best...

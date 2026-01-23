@@ -65,21 +65,14 @@ NS_IMETHODIMP nsMsgSendReport::SetErrMessage(const nsAString& message) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
-                                             nsresult* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-
-  nsresult currError = NS_OK;
-  *_retval = currError;
-
+NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window) {
   if (mAlreadyDisplayReport) return NS_OK;
 
-  nsresult rv;  // don't step on currError.
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::components::StringBundle::Service();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(
+  nsresult rv = bundleService->CreateBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties",
       getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -99,61 +92,41 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(mozIDOMWindowProxy* window,
     bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
     const char* preStrName = "sendFailed";
-    bool askToGoBackToCompose = false;
     switch (mCurrentProcess) {
       case process_BuildMessage:
         preStrName = "sendFailed";
-        askToGoBackToCompose = false;
         break;
       case process_NNTP:
         preStrName = "sendFailed";
-        askToGoBackToCompose = false;
         break;
       case process_SMTP:
         if (mNNTPProcessed)
           preStrName = "sendFailedButNntpOk";
         else
           preStrName = "sendFailed";
-        askToGoBackToCompose = false;
         break;
       case process_Copy:
         preStrName = "failedCopyOperation";
-        askToGoBackToCompose = (mDeliveryMode == nsIMsgCompDeliverMode::Now);
         break;
       case process_FCC:
         preStrName = "failedCopyOperation";
-        askToGoBackToCompose = (mDeliveryMode == nsIMsgCompDeliverMode::Now);
         break;
     }
     bundle->GetStringFromName(preStrName, dialogMessage);
 
     // Do we already have an error message?
-    if (!askToGoBackToCompose && currMessage.IsEmpty()) {
+    if (currMessage.IsEmpty()) {
       // we don't have an error description but we can put a generic explanation
       bundle->GetStringFromName("genericFailureExplanation", currMessage);
     }
 
-    if (!currMessage.IsEmpty()) {
-      // Don't need to repeat ourself!
-      if (!currMessage.Equals(dialogMessage)) {
-        if (!dialogMessage.IsEmpty()) dialogMessage.Append(char16_t('\n'));
-        dialogMessage.Append(currMessage);
-      }
+    // Don't need to repeat ourself!
+    if (!currMessage.Equals(dialogMessage)) {
+      if (!dialogMessage.IsEmpty()) dialogMessage.Append(char16_t('\n'));
+      dialogMessage.Append(currMessage);
     }
 
-    if (askToGoBackToCompose) {
-      bool oopsGiveMeBackTheComposeWindow = true;
-      nsString text1;
-      bundle->GetStringFromName("returnToComposeWindowQuestion", text1);
-      if (!dialogMessage.IsEmpty()) dialogMessage.AppendLiteral("\n");
-      dialogMessage.Append(text1);
-      nsMsgAskBooleanQuestionByString(window, dialogMessage.get(),
-                                      &oopsGiveMeBackTheComposeWindow,
-                                      dialogTitle.get());
-      if (!oopsGiveMeBackTheComposeWindow) *_retval = NS_OK;
-    } else
-      nsMsgDisplayMessageByString(window, dialogMessage.get(),
-                                  dialogTitle.get());
+    nsMsgDisplayMessageByString(window, dialogMessage.get(), dialogTitle.get());
   } else {
     const char* title;
     const char* messageName;

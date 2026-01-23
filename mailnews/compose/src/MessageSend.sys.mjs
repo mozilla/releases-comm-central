@@ -350,8 +350,6 @@ export class MessageSend {
       this._sendReport.displayReport(this._parentWindow);
     }
     this.abort();
-
-    return exitCode;
   }
 
   getProgress() {
