@@ -25,7 +25,6 @@ SOURCES += [
     "nsMsgPrompts.cpp",
     "nsMsgQuote.cpp",
     "nsMsgSendLater.cpp",
-    "nsMsgSendReport.cpp",
     "nsSmtpUrl.cpp",
 ]
 

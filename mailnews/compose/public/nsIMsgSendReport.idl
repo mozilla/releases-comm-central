@@ -18,12 +18,15 @@ interface nsIMsgSendReport : nsISupports {
   const long process_Filter = 4;
   const long process_FCC = 5;
 
-  attribute long deliveryMode;      /* see nsMsgDeliverMode in nsIMsgSend.idl for valid value */
+  /** One of the process constants defined in this interface. */
   attribute long currentProcess;
 
-  void reset();
+  /** @see nsMsgDeliverMode in nsIMsgSend.idl for valid value */
+  attribute long deliveryMode;
 
   attribute AString errMessage;
+
+  void reset();
 
   /**
    * Display Report will analyze data collected during the send and will show

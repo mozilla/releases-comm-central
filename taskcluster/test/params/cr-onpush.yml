@@ -810,7 +810,6 @@ files_changed:
   - comm/mailnews/compose/src/nsMsgQuote.cpp
   - comm/mailnews/compose/src/nsMsgQuote.h
   - comm/mailnews/compose/src/nsMsgSendLater.cpp
-  - comm/mailnews/compose/src/nsMsgSendReport.cpp
   - comm/mailnews/compose/src/nsSmtpUrl.cpp
   - comm/mailnews/compose/src/nsSmtpUrl.h
   - comm/mailnews/compose/test/unit/data/listexpansion.sql

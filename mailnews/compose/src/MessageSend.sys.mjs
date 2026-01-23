@@ -1553,3 +1553,110 @@ class PromiseMsgOutgoingListener {
     return this.#requestPromise;
   }
 }
+
+/**
+ * @implements {nsIMsgSendReport}
+ */
+export class MessageSendReport {
+  QueryInterface = ChromeUtils.generateQI(["nsIMsgSendReport"]);
+
+  /** @type {integer} - see nsMsgDeliverMode in nsIMsgSend.idl for valid value */
+  deliveryMode = 0;
+
+  /** @type {string} */
+  errMessage = "";
+
+  /** @type {integer} */
+  #currentProcess = 0;
+
+  /** @type {boolean} */
+  #nntpProcessed = false;
+
+  /** @type {boolean} */
+  #alreadyDisplayed = false;
+
+  get currentProcess() {
+    return this.#currentProcess;
+  }
+
+  set currentProcess(value) {
+    if (value < 0 || value > Ci.nsIMsgSendReport.process_FCC) {
+      throw new Error(`Illegal process value: ${value}`);
+    }
+    this.#currentProcess = value;
+    if (value == Ci.nsIMsgSendReport.process_NNTP) {
+      this.#nntpProcessed = true;
+    }
+  }
+
+  reset() {
+    this.deliveryMode = 0;
+    this.errMessage = "";
+    this.#currentProcess = 0;
+    this.#nntpProcessed = false;
+    this.#alreadyDisplayed = false;
+  }
+
+  /**
+   * Display Report will analyze data collected during the send and will show
+   * the most appropriate error.
+   *
+   * @param {?mozIDOMWindowProxy} win
+   */
+  displayReport(win) {
+    if (this.#alreadyDisplayed) {
+      return;
+    }
+    this.#alreadyDisplayed = true;
+
+    const composeBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+    );
+
+    if (
+      this.deliveryMode == Ci.nsIMsgCompDeliverMode.Now ||
+      this.deliveryMode == Ci.nsIMsgCompDeliverMode.SendUnsent
+    ) {
+      const title = composeBundle.GetStringFromName("sendMessageErrorTitle");
+      let str = "sendFailed";
+      switch (this.#currentProcess) {
+        case Ci.nsIMsgSendReport.process_SMTP:
+          str = this.#nntpProcessed ? "sendFailedButNntpOk" : "sendFailed";
+          break;
+        case Ci.nsIMsgSendReport.process_Copy:
+        case Ci.nsIMsgSendReport.process_FCC:
+          str = "failedCopyOperation";
+          break;
+      }
+      let message = composeBundle.GetStringFromName(str);
+      if (this.errMessage) {
+        message += "\n" + this.errMessage;
+      }
+      Services.prompt.alert(win, title, message);
+    } else {
+      let titleStr = "sendMessageErrorTitle";
+      let str = "sendFailed";
+      switch (this.deliveryMode) {
+        case Ci.nsIMsgCompDeliverMode.Later:
+          titleStr = "sendLaterErrorTitle";
+          str = "unableToSendLater";
+          break;
+        case Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft:
+        case Ci.nsIMsgCompDeliverMode.SaveAsDraft:
+          titleStr = "saveDraftErrorTitle";
+          str = "unableToSaveDraft";
+          break;
+        case Ci.nsIMsgCompDeliverMode.SaveAsTemplate:
+          titleStr = "saveTemplateErrorTitle";
+          str = "unableToSaveTemplate";
+          break;
+      }
+      const title = composeBundle.GetStringFromName(titleStr);
+      let message = composeBundle.GetStringFromName(str);
+      if (this.errMessage) {
+        message += "\n" + this.errMessage;
+      }
+      Services.prompt.alert(win, title, message);
+    }
+  }
+}
