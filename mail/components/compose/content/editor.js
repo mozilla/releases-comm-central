@@ -257,14 +257,14 @@ function EditorSharedStartup() {
 
   const messageEditorBrowser = GetCurrentEditorElement();
   messageEditorBrowser.addEventListener(
-    "DoZoomEnlargeBy10",
+    "DoZoomEnlarge",
     () => {
       ZoomManager.scrollZoomEnlarge(messageEditorBrowser);
     },
     true
   );
   messageEditorBrowser.addEventListener(
-    "DoZoomReduceBy10",
+    "DoZoomReduce",
     () => {
       ZoomManager.scrollReduceEnlarge(messageEditorBrowser);
     },

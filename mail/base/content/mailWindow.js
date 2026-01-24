@@ -703,11 +703,11 @@ function UpdateFullZoomMenu() {
   cmdItem.toggleAttribute("checked", !ZoomManager.useFullZoom);
 }
 
-window.addEventListener("DoZoomEnlargeBy10", event =>
+window.addEventListener("DoZoomEnlarge", event =>
   ZoomManager.scrollZoomEnlarge(event.target)
 );
 
-window.addEventListener("DoZoomReduceBy10", event =>
+window.addEventListener("DoZoomReduce", event =>
   ZoomManager.scrollReduceEnlarge(event.target)
 );
 

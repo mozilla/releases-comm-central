@@ -59,14 +59,14 @@ addEventListener("load", () => {
   );
 
   gBrowser.addEventListener(
-    "DoZoomEnlargeBy10",
+    "DoZoomEnlarge",
     () => {
       ZoomManager.scrollZoomEnlarge(gBrowser);
     },
     true
   );
   gBrowser.addEventListener(
-    "DoZoomReduceBy10",
+    "DoZoomReduce",
     () => {
       ZoomManager.scrollReduceEnlarge(gBrowser);
     },
