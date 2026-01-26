@@ -62,8 +62,9 @@ run-sequentially = true  # Avoid bustage.
 ["test_viewWrapper_logic.js"]
 
 ["test_viewWrapper_realFolder.js"]
-skip-if = [
-  "os == 'mac' && !debug",
+run-if = [
+  "os != 'mac'",
+  "debug"
 ]
 reason = "osx shippable perma failures"
 

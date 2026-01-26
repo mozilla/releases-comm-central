@@ -26,9 +26,9 @@ tags = ["foldernames"]
 
 ["test_item_operations_exchange_2010.js"]
 
-["test_save_to_file.js"]
-
 ["test_saveDraft.js"]
+
+["test_save_to_file.js"]
 
 ["test_send.js"]
 

@@ -61,9 +61,10 @@ support-files = [
 ["browser_attachmentCloudDraft.js"]
 
 ["browser_attachmentDragDrop.js"]
-skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
-]
+run-if = [
+  "os != 'linux'",
+  "!headless"
+] # See bug 1806870.
 
 ["browser_attachmentReminder.js"]
 

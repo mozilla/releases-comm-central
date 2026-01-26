@@ -94,8 +94,8 @@ tags = ["foldernames"]
 ["test_imapUrls.js"]
 
 ["test_largeOfflineStore.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'",
 ]
 
 ["test_listClosesDB.js"]

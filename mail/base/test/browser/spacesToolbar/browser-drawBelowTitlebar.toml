@@ -11,8 +11,8 @@ prefs = [
   "mail.tabs.drawInTitlebar=false",
 ]
 subsuite = "thunderbird"
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 
 ["browser_spacesToolbar_drawBelowTitlebar.js"]

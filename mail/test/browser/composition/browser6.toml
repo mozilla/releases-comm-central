@@ -61,8 +61,8 @@ skip-if = [
 ]
 
 ["browser_sendFormat.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "See bug 1763407"
 
@@ -75,8 +75,8 @@ reason = "See bug 1763407"
 ["browser_subjectWas.js"]
 
 ["browser_text_styling.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "Cannot open the Format menu"
 

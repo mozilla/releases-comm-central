@@ -57,8 +57,8 @@ support-files = [
 ["browser_customHeaders.js"]
 
 ["browser_draftIdentity.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "See bug 1413851."
 
@@ -74,19 +74,19 @@ tags = ["openpgp"]
 ["browser_focus.js"]
 
 ["browser_font_color.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "Cannot open the Format menu"
 
 ["browser_font_family.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "Cannot open the Format menu"
 
 ["browser_font_size.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "Cannot open the Format menu"

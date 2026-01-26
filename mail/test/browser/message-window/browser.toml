@@ -20,8 +20,8 @@ subsuite = "thunderbird"
 support-files = ["data/**"]
 
 ["browser_autohideMenubar.js"]
-skip-if = [
-  "os == 'mac'", # mac used native menubar
+run-if = [
+  "os != 'mac'", # mac used native menubar
 ]
 
 ["browser_commands.js"]

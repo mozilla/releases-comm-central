@@ -70,8 +70,8 @@ skip-if = [
 ["browser_newmsgComposeIdentity.js"]
 
 ["browser_paragraph_state.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'"
 ]
 reason = "Cannot open the Format menu"
 

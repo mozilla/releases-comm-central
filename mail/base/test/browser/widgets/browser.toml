@@ -12,9 +12,10 @@ subsuite = "thunderbird"
 support-files = ["files/**"]
 
 ["browser_autoTreeView.js"]
-skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
-]
+run-if = [
+  "!headless",
+  "os != 'linux'",
+ ] # See bug 1806870.
 tags = ["dataadapter"]
 
 ["browser_contactAvatar.js"]
@@ -39,8 +40,8 @@ tags = ["webextensions"]
 https_first_disabled = true
 
 ["browser_menulist.js"]
-skip-if = [
-  "os == 'mac'",
+run-if = [
+  "os != 'mac'",
 ]
 
 ["browser_orderableTreeListbox.js"]

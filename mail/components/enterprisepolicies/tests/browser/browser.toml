@@ -45,9 +45,10 @@ skip-if = [
 
 ["browser_policy_extensionsettings.js"]
 https_first_disabled = true
-skip-if = [
-  "os == 'mac' && debug", # Bug 1912417.
-]
+run-if = [
+  "!headless",
+  "os != 'mac'",
+] # See bug 1912417.
 
 ["browser_policy_extensionsettings2.js"]
 
