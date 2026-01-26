@@ -1061,7 +1061,7 @@ var nsFindReplaceCommand = {
     window.openDialog(
       "chrome://messenger/content/messengercompose/EdReplace.xhtml",
       "_blank",
-      "chrome,modal,titlebar",
+      "chrome,dependent,titlebar",
       editorElement
     );
   },
