@@ -73,7 +73,7 @@ impl ToTokens for GraphType {
             }
 
             impl<'a> #name<'a> {
-                /// Internal constructor.
+                ///Internal constructor.
                 // Don't make this pub or implement public traits (`Map` is an externally defined
                 // type used internally, and may change).
                 #[allow(dead_code)]
@@ -233,7 +233,7 @@ fn fn_body(prop: &Property) -> TokenStream {
         else {
             panic!("Reference to non-custom type: {prop:?}");
         };
-        let ident = format_ident!("{typ}");
+        let ident = format_ident!("{}", typ.as_pascal_case());
 
         return quote! {
             #ident {

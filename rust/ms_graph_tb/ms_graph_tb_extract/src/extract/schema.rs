@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use crate::openapi::schema::OaSchema;
-use crate::oxidize::RustType;
-use crate::{pascalize, simple_name, SUPPORTED_TYPES};
+use crate::oxidize::{CustomRustType, RustType};
+use crate::{simple_name, SUPPORTED_TYPES};
 
 /// Our representation of a Graph API property.
 #[derive(Debug, Clone)]
@@ -143,16 +143,21 @@ fn collect_schema_properties(schema: &OaSchema, out: &mut Vec<Property>) {
 fn custom_from_ref(reference: &str) -> Option<(&str, RustType)> {
     let simple = ref_simple_name(reference);
     if SUPPORTED_TYPES.contains(&simple) {
-        Some((simple, RustType::Custom(pascalize(simple))))
+        Some((simple, RustType::Custom(CustomRustType::from(simple))))
     } else {
         None
     }
 }
 
+/// Given a reference in the shape `#/components/schemas/microsoft.graph.user`,
+/// get the name of the type being referred to. Note that the middle part is not
+/// always "schemas", e.g. `#/components/requestBodies/sendMailRequestBody`.
 fn ref_simple_name(reference: &str) -> &str {
-    let name = reference
-        .strip_prefix("#/components/schemas/")
-        .unwrap_or(reference);
+    let name = std::path::Path::new(reference)
+        .file_name()
+        .expect("invalid ref name")
+        .to_str()
+        .expect("expected valid UTF-8 ref name");
     simple_name(name)
 }
 
@@ -161,7 +166,7 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
         OaSchema::Ref { reference } => {
             let simple = ref_simple_name(reference);
             if SUPPORTED_TYPES.contains(&simple) {
-                Some((false, None, RustType::Custom(pascalize(simple))))
+                Some((false, None, RustType::Custom(CustomRustType::from(simple))))
             } else {
                 println!("skipping unsupported schema: {simple}: {schema:?}");
                 None
@@ -205,7 +210,11 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
                     )),
                     "object" => {
                         if let Some(simple) = match_supported_custom_from_schema(schema) {
-                            Some((false, description, RustType::Custom(pascalize(&simple))))
+                            Some((
+                                false,
+                                description,
+                                RustType::Custom(CustomRustType::from(simple)),
+                            ))
                         } else {
                             panic!("Unrecognized 'object' schema: {schema:?}");
                         }
@@ -214,7 +223,11 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
                 }
             } else {
                 if let Some(simple) = match_supported_custom_from_schema(schema) {
-                    return Some((false, description, RustType::Custom(pascalize(&simple))));
+                    return Some((
+                        false,
+                        description,
+                        RustType::Custom(CustomRustType::from(simple)),
+                    ));
                 }
                 None
             }

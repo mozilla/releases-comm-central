@@ -18,11 +18,18 @@ mod oxidize;
 
 use crate::extract::path::extract_from_oa_path;
 use crate::extract::schema::{extract_from_schema, Property};
-use crate::naming::{base_name, pascalize, simple_name, snakeify};
+use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{load_yaml, path::OaPath, LoadedYaml};
 use crate::oxidize::types;
 
-const SUPPORTED_TYPES: [&str; 4] = ["user", "mailboxSettings", "directoryObject", "entity"];
+const SUPPORTED_TYPES: [&str; 6] = [
+    "directoryObject",
+    "entity",
+    "mailboxSettings",
+    "message",
+    "sendMailRequestBody",
+    "user",
+];
 const SUPPORTED_PATHS: [&str; 1] = ["/me"];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public

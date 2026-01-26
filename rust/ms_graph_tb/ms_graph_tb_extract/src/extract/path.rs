@@ -8,7 +8,7 @@ use crate::extract::schema::Property;
 use crate::naming::simple_name;
 use crate::openapi::path::{OaBody, OaParameter, OaPath};
 use crate::openapi::schema::OaSchema;
-use crate::oxidize::RustType;
+use crate::oxidize::{CustomRustType, RustType};
 
 use super::schema::extract_from_schema;
 
@@ -87,9 +87,9 @@ impl From<&OaParameter> for Parameter {
     fn from(value: &OaParameter) -> Self {
         let typ = match &value.schema {
             None => None,
-            Some(OaSchema::Ref { reference }) => {
-                Some(RustType::Custom(simple_name(reference).to_string()))
-            }
+            Some(OaSchema::Ref { reference }) => Some(RustType::Custom(CustomRustType::from(
+                simple_name(reference).to_string(),
+            ))),
             Some(schema) => {
                 let (_, properties) = extract_from_schema(schema);
                 assert_eq!(

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::collections::HashMap;
+use yaml_rust2::yaml::Hash;
 use yaml_rust2::Yaml;
 
 use super::{get_bool_in, get_map_in, get_node_in, get_seq_in, get_str_in};
@@ -54,11 +55,32 @@ impl OaSchema {
     }
 }
 
-/// Recursively parse the given yaml node as a schema object or reference.
+/// Parses the given request body and returns its schema.
+pub(super) fn parse_request_body(node: &Yaml) -> OaSchema {
+    let map = node
+        .as_hash()
+        .expect("all request bodies should be compound YAML objects");
+
+    let map = get_map_in(map, "content").expect("request bodies should have a content");
+    let map = get_map_in(map, "application/json")
+        .expect("request bodies should have the type application/json");
+
+    let schema = get_map_in(map, "schema").expect("request bodies should contain a schema");
+
+    parse_schema_from_map(schema)
+}
+
+/// Recursively parses the given yaml node as a schema object or reference.
 pub(super) fn parse_schema(node: &Yaml) -> OaSchema {
     let map = node
         .as_hash()
         .expect("all schemas should be compound YAML objects");
+
+    parse_schema_from_map(map)
+}
+
+/// Recursively parses the schema represented by the given [`Hash`].
+fn parse_schema_from_map(map: &Hash) -> OaSchema {
     if let Some(r) = get_str_in(map, "$ref") {
         return OaSchema::Ref {
             reference: r.to_string(),

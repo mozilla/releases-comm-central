@@ -19,6 +19,21 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
             let name = p.name.as_str();
             if crate::SUPPORTED_TYPES.contains(&name) {
                 Some(crate::naming::snakeify(name))
+            } else if p.is_ref {
+                let RustType::Custom(custom_type) = &p.rust_type else {
+                    panic!("expected custom Rust type in ref, got {:?}", p.rust_type);
+                };
+
+                let original_name = custom_type.original_name();
+                if crate::SUPPORTED_TYPES.contains(&original_name.as_str()) {
+                    Some(original_name.clone())
+                } else {
+                    println!(
+                        "not generating imports for property of unsupported custom type {}",
+                        original_name
+                    );
+                    None
+                }
             } else {
                 None
             }
@@ -166,7 +181,7 @@ pub enum RustType {
     F64,
     String,
     _Bytes, // FIXME: will be needed once we add byte and binary support
-    Custom(String),
+    Custom(CustomRustType),
 }
 
 impl RustType {
@@ -204,7 +219,7 @@ impl RustType {
             Self::F64 => "f64",
             Self::String => string,
             Self::_Bytes => bytes,
-            Self::Custom(s) => s,
+            Self::Custom(s) => s.as_pascal_case(),
         }
     }
 
@@ -224,10 +239,49 @@ impl RustType {
             Self::_Bytes if !sliced => quote!(Vec<u8>),
             Self::_Bytes => quote!([u8]),
             Self::Custom(name) => {
-                let ident = format_ident!("{name}");
+                let ident = format_ident!("{}", name.as_pascal_case());
                 quote!(#ident)
             }
         }
+    }
+}
+
+/// A custom Rust type that doesn't fit in any of the [`RustType`] variants.
+///
+/// This struct holds both the PascalCase and original versions of the type's
+/// name. Ideally we'd generate the PascalCase version upon request (e.g. when
+/// `as_pascal_case` is called), but this causes ownership issues further down
+/// the line.
+#[derive(Debug, Clone)]
+pub struct CustomRustType {
+    pascal_case: String,
+    original_name: String,
+}
+
+impl From<String> for CustomRustType {
+    fn from(value: String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+
+impl From<&str> for CustomRustType {
+    fn from(value: &str) -> Self {
+        CustomRustType {
+            pascal_case: crate::naming::pascalize(value),
+            original_name: value.to_string(),
+        }
+    }
+}
+
+impl CustomRustType {
+    /// Returns the type's name in PascalCase.
+    pub fn as_pascal_case(&self) -> &String {
+        &self.pascal_case
+    }
+
+    /// Returns the type's name as it was written in the OpenAPI spec.
+    pub fn original_name(&self) -> &String {
+        &self.original_name
     }
 }
 

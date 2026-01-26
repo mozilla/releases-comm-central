@@ -12,7 +12,7 @@ pub mod path;
 pub mod schema;
 
 use path::{parse_path, OaPath};
-use schema::{parse_schema, OaSchema};
+use schema::{parse_request_body, parse_schema, OaSchema};
 
 /// A parsed OpenAPI yaml file, not yet interpreted.
 pub struct LoadedYaml {
@@ -29,6 +29,8 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
     let paths = get_map_key(&doc, "paths").ok_or("Missing 'paths'")?;
     let components = get_map_key(&doc, "components").ok_or("Missing 'components'")?;
     let schemas = get_map_key(components, "schemas").ok_or("Missing 'components.schemas'")?;
+    let request_bodies =
+        get_map_key(components, "requestBodies").ok_or("Missing 'components.requestBodies'")?;
     println!("loaded roots");
 
     let paths = paths
@@ -38,12 +40,29 @@ pub fn load_yaml(yaml_str: &str) -> Result<LoadedYaml, Box<dyn std::error::Error
         .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_path(v))))
         .collect();
 
-    let schemas = schemas
+    let mut schemas: BTreeMap<String, OaSchema> = schemas
         .as_hash()
         .expect("schemas should be a compound YAML object")
         .into_iter()
         .filter_map(|(k, v)| k.as_str().map(|name| (name.to_string(), parse_schema(v))))
         .collect();
+
+    let mut request_bodies: BTreeMap<String, OaSchema> = request_bodies
+        .as_hash()
+        .expect("requestBodies should be a compound YAML object")
+        .into_iter()
+        .filter_map(|(k, v)| {
+            k.as_str()
+                .map(|name| (name.to_string(), parse_request_body(v)))
+        })
+        .collect();
+
+    // Bundle the schemas from request bodies together with the rest of the
+    // schemas. This *should* not cause any conflict (despite schemas and
+    // request bodies being defined in separate sections of the spec file),
+    // because the name of request bodies all seem to end with "RequestBody"
+    // (e.g. "sendMailRequestBody").
+    schemas.append(&mut request_bodies);
 
     Ok(LoadedYaml { paths, schemas })
 }

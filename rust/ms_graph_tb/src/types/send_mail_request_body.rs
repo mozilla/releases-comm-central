@@ -4,8 +4,8 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Types related to DirectoryObject. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::entity::*;
+#![doc = "Types related to SendMailRequestBody. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::types::message::*;
 use crate::Error;
 use serde::Deserialize;
 use serde_json::{Map, Value};
@@ -13,40 +13,38 @@ use std::borrow::Cow;
 use strum::Display;
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
-pub enum DirectoryObjectSelection {
-    DeletedDateTime,
-    Entity(EntitySelection),
+pub enum SendMailRequestBodySelection {
+    SaveToSentItems,
 }
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
-pub struct DirectoryObject<'a> {
+pub struct SendMailRequestBody<'a> {
     #[serde(flatten)]
     pub(crate) properties: Cow<'a, Map<String, Value>>,
 }
-impl<'a> DirectoryObject<'a> {
+impl<'a> SendMailRequestBody<'a> {
     #[doc = r"Internal constructor."]
     #[allow(dead_code)]
     pub(super) fn new(properties: &'a Map<String, Value>) -> Self {
-        DirectoryObject {
+        SendMailRequestBody {
             properties: Cow::Borrowed(properties),
         }
     }
-    #[doc = "Date and time when this object was deleted.\n\n Always null when the object hasn't been deleted."]
-    pub fn deleted_date_time(&self) -> Result<Option<&str>, Error> {
+    #[doc = "Accessor to inhereted properties from `Message`."]
+    pub fn message(&'a self) -> Message<'a> {
+        Message {
+            properties: Cow::Borrowed(&*self.properties),
+        }
+    }
+    pub fn save_to_sent_items(&self) -> Result<Option<bool>, Error> {
         let val = self
             .properties
-            .get("deletedDateTime")
+            .get("SaveToSentItems")
             .ok_or(Error::NotFound)?;
         if val.is_null() {
             return Ok(None);
         }
-        Ok(Some(val.as_str().ok_or_else(|| {
+        Ok(Some(val.as_bool().ok_or_else(|| {
             Error::UnexpectedResponse(format!("{:?}", val))
         })?))
-    }
-    #[doc = "Accessor to inhereted properties from `Entity`."]
-    pub fn entity(&'a self) -> Entity<'a> {
-        Entity {
-            properties: Cow::Borrowed(&*self.properties),
-        }
     }
 }

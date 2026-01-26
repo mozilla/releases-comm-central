@@ -21,7 +21,7 @@ pub struct Entity<'a> {
     pub(crate) properties: Cow<'a, Map<String, Value>>,
 }
 impl<'a> Entity<'a> {
-    #[doc = r" Internal constructor."]
+    #[doc = r"Internal constructor."]
     #[allow(dead_code)]
     pub(super) fn new(properties: &'a Map<String, Value>) -> Self {
         Entity {

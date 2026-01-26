@@ -82,7 +82,7 @@ impl ToTokens for Path {
                             else {
                                 panic!("non-custom selectable response type: {operation:?}");
                             };
-                            let selection_type = format_ident!("{selection_type}Selection");
+                            let selection_type = format_ident!("{}Selection", selection_type.as_pascal_case());
                             imports.push(selection_body.property.clone());
                             Some(selection_type)
                         } else {
