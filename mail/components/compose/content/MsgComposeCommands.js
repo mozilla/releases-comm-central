@@ -3504,9 +3504,6 @@ function getEncryptionCompatibleRecipients() {
   return recipients;
 }
 
-const PRErrorCodeSuccess = 0;
-const certificateUsageEmailRecipient = 0x0020;
-
 var gEmailsWithMissingKeys = [];
 var gEmailsWithMissingCerts = [];
 
