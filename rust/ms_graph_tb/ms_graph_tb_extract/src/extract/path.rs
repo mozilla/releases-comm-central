@@ -119,11 +119,13 @@ pub struct RequestBody {
 
 impl From<&OaBody> for RequestBody {
     fn from(value: &OaBody) -> Self {
-        assert_eq!(
-            value.application_type.as_deref(),
-            Some("application/json"),
-            "non-json body: {value:?}"
-        );
+        if let OaSchema::Obj { .. } = &value.schema {
+            assert_eq!(
+                value.application_type.as_deref(),
+                Some("application/json"),
+                "non-json body: {value:?}"
+            );
+        }
         let (_, properties) = extract_from_schema(&value.schema);
         assert_eq!(
             properties.len(),
