@@ -4267,8 +4267,8 @@ dependencies = [
 
 [[package]]
 name = "mtu"
-version = "0.2.9"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.3.0"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "bindgen 0.72.0",
  "cfg_aliases",
@@ -4312,8 +4312,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -4326,8 +4326,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-crypto"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "bindgen 0.72.0",
  "enum-map",
@@ -4345,10 +4345,11 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "enumset",
+ "http",
  "log",
  "neqo-common",
  "neqo-crypto",
@@ -4359,13 +4360,12 @@ dependencies = [
  "sfv",
  "strum",
  "thiserror 2.0.12",
- "url",
 ]
 
 [[package]]
 name = "neqo-qpack"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "log",
  "neqo-common",
@@ -4378,8 +4378,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "enum-map",
  "enumset",
@@ -4398,8 +4398,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.21.0"
-source = "git+https://github.com/mozilla/neqo?tag=v0.21.0#b3338f904e2b9cdd59fbb2ade6b36d1a2ced4eba"
+version = "0.22.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.22.2#71889dfc61f8e61cc2cc37be78f0ec6b7ff39c0d"
 dependencies = [
  "cfg_aliases",
  "libc",
@@ -4749,9 +4749,9 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "oneshot"
-version = "0.1.11"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4ce411919553d3f9fa53a0880544cda985a112117a0444d5ff1e870a893d6ea"
+checksum = "269bca4c2591a28585d6bf10d9ed0332b7d76900a1b02bec41bdc3a2cdcda107"
 
 [[package]]
 name = "ordered-float"

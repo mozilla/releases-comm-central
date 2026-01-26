@@ -75,6 +75,13 @@ let processor = spawn_processing_thread();
 }
 ```
 
+## Send has happens-before relationship with receive
+
+All the various ways the `Receiver` can obtain the message out of the channel is synchronized
+with the `Sender`s `send` method. This means any operations and memory modifications done in
+the sender thread before the call to `Sender::send` are guaranteed to happen before any code
+running after the message has been received in the receiver thread.
+
 ## Sync vs async
 
 The main motivation for writing this library was that there were no (known to me) channel
@@ -88,7 +95,8 @@ receive methods for synchronous usage, and implements `Future` for asynchronous 
 
 The receiving endpoint of this channel implements Rust's `Future` trait and can be waited on
 in an asynchronous task. This implementation is completely executor/runtime agnostic. It should
-be possible to use this library with any executor.
+be possible to use this library with any executor, or even pass messages between tasks running
+in different executors.
 
 
 License: MIT OR Apache-2.0

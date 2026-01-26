@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.81.0"
+rust-version = "1.87.0"
 name = "neqo-http3"
-version = "0.21.0"
+version = "0.22.2"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = false
 autolib = false
@@ -45,7 +45,16 @@ ignored = [
     "log",
 ]
 
-[package.metadata.bench.streams.codspeed]
+[[package.metadata.bench]]
+name = "streams_simulated"
+
+[package.metadata.bench.codspeed]
+mode = "simulation"
+
+[[package.metadata.bench]]
+name = "streams_walltime"
+
+[package.metadata.bench.codspeed]
 mode = "walltime"
 
 [features]
@@ -103,13 +112,23 @@ name = "webtransport"
 path = "tests/webtransport.rs"
 
 [[bench]]
-name = "streams"
-path = "benches/streams.rs"
+name = "streams_simulated"
+path = "benches/streams_simulated.rs"
+harness = false
+required-features = ["bench"]
+
+[[bench]]
+name = "streams_walltime"
+path = "benches/streams_walltime.rs"
 harness = false
 required-features = ["bench"]
 
 [dependencies.enumset]
 version = "1.1"
+default-features = false
+
+[dependencies.http]
+version = "0.2.9"
 default-features = false
 
 [dependencies.log]
@@ -151,11 +170,6 @@ default-features = false
 version = "2.0.12"
 default-features = false
 
-[dependencies.url]
-version = "2.5"
-features = ["std"]
-default-features = false
-
 [dev-dependencies.criterion]
 version = "4"
 default-features = false
@@ -183,12 +197,13 @@ float_cmp_const = "warn"
 fn_to_numeric_cast_any = "warn"
 get_unwrap = "warn"
 if_then_some_else_none = "warn"
+impl_trait_in_params = "warn"
 infinite_loop = "warn"
 iter_over_hash_type = "warn"
 large_include_file = "warn"
 let_underscore_must_use = "warn"
 let_underscore_untyped = "warn"
-literal_string_with_formatting_args = "allow"
+literal_string_with_formatting_args = "warn"
 lossy_float_literal = "warn"
 map_with_unused_argument_over_ranges = "warn"
 mem_forget = "warn"
@@ -208,7 +223,6 @@ precedence_bits = "warn"
 pub_without_shorthand = "warn"
 rc_buffer = "warn"
 rc_mutex = "warn"
-redundant_test_prefix = "warn"
 redundant_type_annotations = "warn"
 ref_patterns = "warn"
 renamed_function_params = "warn"
@@ -243,10 +257,12 @@ priority = -1
 
 [lints.rust]
 absolute_paths_not_starting_with_crate = "warn"
+ambiguous_negative_literals = "warn"
 explicit_outlives_requirements = "warn"
 macro_use_extern_crate = "warn"
 missing_abi = "warn"
 non_ascii_idents = "warn"
+redundant_imports = "warn"
 redundant_lifetimes = "warn"
 trivial_numeric_casts = "warn"
 unit_bindings = "warn"

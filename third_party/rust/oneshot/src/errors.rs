@@ -7,7 +7,7 @@ use core::ptr::NonNull;
 /// [`Sender::send`](crate::Sender::send) if the corresponding [`Receiver`](crate::Receiver)
 /// has already been dropped.
 ///
-/// The message that could not be sent can be retreived again with [`SendError::into_inner`].
+/// The message that could not be sent can be retrieved again with [`SendError::into_inner`].
 pub struct SendError<T> {
     channel_ptr: NonNull<Channel<T>>,
 }
@@ -18,10 +18,12 @@ unsafe impl<T: Sync> Sync for SendError<T> {}
 impl<T> SendError<T> {
     /// # Safety
     ///
-    /// By calling this function, the caller semantically transfers ownership of the
-    /// channel's resources to the created `SendError`. Thus the caller must ensure that the
-    /// pointer is not used in a way which would violate this ownership transfer. Moreover,
-    /// the caller must assert that the channel contains a valid, initialized message.
+    /// The `SendError` assumes ownership of the channel. Both for reading out the message and
+    /// deallocating the channel. This means the caller must ensure:
+    /// * There is a message written to the channel.
+    /// * Nothing else will access this channel.
+    /// * A happens-before relationship exists between the receiver's final write of the channel
+    ///   state and this call.
     pub(crate) const unsafe fn new(channel_ptr: NonNull<Channel<T>>) -> Self {
         Self { channel_ptr }
     }
@@ -41,7 +43,8 @@ impl<T> SendError<T> {
         // `new`
         let message = unsafe { channel.take_message() };
 
-        // SAFETY: we own the channel
+        // SAFETY: we own the channel. The receiver's final write of the channel state has
+        // a strict happens-before relationship with this call.
         unsafe { dealloc(channel_ptr) };
 
         message
@@ -50,6 +53,8 @@ impl<T> SendError<T> {
     /// Get a reference to the message that failed to be sent.
     #[inline]
     pub fn as_inner(&self) -> &T {
+        // SAFETY: * `channel_ptr.as_ref() - We have ownership of the channel.
+        // * The message has been initialized
         unsafe { self.channel_ptr.as_ref().message().assume_init_ref() }
     }
 }

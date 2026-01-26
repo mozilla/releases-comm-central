@@ -13,7 +13,7 @@
 edition = "2021"
 rust-version = "1.60.0"
 name = "oneshot"
-version = "0.1.11"
+version = "0.1.13"
 authors = ["Linus Färnstrand <faern@faern.net>"]
 build = false
 autolib = false
@@ -114,6 +114,10 @@ path = "tests/future.rs"
 [[test]]
 name = "loom"
 path = "tests/loom.rs"
+
+[[test]]
+name = "miri"
+path = "tests/miri.rs"
 
 [[test]]
 name = "raw"

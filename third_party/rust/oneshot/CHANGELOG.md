@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [0.1.13] - 2026-01-26
+### Fixed
+- Fix documentation building on docs.rs by not using removed `doc_auto_cfg` feature.
+
+
+## [0.1.12] - 2026-01-25
+### Fixed
+- Fix race condition that could lead to use-after-free if the `Receiver` was polled asynchronously,
+  but then dropped before completion. RUSTSEC-2026-0005 https://github.com/faern/oneshot/pull/74
+- Fix race conditions/UB around atomic memory orderings. These were found by running tests under
+  miri. https://github.com/faern/oneshot/pull/72
+
+
 ## [0.1.11] - 2025-02-22
 ### Fixed
 - Handle the `UNPARKING` state correctly in `Receiver::drop()`. Fixes a panic that could

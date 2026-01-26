@@ -22,7 +22,7 @@ jobs:
           - os: ubuntu-latest
             rust: nightly
           - os: ubuntu-latest
-            rust: 1.65.0
+            rust: 1.70.0
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -35,6 +35,11 @@ jobs:
 
       - name: Install cargo-hack
         uses: taiki-e/install-action@cargo-hack
+
+      # The miri tests use too new Rust features to build on the oldest CI Rust version
+      - name: Remove miri tests on old Rust
+        if: matrix.rust == '1.70.0'
+        run: rm tests/miri.rs
 
       - name: Build
         shell: bash
@@ -64,3 +69,20 @@ jobs:
       - name: Build documentation
         shell: bash
         run: RUSTDOCFLAGS="--deny warnings" cargo hack --feature-powerset --exclude-all-features doc
+
+  miri:
+    name: "Miri"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Miri
+        run: |
+          rustup toolchain install nightly --component miri
+          rustup override set nightly
+          cargo miri setup
+
+      - name: Test with Miri
+        run: |
+          MIRIFLAGS="-Zmiri-many-seeds=0..512 -Zmiri-backtrace=full" \
+            cargo miri test --test miri
