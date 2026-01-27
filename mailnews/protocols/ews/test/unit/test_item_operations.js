@@ -728,3 +728,44 @@ add_task(async function test_mark_as_junk() {
     "Should still be one junked message in junk folder."
   );
 });
+
+add_task(async function test_change_flag_status() {
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const inboxFolder = rootFolder.getChildNamed("Inbox");
+  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+
+  // Add messages to the inbox.
+  const message = generator.makeMessages({ count: 1 })[0];
+  ewsServer.addNewItemOrMoveItemToFolder("message", "inbox", message);
+
+  await syncFolder(incomingServer, inboxFolder);
+
+  // Get the message header.
+  const messageHeaders = [...inboxFolder.messages].filter(
+    header => header.getStringProperty("ewsId") == "message"
+  );
+
+  Assert.equal(messageHeaders.length, 1, "Should have one message to flag.");
+  const messageHeader = messageHeaders[0];
+
+  const serverItem = ewsServer.getItemInfo("message");
+  Assert.ok(!!serverItem, "Message should exist on server.");
+  const serverMessage = serverItem.syntheticMessage;
+  Assert.ok(!!serverMessage, "Synthetic message should exist.");
+
+  // Flag the message.
+  inboxFolder.markMessagesFlagged([messageHeader], true);
+  TestUtils.waitForCondition(
+    () => serverMessage.metaState.flagged,
+    "Waiting for message to be flagged."
+  );
+
+  // Unflag the message.
+  inboxFolder.markMessagesFlagged([messageHeader], false);
+  TestUtils.waitForCondition(
+    () => !serverMessage.metaState.flagged,
+    "Waiting for message to be unflagged."
+  );
+});

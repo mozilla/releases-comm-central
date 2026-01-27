@@ -138,7 +138,7 @@ add_task(async function testSyncChangesWithClient() {
   ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
   ewsServer.clearItems();
 
-  const messages = generator.makeMessages({ count: 5 });
+  const messages = generator.makeMessages({ count: 6 });
   ewsServer.addMessages("inbox", messages);
 
   // Initial sync.
@@ -182,24 +182,30 @@ add_task(async function testSyncChangesWithClient() {
     "the sync token should have been recorded"
   );
 
-  // Change a message, move a message, delete a message, mark a message read.
+  // Change a message, move a message, delete a message, mark a message read,
+  // flag a message.
 
-  const messageIdToUpdate = messages[4].messageId;
-  const itemIdToUpdate = btoa(messages[4].messageId);
-  messages[4].subject = "Scary Monster Under Your Bed";
+  const messageIdToUpdate = messages[5].messageId;
+  const itemIdToUpdate = btoa(messages[5].messageId);
+  messages[5].subject = "Scary Monster Under Your Bed";
   ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
-  const itemIdToMove = btoa(messages[3].messageId);
+  const itemIdToMove = btoa(messages[4].messageId);
   ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
-  const [movedMessage] = messages.splice(3, 1);
+  const [movedMessage] = messages.splice(4, 1);
 
-  const itemIdToDelete = btoa(messages[1].messageId);
+  const itemIdToDelete = btoa(messages[2].messageId);
   ewsServer.deleteItem(itemIdToDelete);
-  messages.splice(1, 1);
+  messages.splice(2, 1);
 
-  const itemIdToMarkRead = btoa(messages[0].messageId);
-  messages[0].metaState.read = true;
+  const itemIdToMarkRead = btoa(messages[1].messageId);
+  messages[1].metaState.read = true;
   ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+
+  const messageIdToFlag = messages[0].messageId;
+  const itemIdToFlag = btoa(messages[0].messageId);
+  messages[0].metaState.flagged = true;
+  ewsServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 
   // Sync again to pick up the changes.
 
@@ -230,13 +236,17 @@ add_task(async function testSyncChangesWithClient() {
   );
   Assert.deepEqual(
     listener._deletedMessages.map(h => h.messageId),
-    [messageIdToUpdate],
-    "the updated message should have been deleted from the store"
+    [messageIdToUpdate, messageIdToFlag],
+    "the updated messages should have been deleted from the store"
   );
-  Assert.deepEqual(
-    listener._deletedMessages.map(h => h.subject),
-    ["Scary Monster Under Your Bed"],
+  Assert.equal(
+    listener._deletedMessages[0].subject,
+    "Scary Monster Under Your Bed",
     "the updated message header should have been updated"
+  );
+  Assert.ok(
+    listener._deletedMessages[1].isFlagged,
+    "the flagged message header should have been marked flagged"
   );
   Assert.ok(
     listener._syncStateToken,
@@ -304,6 +314,9 @@ class EwsMessageCallbackListener {
       // Just enough to stop the test breaking.
       markHasAttachments() {},
       markRead() {},
+      markFlagged(value) {
+        this.isFlagged = value;
+      },
       setStringProperty() {},
     };
   }
@@ -313,6 +326,9 @@ class EwsMessageCallbackListener {
       // Just enough to stop the test breaking.
       markHasAttachments() {},
       markRead() {},
+      markFlagged(value) {
+        this.isFlagged = value;
+      },
       setStringProperty() {},
     };
 
@@ -358,7 +374,7 @@ add_task(async function testSyncChangesWithRealFolder() {
   const inbox = incomingServer.rootFolder.getChildNamed("Inbox");
   const junk = incomingServer.rootFolder.getChildNamed("Junk");
 
-  const messages = generator.makeMessages({ count: 5 });
+  const messages = generator.makeMessages({ count: 6 });
   ewsServer.addMessages("inbox", messages);
 
   // Initial sync.
@@ -371,18 +387,18 @@ add_task(async function testSyncChangesWithRealFolder() {
   );
   Assert.equal(
     inbox.getTotalMessages(false),
-    5,
-    "there should be 5 messages in the inbox at the start"
+    6,
+    "there should be 6 messages in the inbox at the start"
   );
   Assert.equal(
     inbox.getNumUnread(false),
-    5,
-    "5 messages should be unread at the start"
+    6,
+    "6 messages should be unread at the start"
   );
 
-  const messageIdToUpdate = messages[4].messageId;
+  const messageIdToUpdate = messages[5].messageId;
   const originalMessage = inbox.msgDatabase.getMsgHdrForMessageID(
-    messages[4].messageId
+    messages[5].messageId
   );
   const originalMessageText = await getMessageText(originalMessage);
   const originalGreeting = originalMessageText.match(/Hello (\w+ \w+)!/);
@@ -391,44 +407,50 @@ add_task(async function testSyncChangesWithRealFolder() {
   Assert.ok(originalStoreToken, "the message should have been stored");
   const originalMsgSize = originalMessage.messageSize;
   Assert.equal(
-    messages[4].toMessageString().length,
+    messages[5].toMessageString().length,
     originalMsgSize,
     "the right size should have been stored for the message"
   );
 
-  // Change a message, move a message, delete a message, mark a message read.
+  // Change a message, move a message, delete a message, mark a message read,
+  // flag a message.
 
-  const itemIdToUpdate = btoa(messages[4].messageId);
-  messages[4].subject = "Scary Monster Under Your Bed";
-  messages[4].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
+  const itemIdToUpdate = btoa(messages[5].messageId);
+  messages[5].subject = "Scary Monster Under Your Bed";
+  messages[5].bodyPart.body = `Kia ora ${originalGreeting[1]}!`;
   ewsServer.itemChanges.push(["update", "inbox", itemIdToUpdate]);
 
-  const itemIdToMove = btoa(messages[3].messageId);
+  const itemIdToMove = btoa(messages[4].messageId);
   ewsServer.addNewItemOrMoveItemToFolder(itemIdToMove, "junkemail");
-  const [movedMessage] = messages.splice(3, 1);
+  const [movedMessage] = messages.splice(4, 1);
 
-  const itemIdToDelete = btoa(messages[1].messageId);
+  const itemIdToDelete = btoa(messages[3].messageId);
   ewsServer.deleteItem(itemIdToDelete);
-  messages.splice(1, 1);
+  messages.splice(3, 1);
 
-  const itemIdToMarkRead = btoa(messages[0].messageId);
-  messages[0].metaState.read = true;
+  const itemIdToMarkRead = btoa(messages[1].messageId);
+  messages[1].metaState.read = true;
   ewsServer.itemChanges.push(["readflag", "inbox", itemIdToMarkRead]);
+
+  const messageIdToFlag = messages[0].messageId;
+  const itemIdToFlag = btoa(messages[0].messageId);
+  messages[0].metaState.flagged = true;
+  ewsServer.itemChanges.push(["update", "inbox", itemIdToFlag]);
 
   // Sync again to pick up the changes.
 
   await syncFolder(incomingServer, inbox);
   Assert.equal(
     inbox.getTotalMessages(false),
-    3,
-    "there should be 3 messages remaining in the inbox"
+    4,
+    "there should be 4 messages remaining in the inbox"
   );
   Assert.notEqual(
     inbox.getStringProperty("ewsSyncStateToken"),
     syncStateToken,
     "the sync token should differ from the previous one"
   );
-  Assert.equal(inbox.getNumUnread(false), 2, "2 messages should be unread");
+  Assert.equal(inbox.getNumUnread(false), 3, "3 messages should be unread");
 
   const updatedMessage =
     inbox.msgDatabase.getMsgHdrForMessageID(messageIdToUpdate);
@@ -448,6 +470,10 @@ add_task(async function testSyncChangesWithRealFolder() {
     originalStoreToken,
     "the updated message should have been stored"
   );
+
+  const flaggedMessage =
+    inbox.msgDatabase.getMsgHdrForMessageID(messageIdToFlag);
+  Assert.ok(flaggedMessage.isFlagged, "Message should be flagged");
 
   // Check that the moved message arrives at its destination.
 

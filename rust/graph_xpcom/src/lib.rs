@@ -235,6 +235,20 @@ impl XpcomGraphBridge {
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
+    xpcom_method!(change_flag_status => ChangeFlagStatus(
+        listener: *const IEwsSimpleOperationListener,
+        message_ids: *const ThinVec<nsCString>,
+        is_flagged: bool
+    ));
+    fn change_flag_status(
+        &self,
+        _listener: &IEwsSimpleOperationListener,
+        _message_ids: &ThinVec<nsCString>,
+        _is_flagged: bool,
+    ) -> Result<(), nsresult> {
+        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+    }
+
     xpcom_method!(change_read_status_all => ChangeReadStatusAll(
         listener: *const IEwsSimpleOperationListener,
         folder_ids: *const ThinVec<nsCString>,

@@ -1414,9 +1414,9 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Update the flags on the database entry to reflect its content is *not*
-    // stored offline anymore. We don't commit right now, but the expectation is
-    // that the consumer will call `CommitChanges()` once it's done processing
-    // the current change.
+    // stored offline anymore. We don't commit right now, but the expectation
+    // is that the consumer will call `CommitChanges()` once it's done
+    // processing the current change.
     uint32_t unused;
     rv = existingHdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2069,4 +2069,38 @@ NS_IMETHODIMP EwsFolder::WriteToFolderCacheElem(
     return element->SetCachedString("folderName", mName);
   }
   return NS_OK;
+}
+
+NS_IMETHODIMP EwsFolder::MarkMessagesFlagged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool markFlagged) {
+  nsresult rv = NS_OK;
+
+  nsTArray<nsCString> ewsIds(messages.Length());
+  for (auto&& message : messages) {
+    nsAutoCString ewsId;
+    rv = message->GetStringProperty(kEwsIdProperty, ewsId);
+    NS_ENSURE_SUCCESS(rv, rv);
+    ewsIds.AppendElement(ewsId);
+  }
+
+  CopyableTArray<RefPtr<nsIMsgDBHdr>> headersToChange(messages.Length());
+  for (auto&& message : messages) {
+    headersToChange.AppendElement(message);
+  }
+  RefPtr<EwsSimpleListener> listener = new EwsSimpleListener(
+      [headersToChange = std::move(headersToChange), markFlagged](
+          const nsTArray<nsCString>& ewsIds, bool useLegacyFallback) {
+        nsresult rv = NS_OK;
+        for (auto&& header : headersToChange) {
+          rv = header->MarkFlagged(markFlagged);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
+        return NS_OK;
+      });
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetProtocolClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return client->ChangeFlagStatus(listener, ewsIds, markFlagged);
 }

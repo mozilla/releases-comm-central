@@ -55,6 +55,9 @@ pub trait MessageHeaders {
 
     /// A short preview string for the message.
     fn preview(&self) -> Option<impl AsRef<str>>;
+
+    /// The flagging info for the message.
+    fn is_flagged(&self) -> Option<bool>;
 }
 
 impl MessageHeaders for mail_parser::Message<'_> {
@@ -149,6 +152,10 @@ impl MessageHeaders for mail_parser::Message<'_> {
 
     fn preview(&self) -> Option<impl AsRef<str>> {
         None::<String>
+    }
+
+    fn is_flagged(&self) -> Option<bool> {
+        None::<bool>
     }
 }
 

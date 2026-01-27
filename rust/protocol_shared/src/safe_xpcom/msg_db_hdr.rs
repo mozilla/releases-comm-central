@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use log::debug;
 use nserror::nsresult;
 use nsstring::nsCString;
 use uuid::Uuid;
@@ -34,6 +35,8 @@ impl StaleMsgDbHeader {
 
             format!("x-moz-uuid:{uuid}", uuid = uuid.hyphenated())
         };
+
+        debug!("Populating message headers for internet message ID {internet_message_id}");
 
         self.set_message_id(internet_message_id)?;
 
@@ -97,6 +100,12 @@ impl StaleMsgDbHeader {
 
         if let Some(preview) = msg.preview() {
             self.set_preview(preview)?;
+        }
+
+        debug!("Checking for flag status change.");
+        if let Some(flag) = msg.is_flagged() {
+            debug!("Found message flagged: {:?}", flag);
+            self.mark_flagged(flag)?;
         }
 
         Ok(UpdatedMsgDbHeader(self.0))
@@ -223,6 +232,12 @@ impl StaleMsgDbHeader {
                 .SetStringProperty(property_name.as_ptr(), &*preview_text)
         }
         .to_result()
+    }
+
+    /// A safe wrapper for [`nsIMsgDBHdr::MarkFlagged`].
+    fn mark_flagged(&self, is_flagged: bool) -> Result<(), nsresult> {
+        // SAFETY: bool is safe to cross the Rust/C++ boundary.
+        unsafe { self.0.MarkFlagged(is_flagged) }.to_result()
     }
 }
 

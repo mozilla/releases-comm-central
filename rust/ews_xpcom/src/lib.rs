@@ -446,6 +446,34 @@ impl XpcomEwsBridge {
         Ok(())
     }
 
+    xpcom_method!(change_flag_status => ChangeFlagStatus(
+        listener: *const IEwsSimpleOperationListener,
+        message_ids: *const ThinVec<nsCString>,
+        is_flagged: bool
+    ));
+    fn change_flag_status(
+        &self,
+        listener: &IEwsSimpleOperationListener,
+        message_ids: &ThinVec<nsCString>,
+        is_flagged: bool,
+    ) -> Result<(), nsresult> {
+        let client = self.client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "change_flag_status",
+            client.change_flag_status(
+                SafeEwsSimpleOperationListener::new(listener),
+                message_ids.clone(),
+                is_flagged,
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
     xpcom_method!(change_read_status_all => ChangeReadStatusAll(
         listener: *const IEwsSimpleOperationListener,
         folder_ids: *const ThinVec<nsCString>,

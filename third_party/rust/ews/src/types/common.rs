@@ -803,6 +803,17 @@ pub struct Message {
     /// This element was introduced in Exchange 2013.
     #[xml_struct(ns_prefix = "t")]
     pub preview: Option<String>,
+
+    /// The flag status of the mailbox item.
+    ///
+    /// This value isn't documented for either the `Item` or `Message`
+    /// interfaces in the Exchange documentation. However, the element itself is
+    /// documented at
+    /// <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/flag>
+    ///
+    /// This element was introduced in Exchange 2013.
+    #[xml_struct(ns_prefix = "t")]
+    pub flag: Option<Flag>,
 }
 
 /// An extended MAPI property of an Exchange item or folder.
@@ -1277,11 +1288,35 @@ pub struct GroupedItems {
     pub items: Items,
 }
 
+/// The value of the flag status for an item.
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/flagstatus>
+#[derive(Clone, Debug, XmlSerialize, Deserialize, Eq, PartialEq)]
+#[xml_struct(text)]
+pub enum FlagStatus {
+    NotFlagged,
+    Flagged,
+    Complete,
+}
+
+/// The flag information of the item.
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/flag>
+#[derive(Clone, Debug, XmlSerialize, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "PascalCase")]
+pub struct Flag {
+    pub flag_status: Option<FlagStatus>,
+    pub start_date: Option<String>,
+    pub due_date: Option<String>,
+    pub complete_date: Option<String>,
+}
+
 #[cfg(test)]
 mod tests {
 
     use super::*;
-    use crate::{test_utils::assert_serialized_content, Error};
+    use crate::{
+        test_utils::{assert_deserialized_content, assert_serialized_content},
+        Error,
+    };
 
     /// Tests that an [`ArrayOfRecipients`] correctly serializes into XML. It
     /// should serialize as multiple `<t:Mailbox>` elements, one per [`Recipient`].
@@ -1492,5 +1527,45 @@ mod tests {
         let mut de = quick_xml::de::Deserializer::from_reader(file_attachment_xml.as_bytes());
         let file_attachments: Attachments = serde_path_to_error::deserialize(&mut de).unwrap();
         assert_eq!(file_attachments, data);
+    }
+
+    #[test]
+    fn test_serialize_flag_status() {
+        let message = Message {
+            flag: Some(Flag {
+                flag_status: Some(FlagStatus::Flagged),
+                start_date: None,
+                due_date: None,
+                complete_date: None,
+            }),
+            ..Default::default()
+        };
+
+        let expected = r#"<Message><t:Flag><FlagStatus>Flagged</FlagStatus></t:Flag></Message>"#;
+
+        assert_serialized_content(&message, "Message", expected);
+    }
+
+    #[test]
+    fn test_deserialize_flag_status() {
+        let content = r#"<t:Message>
+                <t:Flag>
+                    <t:FlagStatus>Flagged</t:FlagStatus>
+                    <t:StartDate>2026-01-26T23:00:00Z</t:StartDate>
+                    <t:DueDate>2026-01-26T23:00:00Z</t:DueDate>
+                </t:Flag>
+            </t:Message>"#;
+
+        let expected = Message {
+            flag: Some(Flag {
+                flag_status: Some(FlagStatus::Flagged),
+                start_date: Some("2026-01-26T23:00:00Z".to_string()),
+                due_date: Some("2026-01-26T23:00:00Z".to_string()),
+                complete_date: None,
+            }),
+            ..Default::default()
+        };
+
+        assert_deserialized_content(content, expected);
     }
 }

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use ews::FlagStatus;
 use protocol_shared::headers::{Mailbox, MessageHeaders};
 
 use xpcom::interfaces::{nsMsgPriority, nsMsgPriorityValue};
@@ -114,6 +115,13 @@ impl MessageHeaders for Message<'_> {
 
     fn preview(&self) -> Option<impl AsRef<str>> {
         self.0.preview.as_ref()
+    }
+
+    fn is_flagged(&self) -> Option<bool> {
+        self.0.flag.as_ref().map(|f| match f.flag_status {
+            Some(FlagStatus::Flagged) => true,
+            _ => false,
+        })
     }
 }
 

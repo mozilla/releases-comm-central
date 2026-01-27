@@ -173,6 +173,14 @@ interface IEwsClient : nsISupports
   void changeReadStatus(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageIds, in boolean isRead);
 
   /**
+   * Changes the flag status of one or more messages on the Exchange server.
+   *
+   * @param messageIds - The EWS IDs of the messages to flag or unflag.
+   * @param isFlagged - The new flag state for the message.
+   */
+  void changeFlagStatus(in IEwsSimpleOperationListener listener, in Array<AUTF8String> messageIds, in boolean isFlagged);
+
+  /**
    * Changes the read/unread status of all messages in the listed folders on the
    * Exchange server, if the server supports it (Exchange 2013 on).
    *

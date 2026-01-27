@@ -106,6 +106,9 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;
 
+  NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
+                                 bool markFlagged) override;
+
  private:
   nsresult CreateChildrenFromStore();
   bool mHasLoadedSubfolders;

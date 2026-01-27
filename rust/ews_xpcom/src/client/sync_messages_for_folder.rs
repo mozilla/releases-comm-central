@@ -117,6 +117,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
 
             if client.version_handler.get_version() >= ExchangeServerVersion::Exchange2013 {
                 fields_to_fetch.push("item:Preview");
+                fields_to_fetch.push("item:Flag");
             }
 
             let messages_by_id: HashMap<_, _> = client
@@ -191,12 +192,15 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                         log::info!("Processing Update change with ID {item_id}");
 
                         let msg = messages_by_id.get(item_id).ok_or_else(|| {
+                            log::error!("Unable to fetch message with ID {item_id}");
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
                             }
                         })?;
 
+                        log::debug!("Updating message with item ID {item_id}");
                         let mut result = self.listener.on_message_updated(item_id);
+                        log::debug!("Got header for message ID {item_id}");
 
                         let mut hdr_is_detached = false;
                         if let Err(nserror::NS_ERROR_NOT_AVAILABLE) = result {
@@ -224,6 +228,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                         // the database entry and commit.
                         let header =
                             result?.populate_from_message_headers(crate::headers::Message(msg))?;
+                        log::debug!("Populated headers for item ID {item_id}");
 
                         // Persist the database entry. If it's a new one
                         // (because we've missed the creation event), then we
@@ -235,6 +240,8 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                         } else {
                             self.listener.on_existing_hdr_changed()?;
                         }
+
+                        log::debug!("Completed update for item ID {item_id}");
                     }
 
                     sync_folder_items::Change::Delete { item_id } => {

@@ -1169,10 +1169,48 @@ export class EwsServer extends MockServer {
         .getElementsByTagName("t:ItemId")[0]
         .getAttribute("Id");
       const item = this.getItemInfo(itemId);
+
       const isReadEl = itemChange.getElementsByTagName("t:IsRead")[0];
       if (isReadEl) {
         item.syntheticMessage.metaState.read = isReadEl.textContent == "true";
         this.itemChanges.push(["readflag", item.parentId, itemId]);
+      }
+
+      // This is replicating observed behavior in M365. To change
+      // the message flagged field, we must:
+      // 1. Set the Message::Flag field; and
+      // 2. Set the Extended property with property tag 4240.
+      const flagEl = itemChange.getElementsByTagName("t:Flag")[0];
+      if (flagEl) {
+        const flagStatusEl = flagEl.getElementsByTagName("t:FlagStatus")[0];
+        const extendedPropertyEl =
+          itemChange.GetElementsByTagName("ExtendedProperty")[0];
+        if (flagStatusEl && extendedPropertyEl) {
+          const fieldUriEl =
+            extendedPropertyEl.getElementsByTagName("t:ExtendedFieldUri")[0];
+          if (fieldUriEl) {
+            const propertyTag = fieldUriEl.getAttribute("PropertyTag");
+            if (propertyTag == "4240") {
+              const valueEl =
+                extendedPropertyEl.getElementsByTagName("t:Value");
+              if (valueEl) {
+                const flagStatusValue = flagStatusEl.textContent;
+                const extendedPropertyValue = valueEl.textContent;
+                if (
+                  flagStatusValue == "Flagged" &&
+                  extendedPropertyValue == "2"
+                ) {
+                  item.syntheticMessage.metaState.flagged = true;
+                } else if (
+                  flagStatusValue == "NotFlagged" &&
+                  extendedPropertyValue == "0"
+                ) {
+                  item.syntheticMessage.metaState.flagged = false;
+                }
+              }
+            }
+          }
+        }
       }
 
       const updateItemResponseMessageEl = responsesMessagesEl.appendChild(
@@ -1278,6 +1316,16 @@ export class EwsServer extends MockServer {
         const sizeEl = resDoc.createElement("t:Size");
         sizeEl.textContent = item.syntheticMessage.toMessageString().length;
         messageEl.appendChild(sizeEl);
+
+        const flagEl = resDoc.createElement("t:Flag");
+        const flagStatusEl = resDoc.createElement("t:FlagStatus");
+        if (item.syntheticMessage.metaState.flagged) {
+          flagStatusEl.textContent = "Flagged";
+        } else {
+          flagStatusEl.textContent = "NotFlagged";
+        }
+        flagEl.appendChild(flagStatusEl);
+        messageEl.appendChild(flagEl);
 
         const toRecipientsEl = resDoc.createElement("t:ToRecipients");
         for (const to of item.syntheticMessage.to) {

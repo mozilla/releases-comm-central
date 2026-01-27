@@ -462,6 +462,7 @@ SyntheticPartMultiSignedPGP.prototype = {
 var _DEFAULT_META_STATES = {
   junk: false,
   read: false,
+  flagged: false,
 };
 
 /**
