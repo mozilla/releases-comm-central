@@ -6550,45 +6550,23 @@ var threadPane = {
       },
     ];
 
-    if (threadIds.size == 1) {
-      const ignoredThreadText = messengerBundle.GetStringFromName(
-        !subthreadOnly ? "ignoredThreadFeedback" : "ignoredSubthreadFeedback"
-      );
-      let subj = messages[0].mime2DecodedSubject || "";
-      if (subj.length > 45) {
-        subj = subj.substring(0, 45) + "…";
-      }
-      const text = ignoredThreadText.replace("#1", subj);
-
-      await this.notificationBox.appendNotification(
-        "ignoreThreadInfo",
-        {
-          label: text,
-          priority: this.notificationBox.PRIORITY_INFO_MEDIUM,
-        },
-        buttons
-      );
-    } else {
-      const ignoredThreadText = messengerBundle.GetStringFromName(
-        !subthreadOnly ? "ignoredThreadsFeedback" : "ignoredSubthreadsFeedback"
-      );
-
-      const { PluralForm } = ChromeUtils.importESModule(
-        "resource:///modules/PluralForm.sys.mjs"
-      );
-      const text = PluralForm.get(threadIds.size, ignoredThreadText).replace(
-        "#1",
-        threadIds.size
-      );
-      await this.notificationBox.appendNotification(
-        "ignoreThreadsInfo",
-        {
-          label: text,
-          priority: this.notificationBox.PRIORITY_INFO_MEDIUM,
-        },
-        buttons
-      );
+    let subject = messages[0].mime2DecodedSubject || "";
+    if (subject.length > 45) {
+      subject = subject.substring(0, 45) + "…";
     }
+    await this.notificationBox.appendNotification(
+      "ignoreThreadsInfo",
+      {
+        label: {
+          "l10n-id": !subthreadOnly
+            ? "ignored-theads-feedback"
+            : "ignored-subtheads-feedback",
+          "l10n-args": { count: threadIds.size, subject },
+        },
+        priority: this.notificationBox.PRIORITY_INFO_MEDIUM,
+      },
+      buttons
+    );
   },
 
   /**

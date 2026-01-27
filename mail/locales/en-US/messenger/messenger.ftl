@@ -753,3 +753,23 @@ prompt-dont-ask-again = Do not ask again.
 spam-analysis-percentage = Spam analysis { NUMBER($percentage, maximumSignificantDigits: 2, style: "percent") } completed
 
 spam-processing-message = Processing spam messages
+
+## Ignore threads
+
+# Variables:
+#    $count - the number of threads that were selected
+#    $subject - the message thread title (subject)
+ignored-theads-feedback = {
+    $count ->
+        [one] Replies to the thread "{ $subject }" will not be shown.
+        *[other] Replies to the { $count } threads that were selected will not be shown.
+    }
+
+# Variables:
+#    $count - the number of threads that were selected
+#    $subject - the message thread title (subject)
+ignored-subtheads-feedback = {
+    $count ->
+        [one] Replies to the subthread "{ $subject }" will not be shown.
+        *[other] Replies to the { $count } subthreads that were selected will not be shown.
+    }

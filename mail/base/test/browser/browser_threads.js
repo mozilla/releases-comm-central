@@ -161,7 +161,7 @@ add_task(async function testIgnoreThread() {
   // Check the notification about the ignored thread.
 
   const notification =
-    notificationBox.getNotificationWithValue("ignoreThreadInfo");
+    notificationBox.getNotificationWithValue("ignoreThreadsInfo");
   const label = notification.messageText;
   Assert.stringContains(label.textContent, testMessages[5].subject);
   const buttons = notification.querySelectorAll("button.notification-button");
@@ -239,7 +239,7 @@ add_task(async function testIgnoreSubthread() {
   // Check the notification about the ignored subthread.
 
   const notification =
-    notificationBox.getNotificationWithValue("ignoreThreadInfo");
+    notificationBox.getNotificationWithValue("ignoreThreadsInfo");
   const label = notification.messageText;
   Assert.stringContains(label.textContent, testMessages[17].subject);
   const buttons = notification.querySelectorAll("button.notification-button");
