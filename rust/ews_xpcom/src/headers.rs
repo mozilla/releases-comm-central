@@ -118,10 +118,10 @@ impl MessageHeaders for Message<'_> {
     }
 
     fn is_flagged(&self) -> Option<bool> {
-        self.0.flag.as_ref().map(|f| match f.flag_status {
-            Some(FlagStatus::Flagged) => true,
-            _ => false,
-        })
+        self.0
+            .flag
+            .as_ref()
+            .map(|f| matches!(f.flag_status, Some(FlagStatus::Flagged)))
     }
 }
 

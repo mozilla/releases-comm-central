@@ -5,11 +5,11 @@
 use std::sync::Arc;
 
 use ews::{
+    BaseItemId, ExtendedFieldURI, ExtendedProperty, Flag, FlagStatus, Message, MessageDisposition,
+    Operation, OperationResponse, PathToElement, PropertyType,
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
-    BaseItemId, ExtendedFieldURI, ExtendedProperty, Flag, FlagStatus, Message, MessageDisposition,
-    Operation, OperationResponse, PathToElement, PropertyType,
 };
 use nsstring::nsCString;
 use protocol_shared::{
@@ -19,7 +19,7 @@ use protocol_shared::{
 use thin_vec::ThinVec;
 
 use crate::{
-    client::{process_response_message_class, ServerType, XpComEwsClient},
+    client::{ServerType, XpComEwsClient, process_response_message_class},
     error::XpComEwsError,
 };
 
@@ -166,7 +166,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 .as_ref()
                 .expect_err("partition should only populate this with errs");
             return Err(XpComEwsError::Processing {
-                message: format!("response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"),
+                message: format!(
+                    "response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"
+                ),
             });
         }
 
@@ -227,7 +229,7 @@ fn make_extended_property_change_description_by_tag(
                     property_id: None,
                     property_type: Some(property_type),
                 },
-                value: value,
+                value,
             }]),
             ..Default::default()
         },
