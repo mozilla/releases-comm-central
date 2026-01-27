@@ -75,9 +75,13 @@ add_task(async function test_account_oauth_imap_account() {
     "Should be loading"
   );
 
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isHidden(configFoundTemplate),
-    "The config found subview should be hidden."
+  await BrowserTestUtils.waitForMutationCondition(
+    configFoundTemplate,
+    {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    },
+    () => BrowserTestUtils.isHidden(configFoundTemplate)
   );
 
   const imapAccount = MailServices.accounts.accounts.find(
