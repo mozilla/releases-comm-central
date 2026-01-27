@@ -25,6 +25,26 @@ about-rights-notification-text = { -brand-short-name } is free and open source s
 
 ## Content tabs
 
+open-windows-warning-confirmation-title = Confirm
+
+# Variables:
+#   $count - number of messages to open
+open-windows-warning-confirmation = {
+    $count ->
+       [one] Opening { $count } message may be slow. Continue?
+      *[other] Opening { $count } messages may be slow. Continue?
+    }
+
+open-tabs-warning-confirmation-title = Confirm
+
+# Variables:
+#   $count - number of messages to open
+open-tabs-warning-confirmation = {
+    $count ->
+       [one] Opening { $count } message may be slow. Continue?
+      *[other] Opening { $count } messages may be slow. Continue?
+    }
+
 content-tab-page-loading-icon =
     .alt = The page is loading
 content-tab-security-high-icon =

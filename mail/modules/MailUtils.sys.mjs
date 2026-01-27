@@ -10,10 +10,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
-  return new Localization(["messenger/news.ftl"], true);
+  return new Localization(
+    ["messenger/messenger.ftl", "messenger/news.ftl"],
+    true
+  );
 });
 
 /**
@@ -144,33 +146,6 @@ export var MailUtils = {
   },
 
   /**
-   * Display the warning if the number of messages to be displayed is greater than
-   * the limit set in preferences.
-   *
-   * @param {integer} aNumMessages - Number of messages to be displayed.
-   * @param {string} aConfirmTitle - Title ID.
-   * @param {string} aConfirmMsg - Message ID.
-   * @param {string} aLimitingPref - Name of the pref for limit.
-   */
-  confirmAction(aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
-    const openWarning = Services.prefs.getIntPref(aLimitingPref);
-    if (openWarning > 1 && aNumMessages >= openWarning) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messenger.properties"
-      );
-      const title = bundle.GetStringFromName(aConfirmTitle);
-      const message = lazy.PluralForm.get(
-        aNumMessages,
-        bundle.GetStringFromName(aConfirmMsg)
-      ).replace("#1", aNumMessages);
-      if (!Services.prompt.confirm(null, title, message)) {
-        return true;
-      }
-    }
-    return false;
-  },
-
-  /**
    * Display these message headers in new tabs, new windows or existing
    * windows, depending on the preference, the number of messages, and whether
    * a 3pane or standalone window is already open. This function should be
@@ -287,14 +262,18 @@ export var MailUtils = {
     }
 
     if (
-      this.confirmAction(
-        aMsgHdrs.length,
-        "openTabWarningTitle",
-        "openTabWarningConfirmation",
-        "mailnews.open_tab_warning"
-      )
+      aMsgHdrs.length > Services.prefs.getIntPref("mailnews.open_tab_warning")
     ) {
-      return;
+      const [title, message] = lazy.l10n.formatValuesSync([
+        "open-tab-warning-confirmation-title",
+        {
+          id: "open-tab-warning-confirmation",
+          args: { count: aMsgHdrs.length },
+        },
+      ]);
+      if (!Services.prompt.confirm(null, title, message)) {
+        return;
+      }
     }
 
     const loadInBgPref =
@@ -370,14 +349,19 @@ export var MailUtils = {
    */
   openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone) {
     if (
-      this.confirmAction(
-        aMsgHdrs.length,
-        "openWindowWarningTitle",
-        "openWindowWarningConfirmation",
-        "mailnews.open_window_warning"
-      )
+      aMsgHdrs.length >
+      Services.prefs.getIntPref("mailnews.open_window_warning")
     ) {
-      return;
+      const [title, message] = lazy.l10n.formatValuesSync([
+        "open-windows-warning-confirmation-title",
+        {
+          id: "open-windows-warning-confirmation",
+          args: { count: aMsgHdrs.length },
+        },
+      ]);
+      if (!Services.prompt.confirm(null, title, message)) {
+        return;
+      }
     }
 
     for (const msgHdr of aMsgHdrs) {
