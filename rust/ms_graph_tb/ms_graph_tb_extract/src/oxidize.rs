@@ -9,6 +9,8 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{collections::HashSet, fmt};
 
+use crate::naming;
+
 pub mod paths;
 pub mod types;
 
@@ -16,17 +18,10 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
     let mut imports = properties
         .iter()
         .filter_map(|p| {
-            let name = p.name.as_str();
-            if crate::SUPPORTED_TYPES.contains(&name) {
-                Some(crate::naming::snakeify(name))
-            } else if p.is_ref {
-                let RustType::Custom(custom_type) = &p.rust_type else {
-                    panic!("expected custom Rust type in ref, got {:?}", p.rust_type);
-                };
-
-                let original_name = custom_type.original_name();
+            if let RustType::Custom(custom_rust_type) = &p.rust_type {
+                let original_name = custom_rust_type.original_name();
                 if crate::SUPPORTED_TYPES.contains(&original_name.as_str()) {
-                    Some(original_name.clone())
+                    Some(custom_rust_type.as_snake_case())
                 } else {
                     println!(
                         "not generating imports for property of unsupported custom type {}",
@@ -277,6 +272,11 @@ impl CustomRustType {
     /// Returns the type's name in PascalCase.
     pub fn as_pascal_case(&self) -> &String {
         &self.pascal_case
+    }
+
+    /// Returns the type's name in snake_case.
+    pub fn as_snake_case(&self) -> String {
+        naming::snakeify(&self.original_name)
     }
 
     /// Returns the type's name as it was written in the OpenAPI spec.

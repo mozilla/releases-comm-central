@@ -113,7 +113,7 @@ fn collect_schema_properties(schema: &OaSchema, out: &mut Vec<Property>) {
                         description,
                     });
                 } else {
-                    println!("Skipping unsupported type: {name}");
+                    println!("Skipping property with unsupported type: {name}");
                 }
             }
         }

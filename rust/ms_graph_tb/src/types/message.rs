@@ -5,6 +5,7 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to Message. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::types::item_body::*;
 use crate::Error;
 use serde::Deserialize;
 use serde_json::{Map, Value};
@@ -13,6 +14,7 @@ use strum::Display;
 #[derive(Copy, Clone, Debug, Display, PartialEq, Eq)]
 #[strum(serialize_all = "camelCase")]
 pub enum MessageSelection {
+    Body,
     BodyPreview,
     ConversationId,
     ConversationIndex,
@@ -26,6 +28,7 @@ pub enum MessageSelection {
     ReceivedDateTime,
     SentDateTime,
     Subject,
+    UniqueBody,
     WebLink,
 }
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
@@ -40,6 +43,13 @@ impl<'a> Message<'a> {
         Message {
             properties: Cow::Borrowed(properties),
         }
+    }
+    #[doc = "The body of the message.\n\n It can be in HTML or text format. Find out about safe HTML in a message body."]
+    pub fn body(&'a self) -> Result<ItemBody<'a>, Error> {
+        let val = self.properties.get("body").ok_or(Error::NotFound)?;
+        Ok(ItemBody::new(val.as_object().ok_or_else(|| {
+            Error::UnexpectedResponse(format!("{:?}", val))
+        })?))
     }
     #[doc = "The first 255 characters of the message body.\n\n It is in text format."]
     pub fn body_preview(&self) -> Result<Option<&str>, Error> {
@@ -192,6 +202,13 @@ impl<'a> Message<'a> {
             return Ok(None);
         }
         Ok(Some(val.as_str().ok_or_else(|| {
+            Error::UnexpectedResponse(format!("{:?}", val))
+        })?))
+    }
+    #[doc = "The part of the body of the message that is unique to the current message.\n\n uniqueBody is not returned by default but can be retrieved for a given message by use of the ?`$select`=uniqueBody query. It can be in HTML or text format."]
+    pub fn unique_body(&'a self) -> Result<ItemBody<'a>, Error> {
+        let val = self.properties.get("uniqueBody").ok_or(Error::NotFound)?;
+        Ok(ItemBody::new(val.as_object().ok_or_else(|| {
             Error::UnexpectedResponse(format!("{:?}", val))
         })?))
     }

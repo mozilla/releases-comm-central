@@ -22,9 +22,10 @@ use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::types;
 
-const SUPPORTED_TYPES: [&str; 6] = [
+const SUPPORTED_TYPES: [&str; 7] = [
     "directoryObject",
     "entity",
+    "itemBody",
     "mailboxSettings",
     "message",
     "sendMailRequestBody",

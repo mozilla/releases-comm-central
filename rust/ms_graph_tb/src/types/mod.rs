@@ -6,6 +6,7 @@
 
 pub mod directory_object;
 pub mod entity;
+pub mod item_body;
 pub mod mailbox_settings;
 pub mod message;
 pub mod send_mail_request_body;
