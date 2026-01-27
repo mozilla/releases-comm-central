@@ -58,7 +58,7 @@ gkrust_template = """
 [package]
 name = "gkrust"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 rust-version.workspace = true
 
 [lib]
@@ -86,7 +86,7 @@ version = "0.1.0"
 license = "MPL-2.0"
 description = "Thunderbird extensions to mozilla-central-workspace-hack"
 rust-version = "{rust_version}"
-edition = "2021"
+edition = "2024"
 
 [features]
 {features}

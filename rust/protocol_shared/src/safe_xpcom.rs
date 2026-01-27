@@ -24,7 +24,7 @@ pub mod url_listener;
 
 use nserror::nsresult;
 use std::ops::Deref;
-use xpcom::{interfaces::IEwsFallibleOperationListener, RefCounted, RefPtr, XpCom};
+use xpcom::{RefCounted, RefPtr, XpCom, interfaces::IEwsFallibleOperationListener};
 
 /// A non-public trait to get the internal listener of a [`SafeListener`].
 trait UnsafeListener {

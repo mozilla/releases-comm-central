@@ -5,8 +5,8 @@
 use std::sync::Arc;
 
 use ews::{
-    update_folder::{FolderChange, FolderChanges, UpdateFolder, UpdateFolderResponse, Updates},
     BaseFolderId, Folder, Operation, OperationResponse, PathToElement,
+    update_folder::{FolderChange, FolderChanges, UpdateFolder, UpdateFolderResponse, Updates},
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
@@ -14,8 +14,8 @@ use protocol_shared::safe_xpcom::{
 };
 
 use super::{
-    process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
-    XpComEwsError,
+    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    single_response_or_error,
 };
 
 use crate::macros::queue_operation;

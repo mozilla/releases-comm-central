@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use ms_graph_tb::{paths, types::user, Select};
+use ms_graph_tb::{Select, paths, types::user};
 use protocol_shared::{
     authentication::credentials::AuthenticationProvider,
     client::DoOperation,
-    safe_xpcom::{uri::SafeUri, SafeUrlListener},
+    safe_xpcom::{SafeUrlListener, uri::SafeUri},
 };
 use xpcom::RefCounted;
 

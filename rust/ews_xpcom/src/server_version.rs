@@ -12,7 +12,7 @@ use url::Url;
 
 use ews::server_version::{ExchangeServerVersion, ServerVersionInfo};
 use xpcom::interfaces::{nsIPrefBranch, nsIPrefService};
-use xpcom::{get_service, RefPtr, XpCom};
+use xpcom::{RefPtr, XpCom, get_service};
 
 use crate::error::XpComEwsError;
 
@@ -185,10 +185,10 @@ impl ServerVersionHandler {
 
         // If we already know the version from the current endpoint and it
         // matches what the server told us, then we can skip rewriting the pref.
-        if let Some(stored_version) = known_versions.get(&endpoint) {
-            if stored_version == &version {
-                return Ok(());
-            }
+        if let Some(stored_version) = known_versions.get(&endpoint)
+            && stored_version == &version
+        {
+            return Ok(());
         }
 
         // Add the version to the known versions map, serialize it into JSON,

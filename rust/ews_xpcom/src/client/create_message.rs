@@ -4,17 +4,17 @@
 
 use std::sync::Arc;
 
-use base64::prelude::{Engine, BASE64_STANDARD};
+use base64::prelude::{BASE64_STANDARD, Engine};
 use ews::{
-    create_item::CreateItem, BaseFolderId, ExtendedFieldURI, ExtendedProperty, Message,
-    MessageDisposition, MimeContent, Operation, RealItem,
+    BaseFolderId, ExtendedFieldURI, ExtendedProperty, Message, MessageDisposition, MimeContent,
+    Operation, RealItem, create_item::CreateItem,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsMessageCreateListener;
 
 use super::{
-    create_and_populate_header_from_create_response, ServerType, XpComEwsClient, XpComEwsError,
-    MSGFLAG_READ, MSGFLAG_UNMODIFIED, MSGFLAG_UNSENT,
+    MSGFLAG_READ, MSGFLAG_UNMODIFIED, MSGFLAG_UNSENT, ServerType, XpComEwsClient, XpComEwsError,
+    create_and_populate_header_from_create_response,
 };
 
 struct DoCreateMessage<'a> {

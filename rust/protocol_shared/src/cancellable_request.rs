@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use nsstring::nsACString;
 use xpcom::{
+    RefPtr,
     interfaces::{nsILoadGroup, nsLoadFlags},
-    xpcom_method, RefPtr,
+    xpcom_method,
 };
 
 /// A stub [`nsIRequest`] that only implementes the `Cancel` method. Currently

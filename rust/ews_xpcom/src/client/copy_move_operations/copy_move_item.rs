@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
+    BaseItemId, CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
     copy_item::{CopyItem, CopyItemResponse},
     move_item::{MoveItem, MoveItemResponse},
     server_version::ExchangeServerVersion,
-    BaseItemId, CopyMoveItemData, ItemResponseMessage, Operation, OperationResponse,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 use std::{marker::PhantomData, sync::Arc};
 
 use crate::client::copy_move_operations::move_generic::{
-    move_generic, CopyMoveOperation, CopyMoveSuccess, RequiresResync,
+    CopyMoveOperation, CopyMoveSuccess, RequiresResync, move_generic,
 };
 use crate::client::{ServerType, XpComEwsClient, XpComEwsError};
 use crate::macros::queue_operation;
@@ -108,8 +108,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
         RequestT: CopyMoveOperation + From<CopyMoveItemData> + Into<CopyMoveItemData>,
         <RequestT as Operation>::Response: OperationResponse<Message = ItemResponseMessage>,
     {
-        let result = move_generic::<_, RequestT>(self, destination_folder_id, item_ids).await;
-        result
+        move_generic::<_, RequestT>(self, destination_folder_id, item_ids).await
     }
 }
 

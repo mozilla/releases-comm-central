@@ -4,13 +4,13 @@
 
 use std::sync::Arc;
 
-use base64::prelude::{Engine, BASE64_STANDARD};
+use base64::prelude::{BASE64_STANDARD, Engine};
 use ews::{
-    create_item::CreateItem, ArrayOfRecipients, Message, MessageDisposition, MimeContent,
-    Operation, RealItem, Recipient,
+    ArrayOfRecipients, Message, MessageDisposition, MimeContent, Operation, RealItem, Recipient,
+    create_item::CreateItem,
 };
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::{uri::SafeUri, SafeListener, SafeMsgOutgoingListener};
+use protocol_shared::safe_xpcom::{SafeListener, SafeMsgOutgoingListener, uri::SafeUri};
 
 use super::{ServerType, TransportSecFailureBehavior, XpComEwsClient, XpComEwsError};
 

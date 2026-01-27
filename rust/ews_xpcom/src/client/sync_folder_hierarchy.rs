@@ -3,16 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    sync_folder_hierarchy::{self, SyncFolderHierarchy, SyncFolderHierarchyResponse},
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
+    sync_folder_hierarchy::{self, SyncFolderHierarchy, SyncFolderHierarchyResponse},
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsFolderListener;
 use std::{collections::HashSet, sync::Arc};
 
 use super::{
-    process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
-    XpComEwsError, EWS_ROOT_FOLDER,
+    EWS_ROOT_FOLDER, ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    single_response_or_error,
 };
 
 use crate::macros::queue_operation;

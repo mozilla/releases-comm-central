@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::collections::HashMap;
-use yaml_rust2::yaml::Hash;
 use yaml_rust2::Yaml;
+use yaml_rust2::yaml::Hash;
 
 use super::{get_bool_in, get_map_in, get_node_in, get_seq_in, get_str_in};
 

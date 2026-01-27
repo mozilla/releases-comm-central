@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
-use crate::extract::path::{Method, Operation, Path, Success};
 use crate::GENERATION_DISCLOSURE;
+use crate::extract::path::{Method, Operation, Path, Success};
 
-use super::{markup_doc_comment, Reference, RustType};
+use super::{Reference, RustType, markup_doc_comment};
 
 pub struct RequestDef {
     struct_def: StructDef,

@@ -6,10 +6,10 @@ mod delete_folder;
 mod empty_folder;
 
 use ews::{
+    BaseFolderId, DeleteType, Operation, OperationResponse,
     delete_folder::{DeleteFolder, DeleteFolderResponse},
     empty_folder::{EmptyFolder, EmptyFolderResponse},
     response::{ResponseCode, ResponseError},
-    BaseFolderId, DeleteType, Operation, OperationResponse,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
@@ -17,7 +17,7 @@ use protocol_shared::safe_xpcom::{
 };
 use std::marker::PhantomData;
 
-use super::{process_response_message_class, ServerType, XpComEwsClient, XpComEwsError};
+use super::{ServerType, XpComEwsClient, XpComEwsError, process_response_message_class};
 
 use crate::macros::queue_operation;
 
@@ -74,7 +74,9 @@ impl<ServerT: ServerType, Op: EraseFolder + 'static>
                         // the database. In this case, we don't want to force a
                         // zombie folder in the account, so we ignore the error
                         // and move on with the local deletion.
-                        log::warn!("found folder that was deleted from the EWS server but not the local db: {folder_id}");
+                        log::warn!(
+                            "found folder that was deleted from the EWS server but not the local db: {folder_id}"
+                        );
                     }
                     _ => return Err(err),
                 }

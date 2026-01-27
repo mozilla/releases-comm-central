@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
+    BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
     copy_folder::{CopyFolder, CopyFolderResponse},
     move_folder::{MoveFolder, MoveFolderResponse},
-    BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
@@ -15,7 +15,7 @@ use crate::client::copy_move_operations::move_generic::{CopyMoveOperation, Requi
 use crate::client::{ServerType, XpComEwsClient, XpComEwsError};
 use crate::macros::queue_operation;
 
-use super::move_generic::{move_generic, CopyMoveSuccess};
+use super::move_generic::{CopyMoveSuccess, move_generic};
 
 struct DoCopyMoveFolder<RequestT> {
     destination_folder_id: String,

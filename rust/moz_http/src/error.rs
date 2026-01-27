@@ -7,8 +7,8 @@ use std::{fmt::Debug, num::TryFromIntError};
 use thiserror::Error;
 
 use nserror::nsresult;
-use xpcom::interfaces::nsITransportSecurityInfo;
 use xpcom::RefPtr;
+use xpcom::interfaces::nsITransportSecurityInfo;
 
 use crate::{Response, StatusCode};
 

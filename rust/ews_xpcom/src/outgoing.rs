@@ -9,25 +9,25 @@ use std::sync::Arc;
 
 use ews::{Mailbox, Recipient};
 use log::debug;
-use protocol_shared::safe_xpcom::{uri::SafeUri, SafeMsgOutgoingListener};
+use protocol_shared::safe_xpcom::{SafeMsgOutgoingListener, uri::SafeUri};
 use thin_vec::ThinVec;
 
 use cstr::cstr;
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use nsstring::{nsACString, nsCString, nsString};
 use url::Url;
 use uuid::Uuid;
 use xpcom::components;
 use xpcom::interfaces::nsIObserverService;
 use xpcom::{
-    get_service, getter_addrefs,
+    RefPtr, get_service, getter_addrefs,
     interfaces::{
         msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsILoginInfo, nsILoginManager,
         nsIMsgIdentity, nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgStatusFeedback,
         nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
         nsMsgSocketType, nsMsgSocketTypeValue,
     },
-    nsIID, xpcom_method, RefPtr,
+    nsIID, xpcom_method,
 };
 
 use crate::client::XpComEwsClient;
@@ -71,7 +71,7 @@ impl From<PrefName> for CString {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn nsEwsOutgoingServerConstructor(
     iid: &nsIID,
     result: *mut *mut c_void,
@@ -79,7 +79,7 @@ pub unsafe extern "C" fn nsEwsOutgoingServerConstructor(
     let instance = EwsOutgoingServer::new();
 
     match instance {
-        Ok(instance) => instance.QueryInterface(iid, result),
+        Ok(instance) => unsafe { instance.QueryInterface(iid, result) },
         Err(rv) => rv,
     }
 }
@@ -613,7 +613,9 @@ impl EwsOutgoingServer {
 
     xpcom_method!(set_socket_type => SetSocketType(socket_type: nsMsgSocketTypeValue));
     fn set_socket_type(&self, _socket_type: nsMsgSocketTypeValue) -> Result<(), nsresult> {
-        log::error!("EwsOutgoingServer: tried calling SetSocketType, but the socket type can only be changed by changing the EWS URL");
+        log::error!(
+            "EwsOutgoingServer: tried calling SetSocketType, but the socket type can only be changed by changing the EWS URL"
+        );
         Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
     }
 
@@ -764,10 +766,12 @@ impl EwsOutgoingServer {
         promptTitle: *const nsACString,
         retval: *mut nsACString,
     ) -> nsresult {
-        match self.get_password_with_ui(promptString, promptTitle) {
+        match unsafe { self.get_password_with_ui(promptString, promptTitle) } {
             Ok(new_password) => match new_password {
                 Some(new_password) => {
-                    (*retval).assign(&new_password);
+                    unsafe {
+                        (*retval).assign(&new_password);
+                    }
                     NS_OK
                 }
                 None => nserror::NS_MSG_PASSWORD_PROMPT_CANCELLED,

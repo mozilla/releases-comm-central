@@ -4,7 +4,7 @@
 
 use crate::openapi::schema::OaSchema;
 use crate::oxidize::{CustomRustType, RustType};
-use crate::{simple_name, SUPPORTED_TYPES};
+use crate::{SUPPORTED_TYPES, simple_name};
 
 /// Our representation of a Graph API property.
 #[derive(Debug, Clone)]
@@ -184,10 +184,10 @@ fn map_openapi_schema_to_rust(schema: &OaSchema) -> Option<(bool, Option<String>
                 match t {
                     "array" => {
                         let item = items.as_deref()?;
-                        if let OaSchema::Obj { typ: Some(s), .. } = item {
-                            if s == "array" {
-                                todo!("nested arrays: {schema:?}");
-                            }
+                        if let OaSchema::Obj { typ: Some(s), .. } = item
+                            && s == "array"
+                        {
+                            todo!("nested arrays: {schema:?}");
                         }
                         let (_, _, typ) = map_openapi_schema_to_rust(item)?;
                         Some((true, description, typ))

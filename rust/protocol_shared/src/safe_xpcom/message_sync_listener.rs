@@ -4,7 +4,7 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::{getter_addrefs, interfaces::IEwsMessageSyncListener, RefPtr};
+use xpcom::{RefPtr, getter_addrefs, interfaces::IEwsMessageSyncListener};
 
 use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
 

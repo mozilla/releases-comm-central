@@ -10,9 +10,9 @@ use std::slice;
 use std::task::Waker;
 use std::vec::Vec;
 
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use xpcom::interfaces::{nsIInputStream, nsIRequest};
-use xpcom::{xpcom_method, RefPtr};
+use xpcom::{RefPtr, xpcom_method};
 
 /// An nsIStreamListener implementation which buffers any bit of data it
 /// receives, and implements a few methods to allow its status and buffer to be

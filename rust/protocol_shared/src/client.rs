@@ -4,7 +4,7 @@
 
 use nserror::nsresult;
 
-use crate::safe_xpcom::{handle_error, SafeListener};
+use crate::safe_xpcom::{SafeListener, handle_error};
 
 /// Abstract representation of an Exchange client implementation of performing an operation.
 #[allow(async_fn_in_trait)]

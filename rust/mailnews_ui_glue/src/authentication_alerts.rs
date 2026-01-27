@@ -9,12 +9,12 @@ use thin_vec::thin_vec;
 use nserror::nsresult;
 use nsstring::nsString;
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIPrompt, nsIPromptService, nsMsgAuthMethod};
-use xpcom::{get_service, RefCounted, RefPtr};
+use xpcom::{RefCounted, RefPtr, get_service};
 
 use crate::user_interactive_server::UserInteractiveServer;
 use crate::{
-    get_formatted_string, get_string, get_string_bundle, register_alert, PasswordPromptResult,
-    IMAP_MSG_STRING_BUNDLE, MESSENGER_STRING_BUNDLE,
+    IMAP_MSG_STRING_BUNDLE, MESSENGER_STRING_BUNDLE, PasswordPromptResult, get_formatted_string,
+    get_string, get_string_bundle, register_alert,
 };
 
 /// The outcome of the handling of an authentication error, and the action that
@@ -40,7 +40,7 @@ pub enum AuthErrorOutcome {
 ///
 /// The arguments must point to valid objects or be the null pointer. In the
 /// latter case, this function will return [`nserror::NS_ERROR_NULL_POINTER`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
     incoming_server: *const nsIMsgIncomingServer,
     action: *mut AuthErrorOutcome,
@@ -54,14 +54,16 @@ pub unsafe extern "C" fn handle_auth_failure_from_incoming_server(
     // `RefPtr::from_raw` only returns `None` if the pointer is null, and we
     // have already ensured all of our pointers are non-null, so unwrapping
     // shouldn't panic here.
-    let incoming_server = RefPtr::from_raw(incoming_server).unwrap();
+    let incoming_server = unsafe { RefPtr::from_raw(incoming_server).unwrap() };
 
     match handle_auth_failure(incoming_server) {
         Ok(outcome) => {
             // SAFETY: We have already ensured the provided pointer is not null,
             // and the function's call contract implies consumers should ensure
             // it's valid.
-            *action = outcome;
+            unsafe {
+                *action = outcome;
+            }
             nserror::NS_OK
         }
         Err(err) => err,

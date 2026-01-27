@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
+    ItemShape, Operation, OperationResponse,
     server_version::ExchangeServerVersion,
     sync_folder_items::{self, SyncFolderItems, SyncFolderItemsResponse},
-    ItemShape, Operation, OperationResponse,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsMessageSyncListener;
@@ -15,8 +15,8 @@ use std::{
 };
 
 use super::{
-    process_response_message_class, single_response_or_error, BaseFolderId, BaseShape, ServerType,
-    XpComEwsClient, XpComEwsError,
+    BaseFolderId, BaseShape, ServerType, XpComEwsClient, XpComEwsError,
+    process_response_message_class, single_response_or_error,
 };
 
 use crate::macros::queue_operation;

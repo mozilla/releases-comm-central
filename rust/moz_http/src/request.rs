@@ -10,13 +10,13 @@ use nserror::nsresult;
 use url::Url;
 
 use nsstring::nsCString;
+use xpcom::XpCom;
 use xpcom::interfaces::{
     nsContentPolicyType, nsIChannel, nsIContentPolicy, nsIHttpChannel, nsIIOService, nsILoadInfo,
     nsINSSErrorsService, nsINode, nsIPrincipal, nsIScriptSecurityManager, nsIStringInputStream,
     nsITransportSecurityInfo, nsIURI, nsIUploadChannel, nsSecurityFlags,
 };
-use xpcom::XpCom;
-use xpcom::{getter_addrefs, RefPtr};
+use xpcom::{RefPtr, getter_addrefs};
 use xpcom_async::XpComFuture;
 
 use crate::client::Method;

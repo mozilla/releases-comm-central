@@ -12,12 +12,11 @@ use nserror::nsresult;
 use nsstring::{nsCString, nsString};
 use url::Url;
 use xpcom::{
-    create_instance, get_service, getter_addrefs,
+    RefPtr, create_instance, get_service, getter_addrefs,
     interfaces::{
-        msgIOAuth2Module, nsIMsgIncomingServer, nsIMsgOutgoingServer, nsIPrefService,
-        nsMsgAuthMethod, nsMsgAuthMethodValue, IEwsLanguageInteropFactory, IOAuth2CustomDetails,
+        IEwsLanguageInteropFactory, IOAuth2CustomDetails, msgIOAuth2Module, nsIMsgIncomingServer,
+        nsIMsgOutgoingServer, nsIPrefService, nsMsgAuthMethod, nsMsgAuthMethodValue,
     },
-    RefPtr,
 };
 
 use crate::{
@@ -84,7 +83,7 @@ impl Credentials {
                     // authentication error if it's failed to get credentials
                     // even after prompting the user again.
                     Err(ProtocolError::Authentication) => {
-                        return Ok(AuthValidationOutcome::Invalid)
+                        return Ok(AuthValidationOutcome::Invalid);
                     }
 
                     Err(err) => return Err(err.into()),

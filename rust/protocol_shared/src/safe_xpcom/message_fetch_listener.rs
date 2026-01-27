@@ -4,7 +4,7 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::interfaces::{nsIInputStream, nsIStringInputStream, IEwsMessageFetchListener};
+use xpcom::interfaces::{IEwsMessageFetchListener, nsIInputStream, nsIStringInputStream};
 
 use super::{SafeListener, SafeListenerWrapper};
 use crate::error::ProtocolError;

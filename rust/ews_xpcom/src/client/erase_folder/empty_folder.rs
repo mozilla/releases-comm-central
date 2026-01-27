@@ -6,7 +6,7 @@ use ews::{
     delete_folder::DeleteFolder, empty_folder::EmptyFolder, server_version::ExchangeServerVersion,
 };
 use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::{handle_error, SafeEwsSimpleOperationListener};
+use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, handle_error};
 use std::{marker::PhantomData, sync::Arc};
 
 use super::{DoEraseFolder, XpComEwsClient};
@@ -35,7 +35,9 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
             return operation.handle_operation(&self, &listener).await;
         }
 
-        log::warn!("EmptyFolder operation unsupported in server version {server_version:?}, manually deleting messages and subfolders.");
+        log::warn!(
+            "EmptyFolder operation unsupported in server version {server_version:?}, manually deleting messages and subfolders."
+        );
 
         if !subfolder_ids.is_empty() {
             let mut delete_folder_op = DoEraseFolder::<DeleteFolder> {

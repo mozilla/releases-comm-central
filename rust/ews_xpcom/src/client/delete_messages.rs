@@ -5,9 +5,9 @@
 use std::sync::Arc;
 
 use ews::{
+    BaseItemId, DeleteType, Operation, OperationResponse,
     delete_item::{DeleteItem, DeleteItemResponse},
     response::{ResponseCode, ResponseError},
-    BaseItemId, DeleteType, Operation, OperationResponse,
 };
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
@@ -17,8 +17,8 @@ use protocol_shared::safe_xpcom::{
 use thin_vec::ThinVec;
 
 use super::{
-    process_response_message_class, validate_response_message_count, ServerType, XpComEwsClient,
-    XpComEwsError,
+    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    validate_response_message_count,
 };
 
 use crate::macros::queue_operation;

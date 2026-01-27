@@ -7,11 +7,11 @@ use thin_vec::thin_vec;
 use nserror::nsresult;
 use std::ptr;
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIObserverService};
-use xpcom::{components, RefCounted, RefPtr};
+use xpcom::{RefCounted, RefPtr, components};
 
 use crate::{
-    get_formatted_string, get_string_bundle, register_alert, UserInteractiveServer,
-    MESSENGER_STRING_BUNDLE,
+    MESSENGER_STRING_BUNDLE, UserInteractiveServer, get_formatted_string, get_string_bundle,
+    register_alert,
 };
 
 /// Handle a possible connection error that came from the given
@@ -38,7 +38,7 @@ pub unsafe extern "C" fn maybe_handle_connection_error_from_incoming_server(
     // `RefPtr::from_raw` only returns `None` if the pointer is null, and we
     // have already ensured all of our pointers are non-null, so unwrapping
     // shouldn't panic here.
-    let incoming_server = RefPtr::from_raw(incoming_server).unwrap();
+    let incoming_server = unsafe { RefPtr::from_raw(incoming_server).unwrap() };
 
     match maybe_handle_connection_error(error, incoming_server) {
         Ok(_) => nserror::NS_OK,

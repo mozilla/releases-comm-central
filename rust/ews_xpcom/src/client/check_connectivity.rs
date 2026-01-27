@@ -4,14 +4,14 @@
 
 use std::sync::Arc;
 
-use ews::{get_folder::GetFolderResponse, Operation, OperationResponse};
+use ews::{Operation, OperationResponse, get_folder::GetFolderResponse};
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeUri, SafeUrlListener};
 
 use super::{
-    process_response_message_class, single_response_or_error, validate_get_folder_response_message,
-    BaseFolderId, BaseShape, FolderShape, GetFolder, OperationRequestOptions, ServerType,
-    XpComEwsClient, XpComEwsError, EWS_ROOT_FOLDER,
+    BaseFolderId, BaseShape, EWS_ROOT_FOLDER, FolderShape, GetFolder, OperationRequestOptions,
+    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    single_response_or_error, validate_get_folder_response_message,
 };
 
 use crate::{macros::queue_operation, operation_sender::AuthFailureBehavior};

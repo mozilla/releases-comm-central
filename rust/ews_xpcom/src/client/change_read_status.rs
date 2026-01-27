@@ -5,22 +5,22 @@
 use std::sync::Arc;
 
 use ews::{
+    BaseItemId, Message, MessageDisposition, Operation, OperationResponse, PathToElement,
     update_item::{
         ConflictResolution, ItemChange, ItemChangeDescription, ItemChangeInner, UpdateItem, Updates,
     },
-    BaseItemId, Message, MessageDisposition, Operation, OperationResponse, PathToElement,
 };
 use nsstring::nsCString;
 use protocol_shared::{
     client::DoOperation,
     safe_xpcom::{
-        handle_error, SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
-        UseLegacyFallback,
+        SafeEwsSimpleOperationListener, SafeListener, SimpleOperationSuccessArgs,
+        UseLegacyFallback, handle_error,
     },
 };
 use thin_vec::ThinVec;
 
-use crate::client::{process_response_message_class, ServerType, XpComEwsClient, XpComEwsError};
+use crate::client::{ServerType, XpComEwsClient, XpComEwsError, process_response_message_class};
 
 struct DoChangeReadStatus<'a> {
     listener: &'a SafeEwsSimpleOperationListener,
@@ -116,7 +116,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 .as_ref()
                 .expect_err("partition should only populate this with errs");
             return Err(XpComEwsError::Processing {
-                message: format!("response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"),
+                message: format!(
+                    "response contained {num_errs} errors; the first error (at index {index}) was: {first_error:?}"
+                ),
             });
         }
 

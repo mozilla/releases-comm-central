@@ -4,7 +4,7 @@
 
 use nserror::nsresult;
 use xpcom::interfaces::{nsIMsgIncomingServer, nsIMsgMailSession, nsITransportSecurityInfo};
-use xpcom::{get_service, RefCounted, RefPtr};
+use xpcom::{RefCounted, RefPtr, get_service};
 
 use crate::UserInteractiveServer;
 
@@ -28,8 +28,8 @@ pub unsafe extern "C" fn handle_transport_sec_failure_from_incoming_server(
     // valid. `RefPtr::from_raw` only returns `None` if the pointer is null, and
     // we have already ensured all of our pointers are non-null, so unwrapping
     // shouldn't panic here.
-    let incoming_server = RefPtr::from_raw(incoming_server).unwrap();
-    let transport_sec_info = RefPtr::from_raw(transport_sec_info).unwrap();
+    let incoming_server = unsafe { RefPtr::from_raw(incoming_server).unwrap() };
+    let transport_sec_info = unsafe { RefPtr::from_raw(transport_sec_info).unwrap() };
 
     match handle_transport_sec_failure(incoming_server, transport_sec_info) {
         Ok(_) => nserror::NS_OK,

@@ -127,10 +127,10 @@ fn markup_doc_comment(mut doc_comment: String) -> String {
 
     // if the doc comment doesn't have a summary line, turn the first sentence
     // into one
-    if !doc_comment.contains("\n\n") {
-        if let Some(idx) = doc_comment.find(". ") {
-            doc_comment.insert_str(idx + 1, "\n\n");
-        }
+    if !doc_comment.contains("\n\n")
+        && let Some(idx) = doc_comment.find(". ")
+    {
+        doc_comment.insert_str(idx + 1, "\n\n");
     }
 
     doc_comment

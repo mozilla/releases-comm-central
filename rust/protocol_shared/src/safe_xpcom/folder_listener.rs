@@ -5,7 +5,7 @@
 use fxhash::FxHashMap;
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderListener};
+use xpcom::interfaces::{IEwsFolderListener, nsMsgFolderFlagType, nsMsgFolderFlags};
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper};
 

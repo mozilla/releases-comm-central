@@ -10,7 +10,7 @@ use xpcom::interfaces::{
     nsIIOService, nsIMsgIncomingServer, nsIMsgOutgoingServer, nsIURI, nsMsgAuthMethod,
     nsMsgAuthMethodValue,
 };
-use xpcom::{getter_addrefs, RefPtr};
+use xpcom::{RefPtr, getter_addrefs};
 
 /// The outcome of a password prompt.
 pub enum PasswordPromptResult {

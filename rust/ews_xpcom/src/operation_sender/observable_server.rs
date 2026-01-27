@@ -5,11 +5,10 @@
 use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{
-    get_service,
+    RefPtr, XpCom, get_service,
     interfaces::{
         nsIMsgIncomingServer, nsIMsgOutgoingServer, nsIObserver, nsIPrefBranch, nsIPrefService,
     },
-    RefPtr, XpCom,
 };
 
 /// A server on which an observer can subscribe to changes.

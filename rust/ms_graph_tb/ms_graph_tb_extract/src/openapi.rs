@@ -6,13 +6,13 @@
 //! source, primarily for initial parsing.
 
 use std::collections::BTreeMap;
-use yaml_rust2::{yaml::Hash as YamlHash, Yaml, YamlLoader};
+use yaml_rust2::{Yaml, YamlLoader, yaml::Hash as YamlHash};
 
 pub mod path;
 pub mod schema;
 
-use path::{parse_path, OaPath};
-use schema::{parse_request_body, parse_schema, OaSchema};
+use path::{OaPath, parse_path};
+use schema::{OaSchema, parse_request_body, parse_schema};
 
 /// A parsed OpenAPI yaml file, not yet interpreted.
 pub struct LoadedYaml {

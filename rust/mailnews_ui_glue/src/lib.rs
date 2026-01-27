@@ -10,7 +10,7 @@ use thin_vec::ThinVec;
 use xpcom::interfaces::{
     nsIMsgMailNewsUrl, nsIMsgMailSession, nsIStringBundle, nsIStringBundleService, nsIURI,
 };
-use xpcom::{get_service, getter_addrefs, RefPtr, XpCom};
+use xpcom::{RefPtr, XpCom, get_service, getter_addrefs};
 
 mod authentication_alerts;
 mod connection_alerts;

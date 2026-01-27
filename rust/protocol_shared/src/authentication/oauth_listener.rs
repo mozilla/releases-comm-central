@@ -8,9 +8,9 @@ use std::{
     task::Waker,
 };
 
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use nsstring::nsACString;
-use xpcom::{xpcom_method, RefPtr};
+use xpcom::{RefPtr, xpcom_method};
 
 /// A listener for token requests to an OAuth2 module.
 ///

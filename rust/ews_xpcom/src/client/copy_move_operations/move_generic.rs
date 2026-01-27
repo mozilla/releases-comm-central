@@ -5,7 +5,7 @@
 use ews::{Operation, OperationResponse};
 use protocol_shared::safe_xpcom::{SimpleOperationSuccessArgs, UseLegacyFallback};
 
-use crate::client::{response_into_messages, ServerType, XpComEwsClient, XpComEwsError};
+use crate::client::{ServerType, XpComEwsClient, XpComEwsError, response_into_messages};
 
 /// Whether the EWS copy/move operation should be followed by a resync to pick
 /// up updated IDs.

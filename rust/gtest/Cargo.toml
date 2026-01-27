@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["The Mozilla Project Developers"]
 license = "MPL-2.0"
 description = "Testing code for libgkrust"
-edition = "2021"
+edition = "2024"
 rust-version.workspace = true
 
 [dependencies]

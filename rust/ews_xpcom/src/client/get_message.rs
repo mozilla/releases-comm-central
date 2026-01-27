@@ -4,8 +4,8 @@
 
 use std::sync::Arc;
 
-use base64::prelude::{Engine, BASE64_STANDARD};
-use ews::{get_item::GetItem, Operation};
+use base64::prelude::{BASE64_STANDARD, Engine};
+use ews::{Operation, get_item::GetItem};
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsMessageFetchListener;
 

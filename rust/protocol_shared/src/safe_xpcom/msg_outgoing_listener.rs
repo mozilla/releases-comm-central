@@ -5,11 +5,11 @@
 use nserror::nsresult;
 use nsstring::nsCString;
 use xpcom::{
-    interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
     RefPtr,
+    interfaces::{nsIMsgOutgoingListener, nsIRequest, nsIURI},
 };
 
-use super::{uri::SafeUri, SafeListener, SafeListenerWrapper};
+use super::{SafeListener, SafeListenerWrapper, uri::SafeUri};
 use crate::cancellable_request::CancellableRequest;
 
 /// See [`SafeListenerWrapper`].

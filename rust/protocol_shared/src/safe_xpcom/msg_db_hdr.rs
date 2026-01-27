@@ -6,8 +6,8 @@ use nserror::nsresult;
 use nsstring::nsCString;
 use uuid::Uuid;
 use xpcom::{
-    interfaces::{nsIMsgDBHdr, nsMsgKey, nsMsgPriorityValue},
     RefPtr,
+    interfaces::{nsIMsgDBHdr, nsMsgKey, nsMsgPriorityValue},
 };
 
 use crate::headers::{Mailbox, MessageHeaders};
@@ -87,7 +87,10 @@ impl StaleMsgDbHeader {
                     self.set_size(size)?;
                 }
                 Err(_) => {
-                    log::error!("failed to compute size for message that's larger than supported max size of {}", u32::MAX);
+                    log::error!(
+                        "failed to compute size for message that's larger than supported max size of {}",
+                        u32::MAX
+                    );
                 }
             };
         }

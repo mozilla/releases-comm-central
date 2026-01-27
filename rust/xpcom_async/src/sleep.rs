@@ -9,8 +9,8 @@ use std::{
 };
 
 use cstr::cstr;
-use nserror::{nsresult, NS_ERROR_UNEXPECTED, NS_OK};
-use xpcom::{interfaces::nsITimer, xpcom_method, RefPtr};
+use nserror::{NS_ERROR_UNEXPECTED, NS_OK, nsresult};
+use xpcom::{RefPtr, interfaces::nsITimer, xpcom_method};
 
 /// Sleeps for the specified duration.
 ///

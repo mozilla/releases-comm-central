@@ -6,9 +6,8 @@ use nserror::nsresult;
 use nsstring::{nsACString, nsCString};
 use std::{fmt, ptr};
 use xpcom::{
-    get_service, getter_addrefs,
+    RefPtr, get_service, getter_addrefs,
     interfaces::{nsIIOService, nsIURI},
-    RefPtr,
 };
 
 /// Wrapper newtype for [`nsIURI`] that utilizes only safe Rust types in

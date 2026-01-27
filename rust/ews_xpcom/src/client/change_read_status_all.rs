@@ -5,9 +5,9 @@
 use std::sync::Arc;
 
 use ews::{
+    BaseFolderId, Operation, OperationResponse,
     mark_all_read::{MarkAllItemsAsRead, MarkAllItemsAsReadResponse},
     server_version::ExchangeServerVersion,
-    BaseFolderId, Operation, OperationResponse,
 };
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
@@ -18,8 +18,8 @@ use thin_vec::ThinVec;
 
 use crate::{
     client::{
-        process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
-        XpComEwsError,
+        ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+        single_response_or_error,
     },
     macros::queue_operation,
 };

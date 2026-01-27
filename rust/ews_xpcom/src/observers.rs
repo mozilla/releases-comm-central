@@ -4,16 +4,17 @@
 
 use std::{
     cell::RefCell,
-    ffi::{c_char, CString},
+    ffi::{CString, c_char},
     sync::Arc,
 };
 
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use nsstring::nsCString;
 use url::Url;
 use xpcom::{
+    RefPtr, XpCom,
     interfaces::{nsIMsgOutgoingServer, nsIObserver, nsIPrefBranch, nsISupports},
-    xpcom_method, RefPtr, XpCom,
+    xpcom_method,
 };
 
 use crate::client::XpComEwsClient;
@@ -109,8 +110,7 @@ impl OutgoingRemovalObserver {
     ) -> Result<(), nsresult> {
         // SAFETY: From manual testing, it looks like XPCOM ensures strings are
         // null-terminated regardless of their origin.
-        let topic = unsafe { parse_utf8_lossy(topic) };
-        let data = unsafe { parse_utf16_lossy(data) };
+        let (topic, data) = unsafe { (parse_utf8_lossy(topic), parse_utf16_lossy(data)) };
 
         if topic == "message-smtpserver-removed" && data == self.key {
             self.client.shutdown();
@@ -124,8 +124,10 @@ impl OutgoingRemovalObserver {
 ///
 /// Behavior is undefined if the string is not null-terminated.
 unsafe fn parse_utf8_lossy(data: *const c_char) -> String {
-    let len = (0..).take_while(|&i| *data.offset(i) != 0).count();
-    let slice = std::slice::from_raw_parts(data as *const u8, len);
+    let len = (0..)
+        .take_while(|&i| unsafe { *data.offset(i) } != 0)
+        .count();
+    let slice = unsafe { std::slice::from_raw_parts(data as *const u8, len) };
     String::from_utf8_lossy(slice).to_string()
 }
 
@@ -133,7 +135,9 @@ unsafe fn parse_utf8_lossy(data: *const c_char) -> String {
 ///
 /// Behavior is undefined if the string is not null-terminated.
 unsafe fn parse_utf16_lossy(data: *const u16) -> String {
-    let len = (0..).take_while(|&i| *data.offset(i) != 0).count();
-    let slice = std::slice::from_raw_parts(data, len);
+    let len = (0..)
+        .take_while(|&i| unsafe { *data.offset(i) } != 0)
+        .count();
+    let slice = unsafe { std::slice::from_raw_parts(data, len) };
     String::from_utf16_lossy(slice)
 }

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use cstr::cstr;
-use fluent_ffi::{adapt_bundle_for_gecko, FluentBundleRc};
+use fluent_ffi::{FluentBundleRc, adapt_bundle_for_gecko};
 use ksni::Handle;
-use nserror::{nsresult, NS_OK};
+use nserror::{NS_OK, nsresult};
 use nsstring::nsCString;
 use std::ffi::CStr;
 use std::os::raw::c_void;
@@ -13,11 +13,11 @@ use std::rc::Rc;
 use std::thread;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
 use xpcom::interfaces::nsIPrefBranch;
-use xpcom::{get_service, nsIID, xpcom_method, RefPtr};
+use xpcom::{RefPtr, get_service, nsIID, xpcom_method};
 
-use crate::{locales, Action};
+use crate::{Action, locales};
 
-extern "C" {
+unsafe extern "C" {
     pub fn nsGNOMEShellService_GetGSettingsBoolean(
         schema: &nsCString,
         key: &nsCString,
@@ -49,13 +49,13 @@ fn get_bool_pref(name: &CStr) -> Option<bool> {
 /// # Safety
 ///
 /// Reliant on the xpcom system, exports as a C function
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn nsLinuxSysTrayHandlerConstructor(
     iid: &nsIID,
     result: *mut *mut c_void,
 ) -> nsresult {
     let instance = LinuxSysTrayHandler::new();
-    instance.QueryInterface(iid, result)
+    unsafe { instance.QueryInterface(iid, result) }
 }
 
 /// System tray implementation for Linux

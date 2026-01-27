@@ -13,7 +13,7 @@ use moz_http::Client;
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
 use url::Url;
-use xpcom::{getter_addrefs, interfaces::nsIAuthModule, RefPtr};
+use xpcom::{RefPtr, getter_addrefs, interfaces::nsIAuthModule};
 
 unsafe extern "C" {
     /// Defined and documented in `mailnews_ffi_glue.h`.

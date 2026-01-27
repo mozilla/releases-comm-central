@@ -4,10 +4,10 @@
 
 use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc};
 
-use ews::{response::ResponseError, soap, OperationResponse, ResponseClass};
+use ews::{OperationResponse, ResponseClass, response::ResponseError, soap};
 use mailnews_ui_glue::{
-    handle_auth_failure, handle_transport_sec_failure, maybe_handle_connection_error,
-    report_connection_success, AuthErrorOutcome,
+    AuthErrorOutcome, handle_auth_failure, handle_transport_sec_failure,
+    maybe_handle_connection_error, report_connection_success,
 };
 use moz_http::Response;
 use protocol_shared::{
@@ -149,7 +149,9 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     if let moz_http::Error::StatusCode { ref response, .. } = err {
                         log::error!("Request FAILED with status {}: {err}", response.status()?);
                     } else {
-                        log::error!("moz_http::Response::error_from_status returned an unexpected error: {err:?}");
+                        log::error!(
+                            "moz_http::Response::error_from_status returned an unexpected error: {err:?}"
+                        );
                     }
 
                     maybe_handle_connection_error((&err).into(), self.server.clone())?;
@@ -444,8 +446,8 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                 let backoff_delay_ms = maybe_get_backoff_delay_ms(&err);
                 if let Some(backoff_delay_ms) = backoff_delay_ms {
                     log::debug!(
-                            "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
-                        );
+                        "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
+                    );
 
                     xpcom_async::sleep(backoff_delay_ms).await?;
                     return Ok(ControlFlow::Continue(()));

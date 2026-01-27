@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use url::Url;
-use xpcom::{interfaces::nsIMsgIncomingServer, RefPtr};
+use xpcom::{RefPtr, interfaces::nsIMsgIncomingServer};
 
 use crate::authentication::credentials::Credentials;
 

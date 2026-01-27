@@ -20,13 +20,13 @@ mod update_folder;
 use std::{collections::VecDeque, sync::Arc};
 
 use ews::{
+    BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
+    ItemShape, Operation, OperationResponse, PathToElement, RealItem,
     create_item::{CreateItem, CreateItemResponse},
     get_folder::{GetFolder, GetFolderResponse, GetFolderResponseMessage},
     get_item::{GetItem, GetItemResponse},
     response::{ResponseClass, ResponseCode, ResponseError},
     update_item::{UpdateItem, UpdateItemResponse},
-    BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
-    ItemShape, Operation, OperationResponse, PathToElement, RealItem,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -45,8 +45,8 @@ use crate::{
     macros::queue_operation,
     operation_queue::OperationQueue,
     operation_sender::{
-        observable_server::ObservableServer, OperationRequestOptions, OperationSender,
-        TransportSecFailureBehavior,
+        OperationRequestOptions, OperationSender, TransportSecFailureBehavior,
+        observable_server::ObservableServer,
     },
     server_version::ServerVersionHandler,
 };

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
 use super::{Composed, Reference, RustType};
 use crate::extract::schema::Property;

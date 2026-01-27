@@ -4,8 +4,8 @@
 
 use nserror::nsresult;
 use xpcom::{
-    interfaces::{nsIURI, nsIUrlListener},
     RefPtr,
+    interfaces::{nsIURI, nsIUrlListener},
 };
 
 use crate::safe_xpcom::{SafeListener, SafeListenerWrapper, SafeUri};

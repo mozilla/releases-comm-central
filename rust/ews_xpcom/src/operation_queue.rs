@@ -325,7 +325,9 @@ impl<ServerT: ServerType + 'static> Runner<ServerT> {
             let op = match self.receiver.recv().await {
                 Ok(op) => op,
                 Err(_) => {
-                    log::info!("request queue: channel has closed (likely due to client shutdown), exiting the loop");
+                    log::info!(
+                        "request queue: channel has closed (likely due to client shutdown), exiting the loop"
+                    );
                     self.state.replace(RunnerState::Stopped);
                     return;
                 }

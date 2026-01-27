@@ -5,10 +5,10 @@
 use std::sync::Arc;
 
 use ews::{
+    BaseItemId, Operation, OperationResponse,
     mark_as_junk::{MarkAsJunk, MarkAsJunkResponse},
     move_item::MoveItem,
     server_version::ExchangeServerVersion,
-    BaseItemId, Operation, OperationResponse,
 };
 use nsstring::nsCString;
 use protocol_shared::client::DoOperation;
@@ -17,9 +17,9 @@ use thin_vec::ThinVec;
 
 use crate::{
     client::{
+        ServerType, XpComEwsClient, XpComEwsError,
         copy_move_operations::move_generic::{CopyMoveSuccess, RequiresResync},
-        process_response_message_class, validate_response_message_count, ServerType,
-        XpComEwsClient, XpComEwsError,
+        process_response_message_class, validate_response_message_count,
     },
     macros::queue_operation,
 };

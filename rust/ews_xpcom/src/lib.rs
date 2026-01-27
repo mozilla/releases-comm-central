@@ -11,27 +11,27 @@ use ews::move_item::MoveItem;
 use firefox_on_glean::metrics::mailnews_ews as glean_ews;
 use mailnews_ui_glue::UserInteractiveServer;
 use nserror::{
-    nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
+    NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK, nsresult,
 };
 use nsstring::{nsACString, nsCString};
 use protocol_shared::{
-    safe_xpcom::{
-        uri::SafeUri, SafeEwsFolderListener, SafeEwsMessageCreateListener,
-        SafeEwsMessageFetchListener, SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener,
-        SafeUrlListener,
-    },
     ExchangeConnectionDetails,
+    safe_xpcom::{
+        SafeEwsFolderListener, SafeEwsMessageCreateListener, SafeEwsMessageFetchListener,
+        SafeEwsMessageSyncListener, SafeEwsSimpleOperationListener, SafeUrlListener, uri::SafeUri,
+    },
 };
 use std::{cell::OnceCell, ffi::c_void, sync::Arc};
 use thin_vec::ThinVec;
 use url::Url;
 use xpcom::{
+    RefPtr,
     interfaces::{
-        nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener, IEwsFolderListener,
-        IEwsMessageCreateListener, IEwsMessageFetchListener, IEwsMessageSyncListener,
-        IEwsSimpleOperationListener,
+        IEwsFolderListener, IEwsMessageCreateListener, IEwsMessageFetchListener,
+        IEwsMessageSyncListener, IEwsSimpleOperationListener, nsIInputStream, nsIMsgIncomingServer,
+        nsIURI, nsIUrlListener,
     },
-    nsIID, xpcom_method, RefPtr,
+    nsIID, xpcom_method,
 };
 
 use client::XpComEwsClient;
@@ -66,7 +66,7 @@ const OFFICE365_BASE_DOMAINS: [&str; 4] = [
 /// valid memory, and `result` must not be used until the return value is
 /// checked.
 #[allow(non_snake_case)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
     let instance = XpcomEwsBridge::allocate(InitXpcomEwsBridge {
         server: OnceCell::default(),
@@ -74,7 +74,7 @@ pub unsafe extern "C" fn NS_CreateEwsClient(iid: &nsIID, result: *mut *mut c_voi
         client: OnceCell::default(),
     });
 
-    instance.QueryInterface(iid, result)
+    unsafe { instance.QueryInterface(iid, result) }
 }
 
 /// `XpcomEwsBridge` provides an XPCOM interface implementation for mediating

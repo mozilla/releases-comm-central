@@ -6,8 +6,8 @@ use std::fmt;
 use std::vec::Vec;
 
 use nsstring::nsCString;
-use xpcom::interfaces::nsIHttpChannel;
 use xpcom::RefPtr;
+use xpcom::interfaces::nsIHttpChannel;
 
 use crate::error::Error;
 

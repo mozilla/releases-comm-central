@@ -5,8 +5,8 @@
 use std::sync::Arc;
 
 use ews::{
-    create_folder::{CreateFolder, CreateFolderResponse},
     BaseFolderId, Folder, Operation, OperationResponse,
+    create_folder::{CreateFolder, CreateFolderResponse},
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
@@ -16,8 +16,8 @@ use protocol_shared::safe_xpcom::{
 use crate::macros::queue_operation;
 
 use super::{
-    process_response_message_class, single_response_or_error, ServerType, XpComEwsClient,
-    XpComEwsError,
+    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    single_response_or_error,
 };
 
 struct DoCreateFolder {

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::collections::HashMap;
-use yaml_rust2::{yaml::Hash as YamlHash, Yaml};
+use yaml_rust2::{Yaml, yaml::Hash as YamlHash};
 
-use super::{get_map_in, get_node_in, get_seq_in, get_str_in, parse_schema, OaSchema};
+use super::{OaSchema, get_map_in, get_node_in, get_seq_in, get_str_in, parse_schema};
 
 /// An OpenAPI path.
 #[derive(Debug, Clone, Eq, PartialEq)]

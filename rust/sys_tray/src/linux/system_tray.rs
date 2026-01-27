@@ -6,8 +6,8 @@ use std::fs;
 use std::{env, fmt, sync::OnceLock};
 
 use nserror::nsresult;
-use xpcom::interfaces::nsIThread;
 use xpcom::RefPtr;
+use xpcom::interfaces::nsIThread;
 
 use crate::Action;
 
