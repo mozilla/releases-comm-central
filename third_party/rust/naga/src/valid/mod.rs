@@ -203,6 +203,8 @@ bitflags::bitflags! {
         const STORAGE_BUFFER_BINDING_ARRAY_NON_UNIFORM_INDEXING = 1 << 35;
         /// Support for cooperative matrix types and operations
         const COOPERATIVE_MATRIX = 1 << 36;
+        /// Support for per-vertex fragment input.
+        const PER_VERTEX = 1 << 37;
     }
 }
 
@@ -222,6 +224,7 @@ impl Capabilities {
             Self::MESH_SHADER => Some(Ext::WgpuMeshShader),
             Self::RAY_QUERY => Some(Ext::WgpuRayQuery),
             Self::RAY_HIT_VERTEX_POSITION => Some(Ext::WgpuRayQueryVertexReturn),
+            Self::COOPERATIVE_MATRIX => Some(Ext::WgpuCooperativeMatrix),
             _ => None,
         }
     }
