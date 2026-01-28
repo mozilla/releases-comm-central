@@ -58,13 +58,10 @@ export const SmimeUtils = {
   },
 
   loadCertificateAndKey(file, pw) {
-    dump("Loading key from " + file.path + " with password: [" + pw + "]\n");
+    dump("Loading key from " + file.path + "\n");
     const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
       Ci.nsIX509CertDB
     );
-    const importResult = certDB.importPKCS12File(file, pw);
-    if (importResult != 0) {
-      throw new Error("importPKCS12File failed, error code: " + importResult);
-    }
+    certDB.importPKCS12File(file, pw);
   },
 };
