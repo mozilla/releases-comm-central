@@ -778,6 +778,24 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
     status = data->output_fn(data->decoded_buffer, data->decoded_bytes,
                              data->output_closure.mType,
                              data->output_closure.mClosure);
+
+
+    if (status >= 0 && data->decoded_bytes > 0) {
+      const char c = data->decoded_buffer[data->decoded_bytes-1];
+
+      if (c != '\n') {
+        // We probably must flush, but there's one exception:
+        // If last is \r but the second-to-last character is \n
+        // then we don't need to flush.
+
+        if (!(c == '\r' && data->decoded_bytes >= 2 &&
+            data->decoded_buffer[data->decoded_bytes-2] == '\n')) {
+          status = data->output_fn("\r\n", 2,
+                                   data->output_closure.mType,
+                                   data->output_closure.mClosure);
+        }
+      }
+    }
   }
   if (status < 0) {
     PR_SetError(status, 0);
