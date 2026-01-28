@@ -614,7 +614,7 @@
         for (const folderItem of specialFoldersMap) {
           const attributes = {
             label: folderItem.label,
-            tooltiptext: `${folderItem.folderPath} - ${folderItem.serverName}`,
+            tooltiptext: `${folderItem.folderPath} – ${folderItem.serverName}`,
             crop: "start",
             ...this._getCssSelectorAttributes(folderItem.folder),
           };
@@ -885,7 +885,7 @@
        * attribute of the folderpicker's <menulist>, one of:
        * 'name' (default) - Folder
        * 'verbose'        - Folder on Account
-       * 'path'           - Account/Folder/Subfolder
+       * 'path'           - Folder/Subfolder – Account
        *
        * @param {nsIMsgFolder} folder - The folder that corresponds to the menu/menuitem.
        * @returns {string} The display name.
@@ -903,9 +903,7 @@
         }
 
         if (this._displayformat == "path") {
-          return (
-            lazy.FeedUtils.getFolderPrettyPath(folder) || folder.localizedName
-          );
+          return `${folder.prettyPath} – ${folder.server.prettyName}`;
         }
 
         return folder.localizedName;
@@ -928,6 +926,13 @@
           const menupopup = menulist.menupopup;
           if (folder) {
             menulist.setAttribute("label", menupopup.getDisplayName(folder));
+            const prettyPath = folder.prettyPath;
+            if (prettyPath) {
+              menulist.setAttribute(
+                "tooltiptext",
+                `${prettyPath} – ${folder.server.prettyName}`
+              );
+            }
           } else if (noFolders) {
             menulist.setAttribute(
               "label",

@@ -725,7 +725,7 @@ function initMoveToFolderAgainMenu(aMenuItem) {
   );
   aMenuItem.setAttribute(
     "tooltiptext",
-    `${destMsgFolder.prettyPath} - ${destMsgFolder.server.prettyName}`
+    `${destMsgFolder.prettyPath} – ${destMsgFolder.server.prettyName}`
   );
   // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
   aMenuItem.accessKey = bundle.getString(stringName + "AccessKey");
