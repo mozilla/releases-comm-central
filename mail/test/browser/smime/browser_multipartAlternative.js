@@ -42,9 +42,9 @@ add_task(async function test_multipart_alternative() {
     Ci.nsIX509Cert.CA_CERT
   );
   SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Bob.p12"), "nss")
+    new FileUtils.File(getTestFilePath("data/Bob.p12")),
+    "nss"
   );
-
   const msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/multipart-alternative.eml"))
   );
