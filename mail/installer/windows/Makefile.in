@@ -12,6 +12,7 @@ INSTALLER_FILES = \
 	nsis/installer.nsi \
 	nsis/uninstaller.nsi \
 	nsis/shared.nsh \
+	nsis/uninstaller_helpers.nsh \
 	$(NULL)
 
 ifdef MOZ_MAINTENANCE_SERVICE

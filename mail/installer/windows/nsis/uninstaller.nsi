@@ -97,6 +97,9 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro un.CheckForFilesInUse
 !insertmacro un.CleanMaintenanceServiceLogs
 !insertmacro un.CleanVirtualStore
+!define _MOZFUNC_UN_TMP "un."
+!insertmacro un.DeleteShortcutsFromLog
+!undef _MOZFUNC_UN_TMP
 !insertmacro un.DeleteShortcuts
 !insertmacro un.GetLongPath
 !insertmacro un.GetSecondInstallPath
@@ -113,13 +116,14 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro un.SetBrandNameVars
 
 !include shared.nsh
+!include uninstaller_helpers.nsh
 
 ; This needs to be inserted after InitHashAppModelId because it uses
 ; $AppUserModelID and the compiler can't handle using variables lexically before
 ; they've been declared.
 !insertmacro GetInstallerRegistryPref
 
-; Helper macros for ui callbacks. Insert these after shared.nsh
+; Helper macros for ui callbacks. Insert these after uninstaller_helpers.sh
 !insertmacro OnEndCommon
 !insertmacro UninstallOnInitCommon
 
