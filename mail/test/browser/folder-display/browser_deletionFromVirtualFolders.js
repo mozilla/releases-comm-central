@@ -33,13 +33,14 @@ var { delete_messages, inboxFolder, make_message_sets_in_folders } =
 var { promise_modal_dialog } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
-
 var { MailViewConstants } = ChromeUtils.importESModule(
   "resource:///modules/MailViewManager.sys.mjs"
 );
-
 const { storeState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var baseFolder, folder;
@@ -218,9 +219,23 @@ add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
  */
 add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   await switch_tab(tabMessage);
+
   // nextMessage is the guy we want to see once the delete completes.
-  await press_delete();
+  info(`Current message: ${curMessage.subject}`);
+
+  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
+    curMessage.folder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  const deleteOrMoveMsgFailed = PromiseTestUtils.promiseFolderEvent(
+    curMessage.folder,
+    "DeleteOrMoveMsgFailed"
+  );
+  EventUtils.synthesizeKey("VK_DELETE", {}, tabMessage.ownerGlobal);
+
+  await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
   curMessage = nextMessage;
+  info(`Delete should have happend; message is now: ${curMessage.subject}`);
 
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -238,10 +253,21 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
 add_task(async function test_delete_from_virtual_folder_in_message_window() {
   await SimpleTest.promiseFocus(msgc);
   await assert_selected_and_displayed(curMessage);
+  info(`Current message: ${curMessage.subject}`);
 
-  // - delete
-  await press_delete(msgc);
+  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
+    curMessage.folder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  const deleteOrMoveMsgFailed = PromiseTestUtils.promiseFolderEvent(
+    curMessage.folder,
+    "DeleteOrMoveMsgFailed"
+  );
+  EventUtils.synthesizeKey("VK_DELETE", {}, msgc);
+
+  await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
   curMessage = nextMessage;
+  info(`Delete should have happend; message is now: ${curMessage.subject}`);
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
