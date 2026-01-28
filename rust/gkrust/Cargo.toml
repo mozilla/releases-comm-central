@@ -68,6 +68,7 @@ ipcclientcerts = { path = "../../../security/manager/ssl/ipcclientcerts" }
 ipdl_utils = { path = "../../../ipc/rust/ipdl_utils" }
 jog = { path = "../../../toolkit/components/glean/bindings/jog" }
 jsrust_shared = { path = "../../../js/src/rust/shared" }
+jxl_decoder = { path = "../../../image/rust/jxl", optional = true }
 kvstore = { path = "../../../toolkit/components/kvstore" }
 l10nregistry = { path = "../../../intl/l10n/rust/l10nregistry-rs" }
 l10nregistry-ffi = { path = "../../../intl/l10n/rust/l10nregistry-ffi" }
@@ -94,6 +95,7 @@ oblivious_http = { path = "../../../netwerk/protocol/http/oblivious_http" }
 origin-trials-ffi = { path = "../../../dom/origin-trials/ffi" }
 oxilangtag = { version = "0.1.3" }
 oxilangtag-ffi = { path = "../../../intl/locale/rust/oxilangtag-ffi" }
+pdf-trust-anchors = { path = "../../../security/manager/ssl/pdf_trust_anchors" }
 prefs_parser = { path = "../../../modules/libpref/parser" }
 processtools = { path = "../../../toolkit/components/processtools" }
 profiler_helper = { path = "../../../tools/profiler/rust-helper", optional = true }

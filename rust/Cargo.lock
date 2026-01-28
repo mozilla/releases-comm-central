@@ -124,6 +124,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "array-init"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d62b7694a562cdf5a74227903507c56ab2cc8bdd1f781ed5cb4cf9c9f810bfc"
+
+[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2448,6 +2454,7 @@ dependencies = [
  "ipdl_utils",
  "jog",
  "jsrust_shared",
+ "jxl_decoder",
  "kvstore",
  "l10nregistry",
  "l10nregistry-ffi",
@@ -2476,6 +2483,7 @@ dependencies = [
  "origin-trials-ffi",
  "oxilangtag",
  "oxilangtag-ffi",
+ "pdf-trust-anchors",
  "prefs_parser",
  "processtools",
  "profiler_helper",
@@ -2591,6 +2599,7 @@ dependencies = [
  "osclientcerts",
  "oxilangtag",
  "oxilangtag-ffi",
+ "pdf-trust-anchors",
  "prefs_parser",
  "processtools",
  "qcms",
@@ -3373,6 +3382,57 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "thiserror 2.0.12",
+]
+
+[[package]]
+name = "jxl"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d65d16ce39350bfb337cfc5338ddd86d13d16dd836fcb2e4edf48ec86cec333"
+dependencies = [
+ "array-init",
+ "byteorder",
+ "jxl_macros",
+ "jxl_simd",
+ "jxl_transforms",
+ "num-derive",
+ "num-traits",
+ "thiserror 2.0.12",
+]
+
+[[package]]
+name = "jxl_decoder"
+version = "0.1.0"
+dependencies = [
+ "jxl",
+ "log",
+]
+
+[[package]]
+name = "jxl_macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ffedd8bc51e97948efaa313d04313898d4e78ca8b65d258452a09574000ee4c"
+dependencies = [
+ "proc-macro-error2",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "jxl_simd"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a5ca0c81b4b36136db6cb4832574bdb8bca08532eecf9369aa8b50d99e6ae0a"
+
+[[package]]
+name = "jxl_transforms"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa3b7d278f27294f7b6d528e889e1ae822cb3045b74166a2f86cb87b5734dc4c"
+dependencies = [
+ "jxl_simd",
 ]
 
 [[package]]
@@ -4868,6 +4928,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pdf-trust-anchors"
+version = "0.1.0"
+dependencies = [
+ "static_prefs",
+ "thin-vec",
+ "trust-anchor-build-util",
+]
+
+[[package]]
 name = "peek-poke"
 version = "0.3.0"
 dependencies = [
@@ -5052,6 +5121,28 @@ dependencies = [
  "sha3",
  "subtle",
  "thiserror 1.999.999",
+]
+
+[[package]]
+name = "proc-macro-error-attr2"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96de42df36bb9bba5542fe9f1a054b8cc87e172759a1868aa05c1f3acc89dfc5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+]
+
+[[package]]
+name = "proc-macro-error2"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11ec05c52be0a07b08061f7dd003e7d7092e0472bc731b4af7bb1ef876109802"
+dependencies = [
+ "proc-macro-error-attr2",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -5246,10 +5337,9 @@ dependencies = [
 name = "qwac-trust-anchors"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
- "rsclientcerts-util",
  "static_prefs",
  "thin-vec",
+ "trust-anchor-build-util",
 ]
 
 [[package]]
@@ -6591,6 +6681,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "803966e5a8397a70d3d8111afa1597ba8381346d7de4720e9f539471d371a1a3"
 dependencies = [
  "cache-padded",
+]
+
+[[package]]
+name = "trust-anchor-build-util"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "rsclientcerts-util",
 ]
 
 [[package]]
