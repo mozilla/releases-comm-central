@@ -10,6 +10,10 @@ JAR_MANIFESTS += ["jar.mn"]
 
 XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.toml"]
 
+EXTRA_JS_MODULES.calendar += [
+    "modules/JoinLinkParser.sys.mjs",
+]
+
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",
     "test/browser/browser_disabled.toml",

@@ -1,3 +1,5 @@
 [DEFAULT]
 
 ["test_dialog_position.js"]
+
+["test_joinLinkParser.js"]
