@@ -133,7 +133,7 @@ set_config(
         "toolkit/components/pdfjs/metrics.yaml",
         # Could be useful, but fails "Sorry, Glean found some glinter nits".
         # "toolkit/components/startup/metrics.yaml",
-        "toolkit/components/crashes/pings.yaml",
+        "toolkit/crashreporter/crashping/pings.yaml",
         "toolkit/mozapps/defaultagent/metrics.yaml",
         "toolkit/mozapps/extensions/metrics.yaml",
         "toolkit/mozapps/update/metrics.yaml",
