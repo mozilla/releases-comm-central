@@ -691,7 +691,7 @@ var gGeneralPane = {
       engineList.addEventListener("command", async () => {
         await lazy.SearchService.setDefault(
           engineList.selectedItem.engine,
-          Ci.nsISearchService.CHANGE_REASON_USER
+          lazy.SearchService.CHANGE_REASON.USER
         );
         self.updateRemoveButton();
       });
@@ -791,7 +791,7 @@ var gGeneralPane = {
       engineList.firstElementChild.childElementCount - 1;
     await lazy.SearchService.setDefault(
       engineList.selectedItem.engine,
-      Ci.nsISearchService.CHANGE_REASON_USER
+      lazy.SearchService.CHANGE_REASON.USER
     );
     this.updateRemoveButton();
   },
@@ -809,7 +809,7 @@ var gGeneralPane = {
         engineList.selectedIndex = 0;
         await lazy.SearchService.setDefault(
           engineList.selectedItem.engine,
-          Ci.nsISearchService.CHANGE_REASON_USER
+          lazy.SearchService.CHANGE_REASON.USER
         );
         this.updateRemoveButton();
         break;
