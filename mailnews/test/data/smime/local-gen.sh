@@ -35,10 +35,7 @@ MILLDIR="$(pwd)/../../../../mail/test/browser/smime/data"
 # the mochitests directory.
 cp -rv Alice.p12 Bob.p12 TestCA.pem "$MILLDIR"
 cp -rv alice.dsig.SHA256.multipart.env.eml "$MILLDIR"
-cp -rv alice.sig.SHA256.opaque.eml "$MILLDIR"
 cp -rv alice.sig.SHA256.opaque.env.eml "$MILLDIR"
-cp -rv alice.html.sig.SHA256.opaque.eml "$MILLDIR"
-cp -rv alice.html.sig.SHA256.opaque.env.eml "$MILLDIR"
 cp -rv alice.env.eml "$MILLDIR"
 
 TMPDIR="./tmp-local"
