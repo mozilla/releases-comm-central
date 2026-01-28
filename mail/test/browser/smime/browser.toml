@@ -19,6 +19,8 @@ prefs = [
 subsuite = "thunderbird"
 support-files = ["data/**"]
 
+["browser_displayVarious.js"]
+
 ["browser_multipartAlternative.js"]
 
 ["browser_nestedSMimeSigs.js"]
