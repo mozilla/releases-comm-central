@@ -5,8 +5,8 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Types related to Message. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::item_body::*;
 use crate::Error;
+use crate::types::item_body::*;
 use serde::Deserialize;
 use serde_json::{Map, Value};
 use std::borrow::Cow;
