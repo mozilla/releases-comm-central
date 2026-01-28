@@ -425,9 +425,12 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
     PR_FREEIF(html);
   }
 
-  if (enc->hdrs)
+  if (enc->hdrs) {
     ct = MimeHeaders_get(enc->hdrs, HEADER_CONTENT_TYPE, true, false);
-  body = mime_create((ct ? ct : TEXT_PLAIN), enc->hdrs, obj->options);
+  }
+
+  body =
+      mime_create((ct ? ct : TEXT_PLAIN), enc->hdrs, obj->options, false, obj);
 
   if (obj->options->decompose_file_p) {
     if (mime_typep(body, (MimeObjectClass*)&mimeMultipartClass))

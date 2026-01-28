@@ -10,27 +10,30 @@
 
 class nsICMSMessage;  // for function arguments in mimecms.h
 
-/* The MimeEncryptedCMS class implements a type of MIME object where the
+/* The MimeOpaqueCMS class implements a type of MIME object where the
    object is passed through a CMS decryption engine to decrypt or verify
    signatures.  That module returns a new MIME object, which is then presented
    to the user.  See mimecryp.h for details of the general mechanism on which
    this is built.
  */
 
-typedef struct MimeEncryptedCMSClass MimeEncryptedCMSClass;
-typedef struct MimeEncryptedCMS MimeEncryptedCMS;
+typedef struct MimeOpaqueCMSClass MimeOpaqueCMSClass;
+typedef struct MimeOpaqueCMS MimeOpaqueCMS;
 
-struct MimeEncryptedCMSClass {
+struct MimeOpaqueCMSClass {
   MimeEncryptedClass encrypted;
 };
 
-extern MimeEncryptedCMSClass mimeEncryptedCMSClass;
+extern MimeOpaqueCMSClass mimeOpaqueCMSClass;
 
-struct MimeEncryptedCMS {
+struct MimeOpaqueCMS {
   MimeEncrypted encrypted; /* superclass variables */
 };
 
-#define MimeEncryptedCMSClassInitializer(ITYPE, CSUPER) \
+#define MimeOpaqueCMSClassInitializer(ITYPE, CSUPER) \
   {MimeEncryptedClassInitializer(ITYPE, CSUPER)}
+
+bool MimeCMS_encrypted_p(MimeObject* obj);
+bool MimeCMS_signed_p(MimeObject* obj);
 
 #endif  // COMM_MAILNEWS_MIME_SRC_MIMECMS_H_

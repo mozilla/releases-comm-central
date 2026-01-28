@@ -361,7 +361,7 @@ static priority_t MimeMultipartAlternative_display_part_p(
   // We must pass 'true' as last parameter so that text/calendar is
   // only displayable when Lightning is installed.
   MimeObjectClass* clazz =
-      mime_find_class(ct, sub_hdrs, self->options, true, nullptr, nullptr);
+      mime_find_class(ct, sub_hdrs, self->options, true, nullptr);
   if (clazz && clazz->displayable_inline_p(clazz, sub_hdrs)) {
     // prefer_plaintext pref
     bool prefer_plaintext =

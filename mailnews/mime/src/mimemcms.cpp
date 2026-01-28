@@ -8,6 +8,7 @@
 #include "nsICMSDecoder.h"
 #include "nsICryptoHash.h"
 #include "mimemcms.h"
+#include "mimecms.h"
 #include "nsMailHeaders.h"
 #include "nsMimeTypes.h"
 #include "nspr.h"
@@ -105,9 +106,8 @@ typedef struct MimeMultCMSdata {
   }
 } MimeMultCMSdata;
 
-/* #### MimeEncryptedCMS and MimeMultipartSignedCMS have a sleazy,
+/* #### MimeOpaqueCMS and MimeMultipartSignedCMS have a sleazy,
         incestuous, dysfunctional relationship. */
-extern bool MimeAnyParentCMSSigned(MimeObject* obj);
 extern void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
                                  nsCString& from_name, nsCString& sender_addr,
                                  nsCString& sender_name, nsCString& msg_date);
@@ -171,21 +171,34 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
     }  // if channel
   }  // if msd
 
-  if (obj->parent && MimeAnyParentCMSSigned(obj)) {
-    // Parent is signed. We know this part is a signature, too, because
-    // multipart doesn't allow encryption.
-    // We don't support "inner sign" with outer sign, because the
-    // inner encrypted part could have been produced by an attacker who
-    // stripped away a part containing the signature (S/MIME doesn't
-    // have integrity protection).
-    // Also we don't want to support sign-then-sign, that's misleading,
-    // which part would be shown as having a signature?
-    // We skip signature verification, and return bad signature status.
+  nsAutoCString partnum(mime_part_address(data->self));
 
-    // Note: We must return a valid pointer to ourselve's data,
-    // otherwise the parent will attempt to re-init us.
-
+  if (!strcmp(partnum.get(), "1")) {
+    // no checks necessary
+  } else if (strcmp(partnum.get(), "1.1") && strcmp(partnum.get(), "1.1.1")) {
+    // neither 1.1 nor 1.1.1, not allowed
     data->reject_signature = true;
+  } else {
+    bool parentIsEnveloped = MimeCMS_encrypted_p(data->self->parent);
+
+    if (!strcmp(partnum.get(), "1.1")) {
+      // this is part 1.1
+      // Allowed if parent is encrypted
+      if (!parentIsEnveloped) {
+        data->reject_signature = true;
+      }
+    } else if (data->self->parent->parent) {
+      // this is 1.1.1,
+      if (parentIsEnveloped) {
+        // check grandparent
+        if (!MimeCMS_signed_p(data->self->parent->parent)) {
+          data->reject_signature = true;
+        }
+      }
+    }
+  }
+
+  if (data->reject_signature) {
     if (data->smimeSink) {
       int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
       nsAutoCString partnum;
@@ -389,19 +402,6 @@ static int MimeMultCMS_sig_ignore(MimeClosure crypto_closure) {
   data->ignoredLayer = true;
 
   return 0;
-}
-
-bool MimeMultCMSdata_isIgnored(MimeClosure crypto_closure) {
-  if (!crypto_closure) {
-    return false;
-  }
-
-  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
-  if (!data) {
-    return false;
-  }
-
-  return data->ignoredLayer;
 }
 
 static int MimeMultCMS_sig_hash(const char* buf, int32_t size,

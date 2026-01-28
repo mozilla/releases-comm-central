@@ -32,6 +32,4 @@ struct MimeMultipartSignedCMS {
 #define MimeMultipartSignedCMSClassInitializer(ITYPE, CSUPER) \
   {MimeMultipartSignedClassInitializer(ITYPE, CSUPER)}
 
-bool MimeMultCMSdata_isIgnored(MimeClosure crypto_closure);
-
 #endif  // COMM_MAILNEWS_MIME_SRC_MIMEMCMS_H_

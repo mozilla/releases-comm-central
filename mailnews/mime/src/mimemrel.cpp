@@ -734,7 +734,7 @@ static bool accept_related_part(MimeMultipartRelated* relobj,
      it, that will prevent any bad surprise... */
   MimeObjectClass* clazz =
       mime_find_class(part_obj->content_type, part_obj->headers,
-                      part_obj->options, false, nullptr, nullptr);
+                      part_obj->options, false, nullptr);
   if (clazz ? clazz->displayable_inline_p(clazz, part_obj->headers) : false)
     return true;
 

@@ -87,11 +87,13 @@ var smimeDataDirectory = "../../../data/smime/";
  * @implements {nsIMsgSMIMESink}
  */
 const smimeSink = {
-  expectResults(maxLen) {
+  expectResults(messageNumber, maxLen) {
     // dump("Restarting for next test\n");
     this._deferred = Promise.withResolvers();
     this._expectedEvents = maxLen;
+    this._expectedMessageNumber = messageNumber;
     this.countReceived = 0;
+    this._ignoreStatusFromMimePart = null;
     this._results = [];
     // Ensure checkFinished() only produces results once.
     this._resultsProduced = false;
@@ -99,48 +101,110 @@ const smimeSink = {
     this.haveEncryptionBad = false;
     this.resultSig = null;
     this.resultEnc = null;
-    this.resultSigFirst = undefined;
     return this._deferred.promise;
   },
-  signedStatus(aNestingLevel, aSignedStatus, aSignerCert) {
-    console.log("signedStatus " + aSignedStatus + " level " + aNestingLevel);
-    // dump("Signed message\n");
-    Assert.equal(aNestingLevel, 1);
-    if (!this.haveSignedBad) {
-      // override with newer allowed
-      this.resultSig = {
-        type: "signed",
-        status: aSignedStatus,
-        certificate: aSignerCert,
-      };
-      if (aSignedStatus != 0) {
-        this.haveSignedBad = true;
-      }
-      if (this.resultSigFirst == undefined) {
-        this.resultSigFirst = true;
+  _getMessageNumberFromUrl(url) {
+    const lastEqualSign = url.lastIndexOf("=");
+    Assert.notEqual(lastEqualSign, -1);
+    const messageNumber = url.substring(lastEqualSign + 1);
+    Assert.ok(!!messageNumber);
+    return messageNumber;
+  },
+  signedStatus(aNestingLevel, aSignedStatus, aSignerCert, url, mimePart) {
+    console.log(
+      "signedStatus " +
+        aSignedStatus +
+        " level " +
+        aNestingLevel +
+        " mimePart: " +
+        mimePart +
+        " url: " +
+        url
+    );
+    Assert.equal(
+      this._getMessageNumberFromUrl(url),
+      this._expectedMessageNumber
+    );
+    if (
+      !!mimePart &&
+      !!this._ignoreStatusFromMimePart &&
+      mimePart == this._ignoreStatusFromMimePart
+    ) {
+      // no action, but we'll count the event below
+    } else {
+      // dump("Signed message\n");
+      Assert.equal(aNestingLevel, 1);
+      if (!this.haveSignedBad) {
+        // override with newer allowed
+        this.resultSig = {
+          type: "signed",
+          status: aSignedStatus,
+          certificate: aSignerCert,
+        };
+        if (aSignedStatus != 0) {
+          this.haveSignedBad = true;
+        }
       }
     }
     this.countReceived++;
     this.checkFinished();
   },
-  encryptionStatus(aNestingLevel, aEncryptedStatus, aRecipientCert) {
-    console.log(
-      "encryptionStatus " + aEncryptedStatus + " level " + aNestingLevel
+  ignoreStatusFrom(mimePart) {
+    console.log("ignoreStatusFrom");
+    Assert.ok(!this._ignoreStatusFromMimePart);
+    Assert.ok(!!mimePart);
+    this._ignoreStatusFromMimePart = mimePart;
+  },
+  resetSignedStatus(url) {
+    console.log("resetSignedStatus");
+    Assert.equal(
+      this._getMessageNumberFromUrl(url),
+      this._expectedMessageNumber
     );
-    // dump("Encrypted message\n");
-    Assert.equal(aNestingLevel, 1);
-    if (!this.haveEncryptionBad) {
-      // override with newer allowed
-      this.resultEnc = {
-        type: "encrypted",
-        status: aEncryptedStatus,
-        certificate: aRecipientCert,
-      };
-      if (aEncryptedStatus != 0) {
-        this.haveEncryptionBad = true;
-      }
-      if (this.resultSigFirst == undefined) {
-        this.resultSigFirst = false;
+    // We must have at most one status produced yet
+    Assert.lessOrEqual(this._results.length, 1);
+    this.resultSig = null;
+    this.countReceived++;
+    this.checkFinished();
+  },
+  encryptionStatus(
+    aNestingLevel,
+    aEncryptedStatus,
+    aRecipientCert,
+    url,
+    mimePart
+  ) {
+    console.log(
+      "encryptionStatus " +
+        aEncryptedStatus +
+        " level " +
+        aNestingLevel +
+        " mimePart: " +
+        mimePart
+    );
+    Assert.equal(
+      this._getMessageNumberFromUrl(url),
+      this._expectedMessageNumber
+    );
+    if (
+      !!mimePart &&
+      !!this._ignoreStatusFromMimePart &&
+      mimePart == this._ignoreStatusFromMimePart
+    ) {
+      // no action, but we'll count the event below
+    } else {
+      // dump("Encrypted message\n");
+      Assert.equal(aNestingLevel, 1);
+      if (!this.haveEncryptionBad) {
+        // override with newer allowed
+        this.resultEnc = {
+          type: "encrypted",
+          status: aEncryptedStatus,
+          certificate: aRecipientCert,
+        };
+        if (aEncryptedStatus != 0) {
+          this.haveEncryptionBad = true;
+        }
       }
     }
     this.countReceived++;
@@ -149,17 +213,13 @@ const smimeSink = {
   checkFinished() {
     if (!this._resultsProduced && this.countReceived == this._expectedEvents) {
       this._resultsProduced = true;
-      if (this.resultSigFirst) {
-        this._results.push(this.resultSig);
-        if (this.resultEnc != null) {
-          this._results.push(this.resultEnc);
-        }
-      } else {
+      if (this.resultEnc != null) {
         this._results.push(this.resultEnc);
-        if (this.resultSig != null) {
-          this._results.push(this.resultSig);
-        }
       }
+      if (this.resultSig != null) {
+        this._results.push(this.resultSig);
+      }
+
       this._deferred.resolve(this._results);
     }
   },
@@ -383,57 +443,63 @@ var gMessages = [
   // them, and as a result, they are treated as invalid.
   {
     filename: "alice.env.sig.SHA1.opaque.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
+    extra: 2,
   },
   {
     filename: "alice.env.dsig.SHA1.multipart.eml",
-    enc: false,
+    enc: true,
     sig: false,
     sig_good: false,
+    extra: 2,
+    // Because the signature uses SHA1, we get an earlier bad signature
+    // status than in following multipart tests, and see an +1 extra call.
   },
   {
     filename: "alice.env.sig.SHA256.opaque.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
+    extra: 2,
   },
   {
     filename: "alice.env.dsig.SHA256.multipart.eml",
     enc: true,
     sig: false,
     sig_good: false,
+    extra: 1,
     check_text: gTextAliceBob,
   },
   {
     filename: "alice.env.sig.SHA384.opaque.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
+    extra: 2,
   },
   {
     filename: "alice.env.dsig.SHA384.multipart.eml",
     enc: true,
     sig: false,
     sig_good: false,
+    extra: 1,
     check_text: gTextAliceBob,
   },
   {
     filename: "alice.env.sig.SHA512.opaque.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
+    extra: 2,
   },
   {
     filename: "alice.env.dsig.SHA512.multipart.eml",
     enc: true,
     sig: false,
     sig_good: false,
+    extra: 1,
     check_text: gTextAliceBob,
   },
 
@@ -455,6 +521,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    extra: 1,
     check_text: gTextAliceBob,
   },
 
@@ -467,6 +534,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    extra: 1,
     check_text: gTextAliceBob,
   },
 
@@ -477,9 +545,9 @@ var gMessages = [
     enc: true,
     sig: false,
     sig_good: false,
+    extra: 1,
     check_text: gTextAliceBob,
   },
-
   // encrypt-then-sign, then sign again
   {
     filename: "alice.env.sig.SHA1.opaque.dave.sig.SHA1.opaque.eml",
@@ -487,7 +555,6 @@ var gMessages = [
     sig: true,
     sig_good: false,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.env.dsig.SHA1.multipart.dave.sig.SHA1.opaque.eml",
@@ -501,9 +568,8 @@ var gMessages = [
     filename: "alice.env.sig.SHA256.opaque.dave.sig.SHA256.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.env.dsig.SHA256.multipart.dave.sig.SHA256.opaque.eml",
@@ -517,9 +583,8 @@ var gMessages = [
     filename: "alice.env.sig.SHA384.opaque.dave.sig.SHA384.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.env.dsig.SHA384.multipart.dave.sig.SHA384.opaque.eml",
@@ -533,9 +598,8 @@ var gMessages = [
     filename: "alice.env.sig.SHA512.opaque.dave.sig.SHA512.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.env.dsig.SHA512.multipart.dave.sig.SHA512.opaque.eml",
@@ -553,7 +617,6 @@ var gMessages = [
     sig: true,
     sig_good: false,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.plain.dsig.SHA1.multipart.dave.sig.SHA1.opaque.eml",
@@ -567,9 +630,8 @@ var gMessages = [
     filename: "alice.plain.sig.SHA256.opaque.dave.sig.SHA256.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.plain.dsig.SHA256.multipart.dave.sig.SHA256.opaque.eml",
@@ -583,9 +645,8 @@ var gMessages = [
     filename: "alice.plain.sig.SHA384.opaque.dave.sig.SHA384.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.plain.dsig.SHA384.multipart.dave.sig.SHA384.opaque.eml",
@@ -599,9 +660,8 @@ var gMessages = [
     filename: "alice.plain.sig.SHA512.opaque.dave.sig.SHA512.opaque.eml",
     enc: false,
     sig: true,
-    sig_good: false,
+    sig_good: true,
     dave: 1,
-    extra: 1,
   },
   {
     filename: "alice.plain.dsig.SHA512.multipart.dave.sig.SHA512.opaque.eml",
@@ -753,13 +813,19 @@ add_task(async function check_smime_message() {
 
     const hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
     const uri = hdr.folder.getUriForMsg(hdr);
-    const sinkPromise = smimeSink.expectResults(eventsExpected);
+
+    const messageNumber = uri.split("#").at(-1);
+    const sinkPromise = smimeSink.expectResults(messageNumber, eventsExpected);
 
     const conversion = apply_mime_conversion(uri, smimeSink);
     const contents = await conversion.promise;
     // dump("contents: " + contents + "\n");
 
-    if (!msg.sig || msg.sig_good || "check_text" in msg) {
+    if (
+      !msg.sig ||
+      (msg.sig_good && ((!"check_text") in msg || msg.check_text)) ||
+      ("check_text" in msg && msg.check_text)
+    ) {
       Assert.ok(
         contents.includes("check_text" in msg ? msg.check_text : gTextAliceBob)
       );
@@ -771,6 +837,7 @@ add_task(async function check_smime_message() {
     await sinkPromise;
 
     const r = smimeSink._results;
+
     Assert.equal(r.length, numExpected);
 
     let sigIndex = 0;
@@ -780,6 +847,8 @@ add_task(async function check_smime_message() {
       Assert.equal(r[0].status, 0);
       Assert.equal(r[0].certificate, null);
       sigIndex = 1;
+    } else {
+      Assert.notEqual(r[0].type, "encrypted");
     }
     if (msg.sig) {
       Assert.equal(r[sigIndex].type, "signed");

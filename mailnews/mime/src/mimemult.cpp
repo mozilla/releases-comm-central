@@ -415,7 +415,7 @@ static int MimeMultipart_create_child(MimeObject* obj) {
 
   const char* my_address = mime_part_address(obj);
   body = mime_create(((ct && *ct) ? ct : (dct ? dct : TEXT_PLAIN)), mult->hdrs,
-                     obj->options, false, my_address, obj->content_type);
+                     obj->options, false, obj);
   PR_Free((void*)my_address);
   PR_FREEIF(ct);
   if (!body) return MIME_OUT_OF_MEMORY;

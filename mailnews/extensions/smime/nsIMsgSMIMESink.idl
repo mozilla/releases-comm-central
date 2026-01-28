@@ -17,6 +17,8 @@ interface nsIMsgSMIMESink : nsISupports {
                     in AUTF8String msgNeckoURL,
                     in AUTF8String originMimePartNumber);
 
+  void resetSignedStatus(in AUTF8String msgNeckoURL);
+
   void encryptionStatus(in long nestingLevel,
                         in long encryptionStatus,
                         in nsIX509Cert receipientCert,

@@ -235,9 +235,11 @@ extern "C" void mime_free(MimeObject* object);
    then "text/x-unknown" will return MimeInlineTextPlainType, but if it is
    false, it will return NULL.
  */
-extern MimeObjectClass* mime_find_class(
-    const char* content_type, MimeHeaders* hdrs, MimeDisplayOptions* opts,
-    bool exact_match_p, const char* parent_address, const char* parent_type);
+extern MimeObjectClass* mime_find_class(const char* content_type,
+                                        MimeHeaders* hdrs,
+                                        MimeDisplayOptions* opts,
+                                        bool exact_match_p,
+                                        MimeObject* parentObj = nullptr);
 
 /** Given a content-type string, creates and returns an appropriate subclass
  * of MimeObject.  The headers (from which the content-type was presumably
@@ -248,8 +250,7 @@ extern MimeObjectClass* mime_find_class(
 extern MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                                MimeDisplayOptions* opts,
                                bool forceInline = false,
-                               const char* parent_address = nullptr,
-                               const char* parent_type = nullptr);
+                               MimeObject* parentObj = nullptr);
 
 /* Querying the type hierarchy */
 extern bool mime_subclass_p(MimeObjectClass* child, MimeObjectClass* parent);

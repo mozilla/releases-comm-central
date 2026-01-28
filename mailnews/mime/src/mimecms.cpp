@@ -11,6 +11,7 @@
 #include "mimemsig.h"
 #include "nsMailHeaders.h"
 #include "nspr.h"
+#include "plstr.h"
 #include "mimemsg.h"
 #include "mimemoz2.h"
 #include "nsIURI.h"
@@ -23,16 +24,20 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMailChannel.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/Logging.h"
+#include "nsMimeTypes.h"
 
 using mozilla::Preferences;
 using namespace mozilla::mailnews;
+mozilla::LazyLogModule gMimeCmsLog("MIMECMS");
 
-// The name "mime encrypted" is misleading, because this code is used
+// OpaqueCMS code is used
 // both for CMS messages that are encrypted, and also for messages that
-// aren't encrypted, but only contain a signature.
+// aren't encrypted, but only contain a signature. (These are
+// "opaque signed" messages, a different encoding than multipart signed.)
 
 #define MIME_SUPERCLASS mimeEncryptedClass
-MimeDefClass(MimeEncryptedCMS, MimeEncryptedCMSClass, mimeEncryptedCMSClass,
+MimeDefClass(MimeOpaqueCMS, MimeOpaqueCMSClass, mimeOpaqueCMSClass,
              &MIME_SUPERCLASS);
 
 static MimeClosure MimeCMS_init(MimeObject*,
@@ -46,7 +51,7 @@ static void MimeCMS_free(MimeClosure);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
-static int MimeEncryptedCMSClassInitialize(MimeObjectClass* oclass) {
+static int MimeOpaqueCMSClassInitialize(MimeObjectClass* oclass) {
 #ifdef DEBUG
   NS_ASSERTION(!oclass->class_initialized,
                "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");
@@ -71,7 +76,7 @@ typedef struct MimeCMSdata {
   bool ci_is_encrypted;
   char* sender_addr;
   bool decoding_failed;
-  bool skip_content;
+  bool skip_decoding;
   uint32_t decoded_bytes;
   char* decoded_buffer;
   size_t decoded_buffer_space;
@@ -87,7 +92,7 @@ typedef struct MimeCMSdata {
         ci_is_encrypted(false),
         sender_addr(nullptr),
         decoding_failed(false),
-        skip_content(false),
+        skip_decoding(false),
         decoded_bytes(0),
         decoded_buffer(nullptr),
         decoded_buffer_space(0),
@@ -140,11 +145,11 @@ static void MimeCMS_content_callback(void* arg, const char* buf,
   data->decoded_bytes += length;
 }
 
-bool MimeEncryptedCMS_encrypted_p(MimeObject* obj) {
+bool MimeCMS_encrypted_p(MimeObject* obj) {
   bool encrypted;
 
   if (!obj) return false;
-  if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+  if (mime_typep(obj, (MimeObjectClass*)&mimeOpaqueCMSClass)) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
 
     if (!enc->crypto_closure) return false;
@@ -161,17 +166,14 @@ bool MimeEncryptedCMS_encrypted_p(MimeObject* obj) {
   return false;
 }
 
-bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
+bool MimeCMS_signed_p(MimeObject* obj) {
   bool is_signed;
 
   if (!obj) return false;
   if (mime_typep(obj, (MimeObjectClass*)&mimeMultipartSignedCMSClass)) {
-    MimeMultipartSigned* sig = (MimeMultipartSigned*)obj;
-    if (!MimeMultCMSdata_isIgnored(sig->crypto_closure)) {
-      return true;
-    }
+    return true;
   }
-  if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+  if (mime_typep(obj, (MimeObjectClass*)&mimeOpaqueCMSClass)) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
 
     if (!enc->crypto_closure) return false;
@@ -184,28 +186,6 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
     if (!data->content_info) return false;
     data->content_info->GetContentIsSigned(&is_signed);
     return is_signed;
-  }
-  return false;
-}
-
-bool MimeAnyParentCMSEncrypted(MimeObject* obj) {
-  MimeObject* o2 = obj;
-  while (o2 && o2->parent) {
-    if (MimeEncryptedCMS_encrypted_p(o2->parent)) {
-      return true;
-    }
-    o2 = o2->parent;
-  }
-  return false;
-}
-
-bool MimeAnyParentCMSSigned(MimeObject* obj) {
-  MimeObject* o2 = obj;
-  while (o2 && o2->parent) {
-    if (MimeEncOrMP_CMS_signed_p(o2->parent)) {
-      return true;
-    }
-    o2 = o2->parent;
   }
   return false;
 }
@@ -540,37 +520,34 @@ static MimeClosure MimeCMS_init(MimeObject* obj,
   data->output_closure = output_closure;
   PR_SetError(0, 0);
 
-  data->any_parent_is_signed_p = MimeAnyParentCMSSigned(obj);
+  NS_ASSERTION(obj->headers, "should have headers");
 
-  if (data->any_parent_is_signed_p) {
-    // Parent is signed.
-    // We don't know yet if this child is signed or encrypted.
-    // (We'll know after decoding has completed and EOF is called.)
-    // We don't support "inner encrypt" with outer sign, because the
-    // inner encrypted part could have been produced by an attacker who
-    // stripped away a part containing the signature (S/MIME doesn't
-    // have integrity protection).
-    // A sign-then-sign encoding is confusing, too, because it could be
-    // an attempt to influence which signature is shown.
-    data->skip_content = true;
-  }
+  nsAutoCString partnum(mime_part_address(obj));
 
-  if (!data->skip_content) {
-    data->decoder_context = do_CreateInstance(NS_CMSDECODER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) {
-      delete data;
-      return MimeClosure(MimeClosure::isUndefined, 0);
-    }
-
-    rv = data->decoder_context->Start(MimeCMS_content_callback, data);
-    if (NS_FAILED(rv)) {
-      delete data;
-      return MimeClosure(MimeClosure::isUndefined, 0);
+  data->skip_decoding = false;
+  if (obj->headers) {
+    char* thisFullCT =
+        MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
+    if (thisFullCT) {
+      char* thisST =
+          MimeHeaders_get_parameter(thisFullCT, "smime-type", nullptr, nullptr);
+      // We cannot rely on having smime-type, the parameter is optional,
+      // but if we have it, do a sanity check.
+      if (thisST && PL_strcasecmp(thisST, "enveloped-data") &&
+          PL_strcasecmp(thisST, "signed-data")) {
+        NS_WARNING(
+            "mimei.cpp shouldn't have routed this smime-type to this CMS "
+            "decoder");
+        data->skip_decoding = true;
+      }
+      PR_Free(thisST);
+      PR_Free(thisFullCT);
     }
   }
 
-  data->any_parent_is_encrypted_p = MimeAnyParentCMSEncrypted(obj);
-
+  // If we don't ignore the content (or if we don't know yet),
+  // and if we must potentially tell the UI that the paren't signature
+  // must be ignored, let's obtain the UI sink.
   if (data->self->options->stream_closure) {
     mime_stream_data* msd =
         data->self->options->stream_closure.IsMimeDraftData()
@@ -610,6 +587,20 @@ static MimeClosure MimeCMS_init(MimeObject* obj,
     }
   }
 
+  if (!data->skip_decoding) {
+    data->decoder_context = do_CreateInstance(NS_CMSDECODER_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) {
+      delete data;
+      return MimeClosure(MimeClosure::isUndefined, 0);
+    }
+
+    rv = data->decoder_context->Start(MimeCMS_content_callback, data);
+    if (NS_FAILED(rv)) {
+      delete data;
+      return MimeClosure(MimeClosure::isUndefined, 0);
+    }
+  }
+
   return MimeClosure(MimeClosure::isMimeCMSData, data);
 }
 
@@ -626,7 +617,7 @@ static int MimeCMS_write(const char* buf, int32_t buf_size,
 
   if (!data || !data->output_fn || !data->decoder_context) return -1;
 
-  if (!data->decoding_failed && !data->skip_content) {
+  if (!data->decoding_failed && !data->skip_decoding) {
     PR_SetError(0, 0);
     rv = data->decoder_context->Update(buf, buf_size);
     data->decoding_failed = NS_FAILED(rv);
@@ -741,7 +732,7 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
 
   // Find double newline, with optional carriage return in between.
 
-  if (!data->skip_content && !data->decoder_context) {
+  if (!data->skip_decoding && !data->decoder_context) {
     // If we don't skip, we should have a context.
     return -1;
   }
@@ -757,14 +748,96 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
    */
 
   PR_SetError(0, 0);
-  if (!data->skip_content) {
+  if (!data->skip_decoding) {
     rv = data->decoder_context->Finish(getter_AddRefs(data->content_info));
-    if (NS_FAILED(rv)) status = nsICMSMessageErrors::GENERAL_ERROR;
-
-    data->decoder_context = nullptr;
+    if (NS_FAILED(rv)) {
+      status = nsICMSMessageErrors::GENERAL_ERROR;
+    }
   }
 
-  if (data->decoded_buffer && data->decoded_bytes) {
+  data->decoder_context = nullptr;
+
+  // If the smime-type parameter in the content-type was missing,
+  // now we can finally find out whether this is a signature or an
+  // encryption part. Based on that, rendering the output of this
+  // part might be allowed or forbidden, refer to
+  // comment: CMS-allowed-layers in mimei.cpp
+
+  bool thisPartIsAllowed = false;
+  nsAutoCString partnum(mime_part_address(data->self));
+
+  if (!data->skip_decoding && status == nsICMSMessageErrors::SUCCESS) {
+    if (!strcmp(partnum.get(), "1")) {
+      // no checks necessary
+      thisPartIsAllowed = true;
+    } else if (data->self->parent) {
+      // we must be either "1.1" or "1.1.1" because of earlier checks
+      NS_ASSERTION(
+          !strcmp(partnum.get(), "1.1") || !strcmp(partnum.get(), "1.1.1"),
+          "processing unexpected part");
+
+      // For allowed scenarios, see CMS-allowed-layers in mimei.cpp
+      // The code in mimei.cpp cannot detect all scenarios in which
+      // processing of this part is allowed or not.
+      // If the smime-type parameter is missing, we might be processing
+      // a forbidden layer type. (We don't check for smime-type here,
+      // if the parameter were available, the code in mime.cpp would
+      // have prevented the part from being routed through this decoder).
+      // In addition to checking whether this is an allowed part for
+      // rendering, we must also decide whether signature processing
+      // must be suppressed.
+      // We cannot do so until we arrive in the EOF function (here) and
+      // finish the CMS decoding.
+      // When decoding an encryption CMS layer at part "1.1", the
+      // signature status of part "1" might have already been reported.
+      // That's why in addition to calling ignoreStatusFrom("1"), we must
+      // also reset the already reported signature status (for level 1),
+      // to potentially reset the signature status UI.
+
+      bool isEnveloped;
+      bool isSigned;
+      data->content_info->GetContentIsEncrypted(&isEnveloped);
+      data->content_info->GetContentIsSigned(&isSigned);
+
+      bool parentIsEnveloped = MimeCMS_encrypted_p(data->self->parent);
+      bool parentIsSigned = MimeCMS_signed_p(data->self->parent);
+
+      bool ignoreTopSignature = false;
+
+      if (!strcmp(partnum.get(), "1.1")) {
+        // this is part 1.1
+        if (isSigned) {
+          // Allowed if parent is encrypted
+          if (parentIsEnveloped) {
+            thisPartIsAllowed = true;
+          }
+        } else if (isEnveloped) {
+          // Allowed only if parent is signed
+          if (parentIsSigned) {
+            thisPartIsAllowed = true;
+            ignoreTopSignature = true;
+          }
+        }
+      } else if (data->self->parent->parent) {
+        // this is 1.1.1,
+        if (isSigned) {
+          if (parentIsEnveloped) {
+            // check grandparent
+            if (MimeCMS_signed_p(data->self->parent->parent)) {
+              thisPartIsAllowed = true;
+              ignoreTopSignature = true;
+            }
+          }
+        }
+      }
+      if (ignoreTopSignature && data->smimeSink) {
+        data->smimeSink->IgnoreStatusFrom(nsDependentCString("1"));
+        data->smimeSink->ResetSignedStatus(data->url);
+      }
+    }
+  }
+
+  if (thisPartIsAllowed && data->decoded_buffer && data->decoded_bytes) {
     if (bufferContains2Newlines(data->decoded_buffer, data->decoded_bytes) ==
         nullptr) {
       const char* header = "Content-Type: text/plain; charset=utf-8\r\n\r\n";
@@ -774,7 +847,7 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
     }
   }
 
-  if (status == nsICMSMessageErrors::SUCCESS) {
+  if (thisPartIsAllowed && status == nsICMSMessageErrors::SUCCESS) {
     status = data->output_fn(data->decoded_buffer, data->decoded_bytes,
                              data->output_closure.mType,
                              data->output_closure.mClosure);
@@ -812,23 +885,7 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
 
   if (data->decoding_failed) status = nsICMSMessageErrors::GENERAL_ERROR;
 
-  nsAutoCString partnum;
-  partnum.Adopt(mime_part_address(data->self));
-
-  if (data->skip_content) {
-    // Skipping content means, we detected a forbidden combination
-    // of CMS objects, so let's make sure we replace the parent status
-    // with a bad status.
-    if (data->any_parent_is_signed_p) {
-      data->smimeSink->SignedStatus(aRelativeNestLevel,
-                                    nsICMSMessageErrors::GENERAL_ERROR, nullptr,
-                                    data->url, partnum);
-    }
-    if (data->any_parent_is_encrypted_p) {
-      data->smimeSink->EncryptionStatus(aRelativeNestLevel,
-                                        nsICMSMessageErrors::GENERAL_ERROR,
-                                        nullptr, data->url, partnum);
-    }
+  if (data->skip_decoding) {
     return 0;
   }
 

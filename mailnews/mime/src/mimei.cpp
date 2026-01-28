@@ -78,10 +78,14 @@
 #include "prmem.h"
 #include "prprf.h"
 
+#include "mozilla/Logging.h"
+
 using namespace mozilla;
+extern mozilla::LazyLogModule gMimeCmsLog;
 
 // forward declaration
 void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr);
+char* mime_part_address(MimeObject* obj);
 
 #define IMAP_EXTERNAL_CONTENT_HEADER "X-Mozilla-IMAP-Part"
 #define EXTERNAL_ATTACHMENT_URL_HEADER "X-Mozilla-External-Attachment-URL"
@@ -289,7 +293,7 @@ bool mime_is_allowed_class(const MimeObjectClass* clazz,
   /*    mimeUntypedTextClass? -- does uuencode */
 #ifdef ENABLE_SMIME
             clazz == (MimeObjectClass*)&mimeMultipartSignedCMSClass ||
-            clazz == (MimeObjectClass*)&mimeEncryptedCMSClass ||
+            clazz == (MimeObjectClass*)&mimeOpaqueCMSClass ||
 #endif
             clazz == 0);
 
@@ -349,8 +353,7 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
 
 MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
                                  MimeDisplayOptions* opts, bool exact_match_p,
-                                 const char* parent_address,
-                                 const char* parent_type) {
+                                 MimeObject* parentObj) {
   MimeObjectClass* clazz = 0;
   MimeObjectClass* tempClass = 0;
   contentTypeHandlerInitStruct ctHandlerInfo;
@@ -665,20 +668,82 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 #ifdef ENABLE_SMIME
     else if (!PL_strcasecmp(content_type, APPLICATION_XPKCS7_MIME) ||
              !PL_strcasecmp(content_type, APPLICATION_PKCS7_MIME)) {
+      // We must ignore CMS elements at child levels, except in the
+      // scenarios explained below.
+      // We cannot rely on opts->is_child to be set. It is true for
+      // multipart childs, but not for layered opaque CMS messages.
+      // So in addition, we must check the part address.
+      // Processing an PKCS7 part is allowed in these scenarios:
+      // - part "1"
+      // - part "1.1" is signature, and parent "1" is encryption
+      // - part "1.1" is encryption, and parent "1" is signature
+      //   (must ignore signature of layer "1")
+      // - part "1.1.1" is signature and parent "1.1" is encryption
+      //   and grandparent "1" is signature
+      //   (must ignore signature of layer "1")
+      // (Comment-Cross-Reference-Identifier: CMS-allowed-layers)
 
-      char* ct = hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
-                      : nullptr;
-      char* st =
-          ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
-             : nullptr;
+      char* thisFullCT =
+          hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
+               : nullptr;
+      char* thisST = thisFullCT
+                         ? MimeHeaders_get_parameter(thisFullCT, "smime-type",
+                                                     nullptr, nullptr)
+                         : nullptr;
 
-      bool ignoreTopSignedPart =
-          parent_address && parent_type && st &&
-          !PL_strcasecmp(parent_address, "1") &&
-          !PL_strcasecmp(parent_type, "multipart/signed") &&
-          !PL_strcasecmp(st, "enveloped-data");
+      bool thisPartIsAllowed = false;
+      if (!parentObj && !opts->is_child) {
+        // We are part "1"
+        thisPartIsAllowed = true;
+      } else if (parentObj) {
+        const char* parentAddress = mime_part_address(parentObj);
+        bool parentIsEnveloped = MimeCMS_encrypted_p(parentObj);
+        bool parentIsSigned = MimeCMS_signed_p(parentObj);
 
-      if (opts->is_child && !ignoreTopSignedPart) {
+        // Parent types other than signed/encrypted are forbidden
+        if (parentAddress && (parentIsEnveloped || parentIsSigned) &&
+            (!strcmp(parentAddress, "1") || !strcmp(parentAddress, "1.1"))) {
+          // Parent is either 1 or 1.1, that means this pkcs7 object
+          // MIGHT be allowed, check further.
+
+          if (!strcmp(parentAddress, "1")) {
+            // Parent is 1, this is part 1.1
+            if (!thisST) {
+              // We don't know yet whether the part is allowed.
+              // We must postpone the decision to the decoder,
+              // which will learn only after decoding is complete.
+              thisPartIsAllowed = true;
+            } else if (!PL_strcasecmp(thisST, "signed-data")) {
+              // Allowed if parent is encrypted
+              if (parentIsEnveloped) {
+                thisPartIsAllowed = true;
+              }
+            } else if (!PL_strcasecmp(thisST, "enveloped-data")) {
+              // Allowed only if parent is signed
+              if (parentIsSigned) {
+                thisPartIsAllowed = true;
+              }
+            }  // else: skip other smime-type nested parts
+          } else if (parentObj->parent) {
+            // Parent is 1.1, this is 1.1.1,
+            if (!thisST) {
+              // We don't know whether the part is allowed.
+              // We must postpone the decision to the decoder,
+              // which will learn only after decoding is complete.
+              thisPartIsAllowed = true;
+            } else if (!PL_strcasecmp(thisST, "signed-data")) {
+              if (parentIsEnveloped) {
+                // parentObj->parent is grandparent
+                if (MimeCMS_signed_p(parentObj->parent)) {
+                  thisPartIsAllowed = true;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (!thisPartIsAllowed) {
         // We usually require that encrypted parts are at the top level
         // (except when the encryption layer is the second layer,
         // and the top layer is a signature).
@@ -687,18 +752,19 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         // replies and forwards.
         clazz = (MimeObjectClass*)&mimeSuppressedCryptoClass;
       } else {
-        /* by default, assume that it is an encrypted message */
-        clazz = (MimeObjectClass*)&mimeEncryptedCMSClass;
+        // By default, assume that we process it as an encrypted/signed
+        // message, potentially decide further down to use a different decoder.
+        clazz = (MimeObjectClass*)&mimeOpaqueCMSClass;
 
-        /* if the smime-type parameter says that it's a certs-only or
-           compressed file, then show it as an attachment, however
-           (MimeEncryptedCMS doesn't handle these correctly) */
-        if (st && (!PL_strcasecmp(st, "certs-only") ||
-                   !PL_strcasecmp(st, "compressed-data")))
+        // if the smime-type parameter says that it's a certs-only or
+        // compressed file, then show it as an attachment, however
+        // (MimeOpaqueCMS doesn't handle these correctly).
+        if (thisST && (!PL_strcasecmp(thisST, "certs-only") ||
+                       !PL_strcasecmp(thisST, "compressed-data")))
           clazz = (MimeObjectClass*)&mimeExternalObjectClass;
         else {
-          /* look at the file extension... less reliable, but still covered
-             by the S/MIME specification (RFC 3851, section 3.2.1)  */
+          // look at the file extension... less reliable, but still covered
+          // by the S/MIME specification (RFC 3851, section 3.2.1).
           char* name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
           if (name) {
             char* suf = PL_strrchr(name, '.');
@@ -711,8 +777,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
           PR_Free(name);
         }
       }
-      PR_Free(st);
-      PR_Free(ct);
+      PR_Free(thisST);
+      PR_Free(thisFullCT);
     }
 #endif
     /* A few types which occur in the real world and which we would otherwise
@@ -743,7 +809,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 #ifdef ENABLE_SMIME
   // see bug #189988
   if (opts && opts->format_out == nsMimeOutput::nsMimeMessageDecrypt &&
-      (clazz != (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+      (clazz != (MimeObjectClass*)&mimeOpaqueCMSClass)) {
     clazz = (MimeObjectClass*)&mimeExternalObjectClass;
   }
 #endif
@@ -764,9 +830,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 
 MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                         MimeDisplayOptions* opts,
-                        bool forceInline /* = false */,
-                        const char* parent_address /* = nullptr */,
-                        const char* parent_type /* = nullptr */) {
+                        bool forceInline /* = false */, MimeObject* parentObj) {
   /* If there is no Content-Disposition header, or if the Content-Disposition
    is ``inline'', then we display the part inline (and let mime_find_class()
    decide how.)
@@ -840,8 +904,7 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     }
   }
 
-  clazz = mime_find_class(content_type, hdrs, opts, false, parent_address,
-                          parent_type);
+  clazz = mime_find_class(content_type, hdrs, opts, false, parentObj);
 
   NS_ASSERTION(clazz, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (!clazz) goto FAIL;
@@ -1102,10 +1165,12 @@ bool mime_crypto_object_p(MimeHeaders* hdrs, bool clearsigned_counts,
   }
 
   /* It's a candidate for being a crypto object.  Let's find out for sure... */
-  clazz = mime_find_class(ct, hdrs, opts, true, nullptr, nullptr);
+  clazz = mime_find_class(ct, hdrs, opts, true, nullptr);
   PR_Free(ct);
 
-  if (clazz == ((MimeObjectClass*)&mimeEncryptedCMSClass)) return true;
+  if (clazz == ((MimeObjectClass*)&mimeOpaqueCMSClass)) {
+    return true;
+  }
 
   if (clearsigned_counts &&
       clazz == ((MimeObjectClass*)&mimeMultipartSignedCMSClass))

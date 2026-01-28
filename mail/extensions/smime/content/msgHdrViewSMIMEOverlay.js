@@ -206,6 +206,19 @@ var smimeSink = {
   },
 
   /**
+   * @param {string} msgNeckoURL - URL processed.
+   */
+  resetSignedStatus(msgNeckoURL) {
+    if (!lazy.EnigmailFuncs.isCurrentMessage(gMessageURI, msgNeckoURL)) {
+      // Status isn't for selected message.
+      return;
+    }
+    gSignatureStatus = -1;
+    gSignatureStatusForURI = null;
+    refreshSmimeMessageEncryptionStatus();
+  },
+
+  /**
    * @param {integer} aNestingLevel - Nesting level.
    * @param {integer} aSignatureStatus - Signature status.
    * @param {nsIX509Cert} aSignerCert - Certificate of signer.
