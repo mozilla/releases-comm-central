@@ -95,6 +95,7 @@ macosx64/opt:
             - linux64-sccache
             - macosx64-x64-libotr
             - macosx64-sdk
+            - terser
 
 macosx64-x64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
@@ -125,6 +126,7 @@ macosx64-x64-shippable/opt:
         toolchain:
             - macosx64-x64-libotr
             - macosx64-sdk
+            - terser
 
 macosx64-aarch64-shippable/opt:
     description: "MacOS X aarch64 Cross-compile"
@@ -159,6 +161,7 @@ macosx64-aarch64-shippable/opt:
         toolchain:
             - macosx64-aarch64-libotr
             - macosx64-sdk
+            - terser
 
 macosx64-shippable/opt:
     description: "MacOS Universal"

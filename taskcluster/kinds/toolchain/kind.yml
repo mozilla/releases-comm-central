@@ -73,6 +73,7 @@ reference-tasks:
     - sysroot-i686-linux-gnu
     - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
+    - terser
     - vs
     - wasm32-wasi-compiler-rt-19
     - wasm32-wasi-compiler-rt-20

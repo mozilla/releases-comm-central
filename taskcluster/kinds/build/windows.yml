@@ -115,6 +115,7 @@ win32-shippable/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win32-libotr
             - winappsdk-x86-pc-windows-msvc
         fetch:
@@ -217,6 +218,7 @@ win64/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win64-libotr
             - winappsdk-x86_64-pc-windows-msvc
         fetch:
@@ -272,6 +274,7 @@ win64-shippable/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win64-libotr
             - winappsdk-x86_64-pc-windows-msvc
         fetch:
@@ -406,6 +409,7 @@ win64-plain/opt:
     fetches:
         toolchain:
             - sysroot-wasm32-wasi
+            - terser
             - win64-cbindgen
             - win64-clang
             - win64-dump_syms
@@ -462,6 +466,7 @@ win64-asan/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win64-libotr
             - win64-llvm-symbolizer
             - winappsdk-x86_64-pc-windows-msvc
@@ -524,6 +529,7 @@ win64-asan-reporter-shippable/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win64-libotr
             - win64-llvm-symbolizer
             - winappsdk-x86_64-pc-windows-msvc
@@ -573,6 +579,7 @@ win64-ccov/opt:
     fetches:
         toolchain:
             - sysroot-wasm32-wasi
+            - terser
             - win64-cbindgen
             - win64-clang
             - win64-dump_syms
@@ -682,6 +689,7 @@ win64-aarch64/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - winappsdk-aarch64-pc-windows-msvc
         fetch:
             - upx-3.95-win

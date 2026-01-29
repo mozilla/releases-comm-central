@@ -51,6 +51,7 @@ linux64/opt:
             - linux64-rust
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-shippable/opt:
     description: "Linux64 Shippable"
@@ -83,6 +84,7 @@ linux64-shippable/opt:
             - linux64-libotr
             - linux64-rust
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64/debug:
     description: "Linux64 Debug"
@@ -146,6 +148,7 @@ linux64-asan/opt:
             - linux64-rust-dev
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-asan-fuzzing/opt:
     description: "Linux64 Fuzzing Opt ASAN"
@@ -182,6 +185,7 @@ linux64-asan-fuzzing/opt:
             - linux64-rust-dev
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-asan-reporter-shippable/opt:
     description: "Linux64 Opt ASAN Reporter (Shippable)"
@@ -224,6 +228,7 @@ linux64-asan-reporter-shippable/opt:
             - linux64-rust
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-tsan/opt:
     description: "Linux64 Opt TSAN"
@@ -257,6 +262,7 @@ linux64-tsan/opt:
             - linux64-rust-dev
             - linux64-sccache
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-aarch64/opt:
     description: "Linux64 aarch64 Opt"
@@ -291,6 +297,7 @@ linux64-aarch64/opt:
             - linux64-sccache
             - sysroot-aarch64-linux-gnu
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-ccov/opt:
     description: "Linux64-CCov Opt"
@@ -328,6 +335,7 @@ linux64-ccov/opt:
             - linux64-grcov
             - linux64-rust-dev
             - sysroot-x86_64-linux-gnu
+            - terser
 
 linux64-ccov/debug:
     description: "Linux64-CCov Debug"
