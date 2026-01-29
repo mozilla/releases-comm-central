@@ -6,7 +6,7 @@
 task-defaults:
     run-on-repo-type: [hg]
     description: 'libotr library build'
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 1800
     treeherder:

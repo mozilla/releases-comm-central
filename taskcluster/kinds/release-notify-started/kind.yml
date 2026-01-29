@@ -16,7 +16,7 @@ task-defaults:
     description: Sends email to release-drivers telling release was started.
     run-on-projects: []
     shipping-phase: promote
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian12-base"}
         max-run-time: 600

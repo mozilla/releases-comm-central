@@ -108,7 +108,7 @@ def make_task_description(config, jobs):
             platform=dep_job.attributes["build_platform"],
         )
 
-        job["worker-type"] = "b-linux-gcp"
+        job["worker-type"] = "b-linux"
         job["worker"].update(
             {
                 "os": "linux",

@@ -32,7 +32,7 @@ tasks:
         from-deps:
             group-by: platform
             unique-kinds: false
-        worker-type: b-linux-gcp
+        worker-type: b-linux
         worker:
             max-run-time: 2700
         mozharness:

@@ -34,7 +34,7 @@ task-defaults:
         shipping-product: thunderbird
         kind: build
         tier: 2
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         implementation: docker-worker
         os: linux

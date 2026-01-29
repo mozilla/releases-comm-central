@@ -20,7 +20,7 @@ task-defaults:
     shipping-product: thunderbird
     treeherder:
         symbol: L10n-pre-S
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 900
         env:

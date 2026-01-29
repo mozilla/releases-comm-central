@@ -82,7 +82,7 @@ tasks:
                     macosx64-shippable: macosx64-opt
                     win32-shippable: win32-opt
                     win64-shippable: win64-opt
-        worker-type: b-linux-gcp
+        worker-type: b-linux
         treeherder:
             symbol: L10n(B)
             tier: 1

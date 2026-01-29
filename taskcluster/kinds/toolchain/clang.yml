@@ -13,9 +13,9 @@ task-defaults:
         using: toolchain-script
         resources:
             - 'build/build-clang/build-clang.py'
-    worker-type: b-linux-xlarge-gcp
     worker:
         max-run-time: 7200
+    worker-type: b-linux
 
 
 # The clang compilers defined below are the same as what's defined in
@@ -28,7 +28,6 @@ linux64-clang-20:
         local-toolchain: true
     treeherder:
         symbol: TL(clang-20)
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 600
     run:
@@ -57,7 +56,6 @@ win64-clang-20:
         local-toolchain: true
     treeherder:
         symbol: TW64(clang-20)
-    worker-type: b-linux-gcp
     worker:
         max-run-time: 600
     run:

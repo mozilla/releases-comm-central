@@ -37,7 +37,7 @@ tasks:
                         production: shippable-l10n-mac-notarization
                         staging: shippable-l10n-mac-signing
                 default: shippable-l10n-mac-signing
-        worker-type: 'b-linux-gcp'
+        worker-type: b-linux
         mozharness:
             comm-checkout: true
             config-paths:

@@ -40,7 +40,7 @@ tasks:
                         production: build-mac-notarization
                         staging: build-mac-signing
                 default: build-mac-signing
-        worker-type: b-linux-gcp
+        worker-type: b-linux
         worker:
             max-run-time:
                 by-build-platform:

@@ -28,7 +28,7 @@ tasks:
             platform: updatebot/all
             symbol: rust
             tier: 1
-        worker-type: b-linux-gcp
+        worker-type: b-linux
         worker:
             docker-image: {in-tree: tb-updatebot}
             max-run-time: 3600

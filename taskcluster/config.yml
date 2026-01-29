@@ -137,8 +137,8 @@ taskgraph:
 
 workers:
     aliases:
-        b-linux.*:
-            provisioner: 'comm-{level}'
+        b-linux(|-aarch64|-docker(-x?large)?(-noscratch)?-amd):
+            provisioner: '{trust-domain}-{level}'
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
@@ -148,21 +148,11 @@ workers:
             os: macosx
             worker-type: '{alias}'
         b-win2022:
-            provisioner: 'comm-{level}'
+            provisioner: '{trust-domain}-{level}'
             implementation: generic-worker
             os: windows
             worker-type: '{alias}'
-        images:
-            provisioner: 'comm-{level}'
-            implementation: docker-worker
-            os: linux
-            worker-type: '{alias}'
-        images-gcp:
-            provisioner: '{trust-domain}-{level}'
-            implementation: docker-worker
-            os: linux
-            worker-type: '{alias}'
-        images-aarch64:
+        images(|-aarch64):
             provisioner: '{trust-domain}-{level}'
             implementation: docker-worker
             os: linux
@@ -235,21 +225,11 @@ workers:
                 by-release-level:
                     production: comm-3-tree
                     staging: comm-1-tree
-        t-linux-docker(|-noscratch|-noscratch-amd|-amd):
+        t-linux-docker(-noscratch)?(-amd)?:
             provisioner: comm-t
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
-        t-linux(-large|-xlarge|-xlarge-source):
-            provisioner: comm-t
-            implementation: docker-worker
-            os: linux
-            worker-type: '{alias}-gcp'
-        t-linux(-large|-xlarge|-xlarge-source)-noscratch:
-            provisioner: comm-t
-            implementation: docker-worker
-            os: linux
-            worker-type: '{alias}-gcp'
         t-osx-1015-r8:
             provisioner: releng-hardware
             implementation: generic-worker
@@ -279,7 +259,7 @@ workers:
             provisioner: comm-t
             implementation: docker-worker
             os: linux
-            worker-type: misc-gcp
+            worker-type: misc
 
 mac-signing:
     mac-requirements:

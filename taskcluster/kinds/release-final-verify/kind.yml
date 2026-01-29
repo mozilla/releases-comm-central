@@ -19,7 +19,7 @@ task-defaults:
     run-on-repo-type: [hg]
     name: final-verify
     run-on-projects: []  # to make sure this never runs as part of CI
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         docker-image:
             in-tree: "update-verify"

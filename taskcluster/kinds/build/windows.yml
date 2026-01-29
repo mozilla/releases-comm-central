@@ -28,7 +28,7 @@ win32/opt:
         platform: windows2012-32/opt
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -82,7 +82,7 @@ win32-shippable/opt:
         platform: windows2012-32-shippable/opt
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -132,7 +132,7 @@ win32/debug:
         platform: windows2012-32/debug
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -183,7 +183,7 @@ win64/opt:
         platform: windows2012-64/opt
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -238,7 +238,7 @@ win64-shippable/opt:
         platform: windows2012-64-shippable/opt
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -289,7 +289,7 @@ win64/debug:
         platform: windows2012-64/debug
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -426,7 +426,7 @@ win64-asan/opt:
         platform: windows2012-64/asan
         symbol: Bo
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -483,7 +483,7 @@ win64-asan-reporter-shippable/opt:
     treeherder:
         platform: win64-asan-reporter/opt
         symbol: BoR
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -598,7 +598,7 @@ win64-aarch64/debug:
         platform: windows2012-aarch64/debug
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
@@ -650,7 +650,7 @@ win64-aarch64/opt:
         platform: windows2012-aarch64/opt
         symbol: B
         tier: 1
-    worker-type: b-linux-gcp
+    worker-type: b-linux
     worker:
         max-run-time: 7200
         env:
