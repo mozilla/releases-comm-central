@@ -5,7 +5,6 @@
 @import url("chrome://messenger/skin/shared/threadPane.css");
 @import url("chrome://messenger/skin/shared/list-container.css");
 @import url("chrome://messenger/skin/shared/serverMenuItems.css");
-@import url("chrome://messenger/skin/widgets.css");
 
 :root {
   --folder-mode-name-padding: 6px;

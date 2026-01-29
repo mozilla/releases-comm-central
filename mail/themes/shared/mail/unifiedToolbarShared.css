@@ -405,9 +405,3 @@ global-search-bar:not([hidden]) {
     text-shadow: none;
   }
 }
-
-span[slot="placeholder"] {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
