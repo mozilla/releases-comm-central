@@ -1,26 +1,36 @@
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 {%- call swift::docstring(e, 0) %}
+{%- let uniffi_trait_methods = e.uniffi_trait_methods() %}
 {% match e.variant_discr_type() %}
 {% when None %}
+{%- if config.enum_has_conformances(e, contains_object_references) %}
+public enum {{ type_name }}: {{ config.conformance_list_for_enum(e, contains_object_references) }} {
+{%- else %}
 public enum {{ type_name }} {
+{%- endif %}
     {% for variant in e.variants() %}
     {%- call swift::docstring(variant, 4) %}
     case {{ variant.name()|enum_variant_swift_quoted }}{% if variant.fields().len() > 0 %}(
         {%- call swift::field_list_decl(variant, variant.has_nameless_fields()) %}
     ){% endif -%}
     {% endfor %}
-}
 {% when Some(variant_discr_type) %}
-public enum {{ type_name }} : {{ variant_discr_type|type_name }} {
+public enum {{ type_name }}: {{ variant_discr_type|type_name }}, {{ config.conformance_list_for_enum(e, contains_object_references) }} {
     {% for variant in e.variants() %}
     {%- call swift::docstring(variant, 4) %}
     case {{ variant.name()|enum_variant_swift_quoted }} = {{ e|variant_discr_literal(loop.index0) }}{% if variant.fields().len() > 0 %}(
         {%- call swift::field_list_decl(variant, variant.has_nameless_fields()) %}
     ){% endif -%}
     {% endfor %}
-}
 {% endmatch %}
+
+{% for meth in e.methods() -%}
+{%- call swift::func_decl("public func", meth, 4) %}
+{% endfor %}
+
+{% call swift::uniffi_trait_impls(uniffi_trait_methods) %}
+}
 
 #if compiler(>=6)
 extension {{ type_name }}: Sendable {}
@@ -86,14 +96,3 @@ public func {{ ffi_converter_name }}_lift(_ buf: RustBuffer) throws -> {{ type_n
 public func {{ ffi_converter_name }}_lower(_ value: {{ type_name }}) -> RustBuffer {
     return {{ ffi_converter_name }}.lower(value)
 }
-
-{% if !contains_object_references %}
-extension {{ type_name }}: Equatable, Hashable {}
-{% if config.generate_codable_conformance() %}
-extension {{ type_name }}: Codable {}
-{% endif %}
-{% endif %}
-
-{% if config.generate_case_iterable_conformance() && !e.contains_variant_fields() %}
-extension {{ type_name }}: CaseIterable {}
-{% endif %}

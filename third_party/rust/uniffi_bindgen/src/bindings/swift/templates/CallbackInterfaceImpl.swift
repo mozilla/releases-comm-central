@@ -9,6 +9,20 @@ fileprivate struct {{ trait_impl }} {
     // This creates 1-element array, since this seems to be the only way to construct a const
     // pointer that we can pass to the Rust code.
     static let vtable: [{{ vtable|ffi_type_name }}] = [{{ vtable|ffi_type_name }}(
+        uniffiFree: { (uniffiHandle: UInt64) -> () in
+            do {
+                try {{ ffi_converter_name }}.handleMap.remove(handle: uniffiHandle)
+            } catch {
+                print("Uniffi callback interface {{ name }}: handle missing in uniffiFree")
+            }
+        },
+        uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
+            do {
+                return try {{ ffi_converter_name }}.handleMap.clone(handle: uniffiHandle)
+            } catch {
+                fatalError("Uniffi callback interface {{ name }}: handle missing in uniffiClone")
+            }
+        },
         {%- for (ffi_callback, meth) in vtable_methods %}
         {{ meth.name()|fn_name }}: { (
             {%- for arg in ffi_callback.arguments() %}
@@ -80,29 +94,24 @@ fileprivate struct {{ trait_impl }} {
 
             {%- match meth.throws_type() %}
             {%- when None %}
-            let uniffiForeignFuture = uniffiTraitInterfaceCallAsync(
-                makeCall: makeCall,
-                handleSuccess: uniffiHandleSuccess,
-                handleError: uniffiHandleError
-            )
-            {%- when Some(error_type) %}
-            let uniffiForeignFuture = uniffiTraitInterfaceCallAsyncWithError(
+            uniffiTraitInterfaceCallAsync(
                 makeCall: makeCall,
                 handleSuccess: uniffiHandleSuccess,
                 handleError: uniffiHandleError,
-                lowerError: {{ error_type|lower_fn }}
+                droppedCallback: uniffiOutDroppedCallback
+            )
+            {%- when Some(error_type) %}
+            uniffiTraitInterfaceCallAsyncWithError(
+                makeCall: makeCall,
+                handleSuccess: uniffiHandleSuccess,
+                handleError: uniffiHandleError,
+                lowerError: {{ error_type|lower_fn }},
+                droppedCallback: uniffiOutDroppedCallback
             )
             {%- endmatch %}
-            uniffiOutReturn.pointee = uniffiForeignFuture
             {%- endif %}
-        },
+        }{% if !loop.last %},{% endif %}
         {%- endfor %}
-        uniffiFree: { (uniffiHandle: UInt64) -> () in
-            let result = try? {{ ffi_converter_name }}.handleMap.remove(handle: uniffiHandle)
-            if result == nil {
-                print("Uniffi callback interface {{ name }}: handle missing in uniffiFree")
-            }
-        }
     )]
 }
 

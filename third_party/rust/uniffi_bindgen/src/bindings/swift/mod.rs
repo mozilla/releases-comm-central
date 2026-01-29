@@ -29,10 +29,14 @@
 //!  * How to read from and write into a byte buffer.
 //!
 
-use crate::{BindingGenerator, Component, GenerationSettings};
-use anyhow::{Context, Result};
+use crate::{
+    bindings::GenerateOptions, interface::rename, BindgenLoader, BindgenPaths, Component,
+    ComponentInterface,
+};
+use anyhow::Result;
 use camino::Utf8PathBuf;
 use fs_err as fs;
+use std::collections::HashMap;
 use std::process::Command;
 
 mod gen_swift;
@@ -52,124 +56,103 @@ struct Bindings {
     modulemap: Option<String>,
 }
 
-pub struct SwiftBindingGenerator;
-impl BindingGenerator for SwiftBindingGenerator {
-    type Config = Config;
-
-    fn new_config(&self, root_toml: &toml::Value) -> Result<Self::Config> {
-        Ok(
-            match root_toml.get("bindings").and_then(|b| b.get("swift")) {
-                Some(v) => v.clone().try_into()?,
-                None => Default::default(),
-            },
-        )
+/// Generate Swift bindings
+///
+/// Returns the components generated
+pub fn generate(
+    loader: &BindgenLoader,
+    options: GenerateOptions,
+) -> Result<Vec<Component<Config>>> {
+    let metadata = loader.load_metadata(&options.source)?;
+    let cis = loader.load_cis(metadata)?;
+    let mut components = loader.load_components(cis, parse_config)?;
+    apply_renames(&mut components);
+    for c in components.iter_mut() {
+        // Call derive_ffi_functions after `apply_renames`
+        c.ci.derive_ffi_funcs()?;
     }
 
-    fn update_component_configs(
-        &self,
-        _settings: &GenerationSettings,
-        components: &mut Vec<Component<Self::Config>>,
-    ) -> Result<()> {
-        for c in &mut *components {
-            c.config
-                .module_name
-                .get_or_insert_with(|| c.ci.namespace().into());
-        }
-        Ok(())
-    }
-
-    /// Unlike other target languages, binding to Rust code from Swift involves more than just
-    /// generating a `.swift` file. We also need to produce a `.h` file with the C-level API
-    /// declarations, and a `.modulemap` file to tell Swift how to use it.
-    fn write_bindings(
-        &self,
-        settings: &GenerationSettings,
-        components: &[Component<Self::Config>],
-    ) -> Result<()> {
-        for Component { ci, config, .. } in components {
-            let Bindings {
-                header,
-                library,
-                modulemap,
-            } = generate_bindings(config, ci)?;
-
-            let source_file = settings
-                .out_dir
-                .join(format!("{}.swift", config.module_name()));
-            fs::write(&source_file, library)?;
-
-            let header_file = settings.out_dir.join(config.header_filename());
-            fs::write(header_file, header)?;
-
-            if let Some(modulemap) = modulemap {
-                let modulemap_file = settings.out_dir.join(config.modulemap_filename());
-                fs::write(modulemap_file, modulemap)?;
-            }
-
-            if settings.try_format_code {
-                let commands_to_try = [
-                    // Available in Xcode 16.
-                    vec!["xcrun", "swift-format"],
-                    // The official swift-format command name.
-                    vec!["swift-format"],
-                    // Shortcut for the swift-format command.
-                    vec!["swift", "format"],
-                    vec!["swiftformat"],
-                ];
-
-                let successful_output = commands_to_try.into_iter().find_map(|command| {
-                    Command::new(command[0])
-                        .args(&command[1..])
-                        .arg(source_file.as_str())
-                        .output()
-                        .ok()
-                });
-                if successful_output.is_none() {
-                    println!(
-                        "Warning: Unable to auto-format {} using swift-format. Please make sure it is installed.",
-                        source_file.as_str()
-                    );
-                }
+    for Component { ci, config, .. } in components.iter_mut() {
+        if let Some(crate_filter) = &options.crate_filter {
+            if ci.crate_name() != crate_filter {
+                continue;
             }
         }
+        let Bindings {
+            header,
+            library,
+            modulemap,
+        } = generate_bindings(config, ci)?;
 
-        Ok(())
+        let source_file = options
+            .out_dir
+            .join(format!("{}.swift", config.module_name()));
+        fs::write(&source_file, library)?;
+
+        let header_file = options.out_dir.join(config.header_filename());
+        fs::write(header_file, header)?;
+
+        if let Some(modulemap) = modulemap {
+            let modulemap_file = options.out_dir.join(config.modulemap_filename());
+            fs::write(modulemap_file, modulemap)?;
+        }
+
+        if options.format {
+            let commands_to_try = [
+                // Available in Xcode 16.
+                vec!["xcrun", "swift-format"],
+                // The official swift-format command name.
+                vec!["swift-format"],
+                // Shortcut for the swift-format command.
+                vec!["swift", "format"],
+                vec!["swiftformat"],
+            ];
+
+            let successful_output = commands_to_try.into_iter().find_map(|command| {
+                Command::new(command[0])
+                    .args(&command[1..])
+                    .arg(source_file.as_str())
+                    .output()
+                    .ok()
+            });
+            if successful_output.is_none() {
+                println!(
+                    "Warning: Unable to auto-format {} using swift-format. Please make sure it is installed.",
+                    source_file.as_str()
+                );
+            }
+        }
     }
+    Ok(components)
 }
 
-/// Generate Swift bindings
+/// Generate Swift bindings (specialized version)
 ///
 /// This is used by the uniffi-bindgen-swift command, which supports Swift-specific options.
 ///
 /// In the future, we may want to replace the generalized `uniffi-bindgen` with a set of
 /// specialized `uniffi-bindgen-[language]` commands.
 pub fn generate_swift_bindings(options: SwiftBindingsOptions) -> Result<()> {
-    #[cfg(feature = "cargo-metadata")]
-    let config_supplier = {
-        use crate::cargo_metadata::CrateConfigSupplier;
-        let mut cmd = cargo_metadata::MetadataCommand::new();
-        if options.metadata_no_deps {
-            cmd.no_deps();
-        }
-        let metadata = cmd.exec().context("error running cargo metadata")?;
-        CrateConfigSupplier::from(metadata)
-    };
     #[cfg(not(feature = "cargo-metadata"))]
-    let config_supplier = crate::EmptyCrateConfigSupplier;
+    let paths = BindgenPaths::default();
+
+    #[cfg(feature = "cargo-metadata")]
+    let mut paths = BindgenPaths::default();
+
+    #[cfg(feature = "cargo-metadata")]
+    paths.add_cargo_metadata_layer(options.metadata_no_deps)?;
 
     fs::create_dir_all(&options.out_dir)?;
 
-    let mut components =
-        crate::library_mode::find_components(&options.library_path, &config_supplier)?
-            // map the TOML configs into a our Config struct
-            .into_iter()
-            .map(|Component { ci, config }| {
-                let config = SwiftBindingGenerator.new_config(&config.into())?;
-                Ok(Component { ci, config })
-            })
-            .collect::<Result<Vec<_>>>()?;
-    SwiftBindingGenerator
-        .update_component_configs(&GenerationSettings::default(), &mut components)?;
+    let loader = BindgenLoader::new(paths);
+    let metadata = loader.load_metadata(&options.source)?;
+    let cis = loader.load_cis(metadata)?;
+    let mut components = loader.load_components(cis, parse_config)?;
+    apply_renames(&mut components);
+    // Call derive_ffi_funcs after apply_renames()
+    for Component { ci, .. } in components.iter_mut() {
+        ci.derive_ffi_funcs()?;
+    }
 
     for Component { ci, config } in &components {
         if options.generate_swift_sources {
@@ -185,24 +168,15 @@ pub fn generate_swift_bindings(options: SwiftBindingsOptions) -> Result<()> {
         }
     }
 
-    // find the library name by stripping the extension and leading `lib` from the library path
-    let library_name = {
-        let stem = options
-            .library_path
-            .file_stem()
-            .with_context(|| format!("Invalid library path {}", options.library_path))?;
-        match stem.strip_prefix("lib") {
-            Some(name) => name,
-            None => stem,
-        }
-    };
+    // Derive the default module_name/modulemap_filename from the source filename.
+    let source_basename = loader.source_basename(&options.source);
 
     let module_name = options
         .module_name
-        .unwrap_or_else(|| library_name.to_string());
+        .unwrap_or_else(|| source_basename.to_string());
     let modulemap_filename = options
         .modulemap_filename
-        .unwrap_or_else(|| format!("{library_name}.modulemap"));
+        .unwrap_or_else(|| format!("{source_basename}.modulemap"));
 
     if options.generate_modulemap {
         let mut header_filenames: Vec<_> = components
@@ -223,16 +197,46 @@ pub fn generate_swift_bindings(options: SwiftBindingsOptions) -> Result<()> {
     Ok(())
 }
 
+fn parse_config(ci: &ComponentInterface, root_toml: toml::Value) -> Result<Config> {
+    let mut config: Config = match root_toml.get("bindings").and_then(|b| b.get("swift")) {
+        Some(v) => v.clone().try_into()?,
+        None => Default::default(),
+    };
+    config
+        .module_name
+        .get_or_insert_with(|| ci.namespace().into());
+    Ok(config)
+}
+
 #[derive(Debug, Default)]
 pub struct SwiftBindingsOptions {
     pub generate_swift_sources: bool,
     pub generate_headers: bool,
     pub generate_modulemap: bool,
-    pub library_path: Utf8PathBuf,
+    pub source: Utf8PathBuf,
     pub out_dir: Utf8PathBuf,
     pub xcframework: bool,
     pub module_name: Option<String>,
     pub modulemap_filename: Option<String>,
     pub metadata_no_deps: bool,
     pub link_frameworks: Vec<String>,
+}
+
+// A helper for renaming items.
+fn apply_renames(components: &mut Vec<Component<Config>>) {
+    let mut module_renames = HashMap::new();
+    // Collect all rename configurations from all components, keyed by module_path
+    for c in components.iter() {
+        if !c.config.rename.is_empty() {
+            let module_path = c.ci.crate_name().to_string();
+            module_renames.insert(module_path, c.config.rename.clone());
+        }
+    }
+
+    // Apply rename configurations to all components
+    if !module_renames.is_empty() {
+        for c in &mut *components {
+            rename(&mut c.ci, &module_renames);
+        }
+    }
 }

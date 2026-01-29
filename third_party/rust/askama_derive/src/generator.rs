@@ -1,4 +1,5 @@
 mod expr;
+mod filter;
 mod node;
 
 use std::borrow::Cow;
@@ -307,14 +308,18 @@ impl<'a, 'h> Generator<'a, 'h> {
             }
 
             // cannot use `crate::integrations::impl_fast_writable()` w/o cloning the struct
-            impl #wrapper_impl_generics askama::filters::FastWritable
+            impl #wrapper_impl_generics askama::FastWritable
             for #wrapper_id #wrapper_ty_generics #wrapper_where_clause {
                 #[inline]
-                fn write_into<AskamaW>(&self, dest: &mut AskamaW) -> askama::Result<()>
+                fn write_into<AskamaW>(
+                    &self,
+                    dest: &mut AskamaW,
+                    values: &dyn askama::Values,
+                ) -> askama::Result<()>
                 where
                     AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized
                 {
-                    <_ as askama::Template>::render_into(self, dest)
+                    <_ as askama::Template>::render_into_with_values(self, dest, values)
                 }
             }
 

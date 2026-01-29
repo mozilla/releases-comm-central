@@ -4,7 +4,8 @@ use std::fmt::Write;
 
 use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, utf8_percent_encode};
 
-use crate::filters::{FastWritable, HtmlSafeOutput};
+use crate::filters::HtmlSafeOutput;
+use crate::{FastWritable, Values};
 
 // Urlencode char encoding set. Only the characters in the unreserved set don't
 // have any special purpose in any part of a URI and can be safely left
@@ -110,8 +111,12 @@ impl<T: fmt::Display> fmt::Display for UrlencodeFilter<T> {
 
 impl<T: FastWritable> FastWritable for UrlencodeFilter<T> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(&self, f: &mut W) -> crate::Result<()> {
-        self.0.write_into(&mut UrlencodeWriter(f, self.1))
+    fn write_into<W: fmt::Write + ?Sized>(
+        &self,
+        f: &mut W,
+        values: &dyn Values,
+    ) -> crate::Result<()> {
+        self.0.write_into(&mut UrlencodeWriter(f, self.1), values)
     }
 }
 

@@ -6,34 +6,31 @@
 
 use super::*;
 
-pub fn pass(module: &mut Module) -> Result<()> {
-    let crate_name = module.crate_name.clone();
-    let module_name = module.name.clone();
+pub fn pass(namespace: &mut Namespace) -> Result<()> {
+    let crate_name = namespace.crate_name.clone();
     let mut ffi_definitions = vec![];
 
-    module.visit_mut(|callable: &mut Callable| {
+    namespace.visit_mut(|callable: &mut Callable| {
         let name = &callable.name;
         let ffi_func_name = match &callable.kind {
             CallableKind::Function => uniffi_meta::fn_symbol_name(&crate_name, name),
-            CallableKind::Method { interface_name } => {
-                uniffi_meta::method_symbol_name(&crate_name, interface_name, name)
+            CallableKind::Method { self_type } => {
+                uniffi_meta::method_symbol_name(&crate_name, self_type.ty.name().unwrap(), name)
             }
-            CallableKind::Constructor { interface_name, .. } => {
-                uniffi_meta::constructor_symbol_name(&crate_name, interface_name, name)
-            }
+            CallableKind::Constructor { self_type, .. } => uniffi_meta::constructor_symbol_name(
+                &crate_name,
+                self_type.ty.name().unwrap(),
+                name,
+            ),
             // VTable methods for callback interfaces don't have FFI functions for them
             CallableKind::VTableMethod { .. } => return,
         };
         callable.ffi_func = RustFfiFunctionName(ffi_func_name.clone());
 
         let receiver_argument = match &callable.kind {
-            CallableKind::Method { interface_name } => Some(FfiArgument {
-                name: "uniffi_ptr".to_string(),
-                ty: FfiType::RustArcPtr {
-                    module_name: module_name.clone(),
-                    object_name: interface_name.clone(),
-                }
-                .into(),
+            CallableKind::Method { self_type, .. } => Some(FfiArgument {
+                name: "uniffi_self".to_string(),
+                ty: self_type.ffi_type.clone(),
             }),
             _ => None,
         };
@@ -81,6 +78,6 @@ pub fn pass(module: &mut Module) -> Result<()> {
         });
     });
 
-    module.ffi_definitions.extend(ffi_definitions);
+    namespace.ffi_definitions.extend(ffi_definitions);
     Ok(())
 }

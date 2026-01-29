@@ -723,7 +723,7 @@ fn path_or_identifier<'a>(i: &mut &'a str) -> ParseResult<'a, PathOrIdentifier<'
             if name
                 .chars()
                 .next()
-                .map_or(true, |c| c == '_' || c.is_lowercase()) =>
+                .is_none_or(|c| c == '_' || c.is_lowercase()) =>
         {
             Ok(PathOrIdentifier::Identifier(name))
         }
@@ -1037,7 +1037,7 @@ fn filter<'a>(
     cut_err((
         ws(identifier),
         opt(|i: &mut _| expr::call_generics(i, level)).map(|generics| generics.unwrap_or_default()),
-        opt(|i: &mut _| Expr::arguments(i, level, false)),
+        opt(|i: &mut _| Expr::arguments(i, level, true)),
     ))
     .parse_next(i)
 }

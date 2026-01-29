@@ -1,6 +1,11 @@
 {%- let rec = ci.get_record_definition(name).unwrap() %}
+{%- let uniffi_trait_methods = rec.uniffi_trait_methods() %}
 {%- call swift::docstring(rec, 0) %}
+{%- if config.record_has_conformances(rec, contains_object_references) %}
+public struct {{ type_name }}: {{ config.conformance_list_for_record(rec, contains_object_references) }} {
+{%- else %}
 public struct {{ type_name }} {
+{%- endif %}
     {%- for field in rec.fields() %}
     {%- call swift::docstring(field, 4) %}
     public {% if config.generate_immutable_records() %}let{% else %}var{% endif %} {{ field.name()|var_name }}: {{ field|type_name }}
@@ -13,33 +18,17 @@ public struct {{ type_name }} {
         self.{{ field.name()|var_name }} = {{ field.name()|var_name }}
         {%- endfor %}
     }
+
+    {% for meth in rec.methods() -%}
+    {%- call swift::func_decl("public func", meth, 4) %}
+    {% endfor %}
+
+    {% call swift::uniffi_trait_impls(uniffi_trait_methods) %}
 }
 
 #if compiler(>=6)
 extension {{ type_name }}: Sendable {}
 #endif
-
-{% if !contains_object_references %}
-extension {{ type_name }}: Equatable, Hashable {
-    public static func ==(lhs: {{ type_name }}, rhs: {{ type_name }}) -> Bool {
-        {%- for field in rec.fields() %}
-        if lhs.{{ field.name()|var_name }} != rhs.{{ field.name()|var_name }} {
-            return false
-        }
-        {%- endfor %}
-        return true
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        {%- for field in rec.fields() %}
-        hasher.combine({{ field.name()|var_name }})
-        {%- endfor %}
-    }
-}
-{% if config.generate_codable_conformance() %}
-extension {{ type_name }}: Codable {}
-{% endif %}
-{% endif %}
 
 #if swift(>=5.8)
 @_documentation(visibility: private)

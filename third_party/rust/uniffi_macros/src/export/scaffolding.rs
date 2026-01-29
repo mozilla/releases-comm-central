@@ -35,7 +35,7 @@ pub(super) fn gen_fn_scaffolding(
         sig.metadata_items()
             .unwrap_or_else(syn::Error::into_compile_error)
     });
-    let scaffolding_func = gen_ffi_function(&sig, ar, udl_mode)?;
+    let scaffolding_func = gen_ffi_function(&sig, ar, udl_mode, None)?;
     Ok(quote! {
         #scaffolding_func
         #metadata_items
@@ -57,7 +57,7 @@ pub(super) fn gen_constructor_scaffolding(
         sig.metadata_items()
             .unwrap_or_else(syn::Error::into_compile_error)
     });
-    let scaffolding_func = gen_ffi_function(&sig, ar, udl_mode)?;
+    let scaffolding_func = gen_ffi_function(&sig, ar, udl_mode, None)?;
     Ok(quote! {
         #scaffolding_func
         #metadata_items
@@ -68,6 +68,7 @@ pub(super) fn gen_method_scaffolding(
     sig: FnSignature,
     ar: Option<&AsyncRuntime>,
     udl_mode: bool,
+    use_trait: Option<&syn::Path>,
 ) -> syn::Result<TokenStream> {
     let scaffolding_func = if sig.receiver.is_none() {
         return Err(syn::Error::new(
@@ -75,7 +76,7 @@ pub(super) fn gen_method_scaffolding(
             "associated functions are not currently supported",
         ));
     } else {
-        gen_ffi_function(&sig, ar, udl_mode)?
+        gen_ffi_function(&sig, ar, udl_mode, use_trait)?
     };
 
     let metadata_items = (!udl_mode).then(|| {
@@ -132,33 +133,17 @@ impl ScaffoldingBits {
     ) -> Self {
         let ident = &sig.ident;
         let self_type = if is_trait {
-            quote! { ::std::sync::Arc<dyn #self_ident> }
+            quote! { dyn #self_ident }
         } else {
-            quote! { ::std::sync::Arc<#self_ident> }
-        };
-        let lift_type = ffiops::lift_type(&self_type);
-        let try_lift = ffiops::try_lift(&self_type);
-        let try_lift_self = if is_trait {
-            // For trait interfaces we need to special case this.  Trait interfaces normally lift
-            // foreign trait impl pointers.  However, for a method call, we want to lift a Rust
-            // pointer.
-            quote! {
-                {
-                    let boxed_foreign_arc = unsafe {
-                        ::std::boxed::Box::from_raw(
-                            uniffi_self_lowered as *mut ::std::sync::Arc<dyn #self_ident>,
-                        )
-                    };
-                    // Take a clone for our own use.
-                    ::std::result::Result::Ok(*boxed_foreign_arc)
-                }
-            }
-        } else {
-            quote! { #try_lift(uniffi_self_lowered) }
+            quote! { #self_ident }
         };
 
+        let ref_type = ffiops::lift_ref_type(&self_type);
+        let lift_type = ffiops::lift_type(&ref_type);
+        let try_lift = ffiops::try_lift(&ref_type);
+
         let lift_closure = sig.lift_closure(Some(quote! {
-            match #try_lift_self {
+            match #try_lift(uniffi_self_lowered) {
                 ::std::result::Result::Ok(v) => v,
                 ::std::result::Result::Err(e) => {
                     return ::std::result::Result::Err(("self", e));
@@ -219,6 +204,7 @@ pub(super) fn gen_ffi_function(
     sig: &FnSignature,
     ar: Option<&AsyncRuntime>,
     udl_mode: bool,
+    use_trait: Option<&syn::Path>,
 ) -> syn::Result<TokenStream> {
     let ScaffoldingBits {
         param_names,
@@ -228,13 +214,13 @@ pub(super) fn gen_ffi_function(
         convert_result,
     } = match &sig.kind {
         FnKind::Function => ScaffoldingBits::new_for_function(sig, udl_mode),
-        FnKind::Method { self_ident } => {
+        FnKind::Method { self_ident, .. } => {
             ScaffoldingBits::new_for_method(sig, self_ident, false, udl_mode)
         }
         FnKind::TraitMethod { self_ident, .. } => {
             ScaffoldingBits::new_for_method(sig, self_ident, true, udl_mode)
         }
-        FnKind::Constructor { self_ident } => {
+        FnKind::Constructor { self_ident, .. } => {
             ScaffoldingBits::new_for_constructor(sig, self_ident, udl_mode)
         }
     };
@@ -246,6 +232,7 @@ pub(super) fn gen_ffi_function(
     let ffi_return_ty = ffiops::lower_return_type(return_ty);
     let lower_return = ffiops::lower_return(return_ty);
     let handle_failed_lift = ffiops::lower_return_handle_failed_lift(return_ty);
+    let use_trait = use_trait.map(|tr| quote! { use #tr; });
 
     Ok(if !sig.is_async {
         let scaffolding_fn_ffi_buffer_version =
@@ -257,17 +244,21 @@ pub(super) fn gen_ffi_function(
                 #(#param_names: #param_types,)*
                 call_status: &mut ::uniffi::RustCallStatus,
             ) -> #ffi_return_ty {
+                #use_trait
                 ::uniffi::deps::trace!("calling: {}", #ffi_fn_name);
                 let uniffi_lift_args = #lift_closure;
                 ::uniffi::rust_call(call_status, || {
                     let result = match uniffi_lift_args() {
                         ::std::result::Result::Ok(uniffi_args) => {
-                            ::uniffi::deps::trace!("success: {}", #ffi_fn_name);
+                            ::uniffi::deps::trace!("lift_args success: {}", #ffi_fn_name);
                             let uniffi_result = #rust_fn_call;
-                            #lower_return(#convert_result)
+                            ::uniffi::deps::trace!("call success: {}", #ffi_fn_name);
+                            let uniffi_lowered_return = #lower_return(#convert_result);
+                            ::uniffi::deps::trace!("lower_return success: {}", #ffi_fn_name);
+                            uniffi_lowered_return
                         }
                         ::std::result::Result::Err((arg_name, error)) => {
-                            ::uniffi::deps::trace!("error: {}", #ffi_fn_name);
+                            ::uniffi::deps::trace!("lift_args error: {}", #ffi_fn_name);
                             #handle_failed_lift(::uniffi::LiftArgsError { arg_name, error} )
                         },
                     };

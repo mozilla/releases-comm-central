@@ -93,7 +93,7 @@ path = "../sync15"
 features = ["standalone-sync"]
 
 [dependencies.uniffi]
-version = "0.29.0"
+version = "0.31"
 
 [dev-dependencies]
 tempfile = "3.2.0"
@@ -106,5 +106,5 @@ features = ["testing"]
 path = "../support/rc_crypto/nss"
 
 [build-dependencies.uniffi]
-version = "0.29.0"
+version = "0.31"
 features = ["build"]

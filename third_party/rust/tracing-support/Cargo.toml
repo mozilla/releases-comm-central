@@ -40,12 +40,12 @@ features = [
 default-features = false
 
 [dependencies.uniffi]
-version = "0.29.0"
+version = "0.31"
 
 [dev-dependencies.tracing-subscriber]
 version = "0.3"
 default-features = false
 
 [build-dependencies.uniffi]
-version = "0.29.0"
+version = "0.31"
 features = ["build"]

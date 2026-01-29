@@ -2,8 +2,8 @@ use core::convert::Infallible;
 use core::fmt;
 use core::mem::MaybeUninit;
 
-use super::FastWritable;
 use crate::ascii_str::{AsciiChar, AsciiStr};
+use crate::{FastWritable, NO_VALUES, Values};
 
 /// Returns adequate string representation (in KB, ..) of number of bytes
 ///
@@ -33,14 +33,18 @@ pub struct FilesizeFormatFilter(f32);
 impl fmt::Display for FilesizeFormatFilter {
     #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Ok(self.write_into(f)?)
+        Ok(self.write_into(f, NO_VALUES)?)
     }
 }
 
 impl FastWritable for FilesizeFormatFilter {
-    fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
+    fn write_into<W: fmt::Write + ?Sized>(
+        &self,
+        dest: &mut W,
+        values: &dyn Values,
+    ) -> crate::Result<()> {
         if self.0 < 1e3 {
-            (self.0 as u32).write_into(dest)?;
+            (self.0 as u32).write_into(dest, values)?;
             Ok(dest.write_str(" B")?)
         } else if let Some((prefix, factor)) = SI_PREFIXES
             .iter()
@@ -49,8 +53,8 @@ impl FastWritable for FilesizeFormatFilter {
         {
             // u32 is big enough to hold the number 999_999
             let scaled = (self.0 * factor) as u32;
-            (scaled / 100).write_into(dest)?;
-            format_frac(&mut MaybeUninit::uninit(), prefix, scaled).write_into(dest)
+            (scaled / 100).write_into(dest, values)?;
+            format_frac(&mut MaybeUninit::uninit(), prefix, scaled).write_into(dest, values)
         } else {
             too_big(self.0, dest)
         }

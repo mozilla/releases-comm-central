@@ -1,10 +1,9 @@
 use core::convert::Infallible;
 use core::fmt::{self, Formatter, Write};
-use core::ops::Deref;
 use core::pin::Pin;
 use core::str;
 
-use crate::Values;
+use crate::{FastWritable, Values};
 
 /// Marks a string (or other `Display` type) as safe
 ///
@@ -82,8 +81,12 @@ impl<T: fmt::Display, E: Escaper> fmt::Display for EscapeDisplay<T, E> {
 
 impl<T: FastWritable, E: Escaper> FastWritable for EscapeDisplay<T, E> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-        self.0.write_into(&mut EscapeWriter(dest, self.1))
+    fn write_into<W: fmt::Write + ?Sized>(
+        &self,
+        dest: &mut W,
+        values: &dyn Values,
+    ) -> crate::Result<()> {
+        self.0.write_into(&mut EscapeWriter(dest, self.1), values)
     }
 }
 
@@ -250,10 +253,14 @@ impl<'a, T: HtmlSafe + ?Sized> AutoEscape for &AutoEscaper<'a, T, Html> {
 ///
 /// ```rust
 /// mod filters {
-///     use askama::{filters::MaybeSafe, Result};
+///     use askama::{filters::MaybeSafe, Result, Values};
 ///
 ///     // Do not actually use this filter! It's an intentionally bad example.
-///     pub fn backdoor<T: std::fmt::Display>(s: T, enable: &bool) -> Result<MaybeSafe<T>> {
+///     pub fn backdoor<T: std::fmt::Display>(
+///         s: T,
+///         _: &dyn Values,
+///         enable: &bool,
+///     ) -> Result<MaybeSafe<T>> {
 ///         Ok(match *enable {
 ///             true => MaybeSafe::Safe(s),
 ///             false => MaybeSafe::NeedsEscaping(s),
@@ -303,12 +310,16 @@ const _: () = {
     // This is the fallback. The filter is not the last element of the filter chain.
     impl<T: FastWritable> FastWritable for MaybeSafe<T> {
         #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
+        fn write_into<W: fmt::Write + ?Sized>(
+            &self,
+            dest: &mut W,
+            values: &dyn Values,
+        ) -> crate::Result<()> {
             let inner = match self {
                 MaybeSafe::Safe(inner) => inner,
                 MaybeSafe::NeedsEscaping(inner) => inner,
             };
-            inner.write_into(dest)
+            inner.write_into(dest, values)
         }
     }
 
@@ -338,10 +349,14 @@ const _: () = {
     }
 
     impl<T: FastWritable + ?Sized, E: Escaper> FastWritable for Wrapped<'_, T, E> {
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
+        fn write_into<W: fmt::Write + ?Sized>(
+            &self,
+            dest: &mut W,
+            values: &dyn Values,
+        ) -> crate::Result<()> {
             match *self {
-                Wrapped::Safe(t) => t.write_into(dest),
-                Wrapped::NeedsEscaping(t, e) => EscapeDisplay(t, e).write_into(dest),
+                Wrapped::Safe(t) => t.write_into(dest, values),
+                Wrapped::NeedsEscaping(t, e) => EscapeDisplay(t, e).write_into(dest, values),
             }
         }
     }
@@ -368,10 +383,10 @@ const _: () = {
 ///
 /// ```rust
 /// mod filters {
-///     use askama::{filters::Safe, Result};
+///     use askama::{filters::Safe, Result, Values};
 ///
 ///     // Do not actually use this filter! It's an intentionally bad example.
-///     pub fn strip_except_apos(s: impl ToString) -> Result<Safe<String>> {
+///     pub fn strip_except_apos(s: impl ToString, _: &dyn Values) -> Result<Safe<String>> {
 ///         Ok(Safe(s
 ///             .to_string()
 ///             .chars()
@@ -409,8 +424,12 @@ const _: () = {
     // This is the fallback. The filter is not the last element of the filter chain.
     impl<T: FastWritable> FastWritable for Safe<T> {
         #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            self.0.write_into(dest)
+        fn write_into<W: fmt::Write + ?Sized>(
+            &self,
+            dest: &mut W,
+            values: &dyn Values,
+        ) -> crate::Result<()> {
+            self.0.write_into(dest, values)
         }
     }
 
@@ -497,152 +516,6 @@ pub trait WriteWritable {
         values: &dyn Values,
     ) -> crate::Result<()>;
 }
-
-/// Used internally by askama to speed up writing some types.
-///
-/// Types implementing this trait can be written without needing to employ an [`fmt::Formatter`].
-pub trait FastWritable {
-    /// Used internally by askama to speed up writing some types.
-    fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()>;
-}
-
-const _: () = {
-    crate::impl_for_ref! {
-        impl FastWritable for T {
-            #[inline]
-            fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-                <T>::write_into(self, dest)
-            }
-        }
-    }
-
-    impl<T> FastWritable for Pin<T>
-    where
-        T: Deref,
-        <T as Deref>::Target: FastWritable,
-    {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            self.as_ref().get_ref().write_into(dest)
-        }
-    }
-
-    #[cfg(feature = "alloc")]
-    impl<T: FastWritable + alloc::borrow::ToOwned> FastWritable for alloc::borrow::Cow<'_, T> {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            T::write_into(self.as_ref(), dest)
-        }
-    }
-
-    // implement FastWritable for a list of types
-    macro_rules! impl_for_int {
-        ($($ty:ty)*) => { $(
-            impl FastWritable for $ty {
-                #[inline]
-                fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-                    itoa::Buffer::new().format(*self).write_into(dest)
-                }
-            }
-        )* };
-    }
-
-    impl_for_int!(
-        u8 u16 u32 u64 u128 usize
-        i8 i16 i32 i64 i128 isize
-    );
-
-    // implement FastWritable for a list of non-zero integral types
-    macro_rules! impl_for_nz_int {
-        ($($id:ident)*) => { $(
-            impl FastWritable for core::num::$id {
-                #[inline]
-                fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-                    self.get().write_into(dest)
-                }
-            }
-        )* };
-    }
-
-    impl_for_nz_int!(
-        NonZeroU8 NonZeroU16 NonZeroU32 NonZeroU64 NonZeroU128 NonZeroUsize
-        NonZeroI8 NonZeroI16 NonZeroI32 NonZeroI64 NonZeroI128 NonZeroIsize
-    );
-
-    impl FastWritable for str {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            Ok(dest.write_str(self)?)
-        }
-    }
-
-    #[cfg(feature = "alloc")]
-    impl FastWritable for alloc::string::String {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            self.as_str().write_into(dest)
-        }
-    }
-
-    impl FastWritable for bool {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            Ok(dest.write_str(match self {
-                true => "true",
-                false => "false",
-            })?)
-        }
-    }
-
-    impl FastWritable for char {
-        #[inline]
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            Ok(dest.write_char(*self)?)
-        }
-    }
-
-    impl FastWritable for fmt::Arguments<'_> {
-        fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-            Ok(match self.as_str() {
-                Some(s) => dest.write_str(s),
-                None => dest.write_fmt(*self),
-            }?)
-        }
-    }
-
-    impl<S: crate::Template + ?Sized> WriteWritable for &Writable<'_, S> {
-        #[inline]
-        fn askama_write<W: fmt::Write + ?Sized>(
-            &self,
-            dest: &mut W,
-            values: &dyn Values,
-        ) -> crate::Result<()> {
-            self.0.render_into_with_values(dest, values)
-        }
-    }
-
-    impl<S: FastWritable + ?Sized> WriteWritable for &&Writable<'_, S> {
-        #[inline]
-        fn askama_write<W: fmt::Write + ?Sized>(
-            &self,
-            dest: &mut W,
-            _: &dyn Values,
-        ) -> crate::Result<()> {
-            self.0.write_into(dest)
-        }
-    }
-
-    impl<S: fmt::Display + ?Sized> WriteWritable for &&&Writable<'_, S> {
-        #[inline]
-        fn askama_write<W: fmt::Write + ?Sized>(
-            &self,
-            dest: &mut W,
-            _: &dyn Values,
-        ) -> crate::Result<()> {
-            Ok(write!(dest, "{}", self.0)?)
-        }
-    }
-};
 
 #[test]
 #[cfg(feature = "alloc")]

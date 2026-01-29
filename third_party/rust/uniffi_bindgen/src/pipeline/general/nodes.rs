@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use uniffi_pipeline::Node;
 
 /// Initial IR, this stores the metadata and other data
@@ -10,22 +10,23 @@ use uniffi_pipeline::Node;
 pub struct Root {
     /// In library mode, the library path the user passed to us
     pub cdylib: Option<String>,
-    pub modules: IndexMap<String, Module>,
+    pub namespaces: IndexMap<String, Namespace>,
 }
 
+/// A Namespace is a crate which exposes a uniffi api.
 #[derive(Debug, Clone, Node)]
-pub struct Module {
+pub struct Namespace {
     pub name: String,
     pub crate_name: String,
-    /// contents of the `uniffi.toml` file for this module, if present
+    /// contents of the `uniffi.toml` file for this namespace, if present
     pub config_toml: Option<String>,
     pub docstring: Option<String>,
     pub functions: Vec<Function>,
     pub type_definitions: Vec<TypeDefinition>,
-    pub ffi_definitions: Vec<FfiDefinition>,
+    pub ffi_definitions: IndexSet<FfiDefinition>,
     /// Checksum functions
     pub checksums: Vec<Checksum>,
-    // FFI functions names for this module
+    // FFI functions names in this namespace
     pub ffi_rustbuffer_alloc: RustFfiFunctionName,
     pub ffi_rustbuffer_from_bytes: RustFfiFunctionName,
     pub ffi_rustbuffer_free: RustFfiFunctionName,
@@ -109,17 +110,14 @@ pub enum CallableKind {
     /// Toplevel function
     Function,
     /// Interface/Trait interface method
-    Method { interface_name: String },
+    Method { self_type: TypeNode },
     /// Interface constructor
-    Constructor {
-        interface_name: String,
-        primary: bool,
-    },
+    Constructor { self_type: TypeNode, primary: bool },
     /// Method inside a VTable or a CallbackInterface
     ///
     /// For trait interfaces this only applies to the Callables inside the `vtable.methods` field.
     /// Callables inside `Interface::methods` will still be `Callable::Method`.
-    VTableMethod { trait_name: String },
+    VTableMethod { self_type: TypeNode },
 }
 
 #[derive(Debug, Clone, Node)]
@@ -132,7 +130,7 @@ pub struct ThrowsType {
     pub ty: Option<TypeNode>,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct AsyncData {
     // FFI types for async Rust functions
     pub ffi_rust_future_poll: RustFfiFunctionName,
@@ -149,7 +147,13 @@ pub struct Argument {
     pub name: String,
     pub ty: TypeNode,
     pub optional: bool,
-    pub default: Option<LiteralNode>,
+    pub default: Option<DefaultValue>,
+}
+
+#[derive(Debug, Clone, Node)]
+pub enum DefaultValue {
+    Default(TypeNode),
+    Literal(LiteralNode),
 }
 
 #[derive(Debug, Clone, Node)]
@@ -176,7 +180,7 @@ pub enum Literal {
     EmptySequence,
     EmptyMap,
     None,
-    Some { inner: Box<Literal> },
+    Some { inner: Box<DefaultValue> },
 }
 
 // Represent the radix of integer literal values.
@@ -193,8 +197,12 @@ pub struct Record {
     pub name: String,
     pub fields_kind: FieldsKind,
     pub fields: Vec<Field>,
+    pub constructors: Vec<Constructor>,
+    pub methods: Vec<Method>,
     pub docstring: Option<String>,
     pub self_type: TypeNode,
+    pub uniffi_traits: Vec<UniffiTrait>,
+    pub uniffi_trait_methods: UniffiTraitMethods,
 }
 
 #[derive(Debug, Clone, Node)]
@@ -208,7 +216,7 @@ pub enum FieldsKind {
 pub struct Field {
     pub name: String,
     pub ty: TypeNode,
-    pub default: Option<LiteralNode>,
+    pub default: Option<DefaultValue>,
     pub docstring: Option<String>,
 }
 
@@ -233,8 +241,12 @@ pub struct Enum {
     /// values. We try to mimic what `rustc` does, but there's no guarantee that this will be
     /// exactly the same type.
     pub discr_type: TypeNode,
+    pub constructors: Vec<Constructor>,
+    pub methods: Vec<Method>,
     pub docstring: Option<String>,
     pub self_type: TypeNode,
+    pub uniffi_traits: Vec<UniffiTrait>,
+    pub uniffi_trait_methods: UniffiTraitMethods,
 }
 
 #[derive(Debug, Clone, Node)]
@@ -259,6 +271,7 @@ pub struct Interface {
     pub constructors: Vec<Constructor>,
     pub methods: Vec<Method>,
     pub uniffi_traits: Vec<UniffiTrait>,
+    pub uniffi_trait_methods: UniffiTraitMethods,
     pub trait_impls: Vec<ObjectTraitImpl>,
     pub imp: ObjectImpl,
     pub self_type: TypeNode,
@@ -287,6 +300,7 @@ pub struct VTable {
     ///
     /// Foreign code should call this function, passing it a pointer to the VTable struct.
     pub init_fn: RustFfiFunctionName,
+    pub clone_fn_type: FfiFunctionTypeName,
     pub free_fn_type: FfiFunctionTypeName,
     pub methods: Vec<VTableMethod>,
 }
@@ -299,19 +313,20 @@ pub struct VTableMethod {
     pub ffi_type: FfiTypeNode,
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, Node)]
 pub enum UniffiTrait {
     Debug { fmt: Method },
     Display { fmt: Method },
     Eq { eq: Method, ne: Method },
     Hash { hash: Method },
+    Ord { cmp: Method },
 }
 
 #[derive(Debug, Clone, Node)]
 pub struct ObjectTraitImpl {
     pub ty: TypeNode,
-    pub trait_name: String,
-    pub tr_module_name: Option<String>,
+    pub trait_ty: TypeNode,
 }
 
 #[derive(Debug, Clone, Node)]
@@ -343,7 +358,7 @@ pub struct MapType {
 
 #[derive(Debug, Clone, Node)]
 pub struct ExternalType {
-    pub module_name: String,
+    pub namespace: String,
     pub name: String,
     pub self_type: TypeNode,
 }
@@ -403,30 +418,30 @@ pub enum Type {
     },
     // User defined types in the API
     Interface {
-        module_name: String,
+        namespace: String,
         name: String,
         imp: ObjectImpl,
     },
     Record {
-        module_name: String,
+        namespace: String,
         name: String,
     },
     Enum {
-        module_name: String,
+        namespace: String,
         name: String,
     },
     CallbackInterface {
-        module_name: String,
+        namespace: String,
         name: String,
     },
     Custom {
-        module_name: String,
+        namespace: String,
         name: String,
         builtin: Box<Type>,
     },
 }
 
-#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Node, PartialEq, Eq, Hash)]
 pub enum ObjectImpl {
     // A single Rust type
     Struct,
@@ -436,7 +451,7 @@ pub enum ObjectImpl {
     CallbackTrait,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub enum FfiDefinition {
     /// FFI Function exported in the Rust library
     RustFunction(FfiFunction),
@@ -458,7 +473,7 @@ pub struct FfiStructName(pub String);
 #[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiFunctionTypeName(pub String);
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiFunction {
     pub name: RustFfiFunctionName,
     pub is_async: bool,
@@ -469,7 +484,7 @@ pub struct FfiFunction {
     pub kind: FfiFunctionKind,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub enum FfiFunctionKind {
     Scaffolding,
     ObjectClone,
@@ -487,7 +502,7 @@ pub enum FfiFunctionKind {
     Checksum,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiFunctionType {
     pub name: FfiFunctionTypeName,
     pub arguments: Vec<FfiArgument>,
@@ -495,24 +510,24 @@ pub struct FfiFunctionType {
     pub has_rust_call_status_arg: bool,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiReturnType {
     pub ty: Option<FfiTypeNode>,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiStruct {
     pub name: FfiStructName,
     pub fields: Vec<FfiField>,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiField {
     pub name: String,
     pub ty: FfiTypeNode,
 }
 
-#[derive(Debug, Clone, Node)]
+#[derive(Debug, Clone, Node, PartialEq, Eq, Hash)]
 pub struct FfiArgument {
     pub name: String,
     pub ty: FfiTypeNode,
@@ -531,20 +546,12 @@ pub enum FfiType {
     Int64,
     Float32,
     Float64,
-    /// A `*const c_void` pointer to a rust-owned `Arc<T>`.
-    /// If you've got one of these, you must call the appropriate rust function to free it.
-    /// The templates will generate a unique `free` function for each T.
-    /// The inner string references the name of the `T` type.
-    RustArcPtr {
-        module_name: String,
-        object_name: String,
-    },
     /// A byte buffer allocated by rust, and owned by whoever currently holds it.
     /// If you've got one of these, you must either call the appropriate rust function to free it
     /// or pass it to someone that will.
     ///
     /// For user-defined types like Record, Enum, CustomType, etc., the inner value will be the
-    /// module name for that type.  This is needed for some languages, because each module
+    /// namespace name for that type.  This is needed for some languages, because each module
     /// defines a different RustBuffer type and using the wrong one will result in a type
     /// error.
     ///
@@ -578,18 +585,32 @@ pub enum HandleKind {
     RustFuture,
     ForeignFuture,
     ForeignFutureCallbackData,
-    CallbackInterface {
-        module_name: String,
+    // Interface, trait interface, or callback interface
+    StructInterface {
+        namespace: String,
         interface_name: String,
     },
-    // TODO: dust off https://github.com/mozilla/uniffi-rs/pull/1823 and also use handles for
-    // interfaces and trait interfaces
+    TraitInterface {
+        namespace: String,
+        interface_name: String,
+    },
 }
 
 #[derive(Debug, Clone, Node)]
 pub struct Checksum {
     pub fn_name: RustFfiFunctionName,
     pub checksum: u16,
+}
+
+/// flattened uniffi_traits.
+#[derive(Debug, Clone, Node)]
+pub struct UniffiTraitMethods {
+    pub debug_fmt: Option<Method>,
+    pub display_fmt: Option<Method>,
+    pub eq_eq: Option<Method>,
+    pub eq_ne: Option<Method>,
+    pub hash_hash: Option<Method>,
+    pub ord_cmp: Option<Method>,
 }
 
 impl FfiDefinition {
@@ -666,5 +687,9 @@ impl Type {
 impl ObjectImpl {
     pub fn has_callback_interface(&self) -> bool {
         matches!(self, Self::CallbackTrait)
+    }
+
+    pub fn has_struct(&self) -> bool {
+        matches!(self, Self::Struct)
     }
 }

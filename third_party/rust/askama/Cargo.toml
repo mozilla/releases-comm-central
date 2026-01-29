@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.81"
+rust-version = "1.83"
 name = "askama"
-version = "0.13.1"
+version = "0.14.0"
 build = false
 autolib = false
 autobins = false
@@ -60,7 +60,7 @@ default = [
     "urlencode",
     "askama_derive?/default",
 ]
-derive = ["askama_derive"]
+derive = ["dep:askama_derive"]
 full = [
     "default",
     "blocks",
@@ -102,7 +102,7 @@ harness = false
 required-features = ["serde_json"]
 
 [dependencies.askama_derive]
-version = "=0.13.1"
+version = "=0.14.0"
 optional = true
 default-features = false
 

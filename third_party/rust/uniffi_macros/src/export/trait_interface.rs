@@ -4,6 +4,7 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, quote_spanned};
+use syn::ItemTrait;
 
 use uniffi_meta::ObjectImpl;
 
@@ -30,7 +31,7 @@ pub(super) fn gen_trait_scaffolding(
     }
     let trait_name = ident_to_string(&self_ident);
     let trait_impl = with_foreign.then(|| {
-        callback_interface::trait_impl(mod_path, &self_ident, &items)
+        callback_interface::trait_impl(mod_path, &self_ident, &items, true)
             .unwrap_or_else(|e| e.into_compile_error())
     });
 
@@ -51,18 +52,16 @@ pub(super) fn gen_trait_scaffolding(
         /// Safety: Only pass pointers returned by a UniFFI call.  Do not pass pointers that were
         /// passed to the free function.
         pub unsafe extern "C" fn #clone_fn_ident(
-            ptr: *const ::std::ffi::c_void,
+            handle: ::uniffi::ffi::Handle,
             call_status: &mut ::uniffi::RustCallStatus
-        ) -> *const ::std::ffi::c_void {
-            ::uniffi::deps::trace!("clonining trait: {} ({:?})", #trait_name, ptr);
+        ) -> ::uniffi::ffi::Handle {
+            ::uniffi::deps::trace!("clonining trait: {} ({:?})", #trait_name, handle);
             ::uniffi::rust_call(call_status, || {
-                let ptr = ptr as *mut ::std::sync::Arc<dyn #self_ident>;
-                let arc: ::std::sync::Arc<_> = unsafe { ::std::clone::Clone::clone(&*ptr) };
-                ::std::result::Result::Ok(
-                    ::std::boxed::Box::into_raw(
-                        ::std::boxed::Box::new(arc),
-                    ) as *const ::std::ffi::c_void
-                )
+                unsafe {
+                    ::std::result::Result::Ok(
+                        handle.clone_arc_handle::<::std::sync::Arc<dyn #self_ident>>()
+                    )
+                }
             })
         }
 
@@ -76,16 +75,13 @@ pub(super) fn gen_trait_scaffolding(
         /// Note: clippy doesn't complain about this being unsafe, but it definitely is since it
         /// calls `Box::from_raw`.
         pub unsafe extern "C" fn #free_fn_ident(
-            ptr: *const ::std::ffi::c_void,
+            handle: ::uniffi::ffi::Handle,
             call_status: &mut ::uniffi::RustCallStatus
         ) {
-            ::uniffi::deps::trace!("freeing trait: {} ({:?})", #trait_name, ptr);
+            ::uniffi::deps::trace!("freeing trait: {} ({:?})", #trait_name, handle);
             ::uniffi::rust_call(call_status, || {
-                ::std::assert!(!ptr.is_null());
                 ::std::mem::drop(unsafe {
-                    ::std::boxed::Box::from_raw(
-                        ptr as *mut ::std::sync::Arc<dyn #self_ident>,
-                    )
+                    handle.into_arc::<::std::sync::Arc<dyn #self_ident>>()
                 });
                 ::std::result::Result::Ok(())
             });
@@ -95,7 +91,7 @@ pub(super) fn gen_trait_scaffolding(
     let impl_tokens: TokenStream = items
         .into_iter()
         .map(|item| match item {
-            ImplItem::Method(sig) => gen_method_scaffolding(sig, None, udl_mode),
+            ImplItem::Method(sig) => gen_method_scaffolding(sig, None, udl_mode, None),
             _ => unreachable!("traits have no constructors"),
         })
         .collect::<syn::Result<_>>()?;
@@ -106,10 +102,10 @@ pub(super) fn gen_trait_scaffolding(
         } else {
             ObjectImpl::Trait
         };
-        interface_meta_static_var(&self_ident, imp, mod_path, docstring.as_str())
+        interface_meta_static_var(&ident_to_string(&self_ident), imp, docstring.as_str())
             .unwrap_or_else(syn::Error::into_compile_error)
     });
-    let ffi_converter_tokens = ffi_converter(mod_path, &self_ident, with_foreign);
+    let ffi_converter_tokens = ffi_converter(&self_ident, with_foreign);
 
     Ok(quote_spanned! { self_ident.span() =>
         #meta_static_var
@@ -120,31 +116,51 @@ pub(super) fn gen_trait_scaffolding(
     })
 }
 
-pub(crate) fn ffi_converter(
-    mod_path: &str,
-    trait_ident: &Ident,
-    with_foreign: bool,
-) -> TokenStream {
+pub(crate) fn ffi_converter(trait_ident: &Ident, with_foreign: bool) -> TokenStream {
     // TODO: support defining remote trait interfaces
     let remote = false;
     let impl_spec = tagged_impl_header("FfiConverterArc", &quote! { dyn #trait_ident }, remote);
     let lift_ref_impl_spec = tagged_impl_header("LiftRef", &quote! { dyn #trait_ident }, remote);
+    // Implement `TypeId` for `dyn Trait` directly.  This is what we use to lookup the type ID for
+    // objects that implement the trait.
+    let type_id_impl_spec = tagged_impl_header("TypeId", &quote! { dyn #trait_ident }, remote);
     let trait_name = ident_to_string(trait_ident);
     let try_lift = if with_foreign {
+        // The trait can be implemented by both Rust and the foreign side.
+        // `try_lift` needs to handle both cases
         let trait_impl_ident = callback_interface::trait_impl_ident(&trait_name);
         quote! {
-            fn try_lift(v: Self::FfiType) -> ::uniffi::deps::anyhow::Result<::std::sync::Arc<Self>> {
-                ::std::result::Result::Ok(::std::sync::Arc::new(<#trait_impl_ident>::new(v as u64)))
+            fn try_lift(handle: Self::FfiType) -> ::uniffi::deps::anyhow::Result<::std::sync::Arc<Self>> {
+                if handle.is_foreign() {
+                    // Handle was generated by the foreign side.
+                    // Construct a new instance of our struct that implements the trait using the handle and the registered vtable.
+                    ::std::result::Result::Ok(::std::sync::Arc::new(<#trait_impl_ident>::new(handle.as_raw())))
+                } else {
+                    // Handle was generated by the Rust side.
+                    // Reconstruct the double-wrapped arc that we lowered.
+                    use ::std::clone::Clone;
+                    // Note: handle is for a double-wrapped arc
+                    // https://mozilla.github.io/uniffi-rs/latest/internals/object_references.html
+                    let obj: ::std::sync::Arc<::std::sync::Arc<dyn #trait_ident>> = unsafe {
+                        handle.into_arc()
+                    };
+                    // We have a `Arc<Arc<dyn #trait_ident>>>`, but we need to return an `Arc<dyn #trait_ident>`
+                    // Unfortunately, Rust won't cast the double-arc to a single-arc trait object.
+                    // So we have to clone the inner arc and return that.
+                    ::std::result::Result::Ok((*obj).clone())
+                }
             }
         }
     } else {
+        // The trait can only implemented by Rust.
+        // `try_lift` can assume the Rust-generated case.
         quote! {
-            fn try_lift(v: Self::FfiType) -> ::uniffi::deps::anyhow::Result<::std::sync::Arc<Self>> {
-                unsafe {
-                    ::std::result::Result::Ok(
-                        *::std::boxed::Box::from_raw(v as *mut ::std::sync::Arc<Self>),
-                    )
-                }
+            fn try_lift(handle: Self::FfiType) -> ::uniffi::deps::anyhow::Result<::std::sync::Arc<Self>> {
+                use ::std::clone::Clone;
+                let obj: ::std::sync::Arc<::std::sync::Arc<dyn #trait_ident>> = unsafe {
+                    handle.into_arc()
+                };
+                ::std::result::Result::Ok((*obj).clone())
             }
         }
     };
@@ -167,36 +183,86 @@ pub(crate) fn ffi_converter(
             dyn #trait_ident: ::core::marker::Sync, ::core::marker::Send
         );
 
+        // We're going to be casting raw pointers to `u64` values to pass them across the FFI.
+        // Ensure that we're not on some 128-bit machine where this would overflow.
+        ::uniffi::deps::static_assertions::const_assert!(::std::mem::size_of::<*const ()>() <= 8);
+
         unsafe #impl_spec {
-            type FfiType = *const ::std::os::raw::c_void;
+            type FfiType = ::uniffi::ffi::Handle;
 
             fn lower(obj: ::std::sync::Arc<Self>) -> Self::FfiType {
-                ::std::boxed::Box::into_raw(::std::boxed::Box::new(obj)) as *const ::std::os::raw::c_void
+                match obj.uniffi_foreign_handle() {
+                    // Obj stores a foreign-generated handle that `uniffi_foreign_handle` just
+                    // cloned.  We can return that directly.
+                    ::std::option::Option::Some(handle) => handle,
+                    // Obj is a Rust-implemented trait.
+                    // Wrap `obj` in a second arc and create the handle from that.
+                    // https://mozilla.github.io/uniffi-rs/latest/internals/object_references.html
+                    ::std::option::Option::None => {
+                        use ::std::sync::Arc;
+                        let obj: Arc<Arc<dyn #trait_ident>> = Arc::new(obj);
+                        ::uniffi::ffi::Handle::from_arc(obj)
+                    }
+                }
             }
 
             #try_lift
 
             fn write(obj: ::std::sync::Arc<Self>, buf: &mut ::std::vec::Vec<u8>) {
-                ::uniffi::deps::static_assertions::const_assert!(::std::mem::size_of::<*const ::std::ffi::c_void>() <= 8);
                 ::uniffi::deps::bytes::BufMut::put_u64(
                     buf,
-                    #lower_self(obj) as ::std::primitive::u64,
+                    #lower_self(obj).as_raw()
                 );
             }
 
             fn try_read(buf: &mut &[u8]) -> ::uniffi::Result<::std::sync::Arc<Self>> {
-                ::uniffi::deps::static_assertions::const_assert!(::std::mem::size_of::<*const ::std::ffi::c_void>() <= 8);
                 ::uniffi::check_remaining(buf, 8)?;
-                #try_lift_self(::uniffi::deps::bytes::Buf::get_u64(buf) as Self::FfiType)
+                #try_lift_self(::uniffi::ffi::Handle::from_raw_unchecked(::uniffi::deps::bytes::Buf::get_u64(buf)))
             }
 
             const TYPE_ID_META: ::uniffi::MetadataBuffer = ::uniffi::MetadataBuffer::from_code(#metadata_code)
-                .concat_str(#mod_path)
+                .concat_str(module_path!())
+                .concat_str(#trait_name);
+        }
+
+        #[doc(hidden)]
+        #[automatically_derived]
+        #type_id_impl_spec {
+            const TYPE_ID_META: ::uniffi::MetadataBuffer = ::uniffi::MetadataBuffer::from_code(#metadata_code)
+                .concat_str(module_path!())
                 .concat_str(#trait_name);
         }
 
         unsafe #lift_ref_impl_spec {
             type LiftType = ::std::sync::Arc<dyn #trait_ident>;
+        }
+    }
+}
+
+pub fn alter_trait(item: &ItemTrait) -> TokenStream {
+    let ItemTrait {
+        attrs,
+        vis,
+        unsafety,
+        auto_token,
+        trait_token,
+        ident,
+        generics,
+        colon_token,
+        supertraits,
+        items,
+        ..
+    } = item;
+
+    quote! {
+        #(#attrs)*
+        #vis #unsafety #auto_token #trait_token #ident #generics #colon_token #supertraits {
+            #(#items)*
+
+            #[doc(hidden)]
+            fn uniffi_foreign_handle(&self) -> ::std::option::Option<::uniffi::Handle> {
+                ::std::option::Option::None
+            }
         }
     }
 }

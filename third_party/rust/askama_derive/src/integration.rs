@@ -60,15 +60,19 @@ fn impl_display(ast: &DeriveInput, buf: &mut Buffer) {
 
 /// Implement `FastWritable` for the given item.
 fn impl_fast_writable(ast: &DeriveInput, buf: &mut Buffer) {
-    write_header(ast, buf, "askama::filters::FastWritable");
+    write_header(ast, buf, "askama::FastWritable");
     buf.write(
         "\
             #[inline]\
-            fn write_into<AskamaW>(&self, dest: &mut AskamaW) -> askama::Result<()> \
+            fn write_into<AskamaW>(\
+                &self,\
+                dest: &mut AskamaW,\
+                values: &dyn askama::Values\
+            ) -> askama::Result<()> \
             where \
                 AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized,\
             {\
-                askama::Template::render_into(self, dest)\
+                askama::Template::render_into_with_values(self, dest, values)\
             }\
         }",
     );

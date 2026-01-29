@@ -74,23 +74,44 @@ pub fn setup_scaffolding(tokens: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn export(attr_args: TokenStream, input: TokenStream) -> TokenStream {
-    do_export(attr_args, input, false)
+    do_export(attr_args, input, true, false)
 }
 
-fn do_export(attr_args: TokenStream, input: TokenStream, udl_mode: bool) -> TokenStream {
-    let copied_input = (!udl_mode).then(|| proc_macro2::TokenStream::from(input.clone()));
-
+fn do_export(
+    attr_args: TokenStream,
+    input: TokenStream,
+    keep_input: bool,
+    udl_mode: bool,
+) -> TokenStream {
     let gen_output = || {
         let item = syn::parse(input)?;
-        expand_export(item, attr_args, udl_mode)
+        let altered_input = keep_input.then(|| export::alter_input(&item));
+        let output = expand_export(item, attr_args, udl_mode)?;
+        Ok(quote! {
+            #altered_input
+            #output
+        })
     };
-    let output = gen_output().unwrap_or_else(syn::Error::into_compile_error);
+    gen_output()
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
+}
 
-    quote! {
-        #copied_input
-        #output
-    }
-    .into()
+// Generate export items for UDL mode
+//
+// This works similarly to `udl_derive`, but for #[export].
+#[doc(hidden)]
+#[proc_macro_attribute]
+pub fn export_for_udl(attrs: TokenStream, input: TokenStream) -> TokenStream {
+    do_export(attrs, input, false, true)
+}
+
+// This is for attributes on items we also `udl_derive`. It always keeps the input tokens
+// for `udl_derive` to consume (and then discard!)
+#[doc(hidden)]
+#[proc_macro_attribute]
+pub fn export_for_udl_derive(attrs: TokenStream, input: TokenStream) -> TokenStream {
+    do_export(attrs, input, true, true)
 }
 
 #[proc_macro_derive(Record, attributes(uniffi))]
@@ -100,14 +121,14 @@ pub fn derive_record(input: TokenStream) -> TokenStream {
         .into()
 }
 
-#[proc_macro_derive(Enum)]
+#[proc_macro_derive(Enum, attributes(uniffi))]
 pub fn derive_enum(input: TokenStream) -> TokenStream {
     expand_enum(parse_macro_input!(input), DeriveOptions::default())
         .unwrap_or_else(syn::Error::into_compile_error)
         .into()
 }
 
-#[proc_macro_derive(Object)]
+#[proc_macro_derive(Object, attributes(uniffi))]
 pub fn derive_object(input: TokenStream) -> TokenStream {
     expand_object(parse_macro_input!(input), DeriveOptions::default())
         .unwrap_or_else(syn::Error::into_compile_error)
@@ -192,15 +213,6 @@ pub fn udl_derive(attrs: TokenStream, input: TokenStream) -> TokenStream {
     )
     .unwrap_or_else(syn::Error::into_compile_error)
     .into()
-}
-
-// Generate export items for UDL mode
-//
-// This works similarly to `udl_derive`, but for #[export].
-#[doc(hidden)]
-#[proc_macro_attribute]
-pub fn export_for_udl(attrs: TokenStream, input: TokenStream) -> TokenStream {
-    do_export(attrs, input, true)
 }
 
 /// A helper macro to include generated component scaffolding.
@@ -315,4 +327,10 @@ pub fn constructor(_attrs: TokenStream, input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn method(_attrs: TokenStream, input: TokenStream) -> TokenStream {
     input
+}
+
+/// Attribute for trait interfaces defined in UDL
+#[proc_macro_attribute]
+pub fn trait_interface(_attr_args: TokenStream, input: TokenStream) -> TokenStream {
+    export::alter_trait(&parse_macro_input!(input)).into()
 }

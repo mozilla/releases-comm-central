@@ -2,15 +2,16 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{
     parse::ParseStream, spanned::Spanned, Attribute, Data, DataEnum, DeriveInput, Expr, Index, Lit,
-    Variant,
+    LitStr, Token, Variant,
 };
 
 use crate::{
+    default::default_value_metadata_calls,
     ffiops,
+    record::FieldAttributeArguments,
     util::{
         create_metadata_items, either_attribute_arg, extract_docstring, ident_to_string, kw,
-        mod_path, try_metadata_value_from_usize, try_read_field, AttributeSliceExt,
-        UniffiAttributeArgs,
+        try_metadata_value_from_usize, try_read_field, AttributeSliceExt, UniffiAttributeArgs,
     },
     DeriveOptions,
 };
@@ -111,8 +112,11 @@ impl EnumItem {
         self.discr_type.as_ref()
     }
 
-    pub fn name(&self) -> String {
-        ident_to_string(&self.ident)
+    pub fn foreign_name(&self) -> String {
+        match &self.attr.name {
+            Some(name) => name.clone(),
+            None => ident_to_string(&self.ident),
+        }
     }
 
     pub fn is_flat_error(&self) -> bool {
@@ -163,14 +167,10 @@ fn enum_or_error_ffi_converter_impl(
     options: &DeriveOptions,
     metadata_type_code: TokenStream,
 ) -> TokenStream {
-    let name = item.name();
+    let name = &item.foreign_name();
     let ident = item.ident();
     let impl_spec = options.ffi_impl_header("FfiConverter", ident);
     let derive_ffi_traits = options.derive_all_ffi_traits(ident);
-    let mod_path = match mod_path() {
-        Ok(p) => p,
-        Err(e) => return e.into_compile_error(),
-    };
     let mut write_match_arms: Vec<_> = item
         .enum_()
         .variants
@@ -258,7 +258,7 @@ fn enum_or_error_ffi_converter_impl(
             }
 
             const TYPE_ID_META: ::uniffi::MetadataBuffer = ::uniffi::MetadataBuffer::from_code(#metadata_type_code)
-                .concat_str(#mod_path)
+                .concat_str(module_path!())
                 .concat_str(#name);
         }
 
@@ -267,15 +267,14 @@ fn enum_or_error_ffi_converter_impl(
 }
 
 pub(crate) fn enum_meta_static_var(item: &EnumItem) -> syn::Result<TokenStream> {
-    let name = item.name();
-    let module_path = mod_path()?;
+    let name = &item.foreign_name();
     let non_exhaustive = item.is_non_exhaustive();
     let docstring = item.docstring();
     let shape = EnumShape::Enum.as_u8();
 
     let mut metadata_expr = quote! {
         ::uniffi::MetadataBuffer::from_code(::uniffi::metadata::codes::ENUM)
-            .concat_str(#module_path)
+            .concat_str(module_path!())
             .concat_str(#name)
             .concat_value(#shape)
     };
@@ -291,7 +290,7 @@ pub(crate) fn enum_meta_static_var(item: &EnumItem) -> syn::Result<TokenStream> 
         .concat_bool(#non_exhaustive)
         .concat_long_str(#docstring)
     });
-    Ok(create_metadata_items("enum", &name, metadata_expr, None))
+    Ok(create_metadata_items("enum", name, metadata_expr, None))
 }
 
 fn variant_value(v: &Variant) -> syn::Result<TokenStream> {
@@ -367,8 +366,22 @@ pub fn variant_metadata(item: &EnumItem) -> syn::Result<Vec<TokenStream>> {
                 .map(|f| f.ident.as_ref().map(ident_to_string).unwrap_or_default())
                 .collect::<Vec<_>>();
 
-            let name = ident_to_string(&v.ident);
+            let field_defaults = v
+                .fields
+                .iter()
+                .map(|f| {
+                    let attrs = f
+                        .attrs
+                        .parse_uniffi_attr_args::<FieldAttributeArguments>()?;
+                    default_value_metadata_calls(&attrs.default)
+                })
+                .collect::<syn::Result<Vec<_>>>()?;
+
+            let attrs = v.attrs.parse_uniffi_attr_args::<VariantAttr>()?;
+
+            let name = attrs.name.unwrap_or(ident_to_string(&v.ident));
             let value_tokens = variant_value(v)?;
+
             let docstring = extract_docstring(&v.attrs)?;
             let field_docstrings = v
                 .fields
@@ -384,8 +397,7 @@ pub fn variant_metadata(item: &EnumItem) -> syn::Result<Vec<TokenStream>> {
                     #(
                         .concat_str(#field_names)
                         .concat(#field_type_id_metas)
-                        // field defaults not yet supported for enums
-                        .concat_bool(false)
+                        #field_defaults
                         .concat_long_str(#field_docstrings)
                     )*
                 .concat_long_str(#docstring)
@@ -401,6 +413,7 @@ pub struct EnumAttr {
     // can reuse EnumItem for errors.
     pub flat_error: Option<kw::flat_error>,
     pub with_try_read: Option<kw::with_try_read>,
+    pub name: Option<String>,
 }
 
 impl UniffiAttributeArgs for EnumAttr {
@@ -419,6 +432,14 @@ impl UniffiAttributeArgs for EnumAttr {
         } else if lookahead.peek(kw::handle_unknown_callback_error) {
             // Not used anymore, but still allowed
             Ok(Self::default())
+        } else if lookahead.peek(kw::name) {
+            let _: kw::name = input.parse()?;
+            let _: Token![=] = input.parse()?;
+            let name = Some(input.parse::<LitStr>()?.value());
+            Ok(Self {
+                name,
+                ..Self::default()
+            })
         } else {
             Err(lookahead.error())
         }
@@ -428,6 +449,33 @@ impl UniffiAttributeArgs for EnumAttr {
         Ok(Self {
             flat_error: either_attribute_arg(self.flat_error, other.flat_error)?,
             with_try_read: either_attribute_arg(self.with_try_read, other.with_try_read)?,
+            name: either_attribute_arg(self.name, other.name)?,
+        })
+    }
+}
+
+/// Handle #[uniffi(...)] attributes for enum variants
+#[derive(Clone, Default)]
+pub struct VariantAttr {
+    pub name: Option<String>,
+}
+
+impl UniffiAttributeArgs for VariantAttr {
+    fn parse_one(input: ParseStream<'_>) -> syn::Result<Self> {
+        let lookahead = input.lookahead1();
+        if lookahead.peek(kw::name) {
+            let _: kw::name = input.parse()?;
+            let _: Token![=] = input.parse()?;
+            let name = Some(input.parse::<LitStr>()?.value());
+            Ok(Self { name })
+        } else {
+            Err(lookahead.error())
+        }
+    }
+
+    fn merge(self, other: Self) -> syn::Result<Self> {
+        Ok(Self {
+            name: either_attribute_arg(self.name, other.name)?,
         })
     }
 }

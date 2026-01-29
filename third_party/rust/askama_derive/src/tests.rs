@@ -67,13 +67,17 @@ fn compare_ex(
             }
         }
 
-        impl askama::filters::FastWritable for Foo {
+        impl askama::FastWritable for Foo {
             #[inline]
-            fn write_into<AskamaW>(&self, dest: &mut AskamaW) -> askama::Result<()>
+            fn write_into<AskamaW>(
+                &self,
+                dest: &mut AskamaW,
+                values: &dyn askama::Values,
+            ) -> askama::Result<()>
             where
                 AskamaW: askama::helpers::core::fmt::Write + ?askama::helpers::core::marker::Sized,
             {
-                askama::Template::render_into(self, dest)
+                askama::Template::render_into_with_values(self, dest, values)
             }
         }
     };

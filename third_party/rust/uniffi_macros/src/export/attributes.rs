@@ -131,6 +131,7 @@ impl UniffiAttributeArgs for ExportFnArgs {
 #[derive(Default)]
 pub struct ExportImplArgs {
     pub(crate) async_runtime: Option<AsyncRuntime>,
+    pub(crate) name: Option<String>,
 }
 
 impl Parse for ExportImplArgs {
@@ -147,6 +148,15 @@ impl UniffiAttributeArgs for ExportImplArgs {
             let _: Token![=] = input.parse()?;
             Ok(Self {
                 async_runtime: Some(input.parse()?),
+                ..Self::default()
+            })
+        } else if lookahead.peek(kw::name) {
+            let _: kw::name = input.parse()?;
+            let _: Token![=] = input.parse()?;
+            let name = Some(input.parse::<LitStr>()?.value());
+            Ok(Self {
+                name,
+                ..Self::default()
             })
         } else {
             Err(syn::Error::new(
@@ -159,6 +169,7 @@ impl UniffiAttributeArgs for ExportImplArgs {
     fn merge(self, other: Self) -> syn::Result<Self> {
         Ok(Self {
             async_runtime: either_attribute_arg(self.async_runtime, other.async_runtime)?,
+            name: either_attribute_arg(self.name, other.name)?,
         })
     }
 }
@@ -196,6 +207,11 @@ impl UniffiAttributeArgs for ExportStructArgs {
             input.parse::<Option<kw::Eq>>()?;
             Ok(Self {
                 traits: HashSet::from([UniffiTraitDiscriminants::Eq]),
+            })
+        } else if lookahead.peek(kw::Ord) {
+            input.parse::<Option<kw::Ord>>()?;
+            Ok(Self {
+                traits: HashSet::from([UniffiTraitDiscriminants::Ord]),
             })
         } else {
             Err(syn::Error::new(
@@ -380,16 +396,29 @@ impl Parse for DefaultMap {
 
 pub struct DefaultPair {
     pub name: Ident,
-    pub eq_token: Token![=],
     pub value: DefaultValue,
 }
 
 impl Parse for DefaultPair {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        Ok(Self {
-            name: input.parse()?,
-            eq_token: input.parse()?,
-            value: input.parse()?,
-        })
+        // I'm sure there is a better way here - either want (Ident = Value) or (Ident)
+        let lookahead = input.lookahead1();
+        if lookahead.peek(Ident) {
+            let name: Ident = input.parse()?;
+            if input.is_empty() {
+                return Ok(Self {
+                    name,
+                    value: DefaultValue::Default,
+                });
+            }
+            if !input.peek(Token![=]) {
+                return Err(lookahead.error());
+            };
+            let _eq: Token![=] = input.parse()?;
+            let value: DefaultValue = input.parse()?;
+            Ok(Self { name, value })
+        } else {
+            Err(lookahead.error())
+        }
     }
 }

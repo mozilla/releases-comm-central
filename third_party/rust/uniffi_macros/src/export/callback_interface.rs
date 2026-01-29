@@ -8,7 +8,7 @@ use crate::{
     fnsig::{FnKind, FnSignature, ReceiverArg},
     util::{
         async_trait_annotation, create_metadata_items, derive_ffi_traits, ident_to_string,
-        mod_path, tagged_impl_header, wasm_single_threaded_annotation,
+        tagged_impl_header, wasm_single_threaded_annotation,
     },
 };
 use proc_macro2::{Span, TokenStream};
@@ -26,6 +26,7 @@ pub(super) fn trait_impl(
     mod_path: &str,
     trait_ident: &Ident,
     items: &[ImplItem],
+    for_trait_interface: bool,
 ) -> syn::Result<TokenStream> {
     let trait_name = ident_to_string(trait_ident);
     let trait_impl_ident = trait_impl_ident(&trait_name);
@@ -46,6 +47,15 @@ pub(super) fn trait_impl(
         })
         .collect::<syn::Result<Vec<_>>>()?;
 
+    let uniffi_foreign_handle_method = for_trait_interface.then(|| {
+        quote! {
+            fn uniffi_foreign_handle(&self) -> ::std::option::Option<::uniffi::Handle> {
+                let vtable = #vtable_cell.get();
+                ::std::option::Option::Some(::uniffi::Handle::from_raw_unchecked((vtable.uniffi_clone)(self.handle)))
+            }
+        }
+    });
+
     let vtable_fields = methods.iter().map(|sig| {
         let ident = &sig.ident;
         let param_names = sig.scaffolding_param_names();
@@ -65,9 +75,9 @@ pub(super) fn trait_impl(
                 pub #ident: extern "C" fn(
                     uniffi_handle: u64,
                     #(#param_names: #param_types,)*
-                    uniffi_future_callback: ::uniffi::ForeignFutureCallback<#lift_return_type>,
+                    uniffi_callback: ::uniffi::ForeignFutureCallback<#lift_return_type>,
                     uniffi_callback_data: u64,
-                    uniffi_out_return: &mut ::uniffi::ForeignFuture,
+                    uniffi_out_dropped_callback: &mut ::uniffi::ForeignFutureDroppedCallbackStruct,
                 ),
             }
         }
@@ -87,8 +97,9 @@ pub(super) fn trait_impl(
     Ok(quote! {
         #[allow(missing_docs)]
         pub struct #vtable_type {
-            #(#vtable_fields)*
             pub uniffi_free: extern "C" fn(handle: u64),
+            pub uniffi_clone: extern "C" fn(handle: u64) -> u64,
+            #(#vtable_fields)*
         }
 
         static #vtable_cell: ::uniffi::UniffiForeignPointerCell::<#vtable_type> = ::uniffi::UniffiForeignPointerCell::<#vtable_type>::new();
@@ -116,6 +127,7 @@ pub(super) fn trait_impl(
         #impl_attributes
         impl #trait_ident for #trait_impl_ident {
             #(#trait_impl_methods)*
+            #uniffi_foreign_handle_method
         }
 
         impl ::std::ops::Drop for #trait_impl_ident {
@@ -144,12 +156,12 @@ pub fn ffi_converter_callback_interface_impl(
     let dyn_trait = quote! { dyn #trait_ident };
     let box_dyn_trait = quote! { ::std::boxed::Box<#dyn_trait> };
     let lift_impl_spec = tagged_impl_header("Lift", &box_dyn_trait, remote);
-    let type_id_impl_spec = tagged_impl_header("TypeId", &box_dyn_trait, remote);
+    let type_id_impl_specs = [
+        tagged_impl_header("TypeId", &box_dyn_trait, remote),
+        tagged_impl_header("TypeId", &dyn_trait, remote),
+    ]
+    .into_iter();
     let derive_ffi_traits = derive_ffi_traits(&box_dyn_trait, remote, &["LiftRef", "LiftReturn"]);
-    let mod_path = match mod_path() {
-        Ok(p) => p,
-        Err(e) => return e.into_compile_error(),
-    };
     let try_lift_self = ffiops::try_lift(quote! { Self });
 
     quote! {
@@ -169,15 +181,17 @@ pub fn ffi_converter_callback_interface_impl(
             }
         }
 
-        #[doc(hidden)]
-        #[automatically_derived]
-        #type_id_impl_spec {
-            const TYPE_ID_META: ::uniffi::MetadataBuffer = ::uniffi::MetadataBuffer::from_code(
-                ::uniffi::metadata::codes::TYPE_CALLBACK_INTERFACE,
-            )
-            .concat_str(#mod_path)
-            .concat_str(#trait_name);
-        }
+        #(
+            #[doc(hidden)]
+            #[automatically_derived]
+            #type_id_impl_specs {
+                const TYPE_ID_META: ::uniffi::MetadataBuffer = ::uniffi::MetadataBuffer::from_code(
+                    ::uniffi::metadata::codes::TYPE_CALLBACK_INTERFACE,
+                )
+                .concat_str(module_path!())
+                .concat_str(#trait_name);
+            }
+        )*
 
         #derive_ffi_traits
     }
@@ -241,10 +255,15 @@ fn gen_method_impl(sig: &FnSignature, vtable_cell: &Ident) -> syn::Result<TokenS
         Ok(quote! {
             async fn #ident(#self_param, #(#params),*) -> #return_ty {
                 let vtable = #vtable_cell.get();
-                ::uniffi::foreign_async_call::<_, #return_ty, crate::UniFfiTag>(move |uniffi_future_callback, uniffi_future_callback_data| {
-                    let mut uniffi_foreign_future: ::uniffi::ForeignFuture = ::uniffi::FfiDefault::ffi_default();
-                    (vtable.#ident)(self.handle, #(#lower_exprs,)* uniffi_future_callback, uniffi_future_callback_data, &mut uniffi_foreign_future);
-                    uniffi_foreign_future
+                ::uniffi::foreign_async_call::<_, #return_ty, crate::UniFfiTag>(
+                    move |uniffi_future_callback, uniffi_future_callback_data, uniffi_foreign_future_dropped_callback| {
+                        (vtable.#ident)(
+                            self.handle,
+                            #(#lower_exprs,)*
+                            uniffi_future_callback,
+                            uniffi_future_callback_data,
+                            uniffi_foreign_future_dropped_callback
+                        );
                 }).await
             }
         })
@@ -254,7 +273,6 @@ fn gen_method_impl(sig: &FnSignature, vtable_cell: &Ident) -> syn::Result<TokenS
 pub(super) fn metadata_items(
     self_ident: &Ident,
     items: &[ImplItem],
-    module_path: &str,
     docstring: String,
 ) -> syn::Result<Vec<TokenStream>> {
     let trait_name = ident_to_string(self_ident);
@@ -263,7 +281,7 @@ pub(super) fn metadata_items(
         &trait_name,
         quote! {
             ::uniffi::MetadataBuffer::from_code(::uniffi::metadata::codes::CALLBACK_INTERFACE)
-                .concat_str(#module_path)
+                .concat_str(module_path!())
                 .concat_str(#trait_name)
                 .concat_long_str(#docstring)
         },

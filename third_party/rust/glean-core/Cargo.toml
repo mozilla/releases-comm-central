@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.87"
 name = "glean-core"
-version = "66.3.0"
+version = "67.0.0"
 authors = [
     "Jan-Erik Rediger <jrediger@mozilla.com>",
     "The Glean Team <glean-team@mozilla.com>",
@@ -24,12 +24,12 @@ include = [
     "/LICENSE",
     "/src",
     "/examples",
-    "/benches",
     "/tests",
     "/Cargo.toml",
     "/uniffi.toml",
     "/build.rs",
 ]
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -43,10 +43,21 @@ repository = "https://github.com/mozilla/glean"
 [package.metadata.glean]
 glean-parser = "18.2.0"
 
+[badges.circle-ci]
+branch = "main"
+repository = "mozilla/glean"
+
+[badges.maintenance]
+status = "actively-developed"
+
+[features]
+benchmark = []
+enable_env_logger = ["env_logger"]
+gecko = []
+
 [lib]
 name = "glean_core"
 path = "src/lib.rs"
-bench = false
 
 [[example]]
 name = "rkv-open"
@@ -75,6 +86,10 @@ path = "tests/custom_distribution.rs"
 [[test]]
 name = "datetime"
 path = "tests/datetime.rs"
+
+[[test]]
+name = "docs"
+path = "tests/docs.rs"
 
 [[test]]
 name = "dual_labeled_counter"
@@ -140,11 +155,6 @@ path = "tests/timing_distribution.rs"
 name = "uuid"
 path = "tests/uuid.rs"
 
-[[bench]]
-name = "dispatcher"
-path = "benches/dispatcher.rs"
-harness = false
-
 [dependencies.bincode]
 version = "1.2.1"
 
@@ -194,7 +204,7 @@ version = "1.0.44"
 version = "2"
 
 [dependencies.uniffi]
-version = "0.29.3"
+version = "0.31.0"
 default-features = false
 
 [dependencies.uuid]
@@ -215,21 +225,23 @@ version = "0.10.0"
 features = ["humantime"]
 default-features = false
 
-[dev-dependencies.iso8601]
-version = "0.4"
+[dev-dependencies.pulldown-cmark]
+version = "0.13.0"
+default-features = false
+
+[dev-dependencies.pulldown-cmark-to-cmark]
+version = "22.0.0"
 
 [dev-dependencies.tempfile]
 version = "3.8.0"
 
+[dev-dependencies.xshell]
+version = "0.2.7"
+
 [build-dependencies.uniffi]
-version = "0.29.3"
+version = "0.31.0"
 features = ["build"]
 default-features = false
-
-[features]
-benchmark = []
-enable_env_logger = ["env_logger"]
-gecko = []
 
 [target.'cfg(target_os = "android")'.dependencies.android_logger]
 version = "0.12.0"
@@ -239,10 +251,3 @@ default-features = false
 version = "0.1.0"
 features = ["logger"]
 default-features = false
-
-[badges.circle-ci]
-branch = "main"
-repository = "mozilla/glean"
-
-[badges.maintenance]
-status = "actively-developed"

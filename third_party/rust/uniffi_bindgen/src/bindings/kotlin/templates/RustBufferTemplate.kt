@@ -25,7 +25,7 @@ open class RustBuffer : Structure() {
     companion object {
         internal fun alloc(size: ULong = 0UL) = uniffiRustCall() { status ->
             // Note: need to convert the size to a `Long` value to make this work with JVM.
-            UniffiLib.INSTANCE.{{ ci.ffi_rustbuffer_alloc().name() }}(size.toLong(), status)
+            UniffiLib.{{ ci.ffi_rustbuffer_alloc().name() }}(size.toLong(), status)
         }.also {
             if(it.data == null) {
                throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
@@ -41,49 +41,15 @@ open class RustBuffer : Structure() {
         }
 
         internal fun free(buf: RustBuffer.ByValue) = uniffiRustCall() { status ->
-            UniffiLib.INSTANCE.{{ ci.ffi_rustbuffer_free().name() }}(buf, status)
+            UniffiLib.{{ ci.ffi_rustbuffer_free().name() }}(buf, status)
         }
     }
 
     @Suppress("TooGenericExceptionThrown")
     fun asByteBuffer() =
-        this.data?.getByteBuffer(0, this.len.toLong())?.also {
+        this.data?.getByteBuffer(0, this.len)?.also {
             it.order(ByteOrder.BIG_ENDIAN)
         }
-}
-
-/**
- * The equivalent of the `*mut RustBuffer` type.
- * Required for callbacks taking in an out pointer.
- *
- * Size is the sum of all values in the struct.
- *
- * @suppress
- */
-class RustBufferByReference : ByReference(16) {
-    /**
-     * Set the pointed-to `RustBuffer` to the given value.
-     */
-    fun setValue(value: RustBuffer.ByValue) {
-        // NOTE: The offsets are as they are in the C-like struct.
-        val pointer = getPointer()
-        pointer.setLong(0, value.capacity)
-        pointer.setLong(8, value.len)
-        pointer.setPointer(16, value.data)
-    }
-
-    /**
-     * Get a `RustBuffer.ByValue` from this reference.
-     */
-    fun getValue(): RustBuffer.ByValue {
-        val pointer = getPointer()
-        val value = RustBuffer.ByValue()
-        value.writeField("capacity", pointer.getLong(0))
-        value.writeField("len", pointer.getLong(8))
-        value.writeField("data", pointer.getLong(16))
-
-        return value
-    }
 }
 
 // This is a helper for safely passing byte references into the rust code.

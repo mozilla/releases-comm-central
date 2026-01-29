@@ -5,27 +5,27 @@
 use super::*;
 use heck::ToUpperCamelCase;
 
-pub fn pass(module: &mut Module) -> Result<()> {
-    let namespace = module.crate_name.clone();
+pub fn pass(namespace: &mut Namespace) -> Result<()> {
+    let crate_name = namespace.crate_name.clone();
 
     // Change `is_async` to `async_data`
-    module.visit_mut(|callable: &mut Callable| {
+    namespace.visit_mut(|callable: &mut Callable| {
         callable.async_data = callable.is_async.then(|| {
             generate_async_data(
-                &namespace,
+                &crate_name,
                 callable.return_type.ty.as_ref().map(|ty| &ty.ffi_type),
             )
         });
     });
-    module.visit_mut(|ffi_func: &mut FfiFunction| {
+    namespace.visit_mut(|ffi_func: &mut FfiFunction| {
         ffi_func.async_data = ffi_func
             .is_async
-            .then(|| generate_async_data(&namespace, ffi_func.return_type.ty.as_ref()));
+            .then(|| generate_async_data(&crate_name, ffi_func.return_type.ty.as_ref()));
     });
     Ok(())
 }
 
-fn generate_async_data(namespace: &str, ffi_return_type: Option<&FfiTypeNode>) -> AsyncData {
+fn generate_async_data(crate_name: &str, ffi_return_type: Option<&FfiTypeNode>) -> AsyncData {
     let return_type_name = match &ffi_return_type.map(|ffi_type| &ffi_type.ty) {
         Some(FfiType::UInt8) => "u8",
         Some(FfiType::Int8) => "i8",
@@ -37,30 +37,35 @@ fn generate_async_data(namespace: &str, ffi_return_type: Option<&FfiTypeNode>) -
         Some(FfiType::Int64) => "i64",
         Some(FfiType::Float32) => "f32",
         Some(FfiType::Float64) => "f64",
-        Some(FfiType::RustArcPtr { .. }) => "pointer",
+        Some(FfiType::Handle(_)) => "u64",
         Some(FfiType::RustBuffer(_)) => "rust_buffer",
         None => "void",
         ty => panic!("Invalid future return type: {ty:?}"),
     };
+    let struct_crate_name = match &ffi_return_type.map(|ffi_type| &ffi_type.ty) {
+        Some(FfiType::RustBuffer(Some(rust_buffer_crate))) => rust_buffer_crate,
+        _ => "",
+    };
+
     AsyncData {
         ffi_rust_future_poll: RustFfiFunctionName(format!(
-            "ffi_{namespace}_rust_future_poll_{return_type_name}"
+            "ffi_{crate_name}_rust_future_poll_{return_type_name}"
         )),
         ffi_rust_future_cancel: RustFfiFunctionName(format!(
-            "ffi_{namespace}_rust_future_cancel_{return_type_name}"
+            "ffi_{crate_name}_rust_future_cancel_{return_type_name}"
         )),
         ffi_rust_future_complete: RustFfiFunctionName(format!(
-            "ffi_{namespace}_rust_future_complete_{return_type_name}"
+            "ffi_{crate_name}_rust_future_complete_{return_type_name}"
         )),
         ffi_rust_future_free: RustFfiFunctionName(format!(
-            "ffi_{namespace}_rust_future_free_{return_type_name}"
+            "ffi_{crate_name}_rust_future_free_{return_type_name}"
         )),
         ffi_foreign_future_result: FfiStructName(format!(
-            "ForeignFutureResult{}",
+            "ForeignFutureResult{struct_crate_name}{}",
             return_type_name.to_upper_camel_case()
         )),
         ffi_foreign_future_complete: FfiFunctionTypeName(format!(
-            "ForeignFutureComplete{return_type_name}"
+            "ForeignFutureComplete{struct_crate_name}{return_type_name}"
         )),
     }
 }

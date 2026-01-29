@@ -1,6 +1,6 @@
 # RustFuturePoll values
 _UNIFFI_RUST_FUTURE_POLL_READY = 0
-_UNIFFI_RUST_FUTURE_POLL_MAYBE_READY = 1
+_UNIFFI_RUST_FUTURE_POLL_WAKE = 1
 
 # Stores futures for _uniffi_continuation_callback
 _UniffiContinuationHandleMap = _UniffiHandleMap()
@@ -62,53 +62,67 @@ async def _uniffi_rust_call_async(rust_future, ffi_poll, ffi_complete, ffi_free,
     finally:
         ffi_free(rust_future)
 
-{%- if ci.has_async_callback_interface_definition() %}
-def _uniffi_trait_interface_call_async(make_call, handle_success, handle_error):
+{%- if has_async_callback_method %}
+def _uniffi_trait_interface_call_async(make_call, uniffi_out_dropped_callback, handle_success, handle_error):
     async def make_call_and_call_callback():
+        # Note: it's important we call either `handle_success` or `handle_error` exactly once.  Each
+        # call consumes an Arc reference, which means there should be no possibility of a double
+        # call.  The following code is structured so that will will never call both `handle_success`
+        # and `handle_error`, even in the face of weird exceptions.
+        #
+        # In extreme circumstances we may not call either, for example if we fail to make the ctypes
+        # call to `handle_success`.  This means we will leak the Arc reference, which is better than
+        # double-freeing it.
         try:
-            handle_success(await make_call())
+            call_result = await make_call()
         except Exception as e:
             print("UniFFI: Unhandled exception in trait interface call", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             handle_error(
                 _UniffiRustCallStatus.CALL_UNEXPECTED_ERROR,
-                {{ Type::String.borrow()|lower_fn }}(repr(e)),
+                {{ string_type_node.ffi_converter_name }}.lower(repr(e)),
             )
+        else:
+            handle_success(call_result)
     eventloop = _uniffi_get_event_loop()
     task = asyncio.run_coroutine_threadsafe(make_call_and_call_callback(), eventloop)
     handle = _UNIFFI_FOREIGN_FUTURE_HANDLE_MAP.insert((eventloop, task))
-    return _UniffiForeignFuture(handle, _uniffi_foreign_future_free)
+    uniffi_out_dropped_callback[0] = _UniffiForeignFutureDroppedCallbackStruct(handle, _uniffi_future_dropped_callback)
 
-def _uniffi_trait_interface_call_async_with_error(make_call, handle_success, handle_error, error_type, lower_error):
+def _uniffi_trait_interface_call_async_with_error(make_call, uniffi_out_dropped_callback, handle_success, handle_error, error_type, lower_error):
     async def make_call_and_call_callback():
+        # See the note in _uniffi_trait_interface_call_async for details on `handle_success` and
+        # `handle_error`.
         try:
             try:
-                handle_success(await make_call())
+                call_result = await make_call()
             except error_type as e:
                 handle_error(
                     _UniffiRustCallStatus.CALL_ERROR,
                     lower_error(e),
                 )
+            else:
+                handle_success(call_result)
         except Exception as e:
             print("UniFFI: Unhandled exception in trait interface call", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             handle_error(
                 _UniffiRustCallStatus.CALL_UNEXPECTED_ERROR,
-                {{ Type::String.borrow()|lower_fn }}(repr(e)),
+                {{ string_type_node.ffi_converter_name }}.lower(repr(e)),
             )
     eventloop = _uniffi_get_event_loop()
     task = asyncio.run_coroutine_threadsafe(make_call_and_call_callback(), eventloop)
     handle = _UNIFFI_FOREIGN_FUTURE_HANDLE_MAP.insert((eventloop, task))
-    return _UniffiForeignFuture(handle, _uniffi_foreign_future_free)
+    uniffi_out_dropped_callback[0] = _UniffiForeignFutureDroppedCallbackStruct(handle, _uniffi_future_dropped_callback)
 
 _UNIFFI_FOREIGN_FUTURE_HANDLE_MAP = _UniffiHandleMap()
 
-@_UNIFFI_FOREIGN_FUTURE_FREE
-def _uniffi_foreign_future_free(handle):
+@_UNIFFI_FOREIGN_FUTURE_DROPPED_CALLBACK
+def _uniffi_future_dropped_callback(handle):
     (eventloop, task) = _UNIFFI_FOREIGN_FUTURE_HANDLE_MAP.remove(handle)
-    eventloop.call_soon(_uniffi_foreign_future_do_free, task)
+    eventloop.call_soon(_uniffi_cancel_task, task)
 
-def _uniffi_foreign_future_do_free(task):
+def _uniffi_cancel_task(task):
     if not task.done():
         task.cancel()
 {%- endif %}

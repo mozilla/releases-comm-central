@@ -4,11 +4,11 @@
 
 use super::*;
 
-pub fn pass(module: &mut Module) -> Result<()> {
-    let namespace = module.crate_name.clone();
+pub fn pass(namespace: &mut Namespace) -> Result<()> {
+    let crate_name = namespace.crate_name.clone();
 
     // Add Future-related FFI definitions
-    module.ffi_definitions.extend([
+    namespace.ffi_definitions.extend([
         FfiFunctionType {
             name: FfiFunctionTypeName("RustFutureContinuationCallback".to_owned()),
             arguments: vec![
@@ -20,7 +20,7 @@ pub fn pass(module: &mut Module) -> Result<()> {
         }
         .into(),
         FfiFunctionType {
-            name: FfiFunctionTypeName("ForeignFutureFree".to_owned()),
+            name: FfiFunctionTypeName("ForeignFutureDroppedCallback".to_owned()),
             arguments: vec![FfiArgument::new(
                 "handle",
                 FfiType::Handle(HandleKind::ForeignFuture),
@@ -30,12 +30,14 @@ pub fn pass(module: &mut Module) -> Result<()> {
         }
         .into(),
         FfiStruct {
-            name: FfiStructName("ForeignFuture".to_owned()),
+            name: FfiStructName("ForeignFutureDroppedCallbackStruct".to_owned()),
             fields: vec![
                 FfiField::new("handle", FfiType::Handle(HandleKind::ForeignFuture)),
                 FfiField::new(
                     "free",
-                    FfiType::Function(FfiFunctionTypeName("ForeignFutureFree".to_owned())),
+                    FfiType::Function(FfiFunctionTypeName(
+                        "ForeignFutureDroppedCallback".to_owned(),
+                    )),
                 ),
             ],
         }
@@ -55,31 +57,42 @@ pub fn pass(module: &mut Module) -> Result<()> {
         (Some(FfiType::Float32), "f32"),
         (Some(FfiType::Float64), "f64"),
         (
-            Some(FfiType::RustArcPtr {
-                module_name: "".into(),
-                object_name: "".into(),
-            }),
-            "pointer",
+            Some(FfiType::Handle(HandleKind::StructInterface {
+                namespace: "".into(),
+                interface_name: "".into(),
+            })),
+            "u64",
+        ),
+        (
+            Some(FfiType::Handle(HandleKind::TraitInterface {
+                namespace: "".into(),
+                interface_name: "".into(),
+            })),
+            "u64",
         ),
         (Some(FfiType::RustBuffer(None)), "rust_buffer"),
         (None, "void"),
     ];
     for (return_type, return_type_name) in all_async_return_types {
-        let poll_name = format!("ffi_{namespace}_rust_future_poll_{return_type_name}");
-        module.ffi_definitions.push(ffi_rust_future_poll(poll_name));
-
-        let cancel_name = format!("ffi_{namespace}_rust_future_cancel_{return_type_name}");
-        module
+        let poll_name = format!("ffi_{crate_name}_rust_future_poll_{return_type_name}");
+        namespace
             .ffi_definitions
-            .push(ffi_rust_future_cancel(cancel_name));
+            .insert(ffi_rust_future_poll(poll_name));
 
-        let complete_name = format!("ffi_{namespace}_rust_future_complete_{return_type_name}");
-        module
+        let cancel_name = format!("ffi_{crate_name}_rust_future_cancel_{return_type_name}");
+        namespace
             .ffi_definitions
-            .push(ffi_rust_future_complete(return_type.clone(), complete_name));
+            .insert(ffi_rust_future_cancel(cancel_name));
 
-        let free_name = format!("ffi_{namespace}_rust_future_free_{return_type_name}");
-        module.ffi_definitions.push(ffi_rust_future_free(free_name));
+        let complete_name = format!("ffi_{crate_name}_rust_future_complete_{return_type_name}");
+        namespace
+            .ffi_definitions
+            .insert(ffi_rust_future_complete(return_type.clone(), complete_name));
+
+        let free_name = format!("ffi_{crate_name}_rust_future_free_{return_type_name}");
+        namespace
+            .ffi_definitions
+            .insert(ffi_rust_future_free(free_name));
     }
     Ok(())
 }

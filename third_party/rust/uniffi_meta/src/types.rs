@@ -155,12 +155,18 @@ impl Type {
         }
     }
 
+    pub fn crate_name(&self) -> Option<&str> {
+        self.module_path()
+            .map(|module_path| module_path.split("::").next().unwrap())
+    }
+
     fn rename(&mut self, new_name: String) {
         match self {
             Type::Object { name, .. } => *name = new_name,
             Type::Record { name, .. } => *name = new_name,
             Type::Enum { name, .. } => *name = new_name,
             Type::Custom { name, .. } => *name = new_name,
+            Type::CallbackInterface { name, .. } => *name = new_name,
             _ => {}
         }
     }

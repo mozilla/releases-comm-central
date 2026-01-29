@@ -180,8 +180,9 @@ pub fn method_ffi_callback(trait_name: &str, method: &Method, index: usize) -> F
                     ),
                     FfiArgument::new("uniffi_callback_data", FfiType::UInt64),
                     FfiArgument::new(
-                        "uniffi_out_return",
-                        FfiType::Struct("ForeignFuture".to_owned()).mut_reference(),
+                        "uniffi_out_dropped_callback",
+                        FfiType::Struct("ForeignFutureDroppedCallbackStruct".to_owned())
+                            .mut_reference(),
                     ),
                 ])
                 .collect(),
@@ -196,7 +197,7 @@ pub fn foreign_future_ffi_result_struct(return_ffi_type: Option<FfiType>) -> Ffi
     let return_type_name =
         FfiType::return_type_name(return_ffi_type.as_ref()).to_upper_camel_case();
     FfiStruct {
-        name: format!("ForeignFutureStruct{return_type_name}"),
+        name: format!("ForeignFutureResult{return_type_name}"),
         fields: match return_ffi_type {
             Some(return_ffi_type) => vec![
                 FfiField::new("return_value", return_ffi_type),
@@ -222,7 +223,7 @@ pub fn ffi_foreign_future_complete(return_ffi_type: Option<FfiType>) -> FfiCallb
             FfiArgument::new("callback_data", FfiType::UInt64),
             FfiArgument::new(
                 "result",
-                FfiType::Struct(format!("ForeignFutureStruct{return_type_name}")),
+                FfiType::Struct(format!("ForeignFutureResult{return_type_name}")),
             ),
         ],
         return_type: None,
@@ -237,20 +238,24 @@ pub fn ffi_foreign_future_complete(return_ffi_type: Option<FfiType>) -> FfiCallb
 pub fn vtable_struct(trait_name: &str, methods: &[Method]) -> FfiStruct {
     FfiStruct {
         name: vtable_name(trait_name),
-        fields: methods
-            .iter()
-            .enumerate()
-            .map(|(i, method)| {
-                FfiField::new(
-                    method.name(),
-                    FfiType::Callback(format!("CallbackInterface{trait_name}Method{i}")),
-                )
-            })
-            .chain([FfiField::new(
+        fields: [
+            FfiField::new(
                 "uniffi_free",
                 FfiType::Callback("CallbackInterfaceFree".to_owned()),
-            )])
-            .collect(),
+            ),
+            FfiField::new(
+                "uniffi_clone",
+                FfiType::Callback("CallbackInterfaceClone".to_owned()),
+            ),
+        ]
+        .into_iter()
+        .chain(methods.iter().enumerate().map(|(i, method)| {
+            FfiField::new(
+                method.name(),
+                FfiType::Callback(format!("CallbackInterface{trait_name}Method{i}")),
+            )
+        }))
+        .collect(),
     }
 }
 

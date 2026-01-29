@@ -46,9 +46,9 @@ pub fn mod_path() -> syn::Result<String> {
 
     static LIB_CRATE_MOD_PATH: Lazy<Result<String, String>> = Lazy::new(|| {
         let file = manifest_path()?;
-        let cargo_toml_bytes = fs::read(file).map_err(|e| e.to_string())?;
+        let cargo_toml_str = fs::read_to_string(file).map_err(|e| e.to_string())?;
 
-        let cargo_toml = toml::from_slice::<CargoToml>(&cargo_toml_bytes)
+        let cargo_toml = toml::from_str::<CargoToml>(&cargo_toml_str)
             .map_err(|e| format!("Failed to parse `Cargo.toml`: {e}"))?;
 
         let lib_crate_name = cargo_toml
@@ -265,6 +265,7 @@ pub mod kw {
     syn::custom_keyword!(Display);
     syn::custom_keyword!(Eq);
     syn::custom_keyword!(Hash);
+    syn::custom_keyword!(Ord);
     // Not used anymore
     syn::custom_keyword!(handle_unknown_callback_error);
 }
@@ -290,14 +291,19 @@ pub(crate) fn extract_docstring(attrs: &[Attribute]) -> syn::Result<String> {
     attrs
         .iter()
         .filter(|attr| attr.path().is_ident("doc"))
-        .map(|attr| {
-            let name_value = attr.meta.require_name_value()?;
+        .filter_map(|attr| {
+            let Ok(name_value) = attr.meta.require_name_value() else {
+                return None;
+            };
             if let Expr::Lit(expr) = &name_value.value {
                 if let Lit::Str(lit_str) = &expr.lit {
-                    return Ok(lit_str.value().trim().to_owned());
+                    return Some(Ok(lit_str.value().trim().to_owned()));
                 }
             }
-            Err(syn::Error::new_spanned(attr, "Cannot parse doc attribute"))
+            Some(Err(syn::Error::new_spanned(
+                attr,
+                "Cannot parse doc attribute",
+            )))
         })
         .collect::<syn::Result<Vec<_>>>()
         .map(|lines| lines.join("\n"))

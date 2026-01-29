@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+//! Initial IR, this is the Metadata from uniffi_meta with some slight changes:
+//!
+//! * The Type/Literal enums are wrapped in TypeNode/LiteralNode structs. This allows for future pipeline passes to add fields.
+//! * Metadata is normalized and grouped from a Rust module_path/crate_namse into namespace modules.
+
 use std::fs;
 
 mod from_uniffi_meta;
@@ -11,12 +16,12 @@ pub use nodes::*;
 use anyhow::Result;
 use camino::Utf8Path;
 
-use crate::{crate_name_from_cargo_toml, interface, macro_metadata, BindgenCrateConfigSupplier};
-use from_uniffi_meta::UniffiMetaConverter;
+use crate::{crate_name_from_cargo_toml, interface, macro_metadata, BindgenPaths};
+pub use from_uniffi_meta::UniffiMetaConverter;
 
 impl Root {
     pub fn from_library(
-        config_supplier: impl BindgenCrateConfigSupplier,
+        bindgen_paths: BindgenPaths,
         path: &Utf8Path,
         crate_name: Option<String>,
     ) -> Result<Root> {
@@ -28,17 +33,18 @@ impl Root {
 
         let mut udl_to_load = vec![];
 
-        for meta in macro_metadata::extract_from_library(path)? {
+        for meta in all_metadata {
             match meta {
                 uniffi_meta::Metadata::UdlFile(udl) => {
                     udl_to_load.push((
-                        config_supplier.get_udl(&udl.module_path, &udl.file_stub)?,
+                        bindgen_paths.get_udl(&udl.module_path, &udl.file_stub)?,
                         udl.module_path,
                     ));
                 }
                 uniffi_meta::Metadata::Namespace(namespace) => {
-                    if let Some(path) = config_supplier.get_toml_path(&namespace.crate_name) {
-                        metadata_converter.add_module_config_toml(namespace.name.clone(), &path)?;
+                    let table = bindgen_paths.get_config(&namespace.crate_name)?;
+                    if !table.is_empty() {
+                        metadata_converter.add_module_config_toml(namespace.name.clone(), table)?;
                     }
                     metadata_converter
                         .add_metadata_item(uniffi_meta::Metadata::Namespace(namespace))?;
@@ -50,7 +56,7 @@ impl Root {
         for (udl, module_path) in udl_to_load {
             Self::add_metadata_from_udl(
                 &mut metadata_converter,
-                &config_supplier,
+                &bindgen_paths,
                 &udl,
                 &module_path,
                 true,
@@ -62,7 +68,7 @@ impl Root {
     }
 
     pub fn from_udl(
-        config_supplier: impl BindgenCrateConfigSupplier,
+        bindgen_paths: BindgenPaths,
         path: &Utf8Path,
         crate_name: Option<String>,
     ) -> Result<Root> {
@@ -73,7 +79,7 @@ impl Root {
         };
         Self::add_metadata_from_udl(
             &mut metadata_converter,
-            &config_supplier,
+            &bindgen_paths,
             &fs::read_to_string(path)?,
             &crate_name,
             false,
@@ -83,7 +89,7 @@ impl Root {
 
     fn add_metadata_from_udl(
         metadata_converter: &mut UniffiMetaConverter,
-        config_supplier: &impl BindgenCrateConfigSupplier,
+        bindgen_paths: &BindgenPaths,
         udl: &str,
         crate_name: &str,
         library_mode: bool,
@@ -93,24 +99,18 @@ impl Root {
         // start with a raw metadata list
         if let Some(docstring) = metadata_group.namespace_docstring {
             metadata_converter
-                .add_module_docstring(metadata_group.namespace.name.clone(), docstring);
+                .add_module_docstring(metadata_group.namespace.name.clone(), docstring)?;
         }
         if !library_mode {
-            if let Some(path) = config_supplier.get_toml_path(&metadata_group.namespace.crate_name)
-            {
+            let table = bindgen_paths.get_config(&metadata_group.namespace.crate_name)?;
+            if !table.is_empty() {
                 metadata_converter
-                    .add_module_config_toml(metadata_group.namespace.name.clone(), &path)?;
+                    .add_module_config_toml(metadata_group.namespace.name.clone(), table)?;
             }
         }
         metadata_converter
             .add_metadata_item(uniffi_meta::Metadata::Namespace(metadata_group.namespace))?;
         for mut meta in metadata_group.items {
-            // some items are both in UDL and library metadata. For many that's fine but
-            // uniffi-traits aren't trivial to compare meaning we end up with dupes.
-            // We filter out such problematic items here.
-            if library_mode && matches!(meta, uniffi_meta::Metadata::UniffiTrait { .. }) {
-                continue;
-            }
             // Make sure metadata checksums are set
             match &mut meta {
                 uniffi_meta::Metadata::Func(func) => {
@@ -119,9 +119,11 @@ impl Root {
                     )));
                 }
                 uniffi_meta::Metadata::Method(meth) => {
-                    meth.checksum = Some(uniffi_meta::checksum(&interface::Method::from(
-                        meth.clone(),
-                    )));
+                    // making a method is mildly tricky as we need a type for self.
+                    // for the purposes of a checksum we ignore self info from udl.
+                    let method_object =
+                        interface::Method::from_metadata(meth.clone(), uniffi_meta::Type::UInt8);
+                    meth.checksum = Some(uniffi_meta::checksum(&method_object));
                 }
                 uniffi_meta::Metadata::Constructor(cons) => {
                     cons.checksum = Some(uniffi_meta::checksum(&interface::Constructor::from(

@@ -119,10 +119,6 @@ impl<'a> MetadataReader<'a> {
         String::from_utf8(slice.into()).context("Invalid string data")
     }
 
-    fn read_optional_string(&mut self) -> Result<Option<String>> {
-        Ok(Some(self.read_string()?).filter(|str| !str.is_empty()))
-    }
-
     fn read_long_string(&mut self) -> Result<String> {
         let size = self.read_u16()? as usize;
         let slice;
@@ -280,7 +276,7 @@ impl<'a> MetadataReader<'a> {
     }
 
     fn read_method(&mut self) -> Result<MethodMetadata> {
-        let module_path = self.read_string()?;
+        let self_module_path = self.read_string()?;
         let self_name = self.read_string()?;
         let name = self.read_string()?;
         let is_async = self.read_bool()?;
@@ -288,7 +284,7 @@ impl<'a> MetadataReader<'a> {
         let (return_type, throws) = self.read_return_type()?;
         let docstring = self.read_optional_long_string()?;
         Ok(MethodMetadata {
-            module_path,
+            module_path: self_module_path,
             self_name,
             name,
             is_async,
@@ -378,6 +374,9 @@ impl<'a> MetadataReader<'a> {
             UniffiTraitDiscriminants::Hash => UniffiTraitMetadata::Hash {
                 hash: read_metadata_method()?,
             },
+            UniffiTraitDiscriminants::Ord => UniffiTraitMetadata::Ord {
+                cmp: read_metadata_method()?,
+            },
         })
     }
 
@@ -416,8 +415,7 @@ impl<'a> MetadataReader<'a> {
     fn read_object_trait_impl(&mut self) -> Result<ObjectTraitImplMetadata> {
         Ok(ObjectTraitImplMetadata {
             ty: self.read_type()?,
-            trait_name: self.read_string()?,
-            tr_module_path: self.read_optional_string()?,
+            trait_ty: self.read_type()?,
         })
     }
 
@@ -444,7 +442,7 @@ impl<'a> MetadataReader<'a> {
             .map(|_| {
                 Ok(VariantMetadata {
                     name: self.read_string()?,
-                    discr: self.read_optional_default("<variant-value>", &Type::UInt64)?,
+                    discr: self.read_optional_literal("<variant-value>", &Type::UInt64)?,
                     fields: self.read_fields()?,
                     docstring: self.read_optional_long_string()?,
                 })
@@ -491,7 +489,11 @@ impl<'a> MetadataReader<'a> {
         Some(checksum_metadata(metadata_buf))
     }
 
-    fn read_optional_default(&mut self, name: &str, ty: &Type) -> Result<Option<LiteralMetadata>> {
+    fn read_optional_default(
+        &mut self,
+        name: &str,
+        ty: &Type,
+    ) -> Result<Option<DefaultValueMetadata>> {
         if self.read_bool()? {
             Ok(Some(self.read_default(name, ty)?))
         } else {
@@ -499,8 +501,32 @@ impl<'a> MetadataReader<'a> {
         }
     }
 
-    fn read_default(&mut self, name: &str, ty: &Type) -> Result<LiteralMetadata> {
+    fn read_default(&mut self, name: &str, ty: &Type) -> Result<DefaultValueMetadata> {
+        let default_kind = self.read_u8()?;
+
+        Ok(match default_kind {
+            codes::DEFVALUE_DEFAULT => DefaultValueMetadata::Default,
+            codes::DEFVALUE_LITERAL => DefaultValueMetadata::Literal(self.read_literal(name, ty)?),
+            _ => bail!("Unexpected default value kind code: {default_kind:?}"),
+        })
+    }
+
+    fn read_optional_literal(&mut self, name: &str, ty: &Type) -> Result<Option<LiteralMetadata>> {
+        if self.read_bool()? {
+            Ok(Some(self.read_literal(name, ty)?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn read_literal(&mut self, name: &str, ty: &Type) -> Result<LiteralMetadata> {
         let literal_kind = self.read_u8()?;
+
+        let ty = if let Type::Custom { builtin, .. } = ty {
+            builtin
+        } else {
+            ty
+        };
 
         Ok(match literal_kind {
             codes::LIT_STR => {

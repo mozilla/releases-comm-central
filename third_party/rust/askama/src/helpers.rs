@@ -13,8 +13,8 @@ use core::ops::Deref;
 use core::pin::Pin;
 
 pub use crate::error::{ErrorMarker, ResultConverter};
-use crate::filters::FastWritable;
 pub use crate::values::get_value;
+use crate::{FastWritable, Values};
 
 pub struct TemplateLoop<I>
 where
@@ -245,7 +245,19 @@ impl fmt::Display for Empty {
 
 impl FastWritable for Empty {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(&self, _: &mut W) -> crate::Result<()> {
+    fn write_into<W: fmt::Write + ?Sized>(&self, _: &mut W, _: &dyn Values) -> crate::Result<()> {
+        Ok(())
+    }
+}
+
+impl fmt::Write for Empty {
+    #[inline]
+    fn write_str(&mut self, _: &str) -> fmt::Result {
+        Ok(())
+    }
+
+    #[inline]
+    fn write_char(&mut self, _: char) -> fmt::Result {
         Ok(())
     }
 }
@@ -267,9 +279,13 @@ impl<L: fmt::Display, R: fmt::Display> fmt::Display for Concat<L, R> {
 
 impl<L: FastWritable, R: FastWritable> FastWritable for Concat<L, R> {
     #[inline]
-    fn write_into<W: fmt::Write + ?Sized>(&self, dest: &mut W) -> crate::Result<()> {
-        self.0.write_into(dest)?;
-        self.1.write_into(dest)
+    fn write_into<W: fmt::Write + ?Sized>(
+        &self,
+        dest: &mut W,
+        values: &dyn Values,
+    ) -> crate::Result<()> {
+        self.0.write_into(dest, values)?;
+        self.1.write_into(dest, values)
     }
 }
 
