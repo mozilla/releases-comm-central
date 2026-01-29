@@ -11,9 +11,9 @@
 
 [package]
 edition = "2021"
-rust-version = "1.81"
+rust-version = "1.83"
 name = "askama_parser"
-version = "0.13.0"
+version = "0.14.0"
 build = false
 autolib = false
 autobins = false
