@@ -6,13 +6,13 @@
 //! For a usage example, see the [UrlPattern] documentation.
 
 mod canonicalize_and_process;
-mod component;
+pub mod component;
 mod constructor_parser;
 mod error;
-mod matcher;
-mod parser;
+pub mod matcher;
+pub mod parser;
 pub mod quirks;
-mod regexp;
+pub mod regexp;
 mod tokenizer;
 
 pub use error::Error;
@@ -20,17 +20,21 @@ use serde::Deserialize;
 use serde::Serialize;
 use url::Url;
 
+use crate::canonicalize_and_process::ProcessType;
 use crate::canonicalize_and_process::is_special_scheme;
 use crate::canonicalize_and_process::process_base_url;
 use crate::canonicalize_and_process::special_scheme_default_port;
-use crate::canonicalize_and_process::ProcessType;
 use crate::component::Component;
 use crate::regexp::RegExp;
+
+pub use parser::RegexSyntax;
 
 /// Options to create a URL pattern.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UrlPatternOptions {
+  #[serde(default)]
+  pub regex_syntax: RegexSyntax,
   pub ignore_case: bool,
 }
 
@@ -284,14 +288,14 @@ fn is_absolute_pathname(
 /// ```
 #[derive(Debug)]
 pub struct UrlPattern<R: RegExp = regex::Regex> {
-  protocol: Component<R>,
-  username: Component<R>,
-  password: Component<R>,
-  hostname: Component<R>,
-  port: Component<R>,
-  pathname: Component<R>,
-  search: Component<R>,
-  hash: Component<R>,
+  pub protocol: Component<R>,
+  pub username: Component<R>,
+  pub password: Component<R>,
+  pub hostname: Component<R>,
+  pub port: Component<R>,
+  pub pathname: Component<R>,
+  pub search: Component<R>,
+  pub hash: Component<R>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -340,7 +344,10 @@ impl<R: RegExp> UrlPattern<R> {
     let protocol = Component::compile(
       processed_init.protocol.as_deref(),
       canonicalize_and_process::canonicalize_protocol,
-      parser::Options::default(),
+      parser::Options {
+        regex_syntax: options.regex_syntax,
+        ..parser::Options::default()
+      },
     )?
     .optionally_transpose_regex_error(report_regex_errors)?;
 
@@ -354,20 +361,27 @@ impl<R: RegExp> UrlPattern<R> {
       Component::compile(
         processed_init.hostname.as_deref(),
         canonicalize_and_process::canonicalize_ipv6_hostname,
-        parser::Options::hostname(),
+        parser::Options {
+          regex_syntax: options.regex_syntax,
+          ..parser::Options::hostname()
+        },
       )?
       .optionally_transpose_regex_error(report_regex_errors)?
     } else {
       Component::compile(
         processed_init.hostname.as_deref(),
         canonicalize_and_process::canonicalize_hostname,
-        parser::Options::hostname(),
+        parser::Options {
+          regex_syntax: options.regex_syntax,
+          ..parser::Options::hostname()
+        },
       )?
       .optionally_transpose_regex_error(report_regex_errors)?
     };
 
     let compile_options = parser::Options {
       ignore_case: options.ignore_case,
+      regex_syntax: options.regex_syntax,
       ..Default::default()
     };
 
@@ -391,6 +405,7 @@ impl<R: RegExp> UrlPattern<R> {
           canonicalize_and_process::canonicalize_pathname,
           parser::Options {
             ignore_case: options.ignore_case,
+            regex_syntax: options.regex_syntax,
             ..parser::Options::pathname()
           },
         )?
@@ -410,20 +425,29 @@ impl<R: RegExp> UrlPattern<R> {
       username: Component::compile(
         processed_init.username.as_deref(),
         canonicalize_and_process::canonicalize_username,
-        parser::Options::default(),
+        parser::Options {
+          regex_syntax: options.regex_syntax,
+          ..parser::Options::default()
+        },
       )?
       .optionally_transpose_regex_error(report_regex_errors)?,
       password: Component::compile(
         processed_init.password.as_deref(),
         canonicalize_and_process::canonicalize_password,
-        parser::Options::default(),
+        parser::Options {
+          regex_syntax: options.regex_syntax,
+          ..parser::Options::default()
+        },
       )?
       .optionally_transpose_regex_error(report_regex_errors)?,
       hostname,
       port: Component::compile(
         processed_init.port.as_deref(),
         |port| canonicalize_and_process::canonicalize_port(port, None),
-        parser::Options::default(),
+        parser::Options {
+          regex_syntax: options.regex_syntax,
+          ..parser::Options::default()
+        },
       )?
       .optionally_transpose_regex_error(report_regex_errors)?,
       pathname,
@@ -624,11 +648,11 @@ mod tests {
   use serde::Serialize;
   use url::Url;
 
-  use crate::quirks;
-  use crate::quirks::StringOrInit;
   use crate::UrlPatternComponentResult;
   use crate::UrlPatternOptions;
   use crate::UrlPatternResult;
+  use crate::quirks;
+  use crate::quirks::StringOrInit;
 
   use super::UrlPattern;
   use super::UrlPatternInit;
@@ -907,7 +931,7 @@ mod tests {
         println!("✅ Passed");
         return;
       }
-    };
+    }
 
     let input = match_input.expect("failed to parse match input");
 
@@ -933,7 +957,7 @@ mod tests {
         println!("✅ Passed");
         return;
       }
-    };
+    }
 
     let expected_match = case.expected_match.map(|x| match x {
       ExpectedMatch::String(_) => unreachable!(),

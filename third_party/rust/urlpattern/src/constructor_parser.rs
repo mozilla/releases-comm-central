@@ -1,10 +1,10 @@
 // Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
 
+use crate::UrlPatternInit;
 use crate::error::Error;
 use crate::regexp::RegExp;
 use crate::tokenizer::Token;
 use crate::tokenizer::TokenType;
-use crate::UrlPatternInit;
 
 // Ref: https://wicg.github.io/urlpattern/#constructor-string-parser-state
 #[derive(Debug, Eq, PartialEq)]

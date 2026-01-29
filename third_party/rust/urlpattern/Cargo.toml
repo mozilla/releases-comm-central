@@ -10,9 +10,9 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "urlpattern"
-version = "0.4.2"
+version = "0.5.2"
 authors = [
     "the Deno authors",
     "crowlKats <crowlkats@toaxl.com>",
@@ -32,6 +32,11 @@ repository = "https://github.com/denoland/rust-urlpattern"
 name = "urlpattern"
 path = "src/lib.rs"
 
+[[bench]]
+name = "parse_patterns"
+path = "benches/parse_patterns.rs"
+harness = false
+
 [dependencies.icu_properties]
 version = "2"
 
@@ -44,6 +49,9 @@ features = ["derive"]
 
 [dependencies.url]
 version = "2.5.6"
+
+[dev-dependencies.criterion]
+version = "0.5"
 
 [dev-dependencies.serde_json]
 version = "1.0.66"

@@ -1,22 +1,22 @@
 // Copyright 2018-2021 the Deno authors. All rights reserved. MIT license.
 
+use crate::Error;
 use crate::canonicalize_and_process::escape_pattern_string;
 use crate::matcher::InnerMatcher;
 use crate::matcher::Matcher;
+use crate::parser::FULL_WILDCARD_REGEXP_VALUE;
 use crate::parser::Options;
 use crate::parser::Part;
 use crate::parser::PartModifier;
 use crate::parser::PartType;
 use crate::parser::RegexSyntax;
-use crate::parser::FULL_WILDCARD_REGEXP_VALUE;
 use crate::regexp::RegExp;
 use crate::tokenizer::is_valid_name_codepoint;
-use crate::Error;
 use std::fmt::Write;
 
 // Ref: https://wicg.github.io/urlpattern/#component
 #[derive(Debug)]
-pub(crate) struct Component<R: RegExp> {
+pub struct Component<R: RegExp> {
   pub pattern_string: String,
   pub regexp: Result<R, Error>,
   pub group_name_list: Vec<String>,
@@ -69,11 +69,9 @@ impl<R: RegExp> Component<R> {
   pub(crate) fn protocol_component_matches_special_scheme(&self) -> bool {
     const SPECIAL_SCHEMES: [&str; 6] =
       ["ftp", "file", "http", "https", "ws", "wss"];
-    if let Ok(regex) = &self.regexp {
-      for scheme in SPECIAL_SCHEMES {
-        if regex.matches(scheme).is_some() {
-          return true;
-        }
+    for scheme in SPECIAL_SCHEMES {
+      if self.matcher.matches(scheme).is_some() {
+        return true;
       }
     }
     false

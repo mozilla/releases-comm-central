@@ -5,11 +5,11 @@ use serde::Deserialize;
 use serde::Serialize;
 use url::Url;
 
-use crate::component::Component;
-use crate::parser::RegexSyntax;
-use crate::regexp::RegExp;
 pub use crate::Error;
 use crate::UrlPatternOptions;
+pub use crate::component::Component;
+use crate::parser::RegexSyntax;
+use crate::regexp::RegExp;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UrlPatternInit {
@@ -102,11 +102,15 @@ pub struct UrlPatternComponent {
   pub group_name_list: Vec<String>,
 }
 
-impl From<Component<EcmaRegexp>> for UrlPatternComponent {
-  fn from(component: Component<EcmaRegexp>) -> Self {
+impl<R: RegExp> From<Component<R>> for UrlPatternComponent {
+  fn from(component: Component<R>) -> Self {
+    let regexp_string = component
+      .regexp
+      .map(|r| r.pattern_string())
+      .unwrap_or_default();
     Self {
       pattern_string: component.pattern_string,
-      regexp_string: component.regexp.unwrap().0,
+      regexp_string,
       matcher: component.matcher.into(),
       group_name_list: component.group_name_list,
     }
@@ -138,8 +142,8 @@ pub enum InnerMatcher {
   },
 }
 
-impl From<crate::matcher::Matcher<EcmaRegexp>> for Matcher {
-  fn from(matcher: crate::matcher::Matcher<EcmaRegexp>) -> Self {
+impl<R: RegExp> From<crate::matcher::Matcher<R>> for Matcher {
+  fn from(matcher: crate::matcher::Matcher<R>) -> Self {
     Self {
       prefix: matcher.prefix,
       suffix: matcher.suffix,
@@ -148,8 +152,8 @@ impl From<crate::matcher::Matcher<EcmaRegexp>> for Matcher {
   }
 }
 
-impl From<crate::matcher::InnerMatcher<EcmaRegexp>> for InnerMatcher {
-  fn from(inner: crate::matcher::InnerMatcher<EcmaRegexp>) -> Self {
+impl<R: RegExp> From<crate::matcher::InnerMatcher<R>> for InnerMatcher {
+  fn from(inner: crate::matcher::InnerMatcher<R>) -> Self {
     match inner {
       crate::matcher::InnerMatcher::Literal { literal } => {
         Self::Literal { literal }
@@ -162,13 +166,13 @@ impl From<crate::matcher::InnerMatcher<EcmaRegexp>> for InnerMatcher {
         allow_empty,
       },
       crate::matcher::InnerMatcher::RegExp { regexp } => Self::RegExp {
-        regexp: regexp.unwrap().0,
+        regexp: regexp.map(|r| r.pattern_string()).unwrap_or_default(),
       },
     }
   }
 }
 
-struct EcmaRegexp(String, String);
+pub struct EcmaRegexp(String, String);
 
 impl RegExp for EcmaRegexp {
   fn syntax() -> RegexSyntax {
@@ -191,15 +195,18 @@ impl RegExp for EcmaRegexp {
     let regexp = regex::Regex::parse(&self.0, &self.1, false).ok()?;
     regexp.matches(text)
   }
+
+  fn pattern_string(&self) -> String {
+    self.0.clone()
+  }
 }
 
 /// Parse a pattern into its components.
-pub fn parse_pattern(
+pub fn parse_pattern<R: RegExp>(
   init: crate::UrlPatternInit,
   options: UrlPatternOptions,
 ) -> Result<UrlPattern, Error> {
-  let pattern =
-    crate::UrlPattern::<EcmaRegexp>::parse_internal(init, true, options)?;
+  let pattern = crate::UrlPattern::<R>::parse_internal(init, true, options)?;
 
   let urlpattern = UrlPattern {
     has_regexp_groups: pattern.has_regexp_groups(),
@@ -213,6 +220,14 @@ pub fn parse_pattern(
     hash: pattern.hash.into(),
   };
   Ok(urlpattern)
+}
+
+pub fn parse_pattern_as_lib<R: RegExp>(
+  init: crate::UrlPatternInit,
+  options: UrlPatternOptions,
+) -> Result<crate::UrlPattern<R>, Error> {
+  let pattern = crate::UrlPattern::<R>::parse_internal(init, true, options)?;
+  Ok(pattern)
 }
 
 pub type Inputs = (StringOrInit, Option<String>);
