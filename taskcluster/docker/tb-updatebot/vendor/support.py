@@ -22,8 +22,8 @@ from taskcluster.helper import TaskclusterConfig
 
 import taskcluster
 
-SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
-ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task/"
+SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret"
+ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task"
 
 TB_SHERIFF_MATRIX_ID = "!TWztIhgqLawNpRBZTC:mozilla.org"
 
