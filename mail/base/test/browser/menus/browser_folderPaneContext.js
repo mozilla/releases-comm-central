@@ -288,6 +288,17 @@ add_task(async function testNewRenameDelete() {
         const parentInput = doc.getElementById("msgNewFolderPicker");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
+        Assert.greaterOrEqual(
+          win.innerWidth,
+          300,
+          "new folder dialog should have reasonable width"
+        );
+        Assert.greaterOrEqual(
+          win.innerHeight,
+          120,
+          "new folder dialog should have reasonable height"
+        );
+
         Assert.equal(
           doc.activeElement.id,
           nameInput.id,

@@ -9,6 +9,20 @@ var { clearStatusBar } = ChromeUtils.importESModule(
   "resource://testing-common/mail/CleanupHelpers.sys.mjs"
 );
 
+add_setup(async () => {
+  // Remove state information (for example position and size) for the compose and
+  // message window, which might have leaked in from previous tests.
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messageWindow.xhtml"
+  );
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/newFolderDialog.xhtml"
+  );
+});
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
