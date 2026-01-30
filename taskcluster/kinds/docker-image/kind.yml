@@ -22,6 +22,9 @@ reference-tasks:
     - debian12-packages
     - debian12-raw
     - debian12-repackage
+    - debian13-raw
+    - debian13-base
+    - debian13-amd64-build
     - fetch
     - fetch-more
     - funsize-update-generator
