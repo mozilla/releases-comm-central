@@ -57,7 +57,7 @@ var gInbox;
 add_setup(async function () {
   SmimeUtils.ensureNSS();
   SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/smime/Bob.p12")),
+    new FileUtils.File(getTestFilePath("../smime/data/Bob.p12")),
     "nss"
   );
 
@@ -104,7 +104,7 @@ add_setup(async function () {
  */
 add_task(async function testSmimeOpenPgpSelection() {
   const smimeFile = new FileUtils.File(
-    getTestFilePath("data/smime/alice.env.eml")
+    getTestFilePath("../smime/data/alice.env.eml")
   );
   // Fetch a local OpenPGP message.
   const openPgpFile = new FileUtils.File(
@@ -263,7 +263,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
 add_task(async function testMessageSecurityShortcut() {
   // Add an S/MIME message to the inbox folder.
   const smimeFile = new FileUtils.File(
-    getTestFilePath("data/smime/alice.env.eml")
+    getTestFilePath("../smime/data/alice.env.eml")
   );
 
   // Add the fetched S/MIME message to the inbox folder.
