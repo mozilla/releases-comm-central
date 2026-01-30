@@ -20,7 +20,8 @@ It uses an outer signature block from any another S/MIME signed message,
 for the purposes of the test it doesn't matter that the signature
 mismatches.
 To update this message, replace the inner encrypted block with the
-data block from alice.env.eml
+data block from source file alice.env.eml
+In addition, also replace the Date: line from that source file.
 
 
 outer-smime-bad-sig-inner-smime-enc-sig.eml
@@ -28,7 +29,8 @@ It uses an outer signature block from any another S/MIME signed message,
 for the purposes of the test it doesn't matter that the signature
 mismatches.
 To update this message, replace the inner encrypted block with the
-data block from alice.dsig.SHA256.multipart.env.eml
+data block from source file alice.dsig.SHA256.multipart.env.eml
+In addition, also replace the Date: line from that source file.
 
 
 TODO:
