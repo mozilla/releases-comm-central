@@ -27,14 +27,21 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { VirtualFolderHelper } = ChromeUtils.importESModule(
   "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
+);
+
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () =>
+    new Localization(
+      ["messenger/virtualFolderProperties.ftl", "messenger/searchWidgets.ftl"],
+      true
+    )
 );
 
 window.addEventListener("DOMContentLoaded", onLoad);
@@ -371,11 +378,13 @@ function onFolderListDialogCallback(searchFolderURIs) {
 function updateFoldersCount() {
   const srchFolderUriArray = gSearchFolderURIs.split("|");
   const folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
-  const foldersList = document.getElementById("chosenFoldersCount");
-  foldersList.textContent = PluralForm.get(
-    folderCount,
-    gMessengerBundle.GetStringFromName("virtualFolderSourcesChosen")
-  ).replace("#1", folderCount);
+  const chosenFoldersCount = document.getElementById("chosenFoldersCount");
+  chosenFoldersCount.textContent = l10n.formatValueSync(
+    "virtual-folder-sources-chosen",
+    {
+      count: folderCount,
+    }
+  );
   if (folderCount > 0) {
     const folderNames = [];
     for (const folderURI of srchFolderUriArray) {
@@ -386,9 +395,9 @@ function updateFoldersCount() {
       );
       folderNames.push(name);
     }
-    foldersList.setAttribute("tooltiptext", folderNames.join("\n"));
+    chosenFoldersCount.setAttribute("tooltiptext", folderNames.join("\n"));
   } else {
-    foldersList.removeAttribute("tooltiptext");
+    chosenFoldersCount.removeAttribute("tooltiptext");
   }
 }
 

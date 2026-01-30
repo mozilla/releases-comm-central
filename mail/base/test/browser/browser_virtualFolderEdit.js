@@ -61,6 +61,10 @@ add_task(async function () {
         const folderListButton = doc.getElementById("folderListPicker");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
+        if (doc.hasPendingL10nMutations) {
+          await BrowserTestUtils.waitForEvent(doc, "L10nMutationsFinished");
+        }
+
         Assert.equal(chosenFoldersCount.textContent, "2 folders chosen");
 
         // Open the folder selection dialog.
