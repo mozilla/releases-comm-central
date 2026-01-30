@@ -218,21 +218,17 @@ var commandController = {
      *
      * @param {nsIMsgFolder} destFolder - the destination folder
      */
-    cmd_copyMessage(destFolder) {
+    async cmd_copyMessage(destFolder) {
       if (window.gMessageURI?.startsWith("file:")) {
         const file = Services.io
           .newURI(window.gMessageURI)
           .QueryInterface(Ci.nsIFileURL).file;
-        MailServices.copy.copyFileMessage(
+        await MailUtils.copyFileMessageAsync(
           file,
           destFolder,
-          null,
-          false,
-          Ci.nsMsgMessageFlags.Read,
-          "",
-          null,
           top.msgWindow
-        );
+        ).catch(console.warn);
+        await MailUtils.updateFolderAsync(destFolder).catch(console.warn);
       } else {
         gViewWrapper.dbView.doCommandWithFolder(
           Ci.nsMsgViewCommandType.copyMessages,

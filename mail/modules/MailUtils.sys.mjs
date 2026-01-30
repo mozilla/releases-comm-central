@@ -1200,6 +1200,78 @@ export var MailUtils = {
 
     return resolver.promise;
   },
+
+  /**
+   * Copy a file message into a message folder and mark it read.
+   *
+   * @param {nsIFile} msgFile - The .eml file to copy..
+   * @param {nsIMsgFolder} targetFolder - The message to replace.
+   * @param {nsIMsgWindow} msgWindow - The msg window to be used.
+   */
+  async copyFileMessageAsync(msgFile, targetFolder, msgWindow) {
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /** @implements {nsIMsgCopyServiceListener} */
+    const copyServiceListener = {
+      onStartCopy() {},
+      onProgress() {},
+      setMessageKey() {},
+      getMessageId() {
+        return null;
+      },
+      onStopCopy(statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(
+            new Error(
+              `Copy file message failed with error 0x${statusCode.toString(16)}`
+            )
+          );
+          return;
+        }
+        resolve();
+      },
+    };
+
+    lazy.MailServices.copy.copyFileMessage(
+      msgFile,
+      targetFolder,
+      null,
+      false,
+      Ci.nsMsgMessageFlags.Read,
+      "",
+      copyServiceListener,
+      msgWindow
+    );
+    await promise;
+  },
+
+  /**
+   * Update an imap folder for recent changes.
+   *
+   * @param {nsIMsgFolder} folder - Folder to update.
+   */
+  async updateFolderAsync(folder) {
+    if (!(folder instanceof Ci.nsIMsgImapMailFolder)) {
+      return;
+    }
+    const { promise, resolve, reject } = Promise.withResolvers();
+    /**  @implements {nsIUrlListener} */
+    const urlListener = {
+      OnStartRunningUrl() {},
+      OnStopRunningUrl(_url, statusCode) {
+        if (!Components.isSuccessCode(statusCode)) {
+          reject(
+            new Error(
+              `Update folder failed with error 0x${statusCode.toString(16)}`
+            )
+          );
+          return;
+        }
+        resolve();
+      },
+    };
+    folder.updateFolderWithListener(null, urlListener);
+    await promise;
+  },
 };
 
 /**

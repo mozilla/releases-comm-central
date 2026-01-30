@@ -3403,7 +3403,7 @@ var folderPane = {
     };
   },
 
-  _onDrop(event) {
+  async _onDrop(event) {
     this._timedExpand();
     this._clearDropTarget();
     this._clearDragTarget();
@@ -3572,22 +3572,24 @@ var folderPane = {
       }
       this.swapFolderSelection(rows);
     } else if (types.includes("application/x-moz-file")) {
+      const files = [];
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
         const extFile = event.dataTransfer
           .mozGetDataAt("application/x-moz-file", i)
           .QueryInterface(Ci.nsIFile);
         if (extFile.isFile() && /\.eml$/i.test(extFile.leafName)) {
-          MailServices.copy.copyFileMessage(
-            extFile,
-            targetFolder,
-            null,
-            false,
-            1,
-            "",
-            null,
-            top.msgWindow
-          );
+          files.push(extFile);
         }
+      }
+      if (files.length) {
+        for (const file of files) {
+          await MailUtils.copyFileMessageAsync(
+            file,
+            targetFolder,
+            top.msgWindow
+          ).catch(console.warn);
+        }
+        await MailUtils.updateFolderAsync(targetFolder).catch(console.warn);
       }
     } else if (
       types.includes("text/x-moz-url-data") ||
@@ -5459,27 +5461,29 @@ var threadPane = {
   /**
    * Handle threadPane drop events.
    */
-  _onDrop(event) {
+  async _onDrop(event) {
     if (event.target.closest("thead")) {
       return; // Only allow dropping in the body.
     }
     event.preventDefault();
+    const files = [];
     for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
       const extFile = event.dataTransfer
         .mozGetDataAt("application/x-moz-file", i)
         .QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName)) {
-        MailServices.copy.copyFileMessage(
-          extFile,
-          gFolder,
-          null,
-          false,
-          1,
-          "",
-          null,
-          top.msgWindow
-        );
+        files.push(extFile);
       }
+    }
+    if (files.length) {
+      for (const file of files) {
+        await MailUtils.copyFileMessageAsync(
+          file,
+          gFolder,
+          top.msgWindow
+        ).catch(console.warn);
+      }
+      await MailUtils.updateFolderAsync(gFolder).catch(console.warn);
     }
   },
 

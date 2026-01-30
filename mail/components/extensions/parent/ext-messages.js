@@ -1446,6 +1446,7 @@ this.messages = class extends ExtensionAPIPersistent {
               },
               onStopCopy(status) {
                 if (status == Cr.NS_OK) {
+                  destinationFolder.updateFolder(null);
                   copyFileMessageOperation.resolve();
                 } else {
                   copyFileMessageOperation.reject(

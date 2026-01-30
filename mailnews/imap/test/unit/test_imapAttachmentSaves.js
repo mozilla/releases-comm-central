@@ -12,9 +12,6 @@
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-var { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
-);
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -98,20 +95,16 @@ add_task(async function testImapAttachmentDetac() {
     "Detached file should exist in the profile directory"
   );
 
-  // Wait for the folder to update, if you don't wait,
-  // the message count can be 0 or 2.
-  await TestUtils.waitForCondition(
-    () => [...IMAPPump.inbox.messages].length === 1,
-    "Waiting for IMAP detach to settle to one message",
-    200, // Wait 200 ms.
-    10 // 10 tries, usually one is enough.
-  );
-
   // The message should now have a detached attachment. Read the message,
   // and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header - detached copy has UID 2. The original should be
   // gone.
+  Assert.equal(
+    [...IMAPPump.inbox.messages].length,
+    1,
+    "Inbox should still have exactly one message after detach"
+  );
   const msgHdr2 = IMAPPump.inbox.GetMessageHeader(2);
   Assert.ok(!!msgHdr2, "Should have a message header");
 
