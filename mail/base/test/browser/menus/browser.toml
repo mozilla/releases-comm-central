@@ -74,7 +74,7 @@ tags = ["contextmenu"]
 
 ["browser_mailContext_messageContent.js"]
 skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
+  "os == 'linux' && headless", # See bug 1806870.
 ]
 tags = ["contextmenu"]
 

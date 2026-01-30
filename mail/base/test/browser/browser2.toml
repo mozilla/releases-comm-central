@@ -39,7 +39,7 @@ tags = ["virtualfolders"]
 
 ["browser_manualSortFolders.js"]
 skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
+  "os == 'linux' && headless", # See bug 1806870.
 ]
 
 ["browser_markAsRead.js"]

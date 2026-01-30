@@ -35,12 +35,12 @@ tags = ["archive"]
 
 ["browser_dragDropFolders.js"]
 skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
+  "os == 'linux' && headless", # See bug 1806870.
 ]
 
 ["browser_dragDropMessages.js"]
 skip-if = [
-  "headless && os == 'linux'", # See bug 1806870.
+  "os == 'linux' && headless", # See bug 1806870.
 ]
 
 ["browser_dummyRow.js"]
