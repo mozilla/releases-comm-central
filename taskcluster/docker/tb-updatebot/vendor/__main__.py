@@ -95,6 +95,7 @@ def run_check_upstream() -> bool:
     log("Running updatebot")
     os.chdir(GECKO_PATH)
     try:
+        log(f"GECKO_PATH={GECKO_PATH} cwd={Path.cwd()} mach_exists={(GECKO_PATH/'mach').exists()}")
         run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
         notify(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
@@ -115,6 +116,7 @@ def run_check_upstream() -> bool:
 def run_vendor():
     os.chdir(GECKO_PATH)
     log("Running tb-rust vendor")
+    log(f"GECKO_PATH={GECKO_PATH} cwd={Path.cwd()} mach_exists={(GECKO_PATH/'mach').exists()}")
     run_cmd(["./mach", "tb-rust", "vendor"])
 
     os.chdir(COMM_PATH)
