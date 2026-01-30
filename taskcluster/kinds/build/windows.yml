@@ -61,6 +61,7 @@ win32/opt:
             - linux64-wine
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
+            - terser
             - win32-libotr
             - winappsdk-x86-pc-windows-msvc
         fetch:
