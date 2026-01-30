@@ -38,10 +38,16 @@ status-needs-action    = Needs Action
 status-in-process      = In Process
 status-completed      = Completed
 
-# Task priority, these should match the priority.level.* labels in calendar.dtd
+# Task priority, these should match the calendar-priority-* levels
 high-priority = High
 normal-priority = Normal
 low-priority = Low
+status-priority-img-high-priority =
+    .alt = High
+status-priority-img-normal-priority =
+    .alt = Normal
+status-priority-img-low-priority =
+    .alt = Low
 
 import-prompt = Which calendar do you want to import these items into?
 export-prompt = Which calendar do you want to export from?
