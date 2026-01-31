@@ -72,6 +72,16 @@ filter-action-log-tagged = tagged
 filter-action-log-ignore-subthread = ignored subthread
 filter-action-log-unread = marked as unread
 
+# Variables:
+# $timestamp (String) - The timestamp of the log entry.
+# $message (String) - The actual log message.
+filter-log-line = [{ $timestamp }] { $message }
+
+# Variables:
+# $filterName (String) - The name of the filter.
+# $message (String) - The log message from the filter.
+filter-log-message = Message from filter "{ $filterName }": { $message }
+
 filter-editor-must-select-target-folder = You must select a target folder.
 filter-editor-enter-valid-email-forward = Enter a valid email address to forward to.
 filter-editor-pick-template-reply = Choose a template to reply with.

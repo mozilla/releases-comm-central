@@ -16,7 +16,6 @@
 #include "nsLocalFile.h"
 #include "nsIMsgFilterService.h"
 #include "nsMsgSearchScopeTerm.h"
-#include "nsIStringBundle.h"
 #include "nsNetUtil.h"
 #include "nsIInputStream.h"
 #include "nsNativeCharsetUtils.h"
@@ -25,6 +24,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include <ctype.h>
+#include "mozilla/intl/Localization.h"
 
 // Marker for EOF or failure during read
 #define EOF_CHAR -1
@@ -1136,27 +1136,22 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
     return NS_ERROR_FAILURE;
   }
 
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/filter.properties", getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString tempMessage(message);
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
+  nsresult rv = NS_OK;
+  nsCString buffer = NS_ConvertUTF16toUTF8(message);
 
   if (filter) {
     // If a filter was passed, prepend its name in the log message.
     nsString filterName;
     filter->GetFilterName(filterName);
 
-    AutoTArray<nsString, 2> logFormatStrings = {filterName, tempMessage};
-    nsString statusLogMessage;
-    rv = bundle->FormatStringFromName("filterMessage", logFormatStrings,
-                                      statusLogMessage);
-    if (NS_SUCCEEDED(rv)) tempMessage.Assign(statusLogMessage);
+    rv = LocalizeMessage(l10n, "filter-log-message"_ns,
+                         {{"filterName"_ns, NS_ConvertUTF16toUTF8(filterName)},
+                          {"message"_ns, buffer}},
+                         buffer);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // Prepare timestamp
@@ -1172,14 +1167,13 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
   // We don't want someone to send us a message with a subject with
   // HTML tags, especially <script>.
   nsCString escapedBuffer;
-  nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(tempMessage), escapedBuffer);
+  nsAppendEscapedHTML(buffer, escapedBuffer);
 
   // Print timestamp and the message.
-  AutoTArray<nsString, 2> logFormatStrings = {dateValue};
-  CopyUTF8toUTF16(escapedBuffer, *logFormatStrings.AppendElement());
-  nsString filterLogMessage;
-  rv = bundle->FormatStringFromName("filterLogLine", logFormatStrings,
-                                    filterLogMessage);
+  rv = LocalizeMessage(l10n, "filter-log-line"_ns,
+                       {{"timestamp"_ns, NS_ConvertUTF16toUTF8(dateValue)},
+                        {"message"_ns, escapedBuffer}},
+                       buffer);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Write message into log stream.
@@ -1190,7 +1184,6 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
   NS_ASSERTION(writeCount == LOG_ENTRY_START_TAG_LEN,
                "failed to write out start log tag");
 
-  NS_ConvertUTF16toUTF8 buffer(filterLogMessage);
   uint32_t escapedBufferLen = buffer.Length();
   rv = logStream->Write(buffer.get(), escapedBufferLen, &writeCount);
   NS_ENSURE_SUCCESS(rv, rv);
