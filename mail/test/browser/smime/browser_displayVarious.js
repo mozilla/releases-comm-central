@@ -41,7 +41,12 @@ add_setup(async function () {
     Ci.nsIX509Cert.CA_CERT
   );
   SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Bob.p12"), "nss")
+    new FileUtils.File(getTestFilePath("data/Bob.p12")),
+    "nss"
+  );
+  SmimeUtils.loadCertificateAndKey(
+    new FileUtils.File(getTestFilePath("data/Alice.p12")),
+    "nss"
   );
 });
 
@@ -51,20 +56,6 @@ function getMsgBodyTxt(msgc) {
 }
 
 add_task(async function test_display_opaque() {
-  SmimeUtils.ensureNSS();
-
-  SmimeUtils.loadPEMCertificate(
-    new FileUtils.File(getTestFilePath("data/TestCA.pem")),
-    Ci.nsIX509Cert.CA_CERT
-  );
-  SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Bob.p12")),
-    "nss"
-  );
-  SmimeUtils.loadCertificateAndKey(
-    new FileUtils.File(getTestFilePath("data/Alice.p12")),
-    "nss"
-  );
   const filenames = [
     "data/alice.html.sig.SHA256.opaque.eml",
     "data/alice.sig.SHA256.opaque.eml",
