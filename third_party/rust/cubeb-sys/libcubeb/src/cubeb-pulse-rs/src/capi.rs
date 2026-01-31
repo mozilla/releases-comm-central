@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use backend::PulseContext;
+use crate::backend::PulseContext;
 use cubeb_backend::{capi, ffi};
 use std::os::raw::{c_char, c_int};
 

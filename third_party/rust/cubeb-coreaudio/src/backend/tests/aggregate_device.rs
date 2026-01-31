@@ -13,7 +13,7 @@ use std::{panic, thread, time};
 // ------------------------------------
 #[test]
 #[should_panic]
-fn test_aggregate_set_sub_devices_for_an_unknown_aggregate_device() {
+fn test_panic_aggregate_set_sub_devices_for_an_unknown_aggregate_device() {
     // If aggregate device id is kAudioObjectUnknown, we are unable to set device list.
     let default_input = test_get_default_device(Scope::Input);
     let default_output = test_get_default_device(Scope::Output);
@@ -35,7 +35,7 @@ fn test_aggregate_set_sub_devices_for_an_unknown_aggregate_device() {
 
 #[test]
 #[should_panic]
-fn test_aggregate_set_sub_devices_for_unknown_devices() {
+fn test_panic_aggregate_set_sub_devices_for_unknown_devices() {
     run_serially_forward_panics(|| {
         // If aggregate device id is kAudioObjectUnknown, we are unable to set device list.
         assert!(AggregateDevice::set_sub_devices(
@@ -122,7 +122,7 @@ fn test_aggregate_get_sub_devices() {
 
 #[test]
 #[should_panic]
-fn test_aggregate_get_sub_devices_for_a_unknown_device() {
+fn test_panic_aggregate_get_sub_devices_for_a_unknown_device() {
     run_serially_forward_panics(|| {
         AggregateDevice::get_sub_devices(kAudioObjectUnknown);
     });
@@ -132,7 +132,7 @@ fn test_aggregate_get_sub_devices_for_a_unknown_device() {
 // ------------------------------------
 #[test]
 #[should_panic]
-fn test_aggregate_set_master_device_for_an_unknown_aggregate_device() {
+fn test_panic_aggregate_set_master_device_for_an_unknown_aggregate_device() {
     run_serially_forward_panics(|| {
         assert!(
             AggregateDevice::set_master_device(kAudioObjectUnknown, kAudioObjectUnknown).is_err()
@@ -144,7 +144,7 @@ fn test_aggregate_set_master_device_for_an_unknown_aggregate_device() {
 // ------------------------------------
 #[test]
 #[should_panic]
-fn test_aggregate_activate_clock_drift_compensation_for_an_unknown_aggregate_device() {
+fn test_panic_aggregate_activate_clock_drift_compensation_for_an_unknown_aggregate_device() {
     run_serially_forward_panics(|| {
         assert!(AggregateDevice::activate_clock_drift_compensation(kAudioObjectUnknown).is_err());
     });
@@ -154,7 +154,7 @@ fn test_aggregate_activate_clock_drift_compensation_for_an_unknown_aggregate_dev
 // ------------------------------------
 #[test]
 #[should_panic]
-fn test_aggregate_destroy_device_for_unknown_plugin_and_aggregate_devices() {
+fn test_panic_aggregate_destroy_device_for_unknown_plugin_and_aggregate_devices() {
     run_serially_forward_panics(|| {
         assert!(AggregateDevice::destroy_device(kAudioObjectUnknown, kAudioObjectUnknown).is_err())
     });
@@ -162,7 +162,7 @@ fn test_aggregate_destroy_device_for_unknown_plugin_and_aggregate_devices() {
 
 #[test]
 #[should_panic]
-fn test_aggregate_destroy_aggregate_device_for_a_unknown_aggregate_device() {
+fn test_panic_aggregate_destroy_aggregate_device_for_a_unknown_aggregate_device() {
     run_serially_forward_panics(|| {
         let plugin = AggregateDevice::get_system_plugin_id().unwrap();
         assert!(AggregateDevice::destroy_device(plugin, kAudioObjectUnknown).is_err());
@@ -255,7 +255,7 @@ fn test_aggregate_set_sub_devices() {
 
 #[test]
 #[should_panic]
-fn test_aggregate_set_sub_devices_for_unknown_input_devices() {
+fn test_panic_aggregate_set_sub_devices_for_unknown_input_devices() {
     let output_device = test_get_default_device(Scope::Output);
     if output_device.is_none() {
         panic!("Need a output device for the test!");
@@ -276,7 +276,7 @@ fn test_aggregate_set_sub_devices_for_unknown_input_devices() {
 
 #[test]
 #[should_panic]
-fn test_aggregate_set_sub_devices_for_unknown_output_devices() {
+fn test_panic_aggregate_set_sub_devices_for_unknown_output_devices() {
     let input_device = test_get_default_device(Scope::Input);
     if input_device.is_none() {
         panic!("Need a input device for the test!");
@@ -466,7 +466,7 @@ fn test_aggregate_activate_clock_drift_compensation_for_an_aggregate_device_with
 
 #[test]
 #[should_panic]
-fn test_aggregate_activate_clock_drift_compensation_for_a_blank_aggregate_device() {
+fn test_panic_aggregate_activate_clock_drift_compensation_for_a_blank_aggregate_device() {
     run_serially_forward_panics(|| {
         let plugin = AggregateDevice::get_system_plugin_id().unwrap();
         let device = AggregateDevice::create_blank_device_sync(plugin).unwrap();
@@ -498,7 +498,7 @@ fn get_drift_compensations(devices: &Vec<AudioObjectID>) -> Vec<u32> {
 // ------------------------------------
 #[test]
 #[should_panic]
-fn test_aggregate_destroy_aggregate_device_for_a_unknown_plugin_device() {
+fn test_panic_aggregate_destroy_aggregate_device_for_a_unknown_plugin_device() {
     run_serially_forward_panics(|| {
         let plugin = AggregateDevice::get_system_plugin_id().unwrap();
         let device = AggregateDevice::create_blank_device_sync(plugin).unwrap();

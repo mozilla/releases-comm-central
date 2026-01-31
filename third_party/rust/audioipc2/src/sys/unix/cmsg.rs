@@ -34,7 +34,7 @@ pub fn encode_handles(cmsg: &mut BytesMut, handles: &[RawFd]) {
     // than try to keep an up-to-date #cfg list to handle
     // that, just use a pre-zeroed struct to fill out any
     // fields we don't care about.
-    let zeroed = unsafe { mem::zeroed() };
+    let _zeroed = unsafe { mem::zeroed() };
     #[allow(clippy::needless_update)]
     // `cmsg_len` is `usize` on some platforms, `u32` on others.
     #[allow(clippy::useless_conversion)]
@@ -42,7 +42,7 @@ pub fn encode_handles(cmsg: &mut BytesMut, handles: &[RawFd]) {
         cmsg_len: len(msg.len()).try_into().unwrap(),
         cmsg_level: libc::SOL_SOCKET,
         cmsg_type: libc::SCM_RIGHTS,
-        ..zeroed
+        .._zeroed
     };
 
     unsafe {

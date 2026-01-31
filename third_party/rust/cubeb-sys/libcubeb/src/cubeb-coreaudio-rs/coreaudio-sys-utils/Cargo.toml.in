@@ -11,4 +11,4 @@ core-foundation-sys = { version = "0.8" }
 [dependencies.coreaudio-sys]
 default-features = false
 features = ["audio_unit", "core_audio", "io_kit_audio"]
-version = "0.2.16"
+version = "0.2.14"

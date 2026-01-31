@@ -4,7 +4,7 @@
 /** The maximum size of a log message, after having been formatted. */
 #define CUBEB_LOG_MESSAGE_MAX_SIZE 256
 
-void rust_write_formatted_msg(char* msg);
+void RUST_WRITE_FORMATTED_MSG(char* msg);
 
 void cubeb_write_log(char const * fmt, ...) {
   va_list args;
@@ -12,6 +12,6 @@ void cubeb_write_log(char const * fmt, ...) {
   char msg[CUBEB_LOG_MESSAGE_MAX_SIZE];
   vsnprintf(msg, CUBEB_LOG_MESSAGE_MAX_SIZE, fmt, args);
   va_end(args);
-  rust_write_formatted_msg(msg);
+  RUST_WRITE_FORMATTED_MSG(msg);
 }
 

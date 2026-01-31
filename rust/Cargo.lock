@@ -292,7 +292,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=82fe7fa7e3aaa35468137239a0e4c2f867457214#82fe7fa7e3aaa35468137239a0e4c2f867457214"
+source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -319,7 +319,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=82fe7fa7e3aaa35468137239a0e4c2f867457214#82fe7fa7e3aaa35468137239a0e4c2f867457214"
+source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -330,7 +330,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=82fe7fa7e3aaa35468137239a0e4c2f867457214#82fe7fa7e3aaa35468137239a0e4c2f867457214"
+source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -997,7 +997,7 @@ dependencies = [
 [[package]]
 name = "coreaudio-sys-utils"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=7b996ab09d0a57a2345cd1c4509f0a8491cd3d66#7b996ab09d0a57a2345cd1c4509f0a8491cd3d66"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=ee717924ccfefc3b0b58e52968a9036b73f56f9e#ee717924ccfefc3b0b58e52968a9036b73f56f9e"
 dependencies = [
  "core-foundation-sys",
  "coreaudio-sys",
@@ -1212,27 +1212,27 @@ dependencies = [
 
 [[package]]
 name = "cubeb"
-version = "0.30.1"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413fe37b5d84d57df6e43f1ac92c39cd14038acdc143b95e420fae2ebc8b6300"
+checksum = "c82c733781fdf84fcda2aaf52d26421fa91e1a20bb90bbb69559ca1e81b98e12"
 dependencies = [
  "cubeb-core",
 ]
 
 [[package]]
 name = "cubeb-backend"
-version = "0.30.1"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2337dfc7f3e02bcdfdbcc32439857d5a4a85b0fa921a4a7db7cfc8fb4f596ab7"
+checksum = "ce8285b1c22e9e0acc34df19f2d9d267e5b5a70f692316ec8c45e86f5c1bcd1a"
 dependencies = [
  "cubeb-core",
 ]
 
 [[package]]
 name = "cubeb-core"
-version = "0.30.1"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc031febafcc3c116ad360fe046c5cd1020e7436f5e6781015c603c494909bf1"
+checksum = "37474eec8b294455ef28b792ec0a09923fcb22ac5a454e426c7691bc279c26cd"
 dependencies = [
  "bitflags 1.999.999",
  "cc",
@@ -1242,7 +1242,7 @@ dependencies = [
 [[package]]
 name = "cubeb-coreaudio"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=7b996ab09d0a57a2345cd1c4509f0a8491cd3d66#7b996ab09d0a57a2345cd1c4509f0a8491cd3d66"
+source = "git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=ee717924ccfefc3b0b58e52968a9036b73f56f9e#ee717924ccfefc3b0b58e52968a9036b73f56f9e"
 dependencies = [
  "atomic",
  "audio-mixer",
@@ -1261,7 +1261,7 @@ dependencies = [
 [[package]]
 name = "cubeb-pulse"
 version = "0.5.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=4e3ea4bbc582705a4e7d9220679525283c035a7e#4e3ea4bbc582705a4e7d9220679525283c035a7e"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=9cebfcceb073e9dd10cfb275a7590bca58d4c251#9cebfcceb073e9dd10cfb275a7590bca58d4c251"
 dependencies = [
  "cubeb-backend",
  "pulse",
@@ -1272,9 +1272,9 @@ dependencies = [
 
 [[package]]
 name = "cubeb-sys"
-version = "0.30.1"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd2114801cd652119ace9e050a16d6641475fe3341ef45c58c9377fa45cbe3bf"
+checksum = "fa823446c78d8ea1a9ea682bf2a910890206813b8eb4f6c2769d0a9c66709975"
 dependencies = [
  "cmake",
  "pkg-config",
@@ -5261,7 +5261,7 @@ dependencies = [
 [[package]]
 name = "pulse"
 version = "0.3.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=4e3ea4bbc582705a4e7d9220679525283c035a7e#4e3ea4bbc582705a4e7d9220679525283c035a7e"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=9cebfcceb073e9dd10cfb275a7590bca58d4c251#9cebfcceb073e9dd10cfb275a7590bca58d4c251"
 dependencies = [
  "bitflags 2.9.0",
  "pulse-ffi",
@@ -5270,7 +5270,7 @@ dependencies = [
 [[package]]
 name = "pulse-ffi"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=4e3ea4bbc582705a4e7d9220679525283c035a7e#4e3ea4bbc582705a4e7d9220679525283c035a7e"
+source = "git+https://github.com/mozilla/cubeb-pulse-rs?rev=9cebfcceb073e9dd10cfb275a7590bca58d4c251#9cebfcceb073e9dd10cfb275a7590bca58d4c251"
 dependencies = [
  "libc",
 ]

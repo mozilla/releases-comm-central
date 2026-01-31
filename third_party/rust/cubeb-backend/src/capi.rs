@@ -198,7 +198,7 @@ pub unsafe extern "C" fn capi_device_collection_destroy<CTX: ContextOps>(
     let ctx = &mut *(c as *mut CTX);
     let collection = &mut *(collection);
 
-    let coll = Box::from_raw(std::slice::from_raw_parts_mut(
+    let coll = Box::from_raw(std::ptr::slice_from_raw_parts_mut(
         collection.device as *mut DeviceInfo,
         collection.count,
     ));

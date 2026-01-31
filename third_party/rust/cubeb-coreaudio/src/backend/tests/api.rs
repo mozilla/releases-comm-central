@@ -22,7 +22,7 @@ fn test_make_sized_audio_channel_layout() {
 
 #[test]
 #[should_panic]
-fn test_make_sized_audio_channel_layout_with_wrong_size() {
+fn test_panic_make_sized_audio_channel_layout_with_wrong_size() {
     // let _ = make_sized_audio_channel_layout(0);
     let one_channel_size = mem::size_of::<AudioChannelLayout>();
     let padding_size = 10;
@@ -127,13 +127,13 @@ fn test_minimum_resampling_input_frames() {
 
 #[test]
 #[should_panic]
-fn test_minimum_resampling_input_frames_zero_input_rate() {
+fn test_panic_minimum_resampling_input_frames_zero_input_rate() {
     minimum_resampling_input_frames(0_f64, 44100_f64, 1);
 }
 
 #[test]
 #[should_panic]
-fn test_minimum_resampling_input_frames_zero_output_rate() {
+fn test_panic_minimum_resampling_input_frames_zero_output_rate() {
     minimum_resampling_input_frames(48000_f64, 0_f64, 1);
 }
 
@@ -180,7 +180,7 @@ fn test_create_device_info_from_unknown_output_device() {
 
 #[test]
 #[should_panic]
-fn test_set_device_info_to_system_input_device() {
+fn test_panic_set_device_info_to_system_input_device() {
     let _device = run_serially_forward_panics(|| {
         create_device_info(kAudioObjectSystemObject, DeviceType::INPUT)
     });
@@ -188,7 +188,7 @@ fn test_set_device_info_to_system_input_device() {
 
 #[test]
 #[should_panic]
-fn test_set_device_info_to_system_output_device() {
+fn test_panic_set_device_info_to_system_output_device() {
     let _device = run_serially_forward_panics(|| {
         create_device_info(kAudioObjectSystemObject, DeviceType::OUTPUT)
     });
@@ -198,7 +198,7 @@ fn test_set_device_info_to_system_output_device() {
 #[ignore]
 #[test]
 #[should_panic]
-fn test_set_device_info_to_nonexistent_input_device() {
+fn test_panic_set_device_info_to_nonexistent_input_device() {
     let nonexistent_id = std::u32::MAX;
     let _device =
         run_serially_forward_panics(|| create_device_info(nonexistent_id, DeviceType::INPUT));
@@ -208,7 +208,7 @@ fn test_set_device_info_to_nonexistent_input_device() {
 #[ignore]
 #[test]
 #[should_panic]
-fn test_set_device_info_to_nonexistent_output_device() {
+fn test_panic_set_device_info_to_nonexistent_output_device() {
     let nonexistent_id = std::u32::MAX;
     let _device =
         run_serially_forward_panics(|| create_device_info(nonexistent_id, DeviceType::OUTPUT));
@@ -360,13 +360,13 @@ fn test_get_default_device_id() {
 
 #[test]
 #[should_panic]
-fn test_get_default_device_id_with_unknown_type() {
+fn test_panic_get_default_device_id_with_unknown_type() {
     assert!(run_serially_forward_panics(|| get_default_device_id(DeviceType::UNKNOWN)).is_err());
 }
 
 #[test]
 #[should_panic]
-fn test_get_default_device_id_with_inout_type() {
+fn test_panic_get_default_device_id_with_inout_type() {
     assert!(run_serially_forward_panics(|| get_default_device_id(
         DeviceType::INPUT | DeviceType::OUTPUT
     ))
@@ -892,7 +892,7 @@ fn test_enable_audiounit_scope_for_default_output_unit() {
 
 #[test]
 #[should_panic]
-fn test_enable_audiounit_scope_with_null_unit() {
+fn test_panic_enable_audiounit_scope_with_null_unit() {
     let unit: AudioUnit = ptr::null_mut();
     assert!(
         run_serially_forward_panics(|| enable_audiounit_scope(unit, DeviceType::INPUT, false))
@@ -945,7 +945,7 @@ fn test_for_create_audiounit() {
 
 #[test]
 #[should_panic]
-fn test_create_audiounit_with_unknown_scope() {
+fn test_panic_create_audiounit_with_unknown_scope() {
     let device = device_info::default();
     let _unit = run_serially_forward_panics(|| create_audiounit(&device));
 }
@@ -990,13 +990,13 @@ fn test_set_buffer_size_sync() {
 
 #[test]
 #[should_panic]
-fn test_set_buffer_size_sync_for_input_with_null_input_unit() {
+fn test_panic_set_buffer_size_sync_for_input_with_null_input_unit() {
     test_set_buffer_size_sync_by_scope_with_null_unit(Scope::Input);
 }
 
 #[test]
 #[should_panic]
-fn test_set_buffer_size_sync_for_output_with_null_output_unit() {
+fn test_panic_set_buffer_size_sync_for_output_with_null_output_unit() {
     test_set_buffer_size_sync_by_scope_with_null_unit(Scope::Output);
 }
 
@@ -1086,7 +1086,7 @@ fn test_get_channel_count_of_output_for_a_input_only_deivce() {
 
 #[test]
 #[should_panic]
-fn test_get_channel_count_of_unknown_device() {
+fn test_panic_get_channel_count_of_unknown_device() {
     assert!(run_serially_forward_panics(|| get_channel_count(
         kAudioObjectUnknown,
         DeviceType::OUTPUT
@@ -1119,7 +1119,7 @@ fn test_get_channel_count_of_inout_type() {
 
 #[test]
 #[should_panic]
-fn test_get_channel_count_of_unknwon_type() {
+fn test_panic_get_channel_count_of_unknwon_type() {
     test_channel_count(Scope::Input);
     test_channel_count(Scope::Output);
 
@@ -1434,7 +1434,7 @@ fn test_get_same_group_id_for_builtin_device_pairs() {
 
 #[test]
 #[should_panic]
-fn test_get_device_group_id_by_unknown_device() {
+fn test_panic_get_device_group_id_by_unknown_device() {
     assert!(run_serially_forward_panics(|| get_device_group_id(
         kAudioObjectUnknown,
         DeviceType::INPUT
@@ -1465,7 +1465,7 @@ fn test_get_device_label() {
 
 #[test]
 #[should_panic]
-fn test_get_device_label_by_unknown_device() {
+fn test_panic_get_device_label_by_unknown_device() {
     assert!(run_serially_forward_panics(|| get_device_label(
         kAudioObjectUnknown,
         DeviceType::INPUT
@@ -1494,7 +1494,7 @@ fn test_get_device_global_uid() {
 
 #[test]
 #[should_panic]
-fn test_get_device_global_uid_by_unknwon_device() {
+fn test_panic_get_device_global_uid_by_unknwon_device() {
     // Unknown device.
     assert!(run_serially_forward_panics(|| get_device_global_uid(kAudioObjectUnknown)).is_err());
 }
@@ -1597,7 +1597,7 @@ fn test_create_cubeb_device_info() {
 
 #[test]
 #[should_panic]
-fn test_create_device_info_by_unknown_device() {
+fn test_panic_create_device_info_by_unknown_device() {
     let intern = Arc::new(Mutex::new(intern::Intern::new()));
     assert!(create_cubeb_device_info(&intern, kAudioObjectUnknown, DeviceType::OUTPUT).is_err());
 }
@@ -1677,7 +1677,7 @@ fn test_get_devices_of_type() {
 
 #[test]
 #[should_panic]
-fn test_get_devices_of_type_unknown() {
+fn test_panic_get_devices_of_type_unknown() {
     run_serially_forward_panics(|| {
         let no_devs = audiounit_get_devices_of_type(DeviceType::UNKNOWN);
         assert!(no_devs.is_empty());
@@ -1713,7 +1713,7 @@ fn test_add_devices_changed_listener() {
             if devtype.contains(DeviceType::INPUT) {
                 let cb = get_devices_changed_callback(context, Scope::Input);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *callback);
+                assert!(std::ptr::fn_addr_eq(cb.unwrap(), *callback));
             } else {
                 let cb = get_devices_changed_callback(context, Scope::Input);
                 assert!(cb.is_none());
@@ -1722,7 +1722,7 @@ fn test_add_devices_changed_listener() {
             if devtype.contains(DeviceType::OUTPUT) {
                 let cb = get_devices_changed_callback(context, Scope::Output);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *callback);
+                assert!(std::ptr::fn_addr_eq(cb.unwrap(), *callback));
             } else {
                 let cb = get_devices_changed_callback(context, Scope::Output);
                 assert!(cb.is_none());
@@ -1742,7 +1742,7 @@ fn test_add_devices_changed_listener() {
 
 #[test]
 #[should_panic]
-fn test_add_devices_changed_listener_in_unknown_scope() {
+fn test_panic_add_devices_changed_listener_in_unknown_scope() {
     extern "C" fn callback(_: *mut ffi::cubeb, _: *mut c_void) {}
 
     test_get_raw_context(|context| {
@@ -1756,7 +1756,7 @@ fn test_add_devices_changed_listener_in_unknown_scope() {
 
 #[test]
 #[should_panic]
-fn test_add_devices_changed_listener_with_none_callback() {
+fn test_panic_add_devices_changed_listener_with_none_callback() {
     test_get_raw_context(|context| {
         for devtype in &[DeviceType::INPUT, DeviceType::OUTPUT] {
             assert!(context
@@ -1796,16 +1796,16 @@ fn test_remove_devices_changed_listener() {
 
             let input_callback = get_devices_changed_callback(context, Scope::Input);
             assert!(input_callback.is_some());
-            assert_eq!(
+            assert!(std::ptr::fn_addr_eq(
                 input_callback.unwrap(),
                 *(map.get(&DeviceType::INPUT).unwrap())
-            );
+            ));
             let output_callback = get_devices_changed_callback(context, Scope::Output);
             assert!(output_callback.is_some());
-            assert_eq!(
+            assert!(std::ptr::fn_addr_eq(
                 output_callback.unwrap(),
                 *(map.get(&DeviceType::OUTPUT).unwrap())
-            );
+            ));
 
             // Unregister the callbacks within one specific scopes.
             assert!(run_serially(|| context.remove_devices_changed_listener(*devtype)).is_ok());
@@ -1816,7 +1816,10 @@ fn test_remove_devices_changed_listener() {
             } else {
                 let cb = get_devices_changed_callback(context, Scope::Input);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *(map.get(&DeviceType::INPUT).unwrap()));
+                assert!(std::ptr::fn_addr_eq(
+                    cb.unwrap(),
+                    *(map.get(&DeviceType::INPUT).unwrap())
+                ));
             }
 
             if devtype.contains(DeviceType::OUTPUT) {
@@ -1825,7 +1828,10 @@ fn test_remove_devices_changed_listener() {
             } else {
                 let cb = get_devices_changed_callback(context, Scope::Output);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *(map.get(&DeviceType::OUTPUT).unwrap()));
+                assert!(std::ptr::fn_addr_eq(
+                    cb.unwrap(),
+                    *(map.get(&DeviceType::OUTPUT).unwrap())
+                ));
             }
 
             // Unregister the callbacks within all scopes.
@@ -1878,13 +1884,13 @@ fn test_remove_devices_changed_listener_within_all_scopes() {
             if devtype.contains(DeviceType::INPUT) {
                 let cb = get_devices_changed_callback(context, Scope::Input);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *callback);
+                assert!(std::ptr::fn_addr_eq(cb.unwrap(), *callback));
             }
 
             if devtype.contains(DeviceType::OUTPUT) {
                 let cb = get_devices_changed_callback(context, Scope::Output);
                 assert!(cb.is_some());
-                assert_eq!(cb.unwrap(), *callback);
+                assert!(std::ptr::fn_addr_eq(cb.unwrap(), *callback));
             }
 
             assert!(run_serially(
@@ -1933,7 +1939,7 @@ fn test_shared_voice_processing_unit() {
 
 #[test]
 #[should_panic]
-fn test_shared_voice_processing_unit_bad_release_order() {
+fn test_panic_shared_voice_processing_unit_bad_release_order() {
     let queue = Queue::new_with_target(
         "test_shared_voice_processing_unit_bad_release_order",
         get_serial_queue_singleton(),

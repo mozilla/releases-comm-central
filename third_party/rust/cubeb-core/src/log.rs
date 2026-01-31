@@ -50,11 +50,12 @@ extern "C" {
     fn cubeb_write_log(fmt: *const c_char, ...);
 }
 
+include!(concat!(env!("OUT_DIR"), "/log_wrap.rs"));
+
 /// # Safety
 ///
 /// |s| must be null, or a pointer to a valid, nul-terminated, array of chars.
-#[no_mangle]
-pub unsafe extern "C" fn rust_write_formatted_msg(s: *const c_char) {
+pub unsafe fn rust_write_formatted_msg(s: *const c_char) {
     if s.is_null() {
         // Do nothing if the pointer is null.
         return;

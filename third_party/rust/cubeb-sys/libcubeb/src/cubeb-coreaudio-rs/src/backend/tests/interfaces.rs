@@ -8,6 +8,7 @@ use super::utils::{
     Scope, StateCallbackData,
 };
 use super::*;
+use std::mem::ManuallyDrop;
 use std::thread;
 
 // Context Operations
@@ -116,8 +117,6 @@ fn test_ops_context_enumerate_devices_unknown() {
             },
             ffi::CUBEB_OK
         );
-        assert_eq!(coll.count, 0);
-        assert_eq!(coll.device, ptr::null_mut());
         assert_eq!(
             unsafe { OPS.device_collection_destroy.unwrap()(context_ptr, &mut coll) },
             ffi::CUBEB_OK
@@ -195,9 +194,11 @@ fn test_ops_context_enumerate_devices_output() {
 fn test_ops_context_device_collection_destroy() {
     // Destroy a dummy device collection, without calling enumerate_devices to allocate memory for the device collection
     test_ops_context_operation("context: device collection destroy", |context_ptr| {
+        let mut device_infos = ManuallyDrop::new(Box::new([DeviceInfo::default().into()]));
+
         let mut coll = ffi::cubeb_device_collection {
-            device: ptr::null_mut(),
-            count: 0,
+            device: device_infos.as_mut_ptr(),
+            count: device_infos.len(),
         };
         assert_eq!(
             unsafe { OPS.device_collection_destroy.unwrap()(context_ptr, &mut coll) },

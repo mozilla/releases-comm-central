@@ -3,6 +3,7 @@ name = "pulse"
 version = "0.3.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"
+edition = "2021"
 
 [dependencies]
 bitflags = "2"

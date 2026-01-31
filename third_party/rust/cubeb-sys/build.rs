@@ -11,7 +11,6 @@ extern crate pkg_config;
 use std::env;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
 
 macro_rules! t {
     ($e:expr) => {
@@ -33,16 +32,33 @@ fn main() {
         return;
     }
 
-    let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
-    t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let _ = fs::remove_dir_all(&out_dir);
 
     env::remove_var("DESTDIR");
 
     // Copy libcubeb to the output directory.
-    let libcubeb_path = format!("{}/libcubeb", env::var("OUT_DIR").unwrap());
-    t!(Command::new("cp")
-        .args(["-r", "libcubeb", &env::var("OUT_DIR").unwrap(),])
-        .status());
+    let libcubeb_path = format!("{out_dir}/libcubeb");
+
+    fn copy_dir_all(src: &Path, dst: &Path) -> std::io::Result<()> {
+        fs::create_dir_all(dst)?;
+        for entry in fs::read_dir(src)? {
+            let entry = entry?;
+            let file_type = entry.file_type()?;
+            let child_dst = dst.join(entry.file_name());
+            if file_type.is_dir() {
+                copy_dir_all(&entry.path(), &child_dst)?;
+            } else {
+                fs::copy(entry.path(), &child_dst)?;
+            }
+        }
+        Ok(())
+    }
+
+    t!(copy_dir_all(
+        Path::new("libcubeb"),
+        Path::new(&libcubeb_path)
+    ));
 
     fn visit_dirs(dir: &Path, cb: &dyn Fn(&fs::DirEntry)) -> std::io::Result<()> {
         if dir.is_dir() {

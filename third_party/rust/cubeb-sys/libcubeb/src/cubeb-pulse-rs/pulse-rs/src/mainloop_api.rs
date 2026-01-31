@@ -3,7 +3,6 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
 use std::mem;
 use std::os::raw::c_void;
 

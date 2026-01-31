@@ -4,6 +4,7 @@ version = "0.5.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 description = "Cubeb backed for PulseAudio written in Rust"
 license = "ISC"
+edition = "2021"
 
 [features]
 pulse-dlopen = ["pulse-ffi/dlopen"]
@@ -13,7 +14,7 @@ gecko-in-tree = ["cubeb-backend/gecko-in-tree"]
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
-cubeb-backend = "0.13"
+cubeb-backend = "0.31"
 pulse-ffi = { path = "pulse-ffi" }
 pulse = { path = "pulse-rs" }
 semver = "1.0"

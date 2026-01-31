@@ -943,12 +943,12 @@ extern "C" fn audiounit_output_callback(
     }
 
     // Mixing
-    if stm.core_stream_data.mixer.is_some() {
+    if let Some(mixer) = stm.core_stream_data.mixer.as_mut() {
         assert!(
             buffers[0].mDataByteSize
                 >= stm.core_stream_data.output_dev_desc.mBytesPerFrame * output_frames
         );
-        stm.core_stream_data.mixer.as_mut().unwrap().mix(
+        mixer.mix(
             output_frames as usize,
             buffers[0].mData,
             buffers[0].mDataByteSize as usize,
@@ -2096,22 +2096,16 @@ extern "C" fn audiounit_default_device_changed_callback(
             let property = PropertySelector::from(addr.mSelector);
             match property {
                 PropertySelector::DefaultInputDevice => {
-                    if devices.input.changed_callback.is_some() {
+                    if let Some(cb) = devices.input.changed_callback {
                         unsafe {
-                            devices.input.changed_callback.unwrap()(
-                                ctx_ptr as *mut ffi::cubeb,
-                                devices.input.callback_user_ptr,
-                            );
+                            cb(ctx_ptr as *mut ffi::cubeb, devices.input.callback_user_ptr);
                         }
                     }
                 }
                 PropertySelector::DefaultOutputDevice => {
-                    if devices.output.changed_callback.is_some() {
+                    if let Some(cb) = devices.output.changed_callback {
                         unsafe {
-                            devices.output.changed_callback.unwrap()(
-                                ctx_ptr as *mut ffi::cubeb,
-                                devices.output.callback_user_ptr,
-                            );
+                            cb(ctx_ptr as *mut ffi::cubeb, devices.output.callback_user_ptr);
                         }
                     }
                 }
@@ -4659,40 +4653,36 @@ impl<'ctx> CoreStreamData<'ctx> {
         // Failing to uninstall listeners is not a fatal error.
         let mut r = Ok(());
 
-        if self.output_source_listener.is_some() {
-            let rv = stm.remove_device_listener(self.output_source_listener.as_ref().unwrap());
+        if let Some(listener) = self.output_source_listener.take() {
+            let rv = stm.remove_device_listener(&listener);
             if rv != NO_ERR {
                 cubeb_log!("AudioObjectRemovePropertyListener/output/kAudioDevicePropertyDataSource rv={}, device id={}", rv, self.output_device.id);
                 r = Err(Error::Error);
             }
-            self.output_source_listener = None;
         }
 
-        if self.output_alive_listener.is_some() {
-            let rv = stm.remove_device_listener(self.output_alive_listener.as_ref().unwrap());
+        if let Some(listener) = self.output_alive_listener.take() {
+            let rv = stm.remove_device_listener(&listener);
             if rv != NO_ERR {
                 cubeb_log!("AudioObjectRemovePropertyListener/output/kAudioDevicePropertyDeviceIsAlive rv={}, device id={}", rv, self.output_device.id);
                 r = Err(Error::Error);
             }
-            self.output_alive_listener = None;
         }
 
-        if self.input_source_listener.is_some() {
-            let rv = stm.remove_device_listener(self.input_source_listener.as_ref().unwrap());
+        if let Some(listener) = self.input_source_listener.take() {
+            let rv = stm.remove_device_listener(&listener);
             if rv != NO_ERR {
                 cubeb_log!("AudioObjectRemovePropertyListener/input/kAudioDevicePropertyDataSource rv={}, device id={}", rv, self.input_device.id);
                 r = Err(Error::Error);
             }
-            self.input_source_listener = None;
         }
 
-        if self.input_alive_listener.is_some() {
-            let rv = stm.remove_device_listener(self.input_alive_listener.as_ref().unwrap());
+        if let Some(listener) = self.input_alive_listener.take() {
+            let rv = stm.remove_device_listener(&listener);
             if rv != NO_ERR {
                 cubeb_log!("AudioObjectRemovePropertyListener/input/kAudioDevicePropertyDeviceIsAlive rv={}, device id={}", rv, self.input_device.id);
                 r = Err(Error::Error);
             }
-            self.input_alive_listener = None;
         }
 
         r
@@ -4709,20 +4699,18 @@ impl<'ctx> CoreStreamData<'ctx> {
 
         let stm = unsafe { &(*self.stm_ptr) };
 
-        if self.default_output_listener.is_some() {
-            let r = stm.remove_device_listener(self.default_output_listener.as_ref().unwrap());
+        if let Some(listener) = self.default_output_listener.take() {
+            let r = stm.remove_device_listener(&listener);
             if r != NO_ERR {
                 return Err(Error::Error);
             }
-            self.default_output_listener = None;
         }
 
-        if self.default_input_listener.is_some() {
-            let r = stm.remove_device_listener(self.default_input_listener.as_ref().unwrap());
+        if let Some(listener) = self.default_input_listener.take() {
+            let r = stm.remove_device_listener(&listener);
             if r != NO_ERR {
                 return Err(Error::Error);
             }
-            self.default_input_listener = None;
         }
 
         Ok(())
