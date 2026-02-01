@@ -3327,7 +3327,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             } else {
               if (loggingEnabled) {
                 (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                             "filterFailureMoveFailed"_ns);
+                                             "filter-failure-move-failed"_ns);
               }
             }
           }
@@ -3362,7 +3362,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             if (NS_FAILED(rv)) {
               if (loggingEnabled) {
                 (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                             "filterFailureCopyFailed"_ns);
+                                             "filter-failure-copy-failed"_ns);
               }
             }
           }
@@ -3491,11 +3491,11 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
               if (rv == NS_ERROR_ABORT) {
                 (void)filter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    "filterFailureSendingReplyAborted"_ns);
+                    "filter-failure-sending-reply-aborted"_ns);
               } else {
                 (void)filter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    "filterFailureSendingReplyError"_ns);
+                    "filter-failure-sending-reply-error"_ns);
               }
             }
           }
@@ -3536,7 +3536,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                static_cast<uint32_t>(rv)));
       if (loggingEnabled) {
         (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                     "filterFailureAction"_ns);
+                                     "filter-failure-action"_ns);
       }
     } else {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,

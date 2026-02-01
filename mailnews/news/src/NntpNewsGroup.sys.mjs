@@ -385,7 +385,7 @@ export class NntpNewsGroup {
               action,
               this._filteringHdr,
               Cr.NS_ERROR_UNEXPECTED,
-              `Unexpected filter action type=${action.type}`
+              "filter-failure-action"
             );
           }
           applyMore = false;

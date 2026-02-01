@@ -865,11 +865,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               if (rv == NS_ERROR_ABORT) {
                 (void)curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    "filterFailureSendingReplyAborted"_ns);
+                    "filter-failure-sending-reply-aborted"_ns);
               } else {
                 (void)curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    "filterFailureSendingReplyError"_ns);
+                    "filter-failure-sending-reply-error"_ns);
               }
             }
             BREAK_ACTION_IF_FAILURE(rv, "ReplyWithTemplate failed");
@@ -966,7 +966,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         if (loggingEnabled && m_searchHitHdrs.Length() > 0) {
           (void)curFilter->LogRuleHitFail(filterAction, m_searchHitHdrs[0],
                                           mFinalResult,
-                                          "filterActionFailed"_ns);
+                                          "filter-failure-action"_ns);
         }
       } else {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,

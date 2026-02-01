@@ -22,7 +22,11 @@
   ChromeUtils.defineLazyGetter(
     this,
     "l10n",
-    () => new Localization(["messenger/searchWidgets.ftl"], true)
+    () =>
+      new Localization(
+        ["messenger/searchWidgets.ftl", "messenger/filterEditor.ftl"],
+        true
+      )
   );
 
   const updateParentNode = parentNode => {
@@ -1646,9 +1650,9 @@
           }
           if (needCustomLabel) {
             const menuitem = document.createXULElement("menuitem");
-            menuitem.setAttribute(
-              "label",
-              gFilterBundle.getString("filterMissingCustomAction")
+            document.l10n.setAttributes(
+              menuitem,
+              "filter-missing-custom-action"
             );
             menuitem.setAttribute("value", filterActionStr);
             menuitem.disabled = true;
@@ -1722,16 +1726,15 @@
             gFilterType & Ci.nsMsgFilterType.NewsRule &&
             !(gFilterType & Ci.nsMsgFilterType.PostPlugin)
           ) {
-            // TODO: This should be replaced by a more concise error message
-            // when migrating to Fluent.
-            errorString = "filterFailureAction";
+            // TODO: This could be replaced by a more concise error message.
+            errorString = "filter-failure-action";
             break;
           }
           const msgFolder = actionTargetLabel
             ? MailUtils.getOrCreateFolder(actionTargetLabel)
             : null;
           if (!msgFolder || !msgFolder.canFileMessages) {
-            errorString = "mustSelectFolder";
+            errorString = "filter-editor-must-select-target-folder";
           }
           break;
         }
@@ -1740,12 +1743,12 @@
             actionTargetLabel.length < 3 ||
             actionTargetLabel.indexOf("@") < 1
           ) {
-            errorString = "enterValidEmailAddress";
+            errorString = "filter-editor-enter-valid-email-forward";
           }
           break;
         case "replytomessage":
           if (!actionTarget.ruleactiontargetElement.children[0].selectedItem) {
-            errorString = "pickTemplateToReplyWith";
+            errorString = "filter-editor-pick-template-reply";
           }
           break;
         default:
@@ -1764,7 +1767,7 @@
       }
 
       errorString = errorString
-        ? gFilterBundle.getString(errorString)
+        ? l10n.formatValueSync(errorString)
         : customError;
       if (errorString) {
         Services.prompt.alert(window, null, errorString);

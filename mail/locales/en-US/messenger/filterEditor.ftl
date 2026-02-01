@@ -24,8 +24,54 @@ rule-action-set-spam-status =
 spam-message-detection-log = Detected spam from { $author } - { $subject } at { $date }
 
 # Variables:
+# $errorMsg (String) - The error message about the action that failed.
+# $errorCode (String) - The hexadecimal error code.
+filter-failure-warning-prefix =
+    Filter action failed: "{ $errorMsg }" with error code={ $errorCode } while attempting:
+
+filter-failure-sending-reply-error = Error sending reply
+filter-failure-sending-reply-aborted = Sending reply aborted
+filter-failure-move-failed = Move failed
+filter-failure-copy-failed = Copy failed
+filter-failure-action = Failed applying the filter action
+
+# Variables:
+# $filterName (String) - The name of the filter that was applied.
+# $author (String) - The sender of the message.
+# $subject (String) - The subject line of the message.
+# $date (String) - The date/time the filter was applied.
+filter-log-match-summary =
+    Applied filter "{ $filterName }" to message from { $author } - { $subject } at { $date }
+
+# Variables:
 # $id (String) - The author of the moved message.
 # $folder (String) - The destination folder of the moved message.
 moved-message-log = moved message id = { $id } to { $folder }
 
+# Variables:
+# $id (String) - The author of the copied message.
+# $folder (String) - The destination folder of the copied message.
+copied-message-log = copied message id = { $id } to { $folder }
+
+filter-missing-custom-action = Missing Custom Action
+
+filter-action-log-priority = priority changed
+filter-action-log-deleted = deleted
+filter-action-log-read = marked as read
+filter-action-log-kill = thread killed
+filter-action-log-watch = thread watched
+filter-action-log-starred = starred
+filter-action-log-replied = replied
+filter-action-log-forwarded = forwarded
+filter-action-log-stop = execution stopped
+filter-action-log-pop3-delete = deleted from POP3 server
+filter-action-log-pop3-leave = left on POP3 server
 filter-action-log-spam = spam score
+filter-action-log-pop3-fetch = body fetched from POP3 server
+filter-action-log-tagged = tagged
+filter-action-log-ignore-subthread = ignored subthread
+filter-action-log-unread = marked as unread
+
+filter-editor-must-select-target-folder = You must select a target folder.
+filter-editor-enter-valid-email-forward = Enter a valid email address to forward to.
+filter-editor-pick-template-reply = Choose a template to reply with.

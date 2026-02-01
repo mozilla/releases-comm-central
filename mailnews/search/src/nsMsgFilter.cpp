@@ -17,7 +17,6 @@
 #include "nsIMsgNewsFolder.h"
 #include "nsIMsgSearchCustomTerm.h"
 #include "nsIOutputStream.h"
-#include "nsIStringBundle.h"
 #include "nsMsgFilterList.h"  // for kFileVersion
 #include "nsMsgI18N.h"
 #include "nsMsgLocalSearch.h"
@@ -438,19 +437,16 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
   (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
 
-  nsString buffer;
+  nsAutoCStringN<512> buffer;
   // this is big enough to hold a log entry.
   // do this so we avoid growing and copying as we append to the log.
-  buffer.SetCapacity(512);
 
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
+  nsAutoCStringN<256> l10nResult;
 
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = bundleService->CreateBundle(
-      "chrome://messenger/locale/filter.properties", getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = NS_OK;
 
   // If error, prefix with the error code and error message.
   // A desired wording (without NEWLINEs):
@@ -460,44 +456,38 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   // moved message id = 54DE5165.7000907@example.com to
   // mailbox://nobody@Local%20Folders/test
   if (NS_FAILED(aRcode)) {
-    // Convert aErrmsg to UTF16 string, and
-    // convert aRcode to UTF16 string in advance.
-    char tcode[20];
-    PR_snprintf(tcode, sizeof(tcode), "0x%08x", aRcode);
-    NS_ConvertASCIItoUTF16 tcode16(tcode);
+    nsAutoCString errorCode;
+    errorCode.AppendPrintf("0x%08X", (uint32_t)aRcode);
 
-    nsString tErrmsg;
+    nsAutoCString errorMsg;
+    // If this is one of our internal actions, the passed string is a Fluent
+    // ID, otherwise the addon creating the custom action should have passed a
+    // localized string.
+    rv = NS_ERROR_NOT_INITIALIZED;
     if (actionType != nsMsgFilterAction::Custom) {
-      // If this is one of our internal actions, the passed string
-      // is an identifier to get from the bundle.
-      rv =
-          bundle->GetStringFromName(PromiseFlatCString(aErrmsg).get(), tErrmsg);
-      if (NS_FAILED(rv)) CopyUTF8toUTF16(aErrmsg, tErrmsg);
-    } else {
-      // The addon creating the custom action should have passed a localized
-      // string.
-      CopyUTF8toUTF16(aErrmsg, tErrmsg);
+      rv = LocalizeMessage(l10n, aErrmsg, {}, errorMsg);
     }
-    AutoTArray<nsString, 2> logErrorFormatStrings = {tErrmsg, tcode16};
+    if (NS_FAILED(rv) || errorMsg.IsEmpty()) {
+      errorMsg = aErrmsg;
+    }
 
-    nsString filterFailureWarningPrefix;
-    rv = bundle->FormatStringFromName("filterFailureWarningPrefix",
-                                      logErrorFormatStrings,
-                                      filterFailureWarningPrefix);
+    rv = LocalizeMessage(
+        l10n, "filter-failure-warning-prefix"_ns,
+        {{"errorMsg"_ns, errorMsg}, {"errorCode"_ns, errorCode}}, l10nResult);
     NS_ENSURE_SUCCESS(rv, rv);
-    buffer += filterFailureWarningPrefix;
-    buffer.AppendLiteral("\n");
+    buffer.Append(l10nResult);
+    buffer.Append('\n');
   }
 
-  AutoTArray<nsString, 4> filterLogDetectFormatStrings = {
-      filterName, authorValue, subjectValue, dateValue};
-  nsString filterLogDetectStr;
-  rv = bundle->FormatStringFromName(
-      "filterLogDetectStr", filterLogDetectFormatStrings, filterLogDetectStr);
+  rv = LocalizeMessage(l10n, "filter-log-match-summary"_ns,
+                       {{"filterName"_ns, NS_ConvertUTF16toUTF8(filterName)},
+                        {"author"_ns, NS_ConvertUTF16toUTF8(authorValue)},
+                        {"subject"_ns, NS_ConvertUTF16toUTF8(subjectValue)},
+                        {"date"_ns, NS_ConvertUTF16toUTF8(dateValue)}},
+                       l10nResult);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  buffer += filterLogDetectStr;
-  buffer.AppendLiteral("\n");
+  buffer.Append(l10nResult);
+  buffer.Append('\n');
 
   if (actionType == nsMsgFilterAction::MoveToFolder ||
       actionType == nsMsgFilterAction::CopyToFolder) {
@@ -507,63 +497,64 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
     nsCString msgId;
     aMsgHdr->GetMessageId(msgId);
 
-    nsAutoString logMoveStr;
-    // TODO: Remove this special casing after migrating all filter.properties
-    // strings to fluent.
-    if (actionType == nsMsgFilterAction::MoveToFolder) {
-      RefPtr<mozilla::intl::Localization> l10n =
-          mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
-                                              true);
-      nsAutoCString movedMessage;
-      rv = LocalizeMessage(l10n, "moved-message-log"_ns,
-                           {{"id"_ns, msgId}, {"folder"_ns, actionFolderUri}},
-                           movedMessage);
-      CopyUTF8toUTF16(movedMessage, logMoveStr);
-    } else {
-      AutoTArray<nsString, 2> logMoveFormatStrings;
-      CopyUTF8toUTF16(msgId, *logMoveFormatStrings.AppendElement());
-      CopyUTF8toUTF16(actionFolderUri, *logMoveFormatStrings.AppendElement());
-      rv = bundle->FormatStringFromName("logCopyStr", logMoveFormatStrings,
-                                        logMoveStr);
-    }
+    rv = LocalizeMessage(
+        l10n,
+        actionType == nsMsgFilterAction::MoveToFolder ? "moved-message-log"_ns
+                                                      : "copied-message-log"_ns,
+        {{"id"_ns, msgId}, {"folder"_ns, actionFolderUri}}, l10nResult);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    buffer += logMoveStr;
+    buffer.Append(l10nResult);
   } else if (actionType == nsMsgFilterAction::Custom) {
     nsCOMPtr<nsIMsgFilterCustomAction> customAction;
     nsAutoString filterActionName;
     rv = aFilterAction->GetCustomAction(getter_AddRefs(customAction));
-    if (NS_SUCCEEDED(rv) && customAction)
+    if (NS_SUCCEEDED(rv) && customAction) {
       customAction->GetName(filterActionName);
-    if (filterActionName.IsEmpty())
-      bundle->GetStringFromName("filterMissingCustomAction", filterActionName);
-    buffer += filterActionName;
-  } else {
-    nsString actionValue;
-    // Use the new "spam" fluent string if the action matches. We can remove
-    // this after we migrated all the filter.properties strings to fluent.
-    if (actionType == 14) {
-      RefPtr<mozilla::intl::Localization> l10n =
-          mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
-                                              true);
-
-      nsAutoCString filterActionSpam;
-      rv = LocalizeMessage(l10n, "filter-action-log-spam"_ns, {},
-                           filterActionSpam);
-      CopyUTF8toUTF16(filterActionSpam, actionValue);
-    } else {
-      nsAutoCString filterActionID;
-      filterActionID = "filterAction"_ns;
-      filterActionID.AppendInt(actionType);
-      rv = bundle->GetStringFromName(filterActionID.get(), actionValue);
     }
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (filterActionName.IsEmpty()) {
+      rv = LocalizeMessage(l10n, "filter-missing-custom-action"_ns, {},
+                           l10nResult);
+      NS_ENSURE_SUCCESS(rv, rv);
+      buffer.Append(l10nResult);
+    } else {
+      buffer.Append(NS_ConvertUTF16toUTF8(filterActionName));
+    }
+  } else {
+    static constexpr nsLiteralCString kActionLogIds[] = {
+        ""_ns,
+        ""_ns,                                    // 0, 1 (unused)
+        "filter-action-log-priority"_ns,          // 2
+        "filter-action-log-deleted"_ns,           // 3
+        "filter-action-log-read"_ns,              // 4
+        "filter-action-log-kill"_ns,              // 5
+        "filter-action-log-watch"_ns,             // 6
+        "filter-action-log-starred"_ns,           // 7
+        ""_ns,                                    // 8 (unused)
+        "filter-action-log-replied"_ns,           // 9
+        "filter-action-log-forwarded"_ns,         // 10
+        "filter-action-log-stop"_ns,              // 11
+        "filter-action-log-pop3-delete"_ns,       // 12
+        "filter-action-log-pop3-leave"_ns,        // 13
+        "filter-action-log-spam"_ns,              // 14
+        "filter-action-log-pop3-fetch"_ns,        // 15
+        ""_ns,                                    // 16 (unused)
+        "filter-action-log-tagged"_ns,            // 17
+        "filter-action-log-ignore-subthread"_ns,  // 18
+        "filter-action-log-unread"_ns             // 19
+    };
 
-    buffer += actionValue;
+    if (actionType >= 0 && (size_t)actionType < std::size(kActionLogIds) &&
+        !kActionLogIds[actionType].IsEmpty()) {
+      rv = LocalizeMessage(l10n, kActionLogIds[actionType], {}, l10nResult);
+      NS_ENSURE_SUCCESS(rv, rv);
+    } else {
+      l10nResult.AssignLiteral("");
+    }
+    buffer.Append(l10nResult);
   }
-  buffer.AppendLiteral("\n");
+  buffer.Append('\n');
 
-  return m_filterList->LogFilterMessage(buffer, nullptr);
+  return m_filterList->LogFilterMessage(NS_ConvertUTF8toUTF16(buffer), nullptr);
 }
 
 NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction* aFilterAction,
