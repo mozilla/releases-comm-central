@@ -11,7 +11,7 @@
 
 [package]
 edition = "2021"
-rust-version = "1.82.0"
+rust-version = "1.90.0"
 name = "wgpu-hal"
 version = "28.0.0"
 authors = ["gfx-rs developers"]
@@ -30,6 +30,7 @@ repository = "https://github.com/gfx-rs/wgpu"
 
 [package.metadata.docs.rs]
 features = [
+    "metal",
     "vulkan",
     "gles",
     "renderdoc",
@@ -94,7 +95,7 @@ gles = [
     "dep:libloading",
     "dep:log",
     "dep:ndk-sys",
-    "dep:objc",
+    "dep:objc2",
     "dep:parking_lot",
     "dep:profiling",
     "dep:wasm-bindgen",
@@ -109,16 +110,19 @@ internal_error_panic = []
 metal = [
     "naga/msl-out",
     "dep:arrayvec",
-    "dep:block",
-    "dep:core-graphics-types",
+    "dep:block2",
     "dep:hashbrown",
     "dep:libc",
     "dep:log",
-    "dep:metal",
-    "dep:objc",
+    "dep:objc2",
+    "dep:objc2-core-foundation",
+    "dep:objc2-foundation",
+    "dep:objc2-metal",
+    "dep:objc2-quartz-core",
     "dep:parking_lot",
     "dep:profiling",
     "dep:smallvec",
+    "dep:raw-window-metal",
 ]
 portable-atomic = [
     "dep:portable-atomic",
@@ -145,6 +149,7 @@ vulkan = [
     "dep:ordered-float",
     "dep:parking_lot",
     "dep:profiling",
+    "dep:raw-window-metal",
     "dep:smallvec",
     "dep:windows",
     "gpu-allocator/vulkan",
@@ -379,20 +384,87 @@ optional = true
 version = "0.8"
 optional = true
 
-[target.'cfg(target_vendor = "apple")'.dependencies.block]
-version = "0.1.6"
+[target.'cfg(target_vendor = "apple")'.dependencies.block2]
+version = "0.6.2"
 optional = true
 
-[target.'cfg(target_vendor = "apple")'.dependencies.core-graphics-types]
-version = "0.2"
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2]
+version = "0.6.3"
 optional = true
 
-[target.'cfg(target_vendor = "apple")'.dependencies.metal]
-version = "0.33"
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-core-foundation]
+version = "0.3.2"
+features = [
+    "std",
+    "CFCGTypes",
+]
 optional = true
+default-features = false
 
-[target.'cfg(target_vendor = "apple")'.dependencies.objc]
-version = "0.2.5"
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-foundation]
+version = "0.3.2"
+features = [
+    "std",
+    "NSError",
+    "NSProcessInfo",
+    "NSRange",
+    "NSString",
+]
+optional = true
+default-features = false
+
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-metal]
+version = "0.3.2"
+features = [
+    "std",
+    "block2",
+    "MTLAllocation",
+    "MTLBlitCommandEncoder",
+    "MTLBlitPass",
+    "MTLBuffer",
+    "MTLCaptureManager",
+    "MTLCaptureScope",
+    "MTLCommandBuffer",
+    "MTLCommandEncoder",
+    "MTLCommandQueue",
+    "MTLComputeCommandEncoder",
+    "MTLComputePass",
+    "MTLComputePipeline",
+    "MTLCounters",
+    "MTLDepthStencil",
+    "MTLDevice",
+    "MTLDrawable",
+    "MTLEvent",
+    "MTLLibrary",
+    "MTLPipeline",
+    "MTLPixelFormat",
+    "MTLRenderCommandEncoder",
+    "MTLRenderPass",
+    "MTLRenderPipeline",
+    "MTLResource",
+    "MTLSampler",
+    "MTLStageInputOutputDescriptor",
+    "MTLTexture",
+    "MTLTypes",
+    "MTLVertexDescriptor",
+]
+optional = true
+default-features = false
+
+[target.'cfg(target_vendor = "apple")'.dependencies.objc2-quartz-core]
+version = "0.3.2"
+features = [
+    "std",
+    "objc2-core-foundation",
+    "CALayer",
+    "CAMetalLayer",
+    "objc2-metal",
+]
+optional = true
+default-features = false
+
+[target.'cfg(target_vendor = "apple")'.dependencies.raw-window-metal]
+version = "1.0"
 optional = true
 
 [target."cfg(unix)".dependencies.libc]

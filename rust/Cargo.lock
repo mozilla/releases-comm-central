@@ -766,15 +766,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
-name = "cgl"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ced0551234e87afee12411d535648dd89d2e7f34c78b753395567aff3d447ff"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "chardetng"
 version = "0.1.17"
 source = "git+https://github.com/hsivonen/chardetng?rev=a07d20273ce36146adaf76bd667dd57bd7b3508b#a07d20273ce36146adaf76bd667dd57bd7b3508b"
@@ -3249,18 +3240,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "io-surface"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "861c6093cbc05599e66436aedf380bb0a23cec2180738393d3a340b80dd135ef"
-dependencies = [
- "cgl",
- "core-foundation 0.9.999",
- "leaky-cow",
- "libc",
-]
-
-[[package]]
 name = "ioctl-sys"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3557,21 +3536,6 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
-name = "leak"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd100e01f1154f2908dfa7d02219aeab25d0b9c7fa955164192e3245255a0c73"
-
-[[package]]
-name = "leaky-cow"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40a8225d44241fd324a8af2806ba635fc7c8a7e9a7de4d5cf3ef54e71f5926fc"
-dependencies = [
- "leak",
-]
 
 [[package]]
 name = "libc"
@@ -3885,21 +3849,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "metal"
-version = "0.33.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7047791b5bc903b8cd963014b355f71dc9864a9a0b727057676c1dcae5cbc15"
-dependencies = [
- "bitflags 2.9.0",
- "block",
- "core-graphics-types 0.2.0",
- "foreign-types",
- "log",
- "objc",
- "paste",
 ]
 
 [[package]]
@@ -4347,7 +4296,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -4730,6 +4679,7 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a180dd8642fa45cdb7dd721cd4c11b1cadd4929ce112ebd8b9f5803cc79d536"
 dependencies = [
+ "bitflags 2.9.0",
  "dispatch2",
  "objc2",
 ]
@@ -4748,6 +4698,7 @@ checksum = "e3e0adef53c21f888deb4fa59fc59f7eb17404926ee8a6f59f5df0fd7f9f3272"
 dependencies = [
  "bitflags 2.9.0",
  "objc2",
+ "objc2-core-foundation",
 ]
 
 [[package]]
@@ -4768,9 +4719,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0125f776a10d00af4152d74616409f0d4a2053a6f57fa5b7d6aa2854ac04794"
 dependencies = [
  "bitflags 2.9.0",
+ "block2",
  "objc2",
  "objc2-foundation",
  "objc2-io-surface",
+]
+
+[[package]]
+name = "objc2-quartz-core"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96c1358452b371bf9f104e21ec536d37a650eb10f7ee379fff67d2e08d537f1f"
+dependencies = [
+ "bitflags 2.9.0",
+ "objc2",
+ "objc2-core-foundation",
+ "objc2-foundation",
+ "objc2-metal",
 ]
 
 [[package]]
@@ -5406,6 +5371,18 @@ name = "raw-window-handle"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
+
+[[package]]
+name = "raw-window-metal"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40d213455a5f1dc59214213c7330e074ddf8114c9a42411eb890c767357ce135"
+dependencies = [
+ "objc2",
+ "objc2-core-foundation",
+ "objc2-foundation",
+ "objc2-quartz-core",
+]
 
 [[package]]
 name = "rayon"
@@ -7243,7 +7220,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -7275,7 +7252,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-apple"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7283,7 +7260,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core-deps-windows-linux-android"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "wgpu-hal",
 ]
@@ -7291,33 +7268,36 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "android_system_properties",
  "arrayvec",
  "ash",
  "bit-set",
  "bitflags 2.9.0",
- "block",
+ "block2",
  "bytemuck",
  "cfg-if",
  "cfg_aliases",
- "core-graphics-types 0.2.0",
  "gpu-allocator",
  "gpu-descriptor",
  "hashbrown 0.16.0",
  "libc",
  "libloading",
  "log",
- "metal",
  "naga",
- "objc",
+ "objc2",
+ "objc2-core-foundation",
+ "objc2-foundation",
+ "objc2-metal",
+ "objc2-quartz-core",
  "once_cell",
  "ordered-float",
  "parking_lot",
  "profiling",
  "range-alloc",
  "raw-window-handle",
+ "raw-window-metal",
  "smallvec",
  "thiserror 2.0.12",
  "wgpu-types",
@@ -7328,7 +7308,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "28.0.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=eaffaf2024611c4156c1d532e387c29320b9118f#eaffaf2024611c4156c1d532e387c29320b9118f"
+source = "git+https://github.com/gfx-rs/wgpu?rev=b285d3f9bb128a4c9c00951aa8e54303f6ac0b78#b285d3f9bb128a4c9c00951aa8e54303f6ac0b78"
 dependencies = [
  "bitflags 2.9.0",
  "bytemuck",
@@ -7346,14 +7326,10 @@ dependencies = [
  "arrayvec",
  "ash",
  "bincode",
- "block2",
  "firefox-on-glean",
  "glean",
- "io-surface",
  "log",
- "metal",
  "nsstring",
- "objc",
  "objc2",
  "objc2-foundation",
  "objc2-io-surface",
