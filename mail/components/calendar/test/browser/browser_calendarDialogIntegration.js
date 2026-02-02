@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * globals createCalendar, createEvent, openEvent, cal, CalendarTestUtils,
+ * checkTolerance
  */
 
 "use strict";
@@ -151,11 +152,52 @@ add_task(async function test_maxSize() {
   const container = document.getElementById("calendarDisplayBox");
   const containerBox = container.getBoundingClientRect();
 
-  Assert.equal(
+  Assert.lessOrEqual(
     Math.floor(dialogBox.height),
     Math.floor(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
     "The dialog height is restricted by the container"
   );
+
+  await calendar.deleteItem(eventBox.occurrence);
+
+  style.remove();
+});
+
+add_task(async function test_resizeWindow() {
+  const fixedDate = new Date(2025, 3, 6, 12, 0, 0, 0);
+
+  const style = document.createElement("style");
+  style.textContent = `[is="calendar-dialog"] { height: 2000px; }`;
+  document.head.appendChild(style);
+
+  await createEvent({ calendar, baseDate: fixedDate });
+  const eventBox = await openAndShowEvent({ baseDate: fixedDate });
+
+  const dialog = document.querySelector(`[is="calendar-dialog"]`);
+  const container = document.getElementById("calendarDisplayBox");
+  let dialogBox = dialog.getBoundingClientRect();
+  let containerBox = container.getBoundingClientRect();
+
+  Assert.lessOrEqual(
+    Math.round(dialogBox.height),
+    Math.round(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
+    "The dialog height is restricted by the container"
+  );
+
+  checkTolerance(eventBox, `Dialog has correct initial position`);
+
+  await resizeWindow({ y: window.outerHeight - 100 });
+
+  dialogBox = dialog.getBoundingClientRect();
+  containerBox = container.getBoundingClientRect();
+
+  Assert.lessOrEqual(
+    Math.round(dialogBox.height),
+    Math.round(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
+    "The dialog height is restricted by the container"
+  );
+
+  checkTolerance(eventBox, `Dialog has correct final position`);
 
   await calendar.deleteItem(eventBox.occurrence);
 

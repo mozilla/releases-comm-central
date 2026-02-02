@@ -194,7 +194,9 @@ async function createEvent({
     event.setProperty("LOCATION", location);
   }
 
-  return calendar.addItem(event);
+  const returnEvent = await calendar.addItem(event);
+
+  return returnEvent;
 }
 
 /**
@@ -317,7 +319,7 @@ async function waitForCalendarReady() {
  * @param {HTMLElement} target - The target element to compare against.
  * @param {string} message - The assertion message to display.
  */
-function checkTollerance(target, message) {
+function checkTolerance(target, message) {
   const targetRect = target.getBoundingClientRect();
   const dialogRect = document
     .querySelector('[is="calendar-dialog"]')
@@ -497,7 +499,7 @@ async function positionTest({ calendar, duration = 1, offset, hour, size }) {
       offset,
     });
 
-    checkTollerance(
+    checkTolerance(
       eventBox,
       `Duration: ${duration} - Offset: ${offset} - Hour: ${hour} - Window ${size.name} - Position ${JSON.stringify(position)}`
     );
@@ -521,6 +523,10 @@ async function setupPositioning() {
   document.head.appendChild(style);
 
   await CalendarTestUtils.setCalendarView(window, "week");
+
+  registerCleanupFunction(() => {
+    style.remove();
+  });
 }
 
 /**

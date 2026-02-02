@@ -38,6 +38,30 @@ export class PositionedDialog extends HTMLDialogElement {
   triggerSelector;
 
   /**
+   * Timeout for window resize debounce.
+   *
+   * @type {number}
+   */
+  #resizeTimeout;
+
+  /**
+   * The trigger element the dialog was opened relative to.
+   *
+   * @type {HTMLElement}
+   */
+  #trigger;
+
+  /**
+   * Function to handle debouncing window resizes
+   *
+   * @type {Function}
+   */
+  #debounceResize = () => {
+    clearTimeout(this.#resizeTimeout);
+    this.#resizeTimeout = setTimeout(() => this.#update(), 100);
+  };
+
+  /**
    * Modifies the default `show` method of the dialog to absolutely position the
    * dialog relative to a trigger element, restricted by a container element.
    *
@@ -53,7 +77,7 @@ export class PositionedDialog extends HTMLDialogElement {
    * @param {MouseEvent} [event] - The dblClick event that triggered the dialog.
    */
   show(event) {
-    if (!event) {
+    if (!event && !this.#trigger) {
       super.show();
       return;
     }
@@ -76,32 +100,53 @@ export class PositionedDialog extends HTMLDialogElement {
       this.triggerSelector = this.getAttribute("trigger-selector");
     }
 
+    // We avoid using handleEvent here so that the super method does not need
+    // to be called in child methods to keep this self contained.
+    window.addEventListener("resize", this.#debounceResize);
+
+    if (!this.#trigger) {
+      this.#trigger = event.target.closest(this.triggerSelector);
+    }
+
     // Visibly hide the dialog but show it, this allows us to get the true
     // dimensions.
     this.style.visibility = "hidden";
 
     super.show();
 
-    // Pass the DomRects and dialog information to
+    this.#update();
+  }
+
+  /**
+   * Updates the position and size of the dialog.
+   */
+  #update() {
+    // Pass the DomRects and dialog information to position function.
     const dialogRect = this.getBoundingClientRect();
     const containerRect = this.container.getBoundingClientRect();
-    const trigger = event.target.closest(this.triggerSelector);
+    // Don't allow the dialog to exceed the height of the container.
+    const maxHeight = Math.floor(containerRect.height - this.margin * 2);
+    this.style.maxHeight = `${maxHeight}px`;
     const position = getIdealDialogPosition({
       container: containerRect,
       dialog: {
-        height: dialogRect.height,
+        height: Math.min(dialogRect.height, maxHeight),
         margin: this.margin,
         width: dialogRect.width,
       },
-      trigger: trigger.getBoundingClientRect(),
+      trigger: this.#trigger.getBoundingClientRect(),
     });
 
     this.style.visibility = "visible";
     this.style.left = position.x;
     this.style.top = position.y;
+  }
 
-    // Don't allow the dialog to exceed the height of the container.
-    this.style.maxHeight = `${Math.floor(containerRect.height - this.margin * 2)}px`;
+  close() {
+    this.#trigger = null;
+    clearTimeout(this.#resizeTimeout);
+    window.removeEventListener("resize", this.#debounceResize);
+    super.close();
   }
 }
 
