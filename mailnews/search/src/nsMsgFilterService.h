@@ -11,7 +11,6 @@
 #include "nsTArray.h"
 
 class nsIMsgWindow;
-class nsIStringBundle;
 
 // The filter service is used to acquire and manipulate filter lists.
 
@@ -26,10 +25,8 @@ class nsMsgFilterService : public nsIMsgFilterService {
   // interaction with dialog boxes.
 
   nsresult BackUpFilterFile(nsIFile* aFilterFile, nsIMsgWindow* aMsgWindow);
-  nsresult AlertBackingUpFilterFile(nsIMsgWindow* aMsgWindow);
-  nsresult ThrowAlertMsg(const char* aMsgName, nsIMsgWindow* aMsgWindow);
-  nsresult GetStringFromBundle(const char* aMsgName, nsAString& aResult);
-  nsresult GetFilterStringBundle(nsIStringBundle** aBundle);
+  nsresult ThrowFilterAlertMsg(const nsACString& fluentID,
+                               nsIMsgWindow* aMsgWindow);
 
  protected:
   virtual ~nsMsgFilterService();

@@ -11,7 +11,6 @@
 #include "nsMsgSearchScopeTerm.h"
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
-#include "nsIStringBundle.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgCopyServiceListener.h"
@@ -37,6 +36,7 @@
 #include "nsIMsgOperationListener.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
+#include "mozilla/intl/Localization.h"
 
 using namespace mozilla;
 
@@ -163,8 +163,9 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
 
   int64_t size = 0;
   rv = aFilterFile->GetFileSize(&size);
-  if (NS_SUCCEEDED(rv) && size > 0)
+  if (NS_SUCCEEDED(rv) && size > 0) {
     rv = filterList->LoadTextFilters(fileStream.forget());
+  }
   if (NS_SUCCEEDED(rv)) {
     int16_t version;
     filterList->GetVersion(&version);
@@ -177,8 +178,10 @@ NS_IMETHODIMP nsMsgFilterService::OpenFilterList(
       NS_ENSURE_SUCCESS(rv, rv);
       return OpenFilterList(aFilterFile, rootFolder, aMsgWindow,
                             resultFilterList);
-    } else if (rv == NS_MSG_INVALID_CUSTOM_HEADER && aMsgWindow)
-      ThrowAlertMsg("invalidCustomHeader", aMsgWindow);
+    }
+    if (rv == NS_MSG_INVALID_CUSTOM_HEADER && aMsgWindow) {
+      ThrowFilterAlertMsg("filter-invalid-custom-header"_ns, aMsgWindow);
+    }
   }
 
   nsCString listId;
@@ -226,7 +229,7 @@ NS_IMETHODIMP nsMsgFilterService::SaveFilterList(nsIMsgFilterList* filterList,
 
 nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
                                               nsIMsgWindow* aMsgWindow) {
-  AlertBackingUpFilterFile(aMsgWindow);
+  ThrowFilterAlertMsg("filter-list-backup-message"_ns, aMsgWindow);
 
   nsCOMPtr<nsIFile> localParentDir;
   nsresult rv = aFilterFile->GetParent(getter_AddRefs(localParentDir));
@@ -244,40 +247,15 @@ nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
   return aFilterFile->CopyToNative(localParentDir, "rulesbackup.dat"_ns);
 }
 
-nsresult nsMsgFilterService::AlertBackingUpFilterFile(
-    nsIMsgWindow* aMsgWindow) {
-  return ThrowAlertMsg("filterListBackUpMsg", aMsgWindow);
-}
+nsresult nsMsgFilterService::ThrowFilterAlertMsg(const nsACString& fluentID,
+                                                 nsIMsgWindow* aMsgWindow) {
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
+  nsCString alertString;
+  nsresult rv = LocalizeMessage(l10n, fluentID, {}, alertString);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-// Do not use this routine if you have to call it very often because it creates
-// a new bundle each time.
-nsresult nsMsgFilterService::GetStringFromBundle(const char* aMsgName,
-                                                 nsAString& aResult) {
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = GetFilterStringBundle(getter_AddRefs(bundle));
-  if (NS_SUCCEEDED(rv) && bundle)
-    rv = bundle->GetStringFromName(aMsgName, aResult);
-  return rv;
-}
-
-nsresult nsMsgFilterService::GetFilterStringBundle(nsIStringBundle** aBundle) {
-  NS_ENSURE_ARG_POINTER(aBundle);
-
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  nsCOMPtr<nsIStringBundle> bundle;
-  if (bundleService)
-    bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
-                                getter_AddRefs(bundle));
-  bundle.forget(aBundle);
-  return NS_OK;
-}
-
-nsresult nsMsgFilterService::ThrowAlertMsg(const char* aMsgName,
-                                           nsIMsgWindow* aMsgWindow) {
-  nsString alertString;
-  nsresult rv = GetStringFromBundle(aMsgName, alertString);
   nsCOMPtr<nsIMsgWindow> msgWindow = aMsgWindow;
   if (!msgWindow) {
     nsCOMPtr<nsIMsgMailSession> mailSession =
@@ -290,8 +268,9 @@ nsresult nsMsgFilterService::ThrowAlertMsg(const char* aMsgName,
     msgWindow->GetRootDocShell(getter_AddRefs(docShell));
     if (docShell) {
       nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog && !alertString.IsEmpty())
-        dialog->Alert(nullptr, alertString.get());
+      if (dialog && !alertString.IsEmpty()) {
+        dialog->Alert(nullptr, NS_ConvertUTF8toUTF16(alertString).get());
+      }
     }
   }
   return rv;
@@ -343,9 +322,6 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
   nsresult ApplyFilter();
   nsresult OnEndExecution();  // do what we have to do to cleanup.
   bool ContinueExecutionPrompt();
-  nsresult DisplayConfirmationPrompt(nsIMsgWindow* msgWindow,
-                                     const char16_t* confirmString,
-                                     bool* confirmed);
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgFilterList> m_filters;
   nsTArray<RefPtr<nsIMsgFolder>> m_folders;
@@ -1308,40 +1284,34 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopCopy(nsresult aStatus) {
 
 bool nsMsgFilterAfterTheFact::ContinueExecutionPrompt() {
   if (!m_curFilter) return false;
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::components::StringBundle::Service();
-  if (!bundleService) return false;
-  bundleService->CreateBundle("chrome://messenger/locale/filter.properties",
-                              getter_AddRefs(bundle));
-  if (!bundle) return false;
-  nsString filterName;
+
+  nsAutoString filterName;
   m_curFilter->GetFilterName(filterName);
-  nsString formatString;
-  nsString confirmText;
-  AutoTArray<nsString, 1> formatStrings = {filterName};
-  nsresult rv = bundle->FormatStringFromName("continueFilterExecution",
-                                             formatStrings, confirmText);
+
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
+                                          true);
+  nsCString confirmText;
+  nsresult rv = LocalizeMessage(
+      l10n, "filter-continue-execution"_ns,
+      {{"filterName"_ns, NS_ConvertUTF16toUTF8(filterName)}}, confirmText);
   if (NS_FAILED(rv)) return false;
+
   bool returnVal = false;
-  (void)DisplayConfirmationPrompt(m_msgWindow, confirmText.get(), &returnVal);
+  if (m_msgWindow) {
+    nsCOMPtr<nsIDocShell> docShell;
+    m_msgWindow->GetRootDocShell(getter_AddRefs(docShell));
+    if (docShell) {
+      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
+      if (dialog && confirmText.Length()) {
+        dialog->Confirm(nullptr, NS_ConvertUTF8toUTF16(confirmText).get(),
+                        &returnVal);
+      }
+    }
+  }
   if (!returnVal) {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
             ("(Post) User aborted further filter execution on prompt"));
   }
   return returnVal;
-}
-
-nsresult nsMsgFilterAfterTheFact::DisplayConfirmationPrompt(
-    nsIMsgWindow* msgWindow, const char16_t* confirmString, bool* confirmed) {
-  if (msgWindow) {
-    nsCOMPtr<nsIDocShell> docShell;
-    msgWindow->GetRootDocShell(getter_AddRefs(docShell));
-    if (docShell) {
-      nsCOMPtr<nsIPrompt> dialog(do_GetInterface(docShell));
-      if (dialog && confirmString)
-        dialog->Confirm(nullptr, confirmString, confirmed);
-    }
-  }
-  return NS_OK;
 }
