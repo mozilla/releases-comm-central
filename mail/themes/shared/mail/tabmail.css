@@ -126,7 +126,7 @@ button.tab-close-button {
 }
 
 .tab-icon-image:not([src]) {
-  visibility: hidden;
+  content: var(--icon-file);
 }
 
 .tab-throbber:not([busy]):not([thinking]),
