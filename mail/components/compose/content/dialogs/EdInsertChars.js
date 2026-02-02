@@ -61,10 +61,7 @@ function onFocus() {
     enable = !window.opener.IsInHTMLSourceMode();
   }
 
-  SetElementEnabled(
-    document.querySelector("dialog").getButton("accept"),
-    enable
-  );
+  document.querySelector("dialog").getButton("accept").disabled = !enable;
 }
 
 function onClose() {
@@ -168,13 +165,8 @@ function SelectLatinModifier() {
   }
 }
 function DisableLatinL(disable) {
-  if (disable) {
-    LatinL_Label.toggleAttribute("disabled", true);
-    LatinL.toggleAttribute("disabled", true);
-  } else {
-    LatinL_Label.removeAttribute("disabled");
-    LatinL.removeAttribute("disabled");
-  }
+  LatinL_Label.disabled = disable;
+  LatinL.disabled = disable;
 }
 
 function UpdateLatinL() {

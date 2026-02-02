@@ -318,23 +318,6 @@ function EditorRemoveTextProperty(property, attribute) {
   } catch (e) {}
 }
 
-/** *********** Element enabling/disabling */
-
-// this function takes an elementID and a flag
-// if the element can be found by ID, then it is either enabled (by removing "disabled" attr)
-// or disabled (setAttribute) as specified in the "doEnable" parameter
-function SetElementEnabledById(elementID, doEnable) {
-  SetElementEnabled(document.getElementById(elementID), doEnable);
-}
-
-function SetElementEnabled(element, doEnable) {
-  if (element) {
-    element.toggleAttribute("disabled", !doEnable);
-  } else {
-    dump("Element  not found in SetElementEnabled\n");
-  }
-}
-
 /** *********** Services / Prefs */
 
 function GetFileProtocolHandler() {

@@ -280,16 +280,16 @@ function SetColorPreview(ColorWellID, color) {
 }
 
 function UseCustomColors() {
-  SetElementEnabledById("TextButton", true);
-  SetElementEnabledById("LinkButton", true);
-  SetElementEnabledById("ActiveLinkButton", true);
-  SetElementEnabledById("VisitedLinkButton", true);
-  SetElementEnabledById("BackgroundButton", true);
-  SetElementEnabledById("Text", true);
-  SetElementEnabledById("Link", true);
-  SetElementEnabledById("Active", true);
-  SetElementEnabledById("Visited", true);
-  SetElementEnabledById("Background", true);
+  document.getElementById("TextButton").disabled = false;
+  document.getElementById("LinkButton").disabled = false;
+  document.getElementById("ActiveLinkButton").disabled = false;
+  document.getElementById("VisitedLinkButton").disabled = false;
+  document.getElementById("BackgroundButton").disabled = false;
+  document.getElementById("Text").disabled = false;
+  document.getElementById("Link").disabled = false;
+  document.getElementById("Active").disabled = false;
+  document.getElementById("Visited").disabled = false;
+  document.getElementById("Background").disabled = false;
 
   SetColorPreview("textCW", customTextColor);
   SetColorPreview("linkCW", customLinkColor);
@@ -319,16 +319,16 @@ function UseDefaultColors() {
   setColorWell("backgroundCW", "");
 
   // Disable color buttons and labels
-  SetElementEnabledById("TextButton", false);
-  SetElementEnabledById("LinkButton", false);
-  SetElementEnabledById("ActiveLinkButton", false);
-  SetElementEnabledById("VisitedLinkButton", false);
-  SetElementEnabledById("BackgroundButton", false);
-  SetElementEnabledById("Text", false);
-  SetElementEnabledById("Link", false);
-  SetElementEnabledById("Active", false);
-  SetElementEnabledById("Visited", false);
-  SetElementEnabledById("Background", false);
+  document.getElementById("TextButton").disabled = true;
+  document.getElementById("LinkButton").disabled = true;
+  document.getElementById("ActiveLinkButton").disabled = true;
+  document.getElementById("VisitedLinkButton").disabled = true;
+  document.getElementById("BackgroundButton").disabled = true;
+  document.getElementById("Text").disabled = true;
+  document.getElementById("Link").disabled = true;
+  document.getElementById("Active").disabled = true;
+  document.getElementById("Visited").disabled = true;
+  document.getElementById("Background").disabled = true;
 }
 
 function chooseFile() {

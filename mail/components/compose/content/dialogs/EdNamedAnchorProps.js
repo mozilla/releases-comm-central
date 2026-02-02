@@ -83,8 +83,8 @@ function ChangeName() {
 
 function DoEnabling() {
   var enable = gDialog.NameInput.value.length > 0;
-  SetElementEnabled(gDialog.OkButton, enable);
-  SetElementEnabledById("AdvancedEditButton1", enable);
+  gDialog.OkButton.disabled = !enable;
+  document.getElementById("AdvancedEditButton1").disabled = !enable;
 }
 
 function AnchorNameExists(name) {

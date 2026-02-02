@@ -322,29 +322,29 @@ function doDimensionEnabling() {
   // BUG 74145: After input field is disabled,
   //   setting it enabled causes blinking caret to appear
   //   even though focus isn't set to it.
-  SetElementEnabledById("heightInput", enable);
-  SetElementEnabledById("heightLabel", enable);
-  SetElementEnabledById("heightUnitsMenulist", enable);
+  document.getElementById("heightInput").disabled = !enable;
+  document.getElementById("heightLabel").disabled = !enable;
+  document.getElementById("heightUnitsMenulist").disabled = !enable;
 
-  SetElementEnabledById("widthInput", enable);
-  SetElementEnabledById("widthLabel", enable);
-  SetElementEnabledById("widthUnitsMenulist", enable);
+  document.getElementById("widthInput").disabled = !enable;
+  document.getElementById("widthLabel").disabled = !enable;
+  document.getElementById("widthUnitsMenulist").disabled = !enable;
 
   var constrainEnable =
     enable &&
     gDialog.widthUnitsMenulist.selectedIndex == 0 &&
     gDialog.heightUnitsMenulist.selectedIndex == 0;
 
-  SetElementEnabledById("constrainCheckbox", constrainEnable);
+  document.getElementById("constrainCheckbox").disabled = !constrainEnable;
 }
 
 function doOverallEnabling() {
   var enabled = TrimString(gDialog.srcInput.value) != "";
 
-  SetElementEnabled(gDialog.OkButton, enabled);
-  SetElementEnabledById("AdvancedEditButton1", enabled);
-  SetElementEnabledById("imagemapLabel", enabled);
-  SetElementEnabledById("removeImageMap", gCanRemoveImageMap);
+  gDialog.OkButton.disabled = !enabled;
+  document.getElementById("AdvancedEditButton1").disabled = !enabled;
+  document.getElementById("imagemapLabel").disabled = !enabled;
+  document.getElementById("removeImageMap").disabled = !gCanRemoveImageMap;
 }
 
 function ToggleConstrain() {
@@ -419,7 +419,7 @@ function constrainProportions(srcID, destID) {
 function removeImageMap() {
   gRemoveImageMap = true;
   gCanRemoveImageMap = false;
-  SetElementEnabledById("removeImageMap", false);
+  document.getElementById("removeImageMap").disabled = true;
 }
 
 function SwitchToValidatePanel() {

@@ -107,8 +107,8 @@ function ChangeRowOrColumn(id) {
     gDialog.columnsInput.value.length > 0 &&
     gDialog.columnsInput.value > 0;
 
-  SetElementEnabled(gDialog.OkButton, enable);
-  SetElementEnabledById("AdvancedEditButton1", enable);
+  gDialog.OkButton.disabled = !enable;
+  document.getElementById("AdvancedEditButton1").disabled = !enable;
 }
 
 // Get and validate data from widgets.

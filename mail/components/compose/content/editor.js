@@ -1470,7 +1470,7 @@ function InitObjectPropertiesMenuitem() {
     }
   } else {
     // We show generic "Properties" string, but disable the command.
-    cmd.toggleAttribute("disabled", true);
+    cmd.disabled = true;
   }
   cmd.setAttribute("label", menuStr);
   cmd.setAttribute("accesskey", GetString("ObjectPropertiesAccessKey"));
@@ -1915,14 +1915,12 @@ function InitRemoveStylesMenuitems(
     // Disable if not in a link, but always allow "Remove"
     //  if selection isn't collapsed since we only look at anchor node
     try {
-      SetElementEnabled(
-        linkItem,
-        !isCollapsed || editor.getElementOrParentByTagName("href", null)
-      );
+      linkItem.disabled =
+        isCollapsed || !editor.getElementOrParentByTagName("href", null);
     } catch (e) {}
   }
   // Disable if selection is collapsed
-  SetElementEnabledById(removeNamedAnchorsId, !isCollapsed);
+  document.getElementById(removeNamedAnchorsId).disabled = isCollapsed;
 }
 
 function goUpdateTableMenuItems(commandset) {
@@ -2287,13 +2285,13 @@ function InitTOCMenu() {
   var removeMenuitem = document.getElementById("removeTOCMenuitem");
   if (removeMenuitem && createMenuitem && updateMenuitem) {
     if (elt) {
-      createMenuitem.toggleAttribute("disabled", true);
+      createMenuitem.disabled = true;
       updateMenuitem.removeAttribute("disabled");
       removeMenuitem.removeAttribute("disabled");
     } else {
       createMenuitem.removeAttribute("disabled");
-      removeMenuitem.toggleAttribute("disabled", true);
-      updateMenuitem.toggleAttribute("disabled", true);
+      removeMenuitem.disabled = true;
+      updateMenuitem.disabled = true;
     }
   }
 }

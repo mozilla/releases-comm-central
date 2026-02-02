@@ -63,8 +63,8 @@ function InputSepCharacter() {
 
 function SelectCharacter(radioGroupIndex) {
   gIndex = radioGroupIndex;
-  SetElementEnabledById("SepCharacterInput", gIndex == gOtherIndex);
-  SetElementEnabledById("CollapseSpaces", gIndex == gSpaceIndex);
+  document.getElementById("SepCharacterInput").disabled = gIndex != gOtherIndex;
+  document.getElementById("CollapseSpaces").disabled = gIndex != gSpaceIndex;
 }
 
 function onAccept() {

@@ -173,6 +173,17 @@ function InitLanguageMenu(activeDictionaries) {
 }
 
 function DoEnabling() {
+  document.getElementById("MisspelledWordLabel").disabled = !gMisspelledWord;
+  document.getElementById("ReplaceWordLabel").disabled = !gMisspelledWord;
+  document.getElementById("ReplaceWordInput").disabled = !gMisspelledWord;
+  document.getElementById("CheckWord").disabled = !gMisspelledWord;
+  document.getElementById("SuggestedListLabel").disabled = !gMisspelledWord;
+  document.getElementById("SuggestedList").disabled = !gMisspelledWord;
+  document.getElementById("Ignore").disabled = !gMisspelledWord;
+  document.getElementById("IgnoreAll").disabled = !gMisspelledWord;
+  document.getElementById("Replace").disabled = !gMisspelledWord;
+  document.getElementById("ReplaceAll").disabled = !gMisspelledWord;
+  document.getElementById("AddToDictionary").disabled = !gMisspelledWord;
   if (!gMisspelledWord) {
     // No more misspelled words
     gDialog.MisspelledWord.setAttribute(
@@ -186,29 +197,7 @@ function DoEnabling() {
     gDialog.CloseButton.setAttribute("default", "true");
     // Shouldn't have to do this if "default" is true?
     gDialog.CloseButton.focus();
-
-    SetElementEnabledById("MisspelledWordLabel", false);
-    SetElementEnabledById("ReplaceWordLabel", false);
-    SetElementEnabledById("ReplaceWordInput", false);
-    SetElementEnabledById("CheckWord", false);
-    SetElementEnabledById("SuggestedListLabel", false);
-    SetElementEnabledById("SuggestedList", false);
-    SetElementEnabledById("Ignore", false);
-    SetElementEnabledById("IgnoreAll", false);
-    SetElementEnabledById("Replace", false);
-    SetElementEnabledById("ReplaceAll", false);
-    SetElementEnabledById("AddToDictionary", false);
   } else {
-    SetElementEnabledById("MisspelledWordLabel", true);
-    SetElementEnabledById("ReplaceWordLabel", true);
-    SetElementEnabledById("ReplaceWordInput", true);
-    SetElementEnabledById("CheckWord", true);
-    SetElementEnabledById("SuggestedListLabel", true);
-    SetElementEnabledById("SuggestedList", true);
-    SetElementEnabledById("Ignore", true);
-    SetElementEnabledById("IgnoreAll", true);
-    SetElementEnabledById("AddToDictionary", true);
-
     gDialog.CloseButton.removeAttribute("default");
     SetReplaceEnable();
   }
@@ -249,7 +238,7 @@ function CheckWord() {
         ""
       );
       if (item) {
-        item.toggleAttribute("disabled", true);
+        item.disabled = true;
       }
       // Suppress being able to select the message text
       gAllowSelectWord = false;
@@ -432,7 +421,7 @@ function FillSuggestedList(misspelledWord) {
       // No suggestions - show a message but don't let user select it
       item = list.appendItem(GetString("NoSuggestedWords"));
       if (item) {
-        item.toggleAttribute("disabled", true);
+        item.disabled = true;
       }
       gAllowSelectWord = false;
     } else {
@@ -443,7 +432,7 @@ function FillSuggestedList(misspelledWord) {
   } else {
     item = list.appendItem("", "");
     if (item) {
-      item.toggleAttribute("disabled", true);
+      item.disabled = true;
     }
   }
 }
@@ -452,8 +441,8 @@ function SetReplaceEnable() {
   // Enable "Change..." buttons only if new word is different than misspelled
   var newWord = gDialog.ReplaceWordInput.value;
   var enable = newWord.length > 0 && newWord != gMisspelledWord;
-  SetElementEnabledById("Replace", enable);
-  SetElementEnabledById("ReplaceAll", enable);
+  document.getElementById("Replace").disabled = !enable;
+  document.getElementById("ReplaceAll").disabled = !enable;
   if (enable) {
     gDialog.ReplaceButton.setAttribute("default", "true");
     gDialog.IgnoreButton.removeAttribute("default");

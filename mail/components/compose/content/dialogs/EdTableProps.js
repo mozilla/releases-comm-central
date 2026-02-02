@@ -250,7 +250,7 @@ function Startup() {
 
   // If only one cell in table, disable change-selection widgets
   if (gRowCount == 1 && gColCount == 1) {
-    gDialog.SelectionList.toggleAttribute("disabled", true);
+    gDialog.SelectionList.disabled = true;
   }
 
   // User can change these via textboxes
@@ -815,7 +815,7 @@ function DoCellSelection() {
 
   // Currently, we can only allow advanced editing on ONE cell element at a time
   //   else we ignore CSS, JS, and HTML attributes not already in dialog
-  SetElementEnabled(gDialog.AdvancedEditCell, gSelectedCellCount == 1);
+  gDialog.AdvancedEditCell.disabled = gSelectedCellCount != 1;
 
   gDialog.AdvancedEditCell.setAttribute(
     "tooltiptext",
@@ -843,8 +843,8 @@ function SetSelectionButtons() {
 }
 
 function DisableSelectionButtons(disable) {
-  gDialog.PreviousButton.toggleAttribute("disabled", disable);
-  gDialog.NextButton.toggleAttribute("disabled", disable);
+  gDialog.PreviousButton.disabled = disable;
+  gDialog.NextButton.disabled = disable;
 }
 
 function SwitchToValidatePanel() {
