@@ -60,7 +60,7 @@ async function setupPolicyEngineWithJson(json, customSchema) {
  *   enterprise policy.
  */
 async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
-  lazy.SearchService.wrappedJSObject.reset();
+  lazy.SearchService.reset();
   if (typeof json != "object") {
     const filePath = do_get_file(json ? json : "non-existing-file.json").path;
     await EnterprisePolicyTesting.setupPolicyEngineWithJson(
