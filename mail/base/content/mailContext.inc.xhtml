@@ -190,37 +190,26 @@
     <menuseparator/>
 
     <menuitem id="mailContext-moveToFolderAgain"
-              class="menuitem-iconic"
-              label="&moveToFolderAgain.label;"
-              accesskey="&moveToFolderAgain.accesskey;"/>
+              data-l10n-id="menu-move-again"
+              class="menuitem-iconic"/>
     <menu id="mailContext-moveMenu"
-          class="menu-iconic"
-          label="&contextMoveMsgMenu.label;"
-          accesskey="&contextMoveMsgMenu.accesskey;">
+          data-l10n-id="menu-move-to"
+          class="menu-iconic">
       <menupopup is="folder-menupopup" id="mailContext-fileHereMenu"
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
-                 showFavorites="true"
-                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;">
+                 showFavorites="true">
       </menupopup>
     </menu>
     <menu id="mailContext-copyMenu"
-          class="menu-iconic"
-          label="&contextCopyMsgMenu.label;"
-          accesskey="&contextCopyMsgMenu.accesskey;">
+          data-l10n-id="menu-copy-to"
+          class="menu-iconic">
       <menupopup is="folder-menupopup" id="mailContext-copyHereMenu"
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
-                 showFavorites="true"
-                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+                 showFavorites="true"/>
     </menu>
     <menu id="mailContext-tags"
           class="menu-iconic"
@@ -297,11 +286,7 @@
                      mode="filing"
                      showFileHereLabel="true"
                      showRecent="true"
-                     recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                     recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
                      showFavorites="true"
-                     favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                     favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
                      hasbeenopened="false" />
         </menu>
 

@@ -144,6 +144,8 @@
 
   class MozRuleactiontargetFolder extends MozXULElement {
     connectedCallback() {
+      // For the 'Recent Destinations' label.
+      document.l10n.addResourceIds(["messenger/messenger.ftl"]);
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
@@ -155,12 +157,10 @@
                        mode="filing"
                        class="menulist-menupopup"
                        showRecent="true"
-                       recentLabel="&recentFolders.label;"
                        showFileHereLabel="true">
             </menupopup>
           </menulist>
-          `,
-          ["chrome://messenger/locale/messenger.dtd"]
+          `
         )
       );
 

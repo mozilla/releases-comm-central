@@ -715,20 +715,19 @@ function initMoveToFolderAgainMenu(aMenuItem) {
   if (!destMsgFolder) {
     return;
   }
-  const bundle = document.getElementById("bundle_messenger");
-  const isMove = Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move");
-  const stringName = isMove ? "moveToFolderAgain" : "copyToFolderAgain";
-  aMenuItem.label = bundle.getFormattedString(
-    stringName,
-    [destMsgFolder.localizedName],
-    1
+  document.l10n.setAttributes(
+    aMenuItem,
+    Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")
+      ? "menu-move-to-folder-again"
+      : "menu-copy-to-folder-again",
+    {
+      folderName: destMsgFolder.localizedName,
+    }
   );
   aMenuItem.setAttribute(
     "tooltiptext",
     `${destMsgFolder.prettyPath} – ${destMsgFolder.server.prettyName}`
   );
-  // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
-  aMenuItem.accessKey = bundle.getString(stringName + "AccessKey");
 }
 
 /**

@@ -865,11 +865,7 @@
         <menupopup is="folder-menupopup" id="menu_GoFolderPopup"
                     showFileHereLabel="true"
                     showRecent="true"
-                    recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                    recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
-                    showFavorites="true"
-                    favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                    favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+                    showFavorites="true"/>
       </menu>
       <menuseparator id="goFolderSeparator"/>
 
@@ -1087,35 +1083,26 @@
                   label="&cancelNewsMsgCmd.label;"
                   accesskey="&cancelNewsMsgCmd.accesskey;"/>
         <menu id="moveMenu"
-              label="&moveMsgToMenu.label;"
-              accesskey="&moveMsgToMenu.accesskey;"
+              data-l10n-id="menu-move-to"
               oncommand="goDoCommand('cmd_moveMessage', event.target._folder)">
           <menupopup is="folder-menupopup"
                       mode="filing"
                       showFileHereLabel="true"
                       showRecent="true"
-                      recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                      recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
-                      showFavorites="true"
-                      favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                      favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+                      showFavorites="true"/>
         </menu>
         <menu id="copyMenu"
-              label="&copyMsgToMenu.label;"
-              accesskey="&copyMsgToMenu.accesskey;"
+              data-l10n-id="menu-copy-to"
               oncommand="goDoCommand('cmd_copyMessage', event.target._folder)">
           <menupopup is="folder-menupopup"
                       mode="filing"
                       showFileHereLabel="true"
                       showRecent="true"
-                      recentLabel="&contextMoveCopyMsgRecentDestinationMenu.label;"
-                      recentAccessKey="&contextMoveCopyMsgRecentDestinationMenu.accesskey;"
-                      showFavorites="true"
-                      favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                      favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+                      showFavorites="true"/>
         </menu>
-        <menuitem id="moveToFolderAgain" key="key_moveToFolderAgain" command="cmd_moveToFolderAgain"
-                  label="&moveToFolderAgain.label;" accesskey="&moveToFolderAgain.accesskey;"/>
+        <menuitem id="moveToFolderAgain" key="key_moveToFolderAgain"
+                  data-l10n-id="menu-move-again"
+                  command="cmd_moveToFolderAgain"/>
         <menuseparator id="messageMenuAfterMoveCommandsSeparator"/>
         <menuitem id="createFilter" label="&createFilter.label;"
                   accesskey="&createFilter.accesskey;"

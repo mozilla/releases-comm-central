@@ -478,8 +478,7 @@
           this.childWrapper.appendChild(
             this._buildSpecialMenu({
               special: "recent",
-              label: this.getAttribute("recentLabel"),
-              accessKey: this.getAttribute("recentAccessKey"),
+              "data-l10n-id": "menu-move-copy-recent-destinations",
             })
           );
         }
@@ -487,8 +486,7 @@
           this.childWrapper.appendChild(
             this._buildSpecialMenu({
               special: "favorites",
-              label: this.getAttribute("favoritesLabel"),
-              accessKey: this.getAttribute("favoritesAccessKey"),
+              "data-l10n-id": "menu-move-copy-favorites",
             })
           );
         }

@@ -95,9 +95,11 @@
   <key id="key_openMessage" key="&openMessageWindowCmd.key;"         oncommand="goDoCommand('cmd_openMessage')" modifiers="accel"/>
   <key id="key_openConversation" key="&openInConversationCmd.key;"   oncommand="goDoCommand('cmd_openConversation')" modifiers="accel, shift"/>
 #ifdef XP_MACOSX
-  <key id="key_moveToFolderAgain" key="&moveToFolderAgainCmd.key;"   oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="alt, accel"/>
+  <key id="key_moveToFolderAgain" data-l10n-id="move-to-folder-again-key"
+       oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="alt, accel"/>
 #else
-  <key id="key_moveToFolderAgain" key="&moveToFolderAgainCmd.key;"   oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="accel, shift"/>
+  <key id="key_moveToFolderAgain" data-l10n-id="move-to-folder-again-key"
+       oncommand="goDoCommand('cmd_moveToFolderAgain')" modifiers="accel, shift"/>
 #endif
   <key id="key_print" key="&printCmd.key;"                           oncommand="goDoCommand('cmd_print')" modifiers="accel"/>
   <key id="key_saveAsFile" key="&saveAsFileCmd.key;"                 oncommand="goDoCommand('cmd_saveAsFile')" modifiers="accel"/>
