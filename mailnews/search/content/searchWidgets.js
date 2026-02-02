@@ -469,8 +469,18 @@
       this.menulist.selectedItem = this.validMenuitem;
     }
 
-    onSelect() {
+    async onSelect() {
       if (this.menulist.value == Ci.nsMsgSearchAttrib.OtherHeader) {
+        // Wait for the menupopup to finish closing to have the pointer capture
+        // released before opening the modal dialog.
+        if (this.menupopup.state != "closed") {
+          await new Promise(resolve => {
+            this.menupopup.addEventListener("popuphidden", resolve, {
+              once: true,
+            });
+          });
+        }
+
         // Customize menuitem selected.
         const args = {};
         window.openDialog(
