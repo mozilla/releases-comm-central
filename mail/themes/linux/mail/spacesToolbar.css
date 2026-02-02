@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
 
 @media (-moz-gtk-csd-transparency-available) {
-  :root[customtitlebar]:not([gtktiledwindow="true"]) .spaces-toolbar:not([hidden]) {
+  :root[customtitlebar]:not([gtktiledwindow]) .spaces-toolbar:not([hidden]) {
     border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
 
     /* stylelint-disable-next-line media-query-no-invalid */

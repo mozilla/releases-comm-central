@@ -63,7 +63,7 @@
   :root[customtitlebar] {
     background-color: transparent;
 
-    &[sizemode="normal"]:not([gtktiledwindow="true"]) {
+    &[sizemode="normal"]:not([gtktiledwindow]) {
       /* This takes care of drawing our window decorations on X11 */
       -moz-default-appearance: -moz-window-decorations;
       appearance: auto;
