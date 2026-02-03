@@ -47,7 +47,7 @@ done
 (
 source "${SCRIPT_DIR}/venv/bin/activate"
 
-python3 /scripts/fetch-content task-artifacts --dest "${WORKSPACE}"
+python3 /builds/worker/bin/fetch-content task-artifacts --dest "${WORKSPACE}"
 
 python3 "${SCRIPT_DIR}/build_desktop_file.py"               \
   -o "${WORKSPACE}/org.mozilla.thunderbird.desktop"         \

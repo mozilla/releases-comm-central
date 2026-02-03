@@ -6,7 +6,8 @@ RUN mkdir /scripts/
 WORKDIR /scripts/
 
 # Copy everything in the docker/tb-flatpak folder but the Dockerfile
-COPY [^D]* /scripts/
+# Use globs to avoid accidentally copying the injected run-task/ directory.
+COPY *.sh *.c *.ini *.in *.svg /scripts/
 
 # Copy required recipes
 # %include comm/taskcluster/docker/recipes
@@ -15,8 +16,8 @@ COPY topsrcdir/comm/taskcluster/docker/recipes/fluent_requirements.txt /scripts/
 COPY topsrcdir/comm/taskcluster/docker/recipes/build_desktop_file.py /scripts/build_desktop_file.py
 COPY topsrcdir/comm/taskcluster/docker/recipes/org.mozilla.thunderbird.desktop.jinja2 /scripts/org.mozilla.thunderbird.desktop.jinja2
 
-# %include third_party/python/taskcluster_taskgraph/taskgraph/run-task/fetch-content
-ADD topsrcdir/third_party/python/taskcluster_taskgraph/taskgraph/run-task/fetch-content /scripts/fetch-content
+# Setup upstream `run-task` and `fetch-content`
+# %include-run-task
 
 # Set up Python virtual environment
 ENV VENV_DIR="/scripts"
