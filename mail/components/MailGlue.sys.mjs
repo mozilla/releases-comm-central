@@ -588,10 +588,46 @@ MailGlue.prototype = {
     }
   },
 
+  /**
+   * Set prefs if we appear to be running under Flatpak or Snap.
+   *
+   * Uses env vars first (easy to test by simulating env vars),
+   * then falls back to distribution.id (packager-provided).
+   *
+   * These prefs are set on every startup so profiles can be reused
+   * across different installations.
+   */
+  _setFlatpakOrSnapPref() {
+    if (AppConstants.platform != "linux") {
+      Services.prefs.setBoolPref("mail.inappnotifications.isFlatpak", false);
+      Services.prefs.setBoolPref("mail.inappnotifications.isSnap", false);
+      return;
+    }
+
+    let isFlatpak = Services.env.exists("FLATPAK_ID");
+    let isSnap =
+      Services.env.exists("SNAP") || Services.env.exists("SNAP_NAME");
+
+    if (!isFlatpak && !isSnap) {
+      const distId = Services.prefs
+        .getDefaultBranch("")
+        .getCharPref("distribution.id", "")
+        .toLowerCase();
+
+      isFlatpak = distId.includes("flatpak");
+      isSnap = distId.includes("snap");
+    }
+
+    Services.prefs.setBoolPref("mail.inappnotifications.isFlatpak", isFlatpak);
+    Services.prefs.setBoolPref("mail.inappnotifications.isSnap", isSnap);
+  },
+
   // Runs on startup, before the first command line handler is invoked
   // (i.e. before the first window is opened).
   _beforeUIStartup() {
     lazy.TBDistCustomizer.applyPrefDefaults();
+
+    this._setFlatpakOrSnapPref();
 
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     this._isNewProfile = !Services.prefs.prefHasUserValue(UI_VERSION_PREF);
@@ -1340,6 +1376,8 @@ function reportPreferences() {
     "mail.delete_matches_sort_order",
     "mail.display_glyph",
     "mail.inappnotifications.pkceUpgradeForYahooAol",
+    "mail.inappnotifications.isFlatpak",
+    "mail.inappnotifications.isSnap",
     "mail.prompt_purge_threshold",
     "mail.purge.ask",
     "mail.showCondensedAddresses",
