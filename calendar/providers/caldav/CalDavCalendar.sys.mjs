@@ -505,6 +505,17 @@ CalDavCalendar.prototype = {
     return this.__proto__.__proto__.getProperty.apply(this, arguments);
   },
 
+  setProperty(aName, _aValue) {
+    const ret = this.__proto__.__proto__.setProperty.apply(this, arguments);
+    if (aName == "imip.identity.key") {
+      delete this.mACLProperties.organizerId;
+      delete this.mACLProperties.organizerCN;
+      delete this.mACLProperties["imip.identity"];
+      this.fillACLProperties();
+    }
+    return ret;
+  },
+
   promptOverwrite(aMethod, aItem, aListener, aOldItem) {
     const overwrite = cal.provider.promptOverwrite(aMethod, aItem, aListener, aOldItem);
     if (overwrite) {
@@ -1258,11 +1269,17 @@ CalDavCalendar.prototype = {
   },
 
   fillACLProperties() {
+    const configuredIdentity = cal.provider.getEmailIdentityOfCalendar(this);
     const orgId = this.mCalendarUserAddresses[0];
-    if (orgId) {
+    if (configuredIdentity?.email) {
+      const identity = configuredIdentity.QueryInterface(Ci.nsIMsgIdentity);
+      this.mACLProperties.organizerId = `mailto:${identity.email}`;
+      this.mACLProperties.organizerCN = identity.fullName;
+      this.mACLProperties["imip.identity"] = identity;
+    } else if (orgId) {
       this.mACLProperties.organizerId = orgId;
     } else if (this.mACLEntry) {
-      // if no address provided by caldav, set to organizer to first entry in ACL manager
+      // if no address provided by preferences or caldav, set to organizer to first entry in ACL manager
       const ownerIdentities = this.mACLEntry.getOwnerIdentities();
       if (ownerIdentities.length > 0) {
         const identity = ownerIdentities[0];

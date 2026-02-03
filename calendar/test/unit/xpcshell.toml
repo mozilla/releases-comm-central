@@ -61,6 +61,8 @@ tags = ["import"]
 
 ["test_calStorageHelpers.js"]
 
+["test_caldav_identity_preference.js"]
+
 ["test_caldav_requests.js"]
 tags = ["caldav", "oauth"]
 
