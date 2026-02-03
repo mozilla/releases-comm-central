@@ -38,6 +38,7 @@
 #include "nsURLHelper.h"  // For net_ParseContentType().
 #include "mozilla/Span.h"
 #include "HeaderReader.h"
+#include "IHeaderBlock.h"
 #include "nsIMimeConverter.h"
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
@@ -266,6 +267,17 @@ RawHdr ParseMsgHeaders(mozilla::Span<const char> raw) {
 
   // TODO: custom header storage
   return out;
+}
+
+RawHdr ParseHeaderBlock(IHeaderBlock* headers) {
+  nsCString raw;
+  nsresult rv = headers->AsRaw(raw);
+  if (NS_FAILED(rv)) {
+    // Should never happen, but XPCOM doesn't really do infallible methods :-(
+    NS_WARNING("IHeaderBlock.asRaw() failed.");
+    return RawHdr{};  // Blank.
+  }
+  return ParseMsgHeaders(raw);
 }
 
 NS_IMETHODIMP
