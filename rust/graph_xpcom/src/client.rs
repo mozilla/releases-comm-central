@@ -6,7 +6,6 @@ use std::env;
 
 use ms_graph_tb::Operation;
 use protocol_shared::{authentication::credentials::AuthenticationProvider, error::ProtocolError};
-use serde::Deserialize;
 use url::Url;
 use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
@@ -30,12 +29,8 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         XpComGraphClient { server, endpoint }
     }
 
-    async fn send_request<GraphResponseType, Op>(
-        &self,
-        operation: Op,
-    ) -> Result<GraphResponseType, XpComGraphError>
+    async fn send_request<Op>(&self, operation: Op) -> Result<Op::Response<'_>, XpComGraphError>
     where
-        GraphResponseType: for<'a> Deserialize<'a>,
         Op: Operation,
     {
         let request = operation.build();
@@ -98,7 +93,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
             })
             .into())
         } else {
-            let value: GraphResponseType =
+            let value: Op::Response<'_> =
                 serde_json::from_slice(response_body).map_err(XpComGraphError::Json)?;
             Ok(value)
         }

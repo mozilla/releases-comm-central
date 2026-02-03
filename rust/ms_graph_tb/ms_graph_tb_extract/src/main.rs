@@ -22,16 +22,18 @@ use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
 use crate::oxidize::types;
 
-const SUPPORTED_TYPES: [&str; 7] = [
+const SUPPORTED_TYPES: [&str; 9] = [
     "directoryObject",
     "entity",
     "itemBody",
+    "mailFolder",
+    "mailFolderCollectionResponse",
     "mailboxSettings",
     "message",
     "sendMailRequestBody",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 1] = ["/me"];
+const SUPPORTED_PATHS: [&str; 2] = ["/me", "/me/mailFolders"];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this

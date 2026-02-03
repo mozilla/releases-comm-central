@@ -8,7 +8,7 @@ use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use crate::GENERATION_DISCLOSURE;
 use crate::extract::path::{Method, Operation, Path, Success};
 
-use super::{Reference, RustType, markup_doc_comment};
+use super::{Reference, RustType, markup_doc_comment, return_type};
 
 pub struct RequestDef {
     struct_def: StructDef,
@@ -70,6 +70,11 @@ impl ToTokens for Path {
                     }
                 };
                 let method = operation.method;
+                let mut response = operation.success.to_token_stream();
+                if operation.pageable {
+                    response = quote!(Paginated<#response>);
+                }
+                let response = response;
                 match operation.method {
                     Method::Get => {
                         let selectable = selectable(operation);
@@ -101,6 +106,7 @@ impl ToTokens for Path {
                             method: method.to_string(),
                             lifetime: None,
                             body: None,
+                            response,
                             selectable,
                         };
                         let select_def = SelectDef { selection_type };
@@ -119,28 +125,29 @@ impl ToTokens for Path {
                         let mut body = op_body
                                 .property
                                 .rust_type
-                                .base_token(false, Reference::Own);
+                            .base_token(false, Reference::Own);
+                        let body_lifetime = Some(quote!(<'body>));
                         if op_body.property.is_ref {
-                            body = quote!(#body<'a>);
+                            body = quote!(#body #body_lifetime);
                         }
-                        let lifetime = Some(quote!(<'a>));
                         let struct_def = StructDef {
                             description,
                             method,
-                            lifetime: lifetime.clone(),
+                            lifetime: body_lifetime.clone(),
                             body_line: Some(quote!(body: #body,)),
                             selection_type: None,
                         };
                         let impl_def = ImplDef {
                             method,
-                            lifetime: lifetime.clone(),
+                            lifetime: body_lifetime.clone(),
                             arg: Some(quote!(body: #body)),
                             selectable: false
                         };
                         let operation_def = OperationDef {
                             method: method.to_string(),
-                            lifetime,
+                            lifetime: body_lifetime,
                             body: Some(body),
+                            response,
                             selectable: false,
                         };
                         let select_def = SelectDef { selection_type: None };
@@ -175,7 +182,7 @@ impl ToTokens for Path {
             use std::str::FromStr;
 
             #imports
-            use crate::{Operation, Select, Selection};
+            use crate::*;
 
             const PATH: &str = #name;
         });
@@ -256,6 +263,7 @@ struct OperationDef {
     method: String,
     lifetime: Option<TokenStream>,
     body: Option<TokenStream>,
+    response: TokenStream,
     selectable: bool,
 }
 
@@ -265,6 +273,7 @@ impl ToTokens for OperationDef {
             method,
             lifetime,
             body,
+            response,
             selectable,
         } = self;
         let upper_method = format_ident!("{}", method.to_ascii_uppercase());
@@ -293,6 +302,7 @@ impl ToTokens for OperationDef {
             impl #lifetime Operation for #method #lifetime {
                 const METHOD: Method = Method::#upper_method;
                 type Body = #body_type;
+                type Response<'response> = #response;
 
                 fn build(&self) -> http::Request<Self::Body> {
                     #selection_str
@@ -347,5 +357,18 @@ fn selectable(request: &Operation) -> bool {
 impl ToTokens for Method {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         tokens.append(format_ident!("{self}"))
+    }
+}
+
+impl ToTokens for Success {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::NoBody => tokens.append_all(quote!(())),
+            Self::WithBody(body) => tokens.append_all(return_type(
+                &body.property,
+                Reference::Own,
+                Some("'response"),
+            )),
+        }
     }
 }

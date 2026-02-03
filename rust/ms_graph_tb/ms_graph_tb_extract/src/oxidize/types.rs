@@ -5,7 +5,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
-use super::{Composed, Reference, RustType};
+use super::{Reference, RustType, return_type};
 use crate::extract::schema::Property;
 use crate::naming::{pascalize, snakeify};
 use crate::oxidize::markup_doc_comment;
@@ -162,7 +162,7 @@ fn function_defs(properties: &[Property]) -> Vec<FunctionDef> {
         .iter()
         .map(|p| {
             let fn_name = format_ident!("{}", snakeify(&p.name));
-            let ret_type = return_type(p, Reference::Ref);
+            let ret_type = return_type(p, Reference::Ref, None);
             let doc_comment = if let Some(doc) = &p.description {
                 let doc = markup_doc_comment(doc.clone());
                 Some(quote!(#[doc = #doc]))
@@ -187,39 +187,6 @@ fn function_defs(properties: &[Property]) -> Vec<FunctionDef> {
         .collect::<Vec<_>>();
     function_defs.sort();
     function_defs
-}
-
-fn return_type(prop: &Property, refers: Reference) -> TokenStream {
-    let base = &prop.rust_type.base_token(prop.nullable, refers);
-
-    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::Custom(_)) {
-        quote!(#base<'a>)
-    } else {
-        quote!(#base)
-    };
-
-    let composed = prop.rust_type.composed();
-    if refers == Reference::Ref
-        && composed != Composed::Copy
-        && (!prop.is_collection || composed == Composed::Slice)
-        && !matches!(prop.rust_type, RustType::Custom(_))
-    {
-        ty = quote!(&#ty);
-    }
-
-    if prop.is_collection {
-        ty = quote!(Vec<#ty>);
-    }
-
-    if prop.nullable {
-        ty = quote!(Option<#ty>);
-    }
-
-    if !prop.is_ref {
-        ty = quote!(Result<#ty, Error>);
-    }
-
-    ty
 }
 
 fn fn_body(prop: &Property) -> TokenStream {

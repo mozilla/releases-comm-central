@@ -5,3 +5,4 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 pub mod me;
+pub mod me_mail_folders;

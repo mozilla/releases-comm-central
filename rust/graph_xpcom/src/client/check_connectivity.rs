@@ -36,9 +36,7 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         let mut get_me = paths::me::Get::new();
         get_me.select(vec![user::UserSelection::AboutMe]);
 
-        client
-            .send_request::<user::User, paths::me::Get>(get_me)
-            .await?;
+        client.send_request(get_me).await?;
         Ok(())
     }
 

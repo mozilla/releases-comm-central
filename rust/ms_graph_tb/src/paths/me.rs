@@ -6,7 +6,7 @@
 
 #![doc = "Provides operations to manage the user singleton.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::types::user::*;
-use crate::{Operation, Select, Selection};
+use crate::*;
 use form_urlencoded::Serializer;
 use http::method::Method;
 use std::str::FromStr;
@@ -26,6 +26,7 @@ impl Get {
 impl Operation for Get {
     const METHOD: Method = Method::GET;
     type Body = ();
+    type Response<'response> = User<'response>;
     fn build(&self) -> http::Request<Self::Body> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -50,17 +51,18 @@ impl Select for Get {
 }
 #[doc = "Update user\n\nUpdate the properties of a user object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-update?view=graph-rest-1.0)."]
 #[derive(Debug, Default)]
-pub struct Patch<'a> {
-    body: User<'a>,
+pub struct Patch<'body> {
+    body: User<'body>,
 }
-impl<'a> Patch<'a> {
-    pub fn new(body: User<'a>) -> Self {
+impl<'body> Patch<'body> {
+    pub fn new(body: User<'body>) -> Self {
         Self { body }
     }
 }
-impl<'a> Operation for Patch<'a> {
+impl<'body> Operation for Patch<'body> {
     const METHOD: Method = Method::PATCH;
-    type Body = User<'a>;
+    type Body = User<'body>;
+    type Response<'response> = User<'response>;
     fn build(&self) -> http::Request<Self::Body> {
         let p_and_q = PATH;
         http::Request::builder()

@@ -9,7 +9,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{collections::HashSet, fmt};
 
-use crate::naming;
+use crate::{extract::schema::Property, naming};
 
 pub mod paths;
 pub mod types;
@@ -283,6 +283,49 @@ impl CustomRustType {
     pub fn original_name(&self) -> &String {
         &self.original_name
     }
+}
+
+/// Given the propeperty and whether it should be a reference, produce a
+/// `TokenStream` that can be used as a return type representing it.
+///
+/// `lifetime_name` defaults to `'a`. Note that any name *must* include the
+/// leading `'`.
+fn return_type(prop: &Property, refers: Reference, lifetime_name: Option<&str>) -> TokenStream {
+    let base = &prop.rust_type.base_token(prop.nullable, refers);
+
+    let mut ty: TokenStream = if matches!(prop.rust_type, RustType::Custom(_)) {
+        // The format_ident! macro doesn't like lifetime names, so we do this manually.
+        let lifetime_name: TokenStream = lifetime_name
+            .unwrap_or("'a")
+            .parse()
+            .expect("should be a valid lifetime ident");
+        quote!(#base<#lifetime_name>)
+    } else {
+        quote!(#base)
+    };
+
+    let composed = prop.rust_type.composed();
+    if refers == Reference::Ref
+        && composed != Composed::Copy
+        && (!prop.is_collection || composed == Composed::Slice)
+        && !matches!(prop.rust_type, RustType::Custom(_))
+    {
+        ty = quote!(&#ty);
+    }
+
+    if prop.is_collection {
+        ty = quote!(Vec<#ty>);
+    }
+
+    if prop.nullable {
+        ty = quote!(Option<#ty>);
+    }
+
+    if !prop.is_ref {
+        ty = quote!(Result<#ty, Error>);
+    }
+
+    ty
 }
 
 /// Returns true if the given string is a reserved Rust keyword.

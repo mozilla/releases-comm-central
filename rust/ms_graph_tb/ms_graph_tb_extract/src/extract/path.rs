@@ -30,6 +30,7 @@ pub struct Operation {
     pub summary: Option<String>,
     pub description: Option<String>,
     pub external_docs: Option<String>,
+    pub pageable: bool,
     pub parameters: Option<Vec<Parameter>>,
     pub body: Option<RequestBody>,
     pub success: Success,
@@ -168,6 +169,7 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
             let summary = request.summary.clone();
             let description = request.description.clone();
             let external_docs = request.external_docs.clone();
+            let pageable = request.pageable;
             let parameters = request
                 .parameters
                 .as_ref()
@@ -186,6 +188,7 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
                 summary,
                 description,
                 external_docs,
+                pageable,
                 parameters,
                 body,
                 success,

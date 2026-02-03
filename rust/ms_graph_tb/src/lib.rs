@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use http::method::Method;
-use std::fmt::Display;
+use serde::{Deserialize, de::DeserializeOwned};
+use std::{fmt::Display, marker::PhantomData};
 use thiserror::Error;
 
 pub mod paths;
@@ -22,17 +23,28 @@ pub trait Operation {
     /// The HTTP request method used for this operation.
     const METHOD: Method;
 
-    /// The type of the body of the request. Requests without a body will set this to `()`.
+    /// The type of the body of the request. Requests without a body will set
+    /// this to `()`.
     type Body;
 
-    /// Create an [`http::Request`] from the current state of the operation object.
+    /// The type of the response of the request, in the success case. Requests
+    /// without a response type will set this to `()`.
+    // This could be generalized for a possible performance win, but
+    // at the cost of making consumers responsible for the lifetime of
+    // the raw, unparsed response:
+    // type Response<'response>: Deserialize<'response>
+    type Response<'response>: DeserializeOwned;
+
+    /// Create an [`http::Request`] from the current state of the operation
+    /// object.
     fn build(&self) -> http::Request<Self::Body>;
 }
 
 /// Indicates the `Operation` accepts
 /// [`$select`](https://learn.microsoft.com/en-us/graph/query-parameters?tabs=http#select).
 pub trait Select: Operation {
-    /// Type (typically an enum) representing the properties valid for this operation.
+    /// Type (typically an enum) representing the properties valid for this
+    /// operation.
     type Properties: Display;
 
     /// Set the selected properties.
@@ -42,7 +54,8 @@ pub trait Select: Operation {
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P);
 }
 
-/// Common internal representation of the `$select` parameter (used with [`Select`]).
+/// Common internal representation of the `$select` parameter (used with
+/// [`Select`]).
 #[derive(Clone, Debug)]
 struct Selection<P: Clone> {
     // The API seems to deduplicate on the server-side, so we don't need to do that. Because this
@@ -81,10 +94,61 @@ impl<P: Display + Clone> Selection<P> {
     }
 }
 
+/// A paginated response message. If the response has additional results, then
+/// [`Self::next_page`] will return `Some`.
+///
+/// See [Microsoft documentation](https://learn.microsoft.com/en-us/graph/paging)
+/// for more information.
+#[derive(Debug, Deserialize)]
+pub struct Paginated<T> {
+    #[serde(rename = "@odata.nextLink")]
+    next_link: Option<String>,
+    #[serde(flatten)]
+    pub response: T,
+}
+
+impl<T> Paginated<T> {
+    /// Get the operation to retreive the next page, if there is one.
+    pub fn next_page(&self) -> Option<NextPage<T>> {
+        if let Some(next_link) = &self.next_link {
+            Some(NextPage {
+                _phantom: PhantomData,
+                next_uri: next_link.try_into().ok()?,
+            })
+        } else {
+            None
+        }
+    }
+}
+
+/// The next page of a response. Note that unlike other [`Operation`]s, the
+/// request constructed contains the *full* URL, and should not be modified.
+#[derive(Debug)]
+pub struct NextPage<T> {
+    _phantom: PhantomData<T>,
+    next_uri: http::Uri,
+}
+
+impl<T: for<'a> Deserialize<'a>> Operation for NextPage<T> {
+    const METHOD: Method = Method::GET;
+    type Body = ();
+    type Response<'response> = Paginated<T>;
+
+    /// Create an [`http::Request`] object from `Self`. See the struct note, the
+    /// URI should not be modified.
+    fn build(&self) -> http::Request<()> {
+        http::Request::builder()
+            .uri(&self.next_uri)
+            .method(Method::GET)
+            .body(())
+            .unwrap()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::paths;
-    use super::types::user;
+    use super::types::{mail_folder, user};
     use super::{Operation, Select, Selection};
     use http::uri;
     use std::borrow::Cow;
@@ -159,5 +223,147 @@ mod tests {
         ]));
         let expected = user::User { properties };
         assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn deserialize_paginated_with_page() {
+        use mail_folder::MailFolder;
+
+        let json = r#"{
+    "@odata.context": "https://graph.microsoft.com/v1.0/me/mailFolders",
+    "value": [
+        {
+            "id": "AQMkADYAAAIBXQAAAA==",
+            "displayName": "Archive",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        },
+        {
+            "id": "AQMkADYAAAIBCQAAAA==",
+            "displayName": "Sent Items",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        }
+    ],
+    "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
+}"#;
+
+        let parsed: <paths::me_mail_folders::Get as Operation>::Response<'_> =
+            serde_json::from_str(json).unwrap();
+        let value = vec![
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
+                    ("displayName".to_string(), "Archive".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
+                    ("displayName".to_string(), "Sent Items".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+        ];
+
+        assert_eq!(
+            parsed.response.value().expect("value should be present"),
+            value
+        );
+
+        let next_page_uri = parsed
+            .next_page()
+            .expect("next page should be present")
+            .next_uri;
+        let expected_uri: http::Uri = "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
+            .try_into()
+            .unwrap();
+        assert_eq!(next_page_uri, expected_uri)
+    }
+
+    #[test]
+    fn deserialize_paginated_without_page() {
+        use mail_folder::MailFolder;
+
+        let json = r#"{
+    "@odata.context": "https://graph.microsoft.com/v1.0/me/mailFolders",
+    "value": [
+        {
+            "id": "AQMkADYAAAIBXQAAAA==",
+            "displayName": "Archive",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        },
+        {
+            "id": "AQMkADYAAAIBCQAAAA==",
+            "displayName": "Sent Items",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        }
+    ]
+}"#;
+
+        let parsed: <paths::me_mail_folders::Get as Operation>::Response<'_> =
+            serde_json::from_str(json).unwrap();
+        let value = vec![
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
+                    ("displayName".to_string(), "Archive".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
+                    ("displayName".to_string(), "Sent Items".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+        ];
+
+        assert_eq!(
+            parsed.response.value().expect("value should be present"),
+            value
+        );
+
+        assert!(parsed.next_page().is_none());
     }
 }

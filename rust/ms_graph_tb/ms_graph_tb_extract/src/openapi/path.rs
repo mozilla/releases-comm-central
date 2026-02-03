@@ -8,6 +8,11 @@ use yaml_rust2::{Yaml, yaml::Hash as YamlHash};
 use super::{OaSchema, get_map_in, get_node_in, get_seq_in, get_str_in, parse_schema};
 
 /// An OpenAPI path.
+///
+/// For the generic description of this OpenAPI concept, see the [OpenAPI
+/// Specification].
+///
+/// [OpenAPI Specification]: https://spec.openapis.org/oas/latest.html#path-item-object
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OaPath {
     pub description: Option<String>,
@@ -15,20 +20,54 @@ pub struct OaPath {
 }
 
 /// An OpenAPI Operation (request).
+///
+/// For the generic description of this OpenAPI concept, see the [OpenAPI
+/// Specification].
+///
+/// [OpenAPI Specification]: https://spec.openapis.org/oas/latest.html#operation-object
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OaOperation {
+    /// A short summary of what the operation does.
     pub summary: Option<String>,
+
+    /// A longer-form summary of what the operation does.
+    ///
+    /// May be in [CommonMark Markdown](https://spec.commonmark.org/current/).
     pub description: Option<String>,
 
-    // this field is technically structured, but we only store the url, since the only additional
-    // info is always the useless description "Find more info here"
+    /// A link to any external documentation.
+    ///
+    /// This field is technically a [structured OpenAPI object], but we only
+    /// store the url, since the only additional info in this instance is always
+    /// the useless description "Find more info here".
+    ///
+    /// [structured OpenAPI object]: https://spec.openapis.org/oas/latest.html#external-documentation-object
     pub external_docs: Option<String>,
+
+    /// A Microsoft extension for indicating the operation response is [paginated].
+    ///
+    /// This field contains some structured data, but because it's always
+    /// identical, it's represented here as a `bool`.
+    ///
+    /// [paginated]: https://learn.microsoft.com/en-us/graph/paging
+    pub pageable: bool,
+
+    /// Applicable parameters for the operation.
     pub parameters: Option<Vec<OaParameter>>,
+
+    /// The body of the operation request.
     pub body: Option<OaBody>,
+
+    /// The responses to the operation request.
     pub responses: HashMap<String, Option<OaBody>>,
 }
 
 /// An OpenAPI HTTP request parameter.
+///
+/// For the generic description of this OpenAPI concept, see the [OpenAPI
+/// Specification].
+///
+/// [OpenAPI Specification]: https://spec.openapis.org/oas/latest.html#parameter-object
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OaParameter {
     pub name: Option<String>,
@@ -39,6 +78,11 @@ pub struct OaParameter {
 }
 
 /// An OpenAPI HTTP request body.
+///
+/// For the generic description of this OpenAPI concept, see the [OpenAPI
+/// Specification].
+///
+/// [OpenAPI Specification]: https://spec.openapis.org/oas/latest.html#request-body-object
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OaBody {
     pub application_type: Option<String>,
@@ -67,6 +111,7 @@ pub(super) fn parse_path(node: &Yaml) -> OaPath {
             let summary = get_str_in(map, "summary");
             let description = get_str_in(map, "description");
             let external_docs = get_external_docs(map);
+            let pageable = map.contains_key(&Yaml::from_str("x-ms-pageable"));
             let body = get_request_body(map);
             let responses = get_responses(map);
             let parameters = get_parameters(map);
@@ -76,6 +121,7 @@ pub(super) fn parse_path(node: &Yaml) -> OaPath {
                     summary,
                     description,
                     external_docs,
+                    pageable,
                     parameters,
                     body,
                     responses,
