@@ -20,6 +20,7 @@ var {
   create_folder,
   get_about_3pane,
   get_about_message,
+  mc,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -33,6 +34,9 @@ var {
 );
 var { make_message_sets_in_folders } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
+);
+var { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var folder,
@@ -110,6 +114,19 @@ var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
  * @type {Window}
  */
 var msgc;
+
+async function performDelete(window, message) {
+  const subject = message.subject;
+  info(`Current message: ${subject}`);
+
+  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
+    message.folder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await deleteOrMoveMsgCompleted;
+  info(`Message deleted: ${subject}`);
+}
 
 /**
  * Open up the message at aIndex in all our display mechanisms, and check to see
@@ -227,12 +244,14 @@ add_task(
  */
 add_task(async function test_delete_in_folder_tab() {
   const about3Pane = get_about_3pane();
+  const msg0 = about3Pane.gDBView.getMsgHdrAt(0);
   // - plan to end up on the guy who is currently at index 1
   curMessage = about3Pane.gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
   nextMessage = about3Pane.gDBView.getMsgHdrAt(2);
+
   // - delete the message
-  await press_delete();
+  await performDelete(mc, msg0);
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
@@ -244,7 +263,7 @@ add_task(async function test_delete_in_folder_tab() {
 add_task(async function test_delete_in_message_tab() {
   await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
-  await press_delete();
+  await performDelete(mc, curMessage);
   curMessage = nextMessage;
 
   // - verify all displays
@@ -263,7 +282,7 @@ add_task(async function test_delete_in_message_tab() {
  */
 add_task(async function test_delete_in_message_window() {
   // - delete
-  await press_delete(msgc);
+  await performDelete(msgc, curMessage);
   curMessage = nextMessage;
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -282,7 +301,7 @@ add_task(async function test_delete_last_message_closes_message_displays() {
 
   // - let's arbitrarily perform the deletion on this message tab
   await switch_tab(tabMessage);
-  await press_delete();
+  await performDelete(mc, curMessage);
 
   // - the message window should have gone away...
   // (this also helps ensure that the 3pane gets enough event loop time to do
@@ -333,8 +352,9 @@ add_task(async function test_delete_last_message_in_folder_tab() {
   curMessage = about3Pane.gDBView.getMsgHdrAt(2);
   // while we're at it, figure out who is at 1 for the next step
   nextMessage = about3Pane.gDBView.getMsgHdrAt(1);
+
   // - delete the message
-  await press_delete();
+  await performDelete(mc, curMessage);
 
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 2);
@@ -347,7 +367,7 @@ add_task(async function test_delete_last_message_in_folder_tab() {
 add_task(async function test_delete_last_message_in_message_tab() {
   // (we're still on the message tab, and nextMessage is the guy we want to see
   //  once the delete completes.)
-  await press_delete();
+  await performDelete(mc, curMessage);
   curMessage = nextMessage;
 
   // - verify all displays
@@ -369,7 +389,7 @@ add_task(async function test_delete_last_message_in_message_window() {
   // tab
   await switch_tab(tabFolder);
   // - delete
-  await press_delete(msgc);
+  await performDelete(msgc, curMessage);
   curMessage = nextMessage;
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -394,8 +414,8 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
   await _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
   const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
-  await select_click_row(3);
-  await press_delete();
+  const msg3 = await select_click_row(3);
+  await performDelete(mc, msg3);
 
   // The message tab, background message tab and window shouldn't have changed
   await _verify_message_is_displayed_in(
@@ -416,7 +436,7 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
 add_task(async function test_delete_one_before_message_in_message_tab() {
   // Open up 3 in a message tab, then select and open up 4 in a background tab
   // and window.
-  await select_click_row(3);
+  const msg3 = await select_click_row(3);
   tabMessage = await open_selected_message_in_new_tab(true);
   const expectedMessage = await select_click_row(4);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -424,7 +444,7 @@ add_task(async function test_delete_one_before_message_in_message_tab() {
 
   // Switch to the message tab, and delete.
   await switch_tab(tabMessage);
-  await press_delete();
+  await performDelete(mc, msg3);
 
   // The folder tab, background message tab and window shouldn't have changed
   await _verify_message_is_displayed_in(
@@ -445,7 +465,7 @@ add_task(async function test_delete_one_before_message_in_message_tab() {
 add_task(async function test_delete_one_before_message_in_message_window() {
   // Open up 3 in a message window, then select and open up 4 in a background
   // and a foreground tab.
-  await select_click_row(3);
+  const msg3 = await select_click_row(3);
   msgc = await open_selected_message_in_new_window();
   const expectedMessage = await select_click_row(4);
   tabMessage = await open_selected_message_in_new_tab();
@@ -453,7 +473,7 @@ add_task(async function test_delete_one_before_message_in_message_window() {
   tabMessageBackground = await open_selected_message_in_new_tab(true);
 
   // Press delete in the message window.
-  await press_delete(msgc);
+  await performDelete(msgc, msg3);
 
   // The folder tab, message tab and background message tab shouldn't have
   // changed
@@ -481,8 +501,8 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
   await _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
   const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
-  await select_click_row(5);
-  await press_delete();
+  const msg5 = await select_click_row(5);
+  await performDelete(mc, msg5);
 
   // The message tab, background message tab and window shouldn't have changed
   await _verify_message_is_displayed_in(
@@ -503,7 +523,7 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
 add_task(async function test_delete_one_after_message_in_message_tab() {
   // Open up 5 in a message tab, then select and open up 4 in a background tab
   // and window.
-  await select_click_row(5);
+  const msg5 = await select_click_row(5);
   tabMessage = await open_selected_message_in_new_tab(true);
   const expectedMessage = await select_click_row(4);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -511,7 +531,7 @@ add_task(async function test_delete_one_after_message_in_message_tab() {
 
   // Switch to the message tab, and delete.
   await switch_tab(tabMessage);
-  await press_delete();
+  await performDelete(mc, msg5);
 
   // The folder tab, background message tab and window shouldn't have changed
   await _verify_message_is_displayed_in(
@@ -532,7 +552,7 @@ add_task(async function test_delete_one_after_message_in_message_tab() {
 add_task(async function test_delete_one_after_message_in_message_window() {
   // Open up 5 in a message window, then select and open up 4 in a background
   // and a foreground tab.
-  await select_click_row(5);
+  const msg5 = await select_click_row(5);
   msgc = await open_selected_message_in_new_window();
   const expectedMessage = await select_click_row(4);
   tabMessage = await open_selected_message_in_new_tab();
@@ -540,7 +560,7 @@ add_task(async function test_delete_one_after_message_in_message_window() {
   tabMessageBackground = await open_selected_message_in_new_tab(true);
 
   // Press delete in the message window.
-  await press_delete(msgc);
+  await performDelete(msgc, msg5);
 
   // The folder tab, message tab and background message tab shouldn't have
   // changed
