@@ -78,14 +78,10 @@ function onLoad() {
     );
   } catch (e) {
     dump("No find service!\n");
-    gFindService = 0;
   }
 
   // Init gReplaceDialog.
   initDialogObject();
-
-  // Change "OK" to "Find".
-  // dialog.find.label = document.getElementById("fBLT").getAttribute("label");
 
   // Fill dialog.
   loadDialog();
@@ -114,28 +110,26 @@ function setUpFindInst() {
   gFindInst.findBackwards = gReplaceDialog.searchBackwards.checked;
 }
 
-function onFindNext() {
+async function onFindNext() {
   // Transfer dialog contents to the find service.
   saveFindData();
   // set up the find instance
   setUpFindInst();
 
   // Search.
-  var result = gFindInst.findNext();
-
-  if (!result) {
-    var bundle = document.getElementById("findBundle");
-    Services.prompt.alert(
-      window,
-      GetString("Alert"),
-      bundle.getString("notFoundWarning")
-    );
-    SetTextboxFocus(gReplaceDialog.findInput);
-    gReplaceDialog.findInput.select();
-    gReplaceDialog.findInput.focus();
-    return false;
+  const result = gFindInst.findNext();
+  if (result) {
+    return;
   }
-  return true;
+
+  const [title, message] = await document.l10n.formatValues([
+    "not-found-alert-title",
+    "not-found-alert-message",
+  ]);
+  Services.prompt.alert(window, title, message);
+
+  gReplaceDialog.findInput.select();
+  gReplaceDialog.findInput.focus();
 }
 
 function onReplace() {
