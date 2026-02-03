@@ -1,0 +1,65 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Interface presenting a block of RFC5322-style mail headers.
+ *
+ * For native RFC5322 protocols like IMAP, this interface can just front a
+ * verbatim header block.
+ * But for protocols such as EWS, these headers can be synthesised or faked
+ * from other representations (e.g. XML for EWS).
+ */
+[scriptable, uuid(326f8e01-06bc-46b3-9811-32c6de59d4aa)]
+interface IHeaderBlock : nsISupports
+{
+    /**
+     * The number of header fields in this block.
+     */
+    readonly attribute unsigned long numHeaders;
+
+    /**
+     * The name of the given header field.
+     */
+    ACString name(in unsigned long index);
+
+    /**
+     * The value for the given header field.
+     * NOTE: the value returned will be unfolded. That is, long values split
+     * across multiple lines will be restored to a single line, according to
+     * the rules at:
+     *
+     * https://datatracker.ietf.org/doc/html/rfc5322#section-2.2.3
+     *
+     * However, no further interpretation of the value is performed.
+     * In particular, no attempt at RFC2047 decoding is attempted (which is
+     * only applicable to some fields, and we try to stay field-agnostic
+     * here).
+     * Note that field values _may_ be UTF-8 (as per RFC5335).
+     */
+    AUTF8String value(in unsigned long index);
+
+    /**
+     * Return the entire header block in raw RFC5322 format.
+     * long values may potentially split across multiple lines (folded) in
+     * this representation.
+     *
+     * The returned string *must* include a trailing blank line to act
+     * as the delimiter for the header block.
+     * Without a blank line, a parser cannot be confident that the last value
+     * isn't clipped - it could potentially be continued (folded) on the next,
+     * missing, line.
+     *
+     * For example:
+     *    `Staff-Height: 6 Kadams\r\n`
+     *
+     *  looks like a full header, but to a parser it _could_ be a prematurely
+     *  clipped version of:
+     *
+     *    `Staff-Height: 6 Kadams\r\n minus 1 Kadam\r\n`
+     *
+     */
+    AUTF8String asRaw();
+};
