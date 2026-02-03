@@ -61,6 +61,9 @@ LazyLogModule DBLog("MsgDB");
 
 PRTime nsMsgDatabase::gLastUseTime;
 
+// Write data in a RawHdr struct to an nsIMsgDBHdr.
+nsresult ApplyRawHdrToDbHdr(RawHdr const& raw, nsIMsgDBHdr* hdr);
+
 /**
  * mozilla::intl APIs require sizeable buffers. This class abstracts over
  * the nsTArray.
@@ -2881,6 +2884,99 @@ nsresult nsMsgDatabase::EnumerateMessagesWithFlag(nsIMsgEnumerator** result,
   return NS_OK;
 }
 
+// Update the existing data in a nsIMsgDBHdr using data from a RawHdr.
+nsresult ApplyRawHdrToDbHdr(RawHdr const& raw, nsIMsgDBHdr* hdr) {
+  nsresult rv;
+  if (raw.date) {
+    rv = hdr->SetDate(raw.date);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.messageId.IsEmpty()) {
+    rv = hdr->SetMessageId(raw.messageId);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.ccList.IsEmpty()) {
+    rv = hdr->SetCcList(raw.ccList);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.bccList.IsEmpty()) {
+    rv = hdr->SetBccList(raw.bccList);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.sender.IsEmpty()) {
+    rv = hdr->SetAuthor(raw.sender);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.subject.IsEmpty()) {
+    rv = hdr->SetSubject(raw.subject);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.recipients.IsEmpty()) {
+    rv = hdr->SetRecipients(raw.recipients);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.references.IsEmpty()) {
+    nsTArray<nsCString> parts(raw.references.Length());
+    for (auto ref : raw.references) {
+      parts.AppendElement("<"_ns + ref + ">"_ns);
+    }
+    rv = hdr->SetReferences(StringJoin(" "_ns, parts));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  if (!raw.replyTo.IsEmpty()) {
+    rv = hdr->SetStringProperty("replyTo", raw.replyTo);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  rv = hdr->SetFlags(raw.flags);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (raw.priority != nsMsgPriority::notSet) {
+    rv = hdr->SetPriority(raw.priority);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  if (raw.dateReceived != 0) {
+    uint32_t secs;
+    PRTime2Seconds(raw.dateReceived, &secs);
+    rv = hdr->SetUint32Property("dateReceived", secs);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  if (!raw.keywords.IsEmpty()) {
+    rv = hdr->SetStringProperty("keywords", raw.keywords);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // TODO: Not sure if rawHdr should really have this as primary data - it
+  // could potentially be derived via folder membership.
+  if (!raw.accountKey.IsEmpty()) {
+    hdr->SetAccountKey(raw.accountKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // TODO: rawHdr probably shouldn't have this...
+  if (!raw.charset.IsEmpty()) {
+    rv = hdr->SetCharset(raw.charset);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Google-specific headers
+#if 0
+  rv = hdr->SetStringProperty("X-GM-MSGID", raw.xGmMsgId);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = hdr->SetStringProperty("X-GM-THRID", raw.xGmThrId);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = hdr->SetStringProperty("X-GM-LABELS", raw.xGmLabels);
+  NS_ENSURE_SUCCESS(rv, rv);
+#endif
+  // Need this for custom headers.
+  for (auto& extra : raw.extras) {
+    rv = hdr->SetStringProperty(extra.k.get(), extra.v);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
+};
+
 // NOTE: We just want to take the data and load it.
 // We shouldn't be making any policy decisions here
 // (such as leaving "replyTo" blank if same as "from").
@@ -2892,93 +2988,8 @@ NS_IMETHODIMP nsMsgDatabase::AddMsgHdr(RawHdr* msg, bool notify,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Populate the still-detached hdr.
-  if (msg->date) {
-    rv = hdr->SetDate(msg->date);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->messageId.IsEmpty()) {
-    rv = hdr->SetMessageId(msg->messageId);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->ccList.IsEmpty()) {
-    rv = hdr->SetCcList(msg->ccList);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->bccList.IsEmpty()) {
-    rv = hdr->SetBccList(msg->bccList);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->sender.IsEmpty()) {
-    rv = hdr->SetAuthor(msg->sender);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->subject.IsEmpty()) {
-    rv = hdr->SetSubject(msg->subject);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->recipients.IsEmpty()) {
-    rv = hdr->SetRecipients(msg->recipients);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->references.IsEmpty()) {
-    nsTArray<nsCString> parts(msg->references.Length());
-    for (auto ref : msg->references) {
-      parts.AppendElement("<"_ns + ref + ">"_ns);
-    }
-    rv = hdr->SetReferences(StringJoin(" "_ns, parts));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-  if (!msg->replyTo.IsEmpty()) {
-    rv = hdr->SetStringProperty("replyTo", msg->replyTo);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  rv = hdr->SetFlags(msg->flags);
+  rv = ApplyRawHdrToDbHdr(*msg, hdr);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (msg->priority != nsMsgPriority::notSet) {
-    rv = hdr->SetPriority(msg->priority);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  if (msg->dateReceived != 0) {
-    uint32_t secs;
-    PRTime2Seconds(msg->dateReceived, &secs);
-    rv = hdr->SetUint32Property("dateReceived", secs);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  if (!msg->keywords.IsEmpty()) {
-    rv = hdr->SetStringProperty("keywords", msg->keywords);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // TODO: Not sure if msgHdr should really have this as primary data - it
-  // could potentially be derived via folder membership.
-  if (!msg->accountKey.IsEmpty()) {
-    hdr->SetAccountKey(msg->accountKey);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // TODO: msgHdr probably shouldn't have this...
-  if (!msg->charset.IsEmpty()) {
-    rv = hdr->SetCharset(msg->charset);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Google-specific headers
-#if 0
-  rv = hdr->SetStringProperty("X-GM-MSGID", msg->xGmMsgId);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = hdr->SetStringProperty("X-GM-THRID", msg->xGmThrId);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = hdr->SetStringProperty("X-GM-LABELS", msg->xGmLabels);
-  NS_ENSURE_SUCCESS(rv, rv);
-#endif
-  // Need this for custom headers.
-  for (auto& extra : msg->extras) {
-    rv = hdr->SetStringProperty(extra.k.get(), extra.v);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
 
   // Finished setting up fields.
   // Now attach the row to the table.
