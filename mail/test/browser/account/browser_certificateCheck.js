@@ -511,6 +511,7 @@ add_task(async function testOutgoingServerPane() {
     {},
     contentWindow
   );
+  await TestUtils.waitForTick();
   let certCheck = contentDocument.querySelector("certificate-check");
   Assert.ok(!certCheck, "certificate check should not exist for plain server");
 
@@ -521,6 +522,7 @@ add_task(async function testOutgoingServerPane() {
     {},
     contentWindow
   );
+  await TestUtils.waitForTick();
   certCheck = contentDocument.querySelector("certificate-check");
   Assert.ok(certCheck, "certificate check should exist for TLS server");
   checkStatus(certCheck, null);
@@ -541,6 +543,7 @@ add_task(async function testOutgoingServerPane() {
     {},
     contentWindow
   );
+  await TestUtils.waitForTick();
   certCheck = contentDocument.querySelector("certificate-check");
   Assert.ok(certCheck, "certificate check should exist for TLS server");
   checkStatus(certCheck, null);
@@ -556,13 +559,16 @@ add_task(async function testOutgoingServerPane() {
 
   // Return to the non-TLS server. The UI should no longer be visible.
 
+  serverList.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     serverList.querySelector(`[key="${smtpPlain.key}"]`),
     {},
     contentWindow
   );
-  certCheck = contentDocument.querySelector("certificate-check");
-  Assert.ok(!certCheck, "certificate check should not exist for plain server");
+  await TestUtils.waitForCondition(
+    () => !contentDocument.querySelector("certificate-check"),
+    "certificate check should disappear from plain server"
+  );
 
   tabmail.closeTab(accountsTab);
 });
@@ -690,11 +696,13 @@ async function fetchCert(
 ) {
   // Ensure the L10n is ready before we begin.
   await certCheck.ownerDocument.l10n.translateRoots();
+  certCheck.fetchButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     certCheck.fetchButton,
     {},
     certCheck.ownerGlobal
   );
+  await TestUtils.waitForTick();
   Assert.equal(
     certCheck.getAttribute("status"),
     "fetching",
@@ -765,6 +773,7 @@ async function removeException(certCheck, certificate) {
     {},
     certCheck.ownerGlobal
   );
+  await TestUtils.waitForTick();
 
   Assert.ok(
     !certOverrideService.hasMatchingOverride(
