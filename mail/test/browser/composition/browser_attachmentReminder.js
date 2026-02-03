@@ -41,14 +41,10 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
-var {
-  click_menus_in_sequence,
-  promise_modal_dialog,
-  promise_new_window,
-  wait_for_window_focused,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
+var { click_menus_in_sequence, promise_new_window, wait_for_window_focused } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
+  );
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -399,9 +395,12 @@ add_task(async function test_manual_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Now close the message with saving it as draft.
-  let dialogPromise = promise_modal_dialog(
-    "commonDialogWindow",
-    click_save_message
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      callback: click_save_message,
+    }
   );
   cwc.goDoCommand("cmd_close");
   await dialogPromise;
@@ -847,9 +846,12 @@ add_task(async function test_disabling_attachment_reminder() {
  *   triggered by other means.
  */
 async function click_send_and_handle_send_error(aWin, aAlreadySending) {
-  const dialogPromise = promise_modal_dialog(
-    "commonDialogWindow",
-    click_ok_on_send_error
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      callback: click_ok_on_send_error,
+    }
   );
   if (!aAlreadySending) {
     const buttonSend = aWin.document.getElementById("button-send");

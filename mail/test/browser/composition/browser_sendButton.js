@@ -25,7 +25,7 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
-var { promise_modal_dialog, wait_for_frame_load } = ChromeUtils.importESModule(
+var { wait_for_frame_load } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
@@ -336,14 +336,22 @@ add_task(async function test_update_pill_before_send() {
   // if the pill is updated we get an invalid recipient error. Otherwise the
   // error would be an imap error because the email would still be sent to
   // `recipient@fake.invalid`.
-  const dialogPromise = promise_modal_dialog("commonDialogWindow", cdw => {
-    const dialogTitle = cdw.document.getElementById("infoTitle").textContent;
-    Assert.ok(
-      dialogTitle.includes("Invalid Recipient Address"),
-      "The pill edit has been updated before sending the email"
-    );
-    cdw.document.querySelector("dialog").getButton("accept").click();
-  });
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(cdw) {
+        const dialogTitle =
+          cdw.document.getElementById("infoTitle").textContent;
+        Assert.ok(
+          dialogTitle.includes("Invalid Recipient Address"),
+          "The pill edit has been updated before sending the email"
+        );
+        cdw.document.querySelector("dialog").getButton("accept").click();
+      },
+    }
+  );
   // Click the send button.
   EventUtils.synthesizeMouseAtCenter(
     cwc.document.getElementById("button-send"),

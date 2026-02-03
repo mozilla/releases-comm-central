@@ -32,9 +32,6 @@ var {
 var { make_message_sets_in_folders } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
-var { promise_new_window } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
 
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
@@ -152,7 +149,13 @@ async function test_open_message_without_backing_view_in_new_window() {
   // Select a message
   const msgHdr = msgHdrsInFolder[6];
 
-  const newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    win =>
+      win.document.documentURI ===
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
+
   // Open it
   MailUtils.displayMessage(msgHdr);
   const msgc = await newWindowPromise;
@@ -174,7 +177,12 @@ async function test_open_message_without_backing_view_in_existing_window() {
 
   // Open up a window
   const firstMsgHdr = msgHdrsInFolder[3];
-  const newWindowPromise = promise_new_window("mail:messageWindow");
+  const newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    win =>
+      win.document.documentURI ===
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   MailUtils.displayMessage(firstMsgHdr);
   const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);

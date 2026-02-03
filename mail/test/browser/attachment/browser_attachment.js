@@ -36,7 +36,7 @@ var { add_message_to_folder, create_message, msgGen } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
   );
-var { promise_modal_dialog, promise_new_window } = ChromeUtils.importESModule(
+var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 const { storeState } = ChromeUtils.importESModule(
@@ -346,12 +346,17 @@ add_task(async function test_attachment_name_click() {
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
-  const dialogPromise = promise_modal_dialog(
-    "unknownContentTypeWindow",
-    function (win) {
-      win.close();
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://mozapps/content/downloads/unknownContentType.xhtml",
+    {
+      async callback(win) {
+        win.close();
+      },
     }
   );
+
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },

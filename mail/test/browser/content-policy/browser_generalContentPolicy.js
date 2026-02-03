@@ -54,10 +54,9 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
-var { click_menus_in_sequence, promise_modal_dialog } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+var { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -877,22 +876,25 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   replyWindow.document.getElementById("messageEditor").focus();
 
   // Now open the image window
-  const dialogPromise = promise_modal_dialog(
-    "Mail:image",
-    async function (mwc) {
-      // Insert the url of the image.
-      const srcloc = mwc.document.getElementById("srcInput");
-      srcloc.focus();
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        // Insert the url of the image.
+        const srcloc = mwc.document.getElementById("srcInput");
+        srcloc.focus();
 
-      input_value(mwc, url + "pass.png");
+        input_value(mwc, url + "pass.png");
 
-      // Don't add alternate text
-      const noAlt = mwc.document.getElementById("noAltTextRadio");
-      EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
-      await new Promise(resolve => setTimeout(resolve));
+        // Don't add alternate text
+        const noAlt = mwc.document.getElementById("noAltTextRadio");
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+        await new Promise(resolve => setTimeout(resolve));
 
-      // Accept the dialog
-      mwc.document.querySelector("dialog").acceptDialog();
+        // Accept the dialog
+        mwc.document.querySelector("dialog").acceptDialog();
+      },
     }
   );
 

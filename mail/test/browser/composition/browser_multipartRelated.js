@@ -16,10 +16,9 @@ var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
-var { click_menus_in_sequence, promise_modal_dialog } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+var { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -94,18 +93,21 @@ add_task(async function test_basic_multipart_related() {
   const fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
-  const dialogPromise = promise_modal_dialog(
-    "Mail:image",
-    async function (dialog) {
-      // Insert the url of the image.
-      dialog.focus();
-      EventUtils.sendString(fileURL, dialog);
-      dialog.document.getElementById("altTextInput").focus();
-      EventUtils.sendString("Alt text", dialog);
-      await new Promise(resolve => setTimeout(resolve));
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(dialog) {
+        // Insert the url of the image.
+        dialog.focus();
+        EventUtils.sendString(fileURL, dialog);
+        dialog.document.getElementById("altTextInput").focus();
+        EventUtils.sendString("Alt text", dialog);
+        await new Promise(resolve => setTimeout(resolve));
 
-      // Accept the dialog
-      dialog.document.querySelector("dialog").acceptDialog();
+        // Accept the dialog
+        dialog.document.querySelector("dialog").acceptDialog();
+      },
     }
   );
 

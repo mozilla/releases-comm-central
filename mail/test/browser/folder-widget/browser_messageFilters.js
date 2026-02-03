@@ -21,14 +21,10 @@ var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NNTPHelpers.sys.mjs"
   );
-var {
-  click_menus_in_sequence,
-  promise_modal_dialog,
-  promise_new_window,
-  wait_for_window_focused,
-} = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
+var { click_menus_in_sequence, promise_new_window, wait_for_window_focused } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
+  );
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -91,16 +87,22 @@ add_task(async function key_navigation_test() {
           fec.close();
         }
 
-        let dialogPromise = promise_modal_dialog(
-          "mailnews:filtereditor",
-          openEmptyDialog
+        let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+          null,
+          "chrome://messenger/content/FilterEditor.xhtml",
+          {
+            callback: openEmptyDialog,
+          }
         );
         EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
         await dialogPromise;
 
-        dialogPromise = promise_modal_dialog(
-          "mailnews:filtereditor",
-          openEmptyDialog
+        dialogPromise = dialogPromise = BrowserTestUtils.promiseAlertDialog(
+          null,
+          "chrome://messenger/content/FilterEditor.xhtml",
+          {
+            callback: openEmptyDialog,
+          }
         );
         // Simulate Space keypress.
         EventUtils.synthesizeKey(" ", {}, filterc);
@@ -208,9 +210,12 @@ async function create_simple_filter() {
   }
 
   // Let's open the filter editor.
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:filtereditor",
-    fill_in_filter_fields
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: fill_in_filter_fields,
+    }
   );
   EventUtils.synthesizeMouseAtCenter(
     filterc.document.getElementById("newButton"),
@@ -279,9 +284,12 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   }
 
   // Let's open the filter editor.
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:filtereditor",
-    filterEditorOpened
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: filterEditorOpened,
+    }
   );
   EventUtils.synthesizeMouseAtCenter(
     filterc.document.getElementById("newButton"),

@@ -16,10 +16,9 @@ var { input_value } = ChromeUtils.importESModule(
   "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 
-var { click_menus_in_sequence, promise_modal_dialog } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+var { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 
 add_task(async function test_image_insertion_dialog_persist() {
   const cwc = await open_compose_new_mail();
@@ -28,20 +27,26 @@ add_task(async function test_image_insertion_dialog_persist() {
   cwc.document.getElementById("messageEditor").focus();
 
   // Now open the image window
-  let dialogPromise = promise_modal_dialog("Mail:image", async function (mwc) {
-    // Insert the url of the image.
-    const srcloc = mwc.document.getElementById("srcInput");
-    srcloc.focus();
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        // Insert the url of the image.
+        const srcloc = mwc.document.getElementById("srcInput");
+        srcloc.focus();
 
-    const file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
-    input_value(mwc, Services.io.newFileURI(file).spec);
+        const file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
+        input_value(mwc, Services.io.newFileURI(file).spec);
 
-    // Don't add alternate text
-    const noAlt = mwc.document.getElementById("noAltTextRadio");
-    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
-    await new Promise(resolve => setTimeout(resolve));
-    mwc.document.documentElement.querySelector("dialog").acceptDialog();
-  });
+        // Don't add alternate text
+        const noAlt = mwc.document.getElementById("noAltTextRadio");
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+        await new Promise(resolve => setTimeout(resolve));
+        mwc.document.documentElement.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
 
   const insertMenu = cwc.document.getElementById("InsertPopupButton");
   const insertMenuPopup = cwc.document.getElementById("InsertPopup");
@@ -60,21 +65,27 @@ add_task(async function test_image_insertion_dialog_persist() {
   info("Will check that radio option persists");
 
   // Check that the radio option persists
-  dialogPromise = promise_modal_dialog("Mail:image", async function (mwc) {
-    Assert.ok(
-      mwc.document.getElementById("noAltTextRadio").selected,
-      "We should persist the previously selected value"
-    );
-    // We change to "use alt text"
-    const altTextRadio = mwc.document.getElementById("altTextRadio");
-    EventUtils.synthesizeMouseAtCenter(
-      altTextRadio,
-      {},
-      altTextRadio.ownerGlobal
-    );
-    await new Promise(resolve => setTimeout(resolve));
-    mwc.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        Assert.ok(
+          mwc.document.getElementById("noAltTextRadio").selected,
+          "We should persist the previously selected value"
+        );
+        // We change to "use alt text"
+        const altTextRadio = mwc.document.getElementById("altTextRadio");
+        EventUtils.synthesizeMouseAtCenter(
+          altTextRadio,
+          {},
+          altTextRadio.ownerGlobal
+        );
+        await new Promise(resolve => setTimeout(resolve));
+        mwc.document.documentElement.querySelector("dialog").cancelDialog();
+      },
+    }
+  );
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -84,14 +95,20 @@ add_task(async function test_image_insertion_dialog_persist() {
   info("Will check that radio option really persists");
 
   // Check that the radio option still persists (be really sure)
-  dialogPromise = promise_modal_dialog("Mail:image", function (mwc) {
-    Assert.ok(
-      mwc.document.getElementById("altTextRadio").selected,
-      "We should persist the previously selected value"
-    );
-    // Accept the dialog
-    mwc.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        Assert.ok(
+          mwc.document.getElementById("altTextRadio").selected,
+          "We should persist the previously selected value"
+        );
+        // Accept the dialog
+        mwc.document.documentElement.querySelector("dialog").cancelDialog();
+      },
+    }
+  );
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -102,13 +119,19 @@ add_task(async function test_image_insertion_dialog_persist() {
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
-  dialogPromise = promise_modal_dialog("Mail:image", function (mwc) {
-    Assert.ok(
-      mwc.document.getElementById("noAltTextRadio").selected,
-      "We shouldn't use the persisted value because the insert image has no alt text"
-    );
-    mwc.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        Assert.ok(
+          mwc.document.getElementById("noAltTextRadio").selected,
+          "We shouldn't use the persisted value because the insert image has no alt text"
+        );
+        mwc.document.documentElement.querySelector("dialog").cancelDialog();
+      },
+    }
+  );
   EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -116,25 +139,31 @@ add_task(async function test_image_insertion_dialog_persist() {
   info("Will check using alt text");
 
   // Now use some alt text for the edit image dialog
-  dialogPromise = promise_modal_dialog("Mail:image", async function (mwc) {
-    Assert.ok(
-      mwc.document.getElementById("noAltTextRadio").selected,
-      "That value should persist still..."
-    );
-    const altTextRadio = mwc.document.getElementById("altTextRadio");
-    EventUtils.synthesizeMouseAtCenter(
-      altTextRadio,
-      {},
-      altTextRadio.ownerGlobal
-    );
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        Assert.ok(
+          mwc.document.getElementById("noAltTextRadio").selected,
+          "That value should persist still..."
+        );
+        const altTextRadio = mwc.document.getElementById("altTextRadio");
+        EventUtils.synthesizeMouseAtCenter(
+          altTextRadio,
+          {},
+          altTextRadio.ownerGlobal
+        );
 
-    const srcloc = mwc.document.getElementById("altTextInput");
-    srcloc.focus();
-    input_value(mwc, "some alt text");
-    await new Promise(resolve => setTimeout(resolve));
-    // Accept the dialog
-    mwc.document.documentElement.querySelector("dialog").acceptDialog();
-  });
+        const srcloc = mwc.document.getElementById("altTextInput");
+        srcloc.focus();
+        input_value(mwc, "some alt text");
+        await new Promise(resolve => setTimeout(resolve));
+        // Accept the dialog
+        mwc.document.documentElement.querySelector("dialog").acceptDialog();
+      },
+    }
+  );
   EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -145,14 +174,20 @@ add_task(async function test_image_insertion_dialog_persist() {
   img = cwc.document
     .getElementById("messageEditor")
     .contentDocument.querySelector("img");
-  dialogPromise = promise_modal_dialog("Mail:image", function (mwc) {
-    Assert.ok(
-      mwc.document.getElementById("altTextRadio").selected,
-      "We edited the image to make it have alt text, we should keep it selected"
-    );
-    // Accept the dialog
-    mwc.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        Assert.ok(
+          mwc.document.getElementById("altTextRadio").selected,
+          "We edited the image to make it have alt text, we should keep it selected"
+        );
+        // Accept the dialog
+        mwc.document.documentElement.querySelector("dialog").cancelDialog();
+      },
+    }
+  );
   EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   await dialogPromise;
 

@@ -7,10 +7,9 @@
 var { promise_content_tab_load } = ChromeUtils.importESModule(
   "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
-var { click_through_appmenu, promise_modal_dialog } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+var { click_through_appmenu } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 
 add_task(async function test_open_addons_with_url() {
   window.openAddonsMgr("addons://list/theme");

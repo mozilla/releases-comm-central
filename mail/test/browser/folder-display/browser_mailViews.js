@@ -16,14 +16,9 @@ var {
 var { make_message_sets_in_folders } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
-var { promise_modal_dialog } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
-
 var { MailViewConstants } = ChromeUtils.importESModule(
   "resource:///modules/MailViewManager.sys.mjs"
 );
-
 const { storeState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
@@ -79,9 +74,12 @@ add_task(async function test_save_view_as_folder() {
   await wait_for_all_messages_to_load();
 
   // - save it
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:virtualFolderProperties",
-    subtest_save_mail_view
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/virtualFolderProperties.xhtml",
+    {
+      callback: subtest_save_mail_view,
+    }
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.

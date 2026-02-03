@@ -12,12 +12,10 @@ import {
   delete_all_existing,
 } from "resource://testing-common/mail/KeyboardHelpers.sys.mjs";
 
-import {
-  click_menus_in_sequence,
-  promise_modal_dialog,
-} from "resource://testing-common/mail/WindowHelpers.sys.mjs";
+import { click_menus_in_sequence } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
+import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
 
 /**
  * Open a subscribe dialog from the context menu.
@@ -41,7 +39,13 @@ export async function open_subscribe_window_from_context_menu(
     await aFunction(dialogWindow);
     dialogWindow.close();
   };
-  const dialogPromise = promise_modal_dialog("mailnews:subscribe", callback);
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/subscribe.xhtml",
+    {
+      callback,
+    }
+  );
   await click_menus_in_sequence(
     win.document.getElementById("folderPaneContext"),
     [{ id: "folderPaneContext-subscribe" }]

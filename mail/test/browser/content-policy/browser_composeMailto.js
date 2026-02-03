@@ -17,7 +17,7 @@ var { open_content_tab_with_url } = ChromeUtils.importESModule(
 var { input_value } = ChromeUtils.importESModule(
   "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
-var { click_menus_in_sequence, promise_modal_dialog, promise_new_window } =
+var { click_menus_in_sequence, promise_new_window } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
@@ -78,22 +78,26 @@ add_task(async function test_checkInsertImage() {
   gCwc.document.getElementById("messageEditor").focus();
 
   // Now open the image window
-  const dialogPromise = promise_modal_dialog(
-    "Mail:image",
-    async function (mwc) {
-      // Insert the url of the image.
-      const srcloc = mwc.document.getElementById("srcInput");
-      srcloc.focus();
 
-      input_value(mwc, url + "pass.png");
-      await new Promise(resolve => setTimeout(resolve));
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
+    {
+      async callback(mwc) {
+        // Insert the url of the image.
+        const srcloc = mwc.document.getElementById("srcInput");
+        srcloc.focus();
 
-      const noAlt = mwc.document.getElementById("noAltTextRadio");
-      // Don't add alternate text
-      EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+        input_value(mwc, url + "pass.png");
+        await new Promise(resolve => setTimeout(resolve));
 
-      // Accept the dialog
-      mwc.document.querySelector("dialog").acceptDialog();
+        const noAlt = mwc.document.getElementById("noAltTextRadio");
+        // Don't add alternate text
+        EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+
+        // Accept the dialog
+        mwc.document.querySelector("dialog").acceptDialog();
+      },
     }
   );
 

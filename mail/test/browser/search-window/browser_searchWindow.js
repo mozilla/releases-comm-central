@@ -40,7 +40,7 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/SearchWindowHelpers.sys.mjs"
 );
-var { promise_modal_dialog, promise_new_window } = ChromeUtils.importESModule(
+var { promise_new_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
@@ -149,9 +149,10 @@ add_task(async function test_go_search() {
   // This will create a virtual folder properties dialog...
   // (label: "New Saved Search Folder", source: virtualFolderProperties.xhtml
   //  no windowtype, id: "virtualFolderPropertiesDialog")
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:virtualFolderProperties",
-    subtest_save_search
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/virtualFolderProperties.xhtml",
+    { callback: subtest_save_search }
   );
   EventUtils.synthesizeMouseAtCenter(
     swc.document.getElementById("saveAsVFButton"),

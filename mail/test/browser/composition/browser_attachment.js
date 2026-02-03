@@ -25,9 +25,6 @@ var { be_in_folder, create_folder, select_click_row } =
 var { add_message_to_folder, create_message } = ChromeUtils.importESModule(
   "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
 );
-var { promise_modal_dialog } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
 
 var messenger;
 var folder;
@@ -264,10 +261,9 @@ add_task(async function test_rename_attachment() {
   const bucket = cwc.document.getElementById("attachmentBucket");
   const node = bucket.querySelector("richlistitem.attachmentItem");
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
-  const dialogPromise = promise_modal_dialog(
-    "commonDialogWindow",
-    subtest_rename_attachment
-  );
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(null, undefined, {
+    callback: subtest_rename_attachment,
+  });
   cwc.RenameSelectedAttachment();
   await dialogPromise;
 
@@ -299,9 +295,10 @@ add_task(async function test_open_attachment() {
   // Now, open the attachment.
   const bucket = cwc.document.getElementById("attachmentBucket");
   const node = bucket.querySelector("richlistitem.attachmentItem");
-  const dialogPromise = promise_modal_dialog(
-    "unknownContentTypeWindow",
-    subtest_open_attachment
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://mozapps/content/downloads/unknownContentType.xhtml",
+    { callback: subtest_open_attachment }
   );
   EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
   await dialogPromise;

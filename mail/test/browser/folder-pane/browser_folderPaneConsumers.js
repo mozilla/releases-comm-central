@@ -13,9 +13,6 @@
 var { NNTP_PORT, setupLocalServer } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NNTPHelpers.sys.mjs"
 );
-var { promise_modal_dialog } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/WindowHelpers.sys.mjs"
-);
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
@@ -34,9 +31,10 @@ add_setup(function () {
 });
 
 add_task(async function test_virtual_folder_selection_tree() {
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:virtualFolderProperties",
-    subtest_create_virtual_folder
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/virtualFolderListEdit.xhtml",
+    { callback: subtest_create_virtual_folder }
   );
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
@@ -56,9 +54,10 @@ add_task(async function test_virtual_folder_selection_tree() {
 
 async function subtest_create_virtual_folder(vfc) {
   // Open the folder chooser.
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:virtualFolderList",
-    subtest_check_virtual_folder_list
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/virtualFolderListEdit.xhtml",
+    { callback: subtest_check_virtual_folder_list }
   );
   EventUtils.synthesizeMouseAtCenter(
     vfc.document.getElementById("folderListPicker"),
@@ -86,9 +85,10 @@ function subtest_check_virtual_folder_list(listc) {
 }
 
 add_task(async function test_offline_sync_folder_selection_tree() {
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:synchronizeOffline",
-    subtest_offline_sync
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/msgSynchronize.xhtml",
+    { callback: subtest_offline_sync }
   );
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
@@ -108,10 +108,12 @@ add_task(async function test_offline_sync_folder_selection_tree() {
 
 async function subtest_offline_sync(osc) {
   // Open the folder chooser.
-  const dialogPromise = promise_modal_dialog(
-    "mailnews:selectOffline",
-    subtest_check_offline_folder_list
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://messenger/content/msgSelectOfflineFolders.xhtml",
+    { callback: subtest_check_offline_folder_list }
   );
+
   EventUtils.synthesizeMouseAtCenter(
     osc.document.getElementById("select"),
     {},

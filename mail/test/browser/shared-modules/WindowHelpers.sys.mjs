@@ -38,28 +38,6 @@ export async function promise_new_window(aWindowType) {
 }
 
 /**
- * Plan for the imminent display of a modal dialog.  Modal dialogs spin their
- *  own event loop which means that either that control flow will not return
- *  to the caller until the modal dialog finishes running.  This means that
- *  you need to provide a sub-test function to be run inside the modal dialog
- *  (and it should not start with "test" or mozmill will also try and run it.)
- *
- * @param {string} aWindowType - The window type that you expect the modal
- *   dialog to have or the ID of the window if there is no window type available.
- * @param {Function} aSubTestFunction - The sub-test function that will be run
- *   once the modal dialog appears and is loaded. This function should take one
- *   argument, the modal dialog.
- */
-export async function promise_modal_dialog(aWindowType, aSubTestFunction) {
-  const domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
-    null,
-    win => getWindowTypeOrID(win) == aWindowType
-  );
-  await aSubTestFunction(domWindow);
-  await BrowserTestUtils.windowClosed(domWindow);
-}
-
-/**
  * Wait for the window to be focused.
  *
  * @param {Window} aWindow - The window to be focused.
