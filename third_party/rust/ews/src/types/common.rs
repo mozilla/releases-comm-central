@@ -1192,7 +1192,7 @@ pub struct InternetMessageHeader {
     /// The value of the header.
     #[serde(rename = "$text")]
     #[xml_struct(flatten)]
-    pub value: String,
+    pub value: Option<String>,
 }
 
 /// View for `FindItem` and `FindConversation` operations
@@ -1566,6 +1566,16 @@ mod tests {
             ..Default::default()
         };
 
+        assert_deserialized_content(content, expected);
+    }
+
+    #[test]
+    fn test_deserialize_empty_header() {
+        let content = r#"<InternetMessageHeader HeaderName="X-Is-Empty"/>"#;
+        let expected = InternetMessageHeader {
+            header_name: "X-Is-Empty".to_string(),
+            value: None,
+        };
         assert_deserialized_content(content, expected);
     }
 }
