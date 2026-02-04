@@ -21,11 +21,27 @@
       #trigger {
         width: 100px;
         height: 100px;
-
       }
     </style>
   </head>
   <body>
+    <template id="calendarDialogAcceptanceTemplate">
+      <div id="attendance-widget">
+        <input id="going" type="radio" name="attendance" value="ACCEPTED"/>
+        <label for="going" class="option">
+          <span class="icon"></span><span data-l10n-id="calendar-dialog-accept"></span>
+        </label>
+        <input id="maybe" type="radio" name="attendance" value="TENTATIVE" checked="checked"/>
+        <label for="maybe" class="option">
+          <span class="icon"></span><span data-l10n-id="calendar-dialog-accept-tentative"></span>
+        </label>
+        <input id="not-going" type="radio" name="attendance" value="DECLINED"/>
+        <label for="not-going" class="option">
+          <span class="icon"></span><span data-l10n-id="calendar-dialog-decline"></span>
+        </label>
+        <div class="toggle"></div>
+      </div>
+    </template>
     <template id="calendarDialogRowTemplate">
       <div class="row">
         <slot name="icon"></slot>

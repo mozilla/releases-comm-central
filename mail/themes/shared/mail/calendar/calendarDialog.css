@@ -24,6 +24,14 @@
   max-block-size: calc(100vh - 8 * var(--space-step));
   z-index: 999;
   box-sizing: border-box;
+
+  .footer {
+    block-size: 50px;
+    padding-inline: 12px;
+    padding-block: 9px;
+    box-sizing: border-box;
+    border-block-start: 1px solid var(--color-surface-border);
+  }
 }
 
 .titlebar {

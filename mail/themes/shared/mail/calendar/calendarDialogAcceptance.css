@@ -1,0 +1,126 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+:host {
+  --space-available: calc(100% - 2px);
+  --button-space: calc(var(--space-available)/3);
+  background: var(--color-surface-subtle);
+  border-radius: 2rem;
+  border: 1px solid var(--color-surface-border);
+  display: flex;
+  gap: 0;
+  margin: auto;
+  position: relative;
+  inline-size: 100%;
+
+  & .toggle {
+    background: #ff8933;
+    border-radius: 36px;
+    box-shadow: none;
+    block-size: 26px;
+    position: absolute;
+    inset-block-start: 2px;
+    transition: all 0.4s ease-in;
+    inline-size: calc(calc(var(--space-available) - 15px) / 3);
+  }
+
+  & label {
+    align-items: center;
+    border-radius: 36px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    flex: 1;
+    gap: 3px;
+    block-size: 24px;
+    margin: 3px 3px;
+    z-index: 1;
+    justify-content: center;
+    padding-inline: 6px;
+    overflow: hidden;
+
+    &:hover {
+      background-color: var(--color-surface-border);
+    }
+
+    & span {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    img {
+      -moz-context-properties: fill, stroke;
+      color: transparent;
+      fill: transparent;
+      stroke: var(--icon-stroke);
+      transition: all 0.2s ease-out;
+      inline-size: 16px;
+      block-size: 16px;
+      display: none;
+    }
+  }
+
+  & input {
+    inset-inline-start: 0;
+    margin: 0;
+    opacity: 0;
+    padding: 0;
+    position: absolute;
+  }
+}
+
+#going {
+  &:checked {
+    & ~ .toggle {
+      inset-inline: 2px var(--space-available);
+      background-color: var(--color-surface-base);
+      border: 1px solid var(--color-primary-default);
+    }
+    & ~ label[for="going"] {
+      color: var(--color-primary-default);
+
+      & img {
+        --icon-stroke: var(--color-primary-default);
+        display: inline-block;
+      }
+    }
+  }
+}
+
+#maybe {
+  &:checked {
+    & ~ .toggle {
+      background-color: var(--color-surface-base);
+      border: 1px solid var(--color-secondary-default);
+      inset-inline-start: calc(var(--button-space) + 2px);
+    }
+    & ~ label[for="maybe"] {
+      color: var(--color-secondary-default);
+
+      & img {
+        --icon-stroke: var(--color-secondary-default);
+        display: inline-block;
+      }
+    }
+  }
+}
+
+#not-going {
+  &:checked {
+    & ~ .toggle {
+      background-color: var(--color-surface-base);
+      border: 1px solid var(--color-surface-border-intense);
+      inset-inline-start: calc(var(--button-space) * 2 + 3px);
+    }
+    & ~ label[for="not-going"] {
+      color: var(--color-surface-border-intense);
+
+      & img {
+        --icon-stroke: var(--color-surface-border-intense);
+        display: inline-block;
+      }
+    }
+  }
+}

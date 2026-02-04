@@ -49,3 +49,12 @@ calendar-dialog-reminder-count =
       [one] { $count } Reminder
       *[other] { $count } Reminders
   }
+
+calendar-dialog-accept = Going
+  .title = Going
+
+calendar-dialog-accept-tentative = Maybe
+  .title = Maybe
+
+calendar-dialog-decline = Not Going
+  .title = Not Going

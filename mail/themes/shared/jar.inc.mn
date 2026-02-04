@@ -469,6 +469,7 @@
 
 # Calendar
   skin/classic/messenger/calendar/calendarDialog.css            (../shared/mail/calendar/calendarDialog.css)
+  skin/classic/messenger/calendar/calendarDialogAcceptance.css  (../shared/mail/calendar/calendarDialogAcceptance.css)
   skin/classic/messenger/calendar/calendarDialogCategories.css  (../shared/mail/calendar/calendarDialogCategories.css)
   skin/classic/messenger/calendar/calendarDialogRow.css         (../shared/mail/calendar/calendarDialogRow.css)
 
@@ -791,6 +792,8 @@
 
 # SM - 16x16px icons
   skin/classic/messenger/icons/sm/circle-question.svg          (../shared/mail/icons/sm/circle-question.svg)
+  skin/classic/messenger/icons/sm/circle-check.svg             (../shared/mail/icons/sm/circle-check.svg)
+  skin/classic/messenger/icons/sm/circle-close.svg             (../shared/mail/icons/sm/circle-close.svg)
   skin/classic/messenger/icons/sm/date-time.svg                (../shared/mail/icons/sm/date-time.svg)
   skin/classic/messenger/icons/sm/dot.svg                      (../shared/mail/icons/sm/dot.svg)
   skin/classic/messenger/icons/sm/folder-compact.svg           (../shared/mail/icons/sm/folder-compact.svg)

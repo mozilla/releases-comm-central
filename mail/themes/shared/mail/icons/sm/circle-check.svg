@@ -1,0 +1,14 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#fo0dikihqa)">
+        <path d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" fill="context-fill"/>
+        <path d="M8 .5C3.864.5.5 3.864.5 8s3.364 7.5 7.5 7.5 7.5-3.364 7.5-7.5S12.136.5 8 .5zm0 1a6.5 6.5 0 0 1 .953.07A6.49 6.49 0 0 1 14.5 8a6.57 6.57 0 0 1-.264 1.832 6.457 6.457 0 0 1-.765 1.678l-.002.004-.004.006a6.528 6.528 0 0 1-.965 1.171v-.023c-.306.302-.64.573-1 .809v.002a6.506 6.506 0 0 1-2.574.955 6.555 6.555 0 0 1-1.852 0 6.465 6.465 0 0 1-1.775-.522 6.502 6.502 0 0 1-.799-.434v-.001a6.501 6.501 0 0 1-1-.809v.023a6.53 6.53 0 0 1-.965-1.171l-.006-.01a6.458 6.458 0 0 1-.963-2.584 6.564 6.564 0 0 1 0-1.852 6.51 6.51 0 0 1 5.508-5.508c.302-.042.612-.066.926-.066zm2.967 4.002a.5.5 0 0 0-.344.168L7.439 9.31l-2.127-1.7a.5.5 0 1 0-.625.78l2.5 2a.5.5 0 0 0 .69-.06l3.5-4a.501.501 0 0 0-.216-.804.5.5 0 0 0-.194-.024z" fill="context-stroke"/>
+    </g>
+    <defs>
+        <clipPath id="fo0dikihqa">
+            <path fill="context-stroke" d="M0 0h16v16H0z"/>
+        </clipPath>
+    </defs>
+</svg>

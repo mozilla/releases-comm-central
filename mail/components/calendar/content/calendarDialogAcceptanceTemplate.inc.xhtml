@@ -1,0 +1,22 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="calendarDialogAcceptanceTemplate" xmlns="http://www.w3.org/1999/xhtml">
+    <input id="going" type="radio" name="attendance" value="ACCEPTED"/>
+    <label for="going" class="option">
+      <img src="chrome://messenger/skin/icons/sm/circle-check.svg" role="presentation" alt=""/>
+      <span data-l10n-id="calendar-dialog-accept"></span>
+    </label>
+    <input id="maybe" type="radio" name="attendance" value="TENTATIVE" checked="checked"/>
+    <label for="maybe" class="option">
+      <img src="chrome://messenger/skin/icons/sm/circle-question.svg" role="presentation" alt=""/>
+      <span data-l10n-id="calendar-dialog-accept-tentative"></span>
+    </label>
+    <input id="notGoing" type="radio" name="attendance" value="DECLINED"/>
+    <label for="notGoing" class="option" >
+      <img src="chrome://messenger/skin/icons/sm/circle-close.svg" role="presentation" alt=""/>
+      <span data-l10n-id="calendar-dialog-decline"></span>
+    </label>
+    <div class="toggle"></div>
+</html:template>

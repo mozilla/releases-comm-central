@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PositionedDialog } from "./positioned-dialog.mjs";
+import "./calendar-dialog-acceptance.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no-unassigned-import

@@ -7,6 +7,7 @@
 #include calendarDialogDescriptionRowTemplate.inc.xhtml
 #include calendarDialogCategoriesTemplate.inc.xhtml
 #include calendarDialogRemindersRowTemplate.inc.xhtml
+#include calendarDialogAcceptanceTemplate.inc.xhtml
 
 <html:template id="calendarDialogTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <div class="titlebar">
@@ -78,5 +79,7 @@
       </div>
     </calendar-dialog-subview-manager>
   </div>
-  <div class="footer"></div>
+  <div class="footer">
+    <calendar-dialog-acceptance></calendar-dialog-acceptance>
+  </div>
 </html:template>
