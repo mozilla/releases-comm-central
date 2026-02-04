@@ -18,6 +18,7 @@ prefs = [
   "mail.identity.id2.useremail=tinderboxpushlog@foo.invalid",
   "mail.identity.id2.valid=true",
   "mail.provider.suppress_dialog_on_startup=true",
+  "mail.rights.override=true",
   "mail.server.server1.hostname=Local Folders",
   "mail.server.server1.name=Local Folders",
   "mail.server.server1.type=none",
