@@ -7466,9 +7466,11 @@ dependencies = [
 
 [[package]]
 name = "windows-link"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
+version = "0.2.999"
+dependencies = [
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "windows-numerics"
@@ -7511,8 +7513,7 @@ dependencies = [
 name = "windows-targets"
 version = "0.52.999"
 dependencies = [
- "quote",
- "syn",
+ "windows-link",
 ]
 
 [[package]]

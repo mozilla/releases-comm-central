@@ -198,6 +198,7 @@ cmake = { path = "../../build/rust/cmake" }
 vcpkg = { path = "../../build/rust/vcpkg" }
 mozbuild = { path = "../../build/rust/mozbuild" }
 windows-targets = { path = "../../build/rust/windows-targets" }
+windows-link = { path = "../../build/rust/windows-link" }
 windows = { path = "../../build/rust/windows" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
