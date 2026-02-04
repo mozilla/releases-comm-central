@@ -181,23 +181,30 @@ add_task(async function test_resizeWindow() {
   Assert.lessOrEqual(
     Math.round(dialogBox.height),
     Math.round(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
-    "The dialog height is restricted by the container"
+    "The dialog height should be restricted by the container initially"
   );
 
   checkTolerance(eventBox, `Dialog has correct initial position`);
 
   await resizeWindow({ y: window.outerHeight - 100 });
 
-  dialogBox = dialog.getBoundingClientRect();
-  containerBox = container.getBoundingClientRect();
+  await TestUtils.waitForCondition(() => {
+    dialogBox = dialog.getBoundingClientRect();
+    containerBox = container.getBoundingClientRect();
+
+    return (
+      Math.round(dialogBox.height) <=
+      Math.round(containerBox.height - DEFAULT_DIALOG_MARGIN * 2)
+    );
+  }, "Waiting for dialog to resize");
 
   Assert.lessOrEqual(
     Math.round(dialogBox.height),
     Math.round(containerBox.height - DEFAULT_DIALOG_MARGIN * 2),
-    "The dialog height is restricted by the container"
+    "The dialog height should be restricted by the container"
   );
 
-  checkTolerance(eventBox, `Dialog has correct final position`);
+  checkTolerance(eventBox, `Dialog should have correct final position`);
 
   await calendar.deleteItem(eventBox.occurrence);
 
