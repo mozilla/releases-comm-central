@@ -102,6 +102,14 @@ add_setup(async function () {
   );
 
   registerCleanupFunction(() => {
+    folder.deleteSelf(null);
+    lastMessageFolder.deleteSelf(null);
+    oneBeforeFolder.deleteSelf(null);
+    oneAfterFolder.deleteSelf(null);
+    multipleDeletionFolder1.deleteSelf(null);
+    multipleDeletionFolder2.deleteSelf(null);
+    multipleDeletionFolder3.deleteSelf(null);
+    multipleDeletionFolder4.deleteSelf(null);
     Services.prefs.clearUserPref("mailnews.default_sort_order");
   });
 });
@@ -116,6 +124,7 @@ var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 var msgc;
 
 async function performDelete(window, message) {
+  await SimpleTest.promiseFocus(window);
   const subject = message.subject;
   info(`Current message: ${subject}`);
 
@@ -124,7 +133,14 @@ async function performDelete(window, message) {
     "DeleteOrMoveMsgCompleted"
   );
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
-  await deleteOrMoveMsgCompleted;
+  const timeoutDeleting = new Promise((_resolve, reject) => {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    const timer = window.setTimeout(() => {
+      reject(new Error(`Timeout deleting message: ${subject}`));
+    }, 5000);
+    deleteOrMoveMsgCompleted.finally(() => window.clearTimeout(timer));
+  });
+  await Promise.race([deleteOrMoveMsgCompleted, timeoutDeleting]);
   info(`Message deleted: ${subject}`);
 }
 
@@ -348,13 +364,15 @@ add_task(
  */
 add_task(async function test_delete_last_message_in_folder_tab() {
   const about3Pane = get_about_3pane();
+  const msg3 = about3Pane.gDBView.getMsgHdrAt(3);
+
   // - plan to end up on the guy who is currently at index 2
   curMessage = about3Pane.gDBView.getMsgHdrAt(2);
   // while we're at it, figure out who is at 1 for the next step
   nextMessage = about3Pane.gDBView.getMsgHdrAt(1);
 
   // - delete the message
-  await performDelete(mc, curMessage);
+  await performDelete(mc, msg3);
 
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 2);
