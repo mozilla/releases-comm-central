@@ -16,6 +16,7 @@ SOURCES += [
     "EwsListeners.cpp",
     "EwsMessageChannel.cpp",
     "EwsMessageCopyHandler.cpp",
+    "EwsMessageSync.cpp",
     "EwsOAuth2CustomDetails.cpp",
     "EwsProtocolHandler.cpp",
     "EwsProtocolInfo.cpp",

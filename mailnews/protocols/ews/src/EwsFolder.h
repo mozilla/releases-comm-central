@@ -35,12 +35,13 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   friend class MessageDeletionCallbacks;
   friend class MessageOperationCallbacks;
 
- protected:
-  virtual ~EwsFolder();
+  /**
+   * Locally look up the EWS ID for the current folder.
+   */
+  nsresult GetEwsId(nsACString& ewsId);
 
-  virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
-  virtual nsresult GetDatabase() override;
-
+ public:
+  // The XPCOM interface(s).
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD CreateSubfolder(const nsACString& folderName,
                              nsIMsgWindow* msgWindow) override;
@@ -109,6 +110,12 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
   NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
                                  bool markFlagged) override;
 
+ protected:
+  virtual ~EwsFolder();
+
+  virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
+  virtual nsresult GetDatabase() override;
+
  private:
   nsresult CreateChildrenFromStore();
   bool mHasLoadedSubfolders;
@@ -125,11 +132,6 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    * server this folder depends from.
    */
   nsresult GetProtocolClient(IEwsClient** ewsClient);
-
-  /**
-   * Locally look up the EWS ID for the current folder.
-   */
-  nsresult GetEwsId(nsACString& ewsId);
 
   /**
    * Look up the trash folder for the current account.

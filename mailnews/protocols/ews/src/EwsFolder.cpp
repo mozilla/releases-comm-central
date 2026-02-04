@@ -7,6 +7,7 @@
 #include "EwsFolderCopyHandler.h"
 #include "EwsListeners.h"
 #include "EwsMessageCopyHandler.h"
+#include "EwsMessageSync.h"
 #include "EwsCopyMoveTransaction.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
@@ -1279,40 +1280,24 @@ nsresult EwsFolder::GetTrashFolder(nsIMsgFolder** result) {
 
 nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
                                  nsIUrlListener* urlListener) {
-  // EWS provides us an opaque value which specifies the last version of
-  // upstream messages we received. Provide that to simplify sync.
-  nsCString syncStateToken;
-  nsresult rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
-  if (NS_FAILED(rv)) {
-    syncStateToken = EmptyCString();
-  }
-
+  nsresult rv;
   nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
   if (window) {
-    // Format the message we'll show the user while we wait for the remote
-    // operation to complete.
-    RefPtr<intl::Localization> l10n =
-        intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
-
-    auto l10nArgs = dom::Optional<intl::L10nArgs>();
-    l10nArgs.Construct();
-
-    nsCString folderName;
-    rv = GetLocalizedName(folderName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    auto idArg = l10nArgs.Value().Entries().AppendElement();
-    idArg->mKey = "folderName"_ns;
-    idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
-
-    ErrorResult error;
-    nsCString message;
-    l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs, message,
-                          error);
-
-    // Show the message in the status bar.
+    // Get ready to show a message in the status bar.
     rv = window->GetStatusFeedback(getter_AddRefs(feedback));
     NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  nsCOMPtr<nsIUrlListener> syncUrlListener = urlListener;
+  nsCOMPtr<nsIURI> folderUri;
+  rv = FolderUri(this, getter_AddRefs(folderUri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  auto onSyncStart = [self = RefPtr(this), syncUrlListener, folderUri,
+                      feedback]() {
+    if (syncUrlListener) {
+      syncUrlListener->OnStartRunningUrl(folderUri);
+    }
 
     // The window might not be attached to an `nsIMsgStatusFeedback`. This
     // typically happens with new profiles, because the `nsIMsgStatusFeedback`
@@ -1321,201 +1306,42 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     // the `nsIMsgStatusFeedback` being added to the message window, in which
     // case it might still be null by the time this runs.
     if (feedback) {
-      rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = feedback->StartMeteors();
-      NS_ENSURE_SUCCESS(rv, rv);
+      // Format the message we'll show the user while we wait for the remote
+      // operation to complete.
+      RefPtr<intl::Localization> l10n = intl::Localization::Create(
+          {"messenger/activityFeedback.ftl"_ns}, true);
+
+      auto l10nArgs = dom::Optional<intl::L10nArgs>();
+      l10nArgs.Construct();
+
+      nsCString folderName;
+      nsresult rv = self->GetLocalizedName(folderName);
+      if (NS_SUCCEEDED(rv)) {
+        auto idArg = l10nArgs.Value().Entries().AppendElement();
+        idArg->mKey = "folderName"_ns;
+        idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
+
+        ErrorResult error;
+        nsCString message;
+        l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs,
+                              message, error);
+
+        feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
+        feedback->StartMeteors();
+      }
     }
-  }
-
-  // Define the callbacks for the EWS operation.
-  auto onMessageCreated = [self = RefPtr(this)](const nsACString& ewsId,
-                                                nsIMsgDBHdr** newHdr) {
-    // Check if a header already exists for this EWS ID. `GetHeaderForItem`
-    // returns `NS_ERROR_NOT_AVAILABLE` when no header exists, so we only want
-    // to move forward with creating one in this case.
-    RefPtr<nsIMsgDBHdr> existingHeader;
-    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHeader));
-
-    // If we could retrieve a header for this item, error immediately.
-    if (NS_SUCCEEDED(rv)) {
-      return NS_ERROR_ILLEGAL_VALUE;
-    }
-
-    // We already know that `rv` is a failure at this point, so we just need to
-    // check it's not the one failure we want.
-    if (rv != NS_ERROR_NOT_AVAILABLE) {
-      return rv;
-    }
-
-    nsCOMPtr<nsIMsgDatabase> db;
-    rv = self->GetMsgDatabase(getter_AddRefs(db));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgDBHdr> newHeader;
-    rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = newHeader->SetStringProperty(kEwsIdProperty, ewsId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    newHeader.forget(newHdr);
-    return NS_OK;
   };
 
-  auto onMessageDeleted = [self = RefPtr(this)](const nsACString& ewsId) {
-    // Delete the message headers from the database.
-    nsCOMPtr<nsIMsgDatabase> db;
-    nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    RefPtr<nsIMsgDBHdr> existingHeader;
-    rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!existingHeader) {
-      // If we don't have a header for this message ID, it means we have already
-      // deleted it locally. This can happen in legitimate situations, e.g. when
-      // syncing the message list after deleting a message from Thunderbird (in
-      // which case, the server's sync response will include a `Delete` change
-      // for the message we've just deleted).
-      return NS_OK;
-    }
-
-    return LocalDeleteMessages(self, {existingHeader});
-  };
-
-  auto onMessageUpdated = [self = RefPtr(this)](const nsACString& ewsId,
-                                                nsIMsgDBHdr** hdr) {
-    RefPtr<nsIMsgDBHdr> existingHdr;
-    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The message content might have changed (e.g. if a draft was updated), and
-    // there's no way for us to know for sure without re-downloading it. So
-    // let's delete its content from the message store so it can be
-    // re-downloaded later.
-    uint32_t flags;
-    rv = existingHdr->GetFlags(&flags);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!(flags & nsMsgMessageFlags::Offline)) {
-      // Bail early if there's nothing to remove.
-      existingHdr.forget(hdr);
-      return NS_OK;
-    }
-
-    // Delete the message content from the local store.
-    nsCOMPtr<nsIMsgPluggableStore> store;
-    rv = self->GetMsgStore(getter_AddRefs(store));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = store->DeleteMessages({existingHdr});
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // Update the flags on the database entry to reflect its content is *not*
-    // stored offline anymore. We don't commit right now, but the expectation
-    // is that the consumer will call `CommitChanges()` once it's done
-    // processing the current change.
-    uint32_t unused;
-    rv = existingHdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    existingHdr.forget(hdr);
-
-    return NS_OK;
-  };
-
-  auto onReadStatusChanged = [self = RefPtr(this)](const nsACString& ewsId,
-                                                   bool is_read) {
-    // Get the header for the message with ewsId and update its read flag in the
-    // database.
-    RefPtr<nsIMsgDBHdr> existingHeader;
-    nsresult rv = self->GetHdrForEwsId(ewsId, getter_AddRefs(existingHeader));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    return existingHeader->MarkRead(is_read);
-  };
-
-  auto onDetachedHdrPopulated =
-      [self = RefPtr(this)](nsIMsgDBHdr* hdr,
-                            nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
-        nsCOMPtr<nsIMsgDatabase> db;
-        nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        // If New flag is not set, it won't be added to the databases list of
-        // new messages (and so won't be filtered/classified). But we'll treat
-        // read messages as old.
-        uint32_t flags;
-        rv = hdr->GetFlags(&flags);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        if (!(flags & nsMsgMessageFlags::Read)) {
-          flags |= nsMsgMessageFlags::New;
-          hdr->SetFlags(flags);
-          newMessages.AppendElement(hdr);
-        }
-
-        nsCOMPtr<nsIMsgDBHdr> liveHdr;
-        rv = db->AttachHdr(hdr, true, getter_AddRefs(liveHdr));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-            mozilla::components::FolderNotification::Service();
-
-        // Remember message for filtering at end of sync operation.
-        notifier->NotifyMsgAdded(liveHdr);
-
-        return NS_OK;
-      };
-
-  auto onExistingHdrChanged = [self = RefPtr(this)]() {
-    RefPtr<nsIMsgDatabase> db;
-    nsresult rv = self->GetMsgDatabase(getter_AddRefs(db));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    return db->Commit(nsMsgDBCommitType::kLargeCommit);
-  };
-
-  auto onSyncStateTokenChanged =
-      [self = RefPtr(this)](const nsACString& syncStateToken) {
-        return self->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
-      };
-
-  // This lambda will be called whenever the sync terminates, regardless of the
-  // outcome. This means it will both be called at the end of `onSyncComplete`,
-  // and used as the listener's `OnOperationFailure` callback.
-  nsCOMPtr<nsIUrlListener> syncUrlListener = urlListener;
-  auto onSyncStop = [self = RefPtr(this), syncUrlListener,
-                     feedback](nsresult status) {
-    if (syncUrlListener) {
-      nsCOMPtr<nsIURI> folderUri;
-      nsresult rv = FolderUri(self, getter_AddRefs(folderUri));
-      NS_ENSURE_SUCCESS(rv, rv);
-      syncUrlListener->OnStopRunningUrl(folderUri, rv);
-    }
-
-    if (feedback) {
-      // Reset the status bar.
-      return feedback->StopMeteors();
-    }
-
-    return NS_OK;
-  };
-
-  auto onSyncComplete = [self = RefPtr(this), onSyncStop](
-                            const nsTArray<RefPtr<nsIMsgDBHdr>>& newMessages) {
-    // Trigger notifications for new messages.
-    if (!newMessages.IsEmpty()) {
+  auto onSyncStop = [self = RefPtr(this), syncUrlListener, folderUri, feedback](
+                        nsresult status, nsTArray<nsMsgKey> const& newKeys) {
+    // Even if the operation failed, there may be some messages to deal with.
+    if (!newKeys.IsEmpty()) {
       self->SetHasNewMessages(true);
-      self->SetNumNewMessages(static_cast<int32_t>(newMessages.Length()));
+      self->SetNumNewMessages(static_cast<int32_t>(newKeys.Length()));
       self->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
 
       // Mark them as requiring filtering.
-      for (nsIMsgDBHdr* msg : newMessages) {
-        nsMsgKey key;
-        msg->GetMessageKey(&key);
+      for (nsMsgKey key : newKeys) {
         static_cast<void>(self->mRequireFiltering.put(key));
       }
 
@@ -1525,44 +1351,23 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
 
       // Tell the AutoSyncState about the newly-added messages,
       // to queue them for potential offline download.
-      {
-        nsTArray<nsMsgKey> keys(newMessages.Length());
-        for (nsIMsgDBHdr* hdr : newMessages) {
-          nsMsgKey key;
-          hdr->GetMessageKey(&key);
-          MOZ_ASSERT(key != nsMsgKey_None);
-          keys.AppendElement(key);
-        }
-        self->AutoSyncState()->OnNewHeaderFetchCompleted(keys);
-      }
+      self->AutoSyncState()->OnNewHeaderFetchCompleted(newKeys);
     }
-    onSyncStop(NS_OK);
+
     self->NotifyFolderEvent(kFolderLoaded);
 
-    return NS_OK;
+    // Tell the caller how things went.
+    if (syncUrlListener) {
+      syncUrlListener->OnStopRunningUrl(folderUri, status);
+    }
+
+    // Clear up the GUI.
+    if (feedback) {
+      feedback->StopMeteors();  // Also clears status message.
+    }
   };
 
-  RefPtr<EwsMessageSyncListener> listener = new EwsMessageSyncListener(
-      onMessageCreated, onMessageDeleted, onMessageUpdated,
-      onDetachedHdrPopulated, onExistingHdrChanged, onSyncStateTokenChanged,
-      onSyncComplete, onReadStatusChanged, onSyncStop);
-
-  if (urlListener) {
-    nsCOMPtr<nsIURI> folderUri;
-    rv = FolderUri(this, getter_AddRefs(folderUri));
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = urlListener->OnStartRunningUrl(folderUri);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Sync the message list for the current folder.
-  nsCString ewsId;
-  MOZ_TRY(GetEwsId(ewsId));
-
-  nsCOMPtr<IEwsClient> client;
-  MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
-
-  return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
+  return EwsPerformMessageSync(this, onSyncStart, onSyncStop);
 }
 
 nsAutoSyncState* EwsFolder::AutoSyncState() {

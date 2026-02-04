@@ -361,7 +361,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
   return rv;
 }
 
-// Called by IMAP folder nsImapMailFolder::HeaderFetchCompleted().
+// Called by folders to indicate a new batch of headers have been received.
 void nsAutoSyncState::OnNewHeaderFetchCompleted(
     const nsTArray<nsMsgKey>& aMsgKeyList) {
   SetLastUpdateTime(PR_Now());
