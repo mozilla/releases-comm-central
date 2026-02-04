@@ -30,10 +30,9 @@ run-if = [
 
 ["browser_editMenu_delete_item.js"]
 run-if = [
-  "asan", #  Too unreliable.
-  "opt", #  Too unreliable.
-  "os != 'mac'",
-  "tsan", #  Too unreliable.
+  "os != 'mac' && asan",
+  "os != 'mac' && opt",
+  "os != 'mac' && tsan",
 ]
 
 ["browser_editMenu_favorite_folder_item.js"]
