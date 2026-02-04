@@ -13,14 +13,19 @@
     <button
       class="button icon-button icon-only button-flat back-button"
       data-l10n-id="calendar-dialog-back-button"
+      type="button"
     ></button>
     <h2 class="calendar-dialog-title">
       <span class="calendar-name screen-reader-only"></span>
       <span class="event-title"></span>
     </h2>
-    <button class="button icon-button icon-only button-flat close-button"
-            data-l10n-id="calendar-dialog-close-button">
-    </button>
+    <div class="title-button-container">
+      <button
+        class="button icon-button icon-only button-flat close-button"
+        data-l10n-id="calendar-dialog-close-button"
+        type="button">
+      </button>
+    </div>
   </div>
   <div class="content">
     <calendar-dialog-subview-manager
