@@ -47,7 +47,6 @@ thiserror = "2"
 
 [dependencies.error-support]
 path = "../support/error"
-features = ["tracing-logging"]
 
 [dependencies.icu_normalizer]
 version = "2"

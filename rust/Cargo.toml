@@ -250,20 +250,20 @@ malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
-context_id = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-error-support = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-filter_adult = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-search = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-tracing-support = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-logins = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
-init_rust_components = { git = "https://github.com/mozilla/application-services", rev = "900d0b03aeb82245c28a11a9adc1cbbead31ce56" }
+context_id = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+error-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+filter_adult = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+relevancy = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+search = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+tracing-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+logins = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+init_rust_components = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }

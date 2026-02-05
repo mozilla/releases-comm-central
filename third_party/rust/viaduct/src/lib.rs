@@ -75,7 +75,7 @@ impl std::fmt::Display for Method {
 }
 
 #[must_use = "`Request`'s \"builder\" functions take by move, not by `&mut self`"]
-#[derive(Clone, Debug, uniffi::Record)]
+#[derive(Clone, uniffi::Record)]
 pub struct Request {
     pub method: Method,
     pub url: Url,
@@ -237,8 +237,23 @@ impl Request {
     }
 }
 
+// Hand-written `Debug` impl for nicer logging
+impl std::fmt::Debug for Request {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Request")
+            .field("method", &self.method)
+            .field("url", &self.url.to_string())
+            .field("headers", &self.headers)
+            .field(
+                "body",
+                &self.body.as_ref().map(|body| String::from_utf8_lossy(body)),
+            )
+            .finish()
+    }
+}
+
 /// A response from the server.
-#[derive(Clone, Debug, uniffi::Record)]
+#[derive(Clone, uniffi::Record)]
 pub struct Response {
     /// The method used to request this response.
     pub request_method: Method,
@@ -300,6 +315,19 @@ impl Response {
                 status: self.status,
             })
         }
+    }
+}
+
+// Hand-written `Debug` impl for nicer logging
+impl std::fmt::Debug for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Response")
+            .field("request_method", &self.request_method)
+            .field("url", &self.url.to_string())
+            .field("status", &self.status)
+            .field("headers", &self.headers)
+            .field("body", &String::from_utf8_lossy(&self.body))
+            .finish()
     }
 }
 
@@ -406,3 +434,31 @@ uniffi::custom_type!(Headers, std::collections::HashMap<String, String>, {
 });
 
 uniffi::setup_scaffolding!("viaduct");
+
+/// Send a request through an OHTTP channel.
+///
+/// This encrypts the request and routes it through the configured OHTTP
+/// relay/gateway for the specified channel.
+///
+/// # Arguments
+/// * `request` - The request to send
+/// * `channel` - The name of the OHTTP channel to use (e.g., "merino")
+///
+/// # Example (Kotlin)
+/// ```kotlin
+/// val response = sendOhttpRequest(
+///     Request(
+///         method = Method.GET,
+///         url = "https://example.com/api",
+///         headers = mapOf("Accept" to "application/json"),
+///         body = null
+///     ),
+///     "merino"
+/// )
+/// ```
+#[cfg(feature = "ohttp")]
+#[uniffi::export]
+pub async fn send_ohttp_request(request: Request, channel: String) -> Result<Response> {
+    let settings = crate::ClientSettings::default();
+    crate::ohttp::process_ohttp_request(request, &channel, settings).await
+}

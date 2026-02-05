@@ -27,14 +27,6 @@ license = "MPL-2.0"
 [features]
 backtrace = ["dep:backtrace"]
 testing = []
-tracing-logging = [
-    "dep:tracing",
-    "dep:tracing-support",
-]
-tracing-reporting = [
-    "dep:tracing",
-    "dep:tracing-support",
-]
 
 [lib]
 name = "error_support"
@@ -66,7 +58,6 @@ optional = true
 
 [dependencies.tracing-support]
 path = "../tracing"
-optional = true
 
 [dependencies.uniffi]
 version = "0.31"
