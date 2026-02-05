@@ -119,6 +119,11 @@ calendar-dialog-date-row {
   display: block;
   background: var(--color-surface-subtle);
   padding-block: var(--space-step);
+
+  & div {
+    display: flex;
+    gap: var(--space-step);
+  }
 }
 
 .button.close-button {
