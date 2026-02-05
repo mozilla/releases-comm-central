@@ -202,6 +202,9 @@ CalAlarmService.prototype = {
 
   /**
    * nsIObserver
+   *
+   * @param {nsISupports} aSubject - The subject of the observation.
+   * @param {string} aTopic - The topic of the observation.
    */
   observe(aSubject, aTopic) {
     // This will also be called on app-startup, but nothing is done yet, to
@@ -255,10 +258,17 @@ CalAlarmService.prototype = {
 
     // calling modifyItem will cause us to get the right callback
     // and update the alarm properly
-    const modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
+    try {
+      const modifiedItem = await newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
 
-    if (modifiedItem.getProperty(propName) == alarmTime.icalString) {
-      return;
+      if (modifiedItem.getProperty(propName) == alarmTime.icalString) {
+        return;
+      }
+    } catch (e) {
+      this._logger.warn(
+        `Failed to snooze alarm for item ${aItem.hashId}. This alarm will be ignored.`,
+        e
+      );
     }
 
     // The server did not persist our changes for some reason.
@@ -284,9 +294,16 @@ CalAlarmService.prototype = {
         newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
       }
 
-      const modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
-      if (modifiedItem.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
-        return;
+      try {
+        const modifiedItem = await newParent.calendar.modifyItem(newParent, oldParent);
+        if (modifiedItem.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
+          return;
+        }
+      } catch (e) {
+        this._logger.warn(
+          `Failed to dismiss alarm for item ${aItem.hashId}. This alarm will be ignored.`,
+          e
+        );
       }
 
       // The server did not persist our changes for some reason.
@@ -601,7 +618,7 @@ CalAlarmService.prototype = {
       newTimerWithCallback(alarmTimerCallback, timeout, false)
     );
 
-    if (timers.length > 0) {
+    if (timers.length) {
       this._logger.debug(
         `addNotificationForItem hashId=${item.hashId}: adding ${timers.length} timers, timeouts=${timeouts}`
       );
@@ -631,7 +648,7 @@ CalAlarmService.prototype = {
     delete this.mNotificationTimerMap[item.calendar.id][item.hashId];
 
     // If the calendar map is empty, remove it from the timer map
-    if (Object.keys(this.mNotificationTimerMap[item.calendar.id]).length == 0) {
+    if (!Object.keys(this.mNotificationTimerMap[item.calendar.id]).length) {
       delete this.mNotificationTimerMap[item.calendar.id];
     }
   },
@@ -654,7 +671,7 @@ CalAlarmService.prototype = {
     }
 
     // If the calendar map is empty, remove it from the timer map
-    if (Object.keys(this.mNotificationTimerMap[item.calendar.id]).length == 0) {
+    if (!Object.keys(this.mNotificationTimerMap[item.calendar.id]).length) {
       delete this.mNotificationTimerMap[item.calendar.id];
     }
   },
