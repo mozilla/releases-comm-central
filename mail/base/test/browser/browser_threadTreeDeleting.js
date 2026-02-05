@@ -313,7 +313,7 @@ add_task(async function testDeletionWhileScrolling() {
     }
   }
 
-  threadTree.addEventListener("scroll", scrollListener);
+  threadTree.addEventListener("scrollend", scrollListener);
   let scrollend = scrollListener.promiseScrollingStopped();
   threadTree.table.body.focus();
   threadTree.selectedIndex = 299;
@@ -385,7 +385,7 @@ add_task(async function testDeletionWhileScrolling() {
     "selected row should be above the last visible row"
   );
 
-  threadTree.removeEventListener("scroll", scrollListener);
+  threadTree.removeEventListener("scrollend", scrollListener);
 });
 
 async function subtest() {
