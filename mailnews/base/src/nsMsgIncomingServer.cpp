@@ -1261,8 +1261,6 @@ NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
   nsMsgRetainByPreference retainByPreference;
   int32_t daysToKeepHdrs = 0;
   int32_t numHeadersToKeep = 0;
-  int32_t daysToKeepBodies = 0;
-  bool cleanupBodiesByDays = false;
   bool applyToFlaggedMessages = false;
   nsresult rv = NS_OK;
   // Create an empty retention settings object,
@@ -1276,17 +1274,11 @@ NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = GetIntValue("daysToKeepHdrs", &daysToKeepHdrs);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetIntValue("daysToKeepBodies", &daysToKeepBodies);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetBoolValue("cleanupBodies", &cleanupBodiesByDays);
-    NS_ENSURE_SUCCESS(rv, rv);
     rv = GetBoolValue("applyToFlaggedMessages", &applyToFlaggedMessages);
     NS_ENSURE_SUCCESS(rv, rv);
     retentionSettings->SetRetainByPreference(retainByPreference);
     retentionSettings->SetNumHeadersToKeep((uint32_t)numHeadersToKeep);
-    retentionSettings->SetDaysToKeepBodies(daysToKeepBodies);
     retentionSettings->SetDaysToKeepHdrs(daysToKeepHdrs);
-    retentionSettings->SetCleanupBodiesByDays(cleanupBodiesByDays);
     retentionSettings->SetApplyToFlaggedMessages(applyToFlaggedMessages);
   } else
     rv = NS_ERROR_OUT_OF_MEMORY;
@@ -1299,24 +1291,16 @@ NS_IMETHODIMP nsMsgIncomingServer::SetRetentionSettings(
   nsMsgRetainByPreference retainByPreference;
   uint32_t daysToKeepHdrs = 0;
   uint32_t numHeadersToKeep = 0;
-  uint32_t daysToKeepBodies = 0;
-  bool cleanupBodiesByDays = false;
   bool applyToFlaggedMessages = false;
   settings->GetRetainByPreference(&retainByPreference);
   settings->GetNumHeadersToKeep(&numHeadersToKeep);
-  settings->GetDaysToKeepBodies(&daysToKeepBodies);
   settings->GetDaysToKeepHdrs(&daysToKeepHdrs);
-  settings->GetCleanupBodiesByDays(&cleanupBodiesByDays);
   settings->GetApplyToFlaggedMessages(&applyToFlaggedMessages);
   nsresult rv = SetIntValue("retainBy", retainByPreference);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = SetIntValue("numHdrsToKeep", numHeadersToKeep);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = SetIntValue("daysToKeepHdrs", daysToKeepHdrs);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetIntValue("daysToKeepBodies", daysToKeepBodies);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetBoolValue("cleanupBodies", cleanupBodiesByDays);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = SetBoolValue("applyToFlaggedMessages", applyToFlaggedMessages);
   NS_ENSURE_SUCCESS(rv, rv);

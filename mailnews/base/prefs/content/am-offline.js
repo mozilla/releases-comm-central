@@ -24,7 +24,6 @@ function onInit() {
 
   onCheckItem1("offline.notDownloadMin", "offline.notDownload");
   onCheckItem1("nntp.downloadMsgMin", "nntp.downloadMsg");
-  onCheckItem1("nntp.removeBodyMin", "nntp.removeBody");
   onCheckKeepMsg();
 }
 
@@ -57,13 +56,6 @@ function initServerSettings() {
 function initRetentionSettings() {
   const retentionSettings = gIncomingServer.retentionSettings;
   initCommonRetentionSettings(retentionSettings);
-
-  document.getElementById("nntp.removeBody").checked =
-    retentionSettings.cleanupBodiesByDays;
-  document.getElementById("nntp.removeBodyMin").value =
-    retentionSettings.daysToKeepBodies > 0
-      ? retentionSettings.daysToKeepBodies
-      : 30;
 }
 
 function initDownloadSettings() {
@@ -285,11 +277,6 @@ function onSave() {
     gIncomingServer.retentionSettings
   );
 
-  retentionSettings.daysToKeepBodies =
-    document.getElementById("nntp.removeBodyMin").value;
-  retentionSettings.cleanupBodiesByDays =
-    document.getElementById("nntp.removeBody").checked;
-
   downloadSettings.downloadByDate =
     document.getElementById("nntp.downloadMsg").checked;
   downloadSettings.downloadUnreadOnly = document.getElementById(
@@ -341,8 +328,6 @@ function onLockPreference() {
     { prefstring: "retainBy", id: "retention.keepMsg" },
     { prefstring: "daysToKeepHdrs", id: "retention.keepOldMsgMin" },
     { prefstring: "numHdrsToKeep", id: "retention.keepNewMsgMin" },
-    { prefstring: "daysToKeepBodies", id: "nntp.removeBodyMin" },
-    { prefstring: "cleanupBodies", id: "nntp.removeBody" },
     { prefstring: "applyToFlagged", id: "retention.applyToFlagged" },
     { prefstring: "disable_button.selectFolder", id: "selectNewsgroupsButton" },
     {

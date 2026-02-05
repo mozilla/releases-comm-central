@@ -30,8 +30,6 @@
 <!ENTITY retentionKeepRecent.accesskey "b">
 <!ENTITY retentionApplyToFlagged.label "Always keep starred messages">
 <!ENTITY retentionApplyToFlagged.accesskey "k">
-<!ENTITY nntpRemoveMsgBody.label "Remove bodies from messages more than">
-<!ENTITY nntpRemoveMsgBody.accesskey "o">
 <!ENTITY offlineSelectNntp.label "Select newsgroups for offline use…">
 <!ENTITY offlineSelectNntp.accesskey "S">
 <!ENTITY offlineImapAdvancedOffline.label "Advanced…">

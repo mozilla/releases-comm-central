@@ -324,31 +324,6 @@
                 checked=""
               />
             </hbox>
-            <hbox
-              align="center"
-              class="indent"
-              hidefor="pop3,imap,none,rss,ews"
-            >
-              <checkbox
-                id="nntp.removeBody"
-                accesskey="&nntpRemoveMsgBody.accesskey;"
-                label="&nntpRemoveMsgBody.label;"
-                oncommand="onCheckItem('nntp.removeBodyMin', [this.id])"
-              />
-              <html:input
-                id="nntp.removeBodyMin"
-                type="number"
-                class="size2 input-inline"
-                min="1"
-                value="30"
-                aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"
-              />
-              <label
-                value="&daysOld.label;"
-                control="nntp.removeBodyMin"
-                id="daysOldMsg"
-              />
-            </hbox>
           </vbox>
         </html:fieldset>
       </html:div>

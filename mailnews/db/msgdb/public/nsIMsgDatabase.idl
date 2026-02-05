@@ -59,10 +59,6 @@ interface nsIMsgRetentionSettings : nsISupports
   attribute unsigned long daysToKeepHdrs;
   attribute unsigned long numHeadersToKeep;
 
-  // this is for keeping offline bodies.
-  attribute boolean cleanupBodiesByDays;
-  attribute unsigned long daysToKeepBodies;
-
   /**
    * Should retention settings be applied to flagged/starred messages?
    * If false, flagged messages are never automatically deleted.

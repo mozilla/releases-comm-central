@@ -508,7 +508,6 @@ add_task(async function test_ews_offline_pane_hidden_boxes() {
       "selectNewsgroupsButton",
       "nntp.notDownloadRead",
       "nntp.downloadMsg",
-      "nntp.removeBody",
       "offline.notDownload",
       "retentionDescription",
       "retentionDescriptionPop",

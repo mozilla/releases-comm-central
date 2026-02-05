@@ -4579,8 +4579,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(
     nsMsgRetainByPreference retainByPreference;
     uint32_t daysToKeepHdrs;
     uint32_t numHeadersToKeep;
-    uint32_t daysToKeepBodies;
-    bool cleanupBodiesByDays;
     bool useServerDefaults;
     bool applyToFlaggedMessages;
 
@@ -4590,9 +4588,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = retentionSettings->GetNumHeadersToKeep(&numHeadersToKeep);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = retentionSettings->GetDaysToKeepBodies(&daysToKeepBodies);
-    NS_ENSURE_SUCCESS(rv, rv);
-    (void)retentionSettings->GetCleanupBodiesByDays(&cleanupBodiesByDays);
     (void)retentionSettings->GetUseServerDefaults(&useServerDefaults);
     rv = retentionSettings->GetApplyToFlaggedMessages(&applyToFlaggedMessages);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -4601,8 +4596,6 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(
     m_dbFolderInfo->SetUint32Property("retainBy", retainByPreference);
     m_dbFolderInfo->SetUint32Property("daysToKeepHdrs", daysToKeepHdrs);
     m_dbFolderInfo->SetUint32Property("numHdrsToKeep", numHeadersToKeep);
-    m_dbFolderInfo->SetUint32Property("daysToKeepBodies", daysToKeepBodies);
-    m_dbFolderInfo->SetBooleanProperty("cleanupBodies", cleanupBodiesByDays);
     m_dbFolderInfo->SetBooleanProperty("useServerDefaults", useServerDefaults);
     m_dbFolderInfo->SetBooleanProperty("applyToFlaggedMessages",
                                        applyToFlaggedMessages);
@@ -4622,8 +4615,6 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(
       uint32_t daysToKeepHdrs = 0;
       uint32_t numHeadersToKeep = 0;
       bool useServerDefaults;
-      uint32_t daysToKeepBodies = 0;
-      bool cleanupBodiesByDays = false;
       bool applyToFlaggedMessages;
 
       m_dbFolderInfo->GetUint32Property("retainBy",
@@ -4631,20 +4622,14 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(
                                         &retainByPreference);
       m_dbFolderInfo->GetUint32Property("daysToKeepHdrs", 0, &daysToKeepHdrs);
       m_dbFolderInfo->GetUint32Property("numHdrsToKeep", 0, &numHeadersToKeep);
-      m_dbFolderInfo->GetUint32Property("daysToKeepBodies", 0,
-                                        &daysToKeepBodies);
       m_dbFolderInfo->GetBooleanProperty("useServerDefaults", true,
                                          &useServerDefaults);
-      m_dbFolderInfo->GetBooleanProperty("cleanupBodies", false,
-                                         &cleanupBodiesByDays);
       m_dbFolderInfo->GetBooleanProperty("applyToFlaggedMessages", false,
                                          &applyToFlaggedMessages);
       m_retentionSettings->SetRetainByPreference(retainByPreference);
       m_retentionSettings->SetDaysToKeepHdrs(daysToKeepHdrs);
       m_retentionSettings->SetNumHeadersToKeep(numHeadersToKeep);
-      m_retentionSettings->SetDaysToKeepBodies(daysToKeepBodies);
       m_retentionSettings->SetUseServerDefaults(useServerDefaults);
-      m_retentionSettings->SetCleanupBodiesByDays(cleanupBodiesByDays);
       m_retentionSettings->SetApplyToFlaggedMessages(applyToFlaggedMessages);
     }
   }
@@ -4887,8 +4872,6 @@ nsMsgRetentionSettings::nsMsgRetentionSettings()
       m_daysToKeepHdrs(0),
       m_numHeadersToKeep(0),
       m_useServerDefaults(true),
-      m_cleanupBodiesByDays(false),
-      m_daysToKeepBodies(0),
       m_applyToFlaggedMessages(false) {}
 
 nsMsgRetentionSettings::~nsMsgRetentionSettings() {}
@@ -4946,34 +4929,6 @@ NS_IMETHODIMP nsMsgRetentionSettings::GetUseServerDefaults(
 NS_IMETHODIMP nsMsgRetentionSettings::SetUseServerDefaults(
     bool aUseServerDefaults) {
   m_useServerDefaults = aUseServerDefaults;
-  return NS_OK;
-}
-
-/* attribute boolean cleanupBodiesByDays; */
-NS_IMETHODIMP nsMsgRetentionSettings::GetCleanupBodiesByDays(
-    bool* aCleanupBodiesByDays) {
-  NS_ENSURE_ARG_POINTER(aCleanupBodiesByDays);
-  *aCleanupBodiesByDays = m_cleanupBodiesByDays;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgRetentionSettings::SetCleanupBodiesByDays(
-    bool aCleanupBodiesByDays) {
-  m_cleanupBodiesByDays = aCleanupBodiesByDays;
-  return NS_OK;
-}
-
-/* attribute long daysToKeepBodies; */
-NS_IMETHODIMP nsMsgRetentionSettings::GetDaysToKeepBodies(
-    uint32_t* aDaysToKeepBodies) {
-  NS_ENSURE_ARG_POINTER(aDaysToKeepBodies);
-  *aDaysToKeepBodies = m_daysToKeepBodies;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgRetentionSettings::SetDaysToKeepBodies(
-    uint32_t aDaysToKeepBodies) {
-  m_daysToKeepBodies = aDaysToKeepBodies;
   return NS_OK;
 }
 

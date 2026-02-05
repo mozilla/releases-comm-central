@@ -600,8 +600,6 @@ export class MsgIncomingServer {
     ["Int", "retainByPreference", "retainBy"],
     ["Int", "numHeadersToKeep", "numHdrsToKeep"],
     ["Int", "daysToKeepHdrs"],
-    ["Int", "daysToKeepBodies"],
-    ["Bool", "cleanupBodiesByDays", "cleanupBodies"],
     ["Bool", "applyToFlaggedMessages"],
   ];
 

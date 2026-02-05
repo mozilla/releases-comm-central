@@ -423,8 +423,6 @@ class nsMsgRetentionSettings : public nsIMsgRetentionSettings {
   uint32_t m_daysToKeepHdrs;
   uint32_t m_numHeadersToKeep;
   bool m_useServerDefaults;
-  bool m_cleanupBodiesByDays;
-  uint32_t m_daysToKeepBodies;
   bool m_applyToFlaggedMessages;
 };
 
