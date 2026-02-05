@@ -11,6 +11,9 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 const generator = new MessageGenerator();
 let imapSrcServer, imapDestServer;
@@ -207,9 +210,8 @@ async function subtestMove(folder, newParent) {
     destSubfolder,
     "the moved subfolder should have been created on the destination server"
   );
-  Assert.equal(
-    destSubfolder.getTotalMessages(false),
-    3,
+  await TestUtils.waitForCondition(
+    () => destSubfolder.getTotalMessages(false) == 3,
     "the moved subfolder should still contain the messages"
   );
   checkMessagesOnServer(destSubfolder, 3);
@@ -274,10 +276,10 @@ async function subtestCopy(folder, newParent) {
     destSubfolder,
     "the copied subfolder should have been created on the destination server"
   );
-  Assert.equal(
-    destSubfolder?.getTotalMessages(false),
-    2,
+  await TestUtils.waitForCondition(
+    () => destSubfolder.getTotalMessages(false) == 2,
     "the copied subfolder should contain a copy of the subfolder's messages"
   );
+
   checkMessagesOnServer(destSubfolder, 2);
 }
