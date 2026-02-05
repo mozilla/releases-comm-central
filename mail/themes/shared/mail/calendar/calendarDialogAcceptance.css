@@ -107,14 +107,14 @@
   }
 }
 
-#not-going {
+#notGoing {
   &:checked {
     & ~ .toggle {
       background-color: var(--color-surface-base);
       border: 1px solid var(--color-surface-border-intense);
       inset-inline-start: calc(var(--button-space) * 2 + 3px);
     }
-    & ~ label[for="not-going"] {
+    & ~ label[for="notGoing"] {
       color: var(--color-surface-border-intense);
 
       & img {
