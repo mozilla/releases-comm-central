@@ -12,6 +12,7 @@ ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "e872cae86f46d9
     "interop",
 ] }
 firefox-on-glean = { version = "0.1.0", path = "../../../toolkit/components/glean/api" }
+futures = "0.3.28"
 fxhash = "0.2.1"
 log = "0.4.21"
 mail-parser = "0.9.3"

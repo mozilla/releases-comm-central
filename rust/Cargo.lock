@@ -1808,6 +1808,7 @@ dependencies = [
  "cstr",
  "ews",
  "firefox-on-glean",
+ "futures",
  "fxhash",
  "log",
  "mail-builder",

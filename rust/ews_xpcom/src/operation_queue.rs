@@ -185,9 +185,9 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     ///
     /// This method detaches the runners to let them run in the background, and
     /// returns immediately.
-    pub fn start(self: Arc<OperationQueue<ServerT>>, runners: u64) {
-        for _ in 0..runners {
-            let runner = Runner::new(self.op_sender.clone(), self.channel_receiver.clone());
+    pub fn start(self: Arc<OperationQueue<ServerT>>, runners: u32) {
+        for i in 0..runners {
+            let runner = Runner::new(i, self.op_sender.clone(), self.channel_receiver.clone());
             moz_task::spawn_local("RequestQueue", runner.clone().run()).detach();
             self.runners.borrow_mut().push(runner);
         }
@@ -297,15 +297,23 @@ struct Runner<ServerT: ServerType + 'static> {
     op_sender: Arc<OperationSender<ServerT>>,
     receiver: Receiver<QueuedOperation>,
     state: Cell<RunnerState>,
+
+    // A numerical identifier attached to the current runner, used for
+    // debugging.
+    id: u32,
 }
 
 impl<ServerT: ServerType + 'static> Runner<ServerT> {
     /// Creates a new [`Runner`], wrapped into an [`Arc`].
+    ///
+    /// `id` is a numerical identifier used for debugging.
     fn new(
+        id: u32,
         op_sender: Arc<OperationSender<ServerT>>,
         receiver: Receiver<QueuedOperation>,
     ) -> Arc<Runner<ServerT>> {
         Arc::new(Runner {
+            id,
             op_sender,
             receiver,
             state: Cell::new(RunnerState::Pending),
@@ -334,6 +342,11 @@ impl<ServerT: ServerType + 'static> Runner<ServerT> {
             };
 
             self.state.replace(RunnerState::Running);
+
+            log::info!(
+                "operation_queue::Runner: runner {} performing op: {op:?}",
+                self.id
+            );
 
             op.perform(self.op_sender.clone()).await;
         }

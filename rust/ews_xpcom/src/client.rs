@@ -98,8 +98,13 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         let op_sender = OperationSender::new(endpoint, server, version_handler.clone())?;
         let op_sender = Arc::new(op_sender);
 
+        // Start the queue with a few runners. We're picking 5 here as an
+        // arbitrary number, without a strong reason for it (beyond being higher
+        // than 1). In the future, we could maybe move
+        // `maximumConnectionsNumber` from `nsIImapIncomingServer` to
+        // `nsIMsgIncomingServer` and use its value here.
         let queue = OperationQueue::new(op_sender.clone());
-        queue.clone().start(1);
+        queue.clone().start(5);
 
         Ok(XpComEwsClient {
             version_handler,

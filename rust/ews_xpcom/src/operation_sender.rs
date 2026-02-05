@@ -22,7 +22,10 @@ use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
-    client::ServerType, error::XpComEwsError, observers::UrlPrefObserver,
+    client::ServerType,
+    error::XpComEwsError,
+    line_token::{AcquireOutcome, Line},
+    observers::UrlPrefObserver,
     server_version::ServerVersionHandler,
 };
 
@@ -77,6 +80,7 @@ pub(crate) struct OperationSender<ServerT: RefCounted + 'static> {
     server: RefPtr<ServerT>,
     client: moz_http::Client,
     version_handler: Arc<ServerVersionHandler>,
+    error_handling_line: Line,
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
@@ -103,6 +107,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             server,
             client: moz_http::Client::new(),
             version_handler,
+            error_handling_line: Line::new(),
         })
     }
 
@@ -121,11 +126,23 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         content: &[u8],
         options: &OperationRequestOptions,
     ) -> Result<OpResp, XpComEwsError> {
+        let mut token = None;
+
         loop {
             let response = match self.send_http_request(name, content).await {
                 Ok(response) => response,
                 Err(err) => {
-                    self.handle_early_failure(err, options).await?;
+                    token = match self.error_handling_line.try_acquire_token().or_token(token) {
+                        AcquireOutcome::Success(new_token) => {
+                            self.handle_early_failure(err, options).await?;
+                            Some(new_token)
+                        }
+                        AcquireOutcome::Failure(shared) => {
+                            shared.await?;
+                            None
+                        }
+                    };
+
                     continue;
                 }
             };
@@ -160,7 +177,20 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             };
 
             match self.check_envelope_for_error(name, &response).await? {
-                ControlFlow::Continue(_) => continue,
+                ControlFlow::Continue(delay_ms) => {
+                    token = match self.error_handling_line.try_acquire_token().or_token(token) {
+                        AcquireOutcome::Success(new_token) => {
+                            xpcom_async::sleep(delay_ms).await?;
+                            Some(new_token)
+                        }
+                        AcquireOutcome::Failure(shared) => {
+                            shared.await?;
+                            None
+                        }
+                    };
+
+                    continue;
+                }
                 ControlFlow::Break(resp) => return Ok(resp),
             };
         }
@@ -396,11 +426,14 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// If successful, this returns a [`ControlFlow`] indicating whether the
     /// request should be retried or if a response can be shared with the
     /// consumer.
+    ///
+    /// If the request should be retried, the number of milliseconds to wait
+    /// before retrying is returned inside the [`ControlFlow::Continue`].
     async fn check_envelope_for_error<OpResp: OperationResponse>(
         &self,
         op_name: &str,
         resp: &Response,
-    ) -> Result<ControlFlow<OpResp, ()>, XpComEwsError> {
+    ) -> Result<ControlFlow<OpResp, u32>, XpComEwsError> {
         let op_result: Result<soap::Envelope<OpResp>, _> =
             soap::Envelope::from_xml_document(resp.body());
 
@@ -434,8 +467,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                     log::debug!(
                         "{op_name} returned busy message, will retry after {delay_ms} milliseconds"
                     );
-                    xpcom_async::sleep(delay_ms).await?;
-                    return Ok(ControlFlow::Continue(()));
+                    return Ok(ControlFlow::Continue(delay_ms));
                 }
 
                 Ok(ControlFlow::Break(envelope.body))
@@ -449,8 +481,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                         "{op_name} request throttled, will retry after {backoff_delay_ms} milliseconds"
                     );
 
-                    xpcom_async::sleep(backoff_delay_ms).await?;
-                    return Ok(ControlFlow::Continue(()));
+                    return Ok(ControlFlow::Continue(backoff_delay_ms));
                 }
 
                 // If not, propagate the error.
