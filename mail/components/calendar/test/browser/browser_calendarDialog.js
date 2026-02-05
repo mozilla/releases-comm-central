@@ -602,6 +602,25 @@ add_task(async function test_calendarDailogName() {
   dialog.close();
 });
 
+add_task(async function test_calendarDailogTitleTooltip() {
+  dialog.show();
+  dialog.setCalendarEvent(calendarEvent);
+  const titleElement = dialog.querySelector(".calendar-dialog-title");
+
+  await new Promise(requestAnimationFrame);
+
+  Assert.equal(
+    titleElement.title,
+    `TB CAL TEST - ${calendarEvent.title}`,
+    "Dialog has correct calendar title tooltip"
+  );
+
+  resetDialog();
+  Assert.equal(titleElement.title, "", "Calendar title tooltop gets cleared");
+
+  dialog.close();
+});
+
 add_task(async function test_dialogReminders() {
   dialog.show();
   const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
