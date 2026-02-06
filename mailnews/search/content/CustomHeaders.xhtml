@@ -3,7 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
+<!DOCTYPE html>
 <html
   id="customHeaderDialog"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -15,7 +15,7 @@
   scrolling="false"
 >
   <head>
-    <title>&window.title;</title>
+    <title data-l10n-id="custom-headers-window"></title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
 
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/customHeaders.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -45,22 +46,12 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
     <dialog buttons="accept,cancel,extra1,extra2">
-      <stringbundle
-        id="bundle_filter"
-        src="chrome://messenger/locale/filter.properties"
-      />
-      <stringbundle
-        id="bundle_custom"
-        src="chrome://messenger/locale/custom.properties"
-      />
-
       <hbox flex="1">
         <vbox flex="1">
           <label
             id="headerInputLabel"
-            accesskey="&newMsgHeader.accesskey;"
+            data-l10n-id="custom-headers-new-msg-header"
             control="headerInput"
-            value="&newMsgHeader.label;"
           />
           <html:input
             id="headerInput"
@@ -80,14 +71,12 @@
           <label value="" />
           <button
             id="addButton"
-            label="&addButton.label;"
-            accesskey="&addButton.accesskey;"
+            data-l10n-id="custom-headers-add-button"
             dlgtype="extra1"
           />
           <button
             id="removeButton"
-            label="&removeButton.label;"
-            accesskey="&removeButton.accesskey;"
+            data-l10n-id="custom-headers-remove-button"
             dlgtype="extra2"
           />
         </vbox>

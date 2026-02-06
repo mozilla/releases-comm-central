@@ -13,8 +13,6 @@ var gHeaderInputElement;
 var gArrayHdrs;
 var gHdrsList;
 var gContainer;
-var gFilterBundle = null;
-var gCustomBundle = null;
 
 window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogaccept", onOk);
@@ -83,35 +81,33 @@ function onOk() {
     : null;
 }
 
-function customHeaderOverflow() {
+async function customHeaderOverflow() {
   if (
     gArrayHdrs.length >=
     Ci.nsMsgSearchAttrib.kNumMsgSearchAttributes -
       Ci.nsMsgSearchAttrib.OtherHeader -
       1
   ) {
-    if (!gFilterBundle) {
-      gFilterBundle = document.getElementById("bundle_filter");
-    }
-
-    var alertText = gFilterBundle.getString("customHeaderOverflow");
-    Services.prompt.alert(window, null, alertText);
+    Services.prompt.alert(
+      window,
+      null,
+      await document.l10n.formatValue("custom-headers-overflow")
+    );
     return true;
   }
   return false;
 }
 
-function onAddHeader() {
+async function onAddHeader() {
   var newHdr = TrimString(gHeaderInputElement.value);
 
   if (!isRFC2822Header(newHdr)) {
     // if user entered an invalid rfc822 header field name, bail out.
-    if (!gCustomBundle) {
-      gCustomBundle = document.getElementById("bundle_custom");
-    }
-
-    var alertText = gCustomBundle.getString("colonInHeaderName");
-    Services.prompt.alert(window, null, alertText);
+    Services.prompt.alert(
+      window,
+      null,
+      await document.l10n.formatValue("custom-headers-colon-in-header")
+    );
     return;
   }
 
