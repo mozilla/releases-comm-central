@@ -10,7 +10,6 @@ var msgWindow; // important, don't change the name of this variable. it's really
 var gSearchTermSession; // really an in memory temporary filter we use to read in and write out the search terms
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
-var gFolderBundle = null;
 var gDefaultColor = "";
 var gMsgFolder;
 let isDefaultColor = false;
@@ -55,10 +54,6 @@ function onLoad() {
 
   gMessengerBundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
-  );
-
-  gFolderBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/folderWidgets.properties"
   );
 
   // call this when OK is pressed
@@ -234,7 +229,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   setupSearchRows(gSearchTermSession.searchTerms);
 
   // set the name of the folder
-  const name = gFolderBundle.formatStringFromName("verboseFolderFormat", [
+  const name = gMessengerBundle.formatStringFromName("verboseFolderFormat", [
     aVirtualFolder.localizedName,
     aVirtualFolder.server.prettyName,
   ]);

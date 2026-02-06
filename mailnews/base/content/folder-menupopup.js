@@ -22,6 +22,10 @@
     MailUtils: "resource:///modules/MailUtils.sys.mjs",
   });
 
+  ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
+    return new Localization(["messenger/folderWidgets.ftl"], true);
+  });
+
   /**
    * Creates an element, sets attributes on it, including always setting the
    * "generated" attribute to "true", and returns the element. The "generated"
@@ -72,10 +76,6 @@
         // populate this menu.  If this is null, the menu will be populated
         // using the root-folders for all accounts.
         this._parentFolder = null;
-
-        this._stringBundle = Services.strings.createBundle(
-          "chrome://messenger/locale/folderWidgets.properties"
-        );
 
         // Various filtering modes can be used with this menu-binding. To use
         // one of them, append the mode="foo" attribute to the element. When
@@ -782,9 +782,9 @@
           folder.isServer &&
           folder.server.rootFolder == globalInboxFolder
         ) {
-          return this._stringBundle.formatStringFromName("globalInbox", [
-            folder.localizedName,
-          ]);
+          return lazy.l10n.formatValueSync("folder-widgets-global-inbox", {
+            name: folder.localizedName,
+          });
         }
         return folder.localizedName;
       }
@@ -894,9 +894,12 @@
         }
 
         if (this._displayformat == "verbose") {
-          return this._stringBundle.formatStringFromName(
-            "verboseFolderFormat",
-            [folder.localizedName, folder.server.prettyName]
+          return lazy.l10n.formatValueSync(
+            "folder-widgets-verbose-folder-format",
+            {
+              folder: folder.localizedName,
+              server: folder.server.prettyName,
+            }
           );
         }
 
@@ -922,8 +925,9 @@
         // Set the label of the menulist element as if folder had been selected.
         function setupParent(folder, menulist, noFolders) {
           const menupopup = menulist.menupopup;
+          let label;
           if (folder) {
-            menulist.setAttribute("label", menupopup.getDisplayName(folder));
+            label = menupopup.getDisplayName(folder);
             const prettyPath = folder.prettyPath;
             if (prettyPath) {
               menulist.setAttribute(
@@ -931,22 +935,16 @@
                 `${prettyPath} – ${folder.server.prettyName}`
               );
             }
-          } else if (noFolders) {
-            menulist.setAttribute(
-              "label",
-              menupopup._stringBundle.GetStringFromName("noFolders")
-            );
-          } else if (menupopup._serversOnly) {
-            menulist.setAttribute(
-              "label",
-              menupopup._stringBundle.GetStringFromName("chooseAccount")
-            );
           } else {
-            menulist.setAttribute(
-              "label",
-              menupopup._stringBundle.GetStringFromName("chooseFolder")
-            );
+            let l10nId = "folder-widgets-choose-folder";
+            if (noFolders) {
+              l10nId = "folder-widgets-no-folders";
+            } else if (menupopup._serversOnly) {
+              l10nId = "folder-widgets-choose-account";
+            }
+            label = lazy.l10n.formatValueSync(l10nId);
           }
+          menulist.setAttribute("label", label);
           menulist.setAttribute("value", folder ? folder.URI : "");
           menulist.setAttribute("IsServer", folder ? folder.isServer : false);
           menulist.setAttribute(
