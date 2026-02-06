@@ -40,6 +40,16 @@ var { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(
+  this,
+  {
+    FolderReorderListener:
+      "chrome://messenger/content/FolderReorderListener.mjs",
+    UserFeedbackListener: "chrome://messenger/content/UserFeedbackListener.mjs",
+  },
+  { global: "current" }
+);
+
 ChromeUtils.defineESModuleGetters(this, {
   CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
@@ -214,7 +224,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 window.addEventListener("unload", () => {
   CalMetronome.off("day", refreshGroupedBySortView);
   MailServices.mailSession.RemoveFolderListener(folderListener);
-  MailServices.mailSession.removeUserFeedbackListener(userFeedbackListener);
+  MailServices.mailSession.removeUserFeedbackListener(UserFeedbackListener);
   gViewWrapper?.close();
   folderPane.uninit();
   threadPane.uninit();
@@ -826,6 +836,20 @@ var folderPaneContextMenu = {
    * @param {nsIMsgCopyServiceListener} [listener]
    */
   transferFolder(isMove, sourceFolder, targetFolder, listener = null) {
+    // Listen for any event coming from the nsIMsgCopyServiceListener and
+    // trigger the needed operations after the copy service did its job.
+    if (listener) {
+      listener.target.addEventListener(
+        "insert-folder",
+        event =>
+          folderPane.insertFolder(
+            event.detail.movedFolder,
+            event.detail.targetFolder,
+            event.detail.insertAfter
+          ),
+        { once: true }
+      );
+    }
     // Do the transfer. A slight delay in calling copyFolder() helps the
     // folder-menupopup chain of items get properly closed so the next folder
     // context popup can occur.
@@ -1687,7 +1711,8 @@ var folderPane = {
       folderListener,
       Ci.nsIFolderListener.all
     );
-    MailServices.mailSession.addUserFeedbackListener(userFeedbackListener);
+    MailServices.mailSession.addUserFeedbackListener(UserFeedbackListener);
+    UserFeedbackListener.target.addEventListener("show-tls-error", this);
 
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
     Services.prefs.addObserver("mailnews.tags.", this);
@@ -1764,6 +1789,7 @@ var folderPane = {
     if (!this._initialized) {
       return;
     }
+    UserFeedbackListener.target.removeEventListener("show-tls-error", this);
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
     Services.prefs.removeObserver("mailnews.tags.", this);
     Services.obs.removeObserver(this, "folder-color-changed");
@@ -1779,6 +1805,21 @@ var folderPane = {
 
   handleEvent(event) {
     switch (event.type) {
+      case "show-tls-error":
+        window.MozXULElement.insertFTLIfNeeded("messenger/certError.ftl");
+        this._changeRows(event.detail.server.rootFolder, row => {
+          row.classList.add("tls-error");
+          document.l10n.setAttributes(
+            row.statusIcon,
+            event.detail.errorString,
+            event.detail.errorArgs
+          );
+          // Click handler set directly (rather than as a listener) so that we
+          // don't have to mess around clearing previous handlers.
+          row.statusIcon.onclick = () =>
+            top.MsgAccountManager("am-server.xhtml", event.detail.server);
+        });
+        break;
       case "select":
         this._onSelect(event);
         break;
@@ -1869,7 +1910,7 @@ var folderPane = {
           console.error(ex);
           return;
         }
-        folderPane._changeRows(server.rootFolder, row =>
+        this._changeRows(server.rootFolder, row =>
           row.classList.remove("tls-error")
         );
         break;
@@ -3519,7 +3560,7 @@ var folderPane = {
             sourceFolder,
             destinationFolder,
             isReordering
-              ? new ReorderFolderListener(
+              ? new FolderReorderListener(
                   sourceFolder,
                   targetFolder,
                   insertAfter
@@ -4575,27 +4616,6 @@ var folderPane = {
     });
   },
 };
-
-/**
- * Class responsible for the the UI reorder of the folders after the backend
- * operation has been completed.
- */
-class ReorderFolderListener {
-  constructor(sourceFolder, targetFolder, insertAfter) {
-    this.sourceFolder = sourceFolder;
-    this.targetFolder = targetFolder;
-    this.insertAfter = insertAfter;
-  }
-
-  onStopCopy() {
-    // Do reorder within new siblings (all children of new parent).
-    const movedFolder = MailServices.copy.getArrivedFolder(this.sourceFolder);
-    if (!movedFolder) {
-      return;
-    }
-    folderPane.insertFolder(movedFolder, this.targetFolder, this.insertAfter);
-  }
-}
 
 /**
  * Header area of the message list pane.
@@ -6892,60 +6912,6 @@ var folderListener = {
         folderPane.addFolder(f.parent, f);
       }
     }
-  },
-};
-
-var userFeedbackListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIMsgUserFeedbackListener"]),
-  onAlert() {
-    return false;
-  },
-  async onCertError(securityInfo, uri) {
-    let server;
-    try {
-      server = MailServices.accounts.findServerByURI(uri);
-    } catch (ex) {
-      console.error(ex);
-      return;
-    }
-
-    let errorString;
-    const errorArgs = { hostname: uri.host };
-
-    switch (securityInfo?.overridableErrorCategory) {
-      case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
-        errorString = "cert-error-inline-domain-mismatch";
-        break;
-      case Ci.nsITransportSecurityInfo.ERROR_TIME: {
-        const cert = securityInfo.serverCert;
-        const notBefore = cert.validity.notBefore / 1000;
-        const notAfter = cert.validity.notAfter / 1000;
-        const formatter = new Intl.DateTimeFormat();
-
-        if (notBefore && Date.now() < notAfter) {
-          errorString = "cert-error-inline-not-yet-valid";
-          errorArgs["not-before"] = formatter.format(new Date(notBefore));
-        } else {
-          errorString = "cert-error-inline-expired";
-          errorArgs["not-after"] = formatter.format(new Date(notAfter));
-        }
-        break;
-      }
-      default:
-        errorString = "cert-error-inline-untrusted-default";
-        break;
-    }
-
-    window.MozXULElement.insertFTLIfNeeded("messenger/certError.ftl");
-
-    folderPane._changeRows(server.rootFolder, row => {
-      row.classList.add("tls-error");
-      document.l10n.setAttributes(row.statusIcon, errorString, errorArgs);
-      // Click handler set directly (rather than as a listener) so that we
-      // don't have to mess around clearing previous handlers.
-      row.statusIcon.onclick = () =>
-        top.MsgAccountManager("am-server.xhtml", server);
-    });
   },
 };
 

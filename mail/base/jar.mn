@@ -96,10 +96,12 @@ messenger.jar:
 
     content/messenger/CustomElementUtils.mjs        (content/modules/CustomElementUtils.mjs)
     content/messenger/DarkReader.mjs                (content/modules/DarkReader.mjs)
+    content/messenger/FolderReorderListener.mjs     (content/modules/FolderReorderListener.mjs)
     content/messenger/FolderSelectionDataAdapter.mjs (content/modules/FolderSelectionDataAdapter.mjs)
     content/messenger/ThreadPaneColumns.mjs         (content/modules/ThreadPaneColumns.mjs)
     content/messenger/TreeDataAdapter.mjs           (content/modules/TreeDataAdapter.mjs)
     content/messenger/TreeSelection.mjs             (content/modules/TreeSelection.mjs)
+    content/messenger/UserFeedbackListener.mjs      (content/modules/UserFeedbackListener.mjs)
 
     content/messenger/attachment-list.mjs           (content/widgets/attachment-list.mjs)
     content/messenger/auto-tree-view.mjs            (content/widgets/auto-tree-view.mjs)
