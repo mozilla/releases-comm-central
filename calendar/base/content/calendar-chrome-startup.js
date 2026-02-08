@@ -48,9 +48,6 @@ async function loadCalendarComponent() {
   // load locale specific default values for preferences
   setLocaleDefaultPreferences();
 
-  // Move around toolbarbuttons and whatever is needed in the UI.
-  migrateCalendarUI();
-
   // Load the Calendar Manager
   await loadCalendarManager();
 
@@ -164,71 +161,6 @@ function unloadCalendarComponent() {
 
   CalMetronome.off("minute", updateTimeIndicatorPosition);
   CalMetronome.off("day", doMidnightUpdate);
-}
-
-/**
- * Migrate calendar UI. This function is called at each startup and can be used
- * to change UI items that require js code intervention
- */
-function migrateCalendarUI() {
-  const UI_VERSION = 3;
-  const currentUIVersion = Services.prefs.getIntPref("calendar.ui.version", 0);
-  if (currentUIVersion >= UI_VERSION) {
-    return;
-  }
-
-  try {
-    if (currentUIVersion < 2) {
-      // If the user has customized the event/task window dialog toolbar,
-      // we copy that custom set of toolbar items to the event/task tab
-      // toolbar and add the app menu button and a spring for alignment.
-      const xulStore = Services.xulStore;
-      const uri = "chrome://calendar/content/calendar-event-dialog.xhtml";
-
-      if (xulStore.hasValue(uri, "event-toolbar", "currentset")) {
-        const windowSet = xulStore.getValue(uri, "event-toolbar", "currentset");
-        let items = "";
-        if (!windowSet.includes("spring")) {
-          items = "spring";
-        }
-        const previousSet = windowSet == "__empty" ? "" : windowSet + ",";
-        const tabSet = previousSet + items;
-        const tabBar = document.getElementById("event-tab-toolbar");
-
-        tabBar.currentSet = tabSet;
-        // For some reason we also have to do the following,
-        // presumably because the toolbar has already been
-        // loaded into the DOM so the toolbar's currentset
-        // attribute does not yet match the new currentSet.
-        tabBar.setAttribute("currentset", tabSet);
-      }
-    }
-    if (currentUIVersion < 3) {
-      // Rename toolbar button id "button-save" to
-      // "button-saveandclose" in customized toolbars
-      const xulStore = Services.xulStore;
-      const windowUri = "chrome://calendar/content/calendar-event-dialog.xhtml";
-      const tabUri = "chrome://messenger/content/messenger.xhtml";
-
-      if (xulStore.hasValue(windowUri, "event-toolbar", "currentset")) {
-        const windowSet = xulStore.getValue(windowUri, "event-toolbar", "currentset");
-        const newSet = windowSet.replace("button-save", "button-saveandclose");
-        xulStore.setValue(windowUri, "event-toolbar", "currentset", newSet);
-      }
-      if (xulStore.hasValue(tabUri, "event-tab-toolbar", "currentset")) {
-        const tabSet = xulStore.getValue(tabUri, "event-tab-toolbar", "currentset");
-        const newSet = tabSet.replace("button-save", "button-saveandclose");
-        xulStore.setValue(tabUri, "event-tab-toolbar", "currentset", newSet);
-
-        const tabBar = document.getElementById("event-tab-toolbar");
-        tabBar.currentSet = newSet;
-        tabBar.setAttribute("currentset", newSet);
-      }
-    }
-    Services.prefs.setIntPref("calendar.ui.version", UI_VERSION);
-  } catch (e) {
-    console.error("Error upgrading UI from " + currentUIVersion + " to " + UI_VERSION + ": " + e);
-  }
 }
 
 function setLocaleDefaultPreferences() {
