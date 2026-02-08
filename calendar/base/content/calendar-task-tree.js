@@ -46,7 +46,7 @@
     }
 
     onAddItem(item) {
-      if (!this.tree.hasBeenVisible) {
+      if (!this.tree.isInitialized) {
         return;
       }
 
@@ -56,7 +56,7 @@
     }
 
     onModifyItem(newItem, oldItem) {
-      if (!this.tree.hasBeenVisible) {
+      if (!this.tree.isInitialized) {
         return;
       }
 
@@ -71,7 +71,7 @@
     }
 
     onDeleteItem(deletedItem) {
-      if (!this.tree.hasBeenVisible) {
+      if (!this.tree.isInitialized) {
         return;
       }
 
@@ -122,6 +122,13 @@
    * @augments {MozTree}
    */
   class CalendarTaskTree extends customElements.get("tree") {
+    /**
+     * Whether the view has been initialized.
+     *
+     * @type {boolean}
+     */
+    #isInitialized = false;
+
     connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback() || this.hasConnected) {
@@ -289,6 +296,27 @@
       this.restoreColumnState();
 
       window.addEventListener("unload", this.persistColumnState.bind(this));
+    }
+
+    /**
+     * Ensure the tree has been initialized.
+     */
+    ensureInitialized() {
+      if (!this.#isInitialized) {
+        this.#isInitialized = true;
+        Glean.calendar.viewInitialized[this.id].add(1);
+        this.refresh();
+      }
+    }
+
+    /**
+     * Whether the view has been initialized.
+     *
+     * @returns {boolean} - True if the view has been initialized, otherwise
+     * false.
+     */
+    get isInitialized() {
+      return this.#isInitialized;
     }
 
     get currentTask() {
@@ -470,7 +498,7 @@
     }
 
     refreshFromCalendar(calendar) {
-      if (!this.hasBeenVisible) {
+      if (!this.#isInitialized) {
         return;
       }
 

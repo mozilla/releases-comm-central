@@ -20,6 +20,7 @@ BROWSER_CHROME_MANIFESTS += [
     "browser/timezones/browser.toml",
     "browser/views/browser.toml",
     "browser/views/browser_midnightUpdate.toml",
+    "browser/views/browser_viewTelemetry.toml",
 ]
 
 TESTING_JS_MODULES.calendar += [

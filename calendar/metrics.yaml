@@ -72,3 +72,27 @@ calendar:
       - calendar.week.d4thursdaysoff
       - calendar.week.d5fridaysoff
       - calendar.week.d6saturdaysoff
+
+  view_initialized:
+    type: labeled_counter
+    description: >
+      Which calendar views are displayed to the user. Each view is counted
+      when it is initialized, as that only happens when the view is first
+      displayed to the user.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2015362
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=2015362
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - day-view
+      - week-view
+      - multiweek-view
+      - month-view
+      - calendar-task-tree
+      - agenda
+      - unifinder-todo-tree

@@ -175,6 +175,7 @@
         if (this.isActive) {
           await this.refreshItems();
         } else {
+          Glean.calendar.viewInitialized.agenda.add(1);
           await this.activate();
         }
         this.selectedIndex = 0;

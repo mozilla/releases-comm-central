@@ -156,10 +156,7 @@ var TodayPane = {
    */
   updateCalendarToDoUnifinder(filter) {
     const tree = document.getElementById("unifinder-todo-tree");
-    if (!tree.hasBeenVisible) {
-      tree.hasBeenVisible = true;
-      tree.refresh();
-    }
+    tree.ensureInitialized();
 
     // Set up hiding completed tasks for the unifinder-todo tree
     filter = filter || tree.getAttribute("filterValue") || "throughcurrent";

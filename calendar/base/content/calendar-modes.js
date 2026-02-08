@@ -116,10 +116,7 @@ function calSwitchToTaskMode() {
     document.getElementById("calMinimonth").setAttribute("freebusy", "true");
 
     const tree = document.getElementById("calendar-task-tree");
-    if (!tree.hasBeenVisible) {
-      tree.hasBeenVisible = true;
-      tree.refresh();
-    }
+    tree.ensureInitialized();
 
     document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");

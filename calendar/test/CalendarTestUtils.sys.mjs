@@ -752,6 +752,28 @@ export const CalendarTestUtils = {
   },
 
   /**
+   * Ensures the tasks tab is open.
+   *
+   * @param {Window} win
+   */
+  async openTasksTab(win) {
+    const tabmail = win.document.getElementById("tabmail");
+    const tasksMode = tabmail.tabModes.tasks;
+
+    if (tasksMode.tabs.length == 1) {
+      tabmail.selectedTab = tasksMode.tabs[0];
+    } else {
+      const tasksTabButton = win.document.getElementById("tasksButton");
+      EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 }, win);
+    }
+
+    Assert.equal(tasksMode.tabs.length, 1, "tasks tab is open");
+    Assert.equal(tabmail.selectedTab, tasksMode.tabs[0], "tasks tab is selected");
+
+    await new Promise(resolve => win.setTimeout(resolve));
+  },
+
+  /**
    * Make sure the current view has finished loading.
    *
    * @param {Window} win
@@ -821,6 +843,24 @@ export const CalendarTestUtils = {
     }
 
     Assert.equal(calendarMode.tabs.length, 0, "calendar tab is not open");
+
+    await new Promise(resolve => win.setTimeout(resolve));
+  },
+
+  /**
+   * Ensures the tasks tab is not open.
+   *
+   * @param {Window} win
+   */
+  async closeTasksTab(win) {
+    const tabmail = win.document.getElementById("tabmail");
+    const tasksMode = tabmail.tabModes.tasks;
+
+    if (tasksMode.tabs.length == 1) {
+      tabmail.closeTab(tasksMode.tabs[0]);
+    }
+
+    Assert.equal(tasksMode.tabs.length, 0, "tasks tab is not open");
 
     await new Promise(resolve => win.setTimeout(resolve));
   },

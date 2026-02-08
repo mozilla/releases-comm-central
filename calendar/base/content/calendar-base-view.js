@@ -92,6 +92,7 @@
         return;
       }
       this.#isInitialized = true;
+      Glean.calendar.viewInitialized[this.id].add(1);
 
       this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start");
       this.calICalendarView = this.getCustomInterfaceCallback(Ci.calICalendarView);
