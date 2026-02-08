@@ -32,6 +32,7 @@
  *
  * Rule documentation: https://firefox-source-docs.mozilla.org/code-quality/lint/linters/eslint-plugin-mozilla/rules/no-more-globals.html
  * As it says: DO NOT JUST ADD ITEMS TO THE ALLOWLIST
+ * When you must, adjust mail/components/compose/content/MsgComposeCommands.js.globals
  *
  * If you're lazy loading something, we already have a `lazy` object in this
  * scope, so you can simply avoid adding a global for that by defining the
@@ -77,26 +78,6 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
-ChromeUtils.defineLazyGetter(
-  this,
-  "l10nCompose",
-  () =>
-    new Localization([
-      "branding/brand.ftl",
-      "messenger/messengercompose/messengercompose.ftl",
-    ])
-);
-
-ChromeUtils.defineLazyGetter(
-  this,
-  "l10nComposeSync",
-  () =>
-    new Localization(
-      ["branding/brand.ftl", "messenger/messengercompose/messengercompose.ftl"],
-      true
-    )
-);
-
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gMIMEService",
@@ -111,7 +92,6 @@ XPCOMUtils.defineLazyScriptGetter(
 );
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   ComposeUtils: "resource:///modules/ComposeUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
@@ -2481,15 +2461,11 @@ async function showLocalizedCloudFileAlert(
       );
       break;
     case cloudFileAccounts.constants.offlineErr:
-      localizedTitle = await l10nCompose.formatValue(
-        "cloud-file-connection-error-title"
-      );
-      localizedMessage = await l10nCompose.formatValue(
-        "cloud-file-connection-error",
-        {
-          provider,
-        }
-      );
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
+        "cloud-file-connection-error-title",
+        { id: "cloud-file-connection-error", args: { provider } },
+      ]);
       break;
     case cloudFileAccounts.constants.authErr:
       localizedTitle = bundle.getString("errorCloudFileAuth.title");
@@ -2499,7 +2475,8 @@ async function showLocalizedCloudFileAlert(
       );
       break;
     case cloudFileAccounts.constants.uploadErrWithCustomMessage:
-      localizedTitle = await l10nCompose.formatValue(
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      localizedTitle = await document.l10n.formatValue(
         "cloud-file-upload-error-with-custom-message-title",
         {
           provider,
@@ -2530,18 +2507,15 @@ async function showLocalizedCloudFileAlert(
       );
       break;
     case cloudFileAccounts.constants.renameNotSupported:
-      localizedTitle = await l10nCompose.formatValue(
-        "cloud-file-rename-error-title"
-      );
-      localizedMessage = await l10nCompose.formatValue(
-        "cloud-file-rename-not-supported",
-        {
-          provider,
-        }
-      );
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
+        "cloud-file-rename-error-title",
+        { id: "cloud-file-rename-not-supported", args: { provider } },
+      ]);
       break;
     case cloudFileAccounts.constants.renameErrWithCustomMessage:
-      localizedTitle = await l10nCompose.formatValue(
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      localizedTitle = await document.l10n.formatValue(
         "cloud-file-rename-error-with-custom-message-title",
         {
           provider,
@@ -2551,38 +2525,25 @@ async function showLocalizedCloudFileAlert(
       localizedMessage = ex.message;
       break;
     case cloudFileAccounts.constants.renameErr:
-      localizedTitle = await l10nCompose.formatValue(
-        "cloud-file-rename-error-title"
-      );
-      localizedMessage = await l10nCompose.formatValue(
-        "cloud-file-rename-error",
-        {
-          provider,
-          filename,
-        }
-      );
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
+        "cloud-file-rename-error-title",
+        { id: "cloud-file-rename-error", args: { provider, filename } },
+      ]);
       break;
     case cloudFileAccounts.constants.attachmentErr:
-      localizedTitle = await l10nCompose.formatValue(
-        "cloud-file-attachment-error-title"
-      );
-      localizedMessage = await l10nCompose.formatValue(
-        "cloud-file-attachment-error",
-        {
-          filename,
-        }
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      [localizedTitle, localizedMessage] = await document.l10n.formatValue(
+        "cloud-file-attachment-error-title",
+        { id: "cloud-file-attachment-error", args: { filename } }
       );
       break;
     case cloudFileAccounts.constants.accountErr:
-      localizedTitle = await l10nCompose.formatValue(
-        "cloud-file-account-error-title"
-      );
-      localizedMessage = await l10nCompose.formatValue(
-        "cloud-file-account-error",
-        {
-          filename,
-        }
-      );
+      // eslint-disable-next-line mozilla/prefer-formatValues
+      [localizedTitle, localizedMessage] = await document.l10n.formatValues([
+        "cloud-file-account-error-title",
+        { id: "cloud-file-account-error", args: { filename } },
+      ]);
       break;
     default:
       localizedTitle = bundle.getString("errorCloudFileOther.title");
@@ -5777,7 +5738,7 @@ function setComposeLabelsAndMenuItems() {
  * Add a keydown document event listener for international keyboard shortcuts.
  */
 async function setKeyboardShortcuts() {
-  const [filePickerKey, toggleBucketKey] = await l10nCompose.formatValues([
+  const [filePickerKey, toggleBucketKey] = await document.l10n.formatValues([
     { id: "trigger-attachment-picker-key" },
     { id: "toggle-attachment-pane-key" },
   ]);
@@ -6019,7 +5980,7 @@ async function updateAriaLabelsOfAddressRow(row) {
 
   input.setAttribute(
     "aria-label",
-    await l10nCompose.formatValue("address-input-type-aria-label", {
+    await document.l10n.formatValue("address-input-type-aria-label", {
       type,
       count: pills.length,
     })
@@ -6028,7 +5989,7 @@ async function updateAriaLabelsOfAddressRow(row) {
   for (const pill of pills) {
     pill.setAttribute(
       "aria-label",
-      await l10nCompose.formatValue("pill-aria-label", {
+      await document.l10n.formatValue("pill-aria-label", {
         email: pill.fullAddress,
         count: pills.length,
       })
@@ -6369,7 +6330,7 @@ async function GenericSendMessage(msgType) {
           Services.prompt.BUTTON_POS_0 *
             Services.prompt.BUTTON_TITLE_IS_STRING +
           Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
-        const [title, msg, cancel, send] = l10nComposeSync.formatValuesSync([
+        const [title, msg, cancel, send] = await document.l10n.formatValues([
           "many-public-recipients-prompt-title",
           {
             id: "many-public-recipients-prompt-msg",

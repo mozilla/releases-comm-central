@@ -411,7 +411,7 @@ var gCloudAttachmentLinkManager = {
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
 
-    header.textContent = await l10nCompose.formatValue(
+    header.textContent = await document.l10n.formatValue(
       "cloud-file-count-header",
       {
         count: entries.length,
@@ -453,7 +453,7 @@ var gCloudAttachmentLinkManager = {
 
     let content = "";
     if (providers.length == 1) {
-      content = await l10nCompose.formatValue(
+      content = await document.l10n.formatValue(
         "cloud-file-service-provider-footer-single",
         {
           link: providers[0],
@@ -462,7 +462,7 @@ var gCloudAttachmentLinkManager = {
     } else if (providers.length > 1) {
       const lastLink = providers.pop();
       const firstLinks = providers.join(", ");
-      content = await l10nCompose.formatValue(
+      content = await document.l10n.formatValue(
         "cloud-file-service-provider-footer-multiple",
         {
           firstLinks,
@@ -538,7 +538,7 @@ var gCloudAttachmentLinkManager = {
       "tooltip-password-protected-link": 6,
     };
 
-    const l10n_values = await l10nCompose.formatValues([
+    const l10n_values = await document.l10n.formatValues([
       { id: "cloud-file-template-service-name" },
       { id: "cloud-file-template-size" },
       { id: "cloud-file-template-link" },
