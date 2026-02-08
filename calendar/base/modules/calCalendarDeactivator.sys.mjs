@@ -134,6 +134,11 @@ export var calendarDeactivator = {
           .catch(console.warn);
       }
     }
+
+    const agendaPanel = window.document.getElementById("agenda-panel");
+    if (isEnabled && agendaPanel?.isVisible()) {
+      window.document.getElementById("agenda").ensureInitialized();
+    }
   },
 
   // calICalendarManagerObserver methods

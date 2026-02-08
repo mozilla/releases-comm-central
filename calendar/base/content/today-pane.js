@@ -146,6 +146,10 @@ var TodayPane = {
       }
     }
 
+    if (agendaIsVisible) {
+      this.agenda.ensureInitialized();
+    }
+
     window.dispatchEvent(new CustomEvent("viewresize"));
   },
 

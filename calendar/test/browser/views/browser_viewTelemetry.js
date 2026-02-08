@@ -28,10 +28,11 @@ function checkTelemetry(itemToAdd) {
 }
 
 add_setup(async function () {
-  // Only the agenda should have been opened before running this test. This happens automatically
-  // when starting with a new profile.
-  checkTelemetry("agenda");
+  // No views should have been initialized at the start of the test.
+  checkTelemetry();
+
   cal.manager.getCalendars()[0].setProperty("disabled", false);
+  checkTelemetry("agenda");
 });
 
 add_task(async function testTodayPane() {

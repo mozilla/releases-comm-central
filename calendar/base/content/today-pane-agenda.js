@@ -79,6 +79,17 @@
       }
 
       /**
+       * Ensure the agenda has been initialized, unless no calendars are active.
+       * If a calendar becomes active, this will be called again by CalendarDeactivator.
+       */
+      async ensureInitialized() {
+        if (!this.isActive && !document.documentElement.hasAttribute("calendar-deactivated")) {
+          Glean.calendar.viewInitialized.agenda.add(1);
+          await this.activate();
+        }
+      }
+
+      /**
        * Implementation as required by CalendarFilteredViewMixin.
        */
       clearItems() {
@@ -175,8 +186,7 @@
         if (this.isActive) {
           await this.refreshItems();
         } else {
-          Glean.calendar.viewInitialized.agenda.add(1);
-          await this.activate();
+          await this.ensureInitialized();
         }
         this.selectedIndex = 0;
       }
