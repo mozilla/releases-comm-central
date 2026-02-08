@@ -51,6 +51,7 @@ add_task(async function test_addressBooks() {
     for (const eventNamespace of ["addressBooks", "contacts", "mailingLists"]) {
       for (const eventName of [
         "onCreated",
+        "onManyCreated",
         "onUpdated",
         "onDeleted",
         "onMemberAdded",
@@ -808,6 +809,13 @@ add_task(async function test_addressBooks() {
         "vCard should be version 4.0"
       );
 
+      await outsideEvent("createManyContacts");
+      await checkEvents([
+        "contacts",
+        "onManyCreated",
+        { type: "addressBook", id: parentId1 },
+      ]);
+
       // Update the contact from outside.
       await outsideEvent("updateContact", contactId);
       const [updatedContact] = await checkEvents([
@@ -928,6 +936,20 @@ add_task(async function test_addressBooks() {
         extension.sendMessage(parent.UID, newContact.UID);
         return;
       }
+      case "createManyContacts": {
+        const cards = [];
+        for (let i = 1; i <= 3; i++) {
+          const contact = new AddrBookCard();
+          contact.firstName = "many";
+          contact.lastName = `add ${i}`;
+          contact.primaryEmail = `test${i}@invalid`;
+          cards.push(contact);
+        }
+
+        parent.wrappedJSObject.bulkAddCards(cards);
+        extension.sendMessage();
+        return;
+      }
       case "updateContact": {
         const contact = findContact(args[0]);
         if (contact) {
@@ -1012,6 +1034,8 @@ add_task(async function test_addressBooks() {
   await extension.startup();
   await extension.awaitFinish("addressBooks");
   await extension.unload();
+
+  parent.deleteCards(parent.childCards);
 });
 
 add_task(async function test_addressBooks_MV3_event_pages() {
@@ -1038,7 +1062,12 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         });
       }
       // Create and register event listener for the addressBooks.contacts API.
-      for (const eventName of ["onCreated", "onUpdated", "onDeleted"]) {
+      for (const eventName of [
+        "onCreated",
+        "onManyCreated",
+        "onUpdated",
+        "onDeleted",
+      ]) {
         browser.addressBooks.contacts[eventName].addListener((...args) => {
           // Only send the first event after background wake-up, this should be
           // the only one expected.
@@ -1133,6 +1162,20 @@ add_task(async function test_addressBooks_MV3_event_pages() {
         const newContact = parent.addCard(contact);
         return [parent.UID, newContact.UID];
       }
+      case "createManyContacts": {
+        const cards = [];
+        for (let i = 1; i <= 3; i++) {
+          const contact = new AddrBookCard();
+          contact.firstName = "many";
+          contact.lastName = `add ${i}`;
+          contact.primaryEmail = `test${i}@invalid`;
+          cards.push(contact);
+        }
+
+        parent.wrappedJSObject.bulkAddCards(cards);
+        extension.sendMessage();
+        return [];
+      }
       case "updateContact": {
         const contact = findContact(args[0]);
         if (contact) {
@@ -1215,6 +1258,7 @@ add_task(async function test_addressBooks_MV3_event_pages() {
       "addressBook.onAddressBookUpdated",
       "addressBook.onAddressBookDeleted",
       "addressBook.onContactCreated",
+      "addressBook.onManyContactsCreated",
       "addressBook.onContactUpdated",
       "addressBook.onContactDeleted",
       "addressBook.onMailingListCreated",
@@ -1315,6 +1359,30 @@ add_task(async function test_addressBooks_MV3_event_pages() {
     },
     createdNode,
     "The primed contacts.onCreated event should return the correct values"
+  );
+  checkPersistentListeners({ primed: false });
+
+  // contacts.onManyCreated.
+
+  await extension.terminateBackground({ disableResetIdleForTest: true });
+  checkPersistentListeners({ primed: true });
+  outsideEvent("createManyContacts");
+  // The event should have restarted the background.
+  await extension.awaitMessage("background started");
+  Assert.deepEqual(
+    [
+      {
+        type: "addressBook",
+        id: parent.UID,
+        name: "Personal Address Book",
+        readOnly: false,
+        remote: false,
+      },
+    ],
+    await extension.awaitMessage(
+      "addressBooks.contacts.onManyCreated received"
+    ),
+    "The primed contacts.onManyCreated event should return the correct values"
   );
   checkPersistentListeners({ primed: false });
 
@@ -1465,6 +1533,8 @@ add_task(async function test_addressBooks_MV3_event_pages() {
   await extension.unload();
 
   await AddonTestUtils.promiseShutdownManager();
+
+  parent.deleteCards(parent.childCards);
 });
 
 add_task(async function test_photos() {

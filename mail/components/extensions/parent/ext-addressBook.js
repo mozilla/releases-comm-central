@@ -619,6 +619,7 @@ var addressBookCache = new (class extends EventEmitter {
     "addrbook-directory-updated",
     "addrbook-directory-deleted",
     "addrbook-contact-created",
+    "addrbook-contacts-created",
     "addrbook-contact-properties-updated",
     "addrbook-contact-deleted",
     "addrbook-list-created",
@@ -683,6 +684,16 @@ var addressBookCache = new (class extends EventEmitter {
         }
 
         this.emit("contact-created", newNode);
+        break;
+      }
+      case "addrbook-contacts-created": {
+        if (this._addressBooks?.has(data)) {
+          const parentNode = this._addressBooks.get(data);
+          delete parentNode.contacts;
+          // `this._contacts` will refill automatically.
+
+          this.emit("contacts-created", this._addressBooks.get(data));
+        }
         break;
       }
       case "addrbook-contact-properties-updated": {
@@ -894,6 +905,24 @@ this.addressBook = class extends ExtensionAPIPersistent {
       return {
         unregister: () => {
           addressBookCache.off("contact-created", listener);
+        },
+        convert(newFire, extContext) {
+          fire = newFire;
+          context = extContext;
+        },
+      };
+    },
+    onManyContactsCreated({ fire, context }) {
+      const listener = async (event, node) => {
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node, context.extension));
+      };
+      addressBookCache.on("contacts-created", listener);
+      return {
+        unregister: () => {
+          addressBookCache.off("contacts-created", listener);
         },
         convert(newFire, extContext) {
           fire = newFire;
@@ -1495,6 +1524,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         context,
         module: "addressBook",
         event: "onContactCreated",
+        extensionApi: this,
+      }).api(),
+      onManyCreated: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onManyContactsCreated",
         extensionApi: this,
       }).api(),
       onUpdated: new EventManager({
