@@ -83,6 +83,13 @@
   <key id="key_goBack" key="&goBackCmd.commandKey;"                  oncommand="goDoCommand('cmd_goBack')"/>
   <key id="key_goStartPage" keycode="VK_HOME"                        oncommand="goDoCommand('cmd_goStartPage')" modifiers="alt"/>
   <key id="key_undoCloseTab" key="&undoCloseTabCmd.commandkey;"      oncommand="goDoCommand('cmd_undoCloseTab')" modifiers="accel, shift"/>
+#ifdef XP_MACOSX
+  <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage" modifiers="accel,shift"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage" modifiers="accel"/>
+#else
+  <key id="key_newMessage"  key="&newMessageCmd.key;" command="cmd_newMessage" modifiers="accel"/>
+  <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage" modifiers="accel"/>
+#endif
   <key id="key_reply" key="&replyMsgCmd.key;"                        oncommand="goDoCommand('cmd_reply')" modifiers="accel"/>
   <key id="key_replyall" key="&replyToAllMsgCmd.key;"                oncommand="goDoCommand('cmd_replyall')" modifiers="accel, shift"/>
   <key id="key_replylist" key="&replyToListMsgCmd.key;"              oncommand="goDoCommand('cmd_replylist')" modifiers="accel, shift"/>

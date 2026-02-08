@@ -316,13 +316,7 @@
     <command id="cmd_deleteAllAttachments"
              oncommand="goDoCommand('cmd_deleteAllAttachments');"/>
   </commandset>
-  <commandset id="tasksCommands">
-    <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
-    <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard')"/>
-  </commandset>
   <command id="cmd_close" oncommand="CloseTabOrWindow();"/>
-  <command id="cmd_CustomizeMailToolbar"
-           oncommand="customizeMailToolbarForTabType()"/>
 </commandset>
 
 #include ../../../calendar/base/content/calendar-commands.inc.xhtml
@@ -345,19 +339,6 @@
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
 #include mainKeySet.inc.xhtml
-  <keyset id="tasksKeys">
-#ifdef XP_MACOSX
-    <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
-         modifiers="accel,shift"/>
-    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
-         modifiers="accel"/>
-#else
-    <key id="key_newMessage"  key="&newMessageCmd.key;" command="cmd_newMessage"
-         modifiers="accel"/>
-    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
-         modifiers="accel"/>
-#endif
-  </keyset>
 </keyset>
 
 #include ../../../calendar/base/content/calendar-keys.inc.xhtml

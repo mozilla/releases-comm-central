@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported calendarOnToolbarsPopupShowing, customizeMailToolbarForTabType,
- *          initViewCalendarPaneMenu, loadCalendarComponent,
- */
+/* exported calendarOnToolbarsPopupShowing, initViewCalendarPaneMenu, loadCalendarComponent */
 
 /* globals loadCalendarManager, injectCalendarCommandController, getViewBox,
    observeViewDaySelect, getViewBox, calendarController, calendarUpdateNewItemsCommand,
@@ -13,7 +11,7 @@
    unloadCalendarManager, removeCalendarCommandController, finishCalendarUnifinder,
    PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, currentView,
    refreshUnifinderFilterInterval, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
-   onCommandCustomize, CustomizeMailToolbar */
+   onCommandCustomize */
 
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
@@ -350,21 +348,6 @@ function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
   }
 
   onViewToolbarsPopupShowing(aEvent, toolboxes, aInsertPoint);
-}
-
-/**
- * Open the customize dialog for the toolbar for the current tab type.
- */
-function customizeMailToolbarForTabType() {
-  const toolboxId = getToolboxIdForCurrentTabType();
-  if (!toolboxId) {
-    return;
-  }
-  if (toolboxId == "event-toolbox") {
-    onCommandCustomize();
-  } else {
-    CustomizeMailToolbar(toolboxId, "CustomizeMailToolbar");
-  }
 }
 
 /**

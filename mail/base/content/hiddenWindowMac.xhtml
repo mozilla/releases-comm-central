@@ -51,12 +51,6 @@
 <!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
 #include mainKeySet.inc.xhtml
-  <keyset id="tasksKeys">
-    <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
-         modifiers="accel,shift"/>
-    <key id="key_newMessage2" key="&newMessageCmd2.key;" command="cmd_newMessage"
-         modifiers="accel"/>
-  </keyset>
 </keyset>
 
 <commandset id="mailCommands">
@@ -74,10 +68,6 @@
               commandupdater="true"
               events="clipboard"
               oncommandupdate="goUpdatePasteMenuItems()"/>
-  <commandset id="tasksCommands">
-    <command id="cmd_newMessage" oncommand="goOpenNewMessage();"/>
-    <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard')"/>
-  </commandset>
 </commandset>
 
 <popupset>
