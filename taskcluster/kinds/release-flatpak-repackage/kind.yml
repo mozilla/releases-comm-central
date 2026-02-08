@@ -19,7 +19,7 @@ task-defaults:
     run-on-repo-type: [hg]
     description: Generates flatpak by repackaging the existing .tar.xz
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, release, esr128]
+    run-on-releases: [beta, release, esr140]
     shipping-phase: promote
     scopes: []
     package-locales-file: comm/mail/locales/onchange-locales
@@ -62,6 +62,16 @@ task-defaults:
                 by-project:
                     comm-(release|esr.*): stable
                     default: beta
+            APP_ID:
+                by-project:
+                    comm-esr.*: org.mozilla.thunderbird_esr
+                    comm-release: org.mozilla.thunderbird
+                    default: org.mozilla.thunderbird
+            VERSION_FLAG:
+                by-project:
+                    comm-esr.*: "--esr"
+                    comm-beta: "--beta"
+                    default: ''
             MANIFEST_URL: "{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/repack.sh"
             RELEASE_NOTES_URL:
                 by-project:

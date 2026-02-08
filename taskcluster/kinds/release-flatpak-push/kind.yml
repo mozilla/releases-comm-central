@@ -17,7 +17,7 @@ task-defaults:
     run-on-repo-type: [hg]
     description: Pushes Flatpaks onto Flathub
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, esr128]
+    run-on-releases: [beta, release, esr140]
     shipping-phase: ship
     treeherder:
         platform: linux64/opt
@@ -32,7 +32,8 @@ task-defaults:
         channel:
             by-release-type:
                 beta: beta
-                esr128: stable
+                release: stable
+                esr140: stable
                 default: mock
 
 tasks:
