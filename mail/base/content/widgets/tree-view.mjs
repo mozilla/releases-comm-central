@@ -2812,7 +2812,7 @@ export class TreeViewTableRow extends HTMLTableRowElement {
 
   /**
    * Fill out the row with content based on the current value of `this._index`.
-   * Subclasses should override this setter and call back to it.
+   * Subclasses should override this and call back to it.
    */
   fillRow() {
     if (this._animationFrame) {
