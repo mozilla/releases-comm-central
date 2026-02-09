@@ -31,6 +31,7 @@ Thunderbird Source Tree Documentation
    :caption: Mail Front End
    :maxdepth: 1
 
+   /frontend/mail_display
    /frontend/quick_filter_bar
 
 .. toctree::
