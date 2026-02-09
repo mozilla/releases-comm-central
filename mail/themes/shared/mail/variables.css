@@ -212,6 +212,9 @@
       --link-color-hover: LinkText;
       --link-color-active: ActiveText;
       --link-color-visited: var(--link-color);
+      --toolbar-field-color: var(--layout-color-1);
+      --toolbar-field-background-color: var(--layout-background-1);
+      --toolbar-field-border-color: var(--layout-border-1);
     }
   }
 }
