@@ -94,7 +94,7 @@
     & ~ .toggle {
       background-color: var(--color-surface-base);
       border: 1px solid var(--color-secondary-default);
-      inset-inline-start: calc(var(--button-space) + 2px);
+      inset-inline-start: calc(var(--button-space) + 3px);
     }
     & ~ label[for="maybe"] {
       color: var(--color-secondary-default);
