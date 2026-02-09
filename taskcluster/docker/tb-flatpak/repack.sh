@@ -22,8 +22,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TARGET_TAR_XZ_FULL_PATH="$ARTIFACTS_DIR/target.flatpak.tar.xz"
 SOURCE_DEST="${WORKSPACE}/source"
 DISTRIBUTION_DIR="$SOURCE_DEST/distribution"
-FREEDESKTOP_VERSION="24.08"
-FIREFOX_BASEAPP_CHANNEL="24.08"
+FREEDESKTOP_VERSION="25.08"
+FIREFOX_BASEAPP_CHANNEL="25.08"
 
 # Create alias for ideal curl command
 CURL="curl --location --retry 10 --retry-delay 10"

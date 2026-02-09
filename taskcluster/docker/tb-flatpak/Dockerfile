@@ -1,4 +1,4 @@
-FROM freedesktopsdk/flatpak:22.08-x86_64
+FROM freedesktopsdk/flatpak:25.08-x86_64
 MAINTAINER daniel@thunderbird.net
 
 # Create scripts directory
