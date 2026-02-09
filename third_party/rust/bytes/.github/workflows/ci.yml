@@ -7,11 +7,13 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '0 2 * * 0'
 
 env:
   RUSTFLAGS: -Dwarnings
   RUST_BACKTRACE: 1
-  nightly: nightly-2022-11-12
+  nightly: nightly-2024-09-15
 
 defaults:
   run:
@@ -23,11 +25,11 @@ jobs:
     name: rustfmt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Rust
-      run: rustup update stable && rustup default stable
+      run: rustup update stable
     - name: Check formatting
-      run: cargo fmt --all -- --check
+      run: cargo fmt --all --check
 
   # TODO
   # # Apply clippy lints
@@ -35,7 +37,7 @@ jobs:
   #   name: clippy
   #   runs-on: ubuntu-latest
   #   steps:
-  #   - uses: actions/checkout@v3
+  #   - uses: actions/checkout@v4
   #   - name: Apply clippy lints
   #     run: cargo clippy --all-features
 
@@ -48,11 +50,11 @@ jobs:
     name: minrust
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Rust
-        run: rustup update 1.39.0 && rustup default 1.39.0
+      - uses: actions/checkout@v4
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
       - name: Check
-        run: . ci/test-stable.sh check
+        run: cargo hack check --feature-powerset --optional-deps --rust-version
 
   # Stable
   stable:
@@ -61,73 +63,109 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-22.04-arm # TODO: update to 24.04 when https://github.com/rust-lang/rust/issues/135867 solved
           - macos-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         # --no-self-update is necessary because the windows environment cannot self-update rustup.exe.
-        run: rustup update stable --no-self-update && rustup default stable
+        run: rustup update stable --no-self-update
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
       - name: Test
-        run: . ci/test-stable.sh test
+        run: ci/test-stable.sh test
 
   # Nightly
   nightly:
     name: nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         run: rustup update $nightly && rustup default $nightly
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
       - name: Test
-        run: . ci/test-stable.sh test
+        run: ci/test-stable.sh test
+
+  panic-abort:
+    name: panic=abort tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update $nightly && rustup default $nightly
+      - name: Run tests with -Cpanic=abort
+        run: ci/panic-abort.sh
 
   # Run tests on some extra platforms
   cross:
     name: cross
     strategy:
       matrix:
-        target:
-          - i686-unknown-linux-gnu
-          - armv7-unknown-linux-gnueabihf
-          - powerpc-unknown-linux-gnu
-          - powerpc64-unknown-linux-gnu
-          - wasm32-unknown-unknown
+        include:
+          - target: i686-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-22.04-arm # TODO: update to 24.04 when https://github.com/rust-lang/rust/issues/135867 solved
+          - target: powerpc-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: powerpc64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: wasm32-wasip1
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update stable
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+      - name: Test
+        run: cargo test --target ${{ matrix.target }}
+
+  # Build for no_std environment.
+  no-std:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
-        run: rustup update stable && rustup default stable
-      - name: cross build --target ${{ matrix.target }}
-        run: |
-          cargo install cross
-          cross build --target ${{ matrix.target }}
-        if: matrix.target != 'wasm32-unknown-unknown'
-      # WASM support
-      - name: cargo build --target ${{ matrix.target }}
-        run: |
-          rustup target add ${{ matrix.target }}
-          cargo build --target ${{ matrix.target }}
-        if: matrix.target == 'wasm32-unknown-unknown'
+        run: rustup update stable
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+      # thumbv6m-none-eabi supports atomic, but not atomic CAS.
+      # thumbv7m-none-eabi supports atomic CAS.
+      - run: rustup target add thumbv6m-none-eabi thumbv7m-none-eabi
+      # * --optional-deps is needed for serde feature
+      # * --no-dev-deps is needed to avoid https://github.com/rust-lang/cargo/issues/4866
+      - run: cargo hack build --target thumbv7m-none-eabi --feature-powerset --skip std,default --optional-deps --no-dev-deps
+      # A sound way to provide atomic CAS on platforms without native atomic CAS is system-dependent.
+      # portable-atomic provides major ways via cfgs and accepts user-defined implementations via critical-section feature.
+      - run: cargo hack build --target thumbv6m-none-eabi --feature-powerset --skip std,default --optional-deps --no-dev-deps --features extra-platforms,extra-platforms/critical-section
 
   # Sanitizers
   tsan:
     name: tsan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         run: rustup update $nightly && rustup default $nightly
       - name: Install rust-src
         run: rustup component add rust-src
       - name: ASAN / TSAN
-        run: . ci/tsan.sh
+        run: ci/tsan.sh
+
   miri:
     name: miri
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update $nightly && rustup default $nightly
       - name: Miri
         run: ci/miri.sh
 
@@ -136,7 +174,7 @@ jobs:
     name: loom
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         run: rustup update $nightly && rustup default $nightly
       - name: Loom tests
@@ -152,10 +190,11 @@ jobs:
       - minrust
       - cross
       - tsan
+      - miri
       - loom
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         run: rustup update $nightly && rustup default $nightly
       - name: Build documentation
