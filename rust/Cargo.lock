@@ -1827,6 +1827,7 @@ dependencies = [
  "serde_path_to_error",
  "thin-vec",
  "thiserror 1.999.999",
+ "time",
  "url",
  "uuid",
  "xpcom",

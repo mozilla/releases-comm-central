@@ -38,6 +38,7 @@ use client::XpComEwsClient;
 
 mod client;
 mod error;
+mod headerblock;
 mod headers;
 mod line_token;
 mod macros;
