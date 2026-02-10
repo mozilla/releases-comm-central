@@ -5,7 +5,7 @@
  */
 
 // Writing the fake zip and deleting it can take some time.
-requestLongerTimeout(3);
+requestLongerTimeout(5);
 
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
