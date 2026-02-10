@@ -229,7 +229,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
     curMessage.folder,
     "DeleteOrMoveMsgFailed"
   );
-  EventUtils.synthesizeKey("VK_DELETE", {}, tabMessage.ownerGlobal);
+  tabMessage.chromeBrowser.contentWindow.goDoCommand("cmd_delete");
 
   await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
   curMessage = nextMessage;
@@ -261,7 +261,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_window() {
     curMessage.folder,
     "DeleteOrMoveMsgFailed"
   );
-  EventUtils.synthesizeKey("VK_DELETE", {}, msgc);
+  msgc.goDoCommand("cmd_delete");
 
   await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
   curMessage = nextMessage;
