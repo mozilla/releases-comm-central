@@ -24,3 +24,30 @@ pub struct ExchangeConnectionDetails {
     /// The credentials required for interacting with the server.
     pub credentials: Credentials,
 }
+
+/// String used in various parts of both Exchange protocols to represent the
+/// root folder.
+pub const EXCHANGE_ROOT_FOLDER: &str = "msgfolderroot";
+
+/// Well-known folder names and DistinguishedFolderIds, which, for our purposes,
+/// happen to be the same in EWS and Graph.
+///
+/// See the respective [EWS docs] and [Graph API docs].
+///
+/// [EWS docs]: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid
+/// [Graph API docs]: https://learn.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0
+pub const EXCHANGE_DISTINGUISHED_IDS: &[&str] = &[
+    EXCHANGE_ROOT_FOLDER,
+    "inbox",
+    "deleteditems",
+    "drafts",
+    "outbox",
+    "sentitems",
+    "junkemail",
+    // The `archive` distinguished id isn't documented at
+    // https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid
+    // but it does provide the Exchange account's archive folder when
+    // requested, while the other documented `archive*` distinguished
+    // ids result in folder not found errors.
+    "archive",
+];

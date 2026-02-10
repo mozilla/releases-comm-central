@@ -5,13 +5,16 @@
 use std::sync::Arc;
 
 use ews::{Operation, OperationResponse, get_folder::GetFolderResponse};
-use protocol_shared::client::DoOperation;
-use protocol_shared::safe_xpcom::{SafeUri, SafeUrlListener};
+use protocol_shared::{
+    EXCHANGE_ROOT_FOLDER,
+    client::DoOperation,
+    safe_xpcom::{SafeUri, SafeUrlListener},
+};
 
 use super::{
-    BaseFolderId, BaseShape, EWS_ROOT_FOLDER, FolderShape, GetFolder, OperationRequestOptions,
-    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
-    single_response_or_error, validate_get_folder_response_message,
+    BaseFolderId, BaseShape, FolderShape, GetFolder, OperationRequestOptions, ServerType,
+    XpComEwsClient, XpComEwsError, process_response_message_class, single_response_or_error,
+    validate_get_folder_response_message,
 };
 
 use crate::{macros::queue_operation, operation_sender::AuthFailureBehavior};
@@ -40,7 +43,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 base_shape: BaseShape::IdOnly,
             },
             folder_ids: vec![BaseFolderId::DistinguishedFolderId {
-                id: EWS_ROOT_FOLDER.to_string(),
+                id: EXCHANGE_ROOT_FOLDER.to_string(),
                 change_key: None,
             }],
         };
