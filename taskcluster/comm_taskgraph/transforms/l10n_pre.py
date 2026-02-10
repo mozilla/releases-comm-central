@@ -6,7 +6,7 @@ Create a strings build artifact to be consumed by shippable-l10n.
 """
 
 from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.schema import Schema, optionally_keyed_by, resolve_keyed_by
+from taskgraph.util.schema import LegacySchema, optionally_keyed_by, resolve_keyed_by
 from voluptuous import Optional, Required
 
 from gecko_taskgraph.transforms.job import job_description_schema
@@ -15,7 +15,7 @@ from gecko_taskgraph.util.attributes import release_level
 
 transforms = TransformSequence()
 
-l10n_pre_schema = Schema(
+l10n_pre_schema = LegacySchema(
     {
         # l10n-pre specific
         Required("locale-list"): optionally_keyed_by("release-type", "release-level", str),

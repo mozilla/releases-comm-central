@@ -12,7 +12,12 @@ from contextlib import contextmanager
 from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
-from taskgraph.util.schema import Schema, optionally_keyed_by, resolve_keyed_by, taskref_or_string
+from taskgraph.util.schema import (
+    LegacySchema,
+    optionally_keyed_by,
+    resolve_keyed_by,
+    taskref_or_string,
+)
 from taskgraph.util.treeherder import inherit_treeherder_from_dep
 from voluptuous import Any, Optional, Required
 
@@ -27,7 +32,7 @@ PUSH_LANGPACK_SCOPE = (
     "secrets:get:project/comm/thunderbird/releng/build/level-{level}/atn_langpack"
 )
 
-langpack_push_description_schema = Schema(
+langpack_push_description_schema = LegacySchema(
     {
         Optional("dependencies"): task_description_schema["dependencies"],
         Optional("task-from"): task_description_schema["task-from"],
