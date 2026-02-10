@@ -112,6 +112,25 @@ var kHostnames = new Map([
   ],
 ]);
 
+// We have a separate sandbox for prototyping OAuth scopes on Microsoft 365.
+const microsoft365ProductionAppId = "9e5f94bc-e8a4-4e73-b8be-63364c29d753";
+const microsoft365SandboxAppId = "b00dc6cb-0459-4bd4-ac0d-2e23516f906a";
+const microsoft365ProductionTenantId = "common";
+const microsoft365SandboxTenantId = "aead8f37-924c-4d3f-9f20-494295c72956";
+
+const useMicrosoft365Sandbox = Services.prefs.getBoolPref(
+  "mail.microsoft.useM365Sandbox",
+  false
+);
+
+const microsoft365AppId = useMicrosoft365Sandbox
+  ? microsoft365SandboxAppId
+  : microsoft365ProductionAppId;
+
+const microsoft365TenantId = useMicrosoft365Sandbox
+  ? microsoft365SandboxTenantId
+  : microsoft365ProductionTenantId;
+
 /**
  * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint,
  *  and usePKCE (RFC7636).
@@ -191,12 +210,10 @@ var kIssuers = new Map([
     {
       name: "login.microsoftonline.com",
       builtIn: true,
-      clientId: "9e5f94bc-e8a4-4e73-b8be-63364c29d753", // Application (client) ID
+      clientId: microsoft365AppId, // Application (client) ID
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
-      authorizationEndpoint:
-        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-      tokenEndpoint:
-        "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      authorizationEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/authorize`,
+      tokenEndpoint: `https://login.microsoftonline.com/${microsoft365TenantId}/oauth2/v2.0/token`,
       redirectionEndpoint: "https://localhost",
     },
   ],
