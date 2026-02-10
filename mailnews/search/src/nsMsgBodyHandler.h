@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGBODYHANDLER_H_
-#define COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGBODYHANDLER_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGBODYHANDLER_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGBODYHANDLER_H_
 
 #include "nsCOMPtr.h"
 #include "nsIMsgSearchScopeTerm.h"
@@ -79,4 +79,4 @@ class nsMsgBodyHandler {
   static void Base64Decode(nsCString& buf);
 };
 
-#endif  // COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGBODYHANDLER_H_
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGBODYHANDLER_H_

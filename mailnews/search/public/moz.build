@@ -26,12 +26,3 @@ XPIDL_SOURCES += [
 ]
 
 XPIDL_MODULE = "msgsearch"
-
-EXPORTS += [
-    "nsMsgBodyHandler.h",
-    "nsMsgResultElement.h",
-    "nsMsgSearchAdapter.h",
-    "nsMsgSearchBoolExpression.h",
-    "nsMsgSearchScopeTerm.h",
-    "nsMsgSearchTerm.h",
-]

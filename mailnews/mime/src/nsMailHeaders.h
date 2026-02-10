@@ -9,8 +9,8 @@
  * to call on these routines.
  */
 
-#ifndef COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_
-#define COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_
+#ifndef COMM_MAILNEWS_MIME_SRC_NSMAILHEADERS_H_
+#define COMM_MAILNEWS_MIME_SRC_NSMAILHEADERS_H_
 
 /*
  * These are the defines for standard header field names.
@@ -89,4 +89,4 @@
 #define HEADER_X_MOZILLA_ACCOUNT_KEY "X-Account-Key"
 #define HEADER_X_MOZILLA_KEYWORDS "X-Mozilla-Keys"
 
-#endif  // COMM_MAILNEWS_MIME_PUBLIC_NSMAILHEADERS_H_
+#endif  // COMM_MAILNEWS_MIME_SRC_NSMAILHEADERS_H_

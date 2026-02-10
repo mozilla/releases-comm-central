@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHTERM_H_
-#define COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHTERM_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHTERM_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHTERM_H_
 
 //---------------------------------------------------------------------------
 // nsMsgSearchTerm specifies one criterion, e.g. name contains phil
@@ -88,4 +88,4 @@ class nsMsgSearchTerm : public nsIMsgSearchTerm {
   bool mEndsGrouping;
 };
 
-#endif  // COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHTERM_H_
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHTERM_H_

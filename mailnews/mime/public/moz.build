@@ -19,10 +19,4 @@ XPIDL_MODULE = "mime"
 
 EXPORTS += [
     "nsIMimeObjectClassAccess.h",
-    "nsMailHeaders.h",
-]
-
-EXPORTS.mozilla.mailnews += [
-    "MimeEncoder.h",
-    "MimeHeaderParser.h",
 ]

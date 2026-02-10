@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGTHREAD_H_
-#define COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGTHREAD_H_
+#ifndef COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGTHREAD_H_
+#define COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGTHREAD_H_
 
 #include "nsCOMPtr.h"
 #include "nsIMsgThread.h"
@@ -63,4 +63,4 @@ class nsMsgThread : public nsIMsgThread {
   uint32_t m_newestMsgDate;
 };
 
-#endif  // COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGTHREAD_H_
+#endif  // COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGTHREAD_H_

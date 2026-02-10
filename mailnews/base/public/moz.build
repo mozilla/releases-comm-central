@@ -72,6 +72,4 @@ XPIDL_MODULE = "msgbase"
 
 EXPORTS += [
     "MailNewsTypes.h",
-    "msgCore.h",
-    "nsMsgLocalFolderHdrs.h",
 ]

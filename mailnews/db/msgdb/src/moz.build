@@ -3,6 +3,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+EXPORTS += [
+    "nsDBFolderInfo.h",
+    "nsImapMailDatabase.h",
+    "nsMailDatabase.h",
+    "nsMsgDatabase.h",
+    "nsMsgHdr.h",
+    "nsMsgThread.h",
+    "nsNewsDatabase.h",
+]
+
 SOURCES += [
     "nsDBFolderInfo.cpp",
     "nsImapMailDatabase.cpp",

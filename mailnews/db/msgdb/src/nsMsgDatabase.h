@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGDATABASE_H_
-#define COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGDATABASE_H_
+#ifndef COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASE_H_
+#define COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASE_H_
 
 #include "mozilla/MemoryReporting.h"
 #include "nsIFile.h"
@@ -440,4 +440,4 @@ class nsMsgDownloadSettings : public nsIMsgDownloadSettings {
   int32_t m_ageLimitOfMsgsToDownload;
 };
 
-#endif  // COMM_MAILNEWS_DB_MSGDB_PUBLIC_NSMSGDATABASE_H_
+#endif  // COMM_MAILNEWS_DB_MSGDB_SRC_NSMSGDATABASE_H_

@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_
-#define COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_
+#ifndef COMM_MAILNEWS_BASE_SRC_NSMSGLOCALFOLDERHDRS_H_
+#define COMM_MAILNEWS_BASE_SRC_NSMSGLOCALFOLDERHDRS_H_
 
 // clang-format off
 
@@ -46,4 +46,4 @@
 
 // clang-format on
 
-#endif  // COMM_MAILNEWS_BASE_PUBLIC_NSMSGLOCALFOLDERHDRS_H_
+#endif  // COMM_MAILNEWS_BASE_SRC_NSMSGLOCALFOLDERHDRS_H_

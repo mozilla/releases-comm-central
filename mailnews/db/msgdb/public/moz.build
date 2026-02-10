@@ -13,13 +13,3 @@ XPIDL_SOURCES += [
 ]
 
 XPIDL_MODULE = "msgdb"
-
-EXPORTS += [
-    "nsDBFolderInfo.h",
-    "nsImapMailDatabase.h",
-    "nsMailDatabase.h",
-    "nsMsgDatabase.h",
-    "nsMsgHdr.h",
-    "nsMsgThread.h",
-    "nsNewsDatabase.h",
-]

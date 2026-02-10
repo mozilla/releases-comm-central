@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHSCOPETERM_H_
-#define COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHSCOPETERM_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSCOPETERM_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSCOPETERM_H_
 
 #include "nsMsgSearchCore.h"
 #include "nsIMsgSearchAdapter.h"
@@ -40,4 +40,4 @@ class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm {
   virtual ~nsMsgSearchScopeTerm();
 };
 
-#endif  // COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHSCOPETERM_H_
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHSCOPETERM_H_

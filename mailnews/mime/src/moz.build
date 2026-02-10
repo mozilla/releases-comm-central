@@ -19,8 +19,14 @@ EXPORTS += [
     "mimetext.h",
     "modlmime.h",
     "modmimee.h",
+    "nsMailHeaders.h",
     "nsMimeStringResources.h",
     "nsStreamConverter.h",
+]
+
+EXPORTS.mozilla.mailnews += [
+    "MimeEncoder.h",
+    "MimeHeaderParser.h",
 ]
 
 SOURCES += [

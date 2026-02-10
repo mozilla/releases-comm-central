@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHBOOLEXPRESSION_H_
-#define COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHBOOLEXPRESSION_H_
+#ifndef COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHBOOLEXPRESSION_H_
+#define COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHBOOLEXPRESSION_H_
 
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsMsgSearchCore.h"
@@ -108,4 +108,4 @@ class nsMsgSearchBoolExpression {
                                                 char* encodingStr);
 };
 
-#endif  // COMM_MAILNEWS_SEARCH_PUBLIC_NSMSGSEARCHBOOLEXPRESSION_H_
+#endif  // COMM_MAILNEWS_SEARCH_SRC_NSMSGSEARCHBOOLEXPRESSION_H_
