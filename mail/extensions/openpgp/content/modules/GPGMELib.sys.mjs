@@ -29,93 +29,92 @@ function tryLoadGPGME(name, suffix) {
   const binDir = PathUtils.parent(binPath);
   libgpgmePath = PathUtils.join(binDir, filename);
 
+  let loaded = null;
   try {
-    libgpgme = ctypes.open(libgpgmePath);
+    loaded = ctypes.open(libgpgmePath);
   } catch (e) {}
 
-  if (!libgpgme) {
-    try {
-      // look in system's standard library locations
-      libgpgmePath = filename;
-      libgpgme = ctypes.open(libgpgmePath);
-    } catch (e) {}
+  if (loaded) {
+    log.debug(`Loaded GPGME from ${libgpgmePath}`);
+    return loaded;
   }
 
-  if (!libgpgme && Services.appinfo.OS !== "WINNT") {
+  try {
+    // look in system's standard library locations
+    libgpgmePath = filename;
+    loaded = ctypes.open(libgpgmePath);
+  } catch (e) {}
+
+  if (loaded) {
+    log.debug(`Loaded GPGME from ${libgpgmePath}`);
+    return loaded;
+  }
+
+  if (Services.appinfo.OS !== "WINNT") {
     // try specific additional directories
     for (const tryPath of ADDITIONAL_LIB_PATHS) {
       try {
         libgpgmePath = tryPath + "/" + filename;
-        libgpgme = ctypes.open(libgpgmePath);
-        if (libgpgme) {
+        loaded = ctypes.open(libgpgmePath);
+        if (loaded) {
+          log.debug(`Loaded GPGME from ${libgpgmePath}`);
           break;
         }
       } catch (e) {}
     }
   }
 
-  if (libgpgme) {
-    log.debug(`Loaded GPGME from ${libgpgmePath}`);
-  }
+  return loaded;
 }
 
 function loadExternalGPGMELib() {
-  if (!libgpgme) {
-    let optionalGPGMEVersion = Services.prefs.getStringPref(
-      "mail.openpgp.load_untested_gpgme_version"
-    );
+  if (libgpgme) {
+    throw new Error("Internal error, trying to load GPGME again");
+  }
 
-    // Only allow characters expected in version numbers,
-    // which will disallow things like path separators.
-    if (optionalGPGMEVersion && !/^[A-Za-z0-9]+$/.test(optionalGPGMEVersion)) {
-      log.debug(`Ignoring invalid value in load_untested_gpgme_version`);
-      optionalGPGMEVersion = "";
-    }
+  let optionalGPGMEVersion = Services.prefs.getStringPref(
+    "mail.openpgp.load_untested_gpgme_version"
+  );
 
-    if (Services.appinfo.OS === "WINNT") {
-      if (optionalGPGMEVersion) {
-        if (!libgpgme) {
-          tryLoadGPGME("libgpgme-" + optionalGPGMEVersion, "");
-        }
+  // Only allow characters expected in version numbers,
+  // which will disallow things like path separators.
+  if (optionalGPGMEVersion && !/^[A-Za-z0-9]+$/.test(optionalGPGMEVersion)) {
+    log.debug(`Ignoring invalid value in load_untested_gpgme_version`);
+    optionalGPGMEVersion = "";
+  }
 
-        if (!libgpgme) {
-          tryLoadGPGME("gpgme-" + optionalGPGMEVersion, "");
-        }
-      }
+  const libsToTry = [];
+  libsToTry.push(["libgpgme6-11", ""]);
+  libsToTry.push(["libgpgme-11", ""]);
 
-      if (!libgpgme) {
-        tryLoadGPGME("libgpgme6-11", "");
-      }
-
-      if (!libgpgme) {
-        tryLoadGPGME("libgpgme-11", "");
-      }
-
-      if (!libgpgme) {
-        tryLoadGPGME("gpgme-11", "");
-      }
-    }
-
+  if (Services.appinfo.OS === "WINNT") {
     if (optionalGPGMEVersion) {
-      if (!libgpgme) {
-        tryLoadGPGME("gpgme", "." + optionalGPGMEVersion);
-      }
-
-      if (!libgpgme) {
-        tryLoadGPGME("gpgme." + optionalGPGMEVersion, "");
-      }
+      libsToTry.push(["libgpgme-" + optionalGPGMEVersion, ""]);
+      libsToTry.push(["gpgme-" + optionalGPGMEVersion, ""]);
     }
 
-    if (!libgpgme) {
-      tryLoadGPGME("gpgme", "");
-    }
+    libsToTry.push(["libgpgme6-11", ""]);
+    libsToTry.push(["libgpgme-45", ""]);
+    libsToTry.push(["gpgme-45", ""]);
+    libsToTry.push(["libgpgme-11", ""]);
+    libsToTry.push(["gpgme-11", ""]);
+  }
 
-    if (!libgpgme) {
-      tryLoadGPGME("gpgme", ".11");
-    }
+  if (optionalGPGMEVersion) {
+    libsToTry.push(["gpgme", "." + optionalGPGMEVersion]);
+    libsToTry.push(["gpgme." + optionalGPGMEVersion, ""]);
+  }
 
-    if (!libgpgme) {
-      tryLoadGPGME("gpgme.11", "");
+  libsToTry.push(["gpgme", ""]);
+  libsToTry.push(["gpgme", ".45"]);
+  libsToTry.push(["gpgme.45", ""]);
+  libsToTry.push(["gpgme", ".11"]);
+  libsToTry.push(["gpgme.11", ""]);
+
+  for (const [name, suffix] of libsToTry) {
+    libgpgme = tryLoadGPGME(name, suffix);
+    if (libgpgme) {
+      break;
     }
   }
 
