@@ -132,7 +132,7 @@ async function performDelete(window, message) {
     message.folder,
     "DeleteOrMoveMsgCompleted"
   );
-  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  window.goDoCommand("cmd_delete");
   const timeoutDeleting = new Promise((_resolve, reject) => {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     const timer = window.setTimeout(() => {
