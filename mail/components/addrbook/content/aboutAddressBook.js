@@ -1153,7 +1153,7 @@ customElements.whenDefined("tree-listbox").then(() => {
             break;
           }
           case "addrbook-directory-deleted": {
-            this.getRowForUID(subject.UID).remove();
+            this.getRowForUID(subject.UID)?.remove();
             break;
           }
           case "addrbook-directory-request-start":
