@@ -81,9 +81,9 @@ git = "https://github.com/mozilla/audioipc"
 rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=ee717924ccfefc3b0b58e52968a9036b73f56f9e"]
+[source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5b689a7f90086e07c271ad1cf79325ee06112ab6"]
 git = "https://github.com/mozilla/cubeb-coreaudio-rs"
-rev = "ee717924ccfefc3b0b58e52968a9036b73f56f9e"
+rev = "5b689a7f90086e07c271ad1cf79325ee06112ab6"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/cubeb-pulse-rs?rev=9cebfcceb073e9dd10cfb275a7590bca58d4c251"]

@@ -40,7 +40,7 @@ chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crash_helper_client = { path = "../../../toolkit/crashreporter/crash_helper_client", optional = true }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "ee717924ccfefc3b0b58e52968a9036b73f56f9e", optional = true, features = ['vpio-forcelist'] }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "5b689a7f90086e07c271ad1cf79325ee06112ab6", optional = true, features = ['vpio-forcelist'] }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "9cebfcceb073e9dd10cfb275a7590bca58d4c251", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.32.0", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/dap/ffi" }
