@@ -77,7 +77,9 @@ async function waitForCardsListReady(list) {
 async function openAddressBookWindow() {
   const abWindow = await new Promise(resolve => {
     window.openTab("addressBookTab", {
-      onLoad(event, browser) {
+      async onLoad(event, browser) {
+        // addressBookTab.js "about-addressbook-ready" does setup is on a timeout
+        await new Promise(r => setTimeout(r));
         resolve(browser.contentWindow);
       },
     });

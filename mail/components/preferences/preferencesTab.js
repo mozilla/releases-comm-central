@@ -116,7 +116,7 @@ var preferencesTabType = {
             if (aTab.panel) {
               aArgs.onLoad(event, aTab.browser);
             }
-          }, 0);
+          });
         }
       },
       { once: true }
