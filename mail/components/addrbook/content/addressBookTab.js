@@ -112,7 +112,6 @@ var addressBookTabType = {
     aTab.browser.addEventListener(
       "about-addressbook-ready",
       function (event) {
-        aTab.pageLoading = false;
         aTab.pageLoaded = true;
 
         if ("onLoad" in aArgs) {
@@ -133,7 +132,6 @@ var addressBookTabType = {
     );
 
     // Initialize our unit testing variables.
-    aTab.pageLoading = true;
     aTab.pageLoaded = false;
 
     // Now start loading the content.

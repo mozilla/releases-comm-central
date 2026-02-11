@@ -162,7 +162,6 @@ tabProgressListener.prototype = {
       }
 
       // Set our unit testing variables accordingly
-      this.mTab.pageLoading = true;
       this.mTab.pageLoaded = false;
     } else if (
       aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
@@ -175,7 +174,6 @@ tabProgressListener.prototype = {
       tabmail.setTabTitle(this.mTab);
 
       // Set our unit testing variables accordingly
-      this.mTab.pageLoading = false;
       this.mTab.pageLoaded = true;
     }
   },
@@ -951,7 +949,6 @@ var specialTabs = {
       }
 
       // Initialize our unit testing variables.
-      aTab.pageLoading = false;
       aTab.pageLoaded = false;
 
       // Now start loading the content.
