@@ -769,3 +769,46 @@ add_task(async function test_change_flag_status() {
     "Waiting for message to be unflagged."
   );
 });
+
+add_task(async function test_hard_delete_item() {
+  const rootFolder = incomingServer.rootFolder;
+  await syncFolder(incomingServer, rootFolder);
+
+  const inboxFolder = rootFolder.getChildNamed("Inbox");
+  Assert.ok(!!inboxFolder, "Inbox folder should exist.");
+
+  const message = generator.makeMessages({ count: 1 })[0];
+  ewsServer.addNewItemOrMoveItemToFolder("message_to_delete", "inbox", message);
+
+  await syncFolder(incomingServer, inboxFolder);
+
+  const messageHeaders = [...inboxFolder.messages].filter(
+    header => header.getStringProperty("ewsId") == "message_to_delete"
+  );
+
+  Assert.equal(
+    messageHeaders.length,
+    1,
+    "Should be one message to delete in the inbox."
+  );
+
+  const eventPromise = PromiseTestUtils.promiseFolderEvent(
+    inboxFolder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  inboxFolder.deleteMessages(
+    [messageHeaders[0]],
+    null,
+    true,
+    false,
+    null,
+    false
+  );
+  await eventPromise;
+
+  // Message should no longer be in the inbox.
+  const matchingMessages = [...inboxFolder.messages].filter(
+    header => header.getStringProperty("ewsId") == "message_to_delete"
+  );
+  Assert.equal(matchingMessages.length, 0, "Message should have been deleted.");
+});

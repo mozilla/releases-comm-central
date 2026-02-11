@@ -1009,23 +1009,41 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
 
     // Define the listener with a success lambda callback, and start the
     // remote operation.
-    RefPtr<EwsSimpleMessageListener> listener = new EwsSimpleMessageListener(
-        headers, [self, copyListener, feedback](
-                     const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-                     const nsTArray<nsCString>& ids, bool useLegacyFallback) {
-          nsresult rv = NS_OK;
-          auto listenerExitGuard = GuardCopyServiceListener(copyListener, rv);
+    RefPtr<EwsSimpleMessageListener> listener =
+        new EwsSimpleFallibleMessageListener(
+            headers,
+            [self, copyListener, feedback](
+                const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
+                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+              nsresult rv = NS_OK;
+              auto listenerExitGuard =
+                  GuardCopyServiceListener(copyListener, rv);
 
-          rv = LocalDeleteMessages(self, srcHdrs);
-          NS_ENSURE_SUCCESS(rv, rv);
+              rv = LocalDeleteMessages(self, srcHdrs);
 
-          if (feedback) {
-            // Reset the status bar.
-            return feedback->StopMeteors();
-          }
+              if (NS_SUCCEEDED(rv)) {
+                self->NotifyFolderEvent(kDeleteOrMoveMsgCompleted);
+              } else {
+                self->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
+              }
 
-          return NS_OK;
-        });
+              if (feedback) {
+                // Reset the status bar.
+                return feedback->StopMeteors();
+              }
+
+              return NS_OK;
+            },
+
+            [self, feedback](nsresult rv) {
+              self->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
+
+              if (feedback) {
+                return feedback->StopMeteors();
+              }
+
+              return NS_OK;
+            });
 
     nsCOMPtr<IEwsClient> client;
     rv = self->GetProtocolClient(getter_AddRefs(client));
