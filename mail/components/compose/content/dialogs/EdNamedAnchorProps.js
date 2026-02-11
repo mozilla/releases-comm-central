@@ -63,7 +63,7 @@ function Startup() {
   InitDialog();
 
   DoEnabling();
-  SetTextboxFocus(gDialog.NameInput);
+  gDialog.NameInput.focus();
   SetWindowLocation();
 }
 
@@ -109,7 +109,7 @@ function ValidateData() {
   var name = TrimString(gDialog.NameInput.value);
   if (!name) {
     ShowInputErrorMessage(GetString("MissingAnchorNameError"));
-    SetTextboxFocus(gDialog.NameInput);
+    gDialog.NameInput.focus();
     return false;
   }
   // Replace spaces with "_" and strip other characters
@@ -121,7 +121,7 @@ function ValidateData() {
     ShowInputErrorMessage(
       GetString("DuplicateAnchorNameError").replace(/%name%/, name)
     );
-    SetTextboxFocus(gDialog.NameInput);
+    gDialog.NameInput.focus();
     return false;
   }
   globalElement.name = name;

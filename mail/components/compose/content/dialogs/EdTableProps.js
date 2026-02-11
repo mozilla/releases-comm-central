@@ -902,11 +902,11 @@ function ValidateTableData() {
     ) {
       gCanDelete = true;
     } else {
-      SetTextboxFocus(
+      const input =
         gNewRowCount < gRowCount
           ? gDialog.TableRowsInput
-          : gDialog.TableColumnsInput
-      );
+          : gDialog.TableColumnsInput;
+      input.focus();
       return false;
     }
   }

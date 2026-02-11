@@ -217,7 +217,7 @@ function chooseFile() {
   }
 
   // Put focus into the input field
-  SetTextboxFocus(gDialog.srcInput);
+  gDialog.srcInput.focus();
 
   GetLocalFileURL("img").then(fileURL => {
     gDialog.srcInput.value = fileURL;

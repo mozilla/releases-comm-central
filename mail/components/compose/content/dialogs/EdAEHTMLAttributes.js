@@ -116,7 +116,7 @@ function ClearHTMLInputWidgets() {
   gDialog.AddHTMLAttributeTree.view.selection.clearSelection();
   gDialog.AddHTMLAttributeNameInput.value = "";
   gDialog.AddHTMLAttributeValueInput.value = "";
-  SetTextboxFocus(gDialog.AddHTMLAttributeNameInput);
+  gDialog.AddHTMLAttributeNameInput.focus();
 }
 
 function onSelectHTMLTreeItem() {

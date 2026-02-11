@@ -237,7 +237,7 @@ function ValidateData() {
 
   if (NoDefault && !gColor) {
     ShowInputErrorMessage(GetString("NoColorError"));
-    SetTextboxFocus(gDialog.ColorInput);
+    gDialog.ColorInput.focus();
     return false;
   }
   return true;

@@ -88,7 +88,7 @@ function ValidateNumber(
       SwitchToValidatePanel();
 
       // Error - shift to offending input widget
-      SetTextboxFocus(inputWidget);
+      inputWidget.focus();
       gValidationError = true;
     } else {
       if (isPercent) {
@@ -167,13 +167,7 @@ function ValidateNumberRange(value, minValue, maxValue, mustHaveValue) {
 }
 
 function SetTextboxFocusById(id) {
-  SetTextboxFocus(document.getElementById(id));
-}
-
-function SetTextboxFocus(input) {
-  if (input) {
-    input.focus();
-  }
+  document.getElementById(id)?.focus();
 }
 
 function ShowInputErrorMessage(message) {

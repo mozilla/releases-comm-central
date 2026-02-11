@@ -249,7 +249,7 @@ function ValidateData() {
         newLinkText = href;
       } else {
         ShowInputErrorMessage(GetString("EmptyLinkTextError"));
-        SetTextboxFocus(gDialog.linkTextInput);
+        gDialog.linkTextInput.focus();
         return false;
       }
     }

@@ -221,7 +221,7 @@ function SetWidgetsForMisspelledWord() {
   DoEnabling();
 
   if (gMisspelledWord) {
-    SetTextboxFocus(gDialog.ReplaceWordInput);
+    gDialog.ReplaceWordInput.focus();
   }
 }
 

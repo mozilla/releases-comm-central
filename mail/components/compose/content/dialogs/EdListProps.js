@@ -242,7 +242,7 @@ function SelectListType() {
   var NewType = gDialog.ListTypeList.value;
 
   if (NewType == "ol") {
-    SetTextboxFocus(gDialog.StartingNumberInput);
+    gDialog.StartingNumberInput.focus();
   }
 
   if (gListType != NewType) {
@@ -276,7 +276,7 @@ function SelectBulletStyle() {
       );
 
       gNumberStyleType = type;
-      SetTextboxFocus(gDialog.StartingNumberInput);
+      gDialog.StartingNumberInput.focus();
     }
   }
 }

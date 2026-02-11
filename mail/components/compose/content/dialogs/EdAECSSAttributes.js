@@ -53,7 +53,7 @@ function ClearCSSInputWidgets() {
   gDialog.AddCSSAttributeTree.view.selection.clearSelection();
   gDialog.AddCSSAttributeNameInput.value = "";
   gDialog.AddCSSAttributeValueInput.value = "";
-  SetTextboxFocus(gDialog.AddCSSAttributeNameInput);
+  gDialog.AddCSSAttributeNameInput.focus();
 }
 
 function onSelectCSSTreeItem() {

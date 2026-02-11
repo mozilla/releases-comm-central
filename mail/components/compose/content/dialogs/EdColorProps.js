@@ -337,7 +337,7 @@ function chooseFile() {
     gDialog.BackgroundImageInput.value = fileURL;
 
     ValidateAndPreviewImage(true);
-    SetTextboxFocus(gDialog.BackgroundImageInput);
+    gDialog.BackgroundImageInput.focus();
   });
 }
 

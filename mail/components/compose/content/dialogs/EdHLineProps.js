@@ -50,7 +50,7 @@ function Startup() {
   InitDialog();
 
   // SET FOCUS TO FIRST CONTROL
-  SetTextboxFocus(gDialog.widthInput);
+  gDialog.widthInput.focus();
 
   // Resize window
   window.sizeToContent();

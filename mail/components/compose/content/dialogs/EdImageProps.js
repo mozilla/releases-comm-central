@@ -105,9 +105,9 @@ function Startup() {
   // Start in "Link" tab if 2nd argument is true
   if (gDialog.linkTab && "arguments" in window && window.arguments[1]) {
     document.getElementById("TabBox").selectedTab = gDialog.linkTab;
-    SetTextboxFocus(gDialog.hrefInput);
+    gDialog.hrefInput.focus();
   } else {
-    SetTextboxFocus(gDialog.srcInput);
+    gDialog.srcInput.focus();
   }
 
   SetWindowLocation();

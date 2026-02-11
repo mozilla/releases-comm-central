@@ -98,7 +98,7 @@ function Startup() {
   // No menulists for CSS panel (yet)
 
   // Set focus to Name editable menulist in HTML panel
-  SetTextboxFocus(gDialog.AddHTMLAttributeNameInput);
+  gDialog.AddHTMLAttributeNameInput.focus();
 
   // size the dialog properly
   window.sizeToContent();
