@@ -698,12 +698,16 @@ async function viewSignedPart(msgURI) {
       //  but we need to keep the message headers (apart from Content-Type).
       let hdr = "";
       if (part.parent.headers.contentType.type != "message/rfc822") {
-        hdr = part.parent.headers.rawHeaderText.replace(
-          /^Content-Type:[^\r\n]*(?:\r?\n[ \t].*)*/gim,
-          ""
-        );
+        // Erase content-type line(s) including trailing newline
+        hdr = part.parent.headers.rawHeaderText
+          .replace(/^Content-Type:[^\r\n]*(?:\r?\n[ \t].*)*(?:\r?\n)?/gim, "")
+          .trim()
+          .replace(/(?:\r?\n)*$/, "") + "\r\n";
       }
-      hdr += `${part.headers.rawHeaderText}\r\n${part.body}\r\n`;
+
+      hdr += `${part.headers.rawHeaderText}\r\n${part.body}`;
+      // Ensure hdr ends with exactly two newlines
+      hdr = hdr.replace(/(?:\r?\n)*$/, "") + "\r\n\r\n";
 
       const safeBoundary = RegExp.escape(boundary);
       const body = new RegExp(
