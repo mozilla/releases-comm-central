@@ -652,6 +652,52 @@ add_task(async function testOpenAndShowAttachedEml() {
 });
 
 /**
+ * Test that opening a message signed (only) with extra outer layer
+ * renders message content, only, not showing headers (bug 2016119)
+ */
+add_task(async function testOpenAndShowAttachedEmlWithFooter() {
+  const openpgpprocessed = openpgpProcessed();
+  const msgc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/signed-with-mailman-footer.eml")
+    )
+  );
+  const aboutMessage = get_about_message(msgc);
+  await openpgpprocessed;
+  await TestUtils.waitForTick();
+
+  const partsMessageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+
+  const openpgpprocessed2 = openpgpProcessed();
+  const button = aboutMessage.document.querySelector(
+    `button[data-l10n-id="openpgp-show-signed-parts"]`
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    button,
+    { clickCount: 1 },
+    button.ownerGlobal
+  );
+  const win2 = await partsMessageWindowPromise;
+  await openpgpprocessed2;
+
+  const msgBody = getMsgBodyTxt(win2);
+  Assert.ok(msgBody.includes(MSG_TEXT), "message text is in body");
+
+  Assert.ok(
+    !msgBody.toLowerCase().includes("Content-Type".toLowerCase()),
+    "rendered message must not show content-type header"
+  );
+
+  await BrowserTestUtils.closeWindow(win2);
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that opening an encrypted message signed by an unverified key is shown
  * as it should.
  */
