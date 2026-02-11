@@ -840,7 +840,7 @@ customElements.whenDefined("tree-listbox").then(() => {
       }
       const bookUID = row.dataset.book ?? row.dataset.uid;
       const book = MailServices.ab.getDirectoryFromUID(bookUID);
-      return !book.readOnly;
+      return book && !book.readOnly;
     }
 
     /**
@@ -857,7 +857,7 @@ customElements.whenDefined("tree-listbox").then(() => {
       }
       const bookUID = row.dataset.book ?? row.dataset.uid;
       const book = MailServices.ab.getDirectoryFromUID(bookUID);
-      return !book.readOnly && book.supportsMailingLists;
+      return book && !book.readOnly && book.supportsMailingLists;
     }
 
     _onSelect() {
