@@ -73,7 +73,7 @@ function Startup() {
     gDialog.widthPixelOrPercentMenulist.selectedIndex = 1;
   }
 
-  SetTextboxFocusById("rowsInput");
+  gDialog.rowsInput.focus();
 
   SetWindowLocation();
 }

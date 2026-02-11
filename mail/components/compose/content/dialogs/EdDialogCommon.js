@@ -166,10 +166,6 @@ function ValidateNumberRange(value, minValue, maxValue, mustHaveValue) {
   return "";
 }
 
-function SetTextboxFocusById(id) {
-  document.getElementById(id)?.focus();
-}
-
 function ShowInputErrorMessage(message) {
   Services.prompt.alert(window, GetString("InputError"), message);
   window.focus();
