@@ -4,6 +4,18 @@
 
 "use strict";
 
+add_setup(function () {
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.allow_executeScript_in_moz_extension",
+    true
+  );
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref(
+      "extensions.webextensions.allow_executeScript_in_moz_extension"
+    );
+  });
+});
+
 /**
  * Common core of the test. This is complicated by how WebExtensions tests work.
  *

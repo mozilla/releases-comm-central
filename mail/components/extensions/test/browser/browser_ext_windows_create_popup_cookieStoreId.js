@@ -6,6 +6,18 @@
 
 // @see browser/components/extensions/test/browser/browser_ext_windows_create_cookieStoreId.js
 
+add_setup(function () {
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.allow_executeScript_in_moz_extension",
+    true
+  );
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref(
+      "extensions.webextensions.allow_executeScript_in_moz_extension"
+    );
+  });
+});
+
 add_task(async function no_cookies_permission() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", true]],
