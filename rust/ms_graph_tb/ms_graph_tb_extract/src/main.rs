@@ -20,7 +20,7 @@ use crate::extract::path::extract_from_oa_path;
 use crate::extract::schema::{Property, extract_from_schema};
 use crate::naming::{base_name, simple_name, snakeify};
 use crate::openapi::{LoadedYaml, load_yaml, path::OaPath};
-use crate::oxidize::types;
+use crate::oxidize::{ModuleFile, types};
 
 const SUPPORTED_TYPES: [&str; 9] = [
     "directoryObject",
@@ -33,7 +33,7 @@ const SUPPORTED_TYPES: [&str; 9] = [
     "sendMailRequestBody",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 2] = ["/me", "/me/mailFolders"];
+const SUPPORTED_PATHS: [&str; 3] = ["/me", "/me/mailFolders", "/me/mailFolders/{mailFolder-id}"];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -78,6 +78,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     modules.sort();
+
+    // Sometimes operations will have `new()` functions that take no arguments
+    // (mainly GET requests with no template expressions), which clippy lints as
+    // needing a `Default` implementation. Having some operations provide
+    // `Default` and others not seems needlessly inconsistent, so just disable
+    // that lint for path modules.
+    let modules = ModuleFile::new(&modules).allow_lints(&vec!["new_without_default"]);
     write_module_file(&paths_dir, &modules)?;
 
     // Schemas come with a hierarchy, and different schemas at different levels
@@ -111,6 +118,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into_iter()
         .map(|(path, mut modules)| {
             modules.sort();
+            let modules = ModuleFile::new(&modules);
             let module_dir = types_dir.join(path);
             write_module_file(&module_dir, &modules)?;
             ensure_module_in_hierarchy(&types_dir, &module_dir)?;
@@ -178,14 +186,12 @@ fn process_schema(
 /// of modules (i.e. write the corresponding `pub mod` lines into the file).
 fn write_module_file(
     out_dir: &std::path::Path,
-    modules: &[impl AsRef<str>],
+    modules: &ModuleFile,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let generated = quote!(#modules);
     let module_path = out_dir.join("mod.rs");
     let mut module_file = fs::File::create(&module_path)?;
-    writeln!(module_file, "{FILE_LEDE}")?;
-    for module in modules {
-        writeln!(module_file, "pub mod {};", module.as_ref())?;
-    }
+    writeln!(module_file, "{FILE_LEDE}\n{generated}")?;
     println!("Wrote module out to {}\n", module_path.to_string_lossy());
     Ok(())
 }

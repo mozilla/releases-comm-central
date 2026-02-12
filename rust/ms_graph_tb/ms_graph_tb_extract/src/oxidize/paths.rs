@@ -6,7 +6,11 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 
 use crate::GENERATION_DISCLOSURE;
-use crate::extract::path::{Method, Operation, Path, Success};
+use crate::extract::{
+    path::{Method, Operation, Path, Success},
+    schema::Property,
+};
+use crate::naming::snakeify;
 
 use super::{Reference, RustType, markup_doc_comment, return_type};
 
@@ -38,10 +42,12 @@ impl ToTokens for Path {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Path {
             name,
+            template_expressions,
             description,
             operations,
         } = self;
         let mut imports = vec![];
+        let template_expressions = TemplateExpressionsDef::new(name, template_expressions);
         let mut operations = operations.clone();
         operations.sort_by(|a, b| a.method.cmp(&b.method));
         let operation_defs = operations
@@ -76,88 +82,8 @@ impl ToTokens for Path {
                 }
                 let response = response;
                 match operation.method {
-                    Method::Get => {
-                        let selectable = selectable(operation);
-                        let selection_type = if selectable {
-                            let Success::WithBody(ref selection_body) = operation.success else {
-                                panic!("selectable request with no response type: {operation:?}");
-                            };
-                            let RustType::Custom(ref selection_type) =
-                                selection_body.property.rust_type
-                            else {
-                                panic!("non-custom selectable response type: {operation:?}");
-                            };
-                            let selection_type = format_ident!("{}Selection", selection_type.as_pascal_case());
-                            imports.push(selection_body.property.clone());
-                            Some(selection_type)
-                        } else {
-                            None
-                        }
-                        .map(|s| format_ident!("{s}"));
-                        let struct_def = StructDef {
-                            description,
-                            method,
-                            lifetime: None,
-                            body_line: None,
-                            selection_type: selection_type.clone(),
-                        };
-                        let impl_def = ImplDef { method, lifetime: None, arg: None, selectable };
-                        let operation_def = OperationDef {
-                            method: method.to_string(),
-                            lifetime: None,
-                            body: None,
-                            response,
-                            selectable,
-                        };
-                        let select_def = SelectDef { selection_type };
-                        Some(RequestDef {
-                            struct_def,
-                            impl_def,
-                            operation_def,
-                            select_def,
-                        })
-                    }
-                    Method::Patch => {
-                        let op_body = operation
-                            .body
-                            .clone()
-                            .expect("Patch operations should have a body");
-                        let mut body = op_body
-                                .property
-                                .rust_type
-                            .base_token(false, Reference::Own);
-                        let body_lifetime = Some(quote!(<'body>));
-                        if op_body.property.is_ref {
-                            body = quote!(#body #body_lifetime);
-                        }
-                        let struct_def = StructDef {
-                            description,
-                            method,
-                            lifetime: body_lifetime.clone(),
-                            body_line: Some(quote!(body: #body,)),
-                            selection_type: None,
-                        };
-                        let impl_def = ImplDef {
-                            method,
-                            lifetime: body_lifetime.clone(),
-                            arg: Some(quote!(body: #body)),
-                            selectable: false
-                        };
-                        let operation_def = OperationDef {
-                            method: method.to_string(),
-                            lifetime: body_lifetime,
-                            body: Some(body),
-                            response,
-                            selectable: false,
-                        };
-                        let select_def = SelectDef { selection_type: None };
-                        Some(RequestDef {
-                            struct_def,
-                            impl_def,
-                            operation_def,
-                            select_def,
-                        })
-                    }
+                    Method::Get => http_get(&mut imports, template_expressions.idents.clone(), description, operation, response),
+                    Method::Patch => http_patch(template_expressions.idents.clone(), description, operation, response),
                     _ => {
                         eprintln!("skipping unsupported method: {method}");
                         None
@@ -184,9 +110,150 @@ impl ToTokens for Path {
             #imports
             use crate::*;
 
-            const PATH: &str = #name;
+            #template_expressions
         });
         tokens.append_all(operation_defs);
+    }
+}
+
+fn http_get(
+    imports: &mut Vec<Property>,
+    template_expressions: Vec<Ident>,
+    description: Option<TokenStream>,
+    operation: &Operation,
+    response: TokenStream,
+) -> Option<RequestDef> {
+    let method = Method::Get;
+    let selectable = selectable(operation);
+    let selection_type = if selectable {
+        let Success::WithBody(ref selection_body) = operation.success else {
+            panic!("selectable request with no response type: {operation:?}");
+        };
+        let RustType::Custom(ref selection_type) = selection_body.property.rust_type else {
+            panic!("non-custom selectable response type: {operation:?}");
+        };
+        let selection_type = format_ident!("{}Selection", selection_type.as_pascal_case());
+        imports.push(selection_body.property.clone());
+        Some(selection_type)
+    } else {
+        None
+    }
+    .map(|s| format_ident!("{s}"));
+    let struct_def = StructDef {
+        description,
+        method,
+        lifetime: None,
+        body_line: None,
+        selection_type: selection_type.clone(),
+    };
+    let impl_def = ImplDef {
+        method,
+        lifetime: None,
+        template_expressions,
+        arg: None,
+        selectable,
+    };
+    let operation_def = OperationDef {
+        method: method.to_string(),
+        lifetime: None,
+        body: None,
+        response,
+        selectable,
+    };
+    let select_def = SelectDef { selection_type };
+    Some(RequestDef {
+        struct_def,
+        impl_def,
+        operation_def,
+        select_def,
+    })
+}
+
+fn http_patch(
+    template_expressions: Vec<Ident>,
+    description: Option<TokenStream>,
+    operation: &Operation,
+    response: TokenStream,
+) -> Option<RequestDef> {
+    let method = Method::Patch;
+    let op_body = operation
+        .body
+        .clone()
+        .expect("Patch operations should have a body");
+    let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
+    let body_lifetime = Some(quote!(<'body>));
+    if op_body.property.is_ref {
+        body = quote!(#body #body_lifetime);
+    }
+    let struct_def = StructDef {
+        description,
+        method,
+        lifetime: body_lifetime.clone(),
+        body_line: Some(quote!(body: #body,)),
+        selection_type: None,
+    };
+    let impl_def = ImplDef {
+        method,
+        lifetime: body_lifetime.clone(),
+        template_expressions,
+        arg: Some(quote!(body: #body)),
+        selectable: false,
+    };
+    let operation_def = OperationDef {
+        method: method.to_string(),
+        lifetime: body_lifetime,
+        body: Some(body),
+        response,
+        selectable: false,
+    };
+    let select_def = SelectDef {
+        selection_type: None,
+    };
+    Some(RequestDef {
+        struct_def,
+        impl_def,
+        operation_def,
+        select_def,
+    })
+}
+
+/// The path and its template expressions, ready for converting to tokens. Do
+/// not construct this directly, use the `Self::new` constructor.
+struct TemplateExpressionsDef {
+    path: String,
+    idents: Vec<Ident>,
+}
+
+impl TemplateExpressionsDef {
+    fn new(raw_path: &str, template_expressions: &[String]) -> Self {
+        let mut path = raw_path.to_string();
+        let mut idents = vec![];
+        for template in template_expressions {
+            let pat = format!("{{{template}}}");
+            let snakeified = snakeify(template);
+            let to = format!("{{{snakeified}}}",);
+            path = path.replacen(&pat, &to, 1);
+            idents.push(format_ident!("{snakeified}"));
+        }
+        Self { path, idents }
+    }
+}
+
+impl ToTokens for TemplateExpressionsDef {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { path, idents } = self;
+        tokens.append_all(quote! {
+            #[derive(Debug)]
+            struct TemplateExpressions {
+                #( #idents: String, )*
+            }
+            fn format_path(template_expressions: &TemplateExpressions) -> String {
+                let TemplateExpressions {
+                    #( #idents, )*
+                } = template_expressions;
+                format!(#path)
+            }
+        });
     }
 }
 
@@ -212,8 +279,9 @@ impl ToTokens for StructDef {
             .map(|selection_type| quote!(selection: Selection<#selection_type>,));
         tokens.append_all(quote! {
             #description
-            #[derive(Debug, Default)]
+            #[derive(Debug)]
             pub struct #method #lifetime {
+                template_expressions: TemplateExpressions,
                 #body
                 #selection_line
             }
@@ -224,6 +292,7 @@ impl ToTokens for StructDef {
 struct ImplDef {
     method: Method,
     lifetime: Option<TokenStream>,
+    template_expressions: Vec<Ident>,
     arg: Option<TokenStream>,
     selectable: bool,
 }
@@ -233,6 +302,7 @@ impl ToTokens for ImplDef {
         let Self {
             method,
             lifetime,
+            template_expressions,
             arg,
             selectable,
         } = self;
@@ -248,8 +318,11 @@ impl ToTokens for ImplDef {
         };
         tokens.append_all(quote! {
             impl #lifetime #method #lifetime {
-                pub fn new(#arg) -> Self {
+                pub fn new(#( #template_expressions: String, )* #arg) -> Self {
                     Self {
+                        template_expressions: TemplateExpressions {
+                            #( #template_expressions, )*
+                        },
                         #body_line
                         #selection_line
                     }
@@ -292,10 +365,11 @@ impl ToTokens for OperationDef {
                 let (select, selection) = self.selection.pair();
                 params.append_pair(select, &selection);
                 let params = params.finish();
-                let p_and_q = http::uri::PathAndQuery::from_str(&format!("{PATH}?{params}")).unwrap();
+                let path = format_path(&self.template_expressions);
+                let p_and_q = http::uri::PathAndQuery::from_str(&format!("{path}?{params}")).unwrap();
             }
         } else {
-            quote!(let p_and_q = PATH;)
+            quote!(let p_and_q = format_path(&self.template_expressions);)
         };
 
         tokens.append_all(quote! {

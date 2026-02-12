@@ -5,8 +5,8 @@
 //! Modules for turning our representation of the Graph API into Rust code
 //! (specifically, a [`proc_macro2::TokenStream`]).
 
-use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use proc_macro2::{Ident, TokenStream};
+use quote::{ToTokens, TokenStreamExt, format_ident, quote};
 use std::{collections::HashSet, fmt};
 
 use crate::{extract::schema::Property, naming};
@@ -41,6 +41,67 @@ fn imports(properties: &[crate::extract::schema::Property]) -> TokenStream {
     let imports = imports.iter().map(|s| format_ident!("{s}"));
 
     quote!(#( use crate::types::#imports::*; )*)
+}
+
+/// Represents the information necessary to produce the tokens of a module file.
+pub struct ModuleFile {
+    /// Clippy lints we want to allow for this entire module.
+    allowed_lints: Vec<Ident>,
+    /// Clippy lints we want to disallow for this entire module.
+    denied_lints: Vec<Ident>,
+    /// Identifiers of the modules to make public.
+    modules: Vec<Ident>,
+}
+
+impl ModuleFile {
+    /// Construct a new `ModuleFile`. Modules should be sorted before calling.
+    pub fn new(modules: &[impl AsRef<str>]) -> Self {
+        let modules = modules
+            .iter()
+            .map(|id| format_ident!("{}", id.as_ref()))
+            .collect();
+        Self {
+            allowed_lints: vec![],
+            denied_lints: vec![],
+            modules,
+        }
+    }
+
+    /// Allow the given Clippy lints for the entire module.
+    pub fn allow_lints(mut self, allowed_lints: &[impl AsRef<str>]) -> Self {
+        let allowed_lints = allowed_lints
+            .iter()
+            .map(|id| format_ident!("{}", id.as_ref()))
+            .collect();
+        self.allowed_lints = allowed_lints;
+        self
+    }
+
+    /// Deny the given Clippy lints for the entire module.
+    pub fn deny_lints(mut self, denied_lints: &[impl AsRef<str>]) -> Self {
+        let denied_lints = denied_lints
+            .iter()
+            .map(|id| format_ident!("{}", id.as_ref()))
+            .collect();
+        self.denied_lints = denied_lints;
+        self
+    }
+}
+
+impl ToTokens for &ModuleFile {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ModuleFile {
+            allowed_lints,
+            denied_lints,
+            modules,
+        } = self;
+        tokens.append_all(quote! {
+            #( #![allow(clippy::#allowed_lints)] )*
+            #( #![deny(clippy::#denied_lints)] )*
+
+            #( pub mod #modules; )*
+        });
+    }
 }
 
 /// Does some (very) basic clean up of descriptions to make them better

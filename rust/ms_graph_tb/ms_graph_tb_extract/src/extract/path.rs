@@ -18,8 +18,18 @@ use super::schema::extract_from_schema;
 /// of operations using the same HTTP path.
 #[derive(Debug, Clone)]
 pub struct Path {
+    /// The full, unedited path name (e.g., `/me`).
     pub name: String,
+
+    /// A list of OpenAPI [path template expressions] in the path.
+    ///
+    /// [path template expressions]: https://spec.openapis.org/oas/latest.html#path-templating
+    pub template_expressions: Vec<String>,
+
+    /// A description of the path.
     pub description: Option<String>,
+
+    /// All supported HTTP operations for this path.
     pub operations: Vec<Operation>,
 }
 
@@ -150,6 +160,14 @@ pub enum Success {
     WithBody(RequestBody),
 }
 
+fn template_expressions_from_path_name(name: &str) -> impl Iterator<Item = &str> {
+    name.split('{').skip(1).map(|s| {
+        s.split_once('}')
+            .expect("all path template expressions should have matched braces")
+            .0
+    })
+}
+
 /// For the given OpenAPI path, extract its Graph API description and supported
 /// requests.
 pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
@@ -158,6 +176,10 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
         operations,
     } = oa_path;
     let description = description.clone();
+
+    let template_expressions = template_expressions_from_path_name(&name)
+        .map(String::from)
+        .collect();
 
     let operations = operations
         .iter()
@@ -197,6 +219,7 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
         .collect();
     Path {
         name,
+        template_expressions,
         description,
         operations,
     }

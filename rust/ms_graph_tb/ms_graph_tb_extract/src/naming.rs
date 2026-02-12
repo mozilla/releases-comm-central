@@ -107,6 +107,9 @@ pub fn snakeify(s: &str) -> String {
             prev_is_underscore = true;
         }
     }
+    if out.ends_with('_') {
+        out.pop();
+    }
     assert!(
         !out.is_empty(),
         "attempted to snakify into the empty string: {s}"
