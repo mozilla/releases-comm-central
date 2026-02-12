@@ -366,6 +366,14 @@ add_task(async function testReadOnly() {
   Services.prefs.clearUserPref("ldap_2.servers.carddav.readOnly");
 });
 
+add_task(async function testMultigetBatchSize() {
+  // Limit multiget requests to 1 card at a time. This test doesn't really
+  // prove that multiple requests occur, but the logs will show that they do.
+  Services.prefs.setIntPref("carddav.multiget.batchSize", 1);
+  await subtest();
+  Services.prefs.clearUserPref("carddav.multiget.batchSize");
+});
+
 add_task(async function testExpiredToken() {
   // Put some cards on the server.
   CardDAVServer.putCardInternal(

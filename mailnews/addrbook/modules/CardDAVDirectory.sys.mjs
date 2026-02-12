@@ -184,6 +184,12 @@ export class CardDAVDirectory extends SQLiteDirectory {
   set _syncToken(value) {
     this.setStringValue("carddav.token", value);
   }
+  get _multigetBatchSize() {
+    return Math.max(
+      Services.prefs.getIntPref("carddav.multiget.batchSize", 500),
+      1
+    );
+  }
 
   /**
    * Wraps CardDAVUtils.makeRequest, resolving path this directory's server
@@ -279,6 +285,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
   }
 
   _multigetRequest(hrefsToFetch) {
+    log.debug(`Making a multiget request for ${hrefsToFetch.length} cards`);
     hrefsToFetch = hrefsToFetch.map(
       href => `      <d:href>${xmlEncode(href)}</d:href>`
     );
@@ -611,8 +618,10 @@ export class CardDAVDirectory extends SQLiteDirectory {
     }
 
     // Fetch any cards we don't already have, or that have changed.
-    if (hrefsToFetch.length > 0) {
-      response = await this._multigetRequest(hrefsToFetch);
+    while (hrefsToFetch.length > 0) {
+      response = await this._multigetRequest(
+        hrefsToFetch.splice(0, this._multigetBatchSize)
+      );
 
       const abCards = [];
 
@@ -773,7 +782,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
       super.deleteCardsInternal(cardsToDelete);
     }
 
-    await this._fetchAndStore(hrefsToFetch);
+    while (hrefsToFetch.length > 0) {
+      await this._fetchAndStore(
+        hrefsToFetch.splice(0, this._multigetBatchSize)
+      );
+    }
 
     log.log("Sync with server completed successfully.");
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
@@ -914,7 +927,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
     }
 
-    await this._fetchAndStore(hrefsToFetch);
+    while (hrefsToFetch.length > 0) {
+      await this._fetchAndStore(
+        hrefsToFetch.splice(0, this._multigetBatchSize)
+      );
+    }
 
     this._syncToken = dom.querySelector("sync-token").textContent;
 
