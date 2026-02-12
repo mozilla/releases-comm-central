@@ -250,20 +250,20 @@ malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
-context_id = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-error-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-filter_adult = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-search = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-tracing-support = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-logins = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
-init_rust_components = { git = "https://github.com/mozilla/application-services", rev = "42c175c2ecb5aa39346dcd9c7b45ff02325562d8" }
+context_id = { path = "../../third_party/application-services/components/context_id" }
+error-support = { path = "../../third_party/application-services/components/support/error" }
+filter_adult = { path = "../../third_party/application-services/components/filter_adult" }
+interrupt-support = { path = "../../third_party/application-services/components/support/interrupt" }
+relevancy = { path = "../../third_party/application-services/components/relevancy" }
+search = { path = "../../third_party/application-services/components/search" }
+sql-support = { path = "../../third_party/application-services/components/support/sql" }
+suggest = { path = "../../third_party/application-services/components/suggest" }
+sync15 = { path = "../../third_party/application-services/components/sync15" }
+tabs = { path = "../../third_party/application-services/components/tabs" }
+tracing-support = { path = "../../third_party/application-services/components/support/tracing" }
+viaduct = { path = "../../third_party/application-services/components/viaduct" }
+webext-storage = { path = "../../third_party/application-services/components/webext-storage" }
+logins = { path = "../../third_party/application-services/components/logins" }
+init_rust_components = { path = "../../third_party/application-services/components/init_rust_components" }
 zip = { path = "../../third_party/rust/zip" }
 libcrux-traits = { path = "../../build/rust/libcrux-traits" }
