@@ -53,6 +53,27 @@ var setNormal;
  */
 var msgc;
 
+async function performDelete(window, message) {
+  await SimpleTest.promiseFocus(window);
+  const subject = message.subject;
+  info(`Current message: ${subject}`);
+
+  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
+    message.folder,
+    "DeleteOrMoveMsgCompleted"
+  );
+  window.goDoCommand("cmd_delete");
+  const timeoutDeleting = new Promise((_resolve, reject) => {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    const timer = window.setTimeout(() => {
+      reject(new Error(`Timeout deleting message: ${subject}`));
+    }, 5000);
+    deleteOrMoveMsgCompleted.finally(() => window.clearTimeout(timer));
+  });
+  await Promise.race([deleteOrMoveMsgCompleted, timeoutDeleting]);
+  info(`Message deleted: ${subject}`);
+}
+
 add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
@@ -201,14 +222,14 @@ add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
 
   const { gDBView } = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
-  curMessage = gDBView.getMsgHdrAt(1);
+  const msg1 = gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
   nextMessage = gDBView.getMsgHdrAt(2);
   // - delete the message
-  await press_delete();
+  await performDelete(msgc, curMessage);
 
   // - verify all displays
-  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, msg1, 0);
 });
 
 /**
@@ -326,14 +347,15 @@ add_task(async function test_open_first_message_in_smart_inbox() {
 add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
   const { gDBView } = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
-  curMessage = gDBView.getMsgHdrAt(1);
+  const msg1 = gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
   nextMessage = gDBView.getMsgHdrAt(2);
   // - delete the message
-  await press_delete();
+  await performDelete(msgc, curMessage);
 
   // - verify all displays
-  await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
+  await _verify_message_is_displayed_in(VERIFY_ALL, msg1, 0);
+  curMessage = msg1;
 });
 
 /**
@@ -343,7 +365,7 @@ add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
 add_task(async function test_delete_from_smart_inbox_in_message_tab() {
   await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
-  await press_delete();
+  await performDelete(msgc, curMessage);
   curMessage = nextMessage;
 
   // - verify all displays
@@ -361,7 +383,7 @@ add_task(async function test_delete_from_smart_inbox_in_message_tab() {
  */
 add_task(async function test_delete_from_smart_inbox_in_message_window() {
   // - delete
-  await press_delete(msgc);
+  await performDelete(msgc, curMessage);
   curMessage = nextMessage;
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
