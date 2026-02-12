@@ -129,8 +129,13 @@ add_task(async () => {
     await checkFreeBusy(organizer, 5);
 
     // Add attendee.
-    attendeesDocument.activeElement.focus();
-    await TestUtils.waitForTick();
+    let input = attendeesDocument.activeElement;
+    input.focus();
+
+    await TestUtils.waitForCondition(
+      () => !!input.mController,
+      "autocomplete-input should be connected"
+    );
     EventUtils.sendString("test@example.com", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
@@ -141,8 +146,8 @@ add_task(async () => {
     await checkFreeBusy(attendeesList.children[1], 0);
 
     // Add another attendee, from the address book.
+    input = attendeesDocument.activeElement;
 
-    let input = attendeesDocument.activeElement;
     EventUtils.sendString("julie", attendeesWindow);
     await new Promise(resolve => attendeesWindow.setTimeout(resolve, 1000));
     Assert.equal(input.value, "juliet Mochitest <juliet@example.com>");
