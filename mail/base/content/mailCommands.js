@@ -699,10 +699,11 @@ async function viewSignedPart(msgURI) {
       let hdr = "";
       if (part.parent.headers.contentType.type != "message/rfc822") {
         // Erase content-type line(s) including trailing newline
-        hdr = part.parent.headers.rawHeaderText
-          .replace(/^Content-Type:[^\r\n]*(?:\r?\n[ \t].*)*(?:\r?\n)?/gim, "")
-          .trim()
-          .replace(/(?:\r?\n)*$/, "") + "\r\n";
+        hdr =
+          part.parent.headers.rawHeaderText
+            .replace(/^Content-Type:[^\r\n]*(?:\r?\n[ \t].*)*(?:\r?\n)?/gim, "")
+            .trim()
+            .replace(/(?:\r?\n)*$/, "") + "\r\n";
       }
 
       hdr += `${part.headers.rawHeaderText}\r\n${part.body}`;
