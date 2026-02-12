@@ -398,7 +398,7 @@ function convertComposeDetails(composeWindow, extension) {
     }
   }
 
-  const customHeaders = [...composeFields.headerNames].flatMap(h => {
+  const customHeaders = composeFields.headerNames.flatMap(h => {
     const sanitizedName = sanitizeCustomHeaderName(h);
     if (!sanitizedName) {
       return [];
@@ -740,7 +740,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     );
 
     const obsoleteHeaderNames = new Set(
-      [...composeFields.headerNames].flatMap(h => {
+      composeFields.headerNames.flatMap(h => {
         const sanitizedName = sanitizeCustomHeaderName(h);
         return !sanitizedName || customHeaders.has(sanitizedName)
           ? []

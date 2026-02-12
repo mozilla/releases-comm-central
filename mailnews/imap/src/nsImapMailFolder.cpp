@@ -59,7 +59,6 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "prprf.h"
 #include "nsIMsgFilterCustomAction.h"
-#include "nsStringEnumerator.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsIMsgThread.h"
 #include "nsMsgLineBuffer.h"
@@ -5877,11 +5876,11 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
 }
 
 NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
-    nsIUTF8StringEnumerator** aResult) {
-  return GetFolderACL()->GetOtherUsers(aResult);
+    nsTArray<nsCString>& users) {
+  return GetFolderACL()->GetOtherUsers(users);
 }
 
-nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult) {
+nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsTArray<nsCString>& users) {
   nsCString myUserName;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = m_folder->GetServer(getter_AddRefs(server));
@@ -5889,13 +5888,14 @@ nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator** aResult) {
   server->GetUsername(myUserName);
 
   // We need to filter out myUserName from m_rightsHash.
-  nsTArray<nsCString>* resultArray = new nsTArray<nsCString>;
+  users.Clear();
   for (auto iter = m_rightsHash.Iter(); !iter.Done(); iter.Next()) {
-    if (!iter.Key().Equals(myUserName)) resultArray->AppendElement(iter.Key());
+    if (!iter.Key().Equals(myUserName)) {
+      users.AppendElement(iter.Key());
+    }
   }
 
-  // enumerator will free resultArray
-  return NS_NewAdoptingUTF8StringEnumerator(aResult, resultArray);
+  return NS_OK;
 }
 
 nsresult nsImapMailFolder::GetPermissionsForUser(const nsACString& otherUser,

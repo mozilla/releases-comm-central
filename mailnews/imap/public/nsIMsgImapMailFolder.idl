@@ -214,7 +214,7 @@ interface nsIMsgImapMailFolder : nsISupports {
    *
    * You can find out which rights they have with getRightsForUser().
    */
-  nsIUTF8StringEnumerator getOtherUsersWithAccess();
+  Array<AUTF8String> getOtherUsersWithAccess();
 
   /**
    * Which access rights a certain user has for this folder.

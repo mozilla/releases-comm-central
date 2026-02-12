@@ -10,7 +10,6 @@
 #include "nsMsgUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgThread.h"
-#include "nsStringEnumerator.h"
 #ifdef DEBUG
 #  include "nsPrintfCString.h"
 #endif
@@ -827,102 +826,25 @@ NS_IMETHODIMP nsMsgHdr::GetIsKilled(bool* isKilled) {
   return NS_OK;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-#include "nsIStringEnumerator.h"
-#define NULL_MORK_COLUMN 0
-class nsMsgPropertyEnumerator : public nsStringEnumeratorBase {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIUTF8STRINGENUMERATOR
-
-  using nsStringEnumeratorBase::GetNext;
-
-  explicit nsMsgPropertyEnumerator(nsMsgHdr* aHdr);
-  void PrefetchNext();
-
- protected:
-  virtual ~nsMsgPropertyEnumerator();
-  nsCOMPtr<nsIMdbRowCellCursor> mRowCellCursor;
-  nsCOMPtr<nsIMdbEnv> m_mdbEnv;
-  nsCOMPtr<nsIMdbStore> m_mdbStore;
-  // Hold a reference to the hdr so it will hold an xpcom reference to the
-  // underlying mdb row. The row cell cursor will crash if the underlying
-  // row goes away.
-  RefPtr<nsMsgHdr> m_hdr;
-  bool mNextPrefetched;
-  mdb_column mNextColumn;
-};
-
-nsMsgPropertyEnumerator::nsMsgPropertyEnumerator(nsMsgHdr* aHdr)
-    : mNextPrefetched(false), mNextColumn(NULL_MORK_COLUMN) {
-  RefPtr<nsMsgDatabase> mdb;
-  nsCOMPtr<nsIMdbRow> mdbRow;
-
-  if (aHdr && (mdbRow = aHdr->GetMDBRow()) && (m_hdr = aHdr) &&
-      (mdb = aHdr->GetMdb()) && (m_mdbEnv = mdb->m_mdbEnv) &&
-      (m_mdbStore = mdb->m_mdbStore)) {
-    mdbRow->GetRowCellCursor(m_mdbEnv, -1, getter_AddRefs(mRowCellCursor));
-  }
-}
-
-nsMsgPropertyEnumerator::~nsMsgPropertyEnumerator() {
-  // Need to clear this before the nsMsgHdr and its corresponding
-  // nsIMdbRow potentially go away.
-  mRowCellCursor = nullptr;
-}
-
-NS_IMPL_ISUPPORTS(nsMsgPropertyEnumerator, nsIUTF8StringEnumerator,
-                  nsIStringEnumerator)
-
-NS_IMETHODIMP nsMsgPropertyEnumerator::GetNext(nsACString& aItem) {
-  PrefetchNext();
-  if (mNextColumn == NULL_MORK_COLUMN)
-    return NS_ERROR_FAILURE;  // call HasMore first
-  if (!m_mdbStore || !m_mdbEnv) return NS_ERROR_NOT_INITIALIZED;
-  mNextPrefetched = false;
-  char columnName[100];
-  struct mdbYarn colYarn = {columnName, 0, sizeof(columnName), 0, 0, nullptr};
-  // Get the column of the cell
-  nsresult rv = m_mdbStore->TokenToString(m_mdbEnv, mNextColumn, &colYarn);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  aItem.Assign(static_cast<char*>(colYarn.mYarn_Buf), colYarn.mYarn_Fill);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgPropertyEnumerator::HasMore(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  PrefetchNext();
-  *aResult = (mNextColumn != NULL_MORK_COLUMN);
-  return NS_OK;
-}
-
-void nsMsgPropertyEnumerator::PrefetchNext(void) {
-  if (!mNextPrefetched && m_mdbEnv && mRowCellCursor) {
-    mNextPrefetched = true;
-    nsCOMPtr<nsIMdbCell> cell;
-    mRowCellCursor->NextCell(m_mdbEnv, getter_AddRefs(cell), &mNextColumn,
-                             nullptr);
-    if (mNextColumn == NULL_MORK_COLUMN) {
-      // free up references
-      m_mdbStore = nullptr;
-      m_mdbEnv = nullptr;
-      mRowCellCursor = nullptr;
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
-  nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator =
-      new nsMsgPropertyEnumerator(this);
-  bool hasMore;
-  while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
+  nsCOMPtr<nsIMdbRowCellCursor> rowCellCursor;
+  m_mdbRow->GetRowCellCursor(m_mdb->m_mdbEnv, -1,
+                             getter_AddRefs(rowCellCursor));
+
+  nsCOMPtr<nsIMdbCell> cell;
+  mdb_column nextColumn;
+  while (NS_SUCCEEDED(rowCellCursor->NextCell(
+             m_mdb->m_mdbEnv, getter_AddRefs(cell), &nextColumn, nullptr)) &&
+         nextColumn != 0) {
+    char columnName[100];
+    struct mdbYarn colYarn = {columnName, 0, sizeof(columnName), 0, 0, nullptr};
+    // Get the column of the cell
+    nsresult rv =
+        m_mdb->m_mdbStore->TokenToString(m_mdb->m_mdbEnv, nextColumn, &colYarn);
+    NS_ENSURE_SUCCESS(rv, rv);
+
     nsAutoCString property;
-    propertyEnumerator->GetNext(property);
+    property.Assign(static_cast<char*>(colYarn.mYarn_Buf), colYarn.mYarn_Fill);
     headers.AppendElement(property);
   }
   return NS_OK;

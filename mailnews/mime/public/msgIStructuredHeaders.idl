@@ -12,7 +12,6 @@
 %}
 
 interface msgIAddressObject;
-interface nsIUTF8StringEnumerator;
 
 /**
  * A collection of MIME headers that are stored in a rich, structured format.
@@ -92,7 +91,7 @@ interface msgIStructuredHeaders : nsISupports {
    * precise implementation of this interface, so implementations should not
    * rely on an exact kind of case being returned.
    */
-  readonly attribute nsIUTF8StringEnumerator headerNames;
+  readonly attribute Array<AUTF8String> headerNames;
 
   /**
    * Retrieve the MIME representation of all of the headers.

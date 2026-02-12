@@ -8,7 +8,6 @@
 interface nsIMsgWindow;
 interface nsIMsgIncomingServer;
 interface nsITreeView;
-interface nsIUTF8StringEnumerator;
 
 /**
  * A listener to receive notification of the subscribable folders of a server.

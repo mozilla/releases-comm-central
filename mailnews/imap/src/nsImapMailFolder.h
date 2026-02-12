@@ -159,7 +159,7 @@ class nsMsgIMAPFolderACL {
   nsresult GetRightsStringForUser(const nsACString& userName,
                                   nsCString& rights);
 
-  nsresult GetOtherUsers(nsIUTF8StringEnumerator** aResult);
+  nsresult GetOtherUsers(nsTArray<nsCString>& users);
 
  protected:
   bool GetFlagSetInRightsForUser(const nsACString& userName, char flag,

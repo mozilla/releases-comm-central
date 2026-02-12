@@ -14,36 +14,6 @@ function HeaderHandler() {
   this.deliverEOF = function () {};
 }
 
-function StringEnumerator(iterator) {
-  this._iterator = iterator;
-  this._next = undefined;
-}
-StringEnumerator.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIUTF8StringEnumerator"]),
-  [Symbol.iterator]() {
-    return this._iterator;
-  },
-  _setNext() {
-    if (this._next !== undefined) {
-      return;
-    }
-    this._next = this._iterator.next();
-  },
-  hasMore() {
-    this._setNext();
-    return !this._next.done;
-  },
-  getNext() {
-    this._setNext();
-    const result = this._next;
-    this._next = undefined;
-    if (result.done) {
-      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
-    }
-    return result.value;
-  },
-};
-
 /**
  * If we get XPConnect-wrapped objects for msgIAddressObjects, we will have
  * properties defined for 'group' that throws off jsmime. This function converts
@@ -119,7 +89,7 @@ MimeStructuredHeaders.prototype = {
   },
 
   get headerNames() {
-    return new StringEnumerator(this._headers.keys());
+    return [...this._headers.keys()];
   },
 
   buildMimeText(sanitizeDate) {

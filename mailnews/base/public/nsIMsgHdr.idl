@@ -8,7 +8,6 @@
 #include "MailNewsTypes2.idl"
 
 interface nsIMsgFolder;
-interface nsIUTF8StringEnumerator;
 
 [scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports

@@ -192,7 +192,7 @@ export class MimeMessage {
       }
     }
 
-    for (const headerName of [...this._compFields.headerNames]) {
+    for (const headerName of this._compFields.headerNames) {
       const headerContent = this._compFields.getRawHeader(headerName);
       if (headerContent) {
         headers.set(headerName, headerContent);
