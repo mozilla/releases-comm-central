@@ -155,8 +155,8 @@ calendar-dialog-date-row {
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.expanding-row,
-.actionable-item {
+.expanding-row:not([hidden]),
+.actionable-item:not([hidden]) {
   display: grid;
   grid-template-columns: 1fr auto;
 

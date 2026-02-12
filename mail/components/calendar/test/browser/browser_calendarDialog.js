@@ -726,3 +726,84 @@ add_task(async function test_dialogReminders() {
     "Reminder count label should have the right count"
   );
 });
+
+add_task(async function test_toggleRowVisibilty() {
+  dialog.show();
+  let calendarEventData = {
+    location: "foobar",
+    name: "Physical location",
+    description: "Foo",
+    categories: ["TEST"],
+    calendar,
+  };
+  let calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+
+  // Test row visibility.
+  const descriptionRow = dialog.querySelector("#descriptionRow");
+  const calendarPlainTextDescription = dialog.querySelector(
+    "#expandingDescription .plain-text-description"
+  );
+  const categoriesRow = dialog.querySelector("calendar-dialog-categories");
+  const locationRow = dialog.querySelector("#locationRow");
+
+  // Wait for calendar dialog data to be updated.
+  await BrowserTestUtils.waitForMutationCondition(
+    calendarPlainTextDescription,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => calendarPlainTextDescription.textContent.trim()
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(descriptionRow),
+    "Description row should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(categoriesRow),
+    "Categories row should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(locationRow),
+    "Location row should be visible"
+  );
+
+  const descriptionEventPromise = BrowserTestUtils.waitForEvent(
+    descriptionRow.querySelector("calendar-dialog-description-row"),
+    "toggleRowVisibility"
+  );
+  const categoriesEventPromise = BrowserTestUtils.waitForEvent(
+    categoriesRow,
+    "toggleRowVisibility"
+  );
+
+  // Remove event properties to hide the rows.
+  calendarEventData = {
+    name: "Physical location",
+    calendar,
+  };
+  calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+
+  // The toggleRowVisibility event should have fired from each component.
+  await descriptionEventPromise;
+  await categoriesEventPromise;
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(descriptionRow),
+    "Description row should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(categoriesRow),
+    "Categories row should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(locationRow),
+    "Location row should be hidden"
+  );
+
+  resetDialog();
+});

@@ -79,6 +79,15 @@ export class CalendarDialogCategories extends HTMLElement {
         categories: new Intl.ListFormat().format(categories),
       }
     );
+
+    this.dispatchEvent(
+      new CustomEvent("toggleRowVisibility", {
+        bubbles: true,
+        detail: {
+          isHidden: categories.length === 0,
+        },
+      })
+    );
   }
 }
 

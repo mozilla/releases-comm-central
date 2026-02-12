@@ -49,8 +49,17 @@ class CalendarDialogDescriptionRow extends HTMLElement {
     this.querySelector(".plain-text-description").textContent = description;
 
     if (this.getAttribute("type") !== "full") {
+      this.dispatchEvent(
+        new CustomEvent("toggleRowVisibility", {
+          bubbles: true,
+          detail: {
+            isHidden: !description,
+          },
+        })
+      );
       return;
     }
+
     const browser = this.querySelector(".rich-description");
     // Wait for the browser to load the correct document.
     while (

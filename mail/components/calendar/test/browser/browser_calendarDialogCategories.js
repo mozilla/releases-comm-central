@@ -23,7 +23,7 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
-add_task(function test_setCategories() {
+add_task(async function test_setCategories() {
   const categoriesList =
     categoriesElement.shadowRoot.querySelector(".categories-list");
   const overflowLabel =
@@ -71,7 +71,13 @@ add_task(function test_setCategories() {
     "Max visible categories should be the default value"
   );
 
+  const toggleRowVisibilityPromise = BrowserTestUtils.waitForEvent(
+    categoriesElement,
+    "toggleRowVisibility"
+  );
   categoriesElement.setCategories([]);
+  // Setting the categories should fire this event.
+  await toggleRowVisibilityPromise;
 
   Assert.ok(
     BrowserTestUtils.isHidden(overflowLabel),

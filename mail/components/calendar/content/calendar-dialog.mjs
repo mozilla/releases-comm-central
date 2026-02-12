@@ -76,6 +76,7 @@ export class CalendarDialog extends PositionedDialog {
       this.#subviewManager.addEventListener("subviewchanged", this);
       this.querySelector(".back-button").addEventListener("click", this);
       this.querySelector("#expandDescription").addEventListener("click", this);
+      this.#subviewManager.addEventListener("toggleRowVisibility", this);
 
       this.querySelector(".back-button").hidden =
         this.#subviewManager.isDefaultSubviewVisible();
@@ -125,6 +126,12 @@ export class CalendarDialog extends PositionedDialog {
         this.querySelector(".back-button").hidden =
           this.#subviewManager.isDefaultSubviewVisible();
         break;
+      case "toggleRowVisibility": {
+        event.target
+          .closest(".hideable-row")
+          .toggleAttribute("hidden", event.detail.isHidden);
+        break;
+      }
     }
   }
 
@@ -301,6 +308,10 @@ export class CalendarDialog extends PositionedDialog {
     const locationText = this.querySelector("#locationText");
     locationLink.hidden = !parsedURL;
     locationText.hidden = parsedURL || !eventLocation;
+    this.querySelector("#locationRow").toggleAttribute(
+      "hidden",
+      !eventLocation
+    );
 
     if (parsedURL) {
       locationLink.textContent = eventLocation;

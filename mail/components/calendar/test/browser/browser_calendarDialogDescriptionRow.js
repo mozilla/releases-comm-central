@@ -107,7 +107,14 @@ add_task(async function test_setExpandingDescription() {
   );
   const richDescription =
     expandingDescription.querySelector(".rich-description");
+  const toggleRowVisibilityPromise = BrowserTestUtils.waitForEvent(
+    expandingDescription,
+    "toggleRowVisibility"
+  );
   await expandingDescription.setDescription("foo");
+
+  // Setting the description should fire this event.
+  await toggleRowVisibilityPromise;
   Assert.equal(
     entireSlot.textContent.trim(),
     "foo",
