@@ -6248,7 +6248,8 @@ var threadPane = {
     let msgDatabase;
     try {
       msgDatabase = gFolder.msgDatabase;
-    } catch {
+    } catch (e) {
+      console.error(`Persisting column state for ${gFolder.URI} FAILED!`, e);
       return;
     }
 

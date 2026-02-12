@@ -240,6 +240,7 @@ async function toggleColumn(columnID) {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
   await new Promise(about3Pane.requestAnimationFrame);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -771,6 +772,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
   if (notificatonPromise) {
     await notificatonPromise;
   }
+  await TestUtils.waitForTick();
 }
 
 /**
