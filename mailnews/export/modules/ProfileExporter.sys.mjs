@@ -55,10 +55,11 @@ export class ProfileExporter {
     zipW.open(targetFile, 0x02 | 0x08);
     const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     const rootPathCount = PathUtils.split(profileDir.parent.path).length;
-    const zipEntryMap = new Map();
-    await this._collectFilesToZip(zipEntryMap, rootPathCount, profileDir);
+    const zipEntryMap = await this.#collectFilesToZip(
+      rootPathCount,
+      profileDir
+    );
 
-    const totalEntries = zipEntryMap.size;
     let i = 0;
     for (const [path, file] of zipEntryMap) {
       try {
@@ -72,28 +73,34 @@ export class ProfileExporter {
         this._logger.error(`Failed to add ${path}`, e);
       }
       if (++i % 10 === 0) {
-        this.onProgress(i, totalEntries);
+        this.onProgress(i, zipEntryMap.size);
         await new Promise(resolve => lazy.setTimeout(resolve));
       }
     }
-    this.onProgress(totalEntries, totalEntries);
+    this.onProgress(zipEntryMap.size, zipEntryMap.size);
     zipW.close();
   }
 
   /**
    * Recursively collect files to be zipped, save the entries into zipEntryMap.
    *
-   * @param {Map<string, nsIFile>} zipEntryMap - Collection of files to be zipped.
    * @param {number} rootPathCount - The count of rootPath parts.
    * @param {nsIFile} folder - The folder to search for files to zip.
+   * @returns {Map<string, nsIFile>} Collection of files to be zipped.
    */
-  async _collectFilesToZip(zipEntryMap, rootPathCount, folder) {
+  async #collectFilesToZip(rootPathCount, folder) {
+    const zipEntryMap = new Map();
     for (const file of folder.directoryEntries) {
-      if (!file.exists()) {
+      if (!(await IOUtils.exists(file.path))) {
         continue;
       }
-      if (file.isDirectory()) {
-        await this._collectFilesToZip(zipEntryMap, rootPathCount, file);
+      if ((await IOUtils.stat(file.path)).type == "directory") {
+        for (const [key, value] of await this.#collectFilesToZip(
+          rootPathCount,
+          file
+        )) {
+          zipEntryMap.set(key, value);
+        }
       } else {
         // We don't want to include the rootPath part in the zip file.
         const parts = PathUtils.split(file.path).slice(rootPathCount);
@@ -105,5 +112,6 @@ export class ProfileExporter {
         zipEntryMap.set(parts.join("/"), file);
       }
     }
+    return zipEntryMap;
   }
 }
