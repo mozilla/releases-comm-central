@@ -45,3 +45,14 @@ chat-conv-invite-accept =
 chat-conv-invite-deny =
   .label = Reject
   .accesskey = R
+
+# Used when multiple incoming messages from the same sender are bundled
+# into a single notification.
+# Variables:
+#   $count - the number of incoming messages the user is being notified about
+#   $preview - the message preview to be shown in the notification, i.e. the first incoming message.
+bundled-message-preview = {
+    $count ->
+        [one] { $preview }… (and { $count } more message)
+        *[other] { $preview }… (and { $count } more messages)
+    }

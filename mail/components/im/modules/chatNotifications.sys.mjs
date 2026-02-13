@@ -7,12 +7,18 @@ import { ChatIcons } from "resource:///modules/chatIcons.sys.mjs";
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { MailNotificationManager } from "resource:///modules/MailNotificationManager.sys.mjs";
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
 const AlertNotification = Components.Constructor(
   "@mozilla.org/alert-notification;1",
   "nsIAlertNotification",
   "initWithObject"
+);
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/chat.ftl"], true)
 );
 
 // Time in seconds: it is the minimum time of inactivity
@@ -55,9 +61,6 @@ export var Notifications = {
       return;
     }
 
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/chat.properties"
-    );
     let messageText, icon, name;
     const notificationContent = Services.prefs.getIntPref(
       "mail.chat.notification_info"
@@ -86,17 +89,11 @@ export var Notifications = {
           }
         }
 
-        // If there are more messages being bundled, add the count string.
-        // ellipsis is a part of bundledMessagePreview so we don't include it here.
         if (aCounter > 0) {
-          const bundledMessage = bundle.formatStringFromName(
-            "bundledMessagePreview",
-            [messageText]
-          );
-          messageText = PluralForm.get(aCounter, bundledMessage).replace(
-            "#1",
-            aCounter
-          );
+          messageText = lazy.l10n.formatValueSync("bundled-message-preview", {
+            count: aCounter,
+            preview: messageText,
+          });
         }
       }
       // Falls through
