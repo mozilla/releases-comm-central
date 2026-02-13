@@ -96,9 +96,9 @@ git = "https://github.com/mozilla/midir.git"
 rev = "54759f681f3b523e120d047adec2bb1a97152017"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/mp4parse-rust?rev=f955be5d2a04a631c0f1777d6f35370ea1a99e2d"]
+[source."git+https://github.com/mozilla/mp4parse-rust?rev=26788821a443614d88470fe71f51f66720696096"]
 git = "https://github.com/mozilla/mp4parse-rust"
-rev = "f955be5d2a04a631c0f1777d6f35370ea1a99e2d"
+rev = "26788821a443614d88470fe71f51f66720696096"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/neqo?tag=v0.22.2"]
