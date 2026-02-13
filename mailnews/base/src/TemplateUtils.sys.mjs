@@ -4,7 +4,7 @@
 
 import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
-export function PluralStringFormatter(aBundleURI) {
+function PluralStringFormatter(aBundleURI) {
   this._bundle = Services.strings.createBundle(aBundleURI);
 }
 

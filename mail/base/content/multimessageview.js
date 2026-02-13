@@ -14,7 +14,6 @@ ChromeUtils.defineESModuleGetters(this, {
   Gloda: "resource:///modules/gloda/Gloda.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
-  PluralStringFormatter: "resource:///modules/TemplateUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -25,15 +24,11 @@ ChromeUtils.defineESModuleGetters(this, {
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
-// Set up our string formatter for localizing strings.
-ChromeUtils.defineLazyGetter(this, "formatString", function () {
-  const formatter = new PluralStringFormatter(
-    "chrome://messenger/locale/multimessageview.properties"
-  );
-  return function (...args) {
-    return formatter.get(...args);
-  };
-});
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["messenger/multimessageview.ftl"], true)
+);
 
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
@@ -274,26 +269,20 @@ class MultiMessageSummary {
     if (options.showSubject) {
       const subjectNode = listItem.querySelector(".subject");
       subjectNode.textContent =
-        firstMessage.mime2DecodedSubject || formatString("noSubject");
+        firstMessage.mime2DecodedSubject || l10n.formatValueSync("no-subject");
       subjectNode.addEventListener("click", () =>
         this._selectCallback(messages)
       );
 
       if (messages?.length > 1) {
-        let numUnreadStr = "";
+        let countStr = l10n.formatValueSync("num-messages", {
+          count: messages.length,
+        });
         if (unreadCount) {
-          numUnreadStr = formatString(
-            "numUnread",
-            [unreadCount.toLocaleString()],
-            unreadCount
-          );
+          countStr += l10n.formatValueSync("num-unread", {
+            count: unreadCount,
+          });
         }
-        const countStr = `(${formatString(
-          "numMessages",
-          [messages.length.toLocaleString()],
-          messages.length
-        )}${numUnreadStr})`;
-
         listItem.querySelector(".count").textContent = countStr;
       }
     } else {
@@ -416,12 +405,14 @@ class MultiMessageSummary {
       // XXX do something about news?
     }
 
-    const format = aMessages.limited
-      ? "messagesTotalSizeMoreThan"
-      : "messagesTotalSize";
-    document.getElementById("size").textContent = formatString(format, [
-      gMessenger.formatFileSize(numBytes),
-    ]);
+    document.getElementById("size").textContent = l10n.formatValueSync(
+      aMessages.limited
+        ? "messages-total-size-more-than"
+        : "messages-total-size",
+      {
+        numBytes: gMessenger.formatFileSize(numBytes),
+      }
+    );
   }
 
   // These are listeners for the gloda collections.
@@ -567,28 +558,27 @@ class ThreadSummarizer {
     }
 
     // Set the heading based on the subject and number of messages.
-    let countInfo = formatString(
-      "numMessages",
-      [aMessages.length.toLocaleString()],
-      aMessages.length
-    );
+    let countInfo = l10n.formatValueSync("num-messages", {
+      count: aMessages.length,
+    });
     if (ignoredCount != 0) {
-      const format = aMessages.limited ? "atLeastNumIgnored" : "numIgnored";
-      countInfo += formatString(
-        format,
-        [ignoredCount.toLocaleString()],
-        ignoredCount
+      countInfo += l10n.formatValueSync(
+        aMessages.limited ? "at-least-num-ignored" : "num-ignored",
+        { count: ignoredCount }
       );
     }
 
-    this.context.setHeading(subject || formatString("noSubject"), countInfo);
+    this.context.setHeading(
+      subject || l10n.formatValueSync("no-subject"),
+      countInfo
+    );
 
     if (maxCountExceeded) {
       this.context.showNotice(
-        formatString("maxCountExceeded", [
-          aMessages.trueLength.toLocaleString(),
-          this.kMaxSummarizedMessages.toLocaleString(),
-        ])
+        l10n.formatValueSync("max-count-exceeded", {
+          total: aMessages.trueLength,
+          shown: this.kMaxSummarizedMessages,
+        })
       );
     }
     return summarizedMessages;
@@ -639,11 +629,11 @@ class MultipleSelectionSummarizer {
     const threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.
-    const format = aMessages.limited
-      ? "atLeastNumConversations"
-      : "numConversations";
     this.context.setHeading(
-      formatString(format, [threads.length.toLocaleString()], threads.length)
+      l10n.formatValueSync(
+        aMessages.limited ? "at-least-num-conversations" : "num-conversations",
+        { count: threads.length }
+      )
     );
 
     // Summarize the selected messages by thread.
@@ -669,10 +659,10 @@ class MultipleSelectionSummarizer {
 
     if (maxCountExceeded) {
       this.context.showNotice(
-        formatString("maxThreadCountExceeded", [
-          threadsCount.toLocaleString(),
-          this.kMaxSummarizedThreads.toLocaleString(),
-        ])
+        l10n.formatValueSync("max-thread-count-exceeded", {
+          total: threadsCount,
+          shown: this.kMaxSummarizedThreads,
+        })
       );
 
       // Return only the messages for the threads we're actually showing. We
