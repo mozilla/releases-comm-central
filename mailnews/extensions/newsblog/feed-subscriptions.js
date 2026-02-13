@@ -18,9 +18,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
@@ -3115,29 +3112,22 @@ var FeedSubscriptions = {
   importOPMLStatus(aFeedsAdded, aRssOutlines) {
     let statusReport;
     if (aRssOutlines > aFeedsAdded) {
-      statusReport = FeedUtils.strings.formatStringFromName(
-        "subscribe-OPMLImportStatus",
-        [
-          PluralForm.get(
-            aFeedsAdded,
-            FeedUtils.strings.GetStringFromName(
-              "subscribe-OPMLImportUniqueFeeds"
-            )
-          ).replace("#1", aFeedsAdded),
-          PluralForm.get(
-            aRssOutlines,
-            FeedUtils.strings.GetStringFromName(
-              "subscribe-OPMLImportFoundFeeds"
-            )
-          ).replace("#1", aRssOutlines),
-        ],
-        2
-      );
+      statusReport =
+        this.l10n.formatValueSync("subscribe-opml-import-unique-feeds", {
+          count: aFeedsAdded,
+        }) +
+        " " +
+        this.l10n.formatValueSync("subscribe-opml-import-found-feeds", {
+          count: aRssOutlines,
+        }) +
+        ".";
     } else {
-      statusReport = PluralForm.get(
-        aFeedsAdded,
-        FeedUtils.strings.GetStringFromName("subscribe-OPMLImportFeedCount")
-      ).replace("#1", aFeedsAdded);
+      statusReport = this.l10n.formatValueSync(
+        "subscribe-opml-import-feed-count",
+        {
+          count: aFeedsAdded,
+        }
+      );
     }
 
     return statusReport;
@@ -3154,3 +3144,9 @@ var FeedSubscriptions = {
     aWin.updateStatusItem("statusText", aStatusReport);
   },
 };
+
+ChromeUtils.defineLazyGetter(
+  FeedSubscriptions,
+  "l10n",
+  () => new Localization(["messenger/feeds.ftl"], true)
+);
