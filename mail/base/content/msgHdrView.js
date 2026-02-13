@@ -3633,13 +3633,8 @@ function MsgRedirectMessage(event) {
   commandController._composeMsgByType(Ci.nsIMsgCompType.Redirect, event);
 }
 
-function MsgComposeDraftMessage() {
-  top.ComposeMessage(
-    Ci.nsIMsgCompType.Draft,
-    Ci.nsIMsgCompFormat.Default,
-    gFolder,
-    [gMessageURI]
-  );
+function MsgComposeDraftMessage(event) {
+  commandController._composeMsgByType(Ci.nsIMsgCompType.Draft, event);
 }
 
 const trashButtonClickHandler = event => {
@@ -4085,8 +4080,8 @@ var gMessageNotificationBar = {
           label: this.stringBundle.getString("draftMessageButton"),
           accessKey: this.stringBundle.getString("draftMessageButtonKey"),
           popup: null,
-          callback() {
-            MsgComposeDraftMessage();
+          callback(_, __, ___, event) {
+            MsgComposeDraftMessage(event);
             return true; // keep notification open
           },
         },
