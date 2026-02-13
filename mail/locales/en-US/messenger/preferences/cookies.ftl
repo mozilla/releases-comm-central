@@ -51,7 +51,7 @@ cookie-close-button =
 
 # Variables:
 #   $count - the number selected cookies
-remove-selected-cookies = 
+remove-selected-cookies =
     .label = {
         $count ->
             [one] Remove Selected
