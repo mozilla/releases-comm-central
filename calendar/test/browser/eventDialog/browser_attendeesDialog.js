@@ -130,12 +130,12 @@ add_task(async () => {
 
     // Add attendee.
     let input = attendeesDocument.activeElement;
-    input.focus();
-
-    await TestUtils.waitForCondition(
-      () => !!input.mController,
+    const inputReady = TestUtils.waitForCondition(
+      () => !!input.mController?.input,
       "autocomplete-input should be connected"
     );
+    input.focus();
+    await inputReady;
     EventUtils.sendString("test@example.com", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
