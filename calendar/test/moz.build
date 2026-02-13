@@ -19,6 +19,7 @@ BROWSER_CHROME_MANIFESTS += [
     "browser/recurrence/browser_rotated.toml",
     "browser/timezones/browser.toml",
     "browser/views/browser.toml",
+    "browser/views/browser_midnightUpdate.toml",
 ]
 
 TESTING_JS_MODULES.calendar += [

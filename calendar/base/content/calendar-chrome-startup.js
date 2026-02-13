@@ -209,6 +209,8 @@ function doMidnightUpdate() {
     // Just update the day displayed as today.
     const todayMinimonth = document.getElementById("today-minimonth");
     todayMinimonth.showMonth(todayMinimonth.value);
+    const minidayMinimonth = document.getElementById("miniday-dropdown-minimonth");
+    minidayMinimonth.showMonth(minidayMinimonth.value);
   }
 
   for (const view of getViewBox().children) {
