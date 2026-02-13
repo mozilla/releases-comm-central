@@ -2,31 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
-
-function PluralStringFormatter(aBundleURI) {
-  this._bundle = Services.strings.createBundle(aBundleURI);
-}
-
-PluralStringFormatter.prototype = {
-  get(aStringName, aReplacements, aPluralCount) {
-    let str = this._bundle.GetStringFromName(aStringName);
-    if (aPluralCount !== undefined) {
-      str = PluralForm.get(aPluralCount, str);
-    }
-    if (aReplacements !== undefined) {
-      for (let i = 0; i < aReplacements.length; i++) {
-        str = str.replace("#" + (i + 1), aReplacements[i]);
-      }
-    }
-    return str;
-  },
-};
-
-var gTemplateUtilsStrings = new PluralStringFormatter(
-  "chrome://messenger/locale/templateUtils.properties"
-);
-
 const _dateFormatter = new Services.intl.DateTimeFormat(undefined, {
   dateStyle: "short",
 });
@@ -37,9 +12,18 @@ const _dayMonthFormatter = new Services.intl.DateTimeFormat(undefined, {
 const _timeFormatter = new Services.intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
-const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
-  weekday: "long",
-});
+const _weekdayFormatter = new Services.intl.DateTimeFormat(
+  Services.locale.appLocaleAsBCP47,
+  {
+    weekday: "long",
+  }
+);
+const _relativeTimeFormatter = new Services.intl.RelativeTimeFormat(
+  Services.locale.appLocaleAsBCP47,
+  {
+    numeric: "auto",
+  }
+);
 
 /**
  * Helper function to generate a localized "friendly" representation of
@@ -53,34 +37,30 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
  *   relative to now.
  */
 export function makeFriendlyDateAgo(time) {
-  // TODO: use Intl.RelativeTimeFormat instead.
   // Figure out when today begins
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // Get the end time to display
-  const end = time;
 
   // Figure out if the end time is from today, yesterday,
   // this week, etc.
   let dateTime;
   const kDayInMsecs = 24 * 60 * 60 * 1000;
   const k6DaysInMsecs = 6 * kDayInMsecs;
-  if (end >= today) {
+  if (time >= today) {
     // activity finished after today started, show the time
-    dateTime = _timeFormatter.format(end);
-  } else if (today - end < kDayInMsecs) {
+    dateTime = _timeFormatter.format(time);
+  } else if (today - time < kDayInMsecs) {
     // activity finished after yesterday started, show yesterday
-    dateTime = gTemplateUtilsStrings.get("yesterday");
-  } else if (today - end < k6DaysInMsecs) {
+    dateTime = _relativeTimeFormatter.format(-1, "day");
+  } else if (today - time < k6DaysInMsecs) {
     // activity finished after last week started, show day of week
-    dateTime = _weekdayFormatter.format(end);
-  } else if (now.getFullYear() == end.getFullYear()) {
+    dateTime = _weekdayFormatter.format(time);
+  } else if (now.getFullYear() == time.getFullYear()) {
     // activity must have been from some time ago.. show month/day
-    dateTime = _dayMonthFormatter.format(end);
+    dateTime = _dayMonthFormatter.format(time);
   } else {
     // not this year, so show full date format
-    dateTime = _dateFormatter.format(end);
+    dateTime = _dateFormatter.format(time);
   }
   return dateTime;
 }
