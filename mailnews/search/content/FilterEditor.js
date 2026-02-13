@@ -10,9 +10,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
@@ -343,13 +340,14 @@ function initializeFilterTypeSelector() {
       this.checkBoxOutgoing.checked = aType & Ci.nsMsgFilterType.PostOutgoing;
 
       this.checkBoxPeriodic.checked = aType & Ci.nsMsgFilterType.Periodic;
-      const periodMinutes = gFilterList.folder.server.getIntValue(
+      const minutes = gFilterList.folder.server.getIntValue(
         "periodicFilterRateMinutes"
       );
-      document.getElementById("runPeriodic").label = PluralForm.get(
-        periodMinutes,
-        gFilterBundle.getString("contextPeriodic.label")
-      ).replace("#1", periodMinutes);
+      document.l10n.setAttributes(
+        document.getElementById("runPeriodic"),
+        "run-periodically",
+        { minutes }
+      );
 
       this.updateClassificationMenu();
     },
