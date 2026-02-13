@@ -39,7 +39,6 @@ impl<R: RegExp> Component<R> {
       &options,
       encoding_callback,
     )?;
-    let part_list = part_list.iter().collect::<Vec<_>>();
     let (regexp_string, name_list) =
       generate_regular_expression_and_name_list(&part_list, &options);
     let flags = if options.ignore_case { "ui" } else { "u" };
@@ -105,7 +104,7 @@ impl<R: RegExp> Component<R> {
 
 // Ref: https://wicg.github.io/urlpattern/#generate-a-regular-expression-and-name-list
 fn generate_regular_expression_and_name_list(
-  part_list: &[&Part],
+  part_list: &[Part],
   options: &Options,
 ) -> (String, Vec<String>) {
   let mut result = String::from("^");
@@ -179,15 +178,12 @@ fn generate_regular_expression_and_name_list(
 }
 
 // Ref: https://wicg.github.io/urlpattern/#generate-a-pattern-string
-fn generate_pattern_string(part_list: &[&Part], options: &Options) -> String {
+fn generate_pattern_string(part_list: &[Part], options: &Options) -> String {
   let mut result = String::new();
   for (i, part) in part_list.iter().enumerate() {
-    let prev_part: Option<&Part> = if i == 0 {
-      None
-    } else {
-      part_list.get(i - 1).copied()
-    };
-    let next_part: Option<&Part> = part_list.get(i + 1).copied();
+    let prev_part: Option<&Part> =
+      if i == 0 { None } else { part_list.get(i - 1) };
+    let next_part: Option<&Part> = part_list.get(i + 1);
     if part.kind == PartType::FixedText {
       if part.modifier == PartModifier::None {
         result.push_str(&escape_pattern_string(&part.value));
@@ -284,7 +280,7 @@ fn generate_pattern_string(part_list: &[&Part], options: &Options) -> String {
 
 /// This function generates a matcher for a given parts list.
 fn generate_matcher<R: RegExp>(
-  mut part_list: &[&Part],
+  mut part_list: &[Part],
   options: &Options,
   flags: &str,
 ) -> Matcher<R> {

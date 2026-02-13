@@ -3,6 +3,7 @@
 
 use serde::Deserialize;
 use serde::Serialize;
+use std::borrow::Cow;
 use url::Url;
 
 pub use crate::Error;
@@ -36,8 +37,8 @@ pub struct UrlPatternInit {
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum StringOrInit {
-  String(String),
+pub enum StringOrInit<'a> {
+  String(Cow<'a, str>),
   Init(UrlPatternInit),
 }
 
@@ -106,7 +107,7 @@ impl<R: RegExp> From<Component<R>> for UrlPatternComponent {
   fn from(component: Component<R>) -> Self {
     let regexp_string = component
       .regexp
-      .map(|r| r.pattern_string())
+      .map(|r| r.pattern_string().to_owned())
       .unwrap_or_default();
     Self {
       pattern_string: component.pattern_string,
@@ -166,7 +167,9 @@ impl<R: RegExp> From<crate::matcher::InnerMatcher<R>> for InnerMatcher {
         allow_empty,
       },
       crate::matcher::InnerMatcher::RegExp { regexp } => Self::RegExp {
-        regexp: regexp.map(|r| r.pattern_string()).unwrap_or_default(),
+        regexp: regexp
+          .map(|r| r.pattern_string().to_owned())
+          .unwrap_or_default(),
       },
     }
   }
@@ -196,8 +199,8 @@ impl RegExp for EcmaRegexp {
     regexp.matches(text)
   }
 
-  fn pattern_string(&self) -> String {
-    self.0.clone()
+  fn pattern_string(&self) -> &str {
+    self.0.as_ref()
   }
 }
 
@@ -230,12 +233,12 @@ pub fn parse_pattern_as_lib<R: RegExp>(
   Ok(pattern)
 }
 
-pub type Inputs = (StringOrInit, Option<String>);
+pub type Inputs<'a> = (StringOrInit<'a>, Option<String>);
 
-pub fn process_match_input(
-  input: StringOrInit,
+pub fn process_match_input<'a>(
+  input: StringOrInit<'a>,
   base_url_str: Option<&str>,
-) -> Result<Option<(crate::UrlPatternMatchInput, Inputs)>, Error> {
+) -> Result<Option<(crate::UrlPatternMatchInput, Inputs<'a>)>, Error> {
   let mut inputs = (input.clone(), None);
   let init = match input {
     StringOrInit::String(url) => {

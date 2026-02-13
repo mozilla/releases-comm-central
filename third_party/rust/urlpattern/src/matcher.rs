@@ -94,7 +94,7 @@ impl<R: RegExp> Matcher<R> {
         Some(vec![Some(input)])
       }
       InnerMatcher::RegExp { regexp, .. } => {
-        regexp.as_ref().unwrap().matches(input)
+        regexp.as_ref().ok()?.matches(input)
       }
     }
   }

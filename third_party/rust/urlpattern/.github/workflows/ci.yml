@@ -18,7 +18,7 @@ jobs:
       - uses: dsherret/rust-toolchain-file@v1
 
       - name: Format
-        run: rustfmt --check src/lib.rs
+        run: cargo fmt --check --all
 
       - name: Build
         run: cargo build --release --all-targets --all-features

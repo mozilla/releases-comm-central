@@ -176,11 +176,11 @@ impl Part {
 }
 
 // Ref: https://wicg.github.io/urlpattern/#pattern-parser
-struct PatternParser<F>
+struct PatternParser<'a, F>
 where
   F: Fn(&str) -> Result<String, Error>,
 {
-  token_list: Vec<Token>,
+  token_list: Vec<Token<'a>>,
   encoding_callback: F,
   segment_wildcard_regexp: String,
   part_list: Vec<Part>,
@@ -189,12 +189,12 @@ where
   next_numeric_name: usize,
 }
 
-impl<F> PatternParser<F>
+impl<'a, F> PatternParser<'a, F>
 where
   F: Fn(&str) -> Result<String, Error>,
 {
   // Ref: https://wicg.github.io/urlpattern/#try-to-consume-a-token
-  fn try_consume_token(&mut self, kind: TokenType) -> Option<Token> {
+  fn try_consume_token(&mut self, kind: TokenType) -> Option<Token<'a>> {
     assert!(self.index < self.token_list.len());
     let next_token = self.token_list[self.index].clone();
     if next_token.kind != kind {
@@ -210,7 +210,7 @@ where
   fn try_consume_regexp_or_wildcard_token(
     &mut self,
     name_token_is_none: bool,
-  ) -> Option<Token> {
+  ) -> Option<Token<'a>> {
     let token = self.try_consume_token(TokenType::Regexp);
     if name_token_is_none && token.is_none() {
       self.try_consume_token(TokenType::Asterisk)
@@ -221,7 +221,7 @@ where
 
   // Ref: https://wicg.github.io/urlpattern/#try-to-consume-a-modifier-token
   #[inline]
-  fn try_consume_modifier_token(&mut self) -> Option<Token> {
+  fn try_consume_modifier_token(&mut self) -> Option<Token<'a>> {
     self
       .try_consume_token(TokenType::OtherModifier)
       .or_else(|| self.try_consume_token(TokenType::Asterisk))
@@ -255,7 +255,7 @@ where
   ) -> Result<(), Error> {
     let mut modifier = PartModifier::None;
     if let Some(modifier_token) = modifier_token {
-      modifier = match modifier_token.value.as_ref() {
+      modifier = match modifier_token.value {
         "?" => PartModifier::Optional,
         "*" => PartModifier::ZeroOrMore,
         "+" => PartModifier::OneOrMore,
@@ -306,7 +306,7 @@ where
 
     let mut name = String::new();
     if let Some(name_token) = name_token {
-      name = name_token.value;
+      name = name_token.value.to_owned();
     } else if regexp_or_wildcard_token.is_some() {
       name = self.next_numeric_name.to_string();
       self.next_numeric_name += 1;
@@ -344,7 +344,7 @@ where
       if token.is_none() {
         break;
       }
-      result.push_str(&token.unwrap().value);
+      result.push_str(token.unwrap().value);
     }
     result
   }
@@ -359,7 +359,7 @@ where
       Error::Parser(ParserError::ExpectedToken(
         kind,
         self.token_list[self.index].kind.clone(),
-        self.token_list[self.index].value.clone(),
+        self.token_list[self.index].value.to_owned(),
       ))
     })
   }
@@ -419,7 +419,7 @@ where
       fixed_token = parser.try_consume_token(TokenType::EscapedChar);
     }
     if let Some(fixed_token) = fixed_token {
-      parser.pending_fixed_value.push_str(&fixed_token.value);
+      parser.pending_fixed_value.push_str(fixed_token.value);
       continue;
     }
     let open_token = parser.try_consume_token(TokenType::Open);

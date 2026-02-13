@@ -214,7 +214,7 @@ impl UrlPatternInit {
           let baseurl_path = url::quirks::pathname(base_url);
           let slash_index = baseurl_path.rfind('/');
           if let Some(slash_index) = slash_index {
-            let new_pathname = baseurl_path[..=slash_index].to_string();
+            let new_pathname = &baseurl_path[..=slash_index];
             result.pathname =
               Some(format!("{}{}", new_pathname, result.pathname.unwrap()));
           }
@@ -659,10 +659,11 @@ mod tests {
 
   #[derive(Debug, Deserialize)]
   #[serde(untagged)]
+  #[serde(bound(deserialize = "'de: 'a"))]
   #[allow(clippy::large_enum_variant)]
-  enum ExpectedMatch {
+  enum ExpectedMatch<'a> {
     String(String),
-    MatchResult(MatchResult),
+    MatchResult(MatchResult<'a>),
   }
 
   #[derive(Debug, Deserialize)]
@@ -674,28 +675,30 @@ mod tests {
   #[allow(clippy::large_enum_variant)]
   #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
   #[serde(untagged)]
-  pub enum StringOrInitOrOptions {
+  pub enum StringOrInitOrOptions<'a> {
     Options(UrlPatternOptions),
-    StringOrInit(quirks::StringOrInit),
+    StringOrInit(quirks::StringOrInit<'a>),
   }
 
   #[derive(Debug, Deserialize)]
-  struct TestCase {
+  #[serde(bound(deserialize = "'de: 'a"))]
+  struct TestCase<'a> {
     skip: Option<String>,
-    pattern: Vec<StringOrInitOrOptions>,
+    pattern: Vec<StringOrInitOrOptions<'a>>,
     #[serde(default)]
-    inputs: Vec<quirks::StringOrInit>,
-    expected_obj: Option<quirks::StringOrInit>,
-    expected_match: Option<ExpectedMatch>,
+    inputs: Vec<quirks::StringOrInit<'a>>,
+    expected_obj: Option<quirks::StringOrInit<'a>>,
+    expected_match: Option<ExpectedMatch<'a>>,
     #[serde(default)]
     exactly_empty_components: Vec<String>,
   }
 
   #[derive(Debug, Deserialize)]
-  struct MatchResult {
+  #[serde(bound(deserialize = "'de: 'a"))]
+  struct MatchResult<'a> {
     #[serde(deserialize_with = "deserialize_match_result_inputs")]
     #[serde(default)]
-    inputs: Option<(quirks::StringOrInit, Option<String>)>,
+    inputs: Option<(quirks::StringOrInit<'a>, Option<String>)>,
 
     protocol: Option<ComponentResult>,
     username: Option<ComponentResult>,
@@ -707,17 +710,17 @@ mod tests {
     hash: Option<ComponentResult>,
   }
 
-  fn deserialize_match_result_inputs<'de, D>(
+  fn deserialize_match_result_inputs<'a, D>(
     deserializer: D,
-  ) -> Result<Option<(quirks::StringOrInit, Option<String>)>, D::Error>
+  ) -> Result<Option<(quirks::StringOrInit<'a>, Option<String>)>, D::Error>
   where
-    D: serde::Deserializer<'de>,
+    D: serde::Deserializer<'a>,
   {
     #[derive(Debug, Deserialize)]
     #[serde(untagged)]
-    enum MatchResultInputs {
-      OneArgument((quirks::StringOrInit,)),
-      TwoArguments(quirks::StringOrInit, String),
+    enum MatchResultInputs<'a> {
+      OneArgument((quirks::StringOrInit<'a>,)),
+      TwoArguments(quirks::StringOrInit<'a>, String),
     }
 
     let res = Option::<MatchResultInputs>::deserialize(deserializer)?;
@@ -811,7 +814,7 @@ mod tests {
       ..
     }) = &input
     {
-      base_url = Some(url.clone())
+      base_url = Some(url.clone().into())
     }
 
     macro_rules! assert_field {
@@ -921,7 +924,8 @@ mod tests {
 
     let input = input.unwrap_or_else(|| StringOrInit::Init(Default::default()));
 
-    let expected_input = (input.clone(), base_url.clone());
+    let expected_input =
+      (input.clone(), base_url.clone().map(|s| s.to_string()));
 
     let match_input = quirks::process_match_input(input, base_url.as_deref());
 
@@ -1058,7 +1062,7 @@ mod tests {
   #[test]
   fn issue46() {
     quirks::process_construct_pattern_input(
-      quirks::StringOrInit::String(":café://:foo".to_owned()),
+      quirks::StringOrInit::String(":café://:foo".to_owned().into()),
       None,
     )
     .unwrap();
@@ -1161,5 +1165,17 @@ mod tests {
   fn issue78() {
     use crate::canonicalize_and_process::canonicalize_pathname;
     assert!(canonicalize_pathname("3�/..").is_ok());
+  }
+
+  #[test]
+  fn matcher_matches_doesnt_crash() {
+    let input = "(H\\PH)e:*) (emH\\<N)E*(elNH\\PH)e�{}?u";
+    let base = "example.com";
+    let base_url = Url::parse(base).ok();
+    let init =
+      UrlPatternInit::parse_constructor_string::<regex::Regex>(input, base_url);
+    let _ = init.and_then(|init_res| {
+      UrlPattern::<Regex>::parse(init_res, Default::default())
+    });
   }
 }
