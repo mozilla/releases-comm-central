@@ -3,9 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 ChromeUtils.defineESModuleGetters(this, {
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.sys.mjs",
@@ -664,16 +661,14 @@ var gCookiesWindow = {
     if (item && seln.count == 1 && item.container && item.open) {
       selectedCookieCount += 2;
     }
-
-    const buttonLabel = this._bundle.getString("removeSelectedCookies");
     const removeSelectedCookies = document.getElementById(
       "removeSelectedCookies"
     );
-    removeSelectedCookies.label = PluralForm.get(
-      selectedCookieCount,
-      buttonLabel
-    ).replace("#1", selectedCookieCount);
-
+    document.l10n.setAttributes(
+      removeSelectedCookies,
+      "remove-selected-cookies",
+      { count: selectedCookieCount }
+    );
     removeSelectedCookies.disabled = !(seln.count > 0);
     document.getElementById("removeAllCookies").disabled = this._view._filtered;
   },
