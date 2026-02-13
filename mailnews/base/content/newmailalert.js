@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
-
 var gAlertListener = null;
 
 // NOTE: We must wait until "load" instead of "DOMContentLoaded" because
@@ -22,15 +18,14 @@ function prefillAlertInfo() {
   newMsgKeys = newMsgKeys.wrappedJSObject;
   gAlertListener = listener.QueryInterface(Ci.nsIObserver);
 
-  // Generate an account label string based on the root folder.
-  var label = document.getElementById("alertTitle");
-  var totalNumNewMessages = newMsgKeys.length;
-  const message = document
-    .getElementById("bundle_messenger")
-    .getString("newMailAlert_message");
-  label.value = PluralForm.get(totalNumNewMessages, message)
-    .replace("#1", folder.server.rootFolder.localizedName)
-    .replace("#2", totalNumNewMessages);
+  document.l10n.setAttributes(
+    document.getElementById("alertTitle"),
+    "new-mail-alert-message",
+    {
+      count: newMsgKeys.length,
+      account: folder.server.rootFolder.localizedName,
+    }
+  );
 
   // <folder-summary> handles rendering of new messages.
   var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");

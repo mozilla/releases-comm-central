@@ -17,6 +17,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:"
     />
+    <link rel="localization" href="messenger/newmailalert.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/newmailalert.css" />
     <script
       defer="defer"
@@ -27,11 +28,6 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     role="alert"
   >
-    <stringbundle
-      id="bundle_messenger"
-      src="chrome://messenger/locale/messenger.properties"
-    />
-
     <hbox id="alertContainer" align="start">
       <hbox id="alertImageBox" align="center" pack="center">
         <html:img
@@ -43,8 +39,12 @@
       </hbox>
 
       <vbox id="alertTextBox">
-        <label id="alertTitle" />
-        <separator id="alertSeparator" />
+        <html:div
+          id="alertTitle"
+          data-l10n-id="new-mail-alert-message"
+          data-l10n-args='{"count": 0, "account": ""}'
+        ></html:div>
+        <html:hr id="alertSeparator" />
         <folder-summary id="folderSummaryInfo" />
       </vbox>
 
