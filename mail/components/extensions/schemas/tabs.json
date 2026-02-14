@@ -123,6 +123,12 @@
             "optional": true,
             "minimum": -1,
             "description": "The ID of the group that the tab belongs to. -1 if the tab does not belong to a tab group."
+          },
+          "splitViewId": {
+            "type": "integer",
+            "optional": true,
+            "minimum": -1,
+            "description": "The ID of the Split View that the tab belongs to. -1 if the tab does not belong to a split view."
           }
         }
       },

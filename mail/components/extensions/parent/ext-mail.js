@@ -1125,6 +1125,11 @@ class Tab extends TabBase {
     // Thunderbird doesn't support tab groups.
     return -1;
   }
+
+  get splitViewId() {
+    // Thunderbird doesn't support split views.
+    return -1;
+  }
 }
 
 class TabmailTab extends Tab {
