@@ -15,15 +15,19 @@
   const { FacetUtils } = ChromeUtils.importESModule(
     "resource:///modules/gloda/Facet.sys.mjs"
   );
-  const { PluralForm } = ChromeUtils.importESModule(
-    "resource:///modules/PluralForm.sys.mjs"
-  );
   const { Gloda } = ChromeUtils.importESModule(
     "resource:///modules/gloda/Gloda.sys.mjs"
   );
 
   var glodaFacetStrings = Services.strings.createBundle(
     "chrome://messenger/locale/glodaFacetView.properties"
+  );
+
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["messenger/glodaFacetView.ftl"], true)
   );
 
   class MozFacetDate extends HTMLElement {
@@ -157,34 +161,16 @@
     }
 
     setMessages(messages) {
-      const topMessagesPluralFormat = glodaFacetStrings.GetStringFromName(
-        "glodaFacetView.results.header.countLabel.NMessages"
-      );
-      const outOfPluralFormat = glodaFacetStrings.GetStringFromName(
-        "glodaFacetView.results.header.countLabel.ofN"
-      );
-      const groupingFormat = glodaFacetStrings.GetStringFromName(
-        "glodaFacetView.results.header.countLabel.grouping"
-      );
-
       const displayCount = messages.length;
       const totalCount = FacetContext.activeSet.length;
 
       // set the count so CSS selectors can know what the results look like
       this.setAttribute("state", totalCount <= 0 ? "empty" : "some");
 
-      const topMessagesStr = PluralForm.get(
-        displayCount,
-        topMessagesPluralFormat
-      ).replace("#1", displayCount.toLocaleString());
-      const outOfStr = PluralForm.get(totalCount, outOfPluralFormat).replace(
-        "#1",
-        totalCount.toLocaleString()
-      );
-
-      this.countNode.textContent = groupingFormat
-        .replace("#1", topMessagesStr)
-        .replace("#2", outOfStr);
+      document.l10n.setAttributes(this.countNode, "items-m-of-n", {
+        m: displayCount,
+        n: totalCount,
+      });
 
       this.toggleText.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.timeline.label"
@@ -694,12 +680,11 @@
         );
         // setup the more button string
         const groupCount = this.orderedGroups.length;
-        this.moreButton.textContent = PluralForm.get(
-          groupCount,
-          glodaFacetStrings.GetStringFromName(
-            "glodaFacetView.facets.mode.top.listAllLabel"
-          )
-        ).replace("#1", groupCount);
+        document.l10n.setAttributes(
+          this.moreButton,
+          "facets-mode-to-list-all-label",
+          { count: groupCount }
+        );
       }
 
       // -- Row Building
@@ -1569,43 +1554,39 @@
       try {
         const recipientsNode = this.recipients;
         if (message.recipients) {
-          let recipientCount = 0;
           const MAX_RECIPIENTS = 3;
           const totalRecipientCount = message.recipients.length;
-          const recipientSeparator = glodaFacetStrings.GetStringFromName(
-            "glodaFacetView.results.message.recipientSeparator"
+
+          const formatter = new Intl.ListFormat(
+            Services.locale.appLocaleAsBCP47,
+            {
+              style: "long",
+              type: "conjunction",
+            }
           );
-          for (const index in message.recipients) {
-            const recipNode = document.createElement("span");
-            recipNode.setAttribute("class", "message-recipient");
-            recipNode.textContent = message.recipients[index].contact.name;
-            recipientsNode.appendChild(recipNode);
-            recipientCount++;
-            if (recipientCount == MAX_RECIPIENTS) {
-              break;
-            }
-            if (index != totalRecipientCount - 1) {
-              // add separators (usually commas)
-              const sepNode = document.createElement("span");
-              sepNode.setAttribute("class", "message-recipient-separator");
-              sepNode.textContent = recipientSeparator;
-              recipientsNode.appendChild(sepNode);
-            }
+          const contactNames = message.recipients
+            .map(contact => contact.name)
+            .slice(0, MAX_RECIPIENTS - 1);
+          if (contactNames.length > MAX_RECIPIENTS) {
+            contactNames.push(
+              lazy.l10n.formatValueSync("facet-view-and-others", {
+                count: totalRecipientCount - MAX_RECIPIENTS,
+              })
+            );
           }
-          if (totalRecipientCount > MAX_RECIPIENTS) {
-            const nOthers = totalRecipientCount - recipientCount;
-            const andNOthers = document.createElement("span");
-            andNOthers.setAttribute("class", "message-recipients-andothers");
-
-            const andOthersLabel = PluralForm.get(
-              nOthers,
-              glodaFacetStrings.GetStringFromName(
-                "glodaFacetView.results.message.andOthers"
-              )
-            ).replace("#1", nOthers);
-
-            andNOthers.textContent = andOthersLabel;
-            recipientsNode.appendChild(andNOthers);
+          const parts = formatter.formatToParts(
+            message.recipients.map(contact => contact.name).filter(Boolean)
+          );
+          let separator = false;
+          for (const part of parts) {
+            const recipNode = document.createElement("span");
+            recipNode.setAttribute(
+              "class",
+              separator ? "message-recipient-separator" : "message-recipient"
+            );
+            recipNode.textContent = part.value;
+            recipientsNode.appendChild(recipNode);
+            separator = !separator;
           }
         }
       } catch (e) {
