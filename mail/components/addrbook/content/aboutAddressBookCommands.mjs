@@ -27,7 +27,7 @@ commandController.registerCallback(
       detailsPane.editNewContact(vCard);
     }
   },
-  () => document.getElementById("books").canCreateContact() && noOverlays()
+  () => document.getElementById("books")?.canCreateContact?.() && noOverlays()
 );
 
 commandController.registerCallback("cmd_displayContact", function (card) {
@@ -111,7 +111,7 @@ commandController.registerCallback(
   function () {
     createList();
   },
-  () => document.getElementById("books").canCreateList() && noOverlays()
+  () => document.getElementById("books")?.canCreateList?.() && noOverlays()
 );
 
 commandController.registerCallback("cmd_importContacts", function () {

@@ -944,6 +944,7 @@ add_task(async function testSyntheticFolder() {
     title: "Test gloda results",
   });
   await tabPromise;
+  await SimpleTest.promiseFocus(tab.chromeBrowser);
 
   const about3Pane = tab.chromeBrowser.contentWindow;
   const mailContext = about3Pane.document.getElementById("mailContext");
