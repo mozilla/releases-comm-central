@@ -11,6 +11,20 @@
                 "note": "The naming pattern of the built-in cookie stores was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               }
             ]
+          },
+          "groupId": {
+            "annotations": [
+              {
+                "note": "Thunderbird does not support tab groups. This property will always be <code>-1<code> and cannot be changed."
+              }
+            ]
+          },
+          "splitViewId": {
+            "annotations": [
+              {
+                "note": "Thunderbird does not support Split View. This property will always be <code>-1<code> and cannot be changed."
+              }
+            ]
           }
         }
       }
