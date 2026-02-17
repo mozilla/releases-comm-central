@@ -522,7 +522,8 @@ static MimeClosure MimeCMS_init(MimeObject* obj,
 
   NS_ASSERTION(obj->headers, "should have headers");
 
-  nsAutoCString partnum(mime_part_address(obj));
+  nsAutoCString partnum;
+  partnum.Adopt(mime_part_address(obj));
 
   data->skip_decoding = false;
   if (obj->headers) {
@@ -764,7 +765,8 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
   // comment: CMS-allowed-layers in mimei.cpp
 
   bool thisPartIsAllowed = false;
-  nsAutoCString partnum(mime_part_address(data->self));
+  nsAutoCString partnum;
+  partnum.Adopt(mime_part_address(data->self));
 
   if (!data->skip_decoding && status == nsICMSMessageErrors::SUCCESS) {
     if (!strcmp(partnum.get(), "1")) {

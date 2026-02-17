@@ -696,17 +696,19 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         // We are part "1"
         thisPartIsAllowed = true;
       } else if (parentObj) {
-        const char* parentAddress = mime_part_address(parentObj);
+        nsAutoCString parentAddress;
+        parentAddress.Adopt(mime_part_address(parentObj));
         bool parentIsEnveloped = MimeCMS_encrypted_p(parentObj);
         bool parentIsSigned = MimeCMS_signed_p(parentObj);
 
         // Parent types other than signed/encrypted are forbidden
-        if (parentAddress && (parentIsEnveloped || parentIsSigned) &&
-            (!strcmp(parentAddress, "1") || !strcmp(parentAddress, "1.1"))) {
+        if (parentAddress.Length() && (parentIsEnveloped || parentIsSigned) &&
+            (!strcmp(parentAddress.get(), "1") ||
+             !strcmp(parentAddress.get(), "1.1"))) {
           // Parent is either 1 or 1.1, that means this pkcs7 object
           // MIGHT be allowed, check further.
 
-          if (!strcmp(parentAddress, "1")) {
+          if (!strcmp(parentAddress.get(), "1")) {
             // Parent is 1, this is part 1.1
             if (!thisST) {
               // We don't know yet whether the part is allowed.

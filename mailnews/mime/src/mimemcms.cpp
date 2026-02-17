@@ -171,7 +171,8 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
     }  // if channel
   }  // if msd
 
-  nsAutoCString partnum(mime_part_address(data->self));
+  nsAutoCString partnum;
+  partnum.Adopt(mime_part_address(data->self));
 
   if (!strcmp(partnum.get(), "1")) {
     // no checks necessary
