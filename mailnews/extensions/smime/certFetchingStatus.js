@@ -96,24 +96,17 @@ async function getPassword() {
   }
   const authPrompter = Services.ww.getNewAuthPrompter(window);
   const strBundle = document.getElementById("bundle_ldap");
-  const password = { value: "" };
 
   // nsLDAPAutocompleteSession uses asciiHost instead of host for the prompt
   // text, I think we should be consistent.
-  if (
-    await authPrompter.asyncPromptPassword(
-      strBundle.getString("authPromptTitle"),
-      strBundle.getFormattedString("authPromptText", [
-        gLdapServerURL.asciiHost,
-      ]),
-      gLdapServerURL.spec,
-      authPrompter.SAVE_PASSWORD_PERMANENTLY,
-      password
-    )
-  ) {
-    return password.value;
-  }
-  return null;
+  const rv = await authPrompter.asyncPromptPassword(
+    strBundle.getString("authPromptTitle"),
+    strBundle.getFormattedString("authPromptText", [gLdapServerURL.asciiHost]),
+    gLdapServerURL.spec,
+    authPrompter.SAVE_PASSWORD_PERMANENTLY,
+    { value: null }
+  );
+  return rv.ok ? rv.password : null;
 }
 
 /**

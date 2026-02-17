@@ -11,30 +11,14 @@ export class LDAPListenerBase {
    * @see nsILDAPMessageListener
    */
   async onLDAPInit() {
-    const outPassword = {};
-    if (this._directory.authDn && this._directory.saslMechanism != "GSSAPI") {
-      // If authDn is set, we're expected to use it to get a password.
-      const bundle = Services.strings.createBundle(
-        "chrome://mozldap/locale/ldap.properties"
-      );
-
-      const authPrompt = Services.ww.getNewAuthPrompter(
-        Services.wm.getMostRecentWindow(null)
-      );
-      await authPrompt.asyncPromptPassword(
-        bundle.GetStringFromName("authPromptTitle"),
-        bundle.formatStringFromName("authPromptText", [
-          this._directory.lDAPURL.host,
-        ]),
-        this._directory.lDAPURL.spec,
-        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
-        outPassword
-      );
-    }
     this._operation.init(this._connection, this, null);
 
     if (this._directory.saslMechanism != "GSSAPI") {
-      this._operation.simpleBind(outPassword.value);
+      // If authDn is set, we're expected to use it to get a password.
+      const password = this._directory.authDn
+        ? await this.#getLdapPassword()
+        : null;
+      this._operation.simpleBind(password);
       return;
     }
 
@@ -44,6 +28,32 @@ export class LDAPListenerBase {
       "GSSAPI",
       "sasl-gssapi"
     );
+  }
+
+  /**
+   * Returns the password stored in the password manager, or prompts the user if
+   * none stored yet.
+   *
+   * @returns {?string} The password, or null if password retrieval failed.
+   */
+  async #getLdapPassword() {
+    const bundle = Services.strings.createBundle(
+      "chrome://mozldap/locale/ldap.properties"
+    );
+
+    const authPrompt = Services.ww.getNewAuthPrompter(
+      Services.wm.getMostRecentWindow(null)
+    );
+    const rv = await authPrompt.asyncPromptPassword(
+      bundle.GetStringFromName("authPromptTitle"),
+      bundle.formatStringFromName("authPromptText", [
+        this._directory.lDAPURL.host,
+      ]),
+      this._directory.lDAPURL.spec,
+      Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+      { value: null }
+    );
+    return rv.ok ? rv.password : null;
   }
 
   /**
