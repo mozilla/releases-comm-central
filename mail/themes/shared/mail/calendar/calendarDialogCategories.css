@@ -23,10 +23,6 @@
   flex: 0 1 auto;
   overflow: hidden;
 
-  &:has(li) {
-    margin-block-end: calc(var(--space-base) + var(--space-step));
-  }
-
   li {
     display: inline-block;
     padding: var(--space-step) calc(2 * var(--space-step));
