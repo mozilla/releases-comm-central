@@ -10,7 +10,13 @@ var nsActEvent = Components.Constructor(
 );
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/activity.ftl"], true)
+);
 
 // This module provides a link between the pop3 service code and the activity
 // manager.
@@ -104,11 +110,9 @@ export var pop3DownloadModule = {
 
     let displayText;
     if (aNumMsgsDownloaded > 0) {
-      displayText = PluralForm.get(
-        aNumMsgsDownloaded,
-        this.getString("pop3EventStatusText")
-      );
-      displayText = displayText.replace("#1", aNumMsgsDownloaded);
+      displayText = lazy.l10n.formatValueSync("pop3-event-status-text", {
+        count: aNumMsgsDownloaded,
+      });
     } else {
       displayText = this.getString("pop3EventStatusTextNoMsgs");
     }

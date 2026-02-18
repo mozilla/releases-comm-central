@@ -3,14 +3,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
 var nsActEvent = Components.Constructor(
   "@mozilla.org/activity-event;1",
   "nsIActivityEvent",
   "init"
 );
 
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/activity.ftl"], true)
+);
 
 // This module provides a link between the move/copy code and the activity
 // manager.
@@ -74,15 +80,11 @@ export var moveCopyModule = {
       this.activityMgr.removeActivity(this.lastMessage.id);
     }
 
-    this.lastMessage = {};
-    let displayText = PluralForm.get(
-      displayCount,
-      this.getString("deletedMessages2")
+    const displayText = lazy.l10n.formatValueSync(
+      "deleted-messages-from-folder",
+      { count: displayCount, folderName: folder.localizedName }
     );
-    displayText = displayText.replace("#1", displayCount);
-    this.lastMessage.count = displayCount;
-    displayText = displayText.replace("#2", folder.localizedName);
-    this.lastMessage.folder = folder.localizedName;
+    this.lastMessage = { count: displayCount, folder: folder.localizedName };
 
     const statusText = folder.server.prettyName;
 
@@ -141,26 +143,20 @@ export var moveCopyModule = {
         statusText = folder.server.prettyName;
       }
 
-      this.lastMessage = {};
-      let displayText;
-      if (aMove) {
-        displayText = PluralForm.get(
-          displayCount,
-          this.getString("movedMessages")
-        );
-      } else {
-        displayText = PluralForm.get(
-          displayCount,
-          this.getString("copiedMessages")
-        );
-      }
+      const displayText = lazy.l10n.formatValueSync(
+        aMove ? "moved-messages-from-folder" : "copied-messages-from-folder",
+        {
+          count: displayCount,
+          source: folder.localizedName,
+          destination: aDestFolder.localizedName,
+        }
+      );
 
-      displayText = displayText.replace("#1", displayCount);
-      this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", folder.localizedName);
-      this.lastMessage.sourceFolder = folder.localizedName;
-      displayText = displayText.replace("#3", aDestFolder.localizedName);
-      this.lastMessage.destFolder = aDestFolder.localizedName;
+      this.lastMessage = {
+        count: displayCount,
+        sourceFolder: folder.localizedName,
+        destFolder: aDestFolder.localizedName,
+      };
 
       // create an activity event
       const event = new nsActEvent(
@@ -178,7 +174,7 @@ export var moveCopyModule = {
       }
       this.lastMessage.id = this.activityMgr.addActivity(event);
     } catch (e) {
-      this.log.error("Exception: " + e);
+      this.log.error("Move/copy FAILED: " + e, e);
     }
   },
 
@@ -340,19 +336,19 @@ export var moveCopyModule = {
         statusText = srcFolder.server.prettyName;
       }
 
-      this.lastMessage = {};
-      let displayText;
-      displayText = PluralForm.get(
-        displayCount,
-        this.getString("movedMessages")
+      const displayText = lazy.l10n.formatValueSync(
+        "moved-messages-from-folder",
+        {
+          count: displayCount,
+          source: srcFolder.localizedName,
+          destination: destFolder.localizedName,
+        }
       );
-
-      displayText = displayText.replace("#1", displayCount);
-      this.lastMessage.count = displayCount;
-      displayText = displayText.replace("#2", srcFolder.localizedName);
-      this.lastMessage.sourceFolder = srcFolder.localizedName;
-      displayText = displayText.replace("#3", destFolder.localizedName);
-      this.lastMessage.destFolder = destFolder.localizedName;
+      this.lastMessage = {
+        count: displayCount,
+        sourceFolder: srcFolder.localizedName,
+        destFolder: destFolder.localizedName,
+      };
 
       // create an activity event
       const event = new nsActEvent(
@@ -368,7 +364,7 @@ export var moveCopyModule = {
       event.addSubject(msgHdr.messageId);
       this.lastMessage.id = this.activityMgr.addActivity(event);
     } catch (e) {
-      this.log.error("Exception: " + e);
+      this.log.error("Incorporate moved FAILED: " + e, e);
     }
   },
 

@@ -19,8 +19,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
   GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["messenger/activity.ftl"], true)
+);
 
 /**
  * Gloda message indexer feedback.
@@ -158,17 +162,17 @@ export var glodaIndexerActivity = {
         aTotalItemNum == 0
           ? 100
           : parseInt((aItemNumber / aTotalItemNum) * 100);
-      // Note: we must replace the folder name placeholder last; otherwise,
-      // if the name happens to contain another one of the placeholders, we'll
-      // hork the name when replacing it.
-      statusText = this.getString(
-        aFolder ? "indexingFolderStatusExact" : "indexingStatusExact"
+      statusText = lazy.l10n.formatValueSync(
+        aFolder
+          ? "gloda-indexing-folder-status-exact"
+          : "gloda-indexing-status-exact",
+        {
+          count: aTotalItemNum,
+          msgNumber: aItemNumber + 1,
+          percentComplete,
+          folder: aFolder,
+        }
       );
-      statusText = lazy.PluralForm.get(aTotalItemNum, statusText)
-        .replace("#1", aItemNumber + 1)
-        .replace("#2", aTotalItemNum)
-        .replace("#3", percentComplete)
-        .replace("#4", aFolder);
     }
 
     this.currentJob.process.setProgress(statusText, aItemNumber, aTotalItemNum);
@@ -196,25 +200,20 @@ export var glodaIndexerActivity = {
       this.currentJob.folder &&
       totalItemNum > 0
     ) {
-      // Note: we must replace the folder name placeholder last; otherwise,
-      // if the name happens to contain another one of the placeholders, we'll
-      // hork the name when replacing it.
-      const displayText = lazy.PluralForm.get(
-        totalItemNum,
-        this.getString("indexedFolder")
-      )
-        .replace("#1", totalItemNum)
-        .replace("#2", this.currentJob.folder);
+      const displayText = lazy.l10n.formatValueSync("gloda-indexed-folder", {
+        count: totalItemNum,
+        folder: this.currentJob.folder,
+      });
 
       const endTime = new Date();
       const secondsElapsed = parseInt(
         (endTime - this.currentJob.startTime) / 1000
       );
 
-      const statusText = lazy.PluralForm.get(
-        secondsElapsed,
-        this.getString("indexedFolderStatus")
-      ).replace("#1", secondsElapsed);
+      const statusText = lazy.l10n.formatValueSync(
+        "gloda-indexed-folder-status",
+        { count: secondsElapsed }
+      );
 
       const event = new nsActEvent(
         displayText,
