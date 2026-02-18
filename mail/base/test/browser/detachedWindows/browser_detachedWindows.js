@@ -210,20 +210,24 @@ add_task(async function testSearchMessagesDialog() {
 
 add_task(async function testAddressBookTab() {
   info("Opening the Address Book");
-  window.toAddressBook();
-  let tab = tabmail.tabInfo[1];
-  await BrowserTestUtils.waitForEvent(
-    tab.browser,
-    "about-addressbook-ready",
-    true
-  );
-  await new Promise(resolve =>
-    tab.browser.contentWindow.setTimeout(resolve, 500)
-  );
+  const addressBookReady = (async () => {
+    const tabEvent = await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabOpen",
+      false,
+      event => event.detail.tabInfo.mode.type == "addressBookTab"
+    );
+    await BrowserTestUtils.waitForEvent(
+      tabEvent.detail.tabInfo.browser,
+      "about-addressbook-ready",
+      true
+    );
+  })();
+  await window.toAddressBook();
+  await addressBookReady;
 
   info("Closing the tab");
   tabmail.closeOtherTabs(0);
-  tab = null;
 
   await assertNoDetachedWindows();
 });

@@ -385,24 +385,50 @@ function openAboutDebugging(hash) {
   document.getElementById("tabmail").openTab("contentTab", { url });
 }
 
-function toOpenWindowByType(inType, uri) {
-  var topWindow = Services.wm.getMostRecentWindow(inType);
-  if (topWindow) {
-    topWindow.focus();
-    return topWindow;
-  }
-  return window.open(
-    uri,
-    "_blank",
-    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
-  );
-}
+/**
+ * Gets the most recent 3-pane messenger window, or opens a new one if none
+ * exists.
+ *
+ * If a new window is opened, this function ensures the window is fully
+ * initialized. If not, it asynchronously waits for the
+ * `mail-tabs-session-restored` notification.
+ *
+ * @returns {Promise<?Window>} A Promise that resolves to the messenger window
+ * object. Returns `null` if the window is restricted (e.g., a global overlay
+ * is active) or if the window is closed during initialization.
+ */
+async function toMessengerWindow() {
+  let messengerWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-function toMessengerWindow() {
-  return toOpenWindowByType(
-    "mail:3pane",
-    "chrome://messenger/content/messenger.xhtml"
-  );
+  if (messengerWindow) {
+    messengerWindow.focus();
+  } else {
+    messengerWindow = window.open(
+      "chrome://messenger/content/messenger.xhtml",
+      "_blank",
+      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
+    );
+    if (
+      messengerWindow.document.readyState != "complete" ||
+      messengerWindow.document.isUncommittedInitialDocument
+    ) {
+      await new Promise(resolve => {
+        Services.obs.addObserver(
+          {
+            observe(subject) {
+              if (subject == messengerWindow) {
+                Services.obs.removeObserver(this, "mail-tabs-session-restored");
+                resolve();
+              }
+            },
+          },
+          "mail-tabs-session-restored"
+        );
+      });
+    }
+  }
+
+  return messengerWindow.tabmail?.globalOverlay ? null : messengerWindow;
 }
 
 function focusOnMail(tabNo, event) {
@@ -434,24 +460,8 @@ function focusOnMail(tabNo, event) {
  *   opened.
  */
 async function toAddressBook(openArgs) {
-  const messengerWindow = toMessengerWindow();
-  if (messengerWindow.document.readyState != "complete") {
-    await new Promise(resolve => {
-      Services.obs.addObserver(
-        {
-          observe(subject) {
-            if (subject == messengerWindow) {
-              Services.obs.removeObserver(this, "mail-tabs-session-restored");
-              resolve();
-            }
-          },
-        },
-        "mail-tabs-session-restored"
-      );
-    });
-  }
-
-  if (messengerWindow.tabmail.globalOverlay) {
+  const messengerWindow = await toMessengerWindow();
+  if (!messengerWindow) {
     return null;
   }
 
@@ -472,21 +482,9 @@ async function toAddressBook(openArgs) {
  * Open the calendar.
  */
 async function toCalendar() {
-  const messengerWindow = toMessengerWindow();
-  if (messengerWindow.document.readyState != "complete") {
-    await new Promise(resolve => {
-      Services.obs.addObserver(
-        {
-          observe(subject) {
-            if (subject == messengerWindow) {
-              Services.obs.removeObserver(this, "mail-tabs-session-restored");
-              resolve();
-            }
-          },
-        },
-        "mail-tabs-session-restored"
-      );
-    });
+  const messengerWindow = await toMessengerWindow();
+  if (!messengerWindow) {
+    return null;
   }
 
   return new Promise(resolve => {
@@ -515,25 +513,8 @@ function showChatTab() {
  *  to open in about:import.
  */
 async function toImport(tabId = "start", sourceFile) {
-  const messengerWindow = toMessengerWindow();
-
-  if (messengerWindow.document.readyState != "complete") {
-    await new Promise(resolve => {
-      Services.obs.addObserver(
-        {
-          observe(subject) {
-            if (subject == messengerWindow) {
-              Services.obs.removeObserver(this, "mail-tabs-session-restored");
-              resolve();
-            }
-          },
-        },
-        "mail-tabs-session-restored"
-      );
-    });
-  }
-
-  if (messengerWindow.tabmail.globalOverlay) {
+  const messengerWindow = await toMessengerWindow();
+  if (!messengerWindow) {
     return;
   }
 

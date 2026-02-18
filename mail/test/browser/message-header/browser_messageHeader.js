@@ -17,9 +17,6 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
-var { promise_content_tab_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
-);
 var {
   assert_selected_and_displayed,
   be_in_folder,
@@ -593,12 +590,28 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   EventUtils.synthesizeMouseAtCenter(recipient.abIndicator, {}, aboutMessage);
   await panelOpened;
 
+  const addressBookReady = (async () => {
+    const tabEvent = await BrowserTestUtils.waitForEvent(
+      document.getElementById("tabmail").tabContainer,
+      "TabOpen",
+      false,
+      event => event.detail.tabInfo.mode.type == "addressBookTab"
+    );
+    await BrowserTestUtils.waitForEvent(
+      tabEvent.detail.tabInfo.browser,
+      "about-addressbook-ready",
+      true
+    );
+  })();
+
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("editContactPanelEditDetailsButton"),
     {},
     aboutMessage
   );
-  await promise_content_tab_load(undefined, "about:addressbook");
+
+  await addressBookReady;
+
   // TODO check the card.
   document.getElementById("tabmail").closeTab();
 });

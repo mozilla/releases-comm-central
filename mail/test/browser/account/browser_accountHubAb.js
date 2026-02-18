@@ -512,16 +512,25 @@ add_task(async function test_localAddressBookCreation() {
     "Continue should be enabled when name was input"
   );
 
+  const addressBookReady = (async () => {
+    const tabEvent = await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabOpen",
+      false,
+      event => event.detail.tabInfo.mode.type == "addressBookTab"
+    );
+    await BrowserTestUtils.waitForEvent(
+      tabEvent.detail.tabInfo.browser,
+      "about-addressbook-ready",
+      true
+    );
+  })();
+
   EventUtils.synthesizeMouseAtCenter(
     accountHub.querySelector("#addressBookFooter #forward"),
     {}
   );
 
-  const readyEvent = BrowserTestUtils.waitForEvent(
-    tabmail.currentTabInfo.browser,
-    "about-addressbook-ready",
-    true
-  );
   // Check existence of address book.
   const [addressBookDirectory] = await addressBookDirectoryPromise;
   Assert.equal(
@@ -537,7 +546,7 @@ add_task(async function test_localAddressBookCreation() {
     );
   });
 
-  await readyEvent;
+  await addressBookReady;
 
   const events = Glean.mail.accountHubLoaded.testGetValue();
   Assert.deepEqual(
