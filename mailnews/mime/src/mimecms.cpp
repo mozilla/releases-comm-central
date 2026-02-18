@@ -768,7 +768,11 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
   nsAutoCString partnum;
   partnum.Adopt(mime_part_address(data->self));
 
-  if (!data->skip_decoding && status == nsICMSMessageErrors::SUCCESS) {
+  // In some scenarios, despite !skip_decoding and despite
+  // decoder_context->Finish() returning success, content_info might
+  // still be null. (bug 2002546)
+  if (!data->skip_decoding && status == nsICMSMessageErrors::SUCCESS &&
+      data->content_info) {
     if (!strcmp(partnum.get(), "1")) {
       // no checks necessary
       thisPartIsAllowed = true;
