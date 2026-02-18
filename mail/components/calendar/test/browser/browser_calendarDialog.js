@@ -535,11 +535,7 @@ add_task(async function test_dialogDate() {
 
   Assert.equal(
     dateRow.getAttribute("repeats"),
-    recurrenceStringFromItem(
-      calendarEvent,
-      "calendar-event-dialog",
-      "ruleTooComplexSummary"
-    ),
+    recurrenceStringFromItem(calendarEvent, "recurrence-rule-too-complex"),
     "The repeat instructions should be transferred to the date row"
   );
 

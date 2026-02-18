@@ -31,7 +31,6 @@ var {
   countOccurrences,
   hasUnsupported,
 } = ChromeUtils.importESModule("resource:///modules/calendar/calRecurrenceUtils.sys.mjs");
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -2415,31 +2414,25 @@ function deleteAttachment() {
  */
 function deleteAllAttachments() {
   const documentLink = document.getElementById("attachment-link");
-  const itemCount = documentLink.getRowCount();
-  let canRemove = itemCount < 2;
-
-  if (itemCount > 1) {
-    const removeText = PluralForm.get(
-      itemCount,
-      cal.l10n.getString("calendar-event-dialog", "removeAttachmentsText")
-    );
-    const removeTitle = cal.l10n.getString("calendar-event-dialog", "removeCalendarsTitle");
-    canRemove = Services.prompt.confirm(
-      window,
-      removeTitle,
-      removeText.replace("#1", itemCount),
-      {}
-    );
+  const count = documentLink.getRowCount();
+  if (count == 0) {
+    return;
   }
 
-  if (canRemove) {
+  if (
+    Services.prompt.confirm(
+      window,
+      this.l10n.formatValueSync("prompt-remove-attachments-title"),
+      this.l10n.formatValueSync("prompt-remove-attachments-text", { count })
+    )
+  ) {
     while (documentLink.lastChild) {
       documentLink.lastChild.attachment = null;
       documentLink.lastChild.remove();
     }
     gAttachMap = {};
+    updateAttachment();
   }
-  updateAttachment();
 }
 
 /**

@@ -241,8 +241,7 @@ export class CalendarDialog extends PositionedDialog {
 
     const recurrence = recurrenceStringFromItem(
       event,
-      "calendar-event-dialog",
-      "ruleTooComplexSummary"
+      "recurrence-rule-too-complex"
     );
     if (recurrence) {
       dateRow.setAttribute("repeats", recurrence);

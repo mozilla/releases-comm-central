@@ -458,11 +458,7 @@
         this.querySelector(".reminder-row").removeAttribute("hidden");
       }
 
-      const recurrenceDetails = recurrenceStringFromItem(
-        item,
-        "calendar-event-dialog",
-        "ruleTooComplexSummary"
-      );
+      const recurrenceDetails = recurrenceStringFromItem(item, "recurrence-rule-too-complex");
       this.updateRecurrenceDetails(recurrenceDetails);
       this.updateAttendees(item);
 

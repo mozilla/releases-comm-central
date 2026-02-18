@@ -12,6 +12,16 @@ edit-event-dialog = Edit Event
 new-task-dialog = New Task
 edit-task-dialog = Edit Task
 
+# Remove attachments prompt.
+prompt-remove-attachments-title = Remove Attachments
+# LOCALIZATION NOTE (prompt-remove-attachments-text):
+#  $count will be replaced with number of attachments
+prompt-remove-attachments-text = {
+    $count ->
+        [one] Do you really want to remove { $count } attachment?
+        *[other] Do you really want to remove { $count } attachments?
+    }
+
 # Do you want to save changes?
 ask-save-title-event = Save Event
 ask-save-title-task = Save Task
