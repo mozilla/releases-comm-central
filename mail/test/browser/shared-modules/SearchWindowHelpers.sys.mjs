@@ -5,7 +5,6 @@
 import {
   get_about_3pane,
   mc,
-  right_click_on_folder,
 } from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
 import { promise_new_window } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
@@ -37,10 +36,25 @@ export async function open_search_window_from_context_menu(aFolder) {
   const win = get_about_3pane();
   const context = win.document.getElementById("folderPaneContext");
   const item = win.document.getElementById("folderPaneContext-searchMessages");
-  await right_click_on_folder(aFolder);
+
+  const folderTree = win.document.getElementById("folderTree");
+  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".container"),
+    { type: "contextmenu" },
+    win
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    win.document.getElementById("folderPaneContext"),
+    "shown"
+  );
 
   const searchPromise = promise_new_window("mailnews:search");
   context.activateItem(item);
+  await BrowserTestUtils.waitForPopupEvent(
+    win.document.getElementById("folderPaneContext"),
+    "hidden"
+  );
   return searchPromise;
 }
 

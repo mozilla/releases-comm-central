@@ -1039,32 +1039,6 @@ export async function select_shift_click_folder(aFolder) {
 }
 
 /**
- * Right click on the folder tree view. With any luck, this will have the
- * side-effect of opening up a pop-up which it is then on _your_ head to do
- * something with or close.  However, we have helpful popup function helpers
- * helpers because asuth's so nice.
- *
- * NOTE: The argument is a folder here, unlike in the message case, so beware.
- *
- * @returns {integer} The view index that you clicked on.
- */
-export async function right_click_on_folder(aFolder) {
-  const win = get_about_3pane();
-  const folderTree = win.document.getElementById("folderTree");
-  const shownPromise = BrowserTestUtils.waitForEvent(
-    win.document.getElementById("folderPaneContext"),
-    "popupshown"
-  );
-  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
-  EventUtils.synthesizeMouseAtCenter(
-    row.querySelector(".container"),
-    { type: "contextmenu" },
-    win
-  );
-  await shownPromise;
-}
-
-/**
  * Middle-click on the folder tree view, presumably opening a new folder tab.
  *
  * NOTE: The argument is a folder here, unlike in the message case, so beware.

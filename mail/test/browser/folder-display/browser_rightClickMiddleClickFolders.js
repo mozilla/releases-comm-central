@@ -20,9 +20,9 @@ var {
   close_popup,
   close_tab,
   create_folder,
+  get_about_3pane,
   middle_click_on_folder,
   reset_context_menu_background_tabs,
-  right_click_on_folder,
   select_click_folder,
   select_shift_click_folder,
   set_context_menu_background_tabs,
@@ -35,6 +35,29 @@ var { make_message_sets_in_folders } = ChromeUtils.importESModule(
 );
 
 var folderA, folderB, folderC;
+
+/**
+ * Right click on the folder tree view. With any luck, this will have the
+ * side-effect of opening up a pop-up which it is then on _your_ head to do
+ * something with or close.
+ *
+ * @param {nsIMsgFolder} aFolder - The folder to right click.
+ * @returns {integer} The view index that you clicked on.
+ */
+async function right_click_on_folder(aFolder) {
+  const win = get_about_3pane();
+  const folderTree = win.document.getElementById("folderTree");
+  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".container"),
+    { type: "contextmenu" },
+    win
+  );
+  await BrowserTestUtils.waitForPopupEvent(
+    win.document.getElementById("folderPaneContext"),
+    "shown"
+  );
+}
 
 add_setup(async function () {
   folderA = await create_folder("RightClickMiddleClickFoldersA");
