@@ -978,11 +978,9 @@ export const CalendarTestUtils = {
       }
 
       Assert.report(false, undefined, undefined, "Event dialog opened");
-      await TestUtils.waitForCondition(
-        () => Services.focus.activeWindow == win,
-        "event dialog active"
-      );
-
+      if (Services.focus.activeWindow != win) {
+        await BrowserTestUtils.waitForEvent(win, "activate");
+      }
       if (mode === "edit") {
         const iframe = win.document.getElementById("calendar-item-panel-iframe");
         await TestUtils.waitForCondition(
