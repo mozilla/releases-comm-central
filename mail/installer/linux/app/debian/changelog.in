@@ -1,4 +1,4 @@
-${PKG_NAME} (${PKG_VERSION}) UNRELEASED; urgency=medium
+${PKG_NAME} (1:${PKG_VERSION}) UNRELEASED; urgency=medium
 
   * N/A
 
