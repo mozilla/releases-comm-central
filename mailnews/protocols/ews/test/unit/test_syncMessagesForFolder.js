@@ -46,6 +46,29 @@ var incomingServer;
 
 const generator = new MessageGenerator();
 
+/**
+ * Helper to fetch the value of the first matching header in a IHeaderBlock,
+ * or null if none.
+ */
+function getHeader(headerBlock, name) {
+  for (let i = 0; i < headerBlock.numHeaders; ++i) {
+    if (name == headerBlock.name(i)) {
+      return headerBlock.value(i);
+    }
+  }
+  return null;
+}
+
+/**
+ * Helper to strip surrounding angle brackets from Message-Id.
+ * e.g.
+ *   "<foo@bar>" -> "foo@bar"
+ *   "1234@example.com" -> "1234@example.com"
+ */
+function deAngled(rawMessageId) {
+  return rawMessageId.replace(/<(.*)>/, "$1");
+}
+
 add_setup(async () => {
   do_get_profile();
 
@@ -104,8 +127,8 @@ add_task(async function testMessageBatching() {
   await listener._deferred.promise;
 
   Assert.deepEqual(
-    listener._createdItemIds,
-    messages.map(m => btoa(m.messageId)),
+    listener._created.length,
+    messages.length,
     "all of the created items should have been synced"
   );
   Assert.deepEqual(
@@ -114,12 +137,14 @@ add_task(async function testMessageBatching() {
     "no items should have been deleted"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.messageId),
-    messages.map(m => m.messageId),
+    listener._created.map(entry =>
+      deAngled(getHeader(entry.headers, "Message-Id"))
+    ),
+    messages.map(m => deAngled(m.messageId)),
     "headers with the correct values should have been created"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.subject),
+    listener._created.map(entry => getHeader(entry.headers, "Subject")),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
   );
@@ -147,14 +172,14 @@ add_task(async function testSyncChangesWithClient() {
   client.syncMessagesForFolder(listener, "inbox", null);
   await listener._deferred.promise;
 
-  Assert.deepEqual(
-    listener._createdItemIds,
-    messages.map(m => btoa(m.messageId)),
+  Assert.equal(
+    listener._created.length,
+    messages.length,
     "all of the created items should have been synced"
   );
-  Assert.deepEqual(
-    listener._deletedItemIds,
-    [],
+  Assert.equal(
+    listener._deletedItemIds.length,
+    0,
     "no items should have been deleted"
   );
   Assert.deepEqual(
@@ -163,19 +188,16 @@ add_task(async function testSyncChangesWithClient() {
     "no items should have been marked as read"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.messageId),
-    messages.map(m => m.messageId),
+    listener._created.map(entry =>
+      deAngled(getHeader(entry.headers, "Message-Id"))
+    ),
+    messages.map(m => deAngled(m.messageId)),
     "headers with the correct values should have been created"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.subject),
+    listener._created.map(entry => getHeader(entry.headers, "Subject")),
     messages.map(m => m.subject),
     "headers with the correct values should have been created"
-  );
-  Assert.deepEqual(
-    listener._deletedMessages.map(h => h.messageId),
-    [],
-    "no stored message should have been deleted from the store"
   );
   Assert.ok(
     listener._syncStateToken,
@@ -214,9 +236,9 @@ add_task(async function testSyncChangesWithClient() {
   client.syncMessagesForFolder(listener, "inbox", syncStateToken);
   await listener._deferred.promise;
 
-  Assert.deepEqual(
-    listener._createdItemIds,
-    [],
+  Assert.equal(
+    listener._created.length,
+    0,
     "no more items should have been created"
   );
   Assert.deepEqual(
@@ -229,24 +251,10 @@ add_task(async function testSyncChangesWithClient() {
     [{ ewsId: itemIdToMarkRead, readStatus: true }],
     "the read message should have been updated"
   );
-  Assert.deepEqual(
-    listener._savedHeaders.map(h => h.messageId),
-    [],
-    "no headers should have been created"
-  );
-  Assert.deepEqual(
-    listener._deletedMessages.map(h => h.messageId),
-    [messageIdToUpdate, messageIdToFlag],
-    "the updated messages should have been deleted from the store"
-  );
   Assert.equal(
-    listener._deletedMessages[0].subject,
-    "Scary Monster Under Your Bed",
-    "the updated message header should have been updated"
-  );
-  Assert.ok(
-    listener._deletedMessages[1].isFlagged,
-    "the flagged message header should have been marked flagged"
+    listener._deletedItemIds.length,
+    [messageIdToUpdate, messageIdToFlag].length,
+    "the updated messages should have been deleted from the store"
   );
   Assert.ok(
     listener._syncStateToken,
@@ -265,7 +273,7 @@ add_task(async function testSyncChangesWithClient() {
   await listener._deferred.promise;
 
   Assert.deepEqual(
-    listener._createdItemIds,
+    listener._created.map(entry => entry.ewsId),
     [itemIdToMove],
     "the moved item should have been created"
   );
@@ -280,12 +288,14 @@ add_task(async function testSyncChangesWithClient() {
     "no items should have been marked as read"
   );
   Assert.deepEqual(
-    listener._savedHeaders.map(h => h.messageId),
-    [movedMessage.messageId],
+    listener._created.map(entry =>
+      deAngled(getHeader(entry.headers, "Message-Id"))
+    ),
+    [deAngled(movedMessage.messageId)],
     "a header with the correct value should have been created"
   );
   Assert.deepEqual(
-    listener._deletedMessages.map(h => h.messageId),
+    listener._deletedItemIds,
     [],
     "no stored message should have been deleted from the store"
   );
@@ -299,58 +309,39 @@ class EwsMessageCallbackListener {
   QueryInterface = ChromeUtils.generateQI(["IEwsMessageSyncListener"]);
 
   constructor() {
-    this._createdItemIds = [];
+    this._created = [];
+    this._updated = [];
     this._deletedItemIds = [];
     this._readStatusUpdates = [];
-    this._savedHeaders = [];
-    this._deletedMessages = [];
+    this._syncStateToken = null;
     this._deferred = Promise.withResolvers();
   }
 
-  onMessageCreated(ewsId) {
-    this._createdItemIds.push(ewsId);
-    return {
-      QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
-      // Just enough to stop the test breaking.
-      markHasAttachments() {},
-      markRead() {},
-      markFlagged(value) {
-        this.isFlagged = value;
-      },
-      setStringProperty() {},
-    };
+  onMessageCreated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
+    this._created.push({
+      ewsId,
+      headers,
+      messageSize,
+      isRead,
+      isFlagged,
+      preview,
+    });
   }
-  onMessageUpdated(_ewsId) {
-    const hdr = {
-      QueryInterface: ChromeUtils.generateQI(["nsIMsgDBHdr"]),
-      // Just enough to stop the test breaking.
-      markHasAttachments() {},
-      markRead() {},
-      markFlagged(value) {
-        this.isFlagged = value;
-      },
-      setStringProperty() {},
-    };
-
-    this._deletedMessages.push(hdr);
-
-    return hdr;
+  onMessageUpdated(ewsId, headers, messageSize, isRead, isFlagged, preview) {
+    this._updated.push({
+      ewsId,
+      headers,
+      messageSize,
+      isRead,
+      isFlagged,
+      preview,
+    });
   }
   onReadStatusChanged(ewsId, readStatus) {
     this._readStatusUpdates.push({ ewsId, readStatus });
   }
   onMessageDeleted(ewsId) {
     this._deletedItemIds.push(ewsId);
-  }
-  onDetachedHdrPopulated(hdr) {
-    this._savedHeaders.push(hdr);
-  }
-  onExistingHdrChanged() {
-    Assert.greater(
-      this._deletedMessages.length,
-      0,
-      "commitChanges should only be called if there are updated messages"
-    );
   }
   onSyncStateTokenChanged(syncStateToken) {
     this._syncStateToken = syncStateToken;
@@ -406,6 +397,7 @@ add_task(async function testSyncChangesWithRealFolder() {
   const originalStoreToken = originalMessage.storeToken;
   Assert.ok(originalStoreToken, "the message should have been stored");
   const originalMsgSize = originalMessage.messageSize;
+
   Assert.equal(
     messages[5].toMessageString().length,
     originalMsgSize,

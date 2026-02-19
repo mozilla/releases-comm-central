@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-// #include <utility>
-
 #include "EwsMessageSync.h"
 #include "EwsFolder.h"
 #include "EwsListeners.h"
@@ -11,11 +9,14 @@
 #include "IEwsIncomingServer.h"
 #include "mozilla/Components.h"
 #include "nsAutoSyncState.h"
+#include "nsMsgDatabase.h"  // For ApplyRawHdrToDbHdr().
 #include "nsIMsgFolderNotificationService.h"
 #include "OfflineStorage.h"  // For LocalDeleteMessages().
 
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 constexpr auto kEwsIdProperty = "ewsId";
+
+mozilla::LazyLogModule gEwsLog("ews_xpcom");
 
 /**
  * Helper class for orchestrating a message sync operation for an EwsFolder.
@@ -75,6 +76,13 @@ constexpr auto kEwsIdProperty = "ewsId";
  * As this code evolves over time, this rationale should be re-evaluated.
  * This message sync code could be radically rewritten and nothing
  * outside this file needs to know.
+ *
+ * NOTE: X-Mozilla-Status/X-Mozilla-Status2 header fields in should be ignored
+ * in EWS! They are a pre-database remnant, added locally as a way to store
+ * flags on messages.
+ * Under EWS they _may_ still be locally added to messages when downloaded and
+ * written to the local mail store. But we don't want to trust those headers
+ * coming from a server - they could be maliciously crafted.
  */
 class EwsMessageSyncHandler : public IEwsMessageSyncListener,
                               IEwsFallibleOperationListener {
@@ -156,69 +164,126 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
   //
 
   NS_IMETHOD OnMessageCreated(const nsACString& ewsId,
-                              nsIMsgDBHdr** newHdr) override {
-    // If a message with this EWS ID already exists, bail out.
-    RefPtr<nsIMsgDBHdr> existingHeader;
-    nsresult rv =
-        mDB->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (existingHeader) {
-      return NS_ERROR_ILLEGAL_VALUE;
-    }
-
-    nsCOMPtr<nsIMsgDBHdr> newHeader;
-    rv = mDB->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = newHeader->SetStringProperty(kEwsIdProperty, ewsId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    newHeader.forget(newHdr);
-    return NS_OK;
-  };
-
-  NS_IMETHOD OnMessageUpdated(const nsACString& ewsId,
-                              nsIMsgDBHdr** hdr) override {
+                              IHeaderBlock* headerBlock, uint32_t messageSize,
+                              bool isRead, bool isFlagged,
+                              const nsACString& preview) override {
+    // If a message with this EWS ID already exists, log a warning and exit
+    // successfully.
     RefPtr<nsIMsgDBHdr> existingHdr;
     nsresult rv =
         mDB->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHdr));
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!existingHdr) {
-      return NS_ERROR_NOT_AVAILABLE;
+    if (existingHdr) {
+      // Not clear if this is something that we would have to deal with on a
+      // real server. But to be safe we'll log and ignore.
+      MOZ_LOG_FMT(gEwsLog, mozilla::LogLevel::Warning,
+                  "EwsMessageSync onMessageCreated() - message already exists "
+                  "(ewsId={})",
+                  ewsId);
+      return NS_OK;  // Keep running.
     }
 
-    // The message content might have changed (e.g. if a draft was updated), and
-    // there's no way for us to know for sure without re-downloading it. So
-    // let's delete its content from the message store so it can be
-    // re-downloaded later.
+    // Build up DB entry from header block.
+    RawHdr raw = ParseHeaderBlock(headerBlock);
+
+    // The headers _could_ include an `X-Mozilla-Status/Status2` field
+    // containing flags, but we should _actively_ ignore for it EWS.
+    raw.flags = 0;
+    if (isRead) {
+      raw.flags |= nsMsgMessageFlags::Read;
+    }
+    if (isFlagged) {
+      raw.flags |= nsMsgMessageFlags::Marked;
+    }
+
+    // Add to database.
+    nsCOMPtr<nsIMsgDBHdr> newHeader;
+    MOZ_TRY(mDB->AddMsgHdr(&raw, true, getter_AddRefs(newHeader)));
+
+    // Link the message to the server EwsId.
+    MOZ_TRY(newHeader->SetStringProperty(kEwsIdProperty, ewsId));
+
+    // Some non-RFC5322 details to mop up.
+    if (messageSize) {
+      MOZ_TRY(newHeader->SetMessageSize(messageSize));
+    }
+    if (!preview.IsEmpty()) {
+      MOZ_TRY(newHeader->SetStringProperty("preview", preview));
+    }
+
+    nsMsgKey newKey;
+    MOZ_TRY(newHeader->GetMessageKey(&newKey));
+    mNewMessages.AppendElement(newKey);
+
+    MOZ_TRY(mDB->Commit(nsMsgDBCommitType::kLargeCommit));
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    // Remember message for filtering at end of sync operation.
+    notifier->NotifyMsgAdded(newHeader);
+
+    return NS_OK;
+  };
+
+  NS_IMETHOD OnMessageUpdated(const nsACString& ewsId,
+                              IHeaderBlock* headerBlock, uint32_t messageSize,
+                              bool isRead, bool isFlagged,
+                              const nsACString& preview) override {
+    RefPtr<nsIMsgDBHdr> msgHdr;
+    nsresult rv = mDB->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!msgHdr) {
+      // An `Updated` before a `Created`? Something has gone pear-shaped.
+      // Let the operation know. It _might_ decide to continue, using the
+      // "Created" callback instead, or it might skip it.
+      return NS_MSG_MESSAGE_NOT_FOUND;
+    }
+
+    // If there's an offline copy of the raw message, delete it.
+    // The message content might have changed (e.g. if a draft was updated),
+    // and there's no way for us to know for sure without re-downloading it.
     uint32_t flags;
-    rv = existingHdr->GetFlags(&flags);
+    rv = msgHdr->GetFlags(&flags);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    if (!(flags & nsMsgMessageFlags::Offline)) {
-      // Bail early if there's nothing to remove.
-      existingHdr.forget(hdr);
-      return NS_OK;
+    if ((flags & nsMsgMessageFlags::Offline)) {
+      // Delete the message content from the local store.
+      nsCOMPtr<nsIMsgPluggableStore> store;
+      rv = mFolder->GetMsgStore(getter_AddRefs(store));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = store->DeleteMessages({msgHdr});
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      // Update the flags on the database entry to reflect its content is *not*
+      // stored offline anymore.
+      flags &= ~nsMsgMessageFlags::Offline;
     }
 
-    // Delete the message content from the local store.
-    nsCOMPtr<nsIMsgPluggableStore> store;
-    rv = mFolder->GetMsgStore(getter_AddRefs(store));
-    NS_ENSURE_SUCCESS(rv, rv);
+    // Apply updates to the nsIMsgHdr object.
+    RawHdr updated = ParseHeaderBlock(headerBlock);
 
-    rv = store->DeleteMessages({existingHdr});
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (isRead) {
+      flags |= nsMsgMessageFlags::Read;
+    } else {
+      flags &= ~nsMsgMessageFlags::Read;
+    }
+    if (isFlagged) {
+      flags |= nsMsgMessageFlags::Marked;
+    } else {
+      flags &= ~nsMsgMessageFlags::Marked;
+    }
+    updated.flags = flags;  // Ignore any X-Mozilla-Status values.
 
-    // Update the flags on the database entry to reflect its content is *not*
-    // stored offline anymore. We don't commit right now, but the expectation is
-    // that the consumer will call `CommitChanges()` once it's done processing
-    // the current change.
-    uint32_t unused;
-    rv = existingHdr->AndFlags(~nsMsgMessageFlags::Offline, &unused);
-    NS_ENSURE_SUCCESS(rv, rv);
+    MOZ_TRY(ApplyRawHdrToDbHdr(updated, msgHdr));
 
-    existingHdr.forget(hdr);
+    if (messageSize) {
+      MOZ_TRY(msgHdr->SetMessageSize(messageSize));
+    }
+    if (!preview.IsEmpty()) {
+      MOZ_TRY(msgHdr->SetStringProperty("preview", preview));
+    }
 
+    MOZ_TRY(mDB->Commit(nsMsgDBCommitType::kLargeCommit));
     return NS_OK;
   };
 
@@ -256,37 +321,6 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     return LocalDeleteMessages(mFolder, {existingHeader});
   };
 
-  NS_IMETHOD OnDetachedHdrPopulated(nsIMsgDBHdr* hdr) override {
-    // If New flag is not set, it won't be added to the databases list of
-    // new messages (and so won't be filtered/classified). But we'll treat
-    // read messages as old.
-    uint32_t flags;
-    nsresult rv = hdr->GetFlags(&flags);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!(flags & nsMsgMessageFlags::Read)) {
-      flags |= nsMsgMessageFlags::New;
-      hdr->SetFlags(flags);
-      mNewMessages.AppendElement(hdr);
-    }
-
-    nsCOMPtr<nsIMsgDBHdr> liveHdr;
-    rv = mDB->AttachHdr(hdr, true, getter_AddRefs(liveHdr));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-        mozilla::components::FolderNotification::Service();
-
-    // Remember message for filtering at end of sync operation.
-    notifier->NotifyMsgAdded(liveHdr);
-
-    return NS_OK;
-  };
-
-  NS_IMETHOD OnExistingHdrChanged() override {
-    return mDB->Commit(nsMsgDBCommitType::kLargeCommit);
-  };
-
   NS_IMETHOD OnSyncStateTokenChanged(
       const nsACString& syncStateToken) override {
     return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
@@ -294,7 +328,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
 
   // Called when the operation succeeds.
   NS_IMETHOD OnSyncComplete() override {
-    ReportResult(NS_OK);
+    mOnStop(NS_OK, mNewMessages);
     return NS_OK;
   }
 
@@ -305,28 +339,17 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
   // Called if sync operation fails.
   NS_IMETHOD OnOperationFailure(nsresult status) override {
     MOZ_ASSERT(NS_FAILED(status));
-    ReportResult(status);
+    // Even if the operation fails some messages may have already been added
+    // to the database and the folder should be told about them.
+    mOnStop(status, mNewMessages);
     return NS_OK;
   }
 
  private:
-  // Helper to report both success and failure.
-  // Even if the operation fails some messages may have already been added
-  // to the database and the folder should be told about them.
-  void ReportResult(nsresult status) {
-    nsTArray<nsMsgKey> keys(mNewMessages.Length());
-    for (nsIMsgDBHdr* hdr : mNewMessages) {
-      nsMsgKey key;
-      hdr->GetMessageKey(&key);
-      MOZ_ASSERT(key != nsMsgKey_None);
-      keys.AppendElement(key);
-    }
-    mOnStop(status, keys);
-  }
-
   RefPtr<EwsFolder> mFolder;
   RefPtr<nsIMsgDatabase> mDB;
-  nsTArray<RefPtr<nsIMsgDBHdr>> mNewMessages;
+
+  nsTArray<nsMsgKey> mNewMessages;
   std::function<void()> mOnStart;
   std::function<void(nsresult, nsTArray<nsMsgKey> const&)> mOnStop;
 };
