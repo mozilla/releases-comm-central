@@ -8,7 +8,7 @@ rust-version.workspace = true
 async-channel = "2.5.0"
 base64 = "0.21.3"
 cstr = "0.2"
-ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "e872cae86f46d984f22afe9ab2aaa05f972488d4", version = "0.1.0", features = [
+ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "3553c0b35b78c4e529cf8f563e0b3220f9edabed", version = "0.1.0", features = [
     "interop",
 ] }
 firefox-on-glean = { version = "0.1.0", path = "../../../toolkit/components/glean/api" }

@@ -57,4 +57,4 @@ features = [
 [dependencies.xml_struct]
 version = "0.1.0"
 git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "5b42f8d0d262bad2c2ff697d5a229b5187625022"
+rev = "9ebff0dfc395f417bef0e7dca9b1fceb25cea2e3"

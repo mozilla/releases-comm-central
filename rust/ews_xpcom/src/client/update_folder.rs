@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use ews::{
     BaseFolderId, Folder, Operation, OperationResponse, PathToElement,
-    update_folder::{FolderChange, FolderChanges, UpdateFolder, UpdateFolderResponse, Updates},
+    update_folder::{FolderChange, FolderChanges, UpdateFolder, Updates},
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
@@ -17,8 +17,6 @@ use super::{
     ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
     single_response_or_error,
 };
-
-use crate::macros::queue_operation;
 
 struct DoUpdateFolder {
     pub folder_id: String,
@@ -60,8 +58,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             },
         };
 
-        let rcv = queue_operation!(client, UpdateFolder, update_folder, Default::default());
-        let response = rcv.await??;
+        let response = client
+            .enqueue_and_send(update_folder, Default::default())
+            .await?;
 
         let response_messages = response.into_response_messages();
         let response_message = single_response_or_error(response_messages)?;

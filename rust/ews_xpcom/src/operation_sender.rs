@@ -4,7 +4,10 @@
 
 use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc};
 
-use ews::{OperationResponse, ResponseClass, response::ResponseError, soap};
+use ews::{
+    OperationResponse, ResponseClass, response::ResponseError,
+    server_version::ExchangeServerVersion, soap,
+};
 use mailnews_ui_glue::{
     AuthErrorOutcome, handle_auth_failure, handle_transport_sec_failure,
     maybe_handle_connection_error, report_connection_success,
@@ -111,6 +114,10 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         })
     }
 
+    pub fn server_version(&self) -> ExchangeServerVersion {
+        self.version_handler.get_version()
+    }
+
     /// Returns the [`Url`] currently used as the endpoint to send requests to.
     pub fn url(&self) -> Url {
         (*self.endpoint).clone().into_inner()
@@ -138,6 +145,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                             Some(new_token)
                         }
                         AcquireOutcome::Failure(shared) => {
+                            log::debug!("early failure: waiting for another runner to handle");
                             shared.await?;
                             None
                         }
@@ -184,6 +192,9 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                             Some(new_token)
                         }
                         AcquireOutcome::Failure(shared) => {
+                            log::debug!(
+                                "failure from envelope: waiting for another runner to handle"
+                            );
                             shared.await?;
                             None
                         }

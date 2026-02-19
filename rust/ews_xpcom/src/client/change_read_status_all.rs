@@ -5,8 +5,7 @@
 use std::sync::Arc;
 
 use ews::{
-    BaseFolderId, Operation, OperationResponse,
-    mark_all_read::{MarkAllItemsAsRead, MarkAllItemsAsReadResponse},
+    BaseFolderId, Operation, OperationResponse, mark_all_read::MarkAllItemsAsRead,
     server_version::ExchangeServerVersion,
 };
 use nsstring::nsCString;
@@ -16,12 +15,9 @@ use protocol_shared::safe_xpcom::{
 };
 use thin_vec::ThinVec;
 
-use crate::{
-    client::{
-        ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
-        single_response_or_error,
-    },
-    macros::queue_operation,
+use crate::client::{
+    ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
+    single_response_or_error,
 };
 
 struct DoChangeReadStatusAll {
@@ -68,13 +64,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
             folder_ids,
         };
 
-        let rcv = queue_operation!(
-            client,
-            MarkAllItemsAsRead,
-            mark_all_items,
-            Default::default()
-        );
-        let response = rcv.await??;
+        let response = client
+            .enqueue_and_send(mark_all_items, Default::default())
+            .await?;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.

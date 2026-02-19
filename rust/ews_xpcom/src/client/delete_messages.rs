@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use ews::{
     BaseItemId, DeleteType, Operation, OperationResponse,
-    delete_item::{DeleteItem, DeleteItemResponse},
+    delete_item::DeleteItem,
     response::{ResponseCode, ResponseError},
 };
 use nsstring::nsCString;
@@ -20,8 +20,6 @@ use super::{
     ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
     validate_response_message_count,
 };
-
-use crate::macros::queue_operation;
 
 struct DoDeleteMessages {
     pub ews_ids: ThinVec<nsCString>,
@@ -53,8 +51,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             suppress_read_receipts: None,
         };
 
-        let rcv = queue_operation!(client, DeleteItem, delete_item, Default::default());
-        let response = rcv.await??;
+        let response = client
+            .enqueue_and_send(delete_item, Default::default())
+            .await?;
 
         // Make sure we got the amount of response messages matches the amount
         // of messages we requested to have deleted.

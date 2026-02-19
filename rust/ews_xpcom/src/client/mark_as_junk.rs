@@ -5,9 +5,7 @@
 use std::sync::Arc;
 
 use ews::{
-    BaseItemId, Operation, OperationResponse,
-    mark_as_junk::{MarkAsJunk, MarkAsJunkResponse},
-    move_item::MoveItem,
+    BaseItemId, Operation, OperationResponse, mark_as_junk::MarkAsJunk, move_item::MoveItem,
     server_version::ExchangeServerVersion,
 };
 use nsstring::nsCString;
@@ -15,13 +13,10 @@ use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
 use thin_vec::ThinVec;
 
-use crate::{
-    client::{
-        ServerType, XpComEwsClient, XpComEwsError,
-        copy_move_operations::move_generic::{CopyMoveSuccess, RequiresResync},
-        process_response_message_class, validate_response_message_count,
-    },
-    macros::queue_operation,
+use crate::client::{
+    ServerType, XpComEwsClient, XpComEwsError,
+    copy_move_operations::move_generic::{CopyMoveSuccess, RequiresResync},
+    process_response_message_class, validate_response_message_count,
 };
 
 struct DoMarkAsJunk {
@@ -60,8 +55,9 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
                 item_ids,
             };
 
-            let rcv = queue_operation!(client, MarkAsJunk, mark_as_junk, Default::default());
-            let response = rcv.await??;
+            let response = client
+                .enqueue_and_send(mark_as_junk, Default::default())
+                .await?;
 
             let response_messages = response.into_response_messages();
             validate_response_message_count(&response_messages, self.ews_ids.len())?;

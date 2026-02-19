@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use ews::{Operation, OperationResponse, get_folder::GetFolderResponse};
+use ews::{Operation, OperationResponse};
 use protocol_shared::{
     EXCHANGE_ROOT_FOLDER,
     client::DoOperation,
@@ -17,7 +17,7 @@ use super::{
     validate_get_folder_response_message,
 };
 
-use crate::{macros::queue_operation, operation_sender::AuthFailureBehavior};
+use crate::operation_sender::AuthFailureBehavior;
 
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,
@@ -48,18 +48,16 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
             }],
         };
 
-        let rcv = queue_operation!(
-            client,
-            GetFolder,
-            get_root_folder,
-            // Make authentication failure silent, since all we want to know is
-            // whether our credentials are valid.
-            OperationRequestOptions {
-                auth_failure_behavior: AuthFailureBehavior::Silent,
-                ..Default::default()
-            }
-        );
-        let response_messages = rcv.await??.into_response_messages();
+        let response_messages = client
+            .enqueue_and_send(
+                get_root_folder,
+                OperationRequestOptions {
+                    auth_failure_behavior: AuthFailureBehavior::Silent,
+                    ..Default::default()
+                },
+            )
+            .await?
+            .into_response_messages();
 
         // Get the first (and only) response message so we can inspect it.
         let response_class = single_response_or_error(response_messages)?;

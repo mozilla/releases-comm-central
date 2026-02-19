@@ -24,21 +24,6 @@ impl XmlSerialize for str {
     }
 }
 
-/// Serializes a reference to a string as a text content node.
-impl<T> XmlSerialize for &T
-where
-    T: AsRef<str>,
-{
-    fn serialize_child_nodes<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
-    where
-        W: std::io::Write,
-    {
-        writer.write_event(Event::Text(BytesText::new(self.as_ref())))?;
-
-        Ok(())
-    }
-}
-
 /// Serializes a string as a text content node.
 impl XmlSerialize for String {
     fn serialize_child_nodes<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
@@ -152,20 +137,36 @@ where
     }
 }
 
+/// Serializes a `&T` using the implementation for the non-borrowed type.
+impl<T> XmlSerialize for &T
+where
+    T: XmlSerialize,
+{
+    fn serialize_child_nodes<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: std::io::Write,
+    {
+        T::serialize_child_nodes(self, writer)
+    }
+
+    fn serialize_as_element<W>(&self, writer: &mut Writer<W>, name: &str) -> Result<(), Error>
+    where
+        W: std::io::Write,
+    {
+        // The default implementation for `serialize_as_element` creates a
+        // top-level element with `name` and no attribute. This means top-level
+        // proc-macro attributes such as `default_ns` get ignored. Instead, we
+        // want to forward the call to the implementation for `T`, which may be
+        // the default one OR one generated with a `#[derive()]` macro, which
+        // might include additional information.
+        T::serialize_as_element(self, writer, name)
+    }
+}
+
 /// Serializes a string as an XML attribute value.
 impl XmlSerializeAttr for str {
     fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
         start_tag.push_attribute((name, self));
-    }
-}
-
-/// Serializes a reference to a string as an XML attribute value.
-impl<T> XmlSerializeAttr for &T
-where
-    T: AsRef<str>,
-{
-    fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
-        start_tag.push_attribute((name, self.as_ref()));
     }
 }
 
@@ -203,10 +204,20 @@ where
     T: XmlSerializeAttr,
 {
     fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
-        match self {
-            Some(value) => value.serialize_as_attribute(start_tag, name),
-            None => (),
+        if let Some(value) = self {
+            value.serialize_as_attribute(start_tag, name)
         }
+    }
+}
+
+/// Serializes a `&T` as an attribute using the implementation for the
+/// non-borrowed type.
+impl<T> XmlSerializeAttr for &T
+where
+    T: XmlSerializeAttr,
+{
+    fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
+        T::serialize_as_attribute(self, start_tag, name);
     }
 }
 

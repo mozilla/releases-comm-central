@@ -5,7 +5,7 @@
 use ews::{
     ItemShape, Operation, OperationResponse,
     server_version::ExchangeServerVersion,
-    sync_folder_items::{self, SyncFolderItems, SyncFolderItemsResponse},
+    sync_folder_items::{self, SyncFolderItems},
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::SafeEwsMessageSyncListener;
@@ -18,8 +18,6 @@ use super::{
     BaseFolderId, BaseShape, ServerType, XpComEwsClient, XpComEwsError,
     process_response_message_class, single_response_or_error,
 };
-
-use crate::macros::queue_operation;
 
 struct DoSyncMessagesForFolder<'a> {
     pub listener: &'a SafeEwsMessageSyncListener,
@@ -60,8 +58,10 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 sync_scope: None,
             };
 
-            let rcv = queue_operation!(client, SyncFolderItems, op, Default::default());
-            let response_messages = rcv.await??.into_response_messages();
+            let response_messages = client
+                .enqueue_and_send(op, Default::default())
+                .await?
+                .into_response_messages();
 
             let response_class = single_response_or_error(response_messages)?;
             let message = process_response_message_class(SyncFolderItems::NAME, response_class)?;

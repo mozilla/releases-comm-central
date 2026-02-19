@@ -156,7 +156,7 @@ pub struct ExtendedFieldURI {
 
     /// The name of a property within a specified property set.
     #[xml_struct(attribute)]
-    #[serde(rename = "@PropertyTag")]
+    #[serde(rename = "@PropertyName")]
     pub property_name: Option<String>,
 
     /// The dispatch ID of a property within a specified property set.

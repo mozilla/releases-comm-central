@@ -27,6 +27,17 @@ pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents + std::fmt::Deb
     const NAME: &'static str;
 }
 
+// Blanket implementation for borrows, so the consumer does not need full
+// ownership of the struct instance to use the trait.
+impl<T> Operation for &T
+where
+    T: Operation,
+{
+    type Response = T::Response;
+
+    const NAME: &'static str = <T as Operation>::NAME;
+}
+
 /// A marker trait for EWS operation responses.
 ///
 /// Types implementing this trait may appear in responses from EWS after
@@ -57,5 +68,14 @@ pub(super) mod sealed {
         /// The name of the element enclosing the contents of this structure
         /// when represented in XML.
         const NAME: &'static str;
+    }
+
+    // Blanket implementation for borrows, so the consumer does not need full
+    // ownership of the struct instance to generate SOAP envelopes.
+    impl<T> EnvelopeBodyContents for &T
+    where
+        T: EnvelopeBodyContents,
+    {
+        const NAME: &'static str = T::NAME;
     }
 }

@@ -14,7 +14,7 @@ use oneshot::RecvError;
 use protocol_shared::error::ProtocolError;
 use thiserror::Error;
 
-use crate::operation_queue::QueuedOperation;
+use crate::{client::ServerType, operation_queue::ErasedQueuedOperation};
 
 /// Error types for EWS operations.
 #[derive(Debug, Error)]
@@ -45,8 +45,10 @@ pub(crate) enum XpComEwsError {
     #[error("async communication error: could not receive the operation response: {0}")]
     OperationReceiver(#[from] RecvError),
 
-    #[error("async communication error: could not send operation to queue: {0}")]
-    QueueSender(#[from] SendError<QueuedOperation>),
+    #[error(
+        "async communication error: could not send operation to queue: sending into a closed channel"
+    )]
+    QueueSender,
 }
 
 impl From<&XpComEwsError> for nsresult {
@@ -86,5 +88,14 @@ impl<'a> TryFrom<&'a XpComEwsError> for &'a moz_http::Error {
             XpComEwsError::Protocol(ProtocolError::Http(err)) => Ok(err),
             _ => Err(()),
         }
+    }
+}
+
+impl<ServerT: ServerType + 'static> From<SendError<Box<dyn ErasedQueuedOperation<ServerT>>>>
+    for XpComEwsError
+{
+    // `SendError` is only returned in one case: the channel is closed.
+    fn from(_: SendError<Box<dyn ErasedQueuedOperation<ServerT>>>) -> Self {
+        XpComEwsError::QueueSender
     }
 }

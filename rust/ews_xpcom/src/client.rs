@@ -18,15 +18,16 @@ mod sync_folder_hierarchy;
 mod sync_messages_for_folder;
 mod update_folder;
 
-use std::{collections::VecDeque, sync::Arc};
+use std::{cell::Cell, collections::VecDeque, fmt::Debug, sync::Arc};
 
 use ews::{
     BaseFolderId, BaseItemId, BaseShape, Folder, FolderId, FolderShape, ItemResponseMessage,
     ItemShape, Operation, OperationResponse, PathToElement, RealItem,
-    create_item::{CreateItem, CreateItemResponse},
+    create_item::CreateItem,
     get_folder::{GetFolder, GetFolderResponseMessage},
-    get_item::{GetItem, GetItemResponse},
+    get_item::GetItem,
     response::{ResponseClass, ResponseError},
+    soap,
     update_item::{UpdateItem, UpdateItemResponse},
 };
 use mail_parser::MessageParser;
@@ -40,8 +41,7 @@ use xpcom::{RefCounted, RefPtr};
 
 use crate::{
     error::XpComEwsError,
-    macros::queue_operation,
-    operation_queue::OperationQueue,
+    operation_queue::{OperationQueue, QueuedOperation},
     operation_sender::{
         OperationRequestOptions, OperationSender, TransportSecFailureBehavior,
         observable_server::ObservableServer,
@@ -71,6 +71,93 @@ pub(crate) trait ServerType:
 impl<T> ServerType for T where
     T: AuthenticationProvider + UserInteractiveServer + ObservableServer + RefCounted
 {
+}
+
+/// The result from an EWS operation, containing either the operation's response
+/// or an error.
+type EwsOperationResult<T> = Result<<T as Operation>::Response, XpComEwsError>;
+
+/// The EWS implementation of the [`QueuedOperation`] trait. It wraps around a
+/// type that implements [`ews::Operation`].
+pub struct QueuedEwsOperation<Op: Operation> {
+    inner: Op,
+    sender: Cell<Option<oneshot::Sender<EwsOperationResult<Op>>>>,
+    options: OperationRequestOptions,
+}
+
+impl<Op: Operation> QueuedEwsOperation<Op> {
+    /// Create a new [`QueuedEwsOperation`] and return it, along a channel
+    /// [`Receiver`] that will be used to communicate the operation's result to
+    /// the consumer.
+    ///
+    /// [`Receiver`]: oneshot::Receiver
+    pub fn new(
+        op: Op,
+        options: OperationRequestOptions,
+    ) -> (Self, oneshot::Receiver<EwsOperationResult<Op>>) {
+        let (snd, rcv) = oneshot::channel();
+
+        let op = QueuedEwsOperation {
+            inner: op,
+            sender: Cell::new(Some(snd)),
+            options,
+        };
+
+        (op, rcv)
+    }
+
+    /// Communicates the given [`EwsOperationResult`] to the listener through
+    /// the channel that was created by [`QueuedEwsOperation::new`].
+    fn send_result(&self, res: EwsOperationResult<Op>) {
+        match self.sender.take() {
+            Some(sender) => {
+                if let Err(err) = sender.send(res) {
+                    log::error!("error communicating the result of a queued request: {err}")
+                }
+            }
+            None => log::error!(
+                "trying to send result for operation {} on already used oneshot channel",
+                <Op as Operation>::NAME
+            ),
+        }
+    }
+}
+
+impl<Op, ServerT> QueuedOperation<ServerT> for QueuedEwsOperation<Op>
+where
+    Op: Operation,
+    ServerT: ServerType + 'static,
+{
+    async fn perform(&self, op_sender: Arc<OperationSender<ServerT>>) {
+        let op_name = <Op as Operation>::NAME;
+        let version = op_sender.server_version();
+        let envelope = soap::Envelope {
+            headers: vec![soap::Header::RequestServerVersion { version }],
+            body: &self.inner,
+        };
+        let request_body = match envelope.as_xml_document() {
+            Ok(body) => body,
+            Err(err) => return self.send_result(Err(err.into())),
+        };
+
+        let res = op_sender
+            .make_and_send_request(op_name, &request_body, &self.options)
+            .await;
+
+        self.send_result(res);
+    }
+}
+
+// `Cell` only implements `Debug` if the inner type also implements `Copy`
+// (which isn't the case here), so we need a custom implementation that leaves
+// it out of the debug output.
+impl<Op: Operation> Debug for QueuedEwsOperation<Op> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("QueuedEwsOperation")
+            .field("inner", &self.inner)
+            .field("options", &self.options)
+            .finish()
+    }
 }
 
 pub(crate) struct XpComEwsClient<ServerT: ServerType + 'static> {
@@ -131,6 +218,20 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         self.op_sender.url()
     }
 
+    /// `Op` needs a static lifetime, because it needs to be dispatch-able to a
+    /// runner at *some* point in the future. In practice, this mainly means the
+    /// underlying implementation must have ownership of its own data (or only
+    /// borrow long-lived objects).
+    pub(crate) async fn enqueue_and_send<Op: Operation + 'static>(
+        &self,
+        op: Op,
+        options: OperationRequestOptions,
+    ) -> Result<Op::Response, XpComEwsError> {
+        let (queued_op, rcv) = QueuedEwsOperation::new(op, options);
+        self.queue.enqueue(Box::new(queued_op)).await?;
+        rcv.await?
+    }
+
     /// Fetches items from the remote Exchange server.
     async fn get_items<IdColl>(
         &self,
@@ -185,8 +286,7 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
                 item_ids: batch_ids,
             };
 
-            let rcv = queue_operation!(self, GetItem, op, Default::default());
-            let response = rcv.await??;
+            let response = self.enqueue_and_send(op, Default::default()).await?;
 
             for response_message in response.into_response_messages() {
                 let message = process_response_message_class(GetItem::NAME, response_message)?;
@@ -219,17 +319,15 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         create_item: CreateItem,
         transport_sec_failure_behavior: TransportSecFailureBehavior,
     ) -> Result<ItemResponseMessage, XpComEwsError> {
-        let rcv = queue_operation!(
-            self,
-            CreateItem,
-            create_item,
-            OperationRequestOptions {
-                transport_sec_failure_behavior,
-                ..Default::default()
-            }
-        );
-
-        let response = rcv.await??;
+        let response = self
+            .enqueue_and_send(
+                create_item,
+                OperationRequestOptions {
+                    transport_sec_failure_behavior,
+                    ..Default::default()
+                },
+            )
+            .await?;
 
         // We have only sent one message, therefore the response should only
         // contain one response message.
@@ -248,8 +346,9 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
     ) -> Result<UpdateItemResponse, XpComEwsError> {
         let expected_response_count = update_item.item_changes.len();
 
-        let rcv = queue_operation!(self, UpdateItem, update_item, Default::default());
-        let response = rcv.await??;
+        let response = self
+            .enqueue_and_send(update_item, Default::default())
+            .await?;
 
         // Get all response messages.
         let response_messages = response.response_messages();

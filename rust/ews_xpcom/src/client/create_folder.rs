@@ -4,16 +4,11 @@
 
 use std::sync::Arc;
 
-use ews::{
-    BaseFolderId, Folder, Operation, OperationResponse,
-    create_folder::{CreateFolder, CreateFolderResponse},
-};
+use ews::{BaseFolderId, Folder, Operation, OperationResponse, create_folder::CreateFolder};
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{
     SafeEwsSimpleOperationListener, SafeListener, UseLegacyFallback,
 };
-
-use crate::macros::queue_operation;
 
 use super::{
     ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
@@ -51,8 +46,7 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError> fo
             }],
         };
 
-        let rcv = queue_operation!(client, CreateFolder, op, Default::default());
-        let response = rcv.await??;
+        let response = client.enqueue_and_send(op, Default::default()).await?;
 
         // Validate the response against our request params and known/assumed
         // constraints on response shape.

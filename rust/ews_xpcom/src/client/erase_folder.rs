@@ -7,8 +7,8 @@ mod empty_folder;
 
 use ews::{
     BaseFolderId, DeleteType, Operation, OperationResponse,
-    delete_folder::{DeleteFolder, DeleteFolderResponse},
-    empty_folder::{EmptyFolder, EmptyFolderResponse},
+    delete_folder::DeleteFolder,
+    empty_folder::EmptyFolder,
     response::{ResponseCode, ResponseError},
 };
 use protocol_shared::client::DoOperation;
@@ -19,18 +19,11 @@ use std::marker::PhantomData;
 
 use super::{ServerType, XpComEwsClient, XpComEwsError, process_response_message_class};
 
-use crate::macros::queue_operation;
-
 /// Marker trait for [`DeleteFolder`] and [`EmptyFolder`], which are nearly
 /// identical in their purpose and implementation, differing primarily in
 /// whether the target folder itself is removed.
 trait EraseFolder: Operation {
-    /// Pushes the current operation to the back of the client, and waits for a
-    /// response.
-    async fn queue_operation<ServerT: ServerType>(
-        client: &XpComEwsClient<ServerT>,
-        folder_ids: Vec<BaseFolderId>,
-    ) -> Result<Self::Response, XpComEwsError>;
+    fn new(folder_ids: Vec<BaseFolderId>) -> Self;
 }
 
 struct DoEraseFolder<Op: EraseFolder> {
@@ -58,7 +51,8 @@ impl<ServerT: ServerType, Op: EraseFolder + 'static>
             })
             .collect();
 
-        let response = Op::queue_operation(client, base_folder_ids).await?;
+        let op = Op::new(base_folder_ids);
+        let response = client.enqueue_and_send(op, Default::default()).await?;
 
         let response_messages = response.into_response_messages();
         let name = <Self as DoOperation<XpComEwsClient<ServerT>, _>>::NAME;
@@ -93,34 +87,20 @@ impl<ServerT: ServerType, Op: EraseFolder + 'static>
 }
 
 impl EraseFolder for DeleteFolder {
-    async fn queue_operation<ServerT: ServerType>(
-        client: &XpComEwsClient<ServerT>,
-        folder_ids: Vec<BaseFolderId>,
-    ) -> Result<Self::Response, XpComEwsError> {
-        let op = DeleteFolder {
+    fn new(folder_ids: Vec<BaseFolderId>) -> Self {
+        DeleteFolder {
             delete_type: DeleteType::HardDelete,
             folder_ids,
-        };
-
-        let rcv = queue_operation!(client, DeleteFolder, op, Default::default());
-
-        rcv.await?
+        }
     }
 }
 
 impl EraseFolder for EmptyFolder {
-    async fn queue_operation<ServerT: ServerType>(
-        client: &XpComEwsClient<ServerT>,
-        folder_ids: Vec<BaseFolderId>,
-    ) -> Result<Self::Response, XpComEwsError> {
-        let op = EmptyFolder {
+    fn new(folder_ids: Vec<BaseFolderId>) -> Self {
+        EmptyFolder {
             delete_type: DeleteType::HardDelete,
             delete_sub_folders: true,
             folder_ids,
-        };
-
-        let rcv = queue_operation!(client, EmptyFolder, op, Default::default());
-
-        rcv.await?
+        }
     }
 }

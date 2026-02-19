@@ -4,8 +4,7 @@
 
 use ews::{
     BaseFolderId, CopyMoveFolderData, Folder, FolderResponseMessage, Operation, OperationResponse,
-    copy_folder::{CopyFolder, CopyFolderResponse},
-    move_folder::{MoveFolder, MoveFolderResponse},
+    copy_folder::CopyFolder, move_folder::MoveFolder,
 };
 use protocol_shared::client::DoOperation;
 use protocol_shared::safe_xpcom::{SafeEwsSimpleOperationListener, SafeListener};
@@ -13,7 +12,6 @@ use std::{marker::PhantomData, sync::Arc};
 
 use crate::client::copy_move_operations::move_generic::{CopyMoveOperation, RequiresResync};
 use crate::client::{ServerType, XpComEwsClient, XpComEwsError};
-use crate::macros::queue_operation;
 
 use super::move_generic::{CopyMoveSuccess, move_generic};
 
@@ -26,7 +24,7 @@ struct DoCopyMoveFolder<RequestT> {
 impl<ServerT: ServerType, RequestT> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
     for DoCopyMoveFolder<RequestT>
 where
-    RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData>,
+    RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData> + 'static,
     <RequestT as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
 {
     const NAME: &'static str = <RequestT as Operation>::NAME;
@@ -70,7 +68,7 @@ impl<ServerT: ServerType> XpComEwsClient<ServerT> {
         destination_folder_id: String,
         folder_ids: Vec<String>,
     ) where
-        RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData>,
+        RequestT: CopyMoveOperation + From<CopyMoveFolderData> + Into<CopyMoveFolderData> + 'static,
         <RequestT as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
     {
         let operation = DoCopyMoveFolder::<RequestT> {
@@ -110,53 +108,35 @@ where
 // Create our own trait that upstream can't implement, to avoid errors about
 // "upstream crates may add a new impl of trait" when implementing
 // CopyMoveOperation on other types that shouldn't use this implementation.
-trait FolderOperation: From<CopyMoveFolderData> + Into<CopyMoveFolderData> + Operation + Clone {
-    /// Pushes the current operation to the back of the client, and waits for a
-    /// response.
-    async fn queue_operation<ServerT: ServerType>(
-        self,
-        client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Response, XpComEwsError>;
-}
-impl FolderOperation for MoveFolder {
-    async fn queue_operation<ServerT: ServerType>(
-        self,
-        client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Response, XpComEwsError> {
-        let rcv = queue_operation!(client, MoveFolder, self, Default::default());
-        rcv.await?
-    }
-}
-impl FolderOperation for CopyFolder {
-    async fn queue_operation<ServerT: ServerType>(
-        self,
-        client: &XpComEwsClient<ServerT>,
-    ) -> Result<Self::Response, XpComEwsError> {
-        let rcv = queue_operation!(client, CopyFolder, self, Default::default());
-        rcv.await?
-    }
-}
+trait FolderOperation: From<CopyMoveFolderData> + Into<CopyMoveFolderData> + Operation + Clone {}
+impl FolderOperation for MoveFolder {}
+impl FolderOperation for CopyFolder {}
 
 impl<FolderOp: FolderOperation> CopyMoveOperation for FolderOp
 where
     <FolderOp as Operation>::Response: OperationResponse<Message = FolderResponseMessage>,
 {
+    fn requires_resync(&self) -> RequiresResync {
+        // We don't expect folder IDs to change after a move, so we shouldn't
+        // need to sync the folder hierarchy after that operation completes, and
+        // while a `CopyFolder` operation always requires a resync to get the
+        // newly copied folder and item ids, the resync path is different than
+        // the item resync path, so we always return false here.
+        RequiresResync::No
+    }
+
+    fn operation_builder<ServerT: ServerType>(
+        client: &XpComEwsClient<ServerT>,
+        destination_folder_id: String,
+        ids: Vec<String>,
+    ) -> Self {
+        construct_request(client, destination_folder_id, ids)
+    }
+
     fn response_to_ids(
         response: Vec<<Self::Response as OperationResponse>::Message>,
     ) -> Vec<String> {
         get_new_ews_ids_from_response(response)
-    }
-
-    async fn queue_operation<ServerT: ServerType>(
-        client: &XpComEwsClient<ServerT>,
-        destination_folder_id: String,
-        ids: Vec<String>,
-    ) -> Result<(Self::Response, RequiresResync), XpComEwsError> {
-        let op: Self = construct_request(client, destination_folder_id, ids);
-
-        op.queue_operation(client)
-            .await
-            .map(|resp| (resp, RequiresResync::No))
     }
 }
 

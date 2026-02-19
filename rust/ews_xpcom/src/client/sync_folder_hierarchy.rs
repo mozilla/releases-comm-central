@@ -4,9 +4,9 @@
 
 use ews::{
     BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse,
-    get_folder::{GetFolder, GetFolderResponse},
+    get_folder::GetFolder,
     response::{ResponseCode, ResponseError},
-    sync_folder_hierarchy::{self, SyncFolderHierarchy, SyncFolderHierarchyResponse},
+    sync_folder_hierarchy::{self, SyncFolderHierarchy},
 };
 use fxhash::FxHashMap;
 use protocol_shared::{
@@ -19,8 +19,6 @@ use super::{
     ServerType, XpComEwsClient, XpComEwsError, process_response_message_class,
     single_response_or_error, validate_get_folder_response_message,
 };
-
-use crate::macros::queue_operation;
 
 struct DoSyncFolderHierarchy<'a> {
     pub listener: &'a SafeEwsFolderListener,
@@ -67,8 +65,10 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                 sync_state: self.sync_state_token.clone(),
             };
 
-            let rcv = queue_operation!(client, SyncFolderHierarchy, op, Default::default());
-            let response_messages = rcv.await??.into_response_messages();
+            let response_messages = client
+                .enqueue_and_send(op, Default::default())
+                .await?
+                .into_response_messages();
 
             let response = single_response_or_error(response_messages)?;
             let message = process_response_message_class("SyncFolderHierarchy", response)?;
@@ -255,8 +255,7 @@ async fn batch_get_folders<ServerT: ServerType>(
             folder_ids: to_fetch,
         };
 
-        let rcv = queue_operation!(client, GetFolder, op, Default::default());
-        let response = rcv.await??;
+        let response = client.enqueue_and_send(op, Default::default()).await?;
         let messages = response.into_response_messages();
 
         let mut fetched = messages
@@ -360,8 +359,7 @@ async fn get_well_known_folder_map<ServerT: ServerType>(
         folder_ids: ids,
     };
 
-    let rcv = queue_operation!(client, GetFolder, op, Default::default());
-    let response = rcv.await??;
+    let response = client.enqueue_and_send(op, Default::default()).await?;
 
     let response_messages = response.into_response_messages();
     super::validate_response_message_count(&response_messages, EXCHANGE_DISTINGUISHED_IDS.len())?;
