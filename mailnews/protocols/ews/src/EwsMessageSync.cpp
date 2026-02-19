@@ -7,6 +7,8 @@
 #include "EwsListeners.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
+#include "IHeaderBlock.h"
+#include "MailHeaderParsing.h"  // For ParseHeaderBlock().
 #include "mozilla/Components.h"
 #include "nsAutoSyncState.h"
 #include "nsMsgDatabase.h"  // For ApplyRawHdrToDbHdr().
@@ -91,7 +93,9 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
 
   EwsMessageSyncHandler(
       EwsFolder* folder, std::function<void()> onStart,
-      std::function<void(nsresult, nsTArray<nsMsgKey> const&)> onStop)
+      std::function<void(nsresult, nsTArray<nsMsgKey> const&,
+                         nsTArray<RefPtr<IHeaderBlock>> const&)>
+          onStop)
       : mFolder(folder),
         mOnStart(std::move(onStart)),
         mOnStop(std::move(onStop)) {}
@@ -149,7 +153,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     rv = ewsClient->SyncMessagesForFolder(this, ewsFolderId, syncStateToken);
     if (NS_FAILED(rv)) {
       // We called onStart() so must call onStop() too.
-      mOnStop(rv, {});
+      mOnStop(rv, {}, {});
       rv = NS_OK;
     }
 
@@ -214,6 +218,7 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     nsMsgKey newKey;
     MOZ_TRY(newHeader->GetMessageKey(&newKey));
     mNewMessages.AppendElement(newKey);
+    mNewHeaders.AppendElement(headerBlock);
 
     MOZ_TRY(mDB->Commit(nsMsgDBCommitType::kLargeCommit));
     nsCOMPtr<nsIMsgFolderNotificationService> notifier =
@@ -328,7 +333,8 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
 
   // Called when the operation succeeds.
   NS_IMETHOD OnSyncComplete() override {
-    mOnStop(NS_OK, mNewMessages);
+    MOZ_ASSERT(mNewMessages.Length() == mNewHeaders.Length());
+    mOnStop(NS_OK, mNewMessages, mNewHeaders);
     return NS_OK;
   }
 
@@ -341,7 +347,8 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
     MOZ_ASSERT(NS_FAILED(status));
     // Even if the operation fails some messages may have already been added
     // to the database and the folder should be told about them.
-    mOnStop(status, mNewMessages);
+    MOZ_ASSERT(mNewMessages.Length() == mNewHeaders.Length());
+    mOnStop(status, mNewMessages, mNewHeaders);
     return NS_OK;
   }
 
@@ -350,8 +357,11 @@ class EwsMessageSyncHandler : public IEwsMessageSyncListener,
   RefPtr<nsIMsgDatabase> mDB;
 
   nsTArray<nsMsgKey> mNewMessages;
+  nsTArray<RefPtr<IHeaderBlock>> mNewHeaders;
   std::function<void()> mOnStart;
-  std::function<void(nsresult, nsTArray<nsMsgKey> const&)> mOnStop;
+  std::function<void(nsresult, nsTArray<nsMsgKey> const&,
+                     nsTArray<RefPtr<IHeaderBlock>> const&)>
+      mOnStop;
 };
 
 NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IEwsMessageSyncListener,
@@ -359,7 +369,9 @@ NS_IMPL_ISUPPORTS(EwsMessageSyncHandler, IEwsMessageSyncListener,
 
 nsresult EwsPerformMessageSync(
     EwsFolder* folder, std::function<void()> onStart,
-    std::function<void(nsresult, nsTArray<nsMsgKey> const&)> onStop) {
+    std::function<void(nsresult, nsTArray<nsMsgKey> const&,
+                       nsTArray<RefPtr<IHeaderBlock>> const&)>
+        onStop) {
   RefPtr<EwsMessageSyncHandler> syncer =
       new EwsMessageSyncHandler(folder, onStart, onStop);
   return syncer->Go();

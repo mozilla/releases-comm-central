@@ -64,6 +64,7 @@ add_task(async function getLocalMessages1() {
   MailServices.filters.applyFilters(
     Ci.nsMsgFilterType.Manual,
     [localAccountUtils.inboxFolder.firstNewMessage],
+    [],
     localAccountUtils.inboxFolder,
     null,
     filterListener

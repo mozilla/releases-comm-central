@@ -1088,6 +1088,7 @@ export class MessageSend {
     return MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.PostOutgoing,
       [msgHdr],
+      [],
       folder,
       msgWindow,
       this

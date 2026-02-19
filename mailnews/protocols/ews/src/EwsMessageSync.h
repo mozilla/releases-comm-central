@@ -9,6 +9,7 @@
 #include "MailNewsTypes.h"
 
 class EwsFolder;
+class IHeaderBlock;
 
 /**
  * Starts an EWS message sync operation running upon the given folder.
@@ -25,6 +26,8 @@ class EwsFolder;
  */
 nsresult EwsPerformMessageSync(
     EwsFolder* folder, std::function<void()> onStart,
-    std::function<void(nsresult, nsTArray<nsMsgKey> const&)> onStop);
+    std::function<void(nsresult, nsTArray<nsMsgKey> const&,
+                       nsTArray<RefPtr<IHeaderBlock>> const&)>
+        onStop);
 
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSMESSAGESYNC_H_

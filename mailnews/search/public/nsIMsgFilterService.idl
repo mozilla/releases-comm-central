@@ -6,6 +6,7 @@
 #include "nsISupports.idl"
 #include "nsMsgFilterCore.idl"
 
+interface IHeaderBlock;
 interface nsIMsgFilterList;
 interface nsIMsgWindow;
 interface nsIMsgFilterCustomAction;
@@ -32,12 +33,18 @@ interface nsIMsgFilterService : nsISupports {
      * Apply filters to a specific list of messages in a folder.
      * @param  aFilterType  The type of filter to match against
      * @param  aMsgHdrList  The list of message headers (nsIMsgDBHdr objects)
+     * @param  aRawHeaders  List of header blocks, for filters that require
+     *                      matching against arbitrary RFC5322 headers.
+     *                      This list MUST be either empty or exactly match
+     *                      the size of aMsgHdrList.
+     *                      Entries in this list MAY be null.
      * @param  aFolder      The folder the messages belong to
      * @param  aMsgWindow   A UI window for attaching progress/dialogs
      * @param  aCallback    A listener that gets notified of any filtering error
      */
     void applyFilters(in nsMsgFilterTypeType aFilterType,
                       in Array<nsIMsgDBHdr> aMsgHdrList,
+                      in Array<IHeaderBlock> aRawHeaders,
                       in nsIMsgFolder aFolder,
                       in nsIMsgWindow aMsgWindow,
                       [optional] in nsIMsgOperationListener aCallback);
