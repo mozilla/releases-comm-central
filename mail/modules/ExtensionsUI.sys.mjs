@@ -7,6 +7,7 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  parseManifest: "resource:///modules/ExtensionUtilities.sys.mjs",
   AMTelemetry: "resource://gre/modules/AddonManager.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.sys.mjs",
@@ -367,8 +368,9 @@ var gXPInstallObserver = {
     "addon-install-confirmation",
     "addon-install-failed",
     "addon-install-origin-blocked",
-    "addon-install-webapi-blocked",
     "addon-install-policy-blocked",
+    "addon-install-suppressed",
+    "addon-install-webapi-blocked",
     "addon-progress",
     "addon-webext-permissions",
     "xpinstall-disabled",
@@ -700,6 +702,7 @@ var gXPInstallObserver = {
           }
 
           let messageString;
+          let showIsSuppressedNotificationInstead = false;
           if (
             install.addon &&
             !Services.policies.mayInstallAddon(install.addon)
@@ -734,28 +737,93 @@ var gXPInstallObserver = {
               }
             }
             messageString = lazy.l10n.formatValueSync(errorId, args);
+            // If it is a suppressed Experiment and incompatible or already
+            // blocked, do not show the is-incompatible or is-blocked
+            // notification, but the is-suppressed notification.
+            if (install.addon) {
+              const data = await lazy.parseManifest(install.addon);
+              showIsSuppressedNotificationInstead =
+                data.isSuppressedExperiment &&
+                [
+                  "addon-install-error-incompatible",
+                  "addon-install-error-blocklisted",
+                ].includes(errorId);
+            }
           }
 
-          // Add Learn More link when refusing to install an unsigned add-on
-          if (install.error == lazy.AddonManager.ERROR_SIGNEDSTATE_REQUIRED) {
-            options.learnMoreURL =
-              Services.urlFormatter.formatURLPref("app.support.baseURL") +
-              "unsigned-addons";
-          }
+          if (showIsSuppressedNotificationInstead) {
+            Services.obs.notifyObservers(
+              {
+                wrappedJSObject: {
+                  browser,
+                  originatingURI: null,
+                  installs: [
+                    {
+                      addon: install.addon,
+                      name: install.addon.name,
+                      error: 0,
+                    },
+                  ],
+                  install: null,
+                  cancel: null,
+                },
+              },
+              "addon-install-suppressed"
+            );
+          } else {
+            // Add Learn More link when refusing to install an unsigned add-on
+            if (install.error == lazy.AddonManager.ERROR_SIGNEDSTATE_REQUIRED) {
+              options.learnMoreURL =
+                Services.urlFormatter.formatURLPref("app.support.baseURL") +
+                "unsigned-addons";
+            }
 
-          PopupNotifications.show(
-            browser,
-            aTopic,
-            messageString,
-            THUNDERBIRD_ANCHOR_ID,
-            null,
-            null,
-            options
-          );
+            PopupNotifications.show(
+              browser,
+              aTopic,
+              messageString,
+              THUNDERBIRD_ANCHOR_ID,
+              null,
+              null,
+              options
+            );
+          }
 
           // Can't have multiple notifications with the same ID, so stop here.
           break;
         }
+        this._removeProgressNotification(browser);
+        break;
+      }
+      case "addon-install-suppressed": {
+        // The suppressed notification is called with at most one install.
+        const install = installInfo.installs[0];
+
+        options.removeOnDismissal = true;
+        options.persistent = false;
+        options.popupIconURL = "chrome://global/skin/icons/warning.svg";
+        options.popupIconClass = "addon-warning-icon";
+        options.learnMoreURL =
+          Services.urlFormatter.formatURLPref("app.support.baseURL") +
+          "experiment-add-on-support";
+
+        // Set the |name| field to enable replacing <> in strings by the provided
+        // name.
+        options.name = install.addon.name;
+        const messageString = lazy.l10n.formatValueSync(
+          "webext-install-suppressed-message"
+        );
+
+        PopupNotifications.show(
+          browser,
+          "addon-webext-expsuppressed",
+          messageString,
+          THUNDERBIRD_ANCHOR_ID,
+          null,
+          null,
+          options
+        );
+
         this._removeProgressNotification(browser);
         break;
       }
@@ -816,6 +884,7 @@ Services.obs.addObserver(gXPInstallObserver, "addon-install-webapi-blocked");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-blocked");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-started");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-failed");
+Services.obs.addObserver(gXPInstallObserver, "addon-install-suppressed");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-confirmation");
 
 /**
@@ -970,9 +1039,31 @@ export var ExtensionsUI = {
       }
 
       const strings = this._buildStrings(info);
-      const data = new lazy.ExtensionData(info.addon.getResourceURI());
-      await data.loadManifest();
-      if (data.manifest.experiment_apis) {
+      const data = await lazy.parseManifest(info.addon);
+      if (data.isExperiment) {
+        if (data.isSuppressedExperiment) {
+          Services.obs.notifyObservers(
+            {
+              wrappedJSObject: {
+                browser,
+                originatingURI: null,
+                installs: [
+                  {
+                    addon: info.addon,
+                    name: info.addon.name,
+                    error: 0,
+                  },
+                ],
+                install: null,
+                cancel: null,
+              },
+            },
+            "addon-install-suppressed"
+          );
+          info.reject();
+          return;
+        }
+
         // Add the experiment permission text and use the header for
         // extensions with permissions.
         const [experimentWarning] = await lazy.l10n.formatValues([
@@ -1029,7 +1120,7 @@ export var ExtensionsUI = {
       // Reject add-ons using the legacy API. We cannot use the general "ignore
       // unknown APIs" policy, as add-ons using the Legacy API from TB68 will
       // not do anything, confusing the user.
-      if (data.manifest.legacy) {
+      if (data.isLegacy) {
         Services.obs.notifyObservers(
           {
             wrappedJSObject: {
@@ -1151,7 +1242,6 @@ export var ExtensionsUI = {
       collapseOrigins: true,
     });
     strings.addonName = info.addon.name;
-    strings.learnMore = lazy.l10n.formatValueSync("webext-perms-learn-more");
     return strings;
   },
 
@@ -1160,7 +1250,7 @@ export var ExtensionsUI = {
     // if no message has been selected and the "webbrowser" of the mail3pane is
     // also not loaded. Since Thunderbird's GlobalPopupNotifications.sys.mjs does
     // not store notifications per tab/browser, we can use the top mail window to
-    // store pendigNotifications.
+    // store pendingNotifications.
     const browser = target ? getTabBrowser(target).browser : null;
     const window = browser ? browser.ownerGlobal : getTopWindow();
     const doc = window.document;
@@ -1191,7 +1281,6 @@ export var ExtensionsUI = {
           listIntroEl.hidden = !strings.msgs.length || !strings.listIntro;
 
           const listInfoEl = doc.getElementById("addon-webext-perm-info");
-          listInfoEl.textContent = strings.learnMore;
           listInfoEl.href =
             Services.urlFormatter.formatURLPref("app.support.baseURL") +
             "extension-permissions";

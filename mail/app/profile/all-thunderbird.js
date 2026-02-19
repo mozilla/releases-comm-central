@@ -232,6 +232,11 @@ pref("extensions.startupScanScopes", 4);
 pref("extensions.update.requireBuiltInCerts", false);
 pref("extensions.install.requireBuiltInCerts", false);
 
+// Allow Experiments to be suppressed.
+pref("extensions.experiments.suppressed", false);
+// Comma-separated list of add-on IDs exempt from experiment suppression.
+pref("extensions.experiments.allowed", "tbpro-add-on@thunderbird.net,owl@beonex.com");
+
 // Gecko Profiler
 pref("extensions.geckoProfiler.acceptedExtensionIds", "geckoprofiler@mozilla.com,quantum-foxfooding@mozilla.com,raptor@mozilla.org");
 

@@ -11,6 +11,7 @@ BROWSER_CHROME_MANIFESTS += [
 
 addons = [
     "browser_webext_experiment",
+    "browser_webext_experiment_allowlisted",
     "browser_webext_experiment_permissions",
     "browser_webext_experiment_update1",
     "browser_webext_experiment_update2",

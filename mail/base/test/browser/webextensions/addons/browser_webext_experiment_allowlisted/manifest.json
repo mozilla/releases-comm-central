@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Allow-listed experiment add-on",
+  "version": "1.0",
+  "applications": {
+    "gecko": {
+      "id": "tbpro-add-on@thunderbird.net"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "experiment_apis": {
+    "myapi": {
+      "schema": "schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["myapi"]],
+        "script": "implementation.js"
+      }
+    }
+  }
+}

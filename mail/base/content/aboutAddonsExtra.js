@@ -16,7 +16,7 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
 ]);
 
 ChromeUtils.defineESModuleGetters(this, {
-  ExtensionData: "resource://gre/modules/Extension.sys.mjs",
+  parseManifest: "resource:///modules/ExtensionUtilities.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
@@ -73,19 +73,30 @@ XPCOMUtils.defineLazyPreferenceGetter(
     return _getScreenshotUrlForAddon(addon);
   };
 
-  // Add logic to detect add-ons using the unsupported legacy API.
+  // Add logic to detect add-ons using the unsupported legacy API or suppressed
+  // Experiments.
   const getMozillaAddonMessageInfo = window.getAddonMessageInfo;
   window.getAddonMessageInfo = async function (
     addon,
     { isCardExpanded, isInDisabledSection }
   ) {
     const { name } = addon;
+    const data = await parseManifest(addon);
+    if (data.isSuppressedExperiment) {
+      return {
+        linkId: "add-on-learn-more-and-search-alternative-button-label",
+        linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
+          addon.id
+        )}&q=${encodeURIComponent(name)}&isSuppressed=true`,
+        messageId: "details-notification-suppressed-esr",
+        messageArgs: { name },
+        type: "warning",
+      };
+    }
 
-    const data = new ExtensionData(addon.getResourceURI());
-    await data.loadManifest();
     if (
       addon.type == "extension" &&
-      (data.manifest.legacy ||
+      (data.isLegacy ||
         (!addon.isCompatible &&
           (AddonManager.checkCompatibility ||
             addon.blocklistState !== Ci.nsIBlocklistService.STATE_SOFTBLOCKED)))
@@ -129,8 +140,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
     // Upon fresh install the manifest has not been parsed and optionsType
     // is not known, manually trigger parsing.
     if (addon.isActive && !addon.optionsType) {
-      const data = new ExtensionData(addon.getResourceURI());
-      await data.loadManifest();
+      await parseManifest(addon);
     }
 
     addonOptionsButton.disabled = !(addon.isActive && addon.optionsType);
@@ -165,9 +175,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // It calls this.render() which is async without awaiting it anyway.
   AddonPermissionsList.prototype.setAddon = async function (addon) {
     this.addon = addon;
-    const data = new ExtensionData(addon.getResourceURI());
-    await data.loadManifest();
-    if (data.manifest.experiment_apis) {
+    const data = await parseManifest(addon);
+    if (data.isExperiment) {
       this.renderExperimentOnly();
     } else {
       this.render();

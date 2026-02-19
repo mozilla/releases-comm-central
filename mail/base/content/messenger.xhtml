@@ -124,6 +124,7 @@
   <link rel="localization" href="messenger/inAppNotifications.ftl" />
   <link rel="localization" href="messenger/unifiedToolbar.ftl" />
   <link rel="localization" href="messenger/unifiedToolbarItems.ftl" />
+  <link rel="localization" href="messenger/extensionsUI.ftl" />
 #ifdef MOZ_SERVICES_SYNC
   <link rel="localization" href="messenger/syncAccounts.ftl" />
 #endif
@@ -433,7 +434,16 @@
       <html:ul id="addon-webext-perm-list" class="addon-webext-perm-list"/>
       <description id="addon-webext-experiment-warning" class="addon-webext-experiment-warning"/>
       <hbox>
-        <label id="addon-webext-perm-info" is="text-link" class="popup-notification-learnmore-link"/>
+        <label data-l10n-id="webext-perms-learn-more" id="addon-webext-perm-info" is="text-link" class="popup-notification-learnmore-link"/>
+      </hbox>
+    </popupnotificationcontent>
+  </popupnotification>
+
+  <popupnotification id="addon-webext-expsuppressed-notification" hasicon="true" hidden="hidden">
+    <popupnotificationcontent class="addon-webext-expsuppressed-notification-content" orient="vertical">
+      <description data-l10n-id="webext-install-suppressed-details" class="addon-webext-expsuppressed-text"/>
+      <hbox>
+        <label data-l10n-id="webext-perms-learn-more" id="addon-webext-expsuppressed-info" is="text-link" class="popup-notification-learnmore-link"/>
       </hbox>
     </popupnotificationcontent>
   </popupnotification>

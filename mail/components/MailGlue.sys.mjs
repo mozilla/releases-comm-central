@@ -944,6 +944,12 @@ MailGlue.prototype = {
             },
           });
           await lazy.checkInstalledExtensions();
+          Services.prefs.addObserver(
+            "extensions.experiments.suppressed",
+            () => {
+              lazy.checkInstalledExtensions();
+            }
+          );
         },
       },
       {

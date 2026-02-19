@@ -10,6 +10,7 @@ prefs = [
 subsuite = "thunderbird"
 generated-files = [
   "addons/browser_webext_experiment.xpi",
+  "addons/browser_webext_experiment_allowlisted.xpi",
   "addons/browser_webext_experiment_permissions.xpi",
   "addons/browser_webext_experiment_update1.xpi",
   "addons/browser_webext_experiment_update2.xpi",
@@ -27,6 +28,7 @@ generated-files = [
 ]
 support-files = [
   "addons/browser_webext_experiment.xpi",
+  "addons/browser_webext_experiment_allowlisted.xpi",
   "addons/browser_webext_experiment_permissions.xpi",
   "addons/browser_webext_experiment_update1.xpi",
   "addons/browser_webext_experiment_update2.xpi",
@@ -47,6 +49,8 @@ support-files = [
 ]
 
 ["browser_extension_install_experiment.js"]
+
+["browser_extension_install_experiment_suppressed.js"]
 
 ["browser_extension_sideloading.js"]
 
