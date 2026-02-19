@@ -883,7 +883,7 @@
        * attribute of the folderpicker's <menulist>, one of:
        * 'name' (default) - Folder
        * 'verbose'        - Folder on Account
-       * 'path'           - Folder/Subfolder – Account
+       * 'path'           - Folder/Subfolder on Account
        *
        * @param {nsIMsgFolder} folder - The folder that corresponds to the menu/menuitem.
        * @returns {string} The display name.
@@ -893,18 +893,17 @@
           return folder.localizedName;
         }
 
-        if (this._displayformat == "verbose") {
+        if (this._displayformat == "verbose" || this._displayformat == "path") {
           return lazy.l10n.formatValueSync(
             "folder-widgets-verbose-folder-format",
             {
-              folder: folder.localizedName,
+              folder:
+                this._displayformat == "path"
+                  ? folder.prettyPath
+                  : folder.localizedName,
               server: folder.server.prettyName,
             }
           );
-        }
-
-        if (this._displayformat == "path") {
-          return `${folder.prettyPath} – ${folder.server.prettyName}`;
         }
 
         return folder.localizedName;
@@ -926,13 +925,17 @@
         function setupParent(folder, menulist, noFolders) {
           const menupopup = menulist.menupopup;
           let label;
+          let tooltiptext = "";
           if (folder) {
             label = menupopup.getDisplayName(folder);
             const prettyPath = folder.prettyPath;
             if (prettyPath) {
-              menulist.setAttribute(
-                "tooltiptext",
-                `${prettyPath} – ${folder.server.prettyName}`
+              tooltiptext = lazy.l10n.formatValueSync(
+                "folder-widgets-verbose-folder-format",
+                {
+                  folder: prettyPath,
+                  server: folder.server.prettyName,
+                }
               );
             }
           } else {
@@ -945,6 +948,7 @@
             label = lazy.l10n.formatValueSync(l10nId);
           }
           menulist.setAttribute("label", label);
+          menulist.setAttribute("tooltiptext", tooltiptext);
           menulist.setAttribute("value", folder ? folder.URI : "");
           menulist.setAttribute("IsServer", folder ? folder.isServer : false);
           menulist.setAttribute(

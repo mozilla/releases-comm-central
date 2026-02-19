@@ -152,7 +152,7 @@
           <menulist class="ruleactionitem
                     folderMenuItem"
                     flex="1"
-                    displayformat="path">
+                    displayformat="verbose">
             <menupopup is="folder-menupopup"
                        mode="filing"
                        class="menulist-menupopup"
