@@ -32,8 +32,6 @@ tags = ["webextensions"]
 
 ["browser_ext_spaces_multiple.js"]
 
-["browser_ext_tabs_content.js"]
-
 ["browser_ext_tabs_cookieStoreId.js"]
 
 ["browser_ext_tabs_create_update_reload.js"]

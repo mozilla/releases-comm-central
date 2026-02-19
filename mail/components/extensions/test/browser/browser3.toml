@@ -56,6 +56,8 @@ tags = ["webextensions"]
 
 ["browser_ext_content_handler_with_prompt.js"]
 
+["browser_ext_content_pages.js"]
+
 ["browser_ext_content_tabs_navigation_menu.js"]
 support-files = ["data/content.html"]
 tags = ["contextmenu"]
