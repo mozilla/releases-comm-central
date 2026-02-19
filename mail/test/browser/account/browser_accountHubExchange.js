@@ -507,16 +507,20 @@ add_task(async function test_exchange_graph_advanced_configuration() {
     incomingForm,
     "config-updated"
   );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  const graphSelection = protocolSelector.querySelector(
-    "#incomingProtocolGraph"
-  );
-  Assert.ok(
-    BrowserTestUtils.isVisible(graphSelection),
-    "Graph menu item should be visible."
-  );
-  EventUtils.synthesizeMouseAtCenter(graphSelection, {});
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(protocolSelector, {});
+
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolGraph
+  protocolSelectorPopup.activateItem(protocolSelectorItems[3]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
   let { detail: configUpdatedEvent } = await configUpdatedEventPromise;
   Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
 

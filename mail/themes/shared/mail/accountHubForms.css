@@ -245,7 +245,7 @@ form {
         inset-block-end: 0;
         margin-block: 2px -15px;
 
-        & #moreInfoLink {
+        & .more-info-link {
           color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
           text-decoration: underline;
         }
@@ -277,36 +277,10 @@ form {
     }
   }
 
-  menulist::part(label-box) {
+  select.menulist {
     font-weight: 400;
-  }
-
-  xul|menupopup.menupopup {
-    --arrowpanel-padding: 3px 0;
-    --arrowpanel-border-radius: 6px;
-    --panel-background: var(--color-surface-base);
-    --panel-color: var(--arrowpanel-color);
-    --panel-border-color: var(--hub-menupopup-border-color);
-    --panel-border-radius: var(--hub-input-border-radius);
-    --panel-padding: var(--arrowpanel-padding);
-    margin-block-start: 6px;
-
-    & > xul|menuitem {
-      padding: var(--menu-item-padding);
-      padding-inline: 6px;
-
-      & label {
-        font-weight: 400;
-      }
-
-      &:is([checked], [selected="true"]) {
-        background-color: var(--hub-menuitem-background-color-selected);
-
-        & label {
-          color: var(--hub-menuitem-color-selected);
-        }
-      }
-    }
+    inline-size: 100%;
+    padding-inline-end: 48px;
   }
 
   legend {

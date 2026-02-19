@@ -81,15 +81,26 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     subview,
     "config-updated"
   );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  protocolSelector.menupopup.activateItem(
-    protocolSelector.querySelector("#incomingProtocolEWS")
+
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolEWS
+  protocolSelectorPopup.activateItem(protocolSelectorItems[2]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+
   ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
 
   Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
@@ -135,15 +146,26 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     subview,
     "config-updated"
   );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  protocolSelector.menupopup.activateItem(
-    protocolSelector.querySelector("#incomingProtocolIMAP")
+
+  const protocolSelectorMethodPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+
+  const protocolSelectorPopup2 = await protocolSelectorMethodPromise;
+
+  const protocolSelectorItems2 =
+    protocolSelectorPopup2.querySelectorAll("menuitem");
+
+  // #incomingProtocolIMAP
+  protocolSelectorPopup2.activateItem(protocolSelectorItems2[1]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+
   ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
 
   Assert.ok(
@@ -210,15 +232,26 @@ add_task(async function test_settingStateLeavesConfigIntact() {
     subview,
     "config-updated"
   );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  protocolSelector.menupopup.activateItem(
-    protocolSelector.querySelector("#incomingProtocolEWS")
+
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolEWS
+  protocolSelectorPopup.activateItem(protocolSelectorItems[2]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+
   const { detail: configUpdatedEvent } = await configUpdatedEventPromise;
 
   Assert.ok(!configUpdatedEvent.completed, "Config should be incomplete");
@@ -253,22 +286,29 @@ add_task(async function test_graphIsDisabledByDefault() {
 
   const protocolSelector = subview.querySelector("#incomingProtocol");
 
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  const graphSelector = protocolSelector.querySelector(
-    "#incomingProtocolGraph"
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
 
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
   Assert.ok(
-    BrowserTestUtils.isHidden(graphSelector),
+    BrowserTestUtils.isHidden(protocolSelectorItems[3]),
     "Graph selection should be unavailable by default."
   );
 
-  protocolSelector.menupopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+  protocolSelectorPopup.hidePopup();
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+
   subview.resetState();
 });
 
@@ -279,23 +319,29 @@ add_task(async function test_graphIsEnabledByPref() {
   subview.setState(config);
 
   const protocolSelector = subview.querySelector("#incomingProtocol");
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
 
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  const graphSelector = protocolSelector.querySelector(
-    "#incomingProtocolGraph"
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
+
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
 
   Assert.ok(
-    BrowserTestUtils.isVisible(graphSelector),
-    "Graph selection should be available when mail.graph.enabled is set."
+    BrowserTestUtils.isVisible(protocolSelectorItems[2]),
+    "Graph selection should be unavailable by default."
   );
 
-  protocolSelector.menupopup.hidePopup();
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+  protocolSelectorPopup.hidePopup();
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
+
   subview.resetState();
   await SpecialPowers.popPrefEnv();
 });
@@ -316,15 +362,30 @@ add_task(async function test_switchBetweenIMAPAndGraph() {
     subview,
     "config-updated"
   );
-  protocolSelector.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
-  protocolSelector.menupopup.activateItem(
-    protocolSelector.querySelector("#incomingProtocolGraph")
+
+  const protocolSelectorMethodPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  // We need to wait for the ui to update or graph wont be present await the
+  // pushPref and a tick don't seem to be enough time so wait 100ms
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  await EventUtils.synthesizeMouseAtCenter(
+    protocolSelector,
+    {},
+    browser.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+
+  const protocolSelectorPopup = await protocolSelectorMethodPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolGraph
+  protocolSelectorPopup.activateItem(protocolSelectorItems[3]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
   let { detail: configUpdatedEvent } = await configUpdatedEventPromise;
 
   const state = subview.captureState();

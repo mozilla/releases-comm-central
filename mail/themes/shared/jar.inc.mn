@@ -120,6 +120,7 @@
   skin/classic/messenger/abSearchDialog.css                   (../shared/mail/abSearchDialog.css)
   skin/classic/messenger/accountHub.css                       (../shared/mail/accountHub.css)
   skin/classic/messenger/accountHubForms.css                  (../shared/mail/accountHubForms.css)
+  skin/classic/messenger/accountHubSelect.css                 (../shared/mail/accountHubSelect.css)
   skin/classic/messenger/accountSetup.css                     (../shared/mail/accountSetup.css)
   skin/classic/messenger/accountWizard.css                    (../shared/mail/accountWizard.css)
   skin/classic/messenger/activity.css                         (../shared/mail/activity/activity.css)

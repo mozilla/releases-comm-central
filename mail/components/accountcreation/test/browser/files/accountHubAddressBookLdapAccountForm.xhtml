@@ -102,6 +102,23 @@
         <slot name="content"></slot>
       </div>
     </template>
+    <template id="accountHubSelectTemplate">
+      <label>
+      </label>
+      <div class="input-control">
+        <select
+                class="menulist"
+                value="1"
+                flex="1">
+        </select>
+
+        <p id="securityWarning" class="input-error-message">
+          <span data-l10n-name="error-text"></span>
+          <a class="more-info-link" data-l10n-name="error-link"></a>
+        </p>
+        <slot hidden="hidden"></slot>
+      </div>
+    </template>
     <template
       id="accountHubAddressBookLdapAccountFormTemplate"
       xmlns="http://www.w3.org/1999/xhtml"
@@ -311,73 +328,43 @@
               </span>
             </div>
           </div>
-          <div class="input-cell expanded advanced-input">
-            <label
-              for="scope"
-              data-l10n-id="account-hub-address-book-scope-label"
-              data-l10n-attrs="accesskey"
+          <div class="input-cell expanded advanced-input select-row">
+            <account-hub-select
+              id="scope"
+              l10n-label-id="account-hub-address-book-scope-label"
+              flex="1"
             >
-            </label>
-            <div class="input-control">
-              <xul:menulist
-                id="scope"
-                class="menulist"
+              <option
+                id="scopeOne"
+                data-l10n-id="account-hub-address-book-scope-level-one-label"
+                value="1"
+              ></option>
+              <option
+                id="scopeSubtree"
                 data-l10n-id="account-hub-address-book-scope-subtree-label"
+                selected="selected"
                 value="2"
-                flex="1"
-              >
-                <xul:menupopup
-                  id="scopeMenupopup"
-                  class="menupopup"
-                  position="after_start"
-                >
-                  <xul:menuitem
-                    id="scopeOne"
-                    data-l10n-id="account-hub-address-book-scope-level-one-label"
-                    value="1"
-                  />
-                  <xul:menuitem
-                    id="scopeSubtree"
-                    data-l10n-id="account-hub-address-book-scope-subtree-label"
-                    value="2"
-                  />
-                </xul:menupopup>
-              </xul:menulist>
-            </div>
+              ></option>
+            </account-hub-select>
           </div>
-          <div class="input-cell full advanced-input">
-            <label
-              for="loginMethod"
-              data-l10n-id="account-hub-address-book-login-method-label"
-              data-l10n-attrs="accesskey"
+          <div class="input-cell full advanced-input select-row">
+            <account-hub-select
+              id="loginMethod"
+              l10n-label-id="account-hub-address-book-login-method-label"
+              flex="1"
             >
-            </label>
-            <div class="input-control">
-              <xul:menulist
-                id="loginMethod"
-                class="menulist"
+              <option
+                id="loginSimple"
                 data-l10n-id="account-hub-address-book-login-simple-label"
+                selected="selected"
                 value=""
-                flex="1"
-              >
-                <xul:menupopup
-                  id="loginMethodMenupopup"
-                  class="menupopup"
-                  position="after_start"
-                >
-                  <xul:menuitem
-                    id="loginSimple"
-                    data-l10n-id="account-hub-address-book-login-simple-label"
-                    value=""
-                  />
-                  <xul:menuitem
-                    id="loginGSSAPI"
-                    label="Kerberos (GSSAPI)"
-                    value="GSSAPI"
-                  />
-                </xul:menupopup>
-              </xul:menulist>
-            </div>
+              ></option>
+              <option
+                id="loginGSSAPI"
+                label="Kerberos (GSSAPI)"
+                value="GSSAPI"
+              ></option>
+            </account-hub-select>
           </div>
           <div class="input-cell full advanced-input">
             <label

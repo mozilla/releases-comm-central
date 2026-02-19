@@ -24,6 +24,7 @@ const { openLinkExternally } = ChromeUtils.importESModule(
 const { gAccountSetupLogger, standardPorts, assert } = AccountCreationUtils;
 
 import { AccountHubStep } from "./account-hub-step.mjs";
+import "./account-hub-select.mjs"; // eslint-disable-line import/no-unassigned-import
 
 /**
  * Account Hub Email Outgoing Form Template
@@ -110,11 +111,11 @@ class EmailOutgoingForm extends AccountHubStep {
       this.#configChanged();
       this.#adjustSSLToPort();
     });
-    this.#outgoingConnectionSecurity.addEventListener("command", () => {
+    this.#outgoingConnectionSecurity.addEventListener("change", () => {
       this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
     });
-    this.#outgoingAuthenticationMethod.addEventListener("command", event => {
+    this.#outgoingAuthenticationMethod.addEventListener("change", event => {
       this.#configChanged();
       // Disable the outgoing username field if the "No Authentication" option
       // is selected.
@@ -128,29 +129,20 @@ class EmailOutgoingForm extends AccountHubStep {
       "click",
       this
     );
-    this.querySelector("#outgoingSecurityWarning").addEventListener(
-      "click",
-      this
-    );
   }
 
   handleEvent(event) {
-    switch (event.target.id) {
-      case "advancedConfigurationOutgoing":
-        this.dispatchEvent(
-          new CustomEvent("advanced-config", {
-            bubbles: true,
-          })
-        );
-        break;
-      case "moreInfoLink":
-        openLinkExternally(
-          Services.urlFormatter.formatURLPref("app.support.baseURL"),
-          { addToHistory: false }
-        );
-        break;
-      default:
-        break;
+    if (event.target.id === "advancedConfigurationOutgoing") {
+      this.dispatchEvent(
+        new CustomEvent("advanced-config", {
+          bubbles: true,
+        })
+      );
+    } else if (event.target.classList.contains("more-info-link")) {
+      openLinkExternally(
+        Services.urlFormatter.formatURLPref("app.support.baseURL"),
+        { addToHistory: false }
+      );
     }
   }
 
@@ -231,22 +223,7 @@ class EmailOutgoingForm extends AccountHubStep {
     const plainSecurity = socketType == Ci.nsMsgSocketType.plain;
 
     // If connection security chosen is none, show insecure connection warning.
-    this.#outgoingConnectionSecurity.classList.toggle("warning", plainSecurity);
-    if (plainSecurity) {
-      this.#outgoingConnectionSecurity.setAttribute("aria-invalid", true);
-      this.#outgoingConnectionSecurity.setAttribute(
-        "aria-describedby",
-        "outgoingSecurityWarning"
-      );
-      this.querySelector("#outgoingSecurityWarning").setAttribute(
-        "role",
-        "alert"
-      );
-    } else {
-      this.#outgoingConnectionSecurity.setAttribute("aria-invalid", false);
-      this.#outgoingConnectionSecurity.removeAttribute("aria-describedby");
-      this.querySelector("#outgoingSecurityWarning").removeAttribute("role");
-    }
+    this.#outgoingConnectionSecurity.toggleAttribute("warning", plainSecurity);
 
     if (config.outgoing.port && !standardPorts.includes(config.outgoing.port)) {
       return;

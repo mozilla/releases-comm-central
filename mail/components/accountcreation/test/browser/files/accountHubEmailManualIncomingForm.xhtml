@@ -95,6 +95,23 @@
         <slot name="content"></slot>
       </div>
     </template>
+    <template id="accountHubSelectTemplate">
+      <label>
+      </label>
+      <div class="input-control">
+        <select
+                class="menulist"
+                value="1"
+                flex="1">
+        </select>
+
+        <p id="securityWarning" class="input-error-message">
+          <span data-l10n-name="error-text"></span>
+          <a class="more-info-link" data-l10n-name="error-link"></a>
+        </p>
+        <slot hidden="hidden"></slot>
+      </div>
+    </template>
     <template id="accountHubIncomingEmailFormTemplate">
       <form id="incomingEmailForm" class="account-hub-form" slot="content">
         <div class="hub-body manual-form-body">
@@ -105,32 +122,21 @@
                     data-l10n-attrs="accesskey">
               </label>
               <div class="input-control">
-                <xul:menulist id="incomingProtocol"
-                              class="menulist"
-                              label="IMAP"
-                              value="1"
-                              flex="1">
-                  <xul:menupopup id="incomingProtocolMenupopup"
-                                class="menupopup"
-                                position="after_start">
-                    <xul:menuitem id="incomingProtocolIMAP"
-                                  label="IMAP"
-                                  value="1" />
-                    <xul:menuitem id="incomingProtocolPOP3"
-                                  label="POP3"
-                                  value="2" />
-                    <xul:menuitem id="incomingProtocolExchange"
-                                  label="Exchange"
-                                  value="3"
-                                  hidden="hidden" />
-                    <xul:menuitem id="incomingProtocolEWS"
-                                  label="EWS"
-                                  value="4" />
-                    <xul:menuitem id="incomingProtocolGraph"
-                                  label="Graph"
-                                  value="5" />
-                  </xul:menupopup>
-                </xul:menulist>
+                <account-hub-select id="incomingProtocol"
+                        l10n-label-id="account-hub-protocol-label"
+                        flex="1">
+                    <option id="incomingProtocolIMAP"
+                            value="1">IMAP</option>
+                    <option id="incomingProtocolPOP3"
+                            value="2">POP3</option>
+                    <option id="incomingProtocolExchange"
+                            value="3"
+                            hidden="hidden">Exchange</option>
+                    <option id="incomingProtocolEWS"
+                            value="4">EWS</option>
+                    <option id="incomingProtocolGraph"
+                            value="5" >Graph</option>
+                </account-hub-select>
               </div>
             </div>
             <div id="incomingHostnameFormGroup" class="expanded">
@@ -217,34 +223,24 @@
                     class="option-label">
               </label>
               <div class="input-control">
-                <xul:menulist id="incomingConnectionSecurity"
-                              class="menulist"
-                              value="0"
-                              aria-invalid="false"
-                              flex="1">
-                  <xul:menupopup id="incomingConnectionSecurityMenupopup"
-                                class="menupopup"
-                                position="after_start">
-                    <xul:menuitem id="incomingConnectionSecurityAutodetect"
-                                  data-l10n-id="account-hub-ssl-autodetect-option"
-                                  value="-1" />
-                    <xul:menuitem id="incomingConnectionSecurityNoEncryption"
-                                  data-l10n-id="account-hub-ssl-noencryption-option"
-                                  value="0" />
-                    <xul:menuitem id="incomingConnectionSecurityStartTtls"
-                                  label="STARTTLS"
-                                  value="2" />
-                    <xul:menuitem id="incomingConnectionSecuritySslTls"
-                                  label="SSL/TLS"
-                                  value="3" />
-                  </xul:menupopup>
-                </xul:menulist>
-                <p id="incomingSecurityWarning"
-                  class="input-error-message security-warning"
-                  data-l10n-id="account-hub-security-warning">
-                  <span data-l10n-name="security-warning"></span>
-                  <a id="moreInfoLink" data-l10n-name="faq-link"></a>
-                </p>
+                <account-hub-select id="incomingConnectionSecurity"
+                        l10n-label-id="account-hub-ssl-label"
+                        l10n-error-id="account-hub-select-security-warning"
+                        flex="1">
+                  <option id="incomingConnectionSecurityAutodetect"
+                          data-l10n-id="account-hub-ssl-autodetect-option"
+                          value="-1"></option>
+                  <option id="incomingConnectionSecurityNoEncryption"
+                          selected="true"
+                          data-l10n-id="account-hub-ssl-noencryption-option"
+                          value="0"></option>
+                  <option id="incomingConnectionSecurityStartTtls"
+                          label="STARTTLS"
+                          value="2"></option>
+                  <option id="incomingConnectionSecuritySslTls"
+                          label="SSL/TLS"
+                          value="3"></option>
+                </account-hub-select>
               </div>
             </div>
           </div>
@@ -255,41 +251,37 @@
                     class="option-label">
               </label>
               <div class="input-control">
-                <xul:menulist id="incomingAuthMethod"
-                              class="menulist"
-                              required="required"
-                              value="0"
-                              flex="1">
-                  <xul:menupopup id="incomingAuthMenupopup"
-                                class="menupopup"
-                                position="after_start">
-                    <xul:menuitem id="incomingAuthMethodAutodetect"
-                                  data-l10n-id="account-hub-ssl-autodetect-option"
-                                  value="0">
-                    </xul:menuitem>
-                    <xul:menuitem id="incomingAuthMethodCleartext"
-                                  data-l10n-id="account-hub-ssl-cleartext-password-option"
-                                  value="3">
-                    </xul:menuitem>
-                    <xul:menuitem id="incomingAuthMethodEncrypted"
-                                  data-l10n-id="account-hub-ssl-encrypted-password-option"
-                                  value="4">
-                    </xul:menuitem>
-                    <xul:menuitem id="incomingAuthMethodKerbos"
-                                  label="Kerberos / GSSAPI"
-                                  value="5">
-                    </xul:menuitem>
-                    <xul:menuitem id="incomingAuthMethodNtlm"
-                                  label="NTLM"
-                                  value="6">
-                    </xul:menuitem>
-                    <xul:menuitem id="incomingAuthMethodOAuth2"
-                                  value="10"
-                                  hidden="hidden"
-                                  label="OAuth2">
-                    </xul:menuitem>
-                  </xul:menupopup>
-                </xul:menulist>
+                <account-hub-select id="incomingAuthMethod"
+                        l10n-label-id="account-hub-auth-label"
+                        required="required"
+                        value="0"
+                        flex="1">
+                  <option id="incomingAuthMethodAutodetect"
+                          data-l10n-id="account-hub-ssl-autodetect-option"
+                          value="0">
+                  </option>
+                  <option id="incomingAuthMethodCleartext"
+                          data-l10n-id="account-hub-ssl-cleartext-password-option"
+                          value="3">
+                  </option>
+                  <option id="incomingAuthMethodEncrypted"
+                          data-l10n-id="account-hub-ssl-encrypted-password-option"
+                          value="4">
+                  </option>
+                  <option id="incomingAuthMethodKerbos"
+                          label="Kerberos / GSSAPI"
+                          value="5">
+                  </option>
+                  <option id="incomingAuthMethodNtlm"
+                          label="NTLM"
+                          value="6">
+                  </option>
+                  <option id="incomingAuthMethodOAuth2"
+                          value="10"
+                          hidden="hidden"
+                          label="OAuth2">
+                  </option>
+                </account-hub-select>
               </div>
             </div>
 

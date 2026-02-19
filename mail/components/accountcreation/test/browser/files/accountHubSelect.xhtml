@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Account hub header element test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHub.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountHubForms.css"/>
+    <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+    <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
+    <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-select.mjs"></script>
+  </head>
+  <body>
+    <template id="accountHubSelectTemplate"
+      xmlns="http://www.w3.org/1999/xhtml">
+      <label>
+      </label>
+      <div class="input-control">
+        <select
+                class="menulist"
+                flex="1">
+        </select>
+
+        <p id="securityWarning" class="input-error-message">
+          <span data-l10n-name="error-text"></span>
+          <a class="more-info-link" data-l10n-name="error-link"></a>
+        </p>
+        <slot hidden="hidden"></slot>
+      </div>
+    </template>
+    <account-hub-select id="testSelect"
+                        l10n-label-id="account-hub-ssl-label"
+                        l10n-error-id="account-hub-select-security-warning">
+      <option value="1">One</option>
+      <option value="2" selected="selected">Two</option>
+    </account-hub-select>
+  </body>
+  </html>

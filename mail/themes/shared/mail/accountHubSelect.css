@@ -1,0 +1,121 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+:host {
+  --hub-select-color: light-dark(var(--color-text-base), currentColor);
+  --hub-menulist-background-color: var(--color-surface-subtle);
+  --hub-menulist-background-color-hover-focus-open: var(--color-surface-base);
+  --hub-menulist-border-color: var(--color-surface-border);
+  --hub-menulist-border-color-hover-focus-open: var(--color-surface-border-intense);
+  --hub-menulist-outline-offset-color: var(--color-primary-default);
+  --hub-menulist-label-color: var(--color-text-base);
+  --hub-form-input-line-height: 1em;
+  --hub-form-label-font-size: 1rem;
+}
+
+label {
+  font-size: var(--hub-form-label-font-size);
+  font-weight: 600;
+  color: var(--hub-menulist-label-color);
+}
+
+label:has(+ .input-control input:required)::after,
+input:required + label::after {
+  content: "*";
+  color: var(--color-text-critical);
+}
+
+select {
+  --background-image-width: 12px;
+  --end-padding: calc(var(--logical-padding) + 4px);
+  --logical-padding: 15px;
+  --start-padding: calc(var(--logical-padding) + 3px);
+  -moz-context-properties: fill;
+  appearance: none;
+  background-color: var(--hub-menulist-background-color);
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  background-position: right 11px center;
+  background-repeat: no-repeat;
+  background-size: auto var(--background-image-width);
+  border-radius: var(--hub-input-border-radius);
+  border: 1px solid var(--hub-menulist-border-color);
+  fill: currentColor;
+  font-size: 1em;
+  font-weight: 400;
+  inline-size: 100%;
+  line-height: 1.5;
+  margin-block: 4px 0;
+  margin-inline: 0;
+  min-block-size: var(--button-min-height);
+  padding-block: 12px;
+  padding-inline: 9px 43px;
+
+  &:hover,
+  &[open="true"]:not([disabled]),
+  &:focus-visible {
+    border-color: var(--hub-menulist-border-color-hover-focus-open);
+    background-color: var(--hub-menulist-background-color-hover-focus-open);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hub-menulist-outline-offset-color);
+    outline-offset: var(--focus-outline-offset);
+
+    /* Needed to override toolkit style */
+    &[open="true"] {
+      outline: none;
+    }
+  }
+
+  &.warning {
+    border-color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+    outline: 1px solid light-dark(var(--color-critical-default), var(--color-critical-pressed));
+    outline-offset: 0;
+
+    &:focus {
+      border-color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+    }
+
+    & ~ label {
+      color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+    }
+
+    & ~ .input-error-message {
+      display: inline;
+    }
+  }
+}
+
+.input-error-message {
+  color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+  display: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  inline-size: -moz-available;
+  white-space: normal;
+  position: relative;
+  font-size: 1rem;
+  inset-block-end: 0;
+  margin-block: 2px -15px;
+  line-height: 1.4;
+
+  & .more-info-link {
+    color: light-dark(var(--color-critical-default), var(--color-critical-pressed));
+    text-decoration: underline;
+  }
+
+  & span {
+    font-weight: 600;
+  }
+}
+
+.input-control {
+  align-items: center;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  margin-block-start: var(--account-hub-select-margin);
+}

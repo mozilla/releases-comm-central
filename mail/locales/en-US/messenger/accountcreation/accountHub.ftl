@@ -229,7 +229,7 @@ account-hub-addon-install-button = Install
 
 account-hub-addon-error = Add-on installation failed. Please try again or contact the add-on author for assistance.
 
-account-hub-security-warning = <span data-l10n-name="security-warning">Warning: Insecure mail server detected.</span> This server lacks encryption, exposing your password and data. Contact your administrator to secure the connection or proceed at your own risk. <a data-l10n-name="faq-link">See FAQ for more.</a>
+account-hub-select-security-warning = <span data-l10n-name="error-text">Warning: Insecure mail server detected.</span> This server lacks encryption, exposing your password and data. Contact your administrator to secure the connection or proceed at your own risk. <a data-l10n-name="error-link">See FAQ for more.</a>
 
 account-hub-account-authentication-error = Authentication error.
 

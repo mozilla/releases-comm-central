@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template
+  id="accountHubSelectTemplate"
+  xmlns="http://www.w3.org/1999/xhtml"
+>
+  <label>
+  </label>
+  <div class="input-control">
+    <select
+            class="menulist"
+            flex="1">
+    </select>
+
+    <p id="securityWarning" class="input-error-message" part="warning">
+      <span data-l10n-name="error-text" part="warning-text"></span>
+      <a class="more-info-link" data-l10n-name="error-link" part="warning-link"></a>
+    </p>
+    <slot hidden="hidden"></slot>
+  </div>
+</html:template>

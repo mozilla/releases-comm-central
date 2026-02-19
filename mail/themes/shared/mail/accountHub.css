@@ -433,14 +433,14 @@ header {
     grid-template: repeat(3, auto 1fr) auto / repeat(4, 1fr);
 
     &.advanced {
-      grid-template-rows: repeat(5, auto 1fr) repeat(3, auto);
+      grid-template-rows: repeat(4, auto 1fr);
     }
 
     .stacked & {
       grid-template: repeat(6, auto 1fr) auto / repeat(2, 1fr);
 
       &.advanced {
-        grid-template-rows: repeat(9, auto 1fr) repeat(3, auto);
+        grid-template-rows: repeat(11, auto 1fr);
       }
     }
 
@@ -449,6 +449,11 @@ header {
       grid-template-rows: subgrid;
       grid-row: span 2;
       gap: 3px;
+
+      &.select-row {
+        --account-hub-select-margin: 3px;
+        grid-template-rows: none;
+      }
 
       &:not(.narrow),
       .stacked & {
@@ -888,7 +893,7 @@ header {
 
 /* stylelint-disable-next-line media-query-no-invalid */
 @media not -moz-pref("mail.graph.enabled") {
-  #incomingProtocolGraph {
+  #incomingProtocol::part(option incomingProtocolGraph) {
     display: none;
   }
 }

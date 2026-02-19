@@ -709,30 +709,24 @@
             >
             </label>
             <div class="input-control">
-              <xul:menulist
+              <select
                 id="scope"
                 class="menulist"
                 data-l10n-id="account-hub-address-book-scope-subtree-label"
                 value="2"
                 flex="1"
               >
-                <xul:menupopup
-                  id="scopeMenupopup"
-                  class="menupopup"
-                  position="after_start"
-                >
-                  <xul:menuitem
+                  <option
                     id="scopeOne"
                     data-l10n-id="account-hub-address-book-scope-level-one-label"
                     value="1"
-                  />
-                  <xul:menuitem
+                  ></option>
+                  <option
                     id="scopeSubtree"
                     data-l10n-id="account-hub-address-book-scope-subtree-label"
                     value="2"
-                  />
-                </xul:menupopup>
-              </xul:menulist>
+                  ></option>
+              </select>
             </div>
           </div>
           <div class="input-cell full advanced-input">
@@ -743,30 +737,24 @@
             >
             </label>
             <div class="input-control">
-              <xul:menulist
+              <select
                 id="loginMethod"
                 class="menulist"
                 data-l10n-id="account-hub-address-book-login-simple-label"
                 value=""
                 flex="1"
               >
-                <xul:menupopup
-                  id="loginMethodMenupopup"
-                  class="menupopup"
-                  position="after_start"
-                >
-                  <xul:menuitem
+                  <option
                     id="loginSimple"
                     data-l10n-id="account-hub-address-book-login-simple-label"
                     value=""
-                  />
-                  <xul:menuitem
+                  ></option>
+                  <option
                     id="loginGSSAPI"
                     label="Kerberos (GSSAPI)"
                     value="GSSAPI"
-                  />
-                </xul:menupopup>
-              </xul:menulist>
+                  ></option>
+              </select>
             </div>
           </div>
           <div class="input-cell full advanced-input">

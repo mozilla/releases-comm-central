@@ -68,30 +68,32 @@ add_task(async function test_advancedLDAPDirectoryCreation() {
   const loginMethodDropdown = ldapFormSubview.querySelector("#loginMethod");
 
   // Select scope level one from the dropdown.
-  scopeDropdown.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "shown");
-  let commandEvent = BrowserTestUtils.waitForEvent(scopeDropdown, "command");
-  scopeDropdown.menupopup.activateItem(
-    scopeDropdown.querySelector("#scopeOne")
-  );
-  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "hidden");
-  await commandEvent;
+  const selectPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(scopeDropdown, {});
+
+  const popup = await selectPromise;
+
+  const items = popup.querySelectorAll("menuitem");
+
+  // #scopeOne
+  popup.activateItem(items[0]);
+
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
 
   // Select GSSAPI login method from the dropdown.
-  loginMethodDropdown.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(
-    loginMethodDropdown.menupopup,
-    "shown"
-  );
-  commandEvent = BrowserTestUtils.waitForEvent(loginMethodDropdown, "command");
-  loginMethodDropdown.menupopup.activateItem(
-    loginMethodDropdown.querySelector("#loginGSSAPI")
-  );
-  await BrowserTestUtils.waitForPopupEvent(
-    loginMethodDropdown.menupopup,
-    "hidden"
-  );
-  await commandEvent;
+  const loginMethodPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(loginMethodDropdown, {});
+
+  const loginMethodPopup = await loginMethodPromise;
+
+  const loginMethodItems = loginMethodPopup.querySelectorAll("menuitem");
+
+  // #loginGSSAPI
+  loginMethodPopup.activateItem(loginMethodItems[1]);
+
+  await BrowserTestUtils.waitForPopupEvent(loginMethodPopup, "hidden");
 
   const addressBookDirectory = await createDirectory(dialog);
   subtest_checkSimpleLDAPDirectoryData(addressBookDirectory);

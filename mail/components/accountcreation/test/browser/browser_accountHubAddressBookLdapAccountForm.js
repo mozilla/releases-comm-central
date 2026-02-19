@@ -251,7 +251,7 @@ add_task(async function test_showHideAdvancedConfig() {
   for (const input of advancedInputs) {
     Assert.ok(
       BrowserTestUtils.isVisible(input),
-      `Advanced input ${input.querySelector("label").dataset.l10nId} should be visible`
+      `Advanced input should be visible`
     );
   }
 
@@ -276,7 +276,7 @@ add_task(async function test_showHideAdvancedConfig() {
   for (const input of advancedInputs) {
     Assert.ok(
       BrowserTestUtils.isHidden(input),
-      `Advanced input ${input.querySelector("label").dataset.l10nId} should be hidden`
+      `Advanced input should be hidden`
     );
   }
 
@@ -468,26 +468,45 @@ add_task(async function test_captureStateAdvanced() {
   const scopeDropdown = subview.querySelector("#scope");
   const loginMethodDropdown = subview.querySelector("#loginMethod");
   // Select scope level one from the dropdown.
-  scopeDropdown.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "shown");
-  scopeDropdown.menupopup.activateItem(
-    scopeDropdown.querySelector("#scopeOne")
-  );
-  await BrowserTestUtils.waitForPopupEvent(scopeDropdown.menupopup, "hidden");
 
-  // Select GSSAPI login method from the dropdown.
-  loginMethodDropdown.openMenu(true);
-  await BrowserTestUtils.waitForPopupEvent(
-    loginMethodDropdown.menupopup,
-    "shown"
+  const selectPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+
+  scopeDropdown.scrollIntoView();
+
+  await EventUtils.synthesizeMouseAtCenter(
+    scopeDropdown,
+    {},
+    browser.contentWindow
   );
-  loginMethodDropdown.menupopup.activateItem(
-    loginMethodDropdown.querySelector("#loginGSSAPI")
+
+  const popup = await selectPromise;
+
+  const items = popup.querySelectorAll("menuitem");
+
+  // #scopeOne
+  popup.activateItem(items[0]);
+
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+
+  const loginMethodPromise = BrowserTestUtils.waitForSelectPopupShown(window);
+
+  loginMethodDropdown.scrollIntoView();
+
+  await EventUtils.synthesizeMouseAtCenter(
+    loginMethodDropdown,
+    {},
+    browser.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(
-    loginMethodDropdown.menupopup,
-    "hidden"
-  );
+
+  const loginMethodPopup = await loginMethodPromise;
+
+  const loginMethodItems = loginMethodPopup.querySelectorAll("menuitem");
+
+  // #loginGSSAPI
+  loginMethodPopup.activateItem(loginMethodItems[1]);
+
+  await BrowserTestUtils.waitForPopupEvent(loginMethodPopup, "hidden");
+
   const searchFilterInput = subview.querySelector("#search");
   searchFilterInput.value = "Test Filter";
 

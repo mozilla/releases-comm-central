@@ -65,87 +65,61 @@
           </div>
         </div>
         <div class="expanded">
-          <label for="outgoingSsl"
-                 data-l10n-id="account-hub-ssl-label"
-                 class="option-label">
-          </label>
-          <div class="input-control">
-            <xul:menulist id="outgoingConnectionSecurity"
-                          class="menulist"
-                          value="0"
-                          aria-invalid="false"
-                          flex="1">
-                <xul:menupopup id="outgoingConnectionSecurityMenupopup"
-                               class="menupopup">
-                  <xul:menuitem id="outgoingConnectionSecurityAutodetect"
-                                data-l10n-id="account-hub-ssl-autodetect-option"
-                    value="-1" />
-                  <xul:menuitem id="outgoingConnectionSecurityNoEncryption"
-                                data-l10n-id="account-hub-ssl-noencryption-option"
-                                value="0" />
-                  <xul:menuitem id="outgoingConnectionSecurityStartTtls"
-                                label="STARTTLS"
-                                value="2" />
-                  <xul:menuitem id="outgoingConnectionSecuritySslTls"
-                                label="SSL/TLS"
-                                value="3" />
-                </xul:menupopup>
-            </xul:menulist>
-            <p id="outgoingSecurityWarning"
-               class="input-error-message security-warning"
-               data-l10n-id="account-hub-security-warning">
-              <span data-l10n-name="security-warning"></span>
-              <a id="moreInfoLink" data-l10n-name="faq-link"></a>
-            </p>
-          </div>
+          <account-hub-select id="outgoingConnectionSecurity"
+              l10n-label-id="account-hub-ssl-label"
+              l10n-error-id="account-hub-select-security-warning"
+              flex="1">
+            <option id="outgoingConnectionSecurityAutodetect"
+                    data-l10n-id="account-hub-ssl-autodetect-option"
+                    value="-1"></option>
+            <option id="outgoingConnectionSecurityNoEncryption"
+                    data-l10n-id="account-hub-ssl-noencryption-option"
+                    selected="selected"
+                    value="0"></option>
+            <option id="outgoingConnectionSecurityStartTtls"
+                    label="STARTTLS"
+                    value="2"></option>
+            <option id="outgoingConnectionSecuritySslTls"
+                    label="SSL/TLS"
+                    value="3"></option>
+          </account-hub-select>
         </div>
       </div>
       <div class="form-row responsive-row">
-        <div>
-          <label for="outgoingAuthMethod"
-                 data-l10n-id="account-hub-auth-label"
-                 class="option-label">
-          </label>
-          <div class="input-control">
-            <xul:menulist id="outgoingAuthMethod"
-                          class="menulist"
-                          required="required"
-                          value="0"
-                          flex="1">
-              <xul:menupopup id="outgoingAuthMenupopup" class="menupopup">
-                <xul:menuitem id="outgoingAuthMethodAutodetect"
-                              data-l10n-id="account-hub-ssl-autodetect-option"
-                              value="0">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodNone"
-                              data-l10n-id="account-hub-auth-no-authentication-option"
-                              value="1">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodCleartext"
-                              data-l10n-id="account-hub-ssl-cleartext-password-option"
-                              value="3">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodEncrypted"
-                              data-l10n-id="account-hub-ssl-encrypted-password-option"
-                              value="4">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodKerbos"
-                              label="Kerberos / GSSAPI"
-                              value="5">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodNtlm"
-                              label="NTLM"
-                              value="6">
-                </xul:menuitem>
-                <xul:menuitem id="outgoingAuthMethodOAuth2"
-                              value="10"
-                              hidden="hidden"
-                              label="OAuth2">
-                </xul:menuitem>
-              </xul:menupopup>
-            </xul:menulist>
-          </div>
-        </div>
+        <account-hub-select id="outgoingAuthMethod"
+                l10n-label-id="account-hub-auth-label"
+                flex="1">
+            <option id="outgoingAuthMethodAutodetect"
+                    data-l10n-id="account-hub-ssl-autodetect-option"
+                    selected="selected"
+                    value="0">
+            </option>
+            <option id="outgoingAuthMethodNone"
+                    data-l10n-id="account-hub-auth-no-authentication-option"
+                    value="1">
+            </option>
+            <option id="outgoingAuthMethodCleartext"
+                    data-l10n-id="account-hub-ssl-cleartext-password-option"
+                    value="3">
+            </option>
+            <option id="outgoingAuthMethodEncrypted"
+                    data-l10n-id="account-hub-ssl-encrypted-password-option"
+                    value="4">
+            </option>
+            <option id="outgoingAuthMethodKerbos"
+                    label="Kerberos / GSSAPI"
+                    value="5">
+            </option>
+            <option id="outgoingAuthMethodNtlm"
+                    label="NTLM"
+                    value="6">
+            </option>
+            <option id="outgoingAuthMethodOAuth2"
+                    value="10"
+                    hidden="hidden"
+                    label="OAuth2">
+            </option>
+        </account-hub-select>
         <div class="expanded">
           <label for="outgoingUsername"
                  data-l10n-id="account-hub-result-username-label"

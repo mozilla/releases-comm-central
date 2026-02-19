@@ -124,6 +124,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   };
 
   await subtest_fill_initial_config_fields(dialog, emailUser);
+
   const footerForward = dialog
     .querySelector("account-hub-footer")
     .querySelector("#forward");
@@ -502,23 +503,28 @@ add_task(async function test_invalid_manual_config_flow() {
   const incomingConnectionSecurity = incomingConfigTemplate.querySelector(
     "#incomingConnectionSecurity"
   );
-  const noEncryptionOption = incomingConfigTemplate.querySelector(
-    "#incomingConnectionSecurityNoEncryption"
-  );
-  EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
-  await BrowserTestUtils.waitForPopupEvent(
-    incomingConnectionSecurity.menupopup,
-    "shown"
-  );
-  EventUtils.synthesizeMouseAtCenter(noEncryptionOption, {});
-  await BrowserTestUtils.waitForPopupEvent(
-    incomingConnectionSecurity.menupopup,
-    "hidden"
-  );
-  const securityWarning = incomingConfigTemplate.querySelector(
-    "#incomingSecurityWarning"
-  );
+
+  const incomingConnectionPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
+
+  await EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
+
+  const incomingConnectionPopup = await incomingConnectionPromise;
+
+  const incomingConnectionItems =
+    incomingConnectionPopup.querySelectorAll("menuitem");
+
+  // #incomingConnectionSecurityNoEncryption
+  incomingConnectionPopup.activateItem(incomingConnectionItems[1]);
+
+  await BrowserTestUtils.waitForPopupEvent(incomingConnectionPopup, "hidden");
+
+  const securityWarning = incomingConfigTemplate
+    .querySelector("#incomingConnectionSecurity")
+    .shadowRoot.querySelector("#securityWarning");
+
   await BrowserTestUtils.waitForAttributeRemoval("hidden", securityWarning);
+
   Assert.ok(
     BrowserTestUtils.isVisible(securityWarning),
     "Should show security warning"
@@ -660,17 +666,20 @@ add_task(async function test_account_email_manual_to_ews() {
   const protocolSelector =
     incomingConfigSubview.querySelector("#incomingProtocol");
 
-  EventUtils.synthesizeMouseAtCenter(protocolSelector, {});
-  await BrowserTestUtils.waitForPopupEvent(protocolSelector.menupopup, "shown");
+  const protocolSelectorPromise =
+    BrowserTestUtils.waitForSelectPopupShown(window);
 
-  EventUtils.synthesizeMouseAtCenter(
-    protocolSelector.querySelector("#incomingProtocolEWS"),
-    {}
-  );
-  await BrowserTestUtils.waitForPopupEvent(
-    protocolSelector.menupopup,
-    "hidden"
-  );
+  await EventUtils.synthesizeMouseAtCenter(protocolSelector, {});
+
+  const protocolSelectorPopup = await protocolSelectorPromise;
+
+  const protocolSelectorItems =
+    protocolSelectorPopup.querySelectorAll("menuitem");
+
+  // #incomingProtocolEWS
+  protocolSelectorPopup.activateItem(protocolSelectorItems[2]);
+
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
 
   await BrowserTestUtils.waitForAttributeRemoval(
     "hidden",
@@ -681,6 +690,7 @@ add_task(async function test_account_email_manual_to_ews() {
     "#incomingExchangeUrl"
   );
   const focusEvent = BrowserTestUtils.waitForEvent(ewsURLInput, "focus");
+
   EventUtils.synthesizeMouseAtCenter(ewsURLInput, {});
   await focusEvent;
 
