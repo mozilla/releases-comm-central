@@ -6,11 +6,11 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
 });
 
-var { getMessageManagerGroup } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionUtilities.sys.mjs"
+var { getMessageManagerGroup, getTriggeringPrincipalForTabCreate } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionUtilities.sys.mjs");
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
 );
-var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
-  ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );
@@ -528,13 +528,7 @@ this.tabs = class extends ExtensionAPIPersistent {
           }
           const triggeringPrincipal =
             url &&
-            getClonedPrincipalWithProtocolPermission(
-              context.principal,
-              Services.io.newURI(url),
-              {
-                userContextId,
-              }
-            );
+            getTriggeringPrincipalForTabCreate(url, context, userContextId);
 
           const linkHandler = getMessageManagerGroup(
             createProperties?.linkHandler
@@ -628,9 +622,9 @@ this.tabs = class extends ExtensionAPIPersistent {
                 flags: updateProperties.loadReplace
                   ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
                   : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
-                triggeringPrincipal: getClonedPrincipalWithProtocolPermission(
-                  context.principal,
-                  uri
+                triggeringPrincipal: getTriggeringPrincipalForTabCreate(
+                  url,
+                  context
                 ),
               };
 
