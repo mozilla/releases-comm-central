@@ -47,25 +47,60 @@ const {
 } = ChromeUtils.importESModule("resource://gre/modules/Extension.sys.mjs");
 
 /**
+ * WebExtension manifest overrides.
+ *
+ * @typedef {object} ManifestOverrides
+ * @property {number} manifest_version - Manifest version (2 or 3).
+ * @property {string[]} [permissions] - Extension permissions.
+ * @property {string[]} [host_permissions] - Host permissions (MV3).
+ */
+
+/**
+ * Test configuration.
+ *
+ * @typedef {object} TestConfig
+ * @property {string} url - The url to open in the test tab.
+ * @property {string} tabConfig - Determines how the tab is created, one of:
+ *   "openContentTab": Use window.openContentTab() to create the tab.
+ *   "createWebExtensionTab": Use browser.tabs.create() to create the tab.
+ *   "updateMailTabBrowser": Use browser.tabs.update() to load a page into a mail tab.
+ *   "createWebExtensionPopup": Use browser.windows.create() to create a popup window.
+ * @property {object} [values] - Expected content values.
+ * @property {string} [values.backgroundColor] - CSS background color of the body element.
+ * @property {string} [values.color] - CSS color of the body element.
+ * @property {string} [values.foo] - Value of the "foo" attribute of the body element.
+ * @property {string} [values.textContent] - Text content of the body element.
+ */
+
+/**
+ * Test extension object returned by ExtensionTestUtils.loadExtension().
+ *
+ * @typedef {object} Extension
+ * @see mochitest/tests/SimpleTest/ExtensionTestUtils.js
+ */
+
+/**
+ * @callback CreateExtensionFn
+ *
+ * Creates an extension to be used in a test, with custom manifest overrides.
+ *
+ * @param {ManifestOverrides} manifest
+ * @returns {Extension}
+ */
+
+/**
  * Helper function for the initial ping-pong communication with the background
  * script to open the requested tab and wait for it to load.
  *
  * @param {Extension} extension
- * @param {object} testConfig
- * @param {string} testConfig.url - The url to open in the test tab.
- * @param {string} testConfig.tabConfig - Determines how the tab is created:
- *    - "openContentTab": Use window.openContentTab() to create the tab.
- *    - "createWebExtensionTab": Use browser.tabs.create() to create the tab.
- *    - "updateMailTabBrowser": Use browser.tabs.update() to load a page into a
- *                              mail tab.
- *    - "createWebExtensionPopup": Use browser.windows.create() to create a popup
- *                                 window.
+ * @param {ManifestOverrides} manifest
+ * @param {TestConfig} testConfig
  *
  * @returns {Promise<NativeTab>} Resolves to the loaded tab.
  */
-async function getInitialTabLoaded(extension, testConfig) {
+async function getInitialTabLoaded(extension, manifest, testConfig) {
   info(
-    `Preparing sub test for ${testConfig.tabConfig} with url ${testConfig.url}`
+    `Preparing manifest version ${manifest.manifest_version} sub test for ${testConfig.tabConfig} with url ${testConfig.url}`
   );
   await extension.awaitMessage("get test config");
   // Create the content tab, if requested by the testConfig. Otherwise the
@@ -117,10 +152,23 @@ function getBackgoundHelperFunctions() {
   };
 }
 
-async function verifyInsertRemoveCSS(extension, testConfig) {
+/**
+ * Test handler to insert and remove CSS. Depends heavily on the used test
+ * extension.
+ *
+ * @param {CreateExtensionFn} createExtensionFn
+ * @param {ManifestOverrides} manifest
+ * @param {TestConfig} testConfig
+ */
+async function test_verifyInsertRemoveCSS(
+  createExtensionFn,
+  manifest,
+  testConfig
+) {
+  const extension = await createExtensionFn(manifest);
   await extension.startup();
 
-  const tab = await getInitialTabLoaded(extension, testConfig);
+  const tab = await getInitialTabLoaded(extension, manifest, testConfig);
 
   await extension.awaitMessage("code insertCSS()");
   await checkContent(tab.browser, { backgroundColor: "rgb(0, 255, 0)" });
@@ -142,10 +190,23 @@ async function verifyInsertRemoveCSS(extension, testConfig) {
   await extension.unload();
 }
 
-async function verifyExecuteScript(extension, testConfig) {
+/**
+ * Test handler to execute content scripts. Depends heavily on the used test
+ * extension.
+ *
+ * @param {CreateExtensionFn} createExtensionFn
+ * @param {ManifestOverrides} manifest
+ * @param {TestConfig} testConfig
+ */
+async function test_verifyExecuteScript(
+  createExtensionFn,
+  manifest,
+  testConfig
+) {
+  const extension = await createExtensionFn(manifest);
   await extension.startup();
 
-  const tab = await getInitialTabLoaded(extension, testConfig);
+  const tab = await getInitialTabLoaded(extension, manifest, testConfig);
 
   await extension.awaitMessage("code executeScript()");
   await extension.awaitMessage("expected code injection");
@@ -164,10 +225,23 @@ async function verifyExecuteScript(extension, testConfig) {
   await extension.unload();
 }
 
-async function verifyAliasInjection(extension, testConfig) {
+/**
+ * Test handler to verify that the messenger namespace is accessible in content
+ * scripts. Depends heavily on the used test extension.
+ *
+ * @param {CreateExtensionFn} createExtensionFn
+ * @param {ManifestOverrides} manifest
+ * @param {TestConfig} testConfig
+ */
+async function test_verifyAliasInjection(
+  createExtensionFn,
+  manifest,
+  testConfig
+) {
+  const extension = await createExtensionFn(manifest);
   await extension.startup();
 
-  const tab = await getInitialTabLoaded(extension, testConfig);
+  const tab = await getInitialTabLoaded(extension, manifest, testConfig);
 
   await extension.awaitMessage("code executeScript()");
   await extension.awaitMessage("expected code injection");
@@ -178,10 +252,23 @@ async function verifyAliasInjection(extension, testConfig) {
   await extension.unload();
 }
 
-async function verifyNoPermissions(extension, testConfig) {
+/**
+ * Test handler to verify that the content scripts fail without the required
+ * permissions. Depends heavily on the used test extension.
+ *
+ * @param {CreateExtensionFn} createExtensionFn
+ * @param {ManifestOverrides} manifest
+ * @param {TestConfig} testConfig
+ */
+async function test_verifyNoPermissions(
+  createExtensionFn,
+  manifest,
+  testConfig
+) {
+  const extension = await createExtensionFn(manifest);
   await extension.startup();
 
-  const tab = await getInitialTabLoaded(extension, testConfig);
+  const tab = await getInitialTabLoaded(extension, manifest, testConfig);
 
   await extension.awaitMessage("ready");
   await checkContent(tab.browser, testConfig.values);
@@ -193,7 +280,10 @@ async function verifyNoPermissions(extension, testConfig) {
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
 add_task(async function testInsertRemoveCSS() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -241,11 +331,12 @@ add_task(async function testInsertRemoveCSS() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -255,11 +346,12 @@ add_task(async function testInsertRemoveCSS() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -272,7 +364,10 @@ add_task(async function testInsertRemoveCSS() {
 
 /** Tests browser.scripting.insertCSS and browser.scripting.removeCSS. */
 add_task(async function testInsertRemoveCSSViaScriptingAPI() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -320,23 +415,25 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*", "scripting"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
         values: CONTENT_VALUES,
       }
     );
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -346,23 +443,25 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*", "scripting"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
         values: ABOUTBLANK_VALUES,
       }
     );
-    await verifyInsertRemoveCSS(
-      await extension({
+    await test_verifyInsertRemoveCSS(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://*/*"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -374,7 +473,10 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
 
 /** Tests browser.tabs.insertCSS fails without the host permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -426,10 +528,11 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyNoPermissions(
-      await extension({
+    await test_verifyNoPermissions(
+      createExtensionFn,
+      {
         manifest_version: 2,
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -439,10 +542,11 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyNoPermissions(
-      await extension({
+    await test_verifyNoPermissions(
+      createExtensionFn,
+      {
         manifest_version: 2,
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -455,7 +559,10 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
 
 /** Tests browser.tabs.executeScript. */
 add_task(async function testExecuteScript() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -494,11 +601,12 @@ add_task(async function testExecuteScript() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -507,11 +615,12 @@ add_task(async function testExecuteScript() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -523,7 +632,10 @@ add_task(async function testExecuteScript() {
 
 /** Tests browser.scripting.executeScript. */
 add_task(async function testExecuteScriptViaScriptingAPI() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -565,22 +677,24 @@ add_task(async function testExecuteScriptViaScriptingAPI() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*", "scripting"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
       }
     );
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -589,22 +703,24 @@ add_task(async function testExecuteScriptViaScriptingAPI() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*", "scripting"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
       }
     );
-    await verifyExecuteScript(
-      await extension({
+    await test_verifyExecuteScript(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://*/*"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -615,7 +731,10 @@ add_task(async function testExecuteScriptViaScriptingAPI() {
 
 /** Tests browser.tabs.executeScript fails without the host permission. */
 add_task(async function testExecuteScriptNoPermissions() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -670,10 +789,11 @@ add_task(async function testExecuteScriptNoPermissions() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyNoPermissions(
-      await extension({
+    await test_verifyNoPermissions(
+      createExtensionFn,
+      {
         manifest_version: 2,
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -683,10 +803,11 @@ add_task(async function testExecuteScriptNoPermissions() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyNoPermissions(
-      await extension({
+    await test_verifyNoPermissions(
+      createExtensionFn,
+      {
         manifest_version: 2,
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -701,7 +822,10 @@ add_task(async function testExecuteScriptNoPermissions() {
  * Tests the messenger alias is available after browser.tabs.executeScript().
  */
 add_task(async function testExecuteScriptAlias() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -733,11 +857,12 @@ add_task(async function testExecuteScriptAlias() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -746,11 +871,12 @@ add_task(async function testExecuteScriptAlias() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*", "scripting"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -764,7 +890,10 @@ add_task(async function testExecuteScriptAlias() {
  * Tests messenger alias is available after browser.scripting.executeScript().
  */
 add_task(async function testExecuteScriptAliasViaScriptingAPI() {
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -803,22 +932,24 @@ add_task(async function testExecuteScriptAliasViaScriptingAPI() {
     });
 
   for (const task of CONTENT_TASKS) {
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://mochi.test/*", "scripting"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
       }
     );
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://mochi.test/*"],
-      }),
+      },
       {
         tabConfig: task,
         url: CONTENT_PAGE,
@@ -827,22 +958,24 @@ add_task(async function testExecuteScriptAliasViaScriptingAPI() {
   }
 
   for (const task of ABOUTBLANK_TASKS) {
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*", "scripting"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
       }
     );
-    await verifyAliasInjection(
-      await extension({
+    await test_verifyAliasInjection(
+      createExtensionFn,
+      {
         manifest_version: 3,
         permissions: ["scripting"],
         host_permissions: ["*://*/*"], // about:blank requires broad host permissions
-      }),
+      },
       {
         tabConfig: task,
         url: "about:blank",
@@ -865,7 +998,10 @@ add_task(async function testExecuteScriptFailInMozExtension() {
     ],
   });
 
-  const extension = async (manifest = {}) =>
+  /**
+   * @type {CreateExtensionFn}
+   */
+  const createExtensionFn = async (manifest = {}) =>
     ExtensionTestUtils.loadExtension({
       files: {
         "helper.js": getBackgoundHelperFunctions(),
@@ -936,11 +1072,12 @@ add_task(async function testExecuteScriptFailInMozExtension() {
       continue;
     }
 
-    await verifyNoPermissions(
-      await extension({
+    await test_verifyNoPermissions(
+      createExtensionFn,
+      {
         manifest_version: 2,
         permissions: ["*://*/*"], // be broad to make sure this is not causing the failure
-      }),
+      },
       {
         tabConfig: task,
         url: "content.html",
