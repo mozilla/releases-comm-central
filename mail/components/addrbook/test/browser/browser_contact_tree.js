@@ -632,7 +632,6 @@ add_task(async function test_context_menu_edit() {
 
   const menu = abDocument.getElementById("cardContext");
   const editMenuItem = abDocument.getElementById("cardContextEdit");
-  const exportMenuItem = abDocument.getElementById("cardContextExport");
 
   async function checkEditItems(index, hidden, isMailList = false) {
     await showCardsContext(index);
@@ -642,12 +641,6 @@ add_task(async function test_context_menu_edit() {
       hidden,
       `editMenuItem should be hidden=${hidden} on index ${index}`
     );
-    Assert.equal(
-      exportMenuItem.hidden,
-      !isMailList,
-      `exportMenuItem should be hidden=${!isMailList} on index ${index}`
-    );
-
     Assert.deepEqual(document.l10n.getAttributes(editMenuItem), {
       id: isMailList
         ? "about-addressbook-books-context-edit-list"

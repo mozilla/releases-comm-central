@@ -77,20 +77,20 @@ async function subtest(cardConstructor) {
 
   await compareAgainstFile(
     "export.csv",
-    AddrBookUtils.exportDirectoryToDelimitedText(book, ",")
+    AddrBookUtils.exportCardsToDelimitedText(book.childCards, ",")
   );
   await compareAgainstFile(
     "export.txt",
-    AddrBookUtils.exportDirectoryToDelimitedText(book, "\t")
+    AddrBookUtils.exportCardsToDelimitedText(book.childCards, "\t")
   );
   await compareAgainstFile(
     "export.vcf",
-    AddrBookUtils.exportDirectoryToVCard(book)
+    AddrBookUtils.exportCardsToVCard(book.childCards)
   );
   // modifytimestamp is always changing, replace it with a fixed value.
   await compareAgainstFile(
     "export.ldif",
-    AddrBookUtils.exportDirectoryToLDIF(book).replace(
+    AddrBookUtils.exportCardsToLDIF(book.childCards).replace(
       /modifytimestamp: \d+/g,
       "modifytimestamp: 12345"
     )
@@ -101,7 +101,7 @@ async function compareAgainstFile(fileName, actual) {
   info(`checking against ${fileName}`);
 
   // The test files are UTF-8 encoded and have Windows line endings. The
-  // exportDirectoryTo* functions are platform-dependent, except for VCard
+  // exportCardsTo* functions are platform-dependent, except for VCard
   // which always uses Windows line endings.
 
   const file = do_get_file(`data/${fileName}`);

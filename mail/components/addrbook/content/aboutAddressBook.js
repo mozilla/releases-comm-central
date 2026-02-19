@@ -717,14 +717,14 @@ customElements.whenDefined("tree-listbox").then(() => {
     /**
      * Export the selected address book to a file.
      */
-    exportSelected() {
+    async exportSelected() {
       if (this.selectedIndex == 0) {
         return;
       }
 
       const row = this.getRowAtIndex(this.selectedIndex);
       const directory = row._book || row._list;
-      AddrBookUtils.exportDirectory(directory);
+      await AddrBookUtils.exportCards(directory.childCards, directory.dirName);
     }
 
     /**
@@ -1934,13 +1934,23 @@ var cardsPane = {
   /**
    * Export the selected mailing list to a file.
    */
-  exportSelected() {
-    const card = this.selectedCards[0];
-    if (!card || !card.isMailList) {
-      return;
+  async exportSelected() {
+    const selectedCards = this.selectedCards;
+    if (selectedCards.length == 1 && selectedCards[0].isMailList) {
+      const row = booksList.getRowForUID(selectedCards[0].UID);
+      await AddrBookUtils.exportCards(
+        row._list.childCards,
+        selectedCards[0].displayName
+      );
+    } else {
+      const suggestedName =
+        selectedCards.length == 1
+          ? selectedCards[0].displayName
+          : await document.l10n.formatValue(
+              "about-addressbook-export-selected-filename"
+            );
+      await AddrBookUtils.exportCards(selectedCards, suggestedName);
     }
-    const row = booksList.getRowForUID(card.UID);
-    AddrBookUtils.exportDirectory(row._list);
   },
 
   _canModifySelected() {
@@ -2098,10 +2108,10 @@ var cardsPane = {
       "about-addressbook-books-context-edit"
     );
     const exportItem = document.getElementById("cardContextExport");
-    if (this.cardsList.selectedIndices.length == 1) {
-      const card = this.cardsList.view.getCardFromRow(
-        this.cardsList.selectedIndex
-      );
+
+    const selectedCards = this.selectedCards;
+    if (selectedCards.length == 1) {
+      const card = selectedCards[0];
       if (card.isMailList) {
         writeMenuItem.hidden = writeMenuSeparator.hidden = false;
         writeMenu.hidden = true;
@@ -2144,13 +2154,13 @@ var cardsPane = {
         }
 
         editItem.hidden = !this._canModifySelected();
-        exportItem.hidden = true;
+        exportItem.hidden = false;
       }
     } else {
       writeMenuItem.hidden = false;
       writeMenu.hidden = true;
       editItem.hidden = true;
-      exportItem.hidden = true;
+      exportItem.hidden = selectedCards.some(card => card.isMailList);
     }
 
     const deleteItem = document.getElementById("cardContextDelete");

@@ -133,7 +133,17 @@ const LINEBREAK = AppConstants.platform == "win" ? "\r\n" : "\n";
 
 export var AddrBookUtils = {
   compareAddressBooks,
-  async exportDirectory(directory) {
+  newUID,
+
+  /**
+   * Export cards to a file. The user will be asked to pick a destination file
+   * name and format.
+   *
+   * @param {nsIAbCard[]} cards - The cards to export.
+   * @param {string} suggestedName - A file name (no extension) to suggest to
+   *   the user.
+   */
+  async exportCards(cards, suggestedName) {
     let systemCharset = "utf-8";
     if (AppConstants.platform == "win") {
       // Some Windows applications (notably Outlook) still don't understand
@@ -202,14 +212,14 @@ export var AddrBookUtils = {
     );
 
     const title = bundle.formatStringFromName("ExportAddressBookNameTitle", [
-      directory.dirName,
+      suggestedName,
     ]);
     filePicker.init(
       Services.ww.activeWindow.browsingContext,
       title,
       Ci.nsIFilePicker.modeSave
     );
-    filePicker.defaultString = directory.dirName;
+    filePicker.defaultString = suggestedName;
 
     let filterString;
     // Since the list of file picker filters isn't fixed, keep track of which
@@ -274,7 +284,7 @@ export var AddrBookUtils = {
         if (!leafName.endsWith(".csv")) {
           exportFile.leafName += ".csv";
         }
-        output = AddrBookUtils.exportDirectoryToDelimitedText(directory, ",");
+        output = AddrBookUtils.exportCardsToDelimitedText(cards, ",");
         break;
       case "TABFilesSysCharset":
         charset = systemCharset;
@@ -283,19 +293,19 @@ export var AddrBookUtils = {
         if (!leafName.endsWith(".txt") && !leafName.endsWith(".tab")) {
           exportFile.leafName += ".txt";
         }
-        output = AddrBookUtils.exportDirectoryToDelimitedText(directory, "\t");
+        output = AddrBookUtils.exportCardsToDelimitedText(cards, "\t");
         break;
       case "VCFFiles":
         if (!leafName.endsWith(".vcf")) {
           exportFile.leafName += ".vcf";
         }
-        output = AddrBookUtils.exportDirectoryToVCard(directory);
+        output = AddrBookUtils.exportCardsToVCard(cards);
         break;
       case "LDIFFiles":
         if (!leafName.endsWith(".ldi") && !leafName.endsWith(".ldif")) {
           exportFile.leafName += ".ldif";
         }
-        output = AddrBookUtils.exportDirectoryToLDIF(directory);
+        output = AddrBookUtils.exportCardsToLDIF(cards);
         break;
     }
 
@@ -315,13 +325,17 @@ export var AddrBookUtils = {
       outputStream.close();
     }
 
-    Services.obs.notifyObservers(
-      exportFile,
-      "addrbook-export-completed",
-      directory.UID
-    );
+    Services.obs.notifyObservers(exportFile, "addrbook-export-completed");
   },
-  exportDirectoryToDelimitedText(directory, delimiter) {
+
+  /**
+   * Export cards in comma-separated or tab-separated values format.
+   *
+   * @param {nsIAbCard[]} cards
+   * @param {","|"\t"} delimiter
+   * @returns {string} the cards as CSV or TSV data.
+   */
+  exportCardsToDelimitedText(cards, delimiter) {
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/importMsgs.properties"
     );
@@ -336,7 +350,7 @@ export var AddrBookUtils = {
       }
     }
     output += LINEBREAK;
-    for (const card of directory.childCards) {
+    for (const card of cards) {
       if (card.isMailList) {
         // .tab, .txt and .csv aren't able to export mailing lists.
         // Use LDIF for that.
@@ -382,7 +396,14 @@ export var AddrBookUtils = {
 
     return output;
   },
-  exportDirectoryToLDIF(directory) {
+
+  /**
+   * Export cards in LDIF format.
+   *
+   * @param {nsIAbCard[]} cards
+   * @returns {string} - the cards as LDIF data.
+   */
+  exportCardsToLDIF(cards) {
     function appendProperty(name, value) {
       if (!value) {
         return;
@@ -425,7 +446,7 @@ export var AddrBookUtils = {
       "ldap_2.servers.default.attrmap"
     );
 
-    for (const card of directory.childCards) {
+    for (const card of cards) {
       if (card.isMailList) {
         appendDNForCard("dn", card, attrMap);
         appendProperty("objectclass", "top");
@@ -480,9 +501,16 @@ export var AddrBookUtils = {
 
     return output;
   },
-  exportDirectoryToVCard(directory) {
+
+  /**
+   * Export cards in vCard format.
+   *
+   * @param {nsIAbCard[]} cards
+   * @returns {string} - the cards as vCard data.
+   */
+  exportCardsToVCard(cards) {
     let output = "";
-    for (const card of directory.childCards) {
+    for (const card of cards) {
       if (!card.isMailList) {
         // We don't know how to export mailing lists to vcf.
         // Use LDIF for that.
@@ -491,5 +519,4 @@ export var AddrBookUtils = {
     }
     return output;
   },
-  newUID,
 };
