@@ -122,7 +122,7 @@ FEATURES_TO_PRESERVE = [
 
 def get_cargo(command_context):
     """
-    Ensures all the necessary cargo bits are installed.
+    Ensure cargo is installed and version is new enough.
 
     Returns the path to cargo if successful, raises an Exception otherwise.
     :rtype: str: path to cargo
@@ -134,19 +134,6 @@ def get_cargo(command_context):
     if not vendor_rust.check_cargo_version(cargo):
         raise Exception("Cargo not found or version mismatch.")
     return cargo
-
-
-def get_cargo_version(command_context):
-    """
-    Get the Cargo version that is currently in use.
-
-    :rtype looseversion.LooseVersion: The Cargo version.
-    """
-    vendor_rust = VendorRust(
-        command_context.topsrcdir, command_context.settings, command_context.log_manager
-    )
-    cargo = vendor_rust.get_cargo_path()
-    return vendor_rust.cargo_version(cargo)
 
 
 class CargoFile:
@@ -309,18 +296,6 @@ def run_tb_cargo_sync(command_context):
 
 
 def run_tb_rust_vendor(command_context):
-    # Cargo 1.89 made a lot of changes to which files are vendored, so vendoring
-    # with an earlier version would cause a lot of unnecessary changes.
-    cargo_version = get_cargo_version(command_context)
-    if cargo_version < "1.89":
-        command_context.log(
-            logging.ERROR,
-            "tb-rust",
-            {},
-            "[ERROR] This command must be used with Cargo >= 1.89",
-        )
-        return
-
     cargo = get_cargo(command_context)
 
     run_tb_cargo_sync(command_context)
@@ -412,39 +387,35 @@ def cleanup_vendor(command_context):
     """
     command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Cleaning up unwanted files")
 
-    workspace = mozpath.join(command_context.topsrcdir, "comm", "rust")
     vendored_dir = Path(mozpath.join(command_context.topsrcdir, "comm", "third_party", "rust"))
-    with open(os.path.join(workspace, "Cargo.lock")) as fh:
-        cargo_lock = tomlkit.load(fh)
 
-        for package in cargo_lock["package"]:
-            # Ignore local packages. Those already live in either
-            # mozilla-central or comm-central, and will not be vendored.
-            if not package.get("source"):
-                continue
+    for package_dir in vendored_dir.iterdir():
+        if not package_dir.is_dir():
+            continue
 
-            # `cargo vendor` might create and include unwanted .orig files.
-            unlinked = ["Cargo.toml.orig"]
+        unlinked = []
+        # Remove files from checksum that are in SRC_TAR_EXCLUDE_PATHS
+        for pattern in (".gitattributes", ".gitkeep", ".gitmodules"):
+            for path in package_dir.rglob(pattern):
+                unlinked.append(mozpath.normsep(str(path.relative_to(package_dir))))
 
-            package_dir = vendored_dir / package["name"]
+        # Update the checksums with the changes we made. Also remove the
+        # files that need to be removed.
+        checksum_json = package_dir / ".cargo-checksum.json"
+        with checksum_json.open(encoding="utf-8") as fh:
+            checksum_data = json.load(fh)
+        for path in unlinked:
+            try:
+                del checksum_data["files"][path]
+            except KeyError:
+                pass
 
-            # Update the checksums with the changes we made. Also remove the
-            # files that need to be removed.
-            checksum_json = package_dir / ".cargo-checksum.json"
-            with checksum_json.open(encoding="utf-8") as fh:
-                checksum_data = json.load(fh)
-            for path in unlinked:
-                try:
-                    del checksum_data["files"][path]
-                except KeyError:
-                    pass
-
-                try:
-                    (package_dir / path).unlink()
-                except FileNotFoundError:
-                    pass
-            with checksum_json.open(mode="w", encoding="utf-8") as fh:
-                json.dump(checksum_data, fh, separators=(",", ":"))
+            try:
+                (package_dir / path).unlink()
+            except FileNotFoundError:
+                pass
+        with checksum_json.open(mode="w", encoding="utf-8") as fh:
+            json.dump(checksum_data, fh, separators=(",", ":"))
 
 
 def regen_toml_files(command_context, workspace):
