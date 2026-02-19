@@ -6,18 +6,6 @@
 
 // @see browser/components/extensions/test/browser/browser_ext_windows_create_cookieStoreId.js
 
-add_setup(function () {
-  Services.prefs.setBoolPref(
-    "extensions.webextensions.allow_executeScript_in_moz_extension",
-    true
-  );
-  registerCleanupFunction(async () => {
-    Services.prefs.clearUserPref(
-      "extensions.webextensions.allow_executeScript_in_moz_extension"
-    );
-  });
-});
-
 add_task(async function no_cookies_permission() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", true]],
@@ -121,7 +109,7 @@ add_task(async function valid_cookieStoreId() {
         cookieStoreId: "firefox-container-1",
       },
       expectedCookieStoreIds: ["firefox-container-1"],
-      expectedExecuteScriptResult: ["about:blank"],
+      expectedExecuteScriptResult: ["about:blank - null"],
     },
     {
       description: "one URL in an array",
@@ -131,14 +119,13 @@ add_task(async function valid_cookieStoreId() {
         cookieStoreId: "firefox-container-2",
       },
       expectedCookieStoreIds: ["firefox-container-2"],
-      expectedExecuteScriptResult: ["about:blank"],
+      expectedExecuteScriptResult: ["about:blank - null"],
     },
   ];
 
   async function background(testCases) {
     const readyTabs = new Map();
     const tabReadyCheckers = new Set();
-    const baseURL = await browser.runtime.getURL("");
 
     browser.webNavigation.onCompleted.addListener(({ url, tabId, frameId }) => {
       if (frameId === 0) {
@@ -174,7 +161,7 @@ add_task(async function valid_cookieStoreId() {
         return (
           await browser.tabs.executeScript(tabId, {
             matchAboutBlank: true,
-            code: "`${document.URL} - ${origin}/`",
+            code: "`${document.URL} - ${origin}`",
           })
         )[0];
       } catch (e) {
@@ -217,7 +204,7 @@ add_task(async function valid_cookieStoreId() {
 
         const result = await executeScriptAndGetResult(win.tabs[i].id);
         browser.test.assertEq(
-          `${expectedResult} - ${baseURL}`,
+          expectedResult,
           result,
           `expected executeScript result for tab ${i} (${description})`
         );

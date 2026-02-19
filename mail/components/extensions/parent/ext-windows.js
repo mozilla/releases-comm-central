@@ -5,11 +5,11 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
-var { getMessageManagerGroup } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionUtilities.sys.mjs"
+var { getMessageManagerGroup, getTriggeringPrincipalForTabCreate } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionUtilities.sys.mjs");
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
 );
-var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
-  ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );
@@ -394,7 +394,6 @@ this.windows = class extends ExtensionAPIPersistent {
           const createWindowArgs = cdata => {
             const url = cdata.url || "about:blank";
             const urls = Array.isArray(url) ? url : [url];
-            const uri = Services.io.newURI(urls[0]);
 
             for (const idx in urls) {
               try {
@@ -426,10 +425,10 @@ this.windows = class extends ExtensionAPIPersistent {
               action: "open",
               allowScriptsToClose: createData.allowScriptsToClose,
               linkHandler,
-              triggeringPrincipal: getClonedPrincipalWithProtocolPermission(
-                context.principal,
-                uri,
-                { userContextId }
+              triggeringPrincipal: getTriggeringPrincipalForTabCreate(
+                urls[0],
+                context,
+                userContextId
               ),
               tabs: urls.map(u => ({
                 tabType: "contentTab",

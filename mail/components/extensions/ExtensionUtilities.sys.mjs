@@ -7,6 +7,8 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   ExtensionData: "resource://gre/modules/Extension.sys.mjs",
+  getClonedPrincipalWithProtocolPermission:
+    "resource:///modules/LinkHelper.sys.mjs",
 });
 
 /**
@@ -74,4 +76,44 @@ export async function checkInstalledExtensions() {
     "extensions.hasExperimentsInstalled",
     extensionInfo.some(e => e.isExperiment)
   );
+}
+
+/**
+ * For urls that we want to allow an extension to open, but that it may not
+ * otherwise have access to, we set the triggering (content) principal to the url
+ * that is being opened. This is used for the about: protocol. For other urls,
+ * we clone the principal of the context and add the protocol permission for the
+ * url being opened, if needed.
+ *
+ * Note: The caller has to ensure that extensions cannot open arbitrary URLs with
+ * context.checkLoadURL().
+ *
+ * @param {string} url - The url that the extension is trying to open.
+ * @param {BaseContext} context - Extension context to clone the principal from,
+ *    if the url can be accessed directly.
+ * @param {string} userContextId - Container user context id to use for the new
+ *    principal.
+ *
+ * @returns {nsIPrincipal}
+ */
+export function getTriggeringPrincipalForTabCreate(
+  url,
+  context,
+  userContextId
+) {
+  const uri = Services.io.newURI(url);
+  // Create a content principal for url targets with the about: protocol.
+  // Note: Thunderbird itself is using the system principal for about:blank.
+  // Note: The caller has to ensure that extensions cannot open arbitrary URLs
+  //       with context.checkLoadURL().
+  if (uri.scheme == "about") {
+    return Services.scriptSecurityManager.createContentPrincipal(uri, {
+      userContextId,
+      privateBrowsingId: 0,
+    });
+  }
+  return lazy.getClonedPrincipalWithProtocolPermission(context.principal, uri, {
+    userContextId,
+    privateBrowsingId: 0,
+  });
 }
