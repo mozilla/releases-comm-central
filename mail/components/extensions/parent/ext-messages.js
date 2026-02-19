@@ -1131,10 +1131,9 @@ this.messages = class extends ExtensionAPIPersistent {
           }
         },
         async query(queryInfo) {
-          const messageQuery = new MessageQuery(
-            queryInfo,
-            messageListTracker,
-            context.extension
+          const messageQuery = messageListTracker.createQuery(
+            context.extension,
+            queryInfo
           );
           return messageQuery.startSearch();
         },

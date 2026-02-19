@@ -1797,8 +1797,9 @@ export class MessageList {
    * @param {ExtensionData} extension
    * @param {MessageTracker} messageTracker
    * @param {MessageListOptions} [options]
+   * @param {ApprovePageCallback} [approvePageFnForTests]
    */
-  constructor(extension, messageTracker, options) {
+  constructor(extension, messageTracker, options, approvePageFnForTests) {
     this.messageListId = Services.uuid.generateUUID().number.substring(1, 37);
     this.extension = extension;
     this.isDone = false;
@@ -1807,6 +1808,7 @@ export class MessageList {
     this.folderCache = new Map();
     this.messagesPerPage = options?.messagesPerPage ?? lazy.gMessagesPerPage;
     this.includeDeletedMessages = options?.includeDeletedMessages ?? false;
+    this.approvePageFnForTests = approvePageFnForTests ?? null;
     this.log = new Set();
 
     this.pages.push(new MessagePage());
@@ -1825,7 +1827,14 @@ export class MessageList {
       return;
     }
 
+    // Wait for approval from the test environment before actually completing the
+    // current page and adding a new one, resolving the current page.
+    if (Cu.isInAutomation && this.approvePageFnForTests) {
+      await this.approvePageFnForTests(this.pages.length);
+    }
+
     this.pages.push(new MessagePage());
+
     // The previous page is finished and can be resolved.
     if (previousPage) {
       previousPage.resolvePage();
@@ -1932,6 +1941,29 @@ export class MessageListTracker {
   constructor(messageTracker) {
     this._contextLists = new WeakMap();
     this._messageTracker = messageTracker;
+    this._approvePageFnForTests = null;
+    this._checkSearchCriteriaFnForTests = null;
+  }
+
+  /**
+   * Allow tests to intercept page completion by setting a custom page approval
+   * function on the global messageListTracker used by extensions.
+   *
+   * @param {ApprovePageCallback} fn
+   */
+  set approvePageFnForTests(fn) {
+    this._approvePageFnForTests = fn;
+  }
+
+  /**
+   * Allow tests to use a custom function to check if messages match the current
+   * search critiria by setting a check function on the global messageListTracker
+   * used by extensions.
+   *
+   * @param {CheckSearchCriteriaCallback} fn
+   */
+  set checkSearchCriteriaFnForTests(fn) {
+    this._checkSearchCriteriaFnForTests = fn;
   }
 
   /**
@@ -2000,7 +2032,8 @@ export class MessageListTracker {
     const messageList = new MessageList(
       extension,
       this._messageTracker,
-      options
+      options,
+      this._approvePageFnForTests
     );
     let lists = this._contextLists.get(extension);
     if (!lists) {
@@ -2009,6 +2042,15 @@ export class MessageListTracker {
     }
     lists.set(messageList.id, messageList);
     return messageList;
+  }
+
+  createQuery(extension, queryInfo) {
+    return new MessageQuery(
+      queryInfo,
+      this,
+      extension,
+      this._checkSearchCriteriaFnForTests
+    );
   }
 
   /**
@@ -2150,33 +2192,47 @@ export class MessageManager {
 }
 
 /**
+ * @callback CheckSearchCriteriaCallback
+ *
+ * Check if the given msgHdr matches the current search criteria. Tests can override
+ * this function.
+ *
+ * @param {nsIMsgDBHdr} msgHdr
+ * @param {nsIMsgFolder} [folder = msgHdr.folder] - The parent folder of the
+ *   msgHdr, can be specified to prevent multiple lookups while evaluating
+ *   multiple messages of the same folder.
+ *
+ * @returns {Promise<boolean>}
+ */
+
+/**
+ * @callback ApprovePageCallback
+ *
+ * Wait for approval of new pages. Only used by tests.
+ *
+ * @param {integer} page - the number of the pending page
+ *
+ * @returns {Promise<undefined>}
+ */
+
+/**
  * Convenience class to keep track of a search.
  */
 export class MessageQuery {
   /**
-   * @callback CheckSearchCriteriaCallback
-   *
-   * Check if the given msgHdr matches the current search criteria.
-   *
-   * @param {nsIMsgDBHdr} msgHdr
-   * @param {nsIMsgFolder} [folder = msgHdr.folder] - The parent folder of the
-   *   msgHdr, can be specified to prevent multiple lookups while evaluating
-   *   multiple messages of the same folder.
-   *
-   * @returns {Promise<boolean>}
-   */
-
-  /**
    * @param {object} queryInfo
    * @param {MessageListTracker} messageListTracker
    * @param {ExtensionData} extension
-   * @param {CheckSearchCriteriaCallback} [checkSearchCriteriaFn] - Function
-   *   to be used instead of the default MessageQuery.checkSearchCriteria(),
-   *   when checking if a message matches the current search criteria.
+   * @param {CheckSearchCriteriaCallback} checkSearchCriteriaFnForTests
    *
    * @see /mail/components/extensions/schemas/messages.json
    */
-  constructor(queryInfo, messageListTracker, extension, checkSearchCriteriaFn) {
+  constructor(
+    queryInfo,
+    messageListTracker,
+    extension,
+    checkSearchCriteriaFnForTests
+  ) {
     this.extension = extension;
     this.queryInfo = queryInfo;
     this.messageListTracker = messageListTracker;
@@ -2185,8 +2241,10 @@ export class MessageQuery {
       messagesPerPage: queryInfo.messagesPerPage,
     });
 
-    this.checkSearchCriteriaFn =
-      checkSearchCriteriaFn || this.checkSearchCriteria;
+    this.checkSearchCriteriaFn = this.checkSearchCriteria;
+    if (Cu.isInAutomation && checkSearchCriteriaFnForTests) {
+      this.checkSearchCriteriaFn = checkSearchCriteriaFnForTests;
+    }
 
     this.autoPaginationTimeout = queryInfo.autoPaginationTimeout ?? 1000;
   }
@@ -2583,18 +2641,37 @@ export class MessageQuery {
       if (this.messageList.isDone) {
         return;
       }
+
+      // Schedule the addition of a new page if the next search exceeds the
+      // pagination timeout.
+      let addPageTimer = null;
+      let addPagePromise = null;
+      if (
+        this.autoPaginationTimeout > 0 &&
+        this.messageList.currentPage.messages.length
+      ) {
+        addPageTimer = setTimeout(
+          () => (addPagePromise = this.messageList.addPage()),
+          Math.max(
+            0,
+            this.autoPaginationTimeout -
+              (Date.now() - this.messageList.currentPage.timeOfFirstMessage)
+          )
+        );
+      }
+
       if (await this.checkSearchCriteriaFn(msg, folder)) {
         await this.messageList.addMessage(msg);
       }
 
-      // Check if auto-pagination is needed.
-      if (
-        this.autoPaginationTimeout &&
-        this.messageList.currentPage.messages.length > 0 &&
-        Date.now() - this.messageList.currentPage.timeOfFirstMessage >
-          this.autoPaginationTimeout
-      ) {
-        await this.messageList.addPage();
+      // Unschedule the new page.
+      if (addPageTimer != null) {
+        clearTimeout(addPageTimer);
+      }
+
+      // If we added a page, wait for its Promise to fulfill.
+      if (addPagePromise) {
+        await addPagePromise;
       }
     }
 
