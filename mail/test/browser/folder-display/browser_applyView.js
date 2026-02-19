@@ -112,18 +112,10 @@ async function invoke_column_picker_option(aActions) {
     "#threadTree .menupopup-column-picker"
   );
 
-  const shownPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popupshown"
-  );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
-  await shownPromise;
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    colPickerPopup,
-    "popuphidden"
-  );
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
   await click_menus_in_sequence(colPickerPopup, aActions);
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
 }
 
 async function _apply_to_folder_common(aChildrenToo, folder) {
@@ -153,6 +145,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
   if (notificatonPromise) {
     await notificatonPromise;
   }
+  await TestUtils.waitForTick();
 }
 
 /**
