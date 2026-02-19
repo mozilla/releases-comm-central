@@ -686,6 +686,104 @@ add_task(async function testExecuteScriptAliasViaScriptingAPI() {
 });
 
 /**
+ * Tests browser.tabs.executeScript fails as expected after Bug 2011234 when
+ * injecting into an extension page (moz-extension://*).
+ */
+add_task(async function testExecuteScriptFailInMozExtension() {
+  // Make sure the restriction is enabled while running this test,
+  // TODO(Bug 2015559): Remove this once pref flip along with letting the
+  // restriction to be riding the release train (presumably v153).
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["extensions.webextensions.allow_executeScript_in_moz_extension", false],
+    ],
+  });
+
+  const extension = async () =>
+    ExtensionTestUtils.loadExtension({
+      files: {
+        "helper.js": getBackgoundHelperFunctions(),
+        "background.js": async () => {
+          const [config] = await window.sendMessage("get test config");
+          const tab = await window.getTestTab(config);
+          await window.sendMessage("load tab", tab.id);
+
+          await browser.test.assertRejects(
+            browser.tabs.executeScript(tab.id, {
+              code: `document.body.setAttribute("foo", "bar"); browser.test.sendMessage("unexpected code injection"); `,
+              matchAboutBlank: config.matchAboutBlank,
+            }),
+            /Missing host permission for the tab/,
+            "executeScript without permission should throw"
+          );
+
+          await browser.test.assertRejects(
+            browser.tabs.executeScript(tab.id, {
+              file: "test.js",
+              matchAboutBlank: config.matchAboutBlank,
+            }),
+            /Missing host permission for the tab/,
+            "executeScript without permission should throw"
+          );
+
+          await browser.test.assertRejects(
+            browser.tabs.executeScript(tab.id, {
+              file: "test.js",
+              matchAboutBlank: config.matchAboutBlank,
+            }),
+            /Missing host permission for the tab/,
+            "executeScript without permission should throw"
+          );
+          await window.sendMessage("ready");
+
+          if (config.tabConfig != "updateMailTabBrowser") {
+            await browser.tabs.remove(tab.id);
+          }
+          browser.test.notifyPass("finished");
+        },
+        "test.js": () => {
+          document.body.textContent = "Hey look, the script ran!";
+          browser.test.sendMessage("expected file injection");
+        },
+        "content.html": `<!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8"/>
+              <title>A test document</title>
+            </head>
+            <body>
+              <p>This is text.</p>
+            </body>
+          </html>`,
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "helper.js", "background.js"] },
+        permissions: ["*://*/*"], // be broad to make sure this is not causing the failure
+      },
+    });
+
+  for (const task of CONTENT_TASKS) {
+    // moz-extension urls are not loaded by Thunderbird itself, so we only test
+    // tabs created by WebExtensions.
+    if (task == "openContentTab") {
+      continue;
+    }
+
+    await verifyNoPermissions(await extension(), {
+      tabConfig: task,
+      url: "content.html",
+      values: {
+        backgroundColor: "rgba(0, 0, 0, 0)",
+        color: "rgb(0, 0, 0)",
+        foo: null,
+        textContent: "\n              This is text.\n            \n          ",
+      },
+    });
+  }
+});
+
+/**
  * Tests browser.contentScripts.register correctly adds CSS and JavaScript to
  * message composition windows opened after it was called. Also tests calling
  * `unregister` on the returned object.
