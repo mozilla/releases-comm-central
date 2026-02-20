@@ -10,6 +10,7 @@ const JOIN_LINK_PATTERNS = [
 
   // Microsoft Teams.
   /https?:\/\/teams\.microsoft\.com\/l\/meetup-join\/[^\s<>]+/i,
+  /https?:\/\/teams\.microsoft\.com\/meet\/[^\s<>]+/i,
 
   // WebEx.
   /https?:\/\/meetings\.webex\.com\/collabs\/meetings\/join[^\s<>]*/i,

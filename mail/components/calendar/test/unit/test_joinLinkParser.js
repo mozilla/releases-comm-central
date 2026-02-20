@@ -59,6 +59,16 @@ const providers = {
         Join the meeting now<https://teams.microsoft.com/l/meetup-join/19%3ameeting_Njlj>
       `,
     },
+    {
+      joinLink:
+        "https://teams.microsoft.com/meet/1234567890?p=loremIpsumBinary",
+      description: `
+        Microsoft Teams Meeting
+        Join: <https://teams.microsoft.com/meet/1234567890?p=loremIpsumBinary>
+        Meeting ID: 1234567890
+        Passcode: loremIpsum
+      `,
+    },
   ],
   webex: [
     {
