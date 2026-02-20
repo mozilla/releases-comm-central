@@ -182,11 +182,7 @@ add_task(async function testRedirectToMe() {
   EventUtils.synthesizeMouseAtCenter(otherActionsButton, {}, aboutMessage);
   const otherActionsPopup =
     aboutMessage.document.getElementById("otherActionsPopup");
-  const popupshown = BrowserTestUtils.waitForEvent(
-    otherActionsPopup,
-    "popupshown"
-  );
-  await popupshown;
+  await BrowserTestUtils.waitForPopupEvent(otherActionsPopup, "shown");
   info("otherActionsButton popup shown");
 
   const compWinPromise = promise_new_window("msgcompose");
