@@ -28,10 +28,7 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { dump_view_state } from "resource://testing-common/mail/ViewHelpers.sys.mjs";
-import {
-  promise_new_window,
-  wait_for_window_focused,
-} from "resource://testing-common/mail/WindowHelpers.sys.mjs";
+import { promise_new_window } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 var nsMsgViewIndex_None = 0xffffffff;
 
@@ -406,7 +403,11 @@ export async function open_message_from_file(file) {
 
   const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
-  wait_for_window_focused(msgc);
+  if (Services.focus.activeWindow != msgc) {
+    await new Promise(resolve =>
+      msgc.addEventListener("activate", resolve, { once: true })
+    );
+  }
   await TestUtils.waitForTick();
 
   return msgc;

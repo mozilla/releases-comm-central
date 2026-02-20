@@ -17,10 +17,9 @@ const {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-const { promise_new_window, wait_for_window_focused } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+const { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
@@ -243,7 +242,11 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   const mc2 = await newWindowPromise;
   await wait_for_message_display_completion(mc2, true);
-  await wait_for_window_focused(mc2);
+  if (Services.focus.activeWindow != mc2) {
+    await new Promise(resolve =>
+      mc2.addEventListener("activate", resolve, { once: true })
+    );
+  }
   const aboutMessage2 = get_about_message(mc2);
 
   // Check properties of the opened attachment window.
@@ -260,8 +263,6 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon should be shown"
   );
   await BrowserTestUtils.closeWindow(mc2);
-
-  await wait_for_window_focused(msgc);
 
   // Ensure there were no side effects for the primary window.
   Assert.ok(
@@ -313,7 +314,6 @@ add_task(async function testOpenForwardedSigned() {
   );
   const mc2 = await newWindowPromise;
   await wait_for_message_display_completion(mc2, true);
-  await wait_for_window_focused(mc2);
   const aboutMessage2 = get_about_message(mc2);
 
   // Check properties of the opened attachment window.
@@ -331,8 +331,6 @@ add_task(async function testOpenForwardedSigned() {
   );
 
   await BrowserTestUtils.closeWindow(mc2);
-
-  await wait_for_window_focused(msgc);
 
   // Ensure there were no side effects for the primary window.
   Assert.ok(

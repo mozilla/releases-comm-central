@@ -7,11 +7,6 @@ import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
-/**
- * Timeout for focusing a window.  Only really an issue on linux.
- */
-var WINDOW_FOCUS_TIMEOUT_MS = 10000;
-
 function getWindowTypeOrID(win) {
   const docElement = win.document.documentElement;
   return docElement.getAttribute("windowtype") || docElement.id;
@@ -35,47 +30,6 @@ export async function promise_new_window(aWindowType) {
   await new Promise(resolve => domWindow.setTimeout(resolve));
 
   return domWindow;
-}
-
-/**
- * Wait for the window to be focused.
- *
- * @param {Window} aWindow - The window to be focused.
- */
-export async function wait_for_window_focused(aWindow) {
-  let targetWindow = {};
-
-  Services.focus.getFocusedElementForWindow(aWindow, true, targetWindow);
-  targetWindow = targetWindow.value;
-
-  let focusedWindow = {};
-  if (Services.focus.activeWindow) {
-    Services.focus.getFocusedElementForWindow(
-      Services.focus.activeWindow,
-      true,
-      focusedWindow
-    );
-    focusedWindow = focusedWindow.value;
-  }
-
-  let focused = false;
-  if (focusedWindow == targetWindow) {
-    focused = true;
-  } else {
-    targetWindow.addEventListener("focus", () => (focused = true), {
-      capture: true,
-      once: true,
-    });
-    targetWindow.focus();
-  }
-
-  await TestUtils.waitForCondition(
-    () => focused,
-    "Timeout waiting for window to be focused.",
-    WINDOW_FOCUS_TIMEOUT_MS,
-    100,
-    this
-  );
 }
 
 /**

@@ -41,7 +41,7 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
-var { click_menus_in_sequence, promise_new_window, wait_for_window_focused } =
+var { click_menus_in_sequence, promise_new_window } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
@@ -355,7 +355,12 @@ add_task(async function test_no_send_now_sends() {
  *   menuitem after the click.
  */
 async function click_manual_reminder(aCwc, aExpectedState) {
-  await wait_for_window_focused(aCwc);
+  if (Services.focus.activeWindow != aCwc) {
+    await new Promise(resolve =>
+      aCwc.addEventListener("activate", resolve, { once: true })
+    );
+  }
+
   const button = aCwc.document.getElementById("button-attach");
 
   const popup = aCwc.document.getElementById("button-attachPopup");
@@ -371,7 +376,6 @@ async function click_manual_reminder(aCwc, aExpectedState) {
     aCwc.document.getElementById("button-attachPopup_remindLaterItem")
   );
   await hiddenPromise;
-  await wait_for_window_focused(aCwc);
   assert_manual_reminder_state(aCwc, aExpectedState);
 }
 

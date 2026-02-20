@@ -15,10 +15,9 @@ const {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
-const { promise_new_window, wait_for_window_focused } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/WindowHelpers.sys.mjs"
-  );
+const { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
+);
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );

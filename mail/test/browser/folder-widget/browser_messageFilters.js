@@ -21,7 +21,7 @@ var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/NNTPHelpers.sys.mjs"
   );
-var { click_menus_in_sequence, promise_new_window, wait_for_window_focused } =
+var { click_menus_in_sequence, promise_new_window } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
