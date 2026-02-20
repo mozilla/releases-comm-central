@@ -3,7 +3,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global MozElements */
-
 /* import-globals-from MsgComposeCommands.js */
 
 var { cloudFileAccounts } = ChromeUtils.importESModule(
@@ -109,19 +108,6 @@ var gBigFileObserver = {
     }
   },
 
-  formatString(key, replacements, plural) {
-    let str = getComposeBundle().getString(key);
-    if (plural !== undefined) {
-      str = PluralForm.get(plural, str);
-    }
-    if (replacements !== undefined) {
-      for (let i = 0; i < replacements.length; i++) {
-        str = str.replace("#" + (i + 1), replacements[i]);
-      }
-    }
-    return str;
-  },
-
   _bigFileNotification: null,
   async updateBigFileNotification() {
     if (this._bigFileNotification) {
@@ -135,10 +121,10 @@ var gBigFileObserver = {
       gComposeNotification.getNotificationWithValue("bigAttachment");
     if (this.bigFiles.length) {
       if (bigFileNotification) {
-        bigFileNotification.label = this.formatString(
-          "bigFileDescription",
-          [this.bigFiles.length],
-          this.bigFiles.length
+        document.l10n.setAttributes(
+          bigFileNotification,
+          "big-file-notification",
+          { count: this.bigFiles.length }
         );
         return;
       }
@@ -150,28 +136,24 @@ var gBigFileObserver = {
           callback: this.openLearnMore.bind(this),
         },
         {
-          label: this.formatString("bigFileShare.label", []),
-          accessKey: this.formatString("bigFileShare.accesskey"),
+          label: getComposeBundle().getString("bigFileShare.label"),
+          accessKey: getComposeBundle().getString("bigFileShare.accesskey"),
           callback: this.convertAttachments.bind(this),
         },
         {
-          label: this.formatString("bigFileAttach.label", []),
-          accessKey: this.formatString("bigFileAttach.accesskey"),
+          label: getComposeBundle().getString("bigFileAttach.label"),
+          accessKey: getComposeBundle().getString("bigFileAttach.accesskey"),
           callback: this.hideBigFileNotification.bind(this),
         },
       ];
-
-      const msg = this.formatString(
-        "bigFileDescription",
-        [this.bigFiles.length],
-        this.bigFiles.length
-      );
-
       this._bigFileNotification = gComposeNotification
         .appendNotification(
           "bigAttachment",
           {
-            label: msg,
+            label: {
+              "l10n-id": "big-file-notification",
+              "l10n-args": { count: this.bigFiles.length },
+            },
             priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
           },
           buttons
@@ -206,8 +188,8 @@ var gBigFileObserver = {
       const icons = accounts.map(i => i.iconURL);
       const args = {
         promptType: "select",
-        title: this.formatString("bigFileChooseAccount.title"),
-        text: this.formatString("bigFileChooseAccount.text"),
+        title: getComposeBundle().getString("bigFileChooseAccount.title"),
+        text: getComposeBundle().getString("bigFileChooseAccount.text"),
         list: names,
         icons,
         selected: -1,
@@ -243,9 +225,9 @@ var gBigFileObserver = {
     if (
       Services.prompt.confirmCheck(
         window,
-        this.formatString("bigFileHideNotification.title"),
-        this.formatString("bigFileHideNotification.text"),
-        this.formatString("bigFileHideNotification.check"),
+        getComposeBundle().getString("bigFileHideNotification.title"),
+        getComposeBundle().getString("bigFileHideNotification.text"),
+        getComposeBundle().getString("bigFileHideNotification.check"),
         never
       )
     ) {
@@ -298,19 +280,22 @@ var gBigFileObserver = {
       return;
     }
 
-    let message = this.formatString("cloudFileUploadingNotification");
-    message = PluralForm.get(activeUploads, message);
-
     if (notification) {
-      notification.label = message;
+      document.l10n.setAttributes(
+        notification,
+        "cloudfile-uploading-notification",
+        { count: activeUploads }
+      );
       return;
     }
 
     const showUploadButton = {
-      accessKey: this.formatString(
+      accessKey: getComposeBundle().getString(
         "stopShowingUploadingNotification.accesskey"
       ),
-      label: this.formatString("stopShowingUploadingNotification.label"),
+      label: getComposeBundle().getString(
+        "stopShowingUploadingNotification.label"
+      ),
       callback() {
         Services.prefs.setBoolPref(
           "mail.compose.big_attachments.insert_notification",
@@ -322,7 +307,10 @@ var gBigFileObserver = {
       .appendNotification(
         kUploadNotificationValue,
         {
-          label: message,
+          label: {
+            "l10n-id": "cloudfile-uploading-notification",
+            "l10n-args": { count: activeUploads },
+          },
           priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
         },
         [showUploadButton]
@@ -367,7 +355,9 @@ var gBigFileObserver = {
       return;
     }
 
-    const message = this.formatString("cloudFilePrivacyNotification");
+    const message = getComposeBundle().getString(
+      "cloudFilePrivacyNotification"
+    );
 
     await gComposeNotification
       .appendNotification(

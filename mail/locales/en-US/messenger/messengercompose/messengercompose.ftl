@@ -164,6 +164,21 @@ button-return-receipt =
     .label = Receipt
     .tooltiptext = Request a return receipt for this message
 
+
+# Variables:
+#   $count - the number of attachments
+remove-attachment-cmd =
+    .label = {
+        $count ->
+            [one] Remove Attachment
+            *[other] Remove Attachments
+        }
+    .accesskey = M
+
+default-delete-cmd =
+    .label = Delete
+    .accesskey = D
+
 ## Encryption
 
 encryption-menu =
@@ -370,6 +385,23 @@ encrypted-bcc-ignore-button = Understood
 
 auto-disable-e2ee-warning = End-to-end encryption for this message was automatically disabled.
 
+
+# Variables:
+#   $count - the number of files that will be unblocked
+blocked-content-message = {
+    $count ->
+        [one] { -brand-short-name } has blocked a file from loading into this message. Unblocking the file will include it in your sent message.
+        *[other] { -brand-short-name } has blocked some files from loading into this message. Unblocking a file will include it in your sent message.
+    }
+
+# Variables:
+#   $count - the number keywords
+attachment-reminder-keywords-msg = {
+    $count ->
+        [one] Found an attachment keyword:
+        *[other] Found { $count } attachment keywords:
+    }
+
 ## Editing
 
 # Tools
@@ -378,6 +410,22 @@ compose-tool-button-remove-text-styling =
   .tooltiptext = Remove Text Styling
 
 ## Filelink
+
+# Variables:
+#   $count - the number big attached files
+big-file-notification =
+    .label = {
+        $count ->
+            [one] This is a large file. It might be better to use Filelink instead.
+            *[other] These are large files. It might be better to use Filelink instead.
+        }
+# Variables:
+#   $count - the number of files being linked
+cloudfile-uploading-notification = {
+    $count ->
+        [one] Your file is being linked. It will appear in the body of the message when it’s done.
+        *[other] Your files are being linked. They will appear in the body of the message when it’s done.
+    }
 
 # A text used in a tooltip of Filelink attachments, whose account has been
 # removed or is unknown.

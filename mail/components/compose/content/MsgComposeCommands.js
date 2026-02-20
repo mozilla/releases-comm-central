@@ -52,9 +52,6 @@ var { MimeParser } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -1194,13 +1191,10 @@ var defaultController = {
 
     cmd_delete: {
       isEnabled() {
-        const cmdDelete = document.getElementById("cmd_delete");
-        const textValue = cmdDelete.getAttribute("valueDefault");
-        const accesskeyValue = cmdDelete.getAttribute("valueDefaultAccessKey");
-
-        cmdDelete.setAttribute("label", textValue);
-        cmdDelete.setAttribute("accesskey", accesskeyValue);
-
+        document.l10n.setAttributes(
+          document.getElementById("cmd_delete"),
+          "default-delete-cmd"
+        );
         return false;
       },
       doCommand() {},
@@ -1343,15 +1337,11 @@ var attachmentBucketController = {
 
     cmd_delete: {
       isEnabled() {
-        const cmdDelete = document.getElementById("cmd_delete");
-        let textValue = getComposeBundle().getString("removeAttachmentMsgs");
-        textValue = PluralForm.get(gAttachmentBucket.selectedCount, textValue);
-        const accesskeyValue = cmdDelete.getAttribute(
-          "valueRemoveAttachmentAccessKey"
+        document.l10n.setAttributes(
+          document.getElementById("cmd_delete"),
+          "remove-attachment-cmd",
+          { count: gAttachmentBucket.selectedCount }
         );
-        cmdDelete.setAttribute("label", textValue);
-        cmdDelete.setAttribute("accesskey", accesskeyValue);
-
         return gAttachmentBucket.selectedCount;
       },
       doCommand() {
@@ -3343,21 +3333,15 @@ function manageAttachmentNotification(force = false) {
     return;
   }
 
-  let textValue = getComposeBundle().getString(
-    "attachmentReminderKeywordsMsgs"
-  );
-  textValue = PluralForm.get(keywordsCount, textValue).replace(
-    "#1",
-    keywordsCount
-  );
   // If the notification already exists, we simply add the new attachment
   // specific keywords to the existing notification instead of creating it
   // from scratch.
   if (notification) {
-    const msgContainer = notification.messageText.querySelector(
-      "#attachmentReminderText"
+    document.l10n.setAttributes(
+      notification.messageText.querySelector("#attachmentReminderText"),
+      "attachment-reminder-keywords-msg",
+      { count: keywordsCount }
     );
-    msgContainer.textContent = textValue;
     const keywordsContainer = notification.messageText.querySelector(
       "#attachmentKeywords"
     );
@@ -3373,10 +3357,17 @@ function manageAttachmentNotification(force = false) {
     });
   };
 
-  const msgText = document.createElement("span");
-  msg.appendChild(msgText);
-  msgText.id = "attachmentReminderText";
-  msgText.textContent = textValue;
+  const attachmentReminderText = document.createElement("span");
+  attachmentReminderText.id = "attachmentReminderText";
+  document.l10n.setAttributes(
+    attachmentReminderText,
+    "attachment-reminder-keywords-msg",
+    {
+      count: keywordsCount,
+    }
+  );
+  msg.appendChild(attachmentReminderText);
+
   const msgKeywords = document.createElement("span");
   msg.appendChild(msgKeywords);
   msgKeywords.id = "attachmentKeywords";
@@ -11420,7 +11411,6 @@ var gComposeNotificationBar = {
   },
 
   async setBlockedContent(aBlockedURI) {
-    const brandName = this.brandBundle.getString("brandShortName");
     const buttonLabel = getComposeBundle().getString(
       AppConstants.platform == "win"
         ? "blockedContentPrefLabel"
@@ -11451,25 +11441,24 @@ var gComposeNotificationBar = {
     }
     popup.value = urls.join(" ");
 
-    let msg = getComposeBundle().getFormattedString("blockedContentMessage", [
-      brandName,
-      brandName,
-    ]);
-    msg = PluralForm.get(urls.length, msg);
-
     if (!this.isShowingBlockedContentNotification()) {
       await gComposeNotification.appendNotification(
         "blockedContent",
         {
-          label: msg,
+          label: {
+            "l10n-id": "blocked-content-message",
+            "l10n-args": { count: urls.length },
+          },
           priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
         },
         buttons
       );
     } else {
-      gComposeNotification
-        .getNotificationWithValue("blockedContent")
-        .setAttribute("label", msg);
+      document.l10n.setAttributes(
+        gComposeNotification.getNotificationWithValue("blockedContent"),
+        "blocked-content-message",
+        { count: urls.length }
+      );
     }
   },
 

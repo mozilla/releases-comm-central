@@ -26,8 +26,6 @@
 <!ENTITY closeConversationCmd.accesskey "C">
 <!ENTITY aliasCmd.label                "Rename">
 <!ENTITY aliasCmd.accesskey            "R">
-<!ENTITY deleteCmd.label               "Remove Contact">
-<!ENTITY deleteCmd.accesskey           "v">
 
 <!ENTITY openConversationButton.tooltip  "Start a conversation">
 <!ENTITY closeConversationButton.tooltip "Close conversation">
