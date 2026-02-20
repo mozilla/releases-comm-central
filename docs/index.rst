@@ -26,6 +26,7 @@ Thunderbird Source Tree Documentation
    /storybook/index
    /frontend/tabmail
    /frontend/trees
+   /frontend/icons
 
 .. toctree::
    :caption: Mail Front End

@@ -504,6 +504,7 @@
   skin/classic/messenger/splitter.css                         (../shared/mail/splitter.css)
   skin/classic/messenger/widgets.css                          (../shared/mail/widgets.css)
 
+# The "new" folder in the path of these icons is actually old now, too.
   skin/classic/messenger/icons/new/compact/account-settings.svg (../shared/mail/icons/new/compact/account-settings.svg)
   skin/classic/messenger/icons/new/compact/add.svg            (../shared/mail/icons/new/compact/add.svg)
   skin/classic/messenger/icons/new/compact/add-circle.svg     (../shared/mail/icons/new/compact/add-circle.svg)
@@ -783,6 +784,7 @@
   skin/classic/messenger/icons/new/activity/info.svg           (../shared/mail/icons/new/activity/info.svg)
   skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
 
+# Icons should be registered below here, organized by icon size.
 # XS - 12x12px icons
   skin/classic/messenger/icons/xs/ascending.svg                (../shared/mail/icons/xs/ascending.svg)
   skin/classic/messenger/icons/xs/close.svg                    (../shared/mail/icons/xs/close.svg)
