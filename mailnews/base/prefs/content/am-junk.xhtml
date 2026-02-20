@@ -221,12 +221,7 @@
                     class="menulist-menupopup"
                     expandFolders="false"
                     mode="filing"
-                    oncommand="
-                      onActionTargetChange(
-                        event,
-                        'server.spamActionTargetAccount'
-                      )
-                    "
+                    oncommand="onActionTargetChange(event, 'Account')"
                   />
                 </menulist>
                 <menulist
@@ -240,12 +235,7 @@
                     id="actionFolderPopup"
                     mode="junk"
                     showFileHereLabel="true"
-                    oncommand="
-                      onActionTargetChange(
-                        event,
-                        'server.spamActionTargetFolder'
-                      )
-                    "
+                    oncommand="onActionTargetChange(event, 'Folder')"
                   />
                 </menulist>
               </vbox>
