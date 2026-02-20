@@ -13,7 +13,7 @@
         <menulist id="dateformat" crop="none"
                   flex="1"
                   preference="calendar.date.format">
-          <menupopup id="dateformatpopup">
+          <menupopup id="dateformatpopup" native="false">
             <menuitem id="dateformat-long-menuitem"
                       value="0"/>
             <menuitem id="dateformat-short-menuitem"
@@ -46,7 +46,7 @@
         <menulist id="calendar-timezone-menulist"
                   flex="1"
                   preference="calendar.timezone.local">
-          <menupopup id="calendar-timezone-menupopup"/>
+          <menupopup id="calendar-timezone-menupopup" native="false"/>
         </menulist>
       </hbox>
 #else
@@ -58,7 +58,7 @@
         <menulist id="calendar-timezone-menulist"
                   flex="1"
                   preference="calendar.timezone.local">
-          <menupopup id="calendar-timezone-menupopup"/>
+          <menupopup id="calendar-timezone-menupopup" native="false"/>
         </menulist>
       </hbox>
 #endif
@@ -72,7 +72,7 @@
                   flex="1"
                   preference="calendar.week.start"
                   oncommand="gViewsPane.updateViewWorkDayCheckboxes(this.value)">
-          <menupopup id="weekstartspopup">
+          <menupopup id="weekstartspopup" native="false">
             <menuitem data-l10n-id="day-1-name" value="0"/>
             <menuitem data-l10n-id="day-2-name" value="1"/>
             <menuitem data-l10n-id="day-3-name" value="2"/>
@@ -153,7 +153,7 @@
           <hbox>
             <menulist id="visiblehours"
                       preference="calendar.view.visiblehours">
-              <menupopup id="visiblehourspopup">
+              <menupopup id="visiblehourspopup" native="false">
                 <menuitem label="1" value="1"/>
                 <menuitem label="2" value="2"/>
                 <menuitem label="3" value="3"/>
@@ -195,7 +195,7 @@
             <menulist id="daystarthour"
                       oncommand="gViewsPane.updateViewEndMenu(this.value);"
                       preference="calendar.view.daystarthour">
-              <menupopup id="daystarthourpopup">
+              <menupopup id="daystarthourpopup" native="false">
                 <menuitem id="timeStart0" value="0" data-l10n-id="midnight-label"/>
                 <menuitem id="timeStart1" value="1"/>
                 <menuitem id="timeStart2" value="2"/>
@@ -235,7 +235,7 @@
             <menulist id="dayendhour"
                       oncommand="gViewsPane.updateViewStartMenu(this.value);"
                       preference="calendar.view.dayendhour">
-              <menupopup id="dayendhourpopup">
+              <menupopup id="dayendhourpopup" native="false">
                 <menuitem id="timeEnd1" value="1"/>
                 <menuitem id="timeEnd2" value="2"/>
                 <menuitem id="timeEnd3" value="3"/>
@@ -282,7 +282,7 @@
       <hbox>
         <menulist id="viewsMultiweekTotalWeeks"
                   preference="calendar.weeks.inview">
-          <menupopup>
+          <menupopup native="false">
             <menuitem data-l10n-id="week-1-label" value="1"/>
             <menuitem data-l10n-id="week-2-label" value="2"/>
             <menuitem data-l10n-id="week-3-label" value="3"/>
@@ -299,7 +299,7 @@
       <hbox>
         <menulist id="viewsMultiweekPreviousWeeks"
                   preference="calendar.previousweeks.inview">
-          <menupopup>
+          <menupopup native="false">
             <menuitem data-l10n-id="week-0-label" value="0"/>
             <menuitem data-l10n-id="week-1-label" value="1"/>
             <menuitem data-l10n-id="week-2-label" value="2"/>

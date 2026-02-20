@@ -3,7 +3,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <menupopup id="header-toolbar-context-menu"
-           onpopupshowing="ToolbarContextMenu.updateExtension(this);">
+           onpopupshowing="ToolbarContextMenu.updateExtension(this);"
+           native="false">
   <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
             data-l10n-id="toolbar-context-menu-manage-extension"
             class="customize-context-manageExtension"/>
@@ -49,7 +50,8 @@
                        class="toolbarbutton-1 message-header-view-button hdrReplyButton hdrReplyAllButton"
                        hidden="hidden">
           <menupopup id="hdrReplyAllDropdown"
-                     class="no-icon-menupopup">
+                     class="no-icon-menupopup"
+                     native="false">
             <menuitem id="hdrReplyAll_ReplyAllSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyAllButton1.label;"
@@ -71,7 +73,8 @@
                        class="toolbarbutton-1 message-header-view-button hdrReplyButton hdrReplyListButton"
                        hidden="hidden">
           <menupopup id="hdrReplyListDropdown"
-                     class="no-icon-menupopup">
+                     class="no-icon-menupopup"
+                     native="false">
             <menuitem id="hdrReplyList_ReplyListSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyListButton1.label;"
@@ -97,7 +100,8 @@
                        oncommand="MsgReplyGroup(event);"
                        class="toolbarbutton-1 message-header-view-button hdrFollowupButton">
           <menupopup id="hdrFollowupDropdown"
-                     class="no-icon-menupopup">
+                     class="no-icon-menupopup"
+                     native="false">
             <menuitem id="hdrFollowup_FollowupSubButton"
                       class="menuitem-iconic"
                       label="&hdrFollowupButton1.label;"
@@ -143,7 +147,8 @@
                      class="toolbarbutton-1 message-header-view-button hdrMoreButton">
         <menupopup id="otherActionsPopup"
                    class="no-icon-menupopup"
-                   onpopupshowing="onShowOtherActionsPopup();">
+                   onpopupshowing="onShowOtherActionsPopup();"
+                   native="false">
           <menuitem id="otherActionsRedirect"
                     class="menuitem-iconic"
                     data-l10n-id="other-action-redirect-msg"
@@ -172,7 +177,8 @@
                 label="&tagMenu.label;"
                 accesskey="&tagMenu.accesskey;">
             <menupopup id="hdrTagDropdown" class="gutter-popup"
-                       onpopupshowing="window.top.InitMessageTags(this);">
+                       onpopupshowing="window.top.InitMessageTags(this);"
+                       native="false">
               <menuitem id="hdrTagDropdown-addNewTag"
                         label="&addNewTag.label;"
                         accesskey="&addNewTag.accesskey;"
@@ -211,7 +217,8 @@
                 class="menu-iconic"
                 data-l10n-id="calendar-context-convert-menu">
             <menupopup id="otherActions-calendar-convert-menupopup"
-                       class="no-icon-menupopup">
+                       class="no-icon-menupopup"
+                       native="false">
               <menuitem id="otherActions-calendar-convert-event-menuitem"
                         class="menuitem-iconic"
                         data-l10n-id="calendar-context-convert-to-event"
@@ -244,7 +251,8 @@
                 class="menu-iconic"
                 label="&bodyMenu.label;">
             <menupopup id="hdrMessageBodyAsDropdown"
-                       onpopupshowing="InitOtherActionsViewBodyMenu();">
+                       onpopupshowing="InitOtherActionsViewBodyMenu();"
+                       native="false">
               <menuitem id="otherActionsMenu_bodyAllowHTML"
                         type="radio"
                         name="bodyPlaintextVsHTMLPref"
@@ -271,7 +279,8 @@
                 class="menu-iconic"
                 label="&bodyMenu.label;">
             <menupopup id="hdrFeedBodyAsDropdown"
-                       onpopupshowing="InitOtherActionsViewBodyMenu(true);">
+                       onpopupshowing="InitOtherActionsViewBodyMenu(true);"
+                       native="false">
               <menuitem id="otherActionsMenu_bodyFeedGlobalWebPage"
                         type="radio"
                         name="viewFeedSummaryGroup"
@@ -570,7 +579,7 @@
       <menulist id="headerButtonStyle"
                 oncommand="gHeaderCustomize.updateButtonStyle(event);"
                 crop="none">
-        <menupopup>
+        <menupopup native="false">
           <menuitem value="default" data-l10n-id="message-header-button-style-default"/>
           <menuitem value="only-text" data-l10n-id="message-header-button-style-text"/>
           <menuitem value="only-icons" data-l10n-id="message-header-button-style-icons"/>

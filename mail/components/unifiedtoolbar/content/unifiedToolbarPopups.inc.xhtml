@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-<menupopup id="unifiedToolbarMenu" class="gutter-popup">
+<menupopup id="unifiedToolbarMenu" class="gutter-popup" native="false">
   <menuitem id="menuBarToggleVisible"
             type="checkbox"
             label="&menubarCmd.label;"
@@ -16,7 +16,7 @@
             data-l10n-id="toolbar-context-menu-remove-extension"
             class="customize-context-removeExtension"/>
 </menupopup>
-<menupopup id="customizationTargetMenu">
+<menupopup id="customizationTargetMenu" native="false">
   <menuitem id="customizationTargetEnd" data-l10n-id="customize-target-end" />
   <menuitem id="customizationTargetForward" data-l10n-id="customize-target-forward" />
   <menuitem id="customizationTargetBackward" data-l10n-id="customize-target-backward" />
@@ -29,7 +29,7 @@
             data-l10n-id="customize-target-add-everywhere"
             hidden="hidden" />
 </menupopup>
-<menupopup id="customizationPaletteMenu">
+<menupopup id="customizationPaletteMenu" native="false">
   <menuitem id="customizationPaletteAddEverywhere"
             data-l10n-id="customize-palette-add-everywhere"
             hidden="hidden" />
@@ -39,14 +39,17 @@
            showFileHereLabel="true"
            showRecent="true"
            showFavorites="true"
-           oncommand="goDoCommand('cmd_moveMessage', event.target._folder);event.stopPropagation()"/>
+           oncommand="goDoCommand('cmd_moveMessage', event.target._folder);event.stopPropagation()"
+           native="false"/>
 <menupopup is="folder-menupopup" id="toolbarFolderLocationPopup"
            class="menulist-menupopup"
            mode="notDeferred"
-           showFileHereLabel="true"/>
+           showFileHereLabel="true"
+           native="false"/>
 <menupopup id="toolbarTagPopup"
            class="gutter-popup"
-           onpopupshowing="InitMessageTags(this);">
+           onpopupshowing="InitMessageTags(this);"
+           native="false">
   <menuitem id="button-addNewTag"
             label="&addNewTag.label;"
             accesskey="&addNewTag.accesskey;"
@@ -62,7 +65,8 @@
 </menupopup>
 <menupopup id="toolbarMarkPopup"
            class="gutter-popup"
-           onpopupshowing="InitMessageMark()">
+           onpopupshowing="InitMessageMark()"
+           native="false">
   <menuitem id="markReadToolbarItem"
             label="&markAsReadCmd.label;"
             accesskey="&markAsReadCmd.accesskey;"
@@ -98,7 +102,8 @@
 </menupopup>
 <menupopup id="toolbarViewPickerPopup"
            class="gutter-popup"
-           onpopupshowing="RefreshViewPopup(this);">
+           onpopupshowing="RefreshViewPopup(this);"
+           native="false">
   <menuitem id="viewPickerAll" value="0"
             label="&viewAll.label;"
             type="radio"
@@ -115,12 +120,14 @@
   <menu id="viewPickerTags" label="&viewTags.label;">
     <menupopup id="viewPickerTagsPopup"
                class="menulist-menupopup"
-               onpopupshowing="RefreshTagsPopup(this);"/>
+               onpopupshowing="RefreshTagsPopup(this);"
+               native="false"/>
   </menu>
   <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
     <menupopup id="viewPickerCustomViewsPopup"
                class="menulist-menupopup"
-               onpopupshowing="RefreshCustomViewsPopup(this);"/>
+               onpopupshowing="RefreshCustomViewsPopup(this);"
+               native="false"/>
   </menu>
   <menuseparator id="afterViewPickerCustomViewsSeparator"/>
   <menuitem id="viewPickerVirtualFolder"
@@ -132,18 +139,19 @@
             label="&viewCustomizeView.label;"
             oncommand="ViewChangeByMenuitem(this);"/>
 </menupopup>
-<menupopup id="messageHistoryPopup">
+<menupopup id="messageHistoryPopup" native="false">
 </menupopup>
 <menupopup id="toolbarGetMessagesContext"
            class="no-accel-menupopup"
-           position="bottomleft topleft">
+           position="bottomleft topleft"
+           native="false">
     <menuitem id="toolbarContextGetAllNewMessages"
               class="menuitem-iconic"
               data-l10n-id="toolbar-get-all-messages-menuitem"
               oncommand="MsgGetMessagesForAllAuthenticatedAccounts();"/>
   <menuseparator id="separatorToolbarContextAfterGetAllNewMessages"/>
 </menupopup>
-<menupopup id="unifiedToolbarCreateBook">
+<menupopup id="unifiedToolbarCreateBook" native="false">
   <menuitem data-command="cmd_createAddressBook"
             data-l10n-id="toolbar-new-address-book-popup-add-js-address-book"/>
   <menuitem data-command="cmd_createAddressBookCARDDAV"

@@ -90,7 +90,9 @@ class MozMenulistEditable extends customElements.get("menulist") {
       }
     };
     if (!this.menupopup) {
-      this.appendChild(MozXULElement.parseXULToFragment(`<menupopup />`));
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`<menupopup native="false"/>`)
+      );
     }
     this.menupopup.addEventListener("popuphiding", this._popupHiding);
   }

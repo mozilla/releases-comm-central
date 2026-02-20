@@ -178,7 +178,7 @@
         />
       </keyset>
 
-      <menupopup id="event-dialog-toolbar-context-menu">
+      <menupopup id="event-dialog-toolbar-context-menu" native="false">
         <menuitem
           id="CustomizeDialogToolbar"
           label="&event.menu.view.toolbars.customize.label;"
@@ -202,14 +202,14 @@
           <menubar id="event-menubar">
             <!-- Item menu -->
             <!-- These 2 Strings are placeholders, values are set at runtime -->
-            <menu label="Item" accesskey="I" id="item-menu">
+            <menu label="Item" accesskey="I" id="item-menu" native="false">
               <menupopup id="item-menupopup">
                 <menu
                   id="item-new-menu"
                   label="&event.menu.item.new.label;"
                   accesskey="&event.menu.item.new.accesskey;"
                 >
-                  <menupopup id="item-new-menupopup" class="menulist-menupopup">
+                  <menupopup id="item-new-menupopup" class="menulist-menupopup" native="false">
                     <menuitem
                       id="item-new-message-menuitem"
                       label="&event.menu.item.new.message.label;"
@@ -275,7 +275,7 @@
               accesskey="&event.menu.edit.accesskey;"
               collapse-on-readonly="true"
             >
-              <menupopup id="edit-menupopup">
+              <menupopup id="edit-menupopup" native="false">
                 <menuitem
                   id="edit-undo-menuitem"
                   label="&event.menu.edit.undo.label;"
@@ -330,13 +330,13 @@
               accesskey="&event.menu.view.accesskey;"
               collapse-on-readonly="true"
             >
-              <menupopup id="view-menupopup">
+              <menupopup id="view-menupopup" native="false">
                 <menu
                   id="view-toolbars-menu"
                   label="&event.menu.view.toolbars.label;"
                   accesskey="&event.menu.view.toolbars.accesskey;"
                 >
-                  <menupopup id="view-toolbars-menupopup">
+                  <menupopup id="view-toolbars-menupopup" native="false">
                     <menuitem
                       id="view-toolbars-event-menuitem"
                       label="&event.menu.view.toolbars.event.label;"
@@ -363,7 +363,7 @@
               label="&event.menu.options.label;"
               accesskey="&event.menu.options.accesskey;"
             >
-              <menupopup id="options-menupopup">
+              <menupopup id="options-menupopup" native="false">
                 <menuitem
                   id="options-attendees-menuitem"
                   label="&event.menu.options.attendees.label;"
@@ -376,7 +376,7 @@
                   label="&event.attachments.menubutton.label;"
                   accesskey="&event.attachments.menubutton.accesskey;"
                 >
-                  <menupopup id="options-attachments-menupopup">
+                  <menupopup id="options-attachments-menupopup" native="false">
                     <menuitem
                       id="options-attachments-url-menuitem"
                       label="&event.attachments.url.label;"
@@ -401,7 +401,7 @@
                   accesskey="&event.menu.options.priority2.accesskey;"
                   disable-on-readonly="true"
                 >
-                  <menupopup id="options-priority-menupopup">
+                  <menupopup id="options-priority-menupopup" native="false">
                     <menuitem
                       id="options-priority-none-menuitem"
                       label="&event.menu.options.priority.notspecified.label;"
@@ -442,7 +442,7 @@
                   accesskey="&event.menu.options.privacy.accesskey;"
                   disable-on-readonly="true"
                 >
-                  <menupopup id="options-privacy-menupopup">
+                  <menupopup id="options-privacy-menupopup" native="false">
                     <menuitem
                       id="options-privacy-public-menuitem"
                       label="&event.menu.options.privacy.public.label;"
@@ -479,7 +479,7 @@
                   class="event-only"
                   disable-on-readonly="true"
                 >
-                  <menupopup id="options-status-menupopup">
+                  <menupopup id="options-status-menupopup" native="false">
                     <menuitem
                       id="options-status-none-menuitem"
                       label="&newevent.eventStatus.none.label;"
@@ -522,7 +522,7 @@
                   accesskey="&event.menu.options.show.time.accesskey;"
                   disable-on-readonly="true"
                 >
-                  <menupopup id="options-freebusy-menupopup">
+                  <menupopup id="options-freebusy-menupopup" native="false">
                     <menuitem
                       id="options-freebusy-busy-menuitem"
                       label="&event.menu.options.show.time.busy.label;"

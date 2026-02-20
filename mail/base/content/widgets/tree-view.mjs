@@ -2102,6 +2102,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     this.#pickerContext = document.createXULElement("menupopup");
     this.#pickerContext.classList.add("menupopup-column-picker");
     this.#pickerContext.setAttribute("position", "bottomleft topleft");
+    this.#pickerContext.setAttribute("native", "false");
     this.#pickerContext.addEventListener("popupshowing", event => {
       // Bail out if we're opening a submenu.
       if (event.target != this.#pickerContext) {

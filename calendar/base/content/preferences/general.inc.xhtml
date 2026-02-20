@@ -10,7 +10,7 @@
       <hbox>
         <menulist id="agenda-days-menulist"
                   preference="calendar.agenda.days">
-          <menupopup id="agenda-days-popup">
+          <menupopup id="agenda-days-popup" native="false">
             <menuitem value="1"/>
             <menuitem value="2"/>
             <menuitem value="3"/>
@@ -57,7 +57,7 @@
                         crop="none"
                         oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
                         preference="calendar.task.defaultstart">
-                <menupopup id="default_task_start_popup">
+                <menupopup id="default_task_start_popup" native="false">
                   <menuitem id="default_task_start_none"
                             data-l10n-id="task-start-1-label"
                             value="none"
@@ -93,7 +93,7 @@
                 <menulist id="default_task_start_offset_units"
                           crop="none"
                           preference="calendar.task.defaultstartoffsetunits">
-                  <menupopup id="default_task_start_offset_units_popup">
+                  <menupopup id="default_task_start_offset_units_popup" native="false">
                     <menuitem id="default_task_start_offset_units_minutes"
                               value="minutes"
                               selected="true"/>
@@ -119,7 +119,7 @@
                         crop="none"
                         oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
                         preference="calendar.task.defaultdue">
-                <menupopup id="default_task_due_popup">
+                <menupopup id="default_task_due_popup" native="false">
                   <menuitem id="default_task_due_none"
                             data-l10n-id="task-start-1-label"
                             value="none"
@@ -155,7 +155,7 @@
                 <menulist id="default_task_due_offset_units"
                           crop="none"
                           preference="calendar.task.defaultdueoffsetunits">
-                  <menupopup id="default_task_due_offset_units_popup">
+                  <menupopup id="default_task_due_offset_units_popup" native="false">
                     <menuitem id="default_task_due_offset_units_minutes"
                               value="minutes"
                               selected="true"/>

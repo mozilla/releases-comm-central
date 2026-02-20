@@ -127,7 +127,7 @@
               </html:th>
               <html:td>
                 <menulist id="email-identity-menulist" oncommand="onChangeIdentity(event)">
-                  <menupopup id="email-identity-menupopup" />
+                  <menupopup id="email-identity-menupopup" native="false" />
                 </menulist>
               </html:td>
             </html:tr>
@@ -250,7 +250,7 @@
             flex="1"
             onselect="selectProvider(this.selectedItem.value)"
           >
-            <menupopup id="network-selectcalendar-providertype-menupopup" />
+            <menupopup id="network-selectcalendar-providertype-menupopup" native="false" />
           </menulist>
         </hbox>
         <richlistbox

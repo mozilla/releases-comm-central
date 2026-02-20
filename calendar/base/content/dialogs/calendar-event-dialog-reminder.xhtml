@@ -98,7 +98,7 @@
                 oninput="updateReminder(event)"
               />
               <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
-                <menupopup id="reminder-unit-menupopup">
+                <menupopup id="reminder-unit-menupopup" native="false">
                   <menuitem
                     id="reminder-minutes-menuitem"
                     label="&alarm.units.minutes;"
@@ -114,7 +114,7 @@
               </menulist>
             </hbox>
             <menulist id="reminder-relation-origin" oncommand="updateReminder(event)">
-              <menupopup id="reminder-relation-origin-menupopup">
+              <menupopup id="reminder-relation-origin-menupopup" native="false">
                 <!-- The labels here will be set in calendar-event-dialog-reminder.js -->
                 <menuitem id="reminder-before-start-menuitem" value="before-START" />
                 <menuitem id="reminder-after-start-menuitem" value="after-START" />
@@ -141,7 +141,7 @@
       >
         <!-- Make sure the id is formatted "reminder-action-<VALUE>", for accessibility -->
         <!-- TODO provider specific -->
-        <menupopup id="reminder-actions-menupopup">
+        <menupopup id="reminder-actions-menupopup" native="false">
           <menuitem
             id="reminder-action-DISPLAY"
             class="reminder-list-icon menuitem-iconic"

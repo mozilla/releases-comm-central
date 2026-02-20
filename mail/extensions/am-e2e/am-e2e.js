@@ -1379,6 +1379,7 @@ async function reloadOpenPgpUI() {
     document.l10n.setAttributes(more, "openpgp-key-man-key-more");
 
     const menupopup = document.createXULElement("menupopup");
+    menupopup.setAttribute("native", "false");
     menupopup.classList.add("more-button-menupopup");
 
     const copyItem = document.createXULElement("menuitem");

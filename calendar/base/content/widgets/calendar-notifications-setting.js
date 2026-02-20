@@ -175,14 +175,14 @@
         <hbox class="calendar-notifications-row" align="center">
           <html:input class="size3" value="${value}" type="number" min="0"/>
           <menulist class="unit-menu" crop="none" value="${unit}">
-            <menupopup>
+            <menupopup native="false">
               <menuitem value="M"/>
               <menuitem value="H"/>
               <menuitem value="D"/>
             </menupopup>
           </menulist>
           <menulist class="relation-menu" crop="none" value="${relation}">
-            <menupopup class="reminder-relation-origin-menupopup">
+            <menupopup class="reminder-relation-origin-menupopup" native="false">
               <menuitem data-l10n-id="reminder-custom-origin-begin-before-event-dom"
                         value="before-START"/>
               <menuitem data-l10n-id="reminder-custom-origin-begin-after-event-dom"

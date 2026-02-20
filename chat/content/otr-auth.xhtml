@@ -44,7 +44,7 @@
         <html:legend data-l10n-id="auth-how"></html:legend>
         <vbox>
           <menulist id="howOption" oncommand="otrAuth.how()">
-            <menupopup>
+            <menupopup native="false">
               <menuitem
                 data-l10n-id="auth-question-and-answer-label"
                 value="questionAndAnswer"
@@ -133,7 +133,7 @@
           <hbox align="center">
             <label data-l10n-id="auth-verified" />
             <menulist id="verifiedOption">
-              <menupopup>
+              <menupopup native="false">
                 <menuitem data-l10n-id="auth-yes" value="yes" />
                 <menuitem data-l10n-id="auth-no" value="no" />
               </menupopup>

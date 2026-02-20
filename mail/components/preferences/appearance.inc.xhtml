@@ -105,7 +105,7 @@
       <html:div class="pane-appearance-sorting-options">
         <label control="defaultSortType" data-l10n-id="default-sort-label" />
         <menulist id="defaultSortType" preference="mailnews.default_sort_type">
-          <menupopup>
+          <menupopup native="false">
             <menuitem value="18" data-l10n-id="default-sort-date"/>
             <menuitem value="19" data-l10n-id="default-sort-subject"/>
             <menuitem value="20" data-l10n-id="default-sort-from"/>
@@ -156,7 +156,7 @@
         <button is="highlightable-button" id="applyChoose"
                 class="folder-chooser-popup-button"
                 data-l10n-id="choose-apply-sort-button"></button>
-        <menupopup id="folderPickerMenuPopup" class="menupopup">
+        <menupopup id="folderPickerMenuPopup" class="menupopup" native="false">
           <menu id="applyViewToFolder"
                 class="apply-view-to-folder-menu"
                 data-l10n-id="apply-current-view-to-folder">
@@ -164,7 +164,8 @@
                        class="menupopup"
                        mode="filing"
                        showFileHereLabel="true"
-                       position="start_before"></menupopup>
+                       position="start_before"
+                       native="false"></menupopup>
           </menu>
           <menu id="applyViewToFolderAndChildren"
                 class="apply-view-to-folder-and-children-menu"
@@ -174,7 +175,8 @@
                        mode="filing"
                        showFileHereLabel="true"
                        showAccountsFileHere="true"
-                       position="start_before"></menupopup>
+                       position="start_before"
+                       native="false"></menupopup>
           </menu>
         </menupopup>
       </html:div>

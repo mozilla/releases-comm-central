@@ -28,7 +28,7 @@
           <menulist wsm_persist="true" id="identity.replyOnTop" oncommand="quoteEnabling();"
                     pref="true" preftype="int" prefattribute="value"
                     prefstring="mail.identity.%identitykey%.reply_on_top">
-            <menupopup>
+            <menupopup native="false">
               <menuitem value="1" label="&aboveQuote.label;"/>
               <menuitem value="0" label="&belowQuote.label;"/>
               <menuitem value="2" label="&selectAndQuote.label;"/>
@@ -40,7 +40,7 @@
           <menulist wsm_persist="true" id="identity.sig_bottom" genericattr="true"
                     pref="true" preftype="bool" prefattribute="value"
                     prefstring="mail.identity.%identitykey%.sig_bottom">
-            <menupopup>
+            <menupopup native="false">
               <menuitem value="true" label="&belowText.label;"/>
               <menuitem value="false" label="&aboveText.label;"/>
             </menupopup>

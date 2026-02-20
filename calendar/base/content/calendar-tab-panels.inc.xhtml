@@ -138,7 +138,9 @@
           <hbox id="unifinder-searchBox" class="themeable-brighttext" persist="collapsed">
             <box align="center">
               <menulist id="event-filter-menulist" value="P7D" persist="value">
-                <menupopup id="event-filter-menupopup" oncommand="refreshUnifinderFilterInterval()">
+                <menupopup id="event-filter-menupopup"
+                           oncommand="refreshUnifinderFilterInterval()"
+                           native="false">
                   <menuitem id="event-filter-past"
                             value="past"
                             data-l10n-id="calendar-event-listing-interval-past"/>
@@ -409,7 +411,8 @@
                                    data-l10n-id="calendar-event-listing-column-category">
                       <menupopup id="task-actions-category-popup"
                                  onpopupshowing="taskDetailsView.loadCategories(event);"
-                                 onpopuphiding="return taskDetailsView.saveCategories(event);">
+                                 onpopuphiding="return taskDetailsView.saveCategories(event);"
+                                 native="false">
                         <html:input id="task-actions-category-textbox"
                                     placeholder="&event.categories.textbox.label;"
                                     onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
@@ -424,7 +427,9 @@
                                    data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_toggle_completed_command"
                                    class="toolbarbutton-1 message-header-view-button">
-                      <menupopup is="calendar-task-progress-menupopup" id="task-actions-markcompleted-menupopup"/>
+                      <menupopup is="calendar-task-progress-menupopup"
+                                 id="task-actions-markcompleted-menupopup"
+                                 native="false"/>
                     </toolbarbutton>
                     <toolbarbutton id="task-actions-priority"
                                    type="menu"
@@ -433,7 +438,9 @@
                                    data-l10n-attrs="label accesskey tooltiptext"
                                    command="calendar_general-priority_command"
                                    class="toolbarbutton-1 message-header-view-button">
-                      <menupopup is="calendar-task-priority-menupopup" id="task-actions-priority-menupopup"/>
+                      <menupopup is="calendar-task-priority-menupopup"
+                                 id="task-actions-priority-menupopup"
+                                 native="false"/>
                     </toolbarbutton>
                     <toolbarbutton id="calendar-delete-task-button"
                                    class="toolbarbutton-1 message-header-view-button"
@@ -631,7 +638,8 @@
 
 <menupopup id="calControlBarMenuPopup"
            class="gutter-popup"
-           position="bottomleft topleft">
+           position="bottomleft topleft"
+           native="false">
   <menuitem id="findEventsButton"
             data-l10n-id="calendar-find-events-menu-option"
             type="checkbox"

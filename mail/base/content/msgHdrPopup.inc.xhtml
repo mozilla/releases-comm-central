@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="messageIdContext">
+  <menupopup id="messageIdContext" native="false">
     <menuitem id="messageIdContext-messageIdTarget" disabled=""/>
     <menuseparator id="messageIdContext-separator"/>
     <menuitem id="messageIdContext-openMessageForMsgId"
@@ -21,7 +21,8 @@
 
   <menupopup id="attachmentItemContext"
              onpopupshowing="return onShowAttachmentItemContextMenu();"
-             onpopuphiding="return onHideAttachmentItemContextMenu();">
+             onpopuphiding="return onHideAttachmentItemContextMenu();"
+             native="false">
     <menuitem id="context-openAttachment"
               label="&openAttachmentCmd.label;"
               accesskey="&openAttachmentCmd.accesskey;"
@@ -69,7 +70,8 @@
   </menupopup>
 
   <menupopup id="attachmentListContext"
-             onpopupshowing="goUpdateAttachmentCommands();">
+             onpopupshowing="goUpdateAttachmentCommands();"
+             native="false">
     <menuitem id="context-openAllAttachments"
               label="&openAllAttachmentsCmd.label;"
               accesskey="&openAllAttachmentsCmd.accesskey;"
@@ -90,7 +92,8 @@
   </menupopup>
 
   <menupopup id="attachment-toolbar-context-menu"
-             onpopupshowing="return onShowAttachmentToolbarContextMenu(event);">
+             onpopupshowing="return onShowAttachmentToolbarContextMenu(event);"
+             native="false">
     <menuitem id="context-expandAttachmentBar"
               type="checkbox"
               label="&startExpandedCmd.label;"
@@ -100,7 +103,8 @@
 
   <menupopup id="emailAddressPopup"
              position="after_start"
-             class="no-icon-menupopup">
+             class="no-icon-menupopup"
+             native="false">
     <menuitem id="emailAddressPlaceHolder"
               class="menuitem-iconic"
               disabled=""/>
@@ -141,7 +145,7 @@
               oncommand="gMessageHeader.createFilter(event);"/>
   </menupopup>
 
-  <menupopup id="copyPopup" class="no-icon-menupopup">
+  <menupopup id="copyPopup" class="no-icon-menupopup" native="false">
     <menuitem id="copyMenuitem"
               data-l10n-id="text-action-copy"
               class="menuitem-iconic"
@@ -154,7 +158,8 @@
   </menupopup>
 
   <menupopup id="copyUrlPopup"
-             popupanchor="bottomleft">
+             popupanchor="bottomleft"
+             native="false">
     <menuitem label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
               oncommand="gMessageHeader.copyWebsiteUrl(event);"/>
@@ -163,7 +168,8 @@
   <menupopup id="listIdPopup"
              position="after_start"
              class="no-icon-menupopup"
-             oncommand="gMessageHeader.openListURL(event);">
+             oncommand="gMessageHeader.openListURL(event);"
+             native="false">
     <menuitem id="listIdPlaceHolder"
               class="menuitem-iconic"
               disabled=""/>
@@ -196,7 +202,7 @@
               class="menuitem-iconic"/>
   </menupopup>
 
-  <menupopup id="simpleCopyPopup" class="no-icon-menupopup">
+  <menupopup id="simpleCopyPopup" class="no-icon-menupopup" native="false">
     <menuitem id="copyMenuitem"
               data-l10n-id="text-action-copy"
               class="menuitem-iconic"
@@ -205,7 +211,8 @@
 
   <menupopup id="newsgroupPopup"
              position="after_start"
-             class="newsgroupPopup no-icon-menupopup">
+             class="newsgroupPopup no-icon-menupopup"
+             native="false">
       <menuitem id="newsgroupPlaceHolder"
                 class="menuitem-iconic"
                 disabled=""/>
@@ -234,7 +241,8 @@
   </menupopup>
 
   <menupopup id="remoteContentOptions" value=""
-             onpopupshowing="onRemoteContentOptionsShowing(event);">
+             onpopupshowing="onRemoteContentOptionsShowing(event);"
+             native="false">
     <menuitem id="remoteContentOptionAllowForMsg"
               label="&remoteContentOptionsAllowForMsg.label;"
               accesskey="&remoteContentOptionsAllowForMsg.accesskey;"
@@ -255,7 +263,7 @@
               oncommand="allowRemoteContentForAll(this.parentNode);"/>
   </menupopup>
 
-  <menupopup id="phishingOptions">
+  <menupopup id="phishingOptions" native="false">
     <menuitem id="phishingOptionIgnore"
               label="&phishingOptionIgnore.label;"
               accesskey="&phishingOptionIgnore.accesskey;"

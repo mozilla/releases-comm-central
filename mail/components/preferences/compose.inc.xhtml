@@ -21,7 +21,7 @@
         <label data-l10n-id="forward-label" control="forwardMessageMode"/>
         <hbox>
           <menulist id="forwardMessageMode" preference="mail.forward_message_mode">
-            <menupopup>
+            <menupopup native="false">
               <menuitem value="2" data-l10n-id="inline-label"/>
               <menuitem value="0" data-l10n-id="as-attachment-label"/>
             </menupopup>
@@ -109,7 +109,7 @@
             <hbox flex="1">
               <menulist id="FontSelect" preference="msgcompose.font_face"
                         sizetopopup="pref" crop="center" flex="1">
-                <menupopup>
+                <menupopup native="false">
                   <menuitem value="" label="&fontVarWidth.label;"/>
                   <menuitem value="monospace" label="&fontFixedWidth.label;"/>
                   <menuseparator/>
@@ -124,7 +124,7 @@
             <label control="fontSizeSelect" data-l10n-id="font-size-label"/>
             <hbox>
               <menulist id="fontSizeSelect" preference="msgcompose.font_size" value="3">
-                <menupopup>
+                <menupopup native="false">
                   <menuitem value="1" label="&size-tinyCmd.label;"/>
                   <menuitem value="2" label="&size-smallCmd.label;"/>
                   <menuitem value="3" label="&size-mediumCmd.label;"/>
@@ -326,7 +326,7 @@
                         data-l10n-id="add-cloud-account"
                         data-l10n-attrs="defaultlabel"
                         oncommand="gCloudFile.addCloudFileAccount(this.value);">
-                <menupopup id="addCloudFileAccountListItems"/>
+                <menupopup id="addCloudFileAccountListItems" native="false"/>
               </menulist>
             </hbox>
             <button is="highlightable-button" id="removeCloudFileAccount"

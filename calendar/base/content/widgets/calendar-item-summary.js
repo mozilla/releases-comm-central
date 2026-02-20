@@ -196,7 +196,7 @@
           `<hbox align="center">
             <menulist class="item-alarm"
                       disable-on-readonly="true">
-              <menupopup>
+              <menupopup native="false">
                 <menuitem label="&event.reminder.none.label;"
                           selected="true"
                           value="none"/>

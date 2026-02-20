@@ -23,7 +23,7 @@
                  control="messengerStartupAction"/>
           <hbox>
             <menulist id="messengerStartupAction" preference="messenger.startup.action">
-              <menupopup>
+              <menupopup native="false">
                 <menuitem data-l10n-id="offline-label" value="0"/>
                 <menuitem data-l10n-id="auto-connect-label" value="1"/>
               </menupopup>
@@ -79,7 +79,7 @@
                   preference="mail.chat.show_desktop_notifications"/>
         <hbox>
           <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
-            <menupopup>
+            <menupopup native="false">
               <menuitem data-l10n-id="notification-all" value="0"/>
               <menuitem data-l10n-id="notification-name" value="1"/>
               <menuitem data-l10n-id="notification-empty" value="2"/>
@@ -148,7 +148,7 @@
                     flex="1" crop="end"
                     preference="messenger.options.messagesStyle.theme"
                     onselect="previewObserver.currentThemeChanged();">
-            <menupopup id="theme-menupopup">
+            <menupopup id="theme-menupopup" native="false">
               <menuitem id="mail-menuitem"
                         data-l10n-id="style-mail"
                         value="mail"/>

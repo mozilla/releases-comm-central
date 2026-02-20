@@ -192,7 +192,7 @@
               >
               </html:legend>
               <menulist id="userIdentity" flex="1" oncommand="setIdentity()">
-                <menupopup id="userIdentityPopup" />
+                <menupopup id="userIdentityPopup" native="false" />
               </menulist>
             </hbox>
           </html:fieldset>
@@ -270,7 +270,7 @@
                   oninput="validateExpiration()"
                 />
                 <menulist id="timeScale">
-                  <menupopup>
+                  <menupopup native="false">
                     <menuitem
                       id="years"
                       value="365"
@@ -318,7 +318,7 @@
               </hbox>
               <hbox align="center">
                 <menulist id="keyType">
-                  <menupopup>
+                  <menupopup native="false">
                     <menuitem
                       id="keyType_rsa"
                       value="RSA"
@@ -342,7 +342,7 @@
               </hbox>
               <hbox align="center">
                 <menulist id="keySize">
-                  <menupopup>
+                  <menupopup native="false">
                     <menuitem
                       id="keySize_3072"
                       value="3072"

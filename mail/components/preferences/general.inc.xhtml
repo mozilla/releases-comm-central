@@ -62,7 +62,7 @@
       <hbox align="center">
         <hbox>
           <menulist id="defaultWebSearch">
-            <menupopup id="defaultWebSearchPopup"/>
+            <menupopup id="defaultWebSearchPopup" native="false"/>
           </menulist>
         </hbox>
         <button is="highlightable-button" id="addSearchEngine"
@@ -178,7 +178,7 @@
           <hbox>
             <menulist id="primaryMessengerLocale"
                       oncommand="gGeneralPane.onPrimaryMessengerLanguageMenuChange(event)">
-              <menupopup/>
+              <menupopup native="false"/>
             </menulist>
           </hbox>
           <hbox>
@@ -224,13 +224,13 @@
         <label data-l10n-id="default-font-label" control="defaultFont"/>
         <hbox flex="1">
           <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
-            <menupopup crop="center"/>
+            <menupopup crop="center" native="false"/>
           </menulist>
         </hbox>
         <label data-l10n-id="default-size-label" control="defaultFontSize"/>
         <hbox flex="1">
           <menulist id="defaultFontSize" flex="1">
-            <menupopup crop="center">
+            <menupopup crop="center" native="false">
               <menuitem value="9" label="9"/>
               <menuitem value="10" label="10"/>
               <menuitem value="11" label="11"/>
@@ -655,7 +655,7 @@
           <label data-l10n-id="style-label" control="mailQuotedStyle"/>
           <hbox>
             <menulist id="mailQuotedStyle" preference="mail.quoted_style">
-              <menupopup>
+              <menupopup native="false">
                 <menuitem value="0" data-l10n-id="regular-style-item"/>
                 <menuitem value="1" data-l10n-id="bold-style-item"/>
                 <menuitem value="2" data-l10n-id="italic-style-item"/>
@@ -666,7 +666,7 @@
           <label data-l10n-id="size-label" control="mailQuotedSize"/>
           <hbox>
             <menulist id="mailQuotedSize" preference="mail.quoted_size">
-              <menupopup>
+              <menupopup native="false">
                 <menuitem value="0" data-l10n-id="regular-size-item"/>
                 <menuitem value="1" data-l10n-id="bigger-size-item"/>
                 <menuitem value="2" data-l10n-id="smaller-size-item"/>
@@ -1072,7 +1072,7 @@
           <hbox>
             <menulist id="storeTypeMenulist"
                       oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
-              <menupopup id="storeTypeMenupopup">
+              <menupopup id="storeTypeMenupopup" native="false">
                 <menuitem id="mboxStore"
                           data-l10n-id="mbox-store-label"
                           value="@mozilla.org/msgstore/berkeleystore;1"/>

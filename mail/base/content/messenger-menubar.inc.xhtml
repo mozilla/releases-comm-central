@@ -7,11 +7,11 @@
     <menu id="menu_File"
           label="&fileMenu.label;"
           accesskey="&fileMenu.accesskey;">
-      <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
+      <menupopup id="menu_FilePopup" onpopupshowing="file_init();" native="false">
       <menu id="menu_New"
             label="&newMenu.label;"
             accesskey="&newMenu.accesskey;">
-        <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
+        <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();" native="false">
           <menuitem id="menu_newNewMsgCmd" label="&newNewMsgCmd.label;"
                     accesskey="&newNewMsgCmd.accesskey;"
                     key="key_newMessage2"
@@ -50,7 +50,7 @@
                     accesskey="&lightning.menupopup.new.calendar.accesskey;"/>
           <menu id="menu_newAddressbook"
                 data-l10n-id="file-new-addressbook">
-            <menupopup id="menu_AbPopup">
+            <menupopup id="menu_AbPopup" native="false">
               <menuitem id="menu_newLocalAddressbook"
                         data-l10n-id="file-new-local-addressbook"
                         oncommand="openNewABDialog();"/>
@@ -92,7 +92,7 @@
             mode="calendar"
             label="&openMenuCmd.label;"
             accesskey="&openMenuCmd.accesskey;">
-        <menupopup id="menu_OpenPopup">
+        <menupopup id="menu_OpenPopup" native="false">
           <menuitem id="openMessageFileMenuitem"
                     label="&openMessageFileCmd.label;"
                     accesskey="&openMessageFileCmd.accesskey;"
@@ -126,7 +126,7 @@
 #endif
       <menu id="menu_saveAs"
             label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
-        <menupopup id="menu_SavePopup">
+        <menupopup id="menu_SavePopup" native="false">
           <menuitem id="menu_saveAsFile"
                     data-l10n-id="menu-file-save-as-file"
                     key="key_saveAsFile"
@@ -144,7 +144,8 @@
         <menupopup is="folder-menupopup" id="menu_getAllNewMsgPopup"
                    mode="getMail"
                    expandFolders="false"
-                   oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
+                   oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
+                   native="false">
           <menuitem id="menu_getnewmsgs_all_accounts"
                     label="&getAllNewMsgCmdPopupMenu.label;"
                     accesskey="&getAllNewMsgCmdPopupMenu.accesskey;"
@@ -189,7 +190,7 @@
               command="cmd_emptyTrash"/>
       <menuseparator id="trashMenuSeparator"/>
       <menu id="offlineMenuItem" label="&offlineMenu.label;" accesskey="&offlineMenu.accesskey;">
-        <menupopup id="menu_OfflinePopup">
+        <menupopup id="menu_OfflinePopup" native="false">
           <menuitem id="goOfflineMenuItem" type="checkbox" label="&offlineGoOfflineCmd.label;"
                     accesskey="&offlineGoOfflineCmd.accesskey;" oncommand="MailOfflineMgr.toggleOfflineStatus();"/>
           <menuseparator id="offlineMenuAfterGoSeparator"/>
@@ -235,7 +236,7 @@
       label="&editMenu.label;"
       accesskey="&editMenu.accesskey;"
       oncommand="CommandUpdate_UndoRedo();">
-  <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()">
+  <menupopup id="menu_EditPopup" onpopupshowing="InitEditMessagesMenu()" native="false">
     <menuitem id="menu_undo"
               label="&undoDefaultCmd.label;"
               accesskey="&undoDefaultCmd.accesskey;"
@@ -264,7 +265,7 @@
               command="cmd_delete"/>
     <menuseparator id="editMenuAfterDeleteSeparator"/>
     <menu id="menu_select" label="&selectMenu.label;" accesskey="&selectMenu.accesskey;">
-      <menupopup id="menu_SelectPopup">
+      <menupopup id="menu_SelectPopup" native="false">
         <menuitem id="menu_SelectAll" label="&all.label;"
                   accesskey="&all.accesskey;" key="key_selectAll"
                   command="cmd_selectAll"/>
@@ -283,7 +284,8 @@
     <menu id="menu_find"
           label="&findMenu.label;" accesskey="&findMenu.accesskey;">
       <menupopup id="menu_FindPopup"
-                  onpopupshowing="initSearchMessagesMenu()">
+                 onpopupshowing="initSearchMessagesMenu()"
+                 native="false">
         <menuitem id="menu_findCmd"
                   label="&findCmd.label;"
                   key="key_find"
@@ -341,12 +343,12 @@
 <menu id="menu_View"
       label="&viewMenu.label;"
       accesskey="&viewMenu.accesskey;">
-  <menupopup id="menu_View_Popup" onpopupshowing="view_init(event);">
+  <menupopup id="menu_View_Popup" onpopupshowing="view_init(event);" native="false">
     <menu id="menu_Toolbars"
           label="&viewToolbarsMenu.label;"
           accesskey="&viewToolbarsMenu.accesskey;"
           onpopupshowing="calendarOnToolbarsPopupShowing(event);">
-      <menupopup id="view_toolbars_popup">
+      <menupopup id="view_toolbars_popup" native="false">
 #ifdef MAIN_WINDOW
         <menuitem id="view_toolbars_popup_quickFilterBar"
                   type="checkbox"
@@ -371,7 +373,7 @@
       </menupopup>
     </menu>
     <menu id="menu_MessagePaneLayout" label="&messagePaneLayoutStyle.label;" accesskey="&messagePaneLayoutStyle.accesskey;">
-      <menupopup id="view_layout_popup" onpopupshowing="InitViewLayoutStyleMenu(event)">
+      <menupopup id="view_layout_popup" onpopupshowing="InitViewLayoutStyleMenu(event)" native="false">
         <menuitem id="messagePaneClassic" type="radio" label="&messagePaneClassic.label;" name="viewlayoutgroup"
                   accesskey="&messagePaneClassic.accesskey;" command="cmd_viewClassicMailLayout"/>
         <menuitem id="messagePaneWide" type="radio" label="&messagePaneWide.label;" name="viewlayoutgroup"
@@ -392,7 +394,8 @@
     </menu>
     <menu id="menu_FolderViews" label="&folderView.label;" accesskey="&folderView.accesskey;">
       <menupopup id="menu_FolderViewsPopup"
-                  onpopupshowing="PanelUI._onFoldersViewShow(event)">
+                 onpopupshowing="PanelUI._onFoldersViewShow(event)"
+                 native="false">
         <menuitem id="menu_toggleFolderHeader"
                   name="paneheader"
                   value="toggle-header"
@@ -443,7 +446,7 @@
     <menuseparator id="viewUIZoomMenuSeparator"/>
     <menu id="menu_uiDensity"
           data-l10n-id="mail-uidensity-label">
-      <menupopup id="view_density_popup" onpopupshowing="initUiDensityMenu(event);">
+      <menupopup id="view_density_popup" onpopupshowing="initUiDensityMenu(event);" native="false">
         <menuitem id="uiDensityCompact"
                   data-l10n-id="mail-uidensity-compact"
                   type="radio"
@@ -466,7 +469,7 @@
     </menu>
     <menu id="viewFullZoomMenu" label="&fullZoom.label;" accesskey="&fullZoom.accesskey;"
               onpopupshowing="UpdateFullZoomMenu()">
-          <menupopup id="viewFullZoomPopupMenu">
+          <menupopup id="viewFullZoomPopupMenu" native="false">
             <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                       label="&fullZoomEnlargeCmd.label;"
                       accesskey="&fullZoomEnlargeCmd.accesskey;"
@@ -488,7 +491,7 @@
         </menu>
         <menu id="menu_uiFontSize"
               data-l10n-id="menu-font-size-label">
-          <menupopup id="view_font_size_popup">
+          <menupopup id="view_font_size_popup" native="false">
             <menuitem id="menu_fontSizeEnlarge"
                       data-l10n-id="menuitem-font-size-enlarge"
                       oncommand="UIFontSize.increaseSize();"
@@ -511,7 +514,7 @@
 
     <menuseparator id="viewSortMenuSeparator"/>
     <menu id="viewSortMenu" accesskey="&sortMenu.accesskey;" label="&sortMenu.label;">
-      <menupopup id="menu_viewSortPopup" oncommand="goDoCommand('cmd_sort', event);" onpopupshowing="InitViewSortByMenu()">
+      <menupopup id="menu_viewSortPopup" oncommand="goDoCommand('cmd_sort', event);" onpopupshowing="InitViewSortByMenu()" native="false">
         <menuitem id="sortByDateMenuitem"
                   type="radio"
                   name="sortby"
@@ -637,16 +640,16 @@
     </menu>
     <menu id="viewMessageViewMenu" label="&msgsMenu.label;" accesskey="&msgsMenu.accesskey;"
           command="mailHideMenus" oncommand="ViewChangeByMenuitem(event.target);">
-        <menupopup id="viewMessagePopup" onpopupshowing="RefreshViewPopup(this);">
+        <menupopup id="viewMessagePopup" onpopupshowing="RefreshViewPopup(this);" native="false">
           <menuitem id="viewMessageAll"    value="0" type="radio" label="&viewAll.label;" accesskey="&viewAll.accesskey;"/>
           <menuitem id="viewMessageUnread" value="1" type="radio" label="&viewUnread.label;" accesskey="&viewUnread.accesskey;"/>
           <menuitem id="viewMessageNotDeleted" value="3" type="radio" label="&viewNotDeleted.label;" accesskey="&viewNotDeleted.accesskey;"/>
           <menuseparator id="messageViewAfterUnreadSeparator"/>
           <menu id="viewMessageTags" label="&viewTags.label;" accesskey="&viewTags.accesskey;">
-            <menupopup id="viewMessageTagsPopup" onpopupshowing="RefreshTagsPopup(this);"/>
+            <menupopup id="viewMessageTagsPopup" onpopupshowing="RefreshTagsPopup(this);" native="false"/>
           </menu>
           <menu id="viewMessageCustomViews" label="&viewCustomViews.label;" accesskey="&viewCustomViews.accesskey;">
-            <menupopup id="viewMessageCustomViewsPopup" onpopupshowing="RefreshCustomViewsPopup(this);"/>
+            <menupopup id="viewMessageCustomViewsPopup" onpopupshowing="RefreshCustomViewsPopup(this);" native="false"/>
           </menu>
           <menuseparator id="messageViewAfterCustomSeparator"/>
           <menuitem id="viewMessageVirtualFolder" value="7" label="&viewVirtualFolder.label;" accesskey="&viewVirtualFolder.accesskey;"/>
@@ -655,7 +658,7 @@
       </menu>
 
       <menu label="&threads.label;" id="viewMessagesMenu" accesskey="&threads.accesskey;">
-        <menupopup id="menu_ThreadsPopup" onpopupshowing="InitViewMessagesMenu()">
+        <menupopup id="menu_ThreadsPopup" onpopupshowing="InitViewMessagesMenu()" native="false">
           <menuitem id="viewAllMessagesMenuItem" type="radio" name="viewmessages" label="&allMsgsCmd.label;" accesskey="&allMsgsCmd.accesskey;" disabled="" command="cmd_viewAllMsgs"/>
           <menuitem id="viewUnreadMessagesMenuItem" type="radio" name="viewmessages" label="&unreadMsgsCmd.label;" accesskey="&unreadMsgsCmd.accesskey;" disabled="" command="cmd_viewUnreadMsgs"/>
           <menuitem id="viewThreadsWithUnreadMenuItem" type="radio" name="viewmessages" label="&threadsWithUnreadCmd.label;" accesskey="&threadsWithUnreadCmd.accesskey;" disabled="" command="cmd_viewThreadsWithUnread"/>
@@ -669,7 +672,7 @@
       </menu>
       <menuseparator id="viewAfterThreadsSeparator"/>
       <menu id="viewheadersmenu" label="&headersMenu.label;" accesskey="&headersMenu.accesskey;">
-        <menupopup id="menu_HeadersPopup" onpopupshowing="InitViewHeadersMenu();">
+        <menupopup id="menu_HeadersPopup" onpopupshowing="InitViewHeadersMenu();" native="false">
           <menuitem id="viewallheaders"
             type="radio"
             name="viewheadergroup"
@@ -685,7 +688,7 @@
         </menupopup>
       </menu>
       <menu id="viewBodyMenu" accesskey="&bodyMenu.accesskey;" label="&bodyMenu.label;">
-        <menupopup id="viewBodyPopMenu" onpopupshowing="InitViewBodyMenu()">
+        <menupopup id="viewBodyPopMenu" onpopupshowing="InitViewBodyMenu()" native="false">
           <menuitem id="bodyAllowHTML" type="radio" name="bodyPlaintextVsHTMLPref" label="&bodyAllowHTML.label;"
                     accesskey="&bodyAllowHTML.accesskey;" oncommand="MsgBodyAllowHTML()"/>
           <menuitem id="bodySanitized" type="radio" name="bodyPlaintextVsHTMLPref" label="&bodySanitized.label;"
@@ -701,7 +704,8 @@
             label="&bodyMenuFeed.label;"
             accesskey="&bodyMenuFeed.accesskey;">
         <menupopup id="viewFeedSummaryPopupMenu"
-                    onpopupshowing="InitViewBodyMenu()">
+                   onpopupshowing="InitViewBodyMenu()"
+                   native="false">
           <menuitem id="bodyFeedGlobalWebPage"
                     type="radio"
                     name="viewFeedSummaryGroup"
@@ -754,9 +758,9 @@
 
     <!-- Go -->
     <menu id="menu_Go" label="&goMenu.label;" accesskey="&goMenu.accesskey;">
-      <menupopup id="menu_GoPopup" onpopupshowing="InitGoMessagesMenu();">
+      <menupopup id="menu_GoPopup" onpopupshowing="InitGoMessagesMenu();" native="false">
       <menu id="goNextMenu" label="&nextMenu.label;" accesskey="&nextMenu.accesskey;">
-        <menupopup id="menu_GoNextPopup">
+        <menupopup id="menu_GoNextPopup" native="false">
           <menuitem id="menu_nextMsg"
                     label="&nextMsgCmd.label;"
                     accesskey="&nextMsgCmd.accesskey;"
@@ -801,7 +805,7 @@
         </menupopup>
       </menu>
       <menu id="goPreviousMenu" label="&prevMenu.label;" accesskey="&prevMenu.accesskey;">
-        <menupopup id="menu_GoPreviousPopup">
+        <menupopup id="menu_GoPreviousPopup" native="false">
           <menuitem id="menu_prevMsg"
                     label="&prevMsgCmd.label;"
                     accesskey="&prevMsgCmd.accesskey;"
@@ -866,7 +870,8 @@
         <menupopup is="folder-menupopup" id="menu_GoFolderPopup"
                     showFileHereLabel="true"
                     showRecent="true"
-                    showFavorites="true"/>
+                    showFavorites="true"
+                    native="false"/>
       </menu>
       <menuseparator id="goFolderSeparator"/>
 
@@ -875,7 +880,8 @@
             accesskey="&goRecentlyClosedTabs.accesskey;"
             observes="cmd_undoCloseTab">
         <menupopup id="menu_GoRecentlyClosedTabsPopup"
-                    onpopupshowing="return InitRecentlyClosedTabsPopup(this)" />
+                   onpopupshowing="return InitRecentlyClosedTabsPopup(this)"
+                   native="false"/>
       </menu>
       <menuseparator id="goRecentlyClosedTabsSeparator"/>
 
@@ -889,7 +895,7 @@
 
     <!-- Message -->
     <menu id="messageMenu" label="&msgMenu.label;" accesskey="&msgMenu.accesskey;">
-      <menupopup id="messageMenuPopup" onpopupshowing="InitMessageMenu();">
+      <menupopup id="messageMenuPopup" onpopupshowing="InitMessageMenu();" native="false">
         <menuitem id="newMsgCmd" label="&newMsgCmd.label;"
                   accesskey="&newMsgCmd.accesskey;"
                   key="key_newMessage2"
@@ -918,7 +924,7 @@
                   key="key_forward"
                   command="cmd_forward"/>
         <menu id="forwardAsMenu" label="&forwardAsMenu.label;" accesskey="&forwardAsMenu.accesskey;">
-          <menupopup id="menu_forwardAsPopup">
+          <menupopup id="menu_forwardAsPopup" native="false">
             <menuitem id="menu_forwardAsInline"
                       label="&forwardAsInline.label;"
                       accesskey="&forwardAsInline.accesskey;"
@@ -962,7 +968,7 @@
         <menu id="openFeedMessage"
               label="&openFeedMessage1.label;"
               accesskey="&openFeedMessage1.accesskey;">
-          <menupopup id="menu_openFeedMessage">
+          <menupopup id="menu_openFeedMessage" native="false">
             <menuitem id="menu_openFeedWebPage"
                       type="radio"
                       name="openFeedGroup"
@@ -991,7 +997,8 @@
               accesskey="&openAttachmentListCmd.accesskey;"
               disabled="">
           <menupopup id="attachmentMenuList"
-                     onpopupshowing="fillAttachmentListPopup(event);">
+                     onpopupshowing="fillAttachmentListPopup(event);"
+                     native="false">
             <menuseparator/>
             <menuitem id="menu-openAllAttachments"
                       label="&openAllAttachmentsCmd.label;"
@@ -1014,7 +1021,8 @@
         <menuseparator id="messageAfterAttachmentMenuSeparator"/>
         <menu id="tagMenu" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;" command="cmd_tag">
           <menupopup id="tagMenu-tagpopup"
-                     onpopupshowing="InitMessageTags(this);">
+                     onpopupshowing="InitMessageTags(this);"
+                     native="false">
             <menuitem id="tagMenu-addNewTag"
                       label="&addNewTag.label;"
                       accesskey="&addNewTag.accesskey;"
@@ -1030,7 +1038,7 @@
           </menupopup>
         </menu>
         <menu id="markMenu" label="&markMenu.label;" accesskey="&markMenu.accesskey;">
-          <menupopup id="menu_MarkPopup" onpopupshowing="InitMessageMark()">
+          <menupopup id="menu_MarkPopup" onpopupshowing="InitMessageMark()" native="false">
             <menuitem id="markReadMenuItem" label="&markAsReadCmd.label;"
                       accesskey="&markAsReadCmd.accesskey;"
                       key="key_toggleRead"
@@ -1090,7 +1098,8 @@
                       mode="filing"
                       showFileHereLabel="true"
                       showRecent="true"
-                      showFavorites="true"/>
+                      showFavorites="true"
+                      native="false"/>
         </menu>
         <menu id="copyMenu"
               data-l10n-id="menu-copy-to"
@@ -1099,7 +1108,8 @@
                       mode="filing"
                       showFileHereLabel="true"
                       showRecent="true"
-                      showFavorites="true"/>
+                      showFavorites="true"
+                      native="false"/>
         </menu>
         <menuitem id="moveToFolderAgain" key="key_moveToFolderAgain"
                   data-l10n-id="menu-move-again"
@@ -1136,7 +1146,7 @@
 
 <!-- Tools -->
 <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
-  <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')">
+  <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')" native="false">
     <menuitem hidden="hidden" accesskey="&messengerCmd.accesskey;" label="&messengerCmd.label;"
               key="key_mail" oncommand="toMessengerWindow();" id="tasksMenuMail"/>
 #ifndef XP_MACOSX
@@ -1160,7 +1170,7 @@
     <menu id="imAccountsStatus" label="&imAccountsStatus.label;"
           accesskey="&imAccountsStatus.accesskey;"
           command="cmd_chatStatus">
-      <menupopup id="imStatusMenupopup">
+      <menupopup id="imStatusMenupopup" native="false">
         <menuitem id="imStatusAvailable" status="available" label="&imStatus.available;" class="menuitem-iconic"/>
         <menuitem id="imStatusUnavailable" status="unavailable" label="&imStatus.unavailable;" class="menuitem-iconic"/>
         <menuseparator id="imStatusOfflineSeparator"/>
@@ -1207,7 +1217,7 @@
               data-l10n-id="openpgp-manage-keys-openpgp-cmd"
               oncommand="openKeyManager()"/>
     <menu id="devtoolsMenu" label="&devtoolsMenu.label;" accesskey="&devtoolsMenu.accesskey;">
-      <menupopup id="devtoolsPopup">
+      <menupopup id="devtoolsPopup" native="false">
         <menuitem id="devtoolsToolbox"
                   label="&devToolboxCmd.label;"
                   accesskey="&devToolboxCmd.accesskey;"

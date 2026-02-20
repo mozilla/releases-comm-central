@@ -242,10 +242,12 @@ add_task(async function test_setupWithObservesAndToggling() {
 
 add_task(async function test_popup() {
   const submenu = testDocument.createElementNS(XUL_NS, "menupopup");
+  submenu.setAttribute("native", "false");
   const menu = testDocument.createElementNS(XUL_NS, "menu");
   menu.setAttribute("label", "Submenu");
   menu.append(submenu);
   const popup = testDocument.createElementNS(XUL_NS, "menupopup");
+  popup.setAttribute("native", "false");
   popup.id = "test-popup";
   popup.append(menu);
   const button = testDocument.createElement("button", {

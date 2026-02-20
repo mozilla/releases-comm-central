@@ -123,7 +123,7 @@
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
-  <menupopup id="viewSourceContextMenu">
+  <menupopup id="viewSourceContextMenu" native="false">
     <menuitem id="cMenu_copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
@@ -146,7 +146,7 @@
     <menubar id="viewSource-main-menubar">
 
       <menu id="menu_file" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
-        <menupopup id="menu_FilePopup">
+        <menupopup id="menu_FilePopup" native="false">
           <menuitem key="key_savePage" command="cmd_savePage" id="menu_savePage"
                     label="&savePageCmd.label;" accesskey="&savePageCmd.accesskey;"/>
           <menuseparator/>
@@ -160,7 +160,7 @@
 
       <menu id="menu_edit" label="&editMenu.label;"
             accesskey="&editMenu.accesskey;">
-        <menupopup id="editmenu-popup">
+        <menupopup id="editmenu-popup" native="false">
           <menuitem id="menu_copy"
                     data-l10n-id="text-action-copy"
                     key="key_copy"
@@ -186,12 +186,12 @@
       </menu>
 
       <menu id="menu_view" label="&viewMenu.label;" accesskey="&viewMenu.accesskey;">
-        <menupopup id="viewmenu-popup">
+        <menupopup id="viewmenu-popup" native="false">
           <menuitem id="menu_reload" command="cmd_reload" accesskey="&reloadCmd.accesskey;"
                     label="&reloadCmd.label;" key="key_reload"/>
           <menuseparator />
           <menu id="viewTextZoomMenu" label="&menu_textSize.label;" accesskey="&menu_textSize.accesskey;">
-            <menupopup>
+            <menupopup native="false">
               <menuitem id="menu_textEnlarge" command="cmd_textZoomEnlarge"
                         label="&menu_textEnlarge.label;" accesskey="&menu_textEnlarge.accesskey;"
                         key="key_textZoomEnlarge"/>
@@ -216,7 +216,7 @@
       </menu>
       <menu id="helpMenu"
             data-l10n-id="menu-help-help-title">
-        <menupopup id="menu_HelpPopup">
+        <menupopup id="menu_HelpPopup" native="false">
           <menuitem id="menu_openHelp"
                     data-l10n-id="appmenu-help-get-help"
                     key="key_openHelp"

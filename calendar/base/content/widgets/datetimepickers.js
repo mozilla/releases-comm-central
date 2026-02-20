@@ -806,7 +806,7 @@
       const frag = document.importNode(
         MozXULElement.parseXULToFragment(`
           <menulist is="menulist-editable" class="datepicker-menulist" editable="true" sizetopopup="false">
-            <menupopup ignorekeys="true" popupanchor="bottomright" popupalign="topright">
+            <menupopup ignorekeys="true" popupanchor="bottomright" popupalign="topright" native="false">
               <calendar-minimonth tabindex="0"/>
             </menupopup>
           </menulist>
@@ -974,7 +974,7 @@
       const frag = document.importNode(
         MozXULElement.parseXULToFragment(`
           <menulist is="menulist-editable" class="timepicker-menulist" editable="true" sizetopopup="false">
-            <menupopup popupanchor="bottomright" popupalign="topright">
+            <menupopup popupanchor="bottomright" popupalign="topright" native="false">
               <timepicker-grids/>
             </menupopup>
           </menulist>

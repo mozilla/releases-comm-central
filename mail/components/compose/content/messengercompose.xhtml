@@ -582,7 +582,8 @@
 <menupopup id="extraAddressRowsMenu"
            class="no-icon-menupopup no-accel-menupopup"
            onpopupshown="extraAddressRowsMenuOpened();"
-           onpopuphidden="extraAddressRowsMenuClosed();">
+           onpopuphidden="extraAddressRowsMenuClosed();"
+           native="false">
   <!-- Default set up is for a mail account, where we prefer showing the
      - buttons, rather than the menu items, for the mail rows.
      - For the news rows, we prefer the menu items over the buttons. -->
@@ -624,7 +625,8 @@
 
 <menupopup id="msgComposeContext"
            onpopupshowing="msgComposeContextOnShowing(event);"
-           onpopuphiding="msgComposeContextOnHiding(event);">
+           onpopuphiding="msgComposeContextOnHiding(event);"
+           native="false">
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions"
@@ -664,7 +666,7 @@
             oncommand="openDictionaryList();"/>
   <menu id="spellCheckDictionaries"
         data-l10n-id="text-action-spell-dictionaries">
-    <menupopup id="spellCheckDictionariesMenu">
+    <menupopup id="spellCheckDictionariesMenu" native="false">
       <menuseparator id="spellCheckLanguageSeparator"/>
       <menuitem id="spellCheckAddDictionaries"
                 label="&spellAddDictionaries.label;"
@@ -676,7 +678,8 @@
 </menupopup>
 
 <menupopup id="msgComposeAttachmentItemContext"
-           onpopupshowing="updateAttachmentItems();">
+           onpopupshowing="updateAttachmentItems();"
+           native="false">
   <menuitem id="composeAttachmentContext_openItem"
             label="&openAttachment.label;"
             accesskey="&openAttachment.accesskey;"
@@ -699,7 +702,8 @@
         accesskey="&convertCloud.accesskey;"
         command="cmd_convertCloud">
     <menupopup id="convertCloudMenuItems_popup"
-               onpopupshowing="addConvertCloudMenuItems(this, 'convertCloudSeparator', 'context_convertCloud');">
+               onpopupshowing="addConvertCloudMenuItems(this, 'convertCloudSeparator', 'context_convertCloud');"
+               native="false">
       <menuitem id="convertCloudMenuItems_popup_convertAttachment"
                 type="radio" name="context_convertCloud"
                 label="&convertRegularAttachment.label;"
@@ -720,7 +724,8 @@
 </menupopup>
 
 <menupopup id="msgComposeAttachmentListContext"
-           onpopupshowing="updateAttachmentItems();">
+           onpopupshowing="updateAttachmentItems();"
+           native="false">
   <menuitem id="attachmentListContext_selectAllItem"
             label="&selectAll.label;"
             accesskey="&selectAll.accesskey;"
@@ -734,7 +739,9 @@
         label="&attachCloud.label;"
         accesskey="&attachCloud.accesskey;"
         command="cmd_attachCloud">
-    <menupopup id="attachCloudMenu_attachCloudPopup" onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"/>
+    <menupopup id="attachCloudMenu_attachCloudPopup"
+               onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"
+               native="false"/>
   </menu>
   <menuitem id="attachmentListContext_attachPageItem"
             label="&attachPage.label;"
@@ -758,7 +765,8 @@
 </menupopup>
 
 <menupopup id="format-toolbar-context-menu"
-           onpopupshowing="ToolbarContextMenu.updateExtension(this);">
+           onpopupshowing="ToolbarContextMenu.updateExtension(this);"
+           native="false">
   <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
             data-l10n-id="toolbar-context-menu-manage-extension"
             class="customize-context-manageExtension"/>
@@ -768,7 +776,8 @@
 </menupopup>
 
 <menupopup id="toolbar-context-menu"
-           onpopupshowing="onViewToolbarsPopupShowing(event, 'compose-toolbox'); ToolbarContextMenu.updateExtension(this);">
+           onpopupshowing="onViewToolbarsPopupShowing(event, 'compose-toolbox'); ToolbarContextMenu.updateExtension(this);"
+           native="false">
   <menuseparator/>
   <menuitem id="CustomizeComposeToolbar"
             command="cmd_CustomizeComposeToolbar"
@@ -784,12 +793,14 @@
 </menupopup>
 
 <menupopup id="blockedContentOptions" value=""
-           onpopupshowing="onBlockedContentOptionsShowing(event);">
+           onpopupshowing="onBlockedContentOptionsShowing(event);"
+           native="false">
 </menupopup>
 
 <menupopup id="emailAddressPillPopup"
            class="emailAddressPopup"
-           onpopupshowing="onPillPopupShowing(event);">
+           onpopupshowing="onPillPopupShowing(event);"
+           native="false">
   <menuitem id="editAddressPill"
             class="pill-action-edit"
             data-l10n-id="pill-action-edit"
@@ -870,10 +881,10 @@
     <toolbaritem id="menubar-items" align="center">
       <menubar id="mail-menubar">
       <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
-        <menupopup id="menu_FilePopup">
+        <menupopup id="menu_FilePopup" native="false">
           <menu id="menu_New"
                 label="&newMenu.label;" accesskey="&newMenu.accesskey;">
-            <menupopup id="menu_NewPopup">
+            <menupopup id="menu_NewPopup" native="false">
               <menuitem id="menu_NewMessage"
                         label="&newMessage.label;" accesskey="&newMessage.accesskey;"
                         key="key_newMessage" oncommand="goOpenNewMessage(event);"/>
@@ -884,13 +895,13 @@
             </menupopup>
           </menu>
           <menu id="menu_Attach" label="&attachMenu.label;" accesskey="&attachMenu.accesskey;">
-            <menupopup id="menu_AttachPopup" onpopupshowing="updateAttachmentItems();">
+            <menupopup id="menu_AttachPopup" onpopupshowing="updateAttachmentItems();" native="false">
               <menuitem data-l10n-id="menuitem-attach-files"
                         data-l10n-attrs="acceltext"
                         command="cmd_attachFile"/>
               <menu label="&attachCloudCmd.label;" accesskey="&attachCloudCmd.accesskey;"
                     command="cmd_attachCloud">
-                <menupopup onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"/>
+                <menupopup onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }" native="false"/>
               </menu>
               <menuitem label="&attachPageCmd.label;"
                         accesskey="&attachPageCmd.accesskey;" command="cmd_attachPage"/>
@@ -911,7 +922,7 @@
                     key="key_save" command="cmd_saveDefault"/>
           <menu id="menu_SaveAsCmd"
                 label="&saveAsCmd.label;" accesskey="&saveAsCmd.accesskey;">
-            <menupopup id="menu_SaveAsCmdPopup" onpopupshowing="InitFileSaveAsMenu();">
+            <menupopup id="menu_SaveAsCmdPopup" onpopupshowing="InitFileSaveAsMenu();" native="false">
               <menuitem id="menu_SaveAsFileCmd"
                         label="&saveAsFileCmd.label;" accesskey="&saveAsFileCmd.accesskey;"
                         command="cmd_saveAsFile" type="radio" name="radiogroup_SaveAs"/>
@@ -944,7 +955,7 @@
 
       <!-- Edit Menu -->
       <menu id="menu_Edit" label="&editMenu.label;" accesskey="&editMenu.accesskey;">
-        <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
+        <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();" native="false">
           <menuitem id="menu_undo"
                     data-l10n-id="text-action-undo"
                     key="key_undo" command="cmd_undo"/>
@@ -1039,12 +1050,12 @@
 
       <!-- View Menu -->
       <menu id="menu_View" label="&viewMenu.label;" accesskey="&viewMenu.accesskey;">
-        <menupopup id="menu_View_Popup" onpopupshowing="updateViewItems();">
+        <menupopup id="menu_View_Popup" onpopupshowing="updateViewItems();" native="false">
           <menu id="menu_ToolbarsNew"
                 label="&viewToolbarsMenuNew.label;"
                 accesskey="&viewToolbarsMenuNew.accesskey;"
                 onpopupshowing="onViewToolbarsPopupShowing(event, 'compose-toolbox');">
-            <menupopup id="view_toolbars_popup">
+            <menupopup id="view_toolbars_popup" native="false">
               <menuitem id="menu_showFormatToolbar"
                         type="checkbox"
                         label="&showFormattingBarCmd.label;"
@@ -1066,7 +1077,7 @@
           </menu>
           <menu id="viewFullZoomMenu" label="&fullZoom.label;" accesskey="&fullZoom.accesskey;"
                 onpopupshowing="UpdateFullZoomMenu()">
-            <menupopup id="viewFullZoomPopupMenu">
+            <menupopup id="viewFullZoomPopupMenu" native="false">
               <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                         label="&fullZoomEnlargeCmd.label;"
                         accesskey="&fullZoomEnlargeCmd.accesskey;"
@@ -1112,7 +1123,7 @@
 
       <menu id="insertMenu" label="&insertMenu.label;"
             accesskey="&insertMenu.accesskey;" command="cmd_renderedHTMLEnabler">
-        <menupopup id="insertMenuPopup">
+        <menupopup id="insertMenuPopup" native="false">
           <menuitem id="insertImage"
                     label="&insertImageCmd.label;"
                     accesskey="&insertImageCmd.accesskey;"
@@ -1145,7 +1156,7 @@
                     command="cmd_insertChars"/>
 
           <menu id="insertTOC" label="&tocMenu.label;" accesskey="&tocMenu.accesskey;">
-            <menupopup id="insertTOCPopup" onpopupshowing="InitTOCMenu()">
+            <menupopup id="insertTOCPopup" onpopupshowing="InitTOCMenu()" native="false">
               <menuitem id="insertTOCMenuitem"
                         label="&insertTOC.label;"
                         accesskey="&insertTOC.accesskey;"
@@ -1169,7 +1180,7 @@
       </menu>
 
       <menu id="formatMenu" label="&formatMenu.label;" accesskey="&formatMenu.accesskey;" command="cmd_renderedHTMLEnabler">
-        <menupopup id="formatMenuPopup" onpopupshowing="EditorInitFormatMenu()">
+        <menupopup id="formatMenuPopup" onpopupshowing="EditorInitFormatMenu()" native="false">
           <!-- Font face submenu -->
           <menu id="fontFaceMenu"
                 label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
@@ -1178,7 +1189,8 @@
                        oncommand="if (event.target.localName == 'menuitem') {
                                     doStatefulCommand('cmd_fontFace', event.target.getAttribute('value'));
                                   }"
-                       onpopupshowing="initFontFaceMenu(this);">
+                       onpopupshowing="initFontFaceMenu(this);"
+                       native="false">
               <menuitem id="menu_fontFaceVarWidth"
                         label="&fontVarWidth.label;"
                         accesskey="&fontVarWidth.accesskey;"
@@ -1228,7 +1240,8 @@
                 position="2">
             <menupopup id="fontSizeMenuPopup"
                        onpopupshowing="initFontSizeMenu(this)"
-                       oncommand="setFontSize(event)">
+                       oncommand="setFontSize(event)"
+                       native="false">
               <menuitem id="menu_decreaseFontSize"
                         label="&decreaseFontSize.label;"
                         accesskey="&decreaseFontSize.accesskey;"
@@ -1285,7 +1298,7 @@
           <menu id="fontStyleMenu" label="&fontStyleMenu.label;"
                 accesskey="&fontStyleMenu.accesskey;"
                 position="3">
-          <menupopup id="fontStyleMenuPopup" onpopupshowing="initFontStyleMenu(this)">
+          <menupopup id="fontStyleMenuPopup" onpopupshowing="initFontStyleMenu(this)" native="false">
             <menuitem id="menu_styleBold"
                       label="&styleBoldCmd.label;"
                       accesskey="&styleBoldCmd.accesskey;"
@@ -1406,7 +1419,8 @@
                 accesskey="&paragraphMenu.accesskey;"
                 position="10" onpopupshowing="InitParagraphMenu()">
             <menupopup id="paragraphMenuPopup"
-                       oncommand="setParagraphState(event);">
+                       oncommand="setParagraphState(event);"
+                       native="false">
               <menuitem id="menu_bodyText"
                         type="radio"
                         name="1"
@@ -1484,7 +1498,7 @@
           <menu id="listMenu" label="&formatlistMenu.label;"
                 accesskey="&formatlistMenu.accesskey;"
                 position="11" onpopupshowing="InitListMenu()">
-            <menupopup id="listMenuPopup">
+            <menupopup id="listMenuPopup" native="false">
               <menuitem id="menu_noList"
                         type="radio"
                         name="1"
@@ -1542,7 +1556,8 @@
               position="15">
             <!-- Align submenu -->
             <menupopup id="alignMenuPopup"
-                       oncommand="doStatefulCommand('cmd_align', event.target.getAttribute('value'))">
+                       oncommand="doStatefulCommand('cmd_align', event.target.getAttribute('value'))"
+                       native="false">
               <menuitem id="menu_left"
                         label="&alignLeft.label;"
                         accesskey="&alignLeft.accesskey;"
@@ -1575,9 +1590,9 @@
           </menu>
           <menuseparator id="tableSep" position="16"/>
           <menu id="tableMenu" label="&tableMenu.label;" accesskey="&tableMenu.accesskey;">
-            <menupopup id="tableMenuPopup" onpopupshowing="EditorInitTableMenu()">
+            <menupopup id="tableMenuPopup" onpopupshowing="EditorInitTableMenu()" native="false">
               <menu id="tableInsertMenu" label="&tableInsertMenu.label;" accesskey="&tableInsertMenu.accesskey;">
-                <menupopup id="tableMenuPopup">
+                <menupopup id="tableMenuPopup" native="false">
                   <menuitem id="menu_insertTable"
                             label="&insertTableCmd.label;"
                             accesskey="&insertTableCmd.accesskey;"
@@ -1614,7 +1629,7 @@
               <menu id="tableSelectMenu"
                     label="&tableSelectMenu.label;"
                     accesskey="&tableSelectMenu.accesskey;" >
-                <menupopup id="tableSelectPopup">
+                <menupopup id="tableSelectPopup" native="false">
                   <menuitem id="menu_SelectTable"
                             label="&tableTable.label;"
                             accesskey="&tableTable.accesskey;"
@@ -1640,7 +1655,7 @@
               <menu id="tableDeleteMenu"
                     label="&tableDeleteMenu.label;"
                     accesskey="&tableDeleteMenu.accesskey;">
-                <menupopup id="tableDeletePopup">
+                <menupopup id="tableDeletePopup" native="false">
                   <menuitem id="menu_DeleteTable"
                             label="&tableTable.label;"
                             accesskey="&tableTable.accesskey;"
@@ -1702,7 +1717,7 @@
       </menu>
 
       <menu id="optionsMenu" label="&optionsMenu.label;" accesskey="&optionsMenu.accesskey;">
-        <menupopup id="optionsMenuPopup" onpopupshowing="updateOptionsMenu();">
+        <menupopup id="optionsMenuPopup" onpopupshowing="updateOptionsMenu();" native="false">
           <menuitem id="menu_checkspelling"
                     label="&checkSpellingCmd2.label;"
                     accesskey="&checkSpellingCmd2.accesskey;"
@@ -1725,7 +1740,7 @@
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
           <menu id="outputFormatMenu" data-l10n-id="compose-send-format-menu">
-            <menupopup id="outputFormatMenuPopup">
+            <menupopup id="outputFormatMenuPopup" native="false">
               <menuitem type="radio" name="output_format" id="format_auto" data-l10n-id="compose-send-auto-menu-item"/>
               <menuitem type="radio" name="output_format" id="format_both" data-l10n-id="compose-send-both-menu-item"/>
               <menuitem type="radio" name="output_format" id="format_html" data-l10n-id="compose-send-html-menu-item"/>
@@ -1733,7 +1748,7 @@
             </menupopup>
           </menu>
           <menu id="priorityMenu" label="&priorityMenu.label;" accesskey="&priorityMenu.accesskey;" onpopupshowing="updatePriorityMenu();" oncommand="PriorityMenuSelect(event.target);">
-            <menupopup id="priorityMenuPopup">
+            <menupopup id="priorityMenuPopup" native="false">
               <menuitem type="radio" name="priority" label="&highestPriorityCmd.label;" accesskey="&highestPriorityCmd.accesskey;" value="Highest" id="priority_highest"/>
               <menuitem type="radio" name="priority" label="&highPriorityCmd.label;" accesskey="&highPriorityCmd.accesskey;" value="High" id="priority_high"/>
               <menuitem type="radio" name="priority" label="&normalPriorityCmd.label;" accesskey="&normalPriorityCmd.accesskey;" value="" id="priority_normal" checked=""/>
@@ -1745,7 +1760,8 @@
                 accesskey="&fileCarbonCopyCmd.accesskey;"
                 oncommand="MessageFcc(event.target._folder)">
             <menupopup is="folder-menupopup" id="fccMenuPopup" mode="filing"
-                       showFileHereLabel="true" fileHereLabel="&fileHereMenu.label;"/>
+                       showFileHereLabel="true" fileHereLabel="&fileHereMenu.label;"
+                       native="false"/>
           </menu>
           <menuseparator/>
           <menuitem type="checkbox" command="cmd_customizeFromAddress"
@@ -1754,7 +1770,7 @@
       </menu>
 
       <menu id="encryptionMenu" data-l10n-id="encryption-menu">
-        <menupopup onpopupshowing="setSecuritySettings('_Menubar');">
+        <menupopup onpopupshowing="setSecuritySettings('_Menubar');" native="false">
 
           <menuitem id="encTech_OpenPGP_Menubar"
                     label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
@@ -1798,7 +1814,7 @@
       </menu>
 
       <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
-          <menupopup id="taskPopup">
+          <menupopup id="taskPopup" native="false">
             <menuitem id="tasksMenuMail" accesskey="&messengerCmd.accesskey;"
                       label="&messengerCmd.label;" key="key_mail"
                       oncommand="toMessengerWindow();"/>
@@ -1854,7 +1870,8 @@
                    command="cmd_attachFile">
       <menupopup id="button-attachPopup"
                  class="gutter-popup"
-                 onpopupshowing="updateAttachmentItems();">
+                 onpopupshowing="updateAttachmentItems();"
+                 native="false">
         <menuitem id="button-attachPopup_attachFileItem"
                   data-l10n-id="menuitem-attach-files"
                   data-l10n-attrs="acceltext"
@@ -1863,7 +1880,9 @@
               label="&attachCloudCmd.label;"
               accesskey="&attachCloudCmd.accesskey;"
               command="cmd_attachCloud">
-          <menupopup id="attachCloudMenu_popup" onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"/>
+          <menupopup id="attachCloudMenu_popup"
+                     onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"
+                     native="false"/>
         </menu>
         <menuitem id="button-attachPopup_attachPageItem"
                   label="&attachPageCmd.label;"
@@ -1905,7 +1924,8 @@
                    data-l10n-id="encryption-options-openpgp">
       <menupopup id="encryptionToolbarMenu"
                  onpopupshowing="setSecuritySettings('_Toolbar');"
-                 oncommand="onEncryptionChoice(event.target.value);">
+                 oncommand="onEncryptionChoice(event.target.value);"
+                 native="false">
 
         <menuitem id="encTech_OpenPGP_Toolbar"
                   label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
@@ -1951,7 +1971,8 @@
                  oncommand="ChangeLanguage(event);"
                  onpopupshowing="OnShowDictionaryMenu(event.target);"
                  onpopupshown="languageMenuListOpened();"
-                 onpopuphidden="languageMenuListClosed();">
+                 onpopuphidden="languageMenuListClosed();"
+                 native="false">
       </menupopup>
     </toolbarbutton>
 
@@ -1961,7 +1982,7 @@
                    label="&saveButton.label;"
                    tooltiptext="&saveButton.tooltip;"
                    command="cmd_saveDefault">
-         <menupopup id="button-savePopup" onpopupshowing="InitFileSaveAsMenu();">
+         <menupopup id="button-savePopup" onpopupshowing="InitFileSaveAsMenu();" native="false">
            <menuitem id="savePopup_saveAsFile"
                      label="&saveAsFileCmd.label;" accesskey="&saveAsFileCmd.accesskey;"
                      command="cmd_saveAsFile" type="radio" name="radiogroup_SaveAs"/>
@@ -2005,7 +2026,7 @@
                  tooltiptext="&priorityButton.tooltiptext;">
       <label value="&priorityButton.label;" control="priorityMenu-button"/>
       <menulist id="priorityMenu-button" value="" oncommand="PriorityMenuSelect(event.target);">
-        <menupopup id="priorityMenu-buttonPopup">
+        <menupopup id="priorityMenu-buttonPopup" native="false">
           <menuitem id="list_priority_highest"
                     name="priority"
                     label="&highestPriorityCmd.label;"
@@ -2085,7 +2106,7 @@
                   oncommand="LoadIdentity(false);"
                   oninput="msgIdentityOnInput(event);"
                   disableonsend="true">
-          <menupopup id="msgIdentityPopup"/>
+          <menupopup id="msgIdentityPopup" native="false"/>
         </menulist>
 
         <html:div id="extraAddressRowsArea">

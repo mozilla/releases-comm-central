@@ -6,7 +6,8 @@
 
   <menupopup id="buddyListContextMenu"
              onpopupshowing="if (event.target != this) { return true; } gBuddyListContextMenu = new buddyListContextMenu(this); return gBuddyListContextMenu.shouldDisplay;"
-             onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }">
+             onpopuphiding="if (event.target == this) { gBuddyListContextMenu = null; }"
+             native="false">
     <menuitem id="context-openconversation"
               label="&openConversationCmd.label;"
               accesskey="&openConversationCmd.accesskey;"
@@ -30,7 +31,8 @@
 
   <menupopup id="chatConversationContextMenu"
              onpopupshowing="if (event.target != this) { return true; } gChatContextMenu = new imContextMenu(this); return gChatContextMenu.shouldDisplay;"
-             onpopuphiding="if (event.target == this &amp;&amp; gChatContextMenu) { gChatContextMenu.cleanup(); gChatContextMenu = null; }">
+             onpopuphiding="if (event.target == this &amp;&amp; gChatContextMenu) { gChatContextMenu.cleanup(); gChatContextMenu = null; }"
+             native="false">
     <menuitem id="context-openlink"
               label="&openLinkCmd.label;"
               accesskey="&openLinkCmd.accesskey;"
@@ -54,7 +56,7 @@
     <menuseparator id="context-sep-messageactions"/>
   </menupopup>
 
-  <menupopup id="chat-toolbar-context-menu">
+  <menupopup id="chat-toolbar-context-menu" native="false">
     <menuitem id="CustomizeChatToolbar"
               oncommand="CustomizeMailToolbar('chat-view-toolbox', 'CustomizeChatToolbar')"
               label="&customizeToolbar.label;"
@@ -63,7 +65,8 @@
 
   <menupopup id="chatContextMenu"
              onpopupshowing="if (event.target != this) { return true; } openChatContextMenu(this);"
-             onpopuphiding="if (event.target == this) { clearChatContextMenu(this); }">
+             onpopuphiding="if (event.target == this) { clearChatContextMenu(this); }"
+             native="false">
 
     <!-- Spellchecking menu items -->
     <menuitem id="spellCheckNoSuggestions"
@@ -90,7 +93,7 @@
               oncommand="enableInlineSpellCheck(!gChatSpellChecker.enabled);"/>
     <menu id="spellCheckDictionaries"
           data-l10n-id="text-action-spell-dictionaries">
-      <menupopup id="spellCheckDictionariesMenu">
+      <menupopup id="spellCheckDictionariesMenu" native="false">
         <menuseparator id="spellCheckLanguageSeparator"/>
         <menuitem id="spellCheckAddDictionaries"
                   label="&spellAddDictionaries.label;"
@@ -102,7 +105,8 @@
   </menupopup>
 
   <menupopup id="participantListContextMenu"
-             onpopupshowing="return showParticipantMenu(this);">
+             onpopupshowing="return showParticipantMenu(this);"
+             native="false">
     <menuitem id="context-verifyParticipant"
               data-l10n-id="chat-verify-identity"
               oncommand="verifyChatParticipant();"/>

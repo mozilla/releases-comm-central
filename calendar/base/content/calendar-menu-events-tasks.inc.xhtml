@@ -6,7 +6,9 @@
       class="hide-when-calendar-deactivated"
       label="&lightning.menu.eventtask.label;"
       accesskey="&lightning.menu.eventtask.accesskey;">
-  <menupopup id="menu_Event_Task_Popup" onpopupshowing="changeMenuForTask(event); setupDeleteMenuitem('calDeleteSelectedCalendar')">
+  <menupopup id="menu_Event_Task_Popup"
+             onpopupshowing="changeMenuForTask(event); setupDeleteMenuitem('calDeleteSelectedCalendar')"
+             native="false">
     <menuitem id="calNewEvent2"
               label="&event.new.event;"
               accesskey="&event.new.event.accesskey;"
@@ -65,17 +67,20 @@
     <menu id="calTaskActionsProgressMenuitem"
           data-l10n-id="calendar-context-progress"
           command="calendar_general-progress_command">
-      <menupopup is="calendar-task-progress-menupopup"/>
+      <menupopup is="calendar-task-progress-menupopup"
+                 native="false"/>
     </menu>
     <menu id="calTaskActionsPriorityMenuitem"
           data-l10n-id="calendar-task-change-priority"
           command="calendar_general-priority_command">
-      <menupopup is="calendar-task-priority-menupopup"/>
+      <menupopup is="calendar-task-priority-menupopup"
+                 native="false"/>
     </menu>
     <menu id="calTaskActionsPostponeMenuitem"
           data-l10n-id="calendar-context-postpone"
           command="calendar_general-postpone_command">
-      <menupopup id="calTaskActionsPostponeMenuPopup">
+      <menupopup id="calTaskActionsPostponeMenuPopup"
+                 native="false">
         <menuitem id="calTaskActionsPostponeMenu-1hour"
                   data-l10n-id="calendar-context-postpone-1hour"
                   command="calendar_postpone-1hour_command"/>

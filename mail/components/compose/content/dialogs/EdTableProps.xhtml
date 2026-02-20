@@ -228,7 +228,7 @@
                 accesskey="&tableAlignment.accessKey;"
               />
               <menulist id="TableAlignList">
-                <menupopup>
+                <menupopup native="false">
                   <menuitem label="&AlignLeft.label;" value="left" />
                   <menuitem label="&AlignCenter.label;" value="center" />
                   <menuitem label="&AlignRight.label;" value="right" />
@@ -241,7 +241,7 @@
                 accesskey="&tableCaption.accessKey;"
               />
               <menulist id="TableCaptionList">
-                <menupopup>
+                <menupopup native="false">
                   <menuitem label="&tableCaptionNone.label;" value="" />
                   <menuitem label="&tableCaptionAbove.label;" value="top" />
                   <menuitem label="&tableCaptionBelow.label;" value="bottom" />
@@ -290,7 +290,7 @@
                   id="SelectionList"
                   oncommand="ChangeSelection(event.target.value)"
                 >
-                  <menupopup>
+                  <menupopup native="false">
                     <!-- JS code assumes order is Cell, Row, Column -->
                     <menuitem label="&cellSelectCell.label;" value="1" />
                     <menuitem label="&cellSelectRow.label;" value="2" />
@@ -397,7 +397,7 @@
                       id="CellVAlignList"
                       oncommand="SetCheckbox('CellVAlignCheckbox')"
                     >
-                      <menupopup>
+                      <menupopup native="false">
                         <menuitem label="&cellAlignTop.label;" value="top" />
                         <menuitem
                           label="&cellAlignMiddle.label;"
@@ -413,7 +413,7 @@
                       id="CellHAlignList"
                       oncommand="SelectCellHAlign()"
                     >
-                      <menupopup>
+                      <menupopup native="false">
                         <menuitem label="&AlignLeft.label;" value="left" />
                         <menuitem label="&AlignCenter.label;" value="center" />
                         <menuitem label="&AlignRight.label;" value="right" />
@@ -438,7 +438,7 @@
                 id="CellStyleList"
                 oncommand="SetCheckbox('CellStyleCheckbox')"
               >
-                <menupopup>
+                <menupopup native="false">
                   <menuitem label="&cellNormal.label;" value="td" />
                   <menuitem label="&cellHeader.label;" value="th" />
                 </menupopup>
@@ -453,7 +453,7 @@
                 id="TextWrapList"
                 oncommand="SetCheckbox('TextWrapCheckbox')"
               >
-                <menupopup>
+                <menupopup native="false">
                   <menuitem label="&cellWrap.label;" value="wrap" />
                   <menuitem label="&cellNoWrap.label;" value="nowrap" />
                 </menupopup>

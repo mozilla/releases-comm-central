@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="mailContext" class="no-icon-menupopup">
+  <menupopup id="mailContext" class="no-icon-menupopup" native="false">
     <!-- Browser navigation -->
     <menugroup id="mailContext-navigation">
       <menuitem id="navContext-markRead"
@@ -110,7 +110,8 @@
           data-l10n-id="mail-context-menu-open"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-openPopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 native="false">
         <menuitem id="mailContext-openNewTab"
                   class="menuitem-iconic"
                   label="&contextOpenNewTab.label;"
@@ -136,7 +137,8 @@
           data-l10n-id="mail-context-menu-reply"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-replyPopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 native="false">
         <menuitem id="mailContext-replyNewsgroup"
                   class="menuitem-iconic"
                   label="&contextReplyNewsgroup2.label;"
@@ -160,7 +162,8 @@
           data-l10n-id="mail-context-menu-forward-redirect"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-forwardRedirectPopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 native="false">
         <menuitem id="mailContext-forward"
                   class="menuitem-iconic"
                   data-l10n-id="mail-context-menu-forward-forward"
@@ -199,7 +202,8 @@
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 showFavorites="true">
+                 showFavorites="true"
+                 native="false">
       </menupopup>
     </menu>
     <menu id="mailContext-copyMenu"
@@ -209,13 +213,14 @@
                  mode="filing"
                  showFileHereLabel="true"
                  showRecent="true"
-                 showFavorites="true"/>
+                 showFavorites="true"
+                 native="false"/>
     </menu>
     <menu id="mailContext-tags"
           class="menu-iconic"
           label="&tagMenu.label;"
           accesskey="&tagMenu.accesskey;">
-      <menupopup id="mailContext-tagpopup" class="gutter-popup">
+      <menupopup id="mailContext-tagpopup" class="gutter-popup" native="false">
         <menuitem id="mailContext-addNewTag"
                   label="&addNewTag.label;"
                   accesskey="&addNewTag.accesskey;"/>
@@ -234,7 +239,7 @@
           class="menu-iconic"
           label="&markMenu.label;"
           accesskey="&markMenu.accesskey;">
-      <menupopup id="mailContext-markPopup" class="gutter-popup">
+      <menupopup id="mailContext-markPopup" class="gutter-popup" native="false">
         <menuitem id="mailContext-markRead"
                   label="&markAsReadCmd.label;"
                   accesskey="&markAsReadCmd.accesskey;"/>
@@ -271,7 +276,8 @@
           data-l10n-id="mail-context-menu-organize"
           data-l10n-attrs="accesskey">
       <menupopup id="mailContext-organizePopup"
-                 class="no-icon-menupopup">
+                 class="no-icon-menupopup"
+                 native="false">
         <menuitem id="mailContext-archive"
                   class="menuitem-iconic"
                   label="&contextArchive.label;"
@@ -287,14 +293,16 @@
                      showFileHereLabel="true"
                      showRecent="true"
                      showFavorites="true"
-                     hasbeenopened="false" />
+                     hasbeenopened="false"
+                     native="false"/>
         </menu>
 
         <menu id="mailContext-calendar-convert-menu"
               class="menu-iconic hide-when-calendar-deactivated"
               data-l10n-id="calendar-context-convert-menu">
           <menupopup id="mailContext-calendar-convert-menupopup"
-                     class="no-icon-menupopup">
+                     class="no-icon-menupopup"
+                     native="false">
             <menuitem id="mailContext-calendar-convert-event-menuitem"
                       class="menuitem-iconic"
                       data-l10n-id="calendar-context-convert-to-event"/>
@@ -318,7 +326,7 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-threads"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-threadsPopup">
+      <menupopup id="mailContext-threadsPopup" native="false">
         <menuitem id="mailContext-ignoreThread"
                   type="checkbox"
                   label="&contextKillThreadMenu.label;"

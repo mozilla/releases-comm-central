@@ -60,7 +60,7 @@
       <html:fieldset>
         <html:legend>&ListType.label;</html:legend>
         <menulist id="ListType" oncommand="SelectListType()">
-          <menupopup>
+          <menupopup native="false">
             <menuitem label="&none.value;" />
             <menuitem value="ul" label="&bulletList.value;" />
             <menuitem value="ol" label="&numberList.value;" />
@@ -76,7 +76,7 @@
       <html:fieldset>
         <html:legend id="BulletStyleLabel">&bulletStyle.label;</html:legend>
         <menulist id="BulletStyle" oncommand="SelectBulletStyle()">
-          <menupopup />
+          <menupopup native="false" />
         </menulist>
         <spacer class="spacer" />
         <hbox align="center">

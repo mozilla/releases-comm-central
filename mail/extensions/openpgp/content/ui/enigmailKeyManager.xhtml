@@ -85,7 +85,11 @@
       >
         <menubar id="main-menubar">
           <menu id="menu_File" data-l10n-id="openpgp-key-man-file-menu">
-            <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
+            <menupopup
+              id="menu_FilePopup"
+              onpopupshowing="enigmailKeyMenu();"
+              native="false"
+            >
               <menuitem
                 id="importPubFromFile"
                 data-l10n-id="openpgp-key-man-import-public-from-file"
@@ -141,7 +145,7 @@
           </menu>
 
           <menu data-l10n-id="openpgp-key-man-edit-menu">
-            <menupopup onpopupshowing="enigmailKeyMenu();">
+            <menupopup onpopupshowing="enigmailKeyMenu();" native="false">
               <menuitem
                 id="importFromClipbrd"
                 data-l10n-id="openpgp-key-man-import-from-clipbrd"
@@ -201,7 +205,7 @@
           </menu>
 
           <menu id="viewMenu" data-l10n-id="openpgp-key-man-view-menu">
-            <menupopup onpopupshowing="enigmailKeyMenu()">
+            <menupopup onpopupshowing="enigmailKeyMenu()" native="false">
               <!-- view menu -->
               <menuitem
                 id="keyDetails"
@@ -234,7 +238,7 @@
             id="keyserverMenu"
             data-l10n-id="openpgp-key-man-keyserver-menu"
           >
-            <menupopup onpopupshowing="enigmailKeyMenu()">
+            <menupopup onpopupshowing="enigmailKeyMenu()" native="false">
               <menuitem
                 id="importFromServer"
                 data-l10n-id="openpgp-key-man-discover-cmd"
@@ -249,7 +253,7 @@
           </menu>
 
           <menu id="generateMenu" data-l10n-id="openpgp-key-man-generate-menu">
-            <menupopup onpopupshowing="enigmailKeyMenu();">
+            <menupopup onpopupshowing="enigmailKeyMenu();" native="false">
               <!-- generate menu -->
               <menuitem
                 id="genKey"
@@ -262,9 +266,13 @@
       </toolbar>
 
       <popupset>
-        <menupopup id="ctxmenu" onpopupshowing="return enigmailKeyMenu();">
+        <menupopup
+          id="ctxmenu"
+          onpopupshowing="return enigmailKeyMenu();"
+          native="false"
+        >
           <menu id="ctxmenu-copy" data-l10n-id="openpgp-key-man-ctx-copy">
-            <menupopup id="ctxmenu-copy-popup">
+            <menupopup id="ctxmenu-copy-popup" native="false">
               <menuitem
                 id="ctxCopyFprs"
                 data-l10n-id="openpgp-key-man-ctx-copy-fprs"

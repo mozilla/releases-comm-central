@@ -89,7 +89,7 @@
             oncommand="reply('AUTO', 'ACCEPTED')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
-            <menupopup id="acceptDropdown">
+            <menupopup id="acceptDropdown" native="false">
               <menuitem
                 id="acceptButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
@@ -119,7 +119,7 @@
             oncommand="reply('AUTO', 'TENTATIVE')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
-            <menupopup id="tentativeDropdown">
+            <menupopup id="tentativeDropdown" native="false">
               <menuitem
                 id="tenatativeButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
@@ -149,7 +149,7 @@
             oncommand="reply('AUTO', 'DECLINED')"
             class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
           >
-            <menupopup id="declineDropdown">
+            <menupopup id="declineDropdown" native="false">
               <menuitem
                 id="declineButton_Send"
                 tooltiptext="&summary.dialog.send.tooltiptext;"
@@ -179,7 +179,7 @@
       <calendar-item-summary id="calendar-item-summary" flex="1" />
 
       <!-- LOCATION LINK CONTEXT MENU -->
-      <menupopup id="location-link-context-menu">
+      <menupopup id="location-link-context-menu" native="false">
         <menuitem
           id="location-link-context-menu-copy"
           data-l10n-id="calendar-copylink"
@@ -187,9 +187,9 @@
         />
       </menupopup>
       <!-- ATTENDEES CONTEXT MENU -->
-      <menupopup id="attendee-popup">
+      <menupopup id="attendee-popup" native="false">
         <menu id="attendee-popup-copy-menu" data-l10n-id="text-action-copy">
-          <menupopup>
+          <menupopup native="false">
             <menuitem
               id="attendee-popup-copy-menu-common-name"
               oncommand="copyLabelToClipboard(event)"
@@ -204,7 +204,11 @@
           oncommand="sendMailToAttendees()"
         />
       </menupopup>
-      <menupopup id="description-popup" onpopupshowing="goUpdateGlobalEditMenuItems(true);">
+      <menupopup
+        id="description-popup"
+        onpopupshowing="goUpdateGlobalEditMenuItems(true);"
+        native="false"
+      >
         <menuitem data-l10n-id="text-action-copy" command="cmd_copy" />
         <menuitem
           id="description-context-menu-copy-link-location"
@@ -236,7 +240,7 @@
           hidden="hidden"
           data-l10n-id="calendar-summary-dialog-edit-menu-button"
         >
-          <menupopup id="edit-button-context-menu">
+          <menupopup id="edit-button-context-menu" native="false">
             <menuitem
               id="edit-button-context-menu-this-occurrence"
               data-l10n-id="edit-button-context-menu-this-occurrence"

@@ -143,7 +143,11 @@
       />
     </keyset>
 
-    <menupopup id="editorContext" onpopupshowing="goUpdateGlobalEditMenuItems(true);">
+    <menupopup
+      id="editorContext"
+      onpopupshowing="goUpdateGlobalEditMenuItems(true);"
+      native="false"
+    >
       <menuitem data-l10n-id="text-action-undo" command="cmd_undo" />
       <menuseparator />
       <menuitem data-l10n-id="text-action-cut" command="cmd_cut" />
@@ -284,6 +288,7 @@
             <menupopup
               id="item-categories-popup"
               onpopuphiding="return categoryPopupHiding(event);"
+              native="false"
             >
               <html:input
                 id="item-categories-textbox"
@@ -484,7 +489,7 @@
               disable-on-readonly="true"
               oncommand="updateToDoStatus(this.value)"
             >
-              <menupopup id="todo-status-menupopup">
+              <menupopup id="todo-status-menupopup" native="false">
                 <menuitem
                   id="todo-status-none-menuitem"
                   label="&newevent.todoStatus.none.label;"
@@ -556,7 +561,7 @@
               disable-on-readonly="true"
               oncommand="updateRepeat(null, true)"
             >
-              <menupopup id="item-repeat-menupopup">
+              <menupopup id="item-repeat-menupopup" native="false">
                 <menuitem
                   id="repeat-none-menuitem"
                   label="&event.repeat.does.not.repeat.label;"
@@ -662,7 +667,7 @@
               disable-on-readonly="true"
               oncommand="updateReminder()"
             >
-              <menupopup id="item-alarm-menupopup">
+              <menupopup id="item-alarm-menupopup" native="false">
                 <menuitem
                   id="reminder-none-menuitem"
                   label="&event.reminder.none.label;"
@@ -848,7 +853,7 @@
                     oncommand="goDoCommandParams('cmd_paragraphState', event.target.value)"
                     observes="cmd_renderedHTMLEnabler"
                   >
-                    <menupopup id="paragraphPopup">
+                    <menupopup id="paragraphPopup" native="false">
                       <menuitem id="toolbarmenu_bodyText" label="&bodyTextCmd.label;" value="" />
                       <menuitem id="toolbarmenu_h1" label="&heading1Cmd.label;" value="h1" />
                       <menuitem id="toolbarmenu_h2" label="&heading2Cmd.label;" value="h2" />
@@ -928,7 +933,7 @@
                     tooltiptext="&AlignPopupButton.tooltip;"
                     observes="cmd_align"
                   >
-                    <menupopup id="AlignPopup">
+                    <menupopup id="AlignPopup" native="false">
                       <menuitem
                         id="AlignLeftItem"
                         class="menuitem-iconic"
@@ -974,7 +979,7 @@
                     tooltiptext="&SmileButton.tooltip;"
                     observes="cmd_renderedHTMLEnabler"
                   >
-                    <menupopup id="smileyPopup" class="no-icon-menupopup">
+                    <menupopup id="smileyPopup" class="no-icon-menupopup" native="false">
                       <menuitem
                         id="smileySmile"
                         class="menuitem-iconic"
@@ -1149,7 +1154,7 @@
     </vbox>
 
     <popupset id="event-dialog-popupset">
-      <menupopup id="attendee-popup">
+      <menupopup id="attendee-popup" native="false">
         <menuitem
           id="attendee-popup-invite-menuitem"
           label="&event.invite.attendees.label;"
@@ -1192,7 +1197,7 @@
           crop="end"
         />
       </menupopup>
-      <menupopup id="attachment-popup" onpopupshowing="attachmentClick(event)">
+      <menupopup id="attachment-popup" onpopupshowing="attachmentClick(event)" native="false">
         <menuitem
           id="attachment-popup-open"
           label="&event.attachments.popup.open.label;"
@@ -1224,7 +1229,12 @@
           command="cmd_attach_url"
         />
       </menupopup>
-      <menupopup id="timezone-popup" position="after_start" oncommand="chooseRecentTimezone(event)">
+      <menupopup
+        id="timezone-popup"
+        position="after_start"
+        oncommand="chooseRecentTimezone(event)"
+        native="false"
+      >
         <menuitem id="timezone-popup-defaulttz" />
         <menuseparator id="timezone-popup-menuseparator" />
         <menuitem

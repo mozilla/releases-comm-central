@@ -66,7 +66,7 @@
                        wantdropmarker="true"
                        label="Insecure"
                        data-l10n-id="start-tooltip">
-          <menupopup class="encryption-menu-popup">
+          <menupopup class="encryption-menu-popup" native="false">
             <menuitem class="otr-start" data-l10n-id="start-label"
                       oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
             <menuitem class="otr-end" data-l10n-id="end-label"

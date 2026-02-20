@@ -426,6 +426,7 @@
                           mode="filing"
                           showFileHereLabel="true"
                           oncommand="folderPickerChange(event)"
+                          native="false"
                         />
                       </menulist>
                     </hbox>
@@ -568,6 +569,7 @@
                           mode="filing"
                           showFileHereLabel="true"
                           oncommand="ewsFolderPickerChange(event)"
+                          native="false"
                         />
                       </menulist>
                     </hbox>
@@ -707,7 +709,7 @@
               id="server.storeTypeMenulist"
               oncommand="clickStoreTypeMenu(this)"
             >
-              <menupopup id="server.storeTypeMenupopup">
+              <menupopup id="server.storeTypeMenupopup" native="false">
                 <menuitem
                   id="server.mboxStore"
                   value="@mozilla.org/msgstore/berkeleystore;1"

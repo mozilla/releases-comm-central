@@ -9,7 +9,7 @@
                   crop="end"
                   tooltiptext="&ParagraphSelect.tooltip;"
                   observes="cmd_renderedHTMLEnabler">
-          <menupopup id="ParagraphPopup">
+          <menupopup id="ParagraphPopup" native="false">
             <menuitem id="toolbarmenu_bodyText" label="&bodyTextCmd.label;" value=""/>
             <menuitem id="toolbarmenu_paragraph" label="&paragraphParagraphCmd.label;" value="p"/>
             <menuitem id="toolbarmenu_h1" label="&heading1Cmd.label;" value="h1"/>
@@ -31,7 +31,7 @@
                   sizetopopup="pref"
                   tooltiptext="&FontFaceSelect.tooltip;"
                   observes="cmd_renderedHTMLEnabler">
-          <menupopup id="FontFacePopup">
+          <menupopup id="FontFacePopup" native="false">
             <menuitem id="toolbarmenu_fontVarWidth" label="&fontVarWidth.label;" value=""/>
             <menuitem id="toolbarmenu_fontFixedWidth" label="&fontFixedWidth.label;" value="monospace"/>
             <menuseparator id="toolbarmenuAfterGenericFontsSeparator"/>
@@ -77,7 +77,8 @@
                        observes="cmd_renderedHTMLEnabler">
           <menupopup id="AbsoluteFontSizeButtonPopup"
                      onpopupshowing="initFontSizeMenu(this);"
-                     oncommand="setFontSize(event)">
+                     oncommand="setFontSize(event)"
+                     native="false">
             <menuitem id="toobarmenu_fontSize_x-small"
                       label="&size-tinyCmd.label;"
                       type="radio" name="fontSize"
@@ -181,7 +182,7 @@
                        class="formatting-button"
                        tooltiptext="&AlignPopupButton.tooltip;"
                        observes="cmd_align">
-          <menupopup id="AlignPopup">
+          <menupopup id="AlignPopup" native="false">
             <menuitem id="AlignLeftItem" class="menuitem-iconic" label="&alignLeft.label;"
                       oncommand="doStatefulCommand('cmd_align', 'left')"
                       tooltiptext="&alignLeftButton.tooltip;"    />
@@ -204,7 +205,7 @@
                        class="formatting-button"
                        tooltiptext="&InsertPopupButton.tooltip;"
                        observes="cmd_renderedHTMLEnabler">
-          <menupopup id="InsertPopup">
+          <menupopup id="InsertPopup" native="false">
             <menuitem id="InsertLinkItem" class="menuitem-iconic" observes="cmd_link"
                       oncommand="goDoCommand('cmd_link')" label="&linkToolbarCmd.label;"
                       tooltiptext="&linkToolbarCmd.tooltip;"   />
@@ -229,7 +230,7 @@
                        class="formatting-button"
                        tooltiptext="&SmileButton.tooltip;"
                        observes="cmd_smiley">
-          <menupopup id="smileyPopup" class="no-icon-menupopup">
+          <menupopup id="smileyPopup" class="no-icon-menupopup" native="false">
             <menuitem id="smileySmile" class="menuitem-iconic"
                       label="&#128578; &smiley1Cmd.label;"
                       oncommand="goDoCommandParams('cmd_smiley', '&#128578;')"/>

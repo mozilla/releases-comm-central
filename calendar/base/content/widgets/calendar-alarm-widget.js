@@ -58,7 +58,7 @@
                     type="menu"
                     data-l10n-id="calendar-alarm-snooze-for"
                     data-l10n-attrs="label">
-              <menupopup is="calendar-snooze-popup" ignorekeys="true"/>
+              <menupopup is="calendar-snooze-popup" ignorekeys="true" native="false"/>
             </button>
             <button class="alarm-dismiss-button"
                     data-l10n-id="calendar-alarm-dismiss"
@@ -297,7 +297,8 @@
             <menulist class="snooze-unit-menulist" allowevents="true">
               <menupopup class="snooze-unit-menupopup menulist-menupopup"
                          position="after_start"
-                         ignorekeys="true">
+                         ignorekeys="true"
+                         native="false">
                 <menuitem closemenu="single" class="unit-menuitem" value="1"></menuitem>
                 <menuitem closemenu="single" class="unit-menuitem" value="60"></menuitem>
                 <menuitem closemenu="single" class="unit-menuitem" value="1440"></menuitem>

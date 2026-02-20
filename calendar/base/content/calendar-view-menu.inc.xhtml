@@ -7,7 +7,8 @@
 <menu id="calTodayPaneMenu"
       class="hide-when-calendar-deactivated"
       data-l10n-id="calendar-context-today-pane">
-  <menupopup id="calTodayPaneMenuPopup">
+  <menupopup id="calTodayPaneMenuPopup"
+             native="false">
     <menuitem id="calShowTodayPane-2"
               label="&todaypane.showTodayPane.label;"
               accesskey="&todaypane.showTodayPane.accesskey;"
@@ -43,7 +44,8 @@
       observes="calendar_in_foreground"
       label="&lightning.menu.view.calendar.label;"
       accesskey="&lightning.menu.view.calendar.accesskey;">
-  <menupopup id="calCalendarMenuPopup">
+  <menupopup id="calCalendarMenuPopup"
+             native="false">
     <menuitem id="calChangeViewDay"
               label="&lightning.toolbar.day.label;"
               accesskey="&lightning.toolbar.day.accesskey;"
@@ -73,7 +75,8 @@
           label="&lightning.toolbar.calendarmenu.label;"
           accesskey="&lightning.toolbar.calendarmenu.accesskey;">
       <menupopup id="calCalendarPanePopup"
-                 onpopupshowing="initViewCalendarPaneMenu()">
+                 onpopupshowing="initViewCalendarPaneMenu()"
+                 native="false">
         <menuitem id="calViewCalendarPane"
                   type="checkbox"
                   label="&lightning.toolbar.calendarpane.label;"
@@ -95,7 +98,8 @@
           observes="calendar_mode_calendar"
           label="&showCurrentView.label;"
           accesskey="&showCurrentView.accesskey;">
-      <menupopup id="calCalendarCurrentViewMenuPopup">
+      <menupopup id="calCalendarCurrentViewMenuPopup"
+                 native="false">
         <menuitem type="checkbox"
                   id="calWorkdaysOnlyMenuitem"
                   data-l10n-id="calendar-only-workday-checkbox"
@@ -121,7 +125,8 @@
       observes="calendar_mode_task"
       label="&lightning.menu.view.tasks.label;"
       accesskey="&lightning.menu.view.tasks.accesskey;">
-  <menupopup id="calTasksMenuPopup">
+  <menupopup id="calTasksMenuPopup"
+             native="false">
     <menuitem id="calTasksViewFilterTasks"
               type="checkbox"
               data-l10n-id="calendar-tasks-view-filtertasks"

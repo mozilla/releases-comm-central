@@ -381,7 +381,7 @@
     </div>
   </template>
 </body>
-<xul:menupopup id="bookContext" needsgutter="">
+<xul:menupopup id="bookContext" needsgutter="" native="false">
   <xul:menuitem id="bookContextProperties"/>
   <xul:menuitem id="bookContextSynchronize"
                 data-l10n-id="about-addressbook-books-context-synchronize"/>
@@ -398,7 +398,8 @@
                 data-l10n-id="about-addressbook-books-context-startup-default"/>
 </xul:menupopup>
 <xul:menupopup id="sortContext"
-               position="bottomleft topleft">
+               position="bottomleft topleft"
+               native="false">
   <xul:menuitem type="radio"
                 name="format"
                 value="0"
@@ -436,12 +437,13 @@
                 data-l10n-id="about-addressbook-table-layout"/>
 </xul:menupopup>
 <xul:menupopup id="cardContext"
-               class="no-icon-menupopup">
+               class="no-icon-menupopup"
+               native="false">
   <xul:menuitem id="cardContextWrite"
                 data-l10n-id="about-addressbook-cards-context-write"/>
   <xul:menu id="cardContextWriteMenu"
             data-l10n-id="about-addressbook-cards-context-write">
-    <xul:menupopup>
+    <xul:menupopup native="false">
       <!-- Filled dynamically. -->
     </xul:menupopup>
   </xul:menu>
@@ -458,7 +460,8 @@
                 data-l10n-id="about-addressbook-books-context-remove"/>
 </xul:menupopup>
 <xul:menupopup id="booksPaneCreateBookContext"
-               class="no-icon-menupopup">
+               class="no-icon-menupopup"
+               native="false">
   <xul:menuitem id="booksPaneContextCreateBook"
                 data-l10n-id="about-addressbook-toolbar-add-address-book"/>
   <xul:menuitem id="booksPaneContextCreateDav"
