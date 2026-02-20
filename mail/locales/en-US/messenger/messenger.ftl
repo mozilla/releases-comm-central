@@ -179,6 +179,14 @@ menu-file-save-as-file =
     .accesskey = F
 
 # Variables:
+#   $count - number of messages to get
+menu-file-get-next-n-news-msgs = {
+    $count ->
+        [one] Get Next { $count } News Message
+        *[other] Get Next { $count } News Messages
+    }
+
+# Variables:
 # $count (Number) - One or more than one folder selected for compacting
 menu-file-compact =
   .label =

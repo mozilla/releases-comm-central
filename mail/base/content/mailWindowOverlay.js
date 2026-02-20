@@ -27,7 +27,6 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
@@ -1415,17 +1414,13 @@ function IsGetNextNMessagesEnabled() {
     !folder.isServer &&
     folder.server instanceof Ci.nsINntpIncomingServer
   ) {
-    menuItem.label = PluralForm.get(
-      folder.server.maxArticles,
-      document
-        .getElementById("bundle_messenger")
-        .getString("getNextNewsMessages")
-    ).replace("#1", folder.server.maxArticles);
-    menuItem.removeAttribute("hidden");
+    document.l10n.setAttributes(menuItem, "menu-file-get-next-n-news-msgs", {
+      count: folder.server.maxArticles,
+    });
+    menuItem.hidden = false;
     return true;
   }
-
-  menuItem.toggleAttribute("hidden", true);
+  menuItem.hidden = true;
   return false;
 }
 
