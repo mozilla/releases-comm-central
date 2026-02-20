@@ -370,6 +370,9 @@ mail-tagfield[collapsed] {
   margin: 0;
   padding: 2px 0;
   margin-inline: 2px 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #attachment-splitter {

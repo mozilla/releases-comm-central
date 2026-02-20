@@ -36,7 +36,6 @@ ChromeUtils.defineESModuleGetters(this, {
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   calendarDeactivator:
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
@@ -1884,10 +1883,9 @@ function goUpdateAttachmentCommands() {
 }
 
 async function displayAttachmentsForExpandedView() {
-  var bundle = document.getElementById("bundle_messenger");
-  var numAttachments = currentAttachments.length;
-  var attachmentView = document.getElementById("attachmentView");
-  var attachmentSplitter = document.getElementById("attachment-splitter");
+  const numAttachments = currentAttachments.length;
+  const attachmentView = document.getElementById("attachmentView");
+  const attachmentSplitter = document.getElementById("attachment-splitter");
   document
     .getElementById("attachmentIcon")
     .setAttribute("src", "chrome://messenger/skin/icons/attach.svg");
@@ -1899,7 +1897,6 @@ async function displayAttachmentsForExpandedView() {
     attachmentView.collapsed = false;
 
     var attachmentList = document.getElementById("attachmentList");
-
     attachmentList.controllers.appendController(AttachmentListController);
 
     toggleAttachmentList(false);
@@ -1924,31 +1921,27 @@ async function displayAttachmentsForExpandedView() {
     }
 
     const attachmentInfo = document.getElementById("attachmentInfo");
-    const attachmentCount = document.getElementById("attachmentCount");
     const attachmentName = document.getElementById("attachmentName");
-    const attachmentSize = document.getElementById("attachmentSize");
+    document.l10n.setAttributes(
+      document.getElementById("attachmentCount"),
+      "attachment-view-attachment-count",
+      { count: numAttachments }
+    );
 
+    attachmentName.hidden = numAttachments != 1;
+    document.getElementById("attachmentNameSep").hidden = attachmentName.hidden;
     if (numAttachments == 1) {
-      const count = bundle.getString("attachmentCountSingle");
-      const name = SanitizeAttachmentDisplayName(currentAttachments[0]);
-
       attachmentInfo.setAttribute("contextmenu", "attachmentItemContext");
-      attachmentCount.setAttribute("value", count);
-      attachmentName.hidden = false;
-      attachmentName.setAttribute("value", name);
-    } else {
-      const words = bundle.getString("attachmentCount");
-      const count = PluralForm.get(currentAttachments.length, words).replace(
-        "#1",
-        currentAttachments.length
+      attachmentName.setAttribute(
+        "value",
+        SanitizeAttachmentDisplayName(currentAttachments[0])
       );
-
+    } else {
       attachmentInfo.setAttribute("contextmenu", "attachmentListContext");
-      attachmentCount.setAttribute("value", count);
-      attachmentName.hidden = true;
     }
 
-    attachmentSize.value = getAttachmentsTotalSizeStr();
+    document.getElementById("attachmentSize").value =
+      getAttachmentsTotalSizeStr();
 
     // Extra candy for external attachments.
     displayAttachmentsForExpandedViewExternal();
@@ -4138,8 +4131,6 @@ function onRemoteContentOptionsShowing(aEvent) {
     origins.push(mailPrincipal.origin);
   }
 
-  const messengerBundle = document.getElementById("bundle_messenger");
-
   // Out with the old...
   const children = aEvent.target.children;
   for (let i = children.length - 1; i >= 0; i--) {
@@ -4153,12 +4144,9 @@ function onRemoteContentOptionsShowing(aEvent) {
   // ... and in with the new.
   for (const origin of origins) {
     const menuitem = document.createXULElement("menuitem");
-    menuitem.setAttribute(
-      "label",
-      messengerBundle.getFormattedString("remoteAllowResource", [
-        origin.replace("chrome://messenger/content/email=", ""),
-      ])
-    );
+    document.l10n.setAttributes(menuitem, "allow-remote-content-resource", {
+      origin: origin.replace("chrome://messenger/content/email=", ""),
+    });
     menuitem.setAttribute("value", origin);
     menuitem.setAttribute("class", "allow-remote-uri");
     menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
@@ -4169,17 +4157,16 @@ function onRemoteContentOptionsShowing(aEvent) {
     }
   }
 
-  const URLcount = origins.length - adrCount;
-  const allowAllItem = document.getElementById("remoteContentOptionAllowAll");
-  const allURLLabel = messengerBundle.getString("remoteAllowAll");
-  allowAllItem.label = PluralForm.get(URLcount, allURLLabel).replace(
-    "#1",
-    URLcount
+  const count = origins.length - adrCount;
+  document.l10n.setAttributes(
+    document.getElementById("remoteContentOptionAllowAll"),
+    "remote-content-option-allow-all",
+    { count }
   );
 
-  allowAllItem.collapsed = URLcount < 2;
+  document.getElementById("remoteContentOptionAllowAll").collapsed = count < 2;
   document.getElementById("remoteContentOriginsMenuSeparator").collapsed =
-    urlSepar.collapsed = allowAllItem.collapsed && adrCount == 0;
+    urlSepar.collapsed = count == 0;
 }
 
 /**
