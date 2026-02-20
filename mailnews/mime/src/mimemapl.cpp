@@ -81,6 +81,7 @@ static int MimeMultipartAppleDouble_parse_begin(MimeObject* obj) {
         id_url = mime_set_url_part(url, id, true);
       }
       if (!id_url) {
+        PR_FREEIF(id_imap);
         PR_Free(id);
         return MIME_OUT_OF_MEMORY;
       }

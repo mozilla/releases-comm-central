@@ -154,7 +154,8 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
       if (!mult->hdrs) return MIME_OUT_OF_MEMORY;
       if (obj->options && obj->options->state &&
           obj->options->state->partsToStrip.Length() > 0) {
-        nsAutoCString newPart(mime_part_address(obj));
+        nsAutoCString newPart;
+        newPart.Adopt(mime_part_address(obj));
         newPart.Append('.');
         newPart.AppendInt(container->nchildren + 1);
         obj->options->state->strippingPart = false;
