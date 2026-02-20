@@ -58,7 +58,7 @@ tags = ["compact"]
 ["test_over4GBMailboxes.js"]
 tags = ["compact"]
 # This one needs a longer timeout for working with a 4GiB file. Especially for CCov/ASAN/TSAN.
-requesttimeoutfactor = 8
+requesttimeoutfactor = 12
 
 ["test_pop3AuthMethods.js"]
 
