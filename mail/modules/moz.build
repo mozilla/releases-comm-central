@@ -34,7 +34,6 @@ EXTRA_JS_MODULES += [
     "MailViewManager.sys.mjs",
     "MessageArchiver.sys.mjs",
     "PhishingDetector.sys.mjs",
-    "PluralForm.sys.mjs",
     "QuickFilterManager.sys.mjs",
     "SearchSpec.sys.mjs",
     "SessionStoreManager.sys.mjs",

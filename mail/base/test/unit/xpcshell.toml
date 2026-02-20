@@ -39,10 +39,6 @@ skip-if = [
 
 ["test_migrateTryStartTLS.js"]
 
-["test_pluralForm-english.js"]
-
-["test_pluralForm-irish.js"]
-
 ["test_qrExport.js"]
 
 ["test_state_preferenceSlice.js"]
