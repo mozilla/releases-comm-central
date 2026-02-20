@@ -105,3 +105,16 @@ filter-list-backup-message =
 
 filter-invalid-custom-header =
     One of your filters uses a custom header that contains an invalid character, such as ‘:’, a non-printable character, a non-ascii character, or an eight-bit ascii character. Please edit the msgFilterRules.dat file, which contains your filters, to remove invalid characters from your custom headers.
+
+# Variables:
+#   $count - the number items
+filter-count-items = {
+    $count ->
+        [one] { $count } item
+        *[other] { $count } items
+    }
+
+# Variables:
+#   $visible - the number of visible items
+#   $total - the total number of items
+filter-count-visible-of-total = { $visible } of { $total }

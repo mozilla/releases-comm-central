@@ -3,9 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { PluralForm } = ChromeUtils.importESModule(
-  "resource:///modules/PluralForm.sys.mjs"
-);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -1126,16 +1123,13 @@ function updateCountBox() {
 
   if (len == sum) {
     // "N items"
-    countBox.value = PluralForm.get(
-      len,
-      gFilterBundle.getString("filterCountItems")
-    ).replace("#1", len);
+    document.l10n.setAttributes(countBox, "filter-count-items", { count: sum });
     return;
   }
 
   // "N of M"
-  countBox.value = gFilterBundle.getFormattedString(
-    "filterCountVisibleOfTotal",
-    [len, sum]
-  );
+  document.l10n.setAttributes(countBox, "filter-count-visible-of-total", {
+    visible: len,
+    total: sum,
+  });
 }
