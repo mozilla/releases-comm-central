@@ -1,0 +1,21 @@
+[package]
+name = "ksni"
+version = "0.2.2"
+authors = ["iovxw <iovxw@outlook.com>"]
+edition = "2021"
+rust-version = "1.58"
+description = """
+A Rust implementation of the KDE/freedesktop StatusNotifierItem specification
+"""
+repository = "https://github.com/iovxw/ksni"
+keywords = ["systray", "linux", "gui"]
+categories = ["api-bindings"]
+license = "Unlicense"
+
+[dependencies]
+dbus = { version = "0.9" }
+dbus-tree = { version = "0.9" }
+thiserror = "1.0"
+
+[build-dependencies]
+dbus-codegen = { version = "0.9" }

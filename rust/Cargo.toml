@@ -209,6 +209,7 @@ redox_syscall = { path = "../../build/rust/redox_syscall" }
 hermit-abi = { path = "../../build/rust/hermit-abi" }
 base64_21 = { package = "base64", path = "../../build/rust/base64" }
 wasi_0_11 = { package = "wasi", path = "../../build/rust/wasi" }
+itertools = { path = "../../build/rust/itertools" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_72 = { package = "bindgen", git = "https://github.com/rust-lang/rust-bindgen", rev = "9366e0af8da529c958b4cd4fcbe492d951c86f5c" }
 bindgen = { path = "../../build/rust/bindgen" }

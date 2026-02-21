@@ -1,0 +1,57 @@
+[package]
+name = "ohttp"
+description = "Oblivious HTTP"
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+
+[features]
+default = ["client", "server", "rust-hpke", "stream"]
+app-svc = ["nss"]
+client = []
+external-sqlite = []
+gecko = ["nss", "dep:mozbuild"]
+nss = ["dep:bindgen"]
+rust-hpke = ["dep:rand", "dep:aead", "dep:aes-gcm", "dep:chacha20poly1305", "dep:hkdf", "dep:sha2", "dep:hpke"]
+server = []
+stream = ["dep:futures", "dep:pin-project"]
+unsafe-print-secrets = []
+
+[dependencies]
+aead = {version = "0.5", optional = true, features = ["std"]}
+aes-gcm = {version = "0.10", optional = true}
+byteorder = "1.4"
+chacha20poly1305 = {version = "0.10", optional = true}
+futures = {version = "0.3", optional = true}
+hex = "0.4"
+hkdf = {version = "0.12", optional = true}
+hpke = {version = "0.13", optional = true, default-features = false, features = ["std", "x25519"]}
+log = {version = "0.4", default-features = false}
+pin-project = {version = "1.1", optional = true}
+rand = {version = "0.9", optional = true}
+regex = {version = "~1.11", optional = true}
+sha2 = {version = "0.10", optional = true}
+thiserror = "2"
+
+[build-dependencies]
+mozbuild = {version = "0.1", optional = true}
+serde = "1.0"
+serde_derive = "1.0"
+toml = ">=0.5,<=0.9"
+
+[build-dependencies.bindgen]
+version = "0.72"
+default-features = false
+optional = true
+features = ["runtime"]
+
+[dev-dependencies]
+env_logger = {version = "0.10", default-features = false}
+sync-async = {path = "../sync-async"}

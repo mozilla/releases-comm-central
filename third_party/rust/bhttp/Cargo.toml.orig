@@ -1,0 +1,30 @@
+[package]
+name = "bhttp"
+description = "Binary HTTP messages (RFC 9292)"
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+
+[features]
+default = []
+http = ["dep:url"]
+stream = ["dep:futures", "dep:pin-project"]
+
+[dependencies]
+futures = {version = "0.3", optional = true}
+pin-project = {version = "1.1", optional = true}
+thiserror = "2"
+url = {version = "2", optional = true}
+
+[dev-dependencies]
+hex = "0.4"
+
+[dev-dependencies.sync-async]
+path= "../sync-async"
