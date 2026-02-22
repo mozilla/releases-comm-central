@@ -9,12 +9,14 @@ use crate::types::user::*;
 use crate::*;
 use form_urlencoded::Serializer;
 use http::method::Method;
-use std::str::FromStr;
 #[derive(Debug)]
-struct TemplateExpressions {}
+struct TemplateExpressions {
+    endpoint: String,
+}
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {} = template_expressions;
-    "/me".to_string()
+    let TemplateExpressions { endpoint } = template_expressions;
+    let endpoint = endpoint.trim_end_matches('/');
+    format!("{endpoint}/me")
 }
 #[doc = "Get a user\n\nRetrieve the properties and relationships of user object. This operation returns by default only a subset of the more commonly used properties for each user. These default properties are noted in the Properties section. To get properties that are not returned by default, do a GET operation for the user and specify the properties in a `$select` OData query option. Because the user resource supports extensions, you can also use the GET operation to get custom properties and extension data in a user instance. Customers through Microsoft Entra ID for customers can also use this API operation to retrieve their details.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
@@ -23,9 +25,9 @@ pub struct Get {
     selection: Selection<UserSelection>,
 }
 impl Get {
-    pub fn new() -> Self {
+    pub fn new(endpoint: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {},
+            template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
         }
     }
@@ -40,9 +42,11 @@ impl Operation for Get {
         params.append_pair(select, &selection);
         let params = params.finish();
         let path = format_path(&self.template_expressions);
-        let p_and_q = http::uri::PathAndQuery::from_str(&format!("{path}?{params}")).unwrap();
+        let uri = format!("{path}?{params}")
+            .parse::<http::uri::Uri>()
+            .unwrap();
         http::Request::builder()
-            .uri(p_and_q)
+            .uri(uri)
             .method(Self::METHOD)
             .body(())
             .unwrap()
@@ -64,9 +68,9 @@ pub struct Patch<'body> {
     body: User<'body>,
 }
 impl<'body> Patch<'body> {
-    pub fn new(body: User<'body>) -> Self {
+    pub fn new(endpoint: String, body: User<'body>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {},
+            template_expressions: TemplateExpressions { endpoint },
             body,
         }
     }
@@ -76,9 +80,11 @@ impl<'body> Operation for Patch<'body> {
     type Body = User<'body>;
     type Response<'response> = User<'response>;
     fn build(&self) -> http::Request<Self::Body> {
-        let p_and_q = format_path(&self.template_expressions);
+        let uri = format_path(&self.template_expressions)
+            .parse::<http::uri::Uri>()
+            .unwrap();
         http::Request::builder()
-            .uri(p_and_q)
+            .uri(uri)
             .method(Self::METHOD)
             .body(self.body.clone())
             .unwrap()

@@ -14,30 +14,6 @@ use crate::naming::snakeify;
 
 use super::{Reference, RustType, markup_doc_comment, return_type};
 
-pub struct RequestDef {
-    struct_def: StructDef,
-    impl_def: ImplDef,
-    operation_def: OperationDef,
-    select_def: SelectDef,
-}
-
-impl ToTokens for RequestDef {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let RequestDef {
-            struct_def,
-            impl_def,
-            operation_def,
-            select_def,
-        } = self;
-        tokens.append_all(quote! {
-            #struct_def
-            #impl_def
-            #operation_def
-            #select_def
-        })
-    }
-}
-
 impl ToTokens for Path {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let Path {
@@ -75,15 +51,12 @@ impl ToTokens for Path {
                         }
                     }
                 };
+
                 let method = operation.method;
-                let mut response = operation.success.to_token_stream();
-                if operation.pageable {
-                    response = quote!(Paginated<#response>);
-                }
-                let response = response;
-                match operation.method {
-                    Method::Get => http_get(&mut imports, template_expressions.idents.clone(), description, operation, response),
-                    Method::Patch => http_patch(template_expressions.idents.clone(), description, operation, response),
+                let response = operation_response(operation);
+                match method {
+                    Method::Get => Some(http_get(&mut imports, template_expressions.idents.clone(), description, operation, response)),
+                    Method::Patch => Some(http_patch(template_expressions.idents.clone(), description, operation, response)),
                     _ => {
                         eprintln!("skipping unsupported method: {method}");
                         None
@@ -116,13 +89,23 @@ impl ToTokens for Path {
     }
 }
 
+fn operation_response(operation: &Operation) -> TokenStream {
+    let mut response = operation.success.to_token_stream();
+    if operation.delta {
+        response = quote!(DeltaResponse<#response>);
+    } else if operation.pageable {
+        response = quote!(Paginated<#response>);
+    }
+    response
+}
+
 fn http_get(
     imports: &mut Vec<Property>,
     template_expressions: Vec<Ident>,
     description: Option<TokenStream>,
     operation: &Operation,
     response: TokenStream,
-) -> Option<RequestDef> {
+) -> RequestDef {
     let method = Method::Get;
     let selectable = selectable(operation);
     let selection_type = if selectable {
@@ -157,16 +140,18 @@ fn http_get(
         method: method.to_string(),
         lifetime: None,
         body: None,
-        response,
+        response: response.clone(),
         selectable,
     };
     let select_def = SelectDef { selection_type };
-    Some(RequestDef {
+    let delta_def = operation.delta.then(|| DeltaDef { response });
+    RequestDef {
         struct_def,
         impl_def,
         operation_def,
         select_def,
-    })
+        delta_def,
+    }
 }
 
 fn http_patch(
@@ -174,7 +159,7 @@ fn http_patch(
     description: Option<TokenStream>,
     operation: &Operation,
     response: TokenStream,
-) -> Option<RequestDef> {
+) -> RequestDef {
     let method = Method::Patch;
     let op_body = operation
         .body
@@ -209,12 +194,14 @@ fn http_patch(
     let select_def = SelectDef {
         selection_type: None,
     };
-    Some(RequestDef {
+    assert!(!operation.delta, "deltas are not supported for PATCH");
+    RequestDef {
         struct_def,
         impl_def,
         operation_def,
         select_def,
-    })
+        delta_def: None,
+    }
 }
 
 /// The path and its template expressions, ready for converting to tokens. Do
@@ -226,8 +213,8 @@ struct TemplateExpressionsDef {
 
 impl TemplateExpressionsDef {
     fn new(raw_path: &str, template_expressions: &[String]) -> Self {
-        let mut path = raw_path.to_string();
-        let mut idents = vec![];
+        let mut path = format!("{{endpoint}}{raw_path}");
+        let mut idents = vec![format_ident!("endpoint")];
         for template in template_expressions {
             let pat = format!("{{{template}}}");
             let snakeified = snakeify(template);
@@ -251,9 +238,38 @@ impl ToTokens for TemplateExpressionsDef {
                 let TemplateExpressions {
                     #( #idents, )*
                 } = template_expressions;
+                // remove all trailing '/' so there's only one (from the path)
+                let endpoint = endpoint.trim_end_matches('/');
                 format!(#path)
             }
         });
+    }
+}
+
+pub struct RequestDef {
+    struct_def: StructDef,
+    impl_def: ImplDef,
+    operation_def: OperationDef,
+    select_def: SelectDef,
+    delta_def: Option<DeltaDef>,
+}
+
+impl ToTokens for RequestDef {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let RequestDef {
+            struct_def,
+            impl_def,
+            operation_def,
+            select_def,
+            delta_def,
+        } = self;
+        tokens.append_all(quote! {
+            #struct_def
+            #impl_def
+            #operation_def
+            #select_def
+            #delta_def
+        })
     }
 }
 
@@ -366,10 +382,10 @@ impl ToTokens for OperationDef {
                 params.append_pair(select, &selection);
                 let params = params.finish();
                 let path = format_path(&self.template_expressions);
-                let p_and_q = http::uri::PathAndQuery::from_str(&format!("{path}?{params}")).unwrap();
+                let uri = format!("{path}?{params}").parse::<http::uri::Uri>().unwrap();
             }
         } else {
-            quote!(let p_and_q = format_path(&self.template_expressions);)
+            quote!(let uri = format_path(&self.template_expressions).parse::<http::uri::Uri>().unwrap();)
         };
 
         tokens.append_all(quote! {
@@ -381,7 +397,7 @@ impl ToTokens for OperationDef {
                 fn build(&self) -> http::Request<Self::Body> {
                     #selection_str
                     http::Request::builder()
-                        .uri(p_and_q)
+                        .uri(uri)
                         .method(Self::METHOD)
                         .body(#body_clone)
                         .unwrap()
@@ -444,5 +460,46 @@ impl ToTokens for Success {
                 Some("'response"),
             )),
         }
+    }
+}
+
+struct DeltaDef {
+    response: TokenStream,
+}
+
+impl ToTokens for DeltaDef {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let Self { response } = self;
+        tokens.append_all(quote! {
+            ///Retrieve delta changes using an opaque token from a previous
+            /// delta response. The caller must ensure only tokens from this
+            /// path are used.
+            #[derive(Debug)]
+            pub struct GetDelta {
+                token: http::Uri,
+            }
+            impl TryFrom<&str> for GetDelta {
+                type Error = Error;
+
+                fn try_from(token: &str) -> Result<Self, Self::Error> {
+                    let token = http::Uri::from_str(token)?;
+                    Ok(Self { token })
+                }
+            }
+
+            impl Operation for GetDelta {
+                const METHOD: Method = Method::GET;
+                type Body = ();
+                type Response<'response> = #response;
+
+                fn build(&self) -> http::Request<Self::Body> {
+                    http::Request::builder()
+                        .uri(&self.token)
+                        .method(Self::METHOD)
+                        .body(())
+                        .unwrap()
+                }
+            }
+        });
     }
 }

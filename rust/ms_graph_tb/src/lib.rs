@@ -10,12 +10,14 @@ use thiserror::Error;
 pub mod paths;
 pub mod types;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error)]
 pub enum Error {
     #[error("object does not have this property set")]
     NotFound,
     #[error("property has an unexpected type")]
     UnexpectedResponse(String),
+    #[error("an error occurred building the Graph resource URI.")]
+    Uri(#[from] http::uri::InvalidUri),
 }
 
 /// Trait for Graph operations.
@@ -101,38 +103,100 @@ impl<P: Display + Clone> Selection<P> {
 /// for more information.
 #[derive(Debug, Deserialize)]
 pub struct Paginated<T> {
-    #[serde(rename = "@odata.nextLink")]
-    next_link: Option<String>,
+    #[serde(flatten)]
+    next_page: Option<NextPage<Paginated<T>>>,
     #[serde(flatten)]
     pub response: T,
 }
 
 impl<T> Paginated<T> {
-    /// Get the operation to retreive the next page, if there is one.
-    pub fn next_page(&self) -> Option<NextPage<T>> {
-        if let Some(next_link) = &self.next_link {
-            Some(NextPage {
-                _phantom: PhantomData,
-                next_uri: next_link.try_into().ok()?,
-            })
-        } else {
-            None
+    /// Get the operation for retrieving the next page, if there is one.
+    pub fn next_page(&self) -> Option<NextPage<Paginated<T>>> {
+        self.next_page.clone()
+    }
+}
+
+/// Similar to a [`Paginated`] response, but the last response should return a
+/// delta link for efficiently tracking future changes.
+///
+/// See [Microsoft
+/// documentation](https://learn.microsoft.com/en-us/graph/delta-query-overview)
+/// for more information.
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum DeltaResponse<T> {
+    /// This response has at least one additional page that must be fetched
+    /// before a delta link can be obtained.
+    NextLink {
+        #[serde(flatten)]
+        next_page: NextPage<DeltaResponse<T>>,
+        value: T,
+    },
+    /// This response is the last page, so contains a delta link for future sync
+    /// requests.
+    DeltaLink {
+        #[serde(rename = "@odata.deltaLink")]
+        delta_link: String,
+        value: T,
+    },
+}
+
+impl<T> DeltaResponse<T> {
+    /// Get the response value, irrespective of whether there is a next page or
+    /// delta link.
+    pub fn response(&self) -> &T {
+        match self {
+            Self::NextLink { value, .. } => value,
+            Self::DeltaLink { value, .. } => value,
         }
     }
 }
 
 /// The next page of a response. Note that unlike other [`Operation`]s, the
 /// request constructed contains the *full* URL, and should not be modified.
-#[derive(Debug)]
-pub struct NextPage<T> {
-    _phantom: PhantomData<T>,
+#[derive(Debug, Deserialize)]
+#[serde(try_from = "NextPageWire")]
+pub struct NextPage<R> {
+    _phantom: PhantomData<R>,
     next_uri: http::Uri,
 }
 
-impl<T: for<'a> Deserialize<'a>> Operation for NextPage<T> {
+impl<R> Clone for NextPage<R> {
+    fn clone(&self) -> Self {
+        Self {
+            _phantom: PhantomData,
+            next_uri: self.next_uri.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct NextPageWire {
+    #[serde(rename = "@odata.nextLink")]
+    next_link: String,
+}
+
+impl<R> TryFrom<NextPageWire> for NextPage<R> {
+    type Error = http::uri::InvalidUri;
+
+    fn try_from(value: NextPageWire) -> Result<Self, Self::Error> {
+        Ok(Self {
+            _phantom: PhantomData,
+            next_uri: value.next_link.try_into()?,
+        })
+    }
+}
+
+impl<R> NextPage<R> {
+    pub fn next_uri(&self) -> &http::Uri {
+        &self.next_uri
+    }
+}
+
+impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
     const METHOD: Method = Method::GET;
     type Body = ();
-    type Response<'response> = Paginated<T>;
+    type Response<'response> = R;
 
     /// Create an [`http::Request`] object from `Self`. See the struct note, the
     /// URI should not be modified.
@@ -149,7 +213,7 @@ impl<T: for<'a> Deserialize<'a>> Operation for NextPage<T> {
 mod tests {
     use super::paths;
     use super::types::{mail_folder, user};
-    use super::{Operation, Select, Selection};
+    use super::{DeltaResponse, Operation, Select, Selection};
     use http::uri;
     use std::borrow::Cow;
 
@@ -164,13 +228,13 @@ mod tests {
 
     #[test]
     fn serialize_get_me() {
-        let mut get_me = paths::me::Get::new();
+        let mut get_me = paths::me::Get::new("https://graph.microsoft.com/v1.0".to_string());
         get_me.select(vec![user::UserSelection::AboutMe]);
         let req = get_me.build();
-        assert_eq!(
-            req.uri(),
-            &uri::Uri::try_from("/me?%24select=aboutMe").unwrap()
-        );
+        let uri = req.uri();
+        let expected =
+            uri::Uri::try_from("https://graph.microsoft.com/v1.0/me?%24select=aboutMe").unwrap();
+        assert_eq!(*uri, expected);
     }
 
     #[test]
@@ -293,7 +357,9 @@ mod tests {
         let next_page_uri = parsed
             .next_page()
             .expect("next page should be present")
-            .next_uri;
+            .build()
+            .uri()
+            .clone();
         let expected_uri: http::Uri = "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
             .try_into()
             .unwrap();
@@ -365,5 +431,150 @@ mod tests {
         );
 
         assert!(parsed.next_page().is_none());
+    }
+
+    #[test]
+    fn deserialize_delta_with_page() {
+        use mail_folder::MailFolder;
+        let json = r#"{
+    "@odata.context": "https://graph.microsoft.com/v1.0/me/mailFolders",
+    "value": [
+        {
+            "id": "AQMkADYAAAIBXQAAAA==",
+            "displayName": "Archive",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        },
+        {
+            "id": "AQMkADYAAAIBCQAAAA==",
+            "displayName": "Sent Items",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        }
+    ],
+    "@odata.nextLink": "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
+}"#;
+
+        let parsed: <paths::me_mail_folders_delta::Get as Operation>::Response<'_> =
+            serde_json::from_str(json).unwrap();
+        let value = vec![
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
+                    ("displayName".to_string(), "Archive".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
+                    ("displayName".to_string(), "Sent Items".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+        ];
+
+        assert_eq!(parsed.response(), &value);
+
+        let DeltaResponse::NextLink { next_page, .. } = parsed else {
+            panic!("NextLink should be present");
+        };
+        let next_page_uri = next_page.build().uri().clone();
+        let expected_uri: http::Uri = "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
+            .try_into()
+            .unwrap();
+        assert_eq!(next_page_uri, expected_uri)
+    }
+
+    #[test]
+    fn deserialize_delta_without_page() {
+        use mail_folder::MailFolder;
+
+        let json = r#"{
+    "@odata.context": "https://graph.microsoft.com/v1.0/me/mailFolders/delta()",
+    "value": [
+        {
+            "id": "AQMkADYAAAIBXQAAAA==",
+            "displayName": "Archive",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        },
+        {
+            "id": "AQMkADYAAAIBCQAAAA==",
+            "displayName": "Sent Items",
+            "parentFolderId": "AQMkADYAAAIBCAAAAA==",
+            "childFolderCount": 0,
+            "unreadItemCount": 0,
+            "totalItemCount": 0,
+            "sizeInBytes": 0,
+            "isHidden": false
+        }
+    ],
+    "@odata.deltaLink": "https://graph.microsoft.com/v1.0/me/mailFolders/delta?$deltatoken=Aa1_Bb2_cC3"
+}"#;
+
+        let parsed: <paths::me_mail_folders_delta::Get as Operation>::Response<'_> =
+            serde_json::from_str(json).unwrap();
+        let value = vec![
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBXQAAAA==".into()),
+                    ("displayName".to_string(), "Archive".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+            MailFolder {
+                properties: Cow::Owned(serde_json::Map::from_iter([
+                    ("id".to_string(), "AQMkADYAAAIBCQAAAA==".into()),
+                    ("displayName".to_string(), "Sent Items".into()),
+                    ("parentFolderId".to_string(), "AQMkADYAAAIBCAAAAA==".into()),
+                    ("childFolderCount".to_string(), 0.into()),
+                    ("unreadItemCount".to_string(), 0.into()),
+                    ("totalItemCount".to_string(), 0.into()),
+                    ("sizeInBytes".to_string(), 0.into()),
+                    ("isHidden".to_string(), false.into()),
+                ])),
+            },
+        ];
+
+        assert_eq!(parsed.response(), &value);
+
+        let DeltaResponse::DeltaLink {
+            delta_link,
+            value: _,
+        } = parsed
+        else {
+            panic!("next page should parse as such");
+        };
+        let expected_uri =
+            "https://graph.microsoft.com/v1.0/me/mailFolders/delta?$deltatoken=Aa1_Bb2_cC3";
+        assert_eq!(delta_link, expected_uri)
     }
 }

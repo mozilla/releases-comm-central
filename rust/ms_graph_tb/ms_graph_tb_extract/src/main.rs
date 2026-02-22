@@ -33,7 +33,12 @@ const SUPPORTED_TYPES: [&str; 9] = [
     "sendMailRequestBody",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 3] = ["/me", "/me/mailFolders", "/me/mailFolders/{mailFolder-id}"];
+const SUPPORTED_PATHS: [&str; 4] = [
+    "/me",
+    "/me/mailFolders",
+    "/me/mailFolders/{mailFolder-id}",
+    "/me/mailFolders/delta()",
+];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -84,7 +89,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // needing a `Default` implementation. Having some operations provide
     // `Default` and others not seems needlessly inconsistent, so just disable
     // that lint for path modules.
-    let modules = ModuleFile::new(&modules).allow_lints(&vec!["new_without_default"]);
+    let modules = ModuleFile::new(&modules).allow_lints(&["new_without_default"]);
     write_module_file(&paths_dir, &modules)?;
 
     // Schemas come with a hierarchy, and different schemas at different levels

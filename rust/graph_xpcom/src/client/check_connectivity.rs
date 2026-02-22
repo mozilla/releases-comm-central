@@ -17,6 +17,7 @@ use super::XpComGraphClient;
 struct DoCheckConnectivity<'a> {
     pub listener: &'a SafeUrlListener,
     pub uri: SafeUri,
+    pub endpoint: &'a url::Url,
 }
 
 impl<ServerT: AuthenticationProvider + RefCounted>
@@ -33,7 +34,8 @@ impl<ServerT: AuthenticationProvider + RefCounted>
         log::info!("Start running for URI {}", self.uri);
         self.listener.on_start_running_url(self.uri.clone());
 
-        let mut get_me = paths::me::Get::new();
+        let endpoint = self.endpoint.as_str().to_string();
+        let mut get_me = paths::me::Get::new(endpoint);
         get_me.select(vec![user::UserSelection::AboutMe]);
 
         client.send_request(get_me).await?;
@@ -55,6 +57,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let operation = DoCheckConnectivity {
             listener: &listener,
             uri,
+            endpoint: &self.endpoint,
         };
         operation.handle_operation(&self, &listener).await
     }

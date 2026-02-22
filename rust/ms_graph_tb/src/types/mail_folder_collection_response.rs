@@ -35,9 +35,10 @@ impl<'a> MailFolderCollectionResponse<'a> {
             .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
             .iter()
             .map(|v| {
-                Ok(MailFolder::new(v.as_object().ok_or_else(|| {
-                    Error::UnexpectedResponse(format!("{:?}", v))
-                })?))
+                Ok::<_, Error>(MailFolder::new(
+                    v.as_object()
+                        .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", v)))?,
+                ))
             })
             .collect::<Result<_, _>>()
     }

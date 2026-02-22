@@ -265,7 +265,7 @@ fn fn_body(prop: &Property) -> TokenStream {
                 .as_array()
                 .ok_or_else(|| Error::UnexpectedResponse(format!("{:?}", val)))?
                 .iter()
-                .map(|v| Ok(#ret))
+                .map(|v| Ok::<_, Error>(#ret))
                 .collect::<Result<_, _>>()?
         };
     }

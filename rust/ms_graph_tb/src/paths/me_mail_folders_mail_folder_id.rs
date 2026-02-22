@@ -9,14 +9,18 @@ use crate::types::mail_folder::*;
 use crate::*;
 use form_urlencoded::Serializer;
 use http::method::Method;
-use std::str::FromStr;
 #[derive(Debug)]
 struct TemplateExpressions {
+    endpoint: String,
     mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions { mail_folder_id } = template_expressions;
-    format!("/me/mailFolders/{mail_folder_id}")
+    let TemplateExpressions {
+        endpoint,
+        mail_folder_id,
+    } = template_expressions;
+    let endpoint = endpoint.trim_end_matches('/');
+    format!("{endpoint}/me/mailFolders/{mail_folder_id}")
 }
 #[doc = "Get mailFolder\n\nRetrieve the properties and relationships of a message folder object. The following list shows the two existing scenarios where an app can get another user's mail folder:\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
@@ -25,9 +29,12 @@ pub struct Get {
     selection: Selection<MailFolderSelection>,
 }
 impl Get {
-    pub fn new(mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions { mail_folder_id },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                mail_folder_id,
+            },
             selection: Selection::default(),
         }
     }
@@ -42,9 +49,11 @@ impl Operation for Get {
         params.append_pair(select, &selection);
         let params = params.finish();
         let path = format_path(&self.template_expressions);
-        let p_and_q = http::uri::PathAndQuery::from_str(&format!("{path}?{params}")).unwrap();
+        let uri = format!("{path}?{params}")
+            .parse::<http::uri::Uri>()
+            .unwrap();
         http::Request::builder()
-            .uri(p_and_q)
+            .uri(uri)
             .method(Self::METHOD)
             .body(())
             .unwrap()
@@ -66,9 +75,12 @@ pub struct Patch<'body> {
     body: MailFolder<'body>,
 }
 impl<'body> Patch<'body> {
-    pub fn new(mail_folder_id: String, body: MailFolder<'body>) -> Self {
+    pub fn new(endpoint: String, mail_folder_id: String, body: MailFolder<'body>) -> Self {
         Self {
-            template_expressions: TemplateExpressions { mail_folder_id },
+            template_expressions: TemplateExpressions {
+                endpoint,
+                mail_folder_id,
+            },
             body,
         }
     }
@@ -78,9 +90,11 @@ impl<'body> Operation for Patch<'body> {
     type Body = MailFolder<'body>;
     type Response<'response> = MailFolder<'response>;
     fn build(&self) -> http::Request<Self::Body> {
-        let p_and_q = format_path(&self.template_expressions);
+        let uri = format_path(&self.template_expressions)
+            .parse::<http::uri::Uri>()
+            .unwrap();
         http::Request::builder()
-            .uri(p_and_q)
+            .uri(uri)
             .method(Self::METHOD)
             .body(self.body.clone())
             .unwrap()

@@ -7,4 +7,5 @@
 #![allow(clippy::new_without_default)]
 pub mod me;
 pub mod me_mail_folders;
+pub mod me_mail_folders_delta;
 pub mod me_mail_folders_mail_folder_id;

@@ -39,33 +39,15 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let auth_header_value = credentials.to_auth_header_value().await?;
 
         let client = moz_http::Client::new();
-
-        let mut resource_uri = self.endpoint.clone();
-        resource_uri.set_query(request.uri().query());
-        {
-            let mut resource_uri_path = resource_uri
-                .path_segments_mut()
-                .map_err(|_| XpComGraphError::Uri)?;
-            request.uri().path().split("/").for_each(|path_segment| {
-                resource_uri_path.push(path_segment);
-            });
-        }
-
-        let resource_uri = resource_uri;
+        let resource_url =
+            Url::parse(&request.uri().to_string()).map_err(|_| XpComGraphError::Uri)?;
 
         // Generate random id for logging purposes.
         let request_id = Uuid::new_v4();
-        log::info!("Making operation request {request_id}: {resource_uri}");
-
-        let full_uri = self
-            .endpoint
-            .join(resource_uri.as_str())
-            .map_err(|_| XpComGraphError::Uri)?;
-
-        log::info!("Full uri {full_uri}");
+        log::info!("Making operation request {request_id}: {resource_url}");
 
         // TODO: Once we support editing, we need to add more ways to build the request here.
-        let mut request_builder = client.get(&full_uri)?;
+        let mut request_builder = client.get(&resource_url)?;
 
         if let Some(ref hdr_value) = auth_header_value {
             // Only set an `Authorization` header if necessary.
@@ -78,7 +60,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let response_status = response.status()?;
 
         log::info!(
-            "Response received for request {request_id} (status {response_status}): {resource_uri}"
+            "Response received for request {request_id} (status {response_status}): {resource_url}"
         );
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {

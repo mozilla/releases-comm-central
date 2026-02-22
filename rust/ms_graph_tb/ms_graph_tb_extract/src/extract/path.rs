@@ -41,6 +41,7 @@ pub struct Operation {
     pub description: Option<String>,
     pub external_docs: Option<String>,
     pub pageable: bool,
+    pub delta: bool,
     pub parameters: Option<Vec<Parameter>>,
     pub body: Option<RequestBody>,
     pub success: Success,
@@ -160,6 +161,20 @@ pub enum Success {
     WithBody(RequestBody),
 }
 
+fn schema_has_delta_base_ref(schema: &OaSchema) -> bool {
+    match schema {
+        OaSchema::Ref { reference } => {
+            reference == "#/components/schemas/BaseDeltaFunctionResponse"
+        }
+        OaSchema::Obj { items, all_of, .. } => {
+            items.as_deref().is_some_and(schema_has_delta_base_ref)
+                || all_of
+                    .as_ref()
+                    .is_some_and(|schemas| schemas.iter().any(schema_has_delta_base_ref))
+        }
+    }
+}
+
 fn template_expressions_from_path_name(name: &str) -> impl Iterator<Item = &str> {
     name.split('{').skip(1).map(|s| {
         s.split_once('}')
@@ -197,10 +212,17 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
                 .as_ref()
                 .map(|p| p.iter().map(Parameter::from).collect());
             let body = request.body.as_ref().map(RequestBody::from);
+            let delta = request
+                .responses
+                .get("2XX")
+                .and_then(|body| body.as_ref())
+                .is_some_and(|body| schema_has_delta_base_ref(&body.schema));
             let success = if request.responses.contains_key("204") {
                 Success::NoBody
             } else if let Some(Some(two_hundred)) = request.responses.get("2XX") {
-                Success::WithBody(two_hundred.into())
+                let mut body: RequestBody = two_hundred.into();
+                body.property.is_ref |= delta;
+                Success::WithBody(body)
             } else {
                 todo!("success response: {:?}", request.responses);
             };
@@ -211,6 +233,7 @@ pub fn extract_from_oa_path(name: String, oa_path: &OaPath) -> Path {
                 description,
                 external_docs,
                 pageable,
+                delta,
                 parameters,
                 body,
                 success,

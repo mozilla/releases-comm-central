@@ -9,12 +9,14 @@ use crate::types::mail_folder_collection_response::*;
 use crate::*;
 use form_urlencoded::Serializer;
 use http::method::Method;
-use std::str::FromStr;
 #[derive(Debug)]
-struct TemplateExpressions {}
+struct TemplateExpressions {
+    endpoint: String,
+}
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {} = template_expressions;
-    "/me/mailFolders".to_string()
+    let TemplateExpressions { endpoint } = template_expressions;
+    let endpoint = endpoint.trim_end_matches('/');
+    format!("{endpoint}/me/mailFolders")
 }
 #[doc = "List mailFolders\n\nGet the mail folder collection directly under the root folder of the signed-in user. The returned collection includes any mail search folders directly under the root. By default, this operation does not return hidden folders. Use a query parameter includeHiddenFolders to include them in the response. This operation does not return all mail folders in a mailbox, only the child folders of the root folder. To return all mail folders in a mailbox, each child folder must be traversed separately.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-list-mailfolders?view=graph-rest-1.0)."]
 #[derive(Debug)]
@@ -23,9 +25,9 @@ pub struct Get {
     selection: Selection<MailFolderCollectionResponseSelection>,
 }
 impl Get {
-    pub fn new() -> Self {
+    pub fn new(endpoint: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {},
+            template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
         }
     }
@@ -40,9 +42,11 @@ impl Operation for Get {
         params.append_pair(select, &selection);
         let params = params.finish();
         let path = format_path(&self.template_expressions);
-        let p_and_q = http::uri::PathAndQuery::from_str(&format!("{path}?{params}")).unwrap();
+        let uri = format!("{path}?{params}")
+            .parse::<http::uri::Uri>()
+            .unwrap();
         http::Request::builder()
-            .uri(p_and_q)
+            .uri(uri)
             .method(Self::METHOD)
             .body(())
             .unwrap()
