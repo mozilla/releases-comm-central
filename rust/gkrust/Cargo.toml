@@ -26,7 +26,7 @@ mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776bdfc8ad664a1503db668fab397d818a5f98a" }
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
-adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'] }
+adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'], default-features = false }
 audio_thread_priority = { version = "0.34" }
 audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a", optional = true }
 audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a", optional = true }

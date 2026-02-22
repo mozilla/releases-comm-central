@@ -502,9 +502,11 @@ def regen_toml_files(command_context, workspace):
         # Rewrite paths relative to us.
         if "path" in data:
             data["path"] = mozpath.relpath(data["path"], comm_gkrust_dir)
+        # FIXME - Nasty special-case bustage fix: don't strip default-features
+        # for "adblock". See Bug 2018493.
         if "default_features" in data:
             del data["default_features"]
-        elif "default-features" in data:
+        elif "default-features" in data and key != "adblock":
             del data["default-features"]
 
         # Add any feature we need to preserve.
