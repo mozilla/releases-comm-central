@@ -50,10 +50,9 @@ function onLoad() {
 
 function onFolderSelect(event) {
   dialog.folder = event.target._folder;
-  document
-    .getElementById("msgNewFolderPicker")
-    .setAttribute("label", dialog.folder.localizedName);
-  dialog.folderSelected = true;
+  dialog.folderSelected = document
+    .getElementById("MsgNewFolderPopup")
+    .selectFolder(dialog.folder);
   doEnabling();
 }
 
