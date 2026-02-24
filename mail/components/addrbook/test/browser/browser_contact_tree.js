@@ -1248,3 +1248,167 @@ add_task(async function test_list_all_address_book() {
   await promiseDirectoryRemoved(firstBook.URI);
   await promiseDirectoryRemoved(secondBook.URI);
 });
+
+/**
+ * Test copying the selected cards to the clipboard.
+ */
+add_task(async function test_copy() {
+  const book = createAddressBook("book");
+  book.addCard(createContact("contact", "one"));
+  book.addCard(createContact("contact", "two"));
+  const list = createMailingList("list");
+  book.addMailList(list);
+
+  const abWindow = await openAddressBookWindow();
+  const booksList = abWindow.booksList;
+  const cardsList = abWindow.cardsPane.cardsList;
+
+  await openDirectory(book);
+
+  booksList.focus();
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should not be enabled with the cards list unfocused"
+  );
+
+  cardsList.table.body.focus();
+  cardsList.selectedIndex = -1;
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should not be enabled with nothing selected"
+  );
+
+  // Test copying just by running the command.
+
+  cardsList.selectedIndex = 0;
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should be enabled with a card selected"
+  );
+
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  window.goDoCommand("cmd_copy");
+  let copiedVCard = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/vcard"),
+    "waiting for text/vcard data on the clipboard"
+  );
+  if (!copiedVCard.includes("\r")) {
+    info("the copied text/vcard data had '\\r' characters stripped");
+    copiedVCard = copiedVCard.replaceAll("\n", "\r\n");
+  }
+  Assert.stringContains(copiedVCard, "BEGIN:VCARD\r\n");
+  Assert.stringContains(copiedVCard, "\r\nFN:contact one\r\n");
+  Assert.stringContains(copiedVCard, "\r\nEND:VCARD\r\n");
+  Assert.ok(!copiedVCard.includes("\r\nFN:contact two\r\n"));
+  let copiedPlain = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/plain"),
+    "waiting for text/plain data on the clipboard"
+  );
+  if (!copiedPlain.includes("\r")) {
+    info("the copied text/plain data had '\\r' characters stripped");
+    copiedPlain = copiedPlain.replaceAll("\n", "\r\n");
+  }
+  Assert.equal(copiedPlain, copiedVCard);
+
+  // Test copying with the Edit menu Copy command. But not on Mac, because we
+  // can't click on the native menu.
+
+  cardsList.selectedIndex = 1;
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should be enabled with a card selected"
+  );
+
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  if (AppConstants.platform == "macosx") {
+    window.goDoCommand("cmd_copy");
+  } else {
+    document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+    const editMenu = document.getElementById("menu_Edit");
+    const copyMenuItem = document.getElementById("menu_copy");
+
+    EventUtils.synthesizeMouseAtCenter(editMenu, {});
+    await BrowserTestUtils.waitForPopupEvent(editMenu, "shown");
+
+    Assert.ok(!copyMenuItem.disabled);
+    editMenu.menupopup.activateItem(copyMenuItem);
+    await BrowserTestUtils.waitForPopupEvent(editMenu, "hidden");
+  }
+  copiedVCard = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/vcard"),
+    "waiting for text/vcard data on the clipboard"
+  );
+  if (!copiedVCard.includes("\r")) {
+    info("the copied text/vcard data had '\\r' characters stripped");
+    copiedVCard = copiedVCard.replaceAll("\n", "\r\n");
+  }
+  Assert.stringContains(copiedVCard, "BEGIN:VCARD\r\n");
+  Assert.stringContains(copiedVCard, "\r\nFN:contact two\r\n");
+  Assert.stringContains(copiedVCard, "\r\nEND:VCARD\r\n");
+  Assert.ok(!copiedVCard.includes("\r\nFN:contact one\r\n"));
+  copiedPlain = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/plain"),
+    "waiting for text/plain data on the clipboard"
+  );
+  if (!copiedPlain.includes("\r")) {
+    info("the copied text/plain data had '\\r' characters stripped");
+    copiedPlain = copiedPlain.replaceAll("\n", "\r\n");
+  }
+  Assert.equal(copiedPlain, copiedVCard);
+
+  // Test copying with Ctrl+C or ⌘+C.
+
+  cardsList.selectedIndices = [0, 1];
+  Assert.ok(
+    window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should be enabled with multiple cards selected"
+  );
+
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  EventUtils.synthesizeKey("c", { accelKey: true }, abWindow);
+  copiedVCard = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/vcard"),
+    "waiting for text/vcard data on the clipboard"
+  );
+  if (!copiedVCard.includes("\r")) {
+    info("the copied text/vcard data had '\\r' characters stripped");
+    copiedVCard = copiedVCard.replaceAll("\n", "\r\n");
+  }
+  Assert.stringContains(copiedVCard, "BEGIN:VCARD\r\n");
+  Assert.stringContains(copiedVCard, "\r\nFN:contact one\r\n");
+  Assert.stringContains(copiedVCard, "\r\nEND:VCARD\r\nBEGIN:VCARD\r\n");
+  Assert.stringContains(copiedVCard, "\r\nFN:contact two\r\n");
+  copiedPlain = await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData("text/plain"),
+    "waiting for text/plain data on the clipboard"
+  );
+  if (!copiedPlain.includes("\r")) {
+    info("the copied text/plain data had '\\r' characters stripped");
+    copiedPlain = copiedPlain.replaceAll("\n", "\r\n");
+  }
+  Assert.equal(copiedPlain, copiedVCard);
+
+  // Test that lists can't be copied.
+
+  cardsList.selectedIndices = [1, 2];
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should not be enabled with a list selected"
+  );
+
+  cardsList.selectedIndex = 2;
+  Assert.ok(
+    !window.getEnabledControllerForCommand("cmd_copy"),
+    "cmd_copy should not be enabled with a list selected"
+  );
+
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book.URI);
+});

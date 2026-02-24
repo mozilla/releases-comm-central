@@ -1910,7 +1910,31 @@ var cardsPane = {
   },
 
   /**
-   * Print delete the selected card(s).
+   * Copy the selected card(s).
+   */
+  copySelected() {
+    const vCards = this.selectedCards.map(card => card.toVCard());
+    const str = Cc["@mozilla.org/supports-string;1"].createInstance(
+      Ci.nsISupportsString
+    );
+    str.data = vCards.join("");
+    const transferable = Cc[
+      "@mozilla.org/widget/transferable;1"
+    ].createInstance(Ci.nsITransferable);
+    transferable.init(window.docShell.QueryInterface(Ci.nsILoadContext));
+    transferable.addDataFlavor("text/vcard");
+    transferable.addDataFlavor("text/plain");
+    transferable.setTransferData("text/vcard", str);
+    transferable.setTransferData("text/plain", str);
+    Services.clipboard.setData(
+      transferable,
+      null,
+      Ci.nsIClipboard.kGlobalClipboard
+    );
+  },
+
+  /**
+   * Print the selected card(s).
    */
   printSelected() {
     const selectedCards = this.selectedCards;

@@ -65,6 +65,25 @@ commandController.registerCallback("cmd_editContact", function (card) {
   }
 });
 
+commandController.registerCallback(
+  "cmd_copy",
+  function () {
+    cardsPane.copySelected();
+  },
+  () => {
+    if (
+      !cardsPane?.cardsList ||
+      document.activeElement != cardsPane.cardsList.table.body
+    ) {
+      return false;
+    }
+    const selectedCards = cardsPane.selectedCards;
+    return (
+      selectedCards?.length && selectedCards.every(card => !card.isMailList)
+    );
+  }
+);
+
 commandController.registerCallback("cmd_print", function () {
   if (document.activeElement == booksList) {
     booksList.printSelected();
