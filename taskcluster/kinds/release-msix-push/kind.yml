@@ -35,7 +35,7 @@ task-defaults:
                 release.*: release
                 esr140: esr
                 default: mock
-        publish-mode: Manual
+        publish-mode: Immediate
 
 tasks:
     thunderbird:
