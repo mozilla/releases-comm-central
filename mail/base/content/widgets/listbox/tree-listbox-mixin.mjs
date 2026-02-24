@@ -797,7 +797,12 @@ export const TreeListboxMixin = Base =>
     _animateCollapseRow(row) {
       const childList = row.querySelector("ol, ul");
 
-      if (reducedMotionMedia.matches) {
+      // Bail out if user prefers reduced motion, or if the row is inside an
+      // already collapsed ancestor.
+      if (
+        reducedMotionMedia.matches ||
+        row.parentNode.closest("li.collapsed")
+      ) {
         if (childList) {
           this._hideChildList(childList);
         }
@@ -834,7 +839,12 @@ export const TreeListboxMixin = Base =>
       const childList = row.querySelector("ol, ul");
       childList.hidden = false;
 
-      if (reducedMotionMedia.matches) {
+      // Bail out if user prefers reduced motion, or if the row is inside a
+      // still collapsed ancestor.
+      if (
+        reducedMotionMedia.matches ||
+        row.parentNode.closest("li.collapsed")
+      ) {
         if (childList) {
           childList.style.height = null;
         }

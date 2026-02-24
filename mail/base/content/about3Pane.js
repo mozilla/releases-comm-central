@@ -6717,6 +6717,16 @@ function ensureFolderTreeRowIsVisible(row) {
       "#folderTree li.collapsed"
     );
   }
+
+  // Instantly fast-forward expansion animations to 100% completion.
+  for (const animation of folderTree.getAnimations({ subtree: true })) {
+    if (
+      !CSSAnimation.isInstance(animation) &&
+      !CSSTransition.isInstance(animation)
+    ) {
+      animation.finish();
+    }
+  }
 }
 
 /**
