@@ -152,33 +152,35 @@ impl<'source> Lowerer<'source, '_> {
 
         let expr;
         match (components, constructor) {
-            // Empty constructor
-            (Components::None, dst_ty) => match dst_ty {
-                Constructor::Type((result_ty, _)) => {
-                    expr = crate::Expression::ZeroValue(result_ty);
-                }
-                Constructor::PartialVector { size } => {
-                    // vec2(), vec3(), vec4() return vectors of abstractInts; the same
-                    // is not true of the similar constructors for matrices or arrays.
-                    // See https://www.w3.org/TR/WGSL/#vec2-builtin et seq.
-                    let result_ty = ctx.module.types.insert(
-                        crate::Type {
-                            name: None,
-                            inner: crate::TypeInner::Vector {
-                                size,
-                                scalar: crate::Scalar::ABSTRACT_INT,
-                            },
+            // Zero-value constructor with explicit type.
+            (Components::None, Constructor::Type((result_ty, inner)))
+                if inner.is_constructible(&ctx.module.types) =>
+            {
+                expr = crate::Expression::ZeroValue(result_ty);
+            }
+            // Zero-value constructor, vector with type inference
+            (Components::None, Constructor::PartialVector { size }) => {
+                // vec2(), vec3(), vec4() return vectors of abstractInts; the same
+                // is not true of the similar constructors for matrices or arrays.
+                // See https://www.w3.org/TR/WGSL/#vec2-builtin et seq.
+                let result_ty = ctx.module.types.insert(
+                    crate::Type {
+                        name: None,
+                        inner: crate::TypeInner::Vector {
+                            size,
+                            scalar: crate::Scalar::ABSTRACT_INT,
                         },
-                        span,
-                    );
-                    expr = crate::Expression::ZeroValue(result_ty);
-                }
-                Constructor::PartialMatrix { .. } | Constructor::PartialArray => {
-                    // We have no arguments from which to infer the result type, so
-                    // partial constructors aren't acceptable here.
-                    return Err(Box::new(Error::TypeNotInferable(ty_span)));
-                }
-            },
+                    },
+                    span,
+                );
+                expr = crate::Expression::ZeroValue(result_ty);
+            }
+            // Zero-value constructor, matrix or array with type inference
+            (Components::None, Constructor::PartialMatrix { .. } | Constructor::PartialArray) => {
+                // We have no arguments from which to infer the result type, so
+                // partial constructors aren't acceptable here.
+                return Err(Box::new(Error::TypeNotInferable(ty_span)));
+            }
 
             // Scalar constructor & conversion (scalar -> scalar)
             (
@@ -345,11 +347,11 @@ impl<'source> Lowerer<'source, '_> {
                 },
                 Constructor::PartialVector { size },
             ) => {
-                let consensus_scalar =
-                    ctx.automatic_conversion_consensus(&components)
-                        .map_err(|index| {
-                            Error::InvalidConstructorComponentType(spans[index], index as i32)
-                        })?;
+                let consensus_scalar = ctx
+                    .automatic_conversion_consensus(None, &components)
+                    .map_err(|index| {
+                        Error::InvalidConstructorComponentType(spans[index], index as i32)
+                    })?;
                 ctx.convert_slice_to_common_leaf_scalar(&mut components, consensus_scalar)?;
                 let inner = consensus_scalar.to_inner_vector(size);
                 let ty = ctx.ensure_type_exists(inner);
@@ -373,15 +375,14 @@ impl<'source> Lowerer<'source, '_> {
                 },
                 Constructor::PartialMatrix { columns, rows },
             ) if components.len() == columns as usize * rows as usize => {
-                let consensus_scalar =
-                    ctx.automatic_conversion_consensus(&components)
-                        .map_err(|index| {
-                            Error::InvalidConstructorComponentType(spans[index], index as i32)
-                        })?;
-                // We actually only accept floating-point elements.
-                let consensus_scalar = consensus_scalar
-                    .automatic_conversion_combine(crate::Scalar::ABSTRACT_FLOAT)
-                    .unwrap_or(consensus_scalar);
+                let consensus_scalar = ctx
+                    .automatic_conversion_consensus(
+                        Some(crate::Scalar::ABSTRACT_FLOAT),
+                        &components,
+                    )
+                    .map_err(|index| {
+                        Error::InvalidConstructorComponentType(spans[index], index as i32)
+                    })?;
                 ctx.convert_slice_to_common_leaf_scalar(&mut components, consensus_scalar)?;
                 let vec_ty = ctx.ensure_type_exists(consensus_scalar.to_inner_vector(rows));
 
@@ -451,11 +452,14 @@ impl<'source> Lowerer<'source, '_> {
                 },
                 Constructor::PartialMatrix { columns, rows },
             ) => {
-                let consensus_scalar =
-                    ctx.automatic_conversion_consensus(&components)
-                        .map_err(|index| {
-                            Error::InvalidConstructorComponentType(spans[index], index as i32)
-                        })?;
+                let consensus_scalar = ctx
+                    .automatic_conversion_consensus(
+                        Some(crate::Scalar::ABSTRACT_FLOAT),
+                        &components,
+                    )
+                    .map_err(|index| {
+                        Error::InvalidConstructorComponentType(spans[index], index as i32)
+                    })?;
                 ctx.convert_slice_to_common_leaf_scalar(&mut components, consensus_scalar)?;
                 let ty = ctx.ensure_type_exists(crate::TypeInner::Matrix {
                     columns,
@@ -489,7 +493,8 @@ impl<'source> Lowerer<'source, '_> {
             // Array constructor - infer type
             (components, Constructor::PartialArray) => {
                 let mut components = components.into_components_vec();
-                if let Ok(consensus_scalar) = ctx.automatic_conversion_consensus(&components) {
+                if let Ok(consensus_scalar) = ctx.automatic_conversion_consensus(None, &components)
+                {
                     // Note that this will *not* necessarily convert all the
                     // components to the same type! The `automatic_conversion_consensus`
                     // method only considers the parameters' leaf scalar
@@ -527,8 +532,11 @@ impl<'source> Lowerer<'source, '_> {
                 expr = crate::Expression::Compose { ty, components };
             }
 
-            // Array constructor, explicit type
-            (components, Constructor::Type((ty, &crate::TypeInner::Array { base, .. }))) => {
+            // Array constructor, explicit type.
+            (
+                components,
+                Constructor::Type((ty, inner @ &crate::TypeInner::Array { base, .. })),
+            ) if inner.is_constructible(&ctx.module.types) => {
                 let mut components = components.into_components_vec();
                 ctx.try_automatic_conversions_slice(&mut components, &Tr::Handle(base), ty_span)?;
                 expr = crate::Expression::Compose { ty, components };
@@ -537,8 +545,8 @@ impl<'source> Lowerer<'source, '_> {
             // Struct constructor
             (
                 components,
-                Constructor::Type((ty, &crate::TypeInner::Struct { ref members, .. })),
-            ) => {
+                Constructor::Type((ty, inner @ &crate::TypeInner::Struct { ref members, .. })),
+            ) if inner.is_constructible(&ctx.module.types) => {
                 let mut components = components.into_components_vec();
                 let struct_ty_span = ctx.module.types.get_span(ty);
 

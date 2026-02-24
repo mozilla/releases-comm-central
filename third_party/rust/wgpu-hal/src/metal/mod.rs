@@ -22,6 +22,7 @@ mod adapter;
 mod command;
 mod conv;
 mod device;
+mod library_from_metallib;
 mod surface;
 mod time;
 
@@ -37,18 +38,20 @@ use bitflags::bitflags;
 use hashbrown::HashMap;
 use naga::FastHashMap;
 use objc2::{
+    available,
     rc::{autoreleasepool, Retained},
     runtime::ProtocolObject,
 };
 use objc2_foundation::ns_string;
 use objc2_metal::{
-    MTLArgumentBuffersTier, MTLBlitCommandEncoder, MTLBuffer, MTLCommandBuffer,
-    MTLCommandBufferStatus, MTLCommandQueue, MTLComputeCommandEncoder, MTLComputePipelineState,
-    MTLCounterSampleBuffer, MTLCullMode, MTLDepthClipMode, MTLDepthStencilState, MTLDevice,
-    MTLDrawable, MTLFunction, MTLIndexType, MTLLanguageVersion, MTLLibrary, MTLPrimitiveType,
-    MTLReadWriteTextureTier, MTLRenderCommandEncoder, MTLRenderPipelineState, MTLRenderStages,
-    MTLResource, MTLResourceUsage, MTLSamplerState, MTLSharedEvent, MTLSize, MTLTexture,
-    MTLTextureType, MTLTriangleFillMode, MTLWinding,
+    MTLAccelerationStructure, MTLAccelerationStructureCommandEncoder, MTLArgumentBuffersTier,
+    MTLBlitCommandEncoder, MTLBuffer, MTLCommandBuffer, MTLCommandBufferStatus, MTLCommandQueue,
+    MTLComputeCommandEncoder, MTLComputePipelineState, MTLCounterSampleBuffer, MTLCullMode,
+    MTLDepthClipMode, MTLDepthStencilState, MTLDevice, MTLDrawable, MTLIndexType,
+    MTLLanguageVersion, MTLLibrary, MTLPrimitiveType, MTLReadWriteTextureTier,
+    MTLRenderCommandEncoder, MTLRenderPipelineState, MTLRenderStages, MTLResource,
+    MTLResourceUsage, MTLSamplerState, MTLSharedEvent, MTLSize, MTLTexture, MTLTextureType,
+    MTLTriangleFillMode, MTLWinding,
 };
 use objc2_quartz_core::CAMetalLayer;
 use parking_lot::{Mutex, RwLock};
@@ -113,6 +116,21 @@ crate::impl_dyn_resource!(
     Texture,
     TextureView
 );
+
+/// Provides availability information about Mac APIs.
+///
+/// This may include Metal features that depend only on software support.
+/// Features with varying hardware support are in [`PrivateCapabilities`]
+///
+/// When feature detection is only needed once, it may also be done inline.
+struct OsFeatures;
+
+impl OsFeatures {
+    fn display_sync() -> bool {
+        // https://developer.apple.com/documentation/quartzcore/cametallayer/displaysyncenabled
+        available!(macos = 10.13) || cfg!(target_abi = "macabi")
+    }
+}
 
 pub struct Instance {}
 
@@ -317,15 +335,9 @@ struct PrivateCapabilities {
     sample_count_mask: crate::TextureFormatCapabilities,
     supports_debug_markers: bool,
     supports_binary_archives: bool,
-    supports_capture_manager: bool,
-    can_set_maximum_drawables_count: bool,
-    can_set_display_sync: bool,
-    can_set_next_drawable_timeout: bool,
     supports_arrays_of_textures: bool,
     supports_arrays_of_textures_write: bool,
-    supports_mutability: bool,
     supports_depth_clip_control: bool,
-    supports_preserve_invariance: bool,
     supports_shader_primitive_index: bool,
     has_unified_memory: Option<bool>,
     timestamp_query_support: TimestampQuerySupport,
@@ -335,13 +347,13 @@ struct PrivateCapabilities {
     int64_atomics_min_max: bool,
     int64_atomics: bool,
     float_atomics: bool,
-    supports_shared_event: bool,
     mesh_shaders: bool,
     max_mesh_task_workgroup_count: u32,
     max_task_payload_size: u32,
     supported_vertex_amplification_factor: u32,
     shader_barycentrics: bool,
     supports_memoryless_storage: bool,
+    supports_raytracing: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -663,6 +675,10 @@ impl<T> ops::Index<naga::ShaderStage> for MultiStageData<T> {
             naga::ShaderStage::Compute => &self.cs,
             naga::ShaderStage::Task => &self.ts,
             naga::ShaderStage::Mesh => &self.ms,
+            naga::ShaderStage::RayGeneration
+            | naga::ShaderStage::AnyHit
+            | naga::ShaderStage::ClosestHit
+            | naga::ShaderStage::Miss => unimplemented!(),
         }
     }
 }
@@ -728,22 +744,25 @@ pub struct PipelineLayout {
 impl crate::DynPipelineLayout for PipelineLayout {}
 
 #[derive(Debug)]
-struct BufferResource {
-    ptr: NonNull<ProtocolObject<dyn MTLBuffer>>,
-    offset: wgt::BufferAddress,
-    dynamic_index: Option<u32>,
+enum BufferLikeResource {
+    Buffer {
+        ptr: NonNull<ProtocolObject<dyn MTLBuffer>>,
+        offset: wgt::BufferAddress,
+        dynamic_index: Option<u32>,
 
-    /// The buffer's size, if it is a [`Storage`] binding. Otherwise `None`.
-    ///
-    /// Buffers with the [`wgt::BufferBindingType::Storage`] binding type can
-    /// hold WGSL runtime-sized arrays. When one does, we must pass its size to
-    /// shader entry points to implement bounds checks and WGSL's `arrayLength`
-    /// function. See `device::CompiledShader::sized_bindings` for details.
-    ///
-    /// [`Storage`]: wgt::BufferBindingType::Storage
-    binding_size: Option<wgt::BufferSize>,
+        /// The buffer's size, if it is a [`Storage`] binding. Otherwise `None`.
+        ///
+        /// Buffers with the [`wgt::BufferBindingType::Storage`] binding type can
+        /// hold WGSL runtime-sized arrays. When one does, we must pass its size to
+        /// shader entry points to implement bounds checks and WGSL's `arrayLength`
+        /// function. See `device::CompiledShader::sized_bindings` for details.
+        ///
+        /// [`Storage`]: wgt::BufferBindingType::Storage
+        binding_size: Option<wgt::BufferSize>,
 
-    binding_location: u32,
+        binding_location: u32,
+    },
+    AccelerationStructure(NonNull<ProtocolObject<dyn MTLAccelerationStructure>>),
 }
 
 #[derive(Debug)]
@@ -766,7 +785,7 @@ impl Default for UseResourceInfo {
 #[derive(Debug, Default)]
 pub struct BindGroup {
     counters: MultiStageResourceCounters,
-    buffers: Vec<BufferResource>,
+    buffers: Vec<BufferLikeResource>,
     samplers: Vec<NonNull<ProtocolObject<dyn MTLSamplerState>>>,
     textures: Vec<NonNull<ProtocolObject<dyn MTLTexture>>>,
 
@@ -788,8 +807,6 @@ pub enum ShaderModuleSource {
 #[derive(Debug)]
 pub struct PassthroughShader {
     pub library: Retained<ProtocolObject<dyn MTLLibrary>>,
-    pub function: Retained<ProtocolObject<dyn MTLFunction>>,
-    pub entry_point: String,
     pub num_workgroups: (u32, u32, u32),
 }
 
@@ -980,6 +997,8 @@ struct Temp {
 
 struct CommandState {
     blit: Option<Retained<ProtocolObject<dyn MTLBlitCommandEncoder>>>,
+    acceleration_structure_builder:
+        Option<Retained<ProtocolObject<dyn MTLAccelerationStructureCommandEncoder>>>,
     render: Option<Retained<ProtocolObject<dyn MTLRenderCommandEncoder>>>,
     compute: Option<Retained<ProtocolObject<dyn MTLComputeCommandEncoder>>>,
     raw_primitive_type: MTLPrimitiveType,
@@ -1052,9 +1071,19 @@ pub struct PipelineCache;
 impl crate::DynPipelineCache for PipelineCache {}
 
 #[derive(Debug)]
-pub struct AccelerationStructure;
+pub struct AccelerationStructure {
+    raw: Retained<ProtocolObject<dyn MTLAccelerationStructure>>,
+}
+
+impl AccelerationStructure {
+    fn as_raw(&self) -> NonNull<ProtocolObject<dyn MTLAccelerationStructure>> {
+        unsafe { NonNull::new_unchecked(Retained::as_ptr(&self.raw) as *mut _) }
+    }
+}
 
 impl crate::DynAccelerationStructure for AccelerationStructure {}
+unsafe impl Send for AccelerationStructure {}
+unsafe impl Sync for AccelerationStructure {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OsType {

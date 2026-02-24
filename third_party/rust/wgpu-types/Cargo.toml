@@ -11,7 +11,7 @@
 
 [package]
 edition = "2021"
-rust-version = "1.90.0"
+rust-version = "1.87"
 name = "wgpu-types"
 version = "28.0.0"
 authors = ["gfx-rs developers"]
@@ -83,7 +83,7 @@ version = "0.6.2"
 default-features = false
 
 [dependencies.serde]
-version = "1.0.219"
+version = "1.0.225"
 features = [
     "alloc",
     "derive",
@@ -92,7 +92,7 @@ optional = true
 default-features = false
 
 [dev-dependencies.serde]
-version = "1.0.219"
+version = "1.0.225"
 features = ["derive"]
 default-features = false
 
@@ -100,12 +100,12 @@ default-features = false
 version = "1.0.143"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.js-sys]
-version = "0.3.77"
+version = "0.3.85"
 optional = true
 default-features = false
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.web-sys]
-version = "0.3.77"
+version = "0.3.85"
 features = [
     "ImageBitmap",
     "ImageData",

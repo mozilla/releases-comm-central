@@ -212,6 +212,9 @@ impl super::AddressSpace {
             // TaskPayload isn't always writable, but this is checked for elsewhere,
             // when not using multiple payloads and matching the entry payload is checked.
             crate::AddressSpace::TaskPayload => Sa::LOAD | Sa::STORE,
+            crate::AddressSpace::RayPayload | crate::AddressSpace::IncomingRayPayload => {
+                Sa::LOAD | Sa::STORE
+            }
         }
     }
 }
@@ -472,7 +475,12 @@ pub struct GlobalCtx<'a> {
 }
 
 impl GlobalCtx<'_> {
-    /// Try to evaluate the expression in `self.global_expressions` using its `handle` and return it as a `u32`.
+    /// Try to evaluate the expression in `self.global_expressions` using its `handle`
+    /// and return it as a `T: TryFrom<ir::Literal>`.
+    ///
+    /// This currently only evaluates scalar expressions. If adding support for vectors,
+    /// consider changing `valid::expression::validate_constant_shift_amounts` to use that
+    /// support.
     #[cfg_attr(
         not(any(
             feature = "glsl-in",
@@ -662,6 +670,15 @@ impl super::ShaderStage {
         match self {
             Self::Vertex | Self::Fragment => false,
             Self::Compute | Self::Task | Self::Mesh => true,
+            Self::RayGeneration | Self::AnyHit | Self::ClosestHit | Self::Miss => false,
+        }
+    }
+
+    /// Mesh or task shader
+    pub const fn mesh_like(self) -> bool {
+        match self {
+            Self::Task | Self::Mesh => true,
+            _ => false,
         }
     }
 }
@@ -852,5 +869,87 @@ impl crate::Module {
                 .inner
                 .map(|a| a.with_span_handle(self.global_variables[gv].ty, &self.types)),
         )
+    }
+
+    pub fn uses_mesh_shaders(&self) -> bool {
+        let binding_uses_mesh = |b: &crate::Binding| {
+            matches!(
+                b,
+                crate::Binding::BuiltIn(
+                    crate::BuiltIn::MeshTaskSize
+                        | crate::BuiltIn::CullPrimitive
+                        | crate::BuiltIn::PointIndex
+                        | crate::BuiltIn::LineIndices
+                        | crate::BuiltIn::TriangleIndices
+                        | crate::BuiltIn::VertexCount
+                        | crate::BuiltIn::Vertices
+                        | crate::BuiltIn::PrimitiveCount
+                        | crate::BuiltIn::Primitives,
+                ) | crate::Binding::Location {
+                    per_primitive: true,
+                    ..
+                }
+            )
+        };
+        for (_, ty) in self.types.iter() {
+            match ty.inner {
+                crate::TypeInner::Struct { ref members, .. } => {
+                    for binding in members.iter().filter_map(|m| m.binding.as_ref()) {
+                        if binding_uses_mesh(binding) {
+                            return true;
+                        }
+                    }
+                }
+                _ => (),
+            }
+        }
+        for ep in &self.entry_points {
+            if matches!(
+                ep.stage,
+                crate::ShaderStage::Mesh | crate::ShaderStage::Task
+            ) {
+                return true;
+            }
+            for binding in ep
+                .function
+                .arguments
+                .iter()
+                .filter_map(|arg| arg.binding.as_ref())
+                .chain(
+                    ep.function
+                        .result
+                        .iter()
+                        .filter_map(|res| res.binding.as_ref()),
+                )
+            {
+                if binding_uses_mesh(binding) {
+                    return true;
+                }
+            }
+        }
+        if self
+            .global_variables
+            .iter()
+            .any(|gv| gv.1.space == crate::AddressSpace::TaskPayload)
+        {
+            return true;
+        }
+        false
+    }
+}
+
+impl crate::MeshOutputTopology {
+    pub const fn to_builtin(self) -> crate::BuiltIn {
+        match self {
+            Self::Points => crate::BuiltIn::PointIndex,
+            Self::Lines => crate::BuiltIn::LineIndices,
+            Self::Triangles => crate::BuiltIn::TriangleIndices,
+        }
+    }
+}
+
+impl crate::AddressSpace {
+    pub const fn is_workgroup_like(self) -> bool {
+        matches!(self, Self::WorkGroup | Self::TaskPayload)
     }
 }

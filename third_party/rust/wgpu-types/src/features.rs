@@ -58,13 +58,16 @@ mod webgpu_impl {
     pub const WEBGPU_FEATURE_FLOAT32_FILTERABLE: u64 = 1 << 12;
 
     #[doc(hidden)]
-    pub const WEBGPU_FEATURE_DUAL_SOURCE_BLENDING: u64 = 1 << 13;
+    pub const WEBGPU_FEATURE_FLOAT32_BLENDABLE: u64 = 1 << 13;
 
     #[doc(hidden)]
-    pub const WEBGPU_FEATURE_CLIP_DISTANCES: u64 = 1 << 14;
+    pub const WEBGPU_FEATURE_DUAL_SOURCE_BLENDING: u64 = 1 << 14;
 
     #[doc(hidden)]
-    pub const WEBGPU_FEATURE_IMMEDIATES: u64 = 1 << 15;
+    pub const WEBGPU_FEATURE_CLIP_DISTANCES: u64 = 1 << 15;
+
+    #[doc(hidden)]
+    pub const WEBGPU_FEATURE_IMMEDIATES: u64 = 1 << 16;
 }
 
 macro_rules! bitflags_array_impl {
@@ -574,7 +577,6 @@ bitflags_array! {
         // ? const RW_STORAGE_TEXTURE_TIER_1 = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3838)
         // ? const NORM16_FILTERABLE = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3839)
         // ? const NORM16_RESOLVE = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3839)
-        // ? const FLOAT32_BLENDABLE = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3556)
         // ? const 32BIT_FORMAT_MULTISAMPLE = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3844)
         // ? const 32BIT_FORMAT_RESOLVE = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3844)
         // ? const TEXTURE_COMPRESSION_ASTC_HDR = 1 << ??; (https://github.com/gpuweb/gpuweb/issues/3856)
@@ -1153,6 +1155,10 @@ bitflags_array! {
         ///
         /// Naga is only supported on vulkan. On other platforms you will have to use passthrough shaders.
         ///
+        /// It is recommended to use [`Device::create_shader_module_trusted`] with [`ShaderRuntimeChecks::unchecked()`]
+        /// to avoid workgroup memory zero initialization, which can be expensive due to zero initialization being
+        /// single-threaded currently.
+        ///
         /// Some Mesa drivers including LLVMPIPE but not RADV fail to run the naga generated code.
         /// [This may be our bug and will be investigated.](https://github.com/gfx-rs/wgpu/issues/8727)
         /// However, due to the nature of the failure, the fact that it is unique, and the random changes
@@ -1160,6 +1166,9 @@ bitflags_array! {
         /// [this Mesa issue.](https://gitlab.freedesktop.org/mesa/mesa/-/issues/14376)
         ///
         /// This is a native only feature.
+        ///
+        /// [`Device::create_shader_module_trusted`]: https://docs.rs/wgpu/latest/wgpu/struct.Device.html#method.create_shader_module_trusted
+        /// [`ShaderRuntimeChecks::unchecked()`]: crate::ShaderRuntimeChecks::unchecked
         const EXPERIMENTAL_MESH_SHADER = 1 << 48;
 
         /// ***THIS IS EXPERIMENTAL:*** Features enabled by this may have
@@ -1214,7 +1223,7 @@ bitflags_array! {
         /// [this comment](https://github.com/gfx-rs/wgpu/issues/3103#issuecomment-2833058367).
         ///
         #[doc = link_to_wgpu_docs!(["`Device::create_shader_module_passthrough`"]: "struct.Device.html#method.create_shader_module_passthrough")]
-        const EXPERIMENTAL_PASSTHROUGH_SHADERS = 1 << 52;
+        const PASSTHROUGH_SHADERS = 1 << 52;
 
         /// Enables shader barycentric coordinates.
         ///
@@ -1282,6 +1291,19 @@ bitflags_array! {
         ///
         /// This is a native only feature.
         const SHADER_PER_VERTEX = 1 << 58;
+
+        /// Enables shader `draw_index` builtin.
+        ///
+        /// Supported platforms:
+        /// - GLES
+        /// - Vulkan
+        ///
+        /// Potential platforms:
+        /// - DX12
+        /// - Metal
+        ///
+        /// This is a native only feature.
+        const SHADER_DRAW_INDEX = 1 << 59;
     }
 
     /// Features that are not guaranteed to be supported.
@@ -1509,6 +1531,12 @@ bitflags_array! {
         /// This is a web and native feature.
         const FLOAT32_FILTERABLE = WEBGPU_FEATURE_FLOAT32_FILTERABLE;
 
+        /// Allows textures with formats "r32float", "rg32float", and "rgba32float" to be blendable.
+        ///
+        /// Supported Platforms:
+        /// - Vulkan
+        const FLOAT32_BLENDABLE = WEBGPU_FEATURE_FLOAT32_BLENDABLE;
+
         /// Allows two outputs from a shader to be used for blending.
         /// Note that dual-source blending doesn't support multiple render targets.
         ///
@@ -1593,7 +1621,6 @@ impl Features {
                 | FeaturesWGPU::EXPERIMENTAL_MESH_SHADER_POINTS.bits()
                 | FeaturesWGPU::EXPERIMENTAL_RAY_QUERY.bits()
                 | FeaturesWGPU::EXPERIMENTAL_RAY_HIT_VERTEX_RETURN.bits()
-                | FeaturesWGPU::EXPERIMENTAL_PASSTHROUGH_SHADERS.bits()
                 | FeaturesWGPU::EXPERIMENTAL_COOPERATIVE_MATRIX.bits(),
             FeaturesWebGPU::empty().bits(),
         ]))

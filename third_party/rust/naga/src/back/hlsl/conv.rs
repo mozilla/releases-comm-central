@@ -182,7 +182,7 @@ impl crate::BuiltIn {
             Self::BaseInstance | Self::BaseVertex | Self::WorkGroupSize => {
                 return Err(Error::Unimplemented(format!("builtin {self:?}")))
             }
-            Self::PointSize | Self::PointCoord | Self::DrawID => {
+            Self::PointSize | Self::PointCoord | Self::DrawIndex => {
                 return Err(Error::Custom(format!("Unsupported builtin {self:?}")))
             }
             Self::CullPrimitive => "SV_CullPrimitive",
@@ -192,6 +192,19 @@ impl crate::BuiltIn {
             | Self::PrimitiveCount
             | Self::Vertices
             | Self::Primitives => unreachable!(),
+            Self::RayInvocationId
+            | Self::NumRayInvocations
+            | Self::InstanceCustomData
+            | Self::GeometryIndex
+            | Self::WorldRayOrigin
+            | Self::WorldRayDirection
+            | Self::ObjectRayOrigin
+            | Self::ObjectRayDirection
+            | Self::RayTmin
+            | Self::RayTCurrentMax
+            | Self::ObjectToWorld
+            | Self::WorldToObject
+            | Self::HitKind => unreachable!(),
         })
     }
 }

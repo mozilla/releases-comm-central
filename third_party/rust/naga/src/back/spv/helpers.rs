@@ -56,6 +56,7 @@ pub(super) const fn map_storage_class(space: crate::AddressSpace) -> spirv::Stor
         crate::AddressSpace::WorkGroup => spirv::StorageClass::Workgroup,
         crate::AddressSpace::Immediate => spirv::StorageClass::PushConstant,
         crate::AddressSpace::TaskPayload => spirv::StorageClass::TaskPayloadWorkgroupEXT,
+        crate::AddressSpace::IncomingRayPayload | crate::AddressSpace::RayPayload => unreachable!(),
     }
 }
 
@@ -188,8 +189,7 @@ impl StrUnstable for str {
                 .iter()
                 .rposition(|b| b.is_utf8_char_boundary_polyfill());
 
-            // SAFETY: we know that the character boundary will be within four bytes
-            unsafe { lower_bound + new_index.unwrap_unchecked() }
+            lower_bound + new_index.unwrap()
         }
     }
 }
