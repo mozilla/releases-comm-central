@@ -161,8 +161,10 @@ add_task(function testMicrosoftHostnameDetails() {
     OAuth2Providers.getHostnameDetails("outlook.office365.com", "graph"),
     {
       issuer: "login.microsoftonline.com",
-      allScopes: "https://graph.microsoft.com/User.Read",
-      requiredScopes: "https://graph.microsoft.com/User.Read",
+      allScopes:
+        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
+      requiredScopes:
+        "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
     }
   );
 

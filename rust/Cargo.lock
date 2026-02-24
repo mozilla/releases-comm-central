@@ -2844,6 +2844,7 @@ dependencies = [
 name = "graph_xpcom"
 version = "0.1.0"
 dependencies = [
+ "fxhash",
  "http",
  "log",
  "mailnews_ui_glue",

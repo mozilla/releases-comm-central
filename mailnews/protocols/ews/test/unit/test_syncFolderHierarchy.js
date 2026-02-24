@@ -2,14 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EwsServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
-);
 var { RemoteFolder } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MockServer.sys.mjs"
-);
-var { localAccountUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
 // TODO: Figure out inclusion of support files for providing responses to
@@ -20,7 +14,14 @@ var { localAccountUtils } = ChromeUtils.importESModule(
  *
  * @type {IEwsClient}
  */
-var client;
+var ewsClient;
+
+/**
+ * A Graph client implementation against which we will test.
+ *
+ * @type {IEwsClient}
+ */
+var graphClient;
 
 /**
  * A mock Exchange server instance to provide request/response handling.
@@ -29,28 +30,38 @@ var client;
  */
 var ewsServer;
 
+/**
+ * A mock Exchange server instance to provide request/response handling.
+ *
+ * @type {GraphServer}
+ */
+var graphServer;
+
+/**
+ * Respective incoming server for EWS.
+ *
+ * @type {nsIMsgIncomingServer}
+ */
+var incomingEwsServer;
+
+/**
+ * Respective incoming server for Graph.
+ *
+ * @type {nsIMsgIncomingServer}
+ */
+var incomingGraphServer;
+
 add_setup(() => {
-  ewsServer = new EwsServer();
-  ewsServer.start();
+  // Create and configure the EWS and Graph incoming servers.
+  [ewsServer, incomingEwsServer] = setupBasicEwsTestServer({});
+  [graphServer, incomingGraphServer] = setupBasicGraphTestServer();
 
-  // Create and configure the EWS incoming server.
-  const server = localAccountUtils.create_incoming_server(
-    "ews",
-    ewsServer.port,
-    "user",
-    "password"
-  );
-  server.setStringValue(
-    "ews_url",
-    `http://127.0.0.1:${ewsServer.port}/EWS/Exchange.asmx`
-  );
-
-  client = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
+  ewsClient = Cc["@mozilla.org/messenger/ews-client;1"].createInstance(
     Ci.IEwsClient
   );
-  client.initialize(
-    server.getStringValue("ews_url"),
-    server,
+  ewsClient.initialize(
+    incomingEwsServer.getStringValue("ews_url"),
+    incomingEwsServer,
     false,
     "",
     "",
@@ -59,11 +70,19 @@ add_setup(() => {
     ""
   );
 
-  registerCleanupFunction(() => {
-    // We need to stop the mock server, but the client has no additional
-    // teardown needed.
-    ewsServer.stop();
-  });
+  graphClient = Cc["@mozilla.org/messenger/graph-client;1"].createInstance(
+    Ci.IEwsClient
+  );
+  graphClient.initialize(
+    incomingGraphServer.getStringValue("ews_url"),
+    incomingGraphServer,
+    false,
+    "",
+    "",
+    "",
+    "",
+    ""
+  );
 });
 
 /**
@@ -71,10 +90,13 @@ add_setup(() => {
  * worry about batching.
  */
 add_task(async function testSimpleSync() {
-  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
+  await runSimpleSyncTest(ewsClient);
+  await runSimpleSyncTest(graphClient);
+});
 
+async function runSimpleSyncTest(syncClient) {
   const listener = new EwsFolderCallbackListener();
-  client.syncFolderHierarchy(listener, null);
+  syncClient.syncFolderHierarchy(listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -91,7 +113,7 @@ add_task(async function testSimpleSync() {
     "all folders should have synced"
   );
   Assert.ok(listener._syncStateToken, "sync token should exist");
-});
+}
 
 /**
  * Test sync when a folder does not have a folder class.
@@ -105,7 +127,7 @@ add_task(async function testSyncClasslessFolder() {
   );
 
   const listener = new EwsFolderCallbackListener();
-  client.syncFolderHierarchy(listener, null);
+  ewsClient.syncFolderHierarchy(listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -128,16 +150,21 @@ add_task(async function testSyncClasslessFolder() {
  * and we have to loop.
  */
 add_task(async function testSecondSyncRequired() {
-  ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
-  ewsServer.appendRemoteFolder(new RemoteFolder("test1", "inbox", "Test 1"));
-  ewsServer.appendRemoteFolder(new RemoteFolder("test2", "test1", "Test 2"));
-  ewsServer.appendRemoteFolder(new RemoteFolder("test3", "test2", "Test 3"));
-  ewsServer.appendRemoteFolder(new RemoteFolder("test4", "test1", "Test 4"));
-  ewsServer.appendRemoteFolder(new RemoteFolder("test5", "test1", "Test 5"));
-  ewsServer.maxSyncItems = 4; // 11 items requires 3 requests.
+  await runSecondSyncRequiredTest(ewsServer, ewsClient);
+  await runSecondSyncRequiredTest(graphServer, graphClient);
+});
+
+async function runSecondSyncRequiredTest(syncServer, syncClient) {
+  syncServer.setRemoteFolders(syncServer.getWellKnownFolders());
+  syncServer.appendRemoteFolder(new RemoteFolder("test1", "inbox", "Test 1"));
+  syncServer.appendRemoteFolder(new RemoteFolder("test2", "test1", "Test 2"));
+  syncServer.appendRemoteFolder(new RemoteFolder("test3", "test2", "Test 3"));
+  syncServer.appendRemoteFolder(new RemoteFolder("test4", "test1", "Test 4"));
+  syncServer.appendRemoteFolder(new RemoteFolder("test5", "test1", "Test 5"));
+  syncServer.maxSyncItems = 4; // 12 items requires 3 requests.
 
   const listener = new EwsFolderCallbackListener();
-  client.syncFolderHierarchy(listener, null);
+  syncClient.syncFolderHierarchy(listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -160,8 +187,8 @@ add_task(async function testSecondSyncRequired() {
   );
   Assert.ok(listener._syncStateToken, "sync token should exist");
 
-  ewsServer.maxSyncItems = Infinity;
-});
+  syncServer.maxSyncItems = Infinity;
+}
 
 class EwsFolderCallbackListener {
   QueryInterface = ChromeUtils.generateQI([
@@ -185,6 +212,14 @@ class EwsFolderCallbackListener {
     this._createdFolderIds.add(id);
   }
   onFolderUpdated(id, _name) {
+    // Graph tries to update, then creates on failure.
+    if (!this._createdFolderIds.has(id)) {
+      throw Components.Exception(
+        `cannot update unknown folder: ${id}`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
     Assert.ok(false, `should not update ${id} on initial sync`);
   }
   onFolderDeleted(id) {
@@ -204,13 +239,13 @@ class EwsFolderCallbackListener {
 /**
  * Test sync where the server returns busy twice.
  */
-add_task(async function testSimpleSync() {
+add_task(async function testSimpleSyncBusyRetry() {
   ewsServer.setRemoteFolders(ewsServer.getWellKnownFolders());
 
   ewsServer.busyResponses = 2;
 
   const listener = new EwsFolderCallbackListener();
-  client.syncFolderHierarchy(listener, null);
+  ewsClient.syncFolderHierarchy(listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(

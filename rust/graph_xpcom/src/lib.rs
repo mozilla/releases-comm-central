@@ -9,7 +9,7 @@ use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     ExchangeConnectionDetails,
     authentication::credentials::AuthenticationProvider,
-    safe_xpcom::{SafeUrlListener, uri::SafeUri},
+    safe_xpcom::{SafeEwsFolderListener, SafeUrlListener, uri::SafeUri},
 };
 use thin_vec::ThinVec;
 use url::Url;
@@ -128,15 +128,32 @@ impl XpcomGraphBridge {
     }
 
     xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(
-        _listener: *const IEwsFolderListener,
-        _sync_state: *const nsACString
+        listener: *const IEwsFolderListener,
+        sync_state: *const nsACString
     ));
     fn sync_folder_hierarchy(
         &self,
-        _listener: &IEwsFolderListener,
-        _sync_state: &nsACString,
+        listener: &IEwsFolderListener,
+        sync_state: &nsACString,
     ) -> Result<(), nsresult> {
-        Err(nserror::NS_ERROR_NOT_IMPLEMENTED)
+        let sync_state = if sync_state.is_empty() {
+            None
+        } else {
+            Some(sync_state.to_utf8().into_owned())
+        };
+
+        let server = self.details.get().unwrap().server.clone();
+        let endpoint = self.details.get().unwrap().endpoint.clone();
+
+        let client = XpComGraphClient::new(server, endpoint);
+
+        moz_task::spawn_local(
+            "sync_folder_hierarchy",
+            client.sync_folder_hierarchy(SafeEwsFolderListener::new(listener), sync_state),
+        )
+        .detach();
+
+        Ok(())
     }
 
     xpcom_method!(create_folder => CreateFolder(

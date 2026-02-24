@@ -41,8 +41,10 @@ const EWS_SCOPES = {
 };
 
 const GRAPH_SCOPES = {
-  exchange: "https://graph.microsoft.com/User.Read",
-  graph: "https://graph.microsoft.com/User.Read",
+  exchange:
+    "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
+  graph:
+    "https://graph.microsoft.com/User.Read https://graph.microsoft.com/MailboxFolder.ReadWrite",
 };
 
 const TBPRO_SCOPES = "openid profile email offline_access";
