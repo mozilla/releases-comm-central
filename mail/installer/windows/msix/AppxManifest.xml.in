@@ -69,7 +69,7 @@
             </uap:SupportedFileTypes>
             <uap:Logo>Assets\Email44x44.png</uap:Logo>
             <uap2:SupportedVerbs>
-              <uap3:Verb Id="open" Parameters="-osint -mail &quot;%1&quot;">open</uap3:Verb>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
             </uap2:SupportedVerbs>
           </uap3:FileTypeAssociation>
         </uap3:Extension>
@@ -82,7 +82,7 @@
             </uap:SupportedFileTypes>
             <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
             <uap2:SupportedVerbs>
-              <uap3:Verb Id="open" Parameters="-osint &quot;%1&quot;">open</uap3:Verb>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
             </uap2:SupportedVerbs>
           </uap3:FileTypeAssociation>
         </uap3:Extension>
@@ -93,37 +93,37 @@
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="mid" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="mid" Parameters="&quot;%1&quot;">
             <uap:DisplayName>mid</uap:DisplayName>
             <uap:Logo>Assets\Email44x44.png</uap:Logo>
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="nntp" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="nntp" Parameters="-osint -mail &quot;%1&quot;">
             <uap:DisplayName>nntp</uap:DisplayName>
             <uap:Logo>Assets\News44x44.png</uap:Logo>
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="news" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="news" Parameters="-osint -mail &quot;%1&quot;">
             <uap:DisplayName>news</uap:DisplayName>
             <uap:Logo>Assets\News44x44.png</uap:Logo>
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="snews" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="snews" Parameters="-osint -mail &quot;%1&quot;">
             <uap:DisplayName>snews</uap:DisplayName>
             <uap:Logo>Assets\News44x44.png</uap:Logo>
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="webcal" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="webcal" Parameters="&quot;%1&quot;">
             <uap:DisplayName>webcal</uap:DisplayName>
             <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
           </uap3:Protocol>
         </uap3:Extension>
         <uap3:Extension Category="windows.protocol">
-          <uap3:Protocol Name="webcals" Parameters="-osint -url &quot;%1&quot;">
+          <uap3:Protocol Name="webcals" Parameters="&quot;%1&quot;">
             <uap:DisplayName>webcals</uap:DisplayName>
             <uap:Logo>Assets\Calendar44x44.png</uap:Logo>
           </uap3:Protocol>
