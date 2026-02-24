@@ -128,9 +128,7 @@ add_task(async function testViewsWithTodaySelected() {
 
   info("changing the UI so that it needs updating");
   minimonths.sidebar.mShowsToday = true;
-  minimonths.sidebar.querySelector("td[today]").removeAttribute("today");
-  minimonths.sidebar.mToday = null;
-  document.querySelectorAll("#view-box [relation]").forEach(e => e.removeAttribute("relation"));
+  clearTodayMarkers();
 
   // Now emit the "day" event, as the metronome would do when it detects that
   // the current day is not the same as it was last time events were emitted.
@@ -173,6 +171,39 @@ add_task(async function testViewsWithTodaySelected() {
   await checkDayViewToday("day", today);
   await checkDayViewSelected("day", today);
 
+  // Repeat with multiweek view selected.
+
+  info("retesting midnight update with multiweek view selected");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  minimonths.sidebar.value = yesterday.jsDate;
+  minimonths.sidebar.mShowsToday = true;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  await checkMonthViewToday("multiweek", today);
+  await checkMonthViewSelected("multiweek", today);
+
+  // Repeat with week view selected.
+
+  info("retesting midnight update with week view selected");
+  await CalendarTestUtils.setCalendarView(window, "week");
+  minimonths.sidebar.value = yesterday.jsDate;
+  minimonths.sidebar.mShowsToday = true;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  await checkDayViewToday("week", today);
+  await checkDayViewSelected("week", today);
+
+  // Repeat with day view selected.
+
+  info("retesting midnight update with day view selected");
+  await CalendarTestUtils.setCalendarView(window, "day");
+  minimonths.sidebar.value = yesterday.jsDate;
+  minimonths.sidebar.mShowsToday = true;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  await checkDayViewToday("day", today);
+  await checkDayViewSelected("day", today);
+
   await CalendarTestUtils.closeCalendarTab(window);
 }).skip(closeToRealMidnight);
 
@@ -198,9 +229,7 @@ add_task(async function testViewsWithTodayNotSelected() {
   await checkMonthViewSelected("month", dayBeforeYesterday);
 
   info("changing the UI so that it needs updating");
-  minimonths.sidebar.querySelector("td[today]").removeAttribute("today");
-  minimonths.sidebar.mToday = null;
-  document.querySelectorAll("#view-box [relation]").forEach(e => e.removeAttribute("relation"));
+  clearTodayMarkers();
 
   // Now emit the "day" event, as the metronome would do when it detects that
   // the current day is not the same as it was last time events were emitted.
@@ -240,6 +269,39 @@ add_task(async function testViewsWithTodayNotSelected() {
   await checkMonthViewSelected("multiweek", dayBeforeYesterday);
   await checkDayViewToday("week", dayBeforeYesterday.weekday <= 4 ? today : null);
   await checkDayViewSelected("week", dayBeforeYesterday);
+  await checkDayViewToday("day", null);
+  await checkDayViewSelected("day", dayBeforeYesterday);
+
+  // Repeat with multiweek view selected.
+
+  info("retesting midnight update with multiweek view selected");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  await checkMonthViewToday("multiweek", today);
+  await checkMonthViewSelected("multiweek", dayBeforeYesterday);
+
+  // Repeat with week view selected.
+
+  info("retesting midnight update with week view selected");
+  await CalendarTestUtils.setCalendarView(window, "week");
+  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  // Today won't be shown if it's in the week after the selected date,
+  // e.g. the selection is Saturday but today is Monday.
+  await checkDayViewToday("week", dayBeforeYesterday.weekday < 5 ? today : null);
+  await checkDayViewSelected("week", dayBeforeYesterday);
+
+  // Repeat with day view selected.
+
+  info("retesting midnight update with day view selected");
+  await CalendarTestUtils.setCalendarView(window, "day");
+  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  clearTodayMarkers();
+  CalMetronome.emit("day");
+  // Today won't be shown as it's not selected.
   await checkDayViewToday("day", null);
   await checkDayViewSelected("day", dayBeforeYesterday);
 
@@ -457,6 +519,15 @@ add_task(function () {
   CalMetronome.emit("day");
   Assert.equal(todayButtonLabel.textContent, today.day);
 }).skip(closeToRealMidnight);
+
+/**
+ * Remove all attributes used to indicate the current day.
+ */
+function clearTodayMarkers() {
+  minimonths.sidebar.querySelector("td[today]").removeAttribute("today");
+  minimonths.sidebar.mToday = null;
+  document.querySelectorAll("#view-box [relation]").forEach(e => e.removeAttribute("relation"));
+}
 
 /**
  * Check the day marked as today in a mini-month is correct.
