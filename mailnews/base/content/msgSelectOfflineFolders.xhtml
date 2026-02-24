@@ -36,18 +36,9 @@
       src="chrome://messenger/content/dialogShadowDom.js"
     ></script>
     <script
-      type="module"
-      src="chrome://messenger/content/auto-tree-view.mjs"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://messenger/content/pane-splitter.js"
-    ></script>
-    <script
       defer="defer"
       src="chrome://messenger/content/msgSelectOfflineFolders.js"
     ></script>
-    <style id="folderColorsStyle"></style>
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -67,7 +58,7 @@
         >&MsgSelectDesc.label;</label
       >
 
-      <html:auto-tree-view id="synchronizeTree"></html:auto-tree-view>
+      <html:base-tree-view id="synchronizeTree"></html:base-tree-view>
     </dialog>
   </html:body>
 </html>

@@ -84,6 +84,7 @@ add_task(async function () {
     {
       async callback(win) {
         await SimpleTest.promiseFocus(win);
+        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         const doc = win.document;
         const tree = doc.getElementById("folderPickerTree");
@@ -105,6 +106,7 @@ add_task(async function () {
         );
         tree.view.toggleOpenState(6); // Open "third" folder.
         Assert.equal(tree.view.rowCount, 8);
+        await new Promise(resolve => win.requestAnimationFrame(resolve));
 
         Assert.equal(tree.view.getCellText(0, "name"), "nobody on localhost");
         Assert.equal(tree.view.getCellText(1, "name"), "Local Folders");
@@ -113,10 +115,12 @@ add_task(async function () {
         Assert.equal(tree.view.getCellText(4, "name"), "first");
         Assert.equal(tree.view.getCellText(5, "name"), "second");
         Assert.equal(tree.view.getCellText(6, "name"), "third");
+        Assert.equal(tree.view.getCellText(7, "name"), "fourth");
 
         // Check the initial selection.
         const isSelected = index =>
-          tree.view.rowAt(index).hasProperty("folderSelected");
+          tree.view.rowAt(index).hasProperty("checked") &&
+          tree.getRowAtIndex(index).querySelector("input").checked;
         Assert.ok(!isSelected(0));
         Assert.ok(!isSelected(1));
         Assert.ok(!isSelected(2));
@@ -137,10 +141,10 @@ add_task(async function () {
           {},
           win
         );
-
-        // Change the selection by selecting some rows and pressing space.
-        tree.view.selection.rangedSelect(6, 7, false);
-        tree.focus();
+        // ... and using the keyboard.
+        tree.table.body.rows[6].querySelector('input[type="checkbox"]').focus();
+        EventUtils.synthesizeKey(" ", {}, win);
+        EventUtils.synthesizeKey("KEY_Tab", {}, win);
         EventUtils.synthesizeKey(" ", {}, win);
 
         // Check the changed selection.

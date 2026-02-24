@@ -35,14 +35,6 @@
       src="chrome://messenger/content/dialogShadowDom.js"
     ></script>
     <script
-      type="module"
-      src="chrome://messenger/content/auto-tree-view.mjs"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://messenger/content/pane-splitter.js"
-    ></script>
-    <script
       defer="defer"
       src="chrome://messenger/content/virtualFolderListEdit.js"
     ></script>
@@ -58,7 +50,7 @@
       />
 
       <label control="folderPickerTree">&virtualFolderDesc.label;</label>
-      <html:auto-tree-view id="folderPickerTree"></html:auto-tree-view>
+      <html:base-tree-view id="folderPickerTree"></html:base-tree-view>
     </dialog>
   </html:body>
 </html>

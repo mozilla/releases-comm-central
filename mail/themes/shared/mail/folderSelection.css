@@ -12,12 +12,21 @@ dialog::part(content-box) {
   block-size: 0;
 }
 
-auto-tree-view {
+base-tree-view {
   border: 1px solid var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
 tbody[is="tree-view-table-body"] {
-  img.icon {
+  & button.twisty {
+    --focus-outline-offset: 1px;
+  }
+
+  & div.container {
+    display: flex;
+    align-items: center;
+  }
+
+  & img.icon {
     content: var(--icon-folder);
     color: var(--icon-color);
   }
@@ -87,9 +96,23 @@ tbody[is="tree-view-table-body"] {
     content: var(--icon-newsletter);
   }
 
-  & .name-column {
-    max-inline-size: unset;
-    inline-size: 100%;
+  & label {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.5;
+
+    & span {
+      flex: 1;
+      inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (-moz-overlay-scrollbars) {
+      padding-inline-end: env(scrollbar-inline-size);
+    }
   }
 
   &
@@ -100,8 +123,7 @@ tbody[is="tree-view-table-body"] {
       [data-properties~="server-type-nntp"],
       [data-properties~="server-type-rss"],
       [data-properties~="server-type-none"]
-    )
-    .name-column {
+    ) {
     font-weight: bold;
 
     & img.icon {
@@ -109,20 +131,12 @@ tbody[is="tree-view-table-body"] {
     }
   }
 
-  & tr[data-properties~="noselect"] .name-column {
+  & tr[data-properties~="noselect"] {
     opacity: 0.6;
     font-style: italic;
   }
 
-  & .folderselected-column {
-    max-inline-size: unset;
-
-    & input {
-      margin: 0;
-    }
-
-    @media (-moz-overlay-scrollbars) {
-      padding-inline-end: calc(6px + env(scrollbar-inline-size));
-    }
+  & input[type="checkbox"]:focus {
+    outline: revert;
   }
 }

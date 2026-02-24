@@ -143,6 +143,7 @@
   overflow-y: auto;
   overscroll-behavior-y: none;
   block-size: 100%;
+  background-color: var(--tree-view-bg);
 }
 
 [is="tree-view-table"] img {

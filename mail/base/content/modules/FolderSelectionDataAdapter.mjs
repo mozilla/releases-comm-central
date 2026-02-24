@@ -109,7 +109,7 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
     const selected = new Set();
 
     const recurse = row => {
-      if (row.hasProperty("folderSelected")) {
+      if (row.hasProperty("checked")) {
         selected.add(row._folder);
       }
       for (const childRow of row.children) {
@@ -138,7 +138,7 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
     const recurse = row => {
       let selectionWithin = selected.has(row._folder);
       if (selectionWithin) {
-        row.addProperty("folderSelected");
+        row.addProperty("checked");
       }
       for (const childRow of row.children) {
         if (recurse(childRow)) {

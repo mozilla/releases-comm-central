@@ -517,11 +517,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     this.classList.toggle("children", isGroup);
 
     const isGroupOpen = viewRow.open;
-    if (isGroup) {
-      this.setAttribute("aria-expanded", isGroupOpen);
-    } else {
-      this.removeAttribute("aria-expanded");
-    }
+    this.ariaExpanded = isGroup ? isGroupOpen : null;
     this.classList.toggle("collapsed", !isGroupOpen);
 
     this.dataset.properties = [...viewRow.properties].join(" ");

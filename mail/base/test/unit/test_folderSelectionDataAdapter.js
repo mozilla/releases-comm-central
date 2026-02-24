@@ -135,11 +135,11 @@ add_task(function testSelectedFolders() {
   Assert.equal(adapter.getCellText(3, "name"), "parent");
   Assert.equal(adapter.getCellText(4, "name"), "Local Folders");
 
-  Assert.ok(!adapter.rowAt(0).hasProperty("folderSelected"));
-  Assert.ok(!adapter.rowAt(1).hasProperty("folderSelected"));
-  Assert.ok(!adapter.rowAt(2).hasProperty("folderSelected"));
-  Assert.ok(adapter.rowAt(3).hasProperty("folderSelected"));
-  Assert.ok(!adapter.rowAt(4).hasProperty("folderSelected"));
+  Assert.ok(!adapter.rowAt(0).hasProperty("checked"));
+  Assert.ok(!adapter.rowAt(1).hasProperty("checked"));
+  Assert.ok(!adapter.rowAt(2).hasProperty("checked"));
+  Assert.ok(adapter.rowAt(3).hasProperty("checked"));
+  Assert.ok(!adapter.rowAt(4).hasProperty("checked"));
 
   // Check the selected folders.
 
@@ -147,9 +147,9 @@ add_task(function testSelectedFolders() {
 
   adapter.toggleOpenState(3);
   Assert.equal(adapter.getCellText(4, "name"), "child");
-  Assert.ok(!adapter.rowAt(4).hasProperty("folderSelected"));
+  Assert.ok(!adapter.rowAt(4).hasProperty("checked"));
 
-  adapter.rowAt(4).addProperty("folderSelected");
+  adapter.rowAt(4).addProperty("checked");
   Assert.deepEqual([...adapter.selectedFolders], [parent, child]);
 
   // The selected folders should be the same regardless of their visibility.
