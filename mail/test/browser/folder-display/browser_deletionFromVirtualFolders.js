@@ -19,7 +19,6 @@ var {
   get_smart_folder_named,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
-  press_delete,
   select_click_row,
   switch_tab,
   wait_for_all_messages_to_load,
@@ -242,17 +241,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   // nextMessage is the guy we want to see once the delete completes.
   info(`Current message: ${curMessage.subject}`);
 
-  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
-    curMessage.folder,
-    "DeleteOrMoveMsgCompleted"
-  );
-  const deleteOrMoveMsgFailed = PromiseTestUtils.promiseFolderEvent(
-    curMessage.folder,
-    "DeleteOrMoveMsgFailed"
-  );
-  tabMessage.chromeBrowser.contentWindow.goDoCommand("cmd_delete");
-
-  await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
+  await performDelete(tabMessage.chromeBrowser.contentWindow, curMessage);
   curMessage = nextMessage;
   info(`Delete should have happend; message is now: ${curMessage.subject}`);
 
@@ -273,20 +262,9 @@ add_task(async function test_delete_from_virtual_folder_in_message_window() {
   await SimpleTest.promiseFocus(msgc);
   await assert_selected_and_displayed(curMessage);
   info(`Current message: ${curMessage.subject}`);
+  await performDelete(msgc, curMessage);
 
-  const deleteOrMoveMsgCompleted = PromiseTestUtils.promiseFolderEvent(
-    curMessage.folder,
-    "DeleteOrMoveMsgCompleted"
-  );
-  const deleteOrMoveMsgFailed = PromiseTestUtils.promiseFolderEvent(
-    curMessage.folder,
-    "DeleteOrMoveMsgFailed"
-  );
-  msgc.goDoCommand("cmd_delete");
-
-  await Promise.any([deleteOrMoveMsgCompleted, deleteOrMoveMsgFailed]);
   curMessage = nextMessage;
-  info(`Delete should have happend; message is now: ${curMessage.subject}`);
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 });
@@ -305,7 +283,7 @@ add_task(
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
-    await press_delete();
+    await performDelete(tabMessage.chromeBrowser.contentWindow, curMessage);
 
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do
@@ -403,7 +381,7 @@ add_task(
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
-    await press_delete();
+    await performDelete(tabMessage.chromeBrowser.contentWindow, curMessage);
 
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do
