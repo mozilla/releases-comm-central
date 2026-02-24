@@ -390,27 +390,33 @@ export async function open_message_from_file(file) {
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  const newWindowPromise = promise_new_window("mail:messageWindow");
-  const win = mc.openDialog(
+  const newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    async win => {
+      return (
+        win.location.href == "chrome://messenger/content/messageWindow.xhtml"
+      );
+    }
+  );
+  mc.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
-  await BrowserTestUtils.waitForEvent(win, "load");
+  const win = await newWindowPromise;
   const aboutMessage = get_about_message(win);
   await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
 
-  const msgc = await newWindowPromise;
-  await wait_for_message_display_completion(msgc, true);
-  if (Services.focus.activeWindow != msgc) {
+  await wait_for_message_display_completion(win, true);
+  if (Services.focus.activeWindow != win) {
     await new Promise(resolve =>
-      msgc.addEventListener("activate", resolve, { once: true })
+      win.addEventListener("activate", resolve, { once: true })
     );
   }
   await TestUtils.waitForTick();
 
-  return msgc;
+  return win;
 }
 
 /**
