@@ -8,9 +8,12 @@ codespell:
         - comm/mail/branding/
         - comm/mail/components/inappnotifications/docs/
         - comm/mail/components/storybook/docs/
+        - comm/mail/base/docs/
         - comm/mail/installer/windows/docs/
         - comm/mail/locales/en-US/
+        - comm/mailnews/base/docs/
         - comm/mailnews/extensions/fts3/
+        - comm/mailnews/db/panorama/docs
         - comm/python/
         - comm/taskcluster/comm_taskgraph/
         - comm/taskcluster/docs/
