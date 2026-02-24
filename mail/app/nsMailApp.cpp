@@ -212,7 +212,7 @@ static int do_main(int argc, char* argv[], char* envp[]) {
 
   // Note: FF needs to keep in sync with LauncherProcessWin,
   //       TB doesn't have that file.
-  const char* acceptableParams[] = {"compose", "mail", nullptr};
+  const char* acceptableParams[] = {"compose", "mail"};
   EnsureCommandlineSafe(argc, argv, acceptableParams);
 
 #ifdef XP_WIN
