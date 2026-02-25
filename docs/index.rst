@@ -45,6 +45,13 @@ Thunderbird Source Tree Documentation
    /panorama/index
 
 .. toctree::
+   :caption: Calendar
+   :maxdepth: 1
+
+   /calendar/calendars
+   /calendar/item_model
+
+.. toctree::
    :caption: Other Components
    :maxdepth: 1
 

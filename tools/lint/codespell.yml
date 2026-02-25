@@ -2,6 +2,7 @@
 codespell:
     description: Check code for common misspellings
     include:
+        - comm/calendar/docs/
         - comm/calendar/locales/en-US/
         - comm/chat/locales/en-US/
         - comm/docs/
