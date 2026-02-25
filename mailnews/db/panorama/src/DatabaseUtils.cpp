@@ -27,15 +27,18 @@ extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
 /* static */
 nsCString DatabaseUtils::Normalize(const nsACString& inString) {
-  nsAutoString inStringW = NS_ConvertUTF8toUTF16(inString);
-  nsAutoString outStringW;
-  nsTStringToBufferAdapter buffer(outStringW);
-  auto alreadyNormalized = intl::String::Normalize(
-      intl::String::NormalizationForm::NFC, inStringW, buffer);
-  if (alreadyNormalized.unwrap() == intl::String::AlreadyNormalized::Yes) {
-    return nsCString(inString);
-  }
-  return NS_ConvertUTF16toUTF8(buffer.data());
+  // Temporarily disabled, bug 2019183.
+
+  // nsAutoString inStringW = NS_ConvertUTF8toUTF16(inString);
+  // nsAutoString outStringW;
+  // nsTStringToBufferAdapter buffer(outStringW);
+  // auto alreadyNormalized = intl::String::Normalize(
+  //     intl::String::NormalizationForm::NFC, inStringW, buffer);
+  // if (alreadyNormalized.unwrap() == intl::String::AlreadyNormalized::Yes) {
+  //   return nsCString(inString);
+  // }
+  // return NS_ConvertUTF16toUTF8(buffer.data());
+  return nsCString(inString);
 }
 
 NS_IMPL_ISUPPORTS(TagsMatchFunction, mozIStorageFunction)

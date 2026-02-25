@@ -59,11 +59,12 @@ add_task(function testLookup() {
   // Lookup using composed unicode character.
   Assert.equal(folderDB.getFolderByPath("server2/folder/s\u00FCb1"), sub1);
   // Lookup using decomposed unicode character.
-  Assert.equal(folderDB.getFolderByPath("server2/folder/su\u0308b1"), sub1);
-  Assert.equal(
-    folderDB.getFolderByPath("server2/folder/su\u0308b1/sub2"),
-    sub2
-  );
+  // Temporarily disabled, bug 2019183.
+  // Assert.equal(folderDB.getFolderByPath("server2/folder/su\u0308b1"), sub1);
+  // Assert.equal(
+  //   folderDB.getFolderByPath("server2/folder/su\u0308b1/sub2"),
+  //   sub2
+  // );
 
   // Lookup with part component that requires escaping for use in path.
   Assert.equal(
