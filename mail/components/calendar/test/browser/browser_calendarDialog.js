@@ -34,6 +34,14 @@ add_setup(async function () {
   cal.view.colorTracker.registerWindow(browser.contentWindow);
   dialog = browser.contentWindow.document.querySelector("dialog");
 
+  const beforeUnloadGuard = () => {
+    info("Unloading!");
+    Assert.ok(false, "Should never call beforeunload");
+  };
+  browser.contentWindow.addEventListener("beforeunload", beforeUnloadGuard, {
+    passive: false,
+  });
+
   // Setting the color to the rgb value of #ffbbff so we don't have to do the
   // conversion for the computed color later.
   calendar = createCalendar({
@@ -50,6 +58,11 @@ add_setup(async function () {
   MockExternalProtocolService.init();
 
   registerCleanupFunction(() => {
+    browser.contentWindow.removeEventListener(
+      "beforeunload",
+      beforeUnloadGuard,
+      { passive: false }
+    );
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
     CalendarTestUtils.removeCalendar(calendar);
     MockExternalProtocolService.cleanup();
@@ -358,7 +371,8 @@ add_task(async function test_dialogLocation() {
   Assert.equal(locationText.textContent, "foobar", "Should set location text");
 
   const internetLocation = await createEvent({
-    location: "https://www.thunderbird.net/",
+    location:
+      "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/",
     name: "Internet location",
     calendar,
   });
@@ -381,18 +395,21 @@ add_task(async function test_dialogLocation() {
   );
   Assert.equal(
     locationLink.textContent,
-    "https://www.thunderbird.net/",
+    "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/",
     "Link text should update"
   );
   Assert.equal(
     locationLink.href,
-    "https://www.thunderbird.net/",
+    "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/",
     "Link href should update"
   );
 
   const loadPromise = MockExternalProtocolService.promiseLoad();
   EventUtils.synthesizeMouseAtCenter(locationLink, {}, browser.contentWindow);
-  Assert.equal(await loadPromise, "https://www.thunderbird.net/");
+  Assert.equal(
+    await loadPromise,
+    "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/"
+  );
 
   resetDialog();
 

@@ -10,6 +10,9 @@ import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 // Eagerly loading modules, since we assume that an event will be displayed soon
 // after this is loaded. Any module in an optional path for displaying an event
 // should be lazy loaded, however.
@@ -106,6 +109,11 @@ export class CalendarDialog extends PositionedDialog {
    * @type {Record<string,Function>}
    */
   #clickHandlers = {
+    "#locationLink": event => {
+      event.preventDefault();
+      openLinkExternally(event.target.href);
+      return false;
+    },
     ".close-button": () => this.close(),
     ".back-button": () => this.#subviewManager.showDefaultSubview(),
     "#expandDescription": () =>
