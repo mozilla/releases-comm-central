@@ -8,7 +8,7 @@ if test `uname -s` = Linux; then
 
 # Configure expects executables for check_prog, so set the relevant files
 # as executable on the first evaluation of the mozconfig where they exist.
-export UPX="${MOZ_FETCHES_DIR}/upx-3.95-win64/upx.exe"
+export UPX="${MOZ_FETCHES_DIR}/upx/bin/upx.exe"
 if [ -f "${UPX}" ]; then
     chmod +x "${UPX}"
 fi
