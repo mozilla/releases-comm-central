@@ -1778,20 +1778,20 @@ var gAccountTree = {
     return this._dataStore.getValue(document.documentURI, aAccountKey, "open");
   },
 
+  /**
+   * Rebuild the account tree.
+   *
+   * @param {?nsIMsgIncomingServer} newServer - Server to select after rebuild.
+   */
   async _build(newServer) {
     const bundle = document.getElementById("bundle_prefs");
     function getString(aString) {
       return bundle.getString(aString);
     }
 
+    const treeItems = [];
+
     const accounts = FolderUtils.allAccountsSorted(false);
-
-    const mainTree = document.getElementById("accounttree");
-    // Clear off all children...
-    while (mainTree.hasChildNodes()) {
-      mainTree.lastChild.remove();
-    }
-
     for (const account of accounts) {
       let accountName = null;
       const accountKey = account.key;
@@ -1901,7 +1901,6 @@ var gAccountTree = {
       const treeitem = document
         .getElementById("accountTreeItem")
         .content.firstElementChild.cloneNode(true);
-      mainTree.appendChild(treeitem);
       treeitem.setAttribute("aria-label", accountName);
       treeitem.title = accountName;
       treeitem.querySelector(".name").textContent = accountName;
@@ -1923,8 +1922,8 @@ var gAccountTree = {
             ")";
           treeitem.id = accountKey;
         }
-        this._updateAccountRowColor(account);
       }
+      treeItems.push(treeitem);
 
       if (panels.length > 0) {
         const treekids = treeitem.querySelector("ul");
@@ -1951,6 +1950,12 @@ var gAccountTree = {
         }
       }
       treeitem._account = account;
+    }
+
+    const mainTree = document.getElementById("accounttree");
+    mainTree.replaceChildren(...treeItems);
+    for (const account of accounts) {
+      this._updateAccountRowColor(account);
     }
 
     markDefaultServer(MailServices.accounts.defaultAccount, null);
