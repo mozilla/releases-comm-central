@@ -87,6 +87,7 @@ nsMsgSendLater::~nsMsgSendLater() {
   PR_Free(m_to);
   PR_Free(m_fcc);
   PR_Free(m_bcc);
+  PR_Free(m_messageId);
   PR_Free(m_newsgroups);
   PR_Free(m_headers);
   PR_Free(mLeftoverBuffer);
@@ -875,8 +876,9 @@ nsresult nsMsgSendLater::BuildHeaders() {
 
   PR_FREEIF(m_to);
   PR_FREEIF(m_bcc);
-  PR_FREEIF(m_newsgroups);
   PR_FREEIF(m_fcc);
+  PR_FREEIF(m_messageId);
+  PR_FREEIF(m_newsgroups);
   PR_FREEIF(mIdentityKey);
   PR_FREEIF(mAccountKey);
   m_flags = 0;

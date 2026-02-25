@@ -131,7 +131,8 @@ async function test_dsn_message_id(filename, messageIdPattern) {
 
   // Test that we sent a message ID that matches with the expected pattern.
   const mailFromLine = server.playTransaction().them[1];
-  const testRegExp = new RegExp(`RET=FULL ENVID=<${messageIdPattern}>`);
+  info(`Mail From line: ${mailFromLine}`);
+  const testRegExp = new RegExp(`RET=FULL ENVID=<${messageIdPattern}>$`);
   Assert.ok(
     testRegExp.test(mailFromLine),
     "smtp client should send a valid message ID"
@@ -153,6 +154,21 @@ add_task(async function test_dsn_message_id_without_header() {
  * header.
  */
 add_task(async function test_dsn_message_id_with_header() {
+  await test_dsn_message_id(
+    "data/sendlater_dsn_with_message_id.eml",
+    "f30c39e6-b14b-405a-8bf7-2ccc81fd1f6f@foo.invalid"
+  );
+});
+
+/**
+ * Tests that send later for a second message STILL gives just the correct
+ * mail from line (and does not carry forward a doubling of the prev id.)
+ */
+add_task(async function test_dsn_message_id_with_header2() {
+  await test_dsn_message_id(
+    "data/sendlater_dsn_with_message_id.eml",
+    "f30c39e6-b14b-405a-8bf7-2ccc81fd1f6f@foo.invalid"
+  );
   await test_dsn_message_id(
     "data/sendlater_dsn_with_message_id.eml",
     "f30c39e6-b14b-405a-8bf7-2ccc81fd1f6f@foo.invalid"
