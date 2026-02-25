@@ -108,25 +108,84 @@ function GenerateValidFilename(filename, extension) {
   return null;
 }
 
-function validateFileName(aFileName) {
-  var re = /[\/]+/g;
-  if (navigator.appVersion.includes("Windows")) {
-    re = /[\\\/\|]+/g;
-    aFileName = aFileName.replace(/[\"]+/g, "'");
-    aFileName = aFileName.replace(/[\*\:\?]+/g, " ");
-    aFileName = aFileName.replace(/[\<]+/g, "(");
-    aFileName = aFileName.replace(/[\>]+/g, ")");
-  } else if (navigator.appVersion.includes("Macintosh")) {
-    re = /[\:\/]+/g;
+/**
+ * Given a string, returns a (hopefully human readable) sanitised version,
+ * safe for cross-OS filename use.
+ * i.e. so you can save a file on one OS and safely copy it to another OS.
+ *
+ * See also:
+ * - EncodeFilename() in nsMsgUtils.cpp
+ * - https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
+ * - https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+ *
+ * If the `mail.save_msg_filename_underscores_for_space` pref is set, all
+ * spaces in the result will be replaced by underscores.
+ *
+ * Some examples:
+ *   "Re: 100% done <***Wheee!***>" => "Re_ 100_ done (___Wheee!___)"
+ *   "foo\\bar/wibble" => "foo_bar_wibble"
+ *   "COM1" => "_COM1"
+ *   "Re: <devlist> \"100%\" Huh?" => "Re_ (devlist) '100_' Huh_"
+ *   "%<>:\"/\\|?*" => "_()_'_____"
+ *   "Re: いたずらなファイル名" => "Re_ いたずらなファイル名"
+ *   "" => ""
+ */
+function validateFileName(filename) {
+  // The set of illegal chars is: %<>:"/\|?*
+  // A few reasonably-readable subsititutions...
+  filename = filename.replace(/[\"]/g, "'");
+  filename = filename.replace(/[\<]/g, "(");
+  filename = filename.replace(/[\>]/g, ")");
+  // ... and replace all other disallowed chars with underscore.
+  filename = filename.replace(/[%\:\/\\\|\?\*]/g, "_");
+
+  filename = filename.trim();
+
+  // Windows has some illegal filenames:
+  const forbiddenNames = [
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    "COM1",
+    "COM2",
+    "COM3",
+    "COM4",
+    "COM5",
+    "COM6",
+    "COM7",
+    "COM8",
+    "COM9",
+    // COM^1, COM^2, COM^3 (digit superscripts in Latin-1 range):
+    "COM\u00B9",
+    "COM\u00B2",
+    "COM\u00B3",
+    "LPT1",
+    "LPT2",
+    "LPT3",
+    "LPT4",
+    "LPT5",
+    "LPT6",
+    "LPT7",
+    "LPT8",
+    "LPT9",
+    // LPT^1, LPT^2, LPT^3 (digit superscripts in Latin-1 range):
+    "LPT\u00B9",
+    "LPT\u00B2",
+    "LPT\u00B3",
+  ];
+
+  if (forbiddenNames.includes(filename.toUpperCase())) {
+    filename = "_" + filename;
   }
 
   if (
     Services.prefs.getBoolPref("mail.save_msg_filename_underscores_for_space")
   ) {
-    aFileName = aFileName.replace(/ /g, "_");
+    filename = filename.replace(/ /g, "_");
   }
 
-  return aFileName.replace(re, "_");
+  return filename;
 }
 
 /**
