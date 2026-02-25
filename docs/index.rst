@@ -45,6 +45,14 @@ Thunderbird Source Tree Documentation
    /panorama/index
 
 .. toctree::
+   :caption: Address Book
+   :maxdepth: 1
+
+   /addrbook/front_end
+   /addrbook/contacts
+   /addrbook/directories
+
+.. toctree::
    :caption: Calendar
    :maxdepth: 1
 

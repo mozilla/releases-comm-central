@@ -7,6 +7,7 @@ codespell:
         - comm/chat/locales/en-US/
         - comm/docs/
         - comm/mail/branding/
+        - comm/mail/components/addrbook/docs/
         - comm/mail/components/inappnotifications/docs/
         - comm/mail/components/storybook/docs/
         - comm/mail/base/docs/

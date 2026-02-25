@@ -5,6 +5,7 @@
 #  paths must include a "docs/" directory.
 doc_trees:
     adr: docs/adr
+    addrbook: mail/components/addrbook/docs
     backend: mailnews/base/docs
     build: docs/build
     calendar: calendar/docs
