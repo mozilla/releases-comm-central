@@ -141,6 +141,7 @@ tasks:
                 - linux64-node
                 - linux64-rust-cross
                 - linux64-rust-size
+                - linux64-upx
                 - linux64-winchecksec
                 - linux64-wine
                 - nsis
@@ -150,5 +151,4 @@ tasks:
                 - win64-libotr
                 - winappsdk-x86_64-pc-windows-msvc
             fetch:
-                - upx-3.95-win
                 - windows-rs

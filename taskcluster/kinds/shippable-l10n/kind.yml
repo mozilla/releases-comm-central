@@ -60,13 +60,9 @@ tasks:
                         - linux64-libdmg
                         - linux64-hfsplus
                     win.*:
+                        - linux64-upx
                         - linux64-wine
                         - nsis
-            fetch:
-                by-build-platform:
-                    default: []
-                    win.*:
-                        - upx-3.95-win
             shippable-l10n-pre:
                 - strings_all.tar.zst
         tooltool:
