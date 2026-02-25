@@ -27,18 +27,14 @@ async function fake_profile_change() {
       Services.obs.removeObserver(waitForDBClose, "cookie-db-closed");
       resolve();
     }, "cookie-db-closed");
-    Services.cookies
-      .QueryInterface(Ci.nsIObserver)
-      .observe(null, "profile-before-change", "shutdown-persist");
+    Services.cookies.testCloseCookieDB();
   });
   await new Promise(resolve => {
     Services.obs.addObserver(function waitForDBOpen() {
       Services.obs.removeObserver(waitForDBOpen, "cookie-db-read");
       resolve();
     }, "cookie-db-read");
-    Services.cookies
-      .QueryInterface(Ci.nsIObserver)
-      .observe(null, "profile-do-change", "");
+    Services.cookies.testOpenCookieDB();
   });
 }
 
