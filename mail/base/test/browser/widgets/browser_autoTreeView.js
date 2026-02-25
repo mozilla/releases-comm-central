@@ -206,13 +206,16 @@ add_task(async function () {
     Assert.equal(tableRows.length, 7);
     for (let i = 0; i < 7; i++) {
       Assert.deepEqual(
-        Array.from(tableRows[i].cells, c => c.getAttribute("aria-label")),
+        Array.from(tableRows[i].cells, c => c.ariaLabel),
         expectedColumns
       );
       Assert.deepEqual(
         Array.from(tableRows[i].cells, c => c.title),
         expectedTitles[i]
       );
+      Assert.equal(tableRows[i].ariaLevel, 1);
+      Assert.equal(tableRows[i].ariaSetSize, 7);
+      Assert.equal(tableRows[i].ariaPosInSet, i + 1);
     }
   }
   checkTableRows([

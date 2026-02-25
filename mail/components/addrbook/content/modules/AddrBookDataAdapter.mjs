@@ -209,6 +209,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         if (this.sortColumn == "GeneratedName") {
           this.sortBy(this.sortColumn, this.sortDirection, true);
         } else {
+          this._clearFlatRowCache();
           this._tree.reset();
         }
       }
@@ -233,6 +234,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
           if (this._rowMap[i].directory.UID == subject.UID) {
             this._rowMap.splice(i, 1);
             if (this._tree) {
+              this._clearFlatRowCache();
               this._tree.rowCountChanged(i, -1);
             }
           }
@@ -298,6 +300,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
         }
         this._rowMap.splice(addIndex, 0, row);
         if (this._tree) {
+          this._clearFlatRowCache();
           this._tree.rowCountChanged(addIndex, 1);
         }
         break;
@@ -342,6 +345,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
           if (this._rowMap[i].card.UID == subject.UID) {
             this._rowMap.splice(i, 1);
             if (this._tree) {
+              this._clearFlatRowCache();
               this._tree.rowCountChanged(i, -1);
             }
           }
@@ -366,6 +370,7 @@ export class AddrBookDataAdapter extends TreeDataAdapter {
           ) {
             this._rowMap.splice(i, 1);
             if (this._tree) {
+              this._clearFlatRowCache();
               this._tree.rowCountChanged(i, -1);
             }
           }

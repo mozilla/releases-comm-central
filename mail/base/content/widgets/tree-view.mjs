@@ -770,9 +770,10 @@ export class TreeView extends HTMLElement {
    * on its own.
    *
    * @param {integer} index
+   * @param {integer} [rowCount] - Pass this to avoid repeated calculation.
    */
-  #doInvalidateRow(index) {
-    const rowCount = this._view?.rowCount ?? 0;
+  #doInvalidateRow(index, rowCount) {
+    rowCount ??= this._view?.rowCount ?? 0;
     const row = this.getRowAtIndex(index);
     if (row) {
       if (index >= rowCount) {
@@ -796,13 +797,14 @@ export class TreeView extends HTMLElement {
    * @param {integer} endIndex
    */
   invalidateRange(startIndex, endIndex) {
+    const rowCount = this._view?.rowCount ?? 0;
     for (
       let index = Math.max(startIndex, this.#firstBufferRowIndex),
         last = Math.min(endIndex, this.#lastBufferRowIndex);
       index <= last;
       index++
     ) {
-      this.#doInvalidateRow(index);
+      this.#doInvalidateRow(index, rowCount);
     }
     this._ensureVisibleRowsAreDisplayed();
   }
@@ -1331,10 +1333,10 @@ export class TreeView extends HTMLElement {
     // If this._view is a `TreeDataAdapter`, we should be able to get the view
     // row object, and that'll be much faster than the other method below.
     const viewRow = this._view.rowAt?.(row.index);
-    if (viewRow?.parent) {
+    if (viewRow) {
       row.ariaLevel = viewRow.level + 1;
-      row.ariaSetSize = viewRow.parent.children.length;
-      row.ariaPosInSet = viewRow.parent.children.indexOf(viewRow) + 1;
+      row.ariaSetSize = viewRow.setSize;
+      row.ariaPosInSet = viewRow.posInSet + 1;
       return;
     }
 

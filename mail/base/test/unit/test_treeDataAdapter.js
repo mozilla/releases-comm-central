@@ -32,6 +32,9 @@ add_task(function testEmpty() {
   Assert.throws(() => adapter.isContainer(0), /TypeError/);
   Assert.throws(() => adapter.isContainerOpen(0), /TypeError/);
   Assert.throws(() => adapter.isContainerEmpty(0), /TypeError/);
+
+  // Cache.
+  Assert.deepEqual(adapter._flatRowCache, []);
 });
 
 add_task(function testOneRow() {
@@ -59,6 +62,21 @@ add_task(function testOneRow() {
   Assert.throws(() => adapter.isContainer(1), /TypeError/);
   Assert.throws(() => adapter.isContainerOpen(1), /TypeError/);
   Assert.throws(() => adapter.isContainerEmpty(1), /TypeError/);
+
+  // Cache.
+  Assert.deepEqual(adapter._flatRowCache, [row]);
+  Assert.equal(row.level, 0);
+  Assert.equal(row.setSize, 1);
+  Assert.equal(row.posInSet, 0);
+
+  // Invalidating the cache.
+  adapter._rowMap.length = 5;
+  adapter._clearFlatRowCache();
+  Assert.equal(adapter.rowCount, 5);
+  Assert.deepEqual(adapter._flatRowCache, [row]);
+  Assert.equal(row.level, 0);
+  Assert.equal(row.setSize, 5);
+  Assert.equal(row.posInSet, 0);
 });
 
 add_task(function testBranching() {
@@ -109,6 +127,15 @@ add_task(function testBranching() {
   Assert.throws(() => adapter.isContainerOpen(2), /TypeError/);
   Assert.throws(() => adapter.isContainerEmpty(2), /TypeError/);
 
+  // Cache.
+  Assert.deepEqual(adapter._flatRowCache, [parentRow0, parentRow1]);
+  Assert.equal(parentRow0.level, 0);
+  Assert.equal(parentRow0.setSize, 2);
+  Assert.equal(parentRow0.posInSet, 0);
+  Assert.equal(parentRow1.level, 0);
+  Assert.equal(parentRow1.setSize, 2);
+  Assert.equal(parentRow1.posInSet, 1);
+
   // Expand the parent row.
   Assert.ok(!listenerTree._rowCountChange);
   Assert.ok(!listenerTree._invalidatedRow);
@@ -117,6 +144,9 @@ add_task(function testBranching() {
   delete listenerTree._rowCountChange;
   Assert.equal(listenerTree._invalidatedRow, 0);
   delete listenerTree._invalidatedRow;
+
+  // Cache.
+  Assert.ok(!adapter._flatRowCache);
 
   // Cell contents.
   Assert.equal(adapter.rowCount, 3);
@@ -158,9 +188,17 @@ add_task(function testBranching() {
   Assert.throws(() => adapter.isContainerOpen(3), /TypeError/);
   Assert.throws(() => adapter.isContainerEmpty(3), /TypeError/);
 
-  // FIXME: Adding or removing a child while open. It requires working out if
-  // all the ancestors are open and modifying _rowMap if that's true. This
-  // "everything is a flat list" model isn't very clever.
+  // Cache.
+  Assert.deepEqual(adapter._flatRowCache, [parentRow0, childRow0, parentRow1]);
+  Assert.equal(parentRow0.level, 0);
+  Assert.equal(parentRow0.setSize, 2);
+  Assert.equal(parentRow0.posInSet, 0);
+  Assert.equal(childRow0.level, 1);
+  Assert.equal(childRow0.setSize, 1);
+  Assert.equal(childRow0.posInSet, 0);
+  Assert.equal(parentRow1.level, 0);
+  Assert.equal(parentRow1.setSize, 2);
+  Assert.equal(parentRow1.posInSet, 1);
 
   // Collapse the parent row.
   Assert.ok(!listenerTree._rowCountChange);
@@ -170,6 +208,9 @@ add_task(function testBranching() {
   delete listenerTree._rowCountChange;
   Assert.equal(listenerTree._invalidatedRow, 0);
   delete listenerTree._invalidatedRow;
+
+  // Cache.
+  Assert.ok(!adapter._flatRowCache);
 
   // Cell contents. Row 0 is closed.
   Assert.equal(adapter.rowCount, 2);
@@ -199,6 +240,15 @@ add_task(function testBranching() {
   Assert.throws(() => adapter.isContainer(2), /TypeError/);
   Assert.throws(() => adapter.isContainerOpen(2), /TypeError/);
   Assert.throws(() => adapter.isContainerEmpty(2), /TypeError/);
+
+  // Cache.
+  Assert.deepEqual(adapter._flatRowCache, [parentRow0, parentRow1]);
+  Assert.equal(parentRow0.level, 0);
+  Assert.equal(parentRow0.setSize, 2);
+  Assert.equal(parentRow0.posInSet, 0);
+  Assert.equal(parentRow1.level, 0);
+  Assert.equal(parentRow1.setSize, 2);
+  Assert.equal(parentRow1.posInSet, 1);
 
   // Try opening other rows. This should make no real difference.
   Assert.ok(!listenerTree._rowCountChange);

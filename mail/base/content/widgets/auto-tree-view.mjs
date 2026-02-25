@@ -419,6 +419,8 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
         `${column.id.toLowerCase()}-column`
       );
     }
+
+    this.role = this.list.table.body.role === "treegrid" ? "row" : "option";
   }
 
   /**
@@ -436,12 +438,11 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     }
 
     const viewRow = this.view.rowAt(this._index);
-    if (viewRow.parent) {
+    if (Services.appinfo.accessibilityEnabled || Cu.isInAutomation) {
       this.ariaLevel = viewRow.level + 1;
-      this.ariaSetSize = viewRow.parent.children.length;
-      this.ariaPosInSet = viewRow.parent.children.indexOf(viewRow) + 1;
+      this.ariaSetSize = viewRow.setSize;
+      this.ariaPosInSet = viewRow.posInSet + 1;
     }
-    this.role = this.list.table.body.role === "treegrid" ? "row" : "option";
     this.id = `${this.list.id}-row${this._index}`;
 
     const isGroup = viewRow.children.length > 0;

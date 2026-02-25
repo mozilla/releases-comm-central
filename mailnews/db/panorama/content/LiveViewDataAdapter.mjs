@@ -250,9 +250,11 @@ class LiveViewRowMap {
   async resetRows() {
     const oldLength = this.#rows.length;
     this.#rows.length = 0;
-    this.#dataAdapter?._tree?.rowCountChanged(0, -oldLength);
+    this.#dataAdapter._clearFlatRowCache();
+    this.#dataAdapter._tree?.rowCountChanged(0, -oldLength);
     this.#rows.length = await this.#liveView.countMessages();
-    this.#dataAdapter?._tree?.rowCountChanged(0, this.#rows.length);
+    this.#dataAdapter._clearFlatRowCache();
+    this.#dataAdapter._tree?.rowCountChanged(0, this.#rows.length);
   }
 
   /**
@@ -466,6 +468,7 @@ export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
     const lengthBefore = this.rowCount;
     this._rowMap.length = 0;
     if (lengthBefore) {
+      this._clearFlatRowCache();
       this._tree?.rowCountChanged(0, -lengthBefore);
     }
 
@@ -477,7 +480,6 @@ export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
         row.liveView = this.#liveView;
         row.threadId = conversation.threadId;
         row.children.length = conversation.messageCount - 1;
-        row.parent = { children: this._rowMap };
         this._rowMap.push(row);
         if (globalThis.scheduler && ++y == 250) {
           // Yield the main thread to maintain responsiveness. But not too often.
@@ -495,6 +497,7 @@ export class LiveViewThreadedDataAdapter extends TreeDataAdapter {
       await callback();
     }
 
+    this._clearFlatRowCache();
     this._tree?.rowCountChanged(0, this.rowCount);
   }
 
@@ -583,6 +586,7 @@ class LiveViewDataRow extends TreeDataRow {
     if (this.open) {
       this.#initFromMessage(this.#openMessage);
       // Notify the tree that the content is ready and it should redraw the rows.
+      dataAdapter._clearFlatRowCache();
       dataAdapter._tree?.invalidateRange(
         rootIndex,
         rootIndex + this.children.length
@@ -636,6 +640,7 @@ export class LiveViewGroupedDataAdapter extends TreeDataAdapter {
   #getTopLevelRows() {
     const lengthBefore = this.rowCount;
     if (lengthBefore) {
+      this._clearFlatRowCache();
       this._tree?.rowCountChanged(0, -lengthBefore);
     }
     this.#liveView.selectMessages().then(groups => {
@@ -645,6 +650,7 @@ export class LiveViewGroupedDataAdapter extends TreeDataAdapter {
         row.children.length = group.messageCount;
         return row;
       });
+      this._clearFlatRowCache();
       this._tree?.rowCountChanged(0, this.rowCount);
     });
   }
@@ -718,6 +724,7 @@ class LiveViewGroupedDataRow extends TreeDataRow {
     }
     if (this.open) {
       // Notify the tree that the content is ready and it should redraw the rows.
+      dataAdapter._clearFlatRowCache();
       dataAdapter._tree?.invalidateRange(
         rootIndex,
         rootIndex + this.children.length
