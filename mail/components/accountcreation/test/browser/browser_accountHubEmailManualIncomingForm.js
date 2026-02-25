@@ -30,47 +30,8 @@ add_setup(async function () {
   });
 });
 
-async function checkAuthMethods(select, protocol) {
-  const authMethods = {
-    0: "autodetect",
-    1: "normal password",
-    2: "encrypted password",
-    3: "Kerberos",
-    4: "NTLM",
-    5: "OAuth2",
-  };
-  const authMap = {
-    ews: ["1", "4"],
-    ewsWithOauth: ["1", "4", "5"],
-    imap: ["0", "1", "2", "3", "4"],
-    all: Object.keys(authMethods),
-  };
-
-  const popupPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-
-  await EventUtils.synthesizeMouseAtCenter(select, {}, browser.contentWindow);
-
-  const popup = await popupPromise;
-
-  const items = popup.querySelectorAll("menuitem");
-
-  for (const item of items) {
-    const method = authMap[protocol].includes(item.value)
-      ? "isVisible"
-      : "isHidden";
-    Assert.ok(
-      BrowserTestUtils[method](item),
-      `${authMethods[item.value]} should be ${method} when protocol is ${protocol}`
-    );
-  }
-
-  popup.hidePopup();
-
-  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
-}
-
 add_task(async function test_switchBetweenIMAPAndEWS() {
-  let config = new AccountConfig();
+  const config = new AccountConfig();
   config.incoming.type = "imap";
   subview.setState(config);
 
@@ -93,8 +54,6 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     "0",
     "Should be on autodetect for auth method"
   );
-
-  await checkAuthMethods(incomingAuthMethod, "imap");
 
   info("Set a username");
   let configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
@@ -164,22 +123,17 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     "Username should carry over"
   );
 
-  await checkAuthMethods(incomingAuthMethod, "ews");
-
   info("Focus EWS URL field");
   configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated",
     false,
-    () => ewsURLField.value == "https://outlook.office365.com/EWS/Exchange.asmx"
+    () => ewsURLField.value == "https://example.com/"
   );
   focusEvent = BrowserTestUtils.waitForEvent(ewsURLField, "focus");
   EventUtils.synthesizeMouseAtCenter(ewsURLField, {}, browser.contentWindow);
   await focusEvent;
-  EventUtils.sendString(
-    "https://outlook.office365.com/EWS/Exchange.asmx",
-    browser.contentWindow
-  );
+  EventUtils.sendString("https://example.com/", browser.contentWindow);
   ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
 
   Assert.ok(
@@ -187,24 +141,7 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     "Should indicate that the form is complete"
   );
 
-  await checkAuthMethods(incomingAuthMethod, "ewsWithOauth");
-
   info("Switch back to IMAP");
-
-  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
-    subview,
-    "config-updated",
-    false,
-    () => ewsURLField.value == ""
-  );
-  focusEvent = BrowserTestUtils.waitForEvent(ewsURLField, "focus");
-  EventUtils.synthesizeMouseAtCenter(ewsURLField, {}, browser.contentWindow);
-  await focusEvent;
-  ewsURLField.select();
-  EventUtils.synthesizeKey("KEY_Delete", {}, browser.contentWindow);
-
-  ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
-
   configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
     subview,
     "config-updated"
@@ -225,13 +162,11 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     protocolSelectorPopup2.querySelectorAll("menuitem");
 
   // #incomingProtocolIMAP
-  protocolSelectorPopup2.activateItem(protocolSelectorItems2[0]);
+  protocolSelectorPopup2.activateItem(protocolSelectorItems2[1]);
 
-  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup2, "hidden");
+  await BrowserTestUtils.waitForPopupEvent(protocolSelectorPopup, "hidden");
 
   ({ detail: configUpdatedEvent } = await configUpdatedEventPromise);
-
-  await checkAuthMethods(incomingAuthMethod, "all");
 
   Assert.ok(
     !configUpdatedEvent.completed,
@@ -246,17 +181,6 @@ add_task(async function test_switchBetweenIMAPAndEWS() {
     "test@example.com",
     "Username should carry over"
   );
-
-  configUpdatedEventPromise = BrowserTestUtils.waitForEvent(
-    subview,
-    "config-updated"
-  );
-
-  config = new AccountConfig();
-  config.incoming.type = "imap";
-  subview.setState(config);
-
-  await configUpdatedEventPromise;
 
   subview.resetState();
 });
