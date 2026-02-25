@@ -1107,6 +1107,7 @@ dependencies = [
 name = "crash_helper_common"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "getrandom 0.3.3",
  "log",
  "mach2",
@@ -3059,8 +3060,6 @@ checksum = "98d4663d0f99b301033a19e0acf94e9d2fa4b107638580165e5a6ccc49ad1450"
 [[package]]
 name = "icu_collections"
 version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c6b649701667bbe825c3b7e6388cb521c23d88644678e83c0c4d0a621a34b43"
 dependencies = [
  "displaydoc",
  "potential_utf",
@@ -3108,22 +3107,22 @@ checksum = "f03e2fcaefecdf05619f3d6f91740e79ab969b4dd54f77cbf546b1d0d28e3147"
 [[package]]
 name = "icu_normalizer"
 version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f6c8828b67bf8908d82127b2054ea1b4427ff0230ee9141c54251934ab1b599"
 dependencies = [
+ "displaydoc",
  "icu_collections",
  "icu_normalizer_data",
  "icu_properties",
  "icu_provider",
  "smallvec",
+ "utf16_iter",
+ "utf8_iter",
+ "write16",
  "zerovec",
 ]
 
 [[package]]
 name = "icu_normalizer_data"
 version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7aedcccd01fc5fe81e6b489c15b247b8b0690feb23304303a9e560f37efc560a"
 
 [[package]]
 name = "icu_properties"
@@ -3401,6 +3400,7 @@ dependencies = [
  "encoding_c",
  "encoding_c_mem",
  "mozglue-static",
+ "normalizer_glue",
  "unicode-bidi-ffi",
 ]
 
@@ -4541,6 +4541,16 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
+]
+
+[[package]]
+name = "normalizer_glue"
+version = "0.1.0"
+dependencies = [
+ "encoding_rs",
+ "icu_normalizer",
+ "smallvec",
+ "write16",
 ]
 
 [[package]]
@@ -7017,10 +7027,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "utf16_iter"
+version = "1.0.5"
+dependencies = [
+ "icu_collections",
+]
+
+[[package]]
 name = "utf8_iter"
 version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
+dependencies = [
+ "icu_collections",
+]
 
 [[package]]
 name = "uuid"
@@ -7631,6 +7649,15 @@ dependencies = [
  "app_units",
  "euclid",
  "once_cell",
+]
+
+[[package]]
+name = "write16"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1890f4022759daae28ed4fe62859b1236caebfc61ede2f63ed4e695f3f6d936"
+dependencies = [
+ "smallvec",
 ]
 
 [[package]]
