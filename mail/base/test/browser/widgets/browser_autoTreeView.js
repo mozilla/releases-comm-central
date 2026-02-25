@@ -6,15 +6,11 @@ var { UIDensity } = ChromeUtils.importESModule(
   "resource:///modules/UIDensity.sys.mjs"
 );
 
-add_task(async function () {
-  const url = getRootDirectory(gTestPath) + "files/autoTreeView.xhtml";
-  const tabmail = document.getElementById("tabmail");
-  const tab = tabmail.openTab("contentTab", { url });
+const tabmail = document.getElementById("tabmail");
 
-  registerCleanupFunction(function () {
-    Services.xulStore.removeDocument(url);
-    tabmail.closeTab(tab);
-  });
+add_task(async function testRowsAndColumns() {
+  const url = getRootDirectory(gTestPath) + "files/autoTreeView.xhtml";
+  const tab = tabmail.openTab("contentTab", { url });
 
   await BrowserTestUtils.browserLoaded(tab.browser, false, url);
   await SimpleTest.promiseFocus(tab.browser);
@@ -133,17 +129,6 @@ add_task(async function () {
         c
       )
     );
-    const continentColumn = expectedContent[0].findIndex(c =>
-      [
-        "north america",
-        "south america",
-        "antarctica",
-        "australia",
-        "asia",
-        "europe",
-        "africa",
-      ].includes(c)
-    );
     const checkboxColumn = expectedContent[0].findIndex(c => c === null);
     Assert.equal(checkboxColumn, 5);
     for (let i = 0; i < 7; i++) {
@@ -174,26 +159,6 @@ add_task(async function () {
           ? "yellow uninhabited"
           : expectedContent[i][colourColumn]
       );
-
-      // Cells in the continent column should contain a twisty button. For all
-      // rows except the one containing "australia", it should be hidden.
-      // Twisty behaviour is tested in browser_treeView.js.
-      if (continentColumn > -1) {
-        const continentCell = tableRows[i].cells[continentColumn];
-        Assert.equal(continentCell.childElementCount, 1);
-        const continentCellInner = continentCell.firstElementChild;
-        Assert.ok(continentCellInner.matches("div.container"));
-        Assert.equal(continentCellInner.childElementCount, 2);
-        const [twisty, text] = continentCellInner.children;
-        Assert.ok(twisty.matches("button.twisty"));
-        Assert.ok(text.matches("div"));
-
-        if (expectedContent[i][continentColumn] == "australia") {
-          Assert.ok(BrowserTestUtils.isVisible(twisty));
-        } else {
-          Assert.ok(BrowserTestUtils.isHidden(twisty));
-        }
-      }
 
       const checkboxCell = tableRows[i].cells[checkboxColumn];
       Assert.equal(checkboxCell.childElementCount, 1);
@@ -942,4 +907,201 @@ add_task(async function () {
     /only safe characters/,
     "setting a column ID with white space should fail"
   );
+
+  tabmail.closeTab(tab);
+  Services.xulStore.removeDocument(url);
+});
+
+add_task(async function testHierarchy() {
+  const url = getRootDirectory(gTestPath) + "files/autoTreeViewLevels.xhtml";
+  const tab = tabmail.openTab("contentTab", { url });
+
+  await BrowserTestUtils.browserLoaded(tab.browser, false, url);
+  await SimpleTest.promiseFocus(tab.browser);
+  // This test misbehaves if started immediately. Probably something to do
+  // with it being the first test in a folder.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  const win = tab.browser.contentWindow;
+  const doc = tab.browser.contentDocument;
+  const tree = doc.getElementById("autoTree");
+  const table = tree.querySelector("table");
+  const tableRows = table.tBodies[1].rows;
+
+  // When expanding or collapsing a row, only the twisty for that row should
+  // animate, and no checkboxes should fire a "change" event.
+  // The row (3) used here has two children, and below it is an expanded row
+  // two rows above a collapsed row (19). The collapsed class on that <tr>
+  // element is toggled, but this should not cause animation of the twisty.
+
+  const twistyTransitions = [];
+  function onTransition(event) {
+    if (event.target.matches(".twisty-icon")) {
+      twistyTransitions.push(event.target.closest("tr").id);
+    }
+  }
+  table.addEventListener("transitionend", onTransition);
+
+  const checkboxChanges = [];
+  function onChange(event) {
+    if (event.target.matches(`input[type="checkbox"]`)) {
+      checkboxChanges.push(event.target.closest("tr").id);
+    }
+  }
+  table.addEventListener("change", onChange);
+
+  async function expandOrCollapse(index) {
+    Assert.equal(twistyTransitions.length, 0, "no transitions before click");
+    Assert.equal(checkboxChanges.length, 0, "no checkbox changes before click");
+    EventUtils.synthesizeMouseAtCenter(
+      tree.getRowAtIndex(index).querySelector(".twisty"),
+      {},
+      win
+    );
+    // Don't wait for an event, we want to capture _any_ events that happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await TestUtils.waitForTick();
+    Assert.deepEqual(
+      twistyTransitions,
+      [`autoTree-row${index}`],
+      "only one transition"
+    );
+    Assert.equal(checkboxChanges.length, 0, "no checkbox changes");
+    twistyTransitions.length = 0;
+  }
+
+  function checkRow(index, place, level, setSize, posInSet, expanded) {
+    Assert.equal(
+      tableRows[index].id,
+      `autoTree-row${index}`,
+      `row ${index} id`
+    );
+    Assert.equal(
+      tableRows[index].textContent,
+      place,
+      `row ${index} textContent`
+    );
+    Assert.equal(tableRows[index].ariaLevel, level, `row ${index} ariaLevel`);
+    Assert.equal(
+      tableRows[index].ariaSetSize,
+      setSize,
+      `row ${index} ariaSetSize`
+    );
+    Assert.equal(
+      tableRows[index].ariaPosInSet,
+      posInSet,
+      `row ${index} ariaPosInSet`
+    );
+    Assert.equal(
+      tableRows[index].ariaExpanded,
+      expanded,
+      `row ${index} ariaExpanded`
+    );
+  }
+
+  function checkCheckboxes(expected) {
+    Assert.deepEqual(
+      Array.from(
+        table.querySelectorAll(`tr:has(input[type="checkbox"]:checked)`),
+        tr => tr.textContent
+      ),
+      expected,
+      "checkboxes correctly checked"
+    );
+  }
+
+  info("initial state");
+  Assert.equal(tableRows.length, 23, "initial row count");
+  checkRow(0, "north america", 1, 7, 1, "true");
+  checkRow(1, "canada", 2, 1, 1, "true");
+  checkRow(2, "alberta", 3, 13, 1, null);
+  checkRow(3, "british columbia", 3, 13, 2, "false");
+  checkRow(17, "australia", 1, 7, 4, "false");
+  checkRow(22, "africa", 1, 7, 7, null);
+
+  checkCheckboxes([
+    "canada",
+    "british columbia",
+    "quebec",
+    "australia",
+    "asia",
+    "europe",
+    "ireland",
+    "united kingdom",
+  ]);
+
+  info("expanding row 3");
+  await expandOrCollapse(3);
+  Assert.equal(tableRows.length, 25, "row count after expand");
+  checkRow(3, "british columbia", 3, 13, 2, "true");
+  checkRow(4, "vancouver", 4, 2, 1, null);
+  checkRow(5, "victoria", 4, 2, 2, null);
+  checkRow(17, "south america", 1, 7, 2, null);
+  checkRow(24, "africa", 1, 7, 7, null);
+
+  checkCheckboxes([
+    "canada",
+    "british columbia",
+    "vancouver",
+    "quebec",
+    "australia",
+    "asia",
+    "europe",
+    "ireland",
+    "united kingdom",
+  ]);
+
+  info("collapsing row 3");
+  await expandOrCollapse(3);
+  Assert.equal(tableRows.length, 23, "row count after collapse");
+  checkRow(17, "australia", 1, 7, 4, "false");
+  checkRow(22, "africa", 1, 7, 7, null);
+
+  checkCheckboxes([
+    "canada",
+    "british columbia",
+    "quebec",
+    "australia",
+    "asia",
+    "europe",
+    "ireland",
+    "united kingdom",
+  ]);
+
+  // The children of this row are loaded asynchronously. First check that when
+  // it expands, the rows where its children would be are cleared.
+
+  info("expanding row 18");
+  await expandOrCollapse(18);
+  Assert.equal(tableRows.length, 25, "row count after expand");
+  checkRow(18, "asia", 1, 7, 5, "true");
+  checkRow(19, "", 2, 2, 1, null);
+  checkRow(20, "", 2, 2, 2, null);
+  checkRow(21, "europe", 1, 7, 6, "true");
+
+  // Now load the child row data.
+
+  info("loading row data");
+  win.rowDataReady();
+  await TestUtils.waitForTick();
+  Assert.equal(tableRows.length, 25, "row count after load");
+  checkRow(19, "japan", 2, 2, 1, null);
+  checkRow(20, "singapore", 2, 2, 2, null);
+
+  checkCheckboxes([
+    "canada",
+    "british columbia",
+    "quebec",
+    "australia",
+    "asia",
+    "singapore",
+    "europe",
+    "ireland",
+    "united kingdom",
+  ]);
+
+  tabmail.closeTab(tab);
+  Services.xulStore.removeDocument(url);
 });

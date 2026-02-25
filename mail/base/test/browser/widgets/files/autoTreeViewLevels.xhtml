@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Test for auto-tree-view hierarchy</title>
+
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/tree-listbox.css"
+    />
+
+    <link rel="localization" href="messenger/treeView.ftl" />
+
+    <script
+      defer="defer"
+      src="chrome://messenger/content/pane-splitter.js"
+    ></script>
+    <script type="module" src="autoTreeViewLevels.mjs"></script>
+  </head>
+  <body>
+    <auto-tree-view
+      id="autoTree"
+      style="width: 640px; height: 640px; border: 1px solid gray; margin: 1em"
+    ></auto-tree-view>
+  </body>
+</html>

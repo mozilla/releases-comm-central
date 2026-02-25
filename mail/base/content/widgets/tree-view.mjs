@@ -1404,6 +1404,13 @@ export class TreeView extends HTMLElement {
       return;
     }
 
+    // Mark this row so that the twisty animates (AutoTreeView only).
+    // The property is cleared when the row is invalidated and filled.
+    const row = this.getRowAtIndex(index);
+    if (row) {
+      row._twistyAnimating = true;
+    }
+
     // If the selected row is going to be collapsed, move the selection.
     // Even if the row to be collapsed is already selected, set
     // selectIndex to ensure currentIndex also points to the correct row.
@@ -1449,6 +1456,13 @@ export class TreeView extends HTMLElement {
   expandRowAtIndex(index) {
     if (!this._view.isContainer(index) || this._view.isContainerOpen(index)) {
       return 0;
+    }
+
+    // Mark this row so that the twisty animates (AutoTreeView only).
+    // The property is cleared when the row is invalidated and filled.
+    const row = this.getRowAtIndex(index);
+    if (row) {
+      row._twistyAnimating = true;
     }
 
     // Check if the view calls rowCountChanged. If it didn't, we'll have to

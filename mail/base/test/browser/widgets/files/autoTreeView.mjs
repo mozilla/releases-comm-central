@@ -68,17 +68,6 @@ class AutoTreeView extends TreeDataAdapter {
       }
       this._rowMap.push(row);
     }
-    const australia = this._rowMap[3];
-    australia.appendRow(
-      new TreeDataRow({ continent: "australian capital territory" })
-    );
-    australia.appendRow(new TreeDataRow({ continent: "new south wales" }));
-    australia.appendRow(new TreeDataRow({ continent: "northern territory" }));
-    australia.appendRow(new TreeDataRow({ continent: "queensland" }));
-    australia.appendRow(new TreeDataRow({ continent: "south australia" }));
-    australia.appendRow(new TreeDataRow({ continent: "tasmania" }));
-    australia.appendRow(new TreeDataRow({ continent: "victoria" }));
-    australia.appendRow(new TreeDataRow({ continent: "western australia" }));
   }
 }
 
@@ -144,7 +133,6 @@ tree.defaultColumns = [
       menuitem: "continent-menuitem",
       cell: "continent-cell",
     },
-    twisty: true,
   },
   {
     id: "sin",
