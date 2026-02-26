@@ -58,3 +58,8 @@ calendar-dialog-accept-tentative = Maybe
 
 calendar-dialog-decline = Not Going
   .title = Not Going
+
+calendar-dialog-join-meeting-button = Join Meeting
+
+calendar-dialog-join-meeting-row-icon =
+  .alt = Join Meeting

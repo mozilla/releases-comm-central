@@ -25,6 +25,7 @@
   --icon-maximize-sm: url("chrome://messenger/skin/icons/sm/maximize.svg");
   --icon-minimize-sm: url("chrome://messenger/skin/icons/sm/minimize.svg");
   --icon-mobile-export-sm: url("chrome://messenger/skin/icons/sm/mobile-export.svg");
+  --icon-video-sm: url("chrome://messenger/skin/icons/sm/video.svg");
 
   /* LG - 24x24px icons */
   --icon-mobile-export-lg: url("chrome://messenger/skin/icons/lg/mobile-export.svg");

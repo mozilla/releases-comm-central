@@ -116,6 +116,10 @@
   }
 }
 
+.icon-video {
+  content: var(--icon-video-sm);
+}
+
 calendar-dialog-date-row {
   display: block;
   background: var(--color-surface-subtle);
@@ -147,13 +151,15 @@ calendar-dialog-date-row {
 
 .button.join-button {
   border-radius: 1000px;
-  font-size: 0.9rem;
+  font-size: 0.77rem;
   font-weight: bold;
   text-transform: uppercase;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
   box-shadow:
     inset 0 4px 6px rgba(255, 255, 255, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: calc(2 * var(--space-step)) calc(3 * var(--space-step));
+  margin: 0;
 }
 
 .expanding-row:not([hidden]),

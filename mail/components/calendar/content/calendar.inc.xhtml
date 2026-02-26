@@ -34,6 +34,21 @@
     >
       <div id="calendarDialogMainSubview" hidden="hidden">
         <calendar-dialog-date-row></calendar-dialog-date-row>
+        <calendar-dialog-row id="joinMeetingRow">
+          <img
+            src=""
+            slot="icon"
+            class="icon-video"
+            data-l10n-id="calendar-dialog-join-meeting-row-icon" />
+          <div slot="label">
+            <button
+              id="joinMeeting"
+              class="button button-primary join-button"
+              type="button"
+              data-l10n-id="calendar-dialog-join-meeting-button"
+            ></button>
+          </div>
+        </calendar-dialog-row>
         <calendar-dialog-row id="locationRow">
           <img
             src=""
