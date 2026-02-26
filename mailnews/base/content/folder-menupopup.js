@@ -406,6 +406,18 @@
         // If we have a parent folder, just get the subFolders for that parent.
         if (parentFolder) {
           folders = parentFolder.subFolders;
+          // Pretend the [Gmail] folder doesn't exist.
+          if (parentFolder.isServer) {
+            for (let i = 0; i < folders.length; i++) {
+              if (
+                folders[i] instanceof Ci.nsIMsgImapMailFolder &&
+                folders[i].isGmailFolder
+              ) {
+                folders.splice(i, 1, ...folders[i].subFolders);
+                break;
+              }
+            }
+          }
         } else {
           // If we don't have a parent, then we assume we should build the
           // top-level accounts. (Actually we build the fake root folders for

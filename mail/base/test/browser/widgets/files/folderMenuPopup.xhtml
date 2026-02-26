@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="localization" href="messenger/messenger.ftl" />
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/shared/folderMenus.css" />
+    <style>
+      body {
+        display: grid;
+        grid-template-columns: min-content min-content;
+        align-items: center;
+      }
+      menulist {
+        width: 300px;
+      }
+    </style>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    noMode
+    <menulist id="noMode" class="folderMenuItem">
+      <menupopup is="folder-menupopup"/>
+    </menulist>
+
+    filingServers
+    <menulist id="filingServers" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="filing" expandFolders="false"/>
+    </menulist>
+
+    filingFolders
+    <menulist id="filingFolders" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="filing" showFileHereLabel="true"/>
+    </menulist>
+
+    filingServersAndFolders
+    <menulist id="filingServersAndFolders" class="folderMenuItem">
+      <menupopup is="folder-menupopup"
+                 mode="filing"
+                 showAccountsFileHere="true"
+                 showFileHereLabel="true"/>
+    </menulist>
+
+    filingSpecials
+    <menulist id="filingSpecials" class="folderMenuItem">
+      <menupopup is="folder-menupopup"
+                 mode="filing"
+                 showAccountsFileHere="true"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 showFavorites="true"
+                 showLast="true"/>
+    </menulist>
+
+    searchServersAndFolders
+    <menulist id="searchServersAndFolders" class="folderMenuItem">
+      <menupopup is="folder-menupopup"
+                 mode="search"
+                 showAccountsFileHere="true"
+                 showFileHereLabel="true"/>
+    </menulist>
+
+    getMail
+    <menulist id="getMail" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="getMail" expandFolders="false">
+        <menuitem class="folderMenuItem" label="Static Item"/>
+        <menuseparator/>
+      </menupopup>
+    </menulist>
+
+    newFolder
+    <menulist id="newFolder" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="newFolder" showFileHereLabel="true" />
+    </menulist>
+
+    subscribe
+    <menulist id="subscribe" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="subscribe" expandFolders="false" />
+    </menulist>
+
+    deferred
+    <menulist id="deferred" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="deferred" expandFolders="false" />
+    </menulist>
+
+    notDeferred
+    <menulist id="notDeferred" class="folderMenuItem">
+      <menupopup is="folder-menupopup" mode="notDeferred" showFileHereLabel="true" />
+    </menulist>
+
+    feeds
+    <menulist id="feeds" class="folderMenuItem">
+      <menupopup is="folder-menupopup"
+                 mode="feeds"
+                 showFileHereLabel="true"
+                 showAccountsFileHere="true" />
+    </menulist>
+  </html:body>
+</html>

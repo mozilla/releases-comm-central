@@ -1323,17 +1323,20 @@ add_task(async function testGmailFolders() {
   const gmailRootFolder = gmailServer.rootFolder;
   gmailServer.performExpand(window.msgWindow);
   await TestUtils.waitForCondition(
-    () => gmailRootFolder.subFolders.length == 3,
+    () => gmailRootFolder.subFolders.length == 2,
     "waiting for folders to be created"
   );
 
   const gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
-  const gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
   const gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
   await TestUtils.waitForCondition(
-    () => gmailGmailFolder.subFolders.length == 1,
+    () => gmailGmailFolder.subFolders.length == 5,
     "waiting for All Mail folder to be created"
   );
+  const gmailDraftsFolder = gmailGmailFolder.getChildNamed("Drafts");
+  const gmailSentFolder = gmailGmailFolder.getChildNamed("Sent Mail");
+  const gmailTrashFolder = gmailGmailFolder.getChildNamed("Trash");
+  const gmailSpamFolder = gmailGmailFolder.getChildNamed("Spam");
   const gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
 
   Assert.ok(
@@ -1384,7 +1387,10 @@ add_task(async function testGmailFolders() {
   await checkModeListItems("all", [
     gmailRootFolder,
     gmailInboxFolder,
+    gmailDraftsFolder,
+    gmailSentFolder,
     gmailAllMailFolder,
+    gmailSpamFolder,
     gmailTrashFolder,
     rootFolder,
     inboxFolder,
@@ -1403,7 +1409,10 @@ add_task(async function testGmailFolders() {
   await checkModeListItems("all", [
     gmailRootFolder,
     gmailInboxFolder,
+    gmailDraftsFolder,
+    gmailSentFolder,
     gmailAllMailFolder,
+    gmailSpamFolder,
     gmailTrashFolder,
     rootFolder,
     inboxFolder,

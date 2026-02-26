@@ -29,6 +29,8 @@ skip-if = [
   "headless",
 ]
 
+["browser_folderMenuPopup.js"]
+
 ["browser_formPickers.js"]
 support-files = ["head_formPickers.js"]
 

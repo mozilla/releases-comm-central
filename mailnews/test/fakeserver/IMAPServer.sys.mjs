@@ -105,10 +105,6 @@ export class GmailServer extends IMAPServer {
     this.daemon = new ImapDaemon();
     this.daemon.getMailbox("INBOX").specialUseFlag = "\\Inbox";
     this.daemon.getMailbox("INBOX").subscribed = true;
-    this.daemon.createMailbox("Trash", {
-      flags: ["\\Trash"],
-      subscribed: true,
-    });
     this.daemon.createMailbox("[Gmail]", {
       flags: ["\\NoSelect"],
       subscribed: true,
@@ -117,6 +113,22 @@ export class GmailServer extends IMAPServer {
       flags: ["\\Archive"],
       subscribed: true,
       specialUseFlag: "\\AllMail",
+    });
+    this.daemon.createMailbox("[Gmail]/Trash", {
+      flags: ["\\Trash"],
+      subscribed: true,
+    });
+    this.daemon.createMailbox("[Gmail]/Drafts", {
+      flags: ["\\Drafts"],
+      subscribed: true,
+    });
+    this.daemon.createMailbox("[Gmail]/Sent Mail", {
+      flags: ["\\Sent"],
+      subscribed: true,
+    });
+    this.daemon.createMailbox("[Gmail]/Spam", {
+      flags: ["\\Spam"],
+      subscribed: true,
     });
     super.open(["GMAIL", "RFC2197", "RFC2342", "RFC3348", "RFC4315"]);
   }
