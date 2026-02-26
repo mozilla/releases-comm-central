@@ -56,18 +56,34 @@ export class FolderSelectionDataAdapter extends TreeDataAdapter {
         this._rowMap.push(row);
       }
 
-      for (const subFolder of folder.subFolders.toSorted(
-        FolderUtils.compareFolders
-      )) {
+      const subFolders = folder.subFolders;
+      for (let i = 0; i < subFolders.length; i++) {
+        if (
+          subFolders[i] instanceof Ci.nsIMsgImapMailFolder &&
+          subFolders[i].isGmailFolder
+        ) {
+          subFolders.splice(i, 1, ...subFolders[i].subFolders);
+          break;
+        }
+      }
+      for (const subFolder of subFolders.toSorted(FolderUtils.compareFolders)) {
         recurseFolder(subFolder, row);
       }
     };
 
     if (serverOrServers instanceof Ci.nsIMsgIncomingServer) {
       // Just this server. No row for the root folder.
-      for (const folder of serverOrServers.rootFolder.subFolders.toSorted(
-        FolderUtils.compareFolders
-      )) {
+      const subFolders = serverOrServers.rootFolder.subFolders;
+      for (let i = 0; i < subFolders.length; i++) {
+        if (
+          subFolders[i] instanceof Ci.nsIMsgImapMailFolder &&
+          subFolders[i].isGmailFolder
+        ) {
+          subFolders.splice(i, 1, ...subFolders[i].subFolders);
+          break;
+        }
+      }
+      for (const folder of subFolders.toSorted(FolderUtils.compareFolders)) {
         recurseFolder(folder);
       }
     } else {
