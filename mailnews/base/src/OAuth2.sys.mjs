@@ -117,15 +117,18 @@ OAuth2.prototype = {
   },
 
   requestAuthorization() {
-    const params = new URLSearchParams({
-      response_type: "code",
-      client_id: this.clientId,
-      redirect_uri: this.redirectionEndpoint,
-    });
+    const authEndpointURL = new URL(this.authorizationEndpoint);
+
+    authEndpointURL.searchParams.append("response_type", "code");
+    authEndpointURL.searchParams.append("client_id", this.clientId);
+    authEndpointURL.searchParams.append(
+      "redirect_uri",
+      this.redirectionEndpoint
+    );
 
     // The scope is optional.
     if (this.scope) {
-      params.append("scope", this.scope);
+      authEndpointURL.searchParams.append("scope", this.scope);
     }
 
     // See rfc7636
@@ -134,7 +137,7 @@ OAuth2.prototype = {
       const to_b64url = b =>
         b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
-      params.append("code_challenge_method", "S256");
+      authEndpointURL.searchParams.append("code_challenge_method", "S256");
 
       // rfc7636#section-4.1
       //  code_verifier = high-entropy cryptographic random STRING ... with a minimum
@@ -147,26 +150,24 @@ OAuth2.prototype = {
       // rfc7636#section-4.2
       //  code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
       const code_challenge = to_b64url(CryptoUtils.sha256Base64(code_verifier));
-      params.append("code_challenge", code_challenge);
+      authEndpointURL.searchParams.append("code_challenge", code_challenge);
     }
 
     for (const [name, value] of this.extraAuthParams) {
       if (value) {
-        params.append(name, value);
+        authEndpointURL.searchParams.append(name, value);
       }
     }
 
-    const authEndpointURI =
-      this.authorizationEndpoint + "?" + params.toString();
     this.log.info(
       "Interacting with the resource owner to obtain an authorization grant " +
         "from the authorization endpoint: " +
-        authEndpointURI
+        authEndpointURL.toString()
     );
 
     this._browserRequest = {
       account: this,
-      url: authEndpointURI,
+      url: authEndpointURL.toString(),
       _active: true,
       iconURI: "",
       cancelled() {
