@@ -36,9 +36,10 @@ add_setup(async function () {
 });
 
 async function subtest_reply_format_flowed(aFlowed) {
+  info(`Running subtest_reply_format_flowed; flowed=${aFlowed}\n`);
   const file = new FileUtils.File(getTestFilePath("data/format-flowed.eml"));
   const msgc = await open_message_from_file(file);
-  await SimpleTest.promiseFocus(window);
+  await SimpleTest.promiseFocus(msgc);
 
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
 
