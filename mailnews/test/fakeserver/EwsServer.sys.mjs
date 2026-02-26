@@ -250,29 +250,6 @@ const SERVER_BUSY_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
 </s:Envelope>`;
 
 /**
- * Build an InternetMessageHeaders XML element from a synthetic message.
- * This holds all the RFC5322 headers, *except* some address headers.
- * Unclear which other headers should be excluded to mimic a real exchange
- * server! See:
- * https://learn.microsoft.com/en-us/previous-versions/office/developer/exchange-server-2010/hh545614(v=exchg.140)
- */
-function buildInternetMessageHeaders(doc, syntheticMsg) {
-  const excluded = ["To", "From"];
-
-  const containerEl = doc.createElement("t:InternetMessageHeaders");
-  for (const [name, value] of Object.entries(syntheticMsg.headers)) {
-    if (excluded.includes(name)) {
-      continue;
-    }
-    const hdrEl = doc.createElement("t:InternetMessageHeader");
-    hdrEl.setAttribute("HeaderName", name);
-    hdrEl.appendChild(doc.createTextNode(value));
-    containerEl.appendChild(hdrEl);
-  }
-  return containerEl;
-}
-
-/**
  * A mock EWS server; an HTTP server capable of responding to EWS requests in a
  * limited capacity.
  */
@@ -1383,10 +1360,6 @@ export class EwsServer extends MockServer {
           contentEl.textContent = btoa(item.syntheticMessage.toMessageString());
           messageEl.appendChild(contentEl);
         }
-
-        messageEl.appendChild(
-          buildInternetMessageHeaders(resDoc, item.syntheticMessage)
-        );
       }
 
       itemsEl.appendChild(messageEl);

@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "FolderPopulation.h"
-#include "IHeaderBlock.h"
 #include "MailNewsTypes.h"
 #include "msgCore.h"
 #include "nsLocalFile.h"
@@ -1958,7 +1957,7 @@ nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
       // appearing in the middle of automatic filtering (plus I really don't
       // want to propagate that value.)
       rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
-                                       mPostBayesMessagesToFilter, {}, this,
+                                       mPostBayesMessagesToFilter, this,
                                        nullptr, nullptr);
       mPostBayesMessagesToFilter.Clear();
     }

@@ -1038,7 +1038,7 @@ BatchMessageMover.prototype =
     let srcFolder = batch[0];
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
-      msgs, [], srcFolder, msgWindow, this);
+      msgs, srcFolder, msgWindow, this);
      // continues with onStopOperation
   },
 
@@ -1671,7 +1671,7 @@ function MsgApplyFiltersToSelection() {
       } catch (ex) {}
     }
 
-    MailServices.filters.applyFilters(Ci.nsMsgFilterType.Manual, selectedMsgs, [],
+    MailServices.filters.applyFilters(Ci.nsMsgFilterType.Manual, selectedMsgs,
                                       folder, msgWindow);
   }
 }

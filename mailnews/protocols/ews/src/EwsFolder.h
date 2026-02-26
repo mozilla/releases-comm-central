@@ -20,7 +20,6 @@ nsresult CreateNewLocalEwsFolder(nsIMsgFolder* parent, const nsACString& ewsId,
                                  nsIMsgFolder** createdFolder);
 
 class nsAutoSyncState;
-class IHeaderBlock;
 
 /**
  * The EWS implementation for `nsIMsgFolder` which represents a folder in an EWS
@@ -178,20 +177,17 @@ class EwsFolder : public nsMsgDBFolder, public IEwsFolder {
    * added to this when their headers are first received from the server,
    * then removed when they've been filtered - see PerformFiltering().
    * Messages copied in from other folders wouldn't appear here.
-   * Note that it's perfectly reasonable to have a null headerblock here -
-   * if the filters require the full message body, that'll include the
-   * headers, so there's no point accumulating them here.
    */
-  mozilla::HashMap<nsMsgKey, RefPtr<IHeaderBlock>> mFilterQueue;
+  mozilla::HashSet<nsMsgKey> mRequireFiltering;
 
   /**
    * PerformFiltering() attempts to apply filtering to as many messages in the
-   * mFilterQueue set as possible.
+   * mRequireFiltering set as possible.
    * It's a best-effort approach - if the filterlist requires full message
    * bodies for matching, only messages which have local (offline) copies
    * can be processed.
    *
-   * Messages which are filtered are removed from mFilterQueue, and
+   * Messages which are filtered are removed from mRequireFiltering, and
    * the rest are left, in the hopes that the next time PerformFiltering() is
    * called, things might have changed.
    */

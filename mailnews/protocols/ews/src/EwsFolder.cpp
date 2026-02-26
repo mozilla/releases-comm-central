@@ -11,7 +11,6 @@
 #include "EwsCopyMoveTransaction.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
-#include "IHeaderBlock.h"
 
 #include "ErrorList.h"
 #include "FolderCompactor.h"
@@ -1352,40 +1351,21 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
   };
 
   auto onSyncStop = [self = RefPtr(this), syncUrlListener, folderUri, feedback](
-                        nsresult status, nsTArray<nsMsgKey> const& newKeys,
-                        nsTArray<RefPtr<IHeaderBlock>> const& newHeaders) {
-    MOZ_ASSERT(newKeys.Length() == newHeaders.Length());
-
+                        nsresult status, nsTArray<nsMsgKey> const& newKeys) {
     // Even if the operation failed, there may be some messages to deal with.
     if (!newKeys.IsEmpty()) {
       self->SetHasNewMessages(true);
       self->SetNumNewMessages(static_cast<int32_t>(newKeys.Length()));
       self->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
 
-      // Do the filters require full message body?
-      // If they do, then we won't need to keep the headers around because
-      // we'll be stalled until the full message is downloaded, which
-      // includes the headers anyway.
-      bool incomingFiltersRequireBody = false;
-      {
-        nsCOMPtr<nsIMsgFilterList> filterList;
-        if (NS_SUCCEEDED(
-                self->GetFilterList(nullptr, getter_AddRefs(filterList)))) {
-          filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
-                                               &incomingFiltersRequireBody);
-        }
+      // Mark them as requiring filtering.
+      for (nsMsgKey key : newKeys) {
+        static_cast<void>(self->mRequireFiltering.put(key));
       }
 
-      // Queue the messages for filtering.
-      for (size_t i = 0; i < newKeys.Length(); ++i) {
-        static_cast<void>(self->mFilterQueue.put(
-            newKeys[i], incomingFiltersRequireBody ? nullptr : newHeaders[i]));
-      }
-
-      // We might be able to apply filtering right away...
-      if (!incomingFiltersRequireBody) {
-        self->PerformFiltering();
-      }
+      // We might be able to apply filtering right away (if the full message
+      // body isn't required).
+      self->PerformFiltering();
 
       // Tell the AutoSyncState about the newly-added messages,
       // to queue them for potential offline download.
@@ -1448,24 +1428,26 @@ nsresult EwsFolder::GetHdrForEwsId(const nsACString& ewsId, nsIMsgDBHdr** hdr) {
   return NS_OK;
 }
 
-// Apply filtering to as many of the mFilterQueue messages as we can.
+// Apply filtering to as many of the mRequireFiltering messages as we can.
 nsresult EwsFolder::PerformFiltering() {
+  nsresult rv;
+
   // Do the filters require full message body?
   bool incomingFiltersRequireBody;
   {
     nsCOMPtr<nsIMsgFilterList> filterList;
-    MOZ_TRY(GetFilterList(nullptr, getter_AddRefs(filterList)));
-    MOZ_TRY(filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
-                                                 &incomingFiltersRequireBody));
+    rv = GetFilterList(nullptr, getter_AddRefs(filterList));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = filterList->DoFiltersNeedMessageBody(nsMsgFilterType::Incoming,
+                                              &incomingFiltersRequireBody);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   // Collect up the messages we can filter now.
-  nsTArray<RefPtr<nsIMsgDBHdr>> targetMsgs;
-  nsTArray<RefPtr<IHeaderBlock>> targetHeaders;
-  for (auto it = mFilterQueue.modIter(); !it.done(); it.next()) {
-    nsMsgKey msgKey = it.get().key();
+  nsTArray<RefPtr<nsIMsgDBHdr>> targetMsgs(mRequireFiltering.count());
+  for (auto it = mRequireFiltering.modIter(); !it.done(); it.next()) {
     nsCOMPtr<nsIMsgDBHdr> msg;
-    GetMessageHeader(msgKey, getter_AddRefs(msg));
+    GetMessageHeader(it.get(), getter_AddRefs(msg));
     if (!msg) {
       // The message could have have been manually deleted or something.
       it.remove();
@@ -1481,16 +1463,13 @@ nsresult EwsFolder::PerformFiltering() {
       }
     }
     targetMsgs.AppendElement(msg);
-    targetHeaders.AppendElement(it.get().value());
     it.remove();
   }
-
-  MOZ_ASSERT(targetMsgs.Length() == targetHeaders.Length());
 
   MOZ_LOG_FMT(FILTERLOGMODULE, LogLevel::Info,
               "EWS PerformFiltering(): can filter {} messages now, leaving {} "
               "(incomingFiltersRequireBody={})",
-              targetMsgs.Length(), mFilterQueue.count(),
+              targetMsgs.Length(), mRequireFiltering.count(),
               incomingFiltersRequireBody);
 
   if (!targetMsgs.IsEmpty()) {
@@ -1512,8 +1491,6 @@ nsresult EwsFolder::PerformFiltering() {
 
       return NS_OK;
     };
-    RefPtr<MsgOperationListener> listener =
-        new MsgOperationListener(targetMsgs, doneFunc);
 
     // Run the filters upon the target messages. Note, by this time, the
     // messages have already been added to the folders database.
@@ -1525,9 +1502,9 @@ nsresult EwsFolder::PerformFiltering() {
     // their own filter actions.
     nsCOMPtr<nsIMsgFilterService> filterService(
         mozilla::components::Filter::Service());
-    nsresult rv = filterService->ApplyFilters(nsMsgFilterType::Inbox,
-                                              targetMsgs, targetHeaders, this,
-                                              nullptr /*window*/, listener);
+    rv = filterService->ApplyFilters(
+        nsMsgFilterType::Inbox, targetMsgs, this, nullptr /*window*/,
+        new MsgOperationListener(targetMsgs, doneFunc));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
