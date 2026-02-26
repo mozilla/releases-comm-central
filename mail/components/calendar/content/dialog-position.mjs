@@ -52,7 +52,17 @@
  * @returns {dialogPosition}
  */
 export function getIdealDialogPosition({ trigger, container, dialog }) {
-  const notVisible = trigger.width === 0 || trigger.height === 0;
+  const notVisible = !trigger || trigger.width === 0 || trigger.height === 0;
+
+  const viewportCenter = {
+    x: `${container.left + container.width / 2 - dialog.width / 2}px`,
+    y: `${container.top + container.height / 2 - dialog.height / 2}px`,
+  };
+
+  if (notVisible) {
+    return viewportCenter;
+  }
+
   const fullMargin = dialog.margin * 2;
   const fullDialogWidth = dialog.width + fullMargin;
   const fullDialogHeight = dialog.height + fullMargin;
@@ -75,14 +85,6 @@ export function getIdealDialogPosition({ trigger, container, dialog }) {
   const canCenterOnTarget =
     triggerCenter - container.left >= halfDialogAffordance &&
     container.right - triggerCenter >= halfDialogAffordance;
-  const viewportCenter = {
-    x: `${container.left + container.width / 2 - dialog.width / 2}px`,
-    y: `${container.top + container.height / 2 - dialog.height / 2}px`,
-  };
-
-  if (notVisible) {
-    return viewportCenter;
-  }
 
   let y;
   let x;

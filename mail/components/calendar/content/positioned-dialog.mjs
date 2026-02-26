@@ -134,7 +134,7 @@ export class PositionedDialog extends HTMLDialogElement {
         margin: this.margin,
         width: dialogRect.width,
       },
-      trigger: this.#trigger.getBoundingClientRect(),
+      trigger: this.#trigger?.getBoundingClientRect(),
     });
 
     this.style.visibility = "visible";

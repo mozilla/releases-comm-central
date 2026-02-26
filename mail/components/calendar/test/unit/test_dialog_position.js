@@ -1169,6 +1169,28 @@ const tests = [
       y: `450px`,
     },
   },
+  {
+    label: "Trigger does not exist",
+    message: "height = 0",
+    trigger: null,
+    container: {
+      height: 1000,
+      width: 1000,
+      left: 0,
+      top: 0,
+      bottom: 1000,
+      right: 1000,
+    },
+    dialog: {
+      width: 100,
+      height: 100,
+      margin: 12,
+    },
+    result: {
+      x: `450px`,
+      y: `450px`,
+    },
+  },
 ];
 
 add_task(function test_dialogPosition() {
