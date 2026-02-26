@@ -30,6 +30,7 @@ add_setup(async function () {
   // This test misbehaves if started immediately.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
+
   browser = tab.browser;
   cal.view.colorTracker.registerWindow(browser.contentWindow);
   dialog = browser.contentWindow.document.querySelector("dialog");
@@ -207,7 +208,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
   Assert.ok(
     !subviewManager.isDefaultSubviewVisible(),
-    "Should be showing another subiew"
+    "Should be showing another subiew 1"
   );
 
   dialog.setCalendarEvent(calendarEvent);
@@ -228,10 +229,32 @@ add_task(async function test_setCalendarEventResetsSubview() {
   subviewManager.showSubview("calendarDialogOtherSubview");
   Assert.ok(
     !subviewManager.isDefaultSubviewVisible(),
-    "Should be showing another subiew"
+    "Should be showing another subiew 2"
+  );
+  const title = dialog.querySelector(".event-title");
+  await BrowserTestUtils.waitForCondition(
+    () => title.textContent.trim() == "Test Event",
+    "waiting for title to be updated"
   );
 
   resetDialog();
+
+  dialog.show();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    dialog,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => subviewManager.isDefaultSubviewVisible()
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => title.textContent.trim() == "",
+    "waiting for title to be clear"
+  );
 
   Assert.ok(
     subviewManager.isDefaultSubviewVisible(),

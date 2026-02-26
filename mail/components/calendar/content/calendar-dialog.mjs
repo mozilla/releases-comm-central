@@ -59,6 +59,20 @@ export class CalendarDialog extends PositionedDialog {
   triggerSelector =
     "calendar-event-box,calendar-month-day-box-item,.multiday-event-listitem";
 
+  /**
+   * Event loading promise. Don't try loading again until previous attempt is complete.
+   *
+   * @type {boolean}
+   */
+  #loading;
+
+  /**
+   * If the data has been invaildated and should be reloaded.
+   *
+   * @type {boolean}
+   */
+  #reload;
+
   connectedCallback() {
     if (!this.hasConnected) {
       this.hasConnected = true;
@@ -144,6 +158,24 @@ export class CalendarDialog extends PositionedDialog {
   }
 
   /**
+   * Reset variables and check if the data should be reloaded.
+   *
+   * @returns {boolean} - If a reload was done
+   */
+  async #checkReloadAndReturn() {
+    this.#loading = false;
+    if (!this.#reload) {
+      return false;
+    }
+
+    this.#reload = false;
+    await this.#clearData();
+    await this.#loadCalendarEvent();
+
+    return true;
+  }
+
+  /**
    * Helper to set up the calendar event reference for the dialog. When called
    * with a calIEvent the dialog will update to show the data of that event.
    *
@@ -154,6 +186,7 @@ export class CalendarDialog extends PositionedDialog {
     if (!event.isEvent()) {
       throw new Error("Can only display events");
     }
+
     this.removeAttribute("calendar-id");
     if (event.recurrenceId) {
       this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);
@@ -171,41 +204,57 @@ export class CalendarDialog extends PositionedDialog {
       return;
     }
 
-    // Let's find the calendar we're displaying an event from.
-    const calendarId = this.getAttribute("calendar-id");
-    if (!calendarId) {
-      // Only clear if event ID is still set.
-      if (this.getAttribute("event-id")) {
-        await this.#clearData();
-      }
+    if (this.#loading) {
+      this.#reload = true;
       return;
     }
+
+    this.#loading = true;
+
+    // Let's find the calendar we're displaying an event from.
+    const calendarId = this.getAttribute("calendar-id");
+    const eventId = this.getAttribute("event-id");
+    if (!calendarId || !eventId) {
+      // Need to call clearData explicitly here to reset the dialog
+      // checkReloadAndReturn only clears if reloading.
+      await this.#clearData();
+      await this.#checkReloadAndReturn();
+      return;
+    }
+
     const calendar = cal.manager.getCalendarById(calendarId);
     if (!calendar) {
       console.error("No calendar", calendarId);
       this.close();
+
       return;
     }
 
-    // Let's find the event in the calendar.
-    const eventId = this.getAttribute("event-id");
-    if (!eventId) {
-      // Should clear now, since calendar ID is still set.
-      await this.#clearData();
+    // Check if data has been invalidated while clearing.
+    if (await this.#checkReloadAndReturn()) {
       return;
     }
+
     let event = await calendar.getItem(eventId);
+
+    // Check if data has been invalidated while loading.
+    if (await this.#checkReloadAndReturn()) {
+      return;
+    }
+
     if (!event) {
       // Only dismiss the dialog if the state hasn't changed while awaiting.
       if (eventId === this.getAttribute("event-id")) {
         console.error("Could not find", eventId, "in", calendarId);
         this.close();
       }
+
       return;
     }
     if (!event.isEvent()) {
       console.error(calendarId, eventId, "is not an event");
       this.close();
+
       return;
     }
 
@@ -282,6 +331,8 @@ export class CalendarDialog extends PositionedDialog {
       "#expandedDescription"
     ).setDescription(event.descriptionText, event.descriptionHTML);
     await Promise.allSettled([plainDescriptionPromise, richDescriptionPromise]);
+
+    await this.#checkReloadAndReturn();
   }
 
   /**
