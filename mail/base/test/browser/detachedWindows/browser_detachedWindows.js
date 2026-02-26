@@ -54,6 +54,8 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
   });
 
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500)); // ensure window ready
   info("Initial state:");
   await getWindows();
 });
