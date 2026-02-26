@@ -24,6 +24,7 @@
   max-block-size: calc(100vh - 8 * var(--space-step));
   z-index: 999;
   box-sizing: border-box;
+  background-color: var(--color-surface-base);
 
   .footer {
     block-size: 50px;
