@@ -169,6 +169,11 @@ interface nsIMsgImapMailFolder : nsISupports {
 
   void initiateAutoSync(in nsIUrlListener aUrlListener);
 
+  /**
+   * Is this folder the [Gmail] (or [Google Mail] in some cases) IMAP folder?
+   */
+  readonly attribute boolean isGmailFolder;
+
   attribute boolean verifiedAsOnlineFolder;
   attribute boolean explicitlyVerify;
   attribute char hierarchyDelimiter;

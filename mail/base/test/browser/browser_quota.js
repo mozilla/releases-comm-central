@@ -25,6 +25,7 @@ add_setup(async function () {
   imapAccount.incomingServer.port = imapServer.port;
   imapAccount.incomingServer.username = "user";
   imapAccount.incomingServer.password = "password";
+  imapAccount.incomingServer.QueryInterface(Ci.nsIImapIncomingServer);
   imapAccount.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.IMAPDelete;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapFolder = imapRootFolder

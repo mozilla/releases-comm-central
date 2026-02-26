@@ -1694,6 +1694,35 @@ nsImapMailFolder::GetCanSubscribe(bool* aResult) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsImapMailFolder::GetIsGmailFolder(bool* isGmailFolder) {
+  *isGmailFolder = false;
+
+  nsCOMPtr<nsIMsgFolder> parent = do_QueryReferent(mParent);
+  if (!parent) {
+    return NS_OK;
+  }
+
+  bool parentIsServer;
+  parent->GetIsServer(&parentIsServer);
+  if (!parentIsServer) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIImapIncomingServer> server = do_QueryReferent(mServer);
+  if (!server) {
+    return NS_OK;
+  }
+
+  bool isGMailServer;
+  server->GetIsGMailServer(&isGMailServer);
+  if (!isGMailServer) {
+    return NS_OK;
+  }
+
+  return GetNoSelect(isGmailFolder);
+}
+
 nsresult nsImapMailFolder::GetServerKey(nsACString& serverKey) {
   // look for matching imap folders, then pop folders
   nsCOMPtr<nsIMsgIncomingServer> server;

@@ -2585,12 +2585,7 @@ var folderPane = {
    * @returns {boolean}
    */
   _isGmailFolder(folder) {
-    return (
-      folder?.parent?.isServer &&
-      folder.server instanceof Ci.nsIImapIncomingServer &&
-      folder.server.isGMailServer &&
-      folder.noSelect
-    );
+    return folder instanceof Ci.nsIMsgImapMailFolder && folder.isGmailFolder;
   },
 
   /**

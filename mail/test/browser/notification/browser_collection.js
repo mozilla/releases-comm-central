@@ -50,6 +50,7 @@ add_setup(async function () {
     MailServices.accounts.createIncomingServer("user", "test.test", "imap");
   imapIncomingServer.prettyName = "IMAP Account";
   imapIncomingServer.password = "password";
+  imapAccount.incomingServer.QueryInterface(Ci.nsIImapIncomingServer);
   imapIncomingServer.autoSyncOfflineStores = false;
 
   const pop3Account = MailServices.accounts.createAccount();
