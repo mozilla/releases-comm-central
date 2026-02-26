@@ -61,6 +61,9 @@ LazyLogModule DBLog("MsgDB");
 
 PRTime nsMsgDatabase::gLastUseTime;
 
+// Write data in a RawHdr struct to an nsIMsgDBHdr.
+nsresult ApplyRawHdrToDbHdr(RawHdr const& raw, nsIMsgDBHdr* hdr);
+
 /**
  * mozilla::intl APIs require sizeable buffers. This class abstracts over
  * the nsTArray.

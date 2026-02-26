@@ -255,4 +255,61 @@ class EwsMessageFetchListener : public IEwsMessageFetchListener {
   uint64_t mTotalFetchedBytesCount = 0;
 };
 
+/**
+ * A listener for syncing the message list for an EWS folder.
+ *
+ * The callbacks follow the same shape as defined by `IEwsMessageSyncListener`,
+ * except `onNewHdrPopulated` is expected to take an array of `nsIMsgDBHdr` as
+ * its second argument and expand it with new messages, and `onSyncComplete` is
+ * expected to take this same array as its only argument, which at that point is
+ * the complete collection of new messages from the current sync.
+ */
+class EwsMessageSyncListener : public IEwsMessageSyncListener,
+                               EwsFallibleListener {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_IEWSMESSAGESYNCLISTENER
+
+  EwsMessageSyncListener(
+      std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
+          onMessageCreated,
+      std::function<nsresult(const nsACString&)> onMessageDeleted,
+      std::function<nsresult(const nsACString&, nsIMsgDBHdr**)>
+          onMessageUpdated,
+      std::function<nsresult(nsIMsgDBHdr*, nsTArray<RefPtr<nsIMsgDBHdr>>&)>
+          onDetachedHdrPopulated,
+      std::function<nsresult()> onExistingHdrChanged,
+      std::function<nsresult(const nsACString&)> onSyncStateTokenChanged,
+      std::function<nsresult(const nsTArray<RefPtr<nsIMsgDBHdr>>&)>
+          onSyncComplete,
+      std::function<nsresult(const nsACString&, bool)> onReadStatusChanged,
+      std::function<nsresult(nsresult)> onOperationFailure)
+      : EwsFallibleListener(std::move(onOperationFailure)),
+        mNewMessages({}),
+        mOnMessageCreated(std::move(onMessageCreated)),
+        mOnMessageUpdated(std::move(onMessageUpdated)),
+        mOnReadStatusChanged(std::move(onReadStatusChanged)),
+        mOnMessageDeleted(std::move(onMessageDeleted)),
+        mOnDetachedHdrPopulated(std::move(onDetachedHdrPopulated)),
+        mOnExistingHdrChanged(std::move(onExistingHdrChanged)),
+        mOnSyncStateTokenChanged(std::move(onSyncStateTokenChanged)),
+        mOnSyncComplete(std::move(onSyncComplete)) {};
+
+ protected:
+  virtual ~EwsMessageSyncListener() = default;
+
+ private:
+  nsTArray<RefPtr<nsIMsgDBHdr>> mNewMessages;
+
+  std::function<nsresult(const nsACString&, nsIMsgDBHdr**)> mOnMessageCreated;
+  std::function<nsresult(const nsACString&, nsIMsgDBHdr**)> mOnMessageUpdated;
+  std::function<nsresult(const nsACString&, bool)> mOnReadStatusChanged;
+  std::function<nsresult(const nsACString&)> mOnMessageDeleted;
+  std::function<nsresult(nsIMsgDBHdr*, nsTArray<RefPtr<nsIMsgDBHdr>>&)>
+      mOnDetachedHdrPopulated;
+  std::function<nsresult()> mOnExistingHdrChanged;
+  std::function<nsresult(const nsACString&)> mOnSyncStateTokenChanged;
+  std::function<nsresult(const nsTArray<RefPtr<nsIMsgDBHdr>>&)> mOnSyncComplete;
+};
+
 #endif  // COMM_MAILNEWS_PROTOCOLS_EWS_SRC_EWSLISTENERS_H_

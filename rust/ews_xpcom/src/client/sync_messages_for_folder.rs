@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use ews::{
-    FlagStatus, ItemShape, Operation, OperationResponse,
+    ItemShape, Operation, OperationResponse,
     server_version::ExchangeServerVersion,
     sync_folder_items::{self, SyncFolderItems},
 };
@@ -13,9 +13,6 @@ use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
-
-use crate::headerblock;
-use xpcom::{RefPtr, interfaces::IHeaderBlock};
 
 use super::{
     BaseFolderId, BaseShape, ServerType, XpComEwsClient, XpComEwsError,
@@ -162,33 +159,26 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                             }
                         })?;
 
-                        // Collect the headers into an IHeaderBlock object to pass
-                        // out to the C++ side.
-                        let headers: RefPtr<IHeaderBlock> = headerblock::extract_headers(msg)
-                            .query_interface::<IHeaderBlock>()
-                            .ok_or(nserror::NS_ERROR_FAILURE)?;
+                        // Have the database create a new header instance for
+                        // us. We don't create it ourselves so that the database
+                        // can fill out any fields it wants beforehand. The
+                        // header we get back will have its EWS ID already set.
+                        let result = self.listener.on_message_created(item_id);
 
-                        // Collect any non-header metadata we can get.
-                        let message_size = msg.size.unwrap_or_default() as u32;
-                        let is_read = msg.is_read.unwrap_or_default();
-                        let is_flagged = msg
-                            .flag
-                            .as_ref()
-                            .map(|f| matches!(f.flag_status, Some(FlagStatus::Flagged)))
-                            .unwrap_or_default();
-                        let preview = match &msg.preview {
-                            Some(p) => p.as_str(),
-                            None => "",
-                        };
+                        if let Err(nserror::NS_ERROR_ILLEGAL_VALUE) = result {
+                            // `NS_ERROR_ILLEGAL_VALUE` means a header already
+                            // exists for this item ID. We assume here that a
+                            // previous sync encountered an error partway
+                            // through and skip this item.
+                            log::warn!(
+                                "Message with ID {item_id} already exists in database, skipping"
+                            );
+                            continue;
+                        }
 
-                        self.listener.on_message_created(
-                            item_id,
-                            headers,
-                            message_size,
-                            is_read,
-                            is_flagged,
-                            preview,
-                        )?;
+                        let header =
+                            result?.populate_from_message_headers(crate::headers::Message(msg))?;
+                        self.listener.on_detached_hdr_populated(header)?;
                     }
 
                     sync_folder_items::Change::Update { item } => {
@@ -209,51 +199,49 @@ impl<ServerT: ServerType> DoOperation<XpComEwsClient<ServerT>, XpComEwsError>
                         })?;
 
                         log::debug!("Updating message with item ID {item_id}");
-                        // Collect the headers into an IHeaderBlock object to pass
-                        // out to the C++ side.
-                        let headers: RefPtr<IHeaderBlock> = headerblock::extract_headers(msg)
-                            .query_interface::<IHeaderBlock>()
-                            .ok_or(nserror::NS_ERROR_FAILURE)?;
+                        let mut result = self.listener.on_message_updated(item_id);
+                        log::debug!("Got header for message ID {item_id}");
 
-                        // Collect any non-header metadata we can get.
-                        let message_size = msg.size.unwrap_or_default() as u32;
-                        let is_read = msg.is_read.unwrap_or_default();
-                        let is_flagged = msg
-                            .flag
-                            .as_ref()
-                            .map(|f| matches!(f.flag_status, Some(FlagStatus::Flagged)))
-                            .unwrap_or_default();
-                        let preview = match &msg.preview {
-                            Some(p) => p.as_str(),
-                            None => "",
-                        };
-
-                        let result = self.listener.on_message_updated(
-                            item_id,
-                            headers.clone(),
-                            message_size,
-                            is_read,
-                            is_flagged,
-                            preview,
-                        );
-                        if let Err(rv) = result {
-                            if rv != nserror::NS_MSG_MESSAGE_NOT_FOUND {
-                                return Ok(result?);
-                            }
-                            // We're trying to update a message that isn't in the DB.
-                            // Let's fall back to creating it instead.
+                        let mut hdr_is_detached = false;
+                        if let Err(nserror::NS_ERROR_NOT_AVAILABLE) = result {
+                            // Something has gone wrong, probably in a previous
+                            // sync, and we've missed a new item. So let's try
+                            // to gracefully recover from this and create a new
+                            // detached entry.
                             log::warn!(
-                                "Tried to update a message not in the DB. Creating as new message instead. ewsId={item_id}"
+                                "Cannot find existing item to update with ID {item_id}, creating it instead"
                             );
-                            self.listener.on_message_created(
-                                item_id,
-                                headers,
-                                message_size,
-                                is_read,
-                                is_flagged,
-                                preview,
-                            )?;
+
+                            result = self.listener.on_message_created(item_id);
+
+                            hdr_is_detached = true;
                         }
+
+                        // At some point we might want to restrict what
+                        // properties we want to support updating (e.g. do we
+                        // want to support changing the message ID, considering
+                        // the message might be a draft?). At the time of
+                        // writing, it's still unclear which property should
+                        // *always* be read-only, which ones have their
+                        // readability depend on the context, and which ones can
+                        // always be updated, so we copy the remote state onto
+                        // the database entry and commit.
+                        let header =
+                            result?.populate_from_message_headers(crate::headers::Message(msg))?;
+                        log::debug!("Populated headers for item ID {item_id}");
+
+                        // Persist the database entry. If it's a new one
+                        // (because we've missed the creation event), then we
+                        // need to do this as if we're dealing with the
+                        // still-detached entry from a `Created` change (which
+                        // we kind of are).
+                        if hdr_is_detached {
+                            self.listener.on_detached_hdr_populated(header)?;
+                        } else {
+                            self.listener.on_existing_hdr_changed()?;
+                        }
+
+                        log::debug!("Completed update for item ID {item_id}");
                     }
 
                     sync_folder_items::Change::Delete { item_id } => {

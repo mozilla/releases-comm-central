@@ -40,13 +40,6 @@ const int32_t kMsgDBVersion = 1;
 // array.
 const uint32_t kInitialMsgDBCacheSize = 20;
 
-/**
- * Update an existing nsIMsgDBHdr using data from a RawHdr.
- * RawHdr represents all the metadata that the database is interested in from
- * RFC5322 message headers.
- */
-nsresult ApplyRawHdrToDbHdr(RawHdr const& raw, nsIMsgDBHdr* hdr);
-
 class nsMsgDBService final : public nsIMsgDBService {
  public:
   NS_DECL_ISUPPORTS

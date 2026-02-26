@@ -7,7 +7,6 @@
 #include "nsISupportsPrimitives.idl"
 #include "MailNewsTypes2.idl"
 
-interface IHeaderBlock;
 interface nsIMsgDBHdr;
 interface nsIRequest;
 interface nsIStreamListener;
@@ -404,38 +403,24 @@ interface IEwsMessageSyncListener : nsISupports
   /**
    * Called when a new message has been created on the server.
    *
+   * Implementations are expected to check if a database entry already exists
+   * for the given EWS ID, and return `NS_ERROR_ILLEGAL_VALUE` if so.
+   *
    * @param ewsId - The EWS ID for the new message.
-   * @param headerBlock - The RFC5322-style email headers for the message.
-   * @param isRead - Is the message "Read" on the server?
-   * @param isFlagged - Is the message "Marked" on the server?
-   * @param preview - A short text preview of the message body?
+   * @returns A detached database entry for the new message.
    */
-  void onMessageCreated(in AUTF8String ewsId,
-                        in IHeaderBlock headerBlock,
-                        in unsigned long messageSize,
-                        in boolean isRead,
-                        in boolean isFlagged,
-                        in AUTF8String preview);
+  nsIMsgDBHdr onMessageCreated(in AUTF8String ewsId);
 
   /**
    * Called when an existing message has been updated on the server.
    *
-   * @param ewsId - The EWS ID for the updated message.
-   * @param headerBlock - The RFC5322-style email headers for the message.
-   * @param isRead - Is the message "Read" on the server?
-   * @param isFlagged - Is the message "Marked" on the server?
-   * @param preview - A short text preview of the message body?
+   * Implementations are expected to return `NS_ERROR_NOT_AVAILABLE` if no
+   * database entry exists for the given EWS ID.
    *
-   * This callback can return NS_MSG_MESSAGE_NOT_FOUND to indicate that
-   * the message being updated is not known. The protocol *may* choose to
-   * respond to this by calling onMessageCreated() instead.
+   * @param ewsId - The EWS ID for the updated message.
+   * @returns An existing (non-detached) database entry for the message.
    */
-  void onMessageUpdated(in AUTF8String ewsId,
-                        in IHeaderBlock headerblock,
-                        in unsigned long messageSize,
-                        in boolean isRead,
-                        in boolean isFlagged,
-                        in AUTF8String preview);
+  nsIMsgDBHdr onMessageUpdated(in AUTF8String ewsId);
 
   /**
    * Called when the read/unread flag was changed for a specific message.
@@ -460,6 +445,23 @@ interface IEwsMessageSyncListener : nsISupports
    * @param ewsId - The EWS ID for the deleted message.
    */
   void onMessageDeleted(in AUTF8String ewsId);
+
+  /**
+   * Called when a detached database entry has been populated for a new message
+   * and is ready to be persisted.
+   *
+   * @param hdr - The database entry that was populated.
+   */
+  void onDetachedHdrPopulated(in nsIMsgDBHdr hdr);
+
+  /**
+   * Called when an existing (non-detached) database entry has been changed, and
+   * the changes are ready to be persisted (i.e. committed).
+   *
+   * Since the database entry is already attached to the relevant message
+   * database, no argument is necessary here.
+   */
+  void onExistingHdrChanged();
 
   /**
    * Called after a sync has completed.
