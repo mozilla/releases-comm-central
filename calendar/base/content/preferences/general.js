@@ -23,6 +23,7 @@ Preferences.addAll([
   { id: "calendar.agenda.days", type: "int" },
   { id: "calendar.item.editInTab", type: "bool" },
   { id: "calendar.item.promptDelete", type: "bool" },
+  { id: "calendar.dialogs.new.enabled", type: "bool" },
 ]);
 
 /**

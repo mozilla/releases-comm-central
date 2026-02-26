@@ -181,5 +181,19 @@
                 data-l10n-id="prompt-delete-label"
                 preference="calendar.item.promptDelete"/>
     </hbox>
+    <separator/>
+    <vbox>
+      <hbox class="align-baseline">
+        <html:legend data-l10n-id="new-calendar-legend"></html:legend>
+        <html:span class="label-experiment" data-l10n-id="label-experiment"></html:span>
+      </hbox>
+      <vbox>
+        <checkbox id="calendarDialog"
+                  data-l10n-id="new-calendar-checkbox-label"
+                  preference="calendar.dialogs.new.enabled"/>
+        <description data-l10n-id="new-calendar-checkbox-description"
+                      class="tip-caption indent"/>
+      </vbox>
+    </vbox>
   </html:fieldset>
   </html:div>

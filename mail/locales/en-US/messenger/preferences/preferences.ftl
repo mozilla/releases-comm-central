@@ -579,6 +579,13 @@ account-hub-checkbox-label =
 
 account-hub-checkbox-description = Experimental new mail account creation flow
 
+new-calendar-legend = New Calendar Event Dialog
+
+new-calendar-checkbox-label =
+    .label = View calendar events in the new dialog
+
+new-calendar-checkbox-description = Experimental new calendar dialog for viewing events
+
 ## Compose Tab
 
 forward-label =
