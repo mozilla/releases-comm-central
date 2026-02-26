@@ -68,6 +68,7 @@
 #include "nsIWritablePropertyBag2.h"
 #include "UrlListener.h"
 #include "nsIMsgCopyService.h"
+#include "nsIMsgImapMailFolder.h"
 #ifdef MOZ_PANORAMA
 #  include "FolderDatabase.h"
 #  include "DatabaseCore.h"
@@ -3031,9 +3032,16 @@ NS_IMETHODIMP nsMsgDBFolder::GetPrettyPath(nsACString& aPath) {
 
   nsCOMPtr<nsIMsgFolder> parent = do_QueryReferent(mParent);
   if (parent) {
-    parent->GetPrettyPath(aPath);
-    if (!aPath.IsEmpty()) {
-      aPath.AppendLiteral("/");
+    bool parentIsGmailFolder = false;
+    nsCOMPtr<nsIMsgImapMailFolder> imapParent = do_QueryInterface(parent);
+    if (imapParent) {
+      imapParent->GetIsGmailFolder(&parentIsGmailFolder);
+    }
+    if (!parentIsGmailFolder) {
+      parent->GetPrettyPath(aPath);
+      if (!aPath.IsEmpty()) {
+        aPath.AppendLiteral("/");
+      }
     }
   }
   nsCString localizedName;
