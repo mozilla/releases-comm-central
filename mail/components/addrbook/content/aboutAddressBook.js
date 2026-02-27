@@ -878,15 +878,18 @@ customElements.whenDefined("tree-listbox").then(() => {
         document.body.classList.add("all-ab-selected");
         return;
       }
+      document.body.classList.remove("all-ab-selected");
 
       const bookUID = row.dataset.book ?? row.dataset.uid;
       const book = MailServices.ab.getDirectoryFromUID(bookUID);
+      if (!book) {
+        return;
+      }
 
       document.getElementById("booksPaneCreateContact").disabled =
         book.readOnly;
       document.getElementById("booksPaneCreateList").disabled =
         book.readOnly || !book.supportsMailingLists;
-      document.body.classList.remove("all-ab-selected");
     }
 
     _onCollapsed(event) {
