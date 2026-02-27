@@ -4017,6 +4017,16 @@ var gMessageNotificationBar = {
         aMsgHeader.mime2DecodedAuthor
       ) || aMsgHeader.author;
 
+    const parentActiveElement = parent.document.activeElement;
+    let lastActiveElement;
+    document.addEventListener("focusin", event => {
+      lastActiveElement = event.relatedTarget;
+    });
+    const focusLastActive = () => {
+      const lastActive = lastActiveElement || parentActiveElement;
+      lastActive.focus();
+    };
+
     // If the return receipt doesn't go to the sender address, note that in the
     // notification.
     const mdnBarMsg =
@@ -4036,6 +4046,7 @@ var gMessageNotificationBar = {
         popup: null,
         callback() {
           SendMDNResponse();
+          focusLastActive();
           return false; // close notification
         },
       },
@@ -4045,12 +4056,13 @@ var gMessageNotificationBar = {
         popup: null,
         callback() {
           IgnoreMDNResponse();
+          focusLastActive();
           return false; // close notification
         },
       },
     ];
 
-    await this.msgNotificationBar.appendNotification(
+    const notification = await this.msgNotificationBar.appendNotification(
       "mdnRequested",
       {
         label: mdnBarMsg,
@@ -4058,6 +4070,9 @@ var gMessageNotificationBar = {
       },
       buttons
     );
+    notification.shadowRoot
+      .querySelector(".close")
+      .addEventListener("click", focusLastActive);
   },
 
   async setDraftEditMessage() {
