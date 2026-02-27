@@ -14,6 +14,10 @@ EXTRA_JS_MODULES.calendar += [
     "modules/JoinLinkParser.sys.mjs",
 ]
 
+MOZ_SRC_FILES += [
+    "modules/CalendarAttachmentUtils.sys.mjs",
+]
+
 BROWSER_CHROME_MANIFESTS += [
     "test/browser/browser.toml",
     "test/browser/browser_disabled.toml",

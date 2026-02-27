@@ -1,5 +1,7 @@
 [DEFAULT]
 
+["test_calendarAttachmentUtils.js"]
+
 ["test_dialog_position.js"]
 
 ["test_joinLinkParser.js"]
