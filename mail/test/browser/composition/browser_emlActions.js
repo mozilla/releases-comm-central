@@ -8,6 +8,8 @@
 
 "use strict";
 
+requestLongerTimeout(2);
+
 var {
   close_compose_window,
   compose_window_ready,
