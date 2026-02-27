@@ -24,6 +24,7 @@ add_setup(() => {
 
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
+    tabmail.closeOtherTabs(0);
   });
 });
 
@@ -209,4 +210,33 @@ add_task(async function test_resizeWindow() {
   await calendar.deleteItem(eventBox.occurrence);
 
   style.remove();
+});
+
+add_task(async function test_closeDialogOnTabSwitch() {
+  await createEvent({ calendar });
+  const eventBox = await openAndShowEvent();
+
+  const dialog = document.querySelector(`[is="calendar-dialog"]`);
+
+  Assert.ok(dialog.open, "Dialog should be open");
+
+  const dialogClose = BrowserTestUtils.waitForEvent(dialog, "close");
+  tabmail.switchToTab(0);
+  await dialogClose;
+
+  Assert.ok(!dialog.open, "Dialog should report it is closed");
+  Assert.ok(BrowserTestUtils.isHidden(dialog), "Dialog should not be visible");
+
+  await CalendarTestUtils.openCalendarTab(window);
+
+  Assert.ok(
+    !dialog.open,
+    "Dialog should stay closed after switching back to calendar tab"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(dialog),
+    "Dialog should still not be visible"
+  );
+
+  await calendar.deleteItem(eventBox.occurrence);
 });

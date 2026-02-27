@@ -46,6 +46,10 @@ function changeMode(mode = "mail") {
     elem.setAttribute("current", gCurrentMode);
   });
 
+  // The new calendar dialog should be hidden when switching mode, since it will
+  // otherwise overlay whatever tab we switch to.
+  document.getElementById("calendarDialog")?.close();
+
   TodayPane.onModeModified();
 }
 
