@@ -44,11 +44,28 @@ class AccountHubSelect extends HTMLElement {
    */
   #error;
 
+  /**
+   * Mutation observer for sloted options to reflect changes to the select
+   * options.
+   *
+   * @type {MutationObserver}
+   */
+  #observer;
+
+  /**
+   * Cache the value of the select as it can get lost in option updates.
+   *
+   * @type {string}
+   */
+  #cachedValue;
+
   get value() {
     return this.select.value;
   }
 
   set value(newValue) {
+    // Cache the value in case we need to restore it.
+    this.#cachedValue = newValue;
     this.select.value = newValue;
   }
 
@@ -85,11 +102,35 @@ class AccountHubSelect extends HTMLElement {
     this.#slot.addEventListener("slotchange", this);
     this.select.addEventListener("change", this);
     this.#error.querySelector("a").addEventListener("click", this);
-    this.#updateOptions(); // Initial update
 
     for (const attr of attrs) {
       this.attributeChangedCallback(attr, "", this.getAttribute(attr));
     }
+
+    // Initial setup.
+    this.#observeAssignedNodes();
+  }
+
+  #observeAssignedNodes() {
+    // Stop previous observer if any.
+    this.#observer?.disconnect();
+
+    const nodes = this.#slot.assignedNodes({ flatten: true });
+
+    this.#observer = new MutationObserver(() => {
+      this.#updateOptions();
+    });
+
+    for (const node of nodes) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        this.#observer.observe(node, {
+          attributes: true,
+          characterData: true,
+        });
+      }
+    }
+
+    this.#updateOptions();
   }
 
   disconnectedCallback() {
@@ -97,11 +138,13 @@ class AccountHubSelect extends HTMLElement {
     this.#slot.removeEventListener("slotchange", this);
     this.select.removeEventListener("change", this);
     this.#error.querySelector("a").removeEventListener("click", this);
+    this.#observer?.disconnect();
   }
 
   #updateOptions() {
     const options = this.#slot.assignedElements();
     this.select.innerHTML = "";
+    let selected;
 
     for (const option of options) {
       const element = option.cloneNode(true);
@@ -110,6 +153,13 @@ class AccountHubSelect extends HTMLElement {
         element.part.add(element.id);
       }
       this.select.append(element);
+      selected ||= element.getAttribute("selected");
+    }
+
+    // The value association can get lost when updating so we need to restore
+    // any cached set value.
+    if (!selected) {
+      this.value = this.#cachedValue;
     }
   }
 
@@ -157,7 +207,8 @@ class AccountHubSelect extends HTMLElement {
   handleEvent(event) {
     switch (event.type) {
       case "slotchange":
-        this.#updateOptions();
+        // The slotted elements have changed so re run observer logic.
+        this.#observeAssignedNodes();
         break;
       case "change": {
         const customChangeEvent = new CustomEvent("change", {
@@ -169,6 +220,9 @@ class AccountHubSelect extends HTMLElement {
         for (const option of this.select.selectedOptions) {
           option.state = "selected";
         }
+
+        // Update the cached value as it has changed.
+        this.#cachedValue = this.value;
 
         // Dispatch the event from the custom element itself (the host)
         this.dispatchEvent(customChangeEvent);
