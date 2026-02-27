@@ -16,6 +16,8 @@ subsuite = "thunderbird"
 
 ["browser_calendarDialog.js"]
 
+["browser_calendarDialogAttachment.js"]
+
 ["browser_calendarDialogCategories.js"]
 
 ["browser_calendarDialogDateRow.js"]

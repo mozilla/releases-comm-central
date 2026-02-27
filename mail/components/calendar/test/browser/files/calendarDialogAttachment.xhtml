@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Attachment Test</title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css"/>
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarDialog.css"
+    />
+    <script
+      type="module"
+      src="chrome://messenger/content/calendar-dialog-attachment.mjs"
+    ></script>
+  </head>
+  <body>
+    <template id="calendarDialogAttachmentTemplate">
+      <img
+        class="attachment-icon"
+        src=""
+        srcset=""
+        data-l10n-id="calendar-dialog-attachment-link-icon"
+      />
+      <a class="attachment-label" href=""></a>
+    </template>
+    <ul>
+      <li is="calendar-dialog-attachment"></li>
+    </ul>
+  </body>
+</html>
