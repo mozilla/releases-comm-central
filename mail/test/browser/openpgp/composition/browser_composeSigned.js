@@ -98,7 +98,7 @@ add_setup(async function () {
 
 /**
  * Tests composition of a message that is signed only shows as signed in the
- * Outbox.
+ * Outbox, and has header-protection header.
  */
 add_task(async function testSignedMessageComposition() {
   const autocryptPrefName = "mail.identity.default.sendAutocryptHeaders";
@@ -138,6 +138,13 @@ add_task(async function testSignedMessageComposition() {
       line => line.trim() == "Autocrypt: addr=bob@openpgp.example; keydata="
     ),
     "Correct Autocrypt header found"
+  );
+
+  Assert.ok(
+    lines.some(
+      line => line.includes('; hp="clear"'),
+      "header-protection cipher line should have been found"
+    )
   );
 
   Assert.ok(
@@ -276,7 +283,7 @@ Autocrypt-Gossip: addr=carol@example.com; keydata=
 /**
  * Tests composition of a signed, encrypted message, for two recipients,
  * is shown as signed and encrypted in the Outbox, and has the
- * Autocrypt-Gossip headers.
+ * Autocrypt-Gossip headers, and has header-protection header
  */
 add_task(async function testSignedEncryptedMessageComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
@@ -357,6 +364,13 @@ add_task(async function testSignedEncryptedMessageComposition() {
       "The following Autocrypt-Gossip header line was found: " + egl
     );
   }
+
+  Assert.ok(
+    lines.some(
+      line => line.includes('; hp="cipher"'),
+      "header-protection cipher line should have been found"
+    )
+  );
 
   // Delete the message so other tests work.
   EventUtils.synthesizeKey("VK_DELETE");

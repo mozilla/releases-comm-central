@@ -185,7 +185,15 @@ PgpMimeEncrypt.prototype = {
     }
 
     let w = `Content-Type: multipart/mixed; boundary="${this.encHeader}"`;
-    w += `;\r\n protected-headers="v1"\r\n${this.headers}`;
+    w += `;\r\n protected-headers="v1"`;
+    if (this.signMessage) {
+      if (this.requireEncryptMessage) {
+        w += '; hp="cipher"';
+      } else {
+        w += '; hp="clear"';
+      }
+    }
+    w += `\r\n${this.headers}`;
 
     if (
       (this.mimeStructure == MIME_ENCRYPTED ||
