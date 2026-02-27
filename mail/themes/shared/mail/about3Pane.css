@@ -502,14 +502,19 @@ body {
     outline-offset: -1px;
   }
 
-  .new-messages:not([data-server-type]) > & > .icon::after {
-    position: absolute;
+  & > .new-icon {
+    z-index: 1;
     content: var(--icon-sparkle-star-xs);
-    inset-inline-start: -4px;
-    inset-block-start: -4px;
+    margin-inline: -4px -8px;
+    margin-block: -3px 3px;
     -moz-context-properties: fill, stroke;
     fill: var(--color-yellow-30);
     stroke: var(--color-amber-50);
+    visibility: hidden;
+
+    .new-messages:not([data-server-type]) > .container > & {
+      visibility: visible;
+    }
   }
 }
 
