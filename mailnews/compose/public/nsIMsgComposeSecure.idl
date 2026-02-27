@@ -45,6 +45,11 @@ interface nsIMsgComposeSecure : nsISupports
     attribute boolean signMessage;
 
     /**
+     * Set to desired signature transport format: "multipart" or "unobtrusive".
+     */
+    attribute AUTF8String signFormat;
+
+    /**
      * Set to true if the outgoing message shall be encrypted.
      */
     attribute boolean requireEncryptMessage;

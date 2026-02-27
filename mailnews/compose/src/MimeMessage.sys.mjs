@@ -97,24 +97,54 @@ export class MimeMessage {
    * @returns {MimePart}
    */
   _initMimePart() {
-    const { plainPart, htmlPart } = this._gatherMainParts();
+    let headerProtectParam = "";
+    let paramsForMainPart = "";
+
+    if (
+      this._compFields.composeSecure &&
+      !this._compFields.composeSecure.requireEncryptMessage &&
+      this._compFields.composeSecure.signMessage &&
+      this._compFields.composeSecure.signFormat == "unobtrusive"
+    ) {
+      headerProtectParam = '; hp="clear"';
+    }
+
+    const { sendPlainPart, sendHtmlPart } = this._whatAreTheMainParts();
+
     const embeddedParts = this._gatherEmbeddedParts();
     const attachmentParts = this._gatherAttachmentParts();
 
+    if (headerProtectParam) {
+      paramsForMainPart =
+        attachmentParts.length > 0 ||
+        (sendHtmlPart && embeddedParts.length > 0) ||
+        (sendPlainPart && sendHtmlPart)
+          ? ""
+          : headerProtectParam;
+    }
+
+    const { plainPart, htmlPart } = this._gatherMainParts(paramsForMainPart);
     let relatedPart = htmlPart;
-    if (htmlPart && embeddedParts.length > 0) {
-      relatedPart = new MimeMultiPart("related");
+
+    if (sendHtmlPart && embeddedParts.length > 0) {
+      const paramsForRelated =
+        attachmentParts.length > 0 || (sendPlainPart && sendHtmlPart)
+          ? ""
+          : headerProtectParam;
+
+      relatedPart = new MimeMultiPart("related", paramsForRelated);
       relatedPart.addPart(htmlPart);
       relatedPart.addParts(embeddedParts);
     }
+
     const mainParts = [plainPart, relatedPart].filter(Boolean);
     let topPart;
     if (attachmentParts.length > 0) {
       // Use multipart/mixed as long as there is at least one attachment.
-      topPart = new MimeMultiPart("mixed");
+      topPart = new MimeMultiPart("mixed", headerProtectParam);
       if (plainPart && relatedPart) {
         // Wrap mainParts inside a multipart/alternative MimePart.
-        const alternativePart = new MimeMultiPart("alternative");
+        const alternativePart = new MimeMultiPart("alternative", "");
         alternativePart.addParts(mainParts);
         topPart.addPart(alternativePart);
       } else {
@@ -124,7 +154,7 @@ export class MimeMessage {
     } else {
       if (mainParts.length > 1) {
         // Mark the topPart as multipart/alternative.
-        topPart = new MimeMultiPart("alternative");
+        topPart = new MimeMultiPart("alternative", headerProtectParam);
       } else {
         topPart = new MimePart();
       }
@@ -298,11 +328,43 @@ export class MimeMessage {
   }
 
   /**
+   * Determine if the message (as decided by _gatherMainParts())
+   * will include an HTML part, a plain part or both.
+   * The decision logic here must be equivalent to the decision logic
+   * in _gatherMainParts().
+   *
+   * @returns {{sendPlainPart: boolean, sendHtmlPart: boolean}}
+   */
+  _whatAreTheMainParts() {
+    //
+    const haveHtmlPart = this._bodyType == "text/html";
+    let havePlainPart = this._bodyType == "text/plain";
+
+    if (
+      (this._compFields.forcePlainText ||
+        this._compFields.useMultipartAlternative) &&
+      !havePlainPart &&
+      haveHtmlPart
+    ) {
+      havePlainPart = true;
+    }
+
+    const sendPlainPart = havePlainPart;
+    const sendHtmlPart =
+      haveHtmlPart &&
+      ((havePlainPart && this._compFields.useMultipartAlternative) ||
+        !havePlainPart);
+
+    return { sendPlainPart, sendHtmlPart };
+  }
+
+  /**
    * Determine if the message should include an HTML part, a plain part or both.
    *
+   * @param {string} paramsForTop - Extra Content-Type parameters for the top mime part.
    * @returns {{plainPart: MimePart, htmlPart: MimePart}}
    */
-  _gatherMainParts() {
+  _gatherMainParts(paramsForTop) {
     const formatFlowed = Services.prefs.getBoolPref(
       "mailnews.send_plaintext_flowed"
     );
@@ -311,7 +373,6 @@ export class MimeMessage {
       // Set format=flowed as in RFC 2646 according to the preference.
       formatParam += "; format=flowed";
     }
-
     let htmlPart = null;
     let plainPart = null;
     const parts = {};
@@ -322,7 +383,10 @@ export class MimeMessage {
         this._compFields.forceMsgEncoding,
         true
       );
-      htmlPart.setHeader("content-type", "text/html; charset=UTF-8");
+      htmlPart.setHeader(
+        "content-type",
+        `text/html; charset=UTF-8${paramsForTop}`
+      );
       htmlPart.bodyText = this._bodyText;
     } else if (this._bodyType === "text/plain") {
       plainPart = new MimePart(
@@ -332,7 +396,7 @@ export class MimeMessage {
       );
       plainPart.setHeader(
         "content-type",
-        `text/plain; charset=UTF-8${formatParam}`
+        `text/plain; charset=UTF-8${formatParam}${paramsForTop}`
       );
       plainPart.bodyText = this._bodyText;
       parts.plainPart = plainPart;
@@ -352,7 +416,7 @@ export class MimeMessage {
       );
       plainPart.setHeader(
         "content-type",
-        `text/plain; charset=UTF-8${formatParam}`
+        `text/plain; charset=UTF-8${formatParam}${paramsForTop}`
       );
       // nsIParserUtils.convertToPlainText expects unicode string.
       const plainUnicode = MsgUtils.convertToPlainText(
@@ -522,9 +586,19 @@ export class MimeMessage {
       // Crypto encapsulation will add a new content-type header.
       curPart.deleteHeader("content-type");
       if (curPart.parts.length > 1) {
+        let headerProtectParam = "";
+
+        if (
+          !this._compFields.composeSecure.requireEncryptMessage &&
+          this._compFields.composeSecure.signMessage &&
+          this._compFields.composeSecure.signFormat == "unobtrusive"
+        ) {
+          headerProtectParam = '; hp="clear"';
+        }
+
         // Move child parts one layer deeper so that the message is still well
         // formed after crypto encapsulation.
-        const newChild = new MimeMultiPart(curPart.subtype);
+        const newChild = new MimeMultiPart(curPart.subtype, headerProtectParam);
         newChild.parts = curPart._parts;
         curPart.parts = [newChild];
       }

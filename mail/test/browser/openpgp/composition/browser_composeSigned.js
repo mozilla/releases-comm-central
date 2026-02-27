@@ -38,6 +38,7 @@ let initialKeyIdPref = "";
 let gOutbox;
 
 const aboutMessage = get_about_message();
+const unobSigPrefName = "mail.openpgp.clear_signature_format";
 
 async function waitCheckEncryptionStateDone(win) {
   return BrowserTestUtils.waitForEvent(
@@ -51,6 +52,8 @@ async function waitCheckEncryptionStateDone(win) {
  * receiver.
  */
 add_setup(async function () {
+  Services.prefs.setStringPref(unobSigPrefName, "multipart");
+
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",
@@ -443,4 +446,5 @@ registerCleanupFunction(async function tearDown() {
   await OpenPGPTestUtils.removeKeyById("0xfbfcc82a015e7330", true);
   MailServices.accounts.removeIncomingServer(bobAcct.incomingServer, true);
   MailServices.accounts.removeAccount(bobAcct, true);
+  Services.prefs.clearUserPref(unobSigPrefName);
 });

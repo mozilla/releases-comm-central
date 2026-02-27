@@ -66,6 +66,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
                                   bool* aSignMessage, bool* aEncrypt);
 
   bool mSignMessage;
+  nsAutoCString mSignFormat;
   bool mAlwaysEncryptMessage;
   mimeDeliveryCryptoState mCryptoState;
   nsCOMPtr<nsIOutputStream> mStream;

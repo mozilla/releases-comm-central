@@ -26,6 +26,8 @@ support-files = ["../data/**"]
 
 ["browser_composeSigned2.js"]
 
+["browser_composeSigned3.js"]
+
 ["browser_composeSwitchIdentity.js"]
 
 ["browser_editDraftTemplate.js"]

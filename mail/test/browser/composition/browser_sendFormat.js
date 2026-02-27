@@ -32,6 +32,10 @@ var {
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
+const { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
+);
+
 var sendFormatPreference;
 var htmlAsPreference;
 var draftsFolder;
@@ -267,6 +271,14 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // message?
   const contentType =
     get_about_message().currentHeaderData["content-type"].headerValue;
+
+  // Ensure there is NO RFC 9788 parameter hp (message is not signed)
+  const ctParsed = MimeParser.parseHeaderField(
+    contentType,
+    MimeParser.HEADER_PARAMETER
+  );
+  Assert.ok(!ctParsed.has("hp"));
+
   if (plain && html) {
     Assert.ok(
       contentType.startsWith("multipart/alternative"),

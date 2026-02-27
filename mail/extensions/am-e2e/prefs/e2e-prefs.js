@@ -48,6 +48,11 @@ pref("mail.openpgp.fetch_pubkeys_from_gnupg", false);
 // it's possible to use one combined MIME layer, or separate layers.
 pref("mail.openpgp.separate_mime_layers", false);
 
+// When sending an OpenPGP message that is signed but NOT encrypted,
+// use the following format for transporting the signature.
+// Allowed values: "multipart" (classic) or "unobtrusive
+pref("mail.openpgp.clear_signature_format", "multipart");
+
 // Load a JSON file that contains recipient key alias rules. See bug 1644085.
 // Suggested filename: openpgp-alias-rules.json
 // Simple filenames (without path) are loaded from the profile directory.

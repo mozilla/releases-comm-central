@@ -20,11 +20,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
 const MIME_SIGNED = 1; // only one MIME layer
 const MIME_ENCRYPTED = 2; // only one MIME layer, combined enc/sig data
 const MIME_OUTER_ENC_INNER_SIG = 3; // use two MIME layers
+const MIME_SIGNED_UNOBTRUSIVE = 4; // one layer, new "unobtrusive" format
 
 function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.wrappedJSObject = this;
 
   this.signMessage = false;
+  this.signFormat = "";
   this.requireEncryptMessage = false;
 
   // "securityInfo" variables
@@ -84,6 +86,7 @@ PgpMimeEncrypt.prototype = {
   cryptoOutput: "",
   hashAlgorithm: "SHA256", // TODO: coordinate with RNP.sys.mjs
   cryptoInputBuffer: "",
+  cryptoIrrelevantMessageSuffix: "", // only for unobtrusive-signature
   outgoingMessageBuffer: "",
   mimeStructure: 0,
   exitCode: -1,
@@ -153,7 +156,10 @@ PgpMimeEncrypt.prototype = {
           this.mimeStructure = MIME_ENCRYPTED;
         }
       } else if (this.sendFlags & lazy.EnigmailConstants.SEND_SIGNED) {
-        this.mimeStructure = MIME_SIGNED;
+        this.mimeStructure =
+          this.sendFlags & lazy.EnigmailConstants.SEND_SIG_UNOBTRUSIVE
+            ? MIME_SIGNED_UNOBTRUSIVE
+            : MIME_SIGNED;
       }
     } else {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -166,6 +172,7 @@ PgpMimeEncrypt.prototype = {
   startCryptoHeaders() {
     switch (this.mimeStructure) {
       case MIME_SIGNED:
+      case MIME_SIGNED_UNOBTRUSIVE:
         this.signedHeaders1(false);
         break;
       case MIME_ENCRYPTED:
@@ -178,44 +185,49 @@ PgpMimeEncrypt.prototype = {
   },
 
   writeSecureHeaders() {
-    this.encHeader = lazy.EnigmailMime.createBoundary();
+    if (this.mimeStructure != MIME_SIGNED_UNOBTRUSIVE) {
+      this.encHeader = lazy.EnigmailMime.createBoundary();
+    }
 
     if (!this.headers) {
       throw new Error("OpenPGP message creation requires prepared headers");
     }
 
-    let w = `Content-Type: multipart/mixed; boundary="${this.encHeader}"`;
-    w += `;\r\n protected-headers="v1"`;
-    if (this.signMessage) {
-      if (this.requireEncryptMessage) {
-        w += '; hp="cipher"';
-      } else {
-        w += '; hp="clear"';
-      }
-    }
-    w += `\r\n${this.headers}`;
-
-    if (
-      (this.mimeStructure == MIME_ENCRYPTED ||
-        this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
-      this.originalSubject
-    ) {
-      w += lazy.jsmime.headeremitter.emitStructuredHeader(
-        "subject",
-        this.originalSubject,
-        {}
+    if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+      this.appendToCryptoInput(
+        this.headers + (this.autocryptGossipHeaders ?? "")
       );
-    }
+    } else {
+      let w = `Content-Type: multipart/mixed; boundary="${this.encHeader}"`;
+      w += `;\r\n protected-headers="v1"`;
+      if (this.signMessage) {
+        if (this.requireEncryptMessage) {
+          w += '; hp="cipher"';
+        } else {
+          w += '; hp="clear"';
+        }
+      }
+      w += `\r\n${this.headers}`;
 
-    if (this.autocryptGossipHeaders) {
-      w += this.autocryptGossipHeaders;
-    }
+      if (
+        (this.mimeStructure == MIME_ENCRYPTED ||
+          this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
+        this.originalSubject
+      ) {
+        w += lazy.jsmime.headeremitter.emitStructuredHeader(
+          "subject",
+          this.originalSubject,
+          {}
+        );
+      }
 
-    w += `\r\n--${this.encHeader}\r\n`;
-    this.appendToCryptoInput(w);
+      w += this.autocryptGossipHeaders ?? "";
+      w += `\r\n--${this.encHeader}\r\n`;
+      this.appendToCryptoInput(w);
 
-    if (this.mimeStructure == MIME_SIGNED) {
-      this.appendToMessage(w);
+      if (this.mimeStructure == MIME_SIGNED) {
+        this.appendToMessage(w);
+      }
     }
   },
 
@@ -262,27 +274,41 @@ PgpMimeEncrypt.prototype = {
     } else {
       boundary = this.outerBoundary;
     }
-    const sigHeader =
-      "Content-Type: multipart/signed; micalg=pgp-" +
-      this.hashAlgorithm.toLowerCase() +
-      ";\r\n" +
-      ' protocol="application/pgp-signature";\r\n' +
-      ' boundary="' +
-      boundary +
-      '"\r\n' +
-      (isEightBit ? "Content-Transfer-Encoding: 8bit\r\n\r\n" : "\r\n") +
-      "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\r\n" +
-      "--" +
-      boundary +
-      "\r\n";
-    if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
-      this.appendToCryptoInput(sigHeader);
-    } else {
+
+    if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+      const sigHeader =
+        `Content-Type: multipart/mixed; boundary="${boundary}"` +
+        "\r\n\r\n" +
+        `--${boundary}` +
+        "\r\n";
       this.appendToMessage(sigHeader);
+    } else {
+      const sigHeader =
+        "Content-Type: multipart/signed; micalg=pgp-" +
+        this.hashAlgorithm.toLowerCase() +
+        ";\r\n" +
+        ' protocol="application/pgp-signature";\r\n' +
+        ' boundary="' +
+        boundary +
+        '"\r\n' +
+        (isEightBit ? "Content-Transfer-Encoding: 8bit\r\n\r\n" : "\r\n") +
+        "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\r\n" +
+        "--" +
+        boundary +
+        "\r\n";
+      if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
+        this.appendToCryptoInput(sigHeader);
+      } else {
+        this.appendToMessage(sigHeader);
+      }
     }
   },
 
   signedHeaders2() {
+    if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+      return;
+    }
+
     let boundary;
     if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
       boundary = this.innerBoundary;
@@ -368,6 +394,32 @@ PgpMimeEncrypt.prototype = {
       if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
         // remove signature flag, because we already signed
         encryptionFlags = encryptionFlags & ~lazy.EnigmailConstants.SEND_SIGNED;
+      } else if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+        // Normalize input for unobtrusive signature canonicalization.
+        //
+        // Requirement:
+        // - cryptoInputBuffer MUST end with exactly one CRLF ("\r\n").
+        // - Additional trailing CRLFs are ignored for signature creation,
+        //   but preserved in cryptoIrrelevantMessageSuffix for emission.
+
+        // Match trailing CRLFs, if any.
+        const match = this.cryptoInputBuffer.match(/(\r\n)+$/);
+
+        if (!match) {
+          // No trailing CRLF
+          this.cryptoInputBuffer += "\r\n";
+        } else {
+          const trailing = match[0]; // all the trailing CRLFs
+          if (trailing.length > 2) {
+            // Multiple trailing CRLFs:
+            // Keep exactly one in canonicalized buffer.
+            const contentEnd = this.cryptoInputBuffer.length - trailing.length;
+            this.cryptoInputBuffer =
+              this.cryptoInputBuffer.slice(0, contentEnd) + "\r\n";
+            // Preserve additional CRLFs as irrelevant suffix.
+            this.cryptoIrrelevantMessageSuffix = trailing.slice(2);
+          }
+        }
       }
       this.exitCode = lazy.EnigmailEncryption.encryptMessageStart(
         this.win,
@@ -390,11 +442,41 @@ PgpMimeEncrypt.prototype = {
       this.signedHeaders2();
     }
 
-    this.cryptoOutput = this.cryptoOutput
-      .replace(/\r/g, "")
-      .replace(/\n/g, "\r\n"); // force CRLF
+    if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+      this.appendToMessage("Sig: t=p; b=\r\n ");
+      this.cryptoOutput = this.cryptoOutput
+        .replace(/\r/g, "")
+        .replace(/\n/g, "\r\n ");
+
+      const lines = this.cryptoOutput.trim().split("\r\n");
+      if (
+        lines.length < 5 ||
+        lines[0].trim() !== "-----BEGIN PGP SIGNATURE-----" ||
+        lines[1].trim() ||
+        lines[lines.length - 1].trim() !== "-----END PGP SIGNATURE-----"
+      ) {
+        throw new Error("Invalid OpenPGP signature input");
+      }
+
+      // Remove two lines at the beginning and two lines at the end.
+      // line 1: BEGIN PGP...
+      // line 2: empty
+      // second to last line: checksum
+      // last line: END PGP...
+      this.cryptoOutput = lines.slice(2, -2).join("\r\n").trim() + "\r\n";
+    } else {
+      this.cryptoOutput = this.cryptoOutput
+        .replace(/\r/g, "")
+        .replace(/\n/g, "\r\n"); // force CRLF
+    }
 
     this.appendToMessage(this.cryptoOutput);
+
+    if (this.mimeStructure == MIME_SIGNED_UNOBTRUSIVE) {
+      this.appendToMessage(this.cryptoInputBuffer);
+      this.appendToMessage(this.cryptoIrrelevantMessageSuffix);
+    }
+
     this.finishCryptoHeaders();
     this.flushOutput();
   },

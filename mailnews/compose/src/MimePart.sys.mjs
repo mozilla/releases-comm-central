@@ -355,14 +355,16 @@ export class MimePart {
 export class MimeMultiPart extends MimePart {
   /**
    * @param {string} subtype - The multipart subtype, e.g. "alternative" or "mixed".
+   * @param {string} [ctparams] - Suffix for Content-Type header,
+   *   e.g. optional additional parameters.
    */
-  constructor(subtype) {
+  constructor(subtype, ctparams = "") {
     super();
     this.subtype = subtype;
     this._separator = this._makePartSeparator();
     this.setHeader(
       "content-type",
-      `multipart/${subtype}; boundary="${this._separator}"`
+      `multipart/${subtype}; boundary="${this._separator}"${ctparams}`
     );
   }
 

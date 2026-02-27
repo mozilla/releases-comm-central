@@ -999,6 +999,16 @@ Enigmail.msg = {
       newSecurityInfo = gMsgCompose.compFields.composeSecure.wrappedJSObject;
     }
 
+    if (
+      sendFlags & EnigmailConstants.SEND_SIGNED &&
+      !(sendFlags & EnigmailConstants.SEND_ENCRYPTED)
+    ) {
+      newSecurityInfo.signFormat =
+        sendFlags & EnigmailConstants.SEND_SIG_UNOBTRUSIVE
+          ? "unobtrusive"
+          : "multipart";
+    }
+
     newSecurityInfo.originalSubject = gMsgCompose.compFields.subject;
     newSecurityInfo.originalReferences = gMsgCompose.compFields.references;
 
@@ -1173,6 +1183,15 @@ Enigmail.msg = {
 
       if (usingPGPMime) {
         uiFlags |= EnigmailConstants.UI_PGP_MIME;
+        if (sendFlags & SIGN && !(sendFlags & ENCRYPT)) {
+          if (
+            Services.prefs.getStringPref(
+              "mail.openpgp.clear_signature_format"
+            ) == "unobtrusive"
+          ) {
+            sendFlags |= EnigmailConstants.SEND_SIG_UNOBTRUSIVE;
+          }
+        }
       }
 
       if (sendFlags & (ENCRYPT | SIGN) && usingPGPMime) {

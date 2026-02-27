@@ -130,6 +130,16 @@ NS_IMETHODIMP nsMsgComposeSecure::GetSignMessage(bool* _retval) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgComposeSecure::SetSignFormat(const nsACString& value) {
+  mSignFormat = value;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgComposeSecure::GetSignFormat(nsACString& _retval) {
+  _retval = mSignFormat.get();
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgComposeSecure::SetRequireEncryptMessage(bool value) {
   mAlwaysEncryptMessage = value;
   return NS_OK;
