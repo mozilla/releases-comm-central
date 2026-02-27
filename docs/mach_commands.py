@@ -3,6 +3,7 @@
 # file, # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import fnmatch
+import functools
 import json
 import os
 import re
@@ -17,7 +18,7 @@ from mozfile import load_source
 
 import mozpack.path as mozpath
 from mach.decorators import Command, CommandArgument
-from mozbuild.util import cpu_count, memoize
+from mozbuild.util import cpu_count
 
 here = os.path.abspath(os.path.dirname(__file__))
 topsrcdir = os.path.abspath(os.path.dirname(os.path.dirname(here)))
@@ -330,7 +331,7 @@ def toggle_no_autodoc():
     roctreedocs.CCSphinxManager.NO_AUTODOC = True
 
 
-@memoize
+@functools.cache
 def _read_project_properties():
     path = os.path.normpath(manager().conf_py_path)
     conf = load_source("doc_conf", path)
