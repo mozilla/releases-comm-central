@@ -129,6 +129,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// if we're being throttled) if the request fails.
     pub async fn make_and_send_request<OpResp: OperationResponse>(
         &self,
+        operation_id: &Uuid,
         name: &str,
         content: &[u8],
         options: &OperationRequestOptions,
@@ -136,7 +137,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let mut token = None;
 
         loop {
-            let response = match self.send_http_request(name, content).await {
+            let response = match self.send_http_request(operation_id, name, content).await {
                 Ok(response) => response,
                 Err(err) => {
                     token = match self.error_handling_line.try_acquire_token().or_token(token) {
@@ -215,6 +216,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// The `op_name` parameter is only used for logging.
     async fn send_http_request(
         &self,
+        operation_id: &Uuid,
         op_name: &str,
         request_body: &[u8],
     ) -> Result<Response, XpComEwsError> {
@@ -238,8 +240,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let auth_header_value = credentials.to_auth_header_value().await?;
 
         // Generate random id for logging purposes.
-        let request_id = Uuid::new_v4();
-        log::info!("Making operation request {request_id}: {op_name}");
+        log::info!("Making operation request {operation_id}: {op_name}");
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {
             // Also log the request body if requested.
@@ -265,7 +266,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         let response_body = response.body();
         let response_status = response.status()?;
         log::info!(
-            "Response received for request {request_id} (status {response_status}): {op_name}"
+            "Response received for request {operation_id} (status {response_status}): {op_name}"
         );
 
         if env::var(LOG_NETWORK_PAYLOADS_ENV_VAR).is_ok() {

@@ -30,6 +30,7 @@ use ews::{
     soap,
     update_item::{UpdateItem, UpdateItemResponse},
 };
+use log::info;
 use mail_parser::MessageParser;
 use mailnews_ui_glue::UserInteractiveServer;
 use protocol_shared::{
@@ -37,6 +38,7 @@ use protocol_shared::{
     safe_xpcom::{SafeEwsMessageCreateListener, StaleMsgDbHeader, UpdatedMsgDbHeader},
 };
 use url::Url;
+use uuid::Uuid;
 use xpcom::{RefCounted, RefPtr};
 
 use crate::{
@@ -80,6 +82,7 @@ type EwsOperationResult<T> = Result<<T as Operation>::Response, XpComEwsError>;
 /// The EWS implementation of the [`QueuedOperation`] trait. It wraps around a
 /// type that implements [`ews::Operation`].
 pub struct QueuedEwsOperation<Op: Operation> {
+    operation_id: Uuid,
     inner: Op,
     sender: Cell<Option<oneshot::Sender<EwsOperationResult<Op>>>>,
     options: OperationRequestOptions,
@@ -97,13 +100,22 @@ impl<Op: Operation> QueuedEwsOperation<Op> {
     ) -> (Self, oneshot::Receiver<EwsOperationResult<Op>>) {
         let (snd, rcv) = oneshot::channel();
 
+        let operation_id = Uuid::new_v4();
         let op = QueuedEwsOperation {
+            operation_id,
             inner: op,
             sender: Cell::new(Some(snd)),
             options,
         };
 
         (op, rcv)
+    }
+
+    /// Return the unique ID associated with this operation.
+    ///
+    /// In general, this is useful for tracing an operation through application phases.
+    pub fn id(&self) -> &Uuid {
+        &self.operation_id
     }
 
     /// Communicates the given [`EwsOperationResult`] to the listener through
@@ -141,7 +153,7 @@ where
         };
 
         let res = op_sender
-            .make_and_send_request(op_name, &request_body, &self.options)
+            .make_and_send_request(&self.operation_id, op_name, &request_body, &self.options)
             .await;
 
         self.send_result(res);
@@ -154,6 +166,7 @@ where
 impl<Op: Operation> Debug for QueuedEwsOperation<Op> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("QueuedEwsOperation")
+            .field("operation_id", &self.operation_id)
             .field("inner", &self.inner)
             .field("options", &self.options)
             .finish()
@@ -228,8 +241,23 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
         options: OperationRequestOptions,
     ) -> Result<Op::Response, XpComEwsError> {
         let (queued_op, rcv) = QueuedEwsOperation::new(op, options);
+
+        let operation_id = *queued_op.id();
+
+        info!(
+            "Enqueueing operation {operation_id}: type = {}",
+            <Op as Operation>::NAME
+        );
+
         self.queue.enqueue(Box::new(queued_op)).await?;
-        rcv.await?
+        let result = rcv.await;
+
+        info!(
+            "Queued operation {operation_id} completed: type = {}",
+            <Op as Operation>::NAME
+        );
+
+        result?
     }
 
     /// Fetches items from the remote Exchange server.
