@@ -24,6 +24,10 @@ const { CalAlarm } = ChromeUtils.importESModule(
   "resource:///modules/CalAlarm.sys.mjs"
 );
 
+const { CalAttachment } = ChromeUtils.importESModule(
+  "resource:///modules/CalAttachment.sys.mjs"
+);
+
 const { weekView } = CalendarTestUtils;
 const SCREEN_MARGIN = 10;
 const SMALL_WINDOW_WIDTH = 1300;
@@ -143,6 +147,7 @@ function createCalendar({
  * @param {string} [options.descriptionHTML] - HTML version of the
  *   description. Overrides description if truthy.
  * @param {CalAlarm[]} [options.alarms=[]] - Calendar alarms.
+ * @param {string[]} [options.attachments=[]] - Attached files.
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
@@ -157,6 +162,7 @@ async function createEvent({
   description = "",
   descriptionHTML,
   alarms = [],
+  attachments = [],
 } = {}) {
   let start = new Date(baseDate);
   start.setDate(baseDate.getDate() + offset);
@@ -192,6 +198,12 @@ async function createEvent({
 
   if (location) {
     event.setProperty("LOCATION", location);
+  }
+
+  for (const attachmentLocation of attachments) {
+    const attachment = new CalAttachment();
+    attachment.uri = Services.io.newURI(attachmentLocation);
+    event.addAttachment(attachment);
   }
 
   const returnEvent = await calendar.addItem(event);

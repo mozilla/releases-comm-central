@@ -917,3 +917,56 @@ add_task(async function test_joinMeetingButton() {
 
   resetDialog();
 });
+
+add_task(async function test_dialogAttachmentsSubview() {
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  const calEvent = await createEvent({
+    attachments: ["https://example.com/"],
+    calendar,
+  });
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+  subviewManager.showSubview("calendarAttachmentsSubview");
+  const list = dialog.querySelector(
+    "#calendarAttachmentsList .attachments-list"
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    {
+      subtree: true,
+      childList: true,
+    },
+    () => list.childElementCount > 0
+  );
+
+  Assert.equal(list.childElementCount, 1, "Should have one attachment");
+  Assert.equal(
+    list.children[0].getAttribute("url"),
+    "https://example.com/",
+    "Should pass url to attachment"
+  );
+  Assert.equal(
+    list.children[0].getAttribute("label"),
+    "https://example.com/",
+    "Should pass url as label"
+  );
+  Assert.equal(
+    list.children[0].getAttribute("icon"),
+    "moz-icon://dummy.html",
+    "Should show an icon for the attachment"
+  );
+
+  resetDialog();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    list,
+    {
+      subtree: true,
+      childList: true,
+    },
+    () => list.childElementCount == 0
+  );
+});

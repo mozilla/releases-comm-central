@@ -116,6 +116,31 @@
         </div>
       </calendar-dialog-row>
     </template>
+    <template id="calendarDialogAttachmentTemplate">
+      <img
+        class="attachment-icon"
+        src=""
+        srcset=""
+        data-l10n-id="calendar-dialog-attachment-link-icon"
+      />
+      <a class="attachment-label" href=""></a>
+    </template>
+    <template id="calendarDialogAttachmentsListTemplate">
+      <calendar-dialog-row>
+        <img
+          src=""
+          slot="icon"
+          class="icon-attachment"
+          data-l10n-id="calendar-dialog-attachments-row-icon"
+        />
+        <span
+          slot="label"
+          class="row-label"
+          data-l10n-id="calendar-dialog-attachments-label"
+        ></span>
+        <ul slot="content" class="attachments-list"></ul>
+      </calendar-dialog-row>
+    </template>
     <template id="calendarDialogTemplate">
       <div class="titlebar">
         <button

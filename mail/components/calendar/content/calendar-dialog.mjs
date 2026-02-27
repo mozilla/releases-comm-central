@@ -31,6 +31,8 @@ const { extractJoinLink } = ChromeUtils.importESModule(
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+  getAttachmentIcon:
+    "moz-src:///comm/mail/components/calendar/modules/CalendarAttachmentUtils.sys.mjs",
 });
 
 export const DEFAULT_DIALOG_MARGIN = 12;
@@ -347,6 +349,13 @@ export class CalendarDialog extends PositionedDialog {
 
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
 
+    this.querySelector("calendar-dialog-attachments-list").setAttachments(
+      event.getAttachments().map(attachment => ({
+        uri: attachment.uri.spec,
+        icon: lazy.getAttachmentIcon(attachment),
+      }))
+    );
+
     this.#setJoinMeetingButton(event.descriptionText || "");
 
     const plainDescriptionPromise = this.querySelector(
@@ -378,6 +387,7 @@ export class CalendarDialog extends PositionedDialog {
     await this.querySelector("#expandingDescription").setDescription("");
     await this.querySelector("#expandedDescription").setDescription("");
     this.querySelector("calendar-dialog-reminders-row").setReminders([]);
+    this.querySelector("calendar-dialog-attachments-list").setAttachments([]);
   }
 
   /**
