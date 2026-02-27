@@ -28,8 +28,8 @@ aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776b
 abridged_certs = { path = "../../../security/manager/ssl/abridged_certs" }
 adblock = { version = "0.12.1", features = ['full-regex-handling', 'single-thread'], default-features = false }
 audio_thread_priority = { version = "0.34" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "0339c4732ceadbc5f54898b77498c33fff0f3f90", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "0339c4732ceadbc5f54898b77498c33fff0f3f90", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }

@@ -71,9 +71,9 @@ git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"]
+[source."git+https://github.com/mozilla/audioipc?rev=0339c4732ceadbc5f54898b77498c33fff0f3f90"]
 git = "https://github.com/mozilla/audioipc"
-rev = "c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
+rev = "0339c4732ceadbc5f54898b77498c33fff0f3f90"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/mozilla/cubeb-coreaudio-rs?rev=5b689a7f90086e07c271ad1cf79325ee06112ab6"]

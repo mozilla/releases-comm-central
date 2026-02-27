@@ -317,7 +317,7 @@ dependencies = [
 [[package]]
 name = "audioipc2"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
+source = "git+https://github.com/mozilla/audioipc?rev=0339c4732ceadbc5f54898b77498c33fff0f3f90#0339c4732ceadbc5f54898b77498c33fff0f3f90"
 dependencies = [
  "arrayvec",
  "ashmem",
@@ -344,7 +344,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-client"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
+source = "git+https://github.com/mozilla/audioipc?rev=0339c4732ceadbc5f54898b77498c33fff0f3f90#0339c4732ceadbc5f54898b77498c33fff0f3f90"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
@@ -355,7 +355,7 @@ dependencies = [
 [[package]]
 name = "audioipc2-server"
 version = "0.6.0"
-source = "git+https://github.com/mozilla/audioipc?rev=c8d3f03cb5f889e4cab18cc1360ad0daa074f17a#c8d3f03cb5f889e4cab18cc1360ad0daa074f17a"
+source = "git+https://github.com/mozilla/audioipc?rev=0339c4732ceadbc5f54898b77498c33fff0f3f90#0339c4732ceadbc5f54898b77498c33fff0f3f90"
 dependencies = [
  "audio_thread_priority",
  "audioipc2",
