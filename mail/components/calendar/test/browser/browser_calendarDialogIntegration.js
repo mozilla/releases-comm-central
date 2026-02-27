@@ -13,10 +13,15 @@ const { CalendarDialog } = ChromeUtils.importESModule(
   { global: "current" }
 );
 
+const { MockExternalProtocolService } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MockExternalProtocolService.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let calendar;
 
 add_setup(() => {
+  MockExternalProtocolService.init();
   calendar = createCalendar({
     name: "TB CAL TEST",
     color: "rgb(255, 187, 255)",
@@ -25,8 +30,28 @@ add_setup(() => {
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
     tabmail.closeOtherTabs(0);
+    MockExternalProtocolService.cleanup();
   });
 });
+
+/**
+ * Clean up the state of the calendar tab by closing the dialog and removing the
+ * event used for the test.
+ *
+ * @param {CalendarDialog} dialog - The calendar dialog that was opened in the
+ *  test.
+ * @param {Element} eventBox - The event box holding the event the dialog was
+ *  opened for. Usually this was resolved to by |openAndShowEvent|.
+ */
+async function cleanUp(dialog, eventBox) {
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".close-button"),
+    {},
+    window
+  );
+
+  await calendar.deleteItem(eventBox.occurrence);
+}
 
 add_task(async function test_calendarDialogOpenAndClose() {
   let dialog = document.querySelector('[is="calendar-dialog"]');
@@ -81,13 +106,7 @@ add_task(async function test_calendarDialogOpenAndClose() {
     "New dialog and old dialog are the same element"
   );
 
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
-
-  await calendar.deleteItem(eventBox.occurrence);
+  await cleanUp(dialog, eventBox);
 });
 
 add_task(async function test_calendarDialogColors() {
@@ -136,7 +155,7 @@ add_task(async function test_calendarDialogColors() {
     `calendar.category.color.${formattedCategoryName}`
   );
 
-  await calendar.deleteItem(eventBox.occurrence);
+  await cleanUp(dialog, eventBox);
 });
 
 add_task(async function test_maxSize() {
@@ -159,8 +178,7 @@ add_task(async function test_maxSize() {
     "The dialog height is restricted by the container"
   );
 
-  await calendar.deleteItem(eventBox.occurrence);
-
+  await cleanUp(dialog, eventBox);
   style.remove();
 });
 
@@ -207,9 +225,44 @@ add_task(async function test_resizeWindow() {
 
   checkTolerance(eventBox, `Dialog should have correct final position`);
 
-  await calendar.deleteItem(eventBox.occurrence);
-
+  await cleanUp(dialog, eventBox);
   style.remove();
+});
+
+add_task(async function test_attachmentLinkClick() {
+  await createEvent({ calendar, attachments: ["https://example.com/"] });
+  const eventBox = await openAndShowEvent();
+
+  const dialog = document.getElementById("calendarDialog");
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    dialog.querySelector("#attachmentsRow")
+  );
+
+  info("Open attachments subbiew...");
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#expandAttachments"),
+    {}
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    dialog.querySelector("#calendarAttachmentsSubview")
+  );
+
+  info("Clicking link...");
+  const openPromise = MockExternalProtocolService.promiseLoad();
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector('li[is="calendar-dialog-attachment"] a'),
+    {}
+  );
+  Assert.equal(
+    await openPromise,
+    "https://example.com/",
+    "Should try to open attachment URL"
+  );
+
+  await cleanUp(dialog, eventBox);
+  MockExternalProtocolService.reset();
 });
 
 add_task(async function test_closeDialogOnTabSwitch() {
