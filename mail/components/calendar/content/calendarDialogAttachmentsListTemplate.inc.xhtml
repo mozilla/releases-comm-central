@@ -1,0 +1,22 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#include calendarDialogAttachmentTemplate.inc.xhtml
+
+<html:template id="calendarDialogAttachmentsListTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-dialog-row>
+    <img
+      src=""
+      slot="icon"
+      class="icon-attachment"
+      data-l10n-id="calendar-dialog-attachments-row-icon"
+    />
+    <span
+      slot="label"
+      class="row-label"
+      data-l10n-id="calendar-dialog-attachments-label"
+    ></span>
+    <ul slot="content" class="attachments-list"></ul>
+  </calendar-dialog-row>
+</html:template>

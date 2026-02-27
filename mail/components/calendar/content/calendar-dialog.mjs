@@ -9,6 +9,7 @@ import "./calendar-dialog-date-row.mjs"; // eslint-disable-line import/no-unassi
 import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-attachments-list.mjs"; // eslint-disable-line import/no-unassigned-import
 
 const { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"

@@ -64,5 +64,10 @@ calendar-dialog-join-meeting-button = Join Meeting
 calendar-dialog-join-meeting-row-icon =
   .alt = Join Meeting
 
+calendar-dialog-attachments-row-icon =
+  .alt = Attachments
+
+calendar-dialog-attachments-label = Attachments
+
 calendar-dialog-attachment-link-icon =
   .alt = Linked attachment

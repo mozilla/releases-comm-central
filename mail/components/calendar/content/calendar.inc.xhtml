@@ -8,6 +8,7 @@
 #include calendarDialogCategoriesTemplate.inc.xhtml
 #include calendarDialogRemindersRowTemplate.inc.xhtml
 #include calendarDialogAcceptanceTemplate.inc.xhtml
+#include calendarDialogAttachmentsListTemplate.inc.xhtml
 
 <html:template id="calendarDialogTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <div class="titlebar">
@@ -91,6 +92,14 @@
           id="expandedDescription"
           type="full"
         ></calendar-dialog-description-row>
+      </div>
+      <div
+        id="calendarAttachmentsSubview"
+        hidden="hidden"
+      >
+        <calendar-dialog-attachments-list
+          id="calendarAttachmentsList"
+        ></calendar-dialog-attachments-list>
       </div>
     </calendar-dialog-subview-manager>
   </div>
