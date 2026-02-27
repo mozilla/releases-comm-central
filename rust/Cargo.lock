@@ -2502,6 +2502,7 @@ dependencies = [
  "locale_service_glue",
  "localization-ffi",
  "log",
+ "mailnews_string_glue",
  "mailnews_ui_glue",
  "mapped_hyph",
  "mdns_service",
@@ -2565,6 +2566,7 @@ dependencies = [
  "graph_xpcom",
  "kvstore-gtest",
  "l10nregistry-ffi-gtest",
+ "mailnews_string_glue",
  "moz_task-gtest",
  "mozglue-static",
  "mozilla-central-workspace-hack",
@@ -3790,9 +3792,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "mailnews_string_glue"
+version = "0.1.0"
+dependencies = [
+ "icu_normalizer",
+ "nserror",
+ "nsstring",
+]
+
+[[package]]
 name = "mailnews_ui_glue"
 version = "0.1.0"
 dependencies = [
+ "icu_normalizer",
  "nserror",
  "nsstring",
  "thin-vec",

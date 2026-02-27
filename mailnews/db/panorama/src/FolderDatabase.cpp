@@ -105,7 +105,7 @@ NS_IMETHODIMP FolderDatabase::InsertRoot(const nsACString& serverKey,
   NS_ENSURE_ARG_POINTER(rootId);
 
   // `serverKey` is almost certainly ASCII, but normalize it and be sure.
-  nsCString nfcServerKey = DatabaseUtils::Normalize(serverKey);
+  nsCString nfcServerKey = MOZ_TRY(DatabaseUtils::Normalize(serverKey));
   return InternalInsertFolder(0, nfcServerKey, rootId);
 }
 
@@ -115,7 +115,7 @@ NS_IMETHODIMP FolderDatabase::InsertFolder(uint64_t parentId,
   NS_ENSURE_ARG(parentId);
   NS_ENSURE_ARG_POINTER(childId);
 
-  nsCString nfcName = DatabaseUtils::Normalize(name);
+  nsCString nfcName = MOZ_TRY(DatabaseUtils::Normalize(name));
   return InternalInsertFolder(parentId, nfcName, childId);
 }
 
@@ -130,7 +130,7 @@ NS_IMETHODIMP FolderDatabase::InsertFolder(uint64_t parentId,
 nsresult FolderDatabase::InternalInsertFolder(uint64_t parentId,
                                               const nsACString& name,
                                               uint64_t* childId) {
-  MOZ_ASSERT(DatabaseUtils::Normalize(name) == name);
+  MOZ_ASSERT(MOZ_TRY(DatabaseUtils::Normalize(name)) == name);
   NS_ENSURE_ARG_POINTER(childId);
 
   // DB has uniqueness constraint upon (parent, name).
@@ -385,7 +385,7 @@ FolderDatabase::MoveFolderTo(uint64_t newParentId, uint64_t childId) {
 NS_IMETHODIMP
 FolderDatabase::UpdateName(uint64_t folderId, const nsACString& newName) {
   NS_ENSURE_ARG(folderId);
-  nsCString nfcNewName = DatabaseUtils::Normalize(newName);
+  nsCString nfcNewName = MOZ_TRY(DatabaseUtils::Normalize(newName));
 
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = DatabaseCore::GetStatement(
@@ -444,7 +444,8 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, id);
-  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindUTF8StringByName("name"_ns,
+                             MOZ_TRY(DatabaseUtils::Normalize(name)));
 
   bool hasResult;
   if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
@@ -466,7 +467,8 @@ nsresult FolderDatabase::GetFolderProperty(uint64_t id, const nsACString& name,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, id);
-  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindUTF8StringByName("name"_ns,
+                             MOZ_TRY(DatabaseUtils::Normalize(name)));
 
   bool hasResult;
   if (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
@@ -486,7 +488,8 @@ nsresult FolderDatabase::SetFolderProperty(uint64_t id, const nsACString& name,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, id);
-  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindUTF8StringByName("name"_ns,
+                             MOZ_TRY(DatabaseUtils::Normalize(name)));
   stmt->BindUTF8StringByName("value"_ns, value);
   return stmt->Execute();
 }
@@ -501,7 +504,8 @@ nsresult FolderDatabase::SetFolderProperty(uint64_t id, const nsACString& name,
   NS_ENSURE_SUCCESS(rv, rv);
 
   stmt->BindInt64ByName("id"_ns, id);
-  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
+  stmt->BindUTF8StringByName("name"_ns,
+                             MOZ_TRY(DatabaseUtils::Normalize(name)));
   stmt->BindInt64ByName("value"_ns, value);
   return stmt->Execute();
 }
@@ -638,7 +642,7 @@ Result<nsTArray<uint64_t>, nsresult> FolderDatabase::GetFolderChildren(
 Result<uint64_t, nsresult> FolderDatabase::GetFolderChildNamed(
     uint64_t folderId, nsACString const& childName) {
   // folderId can be 0, to search root folders.
-  nsCString nfcName = DatabaseUtils::Normalize(childName);
+  nsCString nfcName = MOZ_TRY(DatabaseUtils::Normalize(childName));
 
   // Have a quick rummage through the cache first.
   for (auto it = mFolderCache.iter(); !it.done(); it.next()) {

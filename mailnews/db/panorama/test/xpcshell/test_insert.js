@@ -36,12 +36,11 @@ add_task(function testInsertRoot() {
     serverX,
     "should be able to fetch the new folder by path"
   );
-  // Temporarily disabled, bug 2019183.
-  // Assert.equal(
-  //   folderDB.getFolderByPath("serve\u030CrX"),
-  //   serverX,
-  //   "should be able to fetch the new folder by path"
-  // );
+  Assert.equal(
+    folderDB.getFolderByPath("serve\u030CrX"),
+    serverX,
+    "should be able to fetch the new folder by path"
+  );
 
   // Root folders can have names containing '/' (not a great idea, but
   // we want to define the corner cases).
@@ -139,10 +138,9 @@ add_task(function testInsertFolder() {
     "insertFolder should fail if folder exists"
   );
 
-  // Temporarily disabled, bug 2019183.
-  // Assert.throws(
-  //   () => folderDB.insertFolder(parent, "inserte\u0304d"),
-  //   /NS_ERROR_/,
-  //   "insertFolder should fail if folder exists and not be fooled by different unicode representations"
-  // );
+  Assert.throws(
+    () => folderDB.insertFolder(parent, "inserte\u0304d"),
+    /NS_ERROR_/,
+    "insertFolder should fail if folder exists and not be fooled by different unicode representations"
+  );
 });

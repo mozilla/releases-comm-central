@@ -38,8 +38,7 @@ add_task(async function () {
     new Date("2000-07-01T23:06:00Z").valueOf() * 1000
   );
   Assert.equal(messages[0].author, '"Cicero Kutch" <cicero.kutch@invalid>');
-  // Temporarily disabled, bug 2019183.
-  // Assert.equal(messages[0].recipients, "Renée Alsom <renee.alsom@invalid>");
+  Assert.equal(messages[0].recipients, "Renée Alsom <renee.alsom@invalid>");
   Assert.equal(messages[0].subject, "Secured value-added orchestration");
   Assert.equal(messages[0].flags, Ci.nsMsgMessageFlags.Read);
   Assert.equal(messages[0].getStringProperty("keywords"), "$label5");

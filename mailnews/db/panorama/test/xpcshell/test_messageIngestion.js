@@ -66,12 +66,11 @@ add_task(function testSender() {
     "David Håsäther <db@null.invalid>"
   );
 
-  // Temporarily disabled, bug 2019183.
   // Same as above, but with decomposed characters.
-  // test(
-  //   "=?UTF-8?Q?David_Ha=CC=8Asa=CC=88ther?= <db@null.invalid>",
-  //   "David Håsäther <db@null.invalid>"
-  // );
+  test(
+    "=?UTF-8?Q?David_Ha=CC=8Asa=CC=88ther?= <db@null.invalid>",
+    "David Håsäther <db@null.invalid>"
+  );
 
   // Unencoded UTF-8.
   test("David Håsäther <db@null.invalid>", "David Håsäther <db@null.invalid>");
@@ -117,8 +116,7 @@ add_task(function testRecipients() {
   );
   Assert.equal(message.recipients, "Chloë's Café <db@null.invalid>");
   Assert.equal(message.ccList, "Pedro's Piñata <db@null.invalid>");
-  // Temporarily disabled, bug 2019183.
-  // Assert.equal(message.bccList, "Hidden Jalapeño <db@null.invalid>");
+  Assert.equal(message.bccList, "Hidden Jalapeño <db@null.invalid>");
 });
 
 add_task(function testSubject() {
@@ -146,12 +144,11 @@ add_task(function testSubject() {
   // Entirely ASCII.
   test("My Hovercraft Full Of Eels", "My Hovercraft Full Of Eels");
 
-  // Temporarily disabled, bug 2019183.
   // Encoded UTF-8 with composed and decomposed characters.
-  // test(
-  //   "=?UTF-8?Q?The_G=C3=A2teau_for_the_Cha=CC=82teau?=",
-  //   "The Gâteau for the Château"
-  // );
+  test(
+    "=?UTF-8?Q?The_G=C3=A2teau_for_the_Cha=CC=82teau?=",
+    "The Gâteau for the Château"
+  );
 
   // ISO-8859-1.
   test("Cr\xE8me Br\xFBl\xE9e Recipe", "Crème Brûlée Recipe");
