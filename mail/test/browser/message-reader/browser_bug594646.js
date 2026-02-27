@@ -18,6 +18,7 @@ var { open_message_from_file } = ChromeUtils.importESModule(
 async function extract_eml_body_textcontent(eml) {
   const file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   const msgc = await open_message_from_file(file);
+  await SimpleTest.promiseFocus(msgc);
 
   // Be sure to view message body as Original HTML
   msgc.MsgBodyAllowHTML();
