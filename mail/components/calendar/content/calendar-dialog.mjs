@@ -205,6 +205,10 @@ export class CalendarDialog extends PositionedDialog {
       throw new Error("Can only display events");
     }
 
+    if (this.open) {
+      this.close();
+    }
+
     this.removeAttribute("calendar-id");
     if (event.recurrenceId) {
       this.setAttribute("recurrence-id", event.recurrenceId.nativeTime);

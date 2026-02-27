@@ -375,6 +375,7 @@ add_task(async function test_dialogLocation() {
     calendar,
   });
   dialog.setCalendarEvent(physicalLocation);
+  dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     locationText,
     {
@@ -400,6 +401,7 @@ add_task(async function test_dialogLocation() {
     calendar,
   });
   dialog.setCalendarEvent(internetLocation);
+  dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     locationLink,
     {
@@ -764,7 +766,6 @@ add_task(async function test_dialogReminders() {
 });
 
 add_task(async function test_toggleRowVisibilty() {
-  dialog.show();
   let calendarEventData = {
     location: "foobar",
     name: "Physical location",
@@ -774,6 +775,7 @@ add_task(async function test_toggleRowVisibilty() {
   };
   let calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
+  dialog.show();
 
   // Test row visibility.
   const descriptionRow = dialog.querySelector("#descriptionRow");
@@ -823,6 +825,7 @@ add_task(async function test_toggleRowVisibilty() {
   };
   calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
+  dialog.show();
 
   // The toggleRowVisibility event should have fired from each component.
   await descriptionEventPromise;
