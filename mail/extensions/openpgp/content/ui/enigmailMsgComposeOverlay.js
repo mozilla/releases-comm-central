@@ -1127,7 +1127,12 @@ Enigmail.msg = {
         await this.attachOwnKey(senderKeyId);
       }
 
-      const autocryptGossipHeaders = await this.getAutocryptGossip();
+      const autocryptGossipHeaders =
+        gSendEncrypted &&
+        this.sendPgpMime &&
+        gCurrentIdentity.sendAutocryptHeaders
+          ? await this.getAutocryptGossip()
+          : "";
 
       var usingPGPMime =
         sendFlags & EnigmailConstants.SEND_PGP_MIME &&

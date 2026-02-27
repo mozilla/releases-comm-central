@@ -111,7 +111,7 @@ add_task(async function testSignedMessageComposition() {
 
   await setup_msg_contents(
     cwc,
-    "alice@openpgp.example",
+    "alice@openpgp.example, carol@example.com",
     "Compose Signed Message",
     "This is a signed message composition test."
   );
@@ -125,6 +125,13 @@ add_task(async function testSignedMessageComposition() {
   await assert_selected_and_displayed(0);
   const src = await get_msg_source(msg);
   const lines = src.split("\n");
+
+  // Ensure no Gossip headers are included in signed-only message
+  // with multiple recipients for whom public keys are available.
+  Assert.ok(
+    !src.includes("Autocrypt-Gossip:"),
+    "Signed only email should not send Autocrypt-Gossip"
+  );
 
   Assert.ok(
     lines.some(
