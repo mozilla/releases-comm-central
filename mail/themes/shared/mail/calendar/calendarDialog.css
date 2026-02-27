@@ -201,6 +201,9 @@ calendar-dialog-subview-manager {
     display: flex;
     flex-direction: column;
     gap: calc(var(--space-base) + var(--space-step));
+  }
+
+  #calendarDialogMainSubview {
     padding-block-end: calc(var(--space-base) + var(--space-step));
   }
 }

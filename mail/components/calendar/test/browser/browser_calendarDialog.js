@@ -771,6 +771,7 @@ add_task(async function test_toggleRowVisibilty() {
     name: "Physical location",
     description: "Foo",
     categories: ["TEST"],
+    attachments: ["https://example.com/"],
     calendar,
   };
   let calEvent = await createEvent(calendarEventData);
@@ -784,6 +785,7 @@ add_task(async function test_toggleRowVisibilty() {
   );
   const categoriesRow = dialog.querySelector("calendar-dialog-categories");
   const locationRow = dialog.querySelector("#locationRow");
+  const attachmentsRow = dialog.querySelector("#attachmentsRow");
 
   // Wait for calendar dialog data to be updated.
   await BrowserTestUtils.waitForMutationCondition(
@@ -807,6 +809,10 @@ add_task(async function test_toggleRowVisibilty() {
   Assert.ok(
     BrowserTestUtils.isVisible(locationRow),
     "Location row should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(attachmentsRow),
+    "Attachments row should be visible"
   );
 
   const descriptionEventPromise = BrowserTestUtils.waitForEvent(
@@ -842,6 +848,10 @@ add_task(async function test_toggleRowVisibilty() {
   Assert.ok(
     BrowserTestUtils.isHidden(locationRow),
     "Location row should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(attachmentsRow),
+    "Attachments row should be hidden"
   );
 
   resetDialog();
@@ -969,4 +979,63 @@ add_task(async function test_dialogAttachmentsSubview() {
     },
     () => list.childElementCount == 0
   );
+});
+
+add_task(async function test_dialogAttachmentsRow() {
+  const subviewManager = dialog.querySelector(
+    "calendar-dialog-subview-manager"
+  );
+  const row = dialog.querySelector("#attachmentsRow");
+  const calEvent = await createEvent({
+    attachments: ["https://example.com/", "https://example.org/"],
+    calendar,
+  });
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", row);
+
+  const rowAttributes = document.l10n.getAttributes(
+    row.querySelector(".row-label")
+  );
+
+  Assert.deepEqual(
+    rowAttributes,
+    {
+      id: "calendar-dialog-attachments-summary-label",
+      args: {
+        count: 2,
+      },
+    },
+    "Should update the l10n attributes of the row label"
+  );
+
+  const subviewChanged = BrowserTestUtils.waitForEvent(
+    dialog,
+    "subviewchanged",
+    true
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#expandAttachments"),
+    {},
+    browser.contentWindow
+  );
+  await subviewChanged;
+
+  Assert.ok(
+    !subviewManager.isDefaultSubviewVisible(),
+    "Should have switched to a different subview on click"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      dialog.querySelector("#calendarAttachmentsSubview")
+    ),
+    "Attachments subview should be visible"
+  );
+
+  const rowHidden = BrowserTestUtils.waitForAttribute("hidden", row);
+
+  resetDialog();
+
+  info("Waiting for attachment row to be hidden...");
+  await rowHidden;
 });

@@ -113,6 +113,7 @@ export class CalendarDialog extends PositionedDialog {
       this.querySelector(".back-button").addEventListener("click", this);
       this.querySelector("#expandDescription").addEventListener("click", this);
       this.querySelector("#joinMeeting").addEventListener("click", this);
+      this.querySelector("#expandAttachments").addEventListener("click", this);
       this.#subviewManager.addEventListener("toggleRowVisibility", this);
 
       this.querySelector(".back-button").hidden =
@@ -153,6 +154,8 @@ export class CalendarDialog extends PositionedDialog {
     "#expandDescription": () =>
       this.#subviewManager.showSubview("calendarDescriptionSubview"),
     "#joinMeeting": () => lazy.openLinkExternally(this.#meetingUrl),
+    "#expandAttachments": () =>
+      this.#subviewManager.showSubview("calendarAttachmentsSubview"),
   };
 
   handleEvent(event) {
@@ -349,12 +352,21 @@ export class CalendarDialog extends PositionedDialog {
 
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
 
-    this.querySelector("calendar-dialog-attachments-list").setAttachments(
-      event.getAttachments().map(attachment => ({
-        uri: attachment.uri.spec,
-        icon: lazy.getAttachmentIcon(attachment),
-      }))
-    );
+    const attachments = event.getAttachments();
+    if (attachments.length) {
+      document.l10n.setAttributes(
+        this.querySelector("#attachmentsRow .row-label"),
+        "calendar-dialog-attachments-summary-label",
+        { count: attachments.length }
+      );
+      this.querySelector("calendar-dialog-attachments-list").setAttachments(
+        attachments.map(attachment => ({
+          uri: attachment.uri.spec,
+          icon: lazy.getAttachmentIcon(attachment),
+        }))
+      );
+    }
+    this.querySelector("#attachmentsRow").hidden = !attachments.length;
 
     this.#setJoinMeetingButton(event.descriptionText || "");
 
@@ -388,6 +400,7 @@ export class CalendarDialog extends PositionedDialog {
     await this.querySelector("#expandedDescription").setDescription("");
     this.querySelector("calendar-dialog-reminders-row").setReminders([]);
     this.querySelector("calendar-dialog-attachments-list").setAttachments([]);
+    this.querySelector("#attachmentsRow").hidden = true;
   }
 
   /**

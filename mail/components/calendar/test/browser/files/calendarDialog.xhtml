@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css"/>
     <script src="chrome://messenger/content/calendar-dialog.mjs" type="module"></script>
     <style>
@@ -146,14 +147,17 @@
         <button
           class="button icon-button icon-only button-flat back-button"
           data-l10n-id="calendar-dialog-back-button"
+          type="button"
         ></button>
         <h2 class="calendar-dialog-title">
           <span class="calendar-name screen-reader-only"></span>
           <span class="event-title"></span>
         </h2>
-        <button class="button icon-button icon-only button-flat close-button"
-                data-l10n-id="calendar-dialog-close-button">
-        </button>
+        <button
+          class="button icon-button icon-only button-flat close-button"
+          data-l10n-id="calendar-dialog-close-button"
+          type="button"
+        ></button>
       </div>
       <div class="content">
         <calendar-dialog-subview-manager
@@ -193,13 +197,13 @@
                 <span id="locationText" hidden="hidden"></span>
               </div>
             </calendar-dialog-row>
-            <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
             <div id="descriptionRow" class="expanding-row hideable-row">
               <calendar-dialog-description-row id="expandingDescription">
               </calendar-dialog-description-row>
               <button
                 id="expandDescription"
                 class="button button-flat expand-button icon-button"
+                type="button"
               >
                 <img
                   src=""
@@ -208,6 +212,31 @@
                 />
               </button>
             </div>
+            <div id="attachmentsRow" class="expanding-row">
+              <calendar-dialog-row>
+                <img
+                  src=""
+                  slot="icon"
+                  class="icon-attachment"
+                  data-l10n-id="calendar-dialog-attachments-row-icon"
+                />
+                <div slot="label">
+                  <span class="row-label"></span>
+                </div>
+              </calendar-dialog-row>
+              <button
+                id="expandAttachments"
+                class="button button-flat expand-button icon-button"
+                type="button"
+              >
+                <img
+                  src=""
+                  class="icon-nav-right"
+                  data-l10n-id="calendar-dialog-attachments-expand-icon"
+                />
+              </button>
+            </div>
+            <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
             <calendar-dialog-categories class="hideable-row"></calendar-dialog-categories>
           </div>
           <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>

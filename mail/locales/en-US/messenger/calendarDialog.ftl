@@ -71,3 +71,14 @@ calendar-dialog-attachments-label = Attachments
 
 calendar-dialog-attachment-link-icon =
   .alt = Linked attachment
+
+calendar-dialog-attachments-expand-icon =
+  .alt = Show all attachments
+
+# Variables:
+#   $count (Number): Number of attachments.
+calendar-dialog-attachments-summary-label =
+  { $count ->
+    [one] { $count } Attachment
+    *[other] {$count} Attachments
+  }

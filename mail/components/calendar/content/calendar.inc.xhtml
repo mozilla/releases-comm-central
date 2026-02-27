@@ -55,7 +55,8 @@
             src=""
             slot="icon"
             class="icon-location"
-            data-l10n-id="calendar-dialog-location-row-icon" />
+            data-l10n-id="calendar-dialog-location-row-icon"
+          />
           <div slot="label">
             <a
               id="locationLink"
@@ -66,7 +67,6 @@
             <span id="locationText" hidden="hidden"></span>
           </div>
         </calendar-dialog-row>
-        <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
         <div id="descriptionRow" class="expanding-row hideable-row">
           <calendar-dialog-description-row
             id="expandingDescription"
@@ -74,6 +74,7 @@
           <button
             id="expandDescription"
             class="button button-flat expand-button icon-button"
+            type="button"
           >
             <img
               src=""
@@ -82,6 +83,31 @@
             />
           </button>
         </div>
+        <div id="attachmentsRow" class="expanding-row" hidden="hidden">
+          <calendar-dialog-row>
+            <img
+              src=""
+              slot="icon"
+              class="icon-attachment"
+              data-l10n-id="calendar-dialog-attachments-row-icon"
+            />
+            <div slot="label">
+              <span class="row-label"></span>
+            </div>
+          </calendar-dialog-row>
+          <button
+            id="expandAttachments"
+            class="button button-flat expand-button icon-button"
+            type="button"
+          >
+            <img
+              src=""
+              class="icon-nav-right"
+              data-l10n-id="calendar-dialog-attachments-expand-icon"
+            />
+          </button>
+        </div>
+        <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
         <calendar-dialog-categories class="hideable-row"></calendar-dialog-categories>
       </div>
       <div
