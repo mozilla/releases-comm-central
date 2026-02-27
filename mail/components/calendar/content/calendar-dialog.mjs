@@ -23,6 +23,15 @@ const { recurrenceStringFromItem } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 
+const { extractJoinLink } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/JoinLinkParser.sys.mjs"
+);
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
+});
+
 export const DEFAULT_DIALOG_MARGIN = 12;
 
 /**
@@ -60,6 +69,13 @@ export class CalendarDialog extends PositionedDialog {
     "calendar-event-box,calendar-month-day-box-item,.multiday-event-listitem";
 
   /**
+   * The video conferencing join link string for the calendar event.
+   *
+   * @type {string}
+   */
+  #meetingUrl = null;
+
+  /**
    * Event loading promise. Don't try loading again until previous attempt is complete.
    *
    * @type {boolean}
@@ -93,6 +109,7 @@ export class CalendarDialog extends PositionedDialog {
       this.#subviewManager.addEventListener("subviewchanged", this);
       this.querySelector(".back-button").addEventListener("click", this);
       this.querySelector("#expandDescription").addEventListener("click", this);
+      this.querySelector("#joinMeeting").addEventListener("click", this);
       this.#subviewManager.addEventListener("toggleRowVisibility", this);
 
       this.querySelector(".back-button").hidden =
@@ -132,6 +149,7 @@ export class CalendarDialog extends PositionedDialog {
     ".back-button": () => this.#subviewManager.showDefaultSubview(),
     "#expandDescription": () =>
       this.#subviewManager.showSubview("calendarDescriptionSubview"),
+    "#joinMeeting": () => lazy.openLinkExternally(this.#meetingUrl),
   };
 
   handleEvent(event) {
@@ -324,6 +342,8 @@ export class CalendarDialog extends PositionedDialog {
 
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
 
+    this.#setJoinMeetingButton(event.descriptionText || "");
+
     const plainDescriptionPromise = this.querySelector(
       "#expandingDescription"
     ).setDescription(event.descriptionText);
@@ -381,6 +401,19 @@ export class CalendarDialog extends PositionedDialog {
     locationText.textContent = eventLocation;
     locationLink.textContent = "";
     locationLink.setAttribute("href", "");
+  }
+
+  /**
+   * Sets the join meeting button link in the event dialog by parsing the
+   * description for any meeting links.
+   *
+   * @param {string} eventDescription - The event plain text description.
+   */
+  #setJoinMeetingButton(eventDescription) {
+    const joinMeetingRow = this.querySelector("#joinMeetingRow");
+    const meetingUrl = extractJoinLink(eventDescription);
+    joinMeetingRow.hidden = !meetingUrl;
+    this.#meetingUrl = meetingUrl;
   }
 }
 

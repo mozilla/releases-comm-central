@@ -843,3 +843,73 @@ add_task(async function test_toggleRowVisibilty() {
 
   resetDialog();
 });
+
+add_task(async function test_joinMeetingButton() {
+  dialog.show();
+  dialog.setCalendarEvent(calendarEvent);
+  const calendarPlainTextDescription = dialog.querySelector(
+    "#expandingDescription .plain-text-description"
+  );
+  const joinMeetingButton = dialog.querySelector("#joinMeeting");
+
+  // Wait for description text to be updated.
+  await BrowserTestUtils.waitForMutationCondition(
+    calendarPlainTextDescription,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => calendarPlainTextDescription.textContent.trim()
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(joinMeetingButton),
+    "Join meeting button should be hidden"
+  );
+
+  // Setting an event with a meeting link in the description should show the
+  // join meeting button.
+  const meetingEvent = await createEvent({
+    name: "Meeting Event",
+    calendar,
+    description: "https://test.zoom.us/wc/join/12345",
+  });
+  dialog.setCalendarEvent(meetingEvent);
+
+  // Wait for description text to be updated.
+  await BrowserTestUtils.waitForMutationCondition(
+    calendarPlainTextDescription,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => calendarPlainTextDescription.textContent.trim()
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(joinMeetingButton),
+    "Join meeting button should be visible"
+  );
+
+  const loadPromise = MockExternalProtocolService.promiseLoad();
+  const joinButtonClickedPromise = BrowserTestUtils.waitForEvent(
+    joinMeetingButton,
+    "click"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    joinMeetingButton,
+    {},
+    browser.contentWindow
+  );
+
+  await joinButtonClickedPromise;
+  Assert.equal(
+    await loadPromise,
+    "https://test.zoom.us/wc/join/12345",
+    "Should load meeting url"
+  );
+
+  resetDialog();
+});
