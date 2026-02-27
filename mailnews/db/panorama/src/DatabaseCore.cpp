@@ -53,8 +53,8 @@ NS_IMPL_ISUPPORTS_CI(DatabaseCore, nsIDatabaseCore, nsIMsgDBService,
 
 StaticRefPtr<DatabaseCore> DatabaseCore::sInstance;
 bool DatabaseCore::sDatabaseIsNew = false;
-MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> DatabaseCore::sConnection;
-MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
+MOZ_GLOBINIT nsCOMPtr<mozIStorageConnection> DatabaseCore::sConnection;
+MOZ_GLOBINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     DatabaseCore::sStatements;
 
 /* static */

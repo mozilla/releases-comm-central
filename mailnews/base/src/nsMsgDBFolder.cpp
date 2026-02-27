@@ -164,17 +164,17 @@ NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   return NS_OK;
 }
 
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedInboxName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTrashName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedSentName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedDraftsName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTemplatesName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedUnsentName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedJunkName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedAllMailName;
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedArchivesName;
+constinit nsString nsMsgDBFolder::kLocalizedInboxName;
+constinit nsString nsMsgDBFolder::kLocalizedTrashName;
+constinit nsString nsMsgDBFolder::kLocalizedSentName;
+constinit nsString nsMsgDBFolder::kLocalizedDraftsName;
+constinit nsString nsMsgDBFolder::kLocalizedTemplatesName;
+constinit nsString nsMsgDBFolder::kLocalizedUnsentName;
+constinit nsString nsMsgDBFolder::kLocalizedJunkName;
+constinit nsString nsMsgDBFolder::kLocalizedAllMailName;
+constinit nsString nsMsgDBFolder::kLocalizedArchivesName;
 
-MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedBrandShortName;
+constinit nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount = 0;
 bool nsMsgDBFolder::gInitializeStringsDone = false;

@@ -717,7 +717,7 @@ NS_IMETHODIMP FolderCompactor::OnFinalSummary(nsresult status, int64_t oldSize,
 
 NS_IMPL_ISUPPORTS(FolderCompactor::ShutdownObserver, nsIObserver)
 
-RefPtr<FolderCompactor::ShutdownObserver>
+MOZ_GLOBINIT RefPtr<FolderCompactor::ShutdownObserver>
     FolderCompactor::ShutdownObserver::sInstance;
 
 FolderCompactor::ShutdownObserver::ShutdownObserver() {
