@@ -848,8 +848,8 @@ add_task(async function test_toggleRowVisibilty() {
 });
 
 add_task(async function test_joinMeetingButton() {
-  dialog.show();
   dialog.setCalendarEvent(calendarEvent);
+  dialog.show();
   const calendarPlainTextDescription = dialog.querySelector(
     "#expandingDescription .plain-text-description"
   );
@@ -879,6 +879,7 @@ add_task(async function test_joinMeetingButton() {
     description: "https://test.zoom.us/wc/join/12345",
   });
   dialog.setCalendarEvent(meetingEvent);
+  dialog.show();
 
   // Wait for description text to be updated.
   await BrowserTestUtils.waitForMutationCondition(
