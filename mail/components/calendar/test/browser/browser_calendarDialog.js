@@ -1244,3 +1244,44 @@ add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
     "Expand attendees button should be hidden"
   );
 });
+
+add_task(async function test_calendarDialogMenu() {
+  const title = dialog.querySelector(".event-title");
+  const menu = dialog.querySelector("menupopup");
+
+  dialog.setCalendarEvent(calendarEvent);
+  dialog.show();
+
+  await BrowserTestUtils.waitForMutationCondition(
+    title,
+    {
+      subtree: true,
+      childList: true,
+      characterData: true,
+    },
+    () => title.textContent == calendarEvent.title
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(menu),
+    "The menupopup should initially be hidden"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector(".menu-button"),
+    {},
+    browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(menu),
+    "The menupopup should visible after clicking menu button"
+  );
+
+  menu.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  resetDialog();
+});

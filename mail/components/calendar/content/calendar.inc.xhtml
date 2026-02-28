@@ -24,6 +24,16 @@
     </h2>
     <div class="title-button-container">
       <button
+        class="button icon-button icon-only button-flat menu-button"
+        type="menu"
+        data-l10n-id="calendar-dialog-menu">
+        <xul:menupopup id="event-read-menu" native="false" class="no-icon-menupopup">
+          <xul:menuitem data-l10n-id="calendar-dialog-menu-duplicate"/>
+          <xul:menuitem data-l10n-id="calendar-dialog-menu-delete"/>
+          <xul:menuitem data-l10n-id="calendar-dialog-menu-print"/>
+        </xul:menupopup>
+      </button>
+      <button
         class="button icon-button icon-only button-flat close-button"
         data-l10n-id="calendar-dialog-close-button"
         type="button">

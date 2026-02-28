@@ -6,6 +6,10 @@ calendar-dialog-close-button =
   .aria-label = Close
   .title = Close
 
+calendar-dialog-menu-button =
+  .aria-label = Open menu
+  .title = Open Menu
+
 calendar-dialog-back-button =
   .aria-label = Back
   .title = Back
@@ -86,6 +90,19 @@ calendar-dialog-description-label = Description
 
 calendar-dialog-description-expand-icon =
   .alt = Show full description
+
+calendar-dialog-menu-duplicate =
+  .label = Duplicate event
+
+calendar-dialog-menu-delete =
+  .label = Delete event
+
+calendar-dialog-menu-print =
+  .label = Print
+
+calendar-dialog-menu =
+  .aria-label = More actions menu
+  .title = More Actions Menu
 
 # Variables:
 #   $additionalCategories (Number): Number of categoires not shown.

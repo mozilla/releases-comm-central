@@ -146,6 +146,7 @@ export class CalendarDialog extends PositionedDialog {
       return false;
     },
     ".close-button": () => this.close(),
+    ".menu-button": () => this.#toggleMenu(),
     ".back-button": () => this.#subviewManager.showDefaultSubview(),
     "#expandDescription": () =>
       this.#subviewManager.showSubview("calendarDescriptionSubview"),
@@ -458,6 +459,16 @@ export class CalendarDialog extends PositionedDialog {
     const meetingUrl = extractJoinLink(eventDescription);
     joinMeetingRow.hidden = !meetingUrl;
     this.#meetingUrl = meetingUrl;
+  }
+
+  /**
+   * Open the popup menu in the header.
+   */
+  #toggleMenu() {
+    this.querySelector("menupopup").openPopup(
+      this.querySelector(".menu-button"),
+      "after_end"
+    );
   }
 }
 

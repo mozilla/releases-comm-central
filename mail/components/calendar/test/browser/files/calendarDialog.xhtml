@@ -178,6 +178,16 @@
         </h2>
         <div class="title-button-container">
           <button
+            class="button icon-button icon-only button-flat menu-button"
+            type="menu"
+            data-l10n-id="calendar-dialog-menu">
+            <xul:menupopup id="event-read-menu" native="false" class="no-icon-menupopup">
+              <xul:menuitem data-l10n-id="calendar-dialog-menu-duplicate"/>
+              <xul:menuitem data-l10n-id="calendar-dialog-menu-delete"/>
+              <xul:menuitem data-l10n-id="calendar-dialog-menu-print"/>
+            </xul:menupopup>
+          </button>
+          <button
             class="button icon-button icon-only button-flat close-button"
             data-l10n-id="calendar-dialog-close-button"
             type="button">
@@ -279,16 +289,6 @@
             <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
             <calendar-dialog-categories class="hideable-row"></calendar-dialog-categories>
           </div>
-          <div
-            id="calendarAttendeesSubview"
-            hidden="hidden"
-          >
-            <calendar-dialog-attendees-row
-                id="expandedAttendees"
-                class="hideable-row"
-                type="full"
-              ></calendar-dialog-attendees-row>
-            </div>
           <div
             id="calendarDescriptionSubview"
             hidden="hidden"

@@ -146,6 +146,13 @@ calendar-dialog-date-row {
   margin: 0;
 }
 
+.button.menu-button {
+  --button-padding: var(--space-step);
+  box-sizing: border-box;
+  background-image: var(--icon-kebab);
+  margin: 0;
+}
+
 .button.back-button {
   --button-padding: var(--space-step);
   background-image: var(--icon-nav-left);
