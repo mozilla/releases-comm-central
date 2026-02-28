@@ -647,12 +647,13 @@ bitflags_array! {
         /// Implies [`Features::TIMESTAMP_QUERY`] is supported.
         ///
         /// Additionally allows for timestamp writes on command encoders
-        /// using  [`CommandEncoder::write_timestamp`].
+        /// using [`CommandEncoder::write_timestamp`].
         ///
         /// Supported platforms:
         /// - Vulkan
         /// - DX12
         /// - Metal
+        /// - OpenGL (with GL_ARB_timer_query)
         ///
         /// This is a native only feature.
         ///
@@ -670,6 +671,7 @@ bitflags_array! {
         /// - Vulkan
         /// - DX12
         /// - Metal (AMD & Intel, not Apple GPUs)
+        /// - OpenGL (with GL_ARB_timer_query)
         ///
         /// This is generally not available on tile-based rasterization GPUs.
         ///
@@ -1332,6 +1334,7 @@ bitflags_array! {
         /// Supported platforms:
         /// - desktops
         /// - some mobile chips
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const DEPTH_CLIP_CONTROL = WEBGPU_FEATURE_DEPTH_CLIP_CONTROL;
@@ -1343,6 +1346,7 @@ bitflags_array! {
         /// - DX12
         /// - Metal
         /// - OpenGL
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         ///
@@ -1363,6 +1367,7 @@ bitflags_array! {
         /// Supported Platforms:
         /// - desktops
         /// - Mobile (All Apple9 and some Apple7 and Apple8 devices)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const TEXTURE_COMPRESSION_BC = WEBGPU_FEATURE_TEXTURE_COMPRESSION_BC;
@@ -1376,6 +1381,7 @@ bitflags_array! {
         /// Supported Platforms:
         /// - desktops
         /// - Mobile (All Apple9 and some Apple7 and Apple8 devices)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const TEXTURE_COMPRESSION_BC_SLICED_3D = WEBGPU_FEATURE_TEXTURE_COMPRESSION_BC_SLICED_3D;
@@ -1392,6 +1398,7 @@ bitflags_array! {
         /// Supported Platforms:
         /// - Vulkan on Intel
         /// - Mobile (some)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const TEXTURE_COMPRESSION_ETC2 = WEBGPU_FEATURE_TEXTURE_COMPRESSION_ETC2;
@@ -1411,6 +1418,7 @@ bitflags_array! {
         /// Supported Platforms:
         /// - Vulkan on Intel
         /// - Mobile (some)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const TEXTURE_COMPRESSION_ASTC = WEBGPU_FEATURE_TEXTURE_COMPRESSION_ASTC;
@@ -1425,6 +1433,7 @@ bitflags_array! {
         /// - Vulkan (some)
         /// - Metal on Apple3+
         /// - OpenGL/WebGL (some)
+        /// - WebGPU
         ///
         /// Not Supported:
         /// - DX12
@@ -1452,6 +1461,8 @@ bitflags_array! {
         /// - Vulkan
         /// - DX12
         /// - Metal
+        /// - OpenGL (with GL_ARB_timer_query)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         ///
@@ -1473,6 +1484,7 @@ bitflags_array! {
         /// - DX12
         /// - Metal on Apple3+ or Mac1+
         /// - OpenGL (Desktop 4.2+ with ARB_shader_draw_parameters only)
+        /// - WebGPU
         ///
         /// Not Supported:
         /// - OpenGL ES / WebGL
@@ -1490,6 +1502,7 @@ bitflags_array! {
         /// - Vulkan
         /// - Metal
         /// - DX12
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const SHADER_F16 = WEBGPU_FEATURE_SHADER_F16;
@@ -1500,6 +1513,7 @@ bitflags_array! {
         /// - Vulkan
         /// - DX12
         /// - Metal
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         ///
@@ -1512,6 +1526,7 @@ bitflags_array! {
         /// - Vulkan
         /// - DX12
         /// - Metal
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         ///
@@ -1527,6 +1542,7 @@ bitflags_array! {
         /// - DX12
         /// - Metal on macOS or Apple9+ GPUs, optional on iOS/iPadOS with Apple7/8 GPUs
         /// - GL with one of `GL_ARB_color_buffer_float`/`GL_EXT_color_buffer_float`/`OES_texture_float_linear`
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const FLOAT32_FILTERABLE = WEBGPU_FEATURE_FLOAT32_FILTERABLE;
@@ -1535,6 +1551,7 @@ bitflags_array! {
         ///
         /// Supported Platforms:
         /// - Vulkan
+        /// - WebGPU
         const FLOAT32_BLENDABLE = WEBGPU_FEATURE_FLOAT32_BLENDABLE;
 
         /// Allows two outputs from a shader to be used for blending.
@@ -1547,6 +1564,7 @@ bitflags_array! {
         /// - Metal (with MSL 1.2+)
         /// - Vulkan (with dualSrcBlend)
         /// - DX12
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const DUAL_SOURCE_BLENDING = WEBGPU_FEATURE_DUAL_SOURCE_BLENDING;
@@ -1555,7 +1573,9 @@ bitflags_array! {
         ///
         /// Supported platforms:
         /// - Vulkan (mainly on Desktop GPUs)
+        /// - Metal
         /// - GL (Desktop or `GL_EXT_clip_cull_distance`)
+        /// - WebGPU
         ///
         /// This is a web and native feature.
         const CLIP_DISTANCES = WEBGPU_FEATURE_CLIP_DISTANCES;
@@ -1580,6 +1600,7 @@ bitflags_array! {
         /// - Vulkan
         /// - Metal
         /// - OpenGL (emulated with uniforms)
+        /// - WebGPU
         ///
         /// WebGPU support is currently a proposal and will be available in browsers in the future.
         ///

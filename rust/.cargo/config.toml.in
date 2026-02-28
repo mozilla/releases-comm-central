@@ -36,9 +36,9 @@ git = "https://github.com/gfx-rs/rspirv"
 rev = "89ce4d0e64c91b0635f617409dc57cb031749a39"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=7705c84485c21b45e1b37494cbf9d06456272373"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=e114d2f0a7c094fcb0600a6df80e992878e4ff64"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "7705c84485c21b45e1b37494cbf9d06456272373"
+rev = "e114d2f0a7c094fcb0600a6df80e992878e4ff64"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/allocator-api2?rev=ad5f3d56a5a4519eff52af4ff85293431466ef5c"]
