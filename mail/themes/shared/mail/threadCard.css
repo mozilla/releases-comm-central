@@ -412,9 +412,15 @@
           padding-inline-start: 3px;
         }
 
-        & .date {
-          flex: 0 0 auto;
-          white-space: nowrap;
+        & .date-size-container {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        & .date,
+        & .message-size {
+          color: var(--tree-cell-text-secondary);
           font-size: 0.95rem;
           opacity: 0.85;
         }
