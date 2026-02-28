@@ -1126,3 +1126,121 @@ add_task(async function testAttendeesRowData() {
 
   resetDialog();
 });
+
+add_task(async function testAttendeesRowExpandButton() {
+  const calendarEventData = {
+    location: "foobar",
+    name: "Physical location",
+    description: "Foo",
+    categories: ["TEST"],
+    calendar,
+    attendees: [
+      {
+        commonName: "",
+        id: "mailto:john@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+      {
+        commonName: "",
+        id: "mailto:john2@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+      {
+        commonName: "",
+        id: "mailto:john3@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+      {
+        commonName: "",
+        id: "mailto:john4@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+    ],
+    isEvent: () => true,
+  };
+  const calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+
+  const attendeesRow = dialog.querySelector(
+    `calendar-dialog-attendees-row:not([type="full"])`
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(attendeesRow),
+    "Attendees row should be visible"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(dialog.querySelector("#expandAttendees")),
+    "Expand attendees button should be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    dialog.querySelector("#expandAttendees"),
+    {},
+    browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(attendeesRow),
+    "Inline attendees row should be hidden"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      dialog.querySelector(`calendar-dialog-attendees-row[type="full"]`)
+    ),
+    "Attendees row subview should be visible"
+  );
+});
+
+add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
+  const calendarEventData = {
+    location: "foobar",
+    name: "Physical location",
+    description: "Foo",
+    categories: ["TEST"],
+    calendar,
+    attendees: [
+      {
+        commonName: "",
+        id: "mailto:john@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+      {
+        commonName: "",
+        id: "mailto:john2@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+    ],
+    isEvent: () => true,
+  };
+  const calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+
+  const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(attendeesRow),
+    "Attendees row should be visible"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(dialog.querySelector("#expandAttendees")),
+    "Expand attendees button should be hidden"
+  );
+});

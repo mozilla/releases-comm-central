@@ -108,13 +108,8 @@ export class CalendarDialog extends PositionedDialog {
         "calendar-dialog-subview-manager"
       );
 
-      this.querySelector(".close-button").addEventListener("click", this);
-      this.querySelector("#locationLink").addEventListener("click", this);
+      this.addEventListener("click", this);
       this.#subviewManager.addEventListener("subviewchanged", this);
-      this.querySelector(".back-button").addEventListener("click", this);
-      this.querySelector("#expandDescription").addEventListener("click", this);
-      this.querySelector("#joinMeeting").addEventListener("click", this);
-      this.querySelector("#expandAttachments").addEventListener("click", this);
       this.#subviewManager.addEventListener("toggleRowVisibility", this);
 
       this.querySelector(".back-button").hidden =
@@ -157,6 +152,8 @@ export class CalendarDialog extends PositionedDialog {
     "#joinMeeting": () => lazy.openLinkExternally(this.#meetingUrl),
     "#expandAttachments": () =>
       this.#subviewManager.showSubview("calendarAttachmentsSubview"),
+    "#expandAttendees": () =>
+      this.#subviewManager.showSubview("calendarAttendeesSubview"),
   };
 
   handleEvent(event) {
@@ -352,8 +349,19 @@ export class CalendarDialog extends PositionedDialog {
       );
 
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
-    this.querySelector("calendar-dialog-attendees-row").setAttendees(
-      event.getAttendees()
+
+    const attendees = event.getAttendees();
+
+    for (const attendeeView of this.querySelectorAll(
+      "calendar-dialog-attendees-row"
+    )) {
+      attendeeView.setAttendees(attendees);
+    }
+
+    this.querySelector("#expandAttendees").hidden = attendees.length <= 3;
+    this.querySelector(`#attendeesRow`).classList.toggle(
+      "expanding-row",
+      attendees.length > 3
     );
 
     const attachments = event.getAttachments();
@@ -400,12 +408,15 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-categories").setCategories([]);
     this.#setLocation("");
     this.style.removeProperty("--calendar-bar-color");
-    this.querySelector("calendar-dialog-attendees-row").setAttendees([]);
-    await this.querySelector("#expandingDescription").setDescription("");
-    await this.querySelector("#expandedDescription").setDescription("");
+    this.querySelector(
+      `calendar-dialog-attendees-row:not([type])`
+    ).setAttendees([]);
+    this.querySelector(`calendar-dialog-attendees-row[type]`).setAttendees([]);
     this.querySelector("calendar-dialog-reminders-row").setReminders([]);
     this.querySelector("calendar-dialog-attachments-list").setAttachments([]);
     this.querySelector("#attachmentsRow").hidden = true;
+    await this.querySelector("#expandingDescription").setDescription("");
+    await this.querySelector("#expandedDescription").setDescription("");
   }
 
   /**

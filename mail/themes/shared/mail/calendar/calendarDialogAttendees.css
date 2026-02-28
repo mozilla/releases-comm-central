@@ -6,6 +6,7 @@
   list-style-type: none;
   padding-inline-start: 0;
   margin-block: 0;
+  margin-inline-end: calc(var(--space-step) * 6);
   gap: var(--space-step);
 
   & li {
@@ -15,8 +16,7 @@
     gap: var(--space-base);
 
     & .attendee-name {
-      font-weight: 700;
-      padding-inline-end: var(--space-base);
+      font-weight: 500;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

@@ -79,6 +79,9 @@ calendar-dialog-icon-maybe =
 calendar-dialog-attendees-expand-icon =
   .alt = Show all guests
 
+calendar-dialog-attendees-too-many-guests =
+  The guest list cannot be shown because it contains more than 50 guests.
+
 calendar-dialog-description-label = Description
 
 calendar-dialog-description-expand-icon =

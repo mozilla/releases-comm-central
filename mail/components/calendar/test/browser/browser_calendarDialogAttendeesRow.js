@@ -4,6 +4,7 @@
 
 const tabmail = document.getElementById("tabmail");
 let attendeesRowElement;
+let attendeesRowElementFull;
 const baseAttendee = {
   commonName: "",
   id: "mailto:john@example.com",
@@ -22,7 +23,10 @@ add_setup(async function () {
   );
   tab.browser.focus();
   attendeesRowElement = tab.browser.contentWindow.document.querySelector(
-    "calendar-dialog-attendees-row"
+    `calendar-dialog-attendees-row:not([type])`
+  );
+  attendeesRowElementFull = tab.browser.contentWindow.document.querySelector(
+    `calendar-dialog-attendees-row[type]`
   );
 });
 
@@ -87,7 +91,7 @@ add_task(async function test_calendarDialogAttendeesRowSummary() {
 
   await TestUtils.waitForCondition(
     () => summary.textContent === "2 attending, 1 maybe, 2 declined, 3 pending",
-    "Should show optional label if optional participent and not organizer"
+    "Should show correct summary"
   );
 
   Assert.ok(
@@ -114,7 +118,7 @@ add_task(async function testCalendarDialogAttendeesList() {
 
   await TestUtils.waitForCondition(
     () => list.querySelectorAll("li").length === 3,
-    "Should show optional label if optional participent and not organizer"
+    "Should show 3 attendee items"
   );
 
   const items = list.querySelectorAll("li");
@@ -139,4 +143,48 @@ add_task(async function testCalendarDialogAttendeesList() {
     "three",
     "Third item should show correct data"
   );
+});
+
+add_task(async function testCalendarDialogAttendeesFullList() {
+  const list = attendeesRowElementFull.querySelector(".attendees-list");
+  attendeesRowElementFull.setAttribute("type", "full");
+
+  attendeesRowElementFull.setAttendees([
+    { ...baseAttendee, participationStatus: "DECLINED" },
+    { ...baseAttendee, participationStatus: "DECLINED" },
+    { ...baseAttendee, participationStatus: "TENTATIVE" },
+    { ...baseAttendee, participationStatus: "NEEDS-ACTION" },
+    { ...baseAttendee, participationStatus: "NEEDS-ACTION" },
+    { ...baseAttendee, participationStatus: "NEEDS-ACTION" },
+    baseAttendee,
+    baseAttendee,
+  ]);
+
+  Assert.equal(
+    list.querySelectorAll("li").length,
+    8,
+    "Should show 8 attendee items"
+  );
+});
+
+add_task(async function testCalendarDialogAttendeesOverFullList() {
+  const summary = attendeesRowElementFull.querySelector(".attendees-summary");
+  const list = attendeesRowElementFull.querySelector(".attendees-list");
+  attendeesRowElementFull.setAttribute("type", "full");
+
+  const attendees = [];
+  for (let i = 0; i < 60; i++) {
+    attendees.push(baseAttendee);
+  }
+
+  attendeesRowElementFull.setAttendees(attendees);
+
+  Assert.equal(
+    document.l10n.getAttributes(summary).id,
+    "calendar-dialog-attendees-too-many-guests",
+    "Should show too many guests error"
+  );
+
+  Assert.ok(BrowserTestUtils.isHidden(list), "List should be hidden");
+  Assert.ok(BrowserTestUtils.isVisible(summary), "Summary should be visible");
 });

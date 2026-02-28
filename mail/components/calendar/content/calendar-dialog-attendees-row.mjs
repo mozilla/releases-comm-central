@@ -27,6 +27,13 @@ class CalendarDialogAttendeesRow extends HTMLElement {
    */
   #list = null;
 
+  /**
+   * If the attendees view is a full subview or in the flow
+   *
+   * @type {boolean}
+   */
+  #isFullAttendees = null;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -45,12 +52,12 @@ class CalendarDialogAttendeesRow extends HTMLElement {
 
     const row = this.querySelector("calendar-dialog-row");
 
-    const isFullAttendees = this.getAttribute("type") === "full";
+    this.#isFullAttendees = this.getAttribute("type") === "full";
     row
       .querySelector('[slot="content"]')
-      .classList.toggle("truncated-content", !isFullAttendees);
-    row.toggleAttribute("expanded", isFullAttendees);
-    row.toggleAttribute("expanding", !isFullAttendees);
+      .classList.toggle("truncated-content", !this.#isFullAttendees);
+    row.toggleAttribute("expanded", this.#isFullAttendees);
+    row.toggleAttribute("expanding", !this.#isFullAttendees);
     this.#summary = this.querySelector(".attendees-summary");
     this.#list = this.querySelector(".attendees-list");
   }
@@ -68,22 +75,40 @@ class CalendarDialogAttendeesRow extends HTMLElement {
       { count: attendees.length }
     );
 
-    this.dispatchEvent(
-      new CustomEvent("toggleRowVisibility", {
-        bubbles: true,
-        detail: {
-          isHidden: attendees.length === 0,
-        },
-      })
-    );
+    if (!this.#isFullAttendees) {
+      this.dispatchEvent(
+        new CustomEvent("toggleRowVisibility", {
+          bubbles: true,
+          detail: {
+            isHidden: attendees.length === 0,
+          },
+        })
+      );
+    }
 
-    if (!attendees.length) {
+    if (this.#isFullAttendees && attendees.length > 50) {
+      this.#list.hidden = true;
+      this.#summary.hidden = false;
+
+      document.l10n.setAttributes(
+        this.#summary,
+        "calendar-dialog-attendees-too-many-guests"
+      );
+
       return;
     }
 
-    const showSummary = attendees.length > 3;
+    if (!this.#isFullAttendees) {
+      this.querySelector("calendar-dialog-row").toggleAttribute(
+        "expanding",
+        attendees.length > 3
+      );
+    }
+
+    const showSummary = attendees.length > 3 && !this.#isFullAttendees;
     this.#list.hidden = showSummary;
     this.#summary.hidden = !showSummary;
+
     if (showSummary) {
       const counts = Object.groupBy(
         attendees,
