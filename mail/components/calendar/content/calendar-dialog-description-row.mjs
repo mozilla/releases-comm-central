@@ -49,6 +49,7 @@ class CalendarDialogDescriptionRow extends HTMLElement {
     this.querySelector(".plain-text-description").textContent = description;
 
     if (this.getAttribute("type") !== "full") {
+      this.querySelector("calendar-dialog-row").classList.add("labelless");
       this.dispatchEvent(
         new CustomEvent("toggleRowVisibility", {
           bubbles: true,

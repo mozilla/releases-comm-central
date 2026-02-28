@@ -7,6 +7,20 @@
   flex-direction: column;
 }
 
+:host(.labelless) {
+  .row {
+    align-items: start;
+  }
+
+  slot[name="label"] {
+    display: none;
+  }
+
+  & slot[name="content"]::slotted(*) {
+    grid-row: 1;
+  }
+}
+
 .row {
   flex-grow: 1;
   padding-inline: var(--calendar-dialog-row-padding-inline);
