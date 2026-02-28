@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Attendees Row Test</title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <script type="module" src="chrome://messenger/content/calendar-dialog-attendees-row.mjs"></script>
+  </head>
+  <body>
+    <template id="calendarDialogAttendeesRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <calendar-dialog-row>
+        <img
+          src=""
+          slot="icon"
+          class="icon-attendees"
+          data-l10n-id="calendar-dialog-attendees-row-icon"
+        />
+        <div slot="label">
+          <span id="attendeesCount" class="row-label"></span>
+        </div>
+        <div slot="content">
+          <span class="attendees-summary"></span>
+          <ul class="attendees-list"></ul>
+        </div>
+      </calendar-dialog-row>
+    </template>
+    <template id="calendarDialogRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <div class="row">
+        <slot name="icon"></slot>
+        <slot name="label"></slot>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="calendarDialogAttendeeTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <span class="attendee-name"></span>
+      <span class="attendee-email"></span>
+      <span class="attendee-label"></span>
+      <img src="" class="attendee-icon"/>
+    </template>
+    <calendar-dialog-attendees-row></calendar-dialog-attendees-row>
+  </body>
+</html>

@@ -82,6 +82,9 @@
   --icon-get-mail: url("chrome://messenger/skin/icons/new/compact/get-mail.svg");
   --icon-globe-secure: url("chrome://messenger/skin/icons/new/compact/globe-secure.svg");
   --icon-globe: url("chrome://messenger/skin/icons/new/compact/globe.svg");
+  --icon-guest-attending: url("chrome://messenger/skin/icons/new/guest-attending.svg");
+  --icon-guest-declined: url("chrome://messenger/skin/icons/new/guest-declined.svg");
+  --icon-guest-maybe: url("chrome://messenger/skin/icons/new/guest-maybe.svg");
   --icon-handshake: url("chrome://messenger/skin/icons/new/compact/handshake.svg");
   --icon-heart: url("chrome://messenger/skin/icons/new/compact/heart.svg");
   --icon-hidden: url("chrome://messenger/skin/icons/new/compact/hidden.svg");

@@ -7,6 +7,9 @@
 const { CalEvent } = ChromeUtils.importESModule(
   "resource:///modules/CalEvent.sys.mjs"
 );
+const { CalAttendee } = ChromeUtils.importESModule(
+  "resource:///modules/CalAttendee.sys.mjs"
+);
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
@@ -148,6 +151,7 @@ function createCalendar({
  *   description. Overrides description if truthy.
  * @param {CalAlarm[]} [options.alarms=[]] - Calendar alarms.
  * @param {string[]} [options.attachments=[]] - Attached files.
+ * @param {object} [options.attendees=[]] - Event Attendees
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
@@ -163,6 +167,7 @@ async function createEvent({
   descriptionHTML,
   alarms = [],
   attachments = [],
+  attendees = [],
 } = {}) {
   let start = new Date(baseDate);
   start.setDate(baseDate.getDate() + offset);
@@ -176,6 +181,15 @@ async function createEvent({
   end.setDate(baseDate.getDate() + offset + days);
   end = cal.dtz.jsDateToDateTime(end, 0);
   const event = new CalEvent();
+
+  for (const attendeeData of attendees) {
+    const attendee = new CalAttendee();
+    for (const [key, value] of Object.entries(attendeeData)) {
+      attendee[key] = value;
+    }
+    event.addAttendee(attendee);
+  }
+
   event.title = name;
   event.startDate = start;
   event.endDate = end;

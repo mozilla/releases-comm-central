@@ -10,6 +10,7 @@ import "./calendar-dialog-description-row.mjs"; // eslint-disable-line import/no
 import "./calendar-dialog-categories.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-reminders-row.mjs"; // eslint-disable-line import/no-unassigned-import
 import "./calendar-dialog-attachments-list.mjs"; // eslint-disable-line import/no-unassigned-import
+import "./calendar-dialog-attendees-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
 const { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
@@ -351,6 +352,9 @@ export class CalendarDialog extends PositionedDialog {
       );
 
     this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
+    this.querySelector("calendar-dialog-attendees-row").setAttendees(
+      event.getAttendees()
+    );
 
     const attachments = event.getAttachments();
     if (attachments.length) {
@@ -396,6 +400,7 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-categories").setCategories([]);
     this.#setLocation("");
     this.style.removeProperty("--calendar-bar-color");
+    this.querySelector("calendar-dialog-attendees-row").setAttendees([]);
     await this.querySelector("#expandingDescription").setDescription("");
     await this.querySelector("#expandedDescription").setDescription("");
     this.querySelector("calendar-dialog-reminders-row").setReminders([]);

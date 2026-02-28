@@ -471,6 +471,7 @@
 # Calendar
   skin/classic/messenger/calendar/calendarDialog.css            (../shared/mail/calendar/calendarDialog.css)
   skin/classic/messenger/calendar/calendarDialogAcceptance.css  (../shared/mail/calendar/calendarDialogAcceptance.css)
+  skin/classic/messenger/calendar/calendarDialogAttendees.css   (../shared/mail/calendar/calendarDialogAttendees.css)
   skin/classic/messenger/calendar/calendarDialogCategories.css  (../shared/mail/calendar/calendarDialogCategories.css)
   skin/classic/messenger/calendar/calendarDialogRow.css         (../shared/mail/calendar/calendarDialogRow.css)
 
@@ -718,6 +719,9 @@
   skin/classic/messenger/icons/new/loading.svg                (../shared/mail/icons/new/loading.svg)
   skin/classic/messenger/icons/new/calendar-empty.svg         (../shared/mail/icons/new/calendar-empty.svg)
   skin/classic/messenger/icons/new/circle-sm.svg              (../shared/mail/icons/new/circle-sm.svg)
+  skin/classic/messenger/icons/new/guest-attending.svg        (../shared/mail/icons/new/guest-attending.svg)
+  skin/classic/messenger/icons/new/guest-declined.svg         (../shared/mail/icons/new/guest-declined.svg)
+  skin/classic/messenger/icons/new/guest-maybe.svg            (../shared/mail/icons/new/guest-maybe.svg)
   skin/classic/messenger/icons/new/mail-sm.svg                (../shared/mail/icons/new/mail-sm.svg)
   skin/classic/messenger/icons/new/moon-xs.svg                (../shared/mail/icons/new/moon-xs.svg)
   skin/classic/messenger/icons/new/nav-down-sm.svg            (../shared/mail/icons/new/nav-down-sm.svg)

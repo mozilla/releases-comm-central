@@ -43,6 +43,29 @@
         <div class="toggle"></div>
       </div>
     </template>
+    <template id="calendarDialogAttendeesRowTemplate">
+      <calendar-dialog-row>
+        <img
+          src=""
+          slot="icon"
+          class="icon-attendees"
+          data-l10n-id="calendar-dialog-attendees-row-icon"
+        />
+        <div slot="label">
+          <span id="attendeesCount" class="row-label"></span>
+        </div>
+        <div slot="content">
+          <span class="attendees-summary"></span>
+          <ul class="attendees-list"></ul>
+        </div>
+      </calendar-dialog-row>
+    </template>
+    <template id="calendarDialogAttendeeTemplate">
+      <span class="attendee-name"></span>
+      <span class="attendee-email"></span>
+      <span class="attendee-label"></span>
+      <img src="" class="attendee-icon"/>
+    </template>
     <template id="calendarDialogRowTemplate">
       <div class="row">
         <slot name="icon"></slot>
@@ -153,11 +176,13 @@
           <span class="calendar-name screen-reader-only"></span>
           <span class="event-title"></span>
         </h2>
-        <button
-          class="button icon-button icon-only button-flat close-button"
-          data-l10n-id="calendar-dialog-close-button"
-          type="button"
-        ></button>
+        <div class="title-button-container">
+          <button
+            class="button icon-button icon-only button-flat close-button"
+            data-l10n-id="calendar-dialog-close-button"
+            type="button">
+          </button>
+        </div>
       </div>
       <div class="content">
         <calendar-dialog-subview-manager
@@ -170,7 +195,7 @@
                 src=""
                 slot="icon"
                 class="icon-video"
-                data-l10n-id="calendar-dialog-join-meeting-row-icon"  />
+                data-l10n-id="calendar-dialog-join-meeting-row-icon" />
               <div slot="label">
                 <button
                   id="joinMeeting"
@@ -182,9 +207,9 @@
             </calendar-dialog-row>
             <calendar-dialog-row id="locationRow">
               <img
+                src=""
                 slot="icon"
                 class="icon-location"
-                src=""
                 data-l10n-id="calendar-dialog-location-row-icon"
               />
               <div slot="label">
@@ -197,9 +222,24 @@
                 <span id="locationText" hidden="hidden"></span>
               </div>
             </calendar-dialog-row>
+            <div id="attendeesRow" class="expanding-row hideable-row">
+              <calendar-dialog-attendees-row></calendar-dialog-attendees-row>
+              <button
+                id="expandAttendees"
+                class="button button-flat expand-button icon-button"
+                type="button"
+              >
+                <img
+                  src=""
+                  class="icon-nav-right"
+                  data-l10n-id="calendar-dialog-attendees-expand-icon"
+                />
+              </button>
+            </div>
             <div id="descriptionRow" class="expanding-row hideable-row">
-              <calendar-dialog-description-row id="expandingDescription">
-              </calendar-dialog-description-row>
+              <calendar-dialog-description-row
+                id="expandingDescription"
+              ></calendar-dialog-description-row>
               <button
                 id="expandDescription"
                 class="button button-flat expand-button icon-button"
@@ -212,7 +252,7 @@
                 />
               </button>
             </div>
-            <div id="attachmentsRow" class="expanding-row">
+            <div id="attachmentsRow" class="expanding-row" hidden="hidden">
               <calendar-dialog-row>
                 <img
                   src=""
@@ -239,7 +279,6 @@
             <calendar-dialog-reminders-row></calendar-dialog-reminders-row>
             <calendar-dialog-categories class="hideable-row"></calendar-dialog-categories>
           </div>
-          <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>
           <div
             id="calendarDescriptionSubview"
             hidden="hidden"
@@ -247,8 +286,7 @@
             <calendar-dialog-description-row
               id="expandedDescription"
               type="full"
-            >
-            </calendar-dialog-description-row>
+            ></calendar-dialog-description-row>
           </div>
           <div
             id="calendarAttachmentsSubview"
@@ -258,9 +296,20 @@
               id="calendarAttachmentsList"
             ></calendar-dialog-attachments-list>
           </div>
+          <div
+            id="calendarAttendeesSubview"
+            hidden="hidden"
+          >
+          <calendar-dialog-attendees-row
+              id="expandedAttendees"
+              type="full"
+            ></calendar-dialog-attendees-row>
+          </div>
         </calendar-dialog-subview-manager>
       </div>
-      <div class="footer"></div>
+      <div class="footer">
+        <calendar-dialog-acceptance></calendar-dialog-acceptance>
+      </div>
     </template>
     <div id="test-container">
       <button id="trigger"></button>

@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include calendarDialogRowTemplate.inc.xhtml
+#include calendarDialogAttendeesRowTemplate.inc.xhtml
 #include calendarDialogDateRowTemplate.inc.xhtml
 #include calendarDialogDescriptionRowTemplate.inc.xhtml
 #include calendarDialogCategoriesTemplate.inc.xhtml
@@ -67,6 +68,20 @@
             <span id="locationText" hidden="hidden"></span>
           </div>
         </calendar-dialog-row>
+        <div id="attendeesRow" class="expanding-row hideable-row">
+          <calendar-dialog-attendees-row></calendar-dialog-attendees-row>
+          <button
+            id="expandAttendees"
+            class="button button-flat expand-button icon-button"
+            type="button"
+          >
+            <img
+              src=""
+              class="icon-nav-right"
+              data-l10n-id="calendar-dialog-attendees-expand-icon"
+            />
+          </button>
+        </div>
         <div id="descriptionRow" class="expanding-row hideable-row">
           <calendar-dialog-description-row
             id="expandingDescription"
@@ -126,6 +141,15 @@
         <calendar-dialog-attachments-list
           id="calendarAttachmentsList"
         ></calendar-dialog-attachments-list>
+      </div>
+      <div
+        id="calendarAttendeesSubview"
+        hidden="hidden"
+      >
+      <calendar-dialog-attendees-row
+          id="expandedAttendees"
+          type="full"
+        ></calendar-dialog-attendees-row>
       </div>
     </calendar-dialog-subview-manager>
   </div>

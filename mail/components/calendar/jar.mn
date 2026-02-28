@@ -11,6 +11,8 @@ messenger.jar:
   content/messenger/calendar-dialog-acceptance.mjs                                 (content/calendar-dialog-acceptance.mjs)
   content/messenger/calendar-dialog-attachment.mjs                                 (content/calendar-dialog-attachment.mjs)
   content/messenger/calendar-dialog-attachments-list.mjs                           (content/calendar-dialog-attachments-list.mjs)
+  content/messenger/calendar-dialog-attendees-row.mjs                              (content/calendar-dialog-attendees-row.mjs)
+  content/messenger/calendar-dialog-attendee.mjs                                   (content/calendar-dialog-attendee.mjs)
   content/messenger/calendar-dialog-categories.mjs                                 (content/calendar-dialog-categories.mjs)
   content/messenger/calendar-dialog-date-row.mjs                                   (content/calendar-dialog-date-row.mjs)
   content/messenger/calendar-dialog-description-row.mjs                            (content/calendar-dialog-description-row.mjs)

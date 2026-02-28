@@ -1039,3 +1039,90 @@ add_task(async function test_dialogAttachmentsRow() {
   info("Waiting for attachment row to be hidden...");
   await rowHidden;
 });
+
+add_task(async function testAttendeesRowVisibility() {
+  const calendarEventData = {
+    location: "foobar",
+    name: "Physical location",
+    description: "Foo",
+    categories: ["TEST"],
+    calendar,
+    attendees: [
+      {
+        commonName: "",
+        id: "mailto:john@example.com",
+        role: "REQ-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+    ],
+    isEvent: () => true,
+  };
+  let calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+
+  const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(attendeesRow),
+    "Attendees row should be visible"
+  );
+
+  resetDialog();
+
+  dialog.show();
+
+  calendarEventData.attendees = [];
+  calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(attendeesRow),
+    "Attendees row should be hidden"
+  );
+
+  resetDialog();
+});
+
+add_task(async function testAttendeesRowData() {
+  const calendarEventData = {
+    location: "foobar",
+    name: "Physical location",
+    description: "Foo",
+    categories: ["TEST"],
+    calendar,
+    attendees: [
+      {
+        commonName: "",
+        id: "mailto:john@example.com",
+        role: "OPT-PARTICIPANT",
+        participationStatus: "ACCEPTED",
+        isOrganizer: false,
+      },
+    ],
+    isEvent: () => true,
+  };
+  const calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+
+  const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(attendeesRow),
+    "Attendees row should be visible"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(attendeesRow.querySelector(".attendee-name")),
+    "The attendee name should be hidden"
+  );
+  Assert.equal(
+    attendeesRow.querySelector(".attendee-email").textContent,
+    "john@example.com",
+    "Should show the correct email"
+  );
+
+  resetDialog();
+});

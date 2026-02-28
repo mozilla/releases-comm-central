@@ -25,6 +25,60 @@ calendar-dialog-description-row-icon =
 calendar-dialog-reminders-row-icon =
   .alt = Reminders
 
+calendar-dialog-attendees-row-icon =
+  .alt = Guests
+
+# Variables:
+#   $count (Number): Number of guests.
+calendar-dialog-attendee-count =
+  { $count ->
+      [one] { $count } Guest
+      *[other] { $count } Guests
+
+  }
+
+# Variables:
+#   $going (Number): Number of guests that responded "attending".
+#   $maybe (Number): Number of guests that responded "maybe".
+#   $declined (Number): Number of guests that responded "declined".
+#   $pending (Number): Number of guests that response "pending".
+calendar-dialog-attendee-summary =
+  {
+    $going ->
+      [one] {$going} attending
+      *[other] {$going} attending
+  }, {
+    $maybe ->
+      [one] {$maybe} maybe
+      *[other] {$maybe} maybe
+  }, {
+    $declined ->
+      [one] {$declined} declined
+      *[other] {$declined} declined
+  }, {
+    $pending ->
+      [one] {$pending} pending
+      *[other] {$pending} pending
+  }
+
+calendar-dialog-attendee-organizer =
+  Organizer
+
+calendar-dialog-attendee-optional =
+  Optional
+
+calendar-dialog-icon-attending =
+  .alt = Attending
+
+calendar-dialog-icon-declined =
+  .alt = Declined
+
+calendar-dialog-icon-maybe =
+  .alt = Maybe
+
+calendar-dialog-attendees-expand-icon =
+  .alt = Show all guests
+
 calendar-dialog-description-label = Description
 
 calendar-dialog-description-expand-icon =

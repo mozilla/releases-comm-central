@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#include calendarDialogAttendeeTemplate.inc.xhtml
+
+<html:template id="calendarDialogAttendeesRowTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <calendar-dialog-row>
+    <img
+      src=""
+      slot="icon"
+      class="icon-attendees"
+      data-l10n-id="calendar-dialog-attendees-row-icon"
+    />
+    <div slot="label">
+      <span id="attendeesCount" class="row-label"></span>
+    </div>
+    <div slot="content">
+      <span class="attendees-summary"></span>
+      <ul class="attendees-list"></ul>
+    </div>
+  </calendar-dialog-row>
+</html:template>

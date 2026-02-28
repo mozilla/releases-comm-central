@@ -1,0 +1,63 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+.attendees-list {
+  list-style-type: none;
+  padding-inline-start: 0;
+  margin-block: 0;
+  gap: var(--space-step);
+
+  & li {
+    block-size: 26px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-base);
+
+    & .attendee-name {
+      font-weight: 700;
+      padding-inline-end: var(--space-base);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    & .attendee-email {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.85rem;
+    }
+
+    & .attendee-label {
+      margin-inline-start: auto;
+      color: var(--color-text-muted);
+      font-weight: 700;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+    }
+
+    & .attendee-icon {
+      inline-size: 16px;
+      block-size: 16px;
+      margin-inline-start: var(--space-step);
+      -moz-context-properties: fill;
+
+      &.attending {
+        content: var(--icon-guest-attending);
+        fill: var(--color-text-success);
+      }
+
+      &.maybe {
+        content: var(--icon-guest-maybe);
+        fill: var(--color-text-warning);
+      }
+
+      &.declined {
+        content: var(--icon-guest-declined);
+        fill: var(--color-text-muted);
+      }
+    }
+  }
+}

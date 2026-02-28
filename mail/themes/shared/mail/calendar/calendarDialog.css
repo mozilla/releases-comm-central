@@ -106,6 +106,10 @@
   content: var(--icon-attachment);
 }
 
+.icon-attendees {
+  content: var(--icon-contact);
+}
+
 .icon-delete {
   content: var(--icon-close);
 }
