@@ -243,6 +243,10 @@ async function openEvent({ eventBox }) {
 
   await readyPromise;
 
+  const dialog = document.querySelector('[is="calendar-dialog"]');
+
+  await BrowserTestUtils.waitForAttribute("open", dialog);
+
   return eventBox;
 }
 
@@ -344,13 +348,14 @@ async function waitForCalendarReady() {
  *
  * @param {HTMLElement} target - The target element to compare against.
  * @param {string} message - The assertion message to display.
+ * @param {Document} [localDocument=document] - The document to operate in. Defaults to the global chrome document.
  */
-function checkTolerance(target, message) {
+function checkTolerance(target, message, localDocument = document) {
   const targetRect = target.getBoundingClientRect();
-  const dialogRect = document
+  const dialogRect = localDocument
     .querySelector('[is="calendar-dialog"]')
     .getBoundingClientRect();
-  const containerRect = document
+  const containerRect = localDocument
     .getElementById("calendarDisplayBox")
     .getBoundingClientRect();
 
@@ -530,8 +535,16 @@ async function positionTest({ calendar, duration = 1, offset, hour, size }) {
       `Duration: ${duration} - Offset: ${offset} - Hour: ${hour} - Window ${size.name} - Position ${JSON.stringify(position)}`
     );
   }
+  const dialog = document.querySelector('[is="calendar-dialog"]');
+  dialog?.close();
 
-  document.querySelector('[is="calendar-dialog"]')?.close();
+  if (dialog) {
+    await BrowserTestUtils.waitForCondition(
+      () => BrowserTestUtils.isHidden(dialog),
+      "Waiting for dialog to close and reset"
+    );
+  }
+
   await calendar.deleteItem(eventBox.occurrence);
 }
 

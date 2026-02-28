@@ -9,19 +9,39 @@
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/widgets.css"/>
-    <link rel="stylesheet" href="chrome://messenger/skin/spacings.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css"/>
     <script src="chrome://messenger/content/calendar-dialog.mjs" type="module"></script>
     <style>
-      #test-container {
+      body {
         position: relative;
-        width: 1000px;
-        height: 1000px;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
       }
 
-      #trigger {
+      #calendarDisplayBox {
+        position: absolute;
+        width: 1000px;
+        height: 1000px;
+        background: blue;
+      }
+
+      .multiday-event-listitem {
+        position: absolute;
         width: 100px;
         height: 100px;
+        padding: 0;
+        border: 0;
+        bottom: 0;
+      }
+
+      dialog {
+        position: absolute;
+        padding: 0;
+        border: none;
+        margin: 0;
+        background: #ccc;
       }
     </style>
   </head>
@@ -318,16 +338,15 @@
               type="full"
             ></calendar-dialog-attendees-row>
           </div>
-          <div id="calendarDialogOtherSubview" hidden="hidden">Test only subview</div>
         </calendar-dialog-subview-manager>
       </div>
       <div class="footer">
         <calendar-dialog-acceptance></calendar-dialog-acceptance>
       </div>
     </template>
-    <div id="test-container">
-      <button id="trigger"></button>
-      <dialog is="calendar-dialog"></dialog>
+    <div id="calendarDisplayBox">
+      <button class="multiday-event-listitem"></button>
     </div>
+    <dialog is="calendar-dialog"></dialog>
   </body>
 </html>

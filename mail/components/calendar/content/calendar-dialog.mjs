@@ -87,6 +87,20 @@ export class CalendarDialog extends PositionedDialog {
   #loading;
 
   /**
+   * Resolver for loading process.
+   *
+   * @type {Function}
+   */
+  #resolver;
+
+  /**
+   * A promse that resolves when loading is complete.
+   *
+   * @type {Promise<void>}
+   */
+  showPromise;
+
+  /**
    * If the data has been invaildated and should be reloaded.
    *
    * @type {boolean}
@@ -194,11 +208,11 @@ export class CalendarDialog extends PositionedDialog {
    * @returns {boolean} - If a reload was done
    */
   async #checkReloadAndReturn() {
-    this.#loading = false;
     if (!this.#reload) {
       return false;
     }
 
+    this.#loading = false;
     this.#reload = false;
     await this.#clearData();
     await this.#loadCalendarEvent();
@@ -231,12 +245,35 @@ export class CalendarDialog extends PositionedDialog {
   }
 
   /**
+   * The dialogs show method is updated to be async and resolve when the dialog
+   * is actually shown after event loading has completed. An event parameter is
+   * also added to allow positioning of the dialog relative to the click event
+   * triggered the show to happen.
+   *
+   * @param {?Event} event - The event most likely a click that should be used
+   * to identify the trigger element for dialog positioning
+   */
+  async show(event) {
+    if (this.showPromise) {
+      await this.showPromise;
+    }
+
+    super.show(event);
+  }
+
+  /**
    * Load the data from the event given by attributes. The displayed data is
    * cleared if either of the attributes is unset.
    */
   async #loadCalendarEvent() {
     if (!this.hasConnected) {
       return;
+    }
+
+    if (!this.showPromise) {
+      const { promise, resolve } = Promise.withResolvers();
+      this.showPromise = promise;
+      this.#resolver = resolve;
     }
 
     if (this.#loading) {
@@ -253,7 +290,11 @@ export class CalendarDialog extends PositionedDialog {
       // Need to call clearData explicitly here to reset the dialog
       // checkReloadAndReturn only clears if reloading.
       await this.#clearData();
-      await this.#checkReloadAndReturn();
+      if (!(await this.#checkReloadAndReturn())) {
+        this.#resolver();
+        this.showPromise = null;
+        this.#loading = false;
+      }
       return;
     }
 
@@ -322,8 +363,7 @@ export class CalendarDialog extends PositionedDialog {
 
     this.#title.textContent = event.title;
     this.querySelector(".calendar-name").textContent = calendar.name;
-    this.#title.title =
-      `${calendar.name} - ${event.title}`;
+    this.#title.title = `${calendar.name} - ${event.title}`;
 
     const dateRow = this.querySelector("calendar-dialog-date-row");
     const startDate = cal.dtz.dateTimeToJsDate(event.startDate);
@@ -399,7 +439,15 @@ export class CalendarDialog extends PositionedDialog {
     ).setDescription(event.descriptionText, event.descriptionHTML);
     await Promise.allSettled([plainDescriptionPromise, richDescriptionPromise]);
 
-    await this.#checkReloadAndReturn();
+    if (await this.#checkReloadAndReturn()) {
+      return;
+    }
+
+    this.#loading = false;
+
+    this.#resolver();
+
+    this.showPromise = null;
   }
 
   /**

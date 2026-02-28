@@ -16,6 +16,8 @@ subsuite = "thunderbird"
 
 ["browser_calendarDialog.js"]
 
+["browser_calendarDialogAsyncLoadPosition.js"]
+
 ["browser_calendarDialogAttachment.js"]
 
 ["browser_calendarDialogAttachmentsList.js"]

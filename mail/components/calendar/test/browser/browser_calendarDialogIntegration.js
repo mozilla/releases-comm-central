@@ -27,8 +27,6 @@ add_setup(() => {
     color: "rgb(255, 187, 255)",
   });
 
-  window.launchBrowser = () => {};
-
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
     tabmail.closeOtherTabs(0);
@@ -396,6 +394,8 @@ async function checkDescription({
 }
 
 add_task(async function test_setFullDescription() {
+  const originalLaunchBrowser = window.launchBrowser;
+  window.launchBrowser = () => {};
   const beforeUnloadGuard = () => {
     info("Unloading!");
     Assert.ok(false, "Should never call beforeunload");
@@ -432,4 +432,5 @@ add_task(async function test_setFullDescription() {
     "beforeunload",
     beforeUnloadGuard
   );
+  window.launchBrowser = originalLaunchBrowser;
 });

@@ -70,7 +70,7 @@ add_setup(async function () {
   });
 });
 
-function resetDialog() {
+async function resetDialog() {
   dialog.removeAttribute("calendar-id");
   dialog.removeAttribute("recurrence-id");
   dialog.removeAttribute("event-id");
@@ -78,7 +78,7 @@ function resetDialog() {
 }
 
 add_task(async function test_dialogStructure() {
-  dialog.show();
+  await dialog.show();
   const titlebar = dialog.querySelectorAll(".titlebar");
   const closeButton = dialog.querySelectorAll(".titlebar .close-button");
 
@@ -97,7 +97,7 @@ add_task(async function test_dialogStructure() {
 });
 
 add_task(async function test_dialogOpenAndClose() {
-  dialog.show();
+  await dialog.show();
 
   Assert.ok(dialog.open, "Dialog is updated to open");
   EventUtils.synthesizeMouseAtCenter(
@@ -147,7 +147,7 @@ add_task(async function test_setCalendarEvent() {
 });
 
 add_task(async function test_dialogSubviewNavigation() {
-  dialog.show();
+  await dialog.show();
   const subviewManager = dialog.querySelector(
     "calendar-dialog-subview-manager"
   );
@@ -200,7 +200,7 @@ add_task(async function test_dialogSubviewNavigation() {
 });
 
 add_task(async function test_setCalendarEventResetsSubview() {
-  dialog.show();
+  await dialog.show();
   const subviewManager = dialog.querySelector(
     "calendar-dialog-subview-manager"
   );
@@ -239,7 +239,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
   resetDialog();
 
-  dialog.show();
+  await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
     dialog,
@@ -263,7 +263,6 @@ add_task(async function test_setCalendarEventResetsSubview() {
 });
 
 add_task(async function test_dialogTitle() {
-  dialog.show();
   const title = dialog.querySelector(".calendar-dialog-title");
 
   Assert.equal(
@@ -273,6 +272,7 @@ add_task(async function test_dialogTitle() {
   );
 
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     title,
     {
@@ -314,8 +314,8 @@ add_task(async function test_dialogTitleOccurrenceException() {
 
   const savedEvent = await calendar.addItem(event);
 
-  dialog.show();
   dialog.setCalendarEvent(savedEvent);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     title,
     {
@@ -336,6 +336,7 @@ add_task(async function test_dialogTitleOccurrenceException() {
     cal.dtz.now()
   );
   dialog.setCalendarEvent(nextSavedOccurrence);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     title,
     {
@@ -356,7 +357,6 @@ add_task(async function test_dialogTitleOccurrenceException() {
 });
 
 add_task(async function test_dialogLocation() {
-  dialog.show();
   const locationLink = dialog.querySelector("#locationLink");
   const locationText = dialog.querySelector("#locationText");
 
@@ -375,7 +375,7 @@ add_task(async function test_dialogLocation() {
     calendar,
   });
   dialog.setCalendarEvent(physicalLocation);
-  dialog.show();
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     locationText,
     {
@@ -401,7 +401,7 @@ add_task(async function test_dialogLocation() {
     calendar,
   });
   dialog.setCalendarEvent(internetLocation);
-  dialog.show();
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     locationLink,
     {
@@ -446,7 +446,6 @@ add_task(async function test_dialogLocation() {
 });
 
 add_task(async function test_dialogDescription() {
-  dialog.show();
   const calendarPlainTextDescription = dialog.querySelector(
     "#expandingDescription .plain-text-description"
   );
@@ -466,6 +465,7 @@ add_task(async function test_dialogDescription() {
   );
 
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     calendarPlainTextDescription,
     {
@@ -502,7 +502,6 @@ add_task(async function test_dialogDescription() {
 });
 
 add_task(async function test_dialogCategories() {
-  dialog.show();
   const categories = dialog.querySelector("calendar-dialog-categories");
 
   Assert.equal(
@@ -512,6 +511,7 @@ add_task(async function test_dialogCategories() {
   );
 
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     categories.shadowRoot.querySelector("ul"),
     {
@@ -538,7 +538,6 @@ add_task(async function test_dialogCategories() {
 });
 
 add_task(async function test_dialogDate() {
-  dialog.show();
   const dateRow = dialog.querySelector("calendar-dialog-date-row");
   const endDate = new Date(todayDate);
   endDate.setDate(todayDate.getDate());
@@ -551,6 +550,7 @@ add_task(async function test_dialogDate() {
   );
 
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   await BrowserTestUtils.waitForMutationCondition(
     dateRow,
     {
@@ -590,8 +590,8 @@ add_task(async function test_dialogDate() {
 });
 
 add_task(async function test_dialogCalendarBarColor() {
-  dialog.show();
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
     dialog,
@@ -622,8 +622,8 @@ add_task(async function test_dialogCalendarBarColor() {
 });
 
 add_task(async function test_calendarDailogName() {
-  dialog.show();
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   const nameElement = dialog.querySelector(".calendar-name");
 
   await new Promise(requestAnimationFrame);
@@ -641,8 +641,8 @@ add_task(async function test_calendarDailogName() {
 });
 
 add_task(async function test_calendarDailogTitleTooltip() {
-  dialog.show();
   dialog.setCalendarEvent(calendarEvent);
+  await dialog.show();
   const titleElement = dialog.querySelector(".calendar-dialog-title");
 
   await new Promise(requestAnimationFrame);
@@ -660,7 +660,6 @@ add_task(async function test_calendarDailogTitleTooltip() {
 });
 
 add_task(async function test_dialogReminders() {
-  dialog.show();
   const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
   const reminderLabel = remindersRow.querySelector("#reminderCount");
   const reminderList = remindersRow.querySelector("#reminderList");
@@ -674,6 +673,7 @@ add_task(async function test_dialogReminders() {
     alarms,
   });
   dialog.setCalendarEvent(oneReminder);
+  await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
     reminderList,
@@ -713,6 +713,7 @@ add_task(async function test_dialogReminders() {
   });
 
   dialog.setCalendarEvent(multipleReminders);
+  await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
     reminderList,
@@ -776,7 +777,7 @@ add_task(async function test_toggleRowVisibilty() {
   };
   let calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   // Test row visibility.
   const descriptionRow = dialog.querySelector("#descriptionRow");
@@ -831,7 +832,7 @@ add_task(async function test_toggleRowVisibilty() {
   };
   calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   // The toggleRowVisibility event should have fired from each component.
   await descriptionEventPromise;
@@ -859,7 +860,7 @@ add_task(async function test_toggleRowVisibilty() {
 
 add_task(async function test_joinMeetingButton() {
   dialog.setCalendarEvent(calendarEvent);
-  dialog.show();
+  await dialog.show();
   const calendarPlainTextDescription = dialog.querySelector(
     "#expandingDescription .plain-text-description"
   );
@@ -889,7 +890,7 @@ add_task(async function test_joinMeetingButton() {
     description: "https://test.zoom.us/wc/join/12345",
   });
   dialog.setCalendarEvent(meetingEvent);
-  dialog.show();
+  await dialog.show();
 
   // Wait for description text to be updated.
   await BrowserTestUtils.waitForMutationCondition(
@@ -937,7 +938,7 @@ add_task(async function test_dialogAttachmentsSubview() {
     calendar,
   });
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
   subviewManager.showSubview("calendarAttachmentsSubview");
   const list = dialog.querySelector(
     "#calendarAttachmentsList .attachments-list"
@@ -991,7 +992,7 @@ add_task(async function test_dialogAttachmentsRow() {
     calendar,
   });
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
   await BrowserTestUtils.waitForAttributeRemoval("hidden", row);
 
   const rowAttributes = document.l10n.getAttributes(
@@ -1060,7 +1061,7 @@ add_task(async function testAttendeesRowVisibility() {
   };
   let calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
@@ -1071,7 +1072,7 @@ add_task(async function testAttendeesRowVisibility() {
 
   resetDialog();
 
-  dialog.show();
+  await dialog.show();
 
   calendarEventData.attendees = [];
   calEvent = await createEvent(calendarEventData);
@@ -1105,7 +1106,7 @@ add_task(async function testAttendeesRowData() {
   };
   const calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
@@ -1168,7 +1169,7 @@ add_task(async function testAttendeesRowExpandButton() {
   };
   const calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   const attendeesRow = dialog.querySelector(
     `calendar-dialog-attendees-row:not([type="full"])`
@@ -1230,7 +1231,7 @@ add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
   };
   const calEvent = await createEvent(calendarEventData);
   dialog.setCalendarEvent(calEvent);
-  dialog.show();
+  await dialog.show();
 
   const attendeesRow = dialog.querySelector("calendar-dialog-attendees-row");
 
@@ -1250,7 +1251,7 @@ add_task(async function test_calendarDialogMenu() {
   const menu = dialog.querySelector("menupopup");
 
   dialog.setCalendarEvent(calendarEvent);
-  dialog.show();
+  await dialog.show();
 
   await BrowserTestUtils.waitForMutationCondition(
     title,
