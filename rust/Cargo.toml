@@ -13,7 +13,7 @@ gkrust = []
 gkrust-gtest = ["gkrust"]
 
 [workspace]
-members = ['ews_xpcom', 'gkrust', 'graph_xpcom', 'gtest', 'mailnews_string_glue', 'mailnews_ui_glue', 'moz_http', 'ms_graph_tb', 'protocol_shared', 'sys_tray', 'xpcom_async']
+members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray', 'mailnews_ui_glue', 'graph_xpcom', 'protocol_shared', 'ms_graph_tb']
 
 [workspace.package]
 rust-version = "1.90.0"

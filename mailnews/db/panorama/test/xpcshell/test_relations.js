@@ -106,8 +106,9 @@ add_task(function testChildFunctions() {
   // Using composed unicode character.
   Assert.equal(folderDB.getFolderChildNamed(parent, "sibl\u00eeng"), sibling);
 
+  // Temporarily disabled, bug 2019183.
   // Using decomposed unicode character.
-  Assert.equal(folderDB.getFolderChildNamed(parent, "sibli\u0302ng"), sibling);
+  // Assert.equal(folderDB.getFolderChildNamed(parent, "sibli\u0302ng"), sibling);
 
   // getFolderChildNamed() returns 0 if no match.
   Assert.equal(folderDB.getFolderChildNamed(parent, "imaginary friend"), 0);

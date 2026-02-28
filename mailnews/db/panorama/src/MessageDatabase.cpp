@@ -97,21 +97,18 @@ NS_IMETHODIMP MessageDatabase::AddMessage(
     stmt->BindInt64ByName("threadId"_ns, threadId);
     stmt->BindInt64ByName("threadParent"_ns, parentId);
     stmt->BindUTF8StringByName("messageId"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aMessageId)));
+                               DatabaseUtils::Normalize(aMessageId));
     stmt->BindInt64ByName("date"_ns, aDate);
-    stmt->BindUTF8StringByName("sender"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aSender)));
+    stmt->BindUTF8StringByName("sender"_ns, DatabaseUtils::Normalize(aSender));
     stmt->BindUTF8StringByName("recipients"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aRecipients)));
-    stmt->BindUTF8StringByName("ccList"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aCcList)));
+                               DatabaseUtils::Normalize(aRecipients));
+    stmt->BindUTF8StringByName("ccList"_ns, DatabaseUtils::Normalize(aCcList));
     stmt->BindUTF8StringByName("bccList"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aBccList)));
+                               DatabaseUtils::Normalize(aBccList));
     stmt->BindUTF8StringByName("subject"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aSubject)));
+                               DatabaseUtils::Normalize(aSubject));
     stmt->BindInt64ByName("flags"_ns, aFlags);
-    stmt->BindUTF8StringByName("tags"_ns,
-                               MOZ_TRY(DatabaseUtils::Normalize(aTags)));
+    stmt->BindUTF8StringByName("tags"_ns, DatabaseUtils::Normalize(aTags));
 
     bool hasResult;
     rv = stmt->ExecuteStep(&hasResult);
@@ -603,8 +600,7 @@ NS_IMETHODIMP MessageDatabase::GetMessageProperty(nsMsgKey aKey,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns,
-                             MOZ_TRY(DatabaseUtils::Normalize(aName)));
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
 
   aValue.Truncate();
   bool hasResult;
@@ -628,8 +624,7 @@ nsresult MessageDatabase::GetMessageProperty(nsMsgKey key,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, key);
-  stmt->BindUTF8StringByName("name"_ns,
-                             MOZ_TRY(DatabaseUtils::Normalize(name)));
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(name));
 
   value = 0;
   bool hasResult;
@@ -653,8 +648,7 @@ nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns,
-                             MOZ_TRY(DatabaseUtils::Normalize(aName)));
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
   stmt->BindUTF8StringByName("value"_ns, aValue);
   rv = stmt->Execute();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -674,8 +668,7 @@ nsresult MessageDatabase::SetMessageProperty(nsMsgKey aKey,
   mozStorageStatementScoper scoper(stmt);
 
   stmt->BindInt64ByName("id"_ns, aKey);
-  stmt->BindUTF8StringByName("name"_ns,
-                             MOZ_TRY(DatabaseUtils::Normalize(aName)));
+  stmt->BindUTF8StringByName("name"_ns, DatabaseUtils::Normalize(aName));
   stmt->BindInt64ByName("value"_ns, aValue);
   rv = stmt->Execute();
   NS_ENSURE_SUCCESS(rv, rv);

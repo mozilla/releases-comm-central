@@ -4,7 +4,6 @@
 
 #include "DatabaseUtils.h"
 
-#include "mailnews_string_glue.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/FormatBuffer.h"
 #include "mozilla/intl/String.h"
@@ -19,20 +18,27 @@
 #include "prtime.h"
 
 using mozilla::LazyLogModule;
+using mozilla::LogLevel;
+using mozilla::intl::nsTStringToBufferAdapter;
 
 namespace mozilla::mailnews {
 
 extern LazyLogModule gPanoramaLog;  // Defined by DatabaseCore.
 
 /* static */
-mozilla::Result<nsCString, nsresult> DatabaseUtils::Normalize(
-    const nsACString& inString) {
-  nsAutoCString outString;
-  auto rv = nfc_normalize(inString, outString);
-  if (NS_FAILED(rv)) {
-    return mozilla::Err(rv);
-  }
-  return outString;
+nsCString DatabaseUtils::Normalize(const nsACString& inString) {
+  // Temporarily disabled, bug 2019183.
+
+  // nsAutoString inStringW = NS_ConvertUTF8toUTF16(inString);
+  // nsAutoString outStringW;
+  // nsTStringToBufferAdapter buffer(outStringW);
+  // auto alreadyNormalized = intl::String::Normalize(
+  //     intl::String::NormalizationForm::NFC, inStringW, buffer);
+  // if (alreadyNormalized.unwrap() == intl::String::AlreadyNormalized::Yes) {
+  //   return nsCString(inString);
+  // }
+  // return NS_ConvertUTF16toUTF8(buffer.data());
+  return nsCString(inString);
 }
 
 NS_IMPL_ISUPPORTS(TagsMatchFunction, mozIStorageFunction)

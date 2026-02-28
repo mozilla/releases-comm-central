@@ -22,7 +22,6 @@ mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optio
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
 graph_xpcom = { version = "0.1.0", path = "../graph_xpcom" }
-mailnews_string_glue = { version = "0.1.0", path = "../mailnews_string_glue" }
 mailnews_ui_glue = { version = "0.1.0", path = "../mailnews_ui_glue" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "5776bdfc8ad664a1503db668fab397d818a5f98a" }

@@ -637,22 +637,21 @@ class FolderMigrator final : public nsIRunnable, mozIStorageStatementCallback {
       mParamsArray->NewBindingParams(getter_AddRefs(params));
 
       params->BindInt64ByName("folderId"_ns, mDestFolderId);
-      params->BindUTF8StringByName(
-          "messageId"_ns, MOZ_TRY(DatabaseUtils::Normalize(messageId)));
+      params->BindUTF8StringByName("messageId"_ns,
+                                   DatabaseUtils::Normalize(messageId));
       params->BindInt64ByName("date"_ns, date);
       params->BindUTF8StringByName("sender"_ns,
-                                   MOZ_TRY(DatabaseUtils::Normalize(sender)));
-      params->BindUTF8StringByName(
-          "recipients"_ns, MOZ_TRY(DatabaseUtils::Normalize(recipients)));
+                                   DatabaseUtils::Normalize(sender));
+      params->BindUTF8StringByName("recipients"_ns,
+                                   DatabaseUtils::Normalize(recipients));
       params->BindUTF8StringByName("ccList"_ns,
-                                   MOZ_TRY(DatabaseUtils::Normalize(ccList)));
+                                   DatabaseUtils::Normalize(ccList));
       params->BindUTF8StringByName("bccList"_ns,
-                                   MOZ_TRY(DatabaseUtils::Normalize(bccList)));
+                                   DatabaseUtils::Normalize(bccList));
       params->BindUTF8StringByName("subject"_ns,
-                                   MOZ_TRY(DatabaseUtils::Normalize(subject)));
+                                   DatabaseUtils::Normalize(subject));
       params->BindInt64ByName("flags"_ns, flags);
-      params->BindUTF8StringByName("tags"_ns,
-                                   MOZ_TRY(DatabaseUtils::Normalize(tags)));
+      params->BindUTF8StringByName("tags"_ns, DatabaseUtils::Normalize(tags));
 
       // Collect what we need to insert into the message_properties table, and
       // the things we need to update in the messages table once we have the

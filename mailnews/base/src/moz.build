@@ -9,7 +9,6 @@ EXPORTS += [
     "FolderLookupService.h",
     "HeaderReader.h",
     "LineReader.h",
-    "mailnews_string_glue.h",
     "MboxMsgInputStream.h",
     "MboxMsgOutputStream.h",
     "msgCore.h",
