@@ -93,6 +93,13 @@ export class CalendarDialog extends PositionedDialog {
    */
   #reload;
 
+  /**
+   * The title element for the dialog
+   *
+   * @type {HTMLElement}
+   */
+  #title;
+
   connectedCallback() {
     if (!this.hasConnected) {
       this.hasConnected = true;
@@ -118,6 +125,7 @@ export class CalendarDialog extends PositionedDialog {
       this.setAttribute("is", "calendar-dialog");
 
       this.container = document.getElementById("calendarDisplayBox");
+      this.#title = this.querySelector(".calendar-dialog-title");
     }
 
     document.l10n.translateFragment(this);
@@ -312,9 +320,9 @@ export class CalendarDialog extends PositionedDialog {
       `var(--calendar-${cssSafeCalendarId}-backcolor)`
     );
 
-    this.querySelector(".event-title").textContent = event.title;
+    this.#title.textContent = event.title;
     this.querySelector(".calendar-name").textContent = calendar.name;
-    this.querySelector(".calendar-dialog-title").title =
+    this.#title.title =
       `${calendar.name} - ${event.title}`;
 
     const dateRow = this.querySelector("calendar-dialog-date-row");
@@ -399,9 +407,9 @@ export class CalendarDialog extends PositionedDialog {
    */
   async #clearData() {
     this.#subviewManager.showDefaultSubview();
-    this.querySelector(".event-title").textContent = "";
+    this.#title.textContent = "";
     this.querySelector(".calendar-name").textContent = "";
-    this.querySelector(".calendar-dialog-title").title = "";
+    this.#title.title = "";
 
     // Only clearing the repeats attribute, the dates are expected to always
     // have a value.

@@ -167,31 +167,34 @@
     </template>
     <template id="calendarDialogTemplate">
       <div class="titlebar">
-        <button
-          class="button icon-button icon-only button-flat back-button"
-          data-l10n-id="calendar-dialog-back-button"
-          type="button"
-        ></button>
-        <h2 class="calendar-dialog-title">
-          <span class="calendar-name screen-reader-only"></span>
-          <span class="event-title"></span>
-        </h2>
-        <div class="title-button-container">
-          <button
-            class="button icon-button icon-only button-flat menu-button"
-            type="menu"
-            data-l10n-id="calendar-dialog-menu">
-            <xul:menupopup id="event-read-menu" native="false" class="no-icon-menupopup">
-              <xul:menuitem data-l10n-id="calendar-dialog-menu-duplicate"/>
-              <xul:menuitem data-l10n-id="calendar-dialog-menu-delete"/>
-              <xul:menuitem data-l10n-id="calendar-dialog-menu-print"/>
-            </xul:menupopup>
-          </button>
-          <button
-            class="button icon-button icon-only button-flat close-button"
-            data-l10n-id="calendar-dialog-close-button"
-            type="button">
-          </button>
+        <div class="titlebar-row">
+            <button
+              class="button icon-button icon-only button-flat back-button"
+              data-l10n-id="calendar-dialog-back-button"
+              type="button"
+            ></button>
+            <span class="calendar-name"></span>
+            <div class="title-button-container">
+              <button
+                class="button icon-button icon-only button-flat menu-button"
+                type="menu"
+                data-l10n-id="calendar-dialog-menu">
+                <xul:menupopup id="event-read-menu" native="false" class="no-icon-menupopup">
+                  <xul:menuitem data-l10n-id="calendar-dialog-menu-duplicate"/>
+                  <xul:menuitem data-l10n-id="calendar-dialog-menu-delete"/>
+                  <xul:menuitem data-l10n-id="calendar-dialog-menu-print"/>
+                </xul:menupopup>
+              </button>
+              <button
+                class="button icon-button icon-only button-flat close-button"
+                data-l10n-id="calendar-dialog-close-button"
+                type="button">
+              </button>
+            </div>
+        </div>
+        <div class="titlebar-row">
+          <h2 class="calendar-dialog-title">
+          </h2>
         </div>
       </div>
       <div class="content">

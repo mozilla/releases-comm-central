@@ -231,7 +231,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
     !subviewManager.isDefaultSubviewVisible(),
     "Should be showing another subiew 2"
   );
-  const title = dialog.querySelector(".event-title");
+  const title = dialog.querySelector(".calendar-dialog-title");
   await BrowserTestUtils.waitForCondition(
     () => title.textContent.trim() == "Test Event",
     "waiting for title to be updated"
@@ -264,7 +264,7 @@ add_task(async function test_setCalendarEventResetsSubview() {
 
 add_task(async function test_dialogTitle() {
   dialog.show();
-  const title = dialog.querySelector(".event-title");
+  const title = dialog.querySelector(".calendar-dialog-title");
 
   Assert.equal(
     title.textContent.trim(),
@@ -295,7 +295,7 @@ add_task(async function test_dialogTitle() {
 });
 
 add_task(async function test_dialogTitleOccurrenceException() {
-  const title = dialog.querySelector(".event-title");
+  const title = dialog.querySelector(".calendar-dialog-title");
   const start = cal.dtz.jsDateToDateTime(new Date(todayDate), 0);
   let end = new Date(todayDate);
   end.setDate(todayDate.getDate() + 1);
@@ -1246,7 +1246,7 @@ add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
 });
 
 add_task(async function test_calendarDialogMenu() {
-  const title = dialog.querySelector(".event-title");
+  const title = dialog.querySelector(".calendar-dialog-title");
   const menu = dialog.querySelector("menupopup");
 
   dialog.setCalendarEvent(calendarEvent);

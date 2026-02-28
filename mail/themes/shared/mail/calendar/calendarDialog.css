@@ -39,10 +39,11 @@
   --calendar-bar-color-fallback: #1373d9;
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
   padding: calc(var(--calendar-dialog-title-bar-padding-block) + var(--calendar-dialog-top-bar-height)) var(--calendar-dialog-row-padding-inline)
     var(--calendar-dialog-title-bar-padding-block);
-  gap: calc(3 * var(--space-step));
+  gap: 4px;
 
   &::before {
     border-radius: var(--calendar-border-radius) var(--calendar-border-radius) 0 0;
@@ -52,6 +53,28 @@
     inset-inline: 0;
     block-size: var(--calendar-dialog-top-bar-height);
     background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
+  }
+
+  & .titlebar-row {
+    position: relative;
+    min-inline-size: 100%;
+    display: flex;
+    align-items: center;
+    gap: calc(3 * var(--space-step));
+  }
+
+  & .calendar-name {
+    flex: 1;
+
+    &::before {
+      content: "";
+      background: var(--calendar-bar-color, var(--calendar-bar-color-fallback));
+      inline-size: 9px;
+      block-size: 9px;
+      margin-inline-end: 9px;
+      display: inline-block;
+      border-radius: 9px;
+    }
   }
 
   & .calendar-dialog-title {
