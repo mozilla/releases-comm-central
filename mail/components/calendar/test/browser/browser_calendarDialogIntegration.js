@@ -27,6 +27,8 @@ add_setup(() => {
     color: "rgb(255, 187, 255)",
   });
 
+  window.launchBrowser = () => {};
+
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
     tabmail.closeOtherTabs(0);
@@ -292,4 +294,142 @@ add_task(async function test_closeDialogOnTabSwitch() {
   );
 
   await calendar.deleteItem(eventBox.occurrence);
+});
+
+/**
+ * Click a link in the description and wait for the global launchBrowser
+ * function to be called.
+ *
+ * @param {string} expectedUrl - The url that launchBrowser should have been
+ * called with.
+ */
+async function waitForLaunchBrowser(expectedUrl) {
+  const { promise, resolve } = Promise.withResolvers();
+
+  window.launchBrowser = (url, event) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    Assert.equal(url, expectedUrl, "Should launch the correct url");
+
+    resolve();
+  };
+
+  const expandedDescription = document.querySelector("#expandedDescription");
+  const richDescription =
+    expandedDescription.querySelector(".rich-description");
+
+  EventUtils.synthesizeMouseAtCenter(
+    document.querySelector("#expandDescription"),
+    {},
+    window
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(richDescription.contentDocument.body),
+    "wait for description document to be visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    richDescription.contentDocument.querySelector("a"),
+    {},
+    richDescription.contentWindow
+  );
+
+  await promise;
+
+  window.launchBrowser = () => {};
+}
+
+/**
+ * Create an event with a given description and open the dialog to make sure
+ * the plain text and rich description are properly set and displayed.
+ *
+ * @param {object} options - An options object for checking the description.
+ * @param {string} options.description - The description to create the event with.
+ * @param {string} options.descriptionHTML - A HTML string to pass to the event creation.
+ * @param {string} options.resultHTML - A HTML string of the displayed DOM.
+ * @param {string} options.launch - A URL to pass to waitForLaunchBrowser.
+ */
+async function checkDescription({
+  description,
+  descriptionHTML,
+  resultHTML,
+  launch,
+}) {
+  await createEvent({
+    calendar,
+    description,
+    descriptionHTML,
+  });
+  const eventBox = await openAndShowEvent();
+
+  const expandedDescription = document.querySelector("#expandedDescription");
+  const richDescription =
+    expandedDescription.querySelector(".rich-description");
+
+  const plainText = expandedDescription.querySelector(
+    ".plain-text-description"
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => plainText.textContent == description,
+    "Waiting for description to update"
+  );
+
+  Assert.equal(
+    plainText.textContent,
+    description,
+    "Should display correct description in plain text"
+  );
+  Assert.equal(
+    richDescription.contentDocument.body.innerHTML.trim(),
+    resultHTML,
+    "Should display correct description in browser body"
+  );
+
+  if (launch) {
+    await waitForLaunchBrowser(launch);
+  }
+
+  await calendar.deleteItem(eventBox.occurrence);
+}
+
+add_task(async function test_setFullDescription() {
+  const beforeUnloadGuard = () => {
+    info("Unloading!");
+    Assert.ok(false, "Should never call beforeunload");
+  };
+
+  const expandedDescription = document.querySelector("#expandedDescription");
+  const richDescription =
+    expandedDescription.querySelector(".rich-description");
+  richDescription.contentWindow.addEventListener(
+    "beforeunload",
+    beforeUnloadGuard
+  );
+
+  await checkDescription({ description: "foo", resultHTML: "foo" });
+  await checkDescription({
+    description: "foo 2\nTest",
+    descriptionHTML: "<p>foo 2</p><button>Test</button>",
+    resultHTML: "<p>foo 2</p>",
+  });
+  await checkDescription({
+    description: "Link",
+    descriptionHTML: `<a href="https://example.com/">Link</a>`,
+    resultHTML: `<a href="https://example.com/">Link</a>`,
+    launch: "https://example.com/",
+  });
+  await checkDescription({
+    description: "Link",
+    descriptionHTML: `<a href="mailto:thunderbird@example.com">Link</a>`,
+    resultHTML: `<a href="mailto:thunderbird@example.com">Link</a>`,
+    launch: "mailto:thunderbird@example.com",
+  });
+
+  richDescription.contentWindow.removeEventListener(
+    "beforeunload",
+    beforeUnloadGuard
+  );
 });

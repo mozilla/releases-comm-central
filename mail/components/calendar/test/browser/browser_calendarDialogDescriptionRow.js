@@ -4,6 +4,7 @@
 
 const tabmail = document.getElementById("tabmail");
 let expandingDescription, expandedDescription;
+let richDescription;
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -19,10 +20,12 @@ add_setup(async function () {
   expandedDescription = tab.browser.contentWindow.document.querySelector(
     "#expandedDescription"
   );
-});
 
-registerCleanupFunction(() => {
-  tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+  richDescription = expandedDescription.querySelector(".rich-description");
+
+  registerCleanupFunction(() => {
+    tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+  });
 });
 
 add_task(async function test_attributes() {
@@ -105,8 +108,7 @@ add_task(async function test_setExpandingDescription() {
   const plainText = expandingDescription.querySelector(
     ".plain-text-description"
   );
-  const richDescription =
-    expandingDescription.querySelector(".rich-description");
+
   const toggleRowVisibilityPromise = BrowserTestUtils.waitForEvent(
     expandingDescription,
     "toggleRowVisibility"
@@ -146,51 +148,5 @@ add_task(async function test_setExpandingDescription() {
     richDescription.contentDocument.body.textContent.trim(),
     "",
     "Should still not touch browser"
-  );
-});
-
-add_task(async function test_setFullDescription() {
-  const plainText = expandedDescription.querySelector(
-    ".plain-text-description"
-  );
-  const richDescription =
-    expandedDescription.querySelector(".rich-description");
-  await expandedDescription.setDescription("foo");
-  Assert.equal(
-    plainText.textContent,
-    "foo",
-    "Should display description in plain field"
-  );
-  Assert.equal(
-    richDescription.contentDocument.body.innerHTML.trim(),
-    "foo",
-    "Should have a simple string in the browser body"
-  );
-
-  await expandedDescription.setDescription(
-    "foo",
-    "<p>foo</p><button>Test</button>"
-  );
-  Assert.equal(
-    plainText.textContent,
-    "foo",
-    "Should display description in plain field"
-  );
-  Assert.equal(
-    richDescription.contentDocument.body.innerHTML.trim(),
-    "<p>foo</p>",
-    "Browser should contain sanitized rich description"
-  );
-
-  await expandedDescription.setDescription("");
-  Assert.equal(
-    plainText.textContent,
-    "",
-    "Should clear plain text description"
-  );
-  Assert.equal(
-    richDescription.contentDocument.body.childElementCount,
-    0,
-    "Should clear browser"
   );
 });

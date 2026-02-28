@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals launchBrowser */
+
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import/no-unassigned-import
 
 const lazy = {};
@@ -37,6 +39,17 @@ class CalendarDialogDescriptionRow extends HTMLElement {
       .classList.toggle("truncated-content", !isFullDescription);
     row.toggleAttribute("expanded", isFullDescription);
     row.toggleAttribute("expanding", !isFullDescription);
+  }
+
+  handleEvent(event) {
+    const link = event.target.closest("a");
+    if (!link) {
+      return null;
+    }
+
+    launchBrowser(link.href, event);
+
+    return false;
   }
 
   /**
@@ -82,6 +95,7 @@ class CalendarDialogDescriptionRow extends HTMLElement {
       descriptionHTML
     );
     browser.contentDocument.body.replaceChildren(docFragment);
+    browser.contentDocument.addEventListener("click", this);
   }
 }
 
