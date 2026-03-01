@@ -339,7 +339,7 @@ function createSearchRow(index, scope, searchTerm, aUserAdded) {
   moreButton.setAttribute("data-l10n-id", "search-add-rule-button");
   lessButton.setAttribute("class", "small-button");
   lessButton.setAttribute("oncommand", "onLess(event);");
-  lessButton.setAttribute("data-l10n-id", "search-remove-rule-button");
+  lessButton.setAttribute("data-l10n-id", "search-remove-rule-button-2");
 
   // now set up ids:
   searchAttr.id = "searchAttr" + gUniqueSearchTermCounter;

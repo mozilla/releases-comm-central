@@ -2,12 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-rule-menuitem-spam =
-  .label = Spam
-
-rule-menuitem-not-spam =
-  .label = Not Spam
-
 run-filter-before-spam =
   .label = Filter before Spam Classification
 
@@ -23,9 +17,6 @@ run-periodically =
             *[other] Periodically, every { $minutes } minutes
         }
     .accesskey = e
-
-rule-action-set-spam-status =
-  .label = Set Spam Status to
 
 # Variables:
 # $author (String) - The author of the message.
@@ -203,3 +194,77 @@ filter-count-items = {
 #   $visible - the number of visible items
 #   $total - the total number of items
 filter-count-visible-of-total = { $visible } of { $total }
+
+## Filter Editor
+
+filter-editor-window-title = Filter Rules
+
+filter-editor-name =
+    .value = Filter name:
+    .accesskey = i
+
+filter-editor-context-desc = Apply filter when:
+
+filter-editor-context-incoming =
+    .label = Getting New Mail:
+    .accesskey = G
+
+filter-editor-context-manual =
+    .label = Manually Run
+    .accesskey = R
+
+filter-editor-context-outgoing =
+    .label = After Sending
+    .accesskey = S
+
+filter-editor-context-archive =
+    .label = Archiving
+    .accesskey = A
+
+filter-editor-action-desc =
+    .value = Perform these actions:
+    .accesskey = P
+
+filter-editor-action-order-warning =
+    .value = Note: Filter actions will be run in a different order.
+
+filter-editor-action-order-link =
+    .value = See execution order
+
+filter-editor-duplicate-title = Duplicate Filter Name
+
+filter-editor-duplicate-msg = The filter name you entered already exists. Please enter a different filter name.
+
+filter-editor-no-event-title = No filter event selected
+
+filter-editor-no-event-msg = You must select at least one event when this filter is applied. If you temporarily do not wish the filter to run at any event, uncheck its enabled state from the Message Filters dialog.
+
+filter-editor-match-all-name = Match All Messages
+
+# Variables:
+#   $name (String) - The name of the filter that is being copied.
+filter-editor-copy-name = Copy of { $name }
+
+filter-editor-invalid-search-title = Search Terms Invalid
+
+# Variables:
+#   $attribute (String) - The search attribute name from the invalid rule.
+#   $operator (String) - The search operator from the bad rule.
+filter-editor-invalid-search-rule = This filter cannot be saved because the search term "{ $attribute } { $operator }" is invalid in the current context.
+
+filter-editor-action-order-explanation =
+    When a message matches this filter the actions will be run in this order:
+
+filter-editor-action-order-title = Real action order
+
+# Variables:
+#   $number (Number) - The sequence number of the action
+#   $action (String) - The action label
+#   $argument (String) - The folder or value associated with the action
+filter-editor-action-item = { $number }. { $action } { $argument }
+
+# Variables:
+#   $attribute (String) - Header or item to match (e.g. "From")
+#   $operator (String) - The comparison operator (e.g. "Contains")
+#   $value (String) - The value being matched
+filter-editor-auto-name = { $attribute } { $operator }: { $value }

@@ -36,11 +36,7 @@ var { UIFontSize } = ChromeUtils.importESModule(
 ChromeUtils.defineLazyGetter(
   this,
   "l10n",
-  () =>
-    new Localization(
-      ["messenger/virtualFolderProperties.ftl", "messenger/searchWidgets.ftl"],
-      true
-    )
+  () => new Localization(["messenger/virtualFolderProperties.ftl"], true)
 );
 
 window.addEventListener("DOMContentLoaded", onLoad);

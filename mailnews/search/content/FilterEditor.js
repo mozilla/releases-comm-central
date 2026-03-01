@@ -14,6 +14,13 @@ var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
 
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () =>
+    new Localization(["branding/brand.ftl", "messenger/filterEditor.ftl"], true)
+);
+
 // The actual filter that we're editing if it is a _saved_ filter or prefill;
 // void otherwise.
 var gFilter;
@@ -22,7 +29,6 @@ var gFilterList;
 // The filter name as it appears in the "Filter Name" field of dialog.
 var gFilterNameElement;
 var gFilterTypeSelector;
-var gFilterBundle;
 var gPreFillName;
 var gFilterActionList;
 var gCustomActions = null;
@@ -66,8 +72,6 @@ function filterEditorOnLoad() {
   getCustomActions();
   initializeSearchWidgets();
   initializeFilterWidgets();
-
-  gFilterBundle = document.getElementById("bundle_filter");
 
   if ("arguments" in window && window.arguments[0]) {
     var args = window.arguments[0];
@@ -141,12 +145,10 @@ function filterEditorOnLoad() {
       } else if ("copiedFilter" in args) {
         // we are copying a filter
         const copiedFilter = args.copiedFilter;
-        const copiedName = gFilterBundle.getFormattedString(
-          "copyToNewFilterName",
-          [copiedFilter.filterName]
-        );
+        const copiedName = l10n.formatValueSync("filter-editor-copy-name", {
+          name: copiedFilter.filterName,
+        });
         const newFilter = gFilterList.createFilter(copiedName);
-
         // copy the actions
         for (let i = 0; i < copiedFilter.actionCount; i++) {
           const copiedFilterAction = copiedFilter.getActionAt(i);
@@ -419,11 +421,11 @@ function ensureActionRow() {
 function saveFilter() {
   // See if at least one filter type (activation event) is selected.
   if (gFilterType == Ci.nsMsgFilterType.None) {
-    Services.prompt.alert(
-      window,
-      gFilterBundle.getString("mustHaveFilterTypeTitle"),
-      gFilterBundle.getString("mustHaveFilterTypeMessage")
-    );
+    const [title, msg] = l10n.formatValuesSync([
+      { id: "filter-editor-no-event-title" },
+      { id: "filter-editor-no-event-msg" },
+    ]);
+    Services.prompt.alert(window, title, msg);
     return false;
   }
 
@@ -436,11 +438,11 @@ function saveFilter() {
     (!gFilter || gFilter.filterName != filterName) &&
     duplicateFilterNameExists(filterName)
   ) {
-    Services.prompt.alert(
-      window,
-      gFilterBundle.getString("cannotHaveDuplicateFilterTitle"),
-      gFilterBundle.getString("cannotHaveDuplicateFilterMessage")
-    );
+    const [title, msg] = l10n.formatValuesSync([
+      { id: "filter-editor-duplicate-title" },
+      { id: "filter-editor-duplicate-msg" },
+    ]);
+    Services.prompt.alert(window, title, msg);
     return false;
   }
 
@@ -520,14 +522,17 @@ function saveFilter() {
     }
 
     if (invalidRule) {
-      Services.prompt.alert(
-        window,
-        gFilterBundle.getString("searchTermsInvalidTitle"),
-        gFilterBundle.getFormattedString("searchTermsInvalidRule", [
-          obj.searchattribute.label,
-          obj.searchoperator.label,
-        ])
-      );
+      const [title, msg] = l10n.formatValuesSync([
+        { id: "filter-editor-invalid-search-title" },
+        {
+          id: "filter-editor-invalid-search-rule",
+          args: {
+            attribute: obj.searchattribute.label,
+            operator: obj.searchoperator.label,
+          },
+        },
+      ]);
+      Services.prompt.alert(window, title, msg);
       return false;
     }
   }
@@ -641,35 +646,36 @@ function showActionsOrder() {
     const actionItem = actionTarget.ruleactiontargetElement;
     const actionItemLabel = actionItem && actionItem.children[0].label;
 
-    const actionString = {
+    actionStrings.push({
       label: ruleAction.mRuleActionType.label,
-      argument: "",
-    };
-    if (actionItem) {
-      if (actionItemLabel) {
-        actionString.argument = actionItemLabel;
-      } else {
-        actionString.argument = actionItem.children[0].value;
-      }
-    }
-    actionStrings.push(actionString);
+      argument:
+        actionItemLabel || (actionItem ? actionItem.children[0].value : ""),
+    });
   }
 
+  const explanation = l10n.formatValueSync(
+    "filter-editor-action-order-explanation"
+  );
+  const title = l10n.formatValueSync("filter-editor-action-order-title");
+
   // Present a nicely formatted list of action names and arguments.
-  let actionList = gFilterBundle.getString("filterActionOrderExplanation");
+  let actionList = explanation + "\n\n";
+
   for (let i = 0; i < gActionListOrdered.length; i++) {
     const actionIndex = gTempFilter.getActionIndex(gActionListOrdered[i]);
     const action = actionStrings[actionIndex];
-    actionList += gFilterBundle.getFormattedString("filterActionItem", [
-      i + 1,
-      action.label,
-      action.argument,
-    ]);
+
+    actionList +=
+      l10n.formatValueSync("filter-editor-action-item", {
+        number: i + 1,
+        action: action.label,
+        argument: action.argument,
+      }) + "\n";
   }
 
   Services.prompt.confirmEx(
     window,
-    gFilterBundle.getString("filterActionOrderTitle"),
+    title,
     actionList,
     Services.prompt.BUTTON_TITLE_OK,
     null,
@@ -688,17 +694,14 @@ function AssignMeaningfulName() {
 
   // If this is a Match All Messages Filter, we already know the name to assign.
   if (termRoot.matchAll) {
-    stub = gFilterBundle.getString("matchAllFilterName");
+    stub = l10n.formatValueSync("filter-editor-match-all-name");
   } else {
     // Assign a name based on the first search term.
-    const term = termRoot.searchattribute.label;
-    const operator = termRoot.searchoperator.label;
-    const value = termRoot.searchvalue.getReadableValue();
-    stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
-      term,
-      operator,
-      value,
-    ]);
+    stub = l10n.formatValueSync("filter-editor-auto-name", {
+      attribute: termRoot.searchattribute.label,
+      operator: termRoot.searchoperator.label,
+      value: termRoot.searchvalue.getReadableValue(),
+    });
   }
 
   // Whatever name we have used, 'uniquify' it.

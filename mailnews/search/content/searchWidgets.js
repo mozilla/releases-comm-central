@@ -7,7 +7,10 @@
 /* global MozElements MozXULElement */
 
 /* import-globals-from ../../base/content/dateFormat.js */
-// TODO: This is completely bogus. Only one use of this file also has FilterEditor.js.
+
+// Satisfy ESLint by referencing FilterEditor.js as a representative source
+// for shared globals (gFilter, gFilterList, etc.) defined by the hosting
+// window.
 /* import-globals-from FilterEditor.js */
 
 // Wrap in a block to prevent leaking to window scope.
@@ -21,7 +24,7 @@
 
   ChromeUtils.defineLazyGetter(
     this,
-    "l10n",
+    "searchWidgetsL10n",
     () =>
       new Localization(
         ["messenger/searchWidgets.ftl", "messenger/filterEditor.ftl"],
@@ -70,15 +73,14 @@
           `
           <menulist class="ruleactionitem" flex="1">
             <menupopup native="false">
-              <menuitem value="6" label="&highestPriorityCmd.label;"></menuitem>
-              <menuitem value="5" label="&highPriorityCmd.label;"></menuitem>
-              <menuitem value="4" label="&normalPriorityCmd.label;"></menuitem>
-              <menuitem value="3" label="&lowPriorityCmd.label;"></menuitem>
-              <menuitem value="2" label="&lowestPriorityCmd.label;"></menuitem>
+              <menuitem value="6" data-l10n-id="rule-priority-highest"></menuitem>
+              <menuitem value="5" data-l10n-id="rule-priority-high"></menuitem>
+              <menuitem value="4" data-l10n-id="rule-priority-normal"></menuitem>
+              <menuitem value="3" data-l10n-id="rule-priority-low"></menuitem>
+              <menuitem value="2" data-l10n-id="rule-priority-lowest"></menuitem>
             </menupopup>
           </menulist>
-          `,
-          ["chrome://messenger/locale/FilterEditor.dtd"]
+          `
         )
       );
 
@@ -554,9 +556,11 @@
           "component javascript"
         );
         Services.console.logMessage(scriptError);
-        return l10n.formatValueSync("search-attrib-missing-custom-term");
+        return searchWidgetsL10n.formatValueSync(
+          "search-attrib-missing-custom-term"
+        );
       }
-      return l10n.formatValueSync(
+      return searchWidgetsL10n.formatValueSync(
         this.validityManager.getAttributeL10nID(parseInt(this.value))
       );
     }
@@ -596,7 +600,7 @@
         } else if (ids[i] > Ci.nsMsgSearchAttrib.OtherHeader && hdrsArray) {
           strings[i] = hdrsArray[j++];
         } else {
-          strings[i] = l10n.formatValueSync(
+          strings[i] = searchWidgetsL10n.formatValueSync(
             this.validityManager.getAttributeL10nID(ids[i])
           );
         }
@@ -624,7 +628,7 @@
     }
 
     get valueLabel() {
-      return l10n.formatValueSync(
+      return searchWidgetsL10n.formatValueSync(
         this.validityManager.getOperatorL10nID(this.value)
       );
     }
@@ -647,7 +651,7 @@
       const strings = [];
       const ids = this.valueIds;
       for (let i = 0; i < ids.length; i++) {
-        strings[i] = l10n.formatValueSync(
+        strings[i] = searchWidgetsL10n.formatValueSync(
           this.validityManager.getOperatorL10nID(ids[i])
         );
       }
@@ -1535,73 +1539,66 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-          <menulist is="ruleactiontype-menulist" style="flex: &filterActionTypeFlexValue;">
+          <menulist is="ruleactiontype-menulist" style="flex: 1;">
             <menupopup native="false">
-              <menuitem label="&moveMessage.label;"
+              <menuitem data-l10n-id="rule-action-move"
                         value="movemessage"
                         enablefornews="false"></menuitem>
-              <menuitem label="&copyMessage.label;"
+              <menuitem data-l10n-id="rule-action-copy"
                         value="copymessage"></menuitem>
               <menuseparator enablefornews="false"></menuseparator>
-              <menuitem label="&forwardTo.label;"
+              <menuitem data-l10n-id="rule-action-forward"
                         value="forwardmessage"
                         enablefornews="false"></menuitem>
-              <menuitem label="&replyWithTemplate.label;"
+              <menuitem data-l10n-id="rule-action-reply"
                         value="replytomessage"
                         enablefornews="false"></menuitem>
               <menuseparator></menuseparator>
-              <menuitem label="&markMessageRead.label;"
+              <menuitem data-l10n-id="rule-action-read"
                         value="markasread"></menuitem>
-              <menuitem label="&markMessageUnread.label;"
+              <menuitem data-l10n-id="rule-action-unread"
                         value="markasunread"></menuitem>
-              <menuitem label="&markMessageStarred.label;"
+              <menuitem data-l10n-id="rule-action-star"
                         value="markasflagged"></menuitem>
-              <menuitem label="&setPriority.label;"
+              <menuitem data-l10n-id="rule-action-priority"
                         value="setpriorityto"></menuitem>
-              <menuitem label="&addTag.label;"
+              <menuitem data-l10n-id="rule-action-tag"
                         value="addtagtomessage"></menuitem>
               <menuitem data-l10n-id="rule-action-set-spam-status"
                         value="setjunkscore"
                         enablefornews="false"></menuitem>
               <menuseparator enableforpop3="true"></menuseparator>
-              <menuitem label="&deleteMessage.label;"
+              <menuitem data-l10n-id="rule-action-delete"
                         value="deletemessage"></menuitem>
-              <menuitem label="&deleteFromPOP.label;"
+              <menuitem data-l10n-id="rule-action-delete-pop"
                         value="deletefrompopserver"
                         enableforpop3="true"></menuitem>
-              <menuitem label="&fetchFromPOP.label;"
+              <menuitem data-l10n-id="rule-action-fetch-pop"
                         value="fetchfrompopserver"
                         enableforpop3="true"></menuitem>
               <menuseparator></menuseparator>
-              <menuitem label="&ignoreThread.label;"
+              <menuitem data-l10n-id="rule-action-ignore-thread"
                         value="ignorethread"></menuitem>
-              <menuitem label="&ignoreSubthread.label;"
+              <menuitem data-l10n-id="rule-action-ignore-subthread"
                         value="ignoresubthread"></menuitem>
-              <menuitem label="&watchThread.label;"
+              <menuitem data-l10n-id="rule-action-watch-thread"
                         value="watchthread"></menuitem>
               <menuseparator></menuseparator>
-              <menuitem label="&stopExecution.label;"
+              <menuitem data-l10n-id="rule-action-stop"
                         value="stopexecution"></menuitem>
             </menupopup>
           </menulist>
-          <ruleactiontarget-wrapper class="ruleactiontarget"
-                                    style="flex: &filterActionTargetFlexValue;">
+          <ruleactiontarget-wrapper class="ruleactiontarget" style="flex: 4;">
           </ruleactiontarget-wrapper>
           <hbox>
             <button class="small-button"
-                    label="+"
-                    tooltiptext="&addAction.tooltip;"
+                    data-l10n-id="rule-add-action-button"
                     oncommand="this.parentNode.parentNode.addRow();"></button>
             <button class="small-button remove-small-button"
-                    label="−"
-                    tooltiptext="&removeAction.tooltip;"
+                    data-l10n-id="rule-remove-action-button"
                     oncommand="this.parentNode.parentNode.removeRow();"></button>
           </hbox>
-          `,
-          [
-            "chrome://messenger/locale/messenger.dtd",
-            "chrome://messenger/locale/FilterEditor.dtd",
-          ]
+          `
         )
       );
 
@@ -1778,7 +1775,7 @@
       }
 
       errorString = errorString
-        ? l10n.formatValueSync(errorString)
+        ? searchWidgetsL10n.formatValueSync(errorString)
         : customError;
       if (errorString) {
         Services.prompt.alert(window, null, errorString);

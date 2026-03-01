@@ -3,10 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [
-  <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd">
-  %filterEditorDTD;
-]>
+<!DOCTYPE html>
 <html id="FilterEditor" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -15,7 +12,7 @@
       style="min-width: 900px; min-height: 600px;"
       scrolling="false">
 <head>
-  <title>&window.title;</title>
+  <title data-l10n-id="filter-editor-window-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -43,7 +40,6 @@
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
 
   <commandset>
     <command id="cmd_updateFilterType" oncommand="updateFilterType();"/>
@@ -52,8 +48,7 @@
 
   <html:div id="filterNameBox" class="input-container">
     <label id="filterNameLabel"
-           value="&filterName.label;"
-           accesskey="&filterName.accesskey;"
+           data-l10n-id="filter-editor-name"
            control="filterName"/>
     <html:input id="filterName"
                 type="text"
@@ -62,18 +57,16 @@
   </html:div>
 
   <html:fieldset id="applyFiltersSettings">
-    <html:legend>&contextDesc.label;</html:legend>
+    <html:legend data-l10n-id="filter-editor-context-desc"></html:legend>
     <vbox>
       <hbox flex="1" align="center">
         <checkbox id="runManual"
-                  label="&contextManual.label;"
-                  accesskey="&contextManual.accesskey;"
+                  data-l10n-id="filter-editor-context-manual"
                   command="cmd_updateFilterType"/>
       </hbox>
       <hbox flex="1" align="center">
         <checkbox id="runIncoming"
-                  label="&contextIncomingMail.label;"
-                  accesskey="&contextIncomingMail.accesskey;"
+                  data-l10n-id="filter-editor-context-incoming"
                   command="cmd_updateClassificationMenu"/>
         <menulist id="pluginsRunOrder"
                   command="cmd_updateFilterType">
@@ -87,14 +80,12 @@
       </hbox>
       <hbox flex="1" align="center">
         <checkbox id="runArchive"
-                  label="&contextArchive.label;"
-                  accesskey="&contextArchive.accesskey;"
+                  data-l10n-id="filter-editor-context-archive"
                   command="cmd_updateFilterType"/>
       </hbox>
       <hbox flex="1" align="center">
         <checkbox id="runOutgoing"
-                  label="&contextOutgoing.label;"
-                  accesskey="&contextOutgoing.accesskey;"
+                  data-l10n-id="filter-editor-context-outgoing"
                   command="cmd_updateFilterType"/>
       </hbox>
       <hbox flex="1" align="center">
@@ -114,8 +105,7 @@
   <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>
 
   <vbox id="filterActionsBox">
-    <label value="&filterActionDesc.label;"
-           accesskey="&filterActionDesc.accesskey;"
+    <label data-l10n-id="filter-editor-action-desc"
            control="filterActionList"/>
     <richlistbox id="filterActionList"
                  flex="1"
@@ -127,11 +117,10 @@
 
   <vbox id="statusbar" style="visibility: hidden;">
     <hbox align="center">
-      <label>
-        &filterActionOrderWarning.label;
-      </label>
+      <label data-l10n-id="filter-editor-action-order-warning"></label>
       <label id="seeExecutionOrder" class="text-link"
-             onclick="showActionsOrder();">&filterActionOrder.label;</label>
+             onclick="showActionsOrder();"
+             data-l10n-id="filter-editor-action-order-link"></label>
     </hbox>
   </vbox>
 </dialog>

@@ -37,8 +37,8 @@ interface nsMsgFilterAction : nsISupports {
 
     // Custom Action.
     const long Custom=-1;
-    /* if you change these, you need to update filter.properties,
-       look for filterActionX */
+    // If you change these, you need to update kActionLogIds[]
+    // in nsMsgFilter::LogRuleHitGeneric.
     /* these longs are all actually of type nsMsgFilterActionType */
     const long None=0;        /* uninitialized state */
     const long MoveToFolder=1;

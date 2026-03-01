@@ -133,8 +133,8 @@ search-add-rule-button =
   .tooltiptext = Add a new rule
 
 # Do not translate the label.
-search-remove-rule-button =
-  .label = -
+search-remove-rule-button-2 =
+  .label = −
   .tooltiptext = Remove this rule
 
 ## Search Term List
@@ -150,3 +150,91 @@ search-match-any =
 search-match-all-msgs =
   .label = Match all messages
   .accesskey = m
+
+## Rule Action Types
+
+rule-action-move =
+    .label = Move Message to
+
+rule-action-copy =
+    .label = Copy Message to
+
+rule-action-forward =
+    .label = Forward Message to
+
+rule-action-reply =
+    .label = Reply with Template
+
+rule-action-read =
+    .label = Mark As Read
+
+rule-action-unread =
+    .label = Mark As Unread
+
+rule-action-star =
+    .label = Add Star
+
+rule-action-priority =
+    .label = Set Priority to
+
+rule-action-tag =
+    .label = Tag Message
+
+rule-action-set-spam-status =
+    .label = Set Spam Status to
+
+rule-action-delete =
+    .label = Delete Message
+
+rule-action-delete-pop =
+    .label = Delete From POP Server
+
+rule-action-fetch-pop =
+    .label = Fetch From POP Server
+
+rule-action-ignore-thread =
+    .label = Ignore Thread
+
+rule-action-ignore-subthread =
+    .label = Ignore Subthread
+
+rule-action-watch-thread =
+    .label = Watch Thread
+
+rule-action-stop =
+    .label = Stop Filter Execution
+
+## Rule Action Targets
+
+rule-menuitem-spam =
+  .label = Spam
+
+rule-menuitem-not-spam =
+  .label = Not Spam
+
+rule-priority-highest =
+    .label = Highest
+
+rule-priority-high =
+    .label = High
+
+rule-priority-normal =
+    .label = Normal
+
+rule-priority-low =
+    .label = Low
+
+rule-priority-lowest =
+    .label = Lowest
+
+## Buttons
+
+# Do not translate the label.
+rule-add-action-button =
+  .label = +
+  .tooltiptext = Add a new action
+
+# Do not translate the label.
+rule-remove-action-button =
+  .label = −
+  .tooltiptext = Remove this action
