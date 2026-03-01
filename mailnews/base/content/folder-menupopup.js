@@ -1190,6 +1190,7 @@
           submenuAttributes,
           isObject
         );
+        menupopup.setAttribute("native", "false");
 
         if (folder) {
           menu._folder = folder;
