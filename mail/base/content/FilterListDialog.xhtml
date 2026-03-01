@@ -3,9 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [
-  <!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
-]>
+<!DOCTYPE html>
 <html id="filterListDialog" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -15,7 +13,7 @@
       scrolling="false"
       style="min-width: 800px; min-height: 500px;">
 <head>
-  <title>&window.title;</title>
+  <title data-l10n-id="filter-window-title"></title>
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
@@ -33,24 +31,19 @@
 
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
   <script defer="defer" src="chrome://messenger/content/FilterListDialog.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
-  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-
   <keyset>
-    <key key="&closeCmd.key;" modifiers="accel" oncommand="if (onFilterClose()) { window.close(); }"/>
+    <key data-l10n-id="filter-close-key"
+         modifiers="accel" oncommand="if (onFilterClose()) { window.close(); }"/>
     <key keycode="VK_ESCAPE" oncommand="if (onFilterClose()) { window.close(); }"/>
   </keyset>
 
   <hbox id="filterHeader" align="center">
-    <label value="&filtersForPrefix.label;"
-           accesskey="&filtersForPrefix.accesskey;" control="serverMenu"/>
+    <label id="filtersForPrefix" data-l10n-id="filter-filters-for-prefix" control="serverMenu"/>
 
-    <menulist id="serverMenu"
-              class="folderMenuItem" flex="1">
+    <menulist id="serverMenu" class="folderMenuItem" flex="1">
       <menupopup is="folder-menupopup" id="serverMenuPopup"
                  mode="filters"
                  class="menulist-menupopup"
@@ -64,30 +57,27 @@
                 id="searchBox"
                 class="themeableSearchBox"
                 oninput="rebuildFilterList();"
-                placeholder="&searchBox.emptyText;"/>
+                data-l10n-id="filter-search-box"/>
   </hbox>
   <separator class="thin"/>
   <hbox id="filterListGrid" flex="1">
     <vbox id="filterListBox" flex="1">
       <hbox>
-        <label id="filterListLabel" control="filterList" flex="1">
-          &filterHeader.label;
-        </label>
+        <label id="filterListLabel" control="filterList" flex="1" data-l10n-id="filter-header-label" />
         <html:div id="countBox"></html:div>
       </hbox>
       <richlistbox id="filterList" flex="1" onselect="updateButtons();"
                    seltype="multiple"
                    onkeypress="onFilterListKeyPress(event);">
         <treecols>
-          <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
-          <treecol id="activeColumn" label="&activeColumn.label;" style="width: 100px;"/>
+          <treecol id="nameColumn" data-l10n-id="filter-name-column" flex="1"/>
+          <treecol id="activeColumn" data-l10n-id="filter-active-column" style="width: 100px;"/>
         </treecols>
       </richlistbox>
       <vbox>
           <separator class="thin"/>
           <hbox align="center">
-            <label id="folderPickerPrefix" value="&folderPickerPrefix.label;"
-                   accesskey="&folderPickerPrefix.accesskey;"
+            <label id="folderPickerPrefix" data-l10n-id="filter-folder-picker-prefix"
                    disabled="" control="runFiltersFolder"/>
             <menulist id="runFiltersFolder" disabled="" flex="1"
                       class="folderMenuItem"
@@ -100,8 +90,7 @@
                          native="false"/>
             </menulist>
           <button id="runFiltersButton"
-                  label="&runFilters.label;"
-                  accesskey="&runFilters.accesskey;"
+                  data-l10n-id="filter-run-filters-button"
                   oncommand="runSelectedFilters();" disabled=""/>
           </hbox>
         </vbox>
@@ -110,50 +99,38 @@
       <label value=""/>
       <toolbarbutton is="toolbarbutton-menu-button" id="newButton"
                      type="menu"
-                     label="&newButton.label;"
-                     accesskey="&newButton.accesskey;"
+                     data-l10n-id="filter-new-button"
                      oncommand="onNewFilter();">
         <menupopup id="newFilterMenupopup" native="false">
-          <menuitem label="&newButton.label;"
-                    accesskey="&newButton.accesskey;"/>
+          <menuitem data-l10n-id="filter-new-button"/>
           <menuitem id="copyToNewButton"
-                    label="&newButton.popupCopy.label;"
-                    accesskey="&newButton.popupCopy.accesskey;"
+                    data-l10n-id="filter-new-copy-button"
                     oncommand="onCopyToNewFilter(); event.stopPropagation();"/>
         </menupopup>
       </toolbarbutton>
-      <button id="editButton" label="&editButton.label;"
-              accesskey="&editButton.accesskey;"
+      <button id="editButton" data-l10n-id="filter-edit-button"
               oncommand="onEditFilter();"/>
       <button id="deleteButton"
-              label="&deleteButton.label;"
-              accesskey="&deleteButton.accesskey;"
+              data-l10n-id="filter-delete-button"
               oncommand="onDeleteFilter();"/>
       <separator class="thin"/>
       <button id="reorderTopButton"
-              label="&reorderTopButton;"
-              accesskey="&reorderTopButton.accessKey;"
-              tooltiptext="&reorderTopButton.toolTip;"
+              data-l10n-id="filter-reorder-top-button"
               oncommand="onTop(event);"/>
       <button id="reorderUpButton"
-              label="&reorderUpButton.label;"
-              accesskey="&reorderUpButton.accesskey;"
+              data-l10n-id="filter-reorder-up-button"
               class="up"
               oncommand="onUp(event);"/>
       <button id="reorderDownButton"
-              label="&reorderDownButton.label;"
-              accesskey="&reorderDownButton.accesskey;"
+              data-l10n-id="filter-reorder-down-button"
               class="down"
               oncommand="onDown(event);"/>
       <button id="reorderBottomButton"
-              label="&reorderBottomButton;"
-              accesskey="&reorderBottomButton.accessKey;"
-              tooltiptext="&reorderBottomButton.toolTip;"
+              data-l10n-id="filter-reorder-bottom-button"
               oncommand="onBottom(event);"/>
       <vbox flex="1" pack="end">
         <button id="filterLogButton"
-                label="&viewLogButton.label;"
-                accesskey="&viewLogButton.accesskey;"
+                data-l10n-id="filter-view-log-button"
                 oncommand="viewLog();"/>
       </vbox>
     </vbox>

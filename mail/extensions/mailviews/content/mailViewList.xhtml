@@ -4,9 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html [ <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
-%mailViewLisDTD;
-<!ENTITY % FilterListDialogDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">
-%FilterListDialogDTD; ]>
+%mailViewLisDTD; ]>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -27,6 +25,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/filterEditor.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/dialogShadowDom.js"
@@ -52,20 +51,17 @@
         <vbox>
           <button
             id="newButton"
-            label="&newButton.label;"
-            accesskey="&newButton.accesskey;"
+            data-l10n-id="filter-new-button"
             oncommand="onNewMailView()"
           />
           <button
             id="editButton"
-            label="&editButton.label;"
-            accesskey="&editButton.accesskey;"
+            data-l10n-id="filter-edit-button"
             oncommand="onEditMailView()"
           />
           <button
             id="deleteButton"
-            label="&deleteButton.label;"
-            accesskey="&deleteButton.accesskey;"
+            data-l10n-id="filter-delete-button"
             oncommand="onDeleteMailView()"
           />
         </vbox>

@@ -106,6 +106,91 @@ filter-list-backup-message =
 filter-invalid-custom-header =
     One of your filters uses a custom header that contains an invalid character, such as ‘:’, a non-printable character, a non-ascii character, or an eight-bit ascii character. Please edit the msgFilterRules.dat file, which contains your filters, to remove invalid characters from your custom headers.
 
+## Filter List Dialog
+
+filter-window-title = Message Filters
+
+filter-name-column =
+    .label = Filter Name
+
+filter-active-column =
+    .label = Enabled
+
+filter-new-button =
+    .label = New…
+    .accesskey = N
+
+filter-new-copy-button =
+    .label = Copy…
+    .accesskey = C
+
+filter-edit-button =
+    .label = Edit…
+    .accesskey = E
+
+filter-delete-button =
+    .label = Delete
+    .accesskey = t
+
+filter-reorder-top-button =
+    .label = Move to Top
+    .accesskey = o
+    .tooltiptext = Rearrange filter so it executes before all others
+
+filter-reorder-up-button =
+    .label = Move Up
+    .accesskey = U
+
+filter-reorder-down-button =
+    .label = Move Down
+    .accesskey = D
+
+filter-reorder-bottom-button =
+    .label = Move to Bottom
+    .accesskey = B
+    .tooltiptext = Rearrange filter so it executes after all others
+
+filter-header-label =
+    .value = Enabled filters are run automatically in the order shown below.
+
+filter-filters-for-prefix =
+    .value = Filters for:
+    .accesskey = F
+
+filter-view-log-button =
+    .label = Filter Log
+    .accesskey = L
+
+filter-run-filters-button =
+    .label = Run Now
+    .accesskey = R
+
+filter-folder-picker-prefix =
+    .value = Run selected filter(s) on:
+    .accesskey = c
+
+filter-search-box =
+    .placeholder = Search filters by name…
+
+filter-close-key =
+    .key = W
+
+filter-delete-confirmation = Are you sure you want to delete the selected filter(s)?
+
+filter-dont-warn-delete-checkbox = Don’t ask me again
+
+filter-cannot-enable-incompatible = This filter was probably created by a newer or incompatible version of { -brand-product-name }. You cannot enable this filter because we don’t know how to apply it.
+
+filter-running-title = Running Filters
+
+filter-running-message =
+    You are currently in the process of filtering messages.
+    Would you like to continue applying filters?
+
+filter-stop-button = Stop
+
+filter-continue-button = Continue
+
 # Variables:
 #   $count - the number items
 filter-count-items = {

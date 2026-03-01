@@ -10,6 +10,13 @@ var { UIFontSize } = ChromeUtils.importESModule(
   "resource:///modules/UIFontSize.sys.mjs"
 );
 
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () =>
+    new Localization(["branding/brand.ftl", "messenger/filterEditor.ftl"], true)
+);
+
 window.addEventListener("load", onLoad);
 window.addEventListener("unload", onFilterUnload);
 window.addEventListener("close", event => {
@@ -32,8 +39,6 @@ var gBottomButton = null;
 var gSearchBox = null;
 var gRunFiltersFolder = null;
 var gRunFiltersButton = null;
-
-var gFilterBundle = null;
 
 var msgMoveMotion = {
   Up: 0,
@@ -114,7 +119,6 @@ function onLoad() {
   gSearchBox = document.getElementById("searchBox");
   gRunFiltersFolder = document.getElementById("runFiltersFolder");
   gRunFiltersButton = document.getElementById("runFiltersButton");
-  gFilterBundle = document.getElementById("bundle_filter");
 
   updateButtons();
 
@@ -344,9 +348,7 @@ function toggleFilter(aFilterItem, aSetForEvent) {
     Services.prompt.alert(
       window,
       null,
-      gFilterBundle.getFormattedString("cannotEnableIncompatFilter", [
-        document.getElementById("bundle_brand").getString("brandShortName"),
-      ])
+      l10n.formatValueSync("filter-cannot-enable-incompatible")
     );
     return;
   }
@@ -512,18 +514,23 @@ function onDeleteFilter() {
     return;
   }
 
+  const [confirmMsg, checkboxLabel] = l10n.formatValuesSync([
+    { id: "filter-delete-confirmation" },
+    { id: "filter-dont-warn-delete-checkbox" },
+  ]);
+
   const checkValue = { value: false };
   if (
     Services.prefs.getBoolPref("mailnews.filters.confirm_delete") &&
     Services.prompt.confirmEx(
       window,
       null,
-      gFilterBundle.getString("deleteFilterConfirmation"),
+      confirmMsg,
       Services.prompt.STD_YES_NO_BUTTONS,
       "",
       "",
       "",
-      gFilterBundle.getString("dontWarnAboutDeleteCheckbox"),
+      checkboxLabel,
       checkValue
     )
   ) {
@@ -690,10 +697,13 @@ function onFilterUnload() {
 
 function onFilterClose() {
   if (gRunningFilters) {
-    const promptTitle = gFilterBundle.getString("promptTitle");
-    const promptMsg = gFilterBundle.getString("promptMsg");
-    const stopButtonLabel = gFilterBundle.getString("stopButtonLabel");
-    const continueButtonLabel = gFilterBundle.getString("continueButtonLabel");
+    const [promptTitle, promptMsg, stopButtonLabel, continueButtonLabel] =
+      l10n.formatValuesSync([
+        { id: "filter-running-title" },
+        { id: "filter-running-message" },
+        { id: "filter-stop-button" },
+        { id: "filter-continue-button" },
+      ]);
 
     const result = Services.prompt.confirmEx(
       window,
