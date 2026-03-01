@@ -913,6 +913,10 @@ add_task(async function testRowsAndColumns() {
 });
 
 add_task(async function testHierarchy() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["ui.prefersReducedMotion", 0]],
+  });
+
   const url = getRootDirectory(gTestPath) + "files/autoTreeViewLevels.xhtml";
   const tab = tabmail.openTab("contentTab", { url });
 
