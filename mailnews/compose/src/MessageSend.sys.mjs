@@ -412,7 +412,11 @@ export class MessageSend {
         return;
       }
 
-      const params = [folder.name, accountName, localFoldersAccountName];
+      const params = [
+        folder.localizedName,
+        accountName,
+        localFoldersAccountName,
+      ];
       let promptMsg;
       switch (this._deliverMode) {
         case Ci.nsIMsgSend.nsMsgDeliverNow:
@@ -951,7 +955,7 @@ export class MessageSend {
         // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
         // and then has the account name appended, e.g., .../Sent-MyImapAccount.
         const localFolder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-        folderUri += localFolder.name + "-";
+        folderUri += localFolder.localizedName + "-";
       }
       if (this._fcc) {
         // Get the account name where the "save to" failed.
@@ -1013,7 +1017,7 @@ export class MessageSend {
     folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
     const statusMsg = this._composeBundle.formatStringFromName(
       "copyMessageStart",
-      [folder?.name || "?"]
+      [folder?.localizedName || "?"]
     );
     this._setStatusMessage(statusMsg);
     lazy.MsgUtils.sendLogger.debug("startCopyOperation");
