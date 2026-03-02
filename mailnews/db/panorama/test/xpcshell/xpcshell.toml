@@ -1,6 +1,6 @@
 [DEFAULT]
 environment = [
-  "MOZ_LOG=mozStorage:4,panorama:4",
+  # "MOZ_LOG=mozStorage:4,panorama:4",
 ]
 head = "head.js"
 prefs = [
@@ -24,6 +24,9 @@ support-files = [
 ["test_insert.js"]
 
 ["test_liveView.js"]
+
+["test_liveViewConversationsDataAdapter.js"]
+tags = ["dataadapter"]
 
 ["test_liveViewDataAdapter.js"]
 tags = ["dataadapter"]

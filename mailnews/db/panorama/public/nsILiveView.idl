@@ -94,9 +94,10 @@ interface nsILiveView : nsISupports {
   void setListener(in nsILiveViewListener listener);
 
   /**
-   * Clean up this live view's listener, if it exists.
+   * Clean up this live view's listener, if it exists. If `listener` is passed,
+   * the view's listener will not be removed if the two don't match.
    */
-  void clearListener();
+  void clearListener([optional] in nsILiveViewListener listener);
 
   /**
    * Access to the database query clause for testing purposes only. If you are

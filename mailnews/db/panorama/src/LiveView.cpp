@@ -796,7 +796,11 @@ NS_IMETHODIMP LiveView::SetListener(nsILiveViewListener* aListener,
   return NS_OK;
 }
 
-NS_IMETHODIMP LiveView::ClearListener() {
+NS_IMETHODIMP LiveView::ClearListener(nsILiveViewListener* aListener) {
+  if (aListener && aListener != mListener) {
+    return NS_OK;
+  }
+
   mListener = nullptr;
   mCx = nullptr;
 

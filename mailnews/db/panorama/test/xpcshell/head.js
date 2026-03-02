@@ -201,3 +201,81 @@ function addMessage({
     tags
   );
 }
+
+/**
+ * Convert the message cache of `adapter` to an array of message IDs.
+ *
+ * @param {LiveViewDataAdapter} adapter
+ * @returns {integer[]}
+ */
+function listMessages(adapter) {
+  const ids = [];
+  for (let i = 0; i < adapter.rowCount; i++) {
+    ids.push(adapter.rowAt(i).message.id);
+  }
+  return ids;
+}
+
+class ListenerTree {
+  rowCountChanged(index, delta) {
+    info(`rowCountChanged(${index}, ${delta})`);
+    Assert.strictEqual(this._index, undefined);
+    Assert.strictEqual(this._start, undefined);
+    this._index = index;
+    this._delta = delta;
+    this._rowCountDeferred?.resolve();
+  }
+  invalidateRow(index) {
+    info(`invalidateRow(${index})`);
+    // `invalidateRow` immediately after `rowCountChanged` is allowed.
+    Assert.strictEqual(this._start, undefined);
+    this._start = index;
+    this._end = index;
+    this._invalidateDeferred?.resolve();
+  }
+  invalidateRange(start, end) {
+    info(`invalidateRange(${start}, ${end})`);
+    Assert.strictEqual(this._index, undefined);
+    Assert.strictEqual(this._start, undefined);
+    this._start = start;
+    this._end = end;
+    this._invalidateDeferred?.resolve();
+  }
+  reset() {
+    info(`reset()`);
+    Assert.ok(false, "reset() should not be called in this test");
+  }
+
+  async promiseRowCountChanged(expectedIndex, expectedDelta) {
+    Assert.ok(!this._rowCountDeferred);
+    Assert.ok(!this._invalidateDeferred);
+    if (this._index === undefined) {
+      this._rowCountDeferred = Promise.withResolvers();
+      await this._rowCountDeferred.promise;
+      delete this._rowCountDeferred;
+    }
+    this.assertRowCountChanged(expectedIndex, expectedDelta);
+  }
+  async promiseInvalidated(expectedStart, expectedEnd) {
+    Assert.ok(!this._rowCountDeferred);
+    Assert.ok(!this._invalidateDeferred);
+    if (this._start === undefined) {
+      this._invalidateDeferred = Promise.withResolvers();
+      await this._invalidateDeferred.promise;
+      delete this._invalidateDeferred;
+    }
+    this.assertInvalidated(expectedStart, expectedEnd);
+  }
+  assertRowCountChanged(expectedIndex, expectedDelta) {
+    Assert.equal(this._index, expectedIndex);
+    Assert.equal(this._delta, expectedDelta);
+    delete this._index;
+    delete this._delta;
+  }
+  assertInvalidated(expectedStart, expectedEnd) {
+    Assert.equal(this._start, expectedStart);
+    Assert.equal(this._end, expectedEnd);
+    delete this._start;
+    delete this._end;
+  }
+}

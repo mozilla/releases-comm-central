@@ -81,7 +81,6 @@ function getTextComparator(property) {
 /**
  * A map of column names to comparators for ordering.
  */
-// eslint-disable-next-line no-unused-vars
 const comparators = {
   date: (a, b) => a.date < b.date,
   subject: getTextComparator("subject"),
@@ -122,6 +121,7 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
   QueryInterface = ChromeUtils.generateQI(["nsILiveViewListener"]);
 
   _liveView;
+  _sortComparator = comparators.date;
 
   /**
    * @param {nsILiveView} liveView
@@ -143,6 +143,7 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
    */
   setTree(tree) {
     if (!tree) {
+      this._liveView.clearListener(this);
       this._liveView = null;
       this._rowMap.length = 0;
       this._clearFlatRowCache();
@@ -150,26 +151,90 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
     super.setTree(tree);
   }
 
-  async #getTopLevelRows() {
+  async sortBy(sortColumn, sortDirection, _resort = false) {
+    if (!(sortColumn in columns)) {
+      sortColumn = "date";
+    }
+    if (!["ascending", "descending"].includes(sortDirection)) {
+      sortDirection = "descending";
+    }
+    this.sortColumn = sortColumn;
+    this.sortDirection = sortDirection;
+    this._sortComparator = comparators[sortColumn];
+    this._liveView.sortColumn = columns[sortColumn];
+    this._liveView.sortDescending = sortDirection == "descending";
+
     this._rowMap.length = 0;
     this._rowMap.length = await this._liveView.countMessages();
     await this._liveView.selectMessages();
   }
 
-  sortBy(sortColumn, sortDirection, _resort = false) {
-    if (!(sortColumn in columns)) {
-      sortColumn = "date";
-    }
-    this.sortColumn = sortColumn;
-    this.sortDirection = sortDirection;
-    this._liveView.sortColumn = columns[sortColumn];
-    this._liveView.sortDescending = sortDirection == "descending";
-    this.#getTopLevelRows();
+  /**
+   * Creates a data row for the given message. Overriden by subclasses to
+   * produce different effects.
+   *
+   * @param {Message} message
+   * @returns {LiveViewDataRow}
+   */
+  _setUpRow(message) {
+    return new LiveViewDataRow(message);
   }
 
-  onMessageAdded() {}
+  /**
+   * Compare two messages for ordering their rows.
+   *
+   * @param {Message} a - A message object.
+   * @param {Message} b - A message object.
+   * @returns {boolean} - True if message A should be above message B.
+   */
+  _compareMessages(a, b) {
+    if (this.sortDirection == "descending") {
+      [a, b] = [b, a];
+    }
+    return this._sortComparator(a, b);
+  }
 
-  onMessageRemoved() {}
+  onMessageAdded(message) {
+    const newRow = this._setUpRow(message);
+    let added = false;
+    this._rowMap.forEach((row, index) => {
+      if (added) {
+        return;
+      }
+      if (this._compareMessages(message, row.message)) {
+        // The new message goes above row.
+        if (index == 0 || this._rowMap[index - 1]) {
+          // The new message goes immediately above row.
+          this._rowMap.splice(index, 0, newRow);
+        }
+        this._clearFlatRowCache();
+        this._tree?.rowCountChanged(index, 1);
+        added = true;
+      }
+    });
+    if (!added) {
+      // The new message goes after all the others.
+      this._rowMap.push(newRow);
+      this._clearFlatRowCache();
+      this._tree?.rowCountChanged(this._rowMap.length - 1, 1);
+    }
+  }
+
+  onMessageRemoved(message) {
+    let removed = false;
+    this._rowMap.forEach((row, index) => {
+      if (removed || !row) {
+        return;
+      }
+      if (message.id == row.message.id) {
+        // The removed message was this one.
+        this._rowMap.splice(index, 1);
+        this._clearFlatRowCache();
+        this._tree?.rowCountChanged(index, -1);
+        removed = true;
+      }
+    });
+  }
 
   onSelectedChunk(messages, startIndex, endIndex) {
     for (let index = startIndex; index <= endIndex; index++) {
@@ -186,9 +251,87 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
     this._flatRowCache = this._rowMap;
     this._tree?.invalidateRange(startIndex, endIndex);
   }
+}
 
+/**
+ * Adapts message data from nsILiveView for display in a TreeView. This class
+ * lists messages grouped by thread. Threads are lazily loaded when the root
+ * message is expanded.
+ *
+ * @augments {TreeDataAdapter}
+ */
+export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
+  /**
+   * A map of thread identifiers to `LiveViewThreadDataRow`s.
+   *
+   * @type {Map<number, LiveViewThreadDataRow>}
+   */
+  #threads = new Map();
+
+  /**
+   * @param {nsILiveView} liveView
+   */
+  constructor(liveView) {
+    super(liveView, Ci.nsILiveView.THREADED);
+  }
+
+  /**
+   * Creates a data row for the given thread. This version creates a
+   * `LiveViewThreadDataRow`.
+   *
+   * @param {Message} message
+   * @returns {LiveViewDataRow}
+   */
   _setUpRow(message) {
-    return new LiveViewDataRow(message);
+    const row = new LiveViewThreadDataRow(message, this._liveView);
+    this.#threads.set(message.threadId, row);
+    return row;
+  }
+
+  onMessageAdded(message) {
+    let threadRow = this.#threads.get(message.threadId);
+    if (threadRow) {
+      threadRow.addChild(this, this.indexOf(threadRow), message);
+    } else {
+      threadRow = this._setUpRow({ ...message, messageCount: 1 });
+      let added = false;
+      this._rowMap.forEach((row, index) => {
+        if (added) {
+          return;
+        }
+        if (this._compareMessages(message, row.thread)) {
+          // The new message goes above row.
+          if (index == 0 || this._rowMap[index - 1]) {
+            // The new message goes immediately above row.
+            this._rowMap.splice(index, 0, threadRow);
+          }
+          added = true;
+        }
+      });
+      if (!added) {
+        // The new message goes after all the others.
+        this._rowMap.push(threadRow);
+      }
+      this._clearFlatRowCache();
+      this._tree?.rowCountChanged(this.indexOf(threadRow), 1);
+    }
+  }
+
+  onMessageRemoved(message) {
+    const threadRow = this.#threads.get(message.threadId);
+    if (!threadRow) {
+      // This shouldn't happen.
+      return;
+    }
+    const threadRowIndex = this.indexOf(threadRow);
+    if (threadRow.children.length == 0) {
+      this._rowMap.splice(this._rowMap.indexOf(threadRow), 1);
+      this.#threads.delete(message.threadId);
+      this._clearFlatRowCache();
+      this._tree?.rowCountChanged(threadRowIndex, -1);
+      return;
+    }
+    threadRow.removeChild(this, threadRowIndex, message);
   }
 }
 
@@ -202,21 +345,12 @@ export class LiveViewDataAdapter extends TreeDataAdapter {
  */
 export class LiveViewConversationsDataAdapter extends LiveViewDataAdapter {
   /**
-   * @param {nsILiveView} liveView
+   * A map of thread identifiers to `LiveViewDataRow`s.
+   *
+   * @type {Map<number, LiveViewDataRow>}
    */
-  constructor(liveView) {
-    super(liveView, Ci.nsILiveView.THREADED);
-  }
-}
+  #threads = new Map();
 
-/**
- * Adapts message data from nsILiveView for display in a TreeView. This class
- * lists messages grouped by thread. Threads are lazily loaded when the root
- * message is expanded.
- *
- * @augments {TreeDataAdapter}
- */
-export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
   /**
    * @param {nsILiveView} liveView
    */
@@ -224,12 +358,54 @@ export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
     super(liveView, Ci.nsILiveView.THREADED);
   }
 
-  _setUpRow(conversation) {
-    const row = new LiveViewDataRow(conversation);
-    row.liveView = this._liveView;
-    row.threadId = conversation.threadId;
-    row.children.length = conversation.messageCount - 1;
+  async sortBy(sortColumn, sortDirection) {
+    // Only sorting by date is allowed.
+    await super.sortBy("date", sortDirection);
+  }
+
+  /**
+   * Creates a data row for the given message. This version creates a
+   * `LiveViewDataRow` that doesn't have children (as the children won't be
+   * displayed), but does maintain a count of the children so that the row can
+   * be removed if the count drops to zero.
+   *
+   * @param {Message} message
+   * @returns {LiveViewDataRow}
+   */
+  _setUpRow(message) {
+    const row = new LiveViewDataRow(message);
+    row.messageCount = message.messageCount;
+    this.#threads.set(message.threadId, row);
     return row;
+  }
+
+  onMessageAdded(message) {
+    const threadRow = this.#threads.get(message.threadId);
+    if (threadRow) {
+      threadRow.messageCount++;
+      this._tree?.invalidateRow(this.indexOf(threadRow));
+      return;
+    }
+    message.messageCount = 1;
+    super.onMessageAdded(message);
+  }
+
+  onMessageRemoved(message) {
+    const threadRow = this.#threads.get(message.threadId);
+    if (!threadRow) {
+      // This shouldn't happen.
+      return;
+    }
+    const threadRowIndex = this.indexOf(threadRow);
+    threadRow.messageCount--;
+    if (threadRow.messageCount == 0) {
+      this._rowMap.splice(this._rowMap.indexOf(threadRow), 1);
+      this.#threads.delete(message.threadId);
+      this._clearFlatRowCache();
+      this._tree?.rowCountChanged(threadRowIndex, -1);
+    } else {
+      this._tree?.invalidateRow(threadRowIndex);
+    }
   }
 }
 
@@ -243,16 +419,131 @@ export class LiveViewThreadedDataAdapter extends LiveViewDataAdapter {
  */
 export class LiveViewGroupedDataAdapter extends LiveViewDataAdapter {
   /**
+   * Finds the appropriate date group for a given date.
+   *
+   * @see `GroupedByDateFunction`
+   * @param {Date} date
+   * @returns {number} A year or nsILiveView.DATE_GROUP_* constant.
+   */
+  static getDateGroup(date) {
+    const now = new Date();
+    // A message from the future! (And a half-hour grace period for weirdness
+    // like clock skew.)
+    if (date > now.valueOf() + 1800000) {
+      return Ci.nsILiveView.DATE_GROUP_FUTURE;
+    }
+
+    // Today, actually since midnight last night.
+    now.setHours(0);
+    now.setMinutes(0);
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+    if (date > now) {
+      return Ci.nsILiveView.DATE_GROUP_TODAY;
+    }
+
+    // Since midnight yesterday.
+    now.setDate(now.getDate() - 1);
+    if (date > now) {
+      return Ci.nsILiveView.DATE_GROUP_YESTERDAY;
+    }
+
+    // "7 Days Ago", actually since 6 days before midnight last night.
+    now.setDate(now.getDate() - 5);
+    if (date > now) {
+      return Ci.nsILiveView.DATE_GROUP_LAST_SEVEN_DAYS;
+    }
+
+    // "14 Days Ago", actually since 13 days before midnight last night.
+    now.setDate(now.getDate() - 7);
+    if (date > now) {
+      return Ci.nsILiveView.DATE_GROUP_LAST_FOURTEEN_DAYS;
+    }
+
+    // Older than all the special groups, just use the year number.
+    return date.getFullYear();
+  }
+
+  /**
+   * A map of group identifiers to `LiveViewGroupedHeaderRow`s.
+   *
+   * @type {Map<(number|string), LiveViewGroupedHeaderRow>}
+   */
+  #groups = new Map();
+
+  /**
    * @param {nsILiveView} liveView
    */
   constructor(liveView) {
     super(liveView, Ci.nsILiveView.GROUPED_BY_SORT);
   }
 
-  _setUpRow(group) {
-    const row = new LiveViewGroupedHeaderRow(this._liveView, group);
-    row.children.length = group.messageCount;
+  /**
+   * Creates a data row for the given thread. This version creates a
+   * `LiveViewGroupedHeaderRow`.
+   *
+   * @param {Message} message
+   * @returns {LiveViewDataRow}
+   */
+  _setUpRow(message) {
+    const row = new LiveViewGroupedHeaderRow(message, this._liveView);
+    this.#groups.set(row.group, row);
     return row;
+  }
+
+  onMessageAdded(message) {
+    let groupField = this.sortColumn;
+    let comparator = (a, b) => lazy.collator.compare(a, b) < 0;
+    if (this._liveView.sortColumn == Ci.nsILiveView.DATE) {
+      message.dateGroup = LiveViewGroupedDataAdapter.getDateGroup(message.date);
+      groupField = "dateGroup";
+      comparator = (a, b) => a < b;
+    }
+    const groupValue = message[groupField];
+
+    let groupRow = this.#groups.get(groupValue);
+    if (groupRow) {
+      groupRow.addChild(this, this.indexOf(groupRow), message);
+      return;
+    }
+
+    groupRow = this._setUpRow({ [groupField]: groupValue, messageCount: 1 });
+    const isAscending = this.sortDirection == "ascending";
+    const index = this._rowMap.findIndex(
+      r => comparator(groupValue, r.group) == isAscending
+    );
+    if (index == -1) {
+      this._rowMap.push(groupRow);
+    } else {
+      this._rowMap.splice(index, 0, groupRow);
+    }
+    this._clearFlatRowCache();
+    this._tree?.rowCountChanged(this.indexOf(groupRow), 1);
+  }
+
+  onMessageRemoved(message) {
+    let groupField = this.sortColumn;
+    if (this._liveView.sortColumn == Ci.nsILiveView.DATE) {
+      message.dateGroup = LiveViewGroupedDataAdapter.getDateGroup(message.date);
+      groupField = "dateGroup";
+    }
+
+    const groupRow = this.#groups.get(message[groupField]);
+    if (!groupRow) {
+      // This shouldn't happen.
+      return;
+    }
+
+    if (groupRow.children.length == 1) {
+      const index = this.indexOf(groupRow);
+      this._rowMap.splice(this._rowMap.indexOf(groupRow), 1);
+      this.#groups.delete(message[groupField]);
+      this._clearFlatRowCache();
+      this._tree?.rowCountChanged(index, groupRow.open ? -2 : -1);
+      return;
+    }
+
+    groupRow.removeChild(this, this.indexOf(groupRow), message);
   }
 }
 
@@ -262,6 +553,46 @@ export class LiveViewGroupedDataAdapter extends LiveViewDataAdapter {
  * @augments {TreeDataRow}
  */
 class LiveViewDataRow extends TreeDataRow {
+  /**
+   * @param {Message} message
+   */
+  constructor(message) {
+    super();
+    this._initFromMessage(message);
+  }
+
+  /**
+   * Set up this row based on the values from `message`.
+   *
+   * @param {Message} message
+   */
+  _initFromMessage(message) {
+    ChromeUtils.defineLazyGetter(this, "texts", () => {
+      return {
+        ...message,
+        date: lazy.dateFormatter.format(message.date),
+        // Invert the read flag for unread messages.
+        unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
+        flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
+      };
+    });
+    this.values = { date: message.date.valueOf() };
+    this.message = message;
+  }
+}
+
+/**
+ * A class representing a row in a TreeView. Like LiveViewDataRow, but capable
+ * of having child rows.
+ *
+ * @augments {LiveViewDataRow}
+ */
+class LiveViewThreadDataRow extends LiveViewDataRow {
+  /**
+   * @type {nsILiveView}
+   */
+  #liveView;
+
   /**
    * The message to display when this row is open. Only available after
    * `ensureChildren` has fetched the child messages.
@@ -280,29 +611,14 @@ class LiveViewDataRow extends TreeDataRow {
 
   /**
    * @param {Message} message
+   * @param {nsILiveView} liveView
    */
-  constructor(message) {
-    super();
-    this.#initFromMessage(message);
-  }
-
-  /**
-   * Set up this row based on the values from `message`.
-   *
-   * @param {Message} message
-   */
-  #initFromMessage(message) {
-    ChromeUtils.defineLazyGetter(this, "texts", () => {
-      return {
-        ...message,
-        date: lazy.dateFormatter.format(message.date),
-        // Invert the read flag for unread messages.
-        unread: !(message.flags & Ci.nsMsgMessageFlags.Read),
-        flagged: !!(message.flags & Ci.nsMsgMessageFlags.Marked),
-      };
-    });
-    this.values = { date: message.date.valueOf() };
-    this.message = message;
+  constructor(message, liveView) {
+    super(message);
+    this.thread = message;
+    this.children.length = message.messageCount - 1;
+    this.#liveView = liveView;
+    this.#closedMessage = message;
   }
 
   /**
@@ -317,10 +633,10 @@ class LiveViewDataRow extends TreeDataRow {
       return;
     }
 
-    const messages = await this.liveView.selectMessagesInGroup(this.threadId);
+    const messages = await this.#liveView.selectMessagesInGroup(
+      this.thread.threadId
+    );
     this.#openMessage = messages[0];
-    // Don't overwrite this if for some weird reason we get here twice.
-    this.#closedMessage ??= this.message;
 
     for (let i = 0; i < this.children.length; i++) {
       const message = messages[i + 1];
@@ -329,7 +645,7 @@ class LiveViewDataRow extends TreeDataRow {
       this.children[i].level = this.level + 1;
     }
     if (this.open) {
-      this.#initFromMessage(this.#openMessage);
+      this._initFromMessage(this.#openMessage);
       // Notify the tree that the content is ready and it should redraw the rows.
       dataAdapter._clearFlatRowCache();
       dataAdapter._tree?.invalidateRange(
@@ -354,10 +670,76 @@ class LiveViewDataRow extends TreeDataRow {
     // Swap the contents of this row depending on whether it is open or not.
     if (value) {
       if (this.#openMessage) {
-        this.#initFromMessage(this.#openMessage);
+        this._initFromMessage(this.#openMessage);
       }
     } else if (this.#closedMessage) {
-      this.#initFromMessage(this.#closedMessage);
+      this._initFromMessage(this.#closedMessage);
+    }
+  }
+
+  /**
+   * Add a new LiveViewDataRow to this row's children, updating the tree as
+   * necessary. TODO: correctly order the children.
+   *
+   * @param {TreeDataAdapter} dataAdapter
+   * @param {number} rootIndex - The index of this row in the adapter's rows.
+   * @param {Message} message
+   */
+  addChild(dataAdapter, rootIndex, message) {
+    if (this.open) {
+      this.children.push(new LiveViewDataRow(message));
+      dataAdapter._clearFlatRowCache();
+      dataAdapter._tree?.rowCountChanged(rootIndex, 1);
+      // Adding a row will invalidate all those below it.
+    } else {
+      if (this.children[0] === undefined) {
+        this.children.length++;
+      } else {
+        this.children.push(new LiveViewDataRow(message));
+      }
+      dataAdapter._tree?.invalidateRow(rootIndex);
+    }
+  }
+
+  /**
+   * Remove a row from this row's children, updating the tree as necessary.
+   *
+   * @param {TreeDataAdapter} dataAdapter
+   * @param {number} rootIndex - This index of this row in the adapter's rows.
+   * @param {Message} message
+   */
+  removeChild(dataAdapter, rootIndex, message) {
+    if (this.message.id == message.id) {
+      this.#openMessage = this.children.shift().message;
+      this._initFromMessage(this.#openMessage);
+      if (this.open) {
+        dataAdapter._clearFlatRowCache();
+        dataAdapter._tree?.rowCountChanged(rootIndex, -1);
+      } else {
+        dataAdapter._tree?.invalidateRow(rootIndex);
+      }
+      return;
+    }
+
+    if (this.children[0] === undefined) {
+      this.children.length--;
+      if (this.open) {
+        dataAdapter._clearFlatRowCache();
+        dataAdapter._tree?.rowCountChanged(rootIndex, -1);
+      } else {
+        dataAdapter._tree?.invalidateRow(rootIndex);
+      }
+    }
+    const childIndex = this.children.findIndex(
+      r => r?.message.id == message.id
+    );
+    if (childIndex > -1) {
+      const childFlatIndex = this.open ? rootIndex + 1 + childIndex : -1;
+      this.children.splice(childIndex, 1);
+      if (childFlatIndex > -1) {
+        dataAdapter._clearFlatRowCache();
+        dataAdapter._tree?.rowCountChanged(childFlatIndex, -1);
+      }
     }
   }
 }
@@ -369,10 +751,15 @@ class LiveViewDataRow extends TreeDataRow {
  */
 class LiveViewGroupedHeaderRow extends TreeDataRow {
   /**
-   * @param {nsILiveView} liveView
-   * @param {Message} message
+   * @type {nsILiveView}
    */
-  constructor(liveView, message) {
+  #liveView;
+
+  /**
+   * @param {Message} message
+   * @param {nsILiveView} liveView
+   */
+  constructor(message, liveView) {
     let label, group;
     switch (liveView.sortColumn) {
       case Ci.nsILiveView.DATE:
@@ -395,6 +782,8 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
     }
     super({ subject: label }, { date: message.dateGroup }, ["dummy"]);
     this.group = group;
+    this.children.length = message.messageCount;
+    this.#liveView = liveView;
   }
 
   /**
@@ -409,7 +798,7 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
       return;
     }
 
-    const messages = await this.liveView.selectMessagesInGroup(this.group);
+    const messages = await this.#liveView.selectMessagesInGroup(this.group);
     for (let i = 0; i < this.children.length; i++) {
       const message = messages[i];
       this.children[i] = new LiveViewDataRow(message);
@@ -423,6 +812,62 @@ class LiveViewGroupedHeaderRow extends TreeDataRow {
         rootIndex,
         rootIndex + this.children.length
       );
+    }
+  }
+
+  /**
+   * Add a new LiveViewDataRow to this row's children, updating the tree as
+   * necessary. TODO: correctly order the children.
+   *
+   * @param {TreeDataAdapter} dataAdapter
+   * @param {number} rootIndex - The index of this row in the adapter's rows.
+   * @param {Message} message
+   */
+  addChild(dataAdapter, rootIndex, message) {
+    if (this.open) {
+      this.children.push(new LiveViewDataRow(message));
+      dataAdapter._clearFlatRowCache();
+      dataAdapter._tree?.rowCountChanged(rootIndex, 1);
+      // Adding a row will invalidate all those below it.
+    } else {
+      if (this.children[0] === undefined) {
+        this.children.length++;
+      } else {
+        this.children.push(new LiveViewDataRow(message));
+      }
+      dataAdapter._tree?.invalidateRow(rootIndex);
+    }
+  }
+
+  /**
+   * Remove a row from this row's children, updating the tree as necessary.
+   *
+   * @param {TreeDataAdapter} dataAdapter
+   * @param {number} rootIndex - This index of this row in the adapter's rows.
+   * @param {Message} message
+   */
+  removeChild(dataAdapter, rootIndex, message) {
+    if (this.children[0] === undefined) {
+      this.children.length--;
+      if (this.open) {
+        dataAdapter._clearFlatRowCache();
+        dataAdapter._tree?.rowCountChanged(rootIndex, -1);
+      } else {
+        dataAdapter._tree?.invalidateRow(rootIndex);
+      }
+    }
+    const childIndex = this.children.findIndex(
+      r => r?.message.id == message.id
+    );
+    if (childIndex > -1) {
+      const childFlatIndex = this.open ? rootIndex + 1 + childIndex : -1;
+      this.children.splice(childIndex, 1);
+      if (childFlatIndex == -1) {
+        dataAdapter._tree?.invalidateRow(rootIndex);
+      } else {
+        dataAdapter._clearFlatRowCache();
+        dataAdapter._tree?.rowCountChanged(childFlatIndex, -1);
+      }
     }
   }
 }
