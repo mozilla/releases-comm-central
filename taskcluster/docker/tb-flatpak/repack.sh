@@ -35,11 +35,6 @@ DATE=$(date +%Y-%m-%d)
 export DATE
 
 # Prepare directories
-#
-# This command is temporary, there's an upcoming fix in the upstream
-# Docker image that we work on top of, from 'freedesktopsdk', that will
-# make these two lines go away eventually.
-mkdir -p /root /tmp /var/tmp
 mkdir -p "$ARTIFACTS_DIR"
 rm -rf "$SOURCE_DEST" && mkdir -p "$SOURCE_DEST"
 
@@ -76,7 +71,7 @@ python3 "${SCRIPT_DIR}/build_desktop_file.py"               \
   "${VERSION_FLAG}"
 )
 
-# Generate AppData XML from template, add various 
+# Generate AppData XML from template, add various
 envsubst < "$SCRIPT_DIR/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
 cp -v "$SCRIPT_DIR/distribution.ini" "$WORKSPACE"
 cp -v "$SCRIPT_DIR/launch_script.sh" "$WORKSPACE"
@@ -122,7 +117,7 @@ EOF
 appdir=build/files
 install -d "${appdir}/lib/"
 (cd "${appdir}/lib/" && tar Jxf "${WORKSPACE}/thunderbird.tar.xz")
-install -D -m644 -t "${appdir}/share/appdata" org.mozilla.Thunderbird.appdata.xml
+install -D -m644 -t "${appdir}/share/metainfo" org.mozilla.Thunderbird.appdata.xml
 install -D -m644 -t "${appdir}/share/applications" org.mozilla.Thunderbird.desktop
 for size in 16 32 48 64 128; do
     install -D -m644 "${appdir}/lib/thunderbird/chrome/icons/default/default${size}.png" "${appdir}/share/icons/hicolor/${size}x${size}/apps/org.mozilla.Thunderbird.png"
@@ -130,8 +125,14 @@ done
 install -D -m644 tb_symbolic.svg "${appdir}/share/icons/hicolor/symbolic/apps/org.mozilla.Thunderbird-symbolic.svg"
 
 # Generate AppStream metadata and add screenshots from Flathub
-appstream-compose --prefix="${appdir}" --origin=flatpak --basename=org.mozilla.Thunderbird org.mozilla.Thunderbird
-appstream-util mirror-screenshots "${appdir}"/share/app-info/xmls/org.mozilla.Thunderbird.xml.gz "https://dl.flathub.org/repo/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}" build/screenshots "build/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}"
+appstreamcli compose \
+    --prefix=/ \
+    --origin=flatpak \
+    --components=org.mozilla.Thunderbird \
+    --result-root="${appdir}" \
+    --media-dir="build/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}" \
+    --media-baseurl="https://dl.flathub.org/repo/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}" \
+    "${appdir}"
 
 # Install locales, distribution, and launch_script.sh into appdir
 #
