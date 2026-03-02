@@ -18,9 +18,6 @@ add_setup(async () => {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messageWindow.xhtml"
   );
-  Services.xulStore.removeDocument(
-    "chrome://messenger/content/newFolderDialog.xhtml"
-  );
 });
 
 const lazy = {};
