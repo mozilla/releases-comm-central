@@ -2488,6 +2488,7 @@ dependencies = [
  "gkrust-shared",
  "gkrust_utils",
  "graph_xpcom",
+ "harfbuzz_glue",
  "http_sfv",
  "idna_glue",
  "ipcclientcerts",
@@ -2613,6 +2614,7 @@ dependencies = [
  "geckoservo",
  "gkrust-uniffi-components",
  "gkrust_utils",
+ "harfbuzz_glue",
  "http_sfv",
  "idna_glue",
  "ipcclientcerts",
@@ -2894,6 +2896,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "harfbuzz"
+version = "0.6.0"
+source = "git+https://github.com/hsivonen/rust-harfbuzz?rev=9d58a23a98772a197291d04af93f7041b7093d95#9d58a23a98772a197291d04af93f7041b7093d95"
+dependencies = [
+ "harfbuzz-sys",
+ "harfbuzz-traits",
+]
+
+[[package]]
+name = "harfbuzz-sys"
+version = "0.6.1"
+source = "git+https://github.com/hsivonen/rust-harfbuzz?rev=9d58a23a98772a197291d04af93f7041b7093d95#9d58a23a98772a197291d04af93f7041b7093d95"
+
+[[package]]
+name = "harfbuzz-traits"
+version = "0.6.0"
+source = "git+https://github.com/hsivonen/rust-harfbuzz?rev=9d58a23a98772a197291d04af93f7041b7093d95#9d58a23a98772a197291d04af93f7041b7093d95"
+
+[[package]]
+name = "harfbuzz_glue"
+version = "0.1.0"
+dependencies = [
+ "harfbuzz",
+ "harfbuzz-traits",
+ "icu_normalizer",
+ "icu_properties",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.13.999"
 dependencies = [
@@ -3110,6 +3141,7 @@ name = "icu_normalizer"
 version = "2.1.1"
 dependencies = [
  "displaydoc",
+ "harfbuzz-traits",
  "icu_collections",
  "icu_normalizer_data",
  "icu_properties",
@@ -3128,9 +3160,8 @@ version = "2.1.1"
 [[package]]
 name = "icu_properties"
 version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "020bfc02fe870ec3a66d93e677ccca0562506e5872c650f893269e08615d74ec"
 dependencies = [
+ "harfbuzz-traits",
  "icu_collections",
  "icu_locale_core",
  "icu_properties_data",
@@ -3143,8 +3174,6 @@ dependencies = [
 [[package]]
 name = "icu_properties_data"
 version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "616c294cf8d725c6afcd8f55abc17c56464ef6211f9ed59cccffe534129c77af"
 
 [[package]]
 name = "icu_provider"
@@ -3440,6 +3469,7 @@ version = "0.1.0"
 dependencies = [
  "jxl",
  "log",
+ "qcms",
 ]
 
 [[package]]

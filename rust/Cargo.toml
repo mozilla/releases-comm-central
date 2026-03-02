@@ -218,6 +218,8 @@ icu_normalizer_data = { path = "../../third_party/rust/icu_normalizer_data" }
 icu_collections = { path = "../../third_party/rust/icu_collections" }
 utf8_iter = { path = "../../third_party/rust/utf8_iter" }
 utf16_iter = { path = "../../third_party/rust/utf16_iter" }
+icu_properties = { path = "../../third_party/rust/icu_properties" }
+icu_properties_data = { path = "../../third_party/rust/icu_properties_data" }
 nix = { path = "../../build/rust/nix" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
@@ -254,6 +256,9 @@ libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "54759f681f3b523e120d047adec2bb1a97152017" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
 wr_malloc_size_of = { path = "../../gfx/wr/wr_malloc_size_of" }
+harfbuzz-sys = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
+harfbuzz = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
+harfbuzz-traits = { git = "https://github.com/hsivonen/rust-harfbuzz", rev = "9d58a23a98772a197291d04af93f7041b7093d95" }
 objc = { git = "https://github.com/glandium/rust-objc", rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324" }
 allocator-api2 = { git = "https://github.com/glandium/allocator-api2", rev = "ad5f3d56a5a4519eff52af4ff85293431466ef5c" }
 context_id = { path = "../../third_party/application-services/components/context_id" }

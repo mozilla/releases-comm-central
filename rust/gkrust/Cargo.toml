@@ -64,6 +64,7 @@ gecko_logger = { path = "../../../xpcom/rust/gecko_logger" }
 gecko_tracing = { path = "../../../xpcom/rust/gecko_tracing" }
 geckoservo = { path = "../../../servo/ports/geckolib" }
 gkrust_utils = { path = "../../../xpcom/rust/gkrust_utils" }
+harfbuzz_glue = { path = "../../../gfx/harfbuzz_glue" }
 http_sfv = { path = "../../../netwerk/base/http-sfv" }
 idna_glue = { path = "../../../netwerk/base/idna_glue", features = ['mailnews'] }
 ipcclientcerts = { path = "../../../security/manager/ssl/ipcclientcerts" }

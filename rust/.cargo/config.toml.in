@@ -66,6 +66,11 @@ git = "https://github.com/hsivonen/chardetng_c"
 rev = "2f0aba284677d098de14f91ffe5a9e5b9a4922c2"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/hsivonen/rust-harfbuzz?rev=9d58a23a98772a197291d04af93f7041b7093d95"]
+git = "https://github.com/hsivonen/rust-harfbuzz"
+rev = "9d58a23a98772a197291d04af93f7041b7093d95"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/jfkthame/mapped_hyph.git?rev=eff105f6ad7ec9b79816cfc1985a28e5340ad14b"]
 git = "https://github.com/jfkthame/mapped_hyph.git"
 rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b"
