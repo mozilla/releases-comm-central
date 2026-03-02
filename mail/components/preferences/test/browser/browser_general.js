@@ -702,3 +702,58 @@ add_task(async function testNetworkDialogs() {
   );
   await closePrefsTab();
 });
+
+add_task(async function test_recent_destinations_options() {
+  info("Testing Recent Destinations preference UI");
+
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneGeneral",
+    "generalCategory"
+  );
+
+  const recentSortMenu = prefsDocument.getElementById("recentSortOrder");
+  const maxRecentNumber = prefsDocument.getElementById("maxRecentNumber");
+
+  // Ensure the element is focused and cleared of any previous state
+  recentSortMenu.scrollIntoView({ block: "center", behavior: "instant" });
+  recentSortMenu.focus();
+
+  // Check initial state matches default pref.
+  Assert.equal(
+    recentSortMenu.value,
+    Services.prefs
+      .getIntPref("mail.folder_widget.recent_sort_order")
+      .toString(),
+    "Sort menu should match default pref value"
+  );
+
+  // Change the menu item (1 = Alphabetically)
+  recentSortMenu.scrollIntoView({ block: "end", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(recentSortMenu, {}, prefsWindow);
+  await BrowserTestUtils.waitForPopupEvent(recentSortMenu.menupopup, "shown");
+  recentSortMenu.menupopup.activateItem(recentSortMenu.menupopup.children[1]);
+  await BrowserTestUtils.waitForPopupEvent(recentSortMenu.menupopup, "hidden");
+
+  Assert.equal(
+    Services.prefs.getIntPref("mail.folder_widget.recent_sort_order"),
+    1,
+    "Preference should be 1 after selecting Alphabetically"
+  );
+
+  // Test the numeric input.
+  maxRecentNumber.scrollIntoView({ block: "center", behavior: "instant" });
+  maxRecentNumber.focus();
+  maxRecentNumber.value = 10;
+  maxRecentNumber.dispatchEvent(new Event("change", { bubbles: true }));
+
+  Assert.equal(
+    Services.prefs.getIntPref("mail.folder_widget.max_recent"),
+    10,
+    "Max recent pref should be updated to 10"
+  );
+
+  Services.prefs.clearUserPref("mail.folder_widget.recent_sort_order");
+  Services.prefs.clearUserPref("mail.folder_widget.max_recent");
+
+  await closePrefsTab();
+});

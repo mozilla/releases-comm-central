@@ -571,6 +571,23 @@ dark-message-mode-toggle-label =
     .accesskey = t
 dark-message-mode-toggle-description = Show a toggle in the message header to quickly disable the dark message mode
 
+general-folder-options-header = Folder Management Options
+
+recent-destinations-legend = Recent Destinations
+recent-destinations-description = Options for listing and sorting folders where messages were recently moved to.
+
+recent-sort-order-label = Sort order:
+    .accesskey = S
+
+recent-sort-order-mru =
+    .label = Most recent
+
+recent-sort-order-alphabetic =
+    .label = Alphabetical
+
+max-recent-label = Maximum number of recent folders:
+    .accesskey = M
+
 account-hub-legend = Account hub
 
 account-hub-checkbox-label =

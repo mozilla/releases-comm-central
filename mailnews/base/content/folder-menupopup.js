@@ -186,6 +186,7 @@
          * we can know to rebuild ourselves.
          *
          * @implements {nsIFolderListener}
+         * @implements {nsIObserver}
          */
         this._listener = {
           _menu: this,
@@ -306,6 +307,14 @@
             }
             return null;
           },
+          observe(subject, topic, data) {
+            if (
+              topic == "nsPref:changed" &&
+              data.startsWith("mail.folder_widget.")
+            ) {
+              this._clearMenu(this._menu);
+            }
+          },
         };
 
         // True if we have already built our menu items and are now just
@@ -343,14 +352,15 @@
       }
 
       /**
-       * Make sure we remove our listener when the window is being destroyed
-       * or the widget torn down.
+       * Make sure we remove our listener and observer when the window is being
+       * destroyed or the widget torn down.
        */
       _removeListener() {
         if (!this._initialized) {
           return;
         }
         MailServices.mailSession.RemoveFolderListener(this._listener);
+        Services.prefs.removeObserver("mail.folder_widget.", this._listener);
       }
 
       /**
@@ -389,6 +399,8 @@
           this._listener,
           Ci.nsIFolderListener.all
         );
+
+        Services.prefs.addObserver("mail.folder_widget.", this._listener);
 
         this._initialized = true;
       }
@@ -614,7 +626,13 @@
         }
 
         // If appropriate, sort the entries alphabetically.
-        if (specialType != "recent") {
+        if (
+          specialType != "recent" ||
+          Services.prefs.getIntPref(
+            "mail.folder_widget.recent_sort_order",
+            0
+          ) == 1
+        ) {
           specialFoldersMap.sort((a, b) =>
             a.label.localeCompare(b.label, undefined, { sensitivity: "base" })
           );

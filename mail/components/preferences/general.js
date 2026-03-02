@@ -114,6 +114,8 @@ Preferences.addAll([
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
   { id: "layout.css.always_underline_links", type: "bool" },
   { id: "searchintegration.enable", type: "bool" },
+  { id: "mail.folder_widget.recent_sort_order", type: "int" },
+  { id: "mail.folder_widget.max_recent", type: "int" },
 ]);
 if (AppConstants.platform == "win") {
   Preferences.add({ id: "mail.minimizeToTray", type: "bool" });

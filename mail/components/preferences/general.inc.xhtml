@@ -768,6 +768,37 @@
       </html:fieldset>
     </html:div>
 
+    <html:div id="folderOptionsCategory"
+              class="subcategory"
+              data-category="paneGeneral">
+      <html:h1 data-l10n-id="general-folder-options-header"></html:h1>
+    </html:div>
+
+    <html:fieldset id="recentDestinationsOptions" data-category="paneGeneral">
+      <html:legend data-l10n-id="recent-destinations-legend"></html:legend>
+      <description data-l10n-id="recent-destinations-description"/>
+      <separator></separator>
+
+      <hbox align="center" pack="start">
+        <label control="recentSortOrder" data-l10n-id="recent-sort-order-label"/>
+        <menulist id="recentSortOrder" preference="mail.folder_widget.recent_sort_order">
+          <menupopup>
+            <menuitem data-l10n-id="recent-sort-order-mru" value="0"/>
+            <menuitem data-l10n-id="recent-sort-order-alphabetic" value="1"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center" pack="start">
+        <label id="maxRecent" control="maxRecentNumber" data-l10n-id="max-recent-label"/>
+        <html:input id="maxRecentNumber" type="number"
+                    class="size2"
+                    min="1"
+                    max="50"
+                    preference="mail.folder_widget.max_recent"/>
+      </hbox>
+    </html:fieldset>
+
 #ifdef MOZ_UPDATER
     <hbox id="updatesCategory"
           class="subcategory"

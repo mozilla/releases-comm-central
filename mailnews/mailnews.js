@@ -191,8 +191,12 @@ pref("mail.citation_color", "#007cff");
 #endif
 // Use CTE quoted-printable for mail bodies.
 pref("mail.strictly_mime", false);
-// The maximum number of entries in the "Recent" menu of the folder picker.
-pref("mail.folder_widget.max_recent", 25);
+// The sort order for the entries in the 'Recent Destination' sub menu:
+// 0 by last used, 1 alphabetically.
+pref("mail.folder_widget.recent_sort_order", 0);
+// The maximum number of entries in the "Recent Destinations" menu of the
+// folder picker.
+pref("mail.folder_widget.max_recent", 10);
 // 0/1 (name param is encoded in a legacy way), 2(RFC 2231 only)
 // 0 the name param is never separated to multiple lines.
 pref("mail.strictly_mime.parm_folding", 1);
