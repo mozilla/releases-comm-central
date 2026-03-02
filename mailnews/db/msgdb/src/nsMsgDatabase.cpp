@@ -2709,11 +2709,11 @@ NS_IMETHODIMP nsMsgDatabase::ClearNewList(bool notify /* = FALSE */) {
         uint32_t flags;
         (void)msgHdr->GetFlags(&flags);
 
-        if ((flags | nsMsgMessageFlags::New) != flags) {
+        if (flags & nsMsgMessageFlags::New) {
           msgHdr->AndFlags(~nsMsgMessageFlags::New, &flags);
-          NotifyHdrChangeAll(msgHdr, flags | nsMsgMessageFlags::New, flags,
-                             nullptr);
         }
+        NotifyHdrChangeAll(msgHdr, flags | nsMsgMessageFlags::New, flags,
+                           nullptr);
       }
       if (elementIndex == 0) {
         break;
