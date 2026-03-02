@@ -8,4 +8,5 @@ extern crate sys_tray;
 
 extern crate ews_xpcom;
 extern crate graph_xpcom;
+extern crate mailnews_string_glue;
 extern crate mailnews_ui_glue;

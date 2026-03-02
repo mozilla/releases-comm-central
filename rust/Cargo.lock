@@ -2503,6 +2503,7 @@ dependencies = [
  "locale_service_glue",
  "localization-ffi",
  "log",
+ "mailnews_string_glue",
  "mailnews_ui_glue",
  "mapped_hyph",
  "mdns_service",
@@ -2566,6 +2567,7 @@ dependencies = [
  "graph_xpcom",
  "kvstore-gtest",
  "l10nregistry-ffi-gtest",
+ "mailnews_string_glue",
  "moz_task-gtest",
  "mozglue-static",
  "mozilla-central-workspace-hack",
@@ -3817,6 +3819,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93c3b9e5d8b17faf573330bbc43b37d6e918c0a3bf8a88e7d0a220ebc84af9fc"
 dependencies = [
  "encoding_rs",
+]
+
+[[package]]
+name = "mailnews_string_glue"
+version = "0.1.0"
+dependencies = [
+ "icu_normalizer",
+ "nserror",
+ "nsstring",
 ]
 
 [[package]]

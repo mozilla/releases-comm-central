@@ -17,4 +17,5 @@ extern crate xpcom_gtest;
 
 extern crate ews_xpcom;
 extern crate graph_xpcom;
+extern crate mailnews_string_glue;
 extern crate sys_tray;

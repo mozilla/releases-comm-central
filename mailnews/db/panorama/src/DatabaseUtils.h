@@ -25,7 +25,8 @@ class DatabaseUtils {
    * be normalized before being inserted into the database. This will prevent
    * mistakes when comparing strings containing non-ASCII characters.
    */
-  static nsCString Normalize(const nsACString& inString);
+  static mozilla::Result<nsCString, nsresult> Normalize(
+      const nsACString& inString);
 };
 
 class TagsMatchFunction final : public mozIStorageFunction {
