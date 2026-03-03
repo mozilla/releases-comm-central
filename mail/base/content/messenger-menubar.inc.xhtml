@@ -1252,7 +1252,13 @@
 #else
 #ifdef XP_MACOSX
     <menuseparator id="prefSep"/>
+    <!-- macOS 13 changed "Preferences" to "Settings" so one of these gets picked.
+         We don't differentiate but we need to add both IDs. -->
     <menuitem id="menu_preferences"
+              data-l10n-id="menu-tools-settings"
+              key="key_preferencesCmdMac"
+              oncommand="openOptionsDialog()"/>
+    <menuitem id="menu_settings"
               data-l10n-id="menu-tools-settings"
               key="key_preferencesCmdMac"
               oncommand="openOptionsDialog()"/>
