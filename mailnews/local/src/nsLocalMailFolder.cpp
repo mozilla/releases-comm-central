@@ -14,6 +14,7 @@
 #include "FolderPopulation.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
+#include "MailHeaderParsing.h"
 #include "msgCore.h"  // precompiled header...
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgFolderFlags.h"
@@ -3423,7 +3424,7 @@ nsresult nsMsgLocalMailFolder::AddMessageBatch2(
     // Parse headers and add to the DB.
     // (We're using the old nsIMsgDatabase instead of going directly to
     // panorama, as we want to keep working with legacy code for now).
-    RawHdr hdr = ParseMsgHeaders(raw);
+    RawHdr hdr = ParseRawMailHeaders(raw);
     // Malformed message might have a missing "Date:" header.
     // Policy here is to fall back to current time.
     if (hdr.date == 0) {
