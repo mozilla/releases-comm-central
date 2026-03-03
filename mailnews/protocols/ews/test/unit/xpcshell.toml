@@ -9,6 +9,8 @@ prefs = ["mail.graph.enabled=true"]
 
 ["test_ewsFilters.js"]
 
+["test_ewsCustomHeaderFilters.js"]
+
 ["test_ewsFolder.js"]
 
 ["test_folderNamesEws.js"]

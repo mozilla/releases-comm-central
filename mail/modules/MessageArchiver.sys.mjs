@@ -199,6 +199,7 @@ MessageArchiver.prototype = {
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
       batch.messages,
+      [],
       batch.srcFolder,
       this.msgWindow,
       this

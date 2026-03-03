@@ -375,6 +375,7 @@ var commandController = {
         MailServices.filters.applyFilters(
           Ci.nsMsgFilterType.Manual,
           selectedMessages,
+          [],
           gFolder,
           top.msgWindow
         );

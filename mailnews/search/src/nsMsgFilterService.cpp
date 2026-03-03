@@ -7,6 +7,7 @@
 
 #include "msgCore.h"
 #include "nsMsgFilterService.h"
+#include "IHeaderBlock.h"
 #include "nsMsgFilterList.h"
 #include "nsMsgSearchScopeTerm.h"
 #include "nsIPrompt.h"
@@ -1104,6 +1105,7 @@ class nsMsgApplyFiltersToMessages : public nsMsgFilterAfterTheFact {
                               nsIMsgFilterList* aFilterList,
                               const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
                               const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
+                              const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders,
                               nsMsgFilterTypeType aFilterType,
                               nsIMsgOperationListener* aCallback);
 
@@ -1111,6 +1113,7 @@ class nsMsgApplyFiltersToMessages : public nsMsgFilterAfterTheFact {
   virtual nsresult RunNextFilter();
 
   nsTArray<RefPtr<nsIMsgDBHdr>> m_msgHdrList;
+  nsTArray<RefPtr<IHeaderBlock>> m_rawHeaders;
   nsMsgFilterTypeType m_filterType;
 };
 
@@ -1118,10 +1121,14 @@ nsMsgApplyFiltersToMessages::nsMsgApplyFiltersToMessages(
     nsIMsgWindow* aMsgWindow, nsIMsgFilterList* aFilterList,
     const nsTArray<RefPtr<nsIMsgFolder>>& aFolderList,
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
+    const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders,
     nsMsgFilterTypeType aFilterType, nsIMsgOperationListener* aCallback)
     : nsMsgFilterAfterTheFact(aMsgWindow, aFilterList, aFolderList, aCallback),
       m_msgHdrList(aMsgHdrList.Clone()),
+      m_rawHeaders(aRawHeaders.Clone()),
       m_filterType(aFilterType) {
+  MOZ_ASSERT(m_rawHeaders.IsEmpty() ||
+             m_rawHeaders.Length() == m_msgHdrList.Length());
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Post) nsMsgApplyFiltersToMessages"));
 }
@@ -1165,10 +1172,38 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter() {
     m_curFilter->SetScope(scope);
     OnNewSearch();
 
-    for (auto msgHdr : m_msgHdrList) {
+    for (size_t i = 0; i < m_msgHdrList.Length(); ++i) {
+      auto msgHdr = m_msgHdrList[i];
+
+      // If the raw RFC5322 header block is available, supply it.
+      // NASTY KLUDGE HACK ALERT!
+      // Because of a self-defeating quirk in the matching code, the
+      // headers string is expected to be a NUL-separated list:
+      //  "From: alice@example.com\0To: bob@example.com\0"...
+      // Ugh.
+      // See Bug 1791947.
+      nsCString nulSeparatedHeaders;
+      if (!m_rawHeaders.IsEmpty() && m_rawHeaders[i]) {
+        uint32_t numHeaders;
+        rv = m_rawHeaders[i]->GetNumHeaders(&numHeaders);
+        if (NS_SUCCEEDED(rv)) {
+          for (uint32_t hdrIdx = 0; hdrIdx < numHeaders; ++hdrIdx) {
+            nsCString name;
+            rv = m_rawHeaders[i]->Name(hdrIdx, name);
+            if (NS_SUCCEEDED(rv)) {
+              nsCString value;
+              rv = m_rawHeaders[i]->Value(hdrIdx, value);
+              if (NS_SUCCEEDED(rv)) {
+                nulSeparatedHeaders.AppendFmt("{}: {}", name, value);
+                nulSeparatedHeaders.Append('\0');
+              }
+            }
+          }
+        }
+      }
       bool matched;
       rv = m_curFilter->MatchHdr(msgHdr, m_curFolder, m_curFolderDB,
-                                 EmptyCString(), &matched);
+                                 nulSeparatedHeaders, &matched);
       if (NS_SUCCEEDED(rv) && matched) {
         // In order to work with nsMsgFilterAfterTheFact::ApplyFilter we
         // initialize nsMsgFilterAfterTheFact's information with a search hit
@@ -1209,11 +1244,18 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter() {
 
 NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
     nsMsgFilterTypeType aFilterType,
-    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList, nsIMsgFolder* aFolder,
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgHdrList,
+    const nsTArray<RefPtr<IHeaderBlock>>& aRawHeaders, nsIMsgFolder* aFolder,
     nsIMsgWindow* aMsgWindow, nsIMsgOperationListener* aCallback) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Post) nsMsgApplyFiltersToMessages::ApplyFilters"));
   NS_ENSURE_ARG_POINTER(aFolder);
+
+  if (!aRawHeaders.IsEmpty()) {
+    if (aRawHeaders.Length() != aMsgHdrList.Length()) {
+      return NS_ERROR_INVALID_ARG;
+    }
+  }
 
   nsCOMPtr<nsIMsgFilterList> filterList;
   aFolder->GetFilterList(aMsgWindow, getter_AddRefs(filterList));
@@ -1240,7 +1282,8 @@ NS_IMETHODIMP nsMsgFilterService::ApplyFilters(
   // ApplyFiltersToHdr finds one or more filters that hit.
   RefPtr<nsMsgApplyFiltersToMessages> filterExecutor =
       new nsMsgApplyFiltersToMessages(aMsgWindow, filterList, {aFolder},
-                                      aMsgHdrList, aFilterType, aCallback);
+                                      aMsgHdrList, aRawHeaders, aFilterType,
+                                      aCallback);
   return filterExecutor->AdvanceToNextFolder();
 }
 
