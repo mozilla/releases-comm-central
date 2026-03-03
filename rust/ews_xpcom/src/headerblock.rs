@@ -143,7 +143,6 @@ fn extract_core(msg: &ews::Message) -> HashMap<String, String> {
 ///   "From:" etc...
 /// b) it's possible that internet_message_headers data is missing
 ///    entirely for messages which have only ever been on exchange servers.
-#[allow(unused)]
 pub fn extract_headers(msg: &ews::Message) -> RefPtr<HeaderBlock> {
     // Part one - convert message fields to RFC5322 equivalents.
     let core = extract_core(msg);

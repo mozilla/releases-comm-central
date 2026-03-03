@@ -4,9 +4,12 @@
 
 use nserror::nsresult;
 use nsstring::nsCString;
-use xpcom::{RefPtr, getter_addrefs, interfaces::IEwsMessageSyncListener};
+use xpcom::{
+    RefPtr,
+    interfaces::{IEwsMessageSyncListener, IHeaderBlock},
+};
 
-use super::{SafeListener, SafeListenerWrapper, StaleMsgDbHeader, UpdatedMsgDbHeader};
+use super::{SafeListener, SafeListenerWrapper};
 
 /// See [`SafeListenerWrapper`].
 pub type SafeEwsMessageSyncListener = SafeListenerWrapper<IEwsMessageSyncListener>;
@@ -17,12 +20,27 @@ impl SafeEwsMessageSyncListener {
     pub fn on_message_created<S: AsRef<str>>(
         &self,
         message_id: S,
-    ) -> Result<StaleMsgDbHeader, nsresult> {
+        header_block: RefPtr<IHeaderBlock>,
+        message_size: u32,
+        is_read: bool,
+        is_flagged: bool,
+        preview_text: &str,
+    ) -> Result<(), nsresult> {
         let ews_id = nsCString::from(message_id.as_ref());
+        let preview = nsCString::from(preview_text);
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        getter_addrefs(|hdr| unsafe { self.0.OnMessageCreated(&*ews_id, hdr) })
-            .map(|hdr| hdr.into())
+        unsafe {
+            self.0.OnMessageCreated(
+                &*ews_id,
+                header_block.coerce(),
+                message_size,
+                is_read,
+                is_flagged,
+                &*preview,
+            )
+        }
+        .to_result()
     }
 
     /// Convert types and forward to
@@ -30,12 +48,28 @@ impl SafeEwsMessageSyncListener {
     pub fn on_message_updated<S: AsRef<str>>(
         &self,
         message_id: S,
-    ) -> Result<StaleMsgDbHeader, nsresult> {
+        header_block: RefPtr<IHeaderBlock>,
+        message_size: u32,
+        is_read: bool,
+        is_flagged: bool,
+        preview_text: &str,
+    ) -> Result<(), nsresult> {
         let ews_id = nsCString::from(message_id.as_ref());
+        let preview = nsCString::from(preview_text);
+
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
-        getter_addrefs(|hdr| unsafe { self.0.OnMessageUpdated(&*ews_id, hdr) })
-            .map(|hdr| hdr.into())
+        unsafe {
+            self.0.OnMessageUpdated(
+                &*ews_id,
+                header_block.coerce(),
+                message_size,
+                is_read,
+                is_flagged,
+                &*preview,
+            )
+        }
+        .to_result()
     }
 
     /// Convert types and forward to
@@ -67,22 +101,6 @@ impl SafeEwsMessageSyncListener {
         // SAFETY: We have converted all of the inputs into the appropriate
         // types to cross the Rust/C++ boundary.
         unsafe { self.0.OnSyncStateTokenChanged(&*sync_state) }.to_result()
-    }
-
-    /// Convert types and forward to
-    /// [`IEwsMessageSyncListener::OnDetachedHdrPopulated`].
-    pub fn on_detached_hdr_populated(&self, hdr: UpdatedMsgDbHeader) -> Result<(), nsresult> {
-        let hdr: RefPtr<_> = hdr.into();
-        // SAFETY: hdr is behind a safe wrapper, so points to a valid (in the
-        // safety sense) header.
-        unsafe { self.0.OnDetachedHdrPopulated(&*hdr) }.to_result()
-    }
-
-    /// A safe wrapper for
-    /// [`IEwsMessageSyncListener::OnExistingHdrChanged`].
-    pub fn on_existing_hdr_changed(&self) -> Result<(), nsresult> {
-        // SAFETY: Callback takes no arguments.
-        unsafe { self.0.OnExistingHdrChanged() }.to_result()
     }
 }
 
