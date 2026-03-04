@@ -24,9 +24,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
         "crypt32",
         "propsys",
     ]
-    XPIDL_SOURCES += [
-        "/browser/components/shell/nsILimitedAccessFeature.idl",
-    ]
 
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
