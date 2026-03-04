@@ -54,19 +54,15 @@ platform_names:
     filename_platform:
         by-platform:
             linux64-shippable: 'linux-x86_64'
-            linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'mac'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-asan-reporter-shippable: 'win64-asan-reporter'
     stage_platform:
         by-platform:
             linux64-shippable: 'linux64'
-            linux64-asan-reporter-shippable: 'linux-x86_64-asan-reporter'
             macosx64-shippable: 'macosx64'
             win32-shippable: 'win32'
             win64-shippable: 'win64'
-            win64-asan-reporter-shippable: 'win64-asan-reporter'
 
 default: &default
     from:
@@ -121,9 +117,6 @@ mapping:
         description: "Crashreporter symbols to be consumed by Socorro"
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.crashreporter-symbols.zip
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.crashreporter-symbols.zip
-        not_for_platforms:
-            - linux64-asan-reporter-shippable
-            - win64-asan-reporter-shippable
     target.json:
         <<: *default
         description: "Various compile and moz_app flags baked together in a json file"
@@ -154,9 +147,6 @@ mapping:
         description: "Set of shells to allow test snippets of Javascript code without needing to reload the page"
         pretty_name: jsshell-${filename_platform}.zip
         checksums_path: jsshell-${filename_platform}.zip
-        not_for_platforms:
-            - linux64-asan-reporter-shippable
-            - win64-asan-reporter-shippable
     target.langpack.xpi:
         <<: *default
         all_locales: true
@@ -165,11 +155,9 @@ mapping:
             - build
         only_for_platforms:
             - linux64-shippable
-            - linux64-asan-reporter-shippable
             - macosx64-shippable
             - win64-shippable
             - win32-shippable
-            - win64-asan-reporter-shippable
         pretty_name: thunderbird-${version}.${locale}.langpack.xpi
         checksums_path: thunderbird-${version}.${locale}.langpack.xpi
         destinations:
@@ -208,7 +196,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-asan-reporter-shippable
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -221,7 +208,6 @@ mapping:
         not_for_platforms:
             - win32-shippable
             - win64-shippable
-            - win64-asan-reporter-shippable
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
@@ -233,7 +219,6 @@ mapping:
             - signing
         only_for_platforms:
             - linux64-shippable
-            - linux64-asan-reporter-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.xz
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.xz
         destinations:
@@ -253,7 +238,6 @@ mapping:
             - signing
         only_for_platforms:
             - linux64-shippable
-            - linux64-asan-reporter-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.tar.xz.asc
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.tar.xz.asc
         destinations:
@@ -312,7 +296,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-asan-reporter-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.zip
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.zip
     target.installer.exe:
@@ -324,7 +307,6 @@ mapping:
         only_for_platforms:
             - win64-shippable
             - win32-shippable
-            - win64-asan-reporter-shippable
         pretty_name: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
         checksums_path: thunderbird-${version}.${locale}.${filename_platform}.installer.exe
         destinations:

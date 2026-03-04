@@ -3228,20 +3228,6 @@ release_history:
       target.partial-4.mar:
         buildid: '20240726044114'
         mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-26-04-41-14-comm-central-l10n/thunderbird-130.0a1.zh-TW.linux-x86_64.complete.mar
-  Linux_x86_64-gcc3-asan:
-    en-US:
-      target.partial-1.mar:
-        buildid: '20240729010207'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-29-01-02-07-comm-central/thunderbird-130.0a1.en-US.linux-x86_64-asan-reporter.complete.mar
-      target.partial-2.mar:
-        buildid: '20240728043945'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-28-04-39-45-comm-central/thunderbird-130.0a1.en-US.linux-x86_64-asan-reporter.complete.mar
-      target.partial-3.mar:
-        buildid: '20240726044114'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-26-04-41-14-comm-central/thunderbird-130.0a1.en-US.linux-x86_64-asan-reporter.complete.mar
-      target.partial-4.mar:
-        buildid: '20240725102156'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-25-10-21-56-comm-central/thunderbird-130.0a1.en-US.linux-x86_64-asan-reporter.complete.mar
   WINNT_x86-msvc:
     af:
       target.partial-1.mar:
@@ -4986,20 +4972,6 @@ release_history:
       target.partial-4.mar:
         buildid: '20240726044114'
         mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-26-04-41-14-comm-central-l10n/thunderbird-130.0a1.zh-TW.win64.complete.mar
-  WINNT_x86_64-msvc-x64-asan:
-    en-US:
-      target.partial-1.mar:
-        buildid: '20240729010207'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-29-01-02-07-comm-central/thunderbird-130.0a1.en-US.win64-asan-reporter.complete.mar
-      target.partial-2.mar:
-        buildid: '20240728043945'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-28-04-39-45-comm-central/thunderbird-130.0a1.en-US.win64-asan-reporter.complete.mar
-      target.partial-3.mar:
-        buildid: '20240726044114'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-26-04-41-14-comm-central/thunderbird-130.0a1.en-US.win64-asan-reporter.complete.mar
-      target.partial-4.mar:
-        buildid: '20240725102156'
-        mar_url: https://archive.mozilla.org/pub/thunderbird/nightly/2024/07/2024-07-25-10-21-56-comm-central/thunderbird-130.0a1.en-US.win64-asan-reporter.complete.mar
 release_partner_build_number: 1
 release_partner_config: {}
 release_partners: []

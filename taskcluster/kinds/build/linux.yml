@@ -187,49 +187,6 @@ linux64-asan-fuzzing/opt:
             - sysroot-x86_64-linux-gnu
             - terser
 
-linux64-asan-reporter-shippable/opt:
-    description: "Linux64 Opt ASAN Reporter (Shippable)"
-    attributes:
-        shippable: true
-    shipping-product:
-        by-release-type:
-            nightly: thunderbird
-            default: null
-    index:
-        product: thunderbird
-        job-name: linux64-asan-reporter-opt
-        type: shippable
-    treeherder:
-        platform: linux64-asan-reporter/opt
-        symbol: BoR
-    run-on-projects: ['comm-central']
-    worker:
-        env:
-            PERFHERDER_EXTRA_OPTIONS: asan-reporter
-            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
-        max-run-time: 3600
-    run:
-        config:
-            - builds/taskcluster_base_thunderbird.py
-            - builds/releng_base_linux_64_builds.py
-            - taskcluster_nightly.py
-        custom-build-variant-cfg: asan-reporter-tc
-        mozconfig-variant: nightly-asan-reporter
-        mar-channel-id:
-            thunderbird-comm-central-asan
-        accepted-mar-channel-ids:
-            thunderbird-comm-central-asan
-    optimization:
-        skip-unless-backstop: null
-    fetches:
-        toolchain:
-            - linux64-libotr
-            - linux64-llvm-symbolizer
-            - linux64-rust
-            - linux64-sccache
-            - sysroot-x86_64-linux-gnu
-            - terser
-
 linux64-tsan/opt:
     description: "Linux64 Opt TSAN"
     index:

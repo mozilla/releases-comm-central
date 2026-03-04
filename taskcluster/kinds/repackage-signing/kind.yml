@@ -18,7 +18,6 @@ kind-dependencies:
 only-for-build-platforms:
     - win32-shippable/opt
     - win64-shippable/opt
-    - win64-asan-reporter-shippable/opt
 
 tasks:
     repackage-signing:
