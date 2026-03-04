@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { _setReturnValue } = ChromeUtils.importESModule(
+  "resource:///modules/accountCreation/FirstRun.sys.mjs"
+);
+
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
@@ -79,6 +83,64 @@ add_task(async function test_account_hub_opening() {
     !dialog.open,
     "The dialog element should close when clicking on the close button"
   );
+});
+
+add_task(async function test_account_hub_first_run() {
+  _setReturnValue(true);
+
+  await window.openAccountHub();
+
+  const hub = document.querySelector("account-hub-container");
+  await BrowserTestUtils.waitForMutationCondition(
+    hub,
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
+  );
+
+  const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
+  Assert.ok(dialog, "The dialog element should be created");
+  Assert.ok(
+    dialog.classList.contains("account-hub-first-run"),
+    "Should have the first run class"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    true,
+    "Should have first run correctly set"
+  );
+
+  _setReturnValue(false);
+
+  Assert.ok(
+    dialog.classList.contains("account-hub-first-run"),
+    "Should still have have the first run class after update before reopening"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    true,
+    "Should still have first run true after update before reopening"
+  );
+
+  let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
+
+  await window.openAccountHub();
+
+  Assert.ok(dialog, "The dialog element should be created");
+  Assert.ok(
+    !dialog.classList.contains("account-hub-first-run"),
+    "Should not have the first run class"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    false,
+    "Should have first run correctly set after reopen"
+  );
+
+  closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
 });
 
 add_task(async function test_account_email_step() {
