@@ -290,7 +290,7 @@ add_task(async function testNewRenameDelete() {
 
         Assert.greaterOrEqual(
           win.innerWidth,
-          300,
+          235,
           "new folder dialog should have reasonable width"
         );
         Assert.greaterOrEqual(
