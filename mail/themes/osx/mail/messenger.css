@@ -29,8 +29,8 @@
   }
 }
 
-#mail-menubar,
-#mailContext {
+#mail-menubar .menu-icon,
+#mailContext .menu-icon {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
