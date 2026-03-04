@@ -13,7 +13,7 @@
 /// use num_conv::prelude::*;
 /// ```
 pub mod prelude {
-    pub use crate::{CastSigned as _, CastUnsigned as _, Extend as _, Truncate as _};
+    pub use crate::{Extend as _, Truncate as _};
 }
 
 mod sealed {
@@ -37,70 +37,6 @@ mod sealed {
     pub trait TruncateTargetSealed<T> {
         fn truncate(self) -> T;
     }
-}
-
-/// Cast to a signed integer of the same size.
-///
-/// This trait is implemented for all integers. Unsigned to signed casts are equivalent to
-/// `0.wrapping_add_signed(value)`, while signed to signed casts are an identity conversion.
-///
-/// ```rust
-/// # use num_conv::CastSigned;
-/// assert_eq!(u8::MAX.cast_signed(), -1_i8);
-/// assert_eq!(u16::MAX.cast_signed(), -1_i16);
-/// assert_eq!(u32::MAX.cast_signed(), -1_i32);
-/// assert_eq!(u64::MAX.cast_signed(), -1_i64);
-/// assert_eq!(u128::MAX.cast_signed(), -1_i128);
-/// assert_eq!(usize::MAX.cast_signed(), -1_isize);
-/// ```
-///
-/// ```rust
-/// # use num_conv::CastSigned;
-/// assert_eq!(0_i8.cast_signed(), 0_i8);
-/// assert_eq!(0_i16.cast_signed(), 0_i16);
-/// assert_eq!(0_i32.cast_signed(), 0_i32);
-/// assert_eq!(0_i64.cast_signed(), 0_i64);
-/// assert_eq!(0_i128.cast_signed(), 0_i128);
-/// assert_eq!(0_isize.cast_signed(), 0_isize);
-/// ```
-pub trait CastSigned: sealed::Integer {
-    /// The signed integer type with the same size as `Self`.
-    type Signed;
-
-    /// Cast an integer to the signed integer of the same size.
-    fn cast_signed(self) -> Self::Signed;
-}
-
-/// Cast to an unsigned integer of the same size.
-///
-/// This trait is implemented for all integers. Signed to unsigned casts are equivalent to
-/// `0.wrapping_add_unsigned(value)`, while unsigned to unsigned casts are an identity conversion.
-///
-/// ```rust
-/// # use num_conv::CastUnsigned;
-/// assert_eq!((-1_i8).cast_unsigned(), u8::MAX);
-/// assert_eq!((-1_i16).cast_unsigned(), u16::MAX);
-/// assert_eq!((-1_i32).cast_unsigned(), u32::MAX);
-/// assert_eq!((-1_i64).cast_unsigned(), u64::MAX);
-/// assert_eq!((-1_i128).cast_unsigned(), u128::MAX);
-/// assert_eq!((-1_isize).cast_unsigned(), usize::MAX);
-/// ```
-///
-/// ```rust
-/// # use num_conv::CastUnsigned;
-/// assert_eq!(0_u8.cast_unsigned(), 0_u8);
-/// assert_eq!(0_u16.cast_unsigned(), 0_u16);
-/// assert_eq!(0_u32.cast_unsigned(), 0_u32);
-/// assert_eq!(0_u64.cast_unsigned(), 0_u64);
-/// assert_eq!(0_u128.cast_unsigned(), 0_u128);
-/// assert_eq!(0_usize.cast_unsigned(), 0_usize);
-/// ```
-pub trait CastUnsigned: sealed::Integer {
-    /// The unsigned integer type with the same size as `Self`.
-    type Unsigned;
-
-    /// Cast an integer to the unsigned integer of the same size.
-    fn cast_unsigned(self) -> Self::Unsigned;
 }
 
 /// A type that can be used with turbofish syntax in [`Extend::extend`].
@@ -182,50 +118,6 @@ impl<T: sealed::Integer> Truncate for T {
     }
 }
 
-macro_rules! impl_cast_signed {
-    ($($($from:ty),+ => $to:ty;)*) => {$($(
-        const _: () = assert!(
-            core::mem::size_of::<$from>() == core::mem::size_of::<$to>(),
-            concat!(
-                "cannot cast ",
-                stringify!($from),
-                " to ",
-                stringify!($to),
-                " because they are different sizes"
-            )
-        );
-
-        impl CastSigned for $from {
-            type Signed = $to;
-            fn cast_signed(self) -> Self::Signed {
-                self as _
-            }
-        }
-    )+)*};
-}
-
-macro_rules! impl_cast_unsigned {
-    ($($($from:ty),+ => $to:ty;)*) => {$($(
-        const _: () = assert!(
-            core::mem::size_of::<$from>() == core::mem::size_of::<$to>(),
-            concat!(
-                "cannot cast ",
-                stringify!($from),
-                " to ",
-                stringify!($to),
-                " because they are different sizes"
-            )
-        );
-
-        impl CastUnsigned for $from {
-            type Unsigned = $to;
-            fn cast_unsigned(self) -> Self::Unsigned {
-                self as _
-            }
-        }
-    )+)*};
-}
-
 macro_rules! impl_extend {
     ($($from:ty => $($to:ty),+;)*) => {$($(
         const _: () = assert!(
@@ -276,24 +168,6 @@ macro_rules! impl_truncate {
 
         impl TruncateTarget<$to> for $from {}
     )+)*};
-}
-
-impl_cast_signed! {
-    u8, i8 => i8;
-    u16, i16 => i16;
-    u32, i32 => i32;
-    u64, i64 => i64;
-    u128, i128 => i128;
-    usize, isize => isize;
-}
-
-impl_cast_unsigned! {
-    u8, i8 => u8;
-    u16, i16 => u16;
-    u32, i32 => u32;
-    u64, i64 => u64;
-    u128, i128 => u128;
-    usize, isize => usize;
 }
 
 impl_extend! {
