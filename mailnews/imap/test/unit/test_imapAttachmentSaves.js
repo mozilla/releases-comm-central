@@ -6,7 +6,7 @@
  * Tests imap save and detach attachments.
  *
  * This should closely match
- * mailnews/protocols/ews/test/unit/test_ewsAttachmentSaves.js
+ * mailnews/protocols/exchange/test/unit/test_ewsAttachmentSaves.js
  */
 
 var { MessageGenerator } = ChromeUtils.importESModule(

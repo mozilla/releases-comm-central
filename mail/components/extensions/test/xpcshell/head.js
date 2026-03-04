@@ -109,7 +109,7 @@ async function createAccount(type = "none", options = {}) {
 
     // Wait for the folders list to finish being synchronised.
     // TODO: This code is copied from [1], think about using a shared module.
-    // [1] https://searchfox.org/comm-central/source/mailnews/protocols/ews/test/unit/test_folder_sync.js#54-63
+    // [1] https://searchfox.org/comm-central/source/mailnews/protocols/exchange/test/unit/test_folder_sync.js#54-63
     await TestUtils.waitForCondition(() => {
       // Folders are created in the order we give them to the EWS server in.
       // Therefore if the last one in the array has been created, we can safely

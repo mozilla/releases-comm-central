@@ -1109,13 +1109,13 @@ files_changed:
   - comm/mailnews/news/src/nsNntpUrl.cpp
   - comm/mailnews/news/test/unit/test_bug540288.js
   - comm/mailnews/nss-extra.symbols
-  - comm/mailnews/protocols/ews/public/moz.build
-  - comm/mailnews/protocols/ews/public/nsIEwsServer.idl
-  - comm/mailnews/protocols/ews/src/EwsFolder.cpp
-  - comm/mailnews/protocols/ews/src/EwsIncomingServer.cpp
-  - comm/mailnews/protocols/ews/src/IEwsClient.idl
-  - comm/mailnews/protocols/ews/src/components.conf
-  - comm/mailnews/protocols/ews/src/nsEwsOutgoingServer.h
+  - comm/mailnews/protocols/exchange/public/moz.build
+  - comm/mailnews/protocols/exchange/public/nsIEwsServer.idl
+  - comm/mailnews/protocols/exchange/src/EwsFolder.cpp
+  - comm/mailnews/protocols/exchange/src/EwsIncomingServer.cpp
+  - comm/mailnews/protocols/exchange/src/IEwsClient.idl
+  - comm/mailnews/protocols/exchange/src/components.conf
+  - comm/mailnews/protocols/exchange/src/nsEwsOutgoingServer.h
   - comm/mailnews/protocols/moz.build
   - comm/mailnews/search/moz.build
   - comm/mailnews/search/public/nsMsgBodyHandler.h

@@ -7,8 +7,8 @@ with Files("**"):
 
 DIRS += [
     "common",
-    "ews/public",
-    "ews/src",
+    "exchange/public",
+    "exchange/src",
 ]
 
-TEST_DIRS += ["ews/test"]
+TEST_DIRS += ["exchange/test"]

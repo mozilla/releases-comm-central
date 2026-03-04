@@ -384,7 +384,7 @@ widths: 30 70
   - Sean Burke, Brendan Abolivier
 * - Includes
   -
-    * mailnews/protocols/ews/\*\*
+    * mailnews/protocols/exchange/\*\*
     * rust/ews_xpcom/\*\*
     * rust/graph_xpcom/\*\*
 * - Bugzilla Components

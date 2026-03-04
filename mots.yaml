@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2025-11-17T15:44:31.128871+00:00'
+updated_at: '2026-03-02T16:19:00.934905+00:00'
 hashes:
-  config: f063d7810fa38f2aecdbaaba8c2ae7e2ee5b1ed2
-  export: 2d4d70da0a3a4e7c1941df5dacb882c8a1988d9d
+  config: c6de89a41b6a5795495f90225a235f75c3af074b
+  export: ec4800ea2af30222634f93f2589db6ca15f5719d
 export:
   path: ./docs/mots/index.md
   format: md
@@ -512,7 +512,7 @@ modules:
         machine_name: exchange_protocol
         description: Code responsible for sending/receiving messages over Exchange.
         includes:
-          - mailnews/protocols/ews/**
+          - mailnews/protocols/exchange/**
           - rust/ews_xpcom/**
           - rust/graph_xpcom/**
         owners: [*edicharry]
