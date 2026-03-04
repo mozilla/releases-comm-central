@@ -18,6 +18,7 @@ add_setup(async () => {
     getTestFilePath("data/image_sizing_test.eml")
   );
   msgc = await open_message_from_file(file);
+  msgc.windowUtils.suppressAnimation(true);
 
   if (window.screen.availWidth > msgc.outerWidth && msgc.outerWidth < 500) {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
@@ -33,6 +34,7 @@ add_setup(async () => {
   aboutMessage = get_about_message(msgc);
 
   registerCleanupFunction(async () => {
+    msgc.windowUtils.suppressAnimation(false);
     await BrowserTestUtils.closeWindow(msgc);
     Services.prefs.clearUserPref("mail.inline_attachments");
   });
@@ -223,10 +225,15 @@ add_task(async function test_imageUnderflow() {
   );
   info("... zoomed on the image #stretched");
 
-  info(`Resizing window to 450x${msgc.outerHeight}...`);
+  // 460px gives an extra 8px of available width on one developer's system.
+  // There are probably still cases where this is too little for this test to
+  // pass. Optimally, we'd be resizing for the availableWidth calculation in
+  // aboutMessage.js to result in at least 400px guaranteed.
+  info(`Resizing window to 460x${msgc.outerHeight}...`);
   const resizePromise2 = BrowserTestUtils.waitForEvent(msgc, "resize");
-  msgc.resizeTo(450, msgc.outerHeight);
+  msgc.resizeTo(460, msgc.outerHeight);
   await resizePromise2;
+  info("Waiting for stretched image to get marked with shrinktofit...");
   await BrowserTestUtils.waitForMutationCondition(
     image,
     {
@@ -248,4 +255,4 @@ add_task(async function test_imageUnderflow() {
     top: 0,
     behavior: "instant",
   });
-}).skip(window.screen.availWidth < 450); // Need space to show the entire element
+}).skip(window.screen.availWidth < 460); // Need space to show the entire element

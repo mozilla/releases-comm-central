@@ -124,7 +124,9 @@ mailattachcount {
 
 img {
   &[shrinktofit] {
-    max-inline-size: 100% !important;
+    /* width of the document, minus the margin of the body (8px in the UA
+    stylesheet), minus the scrollbar */
+    max-inline-size: calc(100svi - 16px - env(scrollbar-inline-size)) !important;
 
     &[overflowing] {
       cursor: zoom-in;
