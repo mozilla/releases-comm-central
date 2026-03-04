@@ -32,6 +32,10 @@
     padding-block: 9px;
     box-sizing: border-box;
     border-block-start: 1px solid var(--color-surface-border);
+
+    &:has(calendar-dialog-acceptance[hidden]) {
+      display: none;
+    }
   }
 }
 

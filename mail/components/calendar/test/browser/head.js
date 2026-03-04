@@ -151,7 +151,7 @@ function createCalendar({
  *   description. Overrides description if truthy.
  * @param {CalAlarm[]} [options.alarms=[]] - Calendar alarms.
  * @param {string[]} [options.attachments=[]] - Attached files.
- * @param {object} [options.attendees=[]] - Event Attendees
+ * @param {calIAttendee[]} [options.attendees=[]] - Event Attendees.
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({

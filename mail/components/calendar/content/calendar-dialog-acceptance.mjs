@@ -7,8 +7,12 @@
  * Template ID: #calendarDialogAcceptanceTemplate (from calendarDialogAcceptance.inc.xhtml)
  *
  * @tagname calendar-dialog-acceptance
+ * @attribute {string} status - The user's response status from the event.
  */
 export class CalendarDialogAcceptance extends HTMLElement {
+  static get observedAttributes() {
+    return ["status"];
+  }
   async connectedCallback() {
     if (this.shadowRoot) {
       return;
@@ -28,8 +32,42 @@ export class CalendarDialogAcceptance extends HTMLElement {
 
     document.l10n.connectRoot(this.shadowRoot);
     shadowRoot.append(clonedNode, style);
+    this.shadowRoot.addEventListener("change", this);
 
     window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
+  }
+
+  attributeChangedCallback(attribute, oldValue, newValue) {
+    // Status attribute has changed.
+    if (!newValue || newValue === "NEEDS-ACTION") {
+      return;
+    }
+
+    this.shadowRoot.querySelector(`input[value="${newValue}"]`).checked = true;
+  }
+
+  handleEvent(event) {
+    // Change event on shadowRoot has been triggered.
+    this.dispatchEvent(
+      new CustomEvent("setEventResponse", {
+        bubbles: true,
+        detail: {
+          status: event.target.value,
+        },
+      })
+    );
+  }
+
+  /**
+   * Resets the state of the acceptance widget.
+   */
+  reset() {
+    const checkedInput = this.shadowRoot.querySelector("input:checked");
+    if (checkedInput) {
+      checkedInput.checked = false;
+    }
+
+    this.removeAttribute("status");
   }
 
   disconnectedCallback() {

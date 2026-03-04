@@ -1042,6 +1042,11 @@ add_task(async function test_dialogAttachmentsRow() {
 });
 
 add_task(async function testAttendeesRowVisibility() {
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
   const calendarEventData = {
     location: "foobar",
     name: "Physical location",
@@ -1083,10 +1088,17 @@ add_task(async function testAttendeesRowVisibility() {
     "Attendees row should be hidden"
   );
 
+  // Clean up.
+  calendar.setProperty("organizerId", "");
   resetDialog();
 });
 
 add_task(async function testAttendeesRowData() {
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
   const calendarEventData = {
     location: "foobar",
     name: "Physical location",
@@ -1125,10 +1137,17 @@ add_task(async function testAttendeesRowData() {
     "Should show the correct email"
   );
 
+  // Clean up.
+  calendar.setProperty("organizerId", "");
   resetDialog();
 });
 
 add_task(async function testAttendeesRowExpandButton() {
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
   const calendarEventData = {
     location: "foobar",
     name: "Physical location",
@@ -1202,9 +1221,18 @@ add_task(async function testAttendeesRowExpandButton() {
     ),
     "Attendees row subview should be visible"
   );
+
+  // Clean up.
+  calendar.setProperty("organizerId", "");
+  resetDialog();
 });
 
 add_task(async function testAttendeesRowExpandButtonHiddenTooFewAttendees() {
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
   const calendarEventData = {
     location: "foobar",
     name: "Physical location",
@@ -1284,5 +1312,149 @@ add_task(async function test_calendarDialogMenu() {
   menu.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
+  // Clean up.
+  calendar.setProperty("organizerId", "");
+  resetDialog();
+});
+
+add_task(async function test_attendeeResponseStatus() {
+  // We set the calendar organizer as the same email as the attendee below.
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
+  const acceptanceWidget = dialog.querySelector("calendar-dialog-acceptance");
+  let statusPromise = BrowserTestUtils.waitForAttribute(
+    "status",
+    acceptanceWidget
+  );
+
+  const attendees = [
+    {
+      commonName: "",
+      id: "mailto:john@example.com",
+      role: "CHAIR",
+      participationStatus: "ACCEPTED",
+      isOrganizer: true,
+    },
+  ];
+  const calendarEventData = {
+    name: "Physical location",
+    calendar,
+    attendees,
+    isEvent: () => true,
+  };
+
+  let calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+  await statusPromise;
+
+  // Acceptance widget should have a status attribute now.
+  Assert.equal(
+    acceptanceWidget.getAttribute("status"),
+    "ACCEPTED",
+    "Acceptance widget should have ACCEPTED as status attribute value"
+  );
+  Assert.equal(
+    acceptanceWidget.shadowRoot.querySelector("input:checked").value,
+    "ACCEPTED",
+    "Going should be checked in the acceptance widget"
+  );
+
+  attendees[0].participationStatus = "NEEDS-ACTION";
+  calendarEventData.attendees = attendees;
+
+  statusPromise = BrowserTestUtils.waitForAttribute("status", acceptanceWidget);
+
+  calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+  await statusPromise;
+
+  Assert.equal(
+    acceptanceWidget.getAttribute("status"),
+    "NEEDS-ACTION",
+    "Acceptance widget should have NEEDS-ACTION as status attribute value"
+  );
+  Assert.ok(
+    !acceptanceWidget.shadowRoot.querySelector("input:checked"),
+    "There shouldn't be any response checked in the acceptance widget"
+  );
+
+  // Clean up.
+  calendar.setProperty("organizerId", "");
+  resetDialog();
+});
+
+add_task(async function test_userAttendanceResponse() {
+  // We set the calendar organizer as the same email as the attendee below.
+  calendar.setProperty(
+    "organizerId",
+    cal.email.prependMailTo("john@example.com")
+  );
+
+  const acceptanceWidget = dialog.querySelector("calendar-dialog-acceptance");
+  let statusPromise = BrowserTestUtils.waitForAttribute(
+    "status",
+    acceptanceWidget
+  );
+
+  const calendarEventData = {
+    name: "Physical location",
+    calendar,
+    attendees: [
+      {
+        commonName: "",
+        id: "mailto:john@example.com",
+        role: "CHAIR",
+        participationStatus: "ACCEPTED",
+        isOrganizer: true,
+      },
+    ],
+    isEvent: () => true,
+  };
+
+  const calEvent = await createEvent(calendarEventData);
+  dialog.setCalendarEvent(calEvent);
+  dialog.show();
+  await statusPromise;
+
+  // Acceptance widget should have "going" checked.
+  Assert.equal(
+    acceptanceWidget.shadowRoot.querySelector("input:checked").value,
+    "ACCEPTED",
+    "Going should be checked in the acceptance widget"
+  );
+
+  // Clicking "maybe" should fire setEventResponse and update the status attribute of
+  // the acceptance widget.
+  const setEventReponseEvent = BrowserTestUtils.waitForEvent(
+    acceptanceWidget,
+    "setEventResponse"
+  );
+  statusPromise = BrowserTestUtils.waitForAttribute("status", acceptanceWidget);
+  await new Promise(resolve => setTimeout(resolve));
+  EventUtils.synthesizeMouseAtCenter(
+    acceptanceWidget.shadowRoot.querySelector("#maybe"),
+    {},
+    browser.contentWindow
+  );
+  await setEventReponseEvent;
+  await statusPromise;
+  Assert.equal(
+    acceptanceWidget.getAttribute("status"),
+    "TENTATIVE",
+    "Acceptance widget should have TENTATIVE as status attribute value"
+  );
+  Assert.equal(
+    acceptanceWidget.shadowRoot.querySelector("input:checked").value,
+    "TENTATIVE",
+    "Maybe should be checked in the acceptance widget"
+  );
+
+  // Clean up.
+  calendar.setProperty("organizerId", "");
   resetDialog();
 });

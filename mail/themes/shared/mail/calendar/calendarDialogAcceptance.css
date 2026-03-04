@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-:host {
+:host(:not([hidden])) {
   --space-available: calc(100% - 2px);
   --button-space: calc(var(--space-available)/3);
   background: var(--color-surface-subtle);
@@ -15,13 +15,15 @@
   inline-size: 100%;
 
   & .toggle {
-    background: #ff8933;
+    background: transparent;
     border-radius: 36px;
     box-shadow: none;
     block-size: 26px;
     position: absolute;
     inset-block-start: 2px;
-    transition: all 0.4s ease-in;
+    transition:
+      inset-inline-start 0.4s,
+      border-color 0.4s ease-in;
     inline-size: calc(calc(var(--space-available) - 15px) / 3);
   }
 
@@ -68,6 +70,12 @@
     opacity: 0;
     padding: 0;
     position: absolute;
+  }
+}
+
+:host([status="NEEDS-ACTION"]) {
+  & .toggle {
+    display: none;
   }
 }
 

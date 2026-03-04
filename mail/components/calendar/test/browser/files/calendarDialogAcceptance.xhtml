@@ -1,0 +1,49 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calendar Dialog Acceptance Widget Test</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/calendar/calendarDialogAcceptance.css" />
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <script type="module" src="chrome://messenger/content/calendar-dialog-acceptance.mjs"></script>
+  </head>
+  <body>
+    <template id="calendarDialogAcceptanceTemplate">
+      <input id="going" type="radio" name="attendance" value="ACCEPTED"/>
+      <label for="going" class="option">
+        <img
+          src="chrome://messenger/skin/icons/sm/circle-check.svg"
+          role="presentation"
+          alt=""
+        />
+        <span data-l10n-id="calendar-dialog-accept"></span>
+      </label>
+      <input id="maybe" type="radio" name="attendance" value="TENTATIVE"/>
+      <label for="maybe" class="option">
+        <img
+          src="chrome://messenger/skin/icons/sm/circle-question.svg"
+          role="presentation"
+          alt=""
+        />
+        <span data-l10n-id="calendar-dialog-accept-tentative"></span>
+      </label>
+      <input id="notGoing" type="radio" name="attendance" value="DECLINED"/>
+      <label for="notGoing" class="option" >
+        <img
+          src="chrome://messenger/skin/icons/sm/circle-close.svg"
+          role="presentation"
+          alt=""
+        />
+        <span data-l10n-id="calendar-dialog-decline"></span>
+      </label>
+      <div class="toggle"></div>
+    </template>
+    <calendar-dialog-acceptance></calendar-dialog-acceptance>
+  </body>
+</html>

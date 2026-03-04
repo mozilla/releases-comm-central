@@ -132,6 +132,10 @@ export class CalendarDialog extends PositionedDialog {
       this.addEventListener("click", this);
       this.#subviewManager.addEventListener("subviewchanged", this);
       this.#subviewManager.addEventListener("toggleRowVisibility", this);
+      this.querySelector("calendar-dialog-acceptance").addEventListener(
+        "setEventResponse",
+        this
+      );
 
       this.querySelector(".back-button").hidden =
         this.#subviewManager.isDefaultSubviewVisible();
@@ -199,6 +203,13 @@ export class CalendarDialog extends PositionedDialog {
           .toggleAttribute("hidden", event.detail.isHidden);
         break;
       }
+      case "setEventResponse":
+        this.querySelector("calendar-dialog-acceptance").setAttribute(
+          "status",
+          event.detail.status
+        );
+        // TODO: Update the event with the user response.
+        break;
     }
   }
 
@@ -431,6 +442,16 @@ export class CalendarDialog extends PositionedDialog {
 
     this.#setJoinMeetingButton(event.descriptionText || "");
 
+    const acceptanceWidget = this.querySelector("calendar-dialog-acceptance");
+    const hasAttendees = event.getAttendees().length > 0;
+    acceptanceWidget.hidden = !hasAttendees;
+    if (hasAttendees) {
+      acceptanceWidget.setAttribute(
+        "status",
+        cal.itip.getInvitedAttendee(event, calendar).participationStatus
+      );
+    }
+
     const plainDescriptionPromise = this.querySelector(
       "#expandingDescription"
     ).setDescription(event.descriptionText);
@@ -472,6 +493,7 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-reminders-row").setReminders([]);
     this.querySelector("calendar-dialog-attachments-list").setAttachments([]);
     this.querySelector("#attachmentsRow").hidden = true;
+    this.querySelector("calendar-dialog-acceptance").reset();
     await this.querySelector("#expandingDescription").setDescription("");
     await this.querySelector("#expandedDescription").setDescription("");
   }
