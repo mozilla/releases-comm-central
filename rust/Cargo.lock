@@ -2488,6 +2488,7 @@ dependencies = [
  "gkrust-shared",
  "gkrust_utils",
  "graph_xpcom",
+ "happy_eyeballs_glue",
  "harfbuzz_glue",
  "http_sfv",
  "idna_glue",
@@ -2616,6 +2617,7 @@ dependencies = [
  "geckoservo",
  "gkrust-uniffi-components",
  "gkrust_utils",
+ "happy_eyeballs_glue",
  "harfbuzz_glue",
  "http_sfv",
  "idna_glue",
@@ -2895,6 +2897,30 @@ dependencies = [
  "crunchy",
  "num-traits",
  "serde",
+]
+
+[[package]]
+name = "happy-eyeballs"
+version = "0.1.0"
+source = "git+https://github.com/mozilla/happy-eyeballs?branch=main#2da23db70020c4f1f3359fffa0661a9cee8ed560"
+dependencies = [
+ "log",
+ "thiserror 2.0.12",
+ "url",
+]
+
+[[package]]
+name = "happy_eyeballs_glue"
+version = "0.1.0"
+dependencies = [
+ "happy-eyeballs",
+ "libc",
+ "log",
+ "nserror",
+ "nsstring",
+ "thin-vec",
+ "winapi",
+ "xpcom",
 ]
 
 [[package]]
@@ -3433,6 +3459,7 @@ dependencies = [
  "encoding_c_mem",
  "mozglue-static",
  "normalizer_glue",
+ "properties_glue",
  "unicode-bidi-ffi",
 ]
 
@@ -5280,6 +5307,15 @@ name = "profiling"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74605f360ce573babfe43964cbe520294dcb081afbf8c108fc6e23036b4da2df"
+
+[[package]]
+name = "properties_glue"
+version = "0.1.0"
+dependencies = [
+ "icu_casemap",
+ "icu_collections",
+ "icu_properties",
+]
 
 [[package]]
 name = "prost"
