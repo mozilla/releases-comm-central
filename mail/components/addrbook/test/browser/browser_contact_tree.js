@@ -1278,7 +1278,7 @@ add_task(async function test_copy() {
     "cmd_copy should not be enabled with nothing selected"
   );
 
-  // Test copying just by running the command.
+  // Test copying with the Edit menu Copy command.
 
   cardsList.selectedIndex = 0;
   Assert.ok(
@@ -1286,14 +1286,7 @@ add_task(async function test_copy() {
     "cmd_copy should be enabled with a card selected"
   );
 
-  SpecialPowers.cleanupAllClipboard();
-  await TestUtils.waitForTick();
-
-  window.goDoCommand("cmd_copy");
-  let copiedVCard = await TestUtils.waitForCondition(
-    () => SpecialPowers.getClipboardData("text/vcard"),
-    "waiting for text/vcard data on the clipboard"
-  );
+  let copiedVCard = await copyByEditMenu("text/vcard");
   if (!copiedVCard.includes("\r")) {
     info("the copied text/vcard data had '\\r' characters stripped");
     copiedVCard = copiedVCard.replaceAll("\n", "\r\n");
@@ -1312,8 +1305,7 @@ add_task(async function test_copy() {
   }
   Assert.equal(copiedPlain, copiedVCard);
 
-  // Test copying with the Edit menu Copy command. But not on Mac, because we
-  // can't click on the native menu.
+  // Test copying with Ctrl+C or ⌘+C.
 
   cardsList.selectedIndex = 1;
   Assert.ok(
@@ -1321,28 +1313,7 @@ add_task(async function test_copy() {
     "cmd_copy should be enabled with a card selected"
   );
 
-  SpecialPowers.cleanupAllClipboard();
-  await TestUtils.waitForTick();
-
-  if (AppConstants.platform == "macosx") {
-    window.goDoCommand("cmd_copy");
-  } else {
-    document.getElementById("toolbar-menubar").removeAttribute("autohide");
-
-    const editMenu = document.getElementById("menu_Edit");
-    const copyMenuItem = document.getElementById("menu_copy");
-
-    EventUtils.synthesizeMouseAtCenter(editMenu, {});
-    await BrowserTestUtils.waitForPopupEvent(editMenu, "shown");
-
-    Assert.ok(!copyMenuItem.disabled);
-    editMenu.menupopup.activateItem(copyMenuItem);
-    await BrowserTestUtils.waitForPopupEvent(editMenu, "hidden");
-  }
-  copiedVCard = await TestUtils.waitForCondition(
-    () => SpecialPowers.getClipboardData("text/vcard"),
-    "waiting for text/vcard data on the clipboard"
-  );
+  copiedVCard = await copyByKeyboard("text/vcard");
   if (!copiedVCard.includes("\r")) {
     info("the copied text/vcard data had '\\r' characters stripped");
     copiedVCard = copiedVCard.replaceAll("\n", "\r\n");
@@ -1361,7 +1332,7 @@ add_task(async function test_copy() {
   }
   Assert.equal(copiedPlain, copiedVCard);
 
-  // Test copying with Ctrl+C or ⌘+C.
+  // Test copying multiple cards with Ctrl+C or ⌘+C.
 
   cardsList.selectedIndices = [0, 1];
   Assert.ok(
@@ -1369,14 +1340,7 @@ add_task(async function test_copy() {
     "cmd_copy should be enabled with multiple cards selected"
   );
 
-  SpecialPowers.cleanupAllClipboard();
-  await TestUtils.waitForTick();
-
-  EventUtils.synthesizeKey("c", { accelKey: true }, abWindow);
-  copiedVCard = await TestUtils.waitForCondition(
-    () => SpecialPowers.getClipboardData("text/vcard"),
-    "waiting for text/vcard data on the clipboard"
-  );
+  copiedVCard = await copyByKeyboard("text/vcard");
   if (!copiedVCard.includes("\r")) {
     info("the copied text/vcard data had '\\r' characters stripped");
     copiedVCard = copiedVCard.replaceAll("\n", "\r\n");

@@ -573,3 +573,55 @@ function formatVCard(strings, ...values) {
   }
   return outLines.join("");
 }
+
+/**
+ * Open the Edit menu and activate the Copy item. But not on Mac, where we
+ * can't access the menu programmatically. Just run cmd_copy there. Then wait
+ * for the clipboard to contain data of the type we expect.
+ *
+ * @param {string} [expectedType="text/plain"]
+ * @returns {*}
+ */
+async function copyByEditMenu(expectedType = "text/plain") {
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  if (AppConstants.platform == "macosx") {
+    window.goDoCommand("cmd_copy");
+  } else {
+    document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+    const editMenu = document.getElementById("menu_Edit");
+    const copyMenuItem = document.getElementById("menu_copy");
+
+    EventUtils.synthesizeMouseAtCenter(editMenu, {});
+    await BrowserTestUtils.waitForPopupEvent(editMenu, "shown");
+
+    Assert.ok(!copyMenuItem.disabled);
+    editMenu.menupopup.activateItem(copyMenuItem);
+    await BrowserTestUtils.waitForPopupEvent(editMenu, "hidden");
+  }
+
+  return await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData(expectedType),
+    `waiting for ${expectedType} data on the clipboard`
+  );
+}
+
+/**
+ * Press Ctrl+C or ⌘+C. Then wait for the clipboard to contain data of the
+ * type we expect.
+ *
+ * @param {string} [expectedType="text/plain"]
+ * @returns {*}
+ */
+async function copyByKeyboard(expectedType = "text/plain") {
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  EventUtils.synthesizeKey("c", { accelKey: true }, getAddressBookWindow());
+  return await TestUtils.waitForCondition(
+    () => SpecialPowers.getClipboardData(expectedType),
+    `waiting for ${expectedType} data on the clipboard`
+  );
+}

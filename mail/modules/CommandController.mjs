@@ -11,6 +11,7 @@
 const commandController = {
   _callbackCommands: {},
   _isCallbackEnabled: {},
+  _supportsCallback: {},
 
   /**
    * Add a new command available in the current tab.
@@ -18,17 +19,29 @@ const commandController = {
    * @param {string} commandName - Name of the command to register
    * @param {Function} callback - Callback to execute when the command is
    *   triggered.
-   * @param {boolean|() => boolean} [isEnabled = true] - Callback (or boolean)
+   * @param {boolean|() => boolean} [isEnabled=true] - Callback (or boolean)
    *   whether the command is enabled.
+   * @param {boolean|() => boolean} [supported=true] - Callback (or boolean)
+   *   whether the command is supported. It can be useful to say a command
+   *   isn't supported if there are other command controllers that handle the
+   *   same command, the command should be sent to them some of the time, and
+   *   returning false from `isCommandEnabled` isn't enough (e.g. cmd_copy).
    */
-  registerCallback(commandName, callback, isEnabled = true) {
+  registerCallback(commandName, callback, isEnabled = true, supported = true) {
     this._callbackCommands[commandName] = callback;
     this._isCallbackEnabled[commandName] = isEnabled;
+    this._supportsCallback[commandName] = supported;
     window.browsingContext.topChromeWindow.goUpdateCommand(commandName);
   },
 
   supportsCommand(command) {
-    return command in this._callbackCommands;
+    const type = typeof this._supportsCallback[command];
+    if (type == "function") {
+      return this._supportsCallback[command]();
+    } else if (type == "boolean") {
+      return this._supportsCallback[command];
+    }
+    return false;
   },
   isCommandEnabled(command) {
     const type = typeof this._isCallbackEnabled[command];

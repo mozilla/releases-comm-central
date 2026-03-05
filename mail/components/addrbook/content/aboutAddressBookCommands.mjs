@@ -71,15 +71,15 @@ commandController.registerCallback(
     cardsPane.copySelected();
   },
   () => {
-    if (
-      !cardsPane?.cardsList ||
-      document.activeElement != cardsPane.cardsList.table.body
-    ) {
-      return false;
-    }
     const selectedCards = cardsPane.selectedCards;
     return (
       selectedCards?.length && selectedCards.every(card => !card.isMailList)
+    );
+  },
+  () => {
+    return (
+      cardsPane?.cardsList &&
+      document.activeElement == cardsPane.cardsList.table.body
     );
   }
 );

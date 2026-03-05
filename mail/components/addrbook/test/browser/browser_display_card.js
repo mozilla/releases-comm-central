@@ -134,7 +134,7 @@ add_task(async function testDisplay() {
   Assert.ok(BrowserTestUtils.isHidden(otherInfoSection));
   Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
-  // Card 1: an basic card.
+  // Card 1: a basic card.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
   await TestUtils.waitForCondition(() =>
@@ -144,6 +144,23 @@ add_task(async function testDisplay() {
   // Header.
   Assert.equal(viewContactName.textContent, "basic person");
   Assert.equal(viewPrimaryEmail.textContent, "basic@invalid");
+
+  // Test copying of display pane contents.
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  cardsList.table.body.blur();
+  const selection = abDocument.getSelection();
+  selection.selectAllChildren(viewContactName);
+  const copiedName = await copyByEditMenu();
+  Assert.equal(copiedName, "basic person");
+
+  SpecialPowers.cleanupAllClipboard();
+  await TestUtils.waitForTick();
+
+  selection.selectAllChildren(viewPrimaryEmail);
+  const copiedEmail = await copyByKeyboard();
+  Assert.equal(copiedEmail, "basic@invalid");
 
   // Action buttons.
   await checkActionButtons("basic@invalid", "basic person");
@@ -173,7 +190,7 @@ add_task(async function testDisplay() {
   Assert.ok(BrowserTestUtils.isHidden(otherInfoSection));
   Assert.ok(BrowserTestUtils.isHidden(selectedCardsSection));
 
-  // Card 2: an complex card.
+  // Card 2: a complex card.
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
   await TestUtils.waitForCondition(() =>
