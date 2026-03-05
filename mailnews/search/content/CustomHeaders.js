@@ -112,7 +112,7 @@ async function onAddHeader() {
   }
 
   gHeaderInputElement.value = "";
-  if (!newHdr || customHeaderOverflow()) {
+  if (!newHdr || (await customHeaderOverflow())) {
     return;
   }
   if (!duplicateHdrExists(newHdr)) {

@@ -302,6 +302,139 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
 });
 
 /**
+ * Tests that elements can be added to the list of custom headers.
+ *
+ * This test is a bit complex and involves a bunch of callbacks, so here's a
+ * summary of what it does:
+ *
+ *  - it opens the message filters dialog,
+ *  - then it opens the filter editor dialog by clicking on the "New" button
+ *  - while the filter editor dialog is open, `filter_editor_callback` is run
+ *  - `filter_editor_callback` opens the custom headers dialog by selecting the
+ *    relevant option in the search attributes drop-down
+ *  - while the custom headers dialog is open, `custom_headers_callback` is run
+ *  - `custom_headers_callback` tests that it can add a new header to the list
+ *    in that dialog
+ *  - then the dialogs are closed one after the other, and everyone's happy
+ */
+add_task(async function test_custom_headers_can_be_added() {
+  const customHeaderName = "X-Foo";
+
+  const filtersDialog = await openFiltersDialogs();
+
+  /**
+   * The callback run when opening the custom headers dialog.
+   *
+   * @param {window} win - The window object for the custom headers dialog.
+   */
+  async function custom_headers_callback(win) {
+    info("Opening custom headers dialog");
+
+    // Make sure the window has loaded and has focus.
+    await SimpleTest.promiseFocus(win);
+
+    // Write the header's name in the input field. The "Add" button has some
+    // logic that relies on input events being sent to enable/disable it, so
+    // it's better to simulate the user typing the name rather than setting the
+    // `value` attribute directly.
+    const input = win.document.getElementById("headerInput");
+    EventUtils.synthesizeMouseAtCenter(input, {}, win);
+    for (const c of customHeaderName) {
+      await BrowserTestUtils.synthesizeKey(c, {}, win.browsingContext);
+    }
+
+    // After we click on the "Add" button, the custom headers list (which is
+    // currently empty) shouldn't be empty anymore.
+    const listPromise = TestUtils.waitForCondition(() => {
+      const headers = win.document
+        .getElementById("headerList")
+        .getElementsByTagName("richlistitem");
+      return headers.length != 0;
+    }, "the header list should not stay empty");
+
+    const button = win.document.getElementById("addButton");
+    EventUtils.synthesizeMouseAtCenter(button, {}, win);
+    await listPromise;
+
+    // Check the new length and content of the list.
+    const headers = win.document
+      .getElementById("headerList")
+      .getElementsByTagName("richlistitem");
+
+    Assert.equal(headers.length, 1, "the header list should have 1 item");
+
+    const headerLabel = headers[0].getElementsByTagName("label")[0];
+
+    Assert.equal(
+      headerLabel.getAttribute("value"),
+      customHeaderName,
+      "the custom header should have the correct name"
+    );
+
+    info("Closing custom headers dialog");
+    win.close();
+  }
+
+  /**
+   * The callback run when opening the filter editor dialog.
+   *
+   * @param {window} win - The window object for the filter editor dialog.
+   */
+  async function filter_editor_callback(win) {
+    info("Opening filter editor dialog");
+
+    // Make sure the window has loaded and has focus.
+    await SimpleTest.promiseFocus(win);
+
+    const menu = win.document
+      .getElementById("searchAttr0")
+      .getElementsByTagName("menulist")[0];
+
+    EventUtils.synthesizeMouseAtCenter(menu, {}, win);
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+    const customizeOption = win.document.querySelector(
+      `#searchAttr0 menuitem[value="${Ci.nsMsgSearchAttrib.OtherHeader}"]`
+    );
+
+    // The custom headers dialog opens upon clicking the "Customize" option in
+    // the search attributes drop-down.
+    const customHeadersDialogPromise = BrowserTestUtils.promiseAlertDialog(
+      null,
+      "chrome://messenger/content/CustomHeaders.xhtml",
+      {
+        callback: custom_headers_callback,
+      }
+    );
+    EventUtils.synthesizeMouseAtCenter(customizeOption, {}, win);
+    await customHeadersDialogPromise;
+
+    // Ensure the window is in focus, otherwise we won't be able to close it.
+    await SimpleTest.promiseFocus(win);
+
+    info("Closing filter editor dialog");
+    win.close();
+  }
+
+  // Open the filter editor.
+  const filterEditorDialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/FilterEditor.xhtml",
+    {
+      callback: filter_editor_callback,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    filtersDialog.document.getElementById("newButton"),
+    {},
+    filtersDialog
+  );
+  await filterEditorDialogPromise;
+
+  await BrowserTestUtils.closeWindow(filtersDialog);
+});
+
+/**
  * Test that if the user has started running a filter, and the
  * "quit-application-requested" notification is fired, the user
  * is given a dialog asking whether or not to quit.
