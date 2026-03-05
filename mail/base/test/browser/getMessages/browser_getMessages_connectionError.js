@@ -153,10 +153,8 @@ add_task(async function testConnectionRefused() {
     );
     await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "hidden");
 
-    const alert = await TestUtils.waitForCondition(
-      () => MockAlertsService.alert,
-      "waiting for connection alert to show"
-    );
+    await MockAlertsService.promiseShown();
+    const alert = MockAlertsService.alert;
 
     Assert.equal(
       alert.imageURL,
