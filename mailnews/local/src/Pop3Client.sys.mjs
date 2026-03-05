@@ -65,7 +65,6 @@ export class Pop3Client {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
     this._server.wrappedJSObject.runningClient = this;
     this._authenticator = new Pop3Authenticator(server);
-    this._lineReader = new LineReader();
     this._noopRespPending = false;
 
     // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
@@ -143,6 +142,12 @@ export class Pop3Client {
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
       .SetUrlState(true, Cr.NS_OK);
     this._server.serverBusy = true;
+
+    // Instantiate a fresh LineReader and reset NOOP state to guarantee no
+    // pollution from previous dropped connections.
+    this._lineReader = new LineReader();
+    this._noopRespPending = false;
+
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
     this._socket = new TCPSocket(hostname, this._server.port, {
       binaryType: "arraybuffer",
@@ -461,7 +466,13 @@ export class Pop3Client {
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._actionAuthResponse({ success: false });
+    } else if (!this._done) {
+      this._logger.warn(
+        "The connection closed unexpectedly while a command was active."
+      );
+      this._actionDone(Cr.NS_ERROR_NET_INTERRUPT);
     } else {
+      // Connection closed cleanly after QUIT.
       this._actionDone();
     }
   };
