@@ -6,10 +6,6 @@
   min-block-size: 30px;
 }
 
-#applyFiltersSettings {
-  min-block-size: 150px;
-}
-
 #searchTermListBox {
   flex: 1 1 auto;
   min-block-size: 100px;
