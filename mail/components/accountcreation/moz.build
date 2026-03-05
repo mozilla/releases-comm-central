@@ -17,7 +17,6 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/FetchConfig.sys.mjs",
     "modules/FetchHTTP.sys.mjs",
     "modules/FindConfig.sys.mjs",
-    "modules/FirstRun.sys.mjs",
     "modules/GuessConfig.sys.mjs",
     "modules/LDAPDirectoryUtils.sys.mjs",
     "modules/readFromXML.sys.mjs",
