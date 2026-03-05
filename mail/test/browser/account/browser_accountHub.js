@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { _setReturnValue } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/FirstRun.sys.mjs"
+);
+
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
@@ -450,6 +454,74 @@ add_task(async function test_cancel_finding_config() {
   await backHiddenPromise;
   Assert.ok(!footer.disabled, "The footer should be re-enabled.");
   await subtest_close_account_hub_dialog(dialog, emailTemplate);
+});
+
+add_task(async function test_account_hub_first_run() {
+  _setReturnValue(true);
+
+  await window.openAccountHub();
+
+  const hub = document.querySelector("account-hub-container");
+  await BrowserTestUtils.waitForMutationCondition(
+    hub,
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
+  );
+
+  const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
+  Assert.ok(dialog, "The dialog element should be created");
+  Assert.ok(
+    dialog.classList.contains("account-hub-first-run"),
+    "Should have the first run class"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    true,
+    "Should have first run correctly set"
+  );
+
+  _setReturnValue(false);
+
+  Assert.ok(
+    dialog.classList.contains("account-hub-first-run"),
+    "Should still have have the first run class after update before reopening"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    true,
+    "Should still have first run true after update before reopening"
+  );
+
+  let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
+
+  await window.openAccountHub();
+
+  Assert.ok(dialog, "The dialog element should be created");
+  Assert.ok(
+    !dialog.classList.contains("account-hub-first-run"),
+    "Should not have the first run class"
+  );
+  Assert.equal(
+    window.AccountHubController.isFirstRun,
+    false,
+    "Should have first run correctly set after reopen"
+  );
+
+  closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeMouseAtCenter(
+    dialog
+      .querySelector("email-auto-form")
+      .shadowRoot.querySelector("account-hub-header")
+      .shadowRoot.querySelector("#closeButton"),
+    {}
+  );
+  await closeEvent;
+  Assert.ok(
+    !dialog.open,
+    "The dialog element should close when clicking on the close button"
+  );
 });
 
 add_task(async function test_account_enter_password_imap_account() {
