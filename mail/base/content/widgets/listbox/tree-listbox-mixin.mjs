@@ -71,11 +71,11 @@ export const TreeListboxMixin = Base =>
     }
 
     /**
-     * The map of the currently selected rows.
+     * The set of the currently selected rows.
      *
-     * @type {Map<integer, HTMLLIElement>}
+     * @type {Set<HTMLLIElement>}
      */
-    #selection = new Map();
+    #selection = new Set();
 
     get selection() {
       return this.#selection;
@@ -307,7 +307,7 @@ export const TreeListboxMixin = Base =>
         }
         case "Escape":
           if (this.#selection.size > 1) {
-            this.updateSelection([...this.#selection.values()].at(0));
+            this.updateSelection([...this.#selection].at(-1));
           }
           break;
         default:
@@ -331,10 +331,7 @@ export const TreeListboxMixin = Base =>
       // No need to do anything if the context menu was triggered from the
       // currently active row or from a row that is not part of the current
       // selection.
-      if (
-        this.selectedRow == row ||
-        !this.#selection.has(this.rows.indexOf(row))
-      ) {
+      if (this.selectedRow == row || !this.#selection.has(row)) {
         return;
       }
 
@@ -394,6 +391,14 @@ export const TreeListboxMixin = Base =>
       const oldRowsData = this._rowsData;
       this.domChanged();
       this._initRows();
+
+      // Pruning: Remove any selected elements that are no longer in the DOM tree.
+      for (const selectedNode of this.#selection) {
+        if (!this.contains(selectedNode)) {
+          this.#selection.delete(selectedNode);
+        }
+      }
+
       let newRows = this.rows;
       if (!newRows.length) {
         this.updateSelection(null);
@@ -557,7 +562,7 @@ export const TreeListboxMixin = Base =>
 
       // Cache the previous selected index in case we need it for SHIFT range
       // selections.
-      const previousIndex = this.selectedIndex;
+      const previousRow = this.selectedRow;
       this.selectedRow = row;
       // The row is null, bail out and update the tree classes.
       if (!row) {
@@ -565,13 +570,11 @@ export const TreeListboxMixin = Base =>
         return;
       }
 
-      const index = this.rows.indexOf(row);
-
       // Simply clear the selection and only add this single row if the widget
       // doesn't implement multiselection.
       if (!this.isMultiselect || !event) {
         this.#selection.clear();
-        this.#selection.set(index, row);
+        this.#selection.add(row);
         this.updateRowClasses();
         return;
       }
@@ -579,7 +582,7 @@ export const TreeListboxMixin = Base =>
       // If the selection is currently empty, ignore any modifier and simply add
       // the newly selected row.
       if (!this.#selection.size) {
-        this.#selection.set(index, row);
+        this.#selection.add(row);
         this.updateRowClasses();
         return;
       }
@@ -590,12 +593,12 @@ export const TreeListboxMixin = Base =>
       // Only select one row in the array if no modifier is used.
       if (!event.shiftKey && !accelKey) {
         // No need to do anything if the user selected the same row.
-        if (this.#selection.has(index) && this.#selection.size == 1) {
+        if (this.#selection.size == 1 && this.#selection.has(row)) {
           return;
         }
 
         this.#selection.clear();
-        this.#selection.set(index, row);
+        this.#selection.add(row);
         this.updateRowClasses();
         return;
       }
@@ -606,7 +609,7 @@ export const TreeListboxMixin = Base =>
         // even if using a modifier key as we don't allow deselecting all rows.
         if (
           this.#selection.size == 1 &&
-          this.#selection.has(index) &&
+          this.#selection.has(row) &&
           event?.type == "click"
         ) {
           return;
@@ -616,39 +619,30 @@ export const TreeListboxMixin = Base =>
         // multiple rows selected and the event is a click.
         if (
           this.#selection.size > 1 &&
-          this.#selection.has(index) &&
+          this.#selection.has(row) &&
           event?.type == "click"
         ) {
-          this.#selection.delete(index);
+          this.#selection.delete(row);
           this.updateRowClasses();
           return;
         }
 
-        this.#selection.set(index, row);
+        this.#selection.add(row);
         this.updateRowClasses();
         return;
       }
 
       // If SHIFT is pressed, we need to handle a range selection.
-      if (event.shiftKey) {
-        if (index > previousIndex) {
-          for (let i = previousIndex; i <= index; i++) {
-            if (this.#selection.has(i)) {
-              continue;
-            }
-            this.#selection.set(i, this.getRowAtIndex(i));
-          }
-          this.updateRowClasses();
-          return;
-        }
+      if (event.shiftKey && previousRow) {
+        const allRows = this.rows; // Get currently visible elements
+        const start = allRows.indexOf(previousRow);
+        const end = allRows.indexOf(row);
 
-        if (index < previousIndex) {
-          for (let i = previousIndex; i >= index; i--) {
-            if (this.#selection.has(i)) {
-              continue;
-            }
-            this.#selection.set(i, this.getRowAtIndex(i));
-          }
+        if (start !== -1 && end !== -1) {
+          const [min, max] = start < end ? [start, end] : [end, start];
+          allRows
+            .slice(min, max + 1)
+            .forEach(oneRow => this.#selection.add(oneRow));
           this.updateRowClasses();
         }
       }
@@ -665,10 +659,7 @@ export const TreeListboxMixin = Base =>
         return;
       }
 
-      for (const row of rows) {
-        const index = this.rows.indexOf(row);
-        this.#selection.set(index, row);
-      }
+      rows.forEach(row => this.#selection.add(row));
 
       this.selectedRow = rows.at(-1);
       this.updateRowClasses();
@@ -694,20 +685,17 @@ export const TreeListboxMixin = Base =>
         return;
       }
 
-      // If we're at this point and we don't have an active index it means that
-      // the user removed the previous active index from the current selection.
-      // Find the last available item ID in the current selection and set the
-      // new active row.
-      if (!this.selectedIndex || !this.#selection.get(this.selectedIndex)) {
-        const index = this._clampIndex([...this.#selection.keys()].at(-1));
-        this.selectedRow = this.getRowAtIndex(index);
+      // If the currently active row is no longer part of the selection,
+      // promote the last item in the selection set to be the new active row.
+      if (!this.selectedRow || !this.#selection.has(this.selectedRow)) {
+        this.selectedRow = [...this.#selection].at(-1) ?? null;
       }
 
-      this.#selection.forEach((row, index) => {
+      this.#selection.forEach(row => {
         row.classList.add("selected");
         row.ariaSelected = "true";
 
-        if (this.selectedIndex == index) {
+        if (this.selectedRow == row) {
           row.classList.add("current");
           this.setAttribute("aria-activedescendant", row.id);
           if (this.isTree) {
@@ -758,8 +746,20 @@ export const TreeListboxMixin = Base =>
         row.classList.contains("children") &&
         !row.classList.contains("collapsed")
       ) {
+        let selectionChanged = false;
+        // Pruning: Remove descendants from the selection Set.
+        for (const selectedNode of this.#selection) {
+          if (row !== selectedNode && row.contains(selectedNode)) {
+            this.#selection.delete(selectedNode);
+            selectionChanged = true;
+          }
+        }
+        // Promotion: If the active focus was inside, move it to the visible
+        // parent.
         if (row.contains(this.selectedRow)) {
-          this.updateSelection(row);
+          this.selectedRow = row;
+          this.#selection.add(row);
+          selectionChanged = true;
         }
         row.classList.add("collapsed");
         if (this.isTree) {
@@ -767,6 +767,9 @@ export const TreeListboxMixin = Base =>
         }
         row.dispatchEvent(new CustomEvent("collapsed", { bubbles: true }));
         this._animateCollapseRow(row);
+        if (selectionChanged) {
+          this.updateRowClasses();
+        }
       }
     }
 

@@ -330,9 +330,9 @@ async function subtestMouse() {
     ]
   );
 
-  // Escape should select the first selected row.
+  // Escape should select the last row the user interacted with.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, content);
-  await checkSelected(0, "row-1");
+  await checkSelected(7, "row-3-1-2");
 
   // Ensure modifier keys don't do anything if multiselection is disabled.
   list.ariaMultiSelectable = false;
@@ -662,7 +662,11 @@ async function subtestExpandCollapse() {
   async function doubleClick(id, expectedChange) {
     info(`double clicking on ${id}`);
     await performChange(id, expectedChange, row =>
-      EventUtils.synthesizeMouseAtCenter(row, { clickCount: 2 }, content)
+      EventUtils.synthesizeMouseAtCenter(
+        row.firstElementChild,
+        { clickCount: 2 },
+        content
+      )
     );
   }
 
@@ -1074,6 +1078,49 @@ async function subtestExpandCollapse() {
   checkRowsAreHidden();
   checkSelected(4, "row-3");
   listener.reset();
+
+  // Test selection persistence when rows shift due to collapse in multi-select
+  // mode.
+
+  list.ariaMultiSelectable = true;
+
+  async function clickRow(id) {
+    info(`clicking on ${id}`);
+    // Use a promise to ensure the event is fully processed before continuing.
+    const selectPromise = new Promise(resolve => {
+      list.addEventListener("select", resolve, { once: true });
+    });
+    EventUtils.synthesizeMouseAtCenter(
+      doc.getElementById(id).firstElementChild,
+      {},
+      content
+    );
+    await selectPromise;
+  }
+
+  // Select row-1
+  await clickRow("row-1");
+  checkSelected(0, "row-1");
+
+  // Collapse row-2
+  await clickTwisty("row-2", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(0, "row-1");
+
+  // Select row-3
+  await clickRow("row-3");
+  checkSelected(2, "row-3");
+
+  // Expand row-2.
+  await clickTwisty("row-2", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Select row-2-1
+  await clickRow("row-2-1");
+  checkSelected(2, "row-2-1");
+
+  list.ariaMultiSelectable = false;
 
   list.removeEventListener("collapsed", listener);
   list.removeEventListener("expanded", listener);
