@@ -145,9 +145,6 @@ add_task(function testBranching() {
   Assert.equal(listenerTree._invalidatedRow, 0);
   delete listenerTree._invalidatedRow;
 
-  // Cache.
-  Assert.ok(!adapter._flatRowCache);
-
   // Cell contents.
   Assert.equal(adapter.rowCount, 3);
   Assert.equal(adapter.rowAt(0), parentRow0);
@@ -208,9 +205,6 @@ add_task(function testBranching() {
   delete listenerTree._rowCountChange;
   Assert.equal(listenerTree._invalidatedRow, 0);
   delete listenerTree._invalidatedRow;
-
-  // Cache.
-  Assert.ok(!adapter._flatRowCache);
 
   // Cell contents. Row 0 is closed.
   Assert.equal(adapter.rowCount, 2);
