@@ -4,8 +4,13 @@
 
 WORK IN PROGRESS
 
-This crate provides a pure state machine implementation of Happy Eyeballs v3
-as specified in [draft-ietf-happy-happyeyeballs-v3-02](https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html).
+This crate provides an implementation of Happy Eyeballs v3 as specified in
+[draft-ietf-happy-happyeyeballs-v3-02](https://www.ietf.org/archive/id/draft-ietf-happy-happyeyeballs-v3-02.html).
+
+It is implemented as a deterministic, pure state machine. The caller drives
+all I/O and timers. Current time is explicitly provided by the caller. The
+state machine itself performs no side effects (e.g. network calls or
+blocking operations).
 
 Happy Eyeballs v3 is an algorithm for improving the performance of dual-stack
 applications by racing IPv4 and IPv6 connections while optimizing for modern
@@ -36,6 +41,6 @@ while let Some(output) = he.process_output(now) {
 he.process_input(Input::DnsResult { id: dns_id.unwrap(), result: dns_result }, Instant::now());
 ```
 
-For complete example usage, see the tests in [`tests/integration.rs`](tests/integration.rs).
+For complete example usage, see the [`tests/`](tests/).
 
 <!-- cargo-rdme end -->

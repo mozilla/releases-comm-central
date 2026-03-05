@@ -27,8 +27,20 @@ name = "happy_eyeballs"
 path = "src/lib.rs"
 
 [[test]]
-name = "integration"
-path = "tests/integration.rs"
+name = "connection_attempts"
+path = "tests/connection_attempts.rs"
+
+[[test]]
+name = "hostname_resolution"
+path = "tests/hostname_resolution.rs"
+
+[[test]]
+name = "https_records"
+path = "tests/https_records.rs"
+
+[[test]]
+name = "network_config"
+path = "tests/network_config.rs"
 
 [dependencies.log]
 version = "0.4"
