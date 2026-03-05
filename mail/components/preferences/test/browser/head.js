@@ -339,6 +339,7 @@ async function promiseSubDialog(
     dialogURL,
     { isSubDialog: true }
   );
+  buttonToClick.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     buttonToClick,
     {},

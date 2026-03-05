@@ -620,11 +620,9 @@ add_task(async function testTagDialog() {
 
   // And remove it.
 
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("removeTagButton"),
-    {},
-    prefsWindow
-  );
+  const removeButton = prefsDocument.getElementById("removeTagButton");
+  removeButton.scrollIntoView({ block: "center", behavior: "instant" });
+  EventUtils.synthesizeMouseAtCenter(removeButton, {}, prefsWindow);
   await new Promise(r => setTimeout(r));
 
   Assert.equal(
