@@ -225,7 +225,7 @@ export class CalendarDialog extends PositionedDialog {
 
     this.#loading = false;
     this.#reload = false;
-    await this.#clearData();
+    this.#clearData();
     await this.#loadCalendarEvent();
 
     return true;
@@ -300,11 +300,11 @@ export class CalendarDialog extends PositionedDialog {
     if (!calendarId || !eventId) {
       // Need to call clearData explicitly here to reset the dialog
       // checkReloadAndReturn only clears if reloading.
-      await this.#clearData();
+      this.#clearData();
+      this.#loading = false;
       if (!(await this.#checkReloadAndReturn())) {
         this.#resolver();
         this.showPromise = null;
-        this.#loading = false;
       }
       return;
     }
@@ -313,7 +313,6 @@ export class CalendarDialog extends PositionedDialog {
     if (!calendar) {
       console.error("No calendar", calendarId);
       this.close();
-
       return;
     }
 
@@ -452,13 +451,13 @@ export class CalendarDialog extends PositionedDialog {
       );
     }
 
-    const plainDescriptionPromise = this.querySelector(
-      "#expandingDescription"
-    ).setDescription(event.descriptionText);
-    const richDescriptionPromise = this.querySelector(
-      "#expandedDescription"
-    ).setDescription(event.descriptionText, event.descriptionHTML);
-    await Promise.allSettled([plainDescriptionPromise, richDescriptionPromise]);
+    this.querySelector("#expandingDescription").setDescription(
+      event.descriptionText
+    );
+    this.querySelector("#expandedDescription").setDescription(
+      event.descriptionText,
+      event.descriptionHTML
+    );
 
     if (await this.#checkReloadAndReturn()) {
       return;
@@ -474,7 +473,7 @@ export class CalendarDialog extends PositionedDialog {
   /**
    * Clear the data displayed in the dialog.
    */
-  async #clearData() {
+  #clearData() {
     this.#subviewManager.showDefaultSubview();
     this.#title.textContent = "";
     this.querySelector(".calendar-name").textContent = "";
@@ -494,8 +493,8 @@ export class CalendarDialog extends PositionedDialog {
     this.querySelector("calendar-dialog-attachments-list").setAttachments([]);
     this.querySelector("#attachmentsRow").hidden = true;
     this.querySelector("calendar-dialog-acceptance").reset();
-    await this.querySelector("#expandingDescription").setDescription("");
-    await this.querySelector("#expandedDescription").setDescription("");
+    this.querySelector("#expandingDescription").setDescription("");
+    this.querySelector("#expandedDescription").setDescription("");
   }
 
   /**

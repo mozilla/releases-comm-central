@@ -20,12 +20,32 @@ ChromeUtils.defineESModuleGetters(lazy, {
  *  a browser, otherwise it is truncated.
  */
 class CalendarDialogDescriptionRow extends HTMLElement {
-  connectedCallback() {
+  /**
+   * If the full or partial description is being shown.
+   *
+   * @type {boolean}
+   */
+  #isFullDescription;
+
+  /**
+   *  The browser used to display the rich description.
+   *
+   * @type {HTMLElement}
+   */
+  #browser;
+
+  /**
+   * Data cache if setDescription is called before we are connected to the DOM.
+   *
+   * @type {[string, string]}
+   */
+  #data;
+
+  async connectedCallback() {
     if (this.hasConnected) {
       return;
     }
 
-    this.hasConnected = true;
     const template = document
       .getElementById("calendarDialogDescriptionRowTemplate")
       .content.cloneNode(true);
@@ -33,12 +53,37 @@ class CalendarDialogDescriptionRow extends HTMLElement {
 
     const row = this.querySelector("calendar-dialog-row");
 
-    const isFullDescription = this.getAttribute("type") === "full";
+    this.#isFullDescription = this.getAttribute("type") === "full";
     row
       .querySelector('[slot="content"]')
-      .classList.toggle("truncated-content", !isFullDescription);
-    row.toggleAttribute("expanded", isFullDescription);
-    row.toggleAttribute("expanding", !isFullDescription);
+      .classList.toggle("truncated-content", !this.#isFullDescription);
+    row.toggleAttribute("expanded", this.#isFullDescription);
+    row.toggleAttribute("expanding", !this.#isFullDescription);
+
+    if (!this.#isFullDescription) {
+      this.hasConnected = true;
+      return;
+    }
+
+    const browser = this.querySelector(".rich-description");
+    // Wait for the browser to load the correct document.
+    while (
+      browser.contentWindow.location.href !==
+        "chrome://messenger/content/eventDescription.html" ||
+      browser.contentDocument.readyState === "loading"
+    ) {
+      await new Promise(resolve =>
+        browser.addEventListener("load", resolve, { once: true, capture: true })
+      );
+    }
+
+    this.#browser = browser;
+    this.hasConnected = true;
+
+    if (this.#data) {
+      this.setDescription(...this.#data);
+      this.#data = null;
+    }
   }
 
   handleEvent(event) {
@@ -58,11 +103,13 @@ class CalendarDialogDescriptionRow extends HTMLElement {
    * @param {string} description
    * @param {string} [descriptionHTML] - The HTML event description.
    */
-  async setDescription(description, descriptionHTML) {
+  setDescription(description, descriptionHTML) {
+    if (!this.hasConnected) {
+      this.#data = [description, descriptionHTML];
+      return;
+    }
     this.querySelector(".plain-text-description").textContent = description;
-
-    if (this.getAttribute("type") !== "full") {
-      this.querySelector("calendar-dialog-row").classList.add("labelless");
+    if (!this.#isFullDescription) {
       this.dispatchEvent(
         new CustomEvent("toggleRowVisibility", {
           bubbles: true,
@@ -74,28 +121,18 @@ class CalendarDialogDescriptionRow extends HTMLElement {
       return;
     }
 
-    const browser = this.querySelector(".rich-description");
-    // Wait for the browser to load the correct document.
-    while (
-      browser.contentWindow.location.href !==
-        "chrome://messenger/content/eventDescription.html" ||
-      browser.contentDocument.readyState === "loading"
-    ) {
-      await new Promise(resolve =>
-        browser.addEventListener("load", resolve, { once: true, capture: true })
-      );
-    }
     if (!description && !descriptionHTML) {
-      browser.contentDocument.body.replaceChildren();
+      this.#browser?.contentDocument.body.replaceChildren();
       return;
     }
+
     const docFragment = lazy.cal.view.textToHtmlDocumentFragment(
       description,
-      browser.contentDocument,
+      this.#browser.contentDocument,
       descriptionHTML
     );
-    browser.contentDocument.body.replaceChildren(docFragment);
-    browser.contentDocument.addEventListener("click", this);
+    this.#browser.contentDocument.addEventListener("click", this);
+    this.#browser.contentDocument.body.replaceChildren(docFragment);
   }
 }
 

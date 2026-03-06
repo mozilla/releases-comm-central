@@ -245,7 +245,9 @@ async function openEvent({ eventBox }) {
 
   const dialog = document.querySelector('[is="calendar-dialog"]');
 
-  await BrowserTestUtils.waitForAttribute("open", dialog);
+  if (!dialog.open) {
+    await BrowserTestUtils.waitForAttribute("open", dialog);
+  }
 
   return eventBox;
 }
