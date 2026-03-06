@@ -1,0 +1,38 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.from_deps
+    - gecko_taskgraph.transforms.mark_as_merged:transforms
+    - gecko_taskgraph.transforms.task:transforms
+
+kind-dependencies:
+    - merge-automation
+
+task-defaults:
+    run-on-repo-type: [hg]
+    description: mark merge automation as completed in shipit
+    worker-type: shipit
+    from-deps:
+        kinds:
+            - merge-automation
+        unique-kinds: false
+        group-by: single
+    worker:
+        implementation: shipit-merged
+    scopes:
+        by-release-level:
+            production:
+                - project:comm:thunderbird:releng:ship-it:server:production
+                - project:comm:thunderbird:releng:ship-it:action:mark-as-merged
+            staging:
+                - project:comm:thunderbird:releng:ship-it:server:staging
+                - project:comm:thunderbird:releng:ship-it:action:mark-as-merged
+    run-on-projects: []
+
+tasks:
+    mark-as-merged:
+        name: mark-as-merged
