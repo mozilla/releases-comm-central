@@ -116,13 +116,13 @@ export function getSql(tblName, tblData, alternateName) {
     const idxOn = idxTbl + "(" + tblData[tblName].join(",") + ")";
     sql = `CREATE INDEX ${altName} ON ${idxOn};`;
   } else {
-    sql = `CREATE TABLE ${altName} (\n`;
+    sql = `CREATE TABLE ${altName} (`;
     for (const [key, type] of Object.entries(tblData[tblName])) {
-      sql += `    ${key} ${type},\n`;
+      sql += `\n    ${key} ${type},`;
     }
   }
 
-  return sql.replace(/,\s*$/, ");");
+  return sql.replace(/,\s*$/, "\n);");
 }
 
 /**
