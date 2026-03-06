@@ -13,6 +13,9 @@ var { MessageListTracker, MessageTracker, MessageManager, TagTracker } =
 var { SpaceTracker } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSpaces.sys.mjs"
 );
+var { ProtectedToolbarButtonTracker } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionToolbarButtons.sys.mjs"
+);
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -1771,4 +1774,9 @@ extensions.on("startup", (type, extension) => {
 
 extensions.on("shutdown", (type, extension) => {
   messageListTracker._contextLists.delete(extension);
+});
+
+const protectedToolbarExtensionTracker = new ProtectedToolbarButtonTracker();
+Object.assign(global, {
+  protectedToolbarExtensionTracker,
 });
