@@ -124,10 +124,13 @@ AccountConfig.prototype = {
       // Override `addThisServer` for a specific incoming server
       useGlobalPreferredServer: false,
 
-      // for Microsoft Exchange servers. Optional.
+      // For Microsoft Exchange servers. Optional.  Bug 2018801 will consolidate
+      // these into a single url distinguished by the server type.
+      url: null,
       owaURL: null,
       exchangeURL: null,
       easURL: null,
+
       // for when an addon overrides the account type. Optional.
       addonAccountType: null,
     };

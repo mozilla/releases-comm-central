@@ -169,7 +169,13 @@ async function fetchConfigFromDB(domain, abortSignal) {
 
   const result = await lazy.fetchHTTP(
     url,
-    { timeout: 10000, signal: abortSignal } // 10 seconds
+    {
+      timeout: 10000,
+      signal: abortSignal,
+      headers: {
+        Accept: "application/xml,text/xml,*/*",
+      },
+    } // 10 seconds
   );
   return lazy.readFromXML(result, "db");
 }

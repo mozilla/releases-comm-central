@@ -132,6 +132,7 @@ add_setup(async () => {
 });
 
 add_task(async function test_exchange_requires_credentials_account_creation() {
+  Services.prefs.setBoolPref("mail.graph.enabled", true);
   const dialog = await subtest_open_account_hub_dialog();
   const emailTemplate = dialog.querySelector("email-auto-form");
   const footerForward = dialog.querySelector("#emailFooter #forward");
@@ -168,6 +169,12 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
     "EWS should be available as config"
   );
 
+  const graphOption = configFoundTemplate.querySelector("#graph");
+  Assert.ok(
+    BrowserTestUtils.isVisible(graphOption),
+    "Graph config should be available."
+  );
+
   EventUtils.synthesizeMouseAtCenter(ewsOption, {});
 
   Assert.equal(
@@ -198,6 +205,8 @@ add_task(async function test_exchange_requires_credentials_account_creation() {
 
   Services.logins.removeAllLogins();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
+
+  Services.prefs.setBoolPref("mail.graph.enabled", false);
 });
 
 add_task(

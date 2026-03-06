@@ -139,6 +139,7 @@ class EmailConfigFound extends AccountHubStep {
       this.querySelector("#pop3"),
       this.querySelector("#exchange"),
       this.querySelector("#ews"),
+      this.querySelector("#graph"),
     ];
 
     const alternatives = this.#currentConfig.incomingAlternatives.map(
@@ -205,7 +206,12 @@ class EmailConfigFound extends AccountHubStep {
     this.#setContinueState();
 
     // Hide outgoing config details if unavailable.
-    if (!outgoing || incoming.type == "ews" || incoming.type == "exchange") {
+    if (
+      !outgoing ||
+      incoming.type == "ews" ||
+      incoming.type == "exchange" ||
+      incoming.type == "graph"
+    ) {
       this.querySelector("#outgoingConfigType").hidden = true;
       this.querySelector("#outgoingConfig").hidden = true;
       document.l10n.setAttributes(

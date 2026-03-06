@@ -10,6 +10,11 @@
       <authentication>plain</authentication>
       <username>%EMAILADDRESS%</username>
     </incomingServer>
+    <incomingServer type="graph">
+      <url>https://graph.exchange.test/v1.0/</url>
+      <username>%EMAILADDRESS%</username>
+      <authentication>plain</authentication>
+    </incomingServer>
     <outgoingServer type="smtp">
       <hostname>localhost</hostname>
       <port>1587</port>

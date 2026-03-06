@@ -155,6 +155,10 @@ account-hub-result-ews-shortname = Exchange
 
 account-hub-result-ews-description = Use Microsoft Exchange Web Services to sync your folders and emails
 
+account-hub-result-graph-shortname = Exchange (Graph)
+
+account-hub-result-graph-description = Use Microsoft Graph API to sync your folders and emails
+
 account-hub-result-exchange-description = Sync folders & emails with Exchange or Office 365
 
 account-hub-result-ews-text = Server

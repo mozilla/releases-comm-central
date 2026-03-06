@@ -75,18 +75,51 @@ export function readFromXML(clientConfigXML, subSource) {
 
   // incoming server
   for (const iX of array_or_undef(xml.$incomingServer)) {
+    const supportedProtocols = [
+      "pop3",
+      "imap",
+      "nntp",
+      "exchange",
+      "ews",
+      "owa",
+    ];
+
+    if (Services.prefs.getBoolPref("mail.graph.enabled")) {
+      supportedProtocols.push("graph");
+    }
+
     // input (XML)
     const iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
-      iO.type = lazy.Sanitizer.enum(iX["@type"], [
-        "pop3",
-        "imap",
-        "nntp",
-        "exchange",
-      ]);
-      iO.hostname = lazy.Sanitizer.hostname(iX.hostname);
-      iO.port = lazy.Sanitizer.integerRange(iX.port, 1, 65535);
+      iO.type = lazy.Sanitizer.enum(iX["@type"], supportedProtocols);
+
+      if ("hostname" in iX) {
+        iO.hostname = lazy.Sanitizer.hostname(iX.hostname);
+      }
+
+      if ("port" in iX) {
+        iO.port = lazy.Sanitizer.integerRange(iX.port, 1, 65535);
+      }
+
+      if ("url" in iX) {
+        try {
+          iO.url = lazy.Sanitizer.url(iX.url);
+
+          const parsedUrl = new URL(iO.url);
+          iO.hostname = lazy.Sanitizer.hostname(parsedUrl.host);
+
+          const protocol = parsedUrl.protocol;
+          if (protocol == "https:") {
+            iO.socketType = Ci.nsMsgSocketType.SSL;
+          } else if (protocol == "http:") {
+            iO.socketType = Ci.nsMsgSocketType.plain;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       // We need a username even for Kerberos, need it even internally.
       iO.username = lazy.Sanitizer.string(iX.username); // may be a %VARIABLE%
 
@@ -124,6 +157,31 @@ export function readFromXML(clientConfigXML, subSource) {
         OAuth2: Ci.nsMsgAuthMethod.OAuth2,
       });
 
+      if (iO.type == "ews") {
+        try {
+          iO.exchangeURL = lazy.Sanitizer.url(iX.url);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      if (iO.type == "owa") {
+        try {
+          iO.owaURL = lazy.Sanitizer.url(iX.url);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      if (iO.type == "graph") {
+        try {
+          iO.exchangeURL = lazy.Sanitizer.url(iX.url);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // Backwards compatibility with the combined exchange element.
       if (iO.type == "exchange") {
         try {
           if ("owaURL" in iX) {
@@ -311,6 +369,11 @@ export function readFromXML(clientConfigXML, subSource) {
 
 function readAuthentication(authenticationValues, hostname, type, mapping) {
   let exception;
+
+  if (!hostname) {
+    throw new Error(`No available hostname for server with type ${type}`);
+  }
+
   for (const authenticationValue of authenticationValues || []) {
     try {
       const authMethod = lazy.Sanitizer.translate(authenticationValue, mapping);
