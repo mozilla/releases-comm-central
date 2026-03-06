@@ -119,14 +119,14 @@
   &:checked {
     & ~ .toggle {
       background-color: var(--color-surface-base);
-      border: 1px solid var(--color-surface-border-intense);
+      border: 1px solid var(--color-text-secondary);
       inset-inline-start: calc(var(--button-space) * 2 + 3px);
     }
     & ~ label[for="notGoing"] {
-      color: var(--color-surface-border-intense);
+      color: var(--color-text-secondary);
 
       & img {
-        --icon-stroke: var(--color-surface-border-intense);
+        --icon-stroke: var(--color-text-secondary);
         display: inline-block;
       }
     }
