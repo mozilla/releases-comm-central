@@ -93,7 +93,12 @@
     }
 
     /**
-     * Sets the current set of items in the toolbar.
+     * Reorders toolbar buttons to match the provided set, moves missing buttons
+     * from the palette onto the toolbar, and removes any removable buttons not
+     * in the new set (returning them to the palette, or removing them if the
+     * palette does not exist). Entries in the new set that do not map to any
+     * existing button are silently ignored and will not appear in subsequent
+     * get currentSet calls.
      *
      * @param {string} val - Comma-separated list of IDs or "__empty".
      * @returns {string} Comma-separated list of IDs or "__empty".
@@ -101,6 +106,12 @@
     set currentSet(val) {
       if (val == this.currentSet) {
         return;
+      }
+
+      // If the customization dialog is open, force it to close first, since
+      // the DOM changes made by this setter would corrupt its state.
+      if (this.toolbox?.customizing) {
+        this.toolbox.dispatchEvent(new CustomEvent("customizationending"));
       }
 
       // Build a cache of items in the toolbarpalette.
@@ -187,6 +198,22 @@
       }
 
       return currentSet.join(",") || "__empty";
+    }
+
+    /**
+     * Removes a button with the given ID from the toolbar and the palette.
+     * If the customization dialog is open, it is force-closed first.
+     *
+     * @param {string} id - The ID of the button to remove.
+     */
+    removeButton(id) {
+      if (this.toolbox?.customizing) {
+        this.toolbox.dispatchEvent(new CustomEvent("customizationending"));
+      }
+
+      document.getElementById(id)?.remove();
+
+      this.toolbox?.palette?.querySelector(`#${id}`)?.remove();
     }
 
     /**

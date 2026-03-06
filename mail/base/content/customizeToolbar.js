@@ -49,6 +49,17 @@ function InitWithToolbox(aToolbox) {
     elts[i].addEventListener("drop", onToolbarDrop, true);
   }
 
+  gToolbox.addEventListener(
+    "customizationending",
+    function () {
+      finishToolbarCustomization();
+      if (!gToolboxSheet) {
+        window.close();
+      }
+    },
+    { once: true }
+  );
+
   initDialog();
 }
 
@@ -133,6 +144,9 @@ function onUnload() {
 }
 
 function finishToolbarCustomization() {
+  if (!gToolbox.customizing) {
+    return;
+  }
   removeToolboxListeners();
   unwrapToolbarItems();
   persistCurrentSets();

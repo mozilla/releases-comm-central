@@ -276,7 +276,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     }
 
     // Get all toolbars which link to or are children of this.toolboxId and check
-    // if the button has been moved to a non-default toolbar.
+    // if the button has been moved to the XUL store currentset of a non-default
+    // toolbar.
     const toolbars = window.document.querySelectorAll(
       `#${this.toolboxId} toolbar, toolbar[toolboxid="${this.toolboxId}"]`
     );
@@ -293,11 +294,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
 
     const toolbar = document.getElementById(this.toolbarId);
     const button = this.makeButton(window);
-    if (toolbox.palette) {
-      toolbox.palette.appendChild(button);
-    } else {
-      toolbar.appendChild(button);
-    }
+    toolbox.palette.appendChild(button);
 
     // Handle the special case where this toolbar does not yet have a currentset
     // defined.
@@ -314,8 +311,12 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       );
     }
 
-    // Add new buttons to currentset: If the extensionset does not include the
-    // button, it is a new one which needs to be added.
+    // Add new buttons to the XUL store currentset: If the extensionset does not
+    // include the button, it is a new one which needs to be added.
+    // Note: Customizing a toolbar, where we keep track of an extension button
+    //       in the XUL store, which is disabled (no button!), the customization
+    //       dialog will remove that info from the XUL store. Since it is still
+    //       in the extensionset, it will not be added on enable.
     const extensionSet = Services.xulStore
       .getValue(windowURL, this.toolbarId, "extensionset")
       .split(",")
@@ -429,9 +430,14 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       document.removeEventListener("popupshowing", this);
     }
 
-    const button = document.getElementById(this.id);
-    if (button) {
-      button.remove();
+    const toolbar = document.getElementById(this.toolbarId);
+    if (toolbar.hasAttribute("customizable")) {
+      toolbar.removeButton(this.id);
+    } else {
+      const button = document.getElementById(this.id);
+      if (button) {
+        button.remove();
+      }
     }
   }
 
