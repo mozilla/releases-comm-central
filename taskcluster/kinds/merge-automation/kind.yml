@@ -21,7 +21,6 @@ tasks:
             platform: thunderbird-release/opt
         description: Merge repositories for release management.
         worker-type: tree
-        scopes: []
         worker:
             implementation: treescript
             tags: []
@@ -174,3 +173,24 @@ tasks:
                     default: null
         run-on-projects: []
         expiration-policy: long
+        routes:
+            by-level:
+                '3':
+                    # # Thunderbird Drivers
+                    - "notify.matrix-room.!xPTYfLywxFMryjbnJl:mozilla.org.on-pending"
+                    - "notify.matrix-room.!xPTYfLywxFMryjbnJl:mozilla.org.on-resolved"
+                default:
+                    # # Thunderbird Drivers
+                    - "notify.matrix-room.!xPTYfLywxFMryjbnJl:mozilla.org.on-pending"
+                    - "notify.matrix-room.!xPTYfLywxFMryjbnJl:mozilla.org.on-resolved"
+        scopes:
+            - "queue:route:notify.matrix-room.*"
+        extra:
+            notify:
+                matrixBody:
+                    $let:
+                        dry_run:
+                            $if: "'dry_run' in task.payload && task.payload.dry_run"
+                            then: " (dry run)"
+                            else: ""
+                    in: "merge-automation task ${task.metadata.name}${dry_run} is now ${status.state}: https://firefox-ci-tc.services.mozilla.com/tasks/${taskId}"
