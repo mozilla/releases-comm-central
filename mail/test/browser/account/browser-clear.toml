@@ -19,6 +19,7 @@ prefs = [
 subsuite = "thunderbird"
 
 ["browser_accountSetupTab.js"]
+disabled = "Will be removed in bug 2020400"
 
 ["browser_outgoingServer.js"]
 

@@ -200,7 +200,7 @@ async function MsgAccountManager(selectPage, server) {
 }
 
 /**
- * Open the Account Setup Tab or focus it if it's already open.
+ * Open the Account Hub dialog.
  *
  * @param {boolean} [isInitialSetup] - If this call is for the initial account
  *   setup.
@@ -209,32 +209,14 @@ function openAccountSetup(isInitialSetup = false) {
   const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   mail3Pane.focus();
 
-  // Only show the Account Hub if this is not the initial setup.
+  // TODO: Update logic so account hub opens on initial setup too
+  // (Bug 1968073).
   if (
     !isInitialSetup &&
     Services.prefs.getBoolPref("mail.accounthub.enabled", false)
   ) {
     mail3Pane.openAccountHub();
-    return;
   }
-
-  const tabmail = mail3Pane.document.getElementById("tabmail");
-
-  // Switch to the account setup tab if it's already open.
-  for (const tabInfo of tabmail.tabInfo) {
-    const tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab?.urlbar?.value == "about:accountsetup") {
-      const accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
-      // Reset the entire UI only if the previously opened setup was completed.
-      if (accountSetup._currentModename == "success") {
-        accountSetup.resetSetup();
-      }
-      tabmail.switchToTab(tabInfo);
-      return;
-    }
-  }
-
-  tabmail.openTab("contentTab", { url: "about:accountsetup" });
 }
 
 /**

@@ -118,6 +118,7 @@ tags = ["archive"]
 ["browser_imAccountSettings.js"]
 
 ["browser_mailAccountSetupWizard.js"]
+disabled = "Will be removed in bug 2020400"
 
 ["browser_manageIdentities.js"]
 
@@ -130,6 +131,7 @@ skip-if = [
 ]
 
 ["browser_retestConfig.js"]
+disabled = "Will be removed in bug 2020400"
 
 ["browser_settingsInfrastructure.js"]
 
