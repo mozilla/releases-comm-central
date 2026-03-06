@@ -25,7 +25,7 @@ const emailUser = {
   email: USER,
   password: PASSWORD,
 };
-const AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
+let AUTODISCOVER_RESPONSE = `<?xml version="1.0" encoding="utf-8"?>
 <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
   <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
     <Account>
@@ -216,7 +216,7 @@ add_task(async function test_cancel_credentials_confirmation() {
   Assert.equal(
     username.textContent,
     emailUser.email,
-    "The username should be email inputted"
+    "The username should be the username returned from autodiscovery"
   );
   Assert.equal(
     socketType.textContent,
@@ -260,7 +260,7 @@ add_task(async function test_credentials_confirmation() {
   Assert.equal(
     username.textContent,
     emailUser.email,
-    "The username should be email inputted"
+    "The username should be the username returned from autodiscovery"
   );
   Assert.equal(
     socketType.textContent,
@@ -310,7 +310,83 @@ add_task(async function test_credentials_confirmation() {
 
   redirectAccepted = false;
   Services.logins.removeAllLogins();
+  dialog.querySelector("account-hub-email").resetRedirectAccepted();
   await subtest_close_account_hub_dialog(dialog, configFoundTemplate);
+});
+
+add_task(async function test_credentials_confirmation_to_manual_config() {
+  const dialog = await subtest_open_account_hub_dialog();
+  const emailTemplate = dialog.querySelector("email-auto-form");
+  const footerForward = dialog.querySelector("#emailFooter #forward");
+  const footerBack = dialog.querySelector("#emailFooter #back");
+  const autodiscoverResonse = AUTODISCOVER_RESPONSE;
+  AUTODISCOVER_RESPONSE = "";
+
+  await fillUserInformation(emailTemplate);
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
+
+  // Click continue and wait for credentials confirmation step to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Expecting credentials confirmation prompt");
+  const confirmationStep = dialog.querySelector(
+    "email-credentials-confirmation"
+  );
+
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", confirmationStep);
+  const hostname = confirmationStep.querySelector("#hostname");
+  const username = confirmationStep.querySelector("#username");
+  const socketType = confirmationStep.querySelector("#socketType");
+  Assert.equal(
+    hostname.textContent,
+    "dav.test",
+    "The hostname should be the redirect hostname"
+  );
+  Assert.equal(
+    username.textContent,
+    emailUser.email,
+    "The username should be the username returned from autodiscovery"
+  );
+  Assert.equal(
+    socketType.textContent,
+    "SSL/TLS",
+    "The socket type should be set to secure"
+  );
+
+  // Clicking continue should lead to the manual config step.
+  redirectAccepted = true;
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+
+  const incomingConfigStep = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", incomingConfigStep);
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingHostname").value,
+    ".exchange.test",
+    "The incoming hostname should be the domain with a period at the beginning"
+  );
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingAuthMethod").value,
+    "0",
+    "The auth method should be Autodetect"
+  );
+  Assert.equal(
+    incomingConfigStep.querySelector("#incomingUsername").value,
+    "testExchange@exchange.test",
+    "The username input should have the email that was submitted"
+  );
+
+  // Going back to the first step and repeating should lead directly to the
+  // manual config step.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", emailTemplate);
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  info("Going to the incoming manual config step");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", incomingConfigStep);
+
+  redirectAccepted = false;
+  await subtest_close_account_hub_dialog(dialog, incomingConfigStep);
+  AUTODISCOVER_RESPONSE = autodiscoverResonse;
 });
 
 /**

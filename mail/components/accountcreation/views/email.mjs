@@ -799,23 +799,14 @@ class AccountHubEmail extends HTMLElement {
           this.#realName = stateData.realName;
 
           let config = await this.#findConfig();
-          this.#stopLoading();
-
-          // If the config is null, the guessConfig couldn't find anything so
-          // move to the manual config form to get them to fill in details,
-          // or move forward to the next step.
-          if (!config) {
-            this.#currentConfig = null;
-            await this.#initFallbackConfigView(currentState);
-            break;
-          }
 
           // If the autodiscovery requires confirmation to submit credentials,
           // we show the subview to confirm credentials submission.
-          if (config.isRedirect) {
+          if (config?.isRedirect) {
             if (this.#redirectAccepted[this.#email] == config.host) {
               config = await this.#findConfig({ acceptRedirect: true });
             } else {
+              this.#stopLoading();
               await this.#initUI("emailCredentialsConfirmationSubview");
               this.#currentSubview.setState({
                 host: config.host,
@@ -830,6 +821,17 @@ class AccountHubEmail extends HTMLElement {
               });
               break;
             }
+          }
+
+          this.#stopLoading();
+
+          // If the config is null, the guessConfig couldn't find anything so
+          // move to the manual config form to get them to fill in details,
+          // or move forward to the next step.
+          if (!config) {
+            this.#currentConfig = null;
+            await this.#initFallbackConfigView(currentState);
+            break;
           }
 
           this.#abortController = null;
@@ -1873,6 +1875,13 @@ class AccountHubEmail extends HTMLElement {
       fluentTitleId: configFoundString,
       type: "success",
     });
+  }
+
+  /**
+   * Resets the #redirectAccepted object for testing purposes.
+   */
+  resetRedirectAccepted() {
+    this.#redirectAccepted = {};
   }
 
   /**
