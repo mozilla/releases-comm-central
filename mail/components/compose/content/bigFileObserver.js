@@ -123,7 +123,7 @@ var gBigFileObserver = {
       if (bigFileNotification) {
         document.l10n.setAttributes(
           bigFileNotification,
-          "big-file-notification",
+          "big-file-notification-text",
           { count: this.bigFiles.length }
         );
         return;
@@ -151,7 +151,7 @@ var gBigFileObserver = {
           "bigAttachment",
           {
             label: {
-              "l10n-id": "big-file-notification",
+              "l10n-id": "big-file-notification-text",
               "l10n-args": { count: this.bigFiles.length },
             },
             priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
