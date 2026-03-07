@@ -548,7 +548,12 @@ add_task(async function testPropertiesSettingsFilters() {
     "about:accountsettings",
     "should show accountsettings"
   );
-  await new Promise(resolve => setTimeout(resolve));
+  await TestUtils.waitForCondition(
+    () =>
+      browser.contentDocument.querySelector("#accounttree li.selected").id ==
+      account.key,
+    `account with key=${account.key} should get selected`
+  );
   Assert.equal(
     browser.contentDocument.querySelector("#accounttree li.selected").id,
     account.key,
