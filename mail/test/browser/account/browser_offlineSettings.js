@@ -23,6 +23,13 @@ let imapAccount, imapRootFolder;
 let ewsAccount, ewsRootFolder;
 
 add_setup(async () => {
+  // Disable AutoSync so toggling offline flags doesn't trigger background
+  // download timers that leak past the end of the test.
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
+
   // Set up servers.
 
   const imapServer = await ServerTestUtils.createServer({ type: "imap" });
@@ -128,6 +135,7 @@ add_setup(async () => {
     MailServices.accounts.removeAccount(nntpAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
+    Services.prefs.clearUserPref("mail.server.default.autosync_offline_stores");
     tabmail.closeOtherTabs(0);
   });
 });
