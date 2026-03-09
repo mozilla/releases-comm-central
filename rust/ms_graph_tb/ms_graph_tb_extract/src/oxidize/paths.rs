@@ -56,7 +56,8 @@ impl ToTokens for Path {
                 let response = operation_response(operation);
                 match method {
                     Method::Get => Some(http_get(&mut imports, template_expressions.idents.clone(), description, operation, response)),
-                    Method::Patch => Some(http_patch(template_expressions.idents.clone(), description, operation, response)),
+                    Method::Patch => Some(http_with_body(Method::Patch, &mut imports, template_expressions.idents.clone(), description, operation, response)),
+                    Method::Post => Some(http_with_body(Method::Post, &mut imports, template_expressions.idents.clone(), description, operation, response)),
                     _ => {
                         eprintln!("skipping unsupported method: {method}");
                         None
@@ -154,17 +155,19 @@ fn http_get(
     }
 }
 
-fn http_patch(
+fn http_with_body(
+    method: Method,
+    imports: &mut Vec<Property>,
     template_expressions: Vec<Ident>,
     description: Option<TokenStream>,
     operation: &Operation,
     response: TokenStream,
 ) -> RequestDef {
-    let method = Method::Patch;
     let op_body = operation
         .body
         .clone()
         .expect("Patch operations should have a body");
+    imports.push(op_body.property.clone());
     let mut body = op_body.property.rust_type.base_token(false, Reference::Own);
     let body_lifetime = Some(quote!(<'body>));
     if op_body.property.is_ref {
@@ -174,14 +177,14 @@ fn http_patch(
         description,
         method,
         lifetime: body_lifetime.clone(),
-        body_line: Some(quote!(body: #body,)),
+        body_line: Some(quote!(body: OperationBody<#body>,)),
         selection_type: None,
     };
     let impl_def = ImplDef {
         method,
         lifetime: body_lifetime.clone(),
         template_expressions,
-        arg: Some(quote!(body: #body)),
+        arg: Some(quote!(body: OperationBody<#body>)),
         selectable: false,
     };
     let operation_def = OperationDef {
@@ -368,14 +371,7 @@ impl ToTokens for OperationDef {
         let upper_method = format_ident!("{}", method.to_ascii_uppercase());
         let method = format_ident!("{method}");
 
-        // Clippy gets confused if you clone (), so handle that case separately
-        let (body_type, body_clone) = if let Some(body) = body {
-            (body, quote!(self.body.clone()))
-        } else {
-            (&quote!(()), quote!(()))
-        };
-
-        let selection_str = if *selectable {
+        let build_uri = if *selectable {
             quote! {
                 let mut params = Serializer::new(String::new());
                 let (select, selection) = self.selection.pair();
@@ -388,22 +384,41 @@ impl ToTokens for OperationDef {
             quote!(let uri = format_path(&self.template_expressions).parse::<http::uri::Uri>().unwrap();)
         };
 
+        let build_request = match body {
+            None => quote! {
+                let request = http::Request::builder()
+                    .uri(uri)
+                    .method(Self::METHOD)
+                    .body(vec![])?;
+            },
+            Some(_) => quote! {
+                let (body, content_type) = match self.body {
+                    OperationBody::JSON(body) => (serde_json::to_vec(&body)?, String::from("application/json")),
+                    OperationBody::Other { body, content_type } => (body, content_type),
+                };
+
+                let request = http::Request::builder()
+                    .uri(uri)
+                    .method(Self::METHOD)
+                    .header("Content-Type", content_type)
+                    .body(body)?;
+            },
+        };
+
         tokens.append_all(quote! {
             impl #lifetime Operation for #method #lifetime {
                 const METHOD: Method = Method::#upper_method;
-                type Body = #body_type;
                 type Response<'response> = #response;
 
-                fn build(&self) -> http::Request<Self::Body> {
-                    #selection_str
-                    http::Request::builder()
-                        .uri(uri)
-                        .method(Self::METHOD)
-                        .body(#body_clone)
-                        .unwrap()
+                fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+                    #build_uri
+
+                    #build_request
+
+                    Ok(request)
                 }
             }
-        })
+        });
     }
 }
 
@@ -489,15 +504,15 @@ impl ToTokens for DeltaDef {
 
             impl Operation for GetDelta {
                 const METHOD: Method = Method::GET;
-                type Body = ();
                 type Response<'response> = #response;
 
-                fn build(&self) -> http::Request<Self::Body> {
-                    http::Request::builder()
+                fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+                    let request = http::Request::builder()
                         .uri(&self.token)
                         .method(Self::METHOD)
-                        .body(())
-                        .unwrap()
+                        .body(vec![])?;
+
+                    Ok(request)
                 }
             }
         });

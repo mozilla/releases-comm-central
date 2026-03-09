@@ -8,7 +8,7 @@
 use crate::Error;
 use crate::types::directory_object::*;
 use crate::types::mailbox_settings::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
 use strum::Display;
@@ -82,7 +82,7 @@ pub enum UserSelection {
     UserType,
 }
 #[doc = "Represents a Microsoft Entra user account."]
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct User<'a> {
     #[serde(flatten)]
     pub(crate) properties: Cow<'a, Map<String, Value>>,

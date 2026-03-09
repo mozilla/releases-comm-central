@@ -4,44 +4,38 @@
 
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
-#![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
-use crate::types::mail_folder::*;
+#![doc = "Provides operations to manage the messages property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::types::message::*;
+use crate::types::message_collection_response::*;
 use crate::*;
 use form_urlencoded::Serializer;
 use http::method::Method;
 #[derive(Debug)]
 struct TemplateExpressions {
     endpoint: String,
-    mail_folder_id: String,
 }
 fn format_path(template_expressions: &TemplateExpressions) -> String {
-    let TemplateExpressions {
-        endpoint,
-        mail_folder_id,
-    } = template_expressions;
+    let TemplateExpressions { endpoint } = template_expressions;
     let endpoint = endpoint.trim_end_matches('/');
-    format!("{endpoint}/me/mailFolders/{mail_folder_id}")
+    format!("{endpoint}/me/messages")
 }
-#[doc = "Get mailFolder\n\nRetrieve the properties and relationships of a message folder object. The following list shows the two existing scenarios where an app can get another user's mail folder:\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-get?view=graph-rest-1.0)."]
+#[doc = "Get open extension\n\nGet an open extension (openTypeExtension object) identified by name or fully qualified name. The table in the Permissions section lists the resources that support open extensions. The following table lists the three scenarios where you can get an open extension from a supported resource instance.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-get?view=graph-rest-1.0)."]
 #[derive(Debug)]
 pub struct Get {
     template_expressions: TemplateExpressions,
-    selection: Selection<MailFolderSelection>,
+    selection: Selection<MessageCollectionResponseSelection>,
 }
 impl Get {
-    pub fn new(endpoint: String, mail_folder_id: String) -> Self {
+    pub fn new(endpoint: String) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint },
             selection: Selection::default(),
         }
     }
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Response<'response> = MailFolder<'response>;
+    type Response<'response> = Paginated<MessageCollectionResponse<'response>>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
@@ -59,7 +53,7 @@ impl Operation for Get {
     }
 }
 impl Select for Get {
-    type Properties = MailFolderSelection;
+    type Properties = MessageCollectionResponseSelection;
     fn select<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.select(properties)
     }
@@ -67,30 +61,23 @@ impl Select for Get {
         self.selection.extend(properties)
     }
 }
-#[doc = "Update mailfolder\n\nUpdate the properties of mailfolder object.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/mailfolder-update?view=graph-rest-1.0)."]
+#[doc = "Create open extension\n\nCreate an open extension (openTypeExtension object) and add custom properties in a new or existing instance of a resource. You can create an open extension in a resource instance and store custom data to it all in the same operation, except for specific resources. The table in the Permissions section lists the resources that support open extensions.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/opentypeextension-post-opentypeextension?view=graph-rest-1.0)."]
 #[derive(Debug)]
-pub struct Patch<'body> {
+pub struct Post<'body> {
     template_expressions: TemplateExpressions,
-    body: OperationBody<MailFolder<'body>>,
+    body: OperationBody<Message<'body>>,
 }
-impl<'body> Patch<'body> {
-    pub fn new(
-        endpoint: String,
-        mail_folder_id: String,
-        body: OperationBody<MailFolder<'body>>,
-    ) -> Self {
+impl<'body> Post<'body> {
+    pub fn new(endpoint: String, body: OperationBody<Message<'body>>) -> Self {
         Self {
-            template_expressions: TemplateExpressions {
-                endpoint,
-                mail_folder_id,
-            },
+            template_expressions: TemplateExpressions { endpoint },
             body,
         }
     }
 }
-impl<'body> Operation for Patch<'body> {
-    const METHOD: Method = Method::PATCH;
-    type Response<'response> = MailFolder<'response>;
+impl<'body> Operation for Post<'body> {
+    const METHOD: Method = Method::POST;
+    type Response<'response> = Message<'response>;
     fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let uri = format_path(&self.template_expressions)
             .parse::<http::uri::Uri>()

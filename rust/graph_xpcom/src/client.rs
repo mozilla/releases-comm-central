@@ -34,7 +34,7 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
     where
         Op: Operation,
     {
-        let request = operation.build();
+        let request = operation.build_request()?;
 
         let credentials = self.server.get_credentials()?;
         let auth_header_value = credentials.to_auth_header_value().await?;
@@ -43,16 +43,37 @@ impl<ServerT: AuthenticationProvider + RefCounted> XpComGraphClient<ServerT> {
         let resource_url =
             Url::parse(&request.uri().to_string()).map_err(|_| XpComGraphError::Uri)?;
 
+        let method = request.method();
+        let body = request.body();
+
         // Generate random id for logging purposes.
         let request_id = Uuid::new_v4();
         log::info!("Making operation request {request_id}: {resource_url}");
 
-        // TODO: Once we support editing, we need to add more ways to build the request here.
-        let mut request_builder = client.get(&resource_url)?;
+        let mut request_builder = client.request(method, &resource_url)?;
 
         if let Some(ref hdr_value) = auth_header_value {
             // Only set an `Authorization` header if necessary.
             request_builder = request_builder.header("Authorization", hdr_value);
+        }
+
+        // Only add a body if not empty.
+        if !body.is_empty() {
+            // If we have a body, we expect a valid `Content-Type` header to be
+            // set as well. Searching through a `http::HeaderMap` (as returned
+            // by `request.headers`) is case-insensitive.
+            let content_type = request
+                .headers()
+                .get("content-type")
+                .ok_or(XpComGraphError::Processing {
+                    message: "Missing Content-Type header for request with body".to_string(),
+                })?
+                .to_str()
+                .map_err(|_| XpComGraphError::Processing {
+                    message: "Invalid Content-Type header in request".to_string(),
+                })?;
+
+            request_builder = request_builder.body(body.as_slice(), content_type);
         }
 
         let response = request_builder.send().await.map_err(ProtocolError::Http)?;

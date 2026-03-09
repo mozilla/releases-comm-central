@@ -49,7 +49,7 @@ mod error;
 mod request;
 mod response;
 
-pub use client::{Client, Method};
+pub use client::Client;
 pub use error::{Error, Result};
 pub use request::RequestBuilder;
 pub use response::{Response, StatusCode};

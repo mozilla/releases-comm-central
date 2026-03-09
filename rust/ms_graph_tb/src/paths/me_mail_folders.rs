@@ -5,6 +5,7 @@
 // EDITS TO THIS FILE WILL BE OVERWRITTEN
 
 #![doc = "Provides operations to manage the mailFolders property of the microsoft.graph.user entity.\n\nAuto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
+use crate::types::mail_folder::*;
 use crate::types::mail_folder_collection_response::*;
 use crate::*;
 use form_urlencoded::Serializer;
@@ -34,9 +35,8 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Body = ();
     type Response<'response> = Paginated<MailFolderCollectionResponse<'response>>;
-    fn build(&self) -> http::Request<Self::Body> {
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
         params.append_pair(select, &selection);
@@ -45,11 +45,11 @@ impl Operation for Get {
         let uri = format!("{path}?{params}")
             .parse::<http::uri::Uri>()
             .unwrap();
-        http::Request::builder()
+        let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
-            .body(())
-            .unwrap()
+            .body(vec![])?;
+        Ok(request)
     }
 }
 impl Select for Get {
@@ -59,5 +59,40 @@ impl Select for Get {
     }
     fn extend<P: IntoIterator<Item = Self::Properties>>(&mut self, properties: P) {
         self.selection.extend(properties)
+    }
+}
+#[doc = "Create MailFolder\n\nUse this API to create a new mail folder in the root folder of the user's mailbox. If you intend a new folder to be hidden, you must set the isHidden property to true on creation.\n\nMore information available via [Microsoft documentation](https://learn.microsoft.com/graph/api/user-post-mailfolders?view=graph-rest-1.0)."]
+#[derive(Debug)]
+pub struct Post<'body> {
+    template_expressions: TemplateExpressions,
+    body: OperationBody<MailFolder<'body>>,
+}
+impl<'body> Post<'body> {
+    pub fn new(endpoint: String, body: OperationBody<MailFolder<'body>>) -> Self {
+        Self {
+            template_expressions: TemplateExpressions { endpoint },
+            body,
+        }
+    }
+}
+impl<'body> Operation for Post<'body> {
+    const METHOD: Method = Method::POST;
+    type Response<'response> = MailFolder<'response>;
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+        let uri = format_path(&self.template_expressions)
+            .parse::<http::uri::Uri>()
+            .unwrap();
+        let (body, content_type) = match self.body {
+            OperationBody::JSON(body) => {
+                (serde_json::to_vec(&body)?, String::from("application/json"))
+            }
+            OperationBody::Other { body, content_type } => (body, content_type),
+        };
+        let request = http::Request::builder()
+            .uri(uri)
+            .method(Self::METHOD)
+            .header("Content-Type", content_type)
+            .body(body)?;
+        Ok(request)
     }
 }

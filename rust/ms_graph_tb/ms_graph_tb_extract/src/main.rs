@@ -29,15 +29,16 @@ const SUPPORTED_TYPES: [&str; 9] = [
     "mailFolder",
     "mailFolderCollectionResponse",
     "mailboxSettings",
+    "messageCollectionResponse",
     "message",
-    "sendMailRequestBody",
     "user",
 ];
-const SUPPORTED_PATHS: [&str; 4] = [
+const SUPPORTED_PATHS: [&str; 5] = [
     "/me",
     "/me/mailFolders",
     "/me/mailFolders/{mailFolder-id}",
     "/me/mailFolders/delta()",
+    "/me/messages",
 ];
 
 const FILE_LEDE: &str = r#"/* This Source Code Form is subject to the terms of the Mozilla Public

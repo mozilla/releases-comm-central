@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::ptr;
 
 use cstr::cstr;
+use http::Method;
 use nserror::nsresult;
 use url::Url;
 
@@ -19,7 +20,6 @@ use xpcom::interfaces::{
 use xpcom::{RefPtr, getter_addrefs};
 use xpcom_async::XpComFuture;
 
-use crate::client::Method;
 use crate::error::{Error, TransportSecurityInfo};
 use crate::response::Response;
 
@@ -61,7 +61,7 @@ struct RequestBody<'b> {
 /// A builder to create and send HTTP requests.
 pub struct RequestBuilder<'rb> {
     url: &'rb Url,
-    method: Method,
+    method: &'rb Method,
     // Ideally we'd store header keys as nsCString directly, but nsCString does
     // not implement the traits Hash and Eq, which are required to be used as
     // HashMap keys.
@@ -75,7 +75,7 @@ impl<'rb> RequestBuilder<'rb> {
     ///
     /// If the URL is not a valid HTTP URL, i.e. if its protocol scheme is
     /// neither HTTP nor HTTPS, an error is returned.
-    pub(crate) fn new(method: Method, url: &'rb Url) -> crate::Result<RequestBuilder<'rb>> {
+    pub(crate) fn new(method: &'rb Method, url: &'rb Url) -> crate::Result<RequestBuilder<'rb>> {
         // We only support HTTP(S) URLs.
         // url.scheme() is always lower-cased.
         if url.scheme() != "http" && url.scheme() != "https" {
@@ -198,7 +198,7 @@ impl<'rb> RequestBuilder<'rb> {
         // because nsIUploadChannel::SetUploadStream() used on an HTTP channel
         // sets the channel's method depending on the content of its arguments,
         // which might not match the method we want to use.
-        let method: nsCString = self.method.into();
+        let method: nsCString = self.method.as_str().into();
         unsafe { http_channel.SetRequestMethod(&*method).to_result()? }
 
         // Send the request through the nsIChannel.

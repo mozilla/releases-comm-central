@@ -4276,6 +4276,7 @@ name = "moz_http"
 version = "0.1.0"
 dependencies = [
  "cstr",
+ "http",
  "mozilla-central-workspace-hack",
  "nserror",
  "nsstring",
@@ -4392,6 +4393,7 @@ dependencies = [
  "form_urlencoded",
  "http",
  "serde",
+ "serde_bytes",
  "serde_json",
  "strum",
  "thiserror 2.0.12",

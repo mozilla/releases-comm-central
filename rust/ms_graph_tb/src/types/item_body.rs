@@ -6,7 +6,7 @@
 
 #![doc = "Types related to ItemBody. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
 use strum::Display;
@@ -15,7 +15,7 @@ use strum::Display;
 pub enum ItemBodySelection {
     Content,
 }
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ItemBody<'a> {
     #[serde(flatten)]
     pub(crate) properties: Cow<'a, Map<String, Value>>,

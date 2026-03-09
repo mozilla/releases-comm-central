@@ -7,7 +7,7 @@
 #![doc = "Types related to Message. Auto-generated from [Microsoft OpenAPI metadata](https://github.com/microsoftgraph/msgraph-metadata/blob/master/openapi/v1.0/openapi.yaml) via `ms_graph_tb_extract openapi.yaml ms_graph_tb/`."]
 use crate::Error;
 use crate::types::item_body::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
 use strum::Display;
@@ -31,7 +31,7 @@ pub enum MessageSelection {
     UniqueBody,
     WebLink,
 }
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Message<'a> {
     #[serde(flatten)]
     pub(crate) properties: Cow<'a, Map<String, Value>>,

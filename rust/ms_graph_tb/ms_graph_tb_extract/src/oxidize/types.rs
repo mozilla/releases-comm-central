@@ -51,7 +51,7 @@ impl ToTokens for GraphType {
         tokens.append_all(quote!(
             #module_doc
 
-            use serde::Deserialize;
+            use serde::{Deserialize, Serialize};
             use serde_json::{Map, Value};
             use std::borrow::Cow;
             use strum::Display;
@@ -66,7 +66,7 @@ impl ToTokens for GraphType {
             }
 
             #description
-            #[derive(Clone, Debug, Default, Deserialize, PartialEq, Eq)]
+            #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
             pub struct #name<'a> {
                 #[serde(flatten)]
                 pub(crate) properties: Cow<'a, Map<String, Value>>,

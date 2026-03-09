@@ -11,5 +11,5 @@ pub mod mail_folder;
 pub mod mail_folder_collection_response;
 pub mod mailbox_settings;
 pub mod message;
-pub mod send_mail_request_body;
+pub mod message_collection_response;
 pub mod user;

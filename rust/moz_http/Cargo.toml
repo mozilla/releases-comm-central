@@ -17,3 +17,4 @@ xpcom_async = { path = "../xpcom_async" }
 cstr = "0.2"
 url = "2.5"
 thiserror = "1.0.56"
+http = "0.2.9"

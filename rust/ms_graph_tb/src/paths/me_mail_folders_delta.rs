@@ -35,9 +35,8 @@ impl Get {
 }
 impl Operation for Get {
     const METHOD: Method = Method::GET;
-    type Body = ();
     type Response<'response> = DeltaResponse<Vec<MailFolder<'response>>>;
-    fn build(&self) -> http::Request<Self::Body> {
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
         let mut params = Serializer::new(String::new());
         let (select, selection) = self.selection.pair();
         params.append_pair(select, &selection);
@@ -46,11 +45,11 @@ impl Operation for Get {
         let uri = format!("{path}?{params}")
             .parse::<http::uri::Uri>()
             .unwrap();
-        http::Request::builder()
+        let request = http::Request::builder()
             .uri(uri)
             .method(Self::METHOD)
-            .body(())
-            .unwrap()
+            .body(vec![])?;
+        Ok(request)
     }
 }
 impl Select for Get {
@@ -78,13 +77,12 @@ impl TryFrom<&str> for GetDelta {
 }
 impl Operation for GetDelta {
     const METHOD: Method = Method::GET;
-    type Body = ();
     type Response<'response> = DeltaResponse<Vec<MailFolder<'response>>>;
-    fn build(&self) -> http::Request<Self::Body> {
-        http::Request::builder()
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+        let request = http::Request::builder()
             .uri(&self.token)
             .method(Self::METHOD)
-            .body(())
-            .unwrap()
+            .body(vec![])?;
+        Ok(request)
     }
 }

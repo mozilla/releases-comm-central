@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use http::method::Method;
-use serde::{Deserialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{fmt::Display, marker::PhantomData};
 use thiserror::Error;
 
@@ -14,20 +14,48 @@ pub mod types;
 pub enum Error {
     #[error("object does not have this property set")]
     NotFound,
-    #[error("property has an unexpected type")]
+
+    #[error("property has an unexpected type: {0}")]
     UnexpectedResponse(String),
-    #[error("an error occurred building the Graph resource URI.")]
+
+    #[error("an error occurred building the Graph resource URI: {0}")]
     Uri(#[from] http::uri::InvalidUri),
+
+    #[error("an error occurred building the HTTP request: {0}")]
+    HttpBuilder(#[from] http::Error),
+
+    #[error("failed to serialize the request body into JSON: {0}")]
+    JSONSerialize(#[from] serde_json::Error),
+}
+
+/// The body of a POST/PATCH/PUT/etc. request.
+///
+/// Some endpoints may support requests in other formats than JSON, which are
+/// not always documented in the OpenAPI spec. For example, `POST /me/messages`
+/// allows consumers to provide a base64-encoded RFC822 message (with the
+/// "plain/text" content type) rather than the structured JSON body that is
+/// documented in the OpenAPI specification file.
+///
+/// Wrapping the type of a request's structured JSON body inside this enum
+/// allows consumers to provide an alternate body to include when building the
+/// [`http::Request`] for the operation.
+#[derive(Debug)]
+pub enum OperationBody<StructuredBodyT: Serialize> {
+    /// The structured JSON body for the request. When provided, the
+    /// implementations of [`Operation::build`] in this crate generate a request
+    /// body by calling [`serde_json::to_vec`] on the wrapped struct.
+    JSON(StructuredBodyT),
+
+    /// An alternate body (with its content type) for the request. Consumers are
+    /// responsible for generating the bytes for body and providing the correct
+    /// content type, as they will be used as-is when building the request.
+    Other { content_type: String, body: Vec<u8> },
 }
 
 /// Trait for Graph operations.
 pub trait Operation {
     /// The HTTP request method used for this operation.
     const METHOD: Method;
-
-    /// The type of the body of the request. Requests without a body will set
-    /// this to `()`.
-    type Body;
 
     /// The type of the response of the request, in the success case. Requests
     /// without a response type will set this to `()`.
@@ -38,8 +66,14 @@ pub trait Operation {
     type Response<'response>: DeserializeOwned;
 
     /// Create an [`http::Request`] from the current state of the operation
-    /// object.
-    fn build(&self) -> http::Request<Self::Body>;
+    /// object. The request's body contains the serialized body from the
+    /// operation (or an empty bytes vector if the operation does not have a
+    /// body).
+    ///
+    /// In cases where distinguishing between an empty and a missing body
+    /// matters, consumers should determine the correct course of action based
+    /// on the length of the `Request`'s body.
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error>;
 }
 
 /// Indicates the `Operation` accepts
@@ -195,22 +229,24 @@ impl<R> NextPage<R> {
 
 impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
     const METHOD: Method = Method::GET;
-    type Body = ();
     type Response<'response> = R;
 
     /// Create an [`http::Request`] object from `Self`. See the struct note, the
     /// URI should not be modified.
-    fn build(&self) -> http::Request<()> {
-        http::Request::builder()
+    fn build_request(self) -> Result<http::Request<Vec<u8>>, Error> {
+        let req = http::Request::builder()
             .uri(&self.next_uri)
             .method(Method::GET)
-            .body(())
-            .unwrap()
+            .body(vec![])?;
+
+        Ok(req)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::Error;
+
     use super::paths;
     use super::types::{mail_folder, user};
     use super::{DeltaResponse, Operation, Select, Selection};
@@ -227,14 +263,16 @@ mod tests {
     }
 
     #[test]
-    fn serialize_get_me() {
+    fn serialize_get_me() -> Result<(), Error> {
         let mut get_me = paths::me::Get::new("https://graph.microsoft.com/v1.0".to_string());
         get_me.select(vec![user::UserSelection::AboutMe]);
-        let req = get_me.build();
+        let req = get_me.build_request()?;
         let uri = req.uri();
         let expected =
             uri::Uri::try_from("https://graph.microsoft.com/v1.0/me?%24select=aboutMe").unwrap();
         assert_eq!(*uri, expected);
+
+        Ok(())
     }
 
     #[test]
@@ -290,7 +328,7 @@ mod tests {
     }
 
     #[test]
-    fn deserialize_paginated_with_page() {
+    fn deserialize_paginated_with_page() -> Result<(), Error> {
         use mail_folder::MailFolder;
 
         let json = r#"{
@@ -354,16 +392,17 @@ mod tests {
             value
         );
 
-        let next_page_uri = parsed
+        let request = parsed
             .next_page()
             .expect("next page should be present")
-            .build()
-            .uri()
-            .clone();
+            .build_request()?;
+        let next_page_uri = request.uri();
         let expected_uri: http::Uri = "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
             .try_into()
             .unwrap();
-        assert_eq!(next_page_uri, expected_uri)
+        assert_eq!(next_page_uri, &expected_uri);
+
+        Ok(())
     }
 
     #[test]
@@ -434,7 +473,7 @@ mod tests {
     }
 
     #[test]
-    fn deserialize_delta_with_page() {
+    fn deserialize_delta_with_page() -> Result<(), Error> {
         use mail_folder::MailFolder;
         let json = r#"{
     "@odata.context": "https://graph.microsoft.com/v1.0/me/mailFolders",
@@ -497,11 +536,13 @@ mod tests {
         let DeltaResponse::NextLink { next_page, .. } = parsed else {
             panic!("NextLink should be present");
         };
-        let next_page_uri = next_page.build().uri().clone();
+        let next_page_uri = next_page.build_request()?.uri().clone();
         let expected_uri: http::Uri = "https://graph.microsoft.com/v1.0/me/mailFolders?%24skip=10"
             .try_into()
             .unwrap();
-        assert_eq!(next_page_uri, expected_uri)
+        assert_eq!(next_page_uri, expected_uri);
+
+        Ok(())
     }
 
     #[test]
