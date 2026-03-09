@@ -22,6 +22,8 @@ skip-if = [
 requesttimeoutfactor = 2
 tags = ["oauth"]
 
+["test_firstRun.js"]
+
 ["test_guessConfig.js"]
 
 ["test_ldapDirectoryUtils.js"]

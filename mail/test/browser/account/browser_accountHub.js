@@ -4,10 +4,6 @@
 
 "use strict";
 
-const { _setReturnValue } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/FirstRun.sys.mjs"
-);
-
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
@@ -23,17 +19,12 @@ registerCleanupFunction(function () {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
-// TODO: Defer this for when the account hub replaces the account setup tab.
-// add_task(async function test_account_hub_opening_at_startup() {});
-
 add_task(async function test_account_hub_opening() {
   Services.fog.testResetFOG();
-  // TODO: Use an actual button once it's implemented in the UI.
-  // Open the dialog.
   await window.openAccountHub();
 
   let events = Glean.mail.accountHubLoaded.testGetValue();
-  Assert.equal(events.length, 2);
+  Assert.equal(events.length, 2, "Should initially have two events");
   Assert.deepEqual(
     events.map(v => v.extra.view_name),
     ["MAIL", "autoConfigSubview"]
@@ -456,60 +447,19 @@ add_task(async function test_cancel_finding_config() {
   await subtest_close_account_hub_dialog(dialog, emailTemplate);
 });
 
-add_task(async function test_account_hub_first_run() {
-  _setReturnValue(true);
+add_task(async function test_account_hub_not_first_run() {
+  const dialog = await subtest_open_account_hub_dialog();
 
-  await window.openAccountHub();
-
-  const hub = document.querySelector("account-hub-container");
-  await BrowserTestUtils.waitForMutationCondition(
-    hub,
-    { childList: true },
-    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
-  );
-
-  const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
-  Assert.ok(dialog, "The dialog element should be created");
-  Assert.ok(
-    dialog.classList.contains("account-hub-first-run"),
-    "Should have the first run class"
-  );
-  Assert.equal(
-    window.AccountHubController.isFirstRun,
-    true,
-    "Should have first run correctly set"
-  );
-
-  _setReturnValue(false);
-
-  Assert.ok(
-    dialog.classList.contains("account-hub-first-run"),
-    "Should still have have the first run class after update before reopening"
-  );
-  Assert.equal(
-    window.AccountHubController.isFirstRun,
-    true,
-    "Should still have first run true after update before reopening"
-  );
-
-  let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
-  EventUtils.synthesizeKey("KEY_Escape", {});
-  await closeEvent;
-
-  await window.openAccountHub();
-
-  Assert.ok(dialog, "The dialog element should be created");
   Assert.ok(
     !dialog.classList.contains("account-hub-first-run"),
     "Should not have the first run class"
   );
-  Assert.equal(
-    window.AccountHubController.isFirstRun,
-    false,
-    "Should have first run correctly set after reopen"
+  Assert.ok(
+    !window.AccountHubController.isFirstRun,
+    "Should have first run correctly set"
   );
 
-  closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeMouseAtCenter(
     dialog
       .querySelector("email-auto-form")
