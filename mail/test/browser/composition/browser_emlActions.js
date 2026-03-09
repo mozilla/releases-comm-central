@@ -211,7 +211,7 @@ add_task(async function test_save_eml_as_file1() {
   const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   const msgc = await open_message_from_file(file);
   const pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.init(msgc.browsingContext);
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker.defaultString);
       return Ci.nsIFilePicker.returnOK;
@@ -242,8 +242,9 @@ add_task(async function test_save_eml_as_file2() {
     () => msgc2.messageBrowser?.contentWindow?.msgLoaded,
     "waiting for message to load in new window"
   );
+  await SimpleTest.promiseFocus(msgc2);
   const pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.init(msgc2.browsingContext);
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker.defaultString);
       return Ci.nsIFilePicker.returnOK;
