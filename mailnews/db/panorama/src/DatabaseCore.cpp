@@ -171,6 +171,8 @@ nsresult DatabaseCore::EnsureConnection() {
     sDatabaseIsNew = true;
   }
 
+  rv = sConnection->ExecuteSimpleSQL("PRAGMA cache_size=-200000;"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
   RefPtr<TagsMatchFunction> tagsInclude = new TagsMatchFunction(true);
   sConnection->CreateFunction("tags_include"_ns, 2, tagsInclude);
   RefPtr<TagsMatchFunction> tagsExclude = new TagsMatchFunction(false);
@@ -189,8 +191,6 @@ nsresult DatabaseCore::CreateNewDatabase() {
   // Please keep mailnews/db/panorama/test/xpcshell/head.js in sync with
   // changes to the following code.
   nsresult rv = sConnection->ExecuteSimpleSQL("PRAGMA journal_mode=WAL;"_ns);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = sConnection->ExecuteSimpleSQL("PRAGMA cache_size=-200000;"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = sConnection->ExecuteSimpleSQL(
       "CREATE TABLE folders ( \

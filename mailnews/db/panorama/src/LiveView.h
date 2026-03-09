@@ -39,6 +39,8 @@ class LiveView : public nsILiveView, public MessageListener {
     ResetStatements();
   }
 
+  friend class SelectMessagesListener;
+
   MessageDatabase& MessageDB() const {
     return *DatabaseCore::sInstance->mMessageDatabase;
   }
@@ -60,6 +62,7 @@ class LiveView : public nsILiveView, public MessageListener {
   nsCOMPtr<mozIStorageStatement> mCountUnreadStmt;
   nsCOMPtr<mozIStorageStatement> mSelectStmt;
   nsCOMPtr<mozIStorageStatement> mSelectGroupStmt;
+  nsCOMPtr<mozIStoragePendingStatement> mPendingStmt;
 
   // The one and only listener for this live view, if set.
   nsCOMPtr<nsILiveViewListener> mListener;

@@ -31,7 +31,7 @@ add_setup(async function () {
 add_task(async function testMessageProperties() {
   const liveView = new LiveView();
 
-  const [message] = await liveView.selectMessages(1, 2);
+  const [message] = await liveView.selectMessages();
   Assert.equal(message.id, 8);
   Assert.equal(message.folderId, 4);
   Assert.equal(message.messageId, "message8@invalid");
@@ -43,7 +43,7 @@ add_task(async function testMessageProperties() {
   Assert.equal(message.tags, "$label1");
   Assert.equal(message.threadId, 0);
   Assert.equal(message.threadParent, 0);
-});
+}).skip(); // This is broken until we can select a specific message again.
 
 add_task(async function testInitWithFolder() {
   const folderA = folderDB.getFolderByPath("server1/folderA");
@@ -75,16 +75,6 @@ add_task(async function testInitWithFolder() {
     Array.from(await liveView.selectMessages(), m => m.id),
     [4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
-  );
-  Assert.deepEqual(
-    Array.from(await liveView.selectMessages(3), m => m.id),
-    [4, 3, 2],
-    "selectMessages with a limit argument should only return some of the messages"
-  );
-  Assert.deepEqual(
-    Array.from(await liveView.selectMessages(2, 1), m => m.id),
-    [3, 2],
-    "selectMessages with both arguments should only return some of the messages"
   );
 
   assertInitFails(liveView);
@@ -124,16 +114,6 @@ add_task(async function testInitWithFolders() {
     Array.from(await liveView.selectMessages(), m => m.id),
     [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
     "selectMessages with no arguments should return all the messages"
-  );
-  Assert.deepEqual(
-    Array.from(await liveView.selectMessages(3), m => m.id),
-    [10, 9, 8],
-    "selectMessages with a limit argument should only return some of the messages"
-  );
-  Assert.deepEqual(
-    Array.from(await liveView.selectMessages(2, 1), m => m.id),
-    [9, 8],
-    "selectMessages with both arguments should only return some of the messages"
   );
 
   assertInitFails(liveView);

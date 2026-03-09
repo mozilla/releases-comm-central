@@ -76,8 +76,7 @@ interface nsILiveView : nsISupports {
    * containing the message properties.
    */
   [implicit_jscontext]
-  Promise selectMessages([optional] in unsigned long long limit,
-                         [optional] in unsigned long long offset);
+  Promise selectMessages();
 
   /**
    * Get the messages matching this live view and the specified group. Returns
@@ -123,4 +122,11 @@ interface nsILiveViewListener : nsISupports {
    * A message matching the live view's filters was removed from the database.
    */
   void onMessageRemoved(in jsval message);
+
+  /**
+   * Partial results from a `selectMessages` or `selectMessagesInGroup` query.
+   */
+  void onSelectedChunk(in jsval messages,
+                       in unsigned long startIndex,
+                       in unsigned long endIndex);
 };

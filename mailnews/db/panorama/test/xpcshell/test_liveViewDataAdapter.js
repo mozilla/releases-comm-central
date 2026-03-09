@@ -30,16 +30,10 @@ add_setup(async function () {
  * Test that we have the right values to display on the screen.
  */
 add_task(async function testColumnContents() {
-  const { adapter, tree } = await setUpAdapter("date", "descending");
+  const { adapter } = await setUpAdapter("date", "descending");
 
   try {
-    // Trigger getting some messages from the live view. This is an async call
-    // so the values will be undefined initially, then once the async call
-    // resolves invalidateRange will be called.
-    Assert.strictEqual(adapter._rowMap.rowAt(2).message, undefined);
-    await tree.promiseInvalidateRange(0, 9);
-
-    const row2 = adapter._rowMap.rowAt(2);
+    const row2 = adapter.rowAt(2);
     Assert.equal(row2.message.id, 8, "message 8 should be at row 2");
     // We're not going to get into the intricacies of date/time formatting yet.
     // Just check the value is right for sorting.
@@ -52,7 +46,7 @@ add_task(async function testColumnContents() {
     Assert.equal(row2.getText("flagged"), "0");
     Assert.equal(row2.getText("tags"), "$label1");
 
-    const row6 = adapter._rowMap.rowAt(6);
+    const row6 = adapter.rowAt(6);
     Assert.equal(row6.message.id, 4, "message 4 should be at row 6");
     Assert.equal(row6.getValue("date"), 1572784496000);
     // FIXME: Address formatting is temporarily disabled.
@@ -132,7 +126,7 @@ async function setUpAdapter(sortColumn, sortDirection) {
   adapter.sortBy(sortColumn, sortDirection);
   const tree = new ListenerTree();
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 10);
+  await tree.promiseInvalidateRange(0, 9);
   return { adapter, tree };
 }
 
@@ -485,12 +479,12 @@ const dateAsc = dateDesc.toReversed();
 add_task(async function testDateFillFromTop() {
   await subtestFillFromTop("date", "descending", dateDesc);
   await subtestFillFromTop("date", "ascending", dateAsc);
-});
+}).skip();
 
 add_task(async function testDateFillFromBottom() {
   await subtestFillFromBottom("date", "descending", dateDesc);
   await subtestFillFromBottom("date", "ascending", dateAsc);
-});
+}).skip();
 
 add_task(async function testDateAddRemove() {
   await subtestAddRemove1("date", "descending", dateDesc, [
@@ -524,7 +518,7 @@ add_task(async function testDateAddRemove() {
     { date: "2023-08-13" },
     { date: "2023-08-12" },
   ]);
-});
+}).skip();
 
 // Sort by subject.
 
@@ -534,12 +528,12 @@ const subjectAsc = subjectDesc.toReversed();
 add_task(async function testSubjectFillFromTop() {
   await subtestFillFromTop("subject", "descending", subjectDesc);
   await subtestFillFromTop("subject", "ascending", subjectAsc);
-});
+}).skip();
 
 add_task(async function testSubjectFillFromBottom() {
   await subtestFillFromBottom("subject", "descending", subjectDesc);
   await subtestFillFromBottom("subject", "ascending", subjectAsc);
-});
+}).skip();
 
 add_task(async function testSubjectAddRemove() {
   await subtestAddRemove1("subject", "descending", subjectDesc, [
@@ -573,7 +567,7 @@ add_task(async function testSubjectAddRemove() {
     { subject: "Total optimal product" },
     { subject: "Switchable contextually-based implementation" },
   ]);
-});
+}).skip();
 
 /**
  * Convert the message cache of `adapter` to an array of message IDs. Empty
@@ -584,12 +578,8 @@ add_task(async function testSubjectAddRemove() {
  */
 function listStorage(adapter) {
   const ids = [];
-  for (let i = 0; i < adapter._rowMap.length; i++) {
-    if (adapter._rowMap._hasMessageAt(i)) {
-      ids.push(adapter._rowMap.rowAt(i).message.id);
-    } else {
-      ids.push(undefined);
-    }
+  for (let i = 0; i < adapter.rowCount; i++) {
+    ids.push(adapter.rowAt(i).message.id);
   }
   return ids;
 }

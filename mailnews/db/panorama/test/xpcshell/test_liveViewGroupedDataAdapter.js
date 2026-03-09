@@ -24,7 +24,7 @@ add_task(async function testByDateDescending() {
   const adapter = new LiveViewGroupedDataAdapter(liveView);
   adapter.setTree(tree);
   adapter.sortBy("date", "descending");
-  await tree.promiseRowCountChanged(0, 7);
+  await tree.promiseInvalidate(0, 6);
   Assert.equal(liveView.sortColumn, Ci.nsILiveView.DATE);
   Assert.ok(liveView.sortDescending);
 
@@ -72,7 +72,7 @@ add_task(async function testByDateAscending() {
   const adapter = new LiveViewGroupedDataAdapter(liveView);
   adapter.sortBy("date", "ascending");
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 7);
+  await tree.promiseInvalidate(0, 6);
   Assert.equal(liveView.sortColumn, Ci.nsILiveView.DATE);
   Assert.ok(!liveView.sortDescending);
 
@@ -119,7 +119,7 @@ add_task(async function testBySubjectDescending() {
   const adapter = new LiveViewGroupedDataAdapter(liveView);
   adapter.sortBy("subject", "descending");
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 8);
+  await tree.promiseInvalidate(0, 7);
   Assert.equal(liveView.sortColumn, Ci.nsILiveView.SUBJECT);
   Assert.ok(liveView.sortDescending);
 
@@ -173,7 +173,7 @@ add_task(async function testBySubjectAscending() {
   const adapter = new LiveViewGroupedDataAdapter(liveView);
   adapter.sortBy("subject", "ascending");
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 8);
+  await tree.promiseInvalidate(0, 7);
   Assert.equal(liveView.sortColumn, Ci.nsILiveView.SUBJECT);
   Assert.ok(!liveView.sortDescending);
 

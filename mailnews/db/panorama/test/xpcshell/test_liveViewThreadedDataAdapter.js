@@ -27,7 +27,7 @@ add_task(async function testThreadedView() {
   const adapter = new LiveViewThreadedDataAdapter(liveView);
   adapter.sortBy("date", "descending");
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 6);
+  await tree.promiseInvalidated(0, 5);
 
   try {
     Assert.equal(adapter.rowCount, 6);
@@ -120,7 +120,7 @@ add_task(async function testThreadedViewPartialThread() {
   const adapter = new LiveViewThreadedDataAdapter(liveView);
   adapter.sortBy("date", "descending");
   adapter.setTree(tree);
-  await tree.promiseRowCountChanged(0, 2);
+  await tree.promiseInvalidated(0, 1);
 
   try {
     Assert.equal(adapter.rowCount, 2);

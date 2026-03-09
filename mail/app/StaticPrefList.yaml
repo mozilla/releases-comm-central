@@ -45,6 +45,12 @@
   value: false
   mirror: once
 
+# How many rows at a time should be sent from the back end to the front end?
+- name: mail.panorama.liveViewChunkSize
+  type: uint32_t
+  value: 45
+  mirror: always
+
 # Is Microsoft Graph enabled? This is currently experimental.
 - name: mail.graph.enabled
   type: bool

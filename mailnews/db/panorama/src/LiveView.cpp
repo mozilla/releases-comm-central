@@ -13,6 +13,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/StaticPrefs_mail.h"
 #include "mozIStorageError.h"
 #include "mozIStorageResultSet.h"
 #include "mozIStorageRow.h"
@@ -347,18 +348,19 @@ NS_IMETHODIMP LiveView::CountUnreadMessages(JSContext* cx, Promise** promise) {
 class SelectMessagesListener final : public mozIStorageStatementCallback {
  public:
   nsMainThreadPtrHandle<Promise> mPromiseHolder;
-  nsILiveView::SortColumn mSortColumn;
-  nsILiveView::Grouping mGrouping;
+  RefPtr<LiveView> mLiveView;
   uint32_t mColumnCount;
   Heap<JSObject*> mArr;
+  uint32_t mStart = 0;
   uint32_t mCount;
   nsAutoCString mErrorMessage;
+  nsCOMPtr<nsILiveViewListener> mListener;
 
   explicit SelectMessagesListener(JSContext* cx,
                                   nsCOMPtr<mozIStorageStatement> stmt,
-                                  nsILiveView::SortColumn sortColumn,
-                                  nsILiveView::Grouping grouping)
-      : mSortColumn(sortColumn), mGrouping(grouping) {
+                                  RefPtr<LiveView> liveView,
+                                  nsCOMPtr<nsILiveViewListener> listener)
+      : mLiveView(liveView), mListener(listener) {
     ErrorResult err;
     RefPtr<Promise> promise = Promise::Create(CurrentNativeGlobal(cx), err);
     mPromiseHolder = new nsMainThreadPtrHolder<Promise>(__func__, promise);
@@ -366,6 +368,10 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
 
     mArr = NewArrayObject(cx, 0);
     mCount = 0;
+    PROFILER_MARKER_TEXT(
+        "SelectMessagesListener", MAILNEWS,
+        mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalStart()),
+        "all results"_ns);
   }
 
   NS_DECL_ISUPPORTS
@@ -376,6 +382,7 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
   }
   NS_IMETHOD HandleResult(mozIStorageResultSet* resultSet) override {
     AUTO_PROFILER_LABEL("SelectMessagesListener::HandleResult", MAILNEWS);
+    PROFILER_MARKER_TEXT("SelectMessagesListener", MAILNEWS, {}, "results"_ns);
     AutoJSAPI jsapi;
     if (!jsapi.Init(mPromiseHolder.get()->GetParentObject())) {
       mPromiseHolder.get()->MaybeRejectWithUnknownError(
@@ -412,14 +419,14 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
                       threadId, threadParent, cx, obj);
 
       if (mColumnCount > 11) {
-        if (mGrouping == nsILiveView::THREADED ||
-            mGrouping == nsILiveView::GROUPED_BY_SORT) {
+        if (mLiveView->mGrouping == nsILiveView::THREADED ||
+            mLiveView->mGrouping == nsILiveView::GROUPED_BY_SORT) {
           uint64_t messageCount = row->AsInt64(11);
           JS_DefineProperty(cx, obj, "messageCount", (double)(messageCount),
                             JSPROP_ENUMERATE);
         }
-        if (mGrouping == nsILiveView::GROUPED_BY_SORT &&
-            mSortColumn == nsILiveView::DATE) {
+        if (mLiveView->mGrouping == nsILiveView::GROUPED_BY_SORT &&
+            mLiveView->mSortColumn == nsILiveView::DATE) {
           uint64_t dateGroup = row->AsInt64(12);
           JS_DefineProperty(cx, obj, "dateGroup", (double)(dateGroup),
                             JSPROP_ENUMERATE);
@@ -429,10 +436,23 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
       Rooted<Value> message(cx, ObjectValue(*obj));
       JS_DefineElement(cx, arr, mCount++, message, JSPROP_ENUMERATE);
     }
+
+    if (mListener &&
+        mCount - mStart >= StaticPrefs::mail_panorama_liveViewChunkSize()) {
+      Rooted<Value> obj(cx, ObjectValue(*arr));
+      mListener->OnSelectedChunk(obj, mStart, mCount - 1);
+      mStart = mCount;
+    }
     return NS_OK;
   }
   NS_IMETHOD HandleCompletion(uint16_t reason) override {
     AUTO_PROFILER_LABEL("SelectMessagesListener::HandleCompletion", MAILNEWS);
+    PROFILER_MARKER_TEXT(
+        "SelectMessagesListener", MAILNEWS,
+        mozilla::MarkerOptions(mozilla::MarkerTiming::IntervalEnd()),
+        "all results"_ns);
+    mLiveView->mPendingStmt = nullptr;
+
     if (reason == mozIStorageStatementCallback::REASON_CANCELED) {
       mPromiseHolder.get()->MaybeRejectWithAbortError("SQL query cancelled.");
       return NS_OK;
@@ -452,6 +472,12 @@ class SelectMessagesListener final : public mozIStorageStatementCallback {
 
     JSContext* cx = jsapi.cx();
     Rooted<JSObject*> arr(cx, mArr);
+    if (mListener && mCount != mStart) {
+      Rooted<Value> obj(cx, ObjectValue(*arr));
+      mListener->OnSelectedChunk(obj, mStart, mCount - 1);
+      mStart = mCount;
+    }
+
     mPromiseHolder.get()->MaybeResolve(arr);
     return NS_OK;
   }
@@ -552,8 +578,11 @@ void CreateJSMessage(Message* aMessage, JSContext* cx, Rooted<JSObject*>& obj) {
                   obj);
 }
 
-NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
-                                       JSContext* cx, Promise** promise) {
+NS_IMETHODIMP LiveView::SelectMessages(JSContext* cx, Promise** promise) {
+  AUTO_PROFILER_LABEL("LiveView::SelectMessages", MAILNEWS);
+  if (mPendingStmt) {
+    mPendingStmt->Cancel();
+  }
   if (!mSelectStmt) {
     // FIXME: Address formatting is temporarily disabled.
     nsAutoCString sql(
@@ -636,7 +665,6 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
         break;
     }
     sql.Append(mSortDescending ? " DESC" : " ASC");
-    sql.Append(" LIMIT :limit OFFSET :offset");
     MOZ_LOG(gPanoramaLog, LogLevel::Debug, ("LiveView SQL: %s", sql.get()));
     nsresult rv = DatabaseCore::sConnection->CreateStatement(
         sql, getter_AddRefs(mSelectStmt));
@@ -644,13 +672,11 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
   }
 
   PrepareStatement(mSelectStmt);
-  mSelectStmt->BindInt64ByName("limit"_ns, limit ? limit : -1);
-  mSelectStmt->BindInt64ByName("offset"_ns, offset);
 
   RefPtr<SelectMessagesListener> listener =
-      new SelectMessagesListener(cx, mSelectStmt, mSortColumn, mGrouping);
-  nsCOMPtr<mozIStoragePendingStatement> unused;
-  nsresult rv = mSelectStmt->ExecuteAsync(listener, getter_AddRefs(unused));
+      new SelectMessagesListener(cx, mSelectStmt, this, mListener);
+  nsresult rv =
+      mSelectStmt->ExecuteAsync(listener, getter_AddRefs(mPendingStmt));
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_ADDREF(*promise = listener->mPromiseHolder.get());
@@ -660,6 +686,10 @@ NS_IMETHODIMP LiveView::SelectMessages(uint64_t limit, uint64_t offset,
 NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
                                               JSContext* cx,
                                               Promise** promise) {
+  AUTO_PROFILER_LABEL("LiveView::SelectMessagesInGroup", MAILNEWS);
+  if (mPendingStmt) {
+    mPendingStmt->Cancel();
+  }
   if (!mSelectGroupStmt) {
     // FIXME: Address formatting is temporarily disabled.
     nsAutoCString sql(
@@ -706,7 +736,6 @@ NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
         sql, getter_AddRefs(mSelectGroupStmt));
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  mozStorageStatementScoper scoper(mSelectGroupStmt);
 
   PrepareStatement(mSelectGroupStmt);
   if (mGrouping == nsILiveView::THREADED || mSortColumn == nsILiveView::DATE) {
@@ -719,10 +748,9 @@ NS_IMETHODIMP LiveView::SelectMessagesInGroup(const nsACString& group,
   }
 
   RefPtr<SelectMessagesListener> listener =
-      new SelectMessagesListener(cx, mSelectGroupStmt, mSortColumn, mGrouping);
-  nsCOMPtr<mozIStoragePendingStatement> unused;
+      new SelectMessagesListener(cx, mSelectGroupStmt, this, nullptr);
   nsresult rv =
-      mSelectGroupStmt->ExecuteAsync(listener, getter_AddRefs(unused));
+      mSelectGroupStmt->ExecuteAsync(listener, getter_AddRefs(mPendingStmt));
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_ADDREF(*promise = listener->mPromiseHolder.get());
