@@ -4,7 +4,7 @@
 
 /* exported gInTab, gMainWindow, gTabmail, intializeTabOrWindowVariables,
  *          dispose, setDialogId, loadReminders, saveReminder,
- *          commonUpdateReminder, updateLink,
+ *          commonUpdateReminder,
  *          adaptScheduleAgent, sendMailToOrganizer,
  *          openAttachmentFromItemSummary,
  */
@@ -525,52 +525,6 @@ function commonUpdateReminder(
 
   // Return the current reminder drop down selection index so it can be remembered.
   return reminderList.selectedIndex;
-}
-
-/**
- * Updates the related link on the dialog. Currently only used by the
- * read-only summary dialog.
- *
- * @param {string} itemUrlString - The calendar item URL as a string.
- * @param {Element} linkRow - The row containing the link.
- * @param {Element} urlLink - The link element itself.
- */
-function updateLink(itemUrlString, linkRow, urlLink) {
-  const linkCommand = document.getElementById("cmd_toggle_link");
-
-  if (linkCommand) {
-    // Disable if there is no url.
-    linkCommand.disabled = !itemUrlString;
-  }
-
-  if ((linkCommand && !linkCommand.hasAttribute("checked")) || !itemUrlString) {
-    // Hide if there is no url, or the menuitem was chosen so that the url
-    // should be hidden
-    linkRow.hidden = true;
-  } else {
-    let handler, uri;
-    try {
-      uri = Services.io.newURI(itemUrlString);
-      handler = Services.io.getProtocolHandler(uri.scheme);
-    } catch (e) {
-      // No protocol handler for the given protocol, or invalid uri
-      linkRow.hidden = true;
-      return;
-    }
-
-    // Only show if its either an internal protocol handler, or its external
-    // and there is an external app for the scheme
-    const show =
-      !(handler instanceof Ci.nsIExternalProtocolHandler) ||
-      handler.externalAppExistsForScheme(uri.scheme);
-    linkRow.hidden = !show;
-
-    setTimeout(() => {
-      // HACK the url link doesn't crop when setting the value in onLoad
-      urlLink.setAttribute("value", itemUrlString);
-      urlLink.setAttribute("href", itemUrlString);
-    }, 0);
-  }
 }
 
 /**

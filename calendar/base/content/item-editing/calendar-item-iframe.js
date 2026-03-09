@@ -622,9 +622,7 @@ function loadDialog(aItem) {
   }
 
   // URL link
-  const itemUrl = window.calendarItem.getProperty("URL")?.trim() || "";
-  const showLink = showOrHideItemURL(itemUrl);
-  updateItemURL(showLink, itemUrl);
+  updateItemURL(window.calendarItem.getProperty("URL")?.trim());
 
   // Description
   const editorElement = document.getElementById("item-description");
@@ -3659,54 +3657,26 @@ function updateAttachment() {
 }
 
 /**
- * Returns whether to show or hide the related link on the dialog
- * (rfc2445 URL property).
- *
- * @param {string} url - The url in question.
- * @returns {boolean} true for show and false for hide
- */
-function showOrHideItemURL(url) {
-  if (!url) {
-    return false;
-  }
-  let handler;
-  let uri;
-  try {
-    uri = Services.io.newURI(url);
-    handler = Services.io.getProtocolHandler(uri.scheme);
-  } catch (e) {
-    // No protocol handler for the given protocol, or invalid uri
-    // hideOrShow(false);
-    return false;
-  }
-  // Only show if its either an internal protocol handler, or its external
-  // and there is an external app for the scheme
-  return (
-    !(handler instanceof Ci.nsIExternalProtocolHandler) ||
-    handler.externalAppExistsForScheme(uri.scheme)
-  );
-}
-
-/**
  * Updates the related link on the dialog (rfc2445 URL property).
  *
- * @param {boolean} aShow - Show the link (true) or not (false).
- * @param {string} aUrl - The url.
+ * @param {?string} url - The url.
  */
-function updateItemURL(aShow, aUrl) {
+function updateItemURL(url) {
   // Hide or show the link
-  document.getElementById("event-grid-link-separator").toggleAttribute("hidden", !aShow);
-  document.getElementById("event-grid-link-row").toggleAttribute("hidden", !aShow);
+  document.getElementById("event-grid-link-separator").toggleAttribute("hidden", !url);
+  document.getElementById("event-grid-link-row").toggleAttribute("hidden", !url);
+
+  if (!url) {
+    return;
+  }
 
   // Set the url for the link
-  if (aShow && aUrl.length) {
-    setTimeout(() => {
-      // HACK the url-link doesn't crop when setting the value in onLoad
-      const label = document.getElementById("url-link");
-      label.setAttribute("value", aUrl);
-      label.setAttribute("href", aUrl);
-    }, 0);
-  }
+  setTimeout(() => {
+    // HACK the url-link doesn't crop when setting the value in onLoad
+    const label = document.getElementById("url-link");
+    label.setAttribute("value", url);
+    label.setAttribute("href", url);
+  }, 0);
 }
 
 /**
