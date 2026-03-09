@@ -458,6 +458,7 @@ label.label {
 }
 
 #item-description {
+  background-color: var(--field-background-color);
   border: 1px solid var(--field-border-color);
   border-radius: 2px;
   margin: 2px 4px;
