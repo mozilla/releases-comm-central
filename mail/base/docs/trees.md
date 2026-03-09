@@ -13,6 +13,16 @@ Confusingly, both the UI element displaying data and the classes providing the d
 And there may or may not be any tree (hierarchy) involved, the data could be a flat list.
 ```
 
+## BaseTreeView
+
+`BaseTreeView` is a `TreeView` without the row selection model. It can be used where we want to be
+able to display table with a large number of items, but don't want the user to select a row or rows.
+
+### CheckboxTreeTableRow
+
+`CheckboxTreeTableRow` is a useful row class for creating a list or tree of items with checkboxes.
+This class is used with `BaseTreeView` to use standard HTML semantics and tab focus order.
+
 ## TreeView
 
 `TreeView` is an HTML custom element (`<tree-view>`) replacement for `<tree>`. It is currently used
@@ -123,9 +133,6 @@ adapter are in mail/base/test/unit, and the subclasses each have tests in their 
 - Merge `AutoTreeView` back into `TreeView`, or at least rearrange some of the code to more logical
   places. `AutoTreeView` was created to provide more behaviour without the risk of breaking
   `TreeView`, which is some of the most important UI code in Thunderbird.
-
-- Extract the selection code from the display code, so that we can reuse what we've already created
-  in use-cases where selection is not required. For example, the chat message display.
 
 - Investigate returning to an HTML structure that doesn't use a `<table>`, but instead has rows as
   `<div>` elements positioned by `transform` styles. This may or may not improve layout speed.
