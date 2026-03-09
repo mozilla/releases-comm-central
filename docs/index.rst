@@ -1,6 +1,8 @@
 Thunderbird Source Tree Documentation
 =====================================
 
+.. If there's no other reason to order a toctree, use alphabetical (by page title) ordering.
+
 .. toctree::
    :caption: Overview
    :maxdepth: 1
@@ -22,11 +24,11 @@ Thunderbird Source Tree Documentation
    :maxdepth: 1
 
    /frontend/custom_element_conventions
+   /frontend/icons
    /frontend/state_management
    /storybook/index
    /frontend/tabmail
    /frontend/trees
-   /frontend/icons
 
 .. toctree::
    :caption: Mail Front End
@@ -39,6 +41,7 @@ Thunderbird Source Tree Documentation
    :caption: Mail Back End
    :maxdepth: 1
 
+   /backend/accounts
    /backend/email_protocols
    /backend/folder_compaction
    /backend/folder_storage
