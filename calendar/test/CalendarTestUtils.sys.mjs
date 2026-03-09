@@ -1006,7 +1006,7 @@ export const CalendarTestUtils = {
    *
    * @returns {Promise<Window>}
    */
-  waitForEventDialog(mode = "view") {
+  async waitForEventDialog(mode = "view") {
     const uri =
       mode === "edit"
         ? "chrome://calendar/content/calendar-event-dialog.xhtml"
@@ -1016,10 +1016,29 @@ export const CalendarTestUtils = {
       if (win.document.documentURI != uri) {
         return false;
       }
-
-      Assert.report(false, undefined, undefined, "Event dialog opened");
+      Assert.report(
+        false,
+        undefined,
+        undefined,
+        `Event dialog opened; ${Services.focus.activeWindow?.location} active`
+      );
       if (Services.focus.activeWindow != win) {
-        await BrowserTestUtils.waitForEvent(win, "activate");
+        let focusTimeoutId;
+        const focusTimeout = new Promise(resolve => {
+          focusTimeoutId = win.setTimeout(() => {
+            Assert.report(false, undefined, undefined, `Will force focus to ${win.location}`);
+            win.focus();
+            resolve();
+          }, 5000);
+        });
+        await Promise.race([BrowserTestUtils.waitForEvent(win, "activate"), focusTimeout]);
+        win.clearTimeout(focusTimeoutId);
+        Assert.report(
+          false,
+          undefined,
+          undefined,
+          `${Services.focus.activeWindow?.location} now active - ${Services.focus.focusedWindow?.location} has focus`
+        );
       }
       if (mode === "edit") {
         const iframe = win.document.getElementById("calendar-item-panel-iframe");

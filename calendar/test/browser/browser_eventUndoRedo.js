@@ -29,23 +29,20 @@ const calTransManager = CalTransactionManager.getInstance();
 async function isDisabled(element) {
   const targetMenu = document.getElementById("menu_EditPopup");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(document.getElementById("menu_Edit"), {});
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(targetMenu, "shown");
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(targetMenu, "popuphidden");
   const status = element.disabled;
   targetMenu.hidePopup();
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(targetMenu, "hidden");
   return status;
 }
 
 async function clickItem(element) {
   const targetMenu = document.getElementById("menu_EditPopup");
 
-  const shownPromise = BrowserTestUtils.waitForEvent(targetMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(document.getElementById("menu_Edit"), {});
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(targetMenu, "shown");
 
   targetMenu.activateItem(element);
 }
@@ -231,6 +228,8 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
+
+  await SimpleTest.promiseFocus(window);
 
   clearTransactions();
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
