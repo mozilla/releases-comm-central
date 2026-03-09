@@ -34,7 +34,7 @@ addEventListener(
  * opening Dock Options sub-dialog.
  */
 async function openDockOptions() {
-  const win = await openOptionsDialog("paneGeneral");
+  const win = await openPreferencesTab("paneGeneral");
   win.gSubDialog.open(
     "chrome://messenger/content/preferences/dockoptions.xhtml"
   );

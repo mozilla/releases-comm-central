@@ -166,6 +166,7 @@ async function MsgAccountManager(selectPage, server) {
     return;
   }
 
+  win.focus();
   const tabmail = win.document.getElementById("tabmail");
   // If the server wasn't specified, and we have the window open, try
   // and use the currently selected folder to work out the server to select.

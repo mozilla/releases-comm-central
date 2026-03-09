@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals openAddonsTab, openChatTab, openNewCalendarEventTab,
- * openNewCalendarTaskTab, openPreferencesTab, openTasksTab,
+ * openNewCalendarTaskTab, openSettingsTab, openTasksTab,
  * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab,
  * toAddressBook */
 
@@ -58,7 +58,7 @@ add_task(async () => {
     check("calendarTask");
     await toAddressBook();
     check("addressBookTab");
-    await openPreferencesTab();
+    await openSettingsTab();
     check("preferencesTab");
     await openAddonsTab();
     check("contentTab");
@@ -158,7 +158,7 @@ add_task(async () => {
   ok(BrowserTestUtils.isVisible(button), "today pane button is visible in task tab");
   await toAddressBook();
   is(BrowserTestUtils.isVisible(button), false, "today pane button is hidden in address book tab");
-  await openPreferencesTab();
+  await openSettingsTab();
   is(BrowserTestUtils.isVisible(button), false, "today pane button is hidden in preferences tab");
   await openAddonsTab();
   is(BrowserTestUtils.isVisible(button), false, "today pane button is hidden in addons tab");

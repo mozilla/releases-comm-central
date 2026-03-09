@@ -1949,7 +1949,6 @@ Enigmail.msg = {
             "am-e2e.xhtml",
             MailServices.accounts.getServersForIdentity(gCurrentIdentity)[0]
           );
-          Services.wm.getMostRecentWindow("mail:3pane")?.focus();
           return true;
         },
       },

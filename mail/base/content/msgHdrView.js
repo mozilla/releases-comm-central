@@ -4221,7 +4221,7 @@ function allowRemoteContentForAll(aListNode) {
  * Displays fine-grained, per-site preferences for remote content.
  */
 function editRemoteContentSettings() {
-  top.openOptionsDialog("panePrivacy", "privacyCategory");
+  top.openPreferencesTab("panePrivacy", "privacyCategory");
 }
 
 /**
@@ -4238,7 +4238,7 @@ function IgnorePhishingWarning() {
  * Open the preferences dialog to allow disabling the scam feature.
  */
 function OpenPhishingSettings() {
-  top.openOptionsDialog("panePrivacy", "privacySecurityCategory");
+  top.openPreferencesTab("panePrivacy", "privacySecurityCategory");
 }
 
 function setMsgHdrPropertyAndReload(aProperty, aValue) {

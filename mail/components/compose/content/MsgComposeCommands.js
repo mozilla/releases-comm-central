@@ -3352,7 +3352,7 @@ function manageAttachmentNotification(force = false) {
   // Construct the notification as we don't have one.
   const msg = document.createElement("div");
   msg.onclick = function () {
-    openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
+    openPreferencesTab("paneCompose", "compositionAttachmentsCategory", {
       subdialog: "attachment_reminder_button",
     });
   };

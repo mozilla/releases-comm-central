@@ -125,7 +125,7 @@ var commandController = {
     cmd_tag9: () => commandController._toggleMessageTagKey(9),
     cmd_addTag: () => commandController._addTag(),
     cmd_manageTags() {
-      window.browsingContext.topChromeWindow.openOptionsDialog(
+      window.browsingContext.topChromeWindow.openPreferencesTab(
         "paneGeneral",
         "tagsCategory"
       );

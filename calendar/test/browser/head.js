@@ -4,7 +4,8 @@
 
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
-/* globals openOptionsDialog, openAddonsMgr */
+/* globals openAddonsMgr */ // mailCore.js
+/* globals openPreferencesTab */ // mail/base/content/utilityOverlay.js
 
 const { CalendarTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
@@ -172,14 +173,14 @@ async function _closeCalendarItemTab(tabMode, panelId) {
 const closeCalendarEventTab = _closeCalendarItemTab.bind(null, "calendarEvent");
 const closeCalendarTaskTab = _closeCalendarItemTab.bind(null, "calendarTask");
 
-async function openPreferencesTab() {
+async function openSettingsTab() {
   const tabmail = document.getElementById("tabmail");
   const prefsMode = tabmail.tabModes.preferencesTab;
 
   if (prefsMode.tabs.length == 1) {
     tabmail.selectedTab = prefsMode.tabs[0];
   } else {
-    openOptionsDialog();
+    openPreferencesTab();
   }
 
   is(prefsMode.tabs.length, 1, "preferences tab is open");

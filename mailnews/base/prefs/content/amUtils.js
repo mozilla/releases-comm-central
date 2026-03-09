@@ -198,9 +198,9 @@ function openPrefsFromAccountManager(
     return;
   }
 
-  // If openOptionsDialog() exists, we are in Thunderbird.
-  if (typeof win.openOptionsDialog == "function") {
-    win.openOptionsDialog(aTBPaneId, aTBScrollPaneTo, aTBOtherArgs);
+  // If openPreferencesTab() exists, we are in Thunderbird.
+  if (typeof win.openPreferencesTab == "function") {
+    win.openPreferencesTab(aTBPaneId, aTBScrollPaneTo, aTBOtherArgs);
   }
   // If goPreferences() exists, we are in Seamonkey.
   if (typeof win.goPreferences == "function") {

@@ -328,7 +328,7 @@
 #ifndef XP_MACOSX
     <menuseparator id="prefSep"/>
     <menuitem id="menu_preferences"
-              oncommand="openOptionsDialog()"
+              oncommand="openPreferencesTab()"
               data-l10n-id="menu-tools-settings"/>
     <menuitem id="menu_accountmgr"
               label="&accountManagerCmd2.label;"
@@ -1212,7 +1212,7 @@
               oncommand="toExport();"/>
     <menuitem id="menu_exportmobile"
               data-l10n-id="menu-export-for-mobile"
-              oncommand="openOptionsDialog('paneQrExport');"/>
+              oncommand="openPreferencesTab('paneQrExport');"/>
     <menuitem id="manageKeysOpenPGP"
               data-l10n-id="openpgp-manage-keys-openpgp-cmd"
               oncommand="openKeyManager()"/>
@@ -1243,7 +1243,7 @@
 #ifndef XP_UNIX
     <menuseparator id="prefSep"/>
     <menuitem id="menu_preferences"
-              oncommand="openOptionsDialog()"
+              oncommand="openPreferencesTab()"
               data-l10n-id="menu-tools-settings"/>
     <menuitem id="menu_accountmgr"
               label="&accountManagerCmd2.label;"
@@ -1261,7 +1261,7 @@
     <menuitem id="menu_settings"
               data-l10n-id="menu-tools-settings"
               key="key_preferencesCmdMac"
-              oncommand="openOptionsDialog()"/>
+              oncommand="openPreferencesTab()"/>
     <menuitem id="menu_accountmgr"
               label="&accountManagerCmd2.label;"
               accesskey="&accountManagerCmd2.accesskey;"
