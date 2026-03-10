@@ -389,6 +389,7 @@ export async function open_message_from_file(file) {
     .mutate()
     .setQuery("type=application/x-message-display")
     .finalize();
+  Assert.report(false, undefined, undefined, `Opening ${fileURL.spec}`);
 
   const newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
     null,
@@ -405,17 +406,36 @@ export async function open_message_from_file(file) {
     fileURL
   );
   const win = await newWindowPromise;
-  const aboutMessage = get_about_message(win);
-  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
-
+  Assert.report(false, undefined, undefined, `${win.location} window opened`);
   await wait_for_message_display_completion(win, true);
+  Assert.report(false, undefined, undefined, "message display complete");
   if (Services.focus.activeWindow != win) {
-    await new Promise(resolve =>
-      win.addEventListener("activate", resolve, { once: true })
+    let focusTimeoutId;
+    const focusTimeout = new Promise(resolve => {
+      focusTimeoutId = win.setTimeout(() => {
+        Assert.report(
+          false,
+          undefined,
+          undefined,
+          `Will force focus to ${win.location}`
+        );
+        win.focus();
+        resolve();
+      }, 5000);
+    });
+    await Promise.race([
+      BrowserTestUtils.waitForEvent(win, "activate"),
+      focusTimeout,
+    ]);
+    win.clearTimeout(focusTimeoutId);
+    Assert.report(
+      false,
+      undefined,
+      undefined,
+      `${Services.focus.activeWindow?.location} now active - ${Services.focus.focusedWindow?.location} has focus`
     );
   }
   await TestUtils.waitForTick();
-
   return win;
 }
 
