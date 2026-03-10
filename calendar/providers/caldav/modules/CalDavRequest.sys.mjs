@@ -190,12 +190,13 @@ class CalDavRequestBase {
     }
 
     let uploadData, uploadContent;
-    const oldUploadChannel = aOldChannel?.QueryInterface(Ci.nsIUploadChannel);
-    const oldHttpChannel = aOldChannel?.QueryInterface(Ci.nsIHttpChannel);
-    if (oldUploadChannel && oldHttpChannel && oldUploadChannel.uploadStream) {
-      uploadData = oldUploadChannel.uploadStream;
-      uploadContent = oldHttpChannel.getRequestHeader("Content-Type");
-    }
+    try {
+      const oldUploadChannel = aOldChannel.QueryInterface(Ci.nsIUploadChannel);
+      if (oldUploadChannel && oldUploadChannel.uploadStream) {
+        uploadData = oldUploadChannel.uploadStream;
+        uploadContent = aOldChannel.getRequestHeader("Content-Type");
+      }
+    } catch (e) {}
 
     cal.provider.prepHttpChannel(null, uploadData, uploadContent, this, aNewChannel);
 
@@ -204,7 +205,7 @@ class CalDavRequestBase {
     aOldChannel.QueryInterface(Ci.nsIHttpChannel);
 
     try {
-      this.response.lastRedirectStatus = oldHttpChannel.responseStatus;
+      this.response.lastRedirectStatus = aOldChannel.responseStatus;
     } catch (e) {
       this.response.lastRedirectStatus = null;
     }
@@ -218,7 +219,7 @@ class CalDavRequestBase {
     copyHeader("If-Match");
     copyHeader("Accept");
 
-    aNewChannel.requestMethod = oldHttpChannel.requestMethod;
+    aNewChannel.requestMethod = aOldChannel.requestMethod;
     this.session.prepareRedirect(aOldChannel, aNewChannel).then(() => {
       aCallback.onRedirectVerifyCallback(Cr.NS_OK);
     });

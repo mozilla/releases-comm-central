@@ -580,7 +580,13 @@ calCachedCalendar.prototype = {
     return Services.io.offline;
   },
   get supportsChangeLog() {
-    return this.mUncachedCalendar instanceof Ci.calIChangeLog;
+    try {
+      // Use QI instead of instanceof, since the implementation may be from
+      // an add-on (different compartment).
+      return !!this.mUncachedCalendar?.QueryInterface(Ci.calIChangeLog);
+    } catch (e) {
+      return false;
+    }
   },
 
   get canRefresh() {

@@ -37,6 +37,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
+  CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
 window.addEventListener("load", onLoad);
@@ -1357,8 +1358,8 @@ function getRepeatTypeAndUntilDate() {
       }
     }
     if (rules.length == 1) {
-      const rule = rules[0]?.QueryInterface(Ci.calIRecurrenceRule);
-      if (rule) {
+      const rule = rules[0];
+      if (rule instanceof CalRecurrenceRule || rule instanceof Ci.calIRecurrenceRule) {
         switch (rule.type) {
           case "DAILY": {
             const byparts = [
