@@ -20,7 +20,11 @@ window.addEventListener("DOMContentLoaded", onLoad);
  * calendar in question, and a `canDisable` property for whether to offer
  * disabling/enabling the calendar.
  */
-function onLoad() {
+function onLoad(event) {
+  if (event.target != document) {
+    return;
+  }
+
   /** @type {{ calendar: calICalendar, canDisable: boolean}} */
   const args = window.arguments[0];
 
