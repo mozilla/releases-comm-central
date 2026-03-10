@@ -38,6 +38,12 @@ tags = ["webextensions"]
 
 ["browser_ext_mailTabs_setSelectedMessages.js"]
 
+["browser_ext_menus_getTargetElement.js"]
+support-files = [
+  "data/content.html",
+]
+tags = ["contextmenu"]
+
 ["browser_ext_menus_context_action.js"]
 support-files = [
   "data/content.html",

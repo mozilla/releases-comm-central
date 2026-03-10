@@ -512,6 +512,7 @@ var mailContextMenu = {
     const subject = {
       menu: event.target,
       tab: tabmail ? tabmail.currentTabInfo : top,
+      timeStamp: this.context?.timeStamp,
       isContentSelected,
       isTextSelected,
       onTextInput: this.context?.onTextInput,

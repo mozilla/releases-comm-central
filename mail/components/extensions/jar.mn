@@ -11,7 +11,9 @@ messenger.jar:
 
     content/messenger/child/ext-extensionScripts.js  (child/ext-extensionScripts.js)
     content/messenger/child/ext-mail.js            (child/ext-mail.js)
+    content/messenger/child/ext-mail-content-only.js (child/ext-mail-content-only.js)
     content/messenger/child/ext-menus.js           (child/ext-menus.js)
+    content/messenger/child/ext-menus-child.js     (child/ext-menus-child.js)
     content/messenger/child/ext-tabs.js            (child/ext-tabs.js)
 
     content/messenger/parent/ext-accounts.js       (parent/ext-accounts.js)
