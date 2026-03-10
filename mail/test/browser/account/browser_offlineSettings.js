@@ -73,7 +73,13 @@ add_setup(async () => {
     .getChildNamed("offline.second")
     .setFlag(Ci.nsMsgFolderFlags.Offline);
   nntpRootFolder.createSubfolder("offline.third", null);
+  nntpRootFolder
+    .getChildNamed("offline.third")
+    .clearFlag(Ci.nsMsgFolderFlags.Offline);
   nntpRootFolder.createSubfolder("offline.third.fourth", null);
+  nntpRootFolder
+    .getChildNamed("offline.third.fourth")
+    .clearFlag(Ci.nsMsgFolderFlags.Offline);
 
   // Set up IMAP account.
 
@@ -96,6 +102,10 @@ add_setup(async () => {
       imapRootFolder.getChildNamed("third").numSubFolders == 1,
     "waiting for IMAP folders to sync"
   );
+  imapRootFolder.getChildNamed("Inbox").setFlag(Ci.nsMsgFolderFlags.Offline);
+  imapRootFolder.getChildNamed("first").setFlag(Ci.nsMsgFolderFlags.Offline);
+  imapRootFolder.getChildNamed("second").setFlag(Ci.nsMsgFolderFlags.Offline);
+  imapRootFolder.getChildNamed("Trash").clearFlag(Ci.nsMsgFolderFlags.Offline);
   imapRootFolder.getChildNamed("third").clearFlag(Ci.nsMsgFolderFlags.Offline);
   imapRootFolder
     .getChildNamed("third")
@@ -130,6 +140,11 @@ add_setup(async () => {
   ewsRootFolder.getChildNamed("Inbox").setFlag(Ci.nsMsgFolderFlags.Offline);
   ewsRootFolder.getChildNamed("first").setFlag(Ci.nsMsgFolderFlags.Offline);
   ewsRootFolder.getChildNamed("second").setFlag(Ci.nsMsgFolderFlags.Offline);
+  ewsRootFolder.getChildNamed("third").clearFlag(Ci.nsMsgFolderFlags.Offline);
+  ewsRootFolder
+    .getChildNamed("third")
+    .getChildNamed("fourth")
+    .clearFlag(Ci.nsMsgFolderFlags.Offline);
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(nntpAccount, false);
