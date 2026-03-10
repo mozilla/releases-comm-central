@@ -82,7 +82,17 @@ impl XpcomGraphBridge {
             endpoint.to_string()
         );
 
-        let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+        // The ms_graph_tb crate is built from the Graph 1.0 API specification.
+        // Incoming configuration is assumed to exclude the API version, so it
+        // needs to be added to the base endpoint for all API calls here.
+        let mut endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+        {
+            let mut endpoint_path = endpoint
+                .path_segments_mut()
+                .map_err(|_| nserror::NS_ERROR_MALFORMED_URI)?;
+            endpoint_path.push("v1.0");
+        }
+        let endpoint = endpoint.clone();
 
         let credentials = server.get_credentials()?;
         let server = RefPtr::new(server);

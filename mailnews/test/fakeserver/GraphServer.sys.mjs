@@ -142,7 +142,9 @@ export class GraphServer extends MockServer {
       }
     }
 
-    const resourcePath = request.path;
+    const resourcePath = request.path.startsWith("/v1.0")
+      ? request.path.substring(5)
+      : request.path;
     const resourceQuery = request.queryString;
 
     let responseJsonObject = {};
