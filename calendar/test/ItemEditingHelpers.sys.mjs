@@ -666,12 +666,12 @@ export async function menulistSelect(menulist, value) {
   Assert.ok(!menulist.disabled, `menulist id=${menulist.id} should be enabled`);
 
   synthesizeMouseAtCenter(menulist, {}, win);
-  await BrowserTestUtils.waitForPopupEvent(menulist, "shown");
+  await BrowserTestUtils.waitForPopupEvent(menulist.menupopup, "shown");
 
   Assert.report(false, undefined, undefined, `menulist id=${menulist.id} shown`);
 
   synthesizeMouseAtCenter(menuitem, {}, win);
-  await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
+  await BrowserTestUtils.waitForPopupEvent(menulist.menupopup, "hidden");
 
   await new Promise(resolve => win.setTimeout(resolve));
   Assert.equal(menulist.value, value, "menulist should get correct value");
