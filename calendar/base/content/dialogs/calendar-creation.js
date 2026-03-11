@@ -826,12 +826,24 @@ function openCalendarPropertiesFromEvent(event) {
   if (listItem) {
     const calendar = listItem.calendar;
     if (calendar && !calendar.getProperty("disabled")) {
-      cal.window.openCalendarProperties(window, { calendar, canDisable: false });
+      const propertiesWin = cal.window.openCalendarProperties(window, {
+        calendar,
+        canDisable: false,
+      });
 
-      // Update the calendar list item.
-      listItem.querySelector(".calendar-name").value = calendar.name;
-      listItem.querySelector(".calendar-color").style.backgroundColor =
-        calendar.getProperty("color");
+      function onWindowClosed(win) {
+        if (win == propertiesWin.opener) {
+          // Close the properties dialog if this window closes.
+          propertiesWin.close();
+        } else if (win == propertiesWin) {
+          // Update the calendar list item.
+          Services.obs.removeObserver(onWindowClosed, "domwindowclosed");
+          listItem.querySelector(".calendar-name").value = calendar.name;
+          listItem.querySelector(".calendar-color").style.backgroundColor =
+            calendar.getProperty("color");
+        }
+      }
+      Services.obs.addObserver(onWindowClosed, "domwindowclosed");
     }
   }
 }

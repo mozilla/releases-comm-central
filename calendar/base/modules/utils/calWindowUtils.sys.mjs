@@ -46,10 +46,11 @@ export var window = {
    * @param {?window} aWindow - The window to open the dialog on,
    *   or null for the main calendar window.
    * @param {OpenCalendarPropertiesArgs} args - Passed directly to the window.
+   * @returns {window} The opened window.
    */
   openCalendarProperties(aWindow, args) {
     const dialogWindow = aWindow || window.getCalendarWindow();
-    dialogWindow.openDialog(
+    return dialogWindow.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
       "chrome,titlebar,resizable,centerscreen",
