@@ -125,7 +125,11 @@ mochitest-thunderbird:
     description: "Mochitest browser-chrome-thunderbird run"
     suite:
         category: mochitest
-        name: mochitest-browser-chrome-thunderbird
+        name:
+            by-variant:
+                a11y-checks: mochitest-browser-chrome-thunderbird-a11y
+                default: mochitest-browser-chrome-thunderbird
+    try-name: mochitest-browser-chrome-thunderbird
     target:
         by-test-platform:
             windows11-64.*:
@@ -149,6 +153,7 @@ mochitest-thunderbird:
                     default: 3600
     variants:
         - msix
+        - a11y-checks
     run-on-projects:
         by-variant:
             msix:

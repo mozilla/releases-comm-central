@@ -25,5 +25,12 @@ config = {
             "--subsuite=thunderbird",
             "--leak-threshold=51200",  # 50kB
         ],
+        "mochitest-browser-chrome-thunderbird-a11y": [
+            "--flavor=browser",
+            "--subsuite=thunderbird",
+            "--leak-threshold=51200",  # 50kB
+            # List of Directories, files to be included in a11y tests here
+            # With no files or directories listed, tests will be run against full suite
+        ],
     },
 }
