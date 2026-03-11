@@ -322,24 +322,6 @@ NS_IMETHODIMP DetachedMsgHdr::GetMime2DecodedRecipients(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP DetachedMsgHdr::GetAuthorCollationKey(
-    nsTArray<uint8_t>& _retval) {
-  NS_WARNING(__PRETTY_FUNCTION__);
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP DetachedMsgHdr::GetSubjectCollationKey(
-    nsTArray<uint8_t>& _retval) {
-  NS_WARNING(__PRETTY_FUNCTION__);
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP DetachedMsgHdr::GetRecipientsCollationKey(
-    nsTArray<uint8_t>& _retval) {
-  NS_WARNING(__PRETTY_FUNCTION__);
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP DetachedMsgHdr::GetCharset(nsACString& charset) {
   charset.Assign(mRaw.charset);
   return NS_OK;

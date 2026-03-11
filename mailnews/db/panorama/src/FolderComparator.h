@@ -30,8 +30,6 @@ class FolderComparator {
   bool LessThan(uint64_t a, uint64_t b) const;
 
  private:
-  static const mozilla::intl::Collator* sCollator;
-  static const mozilla::intl::Collator* GetCollator();
   uint8_t SpecialFlagsOrder(const uint32_t flags) const;
   FolderDatabase& mFolderDB;
 };

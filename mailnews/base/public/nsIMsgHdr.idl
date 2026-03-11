@@ -86,10 +86,6 @@ interface nsIMsgDBHdr : nsISupports
     readonly attribute AString mime2DecodedSubject;
     readonly attribute AString mime2DecodedRecipients;
 
-    Array<octet> getAuthorCollationKey();
-    Array<octet> getSubjectCollationKey();
-    Array<octet> getRecipientsCollationKey();
-
     attribute AUTF8String charset;
 
     /**

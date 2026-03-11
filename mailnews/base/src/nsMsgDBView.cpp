@@ -10,6 +10,7 @@
 #include "MailNewsTypes2.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/DataTransfer.h"
+#include "mozilla/intl/AppCollator.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/intl/Localization.h"
@@ -3108,13 +3109,8 @@ void nsMsgDBView::ReverseSort() {
 
 int nsMsgDBView::FnSortIdKey(const IdKey* pItem1, const IdKey* pItem2,
                              viewSortInfo* sortInfo) {
-  int32_t retVal = 0;
-
-  nsIMsgDatabase* db = sortInfo->db;
-
-  mozilla::DebugOnly<nsresult> rv =
-      db->CompareCollationKeys(pItem1->key, pItem2->key, &retVal);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "compare failed");
+  int32_t retVal =
+      mozilla::intl::AppCollator::CompareBase(pItem1->key, pItem2->key);
 
   if (retVal) return sortInfo->ascendingSort ? retVal : -retVal;
 
@@ -3529,80 +3525,40 @@ void nsMsgDBView::UpdateSortInfo(nsMsgViewSortTypeValue sortType,
 
 nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
                                       nsMsgViewSortTypeValue sortType,
-                                      nsTArray<uint8_t>& result,
+                                      nsAString& result,
                                       nsIMsgCustomColumnHandler* colHandler) {
   nsresult rv = NS_ERROR_UNEXPECTED;
   NS_ENSURE_ARG_POINTER(msgHdr);
 
   switch (sortType) {
-    case nsMsgViewSortType::bySubject:
-      rv = msgHdr->GetSubjectCollationKey(result);
+    case nsMsgViewSortType::bySubject: {
+      uint32_t flags;
+      msgHdr->GetFlags(&flags);
+      rv = FetchSubject(msgHdr, flags, result);
       break;
+    }
     case nsMsgViewSortType::byLocation:
       rv = GetLocationCollationKey(msgHdr, result);
       break;
     case nsMsgViewSortType::byRecipient: {
       nsString recipients;
-      rv = FetchRecipients(msgHdr, recipients);
-      if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
-        // Probably a search view.
-        if (!dbToUse) {
-          rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-        rv = dbToUse->CreateCollationKey(recipients, result);
-      }
+      rv = FetchRecipients(msgHdr, result);
       break;
     }
     case nsMsgViewSortType::byAuthor: {
-      rv = msgHdr->GetAuthorCollationKey(result);
-      nsString author;
-      rv = FetchAuthor(msgHdr, author);
-      if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
-        // Probably a search view.
-        if (!dbToUse) {
-          rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-
-        rv = dbToUse->CreateCollationKey(author, result);
-      }
+      rv = FetchAuthor(msgHdr, result);
       break;
     }
     case nsMsgViewSortType::byAccount:
     case nsMsgViewSortType::byTags: {
-      nsString str;
-      nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
-
-      if (!dbToUse)
-        // Probably a search view.
-        GetDBForViewIndex(0, getter_AddRefs(dbToUse));
-
       rv = (sortType == nsMsgViewSortType::byAccount)
-               ? FetchAccount(msgHdr, str)
-               : FetchTags(msgHdr, str);
-      if (NS_SUCCEEDED(rv) && dbToUse)
-        rv = dbToUse->CreateCollationKey(str, result);
-
+               ? FetchAccount(msgHdr, result)
+               : FetchTags(msgHdr, result);
       break;
     }
     case nsMsgViewSortType::byCustom:
       if (colHandler != nullptr) {
-        nsAutoString strKey;
-        rv = colHandler->GetSortStringForRow(msgHdr, strKey);
-        NS_ASSERTION(NS_SUCCEEDED(rv),
-                     "failed to get sort string for custom row");
-        nsAutoString strTemp(strKey);
-
-        nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
-        // Probably a search view.
-        if (!dbToUse) {
-          rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-        rv = dbToUse->CreateCollationKey(strKey, result);
+        rv = colHandler->GetSortStringForRow(msgHdr, result);
       } else {
         NS_ERROR(
             "should not be here (Sort Type: byCustom (String), but no custom "
@@ -3611,22 +3567,10 @@ nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
       }
       break;
     case nsMsgViewSortType::byCorrespondent: {
-      nsString value;
       if (IsOutgoingMsg(msgHdr))
-        rv = FetchRecipients(msgHdr, value);
+        rv = FetchRecipients(msgHdr, result);
       else
-        rv = FetchAuthor(msgHdr, value);
-
-      if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
-        // Probably a search view.
-        if (!dbToUse) {
-          rv = GetDBForHeader(msgHdr, getter_AddRefs(dbToUse));
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-
-        rv = dbToUse->CreateCollationKey(value, result);
-      }
+        rv = FetchAuthor(msgHdr, result);
       break;
     }
     default:
@@ -3638,7 +3582,7 @@ nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
   // a bad state. Try to continue on, instead.
   NS_ASSERTION(NS_SUCCEEDED(rv), "failed to get the collation key");
   if (NS_FAILED(rv)) {
-    result.Clear();
+    result.Truncate();
   }
 
   return NS_OK;
@@ -3647,20 +3591,13 @@ nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
 // As the location collation key is created getting folder from the msgHdr,
 // it is defined in this file and not from the db.
 nsresult nsMsgDBView::GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
-                                              nsTArray<uint8_t>& result) {
+                                              nsAString& result) {
   nsCOMPtr<nsIMsgFolder> folder;
 
   nsresult rv = msgHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDatabase> dbToUse;
-  rv = folder->GetMsgDatabase(getter_AddRefs(dbToUse));
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoString locationString;
-  rv = folder->GetLocalizedName(locationString);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return dbToUse->CreateCollationKey(locationString, result);
+  return folder->GetLocalizedName(result);
 }
 
 nsresult nsMsgDBView::SaveSortInfo(nsMsgViewSortTypeValue sortType,

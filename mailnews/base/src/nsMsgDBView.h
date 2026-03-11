@@ -71,9 +71,9 @@ struct IdUint32 {
 
 // Extends IdUint32 for sorting by a collation key field (eg subject).
 // (Also used as IdUint32 a couple of places to simplify the code, where
-// the overhead of an unused nsTArray isn't a big deal).
+// the overhead of an unused nsString isn't a big deal).
 struct IdKey : public IdUint32 {
-  nsTArray<uint8_t> key;
+  nsString key;
 };
 
 class nsMsgDBViewService final : public nsIMsgDBViewService {
@@ -353,7 +353,7 @@ class nsMsgDBView : public nsIMsgDBView,
       nsMsgViewSortTypeValue sortType, uint16_t* pMaxLen,
       eFieldType* pFieldType, nsIMsgCustomColumnHandler* colHandler = nullptr);
   nsresult GetCollationKey(nsIMsgDBHdr* msgHdr, nsMsgViewSortTypeValue sortType,
-                           nsTArray<uint8_t>& result,
+                           nsAString& result,
                            nsIMsgCustomColumnHandler* colHandler = nullptr);
   nsresult GetLongField(nsIMsgDBHdr* msgHdr, nsMsgViewSortTypeValue sortType,
                         uint32_t* result,
@@ -365,8 +365,7 @@ class nsMsgDBView : public nsIMsgDBView,
                             viewSortInfo* sortInfo);
 
   nsresult GetStatusSortValue(nsIMsgDBHdr* msgHdr, uint32_t* result);
-  nsresult GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
-                                   nsTArray<uint8_t>& result);
+  nsresult GetLocationCollationKey(nsIMsgDBHdr* msgHdr, nsAString& result);
   void PushSort(const MsgViewSortColumnInfo& newSort);
   void UpdateSortInfo(nsMsgViewSortTypeValue sortType,
                       nsMsgViewSortOrderValue sortOrder);

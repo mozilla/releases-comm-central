@@ -411,19 +411,6 @@ NS_IMETHODIMP nsMsgFileHdr::GetMime2DecodedRecipients(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetAuthorCollationKey(nsTArray<uint8_t>& _retval) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFileHdr::GetSubjectCollationKey(nsTArray<uint8_t>& _retval) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFileHdr::GetRecipientsCollationKey(
-    nsTArray<uint8_t>& _retval) {
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgFileHdr::GetCharset(nsACString& aCharset) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::SetCharset(const nsACString& aCharset) {

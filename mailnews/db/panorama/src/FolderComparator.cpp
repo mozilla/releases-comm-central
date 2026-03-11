@@ -5,7 +5,7 @@
 #include "FolderComparator.h"
 
 #include "FolderDatabase.h"
-#include "mozilla/intl/Collator.h"
+#include "mozilla/intl/AppCollator.h"
 #include "mozilla/intl/LocaleService.h"
 #include "nsMsgFolderFlags.h"
 
@@ -22,14 +22,8 @@ bool FolderComparator::Equals(uint64_t a, uint64_t b) const {
     if (ordB.isNothing()) {
       nsCString nameA = mFolderDB.GetFolderName(a).unwrapOr(""_ns);
       nsCString nameB = mFolderDB.GetFolderName(b).unwrapOr(""_ns);
-
-      const Collator* collator = GetCollator();
-      if (!collator) {
-        return false;
-      }
-      return collator->CompareStrings(
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(nameA)),
-                 PromiseFlatString(NS_ConvertUTF8toUTF16(nameB))) == 0;
+      // FIXME: This doesn't do a numeric comparison, but it should.
+      return mozilla::intl::AppCollator::CompareBase(nameA, nameB) == 0;
     }
     return false;
   }
@@ -74,13 +68,8 @@ bool FolderComparator::LessThan(uint64_t a, uint64_t b) const {
 
   nsCString nameA = mFolderDB.GetFolderName(a).unwrapOr(""_ns);
   nsCString nameB = mFolderDB.GetFolderName(b).unwrapOr(""_ns);
-  const Collator* collator = GetCollator();
-  if (!collator) {
-    return false;
-  }
-  return collator->CompareStrings(
-             PromiseFlatString(NS_ConvertUTF8toUTF16(nameA)),
-             PromiseFlatString(NS_ConvertUTF8toUTF16(nameB))) < 0;
+  // FIXME: This doesn't do a numeric comparison, but it should.
+  return mozilla::intl::AppCollator::CompareBase(nameA, nameB) < 0;
 }
 
 uint8_t FolderComparator::SpecialFlagsOrder(const uint32_t flags) const {
@@ -94,37 +83,6 @@ uint8_t FolderComparator::SpecialFlagsOrder(const uint32_t flags) const {
   if (flags & nsMsgFolderFlags::Virtual) return 7;
   if (flags & nsMsgFolderFlags::Queue) return 8;
   return 9;
-}
-
-const Collator* FolderComparator::sCollator;
-
-const Collator* FolderComparator::GetCollator() {
-  if (sCollator) {
-    return sCollator;
-  }
-
-  // Lazily initialize the Collator.
-  auto result = LocaleService::TryCreateComponent<Collator>();
-  if (result.isErr()) {
-    NS_ERROR("couldn't create a Collator");
-    return nullptr;
-  }
-
-  auto collator = result.unwrap();
-
-  // Sort in a case-insensitive way, where "base" letters are considered
-  // equal, e.g: a = á, a = A, a ≠ b.
-  Collator::Options options{};
-  options.sensitivity = Collator::Sensitivity::Base;
-  options.numeric = true;
-  auto optResult = collator->SetOptions(options);
-  if (optResult.isErr()) {
-    NS_ERROR("couldn't set options for Collator");
-    return nullptr;
-  }
-  sCollator = collator.release();
-
-  return sCollator;
 }
 
 }  // namespace mozilla::mailnews

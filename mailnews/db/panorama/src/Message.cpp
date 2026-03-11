@@ -306,18 +306,6 @@ NS_IMETHODIMP Message::GetMime2DecodedRecipients(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP Message::GetAuthorCollationKey(nsTArray<uint8_t>& _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP Message::GetSubjectCollationKey(nsTArray<uint8_t>& _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP Message::GetRecipientsCollationKey(nsTArray<uint8_t>& _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP Message::GetCharset(nsACString& charset) {
   // TODO: actually implement this.
   charset.Truncate();

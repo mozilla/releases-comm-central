@@ -649,15 +649,6 @@ NS_IMETHODIMP PerFolderDatabase::GetNextFakeOfflineMsgKey(
     nsMsgKey* aNextFakeOfflineMsgKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-NS_IMETHODIMP PerFolderDatabase::CreateCollationKey(
-    const nsAString& sourceString, nsTArray<uint8_t>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::CompareCollationKeys(
-    const nsTArray<uint8_t>& key1, const nsTArray<uint8_t>& key2,
-    int32_t* aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
 NS_IMETHODIMP PerFolderDatabase::GetDefaultViewFlags(
     nsMsgViewFlagsTypeValue* viewFlags) {
   NS_ENSURE_ARG_POINTER(viewFlags);
