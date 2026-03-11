@@ -1143,7 +1143,7 @@ NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
   rv = trashFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
   nsTArray<nsCString> subFolderIds(subFolders.Length());
-  for (const auto f : subFolders) {
+  for (const auto& f : subFolders) {
     nsCString ewsId;
     rv = f->GetStringProperty(kEwsIdProperty, ewsId);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1179,7 +1179,7 @@ NS_IMETHODIMP EwsFolder::EmptyTrash(nsIUrlListener* aListener) {
         rv = trashFolder->GetSubFolders(subFolders);
         NS_ENSURE_SUCCESS(rv, rv);
 
-        for (const auto f : subFolders) {
+        for (const auto& f : subFolders) {
           rv = trashFolder->PropagateDelete(f, true);
           NS_ENSURE_SUCCESS(rv, rv);
         }
