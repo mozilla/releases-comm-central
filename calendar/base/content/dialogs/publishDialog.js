@@ -31,7 +31,7 @@ function loadCalendarPublishDialog() {
 
   // Set initial accept button label via Fluent ("Publish").
   const dialog = document.querySelector("dialog");
-  document.l10n.setAttributes(dialog.getButton("accept"), "calendar-publish-publish-button");
+  document.l10n.setAttributes(dialog, "calendar-publish-publish-dialog-button");
 
   const firstFocus = document.getElementById("publish-remotePath-textbox");
   firstFocus.focus();

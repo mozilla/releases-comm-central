@@ -30,7 +30,11 @@
     <script defer="defer" src="chrome://calendar/content/publishDialog.js"></script>
   </head>
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <dialog buttons="accept,cancel" data-l10n-id="calendar-publish-publish-button">
+    <dialog
+      buttons="accept,cancel"
+      data-l10n-id="calendar-publish-publish-dialog-button"
+      data-l10n-attrs="buttonlabelaccept"
+    >
       <html:div>
         <html:label
           for="publish-remotePath-textbox"

@@ -1230,7 +1230,8 @@ calendar-publish-dialog-title =
 
 calendar-publish-url-label = Publishing URL
 
-calendar-publish-publish-button = Publish
+calendar-publish-publish-dialog-button =
+    .buttonlabelaccept = Publish
 
 calendar-publish-close-button = Close
 
