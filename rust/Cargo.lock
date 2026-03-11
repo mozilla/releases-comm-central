@@ -139,6 +139,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
+name = "app_collator_glue"
+version = "0.1.0"
+dependencies = [
+ "icu_collator",
+ "icu_locale_core",
+ "libsqlite3-sys",
+ "nsstring",
+]
+
+[[package]]
 name = "app_units"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2448,6 +2458,7 @@ dependencies = [
  "aa-stroke",
  "abridged_certs",
  "adblock",
+ "app_collator_glue",
  "audio_thread_priority",
  "audioipc2-client",
  "audioipc2-server",
@@ -2586,6 +2597,7 @@ dependencies = [
  "aa-stroke",
  "abridged_certs",
  "adblock",
+ "app_collator_glue",
  "audio_thread_priority",
  "authrs_bridge",
  "binary_http",
@@ -3116,6 +3128,28 @@ name = "icu_casemap_data"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98d4663d0f99b301033a19e0acf94e9d2fa4b107638580165e5a6ccc49ad1450"
+
+[[package]]
+name = "icu_collator"
+version = "2.1.1"
+dependencies = [
+ "displaydoc",
+ "icu_collator_data",
+ "icu_collections",
+ "icu_locale",
+ "icu_locale_core",
+ "icu_normalizer",
+ "icu_properties",
+ "icu_provider",
+ "smallvec",
+ "utf16_iter",
+ "utf8_iter",
+ "zerovec",
+]
+
+[[package]]
+name = "icu_collator_data"
+version = "2.1.1"
 
 [[package]]
 name = "icu_collections"
