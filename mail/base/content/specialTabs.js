@@ -810,7 +810,7 @@ var specialTabs = {
       // nsDocLoader.cpp: Overwriting an existing document channel. Mozilla-central
       // is aggressively setting nodefaultsrc, so we do the same. See Comment 8
       // of bug 1921974 for more details.
-      aTab.browser.setAttribute("nodefaultsrc", "true");
+      aTab.browser.toggleAttribute("nodefaultsrc", true);
       clone.querySelector("stack").appendChild(aTab.browser);
 
       if (aArgs.skipLoad) {
@@ -820,9 +820,10 @@ var specialTabs = {
         // a docShell, which runs into a MOZ_ASSERT later (see Bug 1770105).
         // We must ensure the context is a parent window that is already
         // marked as remote (see Bug 1843741)
-        if (aArgs.openWindowInfo?.isRemote) {
-          aTab.browser.setAttribute("remote", "true");
-        }
+        aTab.browser.toggleAttribute(
+          "remote",
+          !!aArgs.openWindowInfo?.isRemote
+        );
       }
       if (aArgs.userContextId) {
         aTab.browser.setAttribute("usercontextid", aArgs.userContextId);

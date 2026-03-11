@@ -25,7 +25,7 @@
     padding-inline-start: 23px;
   }
 
-  &[primary="true"] {
+  &[primary] {
     padding-inline-start: 40px;
 
     @media (prefers-contrast) {

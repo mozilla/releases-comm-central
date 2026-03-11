@@ -6,14 +6,14 @@
   <!-- Tooltips -->
   <tooltip id="eventTreeTooltip"
           onpopupshowing="return showToolTip(this, getUnifinderView().getItemAtCoordinates(event.clientX, event.clientY))"
-          noautohide="true"/>
+          noautohide="noautohide"/>
 
   <tooltip id="taskTreeTooltip"
           onpopupshowing="return showToolTip(this, getTaskTree().getTaskFromEvent(event))"
-          noautohide="true"/>
+          noautohide="noautohide"/>
 
   <tooltip id="itemTooltip"
-          noautohide="true"/>
+          noautohide="noautohide"/>
 
   <menupopup id="agenda-menupopup"
              class="no-icon-menupopup" native="false">

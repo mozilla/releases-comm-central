@@ -41,7 +41,7 @@ export var MailE10SUtils = {
       Ci.nsILoadContext
     ).useRemoteSubframes;
 
-    const isRemote = browser.getAttribute("remote") == "true";
+    const isRemote = browser.hasAttribute("remote");
     const remoteType = E10SUtils.getRemoteTypeForURI(
       uri,
       multiProcess,
@@ -76,11 +76,10 @@ export var MailE10SUtils = {
 
     browser.destroy();
 
+    browser.toggleAttribute("remote", !!remoteType);
     if (remoteType) {
-      browser.setAttribute("remote", "true");
       browser.setAttribute("remoteType", remoteType);
     } else {
-      browser.setAttribute("remote", "false");
       browser.removeAttribute("remoteType");
     }
 

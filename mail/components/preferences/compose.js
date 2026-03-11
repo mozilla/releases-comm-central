@@ -586,9 +586,9 @@ var gCloudFile = {
 
     const browser = document.createXULElement("browser");
     browser.setAttribute("type", "content");
-    browser.setAttribute("remote", "true");
+    browser.toggleAttribute("remote", true);
     browser.setAttribute("remoteType", E10SUtils.EXTENSION_REMOTE_TYPE);
-    browser.setAttribute("forcemessagemanager", "true");
+    browser.toggleAttribute("forcemessagemanager", true);
     if (account.extension) {
       browser.setAttribute(
         "initialBrowsingContextGroupId",

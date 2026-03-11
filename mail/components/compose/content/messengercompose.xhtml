@@ -541,7 +541,7 @@
        flip="slide"
        onpopupshowing="reorderAttachmentsPanelOnPopupShowing();"
        consumeoutsideclicks="false"
-       noautohide="true">
+       noautohide="noautohide">
   <description class="panelTitle">&reorderAttachmentsPanel.label;</description>
   <toolbarbutton id="btn_moveAttachmentFirst"
                  class="panelButton"
@@ -2470,7 +2470,7 @@
         -->
       <editor id="messageEditor"
               type="content"
-              primary="true"
+              primary="primary"
               src="about:blank?"
               name="browser.message.body"
               aria-label="&aria.message.bodyName;"
@@ -2533,7 +2533,7 @@
     </html:details>
   </html:div>
 
-  <panel id="customizeToolbarSheetPopup" noautohide="true">
+  <panel id="customizeToolbarSheetPopup" noautohide="noautohide">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
             hidden="hidden"/>

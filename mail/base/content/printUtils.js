@@ -54,7 +54,7 @@ ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
 
     if (remoteType) {
       b.setAttribute("remoteType", remoteType);
-      b.setAttribute("remote", "true");
+      b.toggleAttribute("remote", true);
     }
 
     // Ensure that the browser will be created in a specific initial
@@ -89,9 +89,7 @@ ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
 
     // Prevent the superfluous initial load of a blank document
     // if we're going to load something other than about:blank.
-    if (skipLoad) {
-      b.setAttribute("nodefaultsrc", "true");
-    }
+    b.toggleAttribute("nodefaultsrc", skipLoad);
 
     return b;
   };

@@ -365,7 +365,7 @@
 #include ../../components/unifiedtoolbar/content/unifiedToolbarPopups.inc.xhtml
   <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
-         noautofocus="true"/>
+         noautofocus="noautofocus"/>
 
   <tooltip id="attachmentListTooltip"/>
 
@@ -409,7 +409,7 @@
   <panel id="notification-popup"
          position="after_end"
          orient="vertical"
-         noautofocus="true"
+         noautofocus="noautofocus"
          role="alert"/>
 
   <popupnotification id="addon-progress-notification" hasicon="true" hidden="hidden">
@@ -639,7 +639,7 @@
       </vbox>
     </vbox>
   </hbox>
-  <panel id="customizeToolbarSheetPopup" noautohide="true">
+  <panel id="customizeToolbarSheetPopup" noautohide="noautohide">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
             hidden="hidden"/>

@@ -238,7 +238,7 @@ export class BasePopup {
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
     browser.setAttribute("constrainpopups", "false");
     browser.setAttribute("datetimepicker", "DateTimePickerPanel");
-    browser.setAttribute("nodefaultsrc", "true");
+    browser.toggleAttribute("nodefaultsrc", true);
     browser.setAttribute("maychangeremoteness", "true");
 
     // Ensure the browser will initially load in the same group as other
@@ -249,7 +249,7 @@ export class BasePopup {
     );
 
     if (this.extension.remote) {
-      browser.setAttribute("remote", "true");
+      browser.toggleAttribute("remote", true);
       browser.setAttribute("remoteType", this.extension.remoteType);
     }
 
@@ -412,7 +412,7 @@ export class ViewPopup extends BasePopup {
       panel.setAttribute("type", "arrow");
       panel.setAttribute("class", `panel-no-padding ${POPUP_PANEL_CLASS_NAME}`);
       if (remote) {
-        panel.setAttribute("remote", "true");
+        panel.toggleAttribute("remote", true);
         panel.id = REMOTE_PANEL_ID;
       }
       panel.setAttribute("neverhidden", "true");

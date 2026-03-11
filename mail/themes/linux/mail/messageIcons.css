@@ -43,7 +43,7 @@ treechildren::-moz-tree-image(junkStatusCol) {
 #subjectCol {
   padding-inline-start: 15px;
 
-  &[primary="true"] {
+  &[primary] {
     padding-inline-start: 35px;
   }
 }
