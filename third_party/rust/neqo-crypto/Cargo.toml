@@ -10,10 +10,10 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
-rust-version = "1.87.0"
+edition = "2024"
+rust-version = "1.90.0"
 name = "neqo-crypto"
-version = "0.22.2"
+version = "0.23.1"
 authors = ["The Neqo Authors <necko@mozilla.com>"]
 build = "build.rs"
 autolib = false
@@ -126,16 +126,16 @@ optional = true
 default-features = false
 
 [build-dependencies.semver]
-version = "1.0"
+version = "1"
 default-features = false
 
 [build-dependencies.serde]
-version = "1.0"
+version = "1"
 features = ["std"]
 default-features = false
 
 [build-dependencies.serde_derive]
-version = "1.0"
+version = "1"
 default-features = false
 
 [build-dependencies.toml]
@@ -192,6 +192,7 @@ precedence_bits = "warn"
 pub_without_shorthand = "warn"
 rc_buffer = "warn"
 rc_mutex = "warn"
+redundant_test_prefix = "warn"
 redundant_type_annotations = "warn"
 ref_patterns = "warn"
 renamed_function_params = "warn"

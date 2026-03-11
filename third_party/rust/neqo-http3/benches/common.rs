@@ -10,14 +10,13 @@ use criterion::{BenchmarkGroup, Criterion};
 use test_fixture::{
     boxed, fixture_init,
     sim::{
-        http3_connection::{Node, Requests, Responses},
-        network::{RandomDelay, TailDrop},
         ReadySimulator, Simulator,
+        http3_connection::{Node, Requests, Responses},
+        network::{Delay, TailDrop},
     },
 };
 
-const ZERO: Duration = Duration::from_millis(0);
-const JITTER: Duration = Duration::from_millis(10);
+const RTT: Duration = Duration::from_millis(10);
 
 /// Benchmark parameters: `(streams, data_size)`.
 const BENCHMARK_PARAMS: [(usize, usize); 3] = [(1, 1_000), (1_000, 1), (1_000, 1_000)];
@@ -27,28 +26,27 @@ pub fn setup(streams: usize, data_size: usize) -> ReadySimulator {
     let nodes = boxed![
         Node::default_client(boxed![Requests::new(streams, data_size)]),
         TailDrop::dsl_uplink(),
-        RandomDelay::new(ZERO..JITTER),
+        Delay::new(RTT),
         Node::default_server(boxed![Responses::new(streams, data_size)]),
         TailDrop::dsl_uplink(),
-        RandomDelay::new(ZERO..JITTER),
+        Delay::new(RTT),
     ];
     Simulator::new("", nodes).setup()
 }
 
 /// Runs benchmarks for all parameter combinations.
 ///
-/// The closure receives the benchmark group, group name, and parameters, allowing each
+/// The closure receives the benchmark group and parameters, allowing each
 /// benchmark to define its own measurement approach.
 pub fn benchmark<M>(c: &mut Criterion, mut measure: M)
 where
-    M: FnMut(&mut BenchmarkGroup<'_, criterion::measurement::WallTime>, &str, usize, usize),
+    M: FnMut(&mut BenchmarkGroup<'_, criterion::measurement::WallTime>, usize, usize),
 {
     fixture_init();
 
+    let mut group = c.benchmark_group("streams");
     for (streams, data_size) in BENCHMARK_PARAMS {
-        let name = format!("{streams}-streams/each-{data_size}-bytes");
-        let mut group = c.benchmark_group(&name);
-        measure(&mut group, &name, streams, data_size);
-        group.finish();
+        measure(&mut group, streams, data_size);
     }
+    group.finish();
 }
