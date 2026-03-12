@@ -210,8 +210,8 @@ impl<ServerT: ServerType + 'static> XpComEwsClient<ServerT> {
 
     /// Shuts the client down by performing the relevant operations on its
     /// fields (e.g. stopping the operation queue).
-    pub(crate) fn shutdown(&self) {
-        self.queue.stop();
+    pub(crate) async fn shutdown(self: Arc<Self>) {
+        self.queue.stop().await;
     }
 
     /// Checks whether the client is still running (i.e. at least one of the

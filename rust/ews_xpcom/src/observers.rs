@@ -12,8 +12,10 @@ use nserror::{NS_OK, nsresult};
 use nsstring::nsCString;
 use url::Url;
 use xpcom::{
-    RefPtr, XpCom,
-    interfaces::{nsIMsgOutgoingServer, nsIObserver, nsIPrefBranch, nsISupports},
+    RefPtr, XpCom, components,
+    interfaces::{
+        nsIMsgOutgoingServer, nsIObserver, nsIObserverService, nsIPrefBranch, nsISupports,
+    },
     xpcom_method,
 };
 
@@ -113,7 +115,16 @@ impl OutgoingRemovalObserver {
         let (topic, data) = unsafe { (parse_utf8_lossy(topic), parse_utf16_lossy(data)) };
 
         if topic == "message-smtpserver-removed" && data == self.key {
-            self.client.shutdown();
+            moz_task::spawn_local("shutdown", self.client.clone().shutdown()).detach();
+
+            // Our job here is done, remove ourselves from the observer service
+            // so we can get dropped and return to nothingness.
+            let observer_service = components::Observer::service::<nsIObserverService>()?;
+            unsafe {
+                observer_service
+                    .RemoveObserver(self.coerce(), c"message-smtpserver-removed".as_ptr())
+            }
+            .to_result()?;
         }
 
         Ok(())

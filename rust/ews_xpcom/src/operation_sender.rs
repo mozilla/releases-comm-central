@@ -4,6 +4,7 @@
 
 use std::{cell::RefCell, env, ops::ControlFlow, sync::Arc};
 
+use async_lock::Mutex;
 use ews::{
     OperationResponse, ResponseClass, response::ResponseError,
     server_version::ExchangeServerVersion, soap,
@@ -80,10 +81,25 @@ pub(crate) enum TransportSecFailureBehavior {
 /// The central data structure for performing operations against an EWS server.
 pub(crate) struct OperationSender<ServerT: RefCounted + 'static> {
     endpoint: Arc<RefCell<Url>>,
-    server: RefPtr<ServerT>,
     client: moz_http::Client,
     version_handler: Arc<ServerVersionHandler>,
     error_handling_line: Line,
+
+    // Our internal reference on the server, which is wrapped into a
+    // `RefCell<Option<...>>` so it can be "dropped" when we receive the signal
+    // that the client has shut down. See the documentation for the `shutdown()`
+    // method for more information.
+    //
+    // As a result, checking whether the client has shut down (and whether we
+    // should be continuing processing requests) can be done by checking whether
+    // this field's inner value is `None`.
+    //
+    // We want to make sure replacing the inner `Option` upon shutdown does not
+    // cause a panic, so we need to wrap it in a `Mutex` so we don't risk this
+    // happening when it's already being borrowed. We can clone the inner
+    // `RefPtr` immediately upon borrowing, so the loss in parallelism is
+    // negligible.
+    server: Mutex<RefCell<Option<RefPtr<ServerT>>>>,
 }
 
 impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
@@ -107,11 +123,22 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
 
         Ok(OperationSender {
             endpoint,
-            server,
+            server: Mutex::new(RefCell::new(Some(server))),
             client: moz_http::Client::new(),
             version_handler,
             error_handling_line: Line::new(),
         })
+    }
+
+    /// "Shut down" the operation sender, by dropping the reference it holds on
+    /// the server.
+    ///
+    /// The server holds a reference on the client, and the client (through
+    /// `OperationSender`) also holds a reference on the server. Thus, this is
+    /// necessary so they don't prevent each other from being dropped (and leak
+    /// memory).
+    pub async fn shutdown(&self) {
+        self.server.lock().await.replace(None);
     }
 
     pub fn server_version(&self) -> ExchangeServerVersion {
@@ -121,6 +148,16 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
     /// Returns the [`Url`] currently used as the endpoint to send requests to.
     pub fn url(&self) -> Url {
         (*self.endpoint).clone().into_inner()
+    }
+
+    /// Get a
+    async fn server(&self) -> Result<RefPtr<ServerT>, XpComEwsError> {
+        self.server
+            .lock()
+            .await
+            .borrow()
+            .clone()
+            .ok_or(XpComEwsError::ClientClosed)
     }
 
     /// Builds and sends an HTTP request for the operation.
@@ -134,6 +171,12 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         content: &[u8],
         options: &OperationRequestOptions,
     ) -> Result<OpResp, XpComEwsError> {
+        // Check if we can get a `RefPtr` on the server; if not it means we've
+        // received the shutdown signal and we shouldn't proceed with the
+        // request (since we drop our reference on the server upon shutdown, to
+        // avoid leaking memory).
+        let _ = self.server().await?;
+
         let mut token = None;
 
         loop {
@@ -164,7 +207,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // responses with the relevant response message).
             let response = match response.error_from_status() {
                 Ok(response) => {
-                    report_connection_success(self.server.clone())?;
+                    report_connection_success(self.server().await?)?;
                     response
                 }
                 Err(moz_http::Error::StatusCode { status, response }) if status.0 == 500 => {
@@ -180,7 +223,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
                         );
                     }
 
-                    maybe_handle_connection_error((&err).into(), self.server.clone())?;
+                    maybe_handle_connection_error((&err).into(), self.server().await?)?;
                     return Err(err.into());
                 }
             };
@@ -236,7 +279,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         // `Credentials` instance to each of `QueuedOperation`'s variants, or
         // add one to `OperationSender` with some carefully crafted and
         // configured observers.
-        let credentials = self.server.get_credentials()?;
+        let credentials = self.server().await?.get_credentials()?;
         let auth_header_value = credentials.to_auth_header_value().await?;
 
         // Generate random id for logging purposes.
@@ -335,7 +378,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             ) =>
             {
                 handle_transport_sec_failure(
-                    self.server.clone(),
+                    self.server().await?,
                     transport_security_info.0.clone(),
                 )?;
                 Err(err)
@@ -345,7 +388,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
             // user (depending on which specific error it is) before
             // propagating it.
             XpComEwsError::Protocol(ProtocolError::Http(ref http_error)) => {
-                maybe_handle_connection_error(http_error.into(), self.server.clone())?;
+                maybe_handle_connection_error(http_error.into(), self.server().await?)?;
                 Err(err)
             }
 
@@ -363,7 +406,7 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         &self,
         behavior: &AuthFailureBehavior,
     ) -> Result<ControlFlow<()>, XpComEwsError> {
-        let credentials = self.server.get_credentials()?;
+        let credentials = self.server().await?.get_credentials()?;
 
         if let Credentials::Ntlm {
             username,
@@ -394,13 +437,13 @@ impl<ServerT: ServerType + 'static> OperationSender<ServerT> {
         }
 
         loop {
-            let outcome = handle_auth_failure(self.server.clone())?;
+            let outcome = handle_auth_failure(self.server().await?)?;
 
             // Refresh the credentials before potentially retrying, because they
             // might have changed (e.g. if the user entered a new password after
             // being prompted for one), and should we emit more requests using
             // this client, we should be using up to date credentials.
-            let credentials = self.server.get_credentials()?;
+            let credentials = self.server().await?.get_credentials()?;
 
             match outcome {
                 AuthErrorOutcome::RETRY => {

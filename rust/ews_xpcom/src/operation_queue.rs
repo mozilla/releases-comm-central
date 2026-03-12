@@ -192,10 +192,18 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     /// any call to [`enqueue`] following a call to `stop` will fail.
     ///
     /// [`enqueue`]: OperationQueue::enqueue
-    pub fn stop(&self) {
+    pub async fn stop(&self) {
         if !self.channel_sender.close() {
             log::warn!("request queue: attempted to close channel that's already closed");
         }
+
+        // Clear the references we have on the runners, so they can be dropped
+        // when they finish running.
+        self.runners.borrow_mut().clear();
+
+        // Send the shutdown signal to the operation sender so it can start
+        // cleaning up.
+        self.op_sender.shutdown().await;
     }
 
     /// Checks whether one or more runner(s) is currently active.
@@ -203,12 +211,15 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
     /// If a runner has been created but isn't running yet, it is still included
     /// in this count. Thus a runner being active means it's in any state other
     /// than fully stopped.
+    ///
+    /// This method also returns `false` if there aren't any runners (e.g. if
+    /// the queue hasn't been started yet, or it has been stopped).
     pub fn running(&self) -> bool {
         // Count every runner that's not permanently stopped. This should be
-        // fine, since the only place we mutably borrow `self.runners` is
-        // `start` and:
-        //  * both `start` and `running` are expected to be run in the same
-        //    thread/routine, and
+        // fine, since the only places we mutably borrow `self.runners` are
+        // `start` and `stop` and:
+        //  * both `start`, `stop` and `running` are expected to be run in the
+        //    same thread/routine, and
         //  * both are synchronous functions so there should be no risk of one
         //    happening while the other waits.
         let active_runners =
@@ -220,11 +231,13 @@ impl<ServerT: ServerType + 'static> OperationQueue<ServerT> {
         active_runners > 0
     }
 
+    /// Checks whether all runners are currently waiting for a new operation to
+    /// perform.
     pub fn idle(&self) -> bool {
         // Count every runner that's waiting for a new operation to perform.
-        // This should be fine, since the only place we mutably borrow
-        // `self.runners` is `start` and:
-        //  * both `start` and `idle` are expected to be run in the same
+        // This should be fine, since the only places we mutably borrow
+        // `self.runners` are `start` and `stop` and:
+        //  * both `start`, `stop` and `idle` are expected to be run in the
         //    thread/routine, and
         //  * both are synchronous functions so there should be no risk of one
         //    happening while the other waits.

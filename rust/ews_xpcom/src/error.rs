@@ -49,6 +49,9 @@ pub(crate) enum XpComEwsError {
         "async communication error: could not send operation to queue: sending into a closed channel"
     )]
     QueueSender,
+
+    #[error("client has shut down")]
+    ClientClosed,
 }
 
 impl From<&XpComEwsError> for nsresult {
@@ -56,6 +59,7 @@ impl From<&XpComEwsError> for nsresult {
         match value {
             XpComEwsError::Protocol(ProtocolError::XpCom(value)) => *value,
             XpComEwsError::Protocol(ProtocolError::Http(value)) => value.into(),
+            XpComEwsError::ClientClosed => nserror::NS_BASE_STREAM_CLOSED,
 
             _ => nserror::NS_ERROR_UNEXPECTED,
         }

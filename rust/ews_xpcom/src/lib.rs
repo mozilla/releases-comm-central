@@ -172,7 +172,7 @@ impl XpcomEwsBridge {
     xpcom_method!(shutdown => Shutdown());
     fn shutdown(&self) -> Result<(), nsresult> {
         let client = self.client()?;
-        client.shutdown();
+        moz_task::spawn_local("shutdown", client.shutdown()).detach();
         Ok(())
     }
 

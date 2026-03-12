@@ -6,6 +6,7 @@ rust-version.workspace = true
 
 [dependencies]
 async-channel = "2.5.0"
+async-lock = "3.4.2"
 base64 = "0.21.3"
 cstr = "0.2"
 ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "3553c0b35b78c4e529cf8f563e0b3220f9edabed", version = "0.1.0", features = [

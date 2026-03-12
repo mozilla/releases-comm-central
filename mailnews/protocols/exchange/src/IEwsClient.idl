@@ -44,9 +44,8 @@ interface IEwsClient : nsISupports
   /**
    * Whether the client is currently running.
    *
-   * This will be false if `initialize()` hasn't been called yet. If
-   * `shutdown()` has been called, this will become false once all of the queued
-   * operations have finished.
+   * This will be false if `initialize()` hasn't been called yet, or if
+   * `shutdown()` has been called.
    *
    * The client is considered running if it's either performing operations, or
    * waiting for new ones.
@@ -97,6 +96,10 @@ interface IEwsClient : nsISupports
 
   /**
    * Shuts down the client.
+   *
+   * This method might run asynchronously and there is no guarantee that the
+   * client won't emit any network traffic after it returns (consumers can check
+   * the `running` attribute to see when the client has fully stopped).
    */
   void shutdown();
 
