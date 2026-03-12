@@ -966,8 +966,11 @@ impl Texture {
 
     fn calc_subresource_for_copy(&self, base: &crate::TextureCopyBase) -> u32 {
         let plane = match base.aspect {
-            crate::FormatAspects::COLOR | crate::FormatAspects::DEPTH => 0,
-            crate::FormatAspects::STENCIL => 1,
+            crate::FormatAspects::COLOR
+            | crate::FormatAspects::DEPTH
+            | crate::FormatAspects::PLANE_0 => 0,
+            crate::FormatAspects::STENCIL | crate::FormatAspects::PLANE_1 => 1,
+            crate::FormatAspects::PLANE_2 => 2,
             _ => unreachable!(),
         };
         self.calc_subresource(base.mip_level, base.array_layer, plane)
@@ -1497,7 +1500,7 @@ impl crate::Surface for Surface {
         &self,
         timeout: Option<core::time::Duration>,
         _fence: &Fence,
-    ) -> Result<Option<crate::AcquiredSurfaceTexture<Api>>, crate::SurfaceError> {
+    ) -> Result<crate::AcquiredSurfaceTexture<Api>, crate::SurfaceError> {
         let mut swapchain = self.swap_chain.write();
         let sc = swapchain.as_mut().unwrap();
 
@@ -1525,10 +1528,10 @@ impl crate::Surface for Surface {
                 sc.format.theoretical_memory_footprint(sc.size),
             ),
         };
-        Ok(Some(crate::AcquiredSurfaceTexture {
+        Ok(crate::AcquiredSurfaceTexture {
             texture,
             suboptimal: false,
-        }))
+        })
     }
     unsafe fn discard_texture(&self, _texture: Texture) {
         let mut swapchain = self.swap_chain.write();

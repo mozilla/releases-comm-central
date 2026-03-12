@@ -58,7 +58,6 @@ dx12 = [
     "dep:bytemuck",
     "dep:hashbrown",
     "dep:libloading",
-    "dep:log",
     "dep:ordered-float",
     "dep:once_cell",
     "dep:parking_lot",
@@ -93,7 +92,6 @@ gles = [
     "dep:khronos-egl",
     "dep:wayland-sys",
     "dep:libloading",
-    "dep:log",
     "dep:ndk-sys",
     "dep:objc2",
     "dep:parking_lot",
@@ -114,7 +112,6 @@ metal = [
     "dep:bytemuck",
     "dep:hashbrown",
     "dep:libc",
-    "dep:log",
     "dep:objc2",
     "dep:objc2-core-foundation",
     "dep:objc2-foundation",
@@ -132,7 +129,6 @@ portable-atomic = [
 renderdoc = [
     "dep:libloading",
     "dep:renderdoc-sys",
-    "dep:log",
 ]
 static-dxc = ["dep:mach-dxcompiler-rs"]
 validation_canary = ["dep:parking_lot"]
@@ -146,7 +142,6 @@ vulkan = [
     "dep:hashbrown",
     "dep:libc",
     "dep:libloading",
-    "dep:log",
     "dep:ordered-float",
     "dep:parking_lot",
     "dep:profiling",
@@ -195,7 +190,7 @@ optional = true
 version = "1"
 
 [dependencies.glow]
-version = "0.16"
+version = "0.17"
 optional = true
 
 [dependencies.hashbrown]
@@ -209,7 +204,6 @@ default-features = false
 
 [dependencies.log]
 version = "0.4.21"
-optional = true
 
 [dependencies.naga]
 version = "28.0.0"
@@ -248,9 +242,6 @@ default-features = false
 
 [dev-dependencies.glam]
 version = "0.32.0"
-
-[dev-dependencies.log]
-version = "0.4.21"
 
 [dev-dependencies.naga]
 version = "28.0.0"
