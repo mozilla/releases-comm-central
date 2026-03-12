@@ -391,10 +391,10 @@ add_task(async function test_custom_headers_can_be_added() {
       .getElementsByTagName("menulist")[0];
 
     EventUtils.synthesizeMouseAtCenter(menu, {}, win);
-    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "shown");
 
-    const customizeOption = win.document.querySelector(
-      `#searchAttr0 menuitem[value="${Ci.nsMsgSearchAttrib.OtherHeader}"]`
+    const customizeOption = menu.menupopup.querySelector(
+      `menuitem[value="${Ci.nsMsgSearchAttrib.OtherHeader}"]`
     );
 
     // The custom headers dialog opens upon clicking the "Customize" option in
@@ -406,7 +406,8 @@ add_task(async function test_custom_headers_can_be_added() {
         callback: custom_headers_callback,
       }
     );
-    EventUtils.synthesizeMouseAtCenter(customizeOption, {}, win);
+    menu.menupopup.activateItem(customizeOption);
+    await BrowserTestUtils.waitForPopupEvent(menu.menupopup, "hidden");
     await customHeadersDialogPromise;
 
     // Ensure the window is in focus, otherwise we won't be able to close it.
