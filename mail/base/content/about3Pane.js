@@ -6286,19 +6286,16 @@ var threadPane = {
    * @param {string} column - The ID of column affecting the sorting order.
    */
   updateSortIndicator(column) {
-    this.treeTable
-      .querySelector(".sorting")
-      ?.classList.remove("sorting", "ascending", "descending");
-    // The column could be a removed custom column.
-    if (!column) {
-      return;
+    this.treeTable.header
+      .querySelector("[aria-sort]")
+      ?.removeAttribute("aria-sort");
+
+    const header = this.treeTable.header.querySelector(`#${column}`);
+    if (header) {
+      header.ariaSort = gViewWrapper.isSortedAscending
+        ? "ascending"
+        : "descending";
     }
-    this.treeTable
-      .querySelector(`#${column} button`)
-      ?.classList.add(
-        "sorting",
-        gViewWrapper.isSortedAscending ? "ascending" : "descending"
-      );
   },
 
   /**

@@ -79,6 +79,7 @@ function searchOnLoad() {
     {
       id: "GeneratedName",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-generatedname2",
         header: "about-addressbook-column-header-generatedname2",
         menuitem: "about-addressbook-column-label-generatedname2",
         cell: "about-addressbook-cell-generatedname2",
@@ -88,6 +89,7 @@ function searchOnLoad() {
     {
       id: "EmailAddresses",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-emailaddresses2",
         header: "about-addressbook-column-header-emailaddresses2",
         menuitem: "about-addressbook-column-label-emailaddresses2",
         cell: "about-addressbook-cell-emailaddresses2",
@@ -96,6 +98,7 @@ function searchOnLoad() {
     {
       id: "NickName",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-nickname2",
         header: "about-addressbook-column-header-nickname2",
         menuitem: "about-addressbook-column-label-nickname2",
         cell: "about-addressbook-cell-nickname2",
@@ -105,6 +108,7 @@ function searchOnLoad() {
     {
       id: "PhoneNumbers",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-phonenumbers2",
         header: "about-addressbook-column-header-phonenumbers2",
         menuitem: "about-addressbook-column-label-phonenumbers2",
         cell: "about-addressbook-cell-phonenumbers2",
@@ -113,6 +117,7 @@ function searchOnLoad() {
     {
       id: "Addresses",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-addresses2",
         header: "about-addressbook-column-header-addresses2",
         menuitem: "about-addressbook-column-label-addresses2",
         cell: "about-addressbook-cell-addresses2",
@@ -121,6 +126,7 @@ function searchOnLoad() {
     {
       id: "Title",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-title2",
         header: "about-addressbook-column-header-title2",
         menuitem: "about-addressbook-column-label-title2",
         cell: "about-addressbook-cell-title2",
@@ -130,6 +136,7 @@ function searchOnLoad() {
     {
       id: "Department",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-department2",
         header: "about-addressbook-column-header-department2",
         menuitem: "about-addressbook-column-label-department2",
         cell: "about-addressbook-cell-department2",
@@ -139,6 +146,7 @@ function searchOnLoad() {
     {
       id: "Organization",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-organization2",
         header: "about-addressbook-column-header-organization2",
         menuitem: "about-addressbook-column-label-organization2",
         cell: "about-addressbook-cell-organization2",
@@ -148,6 +156,7 @@ function searchOnLoad() {
     {
       id: "addrbook",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-addrbook2",
         header: "about-addressbook-column-header-addrbook2",
         menuitem: "about-addressbook-column-label-addrbook2",
         cell: "about-addressbook-cell-addrbook2",

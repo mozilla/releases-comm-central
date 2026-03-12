@@ -30,16 +30,24 @@ add_task(async function testRowsAndColumns() {
   let headerRow = table.tHead.rows[0];
   Assert.equal(headerRow.childElementCount, 6);
 
-  let headerButtons;
+  let headerCells, headerButtons;
   function updateHeaderButtons() {
+    headerCells = headerRow.querySelectorAll(
+      `th[is="tree-view-table-header-cell"]`
+    );
     headerButtons = headerRow.querySelectorAll(
       `th[is="tree-view-table-header-cell"] > div > button:not(.button-column-picker)`
     );
   }
   function checkHeaderLabels(expectedOrder) {
     updateHeaderButtons();
+    Assert.equal(headerCells.length, expectedOrder.length);
     Assert.equal(headerButtons.length, expectedOrder.length);
     for (let i = 0; i < expectedOrder.length; i++) {
+      Assert.deepEqual(l10n.getAttributes(headerCells[i]), {
+        id: `${expectedOrder[i]}-header-a11y`,
+        args: null,
+      });
       Assert.deepEqual(l10n.getAttributes(headerButtons[i]), {
         id: `${expectedOrder[i]}-header`,
         args: null,
@@ -211,24 +219,24 @@ add_task(async function testRowsAndColumns() {
 
   function checkHeaderSortClasses(sortColumnIndex, sortDirection) {
     updateHeaderButtons();
-    const sorting = headerRow.querySelectorAll("button.sorting");
-    const ascending = headerRow.querySelectorAll("button.ascending");
-    const descending = headerRow.querySelectorAll("button.descending");
+    const sorting = headerRow.querySelectorAll("[aria-sort]");
+    const ascending = headerRow.querySelectorAll(`[aria-sort="ascending"]`);
+    const descending = headerRow.querySelectorAll(`[aria-sort="descending"]`);
     if (sortColumnIndex === undefined) {
       Assert.equal(sorting.length, 0);
     } else {
       Assert.equal(sorting.length, 1);
-      Assert.equal(sorting[0], headerButtons[sortColumnIndex]);
+      Assert.equal(sorting[0], headerCells[sortColumnIndex]);
     }
     if (sortDirection === "ascending") {
       Assert.equal(ascending.length, 1);
-      Assert.equal(ascending[0], headerButtons[sortColumnIndex]);
+      Assert.equal(ascending[0], headerCells[sortColumnIndex]);
     } else {
       Assert.equal(ascending.length, 0);
     }
     if (sortDirection === "descending") {
       Assert.equal(descending.length, 1);
-      Assert.equal(descending[0], headerButtons[sortColumnIndex]);
+      Assert.equal(descending[0], headerCells[sortColumnIndex]);
     } else {
       Assert.equal(descending.length, 0);
     }

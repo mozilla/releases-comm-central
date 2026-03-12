@@ -362,14 +362,16 @@ class AutoTreeView extends TreeView {
       this.#persistSort();
     }
 
-    this.table
-      .querySelector(".sorting")
-      ?.classList.remove("sorting", "ascending", "descending");
+    this.table.header
+      .querySelector("[aria-sort]")
+      ?.removeAttribute("aria-sort");
+
     // Use the values from the view here, in case it rejects `newColumn` or
     // `newDirection`.
-    this.table
-      .querySelector(`#${this.view.sortColumn} button`)
-      ?.classList.add("sorting", this.view.sortDirection);
+    const header = this.table.header.querySelector(`#${this.view.sortColumn}`);
+    if (header) {
+      header.ariaSort = this.view.sortDirection;
+    }
   }
 
   /**
@@ -507,6 +509,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
       return;
     }
     if (Services.appinfo.accessibilityEnabled || Cu.isInAutomation) {
+      this.ariaRowIndex = this._index + 1;
       this.ariaLevel = viewRow.level + 1;
       this.ariaSetSize = viewRow.setSize;
       this.ariaPosInSet = viewRow.posInSet + 1;

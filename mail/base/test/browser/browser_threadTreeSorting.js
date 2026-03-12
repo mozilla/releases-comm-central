@@ -355,29 +355,14 @@ async function clickHeader(header, type, order) {
   );
   Assert.ok(about3Pane.gViewWrapper.showThreaded, "mode should be threaded");
 
-  Assert.ok(
-    button.classList.contains("sorting"),
-    "header button should have the sorted class"
-  );
   Assert.equal(
-    button.classList.contains("ascending"),
-    order == "ascending",
-    `header button ${
-      order == "ascending" ? "should" : "should not"
-    } have the ascending class`
-  );
-  Assert.equal(
-    button.classList.contains("descending"),
-    order == "descending",
-    `header button ${
-      order == "descending" ? "should" : "should not"
-    } have the descending class`
+    header.getAttribute("aria-sort"),
+    order,
+    `header should have aria-sort="${order}"`
   );
 
   Assert.equal(
-    threadTree.table.header.querySelectorAll(
-      ".sorting, .ascending, .descending"
-    ).length,
+    threadTree.table.header.querySelectorAll("[aria-sort]").length,
     1,
     "no other header buttons should have sorting classes"
   );

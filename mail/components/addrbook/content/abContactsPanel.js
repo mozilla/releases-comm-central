@@ -196,6 +196,7 @@ function AbPanelLoad() {
     {
       id: "GeneratedName",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-generatedname2",
         header: "about-addressbook-column-header-generatedname2",
         menuitem: "about-addressbook-column-label-generatedname2",
         cell: "about-addressbook-cell-generatedname2",
@@ -205,6 +206,7 @@ function AbPanelLoad() {
     {
       id: "EmailAddresses",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-emailaddresses2",
         header: "about-addressbook-column-header-emailaddresses2",
         menuitem: "about-addressbook-column-label-emailaddresses2",
         cell: "about-addressbook-cell-emailaddresses2",
@@ -214,6 +216,7 @@ function AbPanelLoad() {
     {
       id: "addrbook",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-addrbook2",
         header: "about-addressbook-column-header-addrbook2",
         menuitem: "about-addressbook-column-label-addrbook2",
         cell: "about-addressbook-cell-addrbook2",

@@ -76,6 +76,8 @@ L10nRegistry.getInstance().registerSources([
     {
       path: "/localization/mock.ftl",
       source: `
+colour-header-a11y =
+  .aria-label = Colour
 colour-header = Colour
   .title = Sort by Colour
 colour-menuitem =
@@ -83,6 +85,8 @@ colour-menuitem =
 colour-cell =
   .aria-label = Colour
   .title = The sky is { $title }
+continent-header-a11y =
+  .aria-label = Continent
 continent-header = Continent
   .title = Sort by Continent
 continent-menuitem =
@@ -90,18 +94,26 @@ continent-menuitem =
 continent-cell =
   .aria-label = Continent
   .title = { $title }
+sin-header-a11y =
+  .aria-label = Sin
 sin-header = Sin
   .title = Sort by Sin
 sin-menuitem =
   .label = Sin
+wonder-header-a11y =
+  .aria-label = Wonder
 wonder-header = Wonder
   .title = Sort by Wonder
 wonder-menuitem =
   .label = Wonder
+dwarf-header-a11y =
+  .aria-label = Dwarf
 dwarf-header = Dwarf
   .title = Sort by Dwarf
 dwarf-menuitem =
   .label = Dwarf
+selected-header-a11y =
+  .aria-label = Selected
 selected-header = Selected
   .title = Selected
 selected-menuitem =
@@ -118,6 +130,7 @@ tree.defaultColumns = [
   {
     id: "colour",
     l10n: {
+      a11y: "colour-header-a11y",
       header: "colour-header",
       menuitem: "colour-menuitem",
       cell: "colour-cell",
@@ -129,6 +142,7 @@ tree.defaultColumns = [
   {
     id: "continent",
     l10n: {
+      a11y: "continent-header-a11y",
       header: "continent-header",
       menuitem: "continent-menuitem",
       cell: "continent-cell",
@@ -136,22 +150,35 @@ tree.defaultColumns = [
   },
   {
     id: "sin",
-    l10n: { header: "sin-header", menuitem: "sin-menuitem" },
+    l10n: {
+      a11y: "sin-header-a11y",
+      header: "sin-header",
+      menuitem: "sin-menuitem",
+    },
     hidden: true,
   },
   {
     id: "wonder",
-    l10n: { header: "wonder-header", menuitem: "wonder-menuitem" },
+    l10n: {
+      a11y: "wonder-header-a11y",
+      header: "wonder-header",
+      menuitem: "wonder-menuitem",
+    },
     hidden: true,
   },
   {
     id: "dwarf",
-    l10n: { header: "dwarf-header", menuitem: "dwarf-menuitem" },
+    l10n: {
+      a11y: "dwarf-header-a11y",
+      header: "dwarf-header",
+      menuitem: "dwarf-menuitem",
+    },
     hidden: true,
   },
   {
     id: "selected",
     l10n: {
+      a11y: "selected-header-a11y",
       header: "selected-header",
       menuitem: "selected-menuitem",
     },

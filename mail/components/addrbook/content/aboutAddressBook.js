@@ -1357,6 +1357,7 @@ var cardsPane = {
     {
       id: "GeneratedName",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-generatedname2",
         header: "about-addressbook-column-header-generatedname2",
         menuitem: "about-addressbook-column-label-generatedname2",
       },
@@ -1364,6 +1365,7 @@ var cardsPane = {
     {
       id: "EmailAddresses",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-emailaddresses2",
         header: "about-addressbook-column-header-emailaddresses2",
         menuitem: "about-addressbook-column-label-emailaddresses2",
       },
@@ -1371,6 +1373,7 @@ var cardsPane = {
     {
       id: "NickName",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-nickname2",
         header: "about-addressbook-column-header-nickname2",
         menuitem: "about-addressbook-column-label-nickname2",
       },
@@ -1379,6 +1382,7 @@ var cardsPane = {
     {
       id: "PhoneNumbers",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-phonenumbers2",
         header: "about-addressbook-column-header-phonenumbers2",
         menuitem: "about-addressbook-column-label-phonenumbers2",
       },
@@ -1386,6 +1390,7 @@ var cardsPane = {
     {
       id: "Addresses",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-addresses2",
         header: "about-addressbook-column-header-addresses2",
         menuitem: "about-addressbook-column-label-addresses2",
       },
@@ -1393,6 +1398,7 @@ var cardsPane = {
     {
       id: "Title",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-title2",
         header: "about-addressbook-column-header-title2",
         menuitem: "about-addressbook-column-label-title2",
       },
@@ -1401,6 +1407,7 @@ var cardsPane = {
     {
       id: "Department",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-department2",
         header: "about-addressbook-column-header-department2",
         menuitem: "about-addressbook-column-label-department2",
       },
@@ -1409,6 +1416,7 @@ var cardsPane = {
     {
       id: "Organization",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-organization2",
         header: "about-addressbook-column-header-organization2",
         menuitem: "about-addressbook-column-label-organization2",
       },
@@ -1417,6 +1425,7 @@ var cardsPane = {
     {
       id: "addrbook",
       l10n: {
+        a11y: "about-addressbook-column-header-a11y-addrbook2",
         header: "about-addressbook-column-header-addrbook2",
         menuitem: "about-addressbook-column-label-addrbook2",
       },
@@ -1847,14 +1856,15 @@ var cardsPane = {
       .querySelector(`[name="sort"][value="${column} ${direction}"]`)
       ?.toggleAttribute("checked", true);
 
+    this.table.querySelector("[aria-sort]")?.removeAttribute("aria-sort");
     // Unmark the header of previously sorted column, then mark the header of
     // the column to be sorted.
     this.table
       .querySelector(".sorting")
       ?.classList.remove("sorting", "ascending", "descending");
-    this.table
-      .querySelector(`#${column} button`)
-      ?.classList.add("sorting", direction);
+    const header = this.table.querySelector(`#${column}`);
+    header.ariaSort = direction;
+    header.querySelector("button")?.classList.add("sorting", direction);
 
     if (
       this.cardsList.view.sortColumn == column &&

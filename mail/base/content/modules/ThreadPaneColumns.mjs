@@ -29,6 +29,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "selectCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-select",
       header: "threadpane-column-header-select",
       menuitem: "threadpane-column-label-select",
       cell: "threadpane-cell-select",
@@ -43,6 +44,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "threadCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-thread",
       header: "threadpane-column-header-thread",
       menuitem: "threadpane-column-label-thread",
       cell: "threadpane-cell-thread",
@@ -56,6 +58,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "flaggedCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-flagged",
       header: "threadpane-column-header-flagged",
       menuitem: "threadpane-column-label-flagged",
       cell: "threadpane-cell-flagged",
@@ -68,6 +71,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "attachmentCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-attachments",
       header: "threadpane-column-header-attachments",
       menuitem: "threadpane-column-label-attachments",
       cell: "threadpane-cell-attachments",
@@ -80,6 +84,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "subjectCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-subject",
       header: "threadpane-column-header-subject",
       menuitem: "threadpane-column-label-subject",
       cell: "threadpane-cell-subject-title",
@@ -91,6 +96,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "unreadButtonColHeader",
     l10n: {
+      a11y: "threadpane-column-header-a11y-unread-button",
       header: "threadpane-column-header-unread-button",
       menuitem: "threadpane-column-label-unread-button",
       cell: "threadpane-cell-read-status",
@@ -103,6 +109,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "senderCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-sender",
       header: "threadpane-column-header-sender",
       menuitem: "threadpane-column-label-sender",
       cell: "threadpane-cell-sender-title",
@@ -114,6 +121,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "recipientCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-recipient",
       header: "threadpane-column-header-recipient",
       menuitem: "threadpane-column-label-recipient",
       cell: "threadpane-cell-recipient-title",
@@ -125,6 +133,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "correspondentCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-correspondents",
       header: "threadpane-column-header-correspondents",
       menuitem: "threadpane-column-label-correspondents",
       cell: "threadpane-cell-correspondents-title",
@@ -135,6 +144,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "junkStatusCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-spam",
       header: "threadpane-column-header-spam",
       menuitem: "threadpane-column-label-spam",
       cell: "threadpane-cell-spam",
@@ -147,6 +157,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "dateCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-date",
       header: "threadpane-column-header-date",
       menuitem: "threadpane-column-label-date",
       cell: "threadpane-cell-date-title",
@@ -157,6 +168,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "receivedCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-received",
       header: "threadpane-column-header-received",
       menuitem: "threadpane-column-label-received",
       cell: "threadpane-cell-received-title",
@@ -168,6 +180,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "statusCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-status",
       header: "threadpane-column-header-status",
       menuitem: "threadpane-column-label-status",
       cell: "threadpane-cell-status-title",
@@ -179,6 +192,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "sizeCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-size",
       header: "threadpane-column-header-size",
       menuitem: "threadpane-column-label-size",
       cell: "threadpane-cell-size-title",
@@ -190,6 +204,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "tagsCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-tags",
       header: "threadpane-column-header-tags",
       menuitem: "threadpane-column-label-tags",
       cell: "threadpane-cell-tags-title",
@@ -201,6 +216,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "accountCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-account",
       header: "threadpane-column-header-account",
       menuitem: "threadpane-column-label-account",
       cell: "threadpane-cell-account-title",
@@ -212,6 +228,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "priorityCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-priority",
       header: "threadpane-column-header-priority",
       menuitem: "threadpane-column-label-priority",
       cell: "threadpane-cell-priority-title",
@@ -223,6 +240,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "unreadCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-unread",
       header: "threadpane-column-header-unread",
       menuitem: "threadpane-column-label-unread",
       cell: "threadpane-cell-unread-title",
@@ -234,6 +252,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "totalCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-total",
       header: "threadpane-column-header-total",
       menuitem: "threadpane-column-label-total",
       cell: "threadpane-cell-total-title",
@@ -245,6 +264,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "locationCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-location",
       header: "threadpane-column-header-location",
       menuitem: "threadpane-column-label-location",
       cell: "threadpane-cell-location-title",
@@ -256,6 +276,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "idCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-id",
       header: "threadpane-column-header-id",
       menuitem: "threadpane-column-label-id",
       cell: "threadpane-cell-id-title",
@@ -267,6 +288,7 @@ const DEFAULT_COLUMNS = [
   {
     id: "deleteCol",
     l10n: {
+      a11y: "threadpane-column-header-a11y-delete",
       header: "threadpane-column-header-delete",
       menuitem: "threadpane-column-label-delete",
       cell: "threadpane-cell-delete",

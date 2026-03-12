@@ -265,6 +265,9 @@ folder-pane-total-aria-label =
 
 ## Message thread pane
 
+threadpane-column-header-a11y-select =
+  .aria-label = Select Messages
+
 threadpane-column-header-select =
   .title = Toggle select all messages
 
@@ -280,6 +283,9 @@ threadpane-column-label-select =
 threadpane-cell-select =
   .aria-label = Select message
 
+threadpane-column-header-a11y-thread =
+  .aria-label = Thread status
+
 threadpane-column-header-thread =
   .title = Toggle message threads
 
@@ -288,6 +294,9 @@ threadpane-column-label-thread =
 
 threadpane-cell-thread =
   .aria-label = Thread status
+
+threadpane-column-header-a11y-flagged =
+  .aria-label = Starred
 
 threadpane-column-header-flagged =
   .title = Sort by star
@@ -300,6 +309,9 @@ threadpane-cell-flagged =
 
 threadpane-flagged-cell-label = Starred
 
+threadpane-column-header-a11y-attachments =
+  .aria-label = Attachments
+
 threadpane-column-header-attachments =
   .title = Sort by attachments
 
@@ -311,6 +323,9 @@ threadpane-cell-attachments =
 
 threadpane-attachments-cell-label = Attachments
 
+threadpane-column-header-a11y-spam =
+  .aria-label = Spam
+
 threadpane-column-header-spam =
   .title = Sort by spam status
 
@@ -321,6 +336,9 @@ threadpane-cell-spam =
   .aria-label = Spam status
 
 threadpane-spam-cell-label = Spam
+
+threadpane-column-header-a11y-unread-button =
+  .aria-label = Read status
 
 threadpane-column-header-unread-button =
   .title = Sort by read status
@@ -335,6 +353,9 @@ threadpane-read-cell-label = Read
 
 threadpane-unread-cell-label = Unread
 
+threadpane-column-header-a11y-sender =
+  .aria-label = From
+
 threadpane-column-header-sender = From
   .title = Sort by from
 
@@ -346,6 +367,9 @@ threadpane-column-label-sender =
 threadpane-cell-sender-title =
   .aria-label = From
   .title = { $title }
+
+threadpane-column-header-a11y-recipient =
+  .aria-label = Recipient
 
 threadpane-column-header-recipient = Recipient
   .title = Sort by recipient
@@ -359,6 +383,9 @@ threadpane-cell-recipient-title =
   .aria-label = Recipient
   .title = { $title }
 
+threadpane-column-header-a11y-correspondents =
+  .aria-label = Correspondents
+
 threadpane-column-header-correspondents = Correspondents
   .title = Sort by correspondents
 
@@ -370,6 +397,9 @@ threadpane-column-label-correspondents =
 threadpane-cell-correspondents-title =
   .aria-label = Correspondents
   .title = { $title }
+
+threadpane-column-header-a11y-subject =
+  .aria-label = Subject
 
 threadpane-column-header-subject = Subject
   .title = Sort by subject
@@ -383,6 +413,9 @@ threadpane-cell-subject-title =
   .aria-label = Subject
   .title = { $title }
 
+threadpane-column-header-a11y-date =
+  .aria-label = Date
+
 threadpane-column-header-date = Date
   .title = Sort by date
 
@@ -394,6 +427,9 @@ threadpane-column-label-date =
 threadpane-cell-date-title =
   .aria-label = Date
   .title = { $title }
+
+threadpane-column-header-a11y-received =
+  .aria-label = Received
 
 threadpane-column-header-received = Received
   .title = Sort by date received
@@ -407,6 +443,9 @@ threadpane-cell-received-title =
   .aria-label = Date received
   .title = { $title }
 
+threadpane-column-header-a11y-status =
+  .aria-label = Status
+
 threadpane-column-header-status = Status
   .title = Sort by status
 
@@ -418,6 +457,9 @@ threadpane-column-label-status =
 threadpane-cell-status-title =
   .aria-label = Status
   .title = { $title }
+
+threadpane-column-header-a11y-size =
+  .aria-label = Size
 
 threadpane-column-header-size = Size
   .title = Sort by size
@@ -431,6 +473,9 @@ threadpane-cell-size-title =
   .aria-label = Size
   .title = { $title }
 
+threadpane-column-header-a11y-tags =
+  .aria-label = Tags
+
 threadpane-column-header-tags = Tags
   .title = Sort by tags
 
@@ -442,6 +487,9 @@ threadpane-column-label-tags =
 threadpane-cell-tags-title =
   .aria-label = Tags
   .title = { $title }
+
+threadpane-column-header-a11y-account =
+  .aria-label = Account
 
 threadpane-column-header-account = Account
   .title = Sort by account
@@ -455,6 +503,9 @@ threadpane-cell-account-title =
   .aria-label = Account
   .title = { $title }
 
+threadpane-column-header-a11y-priority =
+  .aria-label = Priority
+
 threadpane-column-header-priority = Priority
   .title = Sort by priority
 
@@ -466,6 +517,9 @@ threadpane-column-label-priority =
 threadpane-cell-priority-title =
   .aria-label = Priority
   .title = { $title }
+
+threadpane-column-header-a11y-unread =
+  .aria-label = Unread
 
 threadpane-column-header-unread = Unread
   .title = Number of unread messages in thread
@@ -479,6 +533,9 @@ threadpane-cell-unread-title =
   .aria-label = Number of unread messages
   .title = { $title }
 
+threadpane-column-header-a11y-total =
+  .aria-label = Total
+
 threadpane-column-header-total = Total
   .title = Total number of messages in thread
 
@@ -490,6 +547,9 @@ threadpane-column-label-total =
 threadpane-cell-total-title =
   .aria-label = Total number of messages
   .title = { $title }
+
+threadpane-column-header-a11y-location =
+  .aria-label = Location
 
 threadpane-column-header-location = Location
   .title = Sort by location
@@ -503,6 +563,9 @@ threadpane-cell-location-title =
   .aria-label = Location
   .title = { $title }
 
+threadpane-column-header-a11y-id =
+  .aria-label = Order Received
+
 threadpane-column-header-id = Order Received
   .title = Sort by order received
 
@@ -514,6 +577,9 @@ threadpane-column-label-id =
 threadpane-cell-id-title =
   .aria-label = Order received
   .title = { $title }
+
+threadpane-column-header-a11y-delete =
+  .aria-label = Delete
 
 threadpane-column-header-delete =
   .title = Delete a message

@@ -535,18 +535,14 @@ th[is="tree-view-table-header-cell"] {
     text-align: center;
   }
 
-  &.sorting {
+  th[aria-sort="ascending"] &:not(.button-column-picker) {
     background-image: var(--icon-nav-up-xs);
-    padding-inline-end: 9px;
-
-    &.descending {
-      background-image: var(--icon-nav-down-xs);
-    }
+    padding-inline-end: 14px;
   }
 
-  th[data-type="icon"] &.sorting {
-    background-image: none;
-    padding-inline-end: var(--tree-header-cell-padding);
+  th[aria-sort="descending"] &:not(.button-column-picker) {
+    background-image: var(--icon-nav-down-xs);
+    padding-inline-end: 14px;
   }
 }
 

@@ -34,6 +34,8 @@ const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
  * @property {boolean} [icon=false] - Cell content is an icon.
  * @property {object} [l10n]
  * @property {string} [l10n.cell] - Fluent string to use in cells.
+ * @property {string} [l10n.a11y] - Fluent string to use as the screen-reader
+ *   label for the column header.
  * @property {string} [l10n.header] - Fluent string to use in the column header.
  * @property {string} [l10n.menuitem] - Fluent string to use in the column
  *   picker menu.
@@ -860,6 +862,7 @@ export class BaseTreeView extends HTMLElement {
     this.#cancelToleranceFillCallback();
 
     const rowCount = this._view?.rowCount ?? 0;
+    this.table.ariaRowCount = this.table.body.ariaRowCount = rowCount;
     if (!rowCount) {
       this.dispatchEvent(new CustomEvent("showplaceholder"));
     }
@@ -1115,6 +1118,7 @@ export class BaseTreeView extends HTMLElement {
       return;
     }
 
+    row.ariaRowIndex = row.index + 1;
     // If this._view is a `TreeDataAdapter`, we should be able to get the view
     // row object, and that'll be much faster than the other method below.
     const viewRow = this._view.rowAt?.(row.index);
@@ -2659,6 +2663,9 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     this.id = column.id;
     this.#button.id = `${column.id}Button`;
 
+    if (column.l10n?.a11y) {
+      document.l10n.setAttributes(this, column.l10n.a11y);
+    }
     if (column.l10n?.header) {
       document.l10n.setAttributes(this.#button, column.l10n.header);
     } else if (column.name && !column.icon) {
@@ -2718,15 +2725,6 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     if (column.delete) {
       this.#button.classList.add("tree-view-header-delete");
     }
-  }
-
-  /**
-   * Set this table header as responsible for the sorting of rows.
-   *
-   * @param {"ascending"|"descending"} direction - The new sorting direction.
-   */
-  setSorting(direction) {
-    this.#button.classList.add("sorting", direction);
   }
 
   /**
