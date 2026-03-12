@@ -42,8 +42,7 @@
                                                  oncommand="TryHandleAllAttachments('saveAs');"
                                                  hidden="hidden">
                                     <menupopup id="attachmentSaveAllSingleMenu"
-                                               onpopupshowing="onShowSaveAttachmentMenuSingle();"
-                                               native="false">
+                                               onpopupshowing="onShowSaveAttachmentMenuSingle();">
                                       <menuitem id="button-openAttachment"
                                                 oncommand="TryHandleAllAttachments('open'); event.stopPropagation();"
                                                 label="&openAttachmentCmd.label;"
@@ -71,8 +70,7 @@
                                                  onclick="event.stopPropagation();"
                                                  oncommand="TryHandleAllAttachments('save');">
                                     <menupopup id="attachmentSaveAllMultipleMenu"
-                                               onpopupshowing="onShowSaveAttachmentMenuMultiple();"
-                                               native="false">
+                                               onpopupshowing="onShowSaveAttachmentMenuMultiple();">
                                       <menuitem id="button-openAllAttachments"
                                                 oncommand="TryHandleAllAttachments('open'); event.stopPropagation();"
                                                 label="&openAllAttachmentsCmd.label;"

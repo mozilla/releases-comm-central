@@ -91,8 +91,7 @@
                     displayformat="verbose">
             <menupopup is="folder-menupopup" class="menulist-menupopup"
                        mode="search" showAccountsFileHere="true" showFileHereLabel="true"
-                       oncommand="updateSearchFolderPicker(event.target._folder);"
-                       native="false"/>
+                       oncommand="updateSearchFolderPicker(event.target._folder);"/>
           </menulist>
           <spacer style="flex: 10 10;"/>
           <button id="search-button"
@@ -331,7 +330,7 @@
         <button id="openButton" data-l10n-id="open-button" command="cmd_open"/>
         <button id="fileMessageButton" type="menu" data-l10n-id="move-button"
                 command="file_message_button">
-          <menupopup is="folder-menupopup" showFileHereLabel="true" mode="filing" native="false"/>
+          <menupopup is="folder-menupopup" showFileHereLabel="true" mode="filing"/>
         </button>
 
 

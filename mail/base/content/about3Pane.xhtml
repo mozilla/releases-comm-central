@@ -168,22 +168,20 @@
       <xul:menu class="applyTo-menu"
                 data-l10n-id="apply-columns-to-menu"
                 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-        <menupopup native="false">
+        <menupopup>
           <menu class="applyToFolder-menu"
                 data-l10n-id="apply-current-view-to-folder"
                 oncommand="threadPane.confirmApplyColumns(event.target._folder);">
             <menupopup is="folder-menupopup"
                        class="applyToFolder"
-                       position="start_before"
-                       native="false"></menupopup>
+                       position="start_before"></menupopup>
           </menu>
           <menu class="applyToFolderAndChildren-menu"
                 data-l10n-id="apply-current-view-to-folder-children"
                 oncommand="threadPane.confirmApplyColumns(event.target._folder, true);">
             <menupopup is="folder-menupopup"
                        class="applyToFolderAndChildren"
-                       position="start_before"
-                       native="false"></menupopup>
+                       position="start_before"></menupopup>
           </menu>
         </menupopup>
       </xul:menu>
@@ -192,22 +190,20 @@
       <xul:menu class="applyViewTo-menu"
                 data-l10n-id="apply-current-view-to-menu"
                 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-        <menupopup native="false">
+        <menupopup>
           <menu class="applyViewToFolder-menu"
                 data-l10n-id="apply-current-view-to-folder"
                 oncommand="threadPane.confirmApplyView(event.target._folder);">
             <menupopup is="folder-menupopup"
                        class="applyViewToFolder"
-                       position="start_before"
-                       native="false"></menupopup>
+                       position="start_before"></menupopup>
           </menu>
           <menu class="applyViewToFolderAndChildren-menu"
                 data-l10n-id="apply-current-view-to-folder-children"
                 oncommand="threadPane.confirmApplyView(event.target._folder, true);">
             <menupopup is="folder-menupopup"
                        class="applyViewToFolderAndChildren"
-                       position="start_before"
-                       native="false"></menupopup>
+                       position="start_before"></menupopup>
           </menu>
         </menupopup>
       </xul:menu>
@@ -360,7 +356,7 @@
 #include templates/conversationViewTemplate.inc.xhtml
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <menupopup id="folderPaneContext" class="gutter-popup" native="false">
+  <menupopup id="folderPaneContext" class="gutter-popup">
     <menuitem id="folderPaneContext-getMessages"
               label="&folderContextGetMessages.label;"
               accesskey="&folderContextGetMessages.accesskey;"/>
@@ -407,8 +403,7 @@
                  showFileHereLabel="true"
                  showRecent="true"
                  showFavorites="true"
-                 showLast="true"
-                 native="false"/>
+                 showLast="true"/>
     </menu>
     <menu id="folderPaneContext-copyMenu"
           data-l10n-id="menu-copy-to">
@@ -418,8 +413,7 @@
                  showFileHereLabel="true"
                  showRecent="true"
                  showFavorites="true"
-                 showLast="true"
-                 native="false"/>
+                 showLast="true"/>
     </menu>
     <menuseparator/>
     <menuitem id="folderPaneContext-compact"
@@ -479,14 +473,12 @@
   <menupopup id="folderPaneMoreContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="folderPane.updateContextMenuCheckedItems();"
-             native="false">
+             onpopupshowing="folderPane.updateContextMenuCheckedItems();">
     <menu id="folderModesContextMenu"
           data-l10n-id="folder-pane-header-folder-modes"
           position="bottomleft topleft">
       <menupopup id="folderModesContextMenuPopup"
-                 onpopupshowing="folderPane.updateContextCheckedFolderMode();"
-                 native="false">
+                 onpopupshowing="folderPane.updateContextCheckedFolderMode();">
         <menuitem id="folderPaneMoreContextAllFolders"
                   class="folder-pane-mode"
                   value="all"
@@ -586,8 +578,7 @@
   </menupopup>
   <menupopup id="folderPaneModeContext"
              class="no-accel-menupopup"
-             position="bottomleft topleft"
-             native="false">
+             position="bottomleft topleft">
     <menuitem id="folderPaneModeMoveUp"
              class="folder-pane-mode"
              value="moveup"
@@ -609,8 +600,7 @@
   <menupopup id="threadPaneDisplayContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="threadPaneHeader.updateDisplayContextMenu(event);"
-             native="false">
+             onpopupshowing="threadPaneHeader.updateDisplayContextMenu(event);">
     <menuitem id="threadPaneTableView"
               class="thread-view-option"
               type="radio"
@@ -633,8 +623,7 @@
           label="&sortMenu.label;">
       <menupopup id="menu_threadPaneSortPopup"
                  oncommand="goDoCommand('cmd_sort', event);"
-                 onpopupshowing="threadPaneHeader.updateThreadPaneSortMenu(event);"
-                 native="false">
+                 onpopupshowing="threadPaneHeader.updateThreadPaneSortMenu(event);">
         <menuitem id="threadPaneSortByDateMenuitem"
                   type="radio"
                   name="sortby"
@@ -765,8 +754,7 @@
   <menupopup id="folderPaneGetMessagesContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="folderPane.updateGetMessagesContextMenu();"
-             native="false">
+             onpopupshowing="folderPane.updateGetMessagesContextMenu();">
     <menuitem id="itemGetAllNewMessages"
               class="menuitem-iconic"
               data-l10n-id="folder-pane-get-all-messages-menuitem"

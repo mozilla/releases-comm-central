@@ -1532,3 +1532,7 @@ pref("mail.threadpane.cardsview.rowcount", 3);
 
 // Whether the OS Authentication is enabled or not.
 pref("signon.management.page.os-auth.locked.enabled", false);
+
+#ifdef XP_MACOSX
+pref("widget.macos.native-anchored-menus", false);
+#endif

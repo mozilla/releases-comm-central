@@ -151,7 +151,7 @@
                   oncommand="sslChanged(true)"
                   prefstring="mail.smtpserver.%serverkey%.try_ssl"
                 >
-                  <menupopup id="smtp.socketTypePopup" native="false">
+                  <menupopup id="smtp.socketTypePopup">
                     <menuitem
                       value="0"
                       label="&connectionSecurityType-0.label;"
@@ -176,7 +176,6 @@
                   <menupopup
                     id="smtp.authMethodPopup"
                     onpopupshowing="onAuthMethodPopupShowing();"
-                    native="false"
                   >
                     <menuitem id="authMethod-no" value="1" />
                     <menuitem id="authMethod-password-cleartext" value="3" />

@@ -2260,7 +2260,7 @@ const gHandlerRowFragment = MozXULElement.parseXULToFragment(`
     </html:td>
     <html:td class="actionCell">
       <menulist class="actionsMenu" crop="end" selectedIndex="1">
-        <menupopup native="false"/>
+        <menupopup/>
       </menulist>
     </html:td>
   </html:tr>

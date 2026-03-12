@@ -16,14 +16,14 @@
           noautohide="noautohide"/>
 
   <menupopup id="agenda-menupopup"
-             class="no-icon-menupopup" native="false">
+             class="no-icon-menupopup">
     <menuitem data-l10n-id="calendar-context-open-event"
               command="agenda_edit_event_command"/>
     <menu id="agenda-context-menu-convert-menu"
           class="no-icon-menupopup"
           data-l10n-id="calendar-context-convert-menu">
       <menupopup id="agenda-context-menu-convert-menupopup"
-                 class="no-icon-menupopup" native="false">
+                 class="no-icon-menupopup">
         <menuitem id="agenda-context-menu-convert-message-menuitem"
                   data-l10n-id="calendar-context-convert-to-message"
                   oncommand="calendarMailButtonDNDObserver.onDropItems([TodayPane.agenda.selectedItem])"/>
@@ -41,8 +41,7 @@
           data-l10n-id="calendar-context-attendance-menu"
           oncommand="setContextPartstat(event.target, [TodayPane.agenda.selectedItem])"
           observes="calendar_attendance_command">
-      <menupopup id="agenda-context-menu-attendance-menupopup"
-                 native="false">
+      <menupopup id="agenda-context-menu-attendance-menupopup">
         <label id="agenda-context-attendance-thisoccurrence-label"
                class="calendar-context-heading-label"
                scope="this-occurrence"
@@ -53,8 +52,7 @@
               name="agenda-context-attendance"
               scope="this-occurrence">
           <menupopup id="agenda-context-menu-occurrence-accepted-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -73,8 +71,7 @@
               name="agenda-context-attendance"
               scope="this-occurrence">
           <menupopup id="agenda-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -93,8 +90,7 @@
               name="agenda-context-attendance"
               scope="this-occurrence">
           <menupopup id="agenda-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -127,8 +123,7 @@
               name="agenda-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="agenda-context-menu-alloccurrences-accept-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -147,8 +142,7 @@
               name="agenda-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="agenda-context-menu-alloccurrences-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -167,8 +161,7 @@
               name="agenda-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="agenda-context-menu-alloccurrences-decline-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="agenda-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -197,8 +190,7 @@
 
   <!-- CALENDAR LIST CONTEXT MENU -->
   <menupopup id="list-calendars-context-menu"
-             class="no-icon-menupopup"
-             native="false">
+             class="no-icon-menupopup">
     <menuitem id="list-calendars-context-togglevisible"
               class="needs-calendar"
               oncommand="toggleCalendarVisible(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
@@ -243,8 +235,7 @@
   <!-- CALENDAR ITEM CONTEXT MENU -->
   <menupopup id="calendar-item-context-menu"
              class="no-icon-menupopup"
-             onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems());"
-             native="false">
+             onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems());">
     <menuitem id="calendar-item-context-menu-view-menuitem"
               data-l10n-id="calendar-context-open-event"
               command="calendar_view_event_command"/>
@@ -277,8 +268,7 @@
     <menu id="calendar-item-context-menu-convert-menu"
           data-l10n-id="calendar-context-convert-menu">
       <menupopup id="calendar-item-context-menu-convert-menupopup"
-                 class="no-icon-menupopup"
-                 native="false">
+                 class="no-icon-menupopup">
         <menuitem id="calendar-view-context-menu-convert-message-menuitem"
                   data-l10n-id="calendar-context-convert-to-message"
                   oncommand="calendarMailButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
@@ -302,8 +292,7 @@
           data-l10n-id="calendar-context-attendance-menu"
           oncommand="setContextPartstat(event.target, currentView().getSelectedItems())"
           observes="calendar_attendance_command">
-      <menupopup id="calendar-item-context-menu-attendance-menupopup"
-                 native="false">
+      <menupopup id="calendar-item-context-menu-attendance-menupopup">
         <label id="calendar-item-context-attendance-thisoccurrence-label"
               class="calendar-context-heading-label"
               scope="this-occurrence"
@@ -314,8 +303,7 @@
               name="calendar-item-context-attendance"
               scope="this-occurrence">
           <menupopup id="calendar-item-context-menu-occurrence-accepted-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -334,8 +322,7 @@
               name="calendar-item-context-attendance"
               scope="this-occurrence">
           <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -354,8 +341,7 @@
               name="calendar-item-context-attendance"
               scope="this-occurrence">
           <menupopup id="calendar-item-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -388,8 +374,7 @@
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="calendar-item-context-menu-alloccurrences-accept-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -408,8 +393,7 @@
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="calendar-item-context-menu-alloccurrences-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -428,8 +412,7 @@
               name="calendar-item-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="calendar-item-context-menu-alloccurrences-decline-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="calendar-item-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -458,8 +441,7 @@
 
   <!-- CALENDAR VIEW CONTEXT MENU -->
   <menupopup id="calendar-view-context-menu"
-             class="no-icon-menupopup"
-             native="false">
+             class="no-icon-menupopup">
     <menuitem id="calendar-view-context-menu-newevent"
               data-l10n-id="calendar-context-new-event"
               command="calendar_new_event_context_command"
@@ -494,8 +476,7 @@
   <menupopup id="taskitem-context-menu"
              class="no-icon-menupopup"
              onpopupshowing="changeContextMenuForTask(event);"
-             onpopuphiding="handleTaskContextMenuStateChange(event);"
-             native="false">
+             onpopuphiding="handleTaskContextMenuStateChange(event);">
     <menuitem id="task-context-menu-modify"
               data-l10n-id="calendar-context-open-task"
               command="calendar_modify_todo_command"/>
@@ -530,21 +511,18 @@
     <menu id="task-context-menu-progress"
           data-l10n-id="calendar-context-progress"
           command="calendar_general-progress_command">
-      <menupopup is="calendar-task-progress-menupopup"
-                 native="false"/>
+      <menupopup is="calendar-task-progress-menupopup"/>
     </menu>
     <menu id="task-context-menu-priority"
           data-l10n-id="calendar-task-change-priority"
           command="calendar_general-priority_command">
-      <menupopup is="calendar-task-priority-menupopup"
-                 native="false"/>
+      <menupopup is="calendar-task-priority-menupopup"/>
     </menu>
     <menu id="task-context-menu-postpone"
           data-l10n-id="calendar-context-postpone"
           command="calendar_general-postpone_command">
       <menupopup id="task-context-postpone-menupopup"
-                 class="no-icon-menupopup"
-                 native="false">
+                 class="no-icon-menupopup">
         <menuitem id="task-context-postpone-1hour"
                   data-l10n-id="calendar-context-postpone-1hour"
                   command="calendar_postpone-1hour_command"/>
@@ -559,15 +537,13 @@
     <menu id="calendar-context-calendar-menu"
           data-l10n-id="calendar-calendar">
           <menupopup id="calendar-context-calendar-menupopup"
-                    onpopupshowing="addCalendarNames(event);"
-                    native="false"/>
+                    onpopupshowing="addCalendarNames(event);"/>
     </menu>
     <menuseparator id="task-context-menu-separator-conversion"/>
     <menu id="task-context-menu-convert"
           data-l10n-id="calendar-context-convert-menu">
       <menupopup id="task-context-convert-menupopup"
-                 class="no-icon-menupopup"
-                 native="false">
+                 class="no-icon-menupopup">
         <menuitem id="calendar-context-converttomessage"
                   data-l10n-id="calendar-context-convert-to-message"
                   oncommand="tasksToMail()"/>
@@ -584,8 +560,7 @@
           data-l10n-id="calendar-context-attendance-menu"
           oncommand="setContextPartstat(event.target, getSelectedTasks())"
           observes="calendar_attendance_command">
-      <menupopup id="task-context-menu-attendance-menupopup"
-                 native="false">
+      <menupopup id="task-context-menu-attendance-menupopup">
         <label id="task-context-attendance-thisoccurrence-label"
               class="calendar-context-heading-label"
               scope="this-occurrence"
@@ -596,8 +571,7 @@
               name="task-context-attendance"
               scope="this-occurrence">
           <menupopup id="task-context-menu-occurrence-accepted-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-accept-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -616,8 +590,7 @@
               name="task-context-attendance"
               scope="this-occurrence">
           <menupopup id="task-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-tentative-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -636,8 +609,7 @@
               name="task-context-attendance"
               scope="this-occurrence">
           <menupopup id="task-context-menu-occurrence-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-declined-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -656,8 +628,7 @@
               name="task-context-attendance"
               scope="this-occurrence">
           <menupopup id="task-context-menu-occurrence-inprogress-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-inprogress-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -676,8 +647,7 @@
               name="task-context-attendance"
               scope="this-occurrence">
           <menupopup id="task-context-menu-occurrence-completed-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-completed-menuitem"
                       scope="this-occurrence"
                       data-l10n-id="calendar-context-attendance-send"
@@ -710,8 +680,7 @@
               name="task-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="task-context-menu-alloccurrences-accept-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-accept-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -730,8 +699,7 @@
               name="task-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="task-context-menu-alloccurrences-tentative-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-tentative-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -750,8 +718,7 @@
               name="task-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="task-context-menu-alloccurrences-decline-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-declined-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -770,8 +737,7 @@
               name="task-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="task-context-menu-alloccurrences-inprogress-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-inprogress-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -790,8 +756,7 @@
               name="task-context-attendance-all"
               scope="all-occurrences">
           <menupopup id="task-context-menu-alloccurrences-completed-menupopup"
-                     class="no-icon-menupopup"
-                     native="false">
+                     class="no-icon-menupopup">
             <menuitem id="task-context-menu-attend-completed-all-menuitem"
                       scope="all-occurrences"
                       data-l10n-id="calendar-context-attendance-send"
@@ -820,8 +785,7 @@
     <menu id="task-context-menu-filter-todaypane"
           data-l10n-id="calendar-tasks-view-filtertasks">
       <menupopup id="task-context-menu-filter-todaypane-popup"
-                 oncommand="TodayPane.updateCalendarToDoUnifinder(event.target.getAttribute('value'))"
-                 native="false">
+                 oncommand="TodayPane.updateCalendarToDoUnifinder(event.target.getAttribute('value'))">
         <menuitem id="task-context-menu-filter-todaypane-current"
                   name="filtergrouptodaypane"
                   value="throughcurrent"
@@ -868,8 +832,7 @@
 
   <!-- TASKVIEW LINK CONTEXT MENU -->
   <menupopup id="taskview-link-context-menu"
-             class="no-icon-menupopup"
-             native="false">
+             class="no-icon-menupopup">
     <menuitem id="taskview-link-context-menu-copy"
               data-l10n-id="calendar-copylink"
               oncommand="taskViewCopyLink(this.parentNode.triggerNode)"/>
@@ -877,8 +840,7 @@
 
   <!-- CALENDAR EVENT DIALOG (IN TAB) TOOLBAR CONTEXT MENU -->
   <menupopup id="event-dialog-toolbar-context-menu"
-             onpopupshowing="calendarOnToolbarsPopupShowing(event);"
-             native="false">
+             onpopupshowing="calendarOnToolbarsPopupShowing(event);">
     <menuseparator id="customizeEventToolbarMenuSeparator"/>
     <menuitem id="CustomizeDialogToolbar"
               label="&event.menu.view.toolbars.customize.label;"

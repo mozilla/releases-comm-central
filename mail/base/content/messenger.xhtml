@@ -347,8 +347,7 @@
 #include widgets/browserPopups.inc.xhtml
 #include widgets/toolbarContext.inc.xhtml
   <menupopup id="aboutPagesContext"
-             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');"
-             native="false">
+             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');">
     <menuitem id="aboutPagesContext-copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
@@ -385,7 +384,7 @@
        outside of any tabs, the mail-toolbox context menu opens, as desired.
   -->
 
-  <menupopup id="tabContextMenu" native="false">
+  <menupopup id="tabContextMenu">
     <menuitem id="tabContextMenuOpenInWindow"
               label="&moveToNewWindow.label;"
               accesskey="&moveToNewWindow.accesskey;"/>
@@ -397,7 +396,7 @@
     <menu id="tabContextMenuRecentlyClosed"
           label="&recentlyClosedTabsCmd.label;"
           accesskey="&recentlyClosedTabsCmd.accesskey;">
-      <menupopup native="false"/>
+      <menupopup />
     </menu>
     <menuitem id="tabContextMenuClose"
               label="&closeTabCmd2.label;"
@@ -523,8 +522,7 @@
                       tooltiptext="&listAllTabs.label;">
         <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
                     position="after_end"
-                    tabcontainer="tabmail-tabs"
-                    native="false"/>
+                    tabcontainer="tabmail-tabs"/>
       </toolbarbutton>
 
     </toolbar>

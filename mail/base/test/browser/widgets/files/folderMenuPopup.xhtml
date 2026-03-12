@@ -21,13 +21,12 @@
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     noMode
     <menulist id="noMode" class="folderMenuItem">
-      <menupopup is="folder-menupopup" native="false"/>
+      <menupopup is="folder-menupopup"/>
     </menulist>
 
     filingServers
     <menulist id="filingServers" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="filing"
                  expandFolders="false"/>
     </menulist>
@@ -35,7 +34,6 @@
     filingFolders
     <menulist id="filingFolders" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="filing"
                  showFileHereLabel="true"/>
     </menulist>
@@ -43,7 +41,6 @@
     filingServersAndFolders
     <menulist id="filingServersAndFolders" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="filing"
                  showAccountsFileHere="true"
                  showFileHereLabel="true"/>
@@ -52,7 +49,6 @@
     filingSpecials
     <menulist id="filingSpecials" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="filing"
                  showAccountsFileHere="true"
                  showFileHereLabel="true"
@@ -64,7 +60,6 @@
     searchServersAndFolders
     <menulist id="searchServersAndFolders" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="search"
                  showAccountsFileHere="true"
                  showFileHereLabel="true"/>
@@ -73,7 +68,6 @@
     getMail
     <menulist id="getMail" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="getMail"
                  expandFolders="false">
         <menuitem class="folderMenuItem" label="Static Item"/>
@@ -84,7 +78,6 @@
     newFolder
     <menulist id="newFolder" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="newFolder"
                  showFileHereLabel="true"/>
     </menulist>
@@ -92,7 +85,6 @@
     subscribe
     <menulist id="subscribe" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="subscribe"
                  expandFolders="false"/>
     </menulist>
@@ -100,7 +92,6 @@
     deferred
     <menulist id="deferred" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="deferred"
                  expandFolders="false"/>
     </menulist>
@@ -108,14 +99,13 @@
     notDeferred
     <menulist id="notDeferred" class="folderMenuItem">
       <menupopup is="folder-menupopup"
-                 native="false"
                  mode="notDeferred"
                  showFileHereLabel="true"/>
     </menulist>
 
     feeds
     <menulist id="feeds" class="folderMenuItem">
-      <menupopup is="folder-menupopup" native="false"
+      <menupopup is="folder-menupopup"
                  mode="feeds"
                  showFileHereLabel="true"
                  showAccountsFileHere="true"/>

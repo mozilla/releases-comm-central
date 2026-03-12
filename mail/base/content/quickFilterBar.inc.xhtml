@@ -77,7 +77,7 @@
         </div>
         <div id="quickFilterBarTagsContainer" hidden="hidden">
           <xul:menulist id="qfb-tag-filter-mode" value="OR">
-            <xul:menupopup class="no-icon-menupopup" native="false">
+            <xul:menupopup class="no-icon-menupopup">
               <xul:menuitem id="qfb-tag-filter-mode-or"
                             value="OR"
                             data-l10n-id="quick-filter-bar-boolean-mode-any"
@@ -96,8 +96,7 @@
     <xul:menupopup id="quickFilterButtonsContext"
                    class="no-accel-menupopup"
                    position="bottomleft topleft"
-                   onpopupshowing="quickFilterBar.updateCheckedStateQuickFilterButtons();"
-                   native="false">
+                   onpopupshowing="quickFilterBar.updateCheckedStateQuickFilterButtons();">
       <xul:menuitem id="quickFilterButtonsContextUnreadToggle"
                     class="quick-filter-menuitem"
                     type="checkbox"

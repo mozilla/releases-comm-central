@@ -215,8 +215,7 @@
                    onpopupshowing="getMsgToolbarMenu_init();"
                    oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
                    expandFolders="false"
-                   mode="getMail"
-                   native="false">
+                   mode="getMail">
           <menuitem id="button-getAllNewMsg"
                     class="menuitem-iconic folderMenuItem"
                     label="&getAllNewMsgCmd.label;"
@@ -241,8 +240,7 @@
                    mode="filing"
                    showFileHereLabel="true"
                    showRecent="true"
-                   showFavorites="true"
-                   native="false"/>
+                   showFavorites="true"/>
 
       </toolbarbutton>
       <toolbarbutton id="button-showconversation"
@@ -256,7 +254,7 @@
                      label="&backButton1.label;"
                      command="cmd_goBack"
                      tooltiptext="&goBackButton.tooltip;">
-        <menupopup id="button-goBackPopup" onpopupshowing="backToolbarMenu_init(this)" native="false">
+        <menupopup id="button-goBackPopup" onpopupshowing="backToolbarMenu_init(this)">
           <menuitem id="button-goBack" label="&goBackCmd.label;" command="cmd_goBack"/>
           <menuseparator id="button-goBackSeparator"/>
         </menupopup>
@@ -267,7 +265,7 @@
                      label="&goForwardButton1.label;"
                      command="cmd_goForward"
                      tooltiptext="&goForwardButton.tooltip;">
-        <menupopup id="button-goForwardPopup" onpopupshowing="forwardToolbarMenu_init(this)" native="false">
+        <menupopup id="button-goForwardPopup" onpopupshowing="forwardToolbarMenu_init(this)">
           <menuitem id="button-goForward"
                     label="&goForwardCmd.label;"
                     command="cmd_goForward"/>
@@ -314,7 +312,7 @@
                      class="toolbarbutton-1"
                      label="&markButton.label;"
                      tooltiptext="&markButton.tooltip;">
-        <menupopup id="button-markPopup" onpopupshowing="InitMessageMark()" native="false">
+        <menupopup id="button-markPopup" onpopupshowing="InitMessageMark()">
           <menuitem id="markReadToolbarItem"
                     label="&markAsReadCmd.label;"
                     accesskey="&markAsReadCmd.accesskey;"
@@ -357,8 +355,7 @@
                      tooltiptext="&tagButton.tooltip;"
                      command="cmd_tag">
         <menupopup id="button-tagpopup"
-                   onpopupshowing="InitMessageTags(this);"
-                   native="false">
+                   onpopupshowing="InitMessageTags(this);">
           <menuitem id="button-addNewTag"
                     label="&addNewTag.label;"
                     accesskey="&addNewTag.accesskey;"

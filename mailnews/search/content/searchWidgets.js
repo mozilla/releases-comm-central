@@ -72,7 +72,7 @@
         MozXULElement.parseXULToFragment(
           `
           <menulist class="ruleactionitem" flex="1">
-            <menupopup native="false">
+            <menupopup>
               <menuitem value="6" data-l10n-id="rule-priority-highest"></menuitem>
               <menuitem value="5" data-l10n-id="rule-priority-high"></menuitem>
               <menuitem value="4" data-l10n-id="rule-priority-normal"></menuitem>
@@ -94,7 +94,7 @@
         MozXULElement.parseXULToFragment(
           `
           <menulist class="ruleactionitem" flex="1">
-            <menupopup native="false">
+            <menupopup>
               <menuitem value="100" data-l10n-id="rule-menuitem-spam"/>
               <menuitem value="0" data-l10n-id="rule-menuitem-not-spam"/>
             </menupopup>
@@ -159,8 +159,7 @@
                        mode="filing"
                        class="menulist-menupopup"
                        showRecent="true"
-                       showFileHereLabel="true"
-                       native="false">
+                       showFileHereLabel="true">
             </menupopup>
           </menulist>
           `
@@ -1540,7 +1539,7 @@
         MozXULElement.parseXULToFragment(
           `
           <menulist is="ruleactiontype-menulist" style="flex: 1;">
-            <menupopup native="false">
+            <menupopup>
               <menuitem data-l10n-id="rule-action-move"
                         value="movemessage"
                         enablefornews="false"></menuitem>

@@ -50,8 +50,7 @@
                  expandFolders="nntp"
                  showFileHereLabel="true"
                  showAccountsFileHere="true"
-                 oncommand="setFilterFolder(event.target._folder);"
-                 native="false"/>
+                 oncommand="setFilterFolder(event.target._folder);"/>
     </menulist>
     <html:input type="search"
                 id="searchBox"
@@ -86,8 +85,7 @@
                          class="menulist-menupopup"
                          showFileHereLabel="true"
                          showAccountsFileHere="false"
-                         oncommand="setRunFolder(event.target._folder);"
-                         native="false"/>
+                         oncommand="setRunFolder(event.target._folder);"/>
             </menulist>
           <button id="runFiltersButton"
                   data-l10n-id="filter-run-filters-button"
@@ -101,7 +99,7 @@
                      type="menu"
                      data-l10n-id="filter-new-button"
                      oncommand="onNewFilter();">
-        <menupopup id="newFilterMenupopup" native="false">
+        <menupopup id="newFilterMenupopup">
           <menuitem data-l10n-id="filter-new-button"/>
           <menuitem id="copyToNewButton"
                     data-l10n-id="filter-new-copy-button"
