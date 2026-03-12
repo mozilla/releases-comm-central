@@ -1486,11 +1486,6 @@ pref("mail.inappnotifications.refreshInterval", 21600000);
 // Disables all filtering of in-app notifications, useful for testing.
 pref("mail.inappnotifications.bypass-filtering", false);
 
-// Whether Yahoo/AOL/ATT OAuth user is detected.
-// Used to notify about upcoming changes via in-app notification.
-// TODO: Remove this when PKCE is fully rolled out for Yahoo/AOL/AT&T
-pref("mail.inappnotifications.pkceUpgradeForYahooAol", false);
-
 // Whether Thunderbird is running under Flatpak or Snap.
 // These are set at startup each run so they reflect the current runtime.
 // Used to notify about upcoming changes via in-app notification.

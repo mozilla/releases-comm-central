@@ -83,16 +83,6 @@ OAuth2Module.prototype = {
       return false;
     }
 
-    // Set pref for Yahoo/AOL/AT&T users if applicable
-    // TODO: Remove this block when PKCE is fully rolled out for Yahoo/AOL/AT&T
-    if (["login.yahoo.com", "login.aol.com"].includes(issuer)) {
-      Services.prefs.setBoolPref(
-        "mail.inappnotifications.pkceUpgradeForYahooAol",
-        !issuerDetails.usePKCE
-      );
-    }
-    // TODO: END
-
     // Username is needed to generate the XOAUTH2 string.
     this._username = username;
     // loginOrigin is needed to save the refresh token in the password manager.
