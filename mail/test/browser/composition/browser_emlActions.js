@@ -8,7 +8,7 @@
 
 "use strict";
 
-requestLongerTimeout(2);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
 
 var {
   close_compose_window,
