@@ -2925,11 +2925,13 @@ dependencies = [
 name = "happy_eyeballs_glue"
 version = "0.1.0"
 dependencies = [
+ "gecko-profiler",
  "happy-eyeballs",
  "libc",
  "log",
  "nserror",
  "nsstring",
+ "serde",
  "thin-vec",
  "winapi",
  "xpcom",
