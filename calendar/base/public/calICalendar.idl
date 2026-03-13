@@ -65,7 +65,7 @@ interface calICalendar : nsISupports
 
   /**
    * Multiple calendar instances may be composited, logically acting as a
-   * single calendar, e.g. for caching puorposing.
+   * single calendar, e.g. for caching purposes.
    * This attribute determines the topmost calendar that returned items should
    * belong to. If the current instance is the topmost calendar, then it should
    * be returned directly.
