@@ -756,8 +756,6 @@ files_changed:
   - comm/mailnews/base/src/nsMsgSearchDBView.cpp
   - comm/mailnews/base/src/nsMsgSearchDBView.h
   - comm/mailnews/base/src/nsMsgSpecialViews.h
-  - comm/mailnews/base/src/nsMsgStatusFeedback.cpp
-  - comm/mailnews/base/src/nsMsgStatusFeedback.h
   - comm/mailnews/base/src/nsMsgTagService.cpp
   - comm/mailnews/base/src/nsMsgThreadedDBView.cpp
   - comm/mailnews/base/src/nsMsgThreadedDBView.h

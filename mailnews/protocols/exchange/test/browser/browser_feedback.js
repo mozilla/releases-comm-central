@@ -72,7 +72,7 @@ add_setup(async function () {
   // bar. Reset it.
   const status = window.MsgStatusFeedback;
   if (BrowserTestUtils.isVisible(status._progressBar)) {
-    status._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
   }
   status._startRequests = 0;
   status._activeProcesses.length = 0;

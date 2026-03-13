@@ -8,7 +8,6 @@
 
 #include "nsIAuthPrompt.h"
 #include "nsIMsgWindow.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgFolder.h"
 #include "nsCOMPtr.h"
@@ -30,7 +29,6 @@ class nsMsgWindow : public nsIMsgWindow,
 
  protected:
   virtual ~nsMsgWindow();
-  nsCOMPtr<nsIMsgStatusFeedback> mStatusFeedback;
   nsCOMPtr<nsITransactionManager> mTransactionManager;
   // These are used by the backend protocol code to attach
   // notification callbacks to channels, e.g., nsIBadCertListner2.

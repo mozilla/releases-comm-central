@@ -2,24 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EwsServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/EwsServer.sys.mjs"
-);
-var { RemoteFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MockServer.sys.mjs"
-);
-var { localAccountUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
-);
-var { MessageGenerator } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-);
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
-);
-
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
 );
 
 var incomingServer;
@@ -37,22 +21,12 @@ var msgWindow;
 var rootFolder, inboxFolder, archiveFolder, trashFolder;
 
 const ewsIdPropertyName = "ewsId";
-const generator = new MessageGenerator();
-
-class DummyStatusFeedback {
-  showStatusString(_status) {}
-  startMeteors() {}
-  stopMeteors() {}
-  showProgress(_percent) {}
-  setWrappedStatusFeedback(_feedback) {}
-}
 
 add_setup(async function () {
   [ewsServer, incomingServer] = setupBasicEwsTestServer({});
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );
-  msgWindow.statusFeedback = new DummyStatusFeedback();
   rootFolder = incomingServer.rootFolder;
   await syncFolder(incomingServer, rootFolder);
 
@@ -120,7 +94,7 @@ add_task(async function test_undo_move() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(inboxFolder, testItemPrefix).length > 0;
+    return !!findTestMessages(inboxFolder, testItemPrefix).length;
   }, "Waiting for undo operation to complete.");
 
   checkFolders(testItemPrefix, 1, 0);
@@ -134,7 +108,7 @@ add_task(async function test_undo_move() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(archiveFolder, testItemPrefix).length > 0;
+    return !!findTestMessages(archiveFolder, testItemPrefix).length;
   }, "Waiting for redo operation to complete.");
 
   checkFolders(testItemPrefix, 0, 1);
@@ -156,7 +130,7 @@ add_task(async function test_undo_copy() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(archiveFolder, testItemPrefix).length == 0;
+    return !findTestMessages(archiveFolder, testItemPrefix).length;
   }, "Waiting for undo operation to complete.");
 
   checkFolders(testItemPrefix, 1, 0);
@@ -170,7 +144,7 @@ add_task(async function test_undo_copy() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(archiveFolder, testItemPrefix).length > 0;
+    return !!findTestMessages(archiveFolder, testItemPrefix).length;
   }, "Waiting for redo operation to complete.");
 
   checkFolders(testItemPrefix, 1, 1);
@@ -230,7 +204,7 @@ add_task(async function test_undo_delete() {
 
   msgWindow.transactionManager.undoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(inboxFolder, testItemPrefix).length > 0;
+    return !!findTestMessages(inboxFolder, testItemPrefix).length;
   }, "Waiting for message to reappear in inbox.");
 
   checkCounts(1, 0);
@@ -244,7 +218,7 @@ add_task(async function test_undo_delete() {
 
   msgWindow.transactionManager.redoTransaction();
   await TestUtils.waitForCondition(() => {
-    return findTestMessages(inboxFolder, testItemPrefix).length == 0;
+    return !findTestMessages(inboxFolder, testItemPrefix).length;
   }, "Waiting for message to disappear from inbox.");
 
   checkCounts(0, 1);

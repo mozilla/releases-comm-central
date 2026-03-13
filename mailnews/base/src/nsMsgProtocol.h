@@ -128,7 +128,6 @@ class nsMsgProtocol : public nsIStreamListener,
   bool m_isChannel;
   nsCOMPtr<nsILoadGroup> m_loadGroup;
   nsLoadFlags mLoadFlags;
-  nsCOMPtr<nsIProgressEventSink> mProgressEventSink;
   nsCOMPtr<nsIInterfaceRequestor> mCallbacks;
   nsCOMPtr<nsISupports> mOwner;
   nsCString mContentType;

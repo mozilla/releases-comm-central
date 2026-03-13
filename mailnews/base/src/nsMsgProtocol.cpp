@@ -21,7 +21,6 @@
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "nsIMsgWindow.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIWebProgressListener.h"
 #include "nsIPipe.h"
 #include "nsIPrompt.h"
@@ -68,14 +67,6 @@ nsMsgProtocol::nsMsgProtocol(nsIURI* aURL) {
 
 nsresult nsMsgProtocol::InitFromURI(nsIURI* aUrl) {
   m_url = aUrl;
-
-  nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
-  if (mailUrl) {
-    mailUrl->GetLoadGroup(getter_AddRefs(m_loadGroup));
-    nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
-    mailUrl->GetStatusFeedback(getter_AddRefs(statusFeedback));
-    mProgressEventSink = do_QueryInterface(statusFeedback);
-  }
 
   // Reset channel data in case the object is reused and initialised again.
   mCharset.Truncate();
@@ -316,7 +307,6 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest* request,
 
   // Drop notification callbacks to prevent cycles.
   mCallbacks = nullptr;
-  mProgressEventSink = nullptr;
   m_channelListener = nullptr;
   // Call CloseSocket(), in case we got here because the server dropped the
   // connection while reading, and we never get a chance to get back into

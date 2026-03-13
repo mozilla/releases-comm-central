@@ -7,12 +7,12 @@
 
 #include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgUtils.h"
+#include "nsIFeedbackService.h"
 
 #include "nsImapStringBundle.h"
 #include "nsVersionComparator.h"
 
 #include "nsThreadUtils.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsImapCore.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "../public/nsIImapHostSessionList.h"
@@ -9190,14 +9190,6 @@ NS_IMETHODIMP nsImapMockChannel::GetURI(nsIURI** aURI) {
 NS_IMETHODIMP nsImapMockChannel::SetURI(nsIURI* aURI) {
   m_url = aURI;
   if (m_url) {
-    // if we don't have a progress event sink yet, get it from the url for
-    // now...
-    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
-    if (mailnewsUrl && !mProgressEventSink) {
-      nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
-      mailnewsUrl->GetStatusFeedback(getter_AddRefs(statusFeedback));
-      mProgressEventSink = do_QueryInterface(statusFeedback);
-    }
     // If this is a fetch URL and we can, get the message size from the message
     // header and set it to be the content length.
     // Note that for an attachment URL, this will set the content length to be
@@ -10088,21 +10080,41 @@ nsImapMockChannel::OnTransportStatus(nsITransport* transport, nsresult status,
       status == NS_NET_STATUS_SENDING_TO)
     return NS_OK;
 
-  if (!mProgressEventSink) {
-    NS_QueryNotificationCallbacks(mCallbacks, m_loadGroup, mProgressEventSink);
-    if (!mProgressEventSink) return NS_OK;
-  }
-
   nsAutoCString host;
   m_url->GetHost(host);
+  nsString accountName;
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
   if (mailnewsUrl) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     mailnewsUrl->GetServer(getter_AddRefs(server));
-    if (server) server->GetHostName(host);
+    if (server) {
+      server->GetHostName(host);
+      nsAutoCString name;
+      server->GetPrettyName(name);
+      accountName.Assign(NS_ConvertUTF8toUTF16(name));
+    }
   }
-  mProgressEventSink->OnStatus(this, status, NS_ConvertUTF8toUTF16(host).get());
+
+  nsAutoString msg;
+  nsresult rv = FormatStatusMessage(status, NS_ConvertUTF8toUTF16(host), msg);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIStringBundle> bundle;
+  nsCOMPtr<nsIStringBundleService> sbs =
+      mozilla::components::StringBundle::Service();
+  NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
+  rv = sbs->CreateBundle(MSGS_URL, getter_AddRefs(bundle));
+  AutoTArray<nsString, 2> params = {accountName, msg};
+  nsString statusMessage;
+  rv = bundle->FormatStringFromName("statusMessage", params, statusMessage);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
+  if (feedback) {
+    feedback->ReportStatus(NS_ConvertUTF16toUTF8(statusMessage), ""_ns);
+  }
 
   return NS_OK;
 }

@@ -7,7 +7,6 @@
 const { nsMailServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/Maild.sys.mjs"
 );
-
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -330,7 +329,7 @@ async function subtest_clear_status_bar() {
       clearTimeout(status._stopTimeoutID);
       status._stopTimeoutID = null;
     }
-    status._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
   }
 
   Assert.ok(
@@ -344,7 +343,7 @@ async function subtest_clear_status_bar() {
   if (BrowserTestUtils.isVisible(status._progressBar)) {
     // Somehow the progress bar is still visible and probably in the
     // indeterminate state, meaning vsync timers are still active. Reset it.
-    status._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
   }
 
   Assert.equal(

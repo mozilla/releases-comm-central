@@ -296,6 +296,8 @@ pref("mail.dsn.ret_full_on", true);
 pref("mail.identity.default.dsn_use_custom_prefs", false);
 pref("mail.identity.default.dsn_always_request_on", false);
 
+pref("mail.feedback.loglevel", "Warn");
+
 pref("news.show_size_in_lines", true);
 pref("news.update_unread_on_expand", true);
 pref("news.get_messages_on_select", true);

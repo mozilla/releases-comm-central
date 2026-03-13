@@ -49,14 +49,13 @@ var msgMoveMotion = {
 
 var gRunningFilters = false;
 
-var gStatusFeedback = {
-  progressMeterVisible: false,
-
-  showStatusString(status) {
-    document.getElementById("statusText").setAttribute("value", status);
-  },
-  startMeteors() {
-    // change run button to be a stop button
+window.addEventListener("message", event => {
+  if (event.data.statusMessage) {
+    document
+      .getElementById("statusText")
+      .setAttribute("value", event.data.statusMessage);
+  }
+  if (event.data.meteors == "start-meteors") {
     gRunFiltersButton.disabled = true;
     gRunningFilters = true;
 
@@ -66,12 +65,11 @@ var gStatusFeedback = {
         .removeAttribute("collapsed");
       this.progressMeterVisible = true;
     }
-
     document.getElementById("statusbar-icon").removeAttribute("value");
-  },
-  stopMeteors() {
+  }
+  if (event.data.meteors == "stop-meteors") {
     try {
-      gRunFiltersButton.disabled = false;
+      //gRunFiltersButton.disabled = false;
       gRunningFilters = false;
 
       if (this.progressMeterVisible) {
@@ -81,10 +79,8 @@ var gStatusFeedback = {
     } catch (ex) {
       // can get here if closing window when running filters
     }
-  },
-  showProgress() {},
-  closeWindow() {},
-};
+  }
+});
 
 var filterEditorQuitObserver = {
   observe(aSubject, aTopic) {
@@ -105,7 +101,6 @@ function onLoad() {
     "@mozilla.org/messenger/msgwindow;1"
   ].createInstance(Ci.nsIMsgWindow);
   gFilterListMsgWindow.domWindow = window;
-  gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
   gServerMenu = document.getElementById("serverMenu");
   gFilterListbox = document.getElementById("filterList");
@@ -341,6 +336,7 @@ function setRunFolder(aFolder) {
  * Toggle enabled state of a filter, in both the filter properties and the UI.
  *
  * @param {Element} aFilterItem - An item (row) of the filter list to be toggled.
+ * @param {boolean} [aSetForEvent] - Enabled status.
  */
 function toggleFilter(aFilterItem, aSetForEvent) {
   const filter = aFilterItem._filter;

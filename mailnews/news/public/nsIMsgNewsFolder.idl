@@ -120,9 +120,10 @@ interface nsIMsgNewsFolder : nsISupports {
    * sure that the user has proper permission to cancel the message.
    *
    * @param aMsgHdr     The header of the message to be canceled.
+   * @param aUrlListener  Listener (if any) for the operation.
    * @param aMsgWindow  The standard message window object, for error dialogs.
    */
-  void cancelMessage(in nsIMsgDBHdr aMsgHdr, in nsIMsgWindow aMsgWindow);
+  void cancelMessage(in nsIMsgDBHdr aMsgHdr, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   void refreshSizeOnDisk();
 };

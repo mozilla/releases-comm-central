@@ -23,6 +23,7 @@
 #include "nsIMsgComposeParams.idl"
 
 interface nsIMsgProgress;
+interface nsIMsgStatusFeedback;
 interface nsIURI;
 interface nsIRequest;
 interface nsIMsgDBHdr;
@@ -30,7 +31,6 @@ interface nsIMsgHdr;
 interface nsIFile;
 interface nsIOutputStream;
 interface nsIMsgComposeSecure;
-interface nsIMsgStatusFeedback;
 interface nsIEditor;
 interface mozIDOMWindowProxy;
 
@@ -231,7 +231,7 @@ interface nsIMsgSend : nsISupports
    *                         receive notifications of copy finishing e.g. after
    *                         saving a message to the sent mail folder.
    *                         This param may be null.
-   * @param aStatusFeedback  A feedback listener for slightly different feedback
+   * @param _aStatusFeedback  A feedback listener for slightly different feedback
    *                         on the message send status. This param may be null.
    * @param aPassword        Pass this in to prevent a dialog if the password
    *                         is needed for secure transmission.
@@ -245,7 +245,7 @@ interface nsIMsgSend : nsISupports
                           in nsMsgDeliverMode     aMode,
                           in nsIMsgDBHdr          aMsgToReplace,
                           in nsIMsgSendListener   aListener,
-                          in nsIMsgStatusFeedback aStatusFeedback,
+                          in nsIMsgStatusFeedback _aStatusFeedback,
                           in wstring              aPassword
                           );
 

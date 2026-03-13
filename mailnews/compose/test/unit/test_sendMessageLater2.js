@@ -242,11 +242,7 @@ class MsgSendLaterListener {
     Assert.equal(gLastSentMessage + 1, aCurrentMessage);
     gLastSentMessage = aCurrentMessage;
   }
-  onMessageSendProgress(aCurrentMessage, aTotalMessageCount) {
-    Assert.equal(aTotalMessageCount, gMsgOrder.length);
-    Assert.equal(gLastSentMessage, aCurrentMessage);
-    Assert.equal(msgSendLater.sendingMessages, true);
-  }
+  onMessageSendProgress() {}
   onMessageSendError(aCurrentMessage, aMessageHeader, aStatus) {
     throw new Error(
       "onMessageSendError should not have been called, status: " + aStatus

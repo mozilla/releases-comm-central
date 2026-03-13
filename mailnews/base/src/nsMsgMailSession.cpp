@@ -23,7 +23,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMessageService.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIObserverService.h"
 #include "nsIPromptService.h"
 #include "nsIProperties.h"
@@ -562,10 +561,6 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports* aSubject,
         mQuitMode |= nsIAppStartup::eRestart;
     }
 
-    // This doesn't look great, but the purpose of progress.msgWindow is to
-    // clear msgWindow.statusFeedback when the progress ends.
-    nsCOMPtr<nsIMsgStatusFeedback> feedback = do_QueryInterface(mMsgProgress);
-    topMsgWindow->SetStatusFeedback(feedback);
     mMsgProgress->SetMsgWindow(topMsgWindow);
     mMsgProgress->OpenProgressDialog(
         internalDomWin, "chrome://messenger/content/shutdownWindow.xhtml",

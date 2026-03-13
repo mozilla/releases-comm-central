@@ -7,7 +7,7 @@
 /* global MozElements, MozXULElement */
 
 /* import-globals-from mailCore.js */
-/* globals contentProgress, statusFeedback */
+/* globals contentProgress */ // mailWindow.js
 
 ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -699,6 +699,9 @@ ChromeUtils.defineESModuleGetters(this, {
      * aTabIndexNodeOrInfo is not specified and aDefaultToCurrent is
      * true, the current tab will be returned.  Otherwise, an
      * exception will be thrown.
+     *
+     * @param {integer|TabInfo|Node} aTabIndexNodeOrInfo
+     * @param {boolean} aDefaultToCurrent - Default to current if aTabIndexNodeOrInfo is not set.
      */
     _getTabContextForTabbyThing(aTabIndexNodeOrInfo, aDefaultToCurrent) {
       let iTab;
@@ -736,7 +739,7 @@ ChromeUtils.defineESModuleGetters(this, {
       // In the process we also generate a synthetic tab title changed
       // event to ensure we have an accurate title.  We assume the tab
       // contents will set themselves up correctly.
-      if (this.tabInfo.length == 0) {
+      if (!this.tabInfo.length) {
         const tab = this.openTab("mail3PaneTab", { first: true });
         this.tabs[0].linkedPanel = tab.panel.id;
       }
@@ -997,36 +1000,6 @@ ChromeUtils.defineESModuleGetters(this, {
       }
     }
 
-    /**
-     * If the current/most recent tab is of mode aTabModeName, return its
-     *  tab info, otherwise return the tab info for the first tab of the
-     *  given mode.
-     * You would want to use this method when you would like to mimic the
-     *  settings of an existing instance of your mode.  In such a case,
-     *  it is reasonable to assume that if the 'current' tab was of the
-     *  same mode that its settings should be used.  Otherwise, we must
-     *  fall back to another tab.  We currently choose the first tab of
-     *  the instance, because for the "folder" tab, it is the canonical tab.
-     *  In other cases, having an MRU order and choosing the MRU tab might
-     *  be more appropriate.
-     *
-     * @returns {?TabInfo} the tab info object for the tab meeting the above
-     *   criteria, or null if no such tab exists.
-     */
-    getTabInfoForCurrentOrFirstModeInstance(aTabMode) {
-      // If we're in the middle of opening a new tab
-      // (this._mostRecentTabInfo is non-null), we shouldn't consider the
-      // current tab
-      const tabToConsider = this._mostRecentTabInfo || this.currentTabInfo;
-      if (tabToConsider && tabToConsider.mode == aTabMode) {
-        return tabToConsider;
-      } else if (aTabMode.tabs.length) {
-        return aTabMode.tabs[0];
-      }
-
-      return null;
-    }
-
     undoCloseTab(aIdx) {
       if (!this.recentlyClosedTabs.length) {
         return;
@@ -1149,6 +1122,9 @@ ChromeUtils.defineESModuleGetters(this, {
     /**
      * Given a tabNode (or tabby thing), close all of the other tabs
      * that are closeable.
+     *
+     * @param {TabInfo|Node} aTabNode
+     * @param {boolean} aNoUndo
      */
     closeOtherTabs(aTabNode, aNoUndo) {
       const [, thisTab] = this._getTabContextForTabbyThing(aTabNode, false);
@@ -1403,6 +1379,9 @@ ChromeUtils.defineESModuleGetters(this, {
      * |persistTabs|. This is currently a synchronous operation, but in
      * the future this may kick off an asynchronous mechanism to restore
      * the tabs one-by-one.
+     *
+     * @param {object} aPersistedState
+     * @param {boolean} aDontRestoreFirstTab
      */
     restoreTabs(aPersistedState, aDontRestoreFirstTab) {
       const tabs = aPersistedState.tabs;
@@ -1515,8 +1494,9 @@ ChromeUtils.defineESModuleGetters(this, {
     }
 
     /**
-     * getBrowserForDocument is used to find the browser for a specific
-     * document that's been loaded
+     * Used to find the browser for a specific document that's been loaded.
+     *
+     * @param {Document} aDocument
      */
     getBrowserForDocument(aDocument) {
       for (let i = 0; i < this.tabInfo.length; ++i) {
@@ -1774,15 +1754,13 @@ ChromeUtils.defineESModuleGetters(this, {
     /**
      * Updates the global state to reflect the active tab's thinking
      * state (which the caller provides).
+     *
+     * @param {boolean|string} aThinkingState
      */
     _setActiveThinkingState(aThinkingState) {
-      if (aThinkingState) {
-        statusFeedback.showProgress(0);
-        if (typeof aThinkingState == "string") {
-          statusFeedback.showStatusString(aThinkingState);
-        }
-      } else {
-        statusFeedback.showProgress(0);
+      MailServices.feedback.reportProgress(0);
+      if (aThinkingState && typeof aThinkingState == "string") {
+        MailServices.feedback.reportStatus(aThinkingState);
       }
     }
 
@@ -1843,6 +1821,8 @@ ChromeUtils.defineESModuleGetters(this, {
 
     /**
      * Set the document title based on the tab title
+     *
+     * @param {TabInfo} [aTab]
      */
     setDocumentTitle(aTab = this.selectedTab) {
       let docTitle = aTab.title ? aTab.title.trim() : "";
@@ -1871,6 +1851,8 @@ ChromeUtils.defineESModuleGetters(this, {
 
     /**
      * Returns the find bar for a tab.
+     *
+     * @param {TabInfo} [tab]
      */
     getCachedFindBar(tab = this.selectedTab) {
       return tab.findbar ?? null;
@@ -1879,6 +1861,8 @@ ChromeUtils.defineESModuleGetters(this, {
     /**
      * Implementation of gBrowser's lazy-loaded find bar. We don't lazily load
      * the find bar, and some of our tabs don't have a find bar.
+     *
+     * @param {TabInfo} [tab]
      */
     async getFindBar(tab = this.selectedTab) {
       return tab.findbar ?? null;

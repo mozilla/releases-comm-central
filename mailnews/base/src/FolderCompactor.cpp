@@ -16,7 +16,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgLocalMailFolder.h"  // For QI, needed by IsLocalFolder().
 #include "nsIMsgPluggableStore.h"
-#include "nsIMsgStatusFeedback.h"
+#include "nsIFeedbackService.h"
 #include "nsIMsgWindow.h"
 #include "nsIObserver.h"
 #include "nsIObserverService.h"
@@ -838,12 +838,10 @@ nsresult BatchCompactor::Begin() {
 }
 
 void BatchCompactor::OnProgress(int percent) {
-  if (mWindow) {
-    nsCOMPtr<nsIMsgStatusFeedback> feedback;
-    mWindow->GetStatusFeedback(getter_AddRefs(feedback));
-    if (feedback) {
-      feedback->ShowProgress(percent);
-    }
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
+  if (feedback) {
+    feedback->ReportProgress(percent);
   }
 }
 
@@ -1098,13 +1096,11 @@ static void GUIShowCompactingMsg(nsIMsgWindow* window, nsIMsgFolder* folder) {
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // Show message and turn on the progress bar.
-  nsCOMPtr<nsIMsgStatusFeedback> feedback;
-  window->GetStatusFeedback(getter_AddRefs(feedback));
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
   if (feedback) {
-    // Not all windows have .statusFeedback set, especially during
-    // xpcshell-tests (search for gDummyMsgWindow, set up in alertTestUtils.js).
-    feedback->ShowStatusString(statusMessage);
-    feedback->StartMeteors();
+    feedback->ReportStatus(NS_ConvertUTF16toUTF8(statusMessage),
+                           "start-meteors"_ns);
   }
 }
 
@@ -1131,11 +1127,10 @@ static void GUIShowDoneMsg(nsIMsgWindow* window, int64_t totalBytesRecovered) {
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // Show message, and turn off progress bar.
-  nsCOMPtr<nsIMsgStatusFeedback> feedback;
-  window->GetStatusFeedback(getter_AddRefs(feedback));
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
   if (feedback) {
-    feedback->ShowStatusString(doneMsg);
-    feedback->StopMeteors();
+    feedback->ReportStatus(NS_ConvertUTF16toUTF8(doneMsg), "stop-meteors"_ns);
   }
 }
 

@@ -12,6 +12,7 @@
 #include "nsIMsgHdr.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsIFeedbackService.h"
 #include "nsIMsgFolder.h"
 #include "nsICopyMessageListener.h"
 #include "prtime.h"
@@ -136,12 +137,6 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       }
     }
     if (NS_SUCCEEDED(rv) && m_runningUrl) {
-      if (RunningMultipleMsgUrl()) {
-        // if we're running multiple msg url, we clear the event sink because
-        // the multiple msg urls will handle setting the progress.
-        mProgressEventSink = nullptr;
-      }
-
       nsMsgKey msgKey;
       m_runningUrl->GetMessageKey(&msgKey);
       if (msgKey == 0) {
@@ -509,11 +504,21 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
   }
 
   SetFlag(MAILBOX_PAUSE_FOR_READ);  // wait for more data to become available...
-  if (mProgressEventSink && m_runningUrl) {
+  if (m_runningUrl) {
     int64_t maxProgress;
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(m_runningUrl));
     mailnewsUrl->GetMaxProgress(&maxProgress);
-    mProgressEventSink->OnProgress(this, mCurrentProgress, maxProgress);
+
+    if (mCurrentProgress > 0 && maxProgress > 0) {
+      int32_t percent = (mCurrentProgress * 100) / maxProgress;
+      if (percent) {
+        nsCOMPtr<nsIFeedbackService> feedback =
+            mozilla::components::Feedback::Service();
+        if (feedback) {
+          feedback->ReportProgress(percent);
+        }
+      }
+    }
   }
 
   if (NS_FAILED(rv)) return -1;

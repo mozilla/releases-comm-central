@@ -4,6 +4,9 @@
 
 /* globals msgWindow, nsMsgStatusFeedback */ // From mailWindow.js
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
@@ -79,7 +82,7 @@ function onServerClick(aFolder) {
 
 var MySubscribeListener = {
   OnDonePopulating() {
-    gStatusFeedback._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
     document.getElementById("stopButton").disabled = true;
     document.getElementById("refreshButton").disabled = false;
     document.getElementById("currentListTab").disabled = false;
@@ -116,9 +119,9 @@ function SetUpTree(forceToServer, getOnlyNew) {
     document.getElementById("newGroupsTab").disabled = true;
     document.getElementById("refreshButton").disabled = true;
 
-    gStatusFeedback._startMeteors();
-    gStatusFeedback.showStatusString(
-      gSubscribeBundle.getString("pleaseWaitString")
+    MailServices.feedback.reportStatus(
+      gSubscribeBundle.getString("pleaseWaitString"),
+      "start-meteors"
     );
     document.getElementById("stopButton").disabled = false;
 
@@ -126,13 +129,15 @@ function SetUpTree(forceToServer, getOnlyNew) {
   } catch (e) {
     if (e.result == 0x80550014) {
       // NS_MSG_ERROR_OFFLINE
-      gStatusFeedback.showStatusString(
-        gSubscribeBundle.getString("offlineState")
+      MailServices.feedback.reportStatus(
+        gSubscribeBundle.getString("offlineState"),
+        "stop-meteors"
       );
     } else {
-      console.error("Failed to populate subscribe tree: ", e);
-      gStatusFeedback.showStatusString(
-        gSubscribeBundle.getString("errorPopulating")
+      console.error("Failed to populate subscribe tree", e);
+      MailServices.feedback.reportStatus(
+        gSubscribeBundle.getString("errorPopulating"),
+        "stop-meteors"
       );
     }
     Stop();
@@ -170,7 +175,6 @@ function SubscribeOnLoad() {
   );
   msgWindow.domWindow = window;
   gStatusFeedback = new nsMsgStatusFeedback();
-  msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
 
   // look in arguments[0] for parameters

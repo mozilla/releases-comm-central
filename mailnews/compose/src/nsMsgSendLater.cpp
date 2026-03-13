@@ -182,19 +182,6 @@ nsMsgSendLater::Observe(nsISupports* aSubject, const char* aTopic,
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgSendLater::SetStatusFeedback(nsIMsgStatusFeedback* aFeedback) {
-  mFeedback = aFeedback;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgSendLater::GetStatusFeedback(nsIMsgStatusFeedback** aFeedback) {
-  NS_ENSURE_ARG_POINTER(aFeedback);
-  NS_IF_ADDREF(*aFeedback = mFeedback);
-  return NS_OK;
-}
-
 // Stream is done...drive on!
 NS_IMETHODIMP
 nsMsgSendLater::OnStopRequest(nsIRequest* request, nsresult status) {
@@ -560,7 +547,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
       false,                        // bool digest_p,
       nsIMsgSend::nsMsgSendUnsent,  // nsMsgDeliverMode mode,
       nullptr,                      // nsIMsgDBHdr *msgToReplace,
-      sendListener, mFeedback, nullptr, getter_AddRefs(promise));
+      sendListener, nullptr, nullptr, getter_AddRefs(promise));
   return rv;
 }
 

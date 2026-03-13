@@ -12,7 +12,6 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgImapMailFolder.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapMessageSink.h"
@@ -2304,33 +2303,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       if (prevEventSink) channel->SetProgressEventSink(prevEventSink);
     }
   } else {
-    // This might not be a call resulting from user action (e.g. we might be
-    // getting a new message via nsImapMailFolder::OnNewIdleMessages(), or via
-    // nsAutoSyncManager, etc). In this case, try to retrieve the top-most
-    // message window to update its status feedback.
-    nsCOMPtr<nsIMsgMailSession> mailSession =
-        mozilla::components::MailSession::Service();
-    nsCOMPtr<nsIMsgWindow> msgWindow;
-    rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-    if (NS_SUCCEEDED(rv) && msgWindow) {
-      // If we could retrieve a window, get its nsIMsgStatusFeedback and set it
-      // to the URL so that other components interacting with it can correctly
-      // feed status updates to the UI.
-      nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
-      msgWindow->GetStatusFeedback(getter_AddRefs(statusFeedback));
-      mailnewsUrl->SetStatusFeedback(statusFeedback);
-      // We also need to set the status feedback as the channel's progress event
-      // sink, since that's how nsImapProtocol feeds some of the progress
-      // changes (e.g. downloading incoming messages) to the UI.
-      nsCOMPtr<nsIProgressEventSink> eventSink =
-          do_QueryInterface(statusFeedback);
-      channel->SetProgressEventSink(eventSink);
-    }
-
     // This function ends by checking the final value of rv and deciding whether
-    // to set aRetVal to our channel according to it. We don't want this to be
-    // impacted if we fail to retrieve a window (which might not work if we're
-    // being called through the command line, or through a test), so let's just
+    // to set aRetVal to our channel according to it. Let's just
     // reset rv to an OK value.
     rv = NS_OK;
   }

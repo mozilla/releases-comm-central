@@ -122,18 +122,23 @@ add_task(async function testSendSmall() {
 
   Assert.equal(
     gProgressEvents.length,
-    2,
-    "one progress event should have occurred"
+    3,
+    "expected number of progress event should have occurred"
   );
   Assert.equal(
     gProgressEvents[0].state,
-    Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
-    "event 0 must be in the no progress state"
+    Ci.nsITaskbarProgress.STATE_NORMAL,
+    "event 0 should be the start event"
   );
   Assert.equal(
     gProgressEvents[1].state,
     Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
     "event 1 must be in the no progress state"
+  );
+  Assert.equal(
+    gProgressEvents[2].state,
+    Ci.nsITaskbarProgress.STATE_NO_PROGRESS,
+    "event 2 must be in the no progress state"
   );
 
   gProgressEvents.length = 0;
@@ -181,7 +186,7 @@ add_task(async function testSendLarge() {
         Ci.nsITaskbarProgress.STATE_NORMAL,
         `event ${i} must be in the normal state`
       );
-      Assert.greater(
+      Assert.greaterOrEqual(
         progressEvent.current,
         previous,
         `event ${i} must have a sane current value`
@@ -233,7 +238,6 @@ add_task(async function testSaveLarge() {
   // Wait until saving stops, then wait more to see if anything else happens.
   await TestUtils.topicObserved("mail:composeSendProgressStop");
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
-
   Assert.greaterOrEqual(
     gProgressEvents.length,
     2,

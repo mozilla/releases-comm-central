@@ -1,0 +1,34 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * nsIFeedbackService provides a way for back-end components to communicate
+ * status and progress back to the front-end.
+ *
+ * Front-end event listeners listen to "message" events sent to them using
+ * postMessage(), and can react accordingly - typically update a status bar
+ * message or a progress indicator.
+ */
+[scriptable, uuid(bd85a417-5433-11d3-8ac5-0060b0fc04d3)]
+interface nsIFeedbackService : nsISupports {
+  /**
+   * Report to listeners that the given status is now active.
+   *
+   * @param statusMessage - Status message to pass on.
+   * @param meteors - Meteors status; one of "start-meteors"|"stop-meteors".
+   *   Meteors is the "thinking state" meteor animation that can be seen
+   *   in the activity indicator widget while an operation is active.
+   *   A start should eventually be accompanied by a stop to turn it off.
+   *   It's combined with this method since usually stopping also involves
+   *   an update of the status, if for nothing else, to clear it.
+   */
+  void reportStatus(in AUTF8String status, [optional] in AUTF8String meteors);
+
+  /**
+   * The progress of current activity has now progressed to this percentage.
+   */
+  void reportProgress(in long percent);
+};

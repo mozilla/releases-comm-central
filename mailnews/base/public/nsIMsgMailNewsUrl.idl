@@ -8,7 +8,6 @@
 
 interface nsIFile;
 interface nsIUrlListener;
-interface nsIMsgStatusFeedback;
 interface nsIMsgIncomingServer;
 interface nsIMsgWindow;
 interface nsILoadGroup;
@@ -78,8 +77,6 @@ interface nsIMsgMailNewsUrl : nsIURL {
    *                                .eml messages.
    */
   attribute nsIMsgFolder folder;
-
-  attribute nsIMsgStatusFeedback statusFeedback;
 
   /**
    * The maximum progress for this URL. This might be a count, or it might

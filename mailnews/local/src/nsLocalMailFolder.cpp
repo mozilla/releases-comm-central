@@ -32,6 +32,7 @@
 #include "nsIPop3IncomingServer.h"
 #include "nsILocalMailIncomingServer.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsIFeedbackService.h"
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsIMsgCopyService.h"
@@ -186,27 +187,19 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
   RefPtr<StoreIndexer> indexer = new StoreIndexer();
   nsresult rv;
 
-  // Set up for progress updates.
-  // statusFeedback can be left null, in which case we'll skip the progress
-  // reports.
-  nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   nsCOMPtr<nsIStringBundle> bundle;
   nsAutoCString folderName;
   GetName(folderName);
-  if (window) {
-    window->GetStatusFeedback(getter_AddRefs(statusFeedback));
-    nsCOMPtr<nsIStringBundleService> stringService =
-        mozilla::components::StringBundle::Service();
-    if (stringService) {
-      nsCOMPtr<nsIStringBundle> filterBundle;
-      stringService->CreateBundle(
-          "chrome://messenger/locale/localMsgs.properties",
-          getter_AddRefs(bundle));
-    }
-    if (!bundle) {
-      statusFeedback = nullptr;
-    }
+  nsCOMPtr<nsIStringBundleService> stringService =
+      mozilla::components::StringBundle::Service();
+
+  if (!stringService) {
+    return NS_ERROR_FAILURE;
   }
+  nsCOMPtr<nsIStringBundle> filterBundle;
+  rv = stringService->CreateBundle(
+      "chrome://messenger/locale/localMsgs.properties", getter_AddRefs(bundle));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // Start indexing, call FinishUpAfterParseFolder() when done.
   // NOTE: the division of labour between ParseFolder() and the StoreIndexer
@@ -217,26 +210,29 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
   // right now, but that stuff is also overdue for a refactoring.
 
   // Callback to handle progress updates.
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
   auto progressFn = [=](int64_t current, int64_t expected) {
-    if (statusFeedback && expected > 0) {
+    if (feedback && expected > 0) {
       current = std::min(current, expected);  // Clip to 100%
       int64_t percent = (100 * current) / expected;
-      statusFeedback->ShowProgress((int32_t)percent);
+      feedback->ReportProgress((int32_t)percent);
     }
   };
 
   // Callback to clean up afterwards.
   auto completionFn = [=, self = RefPtr(this)](nsresult status) {
-    if (statusFeedback) {
-      statusFeedback->StopMeteors();
-      nsAutoString msg;
-      nsresult rv = bundle->FormatStringFromName(
-          "localStatusDocumentDone", {NS_ConvertUTF8toUTF16(folderName)}, msg);
-      if (NS_SUCCEEDED(rv)) {
-        statusFeedback->ShowStatusString(msg);
-      }
+    nsAutoString msg;
+    nsresult rv = bundle->FormatStringFromName(
+        "localStatusDocumentDone", {NS_ConvertUTF8toUTF16(folderName)}, msg);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsIFeedbackService> feedback =
+        mozilla::components::Feedback::Service();
+    if (feedback) {
+      feedback->ReportStatus(NS_ConvertUTF16toUTF8(msg), "stop-meteors"_ns);
     }
     self->FinishUpAfterParseFolder(status);
+    return NS_OK;
   };
 
   // Start the parsing.
@@ -265,13 +261,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ParseFolder(nsIMsgWindow* window,
   m_parsingFolder = true;
   mReparseListener = listener;
 
-  if (statusFeedback) {
-    nsAutoString msg;
-    rv = bundle->FormatStringFromName("buildingSummary",
-                                      {NS_ConvertUTF8toUTF16(folderName)}, msg);
-    if (NS_SUCCEEDED(rv)) {
-      statusFeedback->ShowStatusString(msg);
-      statusFeedback->StartMeteors();
+  nsAutoString msg;
+  rv = bundle->FormatStringFromName("buildingSummary",
+                                    {NS_ConvertUTF8toUTF16(folderName)}, msg);
+  if (NS_SUCCEEDED(rv)) {
+    nsCOMPtr<nsIFeedbackService> feedback =
+        mozilla::components::Feedback::Service();
+    if (feedback) {
+      feedback->ReportStatus(NS_ConvertUTF16toUTF8(msg), "start-meteors"_ns);
     }
   }
 
@@ -3011,21 +3008,6 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
   nsresult rv = NS_OK;
   if (mCopyState) {
-    if (!mCopyState->m_statusFeedback) {
-      // get msgWindow from undo txn
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      if (mCopyState->m_undoMsgTxn)
-        mCopyState->m_undoMsgTxn->GetMsgWindow(getter_AddRefs(msgWindow));
-      if (!msgWindow) {
-        // Probably a folder move or copy with no undo txn. use top-most window.
-        nsCOMPtr<nsIMsgMailSession> mailSession =
-            mozilla::components::MailSession::Service();
-        mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-        if (!msgWindow) return NS_OK;  // not a fatal error but no stat display
-      }
-      msgWindow->GetStatusFeedback(
-          getter_AddRefs(mCopyState->m_statusFeedback));
-    }
     if (!mCopyState->m_stringBundle) {
       nsCOMPtr<nsIStringBundleService> bundleService =
           mozilla::components::StringBundle::Service();
@@ -3035,7 +3017,7 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
           getter_AddRefs(mCopyState->m_stringBundle));
       NS_ENSURE_SUCCESS(rv, rv);
     }
-    if (mCopyState->m_statusFeedback && mCopyState->m_stringBundle) {
+    if (mCopyState->m_stringBundle) {
       nsAutoCString folderName;
       GetName(folderName);
       nsString finalString;
@@ -3043,7 +3025,11 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
       rv = mCopyState->m_stringBundle->FormatStringFromName(
           (mCopyState->m_isMove) ? "imapMovingMessages" : "imapCopyingMessages",
           {NS_ConvertUTF8toUTF16(folderName)}, finalString);
-      mCopyState->m_statusFeedback->ShowStatusString(finalString);
+      nsCOMPtr<nsIFeedbackService> feedback =
+          mozilla::components::Feedback::Service();
+      if (feedback) {
+        feedback->ReportStatus(NS_ConvertUTF16toUTF8(finalString), ""_ns);
+      }
     }
   }
   return rv;

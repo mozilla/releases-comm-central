@@ -21,7 +21,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgDatabase.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
@@ -51,8 +50,6 @@ struct nsLocalMailCopyState {
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   nsCOMPtr<nsIMsgDatabase> m_destDB;
 
-  // for displaying status;
-  nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
   nsCOMPtr<nsIStringBundle> m_stringBundle;
   int64_t m_lastProgressTime;
 

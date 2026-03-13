@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
 import { NntpUtils } from "resource:///modules/NntpUtils.sys.mjs";
 
 const lazy = {};
@@ -58,7 +57,7 @@ export class NewsDownloader {
     this._urlListener?.OnStopRunningUrl(null, Cr.NS_OK);
 
     this._logger.debug("Finished downloading articles for offline use");
-    this._msgWindow.statusFeedback.showStatusString("");
+    MailServices.feedback.reportStatus("");
   }
 
   /**
@@ -76,7 +75,7 @@ export class NewsDownloader {
     this._logger.debug(
       "Finished downloading articles for offline use in single folder."
     );
-    this._msgWindow.statusFeedback.showStatusString("");
+    MailServices.feedback.reportStatus("");
   }
 
   /**
@@ -93,7 +92,7 @@ export class NewsDownloader {
     this._logger.debug(
       "Finished downloading specific articles for offline use"
     );
-    this._msgWindow.statusFeedback.showStatusString("");
+    MailServices.feedback.reportStatus("");
   }
 
   /**
@@ -232,7 +231,7 @@ export class NewsDownloader {
    * @param {object} params - Params to format the string.
    */
   async _updateStatus(folder, statusName, params) {
-    this._msgWindow?.statusFeedback?.showStatusString(
+    MailServices.feedback.reportStatus(
       lazy.messengerBundle.formatStringFromName("statusMessage", [
         folder.server.prettyName,
         await lazy.l10n.formatValue(statusName, params),

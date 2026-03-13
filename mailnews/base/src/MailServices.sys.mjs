@@ -94,6 +94,13 @@ XPCOMUtils.defineLazyServiceGetter(
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
+  "feedback",
+  "@mozilla.org/messenger/feedback-service;1",
+  Ci.nsIFeedbackService
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  MailServices,
   "ab",
   "@mozilla.org/abmanager;1",
   Ci.nsIAbManager

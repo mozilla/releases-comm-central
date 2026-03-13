@@ -8,7 +8,6 @@
 
 #include "nsIMsgProgress.h"
 #include "nsCOMArray.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsString.h"
 #include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
@@ -16,7 +15,6 @@
 #include "nsWeakReference.h"
 
 class nsMsgProgress : public nsIMsgProgress,
-                      public nsIMsgStatusFeedback,
                       public nsIProgressEventSink,
                       public nsSupportsWeakReference {
  public:
@@ -25,7 +23,6 @@ class nsMsgProgress : public nsIMsgProgress,
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGPROGRESS
   NS_DECL_NSIWEBPROGRESSLISTENER
-  NS_DECL_NSIMSGSTATUSFEEDBACK
   NS_DECL_NSIPROGRESSEVENTSINK
 
   struct ListenerInfo {

@@ -11,7 +11,6 @@
 #include "nsIMsgSendListener.h"
 #include "nsIMsgSendLaterListener.h"
 #include "nsIMsgSendLater.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsTObserverArray.h"
 #include "nsIObserver.h"
 #include "nsITimer.h"
@@ -95,7 +94,6 @@ class nsMsgSendLater : public nsIMsgSendLater,
   uint32_t mTotalSendCount;
   nsCOMArray<nsIMsgDBHdr> mMessagesToSend;
   nsWeakPtr mMessageFolder;
-  nsCOMPtr<nsIMsgStatusFeedback> mFeedback;
 
   virtual ~nsMsgSendLater();
   nsresult GetIdentityFromKey(const char* aKey, nsIMsgIdentity** aIdentity);

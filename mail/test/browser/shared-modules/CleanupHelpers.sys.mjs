@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 /**
  * Stop anything active in the status bar and clear the status text.
@@ -34,7 +36,7 @@ export async function clearStatusBar(window) {
       window.clearTimeout(status._stopTimeoutID);
       status._stopTimeoutID = null;
     }
-    status._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
   }
 
   Assert.ok(
@@ -48,7 +50,8 @@ export async function clearStatusBar(window) {
   if (BrowserTestUtils.isVisible(status._progressBar)) {
     // Somehow the progress bar is still visible and probably in the
     // indeterminate state, meaning vsync timers are still active. Reset it.
-    status._stopMeteors();
+    MailServices.feedback.reportStatus("", "stop-meteors");
+    await new Promise(resolve => setTimeout(resolve));
   }
 
   Assert.equal(

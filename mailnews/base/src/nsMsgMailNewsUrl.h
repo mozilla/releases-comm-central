@@ -101,7 +101,6 @@ class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
 
   nsCOMPtr<nsIURL> m_baseURL;
   nsCOMPtr<nsIURI> m_normalizedOrigin;
-  nsWeakPtr m_statusFeedbackWeak;
   nsWeakPtr m_msgWindowWeak;
   nsWeakPtr m_loadGroupWeak;
   nsCOMPtr<nsIMimeHeaders> mMimeHeaders;

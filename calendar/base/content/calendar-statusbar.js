@@ -41,7 +41,7 @@ var gCalendarStatusFeedback = {
    *  empty string clears the status bar.
    * @param {?object} args - Arguments to pass to the fluent string.
    */
-  showStatusString(status, args) {
+  _showStatusString(status, args) {
     if (status) {
       document.l10n.setAttributes(this.mStatusText, status, args);
     } else {
@@ -70,7 +70,7 @@ var gCalendarStatusFeedback = {
       this.mStatusProgressPanel.removeAttribute("collapsed");
       if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
         this.mStatusBar.value = 0;
-        this.showStatusString("getting-calendar-info-common");
+        this._showStatusString("getting-calendar-info-common");
       }
       if (this.mThrobber) {
         this.mThrobber.setAttribute("busy", true);
@@ -87,7 +87,7 @@ var gCalendarStatusFeedback = {
       this.mStatusProgressPanel.collapsed = true;
       this.mStatusBar.value = 0;
       this.mCalendarCount = 0;
-      this.showStatusString("");
+      this._showStatusString("");
       if (this.mThrobber) {
         this.mThrobber.setAttribute("busy", false);
       }
@@ -104,7 +104,7 @@ var gCalendarStatusFeedback = {
           this.mCalendars[aCalendar.id] = true;
           this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
           this.mCurIndex++;
-          this.showStatusString("getting-calendar-info-detail", {
+          this._showStatusString("getting-calendar-info-detail", {
             index: this.mCurIndex,
             total: this.mCalendarCount,
           });

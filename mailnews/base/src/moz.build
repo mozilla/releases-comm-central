@@ -87,7 +87,6 @@ SOURCES += [
     "nsMsgReadStateTxn.cpp",
     "nsMsgSearchDBView.cpp",
     "nsMsgSpecialViews.cpp",
-    "nsMsgStatusFeedback.cpp",
     "nsMsgTagService.cpp",
     "nsMsgThreadedDBView.cpp",
     "nsMsgTxn.cpp",
@@ -122,6 +121,7 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
 EXTRA_JS_MODULES += [
     "ABQueryUtils.sys.mjs",
     "converterWorker.js",
+    "FeedbackService.sys.mjs",
     "FolderUtils.sys.mjs",
     "hostnameUtils.sys.mjs",
     "JXON.sys.mjs",

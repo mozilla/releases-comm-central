@@ -630,9 +630,10 @@ nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
+                                             nsIUrlListener* aUrlListener,
                                              nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(msgHdr);
-  NS_ENSURE_ARG_POINTER(aMsgWindow);
+  NS_ENSURE_ARG_POINTER(aUrlListener);
 
   nsresult rv;
 
@@ -673,8 +674,8 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
 
   nsCOMPtr<nsIURI> resultUri;
   return nntpService->CancelMessage(cancelURL, messageURI,
-                                    nullptr /* consumer */, nullptr, aMsgWindow,
-                                    getter_AddRefs(resultUri));
+                                    nullptr /* consumer */, aUrlListener,
+                                    aMsgWindow, getter_AddRefs(resultUri));
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,

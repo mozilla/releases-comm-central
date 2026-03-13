@@ -6,7 +6,7 @@
 #include "msgCore.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMsgStatusFeedback.h"
+#include "nsIFeedbackService.h"
 #include "nsIMsgWindow.h"
 #include "nsString.h"
 #include "nsILoadGroup.h"
@@ -214,16 +214,16 @@ nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode) {
     return NS_OK;
   }
   m_runningUrl = aRunningUrl;
-  nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
 
-  // put this back - we need it for urls that don't run through the doc loader
-  if (NS_SUCCEEDED(GetStatusFeedback(getter_AddRefs(statusFeedback))) &&
-      statusFeedback) {
-    if (m_runningUrl)
-      statusFeedback->StartMeteors();
-    else {
-      statusFeedback->ShowProgress(0);
-      statusFeedback->StopMeteors();
+  // We need it for urls that don't run through the doc loader.
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
+  if (feedback) {
+    if (m_runningUrl) {
+      feedback->ReportStatus(""_ns, "start-meteors"_ns);
+    } else {
+      feedback->ReportProgress(0);
+      feedback->ReportStatus(""_ns, "stop-meteors"_ns);
     }
   }
 
@@ -311,28 +311,6 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
   m_msgWindowWeak = do_GetWeakReference(aMsgWindow);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::GetStatusFeedback(
-    nsIMsgStatusFeedback** aMsgFeedback) {
-  // note: it is okay to return a null status feedback and not return an error
-  // it's possible the url really doesn't have status feedback
-  *aMsgFeedback = nullptr;
-  if (!m_statusFeedbackWeak) {
-    nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindowWeak));
-    if (msgWindow) msgWindow->GetStatusFeedback(aMsgFeedback);
-  } else {
-    nsCOMPtr<nsIMsgStatusFeedback> statusFeedback(
-        do_QueryReferent(m_statusFeedbackWeak));
-    statusFeedback.forget(aMsgFeedback);
-  }
-  return *aMsgFeedback ? NS_OK : NS_ERROR_NULL_POINTER;
-}
-
-NS_IMETHODIMP nsMsgMailNewsUrl::SetStatusFeedback(
-    nsIMsgStatusFeedback* aMsgFeedback) {
-  if (aMsgFeedback) m_statusFeedbackWeak = do_GetWeakReference(aMsgFeedback);
   return NS_OK;
 }
 

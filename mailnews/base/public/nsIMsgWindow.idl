@@ -5,19 +5,12 @@
 
 #include "nsISupports.idl"
 
-interface nsIMsgStatusFeedback;
-interface nsIMsgFolder;
 interface nsITransactionManager;
 interface nsIDocShell;
 interface mozIDOMWindowProxy;
-interface nsIPrompt;
-interface nsIInterfaceRequestor;
-interface nsIAuthPrompt;
-interface nsIPrincipal;
 
 [scriptable, uuid(a846fe48-4022-4296-a1c4-1dcd7eaecfe5)]
 interface nsIMsgWindow : nsISupports {
-  attribute nsIMsgStatusFeedback statusFeedback;
   attribute nsITransactionManager transactionManager;
 
   /**

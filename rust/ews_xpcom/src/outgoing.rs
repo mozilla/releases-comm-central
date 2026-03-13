@@ -23,8 +23,8 @@ use xpcom::{
     RefPtr, get_service, getter_addrefs,
     interfaces::{
         msgIAddressObject, msgIPasswordAuthModule, nsIFile, nsILoginInfo, nsILoginManager,
-        nsIMsgIdentity, nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgStatusFeedback,
-        nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
+        nsIMsgIdentity, nsIMsgOutgoingListener, nsIMsgOutgoingServer, nsIMsgProgress, nsIMsgWindow,
+        nsIPrefBranch, nsIPrefService, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
         nsMsgSocketType, nsMsgSocketTypeValue,
     },
     nsIID, xpcom_method,
@@ -670,7 +670,7 @@ impl EwsOutgoingServer {
         aSenderIdentity: *const nsIMsgIdentity,
         aSender: *const nsACString,
         aPassword: *const nsACString,
-        aStatusListener: *const nsIMsgStatusFeedback,
+        aStatusListener: *const nsIMsgProgress,
         aRequestDSN: bool,
         aMessageId: *const nsACString,
         aListener: *const nsIMsgOutgoingListener
@@ -683,7 +683,7 @@ impl EwsOutgoingServer {
         _sender_identity: &nsIMsgIdentity,
         _sender: &nsACString,
         _password: &nsACString,
-        _status_listener: Option<&nsIMsgStatusFeedback>,
+        _status_listener: Option<&nsIMsgProgress>,
         should_request_dsn: bool,
         message_id: &nsACString,
         listener: &nsIMsgOutgoingListener,

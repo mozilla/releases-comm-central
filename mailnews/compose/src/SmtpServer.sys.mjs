@@ -549,7 +549,33 @@ export class SmtpServer {
   }
 
   /**
-   * @see nsIMsgOutgoingServer
+   * Sends a mail message via the given parameters.
+   *
+   * The file to send must be in the format specified by RFC 2822 for
+   * sending data. This includes having the correct CRLF line endings
+   * throughout the file, and the <CRLF>.<CRLF> at the end of the file.
+   * sendMailMessage does no processing/additions on the file.
+   *
+   * Some protocols require custom handling for Bcc recipients (since they
+   * are excluded from the MIME content), so they are passed separately
+   * from To and Cc recipients.
+   *
+   * @param {nsIFile} messageFile - The file to send.
+   * @param {msgIAddressObject[]} recipients - The visible recipients
+   *   (i.e. To and Cc) for this message.
+   * @param {msgIAddressObject[]} bccRecipients - The Bcc recipients for this message.
+   * @param {nsIMsgIdentity} userIdentity - The identity of the sender.
+   * @param {string} sender - The senders email address.
+   * @param {?string} password - Pass this in to prevent a dialog if the
+   *    password is needed for secure transmission.
+   * @param {?nsIMsgProgress} statusListener - Where to send progress info.
+   * @param {boolean} requestDSN - Whether to request Delivery Status Notification.
+   * @param {string} messageId - The message ID for this email message.
+   * @param {nsIMsgOutgoingListener} listener - A listener that can communicate
+   *   the startand end of the message send operation. It also provides the
+   *   consumer with a handle to cancel the operation if requested (see the
+   *   documentation for `nsIMsgOutgoingListener`).
+   * @see {nsIMsgOutgoingServer}
    */
   async sendMailMessage(
     messageFile,

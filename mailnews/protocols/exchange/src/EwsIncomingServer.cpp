@@ -11,7 +11,7 @@
 #include "IEwsClient.h"
 #include "MsgPasswordAuthModule.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsIMsgStatusFeedback.h"
+#include "nsIFeedbackService.h"
 #include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
 #include "nsMsgFolderFlags.h"
@@ -386,55 +386,42 @@ nsresult EwsIncomingServer::SyncFolderList(
     syncStateToken = EmptyCString();
   }
 
-  nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
-  if (aMsgWindow) {
-    // Format the message we'll show the user while we wait for the remote
-    // operation to complete.
-    //
-    // If `postSyncCallback` also involves syncing the message list of each
-    // folder, we'll also trigger messages for individual folders, but the
-    // status bar implementation ensures messages stay up long enough that they
-    // don't "flicker" too quickly. So the resulting UX will be the following
-    // messages appearing ~1s apart:
-    //  * Looking for new messages for [account name]…
-    //  * Looking for new messages in [folder 1 name]…
-    //  * Looking for new messages in [folder 2 name]…
-    //  * etc.
-    RefPtr<intl::Localization> l10n =
-        intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
+  // Format the message we'll show the user while we wait for the remote
+  // operation to complete.
+  //
+  // If `postSyncCallback` also involves syncing the message list of each
+  // folder, we'll also trigger messages for individual folders, but the
+  // status bar implementation ensures messages stay up long enough that they
+  // don't "flicker" too quickly. So the resulting UX will be the following
+  // messages appearing ~1s apart:
+  //  * Looking for new messages for [account name]…
+  //  * Looking for new messages in [folder 1 name]…
+  //  * Looking for new messages in [folder 2 name]…
+  //  * etc.
+  RefPtr<intl::Localization> l10n =
+      intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
 
-    auto l10nArgs = dom::Optional<intl::L10nArgs>();
-    l10nArgs.Construct();
+  auto l10nArgs = dom::Optional<intl::L10nArgs>();
+  l10nArgs.Construct();
 
-    nsCString accountName;
-    rv = GetPrettyName(accountName);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCString accountName;
+  rv = GetPrettyName(accountName);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    auto idArg = l10nArgs.Value().Entries().AppendElement();
-    idArg->mKey = "accountName"_ns;
-    idArg->mValue.SetValue().SetAsUTF8String().Assign(accountName);
+  auto idArg = l10nArgs.Value().Entries().AppendElement();
+  idArg->mKey = "accountName"_ns;
+  idArg->mValue.SetValue().SetAsUTF8String().Assign(accountName);
 
-    ErrorResult error;
-    nsCString message;
-    l10n->FormatValueSync("looking-for-messages-account"_ns, l10nArgs, message,
-                          error);
+  ErrorResult error;
+  nsCString message;
+  l10n->FormatValueSync("looking-for-messages-account"_ns, l10nArgs, message,
+                        error);
 
-    // Show the message in the status bar.
-    rv = aMsgWindow->GetStatusFeedback(getter_AddRefs(feedback));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The window might not be attached to an `nsIMsgStatusFeedback`. This
-    // typically happens with new profiles, because the `nsIMsgStatusFeedback`
-    // is only added after the first account is added. Technically this should
-    // also run after the account is added, but we're might be racing against
-    // the `nsIMsgStatusFeedback` being added to the message window, in which
-    // case it might still be null by the time this runs.
-    if (feedback) {
-      rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = feedback->StartMeteors();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
+  // Show the message in the status bar.
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
+  if (feedback) {
+    feedback->ReportStatus(message, "start-meteors"_ns);
   }
 
   // Define the listener and its callbacks.
@@ -468,22 +455,23 @@ nsresult EwsIncomingServer::SyncFolderList(
         return self->SetStringValue(kSyncStateTokenProperty, syncStateToken);
       };
 
-  auto onSuccess = [feedback, postSyncCallback]() {
+  auto onSuccess = [postSyncCallback]() {
+    // Reset the status bar since the remote operation has finished.
+    nsCOMPtr<nsIFeedbackService> feedback =
+        mozilla::components::Feedback::Service();
     if (feedback) {
-      // Reset the status bar since the remote operation has finished.
-      nsresult rv = feedback->StopMeteors();
-      NS_ENSURE_SUCCESS(rv, rv);
+      feedback->ReportStatus(""_ns, "stop-meteors"_ns);
     }
-
     return postSyncCallback();
   };
 
-  auto onError = [feedback](nsresult _status) {
+  auto onError = [](nsresult _status) {
+    // Reset the status bar since the remote operation has finished.
+    nsCOMPtr<nsIFeedbackService> feedback =
+        mozilla::components::Feedback::Service();
     if (feedback) {
-      // Reset the status bar since the remote operation has finished.
-      return feedback->StopMeteors();
+      feedback->ReportStatus(""_ns, "stop-meteors"_ns);
     }
-
     return NS_OK;
   };
 

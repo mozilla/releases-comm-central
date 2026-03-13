@@ -78,8 +78,6 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
 }
 
 NS_IMETHODIMP nsMsgWindow::CloseWindow() {
-  mStatusFeedback = nullptr;
-
   nsCOMPtr<nsIWebNavigation> webnav(do_QueryReferent(mRootDocShellWeak));
   if (webnav) {
     webnav->Stop(nsIWebNavigation::STOP_NETWORK);
@@ -97,30 +95,6 @@ NS_IMETHODIMP nsMsgWindow::CloseWindow() {
 
   // in case nsMsgWindow leaks, make sure other stuff doesn't leak.
   mTransactionManager = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetStatusFeedback(
-    nsIMsgStatusFeedback** aStatusFeedback) {
-  NS_ENSURE_ARG_POINTER(aStatusFeedback);
-  NS_IF_ADDREF(*aStatusFeedback = mStatusFeedback);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(
-    nsIMsgStatusFeedback* aStatusFeedback) {
-  mStatusFeedback = aStatusFeedback;
-  nsCOMPtr<nsIDocShell> messageWindowDocShell;
-  GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
-
-  // register our status feedback object as a web progress listener
-  nsCOMPtr<nsIWebProgress> webProgress(do_GetInterface(messageWindowDocShell));
-  if (webProgress && mStatusFeedback && messageWindowDocShell) {
-    nsCOMPtr<nsIWebProgressListener> webProgressListener =
-        do_QueryInterface(mStatusFeedback);
-    webProgress->AddProgressListener(webProgressListener,
-                                     nsIWebProgress::NOTIFY_ALL);
-  }
   return NS_OK;
 }
 

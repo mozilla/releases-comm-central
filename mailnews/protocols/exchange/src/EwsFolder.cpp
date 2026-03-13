@@ -29,7 +29,7 @@
 #include "nsIMsgFolderCacheElement.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIMsgStatusFeedback.h"
+#include "nsIFeedbackService.h"
 #include "nsISpamSettings.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgWindow.h"
@@ -970,7 +970,6 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
   const auto headers = CopyableTArray<RefPtr<nsIMsgDBHdr>>{aMsgHeaders};
   const auto onHardDelete = [self = RefPtr(this), window = RefPtr(aMsgWindow),
                              copyListener = RefPtr(aCopyListener), headers]() {
-    nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
     nsresult rv = NS_OK;
     if (window) {
       // Format the message we'll show the user while we wait for the remote
@@ -999,13 +998,11 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
       l10n->FormatValueSync("deleting-message"_ns, l10nArgs, message, error);
 
       // Show the formatted message in the status bar.
-      rv = window->GetStatusFeedback(getter_AddRefs(feedback));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = feedback->StartMeteors();
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIFeedbackService> feedback =
+          mozilla::components::Feedback::Service();
+      if (feedback) {
+        feedback->ReportStatus(message, "start-meteors"_ns);
+      }
     }
 
     // Define the listener with a success lambda callback, and start the
@@ -1013,9 +1010,9 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
     RefPtr<EwsSimpleMessageListener> listener =
         new EwsSimpleFallibleMessageListener(
             headers,
-            [self, copyListener, feedback](
-                const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
-                const nsTArray<nsCString>& ids, bool useLegacyFallback) {
+            [self, copyListener](const nsTArray<RefPtr<nsIMsgDBHdr>>& srcHdrs,
+                                 const nsTArray<nsCString>& ids,
+                                 bool useLegacyFallback) {
               nsresult rv = NS_OK;
               auto listenerExitGuard =
                   GuardCopyServiceListener(copyListener, rv);
@@ -1028,19 +1025,22 @@ NS_IMETHODIMP EwsFolder::DeleteMessages(
                 self->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
               }
 
+              nsCOMPtr<nsIFeedbackService> feedback =
+                  mozilla::components::Feedback::Service();
               if (feedback) {
-                // Reset the status bar.
-                return feedback->StopMeteors();
+                feedback->ReportStatus(""_ns, "stop-meteors"_ns);
               }
 
               return NS_OK;
             },
 
-            [self, feedback](nsresult rv) {
+            [self](nsresult rv) {
               self->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
 
+              nsCOMPtr<nsIFeedbackService> feedback =
+                  mozilla::components::Feedback::Service();
               if (feedback) {
-                return feedback->StopMeteors();
+                feedback->ReportStatus(""_ns, "stop-meteors"_ns);
               }
 
               return NS_OK;
@@ -1300,58 +1300,45 @@ nsresult EwsFolder::GetTrashFolder(nsIMsgFolder** result) {
 nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
                                  nsIUrlListener* urlListener) {
   nsresult rv;
-  nsCOMPtr<nsIMsgStatusFeedback> feedback = nullptr;
-  if (window) {
-    // Get ready to show a message in the status bar.
-    rv = window->GetStatusFeedback(getter_AddRefs(feedback));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   nsCOMPtr<nsIUrlListener> syncUrlListener = urlListener;
   nsCOMPtr<nsIURI> folderUri;
   rv = FolderUri(this, getter_AddRefs(folderUri));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  auto onSyncStart = [self = RefPtr(this), syncUrlListener, folderUri,
-                      feedback]() {
+  auto onSyncStart = [self = RefPtr(this), syncUrlListener, folderUri]() {
     if (syncUrlListener) {
       syncUrlListener->OnStartRunningUrl(folderUri);
     }
 
-    // The window might not be attached to an `nsIMsgStatusFeedback`. This
-    // typically happens with new profiles, because the `nsIMsgStatusFeedback`
-    // is only added after the first account is added. Technically this should
-    // also run after the account is added, but we're might be racing against
-    // the `nsIMsgStatusFeedback` being added to the message window, in which
-    // case it might still be null by the time this runs.
-    if (feedback) {
-      // Format the message we'll show the user while we wait for the remote
-      // operation to complete.
-      RefPtr<intl::Localization> l10n = intl::Localization::Create(
-          {"messenger/activityFeedback.ftl"_ns}, true);
+    // Format the message we'll show the user while we wait for the remote
+    // operation to complete.
+    RefPtr<intl::Localization> l10n =
+        intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
 
-      auto l10nArgs = dom::Optional<intl::L10nArgs>();
-      l10nArgs.Construct();
+    auto l10nArgs = dom::Optional<intl::L10nArgs>();
+    l10nArgs.Construct();
 
-      nsCString folderName;
-      nsresult rv = self->GetLocalizedName(folderName);
-      if (NS_SUCCEEDED(rv)) {
-        auto idArg = l10nArgs.Value().Entries().AppendElement();
-        idArg->mKey = "folderName"_ns;
-        idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
+    nsCString folderName;
+    nsresult rv = self->GetLocalizedName(folderName);
+    if (NS_SUCCEEDED(rv)) {
+      auto idArg = l10nArgs.Value().Entries().AppendElement();
+      idArg->mKey = "folderName"_ns;
+      idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
 
-        ErrorResult error;
-        nsCString message;
-        l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs,
-                              message, error);
+      ErrorResult error;
+      nsCString message;
+      l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs, message,
+                            error);
 
-        feedback->ShowStatusString(NS_ConvertUTF8toUTF16(message));
-        feedback->StartMeteors();
+      nsCOMPtr<nsIFeedbackService> feedback =
+          mozilla::components::Feedback::Service();
+      if (feedback) {
+        feedback->ReportStatus(message, "start-meteors"_ns);
       }
     }
   };
 
-  auto onSyncStop = [self = RefPtr(this), syncUrlListener, folderUri, feedback](
+  auto onSyncStop = [self = RefPtr(this), syncUrlListener, folderUri](
                         nsresult status, nsTArray<nsMsgKey> const& newKeys,
                         nsTArray<RefPtr<IHeaderBlock>> const& newHeaders) {
     MOZ_ASSERT(newKeys.Length() == newHeaders.Length());
@@ -1400,8 +1387,10 @@ nsresult EwsFolder::SyncMessages(nsIMsgWindow* window,
     }
 
     // Clear up the GUI.
+    nsCOMPtr<nsIFeedbackService> feedback =
+        mozilla::components::Feedback::Service();
     if (feedback) {
-      feedback->StopMeteors();  // Also clears status message.
+      feedback->ReportStatus(""_ns, "stop-meteors"_ns);
     }
   };
 

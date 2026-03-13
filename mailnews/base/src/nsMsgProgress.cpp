@@ -5,6 +5,7 @@
 
 #include "nsMsgProgress.h"
 
+#include "nsIFeedbackService.h"
 #include "mozIDOMWindow.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/BrowsingContext.h"
@@ -20,9 +21,8 @@
 #include "nsPIDOMWindow.h"
 #include "nsXPCOM.h"
 
-NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgStatusFeedback, nsIMsgProgress,
-                  nsIWebProgressListener, nsIProgressEventSink,
-                  nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgProgress, nsIMsgProgress, nsIWebProgressListener,
+                  nsIProgressEventSink, nsISupportsWeakReference)
 
 nsMsgProgress::nsMsgProgress() {
   m_closeProgress = false;
@@ -121,12 +121,6 @@ NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress* aWebProgress,
   m_pendingStateFlags = aStateFlags;
   m_pendingStateValue = aStatus;
 
-  nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(m_msgWindow));
-  if (aStateFlags == nsIWebProgressListener::STATE_STOP && msgWindow &&
-      NS_FAILED(aStatus)) {
-    msgWindow->SetStatusFeedback(nullptr);
-  }
-
   ListenerArray::ForwardIterator iter(mListenerInfoList);
   while (iter.HasMore()) {
     ListenerInfo& info = iter.GetNext();
@@ -210,24 +204,6 @@ nsresult nsMsgProgress::ReleaseListeners() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::ShowStatusString(const nsAString& aStatus) {
-  return OnStatusChange(nullptr, nullptr, NS_OK,
-                        PromiseFlatString(aStatus).get());
-}
-
-NS_IMETHODIMP nsMsgProgress::StartMeteors() { return NS_ERROR_NOT_IMPLEMENTED; }
-
-NS_IMETHODIMP nsMsgProgress::StopMeteors() { return NS_ERROR_NOT_IMPLEMENTED; }
-
-NS_IMETHODIMP nsMsgProgress::ShowProgress(int32_t percent) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP nsMsgProgress::SetWrappedStatusFeedback(
-    nsIMsgStatusFeedback* aJSStatusFeedback) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsMsgProgress::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
   m_msgWindow = do_GetWeakReference(aMsgWindow);
   return NS_OK;
@@ -262,5 +238,10 @@ NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest* request, nsresult aStatus,
   nsresult rv = FormatStatusMessage(aStatus, host, msg);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return ShowStatusString(msg);
+  nsCOMPtr<nsIFeedbackService> feedback =
+      mozilla::components::Feedback::Service();
+  if (feedback) {
+    feedback->ReportStatus(NS_ConvertUTF16toUTF8(msg), ""_ns);
+  }
+  return NS_OK;
 }

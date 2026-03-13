@@ -20,33 +20,11 @@ var nsActWarning = Components.Constructor(
 );
 
 /**
- * This really, really, sucks. Due to mailnews widespread use of
- * nsIMsgStatusFeedback we're bound to the UI to get any sensible feedback of
- * mail sending operations. The current send later code can't hook into the
- * progress listener easily to get the state of messages being sent, so we'll
- * just have to do it here.
+ * This module provides a link between the send later service and the activity
+ * manager.
+ *
+ * @implements {nsIMsgSendLaterListener}
  */
-var sendMsgProgressListener = {
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIMsgStatusFeedback",
-    "nsISupportsWeakReference",
-  ]),
-
-  showStatusString(aStatusText) {
-    sendLaterModule.onMsgStatus(aStatusText);
-  },
-
-  startMeteors() {},
-
-  stopMeteors() {},
-
-  showProgress(aPercentage) {
-    sendLaterModule.onMessageSendProgress(0, 0, aPercentage, 0);
-  },
-};
-
-// This module provides a link between the send later service and the activity
-// manager.
 export var sendLaterModule = {
   _sendProcess: null,
   _copyProcess: null,
@@ -191,6 +169,9 @@ export var sendLaterModule = {
     aMessageSendPercent,
     aMessageCopyPercent
   ) {
+    if (!this._sendProcess) {
+      return;
+    }
     if (aMessageSendPercent < 100) {
       // Ensure we are in progress...
       if (this._sendProcess.state != Ci.nsIActivityProcess.STATE_INPROGRESS) {
@@ -260,7 +241,7 @@ export var sendLaterModule = {
   },
 
   onMsgStatus(aStatusText) {
-    this._sendProcess.setProgress(
+    this._sendProcess?.setProgress(
       aStatusText,
       this._sendProcess.workUnitComplete,
       this._sendProcess.totalWorkUnits
@@ -278,13 +259,15 @@ export var sendLaterModule = {
 
     sendLaterService.addListener(this);
 
-    // Also add the nsIMsgStatusFeedback object.
-    const statusFeedback = Cc[
-      "@mozilla.org/messenger/statusfeedback;1"
-    ].createInstance(Ci.nsIMsgStatusFeedback);
-
-    statusFeedback.setWrappedStatusFeedback(sendMsgProgressListener);
-
-    sendLaterService.statusFeedback = statusFeedback;
+    const win = Services.wm.getMostRecentWindow("");
+    if (win) {
+      win.addEventListener("message", event => {
+        if (event.data.statusMessage) {
+          this.onMsgStatus(event.data.statusMessage);
+        } else if (event.data.progress) {
+          this.onMessageSendProgress(0, 0, event.data.progress, 0);
+        }
+      });
+    }
   },
 };

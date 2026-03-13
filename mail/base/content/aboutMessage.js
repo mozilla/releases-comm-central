@@ -155,20 +155,6 @@ window.addEventListener("DOMContentLoaded", event => {
     browser.focus();
   }
 
-  // There might not be a msgWindow variable on the top window
-  // if we're e.g. showing a message in a dedicated window.
-  // For a new profile, statusFeedback will be null at this point.
-  if (top.msgWindow?.statusFeedback) {
-    // Necessary plumbing to communicate status updates back to
-    // the user.
-    browser.docShell
-      ?.QueryInterface(Ci.nsIWebProgress)
-      .addProgressListener(
-        top.msgWindow.statusFeedback,
-        Ci.nsIWebProgress.NOTIFY_ALL
-      );
-  }
-
   if (Services.prefs.getBoolPref("mail.advance_on_spacebar")) {
     getMessagePaneBrowser().addEventListener("keydown", ev => {
       if (
@@ -337,7 +323,7 @@ function displayMessage(uri, viewWrapper) {
   }
 
   const browser = getMessagePaneBrowser();
-  const browserChanged = MailE10SUtils.changeRemoteness(browser, null);
+  MailE10SUtils.changeRemoteness(browser, null);
   // If we're in a background tab, mark the docShell as inactive, so that the
   // message doesn't get marked as read by `autoMarkAsRead` or
   // `nsImapService::LoadMessage`.
@@ -357,15 +343,6 @@ function displayMessage(uri, viewWrapper) {
   sandboxFlags &= ~SANDBOXED_TOPLEVEL_NAVIGATION_USER_ACTIVATION;
   // Flags - contrary to sandbox csp values - *prevent* a given feature.
   browser.browsingContext.sandboxFlags = sandboxFlags;
-
-  if (browserChanged) {
-    browser.docShell
-      ?.QueryInterface(Ci.nsIWebProgress)
-      .addProgressListener(
-        top.msgWindow.statusFeedback,
-        Ci.nsIWebProgress.NOTIFY_ALL
-      );
-  }
 
   if (flags & Ci.nsMsgMessageFlags.Partial) {
     document.body.classList.add("partial-message");

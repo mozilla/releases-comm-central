@@ -10,7 +10,7 @@ interface nsIAuthPrompt;
 interface nsIUrlListener;
 interface nsIURI;
 interface nsIFile;
-interface nsIMsgStatusFeedback;
+interface nsIMsgProgress;
 interface nsIRequestObserver;
 interface nsIMsgIdentity;
 interface nsIMsgWindow;
@@ -147,8 +147,7 @@ interface nsIMsgOutgoingServer : nsISupports {
    * @param aSender                 The senders email address.
    * @param aPassword               Pass this in to prevent a dialog if the
    *                                password is needed for secure transmission.
-   * @param aStatusListener         A feedback listener for slightly different
-   *                                feedback on the message send status. This
+   * @param aMsgProgress            Where to send progress info. This
    *                                parameter may be null.
    * @param aRequestDSN             Whether to request Delivery Status
    *                                Notification.
@@ -165,7 +164,7 @@ interface nsIMsgOutgoingServer : nsISupports {
                        in nsIMsgIdentity aSenderIdentity,
                        in AUTF8String aSender,
                        in AUTF8String aPassword,
-                       in nsIMsgStatusFeedback aStatusListener,
+                       in nsIMsgProgress aStatusListener,
                        in boolean aRequestDSN,
                        in AUTF8String aMessageId,
                        in nsIMsgOutgoingListener aListener);

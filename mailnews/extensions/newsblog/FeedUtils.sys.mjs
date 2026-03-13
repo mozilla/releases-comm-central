@@ -461,12 +461,10 @@ export var FeedUtils = {
     aUrl = aUrl.replace(/^feed:\x2f\x2f/i, "http://");
     aUrl = aUrl.replace(/^feed:/i, "");
 
-    const msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
-
     // Make sure we aren't already subscribed to this feed before we attempt
     // to subscribe to it.
     if (FeedUtils.feedAlreadyExists(aUrl, aFolder.server)) {
-      msgWindow.statusFeedback.showStatusString(
+      MailServices.feedback.reportStatus(
         FeedUtils.strings.GetStringFromName("subscribe-feedAlreadySubscribed")
       );
       return;
@@ -477,6 +475,7 @@ export var FeedUtils = {
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
 
+    const msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
     FeedUtils.progressNotifier.init(msgWindow, true);
     FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
     feed.download(true, FeedUtils.progressNotifier);
@@ -1138,7 +1137,7 @@ export var FeedUtils = {
     // Get affected feed subscriptions - all the ones in the original folder.
     const origDS = this.getSubscriptionsDS(aOrigFolder.server);
     const affectedSubs = origDS.data.filter(sub => sub.destFolder == origURI);
-    if (affectedSubs.length == 0) {
+    if (!affectedSubs.length) {
       this.log.debug("updateFolderChangeInFeedsDS: no feedUrls in this folder");
       return;
     }
@@ -1831,7 +1830,6 @@ export var FeedUtils = {
   progressNotifier: {
     mSubscribeMode: false,
     mMsgWindow: null,
-    mStatusFeedback: null,
     mFeeds: {},
     // Keeps track of the total number of feeds we have been asked to download.
     // This number may not reflect the # of entries in our mFeeds array because
@@ -1846,20 +1844,17 @@ export var FeedUtils = {
     init(aMsgWindow, aSubscribeMode) {
       if (this.mNumPendingFeedDownloads == 0) {
         // If we aren't already in the middle of downloading feed items.
-        this.mStatusFeedback = aMsgWindow ? aMsgWindow.statusFeedback : null;
         this.mSubscribeMode = aSubscribeMode;
         this.mMsgWindow = aMsgWindow;
 
-        if (this.mStatusFeedback) {
-          this.mStatusFeedback.startMeteors();
-          this.mStatusFeedback.showStatusString(
-            FeedUtils.strings.GetStringFromName(
-              aSubscribeMode
-                ? "subscribe-validating-feed"
-                : "newsblog-getNewMsgsCheck"
-            )
-          );
-        }
+        MailServices.feedback.reportStatus(
+          FeedUtils.strings.GetStringFromName(
+            aSubscribeMode
+              ? "subscribe-validating-feed"
+              : "newsblog-getNewMsgsCheck"
+          ),
+          "start-meteors"
+        );
       }
     },
 
@@ -1871,10 +1866,9 @@ export var FeedUtils = {
      * connectivity errors applying to all urls will not.
      *
      * @param {Feed} feed - The Feed object, or a synthetic object that must
-     *                      contain members {nsIMsgFolder folder, String url}.
-     * @param {Integer} aErrorCode - The resolution code, a kNewsBlog* value.
+     *   contain members {nsIMsgFolder folder, String url}.
+     * @param {integer} aErrorCode - The resolution code, a kNewsBlog* value.
      * @param {boolean} aDisable - If true, disable/pause the feed.
-     *
      * @returns {void}
      */
     downloaded(feed, aErrorCode, aDisable) {
@@ -2044,10 +2038,7 @@ export var FeedUtils = {
         );
       }
 
-      if (this.mStatusFeedback) {
-        this.mStatusFeedback.showStatusString(message);
-        this.mStatusFeedback.stopMeteors();
-      }
+      MailServices.feedback.reportStatus(message, "stop-meteors");
 
       this.mNumPendingFeedDownloads--;
 
@@ -2060,8 +2051,8 @@ export var FeedUtils = {
         // while?  It doesn't look like we do it on a timer for newsgroups so
         // we'll follow that model.  Don't clear the status text if we just
         // dumped an error to the status bar!
-        if (aErrorCode == FeedUtils.kNewsBlogSuccess && this.mStatusFeedback) {
-          this.mStatusFeedback.showStatusString("");
+        if (aErrorCode == FeedUtils.kNewsBlogSuccess) {
+          MailServices.feedback.reportStatus("");
         }
       }
 
@@ -2084,9 +2075,9 @@ export var FeedUtils = {
       // We currently don't do anything here.  Eventually we may add status
       // text about the number of new feed articles received.
 
-      if (this.mSubscribeMode && this.mStatusFeedback) {
+      if (this.mSubscribeMode) {
         // If we are subscribing to a feed, show feed download progress.
-        this.mStatusFeedback.showStatusString(
+        MailServices.feedback.reportStatus(
           FeedUtils.strings.formatStringFromName("subscribe-gettingFeedItems", [
             aCurrentFeedItems,
             aMaxFeedItems,
@@ -2125,10 +2116,8 @@ export var FeedUtils = {
       // Fortunately the progressmeter is on a timer and only updates every so
       // often.  For the most part all of our request have initial progress
       // before the UI actually picks up a progress value.
-      if (this.mStatusFeedback) {
-        const progress = (currentProgress * 100) / maxProgress;
-        this.mStatusFeedback.showProgress(progress);
-      }
+      const progress = (currentProgress * 100) / maxProgress;
+      MailServices.feedback.reportProgress(progress);
     },
   },
 };

@@ -71,7 +71,6 @@ class nsMsgOfflineManager : public nsIMsgOfflineManager,
   offlineManagerState m_curState;
   offlineManagerOperation m_curOperation;
   nsCOMPtr<nsIMsgWindow> m_window;
-  nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
   nsCOMPtr<nsIStringBundle> mStringBundle;
   nsCOMPtr<nsISupports> mOfflineImapSync;
 };

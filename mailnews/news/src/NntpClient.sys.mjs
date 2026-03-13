@@ -331,7 +331,7 @@ export class NntpClient {
       }
     }
 
-    this._msgWindow?.statusFeedback?.showStatusString("");
+    MailServices.feedback.reportStatus("");
     this.quit(event.errorCode);
   };
 
@@ -553,6 +553,8 @@ export class NntpClient {
 
   /**
    * Send `QUIT` request to the server.
+   *
+   * @param {nsresult} status
    */
   quit(status = Cr.NS_OK) {
     this._sendCommand("QUIT");
@@ -592,6 +594,8 @@ export class NntpClient {
 
   /**
    * Send `MODE READER` request to the server.
+   *
+   * @param {Function} nextAction
    */
   _actionModeReader(nextAction) {
     if (this._inReadingMode) {
@@ -667,6 +671,8 @@ export class NntpClient {
 
   /**
    * Consume the status line of LISTGROUP response.
+   *
+   * @param {NntpResponse} res - LISTGROUP response received from the server.
    */
   _actionListgroupResponse = res => {
     this._nextAction = this._actionListgroupDataResponse;
@@ -694,6 +700,8 @@ export class NntpClient {
 
   /**
    * Send `XOVER` request to the server.
+   *
+   * @param {NntpResponse} res - The server response.
    */
   _actionXOver = res => {
     const [count, low, high] = res.statusText.split(" ");
@@ -1053,7 +1061,7 @@ export class NntpClient {
     const statusMessage = lazy.l10n.formatValueSync(l10nId, {
       host: this._server.hostName,
     });
-    this._msgWindow?.statusFeedback?.showStatusString(statusMessage);
+    MailServices.feedback.reportStatus(statusMessage);
   }
 
   /**
@@ -1082,6 +1090,8 @@ export class NntpClient {
 
   /**
    * Close the connection and do necessary cleanup.
+   *
+   * @param {nsresult} [status=Cr.NS_OK]
    */
   _actionDone = (status = Cr.NS_OK) => {
     if (this._done) {
@@ -1105,7 +1115,7 @@ export class NntpClient {
    * @param {object} params - Params to format the string.
    */
   _updateStatus(statusName, params) {
-    this._msgWindow?.statusFeedback?.showStatusString(
+    MailServices.feedback.reportStatus(
       lazy.messengerBundle.formatStringFromName("statusMessage", [
         this._server.prettyName,
         lazy.l10n.formatValueSync(statusName, params),

@@ -29,8 +29,6 @@ var kCancelArticle =
   "\n" +
   "This message was cancelled from within ";
 
-var dummyMsgWindow;
-
 add_setup(function setupTest() {
   registerAlertTestUtils();
 
@@ -44,8 +42,6 @@ add_setup(function setupTest() {
   identity.fullName = "Normal Person";
   identity.email = "fake@acme.invalid";
   MailServices.accounts.findAccountForServer(localserver).addIdentity(identity);
-
-  dummyMsgWindow = new DummyMsgWindow();
 });
 
 add_task(async function test_newMsgs() {
@@ -64,11 +60,11 @@ add_task(async function test_cancel() {
   const db = folder.msgDatabase;
   const hdr = db.getMsgHdrForKey(4);
 
-  folder.QueryInterface(Ci.nsIMsgNewsFolder).cancelMessage(hdr, dummyMsgWindow);
-  await dummyMsgWindow.promise;
-
-  // Reset promise state.
-  dummyMsgWindow.deferPromise();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  folder
+    .QueryInterface(Ci.nsIMsgNewsFolder)
+    .cancelMessage(hdr, urlListener, null);
+  await urlListener.promise;
 
   Assert.equal(folder.getTotalMessages(false), 7);
 
@@ -261,41 +257,6 @@ add_task(function cleanUp() {
   localserver.closeCachedConnections();
 });
 
-class DummyMsgWindow {
-  QueryInterface = ChromeUtils.generateQI([
-    "nsIMsgWindow",
-    "nsISupportsWeakReference",
-  ]);
-
-  constructor() {
-    this._deferredPromise = Promise.withResolvers();
-  }
-
-  get statusFeedback() {
-    const scopedThis = this;
-    return {
-      startMeteors() {},
-      stopMeteors() {
-        scopedThis._deferredPromise.resolve(true);
-      },
-      showProgress() {},
-    };
-  }
-
-  get promptDialog() {
-    return alertUtilsPrompts;
-  }
-
-  deferPromise() {
-    this._deferredPromise = Promise.withResolvers();
-  }
-
-  get promise() {
-    return this._deferredPromise.promise;
-  }
-}
-
-/* exported alert, confirmEx */
 // Prompts for cancel.
 function alertPS() {}
 function confirmExPS() {
