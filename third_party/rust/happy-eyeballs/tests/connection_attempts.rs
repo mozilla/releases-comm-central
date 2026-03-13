@@ -142,7 +142,7 @@ fn successful_connection_cancels_others() {
                 id: Id::from(4),
                 endpoint: Endpoint {
                     address: SocketAddr::new(V6_ADDR_2.into(), PORT),
-                    protocol: ConnectionAttemptHttpVersions::H2OrH1,
+                    http_version: ConnectionAttemptHttpVersions::H2OrH1,
                     ech_config: None,
                 },
             }),

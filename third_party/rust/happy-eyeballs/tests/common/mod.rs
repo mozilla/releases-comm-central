@@ -2,7 +2,7 @@
 
 use std::{
     collections::HashSet,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     time::Instant,
 };
 
@@ -60,7 +60,7 @@ pub fn in_dns_https_positive(id: Id) -> Input {
         result: DnsResult::Https(Ok(vec![ServiceInfo {
             priority: 1,
             target_name: HOSTNAME.into(),
-            alpn_protocols: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
+            alpn_http_versions: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
             ipv6_hints: vec![],
             ipv4_hints: vec![],
             ech_config: None,
@@ -75,7 +75,7 @@ pub fn in_dns_https_positive_no_alpn(id: Id) -> Input {
         result: DnsResult::Https(Ok(vec![ServiceInfo {
             priority: 1,
             target_name: HOSTNAME.into(),
-            alpn_protocols: HashSet::new(),
+            alpn_http_versions: HashSet::new(),
             ipv6_hints: vec![],
             ipv4_hints: vec![],
             ech_config: None,
@@ -90,7 +90,7 @@ pub fn in_dns_https_positive_v6_hints(id: Id) -> Input {
         result: DnsResult::Https(Ok(vec![ServiceInfo {
             priority: 1,
             target_name: HOSTNAME.into(),
-            alpn_protocols: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
+            alpn_http_versions: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
             ipv6_hints: vec![V6_ADDR],
             ipv4_hints: vec![],
             ech_config: None,
@@ -105,7 +105,7 @@ pub fn in_dns_https_positive_svc1(id: Id) -> Input {
         result: DnsResult::Https(Ok(vec![ServiceInfo {
             priority: 1,
             target_name: SVC1.into(),
-            alpn_protocols: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
+            alpn_http_versions: HashSet::from([HttpVersion::H3, HttpVersion::H2]),
             ipv6_hints: vec![V6_ADDR_2],
             ipv4_hints: vec![],
             ech_config: None,
@@ -197,7 +197,7 @@ pub fn out_attempt_v6_h1_h2(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V6_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H2OrH1,
+            http_version: ConnectionAttemptHttpVersions::H2OrH1,
             ech_config: None,
         },
     }
@@ -208,7 +208,7 @@ pub fn out_attempt_v6_h2(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V6_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H2,
+            http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
     }
@@ -219,7 +219,7 @@ pub fn out_attempt_v6_h3(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V6_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H3,
+            http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
     }
@@ -230,7 +230,7 @@ pub fn out_attempt_v6_h3_custom_port(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT),
-            protocol: ConnectionAttemptHttpVersions::H3,
+            http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
     }
@@ -241,7 +241,7 @@ pub fn out_attempt_v4_h1_h2(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V4_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H2OrH1,
+            http_version: ConnectionAttemptHttpVersions::H2OrH1,
             ech_config: None,
         },
     }
@@ -252,7 +252,7 @@ pub fn out_attempt_v4_h2(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V4_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H2,
+            http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
     }
@@ -263,7 +263,7 @@ pub fn out_attempt_v4_h3(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V4_ADDR.into(), PORT),
-            protocol: ConnectionAttemptHttpVersions::H3,
+            http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
     }
@@ -274,7 +274,7 @@ pub fn out_attempt_v4_h3_custom_port(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V4_ADDR.into(), CUSTOM_PORT),
-            protocol: ConnectionAttemptHttpVersions::H3,
+            http_version: ConnectionAttemptHttpVersions::H3,
             ech_config: None,
         },
     }
@@ -285,7 +285,7 @@ pub fn out_attempt_v6_h2_custom_port(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V6_ADDR.into(), CUSTOM_PORT),
-            protocol: ConnectionAttemptHttpVersions::H2,
+            http_version: ConnectionAttemptHttpVersions::H2,
             ech_config: None,
         },
     }
@@ -296,7 +296,23 @@ pub fn out_attempt_v4_h2_custom_port(id: Id) -> Output {
         id,
         endpoint: Endpoint {
             address: SocketAddr::new(V4_ADDR.into(), CUSTOM_PORT),
-            protocol: ConnectionAttemptHttpVersions::H2,
+            http_version: ConnectionAttemptHttpVersions::H2,
+            ech_config: None,
+        },
+    }
+}
+
+pub fn out_attempt(
+    id: Id,
+    addr: IpAddr,
+    port: u16,
+    http_version: ConnectionAttemptHttpVersions,
+) -> Output {
+    Output::AttemptConnection {
+        id,
+        endpoint: Endpoint {
+            address: SocketAddr::new(addr, port),
+            http_version,
             ech_config: None,
         },
     }

@@ -2674,6 +2674,7 @@ dependencies = [
  "pdf-trust-anchors",
  "prefs_parser",
  "processtools",
+ "profiler_helper",
  "qcms",
  "qwac-trust-anchors",
  "rsdparsa_capi",
@@ -2925,8 +2926,8 @@ dependencies = [
 
 [[package]]
 name = "happy-eyeballs"
-version = "0.1.0"
-source = "git+https://github.com/mozilla/happy-eyeballs?tag=v0.1.0#68741fb9b59b48ba995808bbbe32d6c8bf6933e8"
+version = "0.2.0"
+source = "git+https://github.com/mozilla/happy-eyeballs?tag=v0.2.0#f4f9c5b7b3002103f4aef4335a80b840ad02624b"
 dependencies = [
  "log",
  "thiserror 2.0.12",
@@ -3507,8 +3508,6 @@ dependencies = [
  "encoding_c_mem",
  "mozglue-static",
  "normalizer_glue",
- "properties_glue",
- "unicode-bidi-ffi",
 ]
 
 [[package]]
@@ -5357,15 +5356,6 @@ name = "profiling"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74605f360ce573babfe43964cbe520294dcb081afbf8c108fc6e23036b4da2df"
-
-[[package]]
-name = "properties_glue"
-version = "0.1.0"
-dependencies = [
- "icu_casemap",
- "icu_collections",
- "icu_properties",
-]
 
 [[package]]
 name = "prost"

@@ -116,7 +116,7 @@ impl DnsResult {
     fn flatten_into_endpoints(
         &self,
         port: u16,
-        protocols: &HashSet<ConnectionAttemptHttpVersions>,
+        http_versions: &HashSet<ConnectionAttemptHttpVersions>,
     ) -> Vec<Endpoint> {
         match self {
             DnsResult::Https(_) => unreachable!(),
@@ -126,9 +126,9 @@ impl DnsResult {
                 .into_iter()
                 .flat_map(|addrs| {
                     addrs.iter().cloned().flat_map(|ip| {
-                        protocols.iter().map(move |p| Endpoint {
+                        http_versions.iter().map(move |v| Endpoint {
                             address: SocketAddr::new(IpAddr::V6(ip), port),
-                            protocol: *p,
+                            http_version: *v,
                             ech_config: None,
                         })
                     })
@@ -141,9 +141,9 @@ impl DnsResult {
                 .into_iter()
                 .flat_map(|addrs| {
                     addrs.iter().cloned().flat_map(|ip| {
-                        protocols.iter().map(move |p| Endpoint {
+                        http_versions.iter().map(move |v| Endpoint {
                             address: SocketAddr::new(IpAddr::V4(ip), port),
-                            protocol: *p,
+                            http_version: *v,
                             ech_config: None,
                         })
                     })
@@ -229,7 +229,7 @@ pub enum DnsRecordType {
 pub struct ServiceInfo {
     pub priority: u16,
     pub target_name: TargetName,
-    pub alpn_protocols: HashSet<HttpVersion>,
+    pub alpn_http_versions: HashSet<HttpVersion>,
     pub ech_config: Option<Vec<u8>>,
     pub ipv4_hints: Vec<Ipv4Addr>,
     pub ipv6_hints: Vec<Ipv6Addr>,
@@ -243,8 +243,8 @@ impl Debug for ServiceInfo {
         debug_struct.field("priority", &self.priority);
         debug_struct.field("target", &self.target_name);
 
-        if !self.alpn_protocols.is_empty() {
-            debug_struct.field("alpn", &self.alpn_protocols);
+        if !self.alpn_http_versions.is_empty() {
+            debug_struct.field("alpn", &self.alpn_http_versions);
         }
 
         if self.ech_config.is_some() {
@@ -269,7 +269,7 @@ impl ServiceInfo {
         port: u16,
         ipv4_addrs: &[Ipv4Addr],
         ipv6_addrs: &[Ipv6Addr],
-        protocols: &HashSet<ConnectionAttemptHttpVersions>,
+        http_versions: &HashSet<ConnectionAttemptHttpVersions>,
     ) -> Vec<Endpoint> {
         let port = self.port.unwrap_or(port);
 
@@ -291,9 +291,9 @@ impl ServiceInfo {
             &[]
         };
 
-        let hint_protocols: HashSet<ConnectionAttemptHttpVersions> =
-            ConnectionAttemptHttpVersions::from_protocols(&self.alpn_protocols)
-                .intersection(protocols)
+        let hint_http_versions: HashSet<ConnectionAttemptHttpVersions> =
+            ConnectionAttemptHttpVersions::from_alpn(&self.alpn_http_versions)
+                .intersection(http_versions)
                 .cloned()
                 .collect();
 
@@ -305,11 +305,13 @@ impl ServiceInfo {
             .flat_map(|ip| {
                 // TODO: way around allocation?
                 let ech_config = self.ech_config.clone();
-                hint_protocols.iter().map(move |&protocol| Endpoint {
-                    address: SocketAddr::new(ip, port),
-                    protocol,
-                    ech_config: ech_config.clone(),
-                })
+                hint_http_versions
+                    .iter()
+                    .map(move |&http_version| Endpoint {
+                        address: SocketAddr::new(ip, port),
+                        http_version,
+                        ech_config: ech_config.clone(),
+                    })
             });
 
         let addrs = ipv6_addrs
@@ -320,9 +322,9 @@ impl ServiceInfo {
             .flat_map(|ip| {
                 // TODO: way around allocation?
                 let ech_config = self.ech_config.clone();
-                protocols.iter().map(move |p| Endpoint {
+                http_versions.iter().map(move |v| Endpoint {
                     address: SocketAddr::new(ip, port),
-                    protocol: *p,
+                    http_version: *v,
                     ech_config: ech_config.clone(),
                 })
             });
@@ -338,7 +340,7 @@ pub enum HttpVersion {
     H1,
 }
 
-/// Possible connection attempt protocol combinations.
+/// Possible connection attempt HTTP version combinations.
 ///
 /// While on a QUIC connection attempts one can only use HTTP/3, on a TCP
 /// connection attempt one might either negotiate HTTP/2 or HTTP/1.1 via TLS
@@ -351,18 +353,28 @@ pub enum ConnectionAttemptHttpVersions {
     H1,
 }
 
+impl From<HttpVersion> for ConnectionAttemptHttpVersions {
+    fn from(v: HttpVersion) -> Self {
+        match v {
+            HttpVersion::H3 => ConnectionAttemptHttpVersions::H3,
+            HttpVersion::H2 => ConnectionAttemptHttpVersions::H2,
+            HttpVersion::H1 => ConnectionAttemptHttpVersions::H1,
+        }
+    }
+}
+
 impl ConnectionAttemptHttpVersions {
     /// [`HttpVersion::H2`] and [`HttpVersion::H1`] into [`ConnectionAttemptHttpVersions::H2OrH1`].
-    fn from_protocols(protocols: &HashSet<HttpVersion>) -> HashSet<ConnectionAttemptHttpVersions> {
+    fn from_alpn(http_versions: &HashSet<HttpVersion>) -> HashSet<ConnectionAttemptHttpVersions> {
         let mut combinations = HashSet::new();
-        if protocols.contains(&HttpVersion::H3) {
+        if http_versions.contains(&HttpVersion::H3) {
             combinations.insert(ConnectionAttemptHttpVersions::H3);
         }
-        if protocols.contains(&HttpVersion::H2) && protocols.contains(&HttpVersion::H1) {
+        if http_versions.contains(&HttpVersion::H2) && http_versions.contains(&HttpVersion::H1) {
             combinations.insert(ConnectionAttemptHttpVersions::H2OrH1);
-        } else if protocols.contains(&HttpVersion::H2) {
+        } else if http_versions.contains(&HttpVersion::H2) {
             combinations.insert(ConnectionAttemptHttpVersions::H2);
-        } else if protocols.contains(&HttpVersion::H1) {
+        } else if http_versions.contains(&HttpVersion::H1) {
             combinations.insert(ConnectionAttemptHttpVersions::H1);
         }
         combinations
@@ -456,7 +468,7 @@ pub enum IpPreference {
 pub struct AltSvc {
     pub host: Option<String>,
     pub port: Option<u16>,
-    pub protocol: HttpVersion,
+    pub http_version: HttpVersion,
 }
 
 // TODO: Should we make HappyEyeballs proxy aware? E.g. should it know that the
@@ -533,18 +545,18 @@ impl ConnectionAttempt {
     }
 }
 
-/// All information (IP, protocol, ...) needed to attempt a connection to a specific endpoint.
+/// All information (IP, HTTP version, ...) needed to attempt a connection to a specific endpoint.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Endpoint {
     pub address: SocketAddr,
-    pub protocol: ConnectionAttemptHttpVersions,
+    pub http_version: ConnectionAttemptHttpVersions,
     pub ech_config: Option<Vec<u8>>,
 }
 
 impl Endpoint {
     fn sort_with_config(&self, other: &Endpoint, network_config: &NetworkConfig) -> Ordering {
-        if self.protocol != other.protocol {
-            return self.protocol.cmp(&other.protocol);
+        if self.http_version != other.http_version {
+            return self.http_version.cmp(&other.http_version);
         }
 
         let order = self
@@ -988,18 +1000,18 @@ impl HappyEyeballs {
     fn next_endpoint_to_attempt(&self) -> Option<Endpoint> {
         let origin_domain = match &self.host {
             Host::Ipv4(ipv4_addr) => {
-                let protocols = self.connection_attempt_protocols();
+                let http_versions = self.connection_attempt_http_versions();
                 return Some(Endpoint {
                     address: SocketAddr::new(IpAddr::V4(*ipv4_addr), self.port),
-                    protocol: *protocols.iter().next()?,
+                    http_version: *http_versions.iter().next()?,
                     ech_config: None,
                 });
             }
             Host::Ipv6(ipv6_addr) => {
-                let protocols = self.connection_attempt_protocols();
+                let http_versions = self.connection_attempt_http_versions();
                 return Some(Endpoint {
                     address: SocketAddr::new(IpAddr::V6(*ipv6_addr), self.port),
-                    protocol: *protocols.iter().next()?,
+                    http_version: *http_versions.iter().next()?,
                     ech_config: None,
                 });
             }
@@ -1022,7 +1034,7 @@ impl HappyEyeballs {
         service_infos.sort_by_key(|i| i.priority);
 
         // build a sorted endpoints per ServiceInfo.
-        let protocols = self.connection_attempt_protocols();
+        let http_versions = self.connection_attempt_http_versions();
         let mut endpoints: Vec<Endpoint> = Vec::new();
         for info in &service_infos {
             let ipv4_addrs: Vec<Ipv4Addr> = self
@@ -1054,7 +1066,43 @@ impl HappyEyeballs {
                 .cloned()
                 .collect();
             let mut bucket =
-                info.flatten_into_endpoints(self.port, &ipv4_addrs, &ipv6_addrs, &protocols);
+                info.flatten_into_endpoints(self.port, &ipv4_addrs, &ipv6_addrs, &http_versions);
+            bucket.sort_by(|a, b| a.sort_with_config(b, &self.network_config));
+            endpoints.extend(bucket);
+        }
+
+        // Alt-svc endpoints with custom port.
+        //
+        // These use the origin domain's resolved addresses at the alt-svc port.
+        // HTTPS record endpoints above take precedence by virtue of ordering.
+        for alt_svc in &self.network_config.alt_svc {
+            if alt_svc.host.is_some() {
+                // Alt-svc host resolution not yet implemented.
+                continue;
+            }
+            let Some(alt_port) = alt_svc.port else {
+                continue;
+            };
+
+            let alt_http_version: ConnectionAttemptHttpVersions = alt_svc.http_version.into();
+            if !http_versions.contains(&alt_http_version) {
+                continue;
+            }
+            let alt_http_versions = HashSet::from([alt_http_version]);
+
+            let mut bucket: Vec<Endpoint> = self
+                .dns_queries
+                .iter()
+                .filter_map(|q| match q {
+                    DnsQuery::Completed {
+                        target_name,
+                        response: r @ (DnsResult::Aaaa(_) | DnsResult::A(_)),
+                        ..
+                    } if target_name.as_str() == origin_domain => Some(r),
+                    _ => None,
+                })
+                .flat_map(|r| r.flatten_into_endpoints(alt_port, &alt_http_versions))
+                .collect();
             bucket.sort_by(|a, b| a.sort_with_config(b, &self.network_config));
             endpoints.extend(bucket);
         }
@@ -1071,7 +1119,7 @@ impl HappyEyeballs {
                 } if target_name.as_str() == origin_domain => Some(r),
                 _ => None,
             })
-            .flat_map(|r| r.flatten_into_endpoints(self.port, &protocols))
+            .flat_map(|r| r.flatten_into_endpoints(self.port, &http_versions))
             .collect();
         bucket.sort_by(|a, b| a.sort_with_config(b, &self.network_config));
         endpoints.extend(bucket);
@@ -1102,49 +1150,53 @@ impl HappyEyeballs {
             .any(|a| a.state == ConnectionState::InProgress)
     }
 
-    fn connection_attempt_protocols(&self) -> HashSet<ConnectionAttemptHttpVersions> {
-        let mut protocols = HashSet::new();
+    fn connection_attempt_http_versions(&self) -> HashSet<ConnectionAttemptHttpVersions> {
+        let mut http_versions = HashSet::new();
 
-        // Add protocols from DNS HTTPS records
-        protocols.extend(
+        // Add HTTP versions from DNS HTTPS records
+        http_versions.extend(
             self.dns_queries
                 .iter()
                 .filter_map(|q| match q {
                     DnsQuery::Completed {
                         response: DnsResult::Https(Ok(infos)),
                         ..
-                    } => Some(infos.iter().flat_map(|i| i.alpn_protocols.iter().cloned())),
+                    } => Some(
+                        infos
+                            .iter()
+                            .flat_map(|i| i.alpn_http_versions.iter().cloned()),
+                    ),
                     _ => None,
                 })
                 .flatten(),
         );
 
-        // If HTTPS DNS records didn't specify any protocols, default to HTTP/2, and HTTP/1.1.
-        if protocols.is_empty() {
-            protocols.insert(HttpVersion::H2);
-            protocols.insert(HttpVersion::H1);
+        // If HTTPS DNS records didn't specify any HTTP versions, default to HTTP/2, and HTTP/1.1.
+        if http_versions.is_empty() {
+            http_versions.insert(HttpVersion::H2);
+            http_versions.insert(HttpVersion::H1);
         }
 
-        // Add protocols from alt-svc
+        // Add HTTP versions from alt-svc
         for alt_svc in &self.network_config.alt_svc {
             debug_assert!(
-                alt_svc.host.is_none() && alt_svc.port.is_none(),
-                "alt-svc with custom host/port not yet supported"
+                alt_svc.host.is_none(),
+                "alt-svc with custom host not yet supported"
             );
-            protocols.insert(alt_svc.protocol);
+            http_versions.insert(alt_svc.http_version);
         }
 
         if !self.network_config.http_versions.h3 {
-            protocols.remove(&HttpVersion::H3);
+            http_versions.remove(&HttpVersion::H3);
         }
         if !self.network_config.http_versions.h2 {
-            protocols.remove(&HttpVersion::H2);
+            http_versions.remove(&HttpVersion::H2);
         }
         if !self.network_config.http_versions.h1 {
-            protocols.remove(&HttpVersion::H1);
+            http_versions.remove(&HttpVersion::H1);
         }
 
-        ConnectionAttemptHttpVersions::from_protocols(&protocols)
+        ConnectionAttemptHttpVersions::from_alpn(&http_versions)
     }
 
     /// Whether to move on to the connection attempt phase based on the received
